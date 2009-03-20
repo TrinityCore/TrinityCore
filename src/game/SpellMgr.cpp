@@ -534,7 +534,7 @@ bool IsPositiveEffect(uint32 spellId, uint32 effIndex, bool deep)
 
     switch(spellproto->Mechanic)
     {
-        case MECHANIC_SHIELD:
+        case MECHANIC_IMMUNE_SHIELD:
             return true;
         default:
             break;

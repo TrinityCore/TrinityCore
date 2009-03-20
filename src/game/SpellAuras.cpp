@@ -2078,6 +2078,14 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                         caster->CastSpell(m_target, GetModifier()->m_amount, true);
                     return;
                 }
+                // Focused Magic
+                if(m_spellProto->Id == 54646)
+                {
+                    // only on remove by crit
+                    if(caster && m_removeMode == AURA_REMOVE_BY_DEFAULT && GetAuraDuration()>0)
+                        caster->CastSpell(caster,54648, true);
+                    return;
+                }
                 break;
         }
     }
