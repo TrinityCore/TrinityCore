@@ -1578,9 +1578,9 @@ void WorldObject::AddObjectToRemoveList()
     map->AddObjectToRemoveList(this);
 }
 
-Creature* WorldObject::SummonCreature(uint32 id, float x, float y, float z, float ang,TempSummonType spwtype,uint32 despwtime)
+TempSummon* WorldObject::SummonCreature(uint32 id, float x, float y, float z, float ang,TempSummonType spwtype,uint32 despwtime)
 {
-    TemporarySummon* pCreature = new TemporarySummon(GetGUID());
+    TempSummon* pCreature = new TempSummon(GetGUID());
 
     uint32 team = 0;
     if (GetTypeId()==TYPEID_PLAYER)
@@ -1625,12 +1625,13 @@ Vehicle* WorldObject::SummonVehicle(uint32 entry, float x, float y, float z, flo
 {
     CreatureInfo const *ci = objmgr.GetCreatureTemplate(entry);
     if(!ci)
-        return false;
+        return NULL;
 
     uint32 id = ci->spells[7]; //temp store id here
+    if(!id) id = 156;
     VehicleEntry const *ve = sVehicleStore.LookupEntry(id);
     if(!ve)
-        return false;
+        return NULL;
 
     Vehicle *v = new Vehicle;
     Map *map = GetMap();

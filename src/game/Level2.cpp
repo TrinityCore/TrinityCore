@@ -157,20 +157,280 @@ bool ChatHandler::HandleUnmuteCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleTargetObjectCommand(const char* args)
+bool ChatHandler::HandleGoTriggerCommand(const char* args)
+{
+    Player* _player = m_session->GetPlayer();
+
+    if (!*args)
+        return false;
+
+    char *atId = strtok((char*)args, " ");
+    if (!atId)
+        return false;
+
+    int32 i_atId = atoi(atId);
+
+    if(!i_atId)
+        return false;
+
+    AreaTriggerEntry const* at = sAreaTriggerStore.LookupEntry(i_atId);
+    if (!at)
+    {
+        PSendSysMessage(LANG_COMMAND_GOAREATRNOTFOUND,i_atId);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    if(!MapManager::IsValidMapCoord(at->mapid,at->x,at->y,at->z))
+    {
+        PSendSysMessage(LANG_INVALID_TARGET_COORD,at->x,at->y,at->mapid);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    // stop flight if need
+    if(_player->isInFlight())
+    {
+        _player->GetMotionMaster()->MovementExpired();
+        _player->m_taxi.ClearTaxiDestinations();
+    }
+    // save only in non-flight case
+    else
+        _player->SaveRecallPosition();
+
+    _player->TeleportTo(at->mapid, at->x, at->y, at->z, _player->GetOrientation());
+    return true;
+}
+
+bool ChatHandler::HandleGoGraveyardCommand(const char* args)
+{
+    Player* _player = m_session->GetPlayer();
+
+    if (!*args)
+        return false;
+
+    char *gyId = strtok((char*)args, " ");
+    if (!gyId)
+        return false;
+
+    int32 i_gyId = atoi(gyId);
+
+    if(!i_gyId)
+        return false;
+
+    WorldSafeLocsEntry const* gy = sWorldSafeLocsStore.LookupEntry(i_gyId);
+    if (!gy)
+    {
+        PSendSysMessage(LANG_COMMAND_GRAVEYARDNOEXIST,i_gyId);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    if(!MapManager::IsValidMapCoord(gy->map_id,gy->x,gy->y,gy->z))
+    {
+        PSendSysMessage(LANG_INVALID_TARGET_COORD,gy->x,gy->y,gy->map_id);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    // stop flight if need
+    if(_player->isInFlight())
+    {
+        _player->GetMotionMaster()->MovementExpired();
+        _player->m_taxi.ClearTaxiDestinations();
+    }
+    // save only in non-flight case
+    else
+        _player->SaveRecallPosition();
+
+    _player->TeleportTo(gy->map_id, gy->x, gy->y, gy->z, _player->GetOrientation());
+    return true;
+}
+
+/** \brief Teleport the GM to the specified creature
+*
+* .gocreature <GUID>      --> TP using creature.guid
+* .gocreature azuregos    --> TP player to the mob with this name
+*                             Warning: If there is more than one mob with this name
+*                                      you will be teleported to the first one that is found.
+* .gocreature id 6109     --> TP player to the mob, that has this creature_template.entry
+*                             Warning: If there is more than one mob with this "id"
+*                                      you will be teleported to the first one that is found.
+*/
+//teleport to creature
+bool ChatHandler::HandleGoCreatureCommand(const char* args)
+{
+    if(!*args)
+        return false;
+    Player* _player = m_session->GetPlayer();
+
+    // "id" or number or [name] Shift-click form |color|Hcreature_entry:creature_id|h[name]|h|r
+    char* pParam1 = extractKeyFromLink((char*)args,"Hcreature");
+    if (!pParam1)
+        return false;
+
+    std::ostringstream whereClause;
+
+    // User wants to teleport to the NPC's template entry
+    if( strcmp(pParam1, "id") == 0 )
+    {
+        //sLog.outError("DEBUG: ID found");
+
+        // Get the "creature_template.entry"
+        // number or [name] Shift-click form |color|Hcreature_entry:creature_id|h[name]|h|r
+        char* tail = strtok(NULL,"");
+        if(!tail)
+            return false;
+        char* cId = extractKeyFromLink(tail,"Hcreature_entry");
+        if(!cId)
+            return false;
+
+        int32 tEntry = atoi(cId);
+        //sLog.outError("DEBUG: ID value: %d", tEntry);
+        if(!tEntry)
+            return false;
+
+        whereClause << "WHERE id = '" << tEntry << "'";
+    }
+    else
+    {
+        //sLog.outError("DEBUG: ID *not found*");
+
+        int32 guid = atoi(pParam1);
+
+        // Number is invalid - maybe the user specified the mob's name
+        if(!guid)
+        {
+            std::string name = pParam1;
+            WorldDatabase.escape_string(name);
+            whereClause << ", creature_template WHERE creature.id = creature_template.entry AND creature_template.name "_LIKE_" '" << name << "'";
+        }
+        else
+        {
+            whereClause <<  "WHERE guid = '" << guid << "'";
+        }
+    }
+    //sLog.outError("DEBUG: %s", whereClause.c_str());
+
+    QueryResult *result = WorldDatabase.PQuery("SELECT position_x,position_y,position_z,orientation,map FROM creature %s", whereClause.str().c_str() );
+    if (!result)
+    {
+        SendSysMessage(LANG_COMMAND_GOCREATNOTFOUND);
+        SetSentErrorMessage(true);
+        return false;
+    }
+    if( result->GetRowCount() > 1 )
+    {
+        SendSysMessage(LANG_COMMAND_GOCREATMULTIPLE);
+    }
+
+    Field *fields = result->Fetch();
+    float x = fields[0].GetFloat();
+    float y = fields[1].GetFloat();
+    float z = fields[2].GetFloat();
+    float ort = fields[3].GetFloat();
+    int mapid = fields[4].GetUInt16();
+
+    delete result;
+
+    if(!MapManager::IsValidMapCoord(mapid,x,y,z,ort))
+    {
+        PSendSysMessage(LANG_INVALID_TARGET_COORD,x,y,mapid);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    // stop flight if need
+    if(_player->isInFlight())
+    {
+        _player->GetMotionMaster()->MovementExpired();
+        _player->m_taxi.ClearTaxiDestinations();
+    }
+    // save only in non-flight case
+    else
+        _player->SaveRecallPosition();
+
+    _player->TeleportTo(mapid, x, y, z, ort);
+    return true;
+}
+
+//teleport to gameobject
+bool ChatHandler::HandleGoObjectCommand(const char* args)
+{
+    if(!*args)
+        return false;
+
+    Player* _player = m_session->GetPlayer();
+
+    // number or [name] Shift-click form |color|Hgameobject:go_guid|h[name]|h|r
+    char* cId = extractKeyFromLink((char*)args,"Hgameobject");
+    if(!cId)
+        return false;
+
+    int32 guid = atoi(cId);
+    if(!guid)
+        return false;
+
+    float x, y, z, ort;
+    int mapid;
+
+    // by DB guid
+    if (GameObjectData const* go_data = objmgr.GetGOData(guid))
+    {
+        x = go_data->posX;
+        y = go_data->posY;
+        z = go_data->posZ;
+        ort = go_data->orientation;
+        mapid = go_data->mapid;
+    }
+    else
+    {
+        SendSysMessage(LANG_COMMAND_GOOBJNOTFOUND);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    if(!MapManager::IsValidMapCoord(mapid,x,y,z,ort))
+    {
+        PSendSysMessage(LANG_INVALID_TARGET_COORD,x,y,mapid);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    // stop flight if need
+    if(_player->isInFlight())
+    {
+        _player->GetMotionMaster()->MovementExpired();
+        _player->m_taxi.ClearTaxiDestinations();
+    }
+    // save only in non-flight case
+    else
+        _player->SaveRecallPosition();
+
+    _player->TeleportTo(mapid, x, y, z, ort);
+    return true;
+}
+
+bool ChatHandler::HandleGameObjectTargetCommand(const char* args)
 {
     Player* pl = m_session->GetPlayer();
     QueryResult *result;
     GameEventMgr::ActiveEvents const& activeEventsList = gameeventmgr.GetActiveEventList();
     if(*args)
     {
-        int32 id = atoi((char*)args);
+        // number or [name] Shift-click form |color|Hgameobject_entry:go_id|h[name]|h|r
+        char* cId = extractKeyFromLink((char*)args,"Hgameobject_entry");
+        if(!cId)
+            return false;
+
+        uint32 id = atol(cId);
+
         if(id)
             result = WorldDatabase.PQuery("SELECT guid, id, position_x, position_y, position_z, orientation, map, (POW(position_x - '%f', 2) + POW(position_y - '%f', 2) + POW(position_z - '%f', 2)) AS order_ FROM gameobject WHERE map = '%i' AND id = '%u' ORDER BY order_ ASC LIMIT 1",
                 pl->GetPositionX(), pl->GetPositionY(), pl->GetPositionZ(), pl->GetMapId(),id);
         else
         {
-            std::string name = args;
+            std::string name = cId;
             WorldDatabase.escape_string(name);
             result = WorldDatabase.PQuery(
                 "SELECT guid, id, position_x, position_y, position_z, orientation, map, (POW(position_x - %f, 2) + POW(position_y - %f, 2) + POW(position_z - %f, 2)) AS order_ "
@@ -266,257 +526,333 @@ bool ChatHandler::HandleTargetObjectCommand(const char* args)
     return true;
 }
 
-//teleport to gameobject
-bool ChatHandler::HandleGoObjectCommand(const char* args)
+//delete object by selection or guid
+bool ChatHandler::HandleGameObjectDeleteCommand(const char* args)
 {
-    if(!*args)
-        return false;
-
-    Player* _player = m_session->GetPlayer();
-
     // number or [name] Shift-click form |color|Hgameobject:go_guid|h[name]|h|r
     char* cId = extractKeyFromLink((char*)args,"Hgameobject");
     if(!cId)
         return false;
 
-    int32 guid = atoi(cId);
-    if(!guid)
+    uint32 lowguid = atoi(cId);
+    if(!lowguid)
         return false;
 
-    float x, y, z, ort;
-    int mapid;
+    GameObject* obj = NULL;
 
     // by DB guid
-    if (GameObjectData const* go_data = objmgr.GetGOData(guid))
+    if (GameObjectData const* go_data = objmgr.GetGOData(lowguid))
+        obj = GetObjectGlobalyWithGuidOrNearWithDbGuid(lowguid,go_data->id);
+
+    if(!obj)
     {
-        x = go_data->posX;
-        y = go_data->posY;
-        z = go_data->posZ;
-        ort = go_data->orientation;
-        mapid = go_data->mapid;
-    }
-    else
-    {
-        SendSysMessage(LANG_COMMAND_GOOBJNOTFOUND);
+        PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, lowguid);
         SetSentErrorMessage(true);
         return false;
     }
 
-    if(!MapManager::IsValidMapCoord(mapid,x,y,z,ort))
+    uint64 owner_guid = obj->GetOwnerGUID();
+    if(owner_guid)
     {
-        PSendSysMessage(LANG_INVALID_TARGET_COORD,x,y,mapid);
-        SetSentErrorMessage(true);
-        return false;
+        Unit* owner = ObjectAccessor::GetUnit(*m_session->GetPlayer(),owner_guid);
+        if(!owner && !IS_PLAYER_GUID(owner_guid))
+        {
+            PSendSysMessage(LANG_COMMAND_DELOBJREFERCREATURE, GUID_LOPART(owner_guid), obj->GetGUIDLow());
+            SetSentErrorMessage(true);
+            return false;
+        }
+
+        owner->RemoveGameObject(obj,false);
     }
 
-    // stop flight if need
-    if(_player->isInFlight())
-    {
-        _player->GetMotionMaster()->MovementExpired();
-        _player->m_taxi.ClearTaxiDestinations();
-    }
-    // save only in non-flight case
-    else
-        _player->SaveRecallPosition();
+    obj->SetRespawnTime(0);                                 // not save respawn time
+    obj->Delete();
+    obj->DeleteFromDB();
 
-    _player->TeleportTo(mapid, x, y, z, ort);
+    PSendSysMessage(LANG_COMMAND_DELOBJMESSAGE, obj->GetGUIDLow());
+
     return true;
 }
 
-bool ChatHandler::HandleGoTriggerCommand(const char* args)
+//turn selected object
+bool ChatHandler::HandleGameObjectTurnCommand(const char* args)
 {
-    Player* _player = m_session->GetPlayer();
+    // number or [name] Shift-click form |color|Hgameobject:go_id|h[name]|h|r
+    char* cId = extractKeyFromLink((char*)args,"Hgameobject");
+    if(!cId)
+        return false;
 
+    uint32 lowguid = atoi(cId);
+    if(!lowguid)
+        return false;
+
+    GameObject* obj = NULL;
+
+    // by DB guid
+    if (GameObjectData const* go_data = objmgr.GetGOData(lowguid))
+        obj = GetObjectGlobalyWithGuidOrNearWithDbGuid(lowguid,go_data->id);
+
+    if(!obj)
+    {
+        PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, lowguid);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    char* po = strtok(NULL, " ");
+    float o;
+
+    if (po)
+    {
+        o = (float)atof(po);
+    }
+    else
+    {
+        Player *chr = m_session->GetPlayer();
+        o = chr->GetOrientation();
+    }
+
+    Map* map = obj->GetMap();
+    map->Remove(obj,false);
+
+    obj->Relocate(obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ(), o);
+    obj->UpdateRotationFields();
+
+    map->Add(obj);
+
+    obj->SaveToDB();
+    obj->Refresh();
+
+    PSendSysMessage(LANG_COMMAND_TURNOBJMESSAGE, obj->GetGUIDLow(), obj->GetGOInfo()->name, obj->GetGUIDLow(), o);
+
+    return true;
+}
+
+//move selected object
+bool ChatHandler::HandleGameObjectMoveCommand(const char* args)
+{
+    // number or [name] Shift-click form |color|Hgameobject:go_guid|h[name]|h|r
+    char* cId = extractKeyFromLink((char*)args,"Hgameobject");
+    if(!cId)
+        return false;
+
+    uint32 lowguid = atoi(cId);
+    if(!lowguid)
+        return false;
+
+    GameObject* obj = NULL;
+
+    // by DB guid
+    if (GameObjectData const* go_data = objmgr.GetGOData(lowguid))
+        obj = GetObjectGlobalyWithGuidOrNearWithDbGuid(lowguid,go_data->id);
+
+    if(!obj)
+    {
+        PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, lowguid);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    char* px = strtok(NULL, " ");
+    char* py = strtok(NULL, " ");
+    char* pz = strtok(NULL, " ");
+
+    if (!px)
+    {
+        Player *chr = m_session->GetPlayer();
+
+        Map* map = obj->GetMap();
+        map->Remove(obj,false);
+
+        obj->Relocate(chr->GetPositionX(), chr->GetPositionY(), chr->GetPositionZ(), obj->GetOrientation());
+        obj->SetFloatValue(GAMEOBJECT_POS_X, chr->GetPositionX());
+        obj->SetFloatValue(GAMEOBJECT_POS_Y, chr->GetPositionY());
+        obj->SetFloatValue(GAMEOBJECT_POS_Z, chr->GetPositionZ());
+
+        map->Add(obj);
+    }
+    else
+    {
+        if(!py || !pz)
+            return false;
+
+        float x = (float)atof(px);
+        float y = (float)atof(py);
+        float z = (float)atof(pz);
+
+        if(!MapManager::IsValidMapCoord(obj->GetMapId(),x,y,z))
+        {
+            PSendSysMessage(LANG_INVALID_TARGET_COORD,x,y,obj->GetMapId());
+            SetSentErrorMessage(true);
+            return false;
+        }
+
+        Map* map = obj->GetMap();
+        map->Remove(obj,false);
+
+        obj->Relocate(x, y, z, obj->GetOrientation());
+        obj->SetFloatValue(GAMEOBJECT_POS_X, x);
+        obj->SetFloatValue(GAMEOBJECT_POS_Y, y);
+        obj->SetFloatValue(GAMEOBJECT_POS_Z, z);
+
+        map->Add(obj);
+    }
+
+    obj->SaveToDB();
+    obj->Refresh();
+
+    PSendSysMessage(LANG_COMMAND_MOVEOBJMESSAGE, obj->GetGUIDLow(), obj->GetGOInfo()->name, obj->GetGUIDLow());
+
+    return true;
+}
+
+//spawn go
+bool ChatHandler::HandleGameObjectAddCommand(const char* args)
+{
     if (!*args)
         return false;
 
-    char *atId = strtok((char*)args, " ");
-    if (!atId)
+    // number or [name] Shift-click form |color|Hgameobject_entry:go_id|h[name]|h|r
+    char* cId = extractKeyFromLink((char*)args,"Hgameobject_entry");
+    if(!cId)
         return false;
 
-    int32 i_atId = atoi(atId);
-
-    if(!i_atId)
+    uint32 id = atol(cId);
+    if(!id)
         return false;
 
-    AreaTriggerEntry const* at = sAreaTriggerStore.LookupEntry(i_atId);
-    if (!at)
+    char* spawntimeSecs = strtok(NULL, " ");
+
+    const GameObjectInfo *goI = objmgr.GetGameObjectInfo(id);
+
+    if (!goI)
     {
-        PSendSysMessage(LANG_COMMAND_GOAREATRNOTFOUND,i_atId);
+        PSendSysMessage(LANG_GAMEOBJECT_NOT_EXIST,id);
         SetSentErrorMessage(true);
         return false;
     }
 
-    if(!MapManager::IsValidMapCoord(at->mapid,at->x,at->y,at->z))
+    Player *chr = m_session->GetPlayer();
+    float x = float(chr->GetPositionX());
+    float y = float(chr->GetPositionY());
+    float z = float(chr->GetPositionZ());
+    float o = float(chr->GetOrientation());
+    Map *map = chr->GetMap();
+
+    GameObject* pGameObj = new GameObject;
+    uint32 db_lowGUID = objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT);
+
+    if(!pGameObj->Create(db_lowGUID, goI->id, map, chr->GetPhaseMaskForSpawn(), x, y, z, o, 0.0f, 0.0f, 0.0f, 0.0f, 0, 1))
     {
-        PSendSysMessage(LANG_INVALID_TARGET_COORD,at->x,at->y,at->mapid);
-        SetSentErrorMessage(true);
+        delete pGameObj;
         return false;
     }
 
-    // stop flight if need
-    if(_player->isInFlight())
+    if( spawntimeSecs )
     {
-        _player->GetMotionMaster()->MovementExpired();
-        _player->m_taxi.ClearTaxiDestinations();
+        uint32 value = atoi((char*)spawntimeSecs);
+        pGameObj->SetRespawnTime(value);
+        //sLog.outDebug("*** spawntimeSecs: %d", value);
     }
-    // save only in non-flight case
-    else
-        _player->SaveRecallPosition();
 
-    _player->TeleportTo(at->mapid, at->x, at->y, at->z, _player->GetOrientation());
+    // fill the gameobject data and save to the db
+    pGameObj->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()),chr->GetPhaseMaskForSpawn());
+
+    // this will generate a new guid if the object is in an instance
+    if(!pGameObj->LoadFromDB(db_lowGUID, map))
+    {
+        delete pGameObj;
+        return false;
+    }
+
+    sLog.outDebug(GetMangosString(LANG_GAMEOBJECT_CURRENT), goI->name, db_lowGUID, x, y, z, o);
+
+    map->Add(pGameObj);
+
+    // TODO: is it really necessary to add both the real and DB table guid here ?
+    objmgr.AddGameobjectToGrid(db_lowGUID, objmgr.GetGOData(db_lowGUID));
+
+    PSendSysMessage(LANG_GAMEOBJECT_ADD,id,goI->name,db_lowGUID,x,y,z);
     return true;
 }
 
-bool ChatHandler::HandleGoGraveyardCommand(const char* args)
+//set pahsemask for selected object
+bool ChatHandler::HandleGameObjectPhaseCommand(const char* args)
 {
-    Player* _player = m_session->GetPlayer();
-
-    if (!*args)
+    // number or [name] Shift-click form |color|Hgameobject:go_id|h[name]|h|r
+    char* cId = extractKeyFromLink((char*)args,"Hgameobject");
+    if(!cId)
         return false;
 
-    char *gyId = strtok((char*)args, " ");
-    if (!gyId)
+    uint32 lowguid = atoi(cId);
+    if(!lowguid)
         return false;
 
-    int32 i_gyId = atoi(gyId);
+    GameObject* obj = NULL;
 
-    if(!i_gyId)
-        return false;
+    // by DB guid
+    if (GameObjectData const* go_data = objmgr.GetGOData(lowguid))
+        obj = GetObjectGlobalyWithGuidOrNearWithDbGuid(lowguid,go_data->id);
 
-    WorldSafeLocsEntry const* gy = sWorldSafeLocsStore.LookupEntry(i_gyId);
-    if (!gy)
+    if(!obj)
     {
-        PSendSysMessage(LANG_COMMAND_GRAVEYARDNOEXIST,i_gyId);
+        PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, lowguid);
         SetSentErrorMessage(true);
         return false;
     }
 
-    if(!MapManager::IsValidMapCoord(gy->map_id,gy->x,gy->y,gy->z))
+    char* phaseStr = strtok (NULL, " ");
+    uint32 phasemask = phaseStr? atoi(phaseStr) : 0;
+    if ( phasemask == 0 )
     {
-        PSendSysMessage(LANG_INVALID_TARGET_COORD,gy->x,gy->y,gy->map_id);
+        SendSysMessage(LANG_BAD_VALUE);
         SetSentErrorMessage(true);
         return false;
     }
 
-    // stop flight if need
-    if(_player->isInFlight())
-    {
-        _player->GetMotionMaster()->MovementExpired();
-        _player->m_taxi.ClearTaxiDestinations();
-    }
-    // save only in non-flight case
-    else
-        _player->SaveRecallPosition();
-
-    _player->TeleportTo(gy->map_id, gy->x, gy->y, gy->z, _player->GetOrientation());
+    obj->SetPhaseMask(phasemask,true);
+    obj->SaveToDB();
     return true;
 }
 
-/** \brief Teleport the GM to the specified creature
- *
- * .gocreature <GUID>      --> TP using creature.guid
- * .gocreature azuregos    --> TP player to the mob with this name
- *                             Warning: If there is more than one mob with this name
- *                                      you will be teleported to the first one that is found.
- * .gocreature id 6109     --> TP player to the mob, that has this creature_template.entry
- *                             Warning: If there is more than one mob with this "id"
- *                                      you will be teleported to the first one that is found.
- */
-//teleport to creature
-bool ChatHandler::HandleGoCreatureCommand(const char* args)
+bool ChatHandler::HandleGameObjectNearCommand(const char* args)
 {
-    if(!*args)
-        return false;
-    Player* _player = m_session->GetPlayer();
+    float distance = (!*args) ? 10 : atol(args);
+    uint32 count = 0;
 
-    // "id" or number or [name] Shift-click form |color|Hcreature_entry:creature_id|h[name]|h|r
-    char* pParam1 = extractKeyFromLink((char*)args,"Hcreature");
-    if (!pParam1)
-        return false;
+    Player* pl = m_session->GetPlayer();
+    QueryResult *result = WorldDatabase.PQuery("SELECT guid, id, position_x, position_y, position_z, map, "
+        "(POW(position_x - '%f', 2) + POW(position_y - '%f', 2) + POW(position_z - '%f', 2)) AS order_ "
+        "FROM gameobject WHERE map='%u' AND (POW(position_x - '%f', 2) + POW(position_y - '%f', 2) + POW(position_z - '%f', 2)) <= '%f' ORDER BY order_",
+        pl->GetPositionX(), pl->GetPositionY(), pl->GetPositionZ(),
+        pl->GetMapId(),pl->GetPositionX(), pl->GetPositionY(), pl->GetPositionZ(),distance*distance);
 
-    std::ostringstream whereClause;
-
-    // User wants to teleport to the NPC's template entry
-    if( strcmp(pParam1, "id") == 0 )
+    if (result)
     {
-        //sLog.outError("DEBUG: ID found");
-
-        // Get the "creature_template.entry"
-        // number or [name] Shift-click form |color|Hcreature_entry:creature_id|h[name]|h|r
-        char* tail = strtok(NULL,"");
-        if(!tail)
-            return false;
-        char* cId = extractKeyFromLink(tail,"Hcreature_entry");
-        if(!cId)
-            return false;
-
-        int32 tEntry = atoi(cId);
-        //sLog.outError("DEBUG: ID value: %d", tEntry);
-        if(!tEntry)
-            return false;
-
-        whereClause << "WHERE id = '" << tEntry << "'";
-    }
-    else
-    {
-        //sLog.outError("DEBUG: ID *not found*");
-
-        int32 guid = atoi(pParam1);
-
-        // Number is invalid - maybe the user specified the mob's name
-        if(!guid)
+        do
         {
-            std::string name = pParam1;
-            WorldDatabase.escape_string(name);
-            whereClause << ", creature_template WHERE creature.id = creature_template.entry AND creature_template.name "_LIKE_" '" << name << "'";
-        }
-        else
-        {
-            whereClause <<  "WHERE guid = '" << guid << "'";
-        }
-    }
-    //sLog.outError("DEBUG: %s", whereClause.c_str());
+            Field *fields = result->Fetch();
+            uint32 guid = fields[0].GetUInt32();
+            uint32 entry = fields[1].GetUInt32();
+            float x = fields[2].GetFloat();
+            float y = fields[3].GetFloat();
+            float z = fields[4].GetFloat();
+            int mapid = fields[5].GetUInt16();
 
-    QueryResult *result = WorldDatabase.PQuery("SELECT position_x,position_y,position_z,orientation,map FROM creature %s", whereClause.str().c_str() );
-    if (!result)
-    {
-        SendSysMessage(LANG_COMMAND_GOCREATNOTFOUND);
-        SetSentErrorMessage(true);
-        return false;
-    }
-    if( result->GetRowCount() > 1 )
-    {
-        SendSysMessage(LANG_COMMAND_GOCREATMULTIPLE);
+            GameObjectInfo const * gInfo = objmgr.GetGameObjectInfo(entry);
+
+            if(!gInfo)
+                continue;
+
+            PSendSysMessage(LANG_GO_LIST_CHAT, guid, guid, gInfo->name, x, y, z, mapid);
+
+            ++count;
+        } while (result->NextRow());
+
+        delete result;
     }
 
-    Field *fields = result->Fetch();
-    float x = fields[0].GetFloat();
-    float y = fields[1].GetFloat();
-    float z = fields[2].GetFloat();
-    float ort = fields[3].GetFloat();
-    int mapid = fields[4].GetUInt16();
-
-    delete result;
-
-    if(!MapManager::IsValidMapCoord(mapid,x,y,z,ort))
-    {
-        PSendSysMessage(LANG_INVALID_TARGET_COORD,x,y,mapid);
-        SetSentErrorMessage(true);
-        return false;
-    }
-
-    // stop flight if need
-    if(_player->isInFlight())
-    {
-        _player->GetMotionMaster()->MovementExpired();
-        _player->m_taxi.ClearTaxiDestinations();
-    }
-    // save only in non-flight case
-    else
-        _player->SaveRecallPosition();
-
-    _player->TeleportTo(mapid, x, y, z, ort);
+    PSendSysMessage(LANG_COMMAND_NEAROBJMESSAGE,distance,count);
     return true;
 }
 
@@ -1707,186 +2043,6 @@ bool ChatHandler::HandleItemMoveCommand(const char* args)
     return true;
 }
 
-//delete object by selection or guid
-bool ChatHandler::HandleDelObjectCommand(const char* args)
-{
-    // number or [name] Shift-click form |color|Hgameobject:go_guid|h[name]|h|r
-    char* cId = extractKeyFromLink((char*)args,"Hgameobject");
-    if(!cId)
-        return false;
-
-    uint32 lowguid = atoi(cId);
-    if(!lowguid)
-        return false;
-
-    GameObject* obj = NULL;
-
-    // by DB guid
-    if (GameObjectData const* go_data = objmgr.GetGOData(lowguid))
-        obj = GetObjectGlobalyWithGuidOrNearWithDbGuid(lowguid,go_data->id);
-
-    if(!obj)
-    {
-        PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, lowguid);
-        SetSentErrorMessage(true);
-        return false;
-    }
-
-    uint64 owner_guid = obj->GetOwnerGUID();
-    if(owner_guid)
-    {
-        Unit* owner = ObjectAccessor::GetUnit(*m_session->GetPlayer(),owner_guid);
-        if(!owner && !IS_PLAYER_GUID(owner_guid))
-        {
-            PSendSysMessage(LANG_COMMAND_DELOBJREFERCREATURE, GUID_LOPART(owner_guid), obj->GetGUIDLow());
-            SetSentErrorMessage(true);
-            return false;
-        }
-
-        owner->RemoveGameObject(obj,false);
-    }
-
-    obj->SetRespawnTime(0);                                 // not save respawn time
-    obj->Delete();
-    obj->DeleteFromDB();
-
-    PSendSysMessage(LANG_COMMAND_DELOBJMESSAGE, obj->GetGUIDLow());
-
-    return true;
-}
-
-//turn selected object
-bool ChatHandler::HandleTurnObjectCommand(const char* args)
-{
-    // number or [name] Shift-click form |color|Hgameobject:go_id|h[name]|h|r
-    char* cId = extractKeyFromLink((char*)args,"Hgameobject");
-    if(!cId)
-        return false;
-
-    uint32 lowguid = atoi(cId);
-    if(!lowguid)
-        return false;
-
-    GameObject* obj = NULL;
-
-    // by DB guid
-    if (GameObjectData const* go_data = objmgr.GetGOData(lowguid))
-        obj = GetObjectGlobalyWithGuidOrNearWithDbGuid(lowguid,go_data->id);
-
-    if(!obj)
-    {
-        PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, lowguid);
-        SetSentErrorMessage(true);
-        return false;
-    }
-
-    char* po = strtok(NULL, " ");
-    float o;
-
-    if (po)
-    {
-        o = (float)atof(po);
-    }
-    else
-    {
-        Player *chr = m_session->GetPlayer();
-        o = chr->GetOrientation();
-    }
-
-    Map* map = obj->GetMap();
-    map->Remove(obj,false);
-
-    obj->Relocate(obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ(), o);
-    obj->UpdateRotationFields();
-
-    map->Add(obj);
-
-    obj->SaveToDB();
-    obj->Refresh();
-
-    PSendSysMessage(LANG_COMMAND_TURNOBJMESSAGE, obj->GetGUIDLow(), o);
-
-    return true;
-}
-
-//move selected object
-bool ChatHandler::HandleMoveObjectCommand(const char* args)
-{
-    // number or [name] Shift-click form |color|Hgameobject:go_guid|h[name]|h|r
-    char* cId = extractKeyFromLink((char*)args,"Hgameobject");
-    if(!cId)
-        return false;
-
-    uint32 lowguid = atoi(cId);
-    if(!lowguid)
-        return false;
-
-    GameObject* obj = NULL;
-
-    // by DB guid
-    if (GameObjectData const* go_data = objmgr.GetGOData(lowguid))
-        obj = GetObjectGlobalyWithGuidOrNearWithDbGuid(lowguid,go_data->id);
-
-    if(!obj)
-    {
-        PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, lowguid);
-        SetSentErrorMessage(true);
-        return false;
-    }
-
-    char* px = strtok(NULL, " ");
-    char* py = strtok(NULL, " ");
-    char* pz = strtok(NULL, " ");
-
-    if (!px)
-    {
-        Player *chr = m_session->GetPlayer();
-
-        Map* map = obj->GetMap();
-        map->Remove(obj,false);
-
-        obj->Relocate(chr->GetPositionX(), chr->GetPositionY(), chr->GetPositionZ(), obj->GetOrientation());
-        obj->SetFloatValue(GAMEOBJECT_POS_X, chr->GetPositionX());
-        obj->SetFloatValue(GAMEOBJECT_POS_Y, chr->GetPositionY());
-        obj->SetFloatValue(GAMEOBJECT_POS_Z, chr->GetPositionZ());
-
-        map->Add(obj);
-    }
-    else
-    {
-        if(!py || !pz)
-            return false;
-
-        float x = (float)atof(px);
-        float y = (float)atof(py);
-        float z = (float)atof(pz);
-
-        if(!MapManager::IsValidMapCoord(obj->GetMapId(),x,y,z))
-        {
-            PSendSysMessage(LANG_INVALID_TARGET_COORD,x,y,obj->GetMapId());
-            SetSentErrorMessage(true);
-            return false;
-        }
-
-        Map* map = obj->GetMap();
-        map->Remove(obj,false);
-
-        obj->Relocate(x, y, z, obj->GetOrientation());
-        obj->SetFloatValue(GAMEOBJECT_POS_X, x);
-        obj->SetFloatValue(GAMEOBJECT_POS_Y, y);
-        obj->SetFloatValue(GAMEOBJECT_POS_Z, z);
-
-        map->Add(obj);
-    }
-
-    obj->SaveToDB();
-    obj->Refresh();
-
-    PSendSysMessage(LANG_COMMAND_MOVEOBJMESSAGE, obj->GetGUIDLow());
-
-    return true;
-}
-
 //demorph player or unit
 bool ChatHandler::HandleDeMorphCommand(const char* /*args*/)
 {
@@ -1905,7 +2061,7 @@ bool ChatHandler::HandleDeMorphCommand(const char* /*args*/)
 }
 
 //morph creature or player
-bool ChatHandler::HandleMorphCommand(const char* args)
+bool ChatHandler::HandleModifyMorphCommand(const char* args)
 {
     if (!*args)
         return false;
@@ -3544,77 +3700,8 @@ bool ChatHandler::HandleCustomizeCommand(const char* args)
     return true;
 }
 
-//spawn go
-bool ChatHandler::HandleGameObjectCommand(const char* args)
-{
-    if (!*args)
-        return false;
-
-    char* pParam1 = strtok((char*)args, " ");
-    if (!pParam1)
-        return false;
-
-    uint32 id = atoi((char*)pParam1);
-    if(!id)
-        return false;
-
-    char* spawntimeSecs = strtok(NULL, " ");
-
-    const GameObjectInfo *goI = objmgr.GetGameObjectInfo(id);
-
-    if (!goI)
-    {
-        PSendSysMessage(LANG_GAMEOBJECT_NOT_EXIST,id);
-        SetSentErrorMessage(true);
-        return false;
-    }
-
-    Player *chr = m_session->GetPlayer();
-    float x = float(chr->GetPositionX());
-    float y = float(chr->GetPositionY());
-    float z = float(chr->GetPositionZ());
-    float o = float(chr->GetOrientation());
-    Map *map = chr->GetMap();
-
-    GameObject* pGameObj = new GameObject;
-    uint32 db_lowGUID = objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT);
-
-    if(!pGameObj->Create(db_lowGUID, goI->id, map, chr->GetPhaseMaskForSpawn(), x, y, z, o, 0.0f, 0.0f, 0.0f, 0.0f, 0, 1))
-    {
-        delete pGameObj;
-        return false;
-    }
-
-    if( spawntimeSecs )
-    {
-        uint32 value = atoi((char*)spawntimeSecs);
-        pGameObj->SetRespawnTime(value);
-        //sLog.outDebug("*** spawntimeSecs: %d", value);
-    }
-
-    // fill the gameobject data and save to the db
-    pGameObj->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()),chr->GetPhaseMaskForSpawn());
-
-    // this will generate a new guid if the object is in an instance
-    if(!pGameObj->LoadFromDB(db_lowGUID, map))
-    {
-        delete pGameObj;
-        return false;
-    }
-
-    sLog.outDebug(GetTrinityString(LANG_GAMEOBJECT_CURRENT), goI->name, db_lowGUID, x, y, z, o);
-
-    map->Add(pGameObj);
-
-    // TODO: is it really necessary to add both the real and DB table guid here ?
-    objmgr.AddGameobjectToGrid(db_lowGUID, objmgr.GetGOData(db_lowGUID));
-
-    PSendSysMessage(LANG_GAMEOBJECT_ADD,id,goI->name,db_lowGUID,x,y,z);
-    return true;
-}
-
 //show animation
-bool ChatHandler::HandleAnimCommand(const char* args)
+bool ChatHandler::HandleDebugAnimCommand(const char* args)
 {
     if (!*args)
         return false;
@@ -3625,7 +3712,7 @@ bool ChatHandler::HandleAnimCommand(const char* args)
 }
 
 //change standstate
-bool ChatHandler::HandleStandStateCommand(const char* args)
+bool ChatHandler::HandleModifyStandStateCommand(const char* args)
 {
     if (!*args)
         return false;
@@ -3636,7 +3723,7 @@ bool ChatHandler::HandleStandStateCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleAddHonorCommand(const char* args)
+bool ChatHandler::HandleHonorAddCommand(const char* args)
 {
     if (!*args)
         return false;
@@ -3676,7 +3763,7 @@ bool ChatHandler::HandleHonorAddKillCommand(const char* /*args*/)
     return true;
 }
 
-bool ChatHandler::HandleUpdateHonorFieldsCommand(const char* /*args*/)
+bool ChatHandler::HandleHonorUpdateCommand(const char* /*args*/)
 {
     Player *target = getSelectedPlayer();
     if(!target)
@@ -4521,42 +4608,3 @@ bool ChatHandler::HandleNpcAddFormationCommand(const char* args)
 
     return true;
  }
-
-//set pahsemask for selected object
-bool ChatHandler::HandleGOPhaseCommand(const char* args)
-{
-    // number or [name] Shift-click form |color|Hgameobject:go_id|h[name]|h|r
-    char* cId = extractKeyFromLink((char*)args,"Hgameobject");
-    if(!cId)
-        return false;
-
-    uint32 lowguid = atoi(cId);
-    if(!lowguid)
-        return false;
-
-    GameObject* obj = NULL;
-
-    // by DB guid
-    if (GameObjectData const* go_data = objmgr.GetGOData(lowguid))
-        obj = GetObjectGlobalyWithGuidOrNearWithDbGuid(lowguid,go_data->id);
-
-    if(!obj)
-    {
-        PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, lowguid);
-        SetSentErrorMessage(true);
-        return false;
-    }
-
-    char* phaseStr = strtok (NULL, " ");
-    uint32 phasemask = phaseStr? atoi(phaseStr) : 0;
-    if ( phasemask == 0 )
-    {
-        SendSysMessage(LANG_BAD_VALUE);
-        SetSentErrorMessage(true);
-        return false;
-    }
-
-    obj->SetPhaseMask(phasemask,true);
-    obj->SaveToDB();
-    return true;
-}

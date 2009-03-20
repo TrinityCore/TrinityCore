@@ -24,16 +24,19 @@
 #include "Creature.h"
 #include "ObjectAccessor.h"
 
-class TemporarySummon : public Creature
+class TempSummon : public Creature
 {
     public:
-        explicit TemporarySummon(uint64 summoner = 0);
-        virtual ~TemporarySummon(){};
+        explicit TempSummon(uint64 summoner = 0);
+        virtual ~TempSummon(){};
         void Update(uint32 time);
         void Summon(TempSummonType type, uint32 lifetime);
-        void UnSummon();
+        virtual void UnSummon();
         void SaveToDB();
         Unit* GetSummoner() const { return m_summoner ? ObjectAccessor::GetUnit(*this, m_summoner) : NULL; }
+
+        void SetSummonProperties(SummonPropertiesEntry const *properties);
+        SummonPropertiesEntry const *m_properties;
     private:
         TempSummonType m_type;
         uint32 m_timer;

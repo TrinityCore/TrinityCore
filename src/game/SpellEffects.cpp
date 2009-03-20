@@ -1166,7 +1166,7 @@ void Spell::EffectDummy(uint32 i)
                     if(!unitTarget)
                         return;
 
-                    TemporarySummon* tempSummon = dynamic_cast<TemporarySummon*>(unitTarget);
+                    TempSummon* tempSummon = dynamic_cast<TempSummon*>(unitTarget);
                     if(!tempSummon)
                         return;
 
@@ -3333,11 +3333,6 @@ void Spell::EffectSummonType(uint32 i)
         case SUMMON_TYPE_SUMMON:
             EffectSummon(i);
             break;
-        case SUMMON_TYPE_CRITTER:
-        case SUMMON_TYPE_CRITTER2:
-        case SUMMON_TYPE_CRITTER3:
-            EffectSummonCritter(i);
-            break;
         case SUMMON_TYPE_TOTEM_SLOT1:
         case SUMMON_TYPE_TOTEM_SLOT2:
         case SUMMON_TYPE_TOTEM_SLOT3:
@@ -3358,15 +3353,18 @@ void Spell::EffectSummonType(uint32 i)
                 sLog.outError("EffectSummonType: Unhandled summon type %u", m_spellInfo->EffectMiscValueB[i]);
                 return;
             }
-            switch(SummonProperties->Group)
+            switch(SummonProperties->Category)
             {
                 default:
-                    EffectSummonWild(i);
+                    if(SummonProperties->Type == SUMMON_TYPE_MINIPET)
+                        EffectSummonCritter(i);
+                    else
+                        EffectSummonWild(i);
                     break;
-                case SUMMON_TYPE_POSSESSED:
+                case SUMMON_CATEGORY_POSSESSED:
                     EffectSummonPossessed(i);
                     break;
-                case SUMMON_TYPE_VEHICLE:
+                case SUMMON_CATEGORY_VEHICLE:
                     EffectSummonVehicle(i);
                     break;
             }
@@ -3683,11 +3681,6 @@ void Spell::EffectSummonWild(uint32 i)
         }
     }
 
-    // select center of summon position
-    float center_x = m_targets.m_destX;
-    float center_y = m_targets.m_destY;
-    float center_z = m_targets.m_destZ;
-
     float radius = GetSpellRadiusForHostile(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
 
     int32 amount = damage > 0 ? damage : 1;
@@ -3695,23 +3688,7 @@ void Spell::EffectSummonWild(uint32 i)
     for(int32 count = 0; count < amount; ++count)
     {
         float px, py, pz;
-        // If dest location if present
-        if (m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION)
-        {
-            // Summon 1 unit in dest location
-            if (count == 0)
-            {
-                px = m_targets.m_destX;
-                py = m_targets.m_destY;
-                pz = m_targets.m_destZ;
-            }
-            // Summon in random point all other units if location present
-            else
-                m_caster->GetRandomPoint(center_x,center_y,center_z,radius,px,py,pz);
-        }
-        // Summon if dest location not present near caster
-        else
-            m_caster->GetClosePoint(px,py,pz,3.0f);
+        GetSummonPosition(px, py, pz, radius, count);
 
         int32 duration = GetSpellDuration(m_spellInfo);
 
@@ -5101,6 +5078,22 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     DoCreateItem( effIndex, itemtype );
                     return;
                 }
+                // Everlasting Affliction
+                case 47422:
+                    // Refresh corruption on target
+                    Unit::AuraMap& auras = unitTarget->GetAuras();
+                    for(Unit::AuraMap::iterator itr = auras.begin(); itr != auras.end(); ++itr)
+                    {
+                        SpellEntry const *spellInfo = (*itr).second->GetSpellProto();
+                        if( spellInfo->SpellFamilyName == SPELLFAMILY_WARLOCK &&
+                            spellInfo->SpellFamilyFlags[0] &  0x2 &&
+                            (*itr).second->GetCasterGUID() == m_caster->GetGUID())
+                        {
+                            unitTarget->RefreshAurasByCasterSpell(spellInfo->Id, m_caster->GetGUID());
+                            return;
+                        }
+                    }
+                break;
             }
             break;
         }
@@ -5122,7 +5115,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                             spellInfo->SpellFamilyFlags[0] &  0x8000 &&
                             (*itr).second->GetCasterGUID() == m_caster->GetGUID())
                         {
-                            (*itr).second->RefreshAura();
+                            unitTarget->RefreshAurasByCasterSpell((*itr).second->GetId(), m_caster->GetGUID());
                             return;
                         }
                     }
@@ -5572,10 +5565,8 @@ void Spell::EffectSummonTotem(uint32 i)
         return;
     }
 
-    float angle = slot < MAX_TOTEM ? M_PI/MAX_TOTEM - (slot*2*M_PI/MAX_TOTEM) : 0;
-
     float x,y,z;
-    m_caster->GetClosePoint(x,y,z,pTotem->GetObjectSize(),2.0f,angle);
+    GetSummonPosition(x, y, z);
 
     // totem must be at same Z in case swimming caster and etc.
     if( fabs( z - m_caster->GetPositionZ() ) > 5 )
@@ -6036,76 +6027,33 @@ void Spell::EffectSummonCritter(uint32 i)
     if(!pet_entry)
         return;
 
-    Pet* old_critter = player->GetMiniPet();
-
-    // for same pet just despawn
-    if(old_critter && old_critter->GetEntry() == pet_entry)
-    {
-        player->RemoveMiniPet();
-        return;
-    }
-
-    // despawn old pet before summon new
-    if(old_critter)
-        player->RemoveMiniPet();
-
-    // summon new pet
-    Pet* critter = new Pet(MINI_PET);
-
-    Map *map = m_caster->GetMap();
-    uint32 pet_number = objmgr.GeneratePetNumber();
-    if(!critter->Create(objmgr.GenerateLowGuid(HIGHGUID_PET), map, m_caster->GetPhaseMask(),
-        pet_entry, pet_number))
-    {
-        sLog.outError("Spell::EffectSummonCritter, spellid %u: no such creature entry %u", m_spellInfo->Id, pet_entry);
-        delete critter;
-        return;
-    }
-
     float x,y,z;
-    // If dest location if present
-    if (m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION)
-    {
-         x = m_targets.m_destX;
-         y = m_targets.m_destY;
-         z = m_targets.m_destZ;
-     }
-     // Summon if dest location not present near caster
-     else
-         m_caster->GetClosePoint(x,y,z,critter->GetObjectSize());
+    GetSummonPosition(x, y, z);
 
-    critter->Relocate(x,y,z,m_caster->GetOrientation());
-
-    if(!critter->IsPositionValid())
-    {
-        sLog.outError("ERROR: Pet (guidlow %d, entry %d) not summoned. Suggested coordinates isn't valid (X: %f Y: %f)",
-            critter->GetGUIDLow(), critter->GetEntry(), critter->GetPositionX(), critter->GetPositionY());
-        delete critter;
+    int32 duration = GetSpellDuration(m_spellInfo);
+    TempSummonType summonType = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_DESPAWN;
+    TempSummon *critter = m_caster->SummonCreature(pet_entry, x, y, z, m_caster->GetOrientation(), summonType, duration);
+    if(!critter)
         return;
-    }
 
     critter->SetOwnerGUID(m_caster->GetGUID());
     critter->SetCreatorGUID(m_caster->GetGUID());
     critter->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE,m_caster->getFaction());
     critter->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
 
-    critter->AIM_Initialize();
-    critter->InitPetCreateSpells();                         // e.g. disgusting oozeling has a create spell as critter...
+    //critter->InitPetCreateSpells();                         // e.g. disgusting oozeling has a create spell as critter...
     critter->SetMaxHealth(1);
     critter->SetHealth(1);
     critter->SetLevel(1);
 
-    // set timer for unsummon
-    int32 duration = GetSpellDuration(m_spellInfo);
-    if(duration > 0)
-        critter->SetDuration(duration);
+    critter->SetReactState(REACT_PASSIVE);
+    critter->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
     std::string name = player->GetName();
-    name.append(petTypeSuffix[critter->getPetType()]);
+    name.append(petTypeSuffix[3]);
     critter->SetName( name );
-    player->SetMiniPet(critter);
 
-    map->Add((Creature*)critter);
+    critter->SetSummonProperties(sSummonPropertiesStore.LookupEntry(m_spellInfo->EffectMiscValueB[i]));
 }
 
 void Spell::EffectKnockBack(uint32 i)
@@ -6554,11 +6502,6 @@ void Spell::EffectSkill(uint32 /*i*/)
 
 void Spell::EffectSummonDemon(uint32 i)
 {
-    // select center of summon position
-    float center_x = m_targets.m_destX;
-    float center_y = m_targets.m_destY;
-    float center_z = m_targets.m_destZ;
-
     float radius = GetSpellRadiusForFriend(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
 
     int32 amount = damage > 0 ? damage : 1;
@@ -6566,23 +6509,7 @@ void Spell::EffectSummonDemon(uint32 i)
     for(int32 count = 0; count < amount; ++count)
     {
         float px, py, pz;
-        // If dest location if present
-        if (m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION)
-        {
-            // Summon 1 unit in dest location
-            if (count == 0)
-            {
-                px = m_targets.m_destX;
-                py = m_targets.m_destY;
-                pz = m_targets.m_destZ;
-            }
-            // Summon in random point all other units if location present
-            else
-                m_caster->GetRandomPoint(center_x,center_y,center_z,radius,px,py,pz);
-        }
-        // Summon if dest location not present near caster
-        else
-            m_caster->GetClosePoint(px,py,pz,3.0f);
+        GetSummonPosition(px, py, pz, radius, count);
 
         int32 duration = GetSpellDuration(m_spellInfo);
 
@@ -6787,8 +6714,30 @@ void Spell::EffectSummonVehicle(uint32 i)
     float x, y, z;
     m_caster->GetClosePoint(x, y, z, DEFAULT_WORLD_OBJECT_SIZE);
     Vehicle *vehicle = m_caster->SummonVehicle(entry, x, y, z, m_caster->GetOrientation());
+    if(!vehicle)
+        return;
 
     vehicle->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
+}
+
+void Spell::GetSummonPosition(float &x, float &y, float &z, float radius, uint32 count)
+{
+    if (m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION)
+    {
+        // Summon 1 unit in dest location
+        if (count == 0)
+        {
+            x = m_targets.m_destX;
+            y = m_targets.m_destY;
+            z = m_targets.m_destZ;
+        }
+        // Summon in random point all other units if location present
+        else
+            m_caster->GetRandomPoint(m_targets.m_destX,m_targets.m_destY,m_targets.m_destZ,radius,x,y,z);
+    }
+    // Summon if dest location not present near caster
+    else
+        m_caster->GetClosePoint(x,y,z,3.0f);
 }
 
 void Spell::EffectRenamePet(uint32 /*eff_idx*/)
