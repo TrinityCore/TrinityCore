@@ -1,37 +1,24 @@
-The THANKS file:
+= TrinityCore -- Thanks/credits file =
 
-All distributions should contain a `THANKS' file containing a two column list
-of the contributors, one per line, alphabetically sorted. The left column gives
-the contributor's name, while the right column gives the last known good email
-address for this contributor. This list should be introduced with a wording
-similar to this one:
+TrinityCore is a derivation/rewrite of MaNGOS, which was originally written
+by Team Python and the WoW Daemon Team. Many people further helped Trinity Core
+by submitting bug reports, code patches, and suggestions. Thanks to the
+community!
 
- Trinity Core THANKS file
+Special thanks should go out to the WowwoW team. We have gained help from
+them many times in the creation of this project. Keep up the good work guys.
 
- Trinity Core is a derivation/rewrite of MaNGOS, which was originally written
- by Team Python and the WoW Daemon Team. Many people further helped Trinity Core
- by submitting bug reports, code patches, and suggestions. Thanks to the
- community!
+Thanks to the ScriptDev2 team (http://www.scriptdev2.com) for scripts.
 
- Special thanks should go out to the WowwoW team. We have gained help from
- them many times in the creation of this project. Keep up the good work guys.
+Thanks to the WCell team (especially Ralek) for research on realm reconnect
+sequence, item scaling stats algorithm, gameobject rotation issues.
 
- Thanks to the ImpConfig developer (dythzer) for the custom configuration patch.
-
- Thanks to the ScriptDev2 team (http://www.scriptdev2.com) for scripts.
-
- Thanks to WCell team (especially Ralek) for reseach on realm reconnect sequence,
- item scaling stats algorithm, gameobject rotation issues.
-
-The easiest policy with this file is to thank everyone who contributes to the
-project, without judging the value of the contribution.
-
-Unlike `AUTHORS', the `THANKS' file is not maintained for legal reasons. It is
-maintained to thank all the contributors that helped you out in your project.
-The `AUTHORS' file can not be used for this purpose because certain
-contributions, like bug reports or ideas and suggestions do not require legal
-paper exchanges.
-
-You can also decide to send some kind of special greeting when you initially
-add a name to your `THANKS' file. The mere presense of a name in `THANKS' is
-then a flag to you that the initial greeting has been sent.
+Thanks go out to the following people for various patches/code (listed in the
+order they were added): w12x, dythzer, XEQT, death420, balrok, TOM_RUS,
+runningnak3d, Seline, KingPin, raczman, bogie, Neo2003, NoFantasy, Derex,
+freghar, toilet1, megamage, MadJack, WarHead, gvcoman, Ntsc, arrai, jrkpote,
+Seraphim, vagoth, KerchumA222, Rognar, Blaymoira, DragonHunter, Molius, apoc,
+SeT, hunuza, Wyk3d, VladimirMangos, rj686, Arthorius, QAston, Muhaha, dereka,
+Kaldorei, NuRRi, Biglad, Machiavelli, Nivelo, Paradox, Aokromes, EleGoS,
+Visagalis, reno, Cybrax, GriffonHeart, fgenesis, rilex, XTElite1, Anubisss, eL,
+Iskander, arclite, Bladex, EIFEL, Klaimmore.
