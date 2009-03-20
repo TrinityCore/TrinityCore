@@ -187,13 +187,21 @@ bool ChatHandler::HandleDebugSendOpcodeCommand(const char* /*args*/)
             ifs >> val6;
             data << val6;
         }
-        else if(type == "pguid")
+        else if(type == "appitsguid")
         {
             data.append(unit->GetPackGUID());
         }
-        else if(type == "myguid")
+        else if(type == "appmyguid")
         {
             data.append(player->GetPackGUID());
+        }
+        else if(type == "myguid")
+        {
+            data << uint64(player->GetGUID());
+        }
+        else if(type == "itsguid")
+        {
+            data << uint64(unit->GetGUID());
         }
         else if(type == "pos")
         {
