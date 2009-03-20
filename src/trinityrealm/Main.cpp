@@ -31,7 +31,6 @@
 #include "sockets/ListenSocket.h"
 #include "AuthSocket.h"
 #include "SystemConfig.h"
-#include "revision.h"
 #include "Util.h"
 
 // Format is YYYYMMDDRR where RR is the change in the conf file
@@ -41,12 +40,12 @@
 #endif
 
 #ifndef _TRINITY_REALM_CONFIG
-# define _TRINITY_REALM_CONFIG  "trinityrealm.conf"
+# define _TRINITY_REALM_CONFIG  "TrinityRealm.conf"
 #endif //_TRINITY_REALM_CONFIG
 
 #ifdef WIN32
 #include "ServiceWin32.h"
-char serviceName[] = "realmd";
+char serviceName[] = "TrinityRealm";
 char serviceLongName[] = "Trinity realm service";
 char serviceDescription[] = "Massive Network Game Object Server";
 /*
@@ -58,7 +57,7 @@ char serviceDescription[] = "Massive Network Game Object Server";
 int m_ServiceStatus = -1;
 #endif
 
-bool StartDB(std::string &dbstring);
+bool StartDB();
 void UnhookSignals();
 void HookSignals();
 
@@ -71,7 +70,6 @@ DatabaseType LoginDatabase;                                 ///< Accessor to the
 void usage(const char *prog)
 {
     sLog.outString("Usage: \n %s [<options>]\n"
-        "    --version                print version and exit\n\r"
         "    -c config_file           use config_file as configuration file\n\r"
         #ifdef WIN32
         "    Running as service functions:\n\r"
@@ -100,12 +98,6 @@ extern int main(int argc, char **argv)
             }
             else
                 cfg_file = argv[c];
-        }
-
-        if( strcmp(argv[c],"--version") == 0)
-        {
-            printf("%s\n", _FULLVERSION);
-            return 0;
         }
 
         #ifdef WIN32
@@ -187,9 +179,17 @@ extern int main(int argc, char **argv)
     }
 
     ///- Initialize the database connection
-    std::string dbstring;
-    if(!StartDB(dbstring))
+    if(!StartDB())
         return 1;
+
+    ///- Initialize the log database
+    if(sConfig.GetBoolDefault("EnableLogDB", false))
+    {
+        // everything successful - set var to enable DB logging once startup finished.
+        sLog.SetLogDBLater(true);
+        // ensure we've set realm to 0 (realmd realmid)
+        sLog.SetRealmID(0);
+    }
 
     ///- Get the list of realms for the server
     m_realmList.Initialize(sConfig.GetIntDefault("RealmsStateUpdateDelay", 20));
@@ -243,7 +243,7 @@ extern int main(int argc, char **argv)
                         sLog.outError("Can't set used processors (hex): %x", curAff);
                 }
             }
-            sLog.outString();
+            sLog.outString("");
         }
 
         bool Prio = sConfig.GetBoolDefault("ProcessPriority", false);
@@ -254,7 +254,7 @@ extern int main(int argc, char **argv)
                 sLog.outString("TrinityRealm process priority class set to HIGH");
             else
                 sLog.outError("ERROR: Can't set realmd process priority class.");
-            sLog.outString();
+            sLog.outString("");
         }
     }
     #endif
@@ -262,6 +262,15 @@ extern int main(int argc, char **argv)
     // maximum counter for next ping
     uint32 numLoops = (sConfig.GetIntDefault( "MaxPingTime", 30 ) * (MINUTE * 1000000 / 100000));
     uint32 loopCounter = 0;
+
+    // possibly enable db logging; avoid massive startup spam by doing it here.
+    if (sLog.GetLogDBLater())
+    {
+        sLog.outString("Enabling database logging...");
+        sLog.SetLogDBLater(false);
+        // login db needs thread for logging
+        sLog.SetLogDB(true);
+    }
 
     ///- Wait for termination signal
     while (!stopEvent)
@@ -282,6 +291,7 @@ extern int main(int argc, char **argv)
     }
 
     ///- Wait for the delay thread to exit
+    LoginDatabase.ThreadEnd();
     LoginDatabase.HaltDelayThread();
 
     ///- Remove signal handling before leaving
@@ -312,20 +322,21 @@ void OnSignal(int s)
 }
 
 /// Initialize connection to the database
-bool StartDB(std::string &dbstring)
+bool StartDB()
 {
-    if(!sConfig.GetString("LoginDatabaseInfo", &dbstring))
+    std::string dbstring = sConfig.GetStringDefault("LoginDatabaseInfo", "");
+    if(dbstring.empty())
     {
         sLog.outError("Database not specified");
         return false;
     }
 
-    sLog.outString("Database: %s", dbstring.c_str() );
     if(!LoginDatabase.Initialize(dbstring.c_str()))
     {
         sLog.outError("Cannot connect to database");
         return false;
     }
+    LoginDatabase.ThreadStart();
 
     return true;
 }
@@ -351,4 +362,3 @@ void UnhookSignals()
 }
 
 /// @}
-
