@@ -337,6 +337,9 @@ std::string Log::GetTimestampStr()
 
 void Log::outDB( uint8 type, const char * str, ... )
 {
+    if(!type)
+        return;
+
     if(!str)
         return;
 
@@ -353,7 +356,7 @@ void Log::outDB( uint8 type, const char * str, ... )
         return;
 
     LoginDatabase.PExecute("INSERT INTO logs (time, realm, type, string) "
-        "VALUES (%u, %u, %u, '%s');", time(0), realm, type, nnew_str);
+        "VALUES ("I64FMTD", %u, %u, '%s');", uint64(time(0)), realm, type, nnew_str);
 }
 
 void Log::outString( const char * str, ... )
