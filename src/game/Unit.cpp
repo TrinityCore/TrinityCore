@@ -8157,7 +8157,7 @@ bool Unit::isAttackingPlayer() const
     if(charmed && charmed->isAttackingPlayer())
         return true;
 
-    for (int8 i = 0; i < MAX_TOTEM; i++)
+    for (int8 i = 0; i < MAX_SUMMON_SLOT; ++i)
     {
         if(m_TotemSlot[i])
         {
@@ -11561,7 +11561,7 @@ void CharmInfo::InitCharmCreateSpells()
 
     InitPetActionBar();
 
-    for(uint32 x = 0; x < 4; ++x)
+    for(uint32 x = 0; x < MAX_SPELL_CHARM; ++x)
     {
         uint32 spellId = ((Creature*)m_unit)->m_spells[x];
         m_charmspells[x].spellId = spellId;
@@ -11623,7 +11623,7 @@ void CharmInfo::ToggleCreatureAutocast(uint32 spellid, bool apply)
     if(IsPassiveSpell(spellid))
         return;
 
-    for(uint32 x = 0; x < CREATURE_MAX_SPELLS; ++x)
+    for(uint32 x = 0; x < MAX_SPELL_CHARM; ++x)
     {
         if(spellid == m_charmspells[x].spellId)
         {
