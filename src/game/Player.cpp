@@ -7052,7 +7052,7 @@ void Player::_ApplyItemBonuses(ItemPrototype const *proto, uint8 slot, bool appl
             ApplyFeralAPBonus(feral_bonus, apply);
     }
 
-    if(!IsInFeralForm() || !CanUseAttackType(attType))
+    if(IsInFeralForm() || !CanUseAttackType(attType))
         return;
 
     if (proto->Delay)
