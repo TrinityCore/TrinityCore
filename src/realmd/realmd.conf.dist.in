@@ -64,26 +64,6 @@ ConfVersion=2007062001
 #        1 = Basic&Error; 2 = Detail; 3 = Full/Debug
 #        Default: 3
 #
-#    LogDB.Char
-#        Enable/disable logging character outputs to DB.
-#        Default: 0 - off
-#                 1 - on
-#
-#    LogDB.GM
-#        Enable/disable logging GM commands to DB.
-#        Default: 0 - off
-#                 1 - on
-#
-#    LogDB.RA
-#        Enable/disable logging remote access events to DB.
-#        Default: 0 - off
-#                 1 - on
-#
-#    LogDB.World
-#        Enable/disable logging world packets to DB.
-#        Default: 0 - off
-#                 1 - on (very heavy)
-#
 #    UseProcessors
 #        Used processors mask for multi-processors system (Used only at Windows)
 #        Default: 0 (selected by OS)
@@ -134,7 +114,3 @@ WrongPass.BanTime = 600
 WrongPass.BanType = 0
 EnableLogDB = 0
 DBLogLevel = 1
-LogDB.Char   = 0
-LogDB.GM     = 0
-LogDB.RA     = 0
-LogDB.World  = 0
