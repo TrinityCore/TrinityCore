@@ -1,4 +1,4 @@
-/*
+/* 
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * Copyright (C) 2008-2009 Trinity <http://www.trinitycore.org/>
@@ -21,8 +21,6 @@
 /// \addtogroup Trinityd Trinity Daemon
 /// @{
 /// \file
-#include "SystemConfig.h"
-#include "revision.h"
 
 #include "Common.h"
 #include "Database/DatabaseEnv.h"
@@ -31,18 +29,18 @@
 #include "Master.h"
 
 #ifndef _TRINITY_CORE_CONFIG
-# define _TRINITY_CORE_CONFIG  "trinitycore.conf"
+# define _TRINITY_CORE_CONFIG  "TrinityCore.conf"
 #endif //_TRINITY_CORE_CONFIG
 
 // Format is YYYYMMDDRR where RR is the change in the conf file
 // for that day.
 #ifndef _TRINITY_CORE_CONFVER
-# define _TRINITY_CORE_CONFVER 2008022901
+# define _TRINITY_CORE_CONFVER 2009010301
 #endif //_TRINITY_CORE_CONFVER
 
 #ifdef WIN32
 #include "ServiceWin32.h"
-char serviceName[] = "Trinityd";
+char serviceName[] = "TrinityCore";
 char serviceLongName[] = "Trinity core service";
 char serviceDescription[] = "Massive Network Game Object Server";
 /*
@@ -64,7 +62,6 @@ uint32 realmID;                                             ///< Id of the realm
 void usage(const char *prog)
 {
     sLog.outString("Usage: \n %s [<options>]\n"
-        "    --version                print version and exit\n\r"
         "    -c config_file           use config_file as configuration file\n\r"
         #ifdef WIN32
         "    Running as service functions:\n\r"
@@ -93,12 +90,6 @@ extern int main(int argc, char **argv)
             }
             else
                 cfg_file = argv[c];
-        }
-
-        if( strcmp(argv[c],"--version") == 0)
-        {
-            printf("%s\n", _FULLVERSION);
-            return 0;
         }
 
         #ifdef WIN32
@@ -147,7 +138,7 @@ extern int main(int argc, char **argv)
         return 1;
     }
     sLog.outString("Using configuration file %s.", cfg_file);
-
+    
     uint32 confVersion = sConfig.GetIntDefault("ConfVersion", 0);
     if (confVersion < _TRINITY_CORE_CONFVER)
     {
@@ -172,4 +163,3 @@ extern int main(int argc, char **argv)
 }
 
 /// @}
-
