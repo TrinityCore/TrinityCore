@@ -27,21 +27,34 @@
 class TempSummon : public Creature
 {
     public:
-        explicit TempSummon(uint64 summoner = 0);
+        explicit TempSummon(SummonPropertiesEntry const *properties, Unit *owner);
         virtual ~TempSummon(){};
         void Update(uint32 time);
-        void Summon(TempSummonType type, uint32 lifetime);
+        virtual void InitSummon(uint32 lifetime);
         virtual void UnSummon();
+        void SetTempSummonType(TempSummonType type);
         void SaveToDB();
-        Unit* GetSummoner() const { return m_summoner ? ObjectAccessor::GetUnit(*this, m_summoner) : NULL; }
+        Unit* GetSummoner() const { return m_summonerGUID ? ObjectAccessor::GetUnit(*this, m_summonerGUID) : NULL; }
 
-        void SetSummonProperties(SummonPropertiesEntry const *properties);
-        SummonPropertiesEntry const *m_properties;
+        SummonPropertiesEntry const *m_Properties;
     private:
         TempSummonType m_type;
         uint32 m_timer;
         uint32 m_lifetime;
-        uint64 m_summoner;
+        uint64 m_summonerGUID;
 };
+
+class Guardian : public TempSummon
+{
+    public:
+        Guardian(SummonPropertiesEntry const *properties, Unit *owner);
+        bool Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, uint32 pet_number);
+        void InitSummon(uint32 duration);
+        void UnSummon();
+        void InitStatsForLevel(uint32 level);
+    protected:
+        Unit *m_owner;
+};
+
 #endif
 

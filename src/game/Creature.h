@@ -136,6 +136,16 @@ enum CreatureFlagsExtra
     CREATURE_FLAG_EXTRA_NO_TAUNT        = 0x00010000,       // cannot be taunted
 };
 
+enum SummonMask
+{
+    SUMMON_MASK_NONE                  = 0x00000000,
+    SUMMON_MASK_SUMMON                = 0x00000001,
+    SUMMON_MASK_GUARDIAN              = 0x00000002,
+    SUMMON_MASK_TOTEM                 = 0x00000004,
+    SUMMON_MASK_PET                   = 0x00000008,
+    SUMMON_MASK_VEHICLE               = 0x00000010,
+};
+
 // GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push,N), also any gcc version not support it at some platform
 #if defined( __GNUC__ )
 #pragma pack(1)
@@ -436,11 +446,12 @@ class TRINITY_DLL_SPEC Creature : public Unit
         void GetRespawnCoord(float &x, float &y, float &z, float* ori = NULL, float* dist =NULL) const;
         uint32 GetEquipmentId() const { return m_equipmentId; }
 
-        bool isSummon() const { return m_isSummon; }
-        bool isPet() const { return m_isPet; }
-        bool isVehicle() const { return m_isVehicle; }
+        uint32 GetSummonMask() const { return m_summonMask; }
+        bool isSummon() const   { return m_summonMask & SUMMON_MASK_SUMMON; }
+        bool isPet() const      { return m_summonMask & SUMMON_MASK_PET; }
+        bool isVehicle() const  { return m_summonMask & SUMMON_MASK_VEHICLE; }
+        bool isTotem() const    { return m_summonMask & SUMMON_MASK_TOTEM; }
         void SetCorpseDelay(uint32 delay) { m_corpseDelay = delay; }
-        bool isTotem() const { return m_isTotem; }
         bool isRacialLeader() const { return GetCreatureInfo()->RacialLeader; }
         bool isCivilian() const { return GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_CIVILIAN; }
         bool isTrigger() const { return GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER; }
@@ -669,10 +680,7 @@ class TRINITY_DLL_SPEC Creature : public Unit
         GossipOptionList m_goptions;
 
         uint8 m_emoteState;
-        bool m_isSummon;
-        bool m_isPet;                                       // set only in Pet::Pet
-        bool m_isVehicle;                                   // set only in Vehicle::Vehicle
-        bool m_isTotem;                                     // set only in Totem::Totem
+        uint32 m_summonMask;
         ReactStates m_reactState;                           // for AI, not charmInfo
         void RegenerateMana();
         void RegenerateHealth();

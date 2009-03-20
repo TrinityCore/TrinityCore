@@ -3313,15 +3313,12 @@ void Spell::EffectApplyAreaAura(uint32 i)
 
 void Spell::EffectSummonType(uint32 i)
 {
+    uint32 entry = m_spellInfo->EffectMiscValue[i];
+    if(!entry)
+        return;
+
     switch(m_spellInfo->EffectMiscValueB[i])
     {
-        case SUMMON_TYPE_GUARDIAN:
-            EffectSummonGuardian(i);
-            break;
-        case SUMMON_TYPE_FORCE_OF_NATURE:
-        case SUMMON_TYPE_FERAL_SPIRIT:
-            EffectSummonGuardian(i);
-            break;
         case SUMMON_TYPE_WILD:
         case SUMMON_TYPE_FROZEN_EARTH:
         case SUMMON_TYPE_LIGHTWELL:
@@ -3333,39 +3330,45 @@ void Spell::EffectSummonType(uint32 i)
         case SUMMON_TYPE_SUMMON:
             EffectSummon(i);
             break;
-        case SUMMON_TYPE_TOTEM_SLOT1:
-        case SUMMON_TYPE_TOTEM_SLOT2:
-        case SUMMON_TYPE_TOTEM_SLOT3:
-        case SUMMON_TYPE_TOTEM_SLOT4:
-        case SUMMON_TYPE_TOTEM:
-            EffectSummonTotem(i);
-            break;
-        case SUMMON_TYPE_UNKNOWN1:
-        case SUMMON_TYPE_UNKNOWN3:
-        case SUMMON_TYPE_UNKNOWN4:
-        case SUMMON_TYPE_UNKNOWN5:
-            break;
         default:
         {
-            SummonPropertiesEntry const *SummonProperties = sSummonPropertiesStore.LookupEntry(m_spellInfo->EffectMiscValueB[i]);
-            if(!SummonProperties)
+            SummonPropertiesEntry const *properties = sSummonPropertiesStore.LookupEntry(m_spellInfo->EffectMiscValueB[i]);
+            if(!properties)
             {
                 sLog.outError("EffectSummonType: Unhandled summon type %u", m_spellInfo->EffectMiscValueB[i]);
                 return;
             }
-            switch(SummonProperties->Category)
+            switch(properties->Category)
             {
                 default:
-                    if(SummonProperties->Type == SUMMON_TYPE_MINIPET)
-                        EffectSummonCritter(i);
-                    else
-                        EffectSummonWild(i);
+                    switch(properties->Type)
+                    {
+                        case SUMMON_TYPE_GUARDIAN:
+                        case SUMMON_TYPE_MINION:
+                            SummonGuardian(entry, properties);
+                            break;
+                        case SUMMON_TYPE_VEHICLE:
+                            SummonVehicle(entry, properties);
+                            break;
+                        case SUMMON_TYPE_TOTEM:
+                            SummonTotem(entry, properties);
+                            break;
+                        case SUMMON_TYPE_MINIPET:
+                            EffectSummonCritter(i);
+                            break;
+                        default:
+                            EffectSummonWild(i);
+                            break;
+                    }
+                    break;
+                case SUMMON_CATEGORY_GUARDIAN:
+                    SummonGuardian(entry, properties);
                     break;
                 case SUMMON_CATEGORY_POSSESSED:
-                    EffectSummonPossessed(i);
+                    SummonPossessed(entry, properties);
                     break;
                 case SUMMON_CATEGORY_VEHICLE:
-                    EffectSummonVehicle(i);
+                    SummonVehicle(entry, properties);
                     break;
             }
             break;
@@ -3698,101 +3701,6 @@ void Spell::EffectSummonWild(uint32 i)
             m_originalCaster->SummonCreature(creature_entry,px,py,pz,m_caster->GetOrientation(),summonType,duration);
         else
             m_caster->SummonCreature(creature_entry,px,py,pz,m_caster->GetOrientation(),summonType,duration);
-    }
-}
-
-void Spell::EffectSummonGuardian(uint32 i)
-{
-    uint32 pet_entry = m_spellInfo->EffectMiscValue[i];
-    if(!pet_entry)
-        return;
-
-    // Jewelery statue case (totem like)
-    if(m_spellInfo->SpellIconID==2056)
-    {
-        EffectSummonTotem(i);
-        return;
-    }
-
-    Player *caster = NULL;
-    if(m_originalCaster)
-    {
-        if(m_originalCaster->GetTypeId() == TYPEID_PLAYER)
-            caster = (Player*)m_originalCaster;
-        else if(((Creature*)m_originalCaster)->isTotem())
-            caster = m_originalCaster->GetCharmerOrOwnerPlayerOrPlayerItself();
-    }
-
-    if(!caster)
-    {
-        EffectSummonWild(i);
-        return;
-    }
-
-    // set timer for unsummon
-    int32 duration = GetSpellDuration(m_spellInfo);
-
-    // Search old Guardian only for players (if casted spell not have duration or cooldown)
-    // FIXME: some guardians have control spell applied and controlled by player and anyway player can't summon in this time
-    //        so this code hack in fact
-    if(duration <= 0 || GetSpellRecoveryTime(m_spellInfo)==0)
-        if(caster->HasGuardianWithEntry(pet_entry))
-            return;                                         // find old guardian, ignore summon
-
-    // in another case summon new
-    uint32 level = caster->getLevel();
-
-    // level of pet summoned using engineering item based at engineering skill level
-    if(m_CastItem)
-    {
-        ItemPrototype const *proto = m_CastItem->GetProto();
-        if(proto && proto->RequiredSkill == SKILL_ENGINERING)
-        {
-            uint16 skill202 = caster->GetSkillValue(SKILL_ENGINERING);
-            if(skill202)
-            {
-                level = skill202/5;
-            }
-        }
-    }
-
-    // select center of summon position
-    float center_x = m_targets.m_destX;
-    float center_y = m_targets.m_destY;
-    float center_z = m_targets.m_destZ;
-
-    float radius = GetSpellRadiusForFriend(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
-
-    int32 amount = damage > 0 ? damage : 1;
-
-    for(int32 count = 0; count < amount; ++count)
-    {
-
-        float px, py, pz;
-        // If dest location if present
-        if (m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION)
-        {
-            // Summon 1 unit in dest location
-            if (count == 0)
-            {
-                px = m_targets.m_destX;
-                py = m_targets.m_destY;
-                pz = m_targets.m_destZ;
-            }
-            // Summon in random point all other units if location present
-            else
-                m_caster->GetRandomPoint(center_x,center_y,center_z,radius,px,py,pz);
-        }
-        // Summon if dest location not present near caster
-        else
-            m_caster->GetClosePoint(px,py,pz,m_caster->GetObjectSize());
-
-        Pet *spawnCreature = caster->SummonPet(m_spellInfo->EffectMiscValue[i], px, py, pz, m_caster->GetOrientation(), GUARDIAN_PET, duration);
-        if(!spawnCreature)
-            return;
-
-        spawnCreature->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP,0);
-        spawnCreature->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
     }
 }
 
@@ -5525,90 +5433,6 @@ void Spell::EffectApplyGlyph(uint32 i)
     }
 }
 
-void Spell::EffectSummonTotem(uint32 i)
-{
-    uint8 slot = 0;
-    switch(m_spellInfo->EffectMiscValueB[i])
-    {
-        case SUMMON_TYPE_TOTEM_SLOT1: slot = 0; break;
-        case SUMMON_TYPE_TOTEM_SLOT2: slot = 1; break;
-        case SUMMON_TYPE_TOTEM_SLOT3: slot = 2; break;
-        case SUMMON_TYPE_TOTEM_SLOT4: slot = 3; break;
-        // Battle standard case
-        case SUMMON_TYPE_TOTEM:       slot = 254; break;
-        // jewelery statue case, like totem without slot
-        case SUMMON_TYPE_GUARDIAN:    slot = 255; break;
-        default: return;
-    }
-
-    if(slot < MAX_TOTEM)
-    {
-        uint64 guid = m_caster->m_TotemSlot[slot];
-        if(guid != 0)
-        {
-            Creature *OldTotem = ObjectAccessor::GetCreature(*m_caster, guid);
-            if(OldTotem && OldTotem->isTotem())
-                ((Totem*)OldTotem)->UnSummon();
-        }
-    }
-
-    uint32 team = 0;
-    if (m_caster->GetTypeId()==TYPEID_PLAYER)
-        team = ((Player*)m_caster)->GetTeam();
-
-    Totem* pTotem = new Totem;
-
-    if(!pTotem->Create(objmgr.GenerateLowGuid(HIGHGUID_UNIT), m_caster->GetMap(), m_caster->GetPhaseMask(),
-        m_spellInfo->EffectMiscValue[i], team ))
-    {
-        delete pTotem;
-        return;
-    }
-
-    float x,y,z;
-    GetSummonPosition(x, y, z);
-
-    // totem must be at same Z in case swimming caster and etc.
-    if( fabs( z - m_caster->GetPositionZ() ) > 5 )
-        z = m_caster->GetPositionZ();
-
-    pTotem->Relocate(x, y, z, m_caster->GetOrientation());
-
-    if(slot < MAX_TOTEM)
-        m_caster->m_TotemSlot[slot] = pTotem->GetGUID();
-
-    pTotem->SetOwner(m_caster->GetGUID());
-    pTotem->SetTypeBySummonSpell(m_spellInfo);              // must be after Create call where m_spells initilized
-
-    int32 duration=GetSpellDuration(m_spellInfo);
-    if(Player* modOwner = m_caster->GetSpellModOwner())
-        modOwner->ApplySpellMod(m_spellInfo->Id,SPELLMOD_DURATION, duration);
-    pTotem->SetDuration(duration);
-
-    if (damage)                                             // if not spell info, DB values used
-    {
-        pTotem->SetMaxHealth(damage);
-        pTotem->SetHealth(damage);
-    }
-
-    pTotem->SetUInt32Value(UNIT_CREATED_BY_SPELL,m_spellInfo->Id);
-
-    if(m_caster->GetTypeId() == TYPEID_PLAYER)
-        pTotem->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_PVP_ATTACKABLE);
-
-    pTotem->Summon(m_caster);
-
-    if(slot < MAX_TOTEM && m_caster->GetTypeId() == TYPEID_PLAYER)
-    {
-        WorldPacket data(SMSG_TOTEM_CREATED, 1+8+4+4);
-        data << uint8(slot);
-        data << uint64(pTotem->GetGUID());
-        data << uint32(duration);
-        data << uint32(m_spellInfo->Id);
-        ((Player*)m_caster)->SendDirectMessage(&data);
-    }
-}
-
 void Spell::EffectEnchantHeldItem(uint32 i)
 {
     // this is only item spell effect applied to main-hand weapon of target player (players in area)
@@ -6031,8 +5855,7 @@ void Spell::EffectSummonCritter(uint32 i)
     GetSummonPosition(x, y, z);
 
     int32 duration = GetSpellDuration(m_spellInfo);
-    TempSummonType summonType = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_DESPAWN;
-    TempSummon *critter = m_caster->SummonCreature(pet_entry, x, y, z, m_caster->GetOrientation(), summonType, duration);
+    TempSummon *critter = m_caster->GetMap()->SummonCreature(pet_entry, x, y, z, m_caster->GetOrientation(), sSummonPropertiesStore.LookupEntry(m_spellInfo->EffectMiscValueB[i]), duration, m_caster);
     if(!critter)
         return;
 
@@ -6052,8 +5875,6 @@ void Spell::EffectSummonCritter(uint32 i)
     std::string name = player->GetName();
     name.append(petTypeSuffix[3]);
     critter->SetName( name );
-
-    critter->SetSummonProperties(sSummonPropertiesStore.LookupEntry(m_spellInfo->EffectMiscValueB[i]));
 }
 
 void Spell::EffectKnockBack(uint32 i)
@@ -6681,12 +6502,128 @@ void Spell::EffectRedirectThreat(uint32 /*i*/)
         m_caster->SetReducedThreatPercent((uint32)damage, unitTarget->GetGUID());
 }
 
-void Spell::EffectSummonPossessed(uint32 i)
+void Spell::SummonTotem(uint32 entry, SummonPropertiesEntry const *properties)
 {
-    uint32 entry = m_spellInfo->EffectMiscValue[i];
-    if(!entry)
+    int8 slot = (int8)properties->Slot - 1;
+
+    if(slot >= 0 && slot < MAX_TOTEM)
+    {
+        uint64 guid = m_caster->m_TotemSlot[slot];
+        if(guid != 0)
+        {
+            Creature *OldTotem = ObjectAccessor::GetCreature(*m_caster, guid);
+            if(OldTotem && OldTotem->isTotem())
+                ((Totem*)OldTotem)->UnSummon();
+        }
+    }
+
+    uint32 team = 0;
+    if (m_caster->GetTypeId()==TYPEID_PLAYER)
+        team = ((Player*)m_caster)->GetTeam();
+
+    Totem* pTotem = new Totem(properties, m_caster);
+
+    if(!pTotem->Create(objmgr.GenerateLowGuid(HIGHGUID_UNIT), m_caster->GetMap(), m_caster->GetPhaseMask(),
+        entry, team ))
+    {
+        delete pTotem;
+        return;
+    }
+
+    float x,y,z;
+    GetSummonPosition(x, y, z);
+
+    // totem must be at same Z in case swimming caster and etc.
+    if( fabs( z - m_caster->GetPositionZ() ) > 5 )
+        z = m_caster->GetPositionZ();
+
+    pTotem->Relocate(x, y, z, m_caster->GetOrientation());
+
+    if(slot < MAX_TOTEM)
+        m_caster->m_TotemSlot[slot] = pTotem->GetGUID();
+
+    pTotem->SetOwner(m_caster->GetGUID());
+    pTotem->SetTypeBySummonSpell(m_spellInfo);              // must be after Create call where m_spells initilized
+
+    int32 duration=GetSpellDuration(m_spellInfo);
+    if(Player* modOwner = m_caster->GetSpellModOwner())
+        modOwner->ApplySpellMod(m_spellInfo->Id,SPELLMOD_DURATION, duration);
+    pTotem->SetDuration(duration);
+
+    if (damage)                                             // if not spell info, DB values used
+    {
+        pTotem->SetMaxHealth(damage);
+        pTotem->SetHealth(damage);
+    }
+
+    pTotem->SetUInt32Value(UNIT_CREATED_BY_SPELL,m_spellInfo->Id);
+
+    if(m_caster->GetTypeId() == TYPEID_PLAYER)
+        pTotem->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_PVP_ATTACKABLE);
+
+    pTotem->Summon(m_caster);
+
+    if(slot >= 0 && slot < MAX_TOTEM && m_caster->GetTypeId() == TYPEID_PLAYER)
+    {
+        WorldPacket data(SMSG_TOTEM_CREATED, 1+8+4+4);
+        data << uint8(slot);
+        data << uint64(pTotem->GetGUID());
+        data << uint32(duration);
+        data << uint32(m_spellInfo->Id);
+        ((Player*)m_caster)->SendDirectMessage(&data);
+    }
+}
+
+void Spell::SummonGuardian(uint32 entry, SummonPropertiesEntry const *properties)
+{
+    Unit *caster = m_originalCaster;
+    if(caster && caster->GetTypeId() == TYPEID_UNIT && ((Creature*)caster)->isTotem())
+        caster = caster->GetOwner();
+    if(!caster)
         return;
 
+    // in another case summon new
+    uint32 level = caster->getLevel();
+
+    // level of pet summoned using engineering item based at engineering skill level
+    if(m_CastItem && caster->GetTypeId() == TYPEID_PLAYER)
+    {
+        ItemPrototype const *proto = m_CastItem->GetProto();
+        if(proto && proto->RequiredSkill == SKILL_ENGINERING)
+        {
+            uint16 skill202 = ((Player*)caster)->GetSkillValue(SKILL_ENGINERING);
+            if(skill202)
+            {
+                level = skill202/5;
+            }
+        }
+    }
+
+    //float radius = GetSpellRadiusForFriend(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
+    float radius = 5.0f;
+    int32 amount = damage > 0 ? damage : 1;
+    int32 duration = GetSpellDuration(m_spellInfo);
+    TempSummonType summonType = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_DESPAWN;
+    Map *map = caster->GetMap();
+
+    for(int32 count = 0; count < amount; ++count)
+    {
+        float px, py, pz;
+        GetSummonPosition(px, py, pz, radius, count);
+
+        TempSummon *summon = map->SummonCreature(entry, px, py, pz, m_caster->GetOrientation(), properties, duration, caster);
+        if(!summon)
+            return;
+
+        if(summon->GetSummonMask() | SUMMON_MASK_GUARDIAN)
+            ((Guardian*)summon)->InitStatsForLevel(level);
+
+        summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
+    }
+}
+
+void Spell::SummonPossessed(uint32 entry, SummonPropertiesEntry const *properties)
+{
     if(m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
 
@@ -6705,12 +6642,8 @@ void Spell::EffectSummonPossessed(uint32 i)
     pet->SetCharmedOrPossessedBy(m_caster, true);
 }
 
-void Spell::EffectSummonVehicle(uint32 i)
+void Spell::SummonVehicle(uint32 entry, SummonPropertiesEntry const *properties)
 {
-    uint32 entry = m_spellInfo->EffectMiscValue[i];
-    if(!entry)
-        return;
-
     float x, y, z;
     m_caster->GetClosePoint(x, y, z, DEFAULT_WORLD_OBJECT_SIZE);
     Vehicle *vehicle = m_caster->SummonVehicle(entry, x, y, z, m_caster->GetOrientation());

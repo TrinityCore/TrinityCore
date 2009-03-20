@@ -298,8 +298,6 @@ typedef std::map<RepListID,FactionState> FactionStateList;
 
 typedef std::map<uint32,ReputationRank> ForcedReactions;
 
-typedef std::set<uint64> GuardianPetList;
-
 struct EnchantDuration
 {
     EnchantDuration() : item(NULL), slot(MAX_ENCHANTMENT_SLOT), leftduration(0) {};
@@ -1052,11 +1050,6 @@ class TRINITY_DLL_SPEC Player : public Unit
 
         Pet* SummonPet(uint32 entry, float x, float y, float z, float ang, PetType petType, uint32 despwtime);
         void RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent = false);
-        void RemoveGuardians();
-        bool HasGuardianWithEntry(uint32 entry);
-        void AddGuardian(Pet* pet) { m_guardianPets.insert(pet->GetGUID()); }
-        GuardianPetList const& GetGuardians() const { return m_guardianPets; }
-        void Uncharm();
         uint32 GetPhaseMaskForSpawn() const;                // used for proper set phase for DB at GM-mode creature/GO spawn
 
         void Say(const std::string& text, const uint32 language);
@@ -2058,7 +2051,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         void SetSeer(WorldObject *target) { m_seer = target; }
         void CreateViewpoint(WorldObject *target);
         WorldObject* GetViewpoint() const;
-        void StopCastingCharm() { Uncharm(); }
+        void StopCastingCharm();
         void StopCastingBindSight();
 
         // Transports
@@ -2419,8 +2412,6 @@ class TRINITY_DLL_SPEC Player : public Unit
         // Temporarily removed pet cache
         uint32 m_temporaryUnsummonedPetNumber;
         uint32 m_oldpetspell;
-
-        GuardianPetList m_guardianPets;
 
         // Player summoning
         time_t m_summon_expire;
