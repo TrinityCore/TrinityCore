@@ -3756,7 +3756,7 @@ bool ChatHandler::HandleGuildDeleteCommand(const char* args)
 
 bool ChatHandler::HandleGetDistanceCommand(const char* args)
 {
-    WorldObject* obj;
+    WorldObject* obj = NULL;
 
     if (*args)
     {
