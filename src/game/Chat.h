@@ -120,13 +120,13 @@ class ChatHandler
         bool HandleGMNotifyCommand(const char* args);
         bool HandleGMmodeCommand(const char* args);
         bool HandleGMChatCommand(const char* args);
-        bool HandleVisibleCommand(const char* args);
+        bool HandleGMVisibleCommand(const char* args);
         bool HandleGPSCommand(const char* args);
         bool HandleTaxiCheatCommand(const char* args);
         bool HandleWhispersCommand(const char* args);
-        bool HandleNameTeleCommand(const char* args);
-        bool HandleGroupTeleCommand(const char* args);
-        bool HandleDrunkCommand(const char* args);
+        bool HandleTeleNameCommand(const char* args);
+        bool HandleTeleGroupCommand(const char* args);
+        bool HandleModifyDrunkCommand(const char* args);
         bool HandleSendItemsCommand(const char* args);
         bool HandleSendMailCommand(const char* args);
         bool HandleSendMoneyCommand(const char* args);
@@ -315,13 +315,13 @@ class ChatHandler
         bool HandleServerShutDownCommand(const char* args);
         bool HandleServerShutDownCancelCommand(const char* args);
 
-        bool HandleAddHonorCommand(const char* args);
+        bool HandleHonorAddCommand(const char* args);
         bool HandleHonorAddKillCommand(const char* args);
-        bool HandleUpdateHonorFieldsCommand(const char* args);
+        bool HandleHonorUpdateCommand(const char* args);
 
         bool HandleLoadScriptsCommand(const char* args);
-        bool HandleSendQuestPartyMsgCommand(const char* args);
-        bool HandleSendQuestInvalidMsgCommand(const char* args);
+        bool HandleDebugSendQuestPartyMsgCommand(const char* args);
+        bool HandleDebugSendQuestInvalidMsgCommand(const char* args);
 
         bool HandleDebugInArcCommand(const char* args);
         bool HandleDebugSpellFailCommand(const char* args);
@@ -329,18 +329,18 @@ class ChatHandler
         bool HandleGUIDCommand(const char* args);
         bool HandleItemMoveCommand(const char* args);
         bool HandleDeMorphCommand(const char* args);
-        bool HandleSetPoiCommand(const char* args);
-        bool HandleEquipErrorCommand(const char* args);
+        bool HandleDebugSetPoiCommand(const char* args);
+        bool HandleDebugEquipErrorCommand(const char* args);
         bool HandleGoCreatureCommand(const char* args);
         bool HandleGoObjectCommand(const char* args);
         bool HandleGoTriggerCommand(const char* args);
         bool HandleGoGraveyardCommand(const char* args);
-        bool HandleTargetObjectCommand(const char* args);
-        bool HandleDelObjectCommand(const char* args);
-        bool HandleMoveObjectCommand(const char* args);
-        bool HandleGOPhaseCommand(const char* args);
-        bool HandleTurnObjectCommand(const char* args);
-        bool HandleObjectStateCommand(const char* args);
+        bool HandleGameObjectTargetCommand(const char* args);
+        bool HandleGameObjectDeleteCommand(const char* args);
+        bool HandleGameObjectMoveCommand(const char* args);
+        bool HandleGameObjectPhaseCommand(const char* args);
+        bool HandleGameObjectTurnCommand(const char* args);
+        bool HandleGameObjectStateCommand(const char* args);
         bool HandlePInfoCommand(const char* args);
         bool HandlePLimitCommand(const char* args);
         bool HandleMuteCommand(const char* args);
@@ -373,14 +373,14 @@ class ChatHandler
         bool HandleCooldownCommand(const char* args);
         bool HandleUnLearnCommand(const char* args);
         bool HandleGetDistanceCommand(const char* args);
-        bool HandleGameObjectCommand(const char* args);
-        bool HandleAnimCommand(const char* args);
-        bool HandlePlaySoundCommand(const char* args);
-        bool HandleStandStateCommand(const char* args);
+        bool HandleGameObjectAddCommand(const char* args);
+        bool HandleDebugAnimCommand(const char* args);
+        bool HandleDebugPlaySoundCommand(const char* args);
+        bool HandleModifyStandStateCommand(const char* args);
         bool HandleDieCommand(const char* args);
         bool HandleDamageCommand(const char *args);
         bool HandleReviveCommand(const char* args);
-        bool HandleMorphCommand(const char* args);
+        bool HandleModifyMorphCommand(const char* args);
         bool HandleAuraCommand(const char* args);
         bool HandleUnAuraCommand(const char* args);
         bool HandleLinkGraveCommand(const char* args);
@@ -409,13 +409,13 @@ class ChatHandler
         bool HandleGuildUninviteCommand(const char* args);
         bool HandleGuildRankCommand(const char* args);
         bool HandleGuildDeleteCommand(const char* args);
-        bool HandleUpdate(const char* args);
+        bool HandleDebugUpdate(const char* args);
         bool HandleBankCommand(const char* args);
         bool HandleChangeWeather(const char* args);
         bool HandleKickPlayerCommand(const char * args);
         bool HandleTeleCommand(const char * args);
-        bool HandleAddTeleCommand(const char * args);
-        bool HandleDelTeleCommand(const char * args);
+        bool HandleTeleAddCommand(const char * args);
+        bool HandleTeleDelCommand(const char * args);
         bool HandleListAurasCommand(const char * args);
 
         bool HandleResetAchievementsCommand(const char * args);
@@ -447,7 +447,7 @@ class ChatHandler
         bool HandleListCreatureCommand(const char* args);
         bool HandleListItemCommand(const char* args);
         bool HandleListObjectCommand(const char* args);
-        bool HandleNearObjectCommand(const char* args);
+        bool HandleGameObjectNearCommand(const char* args);
         bool HandlePasswordCommand(const char* args);
         bool HandleLockAccountCommand(const char* args);
         bool HandleRespawnCommand(const char* args);
@@ -460,19 +460,18 @@ class ChatHandler
         bool HandleWpEventCommand(const char* args);
         bool HandleWpShowCommand(const char* args);
         bool HandleReloadAllPaths(const char *args);
-
-        bool HandleFlyModeCommand(const char* args);
-        bool HandleSendOpcodeCommand(const char* args);
-        bool HandleSellErrorCommand(const char* args);
-        bool HandleBuyErrorCommand(const char* args);
-        bool HandleUpdateWorldStateCommand(const char* args);
-        bool HandlePlaySound2Command(const char* args);
-        bool HandleSendChannelNotifyCommand(const char* args);
-        bool HandleSendChatMsgCommand(const char* args);
+        bool HandleGMFlyModeCommand(const char* args);
+        bool HandleDebugSendOpcodeCommand(const char* args);
+        bool HandleDebugSellErrorCommand(const char* args);
+        bool HandleDebugBuyErrorCommand(const char* args);
+        bool HandleDebugUpdateWorldStateCommand(const char* args);
+        bool HandleDebugPlaySound2Command(const char* args);
+        bool HandleDebugSendChannelNotifyCommand(const char* args);
+        bool HandleDebugSendChatMsgCommand(const char* args);
         bool HandleRenameCommand(const char * args);
         bool HandleCustomizeCommand(const char * args);
-        bool HandleLoadPDumpCommand(const char *args);
-        bool HandleWritePDumpCommand(const char *args);
+        bool HandlePDumpLoadCommand(const char *args);
+        bool HandlePDumpWriteCommand(const char *args);
         bool HandleCastCommand(const char *args);
         bool HandleCastBackCommand(const char *args);
         bool HandleCastDistCommand(const char *args);
@@ -490,16 +489,16 @@ class ChatHandler
         bool HandleTempAddSpwCommand(const char* args);
 
         //! Development Commands
-        bool HandleSetValue(const char* args);
-        bool HandleGetValue(const char* args);
-        bool HandleSet32Bit(const char* args);
-        bool HandleMod32Value(const char* args);
-        bool HandleAddQuest(const char * args);
-        bool HandleRemoveQuest(const char * args);
-        bool HandleCompleteQuest(const char * args);
+        bool HandleDebugSetValue(const char* args);
+        bool HandleDebugGetValue(const char* args);
+        bool HandleDebugSet32Bit(const char* args);
+        bool HandleDebugMod32Value(const char* args);
+        bool HandleQuestAdd(const char * args);
+        bool HandleQuestRemove(const char * args);
+        bool HandleQuestComplete(const char * args);
         bool HandleSaveAllCommand(const char* args);
-        bool HandleGetItemState(const char * args);
-        bool HandleGetLootRecipient(const char * args);
+        bool HandleDebugGetItemState(const char * args);
+        bool HandleDebugGetLootRecipient(const char * args);
         bool HandleDebugArenaCommand(const char * args);
         bool HandleDebugThreatList(const char * args);
         bool HandleDebugHostilRefList(const char * args);
@@ -508,9 +507,9 @@ class ChatHandler
         bool HandleBindSightCommand(const char* args);
         bool HandleUnbindSightCommand(const char* args);
         bool HandleDebugBattlegroundCommand(const char * args);
-        bool HandleSpawnVehicle(const char * args);
-        bool HandleSendLargePacketCommand(const char * args);
-        bool HandleSendSetPhaseShiftCommand(const char * args);
+        bool HandleDebugSpawnVehicle(const char * args);
+        bool HandleDebugSendLargePacketCommand(const char * args);
+        bool HandleDebugSendSetPhaseShiftCommand(const char * args);
 
         Player*   getSelectedPlayer();
         Creature* getSelectedCreature();

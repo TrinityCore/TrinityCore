@@ -1,7 +1,7 @@
-ALTER TABLE db_version CHANGE COLUMN required_7439_01_mangos_mangos_string required_7472_01_mangos_mangos_string bit;
+/*ALTER TABLE db_version CHANGE COLUMN required_7439_01_mangos_mangos_string required_7472_01_mangos_mangos_string bit;*/
 
-DELETE FROM mangos_string WHERE entry >= 667 and entry <= 687 or entry = 614 or entry = 615;
-INSERT INTO mangos_string VALUES
+DELETE FROM trinity_string WHERE entry >= 667 and entry <= 687 or entry = 614 or entry = 615;
+INSERT INTO trinity_string VALUES
 (614,'The Alliance flag is now placed at its base.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (615,'The Horde flag is now placed at its base.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (667,'The Alliance has taken control of the Mage Tower!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),

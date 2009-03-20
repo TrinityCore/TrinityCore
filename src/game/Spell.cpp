@@ -1524,7 +1524,6 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                     //    TagUnitMap.push_back(target);
                     //else
                     m_caster->GetRaidMember(TagUnitMap, radius_f);
-                    TagUnitMap.push_back(m_caster);
                     break;
             }
         }break;
@@ -1541,7 +1540,7 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
             switch(cur)
             {
                 case TARGET_UNIT_MINIPET:
-                    if( target->GetTypeId() == TYPEID_UNIT && ((Creature*)target)->isPet() && ((Pet*)target)->getPetType() == MINI_PET)
+                    if(target->GetGUID() == m_caster->m_TotemSlot[4])
                         TagUnitMap.push_back(target);
                     break;
                 case TARGET_UNIT_TARGET_ALLY:
@@ -4172,9 +4171,9 @@ SpellCastResult Spell::CheckCast(bool strict)
                 SummonPropertiesEntry const *SummonProperties = sSummonPropertiesStore.LookupEntry(m_spellInfo->EffectMiscValueB[i]);
                 if(!SummonProperties)
                     break;
-                switch(SummonProperties->Group)
+                switch(SummonProperties->Category)
                 {
-                    case SUMMON_TYPE_POSSESSED:
+                    case SUMMON_CATEGORY_POSSESSED:
                     {
                         if(m_caster->GetPetGUID())
                             return SPELL_FAILED_ALREADY_HAVE_SUMMON;

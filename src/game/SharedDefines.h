@@ -2375,13 +2375,19 @@ enum DungeonDifficulties
     TOTAL_DIFFICULTIES
 };
 
+enum SummonCategory
+{
+    SUMMON_CATEGORY_WILD        = 0,
+    SUMMON_CATEGORY_ALLY        = 1,
+    SUMMON_CATEGORY_GUARDIAN    = 2,
+    SUMMON_CATEGORY_POSSESSED   = 3,
+    SUMMON_CATEGORY_VEHICLE     = 4,
+};
+
 enum SummonType
 {
-    //SUMMON_TYPE_WILD        = 0,
-    //SUMMON_TYPE_ALLY        = 1,
-    //SUMMON_TYPE_GUARDIAN    = 2,
-    SUMMON_TYPE_POSSESSED   = 3,
-    SUMMON_TYPE_VEHICLE     = 4,
+    SUMMON_TYPE_MINIPET     = 5,
+
     SUMMON_TYPE_CRITTER     = 41,
     SUMMON_TYPE_GUARDIAN    = 61,
     SUMMON_TYPE_TOTEM_SLOT1 = 63,
