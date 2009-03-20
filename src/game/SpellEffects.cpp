@@ -6615,7 +6615,7 @@ void Spell::SummonGuardian(uint32 entry, SummonPropertiesEntry const *properties
         if(!summon)
             return;
 
-        if(summon->GetSummonMask() | SUMMON_MASK_GUARDIAN)
+        if(summon->HasSummonMask(SUMMON_MASK_GUARDIAN))
             ((Guardian*)summon)->InitStatsForLevel(level);
 
         summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
