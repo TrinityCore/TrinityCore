@@ -29,19 +29,9 @@
 
 INSTANTIATE_SINGLETON_1( Log );
 
-enum LogType
-{
-    LogNormal = 0,
-    LogDetails,
-    LogDebug,
-    LogError
-};
-
-const int LogType_count = int(LogError) +1;
-
 Log::Log() :
     raLogfile(NULL), logfile(NULL), gmLogfile(NULL), charLogfile(NULL),
-    dberLogfile(NULL), m_gmlog_per_account(false)
+    dberLogfile(NULL), m_gmlog_per_account(false), m_colored(false)
 {
     Initialize();
 }
@@ -118,6 +108,7 @@ void Log::Initialize()
 
     /// Open specific log files
     logfile = openLogFile("LogFile","LogTimestamp","w");
+    InitColors(sConfig.GetStringDefault("LogColors", ""));
 
     m_gmlog_per_account = sConfig.GetBoolDefault("GmLogPerAccount",false);
     if(!m_gmlog_per_account)
@@ -203,6 +194,119 @@ FILE* Log::openGmlogPerAccount(uint32 account)
     return fopen(namebuf, "a");
 }
 
+void Log::InitColors(const std::string& str)
+{
+    if(str.empty())
+    {
+        m_colored = false;
+        return;
+    }
+
+    int color[4];
+
+    std::istringstream ss(str);
+
+    for(int i = 0; i < LogLevels; ++i)
+    {
+        ss >> color[i];
+
+        if(!ss)
+            return;
+
+        if(color[i] < 0 || color[i] >= Colors)
+            return;
+    }
+
+    for(int i = 0; i < LogLevels; ++i)
+        m_colors[i] = ColorTypes(color[i]);
+
+    m_colored = true;
+}
+
+void Log::SetColor(bool stdout_stream, ColorTypes color)
+{
+    #if PLATFORM == PLATFORM_WINDOWS
+    static WORD WinColorFG[Colors] =
+    {
+        0,                                                  // BLACK
+        FOREGROUND_RED,                                     // RED
+        FOREGROUND_GREEN,                                   // GREEN
+        FOREGROUND_RED | FOREGROUND_GREEN,                  // BROWN
+        FOREGROUND_BLUE,                                    // BLUE
+        FOREGROUND_RED |                    FOREGROUND_BLUE,// MAGENTA
+        FOREGROUND_GREEN | FOREGROUND_BLUE,                 // CYAN
+        FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE,// WHITE
+                                                            // YELLOW
+        FOREGROUND_RED | FOREGROUND_GREEN |                   FOREGROUND_INTENSITY,
+                                                            // RED_BOLD
+        FOREGROUND_RED |                                      FOREGROUND_INTENSITY,
+                                                            // GREEN_BOLD
+        FOREGROUND_GREEN |                   FOREGROUND_INTENSITY,
+        FOREGROUND_BLUE | FOREGROUND_INTENSITY,             // BLUE_BOLD
+                                                            // MAGENTA_BOLD
+        FOREGROUND_RED |                    FOREGROUND_BLUE | FOREGROUND_INTENSITY,
+                                                            // CYAN_BOLD
+        FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY,
+                                                            // WHITE_BOLD
+        FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY
+    };
+
+    HANDLE hConsole = GetStdHandle(stdout_stream ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE );
+    SetConsoleTextAttribute(hConsole, WinColorFG[color]);
+    #else
+    enum ANSITextAttr
+    {
+        TA_NORMAL=0,
+        TA_BOLD=1,
+        TA_BLINK=5,
+        TA_REVERSE=7
+    };
+
+    enum ANSIFgTextAttr
+    {
+        FG_BLACK=30, FG_RED,  FG_GREEN, FG_BROWN, FG_BLUE,
+        FG_MAGENTA,  FG_CYAN, FG_WHITE, FG_YELLOW
+    };
+
+    enum ANSIBgTextAttr
+    {
+        BG_BLACK=40, BG_RED,  BG_GREEN, BG_BROWN, BG_BLUE,
+        BG_MAGENTA,  BG_CYAN, BG_WHITE
+    };
+
+    static uint8 UnixColorFG[Colors] =
+    {
+        FG_BLACK,                                           // BLACK
+        FG_RED,                                             // RED
+        FG_GREEN,                                           // GREEN
+        FG_BROWN,                                           // BROWN
+        FG_BLUE,                                            // BLUE
+        FG_MAGENTA,                                         // MAGENTA
+        FG_CYAN,                                            // CYAN
+        FG_WHITE,                                           // WHITE
+        FG_YELLOW,                                          // YELLOW
+        FG_RED,                                             // LRED
+        FG_GREEN,                                           // LGREEN
+        FG_BLUE,                                            // LBLUE
+        FG_MAGENTA,                                         // LMAGENTA
+        FG_CYAN,                                            // LCYAN
+        FG_WHITE                                            // LWHITE
+    };
+
+    fprintf((stdout_stream? stdout : stderr), "\x1b[%d%sm", UnixColorFG[color], (color >= YELLOW && color < Colors ? ";1" : ""));
+    #endif
+}
+
+void Log::ResetColor(bool stdout_stream)
+{
+    #if PLATFORM == PLATFORM_WINDOWS
+    HANDLE hConsole = GetStdHandle(stdout_stream ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE );
+    SetConsoleTextAttribute(hConsole, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED );
+    #else
+    fprintf(( stdout_stream ? stdout : stderr ), "\x1b[0m");
+    #endif
+}
+
 std::string Log::GetTimestampStr()
 {
     time_t t = time(NULL);
@@ -259,7 +363,13 @@ void Log::outString( const char * str, ... )
         va_end(ap2);
     }
 
+    if(m_colored)
+        SetColor(true,m_colors[LOGL_NORMAL]);
+
     UTF8PRINTF(stdout,str,);
+
+    if(m_colored)
+        ResetColor(true);
 
     printf( "\n" );
     if(logfile)
@@ -290,7 +400,13 @@ void Log::outError( const char * err, ... )
         va_end(ap2);
     }
 
+    if(m_colored)
+        SetColor(false,m_colors[LOGL_ERROR]);
+
     UTF8PRINTF(stderr,err,);
+
+    if(m_colored)
+        ResetColor(false);
 
     fprintf( stderr, "\n" );
     if(logfile)
@@ -323,7 +439,13 @@ void Log::outErrorDb( const char * err, ... )
         va_end(ap2);
     }
 
+    if(m_colored)
+        SetColor(false,m_colors[LOGL_ERROR]);
+
     UTF8PRINTF(stderr,err,);
+
+    if(m_colored)
+        ResetColor(false);
 
     fprintf( stderr, "\n" );
 
@@ -370,7 +492,13 @@ void Log::outBasic( const char * str, ... )
 
     if( m_logLevel > LOGL_NORMAL )
     {
+        if(m_colored)
+            SetColor(true,m_colors[LOGL_BASIC]);
+
         UTF8PRINTF(stdout,str,);
+
+        if(m_colored)
+            ResetColor(true);
 
         printf( "\n" );
     }
@@ -404,7 +532,13 @@ void Log::outDetail( const char * str, ... )
 
     if( m_logLevel > LOGL_BASIC )
     {
+        if(m_colored)
+            SetColor(true,m_colors[LOGL_DETAIL]);
+
         UTF8PRINTF(stdout,str,);
+
+        if(m_colored)
+            ResetColor(true);
 
         printf( "\n" );
     }
@@ -425,6 +559,7 @@ void Log::outDebugInLine( const char * str, ... )
 {
     if( !str )
         return;
+
     if( m_logLevel > LOGL_DETAIL )
     {
         UTF8PRINTF(stdout,str,);
@@ -455,7 +590,13 @@ void Log::outDebug( const char * str, ... )
 
     if( m_logLevel > LOGL_DETAIL )
     {
+        if(m_colored)
+            SetColor(true,m_colors[LOGL_DEBUG]);
+
         UTF8PRINTF(stdout,str,);
+
+        if(m_colored)
+            ResetColor(true);
 
         printf( "\n" );
     }
@@ -490,7 +631,13 @@ void Log::outCommand( uint32 account, const char * str, ... )
 
     if( m_logLevel > LOGL_NORMAL )
     {
+        if(m_colored)
+            SetColor(true,m_colors[LOGL_BASIC]);
+
         UTF8PRINTF(stdout,str,);
+
+        if(m_colored)
+            ResetColor(true);
 
         printf( "\n" );
     }

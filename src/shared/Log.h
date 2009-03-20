@@ -54,10 +54,34 @@ enum LogTypes
 enum LogLevel
 {
     LOGL_NORMAL = 0,
+    LOGL_ERROR,
     LOGL_BASIC,
     LOGL_DETAIL,
     LOGL_DEBUG
 };
+
+const int LogLevels = int(LOGL_DEBUG)+1;
+
+enum ColorTypes
+{
+    BLACK,
+    RED,
+    GREEN,
+    BROWN,
+    BLUE,
+    MAGENTA,
+    CYAN,
+    GREY,
+    YELLOW,
+    LRED,
+    LGREEN,
+    LBLUE,
+    LMAGENTA,
+    LCYAN,
+    WHITE
+};
+
+const int Colors = int(WHITE)+1;
 
 class Log : public Trinity::Singleton<Log, Trinity::ClassLevelLockable<Log, ZThread::FastMutex> >
 {
@@ -67,6 +91,10 @@ class Log : public Trinity::Singleton<Log, Trinity::ClassLevelLockable<Log, ZThr
 
     public:
         void Initialize();
+
+        void InitColors(const std::string& init_str);
+        void SetColor(bool stdout_stream, ColorTypes color);
+        void ResetColor(bool stdout_stream);
 
     	void outDB( uint8 type, const char * str, ... ) ATTR_PRINTF(3,4);
         void outString( const char * str, ... )         ATTR_PRINTF(2,3);
@@ -116,6 +144,10 @@ class Log : public Trinity::Singleton<Log, Trinity::ClassLevelLockable<Log, ZThr
 		bool m_enableLogDBLater;
 		bool m_enableLogDB;
         uint32 realm;
+
+        // log coloring
+        bool m_colored;
+        ColorTypes m_colors[4];
 
 		// log levels:
 		// 0 minimum/string, 1 basic/error, 2 detail, 3 full/debug

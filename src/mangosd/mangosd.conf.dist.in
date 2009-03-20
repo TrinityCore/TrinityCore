@@ -215,7 +215,7 @@ AddonChannel = 1
 #
 #    LogLevel
 #        Server console level of logging
-#        0 = Minimum; 1 = Basic&Error; 2 = Detail; 3 = Full/Debug
+#        0 = Minimum; 1 = Basic; 2 = Detail; 3 = Full/Debug
 #        Default: 3
 #
 #    LogFile
@@ -230,7 +230,7 @@ AddonChannel = 1
 #
 #    LogFileLevel
 #        Server file level of logging
-#        0 = Minimum; 1 = Error; 2 = Detail; 3 = Full/Debug
+#        0 = Minimum; 1 = Basic; 2 = Detail; 3 = Full/Debug
 #        Default: 0
 #
 #    LogFilter_AchievementUpdates
@@ -288,6 +288,13 @@ AddonChannel = 1
 #        Default: "Ra.log"
 #                 "" - Empty name for disable
 #
+#    LogColors
+#        Color for messages (format "normal error basic detail debug")
+#        Colors: 0 - BLACK, 1 - RED, 2 - GREEN,  3 - BROWN, 4 - BLUE, 5 - MAGENTA, 6 -  CYAN, 7 - GREY,
+#                8 - YELLOW, 9 - LRED, 10 - LGREEN, 11 - LBLUE, 12 - LMAGENTA, 13 - LCYAN, 14 - WHITE
+#        Default: "" - none colors
+#        Example: "13 7 11 9 5"
+#
 #    EnableLogDB
 #        Enable/disable logging to database (LogDatabaseInfo).
 #        Default: 0 - disabled
@@ -295,7 +302,7 @@ AddonChannel = 1
 #
 #    DBLogLevel
 #        Log level of DB logging.
-#        1 = Basic&Error; 2 = Detail; 3 = Full/Debug
+#        0 = Minimum; 1 = Basic; 2 = Detail; 3 = Full/Debug
 #        Default: 3
 #
 #    LogDB.Char
@@ -339,6 +346,7 @@ GmLogFile = "gm_commands.log"
 GmLogTimestamp = 0
 GmLogPerAccount = 0
 RaLogFile = "ra_commands.log"
+LogColors = ""
 EnableLogDB = 0
 DBLogLevel = 1
 LogDB.Char   = 0
