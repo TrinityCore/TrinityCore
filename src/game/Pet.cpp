@@ -1267,7 +1267,7 @@ bool Pet::addSpell(uint32 spell_id, uint16 active, PetSpellState state, PetSpell
     {
         if(TalentEntry const *talentInfo = sTalentStore.LookupEntry( talentPos->talent_id ))
         {
-            for(int i=0; i <5; ++i)
+            for(int i=0; i < MAX_TALENT_RANK; ++i)
             {
                 // skip learning spell and no rank spell case
                 uint32 rankSpellId = talentInfo->RankID[i];
@@ -1544,7 +1544,7 @@ bool Pet::resetTalents(bool no_cost)
         if(!((1 << pet_family->petTalentType) & talentTabInfo->petTalentMask))
             continue;
 
-        for (int j = 0; j < 5; j++)
+        for (int j = 0; j < MAX_TALENT_RANK; j++)
         {
             for(PetSpellMap::iterator itr = m_spells.begin(); itr != m_spells.end();)
             {
