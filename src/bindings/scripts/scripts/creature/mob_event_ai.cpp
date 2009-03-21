@@ -1231,21 +1231,25 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
             return;
 
         //Check for OOC LOS Event
-        for (std::list<EventHolder>::iterator i = EventList.begin(); i != EventList.end(); ++i)
+        if (!m_creature->getVictim())
         {
-            switch ((*i).Event.event_type)
+            for (std::list<EventHolder>::iterator itr = EventList.begin(); itr != EventList.end(); ++itr)
             {
-            case EVENT_T_OOC_LOS:
+                if ((*itr).Event.event_type == EVENT_T_OOC_LOS)
                 {
-                    if ((*i).Event.event_param1 && m_creature->IsHostileTo(who))
-                        break;
+                    //can trigger if closer than fMaxAllowedRange
+                    float fMaxAllowedRange = (*itr).Event.event_param2;                 
 
-                    if ((*i).Event.event_param2 && !m_creature->IsHostileTo(who))
-                        break;
+                    //if range is ok and we are actually in LOS
+                    if (m_creature->IsWithinDistInMap(who, fMaxAllowedRange) && m_creature->IsWithinLOSInMap(who))
+                    {
+                        //if friendly event&&who is not hostile OR hostile event&&who is hostile
+                        if (((*itr).Event.event_param1 && !m_creature->IsHostileTo(who)) ||
+                            ((!(*itr).Event.event_param1) && m_creature->IsHostileTo(who)))
+                            ProcessEvent(*itr, who);
 
-                    ProcessEvent(*i, who);
+                    }
                 }
-                break;
             }
         }
 
