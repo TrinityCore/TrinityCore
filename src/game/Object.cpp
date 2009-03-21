@@ -1077,7 +1077,7 @@ void Object::RemoveByteFlag( uint16 index, uint8 offset, uint8 oldFlag )
 
 bool Object::PrintIndexError(uint32 index, bool set) const
 {
-    sLog.outError("ERROR: Attempt %s non-existed value field: %u (count: %u) for object typeid: %u type mask: %u",(set ? "set value to" : "get value from"),index,m_valuesCount,GetTypeId(),m_objectType);
+    sLog.outError("Attempt %s non-existed value field: %u (count: %u) for object typeid: %u type mask: %u",(set ? "set value to" : "get value from"),index,m_valuesCount,GetTypeId(),m_objectType);
 
     // assert must fail after function call
     return false;
@@ -1620,7 +1620,7 @@ TempSummon *Map::SummonCreature(uint32 entry, float x, float y, float z, float a
     summon->Relocate(x, y, z, angle);
     if(!summon->IsPositionValid())
     {
-        sLog.outError("ERROR: Creature (guidlow %d, entry %d) not summoned. Suggested coordinates isn't valid (X: %f Y: %f)",summon->GetGUIDLow(),summon->GetEntry(),summon->GetPositionX(),summon->GetPositionY());
+        sLog.outError("Creature (guidlow %d, entry %d) not summoned. Suggested coordinates isn't valid (X: %f Y: %f)",summon->GetGUIDLow(),summon->GetEntry(),summon->GetPositionX(),summon->GetPositionY());
         delete summon;
         return NULL;
     }
