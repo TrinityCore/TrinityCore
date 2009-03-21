@@ -2378,6 +2378,7 @@ template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &bas
 
         if (mod->charges > 0 )
         {
+          if( !(spellInfo->SpellFamilyName == 8 && spellInfo->SpellFamilyFlags & 0x200000000LL) )
             --mod->charges;
             if (mod->charges == 0)
             {
