@@ -63,12 +63,17 @@ void WorldSession::HandlePetAction( WorldPacket & recv_data )
     if(pet->GetTypeId() == TYPEID_PLAYER && !(flag == ACT_COMMAND && spellid == COMMAND_ATTACK))
         return;
 
-    for(ControlList::iterator itr = GetPlayer()->m_Controlled.begin(); itr != GetPlayer()->m_Controlled.end();)
+    if(GetPlayer()->m_Controlled.size() == 1)
+        HandlePetActionHelper(pet, guid1, spellid, flag, guid2);
+    else
     {
-        Unit *unit = *itr;
-        ++itr;
-        if(unit->GetEntry() == pet->GetEntry() && unit->isAlive())
-            HandlePetActionHelper(unit, guid1, spellid, flag, guid2);
+        //If a pet is dismissed, m_Controlled will change
+        std::vector<Unit*> controlled;
+        for(ControlList::iterator itr = GetPlayer()->m_Controlled.begin(); itr != GetPlayer()->m_Controlled.end(); ++itr)
+            if((*itr)->GetEntry() == pet->GetEntry() && (*itr)->isAlive())
+                controlled.push_back(*itr);
+        for(std::vector<Unit*>::iterator itr = controlled.begin(); itr != controlled.end(); ++itr)
+            HandlePetActionHelper(*itr, guid1, spellid, flag, guid2);
     }
 }
 

@@ -6568,7 +6568,7 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
             pvpInfo.endTimer = time(0);                     // start toggle-off
     }
 
-    if(zone->flags & (AREA_FLAG_SANCTUARY | AREA_FLAG_UNK7 & AREA_FLAG_UNK7))       // in sanctuary
+    if((zone->flags & AREA_FLAG_SANCTUARY) || zone->mapid == 609)       // in sanctuary
     {
         SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_SANCTUARY);
         if(sWorld.IsFFAPvPRealm())
