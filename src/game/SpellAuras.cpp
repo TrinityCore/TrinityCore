@@ -6541,8 +6541,8 @@ void Aura::HandleAuraControlVehicle(bool apply, bool Real)
     if(Pet *pet = m_target->GetPet())
         pet->Remove(PET_SAVE_AS_CURRENT);
 
-    WorldPacket data(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
-    ((Player*)m_target)->GetSession()->SendPacket(&data);
+    //WorldPacket data(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
+    //((Player*)m_target)->GetSession()->SendPacket(&data);
 }
 
 void Aura::HandleAuraConvertRune(bool apply, bool Real)

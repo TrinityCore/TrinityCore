@@ -6657,6 +6657,13 @@ void Spell::SummonVehicle(uint32 entry, SummonPropertiesEntry const *properties)
         return;
 
     vehicle->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
+
+    if(damage)
+    {
+        m_caster->CastSpell(vehicle, damage, true);
+        if(m_caster->GetTypeId() == TYPEID_PLAYER)
+            ((Player*)m_caster)->EnterVehicle(vehicle);
+    }
 }
 
 void Spell::GetSummonPosition(float &x, float &y, float &z, float radius, uint32 count)
