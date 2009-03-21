@@ -843,6 +843,9 @@ enum TrinityStrings
     LANG_GM_NOTIFY                       = 6614,
     LANG_GM_ANNOUNCE_COLOR               = 6615,
 
+    LANG_WORLD_CLOSED                    = 7523,
+    LANG_WORLD_OPENED                    = 7524,
+
     // Use for not-in-offcial-sources patches
     //                                    10000-10999
     // opvp hp

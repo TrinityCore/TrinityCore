@@ -764,6 +764,16 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
         return -1;
     }
 
+    if(sWorld.IsClosed())
+    {
+        packet.Initialize(SMSG_AUTH_RESPONSE, 1);
+        packet << uint8(AUTH_REJECT);
+        SendPacket (packet);
+
+        sLog.outError ("WorldSocket::HandleAuthSession: World closed, denying client (%s).", m_Session->GetRemoteAddress());
+        return -1;
+    }
+
     // Read the content of the packet
     recvPacket >> BuiltNumberClient;                        // for now no use
     recvPacket >> unk2;
