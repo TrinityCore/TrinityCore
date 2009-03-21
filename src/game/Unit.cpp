@@ -13251,10 +13251,15 @@ void Unit::GetRaidMember(std::list<Unit*> &nearMembers, float radius)
         {
             Player* Target = itr->getSource();
 
-            // IsHostileTo check duel and controlled by enemy
-            if( Target && Target != this && Target->isAlive()
-                && IsWithinDistInMap(Target, radius) && !IsHostileTo(Target) )
-                nearMembers.push_back(Target);
+            if( Target && !IsHostileTo(Target) )
+            {
+                if(Target->isAlive() && IsWithinDistInMap(Target, radius) )
+                    nearMembers.push_back(Target);
+
+                if(Pet* pet = Target->GetPet())
+                    if(pet->isAlive() &&  IsWithinDistInMap(pet, radius) )
+                        nearMembers.push_back(pet);
+            }
         }
     }
     else
