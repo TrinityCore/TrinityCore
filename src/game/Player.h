@@ -877,7 +877,7 @@ struct AccessRequirement
     std::string questFailedText;
 	uint32 heroicQuest;
     std::string heroicQuestFailedText;
- };
+};
 
 class TRINITY_DLL_SPEC PlayerTaxi
 {

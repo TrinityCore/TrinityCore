@@ -842,7 +842,7 @@ struct AuraSlotEntry
 
 struct SpellProcEventEntry;                                 // used only privately
 
-typedef std::set<uint64> GuardianList;
+typedef std::set<Unit*> ControlList;
 
 class TRINITY_DLL_SPEC Unit : public WorldObject
 {
@@ -1200,12 +1200,16 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         }
         Player* GetCharmerOrOwnerPlayerOrPlayerItself() const;
 
-        void SetPet(Pet* pet);
-        void SetCharm(Unit* pet);
+        void SetPet(Creature* target, bool apply);
+        void SetCharm(Unit* target, bool apply);
         Unit* GetNextRandomRaidMemberOrPet(float radius);
         void SetCharmedOrPossessedBy(Unit* charmer, bool possess);
         void RemoveCharmedOrPossessedBy(Unit* charmer);
         void RestoreFaction();
+
+        ControlList m_Controlled;
+        Unit* GetFirstControlled() const;
+        void RemoveAllControlled();
 
         bool isCharmed() const { return GetCharmerGUID() != 0; }
         bool isPossessed() const { return hasUnitState(UNIT_STAT_POSSESSED); }
@@ -1309,10 +1313,6 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         uint64 m_ObjectSlot[4];
         uint32 m_detectInvisibilityMask;
         uint32 m_invisibilityMask;
-
-        GuardianList m_Guardians;
-        void RemoveGuardians();
-        void AddGuardian(Unit* pet) { m_Guardians.insert(pet->GetGUID()); }
 
         uint32 m_ShapeShiftFormSpellId;
         ShapeshiftForm m_form;

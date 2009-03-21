@@ -14581,7 +14581,6 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
     //Need to call it to initialize m_team (m_team can be calculated from m_race)
     //Other way is to saves m_team into characters table.
     setFactionForRace(m_race);
-    SetCharm(0);
     SetMover(this);
 
     m_class = fields[5].GetUInt8();
@@ -14896,9 +14895,8 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
     SetUInt32Value(UNIT_CHANNEL_SPELL,0);
 
     // clear charm/summon related fields
-    SetCharm(NULL);
-    SetMover(this);
-    SetPet(NULL);
+    SetUInt64Value(UNIT_FIELD_CHARM, 0);
+    SetUInt64Value(UNIT_FIELD_SUMMON, 0);
     SetCharmerGUID(0);
     SetOwnerGUID(0);
     SetCreatorGUID(0);
@@ -17048,12 +17046,9 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
     switch(pet->getPetType())
     {
         case POSSESSED_PET:
-            m_Guardians.erase(pet->GetGUID());
             pet->RemoveCharmedOrPossessedBy(NULL);
-            break;
         default:
-            if(GetPetGUID() == pet->GetGUID())
-                SetPet(NULL);
+            SetPet(pet, false);
             break;
     }
 
@@ -17191,6 +17186,7 @@ void Player::Whisper(const std::string& text, uint32 language,uint64 receiver)
 
 void Player::PetSpellInitialize()
 {
+    return;
     Pet* pet = GetPet();
 
     if(!pet)
@@ -17346,9 +17342,7 @@ void Player::VehicleSpellInitialize()
 
 void Player::CharmSpellInitialize()
 {
-    Unit* charm = GetCharm();
-    if(!charm && GetPetGUID())
-        charm = GetUnit(*this, GetPetGUID());
+    Unit* charm = GetFirstControlled();
     if(!charm)
         return;
 
@@ -17411,6 +17405,7 @@ void Player::CharmSpellInitialize()
     data << uint8(count);                                   // cooldowns count
 
     data.hexlike();
+    
 
     GetSession()->SendPacket(&data);
 }
@@ -20275,7 +20270,7 @@ void Player::EnterVehicle(Vehicle *vehicle)
     vehicle->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);
     vehicle->setFaction(getFaction());
 
-    SetCharm(vehicle);                                      // charm
+    SetCharm(vehicle, true);                                      // charm
     SetMover(vehicle);
 
     SetClientControl(vehicle, 1);                           // redirect controls to vehicle
@@ -20315,7 +20310,7 @@ void Player::ExitVehicle(Vehicle *vehicle)
     vehicle->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);
     vehicle->setFaction((GetTeam() == ALLIANCE) ? vehicle->GetCreatureInfo()->faction_A : vehicle->GetCreatureInfo()->faction_H);
 
-    SetCharm(NULL);
+    SetCharm(vehicle, false);
     SetMover(this);
 
     SetClientControl(vehicle, 0);

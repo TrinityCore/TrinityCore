@@ -1595,8 +1595,6 @@ TempSummon *Map::SummonCreature(uint32 entry, float x, float y, float z, float a
             mask = SUMMON_MASK_VEHICLE;
     }
 
-    TempSummon *summon = NULL;
-    bool ok = true;
     uint32 phase = PHASEMASK_NORMAL, team = 0;
     if(summoner)
     {
@@ -1605,27 +1603,15 @@ TempSummon *Map::SummonCreature(uint32 entry, float x, float y, float z, float a
             team = ((Player*)summoner)->GetTeam();
     }
 
+    TempSummon *summon = NULL;
     switch(mask)
     {
-        case SUMMON_MASK_SUMMON:
-            summon = new TempSummon(properties, summoner);
-            ok = summon->Create(objmgr.GenerateLowGuid(HIGHGUID_UNIT), this, phase, entry, team);
-            break;
-        case SUMMON_MASK_GUARDIAN:
-            summon = new Guardian(properties, summoner);
-            team = objmgr.GeneratePetNumber();
-            ok = summon->Create(objmgr.GenerateLowGuid(HIGHGUID_PET), this, phase, entry, team);
-            // this enables pet details window (Shift+P)
-            summon->GetCharmInfo()->SetPetNumber(team, false);
-            break;
-        case SUMMON_MASK_TOTEM:
-            summon = new Totem(properties, summoner);
-            ok = summon->Create(objmgr.GenerateLowGuid(HIGHGUID_UNIT), this, phase, entry, team);
-            break;
-        default:
-            return NULL;
+        case SUMMON_MASK_SUMMON:    summon = new TempSummon (properties, summoner);  break;
+        case SUMMON_MASK_GUARDIAN:  summon = new Guardian   (properties, summoner);  break;
+        case SUMMON_MASK_TOTEM:     summon = new Totem      (properties, summoner);  break;
+        default:    return NULL;
     }
-    if(!ok)
+    if(!summon->Create(objmgr.GenerateLowGuid(HIGHGUID_UNIT), this, phase, entry, team))
     {
         delete summon;
         return NULL;
@@ -1639,9 +1625,8 @@ TempSummon *Map::SummonCreature(uint32 entry, float x, float y, float z, float a
         return NULL;
     }
 
-    summon->InitSummon(duration);
-
     Add((Creature*)summon);
+    summon->InitSummon(duration);
 
     return summon;
 }
@@ -1779,11 +1764,12 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     pet->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
     pet->InitStatsForLevel(getLevel());
 
+    SetPet(pet, true);
+
     switch(petType)
     {
         case POSSESSED_PET:
             pet->SetUInt32Value(UNIT_FIELD_FLAGS,0);
-            AddGuardian(pet);
             break;
         case SUMMON_PET:
             pet->SetUInt32Value(UNIT_FIELD_BYTES_0, 2048);
@@ -1793,7 +1779,6 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
             pet->SetPower(POWER_MANA, pet->GetMaxPower(POWER_MANA));
             pet->InitPetCreateSpells();
             pet->SavePetToDB(PET_SAVE_AS_CURRENT);
-            SetPet(pet);
             PetSpellInitialize();
             break;
     }
