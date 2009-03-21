@@ -8253,7 +8253,6 @@ Unit* Unit::GetCharm() const
 
 void Unit::SetPet(Creature* pet, bool apply)
 {
-    sLog.outError("before %u", GetPetGUID());
     if(apply)
     {
         if(!GetPetGUID())
@@ -8280,7 +8279,6 @@ void Unit::SetPet(Creature* pet, bool apply)
             }
         }
     }
-    sLog.outError("after %u", GetPetGUID());
 }
 
 void Unit::SetCharm(Unit* charm, bool apply)
@@ -11221,10 +11219,6 @@ void Unit::RemoveFromWorld()
         RemoveCharmAuras();
         RemoveBindSightAuras();
         RemoveNotOwnSingleTargetAuras();
-    }
-
-    //if(m_uint32Values)
-    {
         // if it has charmer or owner, it must be in someone's controllist and server will crash
         assert(!GetCharmerGUID());
         assert(!GetOwnerGUID());
