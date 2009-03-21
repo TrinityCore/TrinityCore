@@ -560,7 +560,9 @@ enum PlayerSlots
     PLAYER_SLOTS_COUNT          = (PLAYER_SLOT_END - PLAYER_SLOT_START)
 };
 
-enum EquipmentSlots
+#define INVENTORY_SLOT_BAG_0    255
+
+enum EquipmentSlots                                         // 19 slots
 {
     EQUIPMENT_SLOT_START        = 0,
     EQUIPMENT_SLOT_HEAD         = 0,
@@ -585,118 +587,56 @@ enum EquipmentSlots
     EQUIPMENT_SLOT_END          = 19
 };
 
-enum InventorySlots
+enum InventorySlots                                         // 4 slots
 {
-    INVENTORY_SLOT_BAG_0        = 255,
     INVENTORY_SLOT_BAG_START    = 19,
-    INVENTORY_SLOT_BAG_1        = 19,
-    INVENTORY_SLOT_BAG_2        = 20,
-    INVENTORY_SLOT_BAG_3        = 21,
-    INVENTORY_SLOT_BAG_4        = 22,
-    INVENTORY_SLOT_BAG_END      = 23,
+    INVENTORY_SLOT_BAG_END      = 23
+};
 
+enum InventoryPackSlots                                     // 16 slots
+{
     INVENTORY_SLOT_ITEM_START   = 23,
-    INVENTORY_SLOT_ITEM_1       = 23,
-    INVENTORY_SLOT_ITEM_2       = 24,
-    INVENTORY_SLOT_ITEM_3       = 25,
-    INVENTORY_SLOT_ITEM_4       = 26,
-    INVENTORY_SLOT_ITEM_5       = 27,
-    INVENTORY_SLOT_ITEM_6       = 28,
-    INVENTORY_SLOT_ITEM_7       = 29,
-    INVENTORY_SLOT_ITEM_8       = 30,
-    INVENTORY_SLOT_ITEM_9       = 31,
-    INVENTORY_SLOT_ITEM_10      = 32,
-    INVENTORY_SLOT_ITEM_11      = 33,
-    INVENTORY_SLOT_ITEM_12      = 34,
-    INVENTORY_SLOT_ITEM_13      = 35,
-    INVENTORY_SLOT_ITEM_14      = 36,
-    INVENTORY_SLOT_ITEM_15      = 37,
-    INVENTORY_SLOT_ITEM_16      = 38,
     INVENTORY_SLOT_ITEM_END     = 39
 };
 
-enum BankSlots
+enum BankItemSlots                                          // 28 slots
 {
     BANK_SLOT_ITEM_START        = 39,
-    BANK_SLOT_ITEM_1            = 39,
-    BANK_SLOT_ITEM_2            = 40,
-    BANK_SLOT_ITEM_3            = 41,
-    BANK_SLOT_ITEM_4            = 42,
-    BANK_SLOT_ITEM_5            = 43,
-    BANK_SLOT_ITEM_6            = 44,
-    BANK_SLOT_ITEM_7            = 45,
-    BANK_SLOT_ITEM_8            = 46,
-    BANK_SLOT_ITEM_9            = 47,
-    BANK_SLOT_ITEM_10           = 48,
-    BANK_SLOT_ITEM_11           = 49,
-    BANK_SLOT_ITEM_12           = 50,
-    BANK_SLOT_ITEM_13           = 51,
-    BANK_SLOT_ITEM_14           = 52,
-    BANK_SLOT_ITEM_15           = 53,
-    BANK_SLOT_ITEM_16           = 54,
-    BANK_SLOT_ITEM_17           = 55,
-    BANK_SLOT_ITEM_18           = 56,
-    BANK_SLOT_ITEM_19           = 57,
-    BANK_SLOT_ITEM_20           = 58,
-    BANK_SLOT_ITEM_21           = 59,
-    BANK_SLOT_ITEM_22           = 60,
-    BANK_SLOT_ITEM_23           = 61,
-    BANK_SLOT_ITEM_24           = 62,
-    BANK_SLOT_ITEM_25           = 63,
-    BANK_SLOT_ITEM_26           = 64,
-    BANK_SLOT_ITEM_27           = 65,
-    BANK_SLOT_ITEM_28           = 66,
-    BANK_SLOT_ITEM_END          = 67,
+    BANK_SLOT_ITEM_END          = 67
+};
 
+enum BankBagSlots                                           // 7 slots
+{
     BANK_SLOT_BAG_START         = 67,
-    BANK_SLOT_BAG_1             = 67,
-    BANK_SLOT_BAG_2             = 68,
-    BANK_SLOT_BAG_3             = 69,
-    BANK_SLOT_BAG_4             = 70,
-    BANK_SLOT_BAG_5             = 71,
-    BANK_SLOT_BAG_6             = 72,
-    BANK_SLOT_BAG_7             = 73,
     BANK_SLOT_BAG_END           = 74
 };
 
-enum BuyBackSlots
+enum BuyBackSlots                                           // 12 slots
 {
     // stored in m_buybackitems
     BUYBACK_SLOT_START          = 74,
-    BUYBACK_SLOT_1              = 74,
-    BUYBACK_SLOT_2              = 75,
-    BUYBACK_SLOT_3              = 76,
-    BUYBACK_SLOT_4              = 77,
-    BUYBACK_SLOT_5              = 78,
-    BUYBACK_SLOT_6              = 79,
-    BUYBACK_SLOT_7              = 80,
-    BUYBACK_SLOT_8              = 81,
-    BUYBACK_SLOT_9              = 82,
-    BUYBACK_SLOT_10             = 83,
-    BUYBACK_SLOT_11             = 84,
-    BUYBACK_SLOT_12             = 85,
     BUYBACK_SLOT_END            = 86
 };
 
-enum KeyRingSlots
+enum KeyRingSlots                                           // 32 slots
 {
     KEYRING_SLOT_START          = 86,
     KEYRING_SLOT_END            = 118
 };
 
-enum VanityPetSlots
+enum VanityPetSlots                                         // 18 slots
 {
     VANITYPET_SLOT_START        = 118,                      // not use, vanity pets stored as spells
     VANITYPET_SLOT_END          = 136                       // not alloed any content in.
 };
 
-enum CurrencyTokenSlots
+enum CurrencyTokenSlots                                     // 32 slots
 {
     CURRENCYTOKEN_SLOT_START    = 136,
     CURRENCYTOKEN_SLOT_END      = 168
 };
 
-enum QuestBagSlots
+enum QuestBagSlots                                          // 32 slots
 {
     QUESTBAG_SLOT_START         = 168,
     QUESTBAG_SLOT_END           = 200
@@ -767,11 +707,6 @@ struct MovementInfo
         unk1 = 0;
         x = y = z = o = t_x = t_y = t_z = t_o = s_pitch = j_unk = j_sinAngle = j_cosAngle = j_xyspeed = u_unk1 = 0.0f;
         t_guid = 0;
-    }
-
-    void SetMovementFlags(uint32 _flags)
-    {
-        flags = _flags;
     }
 };
 
@@ -849,7 +784,6 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOADCRITERIAPROGRESS     = 20,
     MAX_PLAYER_LOGIN_QUERY                      = 21
 };
-
 
 // Player summoning auto-decline time (in secs)
 #define MAX_PLAYER_SUMMON_DELAY                   (2*MINUTE)
@@ -1471,6 +1405,9 @@ class TRINITY_DLL_SPEC Player : public Unit
         bool resetTalents(bool no_cost = false);
         uint32 resetTalentsCost() const;
         void InitTalentForLevel();
+
+        void LearnTalent(uint32 talentId, uint32 talentRank);
+        void LearnPetTalent(uint64 petGuid, uint32 talentId, uint32 talentRank);
 
         uint32 CalculateTalentsPoints() const;
 

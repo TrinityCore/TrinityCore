@@ -4867,7 +4867,7 @@ SpellCastResult Spell::CheckItems()
                 ItemPrototype const *proto = m_CastItem->GetProto();
                 if(!proto)
                     return SPELL_FAILED_ITEM_NOT_READY;
-                for(int s=0;s < MAX_ITEM_PROTO_SPELLS; ++s)
+                for(int s=0; s < MAX_ITEM_PROTO_SPELLS; ++s)
                 {
                     // CastItem will be used up and does not count as reagent
                     int32 charges = m_CastItem->GetSpellCharges(s);

@@ -667,3 +667,27 @@ bool ChatHandler::HandleDebugSendSetPhaseShiftCommand(const char* args)
     m_session->SendSetPhaseShift(PhaseShift);
     return true;
 }
+
+bool ChatHandler::HandleDebugSetItemFlagCommand(const char* args)
+{
+    if(!args)
+        return false;
+
+    char* e = strtok((char*)args, " ");
+    char* f = strtok(NULL, " ");
+
+    if (!e || !f)
+        return false;
+
+    uint32 guid = (uint32)atoi(e);
+    uint32 flag = (uint32)atoi(f);
+
+    Item *i = m_session->GetPlayer()->GetItemByGuid(MAKE_NEW_GUID(guid, 0, HIGHGUID_ITEM));
+
+    if(!i)
+        return false;
+
+    i->SetUInt32Value(ITEM_FIELD_FLAGS, flag);
+
+    return true;
+}
