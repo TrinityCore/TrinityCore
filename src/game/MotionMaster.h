@@ -92,6 +92,7 @@ class TRINITY_DLL_SPEC MotionMaster //: private std::stack<MovementGenerator *>
         ~MotionMaster();
 
         void Initialize();
+        void InitDefault();
 
         int size() const { return i_top + 1; }
         _Ty top() const { return Impl[i_top]; }
@@ -131,7 +132,7 @@ class TRINITY_DLL_SPEC MotionMaster //: private std::stack<MovementGenerator *>
         void MoveIdle(MovementSlot slot = MOTION_SLOT_ACTIVE);
         void MoveTargetedHome();
         void MoveRandom(float spawndist = 0.0f);
-        void MoveFollow(Unit* target, float dist, float angle);
+        void MoveFollow(Unit* target, float dist, float angle, MovementSlot slot = MOTION_SLOT_ACTIVE);
         void MoveChase(Unit* target, float dist = 0.0f, float angle = 0.0f);
         void MoveConfused();
         void MoveFleeing(Unit* enemy);
