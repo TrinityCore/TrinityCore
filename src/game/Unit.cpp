@@ -13047,7 +13047,8 @@ void Unit::SetCharmedOrPossessedBy(Unit* charmer, bool possess)
     }
 
     // Pets already have a properly initialized CharmInfo, don't overwrite it.
-    if(GetTypeId() == TYPEID_PLAYER || GetTypeId() == TYPEID_UNIT && !((Creature*)this)->HasSummonMask(SUMMON_MASK_GUARDIAN))
+    if(GetTypeId() == TYPEID_PLAYER || GetTypeId() == TYPEID_UNIT
+        && !((Creature*)this)->HasSummonMask(SUMMON_MASK_GUARDIAN) && !((Creature*)this)->isPet())
     {
         CharmInfo *charmInfo = InitCharmInfo();
         if(possess)
@@ -13168,7 +13169,8 @@ void Unit::RemoveCharmedOrPossessedBy(Unit *charmer)
     }
 
     //a guardian should always have charminfo
-    if(GetTypeId() == TYPEID_PLAYER || GetTypeId() == TYPEID_UNIT && !((Creature*)this)->HasSummonMask(SUMMON_MASK_GUARDIAN))
+    if(GetTypeId() == TYPEID_PLAYER || GetTypeId() == TYPEID_UNIT
+        && !((Creature*)this)->HasSummonMask(SUMMON_MASK_GUARDIAN) && !((Creature*)this)->isPet())
     {
         DeleteCharmInfo();
     }
