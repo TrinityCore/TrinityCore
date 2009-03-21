@@ -392,6 +392,12 @@ class World
         Weather* AddWeather(uint32 zone_id);
         void RemoveWeather(uint32 zone_id);
 
+        /// Deny clients?
+        bool IsClosed() { return m_isClosed; }
+
+        /// Close world
+        void SetClosed(bool val) { m_isClosed = val; }
+
         /// Get the active session server limit (or security level limitations)
         uint32 GetPlayerAmountLimit() const { return m_playerLimit >= 0 ? m_playerLimit : 0; }
         AccountTypes GetPlayerSecurityLimit() const { return m_playerLimit <= 0 ? AccountTypes(-m_playerLimit) : SEC_PLAYER; }
@@ -549,6 +555,8 @@ class World
         static uint8 m_ExitCode;
         uint32 m_ShutdownTimer;
         uint32 m_ShutdownMask;
+
+        bool m_isClosed;
 
         time_t m_startTime;
         time_t m_gameTime;
