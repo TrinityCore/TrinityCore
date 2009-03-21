@@ -638,8 +638,8 @@ enum CurrencyTokenSlots                                     // 32 slots
 
 enum QuestBagSlots                                          // 32 slots
 {
-    QUESTBAG_SLOT_START         = 168,
-    QUESTBAG_SLOT_END           = 200
+    QUESTBAG_SLOT_START         = 168,                      // not use
+    QUESTBAG_SLOT_END           = 200                       // not allowed any content in.
 };
 
 struct ItemPosCount
