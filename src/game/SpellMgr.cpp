@@ -2344,6 +2344,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 46771: //Flame Sear
         case 45248: //Shadow Blades
         case 41303: // Soul Drain
+        case 54172: // Divine Storm (heal)
             spellInfo->MaxAffectedTargets = 3;
             break;
         case 38310: //Multi-Shot
