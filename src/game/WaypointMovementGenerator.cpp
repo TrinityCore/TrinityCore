@@ -255,13 +255,14 @@ FlightPathMovementGenerator::Initialize(Player &player)
 void FlightPathMovementGenerator::Finalize(Player & player)
 {
     // remove flag to prevent send object build movement packets for flight state and crash (movement generator already not at top of stack)
-    player.clearUnitState(UNIT_FLAG_DISABLE_MOVE | UNIT_STAT_IN_FLIGHT);
+    player.clearUnitState(UNIT_STAT_IN_FLIGHT);
 
     float x, y, z;
     i_destinationHolder.GetLocationNow(player.GetMapId(), x, y, z);
     player.SetPosition(x, y, z, player.GetOrientation());
 
     player.Unmount();
+    player.RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_TAXI_FLIGHT);
 
     if(player.m_taxi.empty())
     {
