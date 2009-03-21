@@ -31,6 +31,7 @@
 struct Realm
 {
     std::string address;
+    std::string name;
     uint8 icon;
     uint8 color;
     uint8 timezone;
