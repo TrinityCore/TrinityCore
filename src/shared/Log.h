@@ -54,7 +54,6 @@ enum LogTypes
 enum LogLevel
 {
     LOGL_NORMAL = 0,
-    LOGL_ERROR,
     LOGL_BASIC,
     LOGL_DETAIL,
     LOGL_DEBUG

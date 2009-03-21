@@ -418,7 +418,7 @@ void Log::outError( const char * err, ... )
     }
 
     if(m_colored)
-        SetColor(false,m_colors[LOGL_ERROR]);
+        SetColor(false,RED);
 
     UTF8PRINTF(stderr,err,);
 
@@ -458,7 +458,7 @@ void Log::outErrorDb( const char * err, ... )
     }
 
     if(m_colored)
-        SetColor(false,m_colors[LOGL_ERROR]);
+        SetColor(false,RED);
 
     UTF8PRINTF(stderr,err,);
 
