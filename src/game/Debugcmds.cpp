@@ -637,7 +637,7 @@ bool ChatHandler::HandleDebugSpawnVehicle(const char* args)
 
     if(!v->IsPositionValid())
     {
-        sLog.outError("ERROR: Vehicle (guidlow %d, entry %d) not created. Suggested coordinates isn't valid (X: %f Y: %f)",
+        sLog.outError("Vehicle (guidlow %d, entry %d) not created. Suggested coordinates isn't valid (X: %f Y: %f)",
             v->GetGUIDLow(), v->GetEntry(), v->GetPositionX(), v->GetPositionY());
         delete v;
         return false;
