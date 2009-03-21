@@ -558,6 +558,7 @@ class TRINITY_DLL_SPEC WorldSession
 
         //Pet
         void HandlePetAction( WorldPacket & recv_data );
+        void HandlePetActionHelper(Unit *pet, uint64 guid1, uint16 spellid, uint16 flag, uint64 guid2);
         void HandlePetNameQuery( WorldPacket & recv_data );
         void HandlePetSetAction( WorldPacket & recv_data );
         void HandlePetAbandon( WorldPacket & recv_data );
