@@ -304,7 +304,7 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
     _LoadSpells();
     _LoadSpellCooldowns();
 
-    owner->SetPet(this);                                    // in DB stored only full controlled creature
+    owner->SetPet(this, true);                                    // in DB stored only full controlled creature
     sLog.outDebug("New Pet has guid %u", GetGUIDLow());
 
     if(owner->GetTypeId() == TYPEID_PLAYER)
@@ -646,9 +646,7 @@ void Pet::Remove(PetSaveMode mode, bool returnreagent)
             return;
         }
 
-        // only if current pet in slot
-        if(owner->GetPetGUID()==GetGUID())
-            owner->SetPet(0);
+        owner->SetPet(this, false);
     }
 
     CleanupsBeforeDelete();
