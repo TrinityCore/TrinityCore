@@ -1198,7 +1198,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recv_data)
 
                 // find talent rank
                 uint32 curtalent_maxrank = 0;
-                for(uint32 k = 5; k > 0; --k)
+                for(uint32 k = MAX_TALENT_RANK; k > 0; --k)
                 {
                     if(talentInfo->RankID[k-1] && plr->HasSpell(talentInfo->RankID[k-1]))
                     {

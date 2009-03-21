@@ -627,7 +627,7 @@ enum KeyRingSlots                                           // 32 slots
 enum VanityPetSlots                                         // 18 slots
 {
     VANITYPET_SLOT_START        = 118,                      // not use, vanity pets stored as spells
-    VANITYPET_SLOT_END          = 136                       // not alloed any content in.
+    VANITYPET_SLOT_END          = 136                       // not allowed any content in.
 };
 
 enum CurrencyTokenSlots                                     // 32 slots
