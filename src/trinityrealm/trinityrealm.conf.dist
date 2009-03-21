@@ -55,11 +55,11 @@ ConfVersion=2007062001
 #        Default: 0
 #
 #    LogColors
-#        Color for messages (format "normal error basic detail debug")
+#        Color for messages (format "normal basic detail debug")
 #        Colors: 0 - BLACK, 1 - RED, 2 - GREEN,  3 - BROWN, 4 - BLUE, 5 - MAGENTA, 6 -  CYAN, 7 - GREY,
 #                8 - YELLOW, 9 - LRED, 10 - LGREEN, 11 - LBLUE, 12 - LMAGENTA, 13 - LCYAN, 14 - WHITE
 #        Default: "" - none colors
-#        Example: "13 7 11 9 5"
+#        Example: "13 11 9 5"
 #
 #    EnableLogDB
 #        Enable/disable logging to database (LogDatabaseInfo).
