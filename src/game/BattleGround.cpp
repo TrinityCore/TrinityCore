@@ -561,7 +561,7 @@ void BattleGround::EndBattleGround(uint32 winner)
             UpdatePlayerScore(plr, SCORE_BONUS_HONOR, 20);
             RewardQuest(plr);
         }
-        else
+        else if(winner !=0)
         {
             RewardMark(plr,ITEM_LOSER_COUNT);
         }
