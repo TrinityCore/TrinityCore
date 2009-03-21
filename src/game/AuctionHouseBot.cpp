@@ -15,7 +15,7 @@
 
 using namespace std;
 
-static bool debug_Out = sConfig.GetIntDefault("AuctionHouseBot.DEBUG", 0);
+static bool debug_Out = sConfig.GetBoolDefault("AuctionHouseBot.DEBUG", false);
 
 static vector<uint32> npcItems;
 static vector<uint32> lootItems;
@@ -816,13 +816,13 @@ void AuctionHouseBot()
 ///////////////////////////////////////////////////////////////////////////////
 void AuctionHouseBotInit()
 {
-    AHBSeller = sConfig.GetBoolDefault("AuctionHouseBot.EnableSeller", 0);
-    AHBBuyer = sConfig.GetBoolDefault("AuctionHouseBot.EnableBuyer", 0);
-    No_Bind = sConfig.GetBoolDefault("AuctionHouseBot.No_Bind", 1);
-    Bind_When_Picked_Up = sConfig.GetBoolDefault("AuctionHouseBot.Bind_When_Picked_Up", 0);
-    Bind_When_Equipped = sConfig.GetBoolDefault("AuctionHouseBot.Bind_When_Equipped", 1);
-    Bind_When_Use = sConfig.GetBoolDefault("AuctionHouseBot.Bind_When_Use", 1);
-    Bind_Quest_Item = sConfig.GetBoolDefault("AuctionHouseBot.Bind_Quest_Item", 0);
+    AHBSeller = sConfig.GetBoolDefault("AuctionHouseBot.EnableSeller", false);
+    AHBBuyer = sConfig.GetBoolDefault("AuctionHouseBot.EnableBuyer", false);
+    No_Bind = sConfig.GetBoolDefault("AuctionHouseBot.No_Bind", true);
+    Bind_When_Picked_Up = sConfig.GetBoolDefault("AuctionHouseBot.Bind_When_Picked_Up", false);
+    Bind_When_Equipped = sConfig.GetBoolDefault("AuctionHouseBot.Bind_When_Equipped", true);
+    Bind_When_Use = sConfig.GetBoolDefault("AuctionHouseBot.Bind_When_Use", true);
+    Bind_Quest_Item = sConfig.GetBoolDefault("AuctionHouseBot.Bind_Quest_Item", false);
 
     if(!sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION))
     {
@@ -833,9 +833,9 @@ void AuctionHouseBotInit()
 
     if (AHBSeller)
     {
-        Vendor_Items = sConfig.GetBoolDefault("AuctionHouseBot.VendorItems", 0);
-        Loot_Items = sConfig.GetBoolDefault("AuctionHouseBot.LootItems", 1);
-        Other_Items = sConfig.GetBoolDefault("AuctionHouseBot.OtherItems", 0);
+        Vendor_Items = sConfig.GetBoolDefault("AuctionHouseBot.VendorItems", false);
+        Loot_Items = sConfig.GetBoolDefault("AuctionHouseBot.LootItems", true);
+        Other_Items = sConfig.GetBoolDefault("AuctionHouseBot.OtherItems", false);
 
         QueryResult* results = (QueryResult*) NULL;
         char npcQuery[] = "SELECT distinct `item` FROM `npc_vendor`";
@@ -1056,20 +1056,20 @@ void AuctionHouseBotInit()
         }
 
         sLog.outString("AuctionHouseBot:");
-        sLog.outString("loaded %d grey trade goods", greyTradeGoodsBin.size());
-        sLog.outString("loaded %d white trade goods", whiteTradeGoodsBin.size());
-        sLog.outString("loaded %d green trade goods", greenTradeGoodsBin.size());
-        sLog.outString("loaded %d blue trade goods", blueTradeGoodsBin.size());
-        sLog.outString("loaded %d purple trade goods", purpleTradeGoodsBin.size());
-        sLog.outString("loaded %d orange trade goods", orangeTradeGoodsBin.size());
-        sLog.outString("loaded %d yellow trade goods", yellowTradeGoodsBin.size());
-        sLog.outString("loaded %d grey items", greyItemsBin.size());
-        sLog.outString("loaded %d white items", whiteItemsBin.size());
-        sLog.outString("loaded %d green items", greenItemsBin.size());
-        sLog.outString("loaded %d blue items", blueItemsBin.size());
-        sLog.outString("loaded %d purple items", purpleItemsBin.size());
-        sLog.outString("loaded %d orange items", orangeItemsBin.size());
-        sLog.outString("loaded %d yellow items", yellowItemsBin.size());
+        sLog.outString("loaded %u grey trade goods", greyTradeGoodsBin.size());
+        sLog.outString("loaded %u white trade goods", whiteTradeGoodsBin.size());
+        sLog.outString("loaded %u green trade goods", greenTradeGoodsBin.size());
+        sLog.outString("loaded %u blue trade goods", blueTradeGoodsBin.size());
+        sLog.outString("loaded %u purple trade goods", purpleTradeGoodsBin.size());
+        sLog.outString("loaded %u orange trade goods", orangeTradeGoodsBin.size());
+        sLog.outString("loaded %u yellow trade goods", yellowTradeGoodsBin.size());
+        sLog.outString("loaded %u grey items", greyItemsBin.size());
+        sLog.outString("loaded %u white items", whiteItemsBin.size());
+        sLog.outString("loaded %u green items", greenItemsBin.size());
+        sLog.outString("loaded %u blue items", blueItemsBin.size());
+        sLog.outString("loaded %u purple items", purpleItemsBin.size());
+        sLog.outString("loaded %u orange items", orangeItemsBin.size());
+        sLog.outString("loaded %u yellow items", yellowItemsBin.size());
     }
     sLog.outString("AuctionHouseBot by Paradox (original by ChrisK) has been loaded.");
     sLog.outString("AuctionHouseBot now includes AHBuyer by Kerbe and Paradox");
