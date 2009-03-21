@@ -1415,21 +1415,6 @@ bool ChatHandler::HandleAccountSetPasswordCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleAllowMovementCommand(const char* /*args*/)
-{
-    if(sWorld.getAllowMovement())
-    {
-        sWorld.SetAllowMovement(false);
-        SendSysMessage(LANG_CREATURE_MOVE_DISABLED);
-    }
-    else
-    {
-        sWorld.SetAllowMovement(true);
-        SendSysMessage(LANG_CREATURE_MOVE_ENABLED);
-    }
-    return true;
-}
-
 bool ChatHandler::HandleMaxSkillCommand(const char* /*args*/)
 {
     Player* SelectedPlayer = getSelectedPlayer();
@@ -4124,6 +4109,21 @@ bool ChatHandler::HandleNearGraveCommand(const char* args)
 }
 
 //-----------------------Npc Commands-----------------------
+bool ChatHandler::HandleNpcAllowMovementCommand(const char* /*args*/)
+{
+    if(sWorld.getAllowMovement())
+    {
+        sWorld.SetAllowMovement(false);
+        SendSysMessage(LANG_CREATURE_MOVE_DISABLED);
+    }
+    else
+    {
+        sWorld.SetAllowMovement(true);
+        SendSysMessage(LANG_CREATURE_MOVE_ENABLED);
+    }
+    return true;
+}
+
 bool ChatHandler::HandleNpcChangeEntryCommand(const char *args)
 {
     if(!args)
