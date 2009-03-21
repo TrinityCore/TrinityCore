@@ -9,19 +9,25 @@ RealmList.cpp
 RealmList.h
 )
 
+SET(trinity-realm_LINK_FLAGS "")
+
 add_executable(trinity-realm ${trinity-realm_SRCS})
 add_definitions(
 -D_TRINITY_REALM_CONFIG='"${CONF_DIR}/trinityrealm.conf"'
 )
 IF (DO_MYSQL)
-    #SET_TARGET_PROPERTIES(mangos-realmd PROPERTIES LINK_FLAGS ${MYSQL_LIBS})
-    SET_TARGET_PROPERTIES(trinity-realm PROPERTIES LINK_FLAGS "-pthread")
+   SET(trinity-realm_LINK_FLAGS "-pthread ${trinity-realm_LINK_FLAGS}")
 ENDIF(DO_MYSQL)
 IF (DO_POSTGRE)
-    SET_TARGET_PROPERTIES(trinity-realmd PROPERTIES LINK_FLAGS ${POSTGRE_LIBS})
+   SET(trinity-realm_LINK_FLAGS "${POSTGRE_LIBS} ${trinity-realm_LINK_FLAGS}")
 ENDIF(DO_POSTGRE)
+ 
+IF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+   SET(trinity-realm_LINK_FLAGS "-framework Carbon ${trinity-realm_LINK_FLAGS}")
+ENDIF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 
-
+SET_TARGET_PROPERTIES(trinity-realm PROPERTIES LINK_FLAGS "${trinity-realm_LINK_FLAGS}")
+ 
 target_link_libraries(
 trinity-realm
 shared
@@ -34,6 +40,7 @@ ZThread
 zlib
 ${SSLLIB}
 ${MYSQL_LIBRARIES}
+${OSX_LIBS}
 )
 
 install(TARGETS trinity-realm DESTINATION bin)
