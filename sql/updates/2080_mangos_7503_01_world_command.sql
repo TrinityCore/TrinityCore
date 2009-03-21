@@ -1,10 +1,6 @@
-ALTER TABLE db_version CHANGE COLUMN required_7495_01_mangos_mangos_string required_7503_01_mangos_command bit;
+/*ALTER TABLE db_version CHANGE COLUMN required_7495_01_mangos_mangos_string required_7503_01_mangos_command bit;*/
 
-DELETE FROM `command` WHERE `name` IN (
-  'addmove','allowmove','debug Mod32Value','debug standstate','go creature','go graveyard','go trigger',
-  'gobject phase','gobject setphase','Mod32Value','modify arena',
-  'modify standstate','npc addmove','npc allowmove','npc textemote','npc phase','npc setphase','showhonor');
-
+DELETE FROM `command` WHERE `name` IN ('addmove','allowmove','debug Mod32Value','debug standstate','go creature','go graveyard','go trigger','gobject phase','gobject setphase','Mod32Value','modify arena','modify standstate','npc addmove','npc allowmove','npc textemote','npc phase','npc setphase','showhonor');
 INSERT INTO `command` VALUES
 ('debug Mod32Value',3,'Syntax: .debug Mod32Value #field #value\r\n\r\nAdd #value to field #field of your character.'),
 ('go creature',1,'Syntax: .go creature #creature_guid\r\nTeleport your character to creature with guid #creature_guid.\r\n.gocreature #creature_name\r\nTeleport your character to creature with this name.\r\n.gocreature id #creature_id\r\nTeleport your character to a creature that was spawned from the template with this entry.\r\n*If* more than one creature is found, then you are teleported to the first that is found inside the database.'),
