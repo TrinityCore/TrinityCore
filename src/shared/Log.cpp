@@ -541,7 +541,7 @@ void Log::outDetail( const char * str, ... )
     if( !str )
         return;
 
-    if (m_enableLogDB && m_dbLogLevel >= LOGL_BASIC)
+    if (m_enableLogDB && m_dbLogLevel > LOGL_BASIC)
     {
         va_list ap2;
         va_start(ap2, str);
@@ -600,7 +600,7 @@ void Log::outDebug( const char * str, ... )
     if( !str )
         return;
 
-    if (m_enableLogDB && m_dbLogLevel >= LOGL_DETAIL)
+    if (m_enableLogDB && m_dbLogLevel > LOGL_DETAIL)
     {
         va_list ap2;
         va_start(ap2, str);
