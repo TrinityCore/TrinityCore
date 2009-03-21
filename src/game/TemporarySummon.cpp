@@ -26,8 +26,9 @@
 
 TempSummon::TempSummon(SummonPropertiesEntry const *properties, Unit *owner) :
 Creature(), m_type(TEMPSUMMON_MANUAL_DESPAWN), m_timer(0), m_lifetime(0)
-, m_Properties(properties), m_summonerGUID(owner->GetGUID())
+, m_Properties(properties)
 {
+    m_summonerGUID = owner ? owner->GetGUID() : 0;
     m_summonMask |= SUMMON_MASK_SUMMON;
 }
 
