@@ -4115,7 +4115,6 @@ void Spell::EffectSummonPet(uint32 i)
     owner->GetClosePoint(x, y, z, owner->GetObjectSize());
     Pet* pet = owner->SummonPet(petentry, x, y, z, owner->GetOrientation(), SUMMON_PET, 0);
     if(!pet)
-
         return;
         
     if(m_caster->GetTypeId() == TYPEID_UNIT)

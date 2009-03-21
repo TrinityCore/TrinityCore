@@ -146,7 +146,7 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
 
     if(!IsPositionValid())
     {
-        sLog.outError("ERROR: Pet (guidlow %d, entry %d) not loaded. Suggested coordinates isn't valid (X: %f Y: %f)",
+        sLog.outError("Pet (guidlow %d, entry %d) not loaded. Suggested coordinates isn't valid (X: %f Y: %f)",
             GetGUIDLow(), GetEntry(), GetPositionX(), GetPositionY());
         delete result;
         return false;
@@ -709,7 +709,7 @@ bool Pet::CreateBaseAtCreature(Creature* creature)
 {
     if(!creature)
     {
-        sLog.outError("CRITICAL ERROR: NULL pointer parsed into CreateBaseAtCreature()");
+        sLog.outError("CRITICAL: NULL pointer parsed into CreateBaseAtCreature()");
         return false;
     }
     uint32 guid=objmgr.GenerateLowGuid(HIGHGUID_PET);
@@ -726,7 +726,7 @@ bool Pet::CreateBaseAtCreature(Creature* creature)
 
     if(!IsPositionValid())
     {
-        sLog.outError("ERROR: Pet (guidlow %d, entry %d) not created base at creature. Suggested coordinates isn't valid (X: %f Y: %f)",
+        sLog.outError("Pet (guidlow %d, entry %d) not created base at creature. Suggested coordinates isn't valid (X: %f Y: %f)",
             GetGUIDLow(), GetEntry(), GetPositionX(), GetPositionY());
         return false;
     }
@@ -734,7 +734,7 @@ bool Pet::CreateBaseAtCreature(Creature* creature)
     CreatureInfo const *cinfo = GetCreatureInfo();
     if(!cinfo)
     {
-        sLog.outError("ERROR: CreateBaseAtCreature() failed, creatureInfo is missing!");
+        sLog.outError("CreateBaseAtCreature() failed, creatureInfo is missing!");
         return false;
     }
 
@@ -771,7 +771,7 @@ bool Pet::InitStatsForLevel(uint32 petlevel)
     Unit* owner = GetOwner();
     if(!owner)
     {
-        sLog.outError("ERROR: attempt to summon pet (Entry %u) without owner! Attempt terminated.", cinfo->Entry);
+        sLog.outError("attempt to summon pet (Entry %u) without owner! Attempt terminated.", cinfo->Entry);
         return false;
     }
 
