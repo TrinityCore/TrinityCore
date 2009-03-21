@@ -182,10 +182,8 @@ int WorldSocket::SendPacket (const WorldPacket& pct)
             for (uint32 j = 0; j < 16 && p < pct.size (); j++)
                 sWorldLog.outLog ("%.2X ", const_cast<WorldPacket&>(pct)[p++]);
 
-            sWorldLog.outLog ("\n");
+            sWorldLog.outLog ("");
         }
-
-        sWorldLog.outLog ("\n\n");
     }
 
     ServerPktHeader header(pct.size()+2, pct.GetOpcode());
@@ -692,9 +690,9 @@ int WorldSocket::ProcessIncoming (WorldPacket* new_pct)
         {
             for (uint32 j = 0; j < 16 && p < new_pct->size (); j++)
                 sWorldLog.outLog ("%.2X ", (*new_pct)[p++]);
-            sWorldLog.outLog ("\n");
+
+            sWorldLog.outLog ("");
         }
-        sWorldLog.outLog ("\n\n");
     }
 
     // like one switch ;)
