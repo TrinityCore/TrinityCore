@@ -63,9 +63,13 @@ void WorldSession::HandlePetAction( WorldPacket & recv_data )
     if(pet->GetTypeId() == TYPEID_PLAYER && !(flag == ACT_COMMAND && spellid == COMMAND_ATTACK))
         return;
 
-    for(ControlList::iterator itr = GetPlayer()->m_Controlled.begin(); itr != GetPlayer()->m_Controlled.end(); ++itr)
-        if((*itr)->GetEntry() == pet->GetEntry() && (*itr)->isAlive())
-            HandlePetActionHelper(*itr, guid1, spellid, flag, guid2);
+    for(ControlList::iterator itr = GetPlayer()->m_Controlled.begin(); itr != GetPlayer()->m_Controlled.end();)
+    {
+        Unit *unit = *itr;
+        ++itr;
+        if(unit->GetEntry() == pet->GetEntry() && unit->isAlive())
+            HandlePetActionHelper(unit, guid1, spellid, flag, guid2);
+    }
 }
 
 void WorldSession::HandlePetActionHelper(Unit *pet, uint64 guid1, uint16 spellid, uint16 flag, uint64 guid2)

@@ -75,7 +75,7 @@ void WorldLog::outLog(char const *fmt, ...)
         va_list args;
         va_start(args, fmt);
         vfprintf(i_file, fmt, args);
-        fprintf(i_file, "\n\n" );
+        fprintf(i_file, "\n" );
         va_end(args);
 
         fflush(i_file);
