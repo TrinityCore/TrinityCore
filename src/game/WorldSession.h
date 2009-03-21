@@ -58,6 +58,22 @@ struct AccountData
     std::string Data;
 };
 
+struct AddonInfo
+{
+    AddonInfo(std::string name, uint8 enabled, uint32 crc)
+    {
+        Name = name;
+        Enabled = enabled;
+        CRC = crc;
+    }
+
+    std::string Name;
+    uint8 Enabled;
+    uint32 CRC;
+};
+
+typedef std::list<AddonInfo> AddonsList;
+
 enum PartyOperation
 {
     PARTY_OP_INVITE = 0,
@@ -91,6 +107,9 @@ class TRINITY_DLL_SPEC WorldSession
         bool PlayerLogout() const { return m_playerLogout; }
 
         void SizeError(WorldPacket const& packet, uint32 size) const;
+
+        void ReadAddonsInfo(WorldPacket &data);
+        void SendAddonsInfo();
 
         void ReadMovementInfo(WorldPacket &data, MovementInfo *mi);
 
@@ -698,6 +717,7 @@ class TRINITY_DLL_SPEC WorldSession
         int m_sessionDbLocaleIndex;
         uint32 m_latency;
         AccountData m_accountData[NUM_ACCOUNT_DATA_TYPES];
+        AddonsList m_addonsList;
 
         ZThread::LockedQueue<WorldPacket*,ZThread::FastMutex> _recvQueue;
 };

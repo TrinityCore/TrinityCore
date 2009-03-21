@@ -265,6 +265,7 @@ World::AddSession_ (WorldSession* s)
     packet << uint8 (s->Expansion());                       // 0 - normal, 1 - TBC, must be set in database manually for each account
     s->SendPacket (&packet);
 
+    s->SendAddonsInfo();
     UpdateMaxSessionCounters ();
 
     // Updates the population

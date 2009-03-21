@@ -363,14 +363,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\game\AddonHandler.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\AddonHandler.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\game\ArenaTeamHandler.cpp"
 				>
 			</File>

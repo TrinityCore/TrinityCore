@@ -1,7 +1,7 @@
 /* crypto/pqueue/pqueue_compat.h */
-/*
+/* 
  * DTLS implementation written by Nagendra Modadugu
- * (nagendra@cs.stanford.edu) for the OpenSSL project 2005.
+ * (nagendra@cs.stanford.edu) for the OpenSSL project 2005.  
  */
 /* ====================================================================
  * Copyright (c) 1999-2005 The OpenSSL Project.  All rights reserved.
@@ -11,7 +11,7 @@
  * are met:
  *
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ *    notice, this list of conditions and the following disclaimer. 
  *
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in
@@ -57,10 +57,13 @@
  *
  */
 
-#include "opensslconf.h"
+#ifndef HEADER_PQ_COMPAT_H
+#define HEADER_PQ_COMPAT_H
+
+#include <openssl/opensslconf.h>
 #include <openssl/bn.h>
 
-/*
+/* 
  * The purpose of this header file is for supporting 64-bit integer
  * manipulation on 32-bit (and lower) machines.  Currently the only
  * such environment is VMS, Utrix and those with smaller default integer
@@ -128,7 +131,7 @@
 
 #define pq_64bit_assign(x, y)        (*(x) = *(y))
 #define pq_64bit_assign_word(x, y)   (*(x) = y)
-#define pq_64bit_gt(x, y)            (*(x) > *(y))
+#define pq_64bit_gt(x, y)	         (*(x) > *(y))
 #define pq_64bit_eq(x, y)            (*(x) == *(y))
 #define pq_64bit_add_word(x, w)      (*(x) = (*(x) + (w)))
 #define pq_64bit_sub(r, x, y)        (*(r) = (*(x) - *(y)))
@@ -146,3 +149,4 @@
                                           } while(0)
 #endif /* OPENSSL_SYS_VMS */
 
+#endif

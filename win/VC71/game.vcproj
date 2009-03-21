@@ -137,17 +137,9 @@
 			</File>
 			<File
 				RelativePath="..\..\src\game\AchievementMgr.cpp">
-
 			</File>
 			<File
 				RelativePath="..\..\src\game\AchievementMgr.h">
-
-			</File>
-			<File
-				RelativePath="..\..\src\game\AddonHandler.cpp">
-			</File>
-			<File
-				RelativePath="..\..\src\game\AddonHandler.h">
 			</File>
 			<File
 				RelativePath="..\..\src\game\ArenaTeamHandler.cpp">
