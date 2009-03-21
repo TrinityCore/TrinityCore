@@ -1002,9 +1002,27 @@ void LoadDatabase()
                             error_db_log("TSCR: Creature %u are using repeatable event(%u) with param4 < param3 (RepeatMax < RepeatMin). Event will never repeat.", temp.creature_id, i);
                     }
                     break;
-
-                case EVENT_T_RANGE:
+               
                 case EVENT_T_OOC_LOS:
+                {
+                    if (temp.event_param2 > VISIBLE_RANGE || temp.event_param2 <= 0)
+                    {
+                        error_db_log("SD2: Creature %u are using event(%u), but param2 (MaxAllowedRange=%u) are not within allowed range.", temp.creature_id, i, temp.event_param2);
+                        temp.event_param2 = VISIBLE_RANGE;
+                    }
+	 	 
+                    if (temp.event_param3 == 0 && temp.event_param4 == 0 && temp.event_flags & EFLAG_REPEATABLE)
+                    {
+                        error_db_log("SD2: Creature %u are using event(%u) with EFLAG_REPEATABLE, but param3(RepeatMin) and param4(RepeatMax) are 0. Repeatable disabled.", temp.creature_id, i);
+                        temp.event_flags &= ~EFLAG_REPEATABLE;
+                    }
+
+                    if (temp.event_param4 < temp.event_param3)
+                        error_db_log("SD2: Creature %u are using repeatable event(%u) with param4 < param3 (RepeatMax < RepeatMin). Event will never repeat.", temp.creature_id, i);
+                }
+                break;
+	 	 
+                case EVENT_T_RANGE:
                 case EVENT_T_FRIENDLY_HP:
                 case EVENT_T_FRIENDLY_IS_CC:
                 case EVENT_T_FRIENDLY_MISSING_BUFF:
