@@ -314,6 +314,7 @@ class ChatHandler
         bool HandleServerSetDiffTimeCommand(const char* args);
         bool HandleServerShutDownCommand(const char* args);
         bool HandleServerShutDownCancelCommand(const char* args);
+        bool HandleServerSetClosedCommand(const char* args);
 
         bool HandleHonorAddCommand(const char* args);
         bool HandleHonorAddKillCommand(const char* args);

@@ -6821,6 +6821,29 @@ bool ChatHandler::HandleServerSetMotdCommand(const char* args)
     return true;
 }
 
+/// Set whether we accept new clients
+bool ChatHandler::HandleServerSetClosedCommand(const char* args)
+{
+    std::string arg = args;
+
+    if(args == "on")
+    {
+        SendSysMessage(LANG_WORLD_CLOSED);
+        sWorld.SetClosed(true);
+        return true;
+    }
+    if(args == "off")
+    {
+        SendSysMessage(LANG_WORLD_OPENED);
+        sWorld.SetClosed(false);
+        return true;
+    }
+
+    SendSysMessage(LANG_USE_BOL);
+    SetSentErrorMessage(true);
+    return false;
+}
+
 /// Set/Unset the expansion level for an account
 bool ChatHandler::HandleAccountSetAddonCommand(const char* args)
 {
