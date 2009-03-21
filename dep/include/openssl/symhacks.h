@@ -6,7 +6,7 @@
  * are met:
  *
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ *    notice, this list of conditions and the following disclaimer. 
  *
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in
@@ -64,75 +64,75 @@
 
 /* Hack a long name in crypto/ex_data.c */
 #undef CRYPTO_get_ex_data_implementation
-#define CRYPTO_get_ex_data_implementation   CRYPTO_get_ex_data_impl
+#define CRYPTO_get_ex_data_implementation	CRYPTO_get_ex_data_impl
 #undef CRYPTO_set_ex_data_implementation
-#define CRYPTO_set_ex_data_implementation   CRYPTO_set_ex_data_impl
+#define CRYPTO_set_ex_data_implementation	CRYPTO_set_ex_data_impl
 
 /* Hack a long name in crypto/asn1/a_mbstr.c */
 #undef ASN1_STRING_set_default_mask_asc
-#define ASN1_STRING_set_default_mask_asc    ASN1_STRING_set_def_mask_asc
+#define ASN1_STRING_set_default_mask_asc	ASN1_STRING_set_def_mask_asc
 
 #if 0 /* No longer needed, since safestack macro magic does the job */
 /* Hack the names created with DECLARE_ASN1_SET_OF(PKCS7_SIGNER_INFO) */
 #undef i2d_ASN1_SET_OF_PKCS7_SIGNER_INFO
-#define i2d_ASN1_SET_OF_PKCS7_SIGNER_INFO   i2d_ASN1_SET_OF_PKCS7_SIGINF
+#define i2d_ASN1_SET_OF_PKCS7_SIGNER_INFO	i2d_ASN1_SET_OF_PKCS7_SIGINF
 #undef d2i_ASN1_SET_OF_PKCS7_SIGNER_INFO
-#define d2i_ASN1_SET_OF_PKCS7_SIGNER_INFO   d2i_ASN1_SET_OF_PKCS7_SIGINF
+#define d2i_ASN1_SET_OF_PKCS7_SIGNER_INFO	d2i_ASN1_SET_OF_PKCS7_SIGINF
 #endif
 
 #if 0 /* No longer needed, since safestack macro magic does the job */
 /* Hack the names created with DECLARE_ASN1_SET_OF(PKCS7_RECIP_INFO) */
 #undef i2d_ASN1_SET_OF_PKCS7_RECIP_INFO
-#define i2d_ASN1_SET_OF_PKCS7_RECIP_INFO    i2d_ASN1_SET_OF_PKCS7_RECINF
+#define i2d_ASN1_SET_OF_PKCS7_RECIP_INFO	i2d_ASN1_SET_OF_PKCS7_RECINF
 #undef d2i_ASN1_SET_OF_PKCS7_RECIP_INFO
-#define d2i_ASN1_SET_OF_PKCS7_RECIP_INFO    d2i_ASN1_SET_OF_PKCS7_RECINF
+#define d2i_ASN1_SET_OF_PKCS7_RECIP_INFO	d2i_ASN1_SET_OF_PKCS7_RECINF
 #endif
 
 #if 0 /* No longer needed, since safestack macro magic does the job */
 /* Hack the names created with DECLARE_ASN1_SET_OF(ACCESS_DESCRIPTION) */
 #undef i2d_ASN1_SET_OF_ACCESS_DESCRIPTION
-#define i2d_ASN1_SET_OF_ACCESS_DESCRIPTION  i2d_ASN1_SET_OF_ACC_DESC
+#define i2d_ASN1_SET_OF_ACCESS_DESCRIPTION	i2d_ASN1_SET_OF_ACC_DESC
 #undef d2i_ASN1_SET_OF_ACCESS_DESCRIPTION
-#define d2i_ASN1_SET_OF_ACCESS_DESCRIPTION  d2i_ASN1_SET_OF_ACC_DESC
+#define d2i_ASN1_SET_OF_ACCESS_DESCRIPTION	d2i_ASN1_SET_OF_ACC_DESC
 #endif
 
 /* Hack the names created with DECLARE_PEM_rw(NETSCAPE_CERT_SEQUENCE) */
 #undef PEM_read_NETSCAPE_CERT_SEQUENCE
-#define PEM_read_NETSCAPE_CERT_SEQUENCE     PEM_read_NS_CERT_SEQ
+#define PEM_read_NETSCAPE_CERT_SEQUENCE		PEM_read_NS_CERT_SEQ
 #undef PEM_write_NETSCAPE_CERT_SEQUENCE
-#define PEM_write_NETSCAPE_CERT_SEQUENCE    PEM_write_NS_CERT_SEQ
+#define PEM_write_NETSCAPE_CERT_SEQUENCE	PEM_write_NS_CERT_SEQ
 #undef PEM_read_bio_NETSCAPE_CERT_SEQUENCE
-#define PEM_read_bio_NETSCAPE_CERT_SEQUENCE PEM_read_bio_NS_CERT_SEQ
+#define PEM_read_bio_NETSCAPE_CERT_SEQUENCE	PEM_read_bio_NS_CERT_SEQ
 #undef PEM_write_bio_NETSCAPE_CERT_SEQUENCE
-#define PEM_write_bio_NETSCAPE_CERT_SEQUENCE    PEM_write_bio_NS_CERT_SEQ
+#define PEM_write_bio_NETSCAPE_CERT_SEQUENCE	PEM_write_bio_NS_CERT_SEQ
 #undef PEM_write_cb_bio_NETSCAPE_CERT_SEQUENCE
-#define PEM_write_cb_bio_NETSCAPE_CERT_SEQUENCE PEM_write_cb_bio_NS_CERT_SEQ
+#define PEM_write_cb_bio_NETSCAPE_CERT_SEQUENCE	PEM_write_cb_bio_NS_CERT_SEQ
 
 /* Hack the names created with DECLARE_PEM_rw(PKCS8_PRIV_KEY_INFO) */
 #undef PEM_read_PKCS8_PRIV_KEY_INFO
-#define PEM_read_PKCS8_PRIV_KEY_INFO        PEM_read_P8_PRIV_KEY_INFO
+#define PEM_read_PKCS8_PRIV_KEY_INFO		PEM_read_P8_PRIV_KEY_INFO
 #undef PEM_write_PKCS8_PRIV_KEY_INFO
-#define PEM_write_PKCS8_PRIV_KEY_INFO       PEM_write_P8_PRIV_KEY_INFO
+#define PEM_write_PKCS8_PRIV_KEY_INFO		PEM_write_P8_PRIV_KEY_INFO
 #undef PEM_read_bio_PKCS8_PRIV_KEY_INFO
-#define PEM_read_bio_PKCS8_PRIV_KEY_INFO    PEM_read_bio_P8_PRIV_KEY_INFO
+#define PEM_read_bio_PKCS8_PRIV_KEY_INFO	PEM_read_bio_P8_PRIV_KEY_INFO
 #undef PEM_write_bio_PKCS8_PRIV_KEY_INFO
-#define PEM_write_bio_PKCS8_PRIV_KEY_INFO   PEM_write_bio_P8_PRIV_KEY_INFO
+#define PEM_write_bio_PKCS8_PRIV_KEY_INFO	PEM_write_bio_P8_PRIV_KEY_INFO
 #undef PEM_write_cb_bio_PKCS8_PRIV_KEY_INFO
-#define PEM_write_cb_bio_PKCS8_PRIV_KEY_INFO    PEM_wrt_cb_bio_P8_PRIV_KEY_INFO
+#define PEM_write_cb_bio_PKCS8_PRIV_KEY_INFO	PEM_wrt_cb_bio_P8_PRIV_KEY_INFO
 
 /* Hack other PEM names */
 #undef PEM_write_bio_PKCS8PrivateKey_nid
-#define PEM_write_bio_PKCS8PrivateKey_nid   PEM_write_bio_PKCS8PrivKey_nid
+#define PEM_write_bio_PKCS8PrivateKey_nid	PEM_write_bio_PKCS8PrivKey_nid
 
 /* Hack some long X509 names */
 #undef X509_REVOKED_get_ext_by_critical
-#define X509_REVOKED_get_ext_by_critical    X509_REVOKED_get_ext_by_critic
+#define X509_REVOKED_get_ext_by_critical	X509_REVOKED_get_ext_by_critic
 #undef X509_policy_tree_get0_user_policies
-#define X509_policy_tree_get0_user_policies X509_pcy_tree_get0_usr_policies
+#define X509_policy_tree_get0_user_policies	X509_pcy_tree_get0_usr_policies
 #undef X509_policy_node_get0_qualifiers
-#define X509_policy_node_get0_qualifiers    X509_pcy_node_get0_qualifiers
+#define X509_policy_node_get0_qualifiers	X509_pcy_node_get0_qualifiers
 #undef X509_STORE_CTX_get_explicit_policy
-#define X509_STORE_CTX_get_explicit_policy  X509_STORE_CTX_get_expl_policy
+#define X509_STORE_CTX_get_explicit_policy	X509_STORE_CTX_get_expl_policy
 
 /* Hack some long CRYPTO names */
 #undef CRYPTO_set_dynlock_destroy_callback
@@ -168,17 +168,22 @@
 #undef SSL_CTX_set_default_passwd_cb_userdata
 #define SSL_CTX_set_default_passwd_cb_userdata  SSL_CTX_set_def_passwd_cb_ud
 #undef SSL_COMP_get_compression_methods
-#define SSL_COMP_get_compression_methods    SSL_COMP_get_compress_methods
+#define SSL_COMP_get_compression_methods	SSL_COMP_get_compress_methods
 
 /* Hack some long ENGINE names */
 #undef ENGINE_get_default_BN_mod_exp_crt
-#define ENGINE_get_default_BN_mod_exp_crt   ENGINE_get_def_BN_mod_exp_crt
+#define ENGINE_get_default_BN_mod_exp_crt	ENGINE_get_def_BN_mod_exp_crt
 #undef ENGINE_set_default_BN_mod_exp_crt
-#define ENGINE_set_default_BN_mod_exp_crt   ENGINE_set_def_BN_mod_exp_crt
+#define ENGINE_set_default_BN_mod_exp_crt	ENGINE_set_def_BN_mod_exp_crt
 #undef ENGINE_set_load_privkey_function
 #define ENGINE_set_load_privkey_function        ENGINE_set_load_privkey_fn
 #undef ENGINE_get_load_privkey_function
 #define ENGINE_get_load_privkey_function        ENGINE_get_load_privkey_fn
+#undef ENGINE_set_load_ssl_client_cert_function
+#define ENGINE_set_load_ssl_client_cert_function \
+						ENGINE_set_ld_ssl_clnt_cert_fn
+#undef ENGINE_get_ssl_client_cert_function
+#define ENGINE_get_ssl_client_cert_function	ENGINE_get_ssl_client_cert_fn
 
 /* Hack some long OCSP names */
 #undef OCSP_REQUEST_get_ext_by_critical
@@ -190,23 +195,23 @@
 
 /* Hack some long DES names */
 #undef _ossl_old_des_ede3_cfb64_encrypt
-#define _ossl_old_des_ede3_cfb64_encrypt    _ossl_odes_ede3_cfb64_encrypt
+#define _ossl_old_des_ede3_cfb64_encrypt	_ossl_odes_ede3_cfb64_encrypt
 #undef _ossl_old_des_ede3_ofb64_encrypt
-#define _ossl_old_des_ede3_ofb64_encrypt    _ossl_odes_ede3_ofb64_encrypt
+#define _ossl_old_des_ede3_ofb64_encrypt	_ossl_odes_ede3_ofb64_encrypt
 
 /* Hack some long EVP names */
 #undef OPENSSL_add_all_algorithms_noconf
-#define OPENSSL_add_all_algorithms_noconf   OPENSSL_add_all_algo_noconf
+#define OPENSSL_add_all_algorithms_noconf	OPENSSL_add_all_algo_noconf
 #undef OPENSSL_add_all_algorithms_conf
-#define OPENSSL_add_all_algorithms_conf     OPENSSL_add_all_algo_conf
+#define OPENSSL_add_all_algorithms_conf		OPENSSL_add_all_algo_conf
 
 /* Hack some long EC names */
 #undef EC_GROUP_set_point_conversion_form
-#define EC_GROUP_set_point_conversion_form  EC_GROUP_set_point_conv_form
+#define EC_GROUP_set_point_conversion_form	EC_GROUP_set_point_conv_form
 #undef EC_GROUP_get_point_conversion_form
-#define EC_GROUP_get_point_conversion_form  EC_GROUP_get_point_conv_form
+#define EC_GROUP_get_point_conversion_form	EC_GROUP_get_point_conv_form
 #undef EC_GROUP_clear_free_all_extra_data
-#define EC_GROUP_clear_free_all_extra_data  EC_GROUP_clr_free_all_xtra_data
+#define EC_GROUP_clear_free_all_extra_data	EC_GROUP_clr_free_all_xtra_data
 #undef EC_POINT_set_Jprojective_coordinates_GFp
 #define EC_POINT_set_Jprojective_coordinates_GFp \
                                                 EC_POINT_set_Jproj_coords_GFp
@@ -229,7 +234,7 @@
 #undef ec_GF2m_simple_group_clear_finish
 #define ec_GF2m_simple_group_clear_finish        ec_GF2m_simple_grp_clr_finish
 #undef ec_GF2m_simple_group_check_discriminant
-#define ec_GF2m_simple_group_check_discriminant ec_GF2m_simple_grp_chk_discrim
+#define ec_GF2m_simple_group_check_discriminant	ec_GF2m_simple_grp_chk_discrim
 #undef ec_GF2m_simple_point_clear_finish
 #define ec_GF2m_simple_point_clear_finish        ec_GF2m_simple_pt_clr_finish
 #undef ec_GF2m_simple_point_set_to_infinity
@@ -290,57 +295,71 @@
 #define ec_GFp_simple_set_compressed_coordinates \
                                                 ec_GFp_smp_set_compr_coords
 #undef ec_GFp_simple_group_check_discriminant
-#define ec_GFp_simple_group_check_discriminant  ec_GFp_simple_grp_chk_discrim
+#define ec_GFp_simple_group_check_discriminant	ec_GFp_simple_grp_chk_discrim
 
 /* Hack som long STORE names */
 #undef STORE_method_set_initialise_function
-#define STORE_method_set_initialise_function    STORE_meth_set_initialise_fn
+#define STORE_method_set_initialise_function	STORE_meth_set_initialise_fn
 #undef STORE_method_set_cleanup_function
-#define STORE_method_set_cleanup_function   STORE_meth_set_cleanup_fn
+#define STORE_method_set_cleanup_function	STORE_meth_set_cleanup_fn
 #undef STORE_method_set_generate_function
-#define STORE_method_set_generate_function  STORE_meth_set_generate_fn
+#define STORE_method_set_generate_function	STORE_meth_set_generate_fn
 #undef STORE_method_set_modify_function
-#define STORE_method_set_modify_function    STORE_meth_set_modify_fn
+#define STORE_method_set_modify_function	STORE_meth_set_modify_fn
 #undef STORE_method_set_revoke_function
-#define STORE_method_set_revoke_function    STORE_meth_set_revoke_fn
+#define STORE_method_set_revoke_function	STORE_meth_set_revoke_fn
 #undef STORE_method_set_delete_function
-#define STORE_method_set_delete_function    STORE_meth_set_delete_fn
+#define STORE_method_set_delete_function	STORE_meth_set_delete_fn
 #undef STORE_method_set_list_start_function
-#define STORE_method_set_list_start_function    STORE_meth_set_list_start_fn
+#define STORE_method_set_list_start_function	STORE_meth_set_list_start_fn
 #undef STORE_method_set_list_next_function
-#define STORE_method_set_list_next_function STORE_meth_set_list_next_fn
+#define STORE_method_set_list_next_function	STORE_meth_set_list_next_fn
 #undef STORE_method_set_list_end_function
-#define STORE_method_set_list_end_function  STORE_meth_set_list_end_fn
+#define STORE_method_set_list_end_function	STORE_meth_set_list_end_fn
 #undef STORE_method_set_update_store_function
-#define STORE_method_set_update_store_function  STORE_meth_set_update_store_fn
+#define STORE_method_set_update_store_function	STORE_meth_set_update_store_fn
 #undef STORE_method_set_lock_store_function
-#define STORE_method_set_lock_store_function    STORE_meth_set_lock_store_fn
+#define STORE_method_set_lock_store_function	STORE_meth_set_lock_store_fn
 #undef STORE_method_set_unlock_store_function
-#define STORE_method_set_unlock_store_function  STORE_meth_set_unlock_store_fn
+#define STORE_method_set_unlock_store_function	STORE_meth_set_unlock_store_fn
 #undef STORE_method_get_initialise_function
-#define STORE_method_get_initialise_function    STORE_meth_get_initialise_fn
+#define STORE_method_get_initialise_function	STORE_meth_get_initialise_fn
 #undef STORE_method_get_cleanup_function
-#define STORE_method_get_cleanup_function   STORE_meth_get_cleanup_fn
+#define STORE_method_get_cleanup_function	STORE_meth_get_cleanup_fn
 #undef STORE_method_get_generate_function
-#define STORE_method_get_generate_function  STORE_meth_get_generate_fn
+#define STORE_method_get_generate_function	STORE_meth_get_generate_fn
 #undef STORE_method_get_modify_function
-#define STORE_method_get_modify_function    STORE_meth_get_modify_fn
+#define STORE_method_get_modify_function	STORE_meth_get_modify_fn
 #undef STORE_method_get_revoke_function
-#define STORE_method_get_revoke_function    STORE_meth_get_revoke_fn
+#define STORE_method_get_revoke_function	STORE_meth_get_revoke_fn
 #undef STORE_method_get_delete_function
-#define STORE_method_get_delete_function    STORE_meth_get_delete_fn
+#define STORE_method_get_delete_function	STORE_meth_get_delete_fn
 #undef STORE_method_get_list_start_function
-#define STORE_method_get_list_start_function    STORE_meth_get_list_start_fn
+#define STORE_method_get_list_start_function	STORE_meth_get_list_start_fn
 #undef STORE_method_get_list_next_function
-#define STORE_method_get_list_next_function STORE_meth_get_list_next_fn
+#define STORE_method_get_list_next_function	STORE_meth_get_list_next_fn
 #undef STORE_method_get_list_end_function
-#define STORE_method_get_list_end_function  STORE_meth_get_list_end_fn
+#define STORE_method_get_list_end_function	STORE_meth_get_list_end_fn
 #undef STORE_method_get_update_store_function
-#define STORE_method_get_update_store_function  STORE_meth_get_update_store_fn
+#define STORE_method_get_update_store_function	STORE_meth_get_update_store_fn
 #undef STORE_method_get_lock_store_function
-#define STORE_method_get_lock_store_function    STORE_meth_get_lock_store_fn
+#define STORE_method_get_lock_store_function	STORE_meth_get_lock_store_fn
 #undef STORE_method_get_unlock_store_function
-#define STORE_method_get_unlock_store_function  STORE_meth_get_unlock_store_fn
+#define STORE_method_get_unlock_store_function	STORE_meth_get_unlock_store_fn
+
+/* Hack some long CMS names */
+#undef CMS_RecipientInfo_ktri_get0_algs
+#define CMS_RecipientInfo_ktri_get0_algs	CMS_RecipInfo_ktri_get0_algs
+#undef CMS_RecipientInfo_ktri_get0_signer_id
+#define CMS_RecipientInfo_ktri_get0_signer_id	CMS_RecipInfo_ktri_get0_sigr_id
+#undef CMS_OtherRevocationInfoFormat_it
+#define CMS_OtherRevocationInfoFormat_it	CMS_OtherRevocInfoFormat_it
+#undef CMS_KeyAgreeRecipientIdentifier_it
+#define CMS_KeyAgreeRecipientIdentifier_it	CMS_KeyAgreeRecipIdentifier_it
+#undef CMS_OriginatorIdentifierOrKey_it
+#define CMS_OriginatorIdentifierOrKey_it	CMS_OriginatorIdOrKey_it
+#undef cms_SignerIdentifier_get0_signer_id
+#define cms_SignerIdentifier_get0_signer_id	cms_SignerId_get0_signer_id
 
 #endif /* defined OPENSSL_SYS_VMS */
 
@@ -348,7 +367,7 @@
 /* Case insensiteve linking causes problems.... */
 #if defined(OPENSSL_SYS_WIN16) || defined(OPENSSL_SYS_VMS) || defined(OPENSSL_SYS_OS2)
 #undef ERR_load_CRYPTO_strings
-#define ERR_load_CRYPTO_strings         ERR_load_CRYPTOlib_strings
+#define ERR_load_CRYPTO_strings			ERR_load_CRYPTOlib_strings
 #undef OCSP_crlID_new
 #define OCSP_crlID_new                          OCSP_crlID2_new
 
@@ -381,4 +400,6 @@
 
 
 #endif /* ! defined HEADER_VMS_IDHACKS_H */
-
+/* This one clashes with CMS_data_create */
+#undef cms_Data_create
+#define cms_Data_create				priv_cms_Data_create
