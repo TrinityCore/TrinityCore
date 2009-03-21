@@ -6,7 +6,7 @@
  * are met:
  *
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ *    notice, this list of conditions and the following disclaimer. 
  *
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in
@@ -58,23 +58,23 @@
 #include <openssl/e_os2.h>
 
 #ifdef NO_ASN1_TYPEDEFS
-#define ASN1_INTEGER        ASN1_STRING
-#define ASN1_ENUMERATED     ASN1_STRING
-#define ASN1_BIT_STRING     ASN1_STRING
-#define ASN1_OCTET_STRING   ASN1_STRING
-#define ASN1_PRINTABLESTRING    ASN1_STRING
-#define ASN1_T61STRING      ASN1_STRING
-#define ASN1_IA5STRING      ASN1_STRING
-#define ASN1_UTCTIME        ASN1_STRING
-#define ASN1_GENERALIZEDTIME    ASN1_STRING
-#define ASN1_TIME       ASN1_STRING
-#define ASN1_GENERALSTRING  ASN1_STRING
-#define ASN1_UNIVERSALSTRING    ASN1_STRING
-#define ASN1_BMPSTRING      ASN1_STRING
-#define ASN1_VISIBLESTRING  ASN1_STRING
-#define ASN1_UTF8STRING     ASN1_STRING
-#define ASN1_BOOLEAN        int
-#define ASN1_NULL       int
+#define ASN1_INTEGER		ASN1_STRING
+#define ASN1_ENUMERATED		ASN1_STRING
+#define ASN1_BIT_STRING		ASN1_STRING
+#define ASN1_OCTET_STRING	ASN1_STRING
+#define ASN1_PRINTABLESTRING	ASN1_STRING
+#define ASN1_T61STRING		ASN1_STRING
+#define ASN1_IA5STRING		ASN1_STRING
+#define ASN1_UTCTIME		ASN1_STRING
+#define ASN1_GENERALIZEDTIME	ASN1_STRING
+#define ASN1_TIME		ASN1_STRING
+#define ASN1_GENERALSTRING	ASN1_STRING
+#define ASN1_UNIVERSALSTRING	ASN1_STRING
+#define ASN1_BMPSTRING		ASN1_STRING
+#define ASN1_VISIBLESTRING	ASN1_STRING
+#define ASN1_UTF8STRING		ASN1_STRING
+#define ASN1_BOOLEAN		int
+#define ASN1_NULL		int
 #else
 typedef struct asn1_string_st ASN1_INTEGER;
 typedef struct asn1_string_st ASN1_ENUMERATED;
@@ -97,8 +97,11 @@ typedef int ASN1_NULL;
 
 #ifdef OPENSSL_SYS_WIN32
 #undef X509_NAME
+#undef X509_EXTENSIONS
 #undef X509_CERT_PAIR
 #undef PKCS7_ISSUER_AND_SERIAL
+#undef OCSP_REQUEST
+#undef OCSP_RESPONSE
 #endif
 
 #ifdef BIGNUM
@@ -139,6 +142,8 @@ typedef struct X509_crl_st X509_CRL;
 typedef struct X509_name_st X509_NAME;
 typedef struct x509_store_st X509_STORE;
 typedef struct x509_store_ctx_st X509_STORE_CTX;
+typedef struct ssl_st SSL;
+typedef struct ssl_ctx_st SSL_CTX;
 
 typedef struct v3_ext_ctx X509V3_CTX;
 typedef struct conf_st CONF;
@@ -165,11 +170,14 @@ typedef struct X509_POLICY_CACHE_st X509_POLICY_CACHE;
 typedef struct crypto_ex_data_st CRYPTO_EX_DATA;
 /* Callback types for crypto.h */
 typedef int CRYPTO_EX_new(void *parent, void *ptr, CRYPTO_EX_DATA *ad,
-                    int idx, long argl, void *argp);
+					int idx, long argl, void *argp);
 typedef void CRYPTO_EX_free(void *parent, void *ptr, CRYPTO_EX_DATA *ad,
-                    int idx, long argl, void *argp);
-typedef int CRYPTO_EX_dup(CRYPTO_EX_DATA *to, CRYPTO_EX_DATA *from, void *from_d,
-                    int idx, long argl, void *argp);
+					int idx, long argl, void *argp);
+typedef int CRYPTO_EX_dup(CRYPTO_EX_DATA *to, CRYPTO_EX_DATA *from, void *from_d, 
+					int idx, long argl, void *argp);
+
+typedef struct ocsp_req_ctx_st OCSP_REQ_CTX;
+typedef struct ocsp_response_st OCSP_RESPONSE;
+typedef struct ocsp_responder_id_st OCSP_RESPID;
 
 #endif /* def HEADER_OPENSSL_TYPES_H */
-
