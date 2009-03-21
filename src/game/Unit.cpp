@@ -11220,8 +11220,10 @@ void Unit::RemoveFromWorld()
         RemoveBindSightAuras();
         RemoveNotOwnSingleTargetAuras();
         // if it has charmer or owner, it must be in someone's controllist and server will crash
-        assert(!GetCharmerGUID());
-        assert(!GetOwnerGUID());
+        /*if(GetCharmerGUID())
+            sLog.outError("Unit %u has charmer guid when removed from world", GetEntry());
+        if(GetOwnerGUID());
+            sLog.outError("Unit %u has owner guid when removed from world", GetEntry());*/
     }
 
     WorldObject::RemoveFromWorld();
