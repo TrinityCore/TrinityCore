@@ -647,6 +647,11 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
         DEBUG_LOG( "WORLD: Sent server info" );
     }
 
+    data.Initialize(SMSG_LEARNED_DANCE_MOVES, 4+4);
+    data << uint32(0);
+    data << uint32(0);
+    SendPacket(&data);
+
     //QueryResult *result = CharacterDatabase.PQuery("SELECT guildid,rank FROM guild_member WHERE guid = '%u'",pCurrChar->GetGUIDLow());
     QueryResult *resultGuild = holder->GetResult(PLAYER_LOGIN_QUERY_LOADGUILD);
 
@@ -770,7 +775,6 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
 
     if(uint32 sourceNode = pCurrChar->m_taxi.GetTaxiSource())
     {
-
         sLog.outDebug( "WORLD: Restart character %u taxi flight", pCurrChar->GetGUIDLow() );
 
         uint32 MountId = objmgr.GetTaxiMount(sourceNode, pCurrChar->GetTeam());
@@ -1222,20 +1226,21 @@ void WorldSession::HandleRemoveGlyph( WorldPacket & recv_data )
     uint32 slot;
     recv_data >> slot;
 
-    if(slot > MAX_GLYPH_SLOT_INDEX)
+    if(slot < MAX_GLYPH_SLOT_INDEX)
     {
-        sLog.outDebug("Client sent wrong glyph slot number in opcode CMSG_REMOVE_GLYPH %u", slot);
+        if(uint32 glyph = _player->GetGlyph(slot))
+        {
+            if(GlyphPropertiesEntry const *gp = sGlyphPropertiesStore.LookupEntry(glyph))
+            {
+                _player->RemoveAurasDueToSpell(gp->SpellId);
+                _player->SetGlyph(slot, 0);
+            }
+        }
+
         return;
     }
 
-    if(uint32 glyph = _player->GetGlyph(slot))
-    {
-        if(GlyphPropertiesEntry const *gp = sGlyphPropertiesStore.LookupEntry(glyph))
-        {
-            _player->RemoveAurasDueToSpell(gp->SpellId);
-            _player->SetGlyph(slot, 0);
-        }
-    }
+    sLog.outDebug("Client sent wrong glyph slot number in opcode CMSG_REMOVE_GLYPH %u", slot);
 }
 
 void WorldSession::HandleCharCustomize(WorldPacket& recv_data)
