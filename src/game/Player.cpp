@@ -17186,7 +17186,6 @@ void Player::Whisper(const std::string& text, uint32 language,uint64 receiver)
 
 void Player::PetSpellInitialize()
 {
-    return;
     Pet* pet = GetPet();
 
     if(!pet)
