@@ -2223,20 +2223,9 @@ void Spell::cast(bool skipCheck)
     if(m_caster->GetTypeId() != TYPEID_PLAYER && m_targets.getUnitTarget() && m_targets.getUnitTarget() != m_caster)
         m_caster->SetInFront(m_targets.getUnitTarget());
 
-    if(!m_IsTriggeredSpell)
-    {
-        SpellCastResult castResult = CheckPower();
-        if(castResult != SPELL_CAST_OK)
-        {
-            SendCastResult(castResult);
-            finish(false);
-            SetExecutedCurrently(false);
-            return;
-        }
-    }
 
     // triggered cast called from Spell::prepare where it was already checked
-    if(!skipCheck)
+    if(!m_IsTriggeredSpell || !skipCheck)
     {
         SpellCastResult castResult = CheckCast(false);
         if(castResult != SPELL_CAST_OK)
@@ -2280,20 +2269,6 @@ void Spell::cast(bool skipCheck)
         ((Player*)m_caster)->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL, m_spellInfo->Id);
     }
 
-    if(!m_IsTriggeredSpell)
-    {
-        //TakePower();
-        TakeReagents();                                         // we must remove reagents before HandleEffects to allow place crafted item in same slot
-    }
-
-    // CAST SPELL
-    SendSpellCooldown();
-    //SendCastResult(castResult);
-    SendSpellGo();                                          // we must send smsg_spell_go packet before m_castItem delete in TakeCastItem()...
-
-    if(m_customAttr & SPELL_ATTR_CU_DIRECT_DAMAGE)
-        CalculateDamageDoneForAllTargets();
-
     //are there any spells need to be triggered after hit?
     // handle SPELL_AURA_ADD_TARGET_TRIGGER auras
     Unit::AuraList const& targetTriggers = m_caster->GetAurasByType(SPELL_AURA_ADD_TARGET_TRIGGER);
@@ -2310,6 +2285,20 @@ void Spell::cast(bool skipCheck)
             m_ChanceTriggerSpells.push_back(std::make_pair(spellInfo, chance * (*i)->GetStackAmount()));
         }
     }
+
+    if(!m_IsTriggeredSpell)
+    {
+        TakePower();
+        TakeReagents();                                         // we must remove reagents before HandleEffects to allow place crafted item in same slot
+    }
+
+    // CAST SPELL
+    SendSpellCooldown();
+    //SendCastResult(castResult);
+    SendSpellGo();                                          // we must send smsg_spell_go packet before m_castItem delete in TakeCastItem()...
+
+    if(m_customAttr & SPELL_ATTR_CU_DIRECT_DAMAGE)
+        CalculateDamageDoneForAllTargets();
 
     if(m_customAttr & SPELL_ATTR_CU_CHARGE)
         EffectCharge(0);
@@ -2330,12 +2319,6 @@ void Spell::cast(bool skipCheck)
     {
         // Immediate spell, no big deal
         handle_immediate();
-    }
-
-    // combo points should not be taken before SPELL_AURA_ADD_TARGET_TRIGGER auras are handled
-    if(!m_IsTriggeredSpell)
-    {
-        TakePower();
     }
 
     if(m_customAttr & SPELL_ATTR_CU_LINK_CAST)
@@ -3245,7 +3228,7 @@ void Spell::TakeCastItem()
 
 void Spell::TakePower()
 {
-    if(m_CastItem || m_triggeredByAuraSpell || !m_powerCost)
+    if(m_CastItem || m_triggeredByAuraSpell)
         return;
 
     bool hit = true;
@@ -3270,6 +3253,17 @@ void Spell::TakePower()
             ((Player*)m_caster)->ClearComboPoints();
     }
 
+    Powers powerType = Powers(m_spellInfo->powerType);
+
+    if(powerType == POWER_RUNE)
+    {
+        TakeRunePower();
+        return;
+    }
+
+    if (!m_powerCost)
+        return;
+
     // health as power used
     if(m_spellInfo->powerType == POWER_HEALTH)
     {
@@ -3280,14 +3274,6 @@ void Spell::TakePower()
     if(m_spellInfo->powerType >= MAX_POWERS)
     {
         sLog.outError("Spell::TakePower: Unknown power type '%d'", m_spellInfo->powerType);
-        return;
-    }
-
-    Powers powerType = Powers(m_spellInfo->powerType);
-
-    if(powerType == POWER_RUNE)
-    {
-        TakeRunePower();
         return;
     }
 
@@ -3386,7 +3372,6 @@ void Spell::TakeRunePower()
 
     if(!src || (src->NoRuneCost() && src->NoRunicPowerGain()))
         return;
-
     m_runesState = plr->GetRunesState();                    // store previous state
 
     int32 runeCost[NUM_RUNE_TYPES];                         // blood, frost, unholy, death
