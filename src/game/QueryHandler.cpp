@@ -102,20 +102,20 @@ void WorldSession::SendNameQueryOpcodeFromDBCallBack(QueryResult *result, uint32
     WorldPacket data( SMSG_NAME_QUERY_RESPONSE, (8+1+4+4+4+10) );
     data << MAKE_NEW_GUID(guid, 0, HIGHGUID_PLAYER);
     data << name;
-    data << (uint8)0;
-    data << (uint32)(field & 0xFF);
-    data << (uint32)((field >> 16) & 0xFF);
-    data << (uint32)((field >> 8) & 0xFF);
+    data << uint8(0);
+    data << uint32(field & 0xFF);
+    data << uint32((field >> 16) & 0xFF);
+    data << uint32((field >> 8) & 0xFF);
 
     // if the first declined name field (3) is empty, the rest must be too
     if(sWorld.getConfig(CONFIG_DECLINED_NAMES_USED) && fields[3].GetCppString() != "")
     {
-        data << (uint8)1;                                   // is declined
+        data << uint8(1);                                   // is declined
         for(int i = 3; i < MAX_DECLINED_NAME_CASES+3; ++i)
             data << fields[i].GetCppString();
     }
     else
-        data << (uint8)0;                                   // is declined
+        data << uint8(0);                                   // is declined
 
     session->SendPacket( &data );
     delete result;
@@ -123,7 +123,7 @@ void WorldSession::SendNameQueryOpcodeFromDBCallBack(QueryResult *result, uint32
 
 void WorldSession::HandleNameQueryOpcode( WorldPacket & recv_data )
 {
-    CHECK_PACKET_SIZE(recv_data,8);
+    CHECK_PACKET_SIZE(recv_data, 8);
 
     uint64 guid;
 
@@ -176,23 +176,23 @@ void WorldSession::HandleCreatureQueryOpcode( WorldPacket & recv_data )
         sLog.outDetail("WORLD: CMSG_CREATURE_QUERY '%s' - Entry: %u.", ci->Name, entry);
                                                             // guess size
         WorldPacket data( SMSG_CREATURE_QUERY_RESPONSE, 100 );
-        data << (uint32)entry;                              // creature entry
+        data << uint32(entry);                              // creature entry
         data << Name;
         data << uint8(0) << uint8(0) << uint8(0);           // name2, name3, name4, always empty
         data << SubName;
         data << ci->IconName;                               // "Directions" for guard, string for Icons 2.3.0
-        data << (uint32)ci->type_flags;                          // flags          wdbFeild7=wad flags1
-        data << (uint32)ci->type;
-        data << (uint32)ci->family;                         // family         wdbFeild9
-        data << (uint32)ci->rank;                           // rank           wdbFeild10
-        data << (uint32)ci->PetSpellDataId;                 // Id from CreatureSpellData.dbc    wdbField12
-        data << (uint32)ci->Modelid1;                       // Modelid1
-        data << (uint32)ci->Modelid2;                       // Modelid2
-        data << (uint32)ci->Modelid3;                       // Modelid3
-        data << (uint32)ci->Modelid4;                       // Modelid4
-        data << (float)ci->unk16;                           // unk
-        data << (float)ci->unk17;                           // unk
-        data << (uint8)ci->RacialLeader;
+        data << uint32(ci->type_flags);                     // flags          wdbFeild7=wad flags1
+        data << uint32(ci->type);
+        data << uint32(ci->family);                         // family         wdbFeild9
+        data << uint32(ci->rank);                           // rank           wdbFeild10
+        data << uint32(ci->PetSpellDataId);                 // Id from CreatureSpellData.dbc    wdbField12
+        data << uint32(ci->Modelid1);                       // modelid_male1
+        data << uint32(ci->Modelid2);                       // modelid_female1 ?
+        data << uint32(ci->Modelid3);                       // modelid_male2 ?
+        data << uint32(ci->Modelid4);                       // modelid_femmale2 ?
+        data << float(ci->unk16);                           // unk
+        data << float(ci->unk17);                           // unk
+        data << uint8(ci->RacialLeader);
         SendPacket( &data );
         sLog.outDebug(  "WORLD: Sent SMSG_CREATURE_QUERY_RESPONSE " );
     }
@@ -206,7 +206,7 @@ void WorldSession::HandleCreatureQueryOpcode( WorldPacket & recv_data )
         WorldPacket data( SMSG_CREATURE_QUERY_RESPONSE, 4 );
         data << uint32(entry | 0x80000000);
         SendPacket( &data );
-        sLog.outDebug(  "WORLD: Sent SMSG_CREATURE_QUERY_RESPONSE " );
+        sLog.outDebug( "WORLD: Sent SMSG_CREATURE_QUERY_RESPONSE " );
     }
 }
 
@@ -242,15 +242,16 @@ void WorldSession::HandleGameObjectQueryOpcode( WorldPacket & recv_data )
         }
         sLog.outDetail("WORLD: CMSG_GAMEOBJECT_QUERY '%s' - Entry: %u. ", info->name, entryID);
         WorldPacket data ( SMSG_GAMEOBJECT_QUERY_RESPONSE, 150 );
-        data << entryID;
-        data << (uint32)info->type;
-        data << (uint32)info->displayId;
+        data << uint32(entryID);
+        data << uint32(info->type);
+        data << uint32(info->displayId);
         data << Name;
         data << uint8(0) << uint8(0) << uint8(0);           // name2, name3, name4
         data << uint8(0);                                   // 2.0.3, string
         data << CastBarCaption;                             // 2.0.3, string. Text will appear in Cast Bar when using GO (ex: "Collecting")
-        data << uint8(0);                                   // 2.0.3, probably string
-        data.append(info->raw.data,24);
+        data << uint8(0);                                   // 2.0.3, string
+        data.append(info->raw.data, 24);
+        data << float(info->size);                          // go size
         SendPacket( &data );
         sLog.outDebug(  "WORLD: Sent CMSG_GAMEOBJECT_QUERY " );
     }

@@ -878,7 +878,7 @@ void WorldSession::HandleUpdateAccountData(WorldPacket &recv_data)
 
     if(decompressedSize == 0)                               // erase
     {
-        SetAccountData(type, timestamp, "");
+        SetAccountData(type, 0, "");
 
         WorldPacket data(SMSG_UPDATE_ACCOUNT_DATA_COMPLETE, 4+4);
         data << uint32(type);
@@ -978,7 +978,7 @@ void WorldSession::HandleSetActionButtonOpcode(WorldPacket& recv_data)
         }
         else if(type==ACTION_BUTTON_SPELL)
         {
-            sLog.outDetail( "MISC: Added Action %u into button %u", action, button );
+            sLog.outDetail( "MISC: Added Spell %u into button %u", action, button );
             GetPlayer()->addActionButton(button,action,type,misc);
         }
         else if(type==ACTION_BUTTON_ITEM)
