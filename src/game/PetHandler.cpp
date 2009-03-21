@@ -59,12 +59,17 @@ void WorldSession::HandlePetAction( WorldPacket & recv_data )
         return;
     }
 
-    if(!pet->isAlive())
-        return;
-
+    //TODO: allow control charmed player?
     if(pet->GetTypeId() == TYPEID_PLAYER && !(flag == ACT_COMMAND && spellid == COMMAND_ATTACK))
         return;
 
+    for(ControlList::iterator itr = GetPlayer()->m_Controlled.begin(); itr != GetPlayer()->m_Controlled.end(); ++itr)
+        if((*itr)->GetEntry() == pet->GetEntry() && (*itr)->isAlive())
+            HandlePetActionHelper(*itr, guid1, spellid, flag, guid2);
+}
+
+void WorldSession::HandlePetActionHelper(Unit *pet, uint64 guid1, uint16 spellid, uint16 flag, uint64 guid2)
+{
     CharmInfo *charmInfo = pet->GetCharmInfo();
     if(!charmInfo)
     {
@@ -369,7 +374,7 @@ void WorldSession::HandlePetSetAction( WorldPacket & recv_data )
             {
                 if(pet->isCharmed())
                     charmInfo->ToggleCreatureAutocast(spell_id, true);
-                else
+                else if(pet->GetTypeId() == TYPEID_UNIT && ((Creature*)pet)->isPet())
                     ((Pet*)pet)->ToggleAutocast(spell_id, true);
             }
             //sign for no/turn off autocast
@@ -377,7 +382,7 @@ void WorldSession::HandlePetSetAction( WorldPacket & recv_data )
             {
                 if(pet->isCharmed())
                     charmInfo->ToggleCreatureAutocast(spell_id, false);
-                else
+                else if(pet->GetTypeId() == TYPEID_UNIT && ((Creature*)pet)->isPet())
                     ((Pet*)pet)->ToggleAutocast(spell_id, false);
             }
 
