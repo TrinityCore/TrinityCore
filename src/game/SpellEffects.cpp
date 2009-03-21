@@ -4160,26 +4160,15 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
             // Mutilate (for each hand)
             else if(m_spellInfo->SpellFamilyFlags & 0x600000000LL)
             {
-                bool found = false;
-                // fast check
-                if(unitTarget->HasAuraState(AURA_STATE_DEADLY_POISON))
-                    found = true;
-                // full aura scan
-                else
+                Unit::AuraMap const& auras = unitTarget->GetAuras();
+                for(Unit::AuraMap::const_iterator itr = auras.begin(); itr!=auras.end(); ++itr)
                 {
-                    Unit::AuraMap const& auras = unitTarget->GetAuras();
-                    for(Unit::AuraMap::const_iterator itr = auras.begin(); itr!=auras.end(); ++itr)
+                    if(itr->second->GetSpellProto()->Dispel == DISPEL_POISON)
                     {
-                        if(itr->second->GetSpellProto()->Dispel == DISPEL_POISON)
-                        {
-                            found = true;
-                            break;
-                        }
+						totalDamagePercentMod *= 1.5f;          // 150% if poisoned
+                        break;
                     }
                 }
-
-                if(found)
-                    totalDamagePercentMod *= 1.5f;          // 150% if poisoned
             }
             break;
         }
