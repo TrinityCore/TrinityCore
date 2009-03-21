@@ -1226,21 +1226,20 @@ void WorldSession::HandleRemoveGlyph( WorldPacket & recv_data )
     uint32 slot;
     recv_data >> slot;
 
-    if(slot < MAX_GLYPH_SLOT_INDEX)
+    if(slot >= MAX_GLYPH_SLOT_INDEX)
     {
-        if(uint32 glyph = _player->GetGlyph(slot))
-        {
-            if(GlyphPropertiesEntry const *gp = sGlyphPropertiesStore.LookupEntry(glyph))
-            {
-                _player->RemoveAurasDueToSpell(gp->SpellId);
-                _player->SetGlyph(slot, 0);
-            }
-        }
-
+        sLog.outDebug("Client sent wrong glyph slot number in opcode CMSG_REMOVE_GLYPH %u", slot);
         return;
     }
 
-    sLog.outDebug("Client sent wrong glyph slot number in opcode CMSG_REMOVE_GLYPH %u", slot);
+    if(uint32 glyph = _player->GetGlyph(slot))
+    {
+        if(GlyphPropertiesEntry const *gp = sGlyphPropertiesStore.LookupEntry(glyph))
+        {
+            _player->RemoveAurasDueToSpell(gp->SpellId);
+            _player->SetGlyph(slot, 0);
+        }
+    }
 }
 
 void WorldSession::HandleCharCustomize(WorldPacket& recv_data)
