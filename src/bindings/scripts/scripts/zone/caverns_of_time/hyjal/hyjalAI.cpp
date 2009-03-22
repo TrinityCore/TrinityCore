@@ -69,6 +69,7 @@ void hyjalAI::Reset()
 
     // Misc
     WaveCount = 0;
+    EnemyCount = 0;
 
     // Set faction properly based on creature entry
     switch(m_creature->GetEntry())

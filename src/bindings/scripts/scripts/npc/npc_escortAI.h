@@ -5,6 +5,8 @@
 #ifndef SC_ESCORTAI_H
 #define SC_ESCORTAI_H
 
+extern std::list<PointMovement> PointMovementList;
+
 struct Escort_Waypoint
 {
     Escort_Waypoint(uint32 _id, float _x, float _y, float _z, uint32 _w)
@@ -55,6 +57,8 @@ struct TRINITY_DLL_DECL npc_escortAI : public ScriptedAI
 
         // EscortAI functions
         void AddWaypoint(uint32 id, float x, float y, float z, uint32 WaitTimeMs = 0);
+        
+        void FillPointMovementListForCreature();
 
         void Start(bool bAttack, bool bDefend, bool bRun, uint64 pGUID = 0);
 
