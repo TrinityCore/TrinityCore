@@ -728,7 +728,7 @@ void BattleGround::EndBattleGround(uint32 winner)
             RewardMark(plr,ITEM_WINNER_COUNT);
             RewardQuest(plr);
         }
-        else
+        else if(winner !=0)
         {
             RewardMark(plr,ITEM_LOSER_COUNT);
         }
