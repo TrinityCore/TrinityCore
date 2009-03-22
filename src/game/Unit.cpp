@@ -5388,6 +5388,18 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     target = this;
                     break;
                 }
+                // Kill command
+                case 58914:
+                {
+                    // Remove aura stack from pet
+                    RemoveSingleSpellAurasFromStack(58914);
+                    Unit* owner = GetOwner();
+                    if(!owner)
+                        return true;
+                    // reduce the owner's aura stack
+                    owner->RemoveSingleSpellAurasFromStack(34027);
+                    return true;
+                }
                 // Vampiric Touch (generic, used by some boss)
                 case 52723:
                 case 60501:
@@ -6345,8 +6357,16 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     triggered_spell_id = 16086;
                     break;
                 }
+                // Tidal Force
+                case 55198:
+                {
+                    // Remove aura stack from  caster
+                    RemoveSingleSpellAurasFromStack(55166);
+                    // drop charges
+                    return false;
+                }
                 // Totemic Power (The Earthshatterer set)
-                case 28823:
+                case 28823: 
                 {
                     if( !pVictim )
                         return false;
