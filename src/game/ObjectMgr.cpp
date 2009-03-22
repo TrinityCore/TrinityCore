@@ -1810,6 +1810,24 @@ void ObjectMgr::LoadItemPrototypes()
         if(proto->Map && !sMapStore.LookupEntry(proto->Map))
             sLog.outErrorDb("Item (Entry: %u) has wrong Map (%u)",i,proto->Map);
 
+        if(proto->BagFamily)
+        {
+            // check bits
+            for(uint32 i = 0; i < sizeof(proto->BagFamily)*8; ++i)
+            {
+                uint32 mask = 1 << i;
+                if((proto->BagFamily & mask)==0)
+                    continue;
+
+                ItemBagFamilyEntry const* bf = sItemBagFamilyStore.LookupEntry(i+1);
+                if(!bf)
+                {
+                    sLog.outErrorDb("Item (Entry: %u) has bag family bit set not listed in ItemBagFamily.dbc, remove bit",i);
+                    const_cast<ItemPrototype*>(proto)->BagFamily &= ~mask;
+                }
+            }
+        }
+
         if(proto->TotemCategory && !sTotemCategoryStore.LookupEntry(proto->TotemCategory))
             sLog.outErrorDb("Item (Entry: %u) has wrong TotemCategory (%u)",i,proto->TotemCategory);
 
