@@ -820,7 +820,7 @@ struct TRINITY_DLL_DECL boss_yazzaiAI : public boss_priestess_guestAI
             Blink_Timer = 8000;
         }else Blink_Timer -= diff;
 
-        if (m_creature->GetDistance(m_creature->getVictim()) <= 10)
+        if (m_creature->getVictim() && m_creature->GetDistance(m_creature->getVictim()) <= 10)
             m_creature->StopMoving();
 
         //DoMeleeAttackIfReady(); //mage type, no melee needed
