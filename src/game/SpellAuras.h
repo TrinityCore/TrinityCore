@@ -240,9 +240,8 @@ class TRINITY_DLL_SPEC Aura
         }
         void SetAuraDurationAndUpdate(int32 duration) 
         {
-            m_duration = duration;
-            if(GetAuraSlot() < MAX_AURAS)                        // slot found send data to client
-            { m_target->UpdateAuraForGroup(GetAuraSlot()); }
+            SetAuraDuration (duration);
+            m_target->UpdateAuraForGroup(GetAuraSlot());
         }
         time_t GetAuraApplyTime() { return m_applyTime; }
 
@@ -269,16 +268,14 @@ class TRINITY_DLL_SPEC Aura
             if (m_procCharges == charges)
                 return;
             m_procCharges = charges;
-            if(GetAuraSlot() < MAX_AURAS)                        // slot found send data to client
-            { m_target->UpdateAuraForGroup(GetAuraSlot()); }
+            m_target->UpdateAuraForGroup(GetAuraSlot());
         }
         bool DropAuraCharge() // return true if last charge dropped
         {
             if (m_procCharges == 0)
                 return false;
             m_procCharges--;
-            if(GetAuraSlot() < MAX_AURAS)                        // slot found send data to client
-            { m_target->UpdateAuraForGroup(GetAuraSlot()); }
+            m_target->UpdateAuraForGroup(GetAuraSlot());
             return m_procCharges == 0;
         }
 
