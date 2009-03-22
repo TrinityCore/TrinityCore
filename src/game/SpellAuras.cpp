@@ -878,33 +878,32 @@ void Aura::_AddAura()
     else
         sLog.outDebug("Aura: %u Effect: %d could not find empty unit visible slot",GetId(), GetEffIndex());
 
-    if(secondaura)
-        return;
+    if(!secondaura)
+    {
+        // Sitdown on apply aura req seated
+        if (m_spellProto->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_SEATED && !m_target->IsSitState())
+            m_target->SetStandState(UNIT_STAND_STATE_SIT);
+
+        // register aura diminishing on apply
+        if (getDiminishGroup() != DIMINISHING_NONE )
+            m_target->ApplyDiminishingAura(getDiminishGroup(),true);
+
+        // Apply linked auras (On first aura apply)
+        uint32 id = GetId();
+        if(spellmgr.GetSpellCustomAttr(id) & SPELL_ATTR_CU_LINK_AURA)
+        {
+            if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(id + SPELL_LINK_AURA))
+                for(std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
+                    if(*itr < 0)
+                        m_target->ApplySpellImmune(id, IMMUNITY_ID, *itr, m_target);
+                    else if(Unit* caster = GetCaster())
+                        m_target->AddAura(*itr, m_target);
+        }
+    }
 
     //*****************************************************
     // Update target aura state flag
-    // TODO: Make it easer
     //*****************************************************
-
-    // Sitdown on apply aura req seated
-    if (m_spellProto->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_SEATED && !m_target->IsSitState())
-        m_target->SetStandState(UNIT_STAND_STATE_SIT);
-
-    // register aura diminishing on apply
-    if (getDiminishGroup() != DIMINISHING_NONE )
-        m_target->ApplyDiminishingAura(getDiminishGroup(),true);
-
-    // Apply linked auras (On first aura apply)
-    uint32 id = GetId();
-    if(spellmgr.GetSpellCustomAttr(id) & SPELL_ATTR_CU_LINK_AURA)
-    {
-        if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(id + SPELL_LINK_AURA))
-            for(std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
-                if(*itr < 0)
-                    m_target->ApplySpellImmune(id, IMMUNITY_ID, *itr, m_target);
-                else if(Unit* caster = GetCaster())
-                    m_target->AddAura(*itr, m_target);
-    }
 
     // Update Seals information
     if (IsSealSpell(m_spellProto))
