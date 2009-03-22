@@ -4497,6 +4497,37 @@ void Unit::RemoveAurasByCasterSpell(uint32 spellId, uint64 casterGUID)
     }
 }
 
+void Unit::SetAurasDurationByCasterSpell(uint32 spellId, uint64 casterGUID, int32 duration)
+{
+    for(uint8 i = 0; i < 3; ++i)
+    {
+        spellEffectPair spair = spellEffectPair(spellId, i);
+        for(AuraMap::const_iterator itr = GetAuras().lower_bound(spair); itr != GetAuras().upper_bound(spair); ++itr)
+        {
+            if(itr->second->GetCasterGUID()==casterGUID)
+            {
+                itr->second->SetAuraDuration(duration);
+                break;
+            }
+        }
+    }
+}
+
+Aura* Unit::GetAuraByCasterSpell(uint32 spellId, uint64 casterGUID)
+{
+    // Returns first found aura from spell-use only in cases where effindex of spell doesn't matter!
+    for(uint8 i = 0; i < 3; ++i)
+    {
+        spellEffectPair spair = spellEffectPair(spellId, i);
+        for(AuraMap::const_iterator itr = GetAuras().lower_bound(spair); itr != GetAuras().upper_bound(spair); ++itr)
+        {
+            if(itr->second->GetCasterGUID()==casterGUID)
+                return itr->second;
+        }
+    }
+    return NULL;
+}
+
 void Unit::RemoveAurasDueToSpellByDispel(uint32 spellId, uint64 casterGUID, Unit *dispeler)
 {
     for (AuraMap::iterator iter = m_Auras.begin(); iter != m_Auras.end(); )
