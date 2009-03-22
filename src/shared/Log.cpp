@@ -92,9 +92,9 @@ void Log::SetDBLogLevel(char *Level)
 void Log::Initialize()
 {
     /// Check whether we'll log GM commands/RA events/character outputs
-    m_dbChar = sConfig.GetBoolDefault("DBLog.Char", false);
-    m_dbRA = sConfig.GetBoolDefault("DBLog.RA", false);
-    m_dbGM = sConfig.GetBoolDefault("DBLog.GM", false);
+    m_dbChar = sConfig.GetBoolDefault("LogDB.Char", false);
+    m_dbRA = sConfig.GetBoolDefault("LogDB.RA", false);
+    m_dbGM = sConfig.GetBoolDefault("LogDB.GM", false);
 
     /// Common log files data
     m_logsDir = sConfig.GetStringDefault("LogsDir","");
