@@ -37,6 +37,7 @@ const char CreatureDisplayInfofmt[]="nxxxfxxxxxxxxxxx";
 const char CreatureFamilyfmt[]="nfifiiiiixssssssssssssssssxx";
 const char CreatureSpellDatafmt[]="nxxxxxxxx";
 const char CreatureTypefmt[]="nxxxxxxxxxxxxxxxxxx";
+const char CurrencyTypesfmt[]="xnxi";
 const char DurabilityCostsfmt[]="niiiiiiiiiiiiiiiiiiiiiiiiiiiii";
 const char DurabilityQualityfmt[]="nf";
 const char EmoteEntryfmt[]="nxixxxxxxxxxxxxxxxx";

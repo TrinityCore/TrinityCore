@@ -700,6 +700,23 @@ struct CreatureTypeEntry
     //uint32    no_expirience;                              // 18 no exp? critters, non-combat pets, gas cloud.
 };
 
+/* not used
+struct CurrencyCategoryEntry
+{
+    uint32    ID;                                           // 0
+    uint32    Unk1;                                         // 1        0 for known categories and 3 for unknown one (3.0.9)
+    char*   Name[16];                                       // 2-17     name
+    //                                                      // 18       string flags
+};
+*/
+
+struct CurrencyTypesEntry
+{
+    //uint32    ID;                                         // 0        not used
+    uint32    ItemId;                                       // 1        used as real index
+    uint32    BitIndex;                                     // 2        bit index in PLAYER_FIELD_KNOWN_CURRENCIES (1 << (index-1))
+};
+
 struct DurabilityCostsEntry
 {
     uint32    Itemlvl;                                      // 0
