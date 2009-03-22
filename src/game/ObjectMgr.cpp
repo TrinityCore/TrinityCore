@@ -4354,7 +4354,7 @@ void ObjectMgr::LoadNpcTextLocales()
         bar.step();
 
         sLog.outString("");
-        sLog.outString(">> Loaded 0 Quest locale strings. DB table `locales_npc_text` is empty.");
+        sLog.outString(">> Loaded 0 NpcText locale strings. DB table `locales_npc_text` is empty.");
         return;
     }
 
