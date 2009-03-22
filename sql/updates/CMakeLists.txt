@@ -93,4 +93,6 @@ INSTALL(FILES
 2025_mangos_7495_01_world_trinity_string.sql
 2031_realmd.sql
 2057_world.sql
+2064_world.sql
+2080_mangos_7503_01_world_command.sql
 DESTINATION share/trinity/sql/updates)

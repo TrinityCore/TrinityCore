@@ -1,5 +1,5 @@
-delete from spell_bonus_data where entry in (15290, 39373, 33778, 379, 38395, 40972, 22845, 33504, 34299);
-insert into spell_bonus_data () VALUES
+DELETE FROM `spell_bonus_data` WHERE `entry` IN (15290, 39373, 33778, 379, 38395, 40972, 22845, 33504, 34299);
+INSERT INTO `spell_bonus_data` VALUES
 (15290, 0, 0, 0, 'Vampiric Embrace'),
 (39373, 0, 0, 0, 'Shadowmend'),
 (33778, 0, 0, 0, 'Lifebloom'),
