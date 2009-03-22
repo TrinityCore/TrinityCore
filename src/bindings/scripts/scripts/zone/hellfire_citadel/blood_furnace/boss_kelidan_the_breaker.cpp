@@ -175,7 +175,10 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
             Creature *channeler = (Creature*)Unit::GetUnit(*m_creature, Channelers[i]);
             if(!channeler || channeler->isDead())
                 channeler = m_creature->SummonCreature(ENTRY_CHANNELER,ShadowmoonChannelers[i][0],ShadowmoonChannelers[i][1],ShadowmoonChannelers[i][2],ShadowmoonChannelers[i][3],TEMPSUMMON_CORPSE_TIMED_DESPAWN,300000);
-            Channelers[i] = channeler->GetGUID();
+            if(channeler)
+                Channelers[i] = channeler->GetGUID();
+            else
+                Channelers[i] = 0;
         }
     }
 
