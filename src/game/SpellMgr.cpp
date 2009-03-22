@@ -2397,8 +2397,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case SPELLFAMILY_PRIEST:
                 // Penance
-                if (spellInfo->SpellFamilyFlags[1] & 800000)
-                    m_spellProto->AttributesEx5 | SPELL_ATTR_EX5_START_PERIODIC_AT_APPLY;
+                if (spellInfo->SpellFamilyFlags[1] & 0x800000)
+                    spellInfo->AttributesEx5 |= SPELL_ATTR_EX5_START_PERIODIC_AT_APPLY;
                 break;
         }
     }
