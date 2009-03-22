@@ -447,6 +447,7 @@ void Log::outErrorDb( const char * err, ... )
     if( !err )
         return;
 
+    /*
     if (m_enableLogDB)
     {
         va_list ap2;
@@ -456,6 +457,7 @@ void Log::outErrorDb( const char * err, ... )
         outDB(LOG_TYPE_DBERR, nnew_str);
         va_end(ap2);
     }
+    */
 
     if(m_colored)
         SetColor(false,RED);
