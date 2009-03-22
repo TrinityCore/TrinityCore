@@ -263,6 +263,18 @@ bool IsPassiveSpell(uint32 spellId)
     return (spellInfo->Attributes & SPELL_ATTR_PASSIVE) != 0;
 }
 
+bool IsAutocastableSpell(uint32 spellId)
+{
+    SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
+    if(!spellInfo)
+        return false;
+    if(spellInfo->Attributes & SPELL_ATTR_PASSIVE)
+        return false;
+    if(spellInfo->AttributesEx & SPELL_ATTR_EX_UNAUTOCASTABLE_BY_PET)
+        return false;
+    return true;
+}
+
 /*bool IsNoStackAuraDueToAura(uint32 spellId_1, uint32 effIndex_1, uint32 spellId_2, uint32 effIndex_2)
 {
     SpellEntry const *spellInfo_1 = sSpellStore.LookupEntry(spellId_1);
