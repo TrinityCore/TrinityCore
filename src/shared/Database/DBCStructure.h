@@ -908,6 +908,13 @@ struct ItemEntry
    uint32   Sheath;                                         // 7
 };
 
+struct ItemBagFamilyEntry
+{
+    uint32   ID;                                            // 0
+    //char*     name[16]                                    // 1-16     m_name_lang
+    //                                                      // 17       name flags
+};
+
 struct ItemDisplayInfoEntry
 {
     uint32      ID;                                         // 0        m_ID
