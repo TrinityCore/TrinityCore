@@ -1196,7 +1196,10 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
                 if (GetSpellDuration(i->first)==-1)
                     // get duration from aura-only once
                     if (!_duration)
-                        _duration = unit->GetAuraByCasterSpell(m_spellInfo->Id, m_caster->GetGUID())->GetAuraDuration();
+                    {
+                        Aura * aur = unit->GetAuraByCasterSpell(m_spellInfo->Id, m_caster->GetGUID());
+                        _duration = aur ? aur->GetAuraDuration() : -1;
+                    }
                     unit->SetAurasDurationByCasterSpell(i->first->Id, m_caster->GetGUID(), _duration);
             }
         }
