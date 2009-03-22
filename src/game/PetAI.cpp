@@ -123,6 +123,9 @@ void PetAI::UpdateAI(const uint32 diff)
         }
     }
 
+    if(!me->GetCharmInfo())
+        return;
+
     if (i_pet.GetGlobalCooldown() == 0 && !i_pet.hasUnitState(UNIT_STAT_CASTING))
     {
         bool inCombat = me->getVictim();
