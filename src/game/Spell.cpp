@@ -2269,7 +2269,8 @@ void Spell::cast(bool skipCheck)
         ((Player*)m_caster)->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL, m_spellInfo->Id);
     }
 
-    //are there any spells need to be triggered after hit?
+    // this is related to combo points so must be done before takepower
+    // are there any spells need to be triggered after hit?
     // handle SPELL_AURA_ADD_TARGET_TRIGGER auras
     Unit::AuraList const& targetTriggers = m_caster->GetAurasByType(SPELL_AURA_ADD_TARGET_TRIGGER);
     for(Unit::AuraList::const_iterator i = targetTriggers.begin(); i != targetTriggers.end(); ++i)
@@ -2286,6 +2287,10 @@ void Spell::cast(bool skipCheck)
         }
     }
 
+    // this is related to combo points so must be done before takepower
+    if(m_customAttr & SPELL_ATTR_CU_DIRECT_DAMAGE)
+        CalculateDamageDoneForAllTargets();
+
     if(!m_IsTriggeredSpell)
     {
         TakePower();
@@ -2296,9 +2301,6 @@ void Spell::cast(bool skipCheck)
     SendSpellCooldown();
     //SendCastResult(castResult);
     SendSpellGo();                                          // we must send smsg_spell_go packet before m_castItem delete in TakeCastItem()...
-
-    if(m_customAttr & SPELL_ATTR_CU_DIRECT_DAMAGE)
-        CalculateDamageDoneForAllTargets();
 
     if(m_customAttr & SPELL_ATTR_CU_CHARGE)
         EffectCharge(0);
