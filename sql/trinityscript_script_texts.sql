@@ -59,6 +59,19 @@ INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc2`, `type`, 
 (-1000162, 'All we know of this timeway is that it leads to Mount Hyjal. The Infinite Dragonflight have gone to great lengths to prevent our involvement. We know next to nothing, mortal. Soridormi is currently attempting to break through the timeway\'s defenses but has thus far been unsuccessful. You might be our only hope of breaking through and resolving the conflict.', 'Tout ce que nous savons sur cette voie temporelle est qu\'elle me`ne au Mont Hyjal. Le Vol du Dragon Infini s\'est donné beaucoup de peine pour empe^cher notre participation. Soridormi est actuellement en train de tenter de briser les défenses de cette voie, mais ses efforts ont été vain jusqu\'ici. Vous pourriez e^tre notre seul espoir de les briser et de résoudre le conflit.', 4, 0, 'WHISPER_CUSTODIAN_13'),
 (-1000163, 'Our time is at an end $N. I would wish you luck, if such a thing existed.', 'Notre entretien touche a` sa fin, $N. Je vous souhaite bonne chance, si tant est qu\'une telle chose a jamais existé.', 4, 0, 'WHISPER_CUSTODIAN_14');
 
+-- 2139_world_scripts.sql
+(-1000164,'Ah, $GPriest:Priestess; you came along just in time. I appreciate it.',0,0,0,2,'garments SAY_COMMON_HEALED'),
+(-1000165,'Thank you! Thank you, $GPriest:Priestess;. Now I can take on those gnolls with your power to back me!',0,0,1,1,'garments SAY_DG_KEL_THANKS'),
+(-1000166,'Farewell to you, and may shadow always protect you!',0,0,1,3,'garments SAY_DG_KEL_GOODBYE'),
+(-1000167, 'Thank you! Thank you, $GPriest:Priestess;. Now I can take on those murlocs with the Light on my side!',0,0,7,1,'garments SAY_ROBERTS_THANKS'),
+(-1000168, 'Farewell to you, and may the Light be with you always.',0,0,7,3,'garments SAY_ROBERTS_GOODBYE'),
+(-1000169, 'Thank you! Thank you, $GPriest:Priestess;. Now I can take on those humans with your power to back me!',0,0,1,1,'garments SAY_KORJA_THANKS'),
+(-1000170, 'Farewell to you, and may our ancestors be with you always!',0,0,1,3,'garments SAY_KORJA_GOODBYE'),
+(-1000171, 'Thank you! Thank you, $GPriest:Priestess;. Now I can take on those wendigo with the Light on my side!',0,0,7,1,'garments SAY_DOLF_THANKS'),
+(-1000172, 'Farewell to you, and may the Light be with you always.',0,0,7,3,'garments SAY_DOLF_GOODBYE'),
+(-1000173, 'Thank you! Thank you, $GPriest:Priestess;. Now I can take on those corrupt timberlings with Elune\'s power behind me!',0,0,2,1,'garments SAY_SHAYA_THANKS'),
+(-1000174, 'Farewell to you, and may Elune be with you always.',0,0,2,3,'garments SAY_SHAYA_GOODBYE');
+
 -- 817_world_scripts.sql
 INSERT INTO script_texts (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`, `sound`, `type`, `language`, `emote`, `comment`) VALUES
 (-1000200, 'A-Me good.Good A-me.Follow...A-ME follow.Home.A-ME go home.', NULL, NULL, 'A-ME gut.Gut A-Me.Folgen...Heim.A-ME geht heim.', NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, NULL),

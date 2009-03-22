@@ -256,15 +256,14 @@ struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
             if (Summon_Assistant_Timer < diff)
             {
                 Unit* target = NULL;
-                Creature* Assistance;
 
                 for(int i = 0; i < summoned; i++)
                 {
                     switch(rand()%3)
                     {
-                        case 0: Assistance = m_creature->SummonCreature(MOB_HEARTHEN_GUARD,AddsEntrance[0],AddsEntrance[1], AddsEntrance[2], 0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,30000); break;
-                        case 1: Assistance = m_creature->SummonCreature(MOB_SHARPSHOOTER_GUARD,AddsEntrance[0],AddsEntrance[1], AddsEntrance[2], 0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,30000); break;
-                        case 2: Assistance = m_creature->SummonCreature(MOB_REAVER_GUARD,AddsEntrance[0],AddsEntrance[1], AddsEntrance[2], 0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,30000); break;
+                        case 0: m_creature->SummonCreature(MOB_HEARTHEN_GUARD,AddsEntrance[0],AddsEntrance[1], AddsEntrance[2], 0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,30000); break;
+                        case 1: m_creature->SummonCreature(MOB_SHARPSHOOTER_GUARD,AddsEntrance[0],AddsEntrance[1], AddsEntrance[2], 0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,30000); break;
+                        case 2: m_creature->SummonCreature(MOB_REAVER_GUARD,AddsEntrance[0],AddsEntrance[1], AddsEntrance[2], 0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,30000); break;
                     }
                 }
                 if(rand()%100 < 20) summoned++;

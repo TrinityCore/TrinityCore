@@ -261,6 +261,20 @@ void npc_escortAI::AddWaypoint(uint32 id, float x, float y, float z, uint32 Wait
     WaypointList.push_back(t);
 }
 
+void npc_escortAI::FillPointMovementListForCreature()
+{
+    std::list<PointMovement>::iterator itr;
+
+    for (itr = PointMovementList.begin(); itr != PointMovementList.end(); ++itr)
+    {
+        if (itr->m_uiCreatureEntry == m_creature->GetEntry())
+        {
+            Escort_Waypoint pPoint(itr->m_uiPointId,itr->m_fX,itr->m_fY,itr->m_fZ,itr->m_uiWaitTime);
+            WaypointList.push_back(pPoint);
+        }
+    }
+}
+
 void npc_escortAI::Start(bool bAttack, bool bDefend, bool bRun, uint64 pGUID)
 {
     if (InCombat)

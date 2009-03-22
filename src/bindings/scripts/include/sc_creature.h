@@ -31,6 +31,16 @@ Unit* FindCreature(uint32 entry, float range, Unit* Finder);
 //Get a single gameobject of given entry
 GameObject* FindGameObject(uint32 entry, float range, Unit* Finder);
 
+struct PointMovement
+{
+    uint32 m_uiCreatureEntry;
+    uint32 m_uiPointId;
+    float m_fX;
+    float m_fY;
+    float m_fZ;
+    uint32 m_uiWaitTime;
+};
+
 struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
 {
     ScriptedAI(Creature* creature) : CreatureAI(creature), m_creature(creature), InCombat(false), IsFleeing(false) {}
