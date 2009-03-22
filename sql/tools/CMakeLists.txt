@@ -1,4 +1,6 @@
 
 ########### install files ###############
 
-install(FILES  characters_item_duplicates_remove.sql      characters_pet_data_cleanup.sql      README DESTINATION share/trinity/sql/tools)
+FILE(GLOB _SQL_TOOLS *.sql)
+
+install(FILES ${_SQL_TOOLS} README DESTINATION share/trinity/sql/tools)
