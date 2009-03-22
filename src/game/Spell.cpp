@@ -1221,10 +1221,28 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
     if(m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->IsAIEnabled)
         ((Creature*)m_caster)->AI()->SpellHitTarget(unit, m_spellInfo);
 
-    for(ChanceTriggerSpells::const_iterator i = m_ChanceTriggerSpells.begin(); i != m_ChanceTriggerSpells.end(); ++i)
+    if (m_ChanceTriggerSpells.size())
     {
-        if(roll_chance_i(i->second))
-            m_caster->CastSpell(unit, i->first, true);
+        int _duration=0;
+        for(ChanceTriggerSpells::const_iterator i = m_ChanceTriggerSpells.begin(); i != m_ChanceTriggerSpells.end(); ++i)
+        {
+            if(roll_chance_i(i->second))
+            {
+                m_caster->CastSpell(unit, i->first, true);
+                // SPELL_AURA_ADD_TARGET_TRIGGER auras shouldn't trigger auras without duration
+                // set duration equal to triggering spell
+                if (GetSpellDuration(i->first)==-1)
+                {
+                    // get duration from aura-only once
+                    if (!_duration)
+                    {
+                        Aura * aur = unit->GetAuraByCasterSpell(m_spellInfo->Id, m_caster->GetGUID());
+                        _duration = aur ? aur->GetAuraDuration() : -1;
+                    }
+                    unit->SetAurasDurationByCasterSpell(i->first->Id, m_caster->GetGUID(), _duration);
+                }
+            }
+        }
     }
 
     if(m_customAttr & SPELL_ATTR_CU_LINK_HIT)
