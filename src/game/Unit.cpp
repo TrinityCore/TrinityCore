@@ -4160,7 +4160,7 @@ void Unit::SetAurasDurationByCasterSpell(uint32 spellId, uint64 casterGUID, int3
         {
             if(itr->second->GetCasterGUID()==casterGUID)
             {
-                itr->second->SetAuraDuration(duration);
+                itr->second->SetAuraDurationAndUpdate(duration);
                 break;
             }
         }
@@ -6027,7 +6027,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     if( spellProto->SpellFamilyName == SPELLFAMILY_ROGUE &&
                         spellProto->SpellFamilyFlags[0] & 0x40000)
                     {
-                        RefreshAurasByCasterSpell(spellProto->Id, GetGUID());
+                        SetAurasDurationByCasterSpell(spellProto->Id, GetGUID(), GetSpellMaxDuration(spellProto));
                         return true;
                     }
                 }
