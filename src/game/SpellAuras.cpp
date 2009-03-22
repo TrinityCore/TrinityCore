@@ -1162,6 +1162,7 @@ void Aura::HandleAddModifier(bool apply, bool Real)
             case 57761:    // Fireball!
                 SetAuraCharges(1);
                 break;
+
         }
 
         SpellModifier *mod = new SpellModifier;
@@ -1955,6 +1956,44 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 if(caster)
                     caster->CastSpell(caster,13138,true,NULL,this);
                 return;
+            case 34026:   // kill command
+            {
+                Unit * pet = m_target->GetPet();
+                if (!pet)
+                    return;
+
+                m_target->CastSpell(m_target,34027,true,NULL,this);
+
+                // set 3 stacks and 3 charges (to make all auras not disappear at once)
+                Aura* owner_aura = m_target->GetAura(34027,0);
+                Aura* pet_aura  = pet->GetAura(58914,0);
+                if( owner_aura )
+                {
+                    owner_aura->SetStackAmount(owner_aura->GetSpellProto()->StackAmount);
+                }
+                if( pet_aura )
+                {
+                    pet_aura->SetAuraCharges(0);
+                    pet_aura->SetStackAmount(owner_aura->GetSpellProto()->StackAmount);
+                }
+                return;
+            }
+            case 55198:   // Tidal Force
+            {
+                m_target->CastSpell(m_target,55166,true,NULL,this);
+                // set 3 stacks and 3 charges (to make all auras not disappear at once)
+                Aura* owner_aura = m_target->GetAura(55166,0);
+                if( owner_aura )
+                {
+                    // This aura lasts 2 sec, need this hack to properly proc spells
+                    // TODO: drop aura charges for ApplySpellMod in ProcDamageAndSpell
+                    SetAuraDuration(owner_aura->GetAuraDuration());
+                    // Make aura be not charged-this prevents removing charge on not crit spells
+                    owner_aura->SetAuraCharges(0);
+                    owner_aura->SetStackAmount(owner_aura->GetSpellProto()->StackAmount);
+                }
+                return;
+            }
             case 39850:                                     // Rocket Blast
                 if(roll_chance_i(20))                       // backfire stun
                     m_target->CastSpell(m_target, 51581, true, NULL, this);

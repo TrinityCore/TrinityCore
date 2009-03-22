@@ -2395,11 +2395,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 if(spellInfo->SpellFamilyFlags[2] & 0x100)
                     spellInfo->MaxAffectedTargets = 2;
                 break;
-            case SPELLFAMILY_PRIEST:
-                // Penance
-                if (spellInfo->SpellFamilyFlags[1] & 0x800000)
-                    spellInfo->AttributesEx5 |= SPELL_ATTR_EX5_START_PERIODIC_AT_APPLY;
-                break;
         }
     }
 }
