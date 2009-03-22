@@ -365,8 +365,8 @@ bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData *data )
     if(isTotem() || isTrigger()
         || GetCreatureType() == CREATURE_TYPE_CRITTER)
         SetReactState(REACT_PASSIVE);
-    else if(isCivilian())
-        SetReactState(REACT_DEFENSIVE);
+    /*else if(isCivilian())
+        SetReactState(REACT_DEFENSIVE);*/
     else
         SetReactState(REACT_AGGRESSIVE);
 
