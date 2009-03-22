@@ -578,9 +578,16 @@ void Aura::Update(uint32 diff)
                 if (manaPerSecond)
                 {
                     if(powertype==POWER_HEALTH)
-                        caster->ModifyHealth(-manaPerSecond);
-                    else
+                    {
+                        if (caster->GetHealth()>manaPerSecond)
+                            caster->ModifyHealth(-manaPerSecond);
+                        else
+                            m_target->RemoveAurasByCasterSpell(GetId(),GetCasterGUID());
+                    }
+                    else if (caster->GetPower(powertype)>manaPerSecond)
                         caster->ModifyPower(powertype,-manaPerSecond);
+                    else
+                        m_target->RemoveAurasByCasterSpell(GetId(),GetCasterGUID());
                 }
             }
         }
@@ -5682,7 +5689,6 @@ void Aura::PeriodicTick()
                 GUID_LOPART(GetCasterGUID()), GuidHigh2TypeId(GUID_HIPART(GetCasterGUID())), m_target->GetGUIDLow(), m_target->GetTypeId(), pdamage, GetId(),absorb);
 
             pCaster->SendSpellNonMeleeDamageLog(m_target, GetId(), pdamage, GetSpellSchoolMask(GetSpellProto()), absorb, resist, false, 0);
-
 
             Unit* target = m_target;                        // aura can be deleted in DealDamage
             SpellEntry const* spellProto = GetSpellProto();
