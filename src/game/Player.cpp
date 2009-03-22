@@ -19129,10 +19129,14 @@ WorldObject* Player::GetFarsightTarget() const
 
 void Player::StopCastingBindSight()
 {
-    if (WorldObject* fTarget = GetFarsightTarget())
+    if(WorldObject* target = GetFarsightTarget())
     {
-        if (fTarget->isType(TYPEMASK_UNIT))
-            ((Unit*)fTarget)->RemoveAuraTypeByCaster(SPELL_AURA_BIND_SIGHT, GetGUID());
+        if(target->isType(TYPEMASK_UNIT))
+        {
+            ((Unit*)target)->RemoveAuraTypeByCaster(SPELL_AURA_BIND_SIGHT, GetGUID());
+            ((Unit*)target)->RemoveAuraTypeByCaster(SPELL_AURA_MOD_POSSESS, GetGUID());
+            ((Unit*)target)->RemoveAuraTypeByCaster(SPELL_AURA_MOD_POSSESS_PET, GetGUID());
+        }
     }
 }
 
