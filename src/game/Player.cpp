@@ -18690,7 +18690,7 @@ void Player::UpdateVisibilityOf(T* target, UpdateData& data, std::set<WorldObjec
             #endif
         }
     }
-    else
+    else if(visibleNow.size() < 30)
     {
         if(target->isVisibleForInState(this,false))
         {
@@ -20073,7 +20073,11 @@ void Player::StopCastingBindSight()
     if(WorldObject* target = GetViewpoint())
     {
         if(target->isType(TYPEMASK_UNIT))
+        {
             ((Unit*)target)->RemoveAuraTypeByCaster(SPELL_AURA_BIND_SIGHT, GetGUID());
+            ((Unit*)target)->RemoveAuraTypeByCaster(SPELL_AURA_MOD_POSSESS, GetGUID());
+            ((Unit*)target)->RemoveAuraTypeByCaster(SPELL_AURA_MOD_POSSESS_PET, GetGUID());
+        }
     }
 }
 
