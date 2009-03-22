@@ -1504,7 +1504,19 @@ void Spell::EffectDummy(uint32 i)
             // Starfall
             if (m_spellInfo->SpellFamilyFlags[2] & 0x100)
             {
-                m_caster->CastSpell(unitTarget, damage, true, NULL);
+                //Shapeshifting into an animal form or mounting cancels the effect.
+                if(m_caster->GetCreatureType() == CREATURE_TYPE_BEAST || m_caster->IsMounted())
+                {
+                    if(m_triggeredByAuraSpell)
+                        m_caster->RemoveAurasDueToSpell(m_triggeredByAuraSpell->Id);
+                    return;
+                }
+
+                //Any effect which causes you to lose control of your character will supress the starfall effect.
+                if(m_caster->hasUnitState(UNIT_STAT_STUNNED | UNIT_STAT_FLEEING | UNIT_STAT_ROOT | UNIT_STAT_CONFUSED))
+                    return;
+
+                m_caster->CastSpell(unitTarget, damage, true);
                 return;
             }
             break;
