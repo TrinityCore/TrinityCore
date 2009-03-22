@@ -584,7 +584,7 @@ void Aura::Update(uint32 diff)
                         else
                             m_target->RemoveAurasByCasterSpell(GetId(),GetCasterGUID());
                     }
-                    else if (caster->GetPower(powertype)>manaPerSecond)
+                    else if (caster->GetPower(powertype)>=manaPerSecond)
                         caster->ModifyPower(powertype,-manaPerSecond);
                     else
                         m_target->RemoveAurasByCasterSpell(GetId(),GetCasterGUID());
@@ -5424,14 +5424,6 @@ void Aura::HandleSpiritOfRedemption( bool apply, bool Real )
 
 void Aura::CleanupTriggeredSpells()
 {
-    if (m_spellProto->SpellFamilyName == SPELLFAMILY_WARRIOR && m_spellProto->SpellFamilyFlags[1] & 0x00000010 || m_spellProto->SpellFamilyFlags[0] & 0x00000020)
-    {
-        // Blood Frenzy remove
-        m_target->RemoveAurasDueToSpell(30069);
-        m_target->RemoveAurasDueToSpell(30070);
-        return;
-    }
-
     uint32 tSpellId = m_spellProto->EffectTriggerSpell[GetEffIndex()];
     if(!tSpellId)
         return;
