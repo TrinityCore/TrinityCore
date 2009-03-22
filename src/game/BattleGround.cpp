@@ -1488,6 +1488,7 @@ Creature* BattleGround::AddCreature(uint32 entry, uint32 type, uint32 teamval, f
         return NULL;
     }
 
+    pCreature->SetHomePosition(x, y, z, o);
     pCreature->AIM_Initialize();
 
     //pCreature->SetDungeonDifficulty(0);
