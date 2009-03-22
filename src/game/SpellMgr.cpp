@@ -2346,7 +2346,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 45027: // Revitalize
         case 45976: // Muru Portal Channel
         case 39365: // Thundering Storm
-	case 41071: // Raise Dead
+	    case 41071: // Raise Dead (HACK)
             spellInfo->MaxAffectedTargets = 1;
             break;
         case 41376: // Spite
@@ -2386,6 +2386,15 @@ void SpellMgr::LoadSpellCustomAttr()
             break;
         default:
             break;
+        }
+
+        switch(spellInfo->SpellFamilyName)
+        {
+            case SPELLFAMILY_DRUID:
+                //starfall
+                if(spellInfo->SpellFamilyFlags[2] & 0x100)
+                    spellInfo->MaxAffectedTargets = 2;
+                break;
         }
     }
 }
