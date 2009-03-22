@@ -221,6 +221,8 @@ struct TRINITY_DLL_DECL aqsentinelAI : public ScriptedAI
             DoYell("I dont have enough buddies.", LANG_NEUTRAL, 0);*/
         SendMyListToBuddies();
         CallBuddiesToAttack(who);
+        
+        delete[] chosenAbilities;
     }
 
     bool gatherOthersWhenAggro;

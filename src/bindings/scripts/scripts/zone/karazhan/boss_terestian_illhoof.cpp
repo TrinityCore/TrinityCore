@@ -160,6 +160,8 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
 {
     boss_terestianAI(Creature *c) : ScriptedAI(c)
     {
+        for(uint8 i = 0; i < 2; ++i)
+            PortalGUID[i] = 0;
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         Reset();
     }

@@ -190,13 +190,16 @@ struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
             if (resummon)
             {
                 pAdd = m_creature->SummonCreature(Adds[i]->entry, LackeyLocations[i][0], LackeyLocations[i][1], POS_Z, ORIENT, TEMPSUMMON_DEAD_DESPAWN, 0);
+                if (pAdd)
+                {
                 Add* nAdd = new Add(Adds[i]->entry, pAdd->GetGUID());
                 Adds.erase(Adds.begin() + i);
                 Adds.push_back(nAdd);
             }
         }
     }
-
+    }
+    
     void KilledUnit(Unit* victim)
     {
         if (victim->GetTypeId() != TYPEID_PLAYER)

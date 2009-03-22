@@ -135,17 +135,21 @@ bool GOHello_gilded_brazier(Player *player, GameObject* _GO)
 ## npc_ranger_lilatha
 ######*/
 
-#define SAY_START           -1000140
-#define SAY_PROGRESS1       -1000141
-#define SAY_PROGRESS2       -1000142
-#define SAY_PROGRESS3       -1000143
-#define SAY_END1            -1000144
-#define SAY_END2            -1000145
-#define SAY_CAPTAIN_ANSWER  -1000146
+enum
+{
+    SAY_START           = -1000140,
+    SAY_PROGRESS1       = -1000141,
+    SAY_PROGRESS2       = -1000142,
+    SAY_PROGRESS3       = -1000143,
+    SAY_END1            = -1000144,
+    SAY_END2            = -1000145,
+    SAY_CAPTAIN_ANSWER      = -1000146,
 
-#define QUEST_ESCAPE_FROM_THE_CATACOMBS 9212
-#define GO_CAGE 181152
-#define NPC_CAPTAIN_HELIOS 16220
+    QUEST_ESCAPE_FROM_THE_CATACOMBS     = 9212,
+    GO_CAGE             = 181152,
+    NPC_CAPTAIN_HELIOS  = 16220,
+    FACTION_SMOON_E     = 1603,
+};
 
 struct TRINITY_DLL_DECL npc_ranger_lilathaAI : public npc_escortAI
 {
@@ -249,41 +253,7 @@ CreatureAI* GetAI_npc_ranger_lilathaAI(Creature *_Creature)
 {
     npc_ranger_lilathaAI* ranger_lilathaAI = new npc_ranger_lilathaAI(_Creature);
 
-    ranger_lilathaAI->AddWaypoint(0, 7545.07, -7359.87, 162.354, 4000); // Say0
-    ranger_lilathaAI->AddWaypoint(1, 7550.048340, -7362.237793, 162.235657);
-    ranger_lilathaAI->AddWaypoint(2, 7566.976074, -7364.315430, 161.738770);
-    ranger_lilathaAI->AddWaypoint(3, 7578.830566, -7361.677734, 161.738770);
-    ranger_lilathaAI->AddWaypoint(4, 7590.969238, -7359.053711, 162.257660);
-    ranger_lilathaAI->AddWaypoint(5, 7598.354004, -7362.815430, 162.256683, 4000); // Say1
-    ranger_lilathaAI->AddWaypoint(6, 7605.861328, -7380.424316, 161.937073);
-    ranger_lilathaAI->AddWaypoint(7, 7605.295410, -7387.382813, 157.253998);
-    ranger_lilathaAI->AddWaypoint(8, 7606.131836, -7393.893555, 156.941925);
-    ranger_lilathaAI->AddWaypoint(9, 7615.207520, -7400.187012, 157.142639);
-    ranger_lilathaAI->AddWaypoint(10, 7618.956543, -7402.652832, 158.202042);
-    ranger_lilathaAI->AddWaypoint(11, 7636.850586, -7401.756836, 162.144791);
-    ranger_lilathaAI->AddWaypoint(12, 7637.058105, -7404.944824, 162.206970, 4000);// Say2
-    ranger_lilathaAI->AddWaypoint(13, 7636.910645, -7412.585449, 162.366425);
-    ranger_lilathaAI->AddWaypoint(14, 7637.607910, -7425.591797, 162.630661);
-    ranger_lilathaAI->AddWaypoint(15, 7637.816895, -7459.057129, 163.302704);
-    ranger_lilathaAI->AddWaypoint(16, 7638.859863, -7470.902344, 162.517059);
-    ranger_lilathaAI->AddWaypoint(17, 7641.395996, -7488.217285, 157.381287);
-    ranger_lilathaAI->AddWaypoint(18, 7634.455566, -7505.451660, 154.682159);
-    ranger_lilathaAI->AddWaypoint(19, 7631.906738, -7516.948730, 153.597382); // say3
-    ranger_lilathaAI->AddWaypoint(20, 7622.231445, -7537.037598, 151.587112);
-    ranger_lilathaAI->AddWaypoint(21, 7610.921875, -7550.670410, 149.639374);
-    ranger_lilathaAI->AddWaypoint(22, 7598.229004, -7562.551758, 145.953888);
-    ranger_lilathaAI->AddWaypoint(23, 7588.509277, -7577.755371, 148.294479);
-    ranger_lilathaAI->AddWaypoint(24, 7567.339355, -7608.456055, 146.006485);
-    ranger_lilathaAI->AddWaypoint(25, 7562.547852, -7617.417969, 148.097504);
-    ranger_lilathaAI->AddWaypoint(26, 7561.508789, -7645.064453, 151.245163);
-    ranger_lilathaAI->AddWaypoint(27, 7563.337402, -7654.652344, 151.227158);
-    ranger_lilathaAI->AddWaypoint(28, 7565.533691, -7658.296387, 151.248886);
-    ranger_lilathaAI->AddWaypoint(29, 7571.155762, -7659.118652, 151.244568);
-    ranger_lilathaAI->AddWaypoint(30, 7579.119629, -7662.213867, 151.651505);
-    ranger_lilathaAI->AddWaypoint(31, 7603.768066, -7667.000488, 153.997726);
-    ranger_lilathaAI->AddWaypoint(32, 7603.768066, -7667.000488, 153.997726, 4000);  // Say4 & Set orientation
-    ranger_lilathaAI->AddWaypoint(33, 7603.768066, -7667.000488, 153.997726, 8000);  // Say5 & Set orientation
-    ranger_lilathaAI->AddWaypoint(34, 7603.768066, -7667.000488, 153.997726);
+    ranger_lilathaAI->FillPointMovementListForCreature();
 
     return (CreatureAI*)ranger_lilathaAI;
 }

@@ -89,50 +89,55 @@ bool GossipSelect_npc_sputtervalve(Player *player, Creature *_Creature, uint32 s
 ## npc_taskmaster_fizzule
 ######*/
 
-//#define FACTION_HOSTILE_F     430
-#define FACTION_HOSTILE_F       16
-#define FACTION_FRIENDLY_F      35
-
-#define SPELL_FLARE             10113
-#define SPELL_FOLLY             10137
+enum
+{
+    FACTION_FRIENDLY_F  = 35,
+    SPELL_FLARE         = 10113,
+    SPELL_FOLLY         = 10137,
+};
 
 struct TRINITY_DLL_DECL npc_taskmaster_fizzuleAI : public ScriptedAI
 {
-    npc_taskmaster_fizzuleAI(Creature* c) : ScriptedAI(c) { Reset(); }
+    npc_taskmaster_fizzuleAI(Creature* c) : ScriptedAI(c)
+    {
+        factionNorm = c->getFaction();
+        Reset();
+    }
 
+    uint32 factionNorm;
     bool IsFriend;
     uint32 Reset_Timer;
-    uint32 FlareCount;
+    uint8 FlareCount;
 
     void Reset()
     {
         IsFriend = false;
         Reset_Timer = 120000;
         FlareCount = 0;
-        m_creature->setFaction(FACTION_HOSTILE_F);
-        m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+        m_creature->setFaction(factionNorm);
     }
 
-    //This is a hack. Spellcast will make creature aggro but that is not
-    //supposed to happen (Trinity not implemented/not found way to detect this spell kind)
-    void DoUglyHack()
+    void DoFriend()
     {
         m_creature->RemoveAllAuras();
         m_creature->DeleteThreatList();
         m_creature->CombatStop();
+        
+        m_creature->StopMoving();
+        m_creature->GetMotionMaster()->MoveIdle();
+
+        m_creature->setFaction(FACTION_FRIENDLY_F);
+        m_creature->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
     }
 
     void SpellHit(Unit *caster, const SpellEntry *spell)
     {
-        if( spell->Id == SPELL_FLARE || spell->Id == SPELL_FOLLY )
+        if (spell->Id == SPELL_FLARE || spell->Id == SPELL_FOLLY)
         {
-            DoUglyHack();
             ++FlareCount;
-            if( FlareCount >= 2 )
-            {
-                m_creature->setFaction(FACTION_FRIENDLY_F);
+
+            if (FlareCount >= 2)
                 IsFriend = true;
-            }
         }
     }
 
@@ -140,9 +145,9 @@ struct TRINITY_DLL_DECL npc_taskmaster_fizzuleAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if( IsFriend )
+        if (IsFriend)
         {
-            if( Reset_Timer < diff )
+            if (Reset_Timer < diff)
             {
                 EnterEvadeMode();
             } else Reset_Timer -= diff;
@@ -154,19 +159,22 @@ struct TRINITY_DLL_DECL npc_taskmaster_fizzuleAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_npc_taskmaster_fizzule(Creature *_Creature)
+
+CreatureAI* GetAI_npc_taskmaster_fizzule(Creature* pCreature)
 {
-    return new npc_taskmaster_fizzuleAI (_Creature);
+    return new npc_taskmaster_fizzuleAI(pCreature);
 }
 
-bool ReciveEmote_npc_taskmaster_fizzule(Player *player, Creature *_Creature, uint32 emote)
+bool ReciveEmote_npc_taskmaster_fizzule(Player* pPlayer, Creature* pCreature, uint32 emote)
 {
-    if( emote == TEXTEMOTE_SALUTE )
+    if (emote == TEXTEMOTE_SALUTE)
     {
-        if( ((npc_taskmaster_fizzuleAI*)_Creature->AI())->FlareCount >= 2 )
+        if (((npc_taskmaster_fizzuleAI*)pCreature->AI())->FlareCount >= 2)
         {
-            _Creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-            _Creature->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
+            if (pCreature->getFaction() == FACTION_FRIENDLY_F)
+                return true;
+            else
+                ((npc_taskmaster_fizzuleAI*)pCreature->AI())->DoFriend();
         }
     }
     return true;

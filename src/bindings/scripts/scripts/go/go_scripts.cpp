@@ -22,6 +22,7 @@ SDCategory: Game Objects
 EndScriptData */
 
 /* ContentData
+go_cat_figurine (the "trap" version of GO, two different exist)
 go_northern_crystal_pylon
 go_eastern_crystal_pylon
 go_western_crystal_pylon
@@ -33,6 +34,21 @@ go_tablet_of_the_seven
 EndContentData */
 
 #include "precompiled.h"
+
+/*######
+## go_cat_figurine
+######*/
+
+enum
+{
+    SPELL_SUMMON_GHOST_SABER    = 5968,
+};
+
+bool GOHello_go_cat_figurine(Player *player, GameObject* _GO)
+{
+    player->CastSpell(player,SPELL_SUMMON_GHOST_SABER,true);
+    return false;
+}
 
 /*######
 ## go_crystal_pylons (3x)
@@ -107,6 +123,26 @@ bool GOHello_go_field_repair_bot_74A(Player *player, GameObject* _GO)
 }
 
 /*######
+## go_gilded_brazier
+######*/
+
+enum
+{
+    NPC_STILLBLADE  = 17716,
+};
+
+bool GOHello_go_gilded_brazier(Player* pPlayer, GameObject* pGO)
+{
+    if (pGO->GetGoType() == GAMEOBJECT_TYPE_GOOBER)
+    {
+        if (Creature* pCreature = pPlayer->SummonCreature(NPC_STILLBLADE, 8087.632, -7542.740, 151.568, 0.122, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000))
+            pCreature->AI()->AttackStart(pPlayer);
+    }
+
+    return true;
+}
+
+/*######
 ## go_orb_of_command
 ######*/
 
@@ -152,6 +188,11 @@ void AddSC_go_scripts()
     Script *newscript;
 
     newscript = new Script;
+    newscript->Name = "go_cat_figurine";
+    newscript->pGOHello =           &GOHello_go_cat_figurine;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
     newscript->Name="go_northern_crystal_pylon";
     newscript->pGOHello =           &GOHello_go_northern_crystal_pylon;
     newscript->RegisterSelf();
@@ -174,6 +215,11 @@ void AddSC_go_scripts()
     newscript = new Script;
     newscript->Name="go_field_repair_bot_74A";
     newscript->pGOHello =           &GOHello_go_field_repair_bot_74A;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "go_gilded_brazier";
+    newscript->pGOHello =           &GOHello_go_gilded_brazier;
     newscript->RegisterSelf();
 
     newscript = new Script;
