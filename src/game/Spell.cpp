@@ -1021,6 +1021,15 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
             caster->ProcDamageAndSpell(unit, procAttacker, procVictim, procEx, 0, m_attackType, m_spellInfo);
     }
 
+    // Take combo points after effects handling (combo points are used in effect handling)
+    if(!m_IsTriggeredSpell && !m_CastItem
+        && NeedsComboPoints(m_spellInfo)
+        && m_caster->GetTypeId()==TYPEID_PLAYER
+        && target->targetGUID==m_targets.getUnitTargetGUID()
+        && missInfo!= SPELL_MISS_NONE
+        && missInfo != SPELL_MISS_MISS)
+            ((Player*)m_caster)->ClearComboPoints();
+
     // Call scripted function for AI if this spell is casted upon a creature (except pets)
     if(IS_CREATURE_GUID(target->targetGUID))
     {
@@ -2293,6 +2302,7 @@ void Spell::cast(bool skipCheck)
 
     if(!m_IsTriggeredSpell)
     {
+        // Powers have to be taken before SendSpellGo
         TakePower();
         TakeReagents();                                         // we must remove reagents before HandleEffects to allow place crafted item in same slot
     }
@@ -3251,8 +3261,6 @@ void Spell::TakePower()
                         }
                         break;
                     }
-        if(hit && NeedsComboPoints(m_spellInfo))
-            ((Player*)m_caster)->ClearComboPoints();
     }
 
     Powers powerType = Powers(m_spellInfo->powerType);
