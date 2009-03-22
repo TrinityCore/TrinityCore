@@ -47,7 +47,6 @@ enum LogTypes
     LOG_TYPE_RA     = 7,
     LOG_TYPE_GM     = 8,
     LOG_TYPE_PACKET = 9,
-    LOG_TYPE_DBERR  = 10,
     MAX_LOG_TYPES
 };
 
