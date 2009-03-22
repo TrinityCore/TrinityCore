@@ -2,8 +2,9 @@ delete from command where name in ('server difftime', 'npc addtemp', 'gobject ad
 insert into `command` (`name`, `security`, `help`) values('gobject tempadd','2','Adds a temporary gameobject that is not saved to DB.');
 insert into `command` (`name`, `security`, `help`) values('npc tempadd','2','Adds temporary NPC, not saved to database.');
 update command set name = "ahbotoption" where name = "ahbotoptions";
-update command set name = "reload gm_tickets" where name = "reload tickets";
+delete from command where name in ('reload tickets');
 delete from command where name like "path%";
+delete from command where name like "wp%";
 insert  into `command`(`name`,`security`,`help`) values ('wp load',2,'Syntax: .path load $pathid\nLoad pathid number for selected creature. Creature must have no waypoint data.');
 insert  into `command`(`name`,`security`,`help`) values ('wp event',2,'Syntax: .path event $subcommand\nType .path event to see the list of possible subcommands or .help path event $subcommand to see info on subcommands.');
 insert  into `command`(`name`,`security`,`help`) values ('wp event add',2,'Syntax: .path event add $subcommand\nAdd new waypoint action in DB.');
