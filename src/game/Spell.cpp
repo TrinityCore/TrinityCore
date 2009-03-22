@@ -1194,6 +1194,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
                 // SPELL_AURA_ADD_TARGET_TRIGGER auras shouldn't trigger auras without duration
                 // set duration equal to triggering spell
                 if (GetSpellDuration(i->first)==-1)
+                {
                     // get duration from aura-only once
                     if (!_duration)
                     {
@@ -1201,6 +1202,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
                         _duration = aur ? aur->GetAuraDuration() : -1;
                     }
                     unit->SetAurasDurationByCasterSpell(i->first->Id, m_caster->GetGUID(), _duration);
+                }
             }
         }
     }
