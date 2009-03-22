@@ -17825,7 +17825,7 @@ void Player::UpdateVisibilityOf(T* target, UpdateData& data, std::set<WorldObjec
             #endif
         }
     }
-    else
+    else if(visibleNow.size() < 30)
     {
         if(target->isVisibleForInState(this,false))
         {
