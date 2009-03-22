@@ -20079,21 +20079,32 @@ void Player::StopCastingBindSight()
 
 void Player::CreateViewpoint(WorldObject* target)
 {
-    if(!target || target == this) // remove seer
+    if(!target || target == this) // remove viewpoint
     {
         sLog.outDebug("Player::CreateViewpoint: Player %s remove seer", GetName());
+
+        if(WorldObject *viewpoint = GetViewpoint())
+            if(viewpoint->isType(TYPEMASK_UNIT))
+                ((Unit*)viewpoint)->RemovePlayerFromVision(this);
         SetUInt64Value(PLAYER_FARSIGHT, 0);
-        //WorldPacket data(SMSG_CLEAR_FAR_SIGHT_IMMEDIATE, 0);
-        //GetSession()->SendPacket(&data);
-        if(m_seer != this && m_seer->isType(TYPEMASK_UNIT))
-            ((Unit*)m_seer)->RemovePlayerFromVision(this);
+
         //must immediately set seer back otherwise may crash
         m_seer = this;
+
+        //WorldPacket data(SMSG_CLEAR_FAR_SIGHT_IMMEDIATE, 0);
+        //GetSession()->SendPacket(&data);
     }
     else
     {
         sLog.outDebug("Player::CreateViewpoint: Player %s create seer %u (TypeId: %u).", GetName(), target->GetEntry(), target->GetTypeId());
+
         StopCastingBindSight();
+        if(GetUInt64Value(PLAYER_FARSIGHT))
+        {
+            sLog.outError("Player::CreateViewpoint: Player %s cannot remove current viewpoint!", GetName());
+            return;
+        }
+
         SetUInt64Value(PLAYER_FARSIGHT, target->GetGUID());
         if(target->isType(TYPEMASK_UNIT))
             ((Unit*)target)->AddPlayerToVision(this);
