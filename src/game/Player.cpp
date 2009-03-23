@@ -6111,14 +6111,18 @@ bool Player::SetOneFactionReputation(FactionEntry const* factionEntry, int32 sta
 //Calculate total reputation percent player gain with quest/creature level
 int32 Player::CalculateReputationGain(uint32 creatureOrQuestLevel, int32 rep, bool for_quest)
 {
-    // for grey creature kill received 20%, in other case 100.
-    int32 percent = (!for_quest && (creatureOrQuestLevel <= MaNGOS::XP::GetGrayLevel(getLevel()))) ? 20 : 100;
+    float percent = 100.0f;
+
+    float rate = for_quest ? sWorld.getRate(RATE_REPUTATION_LOWLEVEL_QUEST) : sWorld.getRate(RATE_REPUTATION_LOWLEVEL_KILL);
+
+    if(rate != 1.0f && creatureOrQuestLevel <= MaNGOS::XP::GetGrayLevel(getLevel()))
+        percent *= rate;
 
     int32 repMod = GetTotalAuraModifier(SPELL_AURA_MOD_REPUTATION_GAIN);
 
     percent += rep > 0 ? repMod : -repMod;
 
-    if(percent <=0)
+    if(percent <= 0.0f)
         return 0;
 
     return int32(sWorld.getRate(RATE_REPUTATION_GAIN)*rep*percent/100);

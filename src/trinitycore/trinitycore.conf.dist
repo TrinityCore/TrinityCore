@@ -1072,6 +1072,14 @@ Visibility.Distance.Grey.Object = 10
 #         Reputation Gain rate
 #         Default: 1
 #
+#    Rate.Reputation.LowLevel.Kill
+#         Reputation Gain form low level kill (grey creture)
+#         Default: 1
+#
+#    Rate.Reputation.LowLevel.Quest
+#         Reputation Gain rate
+#         Default: 1
+#
 #    Rate.InstanceResetTime
 #        Multiplier for the number of days in between global raid/heroic instance resets.
 #        Default: 1
@@ -1166,6 +1174,8 @@ Rate.Mining.Amount = 1
 Rate.Mining.Next   = 1
 Rate.Talent = 1
 Rate.Reputation.Gain = 1
+Rate.Reputation.LowLevel.Kill    = 1
+Rate.Reputation.LowLevel.Quest   = 1
 Rate.InstanceResetTime = 1
 SkillGain.Crafting = 1
 SkillGain.Defense = 1
