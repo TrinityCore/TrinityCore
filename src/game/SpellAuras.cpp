@@ -5245,21 +5245,6 @@ void Aura::HandleShapeshiftBoosts(bool apply)
     m_target->SetHealth(uint32(ceil((double)m_target->GetMaxHealth() * healthPercentage)));*/
 }
 
-bool Aura::GetDispelChance(Spell* spell)
-{
-    // we assume that aura dispel chance is 100% on start
-    // need formula for level difference based chance
-    int32 miss_chance = 100;
-    // Apply dispel mod from aura caster
-    if (Unit *caster = GetCaster())
-    {
-        if ( Player* modOwner = caster->GetSpellModOwner() )
-            modOwner->ApplySpellMod(GetId(), SPELLMOD_RESIST_DISPEL_CHANCE, miss_chance, spell);
-    }
-    // Try dispel
-    return roll_chance_i(miss_chance);
-}
-
 void Aura::HandleAuraEmpathy(bool apply, bool Real)
 {
     if(m_target->GetTypeId() != TYPEID_UNIT)

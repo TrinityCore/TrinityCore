@@ -505,37 +505,22 @@ void Unit::RemoveAuraTypeByCaster(AuraType auraType, uint64 casterGUID)
 void Unit::RemoveSpellsCausingAuraWithDispel(AuraType auraType, Spell * spell)
 {
     if (auraType >= TOTAL_AURAS) return;
+    DispelEntry entry;
+    DispelSet dispel_list;
     AuraList::iterator iter, next;
     for (iter = m_modAuras[auraType].begin(); iter != m_modAuras[auraType].end(); iter = next)
     {
-        next = iter;
-        ++next;
-
-        if (*iter)
-        {
-            if (!(*iter)->GetDispelChance( spell))
-                continue;
-            RemoveAurasDueToSpell((*iter)->GetId());
-            if (!m_modAuras[auraType].empty())
-                next = m_modAuras[auraType].begin();
-            else
-                return;
-        }
-    }    
-
-    std::deque <Aura *> dispel_list;
-
-    AuraList const& dispelAuras = GetAurasByType(auraType);
-    for(AuraList::const_iterator itr = dispelAuras.begin(); itr != dispelAuras.end(); ++itr)
-    {
-        if (!(*iter)->GetDispelChance( spell))
-            continue;
-        dispel_list.push_back(*iter);
+        entry.casterGuid = (*iter)->GetCasterGUID();
+        entry.spellId = (*iter)->GetId();
+        entry.caster = (*iter)->GetCaster();
+        dispel_list.insert (entry);
     }
-    for(;!dispel_list.empty();)
+
+    for(DispelSet::iterator itr = dispel_list.begin(); itr != dispel_list.end();++itr)
     {
-        RemoveAurasDueToSpell(dispel_list.front()->GetId());
-        dispel_list.pop_front();
+        entry = *itr;
+        if (GetDispelChance(spell, entry.caster, entry.spellId))
+            RemoveAurasByCasterSpell(entry.spellId, entry.casterGuid);
     }
 }
 
@@ -4341,7 +4326,6 @@ void Unit::RemoveNotOwnSingleTargetAuras()
         else
             ++iter;
     }
-
 }
 
 void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
