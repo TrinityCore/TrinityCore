@@ -1,5 +1,5 @@
-DELETE FROM script_texts WHERE entry BETWEEN -1000164 AND -1000174;
-INSERT INTO script_texts (entry,content_default,sound,type,language,emote,comment) VALUES
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1000164 AND -1000174;
+INSERT INTO `script_texts` (entry,content_default,sound,type,language,emote,comment) VALUES
 (-1000164,'Ah, $GPriest:Priestess; you came along just in time. I appreciate it.',0,0,0,2,'garments SAY_COMMON_HEALED'),
 (-1000165,'Thank you! Thank you, $GPriest:Priestess;. Now I can take on those gnolls with your power to back me!',0,0,1,1,'garments SAY_DG_KEL_THANKS'),
 (-1000166,'Farewell to you, and may shadow always protect you!',0,0,1,3,'garments SAY_DG_KEL_GOODBYE'),
