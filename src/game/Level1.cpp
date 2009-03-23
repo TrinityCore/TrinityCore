@@ -2383,35 +2383,6 @@ bool ChatHandler::HandleWhispersCommand(const char* args)
     return false;
 }
 
-//Play sound
-bool ChatHandler::HandleDebugPlaySoundCommand(const char* args)
-{
-    // USAGE: .debug playsound #soundid
-    // #soundid - ID decimal number from SoundEntries.dbc (1st column)
-    // this file have about 5000 sounds.
-    // In this realization only caller can hear this sound.
-    if( *args )
-    {
-        uint32 dwSoundId = atoi((char*)args);
-
-        if( !sSoundEntriesStore.LookupEntry(dwSoundId) )
-        {
-            PSendSysMessage(LANG_SOUND_NOT_EXIST, dwSoundId);
-            SetSentErrorMessage(true);
-            return false;
-        }
-
-        WorldPacket data(SMSG_PLAY_OBJECT_SOUND,4+8);
-        data << uint32(dwSoundId) << m_session->GetPlayer()->GetGUID();
-        m_session->SendPacket(&data);
-
-        PSendSysMessage(LANG_YOU_HEAR_SOUND, dwSoundId);
-        return true;
-    }
-
-    return false;
-}
-
 //Save all players in the world
 bool ChatHandler::HandleSaveAllCommand(const char* /*args*/)
 {

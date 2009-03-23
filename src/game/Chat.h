@@ -467,7 +467,6 @@ class ChatHandler
         bool HandleDebugSellErrorCommand(const char* args);
         bool HandleDebugBuyErrorCommand(const char* args);
         bool HandleDebugUpdateWorldStateCommand(const char* args);
-        bool HandleDebugPlaySound2Command(const char* args);
         bool HandleDebugSendChannelNotifyCommand(const char* args);
         bool HandleDebugSendChatMsgCommand(const char* args);
         bool HandleRenameCommand(const char * args);

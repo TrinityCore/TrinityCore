@@ -480,6 +480,9 @@ class TRINITY_DLL_SPEC WorldObject : public Object
         void MonsterWhisper(int32 textId, uint64 receiver, bool IsBossWhisper = false);
         void BuildMonsterChat(WorldPacket *data, uint8 msgtype, char const* text, uint32 language, char const* name, uint64 TargetGuid) const;
 
+        void PlayDistanceSound(uint32 sound_id, Player* target = NULL);
+        void PlayDirectSound(uint32 sound_id, Player* target = NULL);
+
         void SendObjectDeSpawnAnim(uint64 guid);
 
         virtual void SaveRespawnTime() {}

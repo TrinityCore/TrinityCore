@@ -16794,16 +16794,6 @@ void Player::SendAutoRepeatCancel()
     GetSession()->SendPacket( &data );
 }
 
-void Player::PlaySound(uint32 Sound, bool OnlySelf)
-{
-    WorldPacket data(SMSG_PLAY_SOUND, 4);
-    data << Sound;
-    if (OnlySelf)
-        GetSession()->SendPacket( &data );
-    else
-        SendMessageToSet( &data, true );
-}
-
 void Player::SendExplorationExperience(uint32 Area, uint32 Experience)
 {
     WorldPacket data( SMSG_EXPLORATION_EXPERIENCE, 8 );
