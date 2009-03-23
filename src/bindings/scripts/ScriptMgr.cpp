@@ -970,11 +970,6 @@ void LoadDatabase()
     }
 
     outstring_log("SD2: Loading EventAI scripts for %u creature(s)...", uiEAICreatureCount);
-    if (result)
-    {
-        uiEAICreatureCount = result->GetRowCount();
-        delete result;
-    }
 
     //Gather event data
     result = TScriptDB.PQuery("SELECT id, creature_id, event_type, event_inverse_phase_mask, event_chance, event_flags, "
