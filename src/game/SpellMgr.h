@@ -152,6 +152,7 @@ SpellSpecific GetSpellSpecific(uint32 spellId);
 inline float GetSpellRadiusForHostile(SpellRadiusEntry const *radius) { return (radius ? radius->radiusHostile : 0); }
 inline float GetSpellRadiusForFriend(SpellRadiusEntry const *radius) { return (radius ? radius->radiusFriend : 0); }
 uint32 GetSpellCastTime(SpellEntry const* spellInfo, Spell const* spell = NULL);
+bool GetDispelChance(Spell* spell, Unit* caster, uint32 spellId);
 inline float GetSpellMinRangeForHostile(SpellRangeEntry const *range) { return (range ? range->minRangeHostile : 0); }
 inline float GetSpellMaxRangeForHostile(SpellRangeEntry const *range) { return (range ? range->maxRangeHostile : 0); }
 inline float GetSpellMinRangeForFriend(SpellRangeEntry const *range) { return (range ? range->minRangeFriend : 0); }
@@ -160,6 +161,21 @@ inline uint32 GetSpellRangeType(SpellRangeEntry const *range) { return (range ? 
 inline uint32 GetSpellRecoveryTime(SpellEntry const *spellInfo) { return spellInfo->RecoveryTime > spellInfo->CategoryRecoveryTime ? spellInfo->RecoveryTime : spellInfo->CategoryRecoveryTime; }
 int32 GetSpellDuration(SpellEntry const *spellInfo);
 int32 GetSpellMaxDuration(SpellEntry const *spellInfo);
+
+struct DispelEntry
+{
+    uint64 casterGuid;
+    uint32 spellId;
+    Unit * caster;
+    uint8 stackAmount;
+
+    bool operator < (const DispelEntry & _Right) const
+    {
+        return (spellId != _Right.spellId ? spellId < _Right.spellId : casterGuid < _Right.casterGuid);
+    }
+};
+
+typedef std::set < DispelEntry > DispelSet;
 
 inline bool IsSpellHaveEffect(SpellEntry const *spellInfo, SpellEffects effect)
 {

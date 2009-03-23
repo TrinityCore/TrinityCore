@@ -3464,8 +3464,9 @@ void Spell::EffectDispel(uint32 i)
     if(!unitTarget)
         return;
 
-    // Fill possible dispel list
-    std::vector <Aura *> dispel_list;
+    //std::vector <DispelEntry> dispel_list;
+    DispelSet dispel_list;
+    DispelEntry entry;
 
     // Create dispel mask by dispel type
     uint32 dispel_type = m_spellInfo->EffectMiscValue[i];
@@ -3489,43 +3490,36 @@ void Spell::EffectDispel(uint32 i)
                 if(positive == unitTarget->IsFriendlyTo(m_caster))
                     continue;
             }
-            // Add every aura stack to dispel list
-            for(uint32 stack_amount = 0; stack_amount < aur->GetStackAmount(); ++stack_amount)
-                dispel_list.push_back(aur);
+            entry.casterGuid = itr->second->GetCasterGUID();
+            entry.spellId = itr->second->GetId();
+            entry.caster = itr->second->GetCaster();
+            entry.stackAmount = itr->second->GetStackAmount();
+            dispel_list.insert (entry);
         }
     }
     // Ok if exist some buffs for dispel try dispel it
-    if (!dispel_list.empty())
+    if (uint32 list_size = dispel_list.size())
     {
         std::list < std::pair<uint32,uint64> > success_list;// (spell_id,casterGuid)
         std::list < uint32 > fail_list;                     // spell_id
-        int32 list_size = dispel_list.size();
+
         // dispel N = damage buffs (or while exist buffs for dispel)
         for (int32 count=0; count < damage && list_size > 0; ++count)
         {
             // Random select buff for dispel
-            Aura *aur = dispel_list[urand(0, list_size-1)];
+            DispelSet::iterator itr=dispel_list.begin();
+            for (uint32 i=urand(0, list_size-1);i!=0;--i)
+                itr++;
 
-            SpellEntry const* spellInfo = aur->GetSpellProto();
-            // Base dispel chance
-            // TODO: possible chance depend from spell level??
-            if (aur->GetDispelChance(this))
-                success_list.push_back(std::pair<uint32,uint64>(aur->GetId(),aur->GetCasterGUID()));
-            else
-                fail_list.push_back(aur->GetId());
-            // Remove buff from list for prevent doubles
-            for (std::vector<Aura *>::iterator j = dispel_list.begin(); j != dispel_list.end(); )
+            if (GetDispelChance(this, itr->caster, itr->spellId))
             {
-                Aura *dispelled = *j;
-                if (dispelled->GetId() == aur->GetId() && dispelled->GetCasterGUID() == aur->GetCasterGUID())
-                {
-                    j = dispel_list.erase(j);
-                    --list_size;
-                    break;
-                }
-                else
-                    ++j;
+                entry.stackAmount-=1;
+                if (!itr->stackAmount)
+                    dispel_list.erase(itr);
+                success_list.push_back(std::pair<uint32,uint64>(itr->spellId,itr->casterGuid));
             }
+            else
+                fail_list.push_back(itr->spellId);
         }
         // Send success log and really remove auras
         if (!success_list.empty())
@@ -6024,21 +6018,26 @@ void Spell::EffectDispelMechanic(uint32 i)
 
     uint32 mechanic = m_spellInfo->EffectMiscValue[i];
 
-    std::deque <Aura *> dispel_list;
+    DispelSet dispel_list;
+    DispelEntry entry;
 
     Unit::AuraMap& Auras = unitTarget->GetAuras();
-    for(Unit::AuraMap::iterator iter = Auras.begin(), next; iter != Auras.end(); iter++)
+    for(Unit::AuraMap::iterator iter = Auras.begin(); iter != Auras.end(); iter++)
     {
-        if (!iter->second->GetDispelChance(this))
-            continue;
         SpellEntry const *spell = iter->second->GetSpellProto();
-        if(spell->Mechanic == mechanic || spell->EffectMechanic[iter->second->GetEffIndex()] == mechanic)
-            dispel_list.push_back(iter->second);
+        if(GetSpellMechanicMask(spell, iter->second->GetEffIndex()) & (1<<(mechanic-1)))
+        {
+            entry.casterGuid = iter->second->GetCasterGUID();
+            entry.spellId = iter->second->GetId();
+            entry.caster = iter->second->GetCaster();
+            dispel_list.insert (entry);
+        }
     }
-    for(;!dispel_list.empty();)
+    for(DispelSet::iterator itr = dispel_list.begin(); itr != dispel_list.end();++itr)
     {
-        unitTarget->RemoveAurasDueToSpell(dispel_list.front()->GetId());
-        dispel_list.pop_front();
+        entry = *itr;
+        if (GetDispelChance(this, entry.caster, entry.spellId))
+            unitTarget->RemoveAurasByCasterSpell(entry.spellId, entry.casterGuid);
     }
 }
 
