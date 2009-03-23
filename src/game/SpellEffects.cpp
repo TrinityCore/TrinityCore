@@ -5894,10 +5894,6 @@ void Spell::EffectKnockBack(uint32 i)
     if(!unitTarget)
         return;
 
-    // Effect only works on players
-    if(unitTarget->GetTypeId()!=TYPEID_PLAYER)
-        return;
-
     float x, y;
     if(m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION)
     {
@@ -5907,26 +5903,20 @@ void Spell::EffectKnockBack(uint32 i)
     else
     {
         x = m_caster->GetPositionX();
-        y = m_caster->GetPositionX();
+        y = m_caster->GetPositionY();
     }
 
-    float dx = unitTarget->GetPositionX() - x;
-    float dy = unitTarget->GetPositionY() - y;
-    float vcos, vsin;
-    if(dx < 0.001f && dy < 0.001f)
-    {
-        float angle = rand_norm()*2*M_PI;
-        vcos = cos(angle);
-        vsin = sin(angle);
-    }
-    else
-    {
-        float dist = sqrt((dx*dx) + (dy*dy));
-        vcos = dx / dist;
-        vsin = dy / dist;
-    }
     float speedxy = float(m_spellInfo->EffectMiscValue[i])/10;
-    float speedz = float(damage/-10);   
+    float speedz = float(damage/-10);
+
+    if(unitTarget->GetTypeId() == TYPEID_UNIT)
+    {
+        unitTarget->GetMotionMaster()->MoveJumpFrom(x, y, speedxy, -speedz);
+        return;
+    }
+
+    float vcos, vsin;
+    unitTarget->GetSinCos(x, y, vsin, vcos);
 
     WorldPacket data(SMSG_MOVE_KNOCK_BACK, (8+4+4+4+4+4));
     data.append(unitTarget->GetPackGUID());

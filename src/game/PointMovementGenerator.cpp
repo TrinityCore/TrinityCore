@@ -28,9 +28,10 @@
 template<class T>
 void PointMovementGenerator<T>::Initialize(T &unit)
 {
-    unit.StopMoving();
+    //unit.StopMoving();
+    unit.clearUnitState(UNIT_STAT_MOVING);
     Traveller<T> traveller(unit);
-    i_destinationHolder.SetDestination(traveller,i_x,i_y,i_z);
+    i_destinationHolder.SetDestination(traveller,i_x,i_y,i_z, !unit.hasUnitState(UNIT_STAT_JUMPING));
 
     if (unit.GetTypeId() == TYPEID_UNIT && ((Creature*)&unit)->canFly())
         unit.AddUnitMovementFlag(MOVEMENTFLAG_FLYING2);
@@ -67,7 +68,7 @@ template<class T>
 void PointMovementGenerator<T>:: Finalize(T &unit)
 {
     if(unit.hasUnitState(UNIT_STAT_CHARGING))
-        unit.clearUnitState(UNIT_STAT_CHARGING);
+        unit.clearUnitState(UNIT_STAT_CHARGING | UNIT_STAT_JUMPING);
     else if(arrived)
         MovementInform(unit);
 }

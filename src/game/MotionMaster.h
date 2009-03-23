@@ -63,6 +63,9 @@ enum MMCleanFlag
     MMCF_RESET  = 2  // Flag if need top()->Reset()
 };
 
+// assume it is 25 yard per 0.6 second
+#define SPEED_CHARGE    42.0f
+
 class TRINITY_DLL_SPEC MotionMaster //: private std::stack<MovementGenerator *>
 {
     private:
@@ -137,7 +140,9 @@ class TRINITY_DLL_SPEC MotionMaster //: private std::stack<MovementGenerator *>
         void MoveConfused();
         void MoveFleeing(Unit* enemy);
         void MovePoint(uint32 id, float x,float y,float z);
-        void MoveCharge(float x, float y, float z);
+        void MoveCharge(float x, float y, float z, float speed = SPEED_CHARGE);
+        void MoveJumpFrom(float srcX, float srcY, float speedXY, float speedZ);
+        void MoveJump(float x, float y, float z, float speedXY, float speedZ);
         void MoveTaxiFlight(uint32 path, uint32 pathnode);
         void MoveDistract(uint32 time);
         void MovePath(uint32 path_id, bool repeatable);

@@ -65,9 +65,7 @@ inline uint32 Traveller<T>::GetTotalTrevelTimeTo(float x, float y, float z)
 {
     float dist = GetMoveDestinationTo(x,y,z);
     float speed = 0.001f;
-    if(GetTraveller().hasUnitState(UNIT_STAT_CHARGING))
-        speed *= SPEED_CHARGE;
-    else if (Speed() <= 0.0f)
+    if (Speed() <= 0.0f)
         return 0xfffffffe;  // almost infinity-unit should stop
     else
         speed *= Speed();   // speed is in seconds so convert from second to millisecond
@@ -78,7 +76,9 @@ inline uint32 Traveller<T>::GetTotalTrevelTimeTo(float x, float y, float z)
 template<>
 inline float Traveller<Creature>::Speed()
 {
-    if(i_traveller.HasUnitMovementFlag(MOVEMENTFLAG_WALK_MODE))
+    if(i_traveller.hasUnitState(UNIT_STAT_CHARGING))
+        return i_traveller.m_TempSpeed;
+    else if(i_traveller.HasUnitMovementFlag(MOVEMENTFLAG_WALK_MODE))
         return i_traveller.GetSpeed(MOVE_WALK);
     else if(i_traveller.HasUnitMovementFlag(MOVEMENTFLAG_FLYING2))
         return i_traveller.GetSpeed(MOVE_FLIGHT);
@@ -99,7 +99,7 @@ inline float Traveller<Creature>::GetMoveDestinationTo(float x, float y, float z
     float dy = y - GetPositionY();
     float dz = z - GetPositionZ();
 
-    if(i_traveller.hasUnitState(UNIT_STAT_IN_FLIGHT))
+    if(i_traveller.HasUnitMovementFlag(MOVEMENTFLAG_FLYING2))
         return sqrt((dx*dx) + (dy*dy) + (dz*dz));
     else                                                    //Walking on the ground
         return sqrt((dx*dx) + (dy*dy));
@@ -114,14 +114,17 @@ inline void Traveller<Creature>::MoveTo(float x, float y, float z, uint32 t)
         CreatureGroupHolder.find(i_traveller.GetFormationID()) != CreatureGroupHolder.end())
         CreatureGroupHolder[i_traveller.GetFormationID()]->LeaderMovedInEvade();
 
-    i_traveller.AI_SendMoveToPacket(x, y, z, t, i_traveller.GetUnitMovementFlags(), 0);
+    //i_traveller.AI_SendMoveToPacket(x, y, z, t, i_traveller.GetUnitMovementFlags(), 0);
+    i_traveller.SendMonsterMove(x, y, z, t);
 }
 
 // specialization for players
 template<>
 inline float Traveller<Player>::Speed()
 {
-    if (i_traveller.isInFlight())
+    if(i_traveller.hasUnitState(UNIT_STAT_CHARGING))
+        return i_traveller.m_TempSpeed;
+    else if(i_traveller.isInFlight())
         return PLAYER_FLIGHT_SPEED;
     else
         return i_traveller.GetSpeed(i_traveller.HasUnitMovementFlag(MOVEMENTFLAG_WALK_MODE) ? MOVE_WALK : MOVE_RUN);

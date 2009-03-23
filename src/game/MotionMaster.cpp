@@ -305,13 +305,47 @@ MotionMaster::MovePoint(uint32 id, float x, float y, float z)
     }
 }
 
+void MotionMaster::MoveJumpFrom(float srcX, float srcY, float speedXY, float speedZ)
+{
+    //this function may make players fall below map
+    if(i_owner->GetTypeId()==TYPEID_PLAYER)
+        return;
+
+    float x, y, z;
+    float dist = speedXY * speedZ * 0.1f;
+    i_owner->GetNearPoint(i_owner, x, y, z, i_owner->GetObjectSize(), dist, i_owner->GetAngle(srcX, srcY) + M_PI);
+    MoveJump(x, y, z, speedXY, speedZ);
+}
+
+void MotionMaster::MoveJump(float x, float y, float z, float speedXY, float speedZ)
+{
+    uint32 moveFlag = MOVEFLAG_JUMP | MOVEFLAG_WALK;
+    uint32 time = speedZ * 100;
+    i_owner->SendMonsterMove(x, y, z, moveFlag, time, speedZ);
+
+    i_owner->addUnitState(UNIT_STAT_CHARGING | UNIT_STAT_JUMPING);
+    i_owner->m_TempSpeed = speedXY;
+    if(i_owner->GetTypeId()==TYPEID_PLAYER)
+    {
+        DEBUG_LOG("Player (GUID: %u) jump to point (X: %f Y: %f Z: %f)", i_owner->GetGUIDLow(), x, y, z );
+        Mutate(new PointMovementGenerator<Player>(0,x,y,z), MOTION_SLOT_CONTROLLED);
+    }
+    else
+    {
+        DEBUG_LOG("Creature (Entry: %u GUID: %u) jump to point (X: %f Y: %f Z: %f)",
+            i_owner->GetEntry(), i_owner->GetGUIDLow(), x, y, z );
+        Mutate(new PointMovementGenerator<Creature>(0,x,y,z), MOTION_SLOT_CONTROLLED);
+    }
+}
+
 void
-MotionMaster::MoveCharge(float x, float y, float z)
+MotionMaster::MoveCharge(float x, float y, float z, float speed)
 {
     if(Impl[MOTION_SLOT_CONTROLLED] && Impl[MOTION_SLOT_CONTROLLED]->GetMovementGeneratorType() != DISTRACT_MOTION_TYPE)
         return;
 
     i_owner->addUnitState(UNIT_STAT_CHARGING);
+    i_owner->m_TempSpeed = speed;
     if(i_owner->GetTypeId()==TYPEID_PLAYER)
     {
         DEBUG_LOG("Player (GUID: %u) charge point (X: %f Y: %f Z: %f)", i_owner->GetGUIDLow(), x, y, z );
