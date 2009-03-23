@@ -158,6 +158,18 @@ bool GOHello_go_teleporter(Player *player, GameObject* _GO)
     return false;
 }
 
+/*#####
+## go_jump_a_tron
+######*/
+
+bool GOHello_go_jump_a_tron(Player *player, GameObject* _GO)
+{
+    if (player->GetQuestStatus(10111) == QUEST_STATUS_INCOMPLETE)
+ 	player->CastSpell(player,33382,true);
+
+    return true;
+}
+
 void AddSC_go_scripts()
 {
     Script *newscript;
@@ -205,6 +217,11 @@ void AddSC_go_scripts()
     newscript = new Script;
     newscript->Name="go_teleporter";
     newscript->pGOHello =           &GOHello_go_teleporter;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name="go_jump_a_tron";
+    newscript->pGOHello =           &GOHello_go_jump_a_tron;
     newscript->RegisterSelf();
 }
 
