@@ -236,6 +236,21 @@ int32 GetSpellMaxDuration(SpellEntry const *spellInfo)
     return (du->Duration[2] == -1) ? -1 : abs(du->Duration[2]);
 }
 
+bool GetDispelChance(Spell* spell, Unit* caster, uint32 spellId)
+{
+    // we assume that aura dispel chance is 100% on start
+    // need formula for level difference based chance
+    int32 miss_chance = 100;
+    // Apply dispel mod from aura caster
+    if (caster)
+    {
+        if ( Player* modOwner = caster->GetSpellModOwner() )
+            modOwner->ApplySpellMod(spellId, SPELLMOD_RESIST_DISPEL_CHANCE, miss_chance, spell);
+    }
+    // Try dispel
+    return roll_chance_i(miss_chance);
+}
+
 uint32 GetSpellCastTime(SpellEntry const* spellInfo, Spell const* spell)
 {
     SpellCastTimesEntry const *spellCastTimeEntry = sSpellCastTimesStore.LookupEntry(spellInfo->CastingTimeIndex);
