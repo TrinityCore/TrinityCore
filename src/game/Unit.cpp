@@ -320,7 +320,7 @@ void Unit::SendMonsterStop()
 
 void Unit::SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint32 Time, Player* player)
 {
-    WorldPacket data( SMSG_MONSTER_MOVE, (41 + GetPackGUID().size()) );
+    WorldPacket data( SMSG_MONSTER_MOVE, 12+4+1+4+4+4+12+GetPackGUID().size());
     data.append(GetPackGUID());
 
     data << GetPositionX() << GetPositionY() << GetPositionZ();
@@ -330,6 +330,35 @@ void Unit::SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint32 T
     data << uint32((GetUnitMovementFlags() & MOVEMENTFLAG_LEVITATING) ? MOVEFLAG_FLY : MOVEFLAG_WALK);
 
     data << Time;                                           // Time in between points
+    data << uint32(1);                                      // 1 single waypoint
+    data << NewPosX << NewPosY << NewPosZ;                  // the single waypoint Point B
+
+    if(player)
+        player->GetSession()->SendPacket(&data);
+    else
+        SendMessageToSet( &data, true );
+}
+
+void Unit::SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint32 MoveFlags, uint32 time, float speedZ, Player *player)
+{
+    WorldPacket data( SMSG_MONSTER_MOVE, 12+4+1+4+4+4+12+GetPackGUID().size());
+    data.append(GetPackGUID());
+
+    data << GetPositionX() << GetPositionY() << GetPositionZ();
+    data << getMSTime();
+
+    data << uint8(0);
+    data << MoveFlags;
+
+    if(MoveFlags & MOVEFLAG_JUMP)
+    {
+        data << time;
+        data << speedZ;
+        data << (uint32)0; // walk time after jump
+    }
+    else
+        data << time;
+
     data << uint32(1);                                      // 1 single waypoint
     data << NewPosX << NewPosY << NewPosZ;                  // the single waypoint Point B
 
@@ -507,8 +536,8 @@ void Unit::RemoveSpellsCausingAuraWithDispel(AuraType auraType, Spell * spell)
     if (auraType >= TOTAL_AURAS) return;
     DispelEntry entry;
     DispelSet dispel_list;
-    AuraList::iterator iter, next;
-    for (iter = m_modAuras[auraType].begin(); iter != m_modAuras[auraType].end(); iter = next)
+    AuraList::iterator iter;
+    for (iter = m_modAuras[auraType].begin(); iter != m_modAuras[auraType].end(); ++iter)
     {
         entry.casterGuid = (*iter)->GetCasterGUID();
         entry.spellId = (*iter)->GetId();
@@ -516,7 +545,7 @@ void Unit::RemoveSpellsCausingAuraWithDispel(AuraType auraType, Spell * spell)
         dispel_list.insert (entry);
     }
 
-    for(DispelSet::iterator itr = dispel_list.begin(); itr != dispel_list.end();++itr)
+    for(DispelSet::iterator itr = dispel_list.begin(); itr != dispel_list.end(); ++itr)
     {
         entry = *itr;
         if (GetDispelChance(spell, entry.caster, entry.spellId))
