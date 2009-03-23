@@ -59,6 +59,9 @@ Pet::~Pet()
 {
     if(m_uint32Values)                                      // only for fully created Object
     {
+        if(Unit* owner = GetOwner())
+            owner->SetPet(this, false);
+
         for (PetSpellMap::iterator i = m_spells.begin(); i != m_spells.end(); ++i)
             delete i->second;
         ObjectAccessor::Instance().RemoveObject(this);
@@ -69,17 +72,23 @@ Pet::~Pet()
 
 void Pet::AddToWorld()
 {
-    ///- Register the pet for guid lookup
-    if(!IsInWorld()) ObjectAccessor::Instance().AddObject(this);
-    Unit::AddToWorld();
+    if(!IsInWorld())
+    {
+        ///- Register the pet for guid lookup
+        ObjectAccessor::Instance().AddObject(this);
+        Unit::AddToWorld();
+    }
 }
 
 void Pet::RemoveFromWorld()
 {
-    ///- Remove the pet from the accessor
-    if(IsInWorld()) ObjectAccessor::Instance().RemoveObject(this);
-    ///- Don't call the function for Creature, normal mobs + totems go in a different storage
-    Unit::RemoveFromWorld();
+    if(IsInWorld())
+    {
+        ///- Remove the pet from the accessor
+        ObjectAccessor::Instance().RemoveObject(this);
+        ///- Don't call the function for Creature, normal mobs + totems go in a different storage
+        Unit::RemoveFromWorld();
+    }
 }
 
 bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool current )
@@ -636,9 +645,7 @@ bool Pet::CanTakeMoreActiveSpells(uint32 spellid)
 
 void Pet::Remove(PetSaveMode mode, bool returnreagent)
 {
-    Unit* owner = GetOwner();
-
-    if(owner)
+    if(Unit* owner = GetOwner())
     {
         if(owner->GetTypeId()==TYPEID_PLAYER)
         {
