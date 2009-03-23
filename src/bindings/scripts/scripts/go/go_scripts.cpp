@@ -170,6 +170,30 @@ bool GOHello_go_jump_a_tron(Player *player, GameObject* _GO)
     return true;
 }
 
+/*######
+## go_ethereum_prison
+######*/
+ 
+float ethereum_NPC[2][7] =
+{
+ {20785,20790,20789,20784,20786,20783,20788}, // hostile npc
+ {22810,22811,22812,22813,22814,22815,0}      // fiendly npc (need script in acid ? only to cast spell reputation reward)
+};
+
+bool GOHello_go_ethereum_prison(Player *player, GameObject* _GO)
+{
+ _GO->SetGoState(0);
+ switch(rand()%2){
+    case 0: 
+        _GO->SummonCreature(ethereum_NPC[0][rand()%6],_GO->GetPositionX(),_GO->GetPositionY(),_GO->GetPositionZ()+0.3, 0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,10000);
+    break;
+    case 1:
+        _GO->SummonCreature(ethereum_NPC[1][rand()%5],_GO->GetPositionX(),_GO->GetPositionY(),_GO->GetPositionZ()+0.3, 0,TEMPSUMMON_TIMED_DESPAWN,10000);
+    break;
+}
+return true;
+}
+
 void AddSC_go_scripts()
 {
     Script *newscript;
@@ -223,5 +247,11 @@ void AddSC_go_scripts()
     newscript->Name="go_jump_a_tron";
     newscript->pGOHello =           &GOHello_go_jump_a_tron;
     newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name="go_ethereum_prison";
+    newscript->pGOHello =           &GOHello_go_ethereum_prison;
+    newscript->RegisterSelf();
+
 }
 
