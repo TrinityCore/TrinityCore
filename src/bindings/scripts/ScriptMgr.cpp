@@ -51,7 +51,7 @@ UNORDERED_MAP<int32, StringTextData> TextMap;
 std::list<PointMovement> PointMovementList;
 
 //Event AI structure. Used exclusivly by mob_event_ai.cpp (60 bytes each)
-std::list<EventAI_Event> EventAI_Event_List;
+UNORDERED_MAP<uint32, std::vector<EventAI_Event> > EventAI_Event_Map;
 
 //Event AI summon structure. Used exclusivly by mob_event_ai.cpp.
 UNORDERED_MAP<uint32, EventAI_Summon> EventAI_Summon_Map;
@@ -853,7 +853,7 @@ void LoadDatabase()
         outstring_log("");
         outstring_log(">> Loaded 0 additional Custom Texts data. DB table `custom_texts` is empty.");
     }
-    
+
     // Drop Existing Waypoint list
     PointMovementList.clear();
     uint64 uiCreatureCount = 0;
@@ -959,7 +959,7 @@ void LoadDatabase()
     }
 
     //Drop Existing EventAI List
-    EventAI_Event_List.clear();
+    EventAI_Event_Map.clear();
     uint64 uiEAICreatureCount = 0;
 
     result = TScriptDB.PQuery("SELECT COUNT(creature_id) FROM eventai_scripts GROUP BY creature_id");
@@ -995,6 +995,7 @@ void LoadDatabase()
             temp.event_id = fields[0].GetUInt32();
             uint32 i = temp.event_id;
             temp.creature_id = fields[1].GetUInt32();
+            uint32 creature_id = temp.creature_id;
             temp.event_type = fields[2].GetUInt16();
             temp.event_inverse_phase_mask = fields[3].GetUInt32();
             temp.event_chance = fields[4].GetUInt8();
@@ -1074,26 +1075,27 @@ void LoadDatabase()
                             error_db_log("TSCR: Creature %u are using repeatable event(%u) with param4 < param3 (RepeatMax < RepeatMin). Event will never repeat.", temp.creature_id, i);
                     }
                     break;
-               
-                case EVENT_T_OOC_LOS:
-                {
-                    if (temp.event_param2 > VISIBLE_RANGE || temp.event_param2 <= 0)
-                    {
-                        error_db_log("SD2: Creature %u are using event(%u), but param2 (MaxAllowedRange=%u) are not within allowed range.", temp.creature_id, i, temp.event_param2);
-                        temp.event_param2 = VISIBLE_RANGE;
-                    }
-	 	 
-                    if (temp.event_param3 == 0 && temp.event_param4 == 0 && temp.event_flags & EFLAG_REPEATABLE)
-                    {
-                        error_db_log("SD2: Creature %u are using event(%u) with EFLAG_REPEATABLE, but param3(RepeatMin) and param4(RepeatMax) are 0. Repeatable disabled.", temp.creature_id, i);
-                        temp.event_flags &= ~EFLAG_REPEATABLE;
-                    }
 
-                    if (temp.event_param4 < temp.event_param3)
-                        error_db_log("SD2: Creature %u are using repeatable event(%u) with param4 < param3 (RepeatMax < RepeatMin). Event will never repeat.", temp.creature_id, i);
-                }
-                break;
-	 	 
+                case EVENT_T_OOC_LOS:
+                    {
+                        if (temp.event_param2 > VISIBLE_RANGE || temp.event_param2 <= 0)
+                        {
+                            error_db_log("SD2: Creature %u are using event(%u), but param2 (MaxAllowedRange=%u) are not within allowed range.", temp.creature_id, i, temp.event_param2);
+                            temp.event_param2 = VISIBLE_RANGE;
+                        }
+
+                        if (temp.event_param3 == 0 && temp.event_param4 == 0 && temp.event_flags & EFLAG_REPEATABLE)
+                        {
+                            error_db_log("SD2: Creature %u are using event(%u) with EFLAG_REPEATABLE, but param3(RepeatMin) and param4(RepeatMax) are 0. Repeatable disabled.", temp.creature_id, i);
+                            temp.event_flags &= ~EFLAG_REPEATABLE;
+                        }
+
+                        if (temp.event_param4 < temp.event_param3)
+                            error_db_log("SD2: Creature %u are using repeatable event(%u) with param4 < param3 (RepeatMax < RepeatMin). Event will never repeat.", temp.creature_id, i);
+                    }
+                    break;
+
+                case EVENT_T_RANGE:
                 case EVENT_T_FRIENDLY_HP:
                 case EVENT_T_FRIENDLY_IS_CC:
                     {
@@ -1101,6 +1103,7 @@ void LoadDatabase()
                             error_db_log("SD2: Creature %u are using repeatable event(%u) with param4 < param3 (RepeatMax < RepeatMin). Event will never repeat.", temp.creature_id, i);
                     }
                     break;
+
                 case EVENT_T_FRIENDLY_MISSING_BUFF:
                     {
                         if (!GetSpellStore()->LookupEntry(temp.event_param1))
@@ -1146,6 +1149,7 @@ void LoadDatabase()
                 case EVENT_T_AGGRO:
                 case EVENT_T_DEATH:
                 case EVENT_T_EVADE:
+                case EVENT_T_SPAWNED:
                 case EVENT_T_REACHED_HOME:
                     {
                         if (temp.event_flags & EFLAG_REPEATABLE)
@@ -1232,7 +1236,7 @@ void LoadDatabase()
                                 }
                                 break;
                             case CONDITION_NONE:
-                               break;
+                                break;
                             default:
                                 {
                                     error_db_log("SD2: Creature %u using event %u: param2 (Condition: %u) are not valid/not implemented for script.",temp.creature_id, i, temp.event_param3);
@@ -1256,7 +1260,6 @@ void LoadDatabase()
                         continue;
                     }
                     break;
-
             }
 
             for (uint32 j = 0; j < MAX_ACTIONS; j++)
@@ -1502,7 +1505,8 @@ void LoadDatabase()
             }
 
             //Add to list
-            EventAI_Event_List.push_back(temp);
+            EventAI_Event_Map[creature_id].push_back(temp);
+
             ++Count;
         } while (result->NextRow());
 
