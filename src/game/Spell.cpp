@@ -1025,9 +1025,8 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
     if(!m_IsTriggeredSpell && !m_CastItem
         && NeedsComboPoints(m_spellInfo)
         && m_caster->GetTypeId()==TYPEID_PLAYER
-        && target->targetGUID==m_targets.getUnitTargetGUID()
-        && missInfo!= SPELL_MISS_NONE
-        && missInfo != SPELL_MISS_MISS)
+        && target->targetGUID == m_targets.getUnitTargetGUID()
+        && (missInfo == SPELL_MISS_NONE || missInfo == SPELL_MISS_MISS))
             ((Player*)m_caster)->ClearComboPoints();
 
     // Call scripted function for AI if this spell is casted upon a creature (except pets)
