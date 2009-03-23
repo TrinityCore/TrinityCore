@@ -176,28 +176,23 @@ struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
         if (Adds.empty())
             return;
 
-        for(uint8 i = 0; i < Adds.size(); ++i)
+        uint32 n = 0;
+        for(std::vector<Add*>::iterator i = Adds.begin(); i != Adds.end(); ++i, ++n)
         {
-            bool resummon = true;
-
-            Creature* pAdd = ((Creature*)Unit::GetUnit(*m_creature, Adds[i]->guid));
-            if (pAdd && pAdd->isAlive())
+            Creature* pAdd = ((Creature*)Unit::GetUnit(*m_creature, (*i)->guid));
+            if(pAdd && pAdd->isAlive())
             {
                 pAdd->AI()->EnterEvadeMode();               // Force them out of combat and reset if they are in combat.
-                resummon = false;
             }
-
-            if (resummon)
+            else
             {
-                pAdd = m_creature->SummonCreature(Adds[i]->entry, LackeyLocations[i][0], LackeyLocations[i][1], POS_Z, ORIENT, TEMPSUMMON_DEAD_DESPAWN, 0);
-                if (pAdd)
-                {
-                Add* nAdd = new Add(Adds[i]->entry, pAdd->GetGUID());
-                Adds.erase(Adds.begin() + i);
-                Adds.push_back(nAdd);
+                pAdd = m_creature->SummonCreature((*i)->entry, LackeyLocations[n][0], LackeyLocations[n][1], POS_Z, ORIENT, TEMPSUMMON_DEAD_DESPAWN, 0);
+                if(pAdd)
+                    (*i)->guid = pAdd->GetGUID();
+                else
+                    (*i)->guid = 0;
             }
         }
-    }
     }
     
     void KilledUnit(Unit* victim)
