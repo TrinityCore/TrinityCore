@@ -5720,7 +5720,7 @@ void Spell::EffectKnockBack(uint32 i)
     else
     {
         x = m_caster->GetPositionX();
-        y = m_caster->GetPositionX();
+        y = m_caster->GetPositionY();
     }
 
     float dx = unitTarget->GetPositionX() - x;
