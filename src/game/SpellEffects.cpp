@@ -3513,10 +3513,10 @@ void Spell::EffectDispel(uint32 i)
 
             if (GetDispelChance(this, itr->caster, itr->spellId))
             {
+                success_list.push_back(std::pair<uint32,uint64>(itr->spellId,itr->casterGuid));
                 entry.stackAmount-=1;
                 if (!itr->stackAmount)
                     dispel_list.erase(itr);
-                success_list.push_back(std::pair<uint32,uint64>(itr->spellId,itr->casterGuid));
             }
             else
                 fail_list.push_back(itr->spellId);
