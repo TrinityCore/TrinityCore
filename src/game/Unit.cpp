@@ -572,7 +572,7 @@ void Unit::RemoveAurasWithInterruptFlags(uint32 flag, uint32 except)
                 sLog.outError("Aura %u is trying to remove itself! Flag %u. May cause crash!", (*iter)->GetId(), flag);
             else if(!except || (*iter)->GetId() != except)
             {
-                RemoveAurasDueToSpell((*iter)->GetId());
+                RemoveAurasBySpell((*iter)->GetId(), AURA_REMOVE_BY_CANCEL);
                 if (!m_interruptableAuras.empty())
                     next = m_interruptableAuras.begin();
                 else
@@ -4116,6 +4116,18 @@ void Unit::RemoveAura(uint32 spellId, uint32 effindex, Aura* except)
             RemoveAura(iter);
             iter = m_Auras.lower_bound(spair);
         }
+        else
+            ++iter;
+    }
+}
+
+void Unit::RemoveAurasBySpell(uint32 spellId, AuraRemoveMode removeMode)
+{
+    for (AuraMap::iterator iter = m_Auras.begin(); iter != m_Auras.end(); )
+    {
+        Aura *aur = iter->second;
+        if (aur->GetId() == spellId)
+            RemoveAura(iter, removeMode);
         else
             ++iter;
     }
