@@ -319,6 +319,7 @@ void AchievementMgr::SendAchievementEarned(AchievementEntry const* achievement)
         MaNGOS::LocalizedPacketDo<MaNGOS::AchievementChatBuilder> say_do(say_builder);
         guild->BroadcastWorker(say_do,GetPlayer());
     }
+
     if(achievement->flags & (ACHIEVEMENT_FLAG_REALM_FIRST_KILL|ACHIEVEMENT_FLAG_REALM_FIRST_REACH))
     {
         // broadcast realm first reached
@@ -337,19 +338,20 @@ void AchievementMgr::SendAchievementEarned(AchievementEntry const* achievement)
         cell.data.Part.reserved = ALL_DISTRICT;
         cell.SetNoCreate();
 
-        MaNGOS::AchievementChatBuilder say_builder(*GetPlayer(), CHAT_MSG_GUILD_ACHIEVEMENT, LANG_ACHIEVEMENT_EARNED,achievement->ID);
+        MaNGOS::AchievementChatBuilder say_builder(*GetPlayer(), CHAT_MSG_ACHIEVEMENT, LANG_ACHIEVEMENT_EARNED,achievement->ID);
         MaNGOS::LocalizedPacketDo<MaNGOS::AchievementChatBuilder> say_do(say_builder);
         MaNGOS::PlayerDistWorker<MaNGOS::LocalizedPacketDo<MaNGOS::AchievementChatBuilder> > say_worker(GetPlayer(),sWorld.getConfig(CONFIG_LISTEN_RANGE_SAY),say_do);
         TypeContainerVisitor<MaNGOS::PlayerDistWorker<MaNGOS::LocalizedPacketDo<MaNGOS::AchievementChatBuilder> >, WorldTypeMapContainer > message(say_worker);
         CellLock<GridReadGuard> cell_lock(cell, p);
         cell_lock->Visit(cell_lock, message, *GetPlayer()->GetMap());
     }
+
     WorldPacket data(SMSG_ACHIEVEMENT_EARNED, 8+4+8);
     data.append(GetPlayer()->GetPackGUID());
     data << uint32(achievement->ID);
     data << uint32(secsToTimeBitFields(time(NULL)));
     data << uint32(0);
-    GetPlayer()->SendMessageToSet(&data, true);
+    GetPlayer()->SendMessageToSetInRange(&data, sWorld.getConfig(CONFIG_LISTEN_RANGE_SAY), true);
 }
 
 void AchievementMgr::SendCriteriaUpdate(uint32 id, CriteriaProgress const* progress)
@@ -365,7 +367,7 @@ void AchievementMgr::SendCriteriaUpdate(uint32 id, CriteriaProgress const* progr
     data << uint32(secsToTimeBitFields(progress->date));
     data << uint32(0);  // timer 1
     data << uint32(0);  // timer 2
-    GetPlayer()->SendMessageToSet(&data, true);
+    GetPlayer()->SendDirectMessage(&data);
 }
 
 /**
