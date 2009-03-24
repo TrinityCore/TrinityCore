@@ -14533,11 +14533,7 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
     //Need to call it to initialize m_team (m_team can be calculated from m_race)
     //Other way is to saves m_team into characters table.
     setFactionForRace(m_race);
-<<<<<<< HEAD:src/game/Player.cpp
     SetMover(this);
-=======
-    SetCharm(NULL);
->>>>>>> ef97c26c0d232525c291f647f3384f9bcfc3ea4b:src/game/Player.cpp
 
     m_class = fields[5].GetUInt8();
 
