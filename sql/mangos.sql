@@ -22,7 +22,7 @@
 DROP TABLE IF EXISTS `db_version`;
 CREATE TABLE `db_version` (
   `version` varchar(120) default NULL,
-  `required_7503_01_mangos_command` bit(1) default NULL
+  `required_7536_01_mangos_spell_chain` bit(1) default NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Used DB version notes';
 
 --
@@ -16184,6 +16184,13 @@ INSERT INTO spell_chain VALUES
 (45360,45359,45357,4,0),
 (45361,45360,45357,5,0),
 (45363,45361,45357,6,0),
+/*------------------
+-- (777) Mounts
+------------------*/
+(13819,0,13819,1,0),
+(23214,13819,13819,2,33391),
+(34769,0,34769,1,0),
+(34767,34769,34769,2,33391),
 /*------------------
 --(780)Pet-ExoticChimaera
 ------------------*/
