@@ -2483,57 +2483,9 @@ void Spell::EffectPowerDrain(uint32 i)
 
 void Spell::EffectSendEvent(uint32 EffectIndex)
 {
-    /* we do not drop a flag by sendevent system, OBSOLETE CODE:
-    this code caused crashes
-    if (m_caster->GetTypeId() == TYPEID_PLAYER && ((Player*)m_caster)->InBattleGround())
-    {
-        BattleGround* bg = ((Player *)m_caster)->GetBattleGround();
-        if(bg && bg->GetStatus() == STATUS_IN_PROGRESS)
-        {
-            switch(m_spellInfo->Id)
-            {
-                case 23333:                                 // Pickup Horde Flag
-                    /*do not uncomment
-                    if(bg->GetTypeID()==BATTLEGROUND_WS)
-                        bg->EventPlayerClickedOnFlag((Player*)m_caster, gameObjTarget);
-                    sLog.outDebug("Send Event Horde Flag Picked Up");
-                    break;
-                    case 23334:                                 // Drop Horde Flag
-                        if(bg->GetTypeID()==BATTLEGROUND_WS)
-                            bg->EventPlayerDroppedFlag((Player*)m_caster);
-                        sLog.outDebug("Drop Horde Flag");
-                        break;
-                case 23335:                                 // Pickup Alliance Flag
-                    /*do not uncomment - it will cause crash, because of null targetobject!
-                    if(bg->GetTypeID()==BATTLEGROUND_WS)
-                        bg->EventPlayerClickedOnFlag((Player*)m_caster, gameObjTarget);
-                    sLog.outDebug("Send Event Alliance Flag Picked Up");
-                    break;
-                    case 23336:                                 // Drop Alliance Flag
-                        if(bg->GetTypeID()==BATTLEGROUND_WS)
-                            bg->EventPlayerDroppedFlag((Player*)m_caster);
-                        sLog.outDebug("Drop Alliance Flag");
-                        break;
-                    case 23385:                                 // Alliance Flag Returns
-                        if(bg->GetTypeID()==BATTLEGROUND_WS)
-                            bg->EventPlayerClickedOnFlag((Player*)m_caster, gameObjTarget);
-                        sLog.outDebug("Alliance Flag Returned");
-                        break;
-                    case 23386:                                   // Horde Flag Returns
-                        if(bg->GetTypeID()==BATTLEGROUND_WS)
-                            bg->EventPlayerClickedOnFlag((Player*)m_caster, gameObjTarget);
-                        sLog.outDebug("Horde Flag Returned");
-                        break;
-                case 34976:
-                    if(bg->GetTypeID()==BATTLEGROUND_EY)
-                        bg->EventPlayerClickedOnFlag((Player*)m_caster, gameObjTarget);
-                    break;
-                default:
-                    sLog.outDebug("Unknown spellid %u in BG event", m_spellInfo->Id);
-                    break;
-            }
-        }
-    }*/
+    /*
+    we do not handle a flag dropping or clicking on flag in battleground by sendevent system
+    */
     sLog.outDebug("Spell ScriptStart %u for spellid %u in EffectSendEvent ", m_spellInfo->EffectMiscValue[EffectIndex], m_spellInfo->Id);
     sWorld.ScriptsStart(sEventScripts, m_spellInfo->EffectMiscValue[EffectIndex], m_caster, focusObject);
 }
