@@ -2412,6 +2412,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
         }
     }
+
+    SummonPropertiesEntry *properties = const_cast<SummonPropertiesEntry*>(sSummonPropertiesStore.LookupEntry(121));
+    properties->Type = SUMMON_TYPE_TOTEM;
 }
 
 void SpellMgr::LoadSpellLinked()
