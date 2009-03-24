@@ -247,7 +247,7 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
     Unit *mover = _player->m_mover;
     recv_data.put<uint32>(6, getMSTime());                  // fix time, offset flags(4) + unk(2)
     WorldPacket data(recv_data.GetOpcode(), (mover->GetPackGUID().size()+recv_data.size()));
-    data.append(_player->m_mover->GetPackGUID());           // use mover guid
+    data.append(mover->GetPackGUID());                      // use mover guid
     data.append(recv_data.contents(), recv_data.size());
     GetPlayer()->SendMessageToSet(&data, false);
 

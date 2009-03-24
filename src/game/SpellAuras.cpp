@@ -3101,7 +3101,7 @@ void Aura::HandleAuraModScale(bool apply, bool Real)
             m_target->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE,cinfo->faction_A);
         }
 
-        caster->SetCharm(0);
+        caster->SetCharm(NULL);
 
         if(caster->GetTypeId() == TYPEID_PLAYER)
         {
@@ -3257,7 +3257,7 @@ void Aura::HandleAuraModPetTalentsPoints(bool Apply, bool Real)
                 }
             }
 
-            caster->SetCharm(0);
+            caster->SetCharm(NULL);
 
             if(caster->GetTypeId() == TYPEID_PLAYER)
             {
