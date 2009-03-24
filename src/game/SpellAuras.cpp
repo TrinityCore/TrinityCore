@@ -1022,10 +1022,10 @@ void Aura::_RemoveAura()
                 ((Player*)caster)->SendCooldownEvent(GetSpellProto());
         }
 
-        // overkill
+        // not cancel, overkill
         // do not proc anything if aura is cancelled
-        //if(m_removeMode == AURA_REMOVE_BY_CANCEL)
-        //    return;
+        if(m_removeMode == AURA_REMOVE_BY_DELETE)
+            return;
 
         // Remove Linked Auras (on last aura remove)
         uint32 id = GetId();
