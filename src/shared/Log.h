@@ -46,8 +46,7 @@ enum LogTypes
     LOG_TYPE_WORLD  = 6,
     LOG_TYPE_RA     = 7,
     LOG_TYPE_GM     = 8,
-    LOG_TYPE_PACKET = 9,
-    LOG_TYPE_CRASH  = 10,
+    LOG_TYPE_CRASH  = 9,
     MAX_LOG_TYPES
 };
 
