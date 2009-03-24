@@ -1022,9 +1022,10 @@ void Aura::_RemoveAura()
                 ((Player*)caster)->SendCooldownEvent(GetSpellProto());
         }
 
+        // overkill
         // do not proc anything if aura is cancelled
-        if(m_removeMode == AURA_REMOVE_BY_CANCEL)
-            return;
+        //if(m_removeMode == AURA_REMOVE_BY_CANCEL)
+        //    return;
 
         // Remove Linked Auras (on last aura remove)
         uint32 id = GetId();
@@ -1063,7 +1064,7 @@ void Aura::_RemoveAura()
             uint32 procEx=0;
             if (m_removeMode == AURA_REMOVE_BY_ENEMY_SPELL)
                 procEx = PROC_EX_AURA_REMOVE_DESTROY;
-            else if (m_removeMode == AURA_REMOVE_BY_DEFAULT)// || m_removeMode == AURA_REMOVE_BY_CANCEL)
+            else if (m_removeMode == AURA_REMOVE_BY_DEFAULT || m_removeMode == AURA_REMOVE_BY_CANCEL)
                 procEx = PROC_EX_AURA_REMOVE_EXPIRE;
 
             caster->ProcDamageAndSpell(m_target,ProcCaster, ProcVictim, procEx, m_modifier.m_amount, BASE_ATTACK, m_spellProto);
