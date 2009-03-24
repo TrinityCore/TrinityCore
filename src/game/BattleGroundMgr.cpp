@@ -1178,7 +1178,7 @@ void BattleGroundMgr::Update(uint32 diff)
         // skip updating battleground template
         if( itr != m_BattleGrounds[i].end() )
             ++itr;
-        for(itr = m_BattleGrounds[i].begin(); itr != m_BattleGrounds[i].end(); itr = next)
+        for(; itr != m_BattleGrounds[i].end(); itr = next)
         {
             next = itr;
             ++next;
