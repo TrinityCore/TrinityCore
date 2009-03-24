@@ -6742,7 +6742,7 @@ void Player::DuelComplete(DuelCompleteType type)
     }
 
     for(size_t i=0; i<auras2remove.size(); i++)
-        duel->opponent->RemoveAurasDueToSpellByCancel(auras2remove[i]);
+        duel->opponent->RemoveAurasByCasterSpell(auras2remove[i], GetGUID(), AURA_REMOVE_BY_DELETE);
 
     auras2remove.clear();
     AuraMap const& auras = GetAuras();
@@ -6752,7 +6752,7 @@ void Player::DuelComplete(DuelCompleteType type)
             auras2remove.push_back(i->second->GetId());
     }
     for(size_t i=0; i<auras2remove.size(); i++)
-        RemoveAurasDueToSpellByCancel(auras2remove[i]);
+        RemoveAurasByCasterSpell(auras2remove[i], duel->opponent->GetGUID(), AURA_REMOVE_BY_DELETE);
 
     // cleanup combo points
     if(GetComboTarget()==duel->opponent->GetGUID())

@@ -3843,7 +3843,7 @@ bool Unit::AddAura(Aura *Aur)
                         if(Aur->GetStackAmount() < aurSpellInfo->StackAmount)
                             Aur->InitStackAmount(Aur->GetStackAmount()+1);
                     }
-                    RemoveAura(i2,AURA_REMOVE_BY_STACK);
+                    RemoveAura(i2,AURA_REMOVE_BY_DELETE);
                     i2=m_Auras.lower_bound(spair);
                     continue;
                 }
@@ -3863,7 +3863,7 @@ bool Unit::AddAura(Aura *Aur)
                     ++i2;
                     continue;
             }
-            RemoveAura(i2,AURA_REMOVE_BY_STACK);
+            RemoveAura(i2,AURA_REMOVE_BY_DELETE);
             i2=m_Auras.lower_bound(spair);
             continue;
         }
@@ -3901,7 +3901,7 @@ bool Unit::AddAura(Aura *Aur)
                         sLog.outError("Aura (Spell %u Effect %u) is in process but attempt removed at aura (Spell %u Effect %u) adding, need add stack rule for IsSingleTargetSpell", (*itr)->GetId(), (*itr)->GetEffIndex(),Aur->GetId(), Aur->GetEffIndex());
                         continue;
                     }
-                    (*itr)->GetTarget()->RemoveAurasByCasterSpell((*itr)->GetId(),(*itr)->GetEffIndex(), caster->GetGUID(), AURA_REMOVE_BY_STACK);
+                    (*itr)->GetTarget()->RemoveAurasByCasterSpell((*itr)->GetId(),(*itr)->GetEffIndex(), caster->GetGUID(), AURA_REMOVE_BY_DELETE);
                     restart = true;
                     break;
                 }
@@ -3964,7 +3964,7 @@ void Unit::RemoveRankAurasDueToSpell(uint32 spellId)
                     {
                         if(iter->second->GetCasterGUID()==(*i).second->GetCasterGUID())
                         {
-                            RemoveAura(iter, AURA_REMOVE_BY_STACK);
+                            RemoveAura(iter, AURA_REMOVE_BY_DELETE);
                             iter = m_Auras.lower_bound(spair);
                         }
                         else
@@ -4090,7 +4090,7 @@ bool Unit::RemoveNoStackAurasDueToAura(Aura *Aur)
                 {
                     if(iter->second->GetCasterGUID()==caster)
                     {
-                        RemoveAura(iter, AURA_REMOVE_BY_STACK);
+                        RemoveAura(iter, AURA_REMOVE_BY_DELETE);
                         iter = m_Auras.lower_bound(spair);
                     }
                     else
@@ -4259,17 +4259,6 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, uint64 casterGUID, Unit 
     }
 }
 
-void Unit::RemoveAurasDueToSpellByCancel(uint32 spellId)
-{
-    for (AuraMap::iterator iter = m_Auras.begin(); iter != m_Auras.end(); )
-    {
-        if (iter->second->GetId() == spellId)
-            RemoveAura(iter, AURA_REMOVE_BY_CANCEL);
-        else
-            ++iter;
-    }
-}
-
 void Unit::RemoveAurasWithDispelType( DispelType type )
 {
     // Create dispel mask by dispel type
@@ -4336,7 +4325,7 @@ void Unit::RemoveNotOwnSingleTargetAuras()
     for (AuraMap::iterator iter = m_Auras.begin(); iter != m_Auras.end(); )
     {
         if (iter->second->GetCasterGUID()!=GetGUID() && IsSingleTargetSpell(iter->second->GetSpellProto()))
-            RemoveAura(iter, AURA_REMOVE_BY_STACK);
+            RemoveAura(iter, AURA_REMOVE_BY_DELETE);
         else
             ++iter;
     }

@@ -328,7 +328,7 @@ enum DamageTypeToSchool
 enum AuraRemoveMode
 {
     AURA_REMOVE_BY_DEFAULT,
-    AURA_REMOVE_BY_STACK,               // at replace by semillar aura (or single target aura remove)
+    AURA_REMOVE_BY_DELETE,               // change stack, single aura remove, duel complete
     AURA_REMOVE_BY_CANCEL,
     AURA_REMOVE_BY_ENEMY_SPELL,              // dispel and absorb aura destroy
     AURA_REMOVE_BY_DEATH
@@ -1253,7 +1253,6 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
 
         void RemoveAurasDueToSpellByDispel(uint32 spellId, uint64 casterGUID, Unit *dispeler);
         void RemoveAurasDueToSpellBySteal(uint32 spellId, uint64 casterGUID, Unit *stealer);
-        void RemoveAurasDueToSpellByCancel(uint32 spellId);
         void RemoveAurasAtChanneledTarget(SpellEntry const* spellInfo, Unit * caster);
         void RemoveNotOwnSingleTargetAuras();
 
