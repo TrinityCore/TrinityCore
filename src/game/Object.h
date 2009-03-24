@@ -215,6 +215,9 @@ class TRINITY_DLL_SPEC Object
         void SetStatFloatValue( uint16 index, float value);
         void SetStatInt32Value( uint16 index, int32 value);
 
+        bool AddUInt64Value( uint16 index, const uint64 &value );
+        bool RemoveUInt64Value( uint16 index, const uint64 &value );
+
         void ApplyModUInt32Value(uint16 index, int32 val, bool apply);
         void ApplyModInt32Value(uint16 index, int32 val, bool apply);
         void ApplyModUInt64Value(uint16 index, int32 val, bool apply);

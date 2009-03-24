@@ -1895,6 +1895,15 @@ void Player::RemoveFromWorld()
     ///- It will crash when updating the ObjectAccessor
     ///- The player should only be removed when logging out
     Unit::RemoveFromWorld();
+
+    if(m_uint32Values)
+    {
+        if(GetUInt64Value(PLAYER_FARSIGHT))
+        {
+            sLog.outCrash("Player %s has viewpoint when removed from world", GetName());
+            CreateViewpoint(NULL);
+        }
+    }
 }
 
 void Player::RewardRage( uint32 damage, uint32 weaponSpeedHitFactor, bool attacker )
@@ -17038,7 +17047,7 @@ void Player::StopCastingCharm()
 
     if(GetCharmGUID())
     {
-        sLog.outError("CRASH ALARM! Player %s is not able to uncharm unit (Entry: %u, Type: %u)", GetName(), charm->GetEntry(), charm->GetTypeId());
+        sLog.outCrash("Player %s is not able to uncharm unit (Entry: %u, Type: %u)", GetName(), charm->GetEntry(), charm->GetTypeId());
     }
 }
 
@@ -18439,7 +18448,7 @@ void Player::ReportedAfkBy(Player* reporter)
 bool Player::canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList, bool is3dDistance) const
 {
     // Always can see self
-    if (m_mover == u)
+    if (m_mover == u || this == u)
         return true;
 
     // phased visibility (both must phased in same way)
@@ -20097,13 +20106,12 @@ void Player::CreateViewpoint(WorldObject* target)
         sLog.outDebug("Player::CreateViewpoint: Player %s create seer %u (TypeId: %u).", GetName(), target->GetEntry(), target->GetTypeId());
 
         StopCastingBindSight();
-        if(GetUInt64Value(PLAYER_FARSIGHT))
+        if(!AddUInt64Value(PLAYER_FARSIGHT, target->GetGUID()))
         {
             sLog.outError("Player::CreateViewpoint: Player %s cannot remove current viewpoint!", GetName());
             return;
         }
 
-        SetUInt64Value(PLAYER_FARSIGHT, target->GetGUID());
         if(target->isType(TYPEMASK_UNIT))
             ((Unit*)target)->AddPlayerToVision(this);
     }
@@ -20205,11 +20213,12 @@ void Player::EnterVehicle(Vehicle *vehicle)
     if(!veSeat)
         return;
 
-    vehicle->SetCharmerGUID(GetGUID());
     vehicle->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
     vehicle->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);
     vehicle->setFaction(getFaction());
 
+    StopCastingCharm();
+    StopCastingBindSight();
     SetCharm(vehicle, true);                                      // charm
     SetMover(vehicle);
 
@@ -20245,7 +20254,6 @@ void Player::EnterVehicle(Vehicle *vehicle)
 
 void Player::ExitVehicle(Vehicle *vehicle)
 {
-    vehicle->SetCharmerGUID(0);
     vehicle->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
     vehicle->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);
     vehicle->setFaction((GetTeam() == ALLIANCE) ? vehicle->GetCreatureInfo()->faction_A : vehicle->GetCreatureInfo()->faction_H);
