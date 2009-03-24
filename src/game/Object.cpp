@@ -864,6 +864,48 @@ void Object::SetUInt64Value( uint16 index, const uint64 &value )
     }
 }
 
+bool Object::AddUInt64Value(uint16 index, const uint64 &value)
+{
+    ASSERT( index + 1 < m_valuesCount || PrintIndexError( index , true ) );
+    if(value && !*((uint64*)&(m_uint32Values[index])))
+    {
+        m_uint32Values[ index ] = *((uint32*)&value);
+        m_uint32Values[ index + 1 ] = *(((uint32*)&value) + 1);
+
+        if(m_inWorld)
+        {
+            if(!m_objectUpdated)
+            {
+                ObjectAccessor::Instance().AddUpdateObject(this);
+                m_objectUpdated = true;
+            }
+        }
+        return true;
+    }
+    return false;
+}
+
+bool Object::RemoveUInt64Value(uint16 index, const uint64 &value)
+{
+    ASSERT( index + 1 < m_valuesCount || PrintIndexError( index , true ) );
+    if(value && *((uint64*)&(m_uint32Values[index])) == value)
+    {
+        m_uint32Values[ index ] = 0;
+        m_uint32Values[ index + 1 ] = 0;
+
+        if(m_inWorld)
+        {
+            if(!m_objectUpdated)
+            {
+                ObjectAccessor::Instance().AddUpdateObject(this);
+                m_objectUpdated = true;
+            }
+        }
+        return true;
+    }
+    return false;
+}
+
 void Object::SetFloatValue( uint16 index, float value )
 {
     ASSERT( index < m_valuesCount || PrintIndexError( index , true ) );

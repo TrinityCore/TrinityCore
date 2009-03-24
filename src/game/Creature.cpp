@@ -166,19 +166,24 @@ Creature::~Creature()
 void Creature::AddToWorld()
 {
     ///- Register the creature for guid lookup
-    if(!IsInWorld()) ObjectAccessor::Instance().AddObject(this);
-    Unit::AddToWorld();
-    SearchFormation();
+    if(!IsInWorld())
+    {
+        ObjectAccessor::Instance().AddObject(this);
+        Unit::AddToWorld();
+        SearchFormation();
+    }
 }
 
 void Creature::RemoveFromWorld()
 {
-    if(m_formationID)
-        formation_mgr.DestroyGroup(m_formationID, GetGUID());
-
     ///- Remove the creature from the accessor
-    if(IsInWorld()) ObjectAccessor::Instance().RemoveObject(this);
-    Unit::RemoveFromWorld();
+    if(IsInWorld())
+    {
+        if(m_formationID)
+            formation_mgr.DestroyGroup(m_formationID, GetGUID());
+        ObjectAccessor::Instance().RemoveObject(this);
+        Unit::RemoveFromWorld();
+    }
 }
 
 void Creature::SearchFormation()
