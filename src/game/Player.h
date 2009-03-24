@@ -1975,8 +1975,6 @@ class TRINITY_DLL_SPEC Player : public Unit
         bool IsFlying() const { return HasUnitMovementFlag(MOVEMENTFLAG_FLYING); }
         bool IsAllowUseFlyMountsHere() const;
 
-        void HandleFallUnderMap();
-
         void SetClientControl(Unit* target, uint8 allowMove);
 
         void EnterVehicle(Vehicle *vehicle);
