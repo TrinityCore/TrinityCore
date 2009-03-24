@@ -402,6 +402,46 @@ void Log::outString( const char * str, ... )
     fflush(stdout);
 }
 
+void Log::outCrash( const char * err, ... )
+{
+    if( !err )
+        return;
+
+    if (m_enableLogDB)
+    {
+        va_list ap2;
+        va_start(ap2, err);
+        char nnew_str[MAX_QUERY_LEN];
+        vsnprintf(nnew_str, MAX_QUERY_LEN, err, ap2);
+        outDB(LOG_TYPE_CRASH, nnew_str);
+        va_end(ap2);
+    }
+
+    if(m_colored)
+        SetColor(false,RED);
+
+    UTF8PRINTF(stderr,err,);
+
+    if(m_colored)
+        ResetColor(false);
+
+    fprintf( stderr, "\n" );
+    if(logfile)
+    {
+        outTimestamp(logfile);
+        fprintf(logfile, "CRASH ALARM:" );
+
+        va_list ap;
+        va_start(ap, err);
+        vfprintf(logfile, err, ap);
+        va_end(ap);
+
+        fprintf(logfile, "\n" );
+        fflush(logfile);
+    }
+    fflush(stderr);
+}
+
 void Log::outError( const char * err, ... )
 {
     if( !err )
