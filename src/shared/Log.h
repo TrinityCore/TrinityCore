@@ -47,6 +47,7 @@ enum LogTypes
     LOG_TYPE_RA     = 7,
     LOG_TYPE_GM     = 8,
     LOG_TYPE_PACKET = 9,
+    LOG_TYPE_CRASH  = 10,
     MAX_LOG_TYPES
 };
 
@@ -97,6 +98,7 @@ class Log : public Trinity::Singleton<Log, Trinity::ClassLevelLockable<Log, ZThr
     	void outDB( uint8 type, const char * str, ... ) ATTR_PRINTF(3,4);
         void outString( const char * str, ... )         ATTR_PRINTF(2,3);
         void outError( const char * err, ... )          ATTR_PRINTF(2,3);
+        void outCrash( const char * err, ... )          ATTR_PRINTF(2,3);
         void outBasic( const char * str, ... )          ATTR_PRINTF(2,3);
         void outDetail( const char * str, ... )         ATTR_PRINTF(2,3);
         void outDebug( const char * str, ... )          ATTR_PRINTF(2,3);
