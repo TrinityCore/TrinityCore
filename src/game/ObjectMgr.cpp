@@ -1813,13 +1813,13 @@ void ObjectMgr::LoadItemPrototypes()
         if(proto->BagFamily)
         {
             // check bits
-            for(uint32 i = 0; i < sizeof(proto->BagFamily)*8; ++i)
+            for(uint32 j = 0; j < sizeof(proto->BagFamily)*8; ++j)
             {
-                uint32 mask = 1 << i;
+                uint32 mask = 1 << j;
                 if((proto->BagFamily & mask)==0)
                     continue;
 
-                ItemBagFamilyEntry const* bf = sItemBagFamilyStore.LookupEntry(i+1);
+                ItemBagFamilyEntry const* bf = sItemBagFamilyStore.LookupEntry(j+1);
                 if(!bf)
                 {
                     sLog.outErrorDb("Item (Entry: %u) has bag family bit set not listed in ItemBagFamily.dbc, remove bit",i);
