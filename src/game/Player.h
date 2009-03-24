@@ -1982,9 +1982,9 @@ class TRINITY_DLL_SPEC Player : public Unit
         void EnterVehicle(Vehicle *vehicle);
         void ExitVehicle(Vehicle *vehicle);
 
-        void SetMover(Unit* target) { CreateViewpoint(target); m_mover = target; }
+        void SetMover(Unit* target) { m_mover = target; }
         void SetSeer(WorldObject *target) { m_seer = target; }
-        void CreateViewpoint(WorldObject *target);
+        void SetViewpoint(WorldObject *target, bool apply);
         WorldObject* GetViewpoint() const;
         void StopCastingCharm();
         void StopCastingBindSight();

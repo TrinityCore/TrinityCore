@@ -2048,10 +2048,15 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
     // AT REMOVE
     else
     {
-        if( m_target->GetTypeId() == TYPEID_PLAYER && GetSpellProto()->Effect[0]==72 )
+        if(GetSpellProto()->Effect[0]==72 )
         {
             // spells with SpellEffect=72 and aura=4: 6196, 6197, 21171, 21425
-            ((Player*)m_target)->CreateViewpoint(NULL);
+            if(DynamicObject* dynObj = m_target->GetDynObject(GetId(), 0))
+            {
+                if(m_target->GetTypeId() == TYPEID_PLAYER)
+                    ((Player*)m_target)->SetViewpoint(dynObj, false);
+                m_target->RemoveDynObject(GetId());
+            }
             return;
         }
 
@@ -3007,7 +3012,7 @@ void Aura::HandleBindSight(bool apply, bool Real)
     if(!caster || caster->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    ((Player*)caster)->CreateViewpoint(apply ? m_target : NULL);
+    ((Player*)caster)->SetViewpoint(m_target, apply);
 }
 
 void Aura::HandleFarSight(bool apply, bool Real)

@@ -13141,6 +13141,7 @@ void Unit::SetCharmedOrPossessedBy(Unit* charmer, bool possess)
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);
         ((Player*)charmer)->SetClientControl(this, 1);
         ((Player*)charmer)->SetMover(this);
+        ((Player*)charmer)->SetViewpoint(this, true);
         charmer->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
     }
     // Charm demon
@@ -13223,6 +13224,7 @@ void Unit::RemoveCharmedOrPossessedBy(Unit *charmer)
     {
         ((Player*)charmer)->SetClientControl(charmer, 1);
         ((Player*)charmer)->SetMover(charmer);
+        ((Player*)charmer)->SetViewpoint(this, false);
         charmer->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
     }
     // restore UNIT_FIELD_BYTES_0
