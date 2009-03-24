@@ -1901,10 +1901,10 @@ void Player::RemoveFromWorld()
 
     if(m_uint32Values)
     {
-        if(GetUInt64Value(PLAYER_FARSIGHT))
+        if(WorldObject *viewpoint = GetViewpoint())
         {
-            sLog.outCrash("Player %s has viewpoint when removed from world", GetName());
-            CreateViewpoint(NULL);
+            sLog.outCrash("Player %s has viewpoint %u %u when removed from world", GetName(), viewpoint->GetEntry(), viewpoint->GetTypeId());
+            SetViewpoint(viewpoint, false);
         }
     }
 }
@@ -20088,36 +20088,39 @@ void Player::StopCastingBindSight()
     }
 }
 
-void Player::CreateViewpoint(WorldObject* target)
+void Player::SetViewpoint(WorldObject* target, bool apply)
 {
-    if(!target || target == this) // remove viewpoint
+    if(apply)
+    {
+        sLog.outDebug("Player::CreateViewpoint: Player %s create seer %u (TypeId: %u).", GetName(), target->GetEntry(), target->GetTypeId());
+
+        if(!AddUInt64Value(PLAYER_FARSIGHT, target->GetGUID()))
+        {
+            sLog.outCrash("Player::CreateViewpoint: Player %s cannot add new viewpoint!", GetName());
+            return;
+        }
+
+        if(target->isType(TYPEMASK_UNIT))
+            ((Unit*)target)->AddPlayerToVision(this);
+    }
+    else
     {
         sLog.outDebug("Player::CreateViewpoint: Player %s remove seer", GetName());
 
-        if(WorldObject *viewpoint = GetViewpoint())
-            if(viewpoint->isType(TYPEMASK_UNIT))
-                ((Unit*)viewpoint)->RemovePlayerFromVision(this);
-        SetUInt64Value(PLAYER_FARSIGHT, 0);
+        if(!RemoveUInt64Value(PLAYER_FARSIGHT, target->GetGUID()))
+        {
+            sLog.outCrash("Player::CreateViewpoint: Player %s cannot remove current viewpoint!", GetName());
+            return;
+        }
+
+        if(target->isType(TYPEMASK_UNIT))
+            ((Unit*)target)->RemovePlayerFromVision(this);
 
         //must immediately set seer back otherwise may crash
         m_seer = this;
 
         //WorldPacket data(SMSG_CLEAR_FAR_SIGHT_IMMEDIATE, 0);
         //GetSession()->SendPacket(&data);
-    }
-    else
-    {
-        sLog.outDebug("Player::CreateViewpoint: Player %s create seer %u (TypeId: %u).", GetName(), target->GetEntry(), target->GetTypeId());
-
-        StopCastingBindSight();
-        if(!AddUInt64Value(PLAYER_FARSIGHT, target->GetGUID()))
-        {
-            sLog.outError("Player::CreateViewpoint: Player %s cannot remove current viewpoint!", GetName());
-            return;
-        }
-
-        if(target->isType(TYPEMASK_UNIT))
-            ((Unit*)target)->AddPlayerToVision(this);
     }
 }
 
@@ -20224,7 +20227,8 @@ void Player::EnterVehicle(Vehicle *vehicle)
 
     StopCastingCharm();
     StopCastingBindSight();
-    SetCharm(vehicle, true);                                      // charm
+    SetCharm(vehicle, true);
+    SetViewpoint(vehicle, true);
     SetMover(vehicle);
 
     SetClientControl(vehicle, 1);                           // redirect controls to vehicle
@@ -20264,6 +20268,7 @@ void Player::ExitVehicle(Vehicle *vehicle)
     vehicle->setFaction((GetTeam() == ALLIANCE) ? vehicle->GetCreatureInfo()->faction_A : vehicle->GetCreatureInfo()->faction_H);
 
     SetCharm(vehicle, false);
+    SetViewpoint(vehicle, false);
     SetMover(this);
 
     SetClientControl(vehicle, 0);
