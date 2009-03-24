@@ -5046,10 +5046,10 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     if (!Aur)
                         return false;
                     // Remove aura mods
-                    Aur->ApplyModifier(false,true);
+                    Aur->ApplyModifier(false);
                     Aur->GetModifier()->m_amount += spelldmg * triggerAmount / 100;
                     // Apply extended aura mods
-                    Aur->ApplyModifier(true,true);
+                    Aur->ApplyModifier(true);
                     break;
                 }
                 // Eye for an Eye
@@ -8318,8 +8318,7 @@ void Unit::SetPet(Creature* pet, bool apply)
 {
     if(apply)
     {
-        if(!GetPetGUID())
-            SetUInt64Value(UNIT_FIELD_SUMMON, pet->GetGUID());
+        AddUInt64Value(UNIT_FIELD_SUMMON, pet->GetGUID());
         m_Controlled.insert(pet);
 
         // FIXME: hack, speed must be set only at follow
@@ -8337,7 +8336,7 @@ void Unit::SetPet(Creature* pet, bool apply)
         {
             if((*itr)->GetOwnerGUID() == GetGUID())
             {
-                SetUInt64Value(UNIT_FIELD_SUMMON, (*itr)->GetGUID());
+                AddUInt64Value(UNIT_FIELD_SUMMON, (*itr)->GetGUID());
                 break;
             }
         }
@@ -8350,16 +8349,26 @@ void Unit::SetCharm(Unit* charm, bool apply)
     {
         if(GetTypeId() == TYPEID_PLAYER)
         {
-            if(GetCharmGUID())
-                sLog.outError("Player %s is trying to charm unit %u, but he already has a charmed unit %u", GetName(), charm->GetEntry(), GetCharmGUID());
-            SetUInt64Value(UNIT_FIELD_CHARM, charm->GetGUID());
+            if(!AddUInt64Value(UNIT_FIELD_CHARM, charm->GetGUID()))
+                sLog.outCrash("Player %s is trying to charm unit %u, but it already has a charmed unit %u", GetName(), charm->GetEntry(), GetCharmGUID());
         }
+
+        if(!charm->AddUInt64Value(UNIT_FIELD_CHARMEDBY, GetGUID()))
+            sLog.outCrash("Unit %u is being charmed, but it already has a charmer %u", charm->GetEntry(), charm->GetCharmerGUID());
+
         m_Controlled.insert(charm);
     }
     else
     {
         if(GetTypeId() == TYPEID_PLAYER)
-            SetUInt64Value(UNIT_FIELD_CHARM, 0);
+        {
+            if(!RemoveUInt64Value(UNIT_FIELD_CHARM, charm->GetGUID()))
+                sLog.outCrash("Player %s is trying to uncharm unit %u, but it has another charmed unit %u", GetName(), charm->GetEntry(), GetCharmGUID());
+        }
+
+        if(!charm->RemoveUInt64Value(UNIT_FIELD_CHARMEDBY, GetGUID()))
+            sLog.outCrash("Unit %u is being uncharmed, but it has another charmer %u", charm->GetEntry(), charm->GetCharmerGUID());
+            
         m_Controlled.erase(charm);
     }
 }
@@ -8400,9 +8409,9 @@ void Unit::RemoveAllControlled()
         }
     }
     if(GetPetGUID())
-        sLog.outError("Unit %u is not able to release its summon %u", GetEntry(), GetPetGUID());
+        sLog.outCrash("Unit %u is not able to release its summon %u", GetEntry(), GetPetGUID());
     if(GetCharmGUID())
-        sLog.outError("Unit %u is not able to release its charm %u", GetEntry(), GetCharmGUID());
+        sLog.outCrash("Unit %u is not able to release its charm %u", GetEntry(), GetCharmGUID());
 }
 
 Unit* Unit::GetNextRandomRaidMemberOrPet(float radius)
@@ -13080,18 +13089,23 @@ void Unit::SetCharmedOrPossessedBy(Unit* charmer, bool possess)
 
     // Charmer stop charming
     if(charmer->GetTypeId() == TYPEID_PLAYER)
+    {
         ((Player*)charmer)->StopCastingCharm();
+        ((Player*)charmer)->StopCastingBindSight();
+    }
 
     // Charmed stop charming
     if(GetTypeId() == TYPEID_PLAYER)
+    {
         ((Player*)this)->StopCastingCharm();
+        ((Player*)this)->StopCastingBindSight();
+    }
 
     // StopCastingCharm may remove a possessed pet?
     if(!IsInWorld())
         return;
 
     // Set charmed
-    SetCharmerGUID(charmer->GetGUID());
     setFaction(charmer->getFaction());
     SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
     charmer->SetCharm(this, true);
@@ -13169,7 +13183,6 @@ void Unit::RemoveCharmedOrPossessedBy(Unit *charmer)
     CombatStop(); //TODO: CombatStop(true) may cause crash (interrupt spells)
     getHostilRefManager().deleteReferences();
     DeleteThreatList();
-    SetCharmerGUID(0);
     RestoreFaction();
     GetMotionMaster()->InitDefault();
 
