@@ -19384,6 +19384,7 @@ void Player::SummonIfPossible(bool agree)
     }
 
     // drop flag at summon
+    // this code can be reached only when GM is summoning player who carries flag, because player should be immune to summoning spells when he carries flag
     if(BattleGround *bg = GetBattleGround())
         bg->EventPlayerDroppedFlag(this);
 
@@ -20129,6 +20130,7 @@ bool Player::CanUseBattleGroundObject()
     return ( //InBattleGround() &&                          // in battleground - not need, check in other cases
              //!IsMounted() && - not correct, player is dismounted when he clicks on flag
              //i'm not sure if these two are correct, because invisible players should get visible when they click on flag
+             !isTotalImmune() &&                            // not totally immune
              !HasStealthAura() &&                           // not stealthed
              !HasInvisibilityAura() &&                      // not invisible
              !HasAura(SPELL_RECENTLY_DROPPED_FLAG, 0) &&    // can't pickup
@@ -20283,6 +20285,20 @@ void Player::ExitVehicle(Vehicle *vehicle)
 
     // only for flyable vehicles?
     CastSpell(this, 45472, true);                           // Parachute
+}
+
+bool Player::isTotalImmune()
+{
+    AuraList const& immune = GetAurasByType(SPELL_AURA_SCHOOL_IMMUNITY);
+
+    uint32 immuneMask = 0;
+    for(AuraList::const_iterator itr = immune.begin(); itr != immune.end(); ++itr)
+    {
+        immuneMask |= (*itr)->GetModifier()->m_miscvalue;
+        if( immuneMask & SPELL_SCHOOL_MASK_ALL )            // total immunity
+            return true;
+    }
+    return false;
 }
 
 bool Player::HasTitle(uint32 bitIndex)

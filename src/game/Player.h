@@ -1920,6 +1920,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         bool GetBGAccessByLevel(BattleGroundTypeId bgTypeId) const;
         bool isTotalImmunity();
         bool CanUseBattleGroundObject();
+        bool isTotalImmune();
         bool CanCaptureTowerPoint();
 
         /*********************************************************/
