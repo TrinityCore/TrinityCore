@@ -468,6 +468,9 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this)
     m_farsightVision = false;
 
     m_runes = NULL;
+
+    m_lastFallTime = 0;
+    m_lastFallZ = 0;
 }
 
 Player::~Player ()
@@ -20947,4 +20950,10 @@ void Player::UpdateKnownCurrencies(uint32 itemId, bool apply)
         else
             RemoveFlag64(PLAYER_FIELD_KNOWN_CURRENCIES,(1LL << (ctEntry->BitIndex-1)));
     }
+}
+
+void Player::UpdateFallInformationIfNeed( MovementInfo const& minfo,uint16 opcode )
+{
+    if (m_lastFallTime >= minfo.fallTime || m_lastFallZ <=minfo.z || opcode == MSG_MOVE_FALL_LAND)
+        SetFallInformation(minfo.fallTime, minfo.z);
 }
