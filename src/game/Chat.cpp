@@ -573,7 +573,7 @@ ChatCommand * ChatHandler::getCommandTable()
         { "honor",          SEC_GAMEMASTER,     false, NULL,                                           "", honorCommandTable },
 
         //wp commands
-        { "path",           SEC_GAMEMASTER,     false, NULL,                                           "", wpCommandTable },
+        { "wp",             SEC_GAMEMASTER,     false, NULL,                                           "", wpCommandTable },
         { "loadpath",       SEC_ADMINISTRATOR,  false, &ChatHandler::HandleReloadAllPaths,             "", NULL },
         // AH bot
         { "ahbotoption",    SEC_GAMEMASTER,     false, &ChatHandler::HandleAHBotOptionsCommand,        "", NULL },
