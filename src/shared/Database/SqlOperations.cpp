@@ -97,7 +97,7 @@ bool SqlQueryHolder::SetQuery(size_t index, const char *sql)
 {
     if(m_queries.size() <= index)
     {
-        sLog.outError("Query index (%u) out of range (size: %u) for query: %s",index,m_queries.size(),sql);
+        sLog.outError("Query index (%u) out of range (size: %u) for query: %s",index,(uint32)m_queries.size(),sql);
         return false;
     }
 
