@@ -2022,8 +2022,8 @@ void Map::RemoveAllObjectsInRemoveList()
     //sLog.outDebug("Object remover 1 check.");
     while(!i_objectsToRemove.empty())
     {
-        WorldObject* obj = *i_objectsToRemove.begin();
-        i_objectsToRemove.erase(i_objectsToRemove.begin());
+        std::set<WorldObject*>::iterator itr = i_objectsToRemove.begin();
+        WorldObject* obj = *itr;
 
         switch(obj->GetTypeId())
         {
@@ -2052,6 +2052,8 @@ void Map::RemoveAllObjectsInRemoveList()
             sLog.outError("Non-grid object (TypeId: %u) in grid object removing list, ignored.",obj->GetTypeId());
             break;
         }
+
+        i_objectsToRemove.erase(itr);
     }
     //sLog.outDebug("Object remover 2 check.");
 }
