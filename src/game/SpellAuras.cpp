@@ -1084,9 +1084,9 @@ void Aura::SetStackAmount(uint8 stackAmount)
         // Reapply if amount change
         if (amount!=m_modifier.m_amount)
         {
-            ApplyModifier(false, true);
+            ApplyModifier(false);
             m_modifier.m_amount = amount;
-            ApplyModifier(true, true);
+            ApplyModifier(true);
         }
     }
     RefreshAura();
@@ -6466,11 +6466,11 @@ void Aura::PeriodicDummyTick()
                 Aura *slow = m_target->GetAura(GetId(), 0);
                 if (slow)
                 {
-                    slow->ApplyModifier(false, true);
+                    slow->ApplyModifier(false);
                     Modifier *mod = slow->GetModifier();
                     mod->m_amount+= m_modifier.m_amount;
                     if (mod->m_amount > 0) mod->m_amount = 0;
-                    slow->ApplyModifier(true, true);
+                    slow->ApplyModifier(true);
                 }
                 return;
             }
