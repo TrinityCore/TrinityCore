@@ -548,8 +548,6 @@ bool IsPositiveEffect(uint32 spellId, uint32 effIndex, bool deep)
 
     switch(spellId)
     {
-        case 23333: case 23335: case 34976:                 // BG spell                                         
-            return true;
         case 28441:                                         // not positive dummy spell
         case 37675:                                         // Chaos Blast
         case 41519:                                         // Mark of Stormrage
