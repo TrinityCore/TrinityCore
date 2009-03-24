@@ -758,7 +758,8 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 const FactionStateList factionStateList = GetPlayer()->GetFactionStateList();
                 for (FactionStateList::const_iterator iter = factionStateList.begin(); iter!= factionStateList.end(); ++iter)
                 {
-                    if(GetPlayer()->ReputationToRank(iter->second.Standing) >= REP_EXALTED)
+                    FactionEntry const *factionEntry = sFactionStore.LookupEntry(iter->second.ID);
+                    if(GetPlayer()->ReputationToRank(iter->second.Standing + GetPlayer()->GetBaseReputation(factionEntry)) >= REP_EXALTED)
                         ++counter;
                 }
                 SetCriteriaProgress(achievementCriteria, counter);
