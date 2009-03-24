@@ -192,6 +192,9 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
     if (!Trinity::IsValidMapCoord(movementInfo.x, movementInfo.y, movementInfo.z, movementInfo.o))
         return;
 
+    Unit *mover = _player->m_mover;
+    Player *plMover = mover->GetTypeId()==TYPEID_PLAYER ? (Player*)mover : NULL;
+
     /* handle special cases */
     if (movementInfo.flags & MOVEMENTFLAG_ONTRANSPORT)
     {
@@ -205,24 +208,24 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
             return;
 
         // if we boarded a transport, add us to it
-        if (!GetPlayer()->m_transport)
+        if (plMover && plMover->m_transport)
         {
             // elevators also cause the client to send MOVEMENTFLAG_ONTRANSPORT - just unmount if the guid can be found in the transport list
             for (MapManager::TransportSet::iterator iter = MapManager::Instance().m_Transports.begin(); iter != MapManager::Instance().m_Transports.end(); ++iter)
             {
                 if ((*iter)->GetGUID() == movementInfo.t_guid)
                 {
-                    GetPlayer()->m_transport = (*iter);
-                    (*iter)->AddPassenger(GetPlayer());
+                    plMover->m_transport = (*iter);
+                    (*iter)->AddPassenger(plMover);
                     break;
                 }
             }
         }
     }
-    else if (GetPlayer()->m_transport)                      // if we were on a transport, leave
+    else if (plMover && plMover->m_transport)               // if we were on a transport, leave
     {
-        GetPlayer()->m_transport->RemovePassenger(GetPlayer());
-        GetPlayer()->m_transport = NULL;
+        plMover->m_transport->RemovePassenger(plMover);
+        plMover->m_transport = NULL;
         movementInfo.t_x = 0.0f;
         movementInfo.t_y = 0.0f;
         movementInfo.t_z = 0.0f;
@@ -232,54 +235,68 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
     }
 
     // fall damage generation (ignore in flight case that can be triggered also at lags in moment teleportation to another map).
-    if (opcode == MSG_MOVE_FALL_LAND && !GetPlayer()->isInFlight())
-        GetPlayer()->HandleFall(movementInfo);
+    if (opcode == MSG_MOVE_FALL_LAND && plMover && !plMover->isInFlight())
+        plMover->HandleFall(movementInfo);
 
-    if(((movementInfo.flags & MOVEMENTFLAG_SWIMMING) != 0) != GetPlayer()->IsInWater())
+    if (plMover && ((movementInfo.flags & MOVEMENTFLAG_SWIMMING) != 0) != plMover->IsInWater())
     {
         // now client not include swimming flag in case jumping under water
-        GetPlayer()->SetInWater( !GetPlayer()->IsInWater() || GetPlayer()->GetBaseMap()->IsUnderWater(movementInfo.x, movementInfo.y, movementInfo.z) );
+        plMover->SetInWater( !plMover->IsInWater() || plMover->GetBaseMap()->IsUnderWater(movementInfo.x, movementInfo.y, movementInfo.z) );
     }
 
     /*----------------------*/
 
     /* process position-change */
-    Unit *mover = _player->m_mover;
     recv_data.put<uint32>(6, getMSTime());                  // fix time, offset flags(4) + unk(2)
     WorldPacket data(recv_data.GetOpcode(), (mover->GetPackGUID().size()+recv_data.size()));
     data.append(mover->GetPackGUID());                      // use mover guid
     data.append(recv_data.contents(), recv_data.size());
     GetPlayer()->SendMessageToSet(&data, false);
 
-    if(!_player->GetCharmGUID())                            // nothing is charmed
+    if(plMover)                                             // nothing is charmed, or player charmed
     {
-        _player->SetPosition(movementInfo.x, movementInfo.y, movementInfo.z, movementInfo.o);
-        _player->m_movementInfo = movementInfo;
-        _player->SetUnitMovementFlags(movementInfo.flags);
+        plMover->SetPosition(movementInfo.x, movementInfo.y, movementInfo.z, movementInfo.o);
+        plMover->m_movementInfo = movementInfo;
+        plMover->SetUnitMovementFlags(movementInfo.flags);
+
+        plMover->UpdateFallInformationIfNeed(movementInfo,recv_data.GetOpcode());
+
+        if(plMover->isMovingOrTurning())
+            plMover->RemoveSpellsCausingAura(SPELL_AURA_FEIGN_DEATH);
+
+        if(movementInfo.z < -500.0f)
+        {
+            if(plMover->InBattleGround()
+                && plMover->GetBattleGround()
+                && plMover->GetBattleGround()->HandlePlayerUnderMap(_player))
+            {
+                // do nothing, the handle already did if returned true
+            }
+            else
+            {
+                // NOTE: this is actually called many times while falling
+                // even after the player has been teleported away
+                // TODO: discard movement packets after the player is rooted
+                if(plMover->isAlive())
+                {
+                    plMover->EnvironmentalDamage(DAMAGE_FALL_TO_VOID, GetPlayer()->GetMaxHealth());
+                    // change the death state to CORPSE to prevent the death timer from
+                    // starting in the next player update
+                    plMover->KillPlayer();
+                    plMover->BuildPlayerRepop();
+                }
+
+                // cancel the death timer here if started
+                plMover->RepopAtGraveyard();
+            }
+        }
     }
-    else
+    else                                                    // creature charmed
     {
-        if(mover->GetTypeId() != TYPEID_PLAYER)             // unit, creature, pet, vehicle...
-        {
-            if(Map *map = mover->GetMap())
-                map->CreatureRelocation((Creature*)mover, movementInfo.x, movementInfo.y, movementInfo.z, movementInfo.o);
-            mover->SetUnitMovementFlags(movementInfo.flags);
-        }
-        else                                                // player
-        {
-            ((Player*)mover)->SetPosition(movementInfo.x, movementInfo.y, movementInfo.z, movementInfo.o);
-            ((Player*)mover)->m_movementInfo = movementInfo;
-            ((Player*)mover)->SetUnitMovementFlags(movementInfo.flags);
-        }
+        if(Map *map = mover->GetMap())
+            map->CreatureRelocation((Creature*)mover, movementInfo.x, movementInfo.y, movementInfo.z, movementInfo.o);
+        mover->SetUnitMovementFlags(movementInfo.flags);
     }
-
-    GetPlayer()->UpdateFallInformationIfNeed(movementInfo,MSG_MOVE_FALL_LAND);
-
-    if(GetPlayer()->isMovingOrTurning())
-        GetPlayer()->RemoveSpellsCausingAura(SPELL_AURA_FEIGN_DEATH);
-
-    if(movementInfo.z < -500.0f)
-        GetPlayer()->HandleFallUnderMap();
 }
 
 void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recv_data)

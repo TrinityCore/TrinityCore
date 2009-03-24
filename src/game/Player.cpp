@@ -20048,33 +20048,6 @@ bool ItemPosCount::isContainedIn(ItemPosCountVec const& vec) const
 //-------------TRINITY---------------
 //***********************************
 
-void Player::HandleFallUnderMap()
-{
-    if(InBattleGround()
-        && GetBattleGround()
-        && GetBattleGround()->HandlePlayerUnderMap(this))
-    {
-        // do nothing, the handle already did if returned true
-    }
-    else
-    {
-        // NOTE: this is actually called many times while falling
-        // even after the player has been teleported away
-        // TODO: discard movement packets after the player is rooted
-        if(isAlive())
-        {
-            EnvironmentalDamage(DAMAGE_FALL_TO_VOID, GetMaxHealth());
-            // change the death state to CORPSE to prevent the death timer from
-            // starting in the next player update
-            KillPlayer();
-            BuildPlayerRepop();
-        }
-
-        // cancel the death timer here if started
-        RepopAtGraveyard();
-    }
-}
-
 void Player::StopCastingBindSight()
 {
     if(WorldObject* target = GetViewpoint())
