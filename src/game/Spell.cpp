@@ -4505,7 +4505,7 @@ SpellCastResult Spell::CheckCasterAuras() const
         prevented_reason = SPELL_FAILED_PACIFIED;
 
     // Attr must make flag drop spell totally immune from all effects
-    if(prevented_reason)
+    if(prevented_reason != SPELL_CAST_OK)
     {
         if(school_immune || mechanic_immune || dispel_immune)
         {
