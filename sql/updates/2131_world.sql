@@ -1,4 +1,4 @@
-DELETE FROM `command` WHERE `name` IN ('server difftime', 'npc addtemp', 'gobject addtemp', '');
+DELETE FROM `command` WHERE `name` IN ('server difftime', 'npc tempadd', 'gobject tempadd', '');
 INSERT INTO `command` VALUES
 ('gobject tempadd','2','Adds a temporary gameobject that is not saved to DB.'),
 ('npc tempadd','2','Adds temporary NPC, not saved to database.');
