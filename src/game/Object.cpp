@@ -1623,6 +1623,11 @@ Map* WorldObject::GetMap() const
     return MapManager::Instance().GetMap(GetMapId(), this);
 }
 
+Map* WorldObject::FindMap() const
+{
+    return MapManager::Instance().FindMap(GetMapId(), GetInstanceId());
+}
+
 Map const* WorldObject::GetBaseMap() const
 {
     return MapManager::Instance().GetBaseMap(GetMapId());
@@ -1694,13 +1699,14 @@ TempSummon *Map::SummonCreature(uint32 entry, float x, float y, float z, float a
 
 TempSummon* WorldObject::SummonCreature(uint32 entry, float x, float y, float z, float ang, TempSummonType spwtype, uint32 duration)
 {
-    if(!IsInWorld())
+    Map *map = FindMap();
+    if(!map)
         return NULL;
 
     if (x == 0.0f && y == 0.0f && z == 0.0f)
         GetClosePoint(x, y, z, GetObjectSize());
 
-    TempSummon *pCreature = GetMap()->SummonCreature(entry, x, y, z, ang, NULL, duration, GetTypeId() == TYPEID_UNIT ? (Unit*)this : NULL);
+    TempSummon *pCreature = map->SummonCreature(entry, x, y, z, ang, NULL, duration, GetTypeId() == TYPEID_UNIT ? (Unit*)this : NULL);
     if(!pCreature)
         return NULL;
 
@@ -1817,7 +1823,6 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     pet->GetCharmInfo()->SetPetNumber(pet_number, false);
 
     pet->AIM_Initialize();
-
     map->Add((Creature*)pet);
 
     pet->setPowerType(POWER_MANA);

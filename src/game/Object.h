@@ -506,6 +506,7 @@ class TRINITY_DLL_SPEC WorldObject : public Object
         void SendPlaySound(uint32 Sound, bool OnlySelf);
 
         Map      * GetMap() const;
+        Map      * FindMap() const;
         Map const* GetBaseMap() const;
         TempSummon* SummonCreature(uint32 id, float x, float y, float z, float ang,TempSummonType spwtype,uint32 despwtime);
         Vehicle*    SummonVehicle(uint32 entry, float x, float y, float z, float ang);
