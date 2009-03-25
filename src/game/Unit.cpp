@@ -187,22 +187,6 @@ Unit::~Unit()
     RemoveAllDynObjects();
 
     if(m_charmInfo) delete m_charmInfo;
-
-    if(m_uint32Values)
-    {
-        sLog.outDetail("Deconstruct Unit Entry = %u", GetEntry());
-        /*for(int i = 0; i < TOTAL_AURAS; ++i)
-        {
-            if(m_modAuras[i].begin() != m_modAuras[i].end())
-                sLog.outError("Unit %u has mod auras during deconstruction", GetEntry());
-        }
-        if(m_scAuras.begin() != m_scAuras.end())
-            sLog.outError("Unit %u has sc auras during deconstruction", GetEntry());
-        if(m_interruptableAuras.begin() != m_interruptableAuras.end())
-            sLog.outError("Unit %u has interruptable auras during deconstruction", GetEntry());
-        if(m_ccAuras.begin() != m_ccAuras.end())
-            sLog.outError("Unit %u has cc auras during deconstruction", GetEntry());*/
-    }
 }
 
 void Unit::Update( uint32 p_time )
@@ -11309,9 +11293,8 @@ void Unit::RemoveFromWorld()
             sLog.outError("Unit %u has charmer guid when removed from world", GetEntry());
         if(GetOwnerGUID());
             sLog.outError("Unit %u has owner guid when removed from world", GetEntry());*/
+        WorldObject::RemoveFromWorld();
     }
-
-    WorldObject::RemoveFromWorld();
 }
 
 void Unit::CleanupsBeforeDelete()

@@ -140,6 +140,9 @@ class TRINITY_DLL_SPEC Object
         }
         virtual void RemoveFromWorld()
         {
+            if(!m_inWorld)
+                return;
+
             // if we remove from world then sending changes not required
             if(m_uint32Values)
                 ClearUpdateMask(true);
