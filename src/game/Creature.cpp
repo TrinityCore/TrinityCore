@@ -162,12 +162,16 @@ m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),m_creatureInfo(NULL), m_DBTabl
 
 Creature::~Creature()
 {
-    CleanupsBeforeDelete();
-
     m_vendorItemCounts.clear();
 
-    delete i_AI;
-    i_AI = NULL;
+    if(i_AI)
+    {
+        delete i_AI;
+        i_AI = NULL;
+    }
+
+    if(m_uint32Values)
+        sLog.outDetail("Deconstruct Creature Entry = %u", GetEntry());
 }
 
 void Creature::AddToWorld()
