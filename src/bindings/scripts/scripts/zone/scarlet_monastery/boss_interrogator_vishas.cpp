@@ -24,13 +24,16 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_scarlet_monastery.h"
 
-#define SAY_AGGRO                       -1189011
-#define SAY_HEALTH1                     -1189012
-#define SAY_HEALTH2                     -1189013
-#define SAY_KILL                        -1189014
-#define SAY_TRIGGER_VORREL              -1189015
+enum
+{
+    SAY_AGGRO               = -1189011,
+    SAY_HEALTH1             = -1189012,
+    SAY_HEALTH2             = -1189013,
+    SAY_KILL                = -1189014,
+    SAY_TRIGGER_VORREL      = -1189015,
 
-#define SPELL_POWERWORDSHIELD           2767
+    SPELL_SHADOWWORDPAIN    = 2767,
+};
 
 struct TRINITY_DLL_DECL boss_interrogator_vishasAI : public ScriptedAI
 {
@@ -44,11 +47,11 @@ struct TRINITY_DLL_DECL boss_interrogator_vishasAI : public ScriptedAI
 
     bool Yell30;
     bool Yell60;
-    uint32 PowerWordShield_Timer;
+    uint32 ShadowWordPain_Timer;
 
     void Reset()
     {
-        PowerWordShield_Timer = 60000;
+        ShadowWordPain_Timer = 5000;
     }
 
     void Aggro(Unit *who)
@@ -89,12 +92,12 @@ struct TRINITY_DLL_DECL boss_interrogator_vishasAI : public ScriptedAI
             Yell30 = true;
         }
 
-        //PowerWordShield_Timer
-        if (PowerWordShield_Timer < diff)
+        //ShadowWordPain_Timer
+        if (ShadowWordPain_Timer < diff)
         {
-            DoCast(m_creature,SPELL_POWERWORDSHIELD);
-            PowerWordShield_Timer = 60000;
-        }else PowerWordShield_Timer -= diff;
+            DoCast(m_creature->getVictim(),SPELL_SHADOWWORDPAIN);
+            ShadowWordPain_Timer = 5000 + rand()%10000;;
+        }else ShadowWordPain_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }
