@@ -95,6 +95,7 @@ void Log::Initialize()
     m_dbChar = sConfig.GetBoolDefault("LogDB.Char", false);
     m_dbRA = sConfig.GetBoolDefault("LogDB.RA", false);
     m_dbGM = sConfig.GetBoolDefault("LogDB.GM", false);
+    m_dbChat = sConfig.GetBoolDefault("LogDB.Chat", false);
 
     /// Common log files data
     m_logsDir = sConfig.GetStringDefault("LogsDir","");
@@ -145,6 +146,7 @@ void Log::Initialize()
 
     dberLogfile = openLogFile("DBErrorLogFile",NULL,"a");
     raLogfile = openLogFile("RaLogFile",NULL,"a");
+    chatLogfile = openLogFile("ChatLogFile",NULL,"a");
 
     // Main log file settings
     m_logLevel     = sConfig.GetIntDefault("LogLevel", LOGL_NORMAL);
@@ -792,6 +794,33 @@ void Log::outRemote(    const char * str, ... )
         fprintf(raLogfile, "\n" );
         va_end(ap);
         fflush(raLogfile);
+    }
+    fflush(stdout);
+}
+
+void Log::outChat( const char * str, ... )
+{
+    if( !str )
+        return;
+
+    if (m_enableLogDB && m_dbChat)
+    {
+        va_list ap2;
+        va_start(ap2, str);
+        char nnew_str[MAX_QUERY_LEN];
+        vsnprintf(nnew_str, MAX_QUERY_LEN, str, ap2);
+        outDB(LOG_TYPE_CHAT, nnew_str);
+        va_end(ap2);
+    }
+
+    if (chatLogfile)
+    {
+        va_list ap;
+        va_start(ap, str);
+        vfprintf(chatLogfile, str, ap);
+        fprintf(chatLogfile, "\n" );
+        fflush(chatLogfile);
+        va_end(ap);
     }
     fflush(stdout);
 }
