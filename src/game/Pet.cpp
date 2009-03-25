@@ -72,6 +72,7 @@ Pet::~Pet()
 
 void Pet::AddToWorld()
 {
+    ///- Register the pet for guid lookup
     if(!IsInWorld())
     {
         ///- Register the pet for guid lookup
@@ -82,6 +83,7 @@ void Pet::AddToWorld()
 
 void Pet::RemoveFromWorld()
 {
+    ///- Remove the pet from the accessor
     if(IsInWorld())
     {
         ///- Remove the pet from the accessor
