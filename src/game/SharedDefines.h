@@ -2378,7 +2378,7 @@ enum SummonCategory
 {
     SUMMON_CATEGORY_WILD        = 0,
     SUMMON_CATEGORY_ALLY        = 1,
-    SUMMON_CATEGORY_GUARDIAN    = 2,
+    SUMMON_CATEGORY_PET         = 2,
     SUMMON_CATEGORY_POSSESSED   = 3,
     SUMMON_CATEGORY_VEHICLE     = 4,
 };
@@ -2386,7 +2386,7 @@ enum SummonCategory
 enum SummonType
 {
     SUMMON_TYPE_NONE        = 0,
-    SUMMON_TYPE_WILD1       = 1,
+    SUMMON_TYPE_PET         = 1,
     SUMMON_TYPE_GUARDIAN    = 2,
     SUMMON_TYPE_MINION      = 3,
     SUMMON_TYPE_TOTEM       = 4,
