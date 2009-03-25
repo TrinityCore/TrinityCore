@@ -11268,9 +11268,8 @@ void Unit::RemoveFromWorld()
         RemoveCharmAuras();
         RemoveBindSightAuras();
         RemoveNotOwnSingleTargetAuras();
+        WorldObject::RemoveFromWorld();
     }
-
-    WorldObject::RemoveFromWorld();
 }
 
 void Unit::CleanupsBeforeDelete()
