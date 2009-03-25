@@ -8319,6 +8319,11 @@ void Unit::SetPet(Creature* pet, bool apply)
 {
     if(apply)
     {
+        if(!pet->AddUInt64Value(UNIT_FIELD_SUMMONEDBY, GetGuid())
+        {
+            sLog.outCrash("Pet %u is summoned by %u but it already has a owner", pet->GetEntry(), GetEntry());
+            return;
+        }
         AddUInt64Value(UNIT_FIELD_SUMMON, pet->GetGUID());
         m_Controlled.insert(pet);
 
@@ -8329,16 +8334,23 @@ void Unit::SetPet(Creature* pet, bool apply)
     }
     else
     {
-        SetUInt64Value(UNIT_FIELD_SUMMON, 0);
+        if(!pet->RemoveUInt64Value(UNIT_FIELD_SUMMONEDBY, GetGuid())
+        {
+            sLog.outCrash("Pet %u is unsummoned by %u but it has another owner", pet->GetEntry(), GetEntry());
+            return;
+        }
         m_Controlled.erase(pet);
 
-        //Check if there is other pet (guardian actually)
-        for(ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
+        if(RemoveUInt64Value(UNIT_FIELD_SUMMON, pet->GetGUID()))
         {
-            if((*itr)->GetOwnerGUID() == GetGUID())
+            //Check if there is other pet (guardian actually)
+            for(ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
             {
-                AddUInt64Value(UNIT_FIELD_SUMMON, (*itr)->GetGUID());
-                break;
+                if((*itr)->GetOwnerGUID() == GetGUID())
+                {
+                    AddUInt64Value(UNIT_FIELD_SUMMON, (*itr)->GetGUID());
+                    break;
+                }
             }
         }
     }
@@ -12479,7 +12491,6 @@ Pet* Unit::CreateTamedPetFrom(Creature* creatureTarget,uint32 spell_id)
         return NULL;
     }
 
-    pet->SetOwnerGUID(GetGUID());
     pet->SetCreatorGUID(GetGUID());
     pet->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, getFaction());
     pet->SetUInt32Value(UNIT_CREATED_BY_SPELL, spell_id);
