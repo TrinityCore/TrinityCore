@@ -47,6 +47,7 @@ enum LogTypes
     LOG_TYPE_RA     = 7,
     LOG_TYPE_GM     = 8,
     LOG_TYPE_CRASH  = 9,
+    LOG_TYPE_CHAT   = 10,
     MAX_LOG_TYPES
 };
 
@@ -106,6 +107,7 @@ class Log : public Trinity::Singleton<Log, Trinity::ClassLevelLockable<Log, ZThr
         void outChar( const char * str, ... )           ATTR_PRINTF(2,3);
         void outCommand( uint32 account, const char * str, ...) ATTR_PRINTF(3,4);
         void outRemote( const char * str, ... )         ATTR_PRINTF(2,3);
+        void outChat( const char * str, ... )           ATTR_PRINTF(2,3);
         void outCharDump( const char * str, uint32 account_id, uint32 guid, const char * name );
 
         static void outTimestamp(FILE* file);
@@ -133,6 +135,7 @@ class Log : public Trinity::Singleton<Log, Trinity::ClassLevelLockable<Log, ZThr
         FILE* gmLogfile;
         FILE* charLogfile;
         FILE* dberLogfile;
+        FILE* chatLogfile;
 
         // cache values for after initilization use (like gm log per account case)
         std::string m_logsDir;
@@ -159,6 +162,7 @@ class Log : public Trinity::Singleton<Log, Trinity::ClassLevelLockable<Log, ZThr
         bool m_dbChar;
         bool m_dbRA;
         bool m_dbGM;
+        bool m_dbChat;
         bool m_charLog_Dump;
 };
 
