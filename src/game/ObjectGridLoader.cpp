@@ -285,6 +285,7 @@ ObjectGridUnloader::Visit(CreatureMapType &m)
         if(!sWorld.getConfig(CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY))
             obj->SaveRespawnTime();
         ///- object will get delinked from the manager when deleted
+        obj->CleanupsBeforeDelete();
         delete obj;
     }
 }
