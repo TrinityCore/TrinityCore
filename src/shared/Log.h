@@ -97,6 +97,7 @@ class Log : public Trinity::Singleton<Log, Trinity::ClassLevelLockable<Log, ZThr
 
     	void outDB( uint8 type, const char * str, ... ) ATTR_PRINTF(3,4);
         void outString( const char * str, ... )         ATTR_PRINTF(2,3);
+        void outString( );
         void outError( const char * err, ... )          ATTR_PRINTF(2,3);
         void outCrash( const char * err, ... )          ATTR_PRINTF(2,3);
         void outBasic( const char * str, ... )          ATTR_PRINTF(2,3);

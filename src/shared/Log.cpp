@@ -404,6 +404,18 @@ void Log::outString( const char * str, ... )
     fflush(stdout);
 }
 
+void Log::outString( )
+{
+    printf( "\n" );
+    if(logfile)
+    {
+        outTimestamp(logfile);
+        fprintf(logfile, "\n" );
+        fflush(logfile);
+    }
+    fflush(stdout);
+}
+
 void Log::outCrash( const char * err, ... )
 {
     if( !err )
