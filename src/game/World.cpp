@@ -1085,6 +1085,16 @@ void World::LoadConfigSettings(bool reload)
         token = strtok(NULL,delim);
     }
     delete[] forbiddenMaps;
+
+    // chat logging
+    m_configs[CONFIG_CHATLOG_CHANNEL] = sConfig.GetBoolDefault("ChatLogs.Channel", false);
+    m_configs[CONFIG_CHATLOG_WHISPER] = sConfig.GetBoolDefault("ChatLogs.Whisper", false);
+    m_configs[CONFIG_CHATLOG_SYSCHAN] = sConfig.GetBoolDefault("ChatLogs.SysChan", false);
+    m_configs[CONFIG_CHATLOG_PARTY] = sConfig.GetBoolDefault("ChatLogs.Party", false);
+    m_configs[CONFIG_CHATLOG_RAID] = sConfig.GetBoolDefault("ChatLogs.Raid", false);
+    m_configs[CONFIG_CHATLOG_GUILD] = sConfig.GetBoolDefault("ChatLogs.Guild", false);
+    m_configs[CONFIG_CHATLOG_PUBLIC] = sConfig.GetBoolDefault("ChatLogs.Public", false);
+    m_configs[CONFIG_CHATLOG_ADDON] = sConfig.GetBoolDefault("ChatLogs.Addon", false);
 }
 
 /// Initialize the World

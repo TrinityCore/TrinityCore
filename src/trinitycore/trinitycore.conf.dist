@@ -223,6 +223,11 @@ AddonChannel = 1
 #        Default: "Server.log"
 #                 "" - Empty name disable creating log file
 #
+#    ChatLogFile
+#        Log file for chat logs
+#        Default: "chat.log"
+#                 "" - Empty name for disable
+#
 #    LogTimestamp
 #        Logfile with timestamp of server start in name
 #        Default: 0 - no timestamp in name
@@ -325,12 +330,53 @@ AddonChannel = 1
 #        Default: 0 - off
 #                 1 - on (very heavy)
 #
+#    LogDB.Chat
+#        Enable/disable logging chat messages to the database.
+#        Default: 0 - off
+#                 1 - on
+#
+#    ChatLogs.Channel
+#        Enable logging chatting in custom channels.
+#        Default: 0 - off
+#                 1 - on
+#
+#    ChatLogs.Whisper
+#        Enable logging whispers between players.
+#        Default: 0 - off
+#                 1 - on
+#
+#    ChatLogs.Party
+#        Enable logging party messages.
+#        Default: 0 - off
+#                 1 - on
+#
+#    ChatLogs.Raid
+#        Enable logging raid messages.
+#        Default: 0 - off
+#                 1 - on
+#
+#    ChatLogs.Guild
+#        Enable logging guild messages.
+#        Default: 0 - off
+#                 1 - on
+#
+#    ChatLogs.Public
+#        Enable logging public chat events (say/yell/emote).
+#        Default: 0 - off
+#                 1 - on
+#
+#    ChatLogs.Addon
+#        Enable logging addon messages.
+#        Default: 0 - off
+#                 1 - on
+#
 ###################################################################################################################
 
 LogSQL = 1
 PidFile = ""
 LogLevel = 1
 LogFile = "Server.log"
+ChatLogFile = "chat.log"
 LogTimestamp = 0
 LogFileLevel = 0
 LogFilter_AchievementUpdates = 1
@@ -353,6 +399,15 @@ LogDB.Char   = 0
 LogDB.GM     = 0
 LogDB.RA     = 0
 LogDB.World  = 0
+LogDB.Chat   = 0
+ChatLogs.Channel = 0
+ChatLogs.SysChan = 0
+ChatLogs.Whisper = 0
+ChatLogs.Party   = 0
+ChatLogs.Raid    = 0
+ChatLogs.Guild   = 0
+ChatLogs.Public  = 0
+ChatLogs.Addon   = 0
 
 ###################################################################################################################
 # SERVER SETTINGS
