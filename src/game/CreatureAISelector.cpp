@@ -68,7 +68,7 @@ namespace FactorySelector
                 ai_factory = ai_registry.GetRegistryItem("NullCreatureAI");
             else if(creature->isSummon() && ((TempSummon*)creature)->m_Properties)
             {
-                if(((TempSummon*)creature)->m_Properties->Category == SUMMON_CATEGORY_GUARDIAN
+                if(((TempSummon*)creature)->m_Properties->Category == SUMMON_CATEGORY_PET
                     || ((TempSummon*)creature)->m_Properties->Type == SUMMON_TYPE_GUARDIAN
                     || ((TempSummon*)creature)->m_Properties->Type == SUMMON_TYPE_MINION)
                     ai_factory = ai_registry.GetRegistryItem("PetAI");
