@@ -895,14 +895,7 @@ bool ChatHandler::HandleLookupFactionCommand(const char* args)
         FactionEntry const *factionEntry = sFactionStore.LookupEntry (id);
         if (factionEntry)
         {
-            FactionState const* repState = NULL;
-            if(target)
-            {
-                FactionStateList::const_iterator repItr = target->m_factions.find (factionEntry->reputationListID);
-                if(repItr != target->m_factions.end())
-                    repState = &repItr->second;
-            }
-
+            FactionState const* repState = target ? target->GetFactionState(factionEntry) : NULL;
 
             int loc = m_session ? m_session->GetSessionDbcLocale() : sWorld.GetDefaultDbcLocale();
             std::string name = factionEntry->name[loc];
@@ -1065,7 +1058,7 @@ bool ChatHandler::HandleModifyRepCommand(const char * args)
     }
 
     target->SetFactionReputation(factionEntry,amount);
-    PSendSysMessage(LANG_COMMAND_MODIFY_REP, factionEntry->name[m_session->GetSessionDbcLocale()], factionId, GetNameLink(target).c_str(), target->GetReputation(factionId));
+    PSendSysMessage(LANG_COMMAND_MODIFY_REP, factionEntry->name[m_session->GetSessionDbcLocale()], factionId, GetNameLink(target).c_str(), target->GetReputation(factionEntry));
     return true;
 }
 
@@ -2345,14 +2338,16 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
             return false;
         }
 
-        for(FactionStateList::const_iterator itr = target->m_factions.begin(); itr != target->m_factions.end(); ++itr)
+        FactionStateList const& targetFSL = target->GetFactionStateList();
+        for(FactionStateList::const_iterator itr = targetFSL.begin(); itr != targetFSL.end(); ++itr)
         {
             FactionEntry const *factionEntry = sFactionStore.LookupEntry(itr->second.ID);
             char const* factionName = factionEntry ? factionEntry->name[m_session->GetSessionDbcLocale()] : "#Not found#";
             ReputationRank rank = target->GetReputationRank(factionEntry);
             std::string rankName = GetTrinityString(ReputationRankStrIndex[rank]);
             std::ostringstream ss;
-            ss << itr->second.ID << ": |cffffffff|Hfaction:" << itr->second.ID << "|h[" << factionName << "]|h|r " << rankName << "|h|r (" << target->GetReputation(factionEntry) << ")";
+            ss << itr->second.ID << ": |cffffffff|Hfaction:" << itr->second.ID << "|h[" << factionName << "]|h|r " << rankName << "|h|r ("
+               << target->GetReputation(factionEntry) << ")";
 
             if(itr->second.Flags & FACTION_FLAG_VISIBLE)
                 ss << GetTrinityString(LANG_FACTION_VISIBLE);

@@ -7875,9 +7875,8 @@ bool Unit::IsHostileTo(Unit const* unit) const
         // forced reaction
         if(target_faction->faction)
         {
-            ForcedReactions::const_iterator forceItr = ((Player*)tester)->m_forcedReactions.find(target_faction->faction);
-            if(forceItr!=((Player*)tester)->m_forcedReactions.end())
-                return forceItr->second <= REP_HOSTILE;
+            if(ReputationRank const* force =((Player*)tester)->GetForcedRankIfAny(target_faction))
+                return *force <= REP_HOSTILE;
 
             // if faction have reputation then hostile state for tester at 100% dependent from at_war state
             if(FactionEntry const* raw_target_faction = sFactionStore.LookupEntry(target_faction->faction))
@@ -7892,9 +7891,8 @@ bool Unit::IsHostileTo(Unit const* unit) const
         // forced reaction
         if(tester_faction->faction)
         {
-            ForcedReactions::const_iterator forceItr = ((Player const*)target)->m_forcedReactions.find(tester_faction->faction);
-            if(forceItr!=((Player const*)target)->m_forcedReactions.end())
-                return forceItr->second <= REP_HOSTILE;
+            if(ReputationRank const* force = ((Player*)target)->GetForcedRankIfAny(tester_faction))
+                return *force <= REP_HOSTILE;
 
             // apply reputation state
             FactionEntry const* raw_tester_faction = sFactionStore.LookupEntry(tester_faction->faction);
@@ -7990,9 +7988,8 @@ bool Unit::IsFriendlyTo(Unit const* unit) const
         // forced reaction
         if(target_faction->faction)
         {
-            ForcedReactions::const_iterator forceItr = ((Player const*)tester)->m_forcedReactions.find(target_faction->faction);
-            if(forceItr!=((Player const*)tester)->m_forcedReactions.end())
-                return forceItr->second >= REP_FRIENDLY;
+            if(ReputationRank const* force =((Player*)tester)->GetForcedRankIfAny(target_faction))
+                return *force >= REP_FRIENDLY;
 
             // if faction have reputation then friendly state for tester at 100% dependent from at_war state
             if(FactionEntry const* raw_target_faction = sFactionStore.LookupEntry(target_faction->faction))
@@ -8007,9 +8004,8 @@ bool Unit::IsFriendlyTo(Unit const* unit) const
         // forced reaction
         if(tester_faction->faction)
         {
-            ForcedReactions::const_iterator forceItr = ((Player const*)target)->m_forcedReactions.find(tester_faction->faction);
-            if(forceItr!=((Player const*)target)->m_forcedReactions.end())
-                return forceItr->second >= REP_FRIENDLY;
+            if(ReputationRank const* force =((Player*)target)->GetForcedRankIfAny(tester_faction))
+                return *force >= REP_FRIENDLY;
 
             // apply reputation state
             if(FactionEntry const* raw_tester_faction = sFactionStore.LookupEntry(tester_faction->faction))
