@@ -1650,7 +1650,7 @@ TempSummon *Map::SummonCreature(uint32 entry, float x, float y, float z, float a
     uint32 mask = SUMMON_MASK_SUMMON;
     if(properties)
     {
-        if(properties->Category == SUMMON_CATEGORY_GUARDIAN
+        if(properties->Category == SUMMON_CATEGORY_PET
             || properties->Type == SUMMON_TYPE_GUARDIAN
             || properties->Type == SUMMON_TYPE_MINION)
             mask = SUMMON_MASK_GUARDIAN;

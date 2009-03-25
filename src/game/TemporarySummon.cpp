@@ -189,6 +189,9 @@ void TempSummon::InitSummon(uint32 duration)
             owner->m_TotemSlot[slot] = GetGUID();
         }
     }
+
+    if(m_Properties->Faction)
+        setFaction(m_Properties->Faction);
 }
 
 void TempSummon::SetTempSummonType(TempSummonType type)

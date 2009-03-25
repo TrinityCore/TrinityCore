@@ -3285,106 +3285,47 @@ void Spell::EffectSummonType(uint32 i)
     if(!entry)
         return;
 
-    switch(m_spellInfo->EffectMiscValueB[i])
+    SummonPropertiesEntry const *properties = sSummonPropertiesStore.LookupEntry(m_spellInfo->EffectMiscValueB[i]);
+    if(!properties)
     {
-        case SUMMON_TYPE_WILD:
-        case SUMMON_TYPE_FROZEN_EARTH:
-        case SUMMON_TYPE_LIGHTWELL:
-            EffectSummonWild(i);
-            break;
-        case SUMMON_TYPE_DEMON:
-            EffectSummonDemon(i);
-            break;
-        case SUMMON_TYPE_SUMMON:
-            EffectSummon(i);
-            break;
+        sLog.outError("EffectSummonType: Unhandled summon type %u", m_spellInfo->EffectMiscValueB[i]);
+        return;
+    }
+
+    switch(properties->Category)
+    {
         default:
-        {
-            SummonPropertiesEntry const *properties = sSummonPropertiesStore.LookupEntry(m_spellInfo->EffectMiscValueB[i]);
-            if(!properties)
+            switch(properties->Type)
             {
-                sLog.outError("EffectSummonType: Unhandled summon type %u", m_spellInfo->EffectMiscValueB[i]);
-                return;
-            }
-            switch(properties->Category)
-            {
-                default:
-                    switch(properties->Type)
-                    {
-                        case SUMMON_TYPE_GUARDIAN:
-                        case SUMMON_TYPE_MINION:
-                            SummonGuardian(entry, properties);
-                            break;
-                        case SUMMON_TYPE_VEHICLE:
-                            SummonVehicle(entry, properties);
-                            break;
-                        case SUMMON_TYPE_TOTEM:
-                            SummonTotem(entry, properties);
-                            break;
-                        case SUMMON_TYPE_MINIPET:
-                            EffectSummonCritter(i);
-                            break;
-                        default:
-                            EffectSummonWild(i);
-                            break;
-                    }
-                    break;
-                case SUMMON_CATEGORY_GUARDIAN:
+                case SUMMON_TYPE_PET:
+                case SUMMON_TYPE_GUARDIAN:
+                case SUMMON_TYPE_MINION:
                     SummonGuardian(entry, properties);
                     break;
-                case SUMMON_CATEGORY_POSSESSED:
-                    SummonPossessed(entry, properties);
-                    break;
-                case SUMMON_CATEGORY_VEHICLE:
+                case SUMMON_TYPE_VEHICLE:
                     SummonVehicle(entry, properties);
+                    break;
+                case SUMMON_TYPE_TOTEM:
+                    SummonTotem(entry, properties);
+                    break;
+                case SUMMON_TYPE_MINIPET:
+                    EffectSummonCritter(i);
+                    break;
+                default:
+                    EffectSummonWild(i);
                     break;
             }
             break;
-        }
+        case SUMMON_CATEGORY_PET:
+            SummonGuardian(entry, properties);
+            break;
+        case SUMMON_CATEGORY_POSSESSED:
+            SummonPossessed(entry, properties);
+            break;
+        case SUMMON_CATEGORY_VEHICLE:
+            SummonVehicle(entry, properties);
+            break;
     }
-}
-
-void Spell::EffectSummon(uint32 i)
-{
-    uint32 pet_entry = m_spellInfo->EffectMiscValue[i];
-    if(!pet_entry)
-        return;
-
-    if(!m_originalCaster || m_originalCaster->GetTypeId() != TYPEID_PLAYER)
-    {
-        EffectSummonWild(i);
-        return;
-    }
-
-    Player *owner = (Player*)m_originalCaster;
-
-    if(owner->GetPetGUID())
-        return;
-
-    // Summon in dest location
-    float x,y,z;
-    if(m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION)
-    {
-        x = m_targets.m_destX;
-        y = m_targets.m_destY;
-        z = m_targets.m_destZ;
-    }
-    else
-        m_caster->GetClosePoint(x,y,z,owner->GetObjectSize());
-
-    Pet *spawnCreature = owner->SummonPet(pet_entry, x, y, z, m_caster->GetOrientation(), SUMMON_PET, GetSpellDuration(m_spellInfo));
-    if(!spawnCreature)
-        return;
-
-    spawnCreature->SetUInt32Value(UNIT_NPC_FLAGS, 0);
-    spawnCreature->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, 0);
-    spawnCreature->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
-
-    std::string name = owner->GetName();
-    name.append(petTypeSuffix[spawnCreature->getPetType()]);
-    spawnCreature->SetName( name );
-
-    spawnCreature->SetReactState( REACT_DEFENSIVE );
 }
 
 void Spell::EffectLearnSpell(uint32 i)
