@@ -8319,7 +8319,7 @@ void Unit::SetPet(Creature* pet, bool apply)
 {
     if(apply)
     {
-        if(!pet->AddUInt64Value(UNIT_FIELD_SUMMONEDBY, GetGuid())
+        if(!pet->AddUInt64Value(UNIT_FIELD_SUMMONEDBY, GetGuid()))
         {
             sLog.outCrash("Pet %u is summoned by %u but it already has a owner", pet->GetEntry(), GetEntry());
             return;
