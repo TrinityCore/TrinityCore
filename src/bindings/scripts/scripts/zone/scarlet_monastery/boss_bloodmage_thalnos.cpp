@@ -23,34 +23,35 @@ EndScriptData */
 
 #include "precompiled.h"
 
-#define SAY_AGGRO                       -1189016
-#define SAY_HEALTH                      -1189017
-#define SAY_KILL                        -1189018
+enum
+{
+    SAY_AGGRO               = -1189016,
+    SAY_HEALTH              = -1189017,
+    SAY_KILL                = -1189018,
 
-#define SPELL_FROSTNOVA2                865
-#define SPELL_FLAMESHOCK3               8053
-#define SPELL_SHADOWBOLT5               1106
-#define SPELL_FLAMESPIKE                8814
-#define SPELL_FIRENOVA                  16079
+    SPELL_FLAMESHOCK        = 8053,
+    SPELL_SHADOWBOLT        = 1106,
+    SPELL_FLAMESPIKE        = 8814,
+    SPELL_FIRENOVA          = 16079,
+};
 
 struct TRINITY_DLL_DECL boss_bloodmage_thalnosAI : public ScriptedAI
 {
     boss_bloodmage_thalnosAI(Creature *c) : ScriptedAI(c) {Reset();}
 
     bool HpYell;
-    uint32 FrostNova2_Timer;
-    uint32 FlameShock3_Timer;
-    uint32 ShadowBolt5_Timer;
+    uint32 FlameShock_Timer;
+    uint32 ShadowBolt_Timer;
     uint32 FlameSpike_Timer;
     uint32 FireNova_Timer;
 
     void Reset()
     {
-        FrostNova2_Timer = 10000;
-        FlameShock3_Timer = 15000;
-        ShadowBolt5_Timer = 20000;
-        FlameSpike_Timer = 20000;
-        FireNova_Timer = 10000;
+        HpYell = false;
+        FlameShock_Timer = 10000;
+        ShadowBolt_Timer = 2000;
+        FlameSpike_Timer = 8000;
+        FireNova_Timer = 40000;
     }
 
     void Aggro(Unit *who)
@@ -75,26 +76,12 @@ struct TRINITY_DLL_DECL boss_bloodmage_thalnosAI : public ScriptedAI
             HpYell = true;
         }
 
-        //FrostNova2_Timer
-        if (FrostNova2_Timer < diff)
+        //FlameShock_Timer
+        if (FlameShock_Timer < diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_FROSTNOVA2);
-            FrostNova2_Timer = 10000;
-        }else FrostNova2_Timer -= diff;
-
-        //FlameShock3_Timer
-        if (FlameShock3_Timer < diff)
-        {
-            DoCast(m_creature->getVictim(),SPELL_FLAMESHOCK3);
-            FlameShock3_Timer = 15000;
-        }else FlameShock3_Timer -= diff;
-
-        //ShadowBolt5_Timer
-        if (ShadowBolt5_Timer < diff)
-        {
-            DoCast(m_creature->getVictim(),SPELL_SHADOWBOLT5);
-            ShadowBolt5_Timer = 20000;
-        }else ShadowBolt5_Timer -= diff;
+            DoCast(m_creature->getVictim(),SPELL_FLAMESHOCK);
+            FlameShock_Timer = 10000 + rand()%5000;
+        }else FlameShock_Timer -= diff;
 
         //FlameSpike_Timer
         if (FlameSpike_Timer < diff)
@@ -107,9 +94,16 @@ struct TRINITY_DLL_DECL boss_bloodmage_thalnosAI : public ScriptedAI
         if (FireNova_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_FIRENOVA);
-            FireNova_Timer = 20000;
+            FireNova_Timer = 40000;
         }else FireNova_Timer -= diff;
 
+        //ShadowBolt_Timer
+        if (ShadowBolt_Timer < diff)
+        {
+            DoCast(m_creature->getVictim(),SPELL_SHADOWBOLT);
+            ShadowBolt_Timer = 2000;
+        }else ShadowBolt_Timer -= diff;
+        
         DoMeleeAttackIfReady();
     }
 };

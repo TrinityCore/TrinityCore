@@ -570,13 +570,15 @@ struct TRINITY_DLL_DECL cthunAI : public Scripted_NoMovementAI
                 Map *map = m_creature->GetMap();
                 if(!map->IsDungeon()) return;
 
+                //Play random sound to the zone
                 Map::PlayerList const &PlayerList = map->GetPlayers();
-                for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+                
+                if (!PlayerList.isEmpty())
                 {
-                    if (Player* i_pl = i->getSource())
+                    for(Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
                     {
-                        //Play random sound to the zone
-                        i_pl->SendPlaySound(RANDOM_SOUND_WHISPER, true);
+                        if (Player* pPlr = itr->getSource())
+                            pPlr->PlayDirectSound(RANDOM_SOUND_WHISPER,pPlr);
                     }
                 }
 

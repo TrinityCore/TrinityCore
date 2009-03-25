@@ -23,44 +23,35 @@ EndScriptData */
 
 #include "precompiled.h"
 
-#define SAY_AGGRO                       -1189019
-#define SAY_SPECIALAE                   -1189020
+enum
+{
+    SAY_AGGRO                   = -1189019,
+    SAY_SPECIALAE               = -1189020,
 
-#define SPELL_POLYMORPH                 12826
-#define SPELL_AOESILENCE                8988
-#define SPELL_ARCANEEXPLOSION3          8438
-#define SPELL_ARCANEEXPLOSION4          8439
-#define SPELL_FIREAOE                   9435
-#define SPELL_BLINK                     1953
-#define SPELL_FIREBALL                  21162
-#define SPELL_MANASHIELD4               10191
-#define SPELL_ARCANEBUBBLE              9438
+    SPELL_POLYMORPH             = 13323,
+    SPELL_AOESILENCE            = 8988,
+    SPELL_ARCANEEXPLOSION       = 9433,
+    SPELL_FIREAOE               = 9435,
+    SPELL_ARCANEBUBBLE          = 9438,
+};
 
 struct TRINITY_DLL_DECL boss_arcanist_doanAI : public ScriptedAI
 {
     boss_arcanist_doanAI(Creature *c) : ScriptedAI(c) {Reset();}
 
-    uint32 FullAOE_Timer;
     uint32 Polymorph_Timer;
-    uint32 ArcaneBubble_Timer;
     uint32 AoESilence_Timer;
-    uint32 ArcaneExplosion3_Timer;
-    uint32 ArcaneExplosion4_Timer;
-    uint32 Blink_Timer;
-    uint32 Fireball_Timer;
-    uint32 ManaShield4_Timer;
+    uint32 ArcaneExplosion_Timer;
+    bool bCanDetonate;
+    bool bShielded;
 
     void Reset()
     {
-        FullAOE_Timer = 5000;
-        Polymorph_Timer = 1;
-        ArcaneBubble_Timer = 3000;
-        AoESilence_Timer = 20000;
-        ArcaneExplosion3_Timer = 10000;
-        ArcaneExplosion4_Timer = 10000;
-        Blink_Timer = 40000;
-        Fireball_Timer = 6000;
-        ManaShield4_Timer = 70000;
+        Polymorph_Timer = 20000;
+        AoESilence_Timer = 15000;
+        ArcaneExplosion_Timer = 3000;
+        bCanDetonate = false;
+        bShielded = false;
     }
 
     void Aggro(Unit *who)
@@ -73,73 +64,50 @@ struct TRINITY_DLL_DECL boss_arcanist_doanAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        //If we are <50% hp cast Arcane Bubble and start casting SPECIAL FIRE AOE
-        if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 50 && !m_creature->IsNonMeleeSpellCasted(false))
+        if (bShielded && bCanDetonate)
         {
-            if (Polymorph_Timer < diff)
-            {
-                Unit* target = NULL;
-
-                target = SelectUnit(SELECT_TARGET_RANDOM,0);
-                if (target)DoCast(target,SPELL_POLYMORPH);
-                Polymorph_Timer = 40000;
-            }else Polymorph_Timer -= diff;
-
-            if (ArcaneBubble_Timer < diff)
-            {
-                DoCast(m_creature,SPELL_ARCANEBUBBLE);
-                ArcaneBubble_Timer = 40000;
-            }else ArcaneBubble_Timer -= diff;
-
-            if (FullAOE_Timer < diff)
-            {
-                DoScriptText(SAY_SPECIALAE, m_creature);
-                DoCast(m_creature->getVictim(),SPELL_FIREAOE);
-                FullAOE_Timer = 40000;
-            }else FullAOE_Timer -= diff;
+            DoCast(m_creature,SPELL_FIREAOE);
+            bCanDetonate = false;
         }
+
+        if (m_creature->HasAura(SPELL_ARCANEBUBBLE))
+            return;
+
+        //If we are <50% hp cast Arcane Bubble
+        if (!bShielded && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 50)
+        {
+            //wait if we already casting
+            if (m_creature->IsNonMeleeSpellCasted(false))
+                return;
+
+            DoScriptText(SAY_SPECIALAE, m_creature);
+            DoCast(m_creature,SPELL_ARCANEBUBBLE);
+
+            bCanDetonate = true;
+            bShielded = true;
+        }
+
+        if (Polymorph_Timer < diff)
+        {
+            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,1))
+                DoCast(target,SPELL_POLYMORPH);
+
+            Polymorph_Timer = 20000;
+        }else Polymorph_Timer -= diff;
 
         //AoESilence_Timer
         if (AoESilence_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_AOESILENCE);
-            AoESilence_Timer = 30000;
+            AoESilence_Timer = 15000 + rand()%5000;
         }else AoESilence_Timer -= diff;
 
-        //ArcaneExplosion3_Timer
-        if (ArcaneExplosion3_Timer < diff)
+        //ArcaneExplosion_Timer
+        if (ArcaneExplosion_Timer < diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_ARCANEEXPLOSION3);
-            ArcaneExplosion3_Timer = 8000;
-        }else ArcaneExplosion3_Timer -= diff;
-
-        //ArcaneExplosion4_Timer
-        if (ArcaneExplosion4_Timer < diff)
-        {
-            DoCast(m_creature->getVictim(),SPELL_ARCANEEXPLOSION4);
-            ArcaneExplosion4_Timer = 10000;
-        }else ArcaneExplosion4_Timer -= diff;
-
-        //Blink_Timer
-        if (Blink_Timer < diff)
-        {
-            DoCast(m_creature,SPELL_BLINK);
-            Blink_Timer = 30000;
-        }else Blink_Timer -= diff;
-
-        //Fireball_Timer
-        if (Fireball_Timer < diff)
-        {
-            DoCast(m_creature->getVictim(),SPELL_FIREBALL);
-            Fireball_Timer = 12000;
-        }else Fireball_Timer -= diff;
-
-        //ManaShiled4_Timer
-        if (ManaShield4_Timer < diff)
-        {
-            DoCast(m_creature,SPELL_MANASHIELD4);
-            ManaShield4_Timer = 70000;
-        }else ManaShield4_Timer -= diff;
+            DoCast(m_creature->getVictim(),SPELL_ARCANEEXPLOSION);
+            ArcaneExplosion_Timer = 8000;
+        }else ArcaneExplosion_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }
