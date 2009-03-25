@@ -757,7 +757,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                     continue;
 
                 uint32 counter = 0;
-                const FactionStateList factionStateList = GetPlayer()->GetFactionStateList();
+                FactionStateList const& factionStateList = GetPlayer()->GetFactionStateList();
                 for (FactionStateList::const_iterator iter = factionStateList.begin(); iter!= factionStateList.end(); ++iter)
                 {
                     FactionEntry const *factionEntry = sFactionStore.LookupEntry(iter->second.ID);
