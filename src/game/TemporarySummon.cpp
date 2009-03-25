@@ -243,7 +243,6 @@ void Guardian::InitSummon(uint32 duration)
 
     SetReactState(REACT_AGGRESSIVE);
 
-    SetOwnerGUID(m_owner->GetGUID());
     SetCreatorGUID(m_owner->GetGUID());
     setFaction(m_owner->getFaction());
     m_owner->SetPet(this, true);
