@@ -163,6 +163,15 @@ EAIErrorLevel = 2
 #        Update realm uptime period in minutes (for save data in 'uptime' table). Must be > 0
 #        Default: 10 (minutes)
 #
+#    LogDB.Opt.ClearInterval
+#        Time for the WUPDATE_CLEANDB timer that clears the `logs` table of old entries. Must be > 0.
+#        Default: 10 (minutes)
+#
+#    LogDB.Opt.ClearTime
+#        The maximum time in seconds of old `logs` table entries to keep.
+#        Default: 1209600 (14 days)
+#                 0 - don't clear
+#
 #    MaxCoreStuckTime
 #        Periodically check if the process got freezed, if this is the case force crash after the specified
 #        amount of seconds. Must be > 0. Recommended > 10 secs if you use this.
@@ -195,6 +204,8 @@ vmap.ignoreSpellIds = "7720"
 DetectPosCollision = 1
 TargetPosRecalculateRange = 1.5
 UpdateUptimeInterval = 10
+LogDB.Opt.ClearInterval = 10
+LogDB.Opt.ClearTime = 1209600
 MaxCoreStuckTime = 0
 AddonChannel = 1
 
