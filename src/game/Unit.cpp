@@ -4286,7 +4286,7 @@ bool Unit::AddAura(Aura *Aur)
         if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(id + SPELL_LINK_AURA))
             for(std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
                 if(*itr < 0)
-                    ApplySpellImmune(id, IMMUNITY_ID, *itr, true);
+                    ApplySpellImmune(id, IMMUNITY_ID, -(*itr), true);
                 else if(Unit* caster = Aur->GetCaster())
                     caster->AddAura(*itr, this);
     }
@@ -4834,7 +4834,7 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
             if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(id + SPELL_LINK_AURA))
                 for(std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
                     if(*itr < 0)
-                        ApplySpellImmune(id, IMMUNITY_ID, *itr, false);
+                        ApplySpellImmune(id, IMMUNITY_ID, -(*itr), false);
                     else
                         RemoveAurasDueToSpell(*itr);
         }
