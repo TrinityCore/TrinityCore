@@ -2049,18 +2049,6 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
     // AT REMOVE
     else
     {
-        if(GetSpellProto()->Effect[0]==72 )
-        {
-            // spells with SpellEffect=72 and aura=4: 6196, 6197, 21171, 21425
-            if(DynamicObject* dynObj = m_target->GetDynObject(GetId(), 0))
-            {
-                if(m_target->GetTypeId() == TYPEID_PLAYER)
-                    ((Player*)m_target)->SetViewpoint(dynObj, false);
-                m_target->RemoveDynObject(GetId());
-            }
-            return;
-        }
-
         if( (IsQuestTameSpell(GetId())) && caster && caster->isAlive() && m_target->isAlive())
         {
             uint32 finalSpelId = 0;
