@@ -56,8 +56,8 @@ Pet::~Pet()
 {
     if(m_uint32Values)                                      // only for fully created Object
     {
-        if(Unit* owner = GetOwner())
-            owner->SetPet(this, false);
+        if(GetOwnerGUID())
+            sLog.outCrash("Pet %u is deconstructed but it still has owner guid", GetEntry());
 
         for (PetSpellMap::iterator i = m_spells.begin(); i != m_spells.end(); ++i)
             delete i->second;
