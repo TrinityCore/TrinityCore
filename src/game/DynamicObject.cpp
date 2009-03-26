@@ -53,6 +53,18 @@ void DynamicObject::RemoveFromWorld()
     ///- Remove the dynamicObject from the accessor
     if(IsInWorld())
     {
+        if(m_effIndex == 4)
+        {
+            if(Unit *caster = GetCaster())
+            {
+                if(caster->GetTypeId() == TYPEID_PLAYER)
+                    ((Player*)caster)->SetViewpoint(this, false);
+            }
+            else
+            {
+                sLog.outCrash("DynamicObject::RemoveFromWorld cannot find viewpoint owner");
+            }
+        }
         ObjectAccessor::Instance().RemoveObject(this);
         WorldObject::RemoveFromWorld();
     }
@@ -134,6 +146,7 @@ void DynamicObject::Update(uint32 p_time)
 void DynamicObject::Delete()
 {
     SendObjectDeSpawnAnim(GetGUID());
+    RemoveFromWorld();
     AddObjectToRemoveList();
 }
 
