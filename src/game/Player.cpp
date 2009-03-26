@@ -14893,6 +14893,7 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
     // clear charm/summon related fields
     SetUInt64Value(UNIT_FIELD_CHARM, 0);
     SetUInt64Value(UNIT_FIELD_SUMMON, 0);
+    SetUInt64Value(PLAYER_FARSIGHT, 0);
     SetCharmerGUID(0);
     SetOwnerGUID(0);
     SetCreatorGUID(0);
