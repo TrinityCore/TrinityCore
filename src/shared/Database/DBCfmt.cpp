@@ -98,4 +98,4 @@ const char VehicleEntryfmt[]="niffffiiiiiiiiffffiiiiiifffffffffffssssfifi";
 const char VehicleSeatEntryfmt[]="niiffffffffffiiiiiifffffffiiifffiiiiiiiffiiiii";
 const char WorldMapAreaEntryfmt[]="xinxffffix";
 const char WorldSafeLocsEntryfmt[]="nifffxxxxxxxxxxxxxxxxx";
-const char WorldMapOverlayEntryfmt[]="nxixxxxxxxxxxxxxx";
+const char WorldMapOverlayEntryfmt[]="nxiiiixxxxxxxxxxx";

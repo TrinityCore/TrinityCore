@@ -725,14 +725,24 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 if(!worldOverlayEntry)
                     break;
 
-                int32 exploreFlag = GetAreaFlagByAreaID(worldOverlayEntry->areatableID);
-                if(exploreFlag < 0)
-                    break;
+                bool matchFound = false;
+                for (int i = 0; i < 3; ++i)
+                {
+                    int32 exploreFlag = GetAreaFlagByAreaID(worldOverlayEntry->areatableID[i]);
+                    if(exploreFlag < 0)
+                        break;
 
-                uint32 playerIndexOffset = uint32(exploreFlag) / 32;
-                uint32 mask = 1<< (uint32(exploreFlag) % 32);
+                    uint32 playerIndexOffset = uint32(exploreFlag) / 32;
+                    uint32 mask = 1<< (uint32(exploreFlag) % 32);
 
-                if(GetPlayer()->GetUInt32Value(PLAYER_EXPLORED_ZONES_1 + playerIndexOffset) & mask)
+                    if(GetPlayer()->GetUInt32Value(PLAYER_EXPLORED_ZONES_1 + playerIndexOffset) & mask)
+                    {
+                        matchFound = true;
+                        break;
+                    }
+                }
+
+                if(matchFound)
                     SetCriteriaProgress(achievementCriteria, 1);
                 break;
             }
