@@ -55,6 +55,8 @@ class Guardian : public TempSummon
 
         int32 GetBonusDamage() { return m_bonusdamage; }
         void SetBonusDamage(int32 damage) { m_bonusdamage = damage; }
+
+        Unit *GetOwner() { return m_owner; }
     protected:
         Unit *m_owner;
         int32   m_bonusdamage;
