@@ -22,7 +22,6 @@
 #define TRINITYCORE_TEMPSUMMON_H
 
 #include "Creature.h"
-#include "ObjectAccessor.h"
 
 class TempSummon : public Creature
 {
@@ -35,7 +34,7 @@ class TempSummon : public Creature
         void RemoveFromWorld();
         void SetTempSummonType(TempSummonType type);
         void SaveToDB();
-        Unit* GetSummoner() const { return m_summonerGUID ? ObjectAccessor::GetUnit(*this, m_summonerGUID) : NULL; }
+        Unit* GetSummoner() const;
 
         SummonPropertiesEntry const *m_Properties;
     private:
@@ -52,9 +51,13 @@ class Guardian : public TempSummon
         bool Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, uint32 pet_number);
         void InitSummon(uint32 duration);
         void RemoveFromWorld();
-        void InitStatsForLevel(uint32 level);
+        bool InitStatsForLevel(uint32 level);
+
+        int32 GetBonusDamage() { return m_bonusdamage; }
+        void SetBonusDamage(int32 damage) { m_bonusdamage = damage; }
     protected:
         Unit *m_owner;
+        int32   m_bonusdamage;
 };
 
 #endif

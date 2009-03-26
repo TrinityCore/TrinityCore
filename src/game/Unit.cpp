@@ -8275,7 +8275,7 @@ Pet* Unit::GetPet() const
             return pet;
 
         sLog.outError("Unit::GetPet: Pet %u not exist.",GUID_LOPART(pet_guid));
-        const_cast<Unit*>(this)->SetPet(NULL, false);
+        const_cast<Unit*>(this)->SetUInt64Value(UNIT_FIELD_SUMMON, 0);
     }
 
     return NULL;
@@ -8289,7 +8289,7 @@ Unit* Unit::GetCharm() const
             return pet;
 
         sLog.outError("Unit::GetCharm: Charmed creature %u not exist.",GUID_LOPART(charm_guid));
-        const_cast<Unit*>(this)->SetCharm(NULL, false);
+        const_cast<Unit*>(this)->SetUInt64Value(UNIT_FIELD_CHARM, 0);
     }
 
     return NULL;
@@ -8755,8 +8755,8 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
     int32 TakenAdvertisedBenefit = SpellBaseDamageBonusForVictim(GetSpellSchoolMask(spellProto), pVictim);
     // Pets just add their bonus damage to their spell damage
     // note that their spell damage is just gain of their own auras
-    if (GetTypeId() == TYPEID_UNIT && ((Creature*)this)->isPet())
-        DoneAdvertisedBenefit += ((Pet*)this)->GetBonusDamage();
+    if (GetTypeId() == TYPEID_UNIT && ((Creature*)this)->HasSummonMask(SUMMON_MASK_GUARDIAN))
+        DoneAdvertisedBenefit += ((Guardian*)this)->GetBonusDamage();
 
     // Check for table values
     float coeff;
@@ -9753,7 +9753,7 @@ void Unit::Unmount()
     // (it could probably happen when logging in after a previous crash)
     if(GetTypeId() == TYPEID_PLAYER && IsInWorld() && ((Player*)this)->GetTemporaryUnsummonedPetNumber() && isAlive())
     {
-        Pet* NewPet = new Pet;
+        Pet* NewPet = new Pet((Player*)this);
         if(!NewPet->LoadPetFromDB((Player*)this, 0, ((Player*)this)->GetTemporaryUnsummonedPetNumber(), true))
             delete NewPet;
 
@@ -12462,7 +12462,10 @@ void Unit::RemovePetAura(PetAura const* petSpell)
 
 Pet* Unit::CreateTamedPetFrom(Creature* creatureTarget,uint32 spell_id)
 {
-    Pet* pet = new Pet(HUNTER_PET);
+    if(GetTypeId()!=TYPEID_PLAYER)
+        return NULL;
+
+    Pet* pet = new Pet((Player*)this, HUNTER_PET);
 
     if(!pet->CreateBaseAtCreature(creatureTarget))
     {
@@ -13116,7 +13119,7 @@ void Unit::SetCharmedOrPossessedBy(Unit* charmer, bool possess)
 
     // Pets already have a properly initialized CharmInfo, don't overwrite it.
     if(GetTypeId() == TYPEID_PLAYER || GetTypeId() == TYPEID_UNIT
-        && !((Creature*)this)->HasSummonMask(SUMMON_MASK_GUARDIAN) && !((Creature*)this)->isPet())
+        && !((Creature*)this)->HasSummonMask(SUMMON_MASK_GUARDIAN))
     {
         CharmInfo *charmInfo = InitCharmInfo();
         if(possess)
@@ -13239,7 +13242,7 @@ void Unit::RemoveCharmedOrPossessedBy(Unit *charmer)
 
     //a guardian should always have charminfo
     if(GetTypeId() == TYPEID_PLAYER || GetTypeId() == TYPEID_UNIT
-        && !((Creature*)this)->HasSummonMask(SUMMON_MASK_GUARDIAN) && !((Creature*)this)->isPet())
+        && !((Creature*)this)->HasSummonMask(SUMMON_MASK_GUARDIAN))
     {
         DeleteCharmInfo();
     }

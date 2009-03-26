@@ -22,8 +22,8 @@
 #define TRINITYCORE_PET_H
 
 #include "ObjectDefines.h"
-#include "Creature.h"
 #include "Unit.h"
+#include "TemporarySummon.h"
 
 enum PetType
 {
@@ -117,10 +117,10 @@ typedef std::vector<uint32> AutoSpellList;
 #define PET_FOLLOW_DIST  1
 #define PET_FOLLOW_ANGLE (M_PI/2)
 
-class Pet : public Creature
+class Pet : public Guardian
 {
     public:
-        explicit Pet(PetType type = MAX_PET_TYPE);
+        explicit Pet(Player *owner, PetType type = MAX_PET_TYPE);
         virtual ~Pet();
 
         void AddToWorld();
@@ -155,13 +155,9 @@ class Pet : public Creature
         HappinessState GetHappinessState();
         void GivePetXP(uint32 xp);
         void GivePetLevel(uint32 level);
-        bool InitStatsForLevel(uint32 level);
         bool HaveInDiet(ItemPrototype const* item) const;
         uint32 GetCurrentFoodBenefitLevel(uint32 itemlevel);
         void SetDuration(int32 dur) { m_duration = dur; }
-
-        int32 GetBonusDamage() { return m_bonusdamage; }
-        void SetBonusDamage(int32 damage) { m_bonusdamage = damage; }
 
         bool UpdateStats(Stats stat);
         bool UpdateAllStats();
@@ -226,7 +222,6 @@ class Pet : public Creature
         uint32  m_happinessTimer;
         PetType m_petType;
         int32   m_duration;                                 // time until unsummon (used mostly for summoned guardians and not used for controlled pets)
-        int32   m_bonusdamage;
         uint64  m_auraRaidUpdateMask;
         bool    m_loading;
 

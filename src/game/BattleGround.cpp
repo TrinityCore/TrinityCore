@@ -957,7 +957,7 @@ void BattleGround::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
                 // summon old pet if there was one and there isn't a current pet
                 if(!plr->GetPet() && plr->GetTemporaryUnsummonedPetNumber())
                 {
-                    Pet* NewPet = new Pet;
+                    Pet* NewPet = new Pet(plr);
                     if(!NewPet->LoadPetFromDB(plr, 0, (plr)->GetTemporaryUnsummonedPetNumber(), true))
                         delete NewPet;
 
