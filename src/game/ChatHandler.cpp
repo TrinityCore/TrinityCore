@@ -436,6 +436,10 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
             WorldPacket data;
             ChatHandler::FillMessageData(&data, this, CHAT_MSG_BATTLEGROUND, lang, "", 0, msg.c_str(),NULL);
             group->BroadcastPacket(&data, false);
+
+            if(sWorld.getConfig(CONFIG_CHATLOG_BGROUND))
+                sLog.outChat("[BATTLEGROUND] Player %s tells battleground with leader %s: %s",
+                    GetPlayer()->GetName(), group->GetLeaderName(), msg.c_str());
         } break;
 
         case CHAT_MSG_BATTLEGROUND_LEADER:
@@ -458,6 +462,10 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
             WorldPacket data;
             ChatHandler::FillMessageData(&data, this, CHAT_MSG_BATTLEGROUND_LEADER, lang, "", 0, msg.c_str(),NULL);
             group->BroadcastPacket(&data, false);
+
+            if(sWorld.getConfig(CONFIG_CHATLOG_BGROUND))
+                sLog.outChat("[RAID] Leader player %s tells battleground: %s",
+                    GetPlayer()->GetName(), msg.c_str());
         } break;
 
         case CHAT_MSG_CHANNEL:
