@@ -351,8 +351,6 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
     m_DailyQuestChanged = false;
     m_lastDailyQuestTime = 0;
 
-    m_regenTimer = 0;
-    m_weaponChangeTimer = 0;
     for (int i=0; i<MAX_TIMERS; i++)
         m_MirrorTimer[i] = DISABLED_MIRROR_TIMER;
 
@@ -1149,8 +1147,6 @@ void Player::Update( uint32 p_time )
     CheckDuelDistance(now);
 
     UpdateAfkReport(now);
-
-    CheckExploreSystem();
 
     if(isCharmed())
     {
