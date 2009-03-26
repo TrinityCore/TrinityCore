@@ -2921,8 +2921,8 @@ void Aura::HandleForceReaction(bool apply, bool Real)
     uint32 faction_id = m_modifier.m_miscvalue;
     uint32 faction_rank = m_modifier.m_amount;
 
-    player->ApplyForceReaction(faction_id,ReputationRank(faction_rank),apply);
-    player->SendForceReactions();
+    player->GetReputationMgr().ApplyForceReaction(faction_id,ReputationRank(faction_rank),apply);
+    player->GetReputationMgr().SendForceReactions();
 }
 
 void Aura::HandleAuraModSkill(bool apply, bool Real)
