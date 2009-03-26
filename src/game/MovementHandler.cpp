@@ -159,7 +159,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     // resummon pet
     if(GetPlayer()->m_temporaryUnsummonedPetNumber)
     {
-        Pet* NewPet = new Pet;
+        Pet* NewPet = new Pet(GetPlayer());
         if(!NewPet->LoadPetFromDB(GetPlayer(), 0, GetPlayer()->m_temporaryUnsummonedPetNumber, true))
             delete NewPet;
 
