@@ -2207,11 +2207,11 @@ void Spell::cancel()
                 {
                     Unit* unit = m_caster->GetGUID()==(*ihit).targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, ihit->targetGUID);
                     if( unit && unit->isAlive() )
-                        unit->RemoveAurasByCasterSpell(m_spellInfo->Id, m_caster->GetGUID());
+                        unit->RemoveAurasByCasterSpell(m_spellInfo->Id, m_caster->GetGUID(), AURA_REMOVE_BY_CANCEL);
                 }
             }
 
-            m_caster->RemoveAurasByCasterSpell(m_spellInfo->Id, m_caster->GetGUID());
+            m_caster->RemoveAurasByCasterSpell(m_spellInfo->Id, m_caster->GetGUID(), AURA_REMOVE_BY_CANCEL);
             SendChannelUpdate(0);
             SendInterrupted(0);
             SendCastResult(SPELL_FAILED_INTERRUPTED);
