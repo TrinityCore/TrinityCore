@@ -1080,32 +1080,34 @@ void WorldObject::SetWorldObject(bool on)
 
 void WorldObject::setActive( bool on )
 {
-    if(m_isActive==on)
+    if(m_isActive == on)
         return;
 
     if(GetTypeId() == TYPEID_PLAYER)
         return;
 
-    bool world = IsInWorld();
-
-    Map* map;
-    if(world)
-    {
-        map = GetMap();
-        if(GetTypeId() == TYPEID_UNIT)
-            map->RemoveFromActive((Creature*)this);
-        else if(GetTypeId() == TYPEID_DYNAMICOBJECT)
-            map->RemoveFromActive((DynamicObject*)this);
-    }
-
     m_isActive = on;
 
-    if(world)
+    if(!IsInWorld())
+        return;
+
+    Map *map = FindMap();
+    if(!map)
+        return;
+
+    if(on)
     {
         if(GetTypeId() == TYPEID_UNIT)
             map->AddToActive((Creature*)this);
         else if(GetTypeId() == TYPEID_DYNAMICOBJECT)
             map->AddToActive((DynamicObject*)this);
+    }
+    else
+    {
+        if(GetTypeId() == TYPEID_UNIT)
+            map->RemoveFromActive((Creature*)this);
+        else if(GetTypeId() == TYPEID_DYNAMICOBJECT)
+            map->RemoveFromActive((DynamicObject*)this);
     }
 }
 
