@@ -666,7 +666,7 @@ void WorldSession::HandleUnstablePet( WorldPacket & recv_data )
         Field *fields = result->Fetch();
         uint32 petentry = fields[0].GetUInt32();
 
-        newpet = new Pet(HUNTER_PET);
+        newpet = new Pet(_player, HUNTER_PET);
         if(!newpet->LoadPetFromDB(_player,petentry,petnumber))
         {
             delete newpet;
@@ -770,7 +770,7 @@ void WorldSession::HandleStableSwapPet( WorldPacket & recv_data )
     _player->RemovePet(pet,pet->isAlive() ? PetSaveMode(slot) : PET_SAVE_AS_DELETED);
 
     // summon unstabled pet
-    Pet *newpet = new Pet;
+    Pet *newpet = new Pet(_player);
     if(!newpet->LoadPetFromDB(_player,petentry,pet_number))
     {
         delete newpet;

@@ -1710,7 +1710,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             // resummon pet
             if(pet && m_temporaryUnsummonedPetNumber)
             {
-                Pet* NewPet = new Pet;
+                Pet* NewPet = new Pet(this);
                 if(!NewPet->LoadPetFromDB(this, 0, m_temporaryUnsummonedPetNumber, true))
                     delete NewPet;
 
@@ -15535,7 +15535,7 @@ void Player::LoadPet()
     // just not added to the map
     if(IsInWorld())
     {
-        Pet *pet = new Pet;
+        Pet *pet = new Pet(this);
         if(!pet->LoadPetFromDB(this,0,0,true))
             delete pet;
     }
@@ -17028,16 +17028,6 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
     if(!pet || pet->GetOwnerGUID()!=GetGUID())
         return;
 
-    // only if current pet in slot
-    switch(pet->getPetType())
-    {
-        case POSSESSED_PET:
-            pet->RemoveCharmedOrPossessedBy(NULL);
-        default:
-            SetPet(pet, false);
-            break;
-    }
-
     pet->CombatStop();
 
     if(returnreagent)
@@ -17055,6 +17045,16 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
     }
 
     pet->SavePetToDB(mode);
+
+    // only if current pet in slot
+    switch(pet->getPetType())
+    {
+        case POSSESSED_PET:
+            pet->RemoveCharmedOrPossessedBy(NULL);
+        default:
+            SetPet(pet, false);
+            break;
+    }
 
     pet->CleanupsBeforeDelete();
     pet->AddObjectToRemoveList();

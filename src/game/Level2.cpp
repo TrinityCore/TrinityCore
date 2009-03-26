@@ -4339,7 +4339,7 @@ bool ChatHandler::HandleCreatePetCommand(const char* args)
     }
 
     // Everything looks OK, create new pet
-    Pet* pet = new Pet(HUNTER_PET);
+    Pet* pet = new Pet(player, HUNTER_PET);
 
     if(!pet->CreateBaseAtCreature(creatureTarget))
     {
@@ -4352,7 +4352,6 @@ bool ChatHandler::HandleCreatePetCommand(const char* args)
     creatureTarget->RemoveCorpse();
     creatureTarget->SetHealth(0); // just for nice GM-mode view
 
-    pet->SetUInt64Value(UNIT_FIELD_SUMMONEDBY, player->GetGUID());
     pet->SetUInt64Value(UNIT_FIELD_CREATEDBY, player->GetGUID());
     pet->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, player->getFaction());
 
@@ -4372,7 +4371,7 @@ bool ChatHandler::HandleCreatePetCommand(const char* args)
      pet->InitPetCreateSpells();
      pet->SetHealth(pet->GetMaxHealth());
 
-     MapManager::Instance().GetMap(pet->GetMapId(), pet)->Add((Creature*)pet);
+     pet->GetMap()->Add((Creature*)pet);
 
      // visual effect for levelup
      pet->SetUInt32Value(UNIT_FIELD_LEVEL,creatureTarget->getLevel());
