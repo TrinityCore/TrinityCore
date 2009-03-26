@@ -22,7 +22,7 @@
 DROP TABLE IF EXISTS `db_version`;
 CREATE TABLE `db_version` (
   `version` varchar(120) default NULL,
-  `required_7536_01_mangos_spell_chain` bit(1) default NULL
+  `required_7544_01_mangos_uptime` bit(1) default NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Used DB version notes';
 
 --
@@ -17849,28 +17849,6 @@ CREATE TABLE `transports` (
 LOCK TABLES `transports` WRITE;
 /*!40000 ALTER TABLE `transports` DISABLE KEYS */;
 /*!40000 ALTER TABLE `transports` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `uptime`
---
-
-DROP TABLE IF EXISTS `uptime`;
-CREATE TABLE `uptime` (
-  `starttime` bigint(20) unsigned NOT NULL default '0',
-  `startstring` varchar(64) NOT NULL default '',
-  `uptime` bigint(20) unsigned NOT NULL default '0',
-  `maxplayers` smallint(5) unsigned NOT NULL default '0',
-  PRIMARY KEY  (`starttime`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Uptime system';
-
---
--- Dumping data for table `uptime`
---
-
-LOCK TABLES `uptime` WRITE;
-/*!40000 ALTER TABLE `uptime` DISABLE KEYS */;
-/*!40000 ALTER TABLE `uptime` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 

@@ -1621,7 +1621,7 @@ struct WorldSafeLocsEntry
 struct WorldMapOverlayEntry
 {
     uint32    ID;                                           // 0
-    uint32    areatableID;                                  // 2
+    uint32    areatableID[4];                               // 2-5
 };
 
 // GCC have alternative #pragma pack() syntax and old gcc version not support pack(pop), also any gcc version not support it at some platform
