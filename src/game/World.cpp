@@ -1722,7 +1722,7 @@ void World::Update(uint32 diff)
             uint32 maxClientsNum = sWorld.GetMaxActiveSessionCount();
 
             m_timers[WUPDATE_CLEANDB].Reset();
-            LoginDatabase.PExecute("DELETE FROM logs WHERE (time + %u) < %u;",
+            LoginDatabase.PExecute("DELETE FROM logs WHERE (time + %u) < "I64FMTD";",
                 sWorld.getConfig(CONFIG_LOGDB_CLEARTIME), uint64(time(0)));
         }
     }

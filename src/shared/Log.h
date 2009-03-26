@@ -95,20 +95,20 @@ class Log : public Trinity::Singleton<Log, Trinity::ClassLevelLockable<Log, ZThr
         void SetColor(bool stdout_stream, ColorTypes color);
         void ResetColor(bool stdout_stream);
 
-    	void outDB( uint8 type, const char * str, ... ) ATTR_PRINTF(3,4);
-        void outString( const char * str, ... )         ATTR_PRINTF(2,3);
+        void outDB( uint32 type, const char * str, ... )        ATTR_PRINTF(3,4);
+        void outString( const char * str, ... )                 ATTR_PRINTF(2,3);
         void outString( );
-        void outError( const char * err, ... )          ATTR_PRINTF(2,3);
-        void outCrash( const char * err, ... )          ATTR_PRINTF(2,3);
-        void outBasic( const char * str, ... )          ATTR_PRINTF(2,3);
-        void outDetail( const char * str, ... )         ATTR_PRINTF(2,3);
-        void outDebug( const char * str, ... )          ATTR_PRINTF(2,3);
-        void outDebugInLine( const char * str, ... )    ATTR_PRINTF(2,3);
-        void outErrorDb( const char * str, ... )        ATTR_PRINTF(2,3);
-        void outChar( const char * str, ... )           ATTR_PRINTF(2,3);
+        void outError( const char * err, ... )                  ATTR_PRINTF(2,3);
+        void outCrash( const char * err, ... )                  ATTR_PRINTF(2,3);
+        void outBasic( const char * str, ... )                  ATTR_PRINTF(2,3);
+        void outDetail( const char * str, ... )                 ATTR_PRINTF(2,3);
+        void outDebug( const char * str, ... )                  ATTR_PRINTF(2,3);
+        void outDebugInLine( const char * str, ... )            ATTR_PRINTF(2,3);
+        void outErrorDb( const char * str, ... )                ATTR_PRINTF(2,3);
+        void outChar( const char * str, ... )                   ATTR_PRINTF(2,3);
         void outCommand( uint32 account, const char * str, ...) ATTR_PRINTF(3,4);
-        void outRemote( const char * str, ... )         ATTR_PRINTF(2,3);
-        void outChat( const char * str, ... )           ATTR_PRINTF(2,3);
+        void outRemote( const char * str, ... )                 ATTR_PRINTF(2,3);
+        void outChat( const char * str, ... )                   ATTR_PRINTF(2,3);
         void outCharDump( const char * str, uint32 account_id, uint32 guid, const char * name );
 
         static void outTimestamp(FILE* file);
