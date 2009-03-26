@@ -1556,6 +1556,11 @@ Map* WorldObject::GetMap() const
     return MapManager::Instance().GetMap(GetMapId(), this);
 }
 
+Map* WorldObject::FindMap() const
+{
+    return MapManager::Instance().FindMap(GetMapId(), GetInstanceId());
+}
+
 Map const* WorldObject::GetBaseMap() const
 {
     return MapManager::Instance().GetBaseMap(GetMapId());

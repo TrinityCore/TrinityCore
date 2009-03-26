@@ -483,6 +483,7 @@ class TRINITY_DLL_SPEC WorldObject : public Object
         void SendPlaySound(uint32 Sound, bool OnlySelf);
 
         Map      * GetMap() const;
+        Map      * FindMap() const;
         Map const* GetBaseMap() const;
         Creature* SummonCreature(uint32 id, float x, float y, float z, float ang,TempSummonType spwtype,uint32 despwtime);
         GameObject* SummonGameObject(uint32 entry, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime);
