@@ -497,6 +497,8 @@ libmangosgame_a_SOURCES = \
 	RandomMovementGenerator.h \
 	ReactorAI.cpp \
 	ReactorAI.h \
+	ReputationMgr.cpp \
+	ReputationMgr.h \
 	ScriptCalls.cpp \
 	ScriptCalls.h \
 	SharedDefines.h \

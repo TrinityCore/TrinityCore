@@ -812,6 +812,12 @@
 				RelativePath="..\..\src\game\ReactorAI.h">
 			</File>
 			<File
+				RelativePath="..\..\src\game\ReputationMgr.cpp">
+			</File>
+			<File
+				RelativePath="..\..\src\game\ReputationMgr.h">
+			</File>
+			<File
 				RelativePath="..\..\src\game\SocialMgr.cpp">
 			</File>
 			<File

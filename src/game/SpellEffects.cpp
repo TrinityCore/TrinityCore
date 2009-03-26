@@ -5649,7 +5649,7 @@ void Spell::EffectReputation(uint32 i)
     if(!factionEntry)
         return;
 
-    _player->ModifyFactionReputation(factionEntry,rep_change);
+    _player->GetReputationMgr().ModifyReputation(factionEntry,rep_change);
 }
 
 void Spell::EffectQuestComplete(uint32 i)

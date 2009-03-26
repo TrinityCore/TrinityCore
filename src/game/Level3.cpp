@@ -5594,12 +5594,10 @@ bool ChatHandler::HandleQuestComplete(const char* args)
     if(uint32 repFaction = pQuest->GetRepObjectiveFaction())
     {
         uint32 repValue = pQuest->GetRepObjectiveValue();
-        uint32 curRep = player->GetReputation(repFaction);
+        uint32 curRep = player->GetReputationMgr().GetReputation(repFaction);
         if(curRep < repValue)
-        {
-            FactionEntry const *factionEntry = sFactionStore.LookupEntry(repFaction);
-            player->SetFactionReputation(factionEntry,repValue);
-        }
+            if(FactionEntry const *factionEntry = sFactionStore.LookupEntry(repFaction))
+                player->GetReputationMgr().SetReputation(factionEntry,repValue);
     }
 
     // If the quest requires money
