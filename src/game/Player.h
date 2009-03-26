@@ -36,6 +36,7 @@
 #include "MapReference.h"
 #include "Util.h"                                           // for Tokens typedef
 #include "AchievementMgr.h"
+#include "ReputationMgr.h"
 #include "BattleGround.h"
 
 #include<string>
@@ -271,31 +272,6 @@ struct Runes
             runeState &= ~(1 << index);                     // on cooldown
     }
 };
-
-enum FactionFlags
-{
-    FACTION_FLAG_VISIBLE            = 0x01,                 // makes visible in client (set or can be set at interaction with target of this faction)
-    FACTION_FLAG_AT_WAR             = 0x02,                 // enable AtWar-button in client. player controlled (except opposition team always war state), Flag only set on initial creation
-    FACTION_FLAG_HIDDEN             = 0x04,                 // hidden faction from reputation pane in client (player can gain reputation, but this update not sent to client)
-    FACTION_FLAG_INVISIBLE_FORCED   = 0x08,                 // always overwrite FACTION_FLAG_VISIBLE and hide faction in rep.list, used for hide opposite team factions
-    FACTION_FLAG_PEACE_FORCED       = 0x10,                 // always overwrite FACTION_FLAG_AT_WAR, used for prevent war with own team factions
-    FACTION_FLAG_INACTIVE           = 0x20,                 // player controlled, state stored in characters.data ( CMSG_SET_FACTION_INACTIVE )
-    FACTION_FLAG_RIVAL              = 0x40                  // flag for the two competing outland factions
-};
-
-typedef uint32 RepListID;
-struct FactionState
-{
-    uint32 ID;
-    RepListID ReputationListID;
-    uint32 Flags;
-    int32  Standing;
-    bool Changed;
-};
-
-typedef std::map<RepListID,FactionState> FactionStateList;
-
-typedef std::map<uint32,ReputationRank> ForcedReactions;
 
 struct EnchantDuration
 {
@@ -1700,49 +1676,11 @@ class TRINITY_DLL_SPEC Player : public Unit
         bool RewardPlayerAndGroupAtKill(Unit* pVictim);
         bool isHonorOrXPTarget(Unit* pVictim);
 
-        FactionStateList const& GetFactionStateList() { return m_factions; }
-        FactionState const* GetFactionState(RepListID id) const
-        {
-            FactionStateList::const_iterator repItr = m_factions.find (id);
-            return repItr != m_factions.end() ? &repItr->second : NULL;
-        }
-        FactionState const* GetFactionState(FactionEntry const* factionEntry) const
-        {
-            return factionEntry->reputationListID >= 0 ? GetFactionState(factionEntry->reputationListID) : NULL;
-        }
-        uint32 GetDefaultReputationFlags(const FactionEntry *factionEntry) const;
-        int32 GetBaseReputation(const FactionEntry *factionEntry) const;
-        int32 GetReputation(uint32 faction_id) const;
-        int32 GetReputation(const FactionEntry *factionEntry) const;
-        ReputationRank GetReputationRank(uint32 faction) const;
-        ReputationRank GetReputationRank(const FactionEntry *factionEntry) const;
-        ReputationRank GetBaseReputationRank(const FactionEntry *factionEntry) const;
-        ReputationRank ReputationToRank(int32 standing) const;
-        const static int32 ReputationRank_Length[MAX_REPUTATION_RANK];
-        const static int32 Reputation_Cap    =  42999;
-        const static int32 Reputation_Bottom = -42000;
-        bool ModifyFactionReputation(uint32 FactionTemplateId, int32 DeltaReputation);
-        bool ModifyFactionReputation(FactionEntry const* factionEntry, int32 standing);
-        bool SetFactionReputation(uint32 FactionTemplateId, int32 standing);
-        bool SetFactionReputation(FactionEntry const* factionEntry, int32 standing);
+        ReputationMgr&       GetReputationMgr()       { return m_reputationMgr; }
+        ReputationMgr const& GetReputationMgr() const { return m_reputationMgr; }
+        ReputationRank GetReputationRank(uint32 faction_id) const;
         void RewardReputation(Unit *pVictim, float rate);
         void RewardReputation(Quest const *pQuest);
-        void SetInitialFactions();
-        void UpdateReputation() const;
-        void SendFactionState(FactionState const* faction) const;
-        void SendInitialReputations();
-        void SetFactionAtWar(RepListID repListID, bool atWar);
-        void SetFactionInactive(RepListID repListID, bool inactive);
-        void SetFactionVisible(FactionTemplateEntry const* factionTemplateEntry);
-        void SetFactionVisible(FactionEntry const* factionEntry);
-        ReputationRank const* GetForcedRankIfAny(FactionTemplateEntry const* factionTemplateEntry) const
-        {
-            ForcedReactions::const_iterator forceItr = m_forcedReactions.find(factionTemplateEntry->faction);
-            return forceItr != m_forcedReactions.end() ? &forceItr->second : NULL;
-        }
-        void ApplyForceReaction(uint32 faction_id,ReputationRank rank,bool apply);
-        void SendForceReactions();
-        void SendFactionStates() const;
 
         void UpdateSkillsForLevel();
         void UpdateSkillsToMaxSkillsForLevel();             // for .levelup
@@ -2184,7 +2122,6 @@ class TRINITY_DLL_SPEC Player : public Unit
         void _LoadQuestStatus(QueryResult *result);
         void _LoadDailyQuestStatus(QueryResult *result);
         void _LoadGroup(QueryResult *result);
-        void _LoadReputation(QueryResult *result);
         void _LoadSkills();
         void _LoadSpells(QueryResult *result);
         void _LoadTutorials(QueryResult *result);
@@ -2203,7 +2140,6 @@ class TRINITY_DLL_SPEC Player : public Unit
         void _SaveMail();
         void _SaveQuestStatus();
         void _SaveDailyQuestStatus();
-        void _SaveReputation();
         void _SaveSpells();
         void _SaveTutorials();
 
@@ -2376,11 +2312,6 @@ class TRINITY_DLL_SPEC Player : public Unit
 
         void UpdateKnownCurrencies(uint32 itemId, bool apply);
         int32 CalculateReputationGain(uint32 creatureOrQuestLevel, int32 rep, bool for_quest);
-        void SetFactionVisible(FactionState* faction);
-        void SetFactionAtWar(FactionState* faction, bool atWar);
-        void SetFactionInactive(FactionState* faction, bool inactive);
-        bool ModifyOneFactionReputation(FactionEntry const* factionEntry, int32 standing);
-        bool SetOneFactionReputation(FactionEntry const* factionEntry, int32 standing);
         void AdjustQuestReqItemCount( Quest const* pQuest, QuestStatusData& questStatusData );
 
         GridReference<Player> m_gridRef;
@@ -2398,8 +2329,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         bool m_isInWater;
 
         AchievementMgr m_achievementMgr;
-        FactionStateList m_factions;
-        ForcedReactions m_forcedReactions;
+        ReputationMgr  m_reputationMgr;
 };
 
 void AddItemsSetItem(Player*player,Item *item);

@@ -745,7 +745,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 if (miscvalue1 && miscvalue1 != achievementCriteria->gain_reputation.factionID)
                     continue;
 
-                int32 reputation = GetPlayer()->GetReputation(achievementCriteria->gain_reputation.factionID);
+                int32 reputation = GetPlayer()->GetReputationMgr().GetReputation(achievementCriteria->gain_reputation.factionID);
                 if (reputation > 0)
                     SetCriteriaProgress(achievementCriteria, reputation);
                 break;
@@ -757,13 +757,12 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                     continue;
 
                 uint32 counter = 0;
-                FactionStateList const& factionStateList = GetPlayer()->GetFactionStateList();
+                FactionStateList const& factionStateList = GetPlayer()->GetReputationMgr().GetStateList();
                 for (FactionStateList::const_iterator iter = factionStateList.begin(); iter!= factionStateList.end(); ++iter)
-                {
-                    FactionEntry const *factionEntry = sFactionStore.LookupEntry(iter->second.ID);
-                    if(GetPlayer()->ReputationToRank(iter->second.Standing + GetPlayer()->GetBaseReputation(factionEntry)) >= REP_EXALTED)
-                        ++counter;
-                }
+                    if(FactionEntry const *factionEntry = sFactionStore.LookupEntry(iter->second.ID))
+                        if(ReputationMgr::ReputationToRank(iter->second.Standing + GetPlayer()->GetReputationMgr().GetBaseReputation(factionEntry)) >= REP_EXALTED)
+                            ++counter;
+
                 SetCriteriaProgress(achievementCriteria, counter);
                 break;
             }
