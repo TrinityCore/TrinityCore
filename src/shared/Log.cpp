@@ -91,11 +91,14 @@ void Log::SetDBLogLevel(char *Level)
 
 void Log::Initialize()
 {
-    /// Check whether we'll log GM commands/RA events/character outputs
+    /// Check whether we'll log GM commands/RA events/character outputs/chat stuffs
     m_dbChar = sConfig.GetBoolDefault("LogDB.Char", false);
     m_dbRA = sConfig.GetBoolDefault("LogDB.RA", false);
     m_dbGM = sConfig.GetBoolDefault("LogDB.GM", false);
     m_dbChat = sConfig.GetBoolDefault("LogDB.Chat", false);
+
+    /// Realm must be 0 by default
+    SetRealmID(0);
 
     /// Common log files data
     m_logsDir = sConfig.GetStringDefault("LogsDir","");
@@ -337,9 +340,9 @@ std::string Log::GetTimestampStr()
     return std::string(buf);
 }
 
-void Log::outDB( uint8 type, const char * str, ... )
+void Log::outDB( uint32 type, const char * str, ... )
 {
-    if(!type)
+    if(type >= MAX_LOG_TYPES)
         return;
 
     if(!str)
