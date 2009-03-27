@@ -19,7 +19,7 @@
  */
 
 #include "Common.h"
-#include "Database/DBCStores.h"
+#include "DBCStores.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "ObjectMgr.h"

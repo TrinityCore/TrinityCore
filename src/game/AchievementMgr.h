@@ -20,9 +20,9 @@
 
 #include "Common.h"
 #include "Policies/Singleton.h"
-#include "Database/DBCEnums.h"
-#include "Database/DBCStores.h"
 #include "Database/DatabaseEnv.h"
+#include "DBCEnums.h"
+#include "DBCStores.h"
 
 #include <map>
 #include <string>

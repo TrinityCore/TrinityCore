@@ -210,8 +210,6 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
     }
 
     owner->SetPet(this, true);
-    AIM_Initialize();
-    map->Add((Creature*)this);
 
     InitStatsForLevel(petlevel);
     SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, time(NULL));
@@ -313,6 +311,9 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
     _LoadSpellCooldowns();
 
     sLog.outDebug("New Pet has guid %u", GetGUIDLow());
+
+    AIM_Initialize();
+    map->Add((Creature*)this);
 
     if(owner->GetTypeId() == TYPEID_PLAYER)
     {
@@ -1362,8 +1363,8 @@ bool Pet::learnSpell(uint32 spell_id)
             WorldPacket data(SMSG_PET_LEARNED_SPELL, 2);
             data << uint16(spell_id);
             ((Player*)owner)->GetSession()->SendPacket(&data);
+            ((Player*)owner)->PetSpellInitialize();
         }
-        ((Player*)owner)->PetSpellInitialize();
     }
     return true;
 }
@@ -1603,7 +1604,8 @@ bool Pet::resetTalents(bool no_cost)
         m_resetTalentsCost = cost;
         m_resetTalentsTime = time(NULL);
     }
-    player->PetSpellInitialize();
+    if(!m_loading)
+        player->PetSpellInitialize();
     return true;
 }
 
