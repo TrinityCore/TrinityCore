@@ -2397,6 +2397,10 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->MaxAffectedTargets = 1;
             spellInfo->EffectTriggerSpell[0] = 33760;
             break;
+        case 1122: // Inferno
+        case 18662: // Curse of Doom
+            spellInfo->EffectBasePoints[0] = 0; //prevent summon too many of them
+            break;
         default:
             break;
         }
