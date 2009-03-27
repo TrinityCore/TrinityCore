@@ -447,59 +447,15 @@
 				Name="DataStores"
 				>
 				<File
-					RelativePath="..\..\src\shared\Database\dbcfile.cpp"
+					RelativePath="..\..\src\shared\Database\DBCFileLoader.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\shared\Database\dbcfile.h"
+					RelativePath="..\..\src\shared\Database\DBCFileLoader.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\shared\Database\DBCfmt.cpp"
-					>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile="$(IntDir)/$(InputName)1.obj"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile="$(IntDir)/$(InputName)1.obj"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile="$(IntDir)/$(InputName)1.obj"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							ObjectFile="$(IntDir)/$(InputName)1.obj"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\src\shared\Database\DBCStores.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\shared\Database\DBCStores.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\shared\Database\DBCStructure.h"
+					RelativePath="..\..\src\shared\Database\DBCStore.h"
 					>
 				</File>
 			</Filter>

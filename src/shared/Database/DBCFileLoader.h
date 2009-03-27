@@ -1,8 +1,6 @@
 /*
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
- * Copyright (C) 2008-2009 Trinity <http://www.trinitycore.org/>
- *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -18,8 +16,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef DBCFILE_H
-#define DBCFILE_H
+#ifndef DBC_FILE_LOADER_H
+#define DBC_FILE_LOADER_H
 #include "Platform/Define.h"
 #include "Utilities/ByteConverter.h"
 #include <cassert>
@@ -37,11 +35,11 @@ enum
     FT_LOGIC='l'                                            //Logical (boolean)
 };
 
-class DBCFile
+class DBCFileLoader
 {
     public:
-        DBCFile();
-        ~DBCFile();
+        DBCFileLoader();
+        ~DBCFileLoader();
 
         bool Load(const char *filename, const char *fmt);
 
@@ -77,11 +75,11 @@ class DBCFile
                 }
 
             private:
-                Record(DBCFile &file_, unsigned char *offset_): offset(offset_), file(file_) {}
+                Record(DBCFileLoader &file_, unsigned char *offset_): offset(offset_), file(file_) {}
                 unsigned char *offset;
-                DBCFile &file;
+                DBCFileLoader &file;
 
-                friend class DBCFile;
+                friend class DBCFileLoader;
 
         };
 
@@ -107,4 +105,3 @@ class DBCFile
         unsigned char *stringTable;
 };
 #endif
-

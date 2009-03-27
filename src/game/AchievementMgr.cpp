@@ -20,7 +20,7 @@
 #include "Common.h"
 #include "Player.h"
 #include "WorldPacket.h"
-#include "Database/DBCEnums.h"
+#include "DBCEnums.h"
 #include "GameEventMgr.h"
 #include "ObjectMgr.h"
 #include "Guild.h"
@@ -197,10 +197,8 @@ void AchievementMgr::SaveToDB()
 
         if(need_execute)
         {
-            CharacterDatabase.BeginTransaction ();
             CharacterDatabase.Execute( ssdel.str().c_str() );
             CharacterDatabase.Execute( ssins.str().c_str() );
-            CharacterDatabase.CommitTransaction ();
         }
     }
 
@@ -258,12 +256,10 @@ void AchievementMgr::SaveToDB()
 
         if(need_execute_del || need_execute_ins)
         {
-            CharacterDatabase.BeginTransaction ();
             if(need_execute_del)
                 CharacterDatabase.Execute( ssdel.str().c_str() );
             if(need_execute_ins)
                 CharacterDatabase.Execute( ssins.str().c_str() );
-            CharacterDatabase.CommitTransaction ();
         }
     }
 }

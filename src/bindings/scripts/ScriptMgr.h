@@ -10,7 +10,7 @@
 
 #include "Common.h"
 #include "Platform/CompilerDefs.h"
-#include "Database/DBCStructure.h"
+#include "DBCStructure.h"
 
 class Player;
 class Creature;
