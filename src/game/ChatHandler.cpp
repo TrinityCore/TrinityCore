@@ -496,19 +496,20 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
             {
                 Channel *chn = cMgr->GetChannel(channel,_player);
                 if(chn)
+                {
                     chn->Say(_player->GetGUID(),msg.c_str(),lang);
 
-                if(chn->HasFlag(CHANNEL_FLAG_TRADE) ||
-                    chn->HasFlag(CHANNEL_FLAG_GENERAL) ||
-                    chn->HasFlag(CHANNEL_FLAG_CITY) ||
-                    chn->HasFlag(CHANNEL_FLAG_LFG))
-                    if(sWorld.getConfig(CONFIG_CHATLOG_SYSCHAN))
-                        sLog.outChat("[SYSCHAN] Player %s tells channel %s: %s",
+                    if(chn->HasFlag(CHANNEL_FLAG_TRADE) ||
+                        chn->HasFlag(CHANNEL_FLAG_GENERAL) ||
+                        chn->HasFlag(CHANNEL_FLAG_CITY) ||
+                        chn->HasFlag(CHANNEL_FLAG_LFG))
+                        if(sWorld.getConfig(CONFIG_CHATLOG_SYSCHAN))
+                            sLog.outChat("[SYSCHAN] Player %s tells channel %s: %s",
                             GetPlayer()->GetName(), chn->GetName().c_str(), msg.c_str());
-                else
-                    if(sWorld.getConfig(CONFIG_CHATLOG_CHANNEL))
-                        sLog.outChat("[CHANNEL] Player %s tells channel %s: %s",
+                        else if(sWorld.getConfig(CONFIG_CHATLOG_CHANNEL))
+                            sLog.outChat("[CHANNEL] Player %s tells channel %s: %s",
                             GetPlayer()->GetName(), chn->GetName().c_str(), msg.c_str());
+                }
             }
         } break;
 
