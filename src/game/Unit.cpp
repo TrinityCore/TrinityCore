@@ -8273,7 +8273,7 @@ Pet* Unit::GetPet() const
             return pet;
 
         sLog.outError("Unit::GetPet: Pet %u not exist.",GUID_LOPART(pet_guid));
-        const_cast<Unit*>(this)->SetUInt64Value(UNIT_FIELD_SUMMON, 0);
+        //const_cast<Unit*>(this)->SetUInt64Value(UNIT_FIELD_SUMMON, 0);
     }
 
     return NULL;

@@ -29,10 +29,9 @@ AM_CPPFLAGS = $(TRINI_INCLUDES) -I$(top_builddir)/src/shared -I$(srcdir) -I$(src
 noinst_LIBRARIES = libmangosdatabase.a
 
 libmangosdatabase_a_SOURCES = \
-	DBCStores.cpp \
-	DBCStores.h \
-	DBCStructure.h \
-	DBCfmt.cpp \
+	DBCFileLoader.cpp \
+	DBCFileLoader.h \
+	DBCStore.h \
 	Database.cpp \
 	Database.h \
 	DatabaseEnv.h \
@@ -61,6 +60,4 @@ libmangosdatabase_a_SOURCES = \
 	SqlDelayThread.cpp \
 	SqlDelayThread.h \
 	SqlOperations.cpp \
-	SqlOperations.h \
-	dbcfile.cpp \
-	dbcfile.h
+	SqlOperations.h

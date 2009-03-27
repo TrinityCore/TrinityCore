@@ -18,8 +18,8 @@
 
 #include "Common.h"
 #include "Database/DatabaseEnv.h"
-#include "Database/DBCStores.h"
 #include "Database/SQLStorage.h"
+#include "DBCStores.h"
 #include "ProgressBar.h"
 
 #include "AccountMgr.h"

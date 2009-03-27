@@ -1332,6 +1332,26 @@
 			Name="Server"
 			>
 			<File
+				RelativePath="..\..\src\game\DBCEnums.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\DBCfmt.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\DBCStores.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\DBCStores.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\DBCStructure.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\game\GlobalEvents.cpp"
 				>
 			</File>
