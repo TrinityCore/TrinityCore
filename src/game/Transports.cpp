@@ -26,7 +26,7 @@
 #include "Path.h"
 
 #include "WorldPacket.h"
-#include "Database/DBCStores.h"
+#include "DBCStores.h"
 #include "ProgressBar.h"
 
 #include "World.h"

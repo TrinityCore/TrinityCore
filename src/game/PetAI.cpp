@@ -22,7 +22,7 @@
 #include "Errors.h"
 #include "Pet.h"
 #include "Player.h"
-#include "Database/DBCStores.h"
+#include "DBCStores.h"
 #include "Spell.h"
 #include "ObjectAccessor.h"
 #include "SpellMgr.h"

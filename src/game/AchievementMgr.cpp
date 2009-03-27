@@ -20,7 +20,7 @@
 #include "Common.h"
 #include "Player.h"
 #include "WorldPacket.h"
-#include "Database/DBCEnums.h"
+#include "DBCEnums.h"
 #include "GameEventMgr.h"
 #include "ObjectMgr.h"
 #include "Guild.h"

@@ -42,7 +42,7 @@
 #include "ObjectMgr.h"
 #include "SpellMgr.h"
 #include "Chat.h"
-#include "Database/DBCStores.h"
+#include "DBCStores.h"
 #include "LootMgr.h"
 #include "ItemEnchantmentMgr.h"
 #include "MapManager.h"
