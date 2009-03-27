@@ -444,7 +444,6 @@ void ReputationMgr::LoadFromDB(QueryResult *result)
 
 void ReputationMgr::SaveToDB()
 {
-    CharacterDatabase.BeginTransaction();
     for(FactionStateList::iterator itr = m_factions.begin(); itr != m_factions.end(); ++itr)
     {
         if (itr->second.Changed)
@@ -454,7 +453,6 @@ void ReputationMgr::SaveToDB()
             itr->second.Changed = false;
         }
     }
-    CharacterDatabase.CommitTransaction();
 }
 
 void ReputationMgr::UpdateRankCounters( ReputationRank old_rank, ReputationRank new_rank )
