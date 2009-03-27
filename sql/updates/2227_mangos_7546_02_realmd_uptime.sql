@@ -1,5 +1,4 @@
-ALTER TABLE realmd_db_version CHANGE COLUMN required_6976_01_realmd_realmd_db_version required_7546_02_realmd_uptime bit;
-
+/*ALTER TABLE realmd_db_version CHANGE COLUMN required_6976_01_realmd_realmd_db_version required_7546_02_realmd_uptime bit;*/
 
 --
 -- Table structure for table `uptime`
