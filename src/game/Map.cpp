@@ -471,6 +471,7 @@ bool Map::Add(Player *player)
 
     player->m_IsInNotifyList = false;
     player->m_Notified = false;
+    player->m_clientGUIDs.clear();
     AddNotifier(player);
 
     return true;
@@ -616,20 +617,8 @@ void Map::RelocationNotify()
     for(std::vector<uint64>::iterator iter = i_unitsToNotify.begin(); iter != i_unitsToNotify.end(); ++iter)
     {
         Unit *unit = ObjectAccessor::GetObjectInWorld(*iter, (Unit*)NULL);
-        if(!unit || unit->GetMapId() != GetId())
+        if(!unit || !unit->IsInWorld() || unit->GetMapId() != GetId())
         {
-            *iter = 0;
-            continue;
-        }
-
-        if(!unit->IsInWorld())
-        {
-            //other objs are done during remove
-            if(unit->GetTypeId() == TYPEID_PLAYER)
-            {
-                Trinity::VisibleChangesNotifier notifier(*unit);
-                VisitWorld(unit->GetPositionX(), unit->GetPositionY(), World::GetMaxVisibleDistance(), notifier);
-            }
             *iter = 0;
             continue;
         }
@@ -812,8 +801,6 @@ void Map::Update(const uint32 &t_diff)
 
 void Map::Remove(Player *player, bool remove)
 {
-    AddUnitToNotify(player);
-
     // this may be called during Map::Update
     // after decrement+unlink, ++m_mapRefIter will continue correctly
     // when the first element of the list is being removed
@@ -850,6 +837,7 @@ void Map::Remove(Player *player, bool remove)
     RemoveFromGrid(player,grid,cell);
 
     SendRemoveTransports(player);
+    UpdateObjectVisibility(player,cell,p);
 
     if( remove )
         DeleteFromWorld(player);
