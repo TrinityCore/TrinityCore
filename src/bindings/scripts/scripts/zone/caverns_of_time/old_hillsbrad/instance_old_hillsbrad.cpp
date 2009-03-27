@@ -28,6 +28,7 @@ EndScriptData */
 
 #define THRALL_ENTRY    17876
 #define TARETHA_ENTRY   18887
+#define EPOCH_ENTRY	18096
 
 #define DRAKE_ENTRY             17848
 
@@ -44,6 +45,7 @@ struct TRINITY_DLL_DECL instance_old_hillsbrad : public ScriptedInstance
 
     uint64 ThrallGUID;
     uint64 TarethaGUID;
+    uint64 EpochGUID;
 
     void Initialize()
     {
@@ -51,6 +53,7 @@ struct TRINITY_DLL_DECL instance_old_hillsbrad : public ScriptedInstance
         mThrallEventCount   = 0;
         ThrallGUID          = 0;
         TarethaGUID         = 0;
+	EpochGUID	    = 0;
 
         for(uint8 i = 0; i < ENCOUNTERS; i++)
             Encounter[i] = NOT_STARTED;
@@ -103,6 +106,9 @@ struct TRINITY_DLL_DECL instance_old_hillsbrad : public ScriptedInstance
             case TARETHA_ENTRY:
                 TarethaGUID = creature->GetGUID();
                 break;
+	    case EPOCH_ENTRY:
+		EpochGUID = creature->GetGUID();
+		break;
         }
     }
 
@@ -216,6 +222,8 @@ struct TRINITY_DLL_DECL instance_old_hillsbrad : public ScriptedInstance
                 return ThrallGUID;
             case DATA_TARETHA:
                 return TarethaGUID;
+	    case DATA_EPOCH:
+		return EpochGUID;
         }
         return 0;
     }
