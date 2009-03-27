@@ -21,7 +21,7 @@
 #include "TotemAI.h"
 #include "Totem.h"
 #include "Creature.h"
-#include "Database/DBCStores.h"
+#include "DBCStores.h"
 #include "ObjectAccessor.h"
 #include "SpellMgr.h"
 

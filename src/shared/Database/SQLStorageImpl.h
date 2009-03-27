@@ -18,7 +18,7 @@
 
 #include "ProgressBar.h"
 #include "Log.h"
-#include "dbcfile.h"
+#include "DBCFileLoader.h"
 
 template<class T>
 template<class S, class D>

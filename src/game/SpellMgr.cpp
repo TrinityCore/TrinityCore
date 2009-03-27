@@ -22,7 +22,7 @@
 #include "ObjectMgr.h"
 #include "SpellAuraDefines.h"
 #include "ProgressBar.h"
-#include "Database/DBCStores.h"
+#include "DBCStores.h"
 #include "World.h"
 #include "Chat.h"
 #include "Spell.h"

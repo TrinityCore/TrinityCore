@@ -26,7 +26,7 @@
 #include "zthread/Lockable.h"
 #include "zthread/Mutex.h"
 #include "zthread/FairReadWriteLock.h"
-#include "Database/DBCStructure.h"
+#include "DBCStructure.h"
 #include "GridDefines.h"
 #include "Cell.h"
 #include "Timer.h"
