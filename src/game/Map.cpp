@@ -469,6 +469,8 @@ bool Map::Add(Player *player)
     SendInitSelf(player);
     SendInitTransports(player);
 
+    player->m_IsInNotifyList = false;
+    player->m_Notified = false;
     AddNotifier(player);
 
     return true;
@@ -614,8 +616,20 @@ void Map::RelocationNotify()
     for(std::vector<uint64>::iterator iter = i_unitsToNotify.begin(); iter != i_unitsToNotify.end(); ++iter)
     {
         Unit *unit = ObjectAccessor::GetObjectInWorld(*iter, (Unit*)NULL);
-        if(!unit || !unit->IsInWorld() || !unit->GetMapId() == GetId())
+        if(!unit || unit->GetMapId() != GetId())
         {
+            *iter = 0;
+            continue;
+        }
+
+        if(!unit->IsInWorld())
+        {
+            //other objs are done during remove
+            if(unit->GetTypeId() == TYPEID_PLAYER)
+            {
+                Trinity::VisibleChangesNotifier notifier(*unit);
+                VisitWorld(unit->GetPositionX(), unit->GetPositionY(), World::GetMaxVisibleDistance(), notifier);
+            }
             *iter = 0;
             continue;
         }
@@ -798,9 +812,7 @@ void Map::Update(const uint32 &t_diff)
 
 void Map::Remove(Player *player, bool remove)
 {
-    player->DestroyForNearbyPlayers();
-    player->m_IsInNotifyList = false;
-    player->m_Notified = false;
+    AddUnitToNotify(player);
 
     // this may be called during Map::Update
     // after decrement+unlink, ++m_mapRefIter will continue correctly
