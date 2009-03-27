@@ -194,6 +194,20 @@ bool GOHello_go_ethereum_prison(Player *player, GameObject* _GO)
 return true;
 }
 
+/*######
+## go_sacred_fire_of_life
+######*/
+
+#define NPC_ARIKARA  10882
+
+bool GOHello_go_sacred_fire_of_life(Player* pPlayer, GameObject* pGO)
+{
+    if (pGO->GetGoType() == GAMEOBJECT_TYPE_GOOBER)
+        pPlayer->SummonCreature(NPC_ARIKARA, -5008.338, -2118.894, 83.657, 0.874, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+
+    return true;
+}
+
 void AddSC_go_scripts()
 {
     Script *newscript;
@@ -251,6 +265,11 @@ void AddSC_go_scripts()
     newscript = new Script;
     newscript->Name="go_ethereum_prison";
     newscript->pGOHello =           &GOHello_go_ethereum_prison;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "go_sacred_fire_of_life";
+    newscript->pGOHello =           &GOHello_go_sacred_fire_of_life;
     newscript->RegisterSelf();
 
 }
