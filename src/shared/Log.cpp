@@ -31,7 +31,7 @@ INSTANTIATE_SINGLETON_1( Log );
 
 Log::Log() :
     raLogfile(NULL), logfile(NULL), gmLogfile(NULL), charLogfile(NULL),
-    dberLogfile(NULL), m_gmlog_per_account(false), m_colored(false)
+    dberLogfile(NULL), chatLogfile(NULL), m_gmlog_per_account(false), m_colored(false)
 {
     Initialize();
 }
@@ -57,6 +57,10 @@ Log::~Log()
     if (raLogfile != NULL)
         fclose(raLogfile);
     raLogfile = NULL;
+
+    if (chatLogfile != NULL)
+        fclose(chatLogfile);
+    chatLogfile = NULL;
 }
 
 void Log::SetLogLevel(char *Level)
