@@ -290,9 +290,16 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
                 if (guild)
                     guild->BroadcastToGuild(this, msg, lang == LANG_ADDON ? LANG_ADDON : LANG_UNIVERSAL);
 
-                if(sWorld.getConfig(CONFIG_CHATLOG_GUILD))
+                if(lang != LANG_ADDON && sWorld.getConfig(CONFIG_CHATLOG_GUILD))
+                {
                     sLog.outChat("[GUILD] Player %s tells guild %s: %s",
                         GetPlayer()->GetName(), guild->GetName().c_str(), msg.c_str());
+                }
+                else if (lang == LANG_ADDON && sWorld.getConfig(CONFIG_CHATLOG_ADDON))
+                {
+                    sLog.outChat("[ADDON] Player %s sends to guild %s: %s",
+                        GetPlayer()->GetName(), guild->GetName().c_str(), msg.c_str());
+                }
             }
 
             break;
