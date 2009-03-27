@@ -153,7 +153,7 @@ void Log::Initialize()
 
     dberLogfile = openLogFile("DBErrorLogFile",NULL,"a");
     raLogfile = openLogFile("RaLogFile",NULL,"a");
-    chatLogfile = openLogFile("ChatLogFile",NULL,"a");
+    chatLogfile = openLogFile("ChatLogFile","ChatLogTimestamp","a");
 
     // Main log file settings
     m_logLevel     = sConfig.GetIntDefault("LogLevel", LOGL_NORMAL);
