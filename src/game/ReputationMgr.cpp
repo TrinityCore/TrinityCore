@@ -17,7 +17,7 @@
  */
 
 #include "ReputationMgr.h"
-#include "Database/DBCStores.h"
+#include "DBCStores.h"
 #include "Player.h"
 #include "WorldPacket.h"
 
