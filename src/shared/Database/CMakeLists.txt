@@ -1,8 +1,5 @@
 SET(trinitydatabase_STAT_SRCS
-   DBCStores.cpp
-   DBCStores.h
-   DBCStructure.h
-   DBCfmt.cpp
+   DBCStore.h
    Database.cpp
    Database.h
    DatabaseEnv.h
@@ -30,8 +27,8 @@ SET(trinitydatabase_STAT_SRCS
    SqlDelayThread.h
    SqlOperations.cpp
    SqlOperations.h
-   dbcfile.cpp
-   dbcfile.h
+   DBCFileLoader.cpp
+   DBCFileLoader.h
 )
 
 add_library(trinitydatabase STATIC ${trinitydatabase_STAT_SRCS})
