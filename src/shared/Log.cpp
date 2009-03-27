@@ -834,6 +834,7 @@ void Log::outChat( const char * str, ... )
 
     if (chatLogfile)
     {
+        outTimestamp(chatLogfile);
         va_list ap;
         va_start(ap, str);
         vfprintf(chatLogfile, str, ap);
