@@ -386,6 +386,11 @@ AddonChannel = 1
 #        Default: 0 - off
 #                 1 - on
 #
+#    ChatLogTimestamp
+#        Chat Logfile with timestamp of server start in name
+#        Default: 0 - no timestamp in name
+#                 1 - add timestamp in name in form Logname_YYYY-MM-DD_HH-MM-SS.Ext for Logname.Ext
+#
 ###################################################################################################################
 
 LogSQL = 1
@@ -425,6 +430,7 @@ ChatLogs.Guild        = 0
 ChatLogs.Public       = 0
 ChatLogs.Addon        = 0
 ChatLogs.BattleGround = 0
+ChatLogTimestamp = 0
 
 ###################################################################################################################
 # SERVER SETTINGS
