@@ -358,7 +358,7 @@ enum SpellCategory
 #define SPELL_ATTR_EX4_UNK3                       0x00000008            // 3
 #define SPELL_ATTR_EX4_UNK4                       0x00000010            // 4 This will no longer cause guards to attack on use??
 #define SPELL_ATTR_EX4_UNK5                       0x00000020            // 5
-#define SPELL_ATTR_EX4_UNK6                       0x00000040            // 6
+#define SPELL_ATTR_EX4_NOT_STEALABLE              0x00000040            // 6 although such auras might be dispellable, they cannot be stolen
 #define SPELL_ATTR_EX4_UNK7                       0x00000080            // 7
 #define SPELL_ATTR_EX4_UNK8                       0x00000100            // 8
 #define SPELL_ATTR_EX4_UNK9                       0x00000200            // 9
