@@ -2860,6 +2860,11 @@ bool ChatHandler::HandleGoZoneXYCommand(const char* args)
 
     float x = (float)atof(px);
     float y = (float)atof(py);
+
+    // prevent accept wrong numeric args
+    if (x==0.0f && *px!='0' || y==0.0f && *py!='0')
+        return false;
+
     uint32 areaid = cAreaId ? (uint32)atoi(cAreaId) : _player->GetZoneId();
 
     AreaTableEntry const* areaEntry = GetAreaEntryByAreaID(areaid);
