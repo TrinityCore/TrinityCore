@@ -1433,6 +1433,9 @@ CreatureAI* GetAI_mob_eventai(Creature* pCreature)
 
 bool ReceiveEmote_mob_eventai(Player* pPlayer, Creature* pCreature, uint32 uiEmote)
 {
+    if(pCreature->isCharmed())
+        return true;
+
     Mob_EventAI* pTmpCreature = (Mob_EventAI*)(pCreature->AI());
 
     if (pTmpCreature->bEmptyList)
