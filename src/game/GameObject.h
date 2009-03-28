@@ -41,6 +41,7 @@ struct GameObjectInfo
     uint32  type;
     uint32  displayId;
     char   *name;
+    char   *IconName;
     char   *castBarCaption;
     uint32  faction;
     uint32  flags;

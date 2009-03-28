@@ -1,6 +1,6 @@
 ALTER TABLE db_version CHANGE COLUMN required_7544_01_mangos_uptime required_7558_01_mangos_mangos_string bit;
 
-DELETE FROM mangos_string WHERE entry IN (1123,1124,1125);
+DELETE FROM mangos_string WHERE entry IN (1123,1124,1125,1126,1127);
 INSERT INTO mangos_string VALUES
 (1123,'Not pet found',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (1124,'Wrong pet type',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),

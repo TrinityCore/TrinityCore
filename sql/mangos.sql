@@ -22,7 +22,7 @@
 DROP TABLE IF EXISTS `db_version`;
 CREATE TABLE `db_version` (
   `version` varchar(120) default NULL,
-  `required_7558_02_mangos_command` bit(1) default NULL
+  `required_7560_01_mangos_gameobject_template` bit(1) default NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Used DB version notes';
 
 --
@@ -1408,6 +1408,7 @@ CREATE TABLE `gameobject_template` (
   `type` tinyint(3) unsigned NOT NULL default '0',
   `displayId` mediumint(8) unsigned NOT NULL default '0',
   `name` varchar(100) NOT NULL default '',
+  `IconName` varchar(100) NOT NULL default '',
   `castBarCaption` varchar(100) NOT NULL default '',
   `faction` smallint(5) unsigned NOT NULL default '0',
   `flags` int(10) unsigned NOT NULL default '0',
