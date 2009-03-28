@@ -757,7 +757,12 @@ enum TrinityStrings
     LANG_YOU_CHANGE_GENDER              = 1120,
     LANG_YOUR_GENDER_CHANGED            = 1121,
     LANG_SKILL_VALUES                   = 1122,
-    // Room for more level 3              1123-1199 not used
+    LANG_NO_PET_FOUND                   = 1123,
+    LANG_WRONG_PET_TYPE                 = 1124,
+    LANG_COMMAND_LEARN_PET_TALENTS      = 1125,
+    LANG_RESET_PET_TALENTS              = 1126,
+    LANG_RESET_PET_TALENTS_ONLINE       = 1127,
+    // Room for more level 3              1128-1199 not used
 
     // AV 
   	LANG_BG_AV_ALLY                     = 1200,
