@@ -699,7 +699,8 @@ uint16 PoolHandler::IsPartOfAPool(uint32 guid, uint32 type)
 // Method that check chance integrity of the creatures and gameobjects in this pool
 bool PoolHandler::CheckPool(uint16 pool_id)
 {
-    return mPoolGameobjectGroups[pool_id].CheckPool() &&
+    return pool_id <= max_pool_id &&
+        mPoolGameobjectGroups[pool_id].CheckPool() &&
         mPoolCreatureGroups[pool_id].CheckPool() &&
         mPoolPoolGroups[pool_id].CheckPool();
 }
