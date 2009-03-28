@@ -8258,11 +8258,11 @@ Guardian* Unit::GetGuardianPet() const
 {
     if(uint64 pet_guid = GetPetGUID())
     {
-        if(Creature* pet = ObjectAccessor::GetCreature(*this, pet_guid))
+        if(Creature* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*this, pet_guid))
             if(pet->HasSummonMask(SUMMON_MASK_GUARDIAN))
                 return (Guardian*)pet;
 
-        sLog.outError("Player::GetPet: Pet %u not exist.",GUID_LOPART(pet_guid));
+        sLog.outError("Unit::GetGuardianPet: Pet %u not exist.",GUID_LOPART(pet_guid));
         const_cast<Unit*>(this)->SetPetGUID(0);
     }
 
