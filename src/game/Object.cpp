@@ -1343,6 +1343,10 @@ void WorldObject::GetSinCos(const float x, const float y, float &vsin, float &vc
 
 bool WorldObject::HasInArc(const float arcangle, const WorldObject* obj) const
 {
+    // always have self in arc
+    if(obj == this)
+        return true;
+
     float arc = arcangle;
 
     // move arc to range 0.. 2*pi
