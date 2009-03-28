@@ -488,7 +488,7 @@ Map::Add(T *obj)
 
     DEBUG_LOG("Object %u enters grid[%u,%u]", GUID_LOPART(obj->GetGUID()), cell.GridX(), cell.GridY());
 
-    UpdateObjectVisibility(obj,cell,p);
+    //UpdateObjectVisibility(obj,cell,p);
 
     AddNotifier(obj);
 }

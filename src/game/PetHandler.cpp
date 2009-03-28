@@ -545,7 +545,7 @@ void WorldSession::HandlePetSpellAutocastOpcode( WorldPacket& recvPacket )
     uint8  state;                                           //1 for on, 0 for off
     recvPacket >> guid >> spellid >> spellid2 >> state;
 
-    if(!_player->GetPet() && !_player->GetCharm())
+    if(!_player->GetGuardianPet() && !_player->GetCharm())
         return;
 
     if(ObjectAccessor::FindPlayer(guid))
@@ -553,7 +553,7 @@ void WorldSession::HandlePetSpellAutocastOpcode( WorldPacket& recvPacket )
 
     Creature* pet=ObjectAccessor::GetCreatureOrPetOrVehicle(*_player,guid);
 
-    if(!pet || (pet != _player->GetPet() && pet != _player->GetCharm()))
+    if(!pet || (pet != _player->GetGuardianPet() && pet != _player->GetCharm()))
     {
         sLog.outError( "HandlePetSpellAutocastOpcode.Pet %u isn't pet of player %s .", uint32(GUID_LOPART(guid)),GetPlayer()->GetName() );
         return;
@@ -598,12 +598,12 @@ void WorldSession::HandlePetCastSpellOpcode( WorldPacket& recvPacket )
     sLog.outDebug("WORLD: CMSG_PET_CAST_SPELL, cast_count: %u, spellid %u, unk_flags %u", cast_count, spellid, unk_flags);
 
     // This opcode is also sent from charmed and possessed units (players and creatures)
-    if(!_player->GetPet() && !_player->GetCharm())
+    if(!_player->GetGuardianPet() && !_player->GetCharm())
         return;
 
     Unit* caster = ObjectAccessor::GetUnit(*_player, guid);
 
-    if(!caster || (caster != _player->GetPet() && caster != _player->GetCharm()))
+    if(!caster || (caster != _player->GetGuardianPet() && caster != _player->GetCharm()))
     {
         sLog.outError( "HandlePetCastSpellOpcode: Pet %u isn't pet of player %s .", uint32(GUID_LOPART(guid)),GetPlayer()->GetName() );
         return;

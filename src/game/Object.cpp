@@ -1831,7 +1831,7 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     pet->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
     pet->InitStatsForLevel(getLevel());
 
-    SetPet(pet, true);
+    SetGuardian(pet, true);
 
     switch(petType)
     {
