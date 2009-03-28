@@ -1825,9 +1825,9 @@ void Aura::TriggerSpell()
                     case 38443:
                     {
                         bool all = true;
-                        for(int i = 0; i < MAX_TOTEM; ++i)
+                        for(int i = SUMMON_SLOT_TOTEM; i < MAX_TOTEM_SLOT; ++i)
                         {
-                            if(!caster->m_TotemSlot[i])
+                            if(!caster->m_SummonSlot[i])
                             {
                                 all = false;
                                 break;
@@ -1963,7 +1963,7 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 return;
             case 34026:   // kill command
             {
-                Unit * pet = m_target->GetPet();
+                Unit * pet = m_target->GetGuardianPet();
                 if (!pet)
                     return;
 
@@ -2388,7 +2388,7 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
             {
                 if (apply)
                 {
-                    uint64 guid = caster->m_TotemSlot[3];
+                    uint64 guid = caster->m_SummonSlot[3];
                     if (guid)
                     {
                         Creature *totem = ObjectAccessor::GetCreature(*caster, guid);
@@ -3122,7 +3122,7 @@ void Aura::HandleModPossessPet(bool apply, bool Real)
     if(!caster || caster->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    Pet *pet = caster->GetPet();
+    Pet *pet = caster->GetGuardianPet();
     if(!pet || pet != m_target)
         return;
 
@@ -3154,8 +3154,11 @@ void Aura::HandleAuraModPetTalentsPoints(bool Apply, bool Real)
     if(!Real)
         return;
 
+    if(m_target->GetTypeId() != TYPEID_PLAYER)
+        return;
+
     // Recalculate pet tlaent points
-    if (Pet *pet=m_target->GetPet())
+    if (Pet *pet = ((Player*)m_target)->GetPet())
         pet->InitTalentForLevel();
 }
 
@@ -4886,7 +4889,7 @@ void Aura::HandleModDamageDone(bool apply, bool Real)
                     m_target->ApplyModUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG+i,m_modifier.m_amount,apply);
             }
         }
-        Pet* pet = m_target->GetPet();
+        Pet* pet = ((Player*)m_target)->GetPet();
         if(pet)
             pet->UpdateAttackPowerAndDamage();
     }
@@ -6494,7 +6497,7 @@ void Aura::HandleAuraControlVehicle(bool apply, bool Real)
     if(m_target->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    if(Pet *pet = m_target->GetPet())
+    if(Pet *pet = ((Player*)m_target)->GetPet())
         pet->Remove(PET_SAVE_AS_CURRENT);
 
     //WorldPacket data(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
@@ -6625,7 +6628,7 @@ void Aura::HandleModPossessPet(bool apply, bool Real)
 
     if(apply)
     {
-        if(caster->GetPet() != m_target)
+        if(caster->GetGuardianPet() != m_target)
             return;    
     
         m_target->SetCharmedOrPossessedBy(caster, true);

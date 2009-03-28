@@ -573,7 +573,7 @@ void Spell::FillTargetMap()
                     tmpUnitMap.push_back(m_caster);
                     break;
                 case SPELL_EFFECT_LEARN_PET_SPELL:
-                    if(Pet* pet = m_caster->GetPet())
+                    if(Guardian* pet = m_caster->GetGuardianPet())
                         tmpUnitMap.push_back(pet);
                     break;
                 /*case SPELL_EFFECT_ENCHANT_ITEM:
@@ -1539,7 +1539,7 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                         TagUnitMap.push_back(owner);
                     break;
                 case TARGET_UNIT_PET:
-                    if(Pet* pet = m_caster->GetPet())
+                    if(Guardian* pet = m_caster->GetGuardianPet())
                         TagUnitMap.push_back(pet);
                     break;
                 case TARGET_UNIT_PARTY_CASTER:
@@ -1566,7 +1566,7 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
             switch(cur)
             {
                 case TARGET_UNIT_MINIPET:
-                    if(target->GetGUID() == m_caster->m_TotemSlot[4])
+                    if(target->GetGUID() == m_caster->m_SummonSlot[4])
                         TagUnitMap.push_back(target);
                     break;
                 case TARGET_UNIT_TARGET_ALLY:
@@ -2040,7 +2040,7 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                     ownerOrSelf->getPowerType() == POWER_MANA)
                     TagUnitMap.push_back(ownerOrSelf);
 
-                if(Pet* pet = ownerOrSelf->GetPet())
+                if(Pet* pet = ownerOrSelf->GetGuardianPet())
                     if( m_caster->IsWithinDistInMap(pet, radius) && pet->getPowerType() == POWER_MANA )
                         TagUnitMap.push_back(pet);
             }
@@ -3690,7 +3690,7 @@ SpellCastResult Spell::CheckCast(bool strict)
         {
             if(m_spellInfo->EffectImplicitTargetA[j] == TARGET_PET)
             {
-                target = m_caster->GetPet();
+                target = m_caster->GetGuardianPet();
                 if(!target)
                 {
                     if(m_triggeredByAuraSpell)              // not report pet not existence for triggered spells
@@ -3998,10 +3998,13 @@ SpellCastResult Spell::CheckCast(bool strict)
             }
             case SPELL_EFFECT_LEARN_SPELL:
             {
+                if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                    return SPELL_FAILED_BAD_TARGETS;
+
                 if(m_spellInfo->EffectImplicitTargetA[i] != TARGET_PET)
                     break;
 
-                Pet* pet = m_caster->GetPet();
+                Pet* pet = ((Player*)m_caster)->GetPet();
 
                 if(!pet)
                     return SPELL_FAILED_NO_PET;
@@ -4018,8 +4021,10 @@ SpellCastResult Spell::CheckCast(bool strict)
             }
             case SPELL_EFFECT_LEARN_PET_SPELL:
             {
-                Pet* pet = m_caster->GetPet();
+                if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                    return SPELL_FAILED_BAD_TARGETS;
 
+                Pet* pet = ((Player*)m_caster)->GetPet();
                 if(!pet)
                     return SPELL_FAILED_NO_PET;
 
@@ -4042,7 +4047,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 if(!foodItem)
                     return SPELL_FAILED_BAD_TARGETS;
 
-                Pet* pet = m_caster->GetPet();
+                Pet* pet = ((Player*)m_caster)->GetPet();
 
                 if(!pet)
                     return SPELL_FAILED_NO_PET;
@@ -4155,7 +4160,7 @@ SpellCastResult Spell::CheckCast(bool strict)
             }
             case SPELL_EFFECT_SUMMON_DEAD_PET:
             {
-                Creature *pet = m_caster->GetPet();
+                Creature *pet = m_caster->GetGuardianPet();
                 if(!pet)
                     return SPELL_FAILED_NO_PET;
 
@@ -4215,7 +4220,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                     if (m_caster->GetTypeId()==TYPEID_PLAYER && m_caster->getClass()==CLASS_WARLOCK)
                     {
                         if (strict)                         //starting cast, trigger pet stun (cast by pet so it doesn't attack player)
-                            if(Pet* pet = m_caster->GetPet())
+                            if(Pet* pet = ((Player*)m_caster)->GetPet())
                                 pet->CastSpell(pet, 32752, true, NULL, NULL, pet->GetGUID());
                     }
                     else

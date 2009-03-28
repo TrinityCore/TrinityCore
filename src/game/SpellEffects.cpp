@@ -2098,7 +2098,7 @@ void Spell::EffectTriggerSpell(uint32 i)
         // Priest Shadowfiend (34433) need apply mana gain trigger aura on pet
         case 41967:
         {
-            if (Unit *pet = m_caster->GetPet())
+            if (Unit *pet = m_caster->GetGuardianPet())
                 pet->CastSpell(pet, 28305, true);
             return;
         }
@@ -3946,7 +3946,7 @@ void Spell::EffectTameCreature(uint32 /*i*/)
     pet->SetUInt32Value(UNIT_FIELD_LEVEL, level);
 
     // caster have pet now
-    m_caster->SetPet(pet, true);
+    m_caster->SetGuardian(pet, true);
 
     if(m_caster->GetTypeId() == TYPEID_PLAYER)
     {
@@ -5442,7 +5442,7 @@ void Spell::EffectDismissPet(uint32 /*i*/)
     if(m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    Pet* pet = m_caster->GetPet();
+    Pet* pet = ((Player*)m_caster)->GetPet();
 
     // not let dismiss dead pet
     if(!pet||!pet->isAlive())
@@ -5948,12 +5948,12 @@ void Spell::EffectSummonDeadPet(uint32 /*i*/)
 void Spell::EffectDestroyAllTotems(uint32 /*i*/)
 {
     float mana = 0;
-    for(int slot = 0;  slot < MAX_TOTEM; ++slot)
+    for(int slot = SUMMON_SLOT_TOTEM; slot < MAX_TOTEM_SLOT; ++slot)
     {
-        if(!m_caster->m_TotemSlot[slot])
+        if(!m_caster->m_SummonSlot[slot])
             continue;
 
-        Creature* totem = ObjectAccessor::GetCreature(*m_caster,m_caster->m_TotemSlot[slot]);
+        Creature* totem = ObjectAccessor::GetCreature(*m_caster,m_caster->m_SummonSlot[slot]);
         if(totem && totem->isTotem())
         {
             uint32 spell_id = totem->GetUInt32Value(UNIT_CREATED_BY_SPELL);
@@ -6401,11 +6401,11 @@ void Spell::EffectRedirectThreat(uint32 /*i*/)
 
 void Spell::SummonTotem(uint32 entry, SummonPropertiesEntry const *properties)
 {
-    int8 slot = (int8)properties->Slot - 1;
+    int8 slot = (int8)properties->Slot;
 
-    if(slot >= 0 && slot < MAX_TOTEM)
+    if(slot >= SUMMON_SLOT_TOTEM && slot < MAX_TOTEM_SLOT)
     {
-        uint64 guid = m_caster->m_TotemSlot[slot];
+        uint64 guid = m_caster->m_SummonSlot[slot];
         if(guid != 0)
         {
             Creature *OldTotem = ObjectAccessor::GetCreature(*m_caster, guid);
@@ -6436,8 +6436,8 @@ void Spell::SummonTotem(uint32 entry, SummonPropertiesEntry const *properties)
 
     pTotem->Relocate(x, y, z, m_caster->GetOrientation());
 
-    if(slot >= 0 && slot < MAX_TOTEM)
-        m_caster->m_TotemSlot[slot] = pTotem->GetGUID();
+    if(slot >= SUMMON_SLOT_TOTEM && slot < MAX_TOTEM_SLOT)
+        m_caster->m_SummonSlot[slot] = pTotem->GetGUID();
 
     pTotem->SetOwner(m_caster->GetGUID());
     pTotem->SetTypeBySummonSpell(m_spellInfo);              // must be after Create call where m_spells initilized
@@ -6460,10 +6460,10 @@ void Spell::SummonTotem(uint32 entry, SummonPropertiesEntry const *properties)
 
     pTotem->Summon(m_caster);
 
-    if(slot >= 0 && slot < MAX_TOTEM && m_caster->GetTypeId() == TYPEID_PLAYER)
+    if(slot >= SUMMON_SLOT_TOTEM && slot < MAX_TOTEM_SLOT && m_caster->GetTypeId() == TYPEID_PLAYER)
     {
         WorldPacket data(SMSG_TOTEM_CREATED, 1+8+4+4);
-        data << uint8(slot);
+        data << uint8(slot-1);
         data << uint64(pTotem->GetGUID());
         data << uint32(duration);
         data << uint32(m_spellInfo->Id);

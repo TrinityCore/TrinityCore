@@ -16478,10 +16478,30 @@ void Player::UpdateDuelFlag(time_t currTime)
     duel->opponent->duel->startTime  = currTime;
 }
 
+Pet* Player::GetPet() const
+{
+    if(uint64 pet_guid = GetPetGUID())
+    {
+        if(!IS_PET_GUID(pet_guid))
+            return NULL;
+
+        if(Pet* pet = ObjectAccessor::GetPet(pet_guid))
+            return pet;
+
+        sLog.outError("Player::GetPet: Pet %u not exist.",GUID_LOPART(pet_guid));
+        const_cast<Player*>(this)->SetPetGUID(0);
+    }
+
+    return NULL;
+}
+
 void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
 {
     if(!pet)
         pet = GetPet();
+
+    if(pet)
+        sLog.outDebug("RemovePet %u, %u, %u", pet->GetEntry(), mode, returnreagent);
 
     if(returnreagent && (pet || m_temporaryUnsummonedPetNumber))
     {
@@ -16536,7 +16556,7 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
         case POSSESSED_PET:
             pet->RemoveCharmedOrPossessedBy(NULL);
         default:
-            SetPet(pet, false);
+            SetGuardian(pet, false);
             break;
     }
 
@@ -19731,6 +19751,9 @@ void Player::InitGlyphsForLevel()
 
 void Player::EnterVehicle(Vehicle *vehicle)
 {
+    if(vehicle->GetCharmerGUID())
+        return;
+
     VehicleEntry const *ve = sVehicleStore.LookupEntry(vehicle->GetVehicleId());
     if(!ve)
         return;

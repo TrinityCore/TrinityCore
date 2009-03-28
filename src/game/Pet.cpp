@@ -42,7 +42,7 @@ char const* petTypeSuffix[MAX_PET_TYPE] =
 Pet::Pet(Player *owner, PetType type) : Guardian(NULL, owner),
 m_petType(type), m_removed(false), m_happinessTimer(7500), m_duration(0),
 m_resetTalentsCost(0), m_resetTalentsTime(0), m_usedTalentCount(0), m_auraRaidUpdateMask(0), m_loading(false),
-m_declinedname(NULL)
+m_declinedname(NULL), m_owner(owner)
 {
     m_summonMask |= SUMMON_MASK_PET;
     m_name = "Pet";
@@ -184,6 +184,10 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
     SetUInt32Value(UNIT_NPC_FLAGS, 0);
     SetName(fields[9].GetString());
 
+    AIM_Initialize();
+    map->Add((Creature*)this);
+    owner->SetGuardian(this, true);
+
     switch(getPetType())
     {
         case SUMMON_PET:
@@ -208,8 +212,6 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
         default:
             sLog.outError("Pet have incorrect type (%u) for pet loading.", getPetType());
     }
-
-    owner->SetPet(this, true);
 
     InitStatsForLevel(petlevel);
     SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, time(NULL));
@@ -281,19 +283,6 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
 
     //load spells/cooldowns/auras
     SetCanModifyStats(true);
-    _LoadAuras(timediff);
-
-    //init AB
-    if(is_temporary_summoned)
-    {
-        // Temporary summoned pets always have initial spell list at load
-        InitPetCreateSpells();
-    }
-    else
-    {
-        LearnPetPassives();
-        CastPetAuras(current);
-    }
 
     if(getPetType() == SUMMON_PET && !current)              //all (?) summon pets come with full health when called, but not when they are current
     {
@@ -307,22 +296,19 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
     }
 
     // Spells should be loaded after pet is added to map, because in CheckCast is check on it
+    _LoadAuras(timediff);
     _LoadSpells();
     _LoadSpellCooldowns();
+    LearnPetPassives();
+    CastPetAuras(current);
 
     sLog.outDebug("New Pet has guid %u", GetGUIDLow());
 
-    AIM_Initialize();
-    map->Add((Creature*)this);
+    owner->PetSpellInitialize();
+    if(owner->GetGroup())
+        owner->SetGroupUpdateFlag(GROUP_UPDATE_PET);
 
-    if(owner->GetTypeId() == TYPEID_PLAYER)
-    {
-        ((Player*)owner)->PetSpellInitialize();
-        if(((Player*)owner)->GetGroup())
-            ((Player*)owner)->SetGroupUpdateFlag(GROUP_UPDATE_PET);
-    }
-
-    if(owner->GetTypeId() == TYPEID_PLAYER && getPetType() == HUNTER_PET)
+    if(getPetType() == HUNTER_PET)
     {
         result = CharacterDatabase.PQuery("SELECT genitive, dative, accusative, instrumental, prepositional FROM character_pet_declinedname WHERE owner = '%u' AND id = '%u'", owner->GetGUIDLow(), GetCharmInfo()->GetPetNumber());
 
@@ -511,7 +497,7 @@ void Pet::Update(uint32 diff)
         case ALIVE:
         {
             // unsummon pet that lost owner
-            Unit* owner = GetOwner();
+            Player* owner = GetOwner();
             if(!owner || (!IsWithinDistInMap(owner, OWNER_MAX_DISTANCE) && !isPossessed()) || isControlled() && !owner->GetPetGUID())
             //if(!owner || (!IsWithinDistInMap(owner, OWNER_MAX_DISTANCE) && (owner->GetCharmGUID() && (owner->GetCharmGUID() != GetGUID()))) || (isControlled() && !owner->GetPetGUID()))
             {
@@ -523,6 +509,7 @@ void Pet::Update(uint32 diff)
             {
                 if( owner->GetPetGUID() != GetGUID() )
                 {
+                    sLog.outError("Pet %u is not pet of owner %u, removed", GetEntry(), m_owner->GetName());
                     Remove(getPetType()==HUNTER_PET?PET_SAVE_AS_DELETED:PET_SAVE_NOT_IN_SLOT);
                     return;
                 }
@@ -644,20 +631,7 @@ bool Pet::CanTakeMoreActiveSpells(uint32 spellid)
 
 void Pet::Remove(PetSaveMode mode, bool returnreagent)
 {
-    if(Unit* owner = GetOwner())
-    {
-        if(owner->GetTypeId()==TYPEID_PLAYER)
-        {
-            ((Player*)owner)->RemovePet(this,mode,returnreagent);
-            return;
-        }
-
-        owner->SetPet(this, false);
-    }
-
-    CleanupsBeforeDelete();
-    AddObjectToRemoveList();
-    m_removed = true;
+    m_owner->RemovePet(this,mode,returnreagent);
 }
 
 void Pet::GivePetXP(uint32 xp)
