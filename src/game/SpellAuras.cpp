@@ -1163,6 +1163,7 @@ void Aura::HandleAddModifier(bool apply, bool Real)
             case 34754:    // Clearcasting
             case 34936:    // Backlash
             case 48108:    // Hot Streak
+            case 51124:    // Killing Machine
             case 54741:    // Firestarter
             case 57761:    // Fireball!
                 SetAuraCharges(1);
