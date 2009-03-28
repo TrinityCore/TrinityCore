@@ -185,8 +185,8 @@ void Creature::RemoveFromWorld()
     {
         if(m_formationID)
             formation_mgr.DestroyGroup(m_formationID, GetGUID());
-        ObjectAccessor::Instance().RemoveObject(this);
         Unit::RemoveFromWorld();
+        ObjectAccessor::Instance().RemoveObject(this);
     }
 }
 

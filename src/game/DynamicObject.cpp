@@ -65,8 +65,8 @@ void DynamicObject::RemoveFromWorld()
                 sLog.outCrash("DynamicObject::RemoveFromWorld cannot find viewpoint owner");
             }
         }
-        ObjectAccessor::Instance().RemoveObject(this);
         WorldObject::RemoveFromWorld();
+        ObjectAccessor::Instance().RemoveObject(this);
     }
 }
 

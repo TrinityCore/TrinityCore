@@ -93,8 +93,8 @@ void GameObject::RemoveFromWorld()
     ///- Remove the gameobject from the accessor
     if(IsInWorld())
     {
-        ObjectAccessor::Instance().RemoveObject(this);
         WorldObject::RemoveFromWorld();
+        ObjectAccessor::Instance().RemoveObject(this);
     }
 }
 

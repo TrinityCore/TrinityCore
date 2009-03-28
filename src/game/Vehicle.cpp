@@ -37,17 +37,21 @@ Vehicle::~Vehicle()
 
 void Vehicle::AddToWorld()
 {
-    ///- Register the vehicle for guid lookup
-    if(!IsInWorld()) ObjectAccessor::Instance().AddObject(this);
-    Unit::AddToWorld();
+    if(!IsInWorld())
+    {
+        ObjectAccessor::Instance().AddObject(this);
+        Unit::AddToWorld();
+    }
 }
 
 void Vehicle::RemoveFromWorld()
 {
-    ///- Remove the vehicle from the accessor
-    if(IsInWorld()) ObjectAccessor::Instance().RemoveObject(this);
-    ///- Don't call the function for Creature, normal mobs + totems go in a different storage
-    Unit::RemoveFromWorld();
+    if(IsInWorld())
+    {
+        ///- Don't call the function for Creature, normal mobs + totems go in a different storage
+        Unit::RemoveFromWorld();
+        ObjectAccessor::Instance().RemoveObject(this);
+    }
 }
 
 void Vehicle::setDeathState(DeathState s)                       // overwrite virtual Creature::setDeathState and Unit::setDeathState
