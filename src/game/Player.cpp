@@ -19277,6 +19277,31 @@ bool Player::RewardPlayerAndGroupAtKill(Unit* pVictim)
     return xp || honored_kill;
 }
 
+void Player::RewardPlayerAndGroupAtEvent(uint32 creature_id, WorldObject* pRewardSource)
+{
+    uint64 creature_guid = pRewardSource->GetTypeId()==TYPEID_UNIT ? pRewardSource->GetGUID() : uint64(0);
+
+    // prepare data for near group iteration
+    if(Group *pGroup = GetGroup())
+    {
+        for(GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+        {
+            Player* pGroupGuy = itr->getSource();
+            if(!pGroupGuy)
+                continue;
+
+            if(!pGroupGuy->IsAtGroupRewardDistance(pRewardSource))
+                continue;                               // member (alive or dead) or his corpse at req. distance
+
+            // quest objectives updated only for alive group member or dead but with not released body
+            if(pGroupGuy->isAlive()|| !pGroupGuy->GetCorpse())
+                pGroupGuy->KilledMonster(creature_id, creature_guid);
+        }
+    }
+    else                                                    // if (!pGroup)
+        KilledMonster(creature_id, creature_guid);
+}
+
 bool Player::IsAtGroupRewardDistance(WorldObject const* pRewardSource) const
 {
     if(pRewardSource->GetDistance(this) <= sWorld.getConfig(CONFIG_GROUP_XP_DISTANCE))
