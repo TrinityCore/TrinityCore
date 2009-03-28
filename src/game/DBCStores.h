@@ -134,6 +134,7 @@ extern DBCStorage <TalentTabEntry>               sTalentTabStore;
 extern DBCStorage <TaxiNodesEntry>               sTaxiNodesStore;
 extern DBCStorage <TaxiPathEntry>                sTaxiPathStore;
 extern TaxiMask                                  sTaxiNodesMask;
+extern TaxiMask                                  sOldContinentsNodesMask;
 extern TaxiPathSetBySource                       sTaxiPathSetBySource;
 extern TaxiPathNodesByPath                       sTaxiPathNodesByPath;
 extern DBCStorage <TotemCategoryEntry>           sTotemCategoryStore;
