@@ -381,18 +381,19 @@ void WorldSession::HandlePetSetAction( WorldPacket & recv_data )
             //sign for autocast
             if(act_state == ACT_ENABLED && spell_id)
             {
-                if(pet->isCharmed())
-                    charmInfo->ToggleCreatureAutocast(spell_id, true);
-                else if(pet->GetTypeId() == TYPEID_UNIT && ((Creature*)pet)->isPet())
+                if(pet->GetTypeId() == TYPEID_UNIT && ((Creature*)pet)->isPet())
                     ((Pet*)pet)->ToggleAutocast(spell_id, true);
+                else
+                    charmInfo->ToggleCreatureAutocast(spell_id, true);
             }
             //sign for no/turn off autocast
             else if(act_state == ACT_DISABLED && spell_id)
             {
-                if(pet->isCharmed())
-                    charmInfo->ToggleCreatureAutocast(spell_id, false);
-                else if(pet->GetTypeId() == TYPEID_UNIT && ((Creature*)pet)->isPet())
+                if(pet->GetTypeId() == TYPEID_UNIT && ((Creature*)pet)->isPet())
                     ((Pet*)pet)->ToggleAutocast(spell_id, false);
+                else
+                    charmInfo->ToggleCreatureAutocast(spell_id, false);
+
             }
 
             charmInfo->GetActionBarEntry(position)->Type = act_state;
@@ -570,11 +571,10 @@ void WorldSession::HandlePetSpellAutocastOpcode( WorldPacket& recvPacket )
         return;
     }
 
-    if(pet->isCharmed())
-                                                            //state can be used as boolean
-        pet->GetCharmInfo()->ToggleCreatureAutocast(spellid, state);
-    else
+    if(pet->isPet())
         ((Pet*)pet)->ToggleAutocast(spellid, state);
+    else
+        pet->GetCharmInfo()->ToggleCreatureAutocast(spellid, state);
 
     for(uint8 i = 0; i < 10; ++i)
     {
