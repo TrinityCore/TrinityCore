@@ -52,6 +52,9 @@ void Vehicle::RemoveFromWorld()
 
 void Vehicle::setDeathState(DeathState s)                       // overwrite virtual Creature::setDeathState and Unit::setDeathState
 {
+    if(Unit *charmer = GetCharmer())
+        if(charmer->GetTypeId() == TYPEID_PLAYER)
+            ((Player*)charmer)->ExitVehicle(this);
     Creature::setDeathState(s);
 }
 
