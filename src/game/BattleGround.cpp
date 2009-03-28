@@ -955,7 +955,7 @@ void BattleGround::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
                 bgTypeId=BATTLEGROUND_AA;                   // set the bg type to all arenas (it will be used for queue refreshing)
 
                 // summon old pet if there was one and there isn't a current pet
-                if(!plr->GetPet() && plr->GetTemporaryUnsummonedPetNumber())
+                if(!plr->GetGuardianPet() && plr->GetTemporaryUnsummonedPetNumber())
                 {
                     Pet* NewPet = new Pet(plr);
                     if(!NewPet->LoadPetFromDB(plr, 0, (plr)->GetTemporaryUnsummonedPetNumber(), true))

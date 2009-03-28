@@ -294,6 +294,7 @@ class Item;
 class Pet;
 class Path;
 class PetAura;
+class Guardian;
 
 struct SpellImmune
 {
@@ -826,8 +827,12 @@ enum ReactiveType
 };
 
 #define MAX_REACTIVE 3
-#define MAX_TOTEM       4
-#define MAX_SUMMON_SLOT 6
+#define SUMMON_SLOT_PET     0
+#define SUMMON_SLOT_TOTEM   1
+#define MAX_TOTEM_SLOT      5
+#define SUMMON_SLOT_MINIPET 5
+#define SUMMON_SLOT_QUEST   6
+#define MAX_SUMMON_SLOT     7
 
 struct AuraSlotEntry
 {
@@ -1171,10 +1176,13 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void SetOwnerGUID(uint64 owner) { SetUInt64Value(UNIT_FIELD_SUMMONEDBY, owner); }
         uint64 GetCreatorGUID() const { return GetUInt64Value(UNIT_FIELD_CREATEDBY); }
         void SetCreatorGUID(uint64 creator) { SetUInt64Value(UNIT_FIELD_CREATEDBY, creator); }
-        uint64 GetPetGUID() const { return  GetUInt64Value(UNIT_FIELD_SUMMON); }
+        uint64 GetGuardianGUID() const { return GetUInt64Value(UNIT_FIELD_SUMMON); }
+        void SetGuardianGUID(uint64 guid) { SetUInt64Value(UNIT_FIELD_SUMMON, guid); }
         uint64 GetCharmerGUID() const { return GetUInt64Value(UNIT_FIELD_CHARMEDBY); }
         void SetCharmerGUID(uint64 owner) { SetUInt64Value(UNIT_FIELD_CHARMEDBY, owner); }
         uint64 GetCharmGUID() const { return  GetUInt64Value(UNIT_FIELD_CHARM); }
+        void SetPetGUID(uint64 guid) { m_SummonSlot[SUMMON_SLOT_PET] = guid; }
+        uint64 GetPetGUID() const { return m_SummonSlot[SUMMON_SLOT_PET]; }
 
         uint64 GetCharmerOrOwnerGUID() const { return GetCharmerGUID() ? GetCharmerGUID() : GetOwnerGUID(); }
         uint64 GetCharmerOrOwnerOrOwnGUID() const
@@ -1188,7 +1196,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         Player* GetSpellModOwner() const;
 
         Unit* GetOwner() const;
-        Pet* GetPet() const;
+        Guardian *GetGuardianPet() const;
         Unit* GetCharmer() const;
         Unit* GetCharm() const;
         Unit* GetCharmerOrOwner() const { return GetCharmerGUID() ? GetCharmer() : GetOwner(); }
@@ -1201,7 +1209,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         }
         Player* GetCharmerOrOwnerPlayerOrPlayerItself() const;
 
-        void SetPet(Creature* target, bool apply);
+        void SetGuardian(Guardian* target, bool apply);
         void SetCharm(Unit* target, bool apply);
         Unit* GetNextRandomRaidMemberOrPet(float radius);
         void SetCharmedOrPossessedBy(Unit* charmer, bool possess);
@@ -1313,7 +1321,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         Spell* m_currentSpells[CURRENT_MAX_SPELL];
 
         uint32 m_addDmgOnce;
-        uint64 m_TotemSlot[MAX_SUMMON_SLOT];
+        uint64 m_SummonSlot[MAX_SUMMON_SLOT];
         uint64 m_ObjectSlot[4];
         uint32 m_detectInvisibilityMask;
         uint32 m_invisibilityMask;
