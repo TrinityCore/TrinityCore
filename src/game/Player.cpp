@@ -5237,6 +5237,7 @@ void Player::SetSkill(uint32 id, uint16 currVal, uint16 maxVal)
             SetUInt32Value(PLAYER_SKILL_VALUE_INDEX(i),MAKE_SKILL_VALUE(currVal,maxVal));
             learnSkillRewardedSpells(id, currVal);
             GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL);
+            GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LEVEL);
         }
         else                                                //remove
         {
@@ -5270,6 +5271,7 @@ void Player::SetSkill(uint32 id, uint16 currVal, uint16 maxVal)
                 SetUInt32Value(PLAYER_SKILL_INDEX(i), MAKE_PAIR32(id,0));
             SetUInt32Value(PLAYER_SKILL_VALUE_INDEX(i),MAKE_SKILL_VALUE(currVal,maxVal));
             GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL);
+            GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LEVEL);
 
             // apply skill bonuses
             SetUInt32Value(PLAYER_SKILL_BONUS_INDEX(i),0);
