@@ -8417,13 +8417,16 @@ Unit* Unit::GetFirstControlled() const
 
 void Unit::RemoveAllControlled()
 {
+    //possessed pet and vehicle
+    if(GetTypeId() == TYPEID_PLAYER)
+        ((Player*)this)->StopCastingCharm();
+
     while(!m_Controlled.empty())
     {
         Unit *target = *m_Controlled.begin();
         m_Controlled.erase(m_Controlled.begin());
         if(target->GetCharmerGUID() == GetGUID())
         {
-            //TODO: possessed and vehicle
             target->RemoveCharmAuras();
         }
         else if(target->GetOwnerGUID() == GetGUID() 
