@@ -223,9 +223,11 @@ void WorldSession::HandleGameObjectQueryOpcode( WorldPacket & recv_data )
     {
 
         std::string Name;
+        std::string IconName;
         std::string CastBarCaption;
 
         Name = info->name;
+        IconName = info->IconName;
         CastBarCaption = info->castBarCaption;
 
         int loc_idx = GetSessionDbLocaleIndex();
@@ -247,7 +249,7 @@ void WorldSession::HandleGameObjectQueryOpcode( WorldPacket & recv_data )
         data << uint32(info->displayId);
         data << Name;
         data << uint8(0) << uint8(0) << uint8(0);           // name2, name3, name4
-        data << uint8(0);                                   // 2.0.3, string
+        data << IconName;                                   // 2.0.3, string. Icon name to use instead of default icon for go's (ex: "Attack" makes sword)
         data << CastBarCaption;                             // 2.0.3, string. Text will appear in Cast Bar when using GO (ex: "Collecting")
         data << uint8(0);                                   // 2.0.3, string
         data.append(info->raw.data, 24);
