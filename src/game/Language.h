@@ -731,7 +731,10 @@ enum TrinityStrings
     LANG_CHARACTER_DELETED              = 1009,
     LANG_ACCOUNT_LIST_HEADER            = 1010,
     LANG_ACCOUNT_LIST_ERROR             = 1011,
-    // Room for more level 4              1012-1099 not used
+    LANG_ACCOUNT_LIST_BAR               = 1012,
+    LANG_ACCOUNT_LIST_LINE              = 1013,
+    LANG_ACCOUNT_LIST_EMPTY             = 1014,
+    // Room for more level 4              1015-1099 not used
 
     // Level 3 (continue)
     LANG_ACCOUNT_SETADDON               = 1100,
