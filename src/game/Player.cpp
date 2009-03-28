@@ -134,7 +134,18 @@ PlayerTaxi::PlayerTaxi()
 
 void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint32 level)
 {
-    // capital and taxi hub masks
+    // class specific initial known nodes
+    switch(chrClass)
+    {
+        case CLASS_DEATH_KNIGHT:
+        {
+            for(int i = 0; i < TaxiMaskSize; ++i)
+                m_taximask[i] |= sOldContinentsNodesMask[i];
+            break;
+        }
+    }
+
+    // race specific initial known nodes: capital and taxi hub masks
     switch(race)
     {
         case RACE_HUMAN:    SetTaximaskNode(2);  break;     // Human
@@ -148,12 +159,6 @@ void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint32 leve
         case RACE_TROLL:    SetTaximaskNode(23); break;     // Troll
         case RACE_BLOODELF: SetTaximaskNode(82); break;     // Blood Elf
         case RACE_DRAENEI:  SetTaximaskNode(94); break;     // Draenei
-    }
-
-    switch(chrClass)
-    {
-        case CLASS_DEATH_KNIGHT:                            // TODO: figure out initial known nodes
-            break;
     }
 
     // new continent starting masks (It will be accessible only at new map)
