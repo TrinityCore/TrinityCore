@@ -1748,3 +1748,10 @@ void Pet::CastPetAura(PetAura const* aura)
         CastSpell(this, auraId, true);
 }
 
+void Pet::learnSpellHighRank(uint32 spellid)
+{
+    learnSpell(spellid,false);
+
+    if(uint32 next = spellmgr.GetNextSpellInChain(spellid))
+        learnSpellHighRank(next);
+}
