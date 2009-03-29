@@ -396,7 +396,7 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
 
         void SendToPlayers(WorldPacket const* data) const;
 
-        template<class Do>
+        /*template<class Do>
         void BroadcastWorker(Do& _do) const
         {
             for(MapRefManager::const_iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
@@ -409,7 +409,7 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
             for(MapRefManager::const_iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
                 if(itr->getSource()->GetZoneId()==zoneid)
                     _do(itr->getSource());
-        }
+        }*/
 
 
         typedef MapRefManager PlayerList;
