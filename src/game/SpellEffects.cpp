@@ -1242,18 +1242,7 @@ void Spell::EffectDummy(uint32 i)
                 }
                 case 58418:                                 // Portal to Orgrimmar
                 case 58420:                                 // Portal to Stormwind
-                {
-                    if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    uint32 spellID = m_spellInfo->EffectBasePoints[0] + 1;
-                    uint32 questID = m_spellInfo->EffectBasePoints[1] + 1;
-
-                    if( ((Player*)unitTarget)->GetQuestStatus(questID) == QUEST_STATUS_COMPLETE && !((Player*)unitTarget)->GetQuestRewardStatus (questID) )
-                        unitTarget->CastSpell(unitTarget, spellID, true);
-
-                    return;
-                }
+                    return;                                 // implemented in EffectScript[0]
             }
 
             //All IconID Check in there
@@ -4757,6 +4746,20 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     // triggered spell is stored in m_spellInfo->EffectBasePoints[0]
                     unitTarget->CastSpell(unitTarget, damage, false);
                     break;
+                }
+                case 58418:                                 // Portal to Orgrimmar
+                case 58420:                                 // Portal to Stormwind
+                {
+                    if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER || effIndex!=0)
+                        return;
+
+                    uint32 spellID = m_spellInfo->EffectBasePoints[0] + 1;
+                    uint32 questID = m_spellInfo->EffectBasePoints[1] + 1;
+
+                    if( ((Player*)unitTarget)->GetQuestStatus(questID) == QUEST_STATUS_COMPLETE && !((Player*)unitTarget)->GetQuestRewardStatus (questID) )
+                        unitTarget->CastSpell(unitTarget, spellID, true);
+
+                    return;
                 }
                 // random spell learn instead placeholder
                 case 60893:                                 // Northrend Alchemy Research
