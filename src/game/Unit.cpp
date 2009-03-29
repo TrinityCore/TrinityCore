@@ -8086,11 +8086,14 @@ bool Unit::Attack(Unit *victim, bool meleeAttack)
         }
 
         //switch target
-        m_attacking->_removeAttacker(this);
         InterruptSpell(CURRENT_MELEE_SPELL);
         if(!meleeAttack)
             clearUnitState(UNIT_STAT_MELEE_ATTACKING);
+        m_attacking->_removeAttacker(this);
     }
+
+    m_attacking = victim;
+    m_attacking->_addAttacker(this);
 
     //Set our target
     SetUInt64Value(UNIT_FIELD_TARGET, victim->GetGUID());
@@ -8101,9 +8104,6 @@ bool Unit::Attack(Unit *victim, bool meleeAttack)
     // set position before any AI calls/assistance
     //if(GetTypeId()==TYPEID_UNIT)
     //    ((Creature*)this)->SetCombatStartPosition(GetPositionX(), GetPositionY(), GetPositionZ());
-
-    m_attacking = victim;
-    m_attacking->_addAttacker(this);
 
     //if(m_attacking->GetTypeId()==TYPEID_UNIT && ((Creature*)m_attacking)->IsAIEnabled)
     //    ((Creature*)m_attacking)->AI()->AttackedBy(this);
