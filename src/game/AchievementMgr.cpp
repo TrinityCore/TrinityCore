@@ -511,10 +511,16 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 SetCriteriaProgress(achievementCriteria, GetPlayer()->getLevel());
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL:
+                // update at loading or specific skill update
+                if(miscvalue1 && miscvalue1 != achievementCriteria->reach_skill_level.skillID)
+                    continue;
                 if(uint32 skillvalue = GetPlayer()->GetBaseSkillValue(achievementCriteria->reach_skill_level.skillID))
                     SetCriteriaProgress(achievementCriteria, skillvalue);
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LEVEL:
+                // update at loading or specific skill update
+                if(miscvalue1 && miscvalue1 != achievementCriteria->learn_skill_level.skillID)
+                    continue;
                 if(uint32 maxSkillvalue = GetPlayer()->GetPureMaxSkillValue(achievementCriteria->learn_skill_level.skillID))
                     SetCriteriaProgress(achievementCriteria, maxSkillvalue);
                 break;
