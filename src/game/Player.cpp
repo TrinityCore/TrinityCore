@@ -19781,6 +19781,8 @@ void Player::InitGlyphsForLevel()
 
 void Player::EnterVehicle(Vehicle *vehicle)
 {
+    sLog.outDebug("Player %s enter vehicle entry %u id %u dbguid %u", GetName(), vehicle->GetEntry(), vehicle->GetVehicleId(), vehicle->GetDBTableGUIDLow());
+
     if(vehicle->GetCharmerGUID())
         return;
 

@@ -67,7 +67,7 @@ void Vehicle::Update(uint32 diff)
     Creature::Update(diff);
 }
 
-bool Vehicle::Create(uint32 guidlow, Map *map, uint32 Entry, uint32 vehicleId, uint32 team)
+bool Vehicle::Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, uint32 vehicleId, uint32 team)
 {
     SetMapId(map->GetId());
     SetInstanceId(map->GetInstanceId());
@@ -101,4 +101,78 @@ void Vehicle::Dismiss()
     CombatStop();
     CleanupsBeforeDelete();
     AddObjectToRemoveList();
+}
+
+bool Vehicle::LoadFromDB(uint32 guid, Map *map)
+{
+    CreatureData const* data = objmgr.GetCreatureData(guid);
+
+    if(!data)
+    {
+        sLog.outErrorDb("Creature (GUID: %u) not found in table `creature`, can't load. ",guid);
+        return false;
+    }
+
+    uint32 id = 0;
+    if(const CreatureInfo *cInfo = objmgr.GetCreatureTemplate(data->id))
+        id = cInfo->VehicleId;
+    if(!id || !sVehicleStore.LookupEntry(id))
+        return false;
+
+    m_DBTableGuid = guid;
+    if (map->GetInstanceId() != 0) guid = objmgr.GenerateLowGuid(HIGHGUID_VEHICLE);
+
+    uint16 team = 0;
+    if(!Create(guid,map,data->phaseMask,data->id,id,team))
+        return false;
+
+    Relocate(data->posX,data->posY,data->posZ,data->orientation);
+
+    if(!IsPositionValid())
+    {
+        sLog.outError("Creature (guidlow %d, entry %d) not loaded. Suggested coordinates isn't valid (X: %f Y: %f)",GetGUIDLow(),GetEntry(),GetPositionX(),GetPositionY());
+        return false;
+    }
+    //We should set first home position, because then AI calls home movement
+    SetHomePosition(data->posX,data->posY,data->posZ,data->orientation);
+
+    m_respawnradius = data->spawndist;
+
+    m_respawnDelay = data->spawntimesecs;
+    m_isDeadByDefault = data->is_dead;
+    m_deathState = m_isDeadByDefault ? DEAD : ALIVE;
+
+    m_respawnTime  = objmgr.GetCreatureRespawnTime(m_DBTableGuid,GetInstanceId());
+    if(m_respawnTime > time(NULL))                          // not ready to respawn
+    {
+        m_deathState = DEAD;
+        if(canFly())
+        {
+            float tz = GetMap()->GetHeight(data->posX,data->posY,data->posZ,false);
+            if(data->posZ - tz > 0.1)
+                Relocate(data->posX,data->posY,tz);
+        }
+    }
+    else if(m_respawnTime)                                  // respawn time set but expired
+    {
+        m_respawnTime = 0;
+        objmgr.SaveCreatureRespawnTime(m_DBTableGuid,GetInstanceId(),0);
+    }
+
+    uint32 curhealth = data->curhealth;
+    if(curhealth)
+    {
+        curhealth = uint32(curhealth*_GetHealthMod(GetCreatureInfo()->rank));
+        if(curhealth < 1)
+            curhealth = 1;
+    }
+
+    SetHealth(m_deathState == ALIVE ? curhealth : 0);
+    SetPower(POWER_MANA,data->curmana);
+
+    // checked at creature_template loading
+    m_defaultMovementType = MovementGeneratorType(data->movementType);
+
+    AIM_Initialize();
+    return true;
 }
