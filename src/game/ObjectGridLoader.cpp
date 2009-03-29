@@ -293,29 +293,7 @@ ObjectGridUnloader::Visit(GridRefManager<T> &m)
         // if option set then object already saved at this moment
         if(!sWorld.getConfig(CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY))
             obj->SaveRespawnTime();
-        ///- object must be out of world before delete
-        obj->RemoveFromWorld();
         ///- object will get delinked from the manager when deleted
-        delete obj;
-    }
-}
-
-template<>
-void
-ObjectGridUnloader::Visit(CreatureMapType &m)
-{
-    // remove all cross-reference before deleting
-    for(CreatureMapType::iterator iter=m.begin(); iter != m.end(); ++iter)
-        iter->getSource()->CleanupsBeforeDelete();
-
-    while(!m.isEmpty())
-    {
-        Creature *obj = m.getFirst()->getSource();
-        // if option set then object already saved at this moment
-        if(!sWorld.getConfig(CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY))
-            obj->SaveRespawnTime();
-        ///- object will get delinked from the manager when deleted
-        obj->CleanupsBeforeDelete();
         delete obj;
     }
 }
@@ -339,6 +317,29 @@ ObjectGridStoper::Visit(CreatureMapType &m)
     }
 }
 
-template void ObjectGridUnloader::Visit(GameObjectMapType &);
-template void ObjectGridUnloader::Visit(DynamicObjectMapType &);
+void
+ObjectGridCleaner::Stop(GridType &grid)
+{
+    TypeContainerVisitor<ObjectGridCleaner, GridTypeMapContainer > stoper(*this);
+    grid.Visit(stoper);
+}
 
+void
+ObjectGridCleaner::Visit(CreatureMapType &m)
+{
+    for(CreatureMapType::iterator iter=m.begin(); iter != m.end(); ++iter)
+        iter->getSource()->CleanupsBeforeDelete();
+}
+
+template<class T>
+void
+ObjectGridCleaner::Visit(GridRefManager<T> &m)
+{
+    for(GridRefManager<T>::iterator iter = m.begin(); iter != m.end(); ++iter)
+        iter->getSource()->RemoveFromWorld();
+}
+
+/*template void ObjectGridUnloader::Visit(GameObjectMapType &);
+template void ObjectGridUnloader::Visit(DynamicObjectMapType &);
+template void ObjectGridCleaner::Visit(GameObjectMapType &);
+template void ObjectGridCleaner::Visit(DynamicObjectMapType &);*/
