@@ -22,6 +22,7 @@
 #define __BATTLEGROUNDMGR_H
 
 #include "Common.h"
+#include "Policies/Singleton.h"
 #include "BattleGround.h"
 
 typedef std::map<uint32, BattleGround*> BattleGroundSet;
