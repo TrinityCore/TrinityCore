@@ -85,7 +85,6 @@ class TRINITY_DLL_DECL ObjectGridStoper
     public:
         ObjectGridStoper(NGridType &grid) : i_grid(grid) {}
 
-        void MoveToRespawnN();
         void StopN()
         {
             for(unsigned int x=0; x < MAX_NUMBER_OF_CELLS; ++x)
@@ -102,6 +101,30 @@ class TRINITY_DLL_DECL ObjectGridStoper
         void Visit(CreatureMapType &m);
 
         template<class NONACTIVE> void Visit(GridRefManager<NONACTIVE> &) {}
+    private:
+        NGridType &i_grid;
+};
+
+class TRINITY_DLL_DECL ObjectGridCleaner
+{
+    public:
+        ObjectGridCleaner(NGridType &grid) : i_grid(grid) {}
+
+        void CleanN()
+        {
+            for(unsigned int x=0; x < MAX_NUMBER_OF_CELLS; ++x)
+            {
+                for(unsigned int y=0; y < MAX_NUMBER_OF_CELLS; ++y)
+                {
+                    GridLoader<Player, AllWorldObjectTypes, AllGridObjectTypes> loader;
+                    loader.Stop(i_grid(x, y), *this);
+                }
+            }
+        }
+
+        void Stop(GridType &grid);
+        void Visit(CreatureMapType &m);
+        template<class T> void Visit(GridRefManager<T> &);
     private:
         NGridType &i_grid;
 };
