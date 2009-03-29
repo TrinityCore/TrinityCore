@@ -22,6 +22,7 @@
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Creature.h"
+#include "Vehicle.h"
 #include "GameObject.h"
 #include "DynamicObject.h"
 #include "Corpse.h"
@@ -58,7 +59,7 @@ ObjectGridRespawnMover::Visit(CreatureMapType &m)
 
         Creature * c = iter->getSource();
 
-        assert((!c->isPet() || !c->isVehicle()) && "ObjectGridRespawnMover don't must be called for pets");
+        assert(!c->isWorldCreature() && "ObjectGridRespawnMover don't must be called for pets");
 
         Cell const& cur_cell  = c->GetCurrentCell();
 
@@ -120,6 +121,36 @@ void LoadHelper(CellGuidSet const& guid_set, CellPair &cell, GridRefManager<T> &
         {
             delete obj;
             continue;
+        }
+
+        obj->GetGridRef().link(&m, obj);
+
+        addUnitState(obj,cell);
+        obj->AddToWorld();
+        if(obj->isActiveObject())
+            map->AddToActive(obj);
+
+        ++count;
+
+    }
+}
+
+void LoadHelper(CellGuidSet const& guid_set, CellPair &cell, CreatureMapType &m, uint32 &count, Map* map)
+{
+    for(CellGuidSet::const_iterator i_guid = guid_set.begin(); i_guid != guid_set.end(); ++i_guid)
+    {
+        Creature* obj = new Creature;
+        uint32 guid = *i_guid;
+        //sLog.outString("DEBUG: LoadHelper from table: %s for (guid: %u) Loading",table,guid);
+        if(!obj->LoadFromDB(guid, map))
+        {
+            delete obj;
+            obj = new Vehicle;
+            if(!((Vehicle*)obj)->LoadFromDB(guid, map))
+            {
+                delete (Vehicle*)obj;
+                continue;
+            }
         }
 
         obj->GetGridRef().link(&m, obj);

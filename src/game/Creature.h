@@ -207,6 +207,7 @@ struct CreatureInfo
     int32   resistance6;
     uint32  spells[CREATURE_MAX_SPELLS];
     uint32  PetSpellDataId;
+    uint32  VehicleId;
     uint32  mingold;
     uint32  maxgold;
     char const* AIName;
@@ -450,6 +451,7 @@ class TRINITY_DLL_SPEC Creature : public Unit
         bool isSummon() const   { return m_summonMask & SUMMON_MASK_SUMMON; }
         bool isPet() const      { return m_summonMask & SUMMON_MASK_PET; }
         bool isVehicle() const  { return m_summonMask & SUMMON_MASK_VEHICLE; }
+        bool isWorldCreature() const { return m_summonMask & SUMMON_MASK_PET; }
         bool isTotem() const    { return m_summonMask & SUMMON_MASK_TOTEM; }
         void SetCorpseDelay(uint32 delay) { m_corpseDelay = delay; }
         bool isRacialLeader() const { return GetCreatureInfo()->RacialLeader; }
