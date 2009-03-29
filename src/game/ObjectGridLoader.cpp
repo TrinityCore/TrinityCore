@@ -339,7 +339,10 @@ ObjectGridCleaner::Visit(GridRefManager<T> &m)
         iter->getSource()->RemoveFromWorld();
 }
 
-/*template void ObjectGridUnloader::Visit(GameObjectMapType &);
+template void ObjectGridUnloader::Visit(CreatureMapType &);
+template void ObjectGridUnloader::Visit(GameObjectMapType &);
 template void ObjectGridUnloader::Visit(DynamicObjectMapType &);
+template void ObjectGridUnloader::Visit(CorpseMapType &);
 template void ObjectGridCleaner::Visit(GameObjectMapType &);
-template void ObjectGridCleaner::Visit(DynamicObjectMapType &);*/
+template void ObjectGridCleaner::Visit(DynamicObjectMapType &);
+template void ObjectGridCleaner::Visit(CorpseMapType &);
