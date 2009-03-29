@@ -1241,19 +1241,17 @@ void Spell::EffectDummy(uint32 i)
                     return;
                 }
                 case 58418:                                 // Portal to Orgrimmar
-                {
-                    if(!unitTarget)
-                        return;
-
-                    unitTarget->CastSpell(unitTarget, 58419, true);
-                    return;
-                }
                 case 58420:                                 // Portal to Stormwind
                 {
-                    if(!unitTarget)
+                    if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
                         return;
 
-                    unitTarget->CastSpell(unitTarget, 58421, true);
+                    uint32 spellID = m_spellInfo->EffectBasePoints[0] + 1;
+                    uint32 questID = m_spellInfo->EffectBasePoints[1] + 1;
+
+                    if( ((Player*)unitTarget)->GetQuestStatus(questID) == QUEST_STATUS_COMPLETE && !((Player*)unitTarget)->GetQuestRewardStatus (questID) )
+                        unitTarget->CastSpell(unitTarget, spellID, true);
+
                     return;
                 }
             }
