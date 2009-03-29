@@ -8089,8 +8089,10 @@ bool Unit::Attack(Unit *victim, bool meleeAttack)
         InterruptSpell(CURRENT_MELEE_SPELL);
         if(!meleeAttack)
             clearUnitState(UNIT_STAT_MELEE_ATTACKING);
-        m_attacking->_removeAttacker(this);
     }
+
+    if(m_attacking)
+        m_attacking->_removeAttacker(this);
 
     m_attacking = victim;
     m_attacking->_addAttacker(this);
