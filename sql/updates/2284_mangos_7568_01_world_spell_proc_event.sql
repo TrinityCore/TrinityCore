@@ -1,4 +1,4 @@
-ALTER TABLE db_version CHANGE COLUMN required_7565_01_mangos_mangos_string required_7568_01_mangos_spell_proc_event bit;
+/*ALTER TABLE db_version CHANGE COLUMN required_7565_01_mangos_mangos_string required_7568_01_mangos_spell_proc_event bit;*/
 
 -- (53569) Infusion of Light (Rank 1)
 DELETE FROM `spell_proc_event` WHERE `entry` IN (53569);
