@@ -1632,7 +1632,10 @@ void WorldSession::HandleSpellClick( WorldPacket & recv_data )
     Vehicle *vehicle = ObjectAccessor::GetVehicle(guid);
 
     if(!vehicle)
+    {
+        sLog.outError("Player %s cannot find vehicle %u", _player->GetName(), guid);
         return;
+    }
 
     _player->EnterVehicle(vehicle);
 }

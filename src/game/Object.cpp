@@ -1746,7 +1746,7 @@ Vehicle* WorldObject::SummonVehicle(uint32 entry, float x, float y, float z, flo
     if(!ci)
         return NULL;
 
-    uint32 id = ci->spells[7]; //temp store id here
+    uint32 id = ci->VehicleId; //temp store id here
     if(!id) id = 156;
     VehicleEntry const *ve = sVehicleStore.LookupEntry(id);
     if(!ve)
@@ -1757,7 +1757,7 @@ Vehicle* WorldObject::SummonVehicle(uint32 entry, float x, float y, float z, flo
     uint32 team = 0;
     if (GetTypeId()==TYPEID_PLAYER)
         team = ((Player*)this)->GetTeam();
-    if(!v->Create(objmgr.GenerateLowGuid(HIGHGUID_VEHICLE), map, entry, id, team))
+    if(!v->Create(objmgr.GenerateLowGuid(HIGHGUID_VEHICLE), map, GetPhaseMask(), entry, id, team))
     {
         delete v;
         return NULL;

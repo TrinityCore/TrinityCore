@@ -32,7 +32,7 @@ class Vehicle : public Creature
         void AddToWorld();
         void RemoveFromWorld();
 
-        bool Create (uint32 guidlow, Map *map, uint32 Entry, uint32 vehicleId, uint32 team);
+        bool Create (uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, uint32 vehicleId, uint32 team);
 
         void setDeathState(DeathState s);                   // overwrite virtual Creature::setDeathState and Unit::setDeathState
         void Update(uint32 diff);                           // overwrite virtual Creature::Update and Unit::Update
@@ -42,6 +42,7 @@ class Vehicle : public Creature
 
         void Dismiss();
 
+        bool LoadFromDB(uint32 guid, Map *map);
     protected:
         uint32 m_vehicleId;
 

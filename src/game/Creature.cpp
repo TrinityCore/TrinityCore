@@ -1393,6 +1393,10 @@ bool Creature::LoadFromDB(uint32 guid, Map *map)
         return false;
     }
 
+    if(const CreatureInfo *cInfo = objmgr.GetCreatureTemplate(data->id))
+        if(cInfo->VehicleId)
+            return false;
+
     m_DBTableGuid = guid;
     if (map->GetInstanceId() != 0) guid = objmgr.GenerateLowGuid(HIGHGUID_UNIT);
 

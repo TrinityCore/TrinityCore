@@ -237,7 +237,7 @@ template<>
 void Map::AddToGrid(Creature* obj, NGridType *grid, Cell const& cell)
 {
     // add to world object registry in grid
-    if(obj->isPet() || obj->isVehicle() || obj->IsTempWorldObject)
+    if(obj->isWorldCreature() || obj->IsTempWorldObject)
     {
         (*grid)(cell.CellX(), cell.CellY()).AddWorldObject<Creature>(obj, obj->GetGUID());
     }
@@ -289,7 +289,7 @@ template<>
 void Map::RemoveFromGrid(Creature* obj, NGridType *grid, Cell const& cell)
 {
     // remove from world object registry in grid
-    if(obj->isPet() || obj->isVehicle() || obj->IsTempWorldObject)
+    if(obj->isWorldCreature() || obj->IsTempWorldObject)
     {
         (*grid)(cell.CellX(), cell.CellY()).RemoveWorldObject<Creature>(obj, obj->GetGUID());
     }
@@ -2022,7 +2022,7 @@ void Map::RemoveAllObjectsInRemoveList()
         switch(obj->GetTypeId())
         {
         case TYPEID_UNIT:
-            if(!((Creature*)obj)->isPet() && !((Creature*)obj)->isVehicle())
+            if(!((Creature*)obj)->isWorldCreature())
                 SwitchGridContainers((Creature*)obj, on);
             break;
         }

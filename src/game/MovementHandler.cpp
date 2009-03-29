@@ -435,7 +435,8 @@ void WorldSession::HandleDismissControlledVehicle(WorldPacket &recv_data)
     if(Vehicle *vehicle = ObjectAccessor::GetVehicle(vehicleGUID))
     {
         _player->ExitVehicle(vehicle);
-        vehicle->Dismiss();
+        if(!vehicle->GetDBTableGUIDLow())
+            vehicle->Dismiss();
     }
 }
 
