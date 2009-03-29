@@ -1074,27 +1074,31 @@ bool Map::UnloadGrid(const uint32 &x, const uint32 &y, bool unloadAll)
              return false;
 
         DEBUG_LOG("Unloading grid[%u,%u] for map %u", x,y, i_id);
+
         ObjectGridUnloader unloader(*grid);
 
         if(!unloadAll)
         {
             // Finish creature moves, remove and delete all creatures with delayed remove before moving to respawn grids
             // Must know real mob position before move
-            DoDelayedMovesAndRemoves();
+            MoveAllCreaturesInMoveList();
 
             // move creatures to respawn grids if this is diff.grid or to remove list
             unloader.MoveToRespawnN();
 
             // Finish creature moves, remove and delete all creatures with delayed remove before unload
-            DoDelayedMovesAndRemoves();
+            MoveAllCreaturesInMoveList();
         }
-        else
-            RemoveAllObjectsInRemoveList();
 
-        //assert(grid.NoWorldObjectInGrid());
+        ObjectGridCleaner cleaner(*grid);
+        cleaner.CleanN();
+
+        RemoveAllObjectsInRemoveList();
+
         unloader.UnloadN();
-        //assert(grid.NoWorldObjectInGrid());
-        //assert(grid.NoGridObjectInGrid());
+
+        assert(i_objectsToRemove.empty());
+
         delete grid;
         setNGrid(NULL, x, y);
     }
