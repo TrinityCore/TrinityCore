@@ -395,7 +395,7 @@ void LoadDBCStores(const std::string& dataPath)
                 continue;
 
             // prevent memory corruption; otherwise cls will become 12 below
-            if (! talentTabInfo->ClassMask & CLASSMASK_ALL_PLAYABLE)
+            if ((talentTabInfo->ClassMask & CLASSMASK_ALL_PLAYABLE)==0)
                 continue;
 
             // store class talent tab pages
