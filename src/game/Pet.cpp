@@ -233,6 +233,9 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
         CharacterDatabase.CommitTransaction();
     }
 
+    _LoadSpells();
+    _LoadSpellCooldowns();
+
     if(!is_temporary_summoned)
     {
         // permanent controlled pets store state in DB
@@ -303,8 +306,6 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
 
     // Spells should be loaded after pet is added to map, because in CheckCast is check on it
     _LoadAuras(timediff);
-    _LoadSpells();
-    _LoadSpellCooldowns();
     LearnPetPassives();
     CastPetAuras(current);
 
@@ -1634,12 +1635,9 @@ void Pet::ToggleAutocast(uint32 spellid, bool apply)
     if(IsPassiveSpell(spellid))
         return;
 
-    //if(const SpellEntry *tempSpell = GetSpellStore()->LookupEntry(spellid))
-    //    if(tempSpell->EffectImplicitTargetA[0] != TARGET_ALL_AROUND_CASTER
-    //        && tempSpell->EffectImplicitTargetA[0] != TARGET_CHAIN_DAMAGE)
-    //        return;
-
     PetSpellMap::const_iterator itr = m_spells.find(spellid);
+    if(itr == m_spells.end())
+        return;
 
     int i;
 
