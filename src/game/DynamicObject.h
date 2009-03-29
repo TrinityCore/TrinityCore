@@ -54,6 +54,7 @@ class DynamicObject : public WorldObject
         void Yell(int32 textId, uint32 language, uint64 TargetGuid) { MonsterYell(textId,language,TargetGuid); }
         void TextEmote(int32 textId, uint64 TargetGuid) { MonsterTextEmote(textId,TargetGuid); }
         void Whisper(int32 textId,uint64 receiver) { MonsterWhisper(textId,receiver); }
+        void YellToZone(int32 textId, uint32 language, uint64 TargetGuid) { MonsterYellToZone(textId,language,TargetGuid); }
 
         GridReference<DynamicObject> &GetGridRef() { return m_gridRef; }
     protected:
