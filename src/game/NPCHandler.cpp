@@ -305,7 +305,7 @@ void WorldSession::HandleGossipHelloOpcode( WorldPacket & recv_data )
     }
 }
 
-void WorldSession::HandleGossipSelectOptionOpcode( WorldPacket & recv_data )
+/*void WorldSession::HandleGossipSelectOptionOpcode( WorldPacket & recv_data )
 {
     CHECK_PACKET_SIZE(recv_data,8+4+4);
 
@@ -348,7 +348,7 @@ void WorldSession::HandleGossipSelectOptionOpcode( WorldPacket & recv_data )
         if (!Script->GossipSelect (_player, unit, _player->PlayerTalkClass->GossipOptionSender (option), _player->PlayerTalkClass->GossipOptionAction (option)))
            unit->OnGossipSelect (_player, option);
     }
-}
+}*/
 
 void WorldSession::HandleSpiritHealerActivateOpcode( WorldPacket & recv_data )
 {

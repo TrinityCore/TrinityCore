@@ -45,6 +45,8 @@ typedef bool(TRINITY_IMPORT * scriptCallGossipHello) (Player *player, Creature *
 typedef bool(TRINITY_IMPORT * scriptCallQuestAccept) (Player *player, Creature *_Creature, Quest const *);
 typedef bool(TRINITY_IMPORT * scriptCallGossipSelect)(Player *player, Creature *_Creature, uint32 sender, uint32 action);
 typedef bool(TRINITY_IMPORT * scriptCallGossipSelectWithCode)( Player *player, Creature *_Creature, uint32 sender, uint32 action, const char* sCode );
+typedef bool(TRINITY_IMPORT * scriptCallGOSelect)(Player *player, GameObject *_GO, uint32 sender, uint32 action);
+typedef bool(TRINITY_IMPORT * scriptCallGOSelectWithCode)( Player *player, GameObject *_GO, uint32 sender, uint32 action, const char* sCode );
 typedef bool(TRINITY_IMPORT * scriptCallQuestSelect)( Player *player, Creature *_Creature, Quest const* );
 typedef bool(TRINITY_IMPORT * scriptCallQuestComplete)(Player *player, Creature *_Creature, Quest const*);
 typedef uint32(TRINITY_IMPORT * scriptCallNPCDialogStatus)( Player *player, Creature *_Creature);
@@ -72,6 +74,8 @@ typedef struct
     scriptCallQuestAccept QuestAccept;
     scriptCallGossipSelect GossipSelect;
     scriptCallGossipSelectWithCode GossipSelectWithCode;
+    scriptCallGOSelect GOSelect;
+    scriptCallGOSelectWithCode GOSelectWithCode;
     scriptCallQuestSelect QuestSelect;
     scriptCallQuestComplete QuestComplete;
     scriptCallNPCDialogStatus NPCDialogStatus;
