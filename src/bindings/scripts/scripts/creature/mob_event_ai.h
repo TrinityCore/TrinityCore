@@ -186,7 +186,7 @@ struct EventAI_Event
 };
 
 //Event_Map
-extern std::list<EventAI_Event> EventAI_Event_List;
+extern UNORDERED_MAP<uint32, std::vector<EventAI_Event> > EventAI_Event_Map;
 
 struct EventAI_Summon
 {
