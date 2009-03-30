@@ -52,7 +52,7 @@ UNORDERED_MAP<int32, StringTextData> TextMap;
 
 //*** EventAI data ***
 //Event AI structure. Used exclusivly by mob_event_ai.cpp (60 bytes each)
-std::list<EventAI_Event> EventAI_Event_List;
+UNORDERED_MAP<uint32, std::vector<EventAI_Event> > EventAI_Event_Map;
 
 //Event AI summon structure. Used exclusivly by mob_event_ai.cpp.
 UNORDERED_MAP<uint32, EventAI_Summon> EventAI_Summon_Map;
@@ -901,7 +901,7 @@ void LoadDatabase()
         "FROM eventai_scripts");
 
     //Drop Existing EventAI List
-    EventAI_Event_List.clear();
+    EventAI_Event_Map.clear();
 
     outstring_log("TSCR: Loading EventAI scripts...");
     if (result)
@@ -919,6 +919,7 @@ void LoadDatabase()
             temp.event_id = fields[0].GetUInt32();
             uint32 i = temp.event_id;
             temp.creature_id = fields[1].GetUInt32();
+            uint32 creature_id = temp.creature_id;
             temp.event_type = fields[2].GetUInt16();
             temp.event_inverse_phase_mask = fields[3].GetUInt32();
             temp.event_chance = fields[4].GetUInt8();
@@ -1282,7 +1283,8 @@ void LoadDatabase()
             }
 
             //Add to list
-            EventAI_Event_List.push_back(temp);
+            EventAI_Event_Map[creature_id].push_back(temp);
+
             ++Count;
         } while (result->NextRow());
 
