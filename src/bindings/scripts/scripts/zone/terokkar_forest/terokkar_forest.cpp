@@ -499,7 +499,7 @@ CreatureAI* GetAI_npc_isla_starmaneAI(Creature *_Creature)
 #define GOSSIP_S_GEZZARAK_THE_HUNTRESS         "Summon Gezzarak the Huntress"
 #define GOSSIP_S_VAKKIZ_THE_WINDRAGER         "Summon Vakkiz the Windrager"
 
-bool GOHello_go_skull_pile(Player *player, GameObject* _GO)
+bool GossipHello_go_skull_pile(Player *player, GameObject* _GO)
 {
     if (player->GetQuestStatus(11885) == QUEST_STATUS_INCOMPLETE)
     {
@@ -509,7 +509,7 @@ bool GOHello_go_skull_pile(Player *player, GameObject* _GO)
         player->ADD_GOSSIP_ITEM(4, GOSSIP_S_VAKKIZ_THE_WINDRAGER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
     }
 
-    player->SEND_GOSSIP_MENU(_GO->GetGoTextId(), _GO->GetGUID());
+    player->SEND_GOSSIP_MENU(_GO->GetGOInfo()->questgiver.gossipID, _GO->GetGUID());
     return true;
 }
 
@@ -585,8 +585,8 @@ void AddSC_terokkar_forest()
 
     newscript = new Script;
     newscript->Name="go_skull_pile";
-    newscript->pGossipHello =  &GossipHello_go_skull_pile;
-    newscript->pGossipSelect = &GossipSelect_go_skull_pile;
+    newscript->pGOHello  = &GossipHello_go_skull_pile;
+    newscript->pGOSelect = &GossipSelect_go_skull_pile;
     newscript->RegisterSelf();
 
 }
