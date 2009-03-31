@@ -2303,6 +2303,30 @@ bool GossipSelectWithCode( Player *player, Creature *_Creature, uint32 sender, u
 }
 
 TRINITY_DLL_EXPORT
+bool GOSelect( Player *player, GameObject *_GO, uint32 sender, uint32 action )
+{
+    debug_log("TSCR: Gossip selection, sender: %d, action: %d",sender, action);
+
+    Script *tmpscript = m_scripts[_GO->GetGOInfo()->ScriptId];
+    if(!tmpscript || !tmpscript->pGOSelect) return false;
+
+    player->PlayerTalkClass->ClearMenus();
+    return tmpscript->pGOSelect(player,_GO,sender,action);
+}
+
+TRINITY_DLL_EXPORT
+bool GOSelectWithCode( Player *player, GameObject *_GO, uint32 sender, uint32 action, const char* sCode )
+{
+    debug_log("TSCR: Gossip selection, sender: %d, action: %d",sender, action);
+
+    Script *tmpscript = m_scripts[_GO->GetGOInfo()->ScriptId];
+    if(!tmpscript || !tmpscript->pGOSelectWithCode) return false;
+
+    player->PlayerTalkClass->ClearMenus();
+    return tmpscript->pGOSelectWithCode(player,_GO,sender,action,sCode);
+}
+
+TRINITY_DLL_EXPORT
 bool QuestAccept( Player *player, Creature *_Creature, Quest const *_Quest )
 {
     Script *tmpscript = m_scripts[_Creature->GetScriptId()];
