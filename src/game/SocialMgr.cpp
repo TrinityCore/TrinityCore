@@ -188,6 +188,9 @@ void SocialMgr::GetFriendInfo(Player *player, uint32 friendGUID, FriendInfo &fri
 
     Player *pFriend = ObjectAccessor::FindPlayer(friendGUID);
 
+    if(!pFriend)
+ 	return;
+
     uint32 team = player->GetTeam();
     uint32 security = player->GetSession()->GetSecurity();
     bool allowTwoSideWhoList = sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_WHO_LIST);
