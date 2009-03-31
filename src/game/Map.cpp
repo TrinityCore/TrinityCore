@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2005-2008 Trinity <http://www.mangosproject.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
- * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2009 Trinity <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -81,7 +81,6 @@ bool Map::ExistMap(uint32 mapid,int x,int y)
 
     delete [] tmp;
     fclose(pf);
-
     return true;
 }
 
@@ -508,7 +507,8 @@ Map::Add(T *obj)
 
     DEBUG_LOG("Object %u enters grid[%u,%u]", GUID_LOPART(obj->GetGUID()), cell.GridX(), cell.GridY());
 
-    UpdateObjectVisibility(obj,cell,p);
+    if(obj->GetTypeId() != TYPEID_UNIT)
+        UpdateObjectVisibility(obj,cell,p);
 
     AddNotifier(obj);
 }
@@ -1113,27 +1113,31 @@ bool Map::UnloadGrid(const uint32 &x, const uint32 &y, bool unloadAll)
              return false;
 
         DEBUG_LOG("Unloading grid[%u,%u] for map %u", x,y, i_id);
+
         ObjectGridUnloader unloader(*grid);
 
         if(!unloadAll)
         {
             // Finish creature moves, remove and delete all creatures with delayed remove before moving to respawn grids
             // Must know real mob position before move
-            DoDelayedMovesAndRemoves();
+            MoveAllCreaturesInMoveList();
 
             // move creatures to respawn grids if this is diff.grid or to remove list
             unloader.MoveToRespawnN();
 
             // Finish creature moves, remove and delete all creatures with delayed remove before unload
-            DoDelayedMovesAndRemoves();
+            MoveAllCreaturesInMoveList();
         }
-        else
-            RemoveAllObjectsInRemoveList();
 
-        //assert(grid.NoWorldObjectInGrid());
+        ObjectGridCleaner cleaner(*grid);
+        cleaner.CleanN();
+
+        RemoveAllObjectsInRemoveList();
+
         unloader.UnloadN();
-        //assert(grid.NoWorldObjectInGrid());
-        //assert(grid.NoGridObjectInGrid());
+
+        assert(i_objectsToRemove.empty());
+
         delete grid;
         setNGrid(NULL, x, y);
     }
@@ -1633,8 +1637,8 @@ void Map::RemoveAllObjectsInRemoveList()
     //sLog.outDebug("Object remover 1 check.");
     while(!i_objectsToRemove.empty())
     {
-        WorldObject* obj = *i_objectsToRemove.begin();
-        i_objectsToRemove.erase(i_objectsToRemove.begin());
+        std::set<WorldObject*>::iterator itr = i_objectsToRemove.begin();
+        WorldObject* obj = *itr;
 
         switch(obj->GetTypeId())
         {
@@ -1642,7 +1646,7 @@ void Map::RemoveAllObjectsInRemoveList()
             {
                 Corpse* corpse = ObjectAccessor::Instance().GetCorpse(*obj, obj->GetGUID());
                 if (!corpse)
-                    sLog.outError("ERROR: Try delete corpse/bones %u that not in map", obj->GetGUIDLow());
+                    sLog.outError("Try delete corpse/bones %u that not in map", obj->GetGUIDLow());
                 else
                     Remove(corpse,true);
                 break;
@@ -1663,6 +1667,8 @@ void Map::RemoveAllObjectsInRemoveList()
             sLog.outError("Non-grid object (TypeId: %u) in grid object removing list, ignored.",obj->GetTypeId());
             break;
         }
+
+        i_objectsToRemove.erase(itr);
     }
     //sLog.outDebug("Object remover 2 check.");
 }

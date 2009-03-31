@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
- * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2009 Trinity <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,6 @@
 #include "ObjectGridLoader.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
-#include "MapManager.h"
 #include "Creature.h"
 #include "GameObject.h"
 #include "DynamicObject.h"
@@ -70,7 +69,7 @@ ObjectGridRespawnMover::Visit(CreatureMapType &m)
 
         if(cur_cell.DiffGrid(resp_cell))
         {
-            MapManager::Instance().GetMap(c->GetMapId(), c)->CreatureRespawnRelocation(c);
+            c->GetMap()->CreatureRespawnRelocation(c);
             // false result ignored: will be unload with other creatures at grid
         }
     }
@@ -121,6 +120,36 @@ void LoadHelper(CellGuidSet const& guid_set, CellPair &cell, GridRefManager<T> &
         {
             delete obj;
             continue;
+        }
+
+        obj->GetGridRef().link(&m, obj);
+
+        addUnitState(obj,cell);
+        obj->AddToWorld();
+        if(obj->isActiveObject())
+            map->AddToActive(obj);
+
+        ++count;
+
+    }
+}
+
+void LoadHelper(CellGuidSet const& guid_set, CellPair &cell, CreatureMapType &m, uint32 &count, Map* map)
+{
+    for(CellGuidSet::const_iterator i_guid = guid_set.begin(); i_guid != guid_set.end(); ++i_guid)
+    {
+        Creature* obj = new Creature;
+        uint32 guid = *i_guid;
+        //sLog.outString("DEBUG: LoadHelper from table: %s for (guid: %u) Loading",table,guid);
+        if(!obj->LoadFromDB(guid, map))
+        {
+            delete obj;
+            obj = new Vehicle;
+            if(!((Vehicle*)obj)->LoadFromDB(guid, map))
+            {
+                delete (Vehicle*)obj;
+                continue;
+            }
         }
 
         obj->GetGridRef().link(&m, obj);
@@ -263,29 +292,7 @@ ObjectGridUnloader::Visit(GridRefManager<T> &m)
         // if option set then object already saved at this moment
         if(!sWorld.getConfig(CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY))
             obj->SaveRespawnTime();
-        ///- object must be out of world before delete
-        obj->RemoveFromWorld();
         ///- object will get delinked from the manager when deleted
-        delete obj;
-    }
-}
-
-template<>
-void
-ObjectGridUnloader::Visit(CreatureMapType &m)
-{
-    // remove all cross-reference before deleting
-    for(CreatureMapType::iterator iter=m.begin(); iter != m.end(); ++iter)
-        iter->getSource()->CleanupsBeforeDelete();
-
-    while(!m.isEmpty())
-    {
-        Creature *obj = m.getFirst()->getSource();
-        // if option set then object already saved at this moment
-        if(!sWorld.getConfig(CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY))
-            obj->SaveRespawnTime();
-        ///- object will get delinked from the manager when deleted
-        obj->CleanupsBeforeDelete();
         delete obj;
     }
 }
@@ -309,6 +316,32 @@ ObjectGridStoper::Visit(CreatureMapType &m)
     }
 }
 
+void
+ObjectGridCleaner::Stop(GridType &grid)
+{
+    TypeContainerVisitor<ObjectGridCleaner, GridTypeMapContainer > stoper(*this);
+    grid.Visit(stoper);
+}
+
+void
+ObjectGridCleaner::Visit(CreatureMapType &m)
+{
+    for(CreatureMapType::iterator iter=m.begin(); iter != m.end(); ++iter)
+        iter->getSource()->CleanupsBeforeDelete();
+}
+
+template<class T>
+void
+ObjectGridCleaner::Visit(GridRefManager<T> &m)
+{
+    for(typename GridRefManager<T>::iterator iter = m.begin(); iter != m.end(); ++iter)
+        iter->getSource()->RemoveFromWorld();
+}
+
+template void ObjectGridUnloader::Visit(CreatureMapType &);
 template void ObjectGridUnloader::Visit(GameObjectMapType &);
 template void ObjectGridUnloader::Visit(DynamicObjectMapType &);
-
+template void ObjectGridUnloader::Visit(CorpseMapType &);
+template void ObjectGridCleaner::Visit<GameObject>(GameObjectMapType &);
+template void ObjectGridCleaner::Visit<DynamicObject>(DynamicObjectMapType &);
+template void ObjectGridCleaner::Visit<Corpse>(CorpseMapType &);
