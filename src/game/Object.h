@@ -313,8 +313,6 @@ class TRINITY_DLL_SPEC Object
 
         uint16 GetValuesCount() const { return m_valuesCount; }
 
-        void InitValues() { _InitValues(); }
-
         virtual bool hasQuest(uint32 /* quest_id */) const { return false; }
         virtual bool hasInvolvedQuest(uint32 /* quest_id */) const { return false; }
 

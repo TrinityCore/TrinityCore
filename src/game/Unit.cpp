@@ -11313,11 +11313,6 @@ uint32 Unit::GetCreatePowers( Powers power ) const
     return 0;
 }
 
-void Unit::AddToWorld()
-{
-    WorldObject::AddToWorld();
-}
-
 void Unit::RemoveFromWorld()
 {
     // cleanup
@@ -11338,7 +11333,7 @@ void Unit::RemoveFromWorld()
 
 void Unit::CleanupsBeforeDelete()
 {
-    if(m_uint32Values)                                      // only for fully created object
+    if(IsInWorld())                                      // only for fully created object
     {
         RemoveAllAuras();
         InterruptNonMeleeSpells(true);
@@ -11350,8 +11345,9 @@ void Unit::CleanupsBeforeDelete()
         RemoveAllGameObjects();
         RemoveAllDynObjects();
         GetMotionMaster()->Clear(false);                    // remove different non-standard movement generators.
+
+        RemoveFromWorld();
     }
-    RemoveFromWorld();
 }
 
 void Unit::UpdateCharmAI()
@@ -12540,7 +12536,6 @@ Pet* Unit::CreateTamedPetFrom(Creature* creatureTarget,uint32 spell_id)
 
     pet->GetCharmInfo()->SetPetNumber(objmgr.GeneratePetNumber(), true);
     // this enables pet details window (Shift+P)
-    pet->AIM_Initialize();
     pet->InitPetCreateSpells();
     pet->InitTalentForLevel();
     pet->SetHealth(pet->GetMaxHealth());

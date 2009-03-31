@@ -63,7 +63,7 @@ GameObject::GameObject() : WorldObject()
 
 GameObject::~GameObject()
 {
-    if(m_uint32Values)                                      // field array can be not exist if GameOBject not loaded
+    /*if(m_uint32Values)                                      // field array can be not exist if GameOBject not loaded
     {
         // Possible crash at access to deleted GO in Unit::m_gameobj
         uint64 owner_guid = GetOwnerGUID();
@@ -75,7 +75,7 @@ GameObject::~GameObject()
             else if(!IS_PLAYER_GUID(owner_guid))
                 sLog.outError("Delete GameObject (GUID: %u Entry: %u ) that have references in not found creature %u GO list. Crash possible later.",GetGUIDLow(),GetGOInfo()->id,GUID_LOPART(owner_guid));
         }
-    }
+    }*/
 }
 
 void GameObject::AddToWorld()
@@ -93,6 +93,15 @@ void GameObject::RemoveFromWorld()
     ///- Remove the gameobject from the accessor
     if(IsInWorld())
     {
+        // Possible crash at access to deleted GO in Unit::m_gameobj
+        if(uint64 owner_guid = GetOwnerGUID())
+        {
+            Unit* owner = ObjectAccessor::GetUnit(*this,owner_guid);
+            if(owner)
+                owner->RemoveGameObject(this,false);
+            else if(!IS_PLAYER_GUID(owner_guid))
+                sLog.outError("Delete GameObject (GUID: %u Entry: %u ) that have references in not found creature %u GO list. Crash possible later.",GetGUIDLow(),GetGOInfo()->id,GUID_LOPART(owner_guid));
+        }
         WorldObject::RemoveFromWorld();
         ObjectAccessor::Instance().RemoveObject(this);
     }

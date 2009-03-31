@@ -163,8 +163,6 @@ bool OutdoorPvPObjective::AddCreature(uint32 type, uint32 entry, uint32 teamval,
         return true;
     }
 
-    pCreature->AIM_Initialize();
-
     pCreature->Relocate(x, y, z, o);
 
     if(!pCreature->IsPositionValid())
@@ -276,8 +274,6 @@ bool OutdoorPvPObjective::AddCapturePoint(uint32 entry, uint32 map, float x, flo
     }
     else
     {
-        pCreature->AIM_Initialize();
-
         pCreature->Relocate(x, y, z, o);
 
         if(!pCreature->IsPositionValid())
