@@ -349,8 +349,6 @@ void Pet::SavePetToDB(PetSaveMode mode)
 
     switch(mode)
     {
-        case PET_SAVE_IN_STABLE_SLOT_1:
-        case PET_SAVE_IN_STABLE_SLOT_2:
         case PET_SAVE_NOT_IN_SLOT:
         {
             RemoveAllAuras();
@@ -370,8 +368,6 @@ void Pet::SavePetToDB(PetSaveMode mode)
     switch(mode)
     {
         case PET_SAVE_AS_CURRENT:
-        case PET_SAVE_IN_STABLE_SLOT_1:
-        case PET_SAVE_IN_STABLE_SLOT_2:
         case PET_SAVE_NOT_IN_SLOT:
         {
             uint32 owner = GUID_LOPART(GetOwnerGUID());

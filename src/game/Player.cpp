@@ -16493,8 +16493,9 @@ Pet* Player::GetPet() const
         if(Pet* pet = ObjectAccessor::GetPet(pet_guid))
             return pet;
 
-        sLog.outError("Player::GetPet: Pet %u not exist.",GUID_LOPART(pet_guid));
-        const_cast<Player*>(this)->SetPetGUID(0);
+        //there may be a guardian in slot
+        //sLog.outError("Player::GetPet: Pet %u not exist.",GUID_LOPART(pet_guid));
+        //const_cast<Player*>(this)->SetPetGUID(0);
     }
 
     return NULL;

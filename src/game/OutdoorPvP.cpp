@@ -311,8 +311,8 @@ bool OutdoorPvPObjective::DelCreature(uint32 type)
     // explicit removal from map
     // beats me why this is needed, but with the recent removal "cleanup" some creatures stay in the map if "properly" deleted
     // so this is a big fat workaround, if AddObjectToRemoveList and DoDelayedMovesAndRemoves worked correctly, this wouldn't be needed
-    if(Map * map = MapManager::Instance().FindMap(cr->GetMapId()))
-        map->Remove(cr,false);
+    //if(Map * map = MapManager::Instance().FindMap(cr->GetMapId()))
+    //    map->Remove(cr,false);
     // delete respawn time for this creature
     WorldDatabase.PExecute("DELETE FROM creature_respawn WHERE guid = '%u'", guid);
     cr->AddObjectToRemoveList();
@@ -369,8 +369,8 @@ bool OutdoorPvPObjective::DelCapturePoint()
             // explicit removal from map
             // beats me why this is needed, but with the recent removal "cleanup" some creatures stay in the map if "properly" deleted
             // so this is a big fat workaround, if AddObjectToRemoveList and DoDelayedMovesAndRemoves worked correctly, this wouldn't be needed
-            if(Map * map = MapManager::Instance().FindMap(cr->GetMapId()))
-                map->Remove(cr,false);
+            //if(Map * map = MapManager::Instance().FindMap(cr->GetMapId()))
+            //    map->Remove(cr,false);
             // delete respawn time for this creature
             WorldDatabase.PExecute("DELETE FROM creature_respawn WHERE guid = '%u'", guid);
             cr->AddObjectToRemoveList();
