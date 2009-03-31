@@ -491,6 +491,56 @@ CreatureAI* GetAI_npc_isla_starmaneAI(Creature *_Creature)
     return (CreatureAI*)thisAI;
 }
 
+/*######
+## go_skull_pile
+######*/
+#define GOSSIP_S_DARKSCREECHER_AKKARAI         "Summon Darkscreecher Akkarai"
+#define GOSSIP_S_KARROG         "Summon Karrog"
+#define GOSSIP_S_GEZZARAK_THE_HUNTRESS         "Summon Gezzarak the Huntress"
+#define GOSSIP_S_VAKKIZ_THE_WINDRAGER         "Summon Vakkiz the Windrager"
+
+bool GossipHello_go_skull_pile(Player *player, GameObject* _GO)
+{
+    if (player->GetQuestStatus(11885) == QUEST_STATUS_INCOMPLETE)
+    {
+        player->ADD_GOSSIP_ITEM(1, GOSSIP_S_DARKSCREECHER_AKKARAI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        player->ADD_GOSSIP_ITEM(2, GOSSIP_S_KARROG, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+        player->ADD_GOSSIP_ITEM(3, GOSSIP_S_GEZZARAK_THE_HUNTRESS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+        player->ADD_GOSSIP_ITEM(4, GOSSIP_S_VAKKIZ_THE_WINDRAGER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+    }
+
+    player->SEND_GOSSIP_MENU(_GO->GetGOInfo()->questgiver.gossipID, _GO->GetGUID());
+    return true;
+}
+
+void SendActionMenu_go_skull_pile(Player *player, GameObject* _GO, uint32 action)
+{
+    switch(action)
+    {
+        case GOSSIP_ACTION_INFO_DEF + 1:
+              player->CastSpell(player,40642,false);
+            break;
+        case GOSSIP_ACTION_INFO_DEF + 2:
+              player->CastSpell(player,40640,false);
+            break;
+        case GOSSIP_ACTION_INFO_DEF + 3:
+              player->CastSpell(player,40632,false);
+            break;
+        case GOSSIP_ACTION_INFO_DEF + 4:
+              player->CastSpell(player,40644,false);
+            break;
+    }
+}
+
+bool GossipSelect_go_skull_pile(Player *player, GameObject* _GO, uint32 sender, uint32 action )
+{
+    switch(sender)
+    {
+        case GOSSIP_SENDER_MAIN:    SendActionMenu_go_skull_pile(player, _GO, action); break;
+    }
+    return true;
+}
+
 void AddSC_terokkar_forest()
 {
     Script *newscript;
@@ -532,5 +582,12 @@ void AddSC_terokkar_forest()
     newscript->GetAI = &GetAI_npc_isla_starmaneAI;
     newscript->pQuestAccept = &QuestAccept_npc_isla_starmane;
     newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name="go_skull_pile";
+    newscript->pGOHello  = &GossipHello_go_skull_pile;
+    newscript->pGOSelect = &GossipSelect_go_skull_pile;
+    newscript->RegisterSelf();
+
 }
 
