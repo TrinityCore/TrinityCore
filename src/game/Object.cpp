@@ -97,6 +97,8 @@ Object::~Object( )
         //DEBUG_LOG("Object desctr 1 check (%p)",(void*)this);
         delete [] m_uint32Values;
         delete [] m_uint32Values_mirror;
+        m_uint32Values = NULL;
+        m_uint32Values_mirror = NULL;
         //DEBUG_LOG("Object desctr 2 check (%p)",(void*)this);
     }
 }
@@ -1451,13 +1453,13 @@ void Object::ForceValuesUpdateAtIndex(uint32 i)
 {
     m_uint32Values_mirror[i] = GetUInt32Value(i) + 1; // makes server think the field changed
     if(m_inWorld)
-        {
+    {
         if(!m_objectUpdated)
-            {
+        {
             ObjectAccessor::Instance().AddUpdateObject(this);
             m_objectUpdated = true;
-            }
         }
+    }
 }
 
 namespace Trinity
@@ -1730,18 +1732,7 @@ TempSummon* WorldObject::SummonCreature(uint32 entry, float x, float y, float z,
         return NULL;
 
     pCreature->SetHomePosition(x, y, z, ang);
-    pCreature->InitSummon(duration);
     pCreature->SetTempSummonType(spwtype);
-
-    if(GetTypeId()==TYPEID_UNIT && ((Creature*)this)->IsAIEnabled)
-        ((Creature*)this)->AI()->JustSummoned(pCreature);
-
-    if(pCreature->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER && pCreature->m_spells[0])
-    {
-        if(GetTypeId() == TYPEID_UNIT || GetTypeId() == TYPEID_PLAYER)
-            pCreature->setFaction(((Unit*)this)->getFaction());
-        pCreature->CastSpell(pCreature, pCreature->m_spells[0], false, 0, 0, GetGUID());
-    }
 
     return pCreature;
 }
@@ -1840,7 +1831,6 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     // this enables pet details window (Shift+P)
     pet->GetCharmInfo()->SetPetNumber(pet_number, false);
 
-    pet->AIM_Initialize();
     map->Add((Creature*)pet);
 
     pet->setPowerType(POWER_MANA);

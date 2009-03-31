@@ -88,8 +88,6 @@ void Totem::Summon(Unit* owner)
     data << GetGUID();
     SendMessageToSet(&data,true);
 
-    AIM_Initialize();
-
     switch(m_type)
     {
         case TOTEM_PASSIVE: CastSpell(this, GetSpell(), true); break;

@@ -31,8 +31,6 @@ Vehicle::Vehicle() : Creature(), m_vehicleId(0)
 
 Vehicle::~Vehicle()
 {
-    if(m_uint32Values)                                      // only for fully created Object
-        ObjectAccessor::Instance().RemoveObject(this);
 }
 
 void Vehicle::AddToWorld()
@@ -41,6 +39,7 @@ void Vehicle::AddToWorld()
     {
         ObjectAccessor::Instance().AddObject(this);
         Unit::AddToWorld();
+        AIM_Initialize();
     }
 }
 
@@ -78,8 +77,6 @@ bool Vehicle::Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, u
         return false;
 
     m_defaultMovementType = IDLE_MOTION_TYPE;
-
-    AIM_Initialize();
 
     SetVehicleId(vehicleId);
 
@@ -173,6 +170,5 @@ bool Vehicle::LoadFromDB(uint32 guid, Map *map)
     // checked at creature_template loading
     m_defaultMovementType = MovementGeneratorType(data->movementType);
 
-    AIM_Initialize();
     return true;
 }
