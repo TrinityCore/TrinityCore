@@ -1860,42 +1860,24 @@ void Spell::EffectDummy(uint32 i)
             // Death Coil
             if(m_spellInfo->SpellFamilyFlags[0] & 0x002000)
             {
-                uint32 spell_id = NULL;
-                damage += m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.15f;
                 if(m_caster->IsFriendlyTo(unitTarget))
                 {
                     if(unitTarget->GetCreatureType() != CREATURE_TYPE_UNDEAD)
                         return;
 
-                    spell_id = 47633;
-                    damage *= 1.5f;
+                    // first rank have special multiplier
+                    int32 bp = damage * 1.5f;
+                    m_caster->CastCustomSpell(unitTarget,47633,&bp,NULL,NULL,true);
                 }
                 else
-                    spell_id = 47632;
-
-                bp = int32(damage);
-                m_caster->CastCustomSpell(unitTarget,spell_id,&bp,NULL,NULL,true);
+                {
+                    // first rank have special multiplier
+                    int32 bp = damage;
+                    m_caster->CastCustomSpell(unitTarget,47632,&bp,NULL,NULL,true);
+                }
                 return;
             }
             break;
-    }
-
-    //spells triggered by dummy effect should not miss
-    if(spell_id)
-    {
-        SpellEntry const *spellInfo = sSpellStore.LookupEntry( spell_id );
-
-        if(!spellInfo)
-        {
-            sLog.outError("EffectDummy of spell %u: triggering unknown spell id %i\n", m_spellInfo->Id, spell_id);
-            return;
-        }
-            
-        Spell* spell = new Spell(m_caster, spellInfo, true, m_originalCasterGUID, NULL, true);
-        if(bp) spell->m_currentBasePoints[0] = bp;
-        SpellCastTargets targets;
-        targets.setUnitTarget(unitTarget);
-        spell->prepare(&targets);
     }
 
     // pet auras
