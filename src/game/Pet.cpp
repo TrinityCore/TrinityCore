@@ -63,7 +63,6 @@ Pet::~Pet()
 
         for (PetSpellMap::iterator i = m_spells.begin(); i != m_spells.end(); ++i)
             delete i->second;
-        ObjectAccessor::Instance().RemoveObject(this);
     }
 
     delete m_declinedname;
@@ -77,6 +76,7 @@ void Pet::AddToWorld()
         ///- Register the pet for guid lookup
         ObjectAccessor::Instance().AddObject(this);
         Unit::AddToWorld();
+        AIM_Initialize();
     }
 }
 
@@ -168,7 +168,6 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
     CreatureInfo const *cinfo = GetCreatureInfo();
     if(cinfo->type == CREATURE_TYPE_CRITTER)
     {
-        AIM_Initialize();
         map->Add((Creature*)this);
         delete result;
         return true;
@@ -185,7 +184,6 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
     SetUInt32Value(UNIT_NPC_FLAGS, 0);
     SetName(fields[9].GetString());
 
-    AIM_Initialize();
     map->Add((Creature*)this);
     owner->SetGuardian(this, true);
 

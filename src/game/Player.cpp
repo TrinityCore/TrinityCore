@@ -521,12 +521,12 @@ Player::~Player ()
 
 void Player::CleanupsBeforeDelete()
 {
-    if(m_uint32Values)                                      // only for fully created Object
+    if(IsInWorld())                                      // only for fully created Object
     {
         TradeCancel(false);
         DuelComplete(DUEL_INTERUPTED);
+        Unit::CleanupsBeforeDelete();
     }
-    Unit::CleanupsBeforeDelete();
 }
 
 bool Player::Create( uint32 guidlow, const std::string& name, uint8 race, uint8 class_, uint8 gender, uint8 skin, uint8 face, uint8 hairStyle, uint8 hairColor, uint8 facialHair, uint8 outfitId )
