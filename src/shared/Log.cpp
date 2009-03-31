@@ -837,7 +837,7 @@ void Log::outChat( const char * str, ... )
         outTimestamp(chatLogfile);
         va_list ap;
         va_start(ap, str);
-        vfprintf(chatLogfile, str, ap);
+        fprintf(chatLogfile, str, ap);
         fprintf(chatLogfile, "\n" );
         fflush(chatLogfile);
         va_end(ap);
