@@ -304,6 +304,9 @@ void AchievementMgr::LoadFromDB(QueryResult *achievementResult, QueryResult *cri
 
 void AchievementMgr::SendAchievementEarned(AchievementEntry const* achievement)
 {
+    if(GetPlayer()->GetSession()->PlayerLoading())
+        return;
+
     #ifdef MANGOS_DEBUG
     if((sLog.getLogFilter() & LOG_FILTER_ACHIEVEMENT_UPDATES)==0)
         sLog.outDebug("AchievementMgr::SendAchievementEarned(%u)", achievement->ID);
