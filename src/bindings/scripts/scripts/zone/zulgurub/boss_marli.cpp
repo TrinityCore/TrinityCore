@@ -43,7 +43,6 @@ struct TRINITY_DLL_DECL boss_marliAI : public ScriptedAI
     boss_marliAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     ScriptedInstance *pInstance;
@@ -200,7 +199,7 @@ struct TRINITY_DLL_DECL boss_marliAI : public ScriptedAI
 //Spawn of Marli
 struct TRINITY_DLL_DECL mob_spawn_of_marliAI : public ScriptedAI
 {
-    mob_spawn_of_marliAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_spawn_of_marliAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 LevelUp_Timer;
 

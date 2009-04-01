@@ -107,7 +107,7 @@ const uint32 spawnEntries[4]= { 23523, 23318, 23524 };
 
 struct TRINITY_DLL_DECL mob_ashtongue_channelerAI : public ScriptedAI
 {
-    mob_ashtongue_channelerAI(Creature* c) : ScriptedAI(c) { Reset(); }
+    mob_ashtongue_channelerAI(Creature* c) : ScriptedAI(c) {}
 
     uint64 ShadeGUID;
 
@@ -121,7 +121,7 @@ struct TRINITY_DLL_DECL mob_ashtongue_channelerAI : public ScriptedAI
 
 struct TRINITY_DLL_DECL mob_ashtongue_sorcererAI : public ScriptedAI
 {
-    mob_ashtongue_sorcererAI(Creature* c) : ScriptedAI(c) { Reset(); }
+    mob_ashtongue_sorcererAI(Creature* c) : ScriptedAI(c) {}
 
     uint64 ShadeGUID;
     uint32 CheckTimer;
@@ -169,7 +169,6 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         AkamaGUID = pInstance ? pInstance->GetData64(DATA_AKAMA_SHADE) : 0;
-        Reset();
     }
 
     ScriptedInstance* pInstance;
@@ -507,7 +506,6 @@ struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
         StartCombat = false;
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         ShadeGUID = pInstance ? pInstance->GetData64(DATA_SHADEOFAKAMA) : 0;
-        Reset();
     }
 
     ScriptedInstance* pInstance;

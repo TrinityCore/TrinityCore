@@ -45,7 +45,7 @@ EndContentData */
 struct TRINITY_DLL_DECL npc_prospector_anvilwardAI : public npc_escortAI
 {
     // CreatureAI functions
-    npc_prospector_anvilwardAI(Creature *c) : npc_escortAI(c) {Reset();}
+    npc_prospector_anvilwardAI(Creature *c) : npc_escortAI(c) {}
 
     // Pure Virtual Functions
     void WaypointReached(uint32 i)
@@ -180,7 +180,7 @@ static uint32 PaladinEntry[]= {CHAMPION_BLOODWRATH, CHAMPION_LIGHTREND, CHAMPION
 
 struct TRINITY_DLL_DECL npc_secondTrialAI : public ScriptedAI
 {
-    npc_secondTrialAI(Creature *c) : ScriptedAI(c) {Reset();}
+    npc_secondTrialAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 timer;
     uint8  questPhase;
@@ -314,7 +314,7 @@ struct TRINITY_DLL_DECL npc_secondTrialAI : public ScriptedAI
 
 struct TRINITY_DLL_DECL master_kelerun_bloodmournAI : public ScriptedAI
 {
-    master_kelerun_bloodmournAI(Creature *c) : ScriptedAI(c) {Reset();}
+    master_kelerun_bloodmournAI(Creature *c) : ScriptedAI(c) {}
 
     uint8  questPhase;
     uint8  paladinPhase;
@@ -399,7 +399,7 @@ struct TRINITY_DLL_DECL master_kelerun_bloodmournAI : public ScriptedAI
     }
 
     void SecondTrialKill();
-    void SummonedCreatureDespawn(Creature* c) {Reset();}
+    void SummonedCreatureDespawn(Creature* c) {}
 };
 
 
@@ -534,7 +534,7 @@ bool GOHello_go_second_trial(Player *player, GameObject* _GO)
 
 struct TRINITY_DLL_DECL npc_apprentice_mirvedaAI : public ScriptedAI
 {
-    npc_apprentice_mirvedaAI(Creature* c) : ScriptedAI(c), Summons(m_creature) {Reset();}
+    npc_apprentice_mirvedaAI(Creature* c) : ScriptedAI(c), Summons(m_creature) {}
 
     uint32 KillCount;
     uint64 PlayerGUID;
@@ -637,7 +637,7 @@ static Location SpawnLocations[]=
 
 struct TRINITY_DLL_DECL npc_infused_crystalAI : public Scripted_NoMovementAI
 {
-    npc_infused_crystalAI(Creature* c) : Scripted_NoMovementAI(c) {Reset();}
+    npc_infused_crystalAI(Creature* c) : Scripted_NoMovementAI(c) {}
 
     uint32 EndTimer;
     uint32 WaveTimer;

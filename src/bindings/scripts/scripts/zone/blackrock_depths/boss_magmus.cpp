@@ -28,7 +28,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_magmusAI : public ScriptedAI
 {
-    boss_magmusAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_magmusAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 FieryBurst_Timer;
     uint32 WarStomp_Timer;

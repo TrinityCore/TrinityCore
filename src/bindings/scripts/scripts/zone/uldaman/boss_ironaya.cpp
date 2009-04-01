@@ -31,7 +31,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_ironayaAI : public ScriptedAI
 {
-    boss_ironayaAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_ironayaAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 Arcing_Timer;
     bool hasCastedWstomp;

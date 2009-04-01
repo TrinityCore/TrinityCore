@@ -27,7 +27,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_ambassador_flamelashAI : public ScriptedAI
 {
-    boss_ambassador_flamelashAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_ambassador_flamelashAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 FireBlast_Timer;
     uint32 Spirit_Timer;

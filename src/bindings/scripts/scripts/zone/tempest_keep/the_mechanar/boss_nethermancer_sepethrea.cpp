@@ -43,12 +43,11 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_nethermancer_sepethreaAI : public ScriptedAI
 {
-boss_nethermancer_sepethreaAI(Creature *c) : ScriptedAI(c)
-{
-    pInstance = ((ScriptedInstance*)c->GetInstanceData());
-    HeroicMode = m_creature->GetMap()->IsHeroic();
-    Reset();
-}
+    boss_nethermancer_sepethreaAI(Creature *c) : ScriptedAI(c)
+    {
+        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        HeroicMode = m_creature->GetMap()->IsHeroic();
+    }
 
     ScriptedInstance *pInstance;
 
@@ -169,9 +168,7 @@ struct TRINITY_DLL_DECL mob_ragin_flamesAI : public ScriptedAI
 {
     mob_ragin_flamesAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
-        HeroicMode = m_creature->GetMap()->IsHeroic();
+        pInstance = ((ScriptedInstance*)c->GetInstanceData());        HeroicMode = m_creature->GetMap()->IsHeroic();
     }
 
     ScriptedInstance *pInstance;

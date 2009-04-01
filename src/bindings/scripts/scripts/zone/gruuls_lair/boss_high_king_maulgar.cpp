@@ -73,7 +73,6 @@ struct TRINITY_DLL_DECL boss_high_king_maulgarAI : public ScriptedAI
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         for(uint8 i = 0; i < 4; ++i)
             Council[i] = 0;
-        Reset();
     }
 
     ScriptedInstance* pInstance;
@@ -274,7 +273,6 @@ struct TRINITY_DLL_DECL boss_olm_the_summonerAI : public ScriptedAI
     boss_olm_the_summonerAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     uint32 DarkDecay_Timer;
@@ -374,7 +372,6 @@ struct TRINITY_DLL_DECL boss_kiggler_the_crazedAI : public ScriptedAI
     boss_kiggler_the_crazedAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     uint32 GreaterPolymorph_Timer;
@@ -482,7 +479,6 @@ struct TRINITY_DLL_DECL boss_blindeye_the_seerAI : public ScriptedAI
     boss_blindeye_the_seerAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     uint32 GreaterPowerWordShield_Timer;
@@ -578,7 +574,6 @@ struct TRINITY_DLL_DECL boss_krosh_firehandAI : public ScriptedAI
     boss_krosh_firehandAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     uint32 GreaterFireball_Timer;

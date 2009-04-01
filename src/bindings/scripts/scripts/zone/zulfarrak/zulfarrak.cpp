@@ -45,7 +45,6 @@ struct TRINITY_DLL_DECL npc_sergeant_blyAI : public ScriptedAI
     npc_sergeant_blyAI(Creature *c) : ScriptedAI(c)
     {
         //pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     //ScriptedInstance* pInstance;
@@ -143,7 +142,6 @@ struct TRINITY_DLL_DECL npc_weegli_blastfuseAI : public ScriptedAI
     npc_weegli_blastfuseAI(Creature *c) : ScriptedAI(c)
     {
         //pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     //ScriptedInstance* pInstance;

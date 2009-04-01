@@ -53,7 +53,6 @@ struct TRINITY_DLL_DECL boss_darkmaster_gandlingAI : public ScriptedAI
     boss_darkmaster_gandlingAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = (ScriptedInstance*)m_creature->GetInstanceData();
-        Reset();
     }
 
     ScriptedInstance* pInstance;

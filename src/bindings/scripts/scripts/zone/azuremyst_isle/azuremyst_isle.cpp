@@ -54,7 +54,7 @@ EndContentData */
 
 struct TRINITY_DLL_DECL npc_draenei_survivorAI : public ScriptedAI
 {
-    npc_draenei_survivorAI(Creature *c) : ScriptedAI(c) {Reset();}
+    npc_draenei_survivorAI(Creature *c) : ScriptedAI(c) {}
 
     uint64 pCaster;
 
@@ -194,7 +194,7 @@ CreatureAI* GetAI_npc_draenei_survivor(Creature *_Creature)
 
 struct TRINITY_DLL_DECL npc_engineer_spark_overgrindAI : public ScriptedAI
 {
-    npc_engineer_spark_overgrindAI(Creature *c) : ScriptedAI(c) {Reset();}
+    npc_engineer_spark_overgrindAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 Dynamite_Timer;
     uint32 Emote_Timer;
@@ -265,7 +265,7 @@ bool GossipSelect_npc_engineer_spark_overgrind(Player *player, Creature *_Creatu
 
 struct TRINITY_DLL_DECL npc_injured_draeneiAI : public ScriptedAI
 {
-    npc_injured_draeneiAI(Creature *c) : ScriptedAI(c) {Reset();}
+    npc_injured_draeneiAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset()
     {
@@ -311,7 +311,7 @@ CreatureAI* GetAI_npc_injured_draenei(Creature *_Creature)
 
 struct TRINITY_DLL_DECL npc_magwinAI : public npc_escortAI
 {
-    npc_magwinAI(Creature *c) : npc_escortAI(c) {Reset();}
+    npc_magwinAI(Creature *c) : npc_escortAI(c) {}
 
 
     void WaypointReached(uint32 i)
@@ -472,7 +472,7 @@ static float SparkPos[3] = {-5030.95, -11291.99, 7.97};
 
 struct TRINITY_DLL_DECL npc_geezleAI : public ScriptedAI
 {
-    npc_geezleAI(Creature *c) : ScriptedAI(c) {Reset();}
+    npc_geezleAI(Creature *c) : ScriptedAI(c) {}
 
     std::list<GameObject*> FlagList;
 
@@ -593,7 +593,7 @@ CreatureAI* GetAI_npc_geezleAI(Creature *_Creature)
 
 struct TRINITY_DLL_DECL mob_nestlewood_owlkinAI : public ScriptedAI
 {
-    mob_nestlewood_owlkinAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_nestlewood_owlkinAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 ChannelTimer;
     bool Channeled;

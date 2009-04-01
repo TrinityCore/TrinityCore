@@ -52,7 +52,6 @@ struct TRINITY_DLL_DECL boss_archaedasAI : public ScriptedAI
     boss_archaedasAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)m_creature->GetInstanceData());
-        Reset();
     }
 
     uint32 Tremor_Timer;
@@ -207,7 +206,6 @@ struct TRINITY_DLL_DECL mob_archaedas_minionsAI : public ScriptedAI
     mob_archaedas_minionsAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)m_creature->GetInstanceData());
-        Reset();
     }
 
     uint32 Arcing_Timer;
@@ -357,7 +355,6 @@ struct TRINITY_DLL_DECL mob_stonekeepersAI : public ScriptedAI
     mob_stonekeepersAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)m_creature->GetInstanceData());
-        Reset();
     }
 
     bool InCombat;

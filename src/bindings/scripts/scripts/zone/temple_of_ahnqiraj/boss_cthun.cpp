@@ -108,7 +108,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL flesh_tentacleAI : public Scripted_NoMovementAI
 {
-    flesh_tentacleAI(Creature *c) : Scripted_NoMovementAI(c), Parent(0) {Reset();}
+    flesh_tentacleAI(Creature *c) : Scripted_NoMovementAI(c), Parent(0) {}
 
     uint64 Parent;
     uint32 CheckTimer;
@@ -139,8 +139,6 @@ struct TRINITY_DLL_DECL eye_of_cthunAI : public Scripted_NoMovementAI
         pInst = (ScriptedInstance*)c->GetInstanceData();
         if (!pInst)
             error_log("SD2: No Instance eye_of_cthunAI");
-
-        Reset();
     }
 
     ScriptedInstance* pInst;
@@ -440,8 +438,6 @@ struct TRINITY_DLL_DECL cthunAI : public Scripted_NoMovementAI
         pInst = (ScriptedInstance*)c->GetInstanceData();
         if (!pInst)
             error_log("SD2: No Instance eye_of_cthunAI");
-
-        Reset();
     }
 
     ScriptedInstance* pInst;
@@ -920,7 +916,6 @@ struct TRINITY_DLL_DECL eye_tentacleAI : public Scripted_NoMovementAI
 {
     eye_tentacleAI(Creature *c) : Scripted_NoMovementAI(c)
     {
-        Reset();
         Unit* p = DoSpawnCreature(MOB_SMALL_PORTAL,0,0,0,0,TEMPSUMMON_CORPSE_DESPAWN, 0);
         if (p)
             Portal = p->GetGUID();
@@ -983,7 +978,6 @@ struct TRINITY_DLL_DECL claw_tentacleAI : public Scripted_NoMovementAI
 {
     claw_tentacleAI(Creature *c) : Scripted_NoMovementAI(c)
     {
-        Reset();
         Unit* p = DoSpawnCreature(MOB_SMALL_PORTAL,0,0,0,0,TEMPSUMMON_CORPSE_DESPAWN, 0);
         if (p)
             Portal = p->GetGUID();
@@ -1078,7 +1072,6 @@ struct TRINITY_DLL_DECL giant_claw_tentacleAI : public Scripted_NoMovementAI
 {
     giant_claw_tentacleAI(Creature *c) : Scripted_NoMovementAI(c)
     {
-        Reset();
         Unit* p = DoSpawnCreature(MOB_GIANT_PORTAL,0,0,0,0,TEMPSUMMON_CORPSE_DESPAWN, 0);
         if (p)
             Portal = p->GetGUID();
@@ -1183,7 +1176,6 @@ struct TRINITY_DLL_DECL giant_eye_tentacleAI : public Scripted_NoMovementAI
 {
     giant_eye_tentacleAI(Creature *c) : Scripted_NoMovementAI(c)
     {
-        Reset();
         Unit* p = DoSpawnCreature(MOB_GIANT_PORTAL,0,0,0,0,TEMPSUMMON_CORPSE_DESPAWN, 0);
         if (p)
             Portal = p->GetGUID();

@@ -45,7 +45,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_lajAI : public ScriptedAI
 {
-    boss_lajAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    boss_lajAI(Creature *c) : ScriptedAI(c) {}
 
     bool CanSummon;
     uint32 Teleport_Timer;
