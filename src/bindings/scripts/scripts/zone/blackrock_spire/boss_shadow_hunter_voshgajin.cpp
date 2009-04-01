@@ -29,7 +29,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_shadowvoshAI : public ScriptedAI
 {
-    boss_shadowvoshAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_shadowvoshAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 CurseOfBlood_Timer;
     uint32 Hex_Timer;

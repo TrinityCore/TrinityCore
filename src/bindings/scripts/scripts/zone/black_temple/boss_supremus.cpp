@@ -54,7 +54,6 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
     boss_supremusAI(Creature *c) : ScriptedAI(c), summons(m_creature)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     ScriptedInstance* pInstance;
@@ -241,7 +240,6 @@ struct TRINITY_DLL_DECL npc_volcanoAI : public ScriptedAI
     npc_volcanoAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     ScriptedInstance *pInstance;

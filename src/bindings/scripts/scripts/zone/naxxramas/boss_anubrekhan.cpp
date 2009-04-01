@@ -46,7 +46,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_anubrekhanAI : public ScriptedAI
 {
-    boss_anubrekhanAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_anubrekhanAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 Impale_Timer;
     uint32 LocustSwarm_Timer;

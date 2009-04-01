@@ -42,7 +42,6 @@ struct TRINITY_DLL_DECL boss_venoxisAI : public ScriptedAI
     boss_venoxisAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     ScriptedInstance *pInstance;

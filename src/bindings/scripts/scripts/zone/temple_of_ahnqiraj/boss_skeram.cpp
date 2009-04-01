@@ -55,7 +55,6 @@ struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         IsImage = false;
-        Reset();
     }
 
     ScriptedInstance *pInstance;

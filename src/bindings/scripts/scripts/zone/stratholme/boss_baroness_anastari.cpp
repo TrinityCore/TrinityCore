@@ -34,7 +34,6 @@ struct TRINITY_DLL_DECL boss_baroness_anastariAI : public ScriptedAI
     boss_baroness_anastariAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = (ScriptedInstance*)m_creature->GetInstanceData();
-        Reset();
     }
 
     ScriptedInstance* pInstance;

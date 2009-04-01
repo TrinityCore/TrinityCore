@@ -29,7 +29,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_gehennasAI : public ScriptedAI
 {
-    boss_gehennasAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_gehennasAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 ShadowBolt_Timer;
     uint32 RainOfFire_Timer;

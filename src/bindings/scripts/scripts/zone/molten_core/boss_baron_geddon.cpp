@@ -32,7 +32,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_baron_geddonAI : public ScriptedAI
 {
-    boss_baron_geddonAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_baron_geddonAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 Inferno_Timer;
     uint32 IgniteMana_Timer;

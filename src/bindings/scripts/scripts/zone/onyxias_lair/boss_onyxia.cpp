@@ -64,7 +64,7 @@ static float SpawnLocations[4][3]=
 
 struct TRINITY_DLL_DECL boss_onyxiaAI : public ScriptedAI
 {
-    boss_onyxiaAI(Creature* c) : ScriptedAI(c) {Reset();}
+    boss_onyxiaAI(Creature* c) : ScriptedAI(c) {}
 
     uint32 Phase;
 

@@ -79,8 +79,14 @@ class TRINITY_DLL_SPEC UnitAI
         virtual void AttackStart(Unit *);
         virtual void UpdateAI(const uint32 diff) = 0;
 
+        // Initialize
+        virtual void Reset() {};
+
         // Called when unit is charmed
         virtual void OnCharmed(bool apply) = 0;
+
+        // Pass parameters between AI
+        virtual void DoAction(const int32 param) {}
 
         //Do melee swing of current victim if in rnage and ready and not casting
         void DoMeleeAttackIfReady();

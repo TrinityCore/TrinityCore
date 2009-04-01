@@ -612,6 +612,7 @@ bool Creature::AIM_Initialize(CreatureAI* ai)
     i_AI = ai ? ai : FactorySelector::selectAI(this);
     if(oldAI) delete oldAI;
     IsAIEnabled = true;
+    i_AI->Reset();
     return true;
 }
 

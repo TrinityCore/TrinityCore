@@ -76,7 +76,6 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
 
         defaultarmor = m_creature->GetArmor();
         defaultsize = m_creature->GetFloatValue(OBJECT_FIELD_SCALE_X);
-        Reset();
     }
 
     ScriptedInstance *pInstance;
@@ -394,7 +393,6 @@ struct TRINITY_DLL_DECL mob_solarium_priestAI : public ScriptedAI
     mob_solarium_priestAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     ScriptedInstance *pInstance;

@@ -68,7 +68,7 @@ bool GossipSelect_npc_archmage_malin(Player *player, Creature *_Creature, uint32
 
 struct TRINITY_DLL_DECL npc_bartlebyAI : public ScriptedAI
 {
-    npc_bartlebyAI(Creature *c) : ScriptedAI(c) {Reset();}
+    npc_bartlebyAI(Creature *c) : ScriptedAI(c) {}
 
     uint64 PlayerGUID;
 
@@ -127,7 +127,7 @@ CreatureAI* GetAI_npc_bartleby(Creature *_creature)
 
 struct TRINITY_DLL_DECL npc_dashel_stonefistAI : public ScriptedAI
 {
-    npc_dashel_stonefistAI(Creature *c) : ScriptedAI(c) {Reset();}
+    npc_dashel_stonefistAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset()
     {

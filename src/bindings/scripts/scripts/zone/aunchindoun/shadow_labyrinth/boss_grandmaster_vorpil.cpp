@@ -71,7 +71,6 @@ struct TRINITY_DLL_DECL mob_voidtravelerAI : public ScriptedAI
     mob_voidtravelerAI(Creature *c) : ScriptedAI(c)
     {
         HeroicMode = m_creature->GetMap()->IsHeroic();
-        Reset();
     }
 
     bool HeroicMode;
@@ -136,7 +135,6 @@ struct TRINITY_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         HeroicMode = m_creature->GetMap()->IsHeroic();
         Intro = false;
-        Reset();
     }
 
     ScriptedInstance *pInstance;

@@ -42,7 +42,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_faerlinaAI : public ScriptedAI
 {
-    boss_faerlinaAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_faerlinaAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 PoisonBoltVolley_Timer;
     uint32 RainOfFire_Timer;

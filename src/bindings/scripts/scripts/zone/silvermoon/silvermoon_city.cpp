@@ -39,7 +39,7 @@ EndContentData */
 
 struct TRINITY_DLL_DECL npc_blood_knight_stillbladeAI : public ScriptedAI
 {
-    npc_blood_knight_stillbladeAI(Creature *c) : ScriptedAI(c) {Reset();}
+    npc_blood_knight_stillbladeAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 lifeTimer;
     bool spellHit;

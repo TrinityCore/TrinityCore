@@ -94,7 +94,7 @@ static Location DrakeWP[]=
 
 struct TRINITY_DLL_DECL boss_lieutenant_drakeAI : public ScriptedAI
 {
-    boss_lieutenant_drakeAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_lieutenant_drakeAI(Creature *c) : ScriptedAI(c) {}
 
     bool CanPatrol;
     uint32 wpId;

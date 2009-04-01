@@ -72,7 +72,6 @@ struct TRINITY_DLL_DECL boss_victor_nefariusAI : public ScriptedAI
     boss_victor_nefariusAI(Creature *c) : ScriptedAI(c)
     {
         NefarianGUID = 0;
-        Reset();
         srand(time(NULL));
         switch (rand()%20)
         {
