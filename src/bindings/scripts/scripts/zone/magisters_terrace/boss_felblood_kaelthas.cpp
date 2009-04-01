@@ -79,9 +79,7 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
 {
     boss_felblood_kaelthasAI(Creature* c) : ScriptedAI(c)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
-        Heroic = c->GetMap()->IsHeroic();
+        pInstance = ((ScriptedInstance*)c->GetInstanceData());        Heroic = c->GetMap()->IsHeroic();
     }
 
     ScriptedInstance* pInstance;
@@ -420,7 +418,6 @@ struct TRINITY_DLL_DECL mob_felkael_flamestrikeAI : public ScriptedAI
 {
     mob_felkael_flamestrikeAI(Creature *c) : ScriptedAI(c)
     {
-        Reset();
         Heroic = c->GetMap()->IsHeroic();
     }
 
@@ -454,7 +451,6 @@ struct TRINITY_DLL_DECL mob_felkael_phoenixAI : public ScriptedAI
     mob_felkael_phoenixAI(Creature* c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     ScriptedInstance* pInstance;
@@ -563,7 +559,7 @@ struct TRINITY_DLL_DECL mob_felkael_phoenixAI : public ScriptedAI
 
 struct TRINITY_DLL_DECL mob_felkael_phoenix_eggAI : public ScriptedAI
 {
-    mob_felkael_phoenix_eggAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_felkael_phoenix_eggAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 HatchTimer;
 

@@ -49,7 +49,7 @@ EndContentData */
 
 struct TRINITY_DLL_DECL mob_unkor_the_ruthlessAI : public ScriptedAI
 {
-    mob_unkor_the_ruthlessAI(Creature* c) : ScriptedAI(c) { Reset(); }
+    mob_unkor_the_ruthlessAI(Creature* c) : ScriptedAI(c) {}
 
     bool CanDoQuest;
     uint32 UnkorUnfriendly_Timer;
@@ -148,7 +148,7 @@ CreatureAI* GetAI_mob_unkor_the_ruthless(Creature *_Creature)
 
 struct TRINITY_DLL_DECL mob_infested_root_walkerAI : public ScriptedAI
 {
-    mob_infested_root_walkerAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_infested_root_walkerAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset() { }
     void Aggro(Unit *who) { }
@@ -173,7 +173,7 @@ CreatureAI* GetAI_mob_infested_root_walker(Creature *_Creature)
 
 struct TRINITY_DLL_DECL mob_rotting_forest_ragerAI : public ScriptedAI
 {
-    mob_rotting_forest_ragerAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_rotting_forest_ragerAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset() { }
     void Aggro(Unit *who) { }
@@ -205,7 +205,7 @@ const uint32 netherwebVictims[6] =
 };
 struct TRINITY_DLL_DECL mob_netherweb_victimAI : public ScriptedAI
 {
-    mob_netherweb_victimAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_netherweb_victimAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset() { }
     void Aggro(Unit *who) { }
@@ -254,7 +254,7 @@ CreatureAI* GetAI_mob_netherweb_victim(Creature *_Creature)
 
 struct TRINITY_DLL_DECL npc_floonAI : public ScriptedAI
 {
-    npc_floonAI(Creature* c) : ScriptedAI(c) { Reset(); }
+    npc_floonAI(Creature* c) : ScriptedAI(c) {}
 
     uint32 Silence_Timer;
     uint32 Frostbolt_Timer;
@@ -372,7 +372,7 @@ bool GossipSelect_npc_skyguard_handler_deesak(Player *player, Creature *_Creatur
 
 struct TRINITY_DLL_DECL npc_isla_starmaneAI : public npc_escortAI
 {
-    npc_isla_starmaneAI(Creature* c) : npc_escortAI(c) {Reset();}
+    npc_isla_starmaneAI(Creature* c) : npc_escortAI(c) {}
 
     bool Completed;
 

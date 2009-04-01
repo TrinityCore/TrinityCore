@@ -76,7 +76,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_cannon_master_willeyAI : public ScriptedAI
 {
-    boss_cannon_master_willeyAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_cannon_master_willeyAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 KnockAway_Timer;
     uint32 Pummel_Timer;

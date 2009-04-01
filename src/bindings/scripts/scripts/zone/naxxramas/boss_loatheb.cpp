@@ -42,7 +42,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_loathebAI : public ScriptedAI
 {
-    boss_loathebAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_loathebAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 CorruptedMind_Timer;
     uint32 PoisonAura_Timer;

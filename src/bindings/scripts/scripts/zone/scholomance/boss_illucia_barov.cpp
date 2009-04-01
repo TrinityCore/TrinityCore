@@ -31,7 +31,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_illuciabarovAI : public ScriptedAI
 {
-    boss_illuciabarovAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_illuciabarovAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 CurseOfAgony_Timer;
     uint32 ShadowShock_Timer;

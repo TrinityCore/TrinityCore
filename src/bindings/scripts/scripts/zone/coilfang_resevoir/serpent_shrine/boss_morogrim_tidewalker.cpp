@@ -101,7 +101,6 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
     boss_morogrim_tidewalkerAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     ScriptedInstance* pInstance;
@@ -295,7 +294,7 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
 
 struct TRINITY_DLL_DECL mob_water_globuleAI : public ScriptedAI
 {
-    mob_water_globuleAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_water_globuleAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 Check_Timer;
 

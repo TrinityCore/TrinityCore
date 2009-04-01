@@ -38,7 +38,6 @@ struct TRINITY_DLL_DECL boss_the_black_stalkerAI : public ScriptedAI
     boss_the_black_stalkerAI(Creature *c) : ScriptedAI(c)
     {
         HeroicMode = m_creature->GetMap()->IsHeroic();
-        Reset();
     }
 
     bool HeroicMode;

@@ -57,7 +57,6 @@ struct TRINITY_DLL_DECL boss_darkweaver_sythAI : public ScriptedAI
 
     {
         HeroicMode = m_creature->GetMap()->IsHeroic();
-        Reset();
     }
 
     uint32 flameshock_timer;
@@ -210,7 +209,6 @@ struct TRINITY_DLL_DECL mob_syth_fireAI : public ScriptedAI
 
     {
         HeroicMode = m_creature->GetMap()->IsHeroic();
-        Reset();
     }
 
     uint32 flameshock_timer;
@@ -262,7 +260,6 @@ struct TRINITY_DLL_DECL mob_syth_arcaneAI : public ScriptedAI
 
     {
         HeroicMode = m_creature->GetMap()->IsHeroic();
-        Reset();
     }
 
     uint32 arcaneshock_timer;
@@ -314,7 +311,6 @@ struct TRINITY_DLL_DECL mob_syth_frostAI : public ScriptedAI
 
     {
         HeroicMode = m_creature->GetMap()->IsHeroic();
-        Reset();
     }
 
     uint32 frostshock_timer;
@@ -366,7 +362,6 @@ struct TRINITY_DLL_DECL mob_syth_shadowAI : public ScriptedAI
 
     {
         HeroicMode = m_creature->GetMap()->IsHeroic();
-        Reset();
     }
 
     uint32 shadowshock_timer;

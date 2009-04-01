@@ -29,7 +29,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_lordalexeibarovAI : public ScriptedAI
 {
-    boss_lordalexeibarovAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_lordalexeibarovAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 Immolate_Timer;
     uint32 VeilofShadow_Timer;

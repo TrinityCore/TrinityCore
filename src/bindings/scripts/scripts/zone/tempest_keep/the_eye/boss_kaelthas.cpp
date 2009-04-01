@@ -159,7 +159,6 @@ struct TRINITY_DLL_DECL advisorbase_ai : public ScriptedAI
     advisorbase_ai(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     void MoveInLineOfSight(Unit *who)
@@ -276,7 +275,6 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
         AdvisorGuid[1] = 0;
         AdvisorGuid[2] = 0;
         AdvisorGuid[3] = 0;
-        Reset();
     }
 
     ScriptedInstance* pInstance;
@@ -1362,7 +1360,7 @@ struct TRINITY_DLL_DECL boss_master_engineer_telonicusAI : public advisorbase_ai
 //Flame Strike AI
 struct TRINITY_DLL_DECL mob_kael_flamestrikeAI : public ScriptedAI
 {
-    mob_kael_flamestrikeAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_kael_flamestrikeAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 Timer;
     bool Casting;
@@ -1412,7 +1410,7 @@ struct TRINITY_DLL_DECL mob_kael_flamestrikeAI : public ScriptedAI
 //Phoenix AI
 struct TRINITY_DLL_DECL mob_phoenix_tkAI : public ScriptedAI
 {
-       mob_phoenix_tkAI(Creature *c) : ScriptedAI(c) {Reset();}
+       mob_phoenix_tkAI(Creature *c) : ScriptedAI(c) {}
 
        uint32 Cycle_Timer;
        uint8 SummonEgg;
@@ -1470,7 +1468,7 @@ struct TRINITY_DLL_DECL mob_phoenix_tkAI : public ScriptedAI
 //Phoenix Egg AI
 struct TRINITY_DLL_DECL mob_phoenix_egg_tkAI : public ScriptedAI
 {
-       mob_phoenix_egg_tkAI(Creature *c) : ScriptedAI(c) {Reset();}
+       mob_phoenix_egg_tkAI(Creature *c) : ScriptedAI(c) {}
 
        uint32 Rebirth_Timer;
        bool summoned;

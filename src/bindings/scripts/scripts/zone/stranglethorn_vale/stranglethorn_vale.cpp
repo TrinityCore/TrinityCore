@@ -36,7 +36,6 @@ struct TRINITY_DLL_DECL mob_yennikuAI : public ScriptedAI
     mob_yennikuAI(Creature *c) : ScriptedAI(c)
     {
         bReset = false;
-        Reset();
     }
 
     uint32 Reset_Timer;

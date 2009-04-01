@@ -42,7 +42,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_doomwalkerAI : public ScriptedAI
 {
-    boss_doomwalkerAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_doomwalkerAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 Chain_Timer;
     uint32 Enrage_Timer;

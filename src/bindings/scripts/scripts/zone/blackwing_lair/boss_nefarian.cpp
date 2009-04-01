@@ -60,7 +60,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_nefarianAI : public ScriptedAI
 {
-    boss_nefarianAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_nefarianAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 ShadowFlame_Timer;
     uint32 BellowingRoar_Timer;

@@ -35,7 +35,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_huhuranAI : public ScriptedAI
 {
-    boss_huhuranAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_huhuranAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 Frenzy_Timer;
     uint32 Wyvern_Timer;

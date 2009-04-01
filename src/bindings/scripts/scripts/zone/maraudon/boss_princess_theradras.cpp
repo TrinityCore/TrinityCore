@@ -30,7 +30,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_ptheradrasAI : public ScriptedAI
 {
-    boss_ptheradrasAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_ptheradrasAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 Dustfield_Timer;
     uint32 Boulder_Timer;

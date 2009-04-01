@@ -36,7 +36,7 @@ EndScriptData */
 // Ysondre script
 struct TRINITY_DLL_DECL boss_ysondreAI : public ScriptedAI
 {
-    boss_ysondreAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_ysondreAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 Sleep_Timer;
     uint32 NoxiousBreath_Timer;
@@ -191,7 +191,7 @@ struct TRINITY_DLL_DECL boss_ysondreAI : public ScriptedAI
 // Summoned druid script
 struct TRINITY_DLL_DECL mob_dementeddruidsAI : public ScriptedAI
 {
-    mob_dementeddruidsAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_dementeddruidsAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 MoonFire_Timer;
 
