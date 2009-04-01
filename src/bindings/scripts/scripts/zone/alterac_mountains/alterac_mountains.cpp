@@ -33,7 +33,7 @@ EndContentData */
 
 struct TRINITY_DLL_DECL npc_ravenholdtAI : public ScriptedAI
 {
-    npc_ravenholdtAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    npc_ravenholdtAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset() { }
 

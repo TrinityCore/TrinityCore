@@ -64,7 +64,6 @@ struct TRINITY_DLL_DECL boss_nazanAI : public ScriptedAI
         HeroicMode = m_creature->GetMap()->IsHeroic();
         VazrudenGUID = 0;
         flight = true;
-        Reset();
     }
 
     uint32 Fireball_Timer;
@@ -177,7 +176,6 @@ struct TRINITY_DLL_DECL boss_vazrudenAI : public ScriptedAI
     boss_vazrudenAI(Creature *c) : ScriptedAI(c)
     {
         HeroicMode = m_creature->GetMap()->IsHeroic();
-        Reset();
     }
 
     uint32 Revenge_Timer;
@@ -257,7 +255,6 @@ struct TRINITY_DLL_DECL boss_vazruden_the_heraldAI : public ScriptedAI
         NazanGUID = 0;
         VazrudenGUID = 0;
         HeroicMode = m_creature->GetMap()->IsHeroic();
-        Reset();
     }
 
     uint32 phase;
@@ -410,8 +407,7 @@ struct TRINITY_DLL_DECL boss_vazruden_the_heraldAI : public ScriptedAI
 
 struct TRINITY_DLL_DECL mob_hellfire_sentryAI : public ScriptedAI
 {
-    mob_hellfire_sentryAI(Creature *c) : ScriptedAI(c)
-    { Reset();}
+    mob_hellfire_sentryAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 KidneyShot_Timer;
 

@@ -30,7 +30,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_scornAI : public ScriptedAI
 {
-    boss_scornAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_scornAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 LichSlap_Timer;
     uint32 FrostboltVolley_Timer;

@@ -67,7 +67,6 @@ struct TRINITY_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
                 Crystals.push_back(guid);
             }
         }
-        Reset();
         Heroic = c->GetMap()->IsHeroic();
     }
 
@@ -339,7 +338,7 @@ CreatureAI* GetAI_boss_selin_fireheart(Creature *_Creature)
 
 struct TRINITY_DLL_DECL mob_fel_crystalAI : public ScriptedAI
 {
-    mob_fel_crystalAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    mob_fel_crystalAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset() {}
     void Aggro(Unit* who) {}

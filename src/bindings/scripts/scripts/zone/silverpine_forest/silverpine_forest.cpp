@@ -37,7 +37,7 @@ EndContentData */
 #define GOSSIP_SAH "You've got something I need, Astor. And I'll be taking it now."
 struct TRINITY_DLL_DECL npc_astor_hadrenAI : public ScriptedAI
 {
-    npc_astor_hadrenAI(Creature *c) : ScriptedAI(c) {Reset();}
+    npc_astor_hadrenAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset()
     {
@@ -112,7 +112,7 @@ bool GossipSelect_npc_astor_hadren(Player *player, Creature *_Creature, uint32 s
 
 struct TRINITY_DLL_DECL npc_deathstalker_erlandAI : public npc_escortAI
 {
-    npc_deathstalker_erlandAI(Creature *c) : npc_escortAI(c) {Reset();}
+    npc_deathstalker_erlandAI(Creature *c) : npc_escortAI(c) {}
 
     void WaypointReached(uint32 i)
     {

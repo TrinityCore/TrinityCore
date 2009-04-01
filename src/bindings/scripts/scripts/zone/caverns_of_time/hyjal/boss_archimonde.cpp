@@ -77,7 +77,6 @@ struct mob_ancient_wispAI : public ScriptedAI
     mob_ancient_wispAI(Creature* c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     ScriptedInstance* pInstance;
@@ -127,10 +126,7 @@ struct mob_ancient_wispAI : public ScriptedAI
    are within 3 yards. Another creature called Doomfire Targetting spawns this creature as well as stalks. */
 struct TRINITY_DLL_DECL mob_doomfireAI : public ScriptedAI
 {
-    mob_doomfireAI(Creature* c) : ScriptedAI(c)
-    {
-        Reset();
-    }
+    mob_doomfireAI(Creature* c) : ScriptedAI(c) {}
 
     uint32 CheckTimer;
     uint32 RefreshTimer;
@@ -222,10 +218,7 @@ struct TRINITY_DLL_DECL mob_doomfireAI : public ScriptedAI
 /* This is the script for the Doomfire Targetting Mob. This mob simply follows players and/or travels in random directions and spawns the actual Doomfire which does damage to anyone that moves close.  */
 struct TRINITY_DLL_DECL mob_doomfire_targettingAI : public ScriptedAI
 {
-    mob_doomfire_targettingAI(Creature* c) : ScriptedAI(c)
-    {
-        Reset();
-    }
+    mob_doomfire_targettingAI(Creature* c) : ScriptedAI(c) {}
 
     uint32 ChangeTargetTimer;
     uint32 SummonTimer;                                     // This timer will serve as both a summon timer for the doomfire that does damage as well as to check on Archionde
@@ -335,7 +328,6 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public ScriptedAI
     boss_archimondeAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     ScriptedInstance* pInstance;

@@ -33,7 +33,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_angerrelAI : public ScriptedAI
 {
-    boss_angerrelAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_angerrelAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 SunderArmor_Timer;
     uint32 ShieldBlock_Timer;
@@ -91,7 +91,7 @@ CreatureAI* GetAI_boss_angerrel(Creature *_Creature)
 
 struct TRINITY_DLL_DECL boss_doperelAI : public ScriptedAI
 {
-    boss_doperelAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_doperelAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 SinisterStrike_Timer;
     uint32 BackStab_Timer;
@@ -149,7 +149,7 @@ CreatureAI* GetAI_boss_doperel(Creature *_Creature)
 
 struct TRINITY_DLL_DECL boss_haterelAI : public ScriptedAI
 {
-    boss_haterelAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_haterelAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 ShadowBolt_Timer;
     uint32 ManaBurn_Timer;
@@ -221,7 +221,7 @@ CreatureAI* GetAI_boss_haterel(Creature *_Creature)
 
 struct TRINITY_DLL_DECL boss_vilerelAI : public ScriptedAI
 {
-    boss_vilerelAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_vilerelAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 MindBlast_Timer;
     uint32 Heal_Timer;
@@ -290,7 +290,7 @@ CreatureAI* GetAI_boss_vilerel(Creature *_Creature)
 
 struct TRINITY_DLL_DECL boss_seethrelAI : public ScriptedAI
 {
-    boss_seethrelAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_seethrelAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 FrostArmor_Timer;
     uint32 Frostbolt_Timer;
@@ -370,7 +370,7 @@ CreatureAI* GetAI_boss_seethrel(Creature *_Creature)
 
 struct TRINITY_DLL_DECL boss_gloomrelAI : public ScriptedAI
 {
-    boss_gloomrelAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_gloomrelAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 Hamstring_Timer;
     uint32 Cleave_Timer;
@@ -470,7 +470,7 @@ bool GossipSelect_boss_gloomrel(Player *player, Creature *_Creature, uint32 send
 
 struct TRINITY_DLL_DECL boss_doomrelAI : public ScriptedAI
 {
-    boss_doomrelAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_doomrelAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 ShadowVolley_Timer;
     uint32 Immolate_Timer;

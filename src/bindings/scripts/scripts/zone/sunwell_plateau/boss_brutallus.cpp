@@ -61,7 +61,6 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
     boss_brutallusAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     ScriptedInstance* pInstance;

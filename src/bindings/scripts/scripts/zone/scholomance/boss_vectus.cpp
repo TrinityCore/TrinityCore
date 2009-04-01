@@ -29,7 +29,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_vectusAI : public ScriptedAI
 {
-    boss_vectusAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_vectusAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 FireShield_Timer;
     uint32 BlastWave_Timer;

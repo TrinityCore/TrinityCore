@@ -35,7 +35,7 @@ make him fly from 70-100%
 
 struct TRINITY_DLL_DECL boss_ayamissAI : public ScriptedAI
 {
-    boss_ayamissAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_ayamissAI(Creature *c) : ScriptedAI(c) {}
 
     Unit *pTarget;
     uint32 STINGERSPRAY_Timer;

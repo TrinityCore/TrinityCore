@@ -57,7 +57,7 @@ float HighborneLoc[4][3]=
 
 struct TRINITY_DLL_DECL npc_lady_sylvanas_windrunnerAI : public ScriptedAI
 {
-    npc_lady_sylvanas_windrunnerAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    npc_lady_sylvanas_windrunnerAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 LamentEvent_Timer;
     bool LamentEvent;
@@ -151,7 +151,7 @@ bool ChooseReward_npc_lady_sylvanas_windrunner(Player *player, Creature *_Creatu
 
 struct TRINITY_DLL_DECL npc_highborne_lamenterAI : public ScriptedAI
 {
-    npc_highborne_lamenterAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    npc_highborne_lamenterAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 EventMove_Timer;
     uint32 EventCast_Timer;

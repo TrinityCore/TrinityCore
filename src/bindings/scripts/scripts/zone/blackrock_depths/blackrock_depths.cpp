@@ -103,7 +103,6 @@ struct TRINITY_DLL_DECL npc_grimstoneAI : public npc_escortAI
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         MobSpawnId = rand()%6;
-        Reset();
     }
 
     ScriptedInstance* pInstance;
@@ -341,7 +340,7 @@ CreatureAI* GetAI_npc_grimstone(Creature *_Creature)
 
 struct TRINITY_DLL_DECL mob_phalanxAI : public ScriptedAI
 {
-    mob_phalanxAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_phalanxAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 ThunderClap_Timer;
     uint32 FireballVolley_Timer;
@@ -542,7 +541,7 @@ ScriptedInstance *pInstance;
 /*
 struct TRINITY_DLL_DECL npc_dughal_stormwingAI : public npc_escortAI
 {
-    npc_dughal_stormwingAI(Creature *c) : npc_escortAI(c) { Reset(); }
+    npc_dughal_stormwingAI(Creature *c) : npc_escortAI(c) {}
 
     void WaypointReached(uint32 i)
     {
@@ -645,7 +644,6 @@ struct TRINITY_DLL_DECL npc_marshal_windsorAI : public npc_escortAI
     npc_marshal_windsorAI(Creature *c) : npc_escortAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     void WaypointReached(uint32 i)
@@ -810,7 +808,6 @@ struct TRINITY_DLL_DECL npc_marshal_reginald_windsorAI : public npc_escortAI
 {
     npc_marshal_reginald_windsorAI(Creature *c) : npc_escortAI(c)
     {
-        Reset();
     }
 
     void WaypointReached(uint32 i)
@@ -1004,7 +1001,7 @@ CreatureAI* GetAI_npc_marshal_reginald_windsor(Creature *_Creature)
 /*
 struct TRINITY_DLL_DECL npc_tobias_seecherAI : public npc_escortAI
 {
-    npc_tobias_seecherAI(Creature *c) :npc_escortAI(c) {Reset();}
+    npc_tobias_seecherAI(Creature *c) :npc_escortAI(c) {}
 
     void Aggro(Unit* who) { }
     void Reset() {}
@@ -1128,7 +1125,6 @@ struct TRINITY_DLL_DECL npc_rocknotAI : public npc_escortAI
     npc_rocknotAI(Creature *c) : npc_escortAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     ScriptedInstance* pInstance;

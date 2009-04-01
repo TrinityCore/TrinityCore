@@ -56,7 +56,6 @@ struct TRINITY_DLL_DECL mob_mature_netherwing_drakeAI : public ScriptedAI
 {
     mob_mature_netherwing_drakeAI(Creature* c) : ScriptedAI(c)
     {
-        Reset();
         PlayerGUID = 0;
     }
 
@@ -179,7 +178,6 @@ struct TRINITY_DLL_DECL mob_enslaved_netherwing_drakeAI : public ScriptedAI
 {
     mob_enslaved_netherwing_drakeAI(Creature* c) : ScriptedAI(c)
     {
-        Reset();
         PlayerGUID = 0;
         Tapped = false;
     }
@@ -305,10 +303,7 @@ CreatureAI* GetAI_mob_enslaved_netherwing_drake(Creature* _Creature)
 
 struct TRINITY_DLL_DECL mob_dragonmaw_peonAI : public ScriptedAI
 {
-    mob_dragonmaw_peonAI(Creature* c) : ScriptedAI(c)
-    {
-        Reset();
-    }
+    mob_dragonmaw_peonAI(Creature* c) : ScriptedAI(c) {}
 
     uint64 PlayerGUID;
     bool Tapped;
@@ -672,7 +667,7 @@ bool QuestAccept_npc_karynaku(Player* player, Creature* creature, Quest const* q
 
 struct TRINITY_DLL_DECL npc_overlord_morghorAI : public ScriptedAI
 {
-    npc_overlord_morghorAI(Creature *c) : ScriptedAI(c) {Reset();}
+    npc_overlord_morghorAI(Creature *c) : ScriptedAI(c) {}
 
     uint64 PlayerGUID;
     uint64 IllidanGUID;
@@ -866,7 +861,7 @@ bool QuestAccept_npc_overlord_morghor(Player *player, Creature *_Creature, const
 
 struct TRINITY_DLL_DECL npc_earthmender_wildaAI : public npc_escortAI
 {
-    npc_earthmender_wildaAI(Creature *c) : npc_escortAI(c) {Reset();}
+    npc_earthmender_wildaAI(Creature *c) : npc_escortAI(c) {}
 
     bool Completed;
 
@@ -1159,7 +1154,7 @@ static SpawnSpells SpawnCast[]=
 
 struct TRINITY_DLL_DECL mob_illidari_spawnAI : public ScriptedAI
 {
-    mob_illidari_spawnAI(Creature* c) : ScriptedAI(c) {Reset();}
+    mob_illidari_spawnAI(Creature* c) : ScriptedAI(c) {}
 
     uint64 LordIllidanGUID;
     uint32 SpellTimer1, SpellTimer2, SpellTimer3;
@@ -1260,7 +1255,7 @@ struct TRINITY_DLL_DECL mob_illidari_spawnAI : public ScriptedAI
 
 struct TRINITY_DLL_DECL mob_torloth_the_magnificentAI : public ScriptedAI
 {
-    mob_torloth_the_magnificentAI(Creature* c) : ScriptedAI(c) {Reset();}
+    mob_torloth_the_magnificentAI(Creature* c) : ScriptedAI(c) {}
 
     uint32 AnimationTimer, SpellTimer1, SpellTimer2, SpellTimer3;
 
@@ -1409,7 +1404,7 @@ struct TRINITY_DLL_DECL mob_torloth_the_magnificentAI : public ScriptedAI
 
 struct TRINITY_DLL_DECL npc_lord_illidan_stormrageAI : public ScriptedAI
 {
-    npc_lord_illidan_stormrageAI(Creature* c) : ScriptedAI(c) {Reset();}
+    npc_lord_illidan_stormrageAI(Creature* c) : ScriptedAI(c) {}
 
     uint64 PlayerGUID;
 
@@ -1694,7 +1689,7 @@ CreatureAI* GetAI_mob_torloth_the_magnificent(Creature* c)
 
 struct TRINITY_DLL_DECL npc_enraged_spiritAI : public ScriptedAI
 {
-    npc_enraged_spiritAI(Creature *c) : ScriptedAI(c) {Reset();}
+    npc_enraged_spiritAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset()   { }
 

@@ -62,7 +62,7 @@ EndContentData */
 
 struct TRINITY_DLL_DECL npc_manaforge_control_consoleAI : public ScriptedAI
 {
-    npc_manaforge_control_consoleAI(Creature *c) : ScriptedAI(c) {Reset();}
+    npc_manaforge_control_consoleAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 Event_Timer;
     uint32 Wave_Timer;
@@ -790,7 +790,7 @@ bool GossipSelect_npc_veronia(Player *player, Creature *_Creature, uint32 sender
 struct TRINITY_DLL_DECL mob_phase_hunterAI : public ScriptedAI
 {
 
-    mob_phase_hunterAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_phase_hunterAI(Creature *c) : ScriptedAI(c) {}
 
     bool Weak;
     bool Materialize;
@@ -907,7 +907,7 @@ CreatureAI* GetAI_mob_phase_hunter(Creature *_Creature)
 struct TRINITY_DLL_DECL npc_bessyAI : public npc_escortAI
 {
 
-    npc_bessyAI(Creature *c) : npc_escortAI(c) {Reset();}
+    npc_bessyAI(Creature *c) : npc_escortAI(c) {}
 
     bool Completed;
 

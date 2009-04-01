@@ -29,7 +29,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_kurinnaxxAI : public ScriptedAI
 {
-    boss_kurinnaxxAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_kurinnaxxAI(Creature *c) : ScriptedAI(c) {}
 
     Unit *pTarget;
     uint32 MORTALWOUND_Timer;

@@ -47,7 +47,6 @@ struct TRINITY_DLL_DECL boss_mandokirAI : public ScriptedAI
     boss_mandokirAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     uint32 KillCount;
@@ -272,7 +271,6 @@ struct TRINITY_DLL_DECL mob_ohganAI : public ScriptedAI
     mob_ohganAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     uint32 SunderArmor_Timer;

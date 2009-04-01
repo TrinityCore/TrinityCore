@@ -105,7 +105,6 @@ struct TRINITY_DLL_DECL boss_dorotheeAI : public ScriptedAI
     boss_dorotheeAI(Creature* c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     ScriptedInstance* pInstance;
@@ -203,10 +202,7 @@ struct TRINITY_DLL_DECL boss_dorotheeAI : public ScriptedAI
 
 struct TRINITY_DLL_DECL mob_titoAI : public ScriptedAI
 {
-    mob_titoAI(Creature* c) : ScriptedAI(c)
-    {
-        Reset();
-    }
+    mob_titoAI(Creature* c) : ScriptedAI(c) {}
 
     uint64 DorotheeGUID;
 
@@ -267,7 +263,6 @@ struct TRINITY_DLL_DECL boss_strawmanAI : public ScriptedAI
     boss_strawmanAI(Creature* c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     ScriptedInstance* pInstance;
@@ -358,7 +353,6 @@ struct TRINITY_DLL_DECL boss_tinheadAI : public ScriptedAI
     boss_tinheadAI(Creature* c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     ScriptedInstance* pInstance;
@@ -452,7 +446,6 @@ struct TRINITY_DLL_DECL boss_roarAI : public ScriptedAI
     boss_roarAI(Creature* c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     ScriptedInstance* pInstance;
@@ -545,7 +538,6 @@ struct TRINITY_DLL_DECL boss_croneAI : public ScriptedAI
     boss_croneAI(Creature* c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     ScriptedInstance* pInstance;
@@ -611,10 +603,7 @@ struct TRINITY_DLL_DECL boss_croneAI : public ScriptedAI
 
 struct TRINITY_DLL_DECL mob_cycloneAI : public ScriptedAI
 {
-    mob_cycloneAI(Creature* c) : ScriptedAI(c)
-    {
-        Reset();
-    }
+    mob_cycloneAI(Creature* c) : ScriptedAI(c) {}
 
     uint32 MoveTimer;
 
@@ -734,7 +723,6 @@ struct TRINITY_DLL_DECL boss_bigbadwolfAI : public ScriptedAI
     boss_bigbadwolfAI(Creature* c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     ScriptedInstance* pInstance;
@@ -928,7 +916,6 @@ struct TRINITY_DLL_DECL boss_julianneAI : public ScriptedAI
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         EntryYellTimer = 1000;
         AggroYellTimer = 10000;
-        Reset();
     }
 
     ScriptedInstance* pInstance;
@@ -1023,7 +1010,6 @@ struct TRINITY_DLL_DECL boss_romuloAI : public ScriptedAI
 {
     boss_romuloAI(Creature* c) : ScriptedAI(c)
     {
-        Reset();
         EntryYellTimer = 8000;
         AggroYellTimer = 15000;
     }

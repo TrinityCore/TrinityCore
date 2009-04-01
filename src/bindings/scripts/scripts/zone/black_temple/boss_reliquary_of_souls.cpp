@@ -100,7 +100,7 @@ static Position Coords[]=
 
 struct TRINITY_DLL_DECL npc_enslaved_soulAI : public ScriptedAI
 {
-    npc_enslaved_soulAI(Creature *c) : ScriptedAI(c) {Reset();}
+    npc_enslaved_soulAI(Creature *c) : ScriptedAI(c) {}
 
     uint64 ReliquaryGUID;
 
@@ -121,7 +121,6 @@ struct TRINITY_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         EssenceGUID = 0;
-        Reset();
     }
 
     ScriptedInstance* pInstance;
@@ -322,7 +321,7 @@ struct TargetDistanceOrder : public std::binary_function<const Unit, const Unit,
 
 struct TRINITY_DLL_DECL boss_essence_of_sufferingAI : public ScriptedAI
 {
-    boss_essence_of_sufferingAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_essence_of_sufferingAI(Creature *c) : ScriptedAI(c) {}
 
     uint64 StatAuraGUID;
 
@@ -430,7 +429,7 @@ struct TRINITY_DLL_DECL boss_essence_of_sufferingAI : public ScriptedAI
 
 struct TRINITY_DLL_DECL boss_essence_of_desireAI : public ScriptedAI
 {
-    boss_essence_of_desireAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_essence_of_desireAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 RuneShieldTimer;
     uint32 DeadenTimer;
@@ -526,7 +525,7 @@ struct TRINITY_DLL_DECL boss_essence_of_desireAI : public ScriptedAI
 
 struct TRINITY_DLL_DECL boss_essence_of_angerAI : public ScriptedAI
 {
-    boss_essence_of_angerAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_essence_of_angerAI(Creature *c) : ScriptedAI(c) {}
 
     uint64 AggroTargetGUID;
 

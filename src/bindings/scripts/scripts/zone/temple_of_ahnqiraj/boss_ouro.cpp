@@ -33,7 +33,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_ouroAI : public ScriptedAI
 {
-    boss_ouroAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_ouroAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 Sweep_Timer;
     uint32 SandBlast_Timer;

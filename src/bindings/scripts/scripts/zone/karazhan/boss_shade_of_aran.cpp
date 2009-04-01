@@ -84,7 +84,6 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
     boss_aranAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     ScriptedInstance* pInstance;
@@ -531,7 +530,7 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
 
 struct TRINITY_DLL_DECL water_elementalAI : public ScriptedAI
 {
-    water_elementalAI(Creature *c) : ScriptedAI(c) {Reset();}
+    water_elementalAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 CastTimer;
 

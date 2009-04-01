@@ -149,6 +149,8 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
 
     void DoTeleportTo(float x, float y, float z, uint32 time = 0);
 
+    void DoAction(const int32 param) {}
+
     //Teleports a player without dropping threat (only teleports to same map)
     void DoTeleportPlayer(Unit* pUnit, float x, float y, float z, float o);
     void DoTeleportAll(float x, float y, float z, float o);

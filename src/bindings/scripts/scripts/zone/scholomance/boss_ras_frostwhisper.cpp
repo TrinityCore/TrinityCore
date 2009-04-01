@@ -32,7 +32,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_rasfrostAI : public ScriptedAI
 {
-    boss_rasfrostAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_rasfrostAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 IceArmor_Timer;
     uint32 Frostbolt_Timer;

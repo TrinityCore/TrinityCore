@@ -35,7 +35,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_amnennar_the_coldbringerAI : public ScriptedAI
 {
-    boss_amnennar_the_coldbringerAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_amnennar_the_coldbringerAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 AmnenarsWrath_Timer;
     uint32 FrostBolt_Timer;

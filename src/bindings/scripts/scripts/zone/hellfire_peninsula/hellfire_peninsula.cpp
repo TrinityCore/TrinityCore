@@ -50,7 +50,7 @@ EndContentData */
 
 struct TRINITY_DLL_DECL npc_aeranasAI : public ScriptedAI
 {
-    npc_aeranasAI(Creature* c) : ScriptedAI(c) { Reset(); }
+    npc_aeranasAI(Creature* c) : ScriptedAI(c) {}
 
     uint32 Faction_Timer;
     uint32 EnvelopingWinds_Timer;
@@ -271,7 +271,7 @@ bool GossipSelect_npc_wing_commander_brack(Player *player, Creature *_Creature, 
 
 struct TRINITY_DLL_DECL npc_wounded_blood_elfAI : public npc_escortAI
 {
-    npc_wounded_blood_elfAI(Creature *c) : npc_escortAI(c) {Reset();}
+    npc_wounded_blood_elfAI(Creature *c) : npc_escortAI(c) {}
 
     void WaypointReached(uint32 i)
     {

@@ -39,7 +39,6 @@ struct TRINITY_DLL_DECL boss_arlokkAI : public ScriptedAI
     boss_arlokkAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     ScriptedInstance *pInstance;

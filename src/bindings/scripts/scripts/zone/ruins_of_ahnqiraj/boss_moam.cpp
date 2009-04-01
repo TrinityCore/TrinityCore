@@ -34,7 +34,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_moamAI : public ScriptedAI
 {
-    boss_moamAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_moamAI(Creature *c) : ScriptedAI(c) {}
 
     Unit *pTarget;
     uint32 TRAMPLE_Timer;

@@ -29,7 +29,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_gythAI : public ScriptedAI
 {
-    boss_gythAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_gythAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 Aggro_Timer;
     uint32 Dragons_Timer;

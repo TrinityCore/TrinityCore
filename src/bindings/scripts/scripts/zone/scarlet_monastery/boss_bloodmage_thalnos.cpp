@@ -39,7 +39,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_bloodmage_thalnosAI : public ScriptedAI
 {
-    boss_bloodmage_thalnosAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_bloodmage_thalnosAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 FrostNova2_Timer;
     uint32 FlameShock3_Timer;

@@ -31,7 +31,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_jandicebarovAI : public ScriptedAI
 {
-    boss_jandicebarovAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_jandicebarovAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 CurseOfBlood_Timer;
     uint32 Illusion_Timer;
@@ -160,7 +160,7 @@ struct TRINITY_DLL_DECL boss_jandicebarovAI : public ScriptedAI
 
 struct TRINITY_DLL_DECL mob_illusionofjandicebarovAI : public ScriptedAI
 {
-    mob_illusionofjandicebarovAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_illusionofjandicebarovAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 Cleave_Timer;
 

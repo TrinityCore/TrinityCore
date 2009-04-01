@@ -55,7 +55,6 @@ struct TRINITY_DLL_DECL boss_thekalAI : public ScriptedAI
     boss_thekalAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     uint32 MortalCleave_Timer;
@@ -236,8 +235,7 @@ struct TRINITY_DLL_DECL mob_zealot_lorkhanAI : public ScriptedAI
 {
     mob_zealot_lorkhanAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData()) ? ((ScriptedInstance*)c->GetInstanceData()) : NULL;
-        Reset();
+        pInstance = ((ScriptedInstance*)c->GetInstanceData());
     }
 
     uint32 Shield_Timer;
@@ -372,8 +370,7 @@ struct TRINITY_DLL_DECL mob_zealot_zathAI : public ScriptedAI
 {
     mob_zealot_zathAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData()) ? ((ScriptedInstance*)c->GetInstanceData()) : NULL;
-        Reset();
+        pInstance = ((ScriptedInstance*)c->GetInstanceData());
     }
 
     uint32 SweepingStrikes_Timer;

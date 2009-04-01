@@ -41,7 +41,7 @@ EndContentData */
 
 struct TRINITY_DLL_DECL mob_stolen_soulAI : public ScriptedAI
 {
-    mob_stolen_soulAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_stolen_soulAI(Creature *c) : ScriptedAI(c) {}
 
     uint8 myClass;
     uint32 Class_Timer;
@@ -146,7 +146,6 @@ struct TRINITY_DLL_DECL boss_exarch_maladaarAI : public ScriptedAI
     boss_exarch_maladaarAI(Creature *c) : ScriptedAI(c)
     {
         HasTaunted = false;
-        Reset();
     }
 
     uint32 soulmodel;
@@ -304,7 +303,7 @@ CreatureAI* GetAI_boss_exarch_maladaar(Creature *_Creature)
 
 struct TRINITY_DLL_DECL mob_avatar_of_martyredAI : public ScriptedAI
 {
-    mob_avatar_of_martyredAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_avatar_of_martyredAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 Mortal_Strike_timer;
 

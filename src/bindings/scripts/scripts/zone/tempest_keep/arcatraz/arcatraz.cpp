@@ -64,7 +64,6 @@ struct TRINITY_DLL_DECL npc_millhouse_manastormAI : public ScriptedAI
     npc_millhouse_manastormAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     ScriptedInstance* pInstance;
@@ -261,7 +260,6 @@ struct TRINITY_DLL_DECL npc_warden_mellicharAI : public ScriptedAI
     npc_warden_mellicharAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     ScriptedInstance* pInstance;
@@ -490,7 +488,7 @@ CreatureAI* GetAI_npc_warden_mellichar(Creature *_Creature)
 
 struct TRINITY_DLL_DECL mob_zerekethvoidzoneAI : public ScriptedAI
 {
-    mob_zerekethvoidzoneAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_zerekethvoidzoneAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset()
     {

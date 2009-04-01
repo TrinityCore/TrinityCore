@@ -34,7 +34,6 @@ struct TRINITY_DLL_DECL mob_treantAI  : public ScriptedAI
     mob_treantAI (Creature *c) : ScriptedAI(c)
     {
         WarpGuid = 0;
-        Reset();
     }
 
     uint64 WarpGuid;
@@ -112,7 +111,6 @@ struct TRINITY_DLL_DECL boss_warp_splinterAI : public ScriptedAI
         HeroicMode = c->GetMap()->IsHeroic();
         Treant_Spawn_Pos_X = c->GetPositionX();
         Treant_Spawn_Pos_Y = c->GetPositionY();
-        Reset();
     }
 
     uint32 War_Stomp_Timer;

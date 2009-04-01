@@ -34,7 +34,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_high_inquisitor_fairbanksAI : public ScriptedAI
 {
-    boss_high_inquisitor_fairbanksAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_high_inquisitor_fairbanksAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 Healing_Timer;
     uint32 Sleep2_Timer;

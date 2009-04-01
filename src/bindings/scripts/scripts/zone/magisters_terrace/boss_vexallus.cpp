@@ -50,9 +50,7 @@ struct TRINITY_DLL_DECL boss_vexallusAI : public ScriptedAI
 {
     boss_vexallusAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
-         Heroic = c->GetMap()->IsHeroic();
+        pInstance = ((ScriptedInstance*)c->GetInstanceData());         Heroic = c->GetMap()->IsHeroic();
     }
 
     ScriptedInstance* pInstance;
@@ -178,7 +176,7 @@ CreatureAI* GetAI_boss_vexallus(Creature *_Creature)
 
 struct TRINITY_DLL_DECL mob_pure_energyAI : public ScriptedAI
 {
-    mob_pure_energyAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_pure_energyAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 EnergyBoltTimer;
     uint32 VisualTimer;

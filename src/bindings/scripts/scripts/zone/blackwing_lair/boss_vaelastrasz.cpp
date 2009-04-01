@@ -45,7 +45,6 @@ struct TRINITY_DLL_DECL boss_vaelAI : public ScriptedAI
         c->SetUInt32Value(UNIT_NPC_FLAGS,1);
         c->setFaction(35);
         c->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        Reset();
     }
 
     uint64 PlayerGUID;

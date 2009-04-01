@@ -65,7 +65,6 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
         if(TempSpell)
             TempSpell->EffectBasePoints[1] = 49;//disable bugged lightning until fixed in core
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
     ScriptedInstance *pInstance;
 
@@ -368,7 +367,7 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
 
 struct TRINITY_DLL_DECL mob_soaring_eagleAI : public ScriptedAI
 {
-    mob_soaring_eagleAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_soaring_eagleAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 EagleSwoop_Timer;
     bool arrived;

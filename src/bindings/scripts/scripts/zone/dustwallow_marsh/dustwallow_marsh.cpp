@@ -41,7 +41,7 @@ EndContentData */
 
 struct TRINITY_DLL_DECL mobs_risen_husk_spiritAI : public ScriptedAI
 {
-    mobs_risen_husk_spiritAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mobs_risen_husk_spiritAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 ConsumeFlesh_Timer;
     uint32 IntangiblePresence_Timer;
@@ -108,7 +108,7 @@ bool GossipHello_npc_restless_apparition(Player *player, Creature *_Creature)
 
 struct TRINITY_DLL_DECL npc_deserter_agitatorAI : public ScriptedAI
 {
-    npc_deserter_agitatorAI(Creature *c) : ScriptedAI(c) {Reset();}
+    npc_deserter_agitatorAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset()
     {

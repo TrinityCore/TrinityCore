@@ -48,7 +48,7 @@ EndContentData */
 
 struct TRINITY_DLL_DECL npc_professor_phizzlethorpeAI : public npc_escortAI
 {
-    npc_professor_phizzlethorpeAI(Creature *c) : npc_escortAI(c) {Reset();}
+    npc_professor_phizzlethorpeAI(Creature *c) : npc_escortAI(c) {}
 
     bool Completed;
 

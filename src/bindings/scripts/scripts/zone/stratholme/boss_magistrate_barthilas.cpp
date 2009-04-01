@@ -37,7 +37,6 @@ struct TRINITY_DLL_DECL boss_magistrate_barthilasAI : public ScriptedAI
     boss_magistrate_barthilasAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = (ScriptedInstance*)m_creature->GetInstanceData();
-        Reset();
     }
 
     ScriptedInstance* pInstance;

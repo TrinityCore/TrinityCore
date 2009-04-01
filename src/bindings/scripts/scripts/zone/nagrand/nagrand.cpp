@@ -42,7 +42,7 @@ struct TRINITY_DLL_DECL mob_shattered_rumblerAI : public ScriptedAI
 {
     bool Spawn;
 
-    mob_shattered_rumblerAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_shattered_rumblerAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset()
     {
@@ -95,7 +95,6 @@ struct TRINITY_DLL_DECL mob_lumpAI : public ScriptedAI
     mob_lumpAI(Creature *c) : ScriptedAI(c)
     {
         bReset = false;
-        Reset();
     }
 
     uint32 Reset_Timer;
@@ -222,7 +221,7 @@ bool GossipSelect_mob_lump(Player *player, Creature *_Creature, uint32 sender, u
 
 struct TRINITY_DLL_DECL mob_sunspring_villagerAI : public ScriptedAI
 {
-    mob_sunspring_villagerAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_sunspring_villagerAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset()
     {
@@ -522,7 +521,7 @@ bool GossipSelect_npc_lantresor_of_the_blade(Player *player, Creature *_Creature
 
 struct TRINITY_DLL_DECL npc_creditmarker_visit_with_ancestorsAI : public ScriptedAI
 {
-    npc_creditmarker_visit_with_ancestorsAI(Creature* c) : ScriptedAI(c) { Reset(); }
+    npc_creditmarker_visit_with_ancestorsAI(Creature* c) : ScriptedAI(c) {}
 
     void Reset() {}
 
@@ -564,7 +563,7 @@ CreatureAI* GetAI_npc_creditmarker_visit_with_ancestors(Creature *_Creature)
 struct TRINITY_DLL_DECL mob_sparrowhawkAI : public ScriptedAI
 {
 
-    mob_sparrowhawkAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_sparrowhawkAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 Check_Timer;
     uint64 PlayerGUID;

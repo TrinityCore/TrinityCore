@@ -39,7 +39,7 @@ EndContentData */
 //TODO: add support for quest 10512 + creature abilities
 struct TRINITY_DLL_DECL mobs_bladespire_ogreAI : public ScriptedAI
 {
-    mobs_bladespire_ogreAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mobs_bladespire_ogreAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset()
     {
@@ -84,7 +84,7 @@ CreatureAI* GetAI_mobs_bladespire_ogre(Creature *_Creature)
 
 struct TRINITY_DLL_DECL mobs_nether_drakeAI : public ScriptedAI
 {
-    mobs_nether_drakeAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mobs_nether_drakeAI(Creature *c) : ScriptedAI(c) {}
 
     bool IsNihil;
     uint32 NihilSpeech_Timer;
@@ -265,7 +265,7 @@ CreatureAI* GetAI_mobs_nether_drake(Creature *_Creature)
 
 struct TRINITY_DLL_DECL npc_daranelleAI : public ScriptedAI
 {
-    npc_daranelleAI(Creature *c) : ScriptedAI(c) {Reset();}
+    npc_daranelleAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset()
     {

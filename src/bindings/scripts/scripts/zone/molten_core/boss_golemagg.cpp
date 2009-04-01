@@ -41,7 +41,6 @@ struct TRINITY_DLL_DECL boss_golemaggAI : public ScriptedAI
     boss_golemaggAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
     ScriptedInstance *pInstance;
 
@@ -119,8 +118,7 @@ struct TRINITY_DLL_DECL mob_core_ragerAI : public ScriptedAI
 {
     mob_core_ragerAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData()) ? ((ScriptedInstance*)c->GetInstanceData()) : NULL;
-        Reset();
+        pInstance = ((ScriptedInstance*)c->GetInstanceData());
     }
 
     uint32 Mangle_Timer;

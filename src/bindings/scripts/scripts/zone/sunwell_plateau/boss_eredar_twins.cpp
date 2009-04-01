@@ -97,7 +97,6 @@ struct TRINITY_DLL_DECL boss_sacrolashAI : public ScriptedAI
     boss_sacrolashAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     ScriptedInstance *pInstance;
@@ -361,9 +360,7 @@ struct TRINITY_DLL_DECL boss_alythessAI : public Scripted_NoMovementAI
 {
     boss_alythessAI(Creature *c) : Scripted_NoMovementAI(c)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
-        IntroStepCounter = 10;
+        pInstance = ((ScriptedInstance*)c->GetInstanceData());        IntroStepCounter = 10;
     }
 
     ScriptedInstance *pInstance;
@@ -689,7 +686,7 @@ CreatureAI* GetAI_boss_alythess(Creature *_Creature)
 
 struct TRINITY_DLL_DECL mob_shadow_imageAI : public ScriptedAI
 {
-    mob_shadow_imageAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_shadow_imageAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 shadowfury_timer;
     uint32 kill_timer;

@@ -49,7 +49,7 @@ EndContentData */
 
 struct TRINITY_DLL_DECL npc_chicken_cluckAI : public ScriptedAI
 {
-    npc_chicken_cluckAI(Creature *c) : ScriptedAI(c) {Reset();}
+    npc_chicken_cluckAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 ResetFlagTimer;
 
@@ -138,7 +138,7 @@ bool QuestComplete_npc_chicken_cluck(Player *player, Creature *_Creature, const 
 
 struct TRINITY_DLL_DECL npc_dancing_flamesAI : public ScriptedAI
 {
-    npc_dancing_flamesAI(Creature *c) : ScriptedAI(c) {Reset();}
+    npc_dancing_flamesAI(Creature *c) : ScriptedAI(c) {}
 
     bool active;
     uint32 can_iteract;
@@ -317,7 +317,7 @@ struct TRINITY_DLL_DECL npc_doctorAI : public ScriptedAI
     std::list<uint64> Patients;
     std::vector<Location*> Coordinates;
 
-    npc_doctorAI(Creature *c) : ScriptedAI(c) {Reset();}
+    npc_doctorAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset(){}
 
@@ -335,7 +335,7 @@ struct TRINITY_DLL_DECL npc_doctorAI : public ScriptedAI
 
 struct TRINITY_DLL_DECL npc_injured_patientAI : public ScriptedAI
 {
-    npc_injured_patientAI(Creature *c) : ScriptedAI(c) {Reset();}
+    npc_injured_patientAI(Creature *c) : ScriptedAI(c) {}
 
     uint64 Doctorguid;
 
@@ -597,7 +597,7 @@ CreatureAI* GetAI_npc_doctor(Creature *_Creature)
 
 struct TRINITY_DLL_DECL npc_guardianAI : public ScriptedAI
 {
-    npc_guardianAI(Creature *c) : ScriptedAI(c) {Reset();}
+    npc_guardianAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset()
     {
@@ -895,7 +895,7 @@ bool GossipSelect_npc_sayge(Player *player, Creature *_Creature, uint32 sender, 
 
 struct TRINITY_DLL_DECL npc_steam_tonkAI : public ScriptedAI
 {
-    npc_steam_tonkAI(Creature *c) : ScriptedAI(c) {Reset();}
+    npc_steam_tonkAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset() {}
     void Aggro(Unit *who) {}
@@ -928,7 +928,6 @@ struct TRINITY_DLL_DECL npc_tonk_mineAI : public ScriptedAI
     npc_tonk_mineAI(Creature *c) : ScriptedAI(c)
     {
         m_creature->SetReactState(REACT_PASSIVE);
-        Reset();
     }
 
     uint32 ExplosionTimer;
@@ -1011,7 +1010,7 @@ bool ReceiveEmote_npc_brewfest_reveler( Player *player, Creature *_Creature, uin
 
 struct TRINITY_DLL_DECL npc_snake_trap_serpentsAI : public ScriptedAI
 {
-    npc_snake_trap_serpentsAI(Creature *c) : ScriptedAI(c) {Reset();}
+    npc_snake_trap_serpentsAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 SpellTimer;
     Unit *Owner;

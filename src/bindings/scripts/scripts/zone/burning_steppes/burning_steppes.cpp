@@ -46,7 +46,7 @@ EndContentData */
 
 struct TRINITY_DLL_DECL npc_ragged_johnAI : public ScriptedAI
 {
-    npc_ragged_johnAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    npc_ragged_johnAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset() {}
 

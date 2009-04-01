@@ -32,7 +32,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_instructormaliciaAI : public ScriptedAI
 {
-    boss_instructormaliciaAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_instructormaliciaAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 CallOfGraves_Timer;
     uint32 Corruption_Timer;

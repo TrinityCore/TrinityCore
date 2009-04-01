@@ -2498,7 +2498,7 @@ CreatureAI* GetAI_guard_shattrath(Creature *_Creature)
 
 struct TRINITY_DLL_DECL guard_shattrath_aldorAI : public guardAI
 {
-    guard_shattrath_aldorAI(Creature *c) : guardAI(c) { Reset(); }
+    guard_shattrath_aldorAI(Creature *c) : guardAI(c) {}
 
     uint32 Exile_Timer;
     uint32 Banish_Timer;
@@ -2694,7 +2694,7 @@ CreatureAI* GetAI_guard_shattrath_aldor(Creature *_Creature)
 
 struct TRINITY_DLL_DECL guard_shattrath_scryerAI : public guardAI
 {
-    guard_shattrath_scryerAI(Creature *c) : guardAI(c) { Reset(); }
+    guard_shattrath_scryerAI(Creature *c) : guardAI(c) {}
 
     uint32 Exile_Timer;
     uint32 Banish_Timer;

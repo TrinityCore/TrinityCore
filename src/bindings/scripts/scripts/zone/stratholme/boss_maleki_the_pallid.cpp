@@ -34,7 +34,6 @@ struct TRINITY_DLL_DECL boss_maleki_the_pallidAI : public ScriptedAI
     boss_maleki_the_pallidAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = (ScriptedInstance*)m_creature->GetInstanceData();
-        Reset();
     }
 
     ScriptedInstance* pInstance;
