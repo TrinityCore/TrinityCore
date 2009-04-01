@@ -211,7 +211,6 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
     npc_thrall_old_hillsbradAI(Creature *c) : npc_escortAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     ScriptedInstance *pInstance;
@@ -745,7 +744,6 @@ struct TRINITY_DLL_DECL npc_tarethaAI : public npc_escortAI
     npc_tarethaAI(Creature *c) : npc_escortAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     ScriptedInstance *pInstance;

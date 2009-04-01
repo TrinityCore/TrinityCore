@@ -85,7 +85,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_ragnarosAI : public Scripted_NoMovementAI
 {
-    boss_ragnarosAI(Creature *c) : Scripted_NoMovementAI(c) {Reset();}
+    boss_ragnarosAI(Creature *c) : Scripted_NoMovementAI(c) {}
 
     uint32 WrathOfRagnaros_Timer;
     uint32 HandOfRagnaros_Timer;

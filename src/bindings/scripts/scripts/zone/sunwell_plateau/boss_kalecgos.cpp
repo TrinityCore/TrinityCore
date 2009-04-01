@@ -95,7 +95,6 @@ struct TRINITY_DLL_DECL boss_kalecgosAI : public ScriptedAI
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         SathGUID = 0;
         DoorGUID = 0;
-        Reset();
     }
 
     ScriptedInstance *pInstance;
@@ -241,7 +240,6 @@ struct TRINITY_DLL_DECL boss_sathrovarrAI : public ScriptedAI
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         KalecGUID = 0;
         KalecgosGUID = 0;
-        Reset();
     }
 
     ScriptedInstance *pInstance;
@@ -442,7 +440,6 @@ struct TRINITY_DLL_DECL boss_kalecAI : public ScriptedAI
     boss_kalecAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     void Reset()

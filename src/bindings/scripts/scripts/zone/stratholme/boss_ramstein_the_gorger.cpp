@@ -34,7 +34,6 @@ struct TRINITY_DLL_DECL boss_ramstein_the_gorgerAI : public ScriptedAI
     boss_ramstein_the_gorgerAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = (ScriptedInstance*)m_creature->GetInstanceData();
-        Reset();
     }
 
     ScriptedInstance* pInstance;

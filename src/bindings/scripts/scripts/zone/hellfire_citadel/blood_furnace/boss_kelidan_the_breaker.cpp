@@ -75,7 +75,6 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         HeroicMode = m_creature->GetMap()->IsHeroic();
         for(int i=0; i<5; ++i) Channelers[i] = 0;
-        Reset();
     }
 
     ScriptedInstance* pInstance;
@@ -276,7 +275,6 @@ struct TRINITY_DLL_DECL mob_shadowmoon_channelerAI : public ScriptedAI
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         HeroicMode = m_creature->GetMap()->IsHeroic();
-        Reset();
     }
 
     ScriptedInstance* pInstance;

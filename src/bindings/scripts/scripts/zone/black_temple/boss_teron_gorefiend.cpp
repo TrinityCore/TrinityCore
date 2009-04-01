@@ -51,10 +51,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL mob_doom_blossomAI : public ScriptedAI
 {
-    mob_doom_blossomAI(Creature *c) : ScriptedAI(c)
-    {
-        Reset();
-    }
+    mob_doom_blossomAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 CheckTeronTimer;
     uint32 ShadowBoltTimer;
@@ -116,10 +113,7 @@ struct TargetDistanceOrder : public std::binary_function<const Unit, const Unit,
 
 struct TRINITY_DLL_DECL mob_shadowy_constructAI : public ScriptedAI
 {
-    mob_shadowy_constructAI(Creature* c) : ScriptedAI(c)
-    {
-        Reset();
-    }
+    mob_shadowy_constructAI(Creature* c) : ScriptedAI(c) {}
 
     uint64 GhostGUID;
     uint64 TeronGUID;
@@ -200,7 +194,6 @@ struct TRINITY_DLL_DECL boss_teron_gorefiendAI : public ScriptedAI
     boss_teron_gorefiendAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     ScriptedInstance* pInstance;

@@ -59,8 +59,6 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                     ProcessEvent(*i);
             }
         }
-
-        Reset();
     }
 
     ~Mob_EventAI()

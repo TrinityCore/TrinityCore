@@ -79,7 +79,7 @@ bool GOHello_go_gauntlet_gate(Player *player, GameObject* _GO)
 
 struct TRINITY_DLL_DECL mob_freed_soulAI : public ScriptedAI
 {
-    mob_freed_soulAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_freed_soulAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset()
     {
@@ -112,7 +112,7 @@ CreatureAI* GetAI_mob_freed_soul(Creature *_Creature)
 
 struct TRINITY_DLL_DECL mob_restless_soulAI : public ScriptedAI
 {
-    mob_restless_soulAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_restless_soulAI(Creature *c) : ScriptedAI(c) {}
 
     uint64 Tagger;
     uint32 Die_Timer;
@@ -176,7 +176,7 @@ CreatureAI* GetAI_mob_restless_soul(Creature *_Creature)
 
 struct TRINITY_DLL_DECL mobs_spectral_ghostly_citizenAI : public ScriptedAI
 {
-    mobs_spectral_ghostly_citizenAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mobs_spectral_ghostly_citizenAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 Die_Timer;
     bool Tagged;

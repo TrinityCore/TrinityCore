@@ -40,7 +40,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_overlordwyrmthalakAI : public ScriptedAI
 {
-    boss_overlordwyrmthalakAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_overlordwyrmthalakAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 BlastWave_Timer;
     uint32 Shout_Timer;

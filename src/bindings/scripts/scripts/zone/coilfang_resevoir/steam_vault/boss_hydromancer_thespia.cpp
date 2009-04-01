@@ -47,7 +47,6 @@ struct TRINITY_DLL_DECL boss_thespiaAI : public ScriptedAI
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         HeroicMode = m_creature->GetMap()->IsHeroic();
-        Reset();
     }
 
     ScriptedInstance *pInstance;
@@ -143,7 +142,7 @@ struct TRINITY_DLL_DECL boss_thespiaAI : public ScriptedAI
 
 struct TRINITY_DLL_DECL mob_coilfang_waterelementalAI : public ScriptedAI
 {
-    mob_coilfang_waterelementalAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_coilfang_waterelementalAI(Creature *c) : ScriptedAI(c) {}
 
     bool HeroicMode;
     uint32 WaterBoltVolley_Timer;

@@ -36,7 +36,7 @@ EndContentData */
 
 struct TRINITY_DLL_DECL mob_jadespine_basiliskAI : public ScriptedAI
 {
-    mob_jadespine_basiliskAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_jadespine_basiliskAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 Cslumber_Timer;
 

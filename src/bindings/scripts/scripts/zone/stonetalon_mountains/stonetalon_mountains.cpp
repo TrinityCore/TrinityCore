@@ -91,7 +91,7 @@ bool GossipSelect_npc_braug_dimspirit(Player *player, Creature *_Creature, uint3
 
 struct TRINITY_DLL_DECL npc_kaya_flathoofAI : public npc_escortAI
 {
-    npc_kaya_flathoofAI(Creature* c) : npc_escortAI(c) {Reset();}
+    npc_kaya_flathoofAI(Creature* c) : npc_escortAI(c) {}
 
     void WaypointReached(uint32 i)
     {

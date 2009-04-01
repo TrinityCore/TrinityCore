@@ -30,7 +30,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_shazzrahAI : public ScriptedAI
 {
-    boss_shazzrahAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_shazzrahAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 ArcaneExplosion_Timer;
     uint32 ShazzrahCurse_Timer;

@@ -96,7 +96,7 @@ bool GossipSelect_npcs_dithers_and_arbington(Player *player, Creature *_Creature
 
 struct TRINITY_DLL_DECL npc_the_scourge_cauldronAI : public ScriptedAI
 {
-    npc_the_scourge_cauldronAI(Creature *c) : ScriptedAI(c) {Reset();}
+    npc_the_scourge_cauldronAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset() {}
 
