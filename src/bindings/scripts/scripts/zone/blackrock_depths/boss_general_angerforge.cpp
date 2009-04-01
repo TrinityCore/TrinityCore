@@ -29,7 +29,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_general_angerforgeAI : public ScriptedAI
 {
-    boss_general_angerforgeAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_general_angerforgeAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 MightyBlow_Timer;
     uint32 HamString_Timer;

@@ -38,7 +38,7 @@ struct TRINITY_DLL_DECL npc_narm_faulkAI : public ScriptedAI
     uint32 lifeTimer;
     bool spellHit;
 
-    npc_narm_faulkAI(Creature *c) : ScriptedAI(c) {Reset();}
+    npc_narm_faulkAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset()
     {

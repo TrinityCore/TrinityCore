@@ -39,7 +39,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_patchwerkAI : public ScriptedAI
 {
-    boss_patchwerkAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_patchwerkAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 HatefullStrike_Timer;
     uint32 Enrage_Timer;

@@ -52,7 +52,6 @@ float AttackArea[2][3]=
 hyjalAI::hyjalAI(Creature *c) : ScriptedAI(c)
 {
     pInstance = ((ScriptedInstance*)c->GetInstanceData());
-    Reset();
 }
 
 void hyjalAI::Reset()

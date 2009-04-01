@@ -42,12 +42,11 @@ EndScriptData */
 // Gatewatcher Iron-Hand AI
 struct TRINITY_DLL_DECL boss_gatewatcher_iron_handAI : public ScriptedAI
 {
-boss_gatewatcher_iron_handAI(Creature *c) : ScriptedAI(c)
-{
-    pInstance = ((ScriptedInstance*)c->GetInstanceData());
-    HeroicMode = m_creature->GetMap()->IsHeroic();
-    Reset();
-}
+    boss_gatewatcher_iron_handAI(Creature *c) : ScriptedAI(c)
+    {
+        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        HeroicMode = m_creature->GetMap()->IsHeroic();
+    }
 
     ScriptedInstance *pInstance;
 

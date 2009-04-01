@@ -47,7 +47,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_doomlordkazzakAI : public ScriptedAI
 {
-    boss_doomlordkazzakAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_doomlordkazzakAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 ShadowVolley_Timer;
     uint32 Cleave_Timer;

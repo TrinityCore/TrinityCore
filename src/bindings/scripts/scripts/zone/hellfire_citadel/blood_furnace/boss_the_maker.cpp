@@ -37,7 +37,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_the_makerAI : public ScriptedAI
 {
-    boss_the_makerAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_the_makerAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 AcidSpray_Timer;
     uint32 ExplodingBreaker_Timer;

@@ -43,7 +43,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_high_botanist_freywinnAI : public ScriptedAI
 {
-    boss_high_botanist_freywinnAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    boss_high_botanist_freywinnAI(Creature *c) : ScriptedAI(c) {}
 
     std::list<uint64> Adds_List;
 

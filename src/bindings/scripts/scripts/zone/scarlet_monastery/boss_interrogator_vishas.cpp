@@ -37,7 +37,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_interrogator_vishasAI : public ScriptedAI
 {
-    boss_interrogator_vishasAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_interrogator_vishasAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 Yell_Timer;
     uint32 PowerWordShield_Timer;

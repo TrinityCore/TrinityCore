@@ -197,7 +197,7 @@ struct TRINITY_DLL_DECL mob_wisp_invisAI : public ScriptedAI
 
 struct TRINITY_DLL_DECL mob_headAI : public ScriptedAI
 {
-    mob_headAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_headAI(Creature *c) : ScriptedAI(c) {}
 
     uint64 bodyGUID;
 
@@ -338,7 +338,6 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
             speed->EffectApplyAuraName[1] = SPELL_AURA_MOD_CONFUSE;
         }*/
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     ScriptedInstance *pInstance;
@@ -716,7 +715,7 @@ void mob_headAI::Disappear()
 
 struct TRINITY_DLL_DECL mob_pulsing_pumpkinAI : public ScriptedAI
 {
-    mob_pulsing_pumpkinAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_pulsing_pumpkinAI(Creature *c) : ScriptedAI(c) {}
 
     bool sprouted;
     uint64 debuffGUID;

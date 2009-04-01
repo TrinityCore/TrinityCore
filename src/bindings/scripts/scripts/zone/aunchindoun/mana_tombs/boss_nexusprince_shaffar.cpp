@@ -54,7 +54,7 @@ EndContentData */
 
 struct TRINITY_DLL_DECL boss_nexusprince_shaffarAI : public ScriptedAI
 {
-    boss_nexusprince_shaffarAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_nexusprince_shaffarAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 Blink_Timer;
     uint32 Beacon_Timer;
@@ -204,7 +204,6 @@ struct TRINITY_DLL_DECL mob_ethereal_beaconAI : public ScriptedAI
     mob_ethereal_beaconAI(Creature *c) : ScriptedAI(c)
     {
         HeroicMode = m_creature->GetMap()->IsHeroic();
-        Reset();
         CanEvade = false;
     }
 

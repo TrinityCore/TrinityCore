@@ -28,7 +28,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_grizzleAI : public ScriptedAI
 {
-    boss_grizzleAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_grizzleAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 GroundTremor_Timer;
     uint32 Frenzy_Timer;

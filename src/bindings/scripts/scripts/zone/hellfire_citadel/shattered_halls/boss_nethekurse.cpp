@@ -79,7 +79,6 @@ struct TRINITY_DLL_DECL boss_grand_warlock_nethekurseAI : public ScriptedAI
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         HeroicMode = m_creature->GetMap()->IsHeroic();
-        Reset();
     }
 
     ScriptedInstance* pInstance;
@@ -318,7 +317,6 @@ struct TRINITY_DLL_DECL mob_fel_orc_convertAI : public ScriptedAI
     mob_fel_orc_convertAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     ScriptedInstance* pInstance;
@@ -383,7 +381,7 @@ struct TRINITY_DLL_DECL mob_fel_orc_convertAI : public ScriptedAI
 //NOTE: this creature are also summoned by other spells, for different creatures
 struct TRINITY_DLL_DECL mob_lesser_shadow_fissureAI : public ScriptedAI
 {
-    mob_lesser_shadow_fissureAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_lesser_shadow_fissureAI(Creature *c) : ScriptedAI(c) {}
 
     bool Start;
     uint32 Stop_Timer;

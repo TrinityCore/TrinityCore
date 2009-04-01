@@ -127,7 +127,7 @@ bool GossipSelect_npcs_ashyen_and_keleth(Player *player, Creature *_Creature, ui
 
 struct TRINITY_DLL_DECL npc_cooshcooshAI : public ScriptedAI
 {
-    npc_cooshcooshAI(Creature* c) : ScriptedAI(c) { Reset(); }
+    npc_cooshcooshAI(Creature* c) : ScriptedAI(c) {}
 
     uint32 LightningBolt_Timer;
 
@@ -267,7 +267,7 @@ bool GossipSelect_npc_mortog_steamhead(Player *player, Creature *_Creature, uint
 
 struct TRINITY_DLL_DECL npc_kayra_longmaneAI : public npc_escortAI
 {
-    npc_kayra_longmaneAI(Creature* c) : npc_escortAI(c) {Reset();}
+    npc_kayra_longmaneAI(Creature* c) : npc_escortAI(c) {}
 
     bool Completed;
 

@@ -111,7 +111,6 @@ struct TRINITY_DLL_DECL mob_blood_elf_council_voice_triggerAI : public ScriptedA
     {
         for(uint8 i = 0; i < 4; ++i)
             Council[i] = 0;
-        Reset();
     }
 
     uint64 Council[4];
@@ -196,8 +195,6 @@ struct TRINITY_DLL_DECL mob_illidari_councilAI : public ScriptedAI
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         for(uint8 i = 0; i < 4; ++i)
             Council[i] = 0;
-
-        Reset();
     }
 
     ScriptedInstance* pInstance;
@@ -432,7 +429,7 @@ struct TRINITY_DLL_DECL boss_illidari_councilAI : public ScriptedAI
 
 struct TRINITY_DLL_DECL boss_gathios_the_shattererAI : public boss_illidari_councilAI
 {
-    boss_gathios_the_shattererAI(Creature *c) : boss_illidari_councilAI(c) { Reset(); }
+    boss_gathios_the_shattererAI(Creature *c) : boss_illidari_councilAI(c) {}
 
     uint32 ConsecrationTimer;
     uint32 HammerOfJusticeTimer;
@@ -547,7 +544,7 @@ struct TRINITY_DLL_DECL boss_gathios_the_shattererAI : public boss_illidari_coun
 
 struct TRINITY_DLL_DECL boss_high_nethermancer_zerevorAI : public boss_illidari_councilAI
 {
-    boss_high_nethermancer_zerevorAI(Creature *c) : boss_illidari_councilAI(c) { Reset(); }
+    boss_high_nethermancer_zerevorAI(Creature *c) : boss_illidari_councilAI(c) {}
 
     uint32 BlizzardTimer;
     uint32 FlamestrikeTimer;
@@ -639,7 +636,7 @@ struct TRINITY_DLL_DECL boss_high_nethermancer_zerevorAI : public boss_illidari_
 
 struct TRINITY_DLL_DECL boss_lady_malandeAI : public boss_illidari_councilAI
 {
-    boss_lady_malandeAI(Creature *c) : boss_illidari_councilAI(c) { Reset(); }
+    boss_lady_malandeAI(Creature *c) : boss_illidari_councilAI(c) {}
 
     uint32 EmpoweredSmiteTimer;
     uint32 CircleOfHealingTimer;
@@ -705,7 +702,7 @@ struct TRINITY_DLL_DECL boss_lady_malandeAI : public boss_illidari_councilAI
 
 struct TRINITY_DLL_DECL boss_veras_darkshadowAI : public boss_illidari_councilAI
 {
-    boss_veras_darkshadowAI(Creature *c) : boss_illidari_councilAI(c) { Reset(); }
+    boss_veras_darkshadowAI(Creature *c) : boss_illidari_councilAI(c) {}
 
     uint64 EnvenomTargetGUID;
 

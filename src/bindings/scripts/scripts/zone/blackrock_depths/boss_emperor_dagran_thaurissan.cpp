@@ -31,7 +31,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_draganthaurissanAI : public ScriptedAI
 {
-    boss_draganthaurissanAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_draganthaurissanAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 HandOfThaurissan_Timer;
     uint32 AvatarOfFlame_Timer;

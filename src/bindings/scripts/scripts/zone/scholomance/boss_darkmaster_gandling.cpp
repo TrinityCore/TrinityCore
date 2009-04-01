@@ -49,7 +49,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_darkmaster_gandlingAI : public ScriptedAI
 {
-    boss_darkmaster_gandlingAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_darkmaster_gandlingAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 ArcaneMissiles_Timer;
     uint32 ShadowShield_Timer;

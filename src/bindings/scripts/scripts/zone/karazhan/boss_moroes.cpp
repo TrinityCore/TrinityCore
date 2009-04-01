@@ -64,7 +64,6 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
     {
         FirstTime = true;
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     ScriptedInstance *pInstance;
@@ -375,7 +374,6 @@ struct TRINITY_DLL_DECL boss_moroes_guestAI : public ScriptedAI
             GuestGUID[i] = 0;
 
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     void Reset()

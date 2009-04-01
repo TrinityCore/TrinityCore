@@ -74,7 +74,7 @@ bool GossipSelect_npc_ayren_cloudbreaker(Player *player, Creature *_Creature, ui
 
 struct TRINITY_DLL_DECL npc_converted_sentryAI : public ScriptedAI
 {
-    npc_converted_sentryAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    npc_converted_sentryAI(Creature *c) : ScriptedAI(c) {}
 
     bool Credit;
     uint32 Timer;
@@ -148,7 +148,7 @@ bool GossipSelect_npc_unrestrained_dragonhawk(Player *player, Creature *_Creatur
 
 struct TRINITY_DLL_DECL npc_greengill_slaveAI : public ScriptedAI
 {
-    npc_greengill_slaveAI(Creature* c) : ScriptedAI(c) {Reset();}
+    npc_greengill_slaveAI(Creature* c) : ScriptedAI(c) {}
 
     uint64 PlayerGUID;
 

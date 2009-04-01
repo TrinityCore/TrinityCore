@@ -30,7 +30,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_theolenkrastinovAI : public ScriptedAI
 {
-    boss_theolenkrastinovAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_theolenkrastinovAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 Rend_Timer;
     uint32 Cleave_Timer;

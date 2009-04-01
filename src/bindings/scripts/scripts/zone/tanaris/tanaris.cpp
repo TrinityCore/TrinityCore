@@ -44,7 +44,7 @@ EndContentData */
 
 struct TRINITY_DLL_DECL mob_aquementasAI : public ScriptedAI
 {
-    mob_aquementasAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_aquementasAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 SendItem_Timer;
     uint32 SwitchFaction_Timer;
@@ -148,7 +148,7 @@ CreatureAI* GetAI_mob_aquementas(Creature *_Creature)
 
 struct TRINITY_DLL_DECL npc_custodian_of_timeAI : public npc_escortAI
 {
-    npc_custodian_of_timeAI(Creature *c) : npc_escortAI(c) { Reset(); }
+    npc_custodian_of_timeAI(Creature *c) : npc_escortAI(c) {}
 
     void WaypointReached(uint32 i)
     {
@@ -383,7 +383,7 @@ bool GossipSelect_npc_stone_watcher_of_norgannon(Player *player, Creature *_Crea
 
 struct TRINITY_DLL_DECL npc_OOX17AI : public npc_escortAI
 {
-    npc_OOX17AI(Creature *c) : npc_escortAI(c) {Reset();}
+    npc_OOX17AI(Creature *c) : npc_escortAI(c) {}
 
     void WaypointReached(uint32 i)
     {
