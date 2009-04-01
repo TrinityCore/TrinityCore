@@ -4,8 +4,8 @@
 #include "Database/DatabaseEnv.h"
 #include "Item.h"
 #include "Log.h"
-#include "AuctionHouseMgr.h"
 #include "ObjectMgr.h"
+#include "AuctionHouseMgr.h"
 #include "Player.h"
 #include "World.h"
 #include "WorldSession.h"
@@ -816,8 +816,8 @@ void AuctionHouseBot()
 ///////////////////////////////////////////////////////////////////////////////
 void AuctionHouseBotInit()
 {
-    AHBSeller = false;//sConfig.GetBoolDefault("AuctionHouseBot.EnableSeller", false);
-    AHBBuyer = false;//sConfig.GetBoolDefault("AuctionHouseBot.EnableBuyer", false);
+    sConfig.GetBoolDefault("AuctionHouseBot.EnableSeller", false);
+    sConfig.GetBoolDefault("AuctionHouseBot.EnableBuyer", false);
     No_Bind = sConfig.GetBoolDefault("AuctionHouseBot.No_Bind", true);
     Bind_When_Picked_Up = sConfig.GetBoolDefault("AuctionHouseBot.Bind_When_Picked_Up", false);
     Bind_When_Equipped = sConfig.GetBoolDefault("AuctionHouseBot.Bind_When_Equipped", true);
