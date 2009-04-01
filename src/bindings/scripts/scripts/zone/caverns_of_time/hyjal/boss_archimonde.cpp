@@ -76,7 +76,6 @@ struct mob_ancient_wispAI : public ScriptedAI
     mob_ancient_wispAI(Creature* c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     ScriptedInstance* pInstance;
@@ -125,7 +124,7 @@ struct mob_ancient_wispAI : public ScriptedAI
    MoveChase the Doomfire Spirit always, until despawn (AttackStart is called upon it's spawn) */
 struct TRINITY_DLL_DECL mob_doomfireAI : public ScriptedAI
 {
-    mob_doomfireAI(Creature* c) : ScriptedAI(c) { Reset(); }
+    mob_doomfireAI(Creature* c) : ScriptedAI(c) {}
 
     void Reset() { }
 
@@ -138,7 +137,7 @@ struct TRINITY_DLL_DECL mob_doomfireAI : public ScriptedAI
    travels in random directions if target cannot be found. */
 struct TRINITY_DLL_DECL mob_doomfire_targettingAI : public ScriptedAI
 {
-    mob_doomfire_targettingAI(Creature* c) : ScriptedAI(c) { Reset(); }
+    mob_doomfire_targettingAI(Creature* c) : ScriptedAI(c) {}
 
     uint64 TargetGUID;
     uint32 ChangeTargetTimer;
@@ -207,7 +206,6 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public ScriptedAI
     boss_archimondeAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     ScriptedInstance* pInstance;

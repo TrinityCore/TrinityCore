@@ -36,7 +36,7 @@ EndContentData */
 
 struct TRINITY_DLL_DECL mobs_ghoul_flayerAI : public ScriptedAI
 {
-    mobs_ghoul_flayerAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mobs_ghoul_flayerAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset() { }
 
@@ -85,7 +85,7 @@ bool GossipSelect_npc_augustus_the_touched(Player *player, Creature *_Creature, 
 
 struct TRINITY_DLL_DECL npc_darrowshire_spiritAI : public ScriptedAI
 {
-    npc_darrowshire_spiritAI(Creature *c) : ScriptedAI(c) {Reset();}
+    npc_darrowshire_spiritAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset()
     {

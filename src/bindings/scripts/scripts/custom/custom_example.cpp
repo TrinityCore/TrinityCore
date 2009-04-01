@@ -60,7 +60,7 @@ struct TRINITY_DLL_DECL custom_exampleAI : public ScriptedAI
 {
     //*** HANDLED FUNCTION ***
     //This is the constructor, called only once when the creature is first created
-    custom_exampleAI(Creature *c) : ScriptedAI(c) {Reset();}
+    custom_exampleAI(Creature *c) : ScriptedAI(c) {}
 
     //*** CUSTOM VARIABLES ****
     //These variables are for use only by this individual script.

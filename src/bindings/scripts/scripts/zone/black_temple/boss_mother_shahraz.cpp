@@ -81,7 +81,6 @@ struct TRINITY_DLL_DECL boss_shahrazAI : public ScriptedAI
     boss_shahrazAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     ScriptedInstance* pInstance;

@@ -37,7 +37,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_razorgoreAI : public ScriptedAI
 {
-    boss_razorgoreAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_razorgoreAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 Cleave_Timer;
     uint32 WarStomp_Timer;

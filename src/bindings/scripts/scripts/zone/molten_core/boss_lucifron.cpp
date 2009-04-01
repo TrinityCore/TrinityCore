@@ -29,7 +29,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_lucifronAI : public ScriptedAI
 {
-    boss_lucifronAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_lucifronAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 ImpendingDoom_Timer;
     uint32 LucifronCurse_Timer;

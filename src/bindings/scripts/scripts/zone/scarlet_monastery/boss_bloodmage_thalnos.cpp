@@ -37,7 +37,7 @@ enum
 
 struct TRINITY_DLL_DECL boss_bloodmage_thalnosAI : public ScriptedAI
 {
-    boss_bloodmage_thalnosAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_bloodmage_thalnosAI(Creature *c) : ScriptedAI(c) {}
 
     bool HpYell;
     uint32 FlameShock_Timer;

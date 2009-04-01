@@ -73,7 +73,7 @@ bool GossipSelect_npc_neeru_fireblade(Player *player, Creature *_Creature, uint3
 
 struct TRINITY_DLL_DECL npc_shenthulAI : public ScriptedAI
 {
-    npc_shenthulAI(Creature* c) : ScriptedAI(c) { Reset(); }
+    npc_shenthulAI(Creature* c) : ScriptedAI(c) {}
 
     bool CanTalk;
     bool CanEmote;
@@ -163,7 +163,7 @@ bool ReciveEmote_npc_shenthul(Player *player, Creature *_Creature, uint32 emote)
 //TODO: verify abilities/timers
 struct TRINITY_DLL_DECL npc_thrall_warchiefAI : public ScriptedAI
 {
-    npc_thrall_warchiefAI(Creature* c) : ScriptedAI(c) { Reset(); }
+    npc_thrall_warchiefAI(Creature* c) : ScriptedAI(c) {}
 
     uint32 ChainLightning_Timer;
     uint32 Shock_Timer;

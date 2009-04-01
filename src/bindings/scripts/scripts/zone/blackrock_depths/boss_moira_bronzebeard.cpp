@@ -32,7 +32,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_moira_bronzebeardAI : public ScriptedAI
 {
-    boss_moira_bronzebeardAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_moira_bronzebeardAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 Heal_Timer;
     uint32 MindBlast_Timer;

@@ -31,7 +31,6 @@ struct TRINITY_DLL_DECL boss_hungarfenAI : public ScriptedAI
     boss_hungarfenAI(Creature *c) : ScriptedAI(c)
     {
         HeroicMode = m_creature->GetMap()->IsHeroic();
-        Reset();
     }
 
     bool HeroicMode;
@@ -95,7 +94,7 @@ CreatureAI* GetAI_boss_hungarfen(Creature *_Creature)
 
 struct TRINITY_DLL_DECL mob_underbog_mushroomAI : public ScriptedAI
 {
-    mob_underbog_mushroomAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    mob_underbog_mushroomAI(Creature *c) : ScriptedAI(c) {}
 
     bool Stop;
     uint32 Grow_Timer;

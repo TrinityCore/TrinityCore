@@ -94,7 +94,6 @@ struct TRINITY_DLL_DECL mob_abyssalAI : public ScriptedAI
     {
         trigger = 0;
         Despawn_Timer = 60000;
-        Reset();
     }
 
     uint32 FireBlast_Timer;
@@ -188,8 +187,6 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
         {
             TempSpell->EffectTriggerSpell[0] = SPELL_QUAKE_KNOCKBACK;
         }
-
-        Reset();
     }
 
     CubeMap Cube;
@@ -416,7 +413,6 @@ struct TRINITY_DLL_DECL mob_hellfire_channelerAI : public ScriptedAI
     mob_hellfire_channelerAI(Creature *c) : ScriptedAI(c)
     {
         pInstance =(ScriptedInstance*)m_creature->GetInstanceData();
-        Reset();
     }
 
     ScriptedInstance* pInstance;

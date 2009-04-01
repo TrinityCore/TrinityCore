@@ -49,7 +49,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL mob_webwrapAI : public ScriptedAI
 {
-    mob_webwrapAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_webwrapAI(Creature *c) : ScriptedAI(c) {}
 
     uint64 victimGUID;
 
@@ -95,7 +95,7 @@ struct TRINITY_DLL_DECL mob_webwrapAI : public ScriptedAI
 
 struct TRINITY_DLL_DECL boss_maexxnaAI : public ScriptedAI
 {
-    boss_maexxnaAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_maexxnaAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 WebTrap_Timer;
     uint32 WebSpray_Timer;

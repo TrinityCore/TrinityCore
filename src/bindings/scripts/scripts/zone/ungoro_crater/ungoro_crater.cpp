@@ -45,7 +45,7 @@ EndContentData */
 
 struct TRINITY_DLL_DECL npc_ameAI : public npc_escortAI
 {
-    npc_ameAI(Creature *c) : npc_escortAI(c) {Reset();}
+    npc_ameAI(Creature *c) : npc_escortAI(c) {}
 
     uint32 DEMORALIZINGSHOUT_Timer;
 
