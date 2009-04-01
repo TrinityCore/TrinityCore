@@ -127,8 +127,6 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
 {
     boss_felmystAI(Creature *c) : ScriptedAI(c)
     {
-        Reset();
-
         // wait for core patch be accepted
         SpellEntry *TempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_ENCAPSULATE_EFFECT);
         if(TempSpell->SpellIconID == 2294)

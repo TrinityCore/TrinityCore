@@ -46,7 +46,6 @@ struct TRINITY_DLL_DECL boss_omor_the_unscarredAI : public Scripted_NoMovementAI
     boss_omor_the_unscarredAI(Creature *c) : Scripted_NoMovementAI(c)
     {
         HeroicMode = m_creature->GetMap()->IsHeroic();
-        Reset();
     }
 
     bool HeroicMode;

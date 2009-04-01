@@ -34,7 +34,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_garrAI : public ScriptedAI
 {
-    boss_garrAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_garrAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 AntiMagicPulse_Timer;
     uint32 MagmaShackles_Timer;
@@ -78,7 +78,7 @@ struct TRINITY_DLL_DECL boss_garrAI : public ScriptedAI
 
 struct TRINITY_DLL_DECL mob_fireswornAI : public ScriptedAI
 {
-    mob_fireswornAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_fireswornAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 Immolate_Timer;
 

@@ -99,7 +99,6 @@ struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         Adds.clear();
         //SummonAdds();
-        Reset();
         Heroic = c->GetMap()->IsHeroic();
     }
 
@@ -354,9 +353,7 @@ struct TRINITY_DLL_DECL boss_priestess_guestAI : public ScriptedAI
     boss_priestess_guestAI(Creature* c) : ScriptedAI(c)
     {
         Group.clear();
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
-        AcquireGUIDs();
+        pInstance = ((ScriptedInstance*)c->GetInstanceData());        AcquireGUIDs();
     }
 
     ScriptedInstance* pInstance;
@@ -542,10 +539,7 @@ struct TRINITY_DLL_DECL boss_kagani_nightstrikeAI : public boss_priestess_guestA
 
 /*struct TRINITY_DLL_DECL mob_fizzleAI : public ScriptedAI
 {
-    mob_fizzleAI(Creature *c) : ScriptedAI(c)
-    {
-        Reset();
-    }
+    mob_fizzleAI(Creature *c) : ScriptedAI(c) {}
 
     uint64 EllrisGUID;
     uint32 Firebal_Timer;
@@ -937,10 +931,7 @@ struct TRINITY_DLL_DECL boss_warlord_salarisAI : public boss_priestess_guestAI
 
 /*struct TRINITY_DLL_DECL mob_sliverAI : public ScriptedAI
 {
-    mob_sliverAI(Creature *c) : ScriptedAI(c)
-    {
-        Reset();
-    }
+    mob_sliverAI(Creature *c) : ScriptedAI(c) {}
 
     uint64 GaraxxasGUID;
 
@@ -1248,7 +1239,7 @@ struct TRINITY_DLL_DECL boss_zelfanAI : public boss_priestess_guestAI
 
 //struct TRINITY_DLL_DECL mob_high_explosive_sheepAI : public ScriptedAI
 //{
-//    mob_high_explosive_sheepAI(Creature *c) : ScriptedAI(c) {Reset();}
+//    mob_high_explosive_sheepAI(Creature *c) : ScriptedAI(c) {}
 //
 //    uint32 Explosion_Timer;
 //

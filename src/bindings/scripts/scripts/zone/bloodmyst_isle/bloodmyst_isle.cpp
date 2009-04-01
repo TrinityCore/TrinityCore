@@ -37,7 +37,7 @@ const uint32 possibleSpawns[32] = {17322, 17661, 17496, 17522, 17340, 17352, 173
 
 struct TRINITY_DLL_DECL mob_webbed_creatureAI : public ScriptedAI
 {
-    mob_webbed_creatureAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_webbed_creatureAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset()
     {

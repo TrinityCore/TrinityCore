@@ -144,7 +144,6 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
     boss_zuljinAI(Creature *c) : ScriptedAI(c), Summons(m_creature)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
     ScriptedInstance *pInstance;
 

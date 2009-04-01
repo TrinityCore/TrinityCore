@@ -45,7 +45,7 @@ EndContentData */
 
 struct TRINITY_DLL_DECL npc_willixAI : public npc_escortAI
 {
-npc_willixAI(Creature *c) : npc_escortAI(c) {Reset();}
+npc_willixAI(Creature *c) : npc_escortAI(c) {}
 
     void WaypointReached(uint32 i)
     {

@@ -35,10 +35,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_sapphironAI : public ScriptedAI
 {
-    boss_sapphironAI(Creature* c) : ScriptedAI(c)
-    {
-        Reset();
-    }
+    boss_sapphironAI(Creature* c) : ScriptedAI(c) {}
 
     uint32 Icebolt_Count;
     uint32 Icebolt_Timer;

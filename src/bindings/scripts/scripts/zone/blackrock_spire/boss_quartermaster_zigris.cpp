@@ -30,7 +30,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_quatermasterzigrisAI : public ScriptedAI
 {
-    boss_quatermasterzigrisAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_quatermasterzigrisAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 Shoot_Timer;
     uint32 StunBomb_Timer;

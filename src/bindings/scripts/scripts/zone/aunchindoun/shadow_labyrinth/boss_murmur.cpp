@@ -38,7 +38,6 @@ struct TRINITY_DLL_DECL boss_murmurAI : public Scripted_NoMovementAI
     boss_murmurAI(Creature *c) : Scripted_NoMovementAI(c)
     {
         HeroicMode = m_creature->GetMap()->IsHeroic();
-        Reset();
     }
 
     uint32 SonicBoom_Timer;

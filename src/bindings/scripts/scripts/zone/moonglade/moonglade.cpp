@@ -268,7 +268,7 @@ float Clintar_spirit_WP[41][5] =
 struct TRINITY_DLL_DECL npc_clintar_spiritAI : public npc_escortAI
 {
 public:
-    npc_clintar_spiritAI(Creature *c) : npc_escortAI(c) {Reset(); }
+    npc_clintar_spiritAI(Creature *c) : npc_escortAI(c) {}
 
     uint32 Step;
     uint32 CurrWP;

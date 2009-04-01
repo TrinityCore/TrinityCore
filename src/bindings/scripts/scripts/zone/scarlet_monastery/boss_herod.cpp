@@ -40,7 +40,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_herodAI : public ScriptedAI
 {
-    boss_herodAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_herodAI(Creature *c) : ScriptedAI(c) {}
 
     bool Enrage;
 
@@ -133,7 +133,7 @@ uint32 Wait[12][1]=
 
 struct TRINITY_DLL_DECL mob_scarlet_traineeAI : public npc_escortAI
 {
-    mob_scarlet_traineeAI(Creature *c) : npc_escortAI(c) {Reset();}
+    mob_scarlet_traineeAI(Creature *c) : npc_escortAI(c) {}
 
     uint32 Start_Timer;
 

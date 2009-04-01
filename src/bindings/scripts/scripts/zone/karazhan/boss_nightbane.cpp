@@ -62,7 +62,6 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         Intro = true;
-        Reset();
     }
 
     ScriptedInstance* pInstance;

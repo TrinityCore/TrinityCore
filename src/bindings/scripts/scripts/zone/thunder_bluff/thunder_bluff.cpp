@@ -37,7 +37,7 @@ EndScriptData */
 //TODO: verify abilities/timers
 struct TRINITY_DLL_DECL npc_cairne_bloodhoofAI : public ScriptedAI
 {
-    npc_cairne_bloodhoofAI(Creature* c) : ScriptedAI(c) { Reset(); }
+    npc_cairne_bloodhoofAI(Creature* c) : ScriptedAI(c) {}
 
     uint32 BerserkerCharge_Timer;
     uint32 Cleave_Timer;

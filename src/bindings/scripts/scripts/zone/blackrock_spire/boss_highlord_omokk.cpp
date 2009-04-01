@@ -33,7 +33,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_highlordomokkAI : public ScriptedAI
 {
-    boss_highlordomokkAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_highlordomokkAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 WarStomp_Timer;
     uint32 Cleave_Timer;

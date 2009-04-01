@@ -97,7 +97,7 @@ static Yell KillingDelay[]=
 
 struct TRINITY_DLL_DECL mob_omrogg_headsAI : public ScriptedAI
 {
-    mob_omrogg_headsAI(Creature *c) : ScriptedAI(c) { Reset(); }
+    mob_omrogg_headsAI(Creature *c) : ScriptedAI(c) {}
 
     bool DeathYell;
     uint32 Death_Timer;
@@ -130,7 +130,6 @@ struct TRINITY_DLL_DECL boss_warbringer_omroggAI : public ScriptedAI
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         HeroicMode = m_creature->GetMap()->IsHeroic();
-        Reset();
     }
 
     ScriptedInstance* pInstance;

@@ -112,7 +112,6 @@ struct TRINITY_DLL_DECL npc_barnesAI : public npc_escortAI
     {
         RaidWiped = false;
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     ScriptedInstance* pInstance;
@@ -461,7 +460,6 @@ struct TRINITY_DLL_DECL npc_image_of_medivhAI : public ScriptedAI
     npc_image_of_medivhAI(Creature* c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     ScriptedInstance *pInstance;

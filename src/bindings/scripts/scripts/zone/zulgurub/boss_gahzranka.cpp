@@ -29,7 +29,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_gahzrankaAI : public ScriptedAI
 {
-    boss_gahzrankaAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_gahzrankaAI(Creature *c) : ScriptedAI(c) {}
     uint32 Frostbreath_Timer;
     uint32 MassiveGeyser_Timer;
     uint32 Slam_Timer;

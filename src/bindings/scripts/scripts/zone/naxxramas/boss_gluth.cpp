@@ -67,7 +67,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_gluthAI : public ScriptedAI
 {
-    boss_gluthAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_gluthAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 MortalWound_Timer;
     uint32 Decimate_Timer;

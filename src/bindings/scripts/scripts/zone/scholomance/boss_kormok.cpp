@@ -28,7 +28,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_kormokAI : public ScriptedAI
 {
-    boss_kormokAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_kormokAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 ShadowVolley_Timer;
     uint32 BoneShield_Timer;

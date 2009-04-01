@@ -44,7 +44,6 @@ struct TRINITY_DLL_DECL boss_pandemoniusAI : public ScriptedAI
     boss_pandemoniusAI(Creature *c) : ScriptedAI(c)
     {
         HeroicMode = m_creature->GetMap()->IsHeroic();
-        Reset();
     }
 
     bool HeroicMode;

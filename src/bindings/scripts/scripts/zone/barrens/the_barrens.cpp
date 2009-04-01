@@ -98,7 +98,7 @@ bool GossipSelect_npc_sputtervalve(Player *player, Creature *_Creature, uint32 s
 
 struct TRINITY_DLL_DECL npc_taskmaster_fizzuleAI : public ScriptedAI
 {
-    npc_taskmaster_fizzuleAI(Creature* c) : ScriptedAI(c) { Reset(); }
+    npc_taskmaster_fizzuleAI(Creature* c) : ScriptedAI(c) {}
 
     bool IsFriend;
     uint32 Reset_Timer;
@@ -195,7 +195,7 @@ float AffrayChallengerLoc[6][4]=
 
 struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
 {
-    npc_twiggy_flatheadAI(Creature *c) : ScriptedAI(c) {Reset();}
+    npc_twiggy_flatheadAI(Creature *c) : ScriptedAI(c) {}
 
     bool EventInProgress;
     bool EventGrate;
@@ -408,7 +408,7 @@ CreatureAI* GetAI_npc_twiggy_flathead(Creature *_Creature)
 
 struct TRINITY_DLL_DECL npc_wizzlecrank_shredderAI : public npc_escortAI
 {
-    npc_wizzlecrank_shredderAI(Creature* c) : npc_escortAI(c) {Reset();}
+    npc_wizzlecrank_shredderAI(Creature* c) : npc_escortAI(c) {}
 
     bool Completed;
 

@@ -31,7 +31,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_lorekeeperpolkeltAI : public ScriptedAI
 {
-    boss_lorekeeperpolkeltAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_lorekeeperpolkeltAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 VolatileInfection_Timer;
     uint32 Darkplague_Timer;

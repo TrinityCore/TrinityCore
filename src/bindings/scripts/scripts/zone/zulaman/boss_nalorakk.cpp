@@ -96,7 +96,6 @@ struct TRINITY_DLL_DECL boss_nalorakkAI : public ScriptedAI
         MoveEvent = true;
         MovePhase = 0;
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     ScriptedInstance *pInstance;

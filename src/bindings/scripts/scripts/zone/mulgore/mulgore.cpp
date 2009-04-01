@@ -63,7 +63,7 @@ bool GossipSelect_npc_skorn_whitecloud(Player *player, Creature *_Creature, uint
 
 struct TRINITY_DLL_DECL npc_kyle_frenziedAI : public ScriptedAI
 {
-    npc_kyle_frenziedAI(Creature *c) : ScriptedAI(c) {Reset();}
+    npc_kyle_frenziedAI(Creature *c) : ScriptedAI(c) {}
 
     int STATE;
     uint32 wait;
@@ -220,7 +220,7 @@ float wp_plain_vision[50][3] =
 
 struct TRINITY_DLL_DECL npc_plains_visionAI  : public ScriptedAI
 {
-    npc_plains_visionAI(Creature *c) : ScriptedAI(c) {Reset();}
+    npc_plains_visionAI(Creature *c) : ScriptedAI(c) {}
 
     bool newWaypoint;
     uint8 WayPointId;

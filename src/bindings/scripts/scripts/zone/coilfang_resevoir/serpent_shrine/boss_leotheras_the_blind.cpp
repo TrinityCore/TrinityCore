@@ -76,7 +76,6 @@ struct TRINITY_DLL_DECL mob_inner_demonAI : public ScriptedAI
     mob_inner_demonAI(Creature *c) : ScriptedAI(c)
     {
         victimGUID = 0;
-        Reset();
     }
 
     uint32 ShadowBolt_Timer;
@@ -147,14 +146,13 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
     boss_leotheras_the_blindAI(Creature *c) : ScriptedAI(c)
     {
         m_creature->GetPosition(x,y,z);
-        pInstance = (c->GetInstanceData()) ? ((ScriptedInstance*)c->GetInstanceData()) : NULL;
+        pInstance = ((ScriptedInstance*)c->GetInstanceData());
         Demon = 0;
 
         for(uint8 i = 0; i < 3; i++)//clear guids
             SpellBinderGUID[i] = 0;
-        Reset();
-
     }
+
     ScriptedInstance *pInstance;
 
     uint32 Whirlwind_Timer;
@@ -578,10 +576,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 //Leotheras the Blind Demon Form AI
 struct TRINITY_DLL_DECL boss_leotheras_the_blind_demonformAI : public ScriptedAI
 {
-    boss_leotheras_the_blind_demonformAI(Creature *c) : ScriptedAI(c)
-    {
-        Reset();
-    }
+    boss_leotheras_the_blind_demonformAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 ChaosBlast_Timer;
     bool DealDamage;
@@ -652,7 +647,6 @@ struct TRINITY_DLL_DECL mob_greyheart_spellbinderAI : public ScriptedAI
         pInstance = ((ScriptedInstance *)c->GetInstanceData());;
         leotherasGUID = 0;
         AddedBanish = false;
-        Reset();
     }
 
     ScriptedInstance *pInstance;

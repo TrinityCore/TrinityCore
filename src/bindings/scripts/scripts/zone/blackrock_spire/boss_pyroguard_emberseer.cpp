@@ -29,7 +29,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_pyroguard_emberseerAI : public ScriptedAI
 {
-    boss_pyroguard_emberseerAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_pyroguard_emberseerAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 FireNova_Timer;
     uint32 FlameBuffet_Timer;

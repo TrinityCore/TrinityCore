@@ -98,7 +98,7 @@ static InfernalPoint InfernalPoints[] =
 struct TRINITY_DLL_DECL netherspite_infernalAI : public ScriptedAI
 {
     netherspite_infernalAI(Creature *c) : ScriptedAI(c) ,
-        malchezaar(0), HellfireTimer(0), CleanupTimer(0), point(NULL) {Reset();}
+        malchezaar(0), HellfireTimer(0), CleanupTimer(0), point(NULL) {}
 
     uint32 HellfireTimer;
     uint32 CleanupTimer;
@@ -159,7 +159,6 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
     boss_malchezaarAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     ScriptedInstance *pInstance;

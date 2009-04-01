@@ -38,7 +38,7 @@ EndContentData */
 
 struct TRINITY_DLL_DECL mobs_spitelashesAI : public ScriptedAI
 {
-    mobs_spitelashesAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mobs_spitelashesAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 morphtimer;
     bool spellhit;
@@ -237,7 +237,7 @@ float WPs[58][4] =
 
 struct TRINITY_DLL_DECL mob_rizzle_sprysprocketAI : public ScriptedAI
 {
-    mob_rizzle_sprysprocketAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_rizzle_sprysprocketAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 spellEscape_Timer;
     uint32 Teleport_Timer;
@@ -433,7 +433,7 @@ CreatureAI* GetAI_mob_rizzle_sprysprocket(Creature *_Creature)
 
 struct TRINITY_DLL_DECL mob_depth_chargeAI : public ScriptedAI
 {
-    mob_depth_chargeAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_depth_chargeAI(Creature *c) : ScriptedAI(c) {}
 
     bool we_must_die;
     uint32 must_die_timer;

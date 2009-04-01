@@ -32,7 +32,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_warmastervooneAI : public ScriptedAI
 {
-    boss_warmastervooneAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_warmastervooneAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 Snapkick_Timer;
     uint32 Cleave_Timer;

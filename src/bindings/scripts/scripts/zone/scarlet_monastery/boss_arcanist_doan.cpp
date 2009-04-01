@@ -41,7 +41,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_arcanist_doanAI : public ScriptedAI
 {
-    boss_arcanist_doanAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_arcanist_doanAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 FullAOE_Timer;
     uint32 Polymorph_Timer;
