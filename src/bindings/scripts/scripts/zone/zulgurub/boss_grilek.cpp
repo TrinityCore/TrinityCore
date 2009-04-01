@@ -29,7 +29,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_grilekAI : public ScriptedAI
 {
-    boss_grilekAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_grilekAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 Avartar_Timer;
     uint32 GroundTremor_Timer;

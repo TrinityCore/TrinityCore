@@ -37,7 +37,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_fankrissAI : public ScriptedAI
 {
-    boss_fankrissAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_fankrissAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 MortalWound_Timer;
     uint32 SpawnHatchlings_Timer;

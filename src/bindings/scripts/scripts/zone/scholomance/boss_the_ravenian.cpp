@@ -31,7 +31,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_theravenianAI : public ScriptedAI
 {
-    boss_theravenianAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_theravenianAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 Trample_Timer;
     uint32 Cleave_Timer;

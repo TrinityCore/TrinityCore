@@ -29,7 +29,7 @@ struct TRINITY_DLL_DECL npc_testAI : public npc_escortAI
     public:
 
         // CreatureAI functions
-        npc_testAI(Creature *c) : npc_escortAI(c) {Reset();}
+        npc_testAI(Creature *c) : npc_escortAI(c) {}
 
         uint32 DeathCoilTimer;
         uint32 ChatTimer;

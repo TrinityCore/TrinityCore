@@ -106,7 +106,6 @@ struct TRINITY_DLL_DECL aqsentinelAI : public ScriptedAI
     {
         ClearBudyList();
         abselected = 0;                                     // just initialization of variable
-        Reset();
     }
 
     Creature *nearby[3];

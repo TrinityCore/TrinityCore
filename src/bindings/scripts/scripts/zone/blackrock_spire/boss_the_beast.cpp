@@ -29,7 +29,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_thebeastAI : public ScriptedAI
 {
-    boss_thebeastAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_thebeastAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 Flamebreak_Timer;
     uint32 Immolate_Timer;

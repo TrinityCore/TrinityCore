@@ -29,7 +29,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_firemawAI : public ScriptedAI
 {
-    boss_firemawAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_firemawAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 ShadowFlame_Timer;
     uint32 WingBuffet_Timer;

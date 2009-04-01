@@ -48,7 +48,7 @@ EndContentData */
 
 struct TRINITY_DLL_DECL npc_raliq_the_drunkAI : public ScriptedAI
 {
-    npc_raliq_the_drunkAI(Creature* c) : ScriptedAI(c) { Reset(); }
+    npc_raliq_the_drunkAI(Creature* c) : ScriptedAI(c) {}
 
     uint32 Uppercut_Timer;
 
@@ -111,7 +111,7 @@ bool GossipSelect_npc_raliq_the_drunk(Player *player, Creature *_Creature, uint3
 
 struct TRINITY_DLL_DECL npc_salsalabimAI : public ScriptedAI
 {
-    npc_salsalabimAI(Creature* c) : ScriptedAI(c) { Reset(); }
+    npc_salsalabimAI(Creature* c) : ScriptedAI(c) {}
 
     uint32 MagneticPull_Timer;
 
@@ -275,7 +275,7 @@ bool GossipSelect_npc_zephyr(Player *player, Creature *_Creature, uint32 sender,
 struct TRINITY_DLL_DECL npc_kservantAI : public npc_escortAI
 {
 public:
-        npc_kservantAI(Creature *c) : npc_escortAI(c) {    Reset();}
+    npc_kservantAI(Creature *c) : npc_escortAI(c) {}
 
 
     void WaypointReached(uint32 i)
@@ -431,7 +431,7 @@ CreatureAI* GetAI_npc_kservantAI(Creature *_Creature)
 
 struct TRINITY_DLL_DECL npc_dirty_larryAI : public ScriptedAI
 {
-    npc_dirty_larryAI(Creature* c) : ScriptedAI(c) {Reset();}
+    npc_dirty_larryAI(Creature* c) : ScriptedAI(c) {}
 
     bool Event;
     bool Attack;

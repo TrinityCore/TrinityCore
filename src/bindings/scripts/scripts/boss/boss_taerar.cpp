@@ -40,7 +40,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_taerarAI : public ScriptedAI
 {
-    boss_taerarAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_taerarAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 Sleep_Timer;
     uint32 NoxiousBreath_Timer;
@@ -242,7 +242,7 @@ struct TRINITY_DLL_DECL boss_taerarAI : public ScriptedAI
 
 struct TRINITY_DLL_DECL boss_shadeoftaerarAI : public ScriptedAI
 {
-    boss_shadeoftaerarAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_shadeoftaerarAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 PoisonCloud_Timer;
     uint32 PosionBreath_Timer;

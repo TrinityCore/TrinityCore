@@ -163,7 +163,7 @@ enum CreatureEntry
 /*** Phase Names ***/
 enum PhaseIllidan
 {
-    PHASE_NULL                  =   0,
+    PHASE_ILLIDAN_NULL          =   0,
     PHASE_NORMAL                =   1,
     PHASE_FLIGHT                =   2,
     PHASE_NORMAL_2              =   3,
@@ -172,6 +172,7 @@ enum PhaseIllidan
     PHASE_TALK_SEQUENCE         =   6,
     PHASE_FLIGHT_SEQUENCE       =   7,
     PHASE_TRANSFORM_SEQUENCE    =   8,
+    PHASE_ILLIDAN_MAX           =   9,
 };//Maiev uses the same phase
 
 enum PhaseAkama
@@ -367,7 +368,6 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         m_creature->CastSpell(m_creature, SPELL_DUAL_WIELD, true);
-        Reset();
 
         SpellEntry *TempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_SHADOWFIEND_PASSIVE);
         if(TempSpell)
@@ -405,7 +405,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
                 if(summon->GetGUID() == FlameGUID[i])
                     FlameGUID[i] = 0;
 
-            if(!FlameGUID[0] && !FlameGUID[1] && Phase != PHASE_NULL)
+            if(!FlameGUID[0] && !FlameGUID[1] && Phase != PHASE_ILLIDAN_NULL)
             {
                 m_creature->InterruptNonMeleeSpells(true);
                 EnterPhase(PHASE_FLIGHT_SEQUENCE);
@@ -890,7 +890,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
 
 struct TRINITY_DLL_DECL flame_of_azzinothAI : public ScriptedAI
 {
-    flame_of_azzinothAI(Creature *c) : ScriptedAI(c) {Reset();}
+    flame_of_azzinothAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 FlameBlastTimer;
     uint32 CheckTimer;
@@ -975,7 +975,6 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
     npc_akama_illidanAI(Creature* c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     ScriptedInstance* pInstance;
@@ -1369,7 +1368,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
 
 struct TRINITY_DLL_DECL boss_maievAI : public ScriptedAI
 {
-    boss_maievAI(Creature *c) : ScriptedAI(c) { Reset(); };
+    boss_maievAI(Creature *c) : ScriptedAI(c) {};
 
     uint64 IllidanGUID;
 
@@ -1426,6 +1425,12 @@ struct TRINITY_DLL_DECL boss_maievAI : public ScriptedAI
         }
         else
             ScriptedAI::AttackStart(who, true);
+    }
+
+    void DoAction(const int32 param)
+    {
+        if(param > PHASE_ILLIDAN_NULL && param < PHASE_ILLIDAN_MAX)
+            EnterPhase(PhaseIllidan(param));
     }
 
     void EnterPhase(PhaseIllidan NextPhase)//This is in fact Illidan's phase.
@@ -1589,7 +1594,7 @@ bool GossipHello_npc_akama_at_illidan(Player *player, Creature *_Creature)
 
 struct TRINITY_DLL_DECL cage_trap_triggerAI : public ScriptedAI
 {
-    cage_trap_triggerAI(Creature *c) : ScriptedAI(c) {Reset();}
+    cage_trap_triggerAI(Creature *c) : ScriptedAI(c) {}
 
     uint64 IllidanGUID;
     uint32 DespawnTimer;
@@ -1679,7 +1684,7 @@ bool GOHello_cage_trap(Player* plr, GameObject* go)
 
 struct TRINITY_DLL_DECL shadow_demonAI : public ScriptedAI
 {
-    shadow_demonAI(Creature *c) : ScriptedAI(c) {Reset();}
+    shadow_demonAI(Creature *c) : ScriptedAI(c) {}
 
     uint64 TargetGUID;
 
@@ -1722,7 +1727,6 @@ struct TRINITY_DLL_DECL mob_parasitic_shadowfiendAI : public ScriptedAI
     mob_parasitic_shadowfiendAI(Creature* c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     ScriptedInstance* pInstance;
@@ -1824,7 +1828,7 @@ void boss_illidan_stormrageAI::Reset()
         GlaiveGUID[i] = 0;
     }
 
-    Phase = PHASE_NULL;
+    Phase = PHASE_ILLIDAN_NULL;
     Event = EVENT_NULL;
     Timer[EVENT_BERSERK] = 1500000;
 
@@ -1876,7 +1880,7 @@ void boss_illidan_stormrageAI::JustSummoned(Creature* summon)
             summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             MaievGUID = summon->GetGUID();
             ((boss_maievAI*)summon->AI())->GetIllidanGUID(m_creature->GetGUID());
-            ((boss_maievAI*)summon->AI())->EnterPhase(PHASE_TALK_SEQUENCE);
+            summon->AI()->DoAction(PHASE_TALK_SEQUENCE);
         }break;
     case FLAME_OF_AZZINOTH:
         {
@@ -2123,7 +2127,7 @@ void boss_illidan_stormrageAI::EnterPhase(PhaseIllidan NextPhase)
     {
         GETCRE(Maiev, MaievGUID);
         if(Maiev && Maiev->isAlive())
-            ((boss_maievAI*)Maiev->AI())->EnterPhase(NextPhase);
+            Maiev->AI()->DoAction(NextPhase);
     }
     Phase = NextPhase;
     Event = EVENT_NULL;

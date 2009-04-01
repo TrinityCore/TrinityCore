@@ -42,7 +42,7 @@ EndContentData */
 
 struct TRINITY_DLL_DECL npc_swiftmountainAI : public npc_escortAI
 {
-npc_swiftmountainAI(Creature *c) : npc_escortAI(c) {Reset();}
+npc_swiftmountainAI(Creature *c) : npc_escortAI(c) {}
 
     void WaypointReached(uint32 i)
     {
@@ -200,7 +200,7 @@ CreatureAI* GetAI_npc_swiftmountain(Creature *_Creature)
 
 struct TRINITY_DLL_DECL npc_pluckyAI : public ScriptedAI
 {
-    npc_pluckyAI(Creature *c) : ScriptedAI(c) {Reset();}
+    npc_pluckyAI(Creature *c) : ScriptedAI(c) {}
 
     bool Transformed;
     bool Chicken;

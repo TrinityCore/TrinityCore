@@ -43,8 +43,7 @@ struct TRINITY_DLL_DECL boss_jindoAI : public ScriptedAI
 {
     boss_jindoAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData()) ? ((ScriptedInstance*)c->GetInstanceData()) : NULL;
-        Reset();
+        pInstance = ((ScriptedInstance*)c->GetInstanceData());
     }
 
     ScriptedInstance *pInstance;
@@ -170,7 +169,6 @@ struct TRINITY_DLL_DECL mob_healing_wardAI : public ScriptedAI
     mob_healing_wardAI(Creature *c) : ScriptedAI(c)
     {
          pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     uint32 Heal_Timer;
@@ -208,8 +206,7 @@ struct TRINITY_DLL_DECL mob_shade_of_jindoAI : public ScriptedAI
 {
     mob_shade_of_jindoAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData()) ? ((ScriptedInstance*)c->GetInstanceData()) : NULL;
-        Reset();
+        pInstance = ((ScriptedInstance*)c->GetInstanceData());
     }
 
     uint32 ShadowShock_Timer;

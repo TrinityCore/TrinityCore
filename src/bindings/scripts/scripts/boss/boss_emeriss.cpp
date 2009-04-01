@@ -32,7 +32,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_emerissAI : public ScriptedAI
 {
-    boss_emerissAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_emerissAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 Sleep_Timer;
     uint32 NoxiousBreath_Timer;

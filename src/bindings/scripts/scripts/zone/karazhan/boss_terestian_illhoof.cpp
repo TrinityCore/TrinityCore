@@ -67,7 +67,6 @@ struct TRINITY_DLL_DECL mob_kilrekAI : public ScriptedAI
     mob_kilrekAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     ScriptedInstance* pInstance;
@@ -129,10 +128,7 @@ struct TRINITY_DLL_DECL mob_kilrekAI : public ScriptedAI
 
 struct TRINITY_DLL_DECL mob_demon_chainAI : public ScriptedAI
 {
-    mob_demon_chainAI(Creature *c) : ScriptedAI(c)
-    {
-        Reset();
-    }
+    mob_demon_chainAI(Creature *c) : ScriptedAI(c) {}
 
     uint64 SacrificeGUID;
 
@@ -163,7 +159,6 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
         for(uint8 i = 0; i < 2; ++i)
             PortalGUID[i] = 0;
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     ScriptedInstance *pInstance;
@@ -364,7 +359,7 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
 
 struct TRINITY_DLL_DECL mob_karazhan_impAI : public ScriptedAI
 {
-    mob_karazhan_impAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_karazhan_impAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 FireboltTimer;
 

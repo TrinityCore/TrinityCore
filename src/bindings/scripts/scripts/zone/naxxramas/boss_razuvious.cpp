@@ -55,7 +55,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_razuviousAI : public ScriptedAI
 {
-    boss_razuviousAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_razuviousAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 UnbalancingStrike_Timer;
     uint32 DisruptingShout_Timer;

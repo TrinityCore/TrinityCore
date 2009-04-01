@@ -47,7 +47,7 @@
 
     struct TRINITY_DLL_DECL boss_lady_blaumeuxAI : public ScriptedAI
     {
-        boss_lady_blaumeuxAI(Creature *c) : ScriptedAI(c) {Reset();}
+        boss_lady_blaumeuxAI(Creature *c) : ScriptedAI(c) {}
 
         uint32 Mark_Timer;
         uint32 VoidZone_Timer;
@@ -143,7 +143,7 @@
 
    struct TRINITY_DLL_DECL boss_rivendare_naxxAI : public ScriptedAI
    {
-       boss_rivendare_naxxAI(Creature *c) : ScriptedAI(c) {Reset();}
+       boss_rivendare_naxxAI(Creature *c) : ScriptedAI(c) {}
 
        void Reset()
        {
@@ -203,7 +203,7 @@
 
    struct TRINITY_DLL_DECL boss_thane_korthazzAI : public ScriptedAI
    {
-       boss_thane_korthazzAI(Creature *c) : ScriptedAI(c) {Reset();}
+       boss_thane_korthazzAI(Creature *c) : ScriptedAI(c) {}
 
        uint32 Mark_Timer;
        uint32 Meteor_Timer;
@@ -298,7 +298,7 @@
 
    struct TRINITY_DLL_DECL boss_sir_zeliekAI : public ScriptedAI
    {
-       boss_sir_zeliekAI(Creature *c) : ScriptedAI(c) {Reset();}
+       boss_sir_zeliekAI(Creature *c) : ScriptedAI(c) {}
 
        uint32 Mark_Timer;
        uint32 HolyWrath_Timer;

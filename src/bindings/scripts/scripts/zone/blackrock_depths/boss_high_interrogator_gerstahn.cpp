@@ -30,7 +30,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_high_interrogator_gerstahnAI : public ScriptedAI
 {
-    boss_high_interrogator_gerstahnAI(Creature *c) : ScriptedAI(c) {Reset();}
+    boss_high_interrogator_gerstahnAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 ShadowWordPain_Timer;
     uint32 ManaBurn_Timer;

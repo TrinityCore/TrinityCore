@@ -34,7 +34,6 @@ struct TRINITY_DLL_DECL boss_nerubenkanAI : public ScriptedAI
     boss_nerubenkanAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = (ScriptedInstance*)m_creature->GetInstanceData();
-        Reset();
     }
 
     ScriptedInstance* pInstance;
