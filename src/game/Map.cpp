@@ -50,11 +50,11 @@ Map::~Map()
     UnloadAll();
 }
 
-bool Map::ExistMap(uint32 mapid,int x,int y)
+bool Map::ExistMap(uint32 mapid,int gx,int gy)
 {
     int len = sWorld.GetDataPath().length()+strlen("maps/%03u%02u%02u.map")+1;
     char* tmp = new char[len];
-    snprintf(tmp, len, (char *)(sWorld.GetDataPath()+"maps/%03u%02u%02u.map").c_str(),mapid,x,y);
+    snprintf(tmp, len, (char *)(sWorld.GetDataPath()+"maps/%03u%02u%02u.map").c_str(),mapid,gx,gy);
 
     FILE *pf=fopen(tmp,"rb");
 
@@ -81,17 +81,17 @@ bool Map::ExistMap(uint32 mapid,int x,int y)
     return true;
 }
 
-bool Map::ExistVMap(uint32 mapid,int x,int y)
+bool Map::ExistVMap(uint32 mapid,int gx,int gy)
 {
     if(VMAP::IVMapManager* vmgr = VMAP::VMapFactory::createOrGetVMapManager())
     {
         if(vmgr->isMapLoadingEnabled())
         {
                                                             // x and y are swapped !! => fixed now
-            bool exists = vmgr->existsMap((sWorld.GetDataPath()+ "vmaps").c_str(),  mapid, x,y);
+            bool exists = vmgr->existsMap((sWorld.GetDataPath()+ "vmaps").c_str(),  mapid, gx,gy);
             if(!exists)
             {
-                std::string name = vmgr->getDirFileName(mapid,x,y);
+                std::string name = vmgr->getDirFileName(mapid,gx,gy);
                 sLog.outError("VMap file '%s' is missing or point to wrong version vmap file, redo vmaps with latest vmap_assembler.exe program", (sWorld.GetDataPath()+"vmaps/"+name).c_str());
                 return false;
             }
@@ -101,75 +101,70 @@ bool Map::ExistVMap(uint32 mapid,int x,int y)
     return true;
 }
 
-void Map::LoadVMap(int x,int y)
+void Map::LoadVMap(int gx,int gy)
 {
                                                             // x and y are swapped !!
-    int vmapLoadResult = VMAP::VMapFactory::createOrGetVMapManager()->loadMap((sWorld.GetDataPath()+ "vmaps").c_str(),  GetId(), x,y);
+    int vmapLoadResult = VMAP::VMapFactory::createOrGetVMapManager()->loadMap((sWorld.GetDataPath()+ "vmaps").c_str(),  GetId(), gx,gy);
     switch(vmapLoadResult)
     {
         case VMAP::VMAP_LOAD_RESULT_OK:
-            sLog.outDetail("VMAP loaded name:%s, id:%d, x:%d, y:%d (vmap rep.: x:%d, y:%d)", GetMapName(), GetId(), x,y, x,y);
+            sLog.outDetail("VMAP loaded name:%s, id:%d, x:%d, y:%d (vmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx,gy,gx,gy);
             break;
         case VMAP::VMAP_LOAD_RESULT_ERROR:
-            sLog.outDetail("Could not load VMAP name:%s, id:%d, x:%d, y:%d (vmap rep.: x:%d, y:%d)", GetMapName(), GetId(), x,y, x,y);
+            sLog.outDetail("Could not load VMAP name:%s, id:%d, x:%d, y:%d (vmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx,gy,gx,gy);
             break;
         case VMAP::VMAP_LOAD_RESULT_IGNORED:
-            DEBUG_LOG("Ignored VMAP name:%s, id:%d, x:%d, y:%d (vmap rep.: x:%d, y:%d)", GetMapName(), GetId(), x,y, x,y);
+            DEBUG_LOG("Ignored VMAP name:%s, id:%d, x:%d, y:%d (vmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx,gy,gx,gy);
             break;
     }
 }
 
-void Map::LoadMap(uint32 mapid, uint32 instanceid, int x,int y)
+void Map::LoadMap(int gx,int gy)
 {
-    if( instanceid != 0 )
+    if( i_InstanceId != 0 )
     {
-        if(GridMaps[x][y])
+        if(GridMaps[gx][gy])
             return;
 
-        Map* baseMap = const_cast<Map*>(MapManager::Instance().GetBaseMap(mapid));
+        Map* baseMap = const_cast<Map*>(MapManager::Instance().GetBaseMap(i_id));
 
-        // load gridmap for base map
-        if (!baseMap->GridMaps[x][y])
-            baseMap->EnsureGridCreated(GridPair(63-x,63-y));
+        // load grid map for base map
+        if (!baseMap->GridMaps[gx][gy])
+            baseMap->EnsureGridCreated(GridPair(63-gx,63-gy));
 
-//+++        if (!baseMap->GridMaps[x][y])  don't check for GridMaps[gx][gy], we need the management for vmaps
-//            return;
-
-        ((MapInstanced*)(baseMap))->AddGridMapReference(GridPair(x,y));
-        GridMaps[x][y] = baseMap->GridMaps[x][y];
+        ((MapInstanced*)(baseMap))->AddGridMapReference(GridPair(gx,gy));
+        GridMaps[gx][gy] = baseMap->GridMaps[gx][gy];
         return;
     }
 
     //map already load, delete it before reloading (Is it necessary? Do we really need the ability the reload maps during runtime?)
-    if(GridMaps[x][y])
+    if(GridMaps[gx][gy])
     {
-        sLog.outDetail("Unloading already loaded map %u before reloading.",mapid);
-        delete (GridMaps[x][y]);
-        GridMaps[x][y]=NULL;
+        sLog.outDetail("Unloading already loaded map %u before reloading.",i_id);
+        delete (GridMaps[gx][gy]);
+        GridMaps[gx][gy]=NULL;
     }
 
     // map file name
     char *tmp=NULL;
-    // Pihhan: dataPath length + "maps/" + 3+2+2+ ".map" length may be > 32 !
     int len = sWorld.GetDataPath().length()+strlen("maps/%03u%02u%02u.map")+1;
     tmp = new char[len];
-    snprintf(tmp, len, (char *)(sWorld.GetDataPath()+"maps/%03u%02u%02u.map").c_str(),mapid,x,y);
+    snprintf(tmp, len, (char *)(sWorld.GetDataPath()+"maps/%03u%02u%02u.map").c_str(),i_id,gx,gy);
     sLog.outDetail("Loading map %s",tmp);
     // loading data
-    GridMaps[x][y] = new GridMap();
-    if (!GridMaps[x][y]->loadData(tmp))
+    GridMaps[gx][gy] = new GridMap();
+    if (!GridMaps[gx][gy]->loadData(tmp))
     {
         sLog.outError("Error load map file: \n %s\n", tmp);
     }
     delete [] tmp;
-    return;
 }
 
-void Map::LoadMapAndVMap(uint32 mapid, uint32 instanceid, int x,int y)
+void Map::LoadMapAndVMap(int gx,int gy)
 {
-    LoadMap(mapid,instanceid,x,y);
-    if(instanceid == 0)
-        LoadVMap(x, y);                                     // Only load the data for the base map
+    LoadMap(gx,gy);
+    if(i_InstanceId == 0)
+        LoadVMap(gx, gy);                                   // Only load the data for the base map
 }
 
 void Map::InitStateMachine()
@@ -388,20 +383,20 @@ Map::EnsureGridCreated(const GridPair &p)
             int gy=63-p.y_coord;
 
             if(!GridMaps[gx][gy])
-                Map::LoadMapAndVMap(i_id,i_InstanceId,gx,gy);
+                LoadMapAndVMap(gx,gy);
         }
     }
 }
 
 void
-Map::EnsureGridLoaded(const Cell &cell, Player *player)
+Map::EnsureGridLoadedAtEnter(const Cell &cell, Player *player)
 {
-    EnsureGridCreated(GridPair(cell.GridX(), cell.GridY()));
-    NGridType *grid = getNGrid(cell.GridX(), cell.GridY());
+    NGridType *grid;
 
-    assert(grid != NULL);
-    if (!isGridObjectDataLoaded(cell.GridX(), cell.GridY()))
+    if(EnsureGridLoaded(cell))
     {
+        grid = getNGrid(cell.GridX(), cell.GridY());
+
         if (player)
         {
             player->SendDelayResponse(MAX_GRID_LOAD_TIME);
@@ -412,19 +407,35 @@ Map::EnsureGridLoaded(const Cell &cell, Player *player)
             DEBUG_LOG("Active object nearby triggers of loading grid [%u,%u] on map %u", cell.GridX(), cell.GridY(), i_id);
         }
 
+        ResetGridExpiry(*getNGrid(cell.GridX(), cell.GridY()), 0.1f);
+        grid->SetGridState(GRID_STATE_ACTIVE);
+    }
+    else
+        grid = getNGrid(cell.GridX(), cell.GridY());
+
+    if (player)
+        AddToGrid(player,grid,cell);
+}
+
+bool Map::EnsureGridLoaded(const Cell &cell)
+{
+    EnsureGridCreated(GridPair(cell.GridX(), cell.GridY()));
+    NGridType *grid = getNGrid(cell.GridX(), cell.GridY());
+
+    assert(grid != NULL);
+    if( !isGridObjectDataLoaded(cell.GridX(), cell.GridY()) )
+    {
         ObjectGridLoader loader(*grid, this, cell);
         loader.LoadN();
-        setGridObjectDataLoaded(true, cell.GridX(), cell.GridY());
 
         // Add resurrectable corpses to world object list in grid
         ObjectAccessor::Instance().AddCorpsesToGrid(GridPair(cell.GridX(),cell.GridY()),(*grid)(cell.CellX(), cell.CellY()), this);
 
-        ResetGridExpiry(*getNGrid(cell.GridX(), cell.GridY()), 0.1f);
-        grid->SetGridState(GRID_STATE_ACTIVE);
+        setGridObjectDataLoaded(true,cell.GridX(), cell.GridY());
+        return true;
     }
-    
-    if(player)
-        AddToGrid(player,grid,cell);
+
+    return false;
 }
 
 void Map::LoadGrid(float x, float y)
@@ -443,7 +454,7 @@ bool Map::Add(Player *player)
     // update player state for other player and visa-versa
     CellPair p = Trinity::ComputeCellPair(player->GetPositionX(), player->GetPositionY());
     Cell cell(p);
-    EnsureGridLoaded(cell, player);
+    EnsureGridLoadedAtEnter(cell, player);
     player->AddToWorld();
 
     SendInitSelf(player);
@@ -473,7 +484,7 @@ Map::Add(T *obj)
 
     Cell cell(p);
     if(obj->isActiveObject())
-        EnsureGridLoaded(cell);
+        EnsureGridLoadedAtEnter(cell);
     else
         EnsureGridCreated(GridPair(cell.GridX(), cell.GridY()));
 
@@ -881,7 +892,7 @@ Map::PlayerRelocation(Player *player, float x, float y, float z, float orientati
         if( !old_cell.DiffGrid(new_cell) )
             AddToGrid(player, oldGrid,new_cell);
         else
-            EnsureGridLoaded(new_cell, player);
+            EnsureGridLoadedAtEnter(new_cell, player);
     }
 
     AddUnitToNotify(player);
@@ -1000,7 +1011,7 @@ bool Map::CreatureCellRelocation(Creature *c, Cell new_cell)
     // in diff. grids but active creature
     if(c->isActiveObject())
     {
-        EnsureGridLoaded(new_cell);
+        EnsureGridLoadedAtEnter(new_cell);
 
         #ifdef TRINITY_DEBUG
         if((sLog.getLogFilter() & LOG_FILTER_CREATURE_MOVES)==0)
