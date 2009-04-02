@@ -488,7 +488,8 @@ Map::Add(T *obj)
 
     DEBUG_LOG("Object %u enters grid[%u,%u]", GUID_LOPART(obj->GetGUID()), cell.GridX(), cell.GridY());
 
-    if(obj->GetTypeId() != TYPEID_UNIT)
+    //something, such as vehicle, needs to be update immediately
+    //if(obj->GetTypeId() != TYPEID_UNIT)
         UpdateObjectVisibility(obj,cell,p);
 
     AddNotifier(obj);
