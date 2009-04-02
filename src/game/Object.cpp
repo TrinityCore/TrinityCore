@@ -793,7 +793,16 @@ bool Object::LoadValues(const char* data)
 
 void Object::_SetUpdateBits(UpdateMask *updateMask, Player* /*target*/) const
 {
-    for( uint16 index = 0; index < m_valuesCount; index ++ )
+    if(!m_uint32Values_mirror || !m_uint32Values)
+    {
+        sLog.outCrash("Object entry %u (type %u) does not have uint32Values", GetEntry(), GetTypeId());
+        return;
+    }
+
+    assert(m_uint32Values[0]);
+    assert(m_uint32Values_mirror[0]);
+
+    for(uint16 index = 0; index < m_valuesCount; ++index)
     {
         if(m_uint32Values_mirror[index]!= m_uint32Values[index])
             updateMask->SetBit(index);
