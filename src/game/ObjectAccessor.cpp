@@ -260,7 +260,10 @@ void
 ObjectAccessor::_buildUpdateObject(Object *obj, UpdateDataMapType &update_players)
 {
     if(obj->isType(TYPEMASK_ITEM))
-        _buildPacket(((Item*)obj)->GetOwner(), obj, update_players);
+    {
+        if(Player *owner = ((Item*)obj)->GetOwner())
+           _buildPacket(owner, obj, update_players);
+    }
     else
         _buildChangeObjectForPlayer((WorldObject*)obj, update_players);
 }
