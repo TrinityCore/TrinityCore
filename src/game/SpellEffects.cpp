@@ -1865,13 +1865,11 @@ void Spell::EffectDummy(uint32 i)
                     if(unitTarget->GetCreatureType() != CREATURE_TYPE_UNDEAD)
                         return;
 
-                    // first rank have special multiplier
                     int32 bp = damage * 1.5f;
                     m_caster->CastCustomSpell(unitTarget,47633,&bp,NULL,NULL,true);
                 }
                 else
                 {
-                    // first rank have special multiplier
                     int32 bp = damage;
                     m_caster->CastCustomSpell(unitTarget,47632,&bp,NULL,NULL,true);
                 }
