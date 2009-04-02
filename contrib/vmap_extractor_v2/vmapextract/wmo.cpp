@@ -241,205 +241,209 @@ bool WMOGroup::open()
 //----------------------------------------------------------------------------
 int WMOGroup::ConvertToVMAPGroupWmo(FILE *output, bool pPreciseVectorData)
 {
-    if(pPreciseVectorData) {
-        fwrite(&liquflags,sizeof(uint32),1,output);
-        char GRP[] = "GRP ";
-        fwrite(GRP,1,4,output);
+	if(pPreciseVectorData) {
+		fwrite(&liquflags,sizeof(uint32),1,output); 
+		char GRP[] = "GRP ";
+		fwrite(GRP,1,4,output);
 
-        int k = 0;
-        int moba_batch = moba_size/12;
-        MobaEx = new int[moba_batch*4];
-        for(int i=8; i<moba_size; i+=12)
-        {
-            MobaEx[k++] = MOBA[i];
-        }
-        delete [] MOBA;
-        int moba_size_grp = moba_batch*4+4;
-        fwrite(&moba_size_grp,4,1,output);
-        fwrite(&moba_batch,4,1,output);
-        fwrite(MobaEx,4,k,output);
-        delete [] MobaEx;
+		int k = 0;
+		int moba_batch = moba_size/12;
+		MobaEx = new int[moba_batch*4];
+		for(int i=8; i<moba_size; i+=12)
+		{
+			MobaEx[k++] = MOBA[i];
+		}
+		delete [] MOBA;
+		int moba_size_grp = moba_batch*4+4;
+		fwrite(&moba_size_grp,4,1,output); 
+		fwrite(&moba_batch,4,1,output);
+		fwrite(MobaEx,4,k,output);
+		delete [] MobaEx;
 
-        uint32 nIdexes = nTriangles * 3;
+		uint32 nIdexes = nTriangles * 3;
 
-        if(fwrite("INDX",4, 1, output) != 1) { printf("Error while writing file nbraches ID"); exit(0); }
-        int wsize = sizeof(uint32) + sizeof(unsigned short) * nIdexes;
-        if(fwrite(&wsize, sizeof(int), 1, output) != 1) { printf("Error while writing file wsize"); }
-        if(fwrite(&nIdexes, sizeof(uint32), 1, output) != 1) { printf("Error while writing file nIndexes"); exit(0); }
-        if(nIdexes >0) {
-            if(fwrite(MOVI, sizeof(unsigned short), nIdexes, output) != nIdexes) { printf("Error while writing file indexarray"); exit(0); }
-        }
+		if(fwrite("INDX",4, 1, output) != 1) { printf("Error while writing file nbraches ID"); exit(0); }
+		int wsize = sizeof(uint32) + sizeof(unsigned short) * nIdexes;
+		if(fwrite(&wsize, sizeof(int), 1, output) != 1) { printf("Error while writing file wsize"); }
+		if(fwrite(&nIdexes, sizeof(uint32), 1, output) != 1) { printf("Error while writing file nIndexes"); exit(0); }
+		if(nIdexes >0) {
+			if(fwrite(MOVI, sizeof(unsigned short), nIdexes, output) != nIdexes) { printf("Error while writing file indexarray"); exit(0); }
+		}
 
-        if(fwrite("VERT",4, 1, output) != 1) { printf("Error while writing file nbraches ID"); exit(0); }
-        wsize = sizeof(int) + sizeof(float) * 3 * nVertices;
-        if(fwrite(&wsize, sizeof(int), 1, output) != 1) { printf("Error while writing file wsize"); }
-        if(fwrite(&nVertices, sizeof(int), 1, output) != 1) { printf("Error while writing file nVertices"); exit(0); }
-        if(nVertices >0) {
-            if(fwrite(MOVT, sizeof(float)*3, nVertices, output) != nVertices) { printf("Error while writing file vectors"); exit(0); }
-        }
+		if(fwrite("VERT",4, 1, output) != 1) { printf("Error while writing file nbraches ID"); exit(0); }
+		wsize = sizeof(int) + sizeof(float) * 3 * nVertices;
+		if(fwrite(&wsize, sizeof(int), 1, output) != 1) { printf("Error while writing file wsize"); }
+		if(fwrite(&nVertices, sizeof(int), 1, output) != 1) { printf("Error while writing file nVertices"); exit(0); }
+		if(nVertices >0) {
+			if(fwrite(MOVT, sizeof(float)*3, nVertices, output) != nVertices) { printf("Error while writing file vectors"); exit(0); }
+		}
 
-        if(LiquEx_size != 0)
-        {
-            int LIQU_h[] = {0x5551494C,LiquEx_size+8,hlq_xverts,hlq_yverts};// "LIQU"
-            fwrite(LIQU_h,4,4,output);
-            fwrite(LiquEx,4,LiquEx_size/4,output);
-            delete [] LiquEx;
-        }
+		if(LiquEx_size != 0)
+		{
+			int LIQU_h[] = {0x5551494C,LiquEx_size+8,hlq_xverts,hlq_yverts};// "LIQU"	
+			fwrite(LIQU_h,4,4,output);
+			fwrite(LiquEx,4,LiquEx_size/4,output);	
+			delete [] LiquEx;
+		}
 
-        return nTriangles;
-    }   else {
-        //printf("Convert GroupWmo...\n");
-        //-------GRP -------------------------------------
-        fwrite(&liquflags,sizeof(uint32),1,output);
-        char GRP[] = "GRP ";
-        fwrite(GRP,1,4,output);
-        int k = 0;
-        int moba_batch = moba_size/12;
-        MobaEx = new int[moba_batch*4];
-        for(int i=8; i<moba_size; i+=12)
-        {
-            MobaEx[k++] = MOBA[i];
-        }
-        delete [] MOBA;
-        int moba_size_grp = moba_batch*4+4;
-        fwrite(&moba_size_grp,4,1,output);
-        fwrite(&moba_batch,4,1,output);
-        fwrite(MobaEx,4,k,output);
-        delete [] MobaEx;
+		return nTriangles;
+	} 	else {
+		//printf("Convert GroupWmo...\n");
+		//-------GRP -------------------------------------
+		fwrite(&liquflags,sizeof(uint32),1,output); 
+		char GRP[] = "GRP ";
+		fwrite(GRP,1,4,output);
+		int k = 0;
+		int moba_batch = moba_size/12;
+		MobaEx = new int[moba_batch*4];
+		for(int i=8; i<moba_size; i+=12)
+		{
+			MobaEx[k++] = MOBA[i];
+		}
+		delete [] MOBA;
+		int moba_size_grp = moba_batch*4+4;
+		fwrite(&moba_size_grp,4,1,output); 
+		fwrite(&moba_batch,4,1,output);
+		fwrite(MobaEx,4,k,output);
+		delete [] MobaEx;
 
-        //-------INDX------------------------------------
-        //-------MOPY--------
-        int n = 0;
-        int j = 0;
-        MopyEx = new char[mopy_size];
-        IndexExTr = new int[mopy_size];
-        for (int i=0; i<mopy_size; i+=2)
-        {
-            if ((int)MOPY[i]==0x00000008 ||(int)MOPY[i]==0x00000009 ||(int)MOPY[i]==0x00000020 ||(int)MOPY[i]==0x00000021 ||(int)MOPY[i]==0x00000022 ||(int)MOPY[i]==0x00000048 ||(int)MOPY[i]==0x00000049 ||(int)MOPY[i]==0x00000060 ||(int)MOPY[i]==0x00000061 ||(int)MOPY[i]==0x00000062 ||(int)MOPY[i]==0x0000000A ||(int)MOPY[i]==0x0000004A)
-            {
-                MopyEx[n] = MOPY[i];
-                MopyEx[(n+1)] = MOPY[(i+1)];
-                IndexExTr[j] = i/2;
-                j+=1;
-                n+=2;
-            }
-        }
-        MopyEx_size = n;
-        IndexExTr_size = j;
-        delete [] MOPY;
-        delete [] MopyEx;
+		//-------INDX------------------------------------
+		//-------MOPY--------
+		int n = 0;
+		int j = 0;
+		MopyEx = new char[mopy_size];
+		IndexExTr = new int[mopy_size];
+		for (int i=0; i<mopy_size; i+=2)
+		{
+            // Skip no collision triangles
+            if ((int)MOPY[i]&WMO_MATERIAL_NO_COLLISION)
+                continue;
+            // Use only this triangles
+            if ((int)MOPY[i]&(WMO_MATERIAL_HINT|WMO_MATERIAL_COLLIDE_HIT))
+			{    
+				MopyEx[n] = MOPY[i];
+				MopyEx[(n+1)] = MOPY[(i+1)];
+				IndexExTr[j] = i/2;
+				j+=1;        
+				n+=2;
+			}    
+		}
+		MopyEx_size = n;
+		IndexExTr_size = j;
+		delete [] MOPY;
+		delete [] MopyEx;
 
-        //---------MOVI-----------
-        MoviEx = new uint16[IndexExTr_size*3];
-        int m = 0;
-        for (int i=0; i<IndexExTr_size; i++)
-        {
-            int n = 0;
-            n = IndexExTr[i]*3;
-            for (int x=0; x<3; x++)
-            {
-                MoviEx[m] = MOVI[n];
-                n++;
-                m++;
-            }
-        }
-        delete [] MOVI;
+		//---------MOVI-----------
+		MoviEx = new uint16[IndexExTr_size*3];
+		int m = 0;
+		for (int i=0; i<IndexExTr_size; i++)
+		{
+			int n = 0;
+			n = IndexExTr[i]*3;
+			for (int x=0; x<3; x++)
+			{
+				MoviEx[m] = MOVI[n];
+				n++;
+				m++;
+			}
+		}
+		delete [] MOVI;
 
-        MoviExSort = new uint16[IndexExTr_size*3];
-        for(int y=0; y<IndexExTr_size*3; y++)
-        {
-            MoviExSort[y]=MoviEx[y];
-        }
+		MoviExSort = new uint16[IndexExTr_size*3];
+		for(int y=0; y<IndexExTr_size*3; y++)
+		{
+			MoviExSort[y]=MoviEx[y];		
+		}
 
-        uint16 hold;
-        for (int pass = 1; pass < IndexExTr_size*3; pass++)
-        {
-            for (int i=0; i < IndexExTr_size*3-1; i++)
-            {
-                if (MoviExSort[i] > MoviExSort[i+1])
-                {
-                    hold = MoviExSort[i];
-                    MoviExSort[i] = MoviExSort[i+1];
-                    MoviExSort[i+1] = hold;
-                }
-                //double = 65535
-                else
-                    if (MoviExSort[i] == MoviExSort[i+1])
-                        MoviExSort[i+1] = 65535;
-            }
-        }
-        // double delet
-        uint16 s = 0;
-        for (int i=0; i < IndexExTr_size*3; i++)
-        {
-            if (MoviExSort[i]!=65535)
-            {
-                MoviExSort[s] = MoviExSort[i];
-                s++;
-            }
-        }
-        MovtExSort = new uint16[s];
-        for (int i=0; i < s; i++)
-        {
-            MovtExSort[i] = MoviExSort[i];
-        }
+		uint16 hold;
+		for (int pass = 1; pass < IndexExTr_size*3; pass++)
+		{
+			for (int i=0; i < IndexExTr_size*3-1; i++)
+			{
+				if (MoviExSort[i] > MoviExSort[i+1]) 
+				{
+					hold = MoviExSort[i];
+					MoviExSort[i] = MoviExSort[i+1];
+					MoviExSort[i+1] = hold;
+				}
+				//double = 65535	
+				else
+					if (MoviExSort[i] == MoviExSort[i+1])
+						MoviExSort[i+1] = 65535;	
+			}
+		}
+		// double delet
+		uint16 s = 0;
+		for (int i=0; i < IndexExTr_size*3; i++)
+		{
+			if (MoviExSort[i]!=65535)
+			{
+				MoviExSort[s] = MoviExSort[i];
+				s++;
+			}
+		}
+		MovtExSort = new uint16[s];
+		for (int i=0; i < s; i++)
+		{
+			MovtExSort[i] = MoviExSort[i];
+		}
 
-        for (int i=0; i < IndexExTr_size*3; i++)
-        {
-            uint16 b = MoviEx[i];
-            for (uint16 x = 0; x < s; x++)
-            {
-                if(MoviExSort[x] == b)
-                {
+		for (int i=0; i < IndexExTr_size*3; i++)
+		{
+			uint16 b = MoviEx[i];
+			for (uint16 x = 0; x < s; x++)
+			{
+				if(MoviExSort[x] == b)
+				{
 
-                    MoviEx[i] = x;
-                    break;
-                }
-            }
+					MoviEx[i] = x;
+					break;
+				}
+			}	
 
-        }
-        int INDX[] = {0x58444E49,IndexExTr_size*6+4,IndexExTr_size*3};
-        fwrite(INDX,4,3,output);
-        fwrite(MoviEx,2,IndexExTr_size*3,output);
+		}
+		int INDX[] = {0x58444E49,IndexExTr_size*6+4,IndexExTr_size*3};
+		fwrite(INDX,4,3,output);
+		fwrite(MoviEx,2,IndexExTr_size*3,output);
 
-        delete [] MoviEx;
-        delete [] MoviExSort;
-        delete [] IndexExTr;
+		delete [] MoviEx;
+		delete [] MoviExSort;
+		delete [] IndexExTr;
 
-        //----------VERT---------
-        //-----MOVT----------
-        int d = 0;
-        MovtEx = new float[s*3];
-        for (uint16 i=0; i<s; i++)
-        {
-            int c=0;//!!!!data in MovtExSort[i] more uint16 in great group wmo files!!!!
-            c = MovtExSort[i]*3;
-            for (int y=0; y<3; y++)
-            {
-                MovtEx[d] = MOVT[c];
-                c++;
-                d++;
-            }
-        }
-        int VERT[] = {0x54524556,d*4+4,d*4/12};// "VERT"
-        fwrite(VERT,4,3,output);
-        fwrite(MovtEx,4,d,output);
-        //------LIQU------------------------
-        if(LiquEx_size != 0)
-        {
-            int LIQU_h[] = {0x5551494C,LiquEx_size+8,hlq_xverts,hlq_yverts};// "LIQU"
-            fwrite(LIQU_h,4,4,output);
-            fwrite(LiquEx,4,LiquEx_size/4,output);
-            delete [] LiquEx;
-        }
+		//----------VERT---------
+		//-----MOVT----------
+		int d = 0;
+		MovtEx = new float[s*3];
+		for (uint16 i=0; i<s; i++)
+		{
+			int c=0;//!!!!data in MovtExSort[i] more uint16 in great group wmo files!!!!
+			c = MovtExSort[i]*3;
+			for (int y=0; y<3; y++)
+			{
+				MovtEx[d] = MOVT[c];
+				c++;
+				d++;
+			}
+		}
+		int VERT[] = {0x54524556,d*4+4,d*4/12};// "VERT"
+		fwrite(VERT,4,3,output);
+		fwrite(MovtEx,4,d,output);	
+		//------LIQU------------------------
+		if(LiquEx_size != 0)
+		{
+			int LIQU_h[] = {0x5551494C,LiquEx_size+8,hlq_xverts,hlq_yverts};// "LIQU"	
+			fwrite(LIQU_h,4,4,output);
+			fwrite(LiquEx,4,LiquEx_size/4,output);	
+			delete [] LiquEx;
+		}
 
-        delete [] MOVT;
-        delete [] MovtEx;
-        delete [] MovtExSort;
+		delete [] MOVT;
+		delete [] MovtEx;
+		delete [] MovtExSort;
 
-        //---------------------------------------------
-        return IndexExTr_size;
-    }
+		//---------------------------------------------	
+		return IndexExTr_size;
+	}
 }
 
 WMOGroup::~WMOGroup()
