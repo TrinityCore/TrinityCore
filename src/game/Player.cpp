@@ -14749,15 +14749,17 @@ void Player::_LoadAuras(QueryResult *result, uint32 timediff)
             else
                 remaincharges = 0;
 
-            //do not load single target auras (unless they were cast by the player)
-            if (caster_guid != GetGUID() && IsSingleTargetSpell(spellproto))
-                continue;
 
             for(uint32 i=0; i<stackcount; i++)
             {
                 Aura* aura = CreateAura(spellproto, effindex, NULL, this, NULL);
                 if(!damage)
                     damage = aura->GetModifier()->m_amount;
+
+                // reset stolen single target auras
+                if (caster_guid != GetGUID() && aura->IsSingleTarget())
+                    aura->SetIsSingleTarget(false);
+
                 aura->SetLoadedState(caster_guid,damage,maxduration,remaintime,remaincharges);
                 AddAura(aura);
                 sLog.outDetail("Added aura spellid %u, effect %u", spellproto->Id, effindex);
@@ -15874,7 +15876,7 @@ void Player::_SaveAuras()
             if (!(itr2->second->IsPassive() || itr2->second->IsRemovedOnShapeLost()))
             {
                 //do not save single target auras (unless they were cast by the player)
-                if (!(itr2->second->GetCasterGUID() != GetGUID() && IsSingleTargetSpell(spellInfo)))
+                if (!(itr2->second->GetCasterGUID() != GetGUID() && itr2->second->IsSingleTarget()))
                 {
                     uint8 i;
                     // or apply at cast SPELL_AURA_MOD_SHAPESHIFT or SPELL_AURA_MOD_STEALTH auras

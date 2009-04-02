@@ -279,6 +279,8 @@ class TRINITY_DLL_SPEC Aura
             return m_procCharges == 0;
         }
 
+        void UnregisterSingleCastAura();
+
         int8 GetStackAmount() {return m_stackAmount;}
         //int32 GetModifierValuePerStack() {return m_modifier.m_amount / m_stackAmount;}
         void SetStackAmount(uint8 num);
@@ -310,6 +312,10 @@ class TRINITY_DLL_SPEC Aura
 
         bool IsUpdated() { return m_updated; }
         void SetUpdated(bool val) { m_updated = val; }
+
+        bool IsSingleTarget() {return m_isSingleTargetAura;}
+        void SetIsSingleTarget(bool val) { m_isSingleTargetAura = val;}
+
         void SetRemoveMode(AuraRemoveMode mode) { m_removeMode = mode; }
 
         Unit* GetTriggerTarget() const;
@@ -367,6 +373,7 @@ class TRINITY_DLL_SPEC Aura
         bool m_isRemovedOnShapeLost:1;
         bool m_updated:1;                                   // Prevent remove aura by stack if set
         bool m_in_use:1;                                    // true while in Aura::ApplyModifier call
+        bool m_isSingleTargetAura:1;                        // true if it's a single target spell and registered at caster - can change at spell steal for example
 
     private:
 };
