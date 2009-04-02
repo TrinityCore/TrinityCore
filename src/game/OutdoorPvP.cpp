@@ -160,7 +160,7 @@ bool OutdoorPvPObjective::AddCreature(uint32 type, uint32 entry, uint32 teamval,
     {
         sLog.outError("Can't create creature entry: %u",entry);
         delete pCreature;
-        return true;
+        return false;
     }
 
     pCreature->Relocate(x, y, z, o);
@@ -168,6 +168,7 @@ bool OutdoorPvPObjective::AddCreature(uint32 type, uint32 entry, uint32 teamval,
     if(!pCreature->IsPositionValid())
     {
         sLog.outError("ERROR: Creature (guidlow %d, entry %d) not added to opvp. Suggested coordinates isn't valid (X: %f Y: %f)",pCreature->GetGUIDLow(),pCreature->GetEntry(),pCreature->GetPositionX(),pCreature->GetPositionY());
+        delete pCreature;
         return false;
     }
 
@@ -271,6 +272,7 @@ bool OutdoorPvPObjective::AddCapturePoint(uint32 entry, uint32 map, float x, flo
     {
         sLog.outError("Can't create creature entry: %u",entry);
         delete pCreature;
+        return false;
     }
     else
     {
@@ -279,6 +281,7 @@ bool OutdoorPvPObjective::AddCapturePoint(uint32 entry, uint32 map, float x, flo
         if(!pCreature->IsPositionValid())
         {
             sLog.outError("ERROR: Creature (guidlow %d, entry %d) not added to opvp. Suggested coordinates isn't valid (X: %f Y: %f)",pCreature->GetGUIDLow(),pCreature->GetEntry(),pCreature->GetPositionX(),pCreature->GetPositionY());
+            delete pCreature;
             return false;
         }
 
