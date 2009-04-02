@@ -577,7 +577,7 @@ ChatCommand * ChatHandler::getCommandTable()
         { "wp",             SEC_GAMEMASTER,     false, NULL,                                           "", wpCommandTable },
         { "loadpath",       SEC_ADMINISTRATOR,  false, &ChatHandler::HandleReloadAllPaths,             "", NULL },
         // AH bot
-        { "ahbotoption",    SEC_GAMEMASTER,     false, &ChatHandler::HandleAHBotOptionsCommand,        "", NULL },
+        { "ahbotoptions",    SEC_GAMEMASTER,     false, &ChatHandler::HandleAHBotOptionsCommand,        "", NULL },
 
         { "quest",          SEC_ADMINISTRATOR,  false, NULL,                                           "", questCommandTable },
         { "reload",         SEC_ADMINISTRATOR,  true,  NULL,                                           "", reloadCommandTable },
