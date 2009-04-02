@@ -133,6 +133,8 @@ class TRINITY_DLL_SPEC Object
             if(m_inWorld)
                 return;
 
+            assert(m_uint32Values);
+
             m_inWorld = true;
 
             // synchronize values mirror with values array (changes will send in updatecreate opcode any way
@@ -143,10 +145,10 @@ class TRINITY_DLL_SPEC Object
             if(!m_inWorld)
                 return;
 
-            // if we remove from world then sending changes not required
-            if(m_uint32Values)
-                ClearUpdateMask(true);
             m_inWorld = false;
+
+            // if we remove from world then sending changes not required
+            ClearUpdateMask(true);
         }
 
         const uint64& GetGUID() const { return GetUInt64Value(0); }
