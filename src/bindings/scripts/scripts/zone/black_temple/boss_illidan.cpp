@@ -1796,7 +1796,7 @@ struct TRINITY_DLL_DECL blade_of_azzinothAI : public NullCreatureAI
     void SpellHit(Unit *caster, const SpellEntry *spell)
     {
         if(spell->Id == SPELL_THROW_GLAIVE2 || spell->Id == SPELL_THROW_GLAIVE)
-            m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, 21431);//appear when hit by Illidan's glaive
+            me->SetUInt32Value(UNIT_FIELD_DISPLAYID, 21431);//appear when hit by Illidan's glaive
     }
 };
 
