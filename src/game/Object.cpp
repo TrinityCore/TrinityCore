@@ -82,16 +82,16 @@ Object::Object( )
 
 Object::~Object( )
 {
-    if(m_objectUpdated)
-        ObjectAccessor::Instance().RemoveUpdateObject(this);
+    //if(m_objectUpdated)
+    //    ObjectAccessor::Instance().RemoveUpdateObject(this);
 
     if(m_uint32Values)
     {
         if(IsInWorld())
         {
             ///- Do NOT call RemoveFromWorld here, if the object is a player it will crash
-            sLog.outError("Object::~Object - guid="I64FMTD", typeid=%d deleted but still in world!!", GetGUID(), GetTypeId());
-            //assert(0);
+            sLog.outCrash("Object::~Object - guid="I64FMTD", typeid=%d deleted but still in world!!", GetGUID(), GetTypeId());
+            assert(false);
         }
 
         //DEBUG_LOG("Object desctr 1 check (%p)",(void*)this);
@@ -1893,7 +1893,10 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float 
     Map *map = GetMap();
     GameObject *go = new GameObject();
     if(!go->Create(objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT), entry, map, GetPhaseMask(), x,y,z,ang,rotation0,rotation1,rotation2,rotation3,100,1))
+    {
+        delete go;
         return NULL;
+    }
     go->SetRespawnTime(respawnTime);
     if(GetTypeId()==TYPEID_PLAYER || GetTypeId()==TYPEID_UNIT) //not sure how to handle this
         ((Unit*)this)->AddGameObject(go);
