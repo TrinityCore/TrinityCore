@@ -97,7 +97,7 @@ struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
     boss_priestess_delrissaAI(Creature* c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        SummonAdds();
+        //SummonAdds();
         Heroic = c->GetMap()->IsHeroic();
     }
 
