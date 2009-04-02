@@ -476,8 +476,6 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
 
 Player::~Player ()
 {
-    CleanupsBeforeDelete();
-
     // it must be unloaded already in PlayerLogout and accessed only for loggined player
     //m_social = NULL;
 
@@ -487,7 +485,6 @@ Player::~Player ()
         if(m_items[i])
             delete m_items[i];
     }
-    CleanupChannels();
 
     for (PlayerSpellMap::const_iterator itr = m_spells.begin(); itr != m_spells.end(); ++itr)
         delete itr->second;
@@ -501,19 +498,9 @@ Player::~Player ()
 
     delete PlayerTalkClass;
 
-    if (m_transport)
-    {
-        m_transport->RemovePassenger(this);
-    }
-
     for(size_t x = 0; x < ItemSetEff.size(); x++)
         if(ItemSetEff[x])
             delete ItemSetEff[x];
-
-    // clean up player-instance binds, may unload some instance saves
-    for(uint8 i = 0; i < TOTAL_DIFFICULTIES; i++)
-        for(BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end(); ++itr)
-            itr->second.save->RemovePlayer(this);
 
     delete m_declinedname;
     delete m_runes;
@@ -521,12 +508,21 @@ Player::~Player ()
 
 void Player::CleanupsBeforeDelete()
 {
+    TradeCancel(false);
+    DuelComplete(DUEL_INTERUPTED);
+
     if(IsInWorld())                                      // only for fully created Object
     {
-        TradeCancel(false);
-        DuelComplete(DUEL_INTERUPTED);
         Unit::CleanupsBeforeDelete();
     }
+
+    if (m_transport)
+        m_transport->RemovePassenger(this);
+
+    // clean up player-instance binds, may unload some instance saves
+    for(uint8 i = 0; i < TOTAL_DIFFICULTIES; ++i)
+        for(BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end(); ++itr)
+            itr->second.save->RemovePlayer(this);
 }
 
 bool Player::Create( uint32 guidlow, const std::string& name, uint8 race, uint8 class_, uint8 gender, uint8 skin, uint8 face, uint8 hairStyle, uint8 hairColor, uint8 facialHair, uint8 outfitId )
