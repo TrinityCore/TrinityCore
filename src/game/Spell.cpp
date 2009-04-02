@@ -4881,8 +4881,8 @@ SpellCastResult Spell::CheckItems()
         focusObject = ok;                                   // game object found in range
     }
 
-    // check reagents
-    if (!p_caster->CanNoReagentCast(m_spellInfo))
+    // check reagents (ignore triggered spells with reagents processed by original spell) and special reagent ignore case.
+    if (!m_IsTriggeredSpell && !p_caster->CanNoReagentCast(m_spellInfo))
     {
         for(uint32 i=0;i<8;i++)
         {
