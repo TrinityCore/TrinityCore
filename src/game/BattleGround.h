@@ -489,6 +489,7 @@ class BattleGround
         uint8 m_Events;
 
         bool   m_BuffChange;
+	uint32 m_score[2];				    //array that keeps general team scores, used to determine who gets most marks when bg ends prematurely
 
         BGHonorMode m_HonorMode;
     private:
@@ -513,6 +514,7 @@ class BattleGround
         bool   m_PrematureCountDown;
         uint32 m_PrematureCountDownTimer;
         char const *m_Name;
+					
 
         /* Player lists */
         std::vector<uint64> m_ResurrectQueue;               // Player GUID
