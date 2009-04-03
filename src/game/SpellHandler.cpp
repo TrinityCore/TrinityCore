@@ -238,6 +238,15 @@ void WorldSession::HandleGameobjectReportUse(WorldPacket& recvPacket)
     recvPacket >> guid;
 
     sLog.outDebug( "WORLD: Recvd CMSG_GAMEOBJ_REPORT_USE Message [in game guid: %u]", GUID_LOPART(guid));
+
+    GameObject* go = ObjectAccessor::GetGameObject(*_player,guid);
+    if(!go)
+        return;
+
+    if(!go->IsWithinDistInMap(_player,INTERACTION_DISTANCE))
+        return;
+
+    _player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_USE_GAMEOBJECT, go->GetEntry());
 }
 
 void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
