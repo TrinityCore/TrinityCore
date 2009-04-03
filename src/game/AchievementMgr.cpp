@@ -407,19 +407,19 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
     {
         AchievementCriteriaEntry const *achievementCriteria = (*i);
 
-        // don't update already completed criteria
-        if(IsCompletedCriteria(achievementCriteria))
-            continue;
-
-        if(achievementCriteria->groupFlag & ACHIEVEMENT_CRITERIA_GROUP_NOT_IN_GROUP && GetPlayer()->GetGroup())
+        if (achievementCriteria->groupFlag & ACHIEVEMENT_CRITERIA_GROUP_NOT_IN_GROUP && GetPlayer()->GetGroup())
             continue;
 
         AchievementEntry const *achievement = sAchievementStore.LookupEntry(achievementCriteria->referredAchievement);
-        if(!achievement)
+        if (!achievement)
             continue;
 
         if ((achievement->factionFlag == ACHIEVEMENT_FACTION_FLAG_HORDE    && GetPlayer()->GetTeam() != HORDE) ||
             (achievement->factionFlag == ACHIEVEMENT_FACTION_FLAG_ALLIANCE && GetPlayer()->GetTeam() != ALLIANCE))
+            continue;
+
+        // don't update already completed criteria
+        if (IsCompletedCriteria(achievementCriteria,achievement))
             continue;
 
         switch (type)
@@ -955,20 +955,24 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             case ACHIEVEMENT_CRITERIA_TYPE_TOTAL:
                 break;                                   // Not implemented yet :(
         }
-        if(IsCompletedCriteria(achievementCriteria))
-            CompletedCriteria(achievementCriteria);
+        if(IsCompletedCriteria(achievementCriteria,achievement))
+            CompletedCriteria(achievementCriteria,achievement);
+
+
+        if(AchievementEntryList const* achRefList = achievementmgr.GetAchievementByReferencedId(achievement->ID))
+        {
+            for(AchievementEntryList::const_iterator itr = achRefList->begin(); itr != achRefList->end(); ++itr)
+                if(IsCompletedAchievement(*itr))
+                    CompletedAchievement(*itr);
+        }
     }
 }
 
 static const uint32 achievIdByClass[MAX_CLASSES] = { 0, 459, 465 , 462, 458, 464, 461, 467, 460, 463, 0, 466 };
 static const uint32 achievIdByRace[MAX_RACES]    = { 0, 1408, 1410, 1407, 1409, 1413, 1411, 1404, 1412, 0, 1405, 1406 };
 
-bool AchievementMgr::IsCompletedCriteria(AchievementCriteriaEntry const* achievementCriteria)
+bool AchievementMgr::IsCompletedCriteria(AchievementCriteriaEntry const* achievementCriteria, AchievementEntry const* achievement)
 {
-    AchievementEntry const* achievement = sAchievementStore.LookupEntry(achievementCriteria->referredAchievement);
-    if(!achievement)
-        return false;
-
     // counter can never complete
     if(achievement->flags & ACHIEVEMENT_FLAG_COUNTER)
         return false;
@@ -1083,45 +1087,64 @@ bool AchievementMgr::IsCompletedCriteria(AchievementCriteriaEntry const* achieve
     return false;
 }
 
-void AchievementMgr::CompletedCriteria(AchievementCriteriaEntry const* criteria)
+void AchievementMgr::CompletedCriteria(AchievementCriteriaEntry const* criteria, AchievementEntry const* achievement)
 {
-    AchievementEntry const* achievement = sAchievementStore.LookupEntry(criteria->referredAchievement);
-    if(!achievement)
-        return;
     // counter can never complete
     if(achievement->flags & ACHIEVEMENT_FLAG_COUNTER)
         return;
 
-    if(criteria->completionFlag & ACHIEVEMENT_CRITERIA_COMPLETE_FLAG_ALL || GetAchievementCompletionState(achievement)==ACHIEVEMENT_COMPLETED_COMPLETED_NOT_STORED)
-    {
+    // already completed and stored
+    if (m_completedAchievements.find(achievement->ID)!=m_completedAchievements.end())
+        return;
+
+    if ((criteria->referredAchievement==achievement->ID && (criteria->completionFlag & ACHIEVEMENT_CRITERIA_COMPLETE_FLAG_ALL)) ||
+        IsCompletedAchievement(achievement))
         CompletedAchievement(achievement);
-    }
 }
 
 // TODO: achievement 705 requires 4 criteria to be fulfilled
-AchievementCompletionState AchievementMgr::GetAchievementCompletionState(AchievementEntry const* entry)
+bool AchievementMgr::IsCompletedAchievement(AchievementEntry const* entry)
 {
-    if(m_completedAchievements.find(entry->ID)!=m_completedAchievements.end())
-        return ACHIEVEMENT_COMPLETED_COMPLETED_STORED;
+    // for achievement with referenced achievement criterias get from referenced and counter from self
+    uint32 achievmentForTestId = entry->refAchievement ? entry->refAchievement : entry->ID;
+    uint32 achievmentForTestCount = entry->count;
 
-    bool foundOutstanding = false;
-    for (uint32 entryId = 0; entryId<sAchievementCriteriaStore.GetNumRows(); entryId++)
+    AchievementCriteriaEntryList const* cList = achievementmgr.GetAchievementCriteriaByAchievement(achievmentForTestId);
+    if(!cList)
+        return false;
+
+    uint32 count = 0;
+    bool completed_all = true;
+
+    for(AchievementCriteriaEntryList::const_iterator itr = cList->begin(); itr != cList->end(); ++itr)
     {
-         AchievementCriteriaEntry const* criteria = sAchievementCriteriaStore.LookupEntry(entryId);
-         if(!criteria || criteria->referredAchievement!= entry->ID)
-             continue;
+        AchievementCriteriaEntry const* criteria = *itr;
 
-         if(IsCompletedCriteria(criteria) && criteria->completionFlag & ACHIEVEMENT_CRITERIA_COMPLETE_FLAG_ALL)
-             return ACHIEVEMENT_COMPLETED_COMPLETED_NOT_STORED;
+        bool completed = IsCompletedCriteria(criteria,entry);
 
-         // found an umcompleted criteria, but DONT return false yet - there might be a completed criteria with ACHIEVEMENT_CRITERIA_COMPLETE_FLAG_ALL
-         if(!IsCompletedCriteria(criteria))
-             foundOutstanding = true;
+        // found an uncompleted criteria, but DONT return false yet - there might be a completed criteria with ACHIEVEMENT_CRITERIA_COMPLETE_FLAG_ALL
+        if(completed)
+            ++count;
+        else
+            completed_all = false;
+
+        if(achievmentForTestId == entry->ID)                // not referenced achievement
+        {
+            // completed as single req. criteria
+            if(completed && criteria->completionFlag & ACHIEVEMENT_CRITERIA_COMPLETE_FLAG_ALL)
+                return true;
+        }
+
+        // completed as have req. count of completed criterias
+        if(achievmentForTestCount > 0 && achievmentForTestCount <= count)
+           return true;
     }
-    if(foundOutstanding)
-        return ACHIEVEMENT_COMPLETED_NONE;
-    else
-        return ACHIEVEMENT_COMPLETED_COMPLETED_NOT_STORED;
+
+    // all criterias completed requirement
+    if(completed_all && achievmentForTestCount==0)
+        return true;
+
+    return false;
 }
 
 void AchievementMgr::SetCriteriaProgress(AchievementCriteriaEntry const* entry, uint32 changeValue, ProgressType ptype)
@@ -1311,13 +1334,13 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
         barGoLink bar(1);
         bar.step();
 
-        sLog.outString("");
+        sLog.outString();
         sLog.outErrorDb(">> Loaded 0 achievement criteria.");
         return;
     }
 
     barGoLink bar( sAchievementCriteriaStore.GetNumRows() );
-    for (uint32 entryId = 0; entryId<sAchievementCriteriaStore.GetNumRows(); entryId++)
+    for (uint32 entryId = 0; entryId < sAchievementCriteriaStore.GetNumRows(); ++entryId)
     {
         bar.step();
 
@@ -1326,12 +1349,42 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
             continue;
 
         m_AchievementCriteriasByType[criteria->requiredType].push_back(criteria);
+        m_AchievementCriteriaListByAchievement[criteria->referredAchievement].push_back(criteria);
     }
 
-    sLog.outString("");
+    sLog.outString();
     sLog.outString(">> Loaded %lu achievement criteria.",(unsigned long)m_AchievementCriteriasByType->size());
 }
 
+void AchievementGlobalMgr::LoadAchievementReferenceList()
+{
+    if(sAchievementStore.GetNumRows()==0)
+    {
+        barGoLink bar(1);
+        bar.step();
+
+        sLog.outString();
+        sLog.outErrorDb(">> Loaded 0 achievement references.");
+        return;
+    }
+
+    uint32 count = 0;
+    barGoLink bar( sAchievementStore.GetNumRows() );
+    for (uint32 entryId = 0; entryId < sAchievementStore.GetNumRows(); ++entryId)
+    {
+        bar.step();
+
+        AchievementEntry const* achievement = sAchievementStore.LookupEntry(entryId);
+        if(!achievement || !achievement->refAchievement)
+            continue;
+
+        m_AchievementListByReferencedId[achievement->refAchievement].push_back(achievement);
+        ++count;
+    }
+
+    sLog.outString();
+    sLog.outString(">> Loaded %u achievement references.",count);
+}
 
 void AchievementGlobalMgr::LoadCompletedAchievements()
 {
@@ -1342,7 +1395,7 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
         barGoLink bar(1);
         bar.step();
 
-        sLog.outString("");
+        sLog.outString();
         sLog.outString(">> Loaded 0 realm completed achievements . DB table `character_achievement` is empty.");
         return;
     }
@@ -1357,7 +1410,7 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
 
     delete result;
 
-    sLog.outString("");
+    sLog.outString();
     sLog.outString(">> Loaded %lu realm completed achievements.",(unsigned long)m_allCompletedAchievements.size());
 }
 
@@ -1374,7 +1427,7 @@ void AchievementGlobalMgr::LoadRewards()
 
         bar.step();
 
-        sLog.outString("");
+        sLog.outString();
         sLog.outErrorDb(">> Loaded 0 achievement rewards. DB table `achievement_reward` is empty.");
         return;
     }
@@ -1467,7 +1520,7 @@ void AchievementGlobalMgr::LoadRewards()
 
     delete result;
 
-    sLog.outString("");
+    sLog.outString();
     sLog.outString( ">> Loaded %lu achievement reward locale strings", (unsigned long)m_achievementRewardLocales.size() );
 }
 
@@ -1483,7 +1536,7 @@ void AchievementGlobalMgr::LoadRewardLocales()
 
         bar.step();
 
-        sLog.outString("");
+        sLog.outString();
         sLog.outString(">> Loaded 0 achievement reward locale strings. DB table `locales_achievement_reward` is empty.");
         return;
     }
@@ -1537,6 +1590,6 @@ void AchievementGlobalMgr::LoadRewardLocales()
     delete result;
 
 
-    sLog.outString("");
+    sLog.outString();
     sLog.outString( ">> Loaded %lu achievement reward locale strings", (unsigned long)m_achievementRewardLocales.size() );
 }
