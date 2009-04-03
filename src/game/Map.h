@@ -181,7 +181,7 @@ class GridMap
     bool  loadLiquidData(FILE *in, uint32 offset, uint32 size);
 
     // Get height functions and pointers
-    typedef float (GridMap::*pGetHeightPtr) (float x, float y) const; 
+    typedef float (GridMap::*pGetHeightPtr) (float x, float y) const;
     pGetHeightPtr m_gridGetHeight;
     float  getHeightFromFloat(float x, float y) const;
     float  getHeightFromUint16(float x, float y) const;

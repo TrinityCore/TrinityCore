@@ -1185,17 +1185,17 @@ void AchievementMgr::SetCriteriaProgress(AchievementCriteriaEntry const* entry, 
         {
             case PROGRESS_SET:
                 newValue = changeValue;
-                break; 
+                break;
             case PROGRESS_ACCUMULATE:
             {
                 // avoid overflow
                 uint32 max_value = std::numeric_limits<uint32>::max();
                 newValue = max_value - progress->counter > changeValue ? progress->counter + changeValue : max_value;
-                break; 
+                break;
             }
             case PROGRESS_HIGHEST:
                 newValue = progress->counter < changeValue ? changeValue : progress->counter;
-                break; 
+                break;
         }
 
         // not update (not mark as changed) if counter will have same value
