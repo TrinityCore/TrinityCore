@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -330,6 +330,10 @@ int main(int argc, char **argv)
                 res = extractDataFromHG(path+".hg/branchheads.cache",path,use_url,data);
             if (!res)
                 res = extractDataFromHG(path+"_hg/branchheads.cache",path,use_url,data);
+            if (!res)
+                res = extractDataFromHG(path+".hg/branch.cache",path,use_url,data);
+            if (!res)
+                res = extractDataFromHG(path+"_hg/branch.cache",path,use_url,data);
             // GIT data
             if (!res)
                 res = extractDataFromGit(path+".git/FETCH_HEAD",path,use_url,data);
@@ -347,6 +351,10 @@ int main(int argc, char **argv)
                 res = extractDataFromHG(path+".hg/branchheads.cache",path,use_url,data);
             if (!res)
                 res = extractDataFromHG(path+"_hg/branchheads.cache",path,use_url,data);
+            if (!res)
+                res = extractDataFromHG(path+".hg/branch.cache",path,use_url,data);
+            if (!res)
+                res = extractDataFromHG(path+"_hg/branch.cache",path,use_url,data);
            /// SVN data
             if (!res)
                 res = extractDataFromSvn(path+".svn/entries",use_url,data);
@@ -360,6 +368,10 @@ int main(int argc, char **argv)
             res = extractDataFromHG(path+".hg/branchheads.cache",path,use_url,data);
             if (!res)
                 res = extractDataFromHG(path+"_hg/branchheads.cache",path,use_url,data);
+            if (!res)
+                res = extractDataFromHG(path+".hg/branch.cache",path,use_url,data);
+            if (!res)
+                res = extractDataFromHG(path+"_hg/branch.cache",path,use_url,data);
             /// SVN data
             if (!res)
                 res = extractDataFromSvn(path+".svn/entries",use_url,data);
