@@ -42,7 +42,7 @@ void MapManager::LoadTransports()
         barGoLink bar( 1 );
         bar.step();
 
-        sLog.outString("");
+        sLog.outString();
         sLog.outString( ">> Loaded %u transports", count );
         return;
     }
@@ -112,7 +112,7 @@ void MapManager::LoadTransports()
     } while(result->NextRow());
     delete result;
 
-    sLog.outString("");
+    sLog.outString();
     sLog.outString( ">> Loaded %u transports", count );
 
     // check transport data DB integrity

@@ -30,7 +30,11 @@
 #define CRITERIA_CAST_SPELL_REQ_COUNT 46
 #define ACHIEVEMENT_REWARD_COUNT 57
 
-typedef std::list<const AchievementCriteriaEntry*> AchievementCriteriaEntryList;
+typedef std::list<AchievementCriteriaEntry const*> AchievementCriteriaEntryList;
+typedef std::list<AchievementEntry const*>         AchievementEntryList;
+
+typedef std::map<uint32,AchievementCriteriaEntryList> AchievementCriteriaListByAchievement;
+typedef std::map<uint32,AchievementEntryList>         AchievementListByReferencedId;
 
 struct CriteriaProgress
 {
@@ -80,13 +84,6 @@ class Unit;
 class Player;
 class WorldPacket;
 
-enum AchievementCompletionState
-{
-    ACHIEVEMENT_COMPLETED_NONE,
-    ACHIEVEMENT_COMPLETED_COMPLETED_NOT_STORED,
-    ACHIEVEMENT_COMPLETED_COMPLETED_STORED,
-};
-
 class AchievementMgr
 {
     public:
@@ -108,10 +105,11 @@ class AchievementMgr
         void SendAchievementEarned(AchievementEntry const* achievement);
         void SendCriteriaUpdate(uint32 id, CriteriaProgress const* progress);
         void SetCriteriaProgress(AchievementCriteriaEntry const* entry, uint32 changeValue, ProgressType ptype = PROGRESS_SET);
-        void CompletedCriteria(AchievementCriteriaEntry const* entry);
+        void CompletedCriteria(AchievementCriteriaEntry const* entry, AchievementEntry const* achievement);
         void CompletedAchievement(AchievementEntry const* entry);
-        bool IsCompletedCriteria(AchievementCriteriaEntry const* entry);
-        AchievementCompletionState GetAchievementCompletionState(AchievementEntry const* entry);
+        bool IsCompletedCriteria(AchievementCriteriaEntry const* criteria, AchievementEntry const* achievement);
+        bool IsCompletedAchievement(AchievementEntry const* entry);
+        void CompleteAchievementsWithRefs(AchievementEntry const* entry);
         void BuildAllDataPacket(WorldPacket *data);
 
         Player* m_player;
@@ -123,6 +121,17 @@ class AchievementGlobalMgr
 {
     public:
         AchievementCriteriaEntryList const& GetAchievementCriteriaByType(AchievementCriteriaTypes type);
+        AchievementCriteriaEntryList const* GetAchievementCriteriaByAchievement(uint32 id)
+        {
+            AchievementCriteriaListByAchievement::const_iterator itr = m_AchievementCriteriaListByAchievement.find(id);
+            return itr != m_AchievementCriteriaListByAchievement.end() ? &itr->second : NULL;
+        }
+
+        AchievementEntryList const* GetAchievementByReferencedId(uint32 id) const
+        {
+            AchievementListByReferencedId::const_iterator itr = m_AchievementListByReferencedId.find(id);
+            return itr != m_AchievementListByReferencedId.end() ? &itr->second : NULL;
+        }
 
         AchievementReward const* GetAchievementReward(AchievementEntry const* achievement) const
         {
@@ -156,6 +165,7 @@ class AchievementGlobalMgr
         }
 
         void LoadAchievementCriteriaList();
+        void LoadAchievementReferenceList();
         void LoadCompletedAchievements();
         void LoadRewards();
         void LoadRewardLocales();
@@ -164,6 +174,10 @@ class AchievementGlobalMgr
 
         // store achievement criterias by type to speed up lookup
         AchievementCriteriaEntryList m_AchievementCriteriasByType[ACHIEVEMENT_CRITERIA_TYPE_TOTAL];
+        // store achievement criterias by achievement to speed up lookup
+        AchievementCriteriaListByAchievement m_AchievementCriteriaListByAchievement;
+        // store achievements by referenced achievement id to speed up lookup
+        AchievementListByReferencedId m_AchievementListByReferencedId;
 
         typedef std::set<uint32> AllCompletedAchievements;
         AllCompletedAchievements m_allCompletedAchievements;

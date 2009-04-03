@@ -1133,7 +1133,7 @@ void World::SetInitialWorldSettings()
     }
 
     ///- Loading strings. Getting no records means core load has to be canceled because no error message can be output.
-    sLog.outString("");
+    sLog.outString();
     sLog.outString( "Loading Trinity strings..." );
     if (!objmgr.LoadTrinityStrings())
         exit(1);                                            // Error message displayed in function already
@@ -1170,7 +1170,7 @@ void World::SetInitialWorldSettings()
     sLog.outString( "Packing instances..." );
     sInstanceSaveManager.PackInstances();
 
-    sLog.outString("");
+    sLog.outString();
     sLog.outString( "Loading Localization strings..." );
     objmgr.LoadCreatureLocales();
     objmgr.LoadGameObjectLocales();
@@ -1182,7 +1182,7 @@ void World::SetInitialWorldSettings()
     objmgr.LoadPointOfInterestLocales();
     objmgr.SetDBCLocaleIndex(GetDefaultDbcLocale());        // Get once for all the locale index of DBC language (console/broadcasts)
     sLog.outString( ">>> Localization strings loaded" );
-    sLog.outString("");
+    sLog.outString();
 
     sLog.outString( "Loading Page Texts..." );
     objmgr.LoadPageTexts();
@@ -1254,10 +1254,10 @@ void World::SetInitialWorldSettings()
     objmgr.LoadCreatures();
 
     sLog.outString( "Loading Creature Addon Data..." );
-    sLog.outString("");
+    sLog.outString();
     objmgr.LoadCreatureAddons();                            // must be after LoadCreatureTemplates() and LoadCreatures()
     sLog.outString( ">>> Creature Addon Data loaded" );
-    sLog.outString("");
+    sLog.outString();
 
     sLog.outString( "Loading Creature Respawn Data..." );   // must be after PackInstances()
     objmgr.LoadCreatureRespawnTimes();
@@ -1272,10 +1272,10 @@ void World::SetInitialWorldSettings()
     poolhandler.LoadFromDB();
 
     sLog.outString( "Loading Game Event Data...");
-    sLog.outString("");
+    sLog.outString();
     gameeventmgr.LoadFromDB();
     sLog.outString( ">>> Game Event Data loaded" );
-    sLog.outString("");
+    sLog.outString();
 
     sLog.outString( "Loading Weather Data..." );
     objmgr.LoadWeatherZoneChances();
@@ -1284,10 +1284,10 @@ void World::SetInitialWorldSettings()
     objmgr.LoadQuests();                                    // must be loaded after DBCs, creature_template, item_template, gameobject tables
 
     sLog.outString( "Loading Quests Relations..." );
-    sLog.outString("");
+    sLog.outString();
     objmgr.LoadQuestRelations();                            // must be after quest load
     sLog.outString( ">>> Quests Relations loaded" );
-    sLog.outString("");
+    sLog.outString();
 
     sLog.outString( "Loading SpellArea Data..." );          // must be after quest load
     spellmgr.LoadSpellAreas();
@@ -1329,10 +1329,10 @@ void World::SetInitialWorldSettings()
     spellmgr.LoadSpellLinked();
 
     sLog.outString( "Loading Player Create Info & Level Stats..." );
-    sLog.outString("");
+    sLog.outString();
     objmgr.LoadPlayerInfo();
     sLog.outString( ">>> Player Create Info & Level Stats loaded" );
-    sLog.outString("");
+    sLog.outString();
 
     sLog.outString( "Loading Exploration BaseXP Data..." );
     objmgr.LoadExplorationBaseXP();
@@ -1353,10 +1353,10 @@ void World::SetInitialWorldSettings()
     objmgr.LoadSpellDisabledEntrys();
 
     sLog.outString( "Loading Loot Tables..." );
-    sLog.outString("");
+    sLog.outString();
     LoadLootTables();
     sLog.outString( ">>> Loot Tables loaded" );
-    sLog.outString("");
+    sLog.outString();
 
     sLog.outString( "Loading Skill Discovery Table..." );
     LoadSkillDiscoveryTable();
@@ -1368,21 +1368,22 @@ void World::SetInitialWorldSettings()
     objmgr.LoadFishingBaseSkillLevel();
 
     sLog.outString( "Loading Achievements..." );
-    sLog.outString("");
+    sLog.outString();
+    achievementmgr.LoadAchievementReferenceList();
     achievementmgr.LoadAchievementCriteriaList();
     achievementmgr.LoadRewards();
     achievementmgr.LoadRewardLocales();
     achievementmgr.LoadCompletedAchievements();
     sLog.outString( ">>> Achievements loaded" );
-    sLog.outString("");
+    sLog.outString();
 
     ///- Load dynamic data tables from the database
     sLog.outString( "Loading Auctions..." );
-    sLog.outString("");
+    sLog.outString();
     auctionmgr.LoadAuctionItems();
     auctionmgr.LoadAuctions();
     sLog.outString( ">>> Auctions loaded" );
-    sLog.outString("");
+    sLog.outString();
 
     sLog.outString( "Loading Guilds..." );
     objmgr.LoadGuilds();
@@ -1418,7 +1419,7 @@ void World::SetInitialWorldSettings()
     objmgr.LoadTrainerSpell();                              // must be after load CreatureTemplate
 
     sLog.outString( "Loading Waypoints..." );
-    sLog.outString("");
+    sLog.outString();
     WaypointMgr.Load();
 
     sLog.outString( "Loading Creature Formations..." );
@@ -1433,7 +1434,7 @@ void World::SetInitialWorldSettings()
 
     ///- Load and initialize scripts
     sLog.outString( "Loading Scripts..." );
-    sLog.outString("");
+    sLog.outString();
     objmgr.LoadQuestStartScripts();                         // must be after load Creature/Gameobject(Template/Data) and QuestTemplate
     objmgr.LoadQuestEndScripts();                           // must be after load Creature/Gameobject(Template/Data) and QuestTemplate
     objmgr.LoadSpellScripts();                              // must be after load Creature/Gameobject(Template/Data)
@@ -1441,7 +1442,7 @@ void World::SetInitialWorldSettings()
     objmgr.LoadEventScripts();                              // must be after load Creature/Gameobject(Template/Data)
     objmgr.LoadWaypointScripts();
     sLog.outString( ">>> Scripts loaded" );
-    sLog.outString("");
+    sLog.outString();
 
     sLog.outString( "Loading Scripts text locales..." );    // must be after Load*Scripts calls
     objmgr.LoadDbScriptStrings();
@@ -1581,7 +1582,7 @@ void World::DetectDBCLang()
     m_defaultDbcLocale = LocaleConstant(default_locale);
 
     sLog.outString("Using %s DBC Locale as default. All available DBC locales: %s",localeNames[m_defaultDbcLocale],availableLocalsStr.empty() ? "<none>" : availableLocalsStr.c_str());
-    sLog.outString("");
+    sLog.outString();
 }
 
 void World::RecordTimeDiff(const char *text, ...)
