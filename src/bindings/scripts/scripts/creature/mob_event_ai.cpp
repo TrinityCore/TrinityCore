@@ -933,10 +933,17 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
             break;
         case ACTION_T_KILLED_MONSTER:
             {
-                Unit* target = GetTargetByType(param2, pActionInvoker);
+                //first attempt player who tapped creature
+                if (Player* pPlayer = m_creature->GetLootRecipient())
+                    pPlayer->RewardPlayerAndGroupAtEvent(param1,m_creature);
+                else
+                {
+                    //if not available, use pActionInvoker
+                    Unit* pTarget = GetTargetByType(param2, pActionInvoker);
 
-                if (target && target->GetTypeId() == TYPEID_PLAYER)
-                    ((Player*)target)->KilledMonster(param1, m_creature->GetGUID());
+                    if (Player* pPlayer = pTarget->GetCharmerOrOwnerPlayerOrPlayerItself())
+                        pPlayer->RewardPlayerAndGroupAtEvent(param1,m_creature);
+                }
             }
             break;
         case ACTION_T_SET_INST_DATA:
