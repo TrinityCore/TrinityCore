@@ -2468,6 +2468,14 @@ void Spell::EffectPowerBurn(uint32 i)
 
     Unit* caster = m_originalCaster ? m_originalCaster : m_caster;
 
+    // burn x% of target's mana, up to maximum of 2x% of caster's mana (Mana Burn)
+    if(m_spellInfo->ManaCostPercentage)
+    {
+        uint32 maxdamage = m_caster->GetMaxPower(powertype) * damage * 2 / 100;
+        damage = unitTarget->GetMaxPower(powertype) * damage / 100;
+        if(damage > maxdamage) damage = maxdamage;  
+    }
+
     int32 curPower = int32(unitTarget->GetPower(powertype));
 
     uint32 power = damage;
