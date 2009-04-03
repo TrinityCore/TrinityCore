@@ -13,7 +13,6 @@ EndScriptData */
 #include "npc_escortAI.h"
 
 #define WP_LAST_POINT   -1
-#define MAX_PLAYER_DISTANCE 50
 
 bool npc_escortAI::IsVisible(Unit* who) const
 {
@@ -132,21 +131,29 @@ void npc_escortAI::UpdateAI(const uint32 diff)
         //End of the line, Despawn self then immediatly respawn
         if (CurrentWP == WaypointList.end())
         {
-            debug_log("SD2: EscortAI reached end of waypoints");
+            if(DespawnAtEnd)
+            {
+                debug_log("SD2: EscortAI reached end of waypoints");
 
-            m_creature->setDeathState(JUST_DIED);
-            m_creature->SetHealth(0);
-            m_creature->CombatStop();
-            m_creature->DeleteThreatList();
-            m_creature->Respawn();
-            m_creature->GetMotionMaster()->Clear(true);
+                m_creature->setDeathState(JUST_DIED);
+                m_creature->SetHealth(0);
+                m_creature->CombatStop();
+                m_creature->DeleteThreatList();
+                m_creature->Respawn();
+                m_creature->GetMotionMaster()->Clear(true);
 
-            //Re-Enable gossip
-            m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                //Re-Enable gossip
+                m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
-            IsBeingEscorted = false;
-            WaitTimer = 0;
-            return;
+                IsBeingEscorted = false;
+                WaitTimer = 0;
+                return;
+            }else{
+                debug_log("SD2: EscortAI reached end of waypoints with Despawn off");
+                IsBeingEscorted = false;
+                WaitTimer = 0;
+                return;
+            }
         }
 
         if( !IsOnHold )
@@ -165,7 +172,7 @@ void npc_escortAI::UpdateAI(const uint32 diff)
     {
         Unit* p = Unit::GetUnit(*m_creature, PlayerGUID);
 
-        if (!p || m_creature->GetDistance(p) > MAX_PLAYER_DISTANCE)
+        if (DespawnAtFar && (!p || m_creature->GetDistance(p) > GetMaxPlayerDistance()))
         {
             JustDied(m_creature);
             IsBeingEscorted = false;
@@ -187,16 +194,19 @@ void npc_escortAI::UpdateAI(const uint32 diff)
     }else PlayerTimer -= diff;
     }
 
-    //Check if we have a current target
-    if( m_creature->isAlive() && UpdateVictim())
+    if(CanMelee)
     {
-        //If we are within range melee the target
-        if( m_creature->IsWithinMeleeRange(m_creature->getVictim()))
+        //Check if we have a current target
+        if( m_creature->isAlive() && UpdateVictim())
         {
-            if( m_creature->isAttackReady() )
+            //If we are within range melee the target
+            if( m_creature->IsWithinMeleeRange(m_creature->getVictim()))
             {
-                m_creature->AttackerStateUpdate(m_creature->getVictim());
-                m_creature->resetAttackTimer();
+                if( m_creature->isAttackReady() )
+                {
+                    m_creature->AttackerStateUpdate(m_creature->getVictim());
+                    m_creature->resetAttackTimer();
+                }
             }
         }
     }
