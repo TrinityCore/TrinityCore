@@ -190,11 +190,15 @@ inline void Trinity::DynamicObjectUpdater::VisitHelper(Unit* target)
     {
         if (i_check->IsFriendlyTo( target ))
             return;
+
+        i_check->CombatStart(target);
     }
     else
     {
         if (!i_check->IsHostileTo( target ))
             return;
+
+        i_check->CombatStart(target);
     }
 
     // Check target immune to spell or aura
