@@ -511,10 +511,7 @@ void Player::CleanupsBeforeDelete()
     TradeCancel(false);
     DuelComplete(DUEL_INTERUPTED);
 
-    if(IsInWorld())                                      // only for fully created Object
-    {
-        Unit::CleanupsBeforeDelete();
-    }
+    Unit::CleanupsBeforeDelete();
 
     if (m_transport)
         m_transport->RemovePassenger(this);
