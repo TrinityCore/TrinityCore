@@ -286,13 +286,13 @@ struct TRINITY_DLL_DECL boss_warbringer_omroggAI : public ScriptedAI
         {
             Delay_Timer = 3500;
 
-            if (!LeftHead && !RightHead)
+            if (!LeftHead || !RightHead)
                 return;
 
             Unit *Left  = Unit::GetUnit(*m_creature,LeftHead);
             Unit *Right = Unit::GetUnit(*m_creature,RightHead);
 
-            if (!Left && !Right)
+            if (!Left || !Right)
                 return;
 
             if (AggroYell)
