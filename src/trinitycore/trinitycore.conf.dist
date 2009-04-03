@@ -507,6 +507,11 @@ LogColors = ""
 #        Default: 0 (false)
 #                 1 (true)
 #
+#   Battleground.PrematureReward
+#	 Reward players in case of prematurely finished BG
+#	 Default: 1 (true)
+#	 	  0 (false)
+#
 #    CastUnstuck
 #        Allow cast or not Unstuck spell at .start or client Help option use
 #        Default: 1 (true)
@@ -612,6 +617,7 @@ ActivateWeather = 1
 Battleground.CastDeserter = 1
 Battleground.QueueAnnouncer.Enable = 1
 Battleground.QueueAnnouncer.PlayerOnly = 0
+Battleground.PrematureReward = 1
 CastUnstuck = 1
 Instance.IgnoreLevel = 0
 Instance.IgnoreRaid = 0

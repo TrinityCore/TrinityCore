@@ -229,6 +229,8 @@ void BattleGroundAV::UpdateScore(uint16 team, int16 points )
     uint8 teamindex = GetTeamIndexByTeamId(team); //0=ally 1=horde
     m_Team_Scores[teamindex] += points;
 
+    m_score[teamindex] = m_Team_Scores[teamindex];
+
     UpdateWorldState(((teamindex==BG_TEAM_HORDE)?AV_Horde_Score:AV_Alliance_Score), m_Team_Scores[teamindex]);
     if( points < 0)
     {

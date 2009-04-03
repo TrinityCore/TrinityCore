@@ -195,6 +195,7 @@ void BattleGroundAB::Update(time_t diff)
             {
                 m_lastTick[team] -= BG_AB_TickIntervals[points];
                 m_TeamScores[team] += BG_AB_TickPoints[points];
+		m_score[team] = m_TeamScores[team];
                 m_HonorScoreTics[team] += BG_AB_TickPoints[points];
                 m_ReputationScoreTics[team] += BG_AB_TickPoints[points];
                 if( m_ReputationScoreTics[team] >= BG_AB_ReputationScoreTicks[m_HonorMode] )
