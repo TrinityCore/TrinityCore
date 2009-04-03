@@ -377,12 +377,14 @@ void Map::AddNotifier(T*)
 template<>
 void Map::AddNotifier(Player* obj)
 {
+    obj->m_IsInNotifyList = false;
     AddUnitToNotify(obj);
 }
 
 template<>
 void Map::AddNotifier(Creature* obj)
 {
+    obj->m_IsInNotifyList = false;
     AddUnitToNotify(obj);
 }
 
@@ -468,8 +470,6 @@ bool Map::Add(Player *player)
     SendInitSelf(player);
     SendInitTransports(player);
 
-    player->m_IsInNotifyList = false;
-    player->m_Notified = false;
     player->m_clientGUIDs.clear();
     AddNotifier(player);
 
@@ -624,10 +624,11 @@ void Map::RelocationNotify()
     for(std::vector<Unit*>::iterator iter = i_unitsToNotify.begin(); iter != i_unitsToNotify.end(); ++iter)
     {
         Unit *unit = *iter;
+        unit->m_IsInNotifyList = false;
+
         if(!unit->IsInWorld() || unit->GetMapId() != GetId())
             continue;
 
-        unit->m_IsInNotifyList = false;
         unit->m_Notified = true;
 
         if(unit->GetTypeId() == TYPEID_PLAYER)
