@@ -68,6 +68,12 @@ struct TRINITY_DLL_DECL mob_doom_blossomAI : public ScriptedAI
     void AttackStart(Unit* who) { }
     void MoveInLineOfSight(Unit* who) { }
 
+    void Despawn()
+    {
+        m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+        m_creature->RemoveCorpse();
+    }
+
     void UpdateAI(const uint32 diff)
     {
         if(CheckTeronTimer < diff)
@@ -78,22 +84,20 @@ struct TRINITY_DLL_DECL mob_doom_blossomAI : public ScriptedAI
 
                 Creature* Teron = ((Creature*)Unit::GetUnit((*m_creature), TeronGUID));
                 if((Teron) && (!Teron->isAlive() || Teron->IsInEvadeMode()))
-                    m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                    Despawn();
             }
             else
-                m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                Despawn();
 
             CheckTeronTimer = 5000;
-        }else CheckTeronTimer -= diff;
+        }else CheckTeronTimer -= diff;        
 
-        if(!UpdateVictim())
-            return;
-
-        if(ShadowBoltTimer < diff)
+        if(ShadowBoltTimer < diff && InCombat)
         {
             DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_SHADOWBOLT);
             ShadowBoltTimer = 10000;
         }else ShadowBoltTimer -= diff;
+        return;
     }
 
     void SetTeronGUID(uint64 guid){ TeronGUID = guid; }
@@ -414,7 +418,9 @@ struct TRINITY_DLL_DECL boss_teron_gorefiendAI : public ScriptedAI
             {
                 float X = CalculateRandomLocation(target->GetPositionX(), 20);
                 float Y = CalculateRandomLocation(target->GetPositionY(), 20);
-                Creature* DoomBlossom = m_creature->SummonCreature(CREATURE_DOOM_BLOSSOM, X, Y, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 20000);
+                float Z = target->GetPositionZ();
+                Z = m_creature->GetMap()->GetVmapHeight(X, Y, Z, true);
+                Creature* DoomBlossom = m_creature->SummonCreature(CREATURE_DOOM_BLOSSOM, X, Y, Z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 20000);
                 if(DoomBlossom)
                 {
                     DoomBlossom->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);

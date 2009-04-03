@@ -166,16 +166,25 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
     {
         switch(go->GetEntry())
         {
-        case 185483: NajentusGate = go->GetGUID();break; // Gate past Naj'entus (at the entrance to Supermoose's courtyards)
-        case 185882: MainTempleDoors = go->GetGUID();break; // Main Temple Doors - right past Supermoose (Supremus)
+        case 185483: NajentusGate = go->GetGUID();// Gate past Naj'entus (at the entrance to Supermoose's courtyards)
+            if(Encounters[0] == DONE) go->SetGoState(0);break;
+        case 185882: MainTempleDoors = go->GetGUID();// Main Temple Doors - right past Supermoose (Supremus)
+            if(Encounters[1] == DONE)go->SetGoState(0);break;
         case 185478: ShadeOfAkamaDoor = go->GetGUID();break;
-        case 185480: CommonDoor = go->GetGUID();break;
-        case 186153: TeronDoor = go->GetGUID();break;
-        case 185892: GuurtogDoor = go->GetGUID();break;
-        case 185479: TempleDoor = go->GetGUID();break;
-        case 185482: MotherDoor = go->GetGUID();break;
-        case 185481: CouncilDoor = go->GetGUID();break;
-        case 186152: SimpleDoor = go->GetGUID();break;
+        case 185480: CommonDoor = go->GetGUID();
+            if(Encounters[3] == DONE) go->SetGoState(0);break;
+        case 186153: TeronDoor = go->GetGUID();
+            if(Encounters[3] == DONE)go->SetGoState(0);break;
+        case 185892: GuurtogDoor = go->GetGUID();
+            if(Encounters[4] == DONE)go->SetGoState(0);break;
+        case 185479: TempleDoor = go->GetGUID();
+            if(Encounters[5] == DONE)go->SetGoState(0);break;
+        case 185482: MotherDoor = go->GetGUID();
+            if(Encounters[6] == DONE)go->SetGoState(0);break;
+        case 185481: CouncilDoor = go->GetGUID();
+            if(Encounters[7] == DONE)go->SetGoState(0);break;
+        case 186152: SimpleDoor = go->GetGUID();
+            if(Encounters[7] == DONE)go->SetGoState(0);break;
         case 185905: IllidanGate = go->GetGUID(); break; // Gate leading to Temple Summit
         case 186261: IllidanDoor[0] = go->GetGUID(); break; // Right door at Temple Summit
         case 186262: IllidanDoor[1] = go->GetGUID(); break; // Left door at Temple Summit
