@@ -40,6 +40,7 @@ enum ChatType
     CHAT_TYPE_BOSS_EMOTE        = 3,
     CHAT_TYPE_WHISPER           = 4,
     CHAT_TYPE_BOSS_WHISPER      = 5,
+    CHAT_TYPE_ZONE_YELL         = 6
 };
 
 #define TEXT_SOURCE_RANGE   -1000000                        //the amount of entries each text source has available
@@ -2239,6 +2240,9 @@ void DoScriptText(int32 textEntry, WorldObject* pSource, Unit* target)
                     pSource->MonsterWhisper(textEntry, target->GetGUID(), true);
                 else error_log("TSCR: DoScriptText entry %i cannot whisper without target unit (TYPEID_PLAYER).", textEntry);
             }break;
+        case CHAT_TYPE_ZONE_YELL:
+            pSource->MonsterYellToZone(textEntry, (*i).second.Language, target ? target->GetGUID() : 0);
+            break;
     }
 }
 
@@ -2473,14 +2477,13 @@ bool ReceiveEmote( Player *player, Creature *_Creature, uint32 emote )
 }
 
 TRINITY_DLL_EXPORT
-InstanceData* CreateInstanceData(Map *map)
+bool EffectDummyCreature(Unit *caster, uint32 spellId, uint32 effIndex, Creature *crTarget )
 {
-    if (!map->IsDungeon()) return NULL;
+    Script *tmpscript = m_scripts[crTarget->GetScriptId()];
 
-    Script *tmpscript = m_scripts[((InstanceMap*)map)->GetScriptId()];
-    if (!tmpscript || !tmpscript->GetInstanceData) return NULL;
+    if (!tmpscript || !tmpscript->pEffectDummyCreature) return false;
 
-    return tmpscript->GetInstanceData(map);
+    return tmpscript->pEffectDummyCreature(caster, spellId,effIndex,crTarget);
 }
 
 TRINITY_DLL_EXPORT
@@ -2493,15 +2496,6 @@ bool EffectDummyGameObj(Unit *caster, uint32 spellId, uint32 effIndex, GameObjec
     return tmpscript->pEffectDummyGameObj(caster, spellId,effIndex,gameObjTarget);
 }
 
-TRINITY_DLL_EXPORT
-bool EffectDummyCreature(Unit *caster, uint32 spellId, uint32 effIndex, Creature *crTarget )
-{
-    Script *tmpscript = m_scripts[crTarget->GetScriptId()];
-
-    if (!tmpscript || !tmpscript->pEffectDummyCreature) return false;
-
-    return tmpscript->pEffectDummyCreature(caster, spellId,effIndex,crTarget);
-}
 
 TRINITY_DLL_EXPORT
 bool EffectDummyItem(Unit *caster, uint32 spellId, uint32 effIndex, Item *itemTarget )
@@ -2512,3 +2506,15 @@ bool EffectDummyItem(Unit *caster, uint32 spellId, uint32 effIndex, Item *itemTa
 
     return tmpscript->pEffectDummyItem(caster, spellId,effIndex,itemTarget);
 }
+
+TRINITY_DLL_EXPORT
+InstanceData* CreateInstanceData(Map *map)
+{
+    if (!map->IsDungeon()) return NULL;
+
+    Script *tmpscript = m_scripts[((InstanceMap*)map)->GetScriptId()];
+    if (!tmpscript || !tmpscript->GetInstanceData) return NULL;
+
+    return tmpscript->GetInstanceData(map);
+}
+
