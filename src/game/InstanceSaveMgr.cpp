@@ -308,7 +308,7 @@ void InstanceSaveManager::CleanupInstances()
     }
 
     bar.step();
-    sLog.outString("");
+    sLog.outString();
     sLog.outString( ">> Initialized %u instances", (uint32)InstanceSet.size());
 }
 
@@ -358,7 +358,7 @@ void InstanceSaveManager::PackInstances()
     }
 
     sLog.outString( ">> Instance numbers remapped, next instance id is %u", InstanceNumber );
-    sLog.outString("");
+    sLog.outString();
 }
 
 void InstanceSaveManager::LoadResetTimes()
