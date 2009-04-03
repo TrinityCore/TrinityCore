@@ -12810,6 +12810,9 @@ void Unit::RemoveAurasAtChanneledTarget(SpellEntry const* spellInfo, Unit * cast
 
 void Unit::SetToNotify()
 {
+    if(m_IsInNotifyList)
+        return;
+
     if(Map *map = GetMap())
         map->AddUnitToNotify(this);
 }

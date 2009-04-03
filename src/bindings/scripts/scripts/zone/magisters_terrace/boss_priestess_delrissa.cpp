@@ -353,7 +353,8 @@ struct TRINITY_DLL_DECL boss_priestess_guestAI : public ScriptedAI
     boss_priestess_guestAI(Creature* c) : ScriptedAI(c)
     {
         Group.clear();
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());        AcquireGUIDs();
+        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        AcquireGUIDs();
     }
 
     ScriptedInstance* pInstance;

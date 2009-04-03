@@ -211,7 +211,7 @@ Map::Map(uint32 id, time_t expiry, uint32 InstanceId, uint8 SpawnMode)
    : i_mapEntry (sMapStore.LookupEntry(id)), i_spawnMode(SpawnMode),
    i_id(id), i_InstanceId(InstanceId), m_unloadTimer(0), i_gridExpiry(expiry),
    m_activeNonPlayersIter(m_activeNonPlayers.end())
-   , i_lock(false)
+   , i_lock(true)
 {
     for(unsigned int idx=0; idx < MAX_NUMBER_OF_GRIDS; ++idx)
     {
@@ -507,8 +507,7 @@ Map::Add(T *obj)
 
     DEBUG_LOG("Object %u enters grid[%u,%u]", GUID_LOPART(obj->GetGUID()), cell.GridX(), cell.GridY());
 
-    if(obj->GetTypeId() != TYPEID_UNIT)
-        UpdateObjectVisibility(obj,cell,p);
+    UpdateObjectVisibility(obj,cell,p);
 
     AddNotifier(obj);
 }
@@ -610,19 +609,25 @@ bool Map::loaded(const GridPair &p) const
 
 void Map::RelocationNotify()
 {
-    //creatures may be added to the list during update
-    i_lock = true;
+    //Move backlog to notify list
+    for(std::vector<uint64>::iterator iter = i_unitsToNotifyBacklog.begin(); iter != i_unitsToNotifyBacklog.end(); ++iter)
+    {
+        if(Unit *unit = ObjectAccessor::GetObjectInWorld(*iter, (Unit*)NULL))
+        {
+            i_unitsToNotify.push_back(unit);
+            unit->m_Notified = false;
+        }
+    }
+    i_unitsToNotifyBacklog.clear();
 
     //Notify
-    for(std::vector<uint64>::iterator iter = i_unitsToNotify.begin(); iter != i_unitsToNotify.end(); ++iter)
+    for(std::vector<Unit*>::iterator iter = i_unitsToNotify.begin(); iter != i_unitsToNotify.end(); ++iter)
     {
-        Unit *unit = ObjectAccessor::GetObjectInWorld(*iter, (Unit*)NULL);
-        if(!unit || !unit->IsInWorld() || unit->GetMapId() != GetId())
-        {
-            *iter = 0;
+        Unit *unit = *iter;
+        if(!unit->IsInWorld() || unit->GetMapId() != GetId())
             continue;
-        }
 
+        unit->m_IsInNotifyList = false;
         unit->m_Notified = true;
 
         if(unit->GetTypeId() == TYPEID_PLAYER)
@@ -637,23 +642,29 @@ void Map::RelocationNotify()
             VisitAll(unit->GetPositionX(), unit->GetPositionY(), World::GetMaxVisibleDistance(), notifier);
         }
     }
-
-    //Clear list
-    for(std::vector<uint64>::iterator iter = i_unitsToNotify.begin(); iter != i_unitsToNotify.end(); ++iter)
-    {
-        if(Unit *unit = ObjectAccessor::GetObjectInWorld(*iter, (Unit*)NULL))
-        {
-            unit->m_IsInNotifyList = false;
-            unit->m_Notified = false;
-        }
-    }
     i_unitsToNotify.clear();
+}
 
-    i_lock = false;
+void Map::AddUnitToNotify(Unit* u)
+{
+    if(u->m_IsInNotifyList)
+        return;
+
+    u->m_IsInNotifyList = true;
+
+    if(i_lock)
+        i_unitsToNotifyBacklog.push_back(u->GetGUID());
+    else
+    {
+        i_unitsToNotify.push_back(u);
+        u->m_Notified = false;
+    }
 }
 
 void Map::Update(const uint32 &t_diff)
 {
+    i_lock = false;
+
     resetMarkedCells();
 
     Trinity::ObjectUpdater updater(t_diff);
@@ -781,6 +792,8 @@ void Map::Update(const uint32 &t_diff)
             }
         }
     }
+
+    i_lock = true;
 
     RelocationNotify();
 
@@ -2185,13 +2198,4 @@ void BattleGroundMap::UnloadAll()
 }
 
 /*--------------------------TRINITY-------------------------*/
-
-void Map::AddUnitToNotify(Unit* u)
-{
-    if(!i_lock && !u->m_IsInNotifyList)
-    {
-        i_unitsToNotify.push_back(u->GetGUID());
-        u->m_IsInNotifyList = true;
-    }
-}
 
