@@ -445,7 +445,7 @@ void BattleGround::UpdateWorldStateForPlayer(uint32 Field, uint32 Value, Player 
 void BattleGround::EndBattleGround(uint32 winner)
 {
     this->RemoveFromBGFreeSlotQueue();
-
+    uint32 almost_winning_team = HORDE;
     ArenaTeam * winner_arena_team = NULL;
     ArenaTeam * loser_arena_team = NULL;
     uint32 loser_rating = 0;
@@ -522,6 +522,15 @@ void BattleGround::EndBattleGround(uint32 winner)
         }
     }
 
+    if(!isArena()){
+
+	if(m_score[GetTeamIndexByTeamId(ALLIANCE)] == m_score[GetTeamIndexByTeamId(HORDE)])
+		almost_winning_team = 0; 		//no real winner
+	if(m_score[GetTeamIndexByTeamId(ALLIANCE)] > m_score[GetTeamIndexByTeamId(HORDE)])
+		almost_winning_team = ALLIANCE;
+
+    }
+
     for(std::map<uint64, BattleGroundPlayer>::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
     {
         Player *plr = objmgr.GetPlayer(itr->first);
@@ -563,8 +572,19 @@ void BattleGround::EndBattleGround(uint32 winner)
         }
         else if(winner !=0)
         {
-            RewardMark(plr,ITEM_LOSER_COUNT);
+		RewardMark(plr,ITEM_LOSER_COUNT);
         }
+	else if(winner == 0)
+	{
+		if(sWorld.getConfig(CONFIG_PREMATURE_BG_REWARD))	// We're feeling generous, giving rewards to people who not earned them ;)
+		{	//nested ifs for the win! its boring writing that, forgive me my unfunniness
+			
+			if(almost_winning_team == team)					//player's team had more points
+				RewardMark(plr,ITEM_WINNER_COUNT);
+			else
+				RewardMark(plr,ITEM_LOSER_COUNT);			// if scores were the same, each team gets 1 mark.
+		}
+	}
 
         plr->CombatStopWithPets(true);
 

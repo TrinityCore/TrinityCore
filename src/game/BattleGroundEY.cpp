@@ -166,6 +166,7 @@ void BattleGroundEY::AddPoints(uint32 Team, uint32 Points)
 {
     uint8 team_index = GetTeamIndexByTeamId(Team);
     m_TeamScores[team_index] += Points;
+    m_score[team_index] = m_TeamScores[team_index];
     m_HonorScoreTics[team_index] += Points;
     if (m_HonorScoreTics[team_index] >= BG_EY_HonorScoreTicks[m_HonorMode])
     {

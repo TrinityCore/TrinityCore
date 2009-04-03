@@ -185,9 +185,9 @@ class BattleGroundWS : public BattleGround
 
         /* Scorekeeping */
         uint32 GetTeamScore(uint32 TeamID) const            { return m_TeamScores[GetTeamIndexByTeamId(TeamID)]; }
-        void AddPoint(uint32 TeamID, uint32 Points = 1)     { m_TeamScores[GetTeamIndexByTeamId(TeamID)] += Points; }
-        void SetTeamPoint(uint32 TeamID, uint32 Points = 0) { m_TeamScores[GetTeamIndexByTeamId(TeamID)] = Points; }
-        void RemovePoint(uint32 TeamID, uint32 Points = 1)  { m_TeamScores[GetTeamIndexByTeamId(TeamID)] -= Points; }
+        void AddPoint(uint32 TeamID, uint32 Points = 1)     { m_TeamScores[GetTeamIndexByTeamId(TeamID)] += Points; m_score[GetTeamIndexByTeamId(TeamID)] =  m_TeamScores[GetTeamIndexByTeamId(TeamID)];}
+        void SetTeamPoint(uint32 TeamID, uint32 Points = 0) { m_TeamScores[GetTeamIndexByTeamId(TeamID)] = Points; m_score[GetTeamIndexByTeamId(TeamID)] =  m_TeamScores[GetTeamIndexByTeamId(TeamID)];}
+        void RemovePoint(uint32 TeamID, uint32 Points = 1)  { m_TeamScores[GetTeamIndexByTeamId(TeamID)] -= Points; m_score[GetTeamIndexByTeamId(TeamID)] =  m_TeamScores[GetTeamIndexByTeamId(TeamID)]; }
 
     private:
         uint64 m_FlagKeepers[2];                            // 0 - alliance, 1 - horde
