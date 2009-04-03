@@ -150,9 +150,7 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
 
     float px, py, pz;
     owner->GetClosePoint(px, py, pz, GetObjectSize(), PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
-
     Relocate(px, py, pz, owner->GetOrientation());
-
     if(!IsPositionValid())
     {
         sLog.outError("Pet (guidlow %d, entry %d) not loaded. Suggested coordinates isn't valid (X: %f Y: %f)",
@@ -242,6 +240,8 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
     map->Add((Creature*)this);
     owner->SetGuardian(this, true);
 
+    m_resetTalentsCost = fields[17].GetUInt32();
+    m_resetTalentsTime = fields[18].GetUInt64();
     learnLevelupSpells();
     LearnPetPassives();
     _LoadSpells();
@@ -292,9 +292,6 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
                 break;
         }
     }
-
-    m_resetTalentsCost = fields[17].GetUInt32();
-    m_resetTalentsTime = fields[18].GetUInt64();
 
     delete result;
 
