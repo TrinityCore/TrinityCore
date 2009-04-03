@@ -17828,6 +17828,8 @@ void Player::UpdateVisibilityOf(T* target, UpdateData& data, std::set<WorldObjec
             #endif
         }
     }
+    else
+        SetToNotify();
 }
 
 /*template<>
