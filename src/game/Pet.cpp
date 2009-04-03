@@ -178,6 +178,15 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
     else
         m_charmInfo->SetPetNumber(pet_number, false);
 
+    // set current pet as current
+    if(fields[8].GetUInt32() != 0)
+    {
+        CharacterDatabase.BeginTransaction();
+        CharacterDatabase.PExecute("UPDATE character_pet SET slot = '3' WHERE owner = '%u' AND slot = '0' AND id <> '%u'", ownerid, m_charmInfo->GetPetNumber());
+        CharacterDatabase.PExecute("UPDATE character_pet SET slot = '0' WHERE owner = '%u' AND id = '%u'", ownerid, m_charmInfo->GetPetNumber());
+        CharacterDatabase.CommitTransaction();
+    }
+
     SetDisplayId(fields[3].GetUInt32());
     SetNativeDisplayId(fields[3].GetUInt32());
     uint32 petlevel = fields[4].GetUInt32();
@@ -215,20 +224,26 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
 
     SetReactState( ReactStates( fields[6].GetUInt8() ));
 
+    SetCanModifyStats(true);
+    InitStatsForLevel(petlevel);
+    uint32 savedhealth = fields[11].GetUInt32();
+    uint32 savedmana = fields[12].GetUInt32();
+    if(getPetType() == SUMMON_PET && !current)              //all (?) summon pets come with full health when called, but not when they are current
+    {
+        SetHealth(GetMaxHealth());
+        SetPower(POWER_MANA, GetMaxPower(POWER_MANA));
+    }
+    else
+    {
+        SetHealth(savedhealth > GetMaxHealth() ? GetMaxHealth() : savedhealth);
+        SetPower(POWER_MANA, savedmana > GetMaxPower(POWER_MANA) ? GetMaxPower(POWER_MANA) : savedmana);
+    }
+
     map->Add((Creature*)this);
     owner->SetGuardian(this, true);
 
-    InitStatsForLevel(petlevel);
-
-    // set current pet as current
-    if(fields[8].GetUInt32() != 0)
-    {
-        CharacterDatabase.BeginTransaction();
-        CharacterDatabase.PExecute("UPDATE character_pet SET slot = '3' WHERE owner = '%u' AND slot = '0' AND id <> '%u'", ownerid, m_charmInfo->GetPetNumber());
-        CharacterDatabase.PExecute("UPDATE character_pet SET slot = '0' WHERE owner = '%u' AND id = '%u'", ownerid, m_charmInfo->GetPetNumber());
-        CharacterDatabase.CommitTransaction();
-    }
-
+    learnLevelupSpells();
+    LearnPetPassives();
     _LoadSpells();
     _LoadSpellCooldowns();
 
@@ -284,31 +299,16 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
     delete result;
 
     //load spells/cooldowns/auras
-    SetCanModifyStats(true);
-
-    uint32 savedhealth = fields[11].GetUInt32();
-    uint32 savedmana = fields[12].GetUInt32();
-    if(getPetType() == SUMMON_PET && !current)              //all (?) summon pets come with full health when called, but not when they are current
-    {
-        SetHealth(GetMaxHealth());
-        SetPower(POWER_MANA, GetMaxPower(POWER_MANA));
-    }
-    else
-    {
-        SetHealth(savedhealth > GetMaxHealth() ? GetMaxHealth() : savedhealth);
-        SetPower(POWER_MANA, savedmana > GetMaxPower(POWER_MANA) ? GetMaxPower(POWER_MANA) : savedmana);
-    }
-
     // Spells should be loaded after pet is added to map, because in CheckCast is check on it
     // since last save (in seconds)
     uint32 timediff = (time(NULL) - fields[16].GetUInt32());
     _LoadAuras(timediff);
-    LearnPetPassives();
     CastPetAuras(current);
 
     sLog.outDebug("New Pet has guid %u", GetGUIDLow());
 
     owner->PetSpellInitialize();
+
     if(owner->GetGroup())
         owner->SetGroupUpdateFlag(GROUP_UPDATE_PET);
 
@@ -759,8 +759,6 @@ bool Guardian::InitStatsForLevel(uint32 petlevel)
             petType = HUNTER_PET;
         else
             sLog.outError("Unknown type pet %u is summoned by player class %u", GetEntry(), m_owner->getClass());
-
-        ((Pet*)this)->learnLevelupSpells();
     }
 
     uint32 creature_ID = (petType == HUNTER_PET) ? 1 : cinfo->Entry;
@@ -1329,16 +1327,12 @@ bool Pet::learnSpell(uint32 spell_id)
     if (!addSpell(spell_id))
         return false;
 
-    Unit* owner = GetOwner();
-    if(owner && owner->GetTypeId() == TYPEID_PLAYER)
+    if(!m_loading)
     {
-        if(!m_loading)
-        {
-            WorldPacket data(SMSG_PET_LEARNED_SPELL, 2);
-            data << uint16(spell_id);
-            ((Player*)owner)->GetSession()->SendPacket(&data);
-            ((Player*)owner)->PetSpellInitialize();
-        }
+        WorldPacket data(SMSG_PET_LEARNED_SPELL, 2);
+        data << uint16(spell_id);
+        m_owner->GetSession()->SendPacket(&data);
+        m_owner->PetSpellInitialize();
     }
     return true;
 }
@@ -1364,14 +1358,11 @@ bool Pet::unlearnSpell(uint32 spell_id)
 {
     if(removeSpell(spell_id))
     {
-        if(GetOwner()->GetTypeId() == TYPEID_PLAYER)
+        if(!m_loading)
         {
-            if(!m_loading)
-            {
-                WorldPacket data(SMSG_PET_REMOVED_SPELL, 2);
-                data << uint16(spell_id);
-                ((Player*)GetOwner())->GetSession()->SendPacket(&data);
-            }
+            WorldPacket data(SMSG_PET_REMOVED_SPELL, 2);
+            data << uint16(spell_id);
+            m_owner->GetSession()->SendPacket(&data);
         }
         return true;
     }
