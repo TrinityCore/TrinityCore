@@ -3072,21 +3072,28 @@ void Aura::HandleAuraModScale(bool apply, bool Real)
             m_target->StopMoving();
             m_target->GetMotionMaster()->Clear();
             m_target->GetMotionMaster()->MoveIdle();
-            CharmInfo *charmInfo = ((Creature*)m_target)->InitCharmInfo(m_target);
-            charmInfo->InitPossessCreateSpells();
+        }
+        else if(m_target->GetTypeId() == TYPEID_PLAYER)
+        {
+            ((Player*)m_target)->SetClientControl(m_target, 0);
         }
 
+        if(CharmInfo *charmInfo = m_target->InitCharmInfo(m_target))
+            charmInfo->InitPossessCreateSpells();
+
         if(caster->GetTypeId() == TYPEID_PLAYER)
-        {
             ((Player*)caster)->PossessSpellInitialize();
-        }
     }
     else
     {
         m_target->SetCharmerGUID(0);
+        caster->InterruptSpell(CURRENT_CHANNELED_SPELL);    // the spell is not automatically canceled when interrupted, do it now
 
         if(m_target->GetTypeId() == TYPEID_PLAYER)
+        {
             ((Player*)m_target)->setFactionForRace(m_target->getRace());
+            ((Player*)m_target)->SetClientControl(m_target, 1);
+        }
         else if(m_target->GetTypeId() == TYPEID_UNIT)
         {
             CreatureInfo const *cinfo = ((Creature*)m_target)->GetCreatureInfo();
@@ -3193,7 +3200,7 @@ void Aura::HandleAuraModPetTalentsPoints(bool Apply, bool Real)
             if(m_target->GetTypeId() == TYPEID_UNIT)
             {
                 ((Creature*)m_target)->AIM_Initialize();
-                CharmInfo *charmInfo = ((Creature*)m_target)->InitCharmInfo(m_target);
+                CharmInfo *charmInfo = m_target->InitCharmInfo(m_target);
                 charmInfo->InitCharmCreateSpells();
                 charmInfo->SetReactState( REACT_DEFENSIVE );
 
