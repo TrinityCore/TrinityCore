@@ -184,9 +184,6 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
     SetUInt32Value(UNIT_NPC_FLAGS, 0);
     SetName(fields[9].GetString());
 
-    map->Add((Creature*)this);
-    owner->SetGuardian(this, true);
-
     switch(getPetType())
     {
         case SUMMON_PET:
@@ -212,7 +209,6 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
             sLog.outError("Pet have incorrect type (%u) for pet loading.", getPetType());
     }
 
-    InitStatsForLevel(petlevel);
     SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, time(NULL));
     SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, fields[5].GetUInt32());
     SetCreatorGUID(owner->GetGUID());
@@ -221,6 +217,11 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
 
     uint32 savedhealth = fields[11].GetUInt32();
     uint32 savedmana = fields[12].GetUInt32();
+
+    map->Add((Creature*)this);
+    owner->SetGuardian(this, true);
+
+    InitStatsForLevel(petlevel);
 
     // set current pet as current
     if(fields[8].GetUInt32() != 0)
@@ -281,7 +282,7 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
     }
 
     // since last save (in seconds)
-    uint32 timediff = (time(NULL) - fields[16].GetUInt32());
+    //uint32 timediff = (time(NULL) - fields[16].GetUInt32());
 
     m_resetTalentsCost = fields[17].GetUInt32();
     m_resetTalentsTime = fields[18].GetUInt64();
