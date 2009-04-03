@@ -1878,6 +1878,24 @@ void Spell::EffectDummy(uint32 i)
             break;
     }
 
+    //spells triggered by dummy effect should not miss
+    if(spell_id)
+    {
+        SpellEntry const *spellInfo = sSpellStore.LookupEntry( spell_id );
+
+        if(!spellInfo)
+        {
+            sLog.outError("EffectDummy of spell %u: triggering unknown spell id %i\n", m_spellInfo->Id, spell_id);
+            return;
+        }
+
+        Spell* spell = new Spell(m_caster, spellInfo, true, m_originalCasterGUID, NULL, true);
+        if(bp) spell->m_currentBasePoints[0] = bp;
+        SpellCastTargets targets;
+        targets.setUnitTarget(unitTarget);
+        spell->prepare(&targets);
+    }
+
     // pet auras
     if(PetAura const* petSpell = spellmgr.GetPetAura(m_spellInfo->Id))
     {
