@@ -215,9 +215,6 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
 
     SetReactState( ReactStates( fields[6].GetUInt8() ));
 
-    uint32 savedhealth = fields[11].GetUInt32();
-    uint32 savedmana = fields[12].GetUInt32();
-
     map->Add((Creature*)this);
     owner->SetGuardian(this, true);
 
@@ -281,9 +278,6 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
         }
     }
 
-    // since last save (in seconds)
-    //uint32 timediff = (time(NULL) - fields[16].GetUInt32());
-
     m_resetTalentsCost = fields[17].GetUInt32();
     m_resetTalentsTime = fields[18].GetUInt64();
 
@@ -292,6 +286,8 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
     //load spells/cooldowns/auras
     SetCanModifyStats(true);
 
+    uint32 savedhealth = fields[11].GetUInt32();
+    uint32 savedmana = fields[12].GetUInt32();
     if(getPetType() == SUMMON_PET && !current)              //all (?) summon pets come with full health when called, but not when they are current
     {
         SetHealth(GetMaxHealth());
@@ -304,6 +300,8 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
     }
 
     // Spells should be loaded after pet is added to map, because in CheckCast is check on it
+    // since last save (in seconds)
+    uint32 timediff = (time(NULL) - fields[16].GetUInt32());
     _LoadAuras(timediff);
     LearnPetPassives();
     CastPetAuras(current);
