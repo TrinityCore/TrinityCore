@@ -2133,7 +2133,7 @@ UNLOCK TABLES;
 -- Table structure for table `locales_points_of_interest`
 --
 
-DROP TABLE IF EXISTS `locales_points_of_interest`; 
+DROP TABLE IF EXISTS `locales_points_of_interest`;
 CREATE TABLE `locales_points_of_interest` (
   `entry` mediumint(8) unsigned NOT NULL default '0',
   `icon_name_loc1` text,
@@ -12770,7 +12770,7 @@ UNLOCK TABLES;
 -- Table structure for table `points_of_interest`
 --
 
-DROP TABLE IF EXISTS `points_of_interest`; 
+DROP TABLE IF EXISTS `points_of_interest`;
 CREATE TABLE `points_of_interest` (
   `entry` mediumint(8) unsigned NOT NULL default '0',
   `x` float NOT NULL default '0',

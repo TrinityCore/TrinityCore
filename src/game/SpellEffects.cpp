@@ -2473,7 +2473,7 @@ void Spell::EffectPowerBurn(uint32 i)
     {
         uint32 maxdamage = m_caster->GetMaxPower(powertype) * damage * 2 / 100;
         damage = unitTarget->GetMaxPower(powertype) * damage / 100;
-        if(damage > maxdamage) damage = maxdamage;  
+        if(damage > maxdamage) damage = maxdamage;
     }
 
     int32 curPower = int32(unitTarget->GetPower(powertype));
