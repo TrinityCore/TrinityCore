@@ -211,6 +211,7 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
     npc_thrall_old_hillsbradAI(Creature *c) : npc_escortAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        m_creature->setActive(true);
     }
 
     ScriptedInstance *pInstance;
@@ -357,32 +358,39 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
                 //trigger epoch Yell("Thrall! Come outside and face your fate! ....")
                 //from here, thrall should not never be allowed to move to point 106 which he currently does.
                 break;
+
             case 106:
-                if (!PlayerGUID)
-                    break;
-
-                //trigger taretha to run down outside
-                if (uint64 TarethaGUID = pInstance->GetData64(DATA_TARETHA))
                 {
-                    if (Creature* Taretha = ((Creature*)Unit::GetUnit(*m_creature, TarethaGUID)))
-                        ((npc_escortAI*)(Taretha->AI()))->Start(false, false, true, PlayerGUID);
-                }
+                    if (!PlayerGUID)
+                        break;
 
-                //kill credit creature for quest
-                Map *map = m_creature->GetMap();
-                Map::PlayerList const& players = map->GetPlayers();
-                if (!players.isEmpty() && map->IsDungeon())
-                {
-                    for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                    //trigger taretha to run down outside
+                    if (uint64 TarethaGUID = pInstance->GetData64(DATA_TARETHA))
                     {
-                        if (Player* pPlayer = itr->getSource())
-                            pPlayer->KilledMonster(20156,m_creature->GetGUID());
+                        if (Creature* Taretha = ((Creature*)Unit::GetUnit(*m_creature, TarethaGUID)))
+                            ((npc_escortAI*)(Taretha->AI()))->Start(false, false, true, PlayerGUID);
                     }
-                }
 
-                //alot will happen here, thrall and taretha talk, erozion appear at spot to explain
-                m_creature->SummonCreature(EROZION_ENTRY,2646.47,680.416,55.38,4.16,TEMPSUMMON_TIMED_DESPAWN,120000);
-            break;
+                    //kill credit creature for quest
+                    Map *map = m_creature->GetMap();
+                    Map::PlayerList const& players = map->GetPlayers();
+                    if (!players.isEmpty() && map->IsDungeon())
+                    {
+                        for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                        {
+                            if (Player* pPlayer = itr->getSource())
+                                pPlayer->KilledMonster(20156,m_creature->GetGUID());
+                        }
+                    }
+
+                    //alot will happen here, thrall and taretha talk, erozion appear at spot to explain
+                    m_creature->SummonCreature(EROZION_ENTRY,2646.47,680.416,55.38,4.16,TEMPSUMMON_TIMED_DESPAWN,120000);
+                }
+                break;        
+            case 108:
+                //last waypoint, just set Thrall invisible, respawn is turned off   
+                m_creature->SetVisibility(VISIBILITY_OFF);
+                break;    
         }
     }
 
@@ -711,6 +719,9 @@ bool GossipSelect_npc_thrall_old_hillsbrad(Player *player, Creature *_Creature, 
             DoScriptText(SAY_TH_START_EVENT_PART1, _Creature);
 
             ((npc_escortAI*)(_Creature->AI()))->Start(true, true, true, player->GetGUID());
+            ((npc_escortAI*)(_Creature->AI()))->SetMaxPlayerDistance(100.0f);//not really needed, because it will not despawn if player is too far
+            ((npc_escortAI*)(_Creature->AI()))->SetDespawnAtEnd(false);
+            ((npc_escortAI*)(_Creature->AI()))->SetDespawnAtFar(false);
             break;
 
         case GOSSIP_ACTION_INFO_DEF+2:
@@ -817,8 +828,8 @@ bool GossipSelect_npc_taretha(Player *player, Creature *_Creature, uint32 sender
         if( pInstance->GetData(TYPE_THRALL_EVENT) == IN_PROGRESS )
         {
             pInstance->SetData(TYPE_THRALL_PART4,IN_PROGRESS);
-		if(pInstance->GetData64(DATA_EPOCH) == 0)
-             		_Creature->SummonCreature(ENTRY_EPOCH,2639.13,698.55,65.43,4.59,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,120000);
+            if(pInstance->GetData64(DATA_EPOCH) == 0)
+                 _Creature->SummonCreature(ENTRY_EPOCH,2639.13,698.55,65.43,4.59,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,120000);
 
              if (uint64 ThrallGUID = pInstance->GetData64(DATA_THRALL))
              {
