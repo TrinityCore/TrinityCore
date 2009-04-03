@@ -847,12 +847,11 @@ struct AuraSlotEntry
 
 struct SpellProcEventEntry;                                 // used only privately
 
-typedef std::set<Unit*> ControlList;
-
 class TRINITY_DLL_SPEC Unit : public WorldObject
 {
     public:
         typedef std::set<Unit*> AttackerSet;
+        typedef std::set<Unit*> ControlList;
         typedef std::pair<uint32, uint8> spellEffectPair;
         typedef std::multimap< spellEffectPair, Aura*> AuraMap;
         typedef std::list<Aura *> AuraList;
