@@ -4318,7 +4318,7 @@ void Aura::HandleModPowerRegen(bool apply, bool Real)       // drinking
     {
 
         Powers pt = m_target->getPowerType();
-        if (pt == POWE_RAGE)
+        if (pt == POWER_RAGE)
             m_periodicTimer = 3000;
         else 
             m_periodicTimer = 2000;
