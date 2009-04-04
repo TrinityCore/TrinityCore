@@ -747,6 +747,15 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
 
 void Object::ClearUpdateMask(bool remove)
 {
+    if(!m_uint32Values_mirror || !m_uint32Values)
+    {
+        sLog.outCrash("Object::ClearUpdateMask: Object entry %u (type %u) does not have uint32Values", GetEntry(), GetTypeId());
+        return;
+    }
+
+    assert(m_uint32Values[0]);
+    assert(m_uint32Values_mirror[0]);
+
     for( uint16 index = 0; index < m_valuesCount; index ++ )
     {
         if(m_uint32Values_mirror[index]!= m_uint32Values[index])
@@ -797,7 +806,7 @@ void Object::_SetUpdateBits(UpdateMask *updateMask, Player* /*target*/) const
 {
     if(!m_uint32Values_mirror || !m_uint32Values)
     {
-        sLog.outCrash("Object entry %u (type %u) does not have uint32Values", GetEntry(), GetTypeId());
+        sLog.outCrash("Object::_SetUpdateBits: Object entry %u (type %u) does not have uint32Values", GetEntry(), GetTypeId());
         return;
     }
 
