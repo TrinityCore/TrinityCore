@@ -39,6 +39,8 @@ enum PetSaveMode
 {
     PET_SAVE_AS_DELETED       =-1,
     PET_SAVE_AS_CURRENT       = 0,
+    PET_SAVE_IN_STABLE_SLOT_1 = 1,
+    PET_SAVE_IN_STABLE_SLOT_2 = 2,
     PET_SAVE_NOT_IN_SLOT      = 3
 };
 
