@@ -625,7 +625,7 @@ void Map::RelocationNotify()
     for(std::vector<Unit*>::iterator iter = i_unitsToNotify.begin(); iter != i_unitsToNotify.end(); ++iter)
     {
         Unit *unit = *iter;
-        if(!unit->IsInWorld() || unit->GetMapId() != GetId())
+        if(unit->m_Notified || !unit->IsInWorld() || unit->GetMapId() != GetId())
             continue;
 
         unit->m_IsInNotifyList = false;
