@@ -5,7 +5,7 @@
 #ifndef SC_ESCORTAI_H
 #define SC_ESCORTAI_H
 
-extern std::list<PointMovement> PointMovementList;
+#define DEFAULT_MAX_PLAYER_DISTANCE 50
 
 struct Escort_Waypoint
 {
@@ -37,7 +37,7 @@ struct TRINITY_DLL_DECL npc_escortAI : public ScriptedAI
         virtual void Reset() = 0;
 
         // CreatureAI functions
-        npc_escortAI(Creature *c) : ScriptedAI(c), IsBeingEscorted(false), PlayerTimer(1000) {m_creature->GetPosition(LastPos.x, LastPos.y, LastPos.z);}
+        npc_escortAI(Creature *c) : ScriptedAI(c), IsBeingEscorted(false), PlayerTimer(1000), MaxPlayerDistance(DEFAULT_MAX_PLAYER_DISTANCE), CanMelee(true), DespawnAtEnd(true), DespawnAtFar(true) {m_creature->GetPosition(LastPos.x, LastPos.y, LastPos.z);}
 
         bool IsVisible(Unit*) const;
 
@@ -62,6 +62,13 @@ struct TRINITY_DLL_DECL npc_escortAI : public ScriptedAI
 
         void Start(bool bAttack, bool bDefend, bool bRun, uint64 pGUID = 0);
 
+        void SetMaxPlayerDistance(float newMax) { MaxPlayerDistance = newMax; }
+        float GetMaxPlayerDistance() { return MaxPlayerDistance; }
+
+        void SetCanMelee(bool usemelee) { CanMelee = usemelee; }
+        void SetDespawnAtEnd(bool despawn) { DespawnAtEnd = despawn; }
+        void SetDespawnAtFar(bool despawn) { DespawnAtFar = despawn; }
+
     // EscortAI variables
     protected:
         uint64 PlayerGUID;
@@ -71,6 +78,7 @@ struct TRINITY_DLL_DECL npc_escortAI : public ScriptedAI
     private:
         uint32 WaitTimer;
         uint32 PlayerTimer;
+        float MaxPlayerDistance;
 
         struct
         {
@@ -87,6 +95,9 @@ struct TRINITY_DLL_DECL npc_escortAI : public ScriptedAI
         bool Returning;
         bool ReconnectWP;
         bool Run;
+        bool CanMelee;
+        bool DespawnAtEnd;
+        bool DespawnAtFar;
 };
 #endif
 
