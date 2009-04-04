@@ -30,3 +30,13 @@ void InstanceData::SaveToDB()
     CharacterDatabase.PExecute("UPDATE instance SET data = '%s' WHERE id = '%d'", data.c_str(), instance->GetInstanceId());
 }
 
+void InstanceData::HandleGameObject(uint64 GUID, bool open, GameObject *go) 
+{            
+    if(!go)
+        go = instance->GetGameObjectInMap(GUID);
+    if(go)
+        go->SetGoState(open ? 0 : 1);
+    else
+        debug_log("SD2: InstanceData: HandleGameObject failed");
+}
+
