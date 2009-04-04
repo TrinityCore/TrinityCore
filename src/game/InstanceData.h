@@ -22,6 +22,8 @@
 #define TRINITY_INSTANCE_DATA_H
 
 #include "Common.h"
+#include "GameObject.h"
+#include "Map.h"
 
 class Map;
 class Unit;
@@ -68,6 +70,11 @@ class TRINITY_DLL_SPEC InstanceData
         //All-purpose data storage 32 bit
         virtual uint32 GetData(uint32) { return 0; }
         virtual void SetData(uint32, uint32 data) {}
+
+        //Handle open / close objects
+        //use HandleGameObject(NULL,boolen,GO); in OnObjectCreate in instance scripts
+        //use HandleGameObject(GUID,boolen,NULL); in any other script
+        virtual void HandleGameObject(uint64 GUID, bool open, GameObject *go = NULL);
 };
 #endif
 
