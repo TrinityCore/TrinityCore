@@ -377,6 +377,7 @@ void Map::AddNotifier(T*)
 template<>
 void Map::AddNotifier(Player* obj)
 {
+    obj->m_Notified = false;
     obj->m_IsInNotifyList = false;
     AddUnitToNotify(obj);
 }
@@ -384,6 +385,7 @@ void Map::AddNotifier(Player* obj)
 template<>
 void Map::AddNotifier(Creature* obj)
 {
+    obj->m_Notified = false;
     obj->m_IsInNotifyList = false;
     AddUnitToNotify(obj);
 }
