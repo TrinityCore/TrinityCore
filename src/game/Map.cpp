@@ -615,7 +615,6 @@ void Map::RelocationNotify()
         if(Unit *unit = ObjectAccessor::GetObjectInWorld(*iter, (Unit*)NULL))
         {
             i_unitsToNotify.push_back(unit);
-            unit->m_Notified = false;
         }
     }
     i_unitsToNotifyBacklog.clear();
@@ -624,11 +623,10 @@ void Map::RelocationNotify()
     for(std::vector<Unit*>::iterator iter = i_unitsToNotify.begin(); iter != i_unitsToNotify.end(); ++iter)
     {
         Unit *unit = *iter;
-        unit->m_IsInNotifyList = false;
-
         if(!unit->IsInWorld() || unit->GetMapId() != GetId())
             continue;
 
+        unit->m_IsInNotifyList = false;
         unit->m_Notified = true;
 
         if(unit->GetTypeId() == TYPEID_PLAYER)
@@ -643,6 +641,10 @@ void Map::RelocationNotify()
             VisitAll(unit->GetPositionX(), unit->GetPositionY(), World::GetMaxVisibleDistance(), notifier);
         }
     }
+    for(std::vector<Unit*>::iterator iter = i_unitsToNotify.begin(); iter != i_unitsToNotify.end(); ++iter)
+    {
+        (*iter)->m_Notified = false;
+    }
     i_unitsToNotify.clear();
 }
 
@@ -656,10 +658,7 @@ void Map::AddUnitToNotify(Unit* u)
     if(i_lock)
         i_unitsToNotifyBacklog.push_back(u->GetGUID());
     else
-    {
         i_unitsToNotify.push_back(u);
-        u->m_Notified = false;
-    }
 }
 
 void Map::Update(const uint32 &t_diff)
