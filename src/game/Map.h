@@ -484,7 +484,8 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
         time_t i_gridExpiry;
 
         bool i_lock;
-        std::vector<uint64> i_unitsToNotify;
+        std::vector<uint64> i_unitsToNotifyBacklog;
+        std::vector<Unit*> i_unitsToNotify;
         std::set<WorldObject *> i_objectsToRemove;
         std::map<WorldObject*, bool> i_objectsToSwitch;
 

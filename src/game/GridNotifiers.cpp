@@ -98,6 +98,9 @@ PlayerVisibilityNotifier::Notify()
         // target aura duration for caster show only if target exist at caster client
         if((*vItr)!=&i_player && (*vItr)->isType(TYPEMASK_UNIT))
             i_player.SendInitialVisiblePackets((Unit*)(*vItr));
+
+    if(i_visibleNow.size() >= 30)
+        i_player.SetToNotify();
 }
 
 void
