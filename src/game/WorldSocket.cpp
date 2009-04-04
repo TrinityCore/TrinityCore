@@ -903,8 +903,10 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
 
     id = fields[0].GetUInt32 ();
     security = fields[1].GetUInt16 ();
+    /*
     if(security > SEC_ADMINISTRATOR)                        // prevent invalid security settings in DB
         security = SEC_ADMINISTRATOR;
+        */
 
     K.SetHexStr (fields[2].GetString ());
 
