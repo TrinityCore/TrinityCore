@@ -293,8 +293,6 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
         }
     }
 
-    delete result;
-
     //load spells/cooldowns/auras
     // Spells should be loaded after pet is added to map, because in CheckCast is check on it
     // since last save (in seconds)
@@ -302,6 +300,7 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
     _LoadAuras(timediff);
     CastPetAuras(current);
 
+    delete result;
     sLog.outDebug("New Pet has guid %u", GetGUIDLow());
 
     owner->PetSpellInitialize();
