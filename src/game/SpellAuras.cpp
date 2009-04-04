@@ -703,6 +703,9 @@ void AreaAura::Update(uint32 diff)
                         aur = new AreaAura(actualSpellInfo, m_effIndex, NULL, (*tIter), caster, NULL);
                     aur->SetAuraDuration(GetAuraDuration());
                     (*tIter)->AddAura(aur);
+
+                    if(m_areaAuraType == AREA_AURA_ENEMY)
+                        caster->CombatStart(*tIter);
                 }
             }
         }

@@ -12769,6 +12769,9 @@ bool Unit::HandleAuraRaidProcFromCharge( Aura* triggeredByAura )
 
 void Unit::SetToNotify()
 {
+    if(m_IsInNotifyList)
+        return;
+
     if(Map *map = GetMap())
         map->AddUnitToNotify(this);
 }
