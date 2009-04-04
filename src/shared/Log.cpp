@@ -450,7 +450,7 @@ void Log::outCrash( const char * err, ... )
     if(logfile)
     {
         outTimestamp(logfile);
-        fprintf(logfile, "CRASH ALARM: " );
+        fprintf(logfile, "CRASH ALERT: " );
 
         va_list ap;
         va_start(ap, err);
