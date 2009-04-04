@@ -4316,9 +4316,13 @@ void Aura::HandleModPowerRegen(bool apply, bool Real)       // drinking
 
     if(apply && m_periodicTimer <= 0)
     {
-        m_periodicTimer += 2000;
 
         Powers pt = m_target->getPowerType();
+        if (pt == POWE_RAGE)
+            m_periodicTimer = 3000;
+        else 
+            m_periodicTimer = 2000;
+
         if(int32(pt) != m_modifier.m_miscvalue)
             return;
 
@@ -4334,10 +4338,12 @@ void Aura::HandleModPowerRegen(bool apply, bool Real)       // drinking
         }
 
         // Warrior talent, gain 1 rage every 3 seconds while in combat
-        if(pt == POWER_RAGE && m_target->isInCombat())
+        // Anger Menagement
+        // amount = 1+ 16 = 17 = 3,4*5 = 10,2*5/3 
+        // so 17 is rounded amount for 5 sec tick grow ~ 1 range grow in 3 sec
+        if(pt == POWER_RAGE)
         {
-            m_target->ModifyPower(pt, m_modifier.m_amount*10/17);
-            m_periodicTimer += 1000;
+             m_target->ModifyPower(pt, m_modifier.m_amount*3/5);
         }
     }
     m_isPeriodic = apply;
