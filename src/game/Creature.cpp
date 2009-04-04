@@ -199,9 +199,12 @@ void Creature::RemoveFromWorld()
 
 void Creature::SearchFormation()
 {
+    if(isPet())
+        return;
+
     uint32 lowguid = GetDBTableGUIDLow();
 
-    if(CreatureGroupMap.find(lowguid) != CreatureGroupMap.end())
+    if(lowguid && CreatureGroupMap.find(lowguid) != CreatureGroupMap.end())
     {
         m_formationID = CreatureGroupMap[lowguid]->leaderGUID;
         formation_mgr.UpdateCreatureGroup(m_formationID, this);
