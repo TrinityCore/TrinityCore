@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
- * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2009 Trinity <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -10,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "Common.h"
@@ -74,6 +74,8 @@ Group::~Group()
     for(uint8 i = 0; i < TOTAL_DIFFICULTIES; i++)
         for(BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end(); ++itr)
             itr->second.save->RemoveGroup(this);
+
+    // Sub group counters clean up
     if (m_subGroupsCounts)
         delete[] m_subGroupsCounts;
 }
@@ -302,8 +304,7 @@ uint32 Group::RemoveMember(const uint64 &guid, const uint8 &method)
     {
         bool leaderChanged = _removeMember(guid);
 
-        Player *player = objmgr.GetPlayer( guid ); // FG: TODO: could be removed, its just here for consistency
-        if (player)
+        if(Player *player = objmgr.GetPlayer( guid ))
         {
             WorldPacket data;
 
@@ -1048,6 +1049,7 @@ bool Group::_removeMember(const uint64 &guid)
     if (slot != m_memberSlots.end())
     {
         SubGroupCounterDecrease(slot->group);
+
         m_memberSlots.erase(slot);
     }
 
@@ -1207,6 +1209,7 @@ void Group::ChangeMembersGroup(const uint64 &guid, const uint8 &group)
     if(!isRaidGroup())
         return;
     Player *player = objmgr.GetPlayer(guid);
+
     if (!player)
     {
         uint8 prevSubGroup;
@@ -1218,6 +1221,7 @@ void Group::ChangeMembersGroup(const uint64 &guid, const uint8 &group)
             SendUpdate();
     }
     else
+        // This methods handles itself groupcounter decrease
         ChangeMembersGroup(player, group);
 }
 
@@ -1366,7 +1370,7 @@ uint32 Group::CanJoinBattleGroundQueue(uint32 bgTypeId, uint32 bgQueueType, uint
 void Roll::targetObjectBuildLink()
 {
     // called from link()
-    this->getTarget()->addLootValidatorRef(this);
+    getTarget()->addLootValidatorRef(this);
 }
 
 void Group::SetDifficulty(uint8 difficulty)

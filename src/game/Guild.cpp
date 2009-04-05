@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
- * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2009 Trinity <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1212,18 +1212,19 @@ void Guild::LoadGuildBankFromDB()
 
     delete result;
 
-    //                                        0      1       2          3
-    result = CharacterDatabase.PQuery("SELECT TabId, SlotId, item_guid, item_entry FROM guild_bank_item WHERE guildid='%u' ORDER BY TabId", Id);
+    // data needs to be at first place for Item::LoadFromDB
+    //                                        0     1      2       3          4
+    result = CharacterDatabase.PQuery("SELECT data, TabId, SlotId, item_guid, item_entry FROM guild_bank_item JOIN item_instance ON item_guid = guid WHERE guildid='%u' ORDER BY TabId", Id);
     if(!result)
         return;
 
     do
     {
         Field *fields = result->Fetch();
-        uint8 TabId = fields[0].GetUInt8();
-        uint8 SlotId = fields[1].GetUInt8();
-        uint32 ItemGuid = fields[2].GetUInt32();
-        uint32 ItemEntry = fields[3].GetUInt32();
+        uint8 TabId = fields[1].GetUInt8();
+        uint8 SlotId = fields[2].GetUInt8();
+        uint32 ItemGuid = fields[3].GetUInt32();
+        uint32 ItemEntry = fields[4].GetUInt32();
 
         if (TabId >= purchased_tabs || TabId >= GUILD_BANK_MAX_TABS)
         {
@@ -1246,7 +1247,7 @@ void Guild::LoadGuildBankFromDB()
         }
 
         Item *pItem = NewItemOrBag(proto);
-        if(!pItem->LoadFromDB(ItemGuid, 0))
+        if(!pItem->LoadFromDB(ItemGuid, 0, result))
         {
             CharacterDatabase.PExecute("DELETE FROM guild_bank_item WHERE guildid='%u' AND TabId='%u' AND SlotId='%u'", Id, uint32(TabId), uint32(SlotId));
             sLog.outError("Item GUID %u not found in item_instance, deleting from Guild Bank!", ItemGuid);

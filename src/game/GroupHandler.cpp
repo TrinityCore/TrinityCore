@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
- * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2009 Trinity <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -124,7 +124,6 @@ void WorldSession::HandleGroupInviteOpcode( WorldPacket & recv_data )
             SendPartyResult(PARTY_OP_INVITE, "", PARTY_RESULT_YOU_NOT_LEADER);
             return;
         }
-
         // not have place
         if(group->IsFull())
         {
@@ -203,7 +202,8 @@ void WorldSession::HandleGroupAcceptOpcode( WorldPacket & /*recv_data*/ )
     // forming a new group, create it
     if(!group->IsCreated())
     {
-        if(leader) group->RemoveInvite(leader);
+        if( leader )
+            group->RemoveInvite(leader);
         group->Create(group->GetLeaderGUID(), group->GetLeaderName());
         objmgr.AddGroup(group);
     }
@@ -533,6 +533,7 @@ void WorldSession::HandleGroupChangeSubGroupOpcode( WorldPacket & recv_data )
 {
     CHECK_PACKET_SIZE(recv_data,1+1);
 
+    // we will get correct pointer for group here, so we don't have to check if group is BG raid
     Group *group = GetPlayer()->GetGroup();
     if(!group)
         return;
@@ -725,9 +726,6 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player *player, WorldPacke
                 uint32 updatedAura=player->GetUInt32Value(uint16(UNIT_FIELD_AURA + i));
                 *data << uint16(updatedAura);
                 *data << uint8(1);
-                //TODO: find a safe place to do this cleanup
-                //if(!updatedAura)
-                    //player->UnsetAuraUpdateMask(i);
             }
         }
     }
@@ -810,9 +808,6 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player *player, WorldPacke
                     uint32 updatedAura=pet->GetUInt32Value(uint16(UNIT_FIELD_AURA + i));
                     *data << uint16(updatedAura);
                     *data << uint8(1);
-                //TODO: find a safe place to do this cleanup
-                    //if(!updatedAura)
-                        //pet->UnsetAuraUpdateMask(i);
                 }
             }
         }
