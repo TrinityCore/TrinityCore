@@ -199,7 +199,7 @@ bool ChatHandler::HandleGMNotifyCommand(const char* args)
 }
 
 //Enable\Dissable GM Mode
-bool ChatHandler::HandleGMmodeCommand(const char* args)
+bool ChatHandler::HandleGMCommand(const char* args)
 {
     if(!*args)
     {
