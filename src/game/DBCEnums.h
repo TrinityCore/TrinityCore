@@ -45,6 +45,7 @@ enum AchievementFlags
     ACHIEVEMENT_FLAG_COUNTER          = 0x00000001,
     ACHIEVEMENT_FLAG_REACH_LEVEL      = 0x00000004,
     ACHIEVEMENT_FLAG_RERERED_MAX      = 0x00000010,         // displays the maximum criteria of a refered achievement
+    ACHIEVEMENT_FLAG_MONEY_COUNTER    = 0x00000020,         // displays counter as money
     ACHIEVEMENT_FLAG_AVERAGE          = 0x00000040,
     ACHIEVEMENT_FLAG_REALM_FIRST_REACH= 0x00000100,
     ACHIEVEMENT_FLAG_REALM_FIRST_KILL = 0x00000200,
