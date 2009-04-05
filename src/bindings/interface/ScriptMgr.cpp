@@ -20,11 +20,11 @@
 
 #include "config.h"
 #include "ScriptMgr.h"
-#include "../../game/GossipDef.h"
-#include "../../game/GameObject.h"
-#include "../../game/Player.h"
-#include "../../game/Map.h"
-#include "../../game/ObjectMgr.h"
+#include "GossipDef.h"
+#include "GameObject.h"
+#include "Player.h"
+#include "Map.h"
+#include "ObjectMgr.h"
 
 //uint8 loglevel = 0;
 int nrscripts;
