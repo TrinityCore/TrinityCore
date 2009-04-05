@@ -4130,6 +4130,7 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
                         {
                             caster->m_currentSpells[CURRENT_CHANNELED_SPELL]->cancel();
                             caster->m_currentSpells[CURRENT_CHANNELED_SPELL]=NULL;
+			
                         }
                     }
 
