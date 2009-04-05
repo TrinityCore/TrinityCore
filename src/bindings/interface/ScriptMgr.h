@@ -90,7 +90,7 @@ extern int num_inst_scripts;
 
 struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
 {
-    ScriptedAI(Creature* creature) : m_creature(creature) {}
+    ScriptedAI(Creature* creature):CreatureAI(creature),m_creature(creature){}
     ~ScriptedAI() {}
 
     // Called if IsVisible(Unit *who) is true at each *who move

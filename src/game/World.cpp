@@ -1781,7 +1781,7 @@ void World::ForceGameEventUpdate()
 }
 
 /// Put scripts in the execution queue
-void World::ScriptsStart(ScriptMapMap const& scripts, uint32 id, Object* source, Object* target)
+void World::ScriptsStart(ScriptMapMap const& scripts, uint32 id, Object* source, Object* target, bool start)
 {
     ///- Find the script map
     ScriptMapMap::const_iterator s = scripts.find(id);
@@ -1809,7 +1809,7 @@ void World::ScriptsStart(ScriptMapMap const& scripts, uint32 id, Object* source,
             immedScript = true;
     }
     ///- If one of the effects should be immediate, launch the script execution
-    if (immedScript)
+    if (start && immedScript)
         ScriptsProcess();
 }
 
@@ -2539,12 +2539,9 @@ void World::ScriptsProcess()
                     break;
 
                 uint32 script_id = step.script->datalong2;
-                //delete iter and return it to begin pos(next one)
-                m_scriptSchedule.erase(iter);
-                iter = m_scriptSchedule.begin();
-
-                ScriptsStart(*datamap, script_id, target, NULL);
-                return;
+                //insert script into schedule but do not start it
+                ScriptsStart(*datamap, script_id, target, NULL, false);
+                break;
             }
 
             case SCRIPT_COMMAND_KILL:
