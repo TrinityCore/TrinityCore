@@ -77,7 +77,6 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         HeroicMode = c->GetMap()->IsHeroic();
-        Reset();
     }
 
     ScriptedInstance* pInstance;
@@ -307,7 +306,6 @@ struct TRINITY_DLL_DECL mob_annhylde_the_callerAI : public ScriptedAI
     mob_annhylde_the_callerAI(Creature *c) : ScriptedAI(c) 
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     float x,y,z;
@@ -413,7 +411,6 @@ struct TRINITY_DLL_DECL mob_ingvar_throw_dummyAI : public ScriptedAI
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         HeroicMode = c->GetMap()->IsHeroic();
-        Reset();
     }
 
     bool HeroicMode;

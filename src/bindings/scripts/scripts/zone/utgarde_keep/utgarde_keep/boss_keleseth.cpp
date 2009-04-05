@@ -59,7 +59,6 @@ struct TRINITY_DLL_DECL mob_frost_tombAI : public ScriptedAI
     mob_frost_tombAI(Creature *c) : ScriptedAI(c)
     {
         FrostTombGUID = 0;
-        Reset();
     }
 
     uint64 FrostTombGUID;
@@ -97,7 +96,6 @@ struct TRINITY_DLL_DECL boss_kelesethAI : public ScriptedAI
     boss_kelesethAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
         Heroic = c->GetMap()->IsHeroic();
     }
     
@@ -213,7 +211,6 @@ struct TRINITY_DLL_DECL mob_vrykul_skeletonAI : public ScriptedAI
     mob_vrykul_skeletonAI(Creature *c) : ScriptedAI(c) 
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
     }
 
     ScriptedInstance *pInstance;
