@@ -33,22 +33,7 @@
 #include <fstream>
 #include "ObjectMgr.h"
 
-bool ChatHandler::HandleDebugInArcCommand(const char* /*args*/)
-{
-    Object *obj = getSelectedUnit();
-
-    if(!obj)
-    {
-        SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
-        return true;
-    }
-
-    SendSysMessage(LANG_NOT_IMPLEMENTED);
-
-    return true;
-}
-
-bool ChatHandler::HandleDebugSpellFailCommand(const char* args)
+bool ChatHandler::HandleDebugSendSpellFailCommand(const char* args)
 {
     if(!args)
         return false;
@@ -58,17 +43,31 @@ bool ChatHandler::HandleDebugSpellFailCommand(const char* args)
         return false;
 
     uint8 failnum = (uint8)atoi(px);
+    if(failnum==0 && *px!='0')
+        return false;
+
+    char* p1 = strtok(NULL, " ");
+    uint8 failarg1 = p1 ? (uint8)atoi(p1) : 0;
+
+    char* p2 = strtok(NULL, " ");
+    uint8 failarg2 = p2 ? (uint8)atoi(p2) : 0;
+
 
     WorldPacket data(SMSG_CAST_FAILED, 5);
     data << uint8(0);
     data << uint32(133);
     data << uint8(failnum);
+    if(p1 || p2)
+        data << uint32(failarg1);
+    if(p2)
+        data << uint32(failarg2);
+
     m_session->SendPacket(&data);
 
     return true;
 }
 
-bool ChatHandler::HandleDebugSetPoiCommand(const char* args)
+bool ChatHandler::HandleDebugSendPoiCommand(const char* args)
 {
     Player *pPlayer = m_session->GetPlayer();
     Unit* target = getSelectedUnit();
@@ -94,7 +93,7 @@ bool ChatHandler::HandleDebugSetPoiCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleDebugEquipErrorCommand(const char* args)
+bool ChatHandler::HandleDebugSendEquipErrorCommand(const char* args)
 {
     if(!args)
         return false;
@@ -104,7 +103,7 @@ bool ChatHandler::HandleDebugEquipErrorCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleDebugSellErrorCommand(const char* args)
+bool ChatHandler::HandleDebugSendSellErrorCommand(const char* args)
 {
     if(!args)
         return false;
@@ -114,7 +113,7 @@ bool ChatHandler::HandleDebugSellErrorCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleDebugBuyErrorCommand(const char* args)
+bool ChatHandler::HandleDebugSendBuyErrorCommand(const char* args)
 {
     if(!args)
         return false;
@@ -717,5 +716,16 @@ bool ChatHandler::HandleDebugSetItemFlagCommand(const char* args)
 
     i->SetUInt32Value(ITEM_FIELD_FLAGS, flag);
 
+    return true;
+}
+
+//show animation
+bool ChatHandler::HandleDebugAnimCommand(const char* args)
+{
+    if (!*args)
+        return false;
+
+    uint32 anim_id = atoi((char*)args);
+    m_session->GetPlayer()->HandleEmoteCommand(anim_id);
     return true;
 }
