@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
- * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2009 Trinity <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -123,6 +123,8 @@ class TRINITY_DLL_SPEC Object
             if(m_inWorld)
                 return;
 
+            assert(m_uint32Values);
+
             m_inWorld = true;
 
             // synchronize values mirror with values array (changes will send in updatecreate opcode any way
@@ -133,10 +135,10 @@ class TRINITY_DLL_SPEC Object
             if(!m_inWorld)
                 return;
 
-            // if we remove from world then sending changes not required
-            if(m_uint32Values)
-                ClearUpdateMask(true);
             m_inWorld = false;
+
+            // if we remove from world then sending changes not required
+            ClearUpdateMask(true);
         }
 
         const uint64& GetGUID() const { return GetUInt64Value(0); }
@@ -300,8 +302,6 @@ class TRINITY_DLL_SPEC Object
 
         uint16 GetValuesCount() const { return m_valuesCount; }
 
-        void InitValues() { _InitValues(); }
-
         virtual bool hasQuest(uint32 /* quest_id */) const { return false; }
         virtual bool hasInvolvedQuest(uint32 /* quest_id */) const { return false; }
 
@@ -419,7 +419,6 @@ class TRINITY_DLL_SPEC WorldObject : public Object
         void GetRandomPoint( float x, float y, float z, float distance, float &rand_x, float &rand_y, float &rand_z ) const;
 
         void SetMapId(uint32 newMap) { m_mapId = newMap; }
-
         uint32 GetMapId() const { return m_mapId; }
 
         uint32 GetZoneId() const;
