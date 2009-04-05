@@ -1107,8 +1107,7 @@ void AchievementMgr::CompletedCriteria(AchievementCriteriaEntry const* criteria,
     if (m_completedAchievements.find(achievement->ID)!=m_completedAchievements.end())
         return;
 
-    if ((criteria->referredAchievement==achievement->ID && (criteria->completionFlag & ACHIEVEMENT_CRITERIA_COMPLETE_FLAG_ALL)) ||
-        IsCompletedAchievement(achievement))
+    if (IsCompletedAchievement(achievement))
         CompletedAchievement(achievement);
 }
 
@@ -1137,13 +1136,6 @@ bool AchievementMgr::IsCompletedAchievement(AchievementEntry const* entry)
             ++count;
         else
             completed_all = false;
-
-        if(achievmentForTestId == entry->ID)                // not referenced achievement
-        {
-            // completed as single req. criteria
-            if(completed && criteria->completionFlag & ACHIEVEMENT_CRITERIA_COMPLETE_FLAG_ALL)
-                return true;
-        }
 
         // completed as have req. count of completed criterias
         if(achievmentForTestCount > 0 && achievmentForTestCount <= count)
