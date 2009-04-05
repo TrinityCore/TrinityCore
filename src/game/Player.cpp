@@ -15849,7 +15849,7 @@ void Player::_SaveAuras()
             if (spellInfo->Effect[i] == SPELL_AURA_MOD_SHAPESHIFT ||
                 spellInfo->Effect[i] == SPELL_AURA_MOD_STEALTH )
                 continue;
-        uint32 amounts[MAX_SPELL_EFFECTS];
+        int32 amounts[MAX_SPELL_EFFECTS];
         for (uint8 i=0;i<MAX_SPELL_EFFECTS;++i)
         {
             if (AuraEffect * partAura = itr->second->GetPartAura(i))
@@ -15861,7 +15861,7 @@ void Player::_SaveAuras()
         CharacterDatabase.PExecute("INSERT INTO character_aura (guid,caster_guid,spell,effect_mask,stackcount,amount0, amount1, amount2,maxduration,remaintime,remaincharges) "
             "VALUES ('%u', '" I64FMTD "', '%u', '%u', '%d', '%d', '%d', '%d', '%d', '%d', '%d')",
             GetGUIDLow(), itr->second->GetCasterGUID(),(uint32)itr->second->GetId(), (uint32)itr->second->GetEffectMask(), 
-            (uint32)itr->second->GetStackAmount(), amounts[0], amounts[1], amounts[2] 
+            (uint32)itr->second->GetStackAmount(), (int32)amounts[0], (int32)amounts[1], (int32)amounts[2] 
             ,int(itr->second->GetAuraMaxDuration()),int(itr->second->GetAuraDuration()),int(itr->second->GetAuraCharges()));
     }
 }
