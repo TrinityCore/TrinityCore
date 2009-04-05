@@ -42,13 +42,16 @@ enum AchievementFactionFlags
 
 enum AchievementFlags
 {
-    ACHIEVEMENT_FLAG_COUNTER          = 0x00000001,
-    ACHIEVEMENT_FLAG_REACH_LEVEL      = 0x00000004,
-    ACHIEVEMENT_FLAG_RERERED_MAX      = 0x00000010,         // displays the maximum criteria of a refered achievement
-    ACHIEVEMENT_FLAG_MONEY_COUNTER    = 0x00000020,         // displays counter as money
-    ACHIEVEMENT_FLAG_AVERAGE          = 0x00000040,
-    ACHIEVEMENT_FLAG_REALM_FIRST_REACH= 0x00000100,
-    ACHIEVEMENT_FLAG_REALM_FIRST_KILL = 0x00000200,
+    ACHIEVEMENT_FLAG_COUNTER           = 0x00000001,        // Just count statistic (never stop and complete)
+    ACHIEVEMENT_FLAG_UNK2              = 0x00000002,        // not used
+    ACHIEVEMENT_FLAG_STORE_MAX_VALUE   = 0x00000004,        // Store only max value? used only in "Reach level xx"
+    ACHIEVEMENT_FLAG_SUMM              = 0x00000008,        // Use summ criteria value from all reqirements (and calculate max vale)
+    ACHIEVEMENT_FLAG_MAX_USED          = 0x00000010,        // Show max criteria (and calculate max vale ??)
+    ACHIEVEMENT_FLAG_REQ_COUNT         = 0x00000020,        // Use not zero req count (and calculate max vale)
+    ACHIEVEMENT_FLAG_AVERANGE          = 0x00000040,        // Show as averange value (value / time_in_days) depend from other flag (by def use last criteria value)
+    ACHIEVEMENT_FLAG_BAR               = 0x00000080,        // Show as progress bar (value / max vale) depend from other flag (by def use last criteria value)
+    ACHIEVEMENT_FLAG_REALM_FIRST_REACH = 0x00000100,        //
+    ACHIEVEMENT_FLAG_REALM_FIRST_KILL  = 0x00000200,        //
 };
 
 enum AchievementCriteriaCondition
@@ -64,8 +67,12 @@ enum AchievementCriteriaCondition
 
 enum AchievementCriteriaCompletionFlags
 {
-    // some Achievements (like 698) have several criteria but only one has to be fulfilled. These are identified by this flag.
-    ACHIEVEMENT_CRITERIA_COMPLETE_FLAG_ALL = 2,
+    ACHIEVEMENT_CRITERIA_FLAG_SHOW_PROGRESS_BAR = 0x00000001,         // Show progress as bar
+    ACHIEVEMENT_CRITERIA_FLAG_HIDE_CRITERIA     = 0x00000002,         // Not show criteria in client
+    ACHIEVEMENT_CRITERIA_FLAG_UNK3              = 0x00000004,         // BG related??
+    ACHIEVEMENT_CRITERIA_FLAG_UNK4              = 0x00000008,         //
+    ACHIEVEMENT_CRITERIA_FLAG_UNK5              = 0x00000010,         // not used
+    ACHIEVEMENT_CRITERIA_FLAG_MONEY_COUNTER     = 0x00000020,         // Displays counter as money
 };
 
 enum AchievementCriteriaGroupFlags
