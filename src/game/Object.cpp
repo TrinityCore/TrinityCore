@@ -753,8 +753,8 @@ void Object::ClearUpdateMask(bool remove)
         return;
     }
 
-    m_uint32Values[0];
-    m_uint32Values_mirror[0];
+    uint32 temp = m_uint32Values[0];
+    temp = m_uint32Values_mirror[0];
 
     for( uint16 index = 0; index < m_valuesCount; index ++ )
     {
@@ -810,8 +810,8 @@ void Object::_SetUpdateBits(UpdateMask *updateMask, Player* /*target*/) const
         return;
     }
 
-    m_uint32Values[0];
-    m_uint32Values_mirror[0];
+    uint32 temp = m_uint32Values[0];
+    temp = m_uint32Values_mirror[0];
 
     for(uint16 index = 0; index < m_valuesCount; ++index)
     {
