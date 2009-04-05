@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
- * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2009 Trinity <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -80,8 +80,8 @@ Object::Object( )
 
 Object::~Object( )
 {
-    if(m_objectUpdated)
-        ObjectAccessor::Instance().RemoveUpdateObject(this);
+    //if(m_objectUpdated)
+    //    ObjectAccessor::Instance().RemoveUpdateObject(this);
 
     if(m_uint32Values)
     {
@@ -89,8 +89,10 @@ Object::~Object( )
         {
             ///- Do NOT call RemoveFromWorld here, if the object is a player it will crash
             sLog.outError("Object::~Object - guid="I64FMTD", typeid=%d deleted but still in world!!", GetGUID(), GetTypeId());
-            //assert(0);
+            assert(false);
         }
+
+        assert(!m_objectUpdated);
 
         //DEBUG_LOG("Object desctr 1 check (%p)",(void*)this);
         delete [] m_uint32Values;
@@ -146,13 +148,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData *data, Player *target) c
 
     /** lower flag1 **/
     if(target == this)                                      // building packet for oneself
-    {
         flags |= UPDATEFLAG_SELF;
-
-        /*** temporary reverted - until real source of stack corruption will not found
-        updatetype = UPDATETYPE_CREATE_OBJECT2;
-        ****/
-    }
 
     if(flags & UPDATEFLAG_HASPOSITION)
     {
@@ -571,7 +567,6 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
             if( updateMask->GetBit( index ) )
             {
                 // remove custom flag before send
-
                 if( index == UNIT_NPC_FLAGS )
                     *data << uint32(m_uint32Values[ index ] & ~(UNIT_NPC_FLAG_GUARD + UNIT_NPC_FLAG_OUTDOORPVP));
                 // FIXME: Some values at server stored in float format but must be sent to client in uint32 format
@@ -1046,7 +1041,7 @@ void Object::RemoveByteFlag( uint16 index, uint8 offset, uint8 oldFlag )
 
 bool Object::PrintIndexError(uint32 index, bool set) const
 {
-    sLog.outError("ERROR: Attempt %s non-existed value field: %u (count: %u) for object typeid: %u type mask: %u",(set ? "set value to" : "get value from"),index,m_valuesCount,GetTypeId(),m_objectType);
+    sLog.outError("Attempt %s non-existed value field: %u (count: %u) for object typeid: %u type mask: %u",(set ? "set value to" : "get value from"),index,m_valuesCount,GetTypeId(),m_objectType);
 
     // assert must fail after function call
     return false;
@@ -1130,7 +1125,7 @@ uint32 WorldObject::GetAreaId() const
 
 InstanceData* WorldObject::GetInstanceData()
 {
-    Map *map = MapManager::Instance().GetMap(m_mapId, this);
+    Map *map = GetMap();
     return map->IsDungeon() ? ((InstanceMap*)map)->GetInstanceData() : NULL;
 }
 
@@ -1242,6 +1237,10 @@ float WorldObject::GetAngle( const float x, const float y ) const
 
 bool WorldObject::HasInArc(const float arcangle, const WorldObject* obj) const
 {
+    // always have self in arc
+    if(obj == this)
+        return true;
+
     float arc = arcangle;
 
     // move arc to range 0.. 2*pi
@@ -1346,13 +1345,13 @@ void Object::ForceValuesUpdateAtIndex(uint32 i)
 {
     m_uint32Values_mirror[i] = GetUInt32Value(i) + 1; // makes server think the field changed
     if(m_inWorld)
-        {
+    {
         if(!m_objectUpdated)
-            {
+        {
             ObjectAccessor::Instance().AddUpdateObject(this);
             m_objectUpdated = true;
-            }
         }
+    }
 }
 
 namespace Trinity
@@ -1733,18 +1732,20 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float 
 {
     if(!IsInWorld())
         return NULL;
-    Map * map = GetMap();
-    if(!map)
-        return NULL;
+
     GameObjectInfo const* goinfo = objmgr.GetGameObjectInfo(entry);
     if(!goinfo)
     {
         sLog.outErrorDb("Gameobject template %u not found in database!", entry);
         return NULL;
     }
+    Map *map = GetMap();
     GameObject *go = new GameObject();
     if(!go->Create(objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT),entry,map,x,y,z,ang,rotation0,rotation1,rotation2,rotation3,100,1))
+    {
+        delete go;
         return NULL;
+    }
     go->SetRespawnTime(respawnTime);
     if(GetTypeId()==TYPEID_PLAYER || GetTypeId()==TYPEID_UNIT) //not sure how to handle this
         ((Unit*)this)->AddGameObject(go);
