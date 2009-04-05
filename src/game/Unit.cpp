@@ -66,6 +66,11 @@ float baseMoveSpeed[MAX_MOVE_TYPE] =
 
 void InitTriggerAuraData();
 
+void Unit::AddToWorld()
+{
+       WorldObject::AddToWorld();
+}
+
 // auraTypes contains attacker auras capable of proc'ing cast auras
 static Unit::AuraTypeSet GenerateAttakerProcCastAuraTypes()
 {
