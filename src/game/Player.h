@@ -2001,6 +2001,9 @@ class TRINITY_DLL_SPEC Player : public Unit
         uint32 GetOldPetSpell() const { return m_oldpetspell; }
         void SetOldPetSpell(uint32 petspell) { m_oldpetspell = petspell; }
 
+        void SendCinematicStart(uint32 CinematicSequenceId);
+        void SendMovieStart(uint32 MovieId);
+
         /*********************************************************/
         /***                 INSTANCE SYSTEM                   ***/
         /*********************************************************/
