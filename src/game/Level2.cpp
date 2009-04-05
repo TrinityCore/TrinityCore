@@ -3696,17 +3696,6 @@ bool ChatHandler::HandleCustomizeCommand(const char* args)
     return true;
 }
 
-//show animation
-bool ChatHandler::HandleDebugAnimCommand(const char* args)
-{
-    if (!*args)
-        return false;
-
-    uint32 anim_id = atoi((char*)args);
-    m_session->GetPlayer()->HandleEmoteCommand(anim_id);
-    return true;
-}
-
 //change standstate
 bool ChatHandler::HandleModifyStandStateCommand(const char* args)
 {
