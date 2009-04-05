@@ -129,7 +129,6 @@ class ChatHandler
         bool HandleDebugGetLootRecipient(const char * args);
         bool HandleDebugGetValue(const char* args);
         bool HandleDebugMod32Value(const char* args);
-        bool HandleDebugPlaySoundCommand(const char* args);
         bool HandleDebugSetValue(const char* args);
         bool HandleDebugSetItemFlagCommand(const char * args);
         bool HandleDebugSpawnVehicle(const char * args);
@@ -143,6 +142,10 @@ class ChatHandler
         bool HandleUnPossessCommand(const char* args);
         bool HandleBindSightCommand(const char* args);
         bool HandleUnbindSightCommand(const char* args);
+
+        bool HandleDebugPlayCinematicCommand(const char* args);
+        bool HandleDebugPlayMovieCommand(const char* args);
+        bool HandleDebugPlaySoundCommand(const char* args);
 
         bool HandleDebugSendBuyErrorCommand(const char* args);
         bool HandleDebugSendChannelNotifyCommand(const char* args);
