@@ -2133,6 +2133,10 @@ void Spell::cancel()
     if(m_spellState == SPELL_STATE_FINISHED)
         return;
 
+    SetReferencedFromCurrent(false);
+    if(m_selfContainer)
+        *m_selfContainer = NULL;
+
     uint32 oldState = m_spellState;
     m_spellState = SPELL_STATE_FINISHED;
 
