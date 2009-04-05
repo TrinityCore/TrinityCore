@@ -854,6 +854,13 @@ enum TrinityStrings
     LANG_WORLD_CLOSED                    = 7523,
     LANG_WORLD_OPENED                    = 7524,
 
+    // Debug commands
+    LANG_CINEMATIC_NOT_EXIST            = 1200,
+    LANG_MOVIE_NOT_EXIST                = 1201,
+    // Room for more debug                1202-1299 not used
+
+    // FREE IDS                           1300-9999
+
     // Use for not-in-offcial-sources patches
     //                                    10000-10999
     // opvp hp
