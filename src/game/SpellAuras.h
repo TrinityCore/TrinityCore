@@ -355,7 +355,6 @@ class TRINITY_DLL_SPEC AuraEffect
         int32 GetAmount() const {return m_amount;}
         void SetAmount(int32 amount) { m_amount = amount; }
         void CleanupTriggeredSpells();
-        bool RemoveParentAura();
 
     protected:
         AuraEffect (Aura * parentAura, uint8 effIndex, int32 * currentBasePoints , Unit * caster,Item * castItem);
