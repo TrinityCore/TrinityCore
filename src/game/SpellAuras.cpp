@@ -414,8 +414,8 @@ m_auraSlot(MAX_AURAS), m_auraLevel(1), m_procCharges(0), m_stackAmount(1),m_aura
             else
                 m_partAuras[i]=CreateAuraEffect(this, i, NULL , caster);
             // correct flags if aura couldn't be created
-            if (!m_partAuras[i])
-                m_auraFlags &= (~(uint8(1) << i));
+            //if (!m_partAuras[i])
+                //m_auraFlags &= (~(uint8(1) << i));
         }
         else
         {
@@ -748,7 +748,7 @@ void AreaAuraEffect::Update(uint32 diff)
 
             for(std::list<Unit *>::iterator tIter = targets.begin(); tIter != targets.end(); tIter++)
             {
-                if((*tIter)->HasAuraEffect(GetId(), GetEffIndex(), GetCasterGUID()))
+                if((*tIter)->HasAuraEffect(GetId(), GetEffIndex(), caster->GetGUID()))
                     continue;
 
                 if(SpellEntry const *actualSpellInfo = spellmgr.SelectAuraRankForPlayerLevel(GetSpellProto(), (*tIter)->getLevel()))
@@ -788,7 +788,7 @@ void AreaAuraEffect::Update(uint32 diff)
             caster->IsFriendlyTo(tmp_target) != needFriendly
            )
         {
-                tmp_target->RemoveAurasDueToSpell(tmp_spellId, tmp_guid);
+            GetParentAura()->SetAuraDuration(0);
         }
         else if (!caster->IsWithinDistInMap(tmp_target, m_radius))
         {
@@ -796,10 +796,10 @@ void AreaAuraEffect::Update(uint32 diff)
             {
                 m_removeTime -= diff;
                 if (m_removeTime < 0)
-                    tmp_target->RemoveAurasDueToSpell(tmp_spellId, tmp_guid);
+                    GetParentAura()->SetAuraDuration(0);
             }
             else
-                tmp_target->RemoveAurasDueToSpell(tmp_spellId, tmp_guid);
+                GetParentAura()->SetAuraDuration(0);
         }
         else
         {
@@ -808,17 +808,17 @@ void AreaAuraEffect::Update(uint32 diff)
             if( m_areaAuraType == AREA_AURA_PARTY)         // check if in same sub group
             {
                 if(!tmp_target->IsInPartyWith(caster))
-                    tmp_target->RemoveAurasDueToSpell(tmp_spellId, tmp_guid);
+                    GetParentAura()->SetAuraDuration(0);
             }
             else if( m_areaAuraType == AREA_AURA_RAID)
             {
                 if(!tmp_target->IsInRaidWith(caster))
-                    tmp_target->RemoveAurasDueToSpell(tmp_spellId, tmp_guid);
+                    GetParentAura()->SetAuraDuration(0);
             }
             else if( m_areaAuraType == AREA_AURA_PET || m_areaAuraType == AREA_AURA_OWNER )
             {
                 if( tmp_target->GetGUID() != caster->GetCharmerOrOwnerGUID() )
-                    tmp_target->RemoveAurasDueToSpell(tmp_spellId, tmp_guid);
+                    GetParentAura()->SetAuraDuration(0);
             }
         }
     }
@@ -854,7 +854,7 @@ void PersistentAreaAuraEffect::Update(uint32 diff)
     AuraEffect::Update(diff);
 
     if(remove)
-        tmp_target->RemoveAurasDueToSpell(tmp_id, tmp_guid);
+        GetParentAura()->SetAuraDuration(0);
 }
 
 void AuraEffect::ApplyModifier(bool apply, bool Real)
@@ -1205,10 +1205,11 @@ void Aura::SetStackAmount(uint8 stackAmount)
                 // Reapply if amount change
                 if (amount!=part->GetAmount())
                 {
+                    bool Real = bool (part->m_spellmod);
                     // Auras which are applying spellmod should have removed spellmods for real
-                    part->ApplyModifier(false, bool (part->m_spellmod));
+                    part->ApplyModifier(false,Real);
                     part->SetAmount(amount);
-                    part->ApplyModifier(true, bool (part->m_spellmod));
+                    part->ApplyModifier(true, Real);
                 }
             }
         }

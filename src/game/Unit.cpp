@@ -5624,7 +5624,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 // Leader of the Pack
                 case 24932:
                 {
-                    if (triggerAmount == 0)
+                    if (triggerAmount <= 0)
                         return false;
                     basepoints0 = triggerAmount * GetMaxHealth() / 100;
                     target = this;
@@ -13205,13 +13205,13 @@ void Unit::AddAura(uint32 spellId, Unit* target)
 Aura * Unit::AddAuraEffect(uint32 spellId, uint8 effIndex, Unit* caster)
 {
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
-    if(!spellInfo)
+    if(!spellInfo || !caster)
         return NULL;
 
     // can't do that for passive auras - they stack from same caster so there is no way to get exact aura which should get effect
     //assert (!IsPassiveSpell(spellInfo));
 
-    Aura * aur = GetAura(spellId, GetGUID());
+    Aura * aur = GetAura(spellId, caster->GetGUID());
 
     if (aur)
     {
