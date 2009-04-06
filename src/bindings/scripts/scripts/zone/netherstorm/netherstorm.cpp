@@ -652,7 +652,7 @@ Creature* SearchDawnforge(Player *source, uint32 entry, float range)
 bool AreaTrigger_at_commander_dawnforge(Player *player, AreaTriggerEntry *at)
 {
     //if player lost aura or not have at all, we should not try start event.
-    if (!player->HasAura(SPELL_SUNFURY_DISGUISE,0))
+    if (!player->HasAura(SPELL_SUNFURY_DISGUISE))
         return false;
 
     if (player->isAlive() && player->GetQuestStatus(QUEST_INFO_GATHERING) == QUEST_STATUS_INCOMPLETE)
@@ -858,7 +858,7 @@ struct TRINITY_DLL_DECL mob_phase_hunterAI : public ScriptedAI
                 DoScriptText(EMOTE_WEAK, m_creature);
                 Weak = true;
             }
-            if(Weak && !Drained && m_creature->HasAura(34219, 0))
+            if(Weak && !Drained && m_creature->HasAura(34219))
             {
                 Drained = true;
 

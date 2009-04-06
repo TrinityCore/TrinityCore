@@ -281,11 +281,11 @@ enum InventorySlot
 };
 
 struct FactionTemplateEntry;
-struct Modifier;
 struct SpellEntry;
 struct SpellEntryExt;
 
 class Aura;
+class AuraEffect;
 class Creature;
 class Spell;
 class DynamicObject;
@@ -329,9 +329,10 @@ enum DamageTypeToSchool
 enum AuraRemoveMode
 {
     AURA_REMOVE_BY_DEFAULT,
-    AURA_REMOVE_BY_DELETE,               // change stack, single aura remove, duel complete
+    AURA_REMOVE_BY_STACK,               // change stack, single aura remove,
     AURA_REMOVE_BY_CANCEL,
     AURA_REMOVE_BY_ENEMY_SPELL,              // dispel and absorb aura destroy
+    AURA_REMOVE_BY_EXPIRE,              // dispel and absorb aura destroy
     AURA_REMOVE_BY_DEATH
 };
 
@@ -834,14 +835,6 @@ enum ReactiveType
 #define SUMMON_SLOT_QUEST   6
 #define MAX_SUMMON_SLOT     7
 
-struct AuraSlotEntry
-{
-    uint8 m_Flags;
-    uint8 m_Level;
-    uint32 m_spellId;
-    Aura * m_slotAuras[3];
-};
-
 // delay time next attack to prevent client attack animation problems
 #define ATTACK_DISPLAY_DELAY 200
 
@@ -853,12 +846,13 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         typedef std::set<Unit*> AttackerSet;
         typedef std::set<Unit*> ControlList;
         typedef std::pair<uint32, uint8> spellEffectPair;
-        typedef std::multimap< spellEffectPair, Aura*> AuraMap;
+        typedef std::multimap<uint32,  Aura*> AuraMap;
+        typedef std::list<AuraEffect *> AuraEffectList;
         typedef std::list<Aura *> AuraList;
         typedef std::list<DiminishingReturn> Diminishing;
         typedef std::set<uint32> ComboPointHolderSet;
 
-        typedef std::map<uint8, AuraSlotEntry> VisibleAuraMap;
+        typedef std::map<uint8, Aura*> VisibleAuraMap;
 
         virtual ~Unit ( );
 
@@ -878,7 +872,6 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         uint32 GetSpellRadiusForTarget(Unit* target,const SpellRadiusEntry * radiusEntry);
 
         virtual void Update( uint32 time );
-        void UpdateAuras();
 
         void setAttackTimer(WeaponAttackType type, uint32 time) { m_attackTimer[type] = time; }
         void resetAttackTimer(WeaponAttackType type = BASE_ATTACK);
@@ -1105,13 +1098,6 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void ClearInCombat();
         uint32 GetCombatTimer() const { return m_CombatTimer; }
 
-        bool HasAuraType(AuraType auraType) const;
-        bool HasAura(uint32 spellId, uint32 effIndex) const
-        {
-            return m_Auras.find(spellEffectPair(spellId, effIndex)) != m_Auras.end();
-        }
-        bool HasAura(uint32 spellId) const;
-
         bool virtual HasSpell(uint32 /*spellID*/) const { return false; }
 
         bool HasStealthAura()      const { return HasAuraType(SPELL_AURA_MOD_STEALTH); }
@@ -1132,13 +1118,15 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void SendHealSpellLog(Unit *pVictim, uint32 SpellID, uint32 Damage, bool critical = false);
         void SendEnergizeSpellLog(Unit *pVictim, uint32 SpellID, uint32 Damage,Powers powertype);
         uint32 SpellNonMeleeDamageLog(Unit *pVictim, uint32 spellID, uint32 damage, bool isTriggeredSpell = false, bool useSpellDamage = true);
-        void CastSpell(Unit* Victim, uint32 spellId, bool triggered, Item *castItem = NULL, Aura* triggeredByAura = NULL, uint64 originalCaster = 0);
-        void CastSpell(Unit* Victim,SpellEntry const *spellInfo, bool triggered, Item *castItem= NULL, Aura* triggeredByAura = NULL, uint64 originalCaster = 0);
-        void CastCustomSpell(Unit* Victim, uint32 spellId, int32 const* bp0, int32 const* bp1, int32 const* bp2, bool triggered, Item *castItem= NULL, Aura* triggeredByAura = NULL, uint64 originalCaster = 0);
-        void CastCustomSpell(Unit* Victim,SpellEntry const *spellInfo, int32 const* bp0, int32 const* bp1, int32 const* bp2, bool triggered, Item *castItem= NULL, Aura* triggeredByAura = NULL, uint64 originalCaster = 0);
-        void CastSpell(float x, float y, float z, uint32 spellId, bool triggered, Item *castItem = NULL, Aura* triggeredByAura = NULL, uint64 originalCaster = 0);
-        void CastSpell(GameObject *go, uint32 spellId, bool triggered, Item *castItem = NULL, Aura* triggeredByAura = NULL, uint64 originalCaster = 0);
+        void CastSpell(Unit* Victim, uint32 spellId, bool triggered, Item *castItem = NULL, AuraEffect* triggeredByAura = NULL, uint64 originalCaster = 0);
+        void CastSpell(Unit* Victim,SpellEntry const *spellInfo, bool triggered, Item *castItem= NULL, AuraEffect* triggeredByAura = NULL, uint64 originalCaster = 0);
+        void CastCustomSpell(Unit* Victim, uint32 spellId, int32 const* bp0, int32 const* bp1, int32 const* bp2, bool triggered, Item *castItem= NULL, AuraEffect* triggeredByAura = NULL, uint64 originalCaster = 0);
+        void CastCustomSpell(Unit* Victim,SpellEntry const *spellInfo, int32 const* bp0, int32 const* bp1, int32 const* bp2, bool triggered, Item *castItem= NULL, AuraEffect* triggeredByAura = NULL, uint64 originalCaster = 0);
+        void CastSpell(float x, float y, float z, uint32 spellId, bool triggered, Item *castItem = NULL, AuraEffect* triggeredByAura = NULL, uint64 originalCaster = 0);
+        void CastSpell(GameObject *go, uint32 spellId, bool triggered, Item *castItem = NULL, AuraEffect* triggeredByAura = NULL, uint64 originalCaster = 0);
         void AddAura(uint32 spellId, Unit *target);
+        void HandleAuraEffect(AuraEffect * aureff, bool apply);
+        Aura *AddAuraEffect(uint32 spellId, uint8 effIndex, Unit* caster);
 
         bool IsDamageToThreatSpell(SpellEntry const * spellInfo) const;
 
@@ -1244,35 +1232,22 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         bool AddAura(Aura *aur);
 
         void RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode = AURA_REMOVE_BY_DEFAULT);
-        void RemoveAura(uint32 spellId, uint32 effindex, Aura* except = NULL);
-        void RemoveSingleSpellAurasFromStack(uint32 spellId);
-        void RemoveSingleAuraFromStack(uint32 spellId, uint32 effindex);
-        void RemoveAurasDueToSpell(uint32 spellId, Aura* except = NULL);
-        void RemoveAurasDueToItemSpell(Item* castItem,uint32 spellId);
-        void RemoveAurasBySpell(uint32 spellId, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
-        void RemoveAurasByCasterSpell(uint32 spellId, uint64 casterGUID, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
-        void RemoveAurasByCasterSpell(uint32 spellId, uint8 effindex, uint64 casterGUID, AuraRemoveMode removeMode=AURA_REMOVE_BY_DEFAULT);
-        void RefreshAurasByCasterSpell(uint32 spellId, uint64 casterGUID);
-        void SetAurasDurationByCasterSpell(uint32 spellId, uint64 casterGUID, int32 duration);
-        Aura* GetAuraByCasterSpell(uint32 spellId, uint64 casterGUID);
-
+        void RemoveAura(uint32 spellId, uint64 caster = 0 ,AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
+        void RemoveAurasDueToSpell(uint32 spellId, uint64 caster = NULL ,AuraRemoveMode removeMode= AURA_REMOVE_BY_DEFAULT);
+        void RemoveAuraFromStack(uint32 spellId, uint64 caster = NULL ,AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
+        inline void RemoveAuraFromStack(AuraMap::iterator &iter,AuraRemoveMode removeMode);
         void RemoveAurasDueToSpellByDispel(uint32 spellId, uint64 casterGUID, Unit *dispeler);
         void RemoveAurasDueToSpellBySteal(uint32 spellId, uint64 casterGUID, Unit *stealer);
-        void RemoveAurasAtChanneledTarget(SpellEntry const* spellInfo, Unit * caster);
+        void RemoveAurasDueToItemSpell(Item* castItem,uint32 spellId);
+        void RemoveAurasByType(AuraType auraType, uint64 casterGUID = 0, Aura * except=NULL);
+        void RemoveAurasByTypeWithDispel(AuraType auraType, Spell * spell = NULL);
         void RemoveNotOwnSingleTargetAuras();
-
-        void RemoveSpellsCausingAura(AuraType auraType);
-        void RemoveSpellsCausingAuraWithDispel(AuraType auraType, Spell * spell);
-        void RemoveAuraTypeByCaster(AuraType auraType, uint64 casterGUID);
-        void RemoveRankAurasDueToSpell(uint32 spellId);
         bool RemoveNoStackAurasDueToAura(Aura *Aur);
-        void RemoveAurasWithInterruptFlags(uint32 flags, uint32 except = 0);
-        void RemoveAurasWithDispelType( DispelType type );
-
+        void RemoveAurasWithInterruptFlags(uint32 flag, uint32 except = NULL);
         void RemoveAllAuras();
         void RemoveArenaAuras(bool onleave = false);
         void RemoveAllAurasOnDeath();
-        void DelayAura(uint32 spellId, uint32 effindex, int32 delaytime);
+        void DelayAura(uint32 spellId, uint64 caster, int32 delaytime);
 
         float GetResistanceBuffMods(SpellSchools school, bool positive) const { return GetFloatValue(positive ? UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE+school : UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE+school ); }
         void SetResistanceBuffMods(SpellSchools school, bool positive, float val) { SetFloatValue(positive ? UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE+school : UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE+school,val); }
@@ -1399,33 +1374,31 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         HostilRefManager& getHostilRefManager() { return m_HostilRefManager; }
 
         VisibleAuraMap const *GetVisibleAuras() { return &m_visibleAuras; }
-        AuraSlotEntry * GetVisibleAura(uint8 slot)
+        Aura * GetVisibleAura(uint8 slot)
         {
             VisibleAuraMap::iterator itr = m_visibleAuras.find(slot);
             if(itr != m_visibleAuras.end())
-                return &itr->second;
+                return itr->second;
             return 0;
         }
-        AuraSlotEntry * GetVisibleAuraSlot(uint8 slot) { return &m_visibleAuras[slot]; }
-        void RemoveVisibleAura(uint8 slot) { m_visibleAuras.erase(slot); }
-
-        const uint64& GetAuraUpdateMask() const { return m_auraUpdateMask; }
-        void SetAuraUpdateMask(uint8 slot) { m_auraUpdateMask |= (uint64(1) << slot); }
-        void ResetAuraUpdateMask() { m_auraUpdateMask = 0; }
-        void SendAuraUpdate(uint8 slot);
-
-        Aura* GetAura(uint32 spellId, uint32 effindex);
-        Aura* GetAura(AuraType type, uint32 family, uint32 familyFlag1 = 0, uint32 familyFlag2 = 0, uint32 familyFlag3 = 0, uint64 casterGUID = 0);
+        void SetVisibleAura(uint8 slot, Aura * aur){ m_visibleAuras[slot]=aur; }
+        void RemoveVisibleAura(uint8 slot){ m_visibleAuras.erase(slot); }
 
         AuraMap      & GetAuras()       { return m_Auras; }
         AuraMap const& GetAuras() const { return m_Auras; }
-        AuraList const& GetAurasByType(AuraType type) const { return m_modAuras[type]; }
-        void ApplyAuraProcTriggerDamage(Aura* aura, bool apply);
+        AuraEffectList const& GetAurasByType(AuraType type) const { return m_modAuras[type]; }
 
+        AuraEffect * GetAuraEffect(uint32 spellId, uint8 effIndex, uint64 casterGUID = 0) const;
+        Aura * GetAura(uint32 spellId, uint64 casterGUID = 0) const;
+        AuraEffect* GetAura(AuraType type, uint32 family, uint32 familyFlag1 , uint32 familyFlag2=0, uint32 familyFlag3=0, uint64 casterGUID=0);
+        bool HasAuraEffect(uint32 spellId, uint8 effIndex, uint64 caster = 0) const;
+        bool HasAura(uint32 spellId, uint64 caster = 0) const;
+        bool HasAuraType(AuraType auraType) const;
         bool HasAuraTypeWithMiscvalue(AuraType auratype, uint32 miscvalue) const;
+
         int32 GetTotalAuraModifier(AuraType auratype) const;
         float GetTotalAuraMultiplier(AuraType auratype) const;
-        int32 GetMaxPositiveAuraModifier(AuraType auratype) const;
+        int32 GetMaxPositiveAuraModifier(AuraType auratype);
         int32 GetMaxNegativeAuraModifier(AuraType auratype) const;
 
         int32 GetTotalAuraModifierByMiscMask(AuraType auratype, uint32 misc_mask) const;
@@ -1438,7 +1411,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         int32 GetMaxPositiveAuraModifierByMiscValue(AuraType auratype, int32 misc_value) const;
         int32 GetMaxNegativeAuraModifierByMiscValue(AuraType auratype, int32 misc_value) const;
 
-        Aura* GetDummyAura(uint32 spell_id) const;
+        AuraEffect* GetDummyAura(uint32 spell_id) const;
         uint32 GetInterruptMask() const { return m_interruptMask; }
         void AddInterruptMask(uint32 mask) { m_interruptMask |= mask; }
         void UpdateInterruptMask();
@@ -1509,7 +1482,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
 
         int32 CalculateSpellDamage(SpellEntry const* spellProto, uint8 effect_index, int32 basePoints, Unit const* target);
         int32 CalcSpellDuration(SpellEntry const* spellProto);
-        int32 ModSpellDuration(SpellEntry const* spellProto, uint8 effect_index, Unit const* target, int32 duration);
+        int32 ModSpellDuration(SpellEntry const* spellProto, Unit const* target, int32 duration, bool positive);
         void  ModSpellCastTime(SpellEntry const* spellProto, int32 & castTime, Spell const * spell=NULL);
         float CalculateLevelPenalty(SpellEntry const* spellProto) const;
 
@@ -1593,7 +1566,6 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
 
         DeathState m_deathState;
 
-        uint64 m_auraUpdateMask;
         AuraMap m_Auras;
 
         typedef std::list<uint64> DynObjectGUIDs;
@@ -1604,7 +1576,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         uint32 m_transform;
         uint32 m_removedAuras;
 
-        AuraList m_modAuras[TOTAL_AURAS];
+        AuraEffectList m_modAuras[TOTAL_AURAS];
         AuraList m_scAuras;                        // casted singlecast auras
         AuraList m_interruptableAuras;
         AuraList m_ccAuras;
@@ -1635,14 +1607,14 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void SendAttackStop(Unit* victim);                  // only from AttackStop(Unit*)
         //void SendAttackStart(Unit* pVictim);                // only from Unit::AttackStart(Unit*)
 
-        bool IsTriggeredAtSpellProcEvent(Unit *pVictim, Aura* aura, SpellEntry const* procSpell, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, bool isVictim, bool active, SpellProcEventEntry const*& spellProcEvent );
-        bool HandleDummyAuraProc(   Unit *pVictim, uint32 damage, Aura* triggredByAura, SpellEntry const *procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown);
-        bool HandleObsModEnergyAuraProc(   Unit *pVictim, uint32 damage, Aura* triggredByAura, SpellEntry const *procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown);
-        bool HandleHasteAuraProc(   Unit *pVictim, uint32 damage, Aura* triggredByAura, SpellEntry const *procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown);
-        bool HandleProcTriggerSpell(Unit *pVictim, uint32 damage, Aura* triggredByAura, SpellEntry const *procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown);
-        bool HandleOverrideClassScriptAuraProc(Unit *pVictim, uint32 damage, Aura* triggredByAura, SpellEntry const *procSpell, uint32 cooldown);
-        bool HandleAuraRaidProcFromChargeWithValue(Aura* triggeredByAura);
-        bool HandleAuraRaidProcFromCharge(Aura* triggeredByAura);
+        bool IsTriggeredAtSpellProcEvent(Unit *pVictim, AuraEffect* aura, SpellEntry const* procSpell, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, bool isVictim, bool active, SpellProcEventEntry const*& spellProcEvent );
+        bool HandleDummyAuraProc(   Unit *pVictim, uint32 damage, AuraEffect* triggeredByAura, SpellEntry const *procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown);
+        bool HandleObsModEnergyAuraProc(   Unit *pVictim, uint32 damage, AuraEffect* triggeredByAura, SpellEntry const *procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown);
+        bool HandleHasteAuraProc(   Unit *pVictim, uint32 damage, AuraEffect* triggeredByAura, SpellEntry const *procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown);
+        bool HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* triggeredByAura, SpellEntry const *procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown);
+        bool HandleOverrideClassScriptAuraProc(Unit *pVictim, uint32 damage, AuraEffect* triggeredByAura, SpellEntry const *procSpell, uint32 cooldown);
+        bool HandleAuraRaidProcFromChargeWithValue(AuraEffect* triggeredByAura);
+        bool HandleAuraRaidProcFromCharge(AuraEffect* triggeredByAura);
 
         void SetFeared(bool apply);
         void SetConfused(bool apply);

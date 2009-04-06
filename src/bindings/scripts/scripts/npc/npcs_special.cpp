@@ -199,7 +199,7 @@ bool ReceiveEmote_npc_dancing_flames( Player *player, Creature *flame, uint32 em
             case TEXTEMOTE_JOKE:    flame->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH); break;
             case TEXTEMOTE_DANCE:
             {
-                if (!player->HasAura(SPELL_SEDUCTION,0))
+                if (!player->HasAura(SPELL_SEDUCTION))
                     flame->CastSpell(player,SPELL_SEDUCTION,true);
             }
             break;
@@ -1213,7 +1213,7 @@ CreatureAI* GetAI_npc_tonk_mine(Creature *_Creature)
 bool ReceiveEmote_npc_winter_reveler( Player *player, Creature *_Creature, uint32 emote )
 {
     //TODO: check auralist.
-    if(player->HasAura(26218, 0))
+    if(player->HasAura(26218))
         return false;
 
     if( emote == TEXTEMOTE_KISS )

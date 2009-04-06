@@ -118,7 +118,7 @@ void WorldSession::HandleGossipSelectOptionOpcode( WorldPacket & recv_data )
 
     // remove fake death
     if(GetPlayer()->hasUnitState(UNIT_STAT_DIED))
-        GetPlayer()->RemoveSpellsCausingAura(SPELL_AURA_FEIGN_DEATH);
+        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     if(!code.empty())
     {
@@ -354,7 +354,7 @@ void WorldSession::HandleLogoutRequestOpcode( WorldPacket & /*recv_data*/ )
     //Can not logout if...
     if( GetPlayer()->isInCombat() ||                        //...is in combat
         GetPlayer()->duel         ||                        //...is in Duel
-        GetPlayer()->HasAura(9454,0)         ||             //...is frozen by GM via freeze command
+        GetPlayer()->HasAura(9454)         ||             //...is frozen by GM via freeze command
                                                             //...is jumping ...is falling
         GetPlayer()->HasUnitMovementFlag(MOVEMENTFLAG_JUMPING | MOVEMENTFLAG_FALLING))
     {
@@ -1648,7 +1648,7 @@ void WorldSession::HandleDismountOpcode( WorldPacket & /*recv_data*/ )
     }
 
     _player->Unmount();
-    _player->RemoveSpellsCausingAura(SPELL_AURA_MOUNTED);
+    _player->RemoveAurasByType(SPELL_AURA_MOUNTED);
 }
 
 void WorldSession::HandleMoveFlyModeChangeAckOpcode( WorldPacket & recv_data )

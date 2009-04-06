@@ -97,8 +97,8 @@ bool Player::UpdateStats(Stats stat)
 
     // Update ratings in exist SPELL_AURA_MOD_RATING_FROM_STAT and only depends from stat
     uint32 mask = 0;
-    AuraList const& modRatingFromStat = GetAurasByType(SPELL_AURA_MOD_RATING_FROM_STAT);
-    for(AuraList::const_iterator i = modRatingFromStat.begin();i != modRatingFromStat.end(); ++i)
+    AuraEffectList const& modRatingFromStat = GetAurasByType(SPELL_AURA_MOD_RATING_FROM_STAT);
+    for(AuraEffectList::const_iterator i = modRatingFromStat.begin();i != modRatingFromStat.end(); ++i)
         if (Stats((*i)->GetMiscBValue()) == stat)
             mask |= (*i)->GetMiscValue();
     if (mask)
@@ -192,12 +192,11 @@ void Player::UpdateArmor()
     value += GetModifierValue(unitMod, TOTAL_VALUE);
 
     //add dynamic flat mods
-    AuraList const& mResbyIntellect = GetAurasByType(SPELL_AURA_MOD_RESISTANCE_OF_STAT_PERCENT);
-    for(AuraList::const_iterator i = mResbyIntellect.begin();i != mResbyIntellect.end(); ++i)
+    AuraEffectList const& mResbyIntellect = GetAurasByType(SPELL_AURA_MOD_RESISTANCE_OF_STAT_PERCENT);
+    for(AuraEffectList::const_iterator i = mResbyIntellect.begin();i != mResbyIntellect.end(); ++i)
     {
-        Modifier* mod = (*i)->GetModifier();
-        if(mod->m_miscvalue & SPELL_SCHOOL_MASK_NORMAL)
-            value += int32(GetStat(Stats((*i)->GetMiscBValue())) * mod->m_amount / 100.0f);
+        if((*i)->GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL)
+            value += int32(GetStat(Stats((*i)->GetMiscBValue())) * (*i)->GetAmount() / 100.0f);
     }
 
     value *= GetModifierValue(unitMod, TOTAL_PCT);
@@ -318,13 +317,13 @@ void Player::UpdateAttackPowerAndDamage(bool ranged )
                     case FORM_DIREBEAR:
                     case FORM_MOONKIN:
                     {
-                        Unit::AuraList const& mDummy = GetAurasByType(SPELL_AURA_DUMMY);
-                        for(Unit::AuraList::const_iterator itr = mDummy.begin(); itr != mDummy.end(); ++itr)
+                        Unit::AuraEffectList const& mDummy = GetAurasByType(SPELL_AURA_DUMMY);
+                        for(Unit::AuraEffectList::const_iterator itr = mDummy.begin(); itr != mDummy.end(); ++itr)
                         {
                             // Predatory Strikes
                             if ((*itr)->GetSpellProto()->SpellIconID == 1563)
                             {
-                                mLevelMult = (*itr)->GetModifier()->m_amount / 100.0f;
+                                mLevelMult = (*itr)->GetAmount() / 100.0f;
                                 break;
                             }
                         }
@@ -362,16 +361,16 @@ void Player::UpdateAttackPowerAndDamage(bool ranged )
     {
         if ((getClassMask() & CLASSMASK_WAND_USERS)==0)
         {
-            AuraList const& mRAPbyStat = GetAurasByType(SPELL_AURA_MOD_RANGED_ATTACK_POWER_OF_STAT_PERCENT);
-            for(AuraList::const_iterator i = mRAPbyStat.begin();i != mRAPbyStat.end(); ++i)
-                attPowerMod += int32(GetStat(Stats((*i)->GetModifier()->m_miscvalue)) * (*i)->GetModifier()->m_amount / 100.0f);
+            AuraEffectList const& mRAPbyStat = GetAurasByType(SPELL_AURA_MOD_RANGED_ATTACK_POWER_OF_STAT_PERCENT);
+            for(AuraEffectList::const_iterator i = mRAPbyStat.begin();i != mRAPbyStat.end(); ++i)
+                attPowerMod += int32(GetStat(Stats((*i)->GetMiscValue())) * (*i)->GetAmount() / 100.0f);
         }
     }
     else
     {
-        AuraList const& mAPbyStat = GetAurasByType(SPELL_AURA_MOD_ATTACK_POWER_OF_STAT_PERCENT);
-        for(AuraList::const_iterator i = mAPbyStat.begin();i != mAPbyStat.end(); ++i)
-            attPowerMod += int32(GetStat(Stats((*i)->GetModifier()->m_miscvalue)) * (*i)->GetModifier()->m_amount / 100.0f);
+        AuraEffectList const& mAPbyStat = GetAurasByType(SPELL_AURA_MOD_ATTACK_POWER_OF_STAT_PERCENT);
+        for(AuraEffectList::const_iterator i = mAPbyStat.begin();i != mAPbyStat.end(); ++i)
+            attPowerMod += int32(GetStat(Stats((*i)->GetMiscValue())) * (*i)->GetAmount() / 100.0f);
     }
 
     float attPowerMultiplier = GetModifierValue(unitMod, TOTAL_PCT) - 1.0f;
@@ -652,15 +651,15 @@ void Player::UpdateExpertise(WeaponAttackType attack)
 
     Item *weapon = GetWeaponForAttack(attack);
 
-    AuraList const& expAuras = GetAurasByType(SPELL_AURA_MOD_EXPERTISE);
-    for(AuraList::const_iterator itr = expAuras.begin(); itr != expAuras.end(); ++itr)
+    AuraEffectList const& expAuras = GetAurasByType(SPELL_AURA_MOD_EXPERTISE);
+    for(AuraEffectList::const_iterator itr = expAuras.begin(); itr != expAuras.end(); ++itr)
     {
         // item neutral spell
         if((*itr)->GetSpellProto()->EquippedItemClass == -1)
-            expertise += (*itr)->GetModifier()->m_amount;
+            expertise += (*itr)->GetAmount();
         // item dependent spell
         else if(weapon && weapon->IsFitToSpellRequirements((*itr)->GetSpellProto()))
-            expertise += (*itr)->GetModifier()->m_amount;
+            expertise += (*itr)->GetAmount();
     }
 
     if(expertise < 0)
@@ -692,19 +691,18 @@ void Player::UpdateManaRegen()
     float power_regen_mp5 = (GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) + m_baseManaRegen) / 5.0f;
 
     // Get bonus from SPELL_AURA_MOD_MANA_REGEN_FROM_STAT aura
-    AuraList const& regenAura = GetAurasByType(SPELL_AURA_MOD_MANA_REGEN_FROM_STAT);
-    for(AuraList::const_iterator i = regenAura.begin();i != regenAura.end(); ++i)
+    AuraEffectList const& regenAura = GetAurasByType(SPELL_AURA_MOD_MANA_REGEN_FROM_STAT);
+    for(AuraEffectList::const_iterator i = regenAura.begin();i != regenAura.end(); ++i)
     {
-        Modifier* mod = (*i)->GetModifier();
-        power_regen_mp5 += GetStat(Stats(mod->m_miscvalue)) * mod->m_amount / 500.0f;
+        power_regen_mp5 += GetStat(Stats((*i)->GetMiscValue())) * (*i)->GetAmount() / 500.0f;
     }
 
     // Bonus from some dummy auras
-    AuraList const& mDummyAuras = GetAurasByType(SPELL_AURA_PERIODIC_DUMMY);
-    for(AuraList::const_iterator i = mDummyAuras.begin();i != mDummyAuras.end(); ++i)
+    AuraEffectList const& mDummyAuras = GetAurasByType(SPELL_AURA_PERIODIC_DUMMY);
+    for(AuraEffectList::const_iterator i = mDummyAuras.begin();i != mDummyAuras.end(); ++i)
         if((*i)->GetId() == 34074)                          // Aspect of the Viper
         {
-            power_regen_mp5 += (*i)->GetModifier()->m_amount * Intellect / 500.0f;
+            power_regen_mp5 += (*i)->GetAmount() * Intellect / 500.0f;
             // Add regen bonus from level in this dummy
             power_regen_mp5 += getLevel() * 35 / 100;
         }

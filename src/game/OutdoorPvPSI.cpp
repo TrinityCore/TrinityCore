@@ -129,7 +129,7 @@ bool OutdoorPvPSI::HandleAreaTrigger(Player *plr, uint32 trigger)
     switch(trigger)
     {
     case SI_AREATRIGGER_A:
-        if(plr->GetTeam() == ALLIANCE && plr->HasAura(SI_SILITHYST_FLAG,0))
+        if(plr->GetTeam() == ALLIANCE && plr->HasAura(SI_SILITHYST_FLAG))
         {
             // remove aura
             plr->RemoveAurasDueToSpell(SI_SILITHYST_FLAG);
@@ -154,7 +154,7 @@ bool OutdoorPvPSI::HandleAreaTrigger(Player *plr, uint32 trigger)
         }
         return true;
     case SI_AREATRIGGER_H:
-        if(plr->GetTeam() == HORDE && plr->HasAura(SI_SILITHYST_FLAG,0))
+        if(plr->GetTeam() == HORDE && plr->HasAura(SI_SILITHYST_FLAG))
         {
             // remove aura
             plr->RemoveAurasDueToSpell(SI_SILITHYST_FLAG);

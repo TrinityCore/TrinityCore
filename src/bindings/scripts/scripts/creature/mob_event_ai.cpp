@@ -666,9 +666,8 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                 // If cast flag CAST_AURA_NOT_PRESENT is active, check if target already has aura on them
                 if(param3 & CAST_AURA_NOT_PRESENT)
                 {
-                    for(uint8 i = 0; i < 3; ++i)
-                        if(target->HasAura(param1, i))
-                            return;
+                    if(target->HasAura(param1))
+                        return;
                 }
 
                 if (canCast)

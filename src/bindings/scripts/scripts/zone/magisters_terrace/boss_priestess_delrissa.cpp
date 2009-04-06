@@ -277,7 +277,7 @@ struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
             {
                 std::vector<Add*>::iterator itr = Adds.begin() + rand()%Adds.size();
                 if (Unit* pAdd = Unit::GetUnit(*m_creature, (*itr)->guid))
-                    if (!pAdd->HasAura(SPELL_SHIELD, 0) && pAdd->isAlive())
+                    if (!pAdd->HasAura(SPELL_SHIELD) && pAdd->isAlive())
                         target = pAdd;
             }
             DoCast(target, SPELL_SHIELD);

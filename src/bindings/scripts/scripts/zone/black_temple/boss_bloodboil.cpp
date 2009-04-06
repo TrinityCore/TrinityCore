@@ -215,7 +215,7 @@ struct TRINITY_DLL_DECL boss_gurtogg_bloodboilAI : public ScriptedAI
             FelAcidTimer = 25000;
         }else FelAcidTimer -= diff;
 
-        if(!m_creature->HasAura(SPELL_BERSERK, 0))
+        if(!m_creature->HasAura(SPELL_BERSERK))
         {
             if(EnrageTimer < diff)
             {

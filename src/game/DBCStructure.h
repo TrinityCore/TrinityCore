@@ -1186,6 +1186,8 @@ struct SoundEntriesEntry
                                                             // 28       m_EAXDef
 };
 
+#define MAX_SPELL_EFFECTS 3
+
 struct SpellEntry
 {
     uint32    Id;                                           // 0        m_ID
@@ -1241,26 +1243,26 @@ struct SpellEntry
     int32     EquippedItemClass;                            // 65       m_equippedItemClass (value)
     int32     EquippedItemSubClassMask;                     // 66       m_equippedItemSubclass (mask)
     int32     EquippedItemInventoryTypeMask;                // 67       m_equippedItemInvTypes (mask)
-    uint32    Effect[3];                                    // 68-70    m_effect
-    int32     EffectDieSides[3];                            // 71-73    m_effectDieSides
-    uint32    EffectBaseDice[3];                            // 74-76    m_effectBaseDice
-    float     EffectDicePerLevel[3];                        // 77-79    m_effectDicePerLevel
-    float     EffectRealPointsPerLevel[3];                  // 80-82    m_effectRealPointsPerLevel
-    int32     EffectBasePoints[3];                          // 83-85    m_effectBasePoints (don't must be used in spell/auras explicitly, must be used cached Spell::m_currentBasePoints)
-    uint32    EffectMechanic[3];                            // 86-88    m_effectMechanic
-    uint32    EffectImplicitTargetA[3];                     // 89-91    m_implicitTargetA
-    uint32    EffectImplicitTargetB[3];                     // 92-94    m_implicitTargetB
-    uint32    EffectRadiusIndex[3];                         // 95-97    m_effectRadiusIndex - spellradius.dbc
-    uint32    EffectApplyAuraName[3];                       // 98-100   m_effectAura
-    uint32    EffectAmplitude[3];                           // 101-103  m_effectAuraPeriod
-    float     EffectMultipleValue[3];                       // 104-106  m_effectAmplitude
-    uint32    EffectChainTarget[3];                         // 107-109  m_effectChainTargets
-    uint32    EffectItemType[3];                            // 110-112  m_effectItemType
-    int32     EffectMiscValue[3];                           // 113-115  m_effectMiscValue
-    int32     EffectMiscValueB[3];                          // 116-118  m_effectMiscValueB
-    uint32    EffectTriggerSpell[3];                        // 119-121  m_effectTriggerSpell
-    float     EffectPointsPerComboPoint[3];                 // 122-124  m_effectPointsPerCombo
-    flag96    EffectSpellClassMask[3];                      //
+    uint32    Effect[MAX_SPELL_EFFECTS];                    // 68-70    m_effect
+    int32     EffectDieSides[MAX_SPELL_EFFECTS];            // 71-73    m_effectDieSides
+    uint32    EffectBaseDice[MAX_SPELL_EFFECTS];            // 74-76    m_effectBaseDice
+    float     EffectDicePerLevel[MAX_SPELL_EFFECTS];        // 77-79    m_effectDicePerLevel
+    float     EffectRealPointsPerLevel[MAX_SPELL_EFFECTS];  // 80-82    m_effectRealPointsPerLevel
+    int32     EffectBasePoints[MAX_SPELL_EFFECTS];          // 83-85    m_effectBasePoints (don't must be used in spell/auras explicitly, must be used cached Spell::m_currentBasePoints)
+    uint32    EffectMechanic[MAX_SPELL_EFFECTS];            // 86-88    m_effectMechanic
+    uint32    EffectImplicitTargetA[MAX_SPELL_EFFECTS];     // 89-91    m_implicitTargetA
+    uint32    EffectImplicitTargetB[MAX_SPELL_EFFECTS];     // 92-94    m_implicitTargetB
+    uint32    EffectRadiusIndex[MAX_SPELL_EFFECTS];         // 95-97    m_effectRadiusIndex - spellradius.dbc
+    uint32    EffectApplyAuraName[MAX_SPELL_EFFECTS];       // 98-100   m_effectAura
+    uint32    EffectAmplitude[MAX_SPELL_EFFECTS];           // 101-103  m_effectAuraPeriod
+    float     EffectMultipleValue[MAX_SPELL_EFFECTS];       // 104-106  m_effectAmplitude
+    uint32    EffectChainTarget[MAX_SPELL_EFFECTS];         // 107-109  m_effectChainTargets
+    uint32    EffectItemType[MAX_SPELL_EFFECTS];            // 110-112  m_effectItemType
+    int32     EffectMiscValue[MAX_SPELL_EFFECTS];           // 113-115  m_effectMiscValue
+    int32     EffectMiscValueB[MAX_SPELL_EFFECTS];          // 116-118  m_effectMiscValueB
+    uint32    EffectTriggerSpell[MAX_SPELL_EFFECTS];        // 119-121  m_effectTriggerSpell
+    float     EffectPointsPerComboPoint[MAX_SPELL_EFFECTS]; // 122-124  m_effectPointsPerCombo
+    flag96    EffectSpellClassMask[MAX_SPELL_EFFECTS];      //
     uint32    SpellVisual[2];                               // 134-135  m_spellVisualID
     uint32    SpellIconID;                                  // 136      m_spellIconID
     uint32    activeIconID;                                 // 137      m_activeIconID

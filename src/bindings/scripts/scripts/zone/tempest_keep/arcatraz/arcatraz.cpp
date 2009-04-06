@@ -347,7 +347,7 @@ struct TRINITY_DLL_DECL npc_warden_mellicharAI : public ScriptedAI
         if( pInstance )
         {
             m_creature->InterruptNonMeleeSpells(true);
-            m_creature->RemoveSpellsCausingAura(SPELL_AURA_DUMMY);
+            m_creature->RemoveAurasByType(SPELL_AURA_DUMMY);
 
             switch( Phase )
             {

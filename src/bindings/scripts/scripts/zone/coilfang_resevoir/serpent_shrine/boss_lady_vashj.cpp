@@ -365,7 +365,7 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
                 Unit *target = NULL;
                 target = SelectUnit(SELECT_TARGET_RANDOM, 0);
 
-                if(target && !target->HasAura(SPELL_STATIC_CHARGE_TRIGGER, 0))
+                if(target && !target->HasAura(SPELL_STATIC_CHARGE_TRIGGER))
                                                             //cast Static Charge every 2 seconds for 20 seconds
                         DoCast(target, SPELL_STATIC_CHARGE_TRIGGER);
 
@@ -571,12 +571,7 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
         }
     }
 };
-class TRINITY_DLL_DECL VashjSurgeAura : public Aura
-{
-    public:
-        VashjSurgeAura(SpellEntry *spell, uint32 eff, int32 *bp, Unit *target, Unit *caster) : Aura(spell, eff, bp, target, caster, NULL)
-            {}
-};
+
 //Enchanted Elemental
 //If one of them reaches Vashj he will increase her damage done by 5%.
 struct TRINITY_DLL_DECL mob_enchanted_elementalAI : public ScriptedAI
@@ -660,13 +655,14 @@ struct TRINITY_DLL_DECL mob_enchanted_elementalAI : public ScriptedAI
                     SpellEntry *spell = (SpellEntry *)GetSpellStore()->LookupEntry(SPELL_SURGE);
                     if( spell )
                     {
-                        for(uint32 i = 0;i<3;i++)
+                        uint8 eff_mask=0;
+                        for (int i=0; i<3; i++)
                         {
                             if (!spell->Effect[i])
                                 continue;
-
-                            Vashj->AddAura(new VashjSurgeAura(spell, i, NULL, Vashj, Vashj));
+                            eff_mask|=1<<i;
                         }
+                        Vashj->AddAura(new Aura(spell, eff_mask, NULL, Vashj, Vashj));
                     }
                     m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                 }
@@ -918,7 +914,7 @@ struct TRINITY_DLL_DECL mob_shield_generator_channelAI : public ScriptedAI
             if(Vashj && Vashj->isAlive())
             {
                 //start visual channel
-                if (!Casted || !Vashj->HasAura(SPELL_MAGIC_BARRIER,0))
+                if (!Casted || !Vashj->HasAura(SPELL_MAGIC_BARRIER))
                 {
                     m_creature->CastSpell(Vashj,SPELL_MAGIC_BARRIER,true);
                     Casted = true;

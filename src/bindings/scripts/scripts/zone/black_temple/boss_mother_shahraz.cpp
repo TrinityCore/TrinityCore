@@ -276,7 +276,7 @@ struct TRINITY_DLL_DECL boss_shahrazAI : public ScriptedAI
         }else SaberTimer -= diff;
 
         //Enrage
-        if(!m_creature->HasAura(SPELL_BERSERK, 0))
+        if(!m_creature->HasAura(SPELL_BERSERK))
             if(EnrageTimer < diff)
         {
             DoCast(m_creature, SPELL_BERSERK);

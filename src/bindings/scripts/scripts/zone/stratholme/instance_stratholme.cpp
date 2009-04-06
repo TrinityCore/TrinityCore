@@ -280,10 +280,10 @@ struct TRINITY_DLL_DECL instance_stratholme : public ScriptedInstance
                             if (!pGroupie)
                                 continue;
 
-                            if (pGroupie->HasAura(SPELL_BARON_ULTIMATUM,0))
+                            if (pGroupie->HasAura(SPELL_BARON_ULTIMATUM))
                                 pGroupie->RemoveAurasDueToSpell(SPELL_BARON_ULTIMATUM);
                         }
-                    } else if (player->HasAura(SPELL_BARON_ULTIMATUM,0))
+                    } else if (player->HasAura(SPELL_BARON_ULTIMATUM))
                         player->RemoveAurasDueToSpell(SPELL_BARON_ULTIMATUM);
 
                     if (Unit *temp = Unit::GetUnit(*player,GetData64(DATA_BARON)))

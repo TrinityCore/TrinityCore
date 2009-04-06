@@ -104,7 +104,7 @@ struct TRINITY_DLL_DECL boss_razorgoreAI : public ScriptedAI
         }else Conflagration_Timer -= diff;
 
         // Aura Check. If the gamer is affected by confliguration we attack a random gamer.
-        if (m_creature->getVictim()->HasAura(SPELL_CONFLAGRATION,0))
+        if (m_creature->getVictim()->HasAura(SPELL_CONFLAGRATION))
         {
             Unit* target = NULL;
             target = SelectUnit(SELECT_TARGET_RANDOM,1);

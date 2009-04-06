@@ -30,6 +30,9 @@
 #include "Group.h"
 #include "SocialMgr.h"
 #include "Util.h"
+#include "SpellAuras.h"
+
+class Aura;
 
 /* differeces from off:
     -you can uninvite yourself - is is useful
@@ -713,8 +716,8 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player *player, WorldPacke
         {
             if(auramask & (uint64(1) << i))
             {
-                AuraSlotEntry * pAura = player->GetVisibleAura(i);
-                *data << uint32(pAura ? pAura->m_spellId : 0);
+                Aura * pAura = player->GetVisibleAura(i);
+                *data << uint32(pAura ? pAura->GetId() : 0);
                 *data << uint8(1);
             }
         }
@@ -795,8 +798,8 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player *player, WorldPacke
             {
                 if(auramask & (uint64(1) << i))
                 {
-                    AuraSlotEntry * pAura = pet->GetVisibleAura(i);
-                    *data << uint32(pAura ? pAura->m_spellId : 0);
+                    Aura * pAura = pet->GetVisibleAura(i);
+                    *data << uint32(pAura ? pAura->GetId() : 0);
                     *data << uint8(1);
                 }
             }
@@ -855,10 +858,10 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode( WorldPacket &recv_data )
     data << (uint64) auramask;                              // placeholder
     for(uint8 i = 0; i < MAX_AURAS; ++i)
     {
-        if(AuraSlotEntry * pAura = player->GetVisibleAura(i))
+        if(Aura * pAura = player->GetVisibleAura(i))
         {
             auramask |= (uint64(1) << i);
-            data << (uint32) pAura->m_spellId;
+            data << (uint32) pAura->GetId();
             data << (uint8)  1;
         }
     }
@@ -881,10 +884,10 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode( WorldPacket &recv_data )
         data << (uint64) petauramask;                       // placeholder
         for(uint8 i = 0; i < MAX_AURAS; ++i)
         {
-            if(AuraSlotEntry * pAura = pet->GetVisibleAura(i))
+            if(Aura * pAura = pet->GetVisibleAura(i))
             {
                 petauramask |= (uint64(1) << i);
-                data << (uint32) pAura->m_spellId;
+                data << (uint32) pAura->GetId();
                 data << (uint8)  1;
             }
         }

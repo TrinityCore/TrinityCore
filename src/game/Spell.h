@@ -354,7 +354,7 @@ class Spell
         Spell( Unit* Caster, SpellEntry const *info, bool triggered, uint64 originalCasterGUID = 0, Spell** triggeringContainer = NULL, bool skipCheck = false );
         ~Spell();
 
-        void prepare(SpellCastTargets const* targets, Aura* triggeredByAura = NULL);
+        void prepare(SpellCastTargets const* targets, AuraEffect* triggeredByAura = NULL);
         void cancel();
         void update(uint32 difftime);
         void cast(bool skipCheck = false);
@@ -460,8 +460,6 @@ class Spell
         int32 GetPowerCost() const { return m_powerCost; }
 
         void UpdatePointers();                              // must be used at call Spell code after time delay (non triggered spell cast/update spell call/etc)
-
-        bool IsAffectedByAura(Aura *aura);
 
         bool CheckTargetCreatureType(Unit* target) const;
 

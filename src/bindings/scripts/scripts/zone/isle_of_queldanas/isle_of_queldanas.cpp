@@ -164,7 +164,7 @@ struct TRINITY_DLL_DECL npc_greengill_slaveAI : public ScriptedAI
         if(!caster)
             return;
 
-        if(caster->GetTypeId() == TYPEID_PLAYER && spell->Id == ORB && !m_creature->HasAura(ENRAGE, 0))
+        if(caster->GetTypeId() == TYPEID_PLAYER && spell->Id == ORB && !m_creature->HasAura(ENRAGE))
         {
             PlayerGUID = caster->GetGUID();
             if(PlayerGUID)

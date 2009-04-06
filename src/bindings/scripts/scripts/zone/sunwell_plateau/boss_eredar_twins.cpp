@@ -209,9 +209,9 @@ struct TRINITY_DLL_DECL boss_sacrolashAI : public ScriptedAI
         switch(TouchedType)
         {
         case SPELL_FLAME_TOUCHED:
-            if(!target->HasAura(SPELL_DARK_FLAME,0))
+            if(!target->HasAura(SPELL_DARK_FLAME))
             {
-                if(target->HasAura(SPELL_DARK_TOUCHED,0))
+                if(target->HasAura(SPELL_DARK_TOUCHED))
                 {
                     target->RemoveAurasDueToSpell(SPELL_DARK_TOUCHED);
                     target->CastSpell(target,SPELL_DARK_FLAME,true);
@@ -222,9 +222,9 @@ struct TRINITY_DLL_DECL boss_sacrolashAI : public ScriptedAI
             }
             break;
         case SPELL_DARK_TOUCHED:
-            if(!target->HasAura(SPELL_DARK_FLAME,0))
+            if(!target->HasAura(SPELL_DARK_FLAME))
             {
-                if(target->HasAura(SPELL_FLAME_TOUCHED,0))
+                if(target->HasAura(SPELL_FLAME_TOUCHED))
                 {
                     target->RemoveAurasDueToSpell(SPELL_FLAME_TOUCHED);
                     target->CastSpell(target,SPELL_DARK_FLAME,true);
@@ -507,9 +507,9 @@ struct TRINITY_DLL_DECL boss_alythessAI : public Scripted_NoMovementAI
         switch(TouchedType)
         {
         case SPELL_FLAME_TOUCHED:
-            if(!target->HasAura(SPELL_DARK_FLAME,0))
+            if(!target->HasAura(SPELL_DARK_FLAME))
             {
-                if(target->HasAura(SPELL_DARK_TOUCHED,0))
+                if(target->HasAura(SPELL_DARK_TOUCHED))
                 {
                     target->RemoveAurasDueToSpell(SPELL_DARK_TOUCHED);
                     target->CastSpell(target,SPELL_DARK_FLAME,true);
@@ -520,9 +520,9 @@ struct TRINITY_DLL_DECL boss_alythessAI : public Scripted_NoMovementAI
             }
             break;
         case SPELL_DARK_TOUCHED:
-            if(!target->HasAura(SPELL_DARK_FLAME,0))
+            if(!target->HasAura(SPELL_DARK_FLAME))
             {
-                if(target->HasAura(SPELL_FLAME_TOUCHED,0))
+                if(target->HasAura(SPELL_FLAME_TOUCHED))
                 {
                     target->RemoveAurasDueToSpell(SPELL_FLAME_TOUCHED);
                     target->CastSpell(target,SPELL_DARK_FLAME,true);
@@ -709,9 +709,9 @@ struct TRINITY_DLL_DECL mob_shadow_imageAI : public ScriptedAI
 
         case SPELL_SHADOW_FURY:
         case SPELL_DARK_STRIKE:
-            if(!target->HasAura(SPELL_DARK_FLAME,0))
+            if(!target->HasAura(SPELL_DARK_FLAME))
             {
-                if(target->HasAura(SPELL_FLAME_TOUCHED,0))
+                if(target->HasAura(SPELL_FLAME_TOUCHED))
                 {
                     target->RemoveAurasDueToSpell(SPELL_FLAME_TOUCHED);
                     target->CastSpell(target,SPELL_DARK_FLAME,true);
@@ -726,7 +726,7 @@ struct TRINITY_DLL_DECL mob_shadow_imageAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->HasAura(SPELL_IMAGE_VISUAL,0))
+        if(!m_creature->HasAura(SPELL_IMAGE_VISUAL))
             DoCast(m_creature,SPELL_IMAGE_VISUAL);
 
         if(kill_timer < diff)

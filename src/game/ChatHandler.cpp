@@ -67,11 +67,11 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
     if(langDesc->skill_id != 0 && !_player->HasSkill(langDesc->skill_id))
     {
         // also check SPELL_AURA_COMPREHEND_LANGUAGE (client offers option to speak in that language)
-        Unit::AuraList const& langAuras = _player->GetAurasByType(SPELL_AURA_COMPREHEND_LANGUAGE);
+        Unit::AuraEffectList const& langAuras = _player->GetAurasByType(SPELL_AURA_COMPREHEND_LANGUAGE);
         bool foundAura = false;
-        for(Unit::AuraList::const_iterator i = langAuras.begin();i != langAuras.end(); ++i)
+        for(Unit::AuraEffectList::const_iterator i = langAuras.begin();i != langAuras.end(); ++i)
         {
-            if((*i)->GetModifier()->m_miscvalue == lang)
+            if((*i)->GetMiscValue() == lang)
             {
                 foundAura = true;
                 break;
@@ -138,9 +138,9 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
             }
 
             // but overwrite it by SPELL_AURA_MOD_LANGUAGE auras (only single case used)
-            Unit::AuraList const& ModLangAuras = _player->GetAurasByType(SPELL_AURA_MOD_LANGUAGE);
+            Unit::AuraEffectList const& ModLangAuras = _player->GetAurasByType(SPELL_AURA_MOD_LANGUAGE);
             if(!ModLangAuras.empty())
-                lang = ModLangAuras.front()->GetModifier()->m_miscvalue;
+                lang = ModLangAuras.front()->GetMiscValue();
         }
 
         if (!_player->CanSpeak())

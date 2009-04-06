@@ -80,7 +80,7 @@ struct TRINITY_DLL_DECL boss_ambassador_hellmawAI : public ScriptedAI
 
             if (pInstance->GetData(TYPE_OVERSEER) == DONE)
             {
-                if (m_creature->HasAura(SPELL_BANISH,0))
+                if (m_creature->HasAura(SPELL_BANISH))
                     m_creature->RemoveAurasDueToSpell(SPELL_BANISH);
                 Intro = true;
             }
@@ -89,7 +89,7 @@ struct TRINITY_DLL_DECL boss_ambassador_hellmawAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit *who)
     {
-        if (m_creature->HasAura(SPELL_BANISH,0))
+        if (m_creature->HasAura(SPELL_BANISH))
             return;
 
         ScriptedAI::MoveInLineOfSight(who);
@@ -105,7 +105,7 @@ struct TRINITY_DLL_DECL boss_ambassador_hellmawAI : public ScriptedAI
     {
         DoScriptText(SAY_INTRO, m_creature);
 
-        if (m_creature->HasAura(SPELL_BANISH,0))
+        if (m_creature->HasAura(SPELL_BANISH))
             m_creature->RemoveAurasDueToSpell(SPELL_BANISH);
 
         IsBanished = false;

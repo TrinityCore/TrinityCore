@@ -52,7 +52,7 @@ struct TRINITY_DLL_DECL npc_ragged_johnAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit *who)
     {
-        if( who->HasAura(16468,0) )
+        if( who->HasAura(16468) )
         {
             if( who->GetTypeId() == TYPEID_PLAYER && m_creature->IsWithinDistInMap(who, 15) && who->isInAccessiblePlaceFor(m_creature) )
             {

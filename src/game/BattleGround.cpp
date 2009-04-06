@@ -703,7 +703,7 @@ void BattleGround::EndBattleGround(uint32 winner)
 
         // should remove spirit of redemption
         if(plr->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION))
-            plr->RemoveSpellsCausingAura(SPELL_AURA_MOD_SHAPESHIFT);
+            plr->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
 
         if(!plr->isAlive())
         {
@@ -928,7 +928,7 @@ void BattleGround::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
 
     // should remove spirit of redemption
     if(plr && plr->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION))
-        plr->RemoveSpellsCausingAura(SPELL_AURA_MOD_SHAPESHIFT);
+        plr->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
 
     if(plr && !plr->isAlive())                              // resurrect on exit
     {
@@ -1312,7 +1312,7 @@ void BattleGround::AddPlayerToResurrectQueue(uint64 npc_guid, uint64 player_guid
     SpellEntry const *spellInfo = sSpellStore.LookupEntry( SPELL_WAITING_FOR_RESURRECT );
     if(spellInfo)
     {
-        Aura *Aur = CreateAura(spellInfo, 0, NULL, plr);
+        Aura *Aur = new Aura(spellInfo, 1, NULL, plr);
         plr->AddAura(Aur);
     }
 }

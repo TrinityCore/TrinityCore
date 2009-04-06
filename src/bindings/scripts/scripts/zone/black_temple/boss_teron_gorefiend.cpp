@@ -331,7 +331,7 @@ struct TRINITY_DLL_DECL boss_teron_gorefiendAI : public ScriptedAI
         Unit* Ghost = NULL;
         if(GhostGUID)
             Ghost = Unit::GetUnit((*m_creature), GhostGUID);
-        if(Ghost && Ghost->isAlive() && Ghost->HasAura(SPELL_SHADOW_OF_DEATH, 0))
+        if(Ghost && Ghost->isAlive() && Ghost->HasAura(SPELL_SHADOW_OF_DEATH))
         {
             /*float x,y,z;
             Ghost->GetPosition(x,y,z);
@@ -487,7 +487,7 @@ struct TRINITY_DLL_DECL boss_teron_gorefiendAI : public ScriptedAI
             RandomYellTimer = 50000 + rand()%51 * 1000;
         }else RandomYellTimer -= diff;
 
-        if(!m_creature->HasAura(SPELL_BERSERK, 0))
+        if(!m_creature->HasAura(SPELL_BERSERK))
         {
             if(EnrageTimer < diff)
         {

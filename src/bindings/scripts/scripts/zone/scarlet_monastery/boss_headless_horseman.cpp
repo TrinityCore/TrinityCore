@@ -176,7 +176,7 @@ struct TRINITY_DLL_DECL mob_wisp_invisAI : public ScriptedAI
         if (!who || Creaturetype != 1 || !who->isTargetableForAttack())
             return;
 
-        if (m_creature->GetDistance2d(who) < 0.1 && !who->HasAura(SPELL_SQUASH_SOUL,0))
+        if (m_creature->GetDistance2d(who) < 0.1 && !who->HasAura(SPELL_SQUASH_SOUL))
             DoCast(who,SPELL_SQUASH_SOUL);
     }
 
@@ -505,7 +505,7 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
     void SpellHitTarget(Unit* unit, const SpellEntry* spell)
     {
         if (spell->Id == SPELL_CONFLAGRATION)
-            if (unit->HasAura(SPELL_CONFLAGRATION,0))
+            if (unit->HasAura(SPELL_CONFLAGRATION))
                 SaySound(SAY_CONFLAGRATION,unit);
     }
 
