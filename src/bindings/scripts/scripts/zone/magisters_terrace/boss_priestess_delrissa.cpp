@@ -192,7 +192,7 @@ struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
             }
         }
     }
-    
+
     void KilledUnit(Unit* victim)
     {
         if (victim->GetTypeId() != TYPEID_PLAYER)

@@ -767,7 +767,7 @@ enum TrinityStrings
     LANG_RESET_PET_TALENTS_ONLINE       = 1127,
     // Room for more level 3              1128-1199 not used
 
-    // AV 
+    // AV
   	LANG_BG_AV_ALLY                     = 1200,
     LANG_BG_AV_HORDE                    = 1201,
     LANG_BG_AV_TOWER_TAKEN              = 1202,

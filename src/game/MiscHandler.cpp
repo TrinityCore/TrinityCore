@@ -566,12 +566,12 @@ void WorldSession::HandleAddFriendOpcodeCallBack(QueryResult *result, uint32 acc
     uint64 friendGuid;
     uint32 team;
     FriendsResult friendResult;
- 
+
     WorldSession * session = sWorld.FindSession(accountId);
 
     if(!session || !session->GetPlayer())
         return;
- 
+
     friendResult = FRIEND_NOT_FOUND;
     friendGuid = 0;
 
@@ -655,12 +655,12 @@ void WorldSession::HandleAddIgnoreOpcodeCallBack(QueryResult *result, uint32 acc
 {
     uint64 IgnoreGuid;
     FriendsResult ignoreResult;
- 
+
     WorldSession * session = sWorld.FindSession(accountId);
 
     if(!session || !session->GetPlayer())
         return;
- 
+
     ignoreResult = FRIEND_IGNORE_NOT_FOUND;
     IgnoreGuid = 0;
 
@@ -679,7 +679,7 @@ void WorldSession::HandleAddIgnoreOpcodeCallBack(QueryResult *result, uint32 acc
             else
             {
                 ignoreResult = FRIEND_IGNORE_ADDED;
- 
+
                 // ignore list full
                 if(!session->GetPlayer()->GetSocial()->AddToSocialList(GUID_LOPART(IgnoreGuid), true))
                     ignoreResult = FRIEND_IGNORE_FULL;

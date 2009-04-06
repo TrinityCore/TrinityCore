@@ -205,7 +205,7 @@ SET(game_STAT_SRCS
    PointMovementGenerator.cpp
    PointMovementGenerator.h
    PoolHandler.cpp
-   PoolHandler.h  
+   PoolHandler.h
    PossessedAI.cpp
    PossessedAI.h
    QueryHandler.cpp
@@ -245,7 +245,7 @@ SET(game_STAT_SRCS
    TemporarySummon.h
    TicketHandler.cpp
    TicketMgr.cpp
-   TicketMgr.h 
+   TicketMgr.h
    Tools.cpp
    Tools.h
    TotemAI.cpp

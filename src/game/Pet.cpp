@@ -1148,7 +1148,7 @@ void Pet::_SaveAuras()
     {
         // skip all auras from spell that apply at cast SPELL_AURA_MOD_SHAPESHIFT or pet area auras.
         // do not save single target auras (unless they were cast by the player)
-        if (itr->second->IsPassive() 
+        if (itr->second->IsPassive()
             || (itr->second->GetCasterGUID() != GetGUID() && itr->second->IsSingleTarget()))
             continue;
         SpellEntry const *spellInfo = itr->second->GetSpellProto();
@@ -1168,8 +1168,8 @@ void Pet::_SaveAuras()
 
         CharacterDatabase.PExecute("INSERT INTO pet_aura (guid,caster_guid,spell,effect_mask,stackcount,amount0, amount1, amount2,maxduration,remaintime,remaincharges) "
             "VALUES ('%u', '" I64FMTD "', '%u', '%u', '%u', '%u', '%u', '%d', '%d', '%d', '%d')",
-            m_charmInfo->GetPetNumber(), itr->second->GetCasterGUID(),(uint32)itr->second->GetId(), (uint32)itr->second->GetEffectMask(), 
-            (uint32)itr->second->GetStackAmount(), amounts[0], amounts[1], amounts[2] 
+            m_charmInfo->GetPetNumber(), itr->second->GetCasterGUID(),(uint32)itr->second->GetId(), (uint32)itr->second->GetEffectMask(),
+            (uint32)itr->second->GetStackAmount(), amounts[0], amounts[1], amounts[2]
             ,int(itr->second->GetAuraMaxDuration()),int(itr->second->GetAuraDuration()),int(itr->second->GetAuraCharges()));
     }
 }

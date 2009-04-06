@@ -72,7 +72,7 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
     void OnCreatureCreate(Creature *creature, uint32 creature_entry)
     {
         switch(creature_entry)
-        { 
+        {
             case 29309:    Elder_Nadox = creature->GetGUID();                   break;
             case 29308:    Prince_Taldaram = creature->GetGUID();               break;
             case 29310:    Jedoga_Shadowseeker = creature->GetGUID();   break;

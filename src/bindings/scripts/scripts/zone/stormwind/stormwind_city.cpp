@@ -255,7 +255,7 @@ bool GossipHello_npc_stormwind_harbor_taxi(Player *player, Creature *_Creature)
 bool GossipSelect_npc_stormwind_harbor_taxi(Player *player, Creature *_Creature, uint32 sender, uint32 action )
 {
     if (action == GOSSIP_ACTION_INFO_DEF + 10)
-    { 
+    {
         player->GetSession()->SendDoFlight(1149, 1041);
     }
     return true;

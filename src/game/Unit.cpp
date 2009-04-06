@@ -3155,7 +3155,7 @@ uint32 Unit::GetWeaponSkillValue (WeaponAttackType attType, Unit const* target) 
         if(attType != BASE_ATTACK && !item )
         {
             if(attType == RANGED_ATTACK && getClass() == CLASS_PALADIN) //hammer
-                return GetMaxSkillValueForLevel(); 
+                return GetMaxSkillValueForLevel();
             return 0;
         }
 
@@ -3232,7 +3232,7 @@ void Unit::_UpdateSpells( uint32 time )
         if ((*i).second)
         {
             if ( !(*i).second->GetAuraDuration() && !((*i).second->IsPermanent() || ((*i).second->IsPassive())) )
-            { 
+            {
                 RemoveAura(i, AURA_REMOVE_BY_EXPIRE);
             }
             else
@@ -3761,7 +3761,7 @@ bool Unit::AddAura(Aura *Aur)
         m_interruptableAuras.push_back(Aur);
         AddInterruptMask(Aur->GetSpellProto()->AuraInterruptFlags);
     }
-    if((Aur->GetSpellProto()->Attributes & SPELL_ATTR_BREAKABLE_BY_DAMAGE 
+    if((Aur->GetSpellProto()->Attributes & SPELL_ATTR_BREAKABLE_BY_DAMAGE
         && !Aur->IsAuraType(SPELL_AURA_MOD_POSSESS)) //only dummy aura is breakable
         || (Aur->GetSpellProto()->Mechanic==MECHANIC_KNOCKOUT && Aur->IsAuraType(SPELL_AURA_MOD_STUN)))
     {
@@ -6071,7 +6071,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     return false;
                 }
                 // Totemic Power (The Earthshatterer set)
-                case 28823: 
+                case 28823:
                 {
                     if( !pVictim )
                         return false;
@@ -6437,7 +6437,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 Unit::AuraEffectList const& decSpeedList = pVictim->GetAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
                 for(Unit::AuraEffectList::const_iterator iter = decSpeedList.begin(); iter != decSpeedList.end(); ++iter)
                 {
-                    if((*iter)->GetSpellProto()->SpellFamilyName==SPELLFAMILY_DEATHKNIGHT 
+                    if((*iter)->GetSpellProto()->SpellFamilyName==SPELLFAMILY_DEATHKNIGHT
                         && (*iter)->GetCasterGUID() == GetGUID()
                         && (*iter)->GetSpellProto()->Dispel == DISPEL_DISEASE)
                     {
@@ -8091,7 +8091,7 @@ void Unit::SetCharm(Unit* charm, bool apply)
 
         if(!charm->RemoveUInt64Value(UNIT_FIELD_CHARMEDBY, GetGUID()))
             sLog.outCrash("Unit %u is being uncharmed, but it has another charmer %u", charm->GetEntry(), charm->GetCharmerGUID());
-            
+
         m_Controlled.erase(charm);
     }
 }
@@ -8122,11 +8122,11 @@ void Unit::RemoveAllControlled()
         {
             target->RemoveCharmAuras();
         }
-        else if(target->GetOwnerGUID() == GetGUID() 
+        else if(target->GetOwnerGUID() == GetGUID()
             && target->GetTypeId() == TYPEID_UNIT
             && ((Creature*)target)->HasSummonMask(SUMMON_MASK_SUMMON))
         {
-            
+
             if(!((TempSummon*)target)->isPet())
                 ((TempSummon*)target)->UnSummon();
         }

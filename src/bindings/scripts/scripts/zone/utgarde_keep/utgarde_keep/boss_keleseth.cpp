@@ -88,7 +88,7 @@ struct TRINITY_DLL_DECL mob_frost_tombAI : public ScriptedAI
         Unit* temp = Unit::GetUnit((*m_creature),FrostTombGUID);
         if((temp && temp->isAlive() && !temp->HasAura(SPELL_FROST_TOMB)) || !temp )
             m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-    } 
+    }
 };
 
 struct TRINITY_DLL_DECL boss_kelesethAI : public ScriptedAI
@@ -98,7 +98,7 @@ struct TRINITY_DLL_DECL boss_kelesethAI : public ScriptedAI
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         Heroic = c->GetMap()->IsHeroic();
     }
-    
+
     ScriptedInstance* pInstance;
 
     uint32 FrostTombTimer;
@@ -109,7 +109,7 @@ struct TRINITY_DLL_DECL boss_kelesethAI : public ScriptedAI
     bool Skeletons;
     bool Heroic;
     bool RespawnSkeletons;
-    
+
     void Reset()
     {
         ShadowboltTimer = 0;
@@ -129,7 +129,7 @@ struct TRINITY_DLL_DECL boss_kelesethAI : public ScriptedAI
         DoScriptText(SAY_KILL, m_creature);
     }
 
-    void JustDied(Unit* killer)  
+    void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
 
@@ -137,7 +137,7 @@ struct TRINITY_DLL_DECL boss_kelesethAI : public ScriptedAI
             pInstance->SetData(DATA_PRINCEKELESETH_EVENT, DONE);
     }
 
-    void Aggro(Unit* who) 
+    void Aggro(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
         DoZoneInCombat();
@@ -152,7 +152,7 @@ struct TRINITY_DLL_DECL boss_kelesethAI : public ScriptedAI
         FrostTombTimer = 28000 + inc;
     }
 
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         if (!UpdateVictim())
             return;
@@ -208,7 +208,7 @@ struct TRINITY_DLL_DECL boss_kelesethAI : public ScriptedAI
 
 struct TRINITY_DLL_DECL mob_vrykul_skeletonAI : public ScriptedAI
 {
-    mob_vrykul_skeletonAI(Creature *c) : ScriptedAI(c) 
+    mob_vrykul_skeletonAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
     }
@@ -240,7 +240,7 @@ struct TRINITY_DLL_DECL mob_vrykul_skeletonAI : public ScriptedAI
         }
     }
 
-    
+
     void PretendToDie()
     {
         isDead = true;
@@ -253,7 +253,7 @@ struct TRINITY_DLL_DECL mob_vrykul_skeletonAI : public ScriptedAI
     };
 
     void Resurrect()
-    {   
+    {
         isDead = false;
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         m_creature->SetStandState(UNIT_STAND_STATE_STAND);

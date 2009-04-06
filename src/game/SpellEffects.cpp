@@ -2716,7 +2716,7 @@ void Spell::DoCreateItem(uint32 i, uint32 itemtype)
 
         // we succeeded in creating at least one item, so a levelup is possible
         player->UpdateCraftSkill(m_spellInfo->Id);
-    }       
+    }
 }
 
 void Spell::EffectCreateItem(uint32 i)
@@ -3920,7 +3920,7 @@ void Spell::EffectSummonPet(uint32 i)
     Pet* pet = owner->SummonPet(petentry, x, y, z, owner->GetOrientation(), SUMMON_PET, 0);
     if(!pet)
         return;
-        
+
     if(m_caster->GetTypeId() == TYPEID_UNIT)
     {
         if ( ((Creature*)m_caster)->isTotem() )
@@ -4572,7 +4572,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 {
                 if(!unitTarget)
                         return;
-                
+
                     switch(((Player*)unitTarget)->GetBaseSkillValue(762))
                     {
                     case 75: unitTarget->CastSpell(unitTarget, 51621, true); break;;
@@ -4607,7 +4607,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     int bag=19;
                     int slot=0;
                     Item* item = NULL;
-                    
+
                     while (bag < 256)
                     {
                         item = ((Player*)m_caster)->GetItemByPos(bag,slot);

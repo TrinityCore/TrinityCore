@@ -25,7 +25,7 @@ ConfVersion=2009032201
 #    WorldDatabaseInfo
 #    CharacterDatabaseInfo
 #        Database connection settings for the world server.
-#        Default: 
+#        Default:
 #                ---MYSQL---
 #                    hostname;port;username;password;database
 #                    .;somenumber;username;password;database - use named pipes at Windows
@@ -1398,7 +1398,7 @@ Network.TcpNodelay = 1
 
 ###################################################################################################################
 # AUCTION HOUSE BOT SETTINGS
-# 
+#
 #    AuctionHouseBot.EnableSeller
 #        Enable/Disable the part of AHBot that puts items up for auction
 #    Default 0 (disabled)
@@ -1409,7 +1409,7 @@ Network.TcpNodelay = 1
 #
 #    Auction House Bot character data
 #        AuctionHouseBot.Account is the account number (in realmd->account table) of the player you want to run as the auction bot.
-#         AuctionHouseBot.GUID is the GUID (in characters->characters table) of the player you want to run as the auction bot. 
+#         AuctionHouseBot.GUID is the GUID (in characters->characters table) of the player you want to run as the auction bot.
 #    Default: 0 (Auction House Bot disabled)
 #
 #    AuctionHouseBot.VendorItems
@@ -1436,7 +1436,7 @@ Network.TcpNodelay = 1
 #             Default 1
 #            Bind_Quest_Item
 #             Default 0
-#              
+#
 #    AuctionHouseBot.ItemsPerCycle
 #        Number of Items to Add/Remove from the AH during mass operations
 #    Default 200

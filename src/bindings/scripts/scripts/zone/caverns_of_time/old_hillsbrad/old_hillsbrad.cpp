@@ -383,11 +383,11 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
                     //alot will happen here, thrall and taretha talk, erozion appear at spot to explain
                     m_creature->SummonCreature(EROZION_ENTRY,2646.47,680.416,55.38,4.16,TEMPSUMMON_TIMED_DESPAWN,120000);
                 }
-                break;        
+                break;
             case 108:
-                //last waypoint, just set Thrall invisible, respawn is turned off   
+                //last waypoint, just set Thrall invisible, respawn is turned off
                 m_creature->SetVisibility(VISIBILITY_OFF);
-                break;    
+                break;
         }
     }
 

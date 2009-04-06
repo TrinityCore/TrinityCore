@@ -2,7 +2,7 @@
 ** HOW TO SCRIPT IN C++ **
 
 1 - create a file myscript.cpp in scripts folder.
-2 - copy the content of script_default.cpp, it as the structure on how the scripting fuctions are organized. 
+2 - copy the content of script_default.cpp, it as the structure on how the scripting fuctions are organized.
 		dont forget to change the name of fuctions, like GossipHello_default to GossipHello_myscript.
 
 3 - in fuction AddSC_default change to AddSC_myscript.
@@ -14,7 +14,7 @@ add your AddSC_myscript in here
 
 // -- Scripts to be added --
 extern void AddSC_default();
-// ------------------- 
+// -------------------
 
 and here
 

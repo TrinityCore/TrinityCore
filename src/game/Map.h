@@ -219,7 +219,7 @@ struct CreatureMover
 struct InstanceTemplate
 {
     uint32 map;
-    uint32 parent;    
+    uint32 parent;
     uint32 maxPlayers;
     uint32 maxPlayersHeroic;
     uint32 reset_delay;                                 // FIX ME: now exist normal/heroic raids with possible different time of reset.

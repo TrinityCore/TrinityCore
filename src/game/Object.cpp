@@ -1170,8 +1170,8 @@ void WorldObject::SetWorldObject(bool on)
 {
     if(!IsInWorld())
         return;
-    
-    GetMap()->AddObjectToSwitchList(this, on); 
+
+    GetMap()->AddObjectToSwitchList(this, on);
 }
 
 void WorldObject::setActive( bool on )

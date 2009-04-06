@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * Copyright (C) 2008-2009 Trinity <http://www.trinitycore.org/>
@@ -138,7 +138,7 @@ extern int main(int argc, char **argv)
         return 1;
     }
     sLog.outString("Using configuration file %s.", cfg_file);
-    
+
     uint32 confVersion = sConfig.GetIntDefault("ConfVersion", 0);
     if (confVersion < _TRINITY_CORE_CONFVER)
     {

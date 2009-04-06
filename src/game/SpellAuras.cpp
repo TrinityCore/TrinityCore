@@ -232,7 +232,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNoImmediateEffect,                         //178 SPELL_AURA_MOD_DEBUFF_RESISTANCE          implemented in Unit::MagicSpellHitResult
     &AuraEffect::HandleNoImmediateEffect,                         //179 SPELL_AURA_MOD_ATTACKER_SPELL_CRIT_CHANCE implemented in Unit::SpellCriticalBonus
     &AuraEffect::HandleNoImmediateEffect,                         //180 SPELL_AURA_MOD_FLAT_SPELL_DAMAGE_VERSUS   implemented in Unit::SpellDamageBonus
-    &AuraEffect::HandleUnused,                                    //181 unused (3.0.8a) old SPELL_AURA_MOD_FLAT_SPELL_CRIT_DAMAGE_VERSUS 
+    &AuraEffect::HandleUnused,                                    //181 unused (3.0.8a) old SPELL_AURA_MOD_FLAT_SPELL_CRIT_DAMAGE_VERSUS
     &AuraEffect::HandleAuraModResistenceOfStatPercent,            //182 SPELL_AURA_MOD_RESISTANCE_OF_STAT_PERCENT
     &AuraEffect::HandleNULL,                                      //183 SPELL_AURA_MOD_CRITICAL_THREAT only used in 28746
     &AuraEffect::HandleNoImmediateEffect,                         //184 SPELL_AURA_MOD_ATTACKER_MELEE_HIT_CHANCE  implemented in Unit::RollMeleeOutcomeAgainst
@@ -367,7 +367,7 @@ m_auraSlot(MAX_AURAS), m_auraLevel(1), m_procCharges(0), m_stackAmount(1),m_aura
     {
         m_caster_guid = target->GetGUID();
         //damage = m_currentBasePoints+1;                     // stored value-1
-        m_maxduration = target->CalcSpellDuration(m_spellProto); 
+        m_maxduration = target->CalcSpellDuration(m_spellProto);
     }
     else
     {
@@ -423,7 +423,7 @@ m_auraSlot(MAX_AURAS), m_auraLevel(1), m_procCharges(0), m_stackAmount(1),m_aura
         }
     }
 
-    // Aura is positive when it is casted by friend and at least one aura is positive 
+    // Aura is positive when it is casted by friend and at least one aura is positive
     // or when it is casted by enemy and  at least one aura is negative
     bool swap=false;
     if (!caster || caster==target)
@@ -526,7 +526,7 @@ AreaAuraEffect::AreaAuraEffect(Aura * parentAura, uint32 effIndex, int32 * curre
 
     if (m_spellProto->Effect[effIndex] == SPELL_EFFECT_APPLY_AREA_AURA_ENEMY)
         m_radius = GetSpellRadiusForHostile(sSpellRadiusStore.LookupEntry(GetSpellProto()->EffectRadiusIndex[m_effIndex]));
-    else 
+    else
         m_radius = GetSpellRadiusForFriend(sSpellRadiusStore.LookupEntry(GetSpellProto()->EffectRadiusIndex[m_effIndex]));
 
     if(Player* modOwner = caster_ptr->GetSpellModOwner())
@@ -6166,7 +6166,7 @@ void AuraEffect::PeriodicTick()
             }
 
             // Anger Management
-            // amount = 1+ 16 = 17 = 3,4*5 = 10,2*5/3 
+            // amount = 1+ 16 = 17 = 3,4*5 = 10,2*5/3
             // so 17 is rounded amount for 5 sec tick grow ~ 1 range grow in 3 sec
             if(pt == POWER_RAGE)
                 m_target->ModifyPower(pt, m_amount*3/5);
@@ -6748,8 +6748,8 @@ void AuraEffect::HandleModPossessPet(bool apply, bool Real)
     if(apply)
     {
         if(caster->GetGuardianPet() != m_target)
-            return;    
-    
+            return;
+
         m_target->SetCharmedOrPossessedBy(caster, true);
     }
     else
@@ -6777,7 +6777,7 @@ void AuraEffect::HandleModCharm(bool apply, bool Real)
     {
         if(int32(m_target->getLevel()) > m_amount)
             return;
-        
+
         m_target->SetCharmedOrPossessedBy(caster, false);
     }
     else

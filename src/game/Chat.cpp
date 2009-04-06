@@ -1034,7 +1034,7 @@ int ChatHandler::ParseCommands(const char* text)
 
     if(!ExecuteCommandInTable(getCommandTable(), text, fullcmd))
 	{
-		if(m_session && m_session->GetSecurity() == SEC_PLAYER) 
+		if(m_session && m_session->GetSecurity() == SEC_PLAYER)
 			return 0;
 		SendSysMessage(LANG_NO_CMD);
 	}

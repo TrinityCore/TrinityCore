@@ -214,7 +214,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player)
         InstanceTemplate const* instance = objmgr.GetInstanceTemplate(mapid);
         if(!instance)
             return false;
-        
+
         return player->Satisfy(objmgr.GetAccessRequirement(instance->access_id), mapid, true);
     }
     else

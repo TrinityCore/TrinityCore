@@ -52,8 +52,8 @@ Below is the list of current Text types that texts tables can handle. These were
 -----------------------------------------------------------
 0    CHAT_TYPE_SAY                 This type sets the text to be displayed as a Say (Speech Bubble).
 1    CHAT_TYPE_YELL                This type sets the text to be displayed as a Yell (Red Speech Bubble) and usually has a matching Sound ID.
-2    CHAT_TYPE_TEXT_EMOTE          This type sets the text to be displayed as a text emote in orange in the chat log. 
-3    CHAT_TYPE_BOSS_EMOTE          This type sets the text to be displayed as a text emote in orange in the chat log (Used only for specific Bosses). 
+2    CHAT_TYPE_TEXT_EMOTE          This type sets the text to be displayed as a text emote in orange in the chat log.
+3    CHAT_TYPE_BOSS_EMOTE          This type sets the text to be displayed as a text emote in orange in the chat log (Used only for specific Bosses).
 4    CHAT_TYPE_WHISPER             This type sets the text to be displayed as a whisper to the player in the chat log.
 5    CHAT_TYPE_BOSS_WHISPER        This type sets the text to be displayed as a whisper to the player in the chat log (Used only for specific Bosses).
 
@@ -65,7 +65,7 @@ Below is the list of current Language types that are allowed.
 This is the Race Language that the text is native to (So it will display properly)
 
 #    Internal Name                Description
------------------------------------------------------------                    
+-----------------------------------------------------------
 0    UNIVERSAL                    Text in this language is understood by ALL Races.
 1    ORCISH                       Text in this language is understood ONLY by Horde Races.
 2    DARNASSIAN                   Text in this language is understood ONLY by the Night Elf Race.
