@@ -758,7 +758,6 @@ void AreaAuraEffect::Update(uint32 diff)
                     //if(actualSpellInfo != GetSpellProto())
                     //    actualBasePoints = actualSpellInfo->EffectBasePoints[m_effIndex];
                     Aura * aur = (*tIter)->AddAuraEffect(actualSpellInfo->Id, GetEffIndex(), caster);
-                    RemoveParentAura();
 
                     if(m_areaAuraType == AREA_AURA_ENEMY)
                         caster->CombatStart(*tIter);
