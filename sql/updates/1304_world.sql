@@ -1,3 +1,3 @@
-delete from command where name in ('reload spell_linked_spell');
-insert into command (name, security, help) values
-('reload spell_linked_spell','3','Usage: .reload spell_linked_spell\r\nReloads the spell_linked_spell DB table.'), 
+DELETE FROM command WHERE name IN ('reload spell_linked_spell');
+INSERT INTO command (name, security, help) VALUES
+('reload spell_linked_spell','3','Usage: .reload spell_linked_spell\r\nReloads the spell_linked_spell DB table.');
