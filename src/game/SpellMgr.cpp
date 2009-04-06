@@ -1348,36 +1348,8 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2, bool
             ||(IsSingleFromSpellSpecificPerCaster(spellId_spec_1, spellId_spec_2) && sameCaster))
             return true;
 
-    // spells with different specific always stack
-    if(spellId_spec_1 || spellId_spec_2)
-        return false;
-
     if(spellInfo_1->SpellFamilyName != spellInfo_2->SpellFamilyName)
         return false;
-
-    // TODO: Is this needed?
-    // Allow stack passive and not passive spells
-    if ((spellInfo_1->Attributes & SPELL_ATTR_PASSIVE)!=(spellInfo_2->Attributes & SPELL_ATTR_PASSIVE))
-        return false;
-
-    // generic spells
-    if(!spellInfo_1->SpellFamilyName)
-    {
-        // hack for Incanter's Absorption
-        if (spellInfo_1->Id==44413 && spellInfo_2->Id==44413)
-            return false;
-        if(!spellInfo_1->SpellIconID
-            || spellInfo_1->SpellIconID == 1
-            || spellInfo_1->SpellIconID != spellInfo_2->SpellIconID)
-            return false;
-    }
-
-    // check for class spells
-    else
-    {
-        if (spellInfo_1->SpellFamilyFlags != spellInfo_2->SpellFamilyFlags)
-            return false;
-    }
 
     if(!sameCaster)
     {
@@ -1403,16 +1375,33 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2, bool
                 }
     }
 
-//    not needed now because we compare effects last rank of spells
-//    if(spellInfo_1->SpellFamilyName && IsRankSpellDueToSpell(spellInfo_1, spellId_2))
-//        return true;
+    // hack for Incanter's Absorption
+    if (spellInfo_1->Id==44413 && spellInfo_2->Id==44413)
+        return false;
+
+    spellId_2 = GetLastSpellInChain(spellId_2);
+    spellId_1 = GetLastSpellInChain(spellId_1);
+    if (spellId_1 == spellId_2)
+        return true;
+
+    // generic spells
+    if(!spellInfo_1->SpellFamilyName)
+    {
+        if(!spellInfo_1->SpellIconID
+            || spellInfo_1->SpellIconID == 1
+            || spellInfo_1->SpellIconID != spellInfo_2->SpellIconID)
+            return false;
+    }
+    // check for class spells
+    else
+    {
+        if (spellInfo_1->SpellFamilyFlags != spellInfo_2->SpellFamilyFlags)
+            return false;
+    }
 
     //use data of highest rank spell(needed for spells which ranks have different effects)
-    spellInfo_1=sSpellStore.LookupEntry(GetLastSpellInChain(spellId_1));
-    spellInfo_2=sSpellStore.LookupEntry(GetLastSpellInChain(spellId_2));
-
-    if (spellInfo_1==spellInfo_2)
-        return true;
+    spellInfo_1=sSpellStore.LookupEntry(spellId_1);
+    spellInfo_2=sSpellStore.LookupEntry(spellId_2);
 
     //if spells have exactly the same effect they cannot stack
     for(uint32 i = 0; i < 3; ++i)

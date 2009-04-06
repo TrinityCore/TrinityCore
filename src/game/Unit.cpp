@@ -3729,13 +3729,10 @@ bool Unit::AddAura(Aura *Aur)
     }
 
     // passive auras not stacable with other ranks
-    if (!IsPassiveSpellStackableWithRanks(aurSpellInfo))
+    if (!RemoveNoStackAurasDueToAura(Aur))
     {
-        if (!RemoveNoStackAurasDueToAura(Aur))
-        {
-            delete Aur;
-            return false;                                   // couldn't remove conflicting aura with higher rank
-        }
+        delete Aur;
+        return false;                                   // couldn't remove conflicting aura with higher rank
     }
 
     // update single target auras list (before aura add to aura list, to prevent unexpected remove recently added aura)
@@ -3890,7 +3887,7 @@ bool Unit::RemoveNoStackAurasDueToAura(Aura *Aur)
         // Remove all auras by aura caster
         RemoveAurasDueToSpell(i_spellId , (*i).second->GetCasterGUID(), AURA_REMOVE_BY_STACK);
 
-        if( m_Auras.empty() )
+        if( m_Auras.empty())
             break;
         else
             next = m_Auras.begin();
