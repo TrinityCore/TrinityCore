@@ -424,9 +424,9 @@ libtrinityscript_la_LIBFLAGS = -version-info 0:0:1
 libtrinityscript_la_LIBADD =  $(MYSQL_LIBS) $(POSTGRE_LIBS)
 
 ## Additional files to install
-## sysconf_DATA = 
+## sysconf_DATA =
 
-## EXTRA_DIST = 
+## EXTRA_DIST =
 
 ## Prevend overwrite of the config file, if its already installed
 install-data-hook:

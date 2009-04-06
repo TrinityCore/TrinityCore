@@ -36,5 +36,5 @@ EndScriptData */
 #define MOB_AHNKAHAR_SWARMER                30178
 #define SPELL_SUMMON_SWARM_GUARD            56120//1x 30176
 #define SPELL_DEADLY_POISON                 56145// Proc trigger
-#define H_SPELL_DEADLY_POISON               59479// Proc trigger 
+#define H_SPELL_DEADLY_POISON               59479// Proc trigger
 #define SPELL_GUARDIAN_AURA                 56151

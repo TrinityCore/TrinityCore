@@ -143,7 +143,7 @@ enum Powers
     MAX_POWERS                          = 7,
     POWER_ALL                           = 127,    // default for class?
     POWER_HEALTH                        = 0xFFFFFFFE    // (-2 as signed value)
-}; 
+};
 
 enum SpellSchools
 {

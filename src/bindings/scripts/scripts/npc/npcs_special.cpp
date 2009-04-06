@@ -332,7 +332,7 @@ struct TRINITY_DLL_DECL npc_injured_patientAI : public ScriptedAI
 
         //no regen health
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
-                                                     
+
         //to make them lay with face down
         m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_DEAD);
 
@@ -557,7 +557,7 @@ void npc_doctorAI::UpdateAI(const uint32 diff)
 
             if (Patient)
             {
-                //303, this flag appear to be required for client side item->spell to work (TARGET_SINGLE_FRIEND) 
+                //303, this flag appear to be required for client side item->spell to work (TARGET_SINGLE_FRIEND)
                 Patient->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
 
                 Patients.push_back(Patient->GetGUID());

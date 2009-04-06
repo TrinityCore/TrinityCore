@@ -103,7 +103,7 @@ struct TRINITY_DLL_DECL boss_bloodmage_thalnosAI : public ScriptedAI
             DoCast(m_creature->getVictim(),SPELL_SHADOWBOLT);
             ShadowBolt_Timer = 2000;
         }else ShadowBolt_Timer -= diff;
-        
+
         DoMeleeAttackIfReady();
     }
 };

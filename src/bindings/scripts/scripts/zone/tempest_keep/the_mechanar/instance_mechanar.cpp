@@ -56,7 +56,7 @@ struct TRINITY_DLL_DECL instance_mechanar : public ScriptedInstance
     {
         switch(type)
         {
-        case DATA_NETHERMANCER_EVENT:   return Encounters[0];         
+        case DATA_NETHERMANCER_EVENT:   return Encounters[0];
         }
 
         return false;

@@ -6,7 +6,7 @@ while :
 do
 	echo "TrinityCore daemon restarted"
 	echo `date` >> crash.log &
-	./mangosd | tail -n 20 >> crash.log 
+	./mangosd | tail -n 20 >> crash.log
 	echo " " >> crash.log &
 	pid=`ps ax | awk '($5 ~ /trinitycore/) { print $1 }'`
 	wait $pid

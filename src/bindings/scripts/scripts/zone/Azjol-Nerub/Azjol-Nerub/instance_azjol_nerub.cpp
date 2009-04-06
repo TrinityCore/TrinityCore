@@ -67,7 +67,7 @@ struct TRINITY_DLL_DECL instance_azjol_nerub : public ScriptedInstance
     void OnCreatureCreate(Creature *creature, uint32 creature_entry)
     {
         switch(creature_entry)
-        { 
+        {
             case 28684:    Krikthir = creature->GetGUID();  break;
             case 28921:    Hadronox = creature->GetGUID();  break;
             case 29120:    Anubarak = creature->GetGUID();  break;

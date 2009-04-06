@@ -495,7 +495,7 @@ Map::Add(T *obj)
 
     AddToGrid(obj,grid,cell);
     obj->AddToWorld();
-    
+
     if(obj->isActiveObject())
         AddToActive(obj);
 

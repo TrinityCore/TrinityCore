@@ -1691,7 +1691,7 @@ void SpellMgr::LoadSpellChains()
             bar.step();
             RankErrorMap.insert(std::pair<char const *, std::multimap<SpellRankEntry, SpellRankValue>::iterator>(itr2->second.Rank,itr2));
         }
-        
+
         bool error=false;
         //if strict == true strict check is not needed
         if (!itr->second.strict)

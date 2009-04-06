@@ -99,7 +99,7 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
     void OnCreatureCreate(Creature *creature, uint32 creature_entry)
     {
         switch(creature_entry)
-        { 
+        {
             case 23953:    Keleseth = creature->GetGUID();             break;
             case 24201:    Dalronn = creature->GetGUID();              break;
             case 24200:    Skarvald = creature->GetGUID();             break;

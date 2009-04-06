@@ -795,7 +795,7 @@ void BattleGround::RewardMark(Player *plr,uint32 count)
     if(!plr || !count)
         return;
 
-    BattleGroundMarks mark;    
+    BattleGroundMarks mark;
     switch(GetTypeID())
     {
         case BATTLEGROUND_AV:
@@ -807,7 +807,7 @@ void BattleGround::RewardMark(Player *plr,uint32 count)
         case BATTLEGROUND_AB:
             mark = ITEM_AB_MARK_OF_HONOR;
             break;
-        case BATTLEGROUND_EY:            
+        case BATTLEGROUND_EY:
             mark = ITEM_EY_MARK_OF_HONOR;
             break;
         default:
