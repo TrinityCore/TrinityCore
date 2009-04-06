@@ -76,7 +76,7 @@ class TRINITY_DLL_SPEC MotionMaster //: private std::stack<MovementGenerator *>
         typedef std::vector<_Ty> ExpireList;
         int i_top;
 
-        bool empty() const { return i_top < 0; }
+        bool empty() const { return (i_top < 0); }
         void pop() { Impl[i_top] = NULL; --i_top; }
         void push(_Ty _Val) { ++i_top; Impl[i_top] = _Val; }
 

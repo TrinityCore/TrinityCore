@@ -1,7 +1,7 @@
-/*
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+/* 
+ * Copyright (C) 2005-2008 MaNGOS <http://www.mangosproject.org/>
  *
- * Copyright (C) 2008-2009 Trinity <http://www.trinitycore.org/>
+ * Copyright (C) 2008 Trinity <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,44 +21,56 @@
 #ifndef _FORMATIONS_H
 #define _FORMATIONS_H
 
-#include <map>
-#include "Creature.h"
-#include "Policies/Singleton.h"
+//#include <map>
+//#include "Creature.h"
+//#include "Policies/Singleton.h"
+#include "Common.h"
+
+class CreatureGroup;
 
 struct FormationMember
 {
-    float follow_dist;
-    float follow_angle;
-    uint32 memberGUID;
-    uint32 leaderGUID;
-    uint8 groupAI;
+	float follow_dist; 
+	float follow_angle; 
+	uint32 memberGUID; 
+	uint32 leaderGUID;
+	uint8 groupAI;
 };
 
 class CreatureGroupManager
 {
-    public:
-        void UpdateCreatureGroup(uint32 group_id, Creature *member);
-        void DestroyGroup(uint32 group_id, uint64 guid);
-        void LoadCreatureFormations();
+	public:
+        void UpdateCreatureGroup(uint32 group_id, Creature &);
+        void DestroyGroup(CreatureGroup *&, uint64 guid);
+		void LoadCreatureFormations();
 };
 
 class CreatureGroup
 {
-    UNORDERED_MAP<uint64, Creature*>CreatureGroupMembers;
-    Creature *m_leader; //Important do not forget sometimes to work with pointers instead synonims :D:D
-
-    public:
-        CreatureGroup() : m_leader(NULL) {}
-        ~CreatureGroup(){sLog.outDebug("Destroying group");}
-        void AddMember(Creature *);
-        void RemoveMember(uint64 guid);
-        void LeaderMovedInEvade();
-        void MemberHasAttacked(Creature *);
-        void SetMemberDestination(Creature *);
-        bool isEmpty() {return CreatureGroupMembers.empty();}
+	UNORDERED_MAP<uint64, Creature*>CreatureGroupMembers;
+	Creature *m_leader; //Important do not forget sometimes to work with pointers instead synonims :D:D
+	uint32 m_groupID, mInstanceID;
+	bool m_Formed;
+	
+	public:
+        //Group cannot be created empty
+		explicit CreatureGroup(uint32 id, uint32 InstanceID) : m_groupID(id), m_leader(NULL), mInstanceID(InstanceID), m_Formed(false) {}
+		~CreatureGroup(){sLog.outDebug("Destroying group");}
+		
+		Creature* getLeader(){return m_leader;}
+		uint32 GetId(){return m_groupID;}
+		uint32 getInstanceID(){return mInstanceID;}
+		void AddMember(Creature &);
+		void RemoveMember(uint64 guid);
+		void FormDismiss(bool dismiss=false);
+		void LeaderMovedInEvade();
+		void MemberHasAttacked(Creature &);
+		void SetMemberDestination(Creature *);
+		bool isEmpty() {return CreatureGroupMembers.empty();}
+		bool isFormed() {return m_Formed;}
 };
 
-typedef UNORDERED_MAP<uint32, CreatureGroup*> CreatureGroupHolderType;
+typedef std::multimap<uint32, CreatureGroup*> CreatureGroupHolderType;
 
 extern CreatureGroupHolderType CreatureGroupHolder;
 extern UNORDERED_MAP<uint32, FormationMember*> CreatureGroupMap;
@@ -66,4 +78,3 @@ extern UNORDERED_MAP<uint32, FormationMember*> CreatureGroupMap;
 #define formation_mgr Trinity::Singleton<CreatureGroupManager>::Instance()
 
 #endif
-
