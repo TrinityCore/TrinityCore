@@ -4074,6 +4074,12 @@ void Unit::RemoveNotOwnSingleTargetAuras()
 void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
 {
     Aura* Aur = i->second;
+    //aura can be during update when removing, set it to remove at next update
+    if (Aur->IsUpdated())
+    {
+        Aur->RemoveAura();
+    }
+
     SpellEntry const* AurSpellInfo = Aur->GetSpellProto();
 
     // some ShapeshiftBoosts at remove trigger removing other auras including parent Shapeshift aura
