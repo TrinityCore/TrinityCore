@@ -150,7 +150,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
 
     // mount allow check
     if(!mEntry->IsMountAllowed())
-        _player->RemoveSpellsCausingAura(SPELL_AURA_MOUNTED);
+        _player->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
     // honorless target
     if(GetPlayer()->pvpInfo.inHostileArea)
@@ -262,7 +262,7 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
         plMover->UpdateFallInformationIfNeed(movementInfo,recv_data.GetOpcode());
 
         if(plMover->isMovingOrTurning())
-            plMover->RemoveSpellsCausingAura(SPELL_AURA_FEIGN_DEATH);
+            plMover->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
         if(movementInfo.z < -500.0f)
         {

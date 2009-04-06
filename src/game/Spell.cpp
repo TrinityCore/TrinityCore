@@ -1148,7 +1148,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
         // TODO: Handle all of special spells in one place?
         if(m_preCastSpell==61988)
         {
-            //Cast forbearance
+            //Cast Forbearance
             m_caster->CastSpell(unit,25771, true, m_CastItem);
             // Cast Avenging Wrath Marker
             m_caster->CastSpell(unit,61987, true, m_CastItem);
@@ -1156,11 +1156,45 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
         else
             m_caster->CastSpell(unit,m_preCastSpell, true, m_CastItem);
     }
+    uint8 t_effmask=0;
+    for (uint8 i=0;i<3;++i)
+        if (effectMask & (1<<i) && (m_spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AURA || IsAreaAuraEffect(m_spellInfo->Effect[i])))
+            t_effmask |=1<<i;
 
+    if (t_effmask)
+    {
+        Unit * caster =  m_originalCaster ? m_originalCaster : m_caster;
+        Aura * Aur= new Aura(m_spellInfo, t_effmask, &m_currentBasePoints[0], unit, caster , m_CastItem);
 
+        if (!Aur->IsAreaAura())
+        {
+            // Now Reduce spell duration using data received at spell hit
+            int32 duration = Aur->GetAuraMaxDuration();
+            unit->ApplyDiminishingToDuration(m_diminishGroup,duration,caster,m_diminishLevel);
+            Aur->setDiminishGroup(m_diminishGroup);
+
+            duration = caster->ModSpellDuration(m_spellInfo, unit, duration, Aur->IsPositive());
+
+            //mod duration of channeled aura by spell haste
+            if (IsChanneledSpell(m_spellInfo))
+                caster->ModSpellCastTime(m_spellInfo, duration, this);
+
+            if(duration != Aur->GetAuraMaxDuration())
+            {
+                Aur->SetAuraMaxDuration(duration);
+                Aur->SetAuraDuration(duration);
+            }
+
+            // Prayer of Mending (jump animation), we need formal caster instead original for correct animation
+            if( m_spellInfo->SpellFamilyName == SPELLFAMILY_PRIEST && (m_spellInfo->SpellFamilyFlags[1] & 0x000020))
+                m_caster->CastSpell(unit, 41637, true, NULL, NULL, m_originalCasterGUID);
+        }
+        unit->AddAura(Aur);
+    }
+    t_effmask = effectMask& ~t_effmask;
     for(uint32 effectNumber=0;effectNumber<3;effectNumber++)
     {
-        if (effectMask & (1<<effectNumber))
+        if (t_effmask & (1<<effectNumber))
         {
             HandleEffects(unit,NULL,NULL,effectNumber/*,m_damageMultipliers[effectNumber]*/);
             //Only damage and heal spells need this
@@ -1188,20 +1222,23 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
         int _duration=0;
         for(ChanceTriggerSpells::const_iterator i = m_ChanceTriggerSpells.begin(); i != m_ChanceTriggerSpells.end(); ++i)
         {
+            // SPELL_AURA_ADD_TARGET_TRIGGER auras shouldn't trigger auras without duration
+            // set duration equal to triggering spell
             if(roll_chance_i(i->second))
             {
                 m_caster->CastSpell(unit, i->first, true);
-                // SPELL_AURA_ADD_TARGET_TRIGGER auras shouldn't trigger auras without duration
-                // set duration equal to triggering spell
-                if (GetSpellDuration(i->first)==-1)
+            }
+            if (GetSpellDuration(i->first)==-1)
+            {
+                if (Aura * triggeredAur = unit->GetAura(i->first->Id, m_caster->GetGUID()))
                 {
                     // get duration from aura-only once
                     if (!_duration)
                     {
-                        Aura * aur = unit->GetAuraByCasterSpell(m_spellInfo->Id, m_caster->GetGUID());
+                        Aura * aur = unit->GetAura(m_spellInfo->Id, m_caster->GetGUID());
                         _duration = aur ? aur->GetAuraDuration() : -1;
                     }
-                    unit->SetAurasDurationByCasterSpell(i->first->Id, m_caster->GetGUID(), _duration);
+                    triggeredAur->SetAuraDuration(_duration);
                 }
             }
         }
@@ -1342,7 +1379,7 @@ void Spell::SearchChainTarget(std::list<Unit*> &TagUnitMap, float max_range, uin
     {
         if (!(*m)->isAffectedOnSpell(m_spellInfo))
             continue;
-        unMaxTargets+=(*m)->GetModifier()->m_amount;
+        unMaxTargets+=(*m)->GetAmount();
     }*/
 
     //FIXME: This very like horrible hack and wrong for most spells
@@ -1501,11 +1538,11 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
     uint32 EffectChainTarget = m_spellInfo->EffectChainTarget[i];
     uint32 unMaxTargets = m_spellInfo->MaxAffectedTargets;
 
-    Unit::AuraList const& Auras = m_caster->GetAurasByType(SPELL_AURA_MOD_MAX_AFFECTED_TARGETS);
-    for(Unit::AuraList::const_iterator j = Auras.begin();j != Auras.end(); ++j)
+    Unit::AuraEffectList const& Auras = m_caster->GetAurasByType(SPELL_AURA_MOD_MAX_AFFECTED_TARGETS);
+    for(Unit::AuraEffectList::const_iterator j = Auras.begin();j != Auras.end(); ++j)
     {
         if((*j)->isAffectedOnSpell(m_spellInfo))
-            unMaxTargets+=(*j)->GetModifier()->m_amount;
+            unMaxTargets+=(*j)->GetAmount();
     }
 
     if(m_originalCaster)
@@ -2073,7 +2110,7 @@ struct PrioritizeMana
     }
 };
 
-void Spell::prepare(SpellCastTargets const* targets, Aura* triggeredByAura)
+void Spell::prepare(SpellCastTargets const* targets, AuraEffect* triggeredByAura)
 {
     if(m_CastItem)
         m_castItemGUID = m_CastItem->GetGUID();
@@ -2145,7 +2182,7 @@ void Spell::prepare(SpellCastTargets const* targets, Aura* triggeredByAura)
         if(triggeredByAura)
         {
             SendChannelUpdate(0);
-            triggeredByAura->SetAuraDuration(0);
+            triggeredByAura->GetParentAura()->SetAuraDuration(0);
         }
         SendCastResult(result);
         finish(false);
@@ -2208,11 +2245,10 @@ void Spell::cancel()
                 {
                     Unit* unit = m_caster->GetGUID()==(*ihit).targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, ihit->targetGUID);
                     if( unit && unit->isAlive() )
-                        unit->RemoveAurasByCasterSpell(m_spellInfo->Id, m_caster->GetGUID(), AURA_REMOVE_BY_CANCEL);
+                        unit->RemoveAurasDueToSpell(m_spellInfo->Id, m_caster->GetGUID(), AURA_REMOVE_BY_CANCEL);
                 }
             }
-
-            m_caster->RemoveAurasByCasterSpell(m_spellInfo->Id, m_caster->GetGUID(), AURA_REMOVE_BY_CANCEL);
+            m_caster->RemoveAurasDueToSpell(m_spellInfo->Id, m_caster->GetGUID(), AURA_REMOVE_BY_CANCEL);
             SendChannelUpdate(0);
             SendInterrupted(0);
             SendCastResult(SPELL_FAILED_INTERRUPTED);
@@ -2299,8 +2335,8 @@ void Spell::cast(bool skipCheck)
     // this is related to combo points so must be done before takepower
     // are there any spells need to be triggered after hit?
     // handle SPELL_AURA_ADD_TARGET_TRIGGER auras
-    Unit::AuraList const& targetTriggers = m_caster->GetAurasByType(SPELL_AURA_ADD_TARGET_TRIGGER);
-    for(Unit::AuraList::const_iterator i = targetTriggers.begin(); i != targetTriggers.end(); ++i)
+    Unit::AuraEffectList const& targetTriggers = m_caster->GetAurasByType(SPELL_AURA_ADD_TARGET_TRIGGER);
+    for(Unit::AuraEffectList::const_iterator i = targetTriggers.begin(); i != targetTriggers.end(); ++i)
     {
         if (!(*i)->isAffectedOnSpell(m_spellInfo))
             continue;
@@ -2310,7 +2346,7 @@ void Spell::cast(bool skipCheck)
         {
             // Calculate chance at that moment (can be depend for example from combo points)
             int32 chance = m_caster->CalculateSpellDamage(auraSpellInfo, auraSpellIdx, (*i)->GetBasePoints(), NULL);
-            m_ChanceTriggerSpells.push_back(std::make_pair(spellInfo, chance * (*i)->GetStackAmount()));
+            m_ChanceTriggerSpells.push_back(std::make_pair(spellInfo, chance * (*i)->GetParentAura()->GetStackAmount()));
         }
     }
 
@@ -3579,8 +3615,8 @@ SpellCastResult Spell::CheckCast(bool strict)
     {
         bool checkForm = true;
         // Ignore form req aura
-        Unit::AuraList const& ignore = m_caster->GetAurasByType(SPELL_AURA_MOD_IGNORE_SHAPESHIFT);
-        for(Unit::AuraList::const_iterator i = ignore.begin(); i != ignore.end(); ++i)
+        Unit::AuraEffectList const& ignore = m_caster->GetAurasByType(SPELL_AURA_MOD_IGNORE_SHAPESHIFT);
+        for(Unit::AuraEffectList::const_iterator i = ignore.begin(); i != ignore.end(); ++i)
         {
             if (!(*i)->isAffectedOnSpell(m_spellInfo))
                 continue;
@@ -3600,12 +3636,12 @@ SpellCastResult Spell::CheckCast(bool strict)
     }
 
     bool reqCombat=true;
-    Unit::AuraList const& stateAuras = m_caster->GetAurasByType(SPELL_AURA_ABILITY_IGNORE_AURASTATE);
-    for(Unit::AuraList::const_iterator j = stateAuras.begin();j != stateAuras.end(); ++j)
+    Unit::AuraEffectList const& stateAuras = m_caster->GetAurasByType(SPELL_AURA_ABILITY_IGNORE_AURASTATE);
+    for(Unit::AuraEffectList::const_iterator j = stateAuras.begin();j != stateAuras.end(); ++j)
     {
         if((*j)->isAffectedOnSpell(m_spellInfo))
         {
-            if ((*j)->GetModifier()->m_miscvalue==1)
+            if ((*j)->GetMiscValue()==1)
             {
                 reqCombat=false;
                 break;
@@ -4521,37 +4557,43 @@ SpellCastResult Spell::CheckCasterAuras() const
             {
                 if(itr->second)
                 {
-                    if( GetSpellMechanicMask(itr->second->GetSpellProto(), itr->second->GetEffIndex()) & mechanic_immune )
+                    if( GetAllSpellMechanicMask(itr->second->GetSpellProto()) & mechanic_immune )
                         continue;
-                    if( GetSpellSchoolMask(itr->second->GetSpellProto()) & school_immune )
+                    if( GetAllSpellMechanicMask(itr->second->GetSpellProto()) & school_immune )
                         continue;
                     if( (1<<(itr->second->GetSpellProto()->Dispel)) & dispel_immune)
                         continue;
 
                     //Make a second check for spell failed so the right SPELL_FAILED message is returned.
                     //That is needed when your casting is prevented by multiple states and you are only immune to some of them.
-                    switch(itr->second->GetModifier()->m_auraname)
+                    for (uint8 i=0;i<MAX_SPELL_EFFECTS;++i)
                     {
-                        case SPELL_AURA_MOD_STUN:
-                            if (!(m_spellInfo->AttributesEx5 & SPELL_ATTR_EX5_USABLE_WHILE_STUNNED))
-                                return SPELL_FAILED_STUNNED;
-                            break;
-                        case SPELL_AURA_MOD_CONFUSE:
-                            if (!(m_spellInfo->AttributesEx5 & SPELL_ATTR_EX5_USABLE_WHILE_CONFUSED))
-                                return SPELL_FAILED_CONFUSED;
-                            break;
-                        case SPELL_AURA_MOD_FEAR:
-                            if (!(m_spellInfo->AttributesEx5 & SPELL_ATTR_EX5_USABLE_WHILE_FEARED))
-                                return SPELL_FAILED_FLEEING;
-                            break;
-                        case SPELL_AURA_MOD_SILENCE:
-                        case SPELL_AURA_MOD_PACIFY:
-                        case SPELL_AURA_MOD_PACIFY_SILENCE:
-                            if( m_spellInfo->PreventionType==SPELL_PREVENTION_TYPE_PACIFY)
-                                return SPELL_FAILED_PACIFIED;
-                            else if ( m_spellInfo->PreventionType==SPELL_PREVENTION_TYPE_SILENCE)
-                                return SPELL_FAILED_SILENCED;
-                            break;
+                        if (AuraEffect * part = itr->second->GetPartAura(i))
+                        {
+                            switch(part->GetAuraName())
+                            {
+                                case SPELL_AURA_MOD_STUN:
+                                    if (!(m_spellInfo->AttributesEx5 & SPELL_ATTR_EX5_USABLE_WHILE_STUNNED))
+                                        return SPELL_FAILED_STUNNED;
+                                    break;
+                                case SPELL_AURA_MOD_CONFUSE:
+                                    if (!(m_spellInfo->AttributesEx5 & SPELL_ATTR_EX5_USABLE_WHILE_CONFUSED))
+                                        return SPELL_FAILED_CONFUSED;
+                                    break;
+                                case SPELL_AURA_MOD_FEAR:
+                                    if (!(m_spellInfo->AttributesEx5 & SPELL_ATTR_EX5_USABLE_WHILE_FEARED))
+                                        return SPELL_FAILED_FLEEING;
+                                    break;
+                                case SPELL_AURA_MOD_SILENCE:
+                                case SPELL_AURA_MOD_PACIFY:
+                                case SPELL_AURA_MOD_PACIFY_SILENCE:
+                                    if( m_spellInfo->PreventionType==SPELL_PREVENTION_TYPE_PACIFY)
+                                        return SPELL_FAILED_PACIFIED;
+                                    else if ( m_spellInfo->PreventionType==SPELL_PREVENTION_TYPE_SILENCE)
+                                        return SPELL_FAILED_SILENCED;
+                                    break;
+                            }
+                        }
                     }
                 }
             }
@@ -4573,18 +4615,18 @@ bool Spell::CanAutoCast(Unit* target)
         {
             if( m_spellInfo->StackAmount <= 1)
             {
-                if( target->HasAura(m_spellInfo->Id, j) )
+                if( target->HasAuraEffect(m_spellInfo->Id, j) )
                     return false;
             }
             else
             {
-                if( target->GetAuras().count(Unit::spellEffectPair(m_spellInfo->Id, j)) >= m_spellInfo->StackAmount)
+                if( (target->GetAuraEffect(m_spellInfo->Id, j))->GetParentAura()->GetStackAmount() >= m_spellInfo->StackAmount)
                     return false;
             }
         }
         else if ( IsAreaAuraEffect( m_spellInfo->Effect[j] ))
         {
-                if( target->HasAura(m_spellInfo->Id, j) )
+                if( target->HasAuraEffect(m_spellInfo->Id, j) )
                     return false;
         }
     }
@@ -4746,7 +4788,7 @@ SpellCastResult Spell::CheckPower()
     // Check valid power type
     if( m_spellInfo->powerType >= MAX_POWERS )
     {
-        sLog.outError("Spell::CheckMana: Unknown power type '%d'", m_spellInfo->powerType);
+        sLog.outError("Spell::CheckPower: Unknown power type '%d'", m_spellInfo->powerType);
         return SPELL_FAILED_UNKNOWN;
     }
 
@@ -5231,11 +5273,8 @@ void Spell::DelayedChannel()
             Unit* unit = m_caster->GetGUID()==ihit->targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, ihit->targetGUID);
             if (unit)
             {
-                for (int j=0;j<3;j++)
-                    if( ihit->effectMask & (1<<j) )
-                        unit->DelayAura(m_spellInfo->Id, j, delaytime);
+                unit->DelayAura(m_spellInfo->Id, m_caster->GetGUID(), delaytime);
             }
-
         }
     }
 
@@ -5264,11 +5303,6 @@ void Spell::UpdatePointers()
         m_CastItem = ((Player*)m_caster)->GetItemByGuid(m_castItemGUID);
 
     m_targets.Update(m_caster);
-}
-
-bool Spell::IsAffectedByAura(Aura *aura)
-{
-    return spellmgr.IsAffectedByMod(m_spellInfo, aura->getAuraSpellMod());
 }
 
 bool Spell::CheckTargetCreatureType(Unit* target) const
@@ -5405,12 +5439,12 @@ Unit* Spell::SelectMagnetTarget()
 
     if(target && m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MAGIC && target->HasAuraType(SPELL_AURA_SPELL_MAGNET)) //Attributes & 0x10 what is this?
     {
-        Unit::AuraList const& magnetAuras = target->GetAurasByType(SPELL_AURA_SPELL_MAGNET);
-        for(Unit::AuraList::const_iterator itr = magnetAuras.begin(); itr != magnetAuras.end(); ++itr)
+        Unit::AuraEffectList const& magnetAuras = target->GetAurasByType(SPELL_AURA_SPELL_MAGNET);
+        for(Unit::AuraEffectList::const_iterator itr = magnetAuras.begin(); itr != magnetAuras.end(); ++itr)
         {
             if(Unit* magnet = (*itr)->GetCaster())
             {
-                if((*itr)->DropAuraCharge())
+                if((*itr)->GetParentAura()->DropAuraCharge())
                 {
                     target = magnet;
                     m_targets.setUnitTarget(target);
@@ -5514,9 +5548,6 @@ bool SpellEvent::Execute(uint64 e_time, uint32 p_time)
                         // another non-melee non-delayed spell is casted now, abort
                         m_Spell->cancel();
                     }
-                    // Check if target of channeled spell still in range
-                    else if (m_Spell->CheckRange(false))
-                        m_Spell->cancel();
                     else
                     {
                         // do the action (pass spell to channeling state)
@@ -5620,8 +5651,8 @@ void Spell::CalculateDamageDoneForAllTargets()
     }
 
     bool usesAmmo=true;
-    Unit::AuraList const& Auras = m_caster->GetAurasByType(SPELL_AURA_ABILITY_CONSUME_NO_AMMO);
-    for(Unit::AuraList::const_iterator j = Auras.begin();j != Auras.end(); ++j)
+    Unit::AuraEffectList const& Auras = m_caster->GetAurasByType(SPELL_AURA_ABILITY_CONSUME_NO_AMMO);
+    for(Unit::AuraEffectList::const_iterator j = Auras.begin();j != Auras.end(); ++j)
     {
         if((*j)->isAffectedOnSpell(m_spellInfo))
             usesAmmo=false;

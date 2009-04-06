@@ -344,7 +344,7 @@ struct TRINITY_DLL_DECL mob_annhylde_the_callerAI : public ScriptedAI
             switch (id)
             {
             case 1:
-                ingvar->RemoveAura(SPELL_SUMMON_BANSHEE,1);
+                ingvar->RemoveAura(SPELL_SUMMON_BANSHEE);
                 ingvar->CastSpell(ingvar,SPELL_SCOURG_RESURRECTION_DUMMY,true);
                 DoCast(ingvar,SPELL_SCOURG_RESURRECTION_BEAM);
                 Resurect_Timer = 8000;

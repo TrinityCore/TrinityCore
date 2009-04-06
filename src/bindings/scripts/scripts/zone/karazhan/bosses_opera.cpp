@@ -625,7 +625,7 @@ struct TRINITY_DLL_DECL mob_cycloneAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->HasAura(SPELL_KNOCKBACK, 0))
+        if(!m_creature->HasAura(SPELL_KNOCKBACK))
             DoCast(m_creature, SPELL_KNOCKBACK, true);
 
         if(MoveTimer < diff)

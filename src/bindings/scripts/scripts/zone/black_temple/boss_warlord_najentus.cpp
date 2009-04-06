@@ -95,7 +95,7 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
 
     void SpellHit(Unit *caster, const SpellEntry *spell)
     {
-        if(spell->Id == SPELL_HURL_SPINE && m_creature->HasAura(SPELL_TIDAL_SHIELD, 0))
+        if(spell->Id == SPELL_HURL_SPINE && m_creature->HasAura(SPELL_TIDAL_SHIELD))
         {
             m_creature->RemoveAurasDueToSpell(SPELL_TIDAL_SHIELD);
             m_creature->CastSpell(m_creature, SPELL_TIDAL_BURST, true);
@@ -116,7 +116,7 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
     {
         if(!SpineTargetGUID) return false;
         Unit* target = Unit::GetUnit(*m_creature, SpineTargetGUID);
-        if(target && target->HasAura(SPELL_IMPALING_SPINE, 1))
+        if(target && target->HasAura(SPELL_IMPALING_SPINE))
             target->RemoveAurasDueToSpell(SPELL_IMPALING_SPINE);
         SpineTargetGUID=0;
         return true;

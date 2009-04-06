@@ -134,8 +134,8 @@ struct TRINITY_DLL_DECL mob_lumpAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-        if (m_creature->HasAura(SPELL_VISUAL_SLEEP,0))
-            m_creature->RemoveAura(SPELL_VISUAL_SLEEP,0);
+        if (m_creature->HasAura(SPELL_VISUAL_SLEEP))
+            m_creature->RemoveAura(SPELL_VISUAL_SLEEP);
 
         if (!m_creature->IsStandState())
              m_creature->SetStandState(UNIT_STAND_STATE_STAND);

@@ -411,9 +411,9 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public ScriptedAI
                 break;
         }
 
-        if (m_creature->HasAura(chargeSpell, 0))
+        if (m_creature->HasAura(chargeSpell))
         {
-            m_creature->RemoveSingleAuraFromStack(chargeSpell, 0);
+            m_creature->RemoveAuraFromStack(chargeSpell);
             DoCast(m_creature->getVictim(), unleashSpell);
             HasCast = true;
             SoulChargeCount--;

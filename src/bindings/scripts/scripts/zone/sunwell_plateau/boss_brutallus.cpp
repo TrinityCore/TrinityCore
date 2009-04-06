@@ -133,7 +133,7 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
 
             Unit *Target = m_creature->getVictim();
             DoCast(Target,SPELL_STOMP);
-            if(Target->HasAura(45151,0)) Target->RemoveAura(45151,0);
+            if(Target->HasAura(45151)) Target->RemoveAura(45151);
             StompTimer = 30000;
         }else StompTimer -= diff;
 
