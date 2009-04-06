@@ -5849,9 +5849,9 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 // hardcoded amount
                 basepoints0 = 15 * GetCreatePowers(POWER_MANA)/100;
                 target = this;
-                triggered_spell_id = 57669;
+                triggered_spell_id = 31930;
                 // replenishment
-                CastSpell(this,31930,true);
+                CastSpell(this,57669,true);
                 break;
             }
             // Sanctified Wrath
