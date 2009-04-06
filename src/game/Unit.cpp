@@ -4075,7 +4075,7 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
 {
     Aura* Aur = i->second;
     //aura can be during update when removing, set it to remove at next update
-    if (Aur->IsUpdated())
+    if (Aur->IsDuringUpdate())
     {
         Aur->RemoveAura();
         return;
