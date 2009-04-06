@@ -73,7 +73,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
 {
-    boss_ingvar_the_plundererAI(Creature *c) : ScriptedAI(c) 
+    boss_ingvar_the_plundererAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         HeroicMode = c->GetMap()->IsHeroic();
@@ -117,7 +117,7 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
             pInstance->SetData(DATA_INGVAR_EVENT, NOT_STARTED);
     }
 
-    void DamageTaken(Unit *done_by, uint32 &damage) 
+    void DamageTaken(Unit *done_by, uint32 &damage)
     {
         if( damage >= m_creature->GetHealth() && !undead)
         {
@@ -131,7 +131,7 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
             m_creature->GetMotionMaster()->MoveIdle();
             m_creature->SetStandState(UNIT_STAND_STATE_DEAD);
             // visuel hack end
-            
+
             event_inProgress = true;
             undead = true;
 
@@ -166,7 +166,7 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
             pInstance->SetData(DATA_INGVAR_EVENT, IN_PROGRESS);
     }
 
-    void JustDied(Unit* killer)  
+    void JustDied(Unit* killer)
     {
         DoYell(YELL_DEAD_2,LANG_UNIVERSAL,NULL);
         DoPlaySoundToSet(m_creature,SOUND_DEAD_2);
@@ -199,7 +199,7 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
             if(SpawnResTimer)
                 if(SpawnResTimer< diff)
                 {
-                    DoCast(m_creature,SPELL_SUMMON_BANSHEE); // Summons direktly on caster position 
+                    DoCast(m_creature,SPELL_SUMMON_BANSHEE); // Summons direktly on caster position
                     //DoCast(m_creature,SPELL_SCOURG_RESURRECTION_EFFEKTSPAWN); // Dont needet ?
                     SpawnResTimer = 0;
                 }else SpawnResTimer -= diff;
@@ -303,7 +303,7 @@ CreatureAI* GetAI_boss_ingvar_the_plunderer(Creature *_Creature)
 
 struct TRINITY_DLL_DECL mob_annhylde_the_callerAI : public ScriptedAI
 {
-    mob_annhylde_the_callerAI(Creature *c) : ScriptedAI(c) 
+    mob_annhylde_the_callerAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
     }
@@ -392,7 +392,7 @@ struct TRINITY_DLL_DECL mob_annhylde_the_callerAI : public ScriptedAI
                         Resurect_Phase++;
                     }
                 }
-                
+
             }else Resurect_Timer -= diff;
     }
 };
@@ -407,7 +407,7 @@ CreatureAI* GetAI_mob_annhylde_the_caller(Creature *_Creature)
 
 struct TRINITY_DLL_DECL mob_ingvar_throw_dummyAI : public ScriptedAI
 {
-    mob_ingvar_throw_dummyAI(Creature *c) : ScriptedAI(c) 
+    mob_ingvar_throw_dummyAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         HeroicMode = c->GetMap()->IsHeroic();

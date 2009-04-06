@@ -46,7 +46,7 @@
 #define GOSSIP_TEXT_ARENA               "Arena"
 #define GOSSIP_TEXT_EYEOFTHESTORM       "Eye of The Storm"
 #define GOSSIP_TEXT_STRANDOFANCIENT     "Strand of the Ancients"
- 
+
 #define GOSSIP_TEXT_DEATH_KNIGHT        "Death Knight"
 #define GOSSIP_TEXT_DRUID               "Druid"
 #define GOSSIP_TEXT_HUNTER              "Hunter"

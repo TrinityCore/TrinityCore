@@ -1190,7 +1190,7 @@ void LoadDatabase()
                                 }
                                 break;
                             case CONDITION_ACTIVE_EVENT:
-                                if (temp.event_param3 != 
+                                if (temp.event_param3 !=
                                     (HOLIDAY_FIREWORKS_SPECTACULAR | HOLIDAY_FEAST_OF_WINTER_VEIL | HOLIDAY_NOBLEGARDEN |
                                     HOLIDAY_CHILDRENS_WEEK | HOLIDAY_CALL_TO_ARMS_AV | HOLIDAY_CALL_TO_ARMS_WG |
                                     HOLIDAY_CALL_TO_ARMS_AB | HOLIDAY_FISHING_EXTRAVAGANZA | HOLIDAY_HARVEST_FESTIVAL |

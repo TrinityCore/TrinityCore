@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Boss_Warchief_Kargath_Bladefist
 SD%Complete: 90
-SDComment: 
+SDComment:
 SDCategory: Hellfire Citadel, Shattered Halls
 EndScriptData */
 
@@ -70,11 +70,11 @@ struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
 
     uint32 Assassins_Timer;
 
-    uint32 summoned; 
+    uint32 summoned;
     bool InBlade;
 
     uint32 target_num;
- 
+
     void Reset()
     {
         removeAdds();
@@ -146,7 +146,7 @@ struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
 
             if(id != 1)
                 return;
-     
+
             if(target_num > 0) // to prevent loops
             {
                 Wait_Timer = 1;
@@ -162,8 +162,8 @@ struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
         {
             Unit* temp = Unit::GetUnit((*m_creature),*itr);
             if(temp && temp->isAlive())
-            {                
-                (*temp).GetMotionMaster()->Clear(true); 
+            {
+                (*temp).GetMotionMaster()->Clear(true);
                 m_creature->DealDamage(temp,temp->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                 ((Creature*)temp)->RemoveCorpse();
             }
@@ -184,10 +184,10 @@ struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
     }
     void SpawnAssassin()
     {
-        m_creature->SummonCreature(MOB_SHATTERED_ASSASSIN,AssassEntrance[0],AssassEntrance[1]+8, AssassEntrance[2], 0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,30000); 
-        m_creature->SummonCreature(MOB_SHATTERED_ASSASSIN,AssassEntrance[0],AssassEntrance[1]-8, AssassEntrance[2], 0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,30000); 
+        m_creature->SummonCreature(MOB_SHATTERED_ASSASSIN,AssassEntrance[0],AssassEntrance[1]+8, AssassEntrance[2], 0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,30000);
+        m_creature->SummonCreature(MOB_SHATTERED_ASSASSIN,AssassEntrance[0],AssassEntrance[1]-8, AssassEntrance[2], 0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,30000);
         m_creature->SummonCreature(MOB_SHATTERED_ASSASSIN,AssassExit[0],AssassExit[1]+8, AssassExit[2], 0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,30000);
-        m_creature->SummonCreature(MOB_SHATTERED_ASSASSIN,AssassExit[0],AssassExit[1]-8, AssassExit[2], 0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,30000); 
+        m_creature->SummonCreature(MOB_SHATTERED_ASSASSIN,AssassExit[0],AssassExit[1]-8, AssassExit[2], 0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,30000);
     }
 
     void UpdateAI(const uint32 diff)
@@ -279,18 +279,18 @@ struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
             tempy = uint32(m_creature->GetPositionY());
             if (tempx > 255 || tempx < 205)
             {
-                EnterEvadeMode(); 
+                EnterEvadeMode();
             }
             resetcheck_timer = 5000;
-        }else resetcheck_timer -= diff; 
+        }else resetcheck_timer -= diff;
     }
 };
- 
+
 CreatureAI* GetAI_boss_warchief_kargath_bladefist(Creature *_Creature)
 {
     return new boss_warchief_kargath_bladefistAI (_Creature);
-} 
- 
+}
+
 void AddSC_boss_warchief_kargath_bladefist()
 {
     Script *newscript;

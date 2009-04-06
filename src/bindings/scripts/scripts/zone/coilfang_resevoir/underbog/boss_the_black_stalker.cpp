@@ -131,7 +131,7 @@ struct TRINITY_DLL_DECL boss_the_black_stalkerAI : public ScriptedAI
                         target->AddAura(SPELL_SUSPENSION, target);
                         LevitatedTarget = 0;
                     }
-                    else 
+                    else
                     {
                         target->CastSpell(target, SPELL_MAGNETIC_PULL, true);
                         InAir = true;

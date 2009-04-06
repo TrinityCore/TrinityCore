@@ -67,7 +67,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_skarvald_the_constructorAI : public ScriptedAI
 {
-    boss_skarvald_the_constructorAI(Creature *c) : ScriptedAI(c) 
+    boss_skarvald_the_constructorAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         HeroicMode = m_creature->GetMap()->IsHeroic();
@@ -184,7 +184,7 @@ struct TRINITY_DLL_DECL boss_skarvald_the_constructorAI : public ScriptedAI
                     }
                 }else Check_Timer -= diff;
 
-            if(Response_Timer) 
+            if(Response_Timer)
                 if(Dalronn_isDead)
                     if(Response_Timer < diff)
                     {
@@ -206,7 +206,7 @@ struct TRINITY_DLL_DECL boss_skarvald_the_constructorAI : public ScriptedAI
             DoCast(m_creature->getVictim(), SPELL_STONE_STRIKE);
             StoneStrike_Timer = 5000+rand()%5000;
         }else StoneStrike_Timer -= diff;
-      
+
         DoMeleeAttackIfReady();
     }
 };
@@ -218,7 +218,7 @@ CreatureAI* GetAI_boss_skarvald_the_constructor(Creature *_Creature)
 
 struct TRINITY_DLL_DECL boss_dalronn_the_controllerAI : public ScriptedAI
 {
-    boss_dalronn_the_controllerAI(Creature *c) : ScriptedAI(c) 
+    boss_dalronn_the_controllerAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         HeroicMode = m_creature->GetMap()->IsHeroic();
@@ -316,7 +316,7 @@ struct TRINITY_DLL_DECL boss_dalronn_the_controllerAI : public ScriptedAI
         {
             if(pInstance->GetData(DATA_SKARVALD_DALRONN_EVENT) != IN_PROGRESS)
             {
-                m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);  
+                m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
             }
         }
 
@@ -375,7 +375,7 @@ struct TRINITY_DLL_DECL boss_dalronn_the_controllerAI : public ScriptedAI
                 Debilitate_Timer = 5000+rand()%5000;
             }
         }else Debilitate_Timer -= diff;
-      
+
         if(HeroicMode)
             if(Summon_Timer < diff)
             {
@@ -400,7 +400,7 @@ void AddSC_boss_skarvald_dalronn()
     newscript->Name="boss_skarvald_the_constructor";
     newscript->GetAI = &GetAI_boss_skarvald_the_constructor;
     newscript->RegisterSelf();
-    
+
     newscript = new Script;
     newscript->Name="boss_dalronn_the_controller";
     newscript->GetAI = &GetAI_boss_dalronn_the_controller;

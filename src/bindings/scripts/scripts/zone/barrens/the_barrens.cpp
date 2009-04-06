@@ -121,7 +121,7 @@ struct TRINITY_DLL_DECL npc_taskmaster_fizzuleAI : public ScriptedAI
         m_creature->RemoveAllAuras();
         m_creature->DeleteThreatList();
         m_creature->CombatStop();
-        
+
         m_creature->StopMoving();
         m_creature->GetMotionMaster()->MoveIdle();
 

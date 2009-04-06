@@ -30,8 +30,8 @@ void InstanceData::SaveToDB()
     CharacterDatabase.PExecute("UPDATE instance SET data = '%s' WHERE id = '%d'", data.c_str(), instance->GetInstanceId());
 }
 
-void InstanceData::HandleGameObject(uint64 GUID, bool open, GameObject *go) 
-{            
+void InstanceData::HandleGameObject(uint64 GUID, bool open, GameObject *go)
+{
     if(!go)
         go = instance->GetGameObjectInMap(GUID);
     if(go)

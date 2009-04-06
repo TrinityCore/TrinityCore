@@ -660,7 +660,7 @@ struct CinematicCameraEntry
     float       start_x;                                    // 3
     float       start_y;                                    // 4
     float       start_z;                                    // 5
-    float       unk6;                                       // 6 speed?     
+    float       unk6;                                       // 6 speed?
 };
 */
 

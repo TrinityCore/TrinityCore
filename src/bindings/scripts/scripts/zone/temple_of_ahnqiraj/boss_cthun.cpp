@@ -568,7 +568,7 @@ struct TRINITY_DLL_DECL cthunAI : public Scripted_NoMovementAI
 
                 //Play random sound to the zone
                 Map::PlayerList const &PlayerList = map->GetPlayers();
-                
+
                 if (!PlayerList.isEmpty())
                 {
                     for(Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)

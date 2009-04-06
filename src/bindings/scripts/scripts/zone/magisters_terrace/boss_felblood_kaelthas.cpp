@@ -387,7 +387,7 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
 
                                 Creature* Orb = DoSpawnCreature(CREATURE_ARCANE_SPHERE, 5, 5, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
                                 if (Orb && target)
-                                { 
+                                {
                                     //SetThreatList(Orb);
                                     Orb->AddThreat(target, 1.0f);
                                     Orb->AI()->AttackStart(target);
@@ -456,8 +456,8 @@ struct TRINITY_DLL_DECL mob_felkael_phoenixAI : public ScriptedAI
     ScriptedInstance* pInstance;
     uint32 BurnTimer;
     uint32 Death_Timer;
-    bool Rebirth;  
-    bool FakeDeath;  
+    bool Rebirth;
+    bool FakeDeath;
 
     void Reset()
     {
@@ -500,7 +500,7 @@ struct TRINITY_DLL_DECL mob_felkael_phoenixAI : public ScriptedAI
             m_creature->ModifyAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, false);
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             m_creature->ClearAllReactives();
-            m_creature->SetUInt64Value(UNIT_FIELD_TARGET,0); 
+            m_creature->SetUInt64Value(UNIT_FIELD_TARGET,0);
             m_creature->GetMotionMaster()->Clear();
             m_creature->GetMotionMaster()->MoveIdle();
             m_creature->SetStandState(UNIT_STAND_STATE_DEAD);
@@ -519,21 +519,21 @@ struct TRINITY_DLL_DECL mob_felkael_phoenixAI : public ScriptedAI
 
         //If we are fake death, we cast revbirth and after that we kill the phoenix to spawn the egg.
         if (FakeDeath)
-        {  
+        {
             if (!Rebirth)
             {
                 DoCast(m_creature, SPELL_REBIRTH_DMG);
                 Rebirth = true;
             }
 
-            if (Rebirth) 
+            if (Rebirth)
             {
-            
+
                 if (Death_Timer < diff)
                 {
-                    DoSpawnCreature(CREATURE_PHOENIX_EGG, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45000);   
+                    DoSpawnCreature(CREATURE_PHOENIX_EGG, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45000);
                     m_creature->setDeathState(JUST_DIED);
-                    m_creature->RemoveCorpse(); 
+                    m_creature->RemoveCorpse();
                     Rebirth = false;
                 }else Death_Timer -= diff;
             }
@@ -563,9 +563,9 @@ struct TRINITY_DLL_DECL mob_felkael_phoenix_eggAI : public ScriptedAI
 
     uint32 HatchTimer;
 
-    void Reset() 
-    { 
-        HatchTimer = 10000; 
+    void Reset()
+    {
+        HatchTimer = 10000;
 
     }
 

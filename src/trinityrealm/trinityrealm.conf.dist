@@ -17,7 +17,7 @@ ConfVersion=2007062001
 #    LogsDir
 #         Logs directory setting.
 #         Important: Logs dir must exists, or all logs be disable
-#         Default: "" - no log directory prefix, if used log names isn't absolute path then logs will be 
+#         Default: "" - no log directory prefix, if used log names isn't absolute path then logs will be
 #                       stored in current directory for run program.
 #
 #    MaxPingTime
@@ -83,7 +83,7 @@ ConfVersion=2007062001
 #
 #    RealmsStateUpdateDelay
 #        Realm list Update up delay (updated at realm list request if delay expired).
-#        Default: 20 
+#        Default: 20
 #                 0  (Disabled)
 #
 #    WrongPass.MaxCount

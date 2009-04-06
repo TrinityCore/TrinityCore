@@ -5078,7 +5078,7 @@ void ObjectMgr::LoadAreaTriggerTeleports()
 
     uint32 count = 0;
 
-    //                                                0       1           2              3               4                   5                   6  
+    //                                                0       1           2              3               4                   5                   6
     QueryResult *result = WorldDatabase.Query("SELECT id, access_id, target_map, target_position_x, target_position_y, target_position_z, target_orientation FROM areatrigger_teleport");
     if( !result )
     {
@@ -5119,7 +5119,7 @@ void ObjectMgr::LoadAreaTriggerTeleports()
             sLog.outErrorDb("Area trigger (ID:%u) does not exist in `AreaTrigger.dbc`.",Trigger_ID);
             continue;
         }
-        
+
         MapEntry const* mapEntry = sMapStore.LookupEntry(at.target_mapId);
         if(!mapEntry)
         {
@@ -5237,7 +5237,7 @@ void ObjectMgr::LoadAccessRequirements()
 				ar.heroicQuest = 0;
  			}
  		}
- 
+
         if(ar.quest)
         {
             QuestMap::iterator qReqItr = mQuestTemplates.find(ar.quest);

@@ -5960,7 +5960,7 @@ bool Player::RewardHonor(Unit *uVictim, uint32 groupsize, float honor, bool pvpt
         {
             // Check if allowed to receive it in current map
             uint8 MapType = sWorld.getConfig(CONFIG_PVP_TOKEN_MAP_TYPE);
-            if( (MapType == 1 && !InBattleGround() && !HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP)) 
+            if( (MapType == 1 && !InBattleGround() && !HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP))
                 || (MapType == 2 && !HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP))
                 || (MapType == 3 && !InBattleGround()) )
                 return true;
@@ -15841,7 +15841,7 @@ void Player::_SaveAuras()
     {
         // skip all auras from spell that apply at cast SPELL_AURA_MOD_SHAPESHIFT or pet area auras.
         // do not save single target auras (unless they were cast by the player)
-        if (itr->second->IsPassive() 
+        if (itr->second->IsPassive()
             || (itr->second->GetCasterGUID() != GetGUID() && itr->second->IsSingleTarget())
             || itr->second->IsRemovedOnShapeLost())
             continue;
@@ -15861,8 +15861,8 @@ void Player::_SaveAuras()
 
         CharacterDatabase.PExecute("INSERT INTO character_aura (guid,caster_guid,spell,effect_mask,stackcount,amount0, amount1, amount2,maxduration,remaintime,remaincharges) "
             "VALUES ('%u', '" I64FMTD "', '%u', '%u', '%d', '%d', '%d', '%d', '%d', '%d', '%d')",
-            GetGUIDLow(), itr->second->GetCasterGUID(),(uint32)itr->second->GetId(), (uint32)itr->second->GetEffectMask(), 
-            (uint32)itr->second->GetStackAmount(), (int32)amounts[0], (int32)amounts[1], (int32)amounts[2] 
+            GetGUIDLow(), itr->second->GetCasterGUID(),(uint32)itr->second->GetId(), (uint32)itr->second->GetEffectMask(),
+            (uint32)itr->second->GetStackAmount(), (int32)amounts[0], (int32)amounts[1], (int32)amounts[2]
             ,int(itr->second->GetAuraMaxDuration()),int(itr->second->GetAuraDuration()),int(itr->second->GetAuraCharges()));
     }
 }
@@ -16872,7 +16872,7 @@ void Player::CharmSpellInitialize()
     data << uint8(count);                                   // cooldowns count
 
     data.hexlike();
-    
+
 
     GetSession()->SendPacket(&data);
 }

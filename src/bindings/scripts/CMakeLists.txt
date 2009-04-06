@@ -67,19 +67,19 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/black_temple/def_black_temple.h
    scripts/zone/black_temple/illidari_council.cpp
    scripts/zone/black_temple/instance_black_temple.cpp
-   scripts/zone/blackrock_depths/blackrock_depths.cpp 
-   scripts/zone/blackrock_depths/boss_ambassador_flamelash.cpp 
-   scripts/zone/blackrock_depths/boss_anubshiah.cpp 
-   scripts/zone/blackrock_depths/boss_emperor_dagran_thaurissan.cpp 
-   scripts/zone/blackrock_depths/boss_general_angerforge.cpp 
+   scripts/zone/blackrock_depths/blackrock_depths.cpp
+   scripts/zone/blackrock_depths/boss_ambassador_flamelash.cpp
+   scripts/zone/blackrock_depths/boss_anubshiah.cpp
+   scripts/zone/blackrock_depths/boss_emperor_dagran_thaurissan.cpp
+   scripts/zone/blackrock_depths/boss_general_angerforge.cpp
    scripts/zone/blackrock_depths/boss_gorosh_the_dervish.cpp
-   scripts/zone/blackrock_depths/boss_grizzle.cpp 
-   scripts/zone/blackrock_depths/boss_high_interrogator_gerstahn.cpp 
-   scripts/zone/blackrock_depths/boss_magmus.cpp 
-   scripts/zone/blackrock_depths/boss_moira_bronzebeard.cpp 
-   scripts/zone/blackrock_depths/boss_tomb_of_seven.cpp 
-   scripts/zone/blackrock_depths/def_blackrock_depths.h 
-   scripts/zone/blackrock_depths/instance_blackrock_depths.cpp 
+   scripts/zone/blackrock_depths/boss_grizzle.cpp
+   scripts/zone/blackrock_depths/boss_high_interrogator_gerstahn.cpp
+   scripts/zone/blackrock_depths/boss_magmus.cpp
+   scripts/zone/blackrock_depths/boss_moira_bronzebeard.cpp
+   scripts/zone/blackrock_depths/boss_tomb_of_seven.cpp
+   scripts/zone/blackrock_depths/def_blackrock_depths.h
+   scripts/zone/blackrock_depths/instance_blackrock_depths.cpp
    scripts/zone/blackrock_spire/boss_drakkisath.cpp
    scripts/zone/blackrock_spire/boss_gyth.cpp
    scripts/zone/blackrock_spire/boss_halycon.cpp
@@ -236,7 +236,7 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/onyxias_lair/boss_onyxia.cpp
    scripts/zone/orgrimmar/orgrimmar.cpp
    scripts/zone/razorfen_downs/boss_amnennar_the_coldbringer.cpp
-   scripts/zone/razorfen_kraul/razorfen_kraul.cpp  
+   scripts/zone/razorfen_kraul/razorfen_kraul.cpp
    scripts/zone/ruins_of_ahnqiraj/boss_ayamiss.cpp
    scripts/zone/ruins_of_ahnqiraj/boss_buru.cpp
    scripts/zone/ruins_of_ahnqiraj/boss_kurinnaxx.cpp
