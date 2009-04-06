@@ -1310,7 +1310,7 @@ void Aura::SetLoadedState(uint64 caster_guid,int32 maxduration,int32 duration,in
     m_stackAmount = stackamount;
     for (uint8 i=0; i<MAX_SPELL_EFFECTS;++i)
         if (m_partAuras[i])
-            m_partAuras[i]->SetAmount(amount[0]+i);
+            m_partAuras[i]->SetAmount(amount[i]);
 }
 
 void AuraEffect::HandleShapeshiftBoosts(bool apply)
