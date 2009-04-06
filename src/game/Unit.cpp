@@ -3899,7 +3899,7 @@ void Unit::RemoveAura(uint32 spellId, uint64 caster ,AuraRemoveMode removeMode)
 {
     for(AuraMap::iterator iter = m_Auras.lower_bound(spellId); iter != m_Auras.upper_bound(spellId);)
     {
-        if (!caster || iter->second->GetCasterGUID()==caster)
+        if ((!caster || iter->second->GetCasterGUID()==caster) && !iter->second->IsDuringUpdate())
         {
             RemoveAura(iter, removeMode);
             return;
@@ -3913,7 +3913,7 @@ void Unit::RemoveAurasDueToSpell(uint32 spellId, uint64 caster ,AuraRemoveMode r
 {
     for(AuraMap::iterator iter = m_Auras.lower_bound(spellId); iter != m_Auras.upper_bound(spellId);)
     {
-        if (!caster || iter->second->GetCasterGUID()==caster)
+        if ((!caster || iter->second->GetCasterGUID()==caster) && !iter->second->IsDuringUpdate())
         {
             RemoveAura(iter, removeMode);
             iter = m_Auras.lower_bound(spellId);
@@ -4007,7 +4007,7 @@ void Unit::RemoveAurasDueToItemSpell(Item* castItem,uint32 spellId)
 {
     for (AuraMap::iterator iter = m_Auras.lower_bound(spellId); iter != m_Auras.upper_bound(spellId);)
     {
-        if (iter->second->GetCastItemGUID() == castItem->GetGUID())
+        if ((!castItem || iter->second->GetCastItemGUID()==castItem->GetGUID()) && !iter->second->IsDuringUpdate())
         {
             RemoveAura(iter);
             iter = m_Auras.upper_bound(spellId);          // overwrite by more appropriate
@@ -4078,6 +4078,7 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
     if (Aur->IsDuringUpdate())
     {
         Aur->RemoveAura();
+        i++;
         return;
     }
 
