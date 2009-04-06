@@ -54,7 +54,8 @@ CREATE TABLE `arena_team_member` (
   `wons_week` int(10) unsigned NOT NULL default '0',
   `played_season` int(10) unsigned NOT NULL default '0',
   `wons_season` int(10) unsigned NOT NULL default '0',
-  `points_to_add` int(10) unsigned NOT NULL default '0'
+  `points_to_add` int(10) unsigned NOT NULL default '0',
+  `personal_rating` int(10) UNSIGNED NOT NULL DEFAULT '0',
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
