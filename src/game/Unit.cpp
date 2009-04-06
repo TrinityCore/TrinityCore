@@ -4078,6 +4078,7 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
     if (Aur->IsUpdated())
     {
         Aur->RemoveAura();
+        return;
     }
 
     SpellEntry const* AurSpellInfo = Aur->GetSpellProto();
