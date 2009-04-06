@@ -748,7 +748,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
         if(m_creature->IsNonMeleeSpellCasted(false))
             return;
 
-        if(Phase == PHASE_NORMAL || Phase == PHASE_NORMAL_2 || Phase == PHASE_NORMAL_MAIEV && !m_creature->HasAura(SPELL_CAGED, 0))
+        if(Phase == PHASE_NORMAL || Phase == PHASE_NORMAL_2 || Phase == PHASE_NORMAL_MAIEV && !m_creature->HasAura(SPELL_CAGED))
         {
             switch(Event)
             {
@@ -933,7 +933,7 @@ struct TRINITY_DLL_DECL flame_of_azzinothAI : public ScriptedAI
                     AttackStart(m_creature->getVictim());
                 }
             }
-            else if(!m_creature->HasAura(SPELL_AZZINOTH_CHANNEL, 0))
+            else if(!m_creature->HasAura(SPELL_AZZINOTH_CHANNEL))
             {
                 Glaive->CastSpell(m_creature, SPELL_AZZINOTH_CHANNEL, false);
                 m_creature->RemoveAurasDueToSpell(SPELL_FLAME_ENRAGE);
@@ -1625,12 +1625,12 @@ struct TRINITY_DLL_DECL cage_trap_triggerAI : public ScriptedAI
         {
             if(who->GetEntry() == ILLIDAN_STORMRAGE) // Check if who is Illidan
             {
-                if(!IllidanGUID && m_creature->IsWithinDistInMap(who, 3) && (!who->HasAura(SPELL_CAGED, 0)))
+                if(!IllidanGUID && m_creature->IsWithinDistInMap(who, 3) && (!who->HasAura(SPELL_CAGED)))
                 {
                     IllidanGUID = who->GetGUID();
                     who->CastSpell(who, SPELL_CAGED, true);
                     DespawnTimer = 5000;
-                    if(who->HasAura(SPELL_ENRAGE, 0))
+                    if(who->HasAura(SPELL_ENRAGE))
                         who->RemoveAurasDueToSpell(SPELL_ENRAGE); // Dispel his enrage
                     //if(GameObject* CageTrap = GameObject::GetGameObject(*m_creature, CageTrapGUID))
                     //    CageTrap->SetLootState(GO_JUST_DEACTIVATED);
@@ -1708,7 +1708,7 @@ struct TRINITY_DLL_DECL shadow_demonAI : public ScriptedAI
 
         if(m_creature->getVictim()->GetTypeId() != TYPEID_PLAYER) return; // Only cast the below on players.
 
-        if(!m_creature->getVictim()->HasAura(SPELL_PARALYZE, 0))
+        if(!m_creature->getVictim()->HasAura(SPELL_PARALYZE))
         {
             TargetGUID = m_creature->getVictim()->GetGUID();
             m_creature->AddThreat(m_creature->getVictim(), 10000000.0f);
@@ -1750,8 +1750,8 @@ struct TRINITY_DLL_DECL mob_parasitic_shadowfiendAI : public ScriptedAI
     {
         if( m_creature->isAttackReady() && m_creature->IsWithinMeleeRange(m_creature->getVictim()))
         {
-            if(!m_creature->getVictim()->HasAura(SPELL_PARASITIC_SHADOWFIEND, 0)
-                && !m_creature->getVictim()->HasAura(SPELL_PARASITIC_SHADOWFIEND2, 0))
+            if(!m_creature->getVictim()->HasAura(SPELL_PARASITIC_SHADOWFIEND)
+                && !m_creature->getVictim()->HasAura(SPELL_PARASITIC_SHADOWFIEND2))
             {
                 m_creature->CastSpell(m_creature->getVictim(), SPELL_PARASITIC_SHADOWFIEND2, true, 0, 0, IllidanGUID); //do not stack
             }
@@ -1862,8 +1862,8 @@ void boss_illidan_stormrageAI::JustSummoned(Creature* summon)
                 return;
             }
             Unit *target = SelectUnit(SELECT_TARGET_TOPAGGRO, 0, 999, true);
-            if(!target || target->HasAura(SPELL_PARASITIC_SHADOWFIEND, 0)
-                || target->HasAura(SPELL_PARASITIC_SHADOWFIEND2, 0))
+            if(!target || target->HasAura(SPELL_PARASITIC_SHADOWFIEND)
+                || target->HasAura(SPELL_PARASITIC_SHADOWFIEND2))
                 target = SelectUnit(SELECT_TARGET_RANDOM, 0, 999, true);
             if(target)
                 summon->AI()->AttackStart(target);

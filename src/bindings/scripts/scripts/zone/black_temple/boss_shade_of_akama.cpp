@@ -290,7 +290,7 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
 
         debug_log("SD2: Increasing Death Count for Shade of Akama encounter");
         ++DeathCount;
-        m_creature->RemoveSingleAuraFromStack(SPELL_SHADE_SOUL_CHANNEL_2, 0);
+        m_creature->RemoveAuraFromStack(SPELL_SHADE_SOUL_CHANNEL_2);
         if(guid)
         {
             if(Sorcerers.empty())

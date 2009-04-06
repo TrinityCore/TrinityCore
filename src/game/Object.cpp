@@ -1802,10 +1802,10 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     if(petType == SUMMON_PET && pet->LoadPetFromDB(this, entry))
     {
         // Remove Demonic Sacrifice auras (known pet)
-        Unit::AuraList const& auraClassScripts = GetAurasByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
-        for(Unit::AuraList::const_iterator itr = auraClassScripts.begin();itr!=auraClassScripts.end();)
+        Unit::AuraEffectList const& auraClassScripts = GetAurasByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
+        for(Unit::AuraEffectList::const_iterator itr = auraClassScripts.begin();itr!=auraClassScripts.end();)
         {
-            if((*itr)->GetModifier()->m_miscvalue==2228)
+            if((*itr)->GetMiscValue()==2228)
             {
                 RemoveAurasDueToSpell((*itr)->GetId());
                 itr = auraClassScripts.begin();
@@ -1880,10 +1880,10 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     if(petType == SUMMON_PET)
     {
         // Remove Demonic Sacrifice auras (known pet)
-        Unit::AuraList const& auraClassScripts = GetAurasByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
-        for(Unit::AuraList::const_iterator itr = auraClassScripts.begin();itr!=auraClassScripts.end();)
+        Unit::AuraEffectList const& auraClassScripts = GetAurasByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
+        for(Unit::AuraEffectList::const_iterator itr = auraClassScripts.begin();itr!=auraClassScripts.end();)
         {
-            if((*itr)->GetModifier()->m_miscvalue==2228)
+            if((*itr)->GetMiscValue()==2228)
             {
                 RemoveAurasDueToSpell((*itr)->GetId());
                 itr = auraClassScripts.begin();

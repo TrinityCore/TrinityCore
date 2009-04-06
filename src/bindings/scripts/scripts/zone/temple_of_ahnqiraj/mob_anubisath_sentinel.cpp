@@ -247,13 +247,16 @@ struct TRINITY_DLL_DECL aqsentinelAI : public ScriptedAI
     void GainSentinelAbility(uint32 id)
     {
         const SpellEntry *spell = GetSpellStore()->LookupEntry(id);
+        uint8 eff_mask=0;
         for (int i=0; i<3; i++)
         {
             if (!spell->Effect[i])
                 continue;
-            SentinelAbilityAura *a = new SentinelAbilityAura(this, (SpellEntry *)spell, id, i);
-            m_creature->AddAura(a);
+            eff_mask=1<<i;
         }
+        SentinelAbilityAura *a = new SentinelAbilityAura(this, (SpellEntry *)spell, id, eff_mask);
+        m_creature->AddAura(a);
+
         if (id == SPELL_KNOCK_BUFF)
         {
             m_creature->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
@@ -341,6 +344,5 @@ SentinelAbilityAura::SentinelAbilityAura(aqsentinelAI *abilityOwner, SpellEntry 
 {
     aOwner = abilityOwner;
     abilityId = ability;
-    currentBasePoints = 0;
 }
 

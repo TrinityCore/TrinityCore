@@ -110,7 +110,7 @@ struct TRINITY_DLL_DECL npc_lady_sylvanas_windrunnerAI : public ScriptedAI
                 m_creature->SummonCreature(ENTRY_HIGHBORNE_BUNNY, raX, raY, myZ, 0, TEMPSUMMON_TIMED_DESPAWN, 3000);
 
                 LamentEvent_Timer = 2000;
-                if( !m_creature->HasAura(SPELL_SYLVANAS_CAST, 0))
+                if( !m_creature->HasAura(SPELL_SYLVANAS_CAST))
                 {
                     DoScriptText(SAY_LAMENT_END, m_creature);
                     DoScriptText(EMOTE_LAMENT_END, m_creature);
@@ -210,7 +210,7 @@ bool GossipHello_npc_parqual_fintallas(Player *player, Creature *_Creature)
     if (_Creature->isQuestGiver())
         player->PrepareQuestMenu( _Creature->GetGUID() );
 
-    if (player->GetQuestStatus(6628) == QUEST_STATUS_INCOMPLETE && !player->HasAura(SPELL_MARK_OF_SHAME,0) )
+    if (player->GetQuestStatus(6628) == QUEST_STATUS_INCOMPLETE && !player->HasAura(SPELL_MARK_OF_SHAME) )
     {
         player->ADD_GOSSIP_ITEM( 0, GOSSIP_HPF1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
         player->ADD_GOSSIP_ITEM( 0, GOSSIP_HPF2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);

@@ -258,7 +258,7 @@ struct TRINITY_DLL_DECL npc_daranelleAI : public ScriptedAI
     {
         if (who->GetTypeId() == TYPEID_PLAYER)
         {
-            if (who->HasAura(36904,0) && m_creature->IsWithinDistInMap(who, 10.0f))
+            if (who->HasAura(36904) && m_creature->IsWithinDistInMap(who, 10.0f))
             {
                 DoScriptText(SAY_SPELL_INFLUENCE, m_creature, who);
                 //TODO: Move the below to updateAI and run if this statement == true

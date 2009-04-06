@@ -50,7 +50,7 @@ void WorldSession::HandleAuctionHelloOpcode( WorldPacket & recv_data )
 
     // remove fake death
     if(GetPlayer()->hasUnitState(UNIT_STAT_DIED))
-        GetPlayer()->RemoveSpellsCausingAura(SPELL_AURA_FEIGN_DEATH);
+        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     SendAuctionHello(guid, unit);
 }
@@ -199,7 +199,7 @@ void WorldSession::HandleAuctionSellItem( WorldPacket & recv_data )
 
     // remove fake death
     if(GetPlayer()->hasUnitState(UNIT_STAT_DIED))
-        GetPlayer()->RemoveSpellsCausingAura(SPELL_AURA_FEIGN_DEATH);
+        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     Item *it = pl->GetItemByGuid( item );
     //do not allow to sell already auctioned items
@@ -304,7 +304,7 @@ void WorldSession::HandleAuctionPlaceBid( WorldPacket & recv_data )
 
     // remove fake death
     if(GetPlayer()->hasUnitState(UNIT_STAT_DIED))
-        GetPlayer()->RemoveSpellsCausingAura(SPELL_AURA_FEIGN_DEATH);
+        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     AuctionHouseObject* auctionHouse = auctionmgr.GetAuctionsMap( pCreature->getFaction() );
 
@@ -430,7 +430,7 @@ void WorldSession::HandleAuctionRemoveItem( WorldPacket & recv_data )
 
     // remove fake death
     if(GetPlayer()->hasUnitState(UNIT_STAT_DIED))
-        GetPlayer()->RemoveSpellsCausingAura(SPELL_AURA_FEIGN_DEATH);
+        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     AuctionHouseObject* auctionHouse = auctionmgr.GetAuctionsMap( pCreature->getFaction() );
 
@@ -515,7 +515,7 @@ void WorldSession::HandleAuctionListBidderItems( WorldPacket & recv_data )
 
     // remove fake death
     if(GetPlayer()->hasUnitState(UNIT_STAT_DIED))
-        GetPlayer()->RemoveSpellsCausingAura(SPELL_AURA_FEIGN_DEATH);
+        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     AuctionHouseObject* auctionHouse = auctionmgr.GetAuctionsMap( pCreature->getFaction() );
 
@@ -564,7 +564,7 @@ void WorldSession::HandleAuctionListOwnerItems( WorldPacket & recv_data )
 
     // remove fake death
     if(GetPlayer()->hasUnitState(UNIT_STAT_DIED))
-        GetPlayer()->RemoveSpellsCausingAura(SPELL_AURA_FEIGN_DEATH);
+        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     AuctionHouseObject* auctionHouse = auctionmgr.GetAuctionsMap( pCreature->getFaction() );
 
@@ -611,7 +611,7 @@ void WorldSession::HandleAuctionListItems( WorldPacket & recv_data )
 
     // remove fake death
     if(GetPlayer()->hasUnitState(UNIT_STAT_DIED))
-        GetPlayer()->RemoveSpellsCausingAura(SPELL_AURA_FEIGN_DEATH);
+        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     AuctionHouseObject* auctionHouse = auctionmgr.GetAuctionsMap( pCreature->getFaction() );
 

@@ -118,9 +118,9 @@ void SimpleCharmedAI::UpdateAI(const uint32 /*diff*/)
     //kill self if charm aura has infinite duration
     if(charmer->IsInEvadeMode())
     {
-        Unit::AuraList const& auras = me->GetAurasByType(SPELL_AURA_MOD_CHARM);
-        for(Unit::AuraList::const_iterator iter = auras.begin(); iter != auras.end(); ++iter)
-            if((*iter)->GetCasterGUID() == charmer->GetGUID() && (*iter)->IsPermanent())
+        Unit::AuraEffectList const& auras = me->GetAurasByType(SPELL_AURA_MOD_CHARM);
+        for(Unit::AuraEffectList::const_iterator iter = auras.begin(); iter != auras.end(); ++iter)
+            if((*iter)->GetCasterGUID() == charmer->GetGUID() && (*iter)->GetParentAura()->IsPermanent())
             {
                 charmer->Kill(me);
                 return;

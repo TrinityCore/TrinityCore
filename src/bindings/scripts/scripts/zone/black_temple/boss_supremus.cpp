@@ -153,7 +153,7 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if(!m_creature->HasAura(SPELL_BERSERK, 0))
+        if(!m_creature->HasAura(SPELL_BERSERK))
         {
             if(BerserkTimer < diff)
                 DoCast(m_creature, SPELL_BERSERK);
@@ -276,7 +276,7 @@ struct TRINITY_DLL_DECL npc_volcanoAI : public ScriptedAI
             }
             else if(Eruption && ((boss_supremusAI*)Supremus->AI())->Phase1)
             {
-                m_creature->RemoveAura(SPELL_VOLCANIC_ERUPTION, 0);
+                m_creature->RemoveAura(SPELL_VOLCANIC_ERUPTION);
             }
             CheckTimer = 1500;
         }else CheckTimer -= diff;

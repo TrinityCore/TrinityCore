@@ -60,12 +60,6 @@ float VoidPortalCoords[5][3] =
     {-261.4533, -297.3298, 17.1}
 };
 
-class EmpoweringShadowsAura: public Aura
-{
-    public:
-        EmpoweringShadowsAura(SpellEntry *spell, uint32 eff, int32 *bp, Unit *target, Unit *caster) : Aura(spell, eff, bp, target, caster, NULL) {}
-};
-
 struct TRINITY_DLL_DECL mob_voidtravelerAI : public ScriptedAI
 {
     mob_voidtravelerAI(Creature *c) : ScriptedAI(c)
@@ -100,7 +94,7 @@ struct TRINITY_DLL_DECL mob_voidtravelerAI : public ScriptedAI
             {
                 SpellEntry *spell = (SpellEntry *)GetSpellStore()->LookupEntry(HeroicMode?H_SPELL_EMPOWERING_SHADOWS:SPELL_EMPOWERING_SHADOWS);
                 if( spell )
-                    Vorpil->AddAura(new EmpoweringShadowsAura(spell, 0, NULL, Vorpil, m_creature));
+                    Vorpil->AddAura(new Aura(spell, 1, NULL, Vorpil, m_creature));
                 Vorpil->SetHealth(Vorpil->GetHealth()+Vorpil->GetMaxHealth()/25);
                 DoCast(m_creature, SPELL_SHADOW_NOVA, true);
                 m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
@@ -277,7 +271,7 @@ struct TRINITY_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
             Map::PlayerList const &PlayerList = map->GetPlayers();
             for(Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                 if (Player* i_pl = i->getSource())
-                    if (i_pl->isAlive() && !i_pl->HasAura(SPELL_BANISH,0))
+                    if (i_pl->isAlive() && !i_pl->HasAura(SPELL_BANISH))
                         i_pl->TeleportTo(m_creature->GetMapId(), VorpilPosition[0],VorpilPosition[1],VorpilPosition[2], 0, TELE_TO_NOT_LEAVE_COMBAT);
 
             m_creature->Relocate(VorpilPosition[0],VorpilPosition[1],VorpilPosition[2]);

@@ -138,7 +138,7 @@ struct TRINITY_DLL_DECL example_escortAI : public npc_escortAI
                 if (IsBeingEscorted)
                     if (ChatTimer < diff)
                 {
-                    if (m_creature->HasAura(3593, 0))
+                    if (m_creature->HasAura(3593))
                     {
                         DoScriptText(SAY_RAND_1, m_creature);
                         m_creature->CastSpell(m_creature, 11540, false);

@@ -79,8 +79,8 @@ struct TRINITY_DLL_DECL npc_medivh_bmAI : public ScriptedAI
 
         if (pInstance->GetData(TYPE_MEDIVH) == IN_PROGRESS)
             m_creature->CastSpell(m_creature,SPELL_CHANNEL,true);
-        else if (m_creature->HasAura(SPELL_CHANNEL,0))
-            m_creature->RemoveAura(SPELL_CHANNEL,0);
+        else if (m_creature->HasAura(SPELL_CHANNEL))
+            m_creature->RemoveAura(SPELL_CHANNEL);
 
         m_creature->CastSpell(m_creature,SPELL_PORTAL_RUNE,true);
     }
@@ -160,9 +160,9 @@ struct TRINITY_DLL_DECL npc_medivh_bmAI : public ScriptedAI
             {
                     pInstance->SetData(TYPE_MEDIVH,SPECIAL);
 
-                if (m_creature->HasAura(SPELL_CORRUPT_AEONUS,0))
+                if (m_creature->HasAura(SPELL_CORRUPT_AEONUS))
                     SpellCorrupt_Timer = 1000;
-                else if (m_creature->HasAura(SPELL_CORRUPT,0))
+                else if (m_creature->HasAura(SPELL_CORRUPT))
                     SpellCorrupt_Timer = 3000;
                 else
                     SpellCorrupt_Timer = 0;
@@ -207,8 +207,8 @@ struct TRINITY_DLL_DECL npc_medivh_bmAI : public ScriptedAI
                     DoScriptText(SAY_WIN, m_creature);
                     Check_Timer = 0;
 
-                    if (m_creature->HasAura(SPELL_CHANNEL,0))
-                        m_creature->RemoveAura(SPELL_CHANNEL,0);
+                    if (m_creature->HasAura(SPELL_CHANNEL))
+                        m_creature->RemoveAura(SPELL_CHANNEL);
 
                     //TODO: start the post-event here
                     pInstance->SetData(TYPE_MEDIVH,DONE);

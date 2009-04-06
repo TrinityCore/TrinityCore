@@ -54,12 +54,12 @@ bool GOHello_go_gauntlet_gate(Player *player, GameObject* _GO)
                 continue;
 
             if (pGroupie->GetQuestStatus(QUEST_DEAD_MAN_PLEA) == QUEST_STATUS_INCOMPLETE &&
-                !pGroupie->HasAura(SPELL_BARON_ULTIMATUM,0) &&
+                !pGroupie->HasAura(SPELL_BARON_ULTIMATUM) &&
                 pGroupie->GetMap() == _GO->GetMap())
                 pGroupie->CastSpell(pGroupie,SPELL_BARON_ULTIMATUM,true);
         }
     } else if (player->GetQuestStatus(QUEST_DEAD_MAN_PLEA) == QUEST_STATUS_INCOMPLETE &&
-                !player->HasAura(SPELL_BARON_ULTIMATUM,0) &&
+                !player->HasAura(SPELL_BARON_ULTIMATUM) &&
                 player->GetMap() == _GO->GetMap())
                 player->CastSpell(player,SPELL_BARON_ULTIMATUM,true);
 

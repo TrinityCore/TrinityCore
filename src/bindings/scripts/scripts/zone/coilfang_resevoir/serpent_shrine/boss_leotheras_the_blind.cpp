@@ -65,12 +65,6 @@ EndScriptData */
 #define SAY_FREE                -1548019
 #define SAY_DEATH               -1548020
 
-class TRINITY_DLL_DECL InsidiousAura : public Aura {
-public:
-    InsidiousAura(SpellEntry *spell, uint32 eff, int32 *bp, Unit *target, Unit *caster) : Aura(spell, eff, bp, target, caster, NULL)
-    {}
-};
-
 struct TRINITY_DLL_DECL mob_inner_demonAI : public ScriptedAI
 {
     mob_inner_demonAI(Creature *c) : ScriptedAI(c)
@@ -91,7 +85,7 @@ struct TRINITY_DLL_DECL mob_inner_demonAI : public ScriptedAI
     void JustDied(Unit *victim)
     {
         Unit* pUnit = Unit::GetUnit((*m_creature),victimGUID);
-        if (pUnit && pUnit->HasAura(SPELL_INSIDIOUS_WHISPER,0))
+        if (pUnit && pUnit->HasAura(SPELL_INSIDIOUS_WHISPER))
             pUnit->RemoveAurasDueToSpell(SPELL_INSIDIOUS_WHISPER);
     }
 
@@ -128,7 +122,7 @@ struct TRINITY_DLL_DECL mob_inner_demonAI : public ScriptedAI
         }else Link_Timer -= diff;
 
 
-        if(!m_creature->HasAura(AURA_DEMONIC_ALIGNMENT, 0))
+        if(!m_creature->HasAura(AURA_DEMONIC_ALIGNMENT))
             DoCast(m_creature, AURA_DEMONIC_ALIGNMENT,true);
 
         if(ShadowBolt_Timer < diff)
@@ -229,7 +223,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
     }
     void MoveInLineOfSight(Unit *who)
     {
-        if(m_creature->HasAura(AURA_BANISH, 0))
+        if(m_creature->HasAura(AURA_BANISH))
             return;
 
         if( !m_creature->getVictim() && who->isTargetableForAttack() && ( m_creature->IsHostileTo( who )) && who->isInAccessiblePlaceFor(m_creature) )
@@ -267,7 +261,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
         }
 
         // channelers == 0 remove banish aura
-        if(AliveChannelers == 0 && m_creature->HasAura(AURA_BANISH, 0))
+        if(AliveChannelers == 0 && m_creature->HasAura(AURA_BANISH))
         {
             // removing banish aura
             m_creature->RemoveAurasDueToSpell(AURA_BANISH);
@@ -290,7 +284,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
                 StartEvent();
             }
         }
-        else if(AliveChannelers != 0 && !m_creature->HasAura(AURA_BANISH, 0))
+        else if(AliveChannelers != 0 && !m_creature->HasAura(AURA_BANISH))
         {
             // channelers != 0 apply banish aura
             // removing Leotheras banish immune to apply AURA_BANISH
@@ -390,7 +384,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-        if(m_creature->HasAura(AURA_BANISH, 0))
+        if(m_creature->HasAura(AURA_BANISH))
         return;
 
         m_creature->LoadEquipment(m_creature->GetEquipmentId());
@@ -399,7 +393,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if (m_creature->HasAura(AURA_BANISH, 0) || !UpdateVictim())
+        if (m_creature->HasAura(AURA_BANISH) || !UpdateVictim())
         {
             if(BanishTimer<diff)
             {
@@ -408,7 +402,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
             }else BanishTimer -= diff;
             return;
         }
-        if(m_creature->HasAura(SPELL_WHIRLWIND, 0))
+        if(m_creature->HasAura(SPELL_WHIRLWIND))
             if(Whirlwind_Timer < diff)
             {
                 Unit *newTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
@@ -422,7 +416,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
             }else Whirlwind_Timer -= diff;
 
         // reseting after changing forms and after ending whirlwind
-        if(NeedThreatReset && !m_creature->HasAura(SPELL_WHIRLWIND, 0))
+        if(NeedThreatReset && !m_creature->HasAura(SPELL_WHIRLWIND))
         {
             // when changing forms seting timers (or when ending whirlwind - to avoid adding new variable i use Whirlwind_Timer to countdown 2s while whirlwinding)
             if(DemonForm)
@@ -446,7 +440,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
         if(!DemonForm)
         {
             //Whirldind Timer
-            if(!m_creature->HasAura(SPELL_WHIRLWIND, 0))
+            if(!m_creature->HasAura(SPELL_WHIRLWIND))
             {
                 if(Whirlwind_Timer < diff)
                 {
@@ -513,12 +507,14 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
                             ((ScriptedAI *)demon->AI())->AttackStart( (*itr) );
                             ((mob_inner_demonAI *)demon->AI())->victimGUID = (*itr)->GetGUID();
 
+                            uint8 eff_mask=0;
                             for (int i=0; i<3; i++)
                             {
                                 if (!spell->Effect[i])
                                     continue;
-                                (*itr)->AddAura(new InsidiousAura(spell, i, NULL, (*itr), (*itr)));
+                                eff_mask|=1<<i;
                             }
+                            (*itr)->AddAura(new Aura(spell, eff_mask, NULL, (*itr), (*itr)));
                             if( InnderDemon_Count > 4 ) InnderDemon_Count = 0;
 
                             //Safe storing of creatures

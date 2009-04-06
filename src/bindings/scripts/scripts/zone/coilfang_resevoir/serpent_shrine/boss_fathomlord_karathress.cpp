@@ -519,7 +519,7 @@ struct TRINITY_DLL_DECL boss_fathomguard_tidalvessAI : public ScriptedAI
             return;
         }
 
-        if( !m_creature->HasAura(SPELL_WINDFURY_WEAPON, 0) )
+        if( !m_creature->HasAura(SPELL_WINDFURY_WEAPON) )
         {
             DoCast(m_creature, SPELL_WINDFURY_WEAPON);
         }

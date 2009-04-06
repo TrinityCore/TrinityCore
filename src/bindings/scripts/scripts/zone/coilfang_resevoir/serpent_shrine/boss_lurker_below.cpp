@@ -266,7 +266,7 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
 
              for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
              {
-                 if (i->getSource()->isAlive() && i->getSource()->IsInWater() && !i->getSource()->HasAura(SPELL_SCALDINGWATER, 0))
+                 if (i->getSource()->isAlive() && i->getSource()->IsInWater() && !i->getSource()->HasAura(SPELL_SCALDINGWATER))
                      i->getSource()->CastSpell(i->getSource(), SPELL_SCALDINGWATER, true);
                  else if(!i->getSource()->IsInWater())
                      i->getSource()->RemoveAurasDueToSpell(SPELL_SCALDINGWATER);

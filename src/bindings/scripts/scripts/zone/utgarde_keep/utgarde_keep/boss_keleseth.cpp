@@ -86,7 +86,7 @@ struct TRINITY_DLL_DECL mob_frost_tombAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         Unit* temp = Unit::GetUnit((*m_creature),FrostTombGUID);
-        if((temp && temp->isAlive() && !temp->HasAura(SPELL_FROST_TOMB,0)) || !temp )
+        if((temp && temp->isAlive() && !temp->HasAura(SPELL_FROST_TOMB)) || !temp )
             m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
     } 
 };

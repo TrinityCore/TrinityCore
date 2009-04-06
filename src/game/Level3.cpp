@@ -4018,6 +4018,7 @@ bool ChatHandler::HandleAuraCommand(const char* args)
     uint32 spellID = extractSpellIdFromLink((char*)args);
 
     SpellEntry const *spellInfo = sSpellStore.LookupEntry( spellID );
+    uint8 eff_mask=0;
     if(spellInfo)
     {
         for(uint32 i = 0;i<3;i++)
@@ -4029,11 +4030,12 @@ bool ChatHandler::HandleAuraCommand(const char* args)
                 eff == SPELL_EFFECT_APPLY_AURA  ||
                 eff == SPELL_EFFECT_PERSISTENT_AREA_AURA )
             {
-                Aura *Aur = CreateAura(spellInfo, i, NULL, target);
-                target->AddAura(Aur);
+                eff_mask|=1<<i;
             }
         }
     }
+    Aura *Aur = new Aura(spellInfo, eff_mask, NULL, target);
+    target->AddAura(Aur);
 
     return true;
 }
@@ -4938,16 +4940,18 @@ bool ChatHandler::HandleListAurasCommand (const char * /*args*/)
             std::ostringstream ss_name;
             ss_name << "|cffffffff|Hspell:" << itr->second->GetId() << "|h[" << name << "]|h|r";
 
-            PSendSysMessage(LANG_COMMAND_TARGET_AURADETAIL, itr->second->GetId(), itr->second->GetEffIndex(),
-                itr->second->GetModifier()->m_auraname, itr->second->GetAuraDuration(), itr->second->GetAuraMaxDuration(),
+            PSendSysMessage(LANG_COMMAND_TARGET_AURADETAIL, itr->second->GetId(), itr->second->GetEffectMask(),
+                itr->second->GetAuraCharges(), itr->second->GetStackAmount(),itr->second->GetAuraSlot(),
+                itr->second->GetAuraDuration(), itr->second->GetAuraMaxDuration(),
                 ss_name.str().c_str(),
                 (itr->second->IsPassive() ? passiveStr : ""),(talent ? talentStr : ""),
                 IS_PLAYER_GUID(itr->second->GetCasterGUID()) ? "player" : "creature",GUID_LOPART(itr->second->GetCasterGUID()));
         }
         else
         {
-            PSendSysMessage(LANG_COMMAND_TARGET_AURADETAIL, itr->second->GetId(), itr->second->GetEffIndex(),
-                itr->second->GetModifier()->m_auraname, itr->second->GetAuraDuration(), itr->second->GetAuraMaxDuration(),
+            PSendSysMessage(LANG_COMMAND_TARGET_AURADETAIL, itr->second->GetId(), itr->second->GetEffectMask(),
+                itr->second->GetAuraCharges(), itr->second->GetStackAmount(),itr->second->GetAuraSlot(),
+                itr->second->GetAuraDuration(), itr->second->GetAuraMaxDuration(),
                 name,
                 (itr->second->IsPassive() ? passiveStr : ""),(talent ? talentStr : ""),
                 IS_PLAYER_GUID(itr->second->GetCasterGUID()) ? "player" : "creature",GUID_LOPART(itr->second->GetCasterGUID()));
@@ -4955,30 +4959,18 @@ bool ChatHandler::HandleListAurasCommand (const char * /*args*/)
     }
     for (int i = 0; i < TOTAL_AURAS; i++)
     {
-        Unit::AuraList const& uAuraList = unit->GetAurasByType(AuraType(i));
+        Unit::AuraEffectList const& uAuraList = unit->GetAurasByType(AuraType(i));
         if (uAuraList.empty()) continue;
         PSendSysMessage(LANG_COMMAND_TARGET_LISTAURATYPE, uAuraList.size(), i);
-        for (Unit::AuraList::const_iterator itr = uAuraList.begin(); itr != uAuraList.end(); ++itr)
+        for (Unit::AuraEffectList::const_iterator itr = uAuraList.begin(); itr != uAuraList.end(); ++itr)
         {
-            bool talent = GetTalentSpellCost((*itr)->GetId()) > 0;
-
             char const* name = (*itr)->GetSpellProto()->SpellName[m_session->GetSessionDbcLocale()];
 
-            if (m_session)
-            {
-                std::ostringstream ss_name;
-                ss_name << "|cffffffff|Hspell:" << (*itr)->GetId() << "|h[" << name << "]|h|r";
+            std::ostringstream ss_name;
+            ss_name << "|cffffffff|Hspell:" << (*itr)->GetId() << "|h[" << name << "]|h|r";
 
-                PSendSysMessage(LANG_COMMAND_TARGET_AURASIMPLE, (*itr)->GetId(), (*itr)->GetEffIndex(),
-                    ss_name.str().c_str(),((*itr)->IsPassive() ? passiveStr : ""),(talent ? talentStr : ""),
-                    IS_PLAYER_GUID((*itr)->GetCasterGUID()) ? "player" : "creature",GUID_LOPART((*itr)->GetCasterGUID()));
-            }
-            else
-            {
-                PSendSysMessage(LANG_COMMAND_TARGET_AURASIMPLE, (*itr)->GetId(), (*itr)->GetEffIndex(),
-                    name,((*itr)->IsPassive() ? passiveStr : ""),(talent ? talentStr : ""),
-                    IS_PLAYER_GUID((*itr)->GetCasterGUID()) ? "player" : "creature",GUID_LOPART((*itr)->GetCasterGUID()));
-            }
+            PSendSysMessage(LANG_COMMAND_TARGET_AURASIMPLE, (*itr)->GetId(), (*itr)->GetEffIndex(),
+                (*itr)->GetAmount());
         }
     }
     return true;
@@ -7405,26 +7397,10 @@ bool ChatHandler::HandleFreezeCommand(const char *args)
             }
         }
 
-        //stop movement and disable spells
-        uint32 spellID = 9454;
         //m_session->GetPlayer()->CastSpell(player,spellID,false);
-        SpellEntry const *spellInfo = sSpellStore.LookupEntry( spellID );
-        if(spellInfo) //TODO: Change the duration of the aura to -1 instead of 5000000
-        {
-            for(uint32 i = 0;i<3;i++)
-            {
-                uint8 eff = spellInfo->Effect[i];
-                if (eff>=TOTAL_SPELL_EFFECTS)
-                    continue;
-                if( eff == SPELL_EFFECT_APPLY_AREA_AURA_PARTY || eff == SPELL_EFFECT_APPLY_AURA ||
-                    eff == SPELL_EFFECT_PERSISTENT_AREA_AURA || eff == SPELL_EFFECT_APPLY_AREA_AURA_FRIEND ||
-                    eff == SPELL_EFFECT_APPLY_AREA_AURA_ENEMY)
-                {
-                    Aura *Aur = CreateAura(spellInfo, i, NULL, player);
-                    player->AddAura(Aur);
-                }
-            }
-        }
+        SpellEntry const *spellInfo = sSpellStore.LookupEntry( 9454 );
+        Aura *Aur = new Aura(spellInfo, 1, NULL, player);
+        player->AddAura(Aur);
 
         //save player
         player->SaveToDB();
@@ -7580,9 +7556,9 @@ bool ChatHandler::HandleUnPossessCommand(const char* args)
     Unit* pUnit = getSelectedUnit();
     if(!pUnit) pUnit = m_session->GetPlayer();
 
-    pUnit->RemoveSpellsCausingAura(SPELL_AURA_MOD_CHARM);
-    pUnit->RemoveSpellsCausingAura(SPELL_AURA_MOD_POSSESS_PET);
-    pUnit->RemoveSpellsCausingAura(SPELL_AURA_MOD_POSSESS);
+    pUnit->RemoveAurasByType(SPELL_AURA_MOD_CHARM);
+    pUnit->RemoveAurasByType(SPELL_AURA_MOD_POSSESS_PET);
+    pUnit->RemoveAurasByType(SPELL_AURA_MOD_POSSESS);
 
     return true;
 }

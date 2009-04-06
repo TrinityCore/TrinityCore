@@ -1729,8 +1729,8 @@ class TRINITY_DLL_SPEC Player : public Unit
         void _RemoveAllStatBonuses();
 
         void _ApplyWeaponDependentAuraMods(Item *item, WeaponAttackType attackType, bool apply);
-        void _ApplyWeaponDependentAuraCritMod(Item *item, WeaponAttackType attackType, Aura* aura, bool apply);
-        void _ApplyWeaponDependentAuraDamageMod(Item *item, WeaponAttackType attackType, Aura* aura, bool apply);
+        void _ApplyWeaponDependentAuraCritMod(Item *item, WeaponAttackType attackType, AuraEffect* aura, bool apply);
+        void _ApplyWeaponDependentAuraDamageMod(Item *item, WeaponAttackType attackType, AuraEffect* aura, bool apply);
 
         void _ApplyItemMods(Item *item,uint8 slot,bool apply);
         void _RemoveAllItemMods();
@@ -2359,7 +2359,7 @@ template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &bas
                 continue;
 
             // special case (skip >10sec spell casts for instant cast setting)
-            if( mod->op==SPELLMOD_CASTING_TIME  && basevalue >= T(10*IN_MILISECONDS) && mod->value <= -100)
+            if( mod->op==SPELLMOD_CASTING_TIME  && basevalue >= T(10000) && mod->value <= -100)
                 continue;
 
             totalpct += mod->value;

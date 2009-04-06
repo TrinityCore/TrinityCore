@@ -240,7 +240,7 @@ bool GetDispelChance(Spell* spell, Unit* caster, uint32 spellId)
 {
     // we assume that aura dispel chance is 100% on start
     // need formula for level difference based chance
-    int32 miss_chance = 100;
+    int32 miss_chance = 0;
     // Apply dispel mod from aura caster
     if (caster)
     {
@@ -248,7 +248,7 @@ bool GetDispelChance(Spell* spell, Unit* caster, uint32 spellId)
             modOwner->ApplySpellMod(spellId, SPELLMOD_RESIST_DISPEL_CHANCE, miss_chance, spell);
     }
     // Try dispel
-    return roll_chance_i(miss_chance);
+    return !roll_chance_i(miss_chance);
 }
 
 uint32 GetSpellCastTime(SpellEntry const* spellInfo, Spell const* spell)
@@ -290,33 +290,9 @@ bool IsAutocastableSpell(uint32 spellId)
     return true;
 }
 
-/*bool IsNoStackAuraDueToAura(uint32 spellId_1, uint32 effIndex_1, uint32 spellId_2, uint32 effIndex_2)
+bool IsHigherHankOfSpell(uint32 spellId_1, uint32 spellId_2)
 {
-    SpellEntry const *spellInfo_1 = sSpellStore.LookupEntry(spellId_1);
-    SpellEntry const *spellInfo_2 = sSpellStore.LookupEntry(spellId_2);
-    if(!spellInfo_1 || !spellInfo_2) return false;
-    if(spellInfo_1->Id == spellId_2) return false;
-
-    if (spellInfo_1->Effect[effIndex_1] != spellInfo_2->Effect[effIndex_2] ||
-        spellInfo_1->EffectItemType[effIndex_1] != spellInfo_2->EffectItemType[effIndex_2] ||
-        spellInfo_1->EffectMiscValue[effIndex_1] != spellInfo_2->EffectMiscValue[effIndex_2] ||
-        spellInfo_1->EffectApplyAuraName[effIndex_1] != spellInfo_2->EffectApplyAuraName[effIndex_2])
-        return false;
-
-    return true;
-}*/
-
-int32 CompareAuraRanks(uint32 spellId_1, uint32 effIndex_1, uint32 spellId_2, uint32 effIndex_2)
-{
-    SpellEntry const*spellInfo_1 = sSpellStore.LookupEntry(spellId_1);
-    SpellEntry const*spellInfo_2 = sSpellStore.LookupEntry(spellId_2);
-    if(!spellInfo_1 || !spellInfo_2) return 0;
-    if (spellId_1 == spellId_2) return 0;
-
-    int32 diff = spellInfo_1->EffectBasePoints[effIndex_1] - spellInfo_2->EffectBasePoints[effIndex_2];
-    if (spellInfo_1->CalculateSimpleValue(effIndex_1) < 0 && spellInfo_2->CalculateSimpleValue(effIndex_2) < 0)
-        return -diff;
-    else return diff;
+    return spellmgr.GetSpellRank(spellId_1)<spellmgr.GetSpellRank(spellId_2);
 }
 
 SpellSpecific GetSpellSpecific(uint32 spellId)
@@ -410,9 +386,6 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
             if( spellInfo->SpellFamilyFlags[1] & 0x00440000 || spellInfo->SpellFamilyFlags[0] & 0x00380000 || spellInfo->SpellFamilyFlags[2] & 0x00001010)
                 return SPELL_ASPECT;
 
-            if( spellInfo->SpellFamilyFlags[2] & 0x00000002 )
-                return SPELL_TRACKER;
-
             break;
         }
         case SPELLFAMILY_PALADIN:
@@ -461,6 +434,10 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
                 case SPELL_AURA_MOD_POSSESS_PET:
                 case SPELL_AURA_MOD_POSSESS:
                     return SPELL_CHARM;
+                case SPELL_AURA_TRACK_CREATURES:
+                case SPELL_AURA_TRACK_RESOURCES:
+                case SPELL_AURA_TRACK_STEALTHED:
+                    return SPELL_TRACKER;
             }
         }
     }
@@ -3111,10 +3088,10 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
             return false;
         if(auraSpell > 0)
             // have expected aura
-            return player->HasAura(auraSpell,0);
+            return player->HasAura(auraSpell);
         else
             // not have expected aura
-            return !player->HasAura(-auraSpell,0);
+            return !player->HasAura(-auraSpell);
     }
 
     return true;

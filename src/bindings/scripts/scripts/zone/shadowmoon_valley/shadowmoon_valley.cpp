@@ -94,7 +94,7 @@ struct TRINITY_DLL_DECL mob_mature_netherwing_drakeAI : public ScriptedAI
         if(!caster)
             return;
 
-        if(caster->GetTypeId() == TYPEID_PLAYER && spell->Id == SPELL_PLACE_CARCASS && !m_creature->HasAura(SPELL_JUST_EATEN, 0) && !PlayerGUID)
+        if(caster->GetTypeId() == TYPEID_PLAYER && spell->Id == SPELL_PLACE_CARCASS && !m_creature->HasAura(SPELL_JUST_EATEN) && !PlayerGUID)
         {
             float PlayerX, PlayerY, PlayerZ;
             caster->GetClosePoint(PlayerX, PlayerY, PlayerZ, m_creature->GetObjectSize());

@@ -384,7 +384,7 @@ struct TRINITY_DLL_DECL boss_sathrovarrAI : public ScriptedAI
 
         if(ResetThreat < diff)
         {
-            if ( ( m_creature->getVictim()->HasAura(AURA_SPECTRAL_EXHAUSTION,0)) && (m_creature->getVictim()->GetTypeId() == TYPEID_PLAYER) )
+            if ( ( m_creature->getVictim()->HasAura(AURA_SPECTRAL_EXHAUSTION)) && (m_creature->getVictim()->GetTypeId() == TYPEID_PLAYER) )
             {
                 for(std::list<HostilReference*>::iterator itr = m_creature->getThreatManager().getThreatList().begin(); itr != m_creature->getThreatManager().getThreatList().end(); ++itr)
                 {
@@ -609,7 +609,7 @@ void boss_kalecgosAI::UpdateAI(const uint32 diff)
         {
             //this is a hack. we need to find a victim without aura in core
             Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-            if( ( target != m_creature->getVictim() ) && target->isAlive() && !(target->HasAura(AURA_SPECTRAL_EXHAUSTION, 0)) )
+            if( ( target != m_creature->getVictim() ) && target->isAlive() && !(target->HasAura(AURA_SPECTRAL_EXHAUSTION)) )
             {
                 DoCast(target, SPELL_SPECTRAL_BLAST);
                 SpectralBlastTimer = 20000+(rand()%5000);
@@ -626,7 +626,7 @@ void boss_kalecgosAI::UpdateAI(const uint32 diff)
 
 bool GOkalocegos_teleporter(Player *player, GameObject* _GO)
 {
-    if(player->HasAura(AURA_SPECTRAL_EXHAUSTION, 0))
+    if(player->HasAura(AURA_SPECTRAL_EXHAUSTION))
         player->GetSession()->SendNotification(GO_FAILED);
     else
         player->CastSpell(player, SPELL_TELEPORT_SPECTRAL, true);
