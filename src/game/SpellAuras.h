@@ -92,6 +92,8 @@ class TRINITY_DLL_SPEC Aura
         void SetNegative() { m_positive = false; }
         void SetPositive() { m_positive = true; }
         bool IsPermanent() const { return m_permanent; }
+        void RemoveAura() { m_permanent = false; m_duration=0; }
+
         bool IsPassive() const { return m_isPassive; }
         bool IsDeathPersistent() const { return m_isDeathPersist; }
         bool IsRemovedOnShapeLost() const { return m_isRemovedOnShapeLost; }
@@ -353,6 +355,7 @@ class TRINITY_DLL_SPEC AuraEffect
         int32 GetAmount() const {return m_amount;}
         void SetAmount(int32 amount) { m_amount = amount; }
         void CleanupTriggeredSpells();
+        bool RemoveParentAura();
 
     protected:
         AuraEffect (Aura * parentAura, uint8 effIndex, int32 * currentBasePoints , Unit * caster,Item * castItem);
