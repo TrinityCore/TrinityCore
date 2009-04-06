@@ -617,8 +617,8 @@ typedef std::multimap<uint32, SpellLearnSpellNode> SpellLearnSpellMap;
 
 typedef std::multimap<uint32, SkillLineAbilityEntry const*> SkillLineAbilityMap;
 
-typedef std::map<uint32, uint32> PetLevelupSpellSet;
-typedef std::map<uint32, PetLevelupSpellSet> PetLevelupSpellMap;
+typedef std::multimap<uint32, std::pair < uint32,uint32 > >PetLevelupSpellMap;
+//typedef std::map<uint32, PetLevelupSpellSet> PetLevelupSpellMap;
 
 inline bool IsPrimaryProfessionSkill(uint32 skill)
 {
@@ -923,15 +923,6 @@ class SpellMgr
         SpellEffectTargetTypes EffectTargetType[TOTAL_SPELL_EFFECTS];
         SpellSelectTargetTypes SpellTargetType[TOTAL_SPELL_TARGETS];
 
-        PetLevelupSpellSet const* GetPetLevelupSpellList(uint32 petFamily) const
-        {
-            PetLevelupSpellMap::const_iterator itr = mPetLevelupSpellMap.find(petFamily);
-            if(itr != mPetLevelupSpellMap.end())
-                return &itr->second;
-            else
-                return NULL;
-        }
-
         SpellCastResult GetSpellAllowedInLocationError(SpellEntry const *spellInfo, uint32 map_id, uint32 zone_id, uint32 area_id, Player const* player = NULL);
 
         SpellAreaMapBounds GetSpellAreaMapBounds(uint32 spell_id) const
@@ -960,6 +951,11 @@ class SpellMgr
         SpellAreaForAreaMapBounds GetSpellAreaForAreaMapBounds(uint32 area_id) const
         {
             return SpellAreaForAreaMapBounds(mSpellAreaForAreaMap.lower_bound(area_id),mSpellAreaForAreaMap.upper_bound(area_id));
+        }
+
+        PetLevelupSpellMap const * GetPetLevelupSpellMap() const
+        {
+            return &mPetLevelupSpellMap;
         }
 
     // Modifiers
