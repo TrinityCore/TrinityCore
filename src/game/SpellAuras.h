@@ -98,6 +98,7 @@ class TRINITY_DLL_SPEC Aura
         bool IsDeathPersistent() const { return m_isDeathPersist; }
         bool IsRemovedOnShapeLost() const { return m_isRemovedOnShapeLost; }
         bool IsUpdated() const { return m_updated; }
+        bool IsDuringUpdate() const { return m_duringUpdate; }
         void SetUpdated(bool val) { m_updated = val; }
 
         bool IsInUse() const;
@@ -157,6 +158,7 @@ class TRINITY_DLL_SPEC Aura
         bool m_positive:1;
         bool m_permanent:1;
         bool m_updated:1;                                   // Prevent remove aura by stack if set
+        bool m_duringUpdate:1;                                   // Prevent remove aura by stack if set
         bool m_isSingleTargetAura:1;                        // true if it's a single target spell and registered at caster - can change at spell steal for example
 };
 class TRINITY_DLL_SPEC AuraEffect
