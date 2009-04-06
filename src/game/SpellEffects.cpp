@@ -2435,18 +2435,6 @@ void Spell::EffectPowerBurn(uint32 i)
     int32 curPower = int32(unitTarget->GetPower(powertype));
 
     uint32 power = damage;
-    //Mana burn take mana % amount from target, but not bigger than amount*2 of caster mana
-    if ( m_spellInfo->SpellFamilyName==SPELLFAMILY_PRIEST && m_spellInfo->SpellFamilyFlags[0] & 0x10)
-    {
-        // Burn percentage of target's mana
-        power = damage * curPower / 100;
-        if (caster)
-        {
-            uint32 casterPower = damage * caster->GetPower(powertype) / 50;
-            if (casterPower<curPower)
-                curPower = casterPower;
-        }
-    }
     // resilience reduce mana draining effect at spell crit damage reduction (added in 2.4)
     if ( powertype == POWER_MANA && unitTarget->GetTypeId() == TYPEID_PLAYER )
         power -= ((Player*)unitTarget)->GetSpellCritDamageReduction(power);
