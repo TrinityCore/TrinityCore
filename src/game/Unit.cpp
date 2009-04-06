@@ -9556,12 +9556,11 @@ void Unit::CombatStart(Unit* target)
     }
 
     //Call creature group update
-    if(GetTypeId()==TYPEID_UNIT && ((Creature*)this)->GetFormationID())
-    {
-        CreatureGroupHolderType::iterator itr = CreatureGroupHolder.find(((Creature*)this)->GetFormationID());
-        if(itr != CreatureGroupHolder.end())
-           itr->second->MemberHasAttacked(((Creature*)this));
-    }
+	if(GetTypeId()==TYPEID_UNIT && ((Creature*)this)->GetFormation())
+	{
+		((Creature*)this)->GetFormation()->MemberHasAttacked(*(Creature*)this);
+		sLog.outDebug("Unit::CombatStart() calls CreatureGroups::MemberHasAttacked(this);");
+	}
 }
 
 void Unit::SetInCombatState(bool PvP)

@@ -4569,9 +4569,9 @@ bool ChatHandler::HandleNpcAddFormationCommand(const char* args)
     }
 
     uint32 lowguid = pCreature->GetDBTableGUIDLow();
-    if(pCreature->GetFormationID())
+	if(pCreature->GetFormation())
     {
-        PSendSysMessage("Selected creature is already member of group %u", pCreature->GetFormationID());
+		PSendSysMessage("Selected creature is already member of group %u", pCreature->GetFormation()->GetId());
         return false;
     }
 

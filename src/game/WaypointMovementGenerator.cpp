@@ -52,9 +52,9 @@ void WaypointMovementGenerator<Creature>::MovementInform(Creature &unit)
 template<>
 bool WaypointMovementGenerator<Creature>::GetDestination(float &x, float &y, float &z) const
 {
-    if(i_destinationHolder.HasArrived())
+	if(i_destinationHolder.HasArrived())
         return false;
-
+	
     i_destinationHolder.GetDestination(x, y, z);
     return true;
 }
