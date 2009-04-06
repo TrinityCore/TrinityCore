@@ -367,7 +367,7 @@ m_auraSlot(MAX_AURAS), m_auraLevel(1), m_procCharges(0), m_stackAmount(1),m_aura
     {
         m_caster_guid = target->GetGUID();
         //damage = m_currentBasePoints+1;                     // stored value-1
-        m_maxduration = target->CalcSpellDuration(m_spellProto);
+        m_maxduration = target->CalcSpellDuration(m_spellProto); 
     }
     else
     {
