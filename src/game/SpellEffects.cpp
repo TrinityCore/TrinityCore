@@ -4922,10 +4922,10 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     // search seal (all seals have judgement's aura dummy spell id in 2 effect
                     if ((*itr)->GetEffIndex() != 2 || !spellInfo || !IsSealSpell(spellInfo))
                         continue;
-                    spellId2 = (*itr)->GetAmount();
-                    SpellEntry const *judge = sSpellStore.LookupEntry(spellId2);
+                    SpellEntry const *judge = sSpellStore.LookupEntry((*itr)->GetAmount());
                     if (!judge)
                         continue;
+                    spellId2 = (*itr)->GetAmount();
                     break;
                 }
                 if (spellId1)
