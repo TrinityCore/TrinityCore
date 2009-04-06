@@ -414,8 +414,8 @@ m_auraSlot(MAX_AURAS), m_auraLevel(1), m_procCharges(0), m_stackAmount(1),m_aura
             else
                 m_partAuras[i]=CreateAuraEffect(this, i, NULL , caster);
             // correct flags if aura couldn't be created
-            //if (!m_partAuras[i])
-                //m_auraFlags &= (~(uint8(1) << i));
+            if (!m_partAuras[i])
+                m_auraFlags &= uint8(~(uint8(1) << i));
         }
         else
         {
@@ -628,12 +628,12 @@ void Aura::Update(uint32 diff)
                         if (caster->GetHealth()>manaPerSecond)
                             caster->ModifyHealth(-manaPerSecond);
                         else
-                            m_target->RemoveAurasDueToSpell(GetId(),GetCasterGUID());
+                            RemoveAura();
                     }
                     else if (caster->GetPower(powertype)>=manaPerSecond)
                         caster->ModifyPower(powertype,-manaPerSecond);
                     else
-                        m_target->RemoveAurasDueToSpell(GetId(),GetCasterGUID());
+                        RemoveAura();
                 }
             }
         }
@@ -645,7 +645,7 @@ void Aura::Update(uint32 diff)
         Unit* caster = GetCaster();
         if(!caster)
         {
-            m_target->RemoveAurasDueToSpell(GetId(),GetCasterGUID());
+            RemoveAura();
             return;
         }
         // Get spell range
@@ -671,7 +671,7 @@ void Aura::Update(uint32 diff)
 
         if(!caster->IsWithinDistInMap(m_target,radius))
         {
-            m_target->RemoveAurasDueToSpell(GetId(),GetCasterGUID());
+            RemoveAura();
             return;
         }
     }
@@ -758,7 +758,7 @@ void AreaAuraEffect::Update(uint32 diff)
                     //if(actualSpellInfo != GetSpellProto())
                     //    actualBasePoints = actualSpellInfo->EffectBasePoints[m_effIndex];
                     Aura * aur = (*tIter)->AddAuraEffect(actualSpellInfo->Id, GetEffIndex(), caster);
-                    aur->SetAuraDuration(aur->GetAuraDuration());
+                    RemoveParentAura();
 
                     if(m_areaAuraType == AREA_AURA_ENEMY)
                         caster->CombatStart(*tIter);
@@ -788,7 +788,7 @@ void AreaAuraEffect::Update(uint32 diff)
             caster->IsFriendlyTo(tmp_target) != needFriendly
            )
         {
-            GetParentAura()->SetAuraDuration(0);
+            GetParentAura()->RemoveAura();
         }
         else if (!caster->IsWithinDistInMap(tmp_target, m_radius))
         {
@@ -796,10 +796,10 @@ void AreaAuraEffect::Update(uint32 diff)
             {
                 m_removeTime -= diff;
                 if (m_removeTime < 0)
-                    GetParentAura()->SetAuraDuration(0);
+                    GetParentAura()->RemoveAura();
             }
             else
-                GetParentAura()->SetAuraDuration(0);
+                GetParentAura()->RemoveAura();
         }
         else
         {
@@ -808,17 +808,17 @@ void AreaAuraEffect::Update(uint32 diff)
             if( m_areaAuraType == AREA_AURA_PARTY)         // check if in same sub group
             {
                 if(!tmp_target->IsInPartyWith(caster))
-                    GetParentAura()->SetAuraDuration(0);
+                    GetParentAura()->RemoveAura();
             }
             else if( m_areaAuraType == AREA_AURA_RAID)
             {
                 if(!tmp_target->IsInRaidWith(caster))
-                    GetParentAura()->SetAuraDuration(0);
+                    GetParentAura()->RemoveAura();
             }
             else if( m_areaAuraType == AREA_AURA_PET || m_areaAuraType == AREA_AURA_OWNER )
             {
                 if( tmp_target->GetGUID() != caster->GetCharmerOrOwnerGUID() )
-                    GetParentAura()->SetAuraDuration(0);
+                    GetParentAura()->RemoveAura();
             }
         }
     }
@@ -845,16 +845,10 @@ void PersistentAreaAuraEffect::Update(uint32 diff)
     else
         remove = true;
 
-    Unit *tmp_target = m_target;
-    uint32 tmp_id = GetId();
-    uint64 tmp_guid = GetCasterGUID();
-
-    // WARNING: the aura may get deleted during the update
-    // DO NOT access its members after update!
-    AuraEffect::Update(diff);
-
     if(remove)
-        GetParentAura()->SetAuraDuration(0);
+        GetParentAura()->RemoveAura();
+
+    AuraEffect::Update(diff);
 }
 
 void AuraEffect::ApplyModifier(bool apply, bool Real)
@@ -1073,7 +1067,7 @@ void Aura::_AddAura()
 
 bool Aura::SetPartAura(AuraEffect* aurEff, uint8 effIndex)
 {
-    if (m_auraFlags & 1<<effIndex)
+    if (m_auraFlags & (1<<effIndex))
         return false;
     m_auraFlags |= 1<<effIndex;
     m_partAuras[effIndex]=aurEff;
@@ -1243,7 +1237,7 @@ void Aura::SetAuraDuration(int32 duration)
     m_duration = duration;
     //if (duration<0)
         //m_permanent=true;
-   // else
+    //else
         //m_permanent=false;
     SendAuraUpdate();
 }
