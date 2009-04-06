@@ -1309,18 +1309,14 @@ bool Pet::learnSpell(uint32 spell_id)
 
 void Pet::learnLevelupSpells()
 {
-    PetLevelupSpellSet const *levelupSpells = spellmgr.GetPetLevelupSpellList(GetCreatureInfo()->family);
-    if(!levelupSpells)
-        return;
-
-    uint32 level = getLevel();
-
-    for(PetLevelupSpellSet::const_iterator itr = levelupSpells->begin(); itr != levelupSpells->end(); ++itr)
+    PetLevelupSpellMap const * spell_map = spellmgr.GetPetLevelupSpellMap();
+    int8 level = getLevel();
+    for(PetLevelupSpellMap::const_iterator itr = spell_map->lower_bound(GetCreatureInfo()->family); itr != spell_map->upper_bound(GetCreatureInfo()->family); ++itr)
     {
-        if(itr->first <= level)
-            learnSpell(itr->second);
+        if(itr->second.first <= level)
+            learnSpell(itr->second.second);
         else
-            unlearnSpell(itr->second);
+            unlearnSpell(itr->second.second);
     }
 }
 

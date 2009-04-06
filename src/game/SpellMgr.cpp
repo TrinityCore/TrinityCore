@@ -2500,7 +2500,9 @@ void SpellMgr::LoadPetLevelupSpellMap()
                     continue;
                 if (!spell->spellLevel)
                     continue;
-                mPetLevelupSpellMap[creatureFamily->ID][spell->spellLevel] = spell->Id;
+                if (!spell->SpellFamilyName)
+                    continue;
+                mPetLevelupSpellMap.insert(PetLevelupSpellMap::value_type(creatureFamily->ID, std::make_pair(spell->spellLevel , spell->Id )));
                 count++;
             }
         }
