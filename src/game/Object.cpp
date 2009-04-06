@@ -663,31 +663,29 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
                 // FG: pretend that OTHER players in own group are friendly ("blue")
                 else if(index == UNIT_FIELD_BYTES_2 || index == UNIT_FIELD_FACTIONTEMPLATE)
                 {
-                bool ch = false;
-                    if(target->GetTypeId() == TYPEID_PLAYER && GetTypeId() == TYPEID_PLAYER && target != this)
+                    bool ch = false;
+                    if(GetTypeId() == TYPEID_PLAYER && target != this
+                        && ((Player*)this)->IsInSameRaidWith(target))
                     {
-                    if(target->IsInSameGroupWith((Player*)this) || target->IsInSameRaidWith((Player*)this))
-                    {
-                        if(index == UNIT_FIELD_BYTES_2)
+                        /*if(index == UNIT_FIELD_BYTES_2)
                         {
                             DEBUG_LOG("-- VALUES_UPDATE: Sending '%s' the blue-group-fix from '%s' (flag)", target->GetName(), ((Player*)this)->GetName());
                             *data << ( m_uint32Values[ index ] & (UNIT_BYTE2_FLAG_SANCTUARY << 8) ); // this flag is at uint8 offset 1 !!
                             ch = true;
                         }
-                        else if(index == UNIT_FIELD_FACTIONTEMPLATE)
+                        else*/
                         {
                             FactionTemplateEntry const *ft1, *ft2;
                             ft1 = ((Player*)this)->getFactionTemplateEntry();
-                            ft2 = ((Player*)target)->getFactionTemplateEntry();
+                            ft2 = target->getFactionTemplateEntry();
                             if(ft1 && ft2 && !ft1->IsFriendlyTo(*ft2))
                             {
-                                uint32 faction = ((Player*)target)->getFaction(); // pretend that all other HOSTILE players have own faction, to allow follow, heal, rezz (trade wont work)
+                                uint32 faction = target->getFaction(); // pretend that all other HOSTILE players have own faction, to allow follow, heal, rezz (trade wont work)
                                 DEBUG_LOG("-- VALUES_UPDATE: Sending '%s' the blue-group-fix from '%s' (faction %u)", target->GetName(), ((Player*)this)->GetName(), faction);
                                 *data << uint32(faction);
                                 ch = true;
                             }
                         }
-                    }
                     }
                     if(!ch)
                         *data << m_uint32Values[ index ];
