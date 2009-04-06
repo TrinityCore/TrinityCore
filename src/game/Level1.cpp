@@ -764,7 +764,7 @@ bool ChatHandler::HandleNamegoCommand(const char* args)
         if (HasLowerSecurity(chr, 0))
             return false;
 
-        if(chr->IsBeingTeleported()==true)
+        if(chr->IsBeingTeleported())
         {
             PSendSysMessage(LANG_IS_TELEPORTED, nameLink.c_str());
             SetSentErrorMessage(true);
@@ -778,14 +778,14 @@ bool ChatHandler::HandleNamegoCommand(const char* args)
             // only allow if gm mode is on
             if (!chr->isGameMaster())
             {
-                PSendSysMessage(LANG_CANNOT_GO_TO_BG_GM,chr->GetName());
+                PSendSysMessage(LANG_CANNOT_GO_TO_BG_GM, nameLink.c_str());
                 SetSentErrorMessage(true);
                 return false;
             }
             // if both players are in different bgs
             else if (chr->GetBattleGroundId() && m_session->GetPlayer()->GetBattleGroundId() != chr->GetBattleGroundId())
             {
-                PSendSysMessage(LANG_CANNOT_GO_TO_BG_FROM_BG,chr->GetName());
+                PSendSysMessage(LANG_CANNOT_GO_TO_BG_FROM_BG, nameLink.c_str());
                 SetSentErrorMessage(true);
                 return false;
             }
@@ -820,7 +820,7 @@ bool ChatHandler::HandleNamegoCommand(const char* args)
 
         PSendSysMessage(LANG_SUMMONING, nameLink.c_str(),"");
         if (needReportToTarget(chr))
-            ChatHandler(chr).PSendSysMessage(LANG_SUMMONED_BY, nameLink.c_str());
+            ChatHandler(chr).PSendSysMessage(LANG_SUMMONED_BY, GetNameLink().c_str());
 
         // stop flight if need
         if(chr->isInFlight())
@@ -845,7 +845,7 @@ bool ChatHandler::HandleNamegoCommand(const char* args)
 
         std::string nameLink = playerLink(name);
 
-        PSendSysMessage(LANG_SUMMONING, nameLink.c_str(),GetMangosString(LANG_OFFLINE));
+        PSendSysMessage(LANG_SUMMONING, nameLink.c_str(),GetTrinityString(LANG_OFFLINE));
 
         // in point where GM stay
         Player::SavePositionInDB(m_session->GetPlayer()->GetMapId(),
@@ -2702,7 +2702,7 @@ bool ChatHandler::HandleGroupgoCommand(const char* args)
         if (HasLowerSecurity(pl, 0))
             return false;
 
-        std::string plNameLink = playerLink(name);
+        std::string plNameLink = playerLink(pl->GetName());
 
         if(pl->IsBeingTeleported()==true)
         {
@@ -2726,7 +2726,7 @@ bool ChatHandler::HandleGroupgoCommand(const char* args)
 
         PSendSysMessage(LANG_SUMMONING, plNameLink.c_str(),"");
         if (needReportToTarget(pl))
-            ChatHandler(pl).PSendSysMessage(LANG_SUMMONED_BY, nameLink.c_str());
+            ChatHandler(pl).PSendSysMessage(LANG_SUMMONED_BY, GetNameLink().c_str());
 
         // stop flight if need
         if(pl->isInFlight())
