@@ -328,6 +328,7 @@ enum DamageTypeToSchool
 
 enum AuraRemoveMode
 {
+    AURA_NO_REMOVE_MODE = 0,
     AURA_REMOVE_BY_DEFAULT,
     AURA_REMOVE_BY_STACK,               // change stack, single aura remove,
     AURA_REMOVE_BY_CANCEL,

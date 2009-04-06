@@ -4104,8 +4104,9 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
         m_ccAuras.remove(Aur);
     }
 
-    // Set remove mode
-    Aur->SetRemoveMode(mode);
+    // Set remove mode if mode already not set
+    if (!Aur->GetRemoveMode())
+            Aur->SetRemoveMode(mode);
 
     // Statue unsummoned at aura remove
     Totem* statue = NULL;
