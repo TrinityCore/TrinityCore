@@ -90,6 +90,8 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
     float DefaultMoveSpeedRate;
 
     bool Phase1;
+    bool ForceMove;
+    uint32 ForceTimer;
 
     int8 cur_wp;
 
@@ -105,6 +107,8 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
         WaitEvent = WE_NONE;
         WaitTimer = 0;
         AfterMoving = false;
+        ForceMove = false;
+        ForceTimer = 5000;
 
         cur_wp = 4;
 
@@ -189,6 +193,7 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
         {
             WaitTimer = 1;
             AfterMoving = true;
+            ForceMove = false;
         }
     }
 
@@ -203,6 +208,15 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
             Berserk_Timer = 60000;
         }else Berserk_Timer -= diff;
 
+        if(ForceMove)
+        {
+            if(ForceTimer < diff)
+            {
+                m_creature->GetMotionMaster()->MovePoint(0, waypoint[cur_wp][0], waypoint[cur_wp][1], waypoint[cur_wp][2]);
+                ForceTimer = 5000;
+            }else ForceTimer -= diff;
+
+        }
         if(WaitEvent)
         {
             if(WaitTimer)
@@ -320,6 +334,8 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
                         WaitEvent = WE_QUILL;
                     }
                 }
+                ForceMove = true;
+                ForceTimer = 5000;
                 m_creature->GetMotionMaster()->MovePoint(0, waypoint[cur_wp][0], waypoint[cur_wp][1], waypoint[cur_wp][2]);
                 WaitTimer = 0;
                 return;
