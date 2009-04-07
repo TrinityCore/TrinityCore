@@ -3223,8 +3223,12 @@ void Unit::_UpdateSpells( uint32 time )
         Aura *aur = i->second;
 
         // prevent double update
-        if (aur->IsUpdated())
+        if(aur->IsUpdated())
+        {
+            ++i;
             continue;
+        }
+
         aur->SetUpdated(true);
 
         uint32 removedAuras = m_removedAuras.size();
@@ -3232,11 +3236,9 @@ void Unit::_UpdateSpells( uint32 time )
 
         // several auras can be deleted due to update
         if(removedAuras < m_removedAuras.size())
-        {
             i = m_Auras.begin();
-        }
         else
-             ++i;
+            ++i;
     }
 
     for(AuraMap::iterator i = m_Auras.begin(); i != m_Auras.end();)
