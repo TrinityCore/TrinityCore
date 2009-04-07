@@ -28,7 +28,6 @@
 #include "LootMgr.h"
 #include "Database/DatabaseEnv.h"
 #include "Cell.h"
-#include "CreatureGroups.h"
 
 #include <list>
 
@@ -38,6 +37,7 @@ class CreatureAI;
 class Quest;
 class Player;
 class WorldSession;
+class CreatureGroup;
 
 enum Gossip_Option
 {
@@ -494,6 +494,7 @@ class TRINITY_DLL_SPEC Creature : public Unit
         bool IsInEvadeMode() const;
 
         bool AIM_Initialize(CreatureAI* ai = NULL);
+        void Motion_Initialize();
 
         void AI_SendMoveToPacket(float x, float y, float z, uint32 time, uint32 MovementFlags, uint8 type);
         CreatureAI* AI() { return (CreatureAI*)i_AI; }
@@ -651,8 +652,8 @@ class TRINITY_DLL_SPEC Creature : public Unit
         void UpdateWaypointID(uint32 wpID){m_waypointID = wpID;}
 
         void SearchFormation();
-        bool IsFormationLeader() {return (GetDBTableGUIDLow() && GetDBTableGUIDLow() == m_formationID);}
-        uint32 GetFormationID(){return m_formationID;}
+		CreatureGroup *GetFormation() {return m_formation;}
+		void SetFormation(CreatureGroup *formation) {m_formation = formation;}
 
         Unit *SelectVictim();
         void SetDeadByDefault (bool death_state) {m_isDeadByDefault = death_state;}
@@ -711,7 +712,7 @@ class TRINITY_DLL_SPEC Creature : public Unit
         uint32 m_path_id;
 
         //Formation var
-        uint32 m_formationID;
+        CreatureGroup *m_formation;
 
         GridReference<Creature> m_gridRef;
         CreatureInfo const* m_creatureInfo;                 // in heroic mode can different from ObjMgr::GetCreatureTemplate(GetEntry())

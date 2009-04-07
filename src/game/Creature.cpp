@@ -139,7 +139,7 @@ m_deathTimer(0), m_respawnTime(0), m_respawnDelay(25), m_corpseDelay(60), m_resp
 m_gossipOptionLoaded(false), m_emoteState(0),
 m_defaultMovementType(IDLE_MOTION_TYPE), m_DBTableGuid(0), m_equipmentId(0), m_AlreadyCallAssistance(false),
 m_regenHealth(true), m_AI_locked(false), m_isDeadByDefault(false), m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),
-m_creatureInfo(NULL), m_reactState(REACT_AGGRESSIVE), m_formationID(0), m_summonMask(SUMMON_MASK_NONE)
+m_creatureInfo(NULL), m_reactState(REACT_AGGRESSIVE), m_formation(NULL), m_summonMask(SUMMON_MASK_NONE)
 {
     m_regenTimer = 200;
     m_valuesCount = UNIT_END;
@@ -174,18 +174,18 @@ void Creature::AddToWorld()
     {
         ObjectAccessor::Instance().AddObject(this);
         Unit::AddToWorld();
-        AIM_Initialize();
         SearchFormation();
+        AIM_Initialize();
     }
 }
 
 void Creature::RemoveFromWorld()
 {
-    ///- Remove the creature from the accessor
     if(IsInWorld())
     {
-        if(m_formationID)
-            formation_mgr.DestroyGroup(m_formationID, GetGUID());
+        // Clear formation info
+        if(m_formation)
+            formation_mgr.RemoveCreatureFromGroup(m_formation, this);
         Unit::RemoveFromWorld();
         ObjectAccessor::Instance().RemoveObject(this);
     }
@@ -193,16 +193,16 @@ void Creature::RemoveFromWorld()
 
 void Creature::SearchFormation()
 {
-    if(isPet())
+    if(isSummon())
         return;
 
     uint32 lowguid = GetDBTableGUIDLow();
+    if(!lowguid)
+        return;
 
-    if(lowguid && CreatureGroupMap.find(lowguid) != CreatureGroupMap.end())
-    {
-        m_formationID = CreatureGroupMap[lowguid]->leaderGUID;
-        formation_mgr.UpdateCreatureGroup(m_formationID, this);
-    }
+    CreatureGroupInfoType::iterator frmdata = CreatureGroupMap.find(lowguid);
+    if(frmdata != CreatureGroupMap.end())
+        formation_mgr.AddCreatureToGroup(frmdata->second->leaderGUID, this);
 }
 
 void Creature::RemoveCorpse()
@@ -611,12 +611,29 @@ bool Creature::AIM_Initialize(CreatureAI* ai)
     }
 
     UnitAI *oldAI = i_AI;
-    i_motionMaster.Initialize();
+
+    Motion_Initialize();
+    
     i_AI = ai ? ai : FactorySelector::selectAI(this);
     if(oldAI) delete oldAI;
     IsAIEnabled = true;
     i_AI->Reset();
     return true;
+}
+
+void Creature::Motion_Initialize()
+{
+	if(!m_formation)
+		i_motionMaster.Initialize();
+	else if(m_formation->getLeader() == this)
+	{	
+		m_formation->FormationReset(false);
+		i_motionMaster.Initialize();
+	}
+	else if(m_formation->isFormed())
+        i_motionMaster.MoveIdle(MOTION_SLOT_IDLE); //wait the order of leader
+    else
+        i_motionMaster.Initialize();
 }
 
 bool Creature::Create (uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, uint32 team, const CreatureData *data)
@@ -1654,7 +1671,11 @@ void Creature::setDeathState(DeathState s)
             return;
 
         Unit::setDeathState(CORPSE);
-    }
+    
+		//Dismiss group if is leader
+		if(m_formation && m_formation->getLeader() == this)
+			m_formation->FormationReset(true);
+	}
     if(s == JUST_ALIVED)
     {
         //if(isPet())
@@ -1667,10 +1688,10 @@ void Creature::setDeathState(DeathState s)
         AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
         SetUInt32Value(UNIT_NPC_FLAGS, cinfo->npcflag);
         clearUnitState(UNIT_STAT_ALL_STATE);
-        i_motionMaster.Initialize();
         SetMeleeDamageSchool(SpellSchools(cinfo->dmgschool));
         LoadCreaturesAddon(true);
-    }
+        Motion_Initialize();
+	}
 }
 
 bool Creature::FallGround()
