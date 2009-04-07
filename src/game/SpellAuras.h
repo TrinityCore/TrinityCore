@@ -92,7 +92,7 @@ class TRINITY_DLL_SPEC Aura
         void SetNegative() { m_positive = false; }
         void SetPositive() { m_positive = true; }
         bool IsPermanent() const { return m_permanent; }
-        void RemoveAura() { m_permanent = false; m_duration=0; m_removeMode = AURA_REMOVE_BY_DEFAULT; }
+        void RemoveAura(AuraRemoveMode mode = AURA_REMOVE_BY_DEFAULT) { m_permanent = false; m_duration=0; m_removeMode = mode; }
 
         bool IsPassive() const { return m_isPassive; }
         bool IsDeathPersistent() const { return m_isDeathPersist; }
