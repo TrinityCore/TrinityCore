@@ -11502,6 +11502,10 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
             if (!i->triggeringAura[j])
                 continue;
 
+            // possible for stacked auras from same caster, skip then
+            if (parentAura->GetPartAura(j)!=i->triggeringAura[j]->triggeredByAura)
+                continue;
+
             SpellProcEventEntry const *spellProcEvent = i->triggeringAura[j]->spellProcEvent;
             AuraEffect *triggeredByAura =triggeredByAura = i->triggeringAura[j]->triggeredByAura;
 
