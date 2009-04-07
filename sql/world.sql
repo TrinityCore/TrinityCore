@@ -90,7 +90,6 @@ CREATE TABLE `areatrigger_teleport` (
   `target_position_z` float NOT NULL default '0',
   `target_orientation` float NOT NULL default '0',
   PRIMARY KEY  (`id`),
-  FULLTEXT KEY `name` (`name`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Trigger System';
 
 --
@@ -1727,6 +1726,41 @@ LOCK TABLES `locales_item` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `locales_npc_option`
+--
+
+DROP TABLE IF EXISTS `locales_npc_option`;
+CREATE TABLE `locales_npc_option` (
+  `entry` mediumint(8) unsigned NOT NULL default '0',
+  `option_text_loc1` text,
+  `option_text_loc2` text,
+  `option_text_loc3` text,
+  `option_text_loc4` text,
+  `option_text_loc5` text,
+  `option_text_loc6` text,
+  `option_text_loc7` text,
+  `option_text_loc8` text,
+  `box_text_loc1` text,
+  `box_text_loc2` text,
+  `box_text_loc3` text,
+  `box_text_loc4` text,
+  `box_text_loc5` text,
+  `box_text_loc6` text,
+  `box_text_loc7` text,
+  `box_text_loc8` text,
+  PRIMARY KEY  (`entry`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `locales_npc_option`
+--
+
+LOCK TABLES `locales_npc_option` WRITE;
+/*!40000 ALTER TABLE `locales_npc_option` DISABLE KEYS */;
+/*!40000 ALTER TABLE `locales_npc_option` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `locales_npc_text`
 --
 
@@ -2051,7 +2085,10 @@ CREATE TABLE `npc_option` (
   `npcflag` int(10) unsigned NOT NULL default '0',
   `icon` tinyint(3) unsigned NOT NULL default '0',
   `action` tinyint(3) unsigned NOT NULL default '0',
+  `box_money` int(10) unsigned NOT NULL default '0',
+  `coded` tinyint(3) unsigned NOT NULL default '0',
   `option_text` text,
+  `box_text` text,
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
