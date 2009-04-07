@@ -462,7 +462,7 @@ m_target(parentAura->GetTarget())
     m_effIndex = effIndex;
     m_auraName = AuraType(m_spellProto->EffectApplyAuraName[m_effIndex]);
 
-    if(currentBasePoints)
+    /*if(currentBasePoints)
     {
         m_amount = *currentBasePoints;
         m_currentBasePoints = m_amount - 1;
@@ -474,7 +474,16 @@ m_target(parentAura->GetTarget())
             m_amount = caster->CalculateSpellDamage(m_spellProto, m_effIndex, m_currentBasePoints, m_target);
         else
             m_amount = m_currentBasePoints + 1;
-    }
+    }*/
+    if(currentBasePoints)
+        m_currentBasePoints = *currentBasePoints;
+    else
+        m_currentBasePoints = m_spellProto->EffectBasePoints[m_effIndex];
+
+    if(caster)
+        m_amount = caster->CalculateSpellDamage(m_spellProto, m_effIndex, m_currentBasePoints, m_target);
+    else
+        m_amount = m_currentBasePoints + 1;
 
     if (!m_amount && castItem && castItem->GetItemSuffixFactor())
     {
