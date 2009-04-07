@@ -2050,7 +2050,7 @@ void Spell::EffectTriggerSpell(uint32 i)
         {
             uint32 dispelMask = GetDispellMask(DISPEL_ALL);
             Unit::AuraMap& Auras = m_caster->GetAuras();
-            for(Unit::AuraMap::iterator iter = Auras.begin(); iter != Auras.end(); ++iter)
+            for(Unit::AuraMap::iterator iter = Auras.begin(); iter != Auras.end();)
             {
                 // remove all harmful spells on you...
                 SpellEntry const* spell = iter->second->GetSpellProto();
