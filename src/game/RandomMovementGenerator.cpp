@@ -117,10 +117,10 @@ RandomMovementGenerator<Creature>::_setRandomLocation(Creature &creature)
     }
 
     //Call for creature group update
-	if(creature.GetFormation() && creature.GetFormation()->getLeader() == &creature)
-	{
+    if(creature.GetFormation() && creature.GetFormation()->getLeader() == &creature)
+    {
         creature.GetFormation()->LeaderMoveTo(nx, ny, nz);
-	}
+    }
 }
 
 template<>

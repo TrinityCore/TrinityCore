@@ -1526,17 +1526,17 @@ void World::SetInitialWorldSettings()
     sLog.outString("Initialize AuctionHouseBot...");
     AuctionHouseBotInit();
 
-	// possibly enable db logging; avoid massive startup spam by doing it here.
-	if (sLog.GetLogDBLater())
-	{
-		sLog.outString("Enabling database logging...");
-		sLog.SetLogDBLater(false);
-		sLog.SetLogDB(true);
-	}
-	else
-	{
-		sLog.SetLogDBLater(false);
-	}
+    // possibly enable db logging; avoid massive startup spam by doing it here.
+    if (sLog.GetLogDBLater())
+    {
+        sLog.outString("Enabling database logging...");
+        sLog.SetLogDBLater(false);
+        sLog.SetLogDB(true);
+    }
+    else
+    {
+        sLog.SetLogDBLater(false);
+    }
 
     sLog.outString( "WORLD: World initialized" );
 }

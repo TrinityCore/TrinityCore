@@ -2145,7 +2145,7 @@ bool ChatHandler::HandleKickPlayerCommand(const char *args)
             return false;
         }
 
-		if(HasLowerSecurity(player, 0))
+        if(HasLowerSecurity(player, 0))
         {
             SendSysMessage(LANG_YOURS_SECURITY_IS_LOW); //maybe replacement string for this later on
             SetSentErrorMessage(true);
@@ -2153,21 +2153,21 @@ bool ChatHandler::HandleKickPlayerCommand(const char *args)
         }
 
         std::string nameLink = playerLink(name);
-	
-		if(sWorld.KickPlayer(name))
+    
+        if(sWorld.KickPlayer(name))
         {
             if(sWorld.getConfig(CONFIG_SHOW_KICK_IN_WORLD) == 1)
             {
-				sWorld.SendWorldText(LANG_COMMAND_KICKMESSAGE, nameLink.c_str(), kicker.c_str(), reason.c_str());
+                sWorld.SendWorldText(LANG_COMMAND_KICKMESSAGE, nameLink.c_str(), kicker.c_str(), reason.c_str());
             }
             else
             {
-				PSendSysMessage(LANG_COMMAND_KICKMESSAGE,nameLink.c_str());
+                PSendSysMessage(LANG_COMMAND_KICKMESSAGE,nameLink.c_str());
             }
         }
         else
         {
-		    PSendSysMessage(LANG_COMMAND_KICKNOTFOUNDPLAYER,nameLink.c_str());
+            PSendSysMessage(LANG_COMMAND_KICKNOTFOUNDPLAYER,nameLink.c_str());
             return false;
         }
     }
@@ -4458,7 +4458,7 @@ bool ChatHandler::HandlePetTpCommand(const char *args)
 
     uint32 tp = atol(args);
 
-	//pet->SetTP(tp);
+    //pet->SetTP(tp);
 
     PSendSysMessage("Pet's tp changed to %u", tp);
     return true;
@@ -4570,9 +4570,9 @@ bool ChatHandler::HandleNpcAddFormationCommand(const char* args)
     }
 
     uint32 lowguid = pCreature->GetDBTableGUIDLow();
-	if(pCreature->GetFormation())
+    if(pCreature->GetFormation())
     {
-		PSendSysMessage("Selected creature is already member of group %u", pCreature->GetFormation()->GetId());
+        PSendSysMessage("Selected creature is already member of group %u", pCreature->GetFormation()->GetId());
         return false;
     }
 

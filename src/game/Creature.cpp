@@ -623,14 +623,14 @@ bool Creature::AIM_Initialize(CreatureAI* ai)
 
 void Creature::Motion_Initialize()
 {
-	if(!m_formation)
-		i_motionMaster.Initialize();
-	else if(m_formation->getLeader() == this)
-	{	
-		m_formation->FormationReset(false);
-		i_motionMaster.Initialize();
-	}
-	else if(m_formation->isFormed())
+    if(!m_formation)
+        i_motionMaster.Initialize();
+    else if(m_formation->getLeader() == this)
+    {    
+        m_formation->FormationReset(false);
+        i_motionMaster.Initialize();
+    }
+    else if(m_formation->isFormed())
         i_motionMaster.MoveIdle(MOTION_SLOT_IDLE); //wait the order of leader
     else
         i_motionMaster.Initialize();
@@ -1672,10 +1672,10 @@ void Creature::setDeathState(DeathState s)
 
         Unit::setDeathState(CORPSE);
     
-		//Dismiss group if is leader
-		if(m_formation && m_formation->getLeader() == this)
-			m_formation->FormationReset(true);
-	}
+        //Dismiss group if is leader
+        if(m_formation && m_formation->getLeader() == this)
+            m_formation->FormationReset(true);
+    }
     if(s == JUST_ALIVED)
     {
         //if(isPet())
@@ -1691,7 +1691,7 @@ void Creature::setDeathState(DeathState s)
         SetMeleeDamageSchool(SpellSchools(cinfo->dmgschool));
         LoadCreaturesAddon(true);
         Motion_Initialize();
-	}
+    }
 }
 
 bool Creature::FallGround()

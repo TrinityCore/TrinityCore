@@ -70,7 +70,7 @@ HomeMovementGenerator<Creature>::Update(Creature &owner, const uint32& time_diff
         if(owner.GetDefaultMovementType()==IDLE_MOTION_TYPE)
         {
             sLog.outDebug("Entering HomeMovement::GetDestination(z,y,z)");
-			owner.SetOrientation(ori);
+            owner.SetOrientation(ori);
             WorldPacket packet;
             owner.BuildHeartBeatMsg(&packet);
             owner.SendMessageToSet(&packet, false);

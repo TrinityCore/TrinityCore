@@ -53,9 +53,9 @@ void WaypointMovementGenerator<Creature>::MovementInform(Creature &unit)
 template<>
 bool WaypointMovementGenerator<Creature>::GetDestination(float &x, float &y, float &z) const
 {
-	if(i_destinationHolder.HasArrived())
+    if(i_destinationHolder.HasArrived())
         return false;
-	
+    
     i_destinationHolder.GetDestination(x, y, z);
     return true;
 }
@@ -112,7 +112,7 @@ WaypointMovementGenerator<Creature>::Initialize(Creature &u)
         i_nextMoveTime.Reset(i_destinationHolder.GetTotalTravelTime());
 
         //Call for creature group update
-	    if(u.GetFormation() && u.GetFormation()->getLeader() == &u)
+        if(u.GetFormation() && u.GetFormation()->getLeader() == &u)
             u.GetFormation()->LeaderMoveTo(node->x, node->y, node->z);
     }
     else
@@ -187,7 +187,7 @@ WaypointMovementGenerator<Creature>::Update(Creature &unit, const uint32 &diff)
             i_nextMoveTime.Reset(i_destinationHolder.GetTotalTravelTime());
 
             //Call for creature group update
-	        if(unit.GetFormation() && unit.GetFormation()->getLeader() == &unit)
+            if(unit.GetFormation() && unit.GetFormation()->getLeader() == &unit)
                 unit.GetFormation()->LeaderMoveTo(node->x, node->y, node->z);
         }
         else

@@ -9544,10 +9544,10 @@ void Unit::CombatStart(Unit* target)
     {
         ((Creature*)target)->AI()->AttackStart(this);
         if(((Creature*)target)->GetFormation())
-	    {
-		    ((Creature*)target)->GetFormation()->MemberAttackStart((Creature*)target, this);
-		    sLog.outDebug("Unit::CombatStart() calls CreatureGroups::MemberHasAttacked(this);");
-	    }
+        {
+            ((Creature*)target)->GetFormation()->MemberAttackStart((Creature*)target, this);
+            sLog.outDebug("Unit::CombatStart() calls CreatureGroups::MemberHasAttacked(this);");
+        }
     }
 
     SetInCombatWith(target);
