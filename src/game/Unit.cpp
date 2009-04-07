@@ -3201,49 +3201,37 @@ void Unit::_UpdateSpells( uint32 time )
     // TODO: Find a better way to prevent crash when multiple auras are removed.
     m_removedAuras = 0;
     for (AuraMap::iterator i = m_Auras.begin(); i != m_Auras.end(); ++i)
-        if ((*i).second)
-            (*i).second->SetUpdated(false);
+        i->second->SetUpdated(false);
 
-    for (AuraMap::iterator i = m_Auras.begin(), next; i != m_Auras.end(); i = next)
+    for(AuraMap::iterator i = m_Auras.begin(); i != m_Auras.end();)
     {
-        next = i;
-        ++next;
-        if ((*i).second)
-        {
-            // prevent double update
-            if ((*i).second->IsUpdated())
-                continue;
-            (*i).second->SetUpdated(true);
-            (*i).second->SetInUse(true);
-            (*i).second->Update( time );
-            (*i).second->SetInUse(false);
-            // several auras can be deleted due to update
-            if (m_removedAuras)
-            {
-                if (m_Auras.empty()) break;
-                next = m_Auras.begin();
-                m_removedAuras = 0;
-            }
-        }
-    }
+        Aura *aur = i->second;
 
-    for (AuraMap::iterator i = m_Auras.begin(); i != m_Auras.end();)
-    {
-        if ((*i).second)
+        // prevent double update
+        if (aur->IsUpdated())
+            continue;
+        aur->SetUpdated(true);
+
+        aur->SetInUse(true);
+        aur->Update( time );
+        aur->SetInUse(false);
+
+        // several auras can be deleted due to update
+        if(m_removedAuras)
         {
-            if ( !(*i).second->GetAuraDuration() && !((*i).second->IsPermanent() || ((*i).second->IsPassive())) )
-            {
-                RemoveAura(i, AURA_REMOVE_BY_EXPIRE);
-            }
-            else
-            {
-                ++i;
-            }
+            m_removedAuras = 0;
+            i = m_Auras.begin();
         }
         else
-        {
             ++i;
-        }
+    }
+
+    for(AuraMap::iterator i = m_Auras.begin(); i != m_Auras.end();)
+    {
+        if(!i->second->GetAuraDuration() && !(i->second->IsPermanent() || (i->second->IsPassive())))
+            RemoveAura(i, AURA_REMOVE_BY_EXPIRE);
+        else
+            ++i;
     }
 
     if(!m_gameObj.empty())
@@ -4151,10 +4139,7 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
         statue->UnSummon();
 
     // only way correctly remove all auras from list
-    if( m_Auras.empty() )
-        i = m_Auras.end();
-    else
-        i = m_Auras.begin();
+    i = m_Auras.begin();
 }
 
 void Unit::RemoveAllAuras()
