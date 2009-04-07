@@ -174,24 +174,18 @@ void Creature::AddToWorld()
     {
         ObjectAccessor::Instance().AddObject(this);
         Unit::AddToWorld();
-        AIM_Initialize();
         SearchFormation();
+        AIM_Initialize();
     }
 }
 
 void Creature::RemoveFromWorld()
 {
-    
-	// Clear formation info
-	if(m_formation)
-	{
-		formation_mgr.DestroyGroup(m_formation, GetGUID());
-		m_formation = NULL;
-	}
-	
-	///- Remove the creature from the accessor
     if(IsInWorld())
     {
+        // Clear formation info
+        if(m_formation)
+            formation_mgr.RemoveCreatureFromGroup(m_formation, this);
         Unit::RemoveFromWorld();
         ObjectAccessor::Instance().RemoveObject(this);
     }
@@ -199,19 +193,16 @@ void Creature::RemoveFromWorld()
 
 void Creature::SearchFormation()
 {
-    if(isPet())
+    if(isSummon())
         return;
 
     uint32 lowguid = GetDBTableGUIDLow();
     if(!lowguid)
         return;
 
-    UNORDERED_MAP<uint32, FormationMember *>::iterator frmdata = CreatureGroupMap.find(lowguid);
+    CreatureGroupInfoType::iterator frmdata = CreatureGroupMap.find(lowguid);
     if(frmdata != CreatureGroupMap.end())
-    {
-        uint32 formationID = frmdata->second->leaderGUID;
-        formation_mgr.UpdateCreatureGroup(formationID, *this);
-    }
+        formation_mgr.AddCreatureToGroup(frmdata->second->leaderGUID, this);
 }
 
 void Creature::RemoveCorpse()
@@ -620,22 +611,29 @@ bool Creature::AIM_Initialize(CreatureAI* ai)
     }
 
     UnitAI *oldAI = i_AI;
+
+    Motion_Initialize();
     
-	if(!m_formation)
-		i_motionMaster.Initialize();
-	else if(m_formation->getLeader() == this)
-	{	
-		m_formation->FormDismiss();
-		i_motionMaster.Initialize();
-	}
-	else
-		m_formation->isFormed() ? i_motionMaster.MoveIdle(MOTION_SLOT_IDLE) : i_motionMaster.Initialize();
-	
     i_AI = ai ? ai : FactorySelector::selectAI(this);
     if(oldAI) delete oldAI;
     IsAIEnabled = true;
     i_AI->Reset();
     return true;
+}
+
+void Creature::Motion_Initialize()
+{
+	if(!m_formation)
+		i_motionMaster.Initialize();
+	else if(m_formation->getLeader() == this)
+	{	
+		m_formation->FormationReset(false);
+		i_motionMaster.Initialize();
+	}
+	else if(m_formation->isFormed())
+        i_motionMaster.MoveIdle(MOTION_SLOT_IDLE); //wait the order of leader
+    else
+        i_motionMaster.Initialize();
 }
 
 bool Creature::Create (uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, uint32 team, const CreatureData *data)
@@ -1676,7 +1674,7 @@ void Creature::setDeathState(DeathState s)
     
 		//Dismiss group if is leader
 		if(m_formation && m_formation->getLeader() == this)
-			m_formation->FormDismiss(true);
+			m_formation->FormationReset(true);
 	}
     if(s == JUST_ALIVED)
     {
@@ -1690,22 +1688,9 @@ void Creature::setDeathState(DeathState s)
         AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
         SetUInt32Value(UNIT_NPC_FLAGS, cinfo->npcflag);
         clearUnitState(UNIT_STAT_ALL_STATE);
-        //i_motionMaster.Initialize();
         SetMeleeDamageSchool(SpellSchools(cinfo->dmgschool));
         LoadCreaturesAddon(true);
-		/////////////////////!!!!!!!!!!!!!!!!!!!!
-		if(!m_formation)
-			i_motionMaster.Initialize();
-		else
-		{
-			if(m_formation->getLeader() == this)
-			{	
-				m_formation->FormDismiss(false);
-				i_motionMaster.Initialize();
-			}
-			else 
-				m_formation->isFormed() ? i_motionMaster.MoveIdle(MOTION_SLOT_IDLE) : i_motionMaster.Initialize();
-		}
+        Motion_Initialize();
 	}
 }
 
