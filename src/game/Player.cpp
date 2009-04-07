@@ -6273,7 +6273,7 @@ void Player::DuelComplete(DuelCompleteType type)
     if(!duel)
         return;
 
-    sLog.outDebug("Dual Complete %s %s", GetName(), duel->opponent->GetName());
+    sLog.outDebug("Duel Complete %s %s", GetName(), duel->opponent->GetName());
 
     WorldPacket data(SMSG_DUEL_COMPLETE, (1));
     data << (uint8)((type != DUEL_INTERUPTED) ? 1 : 0);
