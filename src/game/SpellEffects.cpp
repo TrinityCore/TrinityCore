@@ -5818,15 +5818,15 @@ void Spell::EffectSummonDeadPet(uint32 /*i*/)
         return;
     if(damage < 0)
         return;
+
     pet->SetUInt32Value(UNIT_DYNAMIC_FLAGS, 0);
     pet->RemoveFlag (UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
     pet->setDeathState( ALIVE );
     pet->clearUnitState(UNIT_STAT_ALL_STATE);
     pet->SetHealth( uint32(pet->GetMaxHealth()*(float(damage)/100)));
 
-    pet->AIM_Initialize();
-
-    _player->PetSpellInitialize();
+    //pet->AIM_Initialize();
+    //_player->PetSpellInitialize();
     pet->SavePetToDB(PET_SAVE_AS_CURRENT);
 }
 
