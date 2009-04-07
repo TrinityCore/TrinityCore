@@ -464,7 +464,13 @@ bool Master::_StartDB()
     {
         // everything successful - set var to enable DB logging once startup finished.
         sLog.SetLogDBLater(true);
+        sLog.SetLogDB(false);
         sLog.SetRealmID(realmID);
+    }
+    else
+    {
+        sLog.SetLogDBLater(false);
+        sLog.SetLogDB(false);
     }
 
     ///- Clean the database before starting
