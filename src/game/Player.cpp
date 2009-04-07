@@ -6320,8 +6320,7 @@ void Player::DuelComplete(DuelCompleteType type)
             ++i;
     }
 
-    vAuras = GetAuras();
-    for(AuraMap::iterator i = vAuras.begin(); i != vAuras.end();)
+    for(AuraMap::iterator i = m_Auras.begin(); i != m_Auras.end();)
     {
         if (!i->second->IsPositive() && i->second->GetCasterGUID() == duel->opponent->GetGUID() && i->second->GetAuraApplyTime() >= duel->startTime)
         {

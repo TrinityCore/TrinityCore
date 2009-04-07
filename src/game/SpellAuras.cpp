@@ -344,8 +344,8 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
 
 Aura::Aura(SpellEntry const* spellproto, uint32 effMask, int32 *currentBasePoints, Unit *target, Unit *caster, Item* castItem) :
 m_caster_guid(0), m_castItemGuid(castItem?castItem->GetGUID():0), m_target(target),
-m_timeCla(1000), m_removeMode(AURA_NO_REMOVE_MODE), m_AuraDRGroup(DIMINISHING_NONE),
-m_auraSlot(MAX_AURAS), m_auraLevel(1), m_procCharges(0), m_stackAmount(1),m_auraStateMask(0), m_updated(false), m_in_use(false)
+m_timeCla(1000), m_removeMode(AURA_REMOVE_BY_DEFAULT), m_AuraDRGroup(DIMINISHING_NONE),
+m_auraSlot(MAX_AURAS), m_auraLevel(1), m_procCharges(0), m_stackAmount(1),m_auraStateMask(0), m_updated(false), m_isRemoved(false)
 {
     assert(target);
 
@@ -462,19 +462,6 @@ m_target(parentAura->GetTarget())
     m_effIndex = effIndex;
     m_auraName = AuraType(m_spellProto->EffectApplyAuraName[m_effIndex]);
 
-    /*if(currentBasePoints)
-    {
-        m_amount = *currentBasePoints;
-        m_currentBasePoints = m_amount - 1;
-    }
-    else
-    {
-        m_currentBasePoints = m_spellProto->EffectBasePoints[m_effIndex];
-        if(caster)
-            m_amount = caster->CalculateSpellDamage(m_spellProto, m_effIndex, m_currentBasePoints, m_target);
-        else
-            m_amount = m_currentBasePoints + 1;
-    }*/
     if(currentBasePoints)
         m_currentBasePoints = *currentBasePoints;
     else
@@ -637,12 +624,12 @@ void Aura::Update(uint32 diff)
                         if (caster->GetHealth()>manaPerSecond)
                             caster->ModifyHealth(-manaPerSecond);
                         else
-                            RemoveAura();
+                            m_target->RemoveAura(this);
                     }
                     else if (caster->GetPower(powertype)>=manaPerSecond)
                         caster->ModifyPower(powertype,-manaPerSecond);
                     else
-                        RemoveAura();
+                        m_target->RemoveAura(this);
                 }
             }
         }
@@ -654,7 +641,7 @@ void Aura::Update(uint32 diff)
         Unit* caster = GetCaster();
         if(!caster)
         {
-            RemoveAura();
+            m_target->RemoveAura(this);
             return;
         }
         // Get spell range
@@ -680,7 +667,7 @@ void Aura::Update(uint32 diff)
 
         if(!caster->IsWithinDistInMap(m_target,radius))
         {
-            RemoveAura();
+            m_target->RemoveAura(this);
             return;
         }
     }
@@ -796,7 +783,7 @@ void AreaAuraEffect::Update(uint32 diff)
             caster->IsFriendlyTo(tmp_target) != needFriendly
            )
         {
-            GetParentAura()->RemoveAura();
+            m_target->RemoveAura(GetParentAura());
         }
         else if (!caster->IsWithinDistInMap(tmp_target, m_radius))
         {
@@ -804,10 +791,10 @@ void AreaAuraEffect::Update(uint32 diff)
             {
                 m_removeTime -= diff;
                 if (m_removeTime < 0)
-                    GetParentAura()->RemoveAura();
+                    m_target->RemoveAura(GetParentAura());
             }
             else
-                GetParentAura()->RemoveAura();
+                m_target->RemoveAura(GetParentAura());
         }
         else
         {
@@ -816,17 +803,17 @@ void AreaAuraEffect::Update(uint32 diff)
             if( m_areaAuraType == AREA_AURA_PARTY)         // check if in same sub group
             {
                 if(!tmp_target->IsInPartyWith(caster))
-                    GetParentAura()->RemoveAura();
+                    m_target->RemoveAura(GetParentAura());
             }
             else if( m_areaAuraType == AREA_AURA_RAID)
             {
                 if(!tmp_target->IsInRaidWith(caster))
-                    GetParentAura()->RemoveAura();
+                    m_target->RemoveAura(GetParentAura());
             }
             else if( m_areaAuraType == AREA_AURA_PET || m_areaAuraType == AREA_AURA_OWNER )
             {
                 if( tmp_target->GetGUID() != caster->GetCharmerOrOwnerGUID() )
-                    GetParentAura()->RemoveAura();
+                    m_target->RemoveAura(GetParentAura());
             }
         }
     }
@@ -854,22 +841,18 @@ void PersistentAreaAuraEffect::Update(uint32 diff)
         remove = true;
 
     if(remove)
-        GetParentAura()->RemoveAura();
+        m_target->RemoveAura(GetParentAura());
 
     AuraEffect::Update(diff);
 }
 
 void AuraEffect::ApplyModifier(bool apply, bool Real)
 {
-    AuraType aura = m_auraName;
+    if (GetParentAura()->IsRemoved())
+        return;
 
-    bool inuse = GetParentAura()->IsInUse();
-    if (!inuse)
-        GetParentAura()->SetInUse(true);
-    if(aura<TOTAL_AURAS)
-        (*this.*AuraHandler [aura])(apply,Real);
-    if (!inuse)
-        GetParentAura()->SetInUse(false);
+    if(m_auraName<TOTAL_AURAS)
+        (*this.*AuraHandler [m_auraName])(apply,Real);
 }
 
 void AuraEffect::CleanupTriggeredSpells()
@@ -1078,6 +1061,8 @@ void Aura::_AddAura()
 
 bool Aura::SetPartAura(AuraEffect* aurEff, uint8 effIndex)
 {
+    if (IsRemoved())
+        return false;
     if (m_auraFlags & (1<<effIndex))
         return false;
     m_auraFlags |= 1<<effIndex;
@@ -1137,6 +1122,11 @@ void Aura::_RemoveAura()
         if (foundMask)
             m_target->ApplyModFlag(UNIT_FIELD_AURASTATE, foundMask, false);
     }
+
+    // since now aura cannot apply/remove it's modifiers
+    m_isRemoved = true;
+    // disable client server communication for removed aura
+    SetAuraSlot(MAX_AURAS);
 
     // reset cooldown state for spells
     if(caster && caster->GetTypeId() == TYPEID_PLAYER)
@@ -4270,7 +4260,7 @@ void AuraEffect::HandlePeriodicTriggerSpell(bool apply, bool Real)
     m_isPeriodic = apply;
     if (m_spellProto->Id == 66 && !apply)
     {
-        if (GetParentAura()->GetRemoveMode() && GetParentAura()->GetAuraDuration()<=0)
+        if (GetParentAura()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
             m_target->CastSpell(m_target, 32612, true, NULL, this);
     }
 }
@@ -5650,7 +5640,7 @@ void AuraEffect::PeriodicTick()
                             100;
                         if(m_target->GetHealth()*100 >= m_target->GetMaxHealth()*percent )
                         {
-                            GetParentAura()->RemoveAura();
+                            m_target->RemoveAurasDueToSpell(GetId());
                             return;
                         }
                         break;
