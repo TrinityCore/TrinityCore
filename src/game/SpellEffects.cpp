@@ -2061,6 +2061,8 @@ void Spell::EffectTriggerSpell(uint32 i)
                 {
                     m_caster->RemoveAura(iter->second);
                 }
+                else
+                    iter++;
             }
             return;
         }
