@@ -2540,7 +2540,7 @@ void World::SendGMText(int32 string_id, ...)
             data_list = &data_cache[cache_idx];
 
         for(int i = 0; i < data_list->size(); ++i)
-            if(itr->second->GetSecurity()>0)
+            if(itr->second->GetSecurity() > SEC_PLAYER)
             itr->second->SendPacket((*data_list)[i]);
     }
 
