@@ -328,7 +328,6 @@ enum DamageTypeToSchool
 
 enum AuraRemoveMode
 {
-    AURA_NO_REMOVE_MODE = 0,
     AURA_REMOVE_BY_DEFAULT,
     AURA_REMOVE_BY_STACK,               // change stack, single aura remove,
     AURA_REMOVE_BY_CANCEL,
@@ -1576,12 +1575,12 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         std::list<GameObject*> m_gameObj;
         bool m_isSorted;
         uint32 m_transform;
-        uint32 m_removedAuras;
 
         AuraEffectList m_modAuras[TOTAL_AURAS];
         AuraList m_scAuras;                        // casted singlecast auras
         AuraList m_interruptableAuras;
         AuraList m_ccAuras;
+        AuraList m_removedAuras;
         uint32 m_interruptMask;
 
         float m_auraModifiersGroup[UNIT_MOD_END][MODIFIER_TYPE_END];
