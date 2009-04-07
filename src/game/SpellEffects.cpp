@@ -2059,7 +2059,7 @@ void Spell::EffectTriggerSpell(uint32 i)
                     // ignore positive and passive auras
                     && !iter->second->IsPositive() && !iter->second->IsPassive())
                 {
-                    m_caster->RemoveAura(iter->second);
+                    m_caster->RemoveAura(iter);
                 }
                 else
                     iter++;
