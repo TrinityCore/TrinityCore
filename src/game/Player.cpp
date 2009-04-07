@@ -15524,7 +15524,7 @@ bool Player::Satisfy(AccessRequirement const *ar, uint32 target_map, bool report
             missingItem = ar->item2;
 
         uint32 missingKey = 0;
-		uint32 missingHeroicQuest = 0;
+        uint32 missingHeroicQuest = 0;
         if(GetDifficulty() == DIFFICULTY_HEROIC)
         {
             if(ar->heroicKey)
@@ -15536,7 +15536,7 @@ bool Player::Satisfy(AccessRequirement const *ar, uint32 target_map, bool report
             else if(ar->heroicKey2 && !HasItemCount(ar->heroicKey2, 1))
                 missingKey = ar->heroicKey2;
 
-			if(ar->heroicQuest && !GetQuestRewardStatus(ar->heroicQuest))
+            if(ar->heroicQuest && !GetQuestRewardStatus(ar->heroicQuest))
                 missingHeroicQuest = ar->heroicQuest;
         }
 
