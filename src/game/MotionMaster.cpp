@@ -525,7 +525,7 @@ void MotionMaster::DelayedDelete(_Ty curr)
 
 bool MotionMaster::GetDestination(float &x, float &y, float &z)
 {
-	if(empty() || !Impl[i_top] || isStatic(Impl[i_top]))
+	if(empty())
        return false;
 	
 	return top()->GetDestination(x,y,z);
