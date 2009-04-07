@@ -2527,7 +2527,7 @@ void Spell::SpellDamageHeal(uint32 /*i*/)
             addhealth += tickheal * tickcount;
 
             // Glyph of Swiftmend
-            if(!caster->GetAura(54824))
+            if(!caster->GetDummyAura(54824))
                 unitTarget->RemoveAura(targetAura->GetId(), targetAura->GetCasterGUID());
 
             //addhealth += tickheal * tickcount;
