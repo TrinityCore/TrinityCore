@@ -6273,6 +6273,8 @@ void Player::DuelComplete(DuelCompleteType type)
     if(!duel)
         return;
 
+    sLog.outDebug("Dual Complete %s %s", GetName(), duel->opponent->GetName());
+
     WorldPacket data(SMSG_DUEL_COMPLETE, (1));
     data << (uint8)((type != DUEL_INTERUPTED) ? 1 : 0);
     GetSession()->SendPacket(&data);
@@ -6309,8 +6311,8 @@ void Player::DuelComplete(DuelCompleteType type)
         duel->initiator->RemoveGameObject(obj,true);
 
     /* remove auras */
-    AuraMap & vAuras = duel->opponent->GetAuras();
-    for(AuraMap::iterator i = vAuras.begin(); i != vAuras.end();)
+    AuraMap &itsAuras = duel->opponent->GetAuras();
+    for(AuraMap::iterator i = itsAuras.begin(); i != itsAuras.end();)
     {
         if (!i->second->IsPositive() && i->second->GetCasterGUID() == GetGUID() && i->second->GetAuraApplyTime() >= duel->startTime)
         {
@@ -6320,8 +6322,8 @@ void Player::DuelComplete(DuelCompleteType type)
             ++i;
     }
 
-    vAuras = GetAuras();
-    for(AuraMap::iterator i = vAuras.begin(); i != vAuras.end();)
+    AuraMap &myAuras = GetAuras();
+    for(AuraMap::iterator i = myAuras.begin(); i != myAuras.end();)
     {
         if (!i->second->IsPositive() && i->second->GetCasterGUID() == duel->opponent->GetGUID() && i->second->GetAuraApplyTime() >= duel->startTime)
         {
