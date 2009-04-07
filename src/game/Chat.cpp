@@ -1033,11 +1033,11 @@ int ChatHandler::ParseCommands(const char* text)
         ++text;
 
     if(!ExecuteCommandInTable(getCommandTable(), text, fullcmd))
-	{
-		if(m_session && m_session->GetSecurity() == SEC_PLAYER)
-			return 0;
-		SendSysMessage(LANG_NO_CMD);
-	}
+    {
+        if(m_session && m_session->GetSecurity() == SEC_PLAYER)
+            return 0;
+        SendSysMessage(LANG_NO_CMD);
+    }
     return 1;
 }
 

@@ -3216,47 +3216,35 @@ void Unit::_UpdateSpells( uint32 time )
 
     // TODO: Find a better way to prevent crash when multiple auras are removed.
     for (AuraMap::iterator i = m_Auras.begin(); i != m_Auras.end(); ++i)
-        if ((*i).second)
-            (*i).second->SetUpdated(false);
-    for (AuraMap::iterator i = m_Auras.begin(), next; i != m_Auras.end(); i = next)
-    {
-        next = i;
-        ++next;
-        if ((*i).second)
-        {
-            // prevent double update
-            if ((*i).second->IsUpdated())
-                continue;
-            uint32 removedAuras = m_removedAuras.size();
-            (*i).second->SetUpdated(true);
-            (*i).second->Update( time );
-            // several auras can be deleted due to update
-            if (removedAuras < m_removedAuras.size())
-            {
-                if (m_Auras.empty()) break;
-                next = m_Auras.begin();
-                removedAuras = m_removedAuras.size();
-            }
-        }
-    }
+        i->second->SetUpdated(false);
 
-    for (AuraMap::iterator i = m_Auras.begin(); i != m_Auras.end();)
+    for(AuraMap::iterator i = m_Auras.begin(); i != m_Auras.end();)
     {
-        if ((*i).second)
+        Aura *aur = i->second;
+
+        // prevent double update
+        if (aur->IsUpdated())
+            continue;
+        aur->SetUpdated(true);
+
+        uint32 removedAuras = m_removedAuras.size();
+        aur->Update( time );
+
+        // several auras can be deleted due to update
+        if(removedAuras < m_removedAuras.size())
         {
-            if ( !(*i).second->GetAuraDuration() && !((*i).second->IsPermanent() || ((*i).second->IsPassive())) )
-            {
-                RemoveAura(i, AURA_REMOVE_BY_EXPIRE);
-            }
-            else
-            {
-                ++i;
-            }
+            i = m_Auras.begin();
         }
         else
-        {
+             ++i;
+    }
+
+    for(AuraMap::iterator i = m_Auras.begin(); i != m_Auras.end();)
+    {
+        if(!i->second->GetAuraDuration() && !(i->second->IsPermanent() || (i->second->IsPassive())))
+            RemoveAura(i, AURA_REMOVE_BY_EXPIRE);
+        else
             ++i;
-        }
     }
 
     for (AuraList::iterator i = m_removedAuras.begin(); i != m_removedAuras.end();i = m_removedAuras.begin())
@@ -4165,10 +4153,7 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
         statue->UnSummon();
 
     // only way correctly remove all auras from list
-    if( m_Auras.empty() )
-        i = m_Auras.end();
-    else
-        i = m_Auras.begin();
+    i = m_Auras.begin();
 }
 
 void Unit::RemoveAllAuras()
@@ -9555,7 +9540,14 @@ void Unit::CombatStart(Unit* target)
 
     if(!target->isInCombat() && target->GetTypeId() != TYPEID_PLAYER
         && !((Creature*)target)->HasReactState(REACT_PASSIVE) && ((Creature*)target)->IsAIEnabled)
+    {
         ((Creature*)target)->AI()->AttackStart(this);
+        if(((Creature*)target)->GetFormation())
+        {
+            ((Creature*)target)->GetFormation()->MemberAttackStart((Creature*)target, this);
+            sLog.outDebug("Unit::CombatStart() calls CreatureGroups::MemberHasAttacked(this);");
+        }
+    }
 
     SetInCombatWith(target);
     target->SetInCombatWith(this);
@@ -9571,14 +9563,6 @@ void Unit::CombatStart(Unit* target)
     {
         me->UpdatePvP(true);
         me->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
-    }
-
-    //Call creature group update
-    if(GetTypeId()==TYPEID_UNIT && ((Creature*)this)->GetFormationID())
-    {
-        CreatureGroupHolderType::iterator itr = CreatureGroupHolder.find(((Creature*)this)->GetFormationID());
-        if(itr != CreatureGroupHolder.end())
-           itr->second->MemberHasAttacked(((Creature*)this));
     }
 }
 
