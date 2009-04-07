@@ -3854,6 +3854,7 @@ bool Unit::RemoveNoStackAurasDueToAura(Aura *Aur)
 
         // Remove all auras by aura caster
         RemoveAura(i, AURA_REMOVE_BY_STACK);
+        next=i;
     }
     return true;
 }

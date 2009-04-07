@@ -6314,7 +6314,7 @@ void Player::DuelComplete(DuelCompleteType type)
     {
         if (!i->second->IsPositive() && i->second->GetCasterGUID() == GetGUID() && i->second->GetAuraApplyTime() >= duel->startTime)
         {
-            RemoveAura(i);
+            duel->opponent->RemoveAura(i);
         }
         else
             ++i;
