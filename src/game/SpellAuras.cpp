@@ -345,7 +345,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
 Aura::Aura(SpellEntry const* spellproto, uint32 effMask, int32 *currentBasePoints, Unit *target, Unit *caster, Item* castItem) :
 m_caster_guid(0), m_castItemGuid(castItem?castItem->GetGUID():0), m_target(target),
 m_timeCla(1000), m_removeMode(AURA_NO_REMOVE_MODE), m_AuraDRGroup(DIMINISHING_NONE),
-m_auraSlot(MAX_AURAS), m_auraLevel(1), m_procCharges(0), m_stackAmount(1),m_auraStateMask(0), m_updated(false), m_duringUpdate(false)
+m_auraSlot(MAX_AURAS), m_auraLevel(1), m_procCharges(0), m_stackAmount(1),m_auraStateMask(0), m_updated(false), m_in_use(false)
 {
     assert(target);
 
@@ -456,7 +456,7 @@ Aura::~Aura()
 
 AuraEffect::AuraEffect(Aura * parentAura, uint8 effIndex, int32 * currentBasePoints , Unit * caster, Item* castItem) :
 m_parentAura(parentAura), m_spellmod(NULL), m_periodicTimer(0), m_isPeriodic(false), m_isAreaAura(false), m_isPersistent(false),
-m_in_use(false), m_target(parentAura->GetTarget())
+m_target(parentAura->GetTarget())
 {
     m_spellProto = parentAura->GetSpellProto();
     m_effIndex = effIndex;
@@ -676,7 +676,6 @@ void Aura::Update(uint32 diff)
         }
     }
 
-    m_duringUpdate=true;
     for (uint8 i = 0; i<MAX_SPELL_EFFECTS;++i)
         if (m_partAuras[i])
         {
@@ -687,7 +686,6 @@ void Aura::Update(uint32 diff)
             else
                 m_partAuras[i]->Update(diff);
         }
-    m_duringUpdate=false;
 }
 
 void AuraEffect::Update(uint32 diff)
@@ -856,10 +854,13 @@ void AuraEffect::ApplyModifier(bool apply, bool Real)
 {
     AuraType aura = m_auraName;
 
-    m_in_use = true;
+    bool inuse = GetParentAura()->IsInUse();
+    if (!inuse)
+        GetParentAura()->SetInUse(true);
     if(aura<TOTAL_AURAS)
         (*this.*AuraHandler [aura])(apply,Real);
-    m_in_use = false;
+    if (!inuse)
+        GetParentAura()->SetInUse(false);
 }
 
 void AuraEffect::CleanupTriggeredSpells()
@@ -1261,19 +1262,6 @@ bool Aura::DropAuraCharge()
     return m_procCharges == 0;
 }
 
-bool Aura::IsInUse() const
-{
-    for (uint8 i=0; i<MAX_SPELL_EFFECTS;++i)
-    {
-        if (m_partAuras[i])
-        {
-            if (m_partAuras[i]->IsInUse())
-                return true;
-        }
-    }
-    return false;
-}
-
 bool Aura::IsPersistent() const
 {
     for (uint8 i=0; i<MAX_SPELL_EFFECTS;++i)
@@ -1453,8 +1441,7 @@ void AuraEffect::HandleShapeshiftBoosts(bool apply)
         {
             if (itr->second->IsRemovedOnShapeLost())
             {
-                m_target->RemoveAurasDueToSpell(itr->second->GetId());
-                itr = tAuras.begin();
+                m_target->RemoveAura(itr);
             }
             else
             {
@@ -4076,10 +4063,8 @@ void AuraEffect::HandleModMechanicImmunity(bool apply, bool Real)
     if(apply && GetSpellProto()->AttributesEx & SPELL_ATTR_EX_DISPEL_AURAS_ON_IMMUNITY)
     {
         Unit::AuraMap& Auras = m_target->GetAuras();
-        for(Unit::AuraMap::iterator iter = Auras.begin(), next; iter != Auras.end(); iter = next)
+        for(Unit::AuraMap::iterator iter = Auras.begin(), next; iter != Auras.end();)
         {
-            next = iter;
-            ++next;
             SpellEntry const *spell = iter->second->GetSpellProto();
             if (!( spell->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY) && // spells unaffected by invulnerability
                    spell->Id != GetId())
@@ -4087,13 +4072,12 @@ void AuraEffect::HandleModMechanicImmunity(bool apply, bool Real)
                 //check for mechanic mask
                 if(GetAllSpellMechanicMask(spell) & mechanic)
                 {
-                    m_target->RemoveAurasDueToSpell(spell->Id);
-                    if(Auras.empty())
-                        break;
-                    else
-                        next = Auras.begin();
+                    m_target->RemoveAura(iter);
                 }
+                else
+                    ++iter;
             }
+            ++iter;
         }
     }
 
@@ -4213,10 +4197,8 @@ void AuraEffect::HandleAuraModSchoolImmunity(bool apply, bool Real)
     {
         uint32 school_mask = GetMiscValue();
         Unit::AuraMap& Auras = m_target->GetAuras();
-        for(Unit::AuraMap::iterator iter = Auras.begin(), next; iter != Auras.end(); iter = next)
+        for(Unit::AuraMap::iterator iter = Auras.begin(), next; iter != Auras.end();)
         {
-            next = iter;
-            ++next;
             SpellEntry const *spell = iter->second->GetSpellProto();
             if((GetSpellSchoolMask(spell) & school_mask)//Check for school mask
                 && !( spell->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY)   //Spells unaffected by invulnerability
@@ -4224,11 +4206,9 @@ void AuraEffect::HandleAuraModSchoolImmunity(bool apply, bool Real)
                 && spell->Id != GetId() )               //Don't remove self
             {
                 m_target->RemoveAurasDueToSpell(spell->Id);
-                if(Auras.empty())
-                    break;
-                else
-                    next = Auras.begin();
             }
+            else
+                ++iter;
         }
     }
     if( Real && GetSpellProto()->Mechanic == MECHANIC_BANISH )
@@ -5670,7 +5650,7 @@ void AuraEffect::PeriodicTick()
                             100;
                         if(m_target->GetHealth()*100 >= m_target->GetMaxHealth()*percent )
                         {
-                            m_target->RemoveAurasDueToSpell(GetId());
+                            GetParentAura()->RemoveAura();
                             return;
                         }
                         break;

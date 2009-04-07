@@ -98,10 +98,11 @@ class TRINITY_DLL_SPEC Aura
         bool IsDeathPersistent() const { return m_isDeathPersist; }
         bool IsRemovedOnShapeLost() const { return m_isRemovedOnShapeLost; }
         bool IsUpdated() const { return m_updated; }
-        bool IsDuringUpdate() const { return m_duringUpdate; }
         void SetUpdated(bool val) { m_updated = val; }
 
-        bool IsInUse() const;
+        bool IsInUse() const { return m_in_use; }
+        void SetInUse(bool val) { m_in_use = val; }
+
         bool IsPersistent() const;
         bool IsAreaAura() const;
         bool IsAuraType(AuraType type) const;
@@ -158,7 +159,7 @@ class TRINITY_DLL_SPEC Aura
         bool m_positive:1;
         bool m_permanent:1;
         bool m_updated:1;                                   // Prevent remove aura by stack if set
-        bool m_duringUpdate:1;                                   // Prevent remove aura by stack if set
+        bool m_in_use:1;
         bool m_isSingleTargetAura:1;                        // true if it's a single target spell and registered at caster - can change at spell steal for example
 };
 class TRINITY_DLL_SPEC AuraEffect
@@ -337,7 +338,6 @@ class TRINITY_DLL_SPEC AuraEffect
 
         bool IsAreaAura() const { return m_isAreaAura; }
         bool IsPeriodic() const { return m_isPeriodic; }
-        bool IsInUse() const { return m_in_use;}
         bool IsPersistent() const { return m_isPersistent; }
         bool isAffectedOnSpell(SpellEntry const *spell) const;
 
@@ -377,7 +377,6 @@ class TRINITY_DLL_SPEC AuraEffect
 
         bool m_isPeriodic:1;
         bool m_isAreaAura:1;
-        bool m_in_use:1;                                    // true while in Aura::ApplyModifier call
         bool m_isPersistent:1;
 };
 
