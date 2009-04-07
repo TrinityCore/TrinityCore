@@ -4163,17 +4163,7 @@ void AuraEffect::HandleAuraModStateImmunity(bool apply, bool Real)
 {
     if(apply && Real && GetSpellProto()->AttributesEx & SPELL_ATTR_EX_DISPEL_AURAS_ON_IMMUNITY)
     {
-        Unit::AuraEffectList const& auraList = m_target->GetAurasByType(AuraType(GetMiscValue()));
-        for(Unit::AuraEffectList::const_iterator itr = auraList.begin(); itr != auraList.end();)
-        {
-            if (auraList.front() != this)                   // skip itself aura (it already added)
-            {
-                m_target->RemoveAurasDueToSpell(auraList.front()->GetId());
-                itr = auraList.begin();
-            }
-            else
-                ++itr;
-        }
+        m_target->RemoveAurasByType(AuraType(GetMiscValue()), NULL , GetParentAura());
     }
 
     m_target->ApplySpellImmune(GetId(),IMMUNITY_STATE,GetMiscValue(),apply);
@@ -4198,7 +4188,7 @@ void AuraEffect::HandleAuraModSchoolImmunity(bool apply, bool Real)
     {
         uint32 school_mask = GetMiscValue();
         Unit::AuraMap& Auras = m_target->GetAuras();
-        for(Unit::AuraMap::iterator iter = Auras.begin(), next; iter != Auras.end();)
+        for(Unit::AuraMap::iterator iter = Auras.begin(); iter != Auras.end();)
         {
             SpellEntry const *spell = iter->second->GetSpellProto();
             if((GetSpellSchoolMask(spell) & school_mask)//Check for school mask
@@ -4206,7 +4196,7 @@ void AuraEffect::HandleAuraModSchoolImmunity(bool apply, bool Real)
                 && !iter->second->IsPositive()          //Don't remove positive spells
                 && spell->Id != GetId() )               //Don't remove self
             {
-                m_target->RemoveAurasDueToSpell(spell->Id);
+                m_target->RemoveAura(iter);
             }
             else
                 ++iter;
