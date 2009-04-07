@@ -118,15 +118,15 @@ void CreatureGroupManager::LoadCreatureFormations()
 
         bar.step();
         //Load group member data
-        group_member						= new FormationInfo;
-        group_member->leaderGUID			= fields[0].GetUInt32();
+        group_member                        = new FormationInfo;
+        group_member->leaderGUID            = fields[0].GetUInt32();
         uint32 memberGUID = fields[1].GetUInt32();
-        group_member->groupAI				= fields[4].GetUInt8();
+        group_member->groupAI                = fields[4].GetUInt8();
         //If creature is group leader we may skip loading of dist/angle
         if(group_member->leaderGUID != memberGUID)
         {
-            group_member->follow_dist			= fields[2].GetUInt32();
-            group_member->follow_angle			= fields[3].GetUInt32();
+            group_member->follow_dist            = fields[2].GetUInt32();
+            group_member->follow_angle            = fields[3].GetUInt32();
         }
 
         CreatureGroupMap[memberGUID] = group_member;
@@ -217,7 +217,7 @@ void CreatureGroup::LeaderMoveTo(float x, float y, float z)
     if(!m_leader)
         return;
 
-    float pathangle	= atan2(m_leader->GetPositionY() - y, m_leader->GetPositionX() - x);
+    float pathangle    = atan2(m_leader->GetPositionY() - y, m_leader->GetPositionX() - x);
 
     for(CreatureGroupMemberType::iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
     {
@@ -226,7 +226,7 @@ void CreatureGroup::LeaderMoveTo(float x, float y, float z)
             continue;
 
         float angle = itr->second->follow_angle;
-        float dist = itr->second->follow_dist;	
+        float dist = itr->second->follow_dist;    
 
         float dx = x + cos(angle + pathangle) * dist;
         float dy = y + sin(angle + pathangle) * dist;

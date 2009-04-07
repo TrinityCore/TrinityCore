@@ -652,8 +652,8 @@ class TRINITY_DLL_SPEC Creature : public Unit
         void UpdateWaypointID(uint32 wpID){m_waypointID = wpID;}
 
         void SearchFormation();
-		CreatureGroup *GetFormation() {return m_formation;}
-		void SetFormation(CreatureGroup *formation) {m_formation = formation;}
+        CreatureGroup *GetFormation() {return m_formation;}
+        void SetFormation(CreatureGroup *formation) {m_formation = formation;}
 
         Unit *SelectVictim();
         void SetDeadByDefault (bool death_state) {m_isDeadByDefault = death_state;}
