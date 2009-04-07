@@ -24,6 +24,7 @@
 //Creature-specific headers
 #include "Creature.h"
 #include "CreatureAI.h"
+#include "CreatureGroups.h"
 //Player-specific
 #include "Player.h"
 
@@ -54,7 +55,7 @@ bool WaypointMovementGenerator<Creature>::GetDestination(float &x, float &y, flo
 {
     if(i_destinationHolder.HasArrived())
         return false;
-
+    
     i_destinationHolder.GetDestination(x, y, z);
     return true;
 }
@@ -109,6 +110,10 @@ WaypointMovementGenerator<Creature>::Initialize(Creature &u)
         InitTraveller(u, *node);
         i_destinationHolder.SetDestination(traveller, node->x, node->y, node->z);
         i_nextMoveTime.Reset(i_destinationHolder.GetTotalTravelTime());
+
+        //Call for creature group update
+        if(u.GetFormation() && u.GetFormation()->getLeader() == &u)
+            u.GetFormation()->LeaderMoveTo(node->x, node->y, node->z);
     }
     else
         node = NULL;
@@ -180,6 +185,10 @@ WaypointMovementGenerator<Creature>::Update(Creature &unit, const uint32 &diff)
             InitTraveller(unit, *node);
             i_destinationHolder.SetDestination(traveller, node->x, node->y, node->z);
             i_nextMoveTime.Reset(i_destinationHolder.GetTotalTravelTime());
+
+            //Call for creature group update
+            if(unit.GetFormation() && unit.GetFormation()->getLeader() == &unit)
+                unit.GetFormation()->LeaderMoveTo(node->x, node->y, node->z);
         }
         else
         {

@@ -6273,6 +6273,8 @@ void Player::DuelComplete(DuelCompleteType type)
     if(!duel)
         return;
 
+    sLog.outDebug("Dual Complete %s %s", GetName(), duel->opponent->GetName());
+
     WorldPacket data(SMSG_DUEL_COMPLETE, (1));
     data << (uint8)((type != DUEL_INTERUPTED) ? 1 : 0);
     GetSession()->SendPacket(&data);
@@ -6309,8 +6311,8 @@ void Player::DuelComplete(DuelCompleteType type)
         duel->initiator->RemoveGameObject(obj,true);
 
     /* remove auras */
-    AuraMap & vAuras = duel->opponent->GetAuras();
-    for(AuraMap::iterator i = vAuras.begin(); i != vAuras.end();)
+    AuraMap &itsAuras = duel->opponent->GetAuras();
+    for(AuraMap::iterator i = itsAuras.begin(); i != itsAuras.end();)
     {
         if (!i->second->IsPositive() && i->second->GetCasterGUID() == GetGUID() && i->second->GetAuraApplyTime() >= duel->startTime)
         {
@@ -6320,7 +6322,8 @@ void Player::DuelComplete(DuelCompleteType type)
             ++i;
     }
 
-    for(AuraMap::iterator i = m_Auras.begin(); i != m_Auras.end();)
+    AuraMap &myAuras = GetAuras();
+    for(AuraMap::iterator i = myAuras.begin(); i != myAuras.end();)
     {
         if (!i->second->IsPositive() && i->second->GetCasterGUID() == duel->opponent->GetGUID() && i->second->GetAuraApplyTime() >= duel->startTime)
         {
@@ -15523,7 +15526,7 @@ bool Player::Satisfy(AccessRequirement const *ar, uint32 target_map, bool report
             missingItem = ar->item2;
 
         uint32 missingKey = 0;
-		uint32 missingHeroicQuest = 0;
+        uint32 missingHeroicQuest = 0;
         if(GetDifficulty() == DIFFICULTY_HEROIC)
         {
             if(ar->heroicKey)
@@ -15535,7 +15538,7 @@ bool Player::Satisfy(AccessRequirement const *ar, uint32 target_map, bool report
             else if(ar->heroicKey2 && !HasItemCount(ar->heroicKey2, 1))
                 missingKey = ar->heroicKey2;
 
-			if(ar->heroicQuest && !GetQuestRewardStatus(ar->heroicQuest))
+            if(ar->heroicQuest && !GetQuestRewardStatus(ar->heroicQuest))
                 missingHeroicQuest = ar->heroicQuest;
         }
 
