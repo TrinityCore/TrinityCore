@@ -7448,8 +7448,7 @@ bool ChatHandler::HandleUnFreezeCommand(const char *args)
         player->RemoveFlag (UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
         //allow movement and spells
-        uint32 spellID = 9454;
-        player->RemoveAurasDueToSpell(spellID);
+        player->RemoveAurasDueToSpell(9454);
 
         //save player
         player->SaveToDB();

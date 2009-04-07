@@ -4063,7 +4063,7 @@ void AuraEffect::HandleModMechanicImmunity(bool apply, bool Real)
     if(apply && GetSpellProto()->AttributesEx & SPELL_ATTR_EX_DISPEL_AURAS_ON_IMMUNITY)
     {
         Unit::AuraMap& Auras = m_target->GetAuras();
-        for(Unit::AuraMap::iterator iter = Auras.begin(), next; iter != Auras.end();)
+        for(Unit::AuraMap::iterator iter = Auras.begin(); iter != Auras.end();)
         {
             SpellEntry const *spell = iter->second->GetSpellProto();
             if (!( spell->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY) && // spells unaffected by invulnerability
@@ -4077,7 +4077,8 @@ void AuraEffect::HandleModMechanicImmunity(bool apply, bool Real)
                 else
                     ++iter;
             }
-            ++iter;
+            else
+                ++iter;
         }
     }
 
