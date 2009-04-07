@@ -6309,26 +6309,27 @@ void Player::DuelComplete(DuelCompleteType type)
         duel->initiator->RemoveGameObject(obj,true);
 
     /* remove auras */
-    std::vector<uint32> auras2remove;
-    AuraMap const& vAuras = duel->opponent->GetAuras();
-    for (AuraMap::const_iterator i = vAuras.begin(); i != vAuras.end(); ++i)
+    AuraMap & vAuras = duel->opponent->GetAuras();
+    for(AuraMap::iterator i = vAuras.begin(); i != vAuras.end();)
     {
         if (!i->second->IsPositive() && i->second->GetCasterGUID() == GetGUID() && i->second->GetAuraApplyTime() >= duel->startTime)
-            auras2remove.push_back(i->second->GetId());
+        {
+            RemoveAura(i);
+        }
+        else
+            ++i;
     }
 
-    for(size_t i=0; i<auras2remove.size(); i++)
-        duel->opponent->RemoveAurasDueToSpell(auras2remove[i], GetGUID());
-
-    auras2remove.clear();
-    AuraMap const& auras = GetAuras();
-    for (AuraMap::const_iterator i = auras.begin(); i != auras.end(); ++i)
+    vAuras = GetAuras();
+    for(AuraMap::iterator i = vAuras.begin(); i != vAuras.end();)
     {
         if (!i->second->IsPositive() && i->second->GetCasterGUID() == duel->opponent->GetGUID() && i->second->GetAuraApplyTime() >= duel->startTime)
-            auras2remove.push_back(i->second->GetId());
+        {
+            RemoveAura(i);
+        }
+        else
+            ++i;
     }
-    for(size_t i=0; i<auras2remove.size(); i++)
-        RemoveAurasDueToSpell(auras2remove[i], duel->opponent->GetGUID());
 
     // cleanup combo points
     if(GetComboTarget()==duel->opponent->GetGUID())
@@ -19052,8 +19053,7 @@ void Player::RemoveItemDependentAurasAndCasts( Item * pItem )
         }
 
         // no alt item, remove aura, restart check
-        RemoveAurasDueToSpell(aura->GetId());
-        itr = auras.begin();
+        RemoveAura(itr);
     }
 
     // currently casted spells can be dependent from item
