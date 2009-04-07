@@ -106,7 +106,7 @@ void CreatureGroupManager::LoadCreatureFormations()
         return;
     }
 
-    uint32 total_records = result->GetRowCount(), lastLeaderGUID = 0;
+    uint32 total_records = result->GetRowCount();
     barGoLink bar( total_records);
     Field *fields;
 
@@ -129,10 +129,24 @@ void CreatureGroupManager::LoadCreatureFormations()
             group_member->follow_angle            = fields[3].GetUInt32();
         }
 
-        CreatureGroupMap[memberGUID] = group_member;
+        // check data correctness
+        {
+            QueryResult* result = WorldDatabase.PQuery("SELECT guid FROM creature WHERE guid = %u", group_member->leaderGUID);
+            if(!result)
+            {
+                sLog.outErrorDb("creature_formations table leader guid %u incorrect (not exist)", group_member->leaderGUID);
+                continue;
+            }
 
-        if(lastLeaderGUID != group_member->leaderGUID)
-            lastLeaderGUID = group_member->leaderGUID;
+            result = WorldDatabase.PQuery("SELECT guid FROM creature WHERE guid = %u", memberGUID);
+            if(!result)
+            {
+                sLog.outErrorDb("creature_formations table member guid %u incorrect (not exist)", memberGUID);
+                continue;
+            }
+        }
+
+        CreatureGroupMap[memberGUID] = group_member;
     } 
     while(result->NextRow()) ;
 
