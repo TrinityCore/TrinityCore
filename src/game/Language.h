@@ -842,7 +842,7 @@ enum TrinityStrings
     LANG_COMMAND_NO_FROZEN_PLAYERS      = 5004,
     LANG_COMMAND_LIST_FREEZE            = 5005,
     LANG_COMMAND_FROZEN_PLAYERS         = 5006,
-    //LANG_INSTANCE_MUST_RAID_GRP       = 5007,
+    LANG_INSTANCE_RAID_GROUP_ONLY       = 5007,
     //LANG_INSTANCE_NOT_AS_GHOST        = 5008,
     LANG_COMMAND_PLAYED_TO_ALL          = 5009,
     // Room for more Trinity strings      5010-9999
