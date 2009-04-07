@@ -2326,7 +2326,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 45027: // Revitalize
         case 45976: // Muru Portal Channel
         case 39365: // Thundering Storm
-	    case 41071: // Raise Dead (HACK)
+        case 41071: // Raise Dead (HACK)
             spellInfo->MaxAffectedTargets = 1;
             break;
         case 41376: // Spite
