@@ -361,7 +361,7 @@ class BattleGround
         void IncreaseInvitedCount(uint32 team)      { (team == ALLIANCE) ? ++m_InvitedAlliance : ++m_InvitedHorde; }
         uint32 GetInvitedCount(uint32 team) const
         {
-            if( team == ALLIANCE )
+            if (team == ALLIANCE)
                 return m_InvitedAlliance;
             else
                 return m_InvitedHorde;
@@ -444,7 +444,7 @@ class BattleGround
         uint32 GetAlivePlayersCountByTeam(uint32 Team) const;   // used in arenas to correctly handle death in spirit of redemption / last stand etc. (killer = killed) cases
         void UpdatePlayersCountByTeam(uint32 Team, bool remove)
         {
-            if(remove)
+            if (remove)
                 --m_PlayersCount[GetTeamIndexByTeamId(Team)];
             else
                 ++m_PlayersCount[GetTeamIndexByTeamId(Team)];
