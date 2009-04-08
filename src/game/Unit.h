@@ -1555,6 +1555,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         UnitAI *i_AI, *i_disabledAI;
 
         void _UpdateSpells(uint32 time);
+        void _DeleteAuras();
 
         void _UpdateAutoRepeatSpell();
         bool m_AutoRepeatFirstCast;
