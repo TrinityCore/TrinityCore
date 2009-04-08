@@ -113,8 +113,7 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
 
     void OpenDoor(uint64 DoorGUID, bool open)
     {
-        if(GameObject *Door = instance->GetGameObjectInMap(DoorGUID))
-            Door->SetUInt32Value(GAMEOBJECT_STATE, open ? 0 : 1);
+        HandleGameObject(DoorGUID, open, NULL);
     }
 
     void OnCreatureCreate(Creature *creature, uint32 creature_entry)

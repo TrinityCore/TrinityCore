@@ -2225,7 +2225,7 @@ void Spell::cancel()
         return;
 
     SetReferencedFromCurrent(false);
-    if(m_selfContainer)
+    if(m_selfContainer && *m_selfContainer == this)
         *m_selfContainer = NULL;
 
     uint32 oldState = m_spellState;
