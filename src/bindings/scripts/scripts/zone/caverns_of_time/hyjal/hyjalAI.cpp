@@ -299,6 +299,8 @@ hyjalAI::hyjalAI(Creature *c) : npc_escortAI(c), Summons(m_creature)
     RespawnTimer = 10000;
     DoRespawn = false;
     DoHide = false;
+    MassTeleportTimer = 0;
+    DoMassTeleport = false;
 }
 
 void hyjalAI::JustSummoned(Creature *summoned)
@@ -388,7 +390,8 @@ void hyjalAI::Reset()
 void hyjalAI::EnterEvadeMode()
 {
     m_creature->InterruptNonMeleeSpells(true);
-    m_creature->RemoveAllAuras();
+    if(m_creature->GetEntry() != JAINA)
+        m_creature->RemoveAllAuras();
     m_creature->DeleteThreatList();
     m_creature->CombatStop();
     m_creature->LoadCreaturesAddon();
@@ -403,11 +406,24 @@ void hyjalAI::EnterEvadeMode()
 
 void hyjalAI::Aggro(Unit *who)
 {
+    if(IsDummy)return;
     for(uint8 i = 0; i < 2; ++i)
         if(Spell[i].Cooldown)
             SpellTimer[i] = Spell[i].Cooldown;
 
     Talk(ATTACKED);
+}
+
+void hyjalAI::MoveInLineOfSight(Unit *who)
+{
+    if(IsDummy)return;
+    if (IsBeingEscorted && !GetAttack())
+        return;
+
+    if(m_creature->getVictim() || !m_creature->canStartAttack(who))
+        return;
+
+    AttackStart(who);
 }
 
 void hyjalAI::SummonCreature(uint32 entry, float Base[4][3])
@@ -682,7 +698,9 @@ void hyjalAI::Retreat()
             {                
                 JainaDummy->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 ((hyjalAI*)JainaDummy->AI())->IsDummy = true;
-                JainaDummy->CastSpell(JainaDummy, SPELL_TELEPORT_VISUAL, true);
+                DummyGuid = JainaDummy->GetGUID();
+                //((hyjalAI*)JainaDummy->AI())->MassTeleportTimer = 20000;
+                //((hyjalAI*)JainaDummy->AI())->DoMassTeleport = true;
             }
             AddWaypoint(0,JainaDummySpawn[1][0],JainaDummySpawn[1][1],JainaDummySpawn[1][2]);
             Start(false, false, false);
@@ -754,6 +772,11 @@ void hyjalAI::UpdateAI(const uint32 diff)
 {
     if(IsDummy)
     {
+        if(MassTeleportTimer < diff && DoMassTeleport)
+        {
+            m_creature->CastSpell(m_creature,SPELL_MASS_TELEPORT,false);
+            DoMassTeleport = false;
+        }else MassTeleportTimer -= diff;
         return;
     }
     if(DoHide)
@@ -780,6 +803,9 @@ void hyjalAI::UpdateAI(const uint32 diff)
                     HideNearPos(m_creature->GetPositionX(), m_creature->GetPositionY());
                     HideNearPos(5563, -2763.19);
                     HideNearPos(5542.2, -2629.36);
+                    for(uint8 i = 0; i < 65; i++)//summon fires
+                        m_creature->SummonGameObject(FLAMEOBJECT,HordeFirePos[i][0],HordeFirePos[i][1],HordeFirePos[i][2],HordeFirePos[i][3],HordeFirePos[i][4],HordeFirePos[i][5],HordeFirePos[i][6],HordeFirePos[i][7],0);
+            
                 }
                 else m_creature->SetVisibility(VISIBILITY_ON);            
                 break;
@@ -808,15 +834,16 @@ void hyjalAI::UpdateAI(const uint32 diff)
     }
     if(Overrun)
         DoOverrun(Faction, diff);
-    if(m_creature->GetEntry() == 17772)
+   /* if(m_creature->GetEntry() == 17772)
     {
         if(!m_creature->HasAura(SPELL_BRILLIANCE_AURA,0))
             DoCast(m_creature, SPELL_BRILLIANCE_AURA, true);
-    }
+    }*/
     if(bRetreat)
     {
         if(RetreatTimer < diff)
         {
+            IsDummy = true;
             bRetreat = false;
             HideNearPos(m_creature->GetPositionX(), m_creature->GetPositionY());
             switch(m_creature->GetEntry())
@@ -995,7 +1022,19 @@ void hyjalAI::WaypointReached(uint32 i)
     {
         m_creature->Yell("Hurry, we don't have much time",0,0);
         WaitForTeleport = true;
-        TeleportTimer = 15000;
+        TeleportTimer = 20000;
+        if(m_creature->GetEntry() == JAINA)
+            m_creature->CastSpell(m_creature,SPELL_MASS_TELEPORT,false);
+        if(m_creature->GetEntry() == THRALL && DummyGuid)
+        {
+            Unit* Dummy = Unit::GetUnit((*m_creature),DummyGuid);
+            if(Dummy)
+            {
+                ((hyjalAI*)((Creature*)Dummy)->AI())->DoMassTeleport = true;
+                ((hyjalAI*)((Creature*)Dummy)->AI())->MassTeleportTimer = 20000;
+                Dummy->CastSpell(m_creature,SPELL_MASS_TELEPORT,false);
+            }
+        }
         //do some talking
         //all alive guards walk near here
         CellPair pair(Trinity::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
@@ -1064,6 +1103,7 @@ void hyjalAI::DoOverrun(uint32 faction, const uint32 diff)
                     {
                         (*itr)->CastSpell(*itr, SPELL_TELEPORT_VISUAL, true);
                         (*itr)->setFaction(35);//make them friendly so mobs won't attack them
+                        (*itr)->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     }
                 }
                 DoCast(m_creature, SPELL_TELEPORT_VISUAL);
@@ -1121,7 +1161,10 @@ void hyjalAI::DoOverrun(uint32 faction, const uint32 diff)
                 }
             }
             break;
-        case 1://horde            
+        case 1://horde    
+            for(uint8 i = 0; i < 65; i++)//summon fires
+                m_creature->SummonGameObject(FLAMEOBJECT,HordeFirePos[i][0],HordeFirePos[i][1],HordeFirePos[i][2],HordeFirePos[i][3],HordeFirePos[i][4],HordeFirePos[i][5],HordeFirePos[i][6],HordeFirePos[i][7],0);
+            
             break;
     }
 }
