@@ -97,7 +97,6 @@ struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
     boss_priestess_delrissaAI(Creature* c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        //SummonAdds();
         Heroic = c->GetMap()->IsHeroic();
     }
 
@@ -131,6 +130,7 @@ struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
 
         CombatPulseTimer  = 5000;
 
+        SummonAdds();
         CheckAdds();
 
         if (pInstance)
@@ -151,6 +151,9 @@ struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
 
     void SummonAdds()
     {
+        if(!Adds.empty())
+            return;
+
         std::vector<uint32> AddList;
         for(uint8 i = 0; i < 8; ++i)
             AddList.push_back(AddEntry[i]);
