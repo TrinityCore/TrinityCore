@@ -73,6 +73,8 @@ SET(game_STAT_SRCS
    CreatureAIRegistry.h
    CreatureAISelector.cpp
    CreatureAISelector.h
+   CreatureEventAI.cpp
+   CreatureEventAIMgr.cpp  
    Creature.cpp
    Creature.h
    CreatureGroups.cpp
