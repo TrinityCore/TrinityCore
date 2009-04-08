@@ -1022,14 +1022,6 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
             caster->ProcDamageAndSpell(unit, procAttacker, procVictim, procEx, 0, m_attackType, m_spellInfo);
     }
 
-    // Take combo points after effects handling (combo points are used in effect handling)
-    if(!m_IsTriggeredSpell && !m_CastItem
-        && NeedsComboPoints(m_spellInfo)
-        && m_caster->GetTypeId()==TYPEID_PLAYER
-        && target->targetGUID == m_targets.getUnitTargetGUID()
-        && (missInfo == SPELL_MISS_NONE || missInfo == SPELL_MISS_MISS))
-            ((Player*)m_caster)->ClearComboPoints();
-
     // Call scripted function for AI if this spell is casted upon a creature (except pets)
     if(IS_CREATURE_GUID(target->targetGUID))
     {
@@ -2426,8 +2418,23 @@ void Spell::handle_immediate()
     // process immediate effects (items, ground, etc.) also initialize some variables
     _handle_immediate_phase();
 
+    bool checkCp =
+        !m_IsTriggeredSpell && !m_CastItem
+        && NeedsComboPoints(m_spellInfo)
+        && m_caster->GetTypeId()==TYPEID_PLAYER;
+    bool comboPoints = false;
     for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin();ihit != m_UniqueTargetInfo.end();++ihit)
+    {
         DoAllEffectOnTarget(&(*ihit));
+        // Take combo points after effects handling (combo points are used in effect handling)
+        if(checkCp)
+            if(ihit->targetGUID == m_targets.getUnitTargetGUID()
+                && (ihit->missCondition == SPELL_MISS_NONE || ihit->missCondition == SPELL_MISS_MISS))
+                comboPoints=true;
+    }
+    // Take for real after all targets are processed
+    if (comboPoints)
+        ((Player*)m_caster)->ClearComboPoints();
 
     for(std::list<GOTargetInfo>::iterator ihit= m_UniqueGOTargetInfo.begin();ihit != m_UniqueGOTargetInfo.end();++ihit)
         DoAllEffectOnTarget(&(*ihit));
