@@ -41,15 +41,20 @@ struct CriteriaProgress
 };
 
 enum AchievementCriteriaDataType
-{                                                           // value1       value2  for the Condition enumed
-    ACHIEVEMENT_CRITERIA_DATA_TYPE_NONE               = 0,  // 0            0
-    ACHIEVEMENT_CRITERIA_DATA_TYPE_CREATURE           = 1,  // creature_id
-    ACHIEVEMENT_CRITERIA_DATA_TYPE_PLAYER_CLASS_RACE  = 2,  // class_id     race_id
-    ACHIEVEMENT_CRITERIA_DATA_TYPE_PLAYER_LESS_HEALTH = 3,  // health_percent
+{                                                           // value1         value2        comment
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_NONE                = 0, // 0              0
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_T_CREATURE          = 1, // creature_id    0
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_T_PLAYER_CLASS_RACE = 2, // class_id       race_id
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_T_PLAYER_LESS_HEALTH= 3, // health_percent 0
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_T_PLAYER_DEAD       = 4, // 0              0             not corpse (not released body)
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_S_AURA              = 5, // spell_id       effect_idx
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_S_AREA              = 6, // area id        0
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_T_AURA              = 7, // spell_id       effect_idx
 };
 
-#define MAX_ACHIEVEMENT_CRITERIA_DATA_TYPE              4   // maximum value in AchievementCriteriaDataType enum
+#define MAX_ACHIEVEMENT_CRITERIA_DATA_TYPE               8  // maximum value in AchievementCriteriaDataType enum
 
+class Player;
 class Unit;
 
 struct AchievementCriteriaData
@@ -57,27 +62,39 @@ struct AchievementCriteriaData
     AchievementCriteriaDataType dataType;
     union
     {
-        // ACHIEVEMENT_CRITERIA_DATA_TYPE_CREATURE
+        // ACHIEVEMENT_CRITERIA_DATA_TYPE_T_CREATURE
         struct
         {
-            uint32  id;
+            uint32 id;
         } creature;
-        // ACHIEVEMENT_CRITERIA_DATA_TYPE_PLAYER_CLASS_RACE
+        // ACHIEVEMENT_CRITERIA_DATA_TYPE_T_PLAYER_CLASS_RACE
         struct
         {
-            uint32  class_id;
-            uint32  race_id;
+            uint32 class_id;
+            uint32 race_id;
         } classRace;
-        // ACHIEVEMENT_CRITERIA_DATA_TYPE_PLAYER_LESS_HEALTH
+        // ACHIEVEMENT_CRITERIA_DATA_TYPE_T_PLAYER_LESS_HEALTH
         struct
         {
-            uint32  percent;
+            uint32 percent;
         } health;
-        // ACHIEVEMENT_CRITERIA_DATA_TYPE_NONE
+        // ACHIEVEMENT_CRITERIA_DATA_TYPE_T_AURA
+        // ACHIEVEMENT_CRITERIA_DATA_TYPE_S_AURA
         struct
         {
-            uint32  value1;
-            uint32  value2;
+            uint32 spell_id;
+            uint32 effect_idx;
+        } aura;
+        // ACHIEVEMENT_CRITERIA_DATA_TYPE_S_AREA
+        struct
+        {
+            uint32 id;
+        } area;
+        // ...
+        struct
+        {
+            uint32 value1;
+            uint32 value2;
         } raw;
     };
 
@@ -94,11 +111,20 @@ struct AchievementCriteriaData
     }
 
     bool IsValid(AchievementCriteriaEntry const* criteria);
-    // Checks correctness of values
-    bool Meets(Unit const* target) const;// Checks if the target meets the requirement
+    bool Meets(Player const* source, Unit const* target) const;
 };
 
-typedef std::map<uint32,AchievementCriteriaData> AchievementCriteriaDataMap;
+struct AchievementCriteriaDataSet
+{
+        typedef std::vector<AchievementCriteriaData> Storage;
+        void Add(AchievementCriteriaData const& data) { storage.push_back(data); }
+        bool Meets(Player const* source, Unit const* target) const;
+    private:
+        Storage storage;
+};
+
+
+typedef std::map<uint32,AchievementCriteriaDataSet> AchievementCriteriaDataMap;
 
 struct AchievementReward
 {
@@ -194,7 +220,7 @@ class AchievementGlobalMgr
             return iter!=m_achievementRewardLocales.end() ? &iter->second : NULL;
         }
 
-        AchievementCriteriaData const* GetCriteriaData(AchievementCriteriaEntry const *achievementCriteria)
+        AchievementCriteriaDataSet const* GetCriteriaDataSet(AchievementCriteriaEntry const *achievementCriteria)
         {
             AchievementCriteriaDataMap::const_iterator iter = m_criteriaDataMap.find(achievementCriteria->ID);
             return iter!=m_criteriaDataMap.end() ? &iter->second : NULL;
