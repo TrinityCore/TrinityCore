@@ -136,6 +136,8 @@ ChatCommand * ChatHandler::getCommandTable()
     static ChatCommand debugCommandTable[] =
     {
         { "setbit",         SEC_ADMINISTRATOR,  false, &ChatHandler::HandleDebugSet32Bit,                   "", NULL },
+        { "threat",         SEC_ADMINISTRATOR,  false, &ChatHandler::HandleDebugThreatList,                 "", NULL },
+        { "hostil",         SEC_ADMINISTRATOR,  false, &ChatHandler::HandleDebugHostilRefList,              "", NULL },
         { "anim",           SEC_GAMEMASTER,     false, &ChatHandler::HandleDebugAnimCommand,                "", NULL },
         { "arena",          SEC_ADMINISTRATOR,  false, &ChatHandler::HandleDebugArenaCommand,               "", NULL },
         { "bg",             SEC_ADMINISTRATOR,  false, &ChatHandler::HandleDebugBattlegroundCommand,        "", NULL },
