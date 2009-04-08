@@ -345,38 +345,32 @@ void Unit::SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint32 M
     WorldPacket data( SMSG_MONSTER_MOVE, (41 + GetPackGUID().size()) );
     data.append(GetPackGUID());
 
-    // Point A, starting location
     data << GetPositionX() << GetPositionY() << GetPositionZ();
-    // unknown field - unrelated to orientation
-    // seems to increment about 1000 for every 1.7 seconds
-    // for now, we'll just use mstime
-    data << getMSTime();
+    data << uint32(getMSTime());
 
     data << uint8(type);                                    // unknown
     switch(type)
     {
         case 0:                                             // normal packet
             break;
-        case 1:                                             // stop packet
+        case 1:                                             // stop packet (raw pos?)
             SendMessageToSet( &data, true );
             return;
-        case 2:                                             // not used currently
-            data << float(0);                               // orientation
+        case 2:                                             // facing spot, not used currently
+            data << float(0);
             data << float(0);
             data << float(0);
             break;
         case 3:                                             // not used currently
-            data << uint64(0);                              // probably target guid
+            data << uint64(0);                              // probably target guid (facing target?)
             break;
         case 4:                                             // not used currently
-            data << float(0);                               // probably orientation
+            data << float(0);                               // facing angle
             break;
     }
 
-    //Movement Flags (0x0 = walk, 0x100 = run, 0x200 = fly/swim)
-    data << uint32((MovementFlags & MOVEMENTFLAG_LEVITATING) ? MOVEFLAG_FLY : MOVEFLAG_WALK);
-
-    data << Time;                                           // Time in between points
+    data << uint32(MovementFlags);
+    data << uint32(Time);                                   // Time in between points
     data << uint32(1);                                      // 1 single waypoint
     data << NewPosX << NewPosY << NewPosZ;                  // the single waypoint Point B
 
@@ -397,16 +391,12 @@ void Unit::SendMonsterMoveByPath(Path const& path, uint32 start, uint32 end)
     data << GetPositionX();
     data << GetPositionY();
     data << GetPositionZ();
-
     data << getMSTime();
-
     data << uint8( 0 );
     data << uint32(((GetUnitMovementFlags() & MOVEMENTFLAG_LEVITATING) || isInFlight())? (MOVEFLAG_FLY|MOVEFLAG_WALK) : MOVEFLAG_WALK);
     data << uint32( traveltime );
     data << uint32( pathSize );
     data.append( (char*)path.GetNodes(start), pathSize * 4 * 3 );
-
-    //WPAssert( data.size() == 37 + pathnodes.Size( ) * 4 * 3 );
     SendMessageToSet(&data, true);
 }
 
