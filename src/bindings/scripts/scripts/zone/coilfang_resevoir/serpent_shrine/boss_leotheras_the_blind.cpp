@@ -212,9 +212,9 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
             float nx = x;
             float ny = y;
             float o = 2.4f;
-            if (i == 0) {nx += 20;o=3.0f;}
-            if (i == 1) ny -= 20;
-            if (i == 2) {nx += 18;ny -= 18;o=2.0f;}
+            if (i == 0) {nx += 10; ny -= 5; o=2.5f;}
+            if (i == 1) {nx -= 8; ny -= 7; o=0.9f;} 
+            if (i == 2) {nx -= 3; ny += 9; o=5.0f;}
             Creature* binder = m_creature->SummonCreature(MOB_SPELLBINDER,nx,ny,z,o,TEMPSUMMON_DEAD_DESPAWN,0);
             if (binder)
                 SpellBinderGUID[i] = binder->GetGUID();

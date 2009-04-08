@@ -3838,8 +3838,6 @@ void AuraEffect::HandleAuraModSilence(bool apply, bool Real)
                 if ( state == SPELL_STATE_PREPARING || state == SPELL_STATE_CASTING )
                 {
                     currentSpell->cancel();
-                    currentSpell->SetReferencedFromCurrent(false);
-                    m_target->m_currentSpells[i] = NULL;
                 }
             }
         }
