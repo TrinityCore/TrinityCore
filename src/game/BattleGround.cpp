@@ -1376,7 +1376,7 @@ bool BattleGround::AddObject(uint32 type, uint32 entry, float x, float y, float 
     data.go_state       = 1;
 */
     // add to world, so it can be later looked up from HashMapHolder
-    go->AddToWorld();
+    map->Add(go);
     m_BgObjects[type] = go->GetGUID();
     return true;
 }
