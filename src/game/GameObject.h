@@ -482,6 +482,20 @@ class TRINITY_DLL_SPEC GameObject : public WorldObject
             }
         }
 
+        bool GetDespawnPossibility() const
+        {
+            switch(GetGoType())
+            {
+                case GAMEOBJECT_TYPE_DOOR:       return GetGOInfo()->door.noDamageImmune;
+                case GAMEOBJECT_TYPE_BUTTON:     return GetGOInfo()->button.noDamageImmune;
+                case GAMEOBJECT_TYPE_QUESTGIVER: return GetGOInfo()->questgiver.noDamageImmune;
+                case GAMEOBJECT_TYPE_GOOBER:     return GetGOInfo()->goober.noDamageImmune;
+                case GAMEOBJECT_TYPE_FLAGSTAND:  return GetGOInfo()->flagstand.noDamageImmune;
+                case GAMEOBJECT_TYPE_FLAGDROP:   return GetGOInfo()->flagdrop.noDamageImmune;
+                default: return true;
+            }
+        }
+
         time_t GetRespawnTime() const { return m_respawnTime; }
         time_t GetRespawnTimeEx() const
         {

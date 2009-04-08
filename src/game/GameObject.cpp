@@ -610,37 +610,34 @@ bool GameObject::LoadFromDB(uint32 guid, Map *map)
     if (!Create(guid,entry, map, phaseMask, x, y, z, ang, rotation0, rotation1, rotation2, rotation3, animprogress, go_state, ArtKit) )
         return false;
 
-    switch(GetGOInfo()->type)
+    if(!GetDespawnPossibility())
     {
-        case GAMEOBJECT_TYPE_DOOR:
-        case GAMEOBJECT_TYPE_BUTTON:
-            /* this code (in comment) isn't correct because in battlegrounds we need despawnable doors and buttons, pls remove
-            SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NODESPAWN);
+        SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NODESPAWN);
+        m_spawnedByDefault = true;
+        m_respawnDelayTime = 0;
+        m_respawnTime = 0;
+    }
+    else
+    {
+        if(data->spawntimesecs >= 0)
+        {
             m_spawnedByDefault = true;
-            m_respawnDelayTime = 0;
-            m_respawnTime = 0;
-            break;*/
-        default:
-            if(data->spawntimesecs >= 0)
-            {
-                m_spawnedByDefault = true;
-                m_respawnDelayTime = data->spawntimesecs;
-                m_respawnTime = objmgr.GetGORespawnTime(m_DBTableGuid, map->GetInstanceId());
+            m_respawnDelayTime = data->spawntimesecs;
+            m_respawnTime = objmgr.GetGORespawnTime(m_DBTableGuid, map->GetInstanceId());
 
-                                                            // ready to respawn
-                if(m_respawnTime && m_respawnTime <= time(NULL))
-                {
-                    m_respawnTime = 0;
-                    objmgr.SaveGORespawnTime(m_DBTableGuid,GetInstanceId(),0);
-                }
-            }
-            else
+            // ready to respawn
+            if(m_respawnTime && m_respawnTime <= time(NULL))
             {
-                m_spawnedByDefault = false;
-                m_respawnDelayTime = -data->spawntimesecs;
                 m_respawnTime = 0;
+                objmgr.SaveGORespawnTime(m_DBTableGuid,GetInstanceId(),0);
             }
-            break;
+        }
+        else
+        {
+            m_spawnedByDefault = false;
+            m_respawnDelayTime = -data->spawntimesecs;
+            m_respawnTime = 0;
+        }
     }
 
     return true;
