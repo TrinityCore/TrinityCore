@@ -245,8 +245,13 @@ void CreatureGroup::LeaderMoveTo(float x, float y, float z)
 
         float dx = x + cos(angle + pathangle) * dist;
         float dy = y + sin(angle + pathangle) * dist;
-        float dz;
-        member->UpdateGroundPositionZ(dx, dy, dz);
+        
+		Trinity::NormalizeMapCoord(dx);
+		Trinity::NormalizeMapCoord(dy);
+
+		float dz = member->GetMap()->GetHeight(dx,dy,z,false);
+        
+		member->UpdateGroundPositionZ(dx, dy, dz);
 
         if(member->GetDistance(m_leader) < dist + MAX_DESYNC)
             member->SetUnitMovementFlags(m_leader->GetUnitMovementFlags());
