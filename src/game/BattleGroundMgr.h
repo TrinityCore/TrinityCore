@@ -86,7 +86,6 @@ class BattleGroundQueue
         uint32 GetAverageQueueWaitTime(GroupQueueInfo* ginfo, BGQueueIdBasedOnLevel queue_id);
 
         void DecreaseGroupLength(uint32 queueId, uint32 AsGroup);
-        void BGEndedRemoveInvites(BattleGround * bg);
         void AnnounceWorld(GroupQueueInfo *ginfo, const uint64& playerGUID, bool isAddedToQueue);
 
         typedef std::map<uint64, PlayerQueueInfo> QueuedPlayersMap;
@@ -138,8 +137,8 @@ class BattleGroundQueue
 class BGQueueInviteEvent : public BasicEvent
 {
     public:
-        BGQueueInviteEvent(const uint64& pl_guid, uint32 BgInstanceGUID, BattleGroundTypeId BgTypeId) :
-          m_PlayerGuid(pl_guid), m_BgInstanceGUID(BgInstanceGUID), m_BgTypeId(BgTypeId)
+        BGQueueInviteEvent(const uint64& pl_guid, uint32 BgInstanceGUID, BattleGroundTypeId BgTypeId, uint32 removeTime) :
+          m_PlayerGuid(pl_guid), m_BgInstanceGUID(BgInstanceGUID), m_BgTypeId(BgTypeId), m_RemoveTime(removeTime)
           {
           };
         virtual ~BGQueueInviteEvent() {};
@@ -149,17 +148,20 @@ class BGQueueInviteEvent : public BasicEvent
     private:
         uint64 m_PlayerGuid;
         uint32 m_BgInstanceGUID;
+        uint32 m_RemoveTime;
         BattleGroundTypeId m_BgTypeId;
 };
 
 /*
-    This class is used to remove player from BG queue after 2 minutes from first invitation
+    This class is used to remove player from BG queue after 1 minute 20 seconds from first invitation
+    We must store removeInvite time in case player left queue and joined and is invited again
+    We must store bgQueueTypeId, because battleground can be deleted already, when player entered it
 */
 class BGQueueRemoveEvent : public BasicEvent
 {
     public:
-        BGQueueRemoveEvent(const uint64& pl_guid, uint32 bgInstanceGUID, BattleGroundTypeId BgTypeId, uint32 playersTeam) :
-          m_PlayerGuid(pl_guid), m_BgInstanceGUID(bgInstanceGUID), m_BgTypeId(BgTypeId), m_PlayersTeam(playersTeam)
+        BGQueueRemoveEvent(const uint64& pl_guid, uint32 bgInstanceGUID, BattleGroundTypeId BgTypeId, BattleGroundQueueTypeId bgQueueTypeId, uint32 removeTime) :
+          m_PlayerGuid(pl_guid), m_BgInstanceGUID(bgInstanceGUID), m_BgTypeId(BgTypeId), m_BgQueueTypeId(bgQueueTypeId), m_RemoveTime(removeTime)
           {
           };
         virtual ~BGQueueRemoveEvent() {};
@@ -169,8 +171,9 @@ class BGQueueRemoveEvent : public BasicEvent
     private:
         uint64 m_PlayerGuid;
         uint32 m_BgInstanceGUID;
-        uint32 m_PlayersTeam;
+        uint32 m_RemoveTime;
         BattleGroundTypeId m_BgTypeId;
+        BattleGroundQueueTypeId m_BgQueueTypeId;
 };
 
 class BattleGroundMgr
@@ -191,10 +194,6 @@ class BattleGroundMgr
         void BuildBattleGroundStatusPacket(WorldPacket *data, BattleGround *bg, uint8 QueueSlot, uint8 StatusID, uint32 Time1, uint32 Time2, uint8 arenatype);
         void BuildPlaySoundPacket(WorldPacket *data, uint32 soundid);
         void SendAreaSpiritHealerQueryOpcode(Player *pl, BattleGround *bg, const uint64& guid);
-
-        /* Player invitation */
-        // called from Queue update, or from Addplayer to queue
-        void InvitePlayer(Player* plr, uint32 bgInstanceGUID, BattleGroundTypeId bgTypeId, uint32 team);
 
         /* Battlegrounds */
         BattleGround* GetBattleGroundThroughClientInstance(uint32 instanceId, BattleGroundTypeId bgTypeId, BGQueueIdBasedOnLevel queue_id);
