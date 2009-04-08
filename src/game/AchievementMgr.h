@@ -27,9 +27,6 @@
 #include <map>
 #include <string>
 
-#define CRITERIA_CAST_SPELL_REQ_COUNT 46
-#define ACHIEVEMENT_REWARD_COUNT 57
-
 typedef std::list<AchievementCriteriaEntry const*> AchievementCriteriaEntryList;
 typedef std::list<AchievementEntry const*>         AchievementEntryList;
 
@@ -43,13 +40,65 @@ struct CriteriaProgress
     bool changed;
 };
 
-struct CriteriaCastSpellRequirement
-{
-    uint32 achievementCriteriaId;
-    uint32 creatureEntry;
-    uint8 playerClass;
-    uint8 playerRace;
+enum AchievementCriteriaDataType
+{                                                           // value1       value2  for the Condition enumed
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_NONE               = 0,  // 0            0
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_CREATURE           = 1,  // creature_id
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_PLAYER_CLASS_RACE  = 2,  // class_id     race_id
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_PLAYER_LESS_HEALTH = 3,  // health_percent
 };
+
+#define MAX_ACHIEVEMENT_CRITERIA_DATA_TYPE              4   // maximum value in AchievementCriteriaDataType enum
+
+class Unit;
+
+struct AchievementCriteriaData
+{
+    AchievementCriteriaDataType dataType;
+    union
+    {
+        // ACHIEVEMENT_CRITERIA_DATA_TYPE_CREATURE
+        struct
+        {
+            uint32  id;
+        } creature;
+        // ACHIEVEMENT_CRITERIA_DATA_TYPE_PLAYER_CLASS_RACE
+        struct
+        {
+            uint32  class_id;
+            uint32  race_id;
+        } classRace;
+        // ACHIEVEMENT_CRITERIA_DATA_TYPE_PLAYER_LESS_HEALTH
+        struct
+        {
+            uint32  percent;
+        } health;
+        // ACHIEVEMENT_CRITERIA_DATA_TYPE_NONE
+        struct
+        {
+            uint32  value1;
+            uint32  value2;
+        } raw;
+    };
+
+    AchievementCriteriaData() : dataType(ACHIEVEMENT_CRITERIA_DATA_TYPE_NONE)
+    {
+        raw.value1 = 0;
+        raw.value2 = 0;
+    }
+
+    AchievementCriteriaData(uint32 _dataType, uint32 _value1, uint32 _value2) : dataType(AchievementCriteriaDataType(_dataType))
+    {
+        raw.value1 = _value1;
+        raw.value2 = _value2;
+    }
+
+    bool IsValid(AchievementCriteriaEntry const* criteria);
+    // Checks correctness of values
+    bool Meets(Unit const* target) const;// Checks if the target meets the requirement
+};
+
+typedef std::map<uint32,AchievementCriteriaData> AchievementCriteriaDataMap;
 
 struct AchievementReward
 {
@@ -145,13 +194,10 @@ class AchievementGlobalMgr
             return iter!=m_achievementRewardLocales.end() ? &iter->second : NULL;
         }
 
-        static CriteriaCastSpellRequirement const * GetCriteriaCastSpellRequirement(AchievementCriteriaEntry const *achievementCriteria)
+        AchievementCriteriaData const* GetCriteriaData(AchievementCriteriaEntry const *achievementCriteria)
         {
-            for (uint32 i=0; i < CRITERIA_CAST_SPELL_REQ_COUNT; ++i)
-                if (m_criteriaCastSpellRequirements[i].achievementCriteriaId == achievementCriteria->ID)
-                    return  &m_criteriaCastSpellRequirements[i];
-
-            return NULL;
+            AchievementCriteriaDataMap::const_iterator iter = m_criteriaDataMap.find(achievementCriteria->ID);
+            return iter!=m_criteriaDataMap.end() ? &iter->second : NULL;
         }
 
         bool IsRealmCompleted(AchievementEntry const* achievement) const
@@ -165,12 +211,13 @@ class AchievementGlobalMgr
         }
 
         void LoadAchievementCriteriaList();
+        void LoadAchievementCriteriaData();
         void LoadAchievementReferenceList();
         void LoadCompletedAchievements();
         void LoadRewards();
         void LoadRewardLocales();
     private:
-        static const CriteriaCastSpellRequirement m_criteriaCastSpellRequirements[];
+        AchievementCriteriaDataMap m_criteriaDataMap;
 
         // store achievement criterias by type to speed up lookup
         AchievementCriteriaEntryList m_AchievementCriteriasByType[ACHIEVEMENT_CRITERIA_TYPE_TOTAL];
