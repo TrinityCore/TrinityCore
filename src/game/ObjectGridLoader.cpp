@@ -54,11 +54,10 @@ ObjectGridRespawnMover::Visit(CreatureMapType &m)
     // creature in unloading grid can have respawn point in another grid
     // if it will be unloaded then it will not respawn in original grid until unload/load original grid
     // move to respawn point to prevent this case. For player view in respawn grid this will be normal respawn.
-    for(CreatureMapType::iterator iter=m.begin(), next; iter != m.end(); iter = next)
+    for(CreatureMapType::iterator iter = m.begin(); iter != m.end();)
     {
-        next = iter; ++next;
-
         Creature * c = iter->getSource();
+        ++iter;
 
         assert(!c->isWorldCreature() && "ObjectGridRespawnMover don't must be called for pets");
 

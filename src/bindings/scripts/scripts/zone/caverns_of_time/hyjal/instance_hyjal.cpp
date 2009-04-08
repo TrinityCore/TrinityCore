@@ -49,8 +49,15 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
     uint64 JainaProudmoore;
     uint64 Thrall;
     uint64 TyrandeWhisperwind;
+    uint64 HordeGate;
+    uint64 ElfGate;
 
     uint32 Trash;
+
+
+    uint32 hordeRetreat;
+    uint32 allianceRetreat;
+    bool ArchiYell;
 
     void Initialize()
     {
@@ -62,10 +69,17 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
         JainaProudmoore = 0;
         Thrall = 0;
         TyrandeWhisperwind = 0;
+        HordeGate = 0;
+        ElfGate = 0;
+        ArchiYell = false;
 
         Trash = 0;
         for(uint8 i = 0; i < ENCOUNTERS; ++i)
             Encounters[i] = NOT_STARTED;
+
+        hordeRetreat = 0;
+        allianceRetreat = 0;
+
     }
 
     bool IsEncounterInProgress() const
@@ -74,6 +88,33 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
             if(Encounters[i] == IN_PROGRESS) return true;
 
         return false;
+    }
+
+    void OnObjectCreate(GameObject *go)
+    {        
+        switch(go->GetEntry())
+        {
+            case 182060: 
+                HordeGate = go->GetGUID(); 
+                if(allianceRetreat)
+                    go->SetGoState(0);
+                else
+                    go->SetGoState(1);
+                break;
+            case 182061: 
+                ElfGate = go->GetGUID(); 
+                if(hordeRetreat)
+                    go->SetGoState(0);
+                else
+                    go->SetGoState(1);
+                break;
+        }
+    }
+
+    void OpenDoor(uint64 DoorGUID, bool open)
+    {
+        if(GameObject *Door = instance->GetGameObjectInMap(DoorGUID))
+            Door->SetUInt32Value(GAMEOBJECT_STATE, open ? 0 : 1);
     }
 
     void OnCreatureCreate(Creature *creature, uint32 creature_entry)
@@ -113,9 +154,49 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
         switch(type)
         {
             case DATA_RAGEWINTERCHILLEVENT: Encounters[0] = data; break;
-            case DATA_ANETHERONEVENT:       Encounters[1] = data; break;
+            case DATA_ANETHERONEVENT:       
+                Encounters[1] = data;                
+                break;
             case DATA_KAZROGALEVENT:        Encounters[2] = data; break;
-            case DATA_AZGALOREVENT:         Encounters[3] = data; break;
+            case DATA_AZGALOREVENT:    
+                {
+                    Encounters[3] = data; 
+                    if(data==DONE)
+                    {                    
+                        if(ArchiYell)break;
+                        ArchiYell = true;
+
+                        Creature* pCreature = instance->GetCreatureInMap(Azgalor);
+                        if(pCreature)
+                        {                    
+                            Creature* pUnit = pCreature->SummonCreature(21987,pCreature->GetPositionX(),pCreature->GetPositionY(),pCreature->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,10000);
+            
+                            Map *map = pCreature->GetMap();
+                            if (map->IsDungeon() && pUnit)
+                            {
+                                pUnit->SetVisibility(VISIBILITY_OFF);
+                                Map::PlayerList const &PlayerList = map->GetPlayers();
+                                if (PlayerList.isEmpty())
+                                     return;
+                              
+                                for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+                                {
+                                     if (i->getSource())
+                                     {
+                                        WorldPacket data(SMSG_MESSAGECHAT, 200);                
+                                        pUnit->BuildMonsterChat(&data,CHAT_MSG_MONSTER_YELL,"All of your efforts have been in vain, for the draining of the World Tree has already begun. Soon the heart of your world will beat no more.",0,"Archimonde",i->getSource()->GetGUID());
+                                        i->getSource()->GetSession()->SendPacket(&data);
+
+                                        WorldPacket data2(SMSG_PLAY_SOUND, 4);
+                                        data2 << 10986;
+                                        i->getSource()->GetSession()->SendPacket(&data2);
+                                     }
+                                }
+                            }
+                        }
+                    }
+                }
+                break;
             case DATA_ARCHIMONDEEVENT:      Encounters[4] = data; break;
             case DATA_RESET_TRASH_COUNT:    Trash = 0;            break;
 
@@ -123,6 +204,16 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
                 if(data) Trash = data;
                 else     Trash--;
                 UpdateWorldState(WORLD_STATE_ENEMYCOUNT, Trash);
+                break;
+            case DATA_ALLIANCE_RETREAT:                
+                allianceRetreat = data;
+                OpenDoor(HordeGate,true);
+                SaveToDB();
+                break;
+            case DATA_HORDE_RETREAT: 
+                hordeRetreat = data;
+                OpenDoor(ElfGate,true);
+                SaveToDB();
                 break;
         }
 
@@ -134,7 +225,8 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
 
             std::ostringstream saveStream;
             saveStream << Encounters[0] << " " << Encounters[1] << " " << Encounters[2] << " "
-                << Encounters[3] << " " << Encounters[4];
+                << Encounters[3] << " " << Encounters[4]
+                << " " << allianceRetreat << " " << hordeRetreat;
 
             str_data = saveStream.str();
 
@@ -154,6 +246,8 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
             case DATA_AZGALOREVENT:        return Encounters[3];
             case DATA_ARCHIMONDEEVENT:     return Encounters[4];
             case DATA_TRASH:               return Trash;
+            case DATA_ALLIANCE_RETREAT:    return allianceRetreat;
+            case DATA_HORDE_RETREAT:       return hordeRetreat;
         }
         return 0;
     }
@@ -161,7 +255,7 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
     void UpdateWorldState(uint32 id, uint32 state)
     {
         Map::PlayerList const& players = instance->GetPlayers();
-
+ 
         if (!players.isEmpty())
         {
                 for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
@@ -187,7 +281,7 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
 
         OUT_LOAD_INST_DATA(in);
         std::istringstream loadStream(in);
-        loadStream >> Encounters[0] >> Encounters[1] >> Encounters[2] >> Encounters[3] >> Encounters[4];
+        loadStream >> Encounters[0] >> Encounters[1] >> Encounters[2] >> Encounters[3] >> Encounters[4] >> allianceRetreat >> hordeRetreat;
         for(uint8 i = 0; i < ENCOUNTERS; ++i)
             if(Encounters[i] == IN_PROGRESS)                // Do not load an encounter as IN_PROGRESS - reset it instead.
                 Encounters[i] = NOT_STARTED;
