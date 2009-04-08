@@ -1443,6 +1443,8 @@ void AchievementGlobalMgr::LoadAchievementReferenceList()
 
 void AchievementGlobalMgr::LoadAchievementCriteriaData()
 {
+    m_criteriaDataMap.clear();                              // need for reload case
+
     QueryResult *result = WorldDatabase.Query("SELECT criteria_id, type, value1, value2 FROM achievement_criteria_data");
 
     if(!result)
@@ -1535,7 +1537,7 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
 
 void AchievementGlobalMgr::LoadRewards()
 {
-    m_achievementRewards.clear();                             // need for reload case
+    m_achievementRewards.clear();                           // need for reload case
 
     //                                                0      1        2        3     4       5        6
     QueryResult *result = WorldDatabase.Query("SELECT entry, title_A, title_H, item, sender, subject, text FROM achievement_reward");
@@ -1551,6 +1553,7 @@ void AchievementGlobalMgr::LoadRewards()
         return;
     }
 
+    uint32 count = 0;
     barGoLink bar(result->GetRowCount());
 
     do
@@ -1634,13 +1637,14 @@ void AchievementGlobalMgr::LoadRewards()
         }
 
         m_achievementRewards[entry] = reward;
+        ++count;
 
     } while (result->NextRow());
 
     delete result;
 
     sLog.outString();
-    sLog.outString( ">> Loaded %lu achievement reward locale strings", (unsigned long)m_achievementRewardLocales.size() );
+    sLog.outString( ">> Loaded %u achievement rewards", count );
 }
 
 void AchievementGlobalMgr::LoadRewardLocales()
