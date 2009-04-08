@@ -3933,7 +3933,7 @@ void Unit::RemoveAura(uint32 spellId, uint64 caster ,AuraRemoveMode removeMode)
 void Unit::RemoveAura(Aura * aur ,AuraRemoveMode mode)
 {
     // no need to remove
-    if (aur->IsRemoved())
+    if (!aur || aur->IsRemoved())
         return;
     for(AuraMap::iterator iter = m_Auras.lower_bound(aur->GetId()); iter != m_Auras.upper_bound(aur->GetId());)
     {
@@ -4241,6 +4241,21 @@ bool Unit::HasAura(uint32 spellId, uint64 caster) const
 
     if (Aura * aur = GetAura(spellId, caster))
         return true;
+    return false;
+}
+
+bool Unit::HasAura(Aura * aur) const
+{
+    // no need to find aura
+    if (!aur || aur->IsRemoved())
+        return false;
+    for(AuraMap::const_iterator iter = m_Auras.lower_bound(aur->GetId()); iter != m_Auras.upper_bound(aur->GetId());)
+    {
+        if (aur == iter->second)
+            return true;
+        else
+            ++iter;
+    }
     return false;
 }
 
@@ -11265,34 +11280,18 @@ bool Unit::isFrozen() const
 
 struct ProcTriggeredData
 {
-    ProcTriggeredData(SpellProcEventEntry const * _spellProcEvent, AuraEffect* _triggeredByAura)
-        : spellProcEvent(_spellProcEvent), triggeredByAura(_triggeredByAura)
-        {}
+    ProcTriggeredData(Aura* _aura)
+        : aura(_aura)
+    {
+        effMask = 0;
+        spellProcEvent = NULL;
+    }
     SpellProcEventEntry const *spellProcEvent;
-    AuraEffect* triggeredByAura;
-};
-struct ProcTriggerringAura
-{
-    ProcTriggerringAura(uint32 _spellId, uint64 _casterGUID) : spellId(_spellId), casterGUID(_casterGUID)
-    {
-        triggeringAura[0]=NULL;
-        triggeringAura[1]=NULL;
-        triggeringAura[2]=NULL;
-    }
-    ProcTriggeredData * triggeringAura[3];
-    uint32 spellId;
-    uint64 casterGUID;
-    ~ProcTriggerringAura()
-    {
-        for (uint8 i = 0;i<3;++i)
-            if (triggeringAura[i])
-                delete triggeringAura[i];
-    }
+    Aura * aura;
+    uint32 effMask;
 };
 
-//typedef std::list< ProcTriggeredData > ProcTriggeredList;
-typedef std::list< ProcTriggerringAura > ProcTriggeredList;
-typedef std::list< uint32> RemoveSpellList;
+typedef std::list< ProcTriggeredData > ProcTriggeredList;
 
 // List of auras that CAN be trigger but may not exist in spell_proc_event
 // in most case need for drop charges
@@ -11448,65 +11447,60 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
         }
     }
 
-    RemoveSpellList removedSpells;
     ProcTriggeredList procTriggered;
     // Fill procTriggered list
     for(AuraMap::const_iterator itr = GetAuras().begin(); itr!= GetAuras().end(); ++itr)
     {
-        bool first = true;
-        ProcTriggeredList::iterator aurItr;
+        ProcTriggeredData triggerData(itr->second);
+
+        if(!IsTriggeredAtSpellProcEvent(pTarget, triggerData.aura, procSpell, procFlag, procExtra, attType, isVictim, (damage > 0), triggerData.spellProcEvent))
+            continue;
+
         for (uint8 i=0; i<MAX_SPELL_EFFECTS;++i)
         {
             if (AuraEffect * aurEff = itr->second->GetPartAura(i))
             {
-                SpellProcEventEntry const* spellProcEvent = NULL;
-                if(!IsTriggeredAtSpellProcEvent(pTarget, aurEff, procSpell, procFlag, procExtra, attType, isVictim, (damage > 0), spellProcEvent))
+                // Skip this auras
+                if (isNonTriggerAura[aurEff->GetAuraName()])
                     continue;
-                if (first)
-                {
-                    first = false;
-                    ProcTriggerringAura procAur(itr->second->GetId(), itr->second->GetCasterGUID());
-                    procTriggered.push_front(procAur);
-                    aurItr = procTriggered.begin();
-                }
-                aurItr->triggeringAura[i] = new ProcTriggeredData(spellProcEvent, aurEff);
+                // If not trigger by default and spellProcEvent==NULL - skip
+                if (!isTriggerAura[aurEff->GetAuraName()] && triggerData.spellProcEvent==NULL)
+                    continue;
+
+                triggerData.effMask |= 1<<i;
             }
         }
+        if (triggerData.effMask)
+            procTriggered.push_front(triggerData);
     }
 
     // Nothing found
     if (procTriggered.empty())
         return;
-    Aura * parentAura = NULL;
     // Handle effects proceed this time
     for(ProcTriggeredList::iterator i = procTriggered.begin(); i != procTriggered.end(); ++i)
     {
-        // look for parent aura in auras list, it may be removed while proc even processing
-        parentAura = GetAura(i->spellId, i->casterGUID);
-        if (!parentAura)
+        // look for aura in auras list, it may be removed while proc event processing
+        if (!HasAura(i->aura))
             continue;
 
-        bool useCharges= parentAura->GetAuraCharges()>0;
+        bool useCharges= i->aura->GetAuraCharges()>0;
         bool takeCharges = false;
 
-        for (uint8 j = 0; j<MAX_SPELL_EFFECTS;++j)
+        // For players set spell cooldown if need
+        uint32 cooldown = 0;
+        if (GetTypeId() == TYPEID_PLAYER && i->spellProcEvent && i->spellProcEvent->cooldown)
+            cooldown = i->spellProcEvent->cooldown;
+
+        for (uint8 effIndex = 0; effIndex<MAX_SPELL_EFFECTS;++effIndex)
         {
-            if (!i->triggeringAura[j])
+            if (!(i->effMask & (1<<effIndex)))
                 continue;
 
-            // possible for stacked auras from same caster, skip then
-            if (parentAura->GetPartAura(j)!=i->triggeringAura[j]->triggeredByAura)
-                continue;
-
-            SpellProcEventEntry const *spellProcEvent = i->triggeringAura[j]->spellProcEvent;
-            AuraEffect *triggeredByAura =triggeredByAura = i->triggeringAura[j]->triggeredByAura;
+            AuraEffect *triggeredByAura = i->aura->GetPartAura(effIndex);
+            assert(triggeredByAura);
 
             SpellEntry const *spellInfo = triggeredByAura->GetSpellProto();
-            uint32 effIndex = triggeredByAura->GetEffIndex();
-            // For players set spell cooldown if need
-            uint32 cooldown = 0;
-            if (GetTypeId() == TYPEID_PLAYER && spellProcEvent && spellProcEvent->cooldown)
-                cooldown = spellProcEvent->cooldown;
 
             switch(triggeredByAura->GetAuraName())
             {
@@ -11621,8 +11615,8 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
         // Remove charge (aura can be removed by triggers)
         if(useCharges && takeCharges)
         {
-            if (parentAura->DropAuraCharge())
-                RemoveAura(parentAura->GetId(),parentAura->GetCasterGUID());
+            if (i->aura->DropAuraCharge())
+                RemoveAura(i->aura);
         }
     }
 }
@@ -12242,19 +12236,12 @@ Pet* Unit::CreateTamedPetFrom(Creature* creatureTarget,uint32 spell_id)
     return pet;
 }
 
-bool Unit::IsTriggeredAtSpellProcEvent(Unit *pVictim, AuraEffect * aura, SpellEntry const* procSpell, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, bool isVictim, bool active, SpellProcEventEntry const*& spellProcEvent )
+bool Unit::IsTriggeredAtSpellProcEvent(Unit *pVictim, Aura * aura, SpellEntry const* procSpell, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, bool isVictim, bool active, SpellProcEventEntry const*& spellProcEvent )
 {
     SpellEntry const* spellProto = aura->GetSpellProto ();
 
     // Get proc Event Entry
     spellProcEvent = spellmgr.GetSpellProcEvent(spellProto->Id);
-
-    // Skip this auras
-    if (isNonTriggerAura[aura->GetAuraName()])
-        return false;
-    // If not trigger by default and spellProcEvent==NULL - skip
-    if (!isTriggerAura[aura->GetAuraName()] && spellProcEvent==NULL)
-        return false;
 
     // Get EventProcFlag
     uint32 EventProcFlag;
