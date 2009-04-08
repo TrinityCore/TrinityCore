@@ -23,6 +23,7 @@
 #include "ObjectMgr.h"
 #include "ProgressBar.h"
 #include "Policies/SingletonImp.h"
+#include "CreatureAI.h"
 
 #define MAX_DESYNC 5.0f
 

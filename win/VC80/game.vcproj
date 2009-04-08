@@ -1024,6 +1024,22 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\game\CreatureEventAI.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\CreatureEventAI.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\CreatureEventAIMgr.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\CreatureEventAIMgr.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\game\FleeingMovementGenerator.cpp"
 				>
 			</File>

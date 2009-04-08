@@ -158,6 +158,8 @@ class TRINITY_DLL_SPEC CreatureAI : public UnitAI
 
         // Called at reaching home after evade
         virtual void JustReachedHome() {}
+
+        void DoZoneInCombat(Unit* pUnit = NULL);
 };
 
 struct SelectableAI : public FactoryHolder<CreatureAI>, public Permissible<Creature>

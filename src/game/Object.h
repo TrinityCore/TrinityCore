@@ -28,7 +28,6 @@
 #include "GameSystem/GridReference.h"
 #include "ObjectDefines.h"
 #include "GridDefines.h"
-#include "CreatureAI.h"
 #include "Map.h"
 
 #include <set>
@@ -106,6 +105,7 @@ class InstanceData;
 class GameObject;
 class TempSummon;
 class Vehicle;
+class CreatureAI;
 
 typedef UNORDERED_MAP<Player*, UpdateData> UpdateDataMapType;
 

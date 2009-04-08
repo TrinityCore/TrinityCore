@@ -519,11 +519,11 @@ bool ScriptedAI::CanCast(Unit* Target, SpellEntry const *Spell, bool Triggered)
         return false;
 
     //Silenced so we can't cast
-    if (!Triggered && m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SILENCED))
+    if (!Triggered && me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SILENCED))
         return false;
 
     //Check for power
-    if (!Triggered && m_creature->GetPower((Powers)Spell->powerType) < Spell->manaCost)
+    if (!Triggered && me->GetPower((Powers)Spell->powerType) < Spell->manaCost)
         return false;
 
     SpellRangeEntry const *TempRange = NULL;
@@ -535,7 +535,8 @@ bool ScriptedAI::CanCast(Unit* Target, SpellEntry const *Spell, bool Triggered)
         return false;
 
     //Unit is out of range of this spell
-    if (m_creature->GetDistance(Target) > m_creature->GetSpellMaxRangeForTarget(Target, TempRange) || m_creature->GetDistance(Target) < m_creature->GetSpellMinRangeForTarget(Target, TempRange))
+    if (me->GetDistance(Target) > me->GetSpellMaxRangeForTarget(Target, TempRange)
+        || me->GetDistance(Target) < me->GetSpellMinRangeForTarget(Target, TempRange))
         return false;
 
     return true;
@@ -633,39 +634,6 @@ void FillSpellSummary()
             if ( TempSpell->Effect[j] == SPELL_EFFECT_APPLY_AURA )
                 SpellSummary[i].Effects |= 1 << (SELECT_EFFECT_AURA-1);
         }
-    }
-}
-
-void ScriptedAI::DoZoneInCombat(Unit* pUnit)
-{
-    if (!pUnit)
-        pUnit = m_creature;
-
-    Map *map = pUnit->GetMap();
-
-    if (!map->IsDungeon())                                  //use IsDungeon instead of Instanceable, in case battlegrounds will be instantiated
-    {
-        error_log("SD2: DoZoneInCombat call for map that isn't an instance (pUnit entry = %d)", pUnit->GetTypeId() == TYPEID_UNIT ? ((Creature*)pUnit)->GetEntry() : 0);
-        return;
-    }
-
-    if (!pUnit->CanHaveThreatList() || pUnit->getThreatManager().isThreatListEmpty())
-    {
-        error_log("SD2: DoZoneInCombat called for creature that either cannot have threat list or has empty threat list (pUnit entry = %d)", pUnit->GetTypeId() == TYPEID_UNIT ? ((Creature*)pUnit)->GetEntry() : 0);
-
-        return;
-    }
-
-    Map::PlayerList const &PlayerList = map->GetPlayers();
-    for(Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-    {
-        if (Player* i_pl = i->getSource())
-            if (i_pl->isAlive())
-            {
-                pUnit->SetInCombatWith(i_pl);
-                i_pl->SetInCombatWith(pUnit);
-                pUnit->AddThreat(i_pl, 0.0f);
-            }
     }
 }
 
