@@ -628,6 +628,62 @@ namespace Trinity
 
     // Unit checks
 
+    class MostHPMissingInRange
+    {
+        public:
+            MostHPMissingInRange(Unit const* obj, float range, uint32 hp) : i_obj(obj), i_range(range), i_hp(hp) {}
+            bool operator()(Unit* u)
+            {
+                if(u->isAlive() && u->isInCombat() && !i_obj->IsHostileTo(u) && i_obj->IsWithinDistInMap(u, i_range) && u->GetMaxHealth() - u->GetHealth() > i_hp)
+                {
+                    i_hp = u->GetMaxHealth() - u->GetHealth();
+                    return true;
+                }
+                return false;
+            }
+        private:
+            Unit const* i_obj;
+            float i_range;
+            uint32 i_hp;
+    };
+
+    class FriendlyCCedInRange
+    {
+        public:
+            FriendlyCCedInRange(Unit const* obj, float range) : i_obj(obj), i_range(range) {}
+            bool operator()(Unit* u)
+            {
+                if(u->isAlive() && u->isInCombat() && !i_obj->IsHostileTo(u) && i_obj->IsWithinDistInMap(u, i_range) &&
+                    (u->isFeared() || u->isCharmed() || u->isFrozen() || u->hasUnitState(UNIT_STAT_STUNNED) || u->hasUnitState(UNIT_STAT_CONFUSED)))
+                {
+                    return true;
+                }
+                return false;
+            }
+        private:
+            Unit const* i_obj;
+            float i_range;
+    };
+
+    class FriendlyMissingBuffInRange
+    {
+        public:
+            FriendlyMissingBuffInRange(Unit const* obj, float range, uint32 spellid) : i_obj(obj), i_range(range), i_spell(spellid) {}
+            bool operator()(Unit* u)
+            {
+                if(u->isAlive() && u->isInCombat() && !i_obj->IsHostileTo(u) && i_obj->IsWithinDistInMap(u, i_range) &&
+                    !(u->HasAura(i_spell, 0) || u->HasAura(i_spell, 1) || u->HasAura(i_spell, 2)))
+                {
+                    return true;
+                }
+                return false;
+            }
+        private:
+            Unit const* i_obj;
+            float i_range;
+            uint32 i_spell;
+    };
+
     class AnyUnfriendlyUnitInObjectRangeCheck
     {
         public:
@@ -913,63 +969,6 @@ namespace Trinity
     private:
         WorldObject const* i_obj;
         float i_range;
-    };
-
-    // Searchers used by ScriptedAI
-    class MostHPMissingInRange
-    {
-    public:
-        MostHPMissingInRange(Unit const* obj, float range, uint32 hp) : i_obj(obj), i_range(range), i_hp(hp) {}
-        bool operator()(Unit* u)
-        {
-            if(u->isAlive() && u->isInCombat() && !i_obj->IsHostileTo(u) && i_obj->IsWithinDistInMap(u, i_range) && u->GetMaxHealth() - u->GetHealth() > i_hp)
-            {
-                i_hp = u->GetMaxHealth() - u->GetHealth();
-                return true;
-            }
-            return false;
-        }
-    private:
-        Unit const* i_obj;
-        float i_range;
-        uint32 i_hp;
-    };
-
-    class FriendlyCCedInRange
-    {
-    public:
-        FriendlyCCedInRange(Unit const* obj, float range) : i_obj(obj), i_range(range) {}
-        bool operator()(Unit* u)
-        {
-            if(u->isAlive() && u->isInCombat() && !i_obj->IsHostileTo(u) && i_obj->IsWithinDistInMap(u, i_range) &&
-                (u->isFeared() || u->isCharmed() || u->isFrozen() || u->hasUnitState(UNIT_STAT_STUNNED) || u->hasUnitState(UNIT_STAT_CONFUSED)))
-            {
-                return true;
-            }
-            return false;
-        }
-    private:
-        Unit const* i_obj;
-        float i_range;
-    };
-
-    class FriendlyMissingBuffInRange
-    {
-    public:
-        FriendlyMissingBuffInRange(Unit const* obj, float range, uint32 spellid) : i_obj(obj), i_range(range), i_spell(spellid) {}
-        bool operator()(Unit* u)
-        {
-            if(u->isAlive() && u->isInCombat() && /*!i_obj->IsHostileTo(u)*/ i_obj->IsFriendlyTo(u) && i_obj->IsWithinDistInMap(u, i_range) &&
-                !(u->HasAura(i_spell)))
-            {
-                return true;
-            }
-            return false;
-        }
-    private:
-        Unit const* i_obj;
-        float i_range;
-        uint32 i_spell;
     };
 
     class AllFriendlyCreaturesInGrid

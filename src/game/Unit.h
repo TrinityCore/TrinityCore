@@ -295,6 +295,7 @@ class Pet;
 class Path;
 class PetAura;
 class Guardian;
+class UnitAI;
 
 struct SpellImmune
 {
