@@ -22,7 +22,7 @@
 DROP TABLE IF EXISTS `db_version`;
 CREATE TABLE `db_version` (
   `version` varchar(120) default NULL,
-  `required_7622_03_mangos_creature_ai_texts` bit(1) default NULL
+  `required_7627_01_mangos_achievement_criteria_data` bit(1) default NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Used DB version notes';
 
 --
@@ -34,6 +34,28 @@ LOCK TABLES `db_version` WRITE;
 INSERT INTO `db_version` VALUES
 ('Mangos default database.',NULL);
 /*!40000 ALTER TABLE `db_version` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `achievement_criteria_data`
+--
+
+DROP TABLE IF EXISTS `achievement_criteria_data`;
+CREATE TABLE `achievement_criteria_data` (
+  `criteria_id` mediumint(8) NOT NULL,
+  `type` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `value1` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `value2` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`criteria_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Achievment system';
+
+--
+-- Dumping data for table `achievement_criteria_data`
+--
+
+LOCK TABLES `achievement_criteria_data` WRITE;
+/*!40000 ALTER TABLE `achievement_criteria_data` DISABLE KEYS */;
+/*!40000 ALTER TABLE `achievement_criteria_data` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -50,7 +72,7 @@ CREATE TABLE `achievement_reward` (
   `subject` varchar(255) default NULL,
   `text` text,
   PRIMARY KEY  (`entry`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Loot System';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Achievment system';
 
 --
 -- Dumping data for table `achievement_reward`

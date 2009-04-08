@@ -37,56 +37,6 @@
 
 INSTANTIATE_SINGLETON_1(AchievementGlobalMgr);
 
-const CriteriaCastSpellRequirement AchievementGlobalMgr::m_criteriaCastSpellRequirements[CRITERIA_CAST_SPELL_REQ_COUNT] =
-    {
-        {5272, 3057, 0, 0},
-        {5273, 2784, 0, 0},
-        {5752, 9099, 0, 0},
-        {5753, 8403, 0, 0},
-        {5772, 0, 0, RACE_GNOME},
-        {5774, 0, 0, RACE_BLOODELF},
-        {5775, 0, 0, RACE_DRAENEI},
-        {5776, 0, 0, RACE_DWARF},
-        {5777, 0, 0, RACE_HUMAN},
-        {5778, 0, 0, RACE_NIGHTELF},
-        {5779, 0, 0, RACE_ORC},
-        {5780, 0, 0, RACE_TAUREN},
-        {5781, 0, 0, RACE_TROLL},
-        {5782, 0, 0, RACE_UNDEAD_PLAYER},
-        {6225, 5661, 0, 0},
-        {6226, 26044, 0, 0},
-        {6228, 739, 0, 0},
-        {6229, 927, 0, 0},
-        {6230, 1444, 0, 0},
-        {6231, 8140, 0, 0},
-        {6232, 5489, 0, 0},
-        {6233,12336, 0, 0},
-        {6234, 1351, 0, 0},
-        {6235, 5484, 0, 0},
-        {6236, 1182, 0, 0},
-        {6237, 0, CLASS_DEATH_KNIGHT, RACE_ORC},
-        {6238, 0, CLASS_WARRIOR, RACE_HUMAN},
-        {6239, 0, CLASS_SHAMAN, RACE_TAUREN},
-        {6240, 0, CLASS_DRUID, RACE_NIGHTELF},
-        {6241, 0, CLASS_ROGUE, RACE_UNDEAD_PLAYER},
-        {6242, 0, CLASS_HUNTER, RACE_TROLL},
-        {6243, 0, CLASS_MAGE, RACE_GNOME},
-        {6244, 0, CLASS_PALADIN, RACE_DWARF},
-        {6245, 0, CLASS_WARLOCK, RACE_BLOODELF},
-        {6246, 0, CLASS_PRIEST, RACE_DRAENEI},
-        {6312, 0, CLASS_WARLOCK, RACE_GNOME},
-        {6313, 0, CLASS_DEATH_KNIGHT, RACE_HUMAN},
-        {6314, 0, CLASS_PRIEST, RACE_NIGHTELF},
-        {6315, 0, CLASS_SHAMAN, RACE_ORC},
-        {6316, 0, CLASS_DRUID, RACE_TAUREN},
-        {6317, 0, CLASS_ROGUE, RACE_TROLL},
-        {6318, 0, CLASS_WARRIOR, RACE_UNDEAD_PLAYER},
-        {6319, 0, CLASS_MAGE, RACE_BLOODELF},
-        {6320, 0, CLASS_PALADIN, RACE_DRAENEI},
-        {6321, 0, CLASS_HUNTER, RACE_DWARF},
-        {6662, 31261, 0, 0}
-    };
-
 namespace MaNGOS
 {
     class AchievementChatBuilder
@@ -116,6 +66,114 @@ namespace MaNGOS
             uint32 i_achievementId;
     };
 }                                                           // namespace MaNGOS
+
+
+bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
+{
+    if(dataType >= MAX_ACHIEVEMENT_CRITERIA_DATA_TYPE)
+    {
+        sLog.outErrorDb( "Table `achievement_criteria_data` for criteria (Entry: %u) have wrong data type (%u), ignore.", criteria->ID,dataType);
+        return false;
+    }
+
+    switch(criteria->requiredType)
+    {
+        case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL2:
+            switch(dataType)
+            {
+                case ACHIEVEMENT_CRITERIA_DATA_TYPE_NONE:
+                case ACHIEVEMENT_CRITERIA_DATA_TYPE_CREATURE:
+                case ACHIEVEMENT_CRITERIA_DATA_TYPE_PLAYER_CLASS_RACE:
+                case ACHIEVEMENT_CRITERIA_DATA_TYPE_PLAYER_LESS_HEALTH:
+                    break;
+                default:
+                    sLog.outErrorDb( "Table `achievement_criteria_data` for criteria (Entry: %u Type: %u) have wrong data type (%u), ignore.", criteria->ID, criteria->requiredType,dataType);
+                    return false;
+            }
+            break;
+        default:
+            sLog.outErrorDb( "Table `achievement_criteria_data` have data for not supported criteria type (Entry: %u Type: %u), ignore.", criteria->ID, criteria->requiredType);
+            return false;
+    }
+
+    switch(dataType)
+    {
+        case ACHIEVEMENT_CRITERIA_DATA_TYPE_NONE:
+            return true;
+        case ACHIEVEMENT_CRITERIA_DATA_TYPE_CREATURE:
+            if(!creature.id || !objmgr.GetCreatureTemplate(creature.id))
+            {
+                sLog.outErrorDb( "Table `achievement_criteria_data` (Entry: %u Type: %u) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_CREATURE (%u) have not existed creature id in value1 (%u), ignore.",
+                    criteria->ID, criteria->requiredType,dataType,creature.id);
+                return false;
+            }
+            return true;
+        case ACHIEVEMENT_CRITERIA_DATA_TYPE_PLAYER_CLASS_RACE:
+            if(!classRace.class_id && !classRace.race_id)
+            {
+                sLog.outErrorDb( "Table `achievement_criteria_data` (Entry: %u Type: %u) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_PLAYER_CLASS_RACE (%u) must have not 0 in one from value fields, ignore.",
+                    criteria->ID, criteria->requiredType,dataType);
+                return false;
+            }
+            if(classRace.class_id && ((1 << (classRace.class_id-1)) & CLASSMASK_ALL_PLAYABLE)==0)
+            {
+                sLog.outErrorDb( "Table `achievement_criteria_data` (Entry: %u Type: %u) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_CREATURE (%u) have not existed class in value1 (%u), ignore.",
+                    criteria->ID, criteria->requiredType,dataType,classRace.class_id);
+                return false;
+            }
+            if(classRace.race_id && ((1 << (classRace.race_id-1)) & RACEMASK_ALL_PLAYABLE)==0)
+            {
+                sLog.outErrorDb( "Table `achievement_criteria_data` (Entry: %u Type: %u) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_CREATURE (%u) have not existed race in value2 (%u), ignore.",
+                    criteria->ID, criteria->requiredType,dataType,classRace.race_id);
+                return false;
+            }
+            return true;
+        case ACHIEVEMENT_CRITERIA_DATA_TYPE_PLAYER_LESS_HEALTH:
+            if(health.percent < 1 || health.percent > 100)
+            {
+                sLog.outErrorDb( "Table `achievement_criteria_data` (Entry: %u Type: %u) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_PLAYER_LESS_HEALTH (%u) have prong percent value in value1 (%u), ignore.",
+                    criteria->ID, criteria->requiredType,dataType,health.percent);
+                return false;
+            }
+            return true;
+        default:
+            sLog.outErrorDb( "Table `achievement_criteria_data` (Entry: %u Type: %u) have data for not supported data type (%u), ignore.", criteria->ID, criteria->requiredType,dataType);
+            return false;
+    }
+    return false;
+}
+
+bool AchievementCriteriaData::Meets( Unit const* target ) const
+{
+    if (!target)
+        return false;
+
+    switch(dataType)
+    {
+        case ACHIEVEMENT_CRITERIA_DATA_TYPE_NONE:
+            return true;
+        case ACHIEVEMENT_CRITERIA_DATA_TYPE_CREATURE:
+            if (target->GetTypeId()!=TYPEID_UNIT)
+                return false;
+            if (target->GetEntry() != creature.id)
+                return false;
+            return true;
+        case ACHIEVEMENT_CRITERIA_DATA_TYPE_PLAYER_CLASS_RACE:
+            if (target->GetTypeId()!=TYPEID_PLAYER)
+                return false;
+            if(classRace.class_id && classRace.class_id != ((Player*)target)->getClass())
+                return false;
+            if(classRace.race_id && classRace.race_id != ((Player*)target)->getRace())
+                return false;
+            return true;
+        case ACHIEVEMENT_CRITERIA_DATA_TYPE_PLAYER_LESS_HEALTH:
+            if (target->GetTypeId()!=TYPEID_PLAYER)
+                return false;
+            return target->GetHealth()*100 <= health.percent*target->GetMaxHealth();
+    }
+
+    return false;
+}
 
 AchievementMgr::AchievementMgr(Player *player)
 {
@@ -884,24 +942,19 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL2:
             {
+                if (!miscvalue1)
+                    continue;
+
                 if (!miscvalue1 || miscvalue1 != achievementCriteria->cast_spell.spellID)
                     continue;
 
                 // those requirements couldn't be found in the dbc
-                if (CriteriaCastSpellRequirement const* requirement = AchievementGlobalMgr::GetCriteriaCastSpellRequirement(achievementCriteria))
-                {
-                    if (!unit)
-                        continue;
+                AchievementCriteriaData const* data = achievementmgr.GetCriteriaData(achievementCriteria);
+                if(!data)
+                    continue;
 
-                    if (requirement->creatureEntry && unit->GetEntry() != requirement->creatureEntry)
-                        continue;
-
-                    if (requirement->playerRace && (unit->GetTypeId() != TYPEID_PLAYER || unit->getRace()!=requirement->playerRace))
-                        continue;
-
-                    if (requirement->playerClass && (unit->GetTypeId() != TYPEID_PLAYER || unit->getClass()!=requirement->playerClass))
-                        continue;
-                }
+                if(!data->Meets(unit))
+                    continue;
 
                 SetCriteriaProgress(achievementCriteria, 1, PROGRESS_ACCUMULATE);
                 break;
@@ -1386,6 +1439,70 @@ void AchievementGlobalMgr::LoadAchievementReferenceList()
 
     sLog.outString();
     sLog.outString(">> Loaded %u achievement references.",count);
+}
+
+void AchievementGlobalMgr::LoadAchievementCriteriaData()
+{
+    QueryResult *result = WorldDatabase.Query("SELECT criteria_id, type, value1, value2 FROM achievement_criteria_data");
+
+    if(!result)
+    {
+        barGoLink bar(1);
+        bar.step();
+
+        sLog.outString();
+        sLog.outString(">> Loaded 0 additional achievement criteria data. DB table `achievement_criteria_data` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+    barGoLink bar(result->GetRowCount());
+    do
+    {
+        bar.step();
+        Field *fields = result->Fetch();
+        uint32 criteria_id = fields[0].GetUInt32();
+
+        AchievementCriteriaEntry const* criteria = sAchievementCriteriaStore.LookupEntry(criteria_id);
+
+        if (!criteria)
+        {
+            sLog.outErrorDb( "Table `achievement_criteria_data` have data for not existed criteria (Entry: %u), ignore.", criteria_id);
+            continue;
+        }
+
+        AchievementCriteriaData data(fields[1].GetUInt32(),fields[2].GetUInt32(),fields[3].GetUInt32());
+
+        if(!data.IsValid(criteria))
+            continue;
+
+        m_criteriaDataMap[criteria_id] = data;
+        ++count;
+    } while(result->NextRow());
+
+    delete result;
+
+    // post loading checks
+    for (uint32 entryId = 0; entryId < sAchievementCriteriaStore.GetNumRows(); ++entryId)
+    {
+        AchievementCriteriaEntry const* criteria = sAchievementCriteriaStore.LookupEntry(entryId);
+        if(!criteria)
+            continue;
+
+        switch(criteria->requiredType)
+        {
+            case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL2:
+                if(!GetCriteriaData(criteria))
+                    sLog.outErrorDb( "Table `achievement_criteria_data` not have expected data for for criteria (Entry: %u Type: %u).", criteria->ID, criteria->requiredType);
+                break;
+            default:                                        // unexpected case processed in IsValid check
+                break;
+        }
+
+    }
+
+    sLog.outString();
+    sLog.outString(">> Loaded %u additional achievement criteria data.",count);
 }
 
 void AchievementGlobalMgr::LoadCompletedAchievements()
