@@ -1,5 +1,4 @@
-ALTER TABLE db_version CHANGE COLUMN required_7616_02_mangos_command required_7622_01_mangos_creature_ai_scripts bit;
-
+/*ALTER TABLE db_version CHANGE COLUMN required_7616_02_mangos_command required_7622_01_mangos_creature_ai_scripts bit;*/
 
 DROP TABLE IF EXISTS `creature_ai_scripts`;
 CREATE TABLE `creature_ai_scripts` (
