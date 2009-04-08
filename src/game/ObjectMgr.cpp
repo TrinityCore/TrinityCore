@@ -5585,6 +5585,15 @@ struct SQLGameObjectLoader : public SQLStorageLoaderBase<SQLGameObjectLoader>
     }
 };
 
+inline void CheckGOLockId(GameObjectInfo const* goInfo,uint32 dataN,uint32 N)
+{
+    if(sLockStore.LookupEntry(dataN))
+        return;
+
+    sLog.outErrorDb("Gameobject (Entry: %u GoType: %u) have data%d=%u but lock (Id: %u) not found.",
+        goInfo->id,goInfo->type,N,goInfo->door.lockId,goInfo->door.lockId);
+}
+
 void ObjectMgr::LoadGameobjectInfo()
 {
     SQLGameObjectLoader loader;
@@ -5602,31 +5611,26 @@ void ObjectMgr::LoadGameobjectInfo()
             case GAMEOBJECT_TYPE_DOOR:                      //0
             {
                 if(goInfo->door.lockId)
-                {
-                    if(!sLockStore.LookupEntry(goInfo->door.lockId))
-                        sLog.outErrorDb("Gameobject (Entry: %u GoType: %u) have data1=%u but lock (Id: %u) not found.",
-                            id,goInfo->type,goInfo->door.lockId,goInfo->door.lockId);
-                }
+                    CheckGOLockId(goInfo,goInfo->door.lockId,1);
                 break;
             }
             case GAMEOBJECT_TYPE_BUTTON:                    //1
             {
                 if(goInfo->button.lockId)
-                {
-                    if(!sLockStore.LookupEntry(goInfo->button.lockId))
-                        sLog.outErrorDb("Gameobject (Entry: %u GoType: %u) have data1=%u but lock (Id: %u) not found.",
-                            id,goInfo->type,goInfo->button.lockId,goInfo->button.lockId);
-                }
+                    CheckGOLockId(goInfo,goInfo->button.lockId,1);
+                break;
+            }
+            case GAMEOBJECT_TYPE_QUESTGIVER:                //2
+            {
+                if(goInfo->questgiver.lockId)
+                    CheckGOLockId(goInfo,goInfo->questgiver.lockId,0);
                 break;
             }
             case GAMEOBJECT_TYPE_CHEST:                     //3
             {
                 if(goInfo->chest.lockId)
-                {
-                    if(!sLockStore.LookupEntry(goInfo->chest.lockId))
-                        sLog.outErrorDb("Gameobject (Entry: %u GoType: %u) have data0=%u but lock (Id: %u) not found.",
-                            id,goInfo->type,goInfo->chest.lockId,goInfo->chest.lockId);
-                }
+                    CheckGOLockId(goInfo,goInfo->chest.lockId,0);
+
                 if(goInfo->chest.linkedTrapId)              // linked trap
                 {
                     if(GameObjectInfo const* trapInfo = sGOStorage.LookupEntry<GameObjectInfo>(goInfo->chest.linkedTrapId))
@@ -5645,6 +5649,8 @@ void ObjectMgr::LoadGameobjectInfo()
             }
             case GAMEOBJECT_TYPE_TRAP:                      //6
             {
+                if(goInfo->trap.lockId)
+                    CheckGOLockId(goInfo,goInfo->trap.lockId,0);
                 /* disable check for while
                 if(goInfo->trap.spellId)                    // spell
                 {
@@ -5692,6 +5698,9 @@ void ObjectMgr::LoadGameobjectInfo()
             }
             case GAMEOBJECT_TYPE_GOOBER:                    //10
             {
+                if(goInfo->goober.lockId)
+                    CheckGOLockId(goInfo,goInfo->goober.lockId,0);
+
                 if(goInfo->goober.pageId)                   // pageId
                 {
                     if(!sPageTextStore.LookupEntry<PageText>(goInfo->goober.pageId))
@@ -5720,6 +5729,18 @@ void ObjectMgr::LoadGameobjectInfo()
                             id,goInfo->type,goInfo->goober.linkedTrapId,goInfo->goober.linkedTrapId);
                     */
                 }
+                break;
+            }
+            case GAMEOBJECT_TYPE_AREADAMAGE:                //12
+            {
+                if(goInfo->areadamage.lockId)
+                    CheckGOLockId(goInfo,goInfo->areadamage.lockId,0);
+                break;
+            }
+            case GAMEOBJECT_TYPE_CAMERA:                    //13
+            {
+                if(goInfo->camera.lockId)
+                    CheckGOLockId(goInfo,goInfo->camera.lockId,0);
                 break;
             }
             case GAMEOBJECT_TYPE_MO_TRANSPORT:              //15
@@ -5752,6 +5773,24 @@ void ObjectMgr::LoadGameobjectInfo()
                         sLog.outErrorDb("Gameobject (Entry: %u GoType: %u) have data3=%u but Spell (Entry %u) not exist.",
                             id,goInfo->type,goInfo->spellcaster.spellId,goInfo->spellcaster.spellId);
                 }
+                break;
+            }
+            case GAMEOBJECT_TYPE_FLAGSTAND:                 //24
+            {
+                if(goInfo->flagstand.lockId)
+                    CheckGOLockId(goInfo,goInfo->flagstand.lockId,0);
+                break;
+            }
+            case GAMEOBJECT_TYPE_FISHINGHOLE:               //25
+            {
+                if(goInfo->fishinghole.lockId)
+                    CheckGOLockId(goInfo,goInfo->fishinghole.lockId,4);
+                break;
+            }
+            case GAMEOBJECT_TYPE_FLAGDROP:                  //26
+            {
+                if(goInfo->flagdrop.lockId)
+                    CheckGOLockId(goInfo,goInfo->flagdrop.lockId,0);
                 break;
             }
             case GAMEOBJECT_TYPE_BARBER_CHAIR:              //32
