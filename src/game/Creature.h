@@ -325,6 +325,29 @@ enum InhabitTypeValues
     INHABIT_ANYWHERE = INHABIT_GROUND | INHABIT_WATER | INHABIT_AIR
 };
 
+// Enums used by StringTextData::Type (CreatureEventAI)
+enum ChatType
+{
+    CHAT_TYPE_SAY               = 0,
+    CHAT_TYPE_YELL              = 1,
+    CHAT_TYPE_TEXT_EMOTE        = 2,
+    CHAT_TYPE_BOSS_EMOTE        = 3,
+    CHAT_TYPE_WHISPER           = 4,
+    CHAT_TYPE_BOSS_WHISPER      = 5,
+    CHAT_TYPE_ZONE_YELL         = 6
+};
+
+//Selection method used by SelectTarget (CreatureEventAI)
+enum AttackingTarget
+{
+    ATTACKING_TARGET_RANDOM = 0,                            //Just selects a random target
+    ATTACKING_TARGET_TOPAGGRO,                              //Selects targes from top aggro to bottom
+    ATTACKING_TARGET_BOTTOMAGGRO,                           //Selects targets from bottom aggro to top
+    ATTACKING_TARGET_RANDOM_PLAYER,                         //Just selects a random target (player only)
+    ATTACKING_TARGET_TOPAGGRO_PLAYER,                       //Selects targes from top aggro to bottom (player only)
+    ATTACKING_TARGET_BOTTOMAGGRO_PLAYER,                    //Selects targets from bottom aggro to top (player only)
+};
+
 // GCC have alternative #pragma pack() syntax and old gcc version not support pack(pop), also any gcc version not support it at some platform
 #if defined( __GNUC__ )
 #pragma pack()

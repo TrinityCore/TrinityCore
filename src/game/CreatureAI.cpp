@@ -70,6 +70,38 @@ void CreatureAI::OnCharmed(bool apply)
     me->IsAIEnabled = false;
 }
 
+void CreatureAI::DoZoneInCombat(Unit* pUnit)
+{
+    if (!pUnit)
+        pUnit = me;
+
+    Map *map = pUnit->GetMap();
+
+    if (!map->IsDungeon())                                  //use IsDungeon instead of Instanceable, in case battlegrounds will be instantiated
+    {
+        sLog.outError("DoZoneInCombat call for map that isn't an instance (pUnit entry = %d)", pUnit->GetTypeId() == TYPEID_UNIT ? ((Creature*)pUnit)->GetEntry() : 0);
+        return;
+    }
+
+    if (!pUnit->CanHaveThreatList() || pUnit->getThreatManager().isThreatListEmpty())
+    {
+        sLog.outError("DoZoneInCombat called for creature that either cannot have threat list or has empty threat list (pUnit entry = %d)", pUnit->GetTypeId() == TYPEID_UNIT ? ((Creature*)pUnit)->GetEntry() : 0);
+        return;
+    }
+
+    Map::PlayerList const &PlayerList = map->GetPlayers();
+    for(Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+    {
+        if (Player* i_pl = i->getSource())
+            if (i_pl->isAlive())
+            {
+                pUnit->SetInCombatWith(i_pl);
+                i_pl->SetInCombatWith(pUnit);
+                pUnit->AddThreat(i_pl, 0.0f);
+            }
+    }
+}
+
 void CreatureAI::MoveInLineOfSight(Unit *who)
 {
     if(!me->getVictim() && me->canStartAttack(who))

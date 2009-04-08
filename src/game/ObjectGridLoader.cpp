@@ -28,6 +28,7 @@
 #include "Corpse.h"
 #include "World.h"
 #include "CellImpl.h"
+#include "CreatureAI.h"
 
 class TRINITY_DLL_DECL ObjectGridRespawnMover
 {

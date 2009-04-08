@@ -148,9 +148,6 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
     //Plays a sound to all nearby players
     void DoPlaySoundToSet(Unit* unit, uint32 sound);
 
-    //Places the entire map into combat with creature
-    void DoZoneInCombat(Unit* pUnit = 0);
-
     //Drops all threat to 0%. Does not remove players from the threat list
     void DoResetThreat();
 
