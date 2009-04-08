@@ -91,7 +91,7 @@ bool GossipSelect_npc_jaina_proudmoore(Player *player, Creature *_Creature, uint
 {
     if(_Creature->GetMap()->GetPlayersCountExceptGMs() < MINPLAYERS && !player->isGameMaster())
     {
-        _Creature->Say("Did you come to die with me?",0,0);
+        _Creature->MonsterSay("Did you come to die with me?",0,0);
         return true;
     }
     hyjalAI* ai = ((hyjalAI*)_Creature->AI());
@@ -169,7 +169,7 @@ bool GossipSelect_npc_thrall(Player *player, Creature *_Creature, uint32 sender,
 {
     if(_Creature->GetMap()->GetPlayersCountExceptGMs() < MINPLAYERS && !player->isGameMaster())//to stop idiot farmers
     {
-        _Creature->Say("Did you come to die with me?",0,0);
+        _Creature->MonsterSay("Did you come to die with me?",0,0);
         return true;
     }
     hyjalAI* ai = ((hyjalAI*)_Creature->AI());
