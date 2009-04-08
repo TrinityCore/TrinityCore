@@ -113,9 +113,15 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/caverns_of_time/dark_portal/boss_aeonus.cpp
    scripts/zone/caverns_of_time/dark_portal/boss_chrono_lord_deja.cpp
    scripts/zone/caverns_of_time/dark_portal/boss_temporus.cpp
+   scripts/zone/caverns_of_time/hyjal/boss_anetheron.cpp
    scripts/zone/caverns_of_time/hyjal/boss_archimonde.cpp
+   scripts/zone/caverns_of_time/hyjal/boss_azgalor.cpp
+   scripts/zone/caverns_of_time/hyjal/boss_kazrogal.cpp
+   scripts/zone/caverns_of_time/hyjal/boss_rage_winterchill.cpp
    scripts/zone/caverns_of_time/hyjal/def_hyjal.h
    scripts/zone/caverns_of_time/hyjal/hyjal.cpp
+   scripts/zone/caverns_of_time/hyjal/hyjal_trash.cpp
+   scripts/zone/caverns_of_time/hyjal/hyjal_trash.h
    scripts/zone/caverns_of_time/hyjal/hyjalAI.cpp
    scripts/zone/caverns_of_time/hyjal/hyjalAI.h
    scripts/zone/caverns_of_time/hyjal/instance_hyjal.cpp

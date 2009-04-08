@@ -219,6 +219,11 @@ extern void AddSC_burning_steppes();
 extern void AddSC_hyjal();
 extern void AddSC_boss_archimonde();
 extern void AddSC_instance_mount_hyjal();
+extern void AddSC_hyjal_trash();
+extern void AddSC_boss_rage_winterchill();
+extern void AddSC_boss_anetheron();
+extern void AddSC_boss_kazrogal();
+extern void AddSC_boss_azgalor();
 
 //--Old Hillsbrad
 extern void AddSC_boss_captain_skarloc();
@@ -1533,6 +1538,11 @@ void ScriptsInit()
     AddSC_hyjal();
     AddSC_boss_archimonde();
     AddSC_instance_mount_hyjal();
+    AddSC_hyjal_trash();
+    AddSC_boss_rage_winterchill();
+    AddSC_boss_anetheron();
+    AddSC_boss_kazrogal();
+    AddSC_boss_azgalor();
 
     //--Old Hillsbrad
     AddSC_boss_captain_skarloc();
