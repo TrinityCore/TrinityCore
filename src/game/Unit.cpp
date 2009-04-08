@@ -181,13 +181,7 @@ Unit::~Unit()
         }
     }
 
-    for (AuraList::iterator i = m_removedAuras.begin(); i != m_removedAuras.end();i = m_removedAuras.begin())
-    {
-        Aura * aur = *i;
-        sLog.outDebug("Aura %d is deleted from unit %d", aur->GetId(), GetGUIDLow());
-        m_removedAuras.pop_front();
-        delete (aur);
-    }
+    _DeleteAuras();
 
     RemoveAllGameObjects();
     RemoveAllDynObjects();
@@ -3199,6 +3193,70 @@ uint32 Unit::GetWeaponSkillValue (WeaponAttackType attType, Unit const* target) 
    return value;
 }
 
+void Unit::_DeleteAuras()
+{
+    for (AuraList::iterator i = m_removedAuras.begin(); i != m_removedAuras.end();i = m_removedAuras.begin())
+    {
+        Aura * Aur = *i;
+        SpellEntry const* AurSpellInfo = Aur->GetSpellProto();
+        // Statue unsummoned at aura delete
+        Totem* statue = NULL;
+        if(Aur->GetAuraDuration() && !Aur->IsPersistent() && IsChanneledSpell(Aur->GetSpellProto()))
+        {
+            Unit* caster = Aur->GetCaster();
+            if(caster && caster->isAlive())
+            {
+                // stop caster chanelling state
+                if(caster->m_currentSpells[CURRENT_CHANNELED_SPELL])
+                {
+                    // same spell
+                    if (AurSpellInfo == caster->m_currentSpells[CURRENT_CHANNELED_SPELL]->m_spellInfo
+                    //prevent recurential call
+                    && caster->m_currentSpells[CURRENT_CHANNELED_SPELL]->getState() != SPELL_STATE_FINISHED)
+                    {
+                        if (caster==this || !IsAreaOfEffectSpell(AurSpellInfo))
+                        {
+                            // remove auras only for non-aoe spells or when chanelled aura is removed
+                            // because aoe spells don't require aura on target to continue
+                            {
+                                caster->m_currentSpells[CURRENT_CHANNELED_SPELL]->cancel();
+                                caster->m_currentSpells[CURRENT_CHANNELED_SPELL]=NULL;
+                            }
+                        }
+
+                        if(caster->GetTypeId()==TYPEID_UNIT && ((Creature*)caster)->isTotem() && ((Totem*)caster)->GetTotemType()==TOTEM_STATUE)
+                            statue = ((Totem*)caster);
+                    }
+                }
+
+                // Unsummon summon as possessed creatures on spell cancel
+                if(caster->GetTypeId() == TYPEID_PLAYER)
+                {
+                    for(int i = 0; i < 3; ++i)
+                    {
+                        if(AurSpellInfo->Effect[i] == SPELL_EFFECT_SUMMON)
+                            if(SummonPropertiesEntry const *SummonProperties = sSummonPropertiesStore.LookupEntry(AurSpellInfo->EffectMiscValueB[i]))
+                                if(SummonProperties->Category == SUMMON_CATEGORY_POSSESSED)
+                                {
+                                    ((Player*)caster)->StopCastingCharm();
+                                    break;
+                                }
+                    }
+                }
+            }
+        }
+        if(statue)
+        {
+            sLog.outDebug("Statue %d is unsummoned by aura %d delete from unit %d", statue->GetGUIDLow(), Aur->GetId(),GetGUIDLow());
+            statue->UnSummon();
+        }
+
+        sLog.outDebug("Aura %d is deleted from unit %d", Aur->GetId(), GetGUIDLow());
+        m_removedAuras.pop_front();
+        delete (Aur);
+    }
+}
+
 void Unit::_UpdateSpells( uint32 time )
 {
     if(m_currentSpells[CURRENT_AUTOREPEAT_SPELL])
@@ -3247,14 +3305,6 @@ void Unit::_UpdateSpells( uint32 time )
             RemoveAura(i, AURA_REMOVE_BY_EXPIRE);
         else
             ++i;
-    }
-
-    for (AuraList::iterator i = m_removedAuras.begin(); i != m_removedAuras.end();i = m_removedAuras.begin())
-    {
-        Aura * aur = *i;
-        sLog.outDebug("Aura %d is deleted from unit %d", aur->GetId(), GetGUIDLow());
-        m_removedAuras.pop_front();
-        delete (aur);
     }
 
     if(!m_gameObj.empty())
@@ -4072,7 +4122,6 @@ void Unit::RemoveNotOwnSingleTargetAuras()
 void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
 {
     Aura* Aur = i->second;
-    SpellEntry const* AurSpellInfo = Aur->GetSpellProto();
 
     // some ShapeshiftBoosts at remove trigger removing other auras including parent Shapeshift aura
     // remove aura from list before to prevent deleting it before
@@ -4093,54 +4142,6 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
         m_ccAuras.remove(Aur);
     }
 
-    // Statue unsummoned at aura remove
-    Totem* statue = NULL;
-    bool channeled = false;
-    if(Aur->GetAuraDuration() && !Aur->IsPersistent() && IsChanneledSpell(AurSpellInfo))
-    {
-        Unit* caster = Aur->GetCaster();
-        if(caster && caster->isAlive())
-        {
-            // stop caster chanelling state
-            if(caster->m_currentSpells[CURRENT_CHANNELED_SPELL])
-            {
-                // same spell
-                if (AurSpellInfo == caster->m_currentSpells[CURRENT_CHANNELED_SPELL]->m_spellInfo
-                //prevent recurential call
-                && caster->m_currentSpells[CURRENT_CHANNELED_SPELL]->getState() != SPELL_STATE_FINISHED)
-                {
-                    if (caster==this || !IsAreaOfEffectSpell(AurSpellInfo))
-                    {
-                        // remove auras only for non-aoe spells or when chanelled aura is removed
-                        // because aoe spells don't require aura on target to continue
-                        {
-                            caster->m_currentSpells[CURRENT_CHANNELED_SPELL]->cancel();
-                            caster->m_currentSpells[CURRENT_CHANNELED_SPELL]=NULL;
-                        }
-                    }
-
-                    if(caster->GetTypeId()==TYPEID_UNIT && ((Creature*)caster)->isTotem() && ((Totem*)caster)->GetTotemType()==TOTEM_STATUE)
-                        statue = ((Totem*)caster);
-                }
-            }
-
-            // Unsummon summon as possessed creatures on spell cancel
-            if(caster->GetTypeId() == TYPEID_PLAYER)
-            {
-                for(int i = 0; i < 3; ++i)
-                {
-                    if(AurSpellInfo->Effect[i] == SPELL_EFFECT_SUMMON)
-                        if(SummonPropertiesEntry const *SummonProperties = sSummonPropertiesStore.LookupEntry(AurSpellInfo->EffectMiscValueB[i]))
-                            if(SummonProperties->Category == SUMMON_CATEGORY_POSSESSED)
-                            {
-                                ((Player*)caster)->StopCastingCharm();
-                                break;
-                            }
-                }
-            }
-        }
-    }
-
     Aur->SetRemoveMode(mode);
 
     sLog.outDebug("Aura %u now is remove mode %d", Aur->GetId(), mode);
@@ -4150,9 +4151,6 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
     m_removedAuras.push_back(Aur);
 
     Aur->_RemoveAura();
-
-    if(statue)
-        statue->UnSummon();
 
     // only way correctly remove all auras from list
     i = m_Auras.begin();
@@ -5615,14 +5613,12 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 // Leader of the Pack
                 case 24932:
                 {
-                    if (triggerAmount <= 0)
-                        return false;
                     basepoints0 = triggerAmount * GetMaxHealth() / 100;
                     target = this;
                     triggered_spell_id = 34299;
                     if (triggeredByAura->GetCaster() != this)
                         break;
-                    int32 basepoints1 = triggerAmount * 2 *GetMaxPower(POWER_MANA)/100;
+                    int32 basepoints1 = triggerAmount * 2;
                     CastCustomSpell(this,60889,&basepoints1,0,0,true,0,triggeredByAura);
                     break;
                 }
