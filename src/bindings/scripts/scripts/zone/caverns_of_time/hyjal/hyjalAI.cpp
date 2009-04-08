@@ -957,7 +957,7 @@ void hyjalAI::HideNearPos(float x, float y)
     // First get all creatures.
     std::list<Creature*> creatures;
     Trinity::AllFriendlyCreaturesInGrid creature_check(m_creature);
-    Trinity::CreatureListSearcher<Trinity::AllFriendlyCreaturesInGrid> creature_searcher(creatures, creature_check);
+    Trinity::CreatureListSearcher<Trinity::AllFriendlyCreaturesInGrid> creature_searcher(m_creature, creatures, creature_check);
     TypeContainerVisitor
         <Trinity::CreatureListSearcher<Trinity::AllFriendlyCreaturesInGrid>,
         GridTypeMapContainer> creature_visitor(creature_searcher);
@@ -985,7 +985,7 @@ void hyjalAI::RespawnNearPos(float x, float y)
     cell.SetNoCreate();
 
     Trinity::RespawnDo u_do;
-    Trinity::WorldObjectWorker<Trinity::RespawnDo> worker(u_do);
+    Trinity::WorldObjectWorker<Trinity::RespawnDo> worker(m_creature, u_do);
     TypeContainerVisitor<Trinity::WorldObjectWorker<Trinity::RespawnDo>, GridTypeMapContainer > obj_worker(worker);
     CellLock<GridReadGuard> cell_lock(cell, p);
     cell_lock->Visit(cell_lock, obj_worker, *m_creature->GetMap());
@@ -994,7 +994,7 @@ void hyjalAI::WaypointReached(uint32 i)
 {
     if(i == 1 || (i == 0 && m_creature->GetEntry() == THRALL))
     {
-        m_creature->Yell("Hurry, we don't have much time",0,0);
+        m_creature->MonsterYell("Hurry, we don't have much time",0,0);
         WaitForTeleport = true;
         TeleportTimer = 15000;
         //do some talking
@@ -1007,7 +1007,7 @@ void hyjalAI::WaypointReached(uint32 i)
         // First get all creatures.
         std::list<Creature*> creatures;
         Trinity::AllFriendlyCreaturesInGrid creature_check(m_creature);
-        Trinity::CreatureListSearcher<Trinity::AllFriendlyCreaturesInGrid> creature_searcher(creatures, creature_check);
+        Trinity::CreatureListSearcher<Trinity::AllFriendlyCreaturesInGrid> creature_searcher(m_creature, creatures, creature_check);
         TypeContainerVisitor
             <Trinity::CreatureListSearcher<Trinity::AllFriendlyCreaturesInGrid>,
             GridTypeMapContainer> creature_visitor(creature_searcher);
@@ -1049,7 +1049,7 @@ void hyjalAI::DoOverrun(uint32 faction, const uint32 diff)
 
             std::list<Creature*> creatures;
             Trinity::AllFriendlyCreaturesInGrid creature_check(m_creature);
-            Trinity::CreatureListSearcher<Trinity::AllFriendlyCreaturesInGrid> creature_searcher(creatures, creature_check);
+            Trinity::CreatureListSearcher<Trinity::AllFriendlyCreaturesInGrid> creature_searcher(m_creature, creatures, creature_check);
             TypeContainerVisitor
                 <Trinity::CreatureListSearcher<Trinity::AllFriendlyCreaturesInGrid>,
                 GridTypeMapContainer> creature_visitor(creature_searcher);

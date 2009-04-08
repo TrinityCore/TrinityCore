@@ -3218,10 +3218,7 @@ void Unit::_DeleteAuras()
                         {
                             // remove auras only for non-aoe spells or when chanelled aura is removed
                             // because aoe spells don't require aura on target to continue
-                            {
-                                caster->m_currentSpells[CURRENT_CHANNELED_SPELL]->cancel();
-                                caster->m_currentSpells[CURRENT_CHANNELED_SPELL]=NULL;
-                            }
+                            caster->m_currentSpells[CURRENT_CHANNELED_SPELL]->cancel();
                         }
 
                         if(caster->GetTypeId()==TYPEID_UNIT && ((Creature*)caster)->isTotem() && ((Totem*)caster)->GetTotemType()==TOTEM_STATUE)
