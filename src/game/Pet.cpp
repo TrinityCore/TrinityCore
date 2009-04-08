@@ -1148,15 +1148,14 @@ void Pet::_SaveAuras()
     {
         // skip all auras from spell that apply at cast SPELL_AURA_MOD_SHAPESHIFT or pet area auras.
         // do not save single target auras (unless they were cast by the player)
-        if (itr->second->IsPassive()
-            || (itr->second->GetCasterGUID() != GetGUID() && itr->second->IsSingleTarget()))
+        if (itr->second->IsPassive() || itr->second->IsAuraType(SPELL_AURA_MOD_STEALTH))
             continue;
-        SpellEntry const *spellInfo = itr->second->GetSpellProto();
-        for (uint8 i=0;i<MAX_SPELL_EFFECTS;++i)
-            if (spellInfo->EffectApplyAuraName[i] == SPELL_AURA_MOD_STEALTH ||
-                spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AREA_AURA_OWNER ||
-                spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AREA_AURA_PET )
+        bool isCaster = itr->second->GetCasterGUID() == GetGUID();
+        if (!isCaster)
+            if (itr->second->IsSingleTarget()
+                || itr->second->IsAreaAura())
                 continue;
+
         uint32 amounts[MAX_SPELL_EFFECTS];
         for (uint8 i=0;i<MAX_SPELL_EFFECTS;++i)
         {
