@@ -5414,7 +5414,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 if (!target)
                     return false;
                 triggered_spell_id = 54181;
-                basepoints0 = damage * triggerAmount / 100;
+                basepoints0 = damage * 15 / 100;
                 break;
             }
             switch(dummySpell->Id)

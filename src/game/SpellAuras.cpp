@@ -944,12 +944,15 @@ void Aura::_AddAura()
 
     // passive auras (except totem auras) do not get placed in the slots
     // area auras with SPELL_AURA_NONE are not shown on target
-    if((m_spellProto->Attributes & 0x80 && GetTalentSpellPos(GetId())) || !m_isPassive || (caster && caster->GetTypeId() == TYPEID_UNIT && ((Creature*)caster)->isTotem())
-         && (!IsAreaAura()
-        || m_target!=caster ||
-        (m_spellProto->Effect[0]!=SPELL_EFFECT_APPLY_AREA_AURA_ENEMY
-        && m_spellProto->Effect[1]!=SPELL_EFFECT_APPLY_AREA_AURA_ENEMY
-        && m_spellProto->Effect[2]!=SPELL_EFFECT_APPLY_AREA_AURA_ENEMY)))
+    if((m_spellProto->Attributes & 0x80 && GetTalentSpellPos(GetId())) 
+        || !m_isPassive
+        || (caster && caster->GetTypeId() == TYPEID_UNIT && ((Creature*)caster)->isTotem())
+        || (IsAuraType(SPELL_AURA_ABILITY_IGNORE_AURASTATE))
+             && (!IsAreaAura()
+            || m_target!=caster ||
+            (m_spellProto->Effect[0]!=SPELL_EFFECT_APPLY_AREA_AURA_ENEMY
+            && m_spellProto->Effect[1]!=SPELL_EFFECT_APPLY_AREA_AURA_ENEMY
+            && m_spellProto->Effect[2]!=SPELL_EFFECT_APPLY_AREA_AURA_ENEMY)))
     {
         // Try find slot for aura
         uint8 slot = MAX_AURAS;

@@ -4001,8 +4001,18 @@ SpellCastResult Spell::CheckCast(bool strict)
             {
                 if(m_spellInfo->SpellIconID == 1648)        // Execute
                 {
-                    if(!m_targets.getUnitTarget() || m_targets.getUnitTarget()->GetHealth() > m_targets.getUnitTarget()->GetMaxHealth()*0.2)
+                    if(!m_targets.getUnitTarget())
                         return SPELL_FAILED_BAD_TARGETS;
+                    if (m_targets.getUnitTarget()->GetHealth() > m_targets.getUnitTarget()->GetMaxHealth()*0.2)
+                    {
+                        bool found = false;
+                        Unit::AuraEffectList const& stateAuras = m_caster->GetAurasByType(SPELL_AURA_ABILITY_IGNORE_AURASTATE);
+                        for(Unit::AuraEffectList::const_iterator j = stateAuras.begin();j != stateAuras.end(); ++j)
+                            if((*j)->isAffectedOnSpell(m_spellInfo))
+                                found=true;
+                        if (!found)
+                            return SPELL_FAILED_BAD_TARGETS;
+                    }
                 }
                 else if (m_spellInfo->Id == 51582)          // Rocket Boots Engaged
                 {
