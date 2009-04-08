@@ -387,8 +387,6 @@ void WorldSession::HandleCancelAuraOpcode( WorldPacket& recvPacket)
             if(spell->m_spellInfo->Id==spellId)
             {
                 spell->cancel();
-                spell->SetReferencedFromCurrent(false);
-                _player->m_currentSpells[CURRENT_CHANNELED_SPELL] = NULL;
             }
         }
         return;

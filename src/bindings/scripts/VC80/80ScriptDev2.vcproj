@@ -2221,7 +2221,23 @@
 						Name="Battle for Mt. Hyjal"
 						>
 						<File
+							RelativePath="..\scripts\zone\caverns_of_time\hyjal\boss_anetheron.cpp"
+							>
+						</File>
+						<File
 							RelativePath="..\scripts\zone\caverns_of_time\hyjal\boss_archimonde.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\caverns_of_time\hyjal\boss_azgalor.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\caverns_of_time\hyjal\boss_kazrogal.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\caverns_of_time\hyjal\boss_rage_winterchill.cpp"
 							>
 						</File>
 						<File
@@ -2230,6 +2246,14 @@
 						</File>
 						<File
 							RelativePath="..\scripts\zone\caverns_of_time\hyjal\hyjal.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\caverns_of_time\hyjal\hyjal_trash.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\caverns_of_time\hyjal\hyjal_trash.h"
 							>
 						</File>
 						<File
@@ -2245,10 +2269,10 @@
 							>
 						</File>
 					</Filter>
+
 					<Filter
 						Name="Culling of Stratholme"
 						>
-					</Filter>
 					<Filter
 						Name="Old Hillsbrad"
 						>

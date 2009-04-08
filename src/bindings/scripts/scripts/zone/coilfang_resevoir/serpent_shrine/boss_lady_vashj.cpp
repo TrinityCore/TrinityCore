@@ -134,7 +134,7 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         Intro = false;
-        CanAttack = false;//must be after reset()
+        JustCreated = true;
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE); //set it only once on creature create (no need do intro if wiped)
     }
 
@@ -161,6 +161,7 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
     bool InCombat;
     bool Intro;
     bool CanAttack;
+    bool JustCreated;
 
     void Reset()
     {
@@ -181,7 +182,11 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
 
         Entangle = false;
         InCombat = false;
-        CanAttack = true;
+        if(JustCreated)
+        {
+            CanAttack = false;
+            JustCreated = false;
+        }else CanAttack = true;
 
         Unit *remo;
         for(uint8 i = 0; i < 4; i++)
