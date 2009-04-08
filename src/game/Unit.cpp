@@ -11007,6 +11007,16 @@ uint32 Unit::GetCreatePowers( Powers power ) const
     return 0;
 }
 
+void Unit::AddToWorld()
+{
+    if(!IsInWorld())
+    {
+        m_Notified = false;
+        m_IsInNotifyList = false;
+        SetToNotify();
+    }
+}
+
 void Unit::RemoveFromWorld()
 {
     // cleanup

@@ -28,7 +28,7 @@
 #define TYRANDE             17948
 
 #define ANCIENT_VEIN        185557
-#define FLAMEOBJECT            182592
+#define FLAMEOBJECT         182592
 
 // Bosses summoned after every 8 waves
 #define RAGE_WINTERCHILL    17767
@@ -37,10 +37,11 @@
 #define AZGALOR             17842
 #define ARCHIMONDE          17968
 
-#define SPELL_TELEPORT_VISUAL   41232
+#define SPELL_TELEPORT_VISUAL     41232
+#define SPELL_MASS_TELEPORT       16807
 
 //Spells for Jaina
-#define SPELL_BRILLIANCE_AURA     31260                     // The database must handle this spell via creature_addon
+#define SPELL_BRILLIANCE_AURA     31260                     // The database must handle this spell via creature_addon(it should, but is removed in evade..)
 #define SPELL_BLIZZARD            31266
 #define SPELL_PYROBLAST           31263
 #define SPELL_SUMMON_ELEMENTALS   31264
@@ -185,6 +186,7 @@ struct TRINITY_DLL_DECL hyjalAI : public npc_escortAI
     void RespawnNearPos(float x, float y);
     void WaypointReached(uint32 i);
     void DoOverrun(uint32 faction, const uint32 diff);
+    void MoveInLineOfSight(Unit *who);
 
     void SummonCreature(uint32 entry, float Base[4][3]);    // Summons a creature for that wave in that base
 
@@ -232,6 +234,9 @@ struct TRINITY_DLL_DECL hyjalAI : public npc_escortAI
         bool DoRespawn;
         bool DoHide;
         bool IsDummy;
+        uint32 MassTeleportTimer;
+        bool DoMassTeleport;
+        uint64 DummyGuid;
 
         struct Spell
         {
