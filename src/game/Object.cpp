@@ -97,6 +97,8 @@ Object::~Object( )
         //DEBUG_LOG("Object desctr 1 check (%p)",(void*)this);
         delete [] m_uint32Values;
         delete [] m_uint32Values_mirror;
+        m_uint32Values = NULL;
+        m_uint32Values_mirror = NULL;
         //DEBUG_LOG("Object desctr 2 check (%p)",(void*)this);
     }
 }
@@ -1567,7 +1569,9 @@ Map const* WorldObject::GetBaseMap() const
 
 void WorldObject::AddObjectToRemoveList()
 {
-    Map* map = MapManager::Instance().FindMap(GetMapId(), GetInstanceId());
+    assert(m_uint32Values);
+
+    Map* map = FindMap();
     if(!map)
     {
         sLog.outError("Object (TypeId: %u Entry: %u GUID: %u) at attempt add to move list not have valid map (Id: %u).",GetTypeId(),GetEntry(),GetGUIDLow(),GetMapId());
