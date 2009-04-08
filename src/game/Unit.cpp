@@ -4771,10 +4771,6 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 case 9799:
                 case 25988:
                 {
-                    // prevent damage back from weapon special attacks
-                    if (!procSpell || procSpell->DmgClass != SPELL_DAMAGE_CLASS_MAGIC )
-                        return false;
-
                     // return damage % to attacker but < 50% own total health
                     basepoints0 = triggerAmount*int32(damage)/100;
                     if(basepoints0 > GetMaxHealth()/2)
