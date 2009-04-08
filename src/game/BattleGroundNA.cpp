@@ -50,7 +50,7 @@ void BattleGroundNA::Update(uint32 diff)
 {
     BattleGround::Update(diff);
 
-    /*if(GetStatus() == STATUS_IN_PROGRESS)
+    /*if (GetStatus() == STATUS_IN_PROGRESS)
     {
         // update something
     }*/
@@ -85,7 +85,7 @@ void BattleGroundNA::AddPlayer(Player *plr)
 
 void BattleGroundNA::RemovePlayer(Player* /*plr*/, uint64 /*guid*/)
 {
-    if(GetStatus() == STATUS_WAIT_LEAVE)
+    if (GetStatus() == STATUS_WAIT_LEAVE)
         return;
 
     UpdateWorldState(0xa0f, GetAlivePlayersCountByTeam(ALLIANCE));
@@ -96,10 +96,10 @@ void BattleGroundNA::RemovePlayer(Player* /*plr*/, uint64 /*guid*/)
 
 void BattleGroundNA::HandleKillPlayer(Player *player, Player *killer)
 {
-    if(GetStatus() != STATUS_IN_PROGRESS)
+    if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
-    if(!killer)
+    if (!killer)
     {
         sLog.outError("BattleGroundNA: Killer player not found");
         return;
@@ -121,7 +121,7 @@ bool BattleGroundNA::HandlePlayerUnderMap(Player *player)
 
 void BattleGroundNA::HandleAreaTrigger(Player *Source, uint32 Trigger)
 {
-    if(GetStatus() != STATUS_IN_PROGRESS)
+    if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
     //uint32 SpellId = 0;
@@ -137,7 +137,7 @@ void BattleGroundNA::HandleAreaTrigger(Player *Source, uint32 Trigger)
             break;
     }
 
-    //if(buff_guid)
+    //if (buff_guid)
     //    HandleTriggerBuff(buff_guid,Source);
 }
 
@@ -157,7 +157,7 @@ void BattleGroundNA::Reset()
 bool BattleGroundNA::SetupBattleGround()
 {
     // gates
-    if(    !AddObject(BG_NA_OBJECT_DOOR_1, BG_NA_OBJECT_TYPE_DOOR_1, 4031.854, 2966.833, 12.6462, -2.648788, 0, 0, 0.9697962, -0.2439165, RESPAWN_IMMEDIATELY)
+    if (!AddObject(BG_NA_OBJECT_DOOR_1, BG_NA_OBJECT_TYPE_DOOR_1, 4031.854, 2966.833, 12.6462, -2.648788, 0, 0, 0.9697962, -0.2439165, RESPAWN_IMMEDIATELY)
         || !AddObject(BG_NA_OBJECT_DOOR_2, BG_NA_OBJECT_TYPE_DOOR_2, 4081.179, 2874.97, 12.39171, 0.4928045, 0, 0, 0.2439165, 0.9697962, RESPAWN_IMMEDIATELY)
         || !AddObject(BG_NA_OBJECT_DOOR_3, BG_NA_OBJECT_TYPE_DOOR_3, 4023.709, 2981.777, 10.70117, -2.648788, 0, 0, 0.9697962, -0.2439165, RESPAWN_IMMEDIATELY)
         || !AddObject(BG_NA_OBJECT_DOOR_4, BG_NA_OBJECT_TYPE_DOOR_4, 4090.064, 2858.438, 10.23631, 0.4928045, 0, 0, 0.2439165, 0.9697962, RESPAWN_IMMEDIATELY)
