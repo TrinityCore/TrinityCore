@@ -485,7 +485,7 @@ bool Map::Add(Player *player)
     SendInitTransports(player);
 
     player->m_clientGUIDs.clear();
-    AddNotifier(player);
+    //AddNotifier(player);
 
     return true;
 }
@@ -523,7 +523,7 @@ Map::Add(T *obj)
 
     UpdateObjectVisibility(obj,cell,p);
 
-    AddNotifier(obj);
+    //AddNotifier(obj);
 }
 
 void Map::MessageBroadcast(Player *player, WorldPacket *msg, bool to_self, bool to_possessor)
