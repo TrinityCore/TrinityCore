@@ -15841,17 +15841,20 @@ void Player::_SaveAuras()
     AuraMap const& auras = GetAuras();
     for(AuraMap::const_iterator itr = auras.begin(); itr !=auras.end() ; ++itr)
     {
-        // skip all auras from spell that apply at cast SPELL_AURA_MOD_SHAPESHIFT or pet area auras.
-        // do not save single target auras (unless they were cast by the player)
+        // skip:
+        // area auras or single cast auras casted by other unit
+        // passive auras and stances
         if (itr->second->IsPassive()
-            || (itr->second->GetCasterGUID() != GetGUID() && itr->second->IsSingleTarget())
+            || itr->second->IsAuraType(SPELL_AURA_MOD_SHAPESHIFT)
+            || itr->second->IsAuraType(SPELL_AURA_MOD_STEALTH)
             || itr->second->IsRemovedOnShapeLost())
             continue;
-        SpellEntry const *spellInfo = itr->second->GetSpellProto();
-        for (uint8 i=0;i<MAX_SPELL_EFFECTS;++i)
-            if (spellInfo->Effect[i] == SPELL_AURA_MOD_SHAPESHIFT ||
-                spellInfo->Effect[i] == SPELL_AURA_MOD_STEALTH )
+        bool isCaster = itr->second->GetCasterGUID() == GetGUID();
+        if (!isCaster)
+            if (itr->second->IsSingleTarget()
+                || itr->second->IsAreaAura())
                 continue;
+
         int32 amounts[MAX_SPELL_EFFECTS];
         for (uint8 i=0;i<MAX_SPELL_EFFECTS;++i)
         {
