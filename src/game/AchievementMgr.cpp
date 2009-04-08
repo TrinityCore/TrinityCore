@@ -673,12 +673,20 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 // AchievementMgr::UpdateAchievementCriteria might also be called on login - skip in this case
                 if(!miscvalue1)
                     continue;
-                BattleGround* bg = GetPlayer()->GetBattleGround();
-                if(!bg || !bg->isArena())
-                    continue;
-                //bg is arena so bg->GetArenaType() will return correct value
-                uint8 slot = ArenaTeam::GetSlotByType(bg->GetArenaType());
-                if(slot >= MAX_ARENA_SLOT || achievIdByArenaSlot[slot] != achievement->ID)
+                // skip wrong arena achievements, if not achievIdByArenaSlot then normal total death counter
+                bool notfit = false;
+                for(int i = 0; i < MAX_ARENA_SLOT; ++i)
+                {
+                    if(achievIdByArenaSlot[i] == achievement->ID)
+                    {
+                        BattleGround* bg = GetPlayer()->GetBattleGround();
+                        if(!bg || !bg->isArena() || ArenaTeam::GetSlotByType(bg->GetArenaType()) != i)
+                            notfit = true;
+
+                        break;
+                    }
+                }
+                if(notfit)
                     continue;
 
                 SetCriteriaProgress(achievementCriteria, 1, PROGRESS_ACCUMULATE);
