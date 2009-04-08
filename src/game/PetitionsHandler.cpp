@@ -254,7 +254,7 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket & recv_data)
     QueryResult *result = CharacterDatabase.PQuery("SELECT type FROM petition WHERE petitionguid = '%u'", petitionguid_low);
     if(!result)
     {
-        sLog.outError("any petition on server...");
+        sLog.outError("Petition %u is not found for player %u %s", GUID_LOPART(petitionguid), GetPlayer()->GetGUIDLow(), GetPlayer()->GetName());
         return;
     }
     Field *fields = result->Fetch();
@@ -462,7 +462,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recv_data)
 
     if(!result)
     {
-        sLog.outError("any petition on server...");
+        sLog.outError("Petition %u is not found for player %u %s", GUID_LOPART(petitionguid), GetPlayer()->GetGUIDLow(), GetPlayer()->GetName());
         return;
     }
 
