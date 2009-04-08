@@ -50,7 +50,7 @@ void BattleGroundBE::Update(uint32 diff)
 {
     BattleGround::Update(diff);
 
-    /*if(GetStatus() == STATUS_IN_PROGRESS)
+    /*if (GetStatus() == STATUS_IN_PROGRESS)
     {
         // update something
     }*/
@@ -88,7 +88,7 @@ void BattleGroundBE::AddPlayer(Player *plr)
 
 void BattleGroundBE::RemovePlayer(Player* /*plr*/, uint64 /*guid*/)
 {
-    if(GetStatus() == STATUS_WAIT_LEAVE)
+    if (GetStatus() == STATUS_WAIT_LEAVE)
         return;
 
     UpdateWorldState(0x9f1, GetAlivePlayersCountByTeam(ALLIANCE));
@@ -99,10 +99,10 @@ void BattleGroundBE::RemovePlayer(Player* /*plr*/, uint64 /*guid*/)
 
 void BattleGroundBE::HandleKillPlayer(Player *player, Player *killer)
 {
-    if(GetStatus() != STATUS_IN_PROGRESS)
+    if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
-    if(!killer)
+    if (!killer)
     {
         sLog.outError("Killer player not found");
         return;
@@ -125,7 +125,7 @@ bool BattleGroundBE::HandlePlayerUnderMap(Player *player)
 void BattleGroundBE::HandleAreaTrigger(Player *Source, uint32 Trigger)
 {
     // this is wrong way to implement these things. On official it done by gameobject spell cast.
-    if(GetStatus() != STATUS_IN_PROGRESS)
+    if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
     //uint32 SpellId = 0;
@@ -144,7 +144,7 @@ void BattleGroundBE::HandleAreaTrigger(Player *Source, uint32 Trigger)
             break;
     }
 
-    //if(buff_guid)
+    //if (buff_guid)
     //    HandleTriggerBuff(buff_guid,Source);
 }
 
@@ -164,7 +164,7 @@ void BattleGroundBE::Reset()
 bool BattleGroundBE::SetupBattleGround()
 {
     // gates
-    if(    !AddObject(BG_BE_OBJECT_DOOR_1, BG_BE_OBJECT_TYPE_DOOR_1, 6287.277f, 282.1877f, 3.810925f, -2.260201f, 0, 0, 0.9044551f, -0.4265689f, RESPAWN_IMMEDIATELY)
+    if (!AddObject(BG_BE_OBJECT_DOOR_1, BG_BE_OBJECT_TYPE_DOOR_1, 6287.277f, 282.1877f, 3.810925f, -2.260201f, 0, 0, 0.9044551f, -0.4265689f, RESPAWN_IMMEDIATELY)
         || !AddObject(BG_BE_OBJECT_DOOR_2, BG_BE_OBJECT_TYPE_DOOR_2, 6189.546f, 241.7099f, 3.101481f, 0.8813917f, 0, 0, 0.4265689f, 0.9044551f, RESPAWN_IMMEDIATELY)
         || !AddObject(BG_BE_OBJECT_DOOR_3, BG_BE_OBJECT_TYPE_DOOR_3, 6299.116f, 296.5494f, 3.308032f, 0.8813917f, 0, 0, 0.4265689f, 0.9044551f, RESPAWN_IMMEDIATELY)
         || !AddObject(BG_BE_OBJECT_DOOR_4, BG_BE_OBJECT_TYPE_DOOR_4, 6177.708f, 227.3481f, 3.604374f, -2.260201f, 0, 0, 0.9044551f, -0.4265689f, RESPAWN_IMMEDIATELY)

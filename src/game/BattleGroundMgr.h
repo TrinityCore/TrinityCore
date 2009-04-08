@@ -233,7 +233,7 @@ class BattleGroundMgr
         BattleGroundTypeId GetBattleMasterBG(uint32 entry) const
         {
             BattleMastersMap::const_iterator itr = mBattleMastersMap.find(entry);
-            if(itr != mBattleMastersMap.end())
+            if (itr != mBattleMastersMap.end())
                 return itr->second;
             return BATTLEGROUND_WS;
         }
