@@ -519,8 +519,8 @@ void Unit::RemoveSpellbyDamageTaken(uint32 damage, uint32 spell)
         {
             uint32 removedAuras = m_removedAuras.size();
             RemoveAura(aur);
-            if (removedAuras+1<m_ccAuras.size())
-                iter=m_interruptableAuras.begin();
+            if (removedAuras+1<m_removedAuras.size())
+                iter=m_ccAuras.begin();
         }
     }
 }
@@ -5613,6 +5613,8 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 // Leader of the Pack
                 case 24932:
                 {
+                   if (triggerAmount <= 0)
+                        return false;
                     basepoints0 = triggerAmount * GetMaxHealth() / 100;
                     target = this;
                     triggered_spell_id = 34299;
