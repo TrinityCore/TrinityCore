@@ -368,6 +368,7 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public ScriptedAI
         WispCount = 0;                                      // When ~30 wisps are summoned, Archimonde dies
         EnrageTimer = 600000;                               // 10 minutes
         CheckDistanceTimer = 30000;                         // This checks if he's too close to the World Tree (75 yards from a point on the tree), if true then he will enrage
+        SummonWispTimer = 0;
 
         Enraged = false;
         BelowTenPercent = false;
@@ -663,7 +664,7 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public ScriptedAI
                 DoScriptText(SAY_AIR_BURST2, m_creature);
 
 
-            DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_AIR_BURST);
+            DoCast(SelectUnit(SELECT_TARGET_RANDOM, 1), SPELL_AIR_BURST);//not on tank
             AirBurstTimer = 25000 + rand()%15000;
         }else AirBurstTimer -= diff;
 

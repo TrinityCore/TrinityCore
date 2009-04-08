@@ -89,6 +89,11 @@ bool GossipHello_npc_jaina_proudmoore(Player *player, Creature *_Creature)
 
 bool GossipSelect_npc_jaina_proudmoore(Player *player, Creature *_Creature, uint32 sender, uint32 action)
 {
+    if(_Creature->GetMap()->GetPlayersCountExceptGMs() < MINPLAYERS && !player->isGameMaster())
+    {
+        _Creature->Say("Did you come to die with me?",0,0);
+        return true;
+    }
     hyjalAI* ai = ((hyjalAI*)_Creature->AI());
     switch(action)
     {
@@ -120,7 +125,7 @@ CreatureAI* GetAI_npc_thrall(Creature *_Creature)
     ai->EnterEvadeMode();
 
     ai->Spell[0].SpellId = SPELL_CHAIN_LIGHTNING;
-    ai->Spell[0].Cooldown = 2000 + rand()%5000;
+    ai->Spell[0].Cooldown = 3000 + rand()%5000;
     ai->Spell[0].TargetType = TARGETTYPE_VICTIM;
 
     ai->Spell[1].SpellId = SPELL_SUMMON_DIRE_WOLF;
@@ -140,7 +145,7 @@ bool GossipHello_npc_thrall(Player *player, Creature *_Creature)
     uint32 AnetheronEvent = ai->GetInstanceData(DATA_ANETHERONEVENT);
 
     // Only let them start the Horde phases if Anetheron is dead.
-    if (AnetheronEvent == DONE)
+    if (AnetheronEvent == DONE && ai->GetInstanceData(DATA_ALLIANCE_RETREAT))
     {
         uint32 KazrogalEvent = ai->GetInstanceData(DATA_KAZROGALEVENT);
         uint32 AzgalorEvent  = ai->GetInstanceData(DATA_AZGALOREVENT);
@@ -162,7 +167,13 @@ bool GossipHello_npc_thrall(Player *player, Creature *_Creature)
 
 bool GossipSelect_npc_thrall(Player *player, Creature *_Creature, uint32 sender, uint32 action)
 {
+    if(_Creature->GetMap()->GetPlayersCountExceptGMs() < MINPLAYERS && !player->isGameMaster())//to stop idiot farmers
+    {
+        _Creature->Say("Did you come to die with me?",0,0);
+        return true;
+    }
     hyjalAI* ai = ((hyjalAI*)_Creature->AI());
+    ai->DeSpawnVeins();//despawn the alliance veins
     switch(action)
     {
         case GOSSIP_ACTION_INFO_DEF + 1:
@@ -197,6 +208,7 @@ CreatureAI* GetAI_npc_tyrande_whisperwind(Creature *_Creature)
 bool GossipHello_npc_tyrande_whisperwind(Player* player, Creature* _Creature)
 {
     hyjalAI* ai = ((hyjalAI*)_Creature->AI());
+    //ai->DeSpawnVeins();//dont despawn the horde veins if someone takes the item from Tyrande
     uint32 AzgalorEvent = ai->GetInstanceData(DATA_AZGALOREVENT);
 
     // Only let them get item if Azgalor is dead.
@@ -208,15 +220,18 @@ bool GossipHello_npc_tyrande_whisperwind(Player* player, Creature* _Creature)
 
 bool GossipSelect_npc_tyrande_whisperwind(Player *player, Creature *_Creature, uint32 sender, uint32 action)
 {
-    if (action == GOSSIP_ACTION_INFO_DEF)
+    if (action == GOSSIP_ACTION_INFO_DEF)  
     {
             ItemPosCountVec dest;
             uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, ITEM_TEAR_OF_GODDESS, 1);
             if (msg == EQUIP_ERR_OK)
             {
-                player->StoreNewItem(dest, ITEM_TEAR_OF_GODDESS, true);
+                 Item* item = player->StoreNewItem(dest, ITEM_TEAR_OF_GODDESS, true);
+                 if(item && player)
+                     player->SendNewItem(item,1,true,false,true);
             }
             player->SEND_GOSSIP_MENU(907, _Creature->GetGUID());
+            hyjalAI* ai = ((hyjalAI*)_Creature->AI());
     }
 
     return true;
