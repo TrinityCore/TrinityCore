@@ -22,7 +22,7 @@
 DROP TABLE IF EXISTS `db_version`;
 CREATE TABLE `db_version` (
   `version` varchar(120) default NULL,
-  `required_7627_01_mangos_achievement_criteria_data` bit(1) default NULL
+  `required_7633_01_mangos_achievement_criteria_data` bit(1) default NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Used DB version notes';
 
 --
@@ -46,7 +46,7 @@ CREATE TABLE `achievement_criteria_data` (
   `type` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `value1` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `value2` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`criteria_id`)
+  PRIMARY KEY (`criteria_id`,`type`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Achievment system';
 
 --
