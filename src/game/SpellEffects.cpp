@@ -6437,6 +6437,7 @@ void Spell::SummonVehicle(uint32 entry, SummonPropertiesEntry const *properties)
     if(!vehicle)
         return;
 
+    vehicle->SetOwnerGUID(m_caster->GetGUID());
     vehicle->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
 
     if(damage)
