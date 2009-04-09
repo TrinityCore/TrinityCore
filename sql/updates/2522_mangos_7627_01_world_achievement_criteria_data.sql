@@ -1,4 +1,4 @@
-ALTER TABLE db_version CHANGE COLUMN required_7622_03_mangos_creature_ai_texts required_7627_01_mangos_achievement_criteria_data bit;
+/*ALTER TABLE db_version CHANGE COLUMN required_7622_03_mangos_creature_ai_texts required_7627_01_mangos_achievement_criteria_data bit;*/
 
 DROP TABLE IF EXISTS `achievement_criteria_data`;
 CREATE TABLE `achievement_criteria_data` (
