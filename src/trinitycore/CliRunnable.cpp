@@ -253,6 +253,20 @@ bool ChatHandler::HandleAccountCreateCommand(const char* args)
 }
 
 /// Set the level of logging
+bool ChatHandler::HandleServerSetLogFileLevelCommand(const char *args)
+{
+    if(!*args)
+        return false;
+
+    char *NewLevel = strtok((char*)args, " ");
+    if (!NewLevel)
+        return false;
+
+    sLog.SetLogFileLevel(NewLevel);
+    return true;
+}
+
+/// Set the level of logging
 bool ChatHandler::HandleServerSetLogLevelCommand(const char *args)
 {
     if(!*args)
