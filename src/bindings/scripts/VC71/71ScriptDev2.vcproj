@@ -43,7 +43,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\..\..\dep\include\;..\..\..\shared\;..\..\..\framework\;..\..\..\game\;..\include\;..\..\..\..\dep\ACE_wrappers"
-				PreprocessorDefinitions="WIN32;_DEBUG;MANGOS_DEBUG;_WINDOWS;_USRDLL;SCRIPT"
+				PreprocessorDefinitions="WIN32;_DEBUG;TRINITY_DEBUG;_WINDOWS;_USRDLL;SCRIPT"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -51,7 +51,7 @@
 				PrecompiledHeaderThrough="precompiled.h"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="4"
+				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -69,7 +69,7 @@
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\..\..\win\VC71\zthread__$(PlatformName)_$(ConfigurationName);..\..\..\..\win\VC71\trinitycore__$(PlatformName)_$(ConfigurationName)"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)/MaNGOSScript.pdb"
+				ProgramDatabaseFile="$(OutDir)/TrinityScript.pdb"
 				SubSystem="2"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
@@ -234,16 +234,20 @@
 				Name="examples"
 				>
 				<File
-					RelativePath="..\scripts\examples\example_creature.cpp">
+					RelativePath="..\scripts\examples\example_creature.cpp"
+					>
 				</File>
 				<File
-					RelativePath="..\scripts\examples\example_escort.cpp">
+					RelativePath="..\scripts\examples\example_escort.cpp"
+					>
 				</File>
 				<File
-					RelativePath="..\scripts\examples\example_gossip_codebox.cpp">
+					RelativePath="..\scripts\examples\example_gossip_codebox.cpp"
+					>
 				</File>
 				<File
-					RelativePath="..\scripts\examples\example_misc.cpp">
+					RelativePath="..\scripts\examples\example_misc.cpp"
+					>
 				</File>
 			</Filter>
 			<Filter
@@ -575,6 +579,190 @@
 				</Filter>
 				<Filter
 					Name="Swamp of Sorrows"
+					>
+				</Filter>
+				<Filter
+					Name="Borean Tundra"
+					>
+					<File
+						RelativePath="..\scripts\zone\borean_tundra\borean_tundra.cpp"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Howling Fjord"
+					>
+				</Filter>
+				<Filter
+					Name="Crystalsong Forest"
+					>
+				</Filter>
+				<Filter
+					Name="Dalaran"
+					>
+				</Filter>
+				<Filter
+					Name="Dragonblight"
+					>
+				</Filter>
+				<Filter
+					Name="Grizzly Hills"
+					>
+				</Filter>
+				<Filter
+					Name="Icecrown"
+					>
+				</Filter>
+				<Filter
+					Name="Sholazar Basin"
+					>
+				</Filter>
+				<Filter
+					Name="The Storm Peaks"
+					>
+				</Filter>
+				<Filter
+					Name="Zul&apos;Drak"
+					>
+				</Filter>
+				<Filter
+					Name="Azjol-Nerub"
+					>
+					<Filter
+						Name="Ahn&apos;kahet"
+						>
+						<File
+							RelativePath="..\scripts\zone\Azjol-Nerub\Ahn&apos;kahet\boss_amanitar.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\Azjol-Nerub\Ahn&apos;kahet\boss_elder_nadox.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\Azjol-Nerub\Ahn&apos;kahet\boss_herald_volazj.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\Azjol-Nerub\Ahn&apos;kahet\boss_jedoga_shadowseeker.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\Azjol-Nerub\Ahn&apos;kahet\boss_prince_taldaram.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\Azjol-Nerub\Ahn&apos;kahet\def_ahnkahet.h"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\Azjol-Nerub\Ahn&apos;kahet\instance_ahnkahet.cpp"
+							>
+						</File>
+					</Filter>
+					<Filter
+						Name="Azjol-Nerub"
+						>
+						<File
+							RelativePath="..\scripts\zone\Azjol-Nerub\Azjol-Nerub\boss_anubarak.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\Azjol-Nerub\Azjol-Nerub\boss_hadronox.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\Azjol-Nerub\Azjol-Nerub\boss_krikthir_the_gatewatcher.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\Azjol-Nerub\Azjol-Nerub\def_azjol_nerub.h"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\Azjol-Nerub\Azjol-Nerub\instance_azjol_nerub.cpp"
+							>
+						</File>
+					</Filter>
+				</Filter>
+				<Filter
+					Name="Drak&apos;Tharon Keep"
+					>
+				</Filter>
+				<Filter
+					Name="Gundrak"
+					>
+				</Filter>
+				<Filter
+					Name="Nexus"
+					>
+					<Filter
+						Name="Nexus"
+						>
+					</Filter>
+					<Filter
+						Name="Oculus"
+						>
+					</Filter>
+					<Filter
+						Name="Eye of Eternity"
+						>
+					</Filter>
+				</Filter>
+				<Filter
+					Name="Violet Hold"
+					>
+				</Filter>
+				<Filter
+					Name="Ulduar"
+					>
+					<Filter
+						Name="Halls of Stone"
+						>
+					</Filter>
+					<Filter
+						Name="Halls of Lightning"
+						>
+					</Filter>
+				</Filter>
+				<Filter
+					Name="Utgarde Keep"
+					>
+					<Filter
+						Name="Utgarde Keep"
+						>
+						<File
+							RelativePath="..\scripts\zone\utgarde_keep\utgarde_keep\boss_ingvar_the_plunderer.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\utgarde_keep\utgarde_keep\boss_keleseth.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\utgarde_keep\utgarde_keep\boss_skarvald_dalronn.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\utgarde_keep\utgarde_keep\def_utgarde_keep.h"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\utgarde_keep\utgarde_keep\instance_utgarde_keep.cpp"
+							>
+						</File>
+					</Filter>
+					<Filter
+						Name="Utgarde Pinnacle"
+						>
+					</Filter>
+				</Filter>
+				<Filter
+					Name="Obsidian Sanctum"
+					>
+				</Filter>
+				<Filter
+					Name="Vault of Archavon"
 					>
 				</Filter>
 				<Filter
@@ -1069,9 +1257,9 @@
 					Name="Thousand Needles"
 					>
 					<File
-                        RelativePath="..\scripts\zone\thousand_needles\thousand_needles.cpp"
-                        >
-                    </File>
+						RelativePath="..\scripts\zone\thousand_needles\thousand_needles.cpp"
+						>
+					</File>
 				</Filter>
 				<Filter
 					Name="Silithus"
@@ -1233,9 +1421,9 @@
 					Name="Un&apos;Goro Crater"
 					>
 					<File
-                            RelativePath="..\scripts\zone\ungoro_crater\ungoro_crater.cpp"
-                            >
-                        </File>
+						RelativePath="..\scripts\zone\ungoro_crater\ungoro_crater.cpp"
+						>
+					</File>
 				</Filter>
 				<Filter
 					Name="Aunchindoun"
@@ -1460,11 +1648,11 @@
 							>
 						</File>
 						<File
-							RelativePath="..\scripts\zone\hellfire_citadel\hellfire_ramparts\boss_watchkeeper_gargolmar.cpp"
+							RelativePath="..\scripts\zone\hellfire_citadel\hellfire_ramparts\boss_vazruden_the_herald.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\scripts\zone\hellfire_citadel\hellfire_ramparts\boss_vazruden_the_herald.cpp"
+							RelativePath="..\scripts\zone\hellfire_citadel\hellfire_ramparts\boss_watchkeeper_gargolmar.cpp"
 							>
 						</File>
 					</Filter>
@@ -1930,7 +2118,8 @@
 					</Filter>
 
 					<Filter
-						Name="Culling of Stratholme">
+						Name="Culling of Stratholme"
+						>
 					</Filter>
 					<Filter
 						Name="Old Hillsbrad"
@@ -1993,166 +2182,6 @@
 						>
 					</File>
 				</Filter>
-				  <Filter
-	 	                                    Name="Borean Tundra">
-											<File
-												RelativePath="..\scripts\zone\borean_tundra\borean_tundra.cpp"
-											>
-											</File>
-	 	                                 </Filter>
-	 	                                 <Filter
-	 	                                         Name="Howling Fjord">
-	 	                                 </Filter>
-	 	                                 <Filter
-	 	                                         Name="Crystalsong Forest">
-	 	                                 </Filter>
-	 	                                 <Filter
-	 	                                         Name="Dalaran">
-	 	                                 </Filter>
-	 	                                 <Filter
-	 	                                         Name="Dragonblight">
-	 	                                 </Filter>
-	 	                                 <Filter
-	 	                                         Name="Grizzly Hills">
-	 	                                 </Filter>
-	 	                                 <Filter
-	 	                                         Name="Icecrown">
-	 	                                 </Filter>
-	 	                                 <Filter
-	 	                                         Name="Sholazar Basin">
-	 	                                 </Filter>
-	 	                                 <Filter
-	 	                                         Name="The Storm Peaks">
-	 	                                 </Filter>
-	 	                                 <Filter
-	 	                                         Name="Zul&apos;Drak">
-	 	                                 </Filter>
-	 	                                 <Filter
-	 	                                         Name="Azjol-Nerub">
-					<Filter
-						Name="Ahn&apos;kahet"
-						>
-						<File
-							RelativePath="..\scripts\zone\Azjol-Nerub\Ahn&apos;kahet\boss_amanitar.cpp"
-							>
-						</File>
-						<File
-							RelativePath="..\scripts\zone\Azjol-Nerub\Ahn&apos;kahet\boss_elder_nadox.cpp"
-							>
-						</File>
-						<File
-							RelativePath="..\scripts\zone\Azjol-Nerub\Ahn&apos;kahet\boss_herald_volazj.cpp"
-							>
-						</File>
-						<File
-							RelativePath="..\scripts\zone\Azjol-Nerub\Ahn&apos;kahet\boss_jedoga_shadowseeker.cpp"
-							>
-						</File>
-						<File
-							RelativePath="..\scripts\zone\Azjol-Nerub\Ahn&apos;kahet\boss_prince_taldaram.cpp"
-							>
-						</File>
-						<File
-							RelativePath="..\scripts\zone\Azjol-Nerub\Ahn&apos;kahet\def_ahnkahet.h"
-							>
-						</File>
-						<File
-							RelativePath="..\scripts\zone\Azjol-Nerub\Ahn&apos;kahet\instance_ahnkahet.cpp"
-							>
-						</File>
-					</Filter>
-					<Filter
-						Name="Azjol-Nerub"
-						>
-						<File
-							RelativePath="..\scripts\zone\Azjol-Nerub\Azjol-Nerub\boss_anubarak.cpp"
-							>
-						</File>
-						<File
-							RelativePath="..\scripts\zone\Azjol-Nerub\Azjol-Nerub\boss_hadronox.cpp"
-							>
-						</File>
-						<File
-							RelativePath="..\scripts\zone\Azjol-Nerub\Azjol-Nerub\boss_krikthir_the_gatewatcher.cpp"
-							>
-						</File>
-						<File
-							RelativePath="..\scripts\zone\Azjol-Nerub\Azjol-Nerub\def_azjol_nerub.h"
-							>
-						</File>
-						<File
-							RelativePath="..\scripts\zone\Azjol-Nerub\Azjol-Nerub\instance_azjol_nerub.cpp"
-							>
-						</File>
-					</Filter>
-
-	 	                                 </Filter>
-	 	                                 <Filter
-	 	                                         Name="Drak&apos;Tharon Keep">
-	 	                                 </Filter>
- 	                                 <Filter
-	 	                                         Name="Gundrak">
-	 	                                 </Filter>
-	 	                                 <Filter
-	 	                                         Name="Nexus">
-	 	                                         <Filter
-	 	                                                 Name="Nexus">
-	 	                                         </Filter>
-	 	                                         <Filter
-	 	                                                 Name="Oculus">
-	 	                                         </Filter>
-	 	                                         <Filter
-	 	                                                 Name="Eye of Eternity">
-	 	                                         </Filter>
-	 	                                 </Filter>
-	 	                                 <Filter
-	 	                                         Name="Violet Hold">
-	 	                                 </Filter>
-	 	                                 <Filter
-	 	                                         Name="Ulduar"
-	 	                                         >
-	 	                                         <Filter
-	 	                                                 Name="Halls of Stone">
-	 	                                         </Filter>
-	 	                                         <Filter
-	 	                                                 Name="Halls of Lightning">
-	 	                                         </Filter>
-	 	                                 </Filter>
-	 	                                 <Filter
-	 	                                         Name="Utgarde Keep">
-	 	                                         <Filter
-	 	                                                 Name="Utgarde Keep">
-														 	<File
-														 	RelativePath="..\scripts\zone\utgarde_keep\utgarde_keep\boss_keleseth.cpp"
-														 	>
-														 	</File>
-														 	<File
-															RelativePath="..\scripts\zone\utgarde_keep\utgarde_keep\boss_skarvald_dalronn.cpp"
-															>
-															</File>
-															<File
-															RelativePath="..\scripts\zone\utgarde_keep\utgarde_keep\boss_ingvar_the_plunderer.cpp"
-															>
-															</File>
-															<File
-														 	RelativePath="..\scripts\zone\utgarde_keep\utgarde_keep\def_utgarde_keep.h"
-														 	>
-														 	</File>
-														 	<File
-														 	RelativePath="..\scripts\zone\utgarde_keep\utgarde_keep\instance_utgarde_keep.cpp"
-														 	>
-														 	</File>
-	 	                                         </Filter>
-	 	                                         <Filter
-	 	                                                 Name="Utgarde Pinnacle">
-	 	                                         </Filter>
-	 	                                 </Filter>
-	 	                                 <Filter
-	 	                                         Name="Obsidian Sanctum">
-	 	                                 </Filter>
-	 	                                 <Filter
-	 	                                         Name="Vault of Archavon">
-	 	                                 </Filter>
 				<Filter
 					Name="Shattrath City"
 					>
@@ -2289,21 +2318,13 @@
 						>
 					</File>
 					<File
-						RelativePath="..\scripts\zone\blackrock_depths\def_blackrock_depths.h"
-						>
-					</File>
-					<File
-						RelativePath="..\scripts\zone\blackrock_depths\instance_blackrock_depths.cpp"
-						>
-					</File>
-					<File
 						RelativePath="..\scripts\zone\blackrock_depths\boss_ambassador_flamelash.cpp"
 						>
-					</File>				
+					</File>
 					<File
 						RelativePath="..\scripts\zone\blackrock_depths\boss_anubshiah.cpp"
 						>
-					</File>									
+					</File>
 					<File
 						RelativePath="..\scripts\zone\blackrock_depths\boss_emperor_dagran_thaurissan.cpp"
 						>
@@ -2311,7 +2332,7 @@
 					<File
 						RelativePath="..\scripts\zone\blackrock_depths\boss_general_angerforge.cpp"
 						>
-					</File>					
+					</File>
 					<File
 						RelativePath="..\scripts\zone\blackrock_depths\boss_gorosh_the_dervish.cpp"
 						>
@@ -2319,7 +2340,7 @@
 					<File
 						RelativePath="..\scripts\zone\blackrock_depths\boss_grizzle.cpp"
 						>
-					</File>					
+					</File>
 					<File
 						RelativePath="..\scripts\zone\blackrock_depths\boss_high_interrogator_gerstahn.cpp"
 						>
@@ -2331,9 +2352,17 @@
 					<File
 						RelativePath="..\scripts\zone\blackrock_depths\boss_moira_bronzebeard.cpp"
 						>
-					</File>					
+					</File>
 					<File
 						RelativePath="..\scripts\zone\blackrock_depths\boss_tomb_of_seven.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\blackrock_depths\def_blackrock_depths.h"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\blackrock_depths\instance_blackrock_depths.cpp"
 						>
 					</File>
 				</Filter>
@@ -2396,19 +2425,11 @@
 			</File>
 		</Filter>
 		<File
-			RelativePath="..\config.h"
-			>
-		</File>
-		<File
 			RelativePath="..\ScriptMgr.cpp"
 			>
 		</File>
 		<File
 			RelativePath="..\ScriptMgr.h"
-			>
-		</File>
-		<File
-			RelativePath="..\svn_revision.h"
 			>
 		</File>
 		<File
