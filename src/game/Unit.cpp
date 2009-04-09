@@ -11026,6 +11026,8 @@ void Unit::AddToWorld()
 void Unit::RemoveFromWorld()
 {
     // cleanup
+    assert(GetGUID());
+
     if(IsInWorld())
     {
         UnsummonAllTotems();
@@ -11043,7 +11045,7 @@ void Unit::RemoveFromWorld()
 
 void Unit::CleanupsBeforeDelete()
 {
-    assert(m_uint32Values);
+    assert(GetGUID());
 
     //A unit may be in removelist and not in world, but it is still in grid
     //and may have some references during delete
