@@ -667,13 +667,14 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
                     if(GetTypeId() == TYPEID_PLAYER && target != this
                         && ((Player*)this)->IsInSameRaidWith(target))
                     {
-                        /*if(index == UNIT_FIELD_BYTES_2)
+                        // Allow targetting opposite faction in party when enabled in config
+                        if(sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP) && index == UNIT_FIELD_BYTES_2)
                         {
                             DEBUG_LOG("-- VALUES_UPDATE: Sending '%s' the blue-group-fix from '%s' (flag)", target->GetName(), ((Player*)this)->GetName());
                             *data << ( m_uint32Values[ index ] & (UNIT_BYTE2_FLAG_SANCTUARY << 8) ); // this flag is at uint8 offset 1 !!
                             ch = true;
                         }
-                        else*/
+                        else
                         {
                             FactionTemplateEntry const *ft1, *ft2;
                             ft1 = ((Player*)this)->getFactionTemplateEntry();
