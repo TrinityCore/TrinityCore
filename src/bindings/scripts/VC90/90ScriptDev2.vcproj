@@ -47,7 +47,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\..\..\dep\include\;..\..\..\shared\;..\..\..\framework\;..\..\..\game\;..\include\;..\..\..\..\dep\ACE_wrappers"
-				PreprocessorDefinitions="WIN32;_DEBUG;MANGOS_DEBUG;_WINDOWS;_USRDLL;SCRIPT"
+				PreprocessorDefinitions="WIN32;_DEBUG;TRINITY_DEBUG;_WINDOWS;_USRDLL;SCRIPT"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -73,7 +73,7 @@
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\..\..\win\VC90\zthread__$(PlatformName)_$(ConfigurationName);..\..\..\..\win\VC90\trinitycore__$(PlatformName)_$(ConfigurationName)"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)/MaNGOSScript.pdb"
+				ProgramDatabaseFile="$(OutDir)/TrinityScript.pdb"
 				SubSystem="2"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
@@ -131,7 +131,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\..\..\dep\include\;..\..\..\shared\;..\..\..\framework\;..\..\..\game\;..\include\;..\..\..\..\dep\ACE_wrappers"
-				PreprocessorDefinitions="WIN32;_DEBUG;MANGOS_DEBUG;_WINDOWS;_USRDLL;SCRIPT"
+				PreprocessorDefinitions="WIN32;_DEBUG;TRINITY_DEBUG;_WINDOWS;_USRDLL;SCRIPT"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -157,7 +157,7 @@
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\..\..\win\VC90\zthread__$(PlatformName)_$(ConfigurationName);..\..\..\..\win\VC90\trinitycore__$(PlatformName)_$(ConfigurationName)"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)/MaNGOSScript.pdb"
+				ProgramDatabaseFile="$(OutDir)/TrinityScript.pdb"
 				SubSystem="2"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
@@ -2567,7 +2567,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|x64"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2575,7 +2575,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32"
+					Name="Debug|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
