@@ -286,7 +286,7 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint8 flags, uint32 flags2)
             {
                 flags2 = ((Player*)this)->GetUnitMovementFlags();
 
-                if(((Player*)this)->GetTransport())
+                if(((Player*)this)->GetTransport() || ((Player*)this)->hasUnitState(UNIT_STAT_ONVEHICLE))
                     flags2 |= MOVEMENTFLAG_ONTRANSPORT;
                 else
                     flags2 &= ~MOVEMENTFLAG_ONTRANSPORT;
@@ -336,7 +336,10 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint8 flags, uint32 flags2)
         {
             if(GetTypeId() == TYPEID_PLAYER)
             {
-                *data << (uint64)((Player*)this)->GetTransport()->GetGUID();
+                if(((Player*)this)->hasUnitState(UNIT_STAT_ONVEHICLE))
+                    *data << (uint64)((Player*)this)->GetCharmGUID();
+                else
+                    *data << (uint64)((Player*)this)->GetTransport()->GetGUID();
                 *data << (float)((Player*)this)->GetTransOffsetX();
                 *data << (float)((Player*)this)->GetTransOffsetY();
                 *data << (float)((Player*)this)->GetTransOffsetZ();
@@ -1619,7 +1622,17 @@ void WorldObject::BuildHeartBeatMsg(WorldPacket *data) const
     *data << m_positionY;
     *data << m_positionZ;
     *data << m_orientation;
-    *data << uint32(0);
+    if(GetTypeId() == TYPEID_PLAYER && ((Unit*)this)->hasUnitState(UNIT_STAT_ONVEHICLE))
+    {
+        *data << uint64(((Unit*)this)->GetCharmGUID());
+        *data << float(((Player*)this)->GetTransOffsetX());
+        *data << float(((Player*)this)->GetTransOffsetY());
+        *data << float(((Player*)this)->GetTransOffsetZ());
+        *data << float(((Player*)this)->GetTransOffsetO());
+        *data << uint32(((Player*)this)->GetTransTime());
+        *data << uint8(((Player*)this)->GetTransSeat());
+    }
+    *data << uint32(0); //fall time
 }
 
 void WorldObject::BuildTeleportAckMsg(WorldPacket *data, float x, float y, float z, float ang) const
@@ -1638,6 +1651,16 @@ void WorldObject::BuildTeleportAckMsg(WorldPacket *data, float x, float y, float
     *data << y;
     *data << z;
     *data << ang;
+    if(GetTypeId() == TYPEID_PLAYER && ((Unit*)this)->hasUnitState(UNIT_STAT_ONVEHICLE))
+    {
+        *data << uint64(((Unit*)this)->GetCharmGUID());
+        *data << float(((Player*)this)->GetTransOffsetX());
+        *data << float(((Player*)this)->GetTransOffsetY());
+        *data << float(((Player*)this)->GetTransOffsetZ());
+        *data << float(((Player*)this)->GetTransOffsetO());
+        *data << uint32(((Player*)this)->GetTransTime());
+        *data << uint8(((Player*)this)->GetTransSeat());
+    }
     *data << uint32(0);
 }
 

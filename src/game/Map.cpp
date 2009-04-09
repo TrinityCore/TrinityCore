@@ -723,7 +723,7 @@ void Map::Update(const uint32 &t_diff)
             }
         }
 
-        if(plr->m_seer != plr)
+        if(plr->m_seer != plr && !plr->hasUnitState(UNIT_STAT_ONVEHICLE))
         {
             Trinity::PlayerVisibilityNotifier notifier(*plr);
             VisitAll(plr->m_seer->GetPositionX(), plr->m_seer->GetPositionY(), World::GetMaxVisibleDistance(), notifier);

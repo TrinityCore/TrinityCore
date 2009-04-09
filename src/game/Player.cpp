@@ -19750,36 +19750,30 @@ void Player::EnterVehicle(Vehicle *vehicle)
 
     StopCastingCharm();
     StopCastingBindSight();
+
     SetCharm(vehicle, true);
     SetViewpoint(vehicle, true);
     SetMover(vehicle);
-
     SetClientControl(vehicle, 1);                           // redirect controls to vehicle
+
+    addUnitState(UNIT_STAT_ONVEHICLE);
+    Relocate(vehicle->GetPositionX(), vehicle->GetPositionY(), vehicle->GetPositionZ(), vehicle->GetOrientation());
+    AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
+    m_movementInfo.t_x = veSeat->m_attachmentOffsetX;
+    m_movementInfo.t_y = veSeat->m_attachmentOffsetY;
+    m_movementInfo.t_z = veSeat->m_attachmentOffsetZ;
+    m_movementInfo.t_o = 0;
+    m_movementInfo.t_time = getMSTime();
+    m_movementInfo.t_seat = 0;
 
     WorldPacket data(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
     GetSession()->SendPacket(&data);
 
-    data.Initialize(MSG_MOVE_TELEPORT_ACK, 30);
-    data.append(GetPackGUID());
-    data << uint32(0);                                      // counter?
-    data << uint32(MOVEMENTFLAG_ONTRANSPORT);               // transport
-    data << uint16(0);                                      // special flags
-    data << uint32(getMSTime());                            // time
-    data << vehicle->GetPositionX();                        // x
-    data << vehicle->GetPositionY();                        // y
-    data << vehicle->GetPositionZ();                        // z
-    data << vehicle->GetOrientation();                      // o
-    // transport part, TODO: load/calculate seat offsets
-    data << uint64(vehicle->GetGUID());                     // transport guid
-    data << float(veSeat->m_attachmentOffsetX);             // transport offsetX
-    data << float(veSeat->m_attachmentOffsetY);             // transport offsetY
-    data << float(veSeat->m_attachmentOffsetZ);             // transport offsetZ
-    data << float(0);                                       // transport orientation
-    data << uint32(getMSTime());                            // transport time
-    data << uint8(0);                                       // seat
-    // end of transport part
-    data << uint32(0);                                      // fall time
+    BuildTeleportAckMsg(&data, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
     GetSession()->SendPacket(&data);
+
+    BuildHeartBeatMsg(&data);
+    SendMessageToSet(&data, false);
 
     VehicleSpellInitialize();
 }
@@ -19793,21 +19787,24 @@ void Player::ExitVehicle(Vehicle *vehicle)
     SetCharm(vehicle, false);
     SetViewpoint(vehicle, false);
     SetMover(this);
-
     SetClientControl(vehicle, 0);
 
-    WorldPacket data(MSG_MOVE_TELEPORT_ACK, 30);
-    data.append(GetPackGUID());
-    data << uint32(0);                                      // counter?
-    data << uint32(MOVEMENTFLAG_FLY_UNK1);                  // fly unk
-    data << uint16(0x40);                                   // special flags
-    data << uint32(getMSTime());                            // time
-    data << vehicle->GetPositionX();                        // x
-    data << vehicle->GetPositionY();                        // y
-    data << vehicle->GetPositionZ();                        // z
-    data << vehicle->GetOrientation();                      // o
-    data << uint32(0);                                      // fall time
+    clearUnitState(UNIT_STAT_ONVEHICLE);
+    Relocate(vehicle->GetPositionX(), vehicle->GetPositionY(), vehicle->GetPositionZ(), vehicle->GetOrientation());
+    RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
+    m_movementInfo.t_x = 0;
+    m_movementInfo.t_y = 0;
+    m_movementInfo.t_z = 0;
+    m_movementInfo.t_o = 0;
+    m_movementInfo.t_time = 0;
+    m_movementInfo.t_seat = 0;
+
+    WorldPacket data;
+    BuildTeleportAckMsg(&data, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
     GetSession()->SendPacket(&data);
+
+    BuildHeartBeatMsg(&data);
+    SendMessageToSet(&data, false);
 
     data.Initialize(SMSG_PET_SPELLS, 8+4);
     data << uint64(0);
@@ -19815,7 +19812,11 @@ void Player::ExitVehicle(Vehicle *vehicle)
     GetSession()->SendPacket(&data);
 
     // only for flyable vehicles?
-    CastSpell(this, 45472, true);                           // Parachute
+    //CastSpell(this, 45472, true);                           // Parachute
+
+    //if(!vehicle->GetDBTableGUIDLow())
+    if(vehicle->GetOwnerGUID() == GetGUID())
+        vehicle->Dismiss();
 }
 
 bool Player::isTotalImmune()
