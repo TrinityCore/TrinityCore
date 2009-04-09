@@ -7,6 +7,8 @@
 
 #define DEFAULT_MAX_PLAYER_DISTANCE 50
 
+extern UNORDERED_MAP<uint32, std::vector<PointMovement> > PointMovementMap;
+
 struct Escort_Waypoint
 {
     Escort_Waypoint(uint32 _id, float _x, float _y, float _z, uint32 _w)

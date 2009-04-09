@@ -35,8 +35,8 @@ struct StringTextData
 // Text Maps
 UNORDERED_MAP<int32, StringTextData> TextMap;
 
-// Waypoint lists
-std::list<PointMovement> PointMovementList;
+// Waypoint map (escorts)
+UNORDERED_MAP<uint32, std::vector<PointMovement> > PointMovementMap;
 
 void FillSpellSummary();
 void LoadOverridenSQLData();
@@ -394,6 +394,7 @@ extern void AddSC_orgrimmar();
 //Ragefire Chasm
 //Razorfen Downs
 extern void AddSC_boss_amnennar_the_coldbringer();
+extern void AddSC_razorfen_downs();
 
 //Razorfen Kraul
 extern void AddSC_razorfen_kraul();
@@ -839,7 +840,7 @@ void LoadDatabase()
     }
 
     // Drop Existing Waypoint list
-    PointMovementList.clear();
+    PointMovementMap.clear();
     uint64 uiCreatureCount = 0;
 
     // Load Waypoints
@@ -866,6 +867,7 @@ void LoadDatabase()
             PointMovement pTemp;
 
             pTemp.m_uiCreatureEntry  = pFields[0].GetUInt32();
+            uint32 uiCreatureEntry   = pTemp.m_uiCreatureEntry;
             pTemp.m_uiPointId        = pFields[1].GetUInt32();
             pTemp.m_fX               = pFields[2].GetFloat();
             pTemp.m_fY               = pFields[3].GetFloat();
@@ -882,7 +884,7 @@ void LoadDatabase()
             if (!pCInfo->ScriptID)
                 error_db_log("SD2: DB table script_waypoint has waypoint for creature entry %u, but creature does not have ScriptName defined and then useless.", pTemp.m_uiCreatureEntry);
 
-            PointMovementList.push_back(pTemp);
+            PointMovementMap[uiCreatureEntry].push_back(pTemp);
             ++uiNodeCount;
         } while (result->NextRow());
 
@@ -1312,6 +1314,7 @@ void ScriptsInit()
     //Ragefire Chasm
     //Razorfen Downs
     AddSC_boss_amnennar_the_coldbringer();
+    AddSC_razorfen_downs();
 
     //Razorfen Kraul
     AddSC_razorfen_kraul();

@@ -269,6 +269,7 @@ scripts/zone/netherstorm/netherstorm.cpp \
 scripts/zone/onyxias_lair/boss_onyxia.cpp \
 scripts/zone/orgrimmar/orgrimmar.cpp \
 scripts/zone/razorfen_downs/boss_amnennar_the_coldbringer.cpp \
+scripts/zone/razorfen_downs/razorfen_downs.cpp \
 scripts/zone/razorfen_kraul/razorfen_kraul.cpp \
 scripts/zone/ruins_of_ahnqiraj/boss_ayamiss.cpp \
 scripts/zone/ruins_of_ahnqiraj/boss_buru.cpp \
