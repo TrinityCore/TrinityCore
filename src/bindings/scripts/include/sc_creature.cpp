@@ -233,21 +233,18 @@ void ScriptedAI::DoWhisper(const char* text, Unit* reciever, bool IsBossWhisper)
     m_creature->MonsterWhisper(text, reciever->GetGUID(), IsBossWhisper);
 }
 
-void ScriptedAI::DoPlaySoundToSet(Unit* unit, uint32 sound)
+void ScriptedAI::DoPlaySoundToSet(Unit* pSource, uint32 uiSoundId)
 {
-    if (!unit)
+    if (!pSource)
         return;
 
-    if (!GetSoundEntriesStore()->LookupEntry(sound))
+    if (!GetSoundEntriesStore()->LookupEntry(uiSoundId))
     {
-        error_log("SD2: Invalid soundId %u used in DoPlaySoundToSet (by unit TypeId %u, guid %u)", sound, unit->GetTypeId(), unit->GetGUID());
+        error_log("SD2: Invalid soundId %u used in DoPlaySoundToSet (by unit TypeId %u, guid %u)", uiSoundId, pSource->GetTypeId(), pSource->GetGUID());
         return;
     }
 
-    WorldPacket data(4);
-    data.SetOpcode(SMSG_PLAY_SOUND);
-    data << uint32(sound);
-    unit->SendMessageToSet(&data,false);
+    pSource->PlayDirectSound(uiSoundId);
 }
 
 Creature* ScriptedAI::DoSpawnCreature(uint32 id, float x, float y, float z, float angle, uint32 type, uint32 despawntime)
