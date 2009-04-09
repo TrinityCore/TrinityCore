@@ -378,41 +378,11 @@ bool QuestAccept_npc_magwin(Player* player, Creature* creature, Quest const* que
     return true;
 }
 
-CreatureAI* GetAI_npc_magwinAI(Creature *_Creature)
+CreatureAI* GetAI_npc_magwinAI(Creature* pCreature)
 {
-    npc_magwinAI* magwinAI = new npc_magwinAI(_Creature);
+    npc_magwinAI* magwinAI = new npc_magwinAI(pCreature);
 
-    magwinAI->AddWaypoint(0, -4784.532227, -11051.060547, 3.484263);
-    magwinAI->AddWaypoint(1, -4805.509277, -11037.293945, 3.043942);
-    magwinAI->AddWaypoint(2, -4827.826172, -11034.398438, 1.741959);
-    magwinAI->AddWaypoint(3, -4852.630859, -11033.695313, 2.208656);
-    magwinAI->AddWaypoint(4, -4876.791992, -11034.517578, 3.175228);
-    magwinAI->AddWaypoint(5, -4895.486816, -11038.306641, 9.390890);
-    magwinAI->AddWaypoint(6, -4915.464844, -11048.402344, 12.369793);
-    magwinAI->AddWaypoint(7, -4937.288086, -11067.041992, 13.857983);
-    magwinAI->AddWaypoint(8, -4966.577637, -11067.507813, 15.754786);
-    magwinAI->AddWaypoint(9, -4993.799805, -11056.544922, 19.175295);
-    magwinAI->AddWaypoint(10, -5017.836426, -11052.569336, 22.476587);
-    magwinAI->AddWaypoint(11, -5039.706543, -11058.459961, 25.831593);
-    magwinAI->AddWaypoint(12, -5057.289063, -11045.474609, 26.972496);
-    magwinAI->AddWaypoint(13, -5078.828125, -11037.601563, 29.053417);
-    magwinAI->AddWaypoint(14, -5104.158691, -11039.195313, 29.440195);
-    magwinAI->AddWaypoint(15, -5120.780273, -11039.518555, 30.142139);
-    magwinAI->AddWaypoint(16, -5140.833008, -11039.810547, 28.788074);
-    magwinAI->AddWaypoint(17, -5161.201660, -11040.050781, 27.879545, 4000);
-    magwinAI->AddWaypoint(18, -5171.842285, -11046.803711, 27.183821);
-    magwinAI->AddWaypoint(19, -5185.995117, -11056.359375, 20.234867);
-    magwinAI->AddWaypoint(20, -5198.485840, -11065.065430, 18.872593);
-    magwinAI->AddWaypoint(21, -5214.062500, -11074.653320, 19.215731);
-    magwinAI->AddWaypoint(22, -5220.157227, -11088.377930, 19.818476);
-    magwinAI->AddWaypoint(23, -5233.652832, -11098.846680, 18.349432);
-    magwinAI->AddWaypoint(24, -5250.163086, -11111.653320, 16.438959);
-    magwinAI->AddWaypoint(25, -5268.194336, -11125.639648, 12.668313);
-    magwinAI->AddWaypoint(26, -5286.270508, -11130.669922, 6.912246);
-    magwinAI->AddWaypoint(27, -5317.449707, -11137.392578, 4.963446);
-    magwinAI->AddWaypoint(28, -5334.854492, -11154.384766, 6.742664);
-    magwinAI->AddWaypoint(29, -5353.874512, -11171.595703, 6.903912, 20000);
-    magwinAI->AddWaypoint(30, -5354.240000, -11171.940000, 6.890000);
+    magwinAI->FillPointMovementListForCreature();
 
     return (CreatureAI*)magwinAI;
 }
