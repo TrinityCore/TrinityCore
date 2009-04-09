@@ -33,7 +33,11 @@ EndContentData */
 ## npc_shadowfang_prisoner
 ######*/
 
-#define SAY_FREE                -1033000
+enum
+{
+    SAY_FREE                    = -1033000
+};
+
 #define GOSSIP_ITEM_DOOR        "Thanks, I'll follow you to the door."
 
 struct TRINITY_DLL_DECL npc_shadowfang_prisonerAI : public npc_escortAI
@@ -58,48 +62,33 @@ struct TRINITY_DLL_DECL npc_shadowfang_prisonerAI : public npc_escortAI
     void Aggro(Unit* who) {}
 };
 
-CreatureAI* GetAI_npc_shadowfang_prisoner(Creature *_Creature)
+CreatureAI* GetAI_npc_shadowfang_prisoner(Creature* pCreature)
 {
-    npc_shadowfang_prisonerAI* prisonerAI = new npc_shadowfang_prisonerAI(_Creature);
+    npc_shadowfang_prisonerAI* prisonerAI = new npc_shadowfang_prisonerAI(pCreature);
 
-    uint32 eCreature = _Creature->GetEntry();
-
-    if( eCreature==3849)                                    //adamant
-        prisonerAI->AddWaypoint(0, -254.47, 2117.48, 81.17);
-    if( eCreature==3850)                                    //ashcrombe
-        prisonerAI->AddWaypoint(0, -252.35, 2126.71, 81.17);
-
-    prisonerAI->AddWaypoint(1, -253.63, 2131.27, 81.28);
-    prisonerAI->AddWaypoint(2, -249.66, 2142.45, 87.01);
-    prisonerAI->AddWaypoint(3, -248.08, 2143.68, 87.01);
-    prisonerAI->AddWaypoint(4, -238.87, 2139.93, 87.01);
-    prisonerAI->AddWaypoint(5, -235.47, 2149.18, 90.59);
-    prisonerAI->AddWaypoint(6, -239.89, 2156.06, 90.62, 20000);
+    prisonerAI->FillPointMovementListForCreature();
 
     return (CreatureAI*)prisonerAI;
 }
 
-bool GossipHello_npc_shadowfang_prisoner(Player *player, Creature *_Creature)
+bool GossipHello_npc_shadowfang_prisoner(Player* pPlayer, Creature* pCreature)
 {
-    ScriptedInstance* pInstance = ((ScriptedInstance*)_Creature->GetInstanceData());
+    ScriptedInstance* pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
 
-    if (!pInstance)
-        return false;
-
-    if (pInstance->GetData(TYPE_FREE_NPC) != DONE && pInstance->GetData(TYPE_RETHILGORE) == DONE)
-        player->ADD_GOSSIP_ITEM( 0, GOSSIP_ITEM_DOOR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-    player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
+    if (pInstance && pInstance->GetData(TYPE_FREE_NPC) != DONE && pInstance->GetData(TYPE_RETHILGORE) == DONE)
+        pPlayer->ADD_GOSSIP_ITEM(0, GOSSIP_ITEM_DOOR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+ 
+    pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
 
     return true;
 }
 
-bool GossipSelect_npc_shadowfang_prisoner(Player *player, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_shadowfang_prisoner(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (action == GOSSIP_ACTION_INFO_DEF+1)
+    if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
     {
-        player->CLOSE_GOSSIP_MENU();
-        ((npc_escortAI*)(_Creature->AI()))->Start(false, false, false);
+        pPlayer->CLOSE_GOSSIP_MENU();
+        ((npc_escortAI*)(pCreature->AI()))->Start(false, true, false);
     }
     return true;
 }
