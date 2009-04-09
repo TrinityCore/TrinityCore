@@ -11011,6 +11011,7 @@ void Unit::AddToWorld()
 {
     if(!IsInWorld())
     {
+        WorldObject::AddToWorld();
         m_Notified = false;
         m_IsInNotifyList = false;
         SetToNotify();
