@@ -294,7 +294,12 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
     else                                                    // creature charmed
     {
         if(Map *map = mover->GetMap())
+        {
+            //if(GetPlayer()->m_seer != mover)
+            if(((Creature*)mover)->isVehicle())
+                map->PlayerRelocation(GetPlayer(), movementInfo.x, movementInfo.y, movementInfo.z, movementInfo.o);
             map->CreatureRelocation((Creature*)mover, movementInfo.x, movementInfo.y, movementInfo.z, movementInfo.o);
+        }
         mover->SetUnitMovementFlags(movementInfo.flags);
     }
 }
@@ -435,8 +440,6 @@ void WorldSession::HandleDismissControlledVehicle(WorldPacket &recv_data)
     if(Vehicle *vehicle = ObjectAccessor::GetVehicle(vehicleGUID))
     {
         _player->ExitVehicle(vehicle);
-        if(!vehicle->GetDBTableGUIDLow())
-            vehicle->Dismiss();
     }
 }
 
