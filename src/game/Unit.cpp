@@ -8012,7 +8012,7 @@ void Unit::SetGuardian(Guardian* guardian, bool apply)
 
         if(AddUInt64Value(UNIT_FIELD_SUMMON, guardian->GetGUID()))
         {
-            if(GetTypeId() == TYPEID_PLAYER)
+            if(GetTypeId() == TYPEID_PLAYER && !GetCharmGUID())
             {
                 if(guardian->isPet())
                     ((Player*)this)->PetSpellInitialize();
@@ -8047,12 +8047,17 @@ void Unit::SetGuardian(Guardian* guardian, bool apply)
             //Check if there is another guardian
             for(ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
             {
+                if(GetCharmGUID() == (*itr)->GetGUID())
+                    continue;
+
                 assert((*itr)->GetOwnerGUID() == GetGUID());
+                assert((*itr)->GetTypeId() == TYPEID_UNIT);
                 if(AddUInt64Value(UNIT_FIELD_SUMMON, (*itr)->GetGUID()))
                 {
-                    if(GetTypeId() == TYPEID_PLAYER)
+                    //show another pet bar if there is no charm bar
+                    if(GetTypeId() == TYPEID_PLAYER && !GetCharmGUID())
                     {
-                        if(guardian->isPet())
+                        if(((Creature*)(*itr))->isPet())
                             ((Player*)this)->PetSpellInitialize();
                         else
                             ((Player*)this)->CharmSpellInitialize();
