@@ -3987,7 +3987,7 @@ void AuraEffect::HandleAuraModIncreaseFlightSpeed(bool apply, bool Real)
 
         //Players on flying mounts must be immune to polymorph
         if (m_target->GetTypeId()==TYPEID_PLAYER)
-            m_target->ApplySpellImmune(GetId(),IMMUNITY_MECHANIC,1<<(MECHANIC_POLYMORPH-1),apply);
+            m_target->ApplySpellImmune(GetId(),IMMUNITY_MECHANIC,1<<MECHANIC_POLYMORPH,apply);
 
         // Dragonmaw Illusion (overwrite mount model, mounted aura already applied)
         if( apply && m_target->HasAuraEffect(42016,0) && m_target->GetMountID())
@@ -4036,7 +4036,7 @@ void AuraEffect::HandleModMechanicImmunity(bool apply, bool Real)
 {
     uint32 mechanic;
     if (GetSpellProto()->EffectApplyAuraName[GetEffIndex()]==SPELL_AURA_MECHANIC_IMMUNITY)
-        mechanic = 1 << (GetMiscValue()-1);
+        mechanic = 1 << GetMiscValue();
     else //SPELL_AURA_MECHANIC_IMMUNITY_MASK
         mechanic = GetMiscValue();
     //immune movement impairment and loss of control
@@ -4067,10 +4067,10 @@ void AuraEffect::HandleModMechanicImmunity(bool apply, bool Real)
 
     // Patch 3.0.3 Bladestorm now breaks all snares and roots on the warrior when activated.
     // however not all mechanic specified in immunity
-    if (apply & GetId()==46924)
+    if (apply && GetId()==46924)
     {
-        RemoveAurasByType(SPELL_AURA_MOD_ROOT);
-        RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
+        m_target->RemoveAurasByType(SPELL_AURA_MOD_ROOT);
+        m_target->RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
     }
 
     m_target->ApplySpellImmune(GetId(),IMMUNITY_MECHANIC,mechanic,apply);

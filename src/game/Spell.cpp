@@ -4580,7 +4580,7 @@ SpellCastResult Spell::CheckCasterAuras() const
                 {
                     if( GetAllSpellMechanicMask(itr->second->GetSpellProto()) & mechanic_immune )
                         continue;
-                    if( GetAllSpellMechanicMask(itr->second->GetSpellProto()) & school_immune )
+                    if( GetSpellSchoolMask(itr->second->GetSpellProto()) & school_immune )
                         continue;
                     if( (1<<(itr->second->GetSpellProto()->Dispel)) & dispel_immune)
                         continue;

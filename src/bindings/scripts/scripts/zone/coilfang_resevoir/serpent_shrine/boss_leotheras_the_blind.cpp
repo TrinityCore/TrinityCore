@@ -267,7 +267,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
             m_creature->RemoveAurasDueToSpell(AURA_BANISH);
 
             // Leotheras is getting immune again
-            m_creature->ApplySpellImmune(AURA_BANISH, IMMUNITY_MECHANIC, 1<<(MECHANIC_BANISH-1), true);
+            m_creature->ApplySpellImmune(AURA_BANISH, IMMUNITY_MECHANIC, 1<<MECHANIC_BANISH, true);
 
             // changing model to bloodelf
             m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_NIGHTELF);
@@ -288,7 +288,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
         {
             // channelers != 0 apply banish aura
             // removing Leotheras banish immune to apply AURA_BANISH
-            m_creature->ApplySpellImmune(AURA_BANISH, IMMUNITY_MECHANIC, 1<<(MECHANIC_BANISH-1), false);
+            m_creature->ApplySpellImmune(AURA_BANISH, IMMUNITY_MECHANIC, 1<<MECHANIC_BANISH, false);
             DoCast(m_creature, AURA_BANISH);
 
             // changing model
