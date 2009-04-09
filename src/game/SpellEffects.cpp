@@ -1648,29 +1648,31 @@ void Spell::EffectDummy(uint32 i)
 
                     return;
                 }
-                case 561:                                   // Judgement of command
+            }
+
+            switch(m_spellInfo->Id)
+            {
+                case 20425:                                   // Judgement of command
                 {
                     if(!unitTarget)
                         return;
 
-                    uint32 spell_id = m_spellInfo->EffectBasePoints[i]+1;//m_currentBasePoints[i]+1;
-                    SpellEntry const* spell_proto = sSpellStore.LookupEntry(spell_id);
+                    SpellEntry const* spell_proto = sSpellStore.LookupEntry(damage);
                     if(!spell_proto)
                         return;
 
-                    if( !unitTarget->hasUnitState(UNIT_STAT_STUNNED) && m_caster->GetTypeId()==TYPEID_PLAYER)
+                    if(unitTarget->hasUnitState(UNIT_STAT_STUNNED) && m_caster->GetTypeId()==TYPEID_PLAYER)
                     {
-                        // decreased damage (/2) for non-stunned target.
+                        // always critical for stunned target
                         SpellModifier *mod = new SpellModifier;
-                        mod->op = SPELLMOD_DAMAGE;
-                        mod->value = -50;
-                        mod->type = SPELLMOD_PCT;
+                        mod->op = SPELLMOD_CRITICAL_CHANCE;
+                        mod->value = 100;
+                        mod->type = SPELLMOD_FLAT;
                         mod->spellId = m_spellInfo->Id;
                         mod->mask[1] = 0x00000200;
 
                         ((Player*)m_caster)->AddSpellMod(mod, true);
                         m_caster->CastSpell(unitTarget,spell_proto,true,NULL);
-                                                            // mod deleted
                         ((Player*)m_caster)->AddSpellMod(mod, false);
                     }
                     else
@@ -1678,10 +1680,6 @@ void Spell::EffectDummy(uint32 i)
 
                     return;
                 }
-            }
-
-            switch(m_spellInfo->Id)
-            {
                 case 31789:                                 // Righteous Defense (step 1)
                 {
                     // 31989 -> dummy effect (step 1) + dummy effect (step 2) -> 31709 (taunt like spell for each target)
@@ -4118,6 +4116,13 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
                 spell_bonus += int32(0.23f*m_caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellInfo)));
                 spell_bonus += int32(0.29f*m_caster->SpellBaseDamageBonusForVictim(GetSpellSchoolMask(m_spellInfo), unitTarget));
             }
+
+            // Seal of Command Unleashed
+            else if(m_spellInfo->Id==20467)
+            {
+                spell_bonus += int32(0.16f*m_caster->GetTotalAttackPowerValue(BASE_ATTACK));
+                spell_bonus += int32(0.25f*m_caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellInfo)));
+            }
             break;
         }
         case SPELLFAMILY_SHAMAN:
@@ -4915,18 +4920,33 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         return;
                 }
                 // all seals have aura dummy in 2 effect
-                Unit::AuraEffectList const& m_dummyAuras = m_caster->GetAurasByType(SPELL_AURA_DUMMY);
-                for(Unit::AuraEffectList::const_iterator itr = m_dummyAuras.begin(); itr != m_dummyAuras.end(); ++itr)
+                Unit::AuraMap & sealAuras = m_caster->GetAuras();
+                for(Unit::AuraMap::iterator iter = sealAuras.begin(); iter != sealAuras.end();)
                 {
-                    SpellEntry const *spellInfo = (*itr)->GetSpellProto();
-                    // search seal (all seals have judgement's aura dummy spell id in 2 effect
-                    if ((*itr)->GetEffIndex() != 2 || !spellInfo || !IsSealSpell(spellInfo))
-                        continue;
-                    SpellEntry const *judge = sSpellStore.LookupEntry((*itr)->GetAmount());
-                    if (!judge)
-                        continue;
-                    spellId2 = (*itr)->GetAmount();
-                    break;
+                    if (IsSealSpell(iter->second->GetSpellProto()))
+                    {
+                        if (AuraEffect * aureff = iter->second->GetPartAura(2))
+                            if (aureff->GetAuraName()==SPELL_AURA_DUMMY)
+                            {
+                                if (sSpellStore.LookupEntry(aureff->GetAmount()))
+                                    spellId2 = aureff->GetAmount();
+                                break;
+                            }
+                        if (!spellId2)
+                        {
+                            switch (iter->first)
+                            {
+                            // Seal of light, wisdom, justice
+                                case 20165:
+                                case 20166:
+                                case 20164:
+                                spellId2 = 54158;
+                            }
+                        }
+                        break;
+                    }
+                    else
+                        ++iter;
                 }
                 if (spellId1)
                     m_caster->CastSpell(unitTarget, spellId1, true);
