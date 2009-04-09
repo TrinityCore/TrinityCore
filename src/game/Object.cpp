@@ -85,17 +85,16 @@ Object::~Object( )
     //if(m_objectUpdated)
     //    ObjectAccessor::Instance().RemoveUpdateObject(this);
 
+    if(IsInWorld())
+    {
+        sLog.outCrash("Object::~Object - guid="I64FMTD", typeid=%d deleted but still in world!!", GetGUID(), GetTypeId());
+        assert(false);
+    }
+
+    assert(!m_objectUpdated);
+
     if(m_uint32Values)
     {
-        if(IsInWorld())
-        {
-            ///- Do NOT call RemoveFromWorld here, if the object is a player it will crash
-            sLog.outCrash("Object::~Object - guid="I64FMTD", typeid=%d deleted but still in world!!", GetGUID(), GetTypeId());
-            assert(false);
-        }
-
-        assert(!m_objectUpdated);
-
         //DEBUG_LOG("Object desctr 1 check (%p)",(void*)this);
         delete [] m_uint32Values;
         delete [] m_uint32Values_mirror;
