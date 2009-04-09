@@ -1479,23 +1479,6 @@ void AuraEffect::HandleAddModifier(bool apply, bool Real)
 
     if (apply)
     {
-        // Add custom charges for some mod aura
-        switch (m_spellProto->Id)
-        {
-            case 17941:    // Shadow Trance
-            case 22008:    // Netherwind Focus
-            case 31834:    // Light's Grace
-            case 34754:    // Clearcasting
-            case 34936:    // Backlash
-            case 48108:    // Hot Streak
-            case 51124:    // Killing Machine
-            case 54741:    // Firestarter
-            case 57761:    // Fireball!
-            case 39805:    // Lightning Overload
-                GetParentAura()->SetAuraCharges(1);
-                break;
-
-        }
 
         SpellModifier *mod = new SpellModifier;
         mod->op = SpellModOp(GetMiscValue());
@@ -4229,18 +4212,6 @@ void AuraEffect::HandleAuraProcTriggerSpell(bool apply, bool Real)
 {
     if(!Real)
         return;
-
-    if(apply)
-    {
-        // some spell have charges by functionality not have its in spell data
-        switch (GetId())
-        {
-            case 28200:                                     // Ascendance (Talisman of Ascendance trinket)
-                GetParentAura()->SetAuraCharges(6);
-                break;
-            default: break;
-        }
-    }
 }
 
 void AuraEffect::HandleAuraModStalked(bool apply, bool Real)

@@ -587,24 +587,6 @@ bool IsPositiveEffect(uint32 spellId, uint32 effIndex, bool deep)
                 case SPELL_AURA_ADD_TARGET_TRIGGER:
                     return true;
                 case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
-                    if(!deep)
-                    {
-                        uint32 spellTriggeredId = spellproto->EffectTriggerSpell[effIndex];
-                        SpellEntry const *spellTriggeredProto = sSpellStore.LookupEntry(spellTriggeredId);
-
-                        if(spellTriggeredProto)
-                        {
-                            // non-positive targets of main spell return early
-                            for(int i = 0; i < 3; ++i)
-                            {
-                                // if non-positive trigger cast targeted to positive target this main cast is non-positive
-                                // this will place this spell auras as debuffs
-                                if(IsPositiveTarget(spellTriggeredProto->EffectImplicitTargetA[effIndex],spellTriggeredProto->EffectImplicitTargetB[effIndex]) && !IsPositiveEffect(spellTriggeredId,i, true))
-                                    return false;
-                            }
-                        }
-                    }
-                    break;
                 case SPELL_AURA_PROC_TRIGGER_SPELL:
                     // many positive auras have negative triggered spells at damage for example and this not make it negative (it can be canceled for example)
                     break;
@@ -715,7 +697,7 @@ bool IsPositiveEffect(uint32 spellId, uint32 effIndex, bool deep)
         return false;
 
     if (!deep && spellproto->EffectTriggerSpell[effIndex]
-        && !spellproto->procFlags
+        && spellproto->EffectImplicitTargetA[effIndex]!=TARGET_SELF
         && IsPositiveTarget(spellproto->EffectImplicitTargetA[effIndex],spellproto->EffectImplicitTargetB[effIndex])
         && !IsPositiveSpell(spellproto->EffectTriggerSpell[effIndex], true))
         return false;
@@ -2367,6 +2349,22 @@ void SpellMgr::LoadSpellCustomAttr()
         case 1122: // Inferno
         case 18662: // Curse of Doom
             spellInfo->EffectBasePoints[0] = 0; //prevent summon too many of them
+            break;
+        case 17941:    // Shadow Trance
+        case 22008:    // Netherwind Focus
+        case 31834:    // Light's Grace
+        case 34754:    // Clearcasting
+        case 34936:    // Backlash
+        case 48108:    // Hot Streak
+        case 51124:    // Killing Machine
+        case 54741:    // Firestarter
+        case 57761:    // Fireball!
+        case 39805:    // Lightning Overload
+        case 52437:    // Sudden Death
+            spellInfo->procCharges=1;
+            break;
+        case 28200:    // Ascendance (Talisman of Ascendance trinket)
+            spellInfo->procCharges=6;
             break;
         default:
             break;
