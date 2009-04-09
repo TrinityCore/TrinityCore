@@ -2363,6 +2363,9 @@ void SpellMgr::LoadSpellCustomAttr()
         case 52437:    // Sudden Death
             spellInfo->procCharges=1;
             break;
+        case 44544:    // Fingers of Frost
+            spellInfo->procCharges=2;
+            break;
         case 28200:    // Ascendance (Talisman of Ascendance trinket)
             spellInfo->procCharges=6;
             break;
