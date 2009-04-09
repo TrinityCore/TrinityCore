@@ -1269,6 +1269,10 @@
 						RelativePath="..\scripts\zone\razorfen_downs\boss_amnennar_the_coldbringer.cpp"
 						>
 					</File>
+					<File
+						RelativePath="..\scripts\zone\razorfen_downs\razorfen_downs.cpp"
+						>
+					</File>
 				</Filter>
 				<Filter
 					Name="Shadowfang Keep"

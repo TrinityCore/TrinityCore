@@ -347,38 +347,11 @@ struct TRINITY_DLL_DECL npc_wounded_blood_elfAI : public npc_escortAI
     }
 };
 
-CreatureAI* GetAI_npc_wounded_blood_elf(Creature *_Creature)
+CreatureAI* GetAI_npc_wounded_blood_elf(Creature* pCreature)
 {
-    npc_wounded_blood_elfAI* welfAI = new npc_wounded_blood_elfAI(_Creature);
+    npc_wounded_blood_elfAI* welfAI = new npc_wounded_blood_elfAI(pCreature);
 
-    welfAI->AddWaypoint(0, -1137.72, 4272.10, 14.04, 5000);
-    welfAI->AddWaypoint(1, -1141.34, 4232.42, 14.63);
-    welfAI->AddWaypoint(2, -1133.47, 4220.88, 11.78);
-    welfAI->AddWaypoint(3, -1126.18, 4213.26, 13.51);
-    welfAI->AddWaypoint(4, -1100.12, 4204.32, 16.41);
-    welfAI->AddWaypoint(5, -1063.68, 4197.92, 15.51);
-    welfAI->AddWaypoint(6, -1027.28, 4194.36, 15.52);
-    welfAI->AddWaypoint(7, -995.68, 4189.59, 19.84);
-    welfAI->AddWaypoint(8, -970.90, 4188.60, 24.61);
-    welfAI->AddWaypoint(9, -961.93, 4193.34, 26.11, 15000); // Summon 1
-    welfAI->AddWaypoint(10, -935.52, 4210.99, 31.98);
-    welfAI->AddWaypoint(11, -913.42, 4218.27, 37.29);
-    welfAI->AddWaypoint(12, -896.53, 4207.73, 43.23);
-    welfAI->AddWaypoint(13, -868.49, 4194.77, 46.75, 30000);// Kneel and Rest Here
-    welfAI->AddWaypoint(14, -852.83, 4198.29, 47.28, 15000);// Summon 2
-    welfAI->AddWaypoint(15, -819.85, 4200.50, 46.37);
-    welfAI->AddWaypoint(16, -791.92, 4201.96, 44.19);
-    welfAI->AddWaypoint(17, -774.42, 4202.46, 47.41);
-    welfAI->AddWaypoint(18, -762.90, 4202.17, 48.81);
-    welfAI->AddWaypoint(19, -728.25, 4195.35, 50.68);
-    welfAI->AddWaypoint(20, -713.58, 4192.07, 53.98);
-    welfAI->AddWaypoint(21, -703.09, 4189.74, 56.96);
-    welfAI->AddWaypoint(22, -693.70, 4185.43, 57.06);
-    welfAI->AddWaypoint(23, -686.38, 4159.81, 60.26);
-    welfAI->AddWaypoint(24, -679.88, 4147.04, 64.20);
-    welfAI->AddWaypoint(25, -656.74, 4147.72, 64.11);
-    welfAI->AddWaypoint(26, -652.22, 4137.50, 64.58);
-    welfAI->AddWaypoint(27, -649.99, 4136.38, 64.63, 30000);// Award Quest Credit
+    welfAI->FillPointMovementListForCreature();
 
     return (CreatureAI*)welfAI;
 }

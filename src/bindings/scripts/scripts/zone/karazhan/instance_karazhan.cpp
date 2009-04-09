@@ -59,6 +59,7 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
     uint64 MoroesGUID;
     uint64 LibraryDoor;                                     // Door at Shade of Aran
     uint64 MassiveDoor;                                     // Door at Netherspite
+    uint64 SideEntranceDoor;                                // Side Entrance
     uint64 GamesmansDoor;                                   // Door before Chess
     uint64 GamesmansExitDoor;                               // Door after Chess
     uint64 NetherspaceDoor;                                // Door at Malchezaar
@@ -83,6 +84,7 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
 
         LibraryDoor         = 0;
         MassiveDoor         = 0;
+        SideEntranceDoor    = 0;
         GamesmansDoor       = 0;
         GamesmansExitDoor   = 0;
         NetherspaceDoor     = 0;
@@ -146,6 +148,7 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
             case DATA_GAMEOBJECT_CURTAINS:         return CurtainGUID;
             case DATA_GAMEOBJECT_LIBRARY_DOOR:     return LibraryDoor;
             case DATA_GAMEOBJECT_MASSIVE_DOOR:     return MassiveDoor;
+            case DATA_GO_SIDE_ENTRANCE_DOOR:       return SideEntranceDoor;
             case DATA_GAMEOBJECT_GAME_DOOR:        return GamesmansDoor;
             case DATA_GAMEOBJECT_GAME_EXIT_DOOR:   return GamesmansExitDoor;
             case DATA_GAMEOBJECT_NETHER_DOOR:      return NetherspaceDoor;
@@ -221,6 +224,13 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
             case 185134:   NetherspaceDoor      = go->GetGUID();         break;
             case 184274:    MastersTerraceDoor[0] = go->GetGUID();  break;
             case 184280:    MastersTerraceDoor[1] = go->GetGUID();  break;
+            case 184275:
+                SideEntranceDoor = go->GetGUID();
+                if (GetData(DATA_OPERA_EVENT) != DONE)
+                    go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
+                else
+                    go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
+                break;
         }
 
         switch(OperaEvent)
