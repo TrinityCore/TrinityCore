@@ -116,16 +116,23 @@ void npc_escortAI::UpdateAI(const uint32 diff)
             //Correct movement speed
             if (Run)
                 m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
-            else m_creature->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                else
+                    m_creature->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
 
             //Continue with waypoints
             if( !IsOnHold )
             {
-                m_creature->GetMotionMaster()->MovePoint(CurrentWP->id, CurrentWP->x, CurrentWP->y, CurrentWP->z );
-                debug_log("SD2: EscortAI Reconnect WP is: %u, %f, %f, %f", CurrentWP->id, CurrentWP->x, CurrentWP->y, CurrentWP->z);
-                WaitTimer = 0;
-                ReconnectWP = false;
-                return;
+                    if (CurrentWP != WaypointList.end())
+                    {
+                        m_creature->GetMotionMaster()->MovePoint(CurrentWP->id, CurrentWP->x, CurrentWP->y, CurrentWP->z );
+                        debug_log("TSCR: EscortAI Reconnect WP is: %u, %f, %f, %f", CurrentWP->id, CurrentWP->x, CurrentWP->y, CurrentWP->z);
+
+                        WaitTimer = 0;
+                        ReconnectWP = false;
+                        return;
+                    }
+                    else
+                        debug_log("TSCR: EscortAI Reconnected to end of WP list");
             }
         }
 
@@ -274,11 +281,13 @@ void npc_escortAI::AddWaypoint(uint32 id, float x, float y, float z, uint32 Wait
 
 void npc_escortAI::FillPointMovementListForCreature()
 {
-    std::list<PointMovement>::iterator itr;
+    UNORDERED_MAP<uint32, std::vector<PointMovement> >::iterator pPointsEntries = PointMovementMap.find(m_creature->GetEntry());
 
-    for (itr = PointMovementList.begin(); itr != PointMovementList.end(); ++itr)
+    if (pPointsEntries != PointMovementMap.end())
     {
-        if (itr->m_uiCreatureEntry == m_creature->GetEntry())
+        std::vector<PointMovement>::iterator itr;
+
+        for (itr = pPointsEntries->second.begin(); itr != pPointsEntries->second.end(); ++itr)
         {
             Escort_Waypoint pPoint(itr->m_uiPointId,itr->m_fX,itr->m_fY,itr->m_fZ,itr->m_uiWaitTime);
             WaypointList.push_back(pPoint);
