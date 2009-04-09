@@ -524,6 +524,7 @@ ChatCommand * ChatHandler::getCommandTable()
     {
         { "difftime",       SEC_CONSOLE,        true,  &ChatHandler::HandleServerSetDiffTimeCommand,   "", NULL },
         { "loglevel",       SEC_CONSOLE,        true,  &ChatHandler::HandleServerSetLogLevelCommand,   "", NULL },
+        { "logfilelevel",   SEC_CONSOLE,        true,  &ChatHandler::HandleServerSetLogFileLevelCommand,   "", NULL },
         { "motd",           SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleServerSetMotdCommand,       "", NULL },
         { "closed",         SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleServerSetClosedCommand,     "", NULL },
         { NULL,             0,                  false, NULL,                                           "", NULL }
