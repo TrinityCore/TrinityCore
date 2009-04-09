@@ -6607,7 +6607,7 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
     Item* castItem = triggeredByAura->GetParentAura()->GetCastItemGUID() && GetTypeId()==TYPEID_PLAYER
         ? ((Player*)this)->GetItemByGuid(triggeredByAura->GetParentAura()->GetCastItemGUID()) : NULL;
 
-    // Try handle uncnown trigger spells
+    // Try handle unknown trigger spells
     if (sSpellStore.LookupEntry(trigger_spell_id)==NULL)
     {
         switch (auraSpellInfo->SpellFamilyName)
@@ -8682,18 +8682,28 @@ bool Unit::isSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
                     if (pVictim->GetTypeId() == TYPEID_PLAYER)
                         crit_chance -= ((Player*)pVictim)->GetRatingBonusValue(CR_CRIT_TAKEN_SPELL);
                 }
-
                 // scripted (increase crit chance ... against ... target by x%
                 AuraEffectList const& mOverrideClassScript = GetAurasByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
                 for(AuraEffectList::const_iterator i = mOverrideClassScript.begin(); i != mOverrideClassScript.end(); ++i)
                 {
                     if (!((*i)->isAffectedOnSpell(spellProto)))
                         continue;
+                    int32 modChance=0;
                     switch((*i)->GetMiscValue())
                     {
-                        case  849: if (pVictim->HasAuraState(AURA_STATE_FROZEN, spellProto, this)) crit_chance+= 17.0f; break; //Shatter Rank 1
-                        case  910: if (pVictim->HasAuraState(AURA_STATE_FROZEN, spellProto, this)) crit_chance+= 34.0f; break; //Shatter Rank 2
-                        case  911: if (pVictim->HasAuraState(AURA_STATE_FROZEN, spellProto, this)) crit_chance+= 50.0f; break; //Shatter Rank 3
+                        // Shatter
+                        case  911: modChance+= 16.0f;
+                        case  910: modChance+= 17.0f;
+                        case  849: modChance+= 17.0f;
+                            if (!pVictim->HasAuraState(AURA_STATE_FROZEN, spellProto, this))
+                                break;
+                            crit_chance+=modChance;
+                            // Fingers of Frost
+                            // TODO: Change this code to less hacky
+                            if (Aura * aur = GetAura(44544))
+                                if (aur->DropAuraCharge())
+                                    RemoveAura(aur);
+                            break;
                         case 7917: // Glyph of Shadowburn
                             if (pVictim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, spellProto, this))
                                 crit_chance+=(*i)->GetAmount();
@@ -11338,6 +11348,7 @@ bool InitTriggerAuraData()
     isTriggerAura[SPELL_AURA_RAID_PROC_FROM_CHARGE_WITH_VALUE] = true;
     isTriggerAura[SPELL_AURA_PROC_TRIGGER_SPELL_WITH_VALUE] = true;
     isTriggerAura[SPELL_AURA_MOD_DAMAGE_FROM_CASTER] = true;
+    isTriggerAura[SPELL_AURA_ABILITY_IGNORE_AURASTATE] = true;
 
     isNonTriggerAura[SPELL_AURA_MOD_POWER_REGEN]=true;
     isNonTriggerAura[SPELL_AURA_REDUCE_PUSHBACK]=true;

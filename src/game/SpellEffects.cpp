@@ -1361,7 +1361,16 @@ void Spell::EffectDummy(uint32 i)
                 spell_id = 20647;
                 bp = damage+int32(rage * m_spellInfo->DmgMultiplier[i] +
                                                  m_caster->GetTotalAttackPowerValue(BASE_ATTACK)*0.2f);
-                m_caster->SetPower(POWER_RAGE,0);
+                // Sudden death cost modifier
+                if (Aura * aur = m_caster->GetAura(52437))
+                {
+                    m_caster->ModifyPower(POWER_RAGE,- m_powerCost);
+                    if (m_caster->GetPower(POWER_RAGE)<100)
+                        m_caster->SetPower(POWER_RAGE,100);
+                    m_caster->RemoveAura(aur);
+                }
+                else
+                    m_caster->SetPower(POWER_RAGE,0);
                 break;
             }
             // Slam
