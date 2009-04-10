@@ -1008,10 +1008,12 @@ void Aura::_AddAura()
     {
         if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(id + SPELL_LINK_AURA))
             for(std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
+            {
                 if(*itr < 0)
                     m_target->ApplySpellImmune(id, IMMUNITY_ID, -(*itr), m_target);
                 else if(Unit* caster = GetCaster())
                     m_target->AddAura(*itr, m_target);
+            }
     }
 
     //*****************************************************
@@ -1144,20 +1146,24 @@ void Aura::_RemoveAura()
     {
         if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(-(int32)id))
             for(std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
+            {
                 if(*itr < 0)
                     m_target->RemoveAurasDueToSpell(-(*itr));
                 else if(Unit* caster = GetCaster())
                     if (m_removeMode==AURA_REMOVE_BY_EXPIRE)
                         m_target->CastSpell(m_target, *itr, true, 0, 0, caster->GetGUID());
+            }
     }
     if(spellmgr.GetSpellCustomAttr(id) & SPELL_ATTR_CU_LINK_AURA)
     {
         if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(id + SPELL_LINK_AURA))
             for(std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
+            {
                 if(*itr < 0)
                     m_target->ApplySpellImmune(id, IMMUNITY_ID, -(*itr), false);
                 else
                     m_target->RemoveAurasDueToSpell(*itr);
+            }
     }
 
     // Proc on aura remove (only spell flags for now)
@@ -4062,12 +4068,12 @@ void AuraEffect::HandleModStateImmunityMask(bool apply, bool Real)
 
     if(apply && GetSpellProto()->AttributesEx & SPELL_ATTR_EX_DISPEL_AURAS_ON_IMMUNITY)
     {
-        for (std::list <AuraType>::iterator iter = immunity_list.begin(); iter != immunity_list.end();)
+        for (std::list <AuraType>::iterator iter = immunity_list.begin(); iter != immunity_list.end();++iter)
         {
             m_target->RemoveAurasByType(*iter);
         }
     }
-    for (std::list <AuraType>::iterator iter = immunity_list.begin(); iter != immunity_list.end();)
+    for (std::list <AuraType>::iterator iter = immunity_list.begin(); iter != immunity_list.end();++iter)
     {
         m_target->ApplySpellImmune(GetId(),IMMUNITY_STATE,*iter,apply);
     }
