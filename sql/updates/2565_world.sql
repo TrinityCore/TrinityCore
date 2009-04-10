@@ -1,3 +1,15 @@
+DROP TABLE IF EXISTS script_waypoint;
+CREATE TABLE script_waypoint (
+  entry mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'creature_template entry',
+  pointid mediumint(8) unsigned NOT NULL DEFAULT '0',
+  location_x float NOT NULL DEFAULT '0',
+  location_y float NOT NULL DEFAULT '0',
+  location_z float NOT NULL DEFAULT '0',
+  waittime int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'waittime in millisecs',
+  point_comment text,
+  PRIMARY KEY (entry, pointid)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Script Creature waypoints';
+
 -- script waypoint
 DELETE FROM script_waypoint WHERE entry=467;
 INSERT INTO script_waypoint VALUES
@@ -325,3 +337,7 @@ INSERT INTO script_waypoint VALUES
 
 -- Henry Stern
 UPDATE `creature_template` SET `ScriptName`='npc_henry_stern' WHERE `entry`=8696;
+
+DELETE FROM `trinity_string` WHERE `entry` IN (59);
+INSERT INTO `trinity_string` VALUES
+(59,'Using creature EventAI: %s',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
