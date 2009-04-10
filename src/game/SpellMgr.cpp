@@ -598,6 +598,8 @@ bool IsPositiveEffect(uint32 spellId, uint32 effIndex, bool deep)
                             // non-positive targets of main spell return early
                             for(int i = 0; i < 3; ++i)
                             {
+                                if (!spellTriggeredProto->Effect[i])
+                                    continue;
                                 // if non-positive trigger cast targeted to positive target this main cast is non-positive
                                 // this will place this spell auras as debuffs
                                 if(IsPositiveTarget(spellTriggeredProto->EffectImplicitTargetA[effIndex],spellTriggeredProto->EffectImplicitTargetB[effIndex]) && !IsPositiveEffect(spellTriggeredId,i, true))
@@ -715,7 +717,7 @@ bool IsPositiveEffect(uint32 spellId, uint32 effIndex, bool deep)
         return false;
 
     if (!deep && spellproto->EffectTriggerSpell[effIndex]
-        && !spellproto->procFlags
+        && !spellproto->EffectApplyAuraName[effIndex]
         && IsPositiveTarget(spellproto->EffectImplicitTargetA[effIndex],spellproto->EffectImplicitTargetB[effIndex])
         && !IsPositiveSpell(spellproto->EffectTriggerSpell[effIndex], true))
         return false;

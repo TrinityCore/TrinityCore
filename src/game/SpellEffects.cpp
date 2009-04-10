@@ -2540,6 +2540,17 @@ void Spell::SpellDamageHeal(uint32 /*i*/)
             //addhealth += tickheal * tickcount;
             //addhealth = caster->SpellHealingBonus(m_spellInfo, addhealth,HEAL, unitTarget);
         }
+        // Riptide - increase healing done by Chain Heal
+        else if (m_spellInfo->SpellFamilyName==SPELLFAMILY_SHAMAN && m_spellInfo->SpellFamilyFlags[0] & 0x100)
+        {
+            if (AuraEffect * aurEff = unitTarget->GetAura(SPELL_AURA_PERIODIC_HEAL, SPELLFAMILY_SHAMAN, 0, 0, 0x10, m_originalCasterGUID))
+            {
+                addhealth = caster->SpellHealingBonus(unitTarget, m_spellInfo, addhealth, HEAL);
+                addhealth *= 0.25f;
+                // consume aura
+                unitTarget->RemoveAura(aurEff->GetParentAura());
+            }
+        }
         else
             addhealth = caster->SpellHealingBonus(unitTarget, m_spellInfo, addhealth, HEAL);
 
