@@ -83,17 +83,11 @@ bool GossipHello_npc_jaina_proudmoore(Player *player, Creature *_Creature)
         player->ADD_GOSSIP_ITEM(2, "[GM] Toggle Debug Timers", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
     player->SEND_GOSSIP_MENU(907, _Creature->GetGUID());
-
     return true;
 }
 
 bool GossipSelect_npc_jaina_proudmoore(Player *player, Creature *_Creature, uint32 sender, uint32 action)
 {
-    if(_Creature->GetMap()->GetPlayersCountExceptGMs() < MINPLAYERS && !player->isGameMaster())
-    {
-        _Creature->Say("Did you come to die with me?",0,0);
-        return true;
-    }
     hyjalAI* ai = ((hyjalAI*)_Creature->AI());
     switch(action)
     {
@@ -113,7 +107,6 @@ bool GossipSelect_npc_jaina_proudmoore(Player *player, Creature *_Creature, uint
             debug_log("SD2: HyjalAI - Debug mode has been toggled");
             break;
     }
-
     return true;
 }
 
@@ -138,12 +131,10 @@ CreatureAI* GetAI_npc_thrall(Creature *_Creature)
 bool GossipHello_npc_thrall(Player *player, Creature *_Creature)
 {
     hyjalAI* ai = ((hyjalAI*)_Creature->AI());
-
     if (ai->EventBegun)
         return false;
 
     uint32 AnetheronEvent = ai->GetInstanceData(DATA_ANETHERONEVENT);
-
     // Only let them start the Horde phases if Anetheron is dead.
     if (AnetheronEvent == DONE && ai->GetInstanceData(DATA_ALLIANCE_RETREAT))
     {
@@ -161,17 +152,11 @@ bool GossipHello_npc_thrall(Player *player, Creature *_Creature)
         player->ADD_GOSSIP_ITEM(2, "[GM] Toggle Debug Timers", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
     player->SEND_GOSSIP_MENU(907, _Creature->GetGUID());
-
     return true;
 }
 
 bool GossipSelect_npc_thrall(Player *player, Creature *_Creature, uint32 sender, uint32 action)
 {
-    if(_Creature->GetMap()->GetPlayersCountExceptGMs() < MINPLAYERS && !player->isGameMaster())//to stop idiot farmers
-    {
-        _Creature->Say("Did you come to die with me?",0,0);
-        return true;
-    }
     hyjalAI* ai = ((hyjalAI*)_Creature->AI());
     ai->DeSpawnVeins();//despawn the alliance veins
     switch(action)
@@ -192,7 +177,6 @@ bool GossipSelect_npc_thrall(Player *player, Creature *_Creature, uint32 sender,
             debug_log("SD2: HyjalAI - Debug mode has been toggled");
             break;
     }
-
     return true;
 }
 
@@ -201,14 +185,12 @@ CreatureAI* GetAI_npc_tyrande_whisperwind(Creature *_Creature)
     hyjalAI* ai = new hyjalAI(_Creature);
     ai->Reset();
     ai->EnterEvadeMode();
-
     return ai;
 }
 
 bool GossipHello_npc_tyrande_whisperwind(Player* player, Creature* _Creature)
 {
     hyjalAI* ai = ((hyjalAI*)_Creature->AI());
-    //ai->DeSpawnVeins();//dont despawn the horde veins if someone takes the item from Tyrande
     uint32 AzgalorEvent = ai->GetInstanceData(DATA_AZGALOREVENT);
 
     // Only let them get item if Azgalor is dead.
@@ -233,7 +215,6 @@ bool GossipSelect_npc_tyrande_whisperwind(Player *player, Creature *_Creature, u
             player->SEND_GOSSIP_MENU(907, _Creature->GetGUID());
             hyjalAI* ai = ((hyjalAI*)_Creature->AI());
     }
-
     return true;
 }
 

@@ -145,13 +145,18 @@ hyjal_trashAI::hyjal_trashAI(Creature *c) : npc_escortAI(c)
     SetupOverrun = false;
     faction = 0;
     useFlyPath = false;
+    damageTaken = 0;
     Reset();
 }
 
 void hyjal_trashAI::DamageTaken(Unit *done_by, uint32 &damage)
 {
-    if(IsOverrun && done_by->GetTypeId() == TYPEID_UNIT && ((Creature*)done_by)->GetEntry() == 17931)//don't take dmg from the dummy target
-        damage = 0;
+    if(done_by->GetTypeId() == TYPEID_PLAYER)
+    {
+        damageTaken += damage;
+        if(pInstance)
+            pInstance->SetData(DATA_RAIDDAMAGE,damage);//store raid's damage    
+    }
 }
 
 void hyjal_trashAI::Aggro(Unit *who){}
@@ -328,8 +333,12 @@ void hyjal_trashAI::UpdateAI(const uint32 diff)
 
 void hyjal_trashAI::JustDied(Unit *victim)
 {
-    if(pInstance && IsEvent)
+    if(!pInstance)return;
+    if(IsEvent && !m_creature->isWorldBoss())
         pInstance->SetData(DATA_TRASH, 0);//signal trash is dead
+
+    if((pInstance->GetData(DATA_RAIDDAMAGE) < MINRAIDDAMAGE && !m_creature->isWorldBoss()) || (damageTaken < m_creature->GetMaxHealth()/2 && m_creature->isWorldBoss()))
+        m_creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);//no loot
 
     if(IsOverrun)
     {

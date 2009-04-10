@@ -23,6 +23,7 @@ EndScriptData */
 
 #include "precompiled.h"
 #include "def_hyjal.h"
+#include "hyjal_trash.h"
 
 #define ENCOUNTERS     5
 
@@ -56,6 +57,8 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
     uint32 allianceRetreat;
     bool ArchiYell;
 
+    uint32 RaidDamage;
+
     void Initialize()
     {
         RageWinterchill = 0;
@@ -69,6 +72,7 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
         HordeGate = 0;
         ElfGate = 0;
         ArchiYell = false;
+        RaidDamage = 0;
 
         Trash = 0;
         for(uint8 i = 0; i < ENCOUNTERS; ++i)
@@ -212,6 +216,14 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
                 OpenDoor(ElfGate,true);
                 SaveToDB();
                 break;
+            case DATA_RAIDDAMAGE:
+                RaidDamage += data;
+                if(RaidDamage >= MINRAIDDAMAGE)
+                    RaidDamage = MINRAIDDAMAGE;
+                break;
+            case DATA_RESET_RAIDDAMAGE:
+                RaidDamage = 0;
+                break;
         }
 
          debug_log("SD2: Instance Hyjal: Instance data updated for event %u (Data=%u)",type,data);
@@ -232,6 +244,7 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
             case DATA_TRASH:               return Trash;
             case DATA_ALLIANCE_RETREAT:    return allianceRetreat;
             case DATA_HORDE_RETREAT:       return hordeRetreat;
+            case DATA_RAIDDAMAGE:          return RaidDamage;
         }
         return 0;
     }
@@ -255,7 +268,7 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
         OUT_SAVE_INST_DATA;
         std::ostringstream stream;
         stream << Encounters[0] << " " << Encounters[1] << " " << Encounters[2] << " "
-            << Encounters[3] << " " << Encounters[4] << " " << allianceRetreat << " " << hordeRetreat;
+            << Encounters[3] << " " << Encounters[4] << " " << allianceRetreat << " " << hordeRetreat << " " << RaidDamage;
         char* out = new char[stream.str().length() + 1];
         strcpy(out, stream.str().c_str());
         if(out)
@@ -278,7 +291,7 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
         OUT_LOAD_INST_DATA(in);
         std::istringstream loadStream;
         loadStream.str(in);
-        loadStream >> Encounters[0] >> Encounters[1] >> Encounters[2] >> Encounters[3] >> Encounters[4] >> allianceRetreat >> hordeRetreat;
+        loadStream >> Encounters[0] >> Encounters[1] >> Encounters[2] >> Encounters[3] >> Encounters[4] >> allianceRetreat >> hordeRetreat >> RaidDamage;
         for(uint8 i = 0; i < ENCOUNTERS; ++i)
             if(Encounters[i] == IN_PROGRESS)                // Do not load an encounter as IN_PROGRESS - reset it instead.
                 Encounters[i] = NOT_STARTED;
