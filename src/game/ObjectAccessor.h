@@ -164,20 +164,9 @@ class TRINITY_DLL_DECL ObjectAccessor : public Trinity::Singleton<ObjectAccessor
             return HashMapHolder<Creature>::GetContainer();
         }
 
-        HashMapHolder<Unit>::MapType& GetUnits()
-        {
-            return HashMapHolder<Unit>::GetContainer();
-        }
-
         HashMapHolder<GameObject>::MapType& GetGameObjects()
         {
             return HashMapHolder<GameObject>::GetContainer();
-        }
-
-        // note: possibly very heavy
-        HashMapHolder<WorldObject>::MapType& GetWorldObjects()
-        {
-            return HashMapHolder<WorldObject>::GetContainer();
         }
 
         template<class T> void AddObject(T *object)
