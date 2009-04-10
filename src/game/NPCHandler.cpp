@@ -481,7 +481,6 @@ void WorldSession::SendBindPoint(Creature *npc)
     _player->PlayerTalkClass->CloseGossip();
 }
 
-//Need fix
 void WorldSession::HandleListStabledPetsOpcode( WorldPacket & recv_data )
 {
     CHECK_PACKET_SIZE(recv_data,8);
@@ -518,7 +517,9 @@ void WorldSession::SendStablePet(uint64 guid )
 
     Pet *pet = _player->GetPet();
 
+    size_t wpos = data.wpos();
     data << uint8(0);                                       // place holder for slot show number
+
     data << uint8(GetPlayer()->m_stableSlots);
 
     uint8 num = 0;                                          // counter for place holder
@@ -530,12 +531,13 @@ void WorldSession::SendStablePet(uint64 guid )
         data << uint32(pet->GetEntry());
         data << uint32(pet->getLevel());
         data << pet->GetName();                             // petname
-        data << uint8(0x01);                                // flags?, client slot 1 == current pet (0)
+        data << uint8(1);                                   // 1 = current, 2/3 = in stable (any from 4,5,... create problems with proper show)
         ++num;
     }
 
-    //                                                     0      1     2   3      4      5
-    QueryResult* result = CharacterDatabase.PQuery("SELECT owner, slot, id, entry, level, name FROM character_pet WHERE owner = '%u' AND slot > 0 AND slot < 5",_player->GetGUIDLow());
+    //                                                     0      1   2      3      4
+    QueryResult* result = CharacterDatabase.PQuery("SELECT owner, id, entry, level, name FROM character_pet WHERE owner = '%u' AND slot >= '%u' AND slot <= '%u' ORDER BY slot",
+        _player->GetGUIDLow(),PET_SAVE_FIRST_STABLE_SLOT,PET_SAVE_LAST_STABLE_SLOT);
 
     if(result)
     {
@@ -543,11 +545,11 @@ void WorldSession::SendStablePet(uint64 guid )
         {
             Field *fields = result->Fetch();
 
-            data << uint32(fields[2].GetUInt32());          // petnumber
-            data << uint32(fields[3].GetUInt32());          // creature entry
-            data << uint32(fields[4].GetUInt32());          // level
-            data << fields[5].GetString();                  // name
-            data << uint8(fields[1].GetUInt32()+1);         // slot
+            data << uint32(fields[1].GetUInt32());          // petnumber
+            data << uint32(fields[2].GetUInt32());          // creature entry
+            data << uint32(fields[3].GetUInt32());          // level
+            data << fields[4].GetString();                  // name
+            data << uint8(2);                               // 1 = current, 2/3 = in stable (any from 4,5,... create problems with proper show)
 
             ++num;
         }while( result->NextRow() );
@@ -555,7 +557,7 @@ void WorldSession::SendStablePet(uint64 guid )
         delete result;
     }
 
-    data.put<uint8>(8, num);                                // set real data to placeholder
+    data.put<uint8>(wpos, num);                             // set real data to placeholder
     SendPacket(&data);
 }
 
@@ -596,7 +598,8 @@ void WorldSession::HandleStablePet( WorldPacket & recv_data )
 
     uint32 free_slot = 1;
 
-    QueryResult *result = CharacterDatabase.PQuery("SELECT owner,slot,id FROM character_pet WHERE owner = '%u'  AND slot > 0 AND slot < 5 ORDER BY slot ",_player->GetGUIDLow());
+    QueryResult *result = CharacterDatabase.PQuery("SELECT owner,slot,id FROM character_pet WHERE owner = '%u'  AND slot >= '%u' AND slot <= '%u' ORDER BY slot ",
+        _player->GetGUIDLow(),PET_SAVE_FIRST_STABLE_SLOT,PET_SAVE_LAST_STABLE_SLOT);
     if(result)
     {
         do
@@ -605,8 +608,12 @@ void WorldSession::HandleStablePet( WorldPacket & recv_data )
 
             uint32 slot = fields[1].GetUInt32();
 
-            if(slot==free_slot)                             // this slot not free
-                ++free_slot;
+            // slots ordered in query, and if not equal then free
+            if(slot!=free_slot)
+                break;
+                
+            // this slot not free, skip
+            ++free_slot;
         }while( result->NextRow() );
     }
     delete result;
@@ -648,8 +655,7 @@ void WorldSession::HandleUnstablePet( WorldPacket & recv_data )
     Pet* pet = _player->GetPet();
     if(pet && pet->isAlive())
     {
-        uint8 i = 0x06;
-        data << uint8(i);
+        data << uint8(0x06);
         SendPacket(&data);
         return;
     }
@@ -660,7 +666,8 @@ void WorldSession::HandleUnstablePet( WorldPacket & recv_data )
 
     Pet *newpet = NULL;
 
-    QueryResult *result = CharacterDatabase.PQuery("SELECT entry FROM character_pet WHERE owner = '%u' AND id = '%u' AND slot > 0 AND slot < 5",_player->GetGUIDLow(),petnumber);
+    QueryResult *result = CharacterDatabase.PQuery("SELECT entry FROM character_pet WHERE owner = '%u' AND id = '%u' AND slot >='%u' AND slot <= '%u'",
+        _player->GetGUIDLow(),petnumber,PET_SAVE_FIRST_STABLE_SLOT,PET_SAVE_LAST_STABLE_SLOT);
     if(result)
     {
         Field *fields = result->Fetch();
@@ -704,7 +711,7 @@ void WorldSession::HandleBuyStableSlot( WorldPacket & recv_data )
 
     WorldPacket data(SMSG_STABLE_RESULT, 200);
 
-    if(GetPlayer()->m_stableSlots < 4)                      // max slots amount = 4
+    if(GetPlayer()->m_stableSlots < MAX_PET_STABLES)
     {
         StableSlotPricesEntry const *SlotPrice = sStableSlotPricesStore.LookupEntry(GetPlayer()->m_stableSlots+1);
         if(_player->GetMoney() >= SlotPrice->Price)
@@ -756,7 +763,8 @@ void WorldSession::HandleStableSwapPet( WorldPacket & recv_data )
         return;
 
     // find swapped pet slot in stable
-    QueryResult *result = CharacterDatabase.PQuery("SELECT slot,entry FROM character_pet WHERE owner = '%u' AND id = '%u'",_player->GetGUIDLow(),pet_number);
+    QueryResult *result = CharacterDatabase.PQuery("SELECT slot,entry FROM character_pet WHERE owner = '%u' AND id = '%u'",
+        _player->GetGUIDLow(),pet_number);
     if(!result)
         return;
 
@@ -766,7 +774,7 @@ void WorldSession::HandleStableSwapPet( WorldPacket & recv_data )
     uint32 petentry = fields[1].GetUInt32();
     delete result;
 
-    // move alive pet to slot or delele dead pet
+    // move alive pet to slot or delete dead pet
     _player->RemovePet(pet,pet->isAlive() ? PetSaveMode(slot) : PET_SAVE_AS_DELETED);
 
     // summon unstabled pet
