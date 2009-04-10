@@ -5924,6 +5924,9 @@ void Player::RewardReputation(Unit *pVictim, float rate)
     if(!pVictim || pVictim->GetTypeId() == TYPEID_PLAYER)
         return;
 
+    if(((Creature*)pVictim)->IsReputationGainDisabled())
+        return;
+
     ReputationOnKillEntry const* Rep = objmgr.GetReputationOnKilEntry(((Creature*)pVictim)->GetCreatureInfo()->Entry);
 
     if(!Rep)
@@ -15245,7 +15248,7 @@ bool Player::Satisfy(AccessRequirement const *ar, uint32 target_map, bool report
             missingItem = ar->item2;
 
         uint32 missingKey = 0;
-		uint32 missingHeroicQuest = 0;
+        uint32 missingHeroicQuest = 0;
         if(GetDifficulty() == DIFFICULTY_HEROIC)
         {
             if(ar->heroicKey)
@@ -15257,7 +15260,7 @@ bool Player::Satisfy(AccessRequirement const *ar, uint32 target_map, bool report
             else if(ar->heroicKey2 && !HasItemCount(ar->heroicKey2, 1))
                 missingKey = ar->heroicKey2;
 
-			if(ar->heroicQuest && !GetQuestRewardStatus(ar->heroicQuest))
+            if(ar->heroicQuest && !GetQuestRewardStatus(ar->heroicQuest))
                 missingHeroicQuest = ar->heroicQuest;
         }
 
@@ -15273,7 +15276,7 @@ bool Player::Satisfy(AccessRequirement const *ar, uint32 target_map, bool report
                     GetSession()->SendAreaTriggerMessage(GetSession()->GetTrinityString(LANG_LEVEL_MINREQUIRED_AND_ITEM), ar->levelMin, objmgr.GetItemPrototype(missingItem)->Name1);
                 else if(missingKey)
                     SendTransferAborted(target_map, TRANSFER_ABORT_DIFFICULTY2);
-			    else if(missingHeroicQuest)
+                else if(missingHeroicQuest)
                     GetSession()->SendAreaTriggerMessage(ar->heroicQuestFailedText.c_str());
                 else if(missingQuest)
                     GetSession()->SendAreaTriggerMessage(ar->questFailedText.c_str());
