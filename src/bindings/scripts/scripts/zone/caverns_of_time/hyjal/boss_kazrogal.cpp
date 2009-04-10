@@ -98,6 +98,7 @@ struct TRINITY_DLL_DECL boss_kazrogalAI : public hyjal_trashAI
 
     void JustDied(Unit *victim)
     {
+        hyjal_trashAI::JustDied(victim);
         if(pInstance && IsEvent)
             pInstance->SetData(DATA_KAZROGALEVENT, DONE);
         DoPlaySoundToSet(m_creature, SOUND_ONDEATH);

@@ -8,10 +8,6 @@
 #include "def_hyjal.h"
 #include "../../../npc/npc_escortAI.h"
 
-
-#define MINPLAYERS          1//min players on the map (except gms) to start the events, to prevent one player farming
-
-
 // Trash Mobs summoned in waves
 #define NECROMANCER         17899//done
 #define ABOMINATION         17898//done
