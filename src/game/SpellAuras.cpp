@@ -1192,22 +1192,23 @@ void Aura::SetStackAmount(uint8 stackAmount)
     {
         Unit *target = GetTarget();
         Unit *caster = GetCaster();
-        if (!target || !caster)
-            return;
-        m_stackAmount = stackAmount;
-        for (uint8 i=0;i<MAX_SPELL_EFFECTS;++i)
+        if (target && caster)
         {
-            if (AuraEffect * part = GetPartAura(i))
+            m_stackAmount = stackAmount;
+            for (uint8 i=0;i<MAX_SPELL_EFFECTS;++i)
             {
-                int32 amount = m_stackAmount * caster->CalculateSpellDamage(m_spellProto, part->GetEffIndex(), part->GetBasePoints(), target);
-                // Reapply if amount change
-                if (amount!=part->GetAmount())
+                if (AuraEffect * part = GetPartAura(i))
                 {
-                    bool Real = bool (part->m_spellmod);
-                    // Auras which are applying spellmod should have removed spellmods for real
-                    part->ApplyModifier(false,Real);
-                    part->SetAmount(amount);
-                    part->ApplyModifier(true, Real);
+                    int32 amount = m_stackAmount * caster->CalculateSpellDamage(m_spellProto, part->GetEffIndex(), part->GetBasePoints(), target);
+                    // Reapply if amount change
+                    if (amount!=part->GetAmount())
+                    {
+                        bool Real = bool (part->m_spellmod);
+                        // Auras which are applying spellmod should have removed spellmods for real
+                        part->ApplyModifier(false,Real);
+                        part->SetAmount(amount);
+                        part->ApplyModifier(true, Real);
+                    }
                 }
             }
         }
