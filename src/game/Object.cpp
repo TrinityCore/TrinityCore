@@ -633,7 +633,8 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
                         if(index == UNIT_FIELD_BYTES_2)
                         {
                             DEBUG_LOG("-- VALUES_UPDATE: Sending '%s' the blue-group-fix from '%s' (flag)", target->GetName(), ((Player*)this)->GetName());
-                            *data << ( m_uint32Values[ index ] & (UNIT_BYTE2_FLAG_SANCTUARY << 8) ); // this flag is at uint8 offset 1 !!
+                            *data << ( m_uint32Values[ index ] & ((UNIT_BYTE2_FLAG_SANCTUARY | UNIT_BYTE2_FLAG_AURAS | UNIT_BYTE2_FLAG_UNK5) << 8) ); // this flag is at uint8 offset 1 !!
+
                             ch = true;
                         }
                         else if(index == UNIT_FIELD_FACTIONTEMPLATE)
