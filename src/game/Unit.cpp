@@ -2557,7 +2557,8 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst (const Unit *pVictim, WeaponAttack
     if (tmp > 0 && roll < (sum += tmp))
     {
         DEBUG_LOG ("RollMeleeOutcomeAgainst: CRIT <%d, %d)", sum-tmp, sum);
-        return MELEE_HIT_CRIT;
+        if(GetTypeId()!=TYPEID_PLAYER && !(((Creature*)this)->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_NO_CRIT))
+            return MELEE_HIT_CRIT;
     }
 
     // Max 40% chance to score a glancing blow against mobs that are higher level (can do only players and pets and not with ranged weapon)
@@ -4364,7 +4365,7 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
                     {
                         caster->m_currentSpells[CURRENT_CHANNELED_SPELL]->cancel();
                         caster->m_currentSpells[CURRENT_CHANNELED_SPELL]=NULL;
-			
+            
                     }
                 }
 
@@ -6138,7 +6139,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                             triggered_spell_id = 21400;
                         }
                         else continue;
-					    basepoints0 = CalculateSpellDamage(procSpell,i,procSpell->EffectBasePoints[i],this) * 0.4f;
+                        basepoints0 = CalculateSpellDamage(procSpell,i,procSpell->EffectBasePoints[i],this) * 0.4f;
                         CastCustomSpell(this,triggered_spell_id,&basepoints0,NULL,NULL,true,castItem,triggeredByAura);
                     }
                     return true;
