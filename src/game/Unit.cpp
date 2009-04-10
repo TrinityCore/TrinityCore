@@ -3813,7 +3813,7 @@ bool Unit::AddAura(Aura *Aur)
     }
     if((Aur->GetSpellProto()->Attributes & SPELL_ATTR_BREAKABLE_BY_DAMAGE
         && !Aur->IsAuraType(SPELL_AURA_MOD_POSSESS)) //only dummy aura is breakable
-        || (Aur->GetSpellProto()->Mechanic==MECHANIC_KNOCKOUT && Aur->IsAuraType(SPELL_AURA_MOD_STUN)))
+        || ((GetAllSpellMechanicMask(Aur->GetSpellProto()) & 1<<MECHANIC_KNOCKOUT) && Aur->IsAuraType(SPELL_AURA_MOD_STUN)))
     {
         m_ccAuras.push_back(Aur);
     }
@@ -4126,7 +4126,7 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
 
     if((Aur->GetSpellProto()->Attributes & SPELL_ATTR_BREAKABLE_BY_DAMAGE
         && !Aur->IsAuraType(SPELL_AURA_MOD_POSSESS)) //only dummy aura is breakable
-        || (Aur->GetSpellProto()->Mechanic==MECHANIC_KNOCKOUT && Aur->IsAuraType(SPELL_AURA_MOD_STUN)))
+        || ((GetAllSpellMechanicMask(Aur->GetSpellProto()) & 1<<MECHANIC_KNOCKOUT) && Aur->IsAuraType(SPELL_AURA_MOD_STUN)))
     {
         m_ccAuras.remove(Aur);
     }
