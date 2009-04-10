@@ -29,57 +29,46 @@
 
 INSTANTIATE_SINGLETON_1(CreatureGroupManager);
 
-CreatureGroupHolderType CreatureGroupHolder;
 CreatureGroupInfoType   CreatureGroupMap;
 
-void CreatureGroupManager::AddCreatureToGroup(uint32 group_id, Creature *member)
+void CreatureGroupManager::AddCreatureToGroup(uint32 groupId, Creature *member)
 {
-    CreatureGroupHolderType::iterator cgroup_data = CreatureGroupHolder.find(group_id);
+    Map *map = member->FindMap();
+    if(!map)
+        return;
+
+    CreatureGroupHolderType::iterator itr = map->CreatureGroupHolder.find(groupId);
 
     //Add member to an existing group
-    if(cgroup_data != CreatureGroupHolder.end())
+    if(itr != map->CreatureGroupHolder.end())
     {
-        typedef std::multimap<uint32, CreatureGroup *>::iterator multiplegroup;
-        std::pair<multiplegroup, multiplegroup> range = CreatureGroupHolder.equal_range(group_id);
-
-        for(multiplegroup i = range.first; i != range.second; ++i)
-        {
-            if(i->second->getInstanceID() == member->GetInstanceId())
-            {
-                sLog.outDebug("Group found: %u, inserting creature GUID: %u, Group InstanceID %u", group_id, member->GetGUIDLow(), i->second->getInstanceID());
-                i->second->AddMember(member);
-                return;
-            }
-        }
+        sLog.outDebug("Group found: %u, inserting creature GUID: %u, Group InstanceID %u", groupId, member->GetGUIDLow(), member->GetInstanceId());
+        itr->second->AddMember(member);
     }
-
     //Create new group
-    sLog.outDebug("Group not found: %u. Creating new group.", group_id);
-    CreatureGroup* cgroup = new CreatureGroup(group_id, member->GetInstanceId());
-    CreatureGroupHolder.insert(std::make_pair(group_id, cgroup));
-    cgroup->AddMember(member);
+    else
+    {
+        sLog.outDebug("Group not found: %u. Creating new group.", groupId);
+        CreatureGroup* group = new CreatureGroup(groupId);
+        map->CreatureGroupHolder[groupId] = group;
+        group->AddMember(member);
+    }
 }
 
-void CreatureGroupManager::RemoveCreatureFromGroup(CreatureGroup *formation, Creature *member)
+void CreatureGroupManager::RemoveCreatureFromGroup(CreatureGroup *group, Creature *member)
 {
-    sLog.outDebug("Deleting member pointer to GUID: %u from group %u", formation->GetId(), member->GetDBTableGUIDLow());
-    formation->RemoveMember(member);
+    sLog.outDebug("Deleting member pointer to GUID: %u from group %u", group->GetId(), member->GetDBTableGUIDLow());
+    group->RemoveMember(member);
 
-    if(formation->isEmpty())
+    if(group->isEmpty())
     {
-        uint32 id = formation->GetId();
-        typedef std::multimap<uint32, CreatureGroup *>::iterator multiplegroup;
-        std::pair<multiplegroup, multiplegroup> range = CreatureGroupHolder.equal_range(id);
+        Map *map = member->FindMap();
+        if(!map)
+            return;
 
-        for(multiplegroup i = range.first; i != range.second; ++i)
-        {
-            if(i->second == formation)
-            {
-                sLog.outDebug("Deleting group with InstanceID %u", i->second->getInstanceID());
-                CreatureGroupHolder.erase(i);
-                delete formation;
-            }
-        }
+        sLog.outDebug("Deleting group with InstanceID %u", member->GetInstanceId());
+        map->CreatureGroupHolder.erase(group->GetId());
+        delete group;
     }
 }
 
@@ -245,13 +234,12 @@ void CreatureGroup::LeaderMoveTo(float x, float y, float z)
 
         float dx = x + cos(angle + pathangle) * dist;
         float dy = y + sin(angle + pathangle) * dist;
-        
-		Trinity::NormalizeMapCoord(dx);
-		Trinity::NormalizeMapCoord(dy);
+        float dz = z;
 
-		float dz = member->GetMap()->GetHeight(dx,dy,z,false);
-        
-		member->UpdateGroundPositionZ(dx, dy, dz);
+        Trinity::NormalizeMapCoord(dx);
+        Trinity::NormalizeMapCoord(dy);
+
+        member->UpdateGroundPositionZ(dx, dy, dz);
 
         if(member->GetDistance(m_leader) < dist + MAX_DESYNC)
             member->SetUnitMovementFlags(m_leader->GetUnitMovementFlags());
