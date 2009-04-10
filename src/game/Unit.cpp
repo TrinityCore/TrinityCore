@@ -2081,7 +2081,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
             if (auraeff->GetAmount()<=0)
             {
                 uint32 removedAuras = pVictim->m_removedAuras.size();
-                pVictim->RemoveAura(aura);
+                pVictim->RemoveAura(aura, AURA_REMOVE_BY_ENEMY_SPELL);
                 if (removedAuras+1<pVictim->m_removedAuras.size())
                     i=vSchoolAbsorb.begin();
             }
@@ -2118,7 +2118,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
         (*i)->SetAmount((*i)->GetAmount()-currentAbsorb);
         if((*i)->GetAmount() <= 0)
         {
-            pVictim->RemoveAurasDueToSpell((*i)->GetId());
+            pVictim->RemoveAura((*i)->GetParentAura(), AURA_REMOVE_BY_ENEMY_SPELL);
             next = vManaShield.begin();
         }
 
@@ -3756,6 +3756,8 @@ bool Unit::AddAura(Aura *Aur)
         {
             if(foundAura->GetStackAmount() < aurSpellInfo->StackAmount)
                 foundAura->SetStackAmount(foundAura->GetStackAmount()+1);
+            else
+                foundAura->RefreshAura();
             delete Aur;
             return true;
         }
@@ -12363,8 +12365,6 @@ bool Unit::HandleAuraRaidProcFromChargeWithValue( AuraEffect* triggeredByAura )
         else
             radius = GetSpellMaxRangeForTarget(triggeredByAura->GetCaster() ,sSpellRangeStore.LookupEntry(spellProto->rangeIndex));
 
-        //Get max possible jumps for aura to get proper charges amount for target
-
         if(Player* caster = ((Player*)triggeredByAura->GetCaster()))
         {
             caster->ApplySpellMod(spellProto->Id, SPELLMOD_RADIUS, radius,NULL);
@@ -12372,7 +12372,7 @@ bool Unit::HandleAuraRaidProcFromChargeWithValue( AuraEffect* triggeredByAura )
             if (Unit* target= GetNextRandomRaidMemberOrPet(radius))
             {
                 CastCustomSpell(target,spellProto->Id,&heal,NULL,NULL,true,NULL,triggeredByAura,caster->GetGUID());
-                if (Aura * aur = GetAura(spellProto->Id, caster->GetGUID()))
+                if (Aura * aur = target->GetAura(spellProto->Id, caster->GetGUID()))
                     aur->SetAuraCharges(jumps);
 
                 //bonus must be applied after aura cast on target
@@ -12426,19 +12426,14 @@ bool Unit::HandleAuraRaidProcFromCharge( AuraEffect* triggeredByAura )
         else
             radius = GetSpellMaxRangeForTarget(triggeredByAura->GetCaster() ,sSpellRangeStore.LookupEntry(spellProto->rangeIndex));
 
-        //Get max possible jumps for aura to get proper charges amount for target
-        int32 maxJumps = spellProto->procCharges;
-
         if(Player* caster = ((Player*)triggeredByAura->GetCaster()))
         {
             caster->ApplySpellMod(spellProto->Id, SPELLMOD_RADIUS, radius,NULL);
 
-            caster->ApplySpellMod(spellProto->Id, SPELLMOD_CHARGES, maxJumps, NULL);
-
             if (Unit* target= GetNextRandomRaidMemberOrPet(radius))
             {
-                CastSpell(this, spellProto, true,NULL,triggeredByAura,caster_guid);
-                if (Aura * aur = GetAura(spellProto->Id, caster->GetGUID()))
+                CastSpell(target, spellProto, true,NULL,triggeredByAura,caster_guid);
+                if (Aura * aur = target->GetAura(spellProto->Id, caster->GetGUID()))
                     aur->SetAuraCharges(jumps);
             }
         }
