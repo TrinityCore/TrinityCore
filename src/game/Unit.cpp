@@ -3292,6 +3292,8 @@ void Unit::_UpdateSpells( uint32 time )
             ++i;
     }
 
+    _DeleteAuras();
+
     if(!m_gameObj.empty())
     {
         std::list<GameObject*>::iterator ite1, dnext1;
