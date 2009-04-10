@@ -181,8 +181,6 @@ Unit::~Unit()
         }
     }
 
-    _DeleteAuras();
-
     RemoveAllGameObjects();
     RemoveAllDynObjects();
 
@@ -5138,7 +5136,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     for(AuraMap::iterator iter = Auras.begin(); iter != Auras.end();)
                     {
                         SpellEntry const *spell = iter->second->GetSpellProto();
-                        if( GetAllSpellMechanicMask(spell) & 1<<(MECHANIC_STUN-1))
+                        if( GetAllSpellMechanicMask(spell) & 1<<(MECHANIC_STUN))
                         {
                             pVictim->RemoveAura(iter);
                         }
@@ -8935,6 +8933,7 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
     // Check for table values
     SpellBonusEntry const* bonus = spellmgr.GetSpellBonusData(spellProto->Id);
     float coeff;
+    bool scripted = false;
     if (bonus)
     {
         if (damagetype == DOT)
@@ -8944,57 +8943,74 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
         if (bonus->ap_bonus)
             DoneTotal+=bonus->ap_bonus * GetTotalAttackPowerValue(BASE_ATTACK) * stack;
     }
+    else // scripted bonus
+    {
+        // Gift of the Naaru
+        if (spellProto->Id==59547)
+        {
+            scripted = true;
+            uint32 apBonus = GetTotalAttackPowerValue(BASE_ATTACK);
+            if (apBonus > DoneAdvertisedBenefit)
+            {
+                DoneTotal+=apBonus * stack;
+                coeff = 0.0f;
+            }
+            else
+                coeff = 1.0f;
+        }
+    }
+
     // Default calculation
     if (DoneAdvertisedBenefit || TakenAdvertisedBenefit)
     {
-        if(!bonus)
+        if(!bonus && !scripted)
         {
-        // Damage Done from spell damage bonus
-        int32 CastingTime = !IsChanneledSpell(spellProto) ? GetSpellCastTime(spellProto) : GetSpellDuration(spellProto);
-        // Damage over Time spells bonus calculation
-        float DotFactor = 1.0f;
-        if(damagetype == DOT)
-        {
-            int32 DotDuration = GetSpellDuration(spellProto);
-            // 200% limit
-            if(DotDuration > 0)
+            // Damage Done from spell damage bonus
+            int32 CastingTime = !IsChanneledSpell(spellProto) ? GetSpellCastTime(spellProto) : GetSpellDuration(spellProto);
+            // Damage over Time spells bonus calculation
+            float DotFactor = 1.0f;
+            if(damagetype == DOT)
             {
-                if(DotDuration > 30000) DotDuration = 30000;
-                if(!IsChanneledSpell(spellProto)) DotFactor = DotDuration / 15000.0f;
-                int x = 0;
-                for(int j = 0; j < 3; j++)
+                int32 DotDuration = GetSpellDuration(spellProto);
+                // 200% limit
+                if(DotDuration > 0)
                 {
-                    if( spellProto->Effect[j] == SPELL_EFFECT_APPLY_AURA && (
-                        spellProto->EffectApplyAuraName[j] == SPELL_AURA_PERIODIC_DAMAGE ||
-                        spellProto->EffectApplyAuraName[j] == SPELL_AURA_PERIODIC_LEECH) )
+                    if(DotDuration > 30000) DotDuration = 30000;
+                    if(!IsChanneledSpell(spellProto)) DotFactor = DotDuration / 15000.0f;
+                    int x = 0;
+                    for(int j = 0; j < 3; j++)
                     {
-                        x = j;
-                        break;
+                        if( spellProto->Effect[j] == SPELL_EFFECT_APPLY_AURA && (
+                            spellProto->EffectApplyAuraName[j] == SPELL_AURA_PERIODIC_DAMAGE ||
+                            spellProto->EffectApplyAuraName[j] == SPELL_AURA_PERIODIC_LEECH) )
+                        {
+                            x = j;
+                            break;
+                        }
+                    }
+                    int32 DotTicks = 6;
+                    if(spellProto->EffectAmplitude[x] != 0)
+                        DotTicks = DotDuration / spellProto->EffectAmplitude[x];
+                    if(DotTicks)
+                    {
+                        DoneAdvertisedBenefit = DoneAdvertisedBenefit * int32(stack) / DotTicks;
+                        TakenAdvertisedBenefit = TakenAdvertisedBenefit * int32(stack) / DotTicks;
                     }
                 }
-                int32 DotTicks = 6;
-                if(spellProto->EffectAmplitude[x] != 0)
-                    DotTicks = DotDuration / spellProto->EffectAmplitude[x];
-                if(DotTicks)
+            }
+            // Distribute Damage over multiple effects, reduce by AoE
+            CastingTime = GetCastingTimeForBonus( spellProto, damagetype, CastingTime );
+            // 50% for damage and healing spells for leech spells from damage bonus and 0% from healing
+            for(int j = 0; j < 3; ++j)
+            {
+                if( spellProto->Effect[j] == SPELL_EFFECT_HEALTH_LEECH ||
+                    spellProto->Effect[j] == SPELL_EFFECT_APPLY_AURA && spellProto->EffectApplyAuraName[j] == SPELL_AURA_PERIODIC_LEECH )
                 {
-                    DoneAdvertisedBenefit = DoneAdvertisedBenefit * int32(stack) / DotTicks;
-                    TakenAdvertisedBenefit = TakenAdvertisedBenefit * int32(stack) / DotTicks;
+                    CastingTime /= 2;
+                    break;
                 }
             }
-        }
-        // Distribute Damage over multiple effects, reduce by AoE
-        CastingTime = GetCastingTimeForBonus( spellProto, damagetype, CastingTime );
-        // 50% for damage and healing spells for leech spells from damage bonus and 0% from healing
-        for(int j = 0; j < 3; ++j)
-        {
-            if( spellProto->Effect[j] == SPELL_EFFECT_HEALTH_LEECH ||
-                spellProto->Effect[j] == SPELL_EFFECT_APPLY_AURA && spellProto->EffectApplyAuraName[j] == SPELL_AURA_PERIODIC_LEECH )
-            {
-                CastingTime /= 2;
-                break;
-            }
-        }
-        coeff = (CastingTime / 3500.0f) * DotFactor;
+            coeff = (CastingTime / 3500.0f) * DotFactor;
         }
 
         float coeff2 = CalculateLevelPenalty(spellProto) * 1.88f * stack;
@@ -9146,12 +9162,15 @@ bool Unit::IsImmunedToSpell(SpellEntry const* spellInfo)
                 return true;
     }
 
-    SpellImmuneList const& mechanicList = m_spellImmune[IMMUNITY_MECHANIC];
-    for(SpellImmuneList::const_iterator itr = mechanicList.begin(); itr != mechanicList.end(); ++itr)
+    if (spellInfo->Mechanic)
     {
-        if(itr->type & (1<<spellInfo->Mechanic))
+        SpellImmuneList const& mechanicList = m_spellImmune[IMMUNITY_MECHANIC];
+        for(SpellImmuneList::const_iterator itr = mechanicList.begin(); itr != mechanicList.end(); ++itr)
         {
-            return true;
+            if(itr->type == spellInfo->Mechanic)
+            {
+                return true;
+            }
         }
     }
 
@@ -9182,7 +9201,7 @@ bool Unit::IsImmunedToSpellEffect(SpellEntry const* spellInfo, uint32 index) con
     {
         SpellImmuneList const& mechanicList = m_spellImmune[IMMUNITY_MECHANIC];
         for (SpellImmuneList::const_iterator itr = mechanicList.begin(); itr != mechanicList.end(); ++itr)
-            if(itr->type & 1<<(spellInfo->EffectMechanic[index]))
+            if(itr->type == spellInfo->EffectMechanic[index])
                 return true;
     }
 
@@ -11062,6 +11081,7 @@ void Unit::CleanupsBeforeDelete()
     //A unit may be in removelist and not in world, but it is still in grid
     //and may have some references during delete
     RemoveAllAuras();
+    _DeleteAuras();
     InterruptNonMeleeSpells(true);
     m_Events.KillAllEvents(false);                      // non-delatable (currently casted spells) will not deleted now but it will deleted at call in Map::RemoveAllObjectsInRemoveList
     CombatStop();
@@ -11503,6 +11523,8 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
 
         bool useCharges= i->aura->GetAuraCharges()>0;
         bool takeCharges = false;
+        SpellEntry const *spellInfo = i->aura->GetSpellProto();
+        uint32 Id=i->aura->GetId();
 
         // For players set spell cooldown if need
         uint32 cooldown = 0;
@@ -11516,8 +11538,6 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
 
             AuraEffect *triggeredByAura = i->aura->GetPartAura(effIndex);
             assert(triggeredByAura);
-
-            SpellEntry const *spellInfo = triggeredByAura->GetSpellProto();
 
             switch(triggeredByAura->GetAuraName())
             {
@@ -13143,7 +13163,7 @@ void Unit::AddAura(uint32 spellId, Unit* target)
 
     for(uint32 i = 0; i < 3; ++i)
     {
-        if(spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AURA)
+        if(spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AURA || IsAreaAuraEffect(spellInfo->Effect[i]))
         {
             if(target->IsImmunedToSpellEffect(spellInfo, i))
                 continue;
@@ -13172,6 +13192,8 @@ Aura * Unit::AddAuraEffect(uint32 spellId, uint8 effIndex, Unit* caster)
     if (aur)
     {
         AuraEffect *aurEffect = CreateAuraEffect(aur, effIndex, NULL, caster);
+        if (!aurEffect)
+            return aur;
         if (!aur->SetPartAura(aurEffect, effIndex))
             delete aurEffect;
     }
