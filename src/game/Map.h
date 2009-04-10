@@ -44,6 +44,7 @@ class Group;
 class InstanceSave;
 class WorldObject;
 class TempSummon;
+class CreatureGroup;
 
 namespace ZThread
 {
@@ -248,6 +249,8 @@ typedef UNORDERED_MAP<Creature*, CreatureMover> CreatureMoveList;
 #define INVALID_HEIGHT       -100000.0f                     // for check, must be equal to VMAP_INVALID_HEIGHT, real value for unknown height is VMAP_INVALID_HEIGHT_VALUE
 #define MIN_UNLOAD_DELAY      1                             // immediate unload
 
+typedef std::map<uint32/*leaderDBGUID*/, CreatureGroup*>        CreatureGroupHolderType;
+
 class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::ObjectLevelLockable<Map, ZThread::Mutex>
 {
     friend class MapReference;
@@ -416,6 +419,9 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
         template<class NOTIFIER> void VisitGrid(const float &x, const float &y, float radius, NOTIFIER &notifier);
 
         TempSummon *SummonCreature(uint32 entry, float x, float y, float z, float angle, SummonPropertiesEntry const *properties = NULL, uint32 duration = 0, Unit *summoner = NULL);
+
+        CreatureGroupHolderType  CreatureGroupHolder;
+
     private:
         void LoadMapAndVMap(int gx, int gy);
         void LoadVMap(int gx, int gy);

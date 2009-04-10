@@ -41,10 +41,8 @@ class CreatureGroupManager
         void LoadCreatureFormations();
 };
 
-typedef std::multimap<uint32/*leaderDBGUID*/, CreatureGroup*>   CreatureGroupHolderType;
 typedef UNORDERED_MAP<uint32/*memberDBGUID*/, FormationInfo*>   CreatureGroupInfoType;
 
-extern CreatureGroupHolderType  CreatureGroupHolder;
 extern CreatureGroupInfoType    CreatureGroupMap;
 
 class CreatureGroup
@@ -54,17 +52,16 @@ class CreatureGroup
         typedef std::map<Creature*, FormationInfo*>  CreatureGroupMemberType;
         CreatureGroupMemberType m_members;
 
-        uint32 m_groupID, mInstanceID;
+        uint32 m_groupID;
         bool m_Formed;
     
     public:
         //Group cannot be created empty
-        explicit CreatureGroup(uint32 id, uint32 InstanceID) : m_groupID(id), m_leader(NULL), mInstanceID(InstanceID), m_Formed(false) {}
-        ~CreatureGroup(){sLog.outDebug("Destroying group");}
+        explicit CreatureGroup(uint32 id) : m_groupID(id), m_leader(NULL), m_Formed(false) {}
+        ~CreatureGroup() { sLog.outDebug("Destroying group"); }
         
         Creature* getLeader() const { return m_leader; }
         uint32 GetId() const { return m_groupID; }
-        uint32 getInstanceID() const { return mInstanceID; }
         bool isEmpty() const { return m_members.empty(); }
         bool isFormed() const { return m_Formed; }
 
