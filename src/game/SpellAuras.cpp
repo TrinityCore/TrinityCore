@@ -198,7 +198,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNoImmediateEffect,                         //144 SPELL_AURA_SAFE_FALL                  implemented in WorldSession::HandleMovementOpcodes
     &AuraEffect::HandleAuraModPetTalentsPoints,                   //145 SPELL_AURA_MOD_PET_TALENT_POINTS
     &AuraEffect::HandleNoImmediateEffect,                         //146 SPELL_AURA_ALLOW_TAME_PET_TYPE
-    &AuraEffect::HandleModMechanicImmunity,                       //147 SPELL_AURA_MECHANIC_IMMUNITY_MASK
+    &AuraEffect::HandleModStateImmunityMask,                      //147 SPELL_AURA_MECHANIC_IMMUNITY_MASK
     &AuraEffect::HandleAuraRetainComboPoints,                     //148 SPELL_AURA_RETAIN_COMBO_POINTS
     &AuraEffect::HandleNoImmediateEffect,                         //149 SPELL_AURA_REDUCE_PUSHBACK
     &AuraEffect::HandleShieldBlockValue,                          //150 SPELL_AURA_MOD_SHIELD_BLOCKVALUE_PCT
@@ -1138,29 +1138,28 @@ void Aura::_RemoveAura()
             // note: item based cooldowns and cooldown spell mods with charges ignored (unknown existed cases)
             ((Player*)caster)->SendCooldownEvent(GetSpellProto());
     }
-    if (m_removeMode==AURA_REMOVE_BY_EXPIRE)
+    uint32 id = GetId();
+    // Remove Linked Auras
+    if(spellmgr.GetSpellCustomAttr(id) & SPELL_ATTR_CU_LINK_REMOVE)
     {
-        // Remove Linked Auras (on last aura remove)
-        uint32 id = GetId();
-        if(spellmgr.GetSpellCustomAttr(id) & SPELL_ATTR_CU_LINK_REMOVE)
-        {
-            if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(-(int32)id))
-                for(std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
-                    if(*itr < 0)
-                        m_target->RemoveAurasDueToSpell(-(*itr));
-                    else if(Unit* caster = GetCaster())
+        if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(-(int32)id))
+            for(std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
+                if(*itr < 0)
+                    m_target->RemoveAurasDueToSpell(-(*itr));
+                else if(Unit* caster = GetCaster())
+                    if (m_removeMode==AURA_REMOVE_BY_EXPIRE)
                         m_target->CastSpell(m_target, *itr, true, 0, 0, caster->GetGUID());
-        }
-        if(spellmgr.GetSpellCustomAttr(id) & SPELL_ATTR_CU_LINK_AURA)
-        {
-            if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(id + SPELL_LINK_AURA))
-                for(std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
-                    if(*itr < 0)
-                        m_target->ApplySpellImmune(id, IMMUNITY_ID, -(*itr), false);
-                    else
-                        m_target->RemoveAurasDueToSpell(*itr);
-        }
     }
+    if(spellmgr.GetSpellCustomAttr(id) & SPELL_ATTR_CU_LINK_AURA)
+    {
+        if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(id + SPELL_LINK_AURA))
+            for(std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
+                if(*itr < 0)
+                    m_target->ApplySpellImmune(id, IMMUNITY_ID, -(*itr), false);
+                else
+                    m_target->RemoveAurasDueToSpell(*itr);
+    }
+
     // Proc on aura remove (only spell flags for now)
     if (caster)
     {
@@ -3988,7 +3987,7 @@ void AuraEffect::HandleAuraModIncreaseFlightSpeed(bool apply, bool Real)
 
         //Players on flying mounts must be immune to polymorph
         if (m_target->GetTypeId()==TYPEID_PLAYER)
-            m_target->ApplySpellImmune(GetId(),IMMUNITY_MECHANIC,1<<MECHANIC_POLYMORPH,apply);
+            m_target->ApplySpellImmune(GetId(),IMMUNITY_MECHANIC,MECHANIC_POLYMORPH,apply);
 
         // Dragonmaw Illusion (overwrite mount model, mounted aura already applied)
         if( apply && m_target->HasAuraEffect(42016,0) && m_target->GetMountID())
@@ -4033,16 +4032,57 @@ void AuraEffect::HandleAuraModUseNormalSpeed(bool /*apply*/, bool Real)
 /***                     IMMUNITY                      ***/
 /*********************************************************/
 
+void AuraEffect::HandleModStateImmunityMask(bool apply, bool Real)
+{
+    std::list <AuraType> immunity_list;
+    if (GetMiscValue() & (1<<10))
+        immunity_list.push_back(SPELL_AURA_MOD_STUN);
+    if (GetMiscValue() & (1<<7))
+        immunity_list.push_back(SPELL_AURA_MOD_DISARM);
+    if (GetMiscValue() & (1<<1))
+        immunity_list.push_back(SPELL_AURA_MOD_TAUNT);
+
+    // These flag can be recognized wrong:
+    if (GetMiscValue() & (1<<6))
+        immunity_list.push_back(SPELL_AURA_MOD_DECREASE_SPEED);
+    if (GetMiscValue() & (1<<0))
+        immunity_list.push_back(SPELL_AURA_MOD_ROOT);
+    if (GetMiscValue() & (1<<3))
+        immunity_list.push_back(SPELL_AURA_MOD_CONFUSE);
+    if (GetMiscValue() & (1<<9))
+        immunity_list.push_back(SPELL_AURA_MOD_FEAR);
+
+    // Patch 3.0.3 Bladestorm now breaks all snares and roots on the warrior when activated.
+    // however not all mechanic specified in immunity
+    if (apply && GetId()==46924)
+    {
+        m_target->RemoveAurasByType(SPELL_AURA_MOD_ROOT);
+        m_target->RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
+    }
+
+    if(apply && GetSpellProto()->AttributesEx & SPELL_ATTR_EX_DISPEL_AURAS_ON_IMMUNITY)
+    {
+        for (std::list <AuraType>::iterator iter = immunity_list.begin(); iter != immunity_list.end();)
+        {
+            m_target->RemoveAurasByType(*iter);
+        }
+    }
+    for (std::list <AuraType>::iterator iter = immunity_list.begin(); iter != immunity_list.end();)
+    {
+        m_target->ApplySpellImmune(GetId(),IMMUNITY_STATE,*iter,apply);
+    }
+}
+
 void AuraEffect::HandleModMechanicImmunity(bool apply, bool Real)
 {
     uint32 mechanic;
-    if (GetSpellProto()->EffectApplyAuraName[GetEffIndex()]==SPELL_AURA_MECHANIC_IMMUNITY)
-        mechanic = 1 << GetMiscValue();
-    else //SPELL_AURA_MECHANIC_IMMUNITY_MASK
-        mechanic = GetMiscValue();
+    mechanic = 1 << GetMiscValue();
+
     //immune movement impairment and loss of control
     if(GetId()==42292 || GetId()==59752)
         mechanic=IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK;
+    if (!mechanic)
+        return;
 
     if(apply && GetSpellProto()->AttributesEx & SPELL_ATTR_EX_DISPEL_AURAS_ON_IMMUNITY)
     {
@@ -4066,15 +4106,7 @@ void AuraEffect::HandleModMechanicImmunity(bool apply, bool Real)
         }
     }
 
-    // Patch 3.0.3 Bladestorm now breaks all snares and roots on the warrior when activated.
-    // however not all mechanic specified in immunity
-    if (apply && GetId()==46924)
-    {
-        m_target->RemoveAurasByType(SPELL_AURA_MOD_ROOT);
-        m_target->RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
-    }
-
-    m_target->ApplySpellImmune(GetId(),IMMUNITY_MECHANIC,mechanic,apply);
+    m_target->ApplySpellImmune(GetId(),IMMUNITY_MECHANIC,GetMiscValue(),apply);
 
     // Bestial Wrath
     if ( GetSpellProto()->SpellFamilyName == SPELLFAMILY_HUNTER && GetSpellProto()->Id == 19574)

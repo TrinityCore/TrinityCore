@@ -4548,7 +4548,7 @@ SpellCastResult Spell::CheckCasterAuras() const
                 dispel_immune |= GetDispellMask(DispelType(m_spellInfo->EffectMiscValue[i]));
         }
         //immune movement impairment and loss of control
-        if(m_spellInfo->Id==(uint32)42292)
+        if(m_spellInfo->Id==42292 || m_spellInfo->Id==59752)
             mechanic_immune = IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK;
     }
 

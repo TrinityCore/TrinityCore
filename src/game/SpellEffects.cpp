@@ -2546,7 +2546,7 @@ void Spell::SpellDamageHeal(uint32 /*i*/)
             if (AuraEffect * aurEff = unitTarget->GetAura(SPELL_AURA_PERIODIC_HEAL, SPELLFAMILY_SHAMAN, 0, 0, 0x10, m_originalCasterGUID))
             {
                 addhealth = caster->SpellHealingBonus(unitTarget, m_spellInfo, addhealth, HEAL);
-                addhealth *= 0.25f;
+                addhealth *= 1.25f;
                 // consume aura
                 unitTarget->RemoveAura(aurEff->GetParentAura());
             }
@@ -5836,7 +5836,7 @@ void Spell::EffectDispelMechanic(uint32 i)
 
     Unit::AuraMap& Auras = unitTarget->GetAuras();
     for(Unit::AuraMap::iterator iter = Auras.begin(); iter != Auras.end(); iter++)
-       if(GetAllSpellMechanicMask(iter->second->GetSpellProto()) & (1<<(mechanic-1)))
+       if(GetAllSpellMechanicMask(iter->second->GetSpellProto()) & (1<<(mechanic)))
             dispel_list.push(iter->second);
 
     for(;dispel_list.size();dispel_list.pop())

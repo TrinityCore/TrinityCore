@@ -267,6 +267,7 @@ class TRINITY_DLL_SPEC AuraEffect
         void HandleFarSight(bool Apply, bool Real);
         void HandleModPossessPet(bool Apply, bool Real);
         void HandleModMechanicImmunity(bool Apply, bool Real);
+        void HandleModStateImmunityMask(bool apply, bool Real);
         void HandleAuraModSkill(bool Apply, bool Real);
         void HandleModDamagePercentDone(bool Apply, bool Real);
         void HandleModPercentStat(bool Apply, bool Real);
