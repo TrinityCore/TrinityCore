@@ -134,6 +134,7 @@ enum CreatureFlagsExtra
     CREATURE_FLAG_EXTRA_WORLDEVENT      = 0x00004000,       // custom flag for world event creatures (left room for merging)
     //CREATURE_FLAG_EXTRA_CHARM_AI        = 0x00008000,       // use ai when charmed
     CREATURE_FLAG_EXTRA_NO_TAUNT        = 0x00010000,       // cannot be taunted
+    CREATURE_FLAG_EXTRA_NO_CRIT         = 0x00020000,       // creature can't do critical strikes
 };
 
 enum SummonMask
@@ -681,6 +682,8 @@ class TRINITY_DLL_SPEC Creature : public Unit
         Unit *SelectVictim();
         void SetDeadByDefault (bool death_state) {m_isDeadByDefault = death_state;}
 
+        void SetDisableReputationGain(bool disable) { DisableReputationGain = disable; }
+        bool IsReputationGainDisabled() { return DisableReputationGain; }
     protected:
         bool CreateFromProto(uint32 guidlow,uint32 Entry,uint32 team, const CreatureData *data = NULL);
         bool InitEntry(uint32 entry, uint32 team=ALLIANCE, const CreatureData* data=NULL);
@@ -728,6 +731,8 @@ class TRINITY_DLL_SPEC Creature : public Unit
         float mHome_Y;
         float mHome_Z;
         float mHome_O;
+
+        bool DisableReputationGain;
 
     private:
         //WaypointMovementGenerator vars
