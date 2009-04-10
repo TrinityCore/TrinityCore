@@ -498,7 +498,11 @@ void hyjalAI::SummonCreature(uint32 entry, float Base[4][3])
                 ((hyjal_trashAI*)pCreature->AI())->IsEvent = true;
                 break;  
         }
-
+        if(pInstance)
+        {
+            if(pInstance->GetData(DATA_RAIDDAMAGE) < MINRAIDDAMAGE)
+                pCreature->SetDisableReputationGain(true);//no repu for solo farming
+        }
         // Check if creature is a boss.
         if (pCreature->isWorldBoss())
         {
@@ -971,6 +975,7 @@ void hyjalAI::JustDied(Unit* killer)
             pInstance->SetData(DATA_KAZROGALEVENT, NOT_STARTED);
         if(pInstance->GetData(DATA_AZGALOREVENT) == IN_PROGRESS)
             pInstance->SetData(DATA_AZGALOREVENT, NOT_STARTED);
+        pInstance->SetData(DATA_RESET_RAIDDAMAGE, NULL);//reset damage on die
     }    
 }
 void hyjalAI::HideNearPos(float x, float y)

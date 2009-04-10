@@ -26,6 +26,8 @@
 #define DATA_RESET_TRASH_COUNT    15
 #define DATA_ALLIANCE_RETREAT     16
 #define DATA_HORDE_RETREAT        17
+#define DATA_RAIDDAMAGE           18
+#define DATA_RESET_RAIDDAMAGE     19
 
 #define ERROR_INST_DATA     "TSCR: Instance data not set properly for Mount Hyjal. Encounters will be buggy"
 #endif

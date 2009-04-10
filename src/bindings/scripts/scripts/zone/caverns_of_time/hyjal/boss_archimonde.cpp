@@ -24,6 +24,7 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_hyjal.h"
 #include "SpellAuras.h"
+#include "hyjal_trash.h"
 
 //text id -1534018 are the text used when previous events complete. Not part of this script.
 #define SAY_AGGRO                   -1534019
@@ -323,9 +324,9 @@ struct TargetDistanceOrder : public std::binary_function<const Unit, const Unit,
     }
 };
 
-struct TRINITY_DLL_DECL boss_archimondeAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_archimondeAI : public hyjal_trashAI
 {
-    boss_archimondeAI(Creature *c) : ScriptedAI(c)
+    boss_archimondeAI(Creature *c) : hyjal_trashAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
     }
@@ -426,6 +427,7 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public ScriptedAI
 
     void JustDied(Unit *victim)
     {
+        hyjal_trashAI::JustDied(victim);
         DoScriptText(SAY_DEATH, m_creature);
 
         if(pInstance)
@@ -693,6 +695,7 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
+    void WaypointReached(uint32 i){}
 };
 
 CreatureAI* GetAI_boss_archimonde(Creature *_Creature)

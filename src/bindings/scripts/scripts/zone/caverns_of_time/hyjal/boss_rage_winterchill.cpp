@@ -94,6 +94,7 @@ struct TRINITY_DLL_DECL boss_rage_winterchillAI : public hyjal_trashAI
 
     void JustDied(Unit *victim)
     {
+        hyjal_trashAI::JustDied(victim);
         if(pInstance && IsEvent)
             pInstance->SetData(DATA_RAGEWINTERCHILLEVENT, DONE);
         DoPlaySoundToSet(m_creature, SOUND_ONDEATH);
