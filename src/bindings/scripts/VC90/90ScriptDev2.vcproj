@@ -848,23 +848,23 @@
 						Name="Azjol-Nerub"
 						>
 						<File
-							RelativePath="..\scripts\zone\Azjol-Nerub\Azjol-Nerub\boss_anubarak.cpp"
+							RelativePath="..\scripts\zone\Azjol-Nerub\azjol_nerub\boss_anubarak.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\scripts\zone\Azjol-Nerub\Azjol-Nerub\boss_hadronox.cpp"
+							RelativePath="..\scripts\zone\Azjol-Nerub\azjol_nerub\boss_hadronox.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\scripts\zone\Azjol-Nerub\Azjol-Nerub\boss_krikthir_the_gatewatcher.cpp"
+							RelativePath="..\scripts\zone\Azjol-Nerub\azjol_nerub\boss_krikthir_the_gatewatcher.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\scripts\zone\Azjol-Nerub\Azjol-Nerub\def_azjol_nerub.h"
+							RelativePath="..\scripts\zone\Azjol-Nerub\azjol_nerub\def_azjol_nerub.h"
 							>
 						</File>
 						<File
-							RelativePath="..\scripts\zone\Azjol-Nerub\Azjol-Nerub\instance_azjol_nerub.cpp"
+							RelativePath="..\scripts\zone\Azjol-Nerub\azjol_nerub\instance_azjol_nerub.cpp"
 							>
 						</File>
 					</Filter>
