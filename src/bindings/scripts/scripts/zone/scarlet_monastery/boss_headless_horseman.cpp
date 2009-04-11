@@ -464,7 +464,7 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
             if (withhead)
                 SaySound(SAY_PLAYER_DEATH);
             else {          //maybe possible when player dies from conflagration
-                Creature *Head = (Creature*)Unit::GetUnit((*m_creature), headGUID);
+                Creature *Head = Unit::GetCreature((*m_creature), headGUID);
                 if (Head)
                     ((mob_headAI*)Head->AI())->SaySound(SAY_PLAYER_DEATH);
             }
@@ -666,7 +666,7 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
                 {
                     if (Phase > 1) --Phase;
                     else Phase = 1;
-                    Creature* Head = (Creature*)Unit::GetUnit((*m_creature), headGUID);
+                    Creature* Head = Unit::GetCreature((*m_creature), headGUID);
                     if (Head && Head->isAlive())
                     {
                         ((mob_headAI*)Head->AI())->Phase = Phase;
@@ -697,7 +697,7 @@ void mob_headAI::Disappear()
         return;
     if (bodyGUID)
     {
-        Creature *body = (Creature*)Unit::GetUnit((*m_creature), bodyGUID);
+        Creature *body = Unit::GetCreature((*m_creature), bodyGUID);
         if(body && body->isAlive())
         {
             withbody = true;

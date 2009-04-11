@@ -221,7 +221,7 @@ struct TRINITY_DLL_DECL mob_titoAI : public ScriptedAI
     {
         if(DorotheeGUID)
         {
-            Creature* Dorothee = ((Creature*)Unit::GetUnit((*m_creature), DorotheeGUID));
+            Creature* Dorothee = (Unit::GetCreature((*m_creature), DorotheeGUID));
             if(Dorothee && Dorothee->isAlive())
             {
                 ((boss_dorotheeAI*)Dorothee->AI())->TitoDied = true;
@@ -1054,7 +1054,7 @@ struct TRINITY_DLL_DECL boss_romuloAI : public ScriptedAI
         DoScriptText(SAY_ROMULO_AGGRO, m_creature);
         if(JulianneGUID)
         {
-            Creature* Julianne = ((Creature*)Unit::GetUnit((*m_creature), JulianneGUID));
+            Creature* Julianne = (Unit::GetCreature((*m_creature), JulianneGUID));
             if(Julianne && Julianne->getVictim())
             {
                 m_creature->AddThreat(Julianne->getVictim(), 1.0f);
@@ -1104,7 +1104,7 @@ void boss_julianneAI::DamageTaken(Unit* done_by, uint32 &damage)
 
     if(!IsFakingDeath)
     {
-        Creature* Romulo = ((Creature*)Unit::GetUnit((*m_creature), RomuloGUID));
+        Creature* Romulo = (Unit::GetCreature((*m_creature), RomuloGUID));
         if(Romulo && Romulo->isAlive() && !((boss_romuloAI*)Romulo->AI())->IsFakingDeath)
         {
             ((boss_romuloAI*)Romulo->AI())->ResurrectTimer = 10000;
@@ -1143,7 +1143,7 @@ void boss_romuloAI::DamageTaken(Unit* done_by, uint32 &damage)
 
         if(Phase == PHASE_BOTH)
         {
-            Creature* Julianne = ((Creature*)Unit::GetUnit((*m_creature), JulianneGUID));
+            Creature* Julianne = (Unit::GetCreature((*m_creature), JulianneGUID));
             if(Julianne && Julianne->isAlive() && !((boss_julianneAI*)Julianne->AI())->IsFakingDeath)
             {
                 ((boss_julianneAI*)Julianne->AI())->ResurrectTimer = 10000;
@@ -1163,7 +1163,7 @@ void boss_romuloAI::DamageTaken(Unit* done_by, uint32 &damage)
         }
         else
         {
-            Creature* Julianne = ((Creature*)Unit::GetUnit((*m_creature), JulianneGUID));
+            Creature* Julianne = (Unit::GetCreature((*m_creature), JulianneGUID));
             if(Julianne)
             {
                 Resurrect(Julianne);
@@ -1231,7 +1231,7 @@ void boss_julianneAI::UpdateAI(const uint32 diff)
     {
         if(ResurrectTimer < diff)
         {
-            Creature* Romulo = ((Creature*)Unit::GetUnit((*m_creature), RomuloGUID));
+            Creature* Romulo = (Unit::GetCreature((*m_creature), RomuloGUID));
             if(Romulo && ((boss_romuloAI*)Romulo->AI())->IsFakingDeath)
             {
                 DoScriptText(SAY_JULIANNE_RESURRECT, m_creature);
@@ -1265,7 +1265,7 @@ void boss_julianneAI::UpdateAI(const uint32 diff)
     {
         if(rand()%2 == 1 && SummonedRomulo)
         {
-            Creature* Romulo = ((Creature*)Unit::GetUnit((*m_creature), RomuloGUID));
+            Creature* Romulo = (Unit::GetCreature((*m_creature), RomuloGUID));
             if(Romulo && Romulo->isAlive() && !((boss_romuloAI*)Romulo->AI())->IsFakingDeath)
                 DoCast(Romulo, SPELL_ETERNAL_AFFECTION);
             else
@@ -1287,7 +1287,7 @@ void boss_romuloAI::UpdateAI(const uint32 diff)
     {
         if(ResurrectTimer < diff)
         {
-            Creature* Julianne = ((Creature*)Unit::GetUnit((*m_creature), JulianneGUID));
+            Creature* Julianne = (Unit::GetCreature((*m_creature), JulianneGUID));
             if(Julianne && ((boss_julianneAI*)Julianne->AI())->IsFakingDeath)
             {
                 DoScriptText(SAY_ROMULO_RESURRECT, m_creature);

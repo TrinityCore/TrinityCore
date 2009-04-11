@@ -382,7 +382,7 @@ struct TRINITY_DLL_DECL npc_injured_patientAI : public ScriptedAI
             {
                 if(Doctorguid)
                 {
-                    Creature* Doctor = ((Creature*)Unit::GetUnit((*m_creature), Doctorguid));
+                    Creature* Doctor = (Unit::GetCreature((*m_creature), Doctorguid));
                     if(Doctor)
                         ((npc_doctorAI*)Doctor->AI())->PatientSaved(m_creature, ((Player*)caster), Coord);
                 }
@@ -430,7 +430,7 @@ struct TRINITY_DLL_DECL npc_injured_patientAI : public ScriptedAI
 
             if(Doctorguid)
             {
-                Creature* Doctor = ((Creature*)Unit::GetUnit((*m_creature), Doctorguid));
+                Creature* Doctor = (Unit::GetCreature((*m_creature), Doctorguid));
                 if(Doctor)
                     ((npc_doctorAI*)Doctor->AI())->PatientDied(Coord);
             }
@@ -476,7 +476,7 @@ void npc_doctorAI::BeginEvent(Player* player)
 
 void npc_doctorAI::PatientDied(Location* Point)
 {
-    Player* player = ((Player*)Unit::GetUnit((*m_creature), Playerguid));
+    Player* player = Unit::GetPlayer(Playerguid);
     if(player && ((player->GetQuestStatus(6624) == QUEST_STATUS_INCOMPLETE) || (player->GetQuestStatus(6622) == QUEST_STATUS_INCOMPLETE)))
     {
         PatientDiedCount++;
@@ -509,7 +509,7 @@ void npc_doctorAI::PatientSaved(Creature* soldier, Player* player, Location* Poi
                     std::list<uint64>::iterator itr;
                     for(itr = Patients.begin(); itr != Patients.end(); ++itr)
                     {
-                        Creature* Patient = ((Creature*)Unit::GetUnit((*m_creature), *itr));
+                        Creature* Patient = (Unit::GetCreature((*m_creature), *itr));
                         if( Patient )
                             Patient->setDeathState(JUST_DIED);
                     }

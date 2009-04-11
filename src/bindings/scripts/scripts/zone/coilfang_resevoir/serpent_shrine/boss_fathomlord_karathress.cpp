@@ -134,7 +134,7 @@ struct TRINITY_DLL_DECL boss_fathomlord_karathressAI : public ScriptedAI
 
         if(RAdvisors[i])
         {
-            pAdvisor = ((Creature*)Unit::GetUnit((*m_creature), RAdvisors[i]));
+            pAdvisor = (Unit::GetCreature((*m_creature), RAdvisors[i]));
             if(pAdvisor && !pAdvisor->isAlive())
             {
             pAdvisor->Respawn();
@@ -280,7 +280,7 @@ struct TRINITY_DLL_DECL boss_fathomlord_karathressAI : public ScriptedAI
             for(uint8 i = 0; i < 4; ++i)
                 if(Advisors[i])
                 {
-                    Advisor = ((Creature*)Unit::GetUnit(*m_creature, Advisors[i]));
+                    Advisor = (Unit::GetCreature(*m_creature, Advisors[i]));
                     if(Advisor)
                     {
                         if(Advisor->isAlive())

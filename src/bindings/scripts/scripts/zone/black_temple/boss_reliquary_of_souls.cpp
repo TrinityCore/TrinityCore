@@ -213,7 +213,7 @@ struct TRINITY_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
         Creature* Essence;
         if(EssenceGUID)
         {
-            Essence = (Creature*)Unit::GetUnit(*m_creature, EssenceGUID);
+            Essence = Unit::GetCreature(*m_creature, EssenceGUID);
             if(!Essence)
             {
                 EnterEvadeMode();
@@ -624,7 +624,7 @@ void npc_enslaved_soulAI::JustDied(Unit *killer)
 {
     if(ReliquaryGUID)
     {
-        Creature* Reliquary = ((Creature*)Unit::GetUnit((*m_creature), ReliquaryGUID));
+        Creature* Reliquary = (Unit::GetCreature((*m_creature), ReliquaryGUID));
         if(Reliquary)
             ((boss_reliquary_of_soulsAI*)Reliquary->AI())->SoulDeathCount++;
     }

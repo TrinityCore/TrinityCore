@@ -91,7 +91,7 @@ struct TRINITY_DLL_DECL mob_kilrekAI : public ScriptedAI
             return;
         }
 
-        Creature* Terestian = ((Creature*)Unit::GetUnit(*m_creature, pInstance->GetData64(DATA_TERESTIAN)));
+        Creature* Terestian = (Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_TERESTIAN)));
         if(Terestian && !Terestian->getVictim())
             Terestian->AddThreat(who, 1.0f);
     }
@@ -213,7 +213,7 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
         if(pInstance)
         {
             // Put Kil'rek in combat against our target so players don't skip him
-            Creature* Kilrek = ((Creature*)Unit::GetUnit(*m_creature, pInstance->GetData64(DATA_KILREK)));
+            Creature* Kilrek = (Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_KILREK)));
             if(Kilrek && !Kilrek->getVictim())
                 Kilrek->AddThreat(who, 1.0f);
 
@@ -263,7 +263,7 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
                 uint64 KilrekGUID = pInstance->GetData64(DATA_KILREK);
             else ERROR_INST_DATA(m_creature);
 
-            Creature* Kilrek = ((Creature*)Unit::GetUnit((*m_creature), KilrekGUID));
+            Creature* Kilrek = (Unit::GetCreature((*m_creature), KilrekGUID));
             if(SummonKilrek && Kilrek)
             {
                 Kilrek->Respawn();

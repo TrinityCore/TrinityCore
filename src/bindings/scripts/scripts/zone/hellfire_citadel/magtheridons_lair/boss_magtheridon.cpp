@@ -506,7 +506,7 @@ bool GOHello_go_Manticron_Cube(Player *player, GameObject* _GO)
     ScriptedInstance* pInstance =(ScriptedInstance*)_GO->GetInstanceData();
     if(!pInstance) return true;
     if(pInstance->GetData(DATA_MAGTHERIDON_EVENT) != IN_PROGRESS) return true;
-    Creature *Magtheridon =(Creature*)Unit::GetUnit(*_GO, pInstance->GetData64(DATA_MAGTHERIDON));
+    Creature *Magtheridon =Unit::GetCreature(*_GO, pInstance->GetData64(DATA_MAGTHERIDON));
     if(!Magtheridon || !Magtheridon->isAlive()) return true;
 
     // if exhausted or already channeling return

@@ -127,7 +127,7 @@ struct TRINITY_DLL_DECL boss_nazanAI : public ScriptedAI
 
         if(flight) // phase 1 - the flight
         {
-            Creature *Vazruden = (Creature*)Unit::GetUnit(*m_creature,VazrudenGUID);
+            Creature *Vazruden = Unit::GetCreature(*m_creature,VazrudenGUID);
             if(Fly_Timer < diff || !(Vazruden && Vazruden->isAlive() && (Vazruden->GetHealth()*5 > Vazruden->GetMaxHealth())))
             {
                 flight = false;
@@ -279,8 +279,8 @@ struct TRINITY_DLL_DECL boss_vazruden_the_heraldAI : public ScriptedAI
     {
         if(summoned)
         {
-            Creature *Nazan = (Creature*)Unit::GetUnit(*m_creature, NazanGUID);
-            Creature *Vazruden = (Creature*)Unit::GetUnit(*m_creature, VazrudenGUID);
+            Creature *Nazan = Unit::GetCreature(*m_creature, NazanGUID);
+            Creature *Vazruden = Unit::GetCreature(*m_creature, VazrudenGUID);
             if(Nazan || (Nazan = (Creature *)FindCreature(ENTRY_NAZAN, 5000, m_creature)))
             {
                 Nazan->SetLootRecipient(NULL);
@@ -381,8 +381,8 @@ struct TRINITY_DLL_DECL boss_vazruden_the_heraldAI : public ScriptedAI
         default: // adds do the job now
             if(check < diff)
             {
-                Creature *Nazan = (Creature*)Unit::GetUnit(*m_creature, NazanGUID);
-                Creature *Vazruden = (Creature*)Unit::GetUnit(*m_creature, VazrudenGUID);
+                Creature *Nazan = Unit::GetCreature(*m_creature, NazanGUID);
+                Creature *Vazruden = Unit::GetCreature(*m_creature, VazrudenGUID);
                 if(Nazan && Nazan->isAlive() || Vazruden && Vazruden->isAlive())
                 {
                     if(Nazan && Nazan->getVictim() || Vazruden && Vazruden->getVictim())

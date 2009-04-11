@@ -529,7 +529,7 @@ struct TRINITY_DLL_DECL mob_felkael_phoenixAI : public ScriptedAI
         {
             if (pInstance)
             {
-                Creature *boss = ((Creature*)Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_KAEL)));
+                Creature *boss = (Unit::GetCreature((*m_creature),pInstance->GetData64(DATA_KAEL)));
                 if (boss)
                 {
                     phase = ((boss_felblood_kaelthasAI*)boss->AI())->Phase;
@@ -657,7 +657,7 @@ struct TRINITY_DLL_DECL mob_arcane_sphereAI : public ScriptedAI
         {
             if (pInstance)
             {
-                Creature *boss = (Creature*)Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_KAEL));
+                Creature *boss = Unit::GetCreature((*m_creature),pInstance->GetData64(DATA_KAEL));
                 if(boss)
                 {
                     if(!((boss_felblood_kaelthasAI*)boss->AI())->Phase || boss->isDead())
