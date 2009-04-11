@@ -158,7 +158,7 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
         DoScriptText(SAY_DEATH, m_creature);
 
         if (pInstance)
-            pInstance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, NOT_STARTED);
+            pInstance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, DONE);
     }
 
     void Aggro(Unit *who)
