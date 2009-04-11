@@ -210,7 +210,7 @@ struct TRINITY_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
             DoScriptText(SAY_CLEAN_DEATH, m_creature);
 
         if (pInstance)
-            pInstance->SetData(DATA_HYDROSSTHEUNSTABLEEVENT, NOT_STARTED);
+            pInstance->SetData(DATA_HYDROSSTHEUNSTABLEEVENT, DONE);
         Summons.DespawnAll();
     }
 
