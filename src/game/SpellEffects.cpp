@@ -500,6 +500,11 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                 {
                     damage += int32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK)*0.08f);
                 }
+                // Faerie Fire (Feral)
+                else if(m_spellInfo->Id == 60089)
+                {
+                    damage += int32((m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * 5 / 100) + 1);
+                }
                 //Mangle Bonus for the initial damage of Lacerate and Rake
                 if((m_spellInfo->SpellFamilyFlags.IsEqual(0x1000,0,0) && m_spellInfo->SpellIconID==494) ||
                     (m_spellInfo->SpellFamilyFlags.IsEqual(0,0x100,0) && m_spellInfo->SpellIconID==2246))
