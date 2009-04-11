@@ -51,7 +51,7 @@ struct TRINITY_DLL_DECL npc_ameAI : public npc_escortAI
 
     void WaypointReached(uint32 i)
     {
-        Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+        Player* player = Unit::GetPlayer(PlayerGUID);
 
         if (!player)
             return;
@@ -100,7 +100,7 @@ struct TRINITY_DLL_DECL npc_ameAI : public npc_escortAI
     {
         if (PlayerGUID)
         {
-            if (Unit* player = Unit::GetUnit((*m_creature), PlayerGUID))
+            if (Player* player = Unit::GetPlayer(PlayerGUID))
                 ((Player*)player)->FailQuest(QUEST_CHASING_AME);
         }
     }

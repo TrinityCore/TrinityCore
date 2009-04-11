@@ -311,7 +311,7 @@ struct TRINITY_DLL_DECL boss_hex_lord_malacrassAI : public ScriptedAI
     {
         for(uint8 i = 0; i < 4; ++i)
         {
-            Creature *pCreature = ((Creature*)Unit::GetUnit((*m_creature), AddGUID[i]));
+            Creature *pCreature = (Unit::GetCreature((*m_creature), AddGUID[i]));
             if(!pCreature || !pCreature->isAlive())
             {
                 if(pCreature) pCreature->setDeathState(DEAD);

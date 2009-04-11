@@ -33,7 +33,7 @@ void SummonList::DespawnEntry(uint32 entry)
 {
     for(iterator i = begin(); i != end(); ++i)
     {
-        if(Creature *summon = (Creature*)Unit::GetUnit(*m_creature, *i))
+        if(Creature *summon = Unit::GetCreature(*m_creature, *i))
         {
             if(summon->GetEntry() == entry)
             {
@@ -55,7 +55,7 @@ void SummonList::DespawnAll()
 {
     for(iterator i = begin(); i != end(); ++i)
     {
-        if(Creature *summon = (Creature*)Unit::GetUnit(*m_creature, *i))
+        if(Creature *summon = Unit::GetCreature(*m_creature, *i))
         {
             summon->setDeathState(JUST_DIED);
             summon->RemoveCorpse();

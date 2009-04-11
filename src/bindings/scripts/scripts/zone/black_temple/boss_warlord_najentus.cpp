@@ -194,7 +194,7 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
 bool GOHello_go_najentus_spine(Player *player, GameObject* _GO)
 {
     if(ScriptedInstance* pInstance = (ScriptedInstance*)_GO->GetInstanceData())
-        if(Creature* Najentus = (Creature*)Unit::GetUnit(*_GO, pInstance->GetData64(DATA_HIGHWARLORDNAJENTUS)))
+        if(Creature* Najentus = Unit::GetCreature(*_GO, pInstance->GetData64(DATA_HIGHWARLORDNAJENTUS)))
             if(((boss_najentusAI*)Najentus->AI())->RemoveImpalingSpine())
             {
                 player->CastSpell(player, SPELL_CREATE_NAJENTUS_SPINE, true);

@@ -200,7 +200,7 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
         {
             for(std::list<uint64>::iterator itr = Sorcerers.begin(); itr != Sorcerers.end(); ++itr)
             {
-                if(Creature* Sorcerer = ((Creature*)Unit::GetUnit(*m_creature, *itr)))
+                if(Creature* Sorcerer = (Unit::GetCreature(*m_creature, *itr)))
                     if(Sorcerer->isAlive())
                     {
                         Sorcerer->SetVisibility(VISIBILITY_OFF);
@@ -248,7 +248,7 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
             for(std::list<uint64>::iterator itr = Channelers.begin(); itr != Channelers.end(); ++itr)
             {
                 Creature* Channeler = NULL;
-                Channeler = ((Creature*)Unit::GetUnit(*m_creature, *itr));
+                Channeler = (Unit::GetCreature(*m_creature, *itr));
 
                 if (Channeler)
                 {
@@ -372,7 +372,7 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
         }
 
         for(std::list<uint64>::iterator itr = Channelers.begin(); itr != Channelers.end(); ++itr)
-            if(Creature* Channeler = ((Creature*)Unit::GetUnit(*m_creature, *itr)))
+            if(Creature* Channeler = (Unit::GetCreature(*m_creature, *itr)))
                 Channeler->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }
 
@@ -484,7 +484,7 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
 
 void mob_ashtongue_channelerAI::JustDied(Unit* killer)
 {
-    Creature* Shade = ((Creature*)Unit::GetUnit((*m_creature), ShadeGUID));
+    Creature* Shade = (Unit::GetCreature((*m_creature), ShadeGUID));
     if(Shade && Shade->isAlive())
         ((boss_shade_of_akamaAI*)Shade->AI())->IncrementDeathCount();
     else error_log("SD2 ERROR: Channeler dead but unable to increment DeathCount for Shade of Akama.");
@@ -492,7 +492,7 @@ void mob_ashtongue_channelerAI::JustDied(Unit* killer)
 
 void mob_ashtongue_sorcererAI::JustDied(Unit* killer)
 {
-    Creature* Shade = ((Creature*)Unit::GetUnit((*m_creature), ShadeGUID));
+    Creature* Shade = (Unit::GetCreature((*m_creature), ShadeGUID));
     if(Shade && Shade->isAlive())
         ((boss_shade_of_akamaAI*)Shade->AI())->IncrementDeathCount(m_creature->GetGUID());
     else error_log("SD2 ERROR: Sorcerer dead but unable to increment DeathCount for Shade of Akama.");
@@ -561,7 +561,7 @@ struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
         if(!ShadeGUID)
             return;
 
-        Creature* Shade = ((Creature*)Unit::GetUnit((*m_creature), ShadeGUID));
+        Creature* Shade = (Unit::GetCreature((*m_creature), ShadeGUID));
         if(Shade)
         {
             pInstance->SetData(DATA_SHADEOFAKAMAEVENT, IN_PROGRESS);
@@ -618,7 +618,7 @@ struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
 
         if(ShadeGUID && !StartCombat)
         {
-            Creature* Shade = ((Creature*)Unit::GetUnit((*m_creature), ShadeGUID));
+            Creature* Shade = (Unit::GetCreature((*m_creature), ShadeGUID));
             if(Shade && Shade->isAlive())
             {
                 if(((boss_shade_of_akamaAI*)Shade->AI())->IsBanished)

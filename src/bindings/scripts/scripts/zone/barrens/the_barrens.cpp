@@ -254,7 +254,7 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
             Player* pWarrior = NULL;
 
             if(PlayerGUID)
-                pWarrior = ((Player*)Unit::GetUnit((*m_creature), PlayerGUID));
+                pWarrior = Unit::GetPlayer(PlayerGUID);
 
             if(!pWarrior)
                 return;
@@ -268,7 +268,7 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
                 {
                     if (AffrayChallenger[i])
                     {
-                        Creature* pCreature = (Creature*)Unit::GetUnit((*m_creature), AffrayChallenger[i]);
+                        Creature* pCreature = Unit::GetCreature((*m_creature), AffrayChallenger[i]);
                         if(pCreature) {
                             if(pCreature->isAlive())
                             {
@@ -284,7 +284,7 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
 
                 if (BigWill)
                 {
-                    Creature* pCreature = (Creature*)Unit::GetUnit((*m_creature), BigWill);
+                    Creature* pCreature = Unit::GetCreature((*m_creature), BigWill);
                     if(pCreature) {
                         if(pCreature->isAlive()) {
                             pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
@@ -329,7 +329,7 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
                     {
                         if (AffrayChallenger[i])
                         {
-                            Creature* pCreature = (Creature*)Unit::GetUnit((*m_creature), AffrayChallenger[i]);
+                            Creature* pCreature = Unit::GetCreature((*m_creature), AffrayChallenger[i]);
                             if((!pCreature || (!pCreature->isAlive())) && !Challenger_down[i])
                             {
                                 DoScriptText(SAY_TWIGGY_FLATHEAD_DOWN, m_creature);
@@ -345,7 +345,7 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
                     if (AffrayChallenger[Wave] && Wave < 6 && !EventBigWill)
                     {
                         DoScriptText(SAY_TWIGGY_FLATHEAD_FRAY, m_creature);
-                        Creature* pCreature = (Creature*)Unit::GetUnit((*m_creature), AffrayChallenger[Wave]);
+                        Creature* pCreature = Unit::GetCreature((*m_creature), AffrayChallenger[Wave]);
                         if(pCreature && (pCreature->isAlive()))
                         {
                             pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -371,7 +371,7 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
                     }
                     else if (Wave >= 6 && EventBigWill && BigWill)
                     {
-                        Creature* pCreature = (Creature*)Unit::GetUnit((*m_creature), BigWill);
+                        Creature* pCreature = Unit::GetCreature((*m_creature), BigWill);
                         if (!pCreature || !pCreature->isAlive())
                         {
                             DoScriptText(SAY_TWIGGY_FLATHEAD_OVER, m_creature);
@@ -420,7 +420,7 @@ struct TRINITY_DLL_DECL npc_wizzlecrank_shredderAI : public npc_escortAI
 
     void WaypointReached(uint32 i)
     {
-        Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+        Player* player = Unit::GetPlayer(PlayerGUID);
 
         if(!player)
             return;
@@ -468,7 +468,7 @@ struct TRINITY_DLL_DECL npc_wizzlecrank_shredderAI : public npc_escortAI
     {
         if (PlayerGUID && !Completed)
         {
-            Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+            Player* player = Unit::GetPlayer(PlayerGUID);
             if (player)
                 ((Player*)player)->FailQuest(QUEST_ESCAPE);
         }

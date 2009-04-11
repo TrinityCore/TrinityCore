@@ -50,7 +50,7 @@ struct TRINITY_DLL_DECL npc_prospector_anvilwardAI : public npc_escortAI
     // Pure Virtual Functions
     void WaypointReached(uint32 i)
     {
-        Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+        Player* player = Unit::GetPlayer(PlayerGUID);
 
         if(!player)
             return;
@@ -339,7 +339,7 @@ struct TRINITY_DLL_DECL master_kelerun_bloodmournAI : public ScriptedAI
         if ( timer < diff ) {
 
           Creature* paladinSpawn;
-          paladinSpawn = ((Creature*)Unit::GetUnit((*m_creature), paladinGuid[paladinPhase]));
+          paladinSpawn = (Unit::GetCreature((*m_creature), paladinGuid[paladinPhase]));
             if ( paladinSpawn ) {
                ((npc_secondTrialAI*)paladinSpawn->AI())->Activate(m_creature->GetGUID());
 
@@ -439,7 +439,7 @@ void npc_secondTrialAI::JustDied(Unit* Killer) {
       if (Killer->GetTypeId() == TYPEID_PLAYER)
       {
           Creature* Summoner;
-          Summoner = ((Creature*)Unit::GetUnit((*m_creature), summonerGuid));
+          Summoner = (Unit::GetCreature((*m_creature), summonerGuid));
 
           if ( Summoner )
             ((master_kelerun_bloodmournAI*)Summoner->AI())->SecondTrialKill();
@@ -560,7 +560,7 @@ struct TRINITY_DLL_DECL npc_apprentice_mirvedaAI : public ScriptedAI
     {
         if (PlayerGUID)
         {
-            Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+            Player* player = Unit::GetPlayer(PlayerGUID);
             if (player)
                 ((Player*)player)->FailQuest(QUEST_UNEXPECTED_RESULT);
         }
@@ -572,7 +572,7 @@ struct TRINITY_DLL_DECL npc_apprentice_mirvedaAI : public ScriptedAI
         {
             if (PlayerGUID)
             {
-                Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+                Player* player = Unit::GetPlayer(PlayerGUID);
                 if(player)
                     ((Player*)player)->CompleteQuest(QUEST_UNEXPECTED_RESULT);
             }
@@ -676,7 +676,7 @@ struct TRINITY_DLL_DECL npc_infused_crystalAI : public Scripted_NoMovementAI
     {
         if (PlayerGUID && !Completed)
         {
-            Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+            Player* player = Unit::GetPlayer(PlayerGUID);
             if (player)
                 ((Player*)player)->FailQuest(QUEST_POWERING_OUR_DEFENSES);
         }
@@ -690,7 +690,7 @@ struct TRINITY_DLL_DECL npc_infused_crystalAI : public Scripted_NoMovementAI
             Completed = true;
             if (PlayerGUID)
             {
-                Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+                Player* player = Unit::GetPlayer(PlayerGUID);
                 if(player)
                     ((Player*)player)->CompleteQuest(QUEST_POWERING_OUR_DEFENSES);
             }

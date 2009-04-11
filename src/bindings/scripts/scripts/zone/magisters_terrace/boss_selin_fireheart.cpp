@@ -174,8 +174,8 @@ struct TRINITY_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
         //for(uint8 i = 0; i < CRYSTALS_NUMBER; ++i)
         for(std::list<uint64>::iterator itr = Crystals.begin(); itr != Crystals.end(); ++itr)
         {
-            //Creature* pCrystal = ((Creature*)Unit::GetUnit(*m_creature, FelCrystals[i]));
-            Creature* pCrystal = ((Creature*)Unit::GetUnit(*m_creature, *itr));
+            //Creature* pCrystal = (Unit::GetCreature(*m_creature, FelCrystals[i]));
+            Creature* pCrystal = (Unit::GetCreature(*m_creature, *itr));
             if (pCrystal && pCrystal->isAlive())
                 pCrystal->DealDamage(pCrystal, pCrystal->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
         }
@@ -342,7 +342,7 @@ struct TRINITY_DLL_DECL mob_fel_crystalAI : public ScriptedAI
     {
         if (ScriptedInstance* pInstance = ((ScriptedInstance*)m_creature->GetInstanceData()))
         {
-            Creature* Selin = ((Creature*)Unit::GetUnit(*m_creature, pInstance->GetData64(DATA_SELIN)));
+            Creature* Selin = (Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_SELIN)));
             if (Selin && Selin->isAlive())
             {
                 if (((boss_selin_fireheartAI*)Selin->AI())->CrystalGUID == m_creature->GetGUID())

@@ -134,7 +134,7 @@ struct TRINITY_DLL_DECL boss_fathomlord_karathressAI : public ScriptedAI
 
         if(RAdvisors[i])
         {
-            pAdvisor = ((Creature*)Unit::GetUnit((*m_creature), RAdvisors[i]));
+            pAdvisor = (Unit::GetCreature((*m_creature), RAdvisors[i]));
             if(pAdvisor && !pAdvisor->isAlive())
             {
             pAdvisor->Respawn();
@@ -205,7 +205,7 @@ struct TRINITY_DLL_DECL boss_fathomlord_karathressAI : public ScriptedAI
         DoScriptText(SAY_DEATH, m_creature);
 
         if (pInstance)
-            pInstance->SetData(DATA_FATHOMLORDKARATHRESSEVENT, NOT_STARTED);
+            pInstance->SetData(DATA_FATHOMLORDKARATHRESSEVENT, DONE);
 
         //support for quest 10944
         m_creature->SummonCreature(SEER_OLUM, OLUM_X, OLUM_Y, OLUM_Z, OLUM_O, TEMPSUMMON_TIMED_DESPAWN, 3600000);
@@ -280,7 +280,7 @@ struct TRINITY_DLL_DECL boss_fathomlord_karathressAI : public ScriptedAI
             for(uint8 i = 0; i < 4; ++i)
                 if(Advisors[i])
                 {
-                    Advisor = ((Creature*)Unit::GetUnit(*m_creature, Advisors[i]));
+                    Advisor = (Unit::GetCreature(*m_creature, Advisors[i]));
                     if(Advisor)
                     {
                         if(Advisor->isAlive())
