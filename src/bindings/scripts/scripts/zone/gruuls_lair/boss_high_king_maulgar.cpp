@@ -65,7 +65,7 @@ EndScriptData */
 #define SPELL_SPELLSHIELD       33054
 #define SPELL_BLAST_WAVE        33061
 
-bool AllBossDied(ScriptedInstance* pInstance, Creature* m_creature)
+bool CheckAllBossDied(ScriptedInstance* pInstance, Creature* m_creature)
 {
     if(!pInstance || !m_creature)
         return false;
