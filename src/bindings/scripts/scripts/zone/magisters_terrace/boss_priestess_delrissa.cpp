@@ -373,7 +373,7 @@ struct TRINITY_DLL_DECL boss_priestess_guestAI : public ScriptedAI
             return;
         }
 
-        Creature* Delrissa = ((Creature*)Unit::GetUnit(*m_creature, pInstance->GetData64(DATA_DELRISSA)));
+        Creature* Delrissa = (Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_DELRISSA)));
         if (Delrissa)
         {
             pInstance->SetData(DATA_DELRISSA_DEATH_COUNT, 1);
@@ -393,7 +393,7 @@ struct TRINITY_DLL_DECL boss_priestess_guestAI : public ScriptedAI
             return;
         }
 
-        Creature* Delrissa = ((Creature*)Unit::GetUnit(*m_creature, pInstance->GetData64(DATA_DELRISSA)));
+        Creature* Delrissa = (Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_DELRISSA)));
         if (Delrissa)
             Delrissa->AI()->KilledUnit(victim);
     }
@@ -406,7 +406,7 @@ struct TRINITY_DLL_DECL boss_priestess_guestAI : public ScriptedAI
             return;
         }
 
-        Creature* Delrissa = ((Creature*)Unit::GetUnit(*m_creature, pInstance->GetData64(DATA_DELRISSA)));
+        Creature* Delrissa = (Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_DELRISSA)));
         if (Delrissa)
         {
             Group = ((boss_priestess_delrissaAI*)Delrissa->AI())->Adds;
@@ -634,13 +634,13 @@ struct TRINITY_DLL_DECL boss_ellris_duskhallowAI : public boss_priestess_guestAI
 
 /*void mob_fizzleAI::JustDied(Unit* killer)
 {
-    if(Creature* Ellris = ((Creature*)Unit::GetUnit(*m_creature, EllrisGUID)))
+    if(Creature* Ellris = (Unit::GetCreature(*m_creature, EllrisGUID)))
         ((boss_ellris_duskhallowAI*)Ellris->AI())->ImpGUID = 0;
 }
 
 void mob_fizzleAI::KilledUnit(Unit* victim)
 {
-    if(Creature* Ellris = ((Creature*)Unit::GetUnit(*m_creature, EllrisGUID)))
+    if(Creature* Ellris = (Unit::GetCreature(*m_creature, EllrisGUID)))
         ((boss_ellris_duskhallowAI*)Ellris->AI())->KilledUnit(victim);
 }*/
 
@@ -1028,13 +1028,13 @@ struct TRINITY_DLL_DECL boss_garaxxasAI : public boss_priestess_guestAI
 
 /*void mob_sliverAI::JustDied(Unit* killer)
 {
-    if(Creature* Garaxxas = ((Creature*)Unit::GetUnit(*m_creature, GaraxxasGUID)))
+    if(Creature* Garaxxas = (Unit::GetCreature(*m_creature, GaraxxasGUID)))
         ((boss_garaxxasAI*)Garaxxas->AI())->SliverGUID = 0;
 }
 
 void mob_sliverAI::KilledUnit(Unit* victim)
 {
-    if(Creature* Garaxxas = ((Creature*)Unit::GetUnit(*m_creature, GaraxxasGUID)))
+    if(Creature* Garaxxas = (Unit::GetCreature(*m_creature, GaraxxasGUID)))
         ((boss_garaxxasAI*)Garaxxas->AI())->KilledUnit(victim);
 }*/
 

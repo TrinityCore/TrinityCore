@@ -48,7 +48,7 @@ struct TRINITY_DLL_DECL instance_the_eye : public ScriptedInstance
     uint8 KaelthasEventPhase;
     uint8 AlarEventPhase;
 
-    bool Encounters[ENCOUNTERS];
+    uint32 Encounters[ENCOUNTERS];
 
     void Initialize()
     {
@@ -64,13 +64,13 @@ struct TRINITY_DLL_DECL instance_the_eye : public ScriptedInstance
         AlarEventPhase = 0;
 
         for(uint8 i = 0; i < ENCOUNTERS; i++)
-            Encounters[i] = false;
+            Encounters[i] = NOT_STARTED;
     }
 
     bool IsEncounterInProgress() const
     {
         for(uint8 i = 0; i < ENCOUNTERS; i++)
-            if(Encounters[i]) return true;
+            if(Encounters[i] == IN_PROGRESS) return true;
 
         return false;
     }

@@ -281,7 +281,7 @@ struct TRINITY_DLL_DECL boss_attumenAI : public ScriptedAI
         {
             if( (m_creature->GetHealth()*100)/m_creature->GetMaxHealth() < 25)
             {
-                Creature *pMidnight = (Creature*)Unit::GetUnit(*m_creature, Midnight);
+                Creature *pMidnight = Unit::GetCreature(*m_creature, Midnight);
                 if(pMidnight && pMidnight->GetTypeId() == TYPEID_UNIT)
                 {
                     ((boss_midnightAI*)(pMidnight->AI()))->Mount(m_creature);

@@ -364,7 +364,7 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
                     //trigger taretha to run down outside
                     if (uint64 TarethaGUID = pInstance->GetData64(DATA_TARETHA))
                     {
-                        if (Creature* Taretha = ((Creature*)Unit::GetUnit(*m_creature, TarethaGUID)))
+                        if (Creature* Taretha = (Unit::GetCreature(*m_creature, TarethaGUID)))
                             ((npc_escortAI*)(Taretha->AI()))->Start(false, false, true, PlayerGUID);
                     }
 
@@ -826,7 +826,7 @@ bool GossipSelect_npc_taretha(Player *player, Creature *_Creature, uint32 sender
 
              if (uint64 ThrallGUID = pInstance->GetData64(DATA_THRALL))
              {
-                 Creature* Thrall = ((Creature*)Unit::GetUnit((*_Creature), ThrallGUID));
+                 Creature* Thrall = (Unit::GetCreature((*_Creature), ThrallGUID));
                  if(Thrall)
                      ((npc_thrall_old_hillsbradAI*)Thrall->AI())->StartWP();
              }

@@ -82,7 +82,7 @@ struct TRINITY_DLL_DECL mob_doom_blossomAI : public ScriptedAI
             {
                 DoZoneInCombat();
 
-                Creature* Teron = ((Creature*)Unit::GetUnit((*m_creature), TeronGUID));
+                Creature* Teron = (Unit::GetCreature((*m_creature), TeronGUID));
                 if((Teron) && (!Teron->isAlive() || Teron->IsInEvadeMode()))
                     Despawn();
             }
@@ -184,7 +184,7 @@ struct TRINITY_DLL_DECL mob_shadowy_constructAI : public ScriptedAI
 
         if(CheckTeronTimer < diff)
         {
-            Creature* Teron = ((Creature*)Unit::GetUnit((*m_creature), TeronGUID));
+            Creature* Teron = (Unit::GetCreature((*m_creature), TeronGUID));
             if(!Teron || !Teron->isAlive() || Teron->IsInEvadeMode())
                 m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
 
