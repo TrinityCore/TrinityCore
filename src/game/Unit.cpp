@@ -9537,21 +9537,7 @@ void Unit::Mount(uint32 mount)
 
     // unsummon pet
     if(GetTypeId() == TYPEID_PLAYER)
-    {
-        Pet* pet = ((Player*)this)->GetPet();
-        if(pet)
-        {
-            if(pet->isControlled())
-            {
-                ((Player*)this)->SetTemporaryUnsummonedPetNumber(pet->GetCharmInfo()->GetPetNumber());
-                ((Player*)this)->SetOldPetSpell(pet->GetUInt32Value(UNIT_CREATED_BY_SPELL));
-            }
-
-            ((Player*)this)->RemovePet(NULL,PET_SAVE_NOT_IN_SLOT);
-        }
-        else
-            ((Player*)this)->SetTemporaryUnsummonedPetNumber(0);
-    }
+        ((Player*)this)->UnsummonPetTemporaryIfAny();
 }
 
 void Unit::Unmount()
@@ -9567,6 +9553,7 @@ void Unit::Unmount()
     // only resummon old pet if the player is already added to a map
     // this prevents adding a pet to a not created map which would otherwise cause a crash
     // (it could probably happen when logging in after a previous crash)
+<<<<<<< HEAD:src/game/Unit.cpp
     if(GetTypeId() == TYPEID_PLAYER && IsInWorld() && ((Player*)this)->GetTemporaryUnsummonedPetNumber() && isAlive())
     {
         Pet* NewPet = new Pet((Player*)this);
@@ -9575,6 +9562,10 @@ void Unit::Unmount()
 
         ((Player*)this)->SetTemporaryUnsummonedPetNumber(0);
     }
+=======
+    if(GetTypeId() == TYPEID_PLAYER)
+        ((Player*)this)->ResummonPetTemporaryUnSummonedIfAny();
+>>>>>>> 661760f287d94dbbe8f5224b19ba4181c7d62910:src/game/Unit.cpp
 }
 
 void Unit::SetInCombatWith(Unit* enemy)

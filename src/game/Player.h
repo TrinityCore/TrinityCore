@@ -1998,8 +1998,9 @@ class TRINITY_DLL_SPEC Player : public Unit
         // Temporarily removed pet cache
         uint32 GetTemporaryUnsummonedPetNumber() const { return m_temporaryUnsummonedPetNumber; }
         void SetTemporaryUnsummonedPetNumber(uint32 petnumber) { m_temporaryUnsummonedPetNumber = petnumber; }
-        uint32 GetOldPetSpell() const { return m_oldpetspell; }
-        void SetOldPetSpell(uint32 petspell) { m_oldpetspell = petspell; }
+        void UnsummonPetTemporaryIfAny();
+        void ResummonPetTemporaryUnSummonedIfAny();
+        bool IsPetNeedBeTemporaryUnsummoned() const { return !IsInWorld() || !isAlive() || IsMounted() /*+in flight*/; }
 
         void SendCinematicStart(uint32 CinematicSequenceId);
         void SendMovieStart(uint32 MovieId);
