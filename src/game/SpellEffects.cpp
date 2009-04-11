@@ -430,6 +430,13 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                     damage += int32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * 12 / 100);
                     break;
                 }
+                // Concussion Blow
+                else if(m_spellInfo->SpellFamilyFlags[0] & 0x4000000)
+                {
+                    int32 pct = m_caster->CalculateSpellDamage(m_spellInfo, 2, m_spellInfo->EffectBasePoints[2], unitTarget);
+                    damage += int32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * pct / 100);
+                    break;
+                }
                 break;
             }
             case SPELLFAMILY_WARLOCK:
@@ -492,6 +499,11 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                 else if(m_spellInfo->SpellFamilyFlags[1] & 0x00100000)
                 {
                     damage += int32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK)*0.08f);
+                }
+                // Faerie Fire (Feral)
+                else if(m_spellInfo->Id == 60089)
+                {
+                    damage += int32((m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * 5 / 100) + 1);
                 }
                 //Mangle Bonus for the initial damage of Lacerate and Rake
                 if((m_spellInfo->SpellFamilyFlags.IsEqual(0x1000,0,0) && m_spellInfo->SpellIconID==494) ||
