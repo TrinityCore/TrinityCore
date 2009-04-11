@@ -50,7 +50,7 @@ struct TRINITY_DLL_DECL boss_dalronnAI : public ScriptedAI
 		
         if (Skarvald)
         {
-            Creature* Skravald_m = ((Creature*)Unit::GetUnit((*m_creature), Skarvald));
+            Creature* Skravald_m = (Unit::GetCreature((*m_creature), Skarvald));
             if (Skravald_m)
             {
                 if (!Skravald_m->isAlive())

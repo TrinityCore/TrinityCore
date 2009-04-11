@@ -180,7 +180,7 @@ struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
         uint32 n = 0;
         for(std::vector<Add*>::iterator i = Adds.begin(); i != Adds.end(); ++i, ++n)
         {
-            Creature* pAdd = ((Creature*)Unit::GetUnit(*m_creature, (*i)->guid));
+            Creature* pAdd = (Unit::GetCreature(*m_creature, (*i)->guid));
             if(pAdd && pAdd->isAlive())
             {
                 pAdd->AI()->EnterEvadeMode();               // Force them out of combat and reset if they are in combat.

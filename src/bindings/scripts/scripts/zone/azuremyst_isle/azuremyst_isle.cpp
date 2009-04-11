@@ -125,7 +125,7 @@ struct TRINITY_DLL_DECL npc_draenei_survivorAI : public ScriptedAI
             {
                 m_creature->RemoveAurasDueToSpell(SPELL_IRRIDATION);
 
-                if (Player *pPlayer = (Player*)Unit::GetUnit(*m_creature,pCaster))
+                if (Player *pPlayer = Unit::GetPlayer(pCaster))
                 {
                     if (pPlayer->GetTypeId() != TYPEID_PLAYER)
                         return;
