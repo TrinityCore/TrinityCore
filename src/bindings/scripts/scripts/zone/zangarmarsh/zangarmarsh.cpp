@@ -287,7 +287,7 @@ struct TRINITY_DLL_DECL npc_kayra_longmaneAI : public npc_escortAI
 
     void WaypointReached(uint32 i)
     {
-        Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+        Player* player = Unit::GetPlayer(PlayerGUID);
 
         switch(i)
         {
@@ -308,7 +308,7 @@ struct TRINITY_DLL_DECL npc_kayra_longmaneAI : public npc_escortAI
         case 26: DoScriptText(SAY_PROGRESS_6, m_creature, player);
             Completed = true;
             if(player)
-                ((Player*)player)->GroupEventHappens(QUEST_EFU, m_creature);
+                player->GroupEventHappens(QUEST_EFU, m_creature);
             break;
         }
     }
@@ -317,9 +317,9 @@ struct TRINITY_DLL_DECL npc_kayra_longmaneAI : public npc_escortAI
     {
         if (PlayerGUID && !Completed)
         {
-            Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+            Player* player = Unit::GetPlayer(PlayerGUID);
             if (player && !Completed)
-                ((Player*)player)->FailQuest(QUEST_EFU);
+                player->FailQuest(QUEST_EFU);
         }
     }
 

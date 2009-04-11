@@ -306,7 +306,7 @@ struct TRINITY_DLL_DECL mob_rizzle_sprysprocketAI : public ScriptedAI
                     m_creature->AI_SendMoveToPacket(3706.39, -3969.15, 35.9118, 0, 0, 0);
                 }
                 //begin swimming and summon depth charges
-                Player* player = ((Player*)Unit::GetUnit((*m_creature), PlayerGUID));
+                Player* player = Unit::GetPlayer(PlayerGUID);
                 SendText(MSG_ESCAPE_NOTICE, player);
                 DoCast(m_creature, SPELL_PERIODIC_DEPTH_CHARGE);
                 m_creature->SetUnitMovementFlags(MOVEMENTFLAG_FLYING2 | MOVEMENTFLAG_SWIMMING);

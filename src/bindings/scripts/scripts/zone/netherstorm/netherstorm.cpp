@@ -422,9 +422,9 @@ struct TRINITY_DLL_DECL npc_commander_dawnforgeAI : public ScriptedAI
     // Emote Ardonis and Pathaleon
     void Turn_to_Pathaleons_Image()
     {
-        Unit *ardonis = Unit::GetUnit(*m_creature,ardonisGUID);
-        Unit *pathaleon = Unit::GetUnit(*m_creature,pathaleonGUID);
-        Player *player = (Player*)Unit::GetUnit(*m_creature,playerGUID);
+        Creature *ardonis = Unit::GetCreature(*m_creature,ardonisGUID);
+        Creature *pathaleon = Unit::GetCreature(*m_creature,pathaleonGUID);
+        Player *player = Unit::GetPlayer(playerGUID);
 
         if (!ardonis || !pathaleon || !player)
             return;
@@ -450,7 +450,7 @@ struct TRINITY_DLL_DECL npc_commander_dawnforgeAI : public ScriptedAI
     {
         if (Unit *ardonis = Unit::GetUnit(*m_creature,ardonisGUID))
         {
-            Player *player = (Player*)Unit::GetUnit(*m_creature,playerGUID);
+            Player *player = Unit::GetPlayer(playerGUID);
 
             if (!player)
                 return;
@@ -507,7 +507,7 @@ struct TRINITY_DLL_DECL npc_commander_dawnforgeAI : public ScriptedAI
 
         Unit *ardonis = Unit::GetUnit(*m_creature,ardonisGUID);
         Unit *pathaleon = Unit::GetUnit(*m_creature,pathaleonGUID);
-        Player *player = (Player*)Unit::GetUnit(*m_creature,playerGUID);
+        Player *player = Unit::GetPlayer(playerGUID);
 
         if (!ardonis || !player)
         {
@@ -915,14 +915,14 @@ struct TRINITY_DLL_DECL npc_bessyAI : public npc_escortAI
     {
         if (PlayerGUID)
         {
-            if (Unit* player = Unit::GetUnit((*m_creature), PlayerGUID))
+            if (Player* player = Unit::GetPlayer(PlayerGUID))
                 ((Player*)player)->FailQuest(Q_ALMABTRIEB);
         }
     }
 
     void WaypointReached(uint32 i)
     {
-        Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+        Player* player = Unit::GetPlayer(PlayerGUID);
 
         if (!player)
             return;

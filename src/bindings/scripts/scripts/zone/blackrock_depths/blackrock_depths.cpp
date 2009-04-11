@@ -216,7 +216,7 @@ struct TRINITY_DLL_DECL npc_grimstoneAI : public npc_escortAI
 
                 if (RingBossGUID)
                 {
-                    Creature *boss = (Creature*)Unit::GetUnit(*m_creature,RingBossGUID);
+                    Creature *boss = Unit::GetCreature(*m_creature,RingBossGUID);
                     if (boss && !boss->isAlive() && boss->isDead())
                     {
                         RingBossGUID = 0;
@@ -229,7 +229,7 @@ struct TRINITY_DLL_DECL npc_grimstoneAI : public npc_escortAI
 
                 for(uint8 i = 0; i < MOB_AMOUNT; i++)
                 {
-                    Creature *mob = (Creature*)Unit::GetUnit(*m_creature,RingMobGUID[i]);
+                    Creature *mob = Unit::GetCreature(*m_creature,RingMobGUID[i]);
                     if (mob && !mob->isAlive() && mob->isDead())
                     {
                         RingMobGUID[i] = 0;

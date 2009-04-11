@@ -275,7 +275,7 @@ struct TRINITY_DLL_DECL npc_wounded_blood_elfAI : public npc_escortAI
 
     void WaypointReached(uint32 i)
     {
-        Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+        Player* player = Unit::GetPlayer(PlayerGUID);
 
         if (!player)
             return;
@@ -305,7 +305,7 @@ struct TRINITY_DLL_DECL npc_wounded_blood_elfAI : public npc_escortAI
         case 27:
             DoScriptText(SAY_ELF_COMPLETE, m_creature, player);
             // Award quest credit
-            Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+            Player* player = Unit::GetPlayer(PlayerGUID);
             if (player && player->GetTypeId() == TYPEID_PLAYER)
                 ((Player*)player)->GroupEventHappens(QUEST_ROAD_TO_FALCON_WATCH,m_creature);
             break;
@@ -337,7 +337,7 @@ struct TRINITY_DLL_DECL npc_wounded_blood_elfAI : public npc_escortAI
         if (PlayerGUID)
         {
             // If NPC dies, player fails the quest
-            Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+            Player* player = Unit::GetPlayer(PlayerGUID);
             if (player && player->GetTypeId() == TYPEID_PLAYER)
                 ((Player*)player)->FailQuest(QUEST_ROAD_TO_FALCON_WATCH);
         }

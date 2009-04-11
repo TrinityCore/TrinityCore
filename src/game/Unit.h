@@ -1363,6 +1363,8 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void addFollower(FollowerReference* pRef) { m_FollowingRefManager.insertFirst(pRef); }
         void removeFollower(FollowerReference* /*pRef*/ ) { /* nothing to do yet */ }
         static Unit* GetUnit(WorldObject& object, uint64 guid);
+        static Player* GetPlayer(uint64 guid);
+        static Creature* GetCreature(WorldObject& object, uint64 guid);
 
         MotionMaster* GetMotionMaster() { return &i_motionMaster; }
 
@@ -1509,5 +1511,20 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         uint32 m_reducedThreatPercent;
         uint64 m_misdirectionTargetGUID;
 };
+
+namespace Trinity
+{
+    template<class T>
+    void RandomResizeList(std::list<T> &_list, uint32 _size)
+    {
+        while(_list.size() > _size)
+        {
+            typename std::list<T>::iterator itr = _list.begin();
+            advance(itr, urand(0, _list.size() - 1));
+            _list.erase(itr);
+        }
+    }
+}
+
 #endif
 

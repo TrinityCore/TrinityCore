@@ -128,7 +128,7 @@ struct TRINITY_DLL_DECL mob_mature_netherwing_drakeAI : public ScriptedAI
             DoScriptText(SAY_JUST_EATEN, m_creature);
             if(PlayerGUID)
             {
-                Player* plr = ((Player*)Unit::GetUnit((*m_creature), PlayerGUID));
+                Player* plr = Unit::GetPlayer(PlayerGUID);
                 if(plr && plr->GetQuestStatus(10804) == QUEST_STATUS_INCOMPLETE)
                 {
                     plr->KilledMonster(22131, m_creature->GetGUID());
@@ -257,7 +257,7 @@ struct TRINITY_DLL_DECL mob_enslaved_netherwing_drakeAI : public ScriptedAI
                 Tapped = false;
                 if(PlayerGUID)
                 {
-                    Player* plr = ((Player*)Unit::GetUnit((*m_creature), PlayerGUID));
+                    Player* plr = Unit::GetPlayer(PlayerGUID);
                     if(plr && plr->GetQuestStatus(10854) == QUEST_STATUS_INCOMPLETE)
                     {
                         plr->KilledMonster(22316, m_creature->GetGUID());
@@ -355,7 +355,7 @@ struct TRINITY_DLL_DECL mob_dragonmaw_peonAI : public ScriptedAI
         {
             if(PlayerGUID)
             {
-                Player* plr = ((Player*)Unit::GetUnit((*m_creature), PlayerGUID));
+                Player* plr = Unit::GetPlayer(PlayerGUID);
                 if(plr && plr->GetQuestStatus(11020) == QUEST_STATUS_INCOMPLETE)
                     plr->KilledMonster(23209, m_creature->GetGUID());
             }
@@ -699,7 +699,7 @@ struct TRINITY_DLL_DECL npc_overlord_morghorAI : public ScriptedAI
         Illidan->SetVisibility(VISIBILITY_OFF);
         if(PlayerGUID)
         {
-            Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+            Player* player = Unit::GetPlayer(PlayerGUID);
             DoScriptText(OVERLORD_SAY_1, m_creature, player);
         }
         ConversationTimer = 4200;
@@ -867,7 +867,7 @@ struct TRINITY_DLL_DECL npc_earthmender_wildaAI : public npc_escortAI
 
     void Aggro(Unit *who)
     {
-        Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+        Player* player = Unit::GetPlayer(PlayerGUID);
 
         if(who->GetTypeId() == TYPEID_UNIT && who->GetEntry() == NPC_COILSKAR_ASSASSIN)
             DoScriptText(SAY_AGGRO2, m_creature, player);
@@ -882,7 +882,7 @@ struct TRINITY_DLL_DECL npc_earthmender_wildaAI : public npc_escortAI
 
     void WaypointReached(uint32 i)
     {
-        Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+        Player* player = Unit::GetPlayer(PlayerGUID);
 
         if (!player)
             return;
@@ -951,7 +951,7 @@ struct TRINITY_DLL_DECL npc_earthmender_wildaAI : public npc_escortAI
 
        void SummonAssassin()
        {
-           Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+           Player* player = Unit::GetPlayer(PlayerGUID);
 
            Unit* CoilskarAssassin = m_creature->SummonCreature(NPC_COILSKAR_ASSASSIN, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 0);
            if( CoilskarAssassin )
@@ -970,7 +970,7 @@ struct TRINITY_DLL_DECL npc_earthmender_wildaAI : public npc_escortAI
        {
            if (PlayerGUID && !Completed)
            {
-               Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+               Player* player = Unit::GetPlayer(PlayerGUID);
                if (player)
                    ((Player*)player)->FailQuest(QUEST_ESCAPE_FROM_COILSKAR_CISTERN);
            }
@@ -1287,7 +1287,7 @@ struct TRINITY_DLL_DECL mob_torloth_the_magnificentAI : public ScriptedAI
 
         if(TorlothAnim[AnimationCount].Creature == 1)
         {
-            pCreature = ((Creature*)Unit::GetUnit(*m_creature, LordIllidanGUID));
+            pCreature = (Unit::GetCreature(*m_creature, LordIllidanGUID));
 
             if(!pCreature)
                 return;
@@ -1307,7 +1307,7 @@ struct TRINITY_DLL_DECL mob_torloth_the_magnificentAI : public ScriptedAI
             m_creature->RemoveFlag(UNIT_FIELD_BYTES_1,8);
             break;
         case 5:
-            if(Player* AggroTarget = ((Player*)Unit::GetUnit((*m_creature), AggroTargetGUID)))
+            if(Player* AggroTarget = (Unit::GetPlayer(AggroTargetGUID)))
             {
                 m_creature->SetUInt64Value(UNIT_FIELD_TARGET, AggroTarget->GetGUID());
                 m_creature->AddThreat(AggroTarget, 1);
@@ -1315,7 +1315,7 @@ struct TRINITY_DLL_DECL mob_torloth_the_magnificentAI : public ScriptedAI
             }
             break;
         case 6:
-            if(Player* AggroTarget = ((Player*)Unit::GetUnit((*m_creature), AggroTargetGUID)))
+            if(Player* AggroTarget = (Unit::GetPlayer(AggroTargetGUID)))
             {
                 m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 m_creature->clearUnitState(UNIT_STAT_ROOT);
@@ -1390,7 +1390,7 @@ struct TRINITY_DLL_DECL mob_torloth_the_magnificentAI : public ScriptedAI
                 break;
         }
 
-        if(Creature* LordIllidan = ((Creature*)Unit::GetUnit(*m_creature, LordIllidanGUID)))
+        if(Creature* LordIllidan = (Unit::GetCreature(*m_creature, LordIllidanGUID)))
         {
             DoScriptText(END_TEXT, LordIllidan, slayer);
             LordIllidan->AI()->EnterEvadeMode();
@@ -1483,7 +1483,7 @@ struct TRINITY_DLL_DECL npc_lord_illidan_stormrageAI : public ScriptedAI
                 {
                     if(PlayerGUID)
                     {
-                        if(Player* pTarget = ((Player*)Unit::GetUnit((*m_creature), PlayerGUID)))
+                        if(Player* pTarget = Unit::GetPlayer(PlayerGUID))
                         {
                             float x, y, z;
                             pTarget->GetPosition(x,y,z);
@@ -1508,7 +1508,7 @@ struct TRINITY_DLL_DECL npc_lord_illidan_stormrageAI : public ScriptedAI
 
     void CheckEventFail()
     {
-        Player* pPlayer = ((Player*)Unit::GetUnit((*m_creature), PlayerGUID));
+        Player* pPlayer = Unit::GetPlayer(PlayerGUID);
 
         if(!pPlayer)
             return;
@@ -1525,7 +1525,7 @@ struct TRINITY_DLL_DECL npc_lord_illidan_stormrageAI : public ScriptedAI
 
             for(Group::member_citerator itr = members.begin(); itr!= members.end(); itr++)
             {
-                GroupMember = ((Player*)Unit::GetUnit((*m_creature), itr->guid));
+                GroupMember = (Unit::GetPlayer(itr->guid));
                 if(!GroupMember)
                     continue;
                 if(!GroupMember->IsWithinDistInMap(m_creature, EVENT_AREA_RADIUS) && GroupMember->GetQuestStatus(QUEST_BATTLE_OF_THE_CRIMSON_WATCH) == QUEST_STATUS_INCOMPLETE)
@@ -1551,7 +1551,7 @@ struct TRINITY_DLL_DECL npc_lord_illidan_stormrageAI : public ScriptedAI
             {
                 for(Group::member_citerator itr = members.begin(); itr!= members.end(); itr++)
                 {
-                    GroupMember = ((Player*)Unit::GetUnit((*m_creature), itr->guid));
+                    GroupMember = Unit::GetPlayer(itr->guid);
 
                     if(GroupMember && GroupMember->GetQuestStatus(QUEST_BATTLE_OF_THE_CRIMSON_WATCH) == QUEST_STATUS_INCOMPLETE)
                     {
@@ -1603,7 +1603,7 @@ struct TRINITY_DLL_DECL npc_lord_illidan_stormrageAI : public ScriptedAI
 void mob_illidari_spawnAI::JustDied(Unit *slayer)
 {
     m_creature->RemoveCorpse();
-    if(Creature* LordIllidan = ((Creature*)Unit::GetUnit(*m_creature, LordIllidanGUID)))
+    if(Creature* LordIllidan = (Unit::GetCreature(*m_creature, LordIllidanGUID)))
         if(LordIllidan)
             ((npc_lord_illidan_stormrageAI*)LordIllidan->AI())->LiveCounter();
 }

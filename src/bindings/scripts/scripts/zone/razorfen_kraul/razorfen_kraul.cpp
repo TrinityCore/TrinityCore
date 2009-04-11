@@ -49,7 +49,7 @@ npc_willixAI(Creature *c) : npc_escortAI(c) {}
 
     void WaypointReached(uint32 i)
     {
-        Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+        Player* player = Unit::GetPlayer(PlayerGUID);
 
         if (!player)
             return;
@@ -114,7 +114,7 @@ npc_willixAI(Creature *c) : npc_escortAI(c) {}
     {
         if (PlayerGUID)
         {
-            if (Unit* player = Unit::GetUnit((*m_creature), PlayerGUID))
+            if (Player* player = Unit::GetPlayer(PlayerGUID))
                 ((Player*)player)->FailQuest(QUEST_WILLIX_THE_IMPORTER);
         }
     }

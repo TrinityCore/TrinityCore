@@ -381,7 +381,7 @@ void hyjalAI::Reset()
         return;
 
     for(std::list<uint64>::iterator itr = CreatureList.begin(); itr != CreatureList.end(); ++itr)
-        if(Creature* cr = ((Creature*)Unit::GetUnit(*m_creature, *itr)))
+        if(Creature* cr = (Unit::GetCreature(*m_creature, *itr)))
             cr->SetVisibility(VISIBILITY_ON);
 
     CreatureList.clear();*/
@@ -747,7 +747,7 @@ void hyjalAI::DeSpawnVeins()
     if(!pInstance)return;    
     if(Faction == 1)
     {
-        Creature* pUnit=(Creature*)Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_JAINAPROUDMOORE));
+        Creature* pUnit=Unit::GetCreature((*m_creature),pInstance->GetData64(DATA_JAINAPROUDMOORE));
         if (!pUnit)return;
         hyjalAI* ai = ((hyjalAI*)pUnit->AI());
         if(!ai)return;
@@ -759,7 +759,7 @@ void hyjalAI::DeSpawnVeins()
         }
     }else if (Faction)
     {
-        Creature* pUnit=(Creature*)Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_THRALL));
+        Creature* pUnit=Unit::GetCreature((*m_creature),pInstance->GetData64(DATA_THRALL));
         if (!pUnit)return;
         hyjalAI* ai = ((hyjalAI*)pUnit->AI());
         if(!ai)return;

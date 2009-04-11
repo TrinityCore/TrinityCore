@@ -81,7 +81,7 @@ struct TRINITY_DLL_DECL boss_the_black_stalkerAI : public ScriptedAI
     void JustDied(Unit *who)
     {
         for(std::list<uint64>::iterator i = Striders.begin(); i != Striders.end(); ++i)
-            if(Creature *strider = (Creature*)Unit::GetUnit(*m_creature, *i))
+            if(Creature *strider = Unit::GetCreature(*m_creature, *i))
             {
                 strider->SetLootRecipient(NULL);
                 strider->DealDamage(strider,strider->GetMaxHealth(),NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
