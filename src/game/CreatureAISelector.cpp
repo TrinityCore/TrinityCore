@@ -35,24 +35,24 @@ namespace FactorySelector
 {
     CreatureAI* selectAI(Creature *creature)
     {
-        //if(creature->isPossessed())
-        //    creature->InitPossessedAI();
+        const CreatureAICreator *ai_factory = NULL;
+        CreatureAIRegistry &ai_registry(CreatureAIRepository::Instance());
 
-        // Allow scripting AI for normal creatures and not controlled pets (guardians and mini-pets)
-        if((!creature->isPet() || !((Pet*)creature)->isControlled()) && !creature->isCharmed())
+        //player-controlled guardians with pet bar
+        if(creature->HasSummonMask(SUMMON_MASK_GUARDIAN) && ((Guardian*)creature)->GetOwner()->GetTypeId() == TYPEID_PLAYER)
+            ai_factory = ai_registry.GetRegistryItem("PetAI");
+
+        //scriptname in db
+        if(!ai_factory)
             if(CreatureAI* scriptedAI = Script->GetAI(creature))
                 return scriptedAI;
 
-        CreatureAIRegistry &ai_registry(CreatureAIRepository::Instance());
-        assert( creature->GetCreatureInfo() != NULL );
-        CreatureInfo const *cinfo=creature->GetCreatureInfo();
+        CreatureInfo const *cinfo = creature->GetCreatureInfo();
+        assert(cinfo);
 
-        const CreatureAICreator *ai_factory = NULL;
-
+        // this seems to be useless
         std::string ainame=cinfo->AIName;
-
-        // select by script name
-        if( !ainame.empty())
+        if(!ai_factory && !ainame.empty())
             ai_factory = ai_registry.GetRegistryItem( ainame.c_str() );
 
         // select by NPC flags
@@ -60,21 +60,12 @@ namespace FactorySelector
         {
             if( creature->isGuard() )
                 ai_factory = ai_registry.GetRegistryItem("GuardAI");
-            else if(creature->isPet() || (creature->isCharmed() && !creature->isPossessed()))
+            else if(creature->HasSummonMask(SUMMON_MASK_GUARDIAN))
                 ai_factory = ai_registry.GetRegistryItem("PetAI");
             else if(creature->isTotem())
                 ai_factory = ai_registry.GetRegistryItem("TotemAI");
             else if(creature->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER)
                 ai_factory = ai_registry.GetRegistryItem("NullCreatureAI");
-            else if(creature->isSummon() && ((TempSummon*)creature)->m_Properties)
-            {
-                if(((TempSummon*)creature)->m_Properties->Category == SUMMON_CATEGORY_PET
-                    || ((TempSummon*)creature)->m_Properties->Type == SUMMON_TYPE_GUARDIAN
-                    || ((TempSummon*)creature)->m_Properties->Type == SUMMON_TYPE_MINION)
-                    ai_factory = ai_registry.GetRegistryItem("PetAI");
-                else if(((TempSummon*)creature)->m_Properties->Type == SUMMON_TYPE_MINIPET)
-                    ai_factory = ai_registry.GetRegistryItem("CritterAI");
-            }
             else if(creature->GetCreatureType() == CREATURE_TYPE_CRITTER)
                 ai_factory = ai_registry.GetRegistryItem("CritterAI");
         }
