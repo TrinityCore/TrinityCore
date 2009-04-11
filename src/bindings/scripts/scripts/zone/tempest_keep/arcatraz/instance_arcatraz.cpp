@@ -85,7 +85,7 @@ struct TRINITY_DLL_DECL instance_arcatraz : public ScriptedInstance
     bool IsEncounterInProgress() const
     {
         for(uint8 i = 0; i < ENCOUNTERS; i++)
-            if(Encounter[i])
+            if(Encounter[i] == IN_PROGRESS)
                 return true;
 
         return false;
