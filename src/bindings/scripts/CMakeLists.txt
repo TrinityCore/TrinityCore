@@ -413,11 +413,11 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/nexus/oculus/boss_varos.cpp
    scripts/zone/nexus/oculus/boss_eregos.cpp
    scripts/zone/nexus/oculus/def_oculus.h
-   scripts/zone/azjol_nerub/azjol-nerub/instance_azjol-nerub.cpp
+   scripts/zone/azjol-nerub/azjol-nerub/instance_azjol_nerub.cpp
    scripts/zone/azjol-nerub/azjol-nerub/boss_krik_thir.cpp
    scripts/zone/azjol-nerub/azjol-nerub/boss_hadronox.cpp
    scripts/zone/azjol-nerub/azjol-nerub/boss_anub_arak.cpp
-   scripts/zone/azjol-nerub/azjol-nerub/def_azjol-nerub.h
+   scripts/zone/azjol-nerub/azjol-nerub/def_azjol_nerub.h
    scripts/zone/azjol-nerub/ahnkahet/instance_ahnkahet.cpp
    scripts/zone/azjol-nerub/ahnkahet/boss_taldaram.cpp
    scripts/zone/azjol-nerub/ahnkahet/boss_nadox.cpp
@@ -425,12 +425,12 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/azjol-nerub/ahnkahet/boss_volazj.cpp
    scripts/zone/azjol-nerub/ahnkahet/boss_aminitar.cpp
    scripts/zone/azjol-nerub/ahnkahet/def_ahnkahet.h
-   scripts/zone/draktharon_keep/instance_draktharon_keep.cpp
+   scripts/zone/draktharon_keep/instance_drak_tharon_keep.cpp
    scripts/zone/draktharon_keep/boss_trollgore.cpp
    scripts/zone/draktharon_keep/boss_novos.cpp
    scripts/zone/draktharon_keep/boss_dred.cpp
    scripts/zone/draktharon_keep/boss_tharon_ja.cpp
-   scripts/zone/draktharon_keep/def_draktharon_keep.h
+   scripts/zone/draktharon_keep/def_drak_tharon_keep.h
    scripts/zone/violet_hold/instance_violet_hold.cpp
    scripts/zone/violet_hold/boss_cyanigosa.cpp
    scripts/zone/violet_hold/boss_erekem.cpp
@@ -471,7 +471,7 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/obsidian_sanctum/boss_sartharion.cpp
    scripts/zone/obsidian_sanctum/def_obsidian_sanctum.h
    scripts/zone/vault_of_archavon/instance_vault_of_archavon.cpp
-   scripts/zone/vault_of_archavon/boss_vault_of_archavon.cpp
+   scripts/zone/vault_of_archavon/boss_archavon.cpp
    scripts/zone/vault_of_archavon/def_vault_of_archavon.h
    system.cpp
 )
