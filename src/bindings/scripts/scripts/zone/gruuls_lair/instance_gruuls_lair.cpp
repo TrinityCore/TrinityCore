@@ -35,7 +35,7 @@ struct TRINITY_DLL_DECL instance_gruuls_lair : public ScriptedInstance
 {
     instance_gruuls_lair(Map *map) : ScriptedInstance(map) {Initialize();};
 
-    bool Encounters[ENCOUNTERS];
+    uint32 Encounters[ENCOUNTERS];
 
     uint64 MaulgarEvent_Tank;
     uint64 KigglerTheCrazed;
@@ -61,13 +61,13 @@ struct TRINITY_DLL_DECL instance_gruuls_lair : public ScriptedInstance
 
 
         for(uint8 i = 0; i < ENCOUNTERS; i++)
-            Encounters[i] = false;
+            Encounters[i] = NOT_STARTED;
     }
 
     bool IsEncounterInProgress() const
     {
         for(uint8 i = 0; i < ENCOUNTERS; i++)
-            if(Encounters[i]) return true;
+            if(Encounters[i] == IN_PROGRESS) return true;
 
         return false;
     }
