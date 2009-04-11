@@ -359,10 +359,6 @@ void Pet::SavePetToDB(PetSaveMode mode)
     if(mode > PET_SAVE_AS_CURRENT)
     {
         RemoveAllAuras();
-
-        //only alive hunter pets get auras saved, the others don't
-        if(!(getPetType() == HUNTER_PET && isAlive()))
-            m_Auras.clear();
     }
 
     _SaveSpells();
