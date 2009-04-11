@@ -430,6 +430,13 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                     damage += int32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * 12 / 100);
                     break;
                 }
+                // Concussion Blow
+                else if(m_spellInfo->SpellFamilyFlags[0] & 0x4000000)
+                {
+                    int32 pct = m_caster->CalculateSpellDamage(m_spellInfo, 2, m_spellInfo->EffectBasePoints[2], unitTarget);
+                    damage += int32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * pct / 100);
+                    break;
+                }
                 break;
             }
             case SPELLFAMILY_WARLOCK:
