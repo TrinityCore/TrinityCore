@@ -2557,7 +2557,9 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst (const Unit *pVictim, WeaponAttack
     if (tmp > 0 && roll < (sum += tmp))
     {
         DEBUG_LOG ("RollMeleeOutcomeAgainst: CRIT <%d, %d)", sum-tmp, sum);
-        if(GetTypeId()!=TYPEID_PLAYER && !(((Creature*)this)->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_NO_CRIT))
+        if(GetTypeId() == TYPEID_UNIT && (((Creature*)this)->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_NO_CRIT))
+            DEBUG_LOG ("RollMeleeOutcomeAgainst: CRIT DISABLED)");
+        else
             return MELEE_HIT_CRIT;
     }
 
