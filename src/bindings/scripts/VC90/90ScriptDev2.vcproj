@@ -876,10 +876,6 @@
 							>
 						</File>
 						<File
-							RelativePath="..\scripts\zone\azjol-nerub\azjol-nerub\boss_hadronox.cpp"
-							>
-						</File>
-						<File
 							RelativePath="..\scripts\zone\Azjol-Nerub\Azjol-Nerub\boss_hadronox.cpp"
 							>
 						</File>
@@ -889,10 +885,6 @@
 						</File>
 						<File
 							RelativePath="..\scripts\zone\Azjol-Nerub\Azjol-Nerub\boss_krikthir_the_gatewatcher.cpp"
-							>
-						</File>
-						<File
-							RelativePath="..\scripts\zone\azjol-nerub\azjol-nerub\def_azjol-nerub.h"
 							>
 						</File>
 						<File
@@ -1161,10 +1153,6 @@
 						</File>
 						<File
 							RelativePath="..\scripts\zone\utgarde_keep\utgarde_keep\boss_ingvar_the_plunderer.cpp"
-							>
-						</File>
-						<File
-							RelativePath="..\scripts\zone\utgarde_keep\utgarde_keep\boss_keleseth.cpp"
 							>
 						</File>
 						<File
