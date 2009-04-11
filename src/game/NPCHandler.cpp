@@ -611,12 +611,13 @@ void WorldSession::HandleStablePet( WorldPacket & recv_data )
             // slots ordered in query, and if not equal then free
             if(slot!=free_slot)
                 break;
-                
+
             // this slot not free, skip
             ++free_slot;
         }while( result->NextRow() );
+
+        delete result;
     }
-    delete result;
 
     if( free_slot > 0 && free_slot <= GetPlayer()->m_stableSlots)
     {
