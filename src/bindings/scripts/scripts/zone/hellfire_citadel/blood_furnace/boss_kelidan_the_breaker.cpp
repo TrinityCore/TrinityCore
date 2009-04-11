@@ -128,7 +128,7 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
         }
         for(int i=0; i<5; ++i)
         {
-            Creature *channeler = (Creature*)Unit::GetUnit(*m_creature, Channelers[i]);
+            Creature *channeler = Unit::GetCreature(*m_creature, Channelers[i]);
             if(who && channeler && !channeler->isInCombat())
                 channeler->AI()->AttackStart(who);
         }
@@ -138,7 +138,7 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
     {
         for(int i=0; i<5; ++i)
         {
-            Creature *channeler = (Creature*)Unit::GetUnit(*m_creature, Channelers[i]);
+            Creature *channeler = Unit::GetCreature(*m_creature, Channelers[i]);
             if(channeler && channeler->isAlive())
                 return;
         }
@@ -154,7 +154,7 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
         int i;
         for(i=0; i<5; ++i)
         {
-            Creature *channeler = (Creature*)Unit::GetUnit(*m_creature, Channelers[i]);
+            Creature *channeler = Unit::GetCreature(*m_creature, Channelers[i]);
             if(channeler && channeler->GetGUID()==channeler1->GetGUID())
                 break;
         }
@@ -165,7 +165,7 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
     {
         for(int i=0; i<5; ++i)
         {
-            Creature *channeler = (Creature*)Unit::GetUnit(*m_creature, Channelers[i]);
+            Creature *channeler = Unit::GetCreature(*m_creature, Channelers[i]);
             if(!channeler || channeler->isDead())
                 channeler = m_creature->SummonCreature(ENTRY_CHANNELER,ShadowmoonChannelers[i][0],ShadowmoonChannelers[i][1],ShadowmoonChannelers[i][2],ShadowmoonChannelers[i][3],TEMPSUMMON_CORPSE_TIMED_DESPAWN,300000);
             if(channeler)

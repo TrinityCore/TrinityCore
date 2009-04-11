@@ -211,7 +211,7 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
                             AddGUID[i] = pCreature->GetGUID();
                         break;
                     case 1:
-                        pCreature = ((Creature*)Unit::GetUnit((*m_creature), AddGUID[i]));
+                        pCreature = (Unit::GetCreature((*m_creature), AddGUID[i]));
                         if (pCreature)
                         {
                             pCreature->Respawn();
@@ -219,7 +219,7 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
                         }
                         break;
                     case 2:
-                        pCreature = ((Creature*)Unit::GetUnit((*m_creature), AddGUID[i]));
+                        pCreature = (Unit::GetCreature((*m_creature), AddGUID[i]));
                         if (!pCreature->IsInEvadeMode())
                             pCreature->AI()->EnterEvadeMode();
                         break;
@@ -281,7 +281,7 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
                 Creature* Temp = NULL;
                 if (AddGUID[i])
                 {
-                    Temp = (Creature*)Unit::GetUnit((*m_creature),AddGUID[i]);
+                    Temp = Unit::GetCreature((*m_creature),AddGUID[i]);
                     if (Temp && Temp->isAlive())
                         if (!Temp->getVictim() )
                             Temp->AI()->AttackStart(m_creature->getVictim());
@@ -392,7 +392,7 @@ struct TRINITY_DLL_DECL boss_moroes_guestAI : public ScriptedAI
             return;
 
         GuestGUID[0] = pInstance->GetData64(DATA_MOROES);
-        Creature* Moroes = ((Creature*)Unit::GetUnit((*m_creature), GuestGUID[0]));
+        Creature* Moroes = (Unit::GetCreature((*m_creature), GuestGUID[0]));
         if(Moroes)
         {
             for(uint8 i = 0; i < 3; ++i)

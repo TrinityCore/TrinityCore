@@ -79,12 +79,7 @@ struct TRINITY_DLL_DECL boss_gruulAI : public ScriptedAI
         Reverberation_Timer= 60000+45000;
 
         if (pInstance)
-        {
             pInstance->SetData(DATA_GRUULEVENT, NOT_STARTED);
-            GameObject* EncounterDoor = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_GRUULDOOR));
-            if (EncounterDoor)
-                EncounterDoor->SetGoState(0);                   // Open the encounter door
-        }else error_log(ERROR_INST_DATA);
 
         m_creature->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
         m_creature->ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, true);
@@ -95,12 +90,7 @@ struct TRINITY_DLL_DECL boss_gruulAI : public ScriptedAI
         DoScriptText(SAY_AGGRO, m_creature);
 
         if (pInstance)
-        {
             pInstance->SetData(DATA_GRUULEVENT, IN_PROGRESS);
-            GameObject* EncounterDoor = GameObject::GetGameObject(*m_creature, pInstance->GetData64(DATA_GRUULDOOR));
-            if (EncounterDoor)
-                EncounterDoor->SetGoState(1);               //Close the encounter door, open it in JustDied/Reset
-        }
     }
 
     void KilledUnit()

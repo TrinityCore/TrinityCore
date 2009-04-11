@@ -218,7 +218,7 @@ struct TRINITY_DLL_DECL mob_illidari_councilAI : public ScriptedAI
         Creature* pMember = NULL;
         for(uint8 i = 0; i < 4; ++i)
         {
-            if(pMember = ((Creature*)Unit::GetUnit((*m_creature), Council[i])))
+            if(pMember = (Unit::GetCreature((*m_creature), Council[i])))
             {
                 if(!pMember->isAlive())
                 {
@@ -232,7 +232,7 @@ struct TRINITY_DLL_DECL mob_illidari_councilAI : public ScriptedAI
         if(pInstance)
         {
             pInstance->SetData(DATA_ILLIDARICOUNCILEVENT, NOT_STARTED);
-            if(Creature* VoiceTrigger = ((Creature*)Unit::GetUnit(*m_creature, pInstance->GetData64(DATA_BLOOD_ELF_COUNCIL_VOICE))))
+            if(Creature* VoiceTrigger = (Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_BLOOD_ELF_COUNCIL_VOICE))))
                 VoiceTrigger->AI()->EnterEvadeMode();
         }
 
@@ -259,7 +259,7 @@ struct TRINITY_DLL_DECL mob_illidari_councilAI : public ScriptedAI
             Council[3] = pInstance->GetData64(DATA_VERASDARKSHADOW);
 
             // Start the event for the Voice Trigger
-            if(Creature* VoiceTrigger = ((Creature*)Unit::GetUnit(*m_creature, pInstance->GetData64(DATA_BLOOD_ELF_COUNCIL_VOICE))))
+            if(Creature* VoiceTrigger = (Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_BLOOD_ELF_COUNCIL_VOICE))))
             {
                 ((mob_blood_elf_council_voice_triggerAI*)VoiceTrigger->AI())->LoadCouncilGUIDs();
                 ((mob_blood_elf_council_voice_triggerAI*)VoiceTrigger->AI())->EventStarted = true;
@@ -294,7 +294,7 @@ struct TRINITY_DLL_DECL mob_illidari_councilAI : public ScriptedAI
                 {
                     if(pInstance)
                     {
-                        if(Creature* VoiceTrigger = ((Creature*)Unit::GetUnit(*m_creature, pInstance->GetData64(DATA_BLOOD_ELF_COUNCIL_VOICE))))
+                        if(Creature* VoiceTrigger = (Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_BLOOD_ELF_COUNCIL_VOICE))))
                             VoiceTrigger->DealDamage(VoiceTrigger, VoiceTrigger->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                         pInstance->SetData(DATA_ILLIDARICOUNCILEVENT, DONE);
                     }
@@ -302,7 +302,7 @@ struct TRINITY_DLL_DECL mob_illidari_councilAI : public ScriptedAI
                     return;
                 }
 
-                Creature* pMember = ((Creature*)Unit::GetUnit(*m_creature, Council[DeathCount]));
+                Creature* pMember = (Unit::GetCreature(*m_creature, Council[DeathCount]));
                 if(pMember && pMember->isAlive())
                     pMember->DealDamage(pMember, pMember->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                 ++DeathCount;
@@ -319,7 +319,7 @@ struct TRINITY_DLL_DECL mob_illidari_councilAI : public ScriptedAI
                 {
                     if(Council[i])
                     {
-                        if(Creature* Member = ((Creature*)Unit::GetUnit((*m_creature), Council[i])))
+                        if(Creature* Member = (Unit::GetCreature((*m_creature), Council[i])))
                         {
                             // This is the evade/death check.
                             if(Member->isAlive() && !Member->getVictim())
@@ -364,7 +364,7 @@ struct TRINITY_DLL_DECL boss_illidari_councilAI : public ScriptedAI
     {
         if(pInstance)
         {
-            Creature* Controller = ((Creature*)Unit::GetUnit(*m_creature, pInstance->GetData64(DATA_ILLIDARICOUNCIL)));
+            Creature* Controller = (Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_ILLIDARICOUNCIL)));
             if(Controller)
                 ((mob_illidari_councilAI*)Controller->AI())->StartEvent(who);
         }

@@ -268,7 +268,7 @@ struct TRINITY_DLL_DECL npc_volcanoAI : public ScriptedAI
         if(CheckTimer < diff)
         {
             uint64 SupremusGUID = pInstance->GetData64(DATA_SUPREMUS);
-            Creature* Supremus = ((Creature*)Unit::GetUnit((*m_creature), SupremusGUID));
+            Creature* Supremus = (Unit::GetCreature((*m_creature), SupremusGUID));
             if(!Eruption && !((boss_supremusAI*)Supremus->AI())->Phase1)
             {
                 Eruption = true;

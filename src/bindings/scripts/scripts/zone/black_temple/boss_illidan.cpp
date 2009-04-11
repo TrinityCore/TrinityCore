@@ -26,7 +26,7 @@ EndScriptData */
 
 #define GETGO(obj, guid)      GameObject* obj = GameObject::GetGameObject(*m_creature, guid)
 #define GETUNIT(unit, guid)   Unit* unit = Unit::GetUnit(*m_creature, guid)
-#define GETCRE(cre, guid)     Creature* cre = (Creature*)Unit::GetUnit(*m_creature, guid)
+#define GETCRE(cre, guid)     Creature* cre = Unit::GetCreature(*m_creature, guid)
 #define HPPCT(unit)           unit->GetHealth()*100 / unit->GetMaxHealth()
 
 /************* Quotes and Sounds ***********************/
@@ -522,9 +522,9 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
         if(Conversation[count].creature == ILLIDAN_STORMRAGE)
             creature = m_creature;
         else if(Conversation[count].creature == AKAMA)
-            creature = ((Creature*)Unit::GetUnit((*m_creature), AkamaGUID));
+            creature = (Unit::GetCreature((*m_creature), AkamaGUID));
         else if(Conversation[count].creature == MAIEV_SHADOWSONG)
-            creature = ((Creature*)Unit::GetUnit((*m_creature), MaievGUID));
+            creature = (Unit::GetCreature((*m_creature), MaievGUID));
 
         if(creature)
         {

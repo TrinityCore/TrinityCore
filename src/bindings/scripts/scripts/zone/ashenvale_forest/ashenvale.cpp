@@ -59,7 +59,7 @@ struct TRINITY_DLL_DECL npc_torekAI : public npc_escortAI
 
     void WaypointReached(uint32 i)
     {
-        Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+        Player* player = Unit::GetPlayer(PlayerGUID);
 
         if (!player)
             return;
@@ -113,7 +113,7 @@ struct TRINITY_DLL_DECL npc_torekAI : public npc_escortAI
 
         if (PlayerGUID && !Completed)
         {
-            if (Unit* player = Unit::GetUnit((*m_creature), PlayerGUID))
+            if (Player* player = Unit::GetPlayer(PlayerGUID))
                 ((Player*)player)->FailQuest(QUEST_TOREK_ASSULT);
         }
     }
@@ -174,7 +174,7 @@ struct TRINITY_DLL_DECL npc_ruul_snowhoofAI : public npc_escortAI
 
     void WaypointReached(uint32 i)
     {
-        Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+        Player* player = Unit::GetPlayer(PlayerGUID);
 
         if (!player)
             return;
@@ -227,7 +227,7 @@ struct TRINITY_DLL_DECL npc_ruul_snowhoofAI : public npc_escortAI
     {
         if (PlayerGUID)
         {
-            Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+            Player* player = Unit::GetPlayer(PlayerGUID);
             if (player)
                 ((Player*)player)->FailQuest(QUEST_FREEDOM_TO_RUUL);
         }

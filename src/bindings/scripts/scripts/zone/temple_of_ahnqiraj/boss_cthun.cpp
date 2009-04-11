@@ -1255,7 +1255,7 @@ void flesh_tentacleAI::JustDied(Unit* killer)
         return;
     }
 
-    Creature* Cthun = (Creature*)Unit::GetUnit(*m_creature, Parent);
+    Creature* Cthun = Unit::GetCreature(*m_creature, Parent);
 
     if (Cthun)
         ((cthunAI*)(Cthun->AI()))->FleshTentcleKilled();
