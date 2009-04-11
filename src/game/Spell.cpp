@@ -4641,8 +4641,9 @@ bool Spell::CanAutoCast(Unit* target)
             }
             else
             {
-                if( (target->GetAuraEffect(m_spellInfo->Id, j))->GetParentAura()->GetStackAmount() >= m_spellInfo->StackAmount)
-                    return false;
+                if( AuraEffect * aureff = target->GetAuraEffect(m_spellInfo->Id, j))
+                    if (aureff->GetParentAura()->GetStackAmount() >= m_spellInfo->StackAmount)
+                        return false;
             }
         }
         else if ( IsAreaAuraEffect( m_spellInfo->Effect[j] ))
