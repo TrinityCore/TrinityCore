@@ -43,6 +43,21 @@ update creature_template set scriptname = 'boss_krik_thir' where entry = '';
 #define SPELL_SUMMON_SKITTERING_SWARMER     52438//AOE Effekt 140, maybe 52439
 #define SPELL_SUMMON_SKITTERING_SWARMER     52439//Summon 3x 28735
 
+//Yell
+#define SAY_AGGRO                                    -1601011
+#define SAY_SLAY_1                                   -1601012
+#define SAY_SLAY_2                                   -1601013
+#define SAY_SLAY_3                                   -1601014
+#define SAY_DEATH                                    -1601015
+#define SAY_SEND_GROUP_1                             -1601018
+#define SAY_SEND_GROUP_2                             -1601019
+#define SAY_SEND_GROUP_3                             -1601020
+#define SAY_SWARM_1                                  -1601016
+#define SAY_SWARM_2                                  -1601017
+#define SAY_PREFIGHT_1                               -1601021
+#define SAY_PREFIGHT_2                               -1601022
+#define SAY_PREFIGHT_3                               -1601023
+
 struct TRINITY_DLL_DECL boss_krik_thirAI : public ScriptedAI
 {
     boss_krik_thirAI(Creature *c) : ScriptedAI(c) {}
