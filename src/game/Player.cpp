@@ -18682,7 +18682,7 @@ void Player::SendAurasForTarget(Unit *target)
         // level
         data << aura->m_auraLevel;
         // charges
-        data << uint8(aura->GetStackAmount() ? aura->GetStackAmount() : aura->GetAuraCharges());
+        data << uint8(aura->GetStackAmount()>1 ? aura->GetStackAmount() : aura->GetAuraCharges());
 
         if(!(aura->m_auraFlags & AFLAG_CASTER))
         {
