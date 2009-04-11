@@ -414,10 +414,10 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/Azjol-Nerub/Azjol-Nerub/boss_anub_arak.cpp
    scripts/zone/Azjol-Nerub/Azjol-Nerub/def_azjol_nerub.h
    scripts/zone/Azjol-Nerub/ahnkahet/instance_ahnkahet.cpp
-   scripts/zone/Azjol-Nerub/ahnkahet/boss_taldaram.cpp
-   scripts/zone/Azjol-Nerub/ahnkahet/boss_nadox.cpp
-   scripts/zone/Azjol-Nerub/ahnkahet/boss_jedoga.cpp
-   scripts/zone/Azjol-Nerub/ahnkahet/boss_volazj.cpp
+   scripts/zone/Azjol-Nerub/ahnkahet/boss_prince_taldaram.cpp
+   scripts/zone/Azjol-Nerub/ahnkahet/boss_elder_nadox.cpp
+   scripts/zone/Azjol-Nerub/ahnkahet/boss_jedoga_shadowseeker.cpp
+   scripts/zone/Azjol-Nerub/ahnkahet/boss_herald_volazj.cpp
    scripts/zone/Azjol-Nerub/ahnkahet/boss_aminitar.cpp
    scripts/zone/Azjol-Nerub/ahnkahet/def_ahnkahet.h
    scripts/zone/draktharon_keep/instance_drak_tharon_keep.cpp

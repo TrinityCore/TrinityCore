@@ -1,20 +1,48 @@
-/* Script Data Start
-SDName: Boss nadox
+/*
+ * Copyright (C) 2009 Trinity <http://www.trinitycore.org/>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ */
+
+/* ScriptData
+SDName: boss_elder_nadox
 SDAuthor: LordVanMartin
-SD%Complete: 
-SDComment: 
-SDCategory: 
-Script Data End */
+SD%Complete: 0
+SDComment:
+SDCategory: Ahn'kahet
+EndScriptData */
 
 /*** SQL START *** 
 update creature_template set scriptname = 'boss_nadox' where entry = '';
 *** SQL END ***/
-#include "precompiled.h"
 
-//Spells
-#define SPELL_BROOD_PLAGUE_N                    56130 //Diseases the enemy, causing 12750 Nature damage over 30 sec.
-#define SPELL_BROOD_PLAGUE_H                    59467 //Diseases the enemy, causing 25500 Nature damage over 30 sec.
-#define BUFF_BROOD_RAGE_H                       59465 //--> Heroic -- Enrages a Swarmer, increasing size and damage done.
+#include "precompiled.h"
+#include "def_ahnkahet.h"
+
+#define SPELL_BROOD_PLAGUE                  56130
+#define H_SPELL_BROOD_PLAGUE                59467
+#define SPELL_BROOD_RAGE                    59465 //--> Heroic -- Enrages a Swarmer, increasing size and damage done.
+
+#define MOB_AHNKAHAR_SWARMER                30178
+#define SPELL_SUMMON_SWARMERS               56119//2x 30178
+
+#define MOB_AHNKAHAR_SWARMER                30178
+#define SPELL_SUMMON_SWARM_GUARD            56120//1x 30176
+#define SPELL_DEADLY_POISON                 56145// Proc trigger
+#define H_SPELL_DEADLY_POISON               59479// Proc trigger
+#define SPELL_GUARDIAN_AURA                 56151
 
 //randomly summons NPC 30178 and 30176 they can cast Sprint (56354)
 
