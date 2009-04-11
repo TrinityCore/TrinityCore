@@ -65,6 +65,44 @@ EndScriptData */
 #define SPELL_SPELLSHIELD       33054
 #define SPELL_BLAST_WAVE        33061
 
+bool AllBossDied(ScriptedInstance* pInstance, Creature* m_creature)
+{
+    if(!pInstance || !m_creature)
+        return false;
+
+    uint64 MaulgarGUID = 0;
+    uint64 KigglerGUID = 0;
+    uint64 BlindeyeGUID = 0;
+    uint64 OlmGUID = 0;
+    uint64 KroshGUID = 0;
+
+    Creature* Maulgar = NULL;
+    Creature* Kiggler = NULL;
+    Creature* Blindeye = NULL;
+    Creature* Olm = NULL;
+    Creature* Krosh = NULL;
+
+    MaulgarGUID = pInstance->GetData64(DATA_MAULGAR);
+    KigglerGUID = pInstance->GetData64(DATA_KIGGLERTHECRAZED);
+    BlindeyeGUID = pInstance->GetData64(DATA_BLINDEYETHESEER);
+    OlmGUID = pInstance->GetData64(DATA_OLMTHESUMMONER);
+    KroshGUID = pInstance->GetData64(DATA_KROSHFIREHAND);
+
+    Maulgar = ((Creature*)Unit::GetUnit((*m_creature), MaulgarGUID));
+    Kiggler = ((Creature*)Unit::GetUnit((*m_creature), KigglerGUID));
+    Blindeye = ((Creature*)Unit::GetUnit((*m_creature), BlindeyeGUID));
+    Olm = ((Creature*)Unit::GetUnit((*m_creature), OlmGUID));
+    Krosh = ((Creature*)Unit::GetUnit((*m_creature), KroshGUID));
+
+    if(!Maulgar || !Kiggler || !Blindeye || !Olm || !Krosh)
+        return false;
+
+    if(!Maulgar->isAlive() && !Kiggler->isAlive() && !Blindeye->isAlive() && !Olm->isAlive() && !Krosh->isAlive())
+        return true;
+
+    return false;
+}
+
 //High King Maulgar AI
 struct TRINITY_DLL_DECL boss_high_king_maulgarAI : public ScriptedAI
 {
@@ -132,15 +170,8 @@ struct TRINITY_DLL_DECL boss_high_king_maulgarAI : public ScriptedAI
     {
         DoScriptText(SAY_DEATH, m_creature);
 
-        if (pInstance)
-        {
+        if(CheckAllBossDied(pInstance, m_creature))
             pInstance->SetData(DATA_MAULGAREVENT, DONE);
-
-            GameObject* Door = NULL;
-            Door = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_MAULGARDOOR));
-            if(Door)
-                Door->SetGoState(0);
-        }
     }
 
        void AddDeath()
@@ -301,17 +332,20 @@ struct TRINITY_DLL_DECL boss_olm_the_summonerAI : public ScriptedAI
         }
     }
 
-       void JustDied(Unit* Killer)
-       {
-               if(pInstance)
+    void JustDied(Unit* Killer)
+    {
+        if(pInstance)
         {
             Creature *Maulgar = NULL;
             Maulgar = (Creature*)(Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_MAULGAR)));
 
             if(Maulgar)
                 ((boss_high_king_maulgarAI*)Maulgar->AI())->AddDeath();
+
+            if(CheckAllBossDied(pInstance, m_creature))
+                pInstance->SetData(DATA_MAULGAREVENT, DONE);
         }
-       }
+    }
 
     void UpdateAI(const uint32 diff)
     {
@@ -402,17 +436,20 @@ struct TRINITY_DLL_DECL boss_kiggler_the_crazedAI : public ScriptedAI
         }
     }
 
-       void JustDied(Unit* Killer)
-       {
-               if(pInstance)
+    void JustDied(Unit* Killer)
+    {
+        if(pInstance)
         {
             Creature *Maulgar = NULL;
             Maulgar = (Creature*)(Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_MAULGAR)));
 
             if(Maulgar)
                 ((boss_high_king_maulgarAI*)Maulgar->AI())->AddDeath();
+            
+            if(CheckAllBossDied(pInstance, m_creature))
+                pInstance->SetData(DATA_MAULGAREVENT, DONE); 
         }
-       }
+    }
 
     void UpdateAI(const uint32 diff)
     {
@@ -505,17 +542,20 @@ struct TRINITY_DLL_DECL boss_blindeye_the_seerAI : public ScriptedAI
         }
     }
 
-       void JustDied(Unit* Killer)
-       {
-               if(pInstance)
+    void JustDied(Unit* Killer)
+    {
+        if(pInstance)
         {
             Creature *Maulgar = NULL;
             Maulgar = (Creature*)(Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_MAULGAR)));
 
             if(Maulgar)
                 ((boss_high_king_maulgarAI*)Maulgar->AI())->AddDeath();
+            
+            if(CheckAllBossDied(pInstance, m_creature))
+                pInstance->SetData(DATA_MAULGAREVENT, DONE);
         }
-       }
+    }
 
      void UpdateAI(const uint32 diff)
     {
@@ -593,17 +633,20 @@ struct TRINITY_DLL_DECL boss_krosh_firehandAI : public ScriptedAI
         }
     }
 
-       void JustDied(Unit* Killer)
-       {
-               if(pInstance)
+    void JustDied(Unit* Killer)
+    {
+        if(pInstance)
         {
             Creature *Maulgar = NULL;
             Maulgar = (Creature*)(Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_MAULGAR)));
 
             if(Maulgar)
                 ((boss_high_king_maulgarAI*)Maulgar->AI())->AddDeath();
+
+            if(CheckAllBossDied(pInstance, m_creature))
+                pInstance->SetData(DATA_MAULGAREVENT, DONE);
         }
-       }
+    }
 
     void UpdateAI(const uint32 diff)
     {
