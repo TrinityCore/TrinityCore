@@ -5720,6 +5720,8 @@ void Spell::EffectSummonCritter(uint32 i)
     critter->SetReactState(REACT_PASSIVE);
     critter->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
+    critter->GetMotionMaster()->MoveTargetedHome();
+
     std::string name = player->GetName();
     name.append(petTypeSuffix[3]);
     critter->SetName( name );
