@@ -707,7 +707,7 @@ struct TRINITY_DLL_DECL mob_tainted_elementalAI : public ScriptedAI
         if(pInstance)
         {
             Creature *Vashj = NULL;
-            Vashj = (Creature*)(Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_LADYVASHJ)));
+            Vashj = (Unit::GetCreature((*m_creature), pInstance->GetData64(DATA_LADYVASHJ)));
 
             if(Vashj)
                 ((boss_lady_vashjAI*)Vashj->AI())->EventTaintedElementalDeath();
@@ -941,7 +941,7 @@ bool ItemUse_item_tainted_core(Player *player, Item* _Item, SpellCastTargets con
     }
 
     Creature *Vashj = NULL;
-    Vashj = (Creature*)(Unit::GetUnit((*player), pInstance->GetData64(DATA_LADYVASHJ)));
+    Vashj = (Unit::GetCreature((*player), pInstance->GetData64(DATA_LADYVASHJ)));
     if(Vashj && ((boss_lady_vashjAI*)Vashj->AI())->Phase == 2)
     {
         if(targets.getGOTarget() && targets.getGOTarget()->GetTypeId()==TYPEID_GAMEOBJECT)

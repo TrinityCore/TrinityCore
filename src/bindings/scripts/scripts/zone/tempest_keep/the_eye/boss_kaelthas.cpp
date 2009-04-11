@@ -191,7 +191,7 @@ struct TRINITY_DLL_DECL advisorbase_ai : public ScriptedAI
         if(pInstance && (pInstance->GetData(DATA_KAELTHASEVENT) == 1 || pInstance->GetData(DATA_KAELTHASEVENT) == 3))
         {
             Creature *Kaelthas = NULL;
-            Kaelthas = (Creature*)(Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_KAELTHAS)));
+            Kaelthas = (Unit::GetCreature((*m_creature), pInstance->GetData64(DATA_KAELTHAS)));
 
             if(Kaelthas)
                 Kaelthas->AI()->EnterEvadeMode();
@@ -325,7 +325,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
         }
         if(pInstance) {
             for(uint32 i = 0; i < 7; i++) {
-                Creature* weapon = (Creature*)(Unit::GetUnit((*m_creature), WeaponGuid[i]));;
+                Creature* weapon = (Unit::GetCreature((*m_creature), WeaponGuid[i]));;
                 delete weapon;
             }
         }
@@ -393,7 +393,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
         Creature *pCreature;
         for(uint8 i = 0; i < 4; ++i)
         {
-            pCreature = (Creature*)(Unit::GetUnit((*m_creature), AdvisorGuid[i]));
+            pCreature = (Unit::GetCreature((*m_creature), AdvisorGuid[i]));
             if(pCreature)
             {
                 pCreature->Respawn();
@@ -483,7 +483,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
         Creature *pCreature;
         for(uint8 i = 0; i < 4; ++i)
         {
-            pCreature = (Creature*)(Unit::GetUnit((*m_creature), AdvisorGuid[i]));
+            pCreature = (Unit::GetCreature((*m_creature), AdvisorGuid[i]));
             if(pCreature)
             {
                 pCreature->DealDamage(pCreature, pCreature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
@@ -550,7 +550,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                     case 1:
                         if(Phase_Timer < diff)
                         {
-                            Advisor = (Creature*)(Unit::GetUnit((*m_creature), AdvisorGuid[0]));
+                            Advisor = (Unit::GetCreature((*m_creature), AdvisorGuid[0]));
 
                             if(Advisor)
                             {
@@ -568,7 +568,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
 
                         //Subphase 2 - Start
                     case 2:
-                        Advisor = (Creature*)(Unit::GetUnit((*m_creature), AdvisorGuid[0]));
+                        Advisor = (Unit::GetCreature((*m_creature), AdvisorGuid[0]));
                         if(Advisor && (Advisor->GetUInt32Value(UNIT_FIELD_BYTES_1) == UNIT_STAND_STATE_DEAD))
                         {
                             DoScriptText(SAY_INTRO_SANGUINAR, m_creature);
@@ -584,7 +584,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                     case 3:
                         if(Phase_Timer < diff)
                         {
-                            Advisor = (Creature*)(Unit::GetUnit((*m_creature), AdvisorGuid[1]));
+                            Advisor = (Unit::GetCreature((*m_creature), AdvisorGuid[1]));
 
                             if(Advisor)
                             {
@@ -602,7 +602,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
 
                         //Subphase 3 - Start
                     case 4:
-                        Advisor = (Creature*)(Unit::GetUnit((*m_creature), AdvisorGuid[1]));
+                        Advisor = (Unit::GetCreature((*m_creature), AdvisorGuid[1]));
                         if(Advisor && (Advisor->GetUInt32Value(UNIT_FIELD_BYTES_1) == UNIT_STAND_STATE_DEAD))
                         {
                             DoScriptText(SAY_INTRO_CAPERNIAN, m_creature);
@@ -618,7 +618,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                     case 5:
                         if(Phase_Timer < diff)
                         {
-                            Advisor = (Creature*)(Unit::GetUnit((*m_creature), AdvisorGuid[2]));
+                            Advisor = (Unit::GetCreature((*m_creature), AdvisorGuid[2]));
 
                             if(Advisor)
                             {
@@ -636,7 +636,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
 
                         //Subphase 4 - Start
                     case 6:
-                        Advisor = (Creature*)(Unit::GetUnit((*m_creature), AdvisorGuid[2]));
+                        Advisor = (Unit::GetCreature((*m_creature), AdvisorGuid[2]));
                         if(Advisor && (Advisor->GetUInt32Value(UNIT_FIELD_BYTES_1) == UNIT_STAND_STATE_DEAD))
                         {
                             DoScriptText(SAY_INTRO_TELONICUS, m_creature);
@@ -652,7 +652,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                     case 7:
                         if(Phase_Timer < diff)
                         {
-                            Advisor = (Creature*)(Unit::GetUnit((*m_creature), AdvisorGuid[3]));
+                            Advisor = (Unit::GetCreature((*m_creature), AdvisorGuid[3]));
 
                             if(Advisor)
                             {
@@ -672,7 +672,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
 
                         //End of phase 1
                     case 8:
-                        Advisor = (Creature*)(Unit::GetUnit((*m_creature), AdvisorGuid[3]));
+                        Advisor = (Unit::GetCreature((*m_creature), AdvisorGuid[3]));
                         if(Advisor && (Advisor->GetUInt32Value(UNIT_FIELD_BYTES_1) == UNIT_STAND_STATE_DEAD))
                         {
                             Phase = 2;
@@ -742,7 +742,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                     Creature* Advisor;
                     for (uint32 i = 0; i < 4; ++i)
                     {
-                        Advisor = (Creature*)(Unit::GetUnit((*m_creature), AdvisorGuid[i]));
+                        Advisor = (Unit::GetCreature((*m_creature), AdvisorGuid[i]));
                         if (!Advisor)
                             error_log("TSCR: Kael'Thas Advisor %u does not exist. Possibly despawned? Incorrectly Killed?", i);
                         else ((advisorbase_ai*)Advisor->AI())->Revive(Target);
