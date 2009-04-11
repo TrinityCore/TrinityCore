@@ -5834,6 +5834,34 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 basepoints0 = GetAttackTime(BASE_ATTACK) * int32(ap*0.022f + 0.044f * holy) / 1000;
                 break;
             }
+            // Light's Beacon - Beacon of Light
+            if ( dummySpell->Id == 53651 )
+            {
+                if (Unit * caster = triggeredByAura->GetCaster())
+                {
+                    // do not proc when target of beacon of light is healed
+                    if (caster == pVictim)
+                        return false;
+                    if (Aura * aur = caster->GetAura(53563))
+                    {
+                        if (Unit * paladin = aur->GetCaster())
+                        {
+                            if (paladin != this)
+                                return false;
+                            basepoints0 = damage;
+                            triggered_spell_id = 53654;
+                            target = caster;
+                            break;
+                        }
+                        else
+                        {
+                            pVictim->RemoveAura(triggeredByAura->GetParentAura());
+                            return false;
+                        }
+                    }
+                }
+                else return false;
+            }
             // Judgements of the Wise
             if (dummySpell->SpellIconID == 3017)
             {
