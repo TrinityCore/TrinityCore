@@ -353,10 +353,6 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/uldaman/uldaman.cpp
    scripts/zone/undercity/undercity.cpp
    scripts/zone/ungoro_crater/ungoro_crater.cpp
-   scripts/zone/utgarde_keep/utgarde_keep/instance_utgarde_keep.cpp
-   scripts/zone/utgarde_keep/utgarde_keep/boss_keleseth.cpp
-   scripts/zone/utgarde_keep/utgarde_keep/boss_skarvald_dalronn.cpp
-   scripts/zone/utgarde_keep/utgarde_keep/boss_ingvar_the_plunderer.cpp
    scripts/zone/wailing_caverns/instance_wailing_caverns.cpp
    scripts/zone/western_plaguelands/western_plaguelands.cpp
    scripts/zone/westfall/westfall.cpp
@@ -387,8 +383,11 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/zulgurub/boss_wushoolay.cpp
    scripts/zone/zulgurub/def_zulgurub.h
    scripts/zone/zulgurub/instance_zulgurub.cpp
-   scripts/zone/utgarde_keep/utgarde_keep/instance_keep.cpp
+   scripts/zone/utgarde_keep/utgarde_keep/instance_utgarde_keep.cpp
    scripts/zone/utgarde_keep/utgarde_keep/boss_keleseth.cpp
+   scripts/zone/utgarde_keep/utgarde_keep/boss_skarvald_dalronn.cpp
+   scripts/zone/utgarde_keep/utgarde_keep/boss_ingvar_the_plunderer.cpp
+   scripts/zone/utgarde_keep/utgarde_keep/instance_keep.cpp
    scripts/zone/utgarde_keep/utgarde_keep/boss_dalronn.cpp
    scripts/zone/utgarde_keep/utgarde_keep/boss_skarvald.cpp
    scripts/zone/utgarde_keep/utgarde_keep/boss_ingvar.cpp
@@ -413,18 +412,18 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/nexus/oculus/boss_varos.cpp
    scripts/zone/nexus/oculus/boss_eregos.cpp
    scripts/zone/nexus/oculus/def_oculus.h
-   scripts/zone/azjol-nerub/azjol-nerub/instance_azjol_nerub.cpp
-   scripts/zone/azjol-nerub/azjol-nerub/boss_krik_thir.cpp
-   scripts/zone/azjol-nerub/azjol-nerub/boss_hadronox.cpp
-   scripts/zone/azjol-nerub/azjol-nerub/boss_anub_arak.cpp
-   scripts/zone/azjol-nerub/azjol-nerub/def_azjol_nerub.h
-   scripts/zone/azjol-nerub/ahnkahet/instance_ahnkahet.cpp
-   scripts/zone/azjol-nerub/ahnkahet/boss_taldaram.cpp
-   scripts/zone/azjol-nerub/ahnkahet/boss_nadox.cpp
-   scripts/zone/azjol-nerub/ahnkahet/boss_jedoga.cpp
-   scripts/zone/azjol-nerub/ahnkahet/boss_volazj.cpp
-   scripts/zone/azjol-nerub/ahnkahet/boss_aminitar.cpp
-   scripts/zone/azjol-nerub/ahnkahet/def_ahnkahet.h
+   scripts/zone/Azjol-Nerub/Azjol-Nerub/instance_azjol_nerub.cpp
+   scripts/zone/Azjol-Nerub/Azjol-Nerub/boss_krik_thir.cpp
+   scripts/zone/Azjol-Nerub/Azjol-Nerub/boss_hadronox.cpp
+   scripts/zone/Azjol-Nerub/Azjol-Nerub/boss_anub_arak.cpp
+   scripts/zone/Azjol-Nerub/Azjol-Nerub/def_azjol_nerub.h
+   scripts/zone/Azjol-Nerub/ahnkahet/instance_ahnkahet.cpp
+   scripts/zone/Azjol-Nerub/ahnkahet/boss_taldaram.cpp
+   scripts/zone/Azjol-Nerub/ahnkahet/boss_nadox.cpp
+   scripts/zone/Azjol-Nerub/ahnkahet/boss_jedoga.cpp
+   scripts/zone/Azjol-Nerub/ahnkahet/boss_volazj.cpp
+   scripts/zone/Azjol-Nerub/ahnkahet/boss_aminitar.cpp
+   scripts/zone/Azjol-Nerub/ahnkahet/def_ahnkahet.h
    scripts/zone/draktharon_keep/instance_drak_tharon_keep.cpp
    scripts/zone/draktharon_keep/boss_trollgore.cpp
    scripts/zone/draktharon_keep/boss_novos.cpp
