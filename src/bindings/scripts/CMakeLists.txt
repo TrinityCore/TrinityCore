@@ -409,9 +409,9 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/nexus/oculus/boss_eregos.cpp
    scripts/zone/nexus/oculus/def_oculus.h
    scripts/zone/Azjol-Nerub/Azjol-Nerub/instance_azjol_nerub.cpp
-   scripts/zone/Azjol-Nerub/Azjol-Nerub/boss_krik_thir.cpp
+   scripts/zone/Azjol-Nerub/Azjol-Nerub/boss_krikthir_the_gatewatcher.cpp
    scripts/zone/Azjol-Nerub/Azjol-Nerub/boss_hadronox.cpp
-   scripts/zone/Azjol-Nerub/Azjol-Nerub/boss_anub_arak.cpp
+   scripts/zone/Azjol-Nerub/Azjol-Nerub/boss_anubarak.cpp
    scripts/zone/Azjol-Nerub/Azjol-Nerub/def_azjol_nerub.h
    scripts/zone/Azjol-Nerub/ahnkahet/instance_ahnkahet.cpp
    scripts/zone/Azjol-Nerub/ahnkahet/boss_prince_taldaram.cpp

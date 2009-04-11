@@ -18,10 +18,15 @@
 
 /* ScriptData
 SDName: boss_krikthir_the_gatewatcher
+SDAuthor: LordVanMartin
 SD%Complete: 0
 SDComment: Placeholder
 SDCategory: Azjol Nerub
 EndScriptData */
+
+/*** SQL START *** 
+update creature_template set scriptname = 'boss_krik_thir' where entry = '';
+*** SQL END ***/
 
 #include "precompiled.h"
 #include "def_azjol_nerub.h"
@@ -30,9 +35,67 @@ EndScriptData */
 #define H_SPELL_MIND_FLAY                   59367
 #define SPELL_CURSE_OF_FATIGUE              52592
 #define H_SPELL_CURSE_OF_FATIGUE            59368
-#define SPELL_FRENZY                        28747
+#define SPELL_FRENZY                        28747 // maybe 53361
 
 #define MOB_SKITTERING_SWARMER              28735
 #define MOB_SKITTERING_SWARMER_CONTROLLER   32593
-#define SPELL_SUMMON_SKITTERING_SWARMER     52438//AOE Effekt 140
+
+#define SPELL_SUMMON_SKITTERING_SWARMER     52438//AOE Effekt 140, maybe 52439
 #define SPELL_SUMMON_SKITTERING_SWARMER     52439//Summon 3x 28735
+
+struct TRINITY_DLL_DECL boss_krik_thirAI : public ScriptedAI
+{
+    boss_krik_thirAI(Creature *c) : ScriptedAI(c) {}
+    
+    void Reset() {}
+    
+    void Aggro(Unit* who) 
+    {
+        DoScriptText(SAY_AGGRO, m_creature);
+    }
+
+    void UpdateAI(const uint32 diff) 
+    {
+        if(!UpdateVictim())
+            return;
+        
+        if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) >= 10)
+        {
+            //Frenzy
+        }
+       
+        DoMeleeAttackIfReady();
+    }
+    void JustDied(Unit* killer)  
+    {
+        DoScriptText(SAY_DEATH, m_creature);
+    }
+    void KilledUnit(Unit *victim)
+    {
+        if (victim == m_creature)
+            return;
+
+        switch(rand()%3)
+        {
+            case 0: DoScriptText(SAY_SLAY_1, m_creature);break;
+            case 1: DoScriptText(SAY_SLAY_2, m_creature);break;
+            case 2: DoScriptText(SAY_SLAY_3, m_creature);break;
+        }
+    }
+};
+
+CreatureAI* GetAI_boss_krik_thir(Creature *_Creature)
+{
+    return new boss_krik_thirAI (_Creature);
+}
+
+void AddSC_boss_krik_thir()
+{
+    Script *newscript;
+
+    newscript = new Script;
+    newscript->Name="boss_krik_thir";
+    newscript->GetAI = GetAI_boss_krik_thir;
+    newscript->RegisterSelf();
+
+}

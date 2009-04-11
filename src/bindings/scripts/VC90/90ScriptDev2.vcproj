@@ -848,19 +848,11 @@
 						Name="Azjol-Nerub"
 						>
 						<File
-							RelativePath="..\scripts\zone\azjol-nerub\azjol-nerub\boss_anub_arak.cpp"
-							>
-						</File>
-						<File
 							RelativePath="..\scripts\zone\Azjol-Nerub\Azjol-Nerub\boss_anubarak.cpp"
 							>
 						</File>
 						<File
 							RelativePath="..\scripts\zone\Azjol-Nerub\Azjol-Nerub\boss_hadronox.cpp"
-							>
-						</File>
-						<File
-							RelativePath="..\scripts\zone\azjol-nerub\azjol-nerub\boss_krik_thir.cpp"
 							>
 						</File>
 						<File
