@@ -205,7 +205,7 @@ struct TRINITY_DLL_DECL boss_fathomlord_karathressAI : public ScriptedAI
         DoScriptText(SAY_DEATH, m_creature);
 
         if (pInstance)
-            pInstance->SetData(DATA_FATHOMLORDKARATHRESSEVENT, NOT_STARTED);
+            pInstance->SetData(DATA_FATHOMLORDKARATHRESSEVENT, DONE);
 
         //support for quest 10944
         m_creature->SummonCreature(SEER_OLUM, OLUM_X, OLUM_Y, OLUM_Z, OLUM_O, TEMPSUMMON_TIMED_DESPAWN, 3600000);
