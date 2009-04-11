@@ -44,7 +44,7 @@ struct TRINITY_DLL_DECL npc_defias_traitorAI : public npc_escortAI
 
     void WaypointReached(uint32 i)
     {
-        Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+        Player* player = Unit::GetPlayer(PlayerGUID);
 
         if (!player)
             return;
@@ -92,8 +92,8 @@ struct TRINITY_DLL_DECL npc_defias_traitorAI : public npc_escortAI
     {
         if (PlayerGUID)
         {
-            if (Unit* player = Unit::GetUnit((*m_creature), PlayerGUID))
-                ((Player*)player)->FailQuest(QUEST_DEFIAS_BROTHERHOOD);
+            if (Player* player = Unit::GetPlayer(PlayerGUID))
+                player->FailQuest(QUEST_DEFIAS_BROTHERHOOD);
         }
     }
 

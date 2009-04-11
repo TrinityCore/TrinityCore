@@ -311,7 +311,7 @@ public:
             case 56: DoScriptText(WHISP21, m_creature, pTemp);
                if( PlayerGUID )
                 {
-                    Unit* player = ((Creature*)Unit::GetUnit((*m_creature), PlayerGUID));
+                    Unit* player = (Unit::GetCreature((*m_creature), PlayerGUID));
                     if( player && player->GetTypeId() == TYPEID_PLAYER )
                         ((Player*)player)->GroupEventHappens(10211,m_creature);
                 }
@@ -472,7 +472,7 @@ struct TRINITY_DLL_DECL npc_dirty_larryAI : public ScriptedAI
 
     uint32 NextStep(uint32 Step)
     {
-        Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+        Player* player = Unit::GetPlayer(PlayerGUID);
 
         switch(Step)
         {
@@ -506,7 +506,7 @@ struct TRINITY_DLL_DECL npc_dirty_larryAI : public ScriptedAI
 
         if(Attack)
         {
-            Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+            Player* player = Unit::GetPlayer(PlayerGUID);
             m_creature->setFaction(14);
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             if(player)
@@ -558,7 +558,7 @@ struct TRINITY_DLL_DECL npc_dirty_larryAI : public ScriptedAI
             m_creature->DeleteThreatList();
             m_creature->CombatStop();
             m_creature->GetMotionMaster()->MoveTargetedHome();
-            Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+            Player* player = Unit::GetPlayer(PlayerGUID);
             if(player)
                 ((Player*)player)->GroupEventHappens(QUEST_WBI, m_creature);
         }

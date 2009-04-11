@@ -173,7 +173,7 @@ struct TRINITY_DLL_DECL mob_doomfireAI : public ScriptedAI
         bool suicide = true;
         if(ArchimondeGUID)
         {
-            Creature* Archimonde = ((Creature*)Unit::GetUnit((*m_creature), ArchimondeGUID));
+            Creature* Archimonde = (Unit::GetCreature((*m_creature), ArchimondeGUID));
             if(Archimonde && Archimonde->isAlive())
             {
                 suicide = false;
