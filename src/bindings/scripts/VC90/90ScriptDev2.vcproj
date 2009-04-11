@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="windows-1250"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="TrinityScript"
 	ProjectGUID="{4295C8A9-79B7-4354-8064-F05FB9CA0C96}"
 	RootNamespace="ScriptDev2"
@@ -103,90 +103,6 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="Debug|x64"
-			OutputDirectory="..\..\..\..\bin\$(PlatformName)_$(ConfigurationName)"
-			IntermediateDirectory=".\ScriptDev2__$(PlatformName)_$(ConfigurationName)"
-			ConfigurationType="2"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-				CommandLine=""
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				TargetEnvironment="3"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\..\dep\include\;..\..\..\shared\;..\..\..\framework\;..\..\..\game\;..\include\;..\..\..\..\dep\ACE_wrappers"
-				PreprocessorDefinitions="WIN32;_DEBUG;TRINITY_DEBUG;_WINDOWS;_USRDLL;SCRIPT"
-				MinimalRebuild="true"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="precompiled.h"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="false"
-				DebugInformationFormat="3"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="trinitycore.lib zthread.lib"
-				OutputFile="$(OutDir)/TrinityScript.dll"
-				LinkIncremental="2"
-				AdditionalLibraryDirectories="..\..\..\..\win\VC90\zthread__$(PlatformName)_$(ConfigurationName);..\..\..\..\win\VC90\trinitycore__$(PlatformName)_$(ConfigurationName)"
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)/TrinityScript.pdb"
-				SubSystem="2"
-				RandomizedBaseAddress="1"
-				DataExecutionPrevention="0"
-				ImportLibrary="$(OutDir)/TrinityScript.lib"
-				TargetMachine="17"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="..\..\..\..\bin\$(PlatformName)_$(ConfigurationName)"
 			IntermediateDirectory=".\ScriptDev2__$(PlatformName)_$(ConfigurationName)"
@@ -248,6 +164,90 @@
 				DataExecutionPrevention="0"
 				ImportLibrary="$(OutDir)/TrinityScript.lib"
 				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug|x64"
+			OutputDirectory="..\..\..\..\bin\$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory=".\ScriptDev2__$(PlatformName)_$(ConfigurationName)"
+			ConfigurationType="2"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				CommandLine=""
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				AdditionalIncludeDirectories="..\..\..\..\dep\include\;..\..\..\shared\;..\..\..\framework\;..\..\..\game\;..\include\;..\..\..\..\dep\ACE_wrappers"
+				PreprocessorDefinitions="WIN32;_DEBUG;TRINITY_DEBUG;_WINDOWS;_USRDLL;SCRIPT"
+				MinimalRebuild="true"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="3"
+				UsePrecompiledHeader="2"
+				PrecompiledHeaderThrough="precompiled.h"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="false"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="trinitycore.lib zthread.lib"
+				OutputFile="$(OutDir)/TrinityScript.dll"
+				LinkIncremental="2"
+				AdditionalLibraryDirectories="..\..\..\..\win\VC90\zthread__$(PlatformName)_$(ConfigurationName);..\..\..\..\win\VC90\trinitycore__$(PlatformName)_$(ConfigurationName)"
+				GenerateDebugInformation="true"
+				ProgramDatabaseFile="$(OutDir)/TrinityScript.pdb"
+				SubSystem="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
+				ImportLibrary="$(OutDir)/TrinityScript.lib"
+				TargetMachine="17"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -477,6 +477,14 @@
 			<Filter
 				Name="custom"
 				>
+				<File
+					RelativePath="..\scripts\custom\npc_acherus_taxi.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\custom\npc_wyrmresttempel_taxi.cpp"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="areatrigger"
@@ -812,6 +820,10 @@
 							>
 						</File>
 						<File
+							RelativePath="..\scripts\zone\azjol-nerub\ahnkahet\boss_aminitar.cpp"
+							>
+						</File>
+						<File
 							RelativePath="..\scripts\zone\Azjol-Nerub\Ahn&apos;kahet\boss_elder_nadox.cpp"
 							>
 						</File>
@@ -820,11 +832,27 @@
 							>
 						</File>
 						<File
+							RelativePath="..\scripts\zone\azjol-nerub\ahnkahet\boss_jedoga.cpp"
+							>
+						</File>
+						<File
 							RelativePath="..\scripts\zone\Azjol-Nerub\Ahn&apos;kahet\boss_jedoga_shadowseeker.cpp"
 							>
 						</File>
 						<File
+							RelativePath="..\scripts\zone\azjol-nerub\ahnkahet\boss_nadox.cpp"
+							>
+						</File>
+						<File
 							RelativePath="..\scripts\zone\Azjol-Nerub\Ahn&apos;kahet\boss_prince_taldaram.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\azjol-nerub\ahnkahet\boss_taldaram.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\azjol-nerub\ahnkahet\boss_volazj.cpp"
 							>
 						</File>
 						<File
@@ -840,7 +868,15 @@
 						Name="Azjol-Nerub"
 						>
 						<File
+							RelativePath="..\scripts\zone\azjol-nerub\azjol-nerub\boss_anub_arak.cpp"
+							>
+						</File>
+						<File
 							RelativePath="..\scripts\zone\Azjol-Nerub\Azjol-Nerub\boss_anubarak.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\azjol-nerub\azjol-nerub\boss_hadronox.cpp"
 							>
 						</File>
 						<File
@@ -848,7 +884,15 @@
 							>
 						</File>
 						<File
+							RelativePath="..\scripts\zone\azjol-nerub\azjol-nerub\boss_krik_thir.cpp"
+							>
+						</File>
+						<File
 							RelativePath="..\scripts\zone\Azjol-Nerub\Azjol-Nerub\boss_krikthir_the_gatewatcher.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\azjol-nerub\azjol-nerub\def_azjol-nerub.h"
 							>
 						</File>
 						<File
@@ -864,10 +908,62 @@
 				<Filter
 					Name="Drak&apos;Tharon Keep"
 					>
+					<File
+						RelativePath="..\scripts\zone\draktharon_keep\boss_dred.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\draktharon_keep\boss_novos.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\draktharon_keep\boss_tharon_ja.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\draktharon_keep\boss_trollgore.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\draktharon_keep\def_drak_tharon_keep.h"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\draktharon_keep\instance_drak_tharon_keep.cpp"
+						>
+					</File>
 				</Filter>
 				<Filter
 					Name="Gundrak"
 					>
+					<File
+						RelativePath="..\scripts\zone\gundrak\boss_drakkari_colossus.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\gundrak\boss_eck.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\gundrak\boss_gal_darah.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\gundrak\boss_moorabi.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\gundrak\boss_slad_ran.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\gundrak\def_gundrak.h"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\gundrak\instance_gundrak.cpp"
+						>
+					</File>
 				</Filter>
 				<Filter
 					Name="Nexus"
@@ -875,19 +971,123 @@
 					<Filter
 						Name="Nexus"
 						>
+						<File
+							RelativePath="..\scripts\zone\nexus\nexus\boss_anomalus.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\nexus\nexus\boss_keristrasza.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\nexus\nexus\boss_magus_telestra.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\nexus\nexus\boss_ormorok.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\nexus\nexus\commander_kolurg.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\nexus\nexus\commander_stoutbeard.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\nexus\nexus\def_nexus.h"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\nexus\nexus\instance_nexus.cpp"
+							>
+						</File>
 					</Filter>
 					<Filter
 						Name="Oculus"
 						>
+						<File
+							RelativePath="..\scripts\zone\nexus\oculus\boss_drakos.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\nexus\oculus\boss_eregos.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\nexus\oculus\boss_urom.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\nexus\oculus\boss_varos.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\nexus\oculus\def_oculus.h"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\nexus\oculus\instance_oculus.cpp"
+							>
+						</File>
 					</Filter>
 					<Filter
 						Name="Eye of Eternity"
 						>
+						<File
+							RelativePath="..\scripts\zone\nexus\eye_of_eternity\boss_malygos.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\nexus\eye_of_eternity\def_eye_of_eternity.h"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\nexus\eye_of_eternity\instance_eye_of_eternity.cpp"
+							>
+						</File>
 					</Filter>
 				</Filter>
 				<Filter
 					Name="Violet Hold"
 					>
+					<File
+						RelativePath="..\scripts\zone\violet_hold\boss_cyanigosa.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\violet_hold\boss_erekem.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\violet_hold\boss_ichoron.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\violet_hold\boss_lavanthor.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\violet_hold\boss_moragg.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\violet_hold\boss_xevozz.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\violet_hold\boss_zuramat.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\violet_hold\def_violet_hold.h"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\violet_hold\instance_violet_hold.cpp"
+						>
+					</File>
 				</Filter>
 				<Filter
 					Name="Ulduar"
@@ -895,10 +1095,54 @@
 					<Filter
 						Name="Halls of Stone"
 						>
+						<File
+							RelativePath="..\scripts\zone\ulduar\halls_of_stone\boss_krystallus.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\ulduar\halls_of_stone\boss_maiden_of_grief.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\ulduar\halls_of_stone\boss_sjonnir.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\ulduar\halls_of_stone\def_halls_of_stone.h"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\ulduar\halls_of_stone\instance_halls_of_stone.cpp"
+							>
+						</File>
 					</Filter>
 					<Filter
 						Name="Halls of Lightning"
 						>
+						<File
+							RelativePath="..\scripts\zone\ulduar\halls_of_lightning\boss_bjarngrim.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\ulduar\halls_of_lightning\boss_ionar.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\ulduar\halls_of_lightning\boss_loken.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\ulduar\halls_of_lightning\boss_volkhan.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\ulduar\halls_of_lightning\def_halls_of_lightning.h"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\ulduar\halls_of_lightning\instance_halls_of_lightning.cpp"
+							>
+						</File>
 					</Filter>
 				</Filter>
 				<Filter
@@ -908,6 +1152,14 @@
 						Name="Utgarde Keep"
 						>
 						<File
+							RelativePath="..\scripts\zone\utgarde_keep\utgarde_keep\boss_dalronn.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\utgarde_keep\utgarde_keep\boss_ingvar.cpp"
+							>
+						</File>
+						<File
 							RelativePath="..\scripts\zone\utgarde_keep\utgarde_keep\boss_ingvar_the_plunderer.cpp"
 							>
 						</File>
@@ -916,11 +1168,27 @@
 							>
 						</File>
 						<File
+							RelativePath="..\scripts\zone\utgarde_keep\utgarde_keep\boss_keleseth.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\utgarde_keep\utgarde_keep\boss_skarvald.cpp"
+							>
+						</File>
+						<File
 							RelativePath="..\scripts\zone\utgarde_keep\utgarde_keep\boss_skarvald_dalronn.cpp"
 							>
 						</File>
 						<File
+							RelativePath="..\scripts\zone\utgarde_keep\utgarde_keep\def_keep.h"
+							>
+						</File>
+						<File
 							RelativePath="..\scripts\zone\utgarde_keep\utgarde_keep\def_utgarde_keep.h"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\utgarde_keep\utgarde_keep\instance_keep.cpp"
 							>
 						</File>
 						<File
@@ -931,15 +1199,63 @@
 					<Filter
 						Name="Utgarde Pinnacle"
 						>
+						<File
+							RelativePath="..\scripts\zone\utgarde_keep\utgarde_pinnacle\boss_palehoof.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\utgarde_keep\utgarde_pinnacle\boss_skadi.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\utgarde_keep\utgarde_pinnacle\boss_svala.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\utgarde_keep\utgarde_pinnacle\boss_ymiron.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\utgarde_keep\utgarde_pinnacle\def_pinnacle.h"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\utgarde_keep\utgarde_pinnacle\instance_pinnacle.cpp"
+							>
+						</File>
 					</Filter>
 				</Filter>
 				<Filter
 					Name="Obsidian Sanctum"
 					>
+					<File
+						RelativePath="..\scripts\zone\obsidian_sanctum\boss_sartharion.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\obsidian_sanctum\def_obsidian_sanctum.h"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\obsidian_sanctum\instance_obsidian_sanctum.cpp"
+						>
+					</File>
 				</Filter>
 				<Filter
 					Name="Vault of Archavon"
 					>
+					<File
+						RelativePath="..\scripts\zone\vault_of_archavon\boss_archavon.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\vault_of_archavon\def_vault_of_archavon.h"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\vault_of_archavon\instance_vault_of_archavon.cpp"
+						>
+					</File>
 				</Filter>
 				<Filter
 					Name="Scarlet Monastery"
@@ -2296,10 +2612,33 @@
 							>
 						</File>
 					</Filter>
-
 					<Filter
 						Name="Culling of Stratholme"
 						>
+						<File
+							RelativePath="..\scripts\zone\caverns_of_time\culling_of_stratholme\boss_epoch.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\caverns_of_time\culling_of_stratholme\boss_mal_ganis.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\caverns_of_time\culling_of_stratholme\boss_meathook.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\caverns_of_time\culling_of_stratholme\boss_salramm.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\caverns_of_time\culling_of_stratholme\def_culling_of_stratholme.h"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\caverns_of_time\culling_of_stratholme\instance_culling_of_stratholme.cpp"
+							>
+						</File>
 					</Filter>
 					<Filter
 						Name="Old Hillsbrad"
