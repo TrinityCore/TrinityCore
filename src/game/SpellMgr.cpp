@@ -534,6 +534,8 @@ bool IsPositiveEffect(uint32 spellId, uint32 effIndex, bool deep)
         case 34700:                                         // Allergic Reaction
         case 31719:                                         // Suspension
             return false;
+        case 12042:                                         // Arcane Power
+            return true;
     }
 
     switch(spellproto->Mechanic)
