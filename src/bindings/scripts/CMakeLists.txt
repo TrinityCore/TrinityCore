@@ -418,7 +418,7 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/Azjol-Nerub/ahnkahet/boss_elder_nadox.cpp
    scripts/zone/Azjol-Nerub/ahnkahet/boss_jedoga_shadowseeker.cpp
    scripts/zone/Azjol-Nerub/ahnkahet/boss_herald_volazj.cpp
-   scripts/zone/Azjol-Nerub/ahnkahet/boss_aminitar.cpp
+   scripts/zone/Azjol-Nerub/ahnkahet/boss_amanitar.cpp
    scripts/zone/Azjol-Nerub/ahnkahet/def_ahnkahet.h
    scripts/zone/draktharon_keep/instance_drak_tharon_keep.cpp
    scripts/zone/draktharon_keep/boss_trollgore.cpp

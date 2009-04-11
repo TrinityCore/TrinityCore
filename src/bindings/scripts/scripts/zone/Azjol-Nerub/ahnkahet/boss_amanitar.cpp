@@ -17,7 +17,7 @@
  */
 
 /* Script Data Start
-SDName: boss_aminitar
+SDName: boss_amanitar
 SDAuthor: LordVanMartin
 SD%Complete: 0
 SDComment:  Only appears in heroic mode
