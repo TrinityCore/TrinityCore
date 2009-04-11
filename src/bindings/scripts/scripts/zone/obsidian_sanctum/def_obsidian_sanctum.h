@@ -1,0 +1,4 @@
+#ifndef DEF_OBSIDIAN_SANCTUM_H
+#define DEF_OBSIDIAN_SANCTUM_H
+
+#endif
