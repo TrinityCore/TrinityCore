@@ -89,7 +89,7 @@ CREATE TABLE `areatrigger_teleport` (
   `target_position_y` float NOT NULL default '0',
   `target_position_z` float NOT NULL default '0',
   `target_orientation` float NOT NULL default '0',
-  PRIMARY KEY  (`id`),
+  PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Trigger System';
 
 --
