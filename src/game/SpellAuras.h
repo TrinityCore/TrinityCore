@@ -332,6 +332,7 @@ class TRINITY_DLL_SPEC AuraEffect
         uint32 GetId() const { return m_spellProto->Id; }
         uint32 GetEffIndex() const { return m_effIndex; }
         int32 GetBasePoints() const { return m_currentBasePoints; }
+        int32 GetAuraAmplitude(){return m_amplitude;}
         void Update(uint32 diff);
 
         bool IsAreaAura() const { return m_isAreaAura; }

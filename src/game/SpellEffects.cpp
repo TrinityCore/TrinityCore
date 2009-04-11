@@ -500,11 +500,6 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                 {
                     damage += int32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK)*0.08f);
                 }
-                // Faerie Fire (Feral)
-                else if(m_spellInfo->Id == 60089)
-                {
-                    damage += int32((m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * 5 / 100) + 1);
-                }
                 //Mangle Bonus for the initial damage of Lacerate and Rake
                 if((m_spellInfo->SpellFamilyFlags.IsEqual(0x1000,0,0) && m_spellInfo->SpellIconID==494) ||
                     (m_spellInfo->SpellFamilyFlags.IsEqual(0,0x100,0) && m_spellInfo->SpellIconID==2246))
@@ -2003,6 +1998,7 @@ void Spell::EffectTriggerSpell(uint32 i)
 
             // get highest rank of the Stealth spell
             uint32 spellId = 0;
+            SpellEntry const *spellInfo;
             const PlayerSpellMap& sp_list = ((Player*)m_caster)->GetSpellMap();
             for (PlayerSpellMap::const_iterator itr = sp_list.begin(); itr != sp_list.end(); ++itr)
             {
@@ -2010,7 +2006,7 @@ void Spell::EffectTriggerSpell(uint32 i)
                 if(!itr->second->active || itr->second->disabled || itr->second->state == PLAYERSPELL_REMOVED)
                     continue;
 
-                SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
+                spellInfo = sSpellStore.LookupEntry(itr->first);
                 if (!spellInfo)
                     continue;
 
@@ -2029,7 +2025,8 @@ void Spell::EffectTriggerSpell(uint32 i)
             if(((Player*)m_caster)->HasSpellCooldown(spellId))
                 ((Player*)m_caster)->RemoveSpellCooldown(spellId);
 
-            m_caster->CastSpell(m_caster, spellId, true);
+            // Push stealth to list because it must be handled after combat remove
+            m_TriggerSpells.push_back(spellInfo);
             return;
         }
         // just skip
@@ -4908,8 +4905,14 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         // Viper Sting - Instantly restores mana to you equal to 60% of the total amount drained by your Viper Sting.
                         if (familyFlag[1] & 0x00000080)
                         {
+                            int32 tickCount = (aura->GetAuraMaxDuration() - aura->GetAuraDuration()) / aura->GetPartAura(0)->GetAuraAmplitude();
                             spellId = 53358; // 53358 Chimera Shot - Viper
-                            basePoint = aura->GetPartAura(0)->GetAmount() * 4 * 60 / 100;
+                                // Amount of one aura tick
+                            basePoint = aura->GetPartAura(0)->GetAmount() * aura->GetTarget()->GetMaxPower(POWER_MANA) / 100 ;
+                            int32 casterBasePoint = aura->GetPartAura(0)->GetAmount() * unitTarget->GetMaxPower(POWER_MANA) / 50 ;
+                            if (basePoint > casterBasePoint)
+                                basePoint = casterBasePoint;
+                            basePoint = basePoint * tickCount * 60 / 100;
                         }
                         // Scorpid Sting - Attempts to Disarm the target for 10 sec. This effect cannot occur more than once per 1 minute.
                         if (familyFlag[0] & 0x00008000)
@@ -5898,10 +5901,14 @@ void Spell::EffectDestroyAllTotems(uint32 /*i*/)
             uint32 spell_id = totem->GetUInt32Value(UNIT_CREATED_BY_SPELL);
             SpellEntry const* spellInfo = sSpellStore.LookupEntry(spell_id);
             if(spellInfo)
-                mana += spellInfo->manaCost * damage / 100;
+            {
+                mana += spellInfo->manaCost;
+                mana += spellInfo->ManaCostPercentage * m_caster->GetCreateMana() / 100;
+            }
             ((Totem*)totem)->UnSummon();
         }
     }
+    mana = mana * damage / 100;
 
     int32 gain = m_caster->ModifyPower(POWER_MANA,int32(mana));
     m_caster->SendEnergizeSpellLog(m_caster, m_spellInfo->Id, gain, POWER_MANA);
