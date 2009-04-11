@@ -951,15 +951,9 @@ void BattleGround::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
                 plr->RemoveArenaAuras(true);                // removes debuffs / dots etc., we don't want the player to die after porting out
                 bgTypeId=BATTLEGROUND_AA;                   // set the bg type to all arenas (it will be used for queue refreshing)
 
-                // summon old pet if there was one and there isn't a current pet
-                if(!plr->GetGuardianPet() && plr->GetTemporaryUnsummonedPetNumber())
-                {
-                    Pet* NewPet = new Pet(plr);
-                    if(!NewPet->LoadPetFromDB(plr, 0, (plr)->GetTemporaryUnsummonedPetNumber(), true))
-                        delete NewPet;
-
-                    (plr)->SetTemporaryUnsummonedPetNumber(0);
-                }
+                // unsummon current and summon old pet if there was one and there isn't a current pet
+                plr->RemovePet(NULL, PET_SAVE_NOT_IN_SLOT);
+                plr->ResummonPetTemporaryUnSummonedIfAny();
 
                 if (isRated() && GetStatus() == STATUS_IN_PROGRESS)
                 {
@@ -1113,19 +1107,7 @@ void BattleGround::AddPlayer(Player *plr)
         }
 
         plr->DestroyConjuredItems(true);
-
-        Pet* pet = plr->GetPet();
-        if (pet)
-        {
-            if (pet->getPetType() == SUMMON_PET || pet->getPetType() == HUNTER_PET)
-            {
-                (plr)->SetTemporaryUnsummonedPetNumber(pet->GetCharmInfo()->GetPetNumber());
-                (plr)->SetOldPetSpell(pet->GetUInt32Value(UNIT_CREATED_BY_SPELL));
-            }
-            (plr)->RemovePet(NULL,PET_SAVE_NOT_IN_SLOT);
-        }
-        else
-            (plr)->SetTemporaryUnsummonedPetNumber(0);
+        plr->UnsummonPetTemporaryIfAny();
 
         if(GetStatus() == STATUS_WAIT_JOIN)                 // not started yet
         {

@@ -1683,16 +1683,9 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         //SendMessageToSet(&data, true);
         if (!(options & TELE_TO_NOT_UNSUMMON_PET))
         {
-            //same map, only remove pet if out of range
-            if(pet && !IsWithinDistInMap(pet, OWNER_MAX_DISTANCE))
-            {
-                if(pet->isControlled() && !pet->isTemporarySummoned() )
-                    m_temporaryUnsummonedPetNumber = pet->GetCharmInfo()->GetPetNumber();
-                else
-                    m_temporaryUnsummonedPetNumber = 0;
-
-                RemovePet(pet, PET_SAVE_NOT_IN_SLOT);
-            }
+            //same map, only remove pet if out of range for new position
+            if(pet && pet->GetDistance(x,y,z) >= OWNER_MAX_DISTANCE)
+                UnsummonPetTemporaryIfAny();
         }
 
         if(!(options & TELE_TO_NOT_LEAVE_COMBAT))
@@ -1701,14 +1694,8 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         if (!(options & TELE_TO_NOT_UNSUMMON_PET))
         {
             // resummon pet
-            if(pet && m_temporaryUnsummonedPetNumber)
-            {
-                Pet* NewPet = new Pet(this);
-                if(!NewPet->LoadPetFromDB(this, 0, m_temporaryUnsummonedPetNumber, true))
-                    delete NewPet;
-
-                m_temporaryUnsummonedPetNumber = 0;
-            }
+            if (pet)
+                ResummonPetTemporaryUnSummonedIfAny();
         }
 
         uint32 newzone, newarea;
@@ -1767,15 +1754,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
             // remove pet on map change
             if (pet)
-            {
-                //leaving map -> delete pet right away (doing this later will cause problems)
-                if(pet->isControlled() && !pet->isTemporarySummoned())
-                    m_temporaryUnsummonedPetNumber = pet->GetCharmInfo()->GetPetNumber();
-                else
-                    m_temporaryUnsummonedPetNumber = 0;
-
-                RemovePet(pet, PET_SAVE_NOT_IN_SLOT);
-            }
+                UnsummonPetTemporaryIfAny();
 
             // remove all dyn objects
             RemoveAllDynObjects();
@@ -20484,4 +20463,38 @@ void Player::UpdateFallInformationIfNeed( MovementInfo const& minfo,uint16 opcod
 {
     if (m_lastFallTime >= minfo.fallTime || m_lastFallZ <=minfo.z || opcode == MSG_MOVE_FALL_LAND)
         SetFallInformation(minfo.fallTime, minfo.z);
+}
+
+void Player::UnsummonPetTemporaryIfAny()
+{
+    Pet* pet = GetPet();
+    if(!pet)
+        return;
+
+    if(!m_temporaryUnsummonedPetNumber && pet->isControlled() && !pet->isTemporarySummoned() )
+    {
+        m_temporaryUnsummonedPetNumber = pet->GetCharmInfo()->GetPetNumber();
+        m_oldpetspell = pet->GetUInt32Value(UNIT_CREATED_BY_SPELL);
+    }
+
+    RemovePet(pet, PET_SAVE_AS_CURRENT);
+}
+
+void Player::ResummonPetTemporaryUnSummonedIfAny()
+{
+    if(!m_temporaryUnsummonedPetNumber)
+        return;
+
+    // not resummon in not appropriate state
+    if(IsPetNeedBeTemporaryUnsummoned())
+        return;
+
+    if(GetPetGUID())
+        return;
+
+    Pet* NewPet = new Pet(this);
+    if(!NewPet->LoadPetFromDB(this, 0, m_temporaryUnsummonedPetNumber, true))
+        delete NewPet;
+
+    m_temporaryUnsummonedPetNumber = 0;
 }
