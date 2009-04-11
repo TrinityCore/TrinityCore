@@ -749,20 +749,10 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
 
 void Object::ClearUpdateMask(bool remove)
 {
-    if(!m_uint32Values_mirror || !m_uint32Values)
-    {
-        sLog.outCrash("Object::ClearUpdateMask: Object entry %u (type %u) does not have uint32Values", GetEntry(), GetTypeId());
-        return;
-    }
+    uint32 *temp = m_uint32Values;
 
-    uint32 temp = m_uint32Values[0];
-    temp = m_uint32Values_mirror[0];
+    memcpy(m_uint32Values_mirror, m_uint32Values, m_valuesCount*sizeof(uint32));
 
-    for( uint16 index = 0; index < m_valuesCount; index ++ )
-    {
-        if(m_uint32Values_mirror[index]!= m_uint32Values[index])
-            m_uint32Values_mirror[index] = m_uint32Values[index];
-    }
     if(m_objectUpdated)
     {
         if(remove)
@@ -806,27 +796,23 @@ bool Object::LoadValues(const char* data)
 
 void Object::_SetUpdateBits(UpdateMask *updateMask, Player* /*target*/) const
 {
-    if(!m_uint32Values_mirror || !m_uint32Values)
-    {
-        sLog.outCrash("Object::_SetUpdateBits: Object entry %u (type %u) does not have uint32Values", GetEntry(), GetTypeId());
-        return;
-    }
+    uint32 *value = m_uint32Values;
+    uint32 *mirror = m_uint32Values_mirror;
 
-    uint32 temp = m_uint32Values[0];
-    temp = m_uint32Values_mirror[0];
-
-    for(uint16 index = 0; index < m_valuesCount; ++index)
+    for(uint16 index = 0; index < m_valuesCount; ++index, ++value, ++mirror)
     {
-        if(m_uint32Values_mirror[index]!= m_uint32Values[index])
+        if(*mirror != *value)
             updateMask->SetBit(index);
     }
 }
 
 void Object::_SetCreateBits(UpdateMask *updateMask, Player* /*target*/) const
 {
-    for( uint16 index = 0; index < m_valuesCount; index++ )
+    uint32 *value = m_uint32Values;
+
+    for(uint16 index = 0; index < m_valuesCount; ++index, ++value)
     {
-        if(GetUInt32Value(index) != 0)
+        if(*value)
             updateMask->SetBit(index);
     }
 }
