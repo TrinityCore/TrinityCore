@@ -408,18 +408,18 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/nexus/oculus/boss_varos.cpp
    scripts/zone/nexus/oculus/boss_eregos.cpp
    scripts/zone/nexus/oculus/def_oculus.h
-   scripts/zone/Azjol-Nerub/azjol_nerub/instance_azjol_nerub.cpp
-   scripts/zone/Azjol-Nerub/azjol_nerub/boss_krikthir_the_gatewatcher.cpp
-   scripts/zone/Azjol-Nerub/azjol_nerub/boss_hadronox.cpp
-   scripts/zone/Azjol-Nerub/azjol_nerub/boss_anubarak.cpp
-   scripts/zone/Azjol-Nerub/azjol_nerub/def_azjol_nerub.h
-   scripts/zone/Azjol-Nerub/ahnkahet/instance_ahnkahet.cpp
-   scripts/zone/Azjol-Nerub/ahnkahet/boss_prince_taldaram.cpp
-   scripts/zone/Azjol-Nerub/ahnkahet/boss_elder_nadox.cpp
-   scripts/zone/Azjol-Nerub/ahnkahet/boss_jedoga_shadowseeker.cpp
-   scripts/zone/Azjol-Nerub/ahnkahet/boss_herald_volazj.cpp
-   scripts/zone/Azjol-Nerub/ahnkahet/boss_amanitar.cpp
-   scripts/zone/Azjol-Nerub/ahnkahet/def_ahnkahet.h
+   scripts/zone/azjol_nerub/azjol_nerub/instance_azjol_nerub.cpp
+   scripts/zone/azjol_nerub/azjol_nerub/boss_krikthir_the_gatewatcher.cpp
+   scripts/zone/azjol_nerub/azjol_nerub/boss_hadronox.cpp
+   scripts/zone/azjol_nerub/azjol_nerub/boss_anubarak.cpp
+   scripts/zone/azjol_nerub/azjol_nerub/def_azjol_nerub.h
+   scripts/zone/azjol_nerub/ahnkahet/instance_ahnkahet.cpp
+   scripts/zone/azjol_nerub/ahnkahet/boss_prince_taldaram.cpp
+   scripts/zone/azjol_nerub/ahnkahet/boss_elder_nadox.cpp
+   scripts/zone/azjol_nerub/ahnkahet/boss_jedoga_shadowseeker.cpp
+   scripts/zone/azjol_nerub/ahnkahet/boss_herald_volazj.cpp
+   scripts/zone/azjol_nerub/ahnkahet/boss_amanitar.cpp
+   scripts/zone/azjol_nerub/ahnkahet/def_ahnkahet.h
    scripts/zone/draktharon_keep/instance_drak_tharon_keep.cpp
    scripts/zone/draktharon_keep/boss_trollgore.cpp
    scripts/zone/draktharon_keep/boss_novos.cpp
