@@ -16896,7 +16896,7 @@ void Player::RemoveSpellMods(Spell const* spell)
 
             if (mod && mod->charges == -1 && (mod->lastAffected == spell || mod->lastAffected==NULL))
             {
-                RemoveAurasDueToSpell(mod->spellId);
+                RemoveAurasDueToSpell(mod->spellId, AURA_REMOVE_BY_EXPIRE);
                 if (m_spellMods[i].empty())
                     break;
                 else
