@@ -772,6 +772,7 @@ void AreaAuraEffect::Update(uint32 diff)
         if (GetParentAura()->IsRemoved())
             return;
 
+        // Caster may be deleted due to update
         Unit* caster = GetCaster();
         uint32 tmp_spellId = GetId();
         uint32 tmp_effIndex = GetEffIndex();
@@ -783,12 +784,12 @@ void AreaAuraEffect::Update(uint32 diff)
         bool needFriendly = (m_areaAuraType == AREA_AURA_ENEMY ? false : true);
         if( !caster || caster->hasUnitState(UNIT_STAT_ISOLATED) ||
             !caster->HasAuraEffect(tmp_spellId, tmp_effIndex)         ||
-            caster->IsFriendlyTo(tmp_target) != needFriendly
+            caster->IsFriendlyTo(m_target) != needFriendly
            )
         {
             m_target->RemoveAura(GetParentAura());
         }
-        else if (!caster->IsWithinDistInMap(tmp_target, m_radius))
+        else if (!caster->IsWithinDistInMap(m_target, m_radius))
         {
             if (needFriendly)
             {
@@ -805,17 +806,17 @@ void AreaAuraEffect::Update(uint32 diff)
             m_removeTime = FRIENDLY_AA_REMOVE_TIME;
             if( m_areaAuraType == AREA_AURA_PARTY)         // check if in same sub group
             {
-                if(!tmp_target->IsInPartyWith(caster))
+                if(!m_target->IsInPartyWith(caster))
                     m_target->RemoveAura(GetParentAura());
             }
             else if( m_areaAuraType == AREA_AURA_RAID)
             {
-                if(!tmp_target->IsInRaidWith(caster))
+                if(!m_target->IsInRaidWith(caster))
                     m_target->RemoveAura(GetParentAura());
             }
             else if( m_areaAuraType == AREA_AURA_PET || m_areaAuraType == AREA_AURA_OWNER )
             {
-                if( tmp_target->GetGUID() != caster->GetCharmerOrOwnerGUID() )
+                if( m_target->GetGUID() != caster->GetCharmerOrOwnerGUID() )
                     m_target->RemoveAura(GetParentAura());
             }
         }
@@ -942,7 +943,7 @@ void Aura::_AddAura()
     if(caster && caster->GetTypeId() == TYPEID_PLAYER)
     {
         // Do not apply cooldown for caster passive spells (needed by Reincarnation)
-        if (!(caster->HasSpell(GetId()) && IsPassive()) && !(m_spellProto->Attributes & SPELL_ATTR_DISABLED_WHILE_ACTIVE))
+        if (!(caster->HasSpell(GetId()) && IsPassive()) && m_spellProto->Attributes & SPELL_ATTR_DISABLED_WHILE_ACTIVE)
         {
             Item* castItem = m_castItemGuid ? ((Player*)caster)->GetItemByGuid(m_castItemGuid) : NULL;
             ((Player*)caster)->AddSpellAndCategoryCooldowns(m_spellProto,castItem ? castItem->GetEntry() : 0, NULL,true);
