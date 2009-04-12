@@ -40,6 +40,7 @@ ActiveState::Update(Map &m, NGridType &grid, GridInfo & info, const uint32 &x, c
             ObjectGridStoper stoper(grid);
             stoper.StopN();
             grid.SetGridState(GRID_STATE_IDLE);
+            sLog.outDebug("Grid[%u,%u] on map %u moved to IDLE state", x, y, m.GetId());
         }
         else
         {
@@ -53,7 +54,7 @@ IdleState::Update(Map &m, NGridType &grid, GridInfo &, const uint32 &x, const ui
 {
     m.ResetGridExpiry(grid);
     grid.SetGridState(GRID_STATE_REMOVAL);
-    sLog.outDebug("Grid[%u,%u] on map %u moved to IDLE state", x, y, m.GetId());
+    sLog.outDebug("Grid[%u,%u] on map %u moved to REMOVAL state", x, y, m.GetId());
 }
 
 void
