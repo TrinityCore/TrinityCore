@@ -1145,6 +1145,10 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
 
         void NearTeleportTo(float x, float y, float z, float orientation, bool casting = false);
 
+        void KnockbackFrom(float x, float y, float speedXY, float speedZ);
+        void JumpTo(float speedXY, float speedZ, bool forward = true);
+        void JumpTo(WorldObject *obj, float speedZ);
+
         void SendMonsterStop();
         void SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint32 Time, Player* player = NULL);
         void SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint32 MoveFlags, uint32 time, float speedZ, Player *player = NULL);
@@ -1152,8 +1156,6 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void SendMonsterMoveByPath(Path const& path, uint32 start, uint32 end);
         void SendMonsterMoveWithSpeed(float x, float y, float z, uint32 transitTime = 0, Player* player = NULL);
         void SendMonsterMoveWithSpeedToCurrentDestination(Player* player = NULL);
-
-        virtual void MoveOutOfRange(Player &) {  };
 
         bool isAlive() const { return (m_deathState == ALIVE); };
         bool isDead() const { return ( m_deathState == DEAD || m_deathState == CORPSE ); };

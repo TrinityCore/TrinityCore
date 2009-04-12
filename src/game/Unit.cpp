@@ -13303,6 +13303,61 @@ void Unit::SetPhaseMask(uint32 newPhaseMask, bool update)
                 summon->SetPhaseMask(newPhaseMask,true);
 }
 
+void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ)
+{
+    if(GetTypeId() == TYPEID_UNIT)
+    {
+        GetMotionMaster()->MoveKnockbackFrom(x, y, speedXY, speedZ);
+    }
+    else
+    {
+        float vcos, vsin;
+        GetSinCos(x, y, vsin, vcos);
+
+        WorldPacket data(SMSG_MOVE_KNOCK_BACK, (8+4+4+4+4+4));
+        data.append(GetPackGUID());
+        data << uint32(0);                                      // Sequence
+        data << float(vcos);                                    // x direction
+        data << float(vsin);                                    // y direction
+        data << float(speedXY);                                 // Horizontal speed
+        data << float(-speedZ);                                 // Z Movement speed (vertical)
+
+        ((Player*)this)->GetSession()->SendPacket(&data);
+    }
+}
+
+void Unit::JumpTo(float speedXY, float speedZ, bool forward)
+{
+    float angle = forward ? 0 : M_PI;
+    if(GetTypeId() == TYPEID_UNIT)
+    {
+        GetMotionMaster()->MoveJumpTo(angle, speedXY, speedZ);
+    }
+    else
+    {
+        float vcos = cos(angle+GetOrientation());
+        float vsin = sin(angle+GetOrientation());
+
+        WorldPacket data(SMSG_MOVE_KNOCK_BACK, (8+4+4+4+4+4));
+        data.append(GetPackGUID());
+        data << uint32(0);                                      // Sequence
+        data << float(vcos);                                    // x direction
+        data << float(vsin);                                    // y direction
+        data << float(speedXY);                                 // Horizontal speed
+        data << float(-speedZ);                                 // Z Movement speed (vertical)
+
+        ((Player*)this)->GetSession()->SendPacket(&data);
+    }
+}
+
+void Unit::JumpTo(WorldObject *obj, float speedZ)
+{
+    float x, y, z;
+    obj->GetContactPoint(this, x, y, z);
+    float speedXY = GetExactDistance2d(x, y) * 10.0f / speedZ;
+    GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ);
+}
+
 void Unit::NearTeleportTo( float x, float y, float z, float orientation, bool casting /*= false*/ )
 {
     if(GetTypeId() == TYPEID_PLAYER)
