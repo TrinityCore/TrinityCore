@@ -34,6 +34,7 @@ struct TRINITY_DLL_DECL hyjal_trashAI : public npc_escortAI
         uint8 faction;
         bool useFlyPath;
         uint32 damageTaken;
+        float DummyTarget[3];
 
     //private:
 };
