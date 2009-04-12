@@ -1195,7 +1195,7 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const * spellP
             // spellFamilyName is Ok need check for spellFamilyMask if present
             if(spellProcEvent->spellFamilyMask)
             {
-                if ((spellProcEvent->spellFamilyMask  & procSpell->SpellFamilyFlags ) == 0)
+                if ((spellProcEvent->spellFamilyMask & procSpell->SpellFamilyFlags ) == 0)
                     return false;
                 active = true; // Spell added manualy -> so its active spell
             }
