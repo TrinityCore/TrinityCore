@@ -31,7 +31,6 @@ struct TRINITY_DLL_DECL boss_kazrogalAI : public hyjal_trashAI
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         go = false;    
         pos = 0;
-        Reset();
         SpellEntry *TempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_MARK);
         if(TempSpell && TempSpell->EffectImplicitTargetA[0] != 1)
         {
