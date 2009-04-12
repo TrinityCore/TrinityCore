@@ -161,6 +161,7 @@ ObjectMgr::~ObjectMgr()
 
     for (GuildMap::iterator itr = mGuildMap.begin(); itr != mGuildMap.end(); ++itr)
         delete itr->second;
+    mGuildMap.clear();
 
     for (CachePlayerInfoMap::iterator itr = m_mPlayerInfoMap.begin(); itr != m_mPlayerInfoMap.end(); ++itr)
         delete itr->second;
