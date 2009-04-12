@@ -297,7 +297,7 @@ void ArenaTeam::Disband(WorldSession *session)
     CharacterDatabase.PExecute("DELETE FROM arena_team_member WHERE arenateamid = '%u'", Id); //< this should be alredy done by calling DelMember(memberGuids[j]); for each member
     CharacterDatabase.PExecute("DELETE FROM arena_team_stats WHERE arenateamid = '%u'", Id);
     CharacterDatabase.CommitTransaction();
-    objmgr.RemoveArenaTeam(this);
+    objmgr.RemoveArenaTeam(Id);
 }
 
 void ArenaTeam::Roster(WorldSession *session)
@@ -309,7 +309,7 @@ void ArenaTeam::Roster(WorldSession *session)
     data << uint32(GetMembersSize());                       // members count
     data << uint32(GetType());                              // arena team type?
 
-    for (MemberList::iterator itr = members.begin(); itr != members.end(); ++itr)
+    for (MemberList::const_iterator itr = members.begin(); itr != members.end(); ++itr)
     {
         pl = objmgr.GetPlayer(itr->guid);
 
@@ -361,7 +361,7 @@ void ArenaTeam::NotifyStatsChanged()
 {
     // this is called after a rated match ended
     // updates arena team stats for every member of the team (not only the ones who participated!)
-    for(MemberList::iterator itr = members.begin(); itr != members.end(); ++itr)
+    for(MemberList::const_iterator itr = members.begin(); itr != members.end(); ++itr)
     {
         Player * plr = objmgr.GetPlayer(itr->guid);
         if(plr)
@@ -434,7 +434,7 @@ void ArenaTeam::SetStats(uint32 stat_type, uint32 value)
 
 void ArenaTeam::BroadcastPacket(WorldPacket *packet)
 {
-    for (MemberList::iterator itr = members.begin(); itr != members.end(); ++itr)
+    for (MemberList::const_iterator itr = members.begin(); itr != members.end(); ++itr)
     {
         Player *player = objmgr.GetPlayer(itr->guid);
         if(player)
