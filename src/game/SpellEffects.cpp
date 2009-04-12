@@ -105,7 +105,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectDispel,                                   // 38 SPELL_EFFECT_DISPEL
     &Spell::EffectUnused,                                   // 39 SPELL_EFFECT_LANGUAGE
     &Spell::EffectDualWield,                                // 40 SPELL_EFFECT_DUAL_WIELD
-    &Spell::EffectUnused,                                   // 41 SPELL_EFFECT_JUMP
+    &Spell::EffectJump,                                     // 41 SPELL_EFFECT_JUMP
     &Spell::EffectJump,                                     // 42 SPELL_EFFECT_JUMP2
     &Spell::EffectTeleUnitsFaceCaster,                      // 43 SPELL_EFFECT_TELEPORT_UNITS_FACE_CASTER
     &Spell::EffectLearnSkill,                               // 44 SPELL_EFFECT_SKILL_STEP
@@ -202,7 +202,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //135 SPELL_EFFECT_CALL_PET
     &Spell::EffectHealPct,                                  //136 SPELL_EFFECT_HEAL_PCT
     &Spell::EffectEnergisePct,                              //137 SPELL_EFFECT_ENERGIZE_PCT
-    &Spell::EffectNULL,                                     //138 SPELL_EFFECT_138                      Leap
+    &Spell::EffectJump2,                                    //138 SPELL_EFFECT_138                      Leap
     &Spell::EffectUnused,                                   //139 SPELL_EFFECT_CLEAR_QUEST              (misc - is quest ID)
     &Spell::EffectForceCast,                                //140 SPELL_EFFECT_FORCE_CAST
     &Spell::EffectNULL,                                     //141 SPELL_EFFECT_141                      damage and reduce speed?
@@ -1864,7 +1864,7 @@ void Spell::EffectDummy(uint32 i)
                 return;
             }
             // Death Coil
-            if(m_spellInfo->SpellFamilyFlags[0] & 0x002000)
+            else if(m_spellInfo->SpellFamilyFlags[0] & 0x002000)
             {
                 if(m_caster->IsFriendlyTo(unitTarget))
                 {
@@ -1879,6 +1879,12 @@ void Spell::EffectDummy(uint32 i)
                     int32 bp = damage;
                     m_caster->CastCustomSpell(unitTarget,47632,&bp,NULL,NULL,true);
                 }
+                return;
+            }
+            // Death Grip
+            else if(m_spellInfo->Id == 49560)
+            {
+                unitTarget->CastSpell(m_caster, damage, true);
                 return;
             }
             break;
@@ -2218,7 +2224,16 @@ void Spell::EffectJump(uint32 i)
         return;
     }
 
-    m_caster->NearTeleportTo(x,y,z,o,true);
+    //m_caster->NearTeleportTo(x,y,z,o,true);
+    float speedZ;
+    if(m_spellInfo->EffectMiscValue[i])
+        speedZ = float(m_spellInfo->EffectMiscValue[i])/10;
+    else if(m_spellInfo->EffectMiscValueB[i])
+        speedZ = float(m_spellInfo->EffectMiscValueB[i])/10;
+    else
+        speedZ = 10.0f;
+    float speedXY = m_caster->GetExactDistance2d(x, y) * 10.0f / speedZ;
+    m_caster->GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ);
 }
 
 void Spell::EffectTeleportUnits(uint32 i)
@@ -5748,26 +5763,28 @@ void Spell::EffectKnockBack(uint32 i)
     }
 
     float speedxy = float(m_spellInfo->EffectMiscValue[i])/10;
-    float speedz = float(damage/-10);
+    float speedz = float(damage/10);
 
-    if(unitTarget->GetTypeId() == TYPEID_UNIT)
-    {
-        unitTarget->GetMotionMaster()->MoveJumpFrom(x, y, speedxy, -speedz);
+    unitTarget->KnockbackFrom(x, y, speedxy, speedz);
+}
+
+void Spell::EffectJump2(uint32 i)
+{
+    if(!unitTarget)
         return;
+
+    float speedxy = float(m_spellInfo->EffectMiscValue[i])/10;
+    float speedz = float(damage/10);
+    if(!speedxy)
+    {
+        if(m_targets.getUnitTarget())
+            unitTarget->JumpTo(m_targets.getUnitTarget(), speedz);
     }
-
-    float vcos, vsin;
-    unitTarget->GetSinCos(x, y, vsin, vcos);
-
-    WorldPacket data(SMSG_MOVE_KNOCK_BACK, (8+4+4+4+4+4));
-    data.append(unitTarget->GetPackGUID());
-    data << uint32(0);                                      // Sequence
-    data << float(vcos);                                    // x direction
-    data << float(vsin);                                    // y direction
-    data << float(speedxy);                                 // Horizontal speed
-    data << float(speedz);                                  // Z Movement speed (vertical)
-
-    ((Player*)unitTarget)->GetSession()->SendPacket(&data);
+    else
+    {
+        //1891: Disengage
+        unitTarget->JumpTo(speedxy, speedz, m_spellInfo->SpellIconID != 1891);           
+    }
 }
 
 void Spell::EffectSendTaxi(uint32 i)
