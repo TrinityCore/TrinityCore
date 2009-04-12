@@ -935,7 +935,8 @@ void Aura::_AddAura()
     // set infinity cooldown state for spells
     if(caster && caster->GetTypeId() == TYPEID_PLAYER)
     {
-        if (m_spellProto->Attributes & SPELL_ATTR_DISABLED_WHILE_ACTIVE)
+        // Do not apply cooldown for caster passive spells (needed by Reincarnation)
+        if (!(caster->HasSpell(GetId()) && IsPassive()) && !(m_spellProto->Attributes & SPELL_ATTR_DISABLED_WHILE_ACTIVE))
         {
             Item* castItem = m_castItemGuid ? ((Player*)caster)->GetItemByGuid(m_castItemGuid) : NULL;
             ((Player*)caster)->AddSpellAndCategoryCooldowns(m_spellProto,castItem ? castItem->GetEntry() : 0, NULL,true);
