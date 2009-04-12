@@ -642,6 +642,10 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             }
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_IN_ZONE:
             {
+                // speedup for non-login case
+                if(miscvalue1 && miscvalue1 != achievementCriteria->complete_quests_in_zone.zoneID)
+                    continue;
+
                 uint32 counter =0;
                 for(QuestStatusMap::iterator itr = GetPlayer()->getQuestStatusMap().begin(); itr!=GetPlayer()->getQuestStatusMap().end(); itr++)
                 {
@@ -1057,6 +1061,13 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
         if(IsCompletedCriteria(achievementCriteria,achievement))
             CompletedCriteria(achievementCriteria,achievement);
 
+        // check again the completeness for SUMM and REQ COUNT achievements, 
+        // as they don't depend on the completed criteria but on the sum of the progress of each individual criteria
+        if (achievement->flags & ACHIEVEMENT_FLAG_SUMM)
+        {
+            if (IsCompletedAchievement(achievement))
+                CompletedAchievement(achievement);
+        }
 
         if(AchievementEntryList const* achRefList = achievementmgr.GetAchievementByReferencedId(achievement->ID))
         {
@@ -1202,9 +1213,12 @@ void AchievementMgr::CompletedCriteria(AchievementCriteriaEntry const* criteria,
         CompletedAchievement(achievement);
 }
 
-// TODO: achievement 705 requires 4 criteria to be fulfilled
 bool AchievementMgr::IsCompletedAchievement(AchievementEntry const* entry)
 {
+    // counter can never complete
+    if(entry->flags & ACHIEVEMENT_FLAG_COUNTER)
+        return false;
+
     // for achievement with referenced achievement criterias get from referenced and counter from self
     uint32 achievmentForTestId = entry->refAchievement ? entry->refAchievement : entry->ID;
     uint32 achievmentForTestCount = entry->count;
@@ -1212,10 +1226,32 @@ bool AchievementMgr::IsCompletedAchievement(AchievementEntry const* entry)
     AchievementCriteriaEntryList const* cList = achievementmgr.GetAchievementCriteriaByAchievement(achievmentForTestId);
     if(!cList)
         return false;
-
     uint32 count = 0;
-    bool completed_all = true;
 
+    // For SUMM achievements, we have to count the progress of each criteria of the achievement.
+    // Oddly, the target count is NOT countained in the achievement, but in each individual criteria
+    if (entry->flags & ACHIEVEMENT_FLAG_SUMM)
+    {
+        for(AchievementCriteriaEntryList::const_iterator itr = cList->begin(); itr != cList->end(); ++itr)
+        {
+            AchievementCriteriaEntry const* criteria = *itr;
+
+            CriteriaProgressMap::const_iterator itrProgress = m_criteriaProgress.find(criteria->ID);
+            if(itrProgress == m_criteriaProgress.end())
+                continue;
+
+            CriteriaProgress const* progress = &itrProgress->second;
+            count += progress->counter;
+
+            // for counters, field4 contains the main count requirement
+            if (count >= criteria->raw.count)
+                return true;
+        }
+        return false;
+    }
+
+    // Default case - need complete all or 
+    bool completed_all = true;
     for(AchievementCriteriaEntryList::const_iterator itr = cList->begin(); itr != cList->end(); ++itr)
     {
         AchievementCriteriaEntry const* criteria = *itr;
