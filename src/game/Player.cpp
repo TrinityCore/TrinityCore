@@ -19476,7 +19476,7 @@ void Player::UpdateUnderwaterState( Map* m, float x, float y, float z )
     }
 
     // Allow travel in dark water on taxi or transport
-    if (liquid_status.type & MAP_LIQUID_TYPE_DARK_WATER && !isInFlight() && !(GetUnitMovementFlags()&MOVEMENTFLAG_ONTRANSPORT))
+    if ((liquid_status.type & MAP_LIQUID_TYPE_DARK_WATER) && !isInFlight() && !GetTransport())
         m_MirrorTimerFlags |= UNDERWARER_INDARKWATER;
     else
         m_MirrorTimerFlags &= ~UNDERWARER_INDARKWATER;
