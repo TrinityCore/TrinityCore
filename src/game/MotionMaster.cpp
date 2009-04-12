@@ -245,7 +245,7 @@ void
 MotionMaster::MoveChase(Unit* target, float dist, float angle)
 {
     // ignore movement request if target not exist
-    if(!target)
+    if(!target || target == i_owner)
         return;
 
     i_owner->clearUnitState(UNIT_STAT_FOLLOW);
@@ -271,7 +271,7 @@ void
 MotionMaster::MoveFollow(Unit* target, float dist, float angle)
 {
     // ignore movement request if target not exist
-    if(!target)
+    if(!target || target == i_owner)
         return;
 
     i_owner->addUnitState(UNIT_STAT_FOLLOW);
