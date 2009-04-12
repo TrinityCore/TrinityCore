@@ -4074,14 +4074,14 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
             {
                 if (m_caster->GetTypeId()!=TYPEID_PLAYER)
                     return;
+                SpellEntry const *spellInfo = NULL;
                 uint32 stack = 0;
-                int32 maxStack = 0;
+
                 if (AuraEffect * aur = unitTarget->GetAura(SPELL_AURA_MOD_RESISTANCE,SPELLFAMILY_WARRIOR,SPELLFAMILYFLAG_WARRIOR_SUNDERARMOR, 0, 0, m_caster->GetGUID()))
                 {
                     aur->GetParentAura()->RefreshAura();
+                    spellInfo = aur->GetSpellProto();
                     stack = aur->GetParentAura()->GetStackAmount();
-                    maxStack = aur->GetSpellProto()->StackAmount;
-                    break;
                 }
 
                 for(int j = 0; j < 3; j++)
@@ -4093,7 +4093,7 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
                     }
                 }
 
-                if(stack < maxStack)
+                if(!spellInfo)
                 {
                     // get highest rank of the Sunder Armor spell
                     const PlayerSpellMap& sp_list = ((Player*)m_caster)->GetSpellMap();
@@ -4103,19 +4103,22 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
                         if(!itr->second->active || itr->second->disabled || itr->second->state == PLAYERSPELL_REMOVED)
                             continue;
 
-                        SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
-                        if (!spellInfo)
+                        SpellEntry const *spellProto = sSpellStore.LookupEntry(itr->first);
+                        if (!spellProto)
                             continue;
 
-                        if (spellInfo->SpellFamilyFlags.IsEqual(SPELLFAMILYFLAG_WARRIOR_SUNDERARMOR)
-                            && spellInfo->Id != m_spellInfo->Id
-                            && spellInfo->SpellFamilyName == SPELLFAMILY_WARRIOR)
+                        if (spellProto->SpellFamilyFlags[0] & SPELLFAMILYFLAG_WARRIOR_SUNDERARMOR
+                            && spellProto->Id != m_spellInfo->Id
+                            && spellProto->SpellFamilyName == SPELLFAMILY_WARRIOR)
                         {
-                            m_caster->CastSpell(unitTarget, spellInfo, true);
+                            spellInfo = spellProto;
                             break;
                         }
                     }
                 }
+                if (!spellInfo)
+                    break;
+                m_caster->CastSpell(unitTarget, spellInfo, true);
                 if (stack)
                     spell_bonus += stack * CalculateDamage(2, unitTarget);
             }

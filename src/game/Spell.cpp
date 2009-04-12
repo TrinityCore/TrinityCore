@@ -307,6 +307,7 @@ Spell::Spell( Unit* Caster, SpellEntry const *info, bool triggered, uint64 origi
     m_triggeringContainer = triggeringContainer;
     m_referencedFromCurrentSpell = false;
     m_executedCurrently = false;
+    m_needComboPoints = NeedsComboPoints(m_spellInfo);
     m_delayStart = 0;
     m_delayAtDamageCount = 0;
 
@@ -945,6 +946,10 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         if (target->reflectResult == SPELL_MISS_NONE)       // If reflected spell hit caster -> do all effect on him
             DoSpellHitOnUnit(m_caster, mask);
     }
+    // Do not take combo points on dodge
+    if (m_needComboPoints && m_targets.getUnitTargetGUID() == target->targetGUID)
+        if( missInfo != SPELL_MISS_NONE && missInfo != SPELL_MISS_MISS)
+            m_needComboPoints = false;
     /*else //TODO: This is a hack. need fix
     {
         uint32 tempMask = 0;
@@ -2184,6 +2189,10 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect* triggeredByAura
     // Prepare data for triggers
     prepareDataForTriggerSystem();
 
+    // Set combo point requirement
+    if (m_IsTriggeredSpell || m_CastItem || m_caster->GetTypeId()!=TYPEID_PLAYER)
+        m_needComboPoints = false;
+
     // calculate cast time (calculated after first CheckCast check to prevent charge counting for first CheckCast fail)
     m_casttime = GetSpellCastTime(m_spellInfo, this);
 
@@ -2418,23 +2427,8 @@ void Spell::handle_immediate()
     // process immediate effects (items, ground, etc.) also initialize some variables
     _handle_immediate_phase();
 
-    bool checkCp =
-        !m_IsTriggeredSpell && !m_CastItem
-        && NeedsComboPoints(m_spellInfo)
-        && m_caster->GetTypeId()==TYPEID_PLAYER;
-    bool comboPoints = false;
     for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin();ihit != m_UniqueTargetInfo.end();++ihit)
-    {
         DoAllEffectOnTarget(&(*ihit));
-        // Take combo points after effects handling (combo points are used in effect handling)
-        if(checkCp)
-            if(ihit->targetGUID == m_targets.getUnitTargetGUID()
-                && (ihit->missCondition == SPELL_MISS_NONE || ihit->missCondition == SPELL_MISS_MISS))
-                comboPoints=true;
-    }
-    // Take for real after all targets are processed
-    if (comboPoints)
-        ((Player*)m_caster)->ClearComboPoints();
 
     for(std::list<GOTargetInfo>::iterator ihit= m_UniqueGOTargetInfo.begin();ihit != m_UniqueGOTargetInfo.end();++ihit)
         DoAllEffectOnTarget(&(*ihit));
@@ -2552,6 +2546,10 @@ void Spell::_handle_immediate_phase()
 
 void Spell::_handle_finish_phase()
 {
+    // Take for real after all targets are processed
+    if (m_needComboPoints)
+        ((Player*)m_caster)->ClearComboPoints();
+
     // spell log
     if(m_needSpellLog)
         SendLogExecute();
