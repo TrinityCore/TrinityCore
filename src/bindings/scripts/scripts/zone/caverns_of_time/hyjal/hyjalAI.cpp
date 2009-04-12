@@ -84,18 +84,34 @@ float InfernalPos[8][3]=//spawn points for the infernals in the horde base
     {5482.39,    -2689.19,    1481.09}
 };
 
-float InfernalSPWP[10][3]=//spawn points for the infernals in the horde base used in the cleaning wave
+float InfernalSPWP[26][4]=//spawn points for the infernals in the horde base used in the cleaning wave
 {
-    {5528.5,    -2771.23,    1494.08},
-    {5471.41,    -2711.17,    1483.97},
-    {5464.08,    -2653.9,    1482.67},
-    {5550.84,    -2633.8,    1484.08},
-    {5579.86,    -2704.86,    1489.33},
-    {5589.67,    -2655.5,    1490.15},
-    {5432.36,    -2744.81,    1486.25},
-    {5463.14,    -2857.41,    1512.45},
-    {5534.31,    -2774.58,    1494.89},
-    {5524.36,    -2735.52,    1484.16}
+    {5490.96, -2718.72, 1482.96, 0.49773},
+    {5449.51, -2723.32, 1485.69, 2.69685},
+    {5520.83, -2624.68, 1483.82, 1.20459},
+    {5558.28, -2629.26, 1485.76, 0.37992},
+    {5567.97, -2758.69, 1494.10, 5.04125},
+    {5384.90, -2793.47, 1503.90, 5.55412},
+    {5495.33, -2814.06, 1501.56, 1.12055},
+    {5472.63, -2929.39, 1538.31, 1.95777},
+    {5334.72, -2952.29, 1534.34, 0.50869},
+    {5398.36, -2872.46, 1512.38, 0.76787},
+    {5514.39, -2768.63, 1492.30, 1.55721},
+    {5598.91, -2703.75, 1495.64, 2.56644},
+    {5467.80, -2655.93, 1482.27, 0.85819},
+    {5399.83, -2985.24, 1545.04, 5.92559},
+    {5232.13, -2967.05, 1553.09, 5.41351},
+    {5272.02, -3082.52, 1567.09, 3.40681},
+    {5343.26, -3120.71, 1582.92, 3.16727},
+    {5371.26, -3175.24, 1587.41, 6.10466},
+    {5434.67, -3177.91, 1579.25, 2.77850},
+    {5237.39, -3149.25, 1593.59, 0.83855},
+    {5202.15, -3016.64, 1566.28, 3.31256},
+    {5302.54, -2914.37, 1528.53, 3.37146},
+    {5439.04, -2834.81, 1508.80, 2.14231},
+    {5421.33, -2771.04, 1494.28, 6.06223},
+    {5549.76, -2692.93, 1482.68, 2.19414},
+    {5459.78, -2755.71, 1490.68, 1.05139}
 };
 
 float VeinPos[14][8]=//spawn points of the ancient gem veins
@@ -114,6 +130,15 @@ float VeinPos[14][8]=//spawn points of the ancient gem veins
     {5265.13,    -3177.27,    1616.22,    0.813604,    0,    0,    0.395674,    0.918391},    //horde
     {5374.3,    -3420.59,    1653.43,    1.45762,    0,    0,    0.665981,    0.745969},    //horde
     {5441.54,    -3321.59,    1651.55,    0.258306,    0,    0,    0.128794,    0.991671}   //horde
+};
+
+float AllianceOverrunGargPos[5][4]=//gargoyle spawn points in the alliance overrun
+{
+    {5279.94, -2049.68, 1311.38, 0},//garg1
+    {5289.15, -2219.06, 1291.12, 0},//garg2
+    {5202.07, -2136.10, 1305.07, 2.8},//garg3
+    {5071.52, -2425.63, 1454.48, 5.54},//garg4
+    {5120.65, -2467.92, 1463.93, 2.54}//garg5
 };
 
 float AllianceFirePos[92][8]=//spawn points for the fire visuals (GO) in the alliance base
@@ -1142,7 +1167,7 @@ void hyjalAI::DoOverrun(uint32 faction, const uint32 diff)
                     pUnit->setActive(true);
                 }
             }
-            for(uint8 i = 0; i < 5; i++)//summon 5 abominations
+            for(uint8 i = 0; i < 3; i++)//summon 3 abominations
             {
                 uint8 r = rand()%4;
                 Creature* pUnit = m_creature->SummonCreature(ABOMINATION, AllianceBase[r][0]+irand(-15,15), AllianceBase[r][1]+irand(-15,15), AllianceBase[r][2], 0, TEMPSUMMON_MANUAL_DESPAWN, 2*60*1000);
@@ -1156,10 +1181,10 @@ void hyjalAI::DoOverrun(uint32 faction, const uint32 diff)
             }
             for(uint8 i = 0; i < 5; i++)//summon 5 gargoyles
             {
-                uint8 r = rand()%4;
-                Creature* pUnit = m_creature->SummonCreature(GARGOYLE, AllianceBase[r][0]+irand(-15,15), AllianceBase[r][1]+irand(-15,15), AllianceBase[r][2], 0, TEMPSUMMON_MANUAL_DESPAWN, 2*60*1000);
+                Creature* pUnit = m_creature->SummonCreature(GARGOYLE, AllianceOverrunGargPos[i][0], AllianceOverrunGargPos[i][1], AllianceOverrunGargPos[i][2], AllianceOverrunGargPos[i][3], TEMPSUMMON_MANUAL_DESPAWN, 2*60*1000);
                 if(pUnit)
                 {
+                    pUnit->SetHomePosition(AllianceOverrunGargPos[i][0], AllianceOverrunGargPos[i][1], AllianceOverrunGargPos[i][2], AllianceOverrunGargPos[i][3]);
                     ((hyjal_trashAI*)pUnit->AI())->faction = Faction;                    
                     ((hyjal_trashAI*)pUnit->AI())->IsOverrun = true;
                     ((hyjal_trashAI*)pUnit->AI())->OverrunType = i;
@@ -1171,6 +1196,42 @@ void hyjalAI::DoOverrun(uint32 faction, const uint32 diff)
             for(uint8 i = 0; i < 65; i++)//summon fires
                 m_creature->SummonGameObject(FLAMEOBJECT,HordeFirePos[i][0],HordeFirePos[i][1],HordeFirePos[i][2],HordeFirePos[i][3],HordeFirePos[i][4],HordeFirePos[i][5],HordeFirePos[i][6],HordeFirePos[i][7],0);
             
+            for(uint8 i = 0; i < 26; i++)//summon infernals
+            {
+                Creature* pUnit = m_creature->SummonCreature(GIANT_INFERNAL, InfernalSPWP[i][0], InfernalSPWP[i][1], InfernalSPWP[i][2], InfernalSPWP[i][3], TEMPSUMMON_MANUAL_DESPAWN, 2*60*1000);
+                if(pUnit)
+                {
+                    pUnit->SetHomePosition(InfernalSPWP[i][0], InfernalSPWP[i][1], InfernalSPWP[i][2], InfernalSPWP[i][3]);
+                    ((hyjal_trashAI*)pUnit->AI())->faction = Faction;                    
+                    ((hyjal_trashAI*)pUnit->AI())->IsOverrun = true;
+                    ((hyjal_trashAI*)pUnit->AI())->OverrunType = i;
+                    pUnit->setActive(true);
+                }            
+            }
+            for(uint8 i = 0; i < 25; i++)//summon 25 ghouls
+            {
+                uint8 r = rand()%4;
+                Creature* pUnit = m_creature->SummonCreature(GHOUL, HordeBase[r][0]+irand(-15,15), HordeBase[r][1]+irand(-15,15), HordeBase[r][2], 0, TEMPSUMMON_MANUAL_DESPAWN, 2*60*1000);
+                if(pUnit)
+                {
+                    ((hyjal_trashAI*)pUnit->AI())->faction = Faction;                    
+                    ((hyjal_trashAI*)pUnit->AI())->IsOverrun = true;
+                    ((hyjal_trashAI*)pUnit->AI())->OverrunType = i;
+                    pUnit->setActive(true);
+                }
+            }
+            for(uint8 i = 0; i < 5; i++)//summon 5 abominations
+            {
+                uint8 r = rand()%4;
+                Creature* pUnit = m_creature->SummonCreature(ABOMINATION, HordeBase[r][0]+irand(-15,15), HordeBase[r][1]+irand(-15,15), HordeBase[r][2], 0, TEMPSUMMON_MANUAL_DESPAWN, 2*60*1000);
+                if(pUnit)
+                {
+                    ((hyjal_trashAI*)pUnit->AI())->faction = Faction;                    
+                    ((hyjal_trashAI*)pUnit->AI())->IsOverrun = true;
+                    ((hyjal_trashAI*)pUnit->AI())->OverrunType = i;
+                    pUnit->setActive(true);
+                }
+            }
             break;
     }
 }

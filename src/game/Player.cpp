@@ -17987,7 +17987,7 @@ bool Player::canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList, bool
             return false;
     }
 
-    if(u->GetVisibility() == VISIBILITY_OFF)
+    if(u->GetVisibility() == VISIBILITY_OFF || u->m_invisibilityMask )
     {
         // GMs see any players, not higher GMs and all units
         if(isGameMaster())
