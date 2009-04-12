@@ -1546,6 +1546,7 @@ void World::SetInitialWorldSettings()
     }
     else
     {
+        sLog.SetLogDB(false);
         sLog.SetLogDBLater(false);
     }
 
