@@ -2594,6 +2594,9 @@ void Spell::EffectHealPct( uint32 /*i*/ )
             return;
 
         uint32 addhealth = unitTarget->GetMaxHealth() * damage / 100;
+        if(Player* modOwner = m_caster->GetSpellModOwner())
+            modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DAMAGE, addhealth, this);
+
         caster->SendHealSpellLog(unitTarget, m_spellInfo->Id, addhealth, false);
 
         int32 gain = unitTarget->ModifyHealth( int32(addhealth) );
