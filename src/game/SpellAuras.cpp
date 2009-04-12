@@ -764,15 +764,18 @@ void AreaAuraEffect::Update(uint32 diff)
     }
     else                                                    // aura at non-caster
     {
-        Unit * tmp_target = m_target;
+        // WARNING: the aura may get deleted during the update
+        // DO NOT access its members after update!
+        AuraEffect::Update(diff);
+
+        // Speedup - no need to do more checks
+        if (GetParentAura()->IsRemoved())
+            return;
+
         Unit* caster = GetCaster();
         uint32 tmp_spellId = GetId();
         uint32 tmp_effIndex = GetEffIndex();
         uint64 tmp_guid = GetCasterGUID();
-
-        // WARNING: the aura may get deleted during the update
-        // DO NOT access its members after update!
-        AuraEffect::Update(diff);
 
         // remove aura if out-of-range from caster (after teleport for example)
         // or caster is isolated or caster no longer has the aura
@@ -841,7 +844,10 @@ void PersistentAreaAuraEffect::Update(uint32 diff)
         remove = true;
 
     if(remove)
+    {
         m_target->RemoveAura(GetParentAura());
+        return;
+    }
 
     AuraEffect::Update(diff);
 }
