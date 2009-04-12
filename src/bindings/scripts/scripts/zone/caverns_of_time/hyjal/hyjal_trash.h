@@ -5,7 +5,7 @@
 #include "def_hyjal.h"
 #include "../../../npc/npc_escortAI.h"
 
-#define MINRAIDDAMAGE  1000000//minimal damage before trash can drop loot and reputation
+#define MINRAIDDAMAGE  700000//minimal damage before trash can drop loot and reputation, resets if faction leader dies
 
 struct TRINITY_DLL_DECL hyjal_trashAI : public npc_escortAI
 {
