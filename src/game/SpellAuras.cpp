@@ -607,29 +607,39 @@ void Aura::Update(uint32 diff)
         m_duration -= diff;
         if (m_duration < 0)
             m_duration = 0;
-        m_timeCla -= diff;
 
         // all spells with manaPerSecond/manaPerSecondPerLevel have aura in effect 0
+        if(m_timeCla > 0)
+            m_timeCla -= diff;
         if(m_timeCla <= 0)
         {
             if(Unit* caster = GetCaster())
             {
-                Powers powertype = Powers(m_spellProto->powerType);
-                int32 manaPerSecond = m_spellProto->manaPerSecond + m_spellProto->manaPerSecondPerLevel * caster->getLevel();
-                m_timeCla = 1000;
-                if (manaPerSecond)
+                if(int32 manaPerSecond = m_spellProto->manaPerSecond + m_spellProto->manaPerSecondPerLevel * caster->getLevel())
                 {
-                    if(powertype==POWER_HEALTH)
+                    m_timeCla = 1000;
+
+                    Powers powertype = Powers(m_spellProto->powerType);
+                    if(powertype == POWER_HEALTH)
                     {
-                        if (caster->GetHealth()>manaPerSecond)
+                        if (caster->GetHealth() > manaPerSecond)
                             caster->ModifyHealth(-manaPerSecond);
                         else
+                        {
                             m_target->RemoveAura(this);
+                            return;
+                        }
                     }
-                    else if (caster->GetPower(powertype)>=manaPerSecond)
-                        caster->ModifyPower(powertype,-manaPerSecond);
                     else
-                        m_target->RemoveAura(this);
+                    {
+                        if (caster->GetPower(powertype) >= manaPerSecond)
+                            caster->ModifyPower(powertype, -manaPerSecond);
+                        else
+                        {
+                            m_target->RemoveAura(this);
+                            return;
+                        }
+                    }
                 }
             }
         }
@@ -825,32 +835,21 @@ void AreaAuraEffect::Update(uint32 diff)
 
 void PersistentAreaAuraEffect::Update(uint32 diff)
 {
-    bool remove = false;
+    if(Unit *caster = GetCaster())
+    {
+        if(DynamicObject *dynObj = caster->GetDynObject(GetId(), GetEffIndex()))
+        {
+            if(m_target->IsWithinDistInMap(dynObj, dynObj->GetRadius()))
+            {
+                AuraEffect::Update(diff);
+                return;
+            }
+        }
+    }
 
     // remove the aura if its caster or the dynamic object causing it was removed
     // or if the target moves too far from the dynamic object
-    Unit *caster = GetCaster();
-    if (caster)
-    {
-        DynamicObject *dynObj = caster->GetDynObject(GetId(), GetEffIndex());
-        if (dynObj)
-        {
-            if (!m_target->IsWithinDistInMap(dynObj, dynObj->GetRadius()))
-                remove = true;
-        }
-        else
-            remove = true;
-    }
-    else
-        remove = true;
-
-    if(remove)
-    {
-        m_target->RemoveAura(GetParentAura());
-        return;
-    }
-
-    AuraEffect::Update(diff);
+    m_target->RemoveAura(GetParentAura());
 }
 
 void AuraEffect::ApplyModifier(bool apply, bool Real)
