@@ -1149,8 +1149,6 @@ WorldObject::WorldObject()
 
     m_name = "";
 
-    mSemaphoreTeleport  = false;
-
     m_isActive          = false;
     IsTempWorldObject   = false;
 }
