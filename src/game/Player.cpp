@@ -3240,7 +3240,6 @@ void Player::_LoadSpellCooldowns(QueryResult *result)
     // some cooldowns can be already set at aura loading...
 
     //QueryResult *result = CharacterDatabase.PQuery("SELECT spell,item,time FROM character_spell_cooldown WHERE guid = '%u'",GetGUIDLow());
-
     if(result)
     {
         time_t curTime = time(NULL);
