@@ -125,8 +125,8 @@ struct TRINITY_DLL_DECL instance_gruuls_lair : public ScriptedInstance
                 if(data == DONE) HandleGameObject(MaulgarDoor, true);
                 Encounters[0] = data; break;
             case DATA_GRUULEVENT:
-                if(data == IN_PROGRESS) HandleGameObject(GruulDoor, true);
-                else HandleGameObject(GruulDoor, false);
+                if(data == IN_PROGRESS) HandleGameObject(GruulDoor, false);
+                else HandleGameObject(GruulDoor, true);
                 Encounters[1] = data; break;
         }
 
