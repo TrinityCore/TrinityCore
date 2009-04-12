@@ -240,7 +240,7 @@ bool WorldSession::Update(uint32 /*diff*/)
 void WorldSession::LogoutPlayer(bool Save)
 {
     // finish pending transfers before starting the logout
-    while(_player && _player->IsBeingTeleported())
+    while(_player && _player->IsBeingTeleportedFar())
         HandleMoveWorldportAckOpcode();
 
     m_playerLogout = true;
