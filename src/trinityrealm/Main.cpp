@@ -187,6 +187,7 @@ extern int main(int argc, char **argv)
     {
         // everything successful - set var to enable DB logging once startup finished.
         sLog.SetLogDBLater(true);
+        sLog.SetLogDB(false);
         // ensure we've set realm to 0 (realmd realmid)
         sLog.SetRealmID(0);
     }
@@ -270,6 +271,11 @@ extern int main(int argc, char **argv)
         sLog.SetLogDBLater(false);
         // login db needs thread for logging
         sLog.SetLogDB(true);
+    }
+    else
+    {
+        sLog.SetLogDB(false);
+        sLog.SetLogDBLater(false);
     }
 
     ///- Wait for termination signal
