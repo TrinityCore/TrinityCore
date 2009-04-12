@@ -2438,14 +2438,6 @@ void AuraEffect::HandleAuraDummy(bool apply, bool Real)
                         caster->CastSpell(m_target, GetAmount(), true);
                     return;
                 }
-                // Focused Magic
-                if(m_spellProto->Id == 54646)
-                {
-                    // only on remove by crit
-                    if(caster && GetParentAura()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
-                        caster->CastSpell(caster,54648, true);
-                    return;
-                }
                 break;
         }
     }
