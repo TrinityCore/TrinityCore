@@ -1638,6 +1638,7 @@ struct WorldMapAreaEntry
     float   x1;                                             // 6
     float   x2;                                             // 7
     int32   virtual_map_id;                                 // 8 -1 (map_id have correct map) other: virtual map where zone show (map_id - where zone in fact internally)
+    // int32   dungeonMap_id;                               // 9 pointer to DungeonMap.dbc (owerride x1,x2,y1,y2 coordinates)
 };
 
 struct WorldSafeLocsEntry
