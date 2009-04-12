@@ -455,6 +455,7 @@ class TRINITY_DLL_SPEC WorldObject : public Object
         float GetDistanceSq(const float &x, const float &y, const float &z) const;
         float GetDistance2d(const WorldObject* obj) const;
         float GetDistance2d(const float x, const float y) const;
+        float GetExactDistance2d(const float x, const float y) const;
         float GetDistanceZ(const WorldObject* obj) const;
         bool IsInMap(const WorldObject* obj) const
         {

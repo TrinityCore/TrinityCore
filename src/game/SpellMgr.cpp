@@ -39,18 +39,10 @@ SpellMgr::SpellMgr()
             case SPELL_EFFECT_PERSISTENT_AREA_AURA: //27
             case SPELL_EFFECT_SUMMON:               //28
             case SPELL_EFFECT_TRIGGER_MISSILE:      //32
-            //case SPELL_EFFECT_SUMMON_WILD:          //41 not 303
-            //case SPELL_EFFECT_SUMMON_GUARDIAN:      //42 not 303
             case SPELL_EFFECT_TRANS_DOOR:           //50 summon object
             case SPELL_EFFECT_SUMMON_PET:           //56
             case SPELL_EFFECT_ADD_FARSIGHT:         //72
-            //case SPELL_EFFECT_SUMMON_POSSESSED:     //73
-            //case SPELL_EFFECT_SUMMON_TOTEM:         //74
             case SPELL_EFFECT_SUMMON_OBJECT_WILD:   //76
-            //case SPELL_EFFECT_SUMMON_TOTEM_SLOT1:   //87
-            //case SPELL_EFFECT_SUMMON_TOTEM_SLOT2:   //88
-            //case SPELL_EFFECT_SUMMON_TOTEM_SLOT3:   //89
-            //case SPELL_EFFECT_SUMMON_TOTEM_SLOT4:   //90
             //case SPELL_EFFECT_SUMMON_CRITTER:       //97 not 303
             case SPELL_EFFECT_SUMMON_OBJECT_SLOT1:  //104
             case SPELL_EFFECT_SUMMON_OBJECT_SLOT2:  //105
@@ -84,6 +76,7 @@ SpellMgr::SpellMgr()
             case SPELL_EFFECT_APPLY_AREA_AURA_ENEMY:
             case SPELL_EFFECT_APPLY_AREA_AURA_PET:
             case SPELL_EFFECT_APPLY_AREA_AURA_OWNER:
+            case SPELL_EFFECT_JUMP2:                //42
                 EffectTargetType[i] = SPELL_REQUIRE_CASTER;
                 break;
             default:

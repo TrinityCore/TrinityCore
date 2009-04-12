@@ -305,7 +305,7 @@ MotionMaster::MovePoint(uint32 id, float x, float y, float z)
     }
 }
 
-void MotionMaster::MoveJumpFrom(float srcX, float srcY, float speedXY, float speedZ)
+void MotionMaster::MoveKnockbackFrom(float srcX, float srcY, float speedXY, float speedZ)
 {
     //this function may make players fall below map
     if(i_owner->GetTypeId()==TYPEID_PLAYER)
@@ -314,6 +314,18 @@ void MotionMaster::MoveJumpFrom(float srcX, float srcY, float speedXY, float spe
     float x, y, z;
     float dist = speedXY * speedZ * 0.1f;
     i_owner->GetNearPoint(i_owner, x, y, z, i_owner->GetObjectSize(), dist, i_owner->GetAngle(srcX, srcY) + M_PI);
+    MoveJump(x, y, z, speedXY, speedZ);
+}
+
+void MotionMaster::MoveJumpTo(float angle, float speedXY, float speedZ)
+{
+    //this function may make players fall below map
+    if(i_owner->GetTypeId()==TYPEID_PLAYER)
+        return;
+
+    float x, y, z;
+    float dist = speedXY * speedZ * 0.1f;
+    i_owner->GetClosePoint(x, y, z, i_owner->GetObjectSize(), dist, angle);
     MoveJump(x, y, z, speedXY, speedZ);
 }
 
