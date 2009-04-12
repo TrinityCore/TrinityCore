@@ -116,6 +116,15 @@ float VeinPos[14][8]=//spawn points of the ancient gem veins
     {5441.54,    -3321.59,    1651.55,    0.258306,    0,    0,    0.128794,    0.991671}   //horde
 };
 
+float AllianceOverrunGargPos[5][4]=//gargoyle spawn points in the alliance overrun
+{
+    {5279.94, -2049.68, 1311.38, 0},//garg1
+    {5289.15, -2219.06, 1291.12, 0},//garg2
+    {5202.07, -2136.10, 1305.07, 2.8},//garg3
+    {5071.52, -2425.63, 1454.48, 5.54},//garg4
+    {5120.65, -2467.92, 1463.93, 2.54}//garg5
+};
+
 float AllianceFirePos[92][8]=//spawn points for the fire visuals (GO) in the alliance base
 {
     {5039.9,    -1796.84,    1323.88,    2.59222,    0,    0,    0.962511,    0.271243},
@@ -1141,7 +1150,7 @@ void hyjalAI::DoOverrun(uint32 faction, const uint32 diff)
                     pUnit->setActive(true);
                 }
             }
-            for(uint8 i = 0; i < 5; i++)//summon 5 abominations
+            for(uint8 i = 0; i < 3; i++)//summon 3 abominations
             {
                 uint8 r = rand()%4;
                 Creature* pUnit = m_creature->SummonCreature(ABOMINATION, AllianceBase[r][0]+irand(-15,15), AllianceBase[r][1]+irand(-15,15), AllianceBase[r][2], 0, TEMPSUMMON_MANUAL_DESPAWN, 2*60*1000);
@@ -1156,9 +1165,10 @@ void hyjalAI::DoOverrun(uint32 faction, const uint32 diff)
             for(uint8 i = 0; i < 5; i++)//summon 5 gargoyles
             {
                 uint8 r = rand()%4;
-                Creature* pUnit = m_creature->SummonCreature(GARGOYLE, AllianceBase[r][0]+irand(-15,15), AllianceBase[r][1]+irand(-15,15), AllianceBase[r][2], 0, TEMPSUMMON_MANUAL_DESPAWN, 2*60*1000);
+                Creature* pUnit = m_creature->SummonCreature(GARGOYLE, AllianceOverrunGargPos[i][0], AllianceOverrunGargPos[i][1], AllianceOverrunGargPos[i][2], AllianceOverrunGargPos[i][3], TEMPSUMMON_MANUAL_DESPAWN, 2*60*1000);
                 if(pUnit)
                 {
+                    pUnit->SetHomePosition(AllianceOverrunGargPos[i][0], AllianceOverrunGargPos[i][1], AllianceOverrunGargPos[i][2], AllianceOverrunGargPos[i][3]);
                     ((hyjal_trashAI*)pUnit->AI())->faction = Faction;                    
                     ((hyjal_trashAI*)pUnit->AI())->IsOverrun = true;
                     ((hyjal_trashAI*)pUnit->AI())->OverrunType = i;
