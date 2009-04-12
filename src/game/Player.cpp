@@ -4629,24 +4629,24 @@ float Player::GetRatingBonusValue(CombatRating cr) const
 
 uint32 Player::GetMeleeCritDamageReduction(uint32 damage) const
 {
-    float melee  = GetRatingBonusValue(CR_CRIT_TAKEN_MELEE)*2.0f;
-    if (melee>25.0f) melee = 25.0f;
+    float melee  = GetRatingBonusValue(CR_CRIT_TAKEN_MELEE)*2.2f;
+    if (melee>33.0f) melee = 33.0f;
     return uint32 (melee * damage /100.0f);
 }
 
 uint32 Player::GetRangedCritDamageReduction(uint32 damage) const
 {
-    float ranged = GetRatingBonusValue(CR_CRIT_TAKEN_RANGED)*2.0f;
-    if (ranged>25.0f) ranged=25.0f;
+    float ranged = GetRatingBonusValue(CR_CRIT_TAKEN_RANGED)*2.2f;
+    if (ranged>33.0f) ranged=33.0f;
     return uint32 (ranged * damage /100.0f);
 }
 
 uint32 Player::GetSpellCritDamageReduction(uint32 damage) const
 {
-    float spell = GetRatingBonusValue(CR_CRIT_TAKEN_SPELL)*2.0f;
-    // In wow script resilience limited to 25%
-    if (spell>25.0f)
-        spell = 25.0f;
+    float spell = GetRatingBonusValue(CR_CRIT_TAKEN_SPELL)*2.2f;
+    // In wow script resilience limited to 33%
+    if (spell>33.0f)
+        spell = 33.0f;
     return uint32 (spell * damage / 100.0f);
 }
 
