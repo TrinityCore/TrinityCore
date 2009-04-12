@@ -646,10 +646,10 @@ void LoadDatabase()
 
     // Load EventAI Text
     outstring_log("TSCR: Loading EventAI Texts...");
-    LoadTrinityStrings(TScriptDB,"eventai_texts",-1,1+(TEXT_SOURCE_RANGE));
+    LoadTrinityStrings(TScriptDB,"creature_ai_texts",-1,1+(TEXT_SOURCE_RANGE));
 
     // Gather Additional data from EventAI Texts
-    result = TScriptDB.PQuery("SELECT entry, sound, type, language, emote FROM eventai_texts");
+    result = TScriptDB.PQuery("SELECT entry, sound, type, language, emote FROM creature_ai_texts");
 
     outstring_log("TSCR: Loading EventAI Texts additional data...");
     if (result)
@@ -671,27 +671,27 @@ void LoadDatabase()
 
             if (i >= 0)
             {
-                error_db_log("TSCR: Entry %i in table `eventai_texts` is not a negative value.",i);
+                error_db_log("TSCR: Entry %i in table `creature_ai_texts` is not a negative value.",i);
                 continue;
             }
 
             if (i <= TEXT_SOURCE_RANGE)
             {
-                error_db_log("TSCR: Entry %i in table `eventai_texts` is out of accepted entry range for table.",i);
+                error_db_log("TSCR: Entry %i in table `creature_ai_texts` is out of accepted entry range for table.",i);
                 continue;
             }
 
             if (temp.SoundId)
             {
                 if (!GetSoundEntriesStore()->LookupEntry(temp.SoundId))
-                    error_db_log("TSCR: Entry %i in table `eventai_texts` has soundId %u but sound does not exist.",i,temp.SoundId);
+                    error_db_log("TSCR: Entry %i in table `creature_ai_texts` has soundId %u but sound does not exist.",i,temp.SoundId);
             }
 
             if (!GetLanguageDescByID(temp.Language))
-                error_db_log("TSCR: Entry %i in table `eventai_texts` using Language %u but Language does not exist.",i,temp.Language);
+                error_db_log("TSCR: Entry %i in table `creature_ai_texts` using Language %u but Language does not exist.",i,temp.Language);
 
             if (temp.Type > CHAT_TYPE_BOSS_WHISPER)
-                error_db_log("TSCR: Entry %i in table `eventai_texts` has Type %u but this Chat Type does not exist.",i,temp.Type);
+                error_db_log("TSCR: Entry %i in table `creature_ai_texts` has Type %u but this Chat Type does not exist.",i,temp.Type);
 
             TextMap[i] = temp;
             ++count;
@@ -706,7 +706,7 @@ void LoadDatabase()
         barGoLink bar(1);
         bar.step();
         outstring_log("");
-        outstring_log(">> Loaded 0 additional EventAI Texts data. DB table `eventai_texts` is empty.");
+        outstring_log(">> Loaded 0 additional EventAI Texts data. DB table `creature_ai_texts` is empty.");
     }
 
     // Load Script Text
