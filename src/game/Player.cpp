@@ -340,7 +340,8 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
 
     m_atLoginFlags = AT_LOGIN_NONE;
 
-    m_dontMove = false;
+    mSemaphoreTeleport_Near = false;
+    mSemaphoreTeleport_Far = false;
 
     pTrader = 0;
     ClearTrade();
@@ -466,8 +467,6 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
     m_declinedname = NULL;
 
     m_isActive = true;
-
-    m_farsightVision = false;
 
     m_runes = NULL;
 
@@ -1645,9 +1644,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         m_movementInfo.t_time = 0;
     }
 
-    SetSemaphoreTeleport(true);
-
-    // The player was ported to another map and looses the duel immediatly.
+    // The player was ported to another map and looses the duel immediately.
     // We have to perform this check before the teleport, otherwise the
     // ObjectAccessor won't find the flag.
     if (duel && GetMapId()!=mapid)
@@ -1662,25 +1659,6 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
     if ((GetMapId() == mapid) && (!m_transport))
     {
-        // prepare zone change detect
-        uint32 old_zone = GetZoneId();
-
-        // near teleport
-        if(!GetSession()->PlayerLogout())
-        {
-            WorldPacket data;
-            BuildTeleportAckMsg(&data, x, y, z, orientation);
-            GetSession()->SendPacket(&data);
-            SetPosition( x, y, z, orientation, true);
-        }
-        else
-            // this will be used instead of the current location in SaveToDB
-            m_teleport_dest = WorldLocation(mapid, x, y, z, orientation);
-
-        SetFallInformation(0, z);
-
-        //BuildHeartBeatMsg(&data);
-        //SendMessageToSet(&data, true);
         if (!(options & TELE_TO_NOT_UNSUMMON_PET))
         {
             //same map, only remove pet if out of range for new position
@@ -1691,30 +1669,19 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         if(!(options & TELE_TO_NOT_LEAVE_COMBAT))
             CombatStop();
 
-        if (!(options & TELE_TO_NOT_UNSUMMON_PET))
-        {
-            // resummon pet
-            if (pet)
-                ResummonPetTemporaryUnSummonedIfAny();
-        }
+        // this will be used instead of the current location in SaveToDB
+        m_teleport_dest = WorldLocation(mapid, x, y, z, orientation);
+        SetFallInformation(0, z);
 
-        uint32 newzone, newarea;
-        GetZoneAndAreaId(newzone,newarea);
-
+        // code for finish transfer called in WorldSession::HandleMovementOpcodes() 
+        // at client packet MSG_MOVE_TELEPORT_ACK
+        SetSemaphoreTeleportNear(true);
+        // near teleport, triggering send MSG_MOVE_TELEPORT_ACK from client at landing
         if(!GetSession()->PlayerLogout())
         {
-            // don't reset teleport semaphore while logging out, otherwise m_teleport_dest won't be used in Player::SaveToDB
-            SetSemaphoreTeleport(false);
-
-            UpdateZone(newzone,newarea);
-        }
-
-        // new zone
-        if(old_zone != newzone)
-        {
-            // honorless target
-            if(pvpInfo.inHostileArea)
-                CastSpell(this, 2479, true);
+            WorldPacket data;
+            BuildTeleportAckMsg(&data, x, y, z, orientation);
+            GetSession()->SendPacket(&data);
         }
     }
     else
@@ -1726,10 +1693,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         // Check enter rights before map getting to avoid creating instance copy for player
         // this check not dependent from map instance copy and same for all instance copies of selected map
         if (!MapManager::Instance().CanPlayerEnter(mapid, this))
-        {
-            SetSemaphoreTeleport(false);
             return false;
-        }
 
         // If the map is not created, assume it is possible to enter it.
         // It will be created in the WorldPortAck.
@@ -1814,10 +1778,8 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CHANGE_MAP | AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_TURNING);
 
             // move packet sent by client always after far teleport
-            // SetPosition(final_x, final_y, final_z, final_o, true);
-            SetDontMove(true);
-
             // code for finish transfer to new map called in WorldSession::HandleMoveWorldportAckOpcode at client packet
+            SetSemaphoreTeleportFar(true);
         }
         else
             return false;
@@ -5466,11 +5428,6 @@ void Player::removeActionButton(uint8 button)
         buttonItr->second.uState = ACTIONBUTTON_DELETED;    // saved, will deleted at next save
 
     sLog.outDetail( "Action Button '%u' Removed from Player '%u'", button, GetGUIDLow() );
-}
-
-void Player::SetDontMove(bool dontMove)
-{
-    m_dontMove = dontMove;
 }
 
 bool Player::SetPosition(float x, float y, float z, float orientation, bool teleport)
