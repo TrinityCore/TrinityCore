@@ -827,9 +827,22 @@ void WorldSession::HandleAutoStoreBagItemOpcode( WorldPacket & recv_data )
     _player->StoreItem( dest, pItem, true );
 }
 
-void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& /*recvPacket*/)
+void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& recvPacket)
 {
+    CHECK_PACKET_SIZE(recvPacket, 8);
+
     sLog.outDebug("WORLD: CMSG_BUY_BANK_SLOT");
+
+    uint64 guid;
+    recvPacket >> guid;
+
+    // cheating protection
+    Creature *pCreature = ObjectAccessor::GetNPCIfCanInteractWith(*_player, guid, UNIT_NPC_FLAG_BANKER);
+    if(!pCreature)
+    {
+        sLog.outDebug( "WORLD: HandleBuyBankSlotOpcode - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(guid)) );
+        return;
+    }
 
     uint32 slot = _player->GetByteValue(PLAYER_BYTES_2, 2);
 

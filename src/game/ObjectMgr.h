@@ -436,13 +436,7 @@ class ObjectMgr
             return mGameObjectForQuestSet.find(entry) != mGameObjectForQuestSet.end();
         }
 
-        bool IsGuildVaultGameObject(Player *player, uint64 guid) const
-        {
-            if(GameObject *go = ObjectAccessor::GetGameObject(*player, guid))
-                if(go->GetGoType() == GAMEOBJECT_TYPE_GUILD_BANK)
-                    return true;
-            return false;
-        }
+        bool IsGameObjectOfTypeInRange(Player *player, uint64 guid, GameobjectTypes type) const;
 
         GossipText const* GetGossipText(uint32 Text_ID) const;
 
