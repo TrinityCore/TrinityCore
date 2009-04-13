@@ -230,7 +230,7 @@ int32 GetSpellMaxDuration(SpellEntry const *spellInfo)
     return (du->Duration[2] == -1) ? -1 : abs(du->Duration[2]);
 }
 
-bool GetDispelChance(Spell* spell, Unit* caster, uint32 spellId)
+bool GetDispelChance(Unit* caster, uint32 spellId)
 {
     // we assume that aura dispel chance is 100% on start
     // need formula for level difference based chance
@@ -239,7 +239,7 @@ bool GetDispelChance(Spell* spell, Unit* caster, uint32 spellId)
     if (caster)
     {
         if ( Player* modOwner = caster->GetSpellModOwner() )
-            modOwner->ApplySpellMod(spellId, SPELLMOD_RESIST_DISPEL_CHANCE, miss_chance, spell);
+            modOwner->ApplySpellMod(spellId, SPELLMOD_RESIST_DISPEL_CHANCE, miss_chance);
     }
     // Try dispel
     return !roll_chance_i(miss_chance);
@@ -1158,7 +1158,7 @@ void SpellMgr::LoadSpellBonusess()
     sLog.outString( ">> Loaded %u extra spell bonus data",  count);
 }
 
-bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const*& spellProcEvent, uint32 EventProcFlag, SpellEntry const * procSpell, uint32 procFlags, uint32 procExtra, bool active)
+bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellProcEvent, uint32 EventProcFlag, SpellEntry const * procSpell, uint32 procFlags, uint32 procExtra, bool active)
 {
     // No extra req need
     uint32 procEvent_procEx = PROC_EX_NONE;

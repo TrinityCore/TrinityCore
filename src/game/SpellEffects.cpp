@@ -3358,7 +3358,7 @@ void Spell::EffectDispel(uint32 i)
             for (uint32 i=urand(0, list_size-1);i>0;--i)
                  itr++;
 
-            if (GetDispelChance(this, (*itr)->GetCaster(), (*itr)->GetId()))
+            if (GetDispelChance((*itr)->GetCaster(), (*itr)->GetId()))
             {
                 success_list.push_back(*itr);
                 dispel_list.erase(itr);
@@ -5876,13 +5876,19 @@ void Spell::EffectDispelMechanic(uint32 i)
 
     Unit::AuraMap& Auras = unitTarget->GetAuras();
     for(Unit::AuraMap::iterator iter = Auras.begin(); iter != Auras.end(); iter++)
+    {
        if(GetAllSpellMechanicMask(iter->second->GetSpellProto()) & (1<<(mechanic)))
+       {
             dispel_list.push(iter->second);
+       }
+    }
 
     for(;dispel_list.size();dispel_list.pop())
     {
-        if (GetDispelChance(this, dispel_list.front()->GetCaster(), dispel_list.front()->GetId()))
-            unitTarget->RemoveAura(dispel_list.front()->GetId(), dispel_list.front()->GetCasterGUID());
+        if (GetDispelChance(dispel_list.front()->GetCaster(), dispel_list.front()->GetId()))
+        {
+            unitTarget->RemoveAura(dispel_list.front(), AURA_REMOVE_BY_ENEMY_SPELL);
+        }
     }
 }
 

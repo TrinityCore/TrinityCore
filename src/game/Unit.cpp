@@ -4075,7 +4075,7 @@ void Unit::RemoveAurasByTypeWithDispel(AuraType auraType, Spell * spell)
     {
         Aura * aur = (*iter)->GetParentAura();
         ++iter;
-        if (GetDispelChance(spell, aur->GetCaster(), aur->GetId()))
+        if (GetDispelChance(aur->GetCaster(), aur->GetId()))
         {
             uint32 removedAuras = m_removedAuras.size();
             RemoveAura(aur, AURA_REMOVE_BY_ENEMY_SPELL);
@@ -12306,7 +12306,7 @@ Pet* Unit::CreateTamedPetFrom(Creature* creatureTarget,uint32 spell_id)
     return pet;
 }
 
-bool Unit::IsTriggeredAtSpellProcEvent(Unit *pVictim, Aura * aura, SpellEntry const* procSpell, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, bool isVictim, bool active, SpellProcEventEntry const*& spellProcEvent )
+bool Unit::IsTriggeredAtSpellProcEvent(Unit *pVictim, Aura * aura, SpellEntry const* procSpell, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, bool isVictim, bool active, SpellProcEventEntry const *& spellProcEvent )
 {
     SpellEntry const* spellProto = aura->GetSpellProto ();
 
