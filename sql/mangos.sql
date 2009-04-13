@@ -23,7 +23,7 @@ DROP TABLE IF EXISTS `db_version`;
 CREATE TABLE `db_version` (
   `version` varchar(120) default NULL,
   `creature_ai_version` varchar(120) default NULL,
-  `required_7643_02_mangos_mangos_string` bit(1) default NULL
+  `required_7662_02_mangos_spell_bonus_data` bit(1) default NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Used DB version notes';
 
 --
@@ -15785,6 +15785,16 @@ INSERT INTO spell_chain VALUES
 (53199,48505,48505,2,0),
 (53200,53199,48505,3,0),
 (53201,53200,48505,4,0),
+/*Starfall AOE*/
+(50294,0,50294,1,0),
+(53188,50294,50294,2,0),
+(53189,53188,50294,3,0),
+(53190,53189,50294,4,0),
+/*Starfall Direct*/
+(50288,0,50288,1,0),
+(53191,50288,50288,2,0),
+(53194,53191,50288,3,0),
+(53195,53194,50288,4,0),
 /*Starfire*/
 (2912,0,2912,1,0),
 (8949,2912,2912,2,0),
@@ -17570,6 +17580,8 @@ INSERT INTO `spell_bonus_data` VALUES
 ('33763', '0', '0.09518', '0', 'Druid - Lifebloom'),
 ('774', '0', '0.37604', '0', 'Druid - Rejuvenation'),
 ('8936', '0.539', '0.188', '0', 'Druid - Regrowth'),
+('50288', '0.05', '0', '0', 'Druid - Starfall'),
+('50294', '0.012', '0', '0', 'Druid - Starfall AOE'),
 ('18562', '0', '0', '0', 'Druid - Swiftmend'),
 ('44203', '0.538', '0', '0', 'Druid - Tranquility Triggered'),
 ('48438', '0', '0.11505', '0', 'Druid - Wild Growth'),
