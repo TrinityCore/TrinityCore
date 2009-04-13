@@ -380,15 +380,11 @@ void WorldSession::HandleCancelAuraOpcode( WorldPacket& recvPacket)
         return;
 
     // channeled spell case (it currently casted then)
-    if(IsChanneledSpell(spellInfo))
+    if (IsChanneledSpell(spellInfo))
     {
-        if(Spell* spell = _player->m_currentSpells[CURRENT_CHANNELED_SPELL])
-        {
-            if(spell->m_spellInfo->Id==spellId)
-            {
-                spell->cancel();
-            }
-        }
+        if (_player->m_currentSpells[CURRENT_CHANNELED_SPELL] &&
+            _player->m_currentSpells[CURRENT_CHANNELED_SPELL]->m_spellInfo->Id==spellId)
+            _player->InterruptSpell(CURRENT_CHANNELED_SPELL);
         return;
     }
 
