@@ -60,6 +60,7 @@ struct TRINITY_DLL_DECL boss_anetheronAI : public hyjal_trashAI
 
     void Reset()
     {
+        damageTaken = 0;
         SwarmTimer = 45000;
         SleepTimer = 60000;
         AuraTimer = 5000;

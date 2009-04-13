@@ -48,6 +48,7 @@ struct TRINITY_DLL_DECL boss_rage_winterchillAI : public hyjal_trashAI
 
     void Reset()
     {
+        damageTaken = 0;
         FrostArmorTimer = 37000;
         DecayTimer = 45000;
         NovaTimer = 15000;
