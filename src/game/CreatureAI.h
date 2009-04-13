@@ -79,7 +79,8 @@ class TRINITY_DLL_SPEC UnitAI
         virtual void AttackStart(Unit *);
         virtual void UpdateAI(const uint32 diff) = 0;
 
-        // Initialize
+        virtual void InitializeAI() { Reset(); }
+
         virtual void Reset() {};
 
         // Called when unit is charmed
