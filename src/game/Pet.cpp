@@ -571,7 +571,6 @@ void Pet::Update(uint32 diff)
         default:
             break;
     }
-    uint32 guidlow = GetGUIDLow();
     Creature::Update(diff);
 }
 

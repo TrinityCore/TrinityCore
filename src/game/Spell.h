@@ -517,6 +517,7 @@ class Spell
         Item* itemTarget;
         GameObject* gameObjTarget;
         int32 damage;
+        Aura * m_spellAura; // only used in DoAllEffectOnTarget
 
         // this is set in Spell Hit, but used in Apply Aura handler
         DiminishingLevels m_diminishLevel;

@@ -2434,8 +2434,9 @@ void AuraEffect::HandleAuraDummy(bool apply, bool Real)
                 // Haunt
                 if(m_spellProto->SpellFamilyFlags[1] & 0x40000)
                 {
+                    int32 bp0 = GetParentAura()->GetProcDamage() * m_amount / 100;
                     if(caster)
-                        caster->CastCustomSpell(caster, 48210, &m_currentBasePoints, 0, 0, true);
+                        caster->CastCustomSpell(caster, 48210, &bp0, 0, 0, true, NULL, this);
                     return;
                 }
                 break;
