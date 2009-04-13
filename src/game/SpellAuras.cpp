@@ -645,8 +645,10 @@ void Aura::Update(uint32 diff)
         }
     }
 
-    // Channeled aura required check distance from caster except in possessed cases
-    if(IsChanneledSpell(m_spellProto) && m_caster_guid != m_target->GetGUID() && !m_target->isPossessed())
+    // Channeled aura required check distance from caster
+    if(IsChanneledSpell(m_spellProto) && m_caster_guid != m_target->GetGUID()
+        && !IsAreaAura() && !IsPersistent()  // check for these is done in auraeffect
+        /* && !m_target->isPossessed()*/)
     {
         Unit* caster = GetCaster();
         if(!caster)
@@ -657,16 +659,18 @@ void Aura::Update(uint32 diff)
         // Get spell range
         float radius=-1.0f;
         SpellModOp mod;
+        // get part aura with lowest radius
         for (uint8 i=0;i<3;++i)
         {
             if (HasEffect(i) && m_spellProto->EffectRadiusIndex[i])
             {
-                radius = caster->GetSpellRadiusForTarget(m_target, sSpellRadiusStore.LookupEntry(m_spellProto->EffectRadiusIndex[i]));
+                float new_radius = caster->GetSpellRadiusForTarget(m_target, sSpellRadiusStore.LookupEntry(m_spellProto->EffectRadiusIndex[i]));
+                if (radius < 0.0f || radius > new_radius)
+                    radius = new_radius;
                 mod = SPELLMOD_RADIUS;
-                break;
             }
         }
-        if (radius<0)
+        if (radius < 0.0f)
         {
             radius = caster->GetSpellMaxRangeForTarget(m_target, sSpellRangeStore.LookupEntry(m_spellProto->rangeIndex)) ;
             mod = SPELLMOD_RANGE;
@@ -784,16 +788,13 @@ void AreaAuraEffect::Update(uint32 diff)
 
         // Caster may be deleted due to update
         Unit* caster = GetCaster();
-        uint32 tmp_spellId = GetId();
-        uint32 tmp_effIndex = GetEffIndex();
-        uint64 tmp_guid = GetCasterGUID();
 
         // remove aura if out-of-range from caster (after teleport for example)
         // or caster is isolated or caster no longer has the aura
         // or caster is (no longer) friendly
         bool needFriendly = (m_areaAuraType == AREA_AURA_ENEMY ? false : true);
         if( !caster || caster->hasUnitState(UNIT_STAT_ISOLATED) ||
-            !caster->HasAuraEffect(tmp_spellId, tmp_effIndex)         ||
+            !caster->HasAuraEffect(GetId(), m_effIndex)         ||
             caster->IsFriendlyTo(m_target) != needFriendly
            )
         {
@@ -1176,25 +1177,26 @@ void Aura::_RemoveAura()
     // Proc on aura remove (only spell flags for now)
     if (caster)
     {
-        uint32 ProcCaster, ProcVictim;
-        if (IsPositiveSpell(GetId()))
-        {
-            ProcCaster = PROC_FLAG_SUCCESSFUL_POSITIVE_SPELL;
-            ProcVictim = PROC_FLAG_TAKEN_POSITIVE_SPELL;
-        }
-        else
-        {
-            ProcCaster = PROC_FLAG_SUCCESSFUL_NEGATIVE_SPELL_HIT;
-            ProcVictim = PROC_FLAG_TAKEN_NEGATIVE_SPELL_HIT;
-        }
         uint32 procEx=0;
         if (m_removeMode == AURA_REMOVE_BY_ENEMY_SPELL)
             procEx = PROC_EX_AURA_REMOVE_DESTROY;
         else if (m_removeMode == AURA_REMOVE_BY_EXPIRE || m_removeMode == AURA_REMOVE_BY_CANCEL)
             procEx = PROC_EX_AURA_REMOVE_EXPIRE;
-        else return;
-
-        caster->ProcDamageAndSpell(m_target,ProcCaster, ProcVictim, procEx, m_procDamage, BASE_ATTACK, m_spellProto);
+        if (procEx)
+        {
+            uint32 ProcCaster, ProcVictim;
+            if (IsPositiveSpell(GetId()))
+            {
+                ProcCaster = PROC_FLAG_SUCCESSFUL_POSITIVE_SPELL;
+                ProcVictim = PROC_FLAG_TAKEN_POSITIVE_SPELL;
+            }
+            else
+            {
+                ProcCaster = PROC_FLAG_SUCCESSFUL_NEGATIVE_SPELL_HIT;
+                ProcVictim = PROC_FLAG_TAKEN_NEGATIVE_SPELL_HIT;
+            }
+            caster->ProcDamageAndSpell(m_target,ProcCaster, ProcVictim, procEx, m_procDamage, BASE_ATTACK, m_spellProto);
+        }
     }
 }
 
