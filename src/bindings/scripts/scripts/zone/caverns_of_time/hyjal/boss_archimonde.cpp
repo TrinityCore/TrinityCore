@@ -357,6 +357,7 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public hyjal_trashAI
         if(pInstance)
             pInstance->SetData(DATA_ARCHIMONDEEVENT, NOT_STARTED);
 
+        damageTaken = 0;
         DrainNordrassilTimer = 0;
         FearTimer = 42000;
         AirBurstTimer = 30000;

@@ -158,7 +158,7 @@ hyjal_trashAI::hyjal_trashAI(Creature *c) : npc_escortAI(c)
 
 void hyjal_trashAI::DamageTaken(Unit *done_by, uint32 &damage)
 {
-    if(done_by->GetTypeId() == TYPEID_PLAYER)
+    if(done_by->GetTypeId() == TYPEID_PLAYER || (done_by->GetTypeId() == TYPEID_UNIT && ((Creature*)done_by)->isPet()))
     {
         damageTaken += damage;
         if(pInstance)
@@ -431,6 +431,7 @@ void hyjal_trashAI::UpdateAI(const uint32 diff)
                     AddWaypoint(i, HordeWPs[i][0]+irand(-10,10), HordeWPs[i][1]+irand(-10,10), HordeWPs[i][2]);
                 switch(OverrunType)
                 {
+                    case 0:
                     default:
                         AddWaypoint( 5, HordeOverrunWP[0][0]+irand(-10,10), HordeOverrunWP[0][1]+irand(-10,10), HordeOverrunWP[0][2]);
                         AddWaypoint( 6, HordeOverrunWP[1][0]+irand(-10,10), HordeOverrunWP[1][1]+irand(-10,10), HordeOverrunWP[1][2]);
@@ -465,7 +466,7 @@ void hyjal_trashAI::JustDied(Unit *victim)
     if(IsEvent && !m_creature->isWorldBoss())
         pInstance->SetData(DATA_TRASH, 0);//signal trash is dead
 
-    if((pInstance->GetData(DATA_RAIDDAMAGE) < MINRAIDDAMAGE && !m_creature->isWorldBoss()) || (damageTaken < m_creature->GetMaxHealth()/2 && m_creature->isWorldBoss()))
+    if((pInstance->GetData(DATA_RAIDDAMAGE) < MINRAIDDAMAGE && !m_creature->isWorldBoss()) || (damageTaken < m_creature->GetMaxHealth()/4 && m_creature->isWorldBoss()))
         m_creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);//no loot
 
     if(IsOverrun)
