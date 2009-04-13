@@ -16454,17 +16454,18 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
         }
     }
 
-    pet->SavePetToDB(mode);
-
     // only if current pet in slot
     switch(pet->getPetType())
     {
         case POSSESSED_PET:
             pet->RemoveCharmedOrPossessedBy(NULL);
+            break;
         default:
-            SetGuardian(pet, false);
+            pet->SavePetToDB(mode);
             break;
     }
+
+    SetGuardian(pet, false);
 
     pet->CleanupsBeforeDelete();
     pet->AddObjectToRemoveList();
@@ -17987,7 +17988,7 @@ bool Player::canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList, bool
             return false;
     }
 
-    if(u->GetVisibility() == VISIBILITY_OFF)
+    if(u->GetVisibility() == VISIBILITY_OFF || u->m_invisibilityMask )
     {
         // GMs see any players, not higher GMs and all units
         if(isGameMaster())
