@@ -5206,7 +5206,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             if (dummySpell->SpellIconID == 2999)
             {
                 if (effIndex!=0)
-                    return true;
+                    return false;
                 AuraEffect *counter = GetAuraEffect(triggeredByAura->GetId(), 1);
                 if (!counter)
                     return true;
@@ -5708,7 +5708,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     return false;
                 // Only 0 aura can proc
                 if (effIndex!=0)
-                    return true;
+                    return false;
                 // Wrath crit
                 if (procSpell->SpellFamilyFlags[0] & 0x1)
                 {
@@ -5836,8 +5836,10 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
         case SPELLFAMILY_PALADIN:
         {
             // Seal of Righteousness - melee proc dummy (addition ${$MWS*(0.022*$AP+0.044*$SPH)} damage)
-            if (dummySpell->SpellFamilyFlags[0]&0x8000000 && effIndex==0)
+            if (dummySpell->SpellFamilyFlags[0]&0x8000000)
             {
+                if (effIndex!=0)
+                    return false;
                 triggered_spell_id = 25742;
                 float ap = GetTotalAttackPowerValue(BASE_ATTACK);
                 int32 holy = SpellBaseDamageBonus(SPELL_SCHOOL_MASK_HOLY) +
@@ -12523,6 +12525,9 @@ void Unit::SetToNotify()
 
 void Unit::Kill(Unit *pVictim, bool durabilityLoss)
 {
+    // Prevent killing unit twice (and giving reward from kill twice)
+    if (!pVictim->isAlive())
+        return;
     pVictim->SetHealth(0);
 
     // find player: owner of controlled `this` or `this` itself maybe
