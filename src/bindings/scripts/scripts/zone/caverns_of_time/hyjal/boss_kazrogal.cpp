@@ -48,6 +48,7 @@ struct TRINITY_DLL_DECL boss_kazrogalAI : public hyjal_trashAI
 
     void Reset()
     {
+        damageTaken = 0;
         CleaveTimer = 5000;
         WarStompTimer = 15000;
         MarkTimer = 45000;

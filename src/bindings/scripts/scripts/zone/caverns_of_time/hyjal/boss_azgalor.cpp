@@ -51,6 +51,7 @@ struct TRINITY_DLL_DECL boss_azgalorAI : public hyjal_trashAI
 
     void Reset()
     {
+        damageTaken = 0;
         RainTimer = 20000;
         DoomTimer = 50000;
         HowlTimer = 30000;
