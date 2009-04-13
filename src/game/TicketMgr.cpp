@@ -111,7 +111,7 @@ void TicketMgr::LoadGMTickets()
     InitTicketID();
     // Delete all out of object holder
     GM_TicketList.clear();
-    QueryResult *result = CharacterDatabase.Query( "SELECT `guid`, `playerGuid`, `name`, `message`, `timestamp`, `closed`, `assignedto`, `comment` FROM `gm_tickets`" );
+    QueryResult *result = CharacterDatabase.Query( "SELECT `guid`, `playerGuid`, `name`, `message`, `createtime`, `timestamp`, `closed`, `assignedto`, `comment` FROM `gm_tickets`" );
     GM_Ticket *ticket;
 
     if(!result)
@@ -126,10 +126,11 @@ void TicketMgr::LoadGMTickets()
         ticket->playerGuid = fields[1].GetUInt64();
         ticket->name = fields[2].GetString();
         ticket->message = fields[3].GetString();
-        ticket->timestamp = fields[4].GetUInt32();
-        ticket->closed = fields[5].GetUInt16();
-        ticket->assignedToGM = fields[6].GetUInt64();
-        ticket->comment = fields[7].GetString();
+        ticket->createtime = fields[4].GetUInt64();
+        ticket->timestamp = fields[5].GetUInt64();
+        ticket->closed = fields[6].GetUInt64();
+        ticket->assignedToGM = fields[7].GetUInt64();
+        ticket->comment = fields[8].GetString();
 
         AddGMTicket(ticket, true);
 
@@ -172,11 +173,12 @@ void TicketMgr::SaveGMTicket(GM_Ticket* ticket)
     std::string msg = ticket->message;
     CharacterDatabase.escape_string(msg);
     std::stringstream ss;
-    ss << "REPLACE INTO `gm_tickets` (`guid`, `playerGuid`, `name`, `message`, `timestamp`, `closed`, `assignedto`, `comment`) VALUES('";
+    ss << "REPLACE INTO `gm_tickets` (`guid`, `playerGuid`, `name`, `message`, `createtime`, `timestamp`, `closed`, `assignedto`, `comment`) VALUES('";
     ss << ticket->guid << "', '";
     ss << ticket->playerGuid << "', '";
     ss << ticket->name << "', '";
     ss << msg << "', '" ;
+    ss << ticket->createtime << "', '";
     ss << ticket->timestamp << "', '";
     ss << ticket->closed << "', '";
     ss << ticket->assignedToGM << "', '";

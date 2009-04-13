@@ -277,6 +277,7 @@ std::string ChatHandler::PGetParseString(int32 entry, ...)
         va_end(ap);
         return (std::string)str;
 }
+
 bool ChatHandler::HandleGMTicketListCommand(const char* args)
 {
     SendSysMessage(LANG_COMMAND_TICKETSHOWLIST);
@@ -288,6 +289,7 @@ bool ChatHandler::HandleGMTicketListCommand(const char* args)
         std::stringstream ss;
         ss << PGetParseString(LANG_COMMAND_TICKETLISTGUID, (*itr)->guid);
         ss << PGetParseString(LANG_COMMAND_TICKETLISTNAME, (*itr)->name.c_str());
+        ss << PGetParseString(LANG_COMMAND_TICKETLISTAGECREATE, (secsToTimeString(time(NULL) - (*itr)->createtime, true, false)).c_str());
         ss << PGetParseString(LANG_COMMAND_TICKETLISTAGE, (secsToTimeString(time(NULL) - (*itr)->timestamp, true, false)).c_str());
         if(objmgr.GetPlayerNameByGUID((*itr)->assignedToGM, gmname))
         {
@@ -311,6 +313,7 @@ bool ChatHandler::HandleGMTicketListOnlineCommand(const char* args)
         std::stringstream ss;
         ss << PGetParseString(LANG_COMMAND_TICKETLISTGUID, (*itr)->guid);
         ss << PGetParseString(LANG_COMMAND_TICKETLISTNAME, (*itr)->name.c_str());
+        ss << PGetParseString(LANG_COMMAND_TICKETLISTAGECREATE, (secsToTimeString(time(NULL) - (*itr)->createtime, true, false)).c_str());
         ss << PGetParseString(LANG_COMMAND_TICKETLISTAGE, (secsToTimeString(time(NULL) - (*itr)->timestamp, true, false)).c_str());
         if(objmgr.GetPlayerNameByGUID((*itr)->assignedToGM, gmname))
         {
@@ -333,6 +336,7 @@ bool ChatHandler::HandleGMTicketListClosedCommand(const char* args)
         std::stringstream ss;
         ss << PGetParseString(LANG_COMMAND_TICKETLISTGUID, (*itr)->guid);
         ss << PGetParseString(LANG_COMMAND_TICKETLISTNAME, (*itr)->name.c_str());
+        ss << PGetParseString(LANG_COMMAND_TICKETLISTAGECREATE, (secsToTimeString(time(NULL) - (*itr)->createtime, true, false)).c_str());
         ss << PGetParseString(LANG_COMMAND_TICKETLISTAGE, (secsToTimeString(time(NULL) - (*itr)->timestamp, true, false)).c_str());
         if(objmgr.GetPlayerNameByGUID((*itr)->assignedToGM, gmname))
         {
@@ -360,6 +364,7 @@ bool ChatHandler::HandleGMTicketGetByIdCommand(const char* args)
     std::stringstream ss;
     ss << PGetParseString(LANG_COMMAND_TICKETLISTGUID, ticket->guid);
     ss << PGetParseString(LANG_COMMAND_TICKETLISTNAME, ticket->name.c_str());
+    ss << PGetParseString(LANG_COMMAND_TICKETLISTAGECREATE, (secsToTimeString(time(NULL) - (*itr)->createtime, true, false)).c_str());
     ss << PGetParseString(LANG_COMMAND_TICKETLISTAGE, (secsToTimeString(time(NULL) - ticket->timestamp, true, false)).c_str());
     if(objmgr.GetPlayerNameByGUID(ticket->assignedToGM, gmname))
     {
@@ -390,6 +395,7 @@ bool ChatHandler::HandleGMTicketGetByNameCommand(const char* args)
     std::stringstream ss;
     ss << PGetParseString(LANG_COMMAND_TICKETLISTGUID, ticket->guid);
     ss << PGetParseString(LANG_COMMAND_TICKETLISTNAME, ticket->name.c_str());
+    ss << PGetParseString(LANG_COMMAND_TICKETLISTAGECREATE, (secsToTimeString(time(NULL) - (*itr)->createtime, true, false)).c_str());
     ss << PGetParseString(LANG_COMMAND_TICKETLISTAGE, (secsToTimeString(time(NULL) - ticket->timestamp, true, false)).c_str());
     if(objmgr.GetPlayerNameByGUID(ticket->assignedToGM, gmname))
     {
