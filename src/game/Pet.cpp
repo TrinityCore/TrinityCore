@@ -477,11 +477,7 @@ void Pet::setDeathState(DeathState s)                       // overwrite virtual
     Creature::setDeathState(s);
     if(getDeathState()==CORPSE)
     {
-        //remove summoned pet (no corpse)
-        if(getPetType()==SUMMON_PET)
-            Remove(PET_SAVE_NOT_IN_SLOT);
-        // other will despawn at corpse desppawning (Pet::Update code)
-        else
+        if(getPetType() == HUNTER_PET)
         {
             // pet corpse non lootable and non skinnable
             SetUInt32Value( UNIT_DYNAMIC_FLAGS, 0x00 );
@@ -511,9 +507,8 @@ void Pet::Update(uint32 diff)
     {
         case CORPSE:
         {
-            if( m_deathTimer <= diff )
+            if(getPetType() != HUNTER_PET || m_deathTimer <= diff )
             {
-                assert(getPetType()!=SUMMON_PET && "Must be already removed.");
                 Remove(PET_SAVE_NOT_IN_SLOT);               //hunters' pets never get removed because of death, NEVER!
                 return;
             }
