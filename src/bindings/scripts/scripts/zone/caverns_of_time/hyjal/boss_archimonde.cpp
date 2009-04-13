@@ -239,6 +239,7 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public hyjal_trashAI
             pInstance->SetData(DATA_ARCHIMONDEEVENT, NOT_STARTED);
 
         DoomfireSpiritGUID = 0;
+        damageTaken = 0;
         WorldTreeGUID = 0;
 
         DrainNordrassilTimer = 0;
