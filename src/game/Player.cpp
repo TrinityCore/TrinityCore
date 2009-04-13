@@ -17987,7 +17987,7 @@ bool Player::canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList, bool
             return false;
     }
 
-    if(u->GetVisibility() == VISIBILITY_OFF || u->m_invisibilityMask )
+    if(u->GetVisibility() == VISIBILITY_OFF)
     {
         // GMs see any players, not higher GMs and all units
         if(isGameMaster())
@@ -18000,13 +18000,25 @@ bool Player::canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList, bool
         return false;
     }
 
-    // player see other player with stealth/invisibility only if he in same group or raid or same team (raid/team case dependent from conf setting)
-    if((m_mover->m_invisibilityMask || u->m_invisibilityMask) && !m_mover->canDetectInvisibilityOf(u))
-        if(!(u->GetTypeId()==TYPEID_PLAYER && !IsHostileTo(u) && IsGroupVisibleFor(((Player*)u))))
-            return false;
+    // GM's can see everyone with invisibilitymask with less or equal security level
+    if(m_mover->m_invisibilityMask || u->m_invisibilityMask)
+    {
+        if(isGameMaster())
+        {
+            if(u->GetTypeId() == TYPEID_PLAYER)
+                return ((Player*)u)->GetSession()->GetSecurity() <= GetSession()->GetSecurity();
+            else
+                return true;
+        }
+
+        // player see other player with stealth/invisibility only if he in same group or raid or same team (raid/team case dependent from conf setting)
+        if(!m_mover->canDetectInvisibilityOf(u))
+            if(!(u->GetTypeId()==TYPEID_PLAYER && !IsHostileTo(u) && IsGroupVisibleFor(((Player*)u))))
+                return false;
+    }
 
     // GM invisibility checks early, invisibility if any detectable, so if not stealth then visible
-    if(u->GetVisibility() == VISIBILITY_GROUP_STEALTH)
+    if(u->GetVisibility() == VISIBILITY_GROUP_STEALTH && !isGameMaster())
     {
         // if player is dead then he can't detect anyone in any cases
         //do not know what is the use of this detect

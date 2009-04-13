@@ -366,9 +366,9 @@ struct TRINITY_DLL_DECL boss_essence_of_sufferingAI : public ScriptedAI
     {
         switch(rand()%2)
         {
-        case 0: DoScriptText(SUFF_SAY_SLAY1, m_creature); break;
-        case 1: DoScriptText(SUFF_SAY_SLAY2, m_creature); break;
-        case 2: DoScriptText(SUFF_SAY_SLAY3, m_creature); break;
+            case 0: DoScriptText(SUFF_SAY_SLAY1, m_creature); break;
+            case 1: DoScriptText(SUFF_SAY_SLAY2, m_creature); break;
+            case 2: DoScriptText(SUFF_SAY_SLAY3, m_creature); break;
         }
     }
 
@@ -391,24 +391,29 @@ struct TRINITY_DLL_DECL boss_essence_of_sufferingAI : public ScriptedAI
         targets.resize(1); // Only need closest target.
         Unit* target = targets.front(); // Get the first target.
         target->CastSpell(m_creature, SPELL_FIXATE_TAUNT, true);
+        DoResetThreat();
+        m_creature->AddThreat(target,1000000);
     }
 
     void UpdateAI(const uint32 diff)
     {
+        if(InCombat)
+        {
+            //Supposed to be cast on nearest target
+            if(FixateTimer < diff)
+            {
+                CastFixate();
+                FixateTimer = 5000;
+                if(!(rand()%16))
+                {
+                    DoScriptText(SUFF_SAY_AGGRO, m_creature);
+                }
+            }else FixateTimer -= diff;
+        }
+
         //Return since we have no target
         if (!UpdateVictim())
             return;
-
-        //Supposed to be cast on nearest target
-        if(FixateTimer < diff)
-        {
-            CastFixate();
-            FixateTimer = 5000;
-            if(!(rand()%16))
-            {
-                DoScriptText(SUFF_SAY_AGGRO, m_creature);
-            }
-        }else FixateTimer -= diff;
 
         if(EnrageTimer < diff)
         {
@@ -419,7 +424,7 @@ struct TRINITY_DLL_DECL boss_essence_of_sufferingAI : public ScriptedAI
 
         if(SoulDrainTimer < diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_SOUL_DRAIN);
+            DoCast(SelectUnit(SELECT_TARGET_RANDOM,0), SPELL_SOUL_DRAIN);
             SoulDrainTimer = 60000;
         }else SoulDrainTimer -= diff;
 
