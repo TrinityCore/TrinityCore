@@ -3477,40 +3477,16 @@ bool Unit::IsNonMeleeSpellCasted(bool withDelayed, bool skipChanneled, bool skip
 void Unit::InterruptNonMeleeSpells(bool withDelayed, uint32 spell_id)
 {
     // generic spells are interrupted if they are not finished or delayed
-    Spell *spell = m_currentSpells[CURRENT_GENERIC_SPELL];
-    if (spell && (!spell_id || spell->m_spellInfo->Id==spell_id))
-    {
-        m_currentSpells[CURRENT_GENERIC_SPELL] = NULL;
+    if (m_currentSpells[CURRENT_GENERIC_SPELL] && (!spell_id || m_currentSpells[CURRENT_GENERIC_SPELL]->m_spellInfo->Id==spell_id))
+        InterruptSpell(CURRENT_GENERIC_SPELL,withDelayed);
 
-        if  ( (spell->getState() != SPELL_STATE_FINISHED) &&
-            (withDelayed || spell->getState() != SPELL_STATE_DELAYED) )
-            spell->cancel();
-        spell->SetReferencedFromCurrent(false);
-    }
-
-    spell = m_currentSpells[CURRENT_AUTOREPEAT_SPELL];
     // autorepeat spells are interrupted if they are not finished or delayed
-    if (spell && (!spell_id || spell->m_spellInfo->Id==spell_id))
-    {
-        m_currentSpells[CURRENT_AUTOREPEAT_SPELL] = NULL;
-        // send disable autorepeat packet in any case
-        if(GetTypeId()==TYPEID_PLAYER)
-            ((Player*)this)->SendAutoRepeatCancel();
-        if ( (spell->getState() != SPELL_STATE_FINISHED) &&
-            (withDelayed || spell->getState() != SPELL_STATE_DELAYED) )
-            spell->cancel();
-        spell->SetReferencedFromCurrent(false);
-    }
+    if (m_currentSpells[CURRENT_AUTOREPEAT_SPELL] && (!spell_id || m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->m_spellInfo->Id==spell_id))
+        InterruptSpell(CURRENT_AUTOREPEAT_SPELL,withDelayed);
 
     // channeled spells are interrupted if they are not finished, even if they are delayed
-    spell = m_currentSpells[CURRENT_CHANNELED_SPELL];
-    if (spell && (!spell_id || spell->m_spellInfo->Id==spell_id))
-    {
-        m_currentSpells[CURRENT_CHANNELED_SPELL] = NULL;
-        if (spell->getState() != SPELL_STATE_FINISHED)
-            spell->cancel();
-        spell->SetReferencedFromCurrent(false);
-    }
+    if (m_currentSpells[CURRENT_CHANNELED_SPELL] && (!spell_id || m_currentSpells[CURRENT_CHANNELED_SPELL]->m_spellInfo->Id==spell_id))
+        InterruptSpell(CURRENT_CHANNELED_SPELL,true);
 }
 
 Spell* Unit::FindCurrentSpellBySpellId(uint32 spell_id) const
