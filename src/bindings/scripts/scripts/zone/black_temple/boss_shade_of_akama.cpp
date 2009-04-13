@@ -145,7 +145,7 @@ struct TRINITY_DLL_DECL mob_ashtongue_sorcererAI : public ScriptedAI
 
         if(CheckTimer < diff)
         {
-            Unit* Shade = Unit::GetUnit((*m_creature), ShadeGUID);
+            Creature* Shade = Unit::GetCreature((*m_creature), ShadeGUID);
             if(Shade && Shade->isAlive() && m_creature->isAlive())
             {
                 if(m_creature->GetDistance2d(Shade) < 20)
@@ -165,10 +165,13 @@ struct TRINITY_DLL_DECL mob_ashtongue_sorcererAI : public ScriptedAI
 
 struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
 {
-    boss_shade_of_akamaAI(Creature* c) : ScriptedAI(c)
+    boss_shade_of_akamaAI(Creature* c) : ScriptedAI(c), summons(m_creature)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         AkamaGUID = pInstance ? pInstance->GetData64(DATA_AKAMA_SHADE) : 0;
+        m_creature->setActive(true);//if view distance is too low
+        m_creature->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
+        m_creature->ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, true);
     }
 
     ScriptedInstance* pInstance;
@@ -189,30 +192,28 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
     bool HasKilledAkama;
     bool reseting;
     bool GridSearcherSucceeded;
+    bool HasKilledAkamaAndReseting;
+    SummonList summons;
 
     void Reset()
     {
         reseting = true;
+        HasKilledAkamaAndReseting = false;
 
         GridSearcherSucceeded = false;
 
-        if(!Sorcerers.empty())
+        Sorcerers.clear();
+        summons.DespawnAll();//despawn all adds
+
+        if(Creature* Akama = Unit::GetCreature(*m_creature, AkamaGUID))
         {
-            for(std::list<uint64>::iterator itr = Sorcerers.begin(); itr != Sorcerers.end(); ++itr)
+            Akama->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);//turn gossip on so players can restart the event
+            if(Akama->isDead())
             {
-                if(Creature* Sorcerer = (Unit::GetCreature(*m_creature, *itr)))
-                    if(Sorcerer->isAlive())
-                    {
-                        Sorcerer->SetVisibility(VISIBILITY_OFF);
-                        Sorcerer->Kill(Sorcerer);
-                    }
+                Akama->Respawn();//respawn akama if dead
+                Akama->AI()->EnterEvadeMode();
             }
-            Sorcerers.clear();
         }
-
-        if(Unit* Akama = Unit::GetUnit(*m_creature, AkamaGUID))
-            Akama->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-
         SorcererCount = 0;
         DeathCount = 0;
 
@@ -236,42 +237,42 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
 
         reseting = false;
     }
+    void JustSummoned(Creature *summon) {summons.Summon(summon);}
+    void SummonedCreatureDespawn(Creature *summon) {summons.Despawn(summon);}
 
-       void MoveInLineOfSight(Unit *who)
-       {
-               if(!GridSearcherSucceeded)
-               {
-               FindChannelers();
-
-        if (!Channelers.empty())
+    void MoveInLineOfSight(Unit *who)
+    {
+        if(!GridSearcherSucceeded)
         {
-            for(std::list<uint64>::iterator itr = Channelers.begin(); itr != Channelers.end(); ++itr)
+            FindChannelers();
+
+            if (!Channelers.empty())
             {
-                Creature* Channeler = NULL;
-                Channeler = (Unit::GetCreature(*m_creature, *itr));
-
-                if (Channeler)
+                for(std::list<uint64>::iterator itr = Channelers.begin(); itr != Channelers.end(); ++itr)
                 {
-                    if (Channeler->isDead())
+                    Creature* Channeler = (Unit::GetCreature(*m_creature, *itr));
+                    if (Channeler)
                     {
-                        Channeler->RemoveCorpse();
-                        Channeler->Respawn();
-                        Channeler->InterruptNonMeleeSpells(true);
-                        Channeler->RemoveAurasDueToSpell(SPELL_SHADE_SOUL_CHANNEL);
-                    }
+                        if (Channeler->isDead())
+                        {
+                            Channeler->RemoveCorpse();
+                            Channeler->Respawn();
+                            Channeler->InterruptNonMeleeSpells(true);
+                            Channeler->RemoveAurasDueToSpell(SPELL_SHADE_SOUL_CHANNEL);
+                        }
 
-                    if (Channeler->isAlive())
-                    {
-                    Channeler->CastSpell(m_creature, SPELL_SHADE_SOUL_CHANNEL, true);
-                    Channeler->CastSpell(m_creature, SPELL_SHADE_SOUL_CHANNEL_2, true);
-                    Channeler->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    GridSearcherSucceeded = true;
+                        if (Channeler->isAlive())
+                        {
+                            Channeler->CastSpell(m_creature, SPELL_SHADE_SOUL_CHANNEL, true);
+                            Channeler->CastSpell(m_creature, SPELL_SHADE_SOUL_CHANNEL_2, true);
+                            Channeler->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                            GridSearcherSucceeded = true;
+                        }
                     }
                 }
-            }
-        }else error_log("SD2 ERROR: No Channelers are stored in the list. This encounter will not work properly");
-               }
-       }
+            }else error_log("SD2 ERROR: No Channelers are stored in the list. This encounter will not work properly");
+        }
+    }
 
     void Aggro(Unit* who) { }
 
@@ -387,7 +388,10 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
         {
             // Akama is set in the threatlist so when we reset, we make sure that he is not included in our check
             if(m_creature->getThreatManager().getThreatList().size() < 2)
+            {
                 EnterEvadeMode();
+                return;
+            }
 
             if(DefenderTimer < diff)
             {
@@ -399,7 +403,7 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
                     bool move = true;
                     if(AkamaGUID)
                     {
-                        if(Unit* Akama = Unit::GetUnit(*m_creature, AkamaGUID))
+                        if(Creature* Akama = Unit::GetCreature(*m_creature, AkamaGUID))
                         {
                             float x, y, z;
                             Akama->GetPosition(x,y,z);
@@ -424,7 +428,7 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
             {
                 if(AkamaGUID)
                 {
-                    Unit* Akama = Unit::GetUnit((*m_creature), AkamaGUID);
+                    Creature* Akama = Unit::GetCreature((*m_creature), AkamaGUID);
                     if(Akama && Akama->isAlive())
                     {
                         IsBanished = false;
@@ -449,31 +453,30 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
             {
                 if(AkamaGUID)
                 {
-                    Unit* Akama = Unit::GetUnit((*m_creature), AkamaGUID);
+                    Creature* Akama = Unit::GetCreature((*m_creature), AkamaGUID);
                     if(Akama && Akama->isAlive())
                     {
                         //10 % less health every few seconds.
                         m_creature->DealDamage(Akama, Akama->GetMaxHealth()/10, NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                         ReduceHealthTimer = 12000;
                     }
-                    else
-                    {
-                        HasKilledAkama = true;              // Akama is dead or missing, we stop fighting and disappear
-                        m_creature->SetVisibility(VISIBILITY_OFF);
-                        m_creature->SetHealth(m_creature->GetMaxHealth());
-                        m_creature->RemoveAllAuras();
-                        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    }
                 }
             }else ReduceHealthTimer -= diff;
 
             if(HasKilledAkama)
             {
-                if(ResetTimer < diff)
-                {
-                    InCombat = false;
-                    EnterEvadeMode();                       // Reset a little while after killing Akama
+                if(!HasKilledAkamaAndReseting)//do not let players kill Shade if Akama is dead and Shade is waiting for ResetTimer!! event would bug
+                {                    
+                    HasKilledAkamaAndReseting = true;
+                    m_creature->RemoveAllAuras();
+                    m_creature->DeleteThreatList();
+                    m_creature->CombatStop();
+                    //m_creature->SetHealth(m_creature->GetMaxHealth());
+                    m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    m_creature->GetMotionMaster()->MoveTargetedHome();
                 }
+                if(ResetTimer < diff)
+                    EnterEvadeMode();// Reset a little while after killing Akama, evade and respawn Akama
                 else ResetTimer -= diff;
             }
 
@@ -505,7 +508,17 @@ struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
         ShadeHasDied = false;
         StartCombat = false;
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        ShadeGUID = pInstance ? pInstance->GetData64(DATA_SHADEOFAKAMA) : 0;
+        ShadeGUID = pInstance ? pInstance->GetData64(DATA_SHADEOFAKAMA) : NOT_STARTED;
+        m_creature->setActive(true);
+        EventBegun = false;
+        CastSoulRetrieveTimer = 0;
+        SoulRetrieveTimer = 0;
+        SummonBrokenTimer = 0;
+        EndingTalkCount = 0;
+        WayPointId = 0;
+        BrokenSummonIndex = 0;
+        BrokenList.clear();        
+        HasYelledOnce = false;
     }
 
     ScriptedInstance* pInstance;
@@ -534,20 +547,12 @@ struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
         DestructivePoisonTimer = 15000;
         LightningBoltTimer = 10000;
         CheckTimer = 2000;
-        CastSoulRetrieveTimer = 0;
-        SoulRetrieveTimer = 0;
-        SummonBrokenTimer = 0;
-        EndingTalkCount = 0;
-        WayPointId = 0;
-        BrokenSummonIndex = 0;
-
-        BrokenList.clear();
-
-        EventBegun = false;
-        HasYelledOnce = false;
-
-        m_creature->SetUInt32Value(UNIT_NPC_FLAGS, 0);      // Database sometimes has very very strange values
-        m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        
+        if(!EventBegun)
+        {
+            m_creature->SetUInt32Value(UNIT_NPC_FLAGS, 0);      // Database sometimes has very very strange values
+            m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        }
     }
 
     void Aggro(Unit* who) {}
@@ -589,7 +594,7 @@ struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
         case 0: ++WayPointId; break;
 
         case 1:
-            if(Unit* Shade = Unit::GetUnit(*m_creature, ShadeGUID))
+            if(Creature* Shade = Unit::GetCreature(*m_creature, ShadeGUID))
             {
                 m_creature->SetUInt64Value(UNIT_FIELD_TARGET, ShadeGUID);
                 DoCast(Shade, SPELL_AKAMA_SOUL_RETRIEVE);
@@ -603,6 +608,20 @@ struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
+        EventBegun = false;
+        ShadeHasDied = false;
+        StartCombat = false;
+        CastSoulRetrieveTimer = 0;
+        SoulRetrieveTimer = 0;
+        SummonBrokenTimer = 0;
+        EndingTalkCount = 0;
+        WayPointId = 0;
+        BrokenSummonIndex = 0;
+        BrokenList.clear();        
+        HasYelledOnce = false;
+        Creature* Shade = Unit::GetCreature((*m_creature), ShadeGUID);
+        if(Shade && Shade->isAlive())
+            ((boss_shade_of_akamaAI*)Shade->AI())->HasKilledAkama = true;
     }
 
     void UpdateAI(const uint32 diff)
@@ -650,13 +669,18 @@ struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
             {
                 if(ShadeGUID)
                 {
-                    Unit* Shade = Unit::GetUnit((*m_creature), ShadeGUID);
+                    Creature* Shade = Unit::GetCreature((*m_creature), ShadeGUID);
                     if(Shade && !Shade->isAlive())
                     {
                         ShadeHasDied = true;
                         WayPointId = 0;
                         m_creature->SetUnitMovementFlags(MOVEMENTFLAG_WALK_MODE);
                         m_creature->GetMotionMaster()->MovePoint(WayPointId, AkamaWP[0].x, AkamaWP[0].y, AkamaWP[0].z);
+                    }
+                    if(Shade && Shade->isAlive())
+                    {
+                        if(Shade->getThreatManager().getThreatList().size() < 2)
+                            Shade->AI()->EnterEvadeMode();
                     }
                 }
                 CheckTimer = 5000;
@@ -710,7 +734,7 @@ struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
                     {
                         bool Yelled = false;
                         for(std::list<uint64>::iterator itr = BrokenList.begin(); itr != BrokenList.end(); ++itr)
-                            if(Unit* pUnit = Unit::GetUnit(*m_creature, *itr))
+                            if(Creature* pUnit = Unit::GetCreature(*m_creature, *itr))
                             {
                                 if(!Yelled)
                                 {
@@ -727,7 +751,7 @@ struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
                     if(!BrokenList.empty())
                     {
                         for(std::list<uint64>::iterator itr = BrokenList.begin(); itr != BrokenList.end(); ++itr)
-                            if(Unit* pUnit = Unit::GetUnit(*m_creature, *itr))
+                            if(Creature* pUnit = Unit::GetCreature(*m_creature, *itr))
                                 // This is the incorrect spell, but can't seem to find the right one.
                                 pUnit->CastSpell(pUnit, 39656, true);
                     }
@@ -738,7 +762,7 @@ struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
                     if(!BrokenList.empty())
                     {
                         for(std::list<uint64>::iterator itr = BrokenList.begin(); itr != BrokenList.end(); ++itr)
-                            if(Unit* pUnit = Unit::GetUnit((*m_creature), *itr))
+                            if(Creature* pUnit = Unit::GetCreature((*m_creature), *itr))
                                 pUnit->MonsterYell(SAY_BROKEN_FREE_02, LANG_UNIVERSAL, 0);
                     }
                     SoulRetrieveTimer = 0;
@@ -751,7 +775,7 @@ struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
 
         if(DestructivePoisonTimer < diff)
         {
-            Unit* Shade = Unit::GetUnit((*m_creature), ShadeGUID);
+            Creature* Shade = Unit::GetCreature((*m_creature), ShadeGUID);
             if (Shade && Shade->isAlive())
                 DoCast(Shade, SPELL_DESTRUCTIVE_POISON);
             DestructivePoisonTimer = 15000;
