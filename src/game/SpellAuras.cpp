@@ -3082,10 +3082,10 @@ void AuraEffect::HandleAuraTransform(bool apply, bool Real)
         if(GetMiscValue()==0)
         {
             // player applied only
-            if(m_target->GetTypeId()!=TYPEID_PLAYER)
+            if (m_target->GetTypeId()!=TYPEID_PLAYER)
                 return;
 
-            switch(GetId())
+            switch (GetId())
             {
                 // Orb of Deception
                 case 16739:
@@ -3161,16 +3161,19 @@ void AuraEffect::HandleAuraTransform(bool apply, bool Real)
                 if(GetId()==42016 && m_target->GetMountID() && !m_target->GetAurasByType(SPELL_AURA_MOD_INCREASE_FLIGHT_SPEED).empty())
                     m_target->SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID,16314);
             }
-            m_target->setTransForm(GetId());
         }
 
+        // update active transform spell only not set or not overwriting negative by positive case
+        if (!m_target->getTransForm() || !IsPositiveSpell(GetId()) || IsPositiveSpell(m_target->getTransForm()))
+            m_target->setTransForm(GetId());
+
         // polymorph case
-        if( Real && m_target->GetTypeId() == TYPEID_PLAYER && m_target->IsPolymorphed())
+        if (Real && m_target->GetTypeId() == TYPEID_PLAYER && m_target->IsPolymorphed())
         {
             // for players, start regeneration after 1s (in polymorph fast regeneration case)
             // only if caster is Player (after patch 2.4.2)
-            if(IS_PLAYER_GUID(GetCasterGUID()) )
-                ((Player*)m_target)->setRegenTimer(1000);
+            if (IS_PLAYER_GUID(GetCasterGUID()) )
+                ((Player*)m_target)->setRegenTimer(1*IN_MILISECONDS);
 
             //dismount polymorphed target (after patch 2.4.2)
             if (m_target->IsMounted())
@@ -3179,20 +3182,20 @@ void AuraEffect::HandleAuraTransform(bool apply, bool Real)
     }
     else
     {
+        // ApplyModifier(true) will reapply it if need
+        m_target->setTransForm(0);
+        m_target->SetDisplayId(m_target->GetNativeDisplayId());
+
+        // re-aplly some from still active with preference negative cases
         Unit::AuraEffectList const& otherTransforms = m_target->GetAurasByType(SPELL_AURA_TRANSFORM);
-        if(otherTransforms.empty())
-        {
-            m_target->SetDisplayId(m_target->GetNativeDisplayId());
-            m_target->setTransForm(0);
-        }
-        else
+        if (!otherTransforms.empty())
         {
             // look for other transform auras
             AuraEffect* handledAura = *otherTransforms.begin();
             for(Unit::AuraEffectList::const_iterator i = otherTransforms.begin();i != otherTransforms.end(); ++i)
             {
                 // negative auras are preferred
-                if(!IsPositiveSpell((*i)->GetSpellProto()->Id))
+                if (!IsPositiveSpell((*i)->GetSpellProto()->Id))
                 {
                     handledAura = *i;
                     break;
@@ -3202,9 +3205,9 @@ void AuraEffect::HandleAuraTransform(bool apply, bool Real)
         }
 
         // Dragonmaw Illusion (restore mount model)
-        if(GetId()==42016 && m_target->GetMountID()==16314)
+        if (GetId()==42016 && m_target->GetMountID()==16314)
         {
-            if(!m_target->GetAurasByType(SPELL_AURA_MOUNTED).empty())
+            if (!m_target->GetAurasByType(SPELL_AURA_MOUNTED).empty())
             {
                 uint32 cr_id = m_target->GetAurasByType(SPELL_AURA_MOUNTED).front()->GetMiscValue();
                 if(CreatureInfo const* ci = objmgr.GetCreatureTemplate(cr_id))
