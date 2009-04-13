@@ -324,6 +324,7 @@ m_timeCla(1000), m_castItemGuid(castItem?castItem->GetGUID():0), m_auraSlot(MAX_
 m_positive(false), m_permanent(false), m_isPeriodic(false), m_isTrigger(false), m_isAreaAura(false),
 m_isPersistent(false), m_updated(false), m_removeMode(AURA_REMOVE_BY_DEFAULT), m_isRemovedOnShapeLost(true), m_in_use(false),
 m_periodicTimer(0), m_PeriodicEventId(0), m_AuraDRGroup(DIMINISHING_NONE)
+,m_tickNumber(0)
 {
     assert(target);
 
@@ -578,6 +579,8 @@ void Aura::Update(uint32 diff)
         m_periodicTimer -= diff;
         if(m_periodicTimer <= 0)                            // tick also at m_periodicTimer==0 to prevent lost last tick in case max m_duration == (max m_periodicTimer)*N
         {
+            ++m_tickNumber;
+
             if( m_modifier.m_auraname == SPELL_AURA_MOD_REGEN ||
                 m_modifier.m_auraname == SPELL_AURA_MOD_POWER_REGEN ||
                                                             // Cannibalize, eating items and other spells
@@ -5306,7 +5309,7 @@ void Aura::PeriodicTick()
                                 break;
                             }
                         }
-                        m_modifier.m_amount += 100;
+                        m_modifier.m_amount = 100 * m_tickNumber;
                     }break;
                     default:
                         break;
@@ -5341,11 +5344,12 @@ void Aura::PeriodicTick()
                 // Curse of Agony damage-per-tick calculation
                 if (GetSpellProto()->SpellFamilyName==SPELLFAMILY_WARLOCK && (GetSpellProto()->SpellFamilyFlags & 0x0000000000000400LL) && GetSpellProto()->SpellIconID==544)
                 {
+                    uint32 totalTick = m_maxduration / m_modifier.periodictime;
                     // 1..4 ticks, 1/2 from normal tick damage
-                    if (m_duration>=((m_maxduration-m_modifier.periodictime)*2/3))
+                    if(m_tickNumber <= totalTick / 3)
                         pdamage = pdamage/2;
                     // 9..12 ticks, 3/2 from normal tick damage
-                    else if(m_duration<((m_maxduration-m_modifier.periodictime)/3))
+                    else if(m_tickNumber > totalTick * 2 / 3)
                         pdamage += (pdamage+1)/2;           // +1 prevent 0.5 damage possible lost at 1..4 ticks
                     // 5..8 ticks have normal tick damage
                 }

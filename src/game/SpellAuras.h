@@ -240,6 +240,7 @@ class TRINITY_DLL_SPEC Aura
         void UpdateAuraDuration();
         void SendAuraDurationForCaster(Player* caster);
         void UpdateSlotCounterAndDuration();
+        uint32 GetTickNumber() const { return m_tickNumber; }
 
         uint64 const& GetCasterGUID() const { return m_caster_guid; }
         Unit* GetCaster() const;
@@ -321,6 +322,7 @@ class TRINITY_DLL_SPEC Aura
         Unit* m_target;
         int32 m_maxduration;
         int32 m_duration;
+        uint32 m_tickNumber;
         int32 m_timeCla;
         uint64 m_castItemGuid;                              // it is NOT safe to keep a pointer to the item because it may get deleted
         time_t m_applyTime;
