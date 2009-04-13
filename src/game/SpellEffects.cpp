@@ -448,12 +448,6 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                     if(unitTarget->HasAuraState(AURA_STATE_IMMOLATE, m_spellInfo, m_caster))
                         damage += int32(damage*0.25f);
                 }
-                // Haunt
-                else if (m_spellInfo->SpellFamilyFlags[1] & 0x40000)
-                {
-                    m_currentBasePoints[1] = int32(damage * m_currentBasePoints[1] / 100);
-                }
-
                 // Conflagrate - consumes immolate
                 if (m_spellInfo->TargetAuraState == AURA_STATE_IMMOLATE)
                 {

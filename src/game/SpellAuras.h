@@ -74,6 +74,8 @@ class TRINITY_DLL_SPEC Aura
         uint8 GetAuraCharges() const { return m_procCharges; }
         void SetAuraCharges(uint8 charges);
         bool DropAuraCharge();
+        void SetProcDamage(uint32 val) { m_procDamage = val; }
+        uint32 GetProcDamage() const { return m_procDamage; }
 
         int8 GetStackAmount() const {return m_stackAmount;}
         void SetStackAmount(uint8 num);

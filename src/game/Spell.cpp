@@ -380,6 +380,7 @@ Spell::Spell( Unit* Caster, SpellEntry const *info, bool triggered, uint64 origi
     m_glyphIndex = 0;
     m_preCastSpell = 0;
     m_triggeredByAuraSpell  = NULL;
+    m_spellAura = NULL;
 
     //Auto Shot & Shoot (wand)
     m_autoRepeat = IsAutoRepeatRangedSpell(m_spellInfo);
@@ -938,6 +939,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
     uint32 procAttacker = m_procAttacker;
     uint32 procVictim   = m_procVictim;
     uint32 procEx       = PROC_EX_NONE;
+    m_spellAura = NULL; // Set aura to null for every target-make sure that pointer is not used for unit without aura applied
 
     if (missInfo==SPELL_MISS_NONE)                          // In case spell hit target, do all effect on that target
         DoSpellHitOnUnit(unit, mask);
@@ -981,6 +983,9 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         if (m_canTrigger && missInfo != SPELL_MISS_REFLECT)
             caster->ProcDamageAndSpell(unitTarget, procAttacker, procVictim, procEx, addhealth, m_attackType, m_spellInfo);
 
+        if (m_spellAura)
+            m_spellAura->SetProcDamage(addhealth);
+
         int32 gain = unitTarget->ModifyHealth( int32(addhealth) );
 
         unitTarget->getHostilRefManager().threatAssist(caster, float(gain) * 0.5f, m_spellInfo);
@@ -1006,6 +1011,9 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         // Do triggers for unit (reflect triggers passed on hit phase for correct drop charge)
         if (m_canTrigger && missInfo != SPELL_MISS_REFLECT)
             caster->ProcDamageAndSpell(unitTarget, procAttacker, procVictim, procEx, damageInfo.damage, m_attackType, m_spellInfo);
+
+        if (m_spellAura)
+            m_spellAura->SetProcDamage(damageInfo.damage);
 
         caster->DealSpellDamage(&damageInfo, true);
 
@@ -1186,7 +1194,9 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
             if( m_spellInfo->SpellFamilyName == SPELLFAMILY_PRIEST && (m_spellInfo->SpellFamilyFlags[1] & 0x000020))
                 m_caster->CastSpell(unit, 41637, true, NULL, NULL, m_originalCasterGUID);
         }
-        unit->AddAura(Aur);
+        // Set aura only when successfully applied
+        if (unit->AddAura(Aur))
+            m_spellAura = Aur;
     }
     t_effmask = effectMask& ~t_effmask;
     for(uint32 effectNumber=0;effectNumber<3;effectNumber++)
