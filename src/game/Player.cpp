@@ -9547,7 +9547,7 @@ uint8 Player::CanStoreItems( Item **pItems,int count) const
             for(int t = INVENTORY_SLOT_BAG_START; !b_found && t < INVENTORY_SLOT_BAG_END; t++)
             {
                 pBag = (Bag*)GetItemByPos( INVENTORY_SLOT_BAG_0, t );
-                if( pBag )
+                if( pBag && ItemCanGoIntoBag(pItem->GetProto(), pBag->GetProto()))
                 {
                     for(uint32 j = 0; j < pBag->GetBagSize(); j++)
                     {
@@ -14418,7 +14418,6 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
 
     _LoadAuras(holder->GetResult(PLAYER_LOGIN_QUERY_LOADAURAS), time_diff);
     _LoadGlyphAuras();
-
     // add ghost flag (must be after aura load: PLAYER_FLAGS_GHOST set in aura)
     if( HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST) )
         m_deathState = DEAD;
