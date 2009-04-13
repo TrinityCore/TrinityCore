@@ -686,16 +686,9 @@ void Aura::Update(uint32 diff)
         }
     }
 
-    for (uint8 i = 0; i<MAX_SPELL_EFFECTS;++i)
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         if (m_partAuras[i])
-        {
-            if (m_partAuras[i]->IsAreaAura())
-                ((AreaAuraEffect *) m_partAuras[i])->Update(diff);
-            else if(m_partAuras[i]->IsPersistent())
-                ((PersistentAreaAuraEffect *) m_partAuras[i])->Update(diff);
-            else
-                m_partAuras[i]->Update(diff);
-        }
+            m_partAuras[i]->Update(diff);
 }
 
 void AuraEffect::Update(uint32 diff)
