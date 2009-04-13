@@ -161,6 +161,7 @@ class TRINITY_DLL_SPEC Aura
         bool m_updated:1;                                   // Prevent remove aura by stack if set
         bool m_isSingleTargetAura:1;                        // true if it's a single target spell and registered at caster - can change at spell steal for example
 };
+
 class TRINITY_DLL_SPEC AuraEffect
 {
     public:
@@ -335,7 +336,7 @@ class TRINITY_DLL_SPEC AuraEffect
         uint32 GetEffIndex() const { return m_effIndex; }
         int32 GetBasePoints() const { return m_currentBasePoints; }
         int32 GetAuraAmplitude(){return m_amplitude;}
-        void Update(uint32 diff);
+        virtual void Update(uint32 diff);
 
         bool IsAreaAura() const { return m_isAreaAura; }
         bool IsPeriodic() const { return m_isPeriodic; }
