@@ -16454,17 +16454,18 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
         }
     }
 
-    pet->SavePetToDB(mode);
-
     // only if current pet in slot
     switch(pet->getPetType())
     {
         case POSSESSED_PET:
             pet->RemoveCharmedOrPossessedBy(NULL);
+            break;
         default:
-            SetGuardian(pet, false);
+            pet->SavePetToDB(mode);
             break;
     }
+
+    SetGuardian(pet, false);
 
     pet->CleanupsBeforeDelete();
     pet->AddObjectToRemoveList();
