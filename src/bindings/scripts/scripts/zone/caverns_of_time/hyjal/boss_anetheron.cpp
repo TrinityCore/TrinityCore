@@ -225,15 +225,21 @@ struct TRINITY_DLL_DECL mob_towering_infernalAI : public ScriptedAI
 {
     mob_towering_infernalAI(Creature *c) : ScriptedAI(c)
     {
-        Reset();
+        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        if(pInstance)
+            AnetheronGUID = pInstance->GetData64(DATA_ANETHERON);
     }
 
     uint32 ImmolationTimer;
+    uint32 CheckTimer;
+    uint64 AnetheronGUID;
+    ScriptedInstance* pInstance;
 
     void Reset()
     {
         DoCast(m_creature, SPELL_INFERNO_EFFECT);
         ImmolationTimer = 5000;
+        CheckTimer = 5000;
     }
 
     void Aggro(Unit *who)
@@ -262,6 +268,21 @@ struct TRINITY_DLL_DECL mob_towering_infernalAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
+        if(CheckTimer < diff)
+        {
+            if(AnetheronGUID)
+            {
+                Creature* boss = Unit::GetCreature((*m_creature),AnetheronGUID);
+                if(!boss || (boss && boss->isDead()))
+                {
+                    m_creature->setDeathState(JUST_DIED);
+                    m_creature->RemoveCorpse();
+                    return;
+                }
+            }
+            CheckTimer = 5000;
+        }else CheckTimer -= diff;
+
         //Return since we have no target
         if (!UpdateVictim())
             return;
