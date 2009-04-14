@@ -652,18 +652,18 @@ void BattleGroundQueue::Update(uint32 bgTypeId, uint32 queue_id, uint8 arenatype
 
         std::list<GroupQueueInfo* >::iterator itr;
 
-        //Send corrent ammount of invites to both faction at start of BG, not all in current queue, makes starting teams even
-        unsigned int QUEUED_HORDE = m_SelectionPools[NORMAL_HORDE].SelectedGroups.size();
-        unsigned int QUEUED_ALLIANCE= m_SelectionPools[NORMAL_ALLIANCE].SelectedGroups.size();
-        unsigned int maxbginvites = 0;
+        // Send amount of invites based on the difference between the sizes of the two faction's queues
+        uint32 QUEUED_HORDE = m_SelectionPools[NORMAL_HORDE].SelectedGroups.size();
+        uint32 QUEUED_ALLIANCE = m_SelectionPools[NORMAL_ALLIANCE].SelectedGroups.size();
+        uint16 maxbginvites = 0;
 
         if(QUEUED_ALLIANCE <= QUEUED_HORDE)
             maxbginvites = QUEUED_ALLIANCE;
         else
-        maxbginvites = QUEUED_HORDE;
+            maxbginvites = QUEUED_HORDE;
 
         // invite groups from horde selection pool
-        int invitecounter = 0;
+        uint16 invitecounter = 0;
         for(itr = m_SelectionPools[NORMAL_HORDE].SelectedGroups.begin(); itr != m_SelectionPools[NORMAL_HORDE].SelectedGroups.end(); ++itr)
         {
             if (invitecounter >= maxbginvites)
@@ -675,7 +675,7 @@ void BattleGroundQueue::Update(uint32 bgTypeId, uint32 queue_id, uint8 arenatype
         // invite groups from ally selection pool
         invitecounter = 0;
         for(itr = m_SelectionPools[NORMAL_ALLIANCE].SelectedGroups.begin(); itr != m_SelectionPools[NORMAL_ALLIANCE].SelectedGroups.end(); ++itr)
-		{
+        {
             if (invitecounter >= maxbginvites)
                 return;
             InviteGroupToBG((*itr),bg2,ALLIANCE);
