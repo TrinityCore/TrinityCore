@@ -33,8 +33,9 @@ struct GM_Ticket
     uint64 playerGuid;
     std::string name;
     std::string message;
+    uint64 createtime;
     uint64 timestamp;
-    uint16 closed;
+    uint64 closed;
     uint64 assignedToGM;
     std::string comment;
 };
