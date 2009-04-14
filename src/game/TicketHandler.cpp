@@ -61,6 +61,10 @@ void WorldSession::HandleGMTicketCreateOpcode( WorldPacket & recv_data )
     ticket->playerGuid = GetPlayer()->GetGUID();
     ticket->message = ticketText;
     ticket->createtime = time(NULL);
+    ticket->map = map;
+    ticket->pos_x = x;
+    ticket->pos_y = y;
+    ticket->pos_z = z;
     ticket->timestamp = time(NULL);
     ticket->closed = 0;
     ticket->assignedToGM = 0;
@@ -189,4 +193,3 @@ void WorldSession::HandleGMTicketSystemStatusOpcode( WorldPacket & /*recv_data*/
     // Send Packet
     SendPacket(&data);
 }
-
