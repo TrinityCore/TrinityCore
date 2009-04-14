@@ -82,7 +82,7 @@ enum SpellCastFlags
     CAST_FLAG_UNKNOWN3           = 0x00000100,
     CAST_FLAG_UNKNOWN13          = 0x00000200,
     CAST_FLAG_UNKNOWN14          = 0x00000400,
-    CAST_FLAG_UNKNOWN6           = 0x00000800,              // wotlk, trigger rune cooldown
+    CAST_FLAG_POWER_LEFT_SELF    = 0x00000800,              // wotlk
     CAST_FLAG_UNKNOWN15          = 0x00001000,
     CAST_FLAG_UNKNOWN16          = 0x00002000,
     CAST_FLAG_UNKNOWN17          = 0x00004000,

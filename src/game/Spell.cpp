@@ -2826,6 +2826,10 @@ void Spell::SendSpellStart()
     uint32 castFlags = CAST_FLAG_UNKNOWN1;
     if(IsRangedSpell())
         castFlags |= CAST_FLAG_AMMO;
+    if ((m_caster->GetTypeId() == TYPEID_PLAYER ||
+        (m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->isPet()))
+         && m_spellInfo->powerType != POWER_HEALTH )
+        castFlags |= CAST_FLAG_POWER_LEFT_SELF;
 
     if(m_spellInfo->runeCostID)
         castFlags |= CAST_FLAG_UNKNOWN10;
@@ -2846,23 +2850,8 @@ void Spell::SendSpellStart()
 
     m_targets.write(&data);
 
-    if ( castFlags & CAST_FLAG_UNKNOWN6 )                   // predicted power?
-        data << uint32(0);
-
-    if ( castFlags & CAST_FLAG_UNKNOWN7 )                   // rune cooldowns list
-    {
-        uint8 v1 = 0;//m_runesState;
-        uint8 v2 = 0;//((Player*)m_caster)->GetRunesState();
-        data << uint8(v1);                                  // runes state before
-        data << uint8(v2);                                  // runes state after
-        for(uint8 i = 0; i < MAX_RUNES; ++i)
-        {
-            uint8 m = (1 << i);
-            if(m & v1)                                      // usable before...
-                if(!(m & v2))                               // ...but on cooldown now...
-                    data << uint8(0);                       // some unknown byte (time?)
-        }
-    }
+    if(castFlags & CAST_FLAG_POWER_LEFT_SELF)
+        data << uint32(m_caster->GetPower((Powers)m_spellInfo->powerType));
 
     if ( castFlags & CAST_FLAG_AMMO )
         WriteAmmoToPacket(&data);
@@ -2883,11 +2872,14 @@ void Spell::SendSpellGo()
     uint32 castFlags = CAST_FLAG_UNKNOWN3;
     if(IsRangedSpell())
         castFlags |= CAST_FLAG_AMMO;                        // arrows/bullets visual
+    if ((m_caster->GetTypeId() == TYPEID_PLAYER ||
+        (m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->isPet()))
+        && m_spellInfo->powerType != POWER_HEALTH )
+        castFlags |= CAST_FLAG_POWER_LEFT_SELF; // should only be sent to self, but the current messaging doesn't make that possible
 
     if((m_caster->GetTypeId() == TYPEID_PLAYER) && (m_caster->getClass() == CLASS_DEATH_KNIGHT) && m_spellInfo->runeCostID)
     {
         castFlags |= CAST_FLAG_UNKNOWN10;                   // same as in SMSG_SPELL_START
-        castFlags |= CAST_FLAG_UNKNOWN6;                    // makes cooldowns visible
         castFlags |= CAST_FLAG_UNKNOWN7;                    // rune cooldowns list
     }
 
@@ -2908,8 +2900,8 @@ void Spell::SendSpellGo()
 
     m_targets.write(&data);
 
-    if ( castFlags & CAST_FLAG_UNKNOWN6 )                   // unknown wotlk, predicted power?
-        data << uint32(0);
+    if(castFlags & CAST_FLAG_POWER_LEFT_SELF)
+        data << uint32(m_caster->GetPower((Powers)m_spellInfo->powerType));
 
     if ( castFlags & CAST_FLAG_UNKNOWN7 )                   // rune cooldowns list
     {
