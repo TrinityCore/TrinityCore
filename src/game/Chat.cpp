@@ -181,6 +181,7 @@ ChatCommand * ChatHandler::getCommandTable()
         { "creature",       SEC_MODERATOR,      false, &ChatHandler::HandleGoCreatureCommand,          "", NULL },
         { "object",         SEC_MODERATOR,      false, &ChatHandler::HandleGoObjectCommand,            "", NULL },
         { "trigger",        SEC_MODERATOR,      false, &ChatHandler::HandleGoTriggerCommand,           "", NULL },
+        { "ticket",         SEC_MODERATOR,      false, &ChatHandler::HandleGoTicketCommand,            "", NULL },
         { "graveyard",      SEC_MODERATOR,      false, &ChatHandler::HandleGoGraveyardCommand,         "", NULL },
         { "zonexy",         SEC_MODERATOR,      false, &ChatHandler::HandleGoZoneXYCommand,            "", NULL },
         { "xy",             SEC_MODERATOR,      false, &ChatHandler::HandleGoXYCommand,                "", NULL },
