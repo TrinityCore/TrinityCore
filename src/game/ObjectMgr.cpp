@@ -591,6 +591,18 @@ void ObjectMgr::LoadCreatureTemplates()
                 continue;
             }
 
+            if(heroicInfo->AIName && *heroicInfo->AIName)
+            {
+                sLog.outErrorDb("Heroic mode creature (Entry: %u) has `AIName`, but in any case will used normal mode creature (Entry: %u) AIName.",cInfo->HeroicEntry,i);
+                continue;
+            }
+
+            if(heroicInfo->ScriptID)
+            {
+                sLog.outErrorDb("Heroic mode creature (Entry: %u) has `ScriptName`, but in any case will used normal mode creature (Entry: %u) ScriptName.",cInfo->HeroicEntry,i);
+                continue;
+            }
+
             hasHeroicEntries.insert(i);
             heroicEntries.insert(cInfo->HeroicEntry);
         }
