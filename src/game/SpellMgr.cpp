@@ -676,7 +676,23 @@ bool IsPositiveEffect(uint32 spellId, uint32 effIndex, bool deep)
                     {
                         case SPELLMOD_COST:                 // dependent from bas point sign (negative -> positive)
                             if(spellproto->CalculateSimpleValue(effIndex) > 0)
-                                return false;
+                            {
+                                if (!deep)
+                                {
+                                    bool negative = true;
+                                    for (uint8 i=0;i<MAX_SPELL_EFFECTS;++i)
+                                    {
+                                        if (i != effIndex)
+                                            if (IsPositiveEffect(spellId, i, true))
+                                            {
+                                                negative = false;
+                                                break;
+                                            }
+                                    }
+                                    if (negative)
+                                        return false;
+                                }
+                            }
                             break;
                         default:
                             break;

@@ -426,24 +426,22 @@ m_auraSlot(MAX_AURAS), m_auraLevel(1), m_procCharges(0), m_stackAmount(1),m_aura
     // Aura is positive when it is casted by friend and at least one aura is positive
     // or when it is casted by enemy and  at least one aura is negative
     bool swap=false;
-    if (!caster || caster==target)
-        m_positive=IsPositiveSpell(m_spellProto->Id);
+    if (!caster || caster==target) // caster == target - 1 negative effect is enough for aura to be negative
+        m_positive = false;
     else
-    {
         m_positive = !caster->IsHostileTo(m_target);
-        for (uint8 i=0;i<MAX_SPELL_EFFECTS;++i)
+    for (uint8 i=0;i<MAX_SPELL_EFFECTS;++i)
+    {
+        if (!(1<<i & GetEffectMask()))
+            continue;
+        if (m_positive == IsPositiveEffect(GetId(), i))
         {
-            if (!(1<<i & GetEffectMask()))
-                continue;
-            if (m_positive == IsPositiveEffect(GetId(), i))
-            {
-                swap = true;
-                break;
-            }
+            swap = true;
+            break;
         }
-        if (!swap)
-            m_positive=!m_positive;
     }
+    if (!swap)
+        m_positive=!m_positive;
 }
 
 Aura::~Aura()
