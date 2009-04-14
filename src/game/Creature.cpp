@@ -2237,12 +2237,17 @@ uint32 Creature::getLevelForTarget( Unit const* target ) const
     return level;
 }
 
-std::string Creature::GetScriptName()
+std::string Creature::GetAIName() const
+{
+    return ObjectMgr::GetCreatureTemplate(GetEntry())->AIName;
+}
+
+std::string Creature::GetScriptName() const
 {
     return objmgr.GetScriptName(GetScriptId());
 }
 
-uint32 Creature::GetScriptId()
+uint32 Creature::GetScriptId() const
 {
     return ObjectMgr::GetCreatureTemplate(GetEntry())->ScriptID;
 }

@@ -560,8 +560,9 @@ class TRINITY_DLL_SPEC Creature : public Unit
         CreatureInfo const *GetCreatureInfo() const { return m_creatureInfo; }
         CreatureDataAddon const* GetCreatureAddon() const;
 
-        std::string GetScriptName();
-        uint32 GetScriptId();
+        std::string GetAIName() const;
+        std::string GetScriptName() const;
+        uint32 GetScriptId() const;
 
         void prepareGossipMenu( Player *pPlayer, uint32 gossipid = 0 );
         void sendPreparedGossip( Player* player );

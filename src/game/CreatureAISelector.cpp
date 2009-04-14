@@ -47,11 +47,8 @@ namespace FactorySelector
             if(CreatureAI* scriptedAI = Script->GetAI(creature))
                 return scriptedAI;
 
-        CreatureInfo const *cinfo = creature->GetCreatureInfo();
-        assert(cinfo);
-
-        // this seems to be useless
-        std::string ainame=cinfo->AIName;
+        // AIname in db
+        std::string ainame=creature->GetAIName();
         if(!ai_factory && !ainame.empty())
             ai_factory = ai_registry.GetRegistryItem( ainame.c_str() );
 
