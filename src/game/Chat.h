@@ -321,6 +321,7 @@ class ChatHandler
         bool HandleEquipErrorCommand(const char* args);
         bool HandleGoCreatureCommand(const char* args);
         bool HandleGoObjectCommand(const char* args);
+        bool HandleGoTicketCommand(const char* args);
         bool HandleGoTriggerCommand(const char* args);
         bool HandleGoGraveyardCommand(const char* args);
         bool HandleTargetObjectCommand(const char* args);

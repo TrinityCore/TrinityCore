@@ -92,13 +92,9 @@ void TicketMgr::DeleteGMTicketPermanently(uint64 ticketGuid)
     for(GmTicketList::iterator i = GM_TicketList.begin(); i != GM_TicketList.end();)
     {
         if((*i)->guid == ticketGuid)
-        {
             i = GM_TicketList.erase(i);
-        }
         else
-        {
             ++i;
-        }
     }
 
     // delete database record
@@ -108,10 +104,9 @@ void TicketMgr::DeleteGMTicketPermanently(uint64 ticketGuid)
 
 void TicketMgr::LoadGMTickets()
 {
-    InitTicketID();
     // Delete all out of object holder
     GM_TicketList.clear();
-    QueryResult *result = CharacterDatabase.Query( "SELECT `guid`, `playerGuid`, `name`, `message`, `createtime`, `timestamp`, `closed`, `assignedto`, `comment` FROM `gm_tickets`" );
+    QueryResult *result = CharacterDatabase.Query( "SELECT `guid`, `playerGuid`, `name`, `message`, `createtime`, `map`, `posX`, `posY`, `posZ`, `timestamp`, `closed`, `assignedto`, `comment` FROM `gm_tickets`" );
     GM_Ticket *ticket;
 
     if(!result)
@@ -127,10 +122,13 @@ void TicketMgr::LoadGMTickets()
         ticket->name = fields[2].GetString();
         ticket->message = fields[3].GetString();
         ticket->createtime = fields[4].GetUInt64();
-        ticket->timestamp = fields[5].GetUInt64();
-        ticket->closed = fields[6].GetUInt64();
-        ticket->assignedToGM = fields[7].GetUInt64();
-        ticket->comment = fields[8].GetString();
+        ticket->pos_x = fields[5].GetFloat();
+        ticket->pos_y = fields[6].GetFloat();
+        ticket->pos_z = fields[7].GetFloat();
+        ticket->timestamp = fields[8].GetUInt64();
+        ticket->closed = fields[9].GetUInt64();
+        ticket->assignedToGM = fields[10].GetUInt64();
+        ticket->comment = fields[11].GetString();
 
         AddGMTicket(ticket, true);
 
@@ -173,12 +171,16 @@ void TicketMgr::SaveGMTicket(GM_Ticket* ticket)
     std::string msg = ticket->message;
     CharacterDatabase.escape_string(msg);
     std::stringstream ss;
-    ss << "REPLACE INTO `gm_tickets` (`guid`, `playerGuid`, `name`, `message`, `createtime`, `timestamp`, `closed`, `assignedto`, `comment`) VALUES('";
+    ss << "REPLACE INTO `gm_tickets` (`guid`, `playerGuid`, `name`, `message`, `createtime`, `map`, `posX`, `posY`, `posZ`, `timestamp`, `closed`, `assignedto`, `comment`) VALUES('";
     ss << ticket->guid << "', '";
     ss << ticket->playerGuid << "', '";
     ss << ticket->name << "', '";
     ss << msg << "', '" ;
     ss << ticket->createtime << "', '";
+    ss << ticket->map << "', '";
+    ss << ticket->pos_x << "', '";
+    ss << ticket->pos_y << "', '";
+    ss << ticket->pos_z << "', '";
     ss << ticket->timestamp << "', '";
     ss << ticket->closed << "', '";
     ss << ticket->assignedToGM << "', '";

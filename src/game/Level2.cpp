@@ -43,6 +43,7 @@
 #include <fstream>
 #include <map>
 #include "GlobalEvents.h"
+#include "TicketMgr.h"
 
 #include "TargetedMovementGenerator.h"                      // for HandleNpcUnFollowCommand
 
@@ -341,6 +342,48 @@ bool ChatHandler::HandleGoObjectCommand(const char* args)
         _player->SaveRecallPosition();
 
     _player->TeleportTo(mapid, x, y, z, ort);
+    return true;
+}
+
+bool ChatHandler::HandleGoTicketCommand(const char * args)
+{
+     if(!*args)
+        return false;
+
+    char *cstrticket_id = strtok((char*)args, " ");
+
+    if(!cstrticket_id)
+        return false;
+
+    uint64 ticket_id = atoi(cstrticket_id);
+    if(!ticket_id)
+        return false;
+
+    GM_Ticket *ticket = ticketmgr.GetGMTicket(ticket_id);
+    if(!ticket)
+    {
+        SendSysMessage(LANG_COMMAND_TICKETNOTEXIST);
+        return true;
+    }
+
+    float x, y, z;
+    int mapid;
+
+    x = ticket->pos_x;
+    y = ticket->pos_y;
+    z = ticket->pos_z;
+    mapid = ticket->map;
+
+    Player* _player = m_session->GetPlayer();
+    if(_player->isInFlight())
+    {
+        _player->GetMotionMaster()->MovementExpired();
+        _player->m_taxi.ClearTaxiDestinations();
+    }
+     else
+        _player->SaveRecallPosition();
+
+    _player->TeleportTo(mapid, x, y, z, 1, 0);
     return true;
 }
 
