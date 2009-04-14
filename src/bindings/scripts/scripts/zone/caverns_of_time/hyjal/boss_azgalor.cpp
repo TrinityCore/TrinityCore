@@ -188,17 +188,22 @@ struct TRINITY_DLL_DECL mob_lesser_doomguardAI : public hyjal_trashAI
     mob_lesser_doomguardAI(Creature *c) : hyjal_trashAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
+        if(pInstance)
+            AzgalorGUID = pInstance->GetData64(DATA_AZGALOR);
     }
 
     uint32 CrippleTimer;
     uint32 WarstompTimer;
+    uint32 CheckTimer;
+    uint64 AzgalorGUID;
+    ScriptedInstance* pInstance;
 
     void Reset()
     {
         CrippleTimer = 50000;
         WarstompTimer = 10000;
         DoCast(m_creature, SPELL_THRASH);
+        CheckTimer = 5000;
     }
 
     void Aggro(Unit *who)
@@ -231,6 +236,21 @@ struct TRINITY_DLL_DECL mob_lesser_doomguardAI : public hyjal_trashAI
 
     void UpdateAI(const uint32 diff)
     {
+        if(CheckTimer < diff)
+        {
+            if(AzgalorGUID)
+            {
+                Creature* boss = Unit::GetCreature((*m_creature),AzgalorGUID);
+                if(!boss || (boss && boss->isDead()))
+                {
+                    m_creature->setDeathState(JUST_DIED);
+                    m_creature->RemoveCorpse();
+                    return;
+                }
+            }
+            CheckTimer = 5000;
+        }else CheckTimer -= diff;
+
         //Return since we have no target
         if (!UpdateVictim() )
             return;
