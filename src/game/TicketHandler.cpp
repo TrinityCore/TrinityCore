@@ -60,6 +60,7 @@ void WorldSession::HandleGMTicketCreateOpcode( WorldPacket & recv_data )
     ticket->guid = ticketmgr.GenerateTicketID();
     ticket->playerGuid = GetPlayer()->GetGUID();
     ticket->message = ticketText;
+    ticket->createtime = time(NULL);
     ticket->timestamp = time(NULL);
     ticket->closed = 0;
     ticket->assignedToGM = 0;
