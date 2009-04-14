@@ -679,8 +679,9 @@ enum TrinityStrings
     LANG_BG_AV_H_NEAR_LOSE              = 747,
     LANG_BG_AV_H_CAPTAIN_DEAD           = 748,
     LANG_BG_AV_A_CAPTAIN_DEAD           = 749,
+    LANG_NPCINFO_LINKGUID               = 750,
 
-    // Room for BG/ARENA                  750-769 not used
+    // Room for BG/ARENA                  751-769 not used
 
     LANG_ARENA_TESTING                  = 785,
 
