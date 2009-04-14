@@ -422,7 +422,7 @@ void Creature::Update(uint32 diff)
                         if(targetGuid == m_DBTableGuid) // if linking self, never respawn (check delayed to next day)
                             SetRespawnTime(DAY);
                         else
-                            m_respawnTime = MAX(time(NULL),GetLinkedCreatureRespawnTime())+urand(5,MINUTE); // else copy time from master and add a little
+                            m_respawnTime = (time(NULL)>GetLinkedCreatureRespawnTime()? time(NULL):GetLinkedCreatureRespawnTime())+urand(5,MINUTE); // else copy time from master and add a little
                         SaveRespawnTime(); // also save to DB immediately
                     }
                     else
