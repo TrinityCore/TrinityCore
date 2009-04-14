@@ -4126,6 +4126,14 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
                 if(m_caster->GetTypeId()==TYPEID_PLAYER)
                     ((Player*)m_caster)->AddComboPoints(unitTarget, 1);
             }
+            // Fan of Knives
+            if(m_spellInfo->SpellFamilyFlags[1] & 0x40000)
+            {
+                // 50% more damage with daggers
+                if (Item* item = ((Player*)m_caster)->GetWeaponForAttack(m_attackType))
+                    if (item->GetProto()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)
+                        totalDamagePercentMod *= 1.5f;
+            }
             // Mutilate (for each hand)
             else if(m_spellInfo->SpellFamilyFlags[1] & 0x6)
             {
