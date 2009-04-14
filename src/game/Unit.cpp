@@ -3739,7 +3739,7 @@ bool Unit::AddAura(Aura *Aur)
             else
                 foundAura->RefreshAura();
             delete Aur;
-            return true;
+            return false;
         }
     }
 
