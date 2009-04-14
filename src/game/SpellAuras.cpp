@@ -6176,7 +6176,7 @@ void AuraEffect::PeriodicTick()
             // Haunting Spirits
             if (GetId() == 7057)
             {
-                m_target->CastSpell((Unit*) , m_amount , true);
+                m_target->CastSpell((Unit*)NULL , m_amount , true);
                 m_amplitude = irand (0 , 60 ) + 30;
                 m_amplitude *= IN_MILISECONDS;
                 break;
