@@ -35,7 +35,16 @@ EndContentData */
 
 enum
 {
-    SAY_FREE                    = -1033000
+    SAY_FREE_AS             = -1033000,
+    SAY_OPEN_DOOR_AS        = -1033001,
+    SAY_POST_DOOR_AS        = -1033002,
+    SAY_FREE_AD             = -1033003,
+    SAY_OPEN_DOOR_AD        = -1033004,
+    SAY_POST1_DOOR_AD       = -1033005,
+    SAY_POST2_DOOR_AD       = -1033006,
+
+    SPELL_UNLOCK            = 6421,
+    NPC_ASH                 = 3850
 };
 
 #define GOSSIP_ITEM_DOOR        "Thanks, I'll follow you to the door."
@@ -45,16 +54,45 @@ struct TRINITY_DLL_DECL npc_shadowfang_prisonerAI : public npc_escortAI
     npc_shadowfang_prisonerAI(Creature *c) : npc_escortAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        uiNpcEntry = c->GetEntry();
     }
 
     ScriptedInstance *pInstance;
+    uint32 uiNpcEntry;
 
-    void WaypointReached(uint32 i)
+    void WaypointReached(uint32 uiPoint)
     {
-        if( pInstance && i == 6)
+        switch(uiPoint)
         {
-            DoScriptText(SAY_FREE, m_creature);
-            pInstance->SetData(TYPE_FREE_NPC, DONE);
+            case 0:
+                if (uiNpcEntry == NPC_ASH)
+                    DoScriptText(SAY_FREE_AS, m_creature);
+                else
+                    DoScriptText(SAY_FREE_AD, m_creature);
+                break;
+            case 10:
+                if (uiNpcEntry == NPC_ASH)
+                    DoScriptText(SAY_OPEN_DOOR_AS, m_creature);
+                else
+                    DoScriptText(SAY_OPEN_DOOR_AD, m_creature);
+                break;
+            case 11:
+                if (uiNpcEntry == NPC_ASH)
+                    DoCast(m_creature, SPELL_UNLOCK);
+                break;
+            case 12:
+                if (uiNpcEntry == NPC_ASH)
+                    DoScriptText(SAY_POST_DOOR_AS, m_creature);
+                else
+                    DoScriptText(SAY_POST1_DOOR_AD, m_creature);
+
+                if (pInstance)
+                    pInstance->SetData(TYPE_FREE_NPC, DONE);
+                break;
+            case 13:
+                if (uiNpcEntry != NPC_ASH)
+                    DoScriptText(SAY_POST2_DOOR_AD, m_creature);
+                break;
         }
     }
 
@@ -93,16 +131,12 @@ bool GossipSelect_npc_shadowfang_prisoner(Player* pPlayer, Creature* pCreature, 
     return true;
 }
 
-/*######
-## AddSC
-######*/
-
 void AddSC_shadowfang_keep()
 {
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="npc_shadowfang_prisoner";
+    newscript->Name = "npc_shadowfang_prisoner";
     newscript->pGossipHello =  &GossipHello_npc_shadowfang_prisoner;
     newscript->pGossipSelect = &GossipSelect_npc_shadowfang_prisoner;
     newscript->GetAI = &GetAI_npc_shadowfang_prisoner;
