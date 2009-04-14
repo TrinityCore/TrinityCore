@@ -4127,7 +4127,7 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
                     ((Player*)m_caster)->AddComboPoints(unitTarget, 1);
             }
             // Fan of Knives
-            if(m_spellInfo->SpellFamilyFlags[1] & 0x40000)
+            else if(m_spellInfo->SpellFamilyFlags[1] & 0x40000)
             {
                 // 50% more damage with daggers
                 if (Item* item = ((Player*)m_caster)->GetWeaponForAttack(m_attackType))
@@ -4916,8 +4916,6 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         flag96 familyFlag = aura->GetSpellProto()->SpellFamilyFlags;
                         if (!(familyFlag[1] & 0x00000080 || familyFlag[0] & 0x0000C000))
                             continue;
-                        // Refresh aura duration
-                        aura->RefreshAura();
 
                         // Serpent Sting - Instantly deals 40% of the damage done by your Serpent Sting.
                         if (familyFlag[0] & 0x4000)
@@ -4946,9 +4944,13 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         //{
                         //    spellId = 53366; // 53366 Chimera Shot - Wyvern
                         //}
+
+                        // Refresh aura duration
+                        aura->RefreshAura();
+                        break;
                     }
                     if (spellId)
-                        m_caster->CastCustomSpell(unitTarget, spellId, &basePoint, 0, 0, false);
+                        m_caster->CastCustomSpell(unitTarget, spellId, &basePoint, 0, 0, true);
                     return;
                 }
                 default:
