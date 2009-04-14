@@ -2266,6 +2266,12 @@ void AuraEffect::HandleAuraDummy(bool apply, bool Real)
     {
         switch(GetId())
         {
+            // Haunting Spirits - perdiodic trigger demon
+            case 7057:
+                m_isPeriodic = true;
+                m_amplitude = irand (0, 60) + 30;
+                m_amplitude *= IN_MILISECONDS;
+                return;
             case 1515:                                      // Tame beast
                 // FIX_ME: this is 2.0.12 threat effect replaced in 2.1.x by dummy aura, must be checked for correctness
                 if( caster && m_target->CanHaveThreatList())
@@ -6163,6 +6169,18 @@ void AuraEffect::PeriodicTick()
             // so 17 is rounded amount for 5 sec tick grow ~ 1 range grow in 3 sec
             if(pt == POWER_RAGE)
                 m_target->ModifyPower(pt, m_amount*3/5);
+            break;
+        }
+        case SPELL_AURA_DUMMY:
+        {
+            // Haunting Spirits
+            if (GetId() == 7057)
+            {
+                m_target->CastSpell((Unit*) , m_amount , true);
+                m_amplitude = irand (0 , 60 ) + 30;
+                m_amplitude *= IN_MILISECONDS;
+                break;
+            }
             break;
         }
         // Here tick dummy auras
