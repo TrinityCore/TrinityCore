@@ -279,6 +279,7 @@ class ChatHandler
         bool HandleNpcWhisperCommand(const char* args);
         bool HandleNpcYellCommand(const char* args);
         bool HandleNpcAddFormationCommand(const char* args);
+        bool HandleNpcSetLinkCommand(const char* args);
 
         //TODO: NpcCommands that needs to be fixed :
         bool HandleNpcAddWeaponCommand(const char* args);
@@ -312,6 +313,7 @@ class ChatHandler
         bool HandleReloadCommandCommand(const char* args);
         bool HandleReloadCreatureQuestRelationsCommand(const char* args);
         bool HandleReloadCreatureQuestInvRelationsCommand(const char* args);
+        bool HandleReloadCreatureLinkedRespawnCommand(const char* args);
         bool HandleReloadDbScriptStringCommand(const char* args);
         bool HandleReloadGameGraveyardZoneCommand(const char* args);
         bool HandleReloadGameObjectScriptsCommand(const char* args);

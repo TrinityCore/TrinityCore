@@ -134,6 +134,7 @@ struct TrinityStringLocale
     std::vector<std::string> Content;                       // 0 -> default, i -> i-1 locale index
 };
 
+typedef std::map<uint32,uint32> CreatureLinkedRespawnMap;
 typedef UNORDERED_MAP<uint32,CreatureData> CreatureDataMap;
 typedef UNORDERED_MAP<uint32,GameObjectData> GameObjectDataMap;
 typedef UNORDERED_MAP<uint32,CreatureLocale> CreatureLocaleMap;
@@ -528,6 +529,9 @@ class ObjectMgr
         void LoadCreatureLocales();
         void LoadCreatureTemplates();
         void LoadCreatures();
+        void LoadCreatureLinkedRespawn();
+        bool CheckCreatureLinkedRespawn(uint32 guid, uint32 linkedGuid) const;
+        bool SetCreatureLinkedRespawn(uint32 guid, uint32 linkedGuid);
         void LoadCreatureRespawnTimes();
         void LoadCreatureAddons();
         void LoadCreatureModelInfo();
@@ -635,6 +639,12 @@ class ObjectMgr
         }
         CreatureData& NewOrExistCreatureData(uint32 guid) { return mCreatureDataMap[guid]; }
         void DeleteCreatureData(uint32 guid);
+        uint32 GetLinkedRespawnGuid(uint32 guid) const
+        {
+            CreatureLinkedRespawnMap::const_iterator itr = mCreatureLinkedRespawnMap.find(guid);
+            if(itr == mCreatureLinkedRespawnMap.end()) return 0;
+            return itr->second;
+        }
         CreatureLocale const* GetCreatureLocale(uint32 entry) const
         {
             CreatureLocaleMap::const_iterator itr = mCreatureLocaleMap.find(entry);
@@ -897,6 +907,7 @@ class ObjectMgr
 
         MapObjectGuids mMapObjectGuids;
         CreatureDataMap mCreatureDataMap;
+        CreatureLinkedRespawnMap mCreatureLinkedRespawnMap;
         CreatureLocaleMap mCreatureLocaleMap;
         GameObjectDataMap mGameObjectDataMap;
         GameObjectLocaleMap mGameObjectLocaleMap;

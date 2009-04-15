@@ -42,6 +42,7 @@
 #include <fstream>
 #include <map>
 #include "GlobalEvents.h"
+#include "TicketMgr.h"
 
 #include "TargetedMovementGenerator.h"                      // for HandleNpcUnFollowCommand
 #include "CreatureGroups.h"
@@ -160,7 +161,7 @@ bool ChatHandler::HandleUnmuteCommand(const char* args)
 
 bool ChatHandler::HandleGoTicketCommand(const char * args)
 {
-     if(!*args)
+    if(!*args)
         return false;
 
     char *cstrticket_id = strtok((char*)args, " ");
@@ -4640,3 +4641,37 @@ bool ChatHandler::HandleNpcAddFormationCommand(const char* args)
 
     return true;
  }
+
+bool ChatHandler::HandleNpcSetLinkCommand(const char* args)
+{
+    if (!*args)
+        return false;
+
+    uint32 linkguid = (uint32) atoi((char*)args);
+
+    Creature* pCreature = getSelectedCreature();
+
+    if(!pCreature)
+    {
+        SendSysMessage(LANG_SELECT_CREATURE);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    if(!pCreature->GetDBTableGUIDLow())
+    {
+        PSendSysMessage("Selected creature isn't in `creature` table", pCreature->GetGUIDLow());
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    if(!objmgr.SetCreatureLinkedRespawn(pCreature->GetDBTableGUIDLow(), linkguid))
+    {
+        PSendSysMessage("Selected creature can't link with guid '%u'", linkguid);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    PSendSysMessage("LinkGUID '%u' added to creature with DBTableGUID: '%u'", linkguid, pCreature->GetDBTableGUIDLow());
+    return true;
+}

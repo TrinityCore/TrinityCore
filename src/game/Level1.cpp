@@ -282,6 +282,7 @@ std::string ChatHandler::PGetParseString(int32 entry, ...)
         va_end(ap);
         return (std::string)str;
 }
+
 bool ChatHandler::HandleGMTicketListCommand(const char* args)
 {
     SendSysMessage(LANG_COMMAND_TICKETSHOWLIST);
