@@ -544,6 +544,9 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
             //Add to list
             m_CreatureEventAI_Event_Map[creature_id].push_back(temp);
             ++Count;
+
+            if(cInfo->AIName == "")
+                const_cast<CreatureInfo*>(cInfo)->AIName = "EventAI";
         } while (result->NextRow());
 
         delete result;
