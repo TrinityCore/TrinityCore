@@ -181,16 +181,16 @@ void WorldSession::HandleCreatureQueryOpcode( WorldPacket & recv_data )
         data << uint8(0) << uint8(0) << uint8(0);           // name2, name3, name4, always empty
         data << SubName;
         data << ci->IconName;                               // "Directions" for guard, string for Icons 2.3.0
-        data << (uint32)ci->type_flags;                          // flags          wdbFeild7=wad flags1
+        data << (uint32)ci->type_flags;                     // flags          wdbFeild7=wad flags1
         data << (uint32)ci->type;
         data << (uint32)ci->family;                         // family         wdbFeild9
         data << (uint32)ci->rank;                           // rank           wdbFeild10
         data << (uint32)0;                                  // unknown        wdbFeild11
         data << (uint32)ci->PetSpellDataId;                 // Id from CreatureSpellData.dbc    wdbField12
-        data << (uint32)ci->Modelid1;                       // Modelid1
-        data << (uint32)ci->Modelid2;                       // Modelid2
-        data << (uint32)ci->Modelid3;                       // Modelid3
-        data << (uint32)ci->Modelid4;                       // Modelid4
+        data << (uint32)ci->Modelid_A1;                     // Modelid_A1
+        data << (uint32)ci->Modelid_A2;                     // Modelid_A2
+        data << (uint32)ci->Modelid_H1;                     // Modelid_H1
+        data << (uint32)ci->Modelid_H2;                     // Modelid_H2
         data << (float)1.0f;                                // unk
         data << (float)1.0f;                                // unk
         data << (uint8)ci->RacialLeader;
