@@ -4067,9 +4067,9 @@ bool ChatHandler::HandleNpcAddFormationCommand(const char* args)
     }
 
     uint32 lowguid = pCreature->GetDBTableGUIDLow();
-    if(pCreature->GetFormationID())
+    if(pCreature->GetFormation())
     {
-        PSendSysMessage("Selected creature is already member of group %u", pCreature->GetFormationID());
+        PSendSysMessage("Selected creature is already member of group %u", pCreature->GetFormation()->GetId());
         return false;
     }
 
@@ -4077,12 +4077,11 @@ bool ChatHandler::HandleNpcAddFormationCommand(const char* args)
         return false;
 
     Player *chr = m_session->GetPlayer();
-    FormationMember *group_member;
+    FormationInfo *group_member;
 
-    group_member                 = new FormationMember;
+    group_member                 = new FormationInfo;
     group_member->follow_angle   = pCreature->GetAngle(chr) - chr->GetOrientation();
     group_member->follow_dist    = sqrtf(pow(chr->GetPositionX() - pCreature->GetPositionX(),int(2))+pow(chr->GetPositionY()-pCreature->GetPositionY(),int(2)));
-    group_member->memberGUID     = lowguid;
     group_member->leaderGUID     = leaderGUID;
     group_member->groupAI        = 0;
 
