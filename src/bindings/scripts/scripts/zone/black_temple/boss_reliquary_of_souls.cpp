@@ -79,6 +79,7 @@ EndScriptData */
 
 #define ENSLAVED_SOUL_PASSIVE           41535
 #define SPELL_SOUL_RELEASE              41542
+#define SPELL_SUBMERGE                  37550 //dropout 'head'
 
 #define CREATURE_ENSLAVED_SOUL          23469
 #define NUMBER_ENSLAVED_SOUL            8
@@ -153,6 +154,7 @@ struct TRINITY_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
 
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+        m_creature->RemoveAurasDueToSpell(SPELL_SUBMERGE);
     }
 
     void Aggro(Unit* who)
@@ -231,13 +233,14 @@ struct TRINITY_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
                 break;
             case 1:
                 Timer = 2800;
-                m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_SUBMERGE);  // Release the cube
+                //m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_SUBMERGE);  // Release the cube
+                DoCast(m_creature,SPELL_SUBMERGE);
                 break;
             case 2:
                 Timer = 5000;
                 if(Creature* Summon = DoSpawnCreature(23417+Phase, 0, 0, 0, 0, TEMPSUMMON_DEAD_DESPAWN, 0))
                 {
-                    m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_SUBMERGED);  // Ribs: open
+                    //m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_SUBMERGED);  // Ribs: open
                     Summon->AI()->AttackStart(SelectUnit(SELECT_TARGET_TOPAGGRO, 0));
                     EssenceGUID = Summon->GetGUID();
                 }else EnterEvadeMode();
@@ -262,7 +265,8 @@ struct TRINITY_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
             case 4:
                 Timer = 1500;
                 if(Essence->IsWithinDistInMap(m_creature, 10))
-                    Essence->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_SUBMERGE); //rotate and disappear
+                    m_creature->RemoveAurasDueToSpell(SPELL_SUBMERGE);
+                    //Essence->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_SUBMERGE); //rotate and disappear
                 else
                     return;
                 break;

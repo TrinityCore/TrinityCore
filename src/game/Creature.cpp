@@ -404,36 +404,21 @@ void Creature::Update(uint32 diff)
         {
             if( m_respawnTime <= time(NULL) )
             {
-                DEBUG_LOG("Respawning...");
-                m_respawnTime = 0;
-                lootForPickPocketed = false;
-                lootForBody         = false;
-
-                if(m_originalEntry != GetEntry())
-                    UpdateEntry(m_originalEntry);
-
-                CreatureInfo const *cinfo = GetCreatureInfo();
-                SelectLevel(cinfo);
-
-                if (m_isDeadByDefault)
+                if(!GetLinkedCreatureRespawnTime()) // Can respawn
+                    Respawn();
+                else // the master is dead
                 {
-                    setDeathState(JUST_DIED);
-                    SetHealth(0);
-                    i_motionMaster.Clear();
-                    clearUnitState(UNIT_STAT_ALL_STATE);
-                    LoadCreaturesAddon(true);
+                    if(uint32 targetGuid = objmgr.GetLinkedRespawnGuid(m_DBTableGuid))
+                    {
+                        if(targetGuid == m_DBTableGuid) // if linking self, never respawn (check delayed to next day)
+                            SetRespawnTime(DAY);
+                        else
+                            m_respawnTime = (time(NULL)>GetLinkedCreatureRespawnTime()? time(NULL):GetLinkedCreatureRespawnTime())+urand(5,MINUTE); // else copy time from master and add a little
+                        SaveRespawnTime(); // also save to DB immediately
+                    }
+                    else
+                        Respawn();
                 }
-                else
-                    setDeathState( JUST_ALIVED );
-
-                //Call AI respawn virtual function
-                AI()->JustRespawned();
-
-                uint16 poolid = poolhandler.IsPartOfAPool(GetGUIDLow(), GetTypeId());
-                if (poolid)
-                    poolhandler.UpdatePool(poolid, GetGUIDLow(), GetTypeId());
-                else
-                    GetMap()->Add(this);
             }
             break;
         }
@@ -1444,7 +1429,7 @@ bool Creature::LoadFromDB(uint32 guid, Map *map)
     m_deathState = m_isDeadByDefault ? DEAD : ALIVE;
 
     m_respawnTime  = objmgr.GetCreatureRespawnTime(m_DBTableGuid,GetInstanceId());
-    if(m_respawnTime > time(NULL))                          // not ready to respawn
+    if(m_respawnTime)                          // respawn on Update
     {
         m_deathState = DEAD;
         if(canFly())
@@ -1453,11 +1438,6 @@ bool Creature::LoadFromDB(uint32 guid, Map *map)
             if(data->posZ - tz > 0.1)
                 Relocate(data->posX,data->posY,tz);
         }
-    }
-    else if(m_respawnTime)                                  // respawn time set but expired
-    {
-        m_respawnTime = 0;
-        objmgr.SaveCreatureRespawnTime(m_DBTableGuid,GetInstanceId(),0);
     }
 
     uint32 curhealth = data->curhealth;
@@ -1728,7 +1708,37 @@ void Creature::Respawn()
     {
         if (m_DBTableGuid)
             objmgr.SaveCreatureRespawnTime(m_DBTableGuid,GetInstanceId(),0);
-        m_respawnTime = time(NULL);                         // respawn at next tick
+
+        DEBUG_LOG("Respawning...");
+        m_respawnTime = 0;
+        lootForPickPocketed = false;
+        lootForBody         = false;
+
+        if(m_originalEntry != GetEntry())
+            UpdateEntry(m_originalEntry);
+
+        CreatureInfo const *cinfo = GetCreatureInfo();
+        SelectLevel(cinfo);
+
+        if (m_isDeadByDefault)
+        {
+            setDeathState(JUST_DIED);
+            SetHealth(0);
+            i_motionMaster.Clear();
+            clearUnitState(UNIT_STAT_ALL_STATE);
+            LoadCreaturesAddon(true);
+        }
+        else
+            setDeathState( JUST_ALIVED );
+
+        //Call AI respawn virtual function
+        AI()->JustRespawned();
+
+        uint16 poolid = poolhandler.IsPartOfAPool(GetGUIDLow(), GetTypeId());
+        if (poolid)
+            poolhandler.UpdatePool(poolid, GetGUIDLow(), GetTypeId());
+        else
+            GetMap()->Add(this);
     }
 }
 
@@ -2348,4 +2358,38 @@ const char* Creature::GetNameForLocaleIdx(int32 loc_idx) const
     }
 
     return GetName();
+}
+
+const CreatureData* Creature::GetLinkedRespawnCreatureData() const
+{
+    if(!m_DBTableGuid) // only hard-spawned creatures from DB can have a linked master
+        return NULL;
+
+    if(uint32 targetGuid = objmgr.GetLinkedRespawnGuid(m_DBTableGuid))
+        return objmgr.GetCreatureData(targetGuid);
+
+    return NULL;
+}
+
+// returns master's remaining respawn time if any
+time_t Creature::GetLinkedCreatureRespawnTime() const
+{
+    if(!m_DBTableGuid) // only hard-spawned creatures from DB can have a linked master
+        return 0;
+
+    if(uint32 targetGuid = objmgr.GetLinkedRespawnGuid(m_DBTableGuid))
+    {
+        Map* targetMap = NULL;
+        if(const CreatureData* data = objmgr.GetCreatureData(targetGuid))
+        {
+            if(data->mapid == GetMapId())   // look up on the same map
+                targetMap = GetMap();
+            else                            // it shouldn't be instanceable map here
+                targetMap = MapManager::Instance().FindMap(data->mapid);
+        }
+        if(targetMap)
+            return objmgr.GetCreatureRespawnTime(targetGuid,targetMap->GetInstanceId());
+    }
+
+    return 0;
 }

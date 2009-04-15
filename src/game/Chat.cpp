@@ -408,6 +408,7 @@ ChatCommand * ChatHandler::getCommandTable()
         { "event_scripts",               SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadEventScriptsCommand,            "", NULL },
         { "command",                     SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadCommandCommand,                 "", NULL },
         { "creature_involvedrelation",   SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadCreatureQuestInvRelationsCommand,"",NULL },
+        { "creature_linked_respawn",     SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadCreatureLinkedRespawnCommand,   "", NULL },
         { "creature_loot_template",      SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadLootTemplatesCreatureCommand,   "", NULL },
         { "creature_questrelation",      SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadCreatureQuestRelationsCommand,  "", NULL },
         //{ "db_script_string",            SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadDbScriptStringCommand,          "", NULL },
@@ -518,6 +519,7 @@ ChatCommand * ChatHandler::getCommandTable()
     {
         { "cancel",         SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleServerShutDownCancelCommand,"", NULL },
         { ""   ,            SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleServerShutDownCommand,      "", NULL },
+        { "setlink",        SEC_MODERATOR,      false, &ChatHandler::HandleNpcSetLinkCommand,          "", NULL },
         { NULL,             0,                  false, NULL,                                           "", NULL }
     };
 

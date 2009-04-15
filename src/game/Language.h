@@ -694,7 +694,9 @@ enum TrinityStrings
 //  LANG_BG_EY_START_TWO_MINUTES        = 755, - defined above
     // Room for batleground/arena strings 756-799 not used
 
-    // Room for BG/ARENA                  750-769 not used
+    // Room for BG/ARENA                  751-769 not used
+    
+    LANG_NPCINFO_LINKGUID               = 750,
 
     LANG_ARENA_TESTING                  = 785,
     LANG_AUTO_ANN                       = 786,
