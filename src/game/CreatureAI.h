@@ -27,6 +27,7 @@
 #include "Dynamic/ObjectRegistry.h"
 #include "Dynamic/FactoryHolder.h"
 
+class WorldObject;
 class Unit;
 class Creature;
 class Player;
@@ -166,6 +167,9 @@ class TRINITY_DLL_SPEC CreatureAI : public UnitAI
         virtual void JustReachedHome() {}
 
         void DoZoneInCombat(Unit* pUnit = NULL);
+
+        // Called at text emote receive from player 
+        virtual void ReceiveEmote(Player* pPlayer, uint32 text_emote) {}
 
         ///== Triggered Actions Requested ==================
 
