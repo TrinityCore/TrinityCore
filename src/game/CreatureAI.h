@@ -75,7 +75,7 @@ class TRINITY_DLL_SPEC UnitAI
     protected:
         Unit *me;
     public:
-        UnitAI(Unit *u) : me(u) {}
+        explicit UnitAI(Unit *u) : me(u) {}
         virtual void AttackStart(Unit *);
         virtual void UpdateAI(const uint32 diff) = 0;
 
@@ -97,7 +97,7 @@ class TRINITY_DLL_SPEC PlayerAI : public UnitAI
     protected:
         Player *me;
     public:
-        PlayerAI(Player *p) : UnitAI((Unit*)p), me(p) {}
+        explicit PlayerAI(Player *p) : UnitAI((Unit*)p), me(p) {}
 
         void OnCharmed(bool apply);
 };
@@ -112,10 +112,11 @@ class TRINITY_DLL_SPEC CreatureAI : public UnitAI
 {
     protected:
         Creature *me;
+        Creature *m_creature;
 
         bool UpdateVictim();
     public:
-        CreatureAI(Creature *c) : UnitAI((Unit*)c), me(c) {}
+        explicit CreatureAI(Creature *c) : UnitAI((Unit*)c), me(c), m_creature(c) {}
 
         virtual ~CreatureAI() {}
 

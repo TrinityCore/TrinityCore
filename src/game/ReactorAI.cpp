@@ -50,18 +50,18 @@ ReactorAI::IsVisible(Unit *) const
 void
 ReactorAI::UpdateAI(const uint32 /*time_diff*/)
 {
-    // update i_victimGuid if i_creature.getVictim() !=0 and changed
+    // update i_victimGuid if m_creature->getVictim() !=0 and changed
     if(!UpdateVictim())
         return;
 
-    i_victimGuid = i_creature.getVictim()->GetGUID();
+    i_victimGuid = m_creature->getVictim()->GetGUID();
 
-    if( i_creature.isAttackReady() )
+    if( m_creature->isAttackReady() )
     {
-        if( i_creature.IsWithinMeleeRange(i_creature.getVictim()))
+        if( m_creature->IsWithinMeleeRange(m_creature->getVictim()))
         {
-            i_creature.AttackerStateUpdate(i_creature.getVictim());
-            i_creature.resetAttackTimer();
+            m_creature->AttackerStateUpdate(m_creature->getVictim());
+            m_creature->resetAttackTimer();
         }
     }
 }
@@ -69,49 +69,49 @@ ReactorAI::UpdateAI(const uint32 /*time_diff*/)
 void
 ReactorAI::EnterEvadeMode()
 {
-    if( !i_creature.isAlive() )
+    if( !m_creature->isAlive() )
     {
-        DEBUG_LOG("Creature stoped attacking cuz his dead [guid=%u]", i_creature.GetGUIDLow());
-        i_creature.GetMotionMaster()->MovementExpired();
-        i_creature.GetMotionMaster()->MoveIdle();
+        DEBUG_LOG("Creature stoped attacking cuz his dead [guid=%u]", m_creature->GetGUIDLow());
+        m_creature->GetMotionMaster()->MovementExpired();
+        m_creature->GetMotionMaster()->MoveIdle();
         i_victimGuid = 0;
-        i_creature.CombatStop();
-        i_creature.DeleteThreatList();
+        m_creature->CombatStop();
+        m_creature->DeleteThreatList();
         return;
     }
 
-    Unit* victim = ObjectAccessor::GetUnit(i_creature, i_victimGuid );
+    Unit* victim = ObjectAccessor::GetUnit(*m_creature, i_victimGuid );
 
     if( !victim  )
     {
-        DEBUG_LOG("Creature stopped attacking because victim is non exist [guid=%u]", i_creature.GetGUIDLow());
+        DEBUG_LOG("Creature stopped attacking because victim is non exist [guid=%u]", m_creature->GetGUIDLow());
     }
     else if( victim->HasStealthAura() )
     {
-        DEBUG_LOG("Creature stopped attacking cuz his victim is stealth [guid=%u]", i_creature.GetGUIDLow());
+        DEBUG_LOG("Creature stopped attacking cuz his victim is stealth [guid=%u]", m_creature->GetGUIDLow());
     }
     else if( victim->isInFlight() )
     {
-        DEBUG_LOG("Creature stopped attacking cuz his victim is fly away [guid=%u]", i_creature.GetGUIDLow());
+        DEBUG_LOG("Creature stopped attacking cuz his victim is fly away [guid=%u]", m_creature->GetGUIDLow());
     }
     else
     {
-        DEBUG_LOG("Creature stopped attacking due to target %s [guid=%u]", victim->isAlive() ? "out run him" : "is dead", i_creature.GetGUIDLow());
+        DEBUG_LOG("Creature stopped attacking due to target %s [guid=%u]", victim->isAlive() ? "out run him" : "is dead", m_creature->GetGUIDLow());
     }
 
-    i_creature.RemoveAllAuras();
-    i_creature.DeleteThreatList();
+    m_creature->RemoveAllAuras();
+    m_creature->DeleteThreatList();
     i_victimGuid = 0;
-    i_creature.CombatStop();
-    i_creature.SetLootRecipient(NULL);
+    m_creature->CombatStop();
+    m_creature->SetLootRecipient(NULL);
 
-    if(!i_creature.GetCharmerOrOwner())
+    if(!m_creature->GetCharmerOrOwner())
     {
         // Remove TargetedMovementGenerator from MotionMaster stack list, and add HomeMovementGenerator instead
-        if( i_creature.GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE )
-            i_creature.GetMotionMaster()->MoveTargetedHome();
+        if( m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE )
+            m_creature->GetMotionMaster()->MoveTargetedHome();
     }
-    else if (i_creature.GetOwner() && i_creature.GetOwner()->isAlive())
-        i_creature.GetMotionMaster()->MoveFollow(i_creature.GetOwner(),PET_FOLLOW_DIST,PET_FOLLOW_ANGLE);
+    else if (m_creature->GetOwner() && m_creature->GetOwner()->isAlive())
+        m_creature->GetMotionMaster()->MoveFollow(m_creature->GetOwner(),PET_FOLLOW_DIST,PET_FOLLOW_ANGLE);
 }
 
