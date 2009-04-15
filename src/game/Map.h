@@ -43,6 +43,7 @@ class InstanceData;
 class Group;
 class InstanceSave;
 class WorldObject;
+class CreatureGroup;
 
 namespace ZThread
 {
@@ -125,6 +126,8 @@ typedef UNORDERED_MAP<Creature*, CreatureMover> CreatureMoveList;
 #define MAX_HEIGHT            100000.0f                     // can be use for find ground height at surface
 #define INVALID_HEIGHT       -100000.0f                     // for check, must be equal to VMAP_INVALID_HEIGHT, real value for unknown height is VMAP_INVALID_HEIGHT_VALUE
 #define MIN_UNLOAD_DELAY      1                             // immediate unload
+
+typedef std::map<uint32/*leaderDBGUID*/, CreatureGroup*>        CreatureGroupHolderType;
 
 class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::ObjectLevelLockable<Map, ZThread::Mutex>
 {
@@ -274,6 +277,7 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
         template<class NOTIFIER> void VisitAll(const float &x, const float &y, float radius, NOTIFIER &notifier);
         template<class NOTIFIER> void VisitWorld(const float &x, const float &y, float radius, NOTIFIER &notifier);
         template<class NOTIFIER> void VisitGrid(const float &x, const float &y, float radius, NOTIFIER &notifier);
+	CreatureGroupHolderType CreatureGroupHolder;
     private:
         void LoadVMap(int pX, int pY);
         void LoadMap(uint32 mapid, uint32 instanceid, int x,int y);
@@ -328,6 +332,8 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
         typedef std::set<WorldObject*> ActiveNonPlayers;
         ActiveNonPlayers m_activeNonPlayers;
         ActiveNonPlayers::iterator m_activeNonPlayersIter;
+
+
     private:
         typedef GridReadGuard ReadGuard;
         typedef GridWriteGuard WriteGuard;

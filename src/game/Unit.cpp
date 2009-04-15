@@ -9496,7 +9496,14 @@ void Unit::CombatStart(Unit* target)
 
     if(!target->isInCombat() && target->GetTypeId() != TYPEID_PLAYER
         && !((Creature*)target)->HasReactState(REACT_PASSIVE) && ((Creature*)target)->IsAIEnabled)
+    {
         ((Creature*)target)->AI()->AttackStart(this);
+        if(((Creature*)target)->GetFormation())
+        {   
+            ((Creature*)target)->GetFormation()->MemberAttackStart((Creature*)target, this);
+            sLog.outDebug("Unit::CombatStart() calls CreatureGroups::MemberHasAttacked(this);");
+        }
+    }
 
     SetInCombatWith(target);
     target->SetInCombatWith(this);
@@ -9514,13 +9521,6 @@ void Unit::CombatStart(Unit* target)
         me->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
     }
 
-    //Call creature group update
-    if(GetTypeId()==TYPEID_UNIT && ((Creature*)this)->GetFormationID())
-    {
-        CreatureGroupHolderType::iterator itr = CreatureGroupHolder.find(((Creature*)this)->GetFormationID());
-        if(itr != CreatureGroupHolder.end())
-           itr->second->MemberHasAttacked(((Creature*)this));
-    }
 }
 
 void Unit::SetInCombatState(bool PvP)

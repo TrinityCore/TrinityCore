@@ -147,7 +147,7 @@ m_deathTimer(0), m_respawnTime(0), m_respawnDelay(25), m_corpseDelay(60), m_resp
 m_gossipOptionLoaded(false), m_emoteState(0), m_isPet(false), m_isTotem(false), m_reactState(REACT_AGGRESSIVE),
 m_regenTimer(2000), m_defaultMovementType(IDLE_MOTION_TYPE), m_equipmentId(0),
 m_AlreadyCallAssistance(false), m_regenHealth(true), m_AI_locked(false), m_isDeadByDefault(false),
-m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),m_creatureInfo(NULL), m_DBTableGuid(0), m_formationID(0)
+m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),m_creatureInfo(NULL), m_DBTableGuid(0), m_formation(NULL)
 {
     m_valuesCount = UNIT_END;
 
@@ -191,8 +191,8 @@ void Creature::RemoveFromWorld()
     ///- Remove the creature from the accessor
     if(IsInWorld())
     {
-        if(m_formationID)
-            formation_mgr.DestroyGroup(m_formationID, GetGUID());
+        if(m_formation)
+            formation_mgr.RemoveCreatureFromGroup(m_formation, this);
         ObjectAccessor::Instance().RemoveObject(this);
         Unit::RemoveFromWorld();
     }
@@ -204,12 +204,13 @@ void Creature::SearchFormation()
         return;
 
     uint32 lowguid = GetDBTableGUIDLow();
+    if(!lowguid)
+	return;
 
-    if(lowguid && CreatureGroupMap.find(lowguid) != CreatureGroupMap.end())
-    {
-        m_formationID = CreatureGroupMap[lowguid]->leaderGUID;
-        formation_mgr.UpdateCreatureGroup(m_formationID, this);
-    }
+    CreatureGroupInfoType::iterator frmdata = CreatureGroupMap.find(lowguid);
+    if(frmdata != CreatureGroupMap.end())
+        formation_mgr.AddCreatureToGroup(frmdata->second->leaderGUID, this);
+
 }
 
 void Creature::RemoveCorpse()
