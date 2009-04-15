@@ -108,7 +108,7 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
     //*************
 
     //Called at creature reset either by death or evade
-    virtual void Reset() = 0;
+    void Reset() {}
 
     //Called at creature aggro either by MoveInLOS or Attack Start
     virtual void Aggro(Unit*) = 0;

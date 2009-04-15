@@ -338,6 +338,7 @@ class TRINITY_DLL_SPEC AuraEffect
         int32 GetAuraAmplitude(){return m_amplitude;}
         virtual void Update(uint32 diff);
 
+        uint32 GetTickNumber() const { return m_tickNumber; }
         bool IsAreaAura() const { return m_isAreaAura; }
         bool IsPeriodic() const { return m_isPeriodic; }
         bool IsPersistent() const { return m_isPersistent; }
@@ -366,6 +367,7 @@ class TRINITY_DLL_SPEC AuraEffect
         Unit * const m_target;
 
         SpellEntry const *m_spellProto;
+        uint32 m_tickNumber;
 
         uint8 m_effIndex;
         AuraType m_auraName;

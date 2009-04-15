@@ -2045,14 +2045,7 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
         if(m_spellInfo->Id == 5246) //Intimidating Shout
             TagUnitMap.remove(m_targets.getUnitTarget());
 
-        // remove random units from the map
-        std::list<Unit*>::iterator itr;
-        while(TagUnitMap.size() > unMaxTargets)
-        {
-            itr = TagUnitMap.begin();
-            advance(itr, urand(0, TagUnitMap.size() - 1));
-            TagUnitMap.erase(itr);
-        }
+        Trinity::RandomResizeList(TagUnitMap, unMaxTargets);
 
         /*if(m_spellInfo->Id==57669)                  //Replenishment (special target selection)
         {
