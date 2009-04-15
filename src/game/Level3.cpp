@@ -714,6 +714,14 @@ bool ChatHandler::HandleReloadCreatureQuestRelationsCommand(const char*)
     return true;
 }
 
+bool ChatHandler::HandleReloadCreatureLinkedRespawnCommand(const char* args)
+{
+    sLog.outString( "Loading Linked Respawns... (`creature_linked_respawn`)" );
+    objmgr.LoadCreatureLinkedRespawn();
+    SendGlobalGMSysMessage("DB table `creature_linked_respawn` (creature linked respawns) reloaded.");
+    return true;
+}
+
 bool ChatHandler::HandleReloadCreatureQuestInvRelationsCommand(const char*)
 {
     sLog.outString( "Loading Quests Relations... (`creature_involvedrelation`)" );
@@ -4300,6 +4308,9 @@ bool ChatHandler::HandleNpcInfoCommand(const char* /*args*/)
     PSendSysMessage(LANG_NPCINFO_LOOT,  cInfo->lootid,cInfo->pickpocketLootId,cInfo->SkinLootId);
     PSendSysMessage(LANG_NPCINFO_DUNGEON_ID, target->GetInstanceId());
     PSendSysMessage(LANG_NPCINFO_POSITION,float(target->GetPositionX()), float(target->GetPositionY()), float(target->GetPositionZ()));
+    if(const CreatureData* const linked = target->GetLinkedRespawnCreatureData())
+        if(CreatureInfo const *master = GetCreatureInfo(linked->id))
+            PSendSysMessage(LANG_NPCINFO_LINKGUID, objmgr.GetLinkedRespawnGuid(target->GetDBTableGUIDLow()), linked->id, master->Name);
 
     if ((npcflags & UNIT_NPC_FLAG_VENDOR) )
     {

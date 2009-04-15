@@ -940,6 +940,94 @@ void ObjectMgr::LoadCreatureModelInfo()
     }
 }
 
+bool ObjectMgr::CheckCreatureLinkedRespawn(uint32 guid, uint32 linkedGuid) const
+{
+    const CreatureData* const slave = GetCreatureData(guid);
+    const CreatureData* const master = GetCreatureData(linkedGuid);
+    
+    if(!slave || !master) // they must have a corresponding entry in db
+    {
+        sLog.outError("LinkedRespawn: Creature '%u' linking to '%u' which doesn't exist",guid,linkedGuid);
+        return false;
+    }
+
+    const MapEntry* const map = sMapStore.LookupEntry(master->mapid);
+        
+    if(master->mapid != slave->mapid        // link only to same map
+        && (!map || map->Instanceable()))   // or to unistanced world
+    {
+        sLog.outError("LinkedRespawn: Creature '%u' linking to '%u' on an unpermitted map",guid,linkedGuid);
+        return false;
+    }
+
+    if(!(master->spawnMask & slave->spawnMask)  // they must have a possibility to meet (normal/heroic difficulty)
+        && (!map || map->Instanceable()))
+    {
+        sLog.outError("LinkedRespawn: Creature '%u' linking to '%u' with not corresponding spawnMask",guid,linkedGuid);
+        return false;
+    }
+
+    return true;
+}
+
+void ObjectMgr::LoadCreatureLinkedRespawn()
+{
+    mCreatureLinkedRespawnMap.clear();
+    QueryResult *result = WorldDatabase.Query("SELECT guid, linkedGuid FROM creature_linked_respawn ORDER BY guid ASC");
+
+    if(!result)
+    {
+        barGoLink bar(1);
+
+        bar.step();
+
+        sLog.outString("");
+        sLog.outErrorDb(">> Loaded 0 linked respawns. DB table `creature_linked_respawn` is empty.");
+        return;
+    }
+
+    barGoLink bar(result->GetRowCount());
+
+    do
+    {
+        Field *fields = result->Fetch();
+        bar.step();
+
+        uint32 guid = fields[0].GetUInt32();
+        uint32 linkedGuid = fields[1].GetUInt32();
+
+        if(CheckCreatureLinkedRespawn(guid,linkedGuid))
+            mCreatureLinkedRespawnMap[guid] = linkedGuid;
+
+    } while (result->NextRow());
+
+    delete result;
+
+    sLog.outString();
+    sLog.outString( ">> Loaded %u linked respawns", mCreatureLinkedRespawnMap.size() );
+}
+
+bool ObjectMgr::SetCreatureLinkedRespawn(uint32 guid, uint32 linkedGuid)
+{
+    if(!guid)
+        return false;
+
+    if(!linkedGuid) // we're removing the linking
+    {
+        mCreatureLinkedRespawnMap.erase(guid);
+        WorldDatabase.DirectPExecute("DELETE FROM `creature_linked_respawn` WHERE `guid` = '%u'",guid);
+        return true;
+    }
+
+    if(CheckCreatureLinkedRespawn(guid,linkedGuid)) // we add/change linking
+    {
+        mCreatureLinkedRespawnMap[guid] = linkedGuid;
+        WorldDatabase.DirectPExecute("REPLACE INTO `creature_linked_respawn`(`guid`,`linkedGuid`) VALUES ('%u','%u')",guid,linkedGuid);
+        return true;
+    }
+    return false;
+}
+
 void ObjectMgr::LoadCreatures()
 {
     uint32 count = 0;
@@ -1246,9 +1334,6 @@ void ObjectMgr::RemoveGameobjectFromGrid(uint32 guid, GameObjectData const* data
 
 void ObjectMgr::LoadCreatureRespawnTimes()
 {
-    // remove outdated data
-    WorldDatabase.DirectExecute("DELETE FROM creature_respawn WHERE respawntime <= UNIX_TIMESTAMP(NOW())");
-
     uint32 count = 0;
 
     QueryResult *result = WorldDatabase.Query("SELECT guid,respawntime,instance FROM creature_respawn");
