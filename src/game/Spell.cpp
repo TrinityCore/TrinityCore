@@ -1100,8 +1100,8 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
             }
 
             unit->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_HITBYSPELL);
-            //if(m_customAttr & SPELL_ATTR_CU_AURA_CC)
-                //unit->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CC);
+            if(m_customAttr & SPELL_ATTR_CU_AURA_CC)
+                unit->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CC);
         }
         else
         {
@@ -2208,9 +2208,6 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect* triggeredByAura
         // skip triggered spell (item equip spell casting and other not explicit character casts/item uses)
         if(isSpellBreakStealth(m_spellInfo) )
             m_caster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CAST);
-
-        if(!m_IsTriggeredSpell)
-            m_caster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ANY_CAST);
 
         m_caster->SetCurrentCastedSpell( this );
         m_selfContainer = &(m_caster->m_currentSpells[GetCurrentContainer()]);
