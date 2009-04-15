@@ -1000,6 +1000,20 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                 DoZoneInCombat();
             }
             break;
+            case ACTION_T_SUMMON_GO:
+            {
+                GameObject* pObject = NULL;
+
+                float x,y,z,rx,ry,rz;
+                m_creature->GetPosition(x,y,z);
+                pObject = m_creature->SummonGameObject(param1, x, y, z, 0, 0, 0, 0, 0, param2);
+                if (!pObject)
+                {
+                    if (EAI_ErrorLevel > 0)
+                        error_db_log( "SD2: EventAI failed to spawn object %u. Spawn event %d is on creature %d", param1, EventId, m_creature->GetEntry());
+                }
+            }
+            break;
 
         // TRINITY ONLY
         case ACTION_T_SET_ACTIVE:
@@ -1396,9 +1410,8 @@ CreatureAI* GetAI_Mob_EventAI(Creature *pCreature)
 #endif
             if( pCreature->GetMap()->IsDungeon() )
             {
-		  if ((pCreature->GetMap()->IsHeroic() && (*i).event_flags & EFLAG_HEROIC) ||
-	                     (!pCreature->GetMap()->IsHeroic() && (*i).event_flags & EFLAG_NORMAL))
-				EventList.push_back(EventHolder(*i));
+                if ((pCreature->GetMap()->IsHeroic() && (*i).event_flags & EFLAG_HEROIC) || (!pCreature->GetMap()->IsHeroic() && (*i).event_flags & EFLAG_NORMAL))
+                    EventList.push_back(EventHolder(*i));
                 continue;
             }
 
