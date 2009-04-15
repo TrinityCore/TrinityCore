@@ -479,6 +479,8 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
         typedef std::set<WorldObject*> ActiveNonPlayers;
         ActiveNonPlayers m_activeNonPlayers;
         ActiveNonPlayers::iterator m_activeNonPlayersIter;
+
+
     private:
         typedef GridReadGuard ReadGuard;
         typedef GridWriteGuard WriteGuard;
