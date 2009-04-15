@@ -26,7 +26,7 @@ class Creature;
 class TRINITY_DLL_DECL OutdoorPvPObjectiveAI : public NullCreatureAI
 {
     public:
-        OutdoorPvPObjectiveAI(Creature *c);
+        explicit OutdoorPvPObjectiveAI(Creature *c);
 
         void MoveInLineOfSight(Unit *);
 

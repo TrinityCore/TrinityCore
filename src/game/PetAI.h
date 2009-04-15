@@ -31,7 +31,7 @@ class TRINITY_DLL_DECL PetAI : public CreatureAI
 {
     public:
 
-        PetAI(Creature *c);
+        explicit PetAI(Creature *c);
 
         void EnterEvadeMode();
         void JustDied(Unit* who) { _stopAttack(); }
@@ -46,7 +46,6 @@ class TRINITY_DLL_DECL PetAI : public CreatureAI
 
         void UpdateAllies();
 
-        Creature &i_pet;
         TimeTracker i_tracker;
         std::set<uint64> m_AllySet;
         uint32 m_updateAlliesTimer;
