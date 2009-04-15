@@ -167,3 +167,8 @@ void SimpleCharmedAI::UpdateAI(const uint32 /*diff*/)
         AttackStart(charmer->SelectNearestTarget());
 }
 
+/*void CreatureAI::AttackedBy( Unit* attacker )
+{
+    if(!m_creature->getVictim())
+        AttackStart(attacker);
+}*/
