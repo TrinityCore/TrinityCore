@@ -7913,7 +7913,51 @@ void Unit::RemoveAllAttackers()
 
 void Unit::ModifyAuraState(AuraState flag, bool apply)
 {
-    ApplyModFlag(UNIT_FIELD_AURASTATE, 1<<(flag-1), apply);
+    if (apply)
+    {
+        if (!HasFlag(UNIT_FIELD_AURASTATE, 1<<(flag-1)))
+        {
+            SetFlag(UNIT_FIELD_AURASTATE, 1<<(flag-1));
+            if(GetTypeId() == TYPEID_PLAYER)
+            {
+                const PlayerSpellMap& sp_list = ((Player*)this)->GetSpellMap();
+                for (PlayerSpellMap::const_iterator itr = sp_list.begin(); itr != sp_list.end(); ++itr)
+                {
+                    if(itr->second->state == PLAYERSPELL_REMOVED) continue;
+                    SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
+                    if (!spellInfo || !IsPassiveSpell(itr->first)) continue;
+                    if (spellInfo->CasterAuraState == flag)
+                        CastSpell(this, itr->first, true, NULL);
+                }
+            }
+        }
+    }
+    else
+    {
+        if (HasFlag(UNIT_FIELD_AURASTATE,1<<(flag-1)))
+        {
+            RemoveFlag(UNIT_FIELD_AURASTATE, 1<<(flag-1));
+            Unit::AuraMap& tAuras = GetAuras();
+            for (Unit::AuraMap::iterator itr = tAuras.begin(); itr != tAuras.end();)
+            {
+                SpellEntry const* spellProto = (*itr).second->GetSpellProto();
+                if (spellProto->CasterAuraState == flag)
+                {
+                    // exceptions (applied at state but not removed at state change)
+                    // Rampage
+                    if(spellProto->SpellIconID==2006 && spellProto->SpellFamilyName==SPELLFAMILY_WARRIOR && spellProto->SpellFamilyFlags==0x100000)
+                    {
+                        ++itr;
+                        continue;
+                    }
+
+                    RemoveAura(itr);
+                }
+                else
+                    ++itr;
+            }
+        }
+    }
 }
 
 bool Unit::HasAuraState(AuraState flag, SpellEntry const *spellProto, Unit * Caster) const
