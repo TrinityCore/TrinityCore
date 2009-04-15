@@ -419,10 +419,13 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
 
         if(ResetTimer < diff)
         {
-            /*float x, y, z;
-            m_creature->GetPosition(x, y, z);
-            if(x < -70 || x > 0 || y > 1176 || y < 1121 || z < 18)
-                EnterEvadeMode();*/
+            float x, y, z, o;
+            m_creature->GetHomePosition(x, y, z, o);
+            if(m_creature->GetPositionZ() <= z-7)
+            {
+                EnterEvadeMode();
+                return;
+            }
             ResetTimer = 5000;
         }else ResetTimer -= diff;
 
