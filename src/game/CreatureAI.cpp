@@ -23,6 +23,7 @@
 #include "Player.h"
 #include "Pet.h"
 #include "SpellAuras.h"
+#include "World.h"
 
 void UnitAI::AttackStart(Unit *victim)
 {
@@ -104,22 +105,15 @@ void CreatureAI::DoZoneInCombat(Unit* pUnit)
 
 void CreatureAI::MoveInLineOfSight(Unit *who)
 {
-    if(!me->getVictim() && me->canStartAttack(who))
-        AttackStart(who);
+    if(me->getVictim())
+        return;
 
-    if (who->isInCombat() && who->getVictim() && me->GetCreatureType()==CREATURE_TYPE_HUMANOID && me->IsFriendlyTo(who))
-        {
-        if (me->GetDistanceZ(who) <= 2 && me->IsWithinLOSInMap(who))
-            {
-            float attackRadius = (me->GetAttackDistance(who) *0.5);
-            if (me->IsWithinDistInMap(who, attackRadius))
-                {
-                Unit* target = NULL;
-                target = who->getVictim();
-                AttackStart(target);
-                }
-            }
-        }
+    if(me->canStartAttack(who))
+        AttackStart(who);
+    else if(who->getVictim() && me->IsFriendlyTo(who)
+        && me->IsWithinDistInMap(who, sWorld.getConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_RADIUS))
+        && me->canAttack(who->getVictim()))
+        AttackStart(who->getVictim());
 }
 
 bool CreatureAI::UpdateVictim()
