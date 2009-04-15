@@ -101,12 +101,6 @@ TotemAI::UpdateAI(const uint32 /*diff*/)
         i_victimGuid = 0;
 }
 
-bool
-TotemAI::IsVisible(Unit *) const
-{
-    return false;
-}
-
 void
 TotemAI::AttackStart(Unit *)
 {
@@ -120,4 +114,3 @@ TotemAI::AttackStart(Unit *)
         ((Player*)m_creature->GetOwner())->GetSession()->SendPacket(&data);
     }
 }
-

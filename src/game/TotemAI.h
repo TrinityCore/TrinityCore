@@ -36,12 +36,9 @@ class TRINITY_DLL_DECL TotemAI : public CreatureAI
         void MoveInLineOfSight(Unit *);
         void AttackStart(Unit *);
         void EnterEvadeMode();
-        bool IsVisible(Unit *) const;
 
         void UpdateAI(const uint32);
         static int Permissible(const Creature *);
-    protected:
-        Totem& getTotem();
 
     private:
         uint64 i_victimGuid;
