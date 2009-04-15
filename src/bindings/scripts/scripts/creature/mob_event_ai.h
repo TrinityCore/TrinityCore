@@ -76,6 +76,7 @@ enum Action_Types
     ACTION_T_UPDATE_TEMPLATE            = 36,   //Entry, Team
     ACTION_T_DIE                        = 37,   //No Params
     ACTION_T_ZONE_COMBAT_PULSE          = 38,   //No Params
+    ACTION_T_SUMMON_GO                  = 39,   //GameObjectID, DespawnTime in ms
 
     ACTION_T_SET_ACTIVE             = 101,  //Apply
     ACTION_T_SET_AGGRESSIVE         = 102,  //Apply
