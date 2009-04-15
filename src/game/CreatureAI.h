@@ -170,10 +170,10 @@ class TRINITY_DLL_SPEC CreatureAI : public UnitAI
 
         // Called when creature attack expected (if creature can and no have current victim)
         // Note: for reaction at hostile action must be called AttackedBy function.
-        virtual void AttackStart(Unit *) {}
+        //virtual void AttackStart(Unit *) {}
 
         // Called at World update tick
-        virtual void UpdateAI(const uint32 diff ) {}
+        //virtual void UpdateAI(const uint32 diff ) {}
 
         ///== State checks =================================
 
