@@ -3483,8 +3483,7 @@ void Spell::EffectPickPocket(uint32 /*i*/)
         {
             // Reveal action + get attack
             m_caster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TALK);
-            if (((Creature*)unitTarget)->IsAIEnabled)
-                ((Creature*)unitTarget)->AI()->AttackStart(m_caster);
+            m_caster->CombatStart(unitTarget);
         }
     }
 }

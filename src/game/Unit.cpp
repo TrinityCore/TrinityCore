@@ -574,30 +574,27 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
         return 0;
     }
 
-    if(pVictim->GetTypeId() != TYPEID_PLAYER)
+    // no xp,health if type 8 /critters/
+    if(pVictim->GetTypeId() != TYPEID_PLAYER && pVictim->GetCreatureType() == CREATURE_TYPE_CRITTER)
     {
-        // no xp,health if type 8 /critters/
-        if ( pVictim->GetCreatureType() == CREATURE_TYPE_CRITTER)
+        // allow loot only if has loot_id in creature_template
+        if(damage >= pVictim->GetHealth())
         {
-            // allow loot only if has loot_id in creature_template
-            if(damage >= pVictim->GetHealth())
-            {
-                pVictim->setDeathState(JUST_DIED);
-                pVictim->SetHealth(0);
+            pVictim->setDeathState(JUST_DIED);
+            pVictim->SetHealth(0);
 
-                CreatureInfo const* cInfo = ((Creature*)pVictim)->GetCreatureInfo();
-                if(cInfo && cInfo->lootid)
-                    pVictim->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+            CreatureInfo const* cInfo = ((Creature*)pVictim)->GetCreatureInfo();
+            if(cInfo && cInfo->lootid)
+                pVictim->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
 
-                // some critters required for quests
-                if(GetTypeId() == TYPEID_PLAYER)
-                    ((Player*)this)->KilledMonster(pVictim->GetEntry(),pVictim->GetGUID());
-            }
-            else
-                pVictim->ModifyHealth(- (int32)damage);
-
-            return damage;
+            // some critters required for quests
+            if(GetTypeId() == TYPEID_PLAYER)
+                ((Player*)this)->KilledMonster(pVictim->GetEntry(),pVictim->GetGUID());
         }
+        else
+            pVictim->ModifyHealth(- (int32)damage);
+
+        return damage;
     }
 
     DEBUG_LOG("DealDamageStart");
@@ -834,22 +831,6 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
         DEBUG_LOG("DealDamageAlive");
 
         pVictim->ModifyHealth(- (int32)damage);
-
-        if(damagetype != DOT)
-        {
-            if(!getVictim())
-            /*{
-                // if have target and damage pVictim just call AI reaction
-                if(pVictim != getVictim() && pVictim->GetTypeId()==TYPEID_UNIT && ((Creature*)pVictim)->IsAIEnabled)
-                    ((Creature*)pVictim)->AI()->AttackedBy(this);
-            }
-            else*/
-            {
-                // if not have main target then attack state with target (including AI call)
-                //start melee attacks only after melee hit
-                Attack(pVictim,(damagetype == DIRECT_DAMAGE));
-            }
-        }
 
         if(damagetype == DIRECT_DAMAGE || damagetype == SPELL_DIRECT_DAMAGE)
         {
@@ -2268,6 +2249,10 @@ void Unit::AttackerStateUpdate (Unit *pVictim, WeaponAttackType attType, bool ex
             }
         }
 
+        // if damage pVictim call AI reaction
+        //if(pVictim->GetTypeId()==TYPEID_UNIT && ((Creature*)pVictim)->AI())
+        //    ((Creature*)pVictim)->AI()->AttackedBy(this);
+
         return;
     }
 
@@ -2295,6 +2280,10 @@ void Unit::AttackerStateUpdate (Unit *pVictim, WeaponAttackType attType, bool ex
                 --m_extraAttacks;
         }
     }
+
+    // if damage pVictim call AI reaction
+    //if(pVictim->GetTypeId()==TYPEID_UNIT && ((Creature*)pVictim)->AI())
+    //    ((Creature*)pVictim)->AI()->AttackedBy(this);
 }
 
 MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(const Unit *pVictim, WeaponAttackType attType) const
@@ -7817,9 +7806,6 @@ bool Unit::Attack(Unit *victim, bool meleeAttack)
     //if(GetTypeId()==TYPEID_UNIT)
     //    ((Creature*)this)->SetCombatStartPosition(GetPositionX(), GetPositionY(), GetPositionZ());
 
-    //if(m_attacking->GetTypeId()==TYPEID_UNIT && ((Creature*)m_attacking)->IsAIEnabled)
-    //    ((Creature*)m_attacking)->AI()->AttackedBy(this);
-
     if(GetTypeId()==TYPEID_UNIT)
     {
         // should not let player enter combat by right clicking target
@@ -11835,8 +11821,8 @@ void Unit::SetFeared(bool apply, uint64 casterGUID, uint32 spellID)
 
             // attack caster if can
             Unit* caster = ObjectAccessor::GetObjectInWorld(casterGUID, (Unit*)NULL);
-            if(caster && caster != getVictim() && ((Creature*)this)->IsAIEnabled)
-                ((Creature*)this)->AI()->AttackStart(caster);
+            if(caster && ((Creature*)this)->AI())
+                ((Creature*)this)->AI()->AttackedBy(caster);
         }
     }
 
