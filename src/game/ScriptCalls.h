@@ -58,7 +58,6 @@ typedef bool(TRINITY_IMPORT * scriptCallAreaTrigger)( Player *player, AreaTrigge
 typedef bool(TRINITY_IMPORT * scriptCallItemQuestAccept)(Player *player, Item *, Quest const*);
 typedef bool(TRINITY_IMPORT * scriptCallGOQuestAccept)(Player *player, GameObject *, Quest const*);
 typedef bool(TRINITY_IMPORT * scriptCallGOChooseReward)(Player *player, GameObject *, Quest const*, uint32 opt );
-typedef bool(TRINITY_IMPORT * scriptCallReceiveEmote) ( Player *player, Creature *_Creature, uint32 emote );
 typedef bool(TRINITY_IMPORT * scriptCallItemUse) (Player *player, Item *_Item, SpellCastTargets const& targets);
 typedef bool(TRINITY_IMPORT * scriptCallEffectDummyGameObj) (Unit *caster, uint32 spellId, uint32 effIndex, GameObject *gameObjTarget);
 typedef bool(TRINITY_IMPORT * scriptCallEffectDummyCreature) (Unit *caster, uint32 spellId, uint32 effIndex, Creature *crTarget);
@@ -89,7 +88,6 @@ typedef struct
     scriptCallAreaTrigger scriptAreaTrigger;
     scriptCallItemQuestAccept ItemQuestAccept;
     scriptCallGOQuestAccept GOQuestAccept;
-    scriptCallReceiveEmote ReceiveEmote;
     scriptCallItemUse ItemUse;
     scriptCallEffectDummyGameObj  EffectDummyGameObj;
     scriptCallEffectDummyCreature EffectDummyCreature;

@@ -1832,15 +1832,6 @@ bool ItemUse( Player *player, Item* _Item, SpellCastTargets const& targets)
 }
 
 TRINITY_DLL_EXPORT
-bool ReceiveEmote( Player *player, Creature *_Creature, uint32 emote )
-{
-    Script *tmpscript = m_scripts[_Creature->GetScriptId()];
-    if (!tmpscript || !tmpscript->pReceiveEmote) return false;
-
-    return tmpscript->pReceiveEmote(player, _Creature, emote);
-}
-
-TRINITY_DLL_EXPORT
 bool EffectDummyCreature(Unit *caster, uint32 spellId, uint32 effIndex, Creature *crTarget )
 {
     Script *tmpscript = m_scripts[crTarget->GetScriptId()];
