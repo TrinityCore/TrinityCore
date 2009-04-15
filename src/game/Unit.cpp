@@ -9017,10 +9017,11 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
                     break;
                 }
             }
-            coeff = (CastingTime / 3500.0f) * DotFactor;
+            // As wowwiki says: C = (Cast Time / 3.5) * 1.88 (for healing spells)
+            coeff = (CastingTime / 3500.0f) * DotFactor * 1.88f;
         }
 
-        float coeff2 = CalculateLevelPenalty(spellProto) * 1.88f * stack;
+        float coeff2 = CalculateLevelPenalty(spellProto)* stack;
         TakenTotal += TakenAdvertisedBenefit * coeff * coeff2;
         if(Player* modOwner = GetSpellModOwner())
         {
@@ -9043,7 +9044,7 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
         // Rejuvenation, Regrowth, Lifebloom, or Wild Growth
         if (pVictim->GetAura(SPELL_AURA_PERIODIC_HEAL, SPELLFAMILY_DRUID, 0x50, 0x4000010, 0))
             //increase healing by 20%
-            DoneTotalMod *= 1.2f;
+            TakenTotalMod *= 1.2f;
     }
 
     // Taken mods
@@ -9069,11 +9070,11 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
     if(damagetype==DOT)
     {
         // Healing over time taken percent
-        float minval_hot = GetMaxNegativeAuraModifier(SPELL_AURA_MOD_HOT_PCT);
+        float minval_hot = pVictim->GetMaxNegativeAuraModifier(SPELL_AURA_MOD_HOT_PCT);
         if(minval_hot)
             TakenTotalMod *= (100.0f + minval_hot) / 100.0f;
 
-        float maxval_hot = GetMaxPositiveAuraModifier(SPELL_AURA_MOD_HOT_PCT);
+        float maxval_hot = pVictim->GetMaxPositiveAuraModifier(SPELL_AURA_MOD_HOT_PCT);
         if(maxval_hot)
             TakenTotalMod *= (100.0f + maxval_hot) / 100.0f;
     }
