@@ -29,6 +29,7 @@ npc_guardian            100%    guardianAI used to prevent players from accessin
 npc_garments_of_quests  80%     NPC's related to all Garments of-quests 5621, 5624, 5625, 5648, 565
 npc_injured_patient     100%    patients for triage-quests (6622 and 6624)
 npc_doctor              100%    Gustaf Vanhowzen and Gregory Victor, quest 6622 and 6624 (Triage)
+npc_kingdom_of_dalaran_quests   Misc NPC's gossip option related to quests 12791, 12794 and 12796
 npc_mount_vendor        100%    Regular mount vendors all over the world. Display gossip if player doesn't meet the requirements to buy
 npc_rogue_trainer       80%     Scripted trainers, so they are able to offer item 17126 for class quest 6681
 npc_sayge               100%    Darkmoon event fortune teller, buff player based on answers given
@@ -877,6 +878,44 @@ CreatureAI* GetAI_npc_guardian(Creature *_Creature)
 }
 
 /*######
+## npc_kingdom_of_dalaran_quests
+######*/
+
+enum
+{
+    SPELL_TELEPORT_DALARAN  = 53360,
+    ITEM_KT_SIGNET          = 39740,
+    QUEST_MAGICAL_KINGDOM_A = 12794,
+    QUEST_MAGICAL_KINGDOM_H = 12791,
+    QUEST_MAGICAL_KINGDOM_N = 12796
+};
+
+#define GOSSIP_ITEM_TELEPORT_TO "I am ready to be teleported to Dalaran."
+
+bool GossipHello_npc_kingdom_of_dalaran_quests(Player* pPlayer, Creature* pCreature)
+{
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
+    if (pPlayer->HasItemCount(ITEM_KT_SIGNET,1) && (!pPlayer->GetQuestRewardStatus(QUEST_MAGICAL_KINGDOM_A) ||
+        !pPlayer->GetQuestRewardStatus(QUEST_MAGICAL_KINGDOM_H) || !pPlayer->GetQuestRewardStatus(QUEST_MAGICAL_KINGDOM_N)))
+        pPlayer->ADD_GOSSIP_ITEM(0, GOSSIP_ITEM_TELEPORT_TO, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+
+    pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
+    return true;
+}
+
+bool GossipSelect_npc_kingdom_of_dalaran_quests(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+{
+    if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+    {
+        pPlayer->CLOSE_GOSSIP_MENU();
+        pPlayer->CastSpell(pPlayer,SPELL_TELEPORT_DALARAN,false);
+    }
+    return true;
+}
+
+/*######
 ## npc_mount_vendor
 ######*/
 
@@ -1417,6 +1456,12 @@ void AddSC_npcs_special()
     newscript->GetAI = &GetAI_npc_guardian;
     newscript->RegisterSelf();
 
+    newscript = new Script;
+    newscript->Name="npc_kingdom_of_dalaran_quests";
+    newscript->pGossipHello =  &GossipHello_npc_kingdom_of_dalaran_quests;
+    newscript->pGossipSelect = &GossipSelect_npc_kingdom_of_dalaran_quests;
+    newscript->RegisterSelf();
+    
     newscript = new Script;
     newscript->Name="npc_mount_vendor";
     newscript->pGossipHello =  &GossipHello_npc_mount_vendor;
