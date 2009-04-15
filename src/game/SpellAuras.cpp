@@ -454,7 +454,7 @@ Aura::~Aura()
 
 AuraEffect::AuraEffect(Aura * parentAura, uint8 effIndex, int32 * currentBasePoints , Unit * caster, Item* castItem) :
 m_parentAura(parentAura), m_spellmod(NULL), m_periodicTimer(0), m_isPeriodic(false), m_isAreaAura(false), m_isPersistent(false),
-m_target(parentAura->GetTarget())
+m_target(parentAura->GetTarget()), m_tickNumber(0)
 {
     m_spellProto = parentAura->GetSpellProto();
     m_effIndex = effIndex;
@@ -696,6 +696,8 @@ void AuraEffect::Update(uint32 diff)
         m_periodicTimer -= diff;
         if(m_periodicTimer <= 0) // tick also at m_periodicTimer==0 to prevent lost last tick in case max m_duration == (max m_periodicTimer)*N
         {
+            ++m_tickNumber;
+
             // update before applying (aura can be removed in TriggerSpell or PeriodicTick calls)
             m_periodicTimer += m_amplitude;
 
@@ -5668,7 +5670,7 @@ void AuraEffect::PeriodicTick()
                                 break;
                             }
                         }
-                        m_amount += 100;
+                        m_amount = 100 * m_tickNumber;
                     }break;
                     default:
                         break;
@@ -5700,11 +5702,12 @@ void AuraEffect::PeriodicTick()
                 // Curse of Agony damage-per-tick calculation
                 if (GetSpellProto()->SpellFamilyName==SPELLFAMILY_WARLOCK && (GetSpellProto()->SpellFamilyFlags[0] & 0x400) && GetSpellProto()->SpellIconID==544)
                 {
+                    uint32 totalTick = GetParentAura()->GetAuraMaxDuration() / m_amplitude;
                     // 1..4 ticks, 1/2 from normal tick damage
-                    if (GetParentAura()->GetAuraDuration()>=((GetParentAura()->GetAuraMaxDuration()-m_amplitude)*2/3))
+                    if(m_tickNumber <= totalTick / 3)
                         pdamage = pdamage/2;
                     // 9..12 ticks, 3/2 from normal tick damage
-                    else if(GetParentAura()->GetAuraDuration()<((GetParentAura()->GetAuraMaxDuration()-m_amplitude)/3))
+                    else if(m_tickNumber > totalTick * 2 / 3)
                         pdamage += (pdamage+1)/2;           // +1 prevent 0.5 damage possible lost at 1..4 ticks
                     // 5..8 ticks have normal tick damage
                 }
