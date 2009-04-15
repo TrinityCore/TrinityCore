@@ -1207,11 +1207,10 @@ void Aura::SetStackAmount(uint8 stackAmount)
                     // Reapply if amount change
                     if (amount!=part->GetAmount())
                     {
-                        bool Real = bool (part->m_spellmod);
                         // Auras which are applying spellmod should have removed spellmods for real
-                        part->ApplyModifier(false,Real);
+                        part->ApplyModifier(false,true);
                         part->SetAmount(amount);
-                        part->ApplyModifier(true, Real);
+                        part->ApplyModifier(true,true);
                     }
                 }
             }
