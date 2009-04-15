@@ -1582,22 +1582,17 @@ bool CreatureEventAI::CanCast(Unit* Target, SpellEntry const *Spell, bool Trigge
     return true;
 }
 
-bool CreatureEventAI::ReceiveEmote(Player* pPlayer, Creature* pCreature, uint32 uiEmote)
+void CreatureEventAI::ReceiveEmote(Player* pPlayer, uint32 text_emote)
 {
-    if(pCreature->isCharmed())
-        return true;
+    if (bEmptyList)
+        return;
 
-    CreatureEventAI* pTmpCreature = (CreatureEventAI*)(pCreature->AI());
-
-    if (pTmpCreature->bEmptyList)
-        return true;
-
-    for (std::list<CreatureEventAIHolder>::iterator itr = pTmpCreature->CreatureEventAIList.begin(); itr != pTmpCreature->CreatureEventAIList.end(); ++itr)
+    for (std::list<CreatureEventAIHolder>::iterator itr = CreatureEventAIList.begin(); itr != CreatureEventAIList.end(); ++itr)
     {
         if ((*itr).Event.event_type == EVENT_T_RECEIVE_EMOTE)
         {
-            if ((*itr).Event.event_param1 != uiEmote)
-                return true;
+            if ((*itr).Event.event_param1 != text_emote)
+                return;
 
             bool bProcess = false;
 
@@ -1652,10 +1647,8 @@ bool CreatureEventAI::ReceiveEmote(Player* pPlayer, Creature* pCreature, uint32 
             if (bProcess)
             {
                 sLog.outDebug("CreatureEventAI: ReceiveEmote CreatureEventAI: Condition ok, processing");
-                pTmpCreature->ProcessEvent(*itr, pPlayer);
+                ProcessEvent(*itr, pPlayer);
             }
         }
     }
-
-    return true;
 }
