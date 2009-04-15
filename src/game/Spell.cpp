@@ -1246,6 +1246,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
                         _duration = aur ? aur->GetAuraDuration() : -1;
                     }
                     triggeredAur->SetAuraDuration(_duration);
+                    triggeredAur->SetPermanent(false);
                 }
             }
         }

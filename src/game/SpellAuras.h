@@ -94,6 +94,7 @@ class TRINITY_DLL_SPEC Aura
         void SetNegative() { m_positive = false; }
         void SetPositive() { m_positive = true; }
         bool IsPermanent() const { return m_permanent; }
+        void SetPermanent(bool val) { m_permanent = val; }
 
         bool IsPassive() const { return m_isPassive; }
         bool IsDeathPersistent() const { return m_isDeathPersist; }
