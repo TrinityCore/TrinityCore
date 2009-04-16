@@ -79,7 +79,7 @@ static bool procPrepared = InitTriggerAuraData();
 Unit::Unit()
 : WorldObject(), i_motionMaster(this), m_ThreatManager(this), m_HostilRefManager(this)
 , m_IsInNotifyList(false), m_Notified(false), IsAIEnabled(false), NeedChangeAI(false)
-, i_AI(NULL), i_disabledAI(NULL)
+, i_AI(NULL), i_disabledAI(NULL), m_removedAurasCount(0)
 {
     m_objectType |= TYPEMASK_UNIT;
     m_objectTypeId = TYPEID_UNIT;
@@ -461,9 +461,9 @@ void Unit::RemoveAurasWithInterruptFlags(uint32 flag, uint32 except)
         ++iter;
         if ((aur->GetSpellProto()->AuraInterruptFlags & flag) && (!except || aur->GetId() != except))
         {
-            uint32 removedAuras = m_removedAuras.size();
-            RemoveAura(aur, AURA_REMOVE_BY_EXPIRE);
-            if (removedAuras+1<m_removedAuras.size())
+            uint32 removedAuras = m_removedAurasCount;
+            RemoveAura(aur, AURA_REMOVE_BY_ENEMY_SPELL);
+            if (removedAuras+1 < m_removedAurasCount)
                 iter=m_interruptableAuras.begin();
         }
     }
@@ -505,9 +505,9 @@ void Unit::RemoveSpellbyDamageTaken(uint32 damage, uint32 spell)
         ++iter;
         if ((!spell || aur->GetId() != spell) && roll_chance_f(chance))
         {
-            uint32 removedAuras = m_removedAuras.size();
-            RemoveAura(aur);
-            if (removedAuras+1<m_removedAuras.size())
+            uint32 removedAuras = m_removedAurasCount;
+            RemoveAura(aur, AURA_REMOVE_BY_ENEMY_SPELL);
+            if (removedAuras+1 < m_removedAurasCount)
                 iter=m_ccAuras.begin();
         }
     }
@@ -1636,7 +1636,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss)
 
         // victim's damage shield
         std::set<AuraEffect*> alreadyDone;
-        uint32 removedAuras = pVictim->m_removedAuras.size();
+        uint32 removedAuras = pVictim->m_removedAurasCount;
         AuraEffectList const& vDamageShields = pVictim->GetAurasByType(SPELL_AURA_DAMAGE_SHIELD);
         for(AuraEffectList::const_iterator i = vDamageShields.begin(), next = vDamageShields.begin(); i != vDamageShields.end(); i = next)
         {
@@ -1665,9 +1665,9 @@ void Unit::DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss)
 
                pVictim->DealDamage(this, damage, 0, SPELL_DIRECT_DAMAGE, GetSpellSchoolMask(spellProto), spellProto, true);
 
-               if (pVictim->m_removedAuras.size() > removedAuras)
+               if (pVictim->m_removedAurasCount > removedAuras)
                {
-                   removedAuras = pVictim->m_removedAuras.size();
+                   removedAuras = pVictim->m_removedAurasCount;
                    next = vDamageShields.begin();
                }
            }
@@ -2060,9 +2060,9 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
             ++i;
             if (auraeff->GetAmount()<=0)
             {
-                uint32 removedAuras = pVictim->m_removedAuras.size();
+                uint32 removedAuras = pVictim->m_removedAurasCount;
                 pVictim->RemoveAura(aura, AURA_REMOVE_BY_ENEMY_SPELL);
-                if (removedAuras+1<pVictim->m_removedAuras.size())
+                if (removedAuras+1<pVictim->m_removedAurasCount)
                     i=vSchoolAbsorb.begin();
             }
         }
@@ -3267,12 +3267,15 @@ void Unit::_UpdateSpells( uint32 time )
 
         aur->SetUpdated(true);
 
-        uint32 removedAuras = m_removedAuras.size();
+        m_removedAurasCount = 0;
         aur->Update( time );
 
         // several auras can be deleted due to update
-        if(removedAuras < m_removedAuras.size())
+        if(m_removedAurasCount)
+        {
+            m_removedAurasCount = 0;
             i = m_Auras.begin();
+        }
         else
             ++i;
     }
@@ -4025,9 +4028,9 @@ void Unit::RemoveAurasByType(AuraType auraType, uint64 casterGUID, Aura * except
         ++iter;
         if (aur != except && (!casterGUID || aur->GetCasterGUID()==casterGUID))
         {
-            uint32 removedAuras = m_removedAuras.size();
+            uint32 removedAuras = m_removedAurasCount;
             RemoveAura(aur);
-            if (removedAuras+1<m_removedAuras.size())
+            if (removedAuras+1< m_removedAurasCount)
                 iter=m_modAuras[auraType].begin();
         }
     }
@@ -4042,9 +4045,9 @@ void Unit::RemoveAurasByTypeWithDispel(AuraType auraType, Spell * spell)
         ++iter;
         if (GetDispelChance(aur->GetCaster(), aur->GetId()))
         {
-            uint32 removedAuras = m_removedAuras.size();
+            uint32 removedAuras = m_removedAurasCount;
             RemoveAura(aur, AURA_REMOVE_BY_ENEMY_SPELL);
-            if (removedAuras+1<m_removedAuras.size())
+            if (removedAuras+1<m_removedAurasCount)
                 iter=m_modAuras[auraType].begin();
         }
     }
@@ -4069,9 +4072,9 @@ void Unit::RemoveNotOwnSingleTargetAuras()
         ++iter;
         if (aur->GetTarget()!=this)
         {
-            uint32 removedAuras = m_removedAuras.size();
+            uint32 removedAuras = m_removedAurasCount;
             aur->GetTarget()->RemoveAura(aur->GetId(),aur->GetCasterGUID());
-            if (removedAuras+1<m_removedAuras.size())
+            if (removedAuras+1<m_removedAurasCount)
                 iter=scAuras.begin();
         }
     }
@@ -4084,6 +4087,7 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
     // some ShapeshiftBoosts at remove trigger removing other auras including parent Shapeshift aura
     // remove aura from list before to prevent deleting it before
     m_Auras.erase(i);
+    m_removedAurasCount += 1;
 
     Aur->UnregisterSingleCastAura();
 
