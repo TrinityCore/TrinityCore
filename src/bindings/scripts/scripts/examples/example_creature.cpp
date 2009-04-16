@@ -190,6 +190,18 @@ struct TRINITY_DLL_DECL example_creatureAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
+
+    //Our Recive emote function
+    void ReceiveEmote(Player *player, uint32 emote)
+    {
+        m_creature->HandleEmoteCommand(emote);
+
+        if (emote == TEXTEMOTE_DANCE)
+            DoScriptText(SAY_DANCE, m_creature);
+
+        if (emote == TEXTEMOTE_SALUTE)
+            DoScriptText(SAY_SALUTE, m_creature);
+    }
 };
 
 //This is the GetAI method used by all scripts that involve AI
@@ -229,20 +241,6 @@ bool GossipHello_example_creature(Player *player, Creature *_Creature)
     return true;
 }
 
-//Our Recive emote function
-bool ReceiveEmote_example_creature(Player *player, Creature *_Creature, uint32 emote)
-{
-    _Creature->HandleEmoteCommand(emote);
-
-    if (emote == TEXTEMOTE_DANCE)
-        DoScriptText(SAY_DANCE, _Creature);
-
-    if (emote == TEXTEMOTE_SALUTE)
-        DoScriptText(SAY_SALUTE, _Creature);
-
-    return true;
-}
-
 //This is the actual function called only once durring InitScripts()
 //It must define all handled functions that are to be run in this script
 //For example if you want this Script to handle Emotes you must include
@@ -256,6 +254,5 @@ void AddSC_example_creature()
     newscript->GetAI = &GetAI_example_creature;
     newscript->pGossipHello = &GossipHello_example_creature;
     newscript->pGossipSelect = &GossipSelect_example_creature;
-    newscript->pReceiveEmote = &ReceiveEmote_example_creature;
     newscript->RegisterSelf();
 }
