@@ -1059,6 +1059,13 @@ void Spell::EffectDummy(uint32 i)
                     else                                    // backfire 20%
                         m_caster->CastSpell(unitTarget, 30504, true, m_CastItem);
                     return;
+                case 55004: //Nitro Boosts
+                    if(!m_CastItem) return;
+                    if(roll_chance_i(95)) //success
+                        m_caster->CastSpell(m_caster, 54861, true, m_CastItem);
+                    else                  //backfire 5%
+                        m_caster->CastSpell(m_caster, 46014, true, m_CastItem);
+                    return;
                 case 33060:                                         // Make a Wish
                 {
                     if(m_caster->GetTypeId()!=TYPEID_PLAYER)
