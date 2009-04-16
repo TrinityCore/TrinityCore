@@ -462,7 +462,7 @@ void Unit::RemoveAurasWithInterruptFlags(uint32 flag, uint32 except)
         if ((aur->GetSpellProto()->AuraInterruptFlags & flag) && (!except || aur->GetId() != except))
         {
             uint32 removedAuras = m_removedAuras.size();
-            RemoveAura(aur);
+            RemoveAura(aur, AURA_REMOVE_BY_EXPIRE);
             if (removedAuras+1<m_removedAuras.size())
                 iter=m_interruptableAuras.begin();
         }
