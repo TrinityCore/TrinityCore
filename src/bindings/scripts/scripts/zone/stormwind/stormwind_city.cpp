@@ -285,7 +285,7 @@ void AddSC_stormwind_city()
 
     newscript = new Script;
     newscript->Name = "npc_general_marcus_jonathan";
-    newscript->pReceiveEmote = &ReceiveEmote_npc_general_marcus_jonathan;
+    //newscript->pReceiveEmote = &ReceiveEmote_npc_general_marcus_jonathan;
     newscript->RegisterSelf();
 
     newscript = new Script;

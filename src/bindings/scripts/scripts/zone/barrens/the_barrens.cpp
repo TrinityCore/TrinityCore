@@ -157,6 +157,20 @@ struct TRINITY_DLL_DECL npc_taskmaster_fizzuleAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
+
+    void ReciveEmote(Player* pPlayer, uint32 emote)
+    {
+        if (emote == TEXTEMOTE_SALUTE)
+        {
+            if (FlareCount >= 2)
+            {
+                if (m_creature->getFaction() == FACTION_FRIENDLY_F)
+                    return;
+                else
+                    DoFriend();
+            }
+        }
+    }
 };
 
 CreatureAI* GetAI_npc_taskmaster_fizzule(Creature* pCreature)
@@ -164,20 +178,6 @@ CreatureAI* GetAI_npc_taskmaster_fizzule(Creature* pCreature)
     return new npc_taskmaster_fizzuleAI(pCreature);
 }
 
-bool ReciveEmote_npc_taskmaster_fizzule(Player* pPlayer, Creature* pCreature, uint32 emote)
-{
-    if (emote == TEXTEMOTE_SALUTE)
-    {
-        if (((npc_taskmaster_fizzuleAI*)pCreature->AI())->FlareCount >= 2)
-        {
-            if (pCreature->getFaction() == FACTION_FRIENDLY_F)
-                return true;
-            else
-                ((npc_taskmaster_fizzuleAI*)pCreature->AI())->DoFriend();
-        }
-    }
-    return true;
-}
 /*#####
 ## npc_twiggy_flathead
 #####*/
@@ -549,7 +549,6 @@ void AddSC_the_barrens()
     newscript = new Script;
     newscript->Name="npc_taskmaster_fizzule";
     newscript->GetAI = &GetAI_npc_taskmaster_fizzule;
-    newscript->pReceiveEmote = &ReciveEmote_npc_taskmaster_fizzule;
     newscript->RegisterSelf();
 
     newscript = new Script;
