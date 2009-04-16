@@ -122,13 +122,14 @@ void TicketMgr::LoadGMTickets()
         ticket->name = fields[2].GetString();
         ticket->message = fields[3].GetString();
         ticket->createtime = fields[4].GetUInt64();
-        ticket->pos_x = fields[5].GetFloat();
-        ticket->pos_y = fields[6].GetFloat();
-        ticket->pos_z = fields[7].GetFloat();
-        ticket->timestamp = fields[8].GetUInt64();
-        ticket->closed = fields[9].GetUInt64();
-        ticket->assignedToGM = fields[10].GetUInt64();
-        ticket->comment = fields[11].GetString();
+        ticket->map = fields[5].GetUInt32();
+        ticket->pos_x = fields[6].GetFloat();
+        ticket->pos_y = fields[7].GetFloat();
+        ticket->pos_z = fields[8].GetFloat();
+        ticket->timestamp = fields[9].GetUInt64();
+        ticket->closed = fields[10].GetUInt64();
+        ticket->assignedToGM = fields[11].GetUInt64();
+        ticket->comment = fields[12].GetString();
 
         AddGMTicket(ticket, true);
 
