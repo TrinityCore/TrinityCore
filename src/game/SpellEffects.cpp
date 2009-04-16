@@ -3914,13 +3914,15 @@ void Spell::EffectSummonPet(uint32 i)
             owner = m_originalCaster->GetCharmerOrOwnerPlayerOrPlayerItself();
     }
 
+    uint32 petentry = m_spellInfo->EffectMiscValue[i];
+
     if(!owner)
     {
-        EffectSummonWild(i);
+        SummonPropertiesEntry const *properties = sSummonPropertiesStore.LookupEntry(67);
+        if(properties)
+            SummonGuardian(petentry, properties);
         return;
     }
-
-    uint32 petentry = m_spellInfo->EffectMiscValue[i];
 
     Pet *OldSummon = owner->GetPet();
 
