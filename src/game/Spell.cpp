@@ -1161,15 +1161,23 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
         else
             m_caster->CastSpell(unit,m_preCastSpell, true, m_CastItem);
     }
-    uint8 t_effmask=0;
-    for (uint8 i=0;i<3;++i)
-        if (effectMask & (1<<i) && (m_spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AURA || IsAreaAuraEffect(m_spellInfo->Effect[i])))
-            t_effmask |=1<<i;
 
-    if (t_effmask)
+    uint8 aura_effmask = 0;
+    for (uint8 i = 0; i < 3; ++i)
+        if (effectMask & (1<<i) && (m_spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AURA || IsAreaAuraEffect(m_spellInfo->Effect[i])))
+            aura_effmask |= 1<<i;
+
+    uint8 t_effmask = effectMask & ~aura_effmask;
+    for(uint32 effectNumber = 0; effectNumber < 3; ++effectNumber)
+    {
+        if (t_effmask & (1<<effectNumber))
+            HandleEffects(unit,NULL,NULL,effectNumber);
+    }
+
+    if (aura_effmask)
     {
         Unit * caster =  m_originalCaster ? m_originalCaster : m_caster;
-        Aura * Aur= new Aura(m_spellInfo, t_effmask, &m_currentBasePoints[0], unit, caster , m_CastItem);
+        Aura * Aur= new Aura(m_spellInfo, aura_effmask, &m_currentBasePoints[0], unit, caster , m_CastItem);
 
         if (!Aur->IsAreaAura())
         {
@@ -1198,26 +1206,8 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
         if (unit->AddAura(Aur))
             m_spellAura = Aur;
     }
-    t_effmask = effectMask& ~t_effmask;
-    for(uint32 effectNumber=0;effectNumber<3;effectNumber++)
-    {
-        if (t_effmask & (1<<effectNumber))
-        {
-            HandleEffects(unit,NULL,NULL,effectNumber/*,m_damageMultipliers[effectNumber]*/);
-            //Only damage and heal spells need this
-            /*if ( m_applyMultiplierMask & (1 << effectNumber) )
-            {
-                // Get multiplier
-                float multiplier = m_spellInfo->DmgMultiplier[effectNumber];
-                // Apply multiplier mods
-                if(m_originalCaster)
-                    if(Player* modOwner = m_originalCaster->GetSpellModOwner())
-                        modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_EFFECT_PAST_FIRST, multiplier,this);
-                m_damageMultipliers[effectNumber] *= multiplier;
-            }*/
-        }
-    }
 
+    //AI functions
     if(unit->GetTypeId() == TYPEID_UNIT && ((Creature*)unit)->IsAIEnabled)
         ((Creature*)unit)->AI()->SpellHit(m_caster, m_spellInfo);
 
