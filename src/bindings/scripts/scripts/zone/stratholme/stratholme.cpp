@@ -227,39 +227,37 @@ struct TRINITY_DLL_DECL mobs_spectral_ghostly_citizenAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
+
+    void ReciveEmote(Player *player, uint32 emote)
+    {
+        switch(emote)
+        {
+            case TEXTEMOTE_DANCE:
+                EnterEvadeMode();
+                break;
+            case TEXTEMOTE_RUDE:
+                //Should instead cast spell, kicking player back. Spell not found.
+                if (m_creature->IsWithinDistInMap(player, 5))
+                    m_creature->HandleEmoteCommand(EMOTE_ONESHOT_RUDE);
+                else
+                    m_creature->HandleEmoteCommand(EMOTE_ONESHOT_RUDE);
+                break;
+            case TEXTEMOTE_WAVE:
+                m_creature->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
+                break;
+            case TEXTEMOTE_BOW:
+                m_creature->HandleEmoteCommand(EMOTE_ONESHOT_BOW);
+                break;
+            case TEXTEMOTE_KISS:
+                m_creature->HandleEmoteCommand(EMOTE_ONESHOT_FLEX);
+                break;
+        }
+    }
 };
 
 CreatureAI* GetAI_mobs_spectral_ghostly_citizen(Creature *_Creature)
 {
     return new mobs_spectral_ghostly_citizenAI (_Creature);
-}
-
-bool ReciveEmote_mobs_spectral_ghostly_citizen(Player *player, Creature *_Creature, uint32 emote)
-{
-    switch(emote)
-    {
-        case TEXTEMOTE_DANCE:
-            ((mobs_spectral_ghostly_citizenAI*)_Creature->AI())->EnterEvadeMode();
-            break;
-        case TEXTEMOTE_RUDE:
-            //Should instead cast spell, kicking player back. Spell not found.
-            if (_Creature->IsWithinDistInMap(player, 5))
-                _Creature->HandleEmoteCommand(EMOTE_ONESHOT_RUDE);
-            else
-                _Creature->HandleEmoteCommand(EMOTE_ONESHOT_RUDE);
-            break;
-        case TEXTEMOTE_WAVE:
-            _Creature->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
-            break;
-        case TEXTEMOTE_BOW:
-            _Creature->HandleEmoteCommand(EMOTE_ONESHOT_BOW);
-            break;
-        case TEXTEMOTE_KISS:
-            _Creature->HandleEmoteCommand(EMOTE_ONESHOT_FLEX);
-            break;
-    }
-
-    return true;
 }
 
 void AddSC_stratholme()
@@ -284,7 +282,6 @@ void AddSC_stratholme()
     newscript = new Script;
     newscript->Name = "mobs_spectral_ghostly_citizen";
     newscript->GetAI = &GetAI_mobs_spectral_ghostly_citizen;
-    newscript->pReceiveEmote = &ReciveEmote_mobs_spectral_ghostly_citizen;
     newscript->RegisterSelf();
 }
 
