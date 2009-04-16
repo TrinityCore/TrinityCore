@@ -1004,7 +1004,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
             {
                 GameObject* pObject = NULL;
 
-                float x,y,z,rx,ry,rz;
+                float x,y,z;
                 m_creature->GetPosition(x,y,z);
                 pObject = m_creature->SummonGameObject(param1, x, y, z, 0, 0, 0, 0, 0, param2);
                 if (!pObject)
