@@ -79,39 +79,37 @@ struct TRINITY_DLL_DECL npc_chicken_cluckAI : public ScriptedAI
         if(UpdateVictim())
             DoMeleeAttackIfReady();
     }
+
+    void ReceiveEmote( Player *player, uint32 emote )
+    {
+        if( emote == TEXTEMOTE_CHICKEN )
+        {
+            if( player->GetTeam() == ALLIANCE )
+            {
+                if( rand()%30 == 1 )
+                {
+                    if( player->GetQuestStatus(QUEST_CLUCK) == QUEST_STATUS_NONE )
+                    {
+                        m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                        m_creature->setFaction(FACTION_FRIENDLY);
+                        DoScriptText(EMOTE_A_HELLO, m_creature);
+                    }
+                }
+            } else DoScriptText(EMOTE_H_HELLO,m_creature);
+        }
+        if( emote == TEXTEMOTE_CHEER && player->GetTeam() == ALLIANCE )
+            if( player->GetQuestStatus(QUEST_CLUCK) == QUEST_STATUS_COMPLETE )
+        {
+            m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+            m_creature->setFaction(FACTION_FRIENDLY);
+            DoScriptText(EMOTE_CLUCK_TEXT2, m_creature);
+        }
+    }
 };
 
 CreatureAI* GetAI_npc_chicken_cluck(Creature *_Creature)
 {
     return new npc_chicken_cluckAI(_Creature);
-}
-
-bool ReceiveEmote_npc_chicken_cluck( Player *player, Creature *_Creature, uint32 emote )
-{
-    if( emote == TEXTEMOTE_CHICKEN )
-    {
-        if( player->GetTeam() == ALLIANCE )
-        {
-            if( rand()%30 == 1 )
-            {
-                if( player->GetQuestStatus(QUEST_CLUCK) == QUEST_STATUS_NONE )
-                {
-                    _Creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-                    _Creature->setFaction(FACTION_FRIENDLY);
-                    DoScriptText(EMOTE_A_HELLO, _Creature);
-                }
-            }
-        } else DoScriptText(EMOTE_H_HELLO,_Creature);
-    }
-    if( emote == TEXTEMOTE_CHEER && player->GetTeam() == ALLIANCE )
-        if( player->GetQuestStatus(QUEST_CLUCK) == QUEST_STATUS_COMPLETE )
-    {
-        _Creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-        _Creature->setFaction(FACTION_FRIENDLY);
-        DoScriptText(EMOTE_CLUCK_TEXT2, _Creature);
-    }
-
-    return true;
 }
 
 bool QuestAccept_npc_chicken_cluck(Player *player, Creature *_Creature, const Quest *_Quest )
@@ -174,39 +172,37 @@ struct TRINITY_DLL_DECL npc_dancing_flamesAI : public ScriptedAI
     }
 
     void Aggro(Unit* who){}
+
+    void ReceiveEmote( Player *player, uint32 emote )
+    {
+        if (m_creature->IsWithinLOS(player->GetPositionX(),player->GetPositionY(),player->GetPositionZ()) && m_creature->IsWithinDistInMap(player,30.0f))
+        {
+            m_creature->SetInFront(player);
+            active = false;
+
+            WorldPacket data;
+            m_creature->BuildHeartBeatMsg(&data);
+            m_creature->SendMessageToSet(&data,true);
+            switch(emote)
+            {
+                case TEXTEMOTE_KISS:    m_creature->HandleEmoteCommand(EMOTE_ONESHOT_SHY); break;
+                case TEXTEMOTE_WAVE:    m_creature->HandleEmoteCommand(EMOTE_ONESHOT_WAVE); break;
+                case TEXTEMOTE_BOW:     m_creature->HandleEmoteCommand(EMOTE_ONESHOT_BOW); break;
+                case TEXTEMOTE_JOKE:    m_creature->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH); break;
+                case TEXTEMOTE_DANCE:
+                {
+                    if (!player->HasAura(SPELL_SEDUCTION))
+                        m_creature->CastSpell(player,SPELL_SEDUCTION,true);
+                }
+                break;
+            }
+        }
+    }
 };
 
 CreatureAI* GetAI_npc_dancing_flames(Creature *_Creature)
 {
     return new npc_dancing_flamesAI(_Creature);
-}
-
-bool ReceiveEmote_npc_dancing_flames( Player *player, Creature *flame, uint32 emote )
-{
-    if ( ((npc_dancing_flamesAI*)flame->AI())->active &&
-        flame->IsWithinLOS(player->GetPositionX(),player->GetPositionY(),player->GetPositionZ()) && flame->IsWithinDistInMap(player,30.0f))
-    {
-        flame->SetInFront(player);
-        ((npc_dancing_flamesAI*)flame->AI())->active = false;
-
-        WorldPacket data;
-        flame->BuildHeartBeatMsg(&data);
-        flame->SendMessageToSet(&data,true);
-        switch(emote)
-        {
-            case TEXTEMOTE_KISS:    flame->HandleEmoteCommand(EMOTE_ONESHOT_SHY); break;
-            case TEXTEMOTE_WAVE:    flame->HandleEmoteCommand(EMOTE_ONESHOT_WAVE); break;
-            case TEXTEMOTE_BOW:     flame->HandleEmoteCommand(EMOTE_ONESHOT_BOW); break;
-            case TEXTEMOTE_JOKE:    flame->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH); break;
-            case TEXTEMOTE_DANCE:
-            {
-                if (!player->HasAura(SPELL_SEDUCTION))
-                    flame->CastSpell(player,SPELL_SEDUCTION,true);
-            }
-            break;
-        }
-    }
-    return true;
 }
 
 /*######
@@ -1424,7 +1420,6 @@ void AddSC_npcs_special()
     newscript = new Script;
     newscript->Name="npc_chicken_cluck";
     newscript->GetAI = &GetAI_npc_chicken_cluck;
-    newscript->pReceiveEmote =  &ReceiveEmote_npc_chicken_cluck;
     newscript->pQuestAccept =   &QuestAccept_npc_chicken_cluck;
     newscript->pQuestComplete = &QuestComplete_npc_chicken_cluck;
     newscript->RegisterSelf();
@@ -1432,7 +1427,6 @@ void AddSC_npcs_special()
     newscript = new Script;
     newscript->Name="npc_dancing_flames";
     newscript->GetAI = &GetAI_npc_dancing_flames;
-    newscript->pReceiveEmote =  &ReceiveEmote_npc_dancing_flames;
     newscript->RegisterSelf();
 
     newscript = new Script;
@@ -1492,12 +1486,12 @@ void AddSC_npcs_special()
 
     newscript = new Script;
     newscript->Name="npc_winter_reveler";
-    newscript->pReceiveEmote =  &ReceiveEmote_npc_winter_reveler;
+    //newscript->pReceiveEmote =  &ReceiveEmote_npc_winter_reveler;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_brewfest_reveler";
-    newscript->pReceiveEmote =  &ReceiveEmote_npc_brewfest_reveler;
+    //newscript->pReceiveEmote =  &ReceiveEmote_npc_brewfest_reveler;
     newscript->RegisterSelf();
 
     newscript = new Script;
