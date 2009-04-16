@@ -4010,7 +4010,7 @@ void AddSC_guards()
     newscript->Name="guard_orgrimmar";
     newscript->pGossipHello          = &GossipHello_guard_orgrimmar;
     newscript->pGossipSelect         = &GossipSelect_guard_orgrimmar;
-    newscript->pReceiveEmote         = &ReceiveEmote_guard_orgrimmar;
+    //newscript->pReceiveEmote         = &ReceiveEmote_guard_orgrimmar;
     newscript->GetAI = &GetAI_guard_orgrimmar;
     newscript->RegisterSelf();
 
@@ -4046,7 +4046,7 @@ void AddSC_guards()
     newscript->Name="guard_stormwind";
     newscript->pGossipHello          = &GossipHello_guard_stormwind;
     newscript->pGossipSelect         = &GossipSelect_guard_stormwind;
-    newscript->pReceiveEmote         = &ReceiveEmote_guard_stormwind;
+    //newscript->pReceiveEmote         = &ReceiveEmote_guard_stormwind;
     newscript->GetAI = &GetAI_guard_stormwind;
     newscript->RegisterSelf();
 
