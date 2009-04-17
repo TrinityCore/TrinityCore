@@ -632,6 +632,37 @@ enum MovementFlags
     MOVEMENTFLAG_UNK3           = 0x40000000
 };
 
+struct MovementInfo
+{
+    // common
+    uint32  flags;
+    uint16  unk1;
+    uint32  time;
+    float   x, y, z, o;
+    // transport
+    uint64  t_guid;
+    float   t_x, t_y, t_z, t_o;
+    uint32  t_time;
+    int8    t_seat;
+    // swimming and unknown
+    float   s_pitch;
+    // last fall time
+    uint32  fallTime;
+    // jumping
+    float   j_unk, j_sinAngle, j_cosAngle, j_xyspeed;
+    // spline
+    float   u_unk1;
+
+    MovementInfo()
+    {
+        flags = 0;
+        time = t_time = fallTime = 0;
+        unk1 = 0;
+        x = y = z = o = t_x = t_y = t_z = t_o = s_pitch = j_unk = j_sinAngle = j_cosAngle = j_xyspeed = u_unk1 = 0.0f;
+        t_guid = 0;
+    }
+};
+
 enum DiminishingLevels
 {
     DIMINISHING_LEVEL_1             = 0,
@@ -1561,6 +1592,14 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         Unit *GetMisdirectionTarget() { return m_misdirectionTargetGUID ? GetUnit(*this, m_misdirectionTargetGUID) : NULL; }
 
         bool IsAIEnabled, NeedChangeAI;
+        MovementInfo m_movementInfo;
+        Vehicle *m_Vehicle;
+        float GetTransOffsetX() const { return m_movementInfo.t_x; }
+        float GetTransOffsetY() const { return m_movementInfo.t_y; }
+        float GetTransOffsetZ() const { return m_movementInfo.t_z; }
+        float GetTransOffsetO() const { return m_movementInfo.t_o; }
+        uint32 GetTransTime()   const { return m_movementInfo.t_time; }
+        int8 GetTransSeat()     const { return m_movementInfo.t_seat; }
     protected:
         explicit Unit ();
 

@@ -654,37 +654,6 @@ enum InstanceResetWarningType
     RAID_INSTANCE_WELCOME           = 4                     // Welcome to %s. This raid instance is scheduled to reset in %s.
 };
 
-struct MovementInfo
-{
-    // common
-    uint32  flags;
-    uint16  unk1;
-    uint32  time;
-    float   x, y, z, o;
-    // transport
-    uint64  t_guid;
-    float   t_x, t_y, t_z, t_o;
-    uint32  t_time;
-    int8    t_seat;
-    // swimming and unknown
-    float   s_pitch;
-    // last fall time
-    uint32  fallTime;
-    // jumping
-    float   j_unk, j_sinAngle, j_cosAngle, j_xyspeed;
-    // spline
-    float   u_unk1;
-
-    MovementInfo()
-    {
-        flags = 0;
-        time = t_time = fallTime = 0;
-        unk1 = 0;
-        x = y = z = o = t_x = t_y = t_z = t_o = s_pitch = j_unk = j_sinAngle = j_cosAngle = j_xyspeed = u_unk1 = 0.0f;
-        t_guid = 0;
-    }
-};
-
 // flags that use in movement check for example at spell casting
 MovementFlags const movementFlagsMask = MovementFlags(
     MOVEMENTFLAG_FORWARD |MOVEMENTFLAG_BACKWARD  |MOVEMENTFLAG_STRAFE_LEFT|MOVEMENTFLAG_STRAFE_RIGHT|
@@ -1360,6 +1329,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         void CharmSpellInitialize();
         void PossessSpellInitialize();
         void VehicleSpellInitialize();
+        void SendRemoveControlBar();
         bool HasSpell(uint32 spell) const;
         bool HasActiveSpell(uint32 spell) const;            // show in spellbook
         TrainerSpellState GetTrainerSpellState(TrainerSpell const* trainer_spell) const;
@@ -1912,7 +1882,6 @@ class TRINITY_DLL_SPEC Player : public Unit
         /*********************************************************/
         /***                 VARIOUS SYSTEMS                   ***/
         /*********************************************************/
-        MovementInfo m_movementInfo;
         void UpdateFallInformationIfNeed(MovementInfo const& minfo,uint16 opcode);
         Unit *m_mover;
         WorldObject *m_seer;
@@ -1932,9 +1901,6 @@ class TRINITY_DLL_SPEC Player : public Unit
 
         void SetClientControl(Unit* target, uint8 allowMove);
 
-        void EnterVehicle(Vehicle *vehicle);
-        void ExitVehicle(Vehicle *vehicle);
-
         void SetMover(Unit* target) { m_mover = target; }
         void SetSeer(WorldObject *target) { m_seer = target; }
         void SetViewpoint(WorldObject *target, bool apply);
@@ -1945,13 +1911,6 @@ class TRINITY_DLL_SPEC Player : public Unit
         // Transports
         Transport * GetTransport() const { return m_transport; }
         void SetTransport(Transport * t) { m_transport = t; }
-
-        float GetTransOffsetX() const { return m_movementInfo.t_x; }
-        float GetTransOffsetY() const { return m_movementInfo.t_y; }
-        float GetTransOffsetZ() const { return m_movementInfo.t_z; }
-        float GetTransOffsetO() const { return m_movementInfo.t_o; }
-        uint32 GetTransTime() const { return m_movementInfo.t_time; }
-        int8 GetTransSeat() const { return m_movementInfo.t_seat; }
 
         uint32 GetSaveTimer() const { return m_nextSave; }
         void   SetSaveTimer(uint32 timer) { m_nextSave = timer; }

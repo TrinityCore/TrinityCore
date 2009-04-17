@@ -44,6 +44,7 @@
 #include "Pet.h"
 #include "SocialMgr.h"
 #include "CellImpl.h"
+#include "Vehicle.h"
 
 void WorldSession::HandleRepopRequestOpcode( WorldPacket & /*recv_data*/ )
 {
@@ -1695,7 +1696,7 @@ void WorldSession::HandleSpellClick( WorldPacket & recv_data )
         return;
     }
 
-    _player->EnterVehicle(vehicle);
+    vehicle->AddPassenger(_player);
 }
 
 void WorldSession::HandleInspectAchievements( WorldPacket & recv_data )

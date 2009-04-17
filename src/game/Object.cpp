@@ -277,7 +277,10 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint8 flags, uint32 flags2)
             case TYPEID_UNIT:
             {
                 flags2 = ((Unit*)this)->GetUnitMovementFlags();
-                flags2 &= ~MOVEMENTFLAG_ONTRANSPORT;
+                if(((Unit*)this)->m_Vehicle)
+                    flags2 |= MOVEMENTFLAG_ONTRANSPORT;
+                else
+                    flags2 &= ~MOVEMENTFLAG_ONTRANSPORT;
                 flags2 &= ~MOVEMENTFLAG_SPLINE2;
             }
             break;
@@ -285,7 +288,7 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint8 flags, uint32 flags2)
             {
                 flags2 = ((Player*)this)->GetUnitMovementFlags();
 
-                if(((Player*)this)->GetTransport() || ((Player*)this)->hasUnitState(UNIT_STAT_ONVEHICLE))
+                if(((Player*)this)->GetTransport() || ((Player*)this)->m_Vehicle)
                     flags2 |= MOVEMENTFLAG_ONTRANSPORT;
                 else
                     flags2 &= ~MOVEMENTFLAG_ONTRANSPORT;
@@ -333,20 +336,16 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint8 flags, uint32 flags2)
         // 0x00000200
         if(flags2 & MOVEMENTFLAG_ONTRANSPORT)
         {
-            if(GetTypeId() == TYPEID_PLAYER)
-            {
-                if(((Player*)this)->hasUnitState(UNIT_STAT_ONVEHICLE))
-                    *data << (uint64)((Player*)this)->GetCharmGUID();
-                else
-                    *data << (uint64)((Player*)this)->GetTransport()->GetGUID();
-                *data << (float)((Player*)this)->GetTransOffsetX();
-                *data << (float)((Player*)this)->GetTransOffsetY();
-                *data << (float)((Player*)this)->GetTransOffsetZ();
-                *data << (float)((Player*)this)->GetTransOffsetO();
-                *data << (uint32)((Player*)this)->GetTransTime();
-                *data << (int8)((Player*)this)->GetTransSeat();
-            }
-            //TrinIty currently not have support for other than player on transport
+            if(((Unit*)this)->m_Vehicle)
+                *data << (uint64)((Unit*)this)->m_Vehicle->GetGUID();
+            else
+                *data << (uint64)((Player*)this)->GetTransport()->GetGUID();
+            *data << (float)((Unit*)this)->GetTransOffsetX();
+            *data << (float)((Unit*)this)->GetTransOffsetY();
+            *data << (float)((Unit*)this)->GetTransOffsetZ();
+            *data << (float)((Unit*)this)->GetTransOffsetO();
+            *data << (uint32)((Unit*)this)->GetTransTime();
+            *data << (int8)((Unit*)this)->GetTransSeat();
         }
 
         // 0x02200000
@@ -559,7 +558,7 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint8 flags, uint32 flags2)
     // 0x80
     if(flags & UPDATEFLAG_VEHICLE)                          // unused for now
     {
-        *data << uint32(((Vehicle*)this)->GetVehicleId());  // vehicle id
+        *data << uint32(((Vehicle*)this)->GetVehicleInfo()->m_ID);  // vehicle id
         *data << float(0);                                  // facing adjustment
     }
 }
@@ -1612,15 +1611,16 @@ void WorldObject::BuildHeartBeatMsg(WorldPacket *data) const
     *data << m_positionY;
     *data << m_positionZ;
     *data << m_orientation;
-    if(GetTypeId() == TYPEID_PLAYER && ((Unit*)this)->hasUnitState(UNIT_STAT_ONVEHICLE))
+    if(((Unit*)this)->m_Vehicle)
     {
-        *data << uint64(((Unit*)this)->GetCharmGUID());
-        *data << float(((Player*)this)->GetTransOffsetX());
-        *data << float(((Player*)this)->GetTransOffsetY());
-        *data << float(((Player*)this)->GetTransOffsetZ());
-        *data << float(((Player*)this)->GetTransOffsetO());
-        *data << uint32(((Player*)this)->GetTransTime());
-        *data << uint8(((Player*)this)->GetTransSeat());
+        *data << uint64(((Unit*)this)->m_Vehicle->GetGUID());
+        *data << float (((Unit*)this)->GetTransOffsetX());
+        *data << float (((Unit*)this)->GetTransOffsetY());
+        *data << float (((Unit*)this)->GetTransOffsetZ());
+        *data << float (((Unit*)this)->GetTransOffsetO());
+        *data << uint32(((Unit*)this)->GetTransTime());
+        *data << uint8 (((Unit*)this)->GetTransSeat());
+        sLog.outError("heart seat is %u", ((Unit*)this)->GetTransTime());
     }
     *data << uint32(0); //fall time
 }
@@ -1641,15 +1641,16 @@ void WorldObject::BuildTeleportAckMsg(WorldPacket *data, float x, float y, float
     *data << y;
     *data << z;
     *data << ang;
-    if(GetTypeId() == TYPEID_PLAYER && ((Unit*)this)->hasUnitState(UNIT_STAT_ONVEHICLE))
+    if(((Unit*)this)->m_Vehicle)
     {
-        *data << uint64(((Unit*)this)->GetCharmGUID());
-        *data << float(((Player*)this)->GetTransOffsetX());
-        *data << float(((Player*)this)->GetTransOffsetY());
-        *data << float(((Player*)this)->GetTransOffsetZ());
-        *data << float(((Player*)this)->GetTransOffsetO());
-        *data << uint32(((Player*)this)->GetTransTime());
-        *data << uint8(((Player*)this)->GetTransSeat());
+        *data << uint64(((Unit*)this)->m_Vehicle->GetGUID());
+        *data << float (((Unit*)this)->GetTransOffsetX());
+        *data << float (((Unit*)this)->GetTransOffsetY());
+        *data << float (((Unit*)this)->GetTransOffsetZ());
+        *data << float (((Unit*)this)->GetTransOffsetO());
+        *data << uint32(((Unit*)this)->GetTransTime());
+        *data << uint8 (((Unit*)this)->GetTransSeat());
+        sLog.outError("seat is %u", ((Unit*)this)->GetTransTime());
     }
     *data << uint32(0);
 }

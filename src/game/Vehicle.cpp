@@ -22,8 +22,11 @@
 #include "Vehicle.h"
 #include "Unit.h"
 #include "Util.h"
+#include "WorldPacket.h"
 
-Vehicle::Vehicle() : Creature(), m_vehicleId(0)
+#include "Chat.h"
+
+Vehicle::Vehicle() : Creature(), m_vehicleInfo(NULL)
 {
     m_summonMask |= SUMMON_MASK_VEHICLE;
     m_updateFlag = (UPDATEFLAG_LOWGUID | UPDATEFLAG_HIGHGUID | UPDATEFLAG_LIVING | UPDATEFLAG_HAS_POSITION | UPDATEFLAG_VEHICLE);
@@ -55,9 +58,9 @@ void Vehicle::RemoveFromWorld()
 
 void Vehicle::setDeathState(DeathState s)                       // overwrite virtual Creature::setDeathState and Unit::setDeathState
 {
-    if(Unit *charmer = GetCharmer())
-        if(charmer->GetTypeId() == TYPEID_PLAYER)
-            ((Player*)charmer)->ExitVehicle(this);
+    for(SeatMap::iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
+        if(itr->second.passenger)
+            RemovePassenger(itr->second.passenger);
     Creature::setDeathState(s);
 }
 
@@ -68,6 +71,7 @@ void Vehicle::Update(uint32 diff)
 
 bool Vehicle::Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, uint32 vehicleId, uint32 team)
 {
+    //sLog.outError("create vehicle begin");
     SetMapId(map->GetId());
     SetInstanceId(map->GetInstanceId());
 
@@ -89,7 +93,176 @@ bool Vehicle::Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, u
     SelectLevel(ci);
     SetHealth(GetMaxHealth());
 
+    //sLog.outError("create vehicle end");
     return true;
+}
+
+void Vehicle::SetVehicleId(uint32 id)
+{
+    if(m_vehicleInfo && id == m_vehicleInfo->m_ID)
+        return;
+
+    VehicleEntry const *ve = sVehicleStore.LookupEntry(id);
+    if(!ve)
+        return;
+
+    m_vehicleInfo = ve;
+    for(SeatMap::iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
+        if(itr->second.passenger)
+            RemovePassenger(itr->second.passenger);
+    m_Seats.clear();
+
+    for(uint32 i = 0; i < 8; ++i)
+    {
+        uint32 seatId = m_vehicleInfo->m_seatID[i];
+        if(seatId)
+            if(VehicleSeatEntry const *veSeat = sVehicleSeatStore.LookupEntry(seatId))
+                m_Seats.insert(std::make_pair(i, VehicleSeat(veSeat)));
+    }
+}
+
+void Vehicle::AddPassenger(Unit *unit)
+{
+    sLog.outDebug("Unit %s enter vehicle entry %u id %u dbguid %u", unit->GetName(), GetEntry(), m_vehicleInfo->m_ID, GetDBTableGUIDLow());
+
+    if(unit->m_Vehicle)
+        unit->m_Vehicle->RemovePassenger(unit);
+    unit->m_Vehicle = this;
+
+    Player *player = NULL;
+    if(unit->GetTypeId() == TYPEID_PLAYER)
+        player = (Player*)unit;        
+
+    SeatMap::iterator seat = m_Seats.begin();
+    uint32 seatnum = 0;
+    if(seat->second.passenger)
+    {
+        if(m_Seats.size() <= 1)
+            return;
+        seatnum = rand()%(m_Seats.size()-1) + 1;
+        advance(seat, seatnum);
+        if(seat->second.passenger)
+            return;
+            //RemovePassenger(seat->second.passenger);
+    }
+    seat->second.passenger = unit;
+
+    bool driver = (seat == m_Seats.begin());
+
+    //RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+    SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);
+    setFaction(unit->getFaction());
+
+    if(player)
+    {
+        player->StopCastingCharm();
+        player->StopCastingBindSight();
+
+        if(driver)
+        {
+            player->SetCharm(this, true);
+            player->SetViewpoint(this, true);
+            player->SetMover(this);
+            player->VehicleSpellInitialize();
+        }
+        player->SetClientControl(this, 1);
+    }
+
+    unit->addUnitState(UNIT_STAT_ONVEHICLE);
+    unit->Relocate(this);
+    unit->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
+
+    VehicleSeatEntry const *veSeat = seat->second.seatInfo;
+    unit->m_movementInfo.t_x = veSeat->m_attachmentOffsetX;
+    unit->m_movementInfo.t_y = veSeat->m_attachmentOffsetY;
+    unit->m_movementInfo.t_z = veSeat->m_attachmentOffsetZ;
+    unit->m_movementInfo.t_o = 0;
+    unit->m_movementInfo.t_time = 4;
+    unit->m_movementInfo.t_seat = seat->first;
+
+    WorldPacket data;
+    if(player)
+    {
+        //ChatHandler(player).PSendSysMessage("Enter seat %u %u", veSeat->m_ID, seat->first);
+
+        data.Initialize(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
+        player->GetSession()->SendPacket(&data);
+
+        player->BuildTeleportAckMsg(&data, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation());
+        player->GetSession()->SendPacket(&data);
+    }
+
+    unit->BuildHeartBeatMsg(&data);
+    unit->SendMessageToSet(&data, player ? false : true);
+}
+
+void Vehicle::RemovePassenger(Unit *unit)
+{
+    SeatMap::iterator seat;
+    for(seat = m_Seats.begin(); seat != m_Seats.end(); ++seat)
+    {
+        if(seat->second.passenger == unit)
+        {
+            seat->second.passenger = NULL;
+            break;
+        }
+    }
+
+    if(seat == m_Seats.end())
+        return;
+
+    sLog.outDebug("Unit %s exit vehicle entry %u id %u dbguid %u", unit->GetName(), GetEntry(), m_vehicleInfo->m_ID, GetDBTableGUIDLow());
+
+    bool driver = (seat == m_Seats.begin());
+
+    Player *player = NULL;
+    if(unit->GetTypeId() == TYPEID_PLAYER)
+        player = (Player*)unit; 
+
+    //SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+    RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);
+    //setFaction((GetTeam() == ALLIANCE) ? GetCreatureInfo()->faction_A : GetCreatureInfo()->faction_H);
+
+    if(player)
+    {
+        if(driver)
+        {
+            player->SetCharm(this, false);
+            player->SetViewpoint(this, false);
+            player->SetMover(player);
+            player->SendRemoveControlBar();
+        }
+        player->SetClientControl(player, 1);
+    }
+
+    unit->clearUnitState(UNIT_STAT_ONVEHICLE);
+    unit->Relocate(this);
+    unit->RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
+    unit->m_movementInfo.t_x = 0;
+    unit->m_movementInfo.t_y = 0;
+    unit->m_movementInfo.t_z = 0;
+    unit->m_movementInfo.t_o = 0;
+    unit->m_movementInfo.t_time = 0;
+    unit->m_movementInfo.t_seat = 0;
+
+    unit->m_Vehicle = NULL;
+
+    WorldPacket data;
+    if(player)
+    {
+        player->BuildTeleportAckMsg(&data, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation());
+        player->GetSession()->SendPacket(&data);
+    }
+
+    unit->BuildHeartBeatMsg(&data);
+    unit->SendMessageToSet(&data, player ? false : true);
+
+    // only for flyable vehicles?
+    //CastSpell(this, 45472, true);                           // Parachute
+
+    //if(!vehicle->GetDBTableGUIDLow())
+    if(GetOwnerGUID() == unit->GetGUID())
+        Dismiss();
 }
 
 void Vehicle::Dismiss()
