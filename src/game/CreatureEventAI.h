@@ -103,9 +103,10 @@ enum EventAI_ActionType
     ACTION_T_DIE                        = 37,               //No Params
     ACTION_T_ZONE_COMBAT_PULSE          = 38,               //No Params
 
-    ACTION_T_SET_ACTIVE             = 101,  //Apply
-    ACTION_T_SET_AGGRESSIVE         = 102,  //Apply
-    ACTION_T_ATTACK_START_PULSE     = 103,  //Distance
+    ACTION_T_SET_ACTIVE                 = 101,  //Apply
+    ACTION_T_SET_AGGRESSIVE             = 102,  //Apply
+    ACTION_T_ATTACK_START_PULSE         = 103,  //Distance
+    ACTION_T_SUMMON_GO                  = 104,  //GameObjectID, DespawnTime in ms
 
     ACTION_T_END,
 };
