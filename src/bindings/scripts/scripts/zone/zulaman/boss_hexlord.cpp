@@ -217,6 +217,7 @@ struct TRINITY_DLL_DECL boss_hex_lord_malacrassAI : public ScriptedAI
     uint32 SiphonSoul_Timer;
     uint32 PlayerAbility_Timer;
     uint32 CheckAddState_Timer;
+    uint32 ResetTimer;
 
     uint32 PlayerClass;
 
@@ -232,6 +233,7 @@ struct TRINITY_DLL_DECL boss_hex_lord_malacrassAI : public ScriptedAI
         SiphonSoul_Timer = 100000;
         PlayerAbility_Timer = 99999;
         CheckAddState_Timer = 5000;
+        ResetTimer = 5000;
 
         SpawnAdds();
 
@@ -331,6 +333,16 @@ struct TRINITY_DLL_DECL boss_hex_lord_malacrassAI : public ScriptedAI
     {
         if(!UpdateVictim() )
             return;
+
+        if(ResetTimer < diff)
+        {
+            if(m_creature->GetDistance(119.223,1035.45,29.4481) <= 10)
+            {
+                EnterEvadeMode();
+                return;
+            }
+            ResetTimer = 5000;
+        }else ResetTimer -= diff;
 
         if(CheckAddState_Timer < diff)
         {

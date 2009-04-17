@@ -112,6 +112,7 @@ struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
     uint32 ShieldTimer;
     uint32 SWPainTimer;
     uint32 DispelTimer;
+    uint32 ResetTimer;
 
     uint32 CombatPulseTimer;                                // Periodically puts all players in the instance in combat
 
@@ -127,6 +128,7 @@ struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
         ShieldTimer = 2000;
         SWPainTimer = 5000;
         DispelTimer = 7500;
+        ResetTimer = 5000;
 
         CombatPulseTimer  = 5000;
 
@@ -245,6 +247,18 @@ struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
     {
         if (!UpdateVictim())
             return;
+
+        if(ResetTimer < diff)
+        {
+            float x, y, z, o;
+            m_creature->GetHomePosition(x, y, z, o);
+            if(m_creature->GetPositionZ() >= z+10)
+            {
+                EnterEvadeMode();
+                return;
+            }
+            ResetTimer = 5000;
+        }else ResetTimer -= diff;
 
         if (HealTimer < diff)
         {
