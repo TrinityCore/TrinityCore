@@ -573,8 +573,8 @@ void CreatureEventAI::ProcessAction(uint16 type, uint32 param1, uint32 param2, u
                     if (CreatureInfo const* ci = GetCreatureTemplateStore(param1))
                     {
                         //use default display
-                        if (ci->Modelid1)
-                            m_creature->SetDisplayId(ci->Modelid1);
+                        if (ci->Modelid_A1)
+                            m_creature->SetDisplayId(ci->Modelid_A1);
                     }
                 }
                 //if no param1, then use value from param2 (modelId)
@@ -993,8 +993,7 @@ void CreatureEventAI::ProcessAction(uint16 type, uint32 param1, uint32 param2, u
             pObject = m_creature->SummonGameObject(param1, x, y, z, 0, 0, 0, 0, 0, param2);
             if (!pObject)
             {
-                if (EAI_ErrorLevel > 0)
-                    error_db_log( "SD2: EventAI failed to spawn object %u. Spawn event %d is on creature %d", param1, EventId, m_creature->GetEntry());
+                sLog.outErrorDb("SD2: EventAI failed to spawn object %u. Spawn event %d is on creature %d", param1, EventId, m_creature->GetEntry());
             }
         }
         break;
