@@ -2475,6 +2475,18 @@
 						>
 					</File>
 					<File
+						RelativePath="..\scripts\zone\sunwell_plateau\boss_muru.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\sunwell_plateau\boss_kiljaeden.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\zone\sunwell_plateau\sunwell_plateau.cpp"
+						>
+					</File>
+					<File
 						RelativePath="..\scripts\zone\sunwell_plateau\def_sunwell_plateau.h"
 						>
 					</File>
