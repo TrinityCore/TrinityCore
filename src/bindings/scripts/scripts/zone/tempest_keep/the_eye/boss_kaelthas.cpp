@@ -179,6 +179,7 @@ struct TRINITY_DLL_DECL advisorbase_ai : public ScriptedAI
 
     void Reset()
     {
+        m_creature->SetNoCallAssistance(true);
         FakeDeath = false;
         DelayRes_Timer = 0;
         DelayRes_Target = 0;
@@ -268,7 +269,7 @@ struct TRINITY_DLL_DECL advisorbase_ai : public ScriptedAI
 //Kael'thas AI
 struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
 {
-    boss_kaelthasAI(Creature *c) : ScriptedAI(c)
+    boss_kaelthasAI(Creature *c) : ScriptedAI(c), summons(m_creature)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         AdvisorGuid[0] = 0;
@@ -303,6 +304,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
 
     uint64 AdvisorGuid[4];
     uint64 WeaponGuid[7];
+    SummonList summons;
 
     void DeleteLegs()
     {
@@ -322,42 +324,12 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
             i_pl->DestroyItemCount(30318, 1, true);
             i_pl->DestroyItemCount(30319, 1, true);
             i_pl->DestroyItemCount(30320, 1, true);
-        }
-        if(pInstance) {
-            for(uint32 i = 0; i < 7; i++) {
-                Creature* weapon = (Creature*)(Unit::GetUnit((*m_creature), WeaponGuid[i]));;
-                delete weapon;
-            }
-        }
-    }
-
-    void CleanPhoenix()
-    {
-        CellPair pair(Trinity::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
-        Cell cell(pair);
-        cell.data.Part.reserved = ALL_DISTRICT;
-        cell.SetNoCreate();
-
-        std::list<Creature*> PhoenixList;
-
-        Trinity::AllCreaturesOfEntryInRange check(m_creature, PHOENIX, 50);
-        Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(PhoenixList, check);
-        TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange>, GridTypeMapContainer> visitor(searcher);
-
-        CellLock<GridReadGuard> cell_lock(cell, pair);
-        cell_lock->Visit(cell_lock, visitor, *(m_creature->GetMap()));
-
-        if(!PhoenixList.empty())
-        {
-            for(std::list<Creature*>::iterator itr = PhoenixList.begin(); itr != PhoenixList.end(); ++itr)
-            {
-                (*itr)->RemoveFromWorld();
-            }
-        }
+        }        
     }
 
     void Reset()
     {
+        m_creature->SetNoCallAssistance(true);
         Fireball_Timer = 5000+rand()%10000;
         ArcaneDisruption_Timer = 45000;
         MindControl_Timer = 40000;
@@ -379,7 +351,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
             PrepareAdvisors();
 
         DeleteLegs();
-        CleanPhoenix();
+        summons.DespawnAll();
 
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -466,7 +438,10 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
             Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0);
             summoned->AI()->AttackStart(target);
         }
+        summons.Summon(summoned);
     }
+
+    void SummonedCreatureDespawn(Creature *summon) {summons.Despawn(summon);}
 
     void JustDied(Unit* Killer)
     {
@@ -476,6 +451,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
         DoScriptText(SAY_DEATH, m_creature);
 
         DeleteLegs();
+        summons.DespawnAll();
 
         if(pInstance)
             pInstance->SetData(DATA_KAELTHASEVENT, DONE);
@@ -483,10 +459,10 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
         Creature *pCreature;
         for(uint8 i = 0; i < 4; ++i)
         {
-            pCreature = (Creature*)(Unit::GetUnit((*m_creature), AdvisorGuid[i]));
+            pCreature = (Unit::GetCreature((*m_creature), AdvisorGuid[i]));
             if(pCreature)
             {
-                pCreature->DealDamage(pCreature, pCreature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                pCreature->setDeathState(JUST_DIED);
             }
         }
     }
@@ -955,7 +931,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                                 for (i = m_creature->getThreatManager().getThreatList().begin(); i!= m_creature->getThreatManager().getThreatList().end();i++)
                                 {
                                     Unit* pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid());
-                                    if(pUnit)
+                                    if(pUnit && pUnit->GetTypeId() == TYPEID_PLAYER)
                                     {
                                         m_creature->CastSpell(pUnit, SPELL_KNOCKBACK, true);
                                         //Gravity lapse - needs an exception in Spell system to work
@@ -989,7 +965,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                                 for (i = m_creature->getThreatManager().getThreatList().begin(); i!= m_creature->getThreatManager().getThreatList().end();i++)
                                 {
                                     Unit* pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid());
-                                    if(pUnit)
+                                    if(pUnit && pUnit->GetTypeId() == TYPEID_PLAYER)
                                     {
                                         //Using packet workaround
                                         WorldPacket data(12);
