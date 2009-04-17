@@ -61,17 +61,17 @@ void Totem::Summon(Unit* owner)
         uint32 modelid = 0;
         if(((Player*)owner)->GetTeam() == HORDE)
         {
-            if(cinfo->Modelid3)
-                modelid = cinfo->Modelid3;
-            else if(cinfo->Modelid4)
-                modelid = cinfo->Modelid4;
+            if(cinfo->Modelid_H1)
+                modelid = cinfo->Modelid_H1;
+            else if(cinfo->Modelid_H2)
+                modelid = cinfo->Modelid_H2;
         }
         else
         {
-            if(cinfo->Modelid1)
-                modelid = cinfo->Modelid1;
-            else if(cinfo->Modelid2)
-                modelid = cinfo->Modelid2;
+            if(cinfo->Modelid_A1)
+                modelid = cinfo->Modelid_A1;
+            else if(cinfo->Modelid_A2)
+                modelid = cinfo->Modelid_A2;
         }
         if (modelid)
             SetDisplayId(modelid);
