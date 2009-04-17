@@ -159,10 +159,10 @@ struct CreatureInfo
 {
     uint32  Entry;
     uint32  HeroicEntry;
-    uint32  Modelid1;
-    uint32  Modelid2;
-    uint32  Modelid3;
-    uint32  Modelid4;
+    uint32  Modelid_A1;
+    uint32  Modelid_A2;
+    uint32  Modelid_H1;
+    uint32  Modelid_H2;
     char*   Name;
     char*   SubName;
     char*   IconName;

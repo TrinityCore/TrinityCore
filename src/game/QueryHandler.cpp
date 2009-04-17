@@ -186,11 +186,10 @@ void WorldSession::HandleCreatureQueryOpcode( WorldPacket & recv_data )
         data << uint32(ci->family);                         // family         wdbFeild9
         data << uint32(ci->rank);                           // rank           wdbFeild10
         data << uint32(ci->PetSpellDataId);                 // Id from CreatureSpellData.dbc    wdbField12
-        data << uint32(ci->Modelid1);                       // modelid_male1
-        data << uint32(ci->Modelid2);                       // modelid_female1 ?
-        data << uint32(ci->Modelid3);                       // modelid_male2 ?
-        data << uint32(ci->Modelid4);                       // modelid_femmale2 ?
-        data << float(ci->unk16);                           // unk
+        data << (uint32)ci->Modelid_A1;                     // Modelid_A1
+        data << (uint32)ci->Modelid_A2;                     // Modelid_A2
+        data << (uint32)ci->Modelid_H1;                     // Modelid_H1
+        data << (uint32)ci->Modelid_H2;                     // Modelid_H2
         data << float(ci->unk17);                           // unk
         data << uint8(ci->RacialLeader);
         SendPacket( &data );
