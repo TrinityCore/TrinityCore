@@ -484,6 +484,9 @@ extern void AddSC_boss_kalecgos();
 extern void AddSC_boss_brutallus();
 extern void AddSC_boss_felmyst();
 extern void AddSC_boss_eredar_twins();
+extern void AddSC_boss_muru();
+extern void AddSC_boss_kiljaeden();
+extern void AddSC_sunwell_plateau();
 
 //Tanaris
 extern void AddSC_tanaris();
@@ -1404,6 +1407,9 @@ void ScriptsInit()
     AddSC_boss_brutallus();
     AddSC_boss_felmyst();
     AddSC_boss_eredar_twins();
+    AddSC_boss_muru();
+    AddSC_boss_kiljaeden();
+    AddSC_sunwell_plateau();
 
     //Tanaris
     AddSC_tanaris();
