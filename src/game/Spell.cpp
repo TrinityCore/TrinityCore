@@ -5402,7 +5402,7 @@ bool Spell::CheckTarget( Unit* target, uint32 eff )
         default:                                            // normal case
             // Get GO cast coordinates if original caster -> GO
             WorldObject *caster = NULL;
-            if (m_originalCasterGUID)
+            if (IS_GAMEOBJECT_GUID(m_originalCasterGUID))
                 caster = ObjectAccessor::GetGameObject(*m_caster, m_originalCasterGUID);
             if (!caster)
                 caster = m_caster;
