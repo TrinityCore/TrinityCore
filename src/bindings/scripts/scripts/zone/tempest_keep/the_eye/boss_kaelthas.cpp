@@ -386,7 +386,6 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
         AdvisorGuid[1] = pInstance->GetData64(DATA_LORDSANGUINAR);
         AdvisorGuid[2] = pInstance->GetData64(DATA_GRANDASTROMANCERCAPERNIAN);
         AdvisorGuid[3] = pInstance->GetData64(DATA_MASTERENGINEERTELONICUS);
-        m_creature->addUnitState(UNIT_STAT_STUNNED);
 
         if(!AdvisorGuid[0] || !AdvisorGuid[1] || !AdvisorGuid[2] || !AdvisorGuid[3])
         {
@@ -499,6 +498,15 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
+        
+        if(pInstance && Phase)
+        {
+            if(pInstance->GetData(DATA_KAELTHASEVENT) == IN_PROGRESS && m_creature->getThreatManager().getThreatList().empty())
+            {
+                EnterEvadeMode();            
+                return;
+            }
+        }
         //Phase 1
         switch (Phase)
         {
@@ -741,7 +749,6 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
 
                     if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                     {
-                        m_creature->clearUnitState(UNIT_STAT_STUNNED);
                         AttackStart(target);
                     }
                     Phase_Timer = 30000;
