@@ -23,6 +23,18 @@
 #include "Creature.h"
 #include "Unit.h"
 
+struct VehicleEntry;
+struct VehicleSeatEntry;
+
+struct VehicleSeat
+{
+    explicit VehicleSeat(VehicleSeatEntry const *_seatInfo) : seatInfo(_seatInfo), passenger(NULL) {}
+    VehicleSeatEntry const *seatInfo;
+    Unit* passenger;
+};
+
+typedef std::map<uint32, VehicleSeat> SeatMap;
+
 class Vehicle : public Creature
 {
     public:
@@ -37,14 +49,18 @@ class Vehicle : public Creature
         void setDeathState(DeathState s);                   // overwrite virtual Creature::setDeathState and Unit::setDeathState
         void Update(uint32 diff);                           // overwrite virtual Creature::Update and Unit::Update
 
-        uint32 GetVehicleId() { return m_vehicleId; }
-        void SetVehicleId(uint32 vehicleid) { m_vehicleId = vehicleid; }
+        VehicleEntry const *GetVehicleInfo() { return m_vehicleInfo; }
+        void SetVehicleId(uint32 vehicleid);
 
+        void AddPassenger(Unit *passenger);
+        void RemovePassenger(Unit *passenger);
         void Dismiss();
 
         bool LoadFromDB(uint32 guid, Map *map);
+
+        SeatMap m_Seats;
     protected:
-        uint32 m_vehicleId;
+        VehicleEntry const *m_vehicleInfo;
 
     private:
         void SaveToDB(uint32, uint8)                        // overwrited of Creature::SaveToDB     - don't must be called
