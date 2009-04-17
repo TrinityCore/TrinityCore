@@ -749,6 +749,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
 
                     if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                     {
+                        DoResetThreat();//only healers will be at top threat, so reset(not delete) all players's threat when Kael comes to fight
                         AttackStart(target);
                     }
                     Phase_Timer = 30000;
