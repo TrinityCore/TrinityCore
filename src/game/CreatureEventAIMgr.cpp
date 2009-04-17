@@ -545,8 +545,21 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
             m_CreatureEventAI_Event_Map[creature_id].push_back(temp);
             ++Count;
 
-            if(cInfo->AIName == "")
-                const_cast<CreatureInfo*>(cInfo)->AIName = "EventAI";
+            if(!cInfo->AIName || !cInfo->AIName[0])
+            {
+                //sLog.outErrorDb("CreatureEventAI: Creature Entry %u has EventAI script but its AIName is empty. Set to EventAI as default.", cInfo->Entry);
+                size_t len = strlen("EventAI")+1;
+                const_cast<CreatureInfo*>(cInfo)->AIName = new char[len];
+                strncpy(const_cast<char*>(cInfo->AIName), "EventAI", len);
+            }
+            if(strcmp(cInfo->AIName, "EventAI"))
+            {
+                //sLog.outErrorDb("CreatureEventAI: Creature Entry %u has EventAI script but it has AIName %s. EventAI script will be overriden.", cInfo->Entry, cInfo->AIName);
+            }
+            if(cInfo->ScriptID)
+            {
+                //sLog.outErrorDb("CreatureEventAI: Creature Entry %u has EventAI script but it also has C++ script. EventAI script will be overriden.", cInfo->Entry);
+            }            
         } while (result->NextRow());
 
         delete result;
