@@ -16492,7 +16492,7 @@ void Player::StopCastingCharm()
         if(((Creature*)charm)->isPet() && ((Pet*)charm)->getPetType() == POSSESSED_PET)
             ((Pet*)charm)->Remove(PET_SAVE_AS_DELETED);
         else if(((Creature*)charm)->isVehicle())
-            ExitVehicle((Vehicle*)charm);
+            ((Vehicle*)charm)->RemovePassenger(this);
     }
     if(GetCharmGUID())
     {
@@ -16707,8 +16707,8 @@ void Player::PossessSpellInitialize()
 
 void Player::VehicleSpellInitialize()
 {
-    Unit* charm = GetCharm();
-    if(!charm || charm->GetTypeId() != TYPEID_UNIT)
+    Unit* charm = m_Vehicle;
+    if(!charm)
         return;
 
     WorldPacket data(SMSG_PET_SPELLS, 8+4+4+4+4*10+1+1);
@@ -16808,9 +16808,14 @@ void Player::CharmSpellInitialize()
     uint8 count = 0;
     data << uint8(count);                                   // cooldowns count
 
-    data.hexlike();
+    GetSession()->SendPacket(&data);
+}
 
-
+void Player::SendRemoveControlBar()
+{
+    WorldPacket data(SMSG_PET_SPELLS, 8+4);
+    data << uint64(0);
+    data << uint32(0);
     GetSession()->SendPacket(&data);
 }
 
@@ -19559,7 +19564,7 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
             return;
         }
 
-        if(target->isType(TYPEMASK_UNIT))
+        if(target->isType(TYPEMASK_UNIT) && !m_Vehicle)
             ((Unit*)target)->AddPlayerToVision(this);
     }
     else
@@ -19572,7 +19577,7 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
             return;
         }
 
-        if(target->isType(TYPEMASK_UNIT))
+        if(target->isType(TYPEMASK_UNIT) && !m_Vehicle)
             ((Unit*)target)->RemovePlayerFromVision(this);
 
         //must immediately set seer back otherwise may crash
@@ -19671,96 +19676,6 @@ void Player::InitGlyphsForLevel()
         value |= 0x20;
 
     SetUInt32Value(PLAYER_GLYPHS_ENABLED, value);
-}
-
-void Player::EnterVehicle(Vehicle *vehicle)
-{
-    sLog.outDebug("Player %s enter vehicle entry %u id %u dbguid %u", GetName(), vehicle->GetEntry(), vehicle->GetVehicleId(), vehicle->GetDBTableGUIDLow());
-
-    if(vehicle->GetCharmerGUID())
-        return;
-
-    VehicleEntry const *ve = sVehicleStore.LookupEntry(vehicle->GetVehicleId());
-    if(!ve)
-        return;
-
-    VehicleSeatEntry const *veSeat = sVehicleSeatStore.LookupEntry(ve->m_seatID[0]);
-    if(!veSeat)
-        return;
-
-    vehicle->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-    vehicle->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);
-    vehicle->setFaction(getFaction());
-
-    StopCastingCharm();
-    StopCastingBindSight();
-
-    SetCharm(vehicle, true);
-    SetViewpoint(vehicle, true);
-    SetMover(vehicle);
-    SetClientControl(vehicle, 1);                           // redirect controls to vehicle
-
-    addUnitState(UNIT_STAT_ONVEHICLE);
-    Relocate(vehicle->GetPositionX(), vehicle->GetPositionY(), vehicle->GetPositionZ(), vehicle->GetOrientation());
-    AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
-    m_movementInfo.t_x = veSeat->m_attachmentOffsetX;
-    m_movementInfo.t_y = veSeat->m_attachmentOffsetY;
-    m_movementInfo.t_z = veSeat->m_attachmentOffsetZ;
-    m_movementInfo.t_o = 0;
-    m_movementInfo.t_time = getMSTime();
-    m_movementInfo.t_seat = 0;
-
-    WorldPacket data(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
-    GetSession()->SendPacket(&data);
-
-    BuildTeleportAckMsg(&data, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
-    GetSession()->SendPacket(&data);
-
-    BuildHeartBeatMsg(&data);
-    SendMessageToSet(&data, false);
-
-    VehicleSpellInitialize();
-}
-
-void Player::ExitVehicle(Vehicle *vehicle)
-{
-    vehicle->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-    vehicle->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);
-    vehicle->setFaction((GetTeam() == ALLIANCE) ? vehicle->GetCreatureInfo()->faction_A : vehicle->GetCreatureInfo()->faction_H);
-
-    SetCharm(vehicle, false);
-    SetViewpoint(vehicle, false);
-    SetMover(this);
-    SetClientControl(vehicle, 0);
-
-    clearUnitState(UNIT_STAT_ONVEHICLE);
-    Relocate(vehicle->GetPositionX(), vehicle->GetPositionY(), vehicle->GetPositionZ(), vehicle->GetOrientation());
-    RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
-    m_movementInfo.t_x = 0;
-    m_movementInfo.t_y = 0;
-    m_movementInfo.t_z = 0;
-    m_movementInfo.t_o = 0;
-    m_movementInfo.t_time = 0;
-    m_movementInfo.t_seat = 0;
-
-    WorldPacket data;
-    BuildTeleportAckMsg(&data, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
-    GetSession()->SendPacket(&data);
-
-    BuildHeartBeatMsg(&data);
-    SendMessageToSet(&data, false);
-
-    data.Initialize(SMSG_PET_SPELLS, 8+4);
-    data << uint64(0);
-    data << uint32(0);
-    GetSession()->SendPacket(&data);
-
-    // only for flyable vehicles?
-    //CastSpell(this, 45472, true);                           // Parachute
-
-    //if(!vehicle->GetDBTableGUIDLow())
-    if(vehicle->GetOwnerGUID() == GetGUID())
-        vehicle->Dismiss();
 }
 
 bool Player::isTotalImmune()

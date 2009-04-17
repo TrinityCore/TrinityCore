@@ -338,9 +338,6 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
     {
         if(Map *map = mover->GetMap())
         {
-            //if(GetPlayer()->m_seer != mover)
-            if(((Creature*)mover)->isVehicle())
-                map->PlayerRelocation(GetPlayer(), movementInfo.x, movementInfo.y, movementInfo.z, movementInfo.o);
             map->CreatureRelocation((Creature*)mover, movementInfo.x, movementInfo.y, movementInfo.z, movementInfo.o);
         }
         mover->SetUnitMovementFlags(movementInfo.flags);
@@ -482,8 +479,31 @@ void WorldSession::HandleDismissControlledVehicle(WorldPacket &recv_data)
     // using charm guid, because we don't have vehicle guid...
     if(Vehicle *vehicle = ObjectAccessor::GetVehicle(vehicleGUID))
     {
-        _player->ExitVehicle(vehicle);
+        vehicle->RemovePassenger(_player);
     }
+}
+
+void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket &recv_data)
+{
+    sLog.outDebug("WORLD: Recvd CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE");
+    recv_data.hexlike();
+    uint32 a;
+    uint16 b;
+    uint16 c;
+    uint32 d,e,f,g,h,i,j,k;
+    int8 seat;
+    recv_data >> a >> b >> c;
+    recv_data >> d >> e >> f >> g >> h >> i >> j >> k;
+    recv_data >> seat;
+    //sLog.outError("change seat %u %u %u %u %u %u %u %u %u %u %u %u", a, b,c,d,e,f,g,h,i,j,k,seat);
+}
+
+void WorldSession::HandleRequestVehicleExit(WorldPacket &recv_data)
+{
+    sLog.outDebug("WORLD: Recvd CMSG_REQUEST_VEHICLE_EXIT");
+    recv_data.hexlike();
+    if(GetPlayer()->m_Vehicle)
+        GetPlayer()->m_Vehicle->RemovePassenger(GetPlayer());
 }
 
 void WorldSession::HandleMountSpecialAnimOpcode(WorldPacket& /*recvdata*/)

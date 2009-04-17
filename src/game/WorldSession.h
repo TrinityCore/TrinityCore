@@ -361,10 +361,11 @@ class TRINITY_DLL_SPEC WorldSession
         void HandleMoveWorldportAckOpcode();                // for server-side calls
 
         void HandleMovementOpcodes(WorldPacket& recvPacket);
-        //void HandlePossessedMovement(WorldPacket& recv_data, MovementInfo& movementInfo, uint32& MovementFlags);
         void HandleSetActiveMoverOpcode(WorldPacket &recv_data);
         void HandleMoveNotActiveMover(WorldPacket &recv_data);
         void HandleDismissControlledVehicle(WorldPacket &recv_data);
+        void HandleRequestVehicleExit(WorldPacket &recv_data);
+        void HandleChangeSeatsOnControlledVehicle(WorldPacket &recv_data);
         void HandleMoveTimeSkippedOpcode(WorldPacket &recv_data);
 
         void HandleRequestRaidInfoOpcode( WorldPacket & recv_data );

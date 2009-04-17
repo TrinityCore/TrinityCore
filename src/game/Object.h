@@ -372,6 +372,14 @@ class TRINITY_DLL_SPEC WorldObject : public Object
 
         void _Create( uint32 guidlow, HighGuid guidhigh, uint32 mapid, uint32 phaseMask);
 
+        void Relocate(WorldObject *obj)
+        {
+            m_positionX = obj->GetPositionX();
+            m_positionY = obj->GetPositionY();
+            m_positionZ = obj->GetPositionZ();
+            m_orientation = obj->GetOrientation();
+        }
+
         void Relocate(float x, float y, float z, float orientation)
         {
             m_positionX = x;

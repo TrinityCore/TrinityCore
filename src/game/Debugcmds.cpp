@@ -32,6 +32,10 @@
 #include "BattleGroundMgr.h"
 #include <fstream>
 #include "ObjectMgr.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
 
 bool ChatHandler::HandleDebugSendSpellFailCommand(const char* args)
 {
@@ -670,6 +674,53 @@ bool ChatHandler::HandleDebugHostilRefList(const char * /*args*/)
         ref = ref->next();
     }
     SendSysMessage("End of hostil reference list.");
+    return true;
+}
+
+bool ChatHandler::HandleDebugSetVehicleId(const char *args)
+{
+    Unit* target = getSelectedUnit();
+    if(!target || target->GetTypeId() != TYPEID_UNIT || !((Creature*)target)->isVehicle())
+        return false;
+
+    if(!args)
+        return false;
+
+    char* i = strtok((char*)args, " ");
+    if(!i)
+        return false;
+
+    uint32 id = (uint32)atoi(i);
+    ((Vehicle*)target)->SetVehicleId(id);
+    target->SendUpdateObjectToAllExcept(NULL);
+    PSendSysMessage("Vehicle id set to %u", id);
+    return true;
+}
+
+bool ChatHandler::HandleDebugEnterVehicle(const char * args)
+{
+    Unit* target = getSelectedUnit();
+    if(!target || target->GetTypeId() != TYPEID_UNIT || !((Creature*)target)->isVehicle())
+        return false;
+
+    if(!args)
+        return false;
+
+    char* i = strtok((char*)args, " ");
+    if(!i)
+        return false;
+
+    uint32 entry = (uint32)atoi(i);
+    Creature *passenger = NULL;
+    Trinity::AllCreaturesOfEntryInRange check(m_session->GetPlayer(), entry, 20.0f);
+	Trinity::CreatureSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(m_session->GetPlayer(), passenger, check);
+    m_session->GetPlayer()->VisitNearbyObject(20.0f, searcher);
+    if(!passenger || passenger == target)
+        return false;
+
+    ((Vehicle*)target)->AddPassenger(passenger);
+
+    PSendSysMessage("Creature entered vehicle");
     return true;
 }
 

@@ -35,6 +35,7 @@
 #include "ScriptCalls.h"
 #include "Group.h"
 #include "MapRefManager.h"
+#include "Vehicle.h"
 
 #include "MapInstanced.h"
 #include "InstanceSaveMgr.h"
@@ -962,6 +963,17 @@ Map::CreatureRelocation(Creature *creature, float x, float y, float z, float ang
         creature->Relocate(x, y, z, ang);
         AddUnitToNotify(creature);
     }
+
+    if(creature->isVehicle())
+    {
+        for(SeatMap::iterator itr = ((Vehicle*)creature)->m_Seats.begin(); itr != ((Vehicle*)creature)->m_Seats.end(); ++itr)
+            if(itr->second.passenger)
+                if(itr->second.passenger->GetTypeId() == TYPEID_PLAYER)
+                    PlayerRelocation((Player*)itr->second.passenger, x, y, z, ang);
+                else
+                    CreatureRelocation((Creature*)itr->second.passenger, x, y, z, ang);
+    }
+
     assert(CheckGridIntegrity(creature,true));
 }
 

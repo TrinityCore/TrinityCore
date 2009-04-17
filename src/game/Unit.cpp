@@ -51,6 +51,7 @@
 #include "NullCreatureAI.h"
 #include "Traveller.h"
 #include "TemporarySummon.h"
+#include "Vehicle.h"
 
 #include <math.h>
 
@@ -79,7 +80,7 @@ static bool procPrepared = InitTriggerAuraData();
 Unit::Unit()
 : WorldObject(), i_motionMaster(this), m_ThreatManager(this), m_HostilRefManager(this)
 , m_IsInNotifyList(false), m_Notified(false), IsAIEnabled(false), NeedChangeAI(false)
-, i_AI(NULL), i_disabledAI(NULL), m_removedAurasCount(0)
+, i_AI(NULL), i_disabledAI(NULL), m_removedAurasCount(0), m_Vehicle(NULL)
 {
     m_objectType |= TYPEMASK_UNIT;
     m_objectTypeId = TYPEID_UNIT;
@@ -10145,6 +10146,7 @@ void Unit::setDeathState(DeathState s)
         UnsummonAllTotems();
         RemoveAllControlled();
         RemoveAllAurasOnDeath();
+        if(m_Vehicle) m_Vehicle->RemovePassenger(this);
         //This is needed to clear visible auras after unit dies
 
         ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, false);
@@ -11112,6 +11114,7 @@ void Unit::RemoveFromWorld()
         RemoveCharmAuras();
         RemoveBindSightAuras();
         RemoveNotOwnSingleTargetAuras();
+        if(m_Vehicle) m_Vehicle->RemovePassenger(this);
 
         if(GetCharmerGUID())
             sLog.outCrash("Unit %u has charmer guid when removed from world", GetEntry());

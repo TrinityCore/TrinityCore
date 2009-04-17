@@ -150,6 +150,8 @@ ChatCommand * ChatHandler::getCommandTable()
         { "setitemflag",    SEC_ADMINISTRATOR,  false, &ChatHandler::HandleDebugSetItemFlagCommand,         "", NULL },
         { "setvalue",       SEC_ADMINISTRATOR,  false, &ChatHandler::HandleDebugSetValue,                   "", NULL },
         { "spawnvehicle",   SEC_ADMINISTRATOR,  false, &ChatHandler::HandleDebugSpawnVehicle,               "", NULL },
+        { "setvid",         SEC_ADMINISTRATOR,  false, &ChatHandler::HandleDebugSetVehicleId,               "", NULL },
+        { "entervehicle",   SEC_ADMINISTRATOR,  false, &ChatHandler::HandleDebugEnterVehicle,               "", NULL },
         { "uws",            SEC_ADMINISTRATOR,  false, &ChatHandler::HandleDebugUpdateWorldStateCommand,    "", NULL },
         { "update",         SEC_ADMINISTRATOR,  false, &ChatHandler::HandleDebugUpdate,                     "", NULL },
         { NULL,             0,                  false, NULL,                                                "", NULL }
