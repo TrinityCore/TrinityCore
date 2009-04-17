@@ -4857,14 +4857,14 @@ uint16 ObjectMgr::GetTaxiMount( uint32 id, uint32 team )
             mount_entry = node->MountCreatureID[1];
             CreatureInfo const *ci = GetCreatureTemplate(mount_entry);
             if(ci)
-                mount_id = ci->Modelid1;
+                mount_id = ci->Modelid_A1;
         }
         if (team == HORDE)
         {
             mount_entry = node->MountCreatureID[0];
             CreatureInfo const *ci = GetCreatureTemplate(mount_entry);
             if(ci)
-                mount_id = ci->Modelid3;
+                mount_id = ci->Modelid_H1;
         }
     }
 
