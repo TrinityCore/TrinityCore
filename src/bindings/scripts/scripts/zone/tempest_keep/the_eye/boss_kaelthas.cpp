@@ -147,6 +147,7 @@ float KaelthasWeapons[7][5] =
 #define TIME_PHASE_3_4      120000
 
 #define KAEL_VISIBLE_RANGE  50.0f
+#define ROOM_BASE_Z 49.0f
 
 //Base AI for Advisors
 struct TRINITY_DLL_DECL advisorbase_ai : public ScriptedAI
@@ -179,6 +180,7 @@ struct TRINITY_DLL_DECL advisorbase_ai : public ScriptedAI
 
     void Reset()
     {
+        m_creature->SetNoCallAssistance(true);
         FakeDeath = false;
         DelayRes_Timer = 0;
         DelayRes_Target = 0;
@@ -268,7 +270,7 @@ struct TRINITY_DLL_DECL advisorbase_ai : public ScriptedAI
 //Kael'thas AI
 struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
 {
-    boss_kaelthasAI(Creature *c) : ScriptedAI(c)
+    boss_kaelthasAI(Creature *c) : ScriptedAI(c), summons(m_creature)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         AdvisorGuid[0] = 0;
@@ -303,6 +305,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
 
     uint64 AdvisorGuid[4];
     uint64 WeaponGuid[7];
+    SummonList summons;
 
     void DeleteLegs()
     {
@@ -322,42 +325,12 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
             i_pl->DestroyItemCount(30318, 1, true);
             i_pl->DestroyItemCount(30319, 1, true);
             i_pl->DestroyItemCount(30320, 1, true);
-        }
-        if(pInstance) {
-            for(uint32 i = 0; i < 7; i++) {
-                Creature* weapon = (Unit::GetCreature((*m_creature), WeaponGuid[i]));;
-                delete weapon;
-            }
-        }
-    }
-
-    void CleanPhoenix()
-    {
-        CellPair pair(Trinity::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
-        Cell cell(pair);
-        cell.data.Part.reserved = ALL_DISTRICT;
-        cell.SetNoCreate();
-
-        std::list<Creature*> PhoenixList;
-
-        Trinity::AllCreaturesOfEntryInRange check(m_creature, PHOENIX, 50);
-        Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(m_creature, PhoenixList, check);
-        TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange>, GridTypeMapContainer> visitor(searcher);
-
-        CellLock<GridReadGuard> cell_lock(cell, pair);
-        cell_lock->Visit(cell_lock, visitor, *(m_creature->GetMap()));
-
-        if(!PhoenixList.empty())
-        {
-            for(std::list<Creature*>::iterator itr = PhoenixList.begin(); itr != PhoenixList.end(); ++itr)
-            {
-                (*itr)->RemoveFromWorld();
-            }
-        }
+        }        
     }
 
     void Reset()
     {
+        m_creature->SetNoCallAssistance(true);
         Fireball_Timer = 5000+rand()%10000;
         ArcaneDisruption_Timer = 45000;
         MindControl_Timer = 40000;
@@ -379,7 +352,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
             PrepareAdvisors();
 
         DeleteLegs();
-        CleanPhoenix();
+        summons.DespawnAll();
 
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -413,7 +386,6 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
         AdvisorGuid[1] = pInstance->GetData64(DATA_LORDSANGUINAR);
         AdvisorGuid[2] = pInstance->GetData64(DATA_GRANDASTROMANCERCAPERNIAN);
         AdvisorGuid[3] = pInstance->GetData64(DATA_MASTERENGINEERTELONICUS);
-        m_creature->addUnitState(UNIT_STAT_STUNNED);
 
         if(!AdvisorGuid[0] || !AdvisorGuid[1] || !AdvisorGuid[2] || !AdvisorGuid[3])
         {
@@ -466,7 +438,10 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
             Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0);
             summoned->AI()->AttackStart(target);
         }
+        summons.Summon(summoned);
     }
+
+    void SummonedCreatureDespawn(Creature *summon) {summons.Despawn(summon);}
 
     void JustDied(Unit* Killer)
     {
@@ -476,6 +451,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
         DoScriptText(SAY_DEATH, m_creature);
 
         DeleteLegs();
+        summons.DespawnAll();
 
         if(pInstance)
             pInstance->SetData(DATA_KAELTHASEVENT, DONE);
@@ -486,7 +462,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
             pCreature = (Unit::GetCreature((*m_creature), AdvisorGuid[i]));
             if(pCreature)
             {
-                pCreature->DealDamage(pCreature, pCreature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                pCreature->setDeathState(JUST_DIED);
             }
         }
     }
@@ -522,6 +498,15 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
+        
+        if(pInstance && Phase)
+        {
+            if(pInstance->GetData(DATA_KAELTHASEVENT) == IN_PROGRESS && m_creature->getThreatManager().getThreatList().empty())
+            {
+                EnterEvadeMode();            
+                return;
+            }
+        }
         //Phase 1
         switch (Phase)
         {
@@ -764,7 +749,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
 
                     if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                     {
-                        m_creature->clearUnitState(UNIT_STAT_STUNNED);
+                        DoResetThreat();//only healers will be at top threat, so reset(not delete) all players's threat when Kael comes to fight
                         AttackStart(target);
                     }
                     Phase_Timer = 30000;
@@ -955,7 +940,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                                 for (i = m_creature->getThreatManager().getThreatList().begin(); i!= m_creature->getThreatManager().getThreatList().end();i++)
                                 {
                                     Unit* pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid());
-                                    if(pUnit)
+                                    if(pUnit && pUnit->GetTypeId() == TYPEID_PLAYER)
                                     {
                                         m_creature->CastSpell(pUnit, SPELL_KNOCKBACK, true);
                                         //Gravity lapse - needs an exception in Spell system to work
@@ -989,7 +974,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                                 for (i = m_creature->getThreatManager().getThreatList().begin(); i!= m_creature->getThreatManager().getThreatList().end();i++)
                                 {
                                     Unit* pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid());
-                                    if(pUnit)
+                                    if(pUnit && pUnit->GetTypeId() == TYPEID_PLAYER)
                                     {
                                         //Using packet workaround
                                         WorldPacket data(12);
@@ -1410,109 +1395,124 @@ struct TRINITY_DLL_DECL mob_kael_flamestrikeAI : public ScriptedAI
 //Phoenix AI
 struct TRINITY_DLL_DECL mob_phoenix_tkAI : public ScriptedAI
 {
-       mob_phoenix_tkAI(Creature *c) : ScriptedAI(c) {}
+    mob_phoenix_tkAI(Creature *c) : ScriptedAI(c) 
+    {
+       pInstance = ((ScriptedInstance*)c->GetInstanceData());
+    }
 
-       uint32 Cycle_Timer;
-       uint8 SummonEgg;
+    ScriptedInstance* pInstance;
+    uint32 Cycle_Timer;
+    bool egg;
 
-       void Reset()
-       {
-               Cycle_Timer = 2000;
-               SummonEgg = 0;
-               m_creature->CastSpell(m_creature,SPELL_BURN,true);
-       }
+    void JustDied(Unit *victim)
+    {            
+        if(egg)
+        {
+            float x,y,z;
+            m_creature->GetPosition(x,y,z);
+            z = m_creature->GetMap()->GetVmapHeight(x,y,z,true);
+            if(z == INVALID_HEIGHT)
+                z = ROOM_BASE_Z;
+            m_creature->SummonCreature(PHOENIX_EGG,x,y,z,m_creature->GetOrientation(),TEMPSUMMON_TIMED_DESPAWN,16000);
+            m_creature->RemoveCorpse();
+        }
+    }
 
-       void Aggro(Unit *who) { }
 
-       void DamageTaken(Unit* pKiller, uint32 &damage)
-       {
-               if(m_creature->GetHealth() < damage && SummonEgg < 2){
-                       damage = 0;
-                       SummonEgg = 1;
-               }
-       }
+    void Reset()
+    {
+        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT + MOVEMENTFLAG_LEVITATING);//birds can fly! :)
+        egg = true;
+        Cycle_Timer = 2000;
+        m_creature->CastSpell(m_creature,SPELL_BURN,true);
+    }
 
-       void UpdateAI(const uint32 diff)
-       {
-               if (!UpdateVictim())
-                       return;
+    void Aggro(Unit *who) { }
 
-               if(SummonEgg < 2){
-                   if (Cycle_Timer < diff)
-                   {
-                           //spell Burn should possible do this, but it doesn't, so do this for now.
-                           uint32 dmg = urand(4500,5500);
-                           if (m_creature->GetHealth() > dmg)
-                                   m_creature->SetHealth(uint32(m_creature->GetHealth()-dmg));
-                           Cycle_Timer = 2000;
-                   }else Cycle_Timer -= diff;
-               }else {
-                       if(Cycle_Timer < diff){
-                               m_creature->SummonCreature(PHOENIX_EGG,m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ(),m_creature->GetOrientation(),TEMPSUMMON_TIMED_DESPAWN,16000);
-                               m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                               m_creature->RemoveCorpse();
-                       }else Cycle_Timer -= diff;
-               }
+    void DamageTaken(Unit* pKiller, uint32 &damage)
+    {
 
-               if(SummonEgg == 1){ //hack die animation
-                       m_creature->RemoveAllAuras();
-                       DoStartNoMovement(m_creature->getVictim());
-                       m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_DEAD);
-                       SummonEgg = 2;
-                       Cycle_Timer = 1000;
-               }
-               if(SummonEgg < 2)DoMeleeAttackIfReady();
-       }
+    }
+
+    void UpdateAI(const uint32 diff)
+    {            
+        if (Cycle_Timer < diff)
+        {
+            if(pInstance)//check for boss reset
+            {
+                Creature* Kael = Unit::GetCreature((*m_creature), pInstance->GetData64(DATA_KAELTHAS));
+                if (Kael && Kael->getThreatManager().getThreatList().empty())
+                {
+                    egg = false;
+                    m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);                        
+                    Cycle_Timer = 2000;
+                    return;
+                }
+            }
+            //spell Burn should possible do this, but it doesn't, so do this for now.
+            uint32 dmg = urand(4500,5500);
+            if (m_creature->GetHealth() > dmg)
+                m_creature->SetHealth(uint32(m_creature->GetHealth()-dmg));
+            else//kill itt
+                m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+            Cycle_Timer = 2000;
+        }else Cycle_Timer -= diff;
+        
+        if (!UpdateVictim())
+            return;
+        DoMeleeAttackIfReady();
+    }
 };
 
 //Phoenix Egg AI
 struct TRINITY_DLL_DECL mob_phoenix_egg_tkAI : public ScriptedAI
 {
-       mob_phoenix_egg_tkAI(Creature *c) : ScriptedAI(c) {}
+    mob_phoenix_egg_tkAI(Creature *c) : ScriptedAI(c) {}
 
-       uint32 Rebirth_Timer;
-       bool summoned;
+    uint32 Rebirth_Timer;
+    bool summoned;
 
-       void Reset(){
-               Rebirth_Timer = 15000;
-               summoned = false;
-       }
+    void Reset(){
+            Rebirth_Timer = 15000;
+            summoned = false;
+    }
 
-       //ignore any
-       void MoveInLineOfSight(Unit* who) { return; }
+    //ignore any
+    void MoveInLineOfSight(Unit* who) { return; }
 
-       void AttackStart(Unit* who)
-       {
-               if (m_creature->Attack(who, false))
-               {
-                       if (!InCombat)
-                       {
-                               InCombat = true;
-                               Aggro(who);
-                       }
-                       DoStartNoMovement(who);
-               }
-       }
+    void AttackStart(Unit* who)
+    {
+        if (m_creature->Attack(who, false))
+        {
+            if (!InCombat)
+            {
+                InCombat = true;
+                Aggro(who);
+            }
+            DoStartNoMovement(who);
+        }
+    }
 
-       void Aggro(Unit *who) { }
+    void Aggro(Unit *who) { }
 
-       void JustSummoned(Creature* summoned)
-       {
-               summoned->AddThreat(m_creature->getVictim(), 0.0f);
-               summoned->CastSpell(summoned,SPELL_REBIRTH,false);
-       }
+    void JustSummoned(Creature* summoned)
+    {
+        summoned->AddThreat(m_creature->getVictim(), 0.0f);
+        summoned->CastSpell(summoned,SPELL_REBIRTH,false);
+    }
 
-       void UpdateAI(const uint32 diff)
-       {
-               if (Rebirth_Timer < diff)
-               {
-                       if(!summoned){
-                       Creature* Phoenix = m_creature->SummonCreature(PHOENIX,m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ(),m_creature->GetOrientation(),TEMPSUMMON_CORPSE_DESPAWN,5000);
-                       summoned = true;
-                       }
-                       m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-               }else Rebirth_Timer -= diff;
-       }
+    void UpdateAI(const uint32 diff)
+    {
+        if (Rebirth_Timer < diff)
+        {
+            if(!summoned)
+            {
+                Creature* Phoenix = m_creature->SummonCreature(PHOENIX,m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ(),m_creature->GetOrientation(),TEMPSUMMON_CORPSE_DESPAWN,5000);
+                summoned = true;
+            }
+            m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+        }else Rebirth_Timer -= diff;
+    }
 };
 
 CreatureAI* GetAI_boss_kaelthas(Creature *_Creature)

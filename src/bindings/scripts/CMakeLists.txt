@@ -302,10 +302,13 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/stratholme/def_stratholme.h
    scripts/zone/stratholme/instance_stratholme.cpp
    scripts/zone/stratholme/stratholme.cpp
+   scripts/zone/sunwell_plateau/boss_kiljaeden.cpp
+   scripts/zone/sunwell_plateau/boss_muru.cpp
    scripts/zone/sunwell_plateau/boss_eredar_twins.cpp
    scripts/zone/sunwell_plateau/boss_felmyst.cpp
    scripts/zone/sunwell_plateau/boss_brutallus.cpp
    scripts/zone/sunwell_plateau/boss_kalecgos.cpp
+   scripts/zone/sunwell_plateau/sunwell_plateau.cpp
    scripts/zone/sunwell_plateau/def_sunwell_plateau.h
    scripts/zone/sunwell_plateau/instance_sunwell_plateau.cpp
    scripts/zone/tanaris/tanaris.cpp
