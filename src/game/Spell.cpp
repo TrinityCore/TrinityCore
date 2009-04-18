@@ -688,9 +688,9 @@ void Spell::prepareDataForTriggerSystem()
             case SPELLFAMILY_ROGUE:   // For poisons need do it
                 if (m_spellInfo->SpellFamilyFlags[1] & 0x00000010 || m_spellInfo->SpellFamilyFlags[0] & 0x1001E000) m_canTrigger = true;
             break;
-            case SPELLFAMILY_HUNTER:  // Hunter Rapid Killing/Explosive Trap Effect/Immolation Trap Effect/Frost Trap Aura/Snake Trap Effect/Explosive Shot
+            case SPELLFAMILY_HUNTER:  // Hunter Rapid Killing/Explosive Trap Effect/Immolation Trap Effect/Frost Trap Aura/Snake Trap Effect/Explosive Shot/Freezing Trap Effect
                 if (m_spellInfo->SpellFamilyFlags[1] & 0x01002000
-                    || m_spellInfo->SpellFamilyFlags[0] & 0x00000214 ||
+                    || m_spellInfo->SpellFamilyFlags[0] & 0x0000021C ||
                     m_spellInfo->SpellFamilyFlags[2] & 0x200) m_canTrigger = true;
             break;
             case SPELLFAMILY_PALADIN: // For Judgements (all) / Holy Shock triggers need do it
