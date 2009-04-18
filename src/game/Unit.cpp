@@ -13406,9 +13406,26 @@ void Unit::NearTeleportTo( float x, float y, float z, float orientation, bool ca
         ((Player*)this)->TeleportTo(GetMapId(), x, y, z, orientation, TELE_TO_NOT_LEAVE_TRANSPORT | TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET | (casting ? TELE_TO_SPELL : 0));
     else
     {
+        WorldPacket data;
+        /*data.Initialize(MSG_MOVE_TELEPORT, 30);
+        data.append(GetPackGUID());
+        data << uint32(GetUnitMovementFlags());
+        data << uint16(0);  // Probably walk flags here
+        data << getMSTime(); // time
+        data << x; // destination coords
+        data << y;
+        data << z;
+        data << orientation;
+        data << uint32 (0);
+        // Other information here: jumping angle etc
+        SendMessageToSet(&data, false);*/
+
+        // FIXME: this interrupts spell visual
+        DestroyForNearbyPlayers();
+
         GetMap()->CreatureRelocation((Creature*)this, x, y, z, orientation);
 
-        WorldPacket data;
+        //WorldPacket data;
         // Work strange for many spells: triggered active mover set for targeted player to creature
         //BuildTeleportAckMsg(&data, x, y, z, orientation);
         BuildHeartBeatMsg(&data);
