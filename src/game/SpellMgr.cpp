@@ -1176,13 +1176,6 @@ void SpellMgr::LoadSpellBonusess()
 
 bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellProcEvent, uint32 EventProcFlag, SpellEntry const * procSpell, uint32 procFlags, uint32 procExtra, bool active)
 {
-    // Additional checks for triggered spells
-    if (procExtra & PROC_EX_INTERNAL_TRIGGERED)
-    {
-        if (!(procSpell->AttributesEx3 & SPELL_ATTR_EX3_CAN_PROC_TRIGGERED))
-            return false;
-    }
-
     // No extra req need
     uint32 procEvent_procEx = PROC_EX_NONE;
 
