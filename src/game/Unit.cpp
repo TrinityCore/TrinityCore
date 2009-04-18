@@ -12350,6 +12350,13 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit *pVictim, Aura * aura, SpellEntry co
     if (!EventProcFlag)
         return false;
 
+    // Additional checks for triggered spells
+    if (procExtra & PROC_EX_INTERNAL_TRIGGERED)
+    {
+        if (!(spellProto->AttributesEx3 & SPELL_ATTR_EX3_CAN_PROC_TRIGGERED))
+            return false;
+    }
+
     // Check spellProcEvent data requirements
     if(!spellmgr.IsSpellProcEventCanTriggeredBy(spellProcEvent, EventProcFlag, procSpell, procFlag, procExtra, active))
         return false;
