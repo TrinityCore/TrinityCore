@@ -10298,8 +10298,6 @@ Unit* Creature::SelectVictim()
     //or who does not have threat (totem/pet/critter)
     //otherwise enterevademode every update
 
-
-
     Unit* target = NULL;
     // First checking if we have some taunt on us
     const AuraEffectList& tauntAuras = GetAurasByType(SPELL_AURA_MOD_TAUNT);

@@ -319,43 +319,24 @@ void GameObject::Update(uint32 /*p_time*/)
 
                 bool NeedDespawn = (goInfo->trap.charges != 0);
 
-                CellPair p(Trinity::ComputeCellPair(GetPositionX(),GetPositionY()));
-                Cell cell(p);
-                cell.data.Part.reserved = ALL_DISTRICT;
-
                 // Note: this hack with search required until GO casting not implemented
                 // search unfriendly creature
                 if(owner && NeedDespawn)                    // hunter trap
                 {
-                    Trinity::AnyUnfriendlyNoTotemUnitInObjectRangeCheck u_check(this, owner, radius);
-                    Trinity::UnitSearcher<Trinity::AnyUnfriendlyNoTotemUnitInObjectRangeCheck> checker(this, ok, u_check);
-
-                    CellLock<GridReadGuard> cell_lock(cell, p);
-
-                    TypeContainerVisitor<Trinity::UnitSearcher<Trinity::AnyUnfriendlyNoTotemUnitInObjectRangeCheck>, GridTypeMapContainer > grid_object_checker(checker);
-                    cell_lock->Visit(cell_lock, grid_object_checker, *GetMap());
-
-                    // or unfriendly player/pet
-                    if(!ok)
-                    {
-                        TypeContainerVisitor<Trinity::UnitSearcher<Trinity::AnyUnfriendlyNoTotemUnitInObjectRangeCheck>, WorldTypeMapContainer > world_object_checker(checker);
-                        cell_lock->Visit(cell_lock, world_object_checker, *GetMap());
-                    }
+                    Trinity::AnyUnfriendlyNoTotemUnitInObjectRangeCheck checker(this, owner, radius);
+                    Trinity::UnitSearcher<Trinity::AnyUnfriendlyNoTotemUnitInObjectRangeCheck> searcher(this, ok, checker);
+                    VisitNearbyGridObject(radius, searcher);
+                    if(!ok) VisitNearbyWorldObject(radius, searcher);
                 }
                 else                                        // environmental trap
                 {
                     // environmental damage spells already have around enemies targeting but this not help in case not existed GO casting support
-
                     // affect only players
-                    Player* p_ok = NULL;
-                    MaNGOS::AnyPlayerInObjectRangeCheck p_check(this, radius);
-                    MaNGOS::PlayerSearcher<MaNGOS::AnyPlayerInObjectRangeCheck>  checker(this,p_ok, p_check);
-
-                    CellLock<GridReadGuard> cell_lock(cell, p);
-
-                    TypeContainerVisitor<Trinity::PlayerSearcher<Trinity::AnyPlayerInObjectRangeCheck>, WorldTypeMapContainer > world_object_checker(checker);
-                    cell_lock->Visit(cell_lock, world_object_checker, *GetMap());
-                    ok = p_ok;
+                    Player* player = NULL;
+                    MaNGOS::AnyPlayerInObjectRangeCheck checker(this, radius);
+                    MaNGOS::PlayerSearcher<MaNGOS::AnyPlayerInObjectRangeCheck> searcher(this, player, checker);
+                    VisitNearbyWorldObject(radius, searcher);
+                    ok = player;
                 }
 
                 if (ok)
