@@ -3959,7 +3959,7 @@ void Unit::RemoveAurasDueToSpellByDispel(uint32 spellId, uint64 casterGUID, Unit
                 int32 damage = aur->GetPartAura(0)->GetAmount()*9;
                 RemoveAuraFromStack(iter, AURA_REMOVE_BY_ENEMY_SPELL);
                 // backfire damage and silence
-                dispeler->CastCustomSpell(dispeler, 31117, &damage, NULL, NULL, true, NULL, NULL,dispeler->GetGUID());
+                dispeler->CastCustomSpell(dispeler, 31117, &damage, NULL, NULL, true, NULL, NULL,GetGUID());
                 return;
             }
             RemoveAuraFromStack(iter, AURA_REMOVE_BY_ENEMY_SPELL);
@@ -6482,7 +6482,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                             continue;
 
                         basepoints0 = CalculateSpellDamage(procSpell,i,procSpell->EffectBasePoints[i],this) * 0.4f;
-                        CastCustomSpell(this,triggered_spell_id,&basepoints0,NULL,NULL,true,castItem,triggeredByAura);
+                        CastCustomSpell(this,triggered_spell_id,&basepoints0,NULL,NULL,true,NULL,triggeredByAura);
                     }
                     return true;
                 }
