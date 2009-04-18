@@ -21,7 +21,7 @@ SDComment: Placeholer
 SDCategory: Sunwell_Plateau
 EndScriptData */
 
-#include "Precompiled.h"
+#include "precompiled.h"
 
 void AddSC_sunwell_plateau()
 {};
