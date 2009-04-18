@@ -21,5 +21,7 @@ SDComment: Placeholer
 SDCategory: Sunwell_Plateau
 EndScriptData */
 
+#include "Precompiled.h"
+
 void AddSC_boss_kiljaeden()
 {};
