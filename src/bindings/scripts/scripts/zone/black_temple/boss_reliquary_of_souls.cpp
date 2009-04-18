@@ -268,7 +268,11 @@ struct TRINITY_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
                     m_creature->RemoveAurasDueToSpell(SPELL_SUBMERGE);
                     //Essence->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_SUBMERGE); //rotate and disappear
                 else
+                {
+                    Essence->AI()->EnterEvadeMode();
+                    Essence->GetMotionMaster()->MoveFollow(m_creature, 0, 0);
                     return;
+                }
                 break;
             case 5:
                 if(Phase == 1)

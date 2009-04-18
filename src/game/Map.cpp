@@ -642,16 +642,24 @@ void Map::RelocationNotify()
         unit->m_Notified = true;
         unit->m_IsInNotifyList = false;
 
+        float dist = abs(unit->GetPositionX() - unit->oldX) + abs(unit->GetPositionY() - unit->oldY);
+        if(dist > 10.0f)
+        {
+            Trinity::VisibleChangesNotifier notifier(*unit);
+            VisitWorld(unit->oldX, unit->oldY, World::GetMaxVisibleDistance(), notifier);
+            dist = 0;
+        }
+
         if(unit->GetTypeId() == TYPEID_PLAYER)
         {
             Trinity::PlayerRelocationNotifier notifier(*((Player*)unit));
-            VisitAll(unit->GetPositionX(), unit->GetPositionY(), World::GetMaxVisibleDistance(), notifier);
+            VisitAll(unit->GetPositionX(), unit->GetPositionY(), World::GetMaxVisibleDistance() + dist, notifier);
             notifier.Notify();
         }
         else
         {
             Trinity::CreatureRelocationNotifier notifier(*((Creature*)unit));
-            VisitAll(unit->GetPositionX(), unit->GetPositionY(), World::GetMaxVisibleDistance(), notifier);
+            VisitAll(unit->GetPositionX(), unit->GetPositionY(), World::GetMaxVisibleDistance() + dist, notifier);
         }
     }
     for(std::vector<Unit*>::iterator iter = i_unitsToNotify.begin(); iter != i_unitsToNotify.end(); ++iter)
@@ -667,6 +675,8 @@ void Map::AddUnitToNotify(Unit* u)
         return;
 
     u->m_IsInNotifyList = true;
+    u->oldX = u->GetPositionX();
+    u->oldY = u->GetPositionY();
 
     if(i_lock)
         i_unitsToNotifyBacklog.push_back(u->GetGUID());
