@@ -5615,6 +5615,15 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     triggered_spell_id = 28742;
                     break;
                 }
+                // Glyph of Rejuvenation
+                case 54754:
+                {
+                    if (pVictim->GetHealth() >= triggerAmount * pVictim->GetMaxHealth()/100)
+                        return false;
+                    basepoints0 = int32(triggerAmount * damage / 100);
+                    triggered_spell_id = 54755;
+                    break;
+                }
                 // Healing Touch Refund (Idol of Longevity trinket)
                 case 28847:
                 {
@@ -5735,7 +5744,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             // Deadly Brew
             else if( dummySpell->SpellIconID == 2963 )
             {
-                triggered_spell_id = 25809;
+                triggered_spell_id = 3409;
                 break;
             }
             // Quick Recovery

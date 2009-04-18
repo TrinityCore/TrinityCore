@@ -4048,7 +4048,7 @@ void AuraEffect::HandleModStateImmunityMask(bool apply, bool Real)
         immunity_list.push_back(SPELL_AURA_MOD_DECREASE_SPEED);
     if (GetMiscValue() & (1<<0))
         immunity_list.push_back(SPELL_AURA_MOD_ROOT);
-    if (GetMiscValue() & (1<<3))
+    if (GetMiscValue() & (1<<2))
         immunity_list.push_back(SPELL_AURA_MOD_CONFUSE);
     if (GetMiscValue() & (1<<9))
         immunity_list.push_back(SPELL_AURA_MOD_FEAR);
@@ -5920,10 +5920,10 @@ void AuraEffect::PeriodicTick()
             }
 
             uint32 procAttacker = PROC_FLAG_ON_DO_PERIODIC;//   | PROC_FLAG_SUCCESSFUL_HEAL;
-            uint32 procVictim   = 0;//ROC_FLAG_ON_TAKE_PERIODIC | PROC_FLAG_TAKEN_HEAL;
+            uint32 procVictim   = PROC_FLAG_ON_TAKE_PERIODIC; //| PROC_FLAG_TAKEN_HEAL;
             // ignore item heals
-//            if(procSpell && !haveCastItem)
-//                pCaster->ProcDamageAndSpell(target, procAttacker, procVictim, PROC_EX_NORMAL_HIT, pdamage, BASE_ATTACK, spellProto);
+            if(procSpell && !haveCastItem)
+                pCaster->ProcDamageAndSpell(target, procAttacker, procVictim, PROC_EX_NORMAL_HIT, pdamage, BASE_ATTACK, spellProto);
             break;
         }
         case SPELL_AURA_PERIODIC_MANA_LEECH:
