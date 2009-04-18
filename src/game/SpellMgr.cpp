@@ -1176,6 +1176,13 @@ void SpellMgr::LoadSpellBonusess()
 
 bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellProcEvent, uint32 EventProcFlag, SpellEntry const * procSpell, uint32 procFlags, uint32 procExtra, bool active)
 {
+    // Additional checks for triggered spells
+    if (procExtra & PROC_EX_INTERNAL_TRIGGERED)
+    {
+        if (!(procSpell->AttributesEx3 & SPELL_ATTR_EX3_CAN_PROC_TRIGGERED))
+            return false;
+    }
+
     // No extra req need
     uint32 procEvent_procEx = PROC_EX_NONE;
 
@@ -1200,6 +1207,10 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
         }
         else // For spells need check school/spell family/family mask
         {
+            // Potions can trigger only if spellfamily given
+            if (procSpell->SpellFamilyName == SPELLFAMILY_POTION && !spellProcEvent->spellFamilyName)
+                return false;
+
             // Check (if set) for school
             if(spellProcEvent->schoolMask && (spellProcEvent->schoolMask & procSpell->SchoolMask) == 0)
                 return false;
@@ -1217,6 +1228,10 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
             }
         }
     }
+    // potions can trigger only if have spell_proc entry
+    else if (procSpell && procSpell->SpellFamilyName==SPELLFAMILY_POTION)
+        return false;
+
     // Check for extra req (if none) and hit/crit
     if (procEvent_procEx == PROC_EX_NONE)
     {
@@ -1227,7 +1242,7 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
     else // Passive spells hits here only if resist/reflect/immune/evade
     {
         // Exist req for PROC_EX_EX_TRIGGER_ALWAYS
-        if (procEvent_procEx & PROC_EX_EX_TRIGGER_ALWAYS)
+        if ((procExtra & AURA_SPELL_PROC_EX_MASK) && (procEvent_procEx & PROC_EX_EX_TRIGGER_ALWAYS))
             return true;
         // Passive spells can`t trigger if need hit
         if ((procEvent_procEx & PROC_EX_NORMAL_HIT) && !active)
