@@ -5631,12 +5631,15 @@ void Spell::CalculateDamageDoneForAllTargets()
         }
     }
 
-    bool usesAmmo=true;
-    Unit::AuraEffectList const& Auras = m_caster->GetAurasByType(SPELL_AURA_ABILITY_CONSUME_NO_AMMO);
-    for(Unit::AuraEffectList::const_iterator j = Auras.begin();j != Auras.end(); ++j)
+    bool usesAmmo = !m_IsTriggeredSpell;
+    if (usesAmmo)
     {
-        if((*j)->isAffectedOnSpell(m_spellInfo))
-            usesAmmo=false;
+        Unit::AuraEffectList const& Auras = m_caster->GetAurasByType(SPELL_AURA_ABILITY_CONSUME_NO_AMMO);
+        for(Unit::AuraEffectList::const_iterator j = Auras.begin();j != Auras.end(); ++j)
+        {
+            if((*j)->isAffectedOnSpell(m_spellInfo))
+                usesAmmo=false;
+        }
     }
 
     for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)

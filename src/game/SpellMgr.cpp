@@ -2519,9 +2519,8 @@ void SpellMgr::LoadPetLevelupSpellMap()
                 // not exist
                 if(!spell)
                     continue;
-                if (!spell->spellLevel)
-                    continue;
-                if (!spell->SpellFamilyName)
+                // Make sure that triggered spells aren't learned
+                if (!spell->SpellFamilyName && !spell->StartRecoveryCategory)
                     continue;
                 mPetLevelupSpellMap.insert(PetLevelupSpellMap::value_type(creatureFamily->ID, std::make_pair(spell->spellLevel , spell->Id )));
                 count++;
