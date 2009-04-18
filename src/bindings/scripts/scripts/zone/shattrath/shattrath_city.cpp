@@ -309,11 +309,11 @@ public:
             case 54: DoScriptText(WHISP19, m_creature, pTemp); break;
             case 55: DoScriptText(WHISP20, m_creature, pTemp); break;
             case 56: DoScriptText(WHISP21, m_creature, pTemp);
-               if( PlayerGUID )
+                if( PlayerGUID )
                 {
-                    Unit* player = (Unit::GetCreature((*m_creature), PlayerGUID));
-                    if( player && player->GetTypeId() == TYPEID_PLAYER )
-                        ((Player*)player)->GroupEventHappens(10211,m_creature);
+                    Player* player = (Unit::GetPlayer(PlayerGUID));
+                    if( player )
+                        player->GroupEventHappens(10211,m_creature);
                 }
                 break;
         }
