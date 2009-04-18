@@ -451,6 +451,9 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                 // Conflagrate - consumes immolate
                 if (m_spellInfo->TargetAuraState == AURA_STATE_IMMOLATE)
                 {
+                    // Glyph of Conflagrate
+                    if (m_caster->HasAura(56235))
+                        break;
                     // for caster applied auras only
                     Unit::AuraEffectList const &mPeriodic = unitTarget->GetAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
                     for(Unit::AuraEffectList::const_iterator i = mPeriodic.begin(); i != mPeriodic.end(); ++i)
