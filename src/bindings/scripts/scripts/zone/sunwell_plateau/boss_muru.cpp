@@ -21,5 +21,7 @@ SDComment: Placeholer
 SDCategory: Sunwell_Plateau
 EndScriptData */
 
+#include "precompiled.h"
+
 void AddSC_boss_muru()
 {};
