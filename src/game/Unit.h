@@ -1581,8 +1581,11 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void AddPetAura(PetAura const* petSpell);
         void RemovePetAura(PetAura const* petSpell);
 
+        // relocation notification
         void SetToNotify();
         bool m_Notified, m_IsInNotifyList;
+        float oldX, oldY;
+
         void SetReducedThreatPercent(uint32 pct, uint64 guid)
         {
             m_reducedThreatPercent = pct;
