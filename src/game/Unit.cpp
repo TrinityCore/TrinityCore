@@ -10249,7 +10249,7 @@ void Unit::TauntApply(Unit* taunter)
     if (((Creature*)this)->IsAIEnabled)
         ((Creature*)this)->AI()->AttackStart(taunter);
 
-    m_ThreatManager.tauntApply(taunter);
+    //m_ThreatManager.tauntApply(taunter);
 }
 
 //======================================================================
@@ -10275,7 +10275,7 @@ void Unit::TauntFadeOut(Unit *taunter)
         return;
     }
 
-    m_ThreatManager.tauntFadeOut(taunter);
+    //m_ThreatManager.tauntFadeOut(taunter);
     target = m_ThreatManager.getHostilTarget();
 
     if (target && target != taunter)

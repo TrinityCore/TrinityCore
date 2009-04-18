@@ -18164,6 +18164,8 @@ inline void UpdateVisibilityOf_helper(std::set<uint64>& s64, GameObject* target)
 template<class T>
 void Player::UpdateVisibilityOf(T* target, UpdateData& data, std::set<WorldObject*>& visibleNow)
 {
+    if(!target)
+	return;
     if(HaveAtClient(target))
     {
         if(!target->isVisibleForInState(this,true))

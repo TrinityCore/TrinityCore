@@ -186,10 +186,14 @@ void SocialMgr::GetFriendInfo(Player *player, uint32 friendGUID, FriendInfo &fri
     if(!player)
         return;
 
-    Player *pFriend = ObjectAccessor::FindPlayer(friendGUID);
+    friendInfo.Status = FRIEND_STATUS_OFFLINE;
+    friendInfo.Area = 0;
+    friendInfo.Level = 0;
+    friendInfo.Class = 0;
 
+    Player *pFriend = ObjectAccessor::FindPlayer(friendGUID);
     if(!pFriend)
-     return;
+        return;
 
     uint32 team = player->GetTeam();
     uint32 security = player->GetSession()->GetSecurity();
@@ -215,13 +219,6 @@ void SocialMgr::GetFriendInfo(Player *player, uint32 friendGUID, FriendInfo &fri
         friendInfo.Area = pFriend->GetZoneId();
         friendInfo.Level = pFriend->getLevel();
         friendInfo.Class = pFriend->getClass();
-    }
-    else
-    {
-        friendInfo.Status = FRIEND_STATUS_OFFLINE;
-        friendInfo.Area = 0;
-        friendInfo.Level = 0;
-        friendInfo.Class = 0;
     }
 }
 

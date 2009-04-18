@@ -4023,18 +4023,24 @@ void Spell::EffectTaunt(uint32 /*i*/)
 {
     // this effect use before aura Taunt apply for prevent taunt already attacking target
     // for spell as marked "non effective at already attacking target"
-    if(unitTarget && unitTarget->GetTypeId() != TYPEID_PLAYER)
+    if(!unitTarget || !unitTarget->CanHaveThreatList()
+        || unitTarget->getVictim() == m_caster)
     {
-        if(unitTarget->getVictim()==m_caster)
-        {
-            SendCastResult(SPELL_FAILED_DONT_REPORT);
-            return;
-        }
+        SendCastResult(SPELL_FAILED_DONT_REPORT);
+        return;
     }
 
     // Also use this effect to set the taunter's threat to the taunted creature's highest value
-    if(unitTarget->CanHaveThreatList() && unitTarget->getThreatManager().getCurrentVictim())
-        unitTarget->getThreatManager().addThreat(m_caster,unitTarget->getThreatManager().getCurrentVictim()->getThreat());
+    if(unitTarget->getThreatManager().getCurrentVictim())
+    {
+        float myThreat = unitTarget->getThreatManager().getThreat(m_caster);
+        float itsThreat = unitTarget->getThreatManager().getCurrentVictim()->getThreat();
+        if(itsThreat > myThreat)
+            unitTarget->getThreatManager().addThreat(m_caster, itsThreat - myThreat);
+    }
+
+    if(((Creature*)unitTarget)->IsAIEnabled)
+        ((Creature*)unitTarget)->AI()->AttackStart(m_caster);
 }
 
 void Spell::EffectWeaponDmg(uint32 i)
