@@ -466,6 +466,12 @@ void Spell::FillTargetMap()
             continue;
         }
 
+        if(tmpUnitMap.empty() && m_spellInfo->Targets & TARGET_FLAG_CASTER)
+        {
+            AddUnitTarget(m_caster, i);
+            continue;
+        }
+
         if(!targetA && !targetB)
         {
             // add here custom effects that need default target.
