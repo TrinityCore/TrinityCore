@@ -4937,7 +4937,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         // Viper Sting - Instantly restores mana to you equal to 60% of the total amount drained by your Viper Sting.
                         if (familyFlag[1] & 0x00000080)
                         {
-                            int32 tickCount = (aura->GetAuraMaxDuration() - aura->GetAuraDuration()) / aura->GetPartAura(0)->GetAuraAmplitude();
+                            int32 tickCount = aura->GetPartAura(0)->GetTickNumber();
                             spellId = 53358; // 53358 Chimera Shot - Viper
                                 // Amount of one aura tick
                             basePoint = aura->GetPartAura(0)->GetAmount() * aura->GetTarget()->GetMaxPower(POWER_MANA) / 100 ;
