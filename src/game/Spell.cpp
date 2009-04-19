@@ -1569,6 +1569,11 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                 break;
             }
 
+            if(!IsPositiveSpell(m_spellInfo->Id))
+                if(Unit *magnet = m_caster->SelectMagnetTarget(target))
+                    if(magnet != target)
+                        m_targets.setUnitTarget(magnet);
+
             switch(cur)
             {
                 case TARGET_UNIT_MINIPET:
@@ -1577,7 +1582,7 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                     break;
                 case TARGET_UNIT_TARGET_ALLY:
                 case TARGET_UNIT_TARGET_RAID:
-                case TARGET_UNIT_TARGET_ANY: // SelectMagnetTarget()?
+                case TARGET_UNIT_TARGET_ANY:
                 case TARGET_UNIT_TARGET_PARTY:
                     TagUnitMap.push_back(target);
                     break;
@@ -1586,8 +1591,8 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                     break;
                 case TARGET_UNIT_TARGET_ENEMY:
                     if(EffectChainTarget <= 1)
-                        TagUnitMap.push_back(SelectMagnetTarget());
-                    else if(SelectMagnetTarget())   //TODO: chain target should also use magnet target
+                        TagUnitMap.push_back(target);
+                    else
                         SearchChainTarget(TagUnitMap, radius_h, EffectChainTarget, SPELL_TARGETS_ENEMY);
                     break;
                 case TARGET_UNIT_CHAINHEAL:
@@ -5382,40 +5387,6 @@ bool Spell::CheckTarget( Unit* target, uint32 eff )
     }
 
     return true;
-}
-
-Unit* Spell::SelectMagnetTarget()
-{
-    Unit* target = m_targets.getUnitTarget();
-
-    if(target && m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MAGIC && target->HasAuraType(SPELL_AURA_SPELL_MAGNET)) //Attributes & 0x10 what is this?
-    {
-        Unit::AuraEffectList const& magnetAuras = target->GetAurasByType(SPELL_AURA_SPELL_MAGNET);
-        for(Unit::AuraEffectList::const_iterator itr = magnetAuras.begin(); itr != magnetAuras.end(); ++itr)
-        {
-            if(Unit* magnet = (*itr)->GetCaster())
-            {
-                if((*itr)->GetParentAura()->DropAuraCharge())
-                {
-                    target = magnet;
-                    m_targets.setUnitTarget(target);
-                    AddUnitTarget(target, 0);
-                    uint64 targetGUID = target->GetGUID();
-                    for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin();ihit != m_UniqueTargetInfo.end();++ihit)
-                    {
-                        if (targetGUID == ihit->targetGUID)                 // Found in list
-                        {
-                            (*ihit).damage = target->GetHealth();
-                            break;
-                        }
-                    }
-                    break;
-                }
-            }
-        }
-    }
-
-    return target;
 }
 
 bool Spell::IsNeedSendToClient() const

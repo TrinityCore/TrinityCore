@@ -2266,6 +2266,9 @@ void Unit::AttackerStateUpdate (Unit *pVictim, WeaponAttackType attType, bool ex
         return;
     }
 
+    // attack can be redirected to another target
+    pVictim = SelectMagnetTarget(pVictim);
+
     CalcDamageInfo damageInfo;
     CalculateMeleeDamage(pVictim, 0, &damageInfo, attType);
     // Send log damage message to client
@@ -8173,6 +8176,40 @@ void Unit::SetCharm(Unit* charm, bool apply)
 
         m_Controlled.erase(charm);
     }
+}
+
+Unit* Unit::SelectMagnetTarget(Unit *victim, SpellEntry const *spellInfo)
+{
+    if(!victim)
+        return NULL;
+
+    // Magic case
+    if(spellInfo && (spellInfo->DmgClass == SPELL_DAMAGE_CLASS_NONE || spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MAGIC))
+    {
+        //I am not sure if this should be redirected.
+        if(spellInfo->DmgClass == SPELL_DAMAGE_CLASS_NONE)
+            return victim;
+
+        //if((*itr)->GetParentAura()->DropAuraCharge())
+
+        Unit::AuraList const& magnetAuras = victim->GetAurasByType(SPELL_AURA_SPELL_MAGNET);
+        for(Unit::AuraList::const_iterator itr = magnetAuras.begin(); itr != magnetAuras.end(); ++itr)
+            if(Unit* magnet = (*itr)->GetCaster())
+                if(magnet->isAlive())
+                    return magnet;
+    }
+    // Melee && ranged case
+    else
+    {
+        AuraList const& hitTriggerAuras = victim->GetAurasByType(SPELL_AURA_ADD_CASTER_HIT_TRIGGER);
+        for(AuraList::const_iterator i = hitTriggerAuras.begin(); i != hitTriggerAuras.end(); ++i)
+            if(Unit* magnet = (*i)->GetCaster())
+                if(magnet->isAlive() && magnet->IsWithinLOSInMap(this))
+                    if(roll_chance_i((*i)->GetModifier()->m_amount))
+                        return magnet;
+    }
+
+    return victim;
 }
 
 Unit* Unit::GetFirstControlled() const
