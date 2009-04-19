@@ -514,11 +514,13 @@ ObjectAccessor::WorldObjectChangeAccumulator::Visit(DynamicObjectMapType &m)
 {
     for(DynamicObjectMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
-        if (IS_PLAYER_GUID(iter->getSource()->GetCasterGUID()))
+        uint64 guid = iter->getSource()->GetCasterGUID();
+        if(IS_PLAYER_GUID(guid))
         {
-            Player* caster = (Player*)iter->getSource()->GetCaster();
-            if (caster->GetUInt64Value(PLAYER_FARSIGHT) == iter->getSource()->GetGUID())
-                BuildPacket(caster);
+            //Caster may be NULL if DynObj is in removelist
+            if(Player *caster = FindPlayer(guid))
+                if (caster->GetUInt64Value(PLAYER_FARSIGHT) == iter->getSource()->GetGUID())
+                    BuildPacket(caster);
         }
     }
 }
