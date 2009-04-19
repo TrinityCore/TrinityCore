@@ -2031,12 +2031,13 @@ void DoScriptText(int32 textEntry, WorldObject* pSource, Unit* target)
 void Script::RegisterSelf()
 {
     int id = GetScriptId(Name.c_str());
-    if (id != 0)
+    if(id)
     {
         m_scripts[id] = this;
         ++num_sc_scripts;
-    } else
-        debug_log("SD2: RegisterSelf, but script named %s does not have ScriptName assigned in database.",(this)->Name.c_str());
+    }
+    else
+        error_db_log("CRASH ALERT! TrinityScript: RegisterSelf, but script named %s does not have ScriptName assigned in database.",(this)->Name.c_str());
 }
 
 //********************************
