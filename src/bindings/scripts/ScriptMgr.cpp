@@ -693,7 +693,7 @@ void LoadDatabase()
             if (!GetLanguageDescByID(temp.Language))
                 error_db_log("TSCR: Entry %i in table `creature_ai_texts` using Language %u but Language does not exist.",i,temp.Language);
 
-            if (temp.Type > CHAT_TYPE_BOSS_WHISPER)
+            if (temp.Type > CHAT_TYPE_ZONE_YELL)
                 error_db_log("TSCR: Entry %i in table `creature_ai_texts` has Type %u but this Chat Type does not exist.",i,temp.Type);
 
             TextMap[i] = temp;
@@ -758,7 +758,7 @@ void LoadDatabase()
             if (!GetLanguageDescByID(temp.Language))
                 error_db_log("TSCR: Entry %i in table `script_texts` using Language %u but Language does not exist.",i,temp.Language);
 
-            if (temp.Type > CHAT_TYPE_BOSS_WHISPER)
+            if (temp.Type > CHAT_TYPE_ZONE_YELL)
                 error_db_log("TSCR: Entry %i in table `script_texts` has Type %u but this Chat Type does not exist.",i,temp.Type);
 
             TextMap[i] = temp;
@@ -823,7 +823,7 @@ void LoadDatabase()
             if (!GetLanguageDescByID(temp.Language))
                 error_db_log("TSCR: Entry %i in table `custom_texts` using Language %u but Language does not exist.",i,temp.Language);
 
-            if (temp.Type > CHAT_TYPE_BOSS_WHISPER)
+            if (temp.Type > CHAT_TYPE_ZONE_YELL)
                 error_db_log("TSCR: Entry %i in table `custom_texts` has Type %u but this Chat Type does not exist.",i,temp.Type);
 
             TextMap[i] = temp;

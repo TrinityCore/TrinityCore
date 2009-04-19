@@ -137,8 +137,8 @@ EndScriptData */
 #define FLAME_ENRAGE_DISTANCE   30
 #define FLAME_CHARGE_DISTANCE   50
 
-#define ITEM_ID_MAIN_HAND   32837
-#define ITEM_ID_OFF_HAND    32838
+#define EQUIP_ID_MAIN_HAND  32837
+#define EQUIP_ID_OFF_HAND   32838
 
 /**** Creature Summon and Recognition IDs ****/
 enum CreatureEntry

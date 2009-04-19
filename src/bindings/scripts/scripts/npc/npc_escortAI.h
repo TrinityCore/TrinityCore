@@ -63,6 +63,7 @@ struct TRINITY_DLL_DECL npc_escortAI : public ScriptedAI
         void FillPointMovementListForCreature();
 
         void Start(bool bAttack, bool bDefend, bool bRun, uint64 pGUID = 0);
+        void SetRun(bool bRun = true);
 
         void SetMaxPlayerDistance(float newMax) { MaxPlayerDistance = newMax; }
         float GetMaxPlayerDistance() { return MaxPlayerDistance; }
@@ -81,6 +82,7 @@ struct TRINITY_DLL_DECL npc_escortAI : public ScriptedAI
     private:
         uint32 WaitTimer;
         uint32 PlayerTimer;
+        uint32 m_uiNpcFlags;
         float MaxPlayerDistance;
 
         struct
@@ -97,7 +99,7 @@ struct TRINITY_DLL_DECL npc_escortAI : public ScriptedAI
         bool Defend;
         bool Returning;
         bool ReconnectWP;
-        bool Run;
+        bool bIsRunning;
         bool CanMelee;
         bool DespawnAtEnd;
         bool DespawnAtFar;
