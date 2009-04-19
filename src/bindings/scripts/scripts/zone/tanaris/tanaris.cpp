@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Tanaris
 SD%Complete: 80
-SDComment: Quest support: 2954, 4005, 10277, 648, 10279(Special flight path). Noggenfogger vendor
+SDComment: Quest support: 648, 2954, 4005, 10277, 10279(Special flight path). Noggenfogger vendor
 SDCategory: Tanaris
 EndScriptData */
 
@@ -387,7 +387,7 @@ struct TRINITY_DLL_DECL npc_OOX17AI : public npc_escortAI
                 if (player)
                 {
                     DoScriptText(SAY_CHICKEN_COMP, m_creature);
-                    ((Player*)player)->GroupEventHappens(Q_OOX17, m_creature);
+                    player->GroupEventHappens(Q_OOX17, m_creature);
                 }
                 break;
         }

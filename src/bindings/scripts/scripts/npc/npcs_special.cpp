@@ -37,6 +37,7 @@ npc_snake_trap_serpents 80%     AI for snakes that summoned by Snake Trap
 EndContentData */
 
 #include "precompiled.h"
+#include "../npc/npc_escortAI.h"
 
 /*########
 # npc_chicken_cluck
@@ -620,18 +621,9 @@ enum
     SAY_SHAYA_GOODBYE       = -1000174,
 };
 
-float fRunTo[5][3]=
+struct TRINITY_DLL_DECL npc_garments_of_questsAI : public npc_escortAI
 {
-    {9661.724, 869.803, 1270.742},                          //shaya
-    {-9543.747, -117.770, 57.893},                          //roberts
-    {-5650.226, -473.517, 397.027},                         //dolf
-    {189.175, -4747.069, 11.215},                           //kor'ja
-    {2471.303, 371.101, 30.919},                            //kel
-};
-
-struct TRINITY_DLL_DECL npc_garments_of_questsAI : public ScriptedAI
-{
-    npc_garments_of_questsAI(Creature *c) : ScriptedAI(c) {Reset();}
+    npc_garments_of_questsAI(Creature *c) : npc_escortAI(c) {Reset();}
 
     uint64 caster;
 
@@ -652,7 +644,6 @@ struct TRINITY_DLL_DECL npc_garments_of_questsAI : public ScriptedAI
         m_creature->SetStandState(UNIT_STAND_STATE_KNEEL);
         //expect database to have RegenHealth=0
         m_creature->SetHealth(int(m_creature->GetMaxHealth()*0.7));
-        m_creature->SetVisibility(VISIBILITY_ON);
     }
 
     void Aggro(Unit *who) {}
@@ -767,21 +758,8 @@ struct TRINITY_DLL_DECL npc_garments_of_questsAI : public ScriptedAI
         }
     }
 
-    void MovementInform(uint32 type, uint32 id)
+    void WaypointReached(uint32 uiPoint)
     {
-        if (type != POINT_MOTION_TYPE)
-            return;
-
-        //we reached destination, kill ourselves
-        if (id == 0)
-        {
-            m_creature->SetVisibility(VISIBILITY_OFF);
-            m_creature->setDeathState(JUST_DIED);
-            m_creature->SetHealth(0);
-            m_creature->CombatStop();
-            m_creature->DeleteThreatList();
-            m_creature->RemoveCorpse();
-        }
     }
 
     void UpdateAI(const uint32 diff)
@@ -794,27 +772,14 @@ struct TRINITY_DLL_DECL npc_garments_of_questsAI : public ScriptedAI
                 {
                     switch(m_creature->GetEntry())
                     {
-                        case ENTRY_SHAYA:
-                            DoScriptText(SAY_SHAYA_GOODBYE,m_creature,pUnit);
-                            m_creature->GetMotionMaster()->MovePoint(0, fRunTo[0][0], fRunTo[0][1], fRunTo[0][2]);
-                            break;
-                        case ENTRY_ROBERTS:
-                            DoScriptText(SAY_ROBERTS_GOODBYE,m_creature,pUnit);
-                            m_creature->GetMotionMaster()->MovePoint(0, fRunTo[1][0], fRunTo[1][1], fRunTo[1][2]);
-                            break;
-                        case ENTRY_DOLF:
-                            DoScriptText(SAY_DOLF_GOODBYE,m_creature,pUnit);
-                            m_creature->GetMotionMaster()->MovePoint(0, fRunTo[2][0], fRunTo[2][1], fRunTo[2][2]);
-                            break;
-                        case ENTRY_KORJA:
-                            DoScriptText(SAY_KORJA_GOODBYE,m_creature,pUnit);
-                            m_creature->GetMotionMaster()->MovePoint(0, fRunTo[3][0], fRunTo[3][1], fRunTo[3][2]);
-                            break;
-                        case ENTRY_DG_KEL:
-                            DoScriptText(SAY_DG_KEL_GOODBYE,m_creature,pUnit);
-                            m_creature->GetMotionMaster()->MovePoint(0, fRunTo[4][0], fRunTo[4][1], fRunTo[4][2]);
-                            break;
+                        case ENTRY_SHAYA: DoScriptText(SAY_SHAYA_GOODBYE,m_creature,pUnit); break;
+                        case ENTRY_ROBERTS: DoScriptText(SAY_ROBERTS_GOODBYE,m_creature,pUnit); break;
+                        case ENTRY_DOLF: DoScriptText(SAY_DOLF_GOODBYE,m_creature,pUnit); break;
+                        case ENTRY_KORJA: DoScriptText(SAY_KORJA_GOODBYE,m_creature,pUnit); break;
+                        case ENTRY_DG_KEL: DoScriptText(SAY_DG_KEL_GOODBYE,m_creature,pUnit); break;
                     }
+
+                    Start(false,true,true);
                 }
                 else
                     EnterEvadeMode();                       //something went wrong
@@ -823,17 +788,17 @@ struct TRINITY_DLL_DECL npc_garments_of_questsAI : public ScriptedAI
             }else RunAwayTimer -= diff;
         }
 
-        //Return since we have no target
-        if (!UpdateVictim())
-            return;
-
-        DoMeleeAttackIfReady();
+    npc_escortAI::UpdateAI(diff);
     }
 };
 
 CreatureAI* GetAI_npc_garments_of_quests(Creature* pCreature)
 {
-    return new npc_garments_of_questsAI(pCreature);
+    npc_garments_of_questsAI* tempAI = new npc_garments_of_questsAI(pCreature);
+
+    tempAI->FillPointMovementListForCreature();
+
+    return (CreatureAI*)tempAI;
 }
 
 /*######
