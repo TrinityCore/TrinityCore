@@ -3495,7 +3495,7 @@ void AuraEffect::HandleAuraModPetTalentsPoints(bool Apply, bool Real)
 
     // Recalculate pet tlaent points
     if (Pet *pet = ((Player*)m_target)->GetPet())
-        pet->InitTalentForLevel();
+        pet->InitTalentForLevel(); 
 }
 
 /*void AuraEffect::HandleModCharm(bool apply, bool Real)
