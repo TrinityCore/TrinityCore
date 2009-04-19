@@ -18,35 +18,14 @@
 
 /* ScriptData
 SDName: boss_elder_nadox
-SDAuthor: LordVanMartin
-SD%Complete: 0
-SDComment:
+SD%Complete: 100
+SDComment: 
 SDCategory: Ahn'kahet
 EndScriptData */
-
-/*** SQL START *** 
-update creature_template set scriptname = 'boss_nadox' where entry = '';
-*** SQL END ***/
 
 #include "precompiled.h"
 #include "def_ahnkahet.h"
 
-#define SPELL_BROOD_PLAGUE                  56130
-#define H_SPELL_BROOD_PLAGUE                59467
-#define SPELL_BROOD_RAGE                    59465 //--> Heroic -- Enrages a Swarmer, increasing size and damage done.
-
-#define MOB_AHNKAHAR_SWARMER                30178
-#define SPELL_SUMMON_SWARMERS               56119//2x 30178
-
-#define MOB_AHNKAHAR_SWARMER                30178
-#define SPELL_SUMMON_SWARM_GUARD            56120//1x 30176
-#define SPELL_DEADLY_POISON                 56145// Proc trigger
-#define H_SPELL_DEADLY_POISON               59479// Proc trigger
-#define SPELL_GUARDIAN_AURA                 56151
-
-//randomly summons NPC 30178 and 30176 they can cast Sprint (56354)
-
-//Yell
 #define SAY_AGGRO                              -1619014
 #define SAY_SLAY_1                             -1619015
 #define SAY_SLAY_2                             -1619016
@@ -55,63 +34,211 @@ update creature_template set scriptname = 'boss_nadox' where entry = '';
 #define SAY_EGG_SAC_1                          -1619019
 #define SAY_EGG_SAC_2                          -1619020
 
-struct TRINITY_DLL_DECL boss_nadoxAI : public ScriptedAI
-{
-    boss_nadoxAI(Creature *c) : ScriptedAI(c) {}
+#define SPELL_BROOD_PLAGUE                  56130
+#define H_SPELL_BROOD_PLAGUE                59467
+#define H_SPELL_BROOD_RAGE                  59465
+#define SPELL_ENRAGE                        26662// Enraged if too far away from home
 
-    uint32 plague,
-           summon;
-    
-    void Reset() {}
-    
-    void Aggro(Unit* who) 
+#define MOB_AHNKAHAR_SWARMER                30178
+#define SPELL_SUMMON_SWARMERS               56119//2x 30178  -- 2x every 10secs
+
+#define MOB_AHNKAHAR_SWARM_GUARD            30176
+#define SPELL_SUMMON_SWARM_GUARD            56120//1x 30176  -- every 25secs
+#define SPELL_GUARDIAN_AURA                 56151
+
+struct TRINITY_DLL_DECL boss_elder_nadoxAI : public ScriptedAI
+{
+    boss_elder_nadoxAI(Creature *c) : ScriptedAI(c) 
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        HeroicMode = c->GetMap()->IsHeroic();
     }
-    void AttackStart(Unit* who) {}
-    void MoveInLineOfSight(Unit* who) {}
-    void UpdateAI(const uint32 diff) 
+
+    bool HeroicMode;
+    uint32 plague_Timer;
+    uint32 rage_Timer;
+
+    uint32 swarmer_spawn_Timer;
+    uint32 guard_spawn_Timer;
+    uint32 enrage_Timer;
+
+
+    ScriptedInstance *pInstance;
+
+    void Reset()
     {
-        //Return since we have no target
-        if(!UpdateVictim())
-            return;
-   
-        DoMeleeAttackIfReady();
+        plague_Timer = 13000;
+        rage_Timer = 20000;
+
+        swarmer_spawn_Timer = 10000;
+        guard_spawn_Timer = 25000;
+
+        enrage_Timer = 5000;
+
+        if(pInstance)
+            pInstance->SetData(DATA_ELDER_NADOX_EVENT, NOT_STARTED);
     }
-    
-    void JustDied(Unit* killer)  
+
+    void Aggro(Unit *who)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH,m_creature);
+
+        if(pInstance)
+            pInstance->SetData(DATA_ELDER_NADOX_EVENT, IN_PROGRESS);
     }
 
     void KilledUnit(Unit *victim)
     {
-        if (victim == m_creature)
+        if(victim == m_creature)
             return;
-
         switch(rand()%3)
         {
-            case 0: DoScriptText(SAY_SLAY_1, m_creature);break;
-            case 1: DoScriptText(SAY_SLAY_2, m_creature);break;
-            case 2: DoScriptText(SAY_SLAY_3, m_creature);break;
+        case 0: DoScriptText(SAY_SLAY_1,m_creature); break;
+        case 1: DoScriptText(SAY_SLAY_2,m_creature); break;
+        case 2: DoScriptText(SAY_SLAY_3,m_creature); break;
         }
     }
-    
-    void summon_swarmer(){}
-    void summon_guardian(){}
+
+    void JustDied(Unit* killer)  
+    {
+        DoScriptText(SAY_SLAY_3,m_creature);
+
+        if(pInstance)
+            pInstance->SetData(DATA_ELDER_NADOX_EVENT, DONE);
+    }
+
+    void UpdateAI(const uint32 diff)
+    {
+        if(!UpdateVictim())
+            return;
+
+        if(plague_Timer < diff)
+        {
+            DoCast(m_creature->getVictim(),HeroicMode ? H_SPELL_BROOD_PLAGUE : SPELL_BROOD_PLAGUE);
+            plague_Timer = 15000;
+        }else plague_Timer -= diff;
+
+        if(HeroicMode)
+            if(rage_Timer < diff)
+            {
+                Unit* Swarmer = FindCreature(MOB_AHNKAHAR_SWARMER,35,m_creature);
+
+                if(Swarmer)
+                {
+                    DoCast(Swarmer,H_SPELL_BROOD_RAGE,true);
+                    rage_Timer = 15000;
+                }
+            }else rage_Timer -= diff;
+
+        if(swarmer_spawn_Timer < diff)
+        {
+            DoCast(m_creature,SPELL_SUMMON_SWARMERS,true);
+            DoCast(m_creature,SPELL_SUMMON_SWARMERS);
+            if(rand()%3 == 0)
+            {
+                switch(rand()%2)
+                {
+                case 0: DoScriptText(SAY_EGG_SAC_1,m_creature); break;
+                case 1: DoScriptText(SAY_EGG_SAC_2,m_creature); break;
+                }
+            }
+            swarmer_spawn_Timer = 10000;
+        }else swarmer_spawn_Timer -= diff;
+
+        if(guard_spawn_Timer < diff)
+        {
+            m_creature->MonsterTextEmote("An Ahn'kahar Guardian hatches!",m_creature->GetGUID(),true);
+            DoCast(m_creature,SPELL_SUMMON_SWARM_GUARD);
+            guard_spawn_Timer = 25000;
+        }else guard_spawn_Timer -= diff;
+
+        if(enrage_Timer < diff)
+        {
+            if(m_creature->HasAura(SPELL_ENRAGE,0))
+                return;
+
+            float x, y, z, o;
+            m_creature->GetHomePosition(x, y, z, o);
+            if(z < 24 )
+            {
+                if(!m_creature->IsNonMeleeSpellCasted(false))
+                {
+                    DoCast(m_creature,SPELL_ENRAGE,true);
+                }
+            }
+            enrage_Timer = 5000;
+        }else enrage_Timer -= diff;
+
+        DoMeleeAttackIfReady();
+    }
 };
 
-CreatureAI* GetAI_boss_nadox(Creature *_Creature)
+CreatureAI* GetAI_boss_elder_nadox(Creature *_Creature)
 {
-    return new boss_nadoxAI (_Creature);
+    return new boss_elder_nadoxAI(_Creature);
+}
+#define SPELL_SPRINT            56354
+struct TRINITY_DLL_DECL mob_ahnkahar_nerubianAI : public ScriptedAI
+{
+    mob_ahnkahar_nerubianAI(Creature *c) : ScriptedAI(c) 
+    {
+        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        Reset();
+    }
+
+    ScriptedInstance *pInstance;
+    uint32 sprint_Timer;
+
+    void Reset()
+    {
+        if(m_creature->GetEntry() == 30176)
+            DoCast(m_creature,SPELL_GUARDIAN_AURA,true);
+        sprint_Timer = 10000;
+    }
+    void Aggro(Unit *who){}
+    void UpdateAI(const uint32 diff)
+    {
+        if(m_creature->GetEntry() == 30176)
+            m_creature->RemoveAurasDueToSpell(SPELL_GUARDIAN_AURA);
+
+        if(pInstance)
+        {
+            if(pInstance->GetData(DATA_ELDER_NADOX_EVENT) != IN_PROGRESS)
+            {
+                m_creature->DealDamage(m_creature,m_creature->GetHealth());
+                m_creature->RemoveCorpse();
+            }
+        }
+
+        if(!UpdateVictim())
+            return;
+
+        if(sprint_Timer < diff)
+        {
+            DoCast(m_creature,SPELL_SPRINT);
+            sprint_Timer = 25000;
+        }else sprint_Timer -= diff;
+
+        DoMeleeAttackIfReady();
+    }
+};
+
+CreatureAI* GetAI_mob_ahnkahar_nerubian(Creature *_Creature)
+{
+    return new mob_ahnkahar_nerubianAI(_Creature);
 }
 
-void AddSC_boss_nadox()
+void AddSC_boss_elder_nadox()
 {
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_nadox";
-    newscript->GetAI = GetAI_boss_nadox;
+    newscript->Name="boss_elder_nadox";
+    newscript->GetAI = &GetAI_boss_elder_nadox;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name="mob_ahnkahar_nerubian";
+    newscript->GetAI = &GetAI_mob_ahnkahar_nerubian;
     newscript->RegisterSelf();
 }
