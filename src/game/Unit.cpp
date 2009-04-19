@@ -1023,66 +1023,75 @@ void Unit::CastSpell(Unit* Victim,SpellEntry const *spellInfo, bool triggered, I
     spell->prepare(&targets, triggeredByAura);
 }
 
-void Unit::CastCustomSpell(Unit* Victim,uint32 spellId, int32 const* bp0, int32 const* bp1, int32 const* bp2, bool triggered, Item *castItem, AuraEffect* triggeredByAura, uint64 originalCaster)
+void Unit::CastCustomSpell(Unit* target, uint32 spellId, int32 const* bp0, int32 const* bp1, int32 const* bp2, bool triggered, Item *castItem, AuraEffect* triggeredByAura, uint64 originalCaster)
 {
-    SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId );
-
-    if(!spellInfo)
-    {
-        sLog.outError("CastCustomSpell: unknown spell id %i", spellId);
-        return;
-    }
-
-    CastCustomSpell(Victim,spellInfo,bp0,bp1,bp2,triggered,castItem,triggeredByAura, originalCaster);
+    CustomSpellValues values;
+    if(bp0) values.AddSpellMod(SPELLVALUE_BASE_POINT0, *bp0);
+    if(bp1) values.AddSpellMod(SPELLVALUE_BASE_POINT1, *bp1);
+    if(bp2) values.AddSpellMod(SPELLVALUE_BASE_POINT2, *bp2);
+    CastCustomSpell(spellId, values, target, triggered, castItem, triggeredByAura, originalCaster);
 }
 
-void Unit::CastCustomSpell(Unit* Victim,SpellEntry const *spellInfo, int32 const* bp0, int32 const* bp1, int32 const* bp2, bool triggered, Item *castItem, AuraEffect* triggeredByAura, uint64 originalCaster)
+void Unit::CastCustomSpell(uint32 spellId, SpellValueMod mod, uint32 value, Unit* target, bool triggered, Item *castItem, AuraEffect* triggeredByAura, uint64 originalCaster)
 {
+    CustomSpellValues values;
+    values.AddSpellMod(mod, value);
+    CastCustomSpell(spellId, values, target, triggered, castItem, triggeredByAura, originalCaster);
+}
+
+void Unit::CastCustomSpell(uint32 spellId, CustomSpellValues const &value, Unit* Victim, bool triggered, Item *castItem, AuraEffect* triggeredByAura, uint64 originalCaster)
+{
+    SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId );
     if(!spellInfo)
     {
-        sLog.outError("CastCustomSpell: unknown spell");
+        sLog.outError("CastSpell: unknown spell id %i by caster: %s %u)", spellId,(GetTypeId()==TYPEID_PLAYER ? "player (GUID:" : "creature (Entry:"),(GetTypeId()==TYPEID_PLAYER ? GetGUIDLow() : GetEntry()));
         return;
     }
 
     SpellCastTargets targets;
     uint32 targetMask = spellInfo->Targets;
-    targets.setUnitTarget(Victim);
-    /*if(targetMask & (TARGET_FLAG_UNIT|TARGET_FLAG_UNK2))
+
+    //check unit target
+    for(int i = 0; i < 3; ++i)
     {
-        if(!Victim)
+        if(spellmgr.SpellTargetType[spellInfo->EffectImplicitTargetA[i]] == TARGET_TYPE_UNIT_TARGET)
         {
-            sLog.outError("CastCustomSpell: spell id %i by caster: %s %u) does not have unit target", spellInfo->Id,(GetTypeId()==TYPEID_PLAYER ? "player (GUID:" : "creature (Entry:"),(GetTypeId()==TYPEID_PLAYER ? GetGUIDLow() : GetEntry()));
-            return;
+            if(!Victim)
+            {
+                sLog.outError("CastSpell: spell id %i by caster: %s %u) does not have unit target", spellInfo->Id,(GetTypeId()==TYPEID_PLAYER ? "player (GUID:" : "creature (Entry:"),(GetTypeId()==TYPEID_PLAYER ? GetGUIDLow() : GetEntry()));
+                return;
+            }
+            else
+                break;
         }
-    }*/
+    }
+    targets.setUnitTarget(Victim);
+
+    //check destination
     if(targetMask & (TARGET_FLAG_SOURCE_LOCATION|TARGET_FLAG_DEST_LOCATION))
     {
         if(!Victim)
         {
-            sLog.outError("CastCustomSpell: spell id %i by caster: %s %u) does not have destination", spellInfo->Id,(GetTypeId()==TYPEID_PLAYER ? "player (GUID:" : "creature (Entry:"),(GetTypeId()==TYPEID_PLAYER ? GetGUIDLow() : GetEntry()));
+            sLog.outError("CastSpell: spell id %i by caster: %s %u) does not have destination", spellInfo->Id,(GetTypeId()==TYPEID_PLAYER ? "player (GUID:" : "creature (Entry:"),(GetTypeId()==TYPEID_PLAYER ? GetGUIDLow() : GetEntry()));
             return;
         }
         targets.setDestination(Victim);
     }
 
-    if (castItem)
-        DEBUG_LOG("WORLD: cast Item spellId - %i", spellInfo->Id);
-
     if(!originalCaster && triggeredByAura)
         originalCaster = triggeredByAura->GetCasterGUID();
 
-    Spell *spell = new Spell(this, spellInfo, triggered, originalCaster);
+    Spell *spell = new Spell(this, spellInfo, triggered, originalCaster );
 
-    if(bp0)
-        spell->m_currentBasePoints[0] = *bp0-int32(spellInfo->EffectBaseDice[0]);
+    if(castItem)
+    {
+        DEBUG_LOG("WORLD: cast Item spellId - %i", spellInfo->Id);
+        spell->m_CastItem = castItem;
+    }
 
-    if(bp1)
-        spell->m_currentBasePoints[1] = *bp1-int32(spellInfo->EffectBaseDice[1]);
+    for(CustomSpellValues::const_iterator itr = value.begin(); itr != value.end(); ++itr)
+        spell->SetSpellValue(itr->first, itr->second);
 
-    if(bp2)
-        spell->m_currentBasePoints[2] = *bp2-int32(spellInfo->EffectBaseDice[2]);
-
-    spell->m_CastItem = castItem;
     spell->prepare(&targets, triggeredByAura);
 }
 

@@ -24,12 +24,9 @@
 #include "GridDefines.h"
 #include "SharedDefines.h"
 
-class WorldSession;
 class Unit;
-class DynamicObj;
 class Player;
 class GameObject;
-class Group;
 class Aura;
 
 enum SpellCastTargetFlags
@@ -209,6 +206,18 @@ class SpellCastTargets
         uint32 m_itemTargetEntry;
 };
 
+struct SpellValue
+{
+    explicit SpellValue(SpellEntry const *proto)
+    {
+        for(uint32 i = 0; i < 3; ++i)
+            EffectBasePoints[i] = proto->EffectBasePoints[i];
+        MaxAffectedTargets = proto->MaxAffectedTargets;
+    }
+    int32     EffectBasePoints[3];
+    uint32    MaxAffectedTargets;
+};
+
 enum SpellState
 {
     SPELL_STATE_NULL      = 0,
@@ -234,10 +243,6 @@ enum SpellTargets
     SPELL_TARGETS_ENTRY,
     SPELL_TARGETS_CHAINHEAL,
 };
-
-#define SPELL_SPELL_CHANNEL_UPDATE_INTERVAL (1*IN_MILISECONDS)
-
-typedef std::multimap<uint64, uint64> SpellTargetTimeMap;
 
 class Spell
 {
@@ -419,7 +424,7 @@ class Spell
         void HandleThreatSpells(uint32 spellId);
         //void HandleAddAura(Unit* Target);
 
-        SpellEntry const* m_spellInfo;
+        const SpellEntry * const m_spellInfo;
         int32 m_currentBasePoints[3];                       // cache SpellEntry::EffectBasePoints and use for set custom base points
         Item* m_CastItem;
         uint64 m_castItemGUID;
@@ -467,11 +472,15 @@ class Spell
         void AddTriggeredSpell(SpellEntry const* spell) { m_TriggerSpells.push_back(spell); }
 
         void CleanupTargetList();
+
+        void SetSpellValue(SpellValueMod mod, int32 value);
     protected:
 
         void SendLoot(uint64 guid, LootType loottype);
 
-        Unit* m_caster;
+        Unit* const m_caster;
+
+        SpellValue * const m_spellValue;
 
         uint64 m_originalCasterGUID;                        // real source of cast (aura caster/etc), used for spell targets selection
                                                             // e.g. damage around area spell trigered by victim aura and damage enemies of aura caster
