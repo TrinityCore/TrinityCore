@@ -334,10 +334,12 @@ void LoadDBCStores(const std::string& dataPath)
 
                 if(skillLine->skillId != cFamily->skillLine[0] && skillLine->skillId != cFamily->skillLine[1])
                     continue;
+                if(spellInfo->spellLevel)
+                    continue;
 
                 // Passive spell has to have spellfamilyflags if name present (need to not apply 20782)
-                if (spellInfo->Attributes & SPELL_ATTR_UNK18 && spellInfo->SpellFamilyName && !spellInfo->SpellFamilyFlags)
-                    continue;
+                //if (spellInfo->Attributes & SPELL_ATTR_UNK18 && spellInfo->SpellFamilyName && !spellInfo->SpellFamilyFlags)
+                //    continue;
 
                 sPetFamilySpellsStore[i].insert(spellInfo->Id);
             }
