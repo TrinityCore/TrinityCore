@@ -4840,6 +4840,8 @@ void Spell::EffectScriptEffect(uint32 effIndex)
         }
         // Force Cast - Portal Effect: Sunwell Isle
         case 44876: unitTarget->CastSpell(unitTarget, 44870, true); break;
+        // Negative Energy
+        case 46289: m_caster->CastSpell(unitTarget, 46285, true); break;
         //5,000 Gold
         case 46642:
         {
