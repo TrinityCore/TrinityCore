@@ -65,16 +65,6 @@ uint32 RingBoss[]=
     9032,                                                   // Hedrum
 };
 
-float RingLocations[6][3]=
-{
-    {604.802673, -191.081985, -54.058590},                  // ring
-    {604.072998, -222.106918, -52.743759},                  // first gate
-    {621.400391, -214.499054, -52.814453},                  // hiding in corner
-    {601.300781, -198.556992, -53.950256},                  // ring
-    {631.818359, -180.548126, -52.654770},                  // second gate
-    {627.390381, -201.075974, -52.692917}                   // hiding in corner
-};
-
 bool AreaTrigger_at_ring_of_law(Player *player, AreaTriggerEntry *at)
 {
     ScriptedInstance* pInstance = ((ScriptedInstance*)player->GetInstanceData());
@@ -323,11 +313,9 @@ CreatureAI* GetAI_npc_grimstone(Creature *_Creature)
 {
     npc_grimstoneAI* Grimstone_AI = new npc_grimstoneAI(_Creature);
 
-    for(uint8 i = 0; i < 6; ++i)
-        Grimstone_AI->AddWaypoint(i, RingLocations[i][0], RingLocations[i][1], RingLocations[i][2]);
+    Grimstone_AI->FillPointMovementListForCreature();
 
     return (CreatureAI*)Grimstone_AI;
-
 }
 
 /*######
@@ -1096,30 +1084,6 @@ bool GossipSelect_npc_tobias_seecher(Player *player, Creature *_Creature, uint32
 #define SPELL_DRUNKEN_RAGE  14872
 #define QUEST_ALE           4295
 
-float BarWpLocations[8][3]=
-{
-    {883.294861, -188.926300, -43.703655},
-    {872.763550, -185.605621, -43.703655},                  //b1
-    {867.923401, -188.006393, -43.703655},                  //b2
-    {863.295898, -190.795212, -43.703655},                  //b3
-    {856.139587, -194.652756, -43.703655},                  //b4
-    {851.878906, -196.928131, -43.703655},                  //b5
-    {877.035217, -187.048080, -43.703655},
-    {891.198000, -197.924000, -43.620400}                   //home
-};
-
-uint32 BarWpWait[8]=
-{
-    0,
-    5000,
-    5000,
-    5000,
-    5000,
-    15000,
-    0,
-    0
-};
-
 struct TRINITY_DLL_DECL npc_rocknotAI : public npc_escortAI
 {
     npc_rocknotAI(Creature *c) : npc_escortAI(c)
@@ -1217,8 +1181,7 @@ CreatureAI* GetAI_npc_rocknot(Creature *_Creature)
 {
     npc_rocknotAI* Rocknot_AI = new npc_rocknotAI(_Creature);
 
-    for(uint8 i = 0; i < 8; ++i)
-        Rocknot_AI->AddWaypoint(i, BarWpLocations[i][0], BarWpLocations[i][1], BarWpLocations[i][2], BarWpWait[i]);
+    Rocknot_AI->FillPointMovementListForCreature();
 
     return (CreatureAI*)Rocknot_AI;
 }
