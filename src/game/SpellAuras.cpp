@@ -2221,7 +2221,7 @@ void AuraEffect::TriggerSpell()
             // Negative Energy Periodic
             case 46284:
             {
-                caster->CastCustomSpell(trigger_spell_id, SPELLVALUE_MAX_TARGETS, m_tickNumber / 10 + 1, NULL, true, NULL, this, originalCasterGUID);
+                caster->CastCustomSpell(trigger_spell_id, SPELLVALUE_MAX_TARGETS, m_tickNumber / 10 + 1, NULL, true, NULL, this);
                 return;
             }
         }
