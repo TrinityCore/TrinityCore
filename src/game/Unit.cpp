@@ -499,18 +499,19 @@ void Unit::RemoveSpellbyDamageTaken(uint32 damage, uint32 spell)
     uint32 max_dmg = getLevel() > 8 ? 25 * getLevel() - 150 : 50;
     float chance = float(damage) / max_dmg * 100.0f;
 
-    // interrupt auras
+    std::queue < std::pair < uint32, uint64 > > remove_list;
+
     for (AuraList::iterator iter = m_ccAuras.begin(); iter != m_ccAuras.end();)
     {
-        Aura * aur = *iter;
-        ++iter;
-        if ((!spell || aur->GetId() != spell) && roll_chance_f(chance))
-        {
-            uint32 removedAuras = m_removedAurasCount;
-            RemoveAura(aur, AURA_REMOVE_BY_ENEMY_SPELL);
-            if (removedAuras+1 < m_removedAurasCount)
-                iter=m_ccAuras.begin();
-        }
+       if((!spell || (*iter)->GetId() != spell) && roll_chance_f(chance))
+       {
+           remove_list.push(std::make_pair((*iter)->GetId(), (*iter)->GetCasterGUID() ) );
+       }
+    }
+
+    for(;remove_list.size();remove_list.pop())
+    {
+        RemoveAura(remove_list.front().first, remove_list.front().second, AURA_REMOVE_BY_ENEMY_SPELL);
     }
 }
 
@@ -4051,17 +4052,19 @@ void Unit::RemoveAurasByType(AuraType auraType, uint64 casterGUID, Aura * except
 void Unit::RemoveAurasByTypeWithDispel(AuraType auraType, Spell * spell)
 {
     if (auraType >= TOTAL_AURAS) return;
+    std::queue < std::pair < uint32, uint64 > > remove_list;
+
     for (AuraEffectList::iterator iter = m_modAuras[auraType].begin(); iter != m_modAuras[auraType].end();)
     {
-        Aura * aur = (*iter)->GetParentAura();
-        ++iter;
-        if (GetDispelChance(aur->GetCaster(), aur->GetId()))
-        {
-            uint32 removedAuras = m_removedAurasCount;
-            RemoveAura(aur, AURA_REMOVE_BY_ENEMY_SPELL);
-            if (removedAuras+1<m_removedAurasCount)
-                iter=m_modAuras[auraType].begin();
-        }
+       if(GetDispelChance((*iter)->GetCaster(), (*iter)->GetId()))
+       {
+           remove_list.push(std::make_pair((*iter)->GetId(), (*iter)->GetCasterGUID() ) );
+       }
+    }
+
+    for(;remove_list.size();remove_list.pop())
+    {
+        RemoveAura(remove_list.front().first, remove_list.front().second, AURA_REMOVE_BY_ENEMY_SPELL);
     }
 }
 
