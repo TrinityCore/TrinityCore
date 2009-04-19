@@ -25,6 +25,7 @@
 #include "ProgressBar.h"
 #include "Policies/SingletonImp.h"
 #include "ObjectDefines.h"
+#include "GridDefines.h"
 
 INSTANTIATE_SINGLETON_1(CreatureEventAIMgr);
 
@@ -72,15 +73,21 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Texts()
 
             if (temp.SoundId)
             {
-                if (!GetSoundEntriesStore()->LookupEntry(temp.SoundId))
-                    sLog.outErrorDb("CreatureEventAI:  Entry %i in table `creature_ai_texts` has soundId %u but sound does not exist.",i,temp.SoundId);
+                if (!sSoundEntriesStore.LookupEntry(temp.SoundId))
+                    sLog.outErrorDb("CreatureEventAI:  Entry %i in table `creature_ai_texts` has Sound %u but sound does not exist.",i,temp.SoundId);
             }
 
             if (!GetLanguageDescByID(temp.Language))
                 sLog.outErrorDb("CreatureEventAI:  Entry %i in table `creature_ai_texts` using Language %u but Language does not exist.",i,temp.Language);
 
-            if (temp.Type > CHAT_TYPE_BOSS_WHISPER)
+            if (temp.Type > CHAT_TYPE_ZONE_YELL)
                 sLog.outErrorDb("CreatureEventAI:  Entry %i in table `creature_ai_texts` has Type %u but this Chat Type does not exist.",i,temp.Type);
+
+            if (temp.Emote)
+            {
+                if (!sEmotesStore.LookupEntry(temp.Emote))
+                    sLog.outErrorDb("CreatureEventAI:  Entry %i in table `creature_ai_texts` has Emote %u but emote does not exist.",i,temp.Emote);
+            }
 
             m_CreatureEventAI_TextMap[i] = temp;
             ++count;
@@ -90,7 +97,8 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Texts()
 
         sLog.outString();
         sLog.outString(">> Loaded %u additional CreatureEventAI Texts data.", count);
-    }else
+    }
+    else
     {
         barGoLink bar(1);
         bar.step();
@@ -127,6 +135,12 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Summons()
             temp.position_z = fields[3].GetFloat();
             temp.orientation = fields[4].GetFloat();
             temp.SpawnTimeSecs = fields[5].GetUInt32();
+
+            if(!MaNGOS::IsValidMapCoord(temp.position_x,temp.position_y,temp.position_z,temp.orientation))
+            {
+                sLog.outErrorDb("CreatureEventAI:  Summon id %u have wrong coordinates (%f,%f,%f,%f), skipping.", i,temp.position_x,temp.position_y,temp.position_z,temp.orientation);
+                continue;
+            }
 
             //Add to map
             m_CreatureEventAI_Summon_Map[i] = temp;
@@ -443,22 +457,16 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                             sLog.outErrorDb("CreatureEventAI:  Event %u Action %u param3 uses non-existant SoundID %u.", i, j+1, temp.action[j].param3);
                         break;
                     case ACTION_T_EMOTE:
-                        //TODO: load emotes and check it's store for existing
-                        /*
                         if (!sEmotesStore.LookupEntry(temp.action[j].param1))
                             sLog.outErrorDb("CreatureEventAI: Event %u Action %u param1 (EmoteId: %u) are not valid.", i, j+1, temp.action[j].param1);
-                        */
                         break;
                     case ACTION_T_RANDOM_EMOTE:
-                        //TODO: load emotes and check it's store for existing
-                        /*
                         if (!sEmotesStore.LookupEntry(temp.action[j].param1))
                             sLog.outErrorDb("CreatureEventAI:  Event %u Action %u param1 (EmoteId: %u) are not valid.", i, j+1, temp.action[j].param1);
                         if (temp.action[j].param2_s >= 0 && !sEmotesStore.LookupEntry(temp.action[j].param2))
                             sLog.outErrorDb("CreatureEventAI:  Event %u Action %u param2 (EmoteId: %u) are not valid.", i, j+1, temp.action[j].param2);
                         if (temp.action[j].param3_s >= 0 && !sEmotesStore.LookupEntry(temp.action[j].param3))
                             sLog.outErrorDb("CreatureEventAI:  Event %u Action %u param3 (EmoteId: %u) are not valid.", i, j+1, temp.action[j].param3);
-                        */
                         break;
                     case ACTION_T_CAST:
                     {
