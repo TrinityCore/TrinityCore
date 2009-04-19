@@ -2601,9 +2601,9 @@ void Spell::EffectHealPct( uint32 /*i*/ )
         if(Player* modOwner = m_caster->GetSpellModOwner())
             modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DAMAGE, addhealth, this);
 
-        caster->SendHealSpellLog(unitTarget, m_spellInfo->Id, addhealth, false);
-
         int32 gain = unitTarget->ModifyHealth( int32(addhealth) );
+        caster->SendHealSpellLog(unitTarget, m_spellInfo->Id, addhealth, false, &gain);
+
         unitTarget->getHostilRefManager().threatAssist(m_caster, float(gain) * 0.5f, m_spellInfo);
 
         if(caster->GetTypeId()==TYPEID_PLAYER)
@@ -2625,8 +2625,8 @@ void Spell::EffectHealMechanical( uint32 /*i*/ )
             return;
 
         uint32 addhealth = caster->SpellHealingBonus(unitTarget, m_spellInfo, uint32(damage), HEAL);
-        caster->SendHealSpellLog(unitTarget, m_spellInfo->Id, addhealth, false);
-        unitTarget->ModifyHealth( int32(damage) );
+        int32 Gain = unitTarget->ModifyHealth( int32(damage) );
+        caster->SendHealSpellLog(unitTarget, m_spellInfo->Id, addhealth, false, &Gain);
     }
 }
 
@@ -2657,10 +2657,10 @@ void Spell::EffectHealthLeech(uint32 i)
     {
         new_damage = m_caster->SpellHealingBonus(m_caster, m_spellInfo, new_damage, HEAL);
 
-        m_caster->ModifyHealth(new_damage);
+        int32 Gain = m_caster->ModifyHealth(new_damage);
 
         if(m_caster->GetTypeId() == TYPEID_PLAYER)
-            m_caster->SendHealSpellLog(m_caster, m_spellInfo->Id, uint32(new_damage));
+            m_caster->SendHealSpellLog(m_caster, m_spellInfo->Id, uint32(new_damage), false, &Gain);
     }
 //    m_healthLeech+=tmpvalue;
 //    m_damage+=new_damage;
@@ -4322,10 +4322,10 @@ void Spell::EffectHealMaxHealth(uint32 /*i*/)
     if(!unitTarget->isAlive())
         return;
 
-    uint32 addhealth = unitTarget->GetMaxHealth() - unitTarget->GetHealth();
+    int32 addhealth = unitTarget->GetMaxHealth() - unitTarget->GetHealth();
     unitTarget->SetHealth(unitTarget->GetMaxHealth());
     if(m_originalCaster)
-        m_originalCaster->SendHealSpellLog(unitTarget, m_spellInfo->Id, addhealth, false);
+        m_originalCaster->SendHealSpellLog(unitTarget, m_spellInfo->Id, addhealth, false, &addhealth);
 }
 
 void Spell::EffectInterruptCast(uint32 i)
