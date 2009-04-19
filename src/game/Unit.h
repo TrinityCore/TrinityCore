@@ -1499,6 +1499,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void ModifyAuraState(AuraState flag, bool apply);
         bool HasAuraState(AuraState flag, SpellEntry const *spellProto = NULL, Unit * Caster = NULL) const ;
         void UnsummonAllTotems();
+        Unit* SelectMagnetTarget(Unit *victim, SpellEntry const *spellInfo = NULL);
         int32 SpellBaseDamageBonus(SpellSchoolMask schoolMask);
         int32 SpellBaseHealingBonus(SpellSchoolMask schoolMask);
         int32 SpellBaseDamageBonusForVictim(SpellSchoolMask schoolMask, Unit *pVictim);
