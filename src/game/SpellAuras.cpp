@@ -3073,6 +3073,20 @@ void AuraEffect::HandleAuraModShapeshift(bool apply, bool Real)
 
     if(m_target->GetTypeId()==TYPEID_PLAYER)
         ((Player*)m_target)->InitDataForForm();
+
+    if(m_target->getClass() == CLASS_DRUID)
+    {
+        if(form == FORM_CAT && apply) // add dash if in cat-from
+        {
+            if(AuraEffect * aurEff =m_target->GetAura(SPELL_AURA_MOD_INCREASE_SPEED, SPELLFAMILY_DRUID, 0, 0, 0x8))
+                m_target->HandleAuraEffect(aurEff, true);
+        }
+        else // remove dash effect(not buff) if out of cat-from
+        {
+            if(AuraEffect * aurEff =m_target->GetAura(SPELL_AURA_MOD_INCREASE_SPEED, SPELLFAMILY_DRUID, 0, 0, 0x8))
+                m_target->HandleAuraEffect(aurEff, false);
+        }
+    }
 }
 
 void AuraEffect::HandleAuraTransform(bool apply, bool Real)
@@ -3950,11 +3964,15 @@ void AuraEffect::HandleModTaunt(bool apply, bool Real)
 /*********************************************************/
 /***                  MODIFY SPEED                     ***/
 /*********************************************************/
-void AuraEffect::HandleAuraModIncreaseSpeed(bool /*apply*/, bool Real)
+void AuraEffect::HandleAuraModIncreaseSpeed(bool apply, bool Real)
 {
     // all applied/removed only at real aura add/remove
     if(!Real)
         return;
+
+    if(apply) // Dash wont work if you are not in cat form
+        if(m_spellProto->SpellFamilyName==SPELLFAMILY_DRUID && m_spellProto->SpellFamilyFlags[2] & 0x8 && m_target->m_form != FORM_CAT )
+            return;
 
     m_target->UpdateSpeed(MOVE_RUN, true);
 }

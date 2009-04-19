@@ -2423,6 +2423,11 @@ void SpellMgr::LoadSpellCustomAttr()
                 if(spellInfo->SpellFamilyFlags[2] & 0x100)
                     spellInfo->MaxAffectedTargets = 2;
                 break;
+                // circle of healing
+            case SPELLFAMILY_PRIEST:
+                if(spellInfo->SpellFamilyFlags[0] & 0x10000000)
+                    spellInfo->MaxAffectedTargets = 5;
+                break;
         }
     }
 
