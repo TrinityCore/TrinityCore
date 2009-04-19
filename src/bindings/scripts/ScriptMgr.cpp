@@ -113,6 +113,11 @@ extern void AddSC_boss_grandmaster_vorpil();
 extern void AddSC_boss_murmur();
 extern void AddSC_instance_shadow_labyrinth();
 
+//Azjol-Nerub
+//--Ahn'kahet
+extern void AddSC_instance_ahnkahet();
+extern void AddSC_boss_elder_nadox();
+
 //Azshara
 extern void AddSC_boss_azuregos();
 extern void AddSC_azshara();
@@ -1036,6 +1041,11 @@ void ScriptsInit()
     AddSC_boss_grandmaster_vorpil();
     AddSC_boss_murmur();
     AddSC_instance_shadow_labyrinth();
+
+    //Azjol-Nerub
+    //--Ahn'kahet
+    AddSC_instance_ahnkahet();
+    AddSC_boss_elder_nadox();
 
     //Azshara
     AddSC_boss_azuregos();
