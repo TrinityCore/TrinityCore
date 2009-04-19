@@ -123,6 +123,24 @@ enum SpellModOp
 
 #define MAX_SPELLMOD 32
 
+enum SpellValueMod
+{
+    SPELLVALUE_BASE_POINT0,
+    SPELLVALUE_BASE_POINT1,
+    SPELLVALUE_BASE_POINT2,
+    SPELLVALUE_MAX_TARGETS,
+};
+
+typedef std::pair<SpellValueMod, int32>     CustomSpellValueMod;
+class CustomSpellValues : public std::vector<CustomSpellValueMod>
+{
+    public:
+        void AddSpellMod(SpellValueMod mod, int32 value)
+        {
+            push_back(std::make_pair(mod, value));
+        }
+};
+
 enum SpellFacingFlags
 {
     SPELL_FACING_FLAG_INFRONT = 0x0001
@@ -282,7 +300,7 @@ enum InventorySlot
 
 struct FactionTemplateEntry;
 struct SpellEntry;
-struct SpellEntryExt;
+struct SpellValue;
 
 class Aura;
 class AuraEffect;
@@ -1157,8 +1175,8 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void CastSpell(Unit* Victim, uint32 spellId, bool triggered, Item *castItem = NULL, AuraEffect* triggeredByAura = NULL, uint64 originalCaster = 0);
         void CastSpell(Unit* Victim,SpellEntry const *spellInfo, bool triggered, Item *castItem= NULL, AuraEffect* triggeredByAura = NULL, uint64 originalCaster = 0);
         void CastCustomSpell(Unit* Victim, uint32 spellId, int32 const* bp0, int32 const* bp1, int32 const* bp2, bool triggered, Item *castItem= NULL, AuraEffect* triggeredByAura = NULL, uint64 originalCaster = 0);
-        void CastCustomSpell(Unit* Victim,SpellEntry const *spellInfo, int32 const* bp0, int32 const* bp1, int32 const* bp2, bool triggered, Item *castItem= NULL, AuraEffect* triggeredByAura = NULL, uint64 originalCaster = 0);
-        void CastSpell(float x, float y, float z, uint32 spellId, bool triggered, Item *castItem = NULL, AuraEffect* triggeredByAura = NULL, uint64 originalCaster = 0);
+        void CastCustomSpell(uint32 spellId, SpellValueMod mod, uint32 value, Unit* Victim = NULL, bool triggered = true, Item *castItem = NULL, AuraEffect* triggeredByAura = NULL, uint64 originalCaster = 0);
+        void CastCustomSpell(uint32 spellId, CustomSpellValues const &value, Unit* Victim = NULL, bool triggered = true, Item *castItem = NULL, AuraEffect* triggeredByAura = NULL, uint64 originalCaster = 0);
         void CastSpell(GameObject *go, uint32 spellId, bool triggered, Item *castItem = NULL, AuraEffect* triggeredByAura = NULL, uint64 originalCaster = 0);
         void AddAura(uint32 spellId, Unit *target);
         void HandleAuraEffect(AuraEffect * aureff, bool apply);

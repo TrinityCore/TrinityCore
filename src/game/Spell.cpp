@@ -295,14 +295,11 @@ void SpellCastTargets::write ( WorldPacket * data )
 }
 
 Spell::Spell( Unit* Caster, SpellEntry const *info, bool triggered, uint64 originalCasterGUID, Spell** triggeringContainer, bool skipCheck )
+: m_spellInfo(info), m_spellValue(new SpellValue(m_spellInfo))
+, m_caster(Caster)
 {
-    ASSERT( Caster != NULL && info != NULL );
-    ASSERT( info == sSpellStore.LookupEntry( info->Id ) && "`info` must be pointer to sSpellStore element");
-
-    m_spellInfo = info;
     m_customAttr = spellmgr.GetSpellCustomAttr(m_spellInfo->Id);
     m_skipCheck = skipCheck;
-    m_caster = Caster;
     m_selfContainer = NULL;
     m_triggeringContainer = triggeringContainer;
     m_referencedFromCurrentSpell = false;
@@ -362,7 +359,7 @@ Spell::Spell( Unit* Caster, SpellEntry const *info, bool triggered, uint64 origi
     }
 
     for(int i=0; i <3; ++i)
-        m_currentBasePoints[i] = m_spellInfo->EffectBasePoints[i];
+        m_currentBasePoints[i] = m_spellValue->EffectBasePoints[i];
 
     m_spellState = SPELL_STATE_NULL;
 
@@ -419,6 +416,7 @@ Spell::Spell( Unit* Caster, SpellEntry const *info, bool triggered, uint64 origi
 
 Spell::~Spell()
 {
+    delete m_spellValue;
 }
 
 void Spell::FillTargetMap()
@@ -1506,7 +1504,7 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
 
     //Chain: 2, 6, 22, 25, 45, 77
     uint32 EffectChainTarget = m_spellInfo->EffectChainTarget[i];
-    uint32 unMaxTargets = m_spellInfo->MaxAffectedTargets;
+    uint32 unMaxTargets = m_spellValue->MaxAffectedTargets;
 
     Unit::AuraEffectList const& Auras = m_caster->GetAurasByType(SPELL_AURA_MOD_MAX_AFFECTED_TARGETS);
     for(Unit::AuraEffectList::const_iterator j = Auras.begin();j != Auras.end(); ++j)
@@ -5766,4 +5764,26 @@ SpellCastResult Spell::CanOpenLock(uint32 effIndex, uint32 lockId, SkillType& sk
         return SPELL_FAILED_BAD_TARGETS;
 
     return SPELL_CAST_OK;
+}
+
+void Spell::SetSpellValue(SpellValueMod mod, int32 value)
+{
+    switch(mod)
+    {
+        case SPELLVALUE_BASE_POINT0:
+            m_spellValue->EffectBasePoints[0] = value - int32(m_spellInfo->EffectBaseDice[0]);
+            m_currentBasePoints[0] = m_spellValue->EffectBasePoints[0]; //this should be removed in the future
+            break;
+        case SPELLVALUE_BASE_POINT1:
+            m_spellValue->EffectBasePoints[1] = value - int32(m_spellInfo->EffectBaseDice[1]);
+            m_currentBasePoints[1] = m_spellValue->EffectBasePoints[1];
+            break;
+        case SPELLVALUE_BASE_POINT2:
+            m_spellValue->EffectBasePoints[2] = value - int32(m_spellInfo->EffectBaseDice[2]);
+            m_currentBasePoints[2] = m_spellValue->EffectBasePoints[2];
+            break;
+        case SPELLVALUE_MAX_TARGETS:
+            m_spellValue->MaxAffectedTargets = (uint32)value;
+            break;
+    }
 }
