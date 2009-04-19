@@ -3865,6 +3865,16 @@ void ObjectMgr::LoadScripts(ScriptMapMap& scripts, char const* tablename)
                 break;
             }
 
+            case SCRIPT_COMMAND_EMOTE:
+            {
+                if(!sEmotesStore.LookupEntry(tmp.datalong))
+                {
+                    sLog.outErrorDb("Table `%s` has invalid emote id (datalong = %u) in SCRIPT_COMMAND_EMOTE for script id %u",tablename,tmp.datalong,tmp.id);
+                    continue;
+                }
+                break;
+            }
+
             case SCRIPT_COMMAND_TELEPORT_TO:
             {
                 if(!sMapStore.LookupEntry(tmp.datalong))
