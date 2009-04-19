@@ -5883,6 +5883,8 @@ void AuraEffect::PeriodicTick()
             sLog.outDetail("PeriodicTick: %u (TypeId: %u) heal of %u (TypeId: %u) for %u health inflicted by %u",
                 GUID_LOPART(GetCasterGUID()), GuidHigh2TypeId(GUID_HIPART(GetCasterGUID())), m_target->GetGUIDLow(), m_target->GetTypeId(), pdamage, GetId());
 
+            int32 gain = m_target->ModifyHealth(pdamage);
+
             WorldPacket data(SMSG_PERIODICAURALOG, (21+16));// we guess size
             data.append(m_target->GetPackGUID());
             data.appendPackGUID(GetCasterGUID());
@@ -5890,10 +5892,8 @@ void AuraEffect::PeriodicTick()
             data << uint32(1);
             data << uint32(m_auraName);
             data << (uint32)pdamage;
-            data << uint32(0);                              // wotlk
+            data << uint32(pdamage - gain);                              // wotlk
             m_target->SendMessageToSet(&data,true);
-
-            int32 gain = m_target->ModifyHealth(pdamage);
 
             // add HoTs to amount healed in bgs
             if( pCaster->GetTypeId() == TYPEID_PLAYER )

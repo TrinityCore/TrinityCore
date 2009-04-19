@@ -4442,7 +4442,7 @@ void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage *log)
     data.append(log->attacker->GetPackGUID());
     data << uint32(log->SpellID);
     data << uint32(log->damage);                             //damage amount
-    data << uint32(0);
+    data << uint32(int32 (log->target->GetHealth()-log->damage ) >0 ? 0 : log->damage - log->target->GetHealth());
     data << uint8 (log->schoolMask);                         //damage school
     data << uint32(log->absorb);                             //AbsorbedDamage
     data << uint32(log->resist);                             //resist
@@ -4461,8 +4461,9 @@ void Unit::SendSpellNonMeleeDamageLog(Unit *target,uint32 SpellID,uint32 Damage,
     data.append(target->GetPackGUID());
     data.append(GetPackGUID());
     data << uint32(SpellID);
-    data << uint32(Damage-AbsorbedDamage-Resist-Blocked);
-    data << uint32(0);                                      // wotlk
+    int32 damageDone = Damage-AbsorbedDamage-Resist-Blocked;
+    data << uint32(damageDone);
+    data << uint32(int32 (target->GetHealth()-damageDone ) >0 ? 0 : damageDone - target->GetHealth());// wotlk
     data << uint8(damageSchoolMask);                        // spell school
     data << uint32(AbsorbedDamage);                         // AbsorbedDamage
     data << uint32(Resist);                                 // resist
@@ -4507,7 +4508,7 @@ void Unit::SendAttackStateUpdate(CalcDamageInfo *damageInfo)
     data.append(GetPackGUID());
     data.append(damageInfo->target->GetPackGUID());
     data << (uint32)(damageInfo->damage);     // Full damage
-    data << uint32(0);                        // overkill value
+    data << uint32(int32 (damageInfo->target->GetHealth()-damageInfo->damage ) >0 ? 0 : damageInfo->damage - damageInfo->target->GetHealth()); // Overkill
 
     data << (uint8)count;                     // Sub damage count
 
@@ -4570,15 +4571,16 @@ void Unit::SendAttackStateUpdate(uint32 HitInfo, Unit *target, uint8 SwingType, 
     data << uint32(HitInfo);                                // flags
     data.append(GetPackGUID());
     data.append(target->GetPackGUID());
-    data << uint32(Damage-AbsorbDamage-Resist-BlockedAmount);// damage
-    data << uint32(0);                                      // overkill value
+    int32 damageDone = Damage-AbsorbDamage-Resist-BlockedAmount;
+    data << uint32(damageDone);// damage
+    data << uint32(int32 (target->GetHealth()-damageDone ) >0 ? 0 : damageDone - target->GetHealth()); // Overkill
 
     data << (uint8)SwingType;                               // count?
 
     // for(i = 0; i < SwingType; ++i)
     data << (uint32)damageSchoolMask;
-    data << (float)(Damage-AbsorbDamage-Resist-BlockedAmount);
-    data << (uint32)(Damage-AbsorbDamage-Resist-BlockedAmount);
+    data << (float)(damageDone);
+    data << (uint32)(damageDone);
     // end loop
 
     if(HitInfo & (HITINFO_ABSORB | HITINFO_ABSORB2))
