@@ -1194,6 +1194,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
             if(roll_chance_i(i->second))
             {
                 m_caster->CastSpell(unit, i->first, true);
+                sLog.outDebug("Spell %d triggered spell %d by SPELL_AURA_ADD_TARGET_TRIGGER aura", m_spellInfo->Id, i->first);
             }
             if (GetSpellDuration(i->first)==-1)
             {
