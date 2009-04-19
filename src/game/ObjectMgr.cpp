@@ -4364,23 +4364,6 @@ void ObjectMgr::LoadInstanceTemplate()
     sLog.outString();
 }
 
-bool ObjectMgr::IsGameObjectOfTypeInRange(Player *player, uint64 guid, GameobjectTypes type) const
-{
-    if(GameObject *go = ObjectAccessor::GetGameObject(*player, guid))
-    {
-        if(go->GetGoType() == type)
-        {
-            // TODO: find out how the client calculates the maximal usage distance to spellless working
-            // gameobjects like guildbanks and mailboxes - 10.0 is a just an abitrary choosen number
-            if (go->IsWithinDistInMap(player, 10.0f))
-                return true;
-            sLog.outError("IsGameObjectOfTypeInRange: GameObject '%s' [GUID: %u] is too far away from player %s [GUID: %u] to be used by him (distance=%f, maximal 10 is allowed)", go->GetGOInfo()->name,
-                    go->GetGUIDLow(), player->GetName(), player->GetGUIDLow(), go->GetDistance(player));
-        }
-    }
-    return false;
-}
-
 GossipText const *ObjectMgr::GetGossipText(uint32 Text_ID) const
 {
     GossipTextMap::const_iterator itr = mGossipText.find(Text_ID);

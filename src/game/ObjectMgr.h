@@ -437,8 +437,6 @@ class ObjectMgr
             return mGameObjectForQuestSet.find(entry) != mGameObjectForQuestSet.end();
         }
 
-        bool IsGameObjectOfTypeInRange(Player *player, uint64 guid, GameobjectTypes type) const;
-
         GossipText const* GetGossipText(uint32 Text_ID) const;
 
         WorldSafeLocsEntry const *GetClosestGraveYard(float x, float y, float z, uint32 MapId, uint32 team);
