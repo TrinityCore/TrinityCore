@@ -14633,7 +14633,6 @@ void Player::_LoadActions(QueryResult *result)
 void Player::_LoadAuras(QueryResult *result, uint32 timediff)
 {
     sLog.outDebug("Loading auras for player %u",GetGUIDLow());
-    m_Auras.clear();
     for (int i = 0; i < TOTAL_AURAS; i++)
         m_modAuras[i].clear();
 
