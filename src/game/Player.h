@@ -840,7 +840,7 @@ struct AccessRequirement
     uint32 heroicKey2;
     uint32 quest;
     std::string questFailedText;
-	uint32 heroicQuest;
+    uint32 heroicQuest;
     std::string heroicQuestFailedText;
  };
 

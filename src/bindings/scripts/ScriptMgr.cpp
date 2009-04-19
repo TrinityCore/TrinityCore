@@ -2085,7 +2085,7 @@ TRINITY_DLL_EXPORT
 bool GOSelect( Player *player, GameObject *_GO, uint32 sender, uint32 action )
 {
     if(!_GO)
-	return false;
+    return false;
     debug_log("TSCR: Gossip selection, sender: %d, action: %d",sender, action);
 
     Script *tmpscript = m_scripts[_GO->GetGOInfo()->ScriptId];
@@ -2099,7 +2099,7 @@ TRINITY_DLL_EXPORT
 bool GOSelectWithCode( Player *player, GameObject *_GO, uint32 sender, uint32 action, const char* sCode )
 {
     if(!_GO)
-	return false;
+    return false;
     debug_log("TSCR: Gossip selection, sender: %d, action: %d",sender, action);
 
     Script *tmpscript = m_scripts[_GO->GetGOInfo()->ScriptId];
