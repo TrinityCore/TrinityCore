@@ -645,8 +645,7 @@ void Aura::Update(uint32 diff)
 
     // Channeled aura required check distance from caster
     if(IsChanneledSpell(m_spellProto) && m_caster_guid != m_target->GetGUID()
-        && !IsAreaAura() && !IsPersistent()  // check for these is done in auraeffect
-        /* && !m_target->isPossessed()*/)
+        && !IsAreaAura() && !IsPersistent())  // check for these is done in auraeffect
     {
         Unit* caster = GetCaster();
         if(!caster)
@@ -654,28 +653,10 @@ void Aura::Update(uint32 diff)
             m_target->RemoveAura(this);
             return;
         }
-        // Get spell range
-        float radius=-1.0f;
-        SpellModOp mod;
-        // get part aura with lowest radius
-        for (uint8 i=0;i<3;++i)
-        {
-            if (HasEffect(i) && m_spellProto->EffectRadiusIndex[i])
-            {
-                float new_radius = caster->GetSpellRadiusForTarget(m_target, sSpellRadiusStore.LookupEntry(m_spellProto->EffectRadiusIndex[i]));
-                if (radius < 0.0f || radius > new_radius)
-                    radius = new_radius;
-                mod = SPELLMOD_RADIUS;
-            }
-        }
-        if (radius < 0.0f)
-        {
-            radius = caster->GetSpellMaxRangeForTarget(m_target, sSpellRangeStore.LookupEntry(m_spellProto->rangeIndex)) ;
-            mod = SPELLMOD_RANGE;
-        }
+        float radius = caster->GetSpellMaxRangeForTarget(m_target, sSpellRangeStore.LookupEntry(m_spellProto->rangeIndex)) ;
 
         if(Player* modOwner = caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(GetId(), mod, radius,NULL);
+            modOwner->ApplySpellMod(GetId(), SPELLMOD_RANGE, radius,NULL);
 
         if(!caster->IsWithinDistInMap(m_target,radius))
         {
