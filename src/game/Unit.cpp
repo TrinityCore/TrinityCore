@@ -6473,6 +6473,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
         }
         case SPELLFAMILY_POTION:
         {
+            // alchemist's stone
             if (dummySpell->Id == 17619)
             {
                 if (procSpell->SpellFamilyName == SPELLFAMILY_POTION)
@@ -8308,15 +8309,21 @@ void Unit::UnsummonAllTotems()
     }
 }
 
-void Unit::SendHealSpellLog(Unit *pVictim, uint32 SpellID, uint32 Damage, bool critical)
+void Unit::SendHealSpellLog(Unit *pVictim, uint32 SpellID, uint32 Damage, bool critical, int32 * Gain )
 {
     // we guess size
     WorldPacket data(SMSG_SPELLHEALLOG, (8+8+4+4+1));
     data.append(pVictim->GetPackGUID());
     data.append(GetPackGUID());
     data << uint32(SpellID);
+    int32 gainAmount;
+    if (!Gain)
+        gainAmount = pVictim->GetHealthGain(Damage);
+    else
+        gainAmount = *Gain;
+
     data << uint32(Damage);
-    data << uint32(0);                                      // over healing?
+    data << uint32(Damage-gainAmount >0 ? Damage-gainAmount : 0);       // overheal
     data << uint8(critical ? 1 : 0);
     data << uint8(0);                                       // unused in client?
     SendMessageToSet(&data, true);
@@ -9770,6 +9777,35 @@ int32 Unit::ModifyHealth(int32 dVal)
     else if(curHealth != maxHealth)
     {
         SetHealth(maxHealth);
+        gain = maxHealth - curHealth;
+    }
+
+    return gain;
+}
+
+int32 Unit::GetHealthGain(int32 dVal)
+{
+    int32 gain = 0;
+
+    if(dVal==0)
+        return 0;
+
+    int32 curHealth = (int32)GetHealth();
+
+    int32 val = dVal + curHealth;
+    if(val <= 0)
+    {
+        return -curHealth;
+    }
+
+    int32 maxHealth = (int32)GetMaxHealth();
+
+    if(val < maxHealth)
+    {
+        gain = dVal;
+    }
+    else if(curHealth != maxHealth)
+    {
         gain = maxHealth - curHealth;
     }
 
