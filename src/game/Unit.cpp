@@ -11487,6 +11487,7 @@ bool InitTriggerAuraData()
     isTriggerAura[SPELL_AURA_MOD_DAMAGE_DONE] = true;
     isTriggerAura[SPELL_AURA_MOD_DAMAGE_TAKEN] = true;
     isTriggerAura[SPELL_AURA_MOD_RESISTANCE] = true;
+    isTriggerAura[SPELL_AURA_MOD_STEALTH] = true; // Aura not have charges but need remove him on trigger
     isTriggerAura[SPELL_AURA_MOD_ROOT] = true;
     isTriggerAura[SPELL_AURA_REFLECT_SPELLS] = true;
     isTriggerAura[SPELL_AURA_DAMAGE_IMMUNITY] = true;
