@@ -2599,7 +2599,8 @@ void AuraEffect::HandleAuraDummy(bool apply, bool Real)
                         return;
 
                     // Not needed in 3.1
-                    m_amount /=GetParentAura()->GetStackAmount();
+                    if (GetParentAura() && GetParentAura()->GetStackAmount()!=0)
+                        m_amount /= GetParentAura()->GetStackAmount();
 
                     // final heal
                     if(m_target->IsInWorld())

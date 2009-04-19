@@ -326,13 +326,17 @@ void LoadDBCStores(const std::string& dataPath)
 
         if(spellInfo && (spellInfo->Attributes & 0x1D0) == 0x1D0)
         {
-            for (unsigned int i = 1; i < sCreatureFamilyStore.GetNumRows(); ++i)
+            for (uint32 i = 1; i < sCreatureFamilyStore.GetNumRows(); ++i)
             {
                 CreatureFamilyEntry const* cFamily = sCreatureFamilyStore.LookupEntry(i);
                 if(!cFamily)
                     continue;
 
                 if(skillLine->skillId != cFamily->skillLine[0] && skillLine->skillId != cFamily->skillLine[1])
+                    continue;
+
+                // Passive spell has to have spellfamilyflags if name present (need to not apply 20782)
+                if (spellInfo->Attributes & SPELL_ATTR_UNK18 && spellInfo->SpellFamilyName && !spellInfo->SpellFamilyFlags)
                     continue;
 
                 sPetFamilySpellsStore[i].insert(spellInfo->Id);
