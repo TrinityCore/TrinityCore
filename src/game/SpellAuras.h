@@ -73,7 +73,7 @@ class TRINITY_DLL_SPEC Aura
         void SetAuraSlot(uint8 slot) { m_auraSlot = slot; }
         uint8 GetAuraCharges() const { return m_procCharges; }
         void SetAuraCharges(uint8 charges);
-        bool DropAuraCharge();
+        void DropAuraCharge();
         void SetProcDamage(uint32 val) { m_procDamage = val; }
         uint32 GetProcDamage() const { return m_procDamage; }
 
