@@ -2534,7 +2534,7 @@ void SpellMgr::LoadPetLevelupSpellMap()
                     continue;
                 SpellEntry const *spell = sSpellStore.LookupEntry(skillLine->spellId);
                 // not exist or passive (passives are handled elsewhere)
-                if(!spell || IsPassiveSpell(spell))
+                if(!spell || IsPassiveSpell(spell->Id))
                     continue;
                 // Make sure that triggered spells aren't learned
                 if (!spell->SpellFamilyName && !spell->StartRecoveryCategory)
