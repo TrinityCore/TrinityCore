@@ -5902,23 +5902,20 @@ void Spell::EffectDispelMechanic(uint32 i)
 
     uint32 mechanic = m_spellInfo->EffectMiscValue[i];
 
-    std::queue < Aura * > dispel_list;
+    std::queue < std::pair < uint32, uint64 > > dispel_list;
 
     Unit::AuraMap& Auras = unitTarget->GetAuras();
     for(Unit::AuraMap::iterator iter = Auras.begin(); iter != Auras.end(); iter++)
     {
-       if(GetAllSpellMechanicMask(iter->second->GetSpellProto()) & (1<<(mechanic)))
+       if((GetAllSpellMechanicMask(iter->second->GetSpellProto()) & (1<<(mechanic))) && GetDispelChance(iter->second->GetCaster(), iter->second->GetId()))
        {
-            dispel_list.push(iter->second);
+           dispel_list.push(std::make_pair(iter->second->GetId(), iter->second->GetCasterGUID() ) );
        }
     }
 
     for(;dispel_list.size();dispel_list.pop())
     {
-        if (GetDispelChance(dispel_list.front()->GetCaster(), dispel_list.front()->GetId()))
-        {
-            unitTarget->RemoveAura(dispel_list.front(), AURA_REMOVE_BY_ENEMY_SPELL);
-        }
+        unitTarget->RemoveAura(dispel_list.front().first, dispel_list.front().second, AURA_REMOVE_BY_ENEMY_SPELL);
     }
 }
 
