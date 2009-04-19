@@ -4171,7 +4171,7 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
                 {
                     if(itr->second->GetSpellProto()->Dispel == DISPEL_POISON)
                     {
-						totalDamagePercentMod *= 1.5f;          // 150% if poisoned
+                        totalDamagePercentMod *= 1.5f;          // 150% if poisoned
                         break;
                     }
                 }

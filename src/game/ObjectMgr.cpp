@@ -4922,9 +4922,9 @@ void ObjectMgr::LoadAccessRequirements()
 
     uint32 count = 0;
 
-	//                                                0       1          2       3      4        5           6             7              8                   9                  10
+    //                                                0       1          2       3      4        5           6             7              8                   9                  10
     QueryResult *result = WorldDatabase.Query("SELECT id, level_min, level_max, item, item2, heroic_key, heroic_key2, quest_done, quest_failed_text, heroic_quest_done, heroic_quest_failed_text FROM access_requirement");
-	if( !result )
+    if( !result )
     {
 
         barGoLink bar( 1 );
@@ -5001,14 +5001,14 @@ void ObjectMgr::LoadAccessRequirements()
             }
         }
 
-		if(ar.heroicQuest)
- 		{
-			if(!mQuestTemplates[ar.heroicQuest])
-			{
-				sLog.outErrorDb("Required Heroic Quest %u not exist for trigger %u, remove heroic quest done requirement.",ar.heroicQuest,requiremt_ID);
-				ar.heroicQuest = 0;
- 			}
- 		}
+        if(ar.heroicQuest)
+         {
+            if(!mQuestTemplates[ar.heroicQuest])
+            {
+                sLog.outErrorDb("Required Heroic Quest %u not exist for trigger %u, remove heroic quest done requirement.",ar.heroicQuest,requiremt_ID);
+                ar.heroicQuest = 0;
+             }
+         }
  
         if(ar.quest)
         {
