@@ -281,51 +281,51 @@ enum TotemCategoryType
 };
 
 // SummonProperties.dbc, col 1
-/*enum SummonGroup
+enum SummonPropGroup
 {
-    SUMMON_GROUP_UNKNOWN1       = 0,                        // 1160 spells in 3.0.3
-    SUMMON_GROUP_UNKNOWN2       = 1,                        // 861 spells in 3.0.3
-    SUMMON_GROUP_PETS           = 2,                        // 52 spells in 3.0.3, pets mostly
-    SUMMON_GROUP_CONTROLLABLE   = 3,                        // 13 spells in 3.0.3, mostly controllable
-    SUMMON_GROUP_UNKNOWN3       = 4                         // 86 spells in 3.0.3, taxi/mounts
+    SUMMON_PROP_GROUP_UNKNOWN1       = 0,                   // 1160 spells in 3.0.3
+    SUMMON_PROP_GROUP_UNKNOWN2       = 1,                   // 861 spells in 3.0.3
+    SUMMON_PROP_GROUP_PETS           = 2,                   // 52 spells in 3.0.3, pets mostly
+    SUMMON_PROP_GROUP_CONTROLLABLE   = 3,                   // 13 spells in 3.0.3, mostly controllable
+    SUMMON_PROP_GROUP_UNKNOWN3       = 4                    // 86 spells in 3.0.3, taxi/mounts
 };
 
 // SummonProperties.dbc, col 3
-enum SummonType
+enum SummonPropType
 {
-    SUMMON_TYPE_UNKNOWN         = 0,                        // different summons, 1330 spells in 3.0.3
-    SUMMON_TYPE_SUMMON          = 1,                        // generic summons, 49 spells in 3.0.3
-    SUMMON_TYPE_GUARDIAN        = 2,                        // summon guardian, 393 spells in 3.0.3
-    SUMMON_TYPE_ARMY            = 3,                        // summon army, 5 spells in 3.0.3
-    SUMMON_TYPE_TOTEM           = 4,                        // summon totem, 169 spells in 3.0.3
-    SUMMON_TYPE_CRITTER         = 5,                        // critter/minipet, 195 spells in 3.0.3
-    SUMMON_TYPE_DK              = 6,                        // summon DRW/Ghoul, 2 spells in 3.0.3
-    SUMMON_TYPE_BOMB            = 7,                        // summon bot/bomb, 4 spells in 3.0.3
-    SUMMON_TYPE_PHASING         = 8,                        // something todo with DK prequest line, 2 spells in 3.0.3
-    SUMMON_TYPE_SIEGE_VEH       = 9,                        // summon different vehicles, 14 spells in 3.0.3
-    SUMMON_TYPE_DRAKE_VEH       = 10,                       // summon drake (vehicle), 3 spells
-    SUMMON_TYPE_LIGHTWELL       = 11                        // summon lightwell, 6 spells in 3.0.3
+    SUMMON_PROP_TYPE_UNKNOWN         = 0,                   // different summons, 1330 spells in 3.0.3
+    SUMMON_PROP_TYPE_SUMMON          = 1,                   // generic summons, 49 spells in 3.0.3
+    SUMMON_PROP_TYPE_GUARDIAN        = 2,                   // summon guardian, 393 spells in 3.0.3
+    SUMMON_PROP_TYPE_ARMY            = 3,                   // summon army, 5 spells in 3.0.3
+    SUMMON_PROP_TYPE_TOTEM           = 4,                   // summon totem, 169 spells in 3.0.3
+    SUMMON_PROP_TYPE_CRITTER         = 5,                   // critter/minipet, 195 spells in 3.0.3
+    SUMMON_PROP_TYPE_DK              = 6,                   // summon DRW/Ghoul, 2 spells in 3.0.3
+    SUMMON_PROP_TYPE_BOMB            = 7,                   // summon bot/bomb, 4 spells in 3.0.3
+    SUMMON_PROP_TYPE_PHASING         = 8,                   // something todo with DK prequest line, 2 spells in 3.0.3
+    SUMMON_PROP_TYPE_SIEGE_VEH       = 9,                   // summon different vehicles, 14 spells in 3.0.3
+    SUMMON_PROP_TYPE_DRAKE_VEH       = 10,                  // summon drake (vehicle), 3 spells
+    SUMMON_PROP_TYPE_LIGHTWELL       = 11                   // summon lightwell, 6 spells in 3.0.3
 };
 
 // SummonProperties.dbc, col 5
-enum SummonFlags
+enum SummonPropFlags
 {
-    SUMMON_FLAG_NONE            = 0x0000,                   // 1342 spells in 3.0.3
-    SUMMON_FLAG_UNK1            = 0x0001,                   // 75 spells in 3.0.3, something unfriendly
-    SUMMON_FLAG_UNK2            = 0x0002,                   // 616 spells in 3.0.3, something friendly
-    SUMMON_FLAG_UNK3            = 0x0004,                   // 22 spells in 3.0.3, no idea...
-    SUMMON_FLAG_UNK4            = 0x0008,                   // 49 spells in 3.0.3, some mounts
-    SUMMON_FLAG_UNK5            = 0x0010,                   // 25 spells in 3.0.3, quest related?
-    SUMMON_FLAG_UNK6            = 0x0020,                   // 0 spells in 3.0.3, unused
-    SUMMON_FLAG_UNK7            = 0x0040,                   // 12 spells in 3.0.3, no idea
-    SUMMON_FLAG_UNK8            = 0x0080,                   // 4 spells in 3.0.3, no idea
-    SUMMON_FLAG_UNK9            = 0x0100,                   // 51 spells in 3.0.3, no idea, many quest related
-    SUMMON_FLAG_UNK10           = 0x0200,                   // 51 spells in 3.0.3, something defensive
-    SUMMON_FLAG_UNK11           = 0x0400,                   // 3 spells, requires something near?
-    SUMMON_FLAG_UNK12           = 0x0800,                   // 30 spells in 3.0.3, no idea
-    SUMMON_FLAG_UNK13           = 0x1000,                   // 8 spells in 3.0.3, siege vehicle
-    SUMMON_FLAG_UNK14           = 0x2000,                   // 2 spells in 3.0.3, escort?
+    SUMMON_PROP_FLAG_NONE            = 0x0000,              // 1342 spells in 3.0.3
+    SUMMON_PROP_FLAG_UNK1            = 0x0001,              // 75 spells in 3.0.3, something unfriendly
+    SUMMON_PROP_FLAG_UNK2            = 0x0002,              // 616 spells in 3.0.3, something friendly
+    SUMMON_PROP_FLAG_UNK3            = 0x0004,              // 22 spells in 3.0.3, no idea...
+    SUMMON_PROP_FLAG_UNK4            = 0x0008,              // 49 spells in 3.0.3, some mounts
+    SUMMON_PROP_FLAG_UNK5            = 0x0010,              // 25 spells in 3.0.3, quest related?
+    SUMMON_PROP_FLAG_UNK6            = 0x0020,              // 0 spells in 3.0.3, unused
+    SUMMON_PROP_FLAG_UNK7            = 0x0040,              // 12 spells in 3.0.3, no idea
+    SUMMON_PROP_FLAG_UNK8            = 0x0080,              // 4 spells in 3.0.3, no idea
+    SUMMON_PROP_FLAG_UNK9            = 0x0100,              // 51 spells in 3.0.3, no idea, many quest related
+    SUMMON_PROP_FLAG_UNK10           = 0x0200,              // 51 spells in 3.0.3, something defensive
+    SUMMON_PROP_FLAG_UNK11           = 0x0400,              // 3 spells, requires something near?
+    SUMMON_PROP_FLAG_UNK12           = 0x0800,              // 30 spells in 3.0.3, no idea
+    SUMMON_PROP_FLAG_UNK13           = 0x1000,              // 8 spells in 3.0.3, siege vehicle
+    SUMMON_PROP_FLAG_UNK14           = 0x2000,              // 2 spells in 3.0.3, escort?
 };
-*/
+
 #endif
 
