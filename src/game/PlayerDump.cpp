@@ -332,6 +332,36 @@ void PlayerDumpWriter::DumpTable(std::string& dump, uint32 guid, char const*tabl
 std::string PlayerDumpWriter::GetDump(uint32 guid)
 {
     std::string dump;
+    
+    dump += "IMPORTANT NOTE: This sql queries not created for apply directly, use '.pdump load' command in console or client chat instead.\n";
+    dump += "IMPORTANT NOTE: NOT APPLY ITS DIRECTLY to character DB or you will DAMAGE and CORRUPT character DB\n\n";
+
+    // revision check guard
+    QueryResult* result = CharacterDatabase.Query("SELECT * FROM character_db_version LIMIT 1");
+    if(result)
+    {
+        QueryResult::FieldNames const& namesMap = result->GetFieldNames();
+        std::string reqName;
+        for(QueryResult::FieldNames::const_iterator itr = namesMap.begin(); itr != namesMap.end(); ++itr)
+        {
+            if(itr->second.substr(0,9)=="required_")
+            {
+                reqName = itr->second;
+                break;
+            }
+        }
+
+        if(!reqName.empty())
+        {
+            // this will fail at wrong character DB version
+            dump += "UPDATE character_db_version SET "+reqName+" = 1 WHERE FALSE;\n\n";
+        }
+        else
+            sLog.outError("Table 'character_db_version' not have revision guard field, revision guard query not added to pdump.");
+    }
+    else
+        sLog.outError("Character DB not have 'character_db_version' table, revision guard query not added to pdump.");
+
     for(int i = 0; i < DUMP_TABLE_COUNT; i++)
         DumpTable(dump, guid, dumpTables[i].name, dumpTables[i].name, dumpTables[i].type);
 
@@ -439,8 +469,22 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
         std::string line; line.assign(buf);
 
         // skip empty strings
-        if(line.find_first_not_of(" \t\n\r\7")==std::string::npos)
+        size_t nw_pos = line.find_first_not_of(" \t\n\r\7");
+        if(nw_pos==std::string::npos)
             continue;
+
+        // skip NOTE
+        if(line.substr(nw_pos,15)=="IMPORTANT NOTE:")
+            continue;
+
+        // add required_ check
+        if(line.substr(nw_pos,41)=="UPDATE character_db_version SET required_")
+        {
+            if(!CharacterDatabase.Execute(line.c_str()))
+                ROLLBACK(DUMP_FILE_BROKEN);
+
+            continue;
+        }
 
         // determine table name and load type
         std::string tn = gettablename(line);
