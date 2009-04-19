@@ -233,6 +233,37 @@ bool GOHello_go_sacred_fire_of_life(Player* pPlayer, GameObject* pGO)
     return true;
 }
 
+/*######
+## go_tele_to_dalaran_crystal
+######*/
+
+enum
+{
+    QUEST_LEARN_LEAVE_RETURN    = 12790,
+    QUEST_TELE_CRYSTAL_FLAG     = 12845
+};
+
+bool GOHello_go_tele_to_dalaran_crystal(Player* pPlayer, GameObject* pGo)
+{
+    if (pPlayer->GetQuestRewardStatus(QUEST_TELE_CRYSTAL_FLAG))
+        return false;
+
+    //TODO: must send error message (what kind of message? On-screen?)
+    return true;
+}
+
+/*######
+## go_tele_to_violet_stand
+######*/
+
+bool GOHello_go_tele_to_violet_stand(Player* pPlayer, GameObject* pGo)
+{
+    if (pPlayer->GetQuestRewardStatus(QUEST_LEARN_LEAVE_RETURN) || pPlayer->GetQuestStatus(QUEST_LEARN_LEAVE_RETURN) == QUEST_STATUS_INCOMPLETE)
+        return false;
+
+    return true;
+}
+
 void AddSC_go_scripts()
 {
     Script *newscript;
