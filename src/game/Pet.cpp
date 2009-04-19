@@ -1089,8 +1089,6 @@ void Pet::_SaveSpells()
 void Pet::_LoadAuras(uint32 timediff)
 {
     sLog.outDebug("Loading auras for pet %u",GetGUIDLow());
-    for (int i = 0; i < TOTAL_AURAS; i++)
-        m_modAuras[i].clear();
 
     QueryResult *result = CharacterDatabase.PQuery("SELECT caster_guid,spell,effect_mask,stackcount,amount0, amount1, amount2 ,maxduration,remaintime,remaincharges FROM pet_aura WHERE guid = '%u'",m_charmInfo->GetPetNumber());
 

@@ -2533,11 +2533,10 @@ void SpellMgr::LoadPetLevelupSpellMap()
                 if (creatureFamily->skillLine[j]!=skillLine->skillId)
                     continue;
                 SpellEntry const *spell = sSpellStore.LookupEntry(skillLine->spellId);
-                // not exist or passive (passives are handled elsewhere)
-                if(!spell || IsPassiveSpell(spell->Id))
+                // not exist or triggered or talent
+                if(!spell || !spell->spellLevel || GetTalentSpellPos(spell->Id))
                     continue;
-                // Make sure that triggered spells aren't learned
-                if (!spell->SpellFamilyName && !spell->StartRecoveryCategory)
+                if (!spell->SpellFamilyFlags && spell->SpellIconID!=2310 && (!spell->RecoveryTime || !spell->StartRecoveryCategory))
                     continue;
                 mPetLevelupSpellMap.insert(PetLevelupSpellMap::value_type(creatureFamily->ID, std::make_pair(spell->spellLevel , spell->Id )));
                 count++;
