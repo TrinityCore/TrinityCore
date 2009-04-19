@@ -1264,8 +1264,7 @@ void Aura::DropAuraCharge()
 {
     if(m_procCharges) //auras without charges always have charge = 0
     {
-        --m_procCharges;
-        if(m_procCharges) // Send charge change
+        if(--m_procCharges) // Send charge change
             SendAuraUpdate();
         else              // Last charge dropped
             m_target->RemoveAura(this);
@@ -1274,39 +1273,30 @@ void Aura::DropAuraCharge()
 
 bool Aura::IsPersistent() const
 {
-    for (uint8 i=0; i<MAX_SPELL_EFFECTS;++i)
+    for(uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
-        if (m_partAuras[i])
-        {
-            if (m_partAuras[i]->IsPersistent())
-                return true;
-        }
+        if(m_partAuras[i] && m_partAuras[i]->IsPersistent())
+            return true;
     }
     return false;
 }
 
 bool Aura::IsAreaAura() const
 {
-    for (uint8 i=0; i<MAX_SPELL_EFFECTS;++i)
+    for(uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
-        if (m_partAuras[i])
-        {
-            if (m_partAuras[i]->IsAreaAura())
-                return true;
-        }
+        if(m_partAuras[i] && m_partAuras[i]->IsAreaAura())
+            return true;
     }
     return false;
 }
 
 bool Aura::IsAuraType(AuraType type) const
 {
-    for (uint8 i=0; i<MAX_SPELL_EFFECTS;++i)
+    for(uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
-        if (m_partAuras[i])
-        {
-            if (m_partAuras[i]->GetAuraName()==type)
-                return true;
-        }
+        if(m_partAuras[i] && m_partAuras[i]->GetAuraName() == type)
+            return true;
     }
     return false;
 }
