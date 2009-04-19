@@ -9056,6 +9056,7 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
     // Check for table values
     SpellBonusEntry const* bonus = spellmgr.GetSpellBonusData(spellProto->Id);
     float coeff;
+    float factorMod = 1.0f;
     bool scripted = false;
     if (bonus)
     {
@@ -9080,6 +9081,11 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
             }
             else
                 coeff = 1.0f;
+        }
+        // Earthliving - 0.45% of normal hot coeff
+        else if (spellProto->SpellFamilyName==SPELLFAMILY_SHAMAN && spellProto->SpellFamilyFlags[1] & 0x80000)
+        {
+            factorMod *= 0.45f;
         }
     }
 
@@ -9137,15 +9143,15 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
             coeff = (CastingTime / 3500.0f) * DotFactor * 1.88f;
         }
 
-        float coeff2 = CalculateLevelPenalty(spellProto)* stack;
-        TakenTotal += TakenAdvertisedBenefit * coeff * coeff2;
+        factorMod *= CalculateLevelPenalty(spellProto)* stack;
+        TakenTotal += TakenAdvertisedBenefit * coeff * factorMod;
         if(Player* modOwner = GetSpellModOwner())
         {
             coeff *= 100.0f;
             modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_SPELL_BONUS_DAMAGE, coeff);
             coeff /= 100.0f;
         }
-        DoneTotal += DoneAdvertisedBenefit * coeff * coeff2;
+        DoneTotal += DoneAdvertisedBenefit * coeff * factorMod;
     }
 
     // use float as more appropriate for negative values and percent applying
