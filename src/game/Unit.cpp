@@ -501,7 +501,7 @@ void Unit::RemoveSpellbyDamageTaken(uint32 damage, uint32 spell)
 
     std::queue < std::pair < uint32, uint64 > > remove_list;
 
-    for (AuraList::iterator iter = m_ccAuras.begin(); iter != m_ccAuras.end();)
+    for (AuraList::iterator iter = m_ccAuras.begin(); iter != m_ccAuras.end();++iter)
     {
        if((!spell || (*iter)->GetId() != spell) && roll_chance_f(chance))
        {
@@ -4054,7 +4054,7 @@ void Unit::RemoveAurasByTypeWithDispel(AuraType auraType, Spell * spell)
     if (auraType >= TOTAL_AURAS) return;
     std::queue < std::pair < uint32, uint64 > > remove_list;
 
-    for (AuraEffectList::iterator iter = m_modAuras[auraType].begin(); iter != m_modAuras[auraType].end();)
+    for (AuraEffectList::iterator iter = m_modAuras[auraType].begin(); iter != m_modAuras[auraType].end();++iter)
     {
        if(GetDispelChance((*iter)->GetCaster(), (*iter)->GetId()))
        {
