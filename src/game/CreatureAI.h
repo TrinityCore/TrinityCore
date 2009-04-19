@@ -71,6 +71,12 @@ enum SelectAggroTarget
     SELECT_TARGET_FARTHEST,
 };
 
+enum SCEquip
+{
+    EQUIP_NO_CHANGE = -1,
+    EQUIP_UNEQUIP   = 0
+};
+
 class TRINITY_DLL_SPEC UnitAI
 {
     protected:

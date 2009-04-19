@@ -229,12 +229,11 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
         switch( i )
         {
             case 8:
-                m_creature->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                SetRun(false);
                 m_creature->SummonCreature(18764,2181.87,112.46,89.45,0.26,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
                 break;
             case 9:
                 DoScriptText(SAY_TH_ARMORY, m_creature);
-                m_creature->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
                 m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, THRALL_WEAPON_MODEL);
                 //m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_INFO, THRALL_WEAPON_INFO);
                 //m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_INFO+1, 781);
@@ -246,7 +245,7 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
                 m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, THRALL_MODEL_EQUIPPED);
                 break;
             case 11:
-                m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                SetRun();
                 break;
             case 15:
                 m_creature->SummonCreature(MOB_ENTRY_RIFLE,2200.28,137.37,87.93,5.07,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
@@ -274,11 +273,12 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
             case 30:
                 IsOnHold = true;
                 m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                m_creature->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                SetRun(false);
                 break;
             case 31:
                 DoScriptText(SAY_TH_MOUNTS_UP, m_creature);
                 DoMount();
+                SetRun();
                 break;
             case 37:
                 //possibly regular patrollers? If so, remove this and let database handle them
@@ -290,6 +290,7 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
                 m_creature->SummonCreature(SKARLOC_MOUNT,2488.64,625.77,58.26,4.71,TEMPSUMMON_TIMED_DESPAWN,10000);
                 DoUnmount();
                 HadMount = false;
+                SetRun(false);
                 break;
             case 60:
                 m_creature->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
@@ -297,9 +298,10 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
                 IsOnHold = true;
                 m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 pInstance->SetData(TYPE_THRALL_PART2, DONE);
+                SetRun();
                 break;
             case 64:
-                m_creature->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                SetRun(false);
                 break;
             case 68:
                 m_creature->SummonCreature(MOB_ENTRY_BARN_PROTECTOR,2500.22,692.60,55.50,2.84,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
@@ -308,10 +310,10 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
                 m_creature->SummonCreature(MOB_ENTRY_BARN_GUARDSMAN,2500.94,695.81,55.50,3.14,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
                 break;
             case 71:
-                m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                SetRun();
                 break;
             case 81:
-                m_creature->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                SetRun(false);
                 break;
             case 83:
                 m_creature->SummonCreature(MOB_ENTRY_CHURCH_PROTECTOR,2627.33,646.82,56.03,4.28,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,5000);
@@ -321,9 +323,11 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
                 break;
             case 84:
                 DoScriptText(SAY_TH_CHURCH_END, m_creature);
+                SetRun();
                 break;
             case 91:
                 m_creature->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                SetRun(false);
                 break;
             case 93:
                 m_creature->SummonCreature(MOB_ENTRY_INN_PROTECTOR,2652.71,660.31,61.93,1.67,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
@@ -332,7 +336,6 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
                 m_creature->SummonCreature(MOB_ENTRY_INN_GUARDSMAN,2656.39,659.77,61.93,2.61,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
                 break;
             case 94:
-                m_creature->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
                 if (uint64 TarethaGUID = pInstance->GetData64(DATA_TARETHA))
                 {
                     if (Unit* Taretha = Unit::GetUnit((*m_creature), TarethaGUID))
@@ -349,7 +352,7 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
                 break;
             case 97:
                 DoScriptText(SAY_TH_EPOCH_KILL_TARETHA, m_creature);
-                m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                SetRun();
                 break;
             case 98:
                 //trigger epoch Yell("Thrall! Come outside and face your fate! ....")
@@ -426,7 +429,6 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
     {
         m_creature->Mount(SKARLOC_MOUNT_MODEL);
         m_creature->SetSpeed(MOVE_RUN,SPEED_MOUNT);
-        m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
     }
     void DoUnmount()
     {
