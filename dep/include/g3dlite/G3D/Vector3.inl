@@ -13,11 +13,11 @@
 
 //----------------------------------------------------------------------------
 #ifdef SSE
-	// If you receive an error on this line, it is because you do not have the file
-	// xmmintrin.h needed for MMX & SSE extensions.  Download and install
+    // If you receive an error on this line, it is because you do not have the file
+    // xmmintrin.h needed for MMX & SSE extensions.  Download and install
     //
     // http://download.microsoft.com/download/vstudio60ent/SP5/Wideband-Full/WIN98Me/EN-US/vs6sp5.exe
-	// and
+    // and
     // http://download.microsoft.com/download/vb60ent/Update/6/W9X2KXP/EN-US/vcpp5.exe
     //
     // to get this file.

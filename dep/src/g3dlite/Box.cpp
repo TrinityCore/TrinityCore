@@ -131,21 +131,21 @@ void Box::getFaceCorners(int f, Vector3& v0, Vector3& v1, Vector3& v2, Vector3& 
 
 
 bool Box::culledBy(
-    const Array<Plane>&		plane,
-	int&				    cullingPlaneIndex,
-	const uint32			inMask,
-	uint32&					outMask) const {
+    const Array<Plane>&        plane,
+    int&                    cullingPlaneIndex,
+    const uint32            inMask,
+    uint32&                    outMask) const {
 
-	return culledBy(plane.getCArray(), plane.size(), cullingPlaneIndex, inMask, outMask);
+    return culledBy(plane.getCArray(), plane.size(), cullingPlaneIndex, inMask, outMask);
 }
 
 
 bool Box::culledBy(
-    const Array<Plane>&		plane,
-	int&				    cullingPlaneIndex,
-	const uint32			inMask) const {
+    const Array<Plane>&        plane,
+    int&                    cullingPlaneIndex,
+    const uint32            inMask) const {
 
-	return culledBy(plane.getCArray(), plane.size(), cullingPlaneIndex, inMask);
+    return culledBy(plane.getCArray(), plane.size(), cullingPlaneIndex, inMask);
 }
 
 
@@ -154,23 +154,23 @@ int32 Box::dummy = 0;
 bool Box::culledBy(
     const class Plane*  plane,
     int                 numPlanes,
-	int&				cullingPlane,
-	const uint32		_inMask,
+    int&                cullingPlane,
+    const uint32        _inMask,
     uint32&             childMask) const {
 
-	uint32 inMask = _inMask;
-	assert(numPlanes < 31);
+    uint32 inMask = _inMask;
+    assert(numPlanes < 31);
 
     childMask = 0;
 
     // See if there is one plane for which all of the
-	// vertices are in the negative half space.
+    // vertices are in the negative half space.
     for (int p = 0; p < numPlanes; p++) {
 
-		// Only test planes that are not masked
-		if ((inMask & 1) != 0) {
-		
-			Vector3 corner;
+        // Only test planes that are not masked
+        if ((inMask & 1) != 0) {
+        
+            Vector3 corner;
 
             int numContained = 0;
             int v = 0;
@@ -178,36 +178,36 @@ bool Box::culledBy(
             // We can early-out only if we have found one point on each
             // side of the plane (i.e. if we are straddling).  That
             // occurs when (numContained < v) && (numContained > 0)
-			for (v = 0; (v < 8) && ((numContained == v) || (numContained == 0)); ++v) {
+            for (v = 0; (v < 8) && ((numContained == v) || (numContained == 0)); ++v) {
                 if (plane[p].halfSpaceContains(getCorner(v))) {
                     ++numContained;
                 }
-			}
+            }
 
-			if (numContained == 0) {
-				// Plane p culled the box
-				cullingPlane = p;
+            if (numContained == 0) {
+                // Plane p culled the box
+                cullingPlane = p;
 
                 // The caller should not recurse into the children,
                 // since the parent is culled.  If they do recurse,
                 // make them only test against this one plane, which
                 // will immediately cull the volume.
                 childMask = 1 << p;
-				return true;
+                return true;
 
             } else if (numContained < v) {
                 // The bounding volume straddled the plane; we have
                 // to keep testing against this plane
                 childMask |= (1 << p);
             }
-		}
+        }
 
         // Move on to the next bit.
-		inMask = inMask >> 1;
+        inMask = inMask >> 1;
     }
 
     // None of the planes could cull this box
-	cullingPlane = -1;
+    cullingPlane = -1;
     return false;
 }
 
@@ -215,44 +215,44 @@ bool Box::culledBy(
 bool Box::culledBy(
     const class Plane*  plane,
     int                 numPlanes,
-	int&				cullingPlane,
-	const uint32		_inMask) const {
+    int&                cullingPlane,
+    const uint32        _inMask) const {
 
-	uint32 inMask = _inMask;
-	assert(numPlanes < 31);
+    uint32 inMask = _inMask;
+    assert(numPlanes < 31);
 
     // See if there is one plane for which all of the
-	// vertices are in the negative half space.
+    // vertices are in the negative half space.
     for (int p = 0; p < numPlanes; p++) {
 
-		// Only test planes that are not masked
-		if ((inMask & 1) != 0) {
-		
-			bool culled = true;
+        // Only test planes that are not masked
+        if ((inMask & 1) != 0) {
+        
+            bool culled = true;
 
             int v;
 
-			// Assume this plane culls all points.  See if there is a point
-			// not culled by the plane... early out when at least one point
+            // Assume this plane culls all points.  See if there is a point
+            // not culled by the plane... early out when at least one point
             // is in the positive half space.
-			for (v = 0; (v < 8) && culled; ++v) {
+            for (v = 0; (v < 8) && culled; ++v) {
                 culled = ! plane[p].halfSpaceContains(getCorner(v));
-			}
-
-			if (culled) {
-				// Plane p culled the box
-				cullingPlane = p;
-
-				return true;
             }
-		}
+
+            if (culled) {
+                // Plane p culled the box
+                cullingPlane = p;
+
+                return true;
+            }
+        }
 
         // Move on to the next bit.
-		inMask = inMask >> 1;
+        inMask = inMask >> 1;
     }
 
     // None of the planes could cull this box
-	cullingPlane = -1;
+    cullingPlane = -1;
     return false;
 }
 

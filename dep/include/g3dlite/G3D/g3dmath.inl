@@ -42,46 +42,46 @@ inline int iCeil (double fValue) {
 
 inline int iClamp(int val, int low, int hi) {
     debugAssert(low <= hi);
-	if (val <= low) {
-		return low;
-	} else if (val >= hi) {
-		return hi;
-	} else {
-		return val;
-	}
+    if (val <= low) {
+        return low;
+    } else if (val >= hi) {
+        return hi;
+    } else {
+        return val;
+    }
 }
 
 //----------------------------------------------------------------------------
 
 inline double clamp(double val, double low, double hi) {
     debugAssert(low <= hi);
-	if (val <= low) {
-		return low;
-	} else if (val >= hi) {
-		return hi;
-	} else {
-		return val;
-	}
+    if (val <= low) {
+        return low;
+    } else if (val >= hi) {
+        return hi;
+    } else {
+        return val;
+    }
 }
 
 inline float clamp(float val, float low, float hi) {
     debugAssert(low <= hi);
-	if (val <= low) {
-		return low;
-	} else if (val >= hi) {
-		return hi;
-	} else {
-		return val;
-	}
+    if (val <= low) {
+        return low;
+    } else if (val >= hi) {
+        return hi;
+    } else {
+        return val;
+    }
 }
 //----------------------------------------------------------------------------
 
 inline int iWrap(int val, int hi) {
-	if (val < 0) {
-		return ((val % hi) + hi) % hi;
-	} else {
-		return val % hi;
-	}
+    if (val < 0) {
+        return ((val % hi) + hi) % hi;
+    } else {
+        return val % hi;
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -142,11 +142,11 @@ inline double aTan2 (double fY, double fX) {
 inline double sign (double fValue) {
     if (fValue > 0.0) {
         return 1.0;
-	}
+    }
 
     if (fValue < 0.0) {
         return -1.0;
-	}
+    }
 
     return 0.0;
 }

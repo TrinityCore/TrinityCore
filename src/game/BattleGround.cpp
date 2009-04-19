@@ -524,10 +524,10 @@ void BattleGround::EndBattleGround(uint32 winner)
 
     if(!isArena()){
 
-	if(m_score[GetTeamIndexByTeamId(ALLIANCE)] == m_score[GetTeamIndexByTeamId(HORDE)])
-		almost_winning_team = 0; 		//no real winner
-	if(m_score[GetTeamIndexByTeamId(ALLIANCE)] > m_score[GetTeamIndexByTeamId(HORDE)])
-		almost_winning_team = ALLIANCE;
+    if(m_score[GetTeamIndexByTeamId(ALLIANCE)] == m_score[GetTeamIndexByTeamId(HORDE)])
+        almost_winning_team = 0;         //no real winner
+    if(m_score[GetTeamIndexByTeamId(ALLIANCE)] > m_score[GetTeamIndexByTeamId(HORDE)])
+        almost_winning_team = ALLIANCE;
 
     }
 
@@ -572,19 +572,19 @@ void BattleGround::EndBattleGround(uint32 winner)
         }
         else if(winner !=0)
         {
-		RewardMark(plr,ITEM_LOSER_COUNT);
+        RewardMark(plr,ITEM_LOSER_COUNT);
         }
-	else if(winner == 0)
-	{
-		if(sWorld.getConfig(CONFIG_PREMATURE_BG_REWARD))	// We're feeling generous, giving rewards to people who not earned them ;)
-		{	//nested ifs for the win! its boring writing that, forgive me my unfunniness
-			
-			if(almost_winning_team == team)					//player's team had more points
-				RewardMark(plr,ITEM_WINNER_COUNT);
-			else
-				RewardMark(plr,ITEM_LOSER_COUNT);			// if scores were the same, each team gets 1 mark.
-		}
-	}
+    else if(winner == 0)
+    {
+        if(sWorld.getConfig(CONFIG_PREMATURE_BG_REWARD))    // We're feeling generous, giving rewards to people who not earned them ;)
+        {    //nested ifs for the win! its boring writing that, forgive me my unfunniness
+            
+            if(almost_winning_team == team)                    //player's team had more points
+                RewardMark(plr,ITEM_WINNER_COUNT);
+            else
+                RewardMark(plr,ITEM_LOSER_COUNT);            // if scores were the same, each team gets 1 mark.
+        }
+    }
 
         plr->CombatStopWithPets(true);
 
@@ -610,7 +610,7 @@ void BattleGround::EndBattleGround(uint32 winner)
         // this way all arena team members will get notified, not only the ones who participated in this match
         winner_arena_team->NotifyStatsChanged();
         loser_arena_team->NotifyStatsChanged();
-	sLog.outDebug("Rated arena match between %s and %s finished, winner: %s", loser_arena_team->GetName().c_str(),winner_arena_team->GetName().c_str(),winner_arena_team->GetName().c_str());
+    sLog.outDebug("Rated arena match between %s and %s finished, winner: %s", loser_arena_team->GetName().c_str(),winner_arena_team->GetName().c_str(),winner_arena_team->GetName().c_str());
     }
 
     // inform invited players about the removal

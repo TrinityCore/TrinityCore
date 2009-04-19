@@ -165,7 +165,7 @@ bool GOHello_go_teleporter(Player *player, GameObject* _GO)
 bool GOHello_go_jump_a_tron(Player *player, GameObject* _GO)
 {
     if (player->GetQuestStatus(10111) == QUEST_STATUS_INCOMPLETE)
- 	player->CastSpell(player,33382,true);
+     player->CastSpell(player,33382,true);
 
     return true;
 }
