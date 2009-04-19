@@ -1260,14 +1260,16 @@ void Aura::SetAuraCharges(uint8 charges)
     SendAuraUpdate();
 }
 
-bool Aura::DropAuraCharge()
+void Aura::DropAuraCharge()
 {
-    if (m_procCharges == 0)
-        return false;
-    m_procCharges--;
-    SendAuraUpdate();
-    // return true if last charge dropped
-    return m_procCharges == 0;
+    if(m_procCharges) //auras without charges always have charge = 0
+    {
+        --m_procCharges;
+        if(m_procCharges) // Send charge change
+            SendAuraUpdate();
+        else              // Last charge dropped
+            m_target->RemoveAura(this);
+    }
 }
 
 bool Aura::IsPersistent() const
