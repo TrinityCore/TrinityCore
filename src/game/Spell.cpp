@@ -2681,8 +2681,8 @@ void Spell::finish(bool ok)
     // Heal caster for all health leech from all targets
     if (m_healthLeech)
     {
-        m_caster->ModifyHealth(m_healthLeech);
-        m_caster->SendHealSpellLog(m_caster, m_spellInfo->Id, uint32(m_healthLeech));
+        int32 gain = m_caster->ModifyHealth(m_healthLeech);
+        m_caster->SendHealSpellLog(m_caster, m_spellInfo->Id, uint32(m_healthLeech), false, &gain);
     }
 
     if (IsMeleeAttackResetSpell())
@@ -2695,7 +2695,7 @@ void Spell::finish(bool ok)
     }
 
     // potions disabled by client, send event "not in combat" if need
-    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+    if (!m_triggeredByAuraSpell && m_caster->GetTypeId() == TYPEID_PLAYER)
         ((Player*)m_caster)->UpdatePotionCooldown(this);
 
     // call triggered spell only at successful cast (after clear combo points -> for add some if need)

@@ -1150,7 +1150,7 @@ void Aura::_RemoveAura()
                 if(*itr < 0)
                     m_target->RemoveAurasDueToSpell(-(*itr));
                 else if(Unit* caster = GetCaster())
-                    if (m_removeMode==AURA_REMOVE_BY_EXPIRE)
+                    if (m_removeMode!=AURA_REMOVE_BY_DEFAULT)
                         m_target->CastSpell(m_target, *itr, true, 0, 0, caster->GetGUID());
             }
     }
@@ -1631,8 +1631,8 @@ void AuraEffect::TriggerSpell()
                     case 23493:
                     {
                         int32 heal = caster->GetMaxHealth() / 10;
-                        caster->ModifyHealth( heal );
-                        caster->SendHealSpellLog(caster, 23493, heal);
+                        int32 gain = caster->ModifyHealth( heal );
+                        caster->SendHealSpellLog(caster, 23493, heal, false, &gain);
 
                         int32 mana = caster->GetMaxPower(POWER_MANA);
                         if (mana)
@@ -5854,7 +5854,7 @@ void AuraEffect::PeriodicTick()
             int32 gain = pCaster->ModifyHealth(heal);
             pCaster->getHostilRefManager().threatAssist(pCaster, gain * 0.5f, spellProto);
 
-            pCaster->SendHealSpellLog(pCaster, spellProto->Id, heal);
+            pCaster->SendHealSpellLog(pCaster, spellProto->Id, heal,false, &gain);
             break;
         }
         case SPELL_AURA_PERIODIC_HEAL:
