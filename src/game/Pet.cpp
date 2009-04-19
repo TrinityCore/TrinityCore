@@ -1089,7 +1089,6 @@ void Pet::_SaveSpells()
 void Pet::_LoadAuras(uint32 timediff)
 {
     sLog.outDebug("Loading auras for pet %u",GetGUIDLow());
-    m_Auras.clear();
     for (int i = 0; i < TOTAL_AURAS; i++)
         m_modAuras[i].clear();
 
