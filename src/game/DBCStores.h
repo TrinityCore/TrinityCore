@@ -80,6 +80,7 @@ extern DBCStorage <CreatureTypeEntry>            sCreatureTypeStore;
 extern DBCStorage <CurrencyTypesEntry>           sCurrencyTypesStore;
 extern DBCStorage <DurabilityCostsEntry>         sDurabilityCostsStore;
 extern DBCStorage <DurabilityQualityEntry>       sDurabilityQualityStore;
+extern DBCStorage <EmotesEntry>                  sEmotesStore;
 extern DBCStorage <EmotesTextEntry>              sEmotesTextStore;
 extern DBCStorage <FactionEntry>                 sFactionStore;
 extern DBCStorage <FactionTemplateEntry>         sFactionTemplateStore;
@@ -155,4 +156,6 @@ TRINITY_DLL_SPEC DBCStorage <SpellRangeEntry>            const* GetSpellRangeSto
 TRINITY_DLL_SPEC DBCStorage <FactionEntry>               const* GetFactionStore();
 TRINITY_DLL_SPEC DBCStorage <ItemEntry>                  const* GetItemDisplayStore();
 TRINITY_DLL_SPEC DBCStorage <CreatureDisplayInfoEntry>   const* GetCreatureDisplayStore();
+TRINITY_DLL_SPEC DBCStorage <EmotesEntry>                const* GetEmotesStore();
+TRINITY_DLL_SPEC DBCStorage <EmotesTextEntry>            const* GetEmotesTextStore();
 #endif
