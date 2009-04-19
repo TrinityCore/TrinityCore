@@ -4714,6 +4714,15 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     unitTarget->CastSpell(unitTarget, 44870, true);
                     break;
                 }
+                // Negative Energy
+                case 46289:
+                {
+                    if(!unitTarget)
+                        return;
+              
+                    m_caster->CastSpell(unitTarget, 46285, true);
+                    break;
+                }                
                 // Goblin Weather Machine
                 case 46203:
                 {
