@@ -6297,8 +6297,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     {
                         uint32 spell = (*itr)->GetSpellProto()->EffectTriggerSpell[(*itr)->GetEffIndex()];
                         CastSpell(this, spell, true, castItem, triggeredByAura);
-                        if ((*itr)->GetParentAura()->DropAuraCharge())
-                            RemoveAurasDueToSpell((*itr)->GetId());
+                        (*itr)->GetParentAura()->DropAuraCharge();
                         return true;
                     }
                 }
@@ -6382,8 +6381,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                                 return false;
                         }
                         CastSpell(this, spell, true, castItem, triggeredByAura);
-                        if ((*itr)->GetParentAura()->DropAuraCharge())
-                            RemoveAurasDueToSpell((*itr)->GetId());
+                        (*itr)->GetParentAura()->DropAuraCharge();
                         return true;
                     }
                 }
@@ -8190,23 +8188,27 @@ Unit* Unit::SelectMagnetTarget(Unit *victim, SpellEntry const *spellInfo)
         if(spellInfo->DmgClass == SPELL_DAMAGE_CLASS_NONE)
             return victim;
 
-        //if((*itr)->GetParentAura()->DropAuraCharge())
-
-        Unit::AuraList const& magnetAuras = victim->GetAurasByType(SPELL_AURA_SPELL_MAGNET);
-        for(Unit::AuraList::const_iterator itr = magnetAuras.begin(); itr != magnetAuras.end(); ++itr)
+        Unit::AuraEffectList const& magnetAuras = victim->GetAurasByType(SPELL_AURA_SPELL_MAGNET);
+        for(Unit::AuraEffectList::const_iterator itr = magnetAuras.begin(); itr != magnetAuras.end(); ++itr)
             if(Unit* magnet = (*itr)->GetCaster())
                 if(magnet->isAlive())
+                {
+                    (*itr)->GetParentAura()->DropAuraCharge();
                     return magnet;
+                }
     }
     // Melee && ranged case
     else
     {
-        AuraList const& hitTriggerAuras = victim->GetAurasByType(SPELL_AURA_ADD_CASTER_HIT_TRIGGER);
-        for(AuraList::const_iterator i = hitTriggerAuras.begin(); i != hitTriggerAuras.end(); ++i)
+        AuraEffectList const& hitTriggerAuras = victim->GetAurasByType(SPELL_AURA_ADD_CASTER_HIT_TRIGGER);
+        for(AuraEffectList::const_iterator i = hitTriggerAuras.begin(); i != hitTriggerAuras.end(); ++i)
             if(Unit* magnet = (*i)->GetCaster())
                 if(magnet->isAlive() && magnet->IsWithinLOSInMap(this))
-                    if(roll_chance_i((*i)->GetModifier()->m_amount))
+                    if(roll_chance_i((*i)->GetAmount()))
+                    {
+                        (*i)->GetParentAura()->DropAuraCharge();
                         return magnet;
+                    }
     }
 
     return victim;
@@ -8820,8 +8822,7 @@ bool Unit::isSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
                             // Fingers of Frost
                             // TODO: Change this code to less hacky
                             if (Aura * aur = GetAura(44544))
-                                if (aur->DropAuraCharge())
-                                    RemoveAura(aur);
+                                aur->DropAuraCharge();
                             break;
                         case 7917: // Glyph of Shadowburn
                             if (pVictim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, spellProto, this))
@@ -11805,8 +11806,7 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
         // Remove charge (aura can be removed by triggers)
         if(useCharges && takeCharges)
         {
-            if (i->aura->DropAuraCharge())
-                RemoveAura(i->aura);
+            i->aura->DropAuraCharge();
         }
     }
 }
