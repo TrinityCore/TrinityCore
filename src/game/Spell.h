@@ -589,7 +589,7 @@ class Spell
         void DoSpellHitOnUnit(Unit *unit, uint32 effectMask);
         void DoAllEffectOnTarget(GOTargetInfo *target);
         void DoAllEffectOnTarget(ItemTargetInfo *target);
-        bool IsAliveUnitPresentInTargetList();
+        bool UpdateChanneledTargetList();
         void SearchAreaTarget(std::list<Unit*> &data, float radius, const uint32 &type,
             SpellTargets TargetType, uint32 entry = 0);
         void SearchChainTarget(std::list<Unit*> &data, float radius, uint32 unMaxTargets,
