@@ -37,6 +37,8 @@ class TempSummon : public Creature
         Unit* GetSummoner() const;
 
         SummonPropertiesEntry const *m_Properties;
+
+        bool SetOwner(Unit *owner, bool apply);
     private:
         TempSummonType m_type;
         uint32 m_timer;

@@ -671,7 +671,7 @@ namespace Trinity
                             continue;
                         if(!target->isAttackableByAOE())
                             continue;
-                        if(i_source->GetTypeId()==TYPEID_PLAYER)
+                        if(i_source->IsControlledByPlayer())
                         {
                             if(i_source->IsFriendlyTo(target))
                                 continue;
