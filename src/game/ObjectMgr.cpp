@@ -5002,17 +5002,17 @@ void ObjectMgr::LoadAccessRequirements()
         }
 
         if(ar.heroicQuest)
-         {
-            if(!mQuestTemplates[ar.heroicQuest])
+        {
+            if(!GetQuestTemplate(ar.heroicQuest))
             {
                 sLog.outErrorDb("Required Heroic Quest %u not exist for trigger %u, remove heroic quest done requirement.",ar.heroicQuest,requiremt_ID);
                 ar.heroicQuest = 0;
-             }
-         }
- 
+            }
+        }
+
         if(ar.quest)
         {
-            if(!mQuestTemplates[ar.quest])
+            if(!GetQuestTemplate(ar.quest))
             {
                 sLog.outErrorDb("Required Quest %u not exist for trigger %u, remove quest done requirement.",ar.quest,requiremt_ID);
                 ar.quest = 0;
