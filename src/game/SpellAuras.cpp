@@ -1131,7 +1131,7 @@ void Aura::_RemoveAura()
                 if(*itr < 0)
                     m_target->RemoveAurasDueToSpell(-(*itr));
                 else if(Unit* caster = GetCaster())
-                    if (m_removeMode!=AURA_REMOVE_BY_DEFAULT)
+                    if (m_removeMode!=AURA_REMOVE_BY_DEFAULT && m_removeMode!=AURA_REMOVE_BY_DEATH)
                         m_target->CastSpell(m_target, *itr, true, 0, 0, caster->GetGUID());
             }
     }
