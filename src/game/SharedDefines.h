@@ -316,7 +316,7 @@ enum SpellCategory
 #define SPELL_ATTR_EX2_UNK27                      0x08000000            // 27
 #define SPELL_ATTR_EX2_UNK28                      0x10000000            // 28 no breaks stealth if it fails??
 #define SPELL_ATTR_EX2_CANT_CRIT                  0x20000000            // 29 Spell can't crit
-#define SPELL_ATTR_EX2_UNK30                      0x40000000            // 30
+#define SPELL_ATTR_EX2_TRIGGERED_CAN_TRIGGER      0x40000000            // 30 spell can trigger even if triggered
 #define SPELL_ATTR_EX2_FOOD                       0x80000000            // 31 food, well-fed, and a few others
 
 #define SPELL_ATTR_EX3_UNK0                       0x00000001            // 0
