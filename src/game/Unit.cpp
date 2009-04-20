@@ -979,6 +979,11 @@ void Unit::CastSpell(Unit* Victim,SpellEntry const *spellInfo, bool triggered, I
         return;
     }
 
+    if (!originalCaster && GetTypeId()==TYPEID_UNIT && ((Creature*)this)->isTotem())
+        if (Unit * owner = GetOwner())
+            if (owner->GetTypeId()==TYPEID_PLAYER)
+                originalCaster=owner->GetGUID();
+
     SpellCastTargets targets;
     uint32 targetMask = spellInfo->Targets;
     //if(targetMask & (TARGET_FLAG_UNIT|TARGET_FLAG_UNK2))
