@@ -1021,9 +1021,6 @@ int ChatHandler::ParseCommands(const char* text)
 
     std::string fullcmd = text;
 
-    //if(m_session->GetSecurity() == 0)
-    //  return 0;
-
     /// chat case (.command or !command format)
     if(m_session)
     {

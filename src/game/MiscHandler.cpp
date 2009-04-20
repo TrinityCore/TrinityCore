@@ -115,6 +115,7 @@ void WorldSession::HandleGossipSelectOptionOpcode( WorldPacket & recv_data )
     else
     {
         sLog.outDebug( "WORLD: HandleGossipSelectOptionOpcode - unsupported GUID type for highguid %u. lowpart %u.", uint32(GUID_HIPART(guid)), uint32(GUID_LOPART(guid)) );
+        return;
     }
 
     // remove fake death

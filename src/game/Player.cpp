@@ -18246,7 +18246,7 @@ template<class T>
 void Player::UpdateVisibilityOf(T* target, UpdateData& data, std::set<WorldObject*>& visibleNow)
 {
     if(!target)
-	return;
+    return;
     if(HaveAtClient(target))
     {
         if(!target->isVisibleForInState(this,true))
