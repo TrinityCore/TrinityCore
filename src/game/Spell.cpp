@@ -2627,7 +2627,6 @@ void Spell::update(uint32 difftime)
                 // check if there are alive targets left
                 if (!UpdateChanneledTargetList())
                 {
-                    sLog.outError("Spell cancel");
                     SendChannelUpdate(0);
                     finish();
                 }
@@ -2698,7 +2697,6 @@ void Spell::finish(bool ok)
 
     // Unsummon summon as possessed creatures on spell cancel
     if(IsChanneledSpell(m_spellInfo)
-        && m_caster->m_currentSpells[CURRENT_CHANNELED_SPELL] == this
         && m_caster->GetTypeId() == TYPEID_PLAYER)
     {
         if (Unit * charm = m_caster->GetCharm())
