@@ -1059,6 +1059,7 @@ WorldObject::WorldObject()
 
     m_mapId             = 0;
     m_InstanceId        = 0;
+    m_map               = NULL;
 
     m_name = "";
 
@@ -1555,12 +1556,14 @@ void WorldObject::SendObjectDeSpawnAnim(uint64 guid)
 
 Map* WorldObject::GetMap() const
 {
-    return MapManager::Instance().GetMap(GetMapId(), this);
+    if(m_map) return m_map;
+    else return const_cast<Map*>(m_map) = MapManager::Instance().GetMap(GetMapId(), this);
 }
 
 Map* WorldObject::FindMap() const
 {
-    return MapManager::Instance().FindMap(GetMapId(), GetInstanceId());
+    if(m_map) return m_map;
+    else return const_cast<Map*>(m_map) = MapManager::Instance().FindMap(GetMapId(), GetInstanceId());
 }
 
 Map const* WorldObject::GetBaseMap() const
