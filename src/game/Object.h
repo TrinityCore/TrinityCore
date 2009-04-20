@@ -418,8 +418,10 @@ class TRINITY_DLL_SPEC WorldObject : public Object
 
         void GetRandomPoint( float x, float y, float z, float distance, float &rand_x, float &rand_y, float &rand_z ) const;
 
-        void SetMapId(uint32 newMap) { m_mapId = newMap; }
+        void SetMapId(uint32 newMap) { m_mapId = newMap; m_map = NULL; }
         uint32 GetMapId() const { return m_mapId; }
+        void SetInstanceId(uint32 val) { m_InstanceId = val; m_map = NULL; }
+        uint32 GetInstanceId() const { return m_InstanceId; }
 
         uint32 GetZoneId() const;
         uint32 GetAreaId() const;
@@ -467,9 +469,6 @@ class TRINITY_DLL_SPEC WorldObject : public Object
 
         virtual void SaveRespawnTime() {}
 
-        uint32 GetInstanceId() const { return m_InstanceId; }
-        void SetInstanceId(uint32 val) { m_InstanceId = val; }
-
         void AddObjectToRemoveList();
 
         // main visibility check function in normal case (ignore grey zone distance check)
@@ -502,6 +501,8 @@ class TRINITY_DLL_SPEC WorldObject : public Object
 
     private:
         uint32 m_mapId;
+        uint32 m_InstanceId;
+        Map    *m_map;
 
         float m_positionX;
         float m_positionY;
@@ -509,8 +510,6 @@ class TRINITY_DLL_SPEC WorldObject : public Object
         float m_orientation;
 
         bool mSemaphoreTeleport;
-
-        uint32 m_InstanceId;
 };
 #endif
 
