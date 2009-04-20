@@ -472,6 +472,8 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
 
     m_lastFallTime = 0;
     m_lastFallZ = 0;
+
+    m_ControlledByPlayer = true;
 }
 
 Player::~Player ()
@@ -14460,11 +14462,11 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
     SetUInt32Value(UNIT_CHANNEL_SPELL,0);
 
     // clear charm/summon related fields
+    SetUInt64Value(UNIT_FIELD_SUMMONEDBY, 0);
+    SetUInt64Value(UNIT_FIELD_CHARMEDBY, 0);
     SetUInt64Value(UNIT_FIELD_CHARM, 0);
     SetUInt64Value(UNIT_FIELD_SUMMON, 0);
     SetUInt64Value(PLAYER_FARSIGHT, 0);
-    SetCharmerGUID(0);
-    SetOwnerGUID(0);
     SetCreatorGUID(0);
 
     // reset some aura modifiers before aura apply
