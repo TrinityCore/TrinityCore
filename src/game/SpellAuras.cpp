@@ -376,7 +376,6 @@ m_auraSlot(MAX_AURAS), m_auraLevel(1), m_procCharges(0), m_stackAmount(1),m_aura
         //damage        = caster->CalculateSpellDamage(m_spellProto,m_effIndex,m_currentBasePoints,target);
         m_maxduration = caster->CalcSpellDuration(m_spellProto);
     }
-    m_formalCasterGUID = formalCaster ? formalCaster->GetGUID() : m_caster_guid;
 
     if(m_maxduration == -1 || m_isPassive && m_spellProto->DurationIndex == 0)
         m_permanent = true;
@@ -517,7 +516,8 @@ AreaAuraEffect::AreaAuraEffect(Aura * parentAura, uint32 effIndex, int32 * curre
     m_removeTime = FRIENDLY_AA_REMOVE_TIME;
     m_isAreaAura = true;
 
-    Unit* caster_ptr = formalCaster ? formalCaster : m_target;
+    Unit* caster_ptr = formalCaster ? formalCaster : caster ? caster : m_target;
+    m_formalCasterGUID = caster_ptr->GetGUID();
 
     if (m_spellProto->Effect[effIndex] == SPELL_EFFECT_APPLY_AREA_AURA_ENEMY)
         m_radius = GetSpellRadiusForHostile(sSpellRadiusStore.LookupEntry(GetSpellProto()->EffectRadiusIndex[m_effIndex]));
@@ -599,7 +599,7 @@ Unit* Aura::GetCaster() const
     return unit && unit->IsInWorld() ? unit : NULL;
 }
 
-Unit* Aura::GetFormalCaster() const
+Unit* AreaAuraEffect::GetFormalCaster() const
 {
     if(m_formalCasterGUID==m_target->GetGUID())
         return m_target;
@@ -655,28 +655,6 @@ void Aura::Update(uint32 diff)
         }
     }
 
-    // Channeled aura required check distance from caster
-    if(IsChanneledSpell(m_spellProto) && m_caster_guid != m_target->GetGUID()
-        && !IsAreaAura() && !IsPersistent())  // check for these is done in auraeffect
-    {
-        Unit* caster = GetFormalCaster();
-        if(!caster)
-        {
-            m_target->RemoveAura(this);
-            return;
-        }
-        float radius = caster->GetSpellMaxRangeForTarget(m_target, sSpellRangeStore.LookupEntry(m_spellProto->rangeIndex)) ;
-
-        if(Player* modOwner = caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(GetId(), SPELLMOD_RANGE, radius,NULL);
-
-        if(!caster->IsWithinDistInMap(m_target,radius))
-        {
-            m_target->RemoveAura(this);
-            return;
-        }
-    }
-
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         if (m_partAuras[i])
             m_partAuras[i]->Update(diff);
@@ -703,7 +681,7 @@ void AuraEffect::Update(uint32 diff)
 void AreaAuraEffect::Update(uint32 diff)
 {
     // update for the caster of the aura
-    if(GetFormalCasterGUID() == m_target->GetGUID())
+    if(m_formalCasterGUID == m_target->GetGUID())
     {
         Unit* caster = m_target;
 
@@ -791,7 +769,7 @@ void AreaAuraEffect::Update(uint32 diff)
             return;
 
         // Caster may be deleted due to update
-        Unit* caster = GetParentAura()->GetFormalCaster();
+        Unit* caster = GetFormalCaster();
 
         // remove aura if out-of-range from caster (after teleport for example)
         // or caster is isolated or caster no longer has the aura
@@ -840,7 +818,7 @@ void AreaAuraEffect::Update(uint32 diff)
 
 void PersistentAreaAuraEffect::Update(uint32 diff)
 {
-    if(Unit *caster = GetParentAura()->GetFormalCaster())
+    if(Unit *caster = GetParentAura()->GetCaster())
     {
         if(DynamicObject *dynObj = caster->GetDynObject(GetId(), GetEffIndex()))
         {

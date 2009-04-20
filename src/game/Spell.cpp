@@ -33,6 +33,7 @@
 #include "Player.h"
 #include "Pet.h"
 #include "Unit.h"
+#include "Totem.h"
 #include "Spell.h"
 #include "DynamicObject.h"
 #include "Group.h"
@@ -1268,13 +1269,19 @@ void Spell::DoAllEffectOnTarget(ItemTargetInfo *target)
             HandleEffects(NULL, target->item, NULL, effectNumber);
 }
 
-bool Spell::IsAliveUnitPresentInTargetList()
+bool Spell::UpdateChanneledTargetList()
 {
     // Not need check return true
     if (m_needAliveTargetMask == 0)
         return true;
 
     uint8 needAliveTargetMask = m_needAliveTargetMask;
+    uint8 needAuraMask = 0;
+    for (uint8 i=0;i<MAX_SPELL_EFFECTS;++i)
+        if (m_spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AURA)
+            needAuraMask |= 1<<i;
+
+    needAuraMask &= needAliveTargetMask;
 
     for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin();ihit != m_UniqueTargetInfo.end();++ihit)
     {
@@ -1283,7 +1290,24 @@ bool Spell::IsAliveUnitPresentInTargetList()
             Unit *unit = m_caster->GetGUID()==ihit->targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, ihit->targetGUID);
 
             if (unit && unit->isAlive())
+            {
+                if (needAuraMask & ihit->effectMask)
+                {
+                    if(Aura * aur = unit->GetAura(m_spellInfo->Id, m_caster->GetGUID()))
+                    {
+                        if (m_caster != unit && !m_caster->IsWithinDistInMap(unit,m_caster->GetSpellMaxRangeForTarget(unit,GetSpellRangeStore()->LookupEntry(m_spellInfo->rangeIndex))))
+                        {
+                            ihit->effectMask &= ~aur->GetEffectMask();
+                            unit->RemoveAura(aur);
+                            continue;
+                        }
+                    }
+                    else
+                        continue;
+                }
+
                 needAliveTargetMask &= ~ihit->effectMask;   // remove from need alive mask effect that have alive target
+            }
         }
     }
 
@@ -2601,8 +2625,9 @@ void Spell::update(uint32 difftime)
                 }
 
                 // check if there are alive targets left
-                if (!IsAliveUnitPresentInTargetList())
+                if (!UpdateChanneledTargetList())
                 {
+                    sLog.outError("Spell cancel");
                     SendChannelUpdate(0);
                     finish();
                 }
@@ -2663,7 +2688,6 @@ void Spell::finish(bool ok)
 
     if(m_spellState == SPELL_STATE_FINISHED)
         return;
-
     m_spellState = SPELL_STATE_FINISHED;
 
     if(IsChanneledSpell(m_spellInfo))
@@ -2671,6 +2695,40 @@ void Spell::finish(bool ok)
 
     if(!m_caster->IsNonMeleeSpellCasted(false, false, true))
         m_caster->clearUnitState(UNIT_STAT_CASTING);
+
+    // Unsummon summon as possessed creatures on spell cancel
+    if(IsChanneledSpell(m_spellInfo)
+        && m_caster->m_currentSpells[CURRENT_CHANNELED_SPELL] == this
+        && m_caster->GetTypeId() == TYPEID_PLAYER)
+    {
+        if (Unit * charm = m_caster->GetCharm())
+        for(int i = 0; i < 3; ++i)
+        {
+            if(m_spellInfo->Effect[i] == SPELL_EFFECT_SUMMON)
+                if(SummonPropertiesEntry const *SummonProperties = sSummonPropertiesStore.LookupEntry(m_spellInfo->EffectMiscValueB[i]))
+                    if(SummonProperties->Category == SUMMON_CATEGORY_POSSESSED)
+                    {
+                        if(charm->GetTypeId() == TYPEID_UNIT)
+                        {
+                            if(((Creature*)charm)->isPet() && ((Pet*)charm)->getPetType() == POSSESSED_PET)
+                                ((Pet*)charm)->Remove(PET_SAVE_AS_DELETED);
+                                    break;
+                        }
+                    }
+        }
+    }
+    else if (m_caster->GetTypeId()==TYPEID_UNIT && ((Creature*)m_caster)->isSummon())
+    {
+        // Unsummon statue
+        uint32 spell = m_caster->GetUInt32Value(UNIT_CREATED_BY_SPELL);
+        SpellEntry const *spellInfo = sSpellStore.LookupEntry(spell );
+        if (spellInfo && spellInfo->SpellIconID==2056)
+        {
+            sLog.outDebug("Statue %d is unsummoned in spell %d finish", m_caster->GetGUIDLow(), m_spellInfo->Id);
+            m_caster->setDeathState(JUST_DIED);
+            return;
+        }
+    }
 
     // other code related only to successfully finished spells
     if(!ok)

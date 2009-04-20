@@ -3198,56 +3198,6 @@ void Unit::_DeleteAuras()
     for (AuraList::iterator i = m_removedAuras.begin(); i != m_removedAuras.end();i = m_removedAuras.begin())
     {
         Aura * Aur = *i;
-        SpellEntry const* AurSpellInfo = Aur->GetSpellProto();
-        // Statue unsummoned at aura delete
-        Totem* statue = NULL;
-        if(Aur->GetAuraDuration() && !Aur->IsPersistent() && IsChanneledSpell(Aur->GetSpellProto()))
-        {
-            Unit* caster = Aur->GetFormalCaster();
-            if(caster && caster->isAlive())
-            {
-                // stop caster chanelling state
-                if(caster->m_currentSpells[CURRENT_CHANNELED_SPELL])
-                {
-                    // same spell
-                    if (AurSpellInfo == caster->m_currentSpells[CURRENT_CHANNELED_SPELL]->m_spellInfo
-                    //prevent recurential call
-                    && caster->m_currentSpells[CURRENT_CHANNELED_SPELL]->getState() != SPELL_STATE_FINISHED)
-                    {
-                        if (caster==this || !IsAreaOfEffectSpell(AurSpellInfo))
-                        {
-                            // remove auras only for non-aoe spells or when chanelled aura is removed
-                            // because aoe spells don't require aura on target to continue
-                            caster->m_currentSpells[CURRENT_CHANNELED_SPELL]->cancel();
-                        }
-
-                        if(caster->GetTypeId()==TYPEID_UNIT && ((Creature*)caster)->isTotem() && ((Totem*)caster)->GetTotemType()==TOTEM_STATUE)
-                            statue = ((Totem*)caster);
-                    }
-                }
-
-                // Unsummon summon as possessed creatures on spell cancel
-                if(caster->GetTypeId() == TYPEID_PLAYER)
-                {
-                    for(int i = 0; i < 3; ++i)
-                    {
-                        if(AurSpellInfo->Effect[i] == SPELL_EFFECT_SUMMON)
-                            if(SummonPropertiesEntry const *SummonProperties = sSummonPropertiesStore.LookupEntry(AurSpellInfo->EffectMiscValueB[i]))
-                                if(SummonProperties->Category == SUMMON_CATEGORY_POSSESSED)
-                                {
-                                    ((Player*)caster)->StopCastingCharm();
-                                    break;
-                                }
-                    }
-                }
-            }
-        }
-        if(statue)
-        {
-            sLog.outDebug("Statue %d is unsummoned by aura %d delete from unit %d", statue->GetGUIDLow(), Aur->GetId(),GetGUIDLow());
-            statue->UnSummon();
-        }
-
         sLog.outDebug("Aura %d is deleted from unit %d", Aur->GetId(), GetGUIDLow());
         m_removedAuras.pop_front();
         delete (Aur);
