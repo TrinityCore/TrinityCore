@@ -96,7 +96,7 @@ void WorldSession::HandleGossipSelectOptionOpcode( WorldPacket & recv_data )
     GameObject *go = NULL;
     if(IS_CREATURE_GUID(guid))
     {
-        unit = ObjectAccessor::GetNPCIfCanInteractWith(*_player, guid, UNIT_NPC_FLAG_NONE);
+        unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_NONE);
         if (!unit)
         {
             sLog.outDebug( "WORLD: HandleGossipSelectOptionOpcode - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(guid)) );
