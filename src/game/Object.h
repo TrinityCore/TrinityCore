@@ -439,8 +439,10 @@ class TRINITY_DLL_SPEC WorldObject : public Object
 
         void GetRandomPoint( float x, float y, float z, float distance, float &rand_x, float &rand_y, float &rand_z ) const;
 
-        void SetMapId(uint32 newMap) { m_mapId = newMap; }
+        void SetMapId(uint32 newMap) { m_mapId = newMap; m_map = NULL; }
         uint32 GetMapId() const { return m_mapId; }
+        void SetInstanceId(uint32 val) { m_InstanceId = val; m_map = NULL; }
+        uint32 GetInstanceId() const { return m_InstanceId; }
 
         virtual void SetPhaseMask(uint32 newPhaseMask, bool update);
         uint32 GetPhaseMask() const { return m_phaseMask; }
@@ -502,9 +504,6 @@ class TRINITY_DLL_SPEC WorldObject : public Object
 
         virtual void SaveRespawnTime() {}
 
-        uint32 GetInstanceId() const { return m_InstanceId; }
-        void SetInstanceId(uint32 val) { m_InstanceId = val; }
-
         void AddObjectToRemoveList();
 
         // main visibility check function in normal case (ignore grey zone distance check)
@@ -540,6 +539,7 @@ class TRINITY_DLL_SPEC WorldObject : public Object
         uint32 m_mapId;                                     // object at map with map_id
         uint32 m_InstanceId;                                // in map copy with instance id
         uint32 m_phaseMask;                                 // in area phase state
+        Map    *m_map;
 
         float m_positionX;
         float m_positionY;
