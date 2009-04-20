@@ -4019,7 +4019,6 @@ void AuraEffect::HandleAuraModDecreaseSpeed(bool /*apply*/, bool Real)
     if(!Real)
         return;
 
-	//m_target->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
     m_target->UpdateSpeed(MOVE_RUN, true);
     m_target->UpdateSpeed(MOVE_SWIM, true);
     m_target->UpdateSpeed(MOVE_FLIGHT, true);
@@ -5093,28 +5092,6 @@ void AuraEffect::HandleRangedAmmoHaste(bool apply, bool Real)
 void AuraEffect::HandleAuraModAttackPower(bool apply, bool Real)
 {
     m_target->HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, float(m_amount), apply);
-	if(apply)
-	switch(m_spellProto->Id){
-	    // Warrior & Druid Demoshout should remove stealth
-	    case 1160:
-		case 6190:
-		case 11554:
-		case 11555:
-		case 11556:
-		case 25202:
-		case 25203:
-		case 47437:  //WotLK spell
-	    case 99:
-		case 1735:
-		case 9490:
-		case 9747:
-		case 9898:
-		case 26998:
-		case 48559:  //WotLK spell
-		case 48560:  //WotLK spell
-	        m_target->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
-		    break;
-	}
 }
 
 void AuraEffect::HandleAuraModRangedAttackPower(bool apply, bool Real)
