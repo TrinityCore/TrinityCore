@@ -57,11 +57,8 @@ class TRINITY_DLL_SPEC Aura
         uint64 GetCastItemGUID() const { return m_castItemGuid; }
 
         uint64 const& GetCasterGUID() const { return m_caster_guid; }
-        uint64 const& GetFormalCasterGUID() const { return m_formalCasterGUID; }
         Unit* GetCaster() const;
-        Unit* GetFormalCaster() const;
         Unit* GetTarget() const { return m_target; }
-
         time_t GetAuraApplyTime() const { return m_applyTime; }
 
         int32 GetAuraMaxDuration() const { return m_maxduration; }
@@ -136,7 +133,6 @@ class TRINITY_DLL_SPEC Aura
         SpellEntry const *m_spellProto;
         Unit * const m_target;
         uint64 m_caster_guid;
-        uint64 m_formalCasterGUID;                          // used for check range
         uint64 m_castItemGuid;                              // it is NOT safe to keep a pointer to the item because it may get deleted
         time_t m_applyTime;
 
@@ -333,7 +329,6 @@ class TRINITY_DLL_SPEC AuraEffect
 
         inline Unit * GetCaster() const{ return m_parentAura->GetCaster(); }
         inline uint64 GetCasterGUID() const{ return m_parentAura->GetCasterGUID(); }
-        inline uint64 GetFormalCasterGUID() const { return m_parentAura->GetFormalCasterGUID(); }
         Aura * GetParentAura() const { return m_parentAura; }
 
         SpellEntry const* GetSpellProto() const { return m_spellProto; }
@@ -394,11 +389,13 @@ class TRINITY_DLL_SPEC AreaAuraEffect : public AuraEffect
     public:
         AreaAuraEffect(Aura * parentAura, uint32 effIndex, int32 * currentBasePoints, Unit * caster=NULL, Item * castItem=NULL, Unit * formalCaster=NULL);
         ~AreaAuraEffect();
+        Unit* GetFormalCaster() const;
         void Update(uint32 diff);
     private:
         float m_radius;
         int32 m_removeTime;
         AreaAuraType m_areaAuraType;
+        uint64 m_formalCasterGUID;                          // used for check range
 };
 
 class TRINITY_DLL_SPEC PersistentAreaAuraEffect : public AuraEffect
