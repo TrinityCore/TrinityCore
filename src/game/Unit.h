@@ -347,7 +347,7 @@ enum DamageTypeToSchool
 
 enum AuraRemoveMode
 {
-    AURA_REMOVE_BY_DEFAULT,
+    AURA_REMOVE_BY_DEFAULT=0,
     AURA_REMOVE_BY_STACK,               // change stack, single aura remove,
     AURA_REMOVE_BY_CANCEL,
     AURA_REMOVE_BY_ENEMY_SPELL,              // dispel and absorb aura destroy

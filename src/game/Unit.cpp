@@ -6097,7 +6097,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 // Improved fire nova totem
                 case 16544:
                 {
-                    triggered_spell_id = 16086;
+                    triggered_spell_id = 51880;
                     break;
                 }
                 // Tidal Force
