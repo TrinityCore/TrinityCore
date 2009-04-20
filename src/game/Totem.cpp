@@ -142,15 +142,12 @@ void Totem::UnSummon()
     AddObjectToRemoveList();
 }
 
-void Totem::SetOwner(uint64 guid)
+void Totem::SetOwner(Unit *owner)
 {
-    SetCreatorGUID(guid);
-    SetOwnerGUID(guid);
-    if (Unit *owner = GetOwner())
-    {
-        this->setFaction(owner->getFaction());
-        this->SetLevel(owner->getLevel());
-    }
+    SetCreatorGUID(owner->GetGUID());
+    TempSummon::SetOwner(owner, true);
+    setFaction(owner->getFaction());
+    SetLevel(owner->getLevel());
 }
 
 Unit *Totem::GetOwner()

@@ -244,14 +244,38 @@ void TempSummon::RemoveFromWorld()
         }
     }
 
-    if(GetOwnerGUID())
-        sLog.outError("Unit %u has owner guid when removed from world", GetEntry());
+    //if(GetOwnerGUID())
+    //    sLog.outError("Unit %u has owner guid when removed from world", GetEntry());
 
     Creature::RemoveFromWorld();
 }
 
 void TempSummon::SaveToDB()
 {
+}
+
+bool TempSummon::SetOwner(Unit *owner, bool apply)
+{
+    if(apply)
+    {
+        if(!AddUInt64Value(UNIT_FIELD_SUMMONEDBY, owner->GetGUID()))
+        {
+            sLog.outCrash("Unit %u is summoned by %u but it already has a owner", GetEntry(), owner->GetEntry());
+            return false;
+        }
+        if(owner->GetTypeId() == TYPEID_PLAYER)
+            m_ControlledByPlayer = true;
+    }
+    else
+    {
+        if(!RemoveUInt64Value(UNIT_FIELD_SUMMONEDBY, owner->GetGUID()))
+        {
+            sLog.outCrash("Unit %u is unsummoned by %u but it has another owner", GetEntry(), owner->GetEntry());
+            return false;
+        }
+    }
+
+    return true;
 }
 
 Guardian::Guardian(SummonPropertiesEntry const *properties, Unit *owner) : TempSummon(properties, owner)
