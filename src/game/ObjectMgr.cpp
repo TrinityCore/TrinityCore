@@ -6974,7 +6974,7 @@ bool PlayerCondition::Meets(Player const * player) const
         case CONDITION_NONE:
             return true;                                    // empty condition, always met
         case CONDITION_AURA:
-            return player->HasAura(value1, value2);
+            return player->HasAuraEffect(value1, value2);
         case CONDITION_ITEM:
             return player->HasItemCount(value1, value2);
         case CONDITION_ITEM_EQUIPPED:
@@ -7006,7 +7006,7 @@ bool PlayerCondition::Meets(Player const * player) const
             return false;
         }
         case CONDITION_NO_AURA:
-            return !player->HasAura(value1, value2);
+            return !player->HasAuraEffect(value1, value2);
         case CONDITION_ACTIVE_EVENT:
             return gameeventmgr.IsActiveEvent(value1);
         case CONDITION_INSTANCE_DATA:

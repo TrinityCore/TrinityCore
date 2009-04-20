@@ -1147,7 +1147,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
     if (aura_effmask)
     {
         Unit * caster =  m_originalCaster ? m_originalCaster : m_caster;
-        Aura * Aur= new Aura(m_spellInfo, aura_effmask, &m_currentBasePoints[0], unit, caster , m_CastItem);
+        Aura * Aur= new Aura(m_spellInfo, aura_effmask, &m_currentBasePoints[0], unit, caster , m_CastItem, m_caster);
 
         if (!Aur->IsAreaAura())
         {
@@ -1514,12 +1514,13 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
             unMaxTargets+=(*j)->GetAmount();
     }
 
-    if(Player* modOwner = m_caster->GetSpellModOwner())
-    {
-        modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RADIUS, radius_f,this);
-        modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RADIUS, radius_h,this);
-        modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_JUMP_TARGETS, EffectChainTarget, this);
-    }
+    if(m_originalCaster)
+        if (Player* modOwner = m_caster->GetSpellModOwner())
+        {
+            modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RADIUS, radius_f,this);
+            modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RADIUS, radius_h,this);
+            modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_JUMP_TARGETS, EffectChainTarget, this);
+        }
 
     if(EffectChainTarget > 1)
     {

@@ -3203,7 +3203,7 @@ void Unit::_DeleteAuras()
         Totem* statue = NULL;
         if(Aur->GetAuraDuration() && !Aur->IsPersistent() && IsChanneledSpell(Aur->GetSpellProto()))
         {
-            Unit* caster = Aur->GetCaster();
+            Unit* caster = Aur->GetFormalCaster();
             if(caster && caster->isAlive())
             {
                 // stop caster chanelling state
