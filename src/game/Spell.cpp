@@ -909,7 +909,6 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
     uint32 procAttacker = m_procAttacker;
     uint32 procVictim   = m_procVictim;
     uint32 procEx       = m_triggeredByAuraSpell && !(m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_TRIGGERED_CAN_TRIGGER) ? PROC_EX_INTERNAL_TRIGGERED : PROC_EX_NONE;
-    sLog.outError("%d, %d, %d",m_procAttacker, m_procVictim, procEx);
     m_spellAura = NULL; // Set aura to null for every target-make sure that pointer is not used for unit without aura applied
 
     if (missInfo==SPELL_MISS_NONE)                          // In case spell hit target, do all effect on that target
@@ -1515,14 +1514,11 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
             unMaxTargets+=(*j)->GetAmount();
     }
 
-    if(m_originalCaster)
+    if(Player* modOwner = m_caster->GetSpellModOwner())
     {
-        if(Player* modOwner = m_originalCaster->GetSpellModOwner())
-        {
-            modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RADIUS, radius_f,this);
-            modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RADIUS, radius_h,this);
-            modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_JUMP_TARGETS, EffectChainTarget, this);
-        }
+        modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RADIUS, radius_f,this);
+        modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RADIUS, radius_h,this);
+        modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_JUMP_TARGETS, EffectChainTarget, this);
     }
 
     if(EffectChainTarget > 1)
