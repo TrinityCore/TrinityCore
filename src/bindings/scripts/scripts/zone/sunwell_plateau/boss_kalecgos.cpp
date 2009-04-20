@@ -335,7 +335,7 @@ struct TRINITY_DLL_DECL boss_sathrovarrAI : public ScriptedAI
         Map::PlayerList::const_iterator i;
         for(i = PlayerList.begin(); i != PlayerList.end(); ++i)
             if(Player* i_pl = i->getSource())
-                if(i_pl->HasAura(AURA_SPECTRAL_REALM,0))
+                if(i_pl->HasAura(AURA_SPECTRAL_REALM))
                     i_pl->RemoveAurasDueToSpell(AURA_SPECTRAL_REALM);
     }
 
