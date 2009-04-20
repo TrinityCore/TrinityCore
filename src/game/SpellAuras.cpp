@@ -744,7 +744,25 @@ void AreaAuraEffect::Update(uint32 diff)
 
             for(std::list<Unit *>::iterator tIter = targets.begin(); tIter != targets.end(); tIter++)
             {
-                if((*tIter)->HasAuraEffect(GetId(), GetEffIndex(), caster->GetGUID()))
+                bool skip=false;
+                for(Unit::AuraMap::iterator iter = (*tIter)->GetAuras().begin(); iter != (*tIter)->GetAuras().end();++iter)
+                {
+                    bool samecaster = iter->second->GetCasterGUID() == GetCasterGUID();
+                    if (samecaster && iter->first == GetId())
+                    {
+                        if (AuraEffect * aurEff = iter->second->GetPartAura(m_effIndex))
+                        {
+                            skip=true;
+                        }
+                        break;
+                    }
+                    if (spellmgr.IsNoStackSpellDueToSpell(GetId(), iter->first,samecaster))
+                    {
+                        skip=true;
+                        break;
+                    }
+                }
+                if(skip)
                     continue;
 
                 if(SpellEntry const *actualSpellInfo = spellmgr.SelectAuraRankForPlayerLevel(GetSpellProto(), (*tIter)->getLevel()))
