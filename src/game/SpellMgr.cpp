@@ -2536,7 +2536,8 @@ void SpellMgr::LoadPetLevelupSpellMap()
                 // not exist or triggered or talent
                 if(!spell || !spell->spellLevel || GetTalentSpellPos(spell->Id))
                     continue;
-                if (!spell->SpellFamilyFlags && spell->SpellIconID!=2310 && (!spell->RecoveryTime || !spell->StartRecoveryCategory))
+                // TODO: some spells have no spellfamilyflag but should be learned
+                if (!spell->SpellFamilyFlags)
                     continue;
                 mPetLevelupSpellMap.insert(PetLevelupSpellMap::value_type(creatureFamily->ID, std::make_pair(spell->spellLevel , spell->Id )));
                 count++;
