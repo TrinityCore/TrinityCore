@@ -1617,7 +1617,7 @@ void CreatureEventAI::ReceiveEmote(Player* pPlayer, uint32 text_emote)
                     bProcess = true;
                     break;
                 case CONDITION_AURA:                        // spell_id     effindex
-                    if (pPlayer->HasAura((*itr).Event.event_param3,(*itr).Event.event_param4))
+                    if (pPlayer->HasAuraEffect((*itr).Event.event_param3,(*itr).Event.event_param4))
                         bProcess = true;
                     break;
                 case CONDITION_ITEM:                        // item_id      count

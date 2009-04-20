@@ -718,7 +718,7 @@ struct mob_abominationAI : public hyjal_trashAI
                 }            
             }
         }
-        if(!m_creature->HasAura(SPELL_DISEASE_CLOUD,0))
+        if(!m_creature->HasAura(SPELL_DISEASE_CLOUD))
             DoCast(m_creature,SPELL_DISEASE_CLOUD);
         if (!UpdateVictim())
             return;

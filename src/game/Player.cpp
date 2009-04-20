@@ -1852,7 +1852,7 @@ void Player::RewardRage( uint32 damage, uint32 weaponSpeedHitFactor, bool attack
         addRage = damage/rageconversion*2.5;
 
         // Berserker Rage effect
-        if(HasAura(18499,0))
+        if(HasAura(18499))
             addRage *= 1.3;
     }
 
@@ -17985,7 +17985,7 @@ void Player::ReportedAfkBy(Player* reporter)
         return;
 
     // check if player has 'Idle' or 'Inactive' debuff
-    if(m_bgAfkReporter.find(reporter->GetGUIDLow())==m_bgAfkReporter.end() && !HasAura(43680,0) && !HasAura(43681,0) && reporter->CanReportAfkDueToLimit())
+    if(m_bgAfkReporter.find(reporter->GetGUIDLow())==m_bgAfkReporter.end() && !HasAura(43680) && !HasAura(43681) && reporter->CanReportAfkDueToLimit())
     {
         m_bgAfkReporter.insert(reporter->GetGUIDLow());
         // 3 players have to complain to apply debuff

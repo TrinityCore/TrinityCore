@@ -194,7 +194,7 @@ bool AchievementCriteriaData::Meets(Player const* source, Unit const* target) co
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_PLAYER_DEAD:
             return target && target->GetTypeId() == TYPEID_PLAYER && !target->isAlive() && ((Player*)target)->GetDeathTimer() != 0;
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_AURA:
-            return source->HasAura(aura.spell_id,aura.effect_idx);
+            return source->HasAuraEffect(aura.spell_id,aura.effect_idx);
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_AREA:
         {
             uint32 zone_id,area_id;
@@ -202,7 +202,7 @@ bool AchievementCriteriaData::Meets(Player const* source, Unit const* target) co
             return area.id==zone_id || area.id==area_id;
         }
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_AURA:
-            return target && target->HasAura(aura.spell_id,aura.effect_idx);
+            return target && target->HasAuraEffect(aura.spell_id,aura.effect_idx);
     }
 
     return false;

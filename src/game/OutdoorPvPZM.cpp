@@ -279,7 +279,7 @@ int32 OutdoorPvPObjectiveZM_GraveYard::HandleOpenGo(Player *plr, uint64 guid)
     uint32 retval = OutdoorPvPObjective::HandleOpenGo(plr, guid);
     if(retval>=0)
     {
-        if(plr->HasAura(ZM_BATTLE_STANDARD_A,0) && m_GraveYardState != ZM_GRAVEYARD_A)
+        if(plr->HasAura(ZM_BATTLE_STANDARD_A) && m_GraveYardState != ZM_GRAVEYARD_A)
         {
             if(m_GraveYardState == ZM_GRAVEYARD_H)
                 sWorld.SendZoneText(ZM_GRAVEYARD_ZONE,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_ZM_LOOSE_GY_H));
@@ -292,7 +292,7 @@ int32 OutdoorPvPObjectiveZM_GraveYard::HandleOpenGo(Player *plr, uint64 guid)
             plr->RemoveAurasDueToSpell(ZM_BATTLE_STANDARD_A);
             sWorld.SendZoneText(ZM_GRAVEYARD_ZONE,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_ZM_CAPTURE_GY_A));
         }
-        else if(plr->HasAura(ZM_BATTLE_STANDARD_H,0) && m_GraveYardState != ZM_GRAVEYARD_H)
+        else if(plr->HasAura(ZM_BATTLE_STANDARD_H) && m_GraveYardState != ZM_GRAVEYARD_H)
         {
             if(m_GraveYardState == ZM_GRAVEYARD_A)
                 sWorld.SendZoneText(ZM_GRAVEYARD_ZONE,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_ZM_LOOSE_GY_A));
