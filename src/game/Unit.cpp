@@ -4252,7 +4252,7 @@ void Unit::RemoveDynObject(uint32 spellid)
         return;
     for (DynObjectGUIDs::iterator i = m_dynObjGUIDs.begin(); i != m_dynObjGUIDs.end();)
     {
-        DynamicObject* dynObj = ObjectAccessor::GetDynamicObject(*this, *i);
+        DynamicObject* dynObj = GetMap()->GetDynamicObject(*i);
         if(!dynObj) // may happen if a dynobj is removed when grid unload
         {
             i = m_dynObjGUIDs.erase(i);
@@ -4271,7 +4271,7 @@ void Unit::RemoveAllDynObjects()
 {
     while(!m_dynObjGUIDs.empty())
     {
-        DynamicObject* dynObj = ObjectAccessor::GetDynamicObject(*this,*m_dynObjGUIDs.begin());
+        DynamicObject* dynObj = GetMap()->GetDynamicObject(*m_dynObjGUIDs.begin());
         if(dynObj)
             dynObj->Delete();
         m_dynObjGUIDs.erase(m_dynObjGUIDs.begin());
@@ -4282,7 +4282,7 @@ DynamicObject * Unit::GetDynObject(uint32 spellId, uint32 effIndex)
 {
     for (DynObjectGUIDs::iterator i = m_dynObjGUIDs.begin(); i != m_dynObjGUIDs.end();)
     {
-        DynamicObject* dynObj = ObjectAccessor::GetDynamicObject(*this, *i);
+        DynamicObject* dynObj = GetMap()->GetDynamicObject(*i);
         if(!dynObj)
         {
             i = m_dynObjGUIDs.erase(i);
@@ -4300,7 +4300,7 @@ DynamicObject * Unit::GetDynObject(uint32 spellId)
 {
     for (DynObjectGUIDs::iterator i = m_dynObjGUIDs.begin(); i != m_dynObjGUIDs.end();)
     {
-        DynamicObject* dynObj = ObjectAccessor::GetDynamicObject(*this, *i);
+        DynamicObject* dynObj = GetMap()->GetDynamicObject(*i);
         if(!dynObj)
         {
             i = m_dynObjGUIDs.erase(i);
@@ -7875,7 +7875,7 @@ bool Unit::isAttackingPlayer() const
 
     for(int8 i = 0; i < MAX_SUMMON_SLOT; ++i)
         if(m_SummonSlot[i])
-            if(Creature *summon = ObjectAccessor::GetCreature(*this, m_SummonSlot[i]))
+            if(Creature *summon = GetMap()->GetCreature(m_SummonSlot[i]))
                 if(summon->isAttackingPlayer())
                     return true;
 
@@ -8314,7 +8314,7 @@ void Unit::UnsummonAllTotems()
         if(!m_SummonSlot[i])
             continue;
 
-        Creature *OldTotem = ObjectAccessor::GetCreature(*this, m_SummonSlot[i]);
+        Creature *OldTotem = GetMap()->GetCreature(m_SummonSlot[i]);
         if(OldTotem && OldTotem->isSummon())
             ((TempSummon*)OldTotem)->UnSummon();
     }
@@ -10726,7 +10726,7 @@ Player* Unit::GetPlayer(uint64 guid)
 
 Creature* Unit::GetCreature(WorldObject& object, uint64 guid)
 {
-    return ObjectAccessor::GetCreature(object, guid);
+    return object.GetMap()->GetCreature(guid);
 }
 
 bool Unit::isVisibleForInState( Player const* u, bool inVisibleList ) const
@@ -13406,7 +13406,7 @@ void Unit::SetPhaseMask(uint32 newPhaseMask, bool update)
 
     for(int8 i = 0; i < MAX_SUMMON_SLOT; ++i)
         if(m_SummonSlot[i])
-            if(Creature *summon = ObjectAccessor::GetCreature(*this, m_SummonSlot[i]))
+            if(Creature *summon = GetMap()->GetCreature(m_SummonSlot[i]))
                 summon->SetPhaseMask(newPhaseMask,true);
 }
 

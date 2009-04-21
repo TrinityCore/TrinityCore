@@ -169,7 +169,7 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
                         if(ArchiYell)break;
                         ArchiYell = true;
 
-                        Creature* pCreature = instance->GetCreatureInMap(Azgalor);
+                        Creature* pCreature = instance->GetCreature(Azgalor);
                         if(pCreature)
                         {                    
                             Creature* pUnit = pCreature->SummonCreature(21987,pCreature->GetPositionX(),pCreature->GetPositionY(),pCreature->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,10000);

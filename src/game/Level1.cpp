@@ -107,7 +107,7 @@ bool ChatHandler::HandleNpcWhisperCommand(const char* args)
     char* text = strtok(NULL, "");
 
     uint64 guid = m_session->GetPlayer()->GetSelection();
-    Creature* pCreature = ObjectAccessor::GetCreature(*m_session->GetPlayer(), guid);
+    Creature* pCreature = m_session->GetPlayer()->GetMap()->GetCreature(guid);
 
     if(!pCreature || !receiver_str || !text)
     {
