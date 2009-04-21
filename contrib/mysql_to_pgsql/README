@@ -1,0 +1,14 @@
+Using cmake on a Windows
+------------------
+    1. install cmake (http://www.cmake.org/cmake/resources/software.html)
+    2. cmake -i
+    3. Project.sln
+    4. {Debug/Release}/mysql2pgsql.exe
+
+Using cmake on a Unix/Linux
+------------------
+    1. install cmake
+    2. cmake -i
+    3. make
+    4. ./mysql2pgsql
+
