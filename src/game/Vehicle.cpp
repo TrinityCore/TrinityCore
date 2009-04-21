@@ -60,7 +60,15 @@ void Vehicle::RemoveFromWorld()
 void Vehicle::setDeathState(DeathState s)                       // overwrite virtual Creature::setDeathState and Unit::setDeathState
 {
     if(s == JUST_DIED)
+    {
+        for(SeatMap::iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
+        {
+            if(Unit *passenger = itr->second.passenger)
+                if(passenger->GetTypeId() == TYPEID_UNIT && ((Creature*)passenger)->isVehicle())
+                    ((Vehicle*)passenger)->setDeathState(s);
+        }
         RemoveAllPassengers();
+    }
     Creature::setDeathState(s);
 }
 
@@ -100,9 +108,11 @@ bool Vehicle::Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, u
 void Vehicle::RemoveAllPassengers()
 {
     for(SeatMap::iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
-        if(itr->second.passenger)
+        if(Unit *passenger = itr->second.passenger)
         {
-            itr->second.passenger->ExitVehicle();
+            if(passenger->GetTypeId() == TYPEID_UNIT && ((Creature*)passenger)->isVehicle())
+                ((Vehicle*)passenger)->RemoveAllPassengers();
+            passenger->ExitVehicle();
             assert(!itr->second.passenger);
         }
 }
@@ -130,6 +140,21 @@ void Vehicle::SetVehicleId(uint32 id)
     }
 
     assert(!m_Seats.empty());
+}
+
+Vehicle* Vehicle::HasEmptySeat(int8 seatNum) const
+{
+    SeatMap::const_iterator seat = m_Seats.find(seatNum);
+    //No such seat
+    if(seat == m_Seats.end()) return NULL;
+    //Not occupied
+    if(!seat->second.passenger) return (Vehicle*)this;
+    //Check if turret is empty
+    if(seat->second.passenger->GetTypeId() == TYPEID_UNIT
+        && ((Creature*)seat->second.passenger)->isVehicle())
+        return ((Vehicle*)seat->second.passenger)->HasEmptySeat(seatNum);
+    //Occupied
+    return NULL;
 }
 
 bool Vehicle::AddPassenger(Unit *unit, int8 seatNum)
@@ -236,6 +261,12 @@ void Vehicle::RemovePassenger(Unit *unit)
 
 void Vehicle::Dismiss()
 {
+    for(SeatMap::iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
+    {
+        if(Unit *passenger = itr->second.passenger)
+            if(passenger->GetTypeId() == TYPEID_UNIT && ((Creature*)passenger)->isVehicle())
+                ((Vehicle*)passenger)->Dismiss();
+    }
     RemoveAllPassengers();
     SendObjectDeSpawnAnim(GetGUID());
     CombatStop();

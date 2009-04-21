@@ -500,11 +500,13 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket &recv_data)
     if(seat == GetPlayer()->GetTransSeat())
         return;
 
-    if(Vehicle *vehicle = GetPlayer()->m_Vehicle)
+    if(GetPlayer()->m_Vehicle)
     {
-        if(vehicle->HasEmptySeat(seat))
+        if(Vehicle *vehicle = GetPlayer()->m_Vehicle->HasEmptySeat(seat))
         {
-            vehicle->RemovePassenger(GetPlayer());
+            GetPlayer()->m_Vehicle->RemovePassenger(GetPlayer());
+            //If the player is going to a turret, the vehicle should be changed
+            GetPlayer()->m_Vehicle = vehicle;
             if(!vehicle->AddPassenger(GetPlayer(), seat))
             {
                 assert(false);
