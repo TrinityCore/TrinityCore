@@ -261,12 +261,6 @@ void Object::DestroyForPlayer(Player *target) const
 
 void Object::_BuildMovementUpdate(ByteBuffer * data, uint8 flags, uint32 flags2) const
 {
-    uint16 unk_flags = ((GetTypeId() == TYPEID_PLAYER) ? ((Player*)this)->m_movementInfo.unk1 : 0);
-
-    if(GetTypeId() == TYPEID_UNIT)
-        if(((Creature*)this)->isVehicle())
-            unk_flags |= 0x20;                              // always allow pitch
-
     *data << (uint8)flags;                                  // update flags
 
     // 0x20
@@ -282,6 +276,8 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint8 flags, uint32 flags2)
                 else
                     flags2 &= ~MOVEMENTFLAG_ONTRANSPORT;
                 flags2 &= ~MOVEMENTFLAG_SPLINE2;
+                if(((Creature*)this)->isVehicle())
+                    ((Unit*)this)->m_movementInfo.unk1 |= 0x20;     // always allow pitch
             }
             break;
             case TYPEID_PLAYER:
@@ -306,7 +302,7 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint8 flags, uint32 flags2)
         }
 
         *data << uint32(flags2);                            // movement flags
-        *data << uint16(unk_flags);                         // unknown 2.3.0
+        *data << uint16(((Unit*)this)->m_movementInfo.unk1);// unknown 2.3.0
         *data << uint32(getMSTime());                       // time (in milliseconds)
     }
 
@@ -333,62 +329,7 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint8 flags, uint32 flags2)
     // 0x20
     if(flags & UPDATEFLAG_LIVING)
     {
-        // 0x00000200
-        if(flags2 & MOVEMENTFLAG_ONTRANSPORT)
-        {
-            if(((Unit*)this)->m_Vehicle)
-                *data << (uint64)((Unit*)this)->m_Vehicle->GetGUID();
-            else
-                *data << (uint64)((Player*)this)->GetTransport()->GetGUID();
-            *data << (float)((Unit*)this)->GetTransOffsetX();
-            *data << (float)((Unit*)this)->GetTransOffsetY();
-            *data << (float)((Unit*)this)->GetTransOffsetZ();
-            *data << (float)((Unit*)this)->GetTransOffsetO();
-            *data << (uint32)((Unit*)this)->GetTransTime();
-            *data << (int8)((Unit*)this)->GetTransSeat();
-        }
-
-        // 0x02200000
-        if((flags2 & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING2)) || (unk_flags & 0x20))
-        {
-            if(GetTypeId() == TYPEID_PLAYER)
-                *data << (float)((Player*)this)->m_movementInfo.s_pitch;
-            else
-                *data << (float)0;                          // is't part of movement packet, we must store and send it...
-        }
-
-        if(GetTypeId() == TYPEID_PLAYER)
-            *data << (uint32)((Player*)this)->m_movementInfo.fallTime;
-        else
-            *data << (uint32)0;                             // last fall time
-
-        // 0x00001000
-        if(flags2 & MOVEMENTFLAG_JUMPING)
-        {
-            if(GetTypeId() == TYPEID_PLAYER)
-            {
-                *data << (float)((Player*)this)->m_movementInfo.j_unk;
-                *data << (float)((Player*)this)->m_movementInfo.j_sinAngle;
-                *data << (float)((Player*)this)->m_movementInfo.j_cosAngle;
-                *data << (float)((Player*)this)->m_movementInfo.j_xyspeed;
-            }
-            else
-            {
-                *data << (float)0;
-                *data << (float)0;
-                *data << (float)0;
-                *data << (float)0;
-            }
-        }
-
-        // 0x04000000
-        if(flags2 & MOVEMENTFLAG_SPLINE)
-        {
-            if(GetTypeId() == TYPEID_PLAYER)
-                *data << (float)((Player*)this)->m_movementInfo.u_unk1;
-            else
-                *data << (float)0;
-        }
+        ((Unit*)this)->BuildMovementPacket(data);
 
         *data << ((Unit*)this)->GetSpeed( MOVE_WALK );
         *data << ((Unit*)this)->GetSpeed( MOVE_RUN );
@@ -1612,18 +1553,8 @@ void WorldObject::BuildHeartBeatMsg(WorldPacket *data) const
     *data << m_positionY;
     *data << m_positionZ;
     *data << m_orientation;
-    if(((Unit*)this)->m_Vehicle)
-    {
-        *data << uint64(((Unit*)this)->m_Vehicle->GetGUID());
-        *data << float (((Unit*)this)->GetTransOffsetX());
-        *data << float (((Unit*)this)->GetTransOffsetY());
-        *data << float (((Unit*)this)->GetTransOffsetZ());
-        *data << float (((Unit*)this)->GetTransOffsetO());
-        *data << uint32(((Unit*)this)->GetTransTime());
-        *data << uint8 (((Unit*)this)->GetTransSeat());
-        sLog.outError("heart seat is %u", ((Unit*)this)->GetTransTime());
-    }
-    *data << uint32(0); //fall time
+
+    ((Unit*)this)->BuildMovementPacket(data);
 }
 
 void WorldObject::BuildTeleportAckMsg(WorldPacket *data, float x, float y, float z, float ang) const
@@ -1642,18 +1573,8 @@ void WorldObject::BuildTeleportAckMsg(WorldPacket *data, float x, float y, float
     *data << y;
     *data << z;
     *data << ang;
-    if(((Unit*)this)->m_Vehicle)
-    {
-        *data << uint64(((Unit*)this)->m_Vehicle->GetGUID());
-        *data << float (((Unit*)this)->GetTransOffsetX());
-        *data << float (((Unit*)this)->GetTransOffsetY());
-        *data << float (((Unit*)this)->GetTransOffsetZ());
-        *data << float (((Unit*)this)->GetTransOffsetO());
-        *data << uint32(((Unit*)this)->GetTransTime());
-        *data << uint8 (((Unit*)this)->GetTransSeat());
-        sLog.outError("seat is %u", ((Unit*)this)->GetTransTime());
-    }
-    *data << uint32(0);
+
+    ((Unit*)this)->BuildMovementPacket(data);
 }
 
 void WorldObject::SendMessageToSet(WorldPacket *data, bool /*fake*/, bool bToPossessor)
