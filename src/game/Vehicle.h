@@ -52,12 +52,7 @@ class Vehicle : public Creature
         VehicleEntry const *GetVehicleInfo() { return m_vehicleInfo; }
         void SetVehicleId(uint32 vehicleid);
 
-        bool HasEmptySeat(int8 seatNum) const
-        {
-            SeatMap::const_iterator seat = m_Seats.find(seatNum);
-            if(seat == m_Seats.end()) return false;
-            return !seat->second.passenger;
-        }
+        Vehicle* HasEmptySeat(int8 seatNum) const;
         bool AddPassenger(Unit *passenger, int8 seatNum = -1);
         void RemovePassenger(Unit *passenger);
         void Dismiss();
