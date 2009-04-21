@@ -911,11 +911,21 @@ Map::CreatureRelocation(Creature *creature, float x, float y, float z, float ang
     if(creature->isVehicle())
     {
         for(SeatMap::iterator itr = ((Vehicle*)creature)->m_Seats.begin(); itr != ((Vehicle*)creature)->m_Seats.end(); ++itr)
-            if(itr->second.passenger)
-                if(itr->second.passenger->GetTypeId() == TYPEID_PLAYER)
-                    PlayerRelocation((Player*)itr->second.passenger, x, y, z, ang);
+            if(Unit *passenger = itr->second.passenger)
+            {
+                if(passenger->GetTypeId() == TYPEID_PLAYER)
+                    PlayerRelocation((Player*)passenger,
+                    x + passenger->m_movementInfo.t_x,
+                    y + passenger->m_movementInfo.t_y,
+                    z + passenger->m_movementInfo.t_z,
+                    ang + passenger->m_movementInfo.t_o);
                 else
-                    CreatureRelocation((Creature*)itr->second.passenger, x, y, z, ang);
+                    CreatureRelocation((Creature*)passenger,
+                    x + passenger->m_movementInfo.t_x,
+                    y + passenger->m_movementInfo.t_y,
+                    z + passenger->m_movementInfo.t_z,
+                    ang + passenger->m_movementInfo.t_o);
+            }
     }
 
     assert(CheckGridIntegrity(creature,true));

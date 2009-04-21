@@ -13465,6 +13465,79 @@ void Unit::JumpTo(WorldObject *obj, float speedZ)
     GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ);
 }
 
+void Unit::EnterVehicle(Vehicle *vehicle)
+{
+    if(m_Vehicle)
+        ExitVehicle();
+
+    if(GetTypeId() == TYPEID_PLAYER)
+    {
+        ((Player*)this)->StopCastingCharm();
+        ((Player*)this)->StopCastingBindSight();
+    }
+
+    assert(!m_Vehicle);
+    m_Vehicle = vehicle;
+    if(!m_Vehicle->AddPassenger(this))
+    {
+        m_Vehicle = NULL;
+        return;
+    }
+
+    m_Vehicle->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);
+    m_Vehicle->setFaction(getFaction());
+
+    addUnitState(UNIT_STAT_ONVEHICLE);
+    AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
+    //movementInfo is set in AddPassenger
+    //packets are sent in AddPassenger
+
+    if(GetTypeId() == TYPEID_PLAYER)
+    {
+        ((Player*)this)->SetClientControl(vehicle, 1);
+        WorldPacket data(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
+        ((Player*)this)->GetSession()->SendPacket(&data);
+    }
+}
+
+void Unit::ExitVehicle()
+{
+    if(!m_Vehicle)
+        return;
+
+    m_Vehicle->RemovePassenger(this);
+
+    m_Vehicle->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);
+    //setFaction((GetTeam() == ALLIANCE) ? GetCreatureInfo()->faction_A : GetCreatureInfo()->faction_H);
+
+    clearUnitState(UNIT_STAT_ONVEHICLE);
+    RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
+
+    m_movementInfo.t_x = 0;
+    m_movementInfo.t_y = 0;
+    m_movementInfo.t_z = 0;
+    m_movementInfo.t_o = 0;
+    m_movementInfo.t_time = 0;
+    m_movementInfo.t_seat = 0;
+
+    //Send leave vehicle
+    WorldPacket data;
+    if(GetTypeId() == TYPEID_PLAYER)
+    {
+        ((Player*)this)->SetClientControl(this, 1);
+        ((Player*)this)->BuildTeleportAckMsg(&data, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
+        ((Player*)this)->GetSession()->SendPacket(&data);
+    }
+
+    BuildHeartBeatMsg(&data);
+    SendMessageToSet(&data, GetTypeId() == TYPEID_PLAYER ? false : true);
+
+    if(m_Vehicle->GetOwnerGUID() == GetGUID())
+        m_Vehicle->Dismiss();
+
+    m_Vehicle = NULL;
+}
+
 void Unit::NearTeleportTo( float x, float y, float z, float orientation, bool casting /*= false*/ )
 {
     if(GetTypeId() == TYPEID_PLAYER)

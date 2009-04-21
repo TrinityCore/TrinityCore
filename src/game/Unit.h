@@ -1626,6 +1626,9 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         int8 GetTransSeat()     const { return m_movementInfo.t_seat; }
 
         bool m_ControlledByPlayer;
+
+        void EnterVehicle(Vehicle *vehicle);
+        void ExitVehicle();
     protected:
         explicit Unit ();
 
