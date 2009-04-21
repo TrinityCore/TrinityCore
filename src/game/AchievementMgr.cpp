@@ -965,14 +965,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILLLINE_SPELLS:
             {
-                // spell always provide and at login spell learning.
-                if(!miscvalue1)
-                    continue;
-                // rescan only when change possible
-                SkillLineAbilityMap::const_iterator skillIter0 = spellmgr.GetBeginSkillLineAbilityMap(miscvalue1);
-                if(skillIter0 == spellmgr.GetEndSkillLineAbilityMap(miscvalue1))
-                    continue;
-                if(skillIter0->second->skillId != achievementCriteria->learn_skilline_spell.skillLine)
+                if(miscvalue1 && miscvalue1 != achievementCriteria->learn_skillline_spell.skillLine)
                     continue;
 
                 uint32 spellCount = 0;
@@ -984,7 +977,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                         skillIter != spellmgr.GetEndSkillLineAbilityMap(spellIter->first);
                         ++skillIter)
                     {
-                        if(skillIter->second->skillId == achievementCriteria->learn_skilline_spell.skillLine)
+                        if(skillIter->second->skillId == achievementCriteria->learn_skillline_spell.skillLine)
                             spellCount++;
                     }
                 }
@@ -1017,6 +1010,27 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                     continue;
 
                 SetCriteriaProgress(achievementCriteria, 1, PROGRESS_ACCUMULATE);
+                break;
+            }
+            case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LINE:
+            {
+                if(miscvalue1 && miscvalue1 != achievementCriteria->learn_skill_line.skillLine)
+                    continue;
+
+                uint32 spellCount = 0;
+                for (PlayerSpellMap::const_iterator spellIter = GetPlayer()->GetSpellMap().begin();
+                    spellIter != GetPlayer()->GetSpellMap().end();
+                    ++spellIter)
+                {
+                    for(SkillLineAbilityMap::const_iterator skillIter = spellmgr.GetBeginSkillLineAbilityMap(spellIter->first);
+                        skillIter != spellmgr.GetEndSkillLineAbilityMap(spellIter->first);
+                        ++skillIter)
+                    {
+                        if(skillIter->second->skillId == achievementCriteria->learn_skill_line.skillLine)
+                            spellCount++;
+                    }
+                }
+                SetCriteriaProgress(achievementCriteria, spellCount);
                 break;
             }
             // std case: not exist in DBC, not triggered in code as result
@@ -1069,7 +1083,6 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             case ACHIEVEMENT_CRITERIA_TYPE_QUEST_ABANDONED:
             case ACHIEVEMENT_CRITERIA_TYPE_FLIGHT_PATHS_TAKEN:
             case ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE:
-            case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LINE:
             case ACHIEVEMENT_CRITERIA_TYPE_EARN_HONORABLE_KILL:
             case ACHIEVEMENT_CRITERIA_TYPE_ACCEPTED_SUMMONINGS:
             case ACHIEVEMENT_CRITERIA_TYPE_TOTAL:
@@ -1192,7 +1205,9 @@ bool AchievementMgr::IsCompletedCriteria(AchievementCriteriaEntry const* achieve
         case ACHIEVEMENT_CRITERIA_TYPE_FISH_IN_GAMEOBJECT:
             return progress->counter >= achievementCriteria->fish_in_gameobject.lootCount;
         case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILLLINE_SPELLS:
-            return progress->counter >= achievementCriteria->learn_skilline_spell.spellCount;
+            return progress->counter >= achievementCriteria->learn_skillline_spell.spellCount;
+        case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LINE:
+            return progress->counter >= achievementCriteria->learn_skill_line.spellCount;
 
         // handle all statistic-only criteria here
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND:

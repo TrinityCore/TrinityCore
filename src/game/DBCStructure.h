@@ -422,7 +422,7 @@ struct AchievementCriteriaEntry
         {
             uint32  skillLine;                              // 3
             uint32  spellCount;                             // 4
-        } learn_skilline_spell;
+        } learn_skillline_spell;
 
         // ACHIEVEMENT_CRITERIA_TYPE_WIN_DUEL               = 76
         struct
