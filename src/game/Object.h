@@ -480,8 +480,8 @@ class TRINITY_DLL_SPEC WorldObject : public Object
         // Low Level Packets
         void SendPlaySound(uint32 Sound, bool OnlySelf);
 
-        Map      * GetMap() const;
-        Map      * FindMap() const;
+        Map      * GetMap() const   { return m_map ? m_map : const_cast<WorldObject*>(this)->_getMap(); }
+        Map      * FindMap() const  { return m_map ? m_map : const_cast<WorldObject*>(this)->_findMap(); }
         Map const* GetBaseMap() const;
         Creature* SummonCreature(uint32 id, float x, float y, float z, float ang,TempSummonType spwtype,uint32 despwtime);
         GameObject* SummonGameObject(uint32 entry, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime);
@@ -503,6 +503,9 @@ class TRINITY_DLL_SPEC WorldObject : public Object
         uint32 m_mapId;
         uint32 m_InstanceId;
         Map    *m_map;
+
+        Map* _getMap();
+        Map* _findMap();
 
         float m_positionX;
         float m_positionY;
