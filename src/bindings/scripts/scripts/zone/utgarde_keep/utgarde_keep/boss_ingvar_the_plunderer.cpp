@@ -27,20 +27,14 @@ EndScriptData */
 #include "def_utgarde_keep.h"
 
 //Yells Ingvar
-#define YELL_AGGRO_1                        "I'll paint my face with your blood!"
-#define SOUND_AGGRO_1                       13207
-#define YELL_AGGRO_2                        "I return! A second chance to carve out your skull!"
-#define SOUND_AGGRO_2                       13209
+#define YELL_AGGRO_1                        -1574015
+#define YELL_AGGRO_2                        -1574022
 
-#define YELL_DEAD_1                         "My life for the... death god!"
-#define SOUND_DEAD_1                        13213
-#define YELL_DEAD_2                         "No! I can do... better! I can..."
-#define SOUND_DEAD_2                        13211
+#define YELL_DEAD_1                         -1574017
+#define YELL_DEAD_2                         -1574024
 
-#define YELL_KILL_1                         "Mjul orm agn gjor!"
-#define SOUND_KILL_1                        13212
-#define YELL_KILL_2                         "I am a warriorborn!"
-#define SOUND_KILL_2                        13214
+#define YELL_KILL_1                         -1574023
+#define YELL_KILL_2                         -1574016
 
 //Ingvar Spells human form
 #define MOB_INGVAR_HUMAN                            23954
@@ -92,7 +86,6 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
     uint32 SpawnResTimer;
     uint32 wait_Timer;
 
-
     void Reset()
     {
         if(undead) // Visual Hack
@@ -135,8 +128,7 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
             event_inProgress = true;
             undead = true;
 
-            DoYell(YELL_DEAD_1,LANG_UNIVERSAL,NULL);
-            DoPlaySoundToSet(m_creature,SOUND_DEAD_1);
+            DoScriptText(YELL_DEAD_1,m_creature);
         }
 
         if(event_inProgress)
@@ -153,14 +145,12 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
         m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
         m_creature->AI()->AttackStart(m_creature->getVictim());
 
-        DoYell(YELL_AGGRO_2,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature,SOUND_AGGRO_2);
+        DoScriptText(YELL_AGGRO_2,m_creature);
     }
 
     void Aggro(Unit *who)
     {
-        DoYell(YELL_AGGRO_1,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature,SOUND_AGGRO_1);
+        DoScriptText(YELL_AGGRO_1,m_creature);
 
         if(pInstance)
             pInstance->SetData(DATA_INGVAR_EVENT, IN_PROGRESS);
@@ -168,8 +158,7 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
 
     void JustDied(Unit* killer)
     {
-        DoYell(YELL_DEAD_2,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature,SOUND_DEAD_2);
+        DoScriptText(YELL_DEAD_2,m_creature);
 
         if(pInstance)
             pInstance->SetData(DATA_INGVAR_EVENT, DONE);
@@ -177,16 +166,8 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        if(undead)
-        {
-            DoYell(YELL_KILL_1,LANG_UNIVERSAL,NULL);
-            DoPlaySoundToSet(m_creature,SOUND_KILL_1);
-        }
-        else
-        {
-            DoYell(YELL_KILL_2,LANG_UNIVERSAL,NULL);
-            DoPlaySoundToSet(m_creature,SOUND_KILL_2);
-        }
+        if(undead) { DoScriptText(YELL_KILL_1,m_creature); }
+        else { DoScriptText(YELL_KILL_2,m_creature); }
     }
 
     void UpdateAI(const uint32 diff)
@@ -292,8 +273,7 @@ CreatureAI* GetAI_boss_ingvar_the_plunderer(Creature *_Creature)
     return new boss_ingvar_the_plundererAI (_Creature);
 }
 
-#define YELL_RESSURECT                      "Ingvar! Your pathetic failure will serve as a warning to all... you are damned! Arise and carry out the master's will!"
-#define SOUND_RESSURECT                     13754
+#define YELL_RESSURECT                      -1574025
 
 //Spells for Annhylde
 #define SPELL_SCOURG_RESURRECTION_HEAL              42704 //Heal Max + DummyAura
@@ -329,8 +309,7 @@ struct TRINITY_DLL_DECL mob_annhylde_the_callerAI : public ScriptedAI
         {
             m_creature->GetMotionMaster()->MovePoint(1,x,y,z+15);
 
-            DoYell(YELL_RESSURECT,LANG_UNIVERSAL,NULL);
-            DoPlaySoundToSet(m_creature,SOUND_RESSURECT);
+            DoScriptText(YELL_RESSURECT,m_creature);
         }
     }
 
