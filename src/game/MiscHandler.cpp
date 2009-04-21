@@ -1697,7 +1697,7 @@ void WorldSession::HandleSpellClick( WorldPacket & recv_data )
         return;
     }
 
-    vehicle->AddPassenger(_player);
+    _player->EnterVehicle(vehicle);
 }
 
 void WorldSession::HandleInspectAchievements( WorldPacket & recv_data )
