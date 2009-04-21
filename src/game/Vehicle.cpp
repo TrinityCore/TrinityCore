@@ -157,6 +157,17 @@ Vehicle* Vehicle::HasEmptySeat(int8 seatNum) const
     return NULL;
 }
 
+void Vehicle::InstallAccessory(uint32 entry, int8 seatNum)
+{
+    Creature *accessory = SummonCreature(entry, GetPositionX(), GetPositionY(), GetPositionZ());
+    if(!accessory)
+        return;
+
+    accessory->m_Vehicle = this;
+    accessory->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
+    AddPassenger(accessory, seatNum);
+}
+
 bool Vehicle::AddPassenger(Unit *unit, int8 seatNum)
 {
     if(unit->m_Vehicle != this)
