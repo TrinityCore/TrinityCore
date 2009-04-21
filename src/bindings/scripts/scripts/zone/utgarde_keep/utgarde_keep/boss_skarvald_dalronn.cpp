@@ -26,29 +26,19 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_utgarde_keep.h"
 
-#define YELL_SKARVALD_AGGRO                         "Dalronn! See if you can muster the nerve to join my attack!"
-#define SOUND_SKARVALD_AGGRO                        13229
-#define YELL_DALRONN_AGGRO                          "By all means, don't assess the situation, you halfwit! Just jump into the fray!"
-#define SOUND_DALRONN_AGGRO                         13199
+#define YELL_SKARVALD_AGGRO                         -1574010
+#define YELL_DALRONN_AGGRO                          -1574005
 
-#define YELL_SKARVALD_KILL                          "Jarggn olkt!"
-#define SOUND_SKARVALD_KILL                         13232
-#define YELL_DALRONN_KILL                           "You may serve me yet."
-#define SOUND_DALRONN_KILL                          13202
+#define YELL_SKARVALD_KILL                          -1574011
+#define YELL_DALRONN_KILL                           -1574006
 
-#define YELL_DALRONN_DAL_DIEDFIRST                  "See... you... soon."
-#define SOUND_DALRONN_DAL_DIEDFIRST                 13200
-#define YELL_SKARVALD_DAL_DIEDFIRST                 "Pagh! What sort of necromancer lets death stop him? I knew you were worthless!"
-#define SOUND_SKARVALD_DAL_DIEDFIRST                13233
-#define YELL_SKARVALD_DAL_DIED                      "A warrior's death."
-#define SOUND_SKARVALD_DAL_DIED                     13231
+#define YELL_DALRONN_DAL_DIEDFIRST                  -1574007
+#define YELL_SKARVALD_DAL_DIEDFIRST                 -1574014
+#define YELL_SKARVALD_DAL_DIED                      -1574013
 
-#define YELL_SKARVALD_SKA_DIEDFIRST                 "Not... over... yet."
-#define SOUND_SKARVALD_SKA_DIEDFIRST                13230
-#define YELL_DALRONN_SKA_DIEDFIRST                  "Skarvald, you incompetent slug! Return and make yourself useful!"
-#define SOUND_DALRONN_SKA_DIEDFIRST                 13203
-#define YELL_DALRONN_SKA_DIED                       "There's no... greater... glory."
-#define SOUND_DALRONN_SKA_DIED                      13201
+#define YELL_SKARVALD_SKA_DIEDFIRST                 -1574012
+#define YELL_DALRONN_SKA_DIEDFIRST                  -1574009
+#define YELL_DALRONN_SKA_DIED                       -1574008
 
 //Spells of Skarvald and his Ghost
 #define MOB_SKARVALD_THE_CONSTRUCTOR                24200
@@ -106,8 +96,7 @@ struct TRINITY_DLL_DECL boss_skarvald_the_constructorAI : public ScriptedAI
     {
         if(!ghost)
         {
-            DoYell(YELL_SKARVALD_AGGRO,LANG_UNIVERSAL,NULL);
-            DoPlaySoundToSet(m_creature,SOUND_SKARVALD_AGGRO);
+            DoScriptText(YELL_SKARVALD_AGGRO,m_creature);
 
             Unit* dalronn = Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_DALRONN));
             if(dalronn && dalronn->isAlive() && !dalronn->getVictim())
@@ -127,16 +116,14 @@ struct TRINITY_DLL_DECL boss_skarvald_the_constructorAI : public ScriptedAI
             {
                 if(dalronn->isDead())
                 {
-                    DoYell(YELL_SKARVALD_DAL_DIED,LANG_UNIVERSAL,NULL);
-                    DoPlaySoundToSet(m_creature,SOUND_SKARVALD_DAL_DIED);
+                    DoScriptText(YELL_SKARVALD_DAL_DIED,m_creature);
 
                     if(pInstance)
                         pInstance->SetData(DATA_SKARVALD_DALRONN_EVENT, DONE);
                 }
                 else
                 {
-                    DoYell(YELL_SKARVALD_SKA_DIEDFIRST,LANG_UNIVERSAL,NULL);
-                    DoPlaySoundToSet(m_creature,SOUND_SKARVALD_SKA_DIEDFIRST);
+                    DoScriptText(YELL_SKARVALD_SKA_DIEDFIRST,m_creature);
 
                     m_creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
                     //DoCast(m_creature,SPELL_SUMMON_SKARVALD_GHOST,true);
@@ -151,8 +138,7 @@ struct TRINITY_DLL_DECL boss_skarvald_the_constructorAI : public ScriptedAI
     {
         if(!ghost)
         {
-            DoYell(YELL_SKARVALD_KILL,LANG_UNIVERSAL,NULL);
-            DoPlaySoundToSet(m_creature,SOUND_SKARVALD_KILL);
+            DoScriptText(YELL_SKARVALD_KILL,m_creature);
         }
     }
 
@@ -188,8 +174,7 @@ struct TRINITY_DLL_DECL boss_skarvald_the_constructorAI : public ScriptedAI
                 if(Dalronn_isDead)
                     if(Response_Timer < diff)
                     {
-                        DoYell(YELL_SKARVALD_DAL_DIEDFIRST,LANG_UNIVERSAL,NULL);
-                        DoPlaySoundToSet(m_creature,SOUND_SKARVALD_DAL_DIEDFIRST);
+                        DoScriptText(YELL_SKARVALD_DAL_DIEDFIRST,m_creature);
 
                         Response_Timer = 0;
                     }else Response_Timer -= diff;
@@ -282,16 +267,14 @@ struct TRINITY_DLL_DECL boss_dalronn_the_controllerAI : public ScriptedAI
             if(skarvald)
                 if(skarvald->isDead())
                 {
-                    DoYell(YELL_DALRONN_SKA_DIED,LANG_UNIVERSAL,NULL);
-                    DoPlaySoundToSet(m_creature,SOUND_DALRONN_SKA_DIED);
+                    DoScriptText(YELL_DALRONN_SKA_DIED,m_creature);
 
                     if(pInstance)
                         pInstance->SetData(DATA_SKARVALD_DALRONN_EVENT, DONE);
                 }
                 else
                 {
-                    DoYell(YELL_DALRONN_DAL_DIEDFIRST,LANG_UNIVERSAL,NULL);
-                    DoPlaySoundToSet(m_creature,SOUND_DALRONN_DAL_DIEDFIRST);
+                    DoScriptText(YELL_DALRONN_DAL_DIEDFIRST,m_creature);
 
                     m_creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
                     //DoCast(m_creature,SPELL_SUMMON_DALRONN_GHOST,true);
@@ -305,8 +288,7 @@ struct TRINITY_DLL_DECL boss_dalronn_the_controllerAI : public ScriptedAI
     {
         if(!ghost)
         {
-            DoYell(YELL_DALRONN_KILL,LANG_UNIVERSAL,NULL);
-            DoPlaySoundToSet(m_creature,SOUND_DALRONN_KILL);
+            DoScriptText(YELL_DALRONN_KILL,m_creature);
         }
     }
 
@@ -326,8 +308,7 @@ struct TRINITY_DLL_DECL boss_dalronn_the_controllerAI : public ScriptedAI
         if(AggroYell_Timer)
             if(AggroYell_Timer < diff)
             {
-                DoYell(YELL_DALRONN_AGGRO,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_DALRONN_AGGRO);
+                DoScriptText(YELL_DALRONN_AGGRO,m_creature);
 
                 AggroYell_Timer = 0;
             }else AggroYell_Timer -= diff;
@@ -351,8 +332,7 @@ struct TRINITY_DLL_DECL boss_dalronn_the_controllerAI : public ScriptedAI
                 if(Skarvald_isDead)
                     if(Response_Timer < diff)
                     {
-                        DoYell(YELL_DALRONN_SKA_DIEDFIRST,LANG_UNIVERSAL,NULL);
-                        DoPlaySoundToSet(m_creature,SOUND_DALRONN_SKA_DIEDFIRST);
+                        DoScriptText(YELL_DALRONN_SKA_DIEDFIRST,m_creature);
 
                         Response_Timer = 0;
                     }else Response_Timer -= diff;
