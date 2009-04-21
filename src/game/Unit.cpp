@@ -13486,7 +13486,6 @@ void Unit::EnterVehicle(Vehicle *vehicle)
     m_Vehicle->setFaction(getFaction());
 
     addUnitState(UNIT_STAT_ONVEHICLE);
-    AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
     //movementInfo is set in AddPassenger
     //packets are sent in AddPassenger
 
