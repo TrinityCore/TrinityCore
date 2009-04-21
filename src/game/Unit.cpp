@@ -11412,7 +11412,7 @@ uint32 createProcExtendMask(SpellNonMeleeDamage *damageInfo, SpellMissInfo missC
 void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, SpellEntry const * procSpell, uint32 damage )
 {
     ++m_procDeep;
-    if (++m_procDeep > 5)
+    if (m_procDeep > 5)
     {
         sLog.outError("Prevent possible stack owerflow in Unit::ProcDamageAndSpellFor");
         if (procSpell)
