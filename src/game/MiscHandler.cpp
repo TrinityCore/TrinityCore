@@ -105,7 +105,7 @@ void WorldSession::HandleGossipSelectOptionOpcode( WorldPacket & recv_data )
     }
     else if(IS_GAMEOBJECT_GUID(guid))
     {
-        go = ObjectAccessor::GetGameObject(*_player, guid);
+        go = _player->GetMap()->GetGameObject(guid);
         if (!go)
         {
             sLog.outDebug( "WORLD: HandleGossipSelectOptionOpcode - GameObject (GUID: %u) not found.", uint32(GUID_LOPART(guid)) );

@@ -33,7 +33,7 @@ void InstanceData::SaveToDB()
 void InstanceData::HandleGameObject(uint64 GUID, bool open, GameObject *go)
 {
     if(!go)
-        go = instance->GetGameObjectInMap(GUID);
+        go = instance->GetGameObject(GUID);
     if(go)
         go->SetGoState(open ? 0 : 1);
     else

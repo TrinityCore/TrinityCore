@@ -234,7 +234,7 @@ void WorldSession::HandleGameObjectUseOpcode( WorldPacket & recv_data )
     if(_player->m_mover != _player)
         return;
 
-    GameObject *obj = ObjectAccessor::GetGameObject(*_player, guid);
+    GameObject *obj = GetPlayer()->GetMap()->GetGameObject(guid);
 
     if(!obj)
         return;
@@ -258,7 +258,7 @@ void WorldSession::HandleGameobjectReportUse(WorldPacket& recvPacket)
     if(_player->m_mover != _player)
         return;
 
-    GameObject* go = ObjectAccessor::GetGameObject(*_player,guid);
+    GameObject* go = GetPlayer()->GetMap()->GetGameObject(guid);
     if(!go)
         return;
 
@@ -480,7 +480,7 @@ void WorldSession::HandleTotemDestroy( WorldPacket& recvPacket)
     if(!_player->m_SummonSlot[slotId])
         return;
 
-    Creature* totem = ObjectAccessor::GetCreature(*_player,_player->m_SummonSlot[slotId]);
+    Creature* totem = GetPlayer()->GetMap()->GetCreature(_player->m_SummonSlot[slotId]);
     // Don't unsummon sentry totem
     if(totem && totem->isTotem() && totem->GetEntry() != SENTRY_TOTEM_ENTRY)
         ((Totem*)totem)->UnSummon();

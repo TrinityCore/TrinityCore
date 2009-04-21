@@ -270,9 +270,9 @@ void BattleGround::Update(uint32 diff)
                     if (!plr)
                         continue;
 
-                    if (!sh)
+                    if (!sh && plr->IsInWorld())
                     {
-                        sh = ObjectAccessor::GetCreature(*plr, itr->first);
+                        sh = plr->GetMap()->GetCreature(itr->first);
                         // only for visual effect
                         if (sh)
                             sh->CastSpell(sh, SPELL_SPIRIT_HEAL, true);   // Spirit Heal, effect 117
