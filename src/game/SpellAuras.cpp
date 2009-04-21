@@ -2768,6 +2768,11 @@ void AuraEffect::HandleAuraMounted(bool apply, bool Real)
         if (minfo)
             display_id = minfo->modelid;
 
+        //some spell has one aura of mount and one of vehicle
+        for(uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            if(GetSpellProto()->Effect[i] == SPELL_EFFECT_SUMMON
+                && GetSpellProto()->EffectMiscValue[i] == GetMiscValue())
+                display_id = 0;
         m_target->Mount(display_id);
     }
     else
