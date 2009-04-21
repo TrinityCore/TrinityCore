@@ -33,7 +33,7 @@ struct VehicleSeat
     Unit* passenger;
 };
 
-typedef std::map<uint32, VehicleSeat> SeatMap;
+typedef std::map<int8, VehicleSeat> SeatMap;
 
 class Vehicle : public Creature
 {
@@ -52,7 +52,13 @@ class Vehicle : public Creature
         VehicleEntry const *GetVehicleInfo() { return m_vehicleInfo; }
         void SetVehicleId(uint32 vehicleid);
 
-        void AddPassenger(Unit *passenger);
+        bool HasEmptySeat(int8 seatNum) const
+        {
+            SeatMap::const_iterator seat = m_Seats.find(seatNum);
+            if(seat == m_Seats.end()) return false;
+            return !seat->second.passenger;
+        }
+        bool AddPassenger(Unit *passenger, int8 seatNum = -1);
         void RemovePassenger(Unit *passenger);
         void Dismiss();
 
@@ -61,6 +67,8 @@ class Vehicle : public Creature
         SeatMap m_Seats;
     protected:
         VehicleEntry const *m_vehicleInfo;
+
+        void RemoveAllPassengers();
 
     private:
         void SaveToDB(uint32, uint8)                        // overwrited of Creature::SaveToDB     - don't must be called

@@ -496,6 +496,21 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket &recv_data)
     recv_data >> d >> e >> f >> g >> h >> i >> j >> k;
     recv_data >> seat;
     //sLog.outError("change seat %u %u %u %u %u %u %u %u %u %u %u %u", a, b,c,d,e,f,g,h,i,j,k,seat);
+
+    if(seat == GetPlayer()->GetTransSeat())
+        return;
+
+    if(Vehicle *vehicle = GetPlayer()->m_Vehicle)
+    {
+        if(vehicle->HasEmptySeat(seat))
+        {
+            vehicle->RemovePassenger(GetPlayer());
+            if(!vehicle->AddPassenger(GetPlayer(), seat))
+            {
+                assert(false);
+            }
+        }
+    }
 }
 
 void WorldSession::HandleRequestVehicleExit(WorldPacket &recv_data)
