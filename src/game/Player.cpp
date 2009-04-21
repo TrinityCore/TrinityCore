@@ -16569,6 +16569,8 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
 
 void Player::StopCastingCharm()
 {
+    ExitVehicle();
+
     Unit* charm = GetCharm();
     if(!charm)
         return;
@@ -16577,8 +16579,6 @@ void Player::StopCastingCharm()
     {
         if(((Creature*)charm)->isPet() && ((Pet*)charm)->getPetType() == POSSESSED_PET)
             ((Pet*)charm)->Remove(PET_SAVE_AS_DELETED);
-        else if(((Creature*)charm)->isVehicle())
-            ((Vehicle*)charm)->RemovePassenger(this);
     }
     if(GetCharmGUID())
     {
