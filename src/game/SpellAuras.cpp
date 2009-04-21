@@ -3898,7 +3898,7 @@ void AuraEffect::HandleModThreat(bool apply, bool Real)
         if(GetMiscValue() & int32(1<<x))
         {
             if(m_target->GetTypeId() == TYPEID_PLAYER)
-                ApplyPercentModFloatVar(m_target->m_threatModifier[x], GetParentAura()->IsPositive() ? m_amount : -m_amount, apply);
+                ApplyPercentModFloatVar(m_target->m_threatModifier[x], m_amount, apply);
         }
     }
 }
