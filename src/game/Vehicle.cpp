@@ -50,6 +50,7 @@ void Vehicle::RemoveFromWorld()
 {
     if(IsInWorld())
     {
+        RemoveAllPassengers();
         ///- Don't call the function for Creature, normal mobs + totems go in a different storage
         Unit::RemoveFromWorld();
         ObjectAccessor::Instance().RemoveObject(this);
@@ -58,9 +59,8 @@ void Vehicle::RemoveFromWorld()
 
 void Vehicle::setDeathState(DeathState s)                       // overwrite virtual Creature::setDeathState and Unit::setDeathState
 {
-    for(SeatMap::iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
-        if(itr->second.passenger)
-            RemovePassenger(itr->second.passenger);
+    if(s == JUST_DIED)
+        RemoveAllPassengers();
     Creature::setDeathState(s);
 }
 
@@ -97,6 +97,16 @@ bool Vehicle::Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, u
     return true;
 }
 
+void Vehicle::RemoveAllPassengers()
+{
+    for(SeatMap::iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
+        if(itr->second.passenger)
+        {
+            itr->second.passenger->ExitVehicle();
+            assert(!itr->second.passenger);
+        }
+}
+
 void Vehicle::SetVehicleId(uint32 id)
 {
     if(m_vehicleInfo && id == m_vehicleInfo->m_ID)
@@ -107,9 +117,8 @@ void Vehicle::SetVehicleId(uint32 id)
         return;
 
     m_vehicleInfo = ve;
-    for(SeatMap::iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
-        if(itr->second.passenger)
-            RemovePassenger(itr->second.passenger);
+
+    RemoveAllPassengers();
     m_Seats.clear();
 
     for(uint32 i = 0; i < 8; ++i)
@@ -119,58 +128,42 @@ void Vehicle::SetVehicleId(uint32 id)
             if(VehicleSeatEntry const *veSeat = sVehicleSeatStore.LookupEntry(seatId))
                 m_Seats.insert(std::make_pair(i, VehicleSeat(veSeat)));
     }
+
+    assert(!m_Seats.empty());
 }
 
-void Vehicle::AddPassenger(Unit *unit)
+bool Vehicle::AddPassenger(Unit *unit, int8 seatNum)
 {
+    if(unit->m_Vehicle != this)
+        return false;
+
+    SeatMap::iterator seat;
+    if(seatNum < 0) // no specific seat requirement
+    {
+        for(seat = m_Seats.begin(); seat != m_Seats.end(); ++seat)
+            if(!seat->second.passenger)
+                break;
+
+        if(seat == m_Seats.end()) // no available seat
+            return false;
+    }
+    else
+    {
+        seat = m_Seats.find(seatNum);
+        if(seat == m_Seats.end())
+            return false;
+
+        if(seat->second.passenger)
+            seat->second.passenger->ExitVehicle();
+
+        assert(!seat->second.passenger);
+    }
+
     sLog.outDebug("Unit %s enter vehicle entry %u id %u dbguid %u", unit->GetName(), GetEntry(), m_vehicleInfo->m_ID, GetDBTableGUIDLow());
 
-    if(unit->m_Vehicle)
-        unit->m_Vehicle->RemovePassenger(unit);
-    unit->m_Vehicle = this;
-
-    Player *player = NULL;
-    if(unit->GetTypeId() == TYPEID_PLAYER)
-        player = (Player*)unit;        
-
-    SeatMap::iterator seat = m_Seats.begin();
-    uint32 seatnum = 0;
-    if(seat->second.passenger)
-    {
-        if(m_Seats.size() <= 1)
-            return;
-        seatnum = rand()%(m_Seats.size()-1) + 1;
-        advance(seat, seatnum);
-        if(seat->second.passenger)
-            return;
-            //RemovePassenger(seat->second.passenger);
-    }
     seat->second.passenger = unit;
 
-    bool driver = (seat == m_Seats.begin());
-
     //RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-    SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);
-    setFaction(unit->getFaction());
-
-    if(player)
-    {
-        player->StopCastingCharm();
-        player->StopCastingBindSight();
-
-        if(driver)
-        {
-            player->SetCharm(this, true);
-            player->SetViewpoint(this, true);
-            player->SetMover(this);
-            player->VehicleSpellInitialize();
-        }
-        player->SetClientControl(this, 1);
-    }
-
-    unit->addUnitState(UNIT_STAT_ONVEHICLE);
-    unit->Relocate(this);
-    unit->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
 
     VehicleSeatEntry const *veSeat = seat->second.seatInfo;
     unit->m_movementInfo.t_x = veSeat->m_attachmentOffsetX;
@@ -180,24 +173,39 @@ void Vehicle::AddPassenger(Unit *unit)
     unit->m_movementInfo.t_time = 4;
     unit->m_movementInfo.t_seat = seat->first;
 
+    unit->Relocate(GetPositionX() + veSeat->m_attachmentOffsetX,
+        GetPositionY() + veSeat->m_attachmentOffsetY,
+        GetPositionZ() + veSeat->m_attachmentOffsetZ,
+        GetOrientation());
+
     WorldPacket data;
-    if(player)
+    if(unit->GetTypeId() == TYPEID_PLAYER)
     {
         //ChatHandler(player).PSendSysMessage("Enter seat %u %u", veSeat->m_ID, seat->first);
 
-        data.Initialize(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
-        player->GetSession()->SendPacket(&data);
+        if(seat == m_Seats.begin())
+        {
+            ((Player*)unit)->SetCharm(this, true);
+            ((Player*)unit)->SetViewpoint(this, true);
+            ((Player*)unit)->SetMover(this);
+            ((Player*)unit)->VehicleSpellInitialize();
+        }
 
-        player->BuildTeleportAckMsg(&data, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation());
-        player->GetSession()->SendPacket(&data);
+        ((Player*)unit)->BuildTeleportAckMsg(&data, unit->GetPositionX(), unit->GetPositionY(), unit->GetPositionZ(), unit->GetOrientation());
+        ((Player*)unit)->GetSession()->SendPacket(&data);
     }
 
-    unit->BuildHeartBeatMsg(&data);
-    unit->SendMessageToSet(&data, player ? false : true);
+    BuildHeartBeatMsg(&data);
+    SendMessageToSet(&data, unit->GetTypeId() == TYPEID_PLAYER ? false : true);
+
+    return true;
 }
 
 void Vehicle::RemovePassenger(Unit *unit)
 {
+    if(unit->m_Vehicle != this)
+        return;
+
     SeatMap::iterator seat;
     for(seat = m_Seats.begin(); seat != m_Seats.end(); ++seat)
     {
@@ -208,65 +216,27 @@ void Vehicle::RemovePassenger(Unit *unit)
         }
     }
 
-    if(seat == m_Seats.end())
-        return;
+    assert(seat != m_Seats.end());
 
     sLog.outDebug("Unit %s exit vehicle entry %u id %u dbguid %u", unit->GetName(), GetEntry(), m_vehicleInfo->m_ID, GetDBTableGUIDLow());
 
-    bool driver = (seat == m_Seats.begin());
-
-    Player *player = NULL;
-    if(unit->GetTypeId() == TYPEID_PLAYER)
-        player = (Player*)unit; 
-
     //SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-    RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);
-    //setFaction((GetTeam() == ALLIANCE) ? GetCreatureInfo()->faction_A : GetCreatureInfo()->faction_H);
 
-    if(player)
+    if(unit->GetTypeId() == TYPEID_PLAYER && seat == m_Seats.begin())
     {
-        if(driver)
-        {
-            player->SetCharm(this, false);
-            player->SetViewpoint(this, false);
-            player->SetMover(player);
-            player->SendRemoveControlBar();
-        }
-        player->SetClientControl(player, 1);
+        ((Player*)unit)->SetCharm(this, false);
+        ((Player*)unit)->SetViewpoint(this, false);
+        ((Player*)unit)->SetMover(unit);
+        ((Player*)unit)->SendRemoveControlBar();
     }
-
-    unit->clearUnitState(UNIT_STAT_ONVEHICLE);
-    unit->Relocate(this);
-    unit->RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
-    unit->m_movementInfo.t_x = 0;
-    unit->m_movementInfo.t_y = 0;
-    unit->m_movementInfo.t_z = 0;
-    unit->m_movementInfo.t_o = 0;
-    unit->m_movementInfo.t_time = 0;
-    unit->m_movementInfo.t_seat = 0;
-
-    unit->m_Vehicle = NULL;
-
-    WorldPacket data;
-    if(player)
-    {
-        player->BuildTeleportAckMsg(&data, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation());
-        player->GetSession()->SendPacket(&data);
-    }
-
-    unit->BuildHeartBeatMsg(&data);
-    unit->SendMessageToSet(&data, player ? false : true);
 
     // only for flyable vehicles?
     //CastSpell(this, 45472, true);                           // Parachute
-
-    //if(!vehicle->GetDBTableGUIDLow())
-    if(GetOwnerGUID() == unit->GetGUID())
-        Dismiss();
 }
 
 void Vehicle::Dismiss()
 {
+    RemoveAllPassengers();
     SendObjectDeSpawnAnim(GetGUID());
     CombatStop();
     CleanupsBeforeDelete();
