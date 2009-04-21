@@ -164,7 +164,6 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatNum)
         return;
 
     accessory->m_Vehicle = this;
-    accessory->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
     AddPassenger(accessory, seatNum);
 }
 
@@ -201,6 +200,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatNum)
 
     //RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
 
+    unit->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
     VehicleSeatEntry const *veSeat = seat->second.seatInfo;
     unit->m_movementInfo.t_x = veSeat->m_attachmentOffsetX;
     unit->m_movementInfo.t_y = veSeat->m_attachmentOffsetY;
