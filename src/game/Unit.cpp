@@ -9582,12 +9582,10 @@ float Unit::GetPPMProcChance(uint32 WeaponSpeed, float PPM, const SpellEntry * s
 
 void Unit::Mount(uint32 mount)
 {
-    if(!mount)
-        return;
-
     RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOUNT);
 
-    SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID, mount);
+    if(mount)
+        SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID, mount);
 
     SetFlag( UNIT_FIELD_FLAGS, UNIT_FLAG_MOUNT );
 
