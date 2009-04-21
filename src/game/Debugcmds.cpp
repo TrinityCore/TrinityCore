@@ -718,7 +718,7 @@ bool ChatHandler::HandleDebugEnterVehicle(const char * args)
     if(!passenger || passenger == target)
         return false;
 
-    ((Vehicle*)target)->AddPassenger(passenger);
+    passenger->EnterVehicle(target);
 
     PSendSysMessage("Creature entered vehicle");
     return true;

@@ -475,12 +475,7 @@ void WorldSession::HandleDismissControlledVehicle(WorldPacket &recv_data)
     MovementInfo mi;
     ReadMovementInfo(recv_data, &mi);
     _player->m_movementInfo = mi;
-
-    // using charm guid, because we don't have vehicle guid...
-    if(Vehicle *vehicle = ObjectAccessor::GetVehicle(vehicleGUID))
-    {
-        vehicle->RemovePassenger(_player);
-    }
+    _player->ExitVehicle();
 }
 
 void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket &recv_data)
@@ -519,8 +514,7 @@ void WorldSession::HandleRequestVehicleExit(WorldPacket &recv_data)
 {
     sLog.outDebug("WORLD: Recvd CMSG_REQUEST_VEHICLE_EXIT");
     recv_data.hexlike();
-    if(GetPlayer()->m_Vehicle)
-        GetPlayer()->m_Vehicle->RemovePassenger(GetPlayer());
+    GetPlayer()->ExitVehicle();
 }
 
 void WorldSession::HandleMountSpecialAnimOpcode(WorldPacket& /*recvdata*/)

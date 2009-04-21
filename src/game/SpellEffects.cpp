@@ -6540,7 +6540,7 @@ void Spell::SummonVehicle(uint32 entry, SummonPropertiesEntry const *properties)
     if(damage)
     {
         m_caster->CastSpell(vehicle, damage, true);
-        vehicle->AddPassenger(m_caster);
+        m_caster->EnterVehicle(vehicle);
     }
 }
 

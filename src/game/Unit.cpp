@@ -10206,7 +10206,7 @@ void Unit::setDeathState(DeathState s)
         UnsummonAllTotems();
         RemoveAllControlled();
         RemoveAllAurasOnDeath();
-        if(m_Vehicle) m_Vehicle->RemovePassenger(this);
+        ExitVehicle();
         //This is needed to clear visible auras after unit dies
 
         ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, false);
@@ -11172,7 +11172,7 @@ void Unit::RemoveFromWorld()
         RemoveCharmAuras();
         RemoveBindSightAuras();
         RemoveNotOwnSingleTargetAuras();
-        if(m_Vehicle) m_Vehicle->RemovePassenger(this);
+        ExitVehicle();
 
         if(GetCharmerGUID())
             sLog.outCrash("Unit %u has charmer guid when removed from world", GetEntry());
