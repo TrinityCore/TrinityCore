@@ -518,8 +518,8 @@ class TRINITY_DLL_SPEC WorldObject : public Object
         Map      * GetMap() const   { return m_map ? m_map : const_cast<WorldObject*>(this)->_getMap(); }
         Map      * FindMap() const  { return m_map ? m_map : const_cast<WorldObject*>(this)->_findMap(); }
         Map const* GetBaseMap() const;
-        TempSummon* SummonCreature(uint32 id, float x, float y, float z, float ang,TempSummonType spwtype,uint32 despwtime);
-        Vehicle*    SummonVehicle(uint32 entry, float x, float y, float z, float ang);
+        TempSummon* SummonCreature(uint32 id, float x, float y, float z, float ang = 0,TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN,uint32 despwtime = 0);
+        Vehicle*    SummonVehicle(uint32 entry, float x, float y, float z, float ang = 0);
         GameObject* SummonGameObject(uint32 entry, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime);
         Creature*   SummonTrigger(float x, float y, float z, float ang, uint32 dur, CreatureAI* (*GetAI)(Creature*) = NULL);
         bool isActiveObject() const { return m_isActive; }
