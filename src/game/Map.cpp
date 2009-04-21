@@ -2402,20 +2402,6 @@ void InstanceMap::Remove(Player *player, bool remove)
     SetResetSchedule(true);
 }
 
-Creature * Map::GetCreatureInMap(uint64 guid)
-{
-    Creature * obj = HashMapHolder<Creature>::Find(guid);
-    if(obj && obj->GetInstanceId() != GetInstanceId()) obj = NULL;
-    return obj;
-}
-
-GameObject * Map::GetGameObjectInMap(uint64 guid)
-{
-    GameObject * obj = HashMapHolder<GameObject>::Find(guid);
-    if(obj && obj->GetInstanceId() != GetInstanceId()) obj = NULL;
-    return obj;
-}
-
 void InstanceMap::CreateInstanceData(bool load)
 {
     if(i_data != NULL)
@@ -2642,5 +2628,44 @@ void BattleGroundMap::UnloadAll()
     Map::UnloadAll();
 }
 
-/*--------------------------TRINITY-------------------------*/
+Creature*
+Map::GetCreature(uint64 guid)
+{
+    Creature * ret = ObjectAccessor::GetObjectInWorld(guid, (Creature*)NULL);
+    if(!ret)
+        return NULL;
 
+    if(ret->GetMapId() != GetId())
+        return NULL;
+
+    if(ret->GetInstanceId() != GetInstanceId())
+        return NULL;
+
+    return ret;
+}
+
+GameObject*
+Map::GetGameObject(uint64 guid)
+{
+    GameObject * ret = ObjectAccessor::GetObjectInWorld(guid, (GameObject*)NULL);
+    if(!ret)
+        return NULL;
+    if(ret->GetMapId() != GetId())
+        return NULL;
+    if(ret->GetInstanceId() != GetInstanceId())
+        return NULL;
+    return ret;
+}
+
+DynamicObject*
+Map::GetDynamicObject(uint64 guid)
+{
+    DynamicObject * ret = ObjectAccessor::GetObjectInWorld(guid, (DynamicObject*)NULL);
+    if(!ret)
+        return NULL;
+    if(ret->GetMapId() != GetId())
+        return NULL;
+    if(ret->GetInstanceId() != GetInstanceId())
+        return NULL;
+    return ret;
+}

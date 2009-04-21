@@ -198,7 +198,7 @@ void TempSummon::InitSummon(uint32 duration)
         {
             if(owner->m_SummonSlot[slot] && owner->m_SummonSlot[slot] != GetGUID())
             {
-                Creature *OldTotem = ObjectAccessor::GetCreature(*this, owner->m_SummonSlot[slot]);
+                Creature *OldTotem = GetMap()->GetCreature(owner->m_SummonSlot[slot]);
                 if(OldTotem && OldTotem->isSummon())
                     ((TempSummon*)OldTotem)->UnSummon();
             }
