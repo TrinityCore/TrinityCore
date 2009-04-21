@@ -515,8 +515,8 @@ class TRINITY_DLL_SPEC WorldObject : public Object
         // Low Level Packets
         void SendPlaySound(uint32 Sound, bool OnlySelf);
 
-        Map      * GetMap() const;
-        Map      * FindMap() const;
+        Map      * GetMap() const   { return m_map ? m_map : const_cast<WorldObject*>(this)->_getMap(); }
+        Map      * FindMap() const  { return m_map ? m_map : const_cast<WorldObject*>(this)->_findMap(); }
         Map const* GetBaseMap() const;
         TempSummon* SummonCreature(uint32 id, float x, float y, float z, float ang,TempSummonType spwtype,uint32 despwtime);
         Vehicle*    SummonVehicle(uint32 entry, float x, float y, float z, float ang);
@@ -540,6 +540,9 @@ class TRINITY_DLL_SPEC WorldObject : public Object
         uint32 m_InstanceId;                                // in map copy with instance id
         uint32 m_phaseMask;                                 // in area phase state
         Map    *m_map;
+
+        Map* _getMap();
+        Map* _findMap();
 
         float m_positionX;
         float m_positionY;
