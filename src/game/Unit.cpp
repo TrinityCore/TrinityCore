@@ -52,6 +52,7 @@
 #include "Traveller.h"
 #include "TemporarySummon.h"
 #include "Vehicle.h"
+#include "Transports.h"
 
 #include <math.h>
 
@@ -13533,6 +13534,46 @@ void Unit::ExitVehicle()
         m_Vehicle->Dismiss();
 
     m_Vehicle = NULL;
+}
+
+void Unit::BuildMovementPacket(ByteBuffer *data) const
+{
+    // 0x00000200
+    if(GetUnitMovementFlags() & MOVEMENTFLAG_ONTRANSPORT)
+    {
+        if(m_Vehicle)
+            *data << (uint64)m_Vehicle->GetGUID();
+        else if(GetTransport())
+            *data << (uint64)GetTransport()->GetGUID();
+        else
+            *data << (uint64)0;
+        *data << float (GetTransOffsetX());
+        *data << float (GetTransOffsetY());
+        *data << float (GetTransOffsetZ());
+        *data << float (GetTransOffsetO());
+        *data << uint32(GetTransTime());
+        *data << uint8 (GetTransSeat());
+    }
+
+    // 0x02200000
+    if((GetUnitMovementFlags() & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING2))
+        || (m_movementInfo.unk1 & 0x20))
+        *data << (float)m_movementInfo.s_pitch;
+
+    *data << (uint32)m_movementInfo.fallTime;
+
+    // 0x00001000
+    if(GetUnitMovementFlags() & MOVEMENTFLAG_JUMPING)
+    {
+        *data << (float)m_movementInfo.j_unk;
+        *data << (float)m_movementInfo.j_sinAngle;
+        *data << (float)m_movementInfo.j_cosAngle;
+        *data << (float)m_movementInfo.j_xyspeed;
+    }
+
+    // 0x04000000
+    if(GetUnitMovementFlags() & MOVEMENTFLAG_SPLINE)
+        *data << (float)m_movementInfo.u_unk1;
 }
 
 void Unit::NearTeleportTo( float x, float y, float z, float orientation, bool casting /*= false*/ )
