@@ -4024,33 +4024,44 @@ bool ChatHandler::HandleModifyArenaCommand(const char * args)
 
 bool ChatHandler::HandleReviveCommand(const char* args)
 {
-    Player* SelectedPlayer = NULL;
+    Player* player = NULL;
+    uint32 player_guid = 0;
 
     if (*args)
     {
         std::string name = extractPlayerNameFromLink((char*)args);
-        if(name.empty())
+        if (name.empty())
         {
             SendSysMessage(LANG_PLAYER_NOT_FOUND);
             SetSentErrorMessage(true);
             return false;
         }
 
-        SelectedPlayer = objmgr.GetPlayer(name.c_str());
+        player = objmgr.GetPlayer(name.c_str());
+        if (!player)
+            player_guid = objmgr.GetPlayerGUIDByName(name);
     }
     else
-        SelectedPlayer = getSelectedPlayer();
+        player = getSelectedPlayer();
 
-    if(!SelectedPlayer)
+    if (player)
+    {
+        player->ResurrectPlayer(0.5f);
+        player->SpawnCorpseBones();
+        player->SaveToDB();
+    }
+    else if (player_guid)
+    {
+        // will resurrected at login without corpse
+        ObjectAccessor::Instance().ConvertCorpseForPlayer(player_guid);
+    }
+    else
     {
         SendSysMessage(LANG_NO_CHAR_SELECTED);
         SetSentErrorMessage(true);
         return false;
     }
 
-    SelectedPlayer->ResurrectPlayer(0.5f);
-    SelectedPlayer->SpawnCorpseBones();
-    SelectedPlayer->SaveToDB();
     return true;
 }
 
