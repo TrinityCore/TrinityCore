@@ -48,12 +48,10 @@ class DynamicObject;
 class Creature;
 class Pet;
 class PlayerMenu;
-class Transport;
 class UpdateMask;
 class SpellCastTargets;
 class PlayerSocial;
 class OutdoorPvP;
-class Vehicle;
 
 typedef std::deque<Mail*> PlayerMails;
 
@@ -1910,10 +1908,6 @@ class TRINITY_DLL_SPEC Player : public Unit
         void StopCastingCharm();
         void StopCastingBindSight();
 
-        // Transports
-        Transport * GetTransport() const { return m_transport; }
-        void SetTransport(Transport * t) { m_transport = t; }
-
         uint32 GetSaveTimer() const { return m_nextSave; }
         void   SetSaveTimer(uint32 timer) { m_nextSave = timer; }
 
@@ -2233,9 +2227,6 @@ class TRINITY_DLL_SPEC Player : public Unit
         float m_rest_bonus;
         RestType rest_type;
         ////////////////////Rest System/////////////////////
-
-        // Transports
-        Transport * m_transport;
 
         uint32 m_resetTalentsCost;
         time_t m_resetTalentsTime;

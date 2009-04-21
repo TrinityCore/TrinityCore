@@ -314,6 +314,7 @@ class Path;
 class PetAura;
 class Guardian;
 class UnitAI;
+class Transport;
 
 struct SpellImmune
 {
@@ -1629,10 +1630,19 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
 
         void EnterVehicle(Vehicle *vehicle);
         void ExitVehicle();
+
+        // Transports
+        Transport * GetTransport() const { return m_transport; }
+        void SetTransport(Transport * t) { m_transport = t; }
+
+        void BuildMovementPacket(ByteBuffer *data) const;
     protected:
         explicit Unit ();
 
         UnitAI *i_AI, *i_disabledAI;
+
+        // Transports
+        Transport * m_transport;
 
         void _UpdateSpells(uint32 time);
         void _DeleteAuras();
