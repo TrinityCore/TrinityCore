@@ -13528,7 +13528,7 @@ void Unit::ExitVehicle()
     }
 
     BuildHeartBeatMsg(&data);
-    SendMessageToSet(&data, GetTypeId() == TYPEID_PLAYER ? false : true);
+    SendMessageToSet(&data, false);
 
     if(m_Vehicle->GetOwnerGUID() == GetGUID())
         m_Vehicle->Dismiss();
@@ -13565,7 +13565,7 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
     // 0x00001000
     if(GetUnitMovementFlags() & MOVEMENTFLAG_JUMPING)
     {
-        *data << (float)m_movementInfo.j_unk;
+        *data << (float)m_movementInfo.j_zspeed;
         *data << (float)m_movementInfo.j_sinAngle;
         *data << (float)m_movementInfo.j_cosAngle;
         *data << (float)m_movementInfo.j_xyspeed;

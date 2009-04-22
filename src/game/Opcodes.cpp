@@ -1173,7 +1173,7 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x476*/ { "CMSG_REQUEST_VEHICLE_EXIT",                    STATUS_LOGGEDIN, &WorldSession::HandleRequestVehicleExit        },
     /*0x477*/ { "CMSG_REQUEST_VEHICLE_PREV_SEAT",               STATUS_NEVER,    &WorldSession::Handle_NULL                     },
     /*0x478*/ { "CMSG_REQUEST_VEHICLE_NEXT_SEAT",               STATUS_NEVER,    &WorldSession::Handle_NULL                     },
-    /*0x479*/ { "CMSG_REQUEST_VEHICLE_SWITCH_SEAT",             STATUS_NEVER,    &WorldSession::Handle_NULL                     },
+    /*0x479*/ { "CMSG_REQUEST_VEHICLE_SWITCH_SEAT",             STATUS_LOGGEDIN, &WorldSession::HandleChangeSeatsOnControlledVehicle},
     /*0x47A*/ { "CMSG_PET_LEARN_TALENT",                        STATUS_LOGGEDIN, &WorldSession::HandlePetLearnTalent            },
     /*0x47B*/ { "CMSG_PET_UNLEARN_TALENTS",                     STATUS_NEVER,    &WorldSession::Handle_NULL                     },
     /*0x47C*/ { "SMSG_SET_PHASE_SHIFT",                         STATUS_NEVER,    &WorldSession::Handle_ServerSide               },

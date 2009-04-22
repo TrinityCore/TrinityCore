@@ -133,7 +133,7 @@ void Object::BuildMovementUpdateBlock(UpdateData * data, uint32 flags ) const
     buf << uint8( UPDATETYPE_MOVEMENT );
     buf << GetGUID();
 
-    _BuildMovementUpdate(&buf, flags, 0x00000000);
+    _BuildMovementUpdate(&buf, flags);
 
     data->AddUpdateBlock(buf);
 }
@@ -147,7 +147,6 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData *data, Player *target) c
 
     uint8  updatetype = UPDATETYPE_CREATE_OBJECT;
     uint8  flags      = m_updateFlag;
-    uint32 flags2     = 0;
 
     /** lower flag1 **/
     if(target == this)                                      // building packet for oneself
@@ -195,7 +194,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData *data, Player *target) c
     buf << (uint8)0xFF << GetGUID();
     buf << (uint8)m_objectTypeId;
 
-    _BuildMovementUpdate(&buf, flags, flags2);
+    _BuildMovementUpdate(&buf, flags);
 
     UpdateMask updateMask;
     updateMask.SetCount( m_valuesCount );
@@ -259,18 +258,18 @@ void Object::DestroyForPlayer(Player *target) const
     target->GetSession()->SendPacket( &data );
 }
 
-void Object::_BuildMovementUpdate(ByteBuffer * data, uint8 flags, uint32 flags2) const
+void Object::_BuildMovementUpdate(ByteBuffer * data, uint8 flags) const
 {
     *data << (uint8)flags;                                  // update flags
 
     // 0x20
     if (flags & UPDATEFLAG_LIVING)
     {
+        uint32 flags2 = ((Unit*)this)->GetUnitMovementFlags();
         switch(GetTypeId())
         {
             case TYPEID_UNIT:
             {
-                flags2 = ((Unit*)this)->GetUnitMovementFlags();
                 if(((Unit*)this)->m_Vehicle)
                     flags2 |= MOVEMENTFLAG_ONTRANSPORT;
                 else
@@ -282,8 +281,6 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint8 flags, uint32 flags2)
             break;
             case TYPEID_PLAYER:
             {
-                flags2 = ((Player*)this)->GetUnitMovementFlags();
-
                 if(((Player*)this)->GetTransport() || ((Player*)this)->m_Vehicle)
                     flags2 |= MOVEMENTFLAG_ONTRANSPORT;
                 else
@@ -342,20 +339,8 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint8 flags, uint32 flags2)
         *data << ((Unit*)this)->GetSpeed( MOVE_PITCH_RATE );
 
         // 0x08000000
-        if(flags2 & MOVEMENTFLAG_SPLINE2)
+        if(GetTypeId() == TYPEID_PLAYER && ((Player*)this)->isInFlight())
         {
-            if(GetTypeId() != TYPEID_PLAYER)
-            {
-                sLog.outDebug("_BuildMovementUpdate: MOVEMENTFLAG_SPLINE2 for non-player");
-                return;
-            }
-
-            if(!((Player*)this)->isInFlight())
-            {
-                sLog.outDebug("_BuildMovementUpdate: MOVEMENTFLAG_SPLINE2 but not in flight");
-                return;
-            }
-
             WPAssert(((Player*)this)->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE);
 
             FlightPathMovementGenerator *fmg = (FlightPathMovementGenerator*)(((Player*)this)->GetMotionMaster()->top());
@@ -1635,7 +1620,8 @@ TempSummon *Map::SummonCreature(uint32 entry, float x, float y, float z, float a
         else if(properties->Type == SUMMON_TYPE_TOTEM)
             mask = SUMMON_MASK_TOTEM;
         else if(properties->Category == SUMMON_CATEGORY_VEHICLE
-            || properties->Type == SUMMON_TYPE_VEHICLE)
+            || properties->Type == SUMMON_TYPE_VEHICLE
+            || properties->Type == SUMMON_TYPE_VEHICLE2)
             mask = SUMMON_MASK_VEHICLE;
     }
 

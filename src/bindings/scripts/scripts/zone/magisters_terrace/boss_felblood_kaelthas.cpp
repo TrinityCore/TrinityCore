@@ -462,7 +462,7 @@ struct TRINITY_DLL_DECL mob_felkael_phoenixAI : public ScriptedAI
     void Reset()
     {
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE + UNIT_FLAG_NON_ATTACKABLE);
-        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
+        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
         m_creature->CastSpell(m_creature,SPELL_PHOENIX_BURN,true);
         BurnTimer = 2000;
         Death_Timer = 2700;
@@ -596,7 +596,7 @@ struct TRINITY_DLL_DECL mob_arcane_sphereAI : public ScriptedAI
         ChangeTargetTimer = 6000 + rand()%6000;
 
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
+        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
         m_creature->setFaction(14);
         DoCast(m_creature, SPELL_ARCANE_SPHERE_PASSIVE, true);
     }

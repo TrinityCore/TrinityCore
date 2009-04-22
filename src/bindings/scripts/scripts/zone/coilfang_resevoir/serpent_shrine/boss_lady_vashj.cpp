@@ -764,7 +764,7 @@ struct TRINITY_DLL_DECL mob_toxic_sporebatAI : public ScriptedAI
 
     void Reset()
     {
-        m_creature->AddUnitMovementFlag(/*MOVEMENTFLAG_ONTRANSPORT + */MOVEMENTFLAG_LEVITATING);
+        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
         m_creature->setFaction(14);
         movement_timer = 0;
         ToxicSpore_Timer = 5000;

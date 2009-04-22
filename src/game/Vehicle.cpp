@@ -43,6 +43,11 @@ void Vehicle::AddToWorld()
         ObjectAccessor::Instance().AddObject(this);
         Unit::AddToWorld();
         AIM_Initialize();
+        switch(GetEntry())
+        {
+        case 28312:InstallAccessory(28319,7);break;
+        case 32627:InstallAccessory(32629,7);break;
+        }
     }
 }
 
@@ -142,24 +147,17 @@ void Vehicle::SetVehicleId(uint32 id)
     assert(!m_Seats.empty());
 }
 
-Vehicle* Vehicle::HasEmptySeat(int8 seatNum) const
+bool Vehicle::HasEmptySeat(int8 seatNum) const
 {
     SeatMap::const_iterator seat = m_Seats.find(seatNum);
-    //No such seat
-    if(seat == m_Seats.end()) return NULL;
-    //Not occupied
-    if(!seat->second.passenger) return (Vehicle*)this;
-    //Check if turret is empty
-    if(seat->second.passenger->GetTypeId() == TYPEID_UNIT
-        && ((Creature*)seat->second.passenger)->isVehicle())
-        return ((Vehicle*)seat->second.passenger)->HasEmptySeat(seatNum);
-    //Occupied
-    return NULL;
+    if(seat == m_Seats.end()) return false;
+    return !seat->second.passenger;
 }
 
 void Vehicle::InstallAccessory(uint32 entry, int8 seatNum)
 {
-    Creature *accessory = SummonCreature(entry, GetPositionX(), GetPositionY(), GetPositionZ());
+    //Creature *accessory = SummonCreature(entry, GetPositionX(), GetPositionY(), GetPositionZ());
+    Creature *accessory = SummonVehicle(entry, GetPositionX(), GetPositionY(), GetPositionZ());
     if(!accessory)
         return;
 
@@ -202,16 +200,16 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatNum)
 
     unit->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
     VehicleSeatEntry const *veSeat = seat->second.seatInfo;
-    unit->m_movementInfo.t_x = veSeat->m_attachmentOffsetX;
-    unit->m_movementInfo.t_y = veSeat->m_attachmentOffsetY;
-    unit->m_movementInfo.t_z = veSeat->m_attachmentOffsetZ;
+    unit->m_movementInfo.t_x = 0;//veSeat->m_attachmentOffsetX;
+    unit->m_movementInfo.t_y = 0;//veSeat->m_attachmentOffsetY;
+    unit->m_movementInfo.t_z = 0;//veSeat->m_attachmentOffsetZ;
     unit->m_movementInfo.t_o = 0;
     unit->m_movementInfo.t_time = 4;
     unit->m_movementInfo.t_seat = seat->first;
 
-    unit->Relocate(GetPositionX() + veSeat->m_attachmentOffsetX,
-        GetPositionY() + veSeat->m_attachmentOffsetY,
-        GetPositionZ() + veSeat->m_attachmentOffsetZ,
+    unit->Relocate(GetPositionX() + unit->m_movementInfo.t_x,
+        GetPositionY() + unit->m_movementInfo.t_y,
+        GetPositionZ() + unit->m_movementInfo.t_z,
         GetOrientation());
 
     WorldPacket data;
@@ -219,7 +217,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatNum)
     {
         //ChatHandler(player).PSendSysMessage("Enter seat %u %u", veSeat->m_ID, seat->first);
 
-        if(seat == m_Seats.begin())
+        if(seat->first == 0)
         {
             ((Player*)unit)->SetCharm(this, true);
             ((Player*)unit)->SetViewpoint(this, true);
@@ -231,8 +229,8 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatNum)
         ((Player*)unit)->GetSession()->SendPacket(&data);
     }
 
-    BuildHeartBeatMsg(&data);
-    SendMessageToSet(&data, unit->GetTypeId() == TYPEID_PLAYER ? false : true);
+    unit->BuildHeartBeatMsg(&data);
+    unit->SendMessageToSet(&data, false);
 
     return true;
 }
@@ -258,7 +256,7 @@ void Vehicle::RemovePassenger(Unit *unit)
 
     //SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
 
-    if(unit->GetTypeId() == TYPEID_PLAYER && seat == m_Seats.begin())
+    if(unit->GetTypeId() == TYPEID_PLAYER && seat->first == 0)
     {
         ((Player*)unit)->SetCharm(this, false);
         ((Player*)unit)->SetViewpoint(this, false);

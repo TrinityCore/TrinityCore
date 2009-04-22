@@ -1421,7 +1421,7 @@ struct TRINITY_DLL_DECL mob_phoenix_tkAI : public ScriptedAI
 
     void Reset()
     {
-        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT + MOVEMENTFLAG_LEVITATING);//birds can fly! :)
+        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);//birds can fly! :)
         egg = true;
         Cycle_Timer = 2000;
         m_creature->CastSpell(m_creature,SPELL_BURN,true);

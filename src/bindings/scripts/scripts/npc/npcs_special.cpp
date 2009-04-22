@@ -153,7 +153,7 @@ struct TRINITY_DLL_DECL npc_dancing_flamesAI : public ScriptedAI
         float x, y, z;
         m_creature->GetPosition(x,y,z);
         m_creature->Relocate(x,y,z + 0.94f);
-        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_LEVITATING);
+        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
         m_creature->HandleEmoteCommand(EMOTE_ONESHOT_DANCE);
         WorldPacket data;                       //send update position to client
         m_creature->BuildHeartBeatMsg(&data);
