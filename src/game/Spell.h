@@ -642,14 +642,14 @@ namespace Trinity
     {
         std::list<Unit*> *i_data;
         Spell &i_spell;
-        const uint32& i_push_type;
+        SpellNotifyPushType i_push_type;
         float i_radius, i_radiusSq;
         SpellTargets i_TargetType;
         Unit* i_source;
         uint32 i_entry;
         float i_x, i_y, i_z;
 
-        SpellNotifierCreatureAndPlayer(Spell &spell, std::list<Unit*> &data, float radius, const uint32 &type,
+        SpellNotifierCreatureAndPlayer(Spell &spell, std::list<Unit*> &data, float radius, SpellNotifyPushType type,
             SpellTargets TargetType = SPELL_TARGETS_ENEMY, uint32 entry = 0, float x = 0, float y = 0, float z = 0)
             : i_data(&data), i_spell(spell), i_push_type(type), i_radius(radius), i_radiusSq(radius*radius)
             , i_TargetType(TargetType), i_entry(entry), i_x(x), i_y(y), i_z(z)
