@@ -5390,6 +5390,15 @@ void AuraEffect::HandleAuraModPacify(bool apply, bool Real)
         m_target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
     else
         m_target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
+		
+	
+ 	if(m_spellProto->Id == 45839){
+		if(apply){
+            m_target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+		}else{
+            m_target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+		}
+	}
 }
 
 void AuraEffect::HandleAuraModPacifyAndSilence(bool apply, bool Real)

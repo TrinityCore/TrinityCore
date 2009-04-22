@@ -166,6 +166,12 @@ struct TRINITY_DLL_DECL boss_ambassador_hellmawAI : public ScriptedAI
         if (!UpdateVictim() )
             return;
 
+        if(m_creature->HasAura(SPELL_BANISH, 0))
+        {
+            EnterEvadeMode();
+            return;
+        }
+
         if (CorrosiveAcid_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_CORROSIVE_ACID);
