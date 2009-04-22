@@ -1434,7 +1434,7 @@ void Spell::SearchChainTarget(std::list<Unit*> &TagUnitMap, float max_range, uin
     }
 }
 
-void Spell::SearchAreaTarget(std::list<Unit*> &TagUnitMap, float radius, const uint32 &type, SpellTargets TargetType, uint32 entry)
+void Spell::SearchAreaTarget(std::list<Unit*> &TagUnitMap, float radius, SpellNotifyPushType type, SpellTargets TargetType, uint32 entry)
 {
     float x, y, z;
     if(type == PUSH_DEST_CENTER)
