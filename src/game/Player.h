@@ -1770,7 +1770,7 @@ class TRINITY_DLL_SPEC Player : public Unit
             for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; i++)
                 if (m_bgBattleGroundQueueID[i].bgQueueTypeId == bgQueueTypeId)
                     return m_bgBattleGroundQueueID[i].invitedToInstance != 0;
-            return PLAYER_MAX_BATTLEGROUND_QUEUES;
+            return false;
         }
         bool InBattleGroundQueueForBattleGroundQueueType(BattleGroundQueueTypeId bgQueueTypeId) const
         {

@@ -1586,29 +1586,29 @@ void Unit::DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss)
         // Reduce attack time
         if (pVictim->haveOffhandWeapon() && offtime < basetime)
         {
-            float percent20 = pVictim->GetAttackTime(OFF_ATTACK) * 0.20;
-            float percent60 = 3 * percent20;
+            float percent20 = pVictim->GetAttackTime(OFF_ATTACK) * 0.20f;
+            float percent60 = 3.0f * percent20;
             if(offtime > percent20 && offtime <= percent60)
             {
                 pVictim->setAttackTimer(OFF_ATTACK, uint32(percent20));
             }
             else if(offtime > percent60)
             {
-                offtime -= 2 * percent20;
+                offtime -= 2.0f * percent20;
                 pVictim->setAttackTimer(OFF_ATTACK, uint32(offtime));
             }
         }
         else
         {
             float percent20 = pVictim->GetAttackTime(BASE_ATTACK) * 0.20;
-            float percent60 = 3 * percent20;
+            float percent60 = 3.0f * percent20;
             if(basetime > percent20 && basetime <= percent60)
             {
                 pVictim->setAttackTimer(BASE_ATTACK, uint32(percent20));
             }
             else if(basetime > percent60)
             {
-                basetime -= 2 * percent20;
+                basetime -= 2.0f * percent20;
                 pVictim->setAttackTimer(BASE_ATTACK, uint32(basetime));
             }
         }
@@ -1625,19 +1625,19 @@ void Unit::DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss)
     {
         // -probability is between 0% and 40%
         // 20% base chance
-        float Probability = 20;
+        float Probability = 20.0f;
 
         //there is a newbie protection, at level 10 just 7% base chance; assuming linear function
         if( pVictim->getLevel() < 30 )
-            Probability = 0.65f*pVictim->getLevel()+0.5;
+            Probability = 0.65f*pVictim->getLevel()+0.5f;
 
         uint32 VictimDefense=pVictim->GetDefenseSkillValue();
         uint32 AttackerMeleeSkill=GetUnitMeleeSkill();
 
         Probability *= AttackerMeleeSkill/(float)VictimDefense;
 
-        if(Probability > 40)
-            Probability = 40;
+        if(Probability > 40.0f)
+            Probability = 40.0f;
 
         if(roll_chance_f(Probability))
             CastSpell(pVictim, 1604, true);
