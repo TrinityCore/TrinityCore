@@ -1081,7 +1081,7 @@ void CreatureEventAI::EnterEvadeMode()
     m_creature->InterruptNonMeleeSpells(true);
     m_creature->RemoveAllAuras();
     m_creature->DeleteThreatList();
-    m_creature->CombatStop();
+    m_creature->CombatStop(true);
 
     if (m_creature->isAlive())
         m_creature->GetMotionMaster()->MoveTargetedHome();

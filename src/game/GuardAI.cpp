@@ -67,7 +67,7 @@ void GuardAI::EnterEvadeMode()
         i_state = STATE_NORMAL;
 
         i_victimGuid = 0;
-        m_creature->CombatStop();
+        m_creature->CombatStop(true);
         m_creature->DeleteThreatList();
         return;
     }
@@ -98,7 +98,7 @@ void GuardAI::EnterEvadeMode()
     m_creature->RemoveAllAuras();
     m_creature->DeleteThreatList();
     i_victimGuid = 0;
-    m_creature->CombatStop();
+    m_creature->CombatStop(true);
     i_state = STATE_NORMAL;
 
     // Remove TargetedMovementGenerator from MotionMaster stack list, and add HomeMovementGenerator instead
