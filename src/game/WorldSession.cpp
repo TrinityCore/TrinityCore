@@ -604,7 +604,7 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo *mi)
     if(mi->flags & MOVEMENTFLAG_JUMPING)
     {
         CHECK_PACKET_SIZE(data, data.rpos()+4+4+4+4);
-        data >> mi->j_unk;
+        data >> mi->j_zspeed;
         data >> mi->j_sinAngle;
         data >> mi->j_cosAngle;
         data >> mi->j_xyspeed;

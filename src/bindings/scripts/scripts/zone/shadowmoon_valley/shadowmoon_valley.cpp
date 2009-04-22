@@ -98,7 +98,7 @@ struct TRINITY_DLL_DECL mob_mature_netherwing_drakeAI : public ScriptedAI
         {
             float PlayerX, PlayerY, PlayerZ;
             caster->GetClosePoint(PlayerX, PlayerY, PlayerZ, m_creature->GetObjectSize());
-            m_creature->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT + MOVEMENTFLAG_LEVITATING);
+            m_creature->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
             m_creature->GetMotionMaster()->MovePoint(1, PlayerX, PlayerY, PlayerZ);
             PlayerGUID = caster->GetGUID();
         }
@@ -114,7 +114,7 @@ struct TRINITY_DLL_DECL mob_mature_netherwing_drakeAI : public ScriptedAI
             IsEating = true;
             EatTimer = 5000;
             m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_ATTACKUNARMED);
-            m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT + MOVEMENTFLAG_LEVITATING);
+            m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
         }
     }
 
@@ -194,7 +194,7 @@ struct TRINITY_DLL_DECL mob_enslaved_netherwing_drakeAI : public ScriptedAI
             m_creature->setFaction(FACTION_DEFAULT);
 
         FlyTimer = 10000;
-        m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT + MOVEMENTFLAG_LEVITATING);
+        m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
         m_creature->SetVisibility(VISIBILITY_ON);
     }
 
@@ -243,7 +243,7 @@ struct TRINITY_DLL_DECL mob_enslaved_netherwing_drakeAI : public ScriptedAI
                 PlayerGUID = 0;
             }
             m_creature->SetVisibility(VISIBILITY_OFF);
-            m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT + MOVEMENTFLAG_LEVITATING);
+            m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
             m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
             m_creature->RemoveCorpse();
         }
@@ -282,7 +282,7 @@ struct TRINITY_DLL_DECL mob_enslaved_netherwing_drakeAI : public ScriptedAI
                             dz += 25;
                         }
 
-                        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT + MOVEMENTFLAG_LEVITATING);
+                        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                         m_creature->GetMotionMaster()->MovePoint(1, dx, dy, dz);
                     }
                 }
@@ -759,7 +759,7 @@ struct TRINITY_DLL_DECL npc_overlord_morghorAI : public ScriptedAI
         case 19: DoScriptText(LORD_ILLIDAN_SAY_7, Illi); return 5000; break;
         case 20:
             Illi->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
-            Illi->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT + MOVEMENTFLAG_LEVITATING);
+            Illi->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
             return 500; break;
         case 21: DoScriptText(OVERLORD_SAY_5, m_creature); return 500; break;
         case 22:

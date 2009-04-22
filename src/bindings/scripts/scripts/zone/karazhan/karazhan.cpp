@@ -534,7 +534,7 @@ struct TRINITY_DLL_DECL npc_image_of_medivhAI : public ScriptedAI
         EventStarted = true;
         Creature* Arcanagos = m_creature->SummonCreature(MOB_ARCANAGOS,ArcanagosPos[0],ArcanagosPos[1],ArcanagosPos[2],0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,20000);
         ArcanagosGUID = Arcanagos->GetGUID();
-        Arcanagos->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT + MOVEMENTFLAG_LEVITATING);
+        Arcanagos->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
         (*Arcanagos).GetMotionMaster()->MovePoint(0,ArcanagosPos[0],ArcanagosPos[1],ArcanagosPos[2]);
         Arcanagos->SetOrientation(ArcanagosPos[3]);
         m_creature->SetOrientation(MedivPos[3]);

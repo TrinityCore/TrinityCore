@@ -431,9 +431,7 @@ struct TRINITY_DLL_DECL mob_soaring_eagleAI : public ScriptedAI
                     m_creature->SetSpeed(MOVE_RUN, 5.0f);
                     TargetGUID = target->GetGUID();
                 }
-                m_creature->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
                 m_creature->GetMotionMaster()->MovePoint(0, x, y, z);
-                m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
                 arrived = false;
             }
         }
