@@ -50,7 +50,7 @@ TotemAI::MoveInLineOfSight(Unit *)
 
 void TotemAI::EnterEvadeMode()
 {
-    m_creature->CombatStop();
+    m_creature->CombatStop(true);
 }
 
 void
