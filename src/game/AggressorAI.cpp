@@ -47,7 +47,7 @@ void AggressorAI::EnterEvadeMode()
     {
         DEBUG_LOG("Creature stopped attacking cuz his dead [guid=%u]", m_creature->GetGUIDLow());
         i_victimGuid = 0;
-        m_creature->CombatStop();
+        m_creature->CombatStop(true);
         m_creature->DeleteThreatList();
         return;
     }
@@ -90,7 +90,7 @@ void AggressorAI::EnterEvadeMode()
 
     m_creature->DeleteThreatList();
     i_victimGuid = 0;
-    m_creature->CombatStop();
+    m_creature->CombatStop(true);
     m_creature->SetLootRecipient(NULL);
 }
 
