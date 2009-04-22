@@ -187,7 +187,7 @@ struct TRINITY_DLL_DECL boss_warbringer_omroggAI : public ScriptedAI
             Unit *Left  = Unit::GetUnit(*m_creature,LeftHead);
             Unit *Right = Unit::GetUnit(*m_creature,RightHead);
 
-            if (!Left && !Right)
+            if (!Left || !Right)
                 return;
 
             ithreat = rand()%4;
@@ -240,7 +240,7 @@ struct TRINITY_DLL_DECL boss_warbringer_omroggAI : public ScriptedAI
             Unit *Left  = Unit::GetUnit(*m_creature,LeftHead);
             Unit *Right = Unit::GetUnit(*m_creature,RightHead);
 
-            if (!Left && !Right)
+            if (!Left || !Right)
                 return;
 
             ikilling = rand()%2;
@@ -269,7 +269,7 @@ struct TRINITY_DLL_DECL boss_warbringer_omroggAI : public ScriptedAI
             Unit *Left  = Unit::GetUnit(*m_creature,LeftHead);
             Unit *Right = Unit::GetUnit(*m_creature,RightHead);
 
-            if (!Left && !Right)
+            if (!Left || !Right)
                 return;
 
             DoScriptText(YELL_DIE_L, Left);
