@@ -590,7 +590,7 @@ class Spell
         void DoAllEffectOnTarget(GOTargetInfo *target);
         void DoAllEffectOnTarget(ItemTargetInfo *target);
         bool UpdateChanneledTargetList();
-        void SearchAreaTarget(std::list<Unit*> &data, float radius, const uint32 &type,
+        void SearchAreaTarget(std::list<Unit*> &data, float radius, SpellNotifyPushType type,
             SpellTargets TargetType, uint32 entry = 0);
         void SearchChainTarget(std::list<Unit*> &data, float radius, uint32 unMaxTargets,
             SpellTargets TargetType);
