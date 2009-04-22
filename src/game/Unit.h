@@ -668,7 +668,7 @@ struct MovementInfo
     // last fall time
     uint32  fallTime;
     // jumping
-    float   j_unk, j_sinAngle, j_cosAngle, j_xyspeed;
+    float   j_zspeed, j_sinAngle, j_cosAngle, j_xyspeed;
     // spline
     float   u_unk1;
 
@@ -677,7 +677,7 @@ struct MovementInfo
         flags = 0;
         time = t_time = fallTime = 0;
         unk1 = 0;
-        x = y = z = o = t_x = t_y = t_z = t_o = s_pitch = j_unk = j_sinAngle = j_cosAngle = j_xyspeed = u_unk1 = 0.0f;
+        x = y = z = o = t_x = t_y = t_z = t_o = s_pitch = j_zspeed = j_sinAngle = j_cosAngle = j_xyspeed = u_unk1 = 0.0f;
         t_guid = 0;
     }
 };

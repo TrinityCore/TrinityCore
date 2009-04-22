@@ -109,7 +109,7 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
         MovePhase = 0;
 
         m_creature->SetSpeed(MOVE_RUN, 2.0f);
-        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT + MOVEMENTFLAG_LEVITATING);
+        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
         m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
         m_creature->setActive(true);
 
@@ -228,7 +228,7 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
 
         m_creature->InterruptSpell(CURRENT_GENERIC_SPELL);
         m_creature->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
-        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT + MOVEMENTFLAG_LEVITATING);
+        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
         (*m_creature).GetMotionMaster()->Clear(false);
         (*m_creature).GetMotionMaster()->MovePoint(0,IntroWay[2][0],IntroWay[2][1],IntroWay[2][2]);
 
@@ -251,7 +251,7 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
             {
                 if(MovePhase >= 7)
                 {
-                    m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT + MOVEMENTFLAG_LEVITATING);
+                    m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                     m_creature->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
                     m_creature->GetMotionMaster()->MovePoint(8,IntroWay[7][0],IntroWay[7][1],IntroWay[7][2]);
                 }
@@ -266,7 +266,7 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
             {
                 if(MovePhase >= 7)
                 {
-                    m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT + MOVEMENTFLAG_LEVITATING);
+                    m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                     m_creature->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
                     m_creature->GetMotionMaster()->MovePoint(8,IntroWay[7][0],IntroWay[7][1],IntroWay[7][2]);
                 }

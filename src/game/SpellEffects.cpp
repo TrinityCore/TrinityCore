@@ -3269,6 +3269,7 @@ void Spell::EffectSummonType(uint32 i)
                     SummonGuardian(entry, properties);
                     break;
                 case SUMMON_TYPE_VEHICLE:
+                case SUMMON_TYPE_VEHICLE2:
                     SummonVehicle(entry, properties);
                     break;
                 case SUMMON_TYPE_TOTEM:

@@ -482,32 +482,33 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket &recv_data)
 {
     sLog.outDebug("WORLD: Recvd CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE");
     recv_data.hexlike();
-    uint32 a;
-    uint16 b;
-    uint16 c;
-    uint32 d,e,f,g,h,i,j,k;
-    int8 seat;
-    recv_data >> a >> b >> c;
-    recv_data >> d >> e >> f >> g >> h >> i >> j >> k;
-    recv_data >> seat;
-    //sLog.outError("change seat %u %u %u %u %u %u %u %u %u %u %u %u", a, b,c,d,e,f,g,h,i,j,k,seat);
 
-    if(seat == GetPlayer()->GetTransSeat())
+    if(!GetPlayer()->m_Vehicle)
         return;
 
-    if(GetPlayer()->m_Vehicle)
-    {
-        if(Vehicle *vehicle = GetPlayer()->m_Vehicle->HasEmptySeat(seat))
-        {
-            GetPlayer()->m_Vehicle->RemovePassenger(GetPlayer());
-            //If the player is going to a turret, the vehicle should be changed
-            GetPlayer()->m_Vehicle = vehicle;
-            if(!vehicle->AddPassenger(GetPlayer(), seat))
-            {
-                assert(false);
-            }
-        }
-    }
+    if(recv_data.GetOpcode() == CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE)
+        ReadMovementInfo(recv_data, &GetPlayer()->m_Vehicle->m_movementInfo);
+
+    uint64 guid;
+    if(!recv_data.readPackGUID(guid))
+        return;
+
+    Vehicle *vehicle = ObjectAccessor::GetVehicle(guid);
+    if(!vehicle)
+        return;
+
+    int8 seatNum;
+    recv_data >> seatNum;
+    if(vehicle == GetPlayer()->m_Vehicle && seatNum == GetPlayer()->GetTransSeat())
+        return;
+
+    if(!vehicle->HasEmptySeat(seatNum))
+        return;
+
+    GetPlayer()->m_Vehicle->RemovePassenger(GetPlayer());
+    GetPlayer()->m_Vehicle = vehicle;
+    if(!vehicle->AddPassenger(GetPlayer(), seatNum))
+        assert(false);
 }
 
 void WorldSession::HandleRequestVehicleExit(WorldPacket &recv_data)
