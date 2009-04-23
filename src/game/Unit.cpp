@@ -13546,7 +13546,7 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
         else if(GetTransport())
             *data << (uint64)GetTransport()->GetGUID();
         else
-            *data << (uint64)0;
+            *data << (uint64)0; //This will cause client crash
         *data << float (GetTransOffsetX());
         *data << float (GetTransOffsetY());
         *data << float (GetTransOffsetZ());

@@ -45,6 +45,7 @@ void Vehicle::AddToWorld()
         AIM_Initialize();
         switch(GetEntry())
         {
+        case 27850:InstallAccessory(27905,1);break;
         case 28312:InstallAccessory(28319,7);break;
         case 32627:InstallAccessory(32629,7);break;
         }
@@ -154,6 +155,30 @@ bool Vehicle::HasEmptySeat(int8 seatNum) const
     return !seat->second.passenger;
 }
 
+int8 Vehicle::GetNextEmptySeat(int8 seatNum, bool next) const
+{
+    SeatMap::const_iterator seat = m_Seats.find(seatNum);
+    if(seat == m_Seats.end()) return -1;
+    while(seat->second.passenger)
+    {
+        if(next)
+        {
+            ++seat;
+            if(seat == m_Seats.end())
+                seat = m_Seats.begin();
+        }
+        else
+        {
+            if(seat == m_Seats.begin())
+                seat = m_Seats.end();
+            --seat;
+        }
+        if(seat->first == seatNum)
+            return -1;
+    }
+    return seat->first;
+}
+
 void Vehicle::InstallAccessory(uint32 entry, int8 seatNum)
 {
     //Creature *accessory = SummonCreature(entry, GetPositionX(), GetPositionY(), GetPositionZ());
@@ -197,12 +222,13 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatNum)
     seat->second.passenger = unit;
 
     //RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+    //SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);
 
     unit->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
     VehicleSeatEntry const *veSeat = seat->second.seatInfo;
-    unit->m_movementInfo.t_x = 0;//veSeat->m_attachmentOffsetX;
-    unit->m_movementInfo.t_y = 0;//veSeat->m_attachmentOffsetY;
-    unit->m_movementInfo.t_z = 0;//veSeat->m_attachmentOffsetZ;
+    unit->m_movementInfo.t_x = veSeat->m_attachmentOffsetX;
+    unit->m_movementInfo.t_y = veSeat->m_attachmentOffsetY;
+    unit->m_movementInfo.t_z = veSeat->m_attachmentOffsetZ;
     unit->m_movementInfo.t_o = 0;
     unit->m_movementInfo.t_time = 4;
     unit->m_movementInfo.t_seat = seat->first;

@@ -261,6 +261,9 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
                 }
             }
         }
+
+        if(!mover->GetTransport() || !mover->m_Vehicle)
+            movementInfo.flags &= ~MOVEMENTFLAG_ONTRANSPORT;
     }
     else if (plMover && plMover->m_transport)               // if we were on a transport, leave
     {
@@ -293,11 +296,12 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
     data.append(recv_data.contents(), recv_data.size());
     GetPlayer()->SendMessageToSet(&data, false);
 
+    mover->m_movementInfo = movementInfo;
+    mover->SetUnitMovementFlags(movementInfo.flags);
+
     if(plMover)                                             // nothing is charmed, or player charmed
     {
         plMover->SetPosition(movementInfo.x, movementInfo.y, movementInfo.z, movementInfo.o);
-        plMover->m_movementInfo = movementInfo;
-        plMover->SetUnitMovementFlags(movementInfo.flags);
         plMover->UpdateFallInformationIfNeed(movementInfo,recv_data.GetOpcode());
 
         if(plMover->isMovingOrTurning())
@@ -493,20 +497,29 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket &recv_data)
     if(!recv_data.readPackGUID(guid))
         return;
 
-    Vehicle *vehicle = ObjectAccessor::GetVehicle(guid);
+    Vehicle *vehicle = guid ? ObjectAccessor::GetVehicle(guid) : GetPlayer()->m_Vehicle;
     if(!vehicle)
         return;
 
     int8 seatNum;
     recv_data >> seatNum;
-    if(vehicle == GetPlayer()->m_Vehicle && seatNum == GetPlayer()->GetTransSeat())
-        return;
-
-    if(!vehicle->HasEmptySeat(seatNum))
+    if(!guid)
+    {
+        seatNum = vehicle->GetNextEmptySeat(GetPlayer()->GetTransSeat(), seatNum > 0);
+        if(seatNum < 0)
+            return;
+    }
+    else if(!vehicle->HasEmptySeat(seatNum))
         return;
 
     GetPlayer()->m_Vehicle->RemovePassenger(GetPlayer());
-    GetPlayer()->m_Vehicle = vehicle;
+    if(GetPlayer()->m_Vehicle != vehicle)
+    {
+        GetPlayer()->m_Vehicle = vehicle;
+        GetPlayer()->SetClientControl(vehicle, 1);
+        WorldPacket data(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
+        GetPlayer()->GetSession()->SendPacket(&data);
+    }
     if(!vehicle->AddPassenger(GetPlayer(), seatNum))
         assert(false);
 }
