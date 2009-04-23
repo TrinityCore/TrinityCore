@@ -16,52 +16,49 @@ struct TSpellSummary {
     uint8 Effects;                                          // set of enum SelectEffect
 } *SpellSummary;
 
-void SummonList::Despawn(Creature *summon)
+void SummonList::DoAction(uint32 entry, uint32 info)
 {
-    uint64 guid = summon->GetGUID();
-    for(iterator i = begin(); i != end(); ++i)
+    for(iterator i = begin(); i != end();)
     {
-        if(*i == guid)
-        {
-            erase(i);
-            return;
-        }
+        Creature *summon = Unit::GetCreature(*m_creature, *i);
+        ++i;
+        if(summon && summon->IsAIEnabled)
+            summon->AI()->DoAction(info);
     }
 }
 
 void SummonList::DespawnEntry(uint32 entry)
 {
-    for(iterator i = begin(); i != end(); ++i)
+    for(iterator i = begin(); i != end();)
     {
-        if(Creature *summon = Unit::GetCreature(*m_creature, *i))
+        Creature *summon = Unit::GetCreature(*m_creature, *i);
+        if(!summon)
+            erase(i++);
+        else if(summon->GetEntry() == entry)
         {
-            if(summon->GetEntry() == entry)
-            {
-                summon->setDeathState(JUST_DIED);
-                summon->RemoveCorpse();
-                i = erase(i);
-                --i;
-            }
+            erase(i++);
+            summon->setDeathState(JUST_DIED);
+            summon->RemoveCorpse();
         }
         else
-        {
-            i = erase(i);
-            --i;
-        }
+            ++i;
     }
 }
 
 void SummonList::DespawnAll()
 {
-    for(iterator i = begin(); i != end(); ++i)
+    while(!empty())
     {
-        if(Creature *summon = Unit::GetCreature(*m_creature, *i))
+        Creature *summon = Unit::GetCreature(*m_creature, *begin());
+        if(!summon)
+            erase(begin());
+        else
         {
+            erase(begin());
             summon->setDeathState(JUST_DIED);
             summon->RemoveCorpse();
         }
     }
-    clear();
 }
 
 void ScriptedAI::AttackStart(Unit* who, bool melee)

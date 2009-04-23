@@ -13,14 +13,15 @@
 
 float GetSpellMaxRangeForHostile(uint32 id);
 
-class SummonList : std::list<uint64>
+class SummonList : private std::list<uint64>
 {
 public:
-    SummonList(Creature* creature) : m_creature(creature) {}
-    void Summon(Creature *summon) {push_back(summon->GetGUID());}
-    void Despawn(Creature *summon);
+    explicit SummonList(Creature* creature) : m_creature(creature) {}
+    void Summon(Creature *summon) { push_back(summon->GetGUID()); }
+    void Despawn(Creature *summon) { remove(summon->GetGUID()); }
     void DespawnEntry(uint32 entry);
     void DespawnAll();
+    void DoAction(uint32 entry, uint32 info);
 private:
     Creature *m_creature;
 };

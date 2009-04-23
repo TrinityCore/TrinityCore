@@ -77,6 +77,76 @@ enum SCEquip
     EQUIP_UNEQUIP   = 0
 };
 
+class EventMap : private std::map<uint32, uint32>
+{
+    private:
+        uint32 m_time, m_phase;
+    public:
+        explicit EventMap() : m_phase(0), m_time(0) {}
+
+        void Reset() { clear(); m_time = 0; m_phase = 0; }
+
+        void Update(uint32 time) { m_time += time; }
+
+        void SetPhase(uint32 phase)
+        {
+            if(phase && phase < 9)
+                m_phase = (1 << (phase + 24));
+        }
+
+        void ScheduleEvent(uint32 time, uint32 eventId, uint32 gcd = 0, uint32 phase = 0)
+        {
+            time += m_time;
+            if(gcd && gcd < 9)
+                eventId |= (1 << (gcd + 16));
+            if(phase && phase < 9)
+                eventId |= (1 << (phase + 24));
+            iterator itr = find(time);
+            while(itr != end())
+            {
+                ++time;
+                itr = find(time);
+            }
+            insert(std::make_pair(time, eventId));
+        }
+
+        uint32 ExecuteEvent()
+        {
+            while(!empty())
+            {
+                if(begin()->first > m_time)
+                    return 0;
+                else if(m_phase && (begin()->second & 0xFF000000) && !(begin()->second & m_phase))
+                    erase(begin());
+                else
+                {
+                    uint32 eventId = (begin()->second & 0x0000FFFF);
+                    erase(begin());
+                    return eventId;
+                }
+            }
+            return 0;
+        }
+
+        void DelayEvents(uint32 time, uint32 gcd)
+        {
+            time += m_time;
+            gcd = (1 << (gcd + 16));
+            for(iterator itr = begin(); itr != end();)
+            {
+                if(itr->first >= time)
+                    break;
+                if(itr->second & gcd)
+                {
+                    ScheduleEvent(time, itr->second);
+                    erase(itr++);
+                }
+                else
+                    ++itr;
+            }
+        }
+};
+
 class TRINITY_DLL_SPEC UnitAI
 {
     protected:
