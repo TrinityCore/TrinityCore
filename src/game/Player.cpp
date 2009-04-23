@@ -18615,7 +18615,7 @@ void Player::_resetAllPetSpells()
             CreatureFamilyEntry const *pet_family = sCreatureFamilyStore.LookupEntry(ci->family);
             if (!pet_family)
                 sLog.outError("Unknown pet (id %d) type saved in character_pet!", petId);
-            if(pet_family && pet_family->petTalentType <= 0)
+            if(pet_family && pet_family->petTalentType >= 0)
             {
                 uint32 points = (level >= 20) ? ((level - 16) / 4) : 0;
                 CharacterDatabase.PExecute("DELETE FROM pet_spell WHERE guid = '%u'", petId);
