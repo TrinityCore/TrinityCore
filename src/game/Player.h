@@ -497,7 +497,8 @@ enum AtLoginFlags
     AT_LOGIN_RENAME        = 1,
     AT_LOGIN_RESET_SPELLS  = 2,
     AT_LOGIN_RESET_TALENTS = 4,
-    AT_LOGIN_CUSTOMIZE     = 8
+    AT_LOGIN_CUSTOMIZE     = 8,
+    AT_LOGIN_RESET_PET_SPELLS = 16
 };
 
 typedef std::map<uint32, QuestStatusData> QuestStatusMap;
@@ -1342,6 +1343,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         void learnSpell(uint32 spell_id, bool dependent);
         void removeSpell(uint32 spell_id, bool disabled = false, bool update_action_bar_for_low_rank = false);
         void resetSpells();
+        void _resetAllPetSpells();
         void learnDefaultSpells();
         void learnQuestRewardedSpells();
         void learnQuestRewardedSpells(Quest const* quest);
