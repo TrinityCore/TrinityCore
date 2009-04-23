@@ -53,6 +53,7 @@ class Vehicle : public Creature
         void SetVehicleId(uint32 vehicleid);
 
         bool HasEmptySeat(int8 seatNum) const;
+        int8 GetNextEmptySeat(int8 seatNum, bool next) const;
         bool AddPassenger(Unit *passenger, int8 seatNum = -1);
         void RemovePassenger(Unit *passenger);
         void InstallAccessory(uint32 entry, int8 seatNum);

@@ -270,10 +270,6 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint8 flags) const
         {
             case TYPEID_UNIT:
             {
-                if(((Unit*)this)->m_Vehicle)
-                    flags2 |= MOVEMENTFLAG_ONTRANSPORT;
-                else
-                    flags2 &= ~MOVEMENTFLAG_ONTRANSPORT;
                 flags2 &= ~MOVEMENTFLAG_SPLINE2;
                 if(((Creature*)this)->isVehicle())
                     ((Unit*)this)->m_movementInfo.unk1 |= 0x20;     // always allow pitch
@@ -281,11 +277,6 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint8 flags) const
             break;
             case TYPEID_PLAYER:
             {
-                if(((Player*)this)->GetTransport() || ((Player*)this)->m_Vehicle)
-                    flags2 |= MOVEMENTFLAG_ONTRANSPORT;
-                else
-                    flags2 &= ~MOVEMENTFLAG_ONTRANSPORT;
-
                 // remove unknown, unused etc flags for now
                 flags2 &= ~MOVEMENTFLAG_SPLINE2;            // will be set manually
 
