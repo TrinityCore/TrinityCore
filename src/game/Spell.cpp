@@ -473,6 +473,12 @@ void Spell::FillTargetMap()
 
         if(!targetA && !targetB)
         {
+            if(!GetSpellMaxRangeForFriend(sSpellRangeStore.LookupEntry(m_spellInfo->rangeIndex)))
+            {
+                AddUnitTarget(m_caster, i);
+                continue;
+            }
+
             // add here custom effects that need default target.
             // FOR EVERY TARGET TYPE THERE IS A DIFFERENT FILL!!
             switch(m_spellInfo->Effect[i])
