@@ -308,7 +308,7 @@ enum SpellCategory
 #define SPELL_ATTR_EX2_NOT_NEED_SHAPESHIFT        0x00080000            // 19 does not necessarly need shapeshift
 #define SPELL_ATTR_EX2_UNK20                      0x00100000            // 20
 #define SPELL_ATTR_EX2_DAMAGE_REDUCED_SHIELD      0x00200000            // 21 for ice blocks, pala immunity buffs, priest absorb shields, but used also for other spells -> not sure!
-#define SPELL_ATTR_EX2_UNK22                      0x00400000            // 22
+#define SPELL_ATTR_EX2_TRIGGERED_CAN_TRIGGER      0x00400000            // 22 spell can trigger even if triggered
 #define SPELL_ATTR_EX2_UNK23                      0x00800000            // 23 Only mage Arcane Concentration have this flag
 #define SPELL_ATTR_EX2_UNK24                      0x01000000            // 24
 #define SPELL_ATTR_EX2_UNK25                      0x02000000            // 25
@@ -316,7 +316,7 @@ enum SpellCategory
 #define SPELL_ATTR_EX2_UNK27                      0x08000000            // 27
 #define SPELL_ATTR_EX2_UNK28                      0x10000000            // 28 no breaks stealth if it fails??
 #define SPELL_ATTR_EX2_CANT_CRIT                  0x20000000            // 29 Spell can't crit
-#define SPELL_ATTR_EX2_TRIGGERED_CAN_TRIGGER      0x40000000            // 30 spell can trigger even if triggered
+#define SPELL_ATTR_EX2_TRIGGERED_CAN_TRIGGER_2    0x40000000            // 30 spell can trigger even if triggered
 #define SPELL_ATTR_EX2_FOOD                       0x80000000            // 31 food, well-fed, and a few others
 
 #define SPELL_ATTR_EX3_UNK0                       0x00000001            // 0

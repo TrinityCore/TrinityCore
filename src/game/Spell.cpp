@@ -915,7 +915,10 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
     // Fill base trigger info
     uint32 procAttacker = m_procAttacker;
     uint32 procVictim   = m_procVictim;
-    uint32 procEx       = m_triggeredByAuraSpell && !(m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_TRIGGERED_CAN_TRIGGER) ? PROC_EX_INTERNAL_TRIGGERED : PROC_EX_NONE;
+    uint32 procEx       = m_triggeredByAuraSpell 
+        && !(m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_TRIGGERED_CAN_TRIGGER)
+        && !(m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_TRIGGERED_CAN_TRIGGER_2)
+        ? PROC_EX_INTERNAL_TRIGGERED : PROC_EX_NONE;
     m_spellAura = NULL; // Set aura to null for every target-make sure that pointer is not used for unit without aura applied
 
     if (missInfo==SPELL_MISS_NONE)                          // In case spell hit target, do all effect on that target
