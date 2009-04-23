@@ -5390,6 +5390,11 @@ bool ChatHandler::HandleResetAllCommand(const char * args)
         atLogin = AT_LOGIN_RESET_TALENTS;
         sWorld.SendWorldText(LANG_RESETALL_TALENTS);
     }
+    else if(casename=="pet_spells")
+    {
+        atLogin = AT_LOGIN_RESET_PET_SPELLS;
+        sWorld.SendWorldText(LANG_RESETALL_PET_SPELLS);
+    }
     else
     {
         PSendSysMessage(LANG_RESETALL_UNKNOWN_CASE,args);

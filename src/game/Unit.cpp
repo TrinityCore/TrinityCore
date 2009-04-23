@@ -5524,6 +5524,9 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 // Glyph of Dispel Magic
                 case 55677:
                 {
+                    // Dispel Magic shares spellfamilyflag with abolish disease
+                    if (procSpell->SpellIconID!=74)
+                        return false;
                     if(!target->IsFriendlyTo(this))
                         return false;
 
