@@ -46,6 +46,15 @@ EndScriptData */
 
 #define GOBJECT_SPINE                  185584
 
+#define EVENT_BERSERK   1
+#define EVENT_YELL      2
+#define EVENT_NEEDLE    3
+#define EVENT_SPINE     4
+#define EVENT_SHIELD    5
+
+#define GCD_CAST        1
+#define GCD_YELL        2
+
 struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
 {
     boss_najentusAI(Creature *c) : ScriptedAI(c)
@@ -54,21 +63,13 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
     }
 
     ScriptedInstance* pInstance;
-
-    uint32 NeedleSpineTimer;
-    uint32 EnrageTimer;
-    uint32 SpecialYellTimer;
-    uint32 TidalShieldTimer;
-    uint32 ImpalingSpineTimer;
+    EventMap events;
 
     uint64 SpineTargetGUID;
 
     void Reset()
     {
-        EnrageTimer = 480000;
-        SpecialYellTimer = 45000 + (rand()%76)*1000;
-
-        ResetTimer();
+        events.Reset();
 
         SpineTargetGUID = 0;
 
@@ -78,11 +79,8 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        switch(rand()%2)
-        {
-        case 0: DoScriptText(SAY_SLAY1, m_creature); break;
-        case 1: DoScriptText(SAY_SLAY2, m_creature); break;
-        }
+        DoScriptText(rand()%2 ? SAY_SLAY1 : SAY_SLAY2, m_creature);
+        events.DelayEvents(5000, GCD_YELL);
     }
 
     void JustDied(Unit *victim)
@@ -110,6 +108,9 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
 
         DoScriptText(SAY_AGGRO, m_creature);
         DoZoneInCombat();
+        events.ScheduleEvent(480000, EVENT_BERSERK, GCD_CAST);
+        events.ScheduleEvent(45000 + (rand()%76)*1000, EVENT_YELL, GCD_YELL);
+        ResetTimer();
     }
 
     bool RemoveImpalingSpine()
@@ -124,9 +125,9 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
 
     void ResetTimer(uint32 inc = 0)
     {
-        NeedleSpineTimer = 10000 + inc;
-        TidalShieldTimer = 60000 + inc;
-        ImpalingSpineTimer = 20000 + inc;
+        events.ScheduleEvent(10000 + inc, EVENT_NEEDLE, GCD_CAST);
+        events.ScheduleEvent(20000 + inc, EVENT_SPINE, GCD_CAST);
+        events.ScheduleEvent(60000 + inc, EVENT_SHIELD);
     }
 
     void UpdateAI(const uint32 diff)
@@ -134,58 +135,56 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if(TidalShieldTimer < diff)
-        {
-            m_creature->CastSpell(m_creature, SPELL_TIDAL_SHIELD, true);
-            ResetTimer(45000);
-        }else TidalShieldTimer -= diff;
+        events.Update(diff);
 
-        if(EnrageTimer < diff)
+        while(uint32 eventId = events.ExecuteEvent())
         {
-            DoScriptText(SAY_ENRAGE2, m_creature);
-            m_creature->CastSpell(m_creature, SPELL_BERSERK, true);
-            EnrageTimer = 600000;
-        }else EnrageTimer -= diff;
-
-        if(NeedleSpineTimer < diff)
-        {
-            //m_creature->CastSpell(m_creature, SPELL_NEEDLE_SPINE, true);
-            std::list<Unit*> target;
-            SelectUnitList(target, 3, SELECT_TARGET_RANDOM, 80, true);
-            for(std::list<Unit*>::iterator i = target.begin(); i != target.end(); ++i)
-                m_creature->CastSpell(*i, 39835, true);
-            NeedleSpineTimer = 2000+rand()%1000;
-        }else NeedleSpineTimer -= diff;
-
-        if(SpecialYellTimer < diff)
-        {
-            switch(rand()%2)
+            switch(eventId)
             {
-            case 0: DoScriptText(SAY_SPECIAL1, m_creature); break;
-            case 1: DoScriptText(SAY_SPECIAL2, m_creature); break;
-            }
-            SpecialYellTimer = 25000 + (rand()%76)*1000;
-        }else SpecialYellTimer -= diff;
-
-        if(ImpalingSpineTimer < diff)
-        {
-            Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1);
-            if(!target) target = m_creature->getVictim();
-            if(target)
-            {
-                m_creature->CastSpell(target, SPELL_IMPALING_SPINE, true);
-                SpineTargetGUID = target->GetGUID();
-                //must let target summon, otherwise you cannot click the spine
-                target->SummonGameObject(GOBJECT_SPINE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), m_creature->GetOrientation(), 0, 0, 0, 0, 30);
-
-                switch(rand()%2)
+                case EVENT_SHIELD:
+                    m_creature->CastSpell(m_creature, SPELL_TIDAL_SHIELD, true);
+                    ResetTimer(45000);
+                    break;
+                case EVENT_BERSERK:
+                    DoScriptText(SAY_ENRAGE2, m_creature);
+                    m_creature->CastSpell(m_creature, SPELL_BERSERK, true);
+                    events.DelayEvents(15000, GCD_YELL);
+                    break;
+                case EVENT_SPINE:
                 {
-                case 0: DoScriptText(SAY_NEEDLE1, m_creature); break;
-                case 1: DoScriptText(SAY_NEEDLE2, m_creature); break;
+                    Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1);
+                    if(!target) target = m_creature->getVictim();
+                    if(target)
+                    {
+                        m_creature->CastSpell(target, SPELL_IMPALING_SPINE, true);
+                        SpineTargetGUID = target->GetGUID();
+                        //must let target summon, otherwise you cannot click the spine
+                        target->SummonGameObject(GOBJECT_SPINE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), m_creature->GetOrientation(), 0, 0, 0, 0, 30);
+                        DoScriptText(rand()%2 ? SAY_NEEDLE1 : SAY_NEEDLE2, m_creature);
+                        events.DelayEvents(1500, GCD_CAST);
+                        events.DelayEvents(15000, GCD_YELL);
+                    }
+                    events.ScheduleEvent(21000, EVENT_SPINE, GCD_CAST);
+                    return;
                 }
-                ImpalingSpineTimer = 21000;
+                case EVENT_NEEDLE:
+                {
+                    //m_creature->CastSpell(m_creature, SPELL_NEEDLE_SPINE, true);
+                    std::list<Unit*> target;
+                    SelectUnitList(target, 3, SELECT_TARGET_RANDOM, 80, true);
+                    for(std::list<Unit*>::iterator i = target.begin(); i != target.end(); ++i)
+                        m_creature->CastSpell(*i, 39835, true);
+                    events.ScheduleEvent(15000+rand()%10000, EVENT_NEEDLE, GCD_CAST);
+                    events.DelayEvents(1500, GCD_CAST);
+                    return;
+                }
+                case EVENT_YELL:
+                    DoScriptText(rand()%2 ? SAY_SPECIAL1 : SAY_SPECIAL2, m_creature);
+                    events.ScheduleEvent(25000 + (rand()%76)*1000, EVENT_YELL, GCD_YELL);
+                    events.DelayEvents(15000, GCD_YELL);
+                    break;
             }
-        }else ImpalingSpineTimer -= diff;
+        }
 
         DoMeleeAttackIfReady();
     }
