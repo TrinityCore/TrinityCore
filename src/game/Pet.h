@@ -195,6 +195,7 @@ class Pet : public Guardian
         bool unlearnSpell(uint32 spell_id);
         bool removeSpell(uint32 spell_id);
         bool _removeSpell(uint32 spell_id);
+        void _resetSpells();
 
         PetSpellMap     m_spells;
         TeachSpellMap   m_teachspells;
