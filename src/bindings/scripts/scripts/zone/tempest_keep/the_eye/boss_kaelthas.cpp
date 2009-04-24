@@ -913,9 +913,10 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                                 m_creature->GetMotionMaster()->MoveIdle();
                                 DoTeleportTo(GRAVITY_X, GRAVITY_Y, GRAVITY_Z);
                                 // 1) Kael'thas will portal the whole raid right into his body
-                                for (i = m_creature->getThreatManager().getThreatList().begin(); i!= m_creature->getThreatManager().getThreatList().end();++i)
+                                for (i = m_creature->getThreatManager().getThreatList().begin(); i!= m_creature->getThreatManager().getThreatList().end();)
                                 {
                                     Unit* pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid());
+                                    ++i;
                                     if(pUnit && (pUnit->GetTypeId() == TYPEID_PLAYER))
                                     {
                                         //Use work around packet to prevent player from being dropped from combat
@@ -937,9 +938,10 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                                 }
 
                                 // 2) At that point he will put a Gravity Lapse debuff on everyone
-                                for (i = m_creature->getThreatManager().getThreatList().begin(); i!= m_creature->getThreatManager().getThreatList().end();i++)
+                                for (i = m_creature->getThreatManager().getThreatList().begin(); i!= m_creature->getThreatManager().getThreatList().end();)
                                 {
                                     Unit* pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid());
+                                    ++i;
                                     if(pUnit && pUnit->GetTypeId() == TYPEID_PLAYER)
                                     {
                                         m_creature->CastSpell(pUnit, SPELL_KNOCKBACK, true);
@@ -971,9 +973,10 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
 
                             case 3:
                                 //Remove flight
-                                for (i = m_creature->getThreatManager().getThreatList().begin(); i!= m_creature->getThreatManager().getThreatList().end();i++)
+                                for (i = m_creature->getThreatManager().getThreatList().begin(); i!= m_creature->getThreatManager().getThreatList().end();)
                                 {
                                     Unit* pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid());
+                                    ++i;
                                     if(pUnit && pUnit->GetTypeId() == TYPEID_PLAYER)
                                     {
                                         //Using packet workaround
