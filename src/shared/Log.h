@@ -29,10 +29,10 @@ class Config;
 
 enum LogFilters
 {
-    LOG_FILTER_TRANSPORT_MOVES     = 0x1,
-    LOG_FILTER_CREATURE_MOVES      = 0x2,
-    LOG_FILTER_VISIBILITY_CHANGES  = 0x4,
-    LOG_FILTER_ACHIEVEMENT_UPDATES = 0x8
+    LOG_FILTER_TRANSPORT_MOVES     = 1,
+    LOG_FILTER_CREATURE_MOVES      = 2,
+    LOG_FILTER_VISIBILITY_CHANGES  = 4,
+    LOG_FILTER_ACHIEVEMENT_UPDATES = 8
 };
 
 enum LogTypes
@@ -95,7 +95,7 @@ class Log : public Trinity::Singleton<Log, Trinity::ClassLevelLockable<Log, ZThr
         void SetColor(bool stdout_stream, ColorTypes color);
         void ResetColor(bool stdout_stream);
 
-        void outDB( uint32 type, const char * str, ... )        ATTR_PRINTF(3,4);
+        void outDB( LogTypes type, const char * str );
         void outString( const char * str, ... )                 ATTR_PRINTF(2,3);
         void outString( );
         void outError( const char * err, ... )                  ATTR_PRINTF(2,3);
