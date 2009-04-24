@@ -262,7 +262,7 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
             }
         }
 
-        if(!mover->GetTransport() || !mover->m_Vehicle)
+        if(!mover->GetTransport() && !mover->m_Vehicle)
             movementInfo.flags &= ~MOVEMENTFLAG_ONTRANSPORT;
     }
     else if (plMover && plMover->m_transport)               // if we were on a transport, leave
@@ -438,10 +438,12 @@ void WorldSession::HandleSetActiveMoverOpcode(WorldPacket &recv_data)
     uint64 guid;
     recv_data >> guid;
 
-    if(_player->m_mover->GetGUID() != guid)
+    if(Unit *mover = ObjectAccessor::GetUnit(*GetPlayer(), guid))
+        GetPlayer()->SetMover(mover);
+    else
     {
-        sLog.outError("HandleSetActiveMoverOpcode: incorrect mover guid: mover is " I64FMT " and should be " I64FMT, _player->m_mover->GetGUID(), guid);
-        return;
+        sLog.outError("HandleSetActiveMoverOpcode: incorrect mover guid: mover is " I64FMT " and should be " I64FMT, guid, _player->m_mover->GetGUID());
+        GetPlayer()->SetMover(GetPlayer());        
     }
 }
 
@@ -517,10 +519,12 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket &recv_data)
     {
         GetPlayer()->m_Vehicle = vehicle;
         GetPlayer()->SetClientControl(vehicle, 1);
-        WorldPacket data(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
-        GetPlayer()->GetSession()->SendPacket(&data);
+        if(!vehicle->AddPassenger(GetPlayer(), seatNum))
+            assert(false);
+        //WorldPacket data(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
+        //GetPlayer()->GetSession()->SendPacket(&data);
     }
-    if(!vehicle->AddPassenger(GetPlayer(), seatNum))
+    else if(!vehicle->AddPassenger(GetPlayer(), seatNum))
         assert(false);
 }
 
