@@ -228,7 +228,7 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
                 break;
         }
 
-         debug_log("SD2: Instance Hyjal: Instance data updated for event %u (Data=%u)",type,data);
+         debug_log("TSCR: Instance Hyjal: Instance data updated for event %u (Data=%u)",type,data);
 
         if(data == DONE)
         {

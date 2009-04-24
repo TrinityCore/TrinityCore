@@ -118,7 +118,7 @@ struct TRINITY_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
 
         if (!player || !guid)
         {
-            debug_log("SD2: Instance Shadowfang Keep: HandleGameObject fail");
+            debug_log("TSCR: Instance Shadowfang Keep: HandleGameObject fail");
             return;
         }
 

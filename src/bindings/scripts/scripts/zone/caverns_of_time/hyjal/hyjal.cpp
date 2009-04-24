@@ -104,7 +104,7 @@ bool GossipSelect_npc_jaina_proudmoore(Player *player, Creature *_Creature, uint
             break;
          case GOSSIP_ACTION_INFO_DEF:
             ai->Debug = !ai->Debug;
-            debug_log("SD2: HyjalAI - Debug mode has been toggled");
+            debug_log("TSCR: HyjalAI - Debug mode has been toggled");
             break;
     }
     return true;
@@ -174,7 +174,7 @@ bool GossipSelect_npc_thrall(Player *player, Creature *_Creature, uint32 sender,
             break;
         case GOSSIP_ACTION_INFO_DEF:
             ai->Debug = !ai->Debug;
-            debug_log("SD2: HyjalAI - Debug mode has been toggled");
+            debug_log("TSCR: HyjalAI - Debug mode has been toggled");
             break;
     }
     return true;
