@@ -71,7 +71,7 @@ EndScriptData */
 
 #define SPELL_KNOCKAWAY    10101
 #define SPELL_PUMMEL    15615
-#define SPELL_SHOOT    20463
+#define SPELL_SHOOT    16496
 //#define SPELL_SUMMONCRIMSONRIFLEMAN    17279
 
 struct TRINITY_DLL_DECL boss_cannon_master_willeyAI : public ScriptedAI
