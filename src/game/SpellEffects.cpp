@@ -1393,6 +1393,12 @@ void Spell::EffectDummy(uint32 i)
                 m_damage+=damage;
                 return;
             }
+            // Concussion Blow
+            if(m_spellInfo->SpellFamilyFlags & 0x0000000004000000LL)
+            {
+                m_damage+= uint32(damage * m_caster->GetTotalAttackPowerValue(BASE_ATTACK) / 100);
+                return;
+            }
             switch(m_spellInfo->Id)
             {
                 // Warrior's Wrath
