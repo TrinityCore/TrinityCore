@@ -344,28 +344,16 @@ std::string Log::GetTimestampStr()
     return std::string(buf);
 }
 
-void Log::outDB( uint32 type, const char * str, ... )
+void Log::outDB( LogTypes type, const char * str )
 {
-    if(type >= MAX_LOG_TYPES)
-        return;
-
-    if(!str)
+    if(!str || std::string(str).empty() || type >= MAX_LOG_TYPES)
         return;
 
     std::string new_str(str);
     LoginDatabase.escape_string(new_str);
-    char nnew_str[MAX_QUERY_LEN];
-
-    va_list ap;
-    va_start(ap, str);
-    int res = vsnprintf(nnew_str, MAX_QUERY_LEN, new_str.c_str(), ap);
-    va_end(ap);
-
-    if ( (res < 0) || (!nnew_str) || (std::string(nnew_str).empty()) )
-        return;
 
     LoginDatabase.PExecute("INSERT INTO logs (time, realm, type, string) "
-        "VALUES ("I64FMTD", %u, %u, '%s');", uint64(time(0)), realm, type, nnew_str);
+        "VALUES ("I64FMTD", %u, %u, '%s');", uint64(time(0)), realm, (uint32)type, new_str.c_str());
 }
 
 void Log::outString( const char * str, ... )
