@@ -39,6 +39,6 @@
 #define EVENT_HOOD      2
 #define EVENT_RAJ       3
 
-#define ERROR_INST_DATA(a)     error_log("SD2: Instance Data for Karazhan not set properly. Encounter for Creature Entry %u may not work properly.", a->GetEntry());
+#define ERROR_INST_DATA(a)     error_log("TSCR: Instance Data for Karazhan not set properly. Encounter for Creature Entry %u may not work properly.", a->GetEntry());
 #endif
 

@@ -319,7 +319,7 @@ struct TRINITY_DLL_DECL boss_victor_nefariusAI : public ScriptedAI
                         Nefarian->setFaction(103);
                         NefarianGUID = Nefarian->GetGUID();
                     }
-                    else error_log("SD2: Blackwing Lair: Unable to spawn nefarian properly.");
+                    else error_log("TSCR: Blackwing Lair: Unable to spawn nefarian properly.");
                 }
 
                 AddSpawnTimer = 4000;

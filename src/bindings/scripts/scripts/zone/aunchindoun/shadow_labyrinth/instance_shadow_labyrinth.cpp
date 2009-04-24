@@ -87,7 +87,7 @@ struct TRINITY_DLL_DECL instance_shadow_labyrinth : public ScriptedInstance
                 break;
             case 18796:
                 ++FelOverseerCount;
-                debug_log("SD2: Shadow Labyrinth: counting %u Fel Overseers.",FelOverseerCount);
+                debug_log("TSCR: Shadow Labyrinth: counting %u Fel Overseers.",FelOverseerCount);
                 break;
         }
     }
@@ -105,7 +105,7 @@ struct TRINITY_DLL_DECL instance_shadow_labyrinth : public ScriptedInstance
             }
         }
 
-        debug_log("SD2: Instance Shadow Labyrinth: GetPlayerInMap, but PlayerList is empty!");
+        debug_log("TSCR: Instance Shadow Labyrinth: GetPlayerInMap, but PlayerList is empty!");
         return NULL;
     }
 
@@ -115,7 +115,7 @@ struct TRINITY_DLL_DECL instance_shadow_labyrinth : public ScriptedInstance
 
         if (!player || !guid)
         {
-            debug_log("SD2: Shadow Labyrinth: HandleGameObject fail");
+            debug_log("TSCR: Shadow Labyrinth: HandleGameObject fail");
             return;
         }
 
@@ -133,16 +133,16 @@ struct TRINITY_DLL_DECL instance_shadow_labyrinth : public ScriptedInstance
 
             case TYPE_OVERSEER:
                 if( data != DONE )
-                    error_log("SD2: Shadow Labyrinth: TYPE_OVERSEER did not expect other data than DONE");
+                    error_log("TSCR: Shadow Labyrinth: TYPE_OVERSEER did not expect other data than DONE");
                 if( FelOverseerCount )
                 {
                     --FelOverseerCount;
-                    debug_log("SD2: Shadow Labyrinth: %u Fel Overseers left to kill.",FelOverseerCount);
+                    debug_log("TSCR: Shadow Labyrinth: %u Fel Overseers left to kill.",FelOverseerCount);
                 }
                 if( FelOverseerCount == 0 )
                 {
                     Encounter[1] = DONE;
-                    debug_log("SD2: Shadow Labyrinth: TYPE_OVERSEER == DONE");
+                    debug_log("TSCR: Shadow Labyrinth: TYPE_OVERSEER == DONE");
                 }
                 break;
 

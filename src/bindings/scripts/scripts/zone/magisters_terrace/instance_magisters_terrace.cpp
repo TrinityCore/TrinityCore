@@ -159,7 +159,7 @@ struct TRINITY_DLL_DECL instance_magisters_terrace : public ScriptedInstance
             DoorState[0] = data1;
             DoorState[1] = data2;
             DoorState[2] = data3;
-        }else error_log("SD2: Magister's Terrace: corrupted save data.");
+        }else error_log("TSCR: Magister's Terrace: corrupted save data.");
     }
 
     void OnCreatureCreate(Creature *creature, uint32 entry)
@@ -215,7 +215,7 @@ struct TRINITY_DLL_DECL instance_magisters_terrace : public ScriptedInstance
             {
                 if(FelCrystals.empty())
                 {
-                    error_log("SD2: Magisters Terrace: No Fel Crystals loaded in Inst Data");
+                    error_log("TSCR: Magisters Terrace: No Fel Crystals loaded in Inst Data");
                     return 0;
                 }
 
