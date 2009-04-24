@@ -8141,6 +8141,21 @@ void Unit::SetCharm(Unit* charm, bool apply)
     }
 }
 
+int32 Unit::DealHeal(Unit *pVictim, uint32 addhealth, SpellEntry const *spellProto, bool critical)
+{
+    int32 gain = pVictim->ModifyHealth(int32(addhealth));
+
+    if (GetTypeId()==TYPEID_PLAYER)
+    {
+        SendHealSpellLog(pVictim, spellProto->Id, addhealth, critical, gain);
+
+        if (BattleGround *bg = ((Player*)this)->GetBattleGround())
+            bg->UpdatePlayerScore((Player*)this, SCORE_HEALING_DONE, gain);
+    }
+
+    return gain;
+}
+
 Unit* Unit::SelectMagnetTarget(Unit *victim, SpellEntry const *spellInfo)
 {
     if(!victim)
@@ -8324,21 +8339,15 @@ void Unit::UnsummonAllTotems()
     }
 }
 
-void Unit::SendHealSpellLog(Unit *pVictim, uint32 SpellID, uint32 Damage, bool critical, int32 * Gain )
+void Unit::SendHealSpellLog(Unit *pVictim, uint32 SpellID, uint32 Damage, bool critical, int32 gain)
 {
     // we guess size
     WorldPacket data(SMSG_SPELLHEALLOG, (8+8+4+4+1));
     data.append(pVictim->GetPackGUID());
     data.append(GetPackGUID());
     data << uint32(SpellID);
-    int32 gainAmount;
-    if (!Gain)
-        gainAmount = pVictim->GetHealthGain(Damage);
-    else
-        gainAmount = *Gain;
-
     data << uint32(Damage);
-    data << uint32(Damage-gainAmount >0 ? Damage-gainAmount : 0);       // overheal
+    data << uint32((int32)Damage > gain ? (int32)Damage - gain : 0);       // overheal
     data << uint8(critical ? 1 : 0);
     data << uint8(0);                                       // unused in client?
     SendMessageToSet(&data, true);
