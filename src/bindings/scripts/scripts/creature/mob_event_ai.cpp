@@ -141,7 +141,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                 else
                 {
                     if (EAI_ErrorLevel > 0)
-                        error_db_log("SD2: Creature %u using Event %u (Type = %u) has RandomMax < RandomMin. Event repeating disabled.", m_creature->GetEntry(), pHolder.Event.event_id, pHolder.Event.event_type);
+                        error_db_log("TSCR: Creature %u using Event %u (Type = %u) has RandomMax < RandomMin. Event repeating disabled.", m_creature->GetEntry(), pHolder.Event.event_id, pHolder.Event.event_type);
                     pHolder.Enabled = false;
                 }
             }
@@ -161,7 +161,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                 else
                 {
                     if (EAI_ErrorLevel > 0)
-                        error_db_log("SD2: Creature %u using Event %u (Type = %u) has RandomMax < RandomMin. Event repeating disabled.", m_creature->GetEntry(), pHolder.Event.event_id, pHolder.Event.event_type);
+                        error_db_log("TSCR: Creature %u using Event %u (Type = %u) has RandomMax < RandomMin. Event repeating disabled.", m_creature->GetEntry(), pHolder.Event.event_id, pHolder.Event.event_type);
                     pHolder.Enabled = false;
                 }
             }
@@ -186,7 +186,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                 else
                 {
                     if (EAI_ErrorLevel > 0)
-                        error_db_log("SD2: Creature %u using Event %u (Type = %u) has RandomMax < RandomMin. Event repeating disabled.", m_creature->GetEntry(), pHolder.Event.event_id, pHolder.Event.event_type);
+                        error_db_log("TSCR: Creature %u using Event %u (Type = %u) has RandomMax < RandomMin. Event repeating disabled.", m_creature->GetEntry(), pHolder.Event.event_id, pHolder.Event.event_type);
                     pHolder.Enabled = false;
                 }
             }
@@ -211,7 +211,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                 else
                 {
                     if (EAI_ErrorLevel > 0)
-                        error_db_log("SD2: Creature %u using Event %u (Type = %u) has RandomMax < RandomMin. Event repeating disabled.", m_creature->GetEntry(), pHolder.Event.event_id, pHolder.Event.event_type);
+                        error_db_log("TSCR: Creature %u using Event %u (Type = %u) has RandomMax < RandomMin. Event repeating disabled.", m_creature->GetEntry(), pHolder.Event.event_id, pHolder.Event.event_type);
                     pHolder.Enabled = false;
                 }
             }
@@ -232,7 +232,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                 else
                 {
                     if (EAI_ErrorLevel > 0)
-                        error_db_log("SD2: Creature %u using Event %u (Type = %u) has RandomMax < RandomMin. Event repeating disabled.", m_creature->GetEntry(), pHolder.Event.event_id, pHolder.Event.event_type);
+                        error_db_log("TSCR: Creature %u using Event %u (Type = %u) has RandomMax < RandomMin. Event repeating disabled.", m_creature->GetEntry(), pHolder.Event.event_id, pHolder.Event.event_type);
                     pHolder.Enabled = false;
                 }
             }
@@ -258,7 +258,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                 else
                 {
                     if (EAI_ErrorLevel > 0)
-                        error_db_log("SD2: Creature %u using Event %u (Type = %u) has RandomMax < RandomMin. Event repeating disabled.", m_creature->GetEntry(), pHolder.Event.event_id, pHolder.Event.event_type);
+                        error_db_log("TSCR: Creature %u using Event %u (Type = %u) has RandomMax < RandomMin. Event repeating disabled.", m_creature->GetEntry(), pHolder.Event.event_id, pHolder.Event.event_type);
                     pHolder.Enabled = false;
                 }
             }
@@ -275,7 +275,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                 else
                 {
                     if (EAI_ErrorLevel > 0)
-                        error_db_log("SD2: Creature %u using Event %u (Type = %u) has RandomMax < RandomMin. Event repeating disabled.", m_creature->GetEntry(), pHolder.Event.event_id, pHolder.Event.event_type);
+                        error_db_log("TSCR: Creature %u using Event %u (Type = %u) has RandomMax < RandomMin. Event repeating disabled.", m_creature->GetEntry(), pHolder.Event.event_id, pHolder.Event.event_type);
                     pHolder.Enabled = false;
                 }
             }
@@ -292,7 +292,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                 else
                 {
                     if (EAI_ErrorLevel > 0)
-                        error_db_log("SD2: Creature %u using Event %u (Type = %u) has RandomMax < RandomMin. Event repeating disabled.", m_creature->GetEntry(), pHolder.Event.event_id, pHolder.Event.event_type);
+                        error_db_log("TSCR: Creature %u using Event %u (Type = %u) has RandomMax < RandomMin. Event repeating disabled.", m_creature->GetEntry(), pHolder.Event.event_id, pHolder.Event.event_type);
                     pHolder.Enabled = false;
                 }
             }
@@ -321,7 +321,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                 else
                 {
                     if (EAI_ErrorLevel > 0)
-                        error_db_log("SD2: Creature %u using Event %u (Type = %u) has RandomMax < RandomMin. Event repeating disabled.", m_creature->GetEntry(), pHolder.Event.event_id, pHolder.Event.event_type);
+                        error_db_log("TSCR: Creature %u using Event %u (Type = %u) has RandomMax < RandomMin. Event repeating disabled.", m_creature->GetEntry(), pHolder.Event.event_id, pHolder.Event.event_type);
                     pHolder.Enabled = false;
                 }
             }
@@ -341,7 +341,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                 else
                 {
                     if (EAI_ErrorLevel > 0)
-                        error_db_log("SD2: Creature %u using Event %u (Type = %u) has RandomMax < RandomMin. Event repeating disabled.", m_creature->GetEntry(), pHolder.Event.event_id, pHolder.Event.event_type);
+                        error_db_log("TSCR: Creature %u using Event %u (Type = %u) has RandomMax < RandomMin. Event repeating disabled.", m_creature->GetEntry(), pHolder.Event.event_id, pHolder.Event.event_type);
                     pHolder.Enabled = false;
                 }
             }
@@ -368,7 +368,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                 else
                 {
                     if (EAI_ErrorLevel > 0)
-                        error_db_log("SD2: Creature %u using Event %u (Type = %u) has RandomMax < RandomMin. Event repeating disabled.", m_creature->GetEntry(), pHolder.Event.event_id, pHolder.Event.event_type);
+                        error_db_log("TSCR: Creature %u using Event %u (Type = %u) has RandomMax < RandomMin. Event repeating disabled.", m_creature->GetEntry(), pHolder.Event.event_id, pHolder.Event.event_type);
                     pHolder.Enabled = false;
                 }
             }
@@ -397,7 +397,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                 else
                 {
                     if (EAI_ErrorLevel > 0)
-                        error_db_log("SD2: Creature %u using Event %u (Type = %u) has RandomMax < RandomMin. Event repeating disabled.", m_creature->GetEntry(), pHolder.Event.event_id, pHolder.Event.event_type);
+                        error_db_log("TSCR: Creature %u using Event %u (Type = %u) has RandomMax < RandomMin. Event repeating disabled.", m_creature->GetEntry(), pHolder.Event.event_id, pHolder.Event.event_type);
                     pHolder.Enabled = false;
                 }
             }
@@ -423,7 +423,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                 else
                 {
                     if (EAI_ErrorLevel > 0)
-                        error_db_log("SD2: Creature %u using Event %u (Type = %u) has RandomMax < RandomMin. Event repeating disabled.", m_creature->GetEntry(), pHolder.Event.event_id, pHolder.Event.event_type);
+                        error_db_log("TSCR: Creature %u using Event %u (Type = %u) has RandomMax < RandomMin. Event repeating disabled.", m_creature->GetEntry(), pHolder.Event.event_id, pHolder.Event.event_type);
                     pHolder.Enabled = false;
                 }
             }
@@ -448,7 +448,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                 else
                 {
                     if (EAI_ErrorLevel > 0)
-                        error_db_log("SD2: Creature %u using Event %u (Type = %u) has RandomMax < RandomMin. Event repeating disabled.", m_creature->GetEntry(), pHolder.Event.event_id, pHolder.Event.event_type);
+                        error_db_log("TSCR: Creature %u using Event %u (Type = %u) has RandomMax < RandomMin. Event repeating disabled.", m_creature->GetEntry(), pHolder.Event.event_id, pHolder.Event.event_type);
                     pHolder.Enabled = false;
                 }
             }
@@ -459,7 +459,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
             break;
         default:
             if (EAI_ErrorLevel > 0)
-                error_db_log("SD2: Creature %u using Event %u has invalid Event Type(%u), missing from ProcessEvent() Switch.", m_creature->GetEntry(), pHolder.Event.event_id, pHolder.Event.event_type);
+                error_db_log("TSCR: Creature %u using Event %u has invalid Event Type(%u), missing from ProcessEvent() Switch.", m_creature->GetEntry(), pHolder.Event.event_id, pHolder.Event.event_type);
             break;
         }
 
@@ -695,7 +695,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                         }
 
                     }else if (EAI_ErrorLevel > 0)
-                        error_db_log("SD2: EventAI event %d creature %d attempt to cast spell that doesn't exist %d", EventId, m_creature->GetEntry(), param1);
+                        error_db_log("TSCR: EventAI event %d creature %d attempt to cast spell that doesn't exist %d", EventId, m_creature->GetEntry(), param1);
                 }
             }
             break;
@@ -712,7 +712,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                 if (!pCreature)
                 {
                     if (EAI_ErrorLevel > 0)
-                        error_db_log( "SD2: EventAI failed to spawn creature %u. Spawn event %d is on creature %d", param1, EventId, m_creature->GetEntry());
+                        error_db_log( "TSCR: EventAI failed to spawn creature %u. Spawn event %d is on creature %d", param1, EventId, m_creature->GetEntry());
                 }
                 else if (param2 != TARGET_T_SELF && target)
                     pCreature->AI()->AttackStart(target);
@@ -815,7 +815,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
 
                 if (Phase > 31)
                     if (EAI_ErrorLevel > 0)
-                        error_db_log( "SD2: Event %d incremented Phase above 31. Phase mask cannot be used with phases past 31. CreatureEntry = %d", EventId, m_creature->GetEntry());
+                        error_db_log( "TSCR: Event %d incremented Phase above 31. Phase mask cannot be used with phases past 31. CreatureEntry = %d", EventId, m_creature->GetEntry());
             }
             break;
         case ACTION_T_EVADE:
@@ -889,7 +889,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                     Phase = param1 + (rnd % (param2 - param1));
                 }
                 else if (EAI_ErrorLevel > 0)
-                    error_db_log( "SD2: ACTION_T_RANDOM_PHASE_RANGE cannot have Param2 <= Param1. Divide by Zero. Event = %d. CreatureEntry = %d", EventId, m_creature->GetEntry());
+                    error_db_log( "TSCR: ACTION_T_RANDOM_PHASE_RANGE cannot have Param2 <= Param1. Divide by Zero. Event = %d. CreatureEntry = %d", EventId, m_creature->GetEntry());
             }
             break;
         case ACTION_T_SUMMON_ID:
@@ -904,7 +904,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                 if (i == EventAI_Summon_Map.end())
                 {
                     if (EAI_ErrorLevel > 0)
-                        error_db_log( "SD2: EventAI failed to spawn creature %u. Summon map index %u does not exist. EventID %d. CreatureID %d", param1, param3, EventId, m_creature->GetEntry());
+                        error_db_log( "TSCR: EventAI failed to spawn creature %u. Summon map index %u does not exist. EventID %d. CreatureID %d", param1, param3, EventId, m_creature->GetEntry());
                     return;
                 }
 
@@ -915,7 +915,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                 if (!pCreature)
                 {
                     if (EAI_ErrorLevel > 0)
-                        error_db_log( "SD2: EventAI failed to spawn creature %u. EventId %d.Creature %d", param1, EventId, m_creature->GetEntry());
+                        error_db_log( "TSCR: EventAI failed to spawn creature %u. EventId %d.Creature %d", param1, EventId, m_creature->GetEntry());
                 }
                 else if (param2 != TARGET_T_SELF && target)
                 pCreature->AI()->AttackStart(target);
@@ -935,7 +935,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                 if (!pInst)
                 {
                     if (EAI_ErrorLevel > 0)
-                        error_db_log("SD2: Event %d attempt to set instance data without instance script. Creature %d", EventId, m_creature->GetEntry());
+                        error_db_log("TSCR: Event %d attempt to set instance data without instance script. Creature %d", EventId, m_creature->GetEntry());
                     return;
                 }
 
@@ -949,7 +949,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                 if (!target)
                 {
                     if (EAI_ErrorLevel > 0)
-                        error_db_log("SD2: Event %d attempt to set instance data64 but Target == NULL. Creature %d", EventId, m_creature->GetEntry());
+                        error_db_log("TSCR: Event %d attempt to set instance data64 but Target == NULL. Creature %d", EventId, m_creature->GetEntry());
                     return;
                 }
 
@@ -958,7 +958,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                 if (!pInst)
                 {
                     if (EAI_ErrorLevel > 0)
-                        error_db_log("SD2: Event %d attempt to set instance data64 without instance script. Creature %d", EventId, m_creature->GetEntry());
+                        error_db_log("TSCR: Event %d attempt to set instance data64 without instance script. Creature %d", EventId, m_creature->GetEntry());
                     return;
                 }
 
@@ -970,7 +970,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                 if (m_creature->GetEntry() == param1)
                 {
                     if (EAI_ErrorLevel > 0)
-                        error_db_log("SD2: Event %d ACTION_T_UPDATE_TEMPLATE call with param1 == current entry. Creature %d", EventId, m_creature->GetEntry());
+                        error_db_log("TSCR: Event %d ACTION_T_UPDATE_TEMPLATE call with param1 == current entry. Creature %d", EventId, m_creature->GetEntry());
                     return;
                 }
 
@@ -982,7 +982,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                 if (m_creature->isDead())
                 {
                     if (EAI_ErrorLevel > 0)
-                        error_db_log("SD2: Event %d ACTION_T_DIE on dead creature. Creature %d", EventId, m_creature->GetEntry());
+                        error_db_log("TSCR: Event %d ACTION_T_DIE on dead creature. Creature %d", EventId, m_creature->GetEntry());
                     return;
                 }
                 m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(),NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
@@ -993,7 +993,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                 if (!m_creature->isInCombat() || !m_creature->GetMap()->IsDungeon())
                 {
                     if (EAI_ErrorLevel > 0)
-                        error_db_log("SD2: Event %d ACTION_T_ZONE_COMBAT_PULSE on creature out of combat or in non-dungeon map. Creature %d", EventId, m_creature->GetEntry());
+                        error_db_log("TSCR: Event %d ACTION_T_ZONE_COMBAT_PULSE on creature out of combat or in non-dungeon map. Creature %d", EventId, m_creature->GetEntry());
                     return;
                 }
 
@@ -1010,7 +1010,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                 if (!pObject)
                 {
                     if (EAI_ErrorLevel > 0)
-                        error_db_log( "SD2: EventAI failed to spawn object %u. Spawn event %d is on creature %d", param1, EventId, m_creature->GetEntry());
+                        error_db_log( "TSCR: EventAI failed to spawn object %u. Spawn event %d is on creature %d", param1, EventId, m_creature->GetEntry());
                 }
             }
             break;
@@ -1068,7 +1068,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                             (*i).Time = urand((*i).Event.event_param1, (*i).Event.event_param2);
                             (*i).Enabled = true;
                         }else if (EAI_ErrorLevel > 0)
-                            error_db_log("SD2: Creature %u using Event %u (Type = %u) has InitialMax < InitialMin. Event disabled.", m_creature->GetEntry(), (*i).Event.event_id, (*i).Event.event_type);
+                            error_db_log("TSCR: Creature %u using Event %u (Type = %u) has InitialMax < InitialMin. Event disabled.", m_creature->GetEntry(), (*i).Event.event_id, (*i).Event.event_type);
                     }
                     break;
                 //default:
@@ -1184,7 +1184,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
                         (*i).Time = urand((*i).Event.event_param1, (*i).Event.event_param2);
                         (*i).Enabled = true;
                     }else if (EAI_ErrorLevel > 0)
-                        error_db_log("SD2: Creature %u using Event %u (Type = %u) has InitialMax < InitialMin. Event disabled.", m_creature->GetEntry(), (*i).Event.event_id, (*i).Event.event_type);
+                        error_db_log("TSCR: Creature %u using Event %u (Type = %u) has InitialMax < InitialMin. Event disabled.", m_creature->GetEntry(), (*i).Event.event_id, (*i).Event.event_type);
                     break;
                 //All normal events need to be re-enabled and their time set to 0
                 default:
@@ -1422,13 +1422,13 @@ CreatureAI* GetAI_Mob_EventAI(Creature *pCreature)
          if (EventList.empty())
          {
              if (EAI_ErrorLevel > 1)
-                 error_db_log("SD2: CreatureId has events but no events added to list because of instance flags.", pCreature->GetEntry());
+                 error_db_log("TSCR: CreatureId has events but no events added to list because of instance flags.", pCreature->GetEntry());
          }
       }
      else
       {   
           if (EAI_ErrorLevel > 1)
-             error_db_log("SD2: EventMap for Creature %u is empty but creature is using Mob_EventAI.", pCreature->GetEntry());
+             error_db_log("TSCR: EventMap for Creature %u is empty but creature is using Mob_EventAI.", pCreature->GetEntry());
       }
 
     return new Mob_EventAI (pCreature, EventList);

@@ -44,7 +44,7 @@ void npc_escortAI::AttackStart(Unit *who)
             //Store last position
             m_creature->GetPosition(LastPos.x, LastPos.y, LastPos.z);
 
-             debug_log("SD2: EscortAI has entered combat and stored last location.");
+             debug_log("TSCR: EscortAI has entered combat and stored last location.");
             }
 
             Aggro(who);
@@ -89,7 +89,7 @@ void npc_escortAI::EnterEvadeMode()
 
     if (IsBeingEscorted)
     {
-        debug_log("SD2: EscortAI has left combat and is now returning to last point.");
+        debug_log("TSCR: EscortAI has left combat and is now returning to last point.");
         Returning = true;
         m_creature->GetMotionMaster()->MovementExpired();
         m_creature->GetMotionMaster()->MovePoint(WP_LAST_POINT, LastPos.x, LastPos.y, LastPos.z);
@@ -121,7 +121,7 @@ void npc_escortAI::UpdateAI(const uint32 diff)
             if( !IsOnHold )
             {
                 m_creature->GetMotionMaster()->MovePoint(CurrentWP->id, CurrentWP->x, CurrentWP->y, CurrentWP->z );
-                debug_log("SD2: EscortAI Reconnect WP is: %u, %f, %f, %f", CurrentWP->id, CurrentWP->x, CurrentWP->y, CurrentWP->z);
+                debug_log("TSCR: EscortAI Reconnect WP is: %u, %f, %f, %f", CurrentWP->id, CurrentWP->x, CurrentWP->y, CurrentWP->z);
                 WaitTimer = 0;
                 ReconnectWP = false;
                 return;
@@ -133,7 +133,7 @@ void npc_escortAI::UpdateAI(const uint32 diff)
         {
             if(DespawnAtEnd)
             {
-                debug_log("SD2: EscortAI reached end of waypoints");
+                debug_log("TSCR: EscortAI reached end of waypoints");
 
                 m_creature->setDeathState(JUST_DIED);
                 m_creature->SetHealth(0);
@@ -149,7 +149,7 @@ void npc_escortAI::UpdateAI(const uint32 diff)
                 WaitTimer = 0;
                 return;
             }else{
-                debug_log("SD2: EscortAI reached end of waypoints with Despawn off");
+                debug_log("TSCR: EscortAI reached end of waypoints with Despawn off");
                 IsBeingEscorted = false;
                 WaitTimer = 0;
                 return;
@@ -159,7 +159,7 @@ void npc_escortAI::UpdateAI(const uint32 diff)
         if( !IsOnHold )
         {
             m_creature->GetMotionMaster()->MovePoint(CurrentWP->id, CurrentWP->x, CurrentWP->y, CurrentWP->z );
-            debug_log("SD2: EscortAI Next WP is: %u, %f, %f, %f", CurrentWP->id, CurrentWP->x, CurrentWP->y, CurrentWP->z);
+            debug_log("TSCR: EscortAI Next WP is: %u, %f, %f, %f", CurrentWP->id, CurrentWP->x, CurrentWP->y, CurrentWP->z);
             WaitTimer = 0;
         }
     }else WaitTimer -= diff;
@@ -177,7 +177,7 @@ void npc_escortAI::UpdateAI(const uint32 diff)
             JustDied(m_creature);
             IsBeingEscorted = false;
 
-            debug_log("SD2: EscortAI Evaded back to spawn point because player was to far away or not found");
+            debug_log("TSCR: EscortAI Evaded back to spawn point because player was to far away or not found");
 
             m_creature->setDeathState(JUST_DIED);
             m_creature->SetHealth(0);
@@ -220,7 +220,7 @@ void npc_escortAI::MovementInform(uint32 type, uint32 id)
     //Original position reached, continue waypoint movement
     if (id == WP_LAST_POINT)
     {
-        debug_log("SD2: EscortAI has returned to original position before combat");
+        debug_log("TSCR: EscortAI has returned to original position before combat");
         ReconnectWP = true;
         Returning = false;
         WaitTimer = 1;
@@ -234,7 +234,7 @@ void npc_escortAI::MovementInform(uint32 type, uint32 id)
             return;
         }
 
-        debug_log("SD2: EscortAI Waypoint %d reached", CurrentWP->id);
+        debug_log("TSCR: EscortAI Waypoint %d reached", CurrentWP->id);
 
         //Call WP function
         WaypointReached(CurrentWP->id);
@@ -290,7 +290,7 @@ void npc_escortAI::Start(bool bAttack, bool bDefend, bool bRun, uint64 pGUID)
     Run = bRun;
     PlayerGUID = pGUID;
 
-    debug_log("SD2: EscortAI started with %d waypoints. Attack = %d, Defend = %d, Run = %d, PlayerGUID = %d", WaypointList.size(), Attack, Defend, Run, PlayerGUID);
+    debug_log("TSCR: EscortAI started with %d waypoints. Attack = %d, Defend = %d, Run = %d, PlayerGUID = %d", WaypointList.size(), Attack, Defend, Run, PlayerGUID);
 
     CurrentWP = WaypointList.begin();
 
@@ -301,7 +301,7 @@ void npc_escortAI::Start(bool bAttack, bool bDefend, bool bRun, uint64 pGUID)
 
     //Start WP
     m_creature->GetMotionMaster()->MovePoint(CurrentWP->id, CurrentWP->x, CurrentWP->y, CurrentWP->z );
-    debug_log("SD2: EscortAI Next WP is: %d, %f, %f, %f", CurrentWP->id, CurrentWP->x, CurrentWP->y, CurrentWP->z);
+    debug_log("TSCR: EscortAI Next WP is: %d, %f, %f, %f", CurrentWP->id, CurrentWP->x, CurrentWP->y, CurrentWP->z);
     IsBeingEscorted = true;
     ReconnectWP = false;
     Returning = false;

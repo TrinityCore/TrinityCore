@@ -37,6 +37,6 @@ void InstanceData::HandleGameObject(uint64 GUID, bool open, GameObject *go)
     if(go)
         go->SetGoState(open ? 0 : 1);
     else
-        debug_log("SD2: InstanceData: HandleGameObject failed");
+        debug_log("TSCR: InstanceData: HandleGameObject failed");
 }
 
