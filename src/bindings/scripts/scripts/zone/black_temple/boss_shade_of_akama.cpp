@@ -289,7 +289,7 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
         if(reseting)
             return;
 
-        debug_log("SD2: Increasing Death Count for Shade of Akama encounter");
+        debug_log("TSCR: Increasing Death Count for Shade of Akama encounter");
         ++DeathCount;
         m_creature->RemoveAuraFromStack(SPELL_SHADE_SOUL_CHANNEL_2);
         if(guid)
@@ -358,7 +358,7 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
             {
                 ((mob_ashtongue_channelerAI*)(*itr)->AI())->ShadeGUID = m_creature->GetGUID();
                 Channelers.push_back((*itr)->GetGUID());
-                debug_log("SD2: Shade of Akama Grid Search found channeler %u. Adding to list", (*itr)->GetGUID());
+                debug_log("TSCR: Shade of Akama Grid Search found channeler %u. Adding to list", (*itr)->GetGUID());
             }
         }
         else error_log("SD2 ERROR: Grid Search was unable to find any channelers. Shade of Akama encounter will be buggy");

@@ -859,7 +859,7 @@ void LoadDatabase()
         delete result;
     }
 
-    outstring_log("SD2: Loading Script Waypoints for %u creature(s)...", uiCreatureCount);
+    outstring_log("TSCR: Loading Script Waypoints for %u creature(s)...", uiCreatureCount);
 
     result = TScriptDB.PQuery("SELECT entry, pointid, location_x, location_y, location_z, waittime FROM script_waypoint ORDER BY pointid");
 
@@ -885,12 +885,12 @@ void LoadDatabase()
             CreatureInfo const* pCInfo = GetCreatureTemplateStore(pTemp.m_uiCreatureEntry);
             if (!pCInfo)
             {
-                error_db_log("SD2: DB table script_waypoint has waypoint for non-existant creature entry %u", pTemp.m_uiCreatureEntry);
+                error_db_log("TSCR: DB table script_waypoint has waypoint for non-existant creature entry %u", pTemp.m_uiCreatureEntry);
                 continue;
             }
 
             if (!pCInfo->ScriptID)
-                error_db_log("SD2: DB table script_waypoint has waypoint for creature entry %u, but creature does not have ScriptName defined and then useless.", pTemp.m_uiCreatureEntry);
+                error_db_log("TSCR: DB table script_waypoint has waypoint for creature entry %u, but creature does not have ScriptName defined and then useless.", pTemp.m_uiCreatureEntry);
 
             PointMovementMap[uiCreatureEntry].push_back(pTemp);
             ++uiNodeCount;
