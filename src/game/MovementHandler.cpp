@@ -431,12 +431,14 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recv_data)
 void WorldSession::HandleSetActiveMoverOpcode(WorldPacket &recv_data)
 {
     sLog.outDebug("WORLD: Recvd CMSG_SET_ACTIVE_MOVER");
-    recv_data.hexlike();
 
     CHECK_PACKET_SIZE(recv_data, 8);
 
     uint64 guid;
     recv_data >> guid;
+
+    if(guid == GetPlayer()->m_mover->GetGUID())
+        return;
 
     if(Unit *mover = ObjectAccessor::GetUnit(*GetPlayer(), guid))
         GetPlayer()->SetMover(mover);
@@ -450,18 +452,17 @@ void WorldSession::HandleSetActiveMoverOpcode(WorldPacket &recv_data)
 void WorldSession::HandleMoveNotActiveMover(WorldPacket &recv_data)
 {
     sLog.outDebug("WORLD: Recvd CMSG_MOVE_NOT_ACTIVE_MOVER");
-    recv_data.hexlike();
 
     CHECK_PACKET_SIZE(recv_data, recv_data.rpos()+8);
 
     uint64 old_mover_guid;
     recv_data >> old_mover_guid;
 
-    if(_player->m_mover->GetGUID() == old_mover_guid)
+    /*if(_player->m_mover->GetGUID() == old_mover_guid)
     {
         sLog.outError("HandleMoveNotActiveMover: incorrect mover guid: mover is " I64FMT " and should be " I64FMT " instead of " I64FMT, _player->m_mover->GetGUID(), _player->GetGUID(), old_mover_guid);
         return;
-    }
+    }*/
 
     MovementInfo mi;
     ReadMovementInfo(recv_data, &mi);
@@ -519,10 +520,8 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket &recv_data)
     {
         GetPlayer()->m_Vehicle = vehicle;
         GetPlayer()->SetClientControl(vehicle, 1);
-        if(!vehicle->AddPassenger(GetPlayer(), seatNum))
-            assert(false);
-        //WorldPacket data(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
-        //GetPlayer()->GetSession()->SendPacket(&data);
+        WorldPacket data(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
+        GetPlayer()->GetSession()->SendPacket(&data);
     }
     else if(!vehicle->AddPassenger(GetPlayer(), seatNum))
         assert(false);
