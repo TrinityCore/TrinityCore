@@ -2283,11 +2283,6 @@ void Unit::AttackerStateUpdate (Unit *pVictim, WeaponAttackType attType, bool ex
                     --m_extraAttacks;
             }
         }
-
-        // if damage pVictim call AI reaction
-        //if(pVictim->GetTypeId()==TYPEID_UNIT && ((Creature*)pVictim)->AI())
-        //    ((Creature*)pVictim)->AI()->AttackedBy(this);
-
         return;
     }
 
@@ -2308,6 +2303,10 @@ void Unit::AttackerStateUpdate (Unit *pVictim, WeaponAttackType attType, bool ex
         DEBUG_LOG("AttackerStateUpdate: (NPC)    %u attacked %u (TypeId: %u) for %u dmg, absorbed %u, blocked %u, resisted %u.",
             GetGUIDLow(), pVictim->GetGUIDLow(), pVictim->GetTypeId(), damageInfo.damage, damageInfo.absorb, damageInfo.blocked_amount, damageInfo.resist);
 
+    // if damage pVictim call AI reaction
+    //if(pVictim->GetTypeId()==TYPEID_UNIT && ((Creature*)pVictim)->AI())
+    //    ((Creature*)pVictim)->AI()->AttackedBy(this);
+
     // extra attack only at any non extra attack (normal case)
     if(!extra && extraAttacks)
     {
@@ -2318,10 +2317,6 @@ void Unit::AttackerStateUpdate (Unit *pVictim, WeaponAttackType attType, bool ex
                 --m_extraAttacks;
         }
     }
-
-    // if damage pVictim call AI reaction
-    //if(pVictim->GetTypeId()==TYPEID_UNIT && ((Creature*)pVictim)->AI())
-    //    ((Creature*)pVictim)->AI()->AttackedBy(this);
 }
 
 MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(const Unit *pVictim, WeaponAttackType attType) const
