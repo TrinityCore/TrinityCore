@@ -948,12 +948,12 @@ void ScriptsInit()
     outstring_log("");
 
     //Get configuration file
-    if (!TScriptConfig.SetSource(sConfig.GetFilename()))
+    if (!TScriptConfig.SetSource(_TRINITY_SCRIPT_CONFIG))
     {
         CanLoadDB = false;
         error_log("TSCR: Unable to open configuration file. Database will be unaccessible. Configuration values will use default.");
     }
-    else outstring_log("TSCR: Using configuration file %s",TScriptConfig.GetFilename());
+    else outstring_log("TSCR: Using configuration file %s",_TRINITY_SCRIPT_CONFIG);
 
     outstring_log("");
 
