@@ -6518,7 +6518,7 @@ bool ChatHandler::HandleMovegensCommand(const char* /*args*/)
     return true;
 }
 
-bool ChatHandler::HandlePLimitCommand(const char *args)
+bool ChatHandler::HandleServerPLimitCommand(const char *args)
 {
     if(*args)
     {
