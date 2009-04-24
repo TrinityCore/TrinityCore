@@ -138,7 +138,7 @@ struct TRINITY_DLL_DECL eye_of_cthunAI : public Scripted_NoMovementAI
     {
         pInst = (ScriptedInstance*)c->GetInstanceData();
         if (!pInst)
-            error_log("SD2: No Instance eye_of_cthunAI");
+            error_log("TSCR: No Instance eye_of_cthunAI");
     }
 
     ScriptedInstance* pInst;
@@ -437,7 +437,7 @@ struct TRINITY_DLL_DECL cthunAI : public Scripted_NoMovementAI
     {
         pInst = (ScriptedInstance*)c->GetInstanceData();
         if (!pInst)
-            error_log("SD2: No Instance eye_of_cthunAI");
+            error_log("TSCR: No Instance eye_of_cthunAI");
     }
 
     ScriptedInstance* pInst;

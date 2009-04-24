@@ -185,7 +185,7 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
         ss << "S " << BossKilled << " " << ChestLooted << " " << QuestMinute;
         char* data = new char[ss.str().length()+1];
         strcpy(data, ss.str().c_str());
-        //error_log("SD2: Zul'aman saved, %s.", data);
+        //error_log("TSCR: Zul'aman saved, %s.", data);
         return data;
     }
 
@@ -193,17 +193,17 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
     {
         if(!load) return;
         std::istringstream ss(load);
-        //error_log("SD2: Zul'aman loaded, %s.", ss.str().c_str());
+        //error_log("TSCR: Zul'aman loaded, %s.", ss.str().c_str());
         char dataHead; // S
         uint16 data1, data2, data3;
         ss >> dataHead >> data1 >> data2 >> data3;
-        //error_log("SD2: Zul'aman loaded, %d %d %d.", data1, data2, data3);
+        //error_log("TSCR: Zul'aman loaded, %d %d %d.", data1, data2, data3);
         if(dataHead == 'S')
         {
             BossKilled = data1;
             ChestLooted = data2;
             QuestMinute = data3;
-        }else error_log("SD2: Zul'aman: corrupted save data.");
+        }else error_log("TSCR: Zul'aman: corrupted save data.");
     }
 
     void SetData(uint32 type, uint32 data)
