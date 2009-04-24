@@ -247,7 +247,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatNum)
         {
             ((Player*)unit)->SetCharm(this, true);
             ((Player*)unit)->SetViewpoint(this, true);
-            ((Player*)unit)->SetMover(this);
+            //((Player*)unit)->SetMover(this);
             ((Player*)unit)->VehicleSpellInitialize();
         }
 
@@ -286,7 +286,7 @@ void Vehicle::RemovePassenger(Unit *unit)
     {
         ((Player*)unit)->SetCharm(this, false);
         ((Player*)unit)->SetViewpoint(this, false);
-        ((Player*)unit)->SetMover(unit);
+        //((Player*)unit)->SetMover(unit);
         ((Player*)unit)->SendRemoveControlBar();
     }
 
