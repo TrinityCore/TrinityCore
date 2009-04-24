@@ -538,6 +538,8 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             case ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_AT_BARBER:
             case ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_MAIL:
             case ACHIEVEMENT_CRITERIA_TYPE_LOOT_MONEY:
+            case ACHIEVEMENT_CRITERIA_TYPE_TOTAL_DAMAGE_RECEIVED:
+            case ACHIEVEMENT_CRITERIA_TYPE_TOTAL_HEALING_RECEIVED:
                 // AchievementMgr::UpdateAchievementCriteria might also be called on login - skip in this case
                 if(!miscvalue1)
                     continue;
@@ -546,6 +548,10 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             // std case: high value at miscvalue1
             case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_AUCTION_BID:
             case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_AUCTION_SOLD: /* FIXME: for online player only currently */
+            case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HIT_DEALT:
+            case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HIT_RECEIVED:
+            case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEAL_CASTED:
+            case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEALING_RECEIVED:
                 // AchievementMgr::UpdateAchievementCriteria might also be called on login - skip in this case
                 if(!miscvalue1)
                     continue;
@@ -1077,12 +1083,6 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             case ACHIEVEMENT_CRITERIA_TYPE_RECEIVE_EPIC_ITEM:
             case ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED:
             case ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED:
-            case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HIT_DEALT:
-            case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HIT_RECEIVED:
-            case ACHIEVEMENT_CRITERIA_TYPE_TOTAL_DAMAGE_RECEIVED:
-            case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEAL_CASTED:
-            case ACHIEVEMENT_CRITERIA_TYPE_TOTAL_HEALING_RECEIVED:
-            case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEALING_RECEIVED:
             case ACHIEVEMENT_CRITERIA_TYPE_QUEST_ABANDONED:
             case ACHIEVEMENT_CRITERIA_TYPE_FLIGHT_PATHS_TAKEN:
             case ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE:
