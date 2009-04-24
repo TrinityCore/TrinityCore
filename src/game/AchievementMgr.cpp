@@ -250,6 +250,41 @@ void AchievementMgr::Reset()
     CheckAllAchievementCriteria();
 }
 
+void AchievementMgr::ResetAchievementCriteria(AchievementCriteriaTypes type, uint32 miscvalue1, uint32 miscvalue2)
+{
+    if((sLog.getLogFilter() & LOG_FILTER_ACHIEVEMENT_UPDATES)==0)
+        sLog.outDetail("AchievementMgr::ResetAchievementCriteria(%u, %u, %u)", type, miscvalue1, miscvalue2);
+
+    if (!sWorld.getConfig(CONFIG_GM_ALLOW_ACHIEVEMENT_GAINS) && m_player->GetSession()->GetSecurity() > SEC_PLAYER)
+        return;
+
+    AchievementCriteriaEntryList const& achievementCriteriaList = achievementmgr.GetAchievementCriteriaByType(type);
+    for(AchievementCriteriaEntryList::const_iterator i = achievementCriteriaList.begin(); i!=achievementCriteriaList.end(); ++i)
+    {
+        AchievementCriteriaEntry const *achievementCriteria = (*i);
+
+        AchievementEntry const *achievement = sAchievementStore.LookupEntry(achievementCriteria->referredAchievement);
+        if (!achievement)
+            continue;
+
+        // don't update already completed criteria
+        if (IsCompletedCriteria(achievementCriteria,achievement))
+            continue;
+
+        switch (type)
+        {
+            case ACHIEVEMENT_CRITERIA_TYPE_DAMAGE_DONE:     // have total statistic also not expected to be reset
+            case ACHIEVEMENT_CRITERIA_TYPE_HEALING_DONE:    // have total statistic also not expected to be reset
+                if (achievementCriteria->healing_done.flag == miscvalue1 &&
+                    achievementCriteria->healing_done.mapid == miscvalue2)
+                    SetCriteriaProgress(achievementCriteria, 0, PROGRESS_SET);
+                break;
+            default:                                        // reset all cases
+                break;
+        }
+    }
+}
+
 void AchievementMgr::DeleteFromDB(uint32 lowguid)
 {
     CharacterDatabase.BeginTransaction ();
@@ -943,6 +978,25 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 SetCriteriaProgress(achievementCriteria, 1, PROGRESS_ACCUMULATE);
                 break;
             }
+            case ACHIEVEMENT_CRITERIA_TYPE_DAMAGE_DONE:
+            case ACHIEVEMENT_CRITERIA_TYPE_HEALING_DONE:
+            {
+                if (!miscvalue1)
+                    continue;
+
+                if (achievementCriteria->healing_done.flag == ACHIEVEMENT_CRITERIA_CONDITION_MAP)
+                {
+                    if(GetPlayer()->GetMapId() != achievementCriteria->healing_done.mapid)
+                        continue;
+
+                    // map specific case (BG in fact) expected player targeted damage/heal
+                    if(!unit || unit->GetTypeId()!=TYPEID_PLAYER)
+                        continue;
+                }
+
+                SetCriteriaProgress(achievementCriteria, miscvalue1, PROGRESS_ACCUMULATE);
+                break;
+            }
             case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM:
                 // miscvalue1 = item_id
                 if(!miscvalue1)
@@ -1053,7 +1107,6 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             // FIXME: not triggered in code as result, need to implement
             case ACHIEVEMENT_CRITERIA_TYPE_WIN_BG:
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DAILY_QUEST_DAILY:
-            case ACHIEVEMENT_CRITERIA_TYPE_DAMAGE_DONE:
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_RAID:
             case ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE:
             case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA:
@@ -1067,7 +1120,6 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM:
             case ACHIEVEMENT_CRITERIA_TYPE_HK_CLASS:
             case ACHIEVEMENT_CRITERIA_TYPE_HK_RACE:
-            case ACHIEVEMENT_CRITERIA_TYPE_HEALING_DONE:
             case ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS:
             case ACHIEVEMENT_CRITERIA_TYPE_MONEY_FROM_VENDORS:
             case ACHIEVEMENT_CRITERIA_TYPE_NUMBER_OF_TALENT_RESETS:
@@ -1196,6 +1248,9 @@ bool AchievementMgr::IsCompletedCriteria(AchievementCriteriaEntry const* achieve
             return progress->counter >= achievementCriteria->roll_greed_on_loot.count;
         case ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE:
             return progress->counter >= achievementCriteria->do_emote.count;
+        case ACHIEVEMENT_CRITERIA_TYPE_DAMAGE_DONE:
+        case ACHIEVEMENT_CRITERIA_TYPE_HEALING_DONE:
+            return progress->counter >= achievementCriteria->healing_done.count;
         case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM:
             return progress->counter >= achievementCriteria->equip_item.count;
         case ACHIEVEMENT_CRITERIA_TYPE_MONEY_FROM_QUEST_REWARD:
