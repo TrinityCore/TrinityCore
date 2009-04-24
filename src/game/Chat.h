@@ -95,7 +95,9 @@ class ChatHandler
         bool HandleAccountCommand(const char* args);
         bool HandleAccountCreateCommand(const char* args);
         bool HandleAccountDeleteCommand(const char* args);
+        bool HandleAccountLockCommand(const char* args);
         bool HandleAccountOnlineListCommand(const char* args);
+        bool HandleAccountPasswordCommand(const char* args);
         bool HandleAccountSetAddonCommand(const char* args);
         bool HandleAccountSetGmLevelCommand(const char* args);
         bool HandleAccountSetPasswordCommand(const char* args);
@@ -121,6 +123,10 @@ class ChatHandler
         bool HandleCastDistCommand(const char *args);
         bool HandleCastSelfCommand(const char *args);
         bool HandleCastTargetCommand(const char *args);
+
+        bool HandleCharacterCustomizeCommand(const char * args);
+        bool HandleCharacterDeleteCommand(const char* args);
+        bool HandleCharacterRenameCommand(const char * args);
 
         bool HandleDebugAnimCommand(const char* args);
         bool HandleDebugArenaCommand(const char * args);
@@ -395,14 +401,16 @@ class ChatHandler
         bool HandleServerIdleShutDownCommand(const char* args);
         bool HandleServerInfoCommand(const char* args);
         bool HandleServerMotdCommand(const char* args);
+        bool HandleServerPLimitCommand(const char* args);
         bool HandleServerRestartCommand(const char* args);
-        bool HandleServerSetMotdCommand(const char* args);
         bool HandleServerSetLogLevelCommand(const char* args);
-        bool HandleServerSetLogFileLevelCommand(const char* args);
-        bool HandleServerSetDiffTimeCommand(const char* args);
+        bool HandleServerSetMotdCommand(const char* args);
         bool HandleServerShutDownCommand(const char* args);
         bool HandleServerShutDownCancelCommand(const char* args);
         bool HandleServerSetClosedCommand(const char* args);
+
+        bool HandleServerSetLogFileLevelCommand(const char* args);
+        bool HandleServerSetDiffTimeCommand(const char* args);
 
         bool HandleTeleCommand(const char * args);
         bool HandleTeleAddCommand(const char * args);
@@ -451,7 +459,6 @@ class ChatHandler
         bool HandleGoGraveyardCommand(const char* args);
 
         bool HandlePInfoCommand(const char* args);
-        bool HandlePLimitCommand(const char* args);
         bool HandleMuteCommand(const char* args);
         bool HandleUnmuteCommand(const char* args);
         bool HandleMovegensCommand(const char* args);
@@ -459,7 +466,6 @@ class ChatHandler
         bool HandleUnFreezeCommand(const char *args);
         bool HandleListFreezeCommand(const char* args);
 
-        bool HandleCharacterDeleteCommand(const char* args);
         bool HandleGoXYCommand(const char* args);
         bool HandleGoXYZCommand(const char* args);
         bool HandleGoZoneXYCommand(const char* args);
@@ -517,12 +523,7 @@ class ChatHandler
 
         bool HandleMaxSkillCommand(const char* args);
         bool HandleSetSkillCommand(const char* args);
-        bool HandlePasswordCommand(const char* args);
-        bool HandleLockAccountCommand(const char* args);
         bool HandleRespawnCommand(const char* args);
-
-        bool HandleRenameCommand(const char * args);
-        bool HandleCustomizeCommand(const char * args);
         bool HandlePDumpLoadCommand(const char *args);
         bool HandlePDumpWriteCommand(const char *args);
         bool HandleComeToMeCommand(const char *args);
