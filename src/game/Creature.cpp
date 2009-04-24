@@ -1573,7 +1573,8 @@ bool Creature::IsWithinSightDist(Unit const* u) const
 
 bool Creature::canStartAttack(Unit const* who) const
 {
-    if(!who->isInAccessiblePlaceFor(this)
+    if(isCivilian()
+        || !who->isInAccessiblePlaceFor(this)
         || !canFly() && GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE
         || !IsWithinDistInMap(who, GetAttackDistance(who)))
         return false;
