@@ -287,8 +287,6 @@ class TRINITY_DLL_SPEC CreatureEventAI : public CreatureAI
         void DoFindFriendlyMissingBuff(std::list<Creature*>& _list, float range, uint32 spellid);
         void DoFindFriendlyCC(std::list<Creature*>& _list, float range);
 
-        //Bool for if we are in combat or not
-        bool InCombat;
                                                             //Holder for events (stores enabled, time, and eventid)
         std::list<CreatureEventAIHolder> CreatureEventAIList;
         uint32 EventUpdateTime;                             //Time between event updates
