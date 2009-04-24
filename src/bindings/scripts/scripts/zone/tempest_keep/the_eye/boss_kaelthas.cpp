@@ -389,8 +389,8 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
 
         if(!AdvisorGuid[0] || !AdvisorGuid[1] || !AdvisorGuid[2] || !AdvisorGuid[3])
         {
-            error_log("SD2: Kael'Thas One or more advisors missing, Skipping Phases 1-3");
-            DoYell("SD2: Kael'Thas One or more advisors missing, Skipping Phases 1-3", LANG_UNIVERSAL, NULL);
+            error_log("TSCR: Kael'Thas One or more advisors missing, Skipping Phases 1-3");
+            DoYell("TSCR: Kael'Thas One or more advisors missing, Skipping Phases 1-3", LANG_UNIVERSAL, NULL);
 
             DoScriptText(SAY_PHASE4_INTRO2, m_creature);
             Phase = 4;
