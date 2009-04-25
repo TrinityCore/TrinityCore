@@ -169,7 +169,7 @@ int WorldSocket::SendPacket (const WorldPacket& pct)
     // Dump outgoing packet.
     if (sWorldLog.LogWorld ())
     {
-        sWorldLog.outLog ("SERVER:\nSOCKET: %u\nLENGTH: %u\nOPCODE: %s (0x%.4X)\nDATA:\n",
+        sWorldLog.outTimestampLog ("SERVER:\nSOCKET: %u\nLENGTH: %u\nOPCODE: %s (0x%.4X)\nDATA:\n",
                      (uint32) get_handle (),
                      pct.size (),
                      LookupOpcodeName (pct.GetOpcode ()),
@@ -181,8 +181,9 @@ int WorldSocket::SendPacket (const WorldPacket& pct)
             for (uint32 j = 0; j < 16 && p < pct.size (); j++)
                 sWorldLog.outLog ("%.2X ", const_cast<WorldPacket&>(pct)[p++]);
 
-            sWorldLog.outLog ("");
+            sWorldLog.outLog ("\n");
         }
+        sWorldLog.outLog ("\n");
     }
 
     ServerPktHeader header(pct.size()+2, pct.GetOpcode());
@@ -678,7 +679,7 @@ int WorldSocket::ProcessIncoming (WorldPacket* new_pct)
     // Dump received packet.
     if (sWorldLog.LogWorld ())
     {
-        sWorldLog.outLog ("CLIENT:\nSOCKET: %u\nLENGTH: %u\nOPCODE: %s (0x%.4X)\nDATA:\n",
+        sWorldLog.outTimestampLog ("CLIENT:\nSOCKET: %u\nLENGTH: %u\nOPCODE: %s (0x%.4X)\nDATA:\n",
                      (uint32) get_handle (),
                      new_pct->size (),
                      LookupOpcodeName (new_pct->GetOpcode ()),
@@ -690,7 +691,7 @@ int WorldSocket::ProcessIncoming (WorldPacket* new_pct)
             for (uint32 j = 0; j < 16 && p < new_pct->size (); j++)
                 sWorldLog.outLog ("%.2X ", (*new_pct)[p++]);
 
-            sWorldLog.outLog ("");
+            sWorldLog.outLog ("\n");
         }
     }
 

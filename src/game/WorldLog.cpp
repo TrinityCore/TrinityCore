@@ -65,6 +65,34 @@ void WorldLog::Initialize()
     m_dbWorld = sConfig.GetBoolDefault("LogDB.World", false); // can be VERY heavy if enabled
 }
 
+void WorldLog::outTimestampLog(char const *fmt, ...)
+{
+    if( LogWorld() )
+    {
+        Guard guard(*this);
+        ASSERT(i_file);
+
+        Log::outTimestamp(i_file);
+        va_list args;
+        va_start(args, fmt);
+        vfprintf(i_file, fmt, args);
+        //fprintf(i_file, "\n" );
+        va_end(args);
+
+        fflush(i_file);
+    }
+
+    if (sLog.GetLogDB() && m_dbWorld)
+    {
+        va_list ap2;
+        va_start(ap2, fmt);
+        char nnew_str[MAX_QUERY_LEN];
+        vsnprintf(nnew_str, MAX_QUERY_LEN, fmt, ap2);
+        sLog.outDB(LOG_TYPE_WORLD, nnew_str);
+        va_end(ap2);
+    }
+}
+
 void WorldLog::outLog(char const *fmt, ...)
 {
     if( LogWorld() )
@@ -75,7 +103,7 @@ void WorldLog::outLog(char const *fmt, ...)
         va_list args;
         va_start(args, fmt);
         vfprintf(i_file, fmt, args);
-        fprintf(i_file, "\n" );
+        //fprintf(i_file, "\n" );
         va_end(args);
 
         fflush(i_file);
