@@ -49,6 +49,7 @@ class TRINITY_DLL_DECL WorldLog : public Trinity::Singleton<WorldLog, Trinity::C
         bool LogWorld(void) const { return (i_file != NULL); }
         /// %Log to the file
         void outLog(char const *fmt, ...);
+        void outTimestampLog(char const *fmt, ...);
 
     private:
         FILE *i_file;
