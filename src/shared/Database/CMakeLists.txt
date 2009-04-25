@@ -4,14 +4,11 @@ SET(trinitydatabase_STAT_SRCS
    DBCStore.h
    Database.cpp
    Database.h
-   DatabaseEnv.h
    DatabaseImpl.h
    DatabaseMysql.cpp
    DatabasePostgre.cpp
    DatabaseMysql.h
    DatabasePostgre.h
-   DatabaseSqlite.cpp
-   DatabaseSqlite.h
    Field.cpp
    Field.h
    MySQLDelayThread.h
@@ -21,8 +18,6 @@ SET(trinitydatabase_STAT_SRCS
    QueryResultMysql.h
    QueryResultPostgre.cpp
    QueryResultPostgre.h
-   QueryResultSqlite.cpp
-   QueryResultSqlite.h
    SQLStorage.cpp
    SQLStorage.h
    SqlDelayThread.cpp
