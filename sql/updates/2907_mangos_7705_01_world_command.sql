@@ -1,9 +1,7 @@
-ALTER TABLE db_version CHANGE COLUMN required_7662_02_mangos_spell_bonus_data required_7705_01_mangos_command bit;
+/*ALTER TABLE db_version CHANGE COLUMN required_7662_02_mangos_spell_bonus_data required_7705_01_mangos_command bit;*/
 
-DELETE FROM `command` WHERE `name` IN (
-  'account lock','account password','chardelete','character customize','character delete',
-  'character rename','customize','lockaccount','password','rename'
-);
+DELETE FROM `command` WHERE `name` IN 
+('account lock','account password','chardelete','character customize','character delete','character rename','customize','lockaccount','password','rename');
 
 INSERT INTO `command` VALUES
 ('account lock',0,'Syntax: .account lock [on|off]\r\n\r\nAllow login from account only from current used IP or remove this requirement.'),
