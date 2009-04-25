@@ -445,15 +445,8 @@ void Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
 
     for(PlayerSet::iterator itr = m_passengers.begin(); itr != m_passengers.end();)
     {
-        PlayerSet::iterator it2 = itr;
+        Player *plr = *itr;
         ++itr;
-
-        Player *plr = *it2;
-        if(!plr)
-        {
-            m_passengers.erase(it2);
-            continue;
-        }
 
         if (plr->isDead() && !plr->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
         {
@@ -477,11 +470,8 @@ void Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
 
 bool Transport::AddPassenger(Player* passenger)
 {
-    if (m_passengers.find(passenger) == m_passengers.end())
-    {
+    if(m_passengers.insert(passenger).second)
         sLog.outDetail("Player %s boarded transport %s.", passenger->GetName(), GetName());
-        m_passengers.insert(passenger);
-    }
     return true;
 }
 
