@@ -373,14 +373,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\Database\DatabaseSqlite.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\shared\Database\DatabaseSqlite.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\shared\Database\Field.cpp"
 				>
 			</File>
@@ -402,14 +394,6 @@
 			</File>
 			<File
 				RelativePath="..\..\src\shared\Database\QueryResultMysql.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\shared\Database\QueryResultSqlite.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\shared\Database\QueryResultSqlite.h"
 				>
 			</File>
 			<File
