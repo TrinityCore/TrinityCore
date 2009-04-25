@@ -37,7 +37,7 @@ class InstanceData;
 bool LoadScriptingModule(char const* libName = "");
 void UnloadScriptingModule();
 
-typedef void(TRINITY_IMPORT * scriptCallScriptsInit) ();
+typedef void(TRINITY_IMPORT * scriptCallScriptsInit) (char const*);
 typedef void(TRINITY_IMPORT * scriptCallScriptsFree) ();
 typedef char const* (TRINITY_IMPORT * scriptCallScriptsVersion) ();
 
