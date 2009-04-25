@@ -1634,16 +1634,23 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         sLog.outDebug("Player %s is being teleported to map %u", GetName(), mapid);
     }
 
-    // if we were on a transport, leave
-    if (!(options & TELE_TO_NOT_LEAVE_TRANSPORT) && m_transport)
+    // reset movement flags at teleport, because player will continue move with these flags after teleport
+    SetUnitMovementFlags(0);
+
+    if (m_transport)
     {
-        m_transport->RemovePassenger(this);
-        m_transport = NULL;
-        m_movementInfo.t_x = 0.0f;
-        m_movementInfo.t_y = 0.0f;
-        m_movementInfo.t_z = 0.0f;
-        m_movementInfo.t_o = 0.0f;
-        m_movementInfo.t_time = 0;
+        if (options & TELE_TO_NOT_LEAVE_TRANSPORT)
+            AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
+        else
+        {
+            m_transport->RemovePassenger(this);
+            m_transport = NULL;
+            m_movementInfo.t_x = 0.0f;
+            m_movementInfo.t_y = 0.0f;
+            m_movementInfo.t_z = 0.0f;
+            m_movementInfo.t_o = 0.0f;
+            m_movementInfo.t_time = 0;
+        }
     }
 
     // The player was ported to another map and looses the duel immediately.
@@ -1655,9 +1662,6 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         if (obj)
             DuelComplete(DUEL_FLED);
     }
-
-    // reset movement flags at teleport, because player will continue move with these flags after teleport
-    SetUnitMovementFlags(0);
 
     if ((GetMapId() == mapid) && (!m_transport))
     {
@@ -14154,7 +14158,6 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
     //Need to call it to initialize m_team (m_team can be calculated from m_race)
     //Other way is to saves m_team into characters table.
     setFactionForRace(m_race);
-    SetMover(this);
 
     m_class = fields[5].GetUInt8();
 
@@ -18454,9 +18457,6 @@ void Player::SendInitialPacketsBeforeAddToMap()
     // set fly flag if in fly form or taxi flight to prevent visually drop at ground in showup moment
     if(HasAuraType(SPELL_AURA_MOD_INCREASE_FLIGHT_SPEED) || isInFlight())
         AddUnitMovementFlag(MOVEMENTFLAG_FLYING2);
-
-    m_mover = this;
-    m_seer = this;
 }
 
 void Player::SendInitialPacketsAfterAddToMap()
