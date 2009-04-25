@@ -13042,7 +13042,6 @@ void Unit::SetCharmedOrPossessedBy(Unit* charmer, bool possess)
         addUnitState(UNIT_STAT_POSSESSED);
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);
         ((Player*)charmer)->SetClientControl(this, 1);
-        ((Player*)charmer)->SetMover(this);
         ((Player*)charmer)->SetViewpoint(this, true);
         charmer->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
     }
@@ -13125,7 +13124,6 @@ void Unit::RemoveCharmedOrPossessedBy(Unit *charmer)
     if(possess)
     {
         ((Player*)charmer)->SetClientControl(charmer, 1);
-        ((Player*)charmer)->SetMover(charmer);
         ((Player*)charmer)->SetViewpoint(this, false);
         charmer->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
     }
@@ -13500,10 +13498,19 @@ void Unit::JumpTo(WorldObject *obj, float speedZ)
     GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ);
 }
 
-void Unit::EnterVehicle(Vehicle *vehicle)
+void Unit::EnterVehicle(Vehicle *vehicle, int8 seatId)
 {
     if(m_Vehicle)
-        ExitVehicle();
+    {
+        if(m_Vehicle == vehicle)
+        {
+            if(seatId >= 0)
+                ChangeSeat(seatId);
+            return;
+        }
+        else
+            ExitVehicle();
+    }
 
     if(GetTypeId() == TYPEID_PLAYER)
     {
@@ -13513,7 +13520,7 @@ void Unit::EnterVehicle(Vehicle *vehicle)
 
     assert(!m_Vehicle);
     m_Vehicle = vehicle;
-    if(!m_Vehicle->AddPassenger(this))
+    if(!m_Vehicle->AddPassenger(this, seatId))
     {
         m_Vehicle = NULL;
         return;
@@ -13532,6 +13539,25 @@ void Unit::EnterVehicle(Vehicle *vehicle)
         WorldPacket data(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
         ((Player*)this)->GetSession()->SendPacket(&data);
     }
+}
+
+void Unit::ChangeSeat(int8 seatId, bool next)
+{
+    if(!m_Vehicle)
+        return;
+
+    if(seatId < 0)
+    {
+        seatId = m_Vehicle->GetNextEmptySeat(GetTransSeat(), next);
+        if(seatId < 0)
+            return;
+    }
+    else if(seatId == GetTransSeat() || !m_Vehicle->HasEmptySeat(seatId))
+        return;
+
+    m_Vehicle->RemovePassenger(this);
+    if(!m_Vehicle->AddPassenger(this, seatId))
+        assert(false);
 }
 
 void Unit::ExitVehicle()

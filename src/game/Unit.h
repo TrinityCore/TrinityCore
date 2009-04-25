@@ -1629,8 +1629,9 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
 
         bool m_ControlledByPlayer;
 
-        void EnterVehicle(Vehicle *vehicle);
+        void EnterVehicle(Vehicle *vehicle, int8 seatId = -1);
         void ExitVehicle();
+        void ChangeSeat(int8 seatId, bool next = true);
 
         // Transports
         Transport * GetTransport() const { return m_transport; }

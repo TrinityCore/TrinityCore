@@ -148,16 +148,16 @@ void Vehicle::SetVehicleId(uint32 id)
     assert(!m_Seats.empty());
 }
 
-bool Vehicle::HasEmptySeat(int8 seatNum) const
+bool Vehicle::HasEmptySeat(int8 seatId) const
 {
-    SeatMap::const_iterator seat = m_Seats.find(seatNum);
+    SeatMap::const_iterator seat = m_Seats.find(seatId);
     if(seat == m_Seats.end()) return false;
     return !seat->second.passenger;
 }
 
-int8 Vehicle::GetNextEmptySeat(int8 seatNum, bool next) const
+int8 Vehicle::GetNextEmptySeat(int8 seatId, bool next) const
 {
-    SeatMap::const_iterator seat = m_Seats.find(seatNum);
+    SeatMap::const_iterator seat = m_Seats.find(seatId);
     if(seat == m_Seats.end()) return -1;
     while(seat->second.passenger)
     {
@@ -173,13 +173,13 @@ int8 Vehicle::GetNextEmptySeat(int8 seatNum, bool next) const
                 seat = m_Seats.end();
             --seat;
         }
-        if(seat->first == seatNum)
+        if(seat->first == seatId)
             return -1;
     }
     return seat->first;
 }
 
-void Vehicle::InstallAccessory(uint32 entry, int8 seatNum)
+void Vehicle::InstallAccessory(uint32 entry, int8 seatId)
 {
     //Creature *accessory = SummonCreature(entry, GetPositionX(), GetPositionY(), GetPositionZ());
     Creature *accessory = SummonVehicle(entry, GetPositionX(), GetPositionY(), GetPositionZ());
@@ -187,16 +187,16 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatNum)
         return;
 
     accessory->m_Vehicle = this;
-    AddPassenger(accessory, seatNum);
+    AddPassenger(accessory, seatId);
 }
 
-bool Vehicle::AddPassenger(Unit *unit, int8 seatNum)
+bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
 {
     if(unit->m_Vehicle != this)
         return false;
 
     SeatMap::iterator seat;
-    if(seatNum < 0) // no specific seat requirement
+    if(seatId < 0) // no specific seat requirement
     {
         for(seat = m_Seats.begin(); seat != m_Seats.end(); ++seat)
             if(!seat->second.passenger)
@@ -207,7 +207,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatNum)
     }
     else
     {
-        seat = m_Seats.find(seatNum);
+        seat = m_Seats.find(seatId);
         if(seat == m_Seats.end())
             return false;
 
@@ -247,7 +247,6 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatNum)
         {
             ((Player*)unit)->SetCharm(this, true);
             ((Player*)unit)->SetViewpoint(this, true);
-            //((Player*)unit)->SetMover(this);
             ((Player*)unit)->VehicleSpellInitialize();
         }
 
@@ -286,7 +285,6 @@ void Vehicle::RemovePassenger(Unit *unit)
     {
         ((Player*)unit)->SetCharm(this, false);
         ((Player*)unit)->SetViewpoint(this, false);
-        //((Player*)unit)->SetMover(unit);
         ((Player*)unit)->SendRemoveControlBar();
     }
 

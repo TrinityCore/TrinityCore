@@ -52,11 +52,11 @@ class Vehicle : public Creature
         VehicleEntry const *GetVehicleInfo() { return m_vehicleInfo; }
         void SetVehicleId(uint32 vehicleid);
 
-        bool HasEmptySeat(int8 seatNum) const;
-        int8 GetNextEmptySeat(int8 seatNum, bool next) const;
-        bool AddPassenger(Unit *passenger, int8 seatNum = -1);
+        bool HasEmptySeat(int8 seatId) const;
+        int8 GetNextEmptySeat(int8 seatId, bool next) const;
+        bool AddPassenger(Unit *passenger, int8 seatId = -1);
         void RemovePassenger(Unit *passenger);
-        void InstallAccessory(uint32 entry, int8 seatNum);
+        void InstallAccessory(uint32 entry, int8 seatId);
         void Dismiss();
 
         bool LoadFromDB(uint32 guid, Map *map);
