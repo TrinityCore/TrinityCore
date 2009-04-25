@@ -998,8 +998,12 @@ void CreatureEventAI::ProcessAction(uint16 type, uint32 param1, uint32 param2, u
             {
                 sLog.outErrorDb("TSCR: EventAI failed to spawn object %u. Spawn event %d is on creature %d", param1, EventId, m_creature->GetEntry());
             }
+            break;
         }
-        break;
+        case ACTION_T_CALL_ASSISTANCE:
+            m_creature->SetNoCallAssistance(false);
+            m_creature->CallAssistance(param1);
+            break;        
     }
 }
 

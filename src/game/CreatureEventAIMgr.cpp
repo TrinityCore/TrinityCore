@@ -650,6 +650,14 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                     case ACTION_T_RANDOM_TEXTEMOTE:
                         sLog.outErrorDb("CreatureEventAI:  Event %u Action %u currently unused ACTION type. Did you forget to update database?", i, j+1);
                         break;
+
+                    case ACTION_T_SET_ACTIVE:
+                    case ACTION_T_SET_AGGRESSIVE:
+                    case ACTION_T_ATTACK_START_PULSE:
+                    case ACTION_T_SUMMON_GO:
+                    case ACTION_T_CALL_ASSISTANCE:
+                        break;
+
                     default:
                         sLog.outErrorDb("CreatureEventAI:  Event %u Action %u have currently not checked at load action type (%u). Need check code update?", i, j+1, temp.action[j].type);
                         break;
