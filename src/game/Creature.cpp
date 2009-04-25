@@ -1932,13 +1932,15 @@ Unit* Creature::SelectNearestTarget(float dist) const
     return target;
 }
 
-void Creature::CallAssistance()
+void Creature::CallAssistance(float radius)
 {
     if( !m_AlreadyCallAssistance && getVictim() && !isPet() && !isCharmed())
     {
         SetNoCallAssistance(true);
 
-        float radius = sWorld.getConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_RADIUS);
+        if(!radius)
+            radius = sWorld.getConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_RADIUS);
+
         if(radius > 0)
         {
             std::list<Creature*> assistList;
