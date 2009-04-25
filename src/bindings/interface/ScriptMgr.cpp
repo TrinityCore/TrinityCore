@@ -50,7 +50,7 @@ void ScriptsFree()
 }
 
 TRINITY_DLL_EXPORT
-void ScriptsInit()
+void ScriptsInit(char const* cfg_file = "trinitycore.conf")
 {
     nrscripts = 0;
     num_inst_scripts = 0;
