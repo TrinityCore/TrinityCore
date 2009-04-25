@@ -2310,7 +2310,10 @@ void SpellMgr::LoadSpellCustomAttr()
                         spellInfo->speed = SPEED_CHARGE;
                     mSpellCustomAttr[i] |= SPELL_ATTR_CU_CHARGE;
                 case SPELL_EFFECT_TRIGGER_SPELL:
-                    if(spellInfo->Targets & (TARGET_FLAG_SOURCE_LOCATION|TARGET_FLAG_DEST_LOCATION))
+                    //if(spellInfo->Targets & (TARGET_FLAG_SOURCE_LOCATION|TARGET_FLAG_DEST_LOCATION))
+                    if (SpellTargetType[spellInfo->EffectImplicitTargetA[j]]== TARGET_TYPE_DEST_CASTER ||
+                        SpellTargetType[spellInfo->EffectImplicitTargetA[j]]== TARGET_TYPE_DEST_TARGET ||
+                        SpellTargetType[spellInfo->EffectImplicitTargetA[j]]== TARGET_TYPE_DEST_DEST)
                         spellInfo->Effect[j] = SPELL_EFFECT_TRIGGER_MISSILE;
                     break;
             }
