@@ -1222,7 +1222,7 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
             // Item cast can trigger only with spells with spellfamily
             if (procExtra & PROC_EX_INTERNAL_ITEM_CAST)
             {
-                if (!spellProcEvent->SpellFamilyName)
+                if (!spellProcEvent->spellFamilyName)
                     return false;
             }
             // Check (if set) for school
