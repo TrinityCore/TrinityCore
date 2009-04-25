@@ -26,16 +26,14 @@ EXTRA_DIST = \
 	win32_debug/libeay32.dll \
 	win32_debug/libeay32.lib \
 	win32_debug/libmySQL.dll \
-	win32_debug/libmySQL.lib \
-	win32_debug/sqlite.lib
+	win32_debug/libmySQL.lib
 
 # Release libraries for Win32 builds.
 EXTRA_DIST += \
 	win32_release/libeay32.dll \
 	win32_release/libeay32.lib \
 	win32_release/libmySQL.dll \
-	win32_release/libmySQL.lib \
-	win32_release/sqlite.lib
+	win32_release/libmySQL.lib
 
 #  Debug libraries for Win64 builds.
 EXTRA_DIST += \

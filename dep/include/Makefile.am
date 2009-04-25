@@ -162,10 +162,6 @@ EXTRA_DIST += \
 	postgre/pg_type.h \
 	postgre/postgres_ext.h
 
-#  SQLite header files for Win32 builds
-EXTRA_DIST += \
-	sqlite/sqlite.h
-
 #  Sockets header files for Win32 builds
 EXTRA_DIST += \
 	sockets\Base64.h \

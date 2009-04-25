@@ -39,10 +39,8 @@ typedef DatabasePostgre DatabaseType;
 #define _OFFSET_         "LIMIT 1 OFFSET %d"
 #else
 #include "Database/QueryResultMysql.h"
-#include "Database/QueryResultSqlite.h"
 #include "Database/Database.h"
 #include "Database/DatabaseMysql.h"
-#include "Database/DatabaseSqlite.h"
 typedef DatabaseMysql DatabaseType;
 #define _LIKE_           "LIKE"
 #define _TABLE_SIM_      "`"
