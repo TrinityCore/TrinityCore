@@ -22,9 +22,11 @@
 #include <dlfcn.h>
 #endif
 
+#include "Common.h"
 #include "Platform/Define.h"
 #include "ScriptCalls.h"
 #include "World.h"
+#include "Config/ConfigEnv.h"
 
 ScriptsSet Script=NULL;
 
@@ -98,7 +100,7 @@ bool LoadScriptingModule(char const* libName)
     UnloadScriptingModule();
 
     Script=testScript;
-    Script->ScriptsInit();
+    Script->ScriptsInit(sConfig.GetFilename().c_str());
 
     sWorld.SetScriptsVersion(Script->ScriptsVersion());
 

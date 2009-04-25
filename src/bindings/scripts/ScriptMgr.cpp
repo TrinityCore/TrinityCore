@@ -933,7 +933,7 @@ void ScriptsFree()
 }
 
 TRINITY_DLL_EXPORT
-void ScriptsInit()
+void ScriptsInit(char const* cfg_file = "trinitycore.conf")
 {
     bool CanLoadDB = true;
 
@@ -948,12 +948,12 @@ void ScriptsInit()
     outstring_log("");
 
     //Get configuration file
-    if (!TScriptConfig.SetSource(_TRINITY_SCRIPT_CONFIG))
+    if (!TScriptConfig.SetSource(cfg_file))
     {
         CanLoadDB = false;
         error_log("TSCR: Unable to open configuration file. Database will be unaccessible. Configuration values will use default.");
     }
-    else outstring_log("TSCR: Using configuration file %s",_TRINITY_SCRIPT_CONFIG);
+    else outstring_log("TSCR: Using configuration file %s",cfg_file);
 
     outstring_log("");
 
