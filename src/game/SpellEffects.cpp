@@ -338,14 +338,6 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
 
                 switch(m_spellInfo->Id)                     // better way to check unknown
                 {
-                    case 35354: //Hand of Death
-                    {
-                        if(unitTarget && unitTarget->HasAura(38528)) //Protection of Elune
-                        {
-                            damage = 0;
-                        }
-                        break;
-                    }
                     // percent from health with min
                     case 25599:                             // Thundercrash
                     {
@@ -451,7 +443,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                     Unit::AuraEffectList const &mPeriodic = unitTarget->GetAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
                     for(Unit::AuraEffectList::const_iterator i = mPeriodic.begin(); i != mPeriodic.end(); ++i)
                     {
-                        if( (*i)->GetSpellProto()->SpellFamilyName == SPELLFAMILY_WARLOCK && ((*i)->GetSpellProto()->SpellFamilyFlags[0] & 4) &&
+                        if( (*i)->GetSpellProto()->SpellFamilyName == SPELLFAMILY_WARLOCK && ((*i)->GetSpellProto()->SpellFamilyFlags[0] & 4 || (*i)->GetSpellProto()->SpellFamilyFlags[2] & 2) &&
                             (*i)->GetCasterGUID()==m_caster->GetGUID() )
                         {
                             unitTarget->RemoveAurasDueToSpell((*i)->GetId(), m_caster->GetGUID());
