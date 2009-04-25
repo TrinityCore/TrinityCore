@@ -1220,11 +1220,10 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
         else // For spells need check school/spell family/family mask
         {
             // Item cast can trigger only with spells with spellfamily
-            if (procExtra & PROC_EX_INTERNAL_ITEM_CAST && procSpell->SpellFamilyName)
+            if (procExtra & PROC_EX_INTERNAL_ITEM_CAST)
             {
-                if (procSpell->SpellFamilyName == spellProcEvent->spellFamilyName)
-                    return true;
-                return false;
+                if (!spellProcEvent->SpellFamilyName)
+                    return false;
             }
             // Check (if set) for school
             if(spellProcEvent->schoolMask && (spellProcEvent->schoolMask & procSpell->SchoolMask) == 0)
