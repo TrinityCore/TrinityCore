@@ -5512,6 +5512,14 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     triggered_spell_id = 56160;
                     break;
                 }
+                // Improved Shadowform
+                case 47570:
+                case 47569:
+                {
+                    RemoveAurasByTypeWithDispel(SPELL_AURA_MOD_ROOT);
+                    RemoveAurasByTypeWithDispel(SPELL_AURA_MOD_DECREASE_SPEED);
+                    break;
+                }
                 // Psychic Horror
                 case 47571:
                 {
