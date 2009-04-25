@@ -493,38 +493,32 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket &recv_data)
     if(!GetPlayer()->m_Vehicle)
         return;
 
-    if(recv_data.GetOpcode() == CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE)
+    if(recv_data.GetOpcode() == CMSG_REQUEST_VEHICLE_PREV_SEAT)
+    {
+        GetPlayer()->ChangeSeat(-1, false);
+        return;
+    }
+    else if(recv_data.GetOpcode() == CMSG_REQUEST_VEHICLE_NEXT_SEAT)
+    {
+        GetPlayer()->ChangeSeat(-1, true);
+        return;
+    }
+    else if(recv_data.GetOpcode() == CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE)
         ReadMovementInfo(recv_data, &GetPlayer()->m_Vehicle->m_movementInfo);
 
+    CHECK_PACKET_SIZE(recv_data, recv_data.rpos()+1);
     uint64 guid;
     if(!recv_data.readPackGUID(guid))
         return;
 
-    Vehicle *vehicle = guid ? ObjectAccessor::GetVehicle(guid) : GetPlayer()->m_Vehicle;
-    if(!vehicle)
-        return;
+    CHECK_PACKET_SIZE(recv_data, recv_data.rpos()+1);
+    int8 seatId;
+    recv_data >> seatId;
 
-    int8 seatNum;
-    recv_data >> seatNum;
     if(!guid)
-    {
-        seatNum = vehicle->GetNextEmptySeat(GetPlayer()->GetTransSeat(), seatNum > 0);
-        if(seatNum < 0)
-            return;
-    }
-    else if(!vehicle->HasEmptySeat(seatNum))
-        return;
-
-    GetPlayer()->m_Vehicle->RemovePassenger(GetPlayer());
-    if(GetPlayer()->m_Vehicle != vehicle)
-    {
-        GetPlayer()->m_Vehicle = vehicle;
-        GetPlayer()->SetClientControl(vehicle, 1);
-        WorldPacket data(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
-        GetPlayer()->GetSession()->SendPacket(&data);
-    }
-    else if(!vehicle->AddPassenger(GetPlayer(), seatNum))
-        assert(false);
+        GetPlayer()->ChangeSeat(-1, seatId > 0);
+    else if(Vehicle *vehicle = ObjectAccessor::GetVehicle(guid))
+        GetPlayer()->EnterVehicle(vehicle, seatId);
 }
 
 void WorldSession::HandleRequestVehicleExit(WorldPacket &recv_data)
