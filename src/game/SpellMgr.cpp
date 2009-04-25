@@ -751,6 +751,24 @@ bool IsPositiveSpell(uint32 spellId, bool deep)
     return true;
 }
 
+bool IsDispelableBySpell(SpellEntry const * dispelSpell, uint32 spellId, bool def)
+{
+    if (!dispelSpell) return false;
+    SpellEntry const *spellproto = sSpellStore.LookupEntry(spellId);
+    if (!spellproto) return false;
+
+    if (spellproto->Mechanic == MECHANIC_IMMUNE_SHIELD)
+    {
+        if (dispelSpell->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY)
+        {
+            return true;
+        }
+        else
+            return false;
+    }
+    return def;
+}
+
 bool IsSingleTargetSpell(SpellEntry const *spellInfo)
 {
     // all other single target spells have if it has AttributesEx5
@@ -1201,14 +1219,13 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
         }
         else // For spells need check school/spell family/family mask
         {
-            // Potions can trigger only if spellfamily given
-            if (procSpell->SpellFamilyName == SPELLFAMILY_POTION)
+            // Item cast can trigger only with spells with spellfamily
+            if (procExtra & PROC_EX_INTERNAL_ITEM_CAST && procSpell->SpellFamilyName)
             {
                 if (procSpell->SpellFamilyName == spellProcEvent->spellFamilyName)
                     return true;
                 return false;
             }
-
             // Check (if set) for school
             if(spellProcEvent->schoolMask && (spellProcEvent->schoolMask & procSpell->SchoolMask) == 0)
                 return false;
@@ -1226,8 +1243,8 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
             }
         }
     }
-    // potions can trigger only if have spell_proc entry
-    else if (procSpell && procSpell->SpellFamilyName==SPELLFAMILY_POTION)
+    // Item cast can trigger only with spells with spellfamily
+    else if (procExtra & PROC_EX_INTERNAL_ITEM_CAST)
         return false;
 
     // Check for extra req (if none) and hit/crit
@@ -2310,10 +2327,10 @@ void SpellMgr::LoadSpellCustomAttr()
                         spellInfo->speed = SPEED_CHARGE;
                     mSpellCustomAttr[i] |= SPELL_ATTR_CU_CHARGE;
                 case SPELL_EFFECT_TRIGGER_SPELL:
-                    //if(spellInfo->Targets & (TARGET_FLAG_SOURCE_LOCATION|TARGET_FLAG_DEST_LOCATION))
                     if (SpellTargetType[spellInfo->EffectImplicitTargetA[j]]== TARGET_TYPE_DEST_CASTER ||
                         SpellTargetType[spellInfo->EffectImplicitTargetA[j]]== TARGET_TYPE_DEST_TARGET ||
-                        SpellTargetType[spellInfo->EffectImplicitTargetA[j]]== TARGET_TYPE_DEST_DEST)
+                        SpellTargetType[spellInfo->EffectImplicitTargetA[j]]== TARGET_TYPE_DEST_DEST ||
+                        spellInfo->Targets & (TARGET_FLAG_SOURCE_LOCATION|TARGET_FLAG_DEST_LOCATION))
                         spellInfo->Effect[j] = SPELL_EFFECT_TRIGGER_MISSILE;
                     break;
             }

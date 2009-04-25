@@ -240,6 +240,7 @@ inline bool IsNonCombatSpell(SpellEntry const *spellInfo)
 bool IsPositiveSpell(uint32 spellId, bool deep = false);
 bool IsPositiveEffect(uint32 spellId, uint32 effIndex, bool deep = false);
 bool IsPositiveTarget(uint32 targetA, uint32 targetB);
+bool IsDispelableBySpell(SpellEntry const * dispelSpell, uint32 spellId, bool def = false);
 
 bool IsSingleTargetSpell(SpellEntry const *spellInfo);
 bool IsSingleTargetSpells(SpellEntry const *spellInfo1, SpellEntry const *spellInfo2);
@@ -436,7 +437,8 @@ enum ProcFlagsEx
    PROC_EX_AURA_REMOVE_EXPIRE  = 0x0004000,                 // aura remove by default and by cancel
    PROC_EX_EX_TRIGGER_ALWAYS   = 0x0010000,                 // If set trigger always ( no matter another flags) used for drop charges
    PROC_EX_EX_ONE_TIME_TRIGGER = 0x0020000,                  // If set trigger always but only one time (not used)
-   PROC_EX_INTERNAL_TRIGGERED  = 0x4000000                 // Only for internal use
+   PROC_EX_INTERNAL_TRIGGERED  = 0x4000000,                 // Only for internal use
+   PROC_EX_INTERNAL_ITEM_CAST  = 0x8000000
 };
 #define AURA_REMOVE_PROC_EX_MASK \
    (PROC_EX_AURA_REMOVE_DESTROY | PROC_EX_AURA_REMOVE_EXPIRE)
