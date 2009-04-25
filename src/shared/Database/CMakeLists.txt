@@ -4,6 +4,7 @@ SET(trinitydatabase_STAT_SRCS
    DBCStore.h
    Database.cpp
    Database.h
+   DatabaseEnv.h   
    DatabaseImpl.h
    DatabaseMysql.cpp
    DatabasePostgre.cpp
