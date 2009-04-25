@@ -107,6 +107,7 @@ enum EventAI_ActionType
     ACTION_T_SET_AGGRESSIVE             = 102,  //Apply
     ACTION_T_ATTACK_START_PULSE         = 103,  //Distance
     ACTION_T_SUMMON_GO                  = 104,  //GameObjectID, DespawnTime in ms
+    ACTION_T_CALL_ASSISTANCE            = 105,  //Radius
 
     ACTION_T_END,
 };
