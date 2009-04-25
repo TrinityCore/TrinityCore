@@ -2845,15 +2845,18 @@ SpellCastResult SpellMgr::GetSpellAllowedInLocationError(SpellEntry const *spell
     if( spellInfo->AreaGroupId > 0)
     {
         bool found = false;
-
         AreaGroupEntry const* groupEntry = sAreaGroupStore.LookupEntry(spellInfo->AreaGroupId);
-        if(groupEntry)
+        while (groupEntry)
         {
-            for (uint8 i=0; i<7; i++)
+            for (uint32 i=0; i<6; i++)
                 if( groupEntry->AreaId[i] == zone_id || groupEntry->AreaId[i] == area_id )
                     found = true;
+            if (found || !groupEntry->nextGroup)
+                break;
+            // Try search in next group
+            groupEntry = sAreaGroupStore.LookupEntry(groupEntry->nextGroup);
         }
-
+        
         if(!found)
             return SPELL_FAILED_INCORRECT_AREA;
     }
