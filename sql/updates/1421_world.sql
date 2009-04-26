@@ -18,7 +18,7 @@ UPDATE `creature_template` SET `minlevel` =70, `maxlevel` = 70, `unit_flags` = 3
 UPDATE `creature_template` SET `minlevel` = 70, `maxlevel` = 70, `minhealth` = 20000, maxhealth = 20000 WHERE entry = 25502;
 UPDATE `creature_template` SET `minhealth` = 12600000, maxhealth = 12600000, minmana = 2000000, maxmana = 2000000 WHERE entry = 25315;
 UPDATE `creature_template` SET `minhealth` = 110000, maxhealth = 110000, minmana = 100000, maxmana = 100000 WHERE entry =25708;
-UPDATE `creature_template` SET `minlevel` = 73, `maxlevel` = 73 WHERE entry = 25735
+UPDATE `creature_template` SET `minlevel` = 73, `maxlevel` = 73 WHERE entry = 25735;
 
 DELETE FROM creature WHERE id IN (25319, 25588, 25608);
 INSERT INTO creature (id, map, spawnMask, modelid, equipment_id, position_x, position_y, position_z, orientation, spawntimesecs, spawndist, currentwaypoint, curhealth, curmana, DeathState, MovementType) VALUES
