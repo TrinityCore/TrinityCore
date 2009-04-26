@@ -14524,12 +14524,6 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
     InitTalentForLevel();
     learnDefaultSpells();
 
-    // must be done after aura loading for correct pet talent amount calculation
-    if(HasAtLoginFlag(AT_LOGIN_RESET_PET_SPELLS))
-    {
-        _resetAllPetSpells();
-    }
-
     _LoadTutorials(holder->GetResult(PLAYER_LOGIN_QUERY_LOADTUTORIALS));
 
     // must be before inventory (some items required reputation check)
@@ -15775,7 +15769,7 @@ void Player::SaveToDB()
     ss << uint32(m_stableSlots);                            // to prevent save uint8 as char
 
     ss << ", ";
-    ss << uint32(m_atLoginFlags);
+    ss << uint32(m_atLoginFlags & ((1<<AT_LOAD_PET_FLAGS) -1));
 
     ss << ", ";
     ss << GetZoneId();
@@ -18589,44 +18583,6 @@ void Player::resetSpells()
 
     learnDefaultSpells();
     learnQuestRewardedSpells();
-}
-
-void Player::_resetAllPetSpells()
-{
-    if(HasAtLoginFlag(AT_LOGIN_RESET_PET_SPELLS))
-    {
-        m_atLoginFlags = m_atLoginFlags & ~AT_LOGIN_RESET_PET_SPELLS;
-        CharacterDatabase.PExecute("UPDATE characters set at_login = at_login & ~ %u WHERE guid ='%u'", uint32(AT_LOGIN_RESET_PET_SPELLS), GetGUIDLow());
-    }
-
-    if (QueryResult * result = CharacterDatabase.PQuery("SELECT id, level, entry FROM character_pet WHERE owner = '%u'", GetGUIDLow()))
-    {
-        // Mod points from owner SPELL_AURA_MOD_PET_TALENT_POINTS
-        uint32 pointMod = GetTotalAuraModifier(SPELL_AURA_MOD_PET_TALENT_POINTS);
-        do
-        {
-            Field *fields = result->Fetch();
-            uint32 petId = fields[0].GetUInt32();
-            uint32 level = fields[1].GetUInt32();
-            uint32 entry = fields[2].GetUInt32();
-            CreatureInfo const *ci = objmgr.GetCreatureTemplate(entry);
-            if (!ci)
-                sLog.outError("Unknown pet (id %d) type saved in character_pet!", petId);
-            CreatureFamilyEntry const *pet_family = sCreatureFamilyStore.LookupEntry(ci->family);
-            if (!pet_family)
-                sLog.outError("Unknown pet (id %d) type saved in character_pet!", petId);
-            if(pet_family && pet_family->petTalentType >= 0)
-            {
-                uint32 points = (level >= 20) ? ((level - 16) / 4) : 0;
-                CharacterDatabase.PExecute("DELETE FROM pet_spell WHERE guid = '%u'", petId);
-                std::ostringstream ss;
-                ss << "UPDATE character_pet SET talentpoints = '"<<points + pointMod<<"' WHERE id = '"<<petId<<"'";
-                sLog.outDebug(ss.str().c_str());
-                CharacterDatabase.Execute(ss.str().c_str());
-            }
-        }
-        while( result->NextRow() );
-    }
 }
 
 void Player::learnDefaultSpells()
