@@ -2974,7 +2974,7 @@ void AuraEffect::HandleAuraModShapeshift(bool apply, bool Real)
                 case FORM_DIREBEAR:
                 {
                     // get furor proc chance
-                    uint32 FurorChance = 0;
+                    int32 FurorChance = 0;
                     Unit::AuraEffectList const& mDummy = m_target->GetAurasByType(SPELL_AURA_DUMMY);
                     for(Unit::AuraEffectList::const_iterator i = mDummy.begin(); i != mDummy.end(); ++i)
                     {
@@ -2989,7 +2989,7 @@ void AuraEffect::HandleAuraModShapeshift(bool apply, bool Real)
                     {
                         m_target->SetPower(POWER_ENERGY,0);
                         if(urand(1,100) <= FurorChance)
-                            m_target->CastSpell(m_target,17099,true,NULL,this);
+                            m_target->CastCustomSpell(m_target,17099,&FurorChance, NULL, NULL,true,NULL,this);
                     }
                     else
                     {
