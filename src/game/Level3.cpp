@@ -5392,8 +5392,13 @@ bool ChatHandler::HandleResetAllCommand(const char * args)
     }
     else if(casename=="pet_spells")
     {
-        atLogin = AT_LOGIN_RESET_PET_SPELLS;
+        CharacterDatabase.PExecute("UPDATE character_pet SET load_flags = load_flags | '%u' WHERE (load_flags & '%u') = '0'",uint32(AT_LOAD_RESET_SPELLS),uint32(AT_LOAD_RESET_SPELLS));
+        HashMapHolder<Player>::MapType const& plist = ObjectAccessor::Instance().GetPlayers();
+        for(HashMapHolder<Player>::MapType::const_iterator itr = plist.begin(); itr != plist.end(); ++itr)
+            if (itr->second->GetPet())
+                itr->second->SetPetAtLoginFlag(AT_LOAD_RESET_SPELLS);
         sWorld.SendWorldText(LANG_RESETALL_PET_SPELLS);
+        return true;
     }
     else
     {
