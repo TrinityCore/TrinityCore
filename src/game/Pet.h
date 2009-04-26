@@ -90,6 +90,12 @@ enum PetTalk
     PET_TALK_ATTACK         = 1
 };
 
+enum AtLoadFlags
+{
+    AT_LOAD_NONE          = 0,
+    AT_LOAD_RESET_SPELLS  = 1,
+};
+
 enum PetNameInvalidReason
 {
     PET_NAME_INVALID                                        = 1,

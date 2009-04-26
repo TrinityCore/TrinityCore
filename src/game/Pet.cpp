@@ -50,6 +50,8 @@ m_declinedname(NULL), m_owner(owner)
     m_name = "Pet";
     m_regenTimer = 4000;
 
+    owner->SetPetAtLoginFlag(0);
+
     if(type == POSSESSED_PET)                                    // always passive
         SetReactState(REACT_PASSIVE);
 }
@@ -100,25 +102,25 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
     QueryResult *result;
 
     if (petnumber)
-        // known petnumber entry                  0   1      2(?)   3        4      5    6           7             8     9     10       11         12       13            14      15              16        17                 18                 19              20
-        result = CharacterDatabase.PQuery("SELECT id, entry, owner, modelid, level, exp, Reactstate, talentpoints, slot, name, renamed, curhealth, curmana, curhappiness, abdata, TeachSpelldata, savetime, resettalents_cost, resettalents_time, CreatedBySpell, PetType "
+        // known petnumber entry                  0   1      2(?)   3        4      5    6           7             8     9     10       11         12       13            14      15              16        17                 18                 19              20        21
+        result = CharacterDatabase.PQuery("SELECT id, entry, owner, modelid, level, exp, Reactstate, talentpoints, slot, name, renamed, curhealth, curmana, curhappiness, abdata, TeachSpelldata, savetime, resettalents_cost, resettalents_time, CreatedBySpell, PetType , load_flags "
             "FROM character_pet WHERE owner = '%u' AND id = '%u'",
             ownerid, petnumber);
     else if (current)
-        // current pet (slot 0)                   0   1      2(?)   3        4      5    6           7             8     9     10       11         12       13            14      15              16        17                 18                 19              20
-        result = CharacterDatabase.PQuery("SELECT id, entry, owner, modelid, level, exp, Reactstate, talentpoints, slot, name, renamed, curhealth, curmana, curhappiness, abdata, TeachSpelldata, savetime, resettalents_cost, resettalents_time, CreatedBySpell, PetType "
+        // current pet (slot 0)                   0   1      2(?)   3        4      5    6           7             8     9     10       11         12       13            14      15              16        17                 18                 19              20        21
+        result = CharacterDatabase.PQuery("SELECT id, entry, owner, modelid, level, exp, Reactstate, talentpoints, slot, name, renamed, curhealth, curmana, curhappiness, abdata, TeachSpelldata, savetime, resettalents_cost, resettalents_time, CreatedBySpell, PetType , load_flags "
             "FROM character_pet WHERE owner = '%u' AND slot = '%u'",
             ownerid, PET_SAVE_AS_CURRENT );
     else if (petentry)
         // known petentry entry (unique for summoned pet, but non unique for hunter pet (only from current or not stabled pets)
-        //                                        0   1      2(?)   3        4      5    6           7             8     9     10       11         12       13            14      15              16        17                 18                 19              20
-        result = CharacterDatabase.PQuery("SELECT id, entry, owner, modelid, level, exp, Reactstate, talentpoints, slot, name, renamed, curhealth, curmana, curhappiness, abdata, TeachSpelldata, savetime, resettalents_cost, resettalents_time, CreatedBySpell, PetType "
+        //                                        0   1      2(?)   3        4      5    6           7             8     9     10       11         12       13            14      15              16        17                 18                 19              20        21
+        result = CharacterDatabase.PQuery("SELECT id, entry, owner, modelid, level, exp, Reactstate, talentpoints, slot, name, renamed, curhealth, curmana, curhappiness, abdata, TeachSpelldata, savetime, resettalents_cost, resettalents_time, CreatedBySpell, PetType , load_flags "
             "FROM character_pet WHERE owner = '%u' AND entry = '%u' AND (slot = '%u' OR slot > '%u') ",
             ownerid, petentry,PET_SAVE_AS_CURRENT,PET_SAVE_LAST_STABLE_SLOT);
     else
         // any current or other non-stabled pet (for hunter "call pet")
-        //                                        0   1      2(?)   3        4      5    6           7             8     9     10       11         12       13            14      15              16        17                 18                 19              20
-        result = CharacterDatabase.PQuery("SELECT id, entry, owner, modelid, level, exp, Reactstate, talentpoints, slot, name, renamed, curhealth, curmana, curhappiness, abdata, TeachSpelldata, savetime, resettalents_cost, resettalents_time, CreatedBySpell, PetType "
+        //                                        0   1      2(?)   3        4      5    6           7             8     9     10       11         12       13            14      15              16        17                 18                 19              20        21
+        result = CharacterDatabase.PQuery("SELECT id, entry, owner, modelid, level, exp, Reactstate, talentpoints, slot, name, renamed, curhealth, curmana, curhappiness, abdata, TeachSpelldata, savetime, resettalents_cost, resettalents_time, CreatedBySpell, PetType , load_flags "
             "FROM character_pet WHERE owner = '%u' AND (slot = '%u' OR slot > '%u') ",
             ownerid,PET_SAVE_AS_CURRENT,PET_SAVE_LAST_STABLE_SLOT);
 
@@ -264,56 +266,71 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
 
     m_resetTalentsCost = fields[17].GetUInt32();
     m_resetTalentsTime = fields[18].GetUInt64();
-    learnLevelupSpells();
-    LearnPetPassives();
-    _LoadSpells();
-    _LoadSpellCooldowns();
-
-    if (!is_temporary_summoned)
+    uint8 loadFlags = fields[21].GetUInt8();
+    if (loadFlags & AT_LOAD_RESET_SPELLS)
     {
-        // permanent controlled pets store state in DB
-        Tokens tokens = StrSplit(fields[14].GetString(), " ");
+        CharacterDatabase.PExecute("UPDATE character_pet SET load_flags = load_flags & ~ %u WHERE guid = '%d'",uint32(AT_LOAD_RESET_SPELLS),pet_number);
+        loadFlags &= ~uint8(AT_LOAD_RESET_SPELLS);
+        CharacterDatabase.PExecute("DELETE FROM pet_spell WHERE guid = '%d'",pet_number);
+        InitPetCreateSpells();
+        resetTalents(true);
+        learnLevelupSpells();
+    }
+    else
+    {
+        learnLevelupSpells();
+        LearnPetPassives();
+        _LoadSpells();
+        _LoadSpellCooldowns();
 
-        if (tokens.size() != 20)
+        // Load action bar data
+        if (!is_temporary_summoned)
         {
-            delete result;
-            return false;
-        }
+            // permanent controlled pets store state in DB
+            Tokens tokens = StrSplit(fields[14].GetString(), " ");
 
-        int index;
-        Tokens::iterator iter;
-        for(iter = tokens.begin(), index = 0; index < 10; ++iter, ++index )
-        {
-            m_charmInfo->GetActionBarEntry(index)->Type = atol((*iter).c_str());
-            ++iter;
-            m_charmInfo->GetActionBarEntry(index)->SpellOrAction = atol((*iter).c_str());
-
-            // patch for old data where some spells have ACT_DECIDE but should have ACT_CAST
-            // so overwrite old state
-            if(SpellEntry const *spellInfo = sSpellStore.LookupEntry(m_charmInfo->GetActionBarEntry(index)->SpellOrAction))
+            if (tokens.size() != 20)
             {
-                if (spellInfo && spellInfo->AttributesEx & SPELL_ATTR_EX_UNAUTOCASTABLE_BY_PET)
-                    m_charmInfo->GetActionBarEntry(index)->Type = ACT_DISABLED;
+                delete result;
+                return false;
+            }
 
-                if(m_charmInfo->GetActionBarEntry(index)->Type == ACT_ENABLED)
-                    ToggleAutocast(spellInfo->Id, true);
+            int index;
+            Tokens::iterator iter;
+            for(iter = tokens.begin(), index = 0; index < 10; ++iter, ++index )
+            {
+                m_charmInfo->GetActionBarEntry(index)->Type = atol((*iter).c_str());
+                ++iter;
+                m_charmInfo->GetActionBarEntry(index)->SpellOrAction = atol((*iter).c_str());
+
+                // patch for old data where some spells have ACT_DECIDE but should have ACT_CAST
+                // so overwrite old state
+                if(SpellEntry const *spellInfo = sSpellStore.LookupEntry(m_charmInfo->GetActionBarEntry(index)->SpellOrAction))
+                {
+                    if (spellInfo && spellInfo->AttributesEx & SPELL_ATTR_EX_UNAUTOCASTABLE_BY_PET)
+                        m_charmInfo->GetActionBarEntry(index)->Type = ACT_DISABLED;
+
+                    if(m_charmInfo->GetActionBarEntry(index)->Type == ACT_ENABLED)
+                        ToggleAutocast(spellInfo->Id, true);
+                }
+            }
+
+            //init teach spells
+            tokens = StrSplit(fields[15].GetString(), " ");
+            for (iter = tokens.begin(), index = 0; index < 4; ++iter, ++index)
+            {
+                uint32 tmp = atol((*iter).c_str());
+
+                ++iter;
+
+                if(tmp)
+                    AddTeachSpell(tmp, atol((*iter).c_str()));
+                else
+                    break;
             }
         }
-
-        //init teach spells
-        tokens = StrSplit(fields[15].GetString(), " ");
-        for (iter = tokens.begin(), index = 0; index < 4; ++iter, ++index)
-        {
-            uint32 tmp = atol((*iter).c_str());
-
-            ++iter;
-
-            if(tmp)
-                AddTeachSpell(tmp, atol((*iter).c_str()));
-            else
-                break;
-        }
     }
+    owner->SetPetAtLoginFlag(loadFlags);
 
     //load spells/cooldowns/auras
     // Spells should be loaded after pet is added to map, because in CheckCast is check on it
@@ -415,7 +432,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
                 owner,PET_SAVE_AS_CURRENT,PET_SAVE_LAST_STABLE_SLOT);
         // save pet
         std::ostringstream ss;
-        ss  << "INSERT INTO character_pet ( id, entry,  owner, modelid, level, exp, Reactstate, talentpoints, slot, name, renamed, curhealth, curmana, curhappiness, abdata, TeachSpelldata, savetime, resettalents_cost, resettalents_time, CreatedBySpell, PetType) "
+        ss  << "INSERT INTO character_pet ( id, entry,  owner, modelid, level, exp, Reactstate, talentpoints, slot, name, renamed, curhealth, curmana, curhappiness, abdata, TeachSpelldata, savetime, resettalents_cost, resettalents_time, CreatedBySpell, PetType, load_flags) "
             << "VALUES ("
             << m_charmInfo->GetPetNumber() << ", "
             << GetEntry() << ", "
@@ -450,7 +467,8 @@ void Pet::SavePetToDB(PetSaveMode mode)
             << uint32(m_resetTalentsCost) << ", "
             << uint64(m_resetTalentsTime) << ", "
             << GetUInt32Value(UNIT_CREATED_BY_SPELL) << ", "
-            << uint32(getPetType()) << ")";
+            << uint32(getPetType()) << ", "
+            << (pOwner->GetAtLoginFlag()>>AT_LOAD_PET_FLAGS) << ")";
 
         CharacterDatabase.Execute( ss.str().c_str() );
         CharacterDatabase.CommitTransaction();
@@ -461,6 +479,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
         RemoveAllAuras();
         DeleteFromDB(m_charmInfo->GetPetNumber());
     }
+    pOwner->SetPetAtLoginFlag(0);
 }
 
 void Pet::DeleteFromDB(uint32 guidlow)
