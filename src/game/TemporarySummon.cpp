@@ -198,9 +198,9 @@ void TempSummon::InitSummon(uint32 duration)
         {
             if(owner->m_SummonSlot[slot] && owner->m_SummonSlot[slot] != GetGUID())
             {
-                Creature *OldTotem = GetMap()->GetCreature(owner->m_SummonSlot[slot]);
-                if(OldTotem && OldTotem->isSummon())
-                    ((TempSummon*)OldTotem)->UnSummon();
+                Creature *oldSummon = GetMap()->GetCreature(owner->m_SummonSlot[slot]);
+                if(oldSummon && oldSummon->isSummon())
+                    ((TempSummon*)oldSummon)->UnSummon();
             }
             owner->m_SummonSlot[slot] = GetGUID();
         }
@@ -264,7 +264,10 @@ bool TempSummon::SetOwner(Unit *owner, bool apply)
             return false;
         }
         if(owner->GetTypeId() == TYPEID_PLAYER)
+        {
             m_ControlledByPlayer = true;
+            SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
+        }
     }
     else
     {

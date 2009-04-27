@@ -603,10 +603,7 @@ class Spell
         void SpellDamageHeal(uint32 i);
 
         void GetSummonPosition(float &x, float &y, float &z, float radius = 0.0f, uint32 count = 0);
-        void SummonTotem    (uint32 entry, SummonPropertiesEntry const *properties);
         void SummonGuardian (uint32 entry, SummonPropertiesEntry const *properties);
-        void SummonPossessed(uint32 entry, SummonPropertiesEntry const *properties);
-        void SummonVehicle  (uint32 entry, SummonPropertiesEntry const *properties);
 
         SpellCastResult CanOpenLock(uint32 effIndex, uint32 lockid, SkillType& skillid, int32& reqSkillValue, int32& skillValue);
         // -------------------------------------------
