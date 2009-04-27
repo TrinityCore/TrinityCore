@@ -55,16 +55,16 @@ InstanceSaveManager::~InstanceSaveManager()
     for (InstanceSaveHashMap::iterator itr = m_instanceSaveById.begin(); itr != m_instanceSaveById.end(); ++itr)
     {
         InstanceSave *save = itr->second;
-        for(InstanceSave::PlayerListType::iterator itr = save->m_playerList.begin(), next = itr; itr != save->m_playerList.end(); itr = next)
+        for(InstanceSave::PlayerListType::iterator itr2 = save->m_playerList.begin(), next = itr2; itr2 != save->m_playerList.end(); itr2 = next)
         {
             ++next;
-            (*itr)->UnbindInstance(save->GetMapId(), save->GetDifficulty(), true);
+            (*itr2)->UnbindInstance(save->GetMapId(), save->GetDifficulty(), true);
         }
         save->m_playerList.clear();
-        for(InstanceSave::GroupListType::iterator itr = save->m_groupList.begin(), next = itr; itr != save->m_groupList.end(); itr = next)
+        for(InstanceSave::GroupListType::iterator itr2 = save->m_groupList.begin(), next = itr2; itr2 != save->m_groupList.end(); itr2 = next)
         {
             ++next;
-            (*itr)->UnbindInstance(save->GetMapId(), save->GetDifficulty(), true);
+            (*itr2)->UnbindInstance(save->GetMapId(), save->GetDifficulty(), true);
         }
         save->m_groupList.clear();
         delete save;
@@ -622,10 +622,10 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, bool warn, uint32 timeLe
     MapInstanced::InstancedMaps::iterator mitr;
     for(mitr = instMaps.begin(); mitr != instMaps.end(); ++mitr)
     {
-        Map *map = mitr->second;
-        if(!map->IsDungeon()) continue;
-        if(warn) ((InstanceMap*)map)->SendResetWarnings(timeLeft);
-        else ((InstanceMap*)map)->Reset(INSTANCE_RESET_GLOBAL);
+        Map *map2 = mitr->second;
+        if(!map2->IsDungeon()) continue;
+        if(warn) ((InstanceMap*)map2)->SendResetWarnings(timeLeft);
+        else ((InstanceMap*)map2)->Reset(INSTANCE_RESET_GLOBAL);
     }
 
     // TODO: delete creature/gameobject respawn times even if the maps are not loaded

@@ -112,9 +112,9 @@ void WorldSession::HandleBattleGroundJoinOpcode( WorldPacket & recv_data )
         return;
 
     // get bg instance or bg template if instance not found
-    BattleGround * bg = NULL;
+    BattleGround *bg = NULL;
     if (instanceId)
-        BattleGround *bg = sBattleGroundMgr.GetBattleGroundThroughClientInstance(instanceId, bgTypeId, _player->GetBattleGroundQueueIdFromLevel(bgTypeId));
+        bg = sBattleGroundMgr.GetBattleGroundThroughClientInstance(instanceId, bgTypeId, _player->GetBattleGroundQueueIdFromLevel(bgTypeId));
 
     if (!bg && !(bg = sBattleGroundMgr.GetBattleGroundTemplate(bgTypeId)))
     {
@@ -359,7 +359,7 @@ void WorldSession::HandleBattleGroundPlayerPortOpcode( WorldPacket &recv_data )
                 else
                 {
                     // get the bg we're invited to
-                    BattleGround * bg = sBattleGroundMgr.GetBattleGround(itrPlayerStatus->second.GroupInfo->IsInvitedToBGInstanceGUID, bgTypeId);
+                    bg = sBattleGroundMgr.GetBattleGround(itrPlayerStatus->second.GroupInfo->IsInvitedToBGInstanceGUID, bgTypeId);
                     status = STATUS_WAIT_JOIN;
                 }
 
@@ -573,7 +573,7 @@ void WorldSession::HandleBattlefieldStatusOpcode( WorldPacket & /*recv_data*/ )
         }
         else
         {
-            BattleGround *bg = sBattleGroundMgr.GetBattleGroundTemplate(bgTypeId);
+            bg = sBattleGroundMgr.GetBattleGroundTemplate(bgTypeId);
             if (!bg)
                 continue;
             uint32 avgTime = sBattleGroundMgr.m_BattleGroundQueues[bgQueueTypeId].GetAverageQueueWaitTime(itrPlayerStatus->second.GroupInfo, _player->GetBattleGroundQueueIdFromLevel(bgTypeId));

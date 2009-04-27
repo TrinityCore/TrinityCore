@@ -1432,7 +1432,10 @@ void WorldSession::HandleReportSpamOpcode( WorldPacket & recv_data )
 
     uint8 spam_type;                                        // 0 - mail, 1 - chat
     uint64 spammer_guid;
-    uint32 unk1, unk2, unk3, unk4 = 0;
+    uint32 unk1 = 0;
+    uint32 unk2 = 0;
+    uint32 unk3 = 0;
+    uint32 unk4 = 0;
     std::string description = "";
     recv_data >> spam_type;                                 // unk 0x01 const, may be spam type (mail/chat)
     recv_data >> spammer_guid;                              // player guid

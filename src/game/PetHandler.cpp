@@ -226,10 +226,19 @@ void WorldSession::HandlePetActionHelper(Unit *pet, uint64 guid1, uint16 spellid
             //auto turn to target unless possessed
             if(result == SPELL_FAILED_UNIT_NOT_INFRONT && !pet->isPossessed())
             {
-                pet->SetInFront(unit_target);
-                if( unit_target->GetTypeId() == TYPEID_PLAYER )
-                    pet->SendUpdateToPlayer( (Player*)unit_target );
-                if(Unit* powner = pet->GetCharmerOrOwner())
+                if(unit_target)
+                {
+                    pet->SetInFront(unit_target);
+                    if (unit_target->GetTypeId() == TYPEID_PLAYER)
+                        pet->SendUpdateToPlayer( (Player*)unit_target );
+                }
+                else if(Unit *unit_target2 = spell->m_targets.getUnitTarget())
+                {
+                    pet->SetInFront(unit_target2);
+                    if (unit_target2->GetTypeId() == TYPEID_PLAYER)
+                        pet->SendUpdateToPlayer( (Player*)unit_target2 );
+                }
+                if (Unit* powner = pet->GetCharmerOrOwner())
                     if(powner->GetTypeId() == TYPEID_PLAYER)
                         pet->SendUpdateToPlayer((Player*)powner);
                 result = SPELL_CAST_OK;

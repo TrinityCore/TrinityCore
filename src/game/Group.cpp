@@ -72,8 +72,8 @@ Group::~Group()
     // will be unloaded first so we must be prepared for both cases
     // this may unload some instance saves
     for(uint8 i = 0; i < TOTAL_DIFFICULTIES; i++)
-        for(BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end(); ++itr)
-            itr->second.save->RemoveGroup(this);
+        for(BoundInstancesMap::iterator itr2 = m_boundInstances[i].begin(); itr2 != m_boundInstances[i].end(); ++itr2)
+            itr2->second.save->RemoveGroup(this);
 
     // Sub group counters clean up
     if (m_subGroupsCounts)
