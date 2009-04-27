@@ -4486,6 +4486,121 @@ bool ChatHandler::HandleHoverCommand(const char* args)
     return true;
 }
 
+void ChatHandler::HandleCharacterLevel(Player* player, uint64 player_guid, uint32 oldlevel, uint32 newlevel)
+{
+    if(player)
+    {
+        player->GiveLevel(newlevel);
+        player->InitTalentForLevel();
+        player->SetUInt32Value(PLAYER_XP,0);
+
+        if(oldlevel == newlevel)
+            ChatHandler(player).SendSysMessage(LANG_YOURS_LEVEL_PROGRESS_RESET);
+        else if(oldlevel < newlevel)
+            ChatHandler(player).PSendSysMessage(LANG_YOURS_LEVEL_UP,newlevel-oldlevel);
+        else                                                // if(oldlevel > newlevel)
+            ChatHandler(player).PSendSysMessage(LANG_YOURS_LEVEL_DOWN,newlevel-oldlevel);
+    }
+    else
+    {
+        // update level and XP at level, all other will be updated at loading
+        Tokens values;
+        Player::LoadValuesArrayFromDB(values,player_guid);
+        Player::SetUInt32ValueInArray(values,UNIT_FIELD_LEVEL,newlevel);
+        Player::SetUInt32ValueInArray(values,PLAYER_XP,0);
+        Player::SaveValuesArrayInDB(values,player_guid);
+    }
+}
+
+bool ChatHandler::HandleCharacterLevelCommand(const char* args)
+{
+    char* px = strtok((char*)args, " ");
+    char* py = strtok((char*)NULL, " ");
+
+    // command format parsing
+    char* pname = (char*)NULL;
+    int32 newlevel = 0;
+
+    if(px && py)                                            // .character level $name #level
+    {
+        newlevel = atoi(py);
+        pname = px;
+    }
+    else if(px && !py)                                      // .character level $name OR .character level #level
+    {
+        if(isalpha(px[0]))                                  // .character level $name
+            pname = px;
+        else                                                // .character level #level
+            newlevel = atoi(px);
+    }
+    //                                                      // .character level - progress reset
+
+    if(newlevel < 1)
+        return false;                                       // invalid level
+
+    if(newlevel > STRONG_MAX_LEVEL)                         // hardcoded maximum level
+        newlevel = STRONG_MAX_LEVEL;
+
+    // player
+    Player *chr = NULL;
+    uint64 chr_guid = 0;
+
+    std::string name;
+
+    if(pname)                                               // player by name
+    {
+        name = extractPlayerNameFromLink(pname);
+        if(name.empty())
+        {
+            SendSysMessage(LANG_PLAYER_NOT_FOUND);
+            SetSentErrorMessage(true);
+            return false;
+        }
+
+        chr = objmgr.GetPlayer(name.c_str());
+        if(!chr)                                            // not in game
+        {
+            chr_guid = objmgr.GetPlayerGUIDByName(name);
+            if (chr_guid == 0)
+            {
+                SendSysMessage(LANG_PLAYER_NOT_FOUND);
+                SetSentErrorMessage(true);
+                return false;
+            }
+        }
+    }
+    else                                                    // player by selection
+    {
+        chr = getSelectedPlayer();
+
+        if (chr == NULL)
+        {
+            SendSysMessage(LANG_NO_CHAR_SELECTED);
+            SetSentErrorMessage(true);
+            return false;
+        }
+
+        name = chr->GetName();
+    }
+
+    assert(chr || chr_guid);
+
+    int32 oldlevel = chr ? chr->getLevel() : Player::GetUInt32ValueFromDB(UNIT_FIELD_LEVEL,chr_guid);
+
+    if(!px && !py)                                          // .character level - progress reset
+        newlevel = oldlevel;
+
+    HandleCharacterLevel(chr,chr_guid,oldlevel,newlevel);
+
+    if(m_session->GetPlayer() != chr)                    // including player==NULL
+    {
+        std::string nameLink = playerLink(name);
+        PSendSysMessage(LANG_YOU_CHANGE_LVL,nameLink.c_str(),newlevel);
+    }
+
+    return true;
+}
+
 bool ChatHandler::HandleLevelUpCommand(const char* args)
 {
     char* px = strtok((char*)args, " ");
@@ -4560,30 +4675,7 @@ bool ChatHandler::HandleLevelUpCommand(const char* args)
     if(newlevel > STRONG_MAX_LEVEL)                         // hardcoded maximum level
         newlevel = STRONG_MAX_LEVEL;
 
-    if(chr)
-    {
-        chr->GiveLevel(newlevel);
-        chr->InitTalentForLevel();
-        chr->SetUInt32Value(PLAYER_XP,0);
-
-        if(oldlevel == newlevel)
-            ChatHandler(chr).SendSysMessage(LANG_YOURS_LEVEL_PROGRESS_RESET);
-        else
-        if(oldlevel < newlevel)
-            ChatHandler(chr).PSendSysMessage(LANG_YOURS_LEVEL_UP,newlevel-oldlevel);
-        else
-        if(oldlevel > newlevel)
-            ChatHandler(chr).PSendSysMessage(LANG_YOURS_LEVEL_DOWN,newlevel-oldlevel);
-    }
-    else
-    {
-        // update level and XP at level, all other will be updated at loading
-        Tokens values;
-        Player::LoadValuesArrayFromDB(values,chr_guid);
-        Player::SetUInt32ValueInArray(values,UNIT_FIELD_LEVEL,newlevel);
-        Player::SetUInt32ValueInArray(values,PLAYER_XP,0);
-        Player::SaveValuesArrayInDB(values,chr_guid);
-    }
+    HandleCharacterLevel(chr,chr_guid,oldlevel,newlevel);
 
     if(m_session->GetPlayer() != chr)                       // including chr==NULL
     {
