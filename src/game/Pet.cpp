@@ -357,10 +357,10 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
                 delete m_declinedname;
 
             m_declinedname = new DeclinedName;
-            Field *fields = result->Fetch();
+            Field *fields2 = result->Fetch();
             for(int i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
             {
-                m_declinedname->name[i] = fields[i].GetCppString();
+                m_declinedname->name[i] = fields2[i].GetCppString();
             }
         }
     }
@@ -1275,19 +1275,19 @@ bool Pet::addSpell(uint32 spell_id, uint16 active, PetSpellState state, PetSpell
     }
     else if(uint32 chainstart = spellmgr.GetFirstSpellInChain(spell_id))
     {
-        for (PetSpellMap::iterator itr = m_spells.begin(); itr != m_spells.end(); ++itr)
+        for (PetSpellMap::iterator itr2 = m_spells.begin(); itr2 != m_spells.end(); ++itr2)
         {
-            if(itr->second->state == PETSPELL_REMOVED) continue;
+            if(itr2->second->state == PETSPELL_REMOVED) continue;
 
-            if(spellmgr.GetFirstSpellInChain(itr->first) == chainstart)
+            if(spellmgr.GetFirstSpellInChain(itr2->first) == chainstart)
             {
-                newspell->active = itr->second->active;
+                newspell->active = itr2->second->active;
 
                 if(newspell->active == ACT_ENABLED)
-                    ToggleAutocast(itr->first, false);
+                    ToggleAutocast(itr2->first, false);
 
-                oldspell_id = itr->first;
-                unlearnSpell(itr->first);
+                oldspell_id = itr2->first;
+                unlearnSpell(itr2->first);
                 break;
             }
         }

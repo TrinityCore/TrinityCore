@@ -532,9 +532,9 @@ class PetAura
                 return itr->second;
             else
             {
-                std::map<uint16, uint16>::const_iterator itr = auras.find(0);
-                if(itr != auras.end())
-                    return itr->second;
+                std::map<uint16, uint16>::const_iterator itr2 = auras.find(0);
+                if(itr2 != auras.end())
+                    return itr2->second;
                 else
                     return 0;
             }
@@ -736,9 +736,9 @@ class SpellMgr
             // Not found, try lookup for 1 spell rank if exist
             if (uint32 rank_1 = GetFirstSpellInChain(spellId))
             {
-                SpellBonusMap::const_iterator itr = mSpellBonusMap.find(rank_1);
-                if( itr != mSpellBonusMap.end( ) )
-                    return &itr->second;
+                SpellBonusMap::const_iterator itr2 = mSpellBonusMap.find(rank_1);
+                if( itr2 != mSpellBonusMap.end( ) )
+                    return &itr2->second;
             }
             return NULL;
         }

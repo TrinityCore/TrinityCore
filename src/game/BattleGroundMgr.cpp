@@ -763,10 +763,10 @@ void BattleGroundQueue::Update(BattleGroundTypeId bgTypeId, BGQueueIdBasedOnLeve
             FillPlayersToBG(bg, queue_id);
 
             // now everything is set, invite players
-            for(GroupsQueueType::const_iterator itr = m_SelectionPools[BG_TEAM_ALLIANCE].SelectedGroups.begin(); itr != m_SelectionPools[BG_TEAM_ALLIANCE].SelectedGroups.end(); ++itr)
-                InviteGroupToBG((*itr), bg, (*itr)->Team);
-            for(GroupsQueueType::const_iterator itr = m_SelectionPools[BG_TEAM_HORDE].SelectedGroups.begin(); itr != m_SelectionPools[BG_TEAM_HORDE].SelectedGroups.end(); ++itr)
-                InviteGroupToBG((*itr), bg, (*itr)->Team);
+            for(GroupsQueueType::const_iterator citr = m_SelectionPools[BG_TEAM_ALLIANCE].SelectedGroups.begin(); citr != m_SelectionPools[BG_TEAM_ALLIANCE].SelectedGroups.end(); ++citr)
+                InviteGroupToBG((*citr), bg, (*citr)->Team);
+            for(GroupsQueueType::const_iterator citr = m_SelectionPools[BG_TEAM_HORDE].SelectedGroups.begin(); citr != m_SelectionPools[BG_TEAM_HORDE].SelectedGroups.end(); ++citr)
+                InviteGroupToBG((*citr), bg, (*citr)->Team);
 
             if (!bg->HasFreeSlots())
             {
@@ -836,8 +836,8 @@ void BattleGroundQueue::Update(BattleGroundTypeId bgTypeId, BGQueueIdBasedOnLeve
             }
             //invite those selection pools
             for(uint32 i = 0; i < BG_TEAMS_COUNT; i++)
-                for(GroupsQueueType::const_iterator itr = m_SelectionPools[BG_TEAM_ALLIANCE + i].SelectedGroups.begin(); itr != m_SelectionPools[BG_TEAM_ALLIANCE + i].SelectedGroups.end(); ++itr)
-                    InviteGroupToBG((*itr), bg2, (*itr)->Team);
+                for(GroupsQueueType::const_iterator citr = m_SelectionPools[BG_TEAM_ALLIANCE + i].SelectedGroups.begin(); citr != m_SelectionPools[BG_TEAM_ALLIANCE + i].SelectedGroups.end(); ++citr)
+                    InviteGroupToBG((*citr), bg2, (*citr)->Team);
             //start bg
             bg2->StartBattleGround();
             //clear structures
@@ -863,8 +863,8 @@ void BattleGroundQueue::Update(BattleGroundTypeId bgTypeId, BGQueueIdBasedOnLeve
 
             // invite those selection pools
             for(uint32 i = 0; i < BG_TEAMS_COUNT; i++)
-                for(GroupsQueueType::const_iterator itr = m_SelectionPools[BG_TEAM_ALLIANCE + i].SelectedGroups.begin(); itr != m_SelectionPools[BG_TEAM_ALLIANCE + i].SelectedGroups.end(); ++itr)
-                    InviteGroupToBG((*itr), bg2, (*itr)->Team);
+                for(GroupsQueueType::const_iterator citr = m_SelectionPools[BG_TEAM_ALLIANCE + i].SelectedGroups.begin(); citr != m_SelectionPools[BG_TEAM_ALLIANCE + i].SelectedGroups.end(); ++citr)
+                    InviteGroupToBG((*citr), bg2, (*citr)->Team);
             // start bg
             bg2->StartBattleGround();
         }
@@ -1826,10 +1826,11 @@ void BattleGroundMgr::DistributeArenaPoints()
 
 void BattleGroundMgr::BuildBattleGroundListPacket(WorldPacket *data, const uint64& guid, Player* plr, BattleGroundTypeId bgTypeId)
 {
-    uint32 PlayerLevel = 10;
+    if (!plr)
+        return;
 
-    if (plr)
-        PlayerLevel = plr->getLevel();
+    uint32 PlayerLevel = 10;
+    PlayerLevel = plr->getLevel();
 
     data->Initialize(SMSG_BATTLEFIELD_LIST);
     *data << uint64(guid);                                  // battlemaster guid
