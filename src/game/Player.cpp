@@ -2891,9 +2891,9 @@ bool Player::addSpell(uint32 spell_id, bool active, bool learning, bool dependen
                             }
 
                             // mark old spell as disable (SMSG_SUPERCEDED_SPELL replace it in client by new)
-                            itr->second->active = false;
-                            if(itr->second->state != PLAYERSPELL_NEW)
-                                itr->second->state = PLAYERSPELL_CHANGED;
+                            itr2->second->active = false;
+                            if(itr2->second->state != PLAYERSPELL_NEW)
+                                itr2->second->state = PLAYERSPELL_CHANGED;
                             superceded_old = true;          // new spell replace old in action bars and spell book.
                         }
                         else if(spellmgr.IsHighRankOfSpell(itr2->first,spell_id))
