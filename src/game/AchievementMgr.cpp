@@ -890,11 +890,15 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                     break;
 
                 bool matchFound = false;
-                for (int j = 0; j < 3; ++j)
+                for (int j = 0; j < MAX_WORLD_MAP_OVERLAY_AREA_IDX; ++j)
                 {
-                    int32 exploreFlag = GetAreaFlagByAreaID(worldOverlayEntry->areatableID[j]);
-                    if(exploreFlag < 0)
+                    uint32 area_id = worldOverlayEntry->areatableID[j];
+                    if(!area_id)                            // array have 0 only in empty tail
                         break;
+
+                    int32 exploreFlag = GetAreaFlagByAreaID(area_id);
+                    if(exploreFlag < 0)
+                        continue;
 
                     uint32 playerIndexOffset = uint32(exploreFlag) / 32;
                     uint32 mask = 1<< (uint32(exploreFlag) % 32);
