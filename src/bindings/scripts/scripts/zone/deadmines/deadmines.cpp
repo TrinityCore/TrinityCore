@@ -120,13 +120,13 @@ struct TRINITY_DLL_DECL instance_deadmines : public ScriptedInstance
 
     void ShootCannon()
     {
-        DefiasCannon->SetGoState(0);
+        DefiasCannon->SetGoState(GO_STATE_ACTIVE);
         DoPlaySound(DefiasCannon, SOUND_CANNONFIRE);
     }
 
     void BlastOutDoor()
     {
-        IronCladDoor->SetGoState(2);
+        IronCladDoor->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
         DoPlaySound(IronCladDoor, SOUND_DESTROYDOOR);
     }
 

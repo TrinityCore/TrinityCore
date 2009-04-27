@@ -134,9 +134,9 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
     void HandleTerraceDoors(bool open)
     {
         if(GameObject *Door = GameObject::GetGameObject((*m_creature),pInstance->GetData64(DATA_MASTERS_TERRACE_DOOR_1)))
-			Door->SetGoState(open ? 0 : 1);
+			Door->SetGoState(open ? GO_STATE_ACTIVE : GO_STATE_READY);
         if(GameObject *Door = GameObject::GetGameObject((*m_creature),pInstance->GetData64(DATA_MASTERS_TERRACE_DOOR_2)))
-			Door->SetGoState(open ? 0 : 1);
+			Door->SetGoState(open ? GO_STATE_ACTIVE : GO_STATE_READY);
     }
 
     void Aggro(Unit *who)

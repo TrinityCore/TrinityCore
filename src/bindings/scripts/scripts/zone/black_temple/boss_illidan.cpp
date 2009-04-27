@@ -461,7 +461,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
         {
             GameObject* Door = GameObject::GetGameObject((*m_creature), pInstance->GetData64(i));
             if(Door)
-                Door->SetGoState(0); // Open Doors
+                Door->SetGoState(GO_STATE_ACTIVE); // Open Doors
         }
     }
 
@@ -1005,10 +1005,10 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
             DoorGUID[1] = pInstance->GetData64(DATA_GAMEOBJECT_ILLIDAN_DOOR_L);
 
             if(GETGO(Gate, GateGUID))
-                Gate->SetGoState(1);
+                Gate->SetGoState(GO_STATE_READY);
             for(uint8 i = 0; i < 2; i++)
                 if(GETGO(Door, DoorGUID[i]))
-                    Door->SetGoState(1);
+                    Door->SetGoState(GO_STATE_READY);
         }
         else
         {
@@ -1078,7 +1078,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
 
         for(uint8 i = 0; i < 2; i++)
             if(GETGO(Door, DoorGUID[i]))
-                Door->SetGoState(1);
+                Door->SetGoState(GO_STATE_READY);
 
         if(GETCRE(Illidan, IllidanGUID))
         {
@@ -1244,7 +1244,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
             Spirit[0]->InterruptNonMeleeSpells(true);
             Spirit[1]->InterruptNonMeleeSpells(true);
             if(GETGO(Gate, GateGUID))
-                Gate->SetGoState(0);
+                Gate->SetGoState(GO_STATE_ACTIVE);
             Timer = 2000;
             break;
         case 4:
@@ -1275,7 +1275,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
         case 6:
             for(uint8 i = 0; i < 2; i++)
                 if(GETGO(Door, DoorGUID[i]))
-                    Door->SetGoState(0);
+                    Door->SetGoState(GO_STATE_ACTIVE);
             break;
         case 8:
             if(Phase == PHASE_WALK)
@@ -1678,7 +1678,7 @@ bool GOHello_cage_trap(Player* plr, GameObject* go)
     cell_lock->Visit(cell_lock, cSearcher, *(plr->GetMap()));
 
     ((cage_trap_triggerAI*)trigger->AI())->Active = true;
-    go->SetGoState(0);
+    go->SetGoState(GO_STATE_ACTIVE);
     return true;
 }
 

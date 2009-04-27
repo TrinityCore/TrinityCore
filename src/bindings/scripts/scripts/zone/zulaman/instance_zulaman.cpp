@@ -140,7 +140,7 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
     void OpenDoor(uint64 DoorGUID, bool open)
     {
         if(GameObject *Door = instance->GetGameObject(DoorGUID))
-            Door->SetGoState(open ? 0 : 1);
+            Door->SetGoState(open ? GO_STATE_ACTIVE : GO_STATE_READY);
     }
 
     void SummonHostage(uint8 num)

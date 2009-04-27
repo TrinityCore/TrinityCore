@@ -3707,19 +3707,19 @@ void AuraEffect::HandleAuraModDisarm(bool apply, bool Real)
         flag=UNIT_FLAG_DISARMED;
         slot=EQUIPMENT_SLOT_MAINHAND;
         attType=BASE_ATTACK;
-    break;
+        break;
     case SPELL_AURA_MOD_DISARM_OFFHAND:
         field=UNIT_FIELD_FLAGS_2;
         flag=UNIT_FLAG2_DISARM_OFFHAND;
         slot=EQUIPMENT_SLOT_OFFHAND;
         attType=OFF_ATTACK;
-    break;
+        break;
     case SPELL_AURA_MOD_DISARM_RANGED:
         field=UNIT_FIELD_FLAGS_2;
         flag=UNIT_FLAG2_DISARM_RANGED;
         slot=EQUIPMENT_SLOT_RANGED;
         attType=RANGED_ATTACK;
-    break;
+        break;
     }
     if(apply)
         m_target->SetFlag(field, flag);

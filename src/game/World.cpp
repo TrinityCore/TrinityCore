@@ -2225,18 +2225,18 @@ void World::ScriptsProcess()
                 CellLock<GridReadGuard> cell_lock(cell, p);
                 cell_lock->Visit(cell_lock, object_checker, *MapManager::Instance().GetMap(caster->GetMapId(), (Unit*)source));
 
-                if ( !door )
+                if (!door)
                 {
                     sLog.outError("SCRIPT_COMMAND_OPEN_DOOR failed for gameobject(guid: %u).", step.script->datalong);
                     break;
                 }
-                if ( door->GetGoType() != GAMEOBJECT_TYPE_DOOR )
+                if (door->GetGoType() != GAMEOBJECT_TYPE_DOOR)
                 {
                     sLog.outError("SCRIPT_COMMAND_OPEN_DOOR failed for non-door(GoType: %u).", door->GetGoType());
                     break;
                 }
 
-                if( !door->GetGoState() )
+                if (door->GetGoState() != GO_STATE_READY)
                     break;                                  //door already  open
 
                 door->UseDoorOrButton(time_to_close);
@@ -2292,7 +2292,7 @@ void World::ScriptsProcess()
                     break;
                 }
 
-                if( door->GetGoState() )
+                if( door->GetGoState() == GO_STATE_READY )
                     break;                                  //door already closed
 
                 door->UseDoorOrButton(time_to_open);

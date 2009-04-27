@@ -185,7 +185,7 @@ struct TRINITY_DLL_DECL npc_ruul_snowhoofAI : public npc_escortAI
                 m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                 GameObject* Cage = FindGameObject(GO_CAGE, 20, m_creature);
                 if(Cage)
-                    Cage->SetGoState(0);
+                    Cage->SetGoState(GO_STATE_ACTIVE);
                 break;}
         case 13:
                 m_creature->SummonCreature(3922, 3449.218018, -587.825073, 174.978867, 4.714445, TEMPSUMMON_DEAD_DESPAWN, 60000);
@@ -215,7 +215,7 @@ struct TRINITY_DLL_DECL npc_ruul_snowhoofAI : public npc_escortAI
 
         GameObject* Cage = FindGameObject(GO_CAGE, 20, m_creature);
         if(Cage)
-            Cage->SetGoState(1);
+            Cage->SetGoState(GO_STATE_READY);
     }
 
     void JustSummoned(Creature* summoned)

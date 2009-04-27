@@ -141,12 +141,12 @@ struct TRINITY_DLL_DECL instance_steam_vault : public ScriptedInstance
                 if (data == SPECIAL)
                 {
                     if (GameObject *_go = GameObject::GetGameObject(*player,AccessPanelHydro))
-                        _go->SetGoState(0);
+                        _go->SetGoState(GO_STATE_ACTIVE);
 
                     if (GetData(TYPE_MEKGINEER_STEAMRIGGER) == SPECIAL)
                     {
                         if (GameObject *_go = GameObject::GetGameObject(*player,MainChambersDoor))
-                            _go->SetGoState(0);
+                            _go->SetGoState(GO_STATE_ACTIVE);
                     }
                     debug_log("TSCR: Instance Steamvault: Access panel used.");
                 }
@@ -156,12 +156,12 @@ struct TRINITY_DLL_DECL instance_steam_vault : public ScriptedInstance
                 if (data == SPECIAL)
                 {
                     if (GameObject *_go = GameObject::GetGameObject(*player,AccessPanelMek))
-                        _go->SetGoState(0);
+                        _go->SetGoState(GO_STATE_ACTIVE);
 
                     if (GetData(TYPE_HYDROMANCER_THESPIA) == SPECIAL)
                     {
                      if (GameObject *_go = GameObject::GetGameObject(*player,MainChambersDoor))
-                      _go->SetGoState(0);
+                      _go->SetGoState(GO_STATE_ACTIVE);
                     }
                     debug_log("TSCR: Instance Steamvault: Access panel used.");
                 }
