@@ -574,9 +574,9 @@ struct TRINITY_DLL_DECL boss_croneAI : public ScriptedAI
             pInstance->SetData(DATA_OPERA_EVENT, DONE);
 
             if (GameObject* lDoor = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_GAMEOBJECT_STAGEDOORLEFT)))
-                lDoor->SetGoState(0);
+                lDoor->SetGoState(GO_STATE_ACTIVE);
             if (GameObject* rDoor = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_GAMEOBJECT_STAGEDOORRIGHT)))
-                rDoor->SetGoState(0);
+                rDoor->SetGoState(GO_STATE_ACTIVE);
             if (GameObject* pSideEntrance = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
                 pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
         }
@@ -769,9 +769,9 @@ struct TRINITY_DLL_DECL boss_bigbadwolfAI : public ScriptedAI
             pInstance->SetData(DATA_OPERA_EVENT, DONE);
 
             if (GameObject* lDoor = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_GAMEOBJECT_STAGEDOORLEFT)))
-                lDoor->SetGoState(0);
+                lDoor->SetGoState(GO_STATE_ACTIVE);
             if (GameObject* rDoor = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_GAMEOBJECT_STAGEDOORRIGHT)))
-                rDoor->SetGoState(0);
+                rDoor->SetGoState(GO_STATE_ACTIVE);
             if (GameObject* pSideEntrance = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
                 pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
         }
@@ -1016,9 +1016,9 @@ struct TRINITY_DLL_DECL boss_julianneAI : public ScriptedAI
             pInstance->SetData(DATA_OPERA_EVENT, DONE);
 
             if (GameObject* lDoor = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_GAMEOBJECT_STAGEDOORLEFT)))
-                lDoor->SetGoState(0);
+                lDoor->SetGoState(GO_STATE_ACTIVE);
             if (GameObject* rDoor = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_GAMEOBJECT_STAGEDOORRIGHT)))
-                rDoor->SetGoState(0);
+                rDoor->SetGoState(GO_STATE_ACTIVE);
             if (GameObject* pSideEntrance = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
                 pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
         }
@@ -1105,9 +1105,9 @@ struct TRINITY_DLL_DECL boss_romuloAI : public ScriptedAI
             pInstance->SetData(DATA_OPERA_EVENT, DONE);
 
             if (GameObject* lDoor = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_GAMEOBJECT_STAGEDOORLEFT)))
-                lDoor->SetGoState(0);
+                lDoor->SetGoState(GO_STATE_ACTIVE);
             if (GameObject* rDoor = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_GAMEOBJECT_STAGEDOORRIGHT)))
-                rDoor->SetGoState(0);
+                rDoor->SetGoState(GO_STATE_ACTIVE);
             if (GameObject* pSideEntrance = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
                 pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
         }
