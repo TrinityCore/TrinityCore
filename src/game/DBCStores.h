@@ -144,8 +144,8 @@ extern DBCStorage <TotemCategoryEntry>           sTotemCategoryStore;
 extern DBCStorage <VehicleEntry>                 sVehicleStore;
 extern DBCStorage <VehicleSeatEntry>             sVehicleSeatStore;
 //extern DBCStorage <WorldMapAreaEntry>           sWorldMapAreaStore; -- use Zone2MapCoordinates and Map2ZoneCoordinates
-extern DBCStorage <WorldSafeLocsEntry>           sWorldSafeLocsStore;
 extern DBCStorage <WorldMapOverlayEntry>         sWorldMapOverlayStore;
+extern DBCStorage <WorldSafeLocsEntry>           sWorldSafeLocsStore;
 
 void LoadDBCStores(const std::string& dataPath);
 
