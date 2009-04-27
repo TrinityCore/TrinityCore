@@ -23,7 +23,7 @@ DROP TABLE IF EXISTS `db_version`;
 CREATE TABLE `db_version` (
   `version` varchar(120) default NULL,
   `creature_ai_version` varchar(120) default NULL,
-  `required_7714_01_mangos_command` bit(1) default NULL
+  `required_7720_01_mangos_mangos_string` bit(1) default NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Used DB version notes';
 
 --
@@ -2843,9 +2843,9 @@ INSERT INTO `mangos_string` VALUES
 (554,'%s has hidden all zones from you.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (555,'Hover enabled',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (556,'Hover disabled',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
-(557,'You have been leveled up (%i)',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
-(558,'You have been leveled down (%i)',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
-(559,'Your level progress has been reset.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
+(557,'%s level up you to (%i)',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
+(558,'%s level down you to (%i)',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
+(559,'%s reset your level progress.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (560,'The area has been set as explored.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (561,'The area has been set as not explored.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (562,'GUID=%i \'s updateIndex: %i, value:  %i.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
