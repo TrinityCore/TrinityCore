@@ -300,10 +300,11 @@ void Channel::Password(uint64 p, const char *pass)
 
 void Channel::SetMode(uint64 p, const char *p2n, bool mod, bool set)
 {
-    uint32 sec = 0;
     Player *plr = objmgr.GetPlayer(p);
-    if(plr)
-        sec = plr->GetSession()->GetSecurity();
+    if (!plr)
+        return;
+
+    uint32 sec = plr->GetSession()->GetSecurity();
 
     if(!IsOn(p))
     {
@@ -368,10 +369,11 @@ void Channel::SetMode(uint64 p, const char *p2n, bool mod, bool set)
 
 void Channel::SetOwner(uint64 p, const char *newname)
 {
-    uint32 sec = 0;
     Player *plr = objmgr.GetPlayer(p);
-    if(plr)
-        sec = plr->GetSession()->GetSecurity();
+    if (!plr)
+        return;
+
+    uint32 sec = plr->GetSession()->GetSecurity();
 
     if(!IsOn(p))
     {

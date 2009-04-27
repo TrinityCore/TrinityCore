@@ -1003,7 +1003,7 @@ void Spell::EffectDummy(uint32 i)
                 //    return; -- implemented at client side
                 case 28006:                                 // Arcane Cloaking
                 {
-                    if( unitTarget->GetTypeId() == TYPEID_PLAYER )
+                    if (unitTarget && unitTarget->GetTypeId() == TYPEID_PLAYER )
                         m_caster->CastSpell(unitTarget,29294,true);
                     return;
                 }
@@ -1431,7 +1431,7 @@ void Spell::EffectDummy(uint32 i)
                 }
 //              Think its not need (also need remove Life Tap from SpellDamageBonus or add new value)
 //              damage = m_caster->SpellDamageBonus(m_caster, m_spellInfo,uint32(damage > 0 ? damage : 0), SPELL_DIRECT_DAMAGE);
-                if(int32(unitTarget->GetHealth()) > damage)
+                if(unitTarget && (int32(unitTarget->GetHealth()) > damage))
                 {
                     // Shouldn't Appear in Combat Log
                     unitTarget->ModifyHealth(-damage);
@@ -1784,9 +1784,9 @@ void Spell::EffectDummy(uint32 i)
                 if(m_caster->GetTypeId() != TYPEID_PLAYER)
                     return;
 
-                for(int i = BASE_ATTACK; i <= OFF_ATTACK; ++i)
+                for(int j = BASE_ATTACK; j <= OFF_ATTACK; ++j)
                 {
-                    if(Item* item = ((Player*)m_caster)->GetWeaponForAttack(WeaponAttackType(i)))
+                    if(Item* item = ((Player*)m_caster)->GetWeaponForAttack(WeaponAttackType(j)))
                     {
                         if(item->IsFitToSpellRequirements(m_spellInfo))
                         {
@@ -2041,7 +2041,7 @@ void Spell::EffectTriggerSpell(uint32 i)
             if (!spell)
                 return;
 
-            for (int i=0; i < spell->StackAmount; ++i)
+            for (int j=0; j < spell->StackAmount; ++j)
                 m_caster->CastSpell(unitTarget,spell->Id, true, m_CastItem, NULL, m_originalCasterGUID);
             return;
         }
@@ -2052,7 +2052,7 @@ void Spell::EffectTriggerSpell(uint32 i)
             if (!spell)
                 return;
 
-            for (int i=0; i < spell->StackAmount; ++i)
+            for (int j=0; j < spell->StackAmount; ++j)
                 m_caster->CastSpell(unitTarget,spell->Id, true, m_CastItem, NULL, m_originalCasterGUID);
             return;
         }
@@ -3117,10 +3117,10 @@ void Spell::EffectSummonChangeItem(uint32 i)
     if( !pNewItem )
         return;
 
-    for(uint8 i= PERM_ENCHANTMENT_SLOT; i<=TEMP_ENCHANTMENT_SLOT; ++i)
+    for(uint8 j= PERM_ENCHANTMENT_SLOT; j<=TEMP_ENCHANTMENT_SLOT; ++j)
     {
-        if(m_CastItem->GetEnchantmentId(EnchantmentSlot(i)))
-            pNewItem->SetEnchantment(EnchantmentSlot(i), m_CastItem->GetEnchantmentId(EnchantmentSlot(i)), m_CastItem->GetEnchantmentDuration(EnchantmentSlot(i)), m_CastItem->GetEnchantmentCharges(EnchantmentSlot(i)));
+        if(m_CastItem->GetEnchantmentId(EnchantmentSlot(j)))
+            pNewItem->SetEnchantment(EnchantmentSlot(j), m_CastItem->GetEnchantmentId(EnchantmentSlot(j)), m_CastItem->GetEnchantmentDuration(EnchantmentSlot(j)), m_CastItem->GetEnchantmentCharges(EnchantmentSlot(j)));
     }
 
     if(m_CastItem->GetUInt32Value(ITEM_FIELD_DURABILITY) < m_CastItem->GetUInt32Value(ITEM_FIELD_MAXDURABILITY))
@@ -4094,6 +4094,9 @@ void Spell::EffectLearnPetSpell(uint32 i)
 
 void Spell::EffectTaunt(uint32 /*i*/)
 {
+    if (!unitTarget)
+        return;
+
     // this effect use before aura Taunt apply for prevent taunt already attacking target
     // for spell as marked "non effective at already attacking target"
     if(!unitTarget || !unitTarget->CanHaveThreatList()
@@ -4274,12 +4277,12 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
             if(m_spellInfo->SpellFamilyFlags[1] & 0x0010)
             {
                 Unit::AuraEffectList const& m_OverrideClassScript = m_caster->GetAurasByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
-                for(Unit::AuraEffectList::const_iterator i = m_OverrideClassScript.begin(); i != m_OverrideClassScript.end(); ++i)
+                for(Unit::AuraEffectList::const_iterator citr = m_OverrideClassScript.begin(); citr != m_OverrideClassScript.end(); ++citr)
                 {
                     // Stormstrike AP Buff
-                    if ( (*i)->GetMiscValue() == 5634 )
+                    if ( (*citr)->GetMiscValue() == 5634 )
                     {
-                        m_caster->CastSpell(m_caster,38430,true,NULL,*i);
+                        m_caster->CastSpell(m_caster,38430,true,NULL,*citr);
                         break;
                     }
                 }
@@ -4801,7 +4804,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     if(!unitTarget)
                         return;
 
-                    uint32 spellId;
+                    uint32 spellId = 0;
                     switch(rand()%4)
                     {
                         case 0: spellId = 46740; break;
@@ -6137,7 +6140,7 @@ void Spell::EffectTransmitted(uint32 effIndex)
 
             // end time of range when possible catch fish (FISHING_BOBBER_READY_TIME..GetDuration(m_spellInfo))
             // start time == fish-FISHING_BOBBER_READY_TIME (0..GetDuration(m_spellInfo)-FISHING_BOBBER_READY_TIME)
-            int32 lastSec;
+            int32 lastSec = 0;
             switch(urand(0, 3))
             {
                 case 0: lastSec =  3; break;

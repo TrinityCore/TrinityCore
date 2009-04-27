@@ -904,8 +904,8 @@ void CreatureEventAI::ProcessAction(uint16 type, uint32 param1, uint32 param2, u
                 //if not available, use pActionInvoker
                 if (Unit* pTarget = GetTargetByType(param2, pActionInvoker))
                 {
-                    if (Player* pPlayer = pTarget->GetCharmerOrOwnerPlayerOrPlayerItself())
-                        pPlayer->RewardPlayerAndGroupAtEvent(param1, m_creature);
+                    if (Player* pPlayer2 = pTarget->GetCharmerOrOwnerPlayerOrPlayerItself())
+                        pPlayer2->RewardPlayerAndGroupAtEvent(param1, m_creature);
                 }
             }
         }
