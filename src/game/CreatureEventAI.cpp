@@ -41,10 +41,10 @@ int CreatureEventAI::Permissible(const Creature *creature)
 
 CreatureEventAI::CreatureEventAI(Creature *c ) : CreatureAI(c)
 {
-    CreatureEventAI_Event_Map::iterator CreatureEvents = CreatureEAI_Mgr.GetCreatureEventAIMap().find(m_creature->GetEntry());
+    CreatureEventAI_Event_Map::const_iterator CreatureEvents = CreatureEAI_Mgr.GetCreatureEventAIMap().find(m_creature->GetEntry());
     if (CreatureEvents != CreatureEAI_Mgr.GetCreatureEventAIMap().end())
     {
-        std::vector<CreatureEventAI_Event>::iterator i;
+        std::vector<CreatureEventAI_Event>::const_iterator i;
         for (i = (*CreatureEvents).second.begin(); i != (*CreatureEvents).second.end(); ++i)
         {
 
@@ -679,9 +679,9 @@ void CreatureEventAI::ProcessAction(uint16 type, uint32 param1, uint32 param2, u
             Creature* pCreature = NULL;
 
             if (param3)
-                pCreature = m_creature->SummonCreature(param1, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, param3);
+                pCreature = m_creature->SummonCreature(param1, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, param3);
             else
-                pCreature = m_creature->SummonCreature(param1, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0);
+                pCreature = m_creature->SummonCreature(param1, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0);
 
             if (!pCreature)
             {
