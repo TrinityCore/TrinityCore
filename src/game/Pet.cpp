@@ -269,9 +269,9 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
     uint8 loadFlags = fields[21].GetUInt8();
     if (loadFlags & AT_LOAD_RESET_SPELLS)
     {
-        CharacterDatabase.PExecute("UPDATE character_pet SET load_flags = load_flags & ~ %u WHERE guid = '%d'",uint32(AT_LOAD_RESET_SPELLS),pet_number);
+        CharacterDatabase.PExecute("UPDATE character_pet SET load_flags = load_flags & ~ %u WHERE id = '%u'",uint32(AT_LOAD_RESET_SPELLS),pet_number);
         loadFlags &= ~uint8(AT_LOAD_RESET_SPELLS);
-        CharacterDatabase.PExecute("DELETE FROM pet_spell WHERE guid = '%d'",pet_number);
+        CharacterDatabase.PExecute("DELETE FROM pet_spell WHERE guid = '%u'",pet_number);
         InitPetCreateSpells();
         resetTalents(true);
         learnLevelupSpells();
