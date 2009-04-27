@@ -171,7 +171,7 @@ struct TRINITY_DLL_DECL npc_ranger_lilathaAI : public npc_escortAI
             m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
             GameObject* Cage = FindGameObject(GO_CAGE, 20, m_creature);
             if(Cage)
-            Cage->SetGoState(0);
+            Cage->SetGoState(GO_STATE_ACTIVE);
             DoScriptText(SAY_START, m_creature, player);
             break;
             }
@@ -220,7 +220,7 @@ struct TRINITY_DLL_DECL npc_ranger_lilathaAI : public npc_escortAI
 
         GameObject* Cage = FindGameObject(GO_CAGE, 20, m_creature);
         if(Cage)
-        Cage->SetGoState(1);
+        Cage->SetGoState(GO_STATE_READY);
     }
 
     void JustDied(Unit* killer)

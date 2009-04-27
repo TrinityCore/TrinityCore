@@ -35,7 +35,7 @@ void InstanceData::HandleGameObject(uint64 GUID, bool open, GameObject *go)
     if(!go)
         go = instance->GetGameObject(GUID);
     if(go)
-        go->SetGoState(open ? 0 : 1);
+        go->SetGoState(open ? GO_STATE_ACTIVE : GO_STATE_READY);
     else
         debug_log("TSCR: InstanceData: HandleGameObject failed");
 }

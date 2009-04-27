@@ -207,7 +207,7 @@ float ethereum_NPC[2][7] =
 
 bool GOHello_go_ethereum_prison(Player *player, GameObject* _GO)
 {
- _GO->SetGoState(0);
+ _GO->SetGoState(GO_STATE_ACTIVE);
  switch(rand()%2){
     case 0:
         _GO->SummonCreature(ethereum_NPC[0][rand()%6],_GO->GetPositionX(),_GO->GetPositionY(),_GO->GetPositionZ()+0.3, 0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,10000);

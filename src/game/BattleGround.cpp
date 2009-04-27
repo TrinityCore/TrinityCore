@@ -1331,7 +1331,7 @@ bool BattleGround::AddObject(uint32 type, uint32 entry, float x, float y, float 
     // so we must create it specific for this instance
     GameObject * go = new GameObject;
     if(!go->Create(objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT),entry, map,
-        PHASEMASK_NORMAL, x,y,z,o,rotation0,rotation1,rotation2,rotation3,100,1))
+        PHASEMASK_NORMAL, x,y,z,o,rotation0,rotation1,rotation2,rotation3,100,GO_STATE_READY))
     {
         sLog.outErrorDb("Gameobject template %u not found in database! BattleGround not created!", entry);
         sLog.outError("Cannot create gameobject template %u! BattleGround not created!", entry);
@@ -1374,7 +1374,7 @@ void BattleGround::DoorClose(uint32 type)
     if (obj)
     {
         //if doors are open, close it
-        if (obj->getLootState() == GO_ACTIVATED && !obj->GetGoState())
+        if (obj->getLootState() == GO_ACTIVATED && obj->GetGoState() != GO_STATE_READY)
         {
             //change state to allow door to be closed
             obj->SetLootState(GO_READY);

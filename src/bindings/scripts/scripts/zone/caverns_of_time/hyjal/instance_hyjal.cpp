@@ -101,16 +101,16 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
             case 182060: 
                 HordeGate = go->GetGUID(); 
                 if(allianceRetreat)
-                    go->SetGoState(0);
+                    go->SetGoState(GO_STATE_ACTIVE);
                 else
-                    go->SetGoState(1);
+                    go->SetGoState(GO_STATE_READY);
                 break;
             case 182061: 
                 ElfGate = go->GetGUID(); 
                 if(hordeRetreat)
-                    go->SetGoState(0);
+                    go->SetGoState(GO_STATE_ACTIVE);
                 else
-                    go->SetGoState(1);
+                    go->SetGoState(GO_STATE_READY);
                 break;
         }
     }

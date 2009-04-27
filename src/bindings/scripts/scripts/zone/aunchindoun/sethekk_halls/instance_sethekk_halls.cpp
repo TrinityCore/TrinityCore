@@ -53,7 +53,7 @@ struct TRINITY_DLL_DECL instance_sethekk_halls : public ScriptedInstance
         {
             case DATA_IKISSDOOREVENT:
                 if( IkissDoor )
-                    IkissDoor->SetGoState(0);
+                    IkissDoor->SetGoState(GO_STATE_ACTIVE);
                 break;
         }
     }

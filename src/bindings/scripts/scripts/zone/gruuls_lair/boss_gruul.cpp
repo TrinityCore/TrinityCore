@@ -113,7 +113,7 @@ struct TRINITY_DLL_DECL boss_gruulAI : public ScriptedAI
 
             GameObject* EncounterDoor = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_GRUULDOOR));
             if (EncounterDoor)
-                EncounterDoor->SetGoState(0);                   // Open the encounter door
+                EncounterDoor->SetGoState(GO_STATE_ACTIVE);                   // Open the encounter door
         }
     }
 

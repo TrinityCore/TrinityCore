@@ -107,7 +107,7 @@ void GameObject::RemoveFromWorld()
     }
 }
 
-bool GameObject::Create(uint32 guidlow, uint32 name_id, Map *map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, uint32 go_state, uint32 ArtKit)
+bool GameObject::Create(uint32 guidlow, uint32 name_id, Map *map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 ArtKit)
 {
     Relocate(x,y,z,ang);
     SetMapId(map->GetId());
@@ -209,7 +209,7 @@ void GameObject::Update(uint32 /*p_time*/)
                         Unit* caster = GetOwner();
                         if(caster && caster->GetTypeId()==TYPEID_PLAYER)
                         {
-                            SetGoState(0);
+                            SetGoState(GO_STATE_ACTIVE);
                             SetUInt32Value(GAMEOBJECT_FLAGS, GO_FLAG_NODESPAWN);
 
                             UpdateData udata;
@@ -267,11 +267,11 @@ void GameObject::Update(uint32 /*p_time*/)
                         case GAMEOBJECT_TYPE_DOOR:
                         case GAMEOBJECT_TYPE_BUTTON:
                             //we need to open doors if they are closed (add there another condition if this code breaks some usage, but it need to be here for battlegrounds)
-                            if( !GetGoState() )
-                                SwitchDoorOrButton(false);
+                            if (GetGoState() != GO_STATE_READY)
+                                ResetDoorOrButton();
                             //flags in AB are type_button and we need to add them here so no break!
                         default:
-                            if(!m_spawnedByDefault)         // despawn timer
+                            if (!m_spawnedByDefault)        // despawn timer
                             {
                                                             // can be despawned or destroyed
                                 SetLootState(GO_JUST_DEACTIVATED);
@@ -371,11 +371,8 @@ void GameObject::Update(uint32 /*p_time*/)
             {
                 case GAMEOBJECT_TYPE_DOOR:
                 case GAMEOBJECT_TYPE_BUTTON:
-                    if(GetAutoCloseTime() && (m_cooldownTime < time(NULL)))
-                    {
-                        SwitchDoorOrButton(false);
-                        SetLootState(GO_JUST_DEACTIVATED);
-                    }
+                    if (GetAutoCloseTime() && (m_cooldownTime < time(NULL)))
+                        ResetDoorOrButton();
                     break;
             }
             break;
@@ -463,7 +460,7 @@ void GameObject::Delete()
 {
     SendObjectDeSpawnAnim(GetGUID());
 
-    SetGoState(1);
+    SetGoState(GO_STATE_READY);
     SetUInt32Value(GAMEOBJECT_FLAGS, GetGOInfo()->flags);
 
     uint16 poolid = poolhandler.IsPartOfAPool(GetGUIDLow(), TYPEID_GAMEOBJECT);
@@ -549,8 +546,8 @@ void GameObject::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
         << GetFloatValue(GAMEOBJECT_PARENTROTATION+2) << ", "
         << GetFloatValue(GAMEOBJECT_PARENTROTATION+3) << ", "
         << m_respawnDelayTime << ", "
-        << (uint32)GetGoAnimProgress() << ", "
-        << (uint32)GetGoState() << ")";
+        << uint32(GetGoAnimProgress()) << ", "
+        << uint32(GetGoState()) << ")";
 
     WorldDatabase.BeginTransaction();
     WorldDatabase.PExecuteLog("DELETE FROM gameobject WHERE guid = '%u'", m_DBTableGuid);
@@ -582,7 +579,7 @@ bool GameObject::LoadFromDB(uint32 guid, Map *map)
     float rotation3 = data->rotation3;
 
     uint32 animprogress = data->animprogress;
-    uint32 go_state = data->go_state;
+    GOState go_state = data->go_state;
     uint32 ArtKit = data->ArtKit;
 
     m_DBTableGuid = guid;
@@ -865,7 +862,17 @@ GameObject* GameObject::LookupFishingHoleAround(float range)
     return ok;
 }
 
-void GameObject::UseDoorOrButton(uint32 time_to_restore)
+void GameObject::ResetDoorOrButton()
+{
+    if (m_lootState == GO_READY || m_lootState == GO_JUST_DEACTIVATED)
+        return;
+
+    SwitchDoorOrButton(false);
+    SetLootState(GO_JUST_DEACTIVATED);
+    m_cooldownTime = 0;
+}
+
+void GameObject::UseDoorOrButton(uint32 time_to_restore, bool alternative /* = false */)
 {
     if(m_lootState != GO_READY)
         return;
@@ -873,11 +880,10 @@ void GameObject::UseDoorOrButton(uint32 time_to_restore)
     if(!time_to_restore)
         time_to_restore = GetAutoCloseTime();
 
-    SwitchDoorOrButton(true);
+    SwitchDoorOrButton(true,alternative);
     SetLootState(GO_ACTIVATED);
 
     m_cooldownTime = time(NULL) + time_to_restore;
-
 }
 
 void GameObject::SetGoArtKit(uint8 kit)
@@ -888,17 +894,17 @@ void GameObject::SetGoArtKit(uint8 kit)
         data->ArtKit = kit;
 }
 
-void GameObject::SwitchDoorOrButton(bool activate)
+void GameObject::SwitchDoorOrButton(bool activate, bool alternative /* = false */)
 {
     if(activate)
         SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
     else
         RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
 
-    if(GetGoState())                                        //if closed -> open
-        SetGoState(0);
+    if(GetGoState() == GO_STATE_READY)                      //if closed -> open
+        SetGoState(alternative ? GO_STATE_ACTIVE_ALTERNATIVE : GO_STATE_ACTIVE);
     else                                                    //if open -> close
-        SetGoState(1);
+        SetGoState(GO_STATE_READY);
 }
 
 void GameObject::Use(Unit* user)

@@ -1257,8 +1257,16 @@ void ObjectMgr::LoadGameobjects()
         data.rotation3      = fields[10].GetFloat();
         data.spawntimesecs  = fields[11].GetInt32();
         data.animprogress   = fields[12].GetUInt32();
-        data.go_state       = fields[13].GetUInt32();
         data.ArtKit         = 0;
+
+        uint32 go_state     = fields[13].GetUInt32();
+        if (go_state >= MAX_GO_STATE)
+        {
+            sLog.outErrorDb("Table `gameobject` have gameobject (GUID: %u Entry: %u) with invalid `state` (%u) value, skip",guid,data.id,go_state);
+            continue;
+        }
+        data.go_state       = GOState(go_state);
+
         data.spawnMask      = fields[14].GetUInt8();
         data.phaseMask      = fields[15].GetUInt16();
         int16 gameEvent     = fields[16].GetInt16();
