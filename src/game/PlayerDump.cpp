@@ -358,6 +358,8 @@ std::string PlayerDumpWriter::GetDump(uint32 guid)
         }
         else
             sLog.outError("Table 'character_db_version' not have revision guard field, revision guard query not added to pdump.");
+
+        delete result;
     }
     else
         sLog.outError("Character DB not have 'character_db_version' table, revision guard query not added to pdump.");
