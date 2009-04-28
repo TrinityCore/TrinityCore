@@ -71,7 +71,10 @@ void Vehicle::setDeathState(DeathState s)                       // overwrite vir
         {
             if(Unit *passenger = itr->second.passenger)
                 if(passenger->GetTypeId() == TYPEID_UNIT && ((Creature*)passenger)->isVehicle())
+                {
+                    passenger->ExitVehicle();
                     ((Vehicle*)passenger)->setDeathState(s);
+                }
         }
         RemoveAllPassengers();
     }
@@ -298,7 +301,10 @@ void Vehicle::Dismiss()
     {
         if(Unit *passenger = itr->second.passenger)
             if(passenger->GetTypeId() == TYPEID_UNIT && ((Creature*)passenger)->isVehicle())
+            {
+                passenger->ExitVehicle();
                 ((Vehicle*)passenger)->Dismiss();
+            }
     }
     RemoveAllPassengers();
     SendObjectDeSpawnAnim(GetGUID());
