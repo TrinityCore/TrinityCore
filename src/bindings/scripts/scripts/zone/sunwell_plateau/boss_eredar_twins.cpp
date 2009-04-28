@@ -475,7 +475,7 @@ struct TRINITY_DLL_DECL boss_alythessAI : public Scripted_NoMovementAI
             DoScriptText(YELL_ALY_DEAD, m_creature);
 
             if(pInstance)
-                pInstance->SetData(DATA_EREDAR_TWINS_EVENT, NOT_STARTED);
+                pInstance->SetData(DATA_EREDAR_TWINS_EVENT, DONE);
         }
         else
             m_creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
