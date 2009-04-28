@@ -33,7 +33,7 @@ enum Quotes
     SAY_EVIL_SLAY1          = -1580003,
     SAY_EVIL_SLAY2          = -1580004,
     SAY_EVIL_ENRAGE         = -1580005,
-    
+
     //Kalecgos humanoid form
     SAY_GOOD_AGGRO          = -1580006,
     SAY_GOOD_NEAR_DEATH     = -1580007,
