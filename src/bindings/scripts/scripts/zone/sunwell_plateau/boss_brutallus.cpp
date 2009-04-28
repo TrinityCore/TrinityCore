@@ -30,7 +30,7 @@ enum Quotes
  YELL_INTRO_CHARGE          =   -1580019,
  YELL_INTRO_KILL_MADRIGOSA  =   -1580020,
  YELL_INTRO_TAUNT           =   -1580021,
-                            
+
  YELL_MADR_ICE_BARRIER      =   -1580031,
  YELL_MADR_INTRO            =   -1580032,
  YELL_MADR_ICE_BLOCK        =   -1580033,
@@ -71,7 +71,7 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
     }
 
     ScriptedInstance* pInstance;
-	Unit* Madrigosa;
+    Unit* Madrigosa;
 
     uint32 SlashTimer;
     uint32 BurnTimer;
@@ -99,18 +99,18 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
 
         IsIntro = false;
         Enraged = false;
-		Intro = true; //for debug
+        Intro = true; //for debug
 
         m_creature->CastSpell(m_creature, SPELL_DUAL_WIELD, true);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-		Madrigosa = Unit::GetUnit(*m_creature, pInstance->GetData64(DATA_MADRIGOSA));
-		//Creature* boss = Unit::GetCreature((*m_creature),AzgalorGUID);
-		if(!Madrigosa) error_log("Madrigosa ist nicht zu finden");
+        Madrigosa = Unit::GetUnit(*m_creature, pInstance->GetData64(DATA_MADRIGOSA));
+        //Creature* boss = Unit::GetCreature((*m_creature),AzgalorGUID);
+        if(!Madrigosa) error_log("Madrigosa ist nicht zu finden");
 
         if(Intro && Madrigosa){
             if(!Madrigosa->isAlive())
                 EndIntro();
-			else error_log("Madrigosa is Tod");
+            else error_log("Madrigosa is Tod");
         }
         else
             EndIntro();
@@ -141,12 +141,12 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
     {
         DoScriptText(YELL_DEATH, m_creature);
 
-		if(pInstance){
+        if(pInstance){
             pInstance->SetData(DATA_BRUTALLUS_EVENT, DONE);
-			float x,y,z;
-			m_creature->GetPosition(x,y,z);
-			m_creature->SummonCreature(FELMYST, x,y, z+30, m_creature->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 0);
-		}
+            float x,y,z;
+            m_creature->GetPosition(x,y,z);
+            m_creature->SummonCreature(FELMYST, x,y, z+30, m_creature->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 0);
+        }
     }
 
     void StartIntro()
@@ -154,16 +154,16 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
         if(!Intro)
             return;
         if(Madrigosa){
-			Madrigosa->setDeathState(ALIVE);
+            Madrigosa->setDeathState(ALIVE);
             Madrigosa->setActive(true);
             IsIntro = true;
         }
-		error_log("Starte das Intro");
+        error_log("Starte das Intro");
     }
 
     void EndIntro()
     {
-		error_log("Beende das Intro");
+        error_log("Beende das Intro");
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         Intro = false;
         IsIntro = false;
@@ -184,7 +184,7 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
             case 1:
                 m_creature->SetInFront(Madrigosa);
                 Madrigosa->SetInFront(m_creature);
-                DoScriptText(YELL_MADR_INTRO, Madrigosa, m_creature);  
+                DoScriptText(YELL_MADR_INTRO, Madrigosa, m_creature);
                 IntroPhaseTimer = 9000;
                 ++IntroPhase;
                 break;
@@ -221,7 +221,7 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
             case 7:
                 m_creature->DealDamage(Madrigosa, Madrigosa->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, true);
                 DoScriptText(YELL_MADR_DEATH, Madrigosa);
-                m_creature->SetHealth(m_creature->GetMaxHealth());            
+                m_creature->SetHealth(m_creature->GetMaxHealth());
                 m_creature->AttackStop();
                 m_creature->SetSpeed(MOVE_RUN, 1.0f, true);
                 IntroPhaseTimer = 3000;
@@ -245,10 +245,10 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
         }
     }
 
-	void MoveInLineOfSight(Unit *who){
-		if(pInstance && Intro)
-			pInstance->SetData(DATA_BRUTALLUS_EVENT, SPECIAL);
-	}
+    void MoveInLineOfSight(Unit *who){
+        if(pInstance && Intro)
+            pInstance->SetData(DATA_BRUTALLUS_EVENT, SPECIAL);
+    }
 
     void UpdateAI(const uint32 diff)
     {
@@ -273,7 +273,7 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
 
         if(!UpdateVictim() || IsIntro)
             return;
- 
+
         if(SlashTimer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_METEOR_SLASH);
@@ -314,7 +314,7 @@ CreatureAI* GetAI_boss_brutallus(Creature *_Creature)
 {
     return new boss_brutallusAI (_Creature);
 }
- 
+
 void AddSC_boss_brutallus()
 {
     Script *newscript;
