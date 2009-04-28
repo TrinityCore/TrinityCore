@@ -64,7 +64,7 @@ struct TRINITY_DLL_DECL mob_unkor_the_ruthlessAI : public ScriptedAI
         m_creature->setFaction(FACTION_HOSTILE);
     }
 
-    void Aggro(Unit *who) {}
+    void EnterCombat(Unit *who) {}
 
     void DoNice()
     {
@@ -151,7 +151,7 @@ struct TRINITY_DLL_DECL mob_infested_root_walkerAI : public ScriptedAI
     mob_infested_root_walkerAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset() { }
-    void Aggro(Unit *who) { }
+    void EnterCombat(Unit *who) { }
 
     void DamageTaken(Unit *done_by, uint32 &damage)
     {
@@ -176,7 +176,7 @@ struct TRINITY_DLL_DECL mob_rotting_forest_ragerAI : public ScriptedAI
     mob_rotting_forest_ragerAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset() { }
-    void Aggro(Unit *who) { }
+    void EnterCombat(Unit *who) { }
 
     void DamageTaken(Unit *done_by, uint32 &damage)
     {
@@ -208,7 +208,7 @@ struct TRINITY_DLL_DECL mob_netherweb_victimAI : public ScriptedAI
     mob_netherweb_victimAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset() { }
-    void Aggro(Unit *who) { }
+    void EnterCombat(Unit *who) { }
     void MoveInLineOfSight(Unit *who) { }
 
     void JustDied(Unit* Killer)
@@ -268,7 +268,7 @@ struct TRINITY_DLL_DECL npc_floonAI : public ScriptedAI
         m_creature->setFaction(FACTION_FRIENDLY_FL);
     }
 
-    void Aggro(Unit *who) {}
+    void EnterCombat(Unit *who) {}
 
     void UpdateAI(const uint32 diff)
     {
@@ -415,7 +415,7 @@ struct TRINITY_DLL_DECL npc_isla_starmaneAI : public npc_escortAI
         m_creature->setFaction(1660);
     }
 
-    void Aggro(Unit* who){}
+    void EnterCombat(Unit* who){}
 
     void JustDied(Unit* killer)
     {

@@ -1057,7 +1057,7 @@ void CreatureEventAI::Reset()
             }
             break;
             //default:
-            //TODO: enable below code line / verify this is correct to enable events previously disabled (ex. aggro yell), instead of enable this in void Aggro()
+            //TODO: enable below code line / verify this is correct to enable events previously disabled (ex. aggro yell), instead of enable this in void EnterCombat()
             //(*i).Enabled = true;
             //(*i).Time = 0;
             //break;

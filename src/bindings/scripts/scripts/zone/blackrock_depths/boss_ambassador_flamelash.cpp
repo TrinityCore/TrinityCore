@@ -42,7 +42,7 @@ struct TRINITY_DLL_DECL boss_ambassador_flamelashAI : public ScriptedAI
         Spirit_Timer = 24000;
     }
 
-    void Aggro(Unit *who) {}
+    void EnterCombat(Unit *who) {}
 
     void SummonSpirits(Unit* victim)
     {

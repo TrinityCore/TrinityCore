@@ -45,7 +45,7 @@ struct TRINITY_DLL_DECL boss_ebonrocAI : public ScriptedAI
         Heal_Timer = 1000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         DoZoneInCombat();
     }

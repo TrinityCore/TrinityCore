@@ -348,7 +348,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
         IsCastingFireball = false;
         ChainPyros = false;
 
-        if(InCombat)
+        if(m_creature->isInCombat())
             PrepareAdvisors();
 
         DeleteLegs();
@@ -467,7 +467,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
         }
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         if (pInstance && !pInstance->GetData(DATA_KAELTHASEVENT) && !Phase)
             StartEvent();
@@ -1048,7 +1048,7 @@ struct TRINITY_DLL_DECL boss_thaladred_the_darkenerAI : public advisorbase_ai
         DoScriptText(SAY_THALADRED_DEATH, m_creature);
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         if (m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;
@@ -1120,7 +1120,7 @@ struct TRINITY_DLL_DECL boss_lord_sanguinarAI : public advisorbase_ai
         DoScriptText(SAY_SANGUINAR_DEATH, m_creature);
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         if (m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;
@@ -1188,19 +1188,11 @@ struct TRINITY_DLL_DECL boss_grand_astromancer_capernianAI : public advisorbase_
 
         if (m_creature->Attack(who, true))
         {
-            m_creature->AddThreat(who, 0.0f);
-
-            if (!InCombat)
-            {
-                InCombat = true;
-                Aggro(who);
-            }
-
             DoStartMovement(who, CAPERNIAN_DISTANCE, M_PI/2);
         }
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         if (m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;
@@ -1302,7 +1294,7 @@ struct TRINITY_DLL_DECL boss_master_engineer_telonicusAI : public advisorbase_ai
          DoScriptText(SAY_TELONICUS_DEATH, m_creature);
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         if (m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;
@@ -1364,7 +1356,7 @@ struct TRINITY_DLL_DECL mob_kael_flamestrikeAI : public ScriptedAI
         m_creature->setFaction(14);
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 
@@ -1430,7 +1422,7 @@ struct TRINITY_DLL_DECL mob_phoenix_tkAI : public ScriptedAI
         m_creature->CastSpell(m_creature,SPELL_BURN,true);
     }
 
-    void Aggro(Unit *who) { }
+    void EnterCombat(Unit *who) { }
 
     void DamageTaken(Unit* pKiller, uint32 &damage)
     {
@@ -1487,16 +1479,11 @@ struct TRINITY_DLL_DECL mob_phoenix_egg_tkAI : public ScriptedAI
     {
         if (m_creature->Attack(who, false))
         {
-            if (!InCombat)
-            {
-                InCombat = true;
-                Aggro(who);
-            }
             DoStartNoMovement(who);
         }
     }
 
-    void Aggro(Unit *who) { }
+    void EnterCombat(Unit *who) { }
 
     void JustSummoned(Creature* summoned)
     {

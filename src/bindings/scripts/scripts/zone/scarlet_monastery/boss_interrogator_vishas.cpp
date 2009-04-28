@@ -53,7 +53,7 @@ struct TRINITY_DLL_DECL boss_interrogator_vishasAI : public ScriptedAI
         ShadowWordPain_Timer = 5000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }

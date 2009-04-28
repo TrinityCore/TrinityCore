@@ -44,7 +44,7 @@ struct TRINITY_DLL_DECL boss_flamegorAI : public ScriptedAI
         Frenzy_Timer = 10000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         DoZoneInCombat();
     }

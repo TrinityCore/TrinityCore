@@ -44,7 +44,7 @@ struct TRINITY_DLL_DECL boss_draganthaurissanAI : public ScriptedAI
         //Counter= 0;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }

@@ -81,7 +81,7 @@ struct TRINITY_DLL_DECL mob_kilrekAI : public ScriptedAI
         AmplifyTimer = 2000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         if(!pInstance)
         {
@@ -137,7 +137,7 @@ struct TRINITY_DLL_DECL mob_demon_chainAI : public ScriptedAI
         SacrificeGUID = 0;
     }
 
-    void Aggro(Unit* who) {}
+    void EnterCombat(Unit* who) {}
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
 
@@ -205,7 +205,7 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
             pInstance->SetData(DATA_TERESTIAN_EVENT, NOT_STARTED);
     }
 
-    void Aggro(Unit* who)
+    void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
 
@@ -369,7 +369,7 @@ struct TRINITY_DLL_DECL mob_karazhan_impAI : public ScriptedAI
         m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
     }
 
-    void Aggro(Unit *who) {}
+    void EnterCombat(Unit *who) {}
 
     void UpdateAI(const uint32 diff)
     {

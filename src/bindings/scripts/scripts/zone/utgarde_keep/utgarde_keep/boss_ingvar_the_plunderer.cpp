@@ -148,7 +148,7 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
         DoScriptText(YELL_AGGRO_2,m_creature);
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         DoScriptText(YELL_AGGRO_1,m_creature);
 
@@ -339,7 +339,7 @@ struct TRINITY_DLL_DECL mob_annhylde_the_callerAI : public ScriptedAI
 
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
-    void Aggro(Unit *who) {}
+    void EnterCombat(Unit *who) {}
     void UpdateAI(const uint32 diff)
     {
         if(Resurect_Timer)
@@ -411,7 +411,7 @@ struct TRINITY_DLL_DECL mob_ingvar_throw_dummyAI : public ScriptedAI
     }
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
-    void Aggro(Unit *who) {}
+    void EnterCombat(Unit *who) {}
     void UpdateAI(const uint32 diff)
     {
         if(Despawn_Timer < diff)

@@ -42,7 +42,7 @@ struct TRINITY_DLL_DECL boss_rend_blackhandAI : public ScriptedAI
         Thunderclap_Timer = 9000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 

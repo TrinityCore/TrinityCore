@@ -51,7 +51,7 @@ struct TRINITY_DLL_DECL boss_baroness_anastariAI : public ScriptedAI
         //Possess_Timer = 35000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 

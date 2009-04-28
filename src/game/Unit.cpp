@@ -9705,12 +9705,6 @@ void Unit::CombatStart(Unit* target)
         && !((Creature*)target)->HasReactState(REACT_PASSIVE) && ((Creature*)target)->IsAIEnabled)
     {
         ((Creature*)target)->AI()->AttackStart(this);
-        ((Creature*)target)->AI()->EnterCombat(this);
-        if(((Creature*)target)->GetFormation())
-        {
-            ((Creature*)target)->GetFormation()->MemberAttackStart((Creature*)target, this);
-            sLog.outDebug("Unit::CombatStart() calls CreatureGroups::MemberHasAttacked(this);");
-        }
     }
 
     SetInCombatWith(target);
@@ -9744,8 +9738,18 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy)
 
     SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
 
-    if(GetTypeId() != TYPEID_PLAYER && GetMotionMaster()->GetMotionSlotType(MOTION_SLOT_IDLE) != IDLE_MOTION_TYPE)
-        ((Creature*)this)->SetHomePosition(GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
+    if(GetTypeId() != TYPEID_PLAYER)
+    {
+        if(GetMotionMaster()->GetMotionSlotType(MOTION_SLOT_IDLE) != IDLE_MOTION_TYPE)
+            ((Creature*)this)->SetHomePosition(GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
+        if(enemy)
+        {
+            if(!((Creature*)this)->HasReactState(REACT_PASSIVE) && ((Creature*)this)->IsAIEnabled)
+                ((Creature*)this)->AI()->EnterCombat(enemy);
+            if(((Creature*)this)->GetFormation())
+                ((Creature*)this)->GetFormation()->MemberAttackStart((Creature*)this, enemy);
+        }
+    }
 
     if(GetTypeId() != TYPEID_PLAYER && ((Creature*)this)->isPet())
     {

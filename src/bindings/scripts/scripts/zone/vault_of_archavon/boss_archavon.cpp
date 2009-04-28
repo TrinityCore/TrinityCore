@@ -37,7 +37,7 @@ struct TRINITY_DLL_DECL boss_archavonAI : public ScriptedAI
     boss_archavonAI(Creature *c) : ScriptedAI(c) {}
     
     void Reset() {}    
-    void Aggro(Unit* who)  {}
+    void EnterCombat(Unit* who)  {}
     void UpdateAI(const uint32 diff) 
     {
         //Return since we have no target
@@ -56,7 +56,7 @@ struct TRINITY_DLL_DECL mob_warderAI : public ScriptedAI //npc 32353
     mob_warderAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset() {}
-    void Aggro(Unit* who) {}
+    void EnterCombat(Unit* who) {}
     void UpdateAI(const uint32 diff) 
     {
         //Return since we have no target

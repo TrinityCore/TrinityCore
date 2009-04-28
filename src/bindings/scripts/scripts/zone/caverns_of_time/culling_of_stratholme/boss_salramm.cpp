@@ -54,7 +54,7 @@ struct TRINITY_DLL_DECL boss_salrammAI : public ScriptedAI
          Summon_ghouls_Timer = 19000 + rand()%5000; //on a video approx 24s after aggro
     }
     
-    void Aggro(Unit* who) 
+    void EnterCombat(Unit* who) 
         {DoScriptText(SAY_AGGRO, m_creature);}
     
     void AttackStart(Unit* who) {}

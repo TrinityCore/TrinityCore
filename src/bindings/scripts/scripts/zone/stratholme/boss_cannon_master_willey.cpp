@@ -102,7 +102,7 @@ struct TRINITY_DLL_DECL boss_cannon_master_willeyAI : public ScriptedAI
         m_creature->SummonCreature(11054,ADD_9X,ADD_9Y,ADD_9Z,ADD_9O,TEMPSUMMON_TIMED_DESPAWN,240000);
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 

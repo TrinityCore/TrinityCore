@@ -91,7 +91,7 @@ struct mob_ancient_wispAI : public ScriptedAI
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
     }
 
-    void Aggro(Unit* who) {}
+    void EnterCombat(Unit* who) {}
 
     void DamageTaken(Unit* done_by, uint32 &damage) { damage = 0; }
 
@@ -130,7 +130,7 @@ struct TRINITY_DLL_DECL mob_doomfireAI : public ScriptedAI
     void Reset() { }
 
     void MoveInLineOfSight(Unit* who) { }
-    void Aggro(Unit* who) { }
+    void EnterCombat(Unit* who) { }
     void DamageTaken(Unit *done_by, uint32 &damage) { damage = 0; }
 };
 
@@ -157,7 +157,7 @@ struct TRINITY_DLL_DECL mob_doomfire_targettingAI : public ScriptedAI
             TargetGUID = who->GetGUID();
     }
 
-    void Aggro(Unit* who) {}
+    void EnterCombat(Unit* who) {}
 
     void DamageTaken(Unit *done_by, uint32 &damage) { damage = 0; }
 
@@ -262,7 +262,7 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public hyjal_trashAI
         IsChanneling = false;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         m_creature->InterruptSpell(CURRENT_CHANNELED_SPELL);
         DoScriptText(SAY_AGGRO, m_creature);
@@ -429,7 +429,7 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public hyjal_trashAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!InCombat)
+        if (!m_creature->isInCombat())
         {
             if (pInstance)
             {

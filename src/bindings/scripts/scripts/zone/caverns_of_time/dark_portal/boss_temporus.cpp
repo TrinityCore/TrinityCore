@@ -60,7 +60,7 @@ struct TRINITY_DLL_DECL boss_temporusAI : public ScriptedAI
         SpellReflection_Timer = 40000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }

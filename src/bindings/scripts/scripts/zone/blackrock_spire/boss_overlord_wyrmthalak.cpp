@@ -58,7 +58,7 @@ struct TRINITY_DLL_DECL boss_overlordwyrmthalakAI : public ScriptedAI
         Summoned = false;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 

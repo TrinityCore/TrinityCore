@@ -84,7 +84,7 @@ struct TRINITY_DLL_DECL example_escortAI : public npc_escortAI
             }
         }
 
-        void Aggro(Unit* who)
+        void EnterCombat(Unit* who)
         {
             if (IsBeingEscorted)
             {
@@ -123,7 +123,7 @@ struct TRINITY_DLL_DECL example_escortAI : public npc_escortAI
             npc_escortAI::UpdateAI(diff);
 
             //Combat check
-            if (InCombat && m_creature->getVictim())
+            if (m_creature->getVictim())
             {
                 if (DeathCoilTimer < diff)
                 {
@@ -132,7 +132,8 @@ struct TRINITY_DLL_DECL example_escortAI : public npc_escortAI
 
                     DeathCoilTimer = 4000;
                 }else DeathCoilTimer -= diff;
-            }else
+            }
+            else if(!m_creature->isInCombat())
             {
                 //Out of combat but being escorted
                 if (IsBeingEscorted)

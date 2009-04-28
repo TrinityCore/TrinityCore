@@ -68,20 +68,6 @@ struct TRINITY_DLL_DECL instance_blood_furnace : public ScriptedInstance
         return NULL;
     }
 
-    void HandleGameObject(uint64 guid, uint32 state)
-    {
-        Player *player = GetPlayerInMap();
-
-        if (!player || !guid)
-        {
-            debug_log("TSCR: Blood Furnace: HandleGameObject fail");
-            return;
-        }
-
-        if (GameObject *go = GameObject::GetGameObject(*player,guid))
-            go->SetGoState(state);
-    }
-
     void SetData(uint32 type, uint32 data)
     {
         switch(type)
@@ -89,8 +75,8 @@ struct TRINITY_DLL_DECL instance_blood_furnace : public ScriptedInstance
             case DATA_KELIDANEVENT:
                 if( data == DONE )
                 {
-                    HandleGameObject(Sewer1GUID,0);
-                    HandleGameObject(Sewer2GUID,0);
+                    HandleGameObject(Sewer1GUID, true);
+                    HandleGameObject(Sewer2GUID, true);
                 }
                 break;
         }

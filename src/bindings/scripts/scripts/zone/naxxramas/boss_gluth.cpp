@@ -86,7 +86,7 @@ struct TRINITY_DLL_DECL boss_gluthAI : public ScriptedAI
         Summon_Timer = 10000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 

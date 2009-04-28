@@ -87,7 +87,7 @@ struct TRINITY_DLL_DECL npc_converted_sentryAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit *who)
         { return; }
-    void Aggro(Unit* who)
+    void EnterCombat(Unit* who)
         { }
 
     void UpdateAI(const uint32 diff)
@@ -153,7 +153,7 @@ struct TRINITY_DLL_DECL npc_greengill_slaveAI : public ScriptedAI
 
     uint64 PlayerGUID;
 
-    void Aggro(Unit* who){}
+    void EnterCombat(Unit* who){}
 
     void Reset()
     {

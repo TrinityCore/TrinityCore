@@ -60,7 +60,7 @@ struct TRINITY_DLL_DECL boss_azuregosAI : public ScriptedAI
         Enraged = false;
     }
 
-    void Aggro(Unit *who) {}
+    void EnterCombat(Unit *who) {}
 
     void UpdateAI(const uint32 diff)
     {

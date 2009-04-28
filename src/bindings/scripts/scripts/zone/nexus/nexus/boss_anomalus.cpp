@@ -34,7 +34,7 @@ struct TRINITY_DLL_DECL boss_anomalusAI : public ScriptedAI
     boss_anomalusAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset() {}
-    void Aggro(Unit* who) 
+    void EnterCombat(Unit* who) 
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }
@@ -78,7 +78,7 @@ struct TRINITY_DLL_DECL mob_crazed_mana_wraithAI : public ScriptedAI
     mob_crazed_mana_wraithAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset() {}
-    void Aggro(Unit* who) {}
+    void EnterCombat(Unit* who) {}
     void UpdateAI(const uint32 diff) 
     {
         //Return since we have no target
@@ -101,7 +101,7 @@ struct TRINITY_DLL_DECL npc_chaotic_riftAI : public ScriptedAI
     npc_chaotic_riftAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset() {}
-    void Aggro(Unit* who) {}
+    void EnterCombat(Unit* who) {}
     void UpdateAI(const uint32 diff) 
     {
         //Return since we have no target

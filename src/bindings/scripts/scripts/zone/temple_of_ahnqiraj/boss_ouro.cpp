@@ -59,7 +59,7 @@ struct TRINITY_DLL_DECL boss_ouroAI : public ScriptedAI
         Submerged = false;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         DoCast(m_creature->getVictim(), SPELL_BIRTH);
     }

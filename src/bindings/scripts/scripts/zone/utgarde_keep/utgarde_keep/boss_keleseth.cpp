@@ -69,7 +69,7 @@ struct TRINITY_DLL_DECL mob_frost_tombAI : public ScriptedAI
     }
 
     void Reset(){ FrostTombGUID = 0; }
-    void Aggro(Unit* who) {}
+    void EnterCombat(Unit* who) {}
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
 
@@ -137,7 +137,7 @@ struct TRINITY_DLL_DECL boss_kelesethAI : public ScriptedAI
             pInstance->SetData(DATA_PRINCEKELESETH_EVENT, DONE);
     }
 
-    void Aggro(Unit* who)
+    void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
         DoZoneInCombat();
@@ -227,7 +227,7 @@ struct TRINITY_DLL_DECL mob_vrykul_skeletonAI : public ScriptedAI
         isDead = false;
     }
 
-    void Aggro(Unit *who){}
+    void EnterCombat(Unit *who){}
     void DamageTaken(Unit *done_by, uint32 &damage)
     {
         if(done_by->GetGUID() == m_creature->GetGUID())

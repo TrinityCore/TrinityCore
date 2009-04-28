@@ -42,7 +42,7 @@ struct TRINITY_DLL_DECL boss_azshir_the_sleeplessAI : public ScriptedAI
         Terrify_Timer = 20000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 

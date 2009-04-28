@@ -39,7 +39,7 @@ struct TRINITY_DLL_DECL boss_houndmaster_lokseyAI : public ScriptedAI
         Enrage_Timer = 0;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }

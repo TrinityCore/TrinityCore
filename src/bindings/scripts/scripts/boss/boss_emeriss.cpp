@@ -55,7 +55,7 @@ struct TRINITY_DLL_DECL boss_emerissAI : public ScriptedAI
         CorruptionofEarth3_Timer = 0;
     }
 
-    void Aggro(Unit *who) {}
+    void EnterCombat(Unit *who) {}
 
     void UpdateAI(const uint32 diff)
     {

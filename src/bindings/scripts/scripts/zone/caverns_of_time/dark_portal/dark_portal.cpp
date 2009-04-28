@@ -127,7 +127,7 @@ struct TRINITY_DLL_DECL npc_medivh_bmAI : public ScriptedAI
         //ScriptedAI::AttackStart(who);
     }
 
-    void Aggro(Unit *who) {}
+    void EnterCombat(Unit *who) {}
 
     void SpellHit(Unit* caster, const SpellEntry* spell)
     {
@@ -272,7 +272,7 @@ struct TRINITY_DLL_DECL npc_time_riftAI : public ScriptedAI
         else mWaveId = 1;
 
     }
-    void Aggro(Unit *who) {}
+    void EnterCombat(Unit *who) {}
 
     void DoSummonAtRift(uint32 creature_entry)
     {

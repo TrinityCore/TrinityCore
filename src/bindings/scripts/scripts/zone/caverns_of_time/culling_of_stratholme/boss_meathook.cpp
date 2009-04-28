@@ -41,7 +41,7 @@ struct TRINITY_DLL_DECL boss_meathookAI : public ScriptedAI
         Frenzy_Timer =  20000 + rand()%10000; //made it up
     }
 
-    void Aggro(Unit* who)
+    void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }

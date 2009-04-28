@@ -63,7 +63,7 @@ struct TRINITY_DLL_DECL boss_ysondreAI : public ScriptedAI
         SummonDruids3_Timer = 0;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 
@@ -200,7 +200,7 @@ struct TRINITY_DLL_DECL mob_dementeddruidsAI : public ScriptedAI
         MoonFire_Timer = 3000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 

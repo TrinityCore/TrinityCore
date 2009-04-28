@@ -37,7 +37,7 @@ struct TRINITY_DLL_DECL boss_volkhanAI : public ScriptedAI
     boss_volkhanAI(Creature *c) : ScriptedAI(c) {}
     
     void Reset() {}
-    void Aggro(Unit* who) 
+    void EnterCombat(Unit* who) 
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }
@@ -88,7 +88,7 @@ struct TRINITY_DLL_DECL mob_molten_golemAI : public ScriptedAI
     mob_molten_golemAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset() {}
-    void Aggro(Unit* who) {}
+    void EnterCombat(Unit* who) {}
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
     void UpdateAI(const uint32 diff) 

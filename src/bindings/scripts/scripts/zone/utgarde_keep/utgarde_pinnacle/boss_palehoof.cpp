@@ -27,7 +27,7 @@ struct TRINITY_DLL_DECL boss_palehoofAI : public ScriptedAI
     boss_palehoofAI(Creature *c) : ScriptedAI(c) {}
     
     void Reset() {}
-    void Aggro(Unit* who) 
+    void EnterCombat(Unit* who) 
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }

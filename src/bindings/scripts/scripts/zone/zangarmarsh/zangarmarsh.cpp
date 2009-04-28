@@ -137,7 +137,7 @@ struct TRINITY_DLL_DECL npc_cooshcooshAI : public ScriptedAI
         m_creature->setFaction(FACTION_FRIENDLY_CO);
     }
 
-    void Aggro(Unit *who) {}
+    void EnterCombat(Unit *who) {}
 
     void UpdateAI(const uint32 diff)
     {
@@ -277,7 +277,7 @@ struct TRINITY_DLL_DECL npc_kayra_longmaneAI : public npc_escortAI
         m_creature->setFaction(1660);
     }
 
-    void Aggro(Unit* who){}
+    void EnterCombat(Unit* who){}
 
     void JustSummoned(Creature *summoned)
     {

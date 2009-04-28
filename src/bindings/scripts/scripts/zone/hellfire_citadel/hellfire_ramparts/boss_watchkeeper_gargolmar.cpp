@@ -64,7 +64,7 @@ struct TRINITY_DLL_DECL boss_watchkeeper_gargolmarAI : public ScriptedAI
         YelledForHeal = false;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         switch(rand()%3)
         {

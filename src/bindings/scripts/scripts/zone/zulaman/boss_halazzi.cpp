@@ -112,7 +112,7 @@ struct TRINITY_DLL_DECL boss_halazziAI : public ScriptedAI
         EnterPhase(PHASE_LYNX);
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         if(pInstance)
             pInstance->SetData(DATA_HALAZZIEVENT, IN_PROGRESS);
@@ -353,7 +353,7 @@ struct TRINITY_DLL_DECL boss_spiritlynxAI : public ScriptedAI
             ScriptedAI::AttackStart(who);
     }
 
-    void Aggro(Unit *who) {/*DoZoneInCombat();*/}
+    void EnterCombat(Unit *who) {/*DoZoneInCombat();*/}
 
     void UpdateAI(const uint32 diff)
     {

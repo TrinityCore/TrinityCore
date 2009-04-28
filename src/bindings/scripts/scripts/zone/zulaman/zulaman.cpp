@@ -47,7 +47,7 @@ struct TRINITY_DLL_DECL npc_forest_frogAI : public ScriptedAI
 
     void Reset() { }
 
-    void Aggro(Unit *who) { }
+    void EnterCombat(Unit *who) { }
 
     void DoSpawnRandom()
     {
@@ -111,7 +111,7 @@ struct TRINITY_DLL_DECL npc_zulaman_hostageAI : public ScriptedAI
     bool IsLoot;
     uint64 PlayerGUID;
     void Reset() {}
-    void Aggro(Unit *who) {}
+    void EnterCombat(Unit *who) {}
     void JustDied(Unit *)
     {
         Player* player = Unit::GetPlayer(PlayerGUID);

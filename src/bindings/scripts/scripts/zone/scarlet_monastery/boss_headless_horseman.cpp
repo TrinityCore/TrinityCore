@@ -147,7 +147,7 @@ struct TRINITY_DLL_DECL mob_wisp_invisAI : public ScriptedAI
     uint32 spell;
     uint32 spell2;
     void Reset(){}
-    void Aggro(Unit *who){}
+    void EnterCombat(Unit *who){}
     void SetType(uint32 _type)
     {
         Creaturetype = _type;
@@ -218,7 +218,7 @@ struct TRINITY_DLL_DECL mob_headAI : public ScriptedAI
         laugh = 15000 + rand()%16 * 1000;
     }
 
-    void Aggro(Unit *who) {}
+    void EnterCombat(Unit *who) {}
     void SaySound(int32 textEntry, Unit *target = 0)
     {
         DoScriptText(textEntry, m_creature, target);
@@ -445,7 +445,7 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
         ++id;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         if(pInstance)
             pInstance->SetData(DATA_HORSEMAN_EVENT, IN_PROGRESS);
@@ -737,7 +737,7 @@ struct TRINITY_DLL_DECL mob_pulsing_pumpkinAI : public ScriptedAI
 		m_creature->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_STUNNED);
     }
 
-    void Aggro(Unit *who){}
+    void EnterCombat(Unit *who){}
 
     void SpellHit(Unit *caster, const SpellEntry *spell)
     {

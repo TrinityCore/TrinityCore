@@ -58,7 +58,7 @@ struct TRINITY_DLL_DECL npc_raliq_the_drunkAI : public ScriptedAI
         m_creature->setFaction(FACTION_FRIENDLY_RD);
     }
 
-    void Aggro(Unit *who) {}
+    void EnterCombat(Unit *who) {}
 
     void UpdateAI(const uint32 diff)
     {
@@ -121,7 +121,7 @@ struct TRINITY_DLL_DECL npc_salsalabimAI : public ScriptedAI
         m_creature->setFaction(FACTION_FRIENDLY_SA);
     }
 
-    void Aggro(Unit *who) {}
+    void EnterCombat(Unit *who) {}
 
     void DamageTaken(Unit *done_by, uint32 &damage)
     {
@@ -319,7 +319,7 @@ public:
         }
     }
 
-    void Aggro(Unit* who) {}
+    void EnterCombat(Unit* who) {}
 
     void MoveInLineOfSight(Unit *who)
     {
@@ -437,7 +437,7 @@ struct TRINITY_DLL_DECL npc_dirty_larryAI : public ScriptedAI
         }
     }
 
-    void Aggro(Unit* who){}
+    void EnterCombat(Unit* who){}
 
     void UpdateAI(const uint32 diff)
     {

@@ -44,7 +44,7 @@ struct PointMovement
 
 struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
 {
-    ScriptedAI(Creature* creature) : CreatureAI(creature), m_creature(creature), InCombat(false), IsFleeing(false) {}
+    ScriptedAI(Creature* creature) : CreatureAI(creature), m_creature(creature), IsFleeing(false) {}
     ~ScriptedAI() {}
 
     //*************
@@ -98,9 +98,6 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
     //Pointer to creature we are manipulating
     Creature* m_creature;
 
-    //Bool for if we are in combat or not
-    bool InCombat;
-
     //For fleeing
     bool IsFleeing;
 
@@ -112,7 +109,7 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
     void Reset() {}
 
     //Called at creature aggro either by MoveInLOS or Attack Start
-    virtual void Aggro(Unit*) = 0;
+    void EnterCombat(Unit*);
 
     //*************
     //AI Helper Functions
@@ -208,7 +205,7 @@ struct TRINITY_DLL_DECL NullCreatureAI : public ScriptedAI
     ~NullCreatureAI() {}
 
     void Reset() {}
-    void Aggro(Unit*) {}
+    void EnterCombat(Unit*) {}
     void MoveInLineOfSight(Unit *) {}
     void AttackStart(Unit *) {}
     void EnterEvadeMode() {}

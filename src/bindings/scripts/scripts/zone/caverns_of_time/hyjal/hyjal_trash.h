@@ -15,7 +15,7 @@ struct TRINITY_DLL_DECL hyjal_trashAI : public npc_escortAI
 
     //void EnterEvadeMode();
 
-    void Aggro(Unit *who);
+    void EnterCombat(Unit *who);
 
     void UpdateAI(const uint32 diff);
 

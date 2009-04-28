@@ -64,7 +64,7 @@ struct TRINITY_DLL_DECL boss_nothAI : public ScriptedAI
         Summon_Timer = 12000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         switch (rand()%3)
         {

@@ -75,7 +75,7 @@ struct TRINITY_DLL_DECL boss_omor_the_unscarredAI : public Scripted_NoMovementAI
         CanPullBack = false;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         switch(rand()%3)
         {

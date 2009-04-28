@@ -31,28 +31,20 @@ void npc_escortAI::AttackStart(Unit *who)
     if (IsBeingEscorted && !Defend)
         return;
 
-
-        if ( m_creature->Attack(who, true) )
-        {
-            m_creature->AddThreat(who, 0.0f);
-
-        if (!InCombat)
-        {
-            InCombat = true;
-
-            if (IsBeingEscorted)
-            {
-            //Store last position
-            m_creature->GetPosition(LastPos.x, LastPos.y, LastPos.z);
-
-             debug_log("TSCR: EscortAI has entered combat and stored last location.");
-            }
-
-            Aggro(who);
-        }
-
-        m_creature->GetMotionMaster()->MovementExpired();
+    if ( m_creature->Attack(who, true) )
+    {
         m_creature->GetMotionMaster()->MoveChase(who);
+    }
+}
+
+void npc_escortAI::EnterCombat(Unit *who)
+{
+    if (IsBeingEscorted)
+    {
+        //Store last position
+        m_creature->GetPosition(LastPos.x, LastPos.y, LastPos.z);
+
+        debug_log("TSCR: EscortAI has entered combat and stored last location.");
     }
 }
 
@@ -69,7 +61,6 @@ void npc_escortAI::MoveInLineOfSight(Unit *who)
 
 void npc_escortAI::JustRespawned()
 {
-    InCombat = false;
     IsBeingEscorted = false;
     IsOnHold = false;
 
@@ -81,8 +72,6 @@ void npc_escortAI::JustRespawned()
 
 void npc_escortAI::EnterEvadeMode()
 {
-    InCombat = false;
-
     m_creature->RemoveAllAuras();
     m_creature->DeleteThreatList();
     m_creature->CombatStop();
@@ -108,7 +97,7 @@ void npc_escortAI::EnterEvadeMode()
 void npc_escortAI::UpdateAI(const uint32 diff)
 {
     //Waypoint Updating
-    if (IsBeingEscorted && !InCombat && WaitTimer && !Returning)
+    if (IsBeingEscorted && !m_creature->isInCombat() && WaitTimer && !Returning)
     {
         if (WaitTimer <= diff)
     {
@@ -177,7 +166,7 @@ void npc_escortAI::UpdateAI(const uint32 diff)
     }
 
     //Check if player is within range
-    if (IsBeingEscorted && !InCombat && PlayerGUID)
+    if (IsBeingEscorted && !m_creature->isInCombat() && PlayerGUID)
     {
         if (PlayerTimer < diff)
     {
@@ -326,7 +315,7 @@ void npc_escortAI::SetRun(bool bRun)
 
 void npc_escortAI::Start(bool bAttack, bool bDefend, bool bRun, uint64 pGUID)
 {
-    if (InCombat)
+    if (m_creature->isInCombat())
     {
         debug_log("SD2 ERROR: EscortAI attempt to Start while in combat");
         return;

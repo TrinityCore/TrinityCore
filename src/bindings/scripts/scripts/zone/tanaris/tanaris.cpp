@@ -78,7 +78,7 @@ struct TRINITY_DLL_DECL mob_aquementasAI : public ScriptedAI
         }
     }
 
-    void Aggro(Unit* who)
+    void EnterCombat(Unit* who)
     {
         DoScriptText(AGGRO_YELL_AQUE, m_creature, who);
     }
@@ -202,7 +202,7 @@ struct TRINITY_DLL_DECL npc_custodian_of_timeAI : public npc_escortAI
         }
     }
 
-    void Aggro(Unit* who) { }
+    void EnterCombat(Unit* who) { }
     void Reset() { }
 
     void UpdateAI(const uint32 diff)
@@ -395,7 +395,7 @@ struct TRINITY_DLL_DECL npc_OOX17AI : public npc_escortAI
 
     void Reset(){}
 
-    void Aggro(Unit* who)
+    void EnterCombat(Unit* who)
     {
         switch (rand()%2)
         {

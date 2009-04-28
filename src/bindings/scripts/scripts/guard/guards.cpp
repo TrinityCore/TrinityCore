@@ -2513,7 +2513,7 @@ struct TRINITY_DLL_DECL guard_shattrath_aldorAI : public guardAI
         CanTeleport = false;
     }
 
-    void Aggro(Unit *who) {}
+    void EnterCombat(Unit *who) {}
 
     void UpdateAI(const uint32 diff)
     {
@@ -2709,7 +2709,7 @@ struct TRINITY_DLL_DECL guard_shattrath_scryerAI : public guardAI
         CanTeleport = false;
     }
 
-    void Aggro(Unit *who) {}
+    void EnterCombat(Unit *who) {}
 
     void UpdateAI(const uint32 diff)
     {

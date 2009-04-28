@@ -52,7 +52,7 @@ struct TRINITY_DLL_DECL boss_ayamissAI : public ScriptedAI
         phase=1;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         pTarget = who;
     }

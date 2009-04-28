@@ -60,7 +60,7 @@ struct TRINITY_DLL_DECL boss_taldaramAI : public ScriptedAI
     boss_taldaramAI(Creature *c) : ScriptedAI(c) {}
     
     void Reset() {}
-    void Aggro(Unit* who) 
+    void EnterCombat(Unit* who) 
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }

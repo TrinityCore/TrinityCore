@@ -98,7 +98,7 @@ struct TRINITY_DLL_DECL boss_vaelAI : public ScriptedAI
         DoScriptText(SAY_KILLTARGET, m_creature, victim);
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         DoCast(m_creature,SPELL_ESSENCEOFTHERED);
         DoZoneInCombat();

@@ -64,7 +64,7 @@ struct TRINITY_DLL_DECL npc_ragged_johnAI : public ScriptedAI
         ScriptedAI::MoveInLineOfSight(who);
     }
 
-    void Aggro(Unit *who) {}
+    void EnterCombat(Unit *who) {}
 };
 
 CreatureAI* GetAI_npc_ragged_john(Creature *_Creature)
