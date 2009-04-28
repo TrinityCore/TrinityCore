@@ -32,7 +32,7 @@ enum Quotes
     YELL_TAKEOFF    =       -1580040,
     YELL_BERSERK    =       -1580041,
     YELL_DEATH      =       -1580042,
-    YELL_KALECGOS   =       -1580043 //after felmyst's death spawned and say this 
+    YELL_KALECGOS   =       -1580043 //after felmyst's death spawned and say this
 };
 
 enum Spells
@@ -41,7 +41,7 @@ enum Spells
     AURA_SUNWELL_RADIANCE       =   45769,
     AURA_NOXIOUS_FUMES          =   47002,
 
-    //Land phase                    
+    //Land phase
     SPELL_CLEAVE                =   19983,
     SPELL_CORROSION             =   45866,
     SPELL_GAS_NOVA              =   45855,
@@ -290,7 +290,7 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
         {
         case 0:
             //m_creature->AttackStop();
-			error_log("prevent fly phase");
+            error_log("prevent fly phase");
             m_creature->GetMotionMaster()->Clear(false);
             m_creature->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
             m_creature->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING + MOVEMENTFLAG_ONTRANSPORT);
@@ -299,15 +299,15 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
             Timer[EVENT_FLIGHT_SEQUENCE] = 2000;
             break;
         case 1:
-			error_log("Move to Fly point");
+            error_log("Move to Fly point");
             m_creature->GetMotionMaster()->MovePoint(0, m_creature->GetPositionX()+1, m_creature->GetPositionY(), m_creature->GetPositionZ()+10);
             Timer[EVENT_FLIGHT_SEQUENCE] = 0;
             break;
-		case 2:{
-			error_log("Summon Vapor case 2");
-			Unit* target;
-			target = SelectUnit(SELECT_TARGET_RANDOM, 0, 150, true);
-			if(!target) target = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_PLAYER_GUID));
+        case 2:{
+            error_log("Summon Vapor case 2");
+            Unit* target;
+            target = SelectUnit(SELECT_TARGET_RANDOM, 0, 150, true);
+            if(!target) target = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_PLAYER_GUID));
             if(target)
             {
                 Creature* Vapor = m_creature->SummonCreature(MOB_VAPOR, target->GetPositionX()-5+rand()%10, target->GetPositionY()-5+rand()%10, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 9000);
@@ -320,15 +320,15 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
                 }
             }else EnterEvadeMode();
             Timer[EVENT_FLIGHT_SEQUENCE] = 10000;
-			break;}
-		case 3: {
+            break;}
+        case 3: {
             DespawnSummons(MOB_VAPOR_TRAIL);
-			error_log("Summon Vapor case3");
+            error_log("Summon Vapor case3");
             //m_creature->CastSpell(m_creature, SPELL_VAPOR_SELECT); need core support
-			Unit* target;
-			target = SelectUnit(SELECT_TARGET_RANDOM, 0, 150, true);
-			if(!target) target = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_PLAYER_GUID));
-			if(target)
+            Unit* target;
+            target = SelectUnit(SELECT_TARGET_RANDOM, 0, 150, true);
+            if(!target) target = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_PLAYER_GUID));
+            if(target)
             {
                 //target->CastSpell(target, SPELL_VAPOR_SUMMON, true); need core support
                 Creature* Vapor = m_creature->SummonCreature(MOB_VAPOR, target->GetPositionX()-5+rand()%10, target->GetPositionY()-5+rand()%10, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 9000);
@@ -341,16 +341,16 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
                 }
             }else EnterEvadeMode();
             Timer[EVENT_FLIGHT_SEQUENCE] = 10000;
-			break;}
+            break;}
         case 4:
             DespawnSummons(MOB_VAPOR_TRAIL);
             Timer[EVENT_FLIGHT_SEQUENCE] = 1;
             break;
-		case 5:{
-			Unit* target;
-			target = SelectUnit(SELECT_TARGET_RANDOM, 0, 150, true);
-			if(!target) target = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_PLAYER_GUID));
-			if(target)
+        case 5:{
+            Unit* target;
+            target = SelectUnit(SELECT_TARGET_RANDOM, 0, 150, true);
+            if(!target) target = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_PLAYER_GUID));
+            if(target)
             {
                 BreathX = target->GetPositionX();
                 BreathY = target->GetPositionY();
@@ -359,7 +359,7 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
                 m_creature->GetMotionMaster()->MovePoint(0, x, y, z+10);
             }else EnterEvadeMode();
             Timer[EVENT_FLIGHT_SEQUENCE] = 0;
-			break;}
+            break;}
         case 6:
             m_creature->SetOrientation(m_creature->GetAngle(BreathX, BreathY));
             m_creature->StopMoving();

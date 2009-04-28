@@ -38,6 +38,6 @@
 #define DATA_GATE_5                 26
 
 /*** Misc ***/
-#define DATA_PLAYER_GUID			27
+#define DATA_PLAYER_GUID            27
 #endif
 

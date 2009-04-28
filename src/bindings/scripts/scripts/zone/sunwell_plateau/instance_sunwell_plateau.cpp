@@ -4,7 +4,7 @@
 
 /* ScriptData
 SDName: Instance_Sunwell_Plateau
-SD%Complete: 20 
+SD%Complete: 20
 SDComment: VERIFY SCRIPT, rename Gates
 SDCategory: Sunwell_Plateau
 EndScriptData */
@@ -15,8 +15,8 @@ EndScriptData */
 #define ENCOUNTERS 6
 
 enum GoState{
-CLOSE	= 1,
-OPEN	= 0
+CLOSE    = 1,
+OPEN    = 0
 };
 
 /* Sunwell Plateau:
@@ -108,8 +108,8 @@ struct TRINITY_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
         if (!players.isEmpty())
         {
             for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-			{
-				Player* plr = itr->getSource();
+            {
+                Player* plr = itr->getSource();
                 if (plr && !plr->HasAura(45839,0))
                         return plr;
             }
@@ -198,11 +198,11 @@ struct TRINITY_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
             case DATA_KILJAEDEN:            return KilJaeden;           break;
             case DATA_KILJAEDEN_CONTROLLER: return KilJaedenController; break;
             case DATA_ANVEENA:              return Anveena;             break;
-            case DATA_KALECGOS_KJ:          return KalecgosKJ;          break; 
-			case DATA_PLAYER_GUID:			
-				Player* Target = GetPlayerInMap();
-				return Target->GetGUID();
-				break;
+            case DATA_KALECGOS_KJ:          return KalecgosKJ;          break;
+            case DATA_PLAYER_GUID:
+                Player* Target = GetPlayerInMap();
+                return Target->GetGUID();
+                break;
         }
 
         return 0;
@@ -214,26 +214,26 @@ struct TRINITY_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
         {
             case DATA_KALECGOS_EVENT:      Encounters[0] = data; break;
             case DATA_BRUTALLUS_EVENT:     Encounters[1] = data; break;
-            case DATA_FELMYST_EVENT:       
-                if(data == DONE)                
-                    HandleGameObject(FireBarrier, 1);     
+            case DATA_FELMYST_EVENT:
+                if(data == DONE)
+                    HandleGameObject(FireBarrier, 1);
                 Encounters[2] = data; break;
             case DATA_EREDAR_TWINS_EVENT:  Encounters[3] = data; break;
-            case DATA_MURU_EVENT:          
-				switch(data){
-					case DONE:
-					    HandleGameObject(Gate[4], OPEN);
-				        HandleGameObject(Gate[3], OPEN);
-					    break;
-					case IN_PROGRESS:
-						HandleGameObject(Gate[4], CLOSE);
-						HandleGameObject(Gate[3], CLOSE);
-						break;
-					case NOT_STARTED:
-						HandleGameObject(Gate[4], CLOSE);
-						HandleGameObject(Gate[3], OPEN);
-						break;
-				}
+            case DATA_MURU_EVENT:
+                switch(data){
+                    case DONE:
+                        HandleGameObject(Gate[4], OPEN);
+                        HandleGameObject(Gate[3], OPEN);
+                        break;
+                    case IN_PROGRESS:
+                        HandleGameObject(Gate[4], CLOSE);
+                        HandleGameObject(Gate[3], CLOSE);
+                        break;
+                    case NOT_STARTED:
+                        HandleGameObject(Gate[4], CLOSE);
+                        HandleGameObject(Gate[3], OPEN);
+                        break;
+                }
                 Encounters[4] = data; break;
             case DATA_KILJAEDEN_EVENT:     Encounters[5] = data; break;
         }
