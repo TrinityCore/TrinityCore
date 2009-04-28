@@ -36,7 +36,7 @@ Totem::Totem(SummonPropertiesEntry const *properties, Unit *owner) : TempSummon(
 void Totem::Update( uint32 time )
 {
     Unit *owner = GetOwner();
-    if (!owner || !owner->isAlive() || !this->isAlive())
+    if (!owner || !owner->isAlive() || !isAlive())
     {
         UnSummon();                                         // remove self
         return;
@@ -117,7 +117,7 @@ void Totem::UnSummon()
 
     CombatStop();
     RemoveAurasDueToSpell(GetSpell());
-    Unit *owner = this->GetOwner();
+    Unit *owner = GetOwner();
     if (owner)
     {
         // clear owenr's totem slot
@@ -156,10 +156,7 @@ void Totem::UnSummon()
 
 Unit *Totem::GetOwner()
 {
-    uint64 ownerid = GetOwnerGUID();
-    if(!ownerid)
-        return NULL;
-    return ObjectAccessor::GetUnit(*this, ownerid);
+    return GetSummoner();
 }
 
 bool Totem::IsImmunedToSpellEffect(SpellEntry const* spellInfo, uint32 index) const
