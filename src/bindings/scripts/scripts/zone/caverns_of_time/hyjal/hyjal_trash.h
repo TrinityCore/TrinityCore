@@ -11,12 +11,6 @@ struct TRINITY_DLL_DECL hyjal_trashAI : public npc_escortAI
 {
     hyjal_trashAI(Creature *c);
 
-    void Reset();
-
-    //void EnterEvadeMode();
-
-    void EnterCombat(Unit *who);
-
     void UpdateAI(const uint32 diff);
 
     void JustDied(Unit* killer);
