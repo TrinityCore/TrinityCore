@@ -793,10 +793,6 @@ struct TRINITY_DLL_DECL mob_toxic_sporebatAI : public ScriptedAI
 
     void UpdateAI (const uint32 diff)
     {
-
-        /*if(!m_creature->isInCombat())
-            m_creature->SetInCombatState(false);*/
-
         //Random movement
         if (movement_timer < diff)
         {

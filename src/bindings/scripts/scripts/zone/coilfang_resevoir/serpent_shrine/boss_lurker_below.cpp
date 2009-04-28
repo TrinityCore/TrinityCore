@@ -357,7 +357,7 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
              }else PhaseTimer-=diff;
 
              if(!m_creature->isInCombat())
-                 m_creature->SetInCombatState(false);
+                 DoZoneInCombat();
 
              if(!Spawned)
              {

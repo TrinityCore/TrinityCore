@@ -206,6 +206,9 @@ class TRINITY_DLL_SPEC CreatureAI : public UnitAI
         // Called for reaction at stopping attack at no attackers or targets
         virtual void EnterEvadeMode();
 
+        // Called for reaction at enter to combat if not in combat yet (enemy can be NULL)
+        virtual void EnterCombat(Unit* /*enemy*/) {}
+
         // Called at any Damage from any attacker (before damage apply)
         // Note: it for recalculation damage or special reaction at damage
         // for attack reaction use AttackedBy called for not DOT damage in Unit::DealDamage also
