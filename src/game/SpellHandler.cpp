@@ -341,11 +341,6 @@ void WorldSession::HandleCancelCastOpcode(WorldPacket& recvPacket)
 {
     CHECK_PACKET_SIZE(recvPacket,5);
 
-    // ignore for remote control state (for player case)
-    Unit* mover = _player->m_mover;
-    if(mover != _player && mover->GetTypeId()==TYPEID_PLAYER)
-        return;
-
     // increments with every CANCEL packet, don't use for now
     uint8 counter;
     uint32 spellId;
@@ -356,17 +351,13 @@ void WorldSession::HandleCancelCastOpcode(WorldPacket& recvPacket)
     if(spellId==26679)
         return;
 
-    if(mover->IsNonMeleeSpellCasted(false))
-        mover->InterruptNonMeleeSpells(false,spellId);
+    if(_player->IsNonMeleeSpellCasted(false))
+        _player->InterruptNonMeleeSpells(false,spellId);
 }
 
 void WorldSession::HandleCancelAuraOpcode( WorldPacket& recvPacket)
 {
     CHECK_PACKET_SIZE(recvPacket,4);
-
-    // ignore for remote control state
-    if(_player->m_mover != _player)
-        return;
 
     uint32 spellId;
     recvPacket >> spellId;
@@ -395,10 +386,6 @@ void WorldSession::HandleCancelAuraOpcode( WorldPacket& recvPacket)
 void WorldSession::HandlePetCancelAuraOpcode( WorldPacket& recvPacket)
 {
     CHECK_PACKET_SIZE(recvPacket, 8+4);
-
-    // ignore for remote control state
-    if(_player->m_mover != _player)
-        return;
 
     uint64 guid;
     uint32 spellId;
@@ -447,7 +434,7 @@ void WorldSession::HandleCancelAutoRepeatSpellOpcode( WorldPacket& /*recvPacket*
 {
     // may be better send SMSG_CANCEL_AUTO_REPEAT?
     // cancel and prepare for deleting
-    _player->m_mover->InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
+    _player->InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
 }
 
 /// \todo Complete HandleCancelChanneling function
