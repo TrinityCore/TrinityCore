@@ -9679,7 +9679,7 @@ void Unit::SetInCombatWith(Unit* enemy)
     Unit* eOwner = enemy->GetCharmerOrOwnerOrSelf();
     if(eOwner->IsPvP())
     {
-        SetInCombatState(true);
+        SetInCombatState(true,enemy);
         return;
     }
 
@@ -9689,11 +9689,11 @@ void Unit::SetInCombatWith(Unit* enemy)
         Unit const* myOwner = GetCharmerOrOwnerOrSelf();
         if(((Player const*)eOwner)->duel->opponent == myOwner)
         {
-            SetInCombatState(true);
+            SetInCombatState(true,enemy);
             return;
         }
     }
-    SetInCombatState(false);
+    SetInCombatState(false,enemy);
 }
 
 void Unit::CombatStart(Unit* target)
@@ -9705,6 +9705,7 @@ void Unit::CombatStart(Unit* target)
         && !((Creature*)target)->HasReactState(REACT_PASSIVE) && ((Creature*)target)->IsAIEnabled)
     {
         ((Creature*)target)->AI()->AttackStart(this);
+        ((Creature*)target)->AI()->EnterCombat(this);
         if(((Creature*)target)->GetFormation())
         {
             ((Creature*)target)->GetFormation()->MemberAttackStart((Creature*)target, this);
@@ -9729,7 +9730,7 @@ void Unit::CombatStart(Unit* target)
     }
 }
 
-void Unit::SetInCombatState(bool PvP)
+void Unit::SetInCombatState(bool PvP, Unit* enemy)
 {
     // only alive units can be in combat
     if(!isAlive())

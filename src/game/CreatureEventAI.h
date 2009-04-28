@@ -263,11 +263,11 @@ class TRINITY_DLL_SPEC CreatureEventAI : public CreatureAI
         void JustRespawned();
         void Reset();
         void JustReachedHome();
+        void EnterCombat(Unit *enemy);
         void EnterEvadeMode();
         void JustDied(Unit* killer);
         void KilledUnit(Unit* victim);
         void JustSummoned(Creature* pUnit);
-        void Aggro(Unit *who);
         void AttackStart(Unit *who);
         void MoveInLineOfSight(Unit *who);
         void SpellHit(Unit* pUnit, const SpellEntry* pSpell);
