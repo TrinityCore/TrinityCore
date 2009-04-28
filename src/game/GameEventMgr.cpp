@@ -1631,7 +1631,7 @@ TRINITY_DLL_SPEC bool IsHolidayActive( HolidayIds id )
     GameEventMgr::ActiveEvents const& ae = gameeventmgr.GetActiveEventList();
 
     for(GameEventMgr::ActiveEvents::const_iterator itr = ae.begin(); itr != ae.end(); ++itr)
-        if(events[id].holiday_id==id)
+        if(events[*itr].holiday_id==id)
             return true;
 
     return false;
