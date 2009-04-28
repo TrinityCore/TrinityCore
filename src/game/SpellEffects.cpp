@@ -6468,6 +6468,8 @@ void Spell::SummonGuardian(uint32 entry, SummonPropertiesEntry const *properties
             ((Guardian*)summon)->InitStatsForLevel(level);
 
         summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
+
+        summon->GetMotionMaster()->MoveTargetedHome();
     }
 }
 
