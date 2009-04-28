@@ -625,7 +625,7 @@ void CreatureEventAI::ProcessAction(uint16 type, uint32 param1, uint32 param2, u
             }
 
             //Allowed to cast only if not casting (unless we interrupt ourself) or if spell is triggered
-            bool canCast = !(caster->IsNonMeleeSpellCasted(false) && !(param3 & CAST_TRIGGERED | CAST_INTURRUPT_PREVIOUS));
+            bool canCast = !caster->IsNonMeleeSpellCasted(false) || (param3 & (CAST_TRIGGERED | CAST_INTURRUPT_PREVIOUS));
 
             // If cast flag CAST_AURA_NOT_PRESENT is active, check if target already has aura on them
             if(param3 & CAST_AURA_NOT_PRESENT)
@@ -1143,7 +1143,7 @@ void CreatureEventAI::JustSummoned(Creature* pUnit)
     }
 }
 
-void CreatureEventAI::Aggro(Unit *who)
+void CreatureEventAI::EnterCombat(Unit *enemy)
 {
     //Check for on combat start events
     if (!bEmptyList)
@@ -1154,7 +1154,7 @@ void CreatureEventAI::Aggro(Unit *who)
             {
                 case EVENT_T_AGGRO:
                     (*i).Enabled = true;
-                    ProcessEvent(*i, who);
+                    ProcessEvent(*i, enemy);
                     break;
                     //Reset all in combat timers
                 case EVENT_T_TIMER:
@@ -1189,13 +1189,8 @@ void CreatureEventAI::AttackStart(Unit *who)
     if (!who)
         return;
 
-    bool inCombat = m_creature->isInCombat();
-
     if (m_creature->Attack(who, MeleeEnabled))
     {
-        if (!inCombat)
-            Aggro(who);
-
         if (CombatMovementEnabled)
         {
             m_creature->GetMotionMaster()->MoveChase(who, AttackDistance, AttackAngle);
