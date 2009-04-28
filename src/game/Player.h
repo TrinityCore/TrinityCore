@@ -458,14 +458,16 @@ enum ActivateTaxiReplies
 enum LootType
 {
     LOOT_CORPSE                 = 1,
-    LOOT_SKINNING               = 2,
+    LOOT_PICKPOCKETING          = 2,
     LOOT_FISHING                = 3,
-    LOOT_PICKPOCKETING          = 4,                        // unsupported by client, sending LOOT_SKINNING instead
-    LOOT_DISENCHANTING          = 5,                        // unsupported by client, sending LOOT_SKINNING instead
-    LOOT_PROSPECTING            = 6,                        // unsupported by client, sending LOOT_SKINNING instead
-    LOOT_INSIGNIA               = 7,                        // unsupported by client, sending LOOT_SKINNING instead
-    LOOT_FISHINGHOLE            = 8,                        // unsupported by client, sending LOOT_FISHING instead
-    LOOT_MILLING                = 9                         // unsupported by client, sending LOOT_SKINNING instead
+    LOOT_DISENCHANTING          = 4,
+                                                            // ignored always by client
+    LOOT_SKINNING               = 6,
+    LOOT_PROSPECTING            = 7,
+    LOOT_MILLING                = 8,
+
+    LOOT_FISHINGHOLE            = 20,                       // unsupported by client, sending LOOT_FISHING instead
+    LOOT_INSIGNIA               = 21                        // unsupported by client, sending LOOT_CORPSE instead
 };
 
 enum MirrorTimerType

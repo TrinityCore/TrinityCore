@@ -7215,12 +7215,6 @@ void Player::RemovedInsignia(Player* looterPlr)
     looterPlr->SendLoot(bones->GetGUID(), LOOT_INSIGNIA);
 }
 
-/*Loot type MUST be
-1-corpse, go
-2-skinning
-3-Fishing
-*/
-
 void Player::SendLootRelease( uint64 guid )
 {
     WorldPacket data( SMSG_LOOT_RELEASE_RESPONSE, (8+1) );
@@ -7252,7 +7246,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
 
         loot = &go->loot;
 
-        if(go->getLootState() == GO_READY)
+        if (go->getLootState() == GO_READY)
         {
             uint32 lootid =  go->GetLootId();
 
@@ -7266,14 +7260,14 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
                             return;
                         }
 
-            if(lootid)
+            if (lootid)
             {
                 sLog.outDebug("       if(lootid)");
                 loot->clear();
                 loot->FillLoot(lootid, LootTemplates_Gameobject, this, false);
             }
 
-            if(loot_type == LOOT_FISHING)
+            if (loot_type == LOOT_FISHING)
                 go->getFishLoot(loot,this);
 
             go->SetLootState(GO_ACTIVATED);
@@ -7289,50 +7283,28 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
             return;
         }
 
-        if(loot_type == LOOT_DISENCHANTING)
+        loot = &item->loot;
+
+        if (!item->m_lootGenerated)
         {
-            loot = &item->loot;
+            item->m_lootGenerated = true;
+            loot->clear();
 
-            if(!item->m_lootGenerated)
+            switch(loot_type)
             {
-                item->m_lootGenerated = true;
-                loot->clear();
-                loot->FillLoot(item->GetProto()->DisenchantID, LootTemplates_Disenchant, this,true);
-            }
-        }
-        else if(loot_type == LOOT_PROSPECTING)
-        {
-            loot = &item->loot;
-
-            if(!item->m_lootGenerated)
-            {
-                item->m_lootGenerated = true;
-                loot->clear();
-                loot->FillLoot(item->GetEntry(), LootTemplates_Prospecting, this,true);
-            }
-        }
-        else if(loot_type == LOOT_MILLING)
-        {
-            loot = &item->loot;
-
-            if(!item->m_lootGenerated)
-            {
-                item->m_lootGenerated = true;
-                loot->clear();
-                loot->FillLoot(item->GetEntry(), LootTemplates_Milling, this,true);
-            }
-        }
-        else
-        {
-            loot = &item->loot;
-
-            if(!item->m_lootGenerated)
-            {
-                item->m_lootGenerated = true;
-                loot->clear();
-                loot->FillLoot(item->GetEntry(), LootTemplates_Item, this,true);
-
-                loot->generateMoneyLoot(item->GetProto()->MinMoneyLoot,item->GetProto()->MaxMoneyLoot);
+                case LOOT_DISENCHANTING:
+                    loot->FillLoot(item->GetProto()->DisenchantID, LootTemplates_Disenchant, this,true);
+                    break;
+                case LOOT_PROSPECTING:
+                    loot->FillLoot(item->GetEntry(), LootTemplates_Prospecting, this,true);
+                    break;
+                case LOOT_MILLING:
+                    loot->FillLoot(item->GetEntry(), LootTemplates_Milling, this,true);
+                    break;
+                default:
+                    loot->FillLoot(item->GetEntry(), LootTemplates_Item, this,true);
+                    loot->generateMoneyLoot(item->GetProto()->MinMoneyLoot,item->GetProto()->MaxMoneyLoot);
+                    break;
             }
         }
     }
@@ -7374,7 +7346,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
             return;
         }
 
-        if(loot_type == LOOT_PICKPOCKETING && IsFriendlyTo(creature))
+        if (loot_type == LOOT_PICKPOCKETING && IsFriendlyTo(creature))
         {
             SendLootRelease(guid);
             return;
@@ -7382,9 +7354,9 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
 
         loot   = &creature->loot;
 
-        if(loot_type == LOOT_PICKPOCKETING)
+        if (loot_type == LOOT_PICKPOCKETING)
         {
-            if ( !creature->lootForPickPocketed )
+            if (!creature->lootForPickPocketed)
             {
                 creature->lootForPickPocketed = true;
                 loot->clear();
@@ -7414,7 +7386,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
                 loot->clear();
             }
 
-            if(!creature->lootForBody)
+            if (!creature->lootForBody)
             {
                 creature->lootForBody = true;
                 loot->clear();
@@ -7424,7 +7396,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
 
                 loot->generateMoneyLoot(creature->GetCreatureInfo()->mingold,creature->GetCreatureInfo()->maxgold);
 
-                if(Group* group = recipient->GetGroup())
+                if (Group* group = recipient->GetGroup())
                 {
                     group->UpdateLooterGuid(creature,true);
 
@@ -7457,13 +7429,13 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
             {
                 if(Group* group = GetGroup())
                 {
-                    if( group == recipient->GetGroup() )
+                    if (group == recipient->GetGroup())
                     {
-                        if(group->GetLootMethod() == FREE_FOR_ALL)
+                        if (group->GetLootMethod() == FREE_FOR_ALL)
                             permission = ALL_PERMISSION;
-                        else if(group->GetLooterGuid() == GetGUID())
+                        else if (group->GetLooterGuid() == GetGUID())
                         {
-                            if(group->GetLootMethod() == MASTER_LOOT)
+                            if (group->GetLootMethod() == MASTER_LOOT)
                                 permission = MASTER_PERMISSION;
                             else
                                 permission = ALL_PERMISSION;
@@ -7474,7 +7446,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
                     else
                         permission = NONE_PERMISSION;
                 }
-                else if(recipient == this)
+                else if (recipient == this)
                     permission = ALL_PERMISSION;
                 else
                     permission = NONE_PERMISSION;
@@ -7484,12 +7456,13 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
 
     SetLootGUID(guid);
 
-    // LOOT_PICKPOCKETING, LOOT_PROSPECTING, LOOT_DISENCHANTING, LOOT_INSIGNIA and LOOT_MILLING unsupported by client, sending LOOT_SKINNING instead
-    if(loot_type == LOOT_PICKPOCKETING || loot_type == LOOT_DISENCHANTING || loot_type == LOOT_PROSPECTING || loot_type == LOOT_INSIGNIA || loot_type == LOOT_MILLING)
-        loot_type = LOOT_SKINNING;
-
-    if(loot_type == LOOT_FISHINGHOLE)
-        loot_type = LOOT_FISHING;
+    // LOOT_INSIGNIA and LOOT_FISHINGHOLE unsupported by client
+    switch(loot_type)
+    {
+        case LOOT_INSIGNIA:    loot_type = LOOT_SKINNING; break;
+        case LOOT_FISHINGHOLE: loot_type = LOOT_FISHING; break;
+        default: break;
+    }
 
     WorldPacket data(SMSG_LOOT_RESPONSE, (9+50));           // we guess size
 
@@ -7503,7 +7476,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
     if (permission != NONE_PERMISSION)
         loot->AddLooter(GetGUID());
 
-    if ( loot_type == LOOT_CORPSE && !IS_ITEM_GUID(guid) )
+    if (loot_type == LOOT_CORPSE && !IS_ITEM_GUID(guid))
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_LOOTING);
 }
 
