@@ -44,7 +44,7 @@ struct TRINITY_DLL_DECL boss_kurinnaxxAI : public ScriptedAI
         SANDTRAP_Timer = 30000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         pTarget = who;
     }

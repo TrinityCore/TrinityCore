@@ -122,7 +122,7 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
         m_creature->setActive(false);
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         if(pInstance)
             pInstance->SetData(DATA_ALAREVENT, IN_PROGRESS);
@@ -435,7 +435,7 @@ struct TRINITY_DLL_DECL mob_ember_of_alarAI : public ScriptedAI
     bool toDie;
 
     void Reset() {toDie = false;}
-    void Aggro(Unit *who) {DoZoneInCombat();}
+    void EnterCombat(Unit *who) {DoZoneInCombat();}
     void EnterEvadeMode() {m_creature->setDeathState(JUST_DIED);}
 
     void DamageTaken(Unit* pKiller, uint32 &damage)
@@ -486,7 +486,7 @@ struct TRINITY_DLL_DECL mob_flame_patch_alarAI : public ScriptedAI
 {
     mob_flame_patch_alarAI(Creature *c) : ScriptedAI(c) {}
     void Reset() {}
-    void Aggro(Unit *who) {}
+    void EnterCombat(Unit *who) {}
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
     void UpdateAI(const uint32 diff) {}

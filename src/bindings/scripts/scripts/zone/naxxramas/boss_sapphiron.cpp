@@ -66,7 +66,7 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public ScriptedAI
         m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 

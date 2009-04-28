@@ -100,7 +100,7 @@ struct TRINITY_DLL_DECL boss_baron_rivendareAI : public ScriptedAI
         SummonSkeletons_Timer = 34000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         if (pInstance)
             pInstance->SetData(TYPE_BARON,IN_PROGRESS);

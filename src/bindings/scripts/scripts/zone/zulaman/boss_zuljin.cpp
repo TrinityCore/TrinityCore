@@ -211,7 +211,7 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
         //m_creature->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE);
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         if(pInstance)
             pInstance->SetData(DATA_ZULJINEVENT, IN_PROGRESS);
@@ -577,7 +577,7 @@ struct TRINITY_DLL_DECL feather_vortexAI : public ScriptedAI
 
     void Reset() {}
 
-    void Aggro(Unit* target) {}
+    void EnterCombat(Unit* target) {}
 
     void SpellHit(Unit *caster, const SpellEntry *spell)
     {

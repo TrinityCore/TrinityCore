@@ -64,7 +64,7 @@ struct TRINITY_DLL_DECL mob_doom_blossomAI : public ScriptedAI
         TeronGUID = 0;
     }
 
-    void Aggro(Unit *who) { }
+    void EnterCombat(Unit *who) { }
     void AttackStart(Unit* who) { }
     void MoveInLineOfSight(Unit* who) { }
 
@@ -92,7 +92,7 @@ struct TRINITY_DLL_DECL mob_doom_blossomAI : public ScriptedAI
             CheckTeronTimer = 5000;
         }else CheckTeronTimer -= diff;
 
-        if(ShadowBoltTimer < diff && InCombat)
+        if(ShadowBoltTimer < diff && m_creature->isInCombat())
         {
             DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_SHADOWBOLT);
             ShadowBoltTimer = 10000;
@@ -134,7 +134,7 @@ struct TRINITY_DLL_DECL mob_shadowy_constructAI : public ScriptedAI
         CheckTeronTimer = 5000;
     }
 
-    void Aggro(Unit* who) { }
+    void EnterCombat(Unit* who) { }
 
     void MoveInLineOfSight(Unit *who)
     {
@@ -237,7 +237,7 @@ struct TRINITY_DLL_DECL boss_teron_gorefiendAI : public ScriptedAI
         Intro = false;
     }
 
-    void Aggro(Unit *who) {}
+    void EnterCombat(Unit *who) {}
 
     void MoveInLineOfSight(Unit *who)
     {
@@ -255,7 +255,7 @@ struct TRINITY_DLL_DECL boss_teron_gorefiendAI : public ScriptedAI
                 m_creature->AddThreat(who, 1.0f);
             }
 
-            if(!InCombat && !Intro && m_creature->IsWithinDistInMap(who, 60.0f) && (who->GetTypeId() == TYPEID_PLAYER))
+            if(!m_creature->isInCombat() && !Intro && m_creature->IsWithinDistInMap(who, 60.0f) && (who->GetTypeId() == TYPEID_PLAYER))
             {
                 if(pInstance)
                     pInstance->SetData(DATA_TERONGOREFIENDEVENT, IN_PROGRESS);
@@ -427,7 +427,7 @@ struct TRINITY_DLL_DECL boss_teron_gorefiendAI : public ScriptedAI
                     DoomBlossom->setFaction(m_creature->getFaction());
                     DoomBlossom->AddThreat(target, 1.0f);
                     ((mob_doom_blossomAI*)DoomBlossom->AI())->SetTeronGUID(m_creature->GetGUID());
-                    ((mob_doom_blossomAI*)DoomBlossom->AI())->InCombat = true;
+                    target->CombatStart(DoomBlossom);
                     SetThreatList(DoomBlossom);
                     SummonDoomBlossomTimer = 35000;
                 }

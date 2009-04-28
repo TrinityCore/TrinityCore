@@ -55,7 +55,7 @@ struct TRINITY_DLL_DECL boss_postmaster_malownAI : public ScriptedAI
         HasYelled = false;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 

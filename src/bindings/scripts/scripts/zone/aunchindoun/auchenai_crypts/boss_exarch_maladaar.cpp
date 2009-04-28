@@ -51,7 +51,7 @@ struct TRINITY_DLL_DECL mob_stolen_soulAI : public ScriptedAI
         Class_Timer = 1000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     { }
 
     void SetMyClass(uint8 myclass)
@@ -184,7 +184,7 @@ struct TRINITY_DLL_DECL boss_exarch_maladaarAI : public ScriptedAI
     }
 
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         switch (rand()%3)
         {
@@ -312,7 +312,7 @@ struct TRINITY_DLL_DECL mob_avatar_of_martyredAI : public ScriptedAI
         Mortal_Strike_timer = 10000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 

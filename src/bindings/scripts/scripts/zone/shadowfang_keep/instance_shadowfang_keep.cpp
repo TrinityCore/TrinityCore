@@ -112,20 +112,6 @@ struct TRINITY_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
         }
     }
 
-    void HandleGameObject(uint64 guid, uint32 state)
-    {
-        Player *player = GetPlayerInMap();
-
-        if (!player || !guid)
-        {
-            debug_log("TSCR: Instance Shadowfang Keep: HandleGameObject fail");
-            return;
-        }
-
-        if (GameObject *go = GameObject::GetGameObject(*player,guid))
-            go->SetGoState(state);
-    }
-
     void DoSpeech()
     {
         Player* pPlayer = GetPlayerInMap();

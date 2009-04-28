@@ -55,7 +55,7 @@ struct TRINITY_DLL_DECL boss_amnennar_the_coldbringerAI : public ScriptedAI
         Hp = false;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }

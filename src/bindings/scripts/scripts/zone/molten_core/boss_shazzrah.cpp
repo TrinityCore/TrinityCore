@@ -47,7 +47,7 @@ struct TRINITY_DLL_DECL boss_shazzrahAI : public ScriptedAI
         Blink_Timer = 30000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 

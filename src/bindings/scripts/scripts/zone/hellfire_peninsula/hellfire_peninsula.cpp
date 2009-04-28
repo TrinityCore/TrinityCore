@@ -68,7 +68,7 @@ struct TRINITY_DLL_DECL npc_aeranasAI : public ScriptedAI
         DoScriptText(SAY_SUMMON, m_creature);
     }
 
-    void Aggro(Unit *who) {}
+    void EnterCombat(Unit *who) {}
 
     void UpdateAI(const uint32 diff)
     {
@@ -316,7 +316,7 @@ struct TRINITY_DLL_DECL npc_wounded_blood_elfAI : public npc_escortAI
             m_creature->setFaction(1604);
     }
 
-    void Aggro(Unit* who)
+    void EnterCombat(Unit* who)
     {
         if (IsBeingEscorted)
             DoScriptText(SAY_ELF_AGGRO, m_creature);

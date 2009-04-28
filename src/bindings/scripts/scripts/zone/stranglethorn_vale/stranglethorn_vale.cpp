@@ -66,7 +66,7 @@ struct TRINITY_DLL_DECL mob_yennikuAI : public ScriptedAI
         return;
     }
 
-    void Aggro(Unit *who) {}
+    void EnterCombat(Unit *who) {}
 
     void UpdateAI(const uint32 diff)
     {

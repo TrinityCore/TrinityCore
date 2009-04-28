@@ -94,7 +94,7 @@ struct TRINITY_DLL_DECL boss_malygosAI : public ScriptedAI
         //Source Deadly Boss Mod
         enrage = 615000; //10 min
     }
-    void Aggro(Unit* who) 
+    void EnterCombat(Unit* who) 
     {
         if(phase == 1)
             DoScriptText(SAY_PHASE1_AGGRO, m_creature);

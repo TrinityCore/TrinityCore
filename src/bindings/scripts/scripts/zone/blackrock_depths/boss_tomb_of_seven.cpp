@@ -46,7 +46,7 @@ struct TRINITY_DLL_DECL boss_angerrelAI : public ScriptedAI
         Strike_Timer = 12000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 
@@ -104,7 +104,7 @@ struct TRINITY_DLL_DECL boss_doperelAI : public ScriptedAI
         Gouge_Timer = 6000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 
@@ -164,7 +164,7 @@ struct TRINITY_DLL_DECL boss_haterelAI : public ScriptedAI
         Strike_Timer = 12000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 
@@ -236,7 +236,7 @@ struct TRINITY_DLL_DECL boss_vilerelAI : public ScriptedAI
         Shield_Timer = 3000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 
@@ -309,7 +309,7 @@ struct TRINITY_DLL_DECL boss_seethrelAI : public ScriptedAI
         m_creature->CastSpell(m_creature,SPELL_FROSTARMOR,true);
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 
@@ -385,7 +385,7 @@ struct TRINITY_DLL_DECL boss_gloomrelAI : public ScriptedAI
         m_creature->setFaction(FACTION_NEUTRAL);
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 
@@ -493,7 +493,7 @@ struct TRINITY_DLL_DECL boss_doomrelAI : public ScriptedAI
         m_creature->setFaction(FACTION_NEUTRAL);
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 

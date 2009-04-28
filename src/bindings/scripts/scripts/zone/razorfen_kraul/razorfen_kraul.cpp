@@ -100,7 +100,7 @@ npc_willixAI(Creature *c) : npc_escortAI(c) {}
 
     void Reset() {}
 
-    void Aggro(Unit* who)
+    void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO1, m_creature, NULL);
     }

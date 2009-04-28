@@ -63,7 +63,7 @@ struct TRINITY_DLL_DECL npc_sergeant_blyAI : public ScriptedAI
             pInstance->SetData(0, NOT_STARTED);*/
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         /*if( pInstance )
             pInstance->SetData(0, IN_PROGRESS);*/
@@ -152,7 +152,7 @@ struct TRINITY_DLL_DECL npc_weegli_blastfuseAI : public ScriptedAI
             pInstance->SetData(0, NOT_STARTED);*/
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         /*if( pInstance )
             pInstance->SetData(0, IN_PROGRESS);*/

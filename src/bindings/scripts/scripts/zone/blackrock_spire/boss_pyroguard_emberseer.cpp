@@ -42,7 +42,7 @@ struct TRINITY_DLL_DECL boss_pyroguard_emberseerAI : public ScriptedAI
         PyroBlast_Timer = 14000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 

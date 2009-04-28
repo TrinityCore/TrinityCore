@@ -48,7 +48,7 @@ struct TRINITY_DLL_DECL npc_henze_faulkAI : public ScriptedAI
         spellHit = false;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 

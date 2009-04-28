@@ -75,7 +75,7 @@ npc_swiftmountainAI(Creature *c) : npc_escortAI(c) {}
         m_creature->setFaction(104);
     }
 
-    void Aggro(Unit* who){}
+    void EnterCombat(Unit* who){}
 
     void JustSummoned(Creature* summoned)
     {
@@ -217,7 +217,7 @@ struct TRINITY_DLL_DECL npc_pluckyAI : public ScriptedAI
        ChickenTimer = 0;
        }
 
-    void Aggro(Unit *who){}
+    void EnterCombat(Unit *who){}
 
     void TransformHuman(uint32 emoteid)
     {

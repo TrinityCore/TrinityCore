@@ -317,7 +317,7 @@ public:
         npc_escortAI::EnterEvadeMode();
     }
 
-    void Aggro(Unit* who)
+    void EnterCombat(Unit* who)
     {
         uint32 rnd = rand()%2;
         switch(rnd)
@@ -353,13 +353,16 @@ public:
             return;
         }
 
-        if(!InCombat && !Event_onWait && checkPlayer_Timer < diff)
+        if(!m_creature->isInCombat() && !Event_onWait)
         {
-            Player *player = (Player *)Unit::GetUnit((*m_creature), PlayerGUID);
-            if(player && player->isInCombat() && player->getAttackerForHelper())
-                AttackStart(player->getAttackerForHelper());
-            checkPlayer_Timer = 1000;
-        } else if(!InCombat && !Event_onWait) checkPlayer_Timer -= diff;
+            if(checkPlayer_Timer < diff)
+            {
+                Player *player = (Player *)Unit::GetUnit((*m_creature), PlayerGUID);
+                if(player && player->isInCombat() && player->getAttackerForHelper())
+                    AttackStart(player->getAttackerForHelper());
+                checkPlayer_Timer = 1000;
+            }else checkPlayer_Timer -= diff;
+        }
 
         if(Event_onWait && Event_Timer < diff)
         {

@@ -106,7 +106,7 @@ struct TRINITY_DLL_DECL netherspite_infernalAI : public ScriptedAI
     InfernalPoint *point;
 
     void Reset() {}
-    void Aggro(Unit *who) {}
+    void EnterCombat(Unit *who) {}
     void MoveInLineOfSight(Unit *who) {}
 
     void UpdateAI(const uint32 diff)
@@ -249,7 +249,7 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
         }
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
 

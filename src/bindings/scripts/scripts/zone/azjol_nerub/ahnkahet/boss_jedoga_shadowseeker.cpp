@@ -59,7 +59,7 @@ struct TRINITY_DLL_DECL boss_jedogaAI : public ScriptedAI
     boss_jedogaAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset() {}
-    void Aggro(Unit* who) 
+    void EnterCombat(Unit* who) 
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }

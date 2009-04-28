@@ -64,7 +64,7 @@ struct TRINITY_DLL_DECL boss_captain_skarlocAI : public ScriptedAI
         Consecration_Timer = 8000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         //This is not correct. Should taunt Thrall before engage in combat
         DoScriptText(SAY_TAUNT1, m_creature);

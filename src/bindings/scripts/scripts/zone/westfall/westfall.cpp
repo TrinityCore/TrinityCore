@@ -64,7 +64,7 @@ struct TRINITY_DLL_DECL npc_defias_traitorAI : public npc_escortAI
                 break;
         }
     }
-    void Aggro(Unit* who)
+    void EnterCombat(Unit* who)
     {
         switch(rand()%2)
         {

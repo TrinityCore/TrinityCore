@@ -16,7 +16,7 @@ struct TRINITY_DLL_DECL guardAI : public ScriptedAI
 
     void Reset();
 
-    void Aggro(Unit *who);
+    void EnterCombat(Unit *who);
 
     void JustDied(Unit *Killer);
 

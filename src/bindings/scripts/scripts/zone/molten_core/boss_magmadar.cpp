@@ -48,7 +48,7 @@ struct TRINITY_DLL_DECL boss_magmadarAI : public ScriptedAI
         m_creature->CastSpell(m_creature,SPELL_MAGMASPIT,true);
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 

@@ -64,7 +64,7 @@ struct TRINITY_DLL_DECL boss_high_botanist_freywinnAI : public ScriptedAI
         MoveFree = true;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }

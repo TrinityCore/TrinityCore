@@ -40,7 +40,7 @@ struct TRINITY_DLL_DECL generic_creatureAI : public ScriptedAI
         IsSelfRooted = false;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         if (!m_creature->IsWithinMeleeRange(who))
         {
@@ -56,7 +56,7 @@ struct TRINITY_DLL_DECL generic_creatureAI : public ScriptedAI
         else GlobalCooldown = 0;
 
         //Buff timer (only buff when we are alive and not in combat
-        if (!InCombat && m_creature->isAlive())
+        if (!m_creature->isInCombat() && m_creature->isAlive())
             if (BuffTimer < diff )
             {
                 //Find a spell that targets friendly and applies an aura (these are generally buffs)

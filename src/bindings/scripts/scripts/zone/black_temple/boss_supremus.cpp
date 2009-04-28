@@ -91,7 +91,7 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
         summons.DespawnAll();
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         if(pInstance)
             pInstance->SetData(DATA_SUPREMUSEVENT, IN_PROGRESS);
@@ -240,7 +240,7 @@ struct TRINITY_DLL_DECL npc_volcanoAI : public ScriptedAI
         DoCast(m_creature, SPELL_VOLCANIC_ERUPTION);
     }
 
-    void Aggro(Unit *who) {}
+    void EnterCombat(Unit *who) {}
 
     void MoveInLineOfSight(Unit *who) {}
 

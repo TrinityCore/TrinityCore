@@ -96,7 +96,7 @@ struct  TRINITY_DLL_DECL boss_vexallusAI : public ScriptedAI
         }
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
 
@@ -199,7 +199,7 @@ struct  TRINITY_DLL_DECL mob_pure_energyAI : public ScriptedAI
         }
     }
 
-    void Aggro(Unit *who) { }
+    void EnterCombat(Unit *who) { }
     void MoveInLineOfSight(Unit *who) { }
     void AttackStart(Unit *who) { }
 };

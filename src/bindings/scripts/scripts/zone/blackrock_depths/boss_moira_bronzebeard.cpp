@@ -51,7 +51,7 @@ struct TRINITY_DLL_DECL boss_moira_bronzebeardAI : public ScriptedAI
         Smite_Timer = 8000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 

@@ -40,7 +40,7 @@ struct TRINITY_DLL_DECL boss_wushoolayAI : public ScriptedAI
         LightningWave_Timer = 8000 + rand()%8000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 

@@ -53,7 +53,7 @@ struct TRINITY_DLL_DECL boss_mal_ganisAI : public ScriptedAI
          yelled3 = false;
 	}
 
-    void Aggro(Unit* who) 
+    void EnterCombat(Unit* who) 
     {
 		DoScriptText(SAY_AGGRO, m_creature);
 	}

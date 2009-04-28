@@ -99,7 +99,7 @@ struct TRINITY_DLL_DECL boss_nexusprince_shaffarAI : public ScriptedAI
         }
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         switch(rand()%3)
         {
@@ -222,7 +222,7 @@ struct TRINITY_DLL_DECL mob_ethereal_beaconAI : public ScriptedAI
         ArcaneBolt_Timer = 1000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 

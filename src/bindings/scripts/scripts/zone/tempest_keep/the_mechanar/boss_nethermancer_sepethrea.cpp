@@ -71,7 +71,7 @@ struct TRINITY_DLL_DECL boss_nethermancer_sepethreaAI : public ScriptedAI
             pInstance->SetData(DATA_NETHERMANCER_EVENT, NOT_STARTED);
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         if(pInstance)
             pInstance->SetData(DATA_NETHERMANCER_EVENT, IN_PROGRESS);
@@ -192,7 +192,7 @@ struct TRINITY_DLL_DECL mob_ragin_flamesAI : public ScriptedAI
         m_creature->SetSpeed(MOVE_RUN, HeroicMode ? 0.7f : 0.5f);
     }
 
-    void Aggro(Unit* who)
+    void EnterCombat(Unit* who)
     {
     }
 

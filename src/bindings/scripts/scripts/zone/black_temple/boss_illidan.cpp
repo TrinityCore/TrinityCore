@@ -429,7 +429,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
             Timer[EVENT_FLIGHT_SEQUENCE] = 1000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         m_creature->setActive(true);
         DoZoneInCombat();
@@ -903,7 +903,7 @@ struct TRINITY_DLL_DECL flame_of_azzinothAI : public ScriptedAI
         GlaiveGUID = 0;
     }
 
-    void Aggro(Unit *who) {DoZoneInCombat();}
+    void EnterCombat(Unit *who) {DoZoneInCombat();}
 
     void ChargeCheck()
     {
@@ -1043,10 +1043,9 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
         m_creature->RemoveAllAuras();
         m_creature->DeleteThreatList();
         m_creature->CombatStop();
-        InCombat = false;
     }
 
-    void Aggro(Unit *who) {}
+    void EnterCombat(Unit *who) {}
     void MoveInLineOfSight(Unit *) {}
 
     void MovementInform(uint32 MovementType, uint32 Data) {Timer = 1;}
@@ -1390,7 +1389,7 @@ struct TRINITY_DLL_DECL boss_maievAI : public ScriptedAI
         m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, 45738);
     }
 
-    void Aggro(Unit *who) {}
+    void EnterCombat(Unit *who) {}
     void MoveInLineOfSight(Unit *who) {}
     void EnterEvadeMode() {}
     void GetIllidanGUID(uint64 guid) { IllidanGUID = guid; }
@@ -1614,7 +1613,7 @@ struct TRINITY_DLL_DECL cage_trap_triggerAI : public ScriptedAI
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }
 
-    void Aggro(Unit *who){}
+    void EnterCombat(Unit *who){}
 
     void MoveInLineOfSight(Unit *who)
     {
@@ -1688,7 +1687,7 @@ struct TRINITY_DLL_DECL shadow_demonAI : public ScriptedAI
 
     uint64 TargetGUID;
 
-    void Aggro(Unit *who) {DoZoneInCombat();}
+    void EnterCombat(Unit *who) {DoZoneInCombat();}
 
     void Reset()
     {
@@ -1744,7 +1743,7 @@ struct TRINITY_DLL_DECL mob_parasitic_shadowfiendAI : public ScriptedAI
         DoCast(m_creature, SPELL_SHADOWFIEND_PASSIVE, true);
     }
 
-    void Aggro(Unit* who) { DoZoneInCombat(); }
+    void EnterCombat(Unit* who) { DoZoneInCombat(); }
 
     void DoMeleeAttackIfReady()
     {

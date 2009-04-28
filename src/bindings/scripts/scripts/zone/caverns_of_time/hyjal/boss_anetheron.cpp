@@ -70,7 +70,7 @@ struct TRINITY_DLL_DECL boss_anetheronAI : public hyjal_trashAI
             pInstance->SetData(DATA_ANETHERONEVENT, NOT_STARTED);
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {    
         if(pInstance && IsEvent)
             pInstance->SetData(DATA_ANETHERONEVENT, IN_PROGRESS);
@@ -242,7 +242,7 @@ struct TRINITY_DLL_DECL mob_towering_infernalAI : public ScriptedAI
         CheckTimer = 5000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {    
         
     }
@@ -259,11 +259,8 @@ struct TRINITY_DLL_DECL mob_towering_infernalAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit *who)
     {
-        if (m_creature->GetDistance(who) <= 50 && !InCombat && m_creature->IsHostileTo(who))
-        {
-            m_creature->AddThreat(who,0.0);
-            m_creature->Attack(who,false);
-        }
+        if (m_creature->GetDistance(who) <= 50 && !m_creature->isInCombat() && m_creature->IsHostileTo(who))
+            AttackStart(who);
     }
 
     void UpdateAI(const uint32 diff)

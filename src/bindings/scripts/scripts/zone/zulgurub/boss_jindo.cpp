@@ -63,7 +63,7 @@ struct TRINITY_DLL_DECL boss_jindoAI : public ScriptedAI
         Teleport_Timer = 5000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }
@@ -180,7 +180,7 @@ struct TRINITY_DLL_DECL mob_healing_wardAI : public ScriptedAI
         Heal_Timer = 2000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 
@@ -219,7 +219,7 @@ struct TRINITY_DLL_DECL mob_shade_of_jindoAI : public ScriptedAI
         m_creature->CastSpell(m_creature, SPELL_INVISIBLE,true);
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 

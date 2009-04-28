@@ -109,7 +109,7 @@ struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
             DoScriptText(SAY_DEATH, m_creature);
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         if (IsImage || Images75)
             return;

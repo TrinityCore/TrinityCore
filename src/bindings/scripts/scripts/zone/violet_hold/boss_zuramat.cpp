@@ -35,7 +35,7 @@ struct TRINITY_DLL_DECL boss_zuramatAI : public ScriptedAI
     uint32 void_shift;
     
     void Reset() {}
-    void Aggro(Unit* who) 
+    void EnterCombat(Unit* who) 
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }

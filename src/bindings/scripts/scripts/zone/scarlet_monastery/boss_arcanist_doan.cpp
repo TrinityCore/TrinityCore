@@ -54,7 +54,7 @@ struct TRINITY_DLL_DECL boss_arcanist_doanAI : public ScriptedAI
         bShielded = false;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }
