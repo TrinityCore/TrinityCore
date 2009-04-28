@@ -139,8 +139,6 @@ float HordeOverrunWP[21][3]=//waypoints in the horde base used in the end in the
     {5429.91,-2718.44,1493.42}//20 end 2
 };
 
-void hyjal_trashAI::Reset(){}
-
 hyjal_trashAI::hyjal_trashAI(Creature *c) : npc_escortAI(c)
 {
     pInstance = ((ScriptedInstance*)c->GetInstanceData());
