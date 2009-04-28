@@ -131,7 +131,8 @@ struct TRINITY_DLL_DECL boss_entropiusAI : public ScriptedAI
 			BlackHoleSummonTimer = 15000;
 			DoCastAOE(SPELL_NEGATIVE_ENERGY_E, false);
 		}else{
-			pInstance->SetData(DATA_MURU_EVENT, NOT_STARTED);
+            if(pInstance)
+                pInstance->SetData(DATA_MURU_EVENT, NOT_STARTED);
 			Summons.DespawnAll();
 		}
 	}
