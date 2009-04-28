@@ -62,7 +62,7 @@
             ShieldWall2 = true;
         }
 
-        void Aggro(Unit *who)
+        void EnterCombat(Unit *who)
         {
             DoScriptText(SAY_BLAU_AGGRO, m_creature);
         }
@@ -149,7 +149,7 @@
        {
        }
 
-       void Aggro(Unit *who)
+       void EnterCombat(Unit *who)
        {
            switch(rand()%3)
            {
@@ -218,7 +218,7 @@
            ShieldWall2 = true;
        }
 
-       void Aggro(Unit *who)
+       void EnterCombat(Unit *who)
        {
            DoScriptText(SAY_KORT_AGGRO, m_creature);
        }
@@ -313,7 +313,7 @@
            ShieldWall2 = true;
        }
 
-       void Aggro(Unit *who)
+       void EnterCombat(Unit *who)
        {
            DoScriptText(SAY_ZELI_AGGRO, m_creature);
        }

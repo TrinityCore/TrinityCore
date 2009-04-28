@@ -59,7 +59,7 @@ struct TRINITY_DLL_DECL boss_golemaggAI : public ScriptedAI
         m_creature->CastSpell(m_creature,SPELL_MAGMASPLASH,true);
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 
@@ -131,7 +131,7 @@ struct TRINITY_DLL_DECL mob_core_ragerAI : public ScriptedAI
         Check_Timer = 1000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 

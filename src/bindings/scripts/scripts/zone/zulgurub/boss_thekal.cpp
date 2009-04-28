@@ -92,7 +92,7 @@ struct TRINITY_DLL_DECL boss_thekalAI : public ScriptedAI
             pInstance->SetData(DATA_THEKAL_ALIVE, 0);
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }
@@ -265,7 +265,7 @@ struct TRINITY_DLL_DECL mob_zealot_lorkhanAI : public ScriptedAI
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 
@@ -402,7 +402,7 @@ struct TRINITY_DLL_DECL mob_zealot_zathAI : public ScriptedAI
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 

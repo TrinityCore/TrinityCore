@@ -54,7 +54,7 @@ struct TRINITY_DLL_DECL boss_general_angerforgeAI : public ScriptedAI
         Medics = false;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 

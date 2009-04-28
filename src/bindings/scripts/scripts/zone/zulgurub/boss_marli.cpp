@@ -76,7 +76,7 @@ struct TRINITY_DLL_DECL boss_marliAI : public ScriptedAI
         m_creature->ApplySpellImmune(1, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, true);
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }
@@ -208,7 +208,7 @@ struct TRINITY_DLL_DECL mob_spawn_of_marliAI : public ScriptedAI
         LevelUp_Timer = 3000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 

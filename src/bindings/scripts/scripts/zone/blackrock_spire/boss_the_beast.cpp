@@ -42,7 +42,7 @@ struct TRINITY_DLL_DECL boss_thebeastAI : public ScriptedAI
         TerrifyingRoar_Timer = 23000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 

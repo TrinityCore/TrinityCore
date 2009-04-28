@@ -127,8 +127,6 @@ struct TRINITY_DLL_DECL npc_grimstoneAI : public npc_escortAI
         CanWalk = false;
     }
 
-    void Aggro(Unit *who) { }
-
     //TODO: move them to center
     void SummonRingMob()
     {
@@ -185,6 +183,11 @@ struct TRINITY_DLL_DECL npc_grimstoneAI : public npc_escortAI
         }
     }
 
+    void HandleGameObject(uint32 id, bool open)
+    {
+        pInstance->HandleGameObject(pInstance->GetData64(id), open);
+    }
+
     void UpdateAI(const uint32 diff)
     {
         if (!pInstance)
@@ -236,7 +239,7 @@ struct TRINITY_DLL_DECL npc_grimstoneAI : public npc_escortAI
                 {
                 case 0:
                     DoScriptText(-1000000, m_creature);//1
-                    DoGate(DATA_ARENA4,1);
+                    HandleGameObject(DATA_ARENA4, false);
                     Start(false, false, false);
                     CanWalk = true;
                     Event_Timer = 0;
@@ -331,10 +334,6 @@ struct TRINITY_DLL_DECL mob_phalanxAI : public ScriptedAI
         ThunderClap_Timer = 12000;
         FireballVolley_Timer =0;
         MightyBlow_Timer = 15000;
-    }
-
-    void Aggro(Unit *who)
-    {
     }
 
     void UpdateAI(const uint32 diff)
@@ -538,7 +537,7 @@ struct TRINITY_DLL_DECL npc_dughal_stormwingAI : public npc_escortAI
         }
     }
 
-    void Aggro(Unit* who) { }
+    void EnterCombat(Unit* who) { }
     void Reset() {}
 
     void JustDied(Unit* killer)
@@ -671,7 +670,7 @@ struct TRINITY_DLL_DECL npc_marshal_windsorAI : public npc_escortAI
         }
     }
 
-    void Aggro(Unit* who)
+    void EnterCombat(Unit* who)
         {
         switch(rand()%3)
             {
@@ -867,7 +866,7 @@ struct TRINITY_DLL_DECL npc_marshal_reginald_windsorAI : public npc_escortAI
         }
     }
 
-    void Aggro(Unit* who)
+    void EnterCombat(Unit* who)
         {
         switch(rand()%3)
             {
@@ -983,7 +982,7 @@ struct TRINITY_DLL_DECL npc_tobias_seecherAI : public npc_escortAI
 {
     npc_tobias_seecherAI(Creature *c) :npc_escortAI(c) {}
 
-    void Aggro(Unit* who) { }
+    void EnterCombat(Unit* who) { }
     void Reset() {}
 
     void JustDied(Unit* killer)
@@ -1097,12 +1096,10 @@ struct TRINITY_DLL_DECL npc_rocknotAI : public npc_escortAI
         BreakDoor_Timer = 0;
     }
 
-    void Aggro(Unit *who) { }
-
     void DoGo(uint32 id, uint32 state)
     {
         if (GameObject *go = GameObject::GetGameObject(*m_creature,pInstance->GetData64(id)))
-            go->SetGoState(state);
+            go->SetGoState((GOState)state);
     }
 
     void WaypointReached(uint32 i)

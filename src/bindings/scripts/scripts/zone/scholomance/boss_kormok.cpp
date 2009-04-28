@@ -53,7 +53,7 @@ struct TRINITY_DLL_DECL boss_kormokAI : public ScriptedAI
         Mages = false;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 

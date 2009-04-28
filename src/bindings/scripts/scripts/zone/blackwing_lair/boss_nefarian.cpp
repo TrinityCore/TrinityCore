@@ -97,7 +97,7 @@ struct TRINITY_DLL_DECL boss_nefarianAI : public ScriptedAI
         DoScriptText(SAY_DEATH, m_creature);
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         switch (rand()%3)
         {

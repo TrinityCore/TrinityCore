@@ -40,7 +40,7 @@ struct TRINITY_DLL_DECL boss_skadiAI : public ScriptedAI
     uint32 phase;
     
     void Reset() {}
-    void Aggro(Unit* who) 
+    void EnterCombat(Unit* who) 
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }

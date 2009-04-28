@@ -42,7 +42,7 @@ struct TRINITY_DLL_DECL boss_amanitarAI : public ScriptedAI
     
     void Reset() {}
     
-    void Aggro(Unit* who) {}
+    void EnterCombat(Unit* who) {}
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
     void UpdateAI(const uint32 diff) 

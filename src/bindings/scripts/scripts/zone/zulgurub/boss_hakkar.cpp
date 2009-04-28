@@ -94,7 +94,7 @@ struct TRINITY_DLL_DECL boss_hakkarAI : public ScriptedAI
         Enraged = false;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }

@@ -62,7 +62,7 @@ struct TRINITY_DLL_DECL boss_midnightAI : public ScriptedAI
         m_creature->SetVisibility(VISIBILITY_ON);
     }
 
-    void Aggro(Unit* who) {}
+    void EnterCombat(Unit* who) {}
 
     void KilledUnit(Unit *victim)
     {
@@ -190,7 +190,7 @@ struct TRINITY_DLL_DECL boss_attumenAI : public ScriptedAI
         m_creature->ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, true);
     }
 
-    void Aggro(Unit* who) {}
+    void EnterCombat(Unit* who) {}
 
     void KilledUnit(Unit *victim)
     {

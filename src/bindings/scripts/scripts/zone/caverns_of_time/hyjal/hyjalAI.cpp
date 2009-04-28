@@ -431,11 +431,9 @@ void hyjalAI::EnterEvadeMode()
         m_creature->GetMotionMaster()->MoveTargetedHome();
     
     m_creature->SetLootRecipient(NULL);
-
-    InCombat = false;
 }
 
-void hyjalAI::Aggro(Unit *who)
+void hyjalAI::EnterCombat(Unit *who)
 {
     if(IsDummy)return;
     for(uint8 i = 0; i < 3; ++i)

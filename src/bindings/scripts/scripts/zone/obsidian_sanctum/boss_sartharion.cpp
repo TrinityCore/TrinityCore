@@ -84,7 +84,7 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
     {
         berserk = false;
     }
-    void Aggro(Unit* who) 
+    void EnterCombat(Unit* who) 
 	{
 		DoScriptText(SAY_SARTHARION_DEATH,m_creature);
 	}
@@ -131,7 +131,7 @@ struct TRINITY_DLL_DECL mob_vesperonAI : public ScriptedAI
     mob_vesperonAI(Creature *c) : ScriptedAI(c) {}
     
     void Reset() {}
-    void Aggro(Unit* who) 
+    void EnterCombat(Unit* who) 
 	{
 		DoScriptText(SAY_VESPERON_AGGRO,m_creature);
 	}
@@ -168,7 +168,7 @@ struct TRINITY_DLL_DECL mob_shadronAI : public ScriptedAI
     mob_shadronAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset(){}
-    void Aggro(Unit* who) 
+    void EnterCombat(Unit* who) 
 	{
 		DoScriptText(SAY_SHADRON_AGGRO,m_creature);
 	}
@@ -204,7 +204,7 @@ struct TRINITY_DLL_DECL mob_tenebronAI : public ScriptedAI
     mob_tenebronAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset() {}
-    void Aggro(Unit* who) 
+    void EnterCombat(Unit* who) 
 	{
 		DoScriptText(SAY_TENEBRON_AGGRO,m_creature);
 	}
@@ -232,7 +232,7 @@ struct TRINITY_DLL_DECL mob_whelpAI : public ScriptedAI
     uint32 Fade_armor_Timer;
     
     void Reset() {}
-    void Aggro(Unit* who) {}
+    void EnterCombat(Unit* who) {}
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target

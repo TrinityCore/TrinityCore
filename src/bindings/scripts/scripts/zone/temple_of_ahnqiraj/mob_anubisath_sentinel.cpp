@@ -264,7 +264,7 @@ struct TRINITY_DLL_DECL aqsentinelAI : public ScriptedAI
         }
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         if (gatherOthersWhenAggro)
             GetOtherSentinels(who);

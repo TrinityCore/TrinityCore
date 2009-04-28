@@ -139,7 +139,7 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
 			Door->SetGoState(open ? GO_STATE_ACTIVE : GO_STATE_READY);
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         if(pInstance)
             pInstance->SetData(DATA_NIGHTBANE_EVENT, IN_PROGRESS);

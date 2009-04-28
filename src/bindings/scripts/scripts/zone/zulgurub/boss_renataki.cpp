@@ -52,7 +52,7 @@ struct TRINITY_DLL_DECL boss_renatakiAI : public ScriptedAI
         Ambushed = false;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 

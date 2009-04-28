@@ -43,7 +43,7 @@ struct TRINITY_DLL_DECL boss_hazzarahAI : public ScriptedAI
         Illusions_Timer = 10000 + rand()%8000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 

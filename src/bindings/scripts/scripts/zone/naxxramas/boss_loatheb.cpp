@@ -61,7 +61,7 @@ struct TRINITY_DLL_DECL boss_loathebAI : public ScriptedAI
         Summon_Timer = 8000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 

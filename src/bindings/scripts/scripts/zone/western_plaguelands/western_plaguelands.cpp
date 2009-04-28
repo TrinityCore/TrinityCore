@@ -100,7 +100,7 @@ struct TRINITY_DLL_DECL npc_the_scourge_cauldronAI : public ScriptedAI
 
     void Reset() {}
 
-    void Aggro(Unit* who) {}
+    void EnterCombat(Unit* who) {}
 
     void DoDie()
     {

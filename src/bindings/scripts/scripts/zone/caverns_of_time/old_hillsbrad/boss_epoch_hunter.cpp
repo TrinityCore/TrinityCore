@@ -62,7 +62,7 @@ struct TRINITY_DLL_DECL boss_epoch_hunterAI : public ScriptedAI
         Mda_Timer = 40000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         switch(rand()%2)
         {

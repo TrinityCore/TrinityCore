@@ -63,7 +63,7 @@ struct TRINITY_DLL_DECL boss_azgalorAI : public hyjal_trashAI
             pInstance->SetData(DATA_AZGALOREVENT, NOT_STARTED);
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {    
         if(pInstance && IsEvent)
             pInstance->SetData(DATA_AZGALOREVENT, IN_PROGRESS);
@@ -206,7 +206,7 @@ struct TRINITY_DLL_DECL mob_lesser_doomguardAI : public hyjal_trashAI
         CheckTimer = 5000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {    
     }
 
@@ -222,11 +222,8 @@ struct TRINITY_DLL_DECL mob_lesser_doomguardAI : public hyjal_trashAI
 
     void MoveInLineOfSight(Unit *who)
     {
-        if (m_creature->GetDistance(who) <= 50 && !InCombat && m_creature->IsHostileTo(who))
-        {
-            m_creature->AddThreat(who,0.0);
-            m_creature->Attack(who,false);
-        }
+        if (m_creature->GetDistance(who) <= 50 && !m_creature->isInCombat() && m_creature->IsHostileTo(who))
+            AttackStart(who);
     }
 
     void JustDied(Unit *victim)

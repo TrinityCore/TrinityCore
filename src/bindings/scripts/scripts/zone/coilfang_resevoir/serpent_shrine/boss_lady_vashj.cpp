@@ -248,7 +248,7 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
             pInstance->SetData(DATA_LADYVASHJEVENT, IN_PROGRESS);
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         if (pInstance)
         {
@@ -622,7 +622,7 @@ struct TRINITY_DLL_DECL mob_enchanted_elementalAI : public ScriptedAI
             Vashj = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_LADYVASHJ));
     }
 
-    void Aggro(Unit *who) { return; }
+    void EnterCombat(Unit *who) { return; }
 
     void MoveInLineOfSight(Unit *who){return;}
 
@@ -714,7 +714,7 @@ struct TRINITY_DLL_DECL mob_tainted_elementalAI : public ScriptedAI
         }
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         m_creature->AddThreat(who, 0.1f);
     }
@@ -772,7 +772,7 @@ struct TRINITY_DLL_DECL mob_toxic_sporebatAI : public ScriptedAI
         Check_Timer = 1000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
 
     }
@@ -898,7 +898,7 @@ struct TRINITY_DLL_DECL mob_shield_generator_channelAI : public ScriptedAI
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }
 
-    void Aggro(Unit *who) { return; }
+    void EnterCombat(Unit *who) { return; }
 
     void MoveInLineOfSight(Unit *who) { return; }
 

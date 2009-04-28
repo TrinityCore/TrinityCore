@@ -52,7 +52,7 @@ struct TRINITY_DLL_DECL boss_the_makerAI : public ScriptedAI
         Knockdown_Timer    = 10000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         switch(rand()%3)
         {

@@ -49,7 +49,7 @@ struct TRINITY_DLL_DECL boss_noxxionAI : public ScriptedAI
         Invisible = false;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 

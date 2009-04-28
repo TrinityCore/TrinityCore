@@ -102,20 +102,12 @@ struct TRINITY_DLL_DECL npc_millhouse_manastormAI : public ScriptedAI
     {
         if (m_creature->Attack(who, true))
         {
-            m_creature->AddThreat(who, 0.0f);
-
-            if (!InCombat)
-            {
-                InCombat = true;
-                Aggro(who);
-            }
-
             //TODO: Make it so he moves when target out of range
             DoStartNoMovement(who);
         }
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 
@@ -301,11 +293,11 @@ struct TRINITY_DLL_DECL npc_warden_mellicharAI : public ScriptedAI
 
             float attackRadius = m_creature->GetAttackDistance(who)/10;
             if( m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who) )
-                Aggro(who);
+                EnterCombat(who);
         }
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         DoScriptText(YELL_INTRO1, m_creature);
         DoCast(m_creature,SPELL_BUBBLE_VISUAL);
@@ -499,7 +491,7 @@ struct TRINITY_DLL_DECL mob_zerekethvoidzoneAI : public ScriptedAI
         DoCast(m_creature,SPELL_VOID_ZONE_DAMAGE);
     }
 
-    void Aggro(Unit* who) {}
+    void EnterCombat(Unit* who) {}
 };
 CreatureAI* GetAI_mob_zerekethvoidzoneAI(Creature *_Creature)
 {

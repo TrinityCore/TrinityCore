@@ -46,7 +46,7 @@ struct TRINITY_DLL_DECL boss_broggokAI : public ScriptedAI
         PoisonBolt_Timer = 7000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }
@@ -93,7 +93,7 @@ struct TRINITY_DLL_DECL mob_broggok_poisoncloudAI : public ScriptedAI
     void Reset() { }
     void MoveInLineOfSight(Unit *who) { }
     void AttackStart(Unit *who) { }
-    void Aggro(Unit* who) { }
+    void EnterCombat(Unit* who) { }
 };
 
 CreatureAI* GetAI_boss_broggok(Creature *_Creature)

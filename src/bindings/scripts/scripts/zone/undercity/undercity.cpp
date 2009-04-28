@@ -78,7 +78,7 @@ struct TRINITY_DLL_DECL npc_lady_sylvanas_windrunnerAI : public ScriptedAI
         targetGUID = 0;
     }
 
-    void Aggro(Unit *who) {}
+    void EnterCombat(Unit *who) {}
 
     void JustSummoned(Creature *summoned)
     {
@@ -166,7 +166,7 @@ struct TRINITY_DLL_DECL npc_highborne_lamenterAI : public ScriptedAI
         EventCast = true;
     }
 
-    void Aggro(Unit *who) {}
+    void EnterCombat(Unit *who) {}
 
     void UpdateAI(const uint32 diff)
     {

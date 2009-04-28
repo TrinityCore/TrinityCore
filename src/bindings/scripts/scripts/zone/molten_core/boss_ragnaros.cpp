@@ -127,7 +127,7 @@ struct TRINITY_DLL_DECL boss_ragnarosAI : public Scripted_NoMovementAI
         DoScriptText(SAY_KILL, m_creature);
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 

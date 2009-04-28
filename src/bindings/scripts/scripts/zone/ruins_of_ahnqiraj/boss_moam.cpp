@@ -52,7 +52,7 @@ struct TRINITY_DLL_DECL boss_moamAI : public ScriptedAI
         DRAINMANA_Timer = 30000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         DoScriptText(EMOTE_AGGRO, m_creature);
         pTarget = who;

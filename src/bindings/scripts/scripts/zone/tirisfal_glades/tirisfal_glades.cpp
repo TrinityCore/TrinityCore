@@ -47,7 +47,7 @@ struct TRINITY_DLL_DECL npc_calvin_montagueAI : public ScriptedAI
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
     }
 
-    void Aggro(Unit* who) { }
+    void EnterCombat(Unit* who) { }
 
     void JustDied(Unit* Killer)
     {

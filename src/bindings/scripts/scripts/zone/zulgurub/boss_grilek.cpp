@@ -40,7 +40,7 @@ struct TRINITY_DLL_DECL boss_grilekAI : public ScriptedAI
         GroundTremor_Timer = 8000 + rand()%8000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 

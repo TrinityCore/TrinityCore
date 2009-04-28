@@ -203,7 +203,7 @@ struct TRINITY_DLL_DECL boss_victor_nefariusAI : public ScriptedAI
         AttackStart(target);
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 

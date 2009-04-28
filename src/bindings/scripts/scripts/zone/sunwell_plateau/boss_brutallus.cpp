@@ -85,7 +85,7 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
             pInstance->SetData(DATA_BRUTALLUS, NOT_STARTED);
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         DoScriptText(YELL_AGGRO, m_creature);
 

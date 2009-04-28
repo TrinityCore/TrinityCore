@@ -45,7 +45,7 @@ struct TRINITY_DLL_DECL boss_ptheradrasAI : public ScriptedAI
         RepulsiveGaze_Timer = 23000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 

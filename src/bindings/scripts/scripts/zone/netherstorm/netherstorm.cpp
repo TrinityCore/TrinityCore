@@ -83,7 +83,7 @@ struct TRINITY_DLL_DECL npc_manaforge_control_consoleAI : public ScriptedAI
         Creature* add = NULL;
     }
 
-    void Aggro(Unit *who) { return; }
+    void EnterCombat(Unit *who) { return; }
 
     /*void SpellHit(Unit *caster, const SpellEntry *spell)
     {
@@ -391,7 +391,7 @@ struct TRINITY_DLL_DECL npc_commander_dawnforgeAI : public ScriptedAI
         isEvent = false;
     }
 
-    void Aggro(Unit *who) { }
+    void EnterCombat(Unit *who) { }
 
     //Select any creature in a grid
     Creature* SelectCreatureInGrid(uint32 entry, float range)
@@ -814,7 +814,7 @@ struct TRINITY_DLL_DECL mob_phase_hunterAI : public ScriptedAI
         ManaBurnTimer = 5000 + (rand()%3 * 1000); // 5-8 sec cd
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         if(Player *player = who->GetCharmerOrOwnerPlayerOrPlayerItself())
             PlayerGUID = player->GetGUID();
@@ -961,7 +961,7 @@ struct TRINITY_DLL_DECL npc_bessyAI : public npc_escortAI
         summoned->AI()->AttackStart(m_creature);
     }
 
-    void Aggro(Unit* who){}
+    void EnterCombat(Unit* who){}
 
     void Reset()
     {

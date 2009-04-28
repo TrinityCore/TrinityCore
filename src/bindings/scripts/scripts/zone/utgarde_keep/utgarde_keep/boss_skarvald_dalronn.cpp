@@ -92,7 +92,7 @@ struct TRINITY_DLL_DECL boss_skarvald_the_constructorAI : public ScriptedAI
         }
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         if(!ghost)
         {
@@ -244,7 +244,7 @@ struct TRINITY_DLL_DECL boss_dalronn_the_controllerAI : public ScriptedAI
         }
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         if(!ghost)
         {

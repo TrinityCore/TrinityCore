@@ -79,7 +79,7 @@ struct TRINITY_DLL_DECL boss_elder_nadoxAI : public ScriptedAI
             pInstance->SetData(DATA_ELDER_NADOX_EVENT, NOT_STARTED);
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         DoScriptText(SAY_DEATH,m_creature);
 
@@ -195,7 +195,7 @@ struct TRINITY_DLL_DECL mob_ahnkahar_nerubianAI : public ScriptedAI
             DoCast(m_creature,SPELL_GUARDIAN_AURA,true);
         sprint_Timer = 10000;
     }
-    void Aggro(Unit *who){}
+    void EnterCombat(Unit *who){}
     void UpdateAI(const uint32 diff)
     {
         if(m_creature->GetEntry() == 30176)

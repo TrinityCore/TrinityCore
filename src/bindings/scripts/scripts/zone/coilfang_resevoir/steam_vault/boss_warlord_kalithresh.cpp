@@ -65,7 +65,7 @@ struct TRINITY_DLL_DECL mob_naga_distillerAI : public ScriptedAI
         }
     }
 
-    void Aggro(Unit *who) { }
+    void EnterCombat(Unit *who) { }
 
     void StartRageGen(Unit *caster)
     {
@@ -111,7 +111,7 @@ struct TRINITY_DLL_DECL boss_warlord_kalithreshAI : public ScriptedAI
             pInstance->SetData(TYPE_WARLORD_KALITHRESH, NOT_STARTED);
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         switch(rand()%3)
         {

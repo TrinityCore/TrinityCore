@@ -73,7 +73,7 @@ struct TRINITY_DLL_DECL boss_venoxisAI : public ScriptedAI
         InBerserk= false;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 

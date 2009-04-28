@@ -52,7 +52,7 @@ struct TRINITY_DLL_DECL mobs_risen_husk_spiritAI : public ScriptedAI
         IntangiblePresence_Timer = 5000;
     }
 
-    void Aggro(Unit* who) { }
+    void EnterCombat(Unit* who) { }
 
     void DamageTaken(Unit *done_by, uint32 &damage)
     {
@@ -115,7 +115,7 @@ struct TRINITY_DLL_DECL npc_deserter_agitatorAI : public ScriptedAI
         m_creature->setFaction(894);
     }
 
-    void Aggro(Unit* who) {}
+    void EnterCombat(Unit* who) {}
 };
 
 CreatureAI* GetAI_npc_deserter_agitator(Creature *_Creature)

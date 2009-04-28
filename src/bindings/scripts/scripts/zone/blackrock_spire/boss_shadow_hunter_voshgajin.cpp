@@ -44,7 +44,7 @@ struct TRINITY_DLL_DECL boss_shadowvoshAI : public ScriptedAI
         //m_creature->CastSpell(m_creature,SPELL_ICEARMOR,true);
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 

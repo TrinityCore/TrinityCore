@@ -37,7 +37,7 @@ struct TRINITY_DLL_DECL boss_gal_darahAI : public ScriptedAI
     boss_gal_darahAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset() {}
-    void Aggro(Unit* who) 
+    void EnterCombat(Unit* who) 
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }

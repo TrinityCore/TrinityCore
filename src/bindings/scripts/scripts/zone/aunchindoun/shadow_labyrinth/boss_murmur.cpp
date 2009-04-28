@@ -82,7 +82,7 @@ struct TRINITY_DLL_DECL boss_murmurAI : public Scripted_NoMovementAI
         }
     }
 	
-    void Aggro(Unit *who) { }
+    void EnterCombat(Unit *who) { }
 
     // Sonic Boom instant damage (needs core fix instead of this)
     void SpellHitTarget(Unit *target, const SpellEntry *spell)

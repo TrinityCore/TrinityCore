@@ -146,7 +146,7 @@ struct TRINITY_DLL_DECL boss_sacrolashAI : public ScriptedAI
         }
 
     }
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         DoZoneInCombat();
         if(pInstance)
@@ -410,7 +410,7 @@ struct TRINITY_DLL_DECL boss_alythessAI : public Scripted_NoMovementAI
             IntroYell_Timer = 10000;
         }
     }
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         DoZoneInCombat();
         if(pInstance)
@@ -440,11 +440,9 @@ struct TRINITY_DLL_DECL boss_alythessAI : public Scripted_NoMovementAI
             float attackRadius = m_creature->GetAttackDistance(who);
             if (m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->GetDistanceZ(who) <= CREATURE_Z_ATTACK_RANGE && m_creature->IsWithinLOSInMap(who))
             {
-                if (!InCombat)
+                if (!m_creature->isInCombat())
                 {
                     DoStartNoMovement(who);
-                    Aggro(who);
-                    InCombat = true;
                 }
             }
         }
@@ -700,7 +698,7 @@ struct TRINITY_DLL_DECL mob_shadow_imageAI : public ScriptedAI
 
     }
 
-    void Aggro(Unit *who){}
+    void EnterCombat(Unit *who){}
 
     void SpellHitTarget(Unit* target,const SpellEntry* spell)
     {

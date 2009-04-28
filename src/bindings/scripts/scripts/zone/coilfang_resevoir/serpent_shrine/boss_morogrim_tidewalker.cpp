@@ -161,7 +161,7 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
             pInstance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, DONE);
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         PlayerList = &((InstanceMap*)m_creature->GetMap())->GetPlayers();
         Playercount = PlayerList->getSize();
@@ -307,7 +307,7 @@ struct TRINITY_DLL_DECL mob_water_globuleAI : public ScriptedAI
         m_creature->setFaction(14);
     }
 
-    void Aggro(Unit *who) {}
+    void EnterCombat(Unit *who) {}
 
     void MoveInLineOfSight(Unit *who)
     {

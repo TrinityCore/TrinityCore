@@ -39,7 +39,7 @@ struct TRINITY_DLL_DECL boss_lokenAI : public ScriptedAI
     boss_lokenAI(Creature *c) : ScriptedAI(c) {}
     
     void Reset() {}
-    void Aggro(Unit* who) 
+    void EnterCombat(Unit* who) 
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }

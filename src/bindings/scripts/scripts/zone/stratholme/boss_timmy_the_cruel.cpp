@@ -40,7 +40,7 @@ struct TRINITY_DLL_DECL boss_timmy_the_cruelAI : public ScriptedAI
         HasYelled = false;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
                 if (!HasYelled)
                 {

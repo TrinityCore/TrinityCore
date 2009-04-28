@@ -130,7 +130,7 @@ struct TRINITY_DLL_DECL boss_dorotheeAI : public ScriptedAI
         TitoDied = false;
     }
 
-    void Aggro(Unit* who)
+    void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_DOROTHEE_AGGRO, m_creature);
     }
@@ -211,7 +211,7 @@ struct TRINITY_DLL_DECL mob_titoAI : public ScriptedAI
         YipTimer = 10000;
     }
 
-    void Aggro(Unit* who) {}
+    void EnterCombat(Unit* who) {}
 
     void JustDied(Unit* killer)
     {
@@ -290,7 +290,7 @@ struct TRINITY_DLL_DECL boss_strawmanAI : public ScriptedAI
         ScriptedAI::MoveInLineOfSight(who);
     }
 
-    void Aggro(Unit* who)
+    void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_STRAWMAN_AGGRO, m_creature);
     }
@@ -375,7 +375,7 @@ struct TRINITY_DLL_DECL boss_tinheadAI : public ScriptedAI
         RustCount   = 0;
     }
 
-    void Aggro(Unit* who)
+    void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_TINHEAD_AGGRO, m_creature);
     }
@@ -482,7 +482,7 @@ struct TRINITY_DLL_DECL boss_roarAI : public ScriptedAI
         ScriptedAI::AttackStart(who);
     }
 
-    void Aggro(Unit* who)
+    void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_ROAR_AGGRO, m_creature);
     }
@@ -554,7 +554,7 @@ struct TRINITY_DLL_DECL boss_croneAI : public ScriptedAI
         ChainLightningTimer = 10000;
     }
 
-    void Aggro(Unit* who)
+    void EnterCombat(Unit* who)
     {
         switch(rand()%2)
         {
@@ -619,7 +619,7 @@ struct TRINITY_DLL_DECL mob_cycloneAI : public ScriptedAI
         MoveTimer = 1000;
     }
 
-    void Aggro(Unit* who) {}
+    void EnterCombat(Unit* who) {}
 
     void MoveInLineOfSight(Unit* who)
     {
@@ -755,7 +755,7 @@ struct TRINITY_DLL_DECL boss_bigbadwolfAI : public ScriptedAI
         IsChasing = false;
     }
 
-    void Aggro(Unit* who)
+    void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_WOLF_AGGRO, m_creature);
     }
@@ -978,7 +978,7 @@ struct TRINITY_DLL_DECL boss_julianneAI : public ScriptedAI
         RomuloDead = false;
     }
 
-    void Aggro(Unit* who) {}
+    void EnterCombat(Unit* who) {}
 
     void AttackStart(Unit* who)
     {
@@ -1074,7 +1074,7 @@ struct TRINITY_DLL_DECL boss_romuloAI : public ScriptedAI
 
     void DamageTaken(Unit* done_by, uint32 &damage);
 
-    void Aggro(Unit* who)
+    void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_ROMULO_AGGRO, m_creature);
         if(JulianneGUID)

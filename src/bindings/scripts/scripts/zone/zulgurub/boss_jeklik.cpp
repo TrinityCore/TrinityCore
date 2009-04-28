@@ -77,7 +77,7 @@ struct TRINITY_DLL_DECL boss_jeklikAI : public ScriptedAI
         PhaseTwo = false;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
         DoCast(m_creature,SPELL_BAT_FORM);
@@ -229,7 +229,7 @@ struct TRINITY_DLL_DECL mob_batriderAI : public ScriptedAI
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }
 
-    void Aggro(Unit *who) {}
+    void EnterCombat(Unit *who) {}
 
     void UpdateAI (const uint32 diff)
     {

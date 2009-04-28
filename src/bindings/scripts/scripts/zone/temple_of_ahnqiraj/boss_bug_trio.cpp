@@ -61,7 +61,7 @@ struct TRINITY_DLL_DECL boss_kriAI : public ScriptedAI
         Death = false;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 
@@ -156,7 +156,7 @@ struct TRINITY_DLL_DECL boss_vemAI : public ScriptedAI
         }
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 
@@ -244,7 +244,7 @@ struct TRINITY_DLL_DECL boss_yaujAI : public ScriptedAI
         }
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 

@@ -40,7 +40,7 @@ struct TRINITY_DLL_DECL boss_mothersmolderwebAI : public ScriptedAI
         MothersMilk_Timer = 10000;
     }
 
-    void Aggro(Unit *who) { }
+    void EnterCombat(Unit *who) { }
 
     void DamageTaken(Unit *done_by, uint32 &damage)
     {

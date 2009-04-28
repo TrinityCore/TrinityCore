@@ -42,7 +42,7 @@ struct TRINITY_DLL_DECL celebras_the_cursedAI : public ScriptedAI
         CorruptForces_Timer = 30000;
     }
 
-    void Aggro(Unit *who) { }
+    void EnterCombat(Unit *who) { }
 
     void JustDied(Unit* Killer)
     {

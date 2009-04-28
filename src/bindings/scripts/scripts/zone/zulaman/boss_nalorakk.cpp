@@ -258,7 +258,7 @@ struct TRINITY_DLL_DECL boss_nalorakkAI : public ScriptedAI
         }
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         if(pInstance)
             pInstance->SetData(DATA_NALORAKKEVENT, IN_PROGRESS);

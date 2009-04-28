@@ -55,7 +55,7 @@ struct TRINITY_DLL_DECL boss_herodAI : public ScriptedAI
         Whirlwind_Timer = 60000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
         DoCast(m_creature,SPELL_RUSHINGCHARGE);
@@ -121,7 +121,7 @@ struct TRINITY_DLL_DECL mob_scarlet_traineeAI : public npc_escortAI
 
     void Reset() { }
     void WaypointReached(uint32 uiPoint) { }
-    void Aggro(Unit* who) { }
+    void EnterCombat(Unit* who) { }
 
     void UpdateAI(const uint32 diff)
     {

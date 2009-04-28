@@ -57,7 +57,7 @@ struct TRINITY_DLL_DECL boss_faerlinaAI : public ScriptedAI
         HasTaunted = false;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         switch (rand()%4)
         {

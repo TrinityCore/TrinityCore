@@ -169,7 +169,7 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
         }
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         switch(rand()%3)
         {
@@ -538,7 +538,7 @@ struct TRINITY_DLL_DECL water_elementalAI : public ScriptedAI
         CastTimer = 2000 + (rand()%3000);
     }
 
-    void Aggro(Unit* who) {}
+    void EnterCombat(Unit* who) {}
 
     void UpdateAI(const uint32 diff)
     {

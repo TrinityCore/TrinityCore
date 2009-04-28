@@ -73,7 +73,7 @@ struct TRINITY_DLL_DECL boss_magistrate_barthilasAI : public ScriptedAI
         m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_HUMAN);
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 

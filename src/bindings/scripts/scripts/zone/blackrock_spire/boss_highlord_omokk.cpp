@@ -54,7 +54,7 @@ struct TRINITY_DLL_DECL boss_highlordomokkAI : public ScriptedAI
         Slow_Timer = 24000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 

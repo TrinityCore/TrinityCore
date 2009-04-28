@@ -43,7 +43,7 @@ struct TRINITY_DLL_DECL boss_quatermasterzigrisAI : public ScriptedAI
         //HelingPotion_Timer = 25000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 

@@ -39,7 +39,7 @@ struct TRINITY_DLL_DECL boss_gorosh_the_dervishAI : public ScriptedAI
         MortalStrike_Timer = 22000;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 

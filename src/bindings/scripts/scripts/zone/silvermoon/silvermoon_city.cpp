@@ -52,7 +52,7 @@ struct TRINITY_DLL_DECL npc_blood_knight_stillbladeAI : public ScriptedAI
         spellHit = false;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 

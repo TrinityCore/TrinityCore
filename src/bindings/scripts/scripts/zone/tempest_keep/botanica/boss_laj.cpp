@@ -140,7 +140,7 @@ struct TRINITY_DLL_DECL boss_lajAI : public ScriptedAI
         CanSummon = false;
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
     }
 

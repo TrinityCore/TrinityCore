@@ -88,7 +88,7 @@ struct TRINITY_DLL_DECL npc_ameAI : public npc_escortAI
       DEMORALIZINGSHOUT_Timer = 5000;
     }
 
-    void Aggro(Unit* who)
+    void EnterCombat(Unit* who)
     {}
 
     void JustSummoned(Creature* summoned)

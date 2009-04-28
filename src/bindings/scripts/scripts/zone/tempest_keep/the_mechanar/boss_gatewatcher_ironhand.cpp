@@ -63,7 +63,7 @@ struct TRINITY_DLL_DECL boss_gatewatcher_iron_handAI : public ScriptedAI
         Stream_of_Machine_Fluid_Timer = 55000;
 
     }
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         DoScriptText(SAY_AGGRO_1, m_creature);
     }

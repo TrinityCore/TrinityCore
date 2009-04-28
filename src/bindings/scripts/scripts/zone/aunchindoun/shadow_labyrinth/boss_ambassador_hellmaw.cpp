@@ -115,7 +115,7 @@ struct TRINITY_DLL_DECL boss_ambassador_hellmawAI : public ScriptedAI
             pInstance->SetData(TYPE_HELLMAW, IN_PROGRESS);
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         switch(rand()%3)
         {
@@ -157,7 +157,7 @@ struct TRINITY_DLL_DECL boss_ambassador_hellmawAI : public ScriptedAI
             }else EventCheck_Timer -= diff;
         }
 
-        if (!InCombat && !IsBanished)
+        if (!m_creature->isInCombat() && !IsBanished)
         {
             //this is where we add MovePoint()
             //DoWhine("I haz no mount!", LANG_UNIVERSAL, NULL);

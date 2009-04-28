@@ -43,7 +43,7 @@ struct TRINITY_DLL_DECL mob_webbed_creatureAI : public ScriptedAI
     {
     }
 
-    void Aggro(Unit* who)
+    void EnterCombat(Unit* who)
     {
     }
 

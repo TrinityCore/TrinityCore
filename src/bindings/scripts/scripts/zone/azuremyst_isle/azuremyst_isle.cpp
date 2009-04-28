@@ -82,7 +82,7 @@ struct TRINITY_DLL_DECL npc_draenei_survivorAI : public ScriptedAI
         m_creature->SetStandState(UNIT_STAND_STATE_SLEEP);
     }
 
-    void Aggro(Unit *who) {}
+    void EnterCombat(Unit *who) {}
 
     void MoveInLineOfSight(Unit *who)
     {
@@ -206,11 +206,11 @@ struct TRINITY_DLL_DECL npc_engineer_spark_overgrindAI : public ScriptedAI
         m_creature->setFaction(875);
     }
 
-    void Aggro(Unit *who) { }
+    void EnterCombat(Unit *who) { }
 
     void UpdateAI(const uint32 diff)
     {
-        if( !InCombat )
+        if( !m_creature->isInCombat() )
         {
             if (Emote_Timer < diff)
             {
@@ -278,7 +278,7 @@ struct TRINITY_DLL_DECL npc_injured_draeneiAI : public ScriptedAI
         }
     }
 
-    void Aggro(Unit *who) {}
+    void EnterCombat(Unit *who) {}
 
     void MoveInLineOfSight(Unit *who)
     {
@@ -341,7 +341,7 @@ struct TRINITY_DLL_DECL npc_magwinAI : public npc_escortAI
         }
     }
 
-    void Aggro(Unit* who)
+    void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature, who);
     }
@@ -460,7 +460,7 @@ struct TRINITY_DLL_DECL npc_geezleAI : public ScriptedAI
         StartEvent();
     }
 
-    void Aggro(Unit* who){}
+    void EnterCombat(Unit* who){}
 
     void StartEvent()
     {
@@ -576,7 +576,7 @@ struct TRINITY_DLL_DECL mob_nestlewood_owlkinAI : public ScriptedAI
         Hitted = false;
     }
 
-    void Aggro(Unit *who){}
+    void EnterCombat(Unit *who){}
 
     void SpellHit(Unit* caster, const SpellEntry* spell)
     {

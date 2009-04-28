@@ -150,7 +150,7 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
             RemoveGravityLapse();                           // Remove Gravity Lapse so that players fall to ground if they kill him when in air.
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         if (pInstance)
         {
@@ -434,7 +434,7 @@ struct TRINITY_DLL_DECL mob_felkael_flamestrikeAI : public ScriptedAI
         DoCast(m_creature, SPELL_FLAMESTRIKE2, true);
     }
 
-    void Aggro(Unit *who) {}
+    void EnterCombat(Unit *who) {}
     void MoveInLineOfSight(Unit *who) {}
     void UpdateAI(const uint32 diff)
     {
@@ -470,7 +470,7 @@ struct TRINITY_DLL_DECL mob_felkael_phoenixAI : public ScriptedAI
         FakeDeath = false;
     }
 
-    void Aggro(Unit* who) {}
+    void EnterCombat(Unit* who) {}
 
     void DamageTaken(Unit* pKiller, uint32 &damage)
     {
@@ -569,7 +569,7 @@ struct TRINITY_DLL_DECL mob_felkael_phoenix_eggAI : public ScriptedAI
 
     }
 
-    void Aggro(Unit* who) {}
+    void EnterCombat(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
 
     void UpdateAI(const uint32 diff)
@@ -602,7 +602,7 @@ struct TRINITY_DLL_DECL mob_arcane_sphereAI : public ScriptedAI
     }
 
 
-    void Aggro(Unit* who) {}
+    void EnterCombat(Unit* who) {}
 
 
     void UpdateAI(const uint32 diff)
