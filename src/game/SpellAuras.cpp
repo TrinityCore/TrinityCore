@@ -2199,10 +2199,13 @@ void AuraEffect::TriggerSpell()
             }
             // Negative Energy Periodic
             case 46284:
-            {
                 caster->CastCustomSpell(trigger_spell_id, SPELLVALUE_MAX_TARGETS, m_tickNumber / 10 + 1, NULL, true, NULL, this);
                 return;
-            }
+            // Poison (Grobbulus)
+            case 28158:
+            case 54362:
+                m_target->CastCustomSpell(trigger_spell_id, SPELLVALUE_RADIUS_MOD, (int32)((((float)m_tickNumber / 60) * 0.9f + 0.1f) * 10000), NULL, true, NULL, this);
+                return;                
         }
     }
 
