@@ -213,9 +213,11 @@ struct SpellValue
         for(uint32 i = 0; i < 3; ++i)
             EffectBasePoints[i] = proto->EffectBasePoints[i];
         MaxAffectedTargets = proto->MaxAffectedTargets;
+        RadiusMod = 1.0f;
     }
     int32     EffectBasePoints[3];
     uint32    MaxAffectedTargets;
+    float     RadiusMod;
 };
 
 enum SpellState
@@ -473,6 +475,7 @@ class Spell
         void CleanupTargetList();
 
         void SetSpellValue(SpellValueMod mod, int32 value);
+        //void SetSpellValue(SpellValueMod mod, float value);
     protected:
 
         void SendLoot(uint64 guid, LootType loottype);
