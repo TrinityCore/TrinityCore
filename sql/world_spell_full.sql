@@ -1,4 +1,4 @@
--- up to 832
+-- up to TC2 2987 TC1 1434
 
 -- --------
 -- LINKED
@@ -25,68 +25,114 @@ CREATE TABLE `spell_linked_spell` (
 
 INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comment`) VALUES
 -- class
-(31224,  -1543,  2, 'Cloak of Shadows - Flare'),
-(15237,  23455,  0, 'Holy Nova (rank1)'),
-(15430,  23458,  0, 'Holy Nova (rank2)'),
-(15431,  23459,  0, 'Holy Nova (rank3)'),
-(27799,  27803,  0, 'Holy Nova (rank4)'),
-(27800,  27804,  0, 'Holy Nova (rank5)'),
-(27801,  27805,  0, 'Holy Nova (rank6)'),
-(25331,  25329,  0, 'Holy Nova (rank7)'),
-(48077,  48075,  0, 'Holy Nova (rank8)'),
-(48078,  48076,  0, 'Holy Nova (rank9)'),
-(-19386, 24131,  0, 'Wyvern Sting'),
-(-24132, 24134,  0, 'Wyvern Sting'),
-(-24133, 24135,  0, 'Wyvern Sting'),
-(-27068, 27069,  0, 'Wyvern Sting'),
-(-49011, 49009,  0, 'Wyvern Sting'),
-(-49012, 49010,  0, 'Wyvern Sting'),
+( 31224, -1543, 2, 'Cloak of Shadows - Flare'),
+( 15237, 23455, 0, 'Holy Nova (rank1)'),
+( 15430, 23458, 0, 'Holy Nova (rank2)'),
+( 15431, 23459, 0, 'Holy Nova (rank3)'),
+( 27799, 27803, 0, 'Holy Nova (rank4)'),
+( 27800, 27804, 0, 'Holy Nova (rank5)'),
+( 27801, 27805, 0, 'Holy Nova (rank6)'),
+( 25331, 25329, 0, 'Holy Nova (rank7)'),
+( 48077, 48075, 0, 'Holy Nova (rank8)'),
+( 48078, 48076, 0, 'Holy Nova (rank9)'),
+(-19386, 24131, 0, 'Wyvern Sting'),
+(-24132, 24134, 0, 'Wyvern Sting'),
+(-24133, 24135, 0, 'Wyvern Sting'),
+(-27068, 27069, 0, 'Wyvern Sting'),
+(-49011, 49009, 0, 'Wyvern Sting'),
+(-49012, 49010, 0, 'Wyvern Sting'),
+( 47585, 60069, 0, 'Dispersion (transform/regen)'),
+(-47953, 60406, 0, 'Divine hymn buff to enemies'),
+( 48265, 49772, 2, 'Unholy Presence'),
+( 49772, 55222, 2, 'Unholy Presence'),
+( 48263, 61261, 2, 'Frost Presence'),
+( 61847, 61848, 2, 'Aspect of te dragonhawk'),
+( 61846, 61848, 2, 'Aspect of te dragonhawk'),
+( 47988, 54501, 2, 'Consume Shadows - Rank 9'),
+( 47987, 54501, 2, 'Consume Shadows - Rank 8'),
+( 27272, 54501, 2, 'Consume Shadows - Rank 7'),
+( 17854, 54501, 2, 'Consume Shadows - Rank 6'),
+( 17853, 54501, 2, 'Consume Shadows - Rank 5'),
+( 17852, 54501, 2, 'Consume Shadows - Rank 4'),
+( 17851, 54501, 2, 'Consume Shadows - Rank 3'),
+( 17850, 54501, 2, 'Consume Shadows - Rank 2'),
+( 17767, 54501, 2, 'Consume Shadows - Rank 1'),
+( 53563, 53651, 2, 'Beacon of Light'),
+( 16857, 60089, 0, 'Faerie Fire (Feral) Rank 1'),
+( 17390, 60089, 0, 'Faerie Fire (Feral) Rank 2'),
+( 17391, 60089, 0, 'Faerie Fire (Feral) Rank 3'),
+( 17392, 60089, 0, 'Faerie Fire (Feral) Rank 4'),
+( 27011, 60089, 0, 'Faerie Fire (Feral) Rank 5'),
+( 48475, 60089, 0, 'Faerie Fire (Feral) Rank 6'),
+(   781, 56446, 0, 'Disengage'),
+( 57635, 57636, 0, 'Disengage'),
+( 60932, 60934, 0, 'Disengage'),
+( 61507, 61508, 0, 'Disengage'),
+( 49576, 49560, 0, 'Death Grip'),
+( 47897, 47960, 1, 'Shadowflame Rank 1'),
+( 61290, 61291, 1, 'Shadowflame Rank 2'),
+( 51723, 52874, 0, 'Fan Of Knives'),
+( 32386, 60448, 2, 'Shadow Embrace Rank1'),
+( 32388, 60465, 2, 'Shadow Embrace Rank2'),
+( 32389, 60466, 2, 'Shadow Embrace Rank3'),
+( 32390, 60467, 2, 'Shadow Embrace Rank4'),
+( 32391, 60468, 2, 'Shadow Embrace Rank5'),
 -- Creature
-(36574,  36650,  0, 'Apply Phase Slip Vulnerability'),
+( 36574, 36650, 0, 'Apply Phase Slip Vulnerability'),
 -- instance
-(-30410, 44032,  0, 'Manticron Cube Mind Exhaustion'),
+(-30410, 44032, 0, 'Manticron Cube Mind Exhaustion'),
+(-33711, 33686, 0, 'Murmur\'s Shockwave (Normal)'),
+(-38794, 33686, 0, 'Murmur\'s Shockwave (Heroic)'),
+( 33686, 31705, 0, 'Murmur\'s Shockwave Jump'),
 -- Zul'aman
-(44008,  45265,  1, 'Static Disruption Visual'),
-(43648,  44007,  1, 'Storm Eye Safe Zone'),
-(44007,  -43657, 2, 'Storm Eye Safe Zone Immune'),
-(43658,  43653,  0, 'Electrical Arc Visual'),
-(43658,  43654,  0, 'Electrical Arc Visual'),
-(43658,  43655,  0, 'Electrical Arc Visual'),
-(43658,  43656,  0, 'Electrical Arc Visual'),
-(43658,  43659,  0, 'Electrical Arc Visual'),
+( 44008, 45265, 1, 'Static Disruption Visual'),
+( 43648, 44007, 1, 'Storm Eye Safe Zone'),
+( 44007,-43657, 2, 'Storm Eye Safe Zone Immune'),
+( 43658, 43653, 0, 'Electrical Arc Visual'),
+( 43658, 43654, 0, 'Electrical Arc Visual'),
+( 43658, 43655, 0, 'Electrical Arc Visual'),
+( 43658, 43656, 0, 'Electrical Arc Visual'),
+( 43658, 43659, 0, 'Electrical Arc Visual'),
 -- black temple
 # (39992, 39835, 1, 'Needle Spine'),
-(39835,  39968,  1, 'Needle Spine'),
-(-41376, 41377,  0, 'Spite'),
-(41126,  41131,  1, 'Flame Crash'),
-(-41914, 41915,  0, 'Summon Parasitic Shadowfiend'),
-(-41917, 41915,  0, 'Summon Parasitic Shadowfiend'),
-(39908,  40017,  1, 'Eye Blast'),
-(40604,  40616,  1, 'Fel Rage Aura'),
-(40616,  41625,  1, 'Fel Rage Aura'),
-(41292,  42017,  2, 'Aura of Suffering'),
+( 39835, 39968, 1, 'Needle Spine'),
+(-41376, 41377, 0, 'Spite'),
+( 41126, 41131, 1, 'Flame Crash'),
+(-41914, 41915, 0, 'Summon Parasitic Shadowfiend'),
+(-41917, 41915, 0, 'Summon Parasitic Shadowfiend'),
+( 39908, 40017, 1, 'Eye Blast'),
+( 40604, 40616, 1, 'Fel Rage Aura'),
+( 40616, 41625, 1, 'Fel Rage Aura'),
+( 41292, 42017, 2, 'Aura of Suffering'),
 -- sunwell
-(44869,  44866,  1, 'Spectral Blast Portal'),
+( 44869, 44866, 1, 'Spectral Blast Portal'),
 # (44869, 46648, 1, 'Spectral Blast Visual'), cause severe lag seems should be casted by go
-(44869,  46019,  1, 'Spectral Blast Teleport'),
-(46019,  46021,  1, 'Spectral Realm Aura'),
+( 44869, 46019, 1, 'Spectral Blast Teleport'),
+( 46019, 46021, 1, 'Spectral Realm Aura'),
 # (46021, 44852, 1, 'Spectral Realm Aura'), 44852 makes boss friendly to you
-(-46021, 46020,  0, 'Teleport: Normal Realm'),
-(46020,  44867,  1, 'Spectral Exhaustion'),
-(44867,  -46019, 2, 'Spectral Exhaustion - Teleport: Spectral Realm'),
-(45661,  45665,  1, 'Encapsulate'),
-(45347,  -45348, 1, 'Remove Flame Touched'),
-(45348,  -45347, 1, 'Remove Dark Touched'),
-(45248,  45347,  1, 'Apply Dark Touched'),
-(45329,  45347,  1, 'Apply Dark Touched'),
-(45256,  45347,  1, 'Apply Dark Touched'),
-(45270,  45347,  1, 'Apply Dark Touched'),
-(45342,  45348,  1, 'Apply Flame Touched'),
-(46771,  45348,  1, 'Apply Flame Touched'),
-(45271,  45347,  1, 'Apply Dark Touched'),
-(45246,  45348,  1, 'Apply Flame Touched'),
-(44869, -45018,  1, 'Remove Arcane Buffet'),
-(46019, -45018,  1, 'Remove Arcane Buffet');
+(-46021, 46020, 0, 'Teleport: Normal Realm'),
+( 46020, 44867, 1, 'Spectral Exhaustion'),
+( 44867,-46019, 2, 'Spectral Exhaustion - Teleport: Spectral Realm'),
+( 45661, 45665, 1, 'Encapsulate'),
+( 45347,-45348, 1, 'Remove Flame Touched'),
+( 45348,-45347, 1, 'Remove Dark Touched'),
+( 45248, 45347, 1, 'Apply Dark Touched'),
+( 45329, 45347, 1, 'Apply Dark Touched'),
+( 45256, 45347, 1, 'Apply Dark Touched'),
+( 45270, 45347, 1, 'Apply Dark Touched'),
+( 45342, 45348, 1, 'Apply Flame Touched'),
+( 46771, 45348, 1, 'Apply Flame Touched'),
+( 45271, 45347, 1, 'Apply Dark Touched'),
+( 45246, 45348, 1, 'Apply Flame Touched'),
+( 44869,-45018, 1, 'Remove Arcane Buffet'),
+( 46019,-45018, 1, 'Remove Arcane Buffet'),
+( 46242, 46247, 0, 'Black Hole Visual (Birth)'),
+( 46228, 46235, 0, 'Black Hole Visual (Grown)'),
+( 46228,-46247, 0, 'Black Hole Visual (Grown)'),
+( 46262, 46265, 0, 'Void Zone Visual'),
+-- naxx
+(-28169, 28206, 0, 'Mutating Injection - Mutagen Explosion'),
+(-28169, 28240, 0, 'Mutating Injection - Poison Cloud');
 
 
 -- --------
@@ -95,17 +141,19 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 
 INSERT INTO creature_template (entry, spell1, flags_extra, scriptname) VALUES
 (23095, 40980, 128, 'molten_flame'), # molten_flame
-(23085, 40117, 128, ''), # volcano
+# (23085, 40117, 128, ''), # volcano
 (23336, 40836, 128, ''), # flame crash
 (23259, 40610, 128, ''), # blaze
 (23069, 40029, 128, ''), # demon fire
 (24187, 43218, 128, ''), # pillar of fire
-(17662, 30914, 128, '')  # Broggok Poison Cloud
+(17662, 30914, 128, ''), # Broggok Poison Cloud
+(25879, 46262, 128, '')  # Void Zone Periodic
 ON DUPLICATE KEY UPDATE
 spell1 = VALUES(spell1),
 flags_extra = VALUES(flags_extra),
 scriptname = VALUES(scriptname);
 
+UPDATE creature_template SET spell1 = 28158, spell2 = 54362, flags_extra = 128 WHERE entry = 16363;
 UPDATE creature_template SET speed = 1.0 WHERE entry = 23095; # molten_flame
 
 
@@ -179,6 +227,24 @@ INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
 (33655, 0, 183350), # Dropping The Nether Modulator/Gateway Murketh
 (33655, 0, 183351),
 (44374, 1, 24722);
+
+REPLACE INTO `spell_script_target` VALUES
+(33655,0,183350),
+(33655,0,183351),
+(44374,1,24722),
+(31538,1,17895),
+(29967,1,16524),
+(39887,1,23002),
+(31617,1,17899),
+(31624,1,17899),
+(31625,1,17899),
+(34019,1,19422),
+(34946,1,20040),
+(34946,1,20041),
+(21934,1,21934),
+(43144,1,23817),
+(12613,1,5843),
+(9095,1,1200);
 
 DELETE FROM `spell_script_target` WHERE entry IN
 (8913,9095,12613,34019,34526,36904,38015,38738,39011,39844,40105,40106,42391);
@@ -373,10 +439,36 @@ REPLACE INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
 (47104,1,26401),
 (49058,1,24968); -- Rocket Bot Attack
 
+DELETE FROM `spell_script_target` WHERE entry IN
+(42857,44807,32307,32314,42222);
+INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
+(42857, 1, 23954), -- Scourge Resurrection
+(44807, 1, 24850), -- Crazed Rage - Kalecgos
+(44807, 1, 24892),
+(32307, 2, 17146), -- Plant Warmaul Ogre Banner
+(32307, 2, 17147),
+(32307, 2, 17148),
+(32307, 2, 18658),
+(32314, 2, 17138), -- Plant Kil'sorrow Banner
+(32314, 2, 18037),
+(32314, 2, 18064),
+(32314, 2, 18065),
+(42222, 1, 23616); -- Lunch for Kyle
+
+DELETE FROM `spell_script_target` WHERE `entry` IN
+(46589, 45839, 45976, 46177);
+INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
+(46589, 1, 30598), -- Shadow Spike - Spike Target
+(46589, 1, 30614), -- Shadow Spike - Spike Target 2
+(45839, 1, 25653), -- Vengeance of the Blue Flight - Power of the Blue Flight
+(45976, 1, 25770), -- Open Portal
+(46177, 1, 25770); -- Open All Portals
+
 -- --------
 -- POSITION
 -- --------
 DELETE FROM spell_target_position WHERE `id` IN (46019, 46020);
 INSERT INTO spell_target_position () VALUES (46019, 580, 1704.34, 928.17, -74.558, 0);
 INSERT INTO spell_target_position () VALUES (46020, 580, 1704.34, 928.17, 53.079, 0);
+INSERT INTO spell_target_position () VALUES (53360, 571, 5807.829, 587.960, 660.939, 1.663);
 
