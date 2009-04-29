@@ -151,7 +151,7 @@ void LootStore::LoadLootTable()
                 tab = m_LootTemplates.find(entry);
                 if ( tab == m_LootTemplates.end() )
                 {
-                    std::pair< LootTemplateMap::const_iterator, bool > pr = m_LootTemplates.insert(LootTemplateMap::value_type(entry, new LootTemplate));
+                    std::pair< LootTemplateMap::iterator, bool > pr = m_LootTemplates.insert(LootTemplateMap::value_type(entry, new LootTemplate));
                     tab = pr.first;
                 }
             }
