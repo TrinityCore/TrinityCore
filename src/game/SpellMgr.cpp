@@ -393,7 +393,7 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
             if ((spellInfo->SpellFamilyFlags[1] & 0x000008 || spellInfo->SpellFamilyFlags[0] & 0x20180400) && (spellInfo->AttributesEx3 & 0x200))
                 return SPELL_JUDGEMENT;
 
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 3; ++i)
             {
                 // only paladin auras have this (for palaldin class family)
                 if (spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AREA_AURA_RAID)
@@ -745,7 +745,7 @@ bool IsPositiveSpell(uint32 spellId, bool deep)
 
     // spells with at least one negative effect are considered negative
     // some self-applied spells have negative effects but in self casting case negative check ignored.
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < 3; ++i)
         if (!IsPositiveEffect(spellId, i, deep))
             return false;
     return true;
@@ -819,7 +819,7 @@ bool IsAuraAddedBySpell(uint32 auraType, uint32 spellId)
     SpellEntry const *spellproto = sSpellStore.LookupEntry(spellId);
     if (!spellproto) return false;
 
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < 3; ++i)
         if (spellproto->EffectApplyAuraName[i] == auraType)
             return true;
     return false;
@@ -1350,7 +1350,7 @@ bool SpellMgr::canStackSpellRanks(SpellEntry const *spellInfo)
         return false;
 
     // All stance spells. if any better way, change it.
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < 3; ++i)
     {
         switch(spellInfo->SpellFamilyName)
         {
@@ -1530,7 +1530,7 @@ SpellEntry const* SpellMgr::SelectAuraRankForPlayerLevel(SpellEntry const* spell
         return spellInfo;
 
     bool needRankSelection = false;
-    for(int i=0;i<3;i++)
+    for(int i=0;i<3;++i)
     {
         if( IsPositiveEffect(spellInfo->Id, i) && (
             spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AURA ||
@@ -2864,7 +2864,7 @@ SpellCastResult SpellMgr::GetSpellAllowedInLocationError(SpellEntry const *spell
         AreaGroupEntry const* groupEntry = sAreaGroupStore.LookupEntry(spellInfo->AreaGroupId);
         while (groupEntry)
         {
-            for (uint32 i=0; i<6; i++)
+            for (uint32 i=0; i<6; ++i)
                 if( groupEntry->AreaId[i] == zone_id || groupEntry->AreaId[i] == area_id )
                     found = true;
             if (found || !groupEntry->nextGroup)
@@ -2964,7 +2964,7 @@ void SpellMgr::LoadSkillLineAbilityMap()
     barGoLink bar( sSkillLineAbilityStore.GetNumRows() );
     uint32 count = 0;
 
-    for (uint32 i = 0; i < sSkillLineAbilityStore.GetNumRows(); i++)
+    for (uint32 i = 0; i < sSkillLineAbilityStore.GetNumRows(); ++i)
     {
         bar.step();
         SkillLineAbilityEntry const *SkillInfo = sSkillLineAbilityStore.LookupEntry(i);

@@ -50,7 +50,7 @@ void LoadRandomEnchantmentsTable()
 {
     RandomItemEnch.clear();                                 // for reload case
 
-    EnchantmentStore::iterator tab;
+    EnchantmentStore::const_iterator tab;
     uint32 entry, ench;
     float chance;
     uint32 count = 0;
@@ -92,7 +92,7 @@ uint32 GetItemEnchantMod(uint32 entry)
 {
     if (!entry) return 0;
 
-    EnchantmentStore::iterator tab = RandomItemEnch.find(entry);
+    EnchantmentStore::const_iterator tab = RandomItemEnch.find(entry);
 
     if (tab == RandomItemEnch.end())
     {
@@ -103,7 +103,7 @@ uint32 GetItemEnchantMod(uint32 entry)
     double dRoll = rand_chance();
     float fCount = 0;
 
-    for(EnchStoreList::iterator ench_iter = tab->second.begin(); ench_iter != tab->second.end(); ++ench_iter)
+    for(EnchStoreList::const_iterator ench_iter = tab->second.begin(); ench_iter != tab->second.end(); ++ench_iter)
     {
         fCount += ench_iter->chance;
 
@@ -114,7 +114,7 @@ uint32 GetItemEnchantMod(uint32 entry)
     dRoll =  (irand(0, (int)floor(fCount * 100) + 1)) / 100;
     fCount = 0;
 
-    for(EnchStoreList::iterator ench_iter = tab->second.begin(); ench_iter != tab->second.end(); ++ench_iter)
+    for(EnchStoreList::const_iterator ench_iter = tab->second.begin(); ench_iter != tab->second.end(); ++ench_iter)
     {
         fCount += ench_iter->chance;
 

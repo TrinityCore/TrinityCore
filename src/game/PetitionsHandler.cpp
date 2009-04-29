@@ -279,7 +279,7 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket & recv_data)
     data << petitionguid_low;                               // guild guid (in Trinity always same as GUID_LOPART(petitionguid)
     data << signs;                                          // sign's count
 
-    for(uint8 i = 1; i <= signs; i++)
+    for(uint8 i = 1; i <= signs; ++i)
     {
         Field *fields2 = result->Fetch();
         uint64 plguid = fields2[0].GetUInt64();
@@ -690,7 +690,7 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recv_data)
     data << GUID_LOPART(petitionguid);                      // guild guid (in Trinity always same as GUID_LOPART(petition guid)
     data << signs;                                          // sign's count
 
-    for(uint8 i = 1; i <= signs; i++)
+    for(uint8 i = 1; i <= signs; ++i)
     {
         Field *fields2 = result->Fetch();
         plguid = fields2[0].GetUInt64();
@@ -959,7 +959,7 @@ void WorldSession::SendPetitionShowList(uint64 guid)
         data << uint32(5);                                  // unknown
         data << uint32(5);                                  // required signs?
     }
-    //for(uint8 i = 0; i < count; i++)
+    //for(uint8 i = 0; i < count; ++i)
     //{
     //    data << uint32(i);                      // index
     //    data << uint32(GUILD_CHARTER);          // charter entry

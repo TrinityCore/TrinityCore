@@ -2002,7 +2002,7 @@ void Map::SendInitTransports( Player * player )
 
     bool hasTransport = false;
 
-    for (MapManager::TransportSet::iterator i = tset.begin(); i != tset.end(); ++i)
+    for (MapManager::TransportSet::const_iterator i = tset.begin(); i != tset.end(); ++i)
     {
         // send data for current transport in other place
         if((*i) != player->GetTransport() && (*i)->GetMapId()==i_id)
@@ -2031,7 +2031,7 @@ void Map::SendRemoveTransports( Player * player )
     MapManager::TransportSet& tset = tmap[player->GetMapId()];
 
     // except used transport
-    for (MapManager::TransportSet::iterator i = tset.begin(); i != tset.end(); ++i)
+    for (MapManager::TransportSet::const_iterator i = tset.begin(); i != tset.end(); ++i)
         if((*i) != player->GetTransport() && (*i)->GetMapId()!=i_id)
             (*i)->BuildOutOfRangeUpdateBlock(&transData);
 

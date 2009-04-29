@@ -910,7 +910,7 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand *table, const char* text, co
 
     while (*text == ' ') ++text;
 
-    for(uint32 i = 0; table[i].Name != NULL; i++)
+    for(uint32 i = 0; table[i].Name != NULL; ++i)
     {
         if( !hasStringAbbr(table[i].Name, cmd.c_str()) )
             continue;

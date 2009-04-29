@@ -229,7 +229,7 @@ void WorldSession::HandleLootMoneyOpcode( WorldPacket & /*recv_data*/ )
 
             uint32 money_per_player = uint32((pLoot->gold)/(playersNear.size()));
 
-            for (std::vector<Player*>::iterator i = playersNear.begin(); i != playersNear.end(); ++i)
+            for (std::vector<Player*>::const_iterator i = playersNear.begin(); i != playersNear.end(); ++i)
             {
                 (*i)->ModifyMoney( money_per_player );
                 (*i)->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_MONEY, money_per_player);

@@ -142,7 +142,7 @@ uint32 GetExplicitDiscoverySpell(uint32 spellId, Player* player)
 {
     // explicit discovery spell chances (always success if case exist)
     // in this case we have both skill and spell
-    SkillDiscoveryMap::iterator tab = SkillDiscoveryStore.find(spellId);
+    SkillDiscoveryMap::const_iterator tab = SkillDiscoveryStore.find(spellId);
     if(tab == SkillDiscoveryStore.end())
         return 0;
 
@@ -151,7 +151,7 @@ uint32 GetExplicitDiscoverySpell(uint32 spellId, Player* player)
     uint32 skillvalue = lower != upper ? player->GetSkillValue(lower->second->skillId) : 0;
 
     float full_chance = 0;
-    for(SkillDiscoveryList::iterator item_iter = tab->second.begin(); item_iter != tab->second.end(); ++item_iter)
+    for(SkillDiscoveryList::const_iterator item_iter = tab->second.begin(); item_iter != tab->second.end(); ++item_iter)
         if(item_iter->reqSkillValue <= skillvalue)
             if(!player->HasSpell(item_iter->spellId))
                 full_chance += item_iter->chance;
@@ -159,7 +159,7 @@ uint32 GetExplicitDiscoverySpell(uint32 spellId, Player* player)
     float rate = full_chance / 100.0f;
     float roll = rand_chance() * rate;              // roll now in range 0..full_chance
 
-    for(SkillDiscoveryList::iterator item_iter = tab->second.begin(); item_iter != tab->second.end(); ++item_iter)
+    for(SkillDiscoveryList::const_iterator item_iter = tab->second.begin(); item_iter != tab->second.end(); ++item_iter)
     {
         if(item_iter->reqSkillValue > skillvalue)
             continue;
@@ -181,11 +181,11 @@ uint32 GetSkillDiscoverySpell(uint32 skillId, uint32 spellId, Player* player)
     uint32 skillvalue = skillId ? player->GetSkillValue(skillId) : 0;
 
     // check spell case
-    SkillDiscoveryMap::iterator tab = SkillDiscoveryStore.find(spellId);
+    SkillDiscoveryMap::const_iterator tab = SkillDiscoveryStore.find(spellId);
 
     if(tab != SkillDiscoveryStore.end())
     {
-        for(SkillDiscoveryList::iterator item_iter = tab->second.begin(); item_iter != tab->second.end(); ++item_iter)
+        for(SkillDiscoveryList::const_iterator item_iter = tab->second.begin(); item_iter != tab->second.end(); ++item_iter)
         {
             if( roll_chance_f(item_iter->chance * sWorld.getRate(RATE_SKILL_DISCOVERY))
                 && item_iter->reqSkillValue <= skillvalue
@@ -203,7 +203,7 @@ uint32 GetSkillDiscoverySpell(uint32 skillId, uint32 spellId, Player* player)
     tab = SkillDiscoveryStore.find(-(int32)skillId);
     if(tab != SkillDiscoveryStore.end())
     {
-        for(SkillDiscoveryList::iterator item_iter = tab->second.begin(); item_iter != tab->second.end(); ++item_iter)
+        for(SkillDiscoveryList::const_iterator item_iter = tab->second.begin(); item_iter != tab->second.end(); ++item_iter)
         {
             if( roll_chance_f(item_iter->chance * sWorld.getRate(RATE_SKILL_DISCOVERY))
                 && item_iter->reqSkillValue <= skillvalue

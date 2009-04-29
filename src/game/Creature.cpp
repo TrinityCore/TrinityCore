@@ -1463,7 +1463,7 @@ void Creature::LoadEquipment(uint32 equip_entry, bool force)
     {
         if (force)
         {
-            for (uint8 i = 0; i < 3; i++)
+            for (uint8 i = 0; i < 3; ++i)
                 SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + i, 0);
             m_equipmentId = 0;
         }
@@ -1475,7 +1475,7 @@ void Creature::LoadEquipment(uint32 equip_entry, bool force)
         return;
 
     m_equipmentId = equip_entry;
-    for (uint8 i = 0; i < 3; i++)
+    for (uint8 i = 0; i < 3; ++i)
         SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + i, einfo->equipentry[i]);
 }
 
@@ -1767,7 +1767,7 @@ SpellEntry const *Creature::reachWithSpellAttack(Unit *pVictim)
     if(!pVictim)
         return NULL;
 
-    for(uint32 i=0; i < CREATURE_MAX_SPELLS; i++)
+    for(uint32 i=0; i < CREATURE_MAX_SPELLS; ++i)
     {
         if(!m_spells[i])
             continue;
@@ -1817,7 +1817,7 @@ SpellEntry const *Creature::reachWithSpellCure(Unit *pVictim)
     if(!pVictim)
         return NULL;
 
-    for(uint32 i=0; i < CREATURE_MAX_SPELLS; i++)
+    for(uint32 i=0; i < CREATURE_MAX_SPELLS; ++i)
     {
         if(!m_spells[i])
             continue;

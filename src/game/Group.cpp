@@ -46,7 +46,7 @@ Group::Group()
     m_lootThreshold     = ITEM_QUALITY_UNCOMMON;
     m_subGroupsCounts   = NULL;
 
-    for(int i=0; i<TARGETICONCOUNT; i++)
+    for (int i=0; i<TARGETICONCOUNT; ++i)
         m_targetIcons[i] = 0;
 }
 
@@ -71,7 +71,7 @@ Group::~Group()
     // it is undefined whether objectmgr (which stores the groups) or instancesavemgr
     // will be unloaded first so we must be prepared for both cases
     // this may unload some instance saves
-    for(uint8 i = 0; i < TOTAL_DIFFICULTIES; i++)
+    for(uint8 i = 0; i < TOTAL_DIFFICULTIES; ++i)
         for(BoundInstancesMap::iterator itr2 = m_boundInstances[i].begin(); itr2 != m_boundInstances[i].end(); ++itr2)
             itr2->second.save->RemoveGroup(this);
 
@@ -156,7 +156,7 @@ bool Group::LoadGroupFromDB(const uint64 &leaderGuid, QueryResult *result, bool 
     m_looterGuid = MAKE_NEW_GUID((*result)[3].GetUInt32(), 0, HIGHGUID_PLAYER);
     m_lootThreshold = (ItemQualities)(*result)[4].GetUInt16();
 
-    for(int i=0; i<TARGETICONCOUNT; i++)
+    for(int i=0; i<TARGETICONCOUNT; ++i)
         m_targetIcons[i] = (*result)[5+i].GetUInt64();
     if(!external) delete result;
 
@@ -864,7 +864,7 @@ void Group::SetTargetIcon(uint8 id, uint64 guid)
 
     // clean other icons
     if( guid != 0 )
-        for(int i=0; i<TARGETICONCOUNT; i++)
+        for(int i=0; i<TARGETICONCOUNT; ++i)
             if( m_targetIcons[i] == guid )
                 SetTargetIcon(i, 0);
 
@@ -908,7 +908,7 @@ void Group::SendTargetIconList(WorldSession *session)
     WorldPacket data(MSG_RAID_TARGET_UPDATE, (1+TARGETICONCOUNT*9));
     data << (uint8)1;
 
-    for(int i=0; i<TARGETICONCOUNT; i++)
+    for(int i=0; i<TARGETICONCOUNT; ++i)
     {
         if(m_targetIcons[i] == 0)
             continue;
@@ -1083,7 +1083,7 @@ bool Group::_addMember(const uint64 &guid, const char* name, bool isAssistant, u
 
     if(!isRaidGroup())                                      // reset targetIcons for non-raid-groups
     {
-        for(int i=0; i<TARGETICONCOUNT; i++)
+        for(int i=0; i<TARGETICONCOUNT; ++i)
             m_targetIcons[i] = 0;
     }
 
@@ -1162,7 +1162,7 @@ void Group::_setLeader(const uint64 &guid)
         Player *player = objmgr.GetPlayer(slot->guid);
         if(player)
         {
-            for(uint8 i = 0; i < TOTAL_DIFFICULTIES; i++)
+            for(uint8 i = 0; i < TOTAL_DIFFICULTIES; ++i)
             {
                 for(BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end();)
                 {

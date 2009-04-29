@@ -102,7 +102,7 @@ void MapManager::LoadTransports()
 
         m_Transports.insert(t);
 
-        for (std::set<uint32>::iterator i = mapsUsed.begin(); i != mapsUsed.end(); ++i)
+        for (std::set<uint32>::const_iterator i = mapsUsed.begin(); i != mapsUsed.end(); ++i)
             m_TransportsByMap[*i].insert(t);
 
         //If we someday decide to use the grid to track transports, here:
@@ -219,7 +219,7 @@ bool Transport::GenerateWaypoints(uint32 pathid, std::set<uint32> &mapids)
     std::vector<keyFrame> keyFrames;
     int mapChange = 0;
     mapids.clear();
-    for (size_t i = 1; i < path.Size() - 1; i++)
+    for (size_t i = 1; i < path.Size() - 1; ++i)
     {
         if (mapChange == 0)
         {
@@ -251,7 +251,7 @@ bool Transport::GenerateWaypoints(uint32 pathid, std::set<uint32> &mapids)
     }
 
     // find the rest of the distances between key points
-    for (size_t i = 1; i < keyFrames.size(); i++)
+    for (size_t i = 1; i < keyFrames.size(); ++i)
     {
         if ((keyFrames[i].actionflag == 1) || (keyFrames[i].mapid != keyFrames[i-1].mapid))
         {
@@ -274,7 +274,7 @@ bool Transport::GenerateWaypoints(uint32 pathid, std::set<uint32> &mapids)
     }
 
     float tmpDist = 0;
-    for (size_t i = 0; i < keyFrames.size(); i++)
+    for (size_t i = 0; i < keyFrames.size(); ++i)
     {
         int j = (i + lastStop) % keyFrames.size();
         if (keyFrames[j].actionflag == 2)
@@ -293,7 +293,7 @@ bool Transport::GenerateWaypoints(uint32 pathid, std::set<uint32> &mapids)
             tmpDist = 0;
     }
 
-    for (size_t i = 0; i < keyFrames.size(); i++)
+    for (size_t i = 0; i < keyFrames.size(); ++i)
     {
         if (keyFrames[i].distSinceStop < (30 * 30 * 0.5f))
             keyFrames[i].tFrom = sqrt(2 * keyFrames[i].distSinceStop);
@@ -309,7 +309,7 @@ bool Transport::GenerateWaypoints(uint32 pathid, std::set<uint32> &mapids)
         keyFrames[i].tTo *= 1000;
     }
 
-    //    for (int i = 0; i < keyFrames.size(); i++) {
+    //    for (int i = 0; i < keyFrames.size(); ++i) {
     //        sLog.outString("%f, %f, %f, %f, %f, %f, %f", keyFrames[i].x, keyFrames[i].y, keyFrames[i].distUntilStop, keyFrames[i].distSinceStop, keyFrames[i].distFromPrev, keyFrames[i].tFrom, keyFrames[i].tTo);
     //    }
 
@@ -325,7 +325,7 @@ bool Transport::GenerateWaypoints(uint32 pathid, std::set<uint32> &mapids)
     t += keyFrames[0].delay * 1000;
 
     uint32 cM = keyFrames[0].mapid;
-    for (size_t i = 0; i < keyFrames.size() - 1; i++)
+    for (size_t i = 0; i < keyFrames.size() - 1; ++i)
     {
         float d = 0;
         float tFrom = keyFrames[i].tFrom;
@@ -428,9 +428,9 @@ bool Transport::GenerateWaypoints(uint32 pathid, std::set<uint32> &mapids)
     return true;
 }
 
-Transport::WayPointMap::iterator Transport::GetNextWayPoint()
+Transport::WayPointMap::const_iterator Transport::GetNextWayPoint()
 {
-    WayPointMap::iterator iter = m_curr;
+    WayPointMap::const_iterator iter = m_curr;
     ++iter;
     if (iter == m_WayPoints.end())
         iter = m_WayPoints.begin();
@@ -443,7 +443,7 @@ void Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
     SetMapId(newMapid);
     Relocate(x, y, z);
 
-    for(PlayerSet::iterator itr = m_passengers.begin(); itr != m_passengers.end();)
+    for(PlayerSet::const_iterator itr = m_passengers.begin(); itr != m_passengers.end();)
     {
         Player *plr = *itr;
         ++itr;
@@ -531,9 +531,9 @@ void Transport::Update(uint32 /*p_time*/)
         }
 */
         /*
-        for(PlayerSet::iterator itr = m_passengers.begin(); itr != m_passengers.end();)
+        for(PlayerSet::const_iterator itr = m_passengers.begin(); itr != m_passengers.end();)
         {
-            PlayerSet::iterator it2 = itr;
+            PlayerSet::const_iterator it2 = itr;
             ++itr;
             //(*it2)->SetPosition( m_curr->second.x + (*it2)->GetTransOffsetX(), m_curr->second.y + (*it2)->GetTransOffsetY(), m_curr->second.z + (*it2)->GetTransOffsetZ(), (*it2)->GetTransOffsetO() );
         }

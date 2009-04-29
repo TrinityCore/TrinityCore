@@ -207,7 +207,7 @@ void WorldSession::HandlePetActionHelper(Unit *pet, uint64 guid1, uint16 spellid
                 return;
             }
 
-            for(uint32 i = 0; i < 3;i++)
+            for(uint32 i = 0; i < 3;++i)
             {
                 if(spellInfo->EffectImplicitTargetA[i] == TARGET_ALL_ENEMY_IN_AREA || spellInfo->EffectImplicitTargetA[i] == TARGET_ALL_ENEMY_IN_AREA_INSTANT || spellInfo->EffectImplicitTargetA[i] == TARGET_ALL_ENEMY_IN_AREA_CHANNELED)
                     return;
@@ -376,7 +376,7 @@ void WorldSession::HandlePetSetAction( WorldPacket & recv_data )
     }
 
     count = (recv_data.size() == 24) ? 2 : 1;
-    for(uint8 i = 0; i < count; i++)
+    for(uint8 i = 0; i < count; ++i)
     {
         recv_data >> position;
         recv_data >> spell_id;

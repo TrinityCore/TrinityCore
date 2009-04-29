@@ -85,14 +85,14 @@ class UpdateMask
         void operator &= ( const UpdateMask& mask )
         {
             ASSERT(mask.mCount <= mCount);
-            for (uint32 i = 0; i < mBlocks; i++)
+            for (uint32 i = 0; i < mBlocks; ++i)
                 mUpdateMask[i] &= mask.mUpdateMask[i];
         }
 
         void operator |= ( const UpdateMask& mask )
         {
             ASSERT(mask.mCount <= mCount);
-            for (uint32 i = 0; i < mBlocks; i++)
+            for (uint32 i = 0; i < mBlocks; ++i)
                 mUpdateMask[i] |= mask.mUpdateMask[i];
         }
 

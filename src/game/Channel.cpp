@@ -451,7 +451,7 @@ void Channel::List(Player* player)
         bool gmInWhoList = sWorld.getConfig(CONFIG_GM_IN_WHO_LIST) || player->GetSession()->GetSecurity() > SEC_PLAYER;
 
         uint32 count  = 0;
-        for(PlayerList::iterator i = players.begin(); i != players.end(); ++i)
+        for(PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
         {
             Player *plr = objmgr.GetPlayer(i->first);
 
@@ -664,7 +664,7 @@ void Channel::SetOwner(uint64 guid, bool exclaim)
 
 void Channel::SendToAll(WorldPacket *data, uint64 p)
 {
-    for(PlayerList::iterator i = players.begin(); i != players.end(); ++i)
+    for(PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
     {
         Player *plr = objmgr.GetPlayer(i->first);
         if(plr)
@@ -677,7 +677,7 @@ void Channel::SendToAll(WorldPacket *data, uint64 p)
 
 void Channel::SendToAllButOne(WorldPacket *data, uint64 who)
 {
-    for(PlayerList::iterator i = players.begin(); i != players.end(); ++i)
+    for(PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
     {
         if(i->first != who)
         {
