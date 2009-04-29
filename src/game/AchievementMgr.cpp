@@ -1129,6 +1129,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             case ACHIEVEMENT_CRITERIA_TYPE_NUMBER_OF_TALENT_RESETS:
             case ACHIEVEMENT_CRITERIA_TYPE_SPECIAL_PVP_KILL:
             case ACHIEVEMENT_CRITERIA_TYPE_EARNED_PVP_TITLE:
+            case ACHIEVEMENT_CRITERIA_TYPE_WIN_DUEL:
             case ACHIEVEMENT_CRITERIA_TYPE_LOSE_DUEL:
             case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE:
             case ACHIEVEMENT_CRITERIA_TYPE_GOLD_EARNED_BY_AUCTIONS:
@@ -1147,7 +1148,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 break;                                   // Not implemented yet :(
         }
         if(IsCompletedCriteria(achievementCriteria,achievement))
-            CompletedCriteria(achievementCriteria,achievement);
+            CompletedCriteriaFor(achievement);
 
         // check again the completeness for SUMM and REQ COUNT achievements, 
         // as they don't depend on the completed criteria but on the sum of the progress of each individual criteria
@@ -1296,7 +1297,7 @@ bool AchievementMgr::IsCompletedCriteria(AchievementCriteriaEntry const* achieve
     return false;
 }
 
-void AchievementMgr::CompletedCriteria(AchievementCriteriaEntry const* criteria, AchievementEntry const* achievement)
+void AchievementMgr::CompletedCriteriaFor(AchievementEntry const* achievement)
 {
     // counter can never complete
     if(achievement->flags & ACHIEVEMENT_FLAG_COUNTER)

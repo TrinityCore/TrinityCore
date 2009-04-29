@@ -160,11 +160,11 @@ class BGQueueInviteEvent : public BasicEvent
 class BGQueueRemoveEvent : public BasicEvent
 {
     public:
-        BGQueueRemoveEvent(const uint64& pl_guid, uint32 bgInstanceGUID, BattleGroundTypeId BgTypeId, BattleGroundQueueTypeId bgQueueTypeId, uint32 removeTime) :
-          m_PlayerGuid(pl_guid), m_BgInstanceGUID(bgInstanceGUID), m_BgTypeId(BgTypeId), m_BgQueueTypeId(bgQueueTypeId), m_RemoveTime(removeTime)
-          {
-          };
-        virtual ~BGQueueRemoveEvent() {};
+        BGQueueRemoveEvent(const uint64& pl_guid, uint32 bgInstanceGUID, BattleGroundTypeId BgTypeId, BattleGroundQueueTypeId bgQueueTypeId, uint32 removeTime)
+            : m_PlayerGuid(pl_guid), m_BgInstanceGUID(bgInstanceGUID), m_RemoveTime(removeTime), m_BgTypeId(BgTypeId), m_BgQueueTypeId(bgQueueTypeId)
+        {}
+
+        virtual ~BGQueueRemoveEvent() {}
 
         virtual bool Execute(uint64 e_time, uint32 p_time);
         virtual void Abort(uint64 e_time);
@@ -196,7 +196,7 @@ class BattleGroundMgr
         void SendAreaSpiritHealerQueryOpcode(Player *pl, BattleGround *bg, const uint64& guid);
 
         /* Battlegrounds */
-        BattleGround* GetBattleGroundThroughClientInstance(uint32 instanceId, BattleGroundTypeId bgTypeId, BGQueueIdBasedOnLevel queue_id);
+        BattleGround* GetBattleGroundThroughClientInstance(uint32 instanceId, BattleGroundTypeId bgTypeId);
         BattleGround* GetBattleGround(uint32 InstanceID, BattleGroundTypeId bgTypeId); //there must be uint32 because MAX_BATTLEGROUND_TYPE_ID means unknown
 
         BattleGround* GetBattleGroundTemplate(BattleGroundTypeId bgTypeId);
@@ -253,7 +253,7 @@ class BattleGroundMgr
         BattleGroundSet m_BattleGrounds[MAX_BATTLEGROUND_TYPE_ID];
         std::set<uint32> m_ClientBattleGroundIds[MAX_BATTLEGROUND_TYPE_ID][MAX_BATTLEGROUND_QUEUES]; //the instanceids just visible for the client
         uint32 m_NextRatingDiscardUpdate;
-        uint64 m_NextAutoDistributionTime;
+        time_t m_NextAutoDistributionTime;
         uint32 m_AutoDistributionTimeChecker;
         bool   m_ArenaTesting;
         bool   m_Testing;

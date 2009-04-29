@@ -349,7 +349,7 @@ void BattleGroundEY::RemovePlayer(Player *plr, uint64 guid)
     // sometimes flag aura not removed :(
     for (int j = EY_POINTS_MAX; j >= 0; --j)
     {
-        for(int i = 0; i < m_PlayersNearPoint[j].size(); ++i)
+        for(size_t i = 0; i < m_PlayersNearPoint[j].size(); ++i)
             if (m_PlayersNearPoint[j][i] == guid)
                 m_PlayersNearPoint[j].erase(m_PlayersNearPoint[j].begin() + i);
     }

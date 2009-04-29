@@ -3049,18 +3049,16 @@ void AuraEffect::HandleAuraModShapeshift(bool apply, bool Real)
             case FORM_BEAR:
             case FORM_DIREBEAR:
             case FORM_CAT:
-            {
                 if(AuraEffect* dummy = m_target->GetDummyAura(37315) )
                     m_target->CastSpell(m_target,37316,true,NULL,dummy);
                 break;
-            }
             // Nordrassil Regalia - bonus
             case FORM_MOONKIN:
-            {
                 if(AuraEffect* dummy = m_target->GetDummyAura(37324) )
                     m_target->CastSpell(m_target,37325,true,NULL,dummy);
                 break;
-            }
+            default:
+                break;
         }
     }
 

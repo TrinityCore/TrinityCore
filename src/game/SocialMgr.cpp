@@ -196,7 +196,7 @@ void SocialMgr::GetFriendInfo(Player *player, uint32 friendGUID, FriendInfo &fri
         return;
 
     uint32 team = player->GetTeam();
-    uint32 security = player->GetSession()->GetSecurity();
+    AccountTypes security = player->GetSession()->GetSecurity();
     bool allowTwoSideWhoList = sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_WHO_LIST);
     bool gmInWhoList = sWorld.getConfig(CONFIG_GM_IN_WHO_LIST) || security > SEC_PLAYER;
 
@@ -267,7 +267,7 @@ void SocialMgr::BroadcastToFriendListers(Player *player, WorldPacket *packet)
         return;
 
     uint32 team     = player->GetTeam();
-    uint32 security = player->GetSession()->GetSecurity();
+    AccountTypes security = player->GetSession()->GetSecurity();
     uint32 guid     = player->GetGUIDLow();
     bool gmInWhoList = sWorld.getConfig(CONFIG_GM_IN_WHO_LIST);
     bool allowTwoSideWhoList = sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_WHO_LIST);

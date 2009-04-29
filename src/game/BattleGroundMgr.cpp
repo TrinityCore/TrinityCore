@@ -490,8 +490,8 @@ large groups are disadvantageous, because they will be kicked first if invitatio
 */
 void BattleGroundQueue::FillPlayersToBG(BattleGround* bg, BGQueueIdBasedOnLevel queue_id)
 {
-    uint32 hordeFree = bg->GetFreeSlotsForTeam(HORDE);
-    uint32 aliFree   = bg->GetFreeSlotsForTeam(ALLIANCE);
+    int32 hordeFree = bg->GetFreeSlotsForTeam(HORDE);
+    int32 aliFree   = bg->GetFreeSlotsForTeam(ALLIANCE);
 
     //iterator for iterating through bg queue
     GroupsQueueType::const_iterator Ali_itr = m_QueuedGroups[queue_id][BG_QUEUE_NORMAL_ALLIANCE].begin();
@@ -521,8 +521,8 @@ void BattleGroundQueue::FillPlayersToBG(BattleGround* bg, BGQueueIdBasedOnLevel 
     */
 
     // At first we need to compare free space in bg and our selection pool
-    int32 diffAli = aliFree - m_SelectionPools[BG_TEAM_ALLIANCE].GetPlayerCount();
-    int32 diffHorde = hordeFree - m_SelectionPools[BG_TEAM_HORDE].GetPlayerCount();
+    int32 diffAli   = aliFree   - int32(m_SelectionPools[BG_TEAM_ALLIANCE].GetPlayerCount());
+    int32 diffHorde = hordeFree - int32(m_SelectionPools[BG_TEAM_HORDE].GetPlayerCount());
     while( abs(diffAli - diffHorde) > 1 && (m_SelectionPools[BG_TEAM_HORDE].GetPlayerCount() > 0 || m_SelectionPools[BG_TEAM_ALLIANCE].GetPlayerCount() > 0) )
     {
         //each cycle execution we need to kick at least 1 group
@@ -558,8 +558,8 @@ void BattleGroundQueue::FillPlayersToBG(BattleGround* bg, BGQueueIdBasedOnLevel 
             }
         }
         //count diffs after small update
-        diffAli = aliFree - m_SelectionPools[BG_TEAM_ALLIANCE].GetPlayerCount();
-        diffHorde = hordeFree - m_SelectionPools[BG_TEAM_HORDE].GetPlayerCount();
+        diffAli   = aliFree   - int32(m_SelectionPools[BG_TEAM_ALLIANCE].GetPlayerCount());
+        diffHorde = hordeFree - int32(m_SelectionPools[BG_TEAM_HORDE].GetPlayerCount());
     }
 }
 
@@ -738,8 +738,6 @@ void BattleGroundQueue::Update(BattleGroundTypeId bgTypeId, BGQueueIdBasedOnLeve
         m_QueuedGroups[queue_id][BG_QUEUE_NORMAL_ALLIANCE].empty() &&
         m_QueuedGroups[queue_id][BG_QUEUE_NORMAL_HORDE].empty() )
         return;
-
-    BattleGroundQueueTypeId bgQueueTypeId = BattleGroundMgr::BGQueueTypeId(bgTypeId, arenaType);
 
     //battleground with free slot for player should be always in the beggining of the queue
     // maybe it would be better to create bgfreeslotqueue for each queue_id_based_on_level
@@ -1438,7 +1436,7 @@ void BattleGroundMgr::BuildPlayerJoinedBattleGroundPacket(WorldPacket *data, Pla
     *data << uint64(plr->GetGUID());
 }
 
-BattleGround * BattleGroundMgr::GetBattleGroundThroughClientInstance(uint32 instanceId, BattleGroundTypeId bgTypeId, BGQueueIdBasedOnLevel queue_id)
+BattleGround * BattleGroundMgr::GetBattleGroundThroughClientInstance(uint32 instanceId, BattleGroundTypeId bgTypeId)
 {
     //cause at HandleBattleGroundJoinOpcode the clients sends the instanceid he gets from
     //SMSG_BATTLEFIELD_LIST we need to find the battleground with this clientinstance-id
@@ -1767,7 +1765,7 @@ void BattleGroundMgr::InitAutomaticArenaPointDistribution()
         }
         else
         {
-            m_NextAutoDistributionTime = (*result)[0].GetUInt64();
+            m_NextAutoDistributionTime = time_t((*result)[0].GetUInt64());
             delete result;
         }
         sLog.outDebug("Automatic Arena Point Distribution initialized.");

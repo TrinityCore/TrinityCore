@@ -171,7 +171,7 @@ void Channel::Leave(uint64 p, bool send)
 
 void Channel::KickOrBan(uint64 good, const char *badname, bool ban)
 {
-    uint32 sec = 0;
+    AccountTypes sec = SEC_PLAYER;
     Player *gplr = objmgr.GetPlayer(good);
     if(gplr)
         sec = gplr->GetSession()->GetSecurity();

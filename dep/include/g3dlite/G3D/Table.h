@@ -611,7 +611,7 @@ public:
               return true;
            }
            node = node->next;
-       } while (node != NULL);
+       }
 
        return false;
    }
