@@ -108,8 +108,8 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
 
         DoScriptText(SAY_AGGRO, m_creature);
         DoZoneInCombat();
-        events.ScheduleEvent(480000, EVENT_BERSERK, GCD_CAST);
-        events.ScheduleEvent(45000 + (rand()%76)*1000, EVENT_YELL, GCD_YELL);
+        events.ScheduleEvent(EVENT_BERSERK, 480000, GCD_CAST);
+        events.ScheduleEvent(EVENT_YELL, 45000 + (rand()%76)*1000, GCD_YELL);
         ResetTimer();
     }
 
@@ -125,9 +125,9 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
 
     void ResetTimer(uint32 inc = 0)
     {
-        events.ScheduleEvent(10000 + inc, EVENT_NEEDLE, GCD_CAST);
-        events.ScheduleEvent(20000 + inc, EVENT_SPINE, GCD_CAST);
-        events.ScheduleEvent(60000 + inc, EVENT_SHIELD);
+        events.ScheduleEvent(EVENT_NEEDLE, 10000 + inc, GCD_CAST);
+        events.ScheduleEvent(EVENT_SPINE, 20000 + inc, GCD_CAST);
+        events.ScheduleEvent(EVENT_SHIELD, 60000 + inc);
     }
 
     void UpdateAI(const uint32 diff)
@@ -164,7 +164,7 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
                         events.DelayEvents(1500, GCD_CAST);
                         events.DelayEvents(15000, GCD_YELL);
                     }
-                    events.ScheduleEvent(21000, EVENT_SPINE, GCD_CAST);
+                    events.ScheduleEvent(EVENT_SPINE, 21000, GCD_CAST);
                     return;
                 }
                 case EVENT_NEEDLE:
@@ -174,13 +174,13 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
                     SelectUnitList(target, 3, SELECT_TARGET_RANDOM, 80, true);
                     for(std::list<Unit*>::iterator i = target.begin(); i != target.end(); ++i)
                         m_creature->CastSpell(*i, 39835, true);
-                    events.ScheduleEvent(15000+rand()%10000, EVENT_NEEDLE, GCD_CAST);
+                    events.ScheduleEvent(EVENT_NEEDLE, 15000+rand()%10000, GCD_CAST);
                     events.DelayEvents(1500, GCD_CAST);
                     return;
                 }
                 case EVENT_YELL:
                     DoScriptText(rand()%2 ? SAY_SPECIAL1 : SAY_SPECIAL2, m_creature);
-                    events.ScheduleEvent(25000 + (rand()%76)*1000, EVENT_YELL, GCD_YELL);
+                    events.ScheduleEvent(EVENT_YELL, 25000 + (rand()%76)*1000, GCD_YELL);
                     events.DelayEvents(15000, GCD_YELL);
                     break;
             }

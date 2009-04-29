@@ -94,7 +94,7 @@ class EventMap : private std::map<uint32, uint32>
                 m_phase = (1 << (phase + 24));
         }
 
-        void ScheduleEvent(uint32 time, uint32 eventId, uint32 gcd = 0, uint32 phase = 0)
+        void ScheduleEvent(uint32 eventId, uint32 time, uint32 gcd = 0, uint32 phase = 0)
         {
             time += m_time;
             if(gcd && gcd < 9)
@@ -245,7 +245,7 @@ class TRINITY_DLL_SPEC CreatureAI : public UnitAI
         // Called at reaching home after evade
         virtual void JustReachedHome() {}
 
-        void DoZoneInCombat(Unit* pUnit = NULL);
+        void DoZoneInCombat(Creature* pUnit = NULL);
 
         // Called at text emote receive from player 
         virtual void ReceiveEmote(Player* pPlayer, uint32 text_emote) {}

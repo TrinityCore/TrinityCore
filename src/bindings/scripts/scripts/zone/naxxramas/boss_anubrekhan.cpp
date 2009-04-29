@@ -33,42 +33,50 @@ EndScriptData */
 #define SAY_TAUNT4          -1533007
 #define SAY_SLAY            -1533008
 
-#define SPELL_IMPALE        28783                           //May be wrong spell id. Causes more dmg than I expect
-#define H_SPELL_IMPALE      56090
-#define SPELL_LOCUSTSWARM   28785                           //This is a self buff that triggers the dmg debuff
-#define H_SPELL_LOCUSTSWARM 54021
-
-//spellId invalid
-#define SPELL_SUMMONGUARD   29508                           //Summons 1 crypt guard at targeted location
+#define SPELL_IMPALE        HEROIC(28783,56090)
+#define SPELL_LOCUSTSWARM   HEROIC(28785,54021)
 
 #define SPELL_SELF_SPAWN_5  29105                           //This spawns 5 corpse scarabs ontop of us (most likely the player casts this on death)
 #define SPELL_SELF_SPAWN_10 28864                           //This is used by the crypt guards when they die
 
+#define EVENT_IMPALE        1
+#define EVENT_LOCUST        2
+
+#define MOB_CRYPT_GUARD     16573
+
 struct TRINITY_DLL_DECL boss_anubrekhanAI : public ScriptedAI
 {
-    boss_anubrekhanAI(Creature *c) : ScriptedAI(c) {}
+    boss_anubrekhanAI(Creature *c) : ScriptedAI(c), summons(me) {}
 
-    uint32 Impale_Timer;
-    uint32 LocustSwarm_Timer;
-    uint32 Summon_Timer;
     bool HasTaunted;
+    EventMap events;
+    SummonList summons;
 
     void Reset()
     {
-        Impale_Timer = 15000;                               //15 seconds
-        LocustSwarm_Timer = 80000 + (rand()%40000);         //Random time between 80 seconds and 2 minutes for initial cast
-        Summon_Timer = LocustSwarm_Timer + 45000;           //45 seconds after initial locust swarm
+        events.Reset();
+        summons.DespawnAll();
+        HasTaunted = false;
+        DoSpawnCreature(MOB_CRYPT_GUARD, 0, 10, 0, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
+        if(HeroicMode)
+            DoSpawnCreature(MOB_CRYPT_GUARD, 0, -10, 0, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
     }
 
-    void KilledUnit(Unit* Victim)
+    void JustSummoned(Creature *summon)
+    {
+        summons.Summon(summon);
+        DoZoneInCombat(summon);
+    }
+
+    void SummonedCreatureDespawn(Creature *summon) {summons.Despawn(summon);}
+
+    void KilledUnit(Unit* victim)
     {
         //Force the player to spawn corpse scarabs via spell
-        Victim->CastSpell(Victim, SPELL_SELF_SPAWN_5, true);
+        victim->CastSpell(victim, SPELL_SELF_SPAWN_5, true, NULL, NULL, me->GetGUID());
 
-        if (rand()%5)
-            return;
-
-         DoScriptText(SAY_SLAY, m_creature);
+        if(!(rand()%5))
+            DoScriptText(SAY_SLAY, me);
     }
 
     void EnterCombat(Unit *who)
@@ -79,62 +87,62 @@ struct TRINITY_DLL_DECL boss_anubrekhanAI : public ScriptedAI
         case 1: DoScriptText(SAY_AGGRO2, m_creature); break;
         case 2: DoScriptText(SAY_AGGRO3, m_creature); break;
         }
+
+        DoZoneInCombat();
+
+        events.ScheduleEvent(EVENT_IMPALE, 15000, 1);
+        events.ScheduleEvent(EVENT_LOCUST, 80000 + rand()%40000, 1);
     }
 
     void MoveInLineOfSight(Unit *who)
     {
-
-            if (!HasTaunted && m_creature->IsWithinDistInMap(who, 60.0f))
+        if (!HasTaunted && m_creature->IsWithinDistInMap(who, 60.0f))
+        {
+            switch(rand()%5)
             {
-                switch(rand()%5)
-                {
-                case 0: DoScriptText(SAY_GREET, m_creature); break;
-                case 1: DoScriptText(SAY_TAUNT1, m_creature); break;
-                case 2: DoScriptText(SAY_TAUNT2, m_creature); break;
-                case 3: DoScriptText(SAY_TAUNT3, m_creature); break;
-                case 4: DoScriptText(SAY_TAUNT4, m_creature); break;
-                }
-                HasTaunted = true;
+            case 0: DoScriptText(SAY_GREET, m_creature); break;
+            case 1: DoScriptText(SAY_TAUNT1, m_creature); break;
+            case 2: DoScriptText(SAY_TAUNT2, m_creature); break;
+            case 3: DoScriptText(SAY_TAUNT3, m_creature); break;
+            case 4: DoScriptText(SAY_TAUNT4, m_creature); break;
             }
+            HasTaunted = true;
+        }
         ScriptedAI::MoveInLineOfSight(who);
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if (!UpdateVictim())
+        if(!UpdateVictim())
             return;
 
-        //Impale_Timer
-        if (Impale_Timer < diff)
+        events.Update(diff);
+
+        while(uint32 eventId = events.ExecuteEvent())
         {
-            //Cast Impale on a random target
-            //Do NOT cast it when we are afflicted by locust swarm
-            if (!m_creature->HasAura(SPELL_LOCUSTSWARM))
+            switch(eventId)
             {
-                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-                    DoCast(target,SPELL_IMPALE);
+                case EVENT_IMPALE:
+                    //Cast Impale on a random target
+                    //Do NOT cast it when we are afflicted by locust swarm
+                    if(!me->HasAura(SPELL_LOCUSTSWARM))
+                        if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                            DoCast(target, SPELL_IMPALE);
+                    events.ScheduleEvent(EVENT_IMPALE, 15000, 1);
+                    events.DelayEvents(1500, 1);
+                    return;
+                case EVENT_LOCUST:
+                    DoCast(m_creature, SPELL_LOCUSTSWARM);
+                    DoSpawnCreature(MOB_CRYPT_GUARD, 5, 5, 0, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
+                    events.ScheduleEvent(EVENT_LOCUST, 90000, 1);
+                    return;
             }
-
-            Impale_Timer = 15000;
-        }else Impale_Timer -= diff;
-
-        //LocustSwarm_Timer
-        if (LocustSwarm_Timer < diff)
-        {
-            DoCast(m_creature, SPELL_LOCUSTSWARM);
-            LocustSwarm_Timer = 90000;
-        }else LocustSwarm_Timer -= diff;
-
-        //Summon_Timer
-        if (Summon_Timer < diff)
-        {
-            DoCast(m_creature, SPELL_SUMMONGUARD);
-            Summon_Timer = 45000;
-        }else Summon_Timer -= diff;
+        }
 
         DoMeleeAttackIfReady();
     }
 };
+
 CreatureAI* GetAI_boss_anubrekhan(Creature *_Creature)
 {
     return new boss_anubrekhanAI (_Creature);
