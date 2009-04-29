@@ -301,7 +301,7 @@ void Item::SaveToDB()
             CharacterDatabase.PExecute( "DELETE FROM item_instance WHERE guid = '%u'", guid );
             std::ostringstream ss;
             ss << "INSERT INTO item_instance (guid,owner_guid,data) VALUES (" << guid << "," << GUID_LOPART(GetOwnerGUID()) << ",'";
-            for(uint16 i = 0; i < m_valuesCount; i++ )
+            for(uint16 i = 0; i < m_valuesCount; ++i )
                 ss << GetUInt32Value(i) << " ";
             ss << "' )";
             CharacterDatabase.Execute( ss.str().c_str() );
@@ -310,7 +310,7 @@ void Item::SaveToDB()
         {
             std::ostringstream ss;
             ss << "UPDATE item_instance SET data = '";
-            for(uint16 i = 0; i < m_valuesCount; i++ )
+            for(uint16 i = 0; i < m_valuesCount; ++i )
                 ss << GetUInt32Value(i) << " ";
             ss << "', owner_guid = '" << GUID_LOPART(GetOwnerGUID()) << "' WHERE guid = '" << guid << "'";
 
@@ -411,7 +411,7 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, QueryResult *result)
     {
         std::ostringstream ss;
         ss << "UPDATE item_instance SET data = '";
-        for(uint16 i = 0; i < m_valuesCount; i++ )
+        for(uint16 i = 0; i < m_valuesCount; ++i )
             ss << GetUInt32Value(i) << " ";
         ss << "', owner_guid = '" << GUID_LOPART(GetOwnerGUID()) << "' WHERE guid = '" << guid << "'";
 

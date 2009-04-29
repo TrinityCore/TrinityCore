@@ -34,7 +34,7 @@ class ChannelMgr
         ChannelMgr() {}
         ~ChannelMgr()
         {
-            for(ChannelMap::iterator itr = channels.begin();itr!=channels.end(); ++itr)
+            for(ChannelMap::const_iterator itr = channels.begin();itr!=channels.end(); ++itr)
                 delete itr->second;
             channels.clear();
         }

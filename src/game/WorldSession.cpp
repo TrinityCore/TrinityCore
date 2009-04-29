@@ -313,7 +313,7 @@ void WorldSession::LogoutPlayer(bool Save)
 
         sOutdoorPvPMgr.HandlePlayerLeaveZone(_player,_player->GetZoneId());
 
-        for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; i++)
+        for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
         {
             if(BattleGroundQueueTypeId bgQueueTypeId = _player->GetBattleGroundQueueTypeId(i))
             {

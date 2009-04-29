@@ -157,7 +157,7 @@ bool ChatHandler::HandleGMListIngameCommand(const char* /*args*/)
     bool first = true;
 
     HashMapHolder<Player>::MapType &m = HashMapHolder<Player>::GetContainer();
-    HashMapHolder<Player>::MapType::iterator itr = m.begin();
+    HashMapHolder<Player>::MapType::const_iterator itr = m.begin();
     for(; itr != m.end(); ++itr)
     {
         if (itr->second->GetSession()->GetSecurity() &&

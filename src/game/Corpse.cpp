@@ -111,7 +111,7 @@ void Corpse::SaveToDB()
         << GetOrientation() << ", "
         << GetZoneId() << ", "
         << GetMapId() << ", '";
-    for(uint16 i = 0; i < m_valuesCount; i++ )
+    for(uint16 i = 0; i < m_valuesCount; ++i )
         ss << GetUInt32Value(i) << " ";
     ss  << "',"
         << uint64(m_time) <<", "

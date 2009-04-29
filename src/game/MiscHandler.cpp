@@ -179,7 +179,7 @@ void WorldSession::HandleWhoOpcode( WorldPacket & recv_data )
     // recheck
     CHECK_PACKET_SIZE(recv_data,4+4+(player_name.size()+1)+(guild_name.size()+1)+4+4+4+(4*zones_count)+4);
 
-    for(uint32 i = 0; i < zones_count; i++)
+    for(uint32 i = 0; i < zones_count; ++i)
     {
         uint32 temp;
         recv_data >> temp;                                  // zone id, 0 if zone is unknown...
@@ -198,7 +198,7 @@ void WorldSession::HandleWhoOpcode( WorldPacket & recv_data )
     sLog.outDebug("Minlvl %u, maxlvl %u, name %s, guild %s, racemask %u, classmask %u, zones %u, strings %u", level_min, level_max, player_name.c_str(), guild_name.c_str(), racemask, classmask, zones_count, str_count);
 
     std::wstring str[4];                                    // 4 is client limit
-    for(uint32 i = 0; i < str_count; i++)
+    for(uint32 i = 0; i < str_count; ++i)
     {
         // recheck (have one more byte)
         CHECK_PACKET_SIZE(recv_data,recv_data.rpos());
@@ -237,7 +237,7 @@ void WorldSession::HandleWhoOpcode( WorldPacket & recv_data )
 
     //TODO: Guard Player map
     HashMapHolder<Player>::MapType& m = ObjectAccessor::Instance().GetPlayers();
-    for(HashMapHolder<Player>::MapType::iterator itr = m.begin(); itr != m.end(); ++itr)
+    for(HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
     {
         if (security == SEC_PLAYER)
         {
@@ -272,7 +272,7 @@ void WorldSession::HandleWhoOpcode( WorldPacket & recv_data )
         uint32 pzoneid = itr->second->GetZoneId();
 
         bool z_show = true;
-        for(uint32 i = 0; i < zones_count; i++)
+        for(uint32 i = 0; i < zones_count; ++i)
         {
             if(zoneids[i] == pzoneid)
             {
@@ -308,7 +308,7 @@ void WorldSession::HandleWhoOpcode( WorldPacket & recv_data )
             aname = areaEntry->area_name[GetSessionDbcLocale()];
 
         bool s_show = true;
-        for(uint32 i = 0; i < str_count; i++)
+        for(uint32 i = 0; i < str_count; ++i)
         {
             if (!str[i].empty())
             {

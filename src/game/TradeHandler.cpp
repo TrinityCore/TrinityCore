@@ -134,7 +134,7 @@ void WorldSession::SendUpdateTrade()
     data << (uint32) _player->pTrader->tradeGold;           // trader gold
     data << (uint32) 0;                                     // spell casted on lowest slot item
 
-    for(uint8 i = 0; i < TRADE_SLOT_COUNT; i++)
+    for(uint8 i = 0; i < TRADE_SLOT_COUNT; ++i)
     {
         item = (_player->pTrader->tradeItems[i] != NULL_SLOT ? _player->pTrader->GetItemByPos( _player->pTrader->tradeItems[i] ) : NULL);
 
@@ -179,7 +179,7 @@ void WorldSession::SendUpdateTrade()
 
 void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
 {
-    for(int i=0; i<TRADE_SLOT_TRADED_COUNT; i++)
+    for(int i=0; i<TRADE_SLOT_TRADED_COUNT; ++i)
     {
         ItemPosCountVec traderDst;
         ItemPosCountVec playerDst;
@@ -278,7 +278,7 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
     }
 
     // not accept if some items now can't be trade (cheating)
-    for(int i=0; i<TRADE_SLOT_TRADED_COUNT; i++)
+    for(int i=0; i<TRADE_SLOT_TRADED_COUNT; ++i)
     {
         if(_player->tradeItems[i] != NULL_SLOT )
         {
@@ -311,7 +311,7 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
         _player->pTrader->GetSession()->SendTradeStatus(TRADE_STATUS_TRADE_ACCEPT);
 
         // store items in local list and set 'in-trade' flag
-        for(int i=0; i<TRADE_SLOT_TRADED_COUNT; i++)
+        for(int i=0; i<TRADE_SLOT_TRADED_COUNT; ++i)
         {
             if(_player->tradeItems[i] != NULL_SLOT )
             {
@@ -336,7 +336,7 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
         myCanCompleteTrade = (_player->CanStoreItems( hisItems,TRADE_SLOT_TRADED_COUNT ) == EQUIP_ERR_OK);
 
         // clear 'in-trade' flag
-        for(int i=0; i<TRADE_SLOT_TRADED_COUNT; i++)
+        for(int i=0; i<TRADE_SLOT_TRADED_COUNT; ++i)
         {
             if(myItems[i])  myItems[i]->SetInTrade(false);
             if(hisItems[i]) hisItems[i]->SetInTrade(false);
@@ -361,7 +361,7 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
         }
 
         // execute trade: 1. remove
-        for(int i=0; i<TRADE_SLOT_TRADED_COUNT; i++)
+        for(int i=0; i<TRADE_SLOT_TRADED_COUNT; ++i)
         {
             if(myItems[i])
             {

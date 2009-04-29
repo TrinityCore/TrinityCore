@@ -93,7 +93,7 @@ bool findnth(std::string &str, int n, std::string::size_type &s, std::string::si
         if (e == std::string::npos) return false;
     } while(str[e-1] == '\\');
 
-    for(int i = 1; i < n; i++)
+    for(int i = 1; i < n; ++i)
     {
         do
         {
@@ -157,7 +157,7 @@ bool changetoknth(std::string &str, int n, const char *with, bool insert = false
 
 uint32 registerNewGuid(uint32 oldGuid, std::map<uint32, uint32> &guidMap, uint32 hiGuid)
 {
-    std::map<uint32, uint32>::iterator itr = guidMap.find(oldGuid);
+    std::map<uint32, uint32>::const_iterator itr = guidMap.find(oldGuid);
     if(itr != guidMap.end())
         return itr->second;
 
@@ -198,7 +198,7 @@ std::string CreateDumpString(char const* tableName, QueryResult *result)
     std::ostringstream ss;
     ss << "INSERT INTO "<< _TABLE_SIM_ << tableName << _TABLE_SIM_ << " VALUES (";
     Field *fields = result->Fetch();
-    for(uint32 i = 0; i < result->GetFieldCount(); i++)
+    for(uint32 i = 0; i < result->GetFieldCount(); ++i)
     {
         if (i == 0) ss << "'";
         else ss << ", '";
@@ -364,7 +364,7 @@ std::string PlayerDumpWriter::GetDump(uint32 guid)
     else
         sLog.outError("Character DB not have 'character_db_version' table, revision guard query not added to pdump.");
 
-    for(int i = 0; i < DUMP_TABLE_COUNT; i++)
+    for(int i = 0; i < DUMP_TABLE_COUNT; ++i)
         DumpTable(dump, guid, dumpTables[i].name, dumpTables[i].name, dumpTables[i].type);
 
     // TODO: Add instance/group..
@@ -498,7 +498,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
 
         DumpTableType type;
         uint8 i;
-        for(i = 0; i < DUMP_TABLE_COUNT; i++)
+        for(i = 0; i < DUMP_TABLE_COUNT; ++i)
         {
             if (tn == dumpTables[i].name)
             {

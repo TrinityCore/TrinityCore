@@ -517,7 +517,7 @@ int32 ArenaTeam::WonAgainst(uint32 againstRating)
     stats.wins_season += 1;
     //update team's rank
     stats.rank = 1;
-    ObjectMgr::ArenaTeamMap::iterator i = objmgr.GetArenaTeamMapBegin();
+    ObjectMgr::ArenaTeamMap::const_iterator i = objmgr.GetArenaTeamMapBegin();
     for ( ; i != objmgr.GetArenaTeamMapEnd(); ++i)
     {
         if (i->second->GetType() == this->Type && i->second->GetStats().rating > stats.rating)
@@ -542,7 +542,7 @@ int32 ArenaTeam::LostAgainst(uint32 againstRating)
     //update team's rank
 
     stats.rank = 1;
-    ObjectMgr::ArenaTeamMap::iterator i = objmgr.GetArenaTeamMapBegin();
+    ObjectMgr::ArenaTeamMap::const_iterator i = objmgr.GetArenaTeamMapBegin();
     for ( ; i != objmgr.GetArenaTeamMapEnd(); ++i)
     {
         if (i->second->GetType() == this->Type && i->second->GetStats().rating > stats.rating)
@@ -630,7 +630,7 @@ void ArenaTeam::UpdateArenaPointsHelper(std::map<uint32, uint32>& PlayerPoints)
         return;
     // to get points, a player has to participate in at least 30% of the matches
     uint32 min_plays = (uint32) ceil(stats.games_week * 0.3);
-    for(MemberList::iterator itr = members.begin(); itr !=  members.end(); ++itr)
+    for(MemberList::const_iterator itr = members.begin(); itr !=  members.end(); ++itr)
     {
         // the player participated in enough games, update his points
         uint32 points_to_add = 0;
@@ -656,7 +656,7 @@ void ArenaTeam::SaveToDB()
     // called after a match has ended, or when calculating arena_points
     CharacterDatabase.BeginTransaction();
     CharacterDatabase.PExecute("UPDATE arena_team_stats SET rating = '%u',games = '%u',played = '%u',rank = '%u',wins = '%u',wins2 = '%u' WHERE arenateamid = '%u'", stats.rating, stats.games_week, stats.games_season, stats.rank, stats.wins_week, stats.wins_season, GetId());
-    for(MemberList::iterator itr = members.begin(); itr !=  members.end(); ++itr)
+    for(MemberList::const_iterator itr = members.begin(); itr !=  members.end(); ++itr)
     {
         CharacterDatabase.PExecute("UPDATE arena_team_member SET played_week = '%u', wons_week = '%u', played_season = '%u', wons_season = '%u', personal_rating = '%u' WHERE arenateamid = '%u' AND guid = '%u'", itr->games_week, itr->wins_week, itr->games_season, itr->wins_season, itr->personal_rating, Id, GUID_LOPART(itr->guid));
     }
