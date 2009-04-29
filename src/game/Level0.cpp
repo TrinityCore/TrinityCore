@@ -56,8 +56,8 @@ bool ChatHandler::HandleCommandsCommand(const char* args)
 
 bool ChatHandler::HandleAccountCommand(const char* /*args*/)
 {
-    uint32 gmlevel = m_session->GetSecurity();
-    PSendSysMessage(LANG_ACCOUNT_LEVEL, gmlevel);
+    AccountTypes gmlevel = m_session->GetSecurity();
+    PSendSysMessage(LANG_ACCOUNT_LEVEL, uint32(gmlevel));
     return true;
 }
 
@@ -137,7 +137,7 @@ bool ChatHandler::HandleSaveCommand(const char* /*args*/)
     Player *player=m_session->GetPlayer();
 
     // save GM account without delay and output message (testing, etc)
-    if(m_session->GetSecurity())
+    if(m_session->GetSecurity() > SEC_PLAYER)
     {
         player->SaveToDB();
         SendSysMessage(LANG_PLAYER_SAVED);
@@ -160,7 +160,7 @@ bool ChatHandler::HandleGMListIngameCommand(const char* /*args*/)
     HashMapHolder<Player>::MapType::const_iterator itr = m.begin();
     for(; itr != m.end(); ++itr)
     {
-        if (itr->second->GetSession()->GetSecurity() &&
+        if (itr->second->GetSession()->GetSecurity() > SEC_PLAYER &&
             (itr->second->isGameMaster() || sWorld.getConfig(CONFIG_GM_IN_GM_LIST)) &&
             (!m_session || itr->second->IsVisibleGloballyFor(m_session->GetPlayer())) )
         {

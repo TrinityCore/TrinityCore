@@ -67,7 +67,7 @@ CreatureEventAI::CreatureEventAI(Creature *c ) : CreatureAI(c)
         }
         //EventMap had events but they were not added because they must be for instance
         if (CreatureEventAIList.empty())
-            sLog.outError("CreatureEventAI: CreatureId has events but no events added to list because of instance flags.", m_creature->GetEntry());
+            sLog.outError("CreatureEventAI: Creature %u has events but no events added to list because of instance flags.", m_creature->GetEntry());
     }
     else
         sLog.outError("CreatureEventAI: EventMap for Creature %u is empty but creature is using CreatureEventAI.", m_creature->GetEntry());
@@ -108,34 +108,10 @@ bool CreatureEventAI::ProcessEvent(CreatureEventAIHolder& pHolder, Unit* pAction
     if (pHolder.Event.event_chance <= rnd % 100)
         return false;
 
-    union
-    {
-        uint32 param1;
-        int32 param1_s;
-    };
-
-    union
-    {
-        uint32 param2;
-        int32 param2_s;
-    };
-
-    union
-    {
-        uint32 param3;
-        int32 param3_s;
-    };
-
-    union
-    {
-        uint32 param4;
-        int32 param4_s;
-    };
-
-    param1 = pHolder.Event.event_param1;
-    param2 = pHolder.Event.event_param2;
-    param3 = pHolder.Event.event_param3;
-    param4 = pHolder.Event.event_param4;
+    uint32 param1 = pHolder.Event.event_param1;
+    uint32 param2 = pHolder.Event.event_param2;
+    uint32 param3 = pHolder.Event.event_param3;
+    uint32 param4 = pHolder.Event.event_param4;
 
     //Check event conditions based on the event type, also reset events
     switch (pHolder.Event.event_type)
@@ -522,13 +498,12 @@ void CreatureEventAI::ProcessAction(uint16 type, uint32 param1, uint32 param2, u
             if (temp)
             {
                 Unit* target = NULL;
-                Unit* owner = NULL;
 
                 if (pActionInvoker)
                 {
                     if (pActionInvoker->GetTypeId() == TYPEID_PLAYER)
                         target = pActionInvoker;
-                    else if (owner = pActionInvoker->GetOwner())
+                    else if (Unit* owner = pActionInvoker->GetOwner())
                     {
                         if (owner->GetTypeId() == TYPEID_PLAYER)
                             target = owner;
@@ -537,13 +512,9 @@ void CreatureEventAI::ProcessAction(uint16 type, uint32 param1, uint32 param2, u
                 else if (target = m_creature->getVictim())
                 {
                     if (target->GetTypeId() != TYPEID_PLAYER)
-                    {
-                        if (owner = target->GetOwner())
-                        {
+                        if (Unit* owner = target->GetOwner())
                             if (owner->GetTypeId() == TYPEID_PLAYER)
                                 target = owner;
-                        }
-                    }
                 }
 
                 DoScriptText(temp, m_creature, target);

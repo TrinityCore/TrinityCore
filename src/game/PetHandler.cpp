@@ -287,6 +287,8 @@ void WorldSession::HandlePetActionHelper(Unit *pet, uint64 guid1, uint16 spellid
                         case SPELL_FAILED_REQUIRES_SPELL_FOCUS:
                             data << uint32(spellInfo->RequiresSpellFocus);
                             break;
+                        default:
+                            break;
                     }
                     SendPacket(&data);
                 }
