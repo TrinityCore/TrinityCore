@@ -132,7 +132,7 @@ void PlayerMenu::SendGossipMenu( uint32 TitleTextId, uint64 npcGUID )
     data << uint32( TitleTextId );
     data << uint32( mGossipMenu.MenuItemCount() );          // max count 0x0F
 
-    for (int iI = 0; iI < mGossipMenu.MenuItemCount(); ++iI )
+    for (uint32 iI = 0; iI < mGossipMenu.MenuItemCount(); ++iI )
     {
         GossipMenuItem const& gItem = mGossipMenu.GetItem(iI);
         data << uint32( iI );
@@ -145,7 +145,7 @@ void PlayerMenu::SendGossipMenu( uint32 TitleTextId, uint64 npcGUID )
 
     data << uint32( mQuestMenu.MenuItemCount() );           // max count 0x20
 
-    for ( int iI = 0; iI < mQuestMenu.MenuItemCount(); ++iI )
+    for (uint32 iI = 0; iI < mQuestMenu.MenuItemCount(); ++iI )
     {
         QuestMenuItem const& qItem = mQuestMenu.GetItem(iI);
         uint32 questID = qItem.m_qId;
@@ -381,7 +381,7 @@ void PlayerMenu::SendQuestGiverQuestList( QEmote eEmote, const std::string& Titl
     data << uint32(eEmote._Emote );                         // NPC emote
     data << uint8 ( mQuestMenu.MenuItemCount() );
 
-    for ( int iI = 0; iI < mQuestMenu.MenuItemCount(); ++iI )
+    for (uint32 iI = 0; iI < mQuestMenu.MenuItemCount(); ++iI )
     {
         QuestMenuItem const& qmi = mQuestMenu.GetItem(iI);
 
