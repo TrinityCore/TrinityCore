@@ -916,13 +916,16 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         ? PROC_EX_INTERNAL_TRIGGERED : PROC_EX_NONE;
     m_spellAura = NULL; // Set aura to null for every target-make sure that pointer is not used for unit without aura applied
 
+    Unit * spellHitTarget = NULL;
     if (missInfo==SPELL_MISS_NONE)                          // In case spell hit target, do all effect on that target
-        DoSpellHitOnUnit(unit, mask);
+        spellHitTarget = unit;
     else if (missInfo == SPELL_MISS_REFLECT)                // In case spell reflect from target, do all effect on caster (if hit)
     {
         if (target->reflectResult == SPELL_MISS_NONE)       // If reflected spell hit caster -> do all effect on him
-            DoSpellHitOnUnit(m_caster, mask);
+            spellHitTarget = m_caster;
     }
+
+    DoSpellHitOnUnit(spellHitTarget, mask);
 
     // Do not take combo points on dodge
     if (m_needComboPoints && m_targets.getUnitTargetGUID() == target->targetGUID)
@@ -994,6 +997,9 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         if (missInfo != SPELL_MISS_REFLECT)
             caster->ProcDamageAndSpell(unit, procAttacker, procVictim, procEx, 0, m_attackType, m_spellInfo);
     }
+
+    // Needs to be called after dealing damage/healing to not remove breaking on damage auras
+    DoTriggersOnSpellHit(spellHitTarget);
 
     // Call scripted function for AI if this spell is casted upon a creature (except pets)
     if(IS_CREATURE_GUID(target->targetGUID))
@@ -1105,22 +1111,6 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
             unit->IncrDiminishing(m_diminishGroup);
     }
 
-    // Apply additional spell effects to target
-    if (m_preCastSpell)
-    {
-        // Special spell id
-        // TODO: Handle all of special spells in one place?
-        if(m_preCastSpell==61988)
-        {
-            //Cast Forbearance
-            m_caster->CastSpell(unit,25771, true, m_CastItem);
-            // Cast Avenging Wrath Marker
-            m_caster->CastSpell(unit,61987, true, m_CastItem);
-        }
-        else
-            m_caster->CastSpell(unit,m_preCastSpell, true, m_CastItem);
-    }
-
     uint8 aura_effmask = 0;
     for (uint8 i = 0; i < 3; ++i)
         if (effectMask & (1<<i) && (m_spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AURA || IsAreaAuraEffect(m_spellInfo->Effect[i])))
@@ -1172,6 +1162,28 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
 
     if(m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->IsAIEnabled)
         ((Creature*)m_caster)->AI()->SpellHitTarget(unit, m_spellInfo);
+}
+
+void Spell::DoTriggersOnSpellHit(Unit *unit)
+{
+    if (!unit)
+        return;
+
+    // Apply additional spell effects to target
+    if (m_preCastSpell)
+    {
+        // Special spell id
+        // TODO: Handle all of special spells in one place?
+        if(m_preCastSpell==61988)
+        {
+            //Cast Forbearance
+            m_caster->CastSpell(unit,25771, true, m_CastItem);
+            // Cast Avenging Wrath Marker
+            m_caster->CastSpell(unit,61987, true, m_CastItem);
+        }
+        else
+            m_caster->CastSpell(unit,m_preCastSpell, true, m_CastItem);
+    }
 
     if (m_ChanceTriggerSpells.size())
     {
@@ -5592,7 +5604,7 @@ void Spell::CalculateDamageDoneForAllTargets()
         }
     }
 
-    bool usesAmmo = !m_IsTriggeredSpell;
+    bool usesAmmo = !m_IsTriggeredSpell || m_autoRepeat;
     if (usesAmmo)
     {
         Unit::AuraEffectList const& Auras = m_caster->GetAurasByType(SPELL_AURA_ABILITY_CONSUME_NO_AMMO);
