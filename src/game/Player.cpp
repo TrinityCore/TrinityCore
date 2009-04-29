@@ -7464,6 +7464,9 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
         default: break;
     }
 
+    // need know merged fishing/corpse loot type for achievements
+    loot->loot_type = loot_type;
+
     WorldPacket data(SMSG_LOOT_RESPONSE, (9+50));           // we guess size
 
     data << uint64(guid);
