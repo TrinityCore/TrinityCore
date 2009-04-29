@@ -3035,15 +3035,25 @@ bool ChatHandler::HandleGameObjectStateCommand(const char* args)
         return false;
     }
 
+    char* ctype = strtok(NULL, " ");
+    if(!ctype)
+        return false;
+
+    int32 type = atoi(ctype);
+    if(type < 0)
+    {
+        gobj->SendObjectDeSpawnAnim(gobj->GetGUID());
+        return true;
+    }
+
     char* cstate = strtok(NULL, " ");
     if(!cstate)
         return false;
 
     int32 state = atoi(cstate);
-    if(state < 0)
-        gobj->SendObjectDeSpawnAnim(gobj->GetGUID());
-    else
-        gobj->SetGoState((GOState)state);
+
+    gobj->SetByteValue(GAMEOBJECT_BYTES_1, type, state);
+    PSendSysMessage("Set gobject type %d state %d", type, state);
 
     return true;
 }
