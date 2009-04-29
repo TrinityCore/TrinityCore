@@ -40,7 +40,7 @@ void WorldSession::HandleInspectArenaStatsOpcode(WorldPacket & recv_data)
 
     if(Player *plr = objmgr.GetPlayer(guid))
     {
-        for (uint8 i = 0; i < MAX_ARENA_SLOT; i++)
+        for (uint8 i = 0; i < MAX_ARENA_SLOT; ++i)
         {
             if(uint32 a_id = plr->GetArenaTeamId(i))
             {

@@ -412,7 +412,7 @@ bool ChatHandler::HandleDebugGetItemState(const char* args)
     {
         state_str = "The player has the following " + state_str + " items: ";
         SendSysMessage(state_str.c_str());
-        for (uint8 i = PLAYER_SLOT_START; i < PLAYER_SLOT_END; i++)
+        for (uint8 i = PLAYER_SLOT_START; i < PLAYER_SLOT_END; ++i)
         {
             if(i >= BUYBACK_SLOT_START && i < BUYBACK_SLOT_END)
                 continue;
@@ -440,7 +440,7 @@ bool ChatHandler::HandleDebugGetItemState(const char* args)
     if (list_queue)
     {
         std::vector<Item *> &updateQueue = player->GetItemUpdateQueue();
-        for(size_t i = 0; i < updateQueue.size(); i++)
+        for(size_t i = 0; i < updateQueue.size(); ++i)
         {
             Item *item = updateQueue[i];
             if(!item) continue;
@@ -467,7 +467,7 @@ bool ChatHandler::HandleDebugGetItemState(const char* args)
     {
         bool error = false;
         std::vector<Item *> &updateQueue = player->GetItemUpdateQueue();
-        for (uint8 i = PLAYER_SLOT_START; i < PLAYER_SLOT_END; i++)
+        for (uint8 i = PLAYER_SLOT_START; i < PLAYER_SLOT_END; ++i)
         {
             if(i >= BUYBACK_SLOT_START && i < BUYBACK_SLOT_END)
                 continue;
@@ -583,7 +583,7 @@ bool ChatHandler::HandleDebugGetItemState(const char* args)
             }
         }
 
-        for(size_t i = 0; i < updateQueue.size(); i++)
+        for(size_t i = 0; i < updateQueue.size(); ++i)
         {
             Item *item = updateQueue[i];
             if(!item) continue;

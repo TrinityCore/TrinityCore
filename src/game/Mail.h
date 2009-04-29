@@ -196,11 +196,11 @@ struct Mail
         }
     }
 
-    bool RemoveItem(uint32 itemId)
+    bool RemoveItem(uint32 item_guid)
     {
         for(std::vector<MailItemInfo>::iterator itr = items.begin(); itr != items.end(); ++itr)
         {
-            if(itr->item_guid == itemId)
+            if(itr->item_guid == item_guid)
             {
                 items.erase(itr);
                 return true;

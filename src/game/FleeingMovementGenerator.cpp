@@ -79,7 +79,7 @@ FleeingMovementGenerator<T>::_getPoint(T &owner, float &x, float &y, float &z)
     float temp_x, temp_y, angle;
     const Map * _map = MapManager::Instance().GetBaseMap(owner.GetMapId());
     //primitive path-finding
-    for(uint8 i = 0; i < 18; i++)
+    for(uint8 i = 0; i < 18; ++i)
     {
         if(i_only_forward && i > 2)
             break;

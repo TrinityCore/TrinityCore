@@ -600,7 +600,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
     data.Initialize( SMSG_ACCOUNT_DATA_TIMES, 4+1+8*4 );    // changed in WotLK
     data << uint32(time(NULL));                             // unix time of something
     data << uint8(1);
-    for(int i = 0; i < NUM_ACCOUNT_DATA_TYPES; i++)
+    for(int i = 0; i < NUM_ACCOUNT_DATA_TYPES; ++i)
         data << uint32(GetAccountData(i)->Time);            // also unix time
     SendPacket(&data);
 
@@ -931,14 +931,14 @@ void WorldSession::HandleTutorialFlag( WorldPacket & recv_data )
 
 void WorldSession::HandleTutorialClear( WorldPacket & /*recv_data*/ )
 {
-    for ( uint32 iI = 0; iI < 8; iI++)
-        GetPlayer()->SetTutorialInt( iI, 0xFFFFFFFF );
+    for (int i = 0; i < 8; ++i)
+        GetPlayer()->SetTutorialInt( i, 0xFFFFFFFF );
 }
 
 void WorldSession::HandleTutorialReset( WorldPacket & /*recv_data*/ )
 {
-    for ( uint32 iI = 0; iI < 8; iI++)
-        GetPlayer()->SetTutorialInt( iI, 0x00000000 );
+    for (int i = 0; i < 8; ++i)
+        GetPlayer()->SetTutorialInt( i, 0x00000000 );
 }
 
 void WorldSession::HandleSetWatchedFactionIndexOpcode(WorldPacket & recv_data)

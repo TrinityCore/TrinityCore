@@ -562,7 +562,7 @@ void Guild::BroadcastToOfficers(WorldSession *session, const std::string& msg, u
 {
     if (session && session->GetPlayer() && HasRankRight(session->GetPlayer()->GetRank(),GR_RIGHT_OFFCHATSPEAK))
     {
-        for(MemberList::iterator itr = members.begin(); itr != members.end(); ++itr)
+        for(MemberList::const_iterator itr = members.begin(); itr != members.end(); ++itr)
         {
             WorldPacket data;
             ChatHandler::FillMessageData(&data, session, CHAT_MSG_OFFICER, language, NULL, 0, msg.c_str(),NULL);
@@ -577,7 +577,7 @@ void Guild::BroadcastToOfficers(WorldSession *session, const std::string& msg, u
 
 void Guild::BroadcastPacket(WorldPacket *packet)
 {
-    for(MemberList::iterator itr = members.begin(); itr != members.end(); ++itr)
+    for(MemberList::const_iterator itr = members.begin(); itr != members.end(); ++itr)
     {
         Player *player = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(itr->first, 0, HIGHGUID_PLAYER));
         if(player)
@@ -587,7 +587,7 @@ void Guild::BroadcastPacket(WorldPacket *packet)
 
 void Guild::BroadcastPacketToRank(WorldPacket *packet, uint32 rankId)
 {
-    for(MemberList::iterator itr = members.begin(); itr != members.end(); ++itr)
+    for(MemberList::const_iterator itr = members.begin(); itr != members.end(); ++itr)
     {
         if (itr->second.RankId == rankId)
         {
@@ -674,7 +674,7 @@ void Guild::SetRankRights(uint32 rankId, uint32 rights)
 
 int32 Guild::GetRank(uint32 LowGuid)
 {
-    MemberList::iterator itr = members.find(LowGuid);
+    MemberList::const_iterator itr = members.find(LowGuid);
     if (itr==members.end())
         return -1;
 
@@ -689,7 +689,7 @@ void Guild::Disband()
 
     while (!members.empty())
     {
-        MemberList::iterator itr = members.begin();
+        MemberList::const_iterator itr = members.begin();
         DelMember(MAKE_NEW_GUID(itr->first, 0, HIGHGUID_PLAYER), true);
     }
 

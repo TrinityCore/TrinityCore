@@ -116,7 +116,7 @@ bool UpdateData::BuildPacket(WorldPacket *packet, bool hasTransport)
         buf << (uint32) m_outOfRangeGUIDs.size();
 
         for(std::set<uint64>::const_iterator i = m_outOfRangeGUIDs.begin();
-            i != m_outOfRangeGUIDs.end(); i++)
+            i != m_outOfRangeGUIDs.end(); ++i)
         {
             //buf.appendPackGUID(*i);
             buf << (uint8)0xFF;

@@ -43,7 +43,7 @@ AuctionHouseMgr::AuctionHouseMgr()
 
 AuctionHouseMgr::~AuctionHouseMgr()
 {
-    for(ItemMap::iterator itr = mAitems.begin(); itr != mAitems.end(); ++itr)
+    for(ItemMap::const_iterator itr = mAitems.begin(); itr != mAitems.end(); ++itr)
         delete itr->second;
 }
 
@@ -635,7 +635,7 @@ bool AuctionEntry::BuildAuctionInfo(WorldPacket & data) const
     data << uint32(Id);
     data << uint32(pItem->GetEntry());
 
-    for (uint8 i = 0; i < MAX_INSPECTED_ENCHANTMENT_SLOT; i++)
+    for (uint8 i = 0; i < MAX_INSPECTED_ENCHANTMENT_SLOT; ++i)
     {
         data << uint32(pItem->GetEnchantmentId(EnchantmentSlot(i)));
         data << uint32(pItem->GetEnchantmentDuration(EnchantmentSlot(i)));

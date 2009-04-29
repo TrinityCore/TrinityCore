@@ -386,8 +386,8 @@ void GameObject::Update(uint32 /*p_time*/)
 
                 if(spellId)
                 {
-                    std::set<uint32>::iterator it = m_unique_users.begin();
-                    std::set<uint32>::iterator end = m_unique_users.end();
+                    std::set<uint32>::const_iterator it = m_unique_users.begin();
+                    std::set<uint32>::const_iterator end = m_unique_users.end();
                     for (; it != end; it++)
                     {
                         Unit* owner = Unit::GetUnit(*this, uint64(*it));
@@ -962,7 +962,7 @@ void GameObject::Use(Unit* user)
                 // every slot will be on that straight line
                 float orthogonalOrientation = GetOrientation()+M_PI*0.5f;
                 // find nearest slot
-                for(uint32 i=0; i<info->chair.slots; i++)
+                for(uint32 i=0; i<info->chair.slots; ++i)
                 {
                     // the distance between this slot and the center of the go - imagine a 1D space
                     float relativeDistance = (info->size*i)-(info->size*(info->chair.slots-1)/2.0f);
