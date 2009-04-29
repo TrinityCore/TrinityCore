@@ -17522,7 +17522,7 @@ void Player::LeaveBattleground(bool teleportToEntryPoint)
 {
     if(BattleGround *bg = GetBattleGround())
     {
-        bool need_debuf = bg->isBattleGround() && (bg->GetStatus() == STATUS_IN_PROGRESS) && sWorld.getConfig(CONFIG_BATTLEGROUND_CAST_DESERTER);
+        bool need_debuf = bg->isBattleGround() && !isGameMaster() && (bg->GetStatus() == STATUS_IN_PROGRESS) && sWorld.getConfig(CONFIG_BATTLEGROUND_CAST_DESERTER);
 
         bg->RemovePlayerAtLeave(GetGUID(), teleportToEntryPoint, true);
 
