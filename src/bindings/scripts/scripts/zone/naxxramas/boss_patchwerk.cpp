@@ -31,113 +31,106 @@ EndScriptData */
 #define EMOTE_BERSERK           -1533021
 #define EMOTE_ENRAGE            -1533022
 
-#define SPELL_HATEFULSTRIKE     28308
-#define H_SPELL_HATEFULSTRIKE   59192
-#define SPELL_ENRAGE            2813
+#define SPELL_HATEFULSTRIKE     HEROIC(41926,59192)
+#define SPELL_FRENZY            28131
 #define SPELL_BERSERK           26662
 #define SPELL_SLIMEBOLT         32309
+
+#define EVENT_BERSERK   1
+#define EVENT_HATEFUL   2
+#define EVENT_SLIME     3
 
 struct TRINITY_DLL_DECL boss_patchwerkAI : public ScriptedAI
 {
     boss_patchwerkAI(Creature *c) : ScriptedAI(c) {}
 
-    uint32 HatefullStrike_Timer;
-    uint32 Enrage_Timer;
-    uint32 Slimebolt_Timer;
     bool Enraged;
+    EventMap events;
 
     void Reset()
     {
-        HatefullStrike_Timer = 1200;                        //1.2 seconds
-        Enrage_Timer = 420000;                              //7 minutes 420,000
-        Slimebolt_Timer = 450000;                           //7.5 minutes 450,000
+        events.Reset();
         Enraged = false;
     }
 
     void KilledUnit(Unit* Victim)
     {
-        if (rand()%5)
-            return;
-
-        DoScriptText(SAY_SLAY, m_creature);
+        if(!(rand()%5))
+            DoScriptText(SAY_SLAY, me);
     }
 
     void JustDied(Unit* Killer)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
     }
 
     void EnterCombat(Unit *who)
     {
-        if (rand()%2)
-        {
-             DoScriptText(SAY_AGGRO1, m_creature);
-        }
-        else
-        {
-           DoScriptText(SAY_AGGRO2, m_creature);
-        }
+        DoScriptText(rand()%2 ? SAY_AGGRO1 : SAY_AGGRO2, me);
+        DoZoneInCombat();
+        events.ScheduleEvent(EVENT_HATEFUL, 1200);
+        events.ScheduleEvent(EVENT_BERSERK, 360000);
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if (!UpdateVictim())
+        if(!UpdateVictim())
             return;
 
-        //HatefullStrike_Timer
-        if (HatefullStrike_Timer < diff)
-        {
-            //Cast Hateful strike on the player with the highest
-            //amount of HP within melee distance
-            uint32 MostHP = 0;
-            Unit* pMostHPTarget = NULL;
-            Unit* pTemp = NULL;
-            std::list<HostilReference*>::iterator i = m_creature->getThreatManager().getThreatList().begin();
+        events.Update(diff);
 
-            for (i = m_creature->getThreatManager().getThreatList().begin(); i!=m_creature->getThreatManager().getThreatList().end();)
+        while(uint32 eventId = events.ExecuteEvent())
+        {
+            switch(eventId)
             {
-                pTemp = Unit::GetUnit((*m_creature),(*i)->getUnitGuid());
-                ++i;
-                if (pTemp && pTemp->isAlive() && pTemp->GetHealth() > MostHP && m_creature->GetDistance2d(pTemp) < 5)
+                case EVENT_HATEFUL:
                 {
-                    MostHP = pTemp->GetHealth();
-                    pMostHPTarget = pTemp;
+                    //Cast Hateful strike on the player with the highest
+                    //amount of HP within melee distance
+                    uint32 MostHP = 0;
+                    Unit* pMostHPTarget = NULL;
+                    std::list<HostilReference*>::iterator i = m_creature->getThreatManager().getThreatList().begin();
+                    for(; i != m_creature->getThreatManager().getThreatList().end();)
+                    {
+                        Unit* pTemp = Unit::GetUnit(*m_creature, (*i)->getUnitGuid());
+                        ++i;
+                        if (pTemp && pTemp->isAlive() && pTemp->GetHealth() > MostHP && m_creature->IsWithinMeleeRange(pTemp))
+                        {
+                            MostHP = pTemp->GetHealth();
+                            pMostHPTarget = pTemp;
+                        }
+                    }
+
+                    if (pMostHPTarget)
+                        DoCast(pMostHPTarget, SPELL_HATEFULSTRIKE, true);
+
+                    events.ScheduleEvent(EVENT_HATEFUL, 1200);
+                    return;
                 }
+                case EVENT_BERSERK:
+                    DoCast(m_creature, SPELL_BERSERK);
+                    DoScriptText(EMOTE_BERSERK, m_creature);
+                    events.ScheduleEvent(EVENT_SLIME, 2000);
+                    return;
+                case EVENT_SLIME:
+                    DoCast(m_creature->getVictim(), SPELL_SLIMEBOLT);
+                    events.ScheduleEvent(EVENT_SLIME, 2000);
+                    return;
             }
+        }
 
-            if (pMostHPTarget)
-                DoCast(pMostHPTarget, SPELL_HATEFULSTRIKE);
-
-            HatefullStrike_Timer = 1200;
-        }else HatefullStrike_Timer -= diff;
-
-        //Enrage_Timer
-        if (Enrage_Timer < diff)
+        if(!Enraged && HealthBelowPct(5))
         {
-            DoCast(m_creature, SPELL_BERSERK);
-             DoScriptText(EMOTE_BERSERK, m_creature);
-
-            Enrage_Timer = 300000;
-        }else Enrage_Timer -= diff;
-
-        //Slimebolt_Timer
-        if (Slimebolt_Timer < diff)
-        {
-            DoCast(m_creature->getVictim(),SPELL_SLIMEBOLT);
-            Slimebolt_Timer = 5000;
-        }else Slimebolt_Timer -= diff;
-
-        //Enrage if not already enraged and below 5%
-        if (!Enraged && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 5)
-        {
-            DoCast(m_creature,SPELL_ENRAGE);
-            DoScriptText(EMOTE_ENRAGE,NULL);
+            DoCast(m_creature, SPELL_FRENZY);
+            DoScriptText(EMOTE_ENRAGE, NULL);
             Enraged = true;
+            return;
         }
 
         DoMeleeAttackIfReady();
     }
 };
+
 CreatureAI* GetAI_boss_patchwerk(Creature *_Creature)
 {
     return new boss_patchwerkAI (_Creature);

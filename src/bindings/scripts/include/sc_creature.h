@@ -11,6 +11,8 @@
 #include "CreatureAI.h"
 #include "Creature.h"
 
+#define HEROIC(n,h) (HeroicMode ? h : n)
+
 float GetSpellMaxRangeForHostile(uint32 id);
 
 class SummonList : private std::list<uint64>
@@ -44,7 +46,7 @@ struct PointMovement
 
 struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
 {
-    ScriptedAI(Creature* creature) : CreatureAI(creature), m_creature(creature), IsFleeing(false) {}
+    explicit ScriptedAI(Creature* creature);
     ~ScriptedAI() {}
 
     //*************
@@ -100,6 +102,8 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
 
     //For fleeing
     bool IsFleeing;
+
+    bool HeroicMode;
 
     //*************
     //Pure virtual functions
@@ -176,6 +180,8 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
     Unit* SelectUnit(SelectAggroTarget target, uint32 position);
     Unit* SelectUnit(SelectAggroTarget target, uint32 position, float dist, bool playerOnly);
     void SelectUnitList(std::list<Unit*> &targetList, uint32 num, SelectAggroTarget target, float dist, bool playerOnly);
+
+    bool HealthBelowPct(uint32 pct) const { return me->GetHealth() * 100 < m_creature->GetMaxHealth() * pct; }
 
     //Returns spells that meet the specified criteria from the creatures spell list
     SpellEntry const* SelectSpell(Unit* Target, int32 School, int32 Mechanic, SelectTarget Targets,  uint32 PowerCostMin, uint32 PowerCostMax, float RangeMin, float RangeMax, SelectEffect Effect);

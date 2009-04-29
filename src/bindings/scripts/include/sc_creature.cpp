@@ -61,6 +61,11 @@ void SummonList::DespawnAll()
     }
 }
 
+ScriptedAI::ScriptedAI(Creature* creature) : CreatureAI(creature), m_creature(creature), IsFleeing(false)
+{
+    HeroicMode = m_creature->GetMap()->IsHeroic();
+}
+
 void ScriptedAI::AttackStart(Unit* who, bool melee)
 {
     if (!who)

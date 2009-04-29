@@ -97,8 +97,8 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
             pInstance->SetData(DATA_SUPREMUSEVENT, IN_PROGRESS);
 
         ChangePhase();
-        events.ScheduleEvent(900000, EVENT_BERSERK, GCD_CAST);
-        events.ScheduleEvent(20000, EVENT_FLAME, GCD_CAST);
+        events.ScheduleEvent(EVENT_BERSERK, 900000, GCD_CAST);
+        events.ScheduleEvent(EVENT_FLAME, 20000, GCD_CAST);
     }
 
     void ToggleDoors(bool close)
@@ -116,7 +116,7 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
         {
             phase = PHASE_STRIKE;
             summons.DoAction(EVENT_VOLCANO, 0);
-            events.ScheduleEvent(5000, EVENT_HATEFUL_STRIKE, GCD_CAST, PHASE_STRIKE);
+            events.ScheduleEvent(EVENT_HATEFUL_STRIKE, 5000, GCD_CAST, PHASE_STRIKE);
             m_creature->SetSpeed(MOVE_RUN, 1.2f);
             m_creature->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
             m_creature->ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, false);
@@ -124,8 +124,8 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
         else
         {
             phase = PHASE_CHASE;
-            events.ScheduleEvent(5000, EVENT_VOLCANO, GCD_CAST, PHASE_CHASE);
-            events.ScheduleEvent(10000, EVENT_SWITCH_TARGET, 0, PHASE_CHASE);
+            events.ScheduleEvent(EVENT_VOLCANO, 5000, GCD_CAST, PHASE_CHASE);
+            events.ScheduleEvent(EVENT_SWITCH_TARGET, 10000, 0, PHASE_CHASE);
             m_creature->SetSpeed(MOVE_RUN, 0.9f);
             m_creature->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
             m_creature->ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, true);
@@ -133,7 +133,7 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
         DoResetThreat();
         DoZoneInCombat();
         events.SetPhase(phase);
-        events.ScheduleEvent(60000, EVENT_SWITCH_PHASE, GCD_CAST);
+        events.ScheduleEvent(EVENT_SWITCH_PHASE, 60000, GCD_CAST);
     }
 
     void JustDied(Unit *killer)
@@ -189,13 +189,13 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
                 case EVENT_FLAME:
                     DoCast(m_creature, SPELL_MOLTEN_PUNCH);
                     events.DelayEvents(1500, GCD_CAST);
-                    events.ScheduleEvent(20000, EVENT_FLAME, GCD_CAST);
+                    events.ScheduleEvent(EVENT_FLAME, 20000, GCD_CAST);
                     break;
                 case EVENT_HATEFUL_STRIKE:
                     if(Unit* target = CalculateHatefulStrikeTarget())
                         DoCast(target, SPELL_HATEFUL_STRIKE);
                     events.DelayEvents(1000, GCD_CAST);
-                    events.ScheduleEvent(5000, EVENT_HATEFUL_STRIKE, GCD_CAST, PHASE_STRIKE);
+                    events.ScheduleEvent(EVENT_HATEFUL_STRIKE, 5000, GCD_CAST, PHASE_STRIKE);
                     break;
                 case EVENT_SWITCH_TARGET:
                     if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1, 100, true))
@@ -204,7 +204,7 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
                         m_creature->AddThreat(target, 5000000.0f);
                         DoScriptText(EMOTE_NEW_TARGET, m_creature);
                     }
-                    events.ScheduleEvent(10000, EVENT_SWITCH_TARGET, 0, PHASE_CHASE);
+                    events.ScheduleEvent(EVENT_SWITCH_TARGET, 10000, 0, PHASE_CHASE);
                     break;
                 case EVENT_VOLCANO:
                 {
@@ -216,7 +216,7 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
                         DoScriptText(EMOTE_GROUND_CRACK, m_creature);
                         events.DelayEvents(1500, GCD_CAST);
                     }
-                    events.ScheduleEvent(10000, EVENT_VOLCANO, GCD_CAST, PHASE_CHASE);
+                    events.ScheduleEvent(EVENT_VOLCANO, 10000, GCD_CAST, PHASE_CHASE);
                     return;
                 }
                 case EVENT_SWITCH_PHASE:
