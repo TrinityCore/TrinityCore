@@ -158,7 +158,7 @@ class ReactorRunnable : protected ACE_Task_Base
 
             ACE_ASSERT (m_Reactor);
 
-            SocketSet::const_iterator i, t;
+            SocketSet::iterator i, t;
 
             while (!m_Reactor->reactor_event_loop_done ())
             {
