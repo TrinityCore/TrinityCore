@@ -103,6 +103,9 @@ class WorldSocket : protected WorldHandler
         typedef ACE_Thread_Mutex LockType;
         typedef ACE_Guard<LockType> GuardType;
 
+        /// Queue for storing packets for which there is no space.
+        typedef ACE_Unbounded_Queue< WorldPacket* > PacketQueueT;
+
         /// Check if socket is closed.
         bool IsClosed (void) const;
 
@@ -158,9 +161,6 @@ class WorldSocket : protected WorldHandler
         int cancel_wakeup_output (GuardType& g);
         int schedule_wakeup_output (GuardType& g);
 
-        /// Drain the queue if its not empty.
-        int handle_output_queue (GuardType& g);
-
         /// process one incoming packet.
         /// @param new_pct received packet ,note that you need to delete it.
         int ProcessIncoming (WorldPacket* new_pct);
@@ -170,6 +170,16 @@ class WorldSocket : protected WorldHandler
 
         /// Called by ProcessIncoming() on CMSG_PING.
         int HandlePing (WorldPacket& recvPacket);
+
+        /// Try to write WorldPacket to m_OutBuffer ,return -1 if no space
+        /// Need to be called with m_OutBufferLock lock held
+        int iSendPacket (const WorldPacket& pct);
+
+        /// Flush m_PacketQueue if there are packets in it
+        /// Need to be called with m_OutBufferLock lock held
+        /// @return true if it wrote to the buffer ( AKA you need
+        /// to mark the socket for output ).
+        bool iFlushPacketQueue ();
 
     private:
         /// Time in which the last ping was received
@@ -209,6 +219,10 @@ class WorldSocket : protected WorldHandler
 
         /// Size of the m_OutBuffer.
         size_t m_OutBufferSize;
+
+        /// Here are stored packets for which there was no space on m_OutBuffer,
+        /// this allows not-to kick player if its buffer is overflowed.
+        PacketQueueT m_PacketQueue;
 
         /// True if the socket is registered with the reactor for output
         bool m_OutActive;
