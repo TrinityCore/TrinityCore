@@ -78,20 +78,20 @@ float AllianceOverrunWP[55][3]=//waypoints in the alliance base used in the end 
     {5043.42,-1853.75,1324.52},//19
     {5053.02,-1864.13,1330.36},//20
     {5062.49,-1852.47,1330.49},//21
+    {5015.27, -1738.77, 1324.83},//35//start 22
+    {5027.97, -1775.25, 1321.87},//34 23
+    {5015.94, -1821.24, 1321.86},//33 24
+    {4983.25, -1857.4, 1320.48},//32 25
+    {4981.51, -1883.7, 1322.34},//31 26
+    {5002.33, -1893.98, 1325.88},//30 27
+    {5049.32, -1886.54, 1331.69},//29 28
+    {5089.68, -1846.88, 1328.99},//28 29
+    {5127.90, -1825.14, 1335.58},//27 30
+    {5163.27, -1789.08, 1337.04},//26 31
+    {5138.97, -1755.88, 1334.57},//25 32
+    {5096.63, -1742.22, 1329.61},//24 33
+    {5065.81, -1729.43, 1325.66},//23 34
     {5049.32, -1726.31, 1320.64},//22 start
-    {5065.81, -1729.43, 1325.66},//23
-    {5096.63, -1742.22, 1329.61},//24
-    {5138.97, -1755.88, 1334.57},//25
-    {5163.27, -1789.08, 1337.04},//26
-    {5127.90, -1825.14, 1335.58},//27
-    {5089.68, -1846.88, 1328.99},//28
-    {5049.32, -1886.54, 1331.69},//29
-    {5002.33, -1893.98, 1325.88},//30
-    {4981.51, -1883.7, 1322.34},//31
-    {4983.25, -1857.4, 1320.48},//32
-    {5015.94, -1821.24, 1321.86},//33
-    {5027.97, -1775.25, 1321.87},//34
-    {5015.27, -1738.77, 1324.83},//35
     {5081.07, -1902.10, 1346.36},//36 abo start
     {5107.65, -1912.03, 1356.49},//37
     {5132.83, -1927.07, 1362.42},//38
@@ -173,45 +173,9 @@ void hyjal_trashAI::UpdateAI(const uint32 diff)
         {     
             if(m_creature->GetEntry() == GARGOYLE)
             {
-                switch(OverrunType)
-                {
-                    case 0:
-                        {
-                            DummyTarget[0] = AllianceOverrunWP[50][0];
-                            DummyTarget[1] = AllianceOverrunWP[50][1];
-                            DummyTarget[2] = AllianceOverrunWP[50][2];
-                        }
-                        break;
-                    case 1:
-                        {
-                            DummyTarget[0] = AllianceOverrunWP[51][0];
-                            DummyTarget[1] = AllianceOverrunWP[51][1];
-                            DummyTarget[2] = AllianceOverrunWP[51][2];
-                        }
-                        break;
-                    case 2:
-                        {
-                            DummyTarget[0] = AllianceOverrunWP[52][0];
-                            DummyTarget[1] = AllianceOverrunWP[52][1];
-                            DummyTarget[2] = AllianceOverrunWP[52][2];
-                        }
-                        break;
-                    case 3:
-                        {
-                            DummyTarget[0] = AllianceOverrunWP[53][0];
-                            DummyTarget[1] = AllianceOverrunWP[53][1];
-                            DummyTarget[2] = AllianceOverrunWP[53][2];
-                        }
-                        break;
-                    case 4:
-                        {
-                            DummyTarget[0] = AllianceOverrunWP[54][0];
-                            DummyTarget[1] = AllianceOverrunWP[54][1];
-                            DummyTarget[2] = AllianceOverrunWP[54][2];
-                        }
-                        break;
-                }
-                
+                DummyTarget[0] = AllianceOverrunWP[50+OverrunType][0]; //+OverrunType 0 - 4
+                DummyTarget[1] = AllianceOverrunWP[50+OverrunType][1];
+                DummyTarget[2] = AllianceOverrunWP[50+OverrunType][2];
             }
             if(m_creature->GetEntry() == ABOMINATION)
             {
@@ -220,13 +184,14 @@ void hyjal_trashAI::UpdateAI(const uint32 diff)
                 switch(OverrunType)
                 {
                     case 0:
-                        AddWaypoint( 4, AllianceOverrunWP[35][0]+irand(-3,3), AllianceOverrunWP[35][1]+irand(-3,3), AllianceOverrunWP[35][2]);
-                        AddWaypoint( 5, AllianceOverrunWP[34][0]+irand(-3,3), AllianceOverrunWP[34][1]+irand(-3,3), AllianceOverrunWP[34][2]);
-                        AddWaypoint( 6, AllianceOverrunWP[33][0]+irand(-3,3), AllianceOverrunWP[33][1]+irand(-3,3), AllianceOverrunWP[33][2]);
-                        AddWaypoint( 7, AllianceOverrunWP[32][0]+irand(-3,3), AllianceOverrunWP[32][1]+irand(-3,3), AllianceOverrunWP[32][2]);
-                        AddWaypoint( 8, AllianceOverrunWP[31][0]+irand(-3,3), AllianceOverrunWP[31][1]+irand(-3,3), AllianceOverrunWP[31][2]);
-                        AddWaypoint( 9, AllianceOverrunWP[30][0]+irand(-3,3), AllianceOverrunWP[30][1]+irand(-3,3), AllianceOverrunWP[30][2]);
-                        AddWaypoint(10, AllianceOverrunWP[29][0]+irand(-3,3), AllianceOverrunWP[29][1]+irand(-3,3), AllianceOverrunWP[29][2]);
+                        AddWaypoint( 4, AllianceOverrunWP[22][0]+irand(-3,3), AllianceOverrunWP[22][1]+irand(-3,3), AllianceOverrunWP[22][2]);
+                        AddWaypoint( 5, AllianceOverrunWP[23][0]+irand(-3,3), AllianceOverrunWP[23][1]+irand(-3,3), AllianceOverrunWP[23][2]);
+                        AddWaypoint( 6, AllianceOverrunWP[24][0]+irand(-3,3), AllianceOverrunWP[24][1]+irand(-3,3), AllianceOverrunWP[24][2]);
+                        AddWaypoint( 7, AllianceOverrunWP[25][0]+irand(-3,3), AllianceOverrunWP[25][1]+irand(-3,3), AllianceOverrunWP[25][2]);
+                        AddWaypoint( 8, AllianceOverrunWP[26][0]+irand(-3,3), AllianceOverrunWP[26][1]+irand(-3,3), AllianceOverrunWP[26][2]);
+                        AddWaypoint( 9, AllianceOverrunWP[27][0]+irand(-3,3), AllianceOverrunWP[27][1]+irand(-3,3), AllianceOverrunWP[27][2]);
+                        AddWaypoint(10, AllianceOverrunWP[28][0]+irand(-3,3), AllianceOverrunWP[28][1]+irand(-3,3), AllianceOverrunWP[28][2]);
+                        
                         AddWaypoint(11, AllianceOverrunWP[36][0]+irand(-3,3), AllianceOverrunWP[36][1]+irand(-3,3), AllianceOverrunWP[36][2]);
                         AddWaypoint(12, AllianceOverrunWP[37][0]+irand(-3,3), AllianceOverrunWP[37][1]+irand(-3,3), AllianceOverrunWP[37][2]);
                         AddWaypoint(13, AllianceOverrunWP[38][0]+irand(-3,3), AllianceOverrunWP[38][1]+irand(-3,3), AllianceOverrunWP[38][2]);
@@ -241,13 +206,14 @@ void hyjal_trashAI::UpdateAI(const uint32 diff)
                         Start(true, true, true);
                         break;
                      case 1:
-                        AddWaypoint( 4, AllianceOverrunWP[35][0]+irand(-3,3), AllianceOverrunWP[35][1]+irand(-3,3), AllianceOverrunWP[35][2]);
-                        AddWaypoint( 5, AllianceOverrunWP[34][0]+irand(-3,3), AllianceOverrunWP[34][1]+irand(-3,3), AllianceOverrunWP[34][2]);
-                        AddWaypoint( 6, AllianceOverrunWP[33][0]+irand(-3,3), AllianceOverrunWP[33][1]+irand(-3,3), AllianceOverrunWP[33][2]);
-                        AddWaypoint( 7, AllianceOverrunWP[32][0]+irand(-3,3), AllianceOverrunWP[32][1]+irand(-3,3), AllianceOverrunWP[32][2]);
-                        AddWaypoint( 8, AllianceOverrunWP[31][0]+irand(-3,3), AllianceOverrunWP[31][1]+irand(-3,3), AllianceOverrunWP[31][2]);
-                        AddWaypoint( 9, AllianceOverrunWP[30][0]+irand(-3,3), AllianceOverrunWP[30][1]+irand(-3,3), AllianceOverrunWP[30][2]);
-                        AddWaypoint(10, AllianceOverrunWP[29][0]+irand(-3,3), AllianceOverrunWP[29][1]+irand(-3,3), AllianceOverrunWP[29][2]);
+                        AddWaypoint( 4, AllianceOverrunWP[22][0]+irand(-3,3), AllianceOverrunWP[22][1]+irand(-3,3), AllianceOverrunWP[22][2]);
+                        AddWaypoint( 5, AllianceOverrunWP[23][0]+irand(-3,3), AllianceOverrunWP[23][1]+irand(-3,3), AllianceOverrunWP[23][2]);
+                        AddWaypoint( 6, AllianceOverrunWP[24][0]+irand(-3,3), AllianceOverrunWP[24][1]+irand(-3,3), AllianceOverrunWP[24][2]);
+                        AddWaypoint( 7, AllianceOverrunWP[25][0]+irand(-3,3), AllianceOverrunWP[25][1]+irand(-3,3), AllianceOverrunWP[25][2]);
+                        AddWaypoint( 8, AllianceOverrunWP[26][0]+irand(-3,3), AllianceOverrunWP[26][1]+irand(-3,3), AllianceOverrunWP[26][2]);
+                        AddWaypoint( 9, AllianceOverrunWP[27][0]+irand(-3,3), AllianceOverrunWP[27][1]+irand(-3,3), AllianceOverrunWP[27][2]);
+                        AddWaypoint(10, AllianceOverrunWP[28][0]+irand(-3,3), AllianceOverrunWP[28][1]+irand(-3,3), AllianceOverrunWP[28][2]);
+
                         AddWaypoint(11, AllianceOverrunWP[36][0]+irand(-3,3), AllianceOverrunWP[36][1]+irand(-3,3), AllianceOverrunWP[36][2]);
                         AddWaypoint(12, AllianceOverrunWP[37][0]+irand(-3,3), AllianceOverrunWP[37][1]+irand(-3,3), AllianceOverrunWP[37][2]);
                         AddWaypoint(13, AllianceOverrunWP[38][0]+irand(-3,3), AllianceOverrunWP[38][1]+irand(-3,3), AllianceOverrunWP[38][2]);
@@ -262,21 +228,9 @@ void hyjal_trashAI::UpdateAI(const uint32 diff)
                         Start(true, true, true);
                         break;
                     default:
-                        AddWaypoint( 4, AllianceOverrunWP[35][0]+irand(-3,3), AllianceOverrunWP[35][1]+irand(-3,3), AllianceOverrunWP[35][2]);
-                        AddWaypoint( 5, AllianceOverrunWP[34][0]+irand(-3,3), AllianceOverrunWP[34][1]+irand(-3,3), AllianceOverrunWP[34][2]);
-                        AddWaypoint( 6, AllianceOverrunWP[33][0]+irand(-3,3), AllianceOverrunWP[33][1]+irand(-3,3), AllianceOverrunWP[33][2]);
-                        AddWaypoint( 7, AllianceOverrunWP[32][0]+irand(-3,3), AllianceOverrunWP[32][1]+irand(-3,3), AllianceOverrunWP[32][2]);
-                        AddWaypoint( 8, AllianceOverrunWP[31][0]+irand(-3,3), AllianceOverrunWP[31][1]+irand(-3,3), AllianceOverrunWP[31][2]);
-                        AddWaypoint( 9, AllianceOverrunWP[30][0]+irand(-3,3), AllianceOverrunWP[30][1]+irand(-3,3), AllianceOverrunWP[30][2]);
-                        AddWaypoint(10, AllianceOverrunWP[29][0]+irand(-3,3), AllianceOverrunWP[29][1]+irand(-3,3), AllianceOverrunWP[29][2]);
-                        AddWaypoint(11, AllianceOverrunWP[28][0]+irand(-3,3), AllianceOverrunWP[28][1]+irand(-3,3), AllianceOverrunWP[28][2]);
-                        AddWaypoint(12, AllianceOverrunWP[27][0]+irand(-3,3), AllianceOverrunWP[27][1]+irand(-3,3), AllianceOverrunWP[27][2]);
-                        AddWaypoint(13, AllianceOverrunWP[26][0]+irand(-3,3), AllianceOverrunWP[26][1]+irand(-3,3), AllianceOverrunWP[26][2]);
-                        AddWaypoint(14, AllianceOverrunWP[25][0]+irand(-3,3), AllianceOverrunWP[25][1]+irand(-3,3), AllianceOverrunWP[25][2]);
-                        AddWaypoint(15, AllianceOverrunWP[24][0]+irand(-3,3), AllianceOverrunWP[24][1]+irand(-3,3), AllianceOverrunWP[24][2]);
-                        AddWaypoint(16, AllianceOverrunWP[23][0]+irand(-3,3), AllianceOverrunWP[23][1]+irand(-3,3), AllianceOverrunWP[23][2]);
-                        AddWaypoint(17, AllianceOverrunWP[22][0]+irand(-3,3), AllianceOverrunWP[22][1]+irand(-3,3), AllianceOverrunWP[22][2]);
-                        //m_creature->SetHomePosition(AllianceOverrunWP[0][0]+irand(-3,3), AllianceOverrunWP[0][1]+irand(-3,3), AllianceOverrunWP[0][2],0);
+                        for(uint8 i = 22; i < 36; i++)
+                            AddWaypoint( i-18, AllianceOverrunWP[i][0]+irand(-3,3), AllianceOverrunWP[i][1]+irand(-3,3), AllianceOverrunWP[i][2]);
+
                         SetDespawnAtEnd(true);
                         LastOverronPos = 17;
                         Start(true, true, true);
@@ -347,21 +301,8 @@ void hyjal_trashAI::UpdateAI(const uint32 diff)
                         Start(true, true, true);
                         break;
                     default:
-                        AddWaypoint( 4, AllianceOverrunWP[35][0]+irand(-3,3), AllianceOverrunWP[35][1]+irand(-3,3), AllianceOverrunWP[35][2]);
-                        AddWaypoint( 5, AllianceOverrunWP[34][0]+irand(-3,3), AllianceOverrunWP[34][1]+irand(-3,3), AllianceOverrunWP[34][2]);
-                        AddWaypoint( 6, AllianceOverrunWP[33][0]+irand(-3,3), AllianceOverrunWP[33][1]+irand(-3,3), AllianceOverrunWP[33][2]);
-                        AddWaypoint( 7, AllianceOverrunWP[32][0]+irand(-3,3), AllianceOverrunWP[32][1]+irand(-3,3), AllianceOverrunWP[32][2]);
-                        AddWaypoint( 8, AllianceOverrunWP[31][0]+irand(-3,3), AllianceOverrunWP[31][1]+irand(-3,3), AllianceOverrunWP[31][2]);
-                        AddWaypoint( 9, AllianceOverrunWP[30][0]+irand(-3,3), AllianceOverrunWP[30][1]+irand(-3,3), AllianceOverrunWP[30][2]);
-                        AddWaypoint(10, AllianceOverrunWP[29][0]+irand(-3,3), AllianceOverrunWP[29][1]+irand(-3,3), AllianceOverrunWP[29][2]);
-                        AddWaypoint(11, AllianceOverrunWP[28][0]+irand(-3,3), AllianceOverrunWP[28][1]+irand(-3,3), AllianceOverrunWP[28][2]);
-                        AddWaypoint(12, AllianceOverrunWP[27][0]+irand(-3,3), AllianceOverrunWP[27][1]+irand(-3,3), AllianceOverrunWP[27][2]);
-                        AddWaypoint(13, AllianceOverrunWP[26][0]+irand(-3,3), AllianceOverrunWP[26][1]+irand(-3,3), AllianceOverrunWP[26][2]);
-                        AddWaypoint(14, AllianceOverrunWP[25][0]+irand(-3,3), AllianceOverrunWP[25][1]+irand(-3,3), AllianceOverrunWP[25][2]);
-                        AddWaypoint(15, AllianceOverrunWP[24][0]+irand(-3,3), AllianceOverrunWP[24][1]+irand(-3,3), AllianceOverrunWP[24][2]);
-                        AddWaypoint(16, AllianceOverrunWP[23][0]+irand(-3,3), AllianceOverrunWP[23][1]+irand(-3,3), AllianceOverrunWP[23][2]);
-                        AddWaypoint(17, AllianceOverrunWP[22][0]+irand(-3,3), AllianceOverrunWP[22][1]+irand(-3,3), AllianceOverrunWP[22][2]);
-                        //m_creature->SetHomePosition(AllianceOverrunWP[0][0]+irand(-3,3), AllianceOverrunWP[0][1]+irand(-3,3), AllianceOverrunWP[0][2],0);
+                        for(uint8 i = 22; i < 36; i++)
+                            AddWaypoint( i-18, AllianceOverrunWP[i][0]+irand(-3,3), AllianceOverrunWP[i][1]+irand(-3,3), AllianceOverrunWP[i][2]);
                         SetDespawnAtEnd(true);
                         LastOverronPos = 17;
                         Start(true, true, true);
@@ -398,25 +339,10 @@ void hyjal_trashAI::UpdateAI(const uint32 diff)
                         Start(true, true, true);
                         break;
                     default:
-                        AddWaypoint( 5, HordeOverrunWP[0][0]+irand(-10,10), HordeOverrunWP[0][1]+irand(-10,10), HordeOverrunWP[0][2]);
-                        AddWaypoint( 6, HordeOverrunWP[1][0]+irand(-10,10), HordeOverrunWP[1][1]+irand(-10,10), HordeOverrunWP[1][2]);
-                        AddWaypoint( 7, HordeOverrunWP[2][0]+irand(-10,10), HordeOverrunWP[2][1]+irand(-10,10), HordeOverrunWP[2][2]);
-                        AddWaypoint( 8, HordeOverrunWP[3][0]+irand(-10,10), HordeOverrunWP[3][1]+irand(-10,10), HordeOverrunWP[3][2]);
-                        AddWaypoint( 9, HordeOverrunWP[4][0]+irand(-10,10), HordeOverrunWP[4][1]+irand(-10,10), HordeOverrunWP[4][2]);
-                        AddWaypoint(10, HordeOverrunWP[5][0]+irand(-10,10), HordeOverrunWP[5][1]+irand(-10,10), HordeOverrunWP[5][2]);
-                        AddWaypoint(11, HordeOverrunWP[6][0]+irand(-10,10), HordeOverrunWP[6][1]+irand(-10,10), HordeOverrunWP[6][2]);
-                        AddWaypoint(12, HordeOverrunWP[7][0]+irand(-10,10), HordeOverrunWP[7][1]+irand(-10,10), HordeOverrunWP[7][2]);
-                        AddWaypoint(13, HordeOverrunWP[8][0]+irand(-10,10), HordeOverrunWP[8][1]+irand(-10,10), HordeOverrunWP[8][2]);
-                        AddWaypoint(14, HordeOverrunWP[9][0]+irand(-10,10), HordeOverrunWP[9][1]+irand(-10,10), HordeOverrunWP[9][2]);
-                        AddWaypoint(15, HordeOverrunWP[10][0]+irand(-10,10), HordeOverrunWP[10][1]+irand(-10,10), HordeOverrunWP[10][2]);
-                        AddWaypoint(16, HordeOverrunWP[11][0]+irand(-10,10), HordeOverrunWP[11][1]+irand(-10,10), HordeOverrunWP[11][2]);
-                        AddWaypoint(17, HordeOverrunWP[12][0]+irand(-10,10), HordeOverrunWP[12][1]+irand(-10,10), HordeOverrunWP[12][2]);
-                        AddWaypoint(18, HordeOverrunWP[13][0]+irand(-10,10), HordeOverrunWP[13][1]+irand(-10,10), HordeOverrunWP[13][2]);
-                        AddWaypoint(19, HordeOverrunWP[14][0]+irand(-10,10), HordeOverrunWP[14][1]+irand(-10,10), HordeOverrunWP[14][2]);
-                        AddWaypoint(20, HordeOverrunWP[15][0]+irand(-10,10), HordeOverrunWP[15][1]+irand(-10,10), HordeOverrunWP[15][2]);
-                       //m_creature->SetHomePosition(AllianceOverrunWP[2][0]+irand(-10,10), AllianceOverrunWP[2][1]+irand(-10,10), AllianceOverrunWP[2][2],0);
+                        for(uint8 i = 0; i < 16; i++)
+                            AddWaypoint( i+6, HordeOverrunWP[i][0]+irand(-10,10), HordeOverrunWP[i][1]+irand(-10,10), HordeOverrunWP[i][2]);
                         SetDespawnAtEnd(true);
-                        LastOverronPos = 20;
+                        LastOverronPos = 21;
                         Start(true, true, true);
                         break;
                 }
@@ -425,32 +351,11 @@ void hyjal_trashAI::UpdateAI(const uint32 diff)
             {
                 for(uint8 i = 0; i < 6; i++)
                     AddWaypoint(i, HordeWPs[i][0]+irand(-10,10), HordeWPs[i][1]+irand(-10,10), HordeWPs[i][2]);
-                switch(OverrunType)
-                {
-                    case 0:
-                    default:
-                        AddWaypoint( 5, HordeOverrunWP[0][0]+irand(-10,10), HordeOverrunWP[0][1]+irand(-10,10), HordeOverrunWP[0][2]);
-                        AddWaypoint( 6, HordeOverrunWP[1][0]+irand(-10,10), HordeOverrunWP[1][1]+irand(-10,10), HordeOverrunWP[1][2]);
-                        AddWaypoint( 7, HordeOverrunWP[2][0]+irand(-10,10), HordeOverrunWP[2][1]+irand(-10,10), HordeOverrunWP[2][2]);
-                        AddWaypoint( 8, HordeOverrunWP[3][0]+irand(-10,10), HordeOverrunWP[3][1]+irand(-10,10), HordeOverrunWP[3][2]);
-                        AddWaypoint( 9, HordeOverrunWP[4][0]+irand(-10,10), HordeOverrunWP[4][1]+irand(-10,10), HordeOverrunWP[4][2]);
-                        AddWaypoint(10, HordeOverrunWP[5][0]+irand(-10,10), HordeOverrunWP[5][1]+irand(-10,10), HordeOverrunWP[5][2]);
-                        AddWaypoint(11, HordeOverrunWP[6][0]+irand(-10,10), HordeOverrunWP[6][1]+irand(-10,10), HordeOverrunWP[6][2]);
-                        AddWaypoint(12, HordeOverrunWP[7][0]+irand(-10,10), HordeOverrunWP[7][1]+irand(-10,10), HordeOverrunWP[7][2]);
-                        AddWaypoint(13, HordeOverrunWP[8][0]+irand(-10,10), HordeOverrunWP[8][1]+irand(-10,10), HordeOverrunWP[8][2]);
-                        AddWaypoint(14, HordeOverrunWP[9][0]+irand(-10,10), HordeOverrunWP[9][1]+irand(-10,10), HordeOverrunWP[9][2]);
-                        AddWaypoint(15, HordeOverrunWP[10][0]+irand(-10,10), HordeOverrunWP[10][1]+irand(-10,10), HordeOverrunWP[10][2]);
-                        AddWaypoint(16, HordeOverrunWP[11][0]+irand(-10,10), HordeOverrunWP[11][1]+irand(-10,10), HordeOverrunWP[11][2]);
-                        AddWaypoint(17, HordeOverrunWP[12][0]+irand(-10,10), HordeOverrunWP[12][1]+irand(-10,10), HordeOverrunWP[12][2]);
-                        AddWaypoint(18, HordeOverrunWP[13][0]+irand(-10,10), HordeOverrunWP[13][1]+irand(-10,10), HordeOverrunWP[13][2]);
-                        AddWaypoint(19, HordeOverrunWP[14][0]+irand(-10,10), HordeOverrunWP[14][1]+irand(-10,10), HordeOverrunWP[14][2]);
-                        AddWaypoint(20, HordeOverrunWP[15][0]+irand(-10,10), HordeOverrunWP[15][1]+irand(-10,10), HordeOverrunWP[15][2]);
-                        //m_creature->SetHomePosition(AllianceOverrunWP[2][0]+irand(-10,10), AllianceOverrunWP[2][1]+irand(-10,10), AllianceOverrunWP[2][2],0);
-                        SetDespawnAtEnd(true);
-                        LastOverronPos = 20;
-                        Start(true, true, true);
-                        break;
-                }
+                for(uint8 i = 0; i < 16; i++)
+                    AddWaypoint( i+6, HordeOverrunWP[i][0]+irand(-10,10), HordeOverrunWP[i][1]+irand(-10,10), HordeOverrunWP[i][2]);
+                SetDespawnAtEnd(true);
+                LastOverronPos = 21;
+                Start(true, true, true); 
             }
         }
     }
@@ -464,25 +369,6 @@ void hyjal_trashAI::JustDied(Unit *victim)
 
     if((pInstance->GetData(DATA_RAIDDAMAGE) < MINRAIDDAMAGE && !m_creature->isWorldBoss()) || (damageTaken < m_creature->GetMaxHealth()/4 && m_creature->isWorldBoss()))
         m_creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);//no loot
-
-    if(IsOverrun)
-    {
-        float x,y,z,o;
-        m_creature->GetHomePosition(x,y,z,o);
-        Creature* pUnit = m_creature->SummonCreature(m_creature->GetEntry(),x,y,z,o, TEMPSUMMON_MANUAL_DESPAWN, 2*60*1000);
-        if(pUnit)
-        {
-            ((hyjal_trashAI*)pUnit->AI())->faction = faction;                    
-            ((hyjal_trashAI*)pUnit->AI())->IsOverrun = true;
-            ((hyjal_trashAI*)pUnit->AI())->OverrunType = OverrunType;
-            ((hyjal_trashAI*)pUnit->AI())->SetupOverrun = true;
-            ((hyjal_trashAI*)pUnit->AI())->DummyTarget[0] = DummyTarget[0];
-            ((hyjal_trashAI*)pUnit->AI())->DummyTarget[1] = DummyTarget[1];
-            ((hyjal_trashAI*)pUnit->AI())->DummyTarget[2] = DummyTarget[2];
-            pUnit->setActive(true);
-            pUnit->AI()->EnterEvadeMode();
-        }
-    }
 }
 
 struct mob_giant_infernalAI : public hyjal_trashAI
@@ -563,8 +449,6 @@ struct mob_giant_infernalAI : public hyjal_trashAI
                 m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, m_creature->GetUInt32Value(UNIT_FIELD_NATIVEDISPLAYID));
                 CanMove = true;
-                /*if (m_creature->getVictim())
-                    m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());*/
                 if (pInstance)
                 {
                     if (pInstance->GetData(DATA_ALLIANCE_RETREAT) && !pInstance->GetData(DATA_HORDE_RETREAT))
@@ -654,32 +538,13 @@ struct mob_abominationAI : public hyjal_trashAI
                 if (target && target->isAlive())
                     m_creature->AddThreat(target,0.0);
             }
-        }    
+        }
         if (i == LastOverronPos && IsOverrun)
         {
-            if(faction == 0 && LastOverronPos == 17)//alliance round
+            if((faction == 0 && LastOverronPos == 17) || (faction == 1 && LastOverronPos == 21))
             {
-                Creature* pUnit = m_creature->SummonCreature(m_creature->GetEntry(),4928.48+irand(-10,10),    -1526.38+irand(-10,10),    1326.83,0, TEMPSUMMON_MANUAL_DESPAWN, 2*60*1000);
-                if(pUnit)
-                {
-                    ((hyjal_trashAI*)pUnit->AI())->faction = faction;                    
-                    ((hyjal_trashAI*)pUnit->AI())->IsOverrun = true;
-                    ((hyjal_trashAI*)pUnit->AI())->OverrunType = 2;//default
-                    ((hyjal_trashAI*)pUnit->AI())->SetupOverrun = false;
-                    pUnit->setActive(true);
-                }
-            }
-            if(faction == 1 && LastOverronPos == 20)//horde round
-            {
-                Creature* pUnit = m_creature->SummonCreature(m_creature->GetEntry(),5458.01+irand(-10,10),-2340.27+irand(-10,10),1459.60,0, TEMPSUMMON_MANUAL_DESPAWN, 2*60*1000);
-                if(pUnit)
-                {
-                    ((hyjal_trashAI*)pUnit->AI())->faction = faction;                    
-                    ((hyjal_trashAI*)pUnit->AI())->IsOverrun = true;
-                    ((hyjal_trashAI*)pUnit->AI())->OverrunType = 10;//default
-                    ((hyjal_trashAI*)pUnit->AI())->SetupOverrun = false;
-                    pUnit->setActive(true);
-                }
+                m_creature->setDeathState(DEAD);
+                m_creature->RemoveCorpse();
             }
         }
     }
@@ -721,7 +586,7 @@ struct mob_abominationAI : public hyjal_trashAI
         if(KnockDownTimer<diff)
         {
             DoCast(m_creature->getVictim(),SPELL_KNOCKDOWN);
-            KnockDownTimer = 30000+rand()%25000;
+            KnockDownTimer = 15000+rand()%10000;
         }else KnockDownTimer -= diff;
         DoMeleeAttackIfReady();
     }
@@ -776,30 +641,12 @@ struct mob_ghoulAI : public hyjal_trashAI
         if (i == LastOverronPos && IsOverrun)
         {
             m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_ATTACKUNARMED);
-            if(faction == 0 && LastOverronPos == 17)//alliance round
+            if((faction == 0 && LastOverronPos == 17) || (faction == 1 && LastOverronPos == 21))
             {
-                Creature* pUnit = m_creature->SummonCreature(m_creature->GetEntry(),4928.48+irand(-10,10), -1526.38+irand(-10,10), 1326.83,0, TEMPSUMMON_MANUAL_DESPAWN, 2*60*1000);
-                if(pUnit)
-                {
-                    ((hyjal_trashAI*)pUnit->AI())->faction = faction;                    
-                    ((hyjal_trashAI*)pUnit->AI())->IsOverrun = true;
-                    ((hyjal_trashAI*)pUnit->AI())->OverrunType = 6;//default
-                    ((hyjal_trashAI*)pUnit->AI())->SetupOverrun = false;
-                    pUnit->setActive(true);
-                }
+                m_creature->setDeathState(DEAD);
+                m_creature->RemoveCorpse();
             }
-            if(faction == 1 && LastOverronPos == 20)//horde round
-            {
-                Creature* pUnit = m_creature->SummonCreature(m_creature->GetEntry(),5458.01+irand(-10,10), -2340.27+irand(-10,10), 1459.60,0, TEMPSUMMON_MANUAL_DESPAWN, 2*60*1000);
-                if(pUnit)
-                {
-                    ((hyjal_trashAI*)pUnit->AI())->faction = faction;                    
-                    ((hyjal_trashAI*)pUnit->AI())->IsOverrun = true;
-                    ((hyjal_trashAI*)pUnit->AI())->OverrunType = 10;//default
-                    ((hyjal_trashAI*)pUnit->AI())->SetupOverrun = false;
-                    pUnit->setActive(true);
-                }
-            }
+        
         }
     }
 
@@ -897,19 +744,6 @@ struct mob_necromancerAI : public hyjal_trashAI
                 Unit* target = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_JAINAPROUDMOORE));
                 if (target && target->isAlive())
                     m_creature->AddThreat(target,0.0);
-            }
-        }        
-        if (i == LastOverronPos && IsOverrun)
-        {
-            Creature* pUnit = m_creature->SummonCreature(17931, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 2*60*1000);
-            if(pUnit)
-            {
-                pUnit->SetVisibility(VISIBILITY_OFF);
-                pUnit->SetMaxHealth(10000000);
-                pUnit->SetHealth(10000000);
-                pUnit->setFaction(17772);
-                pUnit->Attack(m_creature, true);
-                m_creature->AddThreat(pUnit,0);
             }
         }
     }
@@ -1024,19 +858,6 @@ struct mob_bansheeAI : public hyjal_trashAI
                 if (target && target->isAlive())
                     m_creature->AddThreat(target,0.0);
             }
-        }        
-        if (i == LastOverronPos && IsOverrun)
-        {
-            Creature* pUnit = m_creature->SummonCreature(17931, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 2*60*1000);
-            if(pUnit)
-            {
-                pUnit->SetVisibility(VISIBILITY_OFF);
-                pUnit->SetMaxHealth(10000000);
-                pUnit->SetHealth(10000000);
-                pUnit->setFaction(17772);
-                pUnit->Attack(m_creature, true);
-                m_creature->AddThreat(pUnit,0);
-            }
         }
     }
 
@@ -1132,19 +953,6 @@ struct mob_crypt_fiendAI : public hyjal_trashAI
                 if (target && target->isAlive())
                     m_creature->AddThreat(target,0.0);
             }
-        }        
-        if (i == LastOverronPos && IsOverrun)
-        {
-            Creature* pUnit = m_creature->SummonCreature(17931, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 2*60*1000);
-            if(pUnit)
-            {
-                pUnit->SetVisibility(VISIBILITY_OFF);
-                pUnit->SetMaxHealth(10000000);
-                pUnit->SetHealth(10000000);
-                pUnit->setFaction(17772);
-                pUnit->Attack(m_creature, true);
-                m_creature->AddThreat(pUnit,0);
-            }
         }
     }
 
@@ -1230,19 +1038,6 @@ struct mob_fel_stalkerAI : public hyjal_trashAI
                 Unit* target = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_JAINAPROUDMOORE));
                 if (target && target->isAlive())
                     m_creature->AddThreat(target,0.0);
-            }
-        }        
-        if (i == LastOverronPos && IsOverrun)
-        {
-            Creature* pUnit = m_creature->SummonCreature(17931, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 2*60*1000);
-            if(pUnit)
-            {
-                pUnit->SetVisibility(VISIBILITY_OFF);
-                pUnit->SetMaxHealth(10000000);
-                pUnit->SetHealth(10000000);
-                pUnit->setFaction(17772);
-                pUnit->Attack(m_creature, true);
-                m_creature->AddThreat(pUnit,0);
             }
         }
     }
@@ -1447,14 +1242,6 @@ struct mob_gargoyleAI : public hyjal_trashAI
                 DoCast(target,SPELL_GARGOYLE_STRIKE,true);
             }
         }    
-        if (IsOverrun && i == LastOverronPos)
-        {
-            AddWaypoint(0, 5536.65+irand(-80,80), -2710.66+irand(-80,80), 1504.45+irand(-10,10));
-            AddWaypoint(1, 5536.65+irand(-80,80), -2710.66+irand(-80,80), 1504.45+irand(-10,10));
-            SetDespawnAtEnd(false);
-            LastOverronPos = 1;
-            Start(false, true, true);
-        }
     }
 
     void JustDied(Unit *victim)

@@ -17251,6 +17251,9 @@ void Player::ProhibitSpellScholl(SpellSchoolMask idSchoolMask, uint32 unTimeMs )
         if (spellInfo->Attributes & SPELL_ATTR_DISABLED_WHILE_ACTIVE)
             continue;
 
+        if(spellInfo->PreventionType != SPELL_PREVENTION_TYPE_SILENCE)
+            continue;
+
         if((idSchoolMask & GetSpellSchoolMask(spellInfo)) && GetSpellCooldownDelay(unSpellId) < unTimeMs )
         {
             data << unSpellId;

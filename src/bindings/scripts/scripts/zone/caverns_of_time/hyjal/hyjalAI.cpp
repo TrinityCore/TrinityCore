@@ -405,17 +405,6 @@ void hyjalAI::Reset()
 
     //Visibility
     DoHide = true;
-    
-    //CreatureList.clear();
-    //If Jaina evades, reset the visibility of all other creatures in the grid.
-    /*if(CreatureList.empty())
-        return;
-
-    for(std::list<uint64>::iterator itr = CreatureList.begin(); itr != CreatureList.end(); ++itr)
-        if(Creature* cr = (Unit::GetCreature(*m_creature, *itr)))
-            cr->SetVisibility(VISIBILITY_ON);
-
-    CreatureList.clear();*/
 }
 
 void hyjalAI::EnterEvadeMode()
@@ -505,9 +494,6 @@ void hyjalAI::SummonCreature(uint32 entry, float Base[4][3])
         ++EnemyCount;
 
         pCreature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
-        //pCreature->GetMotionMaster()->MovePoint(0, AttackLoc[0],AttackLoc[1],AttackLoc[2]);
-        //pCreature->AddThreat(m_creature, 0.0f);
-        //DoZoneInCombat(pCreature);
         pCreature->setActive(true);
         switch(entry)
         {
@@ -675,44 +661,10 @@ void hyjalAI::UpdateWorldState(uint32 id, uint32 state)
                     player->SendUpdateWorldState(id,state);
             }
     }else debug_log("TSCR: HyjalAI: UpdateWorldState, but PlayerList is empty");
-
-     //remove everything above this line only when/if the core patch for this is accepted and needed
-    //m_creature->GetMap()->UpdateWorldState(field, value);
 }
 
 void hyjalAI::Retreat()
-{
-    /*CellPair pair(Trinity::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
-    Cell cell(pair);
-    cell.data.Part.reserved = ALL_DISTRICT;
-    cell.SetNoCreate();
-
-    // First get all creatures.
-    std::list<Creature*> creatures;
-    Trinity::AllFriendlyCreaturesInGrid creature_check(m_creature);
-    Trinity::CreatureListSearcher<Trinity::AllFriendlyCreaturesInGrid> creature_searcher(m_creature, creatures, creature_check);
-    TypeContainerVisitor
-        <Trinity::CreatureListSearcher<Trinity::AllFriendlyCreaturesInGrid>,
-        GridTypeMapContainer> creature_visitor(creature_searcher);
-
-    CellLock<GridReadGuard> cell_lock(cell, pair);
-                                                            // Get Creatures
-    cell_lock->Visit(cell_lock, creature_visitor, *(m_creature->GetMap()));
-
-    CreatureList.clear();
-    if(!creatures.empty())
-    {
-        for(std::list<Creature*>::iterator itr = creatures.begin(); itr != creatures.end(); ++itr)
-        {
-            (*itr)->CastSpell(*itr, SPELL_TELEPORT_VISUAL, true);
-            (*itr)->setFaction(35);//make them friendly so mobs won't attack them
-            CreatureList.push_back((*itr)->GetGUID());
-        }
-
-        DoCast(m_creature, SPELL_TELEPORT_VISUAL);
-        bRetreat = true;
-        RetreatTimer = 1000;
-    }*/
+{    
     if(pInstance)
     {
         if(Faction == 0)
@@ -732,8 +684,6 @@ void hyjalAI::Retreat()
                 JainaDummy->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 ((hyjalAI*)JainaDummy->AI())->IsDummy = true;
                 DummyGuid = JainaDummy->GetGUID();
-                //((hyjalAI*)JainaDummy->AI())->MassTeleportTimer = 20000;
-                //((hyjalAI*)JainaDummy->AI())->DoMassTeleport = true;
             }
             AddWaypoint(0,JainaDummySpawn[1][0],JainaDummySpawn[1][1],JainaDummySpawn[1][2]);
             Start(false, false, false);
@@ -867,11 +817,6 @@ void hyjalAI::UpdateAI(const uint32 diff)
     }
     if(Overrun)
         DoOverrun(Faction, diff);
-   /* if(m_creature->GetEntry() == 17772)
-    {
-        if(!m_creature->HasAura(SPELL_BRILLIANCE_AURA,0))
-            DoCast(m_creature, SPELL_BRILLIANCE_AURA, true);
-    }*/
     if(bRetreat)
     {
         if(RetreatTimer < diff)
@@ -890,14 +835,7 @@ void hyjalAI::UpdateAI(const uint32 diff)
                     HideNearPos(5603.75, -2853.12);
                     break;
             }
-            m_creature->SetVisibility(VISIBILITY_OFF);
-            /*if(CreatureList.empty())
-                return;
-
-            for(std::list<uint64>::iterator itr = CreatureList.begin(); itr != CreatureList.end(); ++itr)
-                if(Unit* pUnit = Unit::GetUnit(*m_creature, *itr))
-                    pUnit->SetVisibility(VISIBILITY_OFF);
-            CreatureList.clear();*/            
+            m_creature->SetVisibility(VISIBILITY_OFF);            
         }else RetreatTimer -= diff;
     }
 
@@ -1026,14 +964,12 @@ void hyjalAI::HideNearPos(float x, float y)
                                                             // Get Creatures
     cell_lock->Visit(cell_lock, creature_visitor, *(m_creature->GetMap()));
 
-    //CreatureList.clear();
     if(!creatures.empty())
     {
         for(std::list<Creature*>::iterator itr = creatures.begin(); itr != creatures.end(); ++itr)
         {
             (*itr)->SetVisibility(VISIBILITY_OFF);
             (*itr)->setFaction(35);//make them friendly so mobs won't attack them
-            //CreatureList.push_back((*itr)->GetGUID());
         }
     }
 }
