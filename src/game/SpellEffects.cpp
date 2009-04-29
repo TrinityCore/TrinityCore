@@ -4850,7 +4850,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         return;
 
                     // Prevent stacking of mounts
-                    unitTarget->RemoveSpellsCausingAura(SPELL_AURA_MOUNTED);
+                    unitTarget->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
                     // Triggered spell id dependent of riding skill
                     if(uint16 skillval = ((Player*)unitTarget)->GetSkillValue(SKILL_RIDING))
