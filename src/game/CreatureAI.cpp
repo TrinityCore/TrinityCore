@@ -71,7 +71,7 @@ void CreatureAI::OnCharmed(bool apply)
     me->IsAIEnabled = false;
 }
 
-void CreatureAI::DoZoneInCombat(Unit* pUnit)
+void CreatureAI::DoZoneInCombat(Creature* pUnit)
 {
     if (!pUnit)
         pUnit = me;
@@ -83,6 +83,10 @@ void CreatureAI::DoZoneInCombat(Unit* pUnit)
         sLog.outError("DoZoneInCombat call for map that isn't an instance (pUnit entry = %d)", pUnit->GetTypeId() == TYPEID_UNIT ? ((Creature*)pUnit)->GetEntry() : 0);
         return;
     }
+
+    if(!pUnit->getVictim())
+        if(Unit *target = pUnit->SelectNearestTarget())
+            AttackStart(target);
 
     if (!pUnit->CanHaveThreatList() || pUnit->getThreatManager().isThreatListEmpty())
     {

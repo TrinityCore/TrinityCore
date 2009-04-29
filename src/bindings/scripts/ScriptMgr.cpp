@@ -378,6 +378,7 @@ extern void AddSC_nagrand();
 extern void AddSC_boss_anubrekhan();
 extern void AddSC_boss_maexxna();
 extern void AddSC_boss_patchwerk();
+extern void AddSC_boss_grobbulus();
 extern void AddSC_boss_razuvious();
 extern void AddSC_boss_kelthuzad();
 extern void AddSC_boss_loatheb();
@@ -1307,6 +1308,7 @@ void ScriptsInit(char const* cfg_file = "trinitycore.conf")
     AddSC_boss_faerlina();
     AddSC_boss_maexxna();
     AddSC_boss_patchwerk();
+    AddSC_boss_grobbulus();
     AddSC_boss_razuvious();
     AddSC_boss_kelthuzad();
     AddSC_boss_loatheb();
