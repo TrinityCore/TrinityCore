@@ -11717,6 +11717,7 @@ void Player::ApplyEnchantment(Item *item,EnchantmentSlot slot,bool apply, bool a
     if(!ignore_condition && pEnchant->EnchantmentCondition && !((Player*)this)->EnchantmentFitsRequirements(pEnchant->EnchantmentCondition, -1))
         return;
 
+    if (!item->IsBroken())
     for (int s=0; s<3; s++)
     {
         uint32 enchant_display_type = pEnchant->type[s];
