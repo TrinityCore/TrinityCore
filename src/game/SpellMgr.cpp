@@ -2557,7 +2557,7 @@ void SpellMgr::LoadPetLevelupSpellMap()
                 if(!spell || !spell->spellLevel || GetTalentSpellPos(spell->Id))
                     continue;
                 // TODO: some spells have no spellfamilyflag but should be learned
-                if (!spell->SpellFamilyFlags)
+                if (!spell->SpellFamilyName)
                     continue;
                 mPetLevelupSpellMap.insert(PetLevelupSpellMap::value_type(creatureFamily->ID, std::make_pair(spell->spellLevel , spell->Id )));
                 count++;
