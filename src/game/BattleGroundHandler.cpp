@@ -114,7 +114,7 @@ void WorldSession::HandleBattleGroundJoinOpcode( WorldPacket & recv_data )
     // get bg instance or bg template if instance not found
     BattleGround *bg = NULL;
     if (instanceId)
-        bg = sBattleGroundMgr.GetBattleGroundThroughClientInstance(instanceId, bgTypeId, _player->GetBattleGroundQueueIdFromLevel(bgTypeId));
+        bg = sBattleGroundMgr.GetBattleGroundThroughClientInstance(instanceId, bgTypeId);
 
     if (!bg && !(bg = sBattleGroundMgr.GetBattleGroundTemplate(bgTypeId)))
     {
@@ -347,7 +347,6 @@ void WorldSession::HandleBattleGroundPlayerPortOpcode( WorldPacket &recv_data )
                 BattleGround * bg = NULL;
                 // get possibly needed data from groupinfo
                 uint8 arenatype = itrPlayerStatus->second.GroupInfo->ArenaType;
-                uint8 israted = itrPlayerStatus->second.GroupInfo->IsRated;
                 uint8 status = 0;
 
                 if (!itrPlayerStatus->second.GroupInfo->IsInvitedToBGInstanceGUID)

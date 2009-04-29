@@ -247,23 +247,32 @@ struct BattleGroundEYPointIconsStruct
 struct BattleGroundEYLoosingPointStruct
 {
     BattleGroundEYLoosingPointStruct(uint32 _SpawnNeutralObjectType, uint32 _DespawnObjectTypeAlliance, uint32 _MessageIdAlliance, uint32 _DespawnObjectTypeHorde, uint32 _MessageIdHorde)
-        : SpawnNeutralObjectType(_SpawnNeutralObjectType), DespawnObjectTypeAlliance(_DespawnObjectTypeAlliance), MessageIdAlliance(_MessageIdAlliance), DespawnObjectTypeHorde(_DespawnObjectTypeHorde), MessageIdHorde(_MessageIdHorde) {}
+        : SpawnNeutralObjectType(_SpawnNeutralObjectType),
+        DespawnObjectTypeAlliance(_DespawnObjectTypeAlliance), MessageIdAlliance(_MessageIdAlliance),
+        DespawnObjectTypeHorde(_DespawnObjectTypeHorde), MessageIdHorde(_MessageIdHorde)
+    {}
+
     uint32 SpawnNeutralObjectType;
     uint32 DespawnObjectTypeAlliance;
+    uint32 MessageIdAlliance;
     uint32 DespawnObjectTypeHorde;
     uint32 MessageIdHorde;
-    uint32 MessageIdAlliance;
 };
 
 struct BattleGroundEYCapturingPointStruct
 {
     BattleGroundEYCapturingPointStruct(uint32 _DespawnNeutralObjectType, uint32 _SpawnObjectTypeAlliance, uint32 _MessageIdAlliance, uint32 _SpawnObjectTypeHorde, uint32 _MessageIdHorde, uint32 _GraveYardId)
-        : DespawnNeutralObjectType(_DespawnNeutralObjectType), SpawnObjectTypeAlliance(_SpawnObjectTypeAlliance), MessageIdAlliance(_MessageIdAlliance), SpawnObjectTypeHorde(_SpawnObjectTypeHorde), MessageIdHorde(_MessageIdHorde), GraveYardId(_GraveYardId) {}
+        : DespawnNeutralObjectType(_DespawnNeutralObjectType),
+        SpawnObjectTypeAlliance(_SpawnObjectTypeAlliance), MessageIdAlliance(_MessageIdAlliance),
+        SpawnObjectTypeHorde(_SpawnObjectTypeHorde), MessageIdHorde(_MessageIdHorde),
+        GraveYardId(_GraveYardId)
+    {}
+
     uint32 DespawnNeutralObjectType;
     uint32 SpawnObjectTypeAlliance;
+    uint32 MessageIdAlliance;
     uint32 SpawnObjectTypeHorde;
     uint32 MessageIdHorde;
-    uint32 MessageIdAlliance;
     uint32 GraveYardId;
 };
 
