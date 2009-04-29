@@ -1661,7 +1661,7 @@ TempSummon* WorldObject::SummonCreature(uint32 entry, float x, float y, float z,
     if (x == 0.0f && y == 0.0f && z == 0.0f)
         GetClosePoint(x, y, z, GetObjectSize());
 
-    TempSummon *pCreature = map->SummonCreature(entry, x, y, z, ang, NULL, duration, GetTypeId() == TYPEID_UNIT ? (Unit*)this : NULL);
+    TempSummon *pCreature = map->SummonCreature(entry, x, y, z, ang, NULL, duration, isType(TYPEMASK_UNIT) ? (Unit*)this : NULL);
     if(!pCreature)
         return NULL;
 
