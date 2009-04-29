@@ -107,8 +107,7 @@ void WorldSession::HandlePetAction( WorldPacket & recv_data )
                     }
                     // only place where pet can be player
                     pet->clearUnitState(UNIT_STAT_FOLLOW);
-                    uint64 selguid = _player->GetSelection();
-                    Unit *TargetUnit = ObjectAccessor::GetUnit(*_player, selguid);
+                    Unit *TargetUnit = ObjectAccessor::GetUnit(*_player, guid2);
                     if(!TargetUnit)
                         return;
 
