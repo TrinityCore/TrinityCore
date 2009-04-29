@@ -4094,9 +4094,9 @@ bool ChatHandler::HandleAuraCommand(const char* args)
                 eff_mask|=1<<i;
             }
         }
+        Aura *Aur = new Aura(spellInfo, eff_mask, NULL, target);
+        target->AddAura(Aur);
     }
-    Aura *Aur = new Aura(spellInfo, eff_mask, NULL, target);
-    target->AddAura(Aur);
 
     return true;
 }
