@@ -212,9 +212,10 @@ ChatCommand * ChatHandler::getCommandTable()
         { "delete",         SEC_GAMEMASTER,     false, &ChatHandler::HandleGameObjectDeleteCommand,    "", NULL },
         { "move",           SEC_GAMEMASTER,     false, &ChatHandler::HandleGameObjectMoveCommand,      "", NULL },
         { "near",           SEC_GAMEMASTER,     false, &ChatHandler::HandleGameObjectNearCommand,      "", NULL },
+        { "state",          SEC_GAMEMASTER,     false, &ChatHandler::HandleGameObjectStateCommand,     "", NULL },
         { "setphase",       SEC_GAMEMASTER,     false, &ChatHandler::HandleGameObjectPhaseCommand,     "", NULL },
         { "target",         SEC_GAMEMASTER,     false, &ChatHandler::HandleGameObjectTargetCommand,    "", NULL },
-        { "tempadd",        SEC_GAMEMASTER,     false, &ChatHandler::HandleTempGameObjectCommand,          "", NULL },
+        { "tempadd",        SEC_GAMEMASTER,     false, &ChatHandler::HandleTempGameObjectCommand,      "", NULL },
         { "turn",           SEC_GAMEMASTER,     false, &ChatHandler::HandleGameObjectTurnCommand,      "", NULL },
         { NULL,             0,                  false, NULL,                                           "", NULL }
     };
