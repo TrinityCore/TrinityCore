@@ -923,20 +923,11 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         if (target->reflectResult == SPELL_MISS_NONE)       // If reflected spell hit caster -> do all effect on him
             DoSpellHitOnUnit(m_caster, mask);
     }
+
     // Do not take combo points on dodge
     if (m_needComboPoints && m_targets.getUnitTargetGUID() == target->targetGUID)
         if( missInfo != SPELL_MISS_NONE && missInfo != SPELL_MISS_MISS)
             m_needComboPoints = false;
-    /*else //TODO: This is a hack. need fix
-    {
-        uint32 tempMask = 0;
-        for(uint32 i = 0; i < 3; ++i)
-            if(m_spellInfo->Effect[i] == SPELL_EFFECT_DUMMY
-                || m_spellInfo->Effect[i] == SPELL_EFFECT_TRIGGER_SPELL)
-                tempMask |= 1<<i;
-        if(tempMask &= mask)
-            DoSpellHitOnUnit(unit, tempMask);
-    }*/
 
     // All calculated do it!
     // Do healing and triggers
@@ -1220,15 +1211,6 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
                 else
                     unit->CastSpell(unit, *i, true, 0, 0, m_caster->GetGUID());
     }
-
-    //This is not needed with procflag patch
-    /*if(m_originalCaster)
-    {
-        if(m_customAttr & SPELL_ATTR_CU_EFFECT_HEAL)
-            m_originalCaster->ProcDamageAndSpell(unit, PROC_FLAG_HEAL, PROC_FLAG_NONE, 0, GetSpellSchoolMask(m_spellInfo), m_spellInfo);
-        if(m_originalCaster != unit && (m_customAttr & SPELL_ATTR_CU_EFFECT_DAMAGE))
-            m_originalCaster->ProcDamageAndSpell(unit, PROC_FLAG_HIT_SPELL, PROC_FLAG_STRUCK_SPELL, 0, GetSpellSchoolMask(m_spellInfo), m_spellInfo);
-    }*/
 }
 
 void Spell::DoAllEffectOnTarget(GOTargetInfo *target)
@@ -1515,8 +1497,8 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
     float radius_h, radius_f;
     if (m_spellInfo->EffectRadiusIndex[i])
     {
-        radius_h = GetSpellRadiusForHostile(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
-        radius_f = GetSpellRadiusForFriend(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
+        radius_h = GetSpellRadiusForHostile(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i])) * m_spellValue->RadiusMod;
+        radius_f = GetSpellRadiusForFriend(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i])) * m_spellValue->RadiusMod;
     }
     else
     {
@@ -5790,6 +5772,9 @@ void Spell::SetSpellValue(SpellValueMod mod, int32 value)
         case SPELLVALUE_BASE_POINT2:
             m_spellValue->EffectBasePoints[2] = value - int32(m_spellInfo->EffectBaseDice[2]);
             m_currentBasePoints[2] = m_spellValue->EffectBasePoints[2];
+            break;
+        case SPELLVALUE_RADIUS_MOD:
+            m_spellValue->RadiusMod = (float)value / 10000;
             break;
         case SPELLVALUE_MAX_TARGETS:
             m_spellValue->MaxAffectedTargets = (uint32)value;
