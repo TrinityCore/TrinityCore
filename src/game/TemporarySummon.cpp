@@ -185,7 +185,10 @@ void TempSummon::InitSummon(uint32 duration)
         if(GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER && m_spells[0])
         {
             setFaction(owner->getFaction());
-            CastSpell(this, m_spells[0], false, 0, 0, m_summonerGUID);
+            if(m_spells[1] && GetMap()->IsHeroic())
+                CastSpell(this, m_spells[1], false, 0, 0, m_summonerGUID);
+            else
+                CastSpell(this, m_spells[0], false, 0, 0, m_summonerGUID);
         }
     }
 
