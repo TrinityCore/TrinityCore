@@ -60,11 +60,9 @@ GM_Ticket* TicketMgr::GetGMTicketByName(const char* name)
     if(!normalizePlayerName(pname))
         return NULL;
 
-    Player *plr = objmgr.GetPlayer(pname.c_str());
-    if(!plr)
+    uint64 playerGuid = objmgr.GetPlayerGUIDByName(pname.c_str());
+    if(!playerGuid)
         return NULL;
-
-    uint64 playerGuid = plr->GetGUID();
 
     for(GmTicketList::iterator i = GM_TicketList.begin(); i != GM_TicketList.end();)
     {

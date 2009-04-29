@@ -4,8 +4,8 @@
 
 /* ScriptData
 SDName: Instance_Sunwell_Plateau
-SD%Complete: 0
-SDComment: VERIFY SCRIPT
+SD%Complete: 20
+SDComment: VERIFY SCRIPT, rename Gates
 SDCategory: Sunwell_Plateau
 EndScriptData */
 
@@ -13,6 +13,11 @@ EndScriptData */
 #include "def_sunwell_plateau.h"
 
 #define ENCOUNTERS 6
+
+enum GoState{
+CLOSE    = 1,
+OPEN    = 0
+};
 
 /* Sunwell Plateau:
 0 - Kalecgos and Sathrovarr
@@ -42,6 +47,7 @@ struct TRINITY_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
     uint64 KilJaeden;
     uint64 KilJaedenController;
     uint64 Anveena;
+    uint64 KalecgosKJ;
 
     /** GameObjects **/
     uint64 ForceField;                                      // Kalecgos Encounter
@@ -67,6 +73,7 @@ struct TRINITY_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
         KilJaeden               = 0;
         KilJaedenController     = 0;
         Anveena                 = 0;
+        KalecgosKJ              = 0;
 
         /*** GameObjects ***/
         ForceField  = 0;
@@ -94,6 +101,38 @@ struct TRINITY_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
         return false;
     }
 
+    Player* GetPlayerInMap()
+    {
+        Map::PlayerList const& players = instance->GetPlayers();
+
+        if (!players.isEmpty())
+        {
+            for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+            {
+                Player* plr = itr->getSource();
+                if (plr && !plr->HasAura(45839,0))
+                        return plr;
+            }
+        }
+
+        debug_log("TSCR: Instance Sunwell Plateau: GetPlayerInMap, but PlayerList is empty!");
+        return NULL;
+    }
+
+    void HandleGameObject(uint64 guid, uint32 state)
+    {
+        Player *player = GetPlayerInMap();
+
+        if (!player || !guid)
+        {
+            debug_log("TSCR: Sunwell Plateau: HandleGameObject fail");
+            return;
+        }
+
+        if (GameObject *go = GameObject::GetGameObject(*player,guid))
+            go->SetGoState(state);
+    }
+
     void OnCreatureCreate(Creature* creature, uint32 entry)
     {
         switch(entry)
@@ -110,6 +149,7 @@ struct TRINITY_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
             case 25315: KilJaeden           = creature->GetGUID(); break;
             case 25608: KilJaedenController = creature->GetGUID(); break;
             case 26046: Anveena             = creature->GetGUID(); break;
+            case 25319: KalecgosKJ          = creature->GetGUID(); break;
         }
     }
 
@@ -158,6 +198,11 @@ struct TRINITY_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
             case DATA_KILJAEDEN:            return KilJaeden;           break;
             case DATA_KILJAEDEN_CONTROLLER: return KilJaedenController; break;
             case DATA_ANVEENA:              return Anveena;             break;
+            case DATA_KALECGOS_KJ:          return KalecgosKJ;          break;
+            case DATA_PLAYER_GUID:
+                Player* Target = GetPlayerInMap();
+                return Target->GetGUID();
+                break;
         }
 
         return 0;
@@ -169,11 +214,32 @@ struct TRINITY_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
         {
             case DATA_KALECGOS_EVENT:      Encounters[0] = data; break;
             case DATA_BRUTALLUS_EVENT:     Encounters[1] = data; break;
-            case DATA_FELMYST_EVENT:       Encounters[2] = data; break;
+            case DATA_FELMYST_EVENT:
+                if(data == DONE)
+                    HandleGameObject(FireBarrier, 1);
+                Encounters[2] = data; break;
             case DATA_EREDAR_TWINS_EVENT:  Encounters[3] = data; break;
-            case DATA_MURU_EVENT:          Encounters[4] = data; break;
+            case DATA_MURU_EVENT:
+                switch(data){
+                    case DONE:
+                        HandleGameObject(Gate[4], OPEN);
+                        HandleGameObject(Gate[3], OPEN);
+                        break;
+                    case IN_PROGRESS:
+                        HandleGameObject(Gate[4], CLOSE);
+                        HandleGameObject(Gate[3], CLOSE);
+                        break;
+                    case NOT_STARTED:
+                        HandleGameObject(Gate[4], CLOSE);
+                        HandleGameObject(Gate[3], OPEN);
+                        break;
+                }
+                Encounters[4] = data; break;
             case DATA_KILJAEDEN_EVENT:     Encounters[5] = data; break;
         }
+
+        if(data == DONE)
+            SaveToDB();
     }
 
     void SetData64(uint32 id, uint64 guid)
@@ -182,6 +248,41 @@ struct TRINITY_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
 
     void Update(uint32 diff)
     {
+    }
+
+    const char* Save()
+    {
+        OUT_SAVE_INST_DATA;
+        std::ostringstream stream;
+        stream << Encounters[0] << " "  << Encounters[1] << " "  << Encounters[2] << " "  << Encounters[3] << " "
+            << Encounters[4] << " "  << Encounters[5];
+        char* out = new char[stream.str().length() + 1];
+        strcpy(out, stream.str().c_str());
+        if(out)
+        {
+            OUT_SAVE_INST_DATA_COMPLETE;
+            return out;
+        }
+
+        return NULL;
+    }
+
+    void Load(const char* in)
+    {
+        if(!in)
+        {
+            OUT_LOAD_INST_DATA_FAIL;
+            return;
+        }
+
+        OUT_LOAD_INST_DATA(in);
+        std::istringstream stream(in);
+        stream >> Encounters[0] >> Encounters[1] >> Encounters[2] >> Encounters[3]
+            >> Encounters[4] >> Encounters[5];
+        for(uint8 i = 0; i < ENCOUNTERS; ++i)
+            if(Encounters[i] == IN_PROGRESS)                // Do not load an encounter as "In Progress" - reset it instead.
+                Encounters[i] = NOT_STARTED;
+        OUT_LOAD_INST_DATA_COMPLETE;
     }
 };
 
