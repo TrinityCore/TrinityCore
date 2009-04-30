@@ -48,8 +48,8 @@ INSERT INTO `spell_script_target` VALUES (45976, 1, 25770);
 INSERT INTO `spell_script_target` VALUES (46177, 1, 25770);
 
 -- EAI for Berserks FROM Megamage
-DELETE FROM `eventai_scripts` WHERE `creature_id` = 25798;
-INSERT INTO `eventai_scripts` (`id`, `creature_id`, `event_type`, `event_flags`,`event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_type`, `action1_param1`, `action1_param2`, `action1_param3`, `action2_type`, `action2_param1`, `action2_param2`, `action2_param3`, `action3_type`, `action3_param1`, `action3_param2`, `action3_param3`, `comment`, `event_chance`, `event_inverse_phase_mask`) VALUES
+DELETE FROM `creature_ai_scripts` WHERE `creature_id` = 25798;
+INSERT INTO `creature_ai_scripts` (`id`, `creature_id`, `event_type`, `event_flags`,`event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_type`, `action1_param1`, `action1_param2`, `action1_param3`, `action2_type`, `action2_param1`, `action2_param2`, `action2_param3`, `action3_type`, `action3_param1`, `action3_param2`, `action3_param3`, `comment`, `event_chance`, `event_inverse_phase_mask`) VALUES
 (2579800, 25798, 11, 0, 0*1000, 0*1000, 0*1000, 0*1000, 11, 45769, 0, 0, 20, 1, 0, 0, 21, 1, 0, 0,"Shadowsword Berserker - Sunwell Radiance", 100, 0),
 (2579801, 25798, 0, 1, 10*1000, 12*1000, 10*1000, 15*1000, 11, 46160, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Shadowsword Berserker - Cast Flurry', 70, 0),
 (2579802, 25798, 1, 0, 180*1000, 180*1000, 0*1000, 0*1000, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Shadowsword Berserker - 180s OOC => Evade', 100, 0);
