@@ -998,9 +998,6 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
             caster->ProcDamageAndSpell(unit, procAttacker, procVictim, procEx, 0, m_attackType, m_spellInfo);
     }
 
-    // Needs to be called after dealing damage/healing to not remove breaking on damage auras
-    DoTriggersOnSpellHit(spellHitTarget);
-
     // Call scripted function for AI if this spell is casted upon a creature (except pets)
     if(IS_CREATURE_GUID(target->targetGUID))
     {
@@ -1021,6 +1018,19 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
             if(!unit->IsStandState())
                 unit->SetStandState(UNIT_STAND_STATE_STAND);
         }
+    }
+
+    if(spellHitTarget)
+    {
+        //AI functions
+        if(spellHitTarget->GetTypeId() == TYPEID_UNIT && ((Creature*)spellHitTarget)->IsAIEnabled)
+            ((Creature*)spellHitTarget)->AI()->SpellHit(m_caster, m_spellInfo);
+
+        if(m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->IsAIEnabled)
+            ((Creature*)m_caster)->AI()->SpellHitTarget(spellHitTarget, m_spellInfo);
+
+        // Needs to be called after dealing damage/healing to not remove breaking on damage auras
+        DoTriggersOnSpellHit(spellHitTarget);
     }
 }
 
@@ -1155,20 +1165,10 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
         if (unit->AddAura(Aur))
             m_spellAura = Aur;
     }
-
-    //AI functions
-    if(unit->GetTypeId() == TYPEID_UNIT && ((Creature*)unit)->IsAIEnabled)
-        ((Creature*)unit)->AI()->SpellHit(m_caster, m_spellInfo);
-
-    if(m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->IsAIEnabled)
-        ((Creature*)m_caster)->AI()->SpellHitTarget(unit, m_spellInfo);
 }
 
 void Spell::DoTriggersOnSpellHit(Unit *unit)
 {
-    if (!unit)
-        return;
-
     // Apply additional spell effects to target
     if (m_preCastSpell)
     {
