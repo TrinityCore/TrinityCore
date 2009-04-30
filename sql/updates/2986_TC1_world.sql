@@ -1,5 +1,4 @@
-﻿-- Kil'jaeden --
-
+-- Kil'jaeden
 DELETE FROM `spell_linked_spell` WHERE `spell_trigger` = 45909;
 DELETE FROM `spell_script_target` WHERE `entry` IN (46589, 45839);
 INSERT INTO `spell_script_target` () VALUES (46589, 1, 30598);
@@ -33,7 +32,7 @@ INSERT INTO gameobject (id, map, spawnMask, position_x, position_y, position_z, 
 (188415, 580, 1, 1694.48, 674.29, 28.0502, 4.86985, 0, 0, 0.649302, -0.760531, 25, 0, 1);
 UPDATE `gameobject_template` SET `type` = 1 WHERE `entry` = 188415;
 
--- M'uru --
+-- M'uru
 UPDATE `creature_template` SET `modelid_A` = 23842 WHERE `entry` = 25744;
 UPDATE `creature_template` SET `flags_extra` = 128 WHERE entry IN (25855, 25770);
 UPDATE `creature_template` SET `spell1` = 46262, flags_extra = 128, scriptname = '' WHERE entry = 25879;
@@ -55,15 +54,12 @@ INSERT INTO `eventai_scripts` (`id`, `creature_id`, `event_type`, `event_flags`,
 (2579801, 25798, 0, 1, 10*1000, 12*1000, 10*1000, 15*1000, 11, 46160, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Shadowsword Berserker - Cast Flurry', 70, 0),
 (2579802, 25798, 1, 0, 180*1000, 180*1000, 0*1000, 0*1000, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Shadowsword Berserker - 180s OOC => Evade', 100, 0);
 
-
--- Brutallus --
+-- Brutallus
 UPDATE `creature_template` SET `unit_flags` = 0 WHERE `entry` = 24882;
 
--- Felmyst --
+-- Felmyst
 UPDATE `creature_template` SET `modelid_H` = 22838 WHERE `entry` = 25038;
-
 DELETE FROM `script_texts` WHERE `entry` BETWEEN '-1580109' and '-1580036';
-
 INSERT INTO `script_texts` (`entry`, `content_default`, `sound`, `type`, `comment`) VALUES
 (-1580036, 'Glory to Kil\'jaeden! Death to all who oppose!', 12477, 1, 'felmyst - YELL_BIRTH'),
 (-1580037, 'I kill for the master!', 12480, 1, 'felmyst - YELL_KILL1'),
@@ -73,7 +69,6 @@ INSERT INTO `script_texts` (`entry`, `content_default`, `sound`, `type`, `commen
 (-1580041, 'No more hesitation! Your fates are written!', 12482, 1, 'felmyst - YELL_BERSERK'),
 (-1580042, 'Kil\'jaeden... will... prevail...', 12483, 1, 'felmyst - YELL_DEATH'),
 (-1580043, 'Madrigosa deserved a far better fate. You did what had to be done, but this battle is far from over.', 12439, 1, 'felmyst - YELL_KALECGOS'),
-
 (-1580044, 'Fire to the aid of shadow!', 12489, 1, 'eredar - YELL_CANFLAGRATION'),
 (-1580045, 'Sacrolash!', 12492, 1, 'eredar - YELL_SISTER_SACROLASH_DEAD'),
 (-1580046, 'Fire consume.', 12490, 1, 'eredar - YELL_ALY_KILL_1'),
@@ -86,7 +81,6 @@ INSERT INTO `script_texts` (`entry`, `content_default`, `sound`, `type`, `commen
 (-1580053, 'Ee-nok Kryul!', 12487, 1, 'eredar - YELL_SAC_KILL_2'),
 (-1580054, 'I... fade.', 0, 1, 'eredar - YELL_SAC_DEAD'),
 (-1580055, 'Time is a luxury you no longer possess!', 0, 1, 'eredar - YELL_ENRAGE'),
-
 (-1580056, 'Misery...', 12484, 1, 'eredar - YELL_INTRO_SAC_1'),
 (-1580057, 'Depravity...', 0, 1, 'eredar - YELL_INTRO_ALY_2'),
 (-1580058, 'Confusion...', 0, 1, 'eredar - YELL_INTRO_SAC_3'),
@@ -97,13 +91,11 @@ INSERT INTO `script_texts` (`entry`, `content_default`, `sound`, `type`, `commen
 (-1580063, 'These are the pillars...', 0, 1, 'eredar - YELL_INTRO_ALY_8'),
 (-1580064, 'directs Shadow Nova at $N', 0, 3, 'eredar - emote shadow nova'),
 (-1580065, 'directs Conflagration at $N', 0, 3, 'eredar - emote conflagration'),
-
 (-1580066, 'All my plans have led to this!', 12495, 1, 'KJ - SAY_KJ_OFFCOMBAT1'),
 (-1580067, 'Stay on task! Do not waste tim!', 12496, 1, 'KJ - SAY_KJ_OFFCOMBAT2'),
 (-1580068, 'I have waited long enough!', 12497, 1, 'KJ - SAY_KJ_OFFCOMBAT3'),
 (-1580069, 'Fail me and suffer for eternity!', 12498, 1, 'KJ - SAY_KJ_OFFCOMBAT4'),
 (-1580070, 'Drain the girl! Drain her power until there is nothing but a vacant shell!', 12499, 1, 'KJ - SAY_KJ_OFFCOMBAT5'),
-
 (-1580071, 'The expendible have perished... So be it! Now I shall succeed where Sargeras could not! I will bleed this wretched world and secure my place as the true master of the Burning Legion. The end has come! Let the unraveling of this world commence!', 12500, 1, 'KJ - SAY_KJ_EMERGE'),
 (-1580072, 'Another step towards destruction!', 12501, 1, 'KJ - SAY_KJ_SLAY1'),
 (-1580073, 'Anak-ky\'ri!', 12502, 1, 'KJ - SAY_KJ_SLAY2'),
@@ -115,7 +107,6 @@ INSERT INTO `script_texts` (`entry`, `content_default`, `sound`, `type`, `commen
 (-1580079, 'I will not be denied! This world shall fall!', 12508, 1, 'KJ - SAY_KJ_PHASE3'),
 (-1580080, 'Do not harbor false hope. You cannot win!', 12509, 1, 'KJ - SAY_KJ_PHASE4'),
 (-1580081, 'Aggghh! The powers of the Sunwell... turned... against me! What have you done? WHAT HAVE YOU DONE?', 12510, 1, 'KJ - SAY_KJ_PHASE5'),
-
 (-1580082, 'Anveena, you must awaken, this world needs you!', 12445, 1, 'KJ - SAY_KALECGOS_AWAKEN'),
 (-1580083, 'I serve only the Master now.', 12511, 1, 'KJ - SAY_ANVEENA_IMPRISONED'),
 (-1580084, 'You must let go! You must become what you were always meant to be! The time is now, Anveena!', 12446, 1, 'KJ - SAY_KALECGOS_LETGO'),
@@ -126,16 +117,13 @@ INSERT INTO `script_texts` (`entry`, `content_default`, `sound`, `type`, `commen
 (-1580089, 'The nightmare is over, the spell is broken! Goodbye, Kalec, my love!', 12514, 1, 'KJ - SAY_ANVEENA_GOODBYE'),
 (-1580090, 'Goodbye, Anveena, my love. Few will remember your name, yet this day you change the course of destiny. What was once corrupt is now pure. Heroes, do not let her sacrifice be in vain.', 12450, 1, 'KJ - SAY_KALECGOS_GOODBYE'),
 (-1580091, 'Strike now, heroes, while he is weakened! Vanquish the Deceiver!', 12449, 1, 'KJ - SAY_KALECGOS_ENCOURAGE'),
-
 (-1580092, 'You are not alone. The Blue Dragonflight shall help you vanquish the Deceiver.', 12438, 1, 'KJ - SAY_KALECGOS_JOIN'),
 (-1580093, 'Nooooooooooooo!', 12527, 1, 'KJ - SAY_KJ_DEATH'),
 (-1580094, 'begins to channel dark energy', 0, 3, 'KJ - EMOTE_KJ_DARKNESS'),
-
 (-1580095, 'I will channel my power into the orbs, be ready!', 12440, 1, 'KJ - SAY_KALEC_ORB_READY1'),
 (-1580096, 'I have empowered another orb! Use it quickly!', 12441, 1, 'KJ - SAY_KALEC_ORB_READY2'),
 (-1580097, 'Another orb is ready! Make haste!', 12442, 1, 'KJ - SAY_KALEC_ORB_READY3'),
 (-1580098, 'I have channeled all I can! The power is in your hands!', 12443, 1, 'KJ - SAY_KALEC_ORB_READY4'),
-
 (-1580099, 'Mortal heroes, your victory here today was foretold long ago. My brother\'s anguished cry of defeat will echo across the universe, bringing renewed hope to all those who still stand against the Burning Crusade.', 12515, 0, 'prophet velen - SAY1'),
 (-1580100, 'As the Legion\'s final defeat draws ever-nearer, stand proud in the knowledge that you have saved worlds without number from the flame. Just as this day marks an ending, so too does it herald a new beginning...', 12516, 0, 'prophet velen - SAY2'), -- van mégegy hang 12517 ami ehhez tartozik
 (-1580101, 'The creature Entropius, whom you were forced to destroy, was once the noble naaru, M\'uru. In life, M\'uru channeled vast energies of LIGHT and HOPE. For a time, a misguided few sought to steal those energies...', 12518, 0, 'prophet velen - SAY3'),
@@ -144,27 +132,26 @@ INSERT INTO `script_texts` (`entry`, `content_default`, `sound`, `type`, `commen
 (-1580104, 'In time, the light and hope held within - will rebirth more than this mere fount of power... Mayhap, they will rebirth the soul of a nation.', 12521, 0, 'prophet velen - SAY6'),
 (-1580105, 'Salvation, young one. It waits for us all.', 12522, 0, 'prophet velen - SAY7'),
 (-1580106, 'Farewell...', 12523, 0, 'prophet velen - SAY8'),
-
 (-1580107, 'Our arrogance was unpardonable. We damned one of the most noble beings of all. We may never atone for this sin.', 12524, 0, 'lady liadrinn - SAY1'),
 (-1580108, 'Can it be?', 12525, 0, 'lady liadrinn - SAY2'),
 (-1580109, 'Blessed ancestors! I feel it... so much love... so much grace... there are... no words... impossible to describe...', 12525, 0, 'lady liadrinn - SAY3');
 
--- Kil'jaeden script --
-UPDATE `creature_template` SET `ScriptName` = 'boss_kiljaeden' WHERE `entry` = 25315;
-UPDATE `creature_template` SET `ScriptName` = 'boss_kalecgosKJ' WHERE `entry` = 25319;
-UPDATE `creature_template` SET `ScriptName` = 'mob_kiljaeden_controller' WHERE `entry` = 25608;
-UPDATE `creature_template` SET `ScriptName` = 'mob_hand_of_the_deceiver' WHERE `entry` = 25588;
-UPDATE `creature_template` SET `ScriptName` = 'mob_felfire_portal' WHERE `entry` = 25603;
-UPDATE `creature_template` SET `ScriptName` = 'mob_volatile_felfire_fiend' WHERE `entry` = 25598;
-UPDATE `creature_template` SET `ScriptName` = 'mob_armageddon' WHERE `entry` = 25735;
-UPDATE `creature_template` SET `ScriptName` = 'mob_shield_orb' WHERE `entry` = 25502;
-UPDATE `creature_template` SET `ScriptName` = 'mob_sinster_reflection' WHERE `entry` = 25708;
-UPDATE `gameobject_template` SET `ScriptName` = 'go_orb_of_the_blue_flight' WHERE `entry` = 188415;
+-- Kil'jaeden script
+UPDATE `creature_template` SET `ScriptName`='boss_kiljaeden' WHERE `entry`=25315;
+UPDATE `creature_template` SET `ScriptName`='boss_kalecgosKJ' WHERE `entry`=25319;
+UPDATE `creature_template` SET `ScriptName`='mob_kiljaeden_controller' WHERE `entry`=25608;
+UPDATE `creature_template` SET `ScriptName`='mob_hand_of_the_deceiver' WHERE `entry`=25588;
+UPDATE `creature_template` SET `ScriptName`='mob_felfire_portal' WHERE `entry`=25603;
+UPDATE `creature_template` SET `ScriptName`='mob_volatile_felfire_fiend' WHERE `entry`=25598;
+UPDATE `creature_template` SET `ScriptName`='mob_armageddon' WHERE `entry`=25735;
+UPDATE `creature_template` SET `ScriptName`='mob_shield_orb' WHERE `entry`=25502;
+UPDATE `creature_template` SET `ScriptName`='mob_sinster_reflection' WHERE `entry`=25708;
+UPDATE `gameobject_template` SET `ScriptName`='go_orb_of_the_blue_flight' WHERE `entry`=188415;
 
--- M'uru& Entropius --
-UPDATE `creature_template` SET `ScriptName` = "npc_void_sentinel" WHERE `entry` = 25772;
-UPDATE `creature_template` SET `ScriptName` = "npc_dark_fiend" WHERE `entry` = 25744;
-UPDATE `creature_template` SET `ScriptName` = "boss_muru" WHERE `entry` = 25741;
-UPDATE `creature_template` SET `ScriptName` = "boss_entropius" WHERE `entry` = 25840;
-UPDATE `creature_template` SET `ScriptName` = "npc_muru_portal" WHERE `entry` = 25770;
-UPDATE `creature_template` SET `ScriptName` = "mob_eventai" WHERE `entry` = 25798;
+-- M'uru& Entropius
+UPDATE `creature_template` SET `ScriptName`='npc_void_sentinel' WHERE `entry`=25772;
+UPDATE `creature_template` SET `ScriptName`='npc_dark_fiend' WHERE `entry`=25744;
+UPDATE `creature_template` SET `ScriptName`='boss_muru' WHERE `entry`=25741;
+UPDATE `creature_template` SET `ScriptName`='boss_entropius' WHERE `entry`=25840;
+UPDATE `creature_template` SET `ScriptName`='npc_muru_portal' WHERE `entry`=25770;
+UPDATE `creature_template` SET `AIName`='EventAI' WHERE `entry`=25798;
