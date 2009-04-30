@@ -5986,7 +5986,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                         triggered_spell_id = 32221;
                     }
                     else
-                        return true;
+                        return false;
                     break;
                 }
                 // Seal of the Martyr do damage trigger
@@ -6003,7 +6003,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                         triggered_spell_id = 53718;
                     }
                     else
-                        return true;
+                        return false;
                     break;
                 }
                 // Paladin Tier 6 Trinket (Ashtongue Talisman of Zeal)

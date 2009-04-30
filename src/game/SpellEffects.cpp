@@ -2101,38 +2101,6 @@ void Spell::EffectTriggerSpell(uint32 i)
         return;
     }
 
-    // some triggered spells require specific equipment
-    if(spellInfo->EquippedItemClass >=0 && m_caster->GetTypeId()==TYPEID_PLAYER)
-    {
-        // main hand weapon required
-        if(spellInfo->AttributesEx3 & SPELL_ATTR_EX3_MAIN_HAND)
-        {
-            Item* item = ((Player*)m_caster)->GetWeaponForAttack(BASE_ATTACK);
-
-            // skip spell if no weapon in slot or broken
-            if(!item || item->IsBroken() )
-                return;
-
-            // skip spell if weapon not fit to triggered spell
-            if(!item->IsFitToSpellRequirements(spellInfo))
-                return;
-        }
-
-        // offhand hand weapon required
-        if(spellInfo->AttributesEx3 & SPELL_ATTR_EX3_REQ_OFFHAND)
-        {
-            Item* item = ((Player*)m_caster)->GetWeaponForAttack(OFF_ATTACK);
-
-            // skip spell if no weapon in slot or broken
-            if(!item || item->IsBroken() )
-                return;
-
-            // skip spell if weapon not fit to triggered spell
-            if(!item->IsFitToSpellRequirements(spellInfo))
-                return;
-        }
-    }
-
     // some triggered spells must be casted instantly (for example, if next effect case instant kill caster)
     bool instant = false;
     for(uint32 j = i+1; j < 3; ++j)
