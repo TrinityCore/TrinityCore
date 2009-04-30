@@ -29,6 +29,7 @@ UPDATE `gameobject_template` SET `ScriptName`='go_sacred_fire_of_life' WHERE `en
 UPDATE `gameobject_template` SET `ScriptName`='go_skull_pile' WHERE `entry`=185913;
 UPDATE `gameobject_template` SET `ScriptName`='go_tele_to_dalaran_crystal' WHERE entry=191230;
 UPDATE `gameobject_template` SET `ScriptName`='go_tele_to_violet_stand' WHERE entry=191229;
+UPDATE `gameobject_template` SET `ScriptName`='go_orb_of_the_blue_flight' WHERE `entry`=188415;
 
 /* GUARD */
 UPDATE `creature_template` SET `ScriptName`='guard_azuremyst' WHERE `entry`=18038;
@@ -802,6 +803,20 @@ UPDATE `creature_template` SET `ScriptName`='mob_felmyst_trail' WHERE `entry`=25
 UPDATE `creature_template` SET `ScriptName`='boss_sacrolash' WHERE `entry`=25165;
 UPDATE `creature_template` SET `ScriptName`='boss_alythess' WHERE `entry`=25166;
 UPDATE `creature_template` SET `ScriptName`='mob_shadow_image' WHERE `entry`=25214;
+UPDATE `creature_template` SET `ScriptName`='boss_kiljaeden' WHERE `entry`=25315;
+UPDATE `creature_template` SET `ScriptName`='boss_kalecgosKJ' WHERE `entry`=25319;
+UPDATE `creature_template` SET `ScriptName`='mob_kiljaeden_controller' WHERE `entry`=25608;
+UPDATE `creature_template` SET `ScriptName`='mob_hand_of_the_deceiver' WHERE `entry`=25588;
+UPDATE `creature_template` SET `ScriptName`='mob_felfire_portal' WHERE `entry`=25603;
+UPDATE `creature_template` SET `ScriptName`='mob_volatile_felfire_fiend' WHERE `entry`=25598;
+UPDATE `creature_template` SET `ScriptName`='mob_armageddon' WHERE `entry`=25735;
+UPDATE `creature_template` SET `ScriptName`='mob_shield_orb' WHERE `entry`=25502;
+UPDATE `creature_template` SET `ScriptName`='mob_sinster_reflection' WHERE `entry`=25708;
+UPDATE `creature_template` SET `ScriptName`='npc_void_sentinel' WHERE `entry`=25772;
+UPDATE `creature_template` SET `ScriptName`='npc_dark_fiend' WHERE `entry`=25744;
+UPDATE `creature_template` SET `ScriptName`='boss_muru' WHERE `entry`=25741;
+UPDATE `creature_template` SET `ScriptName`='boss_entropius' WHERE `entry`=25840;
+UPDATE `creature_template` SET `ScriptName`='npc_muru_portal' WHERE `entry`=25770;
 
 /* SWAMP OF SORROWS */
 
@@ -970,7 +985,7 @@ UPDATE `creature_template` SET `ScriptName`='mob_janalai_hatcher' WHERE `entry`=
 UPDATE `creature_template` SET `ScriptName`='mob_janalai_hatchling' WHERE `entry`=23598;
 UPDATE `creature_template` SET `ScriptName`='mob_janalai_egg' WHERE `entry`=23817;
 UPDATE `creature_template` SET `ScriptName`='npc_forest_frog' WHERE `entry`=24396;
-UPDATE `creature_template` SET `ScriptName`='boss_akilzon' WHERE entry = 23574;
+UPDATE `creature_template` SET `ScriptName`='boss_akilzon' WHERE entry=23574;
 UPDATE `creature_template` SET `ScriptName`='mob_akilzon_eagle' WHERE `entry`=24858;
 UPDATE `creature_template` SET `ScriptName`='boss_halazzi' WHERE `entry`='23577';
 UPDATE `creature_template` SET `ScriptName`='mob_halazzi_lynx' WHERE `entry`='24143';
@@ -1015,4 +1030,3 @@ UPDATE `creature_template` SET `ScriptName`='mob_batrider' WHERE `entry`=14965;
 UPDATE `creature_template` SET `ScriptName`='mob_shade_of_jindo' WHERE `entry`=14986;
 
 /* EOF */
-
