@@ -648,9 +648,9 @@ enum TrinityStrings
     LANG_BG_QUEUE_ANNOUNCE_SELF         = 711,
     LANG_BG_QUEUE_ANNOUNCE_WORLD        = 712,
     LANG_YOUR_ARENA_LEVEL_REQ_ERROR     = 713,
-    //                                  = 714, not used
+//                                      = 714, not used
     LANG_YOUR_BG_LEVEL_REQ_ERROR        = 715,
-    // LANG_YOUR_ARENA_TEAM_FULL        = 716, an opcode exists for this
+//                                      = 716, not used
     LANG_BG_STARTED_ANNOUNCE_WORLD      = 717,
     LANG_ARENA_QUEUE_ANNOUNCE_WORLD_JOIN= 718,
     LANG_ARENA_QUEUE_ANNOUNCE_WORLD_EXIT= 719,
@@ -695,9 +695,6 @@ enum TrinityStrings
     // Room for batleground/arena strings 756-799 not used
 
     // Room for BG/ARENA                  751-769 not used
-    
-    LANG_NPCINFO_LINKGUID               = 750,
-
     LANG_ARENA_TESTING                  = 785,
     LANG_AUTO_ANN                       = 786,
     LANG_ANNOUNCE_COLOR                 = 787,
@@ -770,63 +767,70 @@ enum TrinityStrings
     LANG_RESET_PET_TALENTS_ONLINE       = 1127,
     // Room for more level 3              1128-1199 not used
 
+    // Debug commands
+    LANG_CINEMATIC_NOT_EXIST            = 1200,
+    LANG_MOVIE_NOT_EXIST                = 1201,
+    // Room for more debug                1202-1299 not used
+
+    // FREE IDS                           1300-9999
+
     // AV
-      LANG_BG_AV_ALLY                     = 1200,
-    LANG_BG_AV_HORDE                    = 1201,
-    LANG_BG_AV_TOWER_TAKEN              = 1202,
-    LANG_BG_AV_TOWER_ASSAULTED          = 1203,
-    LANG_BG_AV_TOWER_DEFENDED           = 1204,
-    LANG_BG_AV_GRAVE_TAKEN              = 1205,
-    LANG_BG_AV_GRAVE_DEFENDED           = 1206,
-    LANG_BG_AV_GRAVE_ASSAULTED          = 1207,
+    LANG_BG_AV_ALLY                     = 1300,
+    LANG_BG_AV_HORDE                    = 1301,
+    LANG_BG_AV_TOWER_TAKEN              = 1302,
+    LANG_BG_AV_TOWER_ASSAULTED          = 1303,
+    LANG_BG_AV_TOWER_DEFENDED           = 1304,
+    LANG_BG_AV_GRAVE_TAKEN              = 1305,
+    LANG_BG_AV_GRAVE_DEFENDED           = 1306,
+    LANG_BG_AV_GRAVE_ASSAULTED          = 1307,
 
-    LANG_BG_AV_MINE_TAKEN               = 1208,
-    LANG_BG_AV_MINE_NORTH               = 1209,
-    LANG_BG_AV_MINE_SOUTH               = 1210,
+    LANG_BG_AV_MINE_TAKEN               = 1308,
+    LANG_BG_AV_MINE_NORTH               = 1309,
+    LANG_BG_AV_MINE_SOUTH               = 1310,
 
-    LANG_BG_AV_NODE_GRAVE_STORM_AID     = 1211,
-    LANG_BG_AV_NODE_TOWER_DUN_S         = 1212,
-    LANG_BG_AV_NODE_TOWER_DUN_N         = 1213,
-    LANG_BG_AV_NODE_GRAVE_STORMPIKE     = 1214,
-    LANG_BG_AV_NODE_TOWER_ICEWING       = 1215,
-    LANG_BG_AV_NODE_GRAVE_STONE         = 1216,
-    LANG_BG_AV_NODE_TOWER_STONE         = 1217,
-    LANG_BG_AV_NODE_GRAVE_SNOW          = 1218,
-    LANG_BG_AV_NODE_TOWER_ICE           = 1219,
-    LANG_BG_AV_NODE_GRAVE_ICE           = 1220,
-    LANG_BG_AV_NODE_TOWER_POINT         = 1221,
-    LANG_BG_AV_NODE_GRAVE_FROST         = 1222,
-    LANG_BG_AV_NODE_TOWER_FROST_E       = 1223,
-    LANG_BG_AV_NODE_TOWER_FROST_W       = 1224,
-    LANG_BG_AV_NODE_GRAVE_FROST_HUT     = 1225,
+    LANG_BG_AV_NODE_GRAVE_STORM_AID     = 1311,
+    LANG_BG_AV_NODE_TOWER_DUN_S         = 1312,
+    LANG_BG_AV_NODE_TOWER_DUN_N         = 1313,
+    LANG_BG_AV_NODE_GRAVE_STORMPIKE     = 1314,
+    LANG_BG_AV_NODE_TOWER_ICEWING       = 1315,
+    LANG_BG_AV_NODE_GRAVE_STONE         = 1316,
+    LANG_BG_AV_NODE_TOWER_STONE         = 1317,
+    LANG_BG_AV_NODE_GRAVE_SNOW          = 1318,
+    LANG_BG_AV_NODE_TOWER_ICE           = 1319,
+    LANG_BG_AV_NODE_GRAVE_ICE           = 1320,
+    LANG_BG_AV_NODE_TOWER_POINT         = 1321,
+    LANG_BG_AV_NODE_GRAVE_FROST         = 1322,
+    LANG_BG_AV_NODE_TOWER_FROST_E       = 1323,
+    LANG_BG_AV_NODE_TOWER_FROST_W       = 1324,
+    LANG_BG_AV_NODE_GRAVE_FROST_HUT     = 1325,
 
-    LANG_BG_AV_ONEMINTOSTART            = 1226,
-    LANG_BG_AV_HALFMINTOSTART           = 1227,
-    LANG_BG_AV_STARTED                  = 1228,
-    LANG_BG_AV_A_NEAR_LOSE              = 1229,
-    LANG_BG_AV_H_NEAR_LOSE              = 1230,
-    LANG_BG_AV_H_CAPTAIN_DEAD           = 1231,
-    LANG_BG_AV_A_CAPTAIN_DEAD           = 1232,
-    // FREE IDS                           1233-9999
+    LANG_BG_AV_ONEMINTOSTART            = 1326,
+    LANG_BG_AV_HALFMINTOSTART           = 1327,
+    LANG_BG_AV_STARTED                  = 1328,
+    LANG_BG_AV_A_NEAR_LOSE              = 1329,
+    LANG_BG_AV_H_NEAR_LOSE              = 1330,
+    LANG_BG_AV_H_CAPTAIN_DEAD           = 1331,
+    LANG_BG_AV_A_CAPTAIN_DEAD           = 1332,
+    // FREE IDS                           1333-1999
 
     // Ticket Strings 2000-2029
     LANG_COMMAND_TICKETNEW              = 2000,
     LANG_COMMAND_TICKETUPDATED          = 2001,
     LANG_COMMAND_TICKETPLAYERABANDON    = 2002,
-    LANG_COMMAND_TICKETCLOSED                  = 2003,
-    LANG_COMMAND_TICKETDELETED                 = 2004,
+    LANG_COMMAND_TICKETCLOSED           = 2003,
+    LANG_COMMAND_TICKETDELETED          = 2004,
     LANG_COMMAND_TICKETNOTEXIST         = 2005,
     LANG_COMMAND_TICKETCLOSEFIRST       = 2006,
     LANG_COMMAND_TICKETALREADYASSIGNED  = 2007,
-    LANG_COMMAND_TICKETRELOAD                   = 2008,
-    LANG_COMMAND_TICKETSHOWLIST                = 2009,
-    LANG_COMMAND_TICKETSHOWONLINELIST      = 2010,
-    LANG_COMMAND_TICKETSHOWCLOSEDLIST      = 2011,
-    LANG_COMMAND_TICKETASSIGNERROR_A       = 2012,
-    LANG_COMMAND_TICKETASSIGNERROR_B      = 2013,
-    LANG_COMMAND_TICKETNOTASSIGNED          = 2014,
+    LANG_COMMAND_TICKETRELOAD           = 2008,
+    LANG_COMMAND_TICKETSHOWLIST         = 2009,
+    LANG_COMMAND_TICKETSHOWONLINELIST   = 2010,
+    LANG_COMMAND_TICKETSHOWCLOSEDLIST   = 2011,
+    LANG_COMMAND_TICKETASSIGNERROR_A    = 2012,
+    LANG_COMMAND_TICKETASSIGNERROR_B    = 2013,
+    LANG_COMMAND_TICKETNOTASSIGNED      = 2014,
     LANG_COMMAND_TICKETUNASSIGNSECURITY = 2015,
-    LANG_COMMAND_TICKETCANNOTCLOSE          = 2016,
+    LANG_COMMAND_TICKETCANNOTCLOSE      = 2016,
     LANG_COMMAND_TICKETLISTGUID         = 2017,
     LANG_COMMAND_TICKETLISTNAME         = 2018,
     LANG_COMMAND_TICKETLISTAGE          = 2019,
@@ -858,12 +862,6 @@ enum TrinityStrings
     LANG_WORLD_CLOSED                    = 7523,
     LANG_WORLD_OPENED                    = 7524,
 
-    // Debug commands
-    LANG_CINEMATIC_NOT_EXIST            = 1200,
-    LANG_MOVIE_NOT_EXIST                = 1201,
-    // Room for more debug                1202-1299 not used
-
-    // FREE IDS                           1300-9999
 
     // Use for not-in-offcial-sources patches
     //                                    10000-10999
