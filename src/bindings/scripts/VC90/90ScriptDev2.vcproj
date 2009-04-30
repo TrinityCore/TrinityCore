@@ -1407,6 +1407,10 @@
 							RelativePath="..\scripts\zone\eastern_plaguelands\eastern_plaguelands.cpp"
 							>
 						</File>
+						<File
+							RelativePath="..\scripts\zone\eastern_plaguelands\the_scarlet_enclave.cpp"
+							>
+						</File>
 					</Filter>
 					<Filter
 						Name="Eversong Woods"
