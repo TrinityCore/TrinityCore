@@ -49,18 +49,10 @@ void WorldSession::HandleAttackSwingOpcode( WorldPacket & recv_data )
         return;
     }
 
-    if(_player->IsFriendlyTo(pEnemy) || pEnemy->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE))
+    if(!_player->canAttack(pEnemy))
     {
         sLog.outError( "WORLD: Enemy %s %u is friendly",(IS_PLAYER_GUID(guid) ? "player" : "creature"),GUID_LOPART(guid));
 
-        // stop attack state at client
-        SendAttackStop(pEnemy);
-        return;
-    }
-
-    if(!pEnemy->isAlive())
-    {
-        // client can generate swing to known dead target if autoswitch between autoshot and autohit is enabled in client options
         // stop attack state at client
         SendAttackStop(pEnemy);
         return;
