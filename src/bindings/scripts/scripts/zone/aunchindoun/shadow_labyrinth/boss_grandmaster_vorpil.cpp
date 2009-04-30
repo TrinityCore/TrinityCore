@@ -156,6 +156,7 @@ struct TRINITY_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
         banish_Timer = 17000;
         HelpYell = false;
         destroyPortals();
+
         if(pInstance)
             pInstance->SetData(DATA_GRANDMASTERVORPILEVENT, NOT_STARTED);
     }
@@ -168,8 +169,11 @@ struct TRINITY_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
             {
                 Creature *Portal = NULL;
                 Portal = m_creature->SummonCreature(MOB_VOID_PORTAL,VoidPortalCoords[i][0],VoidPortalCoords[i][1],VoidPortalCoords[i][2],0,TEMPSUMMON_CORPSE_DESPAWN,3000000);
-                PortalsGuid[i] = Portal->GetGUID();
-                Portal->CastSpell(Portal,SPELL_VOID_PORTAL_VISUAL,false);
+                if(Portal)
+                {
+                    PortalsGuid[i] = Portal->GetGUID();
+                    Portal->CastSpell(Portal,SPELL_VOID_PORTAL_VISUAL,false);
+                }
             }
             sumportals = true;
             summonTraveler_Timer = 5000;
@@ -221,6 +225,7 @@ struct TRINITY_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
     {
         DoScriptText(SAY_DEATH, m_creature);
         destroyPortals();
+
         if(pInstance)
             pInstance->SetData(DATA_GRANDMASTERVORPILEVENT, DONE);
     }
@@ -234,6 +239,7 @@ struct TRINITY_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
             case 2: DoScriptText(SAY_AGGRO3, m_creature); break;
         }
         summonPortals();
+
         if(pInstance)
             pInstance->SetData(DATA_GRANDMASTERVORPILEVENT, IN_PROGRESS);
     }
@@ -251,7 +257,6 @@ struct TRINITY_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-
         if (!UpdateVictim())
             return;
 

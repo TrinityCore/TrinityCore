@@ -88,7 +88,7 @@ struct TRINITY_DLL_DECL boss_murmurAI : public Scripted_NoMovementAI
         }
         if (SonicBoom_Timer < diff)
         {
-            DoScriptText(EMOTE_SONIC_BOOM, m_creature);    
+            DoScriptText(EMOTE_SONIC_BOOM, m_creature);
             DoCast(m_creature, SPELL_SONIC_BOOM_CAST);
             SonicBoom_Timer = 30000;
             SonicBoom = true;

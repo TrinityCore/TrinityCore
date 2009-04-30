@@ -117,7 +117,12 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
         {
             m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
             m_creature->RemoveCorpse();
-        }else pInstance->SetData(DATA_NIGHTBANE_EVENT, NOT_STARTED);
+        }
+        else
+        {
+            if(pInstance)
+                pInstance->SetData(DATA_NIGHTBANE_EVENT, NOT_STARTED);
+        }
 
         HandleTerraceDoors(true);
 

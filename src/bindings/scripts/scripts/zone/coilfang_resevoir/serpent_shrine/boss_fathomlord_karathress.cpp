@@ -131,18 +131,17 @@ struct TRINITY_DLL_DECL boss_fathomlord_karathressAI : public ScriptedAI
             Creature* pAdvisor = NULL;
             for( int i=0; i<3; i++ )
 
-
-        if(RAdvisors[i])
-        {
-            pAdvisor = (Unit::GetCreature((*m_creature), RAdvisors[i]));
-            if(pAdvisor && !pAdvisor->isAlive())
+            if(RAdvisors[i])
             {
-            pAdvisor->Respawn();
-            pAdvisor->AI()->EnterEvadeMode();
-            pAdvisor->GetMotionMaster()->MoveTargetedHome();
+                pAdvisor = (Unit::GetCreature((*m_creature), RAdvisors[i]));
+                if(pAdvisor && !pAdvisor->isAlive())
+                {
+                    pAdvisor->Respawn();
+                    pAdvisor->AI()->EnterEvadeMode();
+                    pAdvisor->GetMotionMaster()->MoveTargetedHome();
+                }
             }
-        }
-        pInstance->SetData(DATA_KARATHRESSEVENT, NOT_STARTED);
+            pInstance->SetData(DATA_KARATHRESSEVENT, NOT_STARTED);
         }
 
 

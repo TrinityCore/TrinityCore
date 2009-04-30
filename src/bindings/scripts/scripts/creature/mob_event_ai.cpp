@@ -1426,7 +1426,7 @@ CreatureAI* GetAI_Mob_EventAI(Creature *pCreature)
          }
       }
      else
-      {   
+      {
           if (EAI_ErrorLevel > 1)
              error_db_log("TSCR: EventMap for Creature %u is empty but creature is using Mob_EventAI.", pCreature->GetEntry());
       }
