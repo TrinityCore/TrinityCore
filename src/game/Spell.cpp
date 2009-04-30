@@ -925,7 +925,16 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
             spellHitTarget = m_caster;
     }
 
-    DoSpellHitOnUnit(spellHitTarget, mask);
+    if(spellHitTarget)
+    {
+        SpellMissInfo missInfo = DoSpellHitOnUnit(spellHitTarget, mask);
+        if(missInfo != SPELL_MISS_NONE)
+        {
+            m_caster->SendSpellMiss(unit, m_spellInfo->Id, missInfo);
+            m_damage = 0;
+            spellHitTarget = NULL;
+        }
+    }
 
     // Do not take combo points on dodge
     if (m_needComboPoints && m_targets.getUnitTargetGUID() == target->targetGUID)
@@ -1034,19 +1043,17 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
     }
 }
 
-void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
+SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
 {
     if(!unit || !effectMask)
-        return;
+        return SPELL_MISS_EVADE;
 
     // Recheck immune (only for delayed spells)
     if( m_spellInfo->speed &&
         (unit->IsImmunedToDamage(m_spellInfo) ||
         unit->IsImmunedToSpell(m_spellInfo)))
     {
-        m_caster->SendSpellMiss(unit, m_spellInfo->Id, SPELL_MISS_IMMUNE);
-        m_damage = 0;
-        return;
+        return SPELL_MISS_IMMUNE;
     }
 
     if (unit->GetTypeId() == TYPEID_PLAYER)
@@ -1067,9 +1074,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
             unit->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE) &&
             unit->GetCharmerOrOwnerGUID() != m_caster->GetGUID())
         {
-            m_caster->SendSpellMiss(unit, m_spellInfo->Id, SPELL_MISS_EVADE);
-                m_damage = 0;
-            return;
+            return SPELL_MISS_EVADE;
         }
 
         if( !m_caster->IsFriendlyTo(unit) )
@@ -1077,9 +1082,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
             // for delayed spells ignore not visible explicit target
             if(m_spellInfo->speed > 0.0f && unit==m_targets.getUnitTarget() && !unit->isVisibleForOrDetect(m_caster,false))
             {
-                m_caster->SendSpellMiss(unit, m_spellInfo->Id, SPELL_MISS_EVADE);
-                m_damage = 0;
-                return;
+                return SPELL_MISS_EVADE;
             }
 
             unit->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_HITBYSPELL);
@@ -1092,9 +1095,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
             // TODO: this cause soul transfer bugged
             if(m_spellInfo->speed > 0.0f && unit->GetTypeId() == TYPEID_PLAYER && !IsPositiveSpell(m_spellInfo->Id))
             {
-                m_caster->SendSpellMiss(unit, m_spellInfo->Id, SPELL_MISS_EVADE);
-                m_damage = 0;
-                return;
+                return SPELL_MISS_EVADE;
             }
 
             // assisting case, healing and resurrection
@@ -1165,6 +1166,8 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
         if (unit->AddAura(Aur))
             m_spellAura = Aur;
     }
+
+    return SPELL_MISS_NONE;
 }
 
 void Spell::DoTriggersOnSpellHit(Unit *unit)
