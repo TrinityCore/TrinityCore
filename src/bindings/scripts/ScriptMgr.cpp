@@ -267,6 +267,7 @@ extern void AddSC_eversong_woods();
 //Exodar
 //Eastern Plaguelands
 extern void AddSC_eastern_plaguelands();
+extern void AddSC_the_scarlet_enclave();
 
 //Elwynn Forest
 extern void AddSC_elwynn_forest();
@@ -1121,7 +1122,7 @@ void ScriptsInit(char const* cfg_file = "trinitycore.conf")
 
     //Bloodmyst Isle
     AddSC_bloodmyst_isle();
-	
+
     //Borean Tundra
     AddSC_borean_tundra();
 
@@ -1196,6 +1197,7 @@ void ScriptsInit(char const* cfg_file = "trinitycore.conf")
     //Exodar
     //Eastern Plaguelands
     AddSC_eastern_plaguelands();
+    AddSC_the_scarlet_enclave();
 
     //Elwynn Forest
     AddSC_elwynn_forest();
