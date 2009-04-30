@@ -308,9 +308,11 @@ struct TRINITY_DLL_DECL boss_vazruden_the_heraldAI : public ScriptedAI
         if(!summoned)
         {
             Creature* Vazruden = m_creature->SummonCreature(ENTRY_VAZRUDEN,VazrudenMiddle[0],VazrudenMiddle[1],VazrudenMiddle[2],0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,6000000);
-            VazrudenGUID = Vazruden->GetGUID();
+            if(Vazruden)
+                VazrudenGUID = Vazruden->GetGUID();
             Creature* Nazan = m_creature->SummonCreature(ENTRY_NAZAN,VazrudenMiddle[0],VazrudenMiddle[1],VazrudenMiddle[2],0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,6000000);
-            NazanGUID = Nazan->GetGUID();
+            if(Nazan)
+                NazanGUID = Nazan->GetGUID();
             summoned = true;
             m_creature->SetVisibility(VISIBILITY_OFF);
             m_creature->addUnitState(UNIT_STAT_ROOT);
@@ -391,6 +393,7 @@ struct TRINITY_DLL_DECL boss_vazruden_the_heraldAI : public ScriptedAI
                     {
                         UnsummonAdds();
                         EnterEvadeMode();
+                        return;
                     }
                 }else
                 {

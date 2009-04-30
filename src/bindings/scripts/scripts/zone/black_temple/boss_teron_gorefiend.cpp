@@ -90,7 +90,7 @@ struct TRINITY_DLL_DECL mob_doom_blossomAI : public ScriptedAI
                 Despawn();
 
             CheckTeronTimer = 5000;
-        }else CheckTeronTimer -= diff;        
+        }else CheckTeronTimer -= diff;
 
         if(ShadowBoltTimer < diff && InCombat)
         {
@@ -382,8 +382,12 @@ struct TRINITY_DLL_DECL boss_teron_gorefiendAI : public ScriptedAI
                         AttackStart(pUnit);
 
                     DoZoneInCombat();
-                }else EnterEvadeMode();
-
+                }
+                else
+                {
+                    EnterEvadeMode();
+                    return;
+                }
             }else AggroTimer -= diff;
         }
 

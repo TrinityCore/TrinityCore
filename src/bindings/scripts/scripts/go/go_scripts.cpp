@@ -173,7 +173,7 @@ bool GOHello_go_jump_a_tron(Player *player, GameObject* _GO)
 /*######
 ## go_ethereum_prison
 ######*/
- 
+
 float ethereum_NPC[2][7] =
 {
  {20785,20790,20789,20784,20786,20783,20788}, // hostile npc
@@ -184,7 +184,7 @@ bool GOHello_go_ethereum_prison(Player *player, GameObject* _GO)
 {
  _GO->SetGoState(0);
  switch(rand()%2){
-    case 0: 
+    case 0:
         _GO->SummonCreature(ethereum_NPC[0][rand()%6],_GO->GetPositionX(),_GO->GetPositionY(),_GO->GetPositionZ()+0.3, 0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,10000);
     break;
     case 1:

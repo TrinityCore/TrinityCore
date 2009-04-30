@@ -1067,7 +1067,8 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
 
     void BeginTalk()
     {
-        pInstance->SetData(DATA_ILLIDANSTORMRAGEEVENT, IN_PROGRESS);
+        if(pInstance)
+            pInstance->SetData(DATA_ILLIDANSTORMRAGEEVENT, IN_PROGRESS);
 
         for(uint8 i = 0; i < 2; i++)
             if(GETGO(Door, DoorGUID[i]))
@@ -1670,7 +1671,8 @@ bool GOHello_cage_trap(Player* plr, GameObject* go)
     CellLock<GridReadGuard> cell_lock(cell, pair);
     cell_lock->Visit(cell_lock, cSearcher, *(plr->GetMap()));
 
-    ((cage_trap_triggerAI*)trigger->AI())->Active = true;
+    if(trigger)
+        ((cage_trap_triggerAI*)trigger->AI())->Active = true;
     go->SetUInt32Value(GAMEOBJECT_STATE, 0);
     return true;
 }

@@ -195,9 +195,6 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
             {
                 if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0, 999, true))
                 {
-                    if(!target)
-                        target = m_creature->getVictim();
-
                     DoCast(target, SPELL_VOLCANIC_SUMMON);
                     DoScriptText(EMOTE_GROUND_CRACK, m_creature);
                     SummonVolcanoTimer = 10000;
@@ -269,14 +266,15 @@ struct TRINITY_DLL_DECL npc_volcanoAI : public ScriptedAI
         {
             uint64 SupremusGUID = pInstance->GetData64(DATA_SUPREMUS);
             Creature* Supremus = (Unit::GetCreature((*m_creature), SupremusGUID));
-            if(!Eruption && !((boss_supremusAI*)Supremus->AI())->Phase1)
+            if(!Eruption && Supremus && !((boss_supremusAI*)Supremus->AI())->Phase1)
             {
                 Eruption = true;
                 DoCast(m_creature, SPELL_VOLCANIC_ERUPTION);
             }
-            else if(Eruption && ((boss_supremusAI*)Supremus->AI())->Phase1)
+            else if((Eruption && Supremus && ((boss_supremusAI*)Supremus->AI())->Phase1) || !Supremus)
             {
-                m_creature->RemoveAura(SPELL_VOLCANIC_ERUPTION, 0);
+                if(m_creature->HasAura(SPELL_VOLCANIC_ERUPTION, 0))
+                    m_creature->RemoveAura(SPELL_VOLCANIC_ERUPTION, 0);
             }
             CheckTimer = 1500;
         }else CheckTimer -= diff;

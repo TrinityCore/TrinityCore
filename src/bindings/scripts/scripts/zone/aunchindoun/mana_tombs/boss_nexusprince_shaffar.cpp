@@ -261,7 +261,10 @@ struct TRINITY_DLL_DECL mob_ethereal_beaconAI : public ScriptedAI
         }else Apprentice_Timer -= diff;
 
         if( CanEvade )
+        {
             EnterEvadeMode();
+            return;
+        }
 
         DoMeleeAttackIfReady();
     }
