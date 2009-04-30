@@ -331,7 +331,7 @@ struct TRINITY_DLL_DECL boss_kalecgosKJAI : public ScriptedAI
         cell.SetNoCreate();
         std::list<GameObject*> orbList;
         AllOrbsInGrid check;
-        Trinity::GameObjectListSearcher<AllOrbsInGrid> searcher(orbList, check);
+        Trinity::GameObjectListSearcher<AllOrbsInGrid> searcher(me, orbList, check);
         TypeContainerVisitor<Trinity::GameObjectListSearcher<AllOrbsInGrid>, GridTypeMapContainer> visitor(searcher);
         CellLock<GridReadGuard> cell_lock(cell, pair);
         cell_lock->Visit(cell_lock, visitor, *(m_creature->GetMap()));
@@ -855,7 +855,7 @@ struct TRINITY_DLL_DECL mob_hand_of_the_deceiverAI : public ScriptedAI
     }
 
     void UpdateAI(const uint32 diff){
-        if(!InCombat)
+        if(!me->isInCombat())
             DoCast(m_creature, SPELL_SHADOW_CHANNELING);
 
         if(!UpdateVictim())

@@ -119,20 +119,6 @@ struct TRINITY_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
         return NULL;
     }
 
-    void HandleGameObject(uint64 guid, uint32 state)
-    {
-        Player *player = GetPlayerInMap();
-
-        if (!player || !guid)
-        {
-            debug_log("TSCR: Sunwell Plateau: HandleGameObject fail");
-            return;
-        }
-
-        if (GameObject *go = GameObject::GetGameObject(*player,guid))
-            go->SetGoState(state);
-    }
-
     void OnCreatureCreate(Creature* creature, uint32 entry)
     {
         switch(entry)
