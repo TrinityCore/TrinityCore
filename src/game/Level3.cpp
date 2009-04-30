@@ -3042,7 +3042,14 @@ bool ChatHandler::HandleGameObjectStateCommand(const char* args)
     int32 type = atoi(ctype);
     if(type < 0)
     {
-        gobj->SendObjectDeSpawnAnim(gobj->GetGUID());
+        if(type == -1)
+            gobj->SendObjectDeSpawnAnim(gobj->GetGUID());
+        else if(type == -2)
+        {
+            WorldPacket data(SMSG_GAMEOBJECT_SPAWN_ANIM_OBSOLETE, 8);
+            data << gobj->GetGUID();
+            gobj->SendMessageToSet(&data,true);
+        }
         return true;
     }
 
@@ -3052,7 +3059,15 @@ bool ChatHandler::HandleGameObjectStateCommand(const char* args)
 
     int32 state = atoi(cstate);
 
-    gobj->SetByteValue(GAMEOBJECT_BYTES_1, type, state);
+    if(type < 4)
+        gobj->SetByteValue(GAMEOBJECT_BYTES_1, type, state);
+    else if(type == 4)
+    {
+        WorldPacket data(SMSG_GAMEOBJECT_CUSTOM_ANIM,8+4);
+        data << gobj->GetGUID();
+        data << (uint32)(state);
+        gobj->SendMessageToSet(&data, true);
+    }
     PSendSysMessage("Set gobject type %d state %d", type, state);
 
     return true;
