@@ -503,14 +503,25 @@ static void addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *config, World
       }
    }
 
+   uint32 bids = config->GetBidsPerInterval();
+   for (uint32 count = 1;count <= bids;count++)
+   {
+
       // Do we have anything to bid? If not, stop here.
    if(possibleBids.empty())
    {
+      count = bids + 1;
       return;
    }
 
       // Choose random auction from possible auctions
-   uint32 auctionID = possibleBids[urand(0, possibleBids.size() - 1)];
+   uint32 vectorPos = urand(0, possibleBids.size() - 1);
+   uint32 auctionID = possibleBids[vectorPos];
+
+      // Erase the auction from the vector to prevent bidding on item in next itteration.
+   vector<uint32>::iterator iter = possibleBids.begin();
+   advance(iter, vectorPos);
+   possibleBids.erase(iter);
 
       // from auctionhousehandler.cpp, creates auction pointer & player pointer
    AuctionEntry* auction = auctionHouse->GetAuction(auctionID);
@@ -758,7 +769,7 @@ static void addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *config, World
       auctionHouse->RemoveAuction(auction->Id);
          // Remove from database
       auction->DeleteFromDB();
-
+   }
       delete auction;
    }
 }
@@ -781,33 +792,21 @@ void AuctionHouseBot()
         addNewAuctions(&_AHBplayer, &AllianceConfig);
         if (((_newrun - _lastrun_a) > (AllianceConfig.GetBiddingInterval() * 60)) && (AllianceConfig.GetBidsPerInterval() > 0))
         {
-            uint32 bids = AllianceConfig.GetBidsPerInterval();
-            for (uint32 count = 1;count <= bids;count++)
-            {
-                addNewAuctionBuyerBotBid(&_AHBplayer, &AllianceConfig, &_session);
-                _lastrun_a = _newrun;
-            }
+            addNewAuctionBuyerBotBid(&_AHBplayer, &AllianceConfig, &_session);
+            _lastrun_a = _newrun;
         }
         addNewAuctions(&_AHBplayer, &HordeConfig);
         if (((_newrun - _lastrun_h) > (HordeConfig.GetBiddingInterval() *60)) && (HordeConfig.GetBidsPerInterval() > 0))
         {
-            uint32 bids = HordeConfig.GetBidsPerInterval();
-            for (uint32 count = 1;count <= bids;count++)
-            {
-                addNewAuctionBuyerBotBid(&_AHBplayer, &HordeConfig, &_session);
-                _lastrun_h = _newrun;
-            }
+            addNewAuctionBuyerBotBid(&_AHBplayer, &HordeConfig, &_session);
+            _lastrun_h = _newrun;
         }
     }
     addNewAuctions(&_AHBplayer, &NeutralConfig);
     if (((_newrun - _lastrun_n) > (NeutralConfig.GetBiddingInterval() * 60)) && (NeutralConfig.GetBidsPerInterval() > 0))
     {
-        uint32 bids = NeutralConfig.GetBidsPerInterval();
-        for (uint32 count = 1;count <= bids;count++)
-        {
-            addNewAuctionBuyerBotBid(&_AHBplayer, &NeutralConfig, &_session);
-            _lastrun_n = _newrun;
-        }
+        addNewAuctionBuyerBotBid(&_AHBplayer, &NeutralConfig, &_session);
+        _lastrun_n = _newrun;
     }
     ObjectAccessor::Instance().RemoveObject(&_AHBplayer);
 }
