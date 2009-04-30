@@ -1153,6 +1153,13 @@ float WorldObject::GetDistance2d(float x, float y) const
     return ( dist > 0 ? dist : 0);
 }
 
+float WorldObject::GetExactDistance2d(const float x, const float y) const
+{
+    float dx = GetPositionX() - x;
+    float dy = GetPositionY() - y;
+    return sqrt((dx*dx) + (dy*dy));
+}
+
 float WorldObject::GetDistance(const float x, const float y, const float z) const
 {
     float dx = GetPositionX() - x;

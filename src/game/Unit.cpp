@@ -3525,10 +3525,9 @@ bool Unit::isInBack(Unit const* target, float distance, float arc) const
 bool Unit::isInLine(Unit const* target, float distance) const
 {
     if(!HasInArc(M_PI, target) || !IsWithinDistInMap(target, distance)) return false;
-    float width = (GetObjectSize() / 2 + target->GetObjectSize()) / 2;
-    float angle = GetAngle(target);
-    angle -= GetOrientation();
-    return abs(sin(angle)) * distance < width;
+    float width = GetObjectSize() + target->GetObjectSize() * 0.5f;
+    float angle = GetAngle(target) - GetOrientation();
+    return abs(sin(angle)) * GetExactDistance2d(target->GetPositionX(), target->GetPositionY()) < width;
 }
 
 bool Unit::isInAccessiblePlaceFor(Creature const* c) const
