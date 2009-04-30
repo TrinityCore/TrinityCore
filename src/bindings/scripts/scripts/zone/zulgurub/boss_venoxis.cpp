@@ -134,7 +134,7 @@ struct TRINITY_DLL_DECL boss_venoxisAI : public ScriptedAI
                 if (HolyFire_Timer < diff && TargetInRange < 3)
                 {
                     if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-                    DoCast(target, SPELL_HOLY_FIRE);
+                        DoCast(target, SPELL_HOLY_FIRE);
 
                     HolyFire_Timer = 8000;
                 }else HolyFire_Timer -= diff;
@@ -164,7 +164,7 @@ struct TRINITY_DLL_DECL boss_venoxisAI : public ScriptedAI
                 if (PhaseTwo && VenomSpit_Timer < diff)
                 {
                     if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-                    DoCast(target, SPELL_VENOMSPIT);
+                        DoCast(target, SPELL_VENOMSPIT);
 
                     VenomSpit_Timer = 15000 + rand()%5000;
                 }else VenomSpit_Timer -= diff;

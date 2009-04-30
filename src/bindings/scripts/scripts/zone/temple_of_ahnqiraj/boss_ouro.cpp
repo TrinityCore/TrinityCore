@@ -103,7 +103,8 @@ struct TRINITY_DLL_DECL boss_ouroAI : public ScriptedAI
             Unit* target = NULL;
             target = SelectUnit(SELECT_TARGET_RANDOM,0);
 
-            DoTeleportTo(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
+            if(target)
+                DoTeleportTo(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
 
             ChangeTarget_Timer = 10000 + rand()%10000;
         }else ChangeTarget_Timer -= diff;

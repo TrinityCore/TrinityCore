@@ -115,9 +115,12 @@ struct TRINITY_DLL_DECL boss_amnennar_the_coldbringerAI : public ScriptedAI
             Unit* target = NULL;
             target = SelectUnit(SELECT_TARGET_RANDOM,0);
 
-            SummonSpectrals(target);
-            SummonSpectrals(target);
-            SummonSpectrals(target);
+            if(target)
+            {
+                SummonSpectrals(target);
+                SummonSpectrals(target);
+                SummonSpectrals(target);
+            }
             Spectrals = true;
         }
 

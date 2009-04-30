@@ -88,7 +88,6 @@ CreatureAI* GetAI_boss_ramstein_the_gorger(Creature *_Creature)
     return new boss_ramstein_the_gorgerAI (_Creature);
 }
 
-
 void AddSC_boss_ramstein_the_gorger()
 {
     Script *newscript;

@@ -184,13 +184,12 @@ struct TRINITY_DLL_DECL boss_jeklikAI : public ScriptedAI
                     if(SpawnFlyingBats_Timer < diff)
                     {
                         Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                        if(!target)
+                            return;
 
                         Creature* FlyingBat = m_creature->SummonCreature(14965, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ()+15, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                         if(FlyingBat)
-                        {
-                            if(target)
-                                FlyingBat->AI()->AttackStart(target);
-                        }
+                            FlyingBat->AI()->AttackStart(target);
 
                         SpawnFlyingBats_Timer = 10000 + rand()%5000;
                     }else SpawnFlyingBats_Timer -=diff;

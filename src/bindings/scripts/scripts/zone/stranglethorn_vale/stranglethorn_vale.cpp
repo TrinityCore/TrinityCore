@@ -77,6 +77,7 @@ struct TRINITY_DLL_DECL mob_yennikuAI : public ScriptedAI
                 EnterEvadeMode();
                 bReset = false;
                 m_creature->setFaction(28);                     //troll, bloodscalp
+                return;
             }
             else Reset_Timer -= diff;
 

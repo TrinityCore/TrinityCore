@@ -161,7 +161,6 @@ struct TRINITY_DLL_DECL boss_sarturaAI : public ScriptedAI
     }
 };
 
-
 struct TRINITY_DLL_DECL mob_sartura_royal_guardAI : public ScriptedAI
 {
     mob_sartura_royal_guardAI(Creature *c) : ScriptedAI(c) {}
@@ -187,7 +186,6 @@ struct TRINITY_DLL_DECL mob_sartura_royal_guardAI : public ScriptedAI
 
         WhirlWind = false;
         AggroReset = false;
-
     }
 
     void Aggro(Unit *who)

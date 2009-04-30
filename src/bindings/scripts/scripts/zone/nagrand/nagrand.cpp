@@ -157,6 +157,7 @@ struct TRINITY_DLL_DECL mob_lumpAI : public ScriptedAI
                 EnterEvadeMode();
                 bReset = false;
                 m_creature->setFaction(1711);               //hostile
+                return;
             }
             else Reset_Timer -= diff;
         }
