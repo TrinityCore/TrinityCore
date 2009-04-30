@@ -218,10 +218,7 @@ void GameObject::Update(uint32 /*p_time*/)
                             udata.BuildPacket(&packet);
                             ((Player*)caster)->GetSession()->SendPacket(&packet);
 
-                            WorldPacket data(SMSG_GAMEOBJECT_CUSTOM_ANIM,8+4);
-                            data << GetGUID();
-                            data << (uint32)(0);
-                            ((Player*)caster)->SendMessageToSet(&data,true);
+                            SendCustomAnim();
                         }
 
                         m_lootState = GO_READY;                 // can be successfully open with some chance
@@ -1383,6 +1380,14 @@ void GameObject::CastSpell(Unit* target, uint32 spellId)
     }
     //trigger->setDeathState(JUST_DIED);
     //trigger->RemoveCorpse();
+}
+
+void GameObject::SendCustomAnim()
+{
+    WorldPacket data(SMSG_GAMEOBJECT_CUSTOM_ANIM,8+4);
+    data << GetGUID();
+    data << (uint32)0;
+    SendMessageToSet(&data, true);
 }
 
 // overwrite WorldObject function for proper name localization
