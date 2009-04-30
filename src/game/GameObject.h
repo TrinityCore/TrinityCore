@@ -613,6 +613,7 @@ class TRINITY_DLL_SPEC GameObject : public WorldObject
         GridReference<GameObject> &GetGridRef() { return m_gridRef; }
 
         void CastSpell(Unit *target, uint32 spell);
+        void SendCustomAnim();
     protected:
         uint32      m_charges;                              // Spell charges for GAMEOBJECT_TYPE_SPELLCASTER (22)
         uint32      m_spellId;
