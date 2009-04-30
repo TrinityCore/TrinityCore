@@ -9336,10 +9336,13 @@ bool Unit::IsImmunedToDamage(SpellSchoolMask shoolMask)
 
 bool Unit::IsImmunedToDamage(SpellEntry const* spellInfo)
 {
+    if(spellInfo->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY)
+        return false;
+
     uint32 shoolMask = GetSpellSchoolMask(spellInfo);
-    if( !(spellInfo->AttributesEx & SPELL_ATTR_EX_UNAFFECTED_BY_SCHOOL_IMMUNE) &&         // unaffected by school immunity
-        !(spellInfo->AttributesEx & SPELL_ATTR_EX_DISPEL_AURAS_ON_IMMUNITY)               // can remove immune (by dispell or immune it)
-        && (spellInfo->Id != 42292))
+    if(!(spellInfo->AttributesEx &
+        (SPELL_ATTR_EX_UNAFFECTED_BY_SCHOOL_IMMUNE | SPELL_ATTR_EX_DISPEL_AURAS_ON_IMMUNITY))               // can remove immune (by dispell or immune it)
+        && spellInfo->Id != 42292)
     {
         //If m_immuneToSchool type contain this school type, IMMUNE damage.
         SpellImmuneList const& schoolList = m_spellImmune[IMMUNITY_SCHOOL];
@@ -9362,14 +9365,23 @@ bool Unit::IsImmunedToSpell(SpellEntry const* spellInfo)
     if (!spellInfo)
         return false;
 
+    // Single spell immunity.
+    SpellImmuneList const& idList = m_spellImmune[IMMUNITY_ID];
+    for(SpellImmuneList::const_iterator itr = idList.begin(); itr != idList.end(); ++itr)
+        if(itr->type == spellInfo->Id)
+            return true;
+
+    if(spellInfo->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY)
+        return false;
+
     SpellImmuneList const& dispelList = m_spellImmune[IMMUNITY_DISPEL];
     for(SpellImmuneList::const_iterator itr = dispelList.begin(); itr != dispelList.end(); ++itr)
         if(itr->type == spellInfo->Dispel)
             return true;
 
-    if( !(spellInfo->AttributesEx & SPELL_ATTR_EX_UNAFFECTED_BY_SCHOOL_IMMUNE) &&         // unaffected by school immunity
-        !(spellInfo->AttributesEx & SPELL_ATTR_EX_DISPEL_AURAS_ON_IMMUNITY)               // can remove immune (by dispell or immune it)
-        && (spellInfo->Id != 42292))
+    if(!(spellInfo->AttributesEx &
+        (SPELL_ATTR_EX_UNAFFECTED_BY_SCHOOL_IMMUNE | SPELL_ATTR_EX_DISPEL_AURAS_ON_IMMUNITY))               // can remove immune (by dispell or immune it)
+        && spellInfo->Id != 42292)
     {
         SpellImmuneList const& schoolList = m_spellImmune[IMMUNITY_SCHOOL];
         for(SpellImmuneList::const_iterator itr = schoolList.begin(); itr != schoolList.end(); ++itr)
@@ -9387,15 +9399,6 @@ bool Unit::IsImmunedToSpell(SpellEntry const* spellInfo)
             {
                 return true;
             }
-        }
-    }
-
-    SpellImmuneList const& idList = m_spellImmune[IMMUNITY_ID];
-    for(SpellImmuneList::const_iterator itr = idList.begin(); itr != idList.end(); ++itr)
-    {
-        if(itr->type == spellInfo->Id)
-        {
-            return true;
         }
     }
 
