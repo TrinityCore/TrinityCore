@@ -105,18 +105,20 @@ void WorldSession::HandlePetAction( WorldPacket & recv_data )
                         //TODO: Send proper error message to client
                         return;
                     }
+
                     // only place where pet can be player
-                    pet->clearUnitState(UNIT_STAT_FOLLOW);
                     Unit *TargetUnit = ObjectAccessor::GetUnit(*_player, guid2);
                     if(!TargetUnit)
                         return;
 
-                    // not let attack friendly units.
-                    if(GetPlayer()->IsFriendlyTo(TargetUnit))
+                    if(!pet->canAttack(TargetUnit))
                         return;
+
                     // Not let attack through obstructions
                     //if(!pet->IsWithinLOSInMap(TargetUnit))
                     //    return;
+
+                    pet->clearUnitState(UNIT_STAT_FOLLOW);
 
                     if(pet->GetTypeId() != TYPEID_PLAYER && ((Creature*)pet)->IsAIEnabled)
                     {
