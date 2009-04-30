@@ -133,7 +133,6 @@ CreatureAI* GetAI_boss_postmaster_malown(Creature *_Creature)
     return new boss_postmaster_malownAI (_Creature);
 }
 
-
 void AddSC_boss_postmaster_malown()
 {
     Script *newscript;

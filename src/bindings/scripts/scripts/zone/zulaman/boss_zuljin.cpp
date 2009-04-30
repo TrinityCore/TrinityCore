@@ -487,7 +487,12 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
                                 else
                                     Claw_Loop_Timer = 500;
                             }
-                        }else EnterEvadeMode(); // if(target)
+                        }
+                        else
+                        {
+                            EnterEvadeMode(); // if(target)
+                            return;
+                        }
                     }else Claw_Loop_Timer -= diff;
                 } //if(TankGUID)
             }else Claw_Rage_Timer -= diff;
@@ -529,7 +534,12 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
                             else
                                 AttackStart(SelectUnit(SELECT_TARGET_RANDOM, 0));
                         }
-                    }else EnterEvadeMode(); // if(target)
+                    }
+                    else
+                    {
+                        EnterEvadeMode(); // if(target)
+                        return;
+                    }
                 } //if(TankGUID)
             }else Lynx_Rush_Timer -= diff;
 

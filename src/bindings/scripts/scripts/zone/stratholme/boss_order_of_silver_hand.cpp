@@ -145,10 +145,6 @@ CreatureAI* GetAI_boss_silver_hand_bossesAI(Creature *_Creature)
     return new boss_silver_hand_bossesAI (_Creature);
 }
 
-/*#####
-#
-#####*/
-
 void AddSC_boss_order_of_silver_hand()
 {
     Script *newscript;

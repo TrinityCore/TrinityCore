@@ -177,7 +177,6 @@ CreatureAI* GetAI_boss_baron_rivendare(Creature *_Creature)
     return new boss_baron_rivendareAI (_Creature);
 }
 
-
 void AddSC_boss_baron_rivendare()
 {
     Script *newscript;

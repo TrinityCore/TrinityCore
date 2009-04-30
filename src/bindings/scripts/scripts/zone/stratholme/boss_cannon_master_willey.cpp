@@ -210,7 +210,6 @@ CreatureAI* GetAI_boss_cannon_master_willey(Creature *_Creature)
     return new boss_cannon_master_willeyAI (_Creature);
 }
 
-
 void AddSC_boss_cannon_master_willey()
 {
     Script *newscript;

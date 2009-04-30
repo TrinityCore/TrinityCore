@@ -216,7 +216,6 @@ struct TRINITY_DLL_DECL mob_nether_wraithAI : public ScriptedAI
                 DoCast(m_creature,SPELL_DETONATION);
                 Detonation = true;
             }else Detonation_Timer -= diff;
-
         }
 
         if (Detonation)
@@ -227,7 +226,6 @@ struct TRINITY_DLL_DECL mob_nether_wraithAI : public ScriptedAI
                 m_creature->RemoveCorpse();
             }else Die_Timer -= diff;
         }
-
 
         DoMeleeAttackIfReady();
     }
