@@ -224,6 +224,7 @@ struct TRINITY_DLL_DECL mob_headAI : public ScriptedAI
         DoScriptText(textEntry, m_creature, target);
         //DoCast(m_creature,SPELL_HEAD_SPEAKS,true);
         Creature *speaker = DoSpawnCreature(HELPER,0,0,0,0,TEMPSUMMON_TIMED_DESPAWN,1000);
+        if(speaker)
             speaker->CastSpell(speaker,SPELL_HEAD_SPEAKS,false);
         laugh += 3000;
     }
@@ -295,6 +296,7 @@ struct TRINITY_DLL_DECL mob_headAI : public ScriptedAI
                 DoPlaySoundToSet(m_creature, RandomLaught[rand()%3]);
                 //DoCast(m_creature,SPELL_HEAD_SPEAKS,true); //this spell remove buff "head"
                 Creature *speaker = DoSpawnCreature(HELPER,0,0,0,0,TEMPSUMMON_TIMED_DESPAWN,1000);
+                if(speaker)
                     speaker->CastSpell(speaker,SPELL_HEAD_SPEAKS,false);
                 DoTextEmote("laughts",NULL);
             } else laugh -= diff;
@@ -421,8 +423,9 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
             m_creature->SetVisibility(VISIBILITY_ON);break;
         case 1: {
             Creature *smoke = m_creature->SummonCreature(HELPER,Spawn[1].x,Spawn[1].y,Spawn[1].z,0,TEMPSUMMON_TIMED_DESPAWN,20000);
+            if(smoke)
                 ((mob_wisp_invisAI*)smoke->AI())->SetType(3);
-                DoCast(m_creature,SPELL_RHYME_BIG);
+            DoCast(m_creature,SPELL_RHYME_BIG);
             break;}
         case 6:
             if(pInstance)
@@ -515,8 +518,10 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
         //m_creature->GetMotionMaster()->MoveIdle();    test
         SaySound(SAY_DEATH);
         Creature *flame = DoSpawnCreature(HELPER,0,0,0,0,TEMPSUMMON_TIMED_DESPAWN,60000);
+        if(flame)
             flame->CastSpell(flame,SPELL_BODY_FLAME,false);
         Creature *wisp = DoSpawnCreature(WISP_INVIS,0,0,0,0,TEMPSUMMON_TIMED_DESPAWN,60000);
+        if(wisp)
             ((mob_wisp_invisAI*)wisp->AI())->SetType(4);
         if(pInstance)
             pInstance->SetData(DATA_HORSEMAN_EVENT, DONE);
@@ -592,11 +597,15 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
                             say_timer = 3000;
                             Player *plr = SelectRandomPlayer(100.0f,false);
                             if (count < 3)
-                                plr->Say(Text[count].text,0);
+                                if(plr)
+                                    plr->Say(Text[count].text,0);
                             else {
                                 DoCast(m_creature,SPELL_RHYME_BIG);
-                                plr->Say(Text[count].text,0);
-                                plr->HandleEmoteCommand(ANIM_EMOTE_SHOUT);
+                                if(plr)
+                                {
+                                    plr->Say(Text[count].text,0);
+                                    plr->HandleEmoteCommand(ANIM_EMOTE_SHOUT);
+                                }
                                 wp_reached = true;
                                 IsFlying = true;
                                 count = 0;
@@ -618,8 +627,9 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
                 if(burn < diff)
                 {
                     Creature *flame = m_creature->SummonCreature(HELPER,Spawn[0].x,Spawn[0].y,Spawn[0].z,0,TEMPSUMMON_TIMED_DESPAWN,17000);
+                    if(flame)
                         ((mob_wisp_invisAI*)flame->AI())->SetType(2);
-                        burned = true;
+                    burned = true;
                 }else burn -= diff;
                 break;
             case 2:
@@ -727,10 +737,13 @@ struct TRINITY_DLL_DECL mob_pulsing_pumpkinAI : public ScriptedAI
         m_creature->Relocate(x,y,z + 0.35f);
         Despawn();
         Creature *debuff = DoSpawnCreature(HELPER,0,0,0,0,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,14500);
+        if(debuff)
+        {
             debuff->SetDisplayId(m_creature->GetDisplayId());
             debuff->CastSpell(debuff,SPELL_PUMPKIN_AURA_GREEN,false);
             ((mob_wisp_invisAI*)debuff->AI())->SetType(1);
             debuffGUID = debuff->GetGUID();
+        }
         sprouted = false;
         DoCast(m_creature,SPELL_PUMPKIN_AURA,true);
         DoCast(m_creature,SPELL_SPROUTING);
@@ -792,8 +805,11 @@ bool GOHello_go_loosely_turned_soil(Player *plr, GameObject* soil)
     { */
         plr->AreaExploredOrEventHappens(11405);
         Creature *horseman = soil->SummonCreature(HH_MOUNTED,FlightPoint[20].x,FlightPoint[20].y,FlightPoint[20].z,0,TEMPSUMMON_MANUAL_DESPAWN,0);
+        if(horseman)
+        {
             ((boss_headless_horsemanAI*)horseman->AI())->playerGUID = plr->GetGUID();
             ((boss_headless_horsemanAI*)horseman->AI())->FlyMode();
+        }
     //}
     return true;
 }

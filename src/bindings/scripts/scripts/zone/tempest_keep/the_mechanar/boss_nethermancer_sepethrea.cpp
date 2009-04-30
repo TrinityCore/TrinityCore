@@ -100,7 +100,6 @@ struct TRINITY_DLL_DECL boss_nethermancer_sepethreaAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-
         //Return since we have no target
         if (!UpdateVictim() )
             return;
@@ -151,7 +150,6 @@ struct TRINITY_DLL_DECL boss_nethermancer_sepethreaAI : public ScriptedAI
         }else solarburn_Timer -= diff;
 
         DoMeleeAttackIfReady();
-
     }
 };
 

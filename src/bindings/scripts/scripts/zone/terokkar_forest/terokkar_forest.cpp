@@ -120,6 +120,7 @@ struct TRINITY_DLL_DECL mob_unkor_the_ruthlessAI : public ScriptedAI
                 if( UnkorUnfriendly_Timer < diff )
                 {
                     EnterEvadeMode();
+                    return;
                 }else UnkorUnfriendly_Timer -= diff;
             }
         }

@@ -120,6 +120,8 @@ struct TRINITY_DLL_DECL boss_archaedasAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
+        if(!pInstance)
+            return;
         // we're still doing awaken animation
         if (wakingUp && Awaken_Timer >= 0) {
             Awaken_Timer -= diff;
@@ -180,8 +182,11 @@ struct TRINITY_DLL_DECL boss_archaedasAI : public ScriptedAI
     }
 
     void JustDied (Unit *killer) {
-        pInstance->SetData(NULL,3);        // open the vault door
-        pInstance->SetData(NULL,4);        // deactivate his minions
+        if(pInstance)
+        {
+            pInstance->SetData(NULL,3);        // open the vault door
+            pInstance->SetData(NULL,4);        // deactivate his minions
+        }
     }
 
 };
@@ -389,7 +394,8 @@ struct TRINITY_DLL_DECL mob_stonekeepersAI : public ScriptedAI
     void DamageTaken (Unit *attacker, uint32 &damage) {
         if (damage > m_creature->GetHealth()) {
             DoCast (m_creature, SPELL_SELF_DESTRUCT,true);
-            pInstance->SetData(NULL, 1);    // activate next stonekeeper
+            if(pInstance)
+                pInstance->SetData(NULL, 1);    // activate next stonekeeper
         }
     }
 

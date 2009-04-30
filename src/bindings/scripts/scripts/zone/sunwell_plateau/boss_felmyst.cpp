@@ -318,7 +318,12 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
                     m_creature->CastSpell(Vapor, SPELL_VAPOR_CHANNEL, false); // core bug
                     Vapor->CastSpell(Vapor, SPELL_VAPOR_TRIGGER, true);
                 }
-            }else EnterEvadeMode();
+            }
+            else
+            {
+                EnterEvadeMode();
+                return;
+            }
             Timer[EVENT_FLIGHT_SEQUENCE] = 10000;
             break;}
         case 3: {
@@ -339,7 +344,12 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
                     m_creature->CastSpell(Vapor, SPELL_VAPOR_CHANNEL, false); // core bug
                     Vapor->CastSpell(Vapor, SPELL_VAPOR_TRIGGER, true);
                 }
-            }else EnterEvadeMode();
+            }
+            else
+            {
+                EnterEvadeMode();
+                return;
+            }
             Timer[EVENT_FLIGHT_SEQUENCE] = 10000;
             break;}
         case 4:
@@ -357,7 +367,11 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
                 float x, y, z;
                 target->GetContactPoint(m_creature, x, y, z, 70);
                 m_creature->GetMotionMaster()->MovePoint(0, x, y, z+10);
-            }else EnterEvadeMode();
+            }else
+            {
+                EnterEvadeMode();
+                return;
+            }
             Timer[EVENT_FLIGHT_SEQUENCE] = 0;
             break;}
         case 6:
@@ -391,7 +405,12 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
                 float x, y, z;
                 target->GetContactPoint(m_creature, x, y, z);
                 m_creature->GetMotionMaster()->MovePoint(0, x, y, z);
-            }else EnterEvadeMode();
+            }
+            else
+            {
+                EnterEvadeMode();
+                return;
+            }
             Timer[EVENT_FLIGHT_SEQUENCE] = 0;
             break;
         case 10:
