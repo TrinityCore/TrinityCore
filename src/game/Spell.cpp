@@ -3625,8 +3625,8 @@ SpellCastResult Spell::CheckCast(bool strict)
                 return SPELL_FAILED_DONT_REPORT;
 
     // only check at first call, Stealth auras are already removed at second call
-    // for now, ignore triggered spells
-    if( strict && !m_IsTriggeredSpell)
+    // for now, ignore triggered by aura spells
+    if( strict && !m_triggeredByAuraSpell)
     {
         bool checkForm = true;
         // Ignore form req aura
@@ -5179,6 +5179,38 @@ SpellCastResult Spell::CheckItems()
                 break;
             }
             default:break;
+        }
+    }
+
+    // check weapon presence in slots for main/offhand weapons
+    if(m_spellInfo->EquippedItemClass >=0)
+    {
+        // main hand weapon required
+        if(m_spellInfo->AttributesEx3 & SPELL_ATTR_EX3_MAIN_HAND)
+        {
+            Item* item = ((Player*)m_caster)->GetWeaponForAttack(BASE_ATTACK);
+
+            // skip spell if no weapon in slot or broken
+            if(!item || item->IsBroken() )
+                return SPELL_FAILED_EQUIPPED_ITEM_CLASS;
+
+            // skip spell if weapon not fit to triggered spell
+            if(!item->IsFitToSpellRequirements(m_spellInfo))
+                return SPELL_FAILED_EQUIPPED_ITEM_CLASS;
+        }
+
+        // offhand hand weapon required
+        if(m_spellInfo->AttributesEx3 & SPELL_ATTR_EX3_REQ_OFFHAND)
+        {
+            Item* item = ((Player*)m_caster)->GetWeaponForAttack(OFF_ATTACK);
+
+            // skip spell if no weapon in slot or broken
+            if(!item || item->IsBroken() )
+                return m_IsTriggeredSpell ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_EQUIPPED_ITEM_CLASS;
+
+            // skip spell if weapon not fit to triggered spell
+            if(!item->IsFitToSpellRequirements(m_spellInfo))
+                return m_IsTriggeredSpell ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_EQUIPPED_ITEM_CLASS;
         }
     }
 
