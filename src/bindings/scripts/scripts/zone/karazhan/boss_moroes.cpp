@@ -104,9 +104,6 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
 
     void StartEvent()
     {
-        if(!pInstance)
-            return;
-
         if(pInstance)
             pInstance->SetData(DATA_MOROES_EVENT, IN_PROGRESS);
     }
@@ -266,7 +263,10 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
             return;
 
         if(pInstance && !pInstance->GetData(DATA_MOROES_EVENT))
+        {
             EnterEvadeMode();
+            return;
+        }
 
         if(!Enrage && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 30)
         {

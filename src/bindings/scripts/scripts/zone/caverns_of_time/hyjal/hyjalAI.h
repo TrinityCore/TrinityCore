@@ -216,7 +216,7 @@ struct TRINITY_DLL_DECL hyjalAI : public npc_escortAI
         bool Summon;
         bool bRetreat;
         bool Debug;
-        bool VeinsSpawned[2];    
+        bool VeinsSpawned[2];
         uint8 InfernalCount;
         SummonList Summons;
         bool Overrun;

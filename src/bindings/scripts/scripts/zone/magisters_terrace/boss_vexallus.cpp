@@ -145,7 +145,7 @@ struct TRINITY_DLL_DECL boss_vexallusAI : public ScriptedAI
             if(ChainLightningTimer < diff)
             {
                 if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCast(target, SPELL_CHAIN_LIGHTNING);
+                    DoCast(target, SPELL_CHAIN_LIGHTNING);
                 ChainLightningTimer = 10000;
             }else ChainLightningTimer -= diff;
 
@@ -153,7 +153,8 @@ struct TRINITY_DLL_DECL boss_vexallusAI : public ScriptedAI
             {
                 Unit* target = NULL;
                 target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                DoCast(target, SPELL_ARCANE_SHOCK);
+                if(target)
+                    DoCast(target, SPELL_ARCANE_SHOCK);
                 ArcaneShockTimer = 8000;
             }else ArcaneShockTimer -= diff;
         }else
@@ -161,7 +162,7 @@ struct TRINITY_DLL_DECL boss_vexallusAI : public ScriptedAI
             if(OverloadTimer < diff)
             {
                 if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCast(target, SPELL_OVERLOAD);
+                    DoCast(target, SPELL_OVERLOAD);
                 OverloadTimer = 2200;
             }else OverloadTimer -= diff;
         }
