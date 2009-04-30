@@ -8135,6 +8135,9 @@ void Unit::SetGuardian(Guardian* guardian, bool apply)
         }
 
         // FIXME: hack, speed must be set only at follow
+        if(HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP))
+            guardian->SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
+
         if(GetTypeId() == TYPEID_PLAYER && guardian->HasSummonMask(SUMMON_MASK_PET))
             for(int i = 0; i < MAX_MOVE_TYPE; ++i)
                 guardian->SetSpeed(UnitMoveType(i), m_speed_rate[i], true);
