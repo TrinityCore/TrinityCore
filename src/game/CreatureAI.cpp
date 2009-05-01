@@ -71,26 +71,36 @@ void CreatureAI::OnCharmed(bool apply)
     me->IsAIEnabled = false;
 }
 
-void CreatureAI::DoZoneInCombat(Creature* pUnit)
+void CreatureAI::DoZoneInCombat(Creature* creature)
 {
-    if (!pUnit)
-        pUnit = me;
+    if (!creature)
+        creature = me;
 
-    Map *map = pUnit->GetMap();
-
+    Map *map = creature->GetMap();
     if (!map->IsDungeon())                                  //use IsDungeon instead of Instanceable, in case battlegrounds will be instantiated
     {
-        sLog.outError("DoZoneInCombat call for map that isn't an instance (pUnit entry = %d)", pUnit->GetTypeId() == TYPEID_UNIT ? ((Creature*)pUnit)->GetEntry() : 0);
+        sLog.outError("DoZoneInCombat call for map that isn't an instance (creature entry = %d)", creature->GetTypeId() == TYPEID_UNIT ? ((Creature*)creature)->GetEntry() : 0);
         return;
     }
 
-    if(!pUnit->getVictim())
-        if(Unit *target = pUnit->SelectNearestTarget())
-            AttackStart(target);
-
-    if (!pUnit->CanHaveThreatList() || pUnit->getThreatManager().isThreatListEmpty())
+    if(!creature->getVictim())
     {
-        sLog.outError("DoZoneInCombat called for creature that either cannot have threat list or has empty threat list (pUnit entry = %d)", pUnit->GetTypeId() == TYPEID_UNIT ? ((Creature*)pUnit)->GetEntry() : 0);
+        if(Unit *target = creature->SelectNearestTarget())
+            AttackStart(target);
+        else if(creature->isSummon())
+        {
+            if(Unit *summoner = ((TempSummon*)creature)->GetSummoner())
+            {
+                if(summoner->getVictim()
+                    && (creature->IsFriendlyTo(summoner) || creature->IsHostileTo(summoner->getVictim())))
+                    AttackStart(summoner->getVictim());
+            }
+        }
+    }
+
+    if (!creature->CanHaveThreatList() || creature->getThreatManager().isThreatListEmpty())
+    {
+        sLog.outError("DoZoneInCombat called for creature that either cannot have threat list or has empty threat list (creature entry = %d)", creature->GetTypeId() == TYPEID_UNIT ? ((Creature*)creature)->GetEntry() : 0);
         return;
     }
 
@@ -100,9 +110,9 @@ void CreatureAI::DoZoneInCombat(Creature* pUnit)
         if (Player* i_pl = i->getSource())
             if (i_pl->isAlive())
             {
-                pUnit->SetInCombatWith(i_pl);
-                i_pl->SetInCombatWith(pUnit);
-                pUnit->AddThreat(i_pl, 0.0f);
+                creature->SetInCombatWith(i_pl);
+                i_pl->SetInCombatWith(creature);
+                creature->AddThreat(i_pl, 0.0f);
             }
     }
 }
