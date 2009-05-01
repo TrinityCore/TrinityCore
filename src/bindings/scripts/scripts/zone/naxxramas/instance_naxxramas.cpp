@@ -22,4 +22,24 @@ SDCategory: Naxxramas
 EndScriptData */
 
 #include "precompiled.h"
+#include "def_naxxramas.h"
+
+struct TRINITY_DLL_DECL instance_naxxramas : public ScriptedInstance
+{
+    instance_naxxramas(Map *Map) : ScriptedInstance(Map) {Initialize();};
+};
+
+InstanceData* GetInstanceData_instance_naxxramas(Map* map)
+{
+    return new instance_naxxramas(map);
+}
+
+void AddSC_instance_naxxramas()
+{
+    Script *newscript;
+    newscript = new Script;
+    newscript->Name = "instance_naxxramas";
+    newscript->GetInstanceData = GetInstanceData_instance_naxxramas;
+    newscript->RegisterSelf();
+}
 

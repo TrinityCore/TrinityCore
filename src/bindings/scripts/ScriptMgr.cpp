@@ -388,6 +388,7 @@ extern void AddSC_boss_gluth();
 extern void AddSC_boss_sapphiron();
 extern void AddSC_boss_four_horsemen();
 extern void AddSC_boss_faerlina();
+extern void AddSC_instance_naxxramas();
 
 //Netherstorm
 extern void AddSC_netherstorm();
@@ -1072,6 +1073,7 @@ void ScriptsInit(char const* cfg_file = "trinitycore.conf")
     AddSC_boss_najentus();
     AddSC_boss_illidari_council();
     AddSC_instance_black_temple();
+    AddSC_instance_naxxramas();
 
     //Blackfathom Depths
     //Blackrock Depths
