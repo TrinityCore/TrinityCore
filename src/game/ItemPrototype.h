@@ -117,6 +117,7 @@ enum ITEM_FLAGS
     ITEM_FLAGS_THROWABLE                      = 0x00400000, // not used in game for check trow possibility, only for item in game tooltip
     ITEM_FLAGS_SPECIALUSE                     = 0x00800000, // last used flag in 2.3.0
     ITEM_FLAGS_BOA                            = 0x08000000, // bind on account
+    ITEM_FLAGS_NO_REAGENT_CAST                = 0x10000000, // used by enchanting scrolls made with vellum
     ITEM_FLAGS_MILLABLE                       = 0x20000000
 };
 
@@ -661,6 +662,8 @@ struct ItemPrototype
     }
 
     bool IsPotion() const { return Class==ITEM_CLASS_CONSUMABLE && SubClass==ITEM_SUBCLASS_POTION; }
+    bool IsWeaponVellum() const { return Class==ITEM_CLASS_TRADE_GOODS && SubClass==ITEM_SUBCLASS_WEAPON_ENCHANTMENT; }
+    bool IsArmorVellum() const { return Class==ITEM_CLASS_TRADE_GOODS && SubClass==ITEM_SUBCLASS_ARMOR_ENCHANTMENT; }
     bool IsConjuredConsumable() const { return Class == ITEM_CLASS_CONSUMABLE && (Flags & ITEM_FLAGS_CONJURED); }
 };
 

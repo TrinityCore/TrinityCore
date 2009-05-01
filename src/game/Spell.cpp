@@ -590,8 +590,11 @@ void Spell::FillTargetMap()
                     if(Guardian* pet = m_caster->GetGuardianPet())
                         tmpUnitMap.push_back(pet);
                     break;
-                /*case SPELL_EFFECT_ENCHANT_ITEM:
-                case SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY:
+                case SPELL_EFFECT_ENCHANT_ITEM:
+                    // add caster as unit target-needed by vellums to define who gets item
+                    AddUnitTarget(m_caster, i);
+                    break;
+                /*case SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY:
                 case SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC:
                 case SPELL_EFFECT_DISENCHANT:
                 case SPELL_EFFECT_PROSPECTING:
@@ -3505,6 +3508,10 @@ void Spell::TakeReagents()
     if(m_IsTriggeredSpell)                                  // reagents used in triggered spell removed by original spell or don't must be removed.
         return;
 
+    if (m_CastItem)
+        if (m_CastItem->GetProto()->Flags & ITEM_FLAGS_NO_REAGENT_CAST)
+            return;
+
     if (m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
 
@@ -5004,6 +5011,23 @@ SpellCastResult Spell::CheckItems()
                 break;
             }
             case SPELL_EFFECT_ENCHANT_ITEM:
+                if(m_spellInfo->EffectItemType[i] && m_targets.getItemTarget() 
+                    && (m_targets.getItemTarget()->IsWeaponVellum() || m_targets.getItemTarget()->IsArmorVellum()))
+                {
+                    // cannot enchant vellum for other player
+                    if (m_targets.getItemTarget()->GetOwner()!=m_caster)
+                        return SPELL_FAILED_NOT_TRADEABLE;
+                    // do not allow to enchant vellum from scroll made by vellum-prevent exploit
+                    if (m_CastItem && m_CastItem->GetProto()->Flags & ITEM_FLAGS_NO_REAGENT_CAST)
+                        return SPELL_FAILED_TOTEM_CATEGORY;
+                    ItemPosCountVec dest;
+                    uint8 msg = p_caster->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, m_spellInfo->EffectItemType[i], 1 );
+                    if (msg != EQUIP_ERR_OK )
+                    {
+                        p_caster->SendEquipError( msg, NULL, NULL );
+                        return SPELL_FAILED_DONT_REPORT;
+                    }
+                }
             case SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC:
             {
                 Item* targetItem = m_targets.getItemTarget();
