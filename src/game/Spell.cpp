@@ -590,11 +590,8 @@ void Spell::FillTargetMap()
                     if(Guardian* pet = m_caster->GetGuardianPet())
                         tmpUnitMap.push_back(pet);
                     break;
-                case SPELL_EFFECT_ENCHANT_ITEM:
-                    // add caster as unit target-needed by vellums to define who gets item
-                    AddUnitTarget(m_caster, i);
-                    break;
-                /*case SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY:
+                /*case SPELL_EFFECT_ENCHANT_ITEM:
+                case SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY:
                 case SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC:
                 case SPELL_EFFECT_DISENCHANT:
                 case SPELL_EFFECT_PROSPECTING:
@@ -3508,11 +3505,11 @@ void Spell::TakeReagents()
     if(m_IsTriggeredSpell)                                  // reagents used in triggered spell removed by original spell or don't must be removed.
         return;
 
-    if (m_CastItem)
-        if (m_CastItem->GetProto()->Flags & ITEM_FLAGS_NO_REAGENT_CAST)
-            return;
-
     if (m_caster->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    // do not take reagents for these item casts
+    if (m_CastItem && m_CastItem->GetProto()->Flags & ITEM_FLAGS_TRIGGERED_CAST)
         return;
 
     Player* p_caster = (Player*)m_caster;
@@ -3636,8 +3633,8 @@ SpellCastResult Spell::CheckCast(bool strict)
                 return SPELL_FAILED_DONT_REPORT;
 
     // only check at first call, Stealth auras are already removed at second call
-    // for now, ignore triggered by aura spells
-    if( strict && !m_triggeredByAuraSpell)
+    // for now, ignore triggered spells
+    if( strict && !m_IsTriggeredSpell)
     {
         bool checkForm = true;
         // Ignore form req aura
@@ -4923,73 +4920,77 @@ SpellCastResult Spell::CheckItems()
         focusObject = ok;                                   // game object found in range
     }
 
-    // check reagents (ignore triggered spells with reagents processed by original spell) and special reagent ignore case.
-    if (!m_IsTriggeredSpell && !p_caster->CanNoReagentCast(m_spellInfo))
+    // do not take reagents for these item casts
+    if (!(m_CastItem && m_CastItem->GetProto()->Flags & ITEM_FLAGS_TRIGGERED_CAST))
     {
-        for(uint32 i=0;i<8;i++)
+        // check reagents (ignore triggered spells with reagents processed by original spell) and special reagent ignore case.
+        if (!m_IsTriggeredSpell && !p_caster->CanNoReagentCast(m_spellInfo))
         {
-            if(m_spellInfo->Reagent[i] <= 0)
-                continue;
-
-            uint32 itemid    = m_spellInfo->Reagent[i];
-            uint32 itemcount = m_spellInfo->ReagentCount[i];
-
-            // if CastItem is also spell reagent
-            if( m_CastItem && m_CastItem->GetEntry() == itemid )
+            for(uint32 i=0;i<8;i++)
             {
-                ItemPrototype const *proto = m_CastItem->GetProto();
-                if(!proto)
-                    return SPELL_FAILED_ITEM_NOT_READY;
-                for(int s=0; s < MAX_ITEM_PROTO_SPELLS; ++s)
+                if(m_spellInfo->Reagent[i] <= 0)
+                    continue;
+
+                uint32 itemid    = m_spellInfo->Reagent[i];
+                uint32 itemcount = m_spellInfo->ReagentCount[i];
+
+                // if CastItem is also spell reagent
+                if( m_CastItem && m_CastItem->GetEntry() == itemid )
                 {
-                    // CastItem will be used up and does not count as reagent
-                    int32 charges = m_CastItem->GetSpellCharges(s);
-                    if (proto->Spells[s].SpellCharges < 0 && abs(charges) < 2)
+                    ItemPrototype const *proto = m_CastItem->GetProto();
+                    if(!proto)
+                        return SPELL_FAILED_ITEM_NOT_READY;
+                    for(int s=0; s < MAX_ITEM_PROTO_SPELLS; ++s)
                     {
-                        ++itemcount;
-                        break;
+                        // CastItem will be used up and does not count as reagent
+                        int32 charges = m_CastItem->GetSpellCharges(s);
+                        if (proto->Spells[s].SpellCharges < 0 && abs(charges) < 2)
+                        {
+                            ++itemcount;
+                            break;
+                        }
                     }
                 }
+                if( !p_caster->HasItemCount(itemid,itemcount) )
+                    return SPELL_FAILED_ITEM_NOT_READY;         //0x54
             }
-            if( !p_caster->HasItemCount(itemid,itemcount) )
-                return SPELL_FAILED_ITEM_NOT_READY;         //0x54
         }
-    }
 
-    // check totem-item requirements (items presence in inventory)
-    uint32 totems = 2;
-    for(int i=0;i<2;++i)
-    {
-        if(m_spellInfo->Totem[i] != 0)
+        // check totem-item requirements (items presence in inventory)
+        uint32 totems = 2;
+        for(int i=0;i<2;++i)
         {
-            if( p_caster->HasItemCount(m_spellInfo->Totem[i],1) )
+            if(m_spellInfo->Totem[i] != 0)
             {
-                totems -= 1;
-                continue;
+                if( p_caster->HasItemCount(m_spellInfo->Totem[i],1) )
+                {
+                    totems -= 1;
+                    continue;
+                }
+            }else
+            totems -= 1;
+        }
+        if(totems != 0)
+            return SPELL_FAILED_TOTEMS;                         //0x7C
+
+        // Check items for TotemCategory  (items presence in inventory)
+        uint32 TotemCategory = 2;
+        for(int i=0;i<2;++i)
+        {
+            if(m_spellInfo->TotemCategory[i] != 0)
+            {
+                if( p_caster->HasItemTotemCategory(m_spellInfo->TotemCategory[i]) )
+                {
+                    TotemCategory -= 1;
+                    continue;
+                }
             }
-        }else
-        totems -= 1;
-    }
-    if(totems != 0)
-        return SPELL_FAILED_TOTEMS;                         //0x7C
-
-    // Check items for TotemCategory  (items presence in inventory)
-    uint32 TotemCategory = 2;
-    for(int i=0;i<2;++i)
-    {
-        if(m_spellInfo->TotemCategory[i] != 0)
-        {
-            if( p_caster->HasItemTotemCategory(m_spellInfo->TotemCategory[i]) )
-            {
+            else
                 TotemCategory -= 1;
-                continue;
-            }
         }
-        else
-            TotemCategory -= 1;
+        if(TotemCategory != 0)
+            return SPELL_FAILED_TOTEM_CATEGORY;                 //0x7B
     }
-    if(TotemCategory != 0)
-        return SPELL_FAILED_TOTEM_CATEGORY;                 //0x7B
 
     // special checks for spell effects
     for(int i = 0; i < 3; i++)
@@ -5018,7 +5019,7 @@ SpellCastResult Spell::CheckItems()
                     if (m_targets.getItemTarget()->GetOwner()!=m_caster)
                         return SPELL_FAILED_NOT_TRADEABLE;
                     // do not allow to enchant vellum from scroll made by vellum-prevent exploit
-                    if (m_CastItem && m_CastItem->GetProto()->Flags & ITEM_FLAGS_NO_REAGENT_CAST)
+                    if (m_CastItem && m_CastItem->GetProto()->Flags & ITEM_FLAGS_TRIGGERED_CAST)
                         return SPELL_FAILED_TOTEM_CATEGORY;
                     ItemPosCountVec dest;
                     uint8 msg = p_caster->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, m_spellInfo->EffectItemType[i], 1 );
@@ -5665,15 +5666,12 @@ void Spell::CalculateDamageDoneForAllTargets()
         }
     }
 
-    bool usesAmmo = !m_IsTriggeredSpell || m_autoRepeat;
-    if (usesAmmo)
+    bool usesAmmo=true;
+    Unit::AuraEffectList const& Auras = m_caster->GetAurasByType(SPELL_AURA_ABILITY_CONSUME_NO_AMMO);
+    for(Unit::AuraEffectList::const_iterator j = Auras.begin();j != Auras.end(); ++j)
     {
-        Unit::AuraEffectList const& Auras = m_caster->GetAurasByType(SPELL_AURA_ABILITY_CONSUME_NO_AMMO);
-        for(Unit::AuraEffectList::const_iterator j = Auras.begin();j != Auras.end(); ++j)
-        {
-            if((*j)->isAffectedOnSpell(m_spellInfo))
-                usesAmmo=false;
-        }
+        if((*j)->isAffectedOnSpell(m_spellInfo))
+            usesAmmo=false;
     }
 
     for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
