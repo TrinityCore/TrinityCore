@@ -3688,15 +3688,10 @@ void Spell::EffectEnchantItemPerm(uint32 effect_idx)
     // Handle vellums
     if (itemTarget->IsWeaponVellum() || itemTarget->IsArmorVellum())
     {
-        // item can be in trade slot and have owner diff. from caster
-        Player* item_owner = itemTarget->GetOwner();
-        if(!item_owner)
-            return;
-
         // destroy one vellum from stack
         uint32 count=1;
-        item_owner->DestroyItemCount(itemTarget,count,true);
-        unitTarget=item_owner;
+        p_caster->DestroyItemCount(itemTarget,count,true);
+        unitTarget=p_caster;
         // and add a scroll
         DoCreateItem(effect_idx,m_spellInfo->EffectItemType[effect_idx]);
         itemTarget=NULL;
@@ -3704,8 +3699,9 @@ void Spell::EffectEnchantItemPerm(uint32 effect_idx)
     }
     else
     {
-        // not grow at item use at item case
-        p_caster->UpdateCraftSkill(m_spellInfo->Id);
+        // do not increase skill if vellum used
+        if (!(m_CastItem && m_CastItem->GetProto()->Flags & ITEM_FLAGS_TRIGGERED_CAST))
+            p_caster->UpdateCraftSkill(m_spellInfo->Id);
 
         uint32 enchant_id = m_spellInfo->EffectMiscValue[effect_idx];
         if (!enchant_id)

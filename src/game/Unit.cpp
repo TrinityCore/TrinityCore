@@ -3259,7 +3259,7 @@ void Unit::_UpdateSpells( uint32 time )
 
     for(AuraMap::iterator i = m_Auras.begin(); i != m_Auras.end();)
     {
-        if(!i->second->GetAuraDuration() && !(i->second->IsPermanent() || (i->second->IsPassive())))
+        if(i->second->IsExpired())
             RemoveAura(i, AURA_REMOVE_BY_EXPIRE);
         else
             ++i;
@@ -3673,7 +3673,7 @@ int32 Unit::GetMaxNegativeAuraModifierByMiscValue(AuraType auratype, int32 misc_
 bool Unit::AddAura(Aura *Aur)
 {
     // aura doesn't apply effects-return
-    if (!Aur->GetEffectMask())
+    if (!Aur->GetEffectMask() || Aur->IsExpired())
     {
         delete Aur;
         return false;
