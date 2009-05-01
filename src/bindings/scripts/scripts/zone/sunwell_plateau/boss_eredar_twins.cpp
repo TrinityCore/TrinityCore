@@ -262,7 +262,8 @@ struct TRINITY_DLL_DECL boss_sacrolashAI : public ScriptedAI
                     m_creature->InterruptSpell(CURRENT_GENERIC_SPELL);
                     Unit* target = NULL;
                     target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                    DoCast(target, SPELL_CONFLAGRATION);
+                    if(target)
+                        DoCast(target, SPELL_CONFLAGRATION);
                     ConflagrationTimer = 30000+(rand()%5000);
                 }
             }else ConflagrationTimer -= diff;
@@ -275,11 +276,13 @@ struct TRINITY_DLL_DECL boss_sacrolashAI : public ScriptedAI
                 {
                     Unit* target = NULL;
                     target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                    DoCast(target, SPELL_SHADOW_NOVA);
+                    if(target)
+                        DoCast(target, SPELL_SHADOW_NOVA);
 
                     if(!SisterDeath)
                     {
-                        DoScriptText(EMOTE_SHADOW_NOVA, m_creature, target);
+                        if(target)
+                            DoScriptText(EMOTE_SHADOW_NOVA, m_creature, target);
                         DoScriptText(YELL_SHADOW_NOVA, m_creature);
                     }
                     ShadownovaTimer = 30000+(rand()%5000);
@@ -293,7 +296,8 @@ struct TRINITY_DLL_DECL boss_sacrolashAI : public ScriptedAI
             {
                 Unit* target = NULL;
                 target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                DoCast(target, SPELL_CONFOUNDING_BLOW);
+                if(target)
+                    DoCast(target, SPELL_CONFOUNDING_BLOW);
                 ConfoundingblowTimer = 20000 + (rand()%5000);
             }
         }else ConfoundingblowTimer -=diff;
@@ -306,7 +310,8 @@ struct TRINITY_DLL_DECL boss_sacrolashAI : public ScriptedAI
             {
                 target = SelectUnit(SELECT_TARGET_RANDOM, 0);
                 temp = DoSpawnCreature(MOB_SHADOW_IMAGE,0,0,0,0,TEMPSUMMON_CORPSE_DESPAWN,10000);
-                temp->AI()->AttackStart(target);
+                if(temp && target)
+                    temp->AI()->AttackStart(target);
             }
             ShadowimageTimer = 20000;
         }else ShadowimageTimer -=diff;
@@ -593,7 +598,8 @@ struct TRINITY_DLL_DECL boss_alythessAI : public Scripted_NoMovementAI
                 {
                     Unit* target = NULL;
                     target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                    DoCast(target, SPELL_SHADOW_NOVA);
+                    if(target)
+                        DoCast(target, SPELL_SHADOW_NOVA);
                     ShadownovaTimer= 30000+(rand()%5000);
                 }
             }else ShadownovaTimer -=diff;
@@ -607,12 +613,14 @@ struct TRINITY_DLL_DECL boss_alythessAI : public Scripted_NoMovementAI
                     m_creature->InterruptSpell(CURRENT_GENERIC_SPELL);
                     Unit* target = NULL;
                     target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                    DoCast(target, SPELL_CONFLAGRATION);
+                    if(target)
+                        DoCast(target, SPELL_CONFLAGRATION);
                     ConflagrationTimer = 30000+(rand()%5000);
 
                     if(!SisterDeath)
                     {
-                        DoScriptText(EMOTE_CONFLAGRATION, m_creature, target);
+                        if(target)
+                            DoScriptText(EMOTE_CONFLAGRATION, m_creature, target);
                         DoScriptText(YELL_CANFLAGRATION, m_creature);
                     }
 

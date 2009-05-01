@@ -77,7 +77,6 @@ struct TRINITY_DLL_DECL boss_ambassador_hellmawAI : public ScriptedAI
                 IsBanished = true;
             }
             else pInstance->SetData(TYPE_HELLMAW,FAIL);
-
             if (pInstance->GetData(TYPE_OVERSEER) == DONE)
             {
                 if (m_creature->HasAura(SPELL_BANISH))
@@ -148,7 +147,7 @@ struct TRINITY_DLL_DECL boss_ambassador_hellmawAI : public ScriptedAI
         {
             if (EventCheck_Timer < diff)
             {
-                if (pInstance)
+                if(pInstance)
                 {
                     if (pInstance->GetData(TYPE_OVERSEER) == DONE)
                         DoIntro();

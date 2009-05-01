@@ -34,7 +34,7 @@ EndScriptData */
 #define SPAWN_NEAR_TOWER 2
 // Locations for summoning gargoyls and frost wyrms in special cases
 float SpawnPointSpecial[3][3]=
-{    
+{
     {5497.08,    -2493.23,    1535.72}, //spawn point for the gargoyles near the horde gate
     {5624.53,    -2548.12,    1551.54}, //spawn point for the frost wyrm near the horde gate
     {5604.41,   -2811.98,   1547.77}  //spawn point for the gargoyles and wyrms near the horde tower
@@ -57,7 +57,7 @@ float JainaDummySpawn[2][4]=
 
 
 // Locations for summoning waves in Horde base
-float HordeBase[4][3]=         
+float HordeBase[4][3]=
 {
     {5458.01,    -2340.27,    1459.60},
     {5466.01,    -2334.69,    1460.06},
@@ -66,7 +66,7 @@ float HordeBase[4][3]=
 };
 
 // Lady Jaina's waypoints when retreathing
-float JainaWPs[2][3]=         
+float JainaWPs[2][3]=
 {
     {5078.56,    -1789.79,    1320.73},//next to the small stairs
     {5037.38,    -1778.39,    1322.61},//center of alliance base
@@ -239,70 +239,70 @@ float AllianceFirePos[92][8]=//spawn points for the fire visuals (GO) in the all
 
 float HordeFirePos[65][8]=//spawn points for the fire visuals (GO) in the horde base
 {
-    {5524.11,    -2612.73,    1483.38,    1.96198,    0,    0,    0.831047,    0.556202},    
-    {5514.42,    -2617.19,    1505.77,    1.82453,    0,    0,    0.790892,    0.611956},    
-    {5510.21,    -2624.77,    1485.34,    1.71065,    0,    0,    0.754783,    0.655974},    
-    {5570.72,    -2619.04,    1487.62,    0.728898,    0,    0,    0.356435,    0.93432},    
-    {5570.29,    -2639.37,    1487.31,    1.49308,    0,    0,    0.679104,    0.734042},    
-    {5583.56,    -2637.2,    1503.78,    1.46559,    0,    0,    0.668951,    0.743307},    
-    {5571.53,    -2626.81,    1510.99,    0.362107,    0,    0,    0.180066,    0.983654},    
-    {5545.97,    -2659.62,    1489.64,    5.07055,    0,    0,    0.569845,    -0.821752},    
-    {5557.44,    -2675.91,    1482.58,    1.70118,    0,    0,    0.751671,    0.659539},    
-    {5594.98,    -2742.31,    1495.51,    4.5993,        0,    0,    0.74594,    -0.666013},    
-    {5599.65,    -2755.6,    1505.05,    1.66896,    0,    0,    0.740947,    0.671564},    
-    {5565.95,    -2774.75,    1499.48,    6.22425,    0,    0,    0.0294611,    -0.999566},    
-    {5567.1,    -2769.7,    1511.17,    5.99257,    0,    0,    0.144799,    -0.989461},    
-    {5572.84,    -2774.16,    1527.06,    0.836428,    0,    0,    0.406129,    0.913816},    
-    {5538.32,    -2805.94,    1498.87,    4.30082,    0,    0,    0.836674,    -0.547701},    
-    {5515.66,    -2801.74,    1503.53,    5.57316,    0,    0,    0.347602,    -0.937642},    
-    {5516.76,    -2827.14,    1501.15,    0.35026,    0,    0,    0.174236,    0.984704},    
-    {5536.13,    -2813.51,    1537.21,    4.51681,    0,    0,    0.772765,    -0.634692},    
-    {5525.05,    -2825.16,    1538.53,    0.489275,    0,    0,    0.242205,    0.970225},    
-    {5534.42,    -2815.45,    1562.84,    4.62834,    0,    0,    0.736191,    -0.676774},    
-    {5519.64,    -2831.12,    1526.46,    0.611008,    0,    0,    0.300774,    0.953696},    
-    {5551.04,    -2827.55,    1523.5,        3.35206,    0,    0,    0.994468,    -0.10504},    
-    {5469.22,    -2802.87,    1503.5,        4.99509,    0,    0,    0.600436,    -0.799673},    
-    {5427.8,    -2737.26,    1487.12,    1.78673,    0,    0,    0.779186,    0.626793},    
-    {5454.1,    -2709.1,    1485.92,    3.03552,    0,    0,    0.998594,    0.0530137},    
-    {5436.3,    -2718.2,    1506.02,    2.7567,        0,    0,    0.981539,    0.191261},    
-    {5412.6,    -2740.55,    1510.79,    2.98446,    0,    0,    0.996915,    0.0784832},    
-    {5406.12,    -2752.48,    1521.01,    2.05769,    0,    0,    0.856705,    0.515807},    
-    {5445.24,    -2676.35,    1521.89,    2.91378,    0,    0,    0.99352,    0.113661},    
-    {5481.4,    -2665.08,    1482.23,    4.30001,    0,    0,    0.836895,    -0.547363},    
-    {5443.51,    -2675.44,    1487.12,    2.90986,    0,    0,    0.993295,    0.115606},    
-    {5391.72,    -2647.3,    1528.9,        3.76987,    0,    0,    0.951063,    -0.308997},    
-    {5421.09,    -2734.12,    1521.01,    2.70567,    0,    0,    0.97634,    0.216242},    
-    {5405.39,    -2710.33,    1533.77,    2.51324,    0,    0,    0.951052,    0.309032},    
-    {5423.96,    -2703.76,    1516.34,    2.79206,    0,    0,    0.984767,    0.173879},    
-    {5444.75,    -2735.23,    1486.37,    2.22657,    0,    0,    0.897155,    0.441715},    
-    {5570.98,    -2747.91,    1495.7,        5.14433,    0,    0,    0.53915,    -0.84221},    
-    {5567.79,    -2673.9,    1484.66,    2.72529,    0,    0,    0.978415,    0.20665},    
-    {5600.71,    -2696.8,    1500.42,    0.443704,    0,    0,    0.220036,    0.975492},    
-    {5600.7,    -2693.04,    1515.2,        5.16003,    0,    0,    0.532522,    -0.846416},    
-    {5627.56,    -2839.66,    1510.53,    5.41527,    0,    0,    0.420463,    -0.907309},    
-    {5622.02,    -2868.71,    1516.22,    2.25482,    0,    0,    0.903303,    0.429002},    
-    {5586.61,    -2878.97,    1510.34,    4.55604,    0,    0,    0.76017,    -0.649724},    
-    {5583.78,    -2843.71,    1509.54,    5.35715,    0,    0,    0.44665,    -0.894709},    
-    {5580.95,    -2811.3,    1513.3,        3.57587,    0,    0,    0.976518,    -0.215434},    
-    {5542.52,    -2869.31,    1523.13,    5.23304,    0,    0,    0.501275,    -0.865288},    
-    {5557.35,    -2866.36,    1518.76,    4.48299,    0,    0,    0.783388,    -0.621533},    
-    {5380.91,    -2849.36,    1512.81,    3.90962,    0,    0,    0.927168,    -0.374646},    
-    {5395.76,    -2881.41,    1521.11,    4.28426,    0,    0,    0.84118,    -0.540755},    
-    {5374.87,    -2859.63,    1528.98,    3.30252,    0,    0,    0.996765,    -0.0803745},    
-    {5356.07,    -2854.66,    1520.34,    5.83933,    0,    0,    0.220108,    -0.975475},    
-    {5363.01,    -2975.72,    1539.02,    4.13738,    0,    0,    0.87859,    -0.477576},    
-    {5336.85,    -2980.74,    1561.24,    5.11126,    0,    0,    0.553001,    -0.83318},    
-    {5335.23,    -2974.62,    1540.05,    5.04451,    0,    0,    0.580496,    -0.814263},    
-    {5422.37,    -2998.87,    1549.98,    4.51831,    0,    0,    0.772288,    -0.635272},    
-    {5405.54,    -3014.6,    1562.16,    5.86761,    0,    0,    0.206298,    -0.978489},    
-    {5427.96,    -3019.4,    1561.58,    3.53498,    0,    0,    0.980718,    -0.19543},    
-    {5348.12,    -2977.84,    1582.47,    3.94025,    0,    0,    0.921323,    -0.388799},    
-    {5331.12,    -2993.71,    1576.14,    0.0642734,    0,    0,    0.0321311,    0.999484},    
-    {5321.63,    -2986.55,    1552.2,        5.29503,    0,    0,    0.474219,    -0.880407},    
-    {5292.1,    -2914.36,    1529.52,    2.9742,        0,    0,    0.996499,    0.083601},    
-    {5281.77,    -2926.5,    1530.62,    1.67829,    0,    0,    0.744071,    0.6681},    
-    {5287.19,    -2909.94,    1543.49,    3.31192,    0,    0,    0.996376,    -0.0850591},    
-    {5534.15,    -2679.35,    1483.61,    0.428685,    0,    0,    0.212705,    0.977116},    
+    {5524.11,    -2612.73,    1483.38,    1.96198,    0,    0,    0.831047,    0.556202},
+    {5514.42,    -2617.19,    1505.77,    1.82453,    0,    0,    0.790892,    0.611956},
+    {5510.21,    -2624.77,    1485.34,    1.71065,    0,    0,    0.754783,    0.655974},
+    {5570.72,    -2619.04,    1487.62,    0.728898,    0,    0,    0.356435,    0.93432},
+    {5570.29,    -2639.37,    1487.31,    1.49308,    0,    0,    0.679104,    0.734042},
+    {5583.56,    -2637.2,    1503.78,    1.46559,    0,    0,    0.668951,    0.743307},
+    {5571.53,    -2626.81,    1510.99,    0.362107,    0,    0,    0.180066,    0.983654},
+    {5545.97,    -2659.62,    1489.64,    5.07055,    0,    0,    0.569845,    -0.821752},
+    {5557.44,    -2675.91,    1482.58,    1.70118,    0,    0,    0.751671,    0.659539},
+    {5594.98,    -2742.31,    1495.51,    4.5993,        0,    0,    0.74594,    -0.666013},
+    {5599.65,    -2755.6,    1505.05,    1.66896,    0,    0,    0.740947,    0.671564},
+    {5565.95,    -2774.75,    1499.48,    6.22425,    0,    0,    0.0294611,    -0.999566},
+    {5567.1,    -2769.7,    1511.17,    5.99257,    0,    0,    0.144799,    -0.989461},
+    {5572.84,    -2774.16,    1527.06,    0.836428,    0,    0,    0.406129,    0.913816},
+    {5538.32,    -2805.94,    1498.87,    4.30082,    0,    0,    0.836674,    -0.547701},
+    {5515.66,    -2801.74,    1503.53,    5.57316,    0,    0,    0.347602,    -0.937642},
+    {5516.76,    -2827.14,    1501.15,    0.35026,    0,    0,    0.174236,    0.984704},
+    {5536.13,    -2813.51,    1537.21,    4.51681,    0,    0,    0.772765,    -0.634692},
+    {5525.05,    -2825.16,    1538.53,    0.489275,    0,    0,    0.242205,    0.970225},
+    {5534.42,    -2815.45,    1562.84,    4.62834,    0,    0,    0.736191,    -0.676774},
+    {5519.64,    -2831.12,    1526.46,    0.611008,    0,    0,    0.300774,    0.953696},
+    {5551.04,    -2827.55,    1523.5,        3.35206,    0,    0,    0.994468,    -0.10504},
+    {5469.22,    -2802.87,    1503.5,        4.99509,    0,    0,    0.600436,    -0.799673},
+    {5427.8,    -2737.26,    1487.12,    1.78673,    0,    0,    0.779186,    0.626793},
+    {5454.1,    -2709.1,    1485.92,    3.03552,    0,    0,    0.998594,    0.0530137},
+    {5436.3,    -2718.2,    1506.02,    2.7567,        0,    0,    0.981539,    0.191261},
+    {5412.6,    -2740.55,    1510.79,    2.98446,    0,    0,    0.996915,    0.0784832},
+    {5406.12,    -2752.48,    1521.01,    2.05769,    0,    0,    0.856705,    0.515807},
+    {5445.24,    -2676.35,    1521.89,    2.91378,    0,    0,    0.99352,    0.113661},
+    {5481.4,    -2665.08,    1482.23,    4.30001,    0,    0,    0.836895,    -0.547363},
+    {5443.51,    -2675.44,    1487.12,    2.90986,    0,    0,    0.993295,    0.115606},
+    {5391.72,    -2647.3,    1528.9,        3.76987,    0,    0,    0.951063,    -0.308997},
+    {5421.09,    -2734.12,    1521.01,    2.70567,    0,    0,    0.97634,    0.216242},
+    {5405.39,    -2710.33,    1533.77,    2.51324,    0,    0,    0.951052,    0.309032},
+    {5423.96,    -2703.76,    1516.34,    2.79206,    0,    0,    0.984767,    0.173879},
+    {5444.75,    -2735.23,    1486.37,    2.22657,    0,    0,    0.897155,    0.441715},
+    {5570.98,    -2747.91,    1495.7,        5.14433,    0,    0,    0.53915,    -0.84221},
+    {5567.79,    -2673.9,    1484.66,    2.72529,    0,    0,    0.978415,    0.20665},
+    {5600.71,    -2696.8,    1500.42,    0.443704,    0,    0,    0.220036,    0.975492},
+    {5600.7,    -2693.04,    1515.2,        5.16003,    0,    0,    0.532522,    -0.846416},
+    {5627.56,    -2839.66,    1510.53,    5.41527,    0,    0,    0.420463,    -0.907309},
+    {5622.02,    -2868.71,    1516.22,    2.25482,    0,    0,    0.903303,    0.429002},
+    {5586.61,    -2878.97,    1510.34,    4.55604,    0,    0,    0.76017,    -0.649724},
+    {5583.78,    -2843.71,    1509.54,    5.35715,    0,    0,    0.44665,    -0.894709},
+    {5580.95,    -2811.3,    1513.3,        3.57587,    0,    0,    0.976518,    -0.215434},
+    {5542.52,    -2869.31,    1523.13,    5.23304,    0,    0,    0.501275,    -0.865288},
+    {5557.35,    -2866.36,    1518.76,    4.48299,    0,    0,    0.783388,    -0.621533},
+    {5380.91,    -2849.36,    1512.81,    3.90962,    0,    0,    0.927168,    -0.374646},
+    {5395.76,    -2881.41,    1521.11,    4.28426,    0,    0,    0.84118,    -0.540755},
+    {5374.87,    -2859.63,    1528.98,    3.30252,    0,    0,    0.996765,    -0.0803745},
+    {5356.07,    -2854.66,    1520.34,    5.83933,    0,    0,    0.220108,    -0.975475},
+    {5363.01,    -2975.72,    1539.02,    4.13738,    0,    0,    0.87859,    -0.477576},
+    {5336.85,    -2980.74,    1561.24,    5.11126,    0,    0,    0.553001,    -0.83318},
+    {5335.23,    -2974.62,    1540.05,    5.04451,    0,    0,    0.580496,    -0.814263},
+    {5422.37,    -2998.87,    1549.98,    4.51831,    0,    0,    0.772288,    -0.635272},
+    {5405.54,    -3014.6,    1562.16,    5.86761,    0,    0,    0.206298,    -0.978489},
+    {5427.96,    -3019.4,    1561.58,    3.53498,    0,    0,    0.980718,    -0.19543},
+    {5348.12,    -2977.84,    1582.47,    3.94025,    0,    0,    0.921323,    -0.388799},
+    {5331.12,    -2993.71,    1576.14,    0.0642734,    0,    0,    0.0321311,    0.999484},
+    {5321.63,    -2986.55,    1552.2,        5.29503,    0,    0,    0.474219,    -0.880407},
+    {5292.1,    -2914.36,    1529.52,    2.9742,        0,    0,    0.996499,    0.083601},
+    {5281.77,    -2926.5,    1530.62,    1.67829,    0,    0,    0.744071,    0.6681},
+    {5287.19,    -2909.94,    1543.49,    3.31192,    0,    0,    0.996376,    -0.0850591},
+    {5534.15,    -2679.35,    1483.61,    0.428685,    0,    0,    0.212705,    0.977116},
     {5545.43,    -2647.82,    1483.05,    5.38848,    0,    0,    0.432578,    -0.901596}
 };
 
@@ -333,7 +333,7 @@ void hyjalAI::JustSummoned(Creature *summoned)
     Summons.Summon(summoned);
 }
 
-void hyjalAI::SummonedCreatureDespawn(Creature* summoned) 
+void hyjalAI::SummonedCreatureDespawn(Creature* summoned)
 {
     Summons.Despawn(summoned);
 }
@@ -373,14 +373,14 @@ void hyjalAI::Reset()
             break;
     }
 
-    //Bools 
+    //Bools
     EventBegun = false;
     FirstBossDead = false;
     SecondBossDead = false;
     Summon = false;
     bRetreat = false;
     Debug = false;
-    
+
 
     //Flags
     m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
@@ -388,7 +388,7 @@ void hyjalAI::Reset()
     //Initialize spells
     memset(Spell, 0, sizeof(Spell));
 
-    
+
 
     //Reset Instance Data for trash count
     if(pInstance)
@@ -418,7 +418,7 @@ void hyjalAI::EnterEvadeMode()
 
     if(m_creature->isAlive())
         m_creature->GetMotionMaster()->MoveTargetedHome();
-    
+
     m_creature->SetLootRecipient(NULL);
 }
 
@@ -455,7 +455,7 @@ void hyjalAI::SummonCreature(uint32 entry, float Base[4][3])
     }
     Creature* pCreature = NULL;
     switch(entry)
-    {                
+    {
             case 17906:    //GARGOYLE
 
                 if(!FirstBossDead && (WaveCount == 1 || WaveCount == 3))
@@ -467,7 +467,7 @@ void hyjalAI::SummonCreature(uint32 entry, float Base[4][3])
                     pCreature = m_creature->SummonCreature(entry, SpawnPointSpecial[SPAWN_GARG_GATE][0]+irand(-10,10), SpawnPointSpecial[SPAWN_GARG_GATE][1]+irand(-10,10), SpawnPointSpecial[SPAWN_GARG_GATE][2]+irand(-10,10), 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
                 }
                 break;
-            case 17907:    //FROST_WYRM , 
+            case 17907:    //FROST_WYRM ,
                 if(FirstBossDead && WaveCount == 1)
                 {//summon at gate
                     pCreature = m_creature->SummonCreature(entry, SpawnPointSpecial[SPAWN_WYRM_GATE][0],SpawnPointSpecial[SPAWN_WYRM_GATE][1],SpawnPointSpecial[SPAWN_WYRM_GATE][2], 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
@@ -475,9 +475,9 @@ void hyjalAI::SummonCreature(uint32 entry, float Base[4][3])
                     pCreature = m_creature->SummonCreature(entry, SpawnPointSpecial[SPAWN_NEAR_TOWER][0], SpawnPointSpecial[SPAWN_NEAR_TOWER][1],SpawnPointSpecial[SPAWN_NEAR_TOWER][2], 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
                     if(pCreature)
                         ((hyjal_trashAI*)pCreature->AI())->useFlyPath = true;
-                }                
+                }
                 break;
-            case 17908:    //GIANT_INFERNAL  
+            case 17908:    //GIANT_INFERNAL
                 InfernalCount++;
                 if(InfernalCount > 7)InfernalCount = 0;
                 pCreature = m_creature->SummonCreature(entry, InfernalPos[InfernalCount][0], InfernalPos[InfernalCount][1], InfernalPos[InfernalCount][2], 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
@@ -485,9 +485,9 @@ void hyjalAI::SummonCreature(uint32 entry, float Base[4][3])
             default:
                 pCreature = m_creature->SummonCreature(entry, SpawnLoc[0], SpawnLoc[1], SpawnLoc[2], 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
                 break;
-             
+
     }
-    
+
     if(pCreature)
     {
         // Increment Enemy Count to be used in World States and instance script
@@ -497,21 +497,21 @@ void hyjalAI::SummonCreature(uint32 entry, float Base[4][3])
         pCreature->setActive(true);
         switch(entry)
         {
-            case NECROMANCER:  
-            case ABOMINATION:  
-            case GHOUL:     
-            case BANSHEE:  
-            case CRYPT_FIEND:    
-            case GARGOYLE:   
+            case NECROMANCER:
+            case ABOMINATION:
+            case GHOUL:
+            case BANSHEE:
+            case CRYPT_FIEND:
+            case GARGOYLE:
             case FROST_WYRM:
-            case GIANT_INFERNAL: 
-            case FEL_STALKER: 
-            case RAGE_WINTERCHILL:  
-            case ANETHERON: 
-            case KAZROGAL: 
-            case AZGALOR: 
+            case GIANT_INFERNAL:
+            case FEL_STALKER:
+            case RAGE_WINTERCHILL:
+            case ANETHERON:
+            case KAZROGAL:
+            case AZGALOR:
                 ((hyjal_trashAI*)pCreature->AI())->IsEvent = true;
-                break;  
+                break;
         }
         if(pInstance)
         {
@@ -647,12 +647,12 @@ void hyjalAI::Talk(uint32 id)
 void hyjalAI::UpdateWorldState(uint32 id, uint32 state)
 {
     Map * map = m_creature->GetMap();
-    
-    if(!map->IsDungeon()) 
+
+    if(!map->IsDungeon())
         return;
 
     Map::PlayerList const& players = map->GetPlayers();
-     
+
     if (!players.isEmpty())
     {
             for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
@@ -664,7 +664,7 @@ void hyjalAI::UpdateWorldState(uint32 id, uint32 state)
 }
 
 void hyjalAI::Retreat()
-{    
+{
     if(pInstance)
     {
         if(Faction == 0)
@@ -680,7 +680,7 @@ void hyjalAI::Retreat()
             pInstance->SetData(DATA_HORDE_RETREAT, 1);
             Creature* JainaDummy = m_creature->SummonCreature(JAINA,JainaDummySpawn[0][0],JainaDummySpawn[0][1],JainaDummySpawn[0][2],JainaDummySpawn[0][3],TEMPSUMMON_TIMED_DESPAWN,60000);
             if(JainaDummy)
-            {                
+            {
                 JainaDummy->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 ((hyjalAI*)JainaDummy->AI())->IsDummy = true;
                 DummyGuid = JainaDummy->GetGUID();
@@ -691,7 +691,7 @@ void hyjalAI::Retreat()
         }
     }
     SpawnVeins();
-    Overrun = true;    
+    Overrun = true;
     m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);//cant talk after overrun event started
 }
 
@@ -723,7 +723,7 @@ void hyjalAI::SpawnVeins()
 
 void hyjalAI::DeSpawnVeins()
 {
-    if(!pInstance)return;    
+    if(!pInstance)return;
     if(Faction == 1)
     {
         Creature* pUnit=Unit::GetCreature((*m_creature),pInstance->GetData64(DATA_JAINAPROUDMOORE));
@@ -767,7 +767,7 @@ void hyjalAI::UpdateAI(const uint32 diff)
         DoHide = false;
         switch(m_creature->GetEntry())
         {
-            case JAINA: 
+            case JAINA:
                 if(pInstance->GetData(DATA_ALLIANCE_RETREAT))
                 {
                     m_creature->SetVisibility(VISIBILITY_OFF);
@@ -775,7 +775,7 @@ void hyjalAI::UpdateAI(const uint32 diff)
                     HideNearPos(5037.76, -1889.71);
                     for(uint8 i = 0; i < 92; i++)//summon fires
                         m_creature->SummonGameObject(FLAMEOBJECT,AllianceFirePos[i][0],AllianceFirePos[i][1],AllianceFirePos[i][2],AllianceFirePos[i][3],AllianceFirePos[i][4],AllianceFirePos[i][5],AllianceFirePos[i][6],AllianceFirePos[i][7],0);
-            
+
                 }
                 else m_creature->SetVisibility(VISIBILITY_ON);
                 break;
@@ -788,11 +788,11 @@ void hyjalAI::UpdateAI(const uint32 diff)
                     HideNearPos(5542.2, -2629.36);
                     for(uint8 i = 0; i < 65; i++)//summon fires
                         m_creature->SummonGameObject(FLAMEOBJECT,HordeFirePos[i][0],HordeFirePos[i][1],HordeFirePos[i][2],HordeFirePos[i][3],HordeFirePos[i][4],HordeFirePos[i][5],HordeFirePos[i][6],HordeFirePos[i][7],0);
-            
+
                 }
-                else m_creature->SetVisibility(VISIBILITY_ON);            
+                else m_creature->SetVisibility(VISIBILITY_ON);
                 break;
-        }        
+        }
     }
     if(DoRespawn)
     {
@@ -801,7 +801,7 @@ void hyjalAI::UpdateAI(const uint32 diff)
             DoRespawn = false;
             RespawnNearPos(m_creature->GetPositionX(), m_creature->GetPositionY());
             if(Faction == 0)
-            {        
+            {
                 RespawnNearPos(5037.76, -1889.71);
             }else if (Faction == 1)
             {
@@ -831,11 +831,11 @@ void hyjalAI::UpdateAI(const uint32 diff)
                     break;
                 case THRALL://thrall
                     HideNearPos(5563, -2763.19);
-                    HideNearPos(5542.2, -2629.36);        
+                    HideNearPos(5542.2, -2629.36);
                     HideNearPos(5603.75, -2853.12);
                     break;
             }
-            m_creature->SetVisibility(VISIBILITY_OFF);            
+            m_creature->SetVisibility(VISIBILITY_OFF);
         }else RetreatTimer -= diff;
     }
 
@@ -943,7 +943,7 @@ void hyjalAI::JustDied(Unit* killer)
         if(pInstance->GetData(DATA_AZGALOREVENT) == IN_PROGRESS)
             pInstance->SetData(DATA_AZGALOREVENT, NOT_STARTED);
         pInstance->SetData(DATA_RESET_RAIDDAMAGE, NULL);//reset damage on die
-    }    
+    }
 }
 void hyjalAI::HideNearPos(float x, float y)
 {
@@ -1093,14 +1093,14 @@ void hyjalAI::DoOverrun(uint32 faction, const uint32 diff)
         case 0://alliance
             for(uint8 i = 0; i < 92; i++)//summon fires
                 m_creature->SummonGameObject(FLAMEOBJECT,AllianceFirePos[i][0],AllianceFirePos[i][1],AllianceFirePos[i][2],AllianceFirePos[i][3],AllianceFirePos[i][4],AllianceFirePos[i][5],AllianceFirePos[i][6],AllianceFirePos[i][7],0);
-            
+
             for(uint8 i = 0; i < 25; i++)//summon 25 ghouls
             {
                 uint8 r = rand()%4;
                 Creature* pUnit = m_creature->SummonCreature(GHOUL, AllianceBase[r][0]+irand(-15,15), AllianceBase[r][1]+irand(-15,15), AllianceBase[r][2], 0, TEMPSUMMON_MANUAL_DESPAWN, 2*60*1000);
                 if(pUnit)
                 {
-                    ((hyjal_trashAI*)pUnit->AI())->faction = Faction;                    
+                    ((hyjal_trashAI*)pUnit->AI())->faction = Faction;
                     ((hyjal_trashAI*)pUnit->AI())->IsOverrun = true;
                     ((hyjal_trashAI*)pUnit->AI())->OverrunType = i;
                     pUnit->setActive(true);
@@ -1112,7 +1112,7 @@ void hyjalAI::DoOverrun(uint32 faction, const uint32 diff)
                 Creature* pUnit = m_creature->SummonCreature(ABOMINATION, AllianceBase[r][0]+irand(-15,15), AllianceBase[r][1]+irand(-15,15), AllianceBase[r][2], 0, TEMPSUMMON_MANUAL_DESPAWN, 2*60*1000);
                 if(pUnit)
                 {
-                    ((hyjal_trashAI*)pUnit->AI())->faction = Faction;                    
+                    ((hyjal_trashAI*)pUnit->AI())->faction = Faction;
                     ((hyjal_trashAI*)pUnit->AI())->IsOverrun = true;
                     ((hyjal_trashAI*)pUnit->AI())->OverrunType = i;
                     pUnit->setActive(true);
@@ -1124,28 +1124,28 @@ void hyjalAI::DoOverrun(uint32 faction, const uint32 diff)
                 if(pUnit)
                 {
                     pUnit->SetHomePosition(AllianceOverrunGargPos[i][0], AllianceOverrunGargPos[i][1], AllianceOverrunGargPos[i][2], AllianceOverrunGargPos[i][3]);
-                    ((hyjal_trashAI*)pUnit->AI())->faction = Faction;                    
+                    ((hyjal_trashAI*)pUnit->AI())->faction = Faction;
                     ((hyjal_trashAI*)pUnit->AI())->IsOverrun = true;
                     ((hyjal_trashAI*)pUnit->AI())->OverrunType = i;
                     pUnit->setActive(true);
                 }
             }
             break;
-        case 1://horde    
+        case 1://horde
             for(uint8 i = 0; i < 65; i++)//summon fires
                 m_creature->SummonGameObject(FLAMEOBJECT,HordeFirePos[i][0],HordeFirePos[i][1],HordeFirePos[i][2],HordeFirePos[i][3],HordeFirePos[i][4],HordeFirePos[i][5],HordeFirePos[i][6],HordeFirePos[i][7],0);
-            
+
             for(uint8 i = 0; i < 26; i++)//summon infernals
             {
                 Creature* pUnit = m_creature->SummonCreature(GIANT_INFERNAL, InfernalSPWP[i][0], InfernalSPWP[i][1], InfernalSPWP[i][2], InfernalSPWP[i][3], TEMPSUMMON_MANUAL_DESPAWN, 2*60*1000);
                 if(pUnit)
                 {
                     pUnit->SetHomePosition(InfernalSPWP[i][0], InfernalSPWP[i][1], InfernalSPWP[i][2], InfernalSPWP[i][3]);
-                    ((hyjal_trashAI*)pUnit->AI())->faction = Faction;                    
+                    ((hyjal_trashAI*)pUnit->AI())->faction = Faction;
                     ((hyjal_trashAI*)pUnit->AI())->IsOverrun = true;
                     ((hyjal_trashAI*)pUnit->AI())->OverrunType = i;
                     pUnit->setActive(true);
-                }            
+                }
             }
             for(uint8 i = 0; i < 25; i++)//summon 25 ghouls
             {
@@ -1153,7 +1153,7 @@ void hyjalAI::DoOverrun(uint32 faction, const uint32 diff)
                 Creature* pUnit = m_creature->SummonCreature(GHOUL, HordeBase[r][0]+irand(-15,15), HordeBase[r][1]+irand(-15,15), HordeBase[r][2], 0, TEMPSUMMON_MANUAL_DESPAWN, 2*60*1000);
                 if(pUnit)
                 {
-                    ((hyjal_trashAI*)pUnit->AI())->faction = Faction;                    
+                    ((hyjal_trashAI*)pUnit->AI())->faction = Faction;
                     ((hyjal_trashAI*)pUnit->AI())->IsOverrun = true;
                     ((hyjal_trashAI*)pUnit->AI())->OverrunType = i;
                     pUnit->setActive(true);
@@ -1165,7 +1165,7 @@ void hyjalAI::DoOverrun(uint32 faction, const uint32 diff)
                 Creature* pUnit = m_creature->SummonCreature(ABOMINATION, HordeBase[r][0]+irand(-15,15), HordeBase[r][1]+irand(-15,15), HordeBase[r][2], 0, TEMPSUMMON_MANUAL_DESPAWN, 2*60*1000);
                 if(pUnit)
                 {
-                    ((hyjal_trashAI*)pUnit->AI())->faction = Faction;                    
+                    ((hyjal_trashAI*)pUnit->AI())->faction = Faction;
                     ((hyjal_trashAI*)pUnit->AI())->IsOverrun = true;
                     ((hyjal_trashAI*)pUnit->AI())->OverrunType = i;
                     pUnit->setActive(true);

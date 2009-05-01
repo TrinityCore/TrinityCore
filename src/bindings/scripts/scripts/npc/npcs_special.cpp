@@ -73,8 +73,10 @@ struct TRINITY_DLL_DECL npc_chicken_cluckAI : public ScriptedAI
         if(m_creature->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER))
         {
             if(ResetFlagTimer < diff)
+            {
                 EnterEvadeMode();
-            else ResetFlagTimer -= diff;
+                return;
+            }else ResetFlagTimer -= diff;
         }
 
         if(UpdateVictim())

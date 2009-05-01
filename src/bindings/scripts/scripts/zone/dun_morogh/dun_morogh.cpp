@@ -62,7 +62,10 @@ struct TRINITY_DLL_DECL npc_narm_faulkAI : public ScriptedAI
        if (m_creature->IsStandState())
         {
             if(lifeTimer < diff)
-                m_creature->AI()->EnterEvadeMode();
+            {
+                EnterEvadeMode();
+                return;
+            }
             else
                 lifeTimer -= diff;
         }

@@ -141,8 +141,10 @@ struct TRINITY_DLL_DECL mob_mature_netherwing_drakeAI : public ScriptedAI
 
         if(Evade)
             if(ResetTimer < diff)
+            {
                 EnterEvadeMode();
-        else ResetTimer -= diff;
+                return;
+            }else ResetTimer -= diff;
 
         if(!UpdateVictim())
             return;
@@ -697,12 +699,16 @@ struct TRINITY_DLL_DECL npc_overlord_morghorAI : public ScriptedAI
         m_creature->SetUInt32Value(UNIT_NPC_FLAGS, 0);
         m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
         Unit* Illidan = m_creature->SummonCreature(C_ILLIDAN, -5107.83, 602.584, 85.2393, 4.92598, TEMPSUMMON_CORPSE_DESPAWN, 0);
-        IllidanGUID = Illidan->GetGUID();
-        Illidan->SetVisibility(VISIBILITY_OFF);
+        if(Illidan)
+        {
+            IllidanGUID = Illidan->GetGUID();
+            Illidan->SetVisibility(VISIBILITY_OFF);
+        }
         if(PlayerGUID)
         {
             Player* player = Unit::GetPlayer(PlayerGUID);
-            DoScriptText(OVERLORD_SAY_1, m_creature, player);
+            if(player)
+                DoScriptText(OVERLORD_SAY_1, m_creature, player);
         }
         ConversationTimer = 4200;
         Step = 0;

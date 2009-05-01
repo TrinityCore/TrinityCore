@@ -122,7 +122,8 @@ struct TRINITY_DLL_DECL boss_jandicebarovAI : public ScriptedAI
             for(int i = 0; i < 10;i++)
             {
                 target = SelectUnit(SELECT_TARGET_RANDOM,0);
-                SummonIllusions(target);
+                if(target)
+                    SummonIllusions(target);
             }
             Invisible = true;
             Invisible_Timer = 3000;

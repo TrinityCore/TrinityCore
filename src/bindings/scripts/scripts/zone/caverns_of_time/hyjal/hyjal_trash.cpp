@@ -30,21 +30,21 @@ float AllianceWPs[8][3]=//basic waypoints from spawn to leader
     {4989.16,    -1716.67,    1335.74},//first WP in the base, after the gate
     {5026.27,    -1736.89,    1323.02},
     {5037.77,    -1770.56,    1324.36},
-    {5067.23,    -1789.95,    1321.17}    
+    {5067.23,    -1789.95,    1321.17}
 };
 
 float FrostWyrmWPs[3][3]=//waypoints for the frost wyrms in horde base
 {
     {5580.82,    -2628.83,    1528.28},
     {5550.90,    -2667.16,    1505.45},
-    {5459.64,    -2725.91,    1484.83}    
+    {5459.64,    -2725.91,    1484.83}
 };
 
 float GargoyleWPs[3][3]=//waypoints for the gargoyles in horde base
-{    
+{
     {5533.66,    -2634.32,    1495.33},
-    {5517.88,    -2712.05,    1490.54},    
-    {5459.64,    -2725.91,    1484.83}    
+    {5517.88,    -2712.05,    1490.54},
+    {5459.64,    -2725.91,    1484.83}
 };
 
 float FlyPathWPs[3][3]=//waypoints for the gargoyls and frost wyrms in horde base in wave 1/3
@@ -115,7 +115,7 @@ float AllianceOverrunWP[55][3]=//waypoints in the alliance base used in the end 
 };
 
 float HordeOverrunWP[21][3]=//waypoints in the horde base used in the end in the cleaning wave
-{    
+{
     {5490.72,-2702.94,1482.14},//0 start
     {5469.77,-2741.34,1486.95},
     {5439.47,-2771.02,1494.59},
@@ -160,7 +160,7 @@ void hyjal_trashAI::DamageTaken(Unit *done_by, uint32 &damage)
     {
         damageTaken += damage;
         if(pInstance)
-            pInstance->SetData(DATA_RAIDDAMAGE,damage);//store raid's damage    
+            pInstance->SetData(DATA_RAIDDAMAGE,damage);//store raid's damage
     }
 }
 
@@ -170,7 +170,7 @@ void hyjal_trashAI::UpdateAI(const uint32 diff)
     {
         SetupOverrun = true;
         if(faction == 0)
-        {     
+        {
             if(m_creature->GetEntry() == GARGOYLE)
             {
                 DummyTarget[0] = AllianceOverrunWP[50+OverrunType][0]; //+OverrunType 0 - 4
@@ -191,7 +191,7 @@ void hyjal_trashAI::UpdateAI(const uint32 diff)
                         AddWaypoint( 8, AllianceOverrunWP[26][0]+irand(-3,3), AllianceOverrunWP[26][1]+irand(-3,3), AllianceOverrunWP[26][2]);
                         AddWaypoint( 9, AllianceOverrunWP[27][0]+irand(-3,3), AllianceOverrunWP[27][1]+irand(-3,3), AllianceOverrunWP[27][2]);
                         AddWaypoint(10, AllianceOverrunWP[28][0]+irand(-3,3), AllianceOverrunWP[28][1]+irand(-3,3), AllianceOverrunWP[28][2]);
-                        
+
                         AddWaypoint(11, AllianceOverrunWP[36][0]+irand(-3,3), AllianceOverrunWP[36][1]+irand(-3,3), AllianceOverrunWP[36][2]);
                         AddWaypoint(12, AllianceOverrunWP[37][0]+irand(-3,3), AllianceOverrunWP[37][1]+irand(-3,3), AllianceOverrunWP[37][2]);
                         AddWaypoint(13, AllianceOverrunWP[38][0]+irand(-3,3), AllianceOverrunWP[38][1]+irand(-3,3), AllianceOverrunWP[38][2]);
@@ -307,11 +307,11 @@ void hyjal_trashAI::UpdateAI(const uint32 diff)
                         LastOverronPos = 17;
                         Start(true, true, true);
                         break;
-                }        
-            }        
+                }
+            }
         }
         if(faction == 1)
-        {     
+        {
             if(m_creature->GetEntry() == GHOUL)
             {
                 for(uint8 i = 0; i < 6; i++)
@@ -355,7 +355,7 @@ void hyjal_trashAI::UpdateAI(const uint32 diff)
                     AddWaypoint( i+6, HordeOverrunWP[i][0]+irand(-10,10), HordeOverrunWP[i][1]+irand(-10,10), HordeOverrunWP[i][2]);
                 SetDespawnAtEnd(true);
                 LastOverronPos = 21;
-                Start(true, true, true); 
+                Start(true, true, true);
             }
         }
     }
@@ -382,7 +382,7 @@ struct mob_giant_infernalAI : public hyjal_trashAI
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_INVIS);
-        go = false;    
+        go = false;
         pos = 0;
         Reset();
     }
@@ -397,7 +397,7 @@ struct mob_giant_infernalAI : public hyjal_trashAI
     bool imol;
 
     void Reset()
-    {        
+    {
         spawnTimer = 2000;
         FlameBuffetTimer= 2000;
         imol = false;
@@ -459,7 +459,7 @@ struct mob_giant_infernalAI : public hyjal_trashAI
                     }else if (pInstance->GetData(DATA_ALLIANCE_RETREAT) && pInstance->GetData(DATA_HORDE_RETREAT)){
                         //do overrun
                     }
-                }        
+                }
             }else spawnTimer -= diff;
         }
         if(!CanMove)return;
@@ -510,7 +510,7 @@ struct mob_abominationAI : public hyjal_trashAI
     mob_abominationAI(Creature* c) : hyjal_trashAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        go = false;    
+        go = false;
         pos = 0;
         Reset();
     }
@@ -557,7 +557,7 @@ struct mob_abominationAI : public hyjal_trashAI
         if(IsEvent || IsOverrun)
             npc_escortAI::UpdateAI(diff);
         if (IsEvent)
-        {            
+        {
             if(!go)
             {
                 go = true;
@@ -576,7 +576,7 @@ struct mob_abominationAI : public hyjal_trashAI
                         ((npc_escortAI*)(m_creature->AI()))->Start(false, true, true);
                         ((npc_escortAI*)(m_creature->AI()))->SetDespawnAtEnd(false);
                     }
-                }            
+                }
             }
         }
         if(!m_creature->HasAura(SPELL_DISEASE_CLOUD))
@@ -605,7 +605,7 @@ struct mob_ghoulAI : public hyjal_trashAI
     mob_ghoulAI(Creature* c) : hyjal_trashAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        go = false;    
+        go = false;
         pos = 0;
         Reset();
     }
@@ -646,7 +646,7 @@ struct mob_ghoulAI : public hyjal_trashAI
                 m_creature->setDeathState(DEAD);
                 m_creature->RemoveCorpse();
             }
-        
+
         }
     }
 
@@ -677,14 +677,14 @@ struct mob_ghoulAI : public hyjal_trashAI
                         ((npc_escortAI*)(m_creature->AI()))->Start(false, true, true);
                         ((npc_escortAI*)(m_creature->AI()))->SetDespawnAtEnd(false);
                     }
-                }            
-            }        
+                }
+            }
         }
         if(FrenzyTimer<diff)
         {
             DoCast(m_creature,SPELL_FRENZY);
             FrenzyTimer = 15000+rand()%15000;
-        }else FrenzyTimer -= diff;        
+        }else FrenzyTimer -= diff;
         if (!UpdateVictim())
             return;
 
@@ -708,7 +708,7 @@ struct mob_necromancerAI : public hyjal_trashAI
     mob_necromancerAI(Creature* c) : hyjal_trashAI(c), summons(m_creature)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        go = false;    
+        go = false;
         pos = 0;
         Reset();
     }
@@ -796,8 +796,8 @@ struct mob_necromancerAI : public hyjal_trashAI
                         ((npc_escortAI*)(m_creature->AI()))->Start(true, true, true);
                         ((npc_escortAI*)(m_creature->AI()))->SetDespawnAtEnd(false);
                     }
-                }            
-            }        
+                }
+            }
         }
         if (!UpdateVictim())
             return;
@@ -805,7 +805,7 @@ struct mob_necromancerAI : public hyjal_trashAI
         {
             DoCast(m_creature->getVictim(),SPELL_SHADOW_BOLT);
             ShadowBoltTimer = 20000+rand()%10000;
-        }else ShadowBoltTimer -= diff;        
+        }else ShadowBoltTimer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -826,7 +826,7 @@ struct mob_bansheeAI : public hyjal_trashAI
     mob_bansheeAI(Creature* c) : hyjal_trashAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        go = false;    
+        go = false;
         pos = 0;
         Reset();
     }
@@ -888,8 +888,8 @@ struct mob_bansheeAI : public hyjal_trashAI
                         ((npc_escortAI*)(m_creature->AI()))->Start(false, true, true);
                         ((npc_escortAI*)(m_creature->AI()))->SetDespawnAtEnd(false);
                     }
-                }            
-            }        
+                }
+            }
         }
         if (!UpdateVictim())
             return;
@@ -925,7 +925,7 @@ struct mob_crypt_fiendAI : public hyjal_trashAI
     mob_crypt_fiendAI(Creature* c) : hyjal_trashAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        go = false;    
+        go = false;
         pos = 0;
         Reset();
     }
@@ -984,8 +984,8 @@ struct mob_crypt_fiendAI : public hyjal_trashAI
                         ((npc_escortAI*)(m_creature->AI()))->SetDespawnAtEnd(false);
                     }
 
-                }            
-            }        
+                }
+            }
         }
         if (!UpdateVictim())
             return;
@@ -1011,7 +1011,7 @@ struct mob_fel_stalkerAI : public hyjal_trashAI
     mob_fel_stalkerAI(Creature* c) : hyjal_trashAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        go = false;    
+        go = false;
         pos = 0;
         Reset();
     }
@@ -1070,8 +1070,8 @@ struct mob_fel_stalkerAI : public hyjal_trashAI
                         ((npc_escortAI*)(m_creature->AI()))->SetDespawnAtEnd(false);
                     }
 
-                }            
-            }        
+                }
+            }
         }
         if (!UpdateVictim())
             return;
@@ -1110,7 +1110,7 @@ struct mob_frost_wyrmAI : public hyjal_trashAI
     void Reset()
     {
         FrostBreathTimer = 5000;
-        MoveTimer = 0;        
+        MoveTimer = 0;
         m_creature->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
     }
 
@@ -1125,7 +1125,7 @@ struct mob_frost_wyrmAI : public hyjal_trashAI
                 m_creature->AddThreat(target,0.0);
                 DoCast(target,SPELL_FROST_BREATH,true);
             }
-        }        
+        }
     }
 
     void JustDied(Unit *victim)
@@ -1150,8 +1150,8 @@ struct mob_frost_wyrmAI : public hyjal_trashAI
             ((hyjal_trashAI*)m_creature->AI())->SetCanMelee(false);
             npc_escortAI::UpdateAI(diff);
         }
-        if (IsEvent)        
-        {            
+        if (IsEvent)
+        {
             if(!go)
             {
                 go = true;
@@ -1169,8 +1169,8 @@ struct mob_frost_wyrmAI : public hyjal_trashAI
                         ((npc_escortAI*)(m_creature->AI()))->Start(false, true, true);
                         ((npc_escortAI*)(m_creature->AI()))->SetDespawnAtEnd(false);
                     }
-                }            
-            }        
+                }
+            }
         }
         if (!UpdateVictim())
             return;
@@ -1181,7 +1181,7 @@ struct mob_frost_wyrmAI : public hyjal_trashAI
                 MoveTimer = 2000;
             }else MoveTimer-=diff;
         }
-                
+
         if(FrostBreathTimer<diff)
         {
             if(m_creature->GetDistance(m_creature->getVictim()) < 25)
@@ -1190,7 +1190,7 @@ struct mob_frost_wyrmAI : public hyjal_trashAI
                 m_creature->StopMoving();
                 m_creature->GetMotionMaster()->Clear();
                 FrostBreathTimer = 4000;
-            }            
+            }
         }else FrostBreathTimer -= diff;
     }
 };
@@ -1219,15 +1219,15 @@ struct mob_gargoyleAI : public hyjal_trashAI
     uint32 pos;
     uint32 MoveTimer;
     float Zpos;
-    bool forcemove;    
+    bool forcemove;
 
     void Reset()
     {
         forcemove = true;
         Zpos = 10.0;
         StrikeTimer = 2000+rand()%5000;
-        MoveTimer = 0;        
-        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);        
+        MoveTimer = 0;
+        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
     }
 
     void WaypointReached(uint32 i)
@@ -1241,7 +1241,7 @@ struct mob_gargoyleAI : public hyjal_trashAI
                 m_creature->AddThreat(target,0.0);
                 DoCast(target,SPELL_GARGOYLE_STRIKE,true);
             }
-        }    
+        }
     }
 
     void JustDied(Unit *victim)
@@ -1251,7 +1251,7 @@ struct mob_gargoyleAI : public hyjal_trashAI
         z = m_creature->GetMap()->GetVmapHeight(x, y, z, true);
         m_creature->GetMotionMaster()->MovePoint(0,x,y,z);
         m_creature->Relocate(x,y,z,0);
-        hyjal_trashAI::JustDied(victim); 
+        hyjal_trashAI::JustDied(victim);
     }
 
     void UpdateAI(const uint32 diff)
@@ -1281,8 +1281,8 @@ struct mob_gargoyleAI : public hyjal_trashAI
                         ((npc_escortAI*)(m_creature->AI()))->Start(false, true, true);
                         ((npc_escortAI*)(m_creature->AI()))->SetDespawnAtEnd(false);
                     }
-                }            
-            }        
+                }
+            }
         }
         if(IsOverrun && !UpdateVictim())
         {
@@ -1290,7 +1290,7 @@ struct mob_gargoyleAI : public hyjal_trashAI
             {
                 if(StrikeTimer<diff)
                 {
-                    m_creature->CastSpell(DummyTarget[0],DummyTarget[1],DummyTarget[2],SPELL_GARGOYLE_STRIKE,false);                
+                    m_creature->CastSpell(DummyTarget[0],DummyTarget[1],DummyTarget[2],SPELL_GARGOYLE_STRIKE,false);
                     StrikeTimer = 2000+rand()%1000;
                 }else StrikeTimer -= diff;
                 }
@@ -1312,10 +1312,10 @@ struct mob_gargoyleAI : public hyjal_trashAI
                 m_creature->getVictim()->GetPosition(x,y,z);
                 m_creature->GetMotionMaster()->MovePoint(0,x,y,z+Zpos);
                 Zpos-=1.0;
-                if(Zpos<=0)Zpos=0;                
+                if(Zpos<=0)Zpos=0;
                 MoveTimer = 2000;
             }else MoveTimer-=diff;
-        }                
+        }
         if(StrikeTimer<diff)
         {
             if(m_creature->GetDistance(m_creature->getVictim()) < 20)

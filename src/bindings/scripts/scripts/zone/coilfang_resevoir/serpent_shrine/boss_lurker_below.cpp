@@ -76,7 +76,8 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
 {
     boss_the_lurker_belowAI(Creature *c) : Scripted_NoMovementAI(c), Summons(m_creature)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());        SpellEntry *TempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_SPOUT_ANIM);
+        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        SpellEntry *TempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_SPOUT_ANIM);
         if(TempSpell)
         {
             TempSpell->Effect[0] = 0;//remove all spell effect, only anim is needed
@@ -227,7 +228,7 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
              for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
              {
                  Player *target = i->getSource();
-                 if(target->isAlive() && m_creature->HasInArc((double)diff/20000*(double)M_PI*2,target) && m_creature->GetDistance(target) <= SPOUT_DIST && !target->IsInWater())
+                 if(target && target->isAlive() && m_creature->HasInArc((double)diff/20000*(double)M_PI*2,target) && m_creature->GetDistance(target) <= SPOUT_DIST && !target->IsInWater())
                      DoCast(target,SPELL_SPOUT,true);//only knock back palyers in arc, in 100yards, not in water
              }
          }
@@ -370,7 +371,8 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
                          Summoned = m_creature->SummonCreature(MOB_COILFANG_AMBUSHER,AddPos[i][0],AddPos[i][1],AddPos[i][2], 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
                      else Summoned = m_creature->SummonCreature(MOB_COILFANG_GUARDIAN,AddPos[i][0],AddPos[i][1],AddPos[i][2], 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
 
-                     Summons.Summon(Summoned);
+                     if(Summoned)
+                        Summons.Summon(Summoned);
                      Spawned = true;
                  }
              }
