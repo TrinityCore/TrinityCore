@@ -561,8 +561,11 @@ bool GossipSelect_npc_thrall_old_hillsbrad(Player *player, Creature *_Creature, 
     {
         case GOSSIP_ACTION_INFO_DEF+1:
             player->CLOSE_GOSSIP_MENU();
-            pInstance->SetData(TYPE_THRALL_EVENT,IN_PROGRESS);
-            pInstance->SetData(TYPE_THRALL_PART1,IN_PROGRESS);
+            if(pInstance)
+            {
+                pInstance->SetData(TYPE_THRALL_EVENT,IN_PROGRESS);
+                pInstance->SetData(TYPE_THRALL_PART1,IN_PROGRESS);
+            }
 
             DoScriptText(SAY_TH_START_EVENT_PART1, _Creature);
 
@@ -580,7 +583,8 @@ bool GossipSelect_npc_thrall_old_hillsbrad(Player *player, Creature *_Creature, 
         case GOSSIP_ACTION_INFO_DEF+20:
             player->SEND_GOSSIP_MENU(GOSSIP_ID_SKARLOC3, _Creature->GetGUID());
             _Creature->SummonCreature(SKARLOC_MOUNT,2038.81,270.26,63.20,5.41,TEMPSUMMON_TIMED_DESPAWN,12000);
-            pInstance->SetData(TYPE_THRALL_PART2,IN_PROGRESS);
+            if(pInstance)
+                pInstance->SetData(TYPE_THRALL_PART2,IN_PROGRESS);
 
             DoScriptText(SAY_TH_START_EVENT_PART2, _Creature);
 
@@ -589,7 +593,8 @@ bool GossipSelect_npc_thrall_old_hillsbrad(Player *player, Creature *_Creature, 
 
         case GOSSIP_ACTION_INFO_DEF+3:
             player->CLOSE_GOSSIP_MENU();
-            pInstance->SetData(TYPE_THRALL_PART3,IN_PROGRESS);
+            if(pInstance)
+                pInstance->SetData(TYPE_THRALL_PART3,IN_PROGRESS);
             ((npc_thrall_old_hillsbradAI*)_Creature->AI())->StartWP();
             break;
     }
@@ -668,7 +673,8 @@ bool GossipSelect_npc_taretha(Player *player, Creature *_Creature, uint32 sender
 
         if( pInstance->GetData(TYPE_THRALL_EVENT) == IN_PROGRESS )
         {
-            pInstance->SetData(TYPE_THRALL_PART4,IN_PROGRESS);
+            if(pInstance)
+                pInstance->SetData(TYPE_THRALL_PART4,IN_PROGRESS);
             if(pInstance->GetData64(DATA_EPOCH) == 0)
                  _Creature->SummonCreature(ENTRY_EPOCH,2639.13,698.55,65.43,4.59,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,120000);
 

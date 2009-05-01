@@ -545,7 +545,8 @@ struct TRINITY_DLL_DECL boss_kiljaedenAI : public Scripted_NoMovementAI
             }
             target->GetPosition(x,y,z);
             Creature* SinisterReflection = m_creature->SummonCreature(CREATURE_SINISTER_REFLECTION, x,y,z,0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-            SinisterReflection->AI()->AttackStart(target);
+            if(SinisterReflection)
+                SinisterReflection->AI()->AttackStart(target);
         }
     }
 

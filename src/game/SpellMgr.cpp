@@ -119,8 +119,6 @@ SpellMgr::SpellMgr()
             case TARGET_UNIT_AREA_ENTRY:
             case TARGET_UNIT_AREA_PARTY_GROUND:
             case TARGET_UNIT_AREA_PARTY:
-            //case TARGET_UNIT_AREA_ENEMY_CHANNEL:
-            //case TARGET_UNIT_AREA_ALLY_CHANNEL:
                 SpellTargetType[i] = TARGET_TYPE_AREA_DEST;
                 break;
             case TARGET_DEST_TARGET_ENEMY:
@@ -153,6 +151,8 @@ SpellMgr::SpellMgr()
             case TARGET_DEST_CASTER_RADIUS:
                 SpellTargetType[i] = TARGET_TYPE_DEST_CASTER;
                 break;
+            case TARGET_DEST_DYNOBJ_ENEMY:
+            case TARGET_DEST_DYNOBJ_ALLY:
             case TARGET_DEST_DEST:
             case TARGET_DEST_DEST_FRONT_LEFT:
             case TARGET_DEST_DEST_BACK_LEFT:
@@ -182,9 +182,6 @@ SpellMgr::SpellMgr()
             case TARGET_UNIT_AREA_ENTRY:
             case TARGET_UNIT_AREA_PARTY_GROUND:
             case TARGET_UNIT_AREA_PARTY:
-            //Check persistant aura seperately
-            //case TARGET_UNIT_AREA_ENEMY_CHANNEL:
-            //case TARGET_UNIT_AREA_ALLY_CHANNEL:
             case TARGET_UNIT_PARTY_TARGET:
             case TARGET_UNIT_PARTY_CASTER:
             case TARGET_UNIT_CONE_ENEMY:
@@ -501,7 +498,7 @@ bool IsPositiveTarget(uint32 targetA, uint32 targetB)
         case TARGET_ALL_ENEMY_IN_AREA:
         case TARGET_ALL_ENEMY_IN_AREA_INSTANT:
         case TARGET_IN_FRONT_OF_CASTER:
-        case TARGET_ALL_ENEMY_IN_AREA_CHANNELED:
+        case TARGET_DEST_DYNOBJ_ENEMY:
         case TARGET_CURRENT_ENEMY_COORDINATES:
         case TARGET_UNIT_CHANNEL:
             return false;

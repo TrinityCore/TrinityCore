@@ -97,7 +97,6 @@ CreatureAI* GetAI_boss_maleki_the_pallid(Creature *_Creature)
     return new boss_maleki_the_pallidAI (_Creature);
 }
 
-
 void AddSC_boss_maleki_the_pallid()
 {
     Script *newscript;

@@ -75,7 +75,8 @@ struct TRINITY_DLL_DECL mob_webwrapAI : public ScriptedAI
             {
                 Unit* victim = NULL;
                 victim = Unit::GetUnit((*m_creature), victimGUID);
-                victim->RemoveAurasDueToSpell(SPELL_WEBTRAP);
+                if(victim)
+                    victim->RemoveAurasDueToSpell(SPELL_WEBTRAP);
             }
         }
     }

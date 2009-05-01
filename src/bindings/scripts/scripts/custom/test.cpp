@@ -47,8 +47,8 @@ struct TRINITY_DLL_DECL npc_testAI : public npc_escortAI
                 {
                     m_creature->Say("Wild Felboar attack!", LANG_UNIVERSAL, 0);
                     Creature* temp = m_creature->SummonCreature(21878, m_creature->GetPositionX()+5, m_creature->GetPositionY()+7, m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 3000);
-
-                    temp->AI()->AttackStart(m_creature);
+                    if(temp)
+                        temp->AI()->AttackStart(m_creature);
                 }
                 break;
 

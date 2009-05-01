@@ -293,6 +293,7 @@ struct TRINITY_DLL_DECL npc_barnesAI : public npc_escortAI
                     {
                         RaidWiped = true;
                         EnterEvadeMode();
+                        return;
                     }
 
                     WipeTimer = 15000;
@@ -533,6 +534,8 @@ struct TRINITY_DLL_DECL npc_image_of_medivhAI : public ScriptedAI
         Step = 1;
         EventStarted = true;
         Creature* Arcanagos = m_creature->SummonCreature(MOB_ARCANAGOS,ArcanagosPos[0],ArcanagosPos[1],ArcanagosPos[2],0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,20000);
+        if(!Arcanagos)
+            return;
         ArcanagosGUID = Arcanagos->GetGUID();
         Arcanagos->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
         (*Arcanagos).GetMotionMaster()->MovePoint(0,ArcanagosPos[0],ArcanagosPos[1],ArcanagosPos[2]);

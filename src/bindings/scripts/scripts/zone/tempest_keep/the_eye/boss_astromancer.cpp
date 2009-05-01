@@ -234,38 +234,38 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
                 Wrath_Timer = 20000+rand()%5000;
             }else Wrath_Timer -= diff;
 
-             if (ArcaneMissiles_Timer < diff)
-             {
-                 if(BlindingLight)
-                 {
-                     DoCast(m_creature->getVictim(), SPELL_BLINDING_LIGHT);
-                     BlindingLight = false;
-                 }else{
-                     Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0);
+            if (ArcaneMissiles_Timer < diff)
+            {
+                if(BlindingLight)
+                {
+                    DoCast(m_creature->getVictim(), SPELL_BLINDING_LIGHT);
+                    BlindingLight = false;
+                }else{
+                    Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0);
 
-                     if(!m_creature->HasInArc(2.5f, target))
-                         target = m_creature->getVictim();
+                    if(!m_creature->HasInArc(2.5f, target))
+                        target = m_creature->getVictim();
 
+                    if(target)
+                        DoCast(target, SPELL_ARCANE_MISSILES);
+                }
+                ArcaneMissiles_Timer = 3000;
+            }else ArcaneMissiles_Timer -= diff;
+
+            if (MarkOfTheSolarian_Timer < diff)
+            {
+                DoCast(m_creature->getVictim(), MARK_OF_SOLARIAN);
+                MarkOfTheSolarian_Timer = 45000;
+            }else MarkOfTheSolarian_Timer -= diff;
+
+            if (MarkOfTheAstromancer_Timer < diff) //A debuff that lasts for 5 seconds, cast several times each phase on a random raid member, but not the main tank
+            {
+                Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1, 100, true);
                 if(target)
-                    DoCast(target, SPELL_ARCANE_MISSILES);
-                 }
-                 ArcaneMissiles_Timer = 3000;
-             }else ArcaneMissiles_Timer -= diff;
-
-             if (MarkOfTheSolarian_Timer < diff)
-             {
-                 DoCast(m_creature->getVictim(), MARK_OF_SOLARIAN);
-                 MarkOfTheSolarian_Timer = 45000;
-             }else MarkOfTheSolarian_Timer -= diff;
-
-             if (MarkOfTheAstromancer_Timer < diff) //A debuff that lasts for 5 seconds, cast several times each phase on a random raid member, but not the main tank
-             {
-                 Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1, 100, true);
-                 if(target)
-                     DoCast(target, SPELL_MARK_OF_THE_ASTROMANCER);
-                 else DoCast(m_creature->getVictim(), SPELL_MARK_OF_THE_ASTROMANCER);
-                 MarkOfTheAstromancer_Timer = 15000;
-             }else MarkOfTheAstromancer_Timer -= diff;
+                    DoCast(target, SPELL_MARK_OF_THE_ASTROMANCER);
+                else DoCast(m_creature->getVictim(), SPELL_MARK_OF_THE_ASTROMANCER);
+                MarkOfTheAstromancer_Timer = 15000;
+            }else MarkOfTheAstromancer_Timer -= diff;
 
             //Phase1_Timer
             if (Phase1_Timer < diff)
@@ -384,6 +384,7 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
             m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_VOIDWALKER);
             m_creature->SetFloatValue(OBJECT_FIELD_SCALE_X, defaultsize*2.5f);
         }
+
         DoMeleeAttackIfReady();
     }
 };

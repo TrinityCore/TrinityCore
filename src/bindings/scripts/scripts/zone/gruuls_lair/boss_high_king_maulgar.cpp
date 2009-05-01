@@ -250,8 +250,8 @@ struct TRINITY_DLL_DECL boss_high_king_maulgarAI : public ScriptedAI
         //Whirlwind_Timer
                if (Whirlwind_Timer < diff)
                {
-                       DoCast(m_creature->getVictim(), SPELL_WHIRLWIND);
-                       Whirlwind_Timer = 55000;
+                    DoCast(m_creature->getVictim(), SPELL_WHIRLWIND);
+                    Whirlwind_Timer = 55000;
                }else Whirlwind_Timer -= diff;
 
         //MightyBlow_Timer
@@ -280,18 +280,19 @@ struct TRINITY_DLL_DECL boss_high_king_maulgarAI : public ScriptedAI
                 Unit* target = NULL;
                 target = SelectUnit(SELECT_TARGET_RANDOM, 0);
                 if (target)
+                {
                     AttackStart(target);
-                                       DoCast(target, SPELL_BERSERKER_C);
-
+                    DoCast(target, SPELL_BERSERKER_C);
+                }
                 Charging_Timer = 20000;
             }else Charging_Timer -= diff;
 
-                       //Intimidating Roar
-                       if(Roar_Timer < diff)
-                       {
-                               DoCast(m_creature, SPELL_ROAR);
-                               Roar_Timer = 40000+(rand()%10000);
-                       }else Roar_Timer -= diff;
+            //Intimidating Roar
+            if(Roar_Timer < diff)
+            {
+                DoCast(m_creature, SPELL_ROAR);
+                Roar_Timer = 40000+(rand()%10000);
+            }else Roar_Timer -= diff;
         }
 
         DoMeleeAttackIfReady();
@@ -316,7 +317,7 @@ struct TRINITY_DLL_DECL boss_olm_the_summonerAI : public ScriptedAI
     {
         DarkDecay_Timer = 10000;
         Summon_Timer = 15000;
-               DeathCoil_Timer = 20000;
+        DeathCoil_Timer = 20000;
 
         //reset encounter
         if (pInstance)
@@ -381,19 +382,19 @@ struct TRINITY_DLL_DECL boss_olm_the_summonerAI : public ScriptedAI
         //Summon_Timer
         if(Summon_Timer < diff)
         {
-                       DoCast(m_creature, SPELL_SUMMON_WFH);
-                       Summon_Timer = 30000;
+            DoCast(m_creature, SPELL_SUMMON_WFH);
+            Summon_Timer = 30000;
         }else Summon_Timer -= diff;
 
-               //DeathCoil Timer /need correct timer
-               if(DeathCoil_Timer < diff)
-               {
-                       Unit* target = NULL;
-                       target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                       if(target)
-                       DoCast(target, SPELL_DEATH_COIL);
-                       DeathCoil_Timer = 20000;
-               }else DeathCoil_Timer -= diff;
+        //DeathCoil Timer /need correct timer
+        if(DeathCoil_Timer < diff)
+        {
+            Unit* target = NULL;
+            target = SelectUnit(SELECT_TARGET_RANDOM, 0);
+            if(target)
+                DoCast(target, SPELL_DEATH_COIL);
+            DeathCoil_Timer = 20000;
+        }else DeathCoil_Timer -= diff;
 
 
         DoMeleeAttackIfReady();
@@ -445,9 +446,9 @@ struct TRINITY_DLL_DECL boss_kiggler_the_crazedAI : public ScriptedAI
 
             if(Maulgar)
                 ((boss_high_king_maulgarAI*)Maulgar->AI())->AddDeath();
-            
+
             if(CheckAllBossDied(pInstance, m_creature))
-                pInstance->SetData(DATA_MAULGAREVENT, DONE); 
+                pInstance->SetData(DATA_MAULGAREVENT, DONE);
         }
     }
 
@@ -553,7 +554,7 @@ struct TRINITY_DLL_DECL boss_blindeye_the_seerAI : public ScriptedAI
 
             if(Maulgar)
                 ((boss_high_king_maulgarAI*)Maulgar->AI())->AddDeath();
-            
+
             if(CheckAllBossDied(pInstance, m_creature))
                 pInstance->SetData(DATA_MAULGAREVENT, DONE);
         }

@@ -41,7 +41,7 @@ struct TRINITY_DLL_DECL boss_anetheronAI : public hyjal_trashAI
     boss_anetheronAI(Creature *c) : hyjal_trashAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        go = false;    
+        go = false;
         pos = 0;
         SpellEntry *TempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_SLEEP);
         if(TempSpell && TempSpell->EffectImplicitTargetA[0] != 1)
@@ -71,7 +71,7 @@ struct TRINITY_DLL_DECL boss_anetheronAI : public hyjal_trashAI
     }
 
     void EnterCombat(Unit *who)
-    {    
+    {
         if(pInstance && IsEvent)
             pInstance->SetData(DATA_ANETHERONEVENT, IN_PROGRESS);
         DoPlaySoundToSet(m_creature, SOUND_ONAGGRO);
@@ -89,12 +89,12 @@ struct TRINITY_DLL_DECL boss_anetheronAI : public hyjal_trashAI
             case 1:
                 DoPlaySoundToSet(m_creature, SOUND_ONSLAY2);
                 DoYell(SAY_ONSLAY2, LANG_UNIVERSAL, NULL);
-                break;        
+                break;
             case 2:
                 DoPlaySoundToSet(m_creature, SOUND_ONSLAY3);
                 DoYell(SAY_ONSLAY3, LANG_UNIVERSAL, NULL);
-                break;    
-        }        
+                break;
+        }
     }
 
     void WaypointReached(uint32 i)
@@ -105,7 +105,7 @@ struct TRINITY_DLL_DECL boss_anetheronAI : public hyjal_trashAI
             Unit* target = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_JAINAPROUDMOORE));
             if (target && target->isAlive())
                 m_creature->AddThreat(target,0.0);
-        }        
+        }
     }
 
     void JustDied(Unit *victim)
@@ -138,7 +138,7 @@ struct TRINITY_DLL_DECL boss_anetheronAI : public hyjal_trashAI
                     ((npc_escortAI*)(m_creature->AI()))->AddWaypoint(7, 5067.23,    -1789.95,    1321.17);
                     ((npc_escortAI*)(m_creature->AI()))->Start(false, true, true);
                     ((npc_escortAI*)(m_creature->AI()))->SetDespawnAtEnd(false);
-                }            
+                }
             }
         }
 
@@ -162,8 +162,8 @@ struct TRINITY_DLL_DECL boss_anetheronAI : public hyjal_trashAI
                 case 1:
                     DoPlaySoundToSet(m_creature, SOUND_SWARM2);
                     DoYell(SAY_SWARM2, LANG_UNIVERSAL, NULL);
-                    break;        
-            }    
+                    break;
+            }
         }else SwarmTimer -= diff;
 
         if(SleepTimer < diff)
@@ -184,13 +184,13 @@ struct TRINITY_DLL_DECL boss_anetheronAI : public hyjal_trashAI
                 case 1:
                     DoPlaySoundToSet(m_creature, SOUND_SLEEP2);
                     DoYell(SAY_SLEEP2, LANG_UNIVERSAL, NULL);
-                    break;        
-            }    
-        }else SleepTimer -= diff;        
+                    break;
+            }
+        }else SleepTimer -= diff;
         if(AuraTimer < diff)
         {
             DoCast(m_creature, SPELL_VAMPIRIC_AURA,true);
-            AuraTimer = 10000+rand()%10000;            
+            AuraTimer = 10000+rand()%10000;
         }else AuraTimer -= diff;
         if(InfernoTimer < diff)
         {
@@ -205,8 +205,8 @@ struct TRINITY_DLL_DECL boss_anetheronAI : public hyjal_trashAI
                 case 1:
                     DoPlaySoundToSet(m_creature, SOUND_INFERNO2);
                     DoYell(SAY_INFERNO2, LANG_UNIVERSAL, NULL);
-                    break;        
-            }    
+                    break;
+            }
         }else InfernoTimer -= diff;
 
         DoMeleeAttackIfReady();
@@ -243,18 +243,18 @@ struct TRINITY_DLL_DECL mob_towering_infernalAI : public ScriptedAI
     }
 
     void EnterCombat(Unit *who)
-    {    
-        
+    {
+
     }
 
     void KilledUnit(Unit *victim)
     {
-                
+
     }
 
     void JustDied(Unit *victim)
     {
-        
+
     }
 
     void MoveInLineOfSight(Unit *who)
@@ -286,7 +286,7 @@ struct TRINITY_DLL_DECL mob_towering_infernalAI : public ScriptedAI
 
         if(ImmolationTimer < diff)
         {
-            DoCast(m_creature, SPELL_IMMOLATION);        
+            DoCast(m_creature, SPELL_IMMOLATION);
             ImmolationTimer = 5000;
         }else ImmolationTimer -= diff;
 
@@ -310,5 +310,5 @@ void AddSC_boss_anetheron()
     newscript = new Script;
     newscript->Name="mob_towering_infernal";
     newscript->GetAI = &GetAI_mob_towering_infernal;
-    newscript->RegisterSelf();    
+    newscript->RegisterSelf();
 }

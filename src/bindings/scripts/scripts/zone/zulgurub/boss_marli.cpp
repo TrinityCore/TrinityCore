@@ -112,15 +112,21 @@ struct TRINITY_DLL_DECL boss_marliAI : public ScriptedAI
                 DoScriptText(SAY_SPIDER_SPAWN, m_creature);
 
                 Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0);
+                if(!target)
+                    return;
 
                 Spider = m_creature->SummonCreature(15041,target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                if(target && Spider ) Spider ->AI()->AttackStart(target);
+                if(Spider)
+                    Spider->AI()->AttackStart(target);
                 Spider = m_creature->SummonCreature(15041,target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                if(target && Spider ) Spider ->AI()->AttackStart(target);
+                if(Spider)
+                    Spider->AI()->AttackStart(target);
                 Spider = m_creature->SummonCreature(15041,target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                if(target && Spider ) Spider ->AI()->AttackStart(target);
+                if(Spider)
+                    Spider->AI()->AttackStart(target);
                 Spider = m_creature->SummonCreature(15041,target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                if(target && Spider ) Spider ->AI()->AttackStart(target);
+                if(Spider)
+                    Spider->AI()->AttackStart(target);
 
                 Spawned = true;
             }else SpawnStartSpiders_Timer -= diff;
@@ -128,10 +134,12 @@ struct TRINITY_DLL_DECL boss_marliAI : public ScriptedAI
             if (SpawnSpider_Timer < diff)
             {
                 Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0);
+                if(!target)
+                    return;
 
                 Spider = m_creature->SummonCreature(15041,target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                if (target && Spider )
-                    Spider ->AI()->AttackStart(target);
+                if(Spider)
+                    Spider->AI()->AttackStart(target);
                 SpawnSpider_Timer = 12000 + rand()%5000;
             }else SpawnSpider_Timer -= diff;
 
