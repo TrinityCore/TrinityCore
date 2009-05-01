@@ -1,21 +1,21 @@
 /* Script Data Start
 SDName: Boss ionar
 SDAuthor: LordVanMartin
-SD%Complete: 
-SDComment: 
-SDCategory: 
+SD%Complete:
+SDComment:
+SDCategory:
 Script Data End */
 
-/*** SQL START *** 
+/*** SQL START ***
 update creature_template set scriptname = 'boss_ionar' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
 
 //Spells
 #define SPELL_BALL_LIGHTNING                      52780
-#define SPELL_BALL_LIGHTNING_2                    59800 
+#define SPELL_BALL_LIGHTNING_2                    59800
 #define SPELL_DISPERSE                            52770 //Disperse into Sparks of Ionar.
-#define SPELL_STATIC_OVERLOAD                     52658 //Effect    Apply Aura: Periodic Trigger Interval: 2 seconds Spell 52659    
+#define SPELL_STATIC_OVERLOAD                     52658 //Effect    Apply Aura: Periodic Trigger Interval: 2 seconds Spell 52659
 #define SPELL_STATIC_OVERLOAD_2                   52658 //Effect    Apply Aura: Periodic Trigger Interval: 2 seconds Spell 59796
 
 //Spark of Ionar spells
@@ -37,23 +37,23 @@ update creature_template set scriptname = 'boss_ionar' where entry = '';
 struct TRINITY_DLL_DECL boss_ionarAI : public ScriptedAI
 {
     boss_ionarAI(Creature *c) : ScriptedAI(c) {}
-    
+
     void Reset() {}
-    void EnterCombat(Unit* who) 
+    void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if(!UpdateVictim())
             return;
-                
-        DoMeleeAttackIfReady();    
+
+        DoMeleeAttackIfReady();
     }
-    void JustDied(Unit* killer)  
+    void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
     }
@@ -78,13 +78,13 @@ struct TRINITY_DLL_DECL npc_spark_of_ionarAI : public ScriptedAI
     void EnterCombat(Unit* who) {}
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if(!UpdateVictim())
             return;
-                
-        DoMeleeAttackIfReady();    
+
+        DoMeleeAttackIfReady();
     }
     void JustDied(Unit* killer)  {}
 };
@@ -104,11 +104,11 @@ void AddSC_boss_ionar()
 
     newscript = new Script;
     newscript->Name="boss_ionar";
-    newscript->GetAI = GetAI_boss_ionar;
+    newscript->GetAI = &GetAI_boss_ionar;
     newscript->RegisterSelf();
-    
+
     newscript = new Script;
     newscript->Name="spark_of_ionar";
-    newscript->GetAI = GetAI_npc_spark_of_ionar;
+    newscript->GetAI = &GetAI_npc_spark_of_ionar;
     newscript->RegisterSelf();
 }

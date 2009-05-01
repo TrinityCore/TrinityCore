@@ -24,7 +24,7 @@ SDComment:  Only appears in heroic mode
 SDCategory: Ahn'kahet
 Script Data End */
 
-/*** SQL START *** 
+/*** SQL START ***
 update creature_template set scriptname = 'boss_amanitar' where entry = '';
 *** SQL END ***/
 
@@ -34,26 +34,26 @@ update creature_template set scriptname = 'boss_amanitar' where entry = '';
 #define SPELL_BASH                                   57094
 #define SPELL_ENTANGLING_ROOTS                       57095
 #define SPELL_MINI                                   57055
-#define SPELL_VENOM_BOLT_VOLLEY                      57088        
+#define SPELL_VENOM_BOLT_VOLLEY                      57088
 
 struct TRINITY_DLL_DECL boss_amanitarAI : public ScriptedAI
 {
     boss_amanitarAI(Creature *c) : ScriptedAI(c) {}
-    
+
     void Reset() {}
-    
+
     void EnterCombat(Unit* who) {}
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if(!UpdateVictim())
             return;
-            
+
         DoMeleeAttackIfReady();
     }
-    
+
     void JustDied(Unit* killer)  {}
 
     void KilledUnit(Unit *victim)
@@ -74,6 +74,6 @@ void AddSC_boss_amanitar()
 
     newscript = new Script;
     newscript->Name="boss_amanitar";
-    newscript->GetAI = GetAI_boss_amanitar;
+    newscript->GetAI = &GetAI_boss_amanitar;
     newscript->RegisterSelf();
 }

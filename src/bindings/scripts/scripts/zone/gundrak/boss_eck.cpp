@@ -1,12 +1,12 @@
 /* Script Data Start
 SDName: Boss Eck the Ferocious
 SDAuthor: LordVanMartin
-SD%Complete: 
+SD%Complete:
 SDComment: Only appears in Heroic mode
-SDCategory: 
+SDCategory:
 Script Data End */
 
-/*** SQL START *** 
+/*** SQL START ***
 update creature_template set scriptname = '' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
@@ -22,29 +22,29 @@ struct TRINITY_DLL_DECL boss_eckAI : public ScriptedAI
     boss_eckAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 berserk;
-    
-    void Reset() 
+
+    void Reset()
     {
         //Source Deadly Boss Mod
         berserk = 120000; //2min
     }
-    
+
     void EnterCombat(Unit* who) {}
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if(!UpdateVictim())
             return;
-            
+
         if(berserk < diff)
         {
             DoCast(m_creature,SPELL_ECK_BERSERK);
             berserk = 120000;
         }else berserk -= diff;
-                
-        DoMeleeAttackIfReady();    
+
+        DoMeleeAttackIfReady();
     }
     void JustDied(Unit* killer)  {}
 };
@@ -60,6 +60,6 @@ void AddSC_boss_eck()
 
     newscript = new Script;
     newscript->Name="boss_eck";
-    newscript->GetAI = GetAI_boss_eck;
+    newscript->GetAI = &GetAI_boss_eck;
     newscript->RegisterSelf();
 }

@@ -1,12 +1,12 @@
 /* Script Data Start
 SDName: Boss slad_ran
 SDAuthor: LordVanMartin
-SD%Complete: 
-SDComment: 
-SDCategory: 
+SD%Complete:
+SDComment:
+SDCategory:
 Script Data End */
 
-/*** SQL START *** 
+/*** SQL START ***
 update creature_template set scriptname = 'boss_slad_ran' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
@@ -29,20 +29,20 @@ update creature_template set scriptname = 'boss_slad_ran' where entry = '';
 #define SAY_SLAY_3                                -1604020
 #define SAY_DEATH                                 -1604021
 #define SAY_SUMMON_SNAKES                         -1604022  //npc 29680
-#define SAY_SUMMON_CONSTRICTORS                   -1604023  //npc 29713, can cast Grip of Slad'ran (spell 55093)      
+#define SAY_SUMMON_CONSTRICTORS                   -1604023  //npc 29713, can cast Grip of Slad'ran (spell 55093)
 
 struct TRINITY_DLL_DECL boss_slad_ranAI : public ScriptedAI
 {
     boss_slad_ranAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset() {}
-    void EnterCombat(Unit* who) 
+    void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if(!UpdateVictim())
@@ -58,10 +58,10 @@ struct TRINITY_DLL_DECL boss_slad_ranAI : public ScriptedAI
             //Summon 3 constrictors --> npc 29713
             DoScriptText(SAY_SUMMON_CONSTRICTORS,m_creature);
         }
-                
-        DoMeleeAttackIfReady();    
+
+        DoMeleeAttackIfReady();
     }
-    void JustDied(Unit* killer)  
+    void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
     }
@@ -90,6 +90,6 @@ void AddSC_boss_slad_ran()
 
     newscript = new Script;
     newscript->Name="boss_slad_ran";
-    newscript->GetAI = GetAI_boss_slad_ran;
+    newscript->GetAI = &GetAI_boss_slad_ran;
     newscript->RegisterSelf();
 }

@@ -40,12 +40,12 @@ EndScriptData */
 /* Script Data Start
 SDName: Boss hadronox
 SDAuthor: LordVanMartin
-SD%Complete: 
-SDComment: 
-SDCategory: 
+SD%Complete:
+SDComment:
+SDCategory:
 Script Data End */
 
-/*** SQL START *** 
+/*** SQL START ***
 update creature_template set scriptname = 'boss_hadronox' where entry = '';
 *** SQL END ***/
 
@@ -58,8 +58,8 @@ update creature_template set scriptname = 'boss_hadronox' where entry = '';
 //Phase 0 => Gauntlet Event described below
 //Phase 1 => Boss Encounter
 
-/*When your group enters the main room (the one after the bridge), you will notice a group of 3 Nerubians. 
-When you engage them, 2 more groups like this one spawn behind the first one - it is important to pull the first group back, 
+/*When your group enters the main room (the one after the bridge), you will notice a group of 3 Nerubians.
+When you engage them, 2 more groups like this one spawn behind the first one - it is important to pull the first group back,
 so you don't aggro all 3. Hadronox will be under you, fighting Nerubians.
 
 This is the timed gauntlet - waves of non-elite spiders
@@ -72,28 +72,28 @@ struct TRINITY_DLL_DECL boss_hadronoxAI : public ScriptedAI
     boss_hadronoxAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 phase;
-    
+
     void Reset() {}
     void EnterCombat(Unit* who) {}
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if(!UpdateVictim())
             return;
-     
+
         phase =1;
 
         DoMeleeAttackIfReady();
     }
     void JustDied(Unit* killer)  {}
-    
+
     void KilledUnit(Unit *victim)
     {
         if (victim == m_creature)
             return;
-            
+
     //when Hadronox kills any enemy (that includes a party member) she will regain 10% of her HP if the target had Leech Poison on
     }
 };
@@ -109,6 +109,6 @@ void AddSC_boss_hadronox()
 
     newscript = new Script;
     newscript->Name="boss_hadronox";
-    newscript->GetAI = GetAI_boss_hadronox;
+    newscript->GetAI = &GetAI_boss_hadronox;
     newscript->RegisterSelf();
 }

@@ -1,12 +1,12 @@
 /* Script Data Start
 SDName: Boss volkhan
 SDAuthor: LordVanMartin
-SD%Complete: 
-SDComment: 
-SDCategory: 
+SD%Complete:
+SDComment:
+SDCategory:
 Script Data End */
 
-/*** SQL START *** 
+/*** SQL START ***
 update creature_template set scriptname = 'boss_volkhan' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
@@ -35,23 +35,23 @@ update creature_template set scriptname = 'boss_volkhan' where entry = '';
 struct TRINITY_DLL_DECL boss_volkhanAI : public ScriptedAI
 {
     boss_volkhanAI(Creature *c) : ScriptedAI(c) {}
-    
+
     void Reset() {}
-    void EnterCombat(Unit* who) 
+    void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if(!UpdateVictim())
             return;
-                
-        DoMeleeAttackIfReady();    
+
+        DoMeleeAttackIfReady();
     }
-    void JustDied(Unit* killer)  
+    void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
     }
@@ -74,14 +74,14 @@ struct TRINITY_DLL_DECL boss_volkhanAI : public ScriptedAI
 //Molten Golem Spells
 #define SPELL_BLAST_WAVE                            23113
 #define SPELL_IMMOLATION_STRIKE                     52433
-#define SPELL_IMMOLATION_STRIKE_2                   59530 
+#define SPELL_IMMOLATION_STRIKE_2                   59530
 //Effect #1    Apply Aura: Periodic Damage, value: 900 every 3 seconds
 //Effect #2    School Damage (Fire), value: 900
 //Effect #3    Script Effect
-#define SPELL_SHATTER                               52429 
+#define SPELL_SHATTER                               52429
 //Effect #1    School Damage (Physical), value: 9250 to 10750, radius: 10 yards
 //Effect #2    Dummy, Server-side script
-#define SPELL_SHATTER_2    
+#define SPELL_SHATTER_2
 
 struct TRINITY_DLL_DECL mob_molten_golemAI : public ScriptedAI
 {
@@ -91,13 +91,13 @@ struct TRINITY_DLL_DECL mob_molten_golemAI : public ScriptedAI
     void EnterCombat(Unit* who) {}
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if(!UpdateVictim())
             return;
-                
-        DoMeleeAttackIfReady();    
+
+        DoMeleeAttackIfReady();
     }
     void JustDied(Unit* killer)  {}
 };
@@ -118,11 +118,11 @@ void AddSC_boss_volkhan()
 
     newscript = new Script;
     newscript->Name="boss_volkhan";
-    newscript->GetAI = GetAI_boss_volkhan;
+    newscript->GetAI = &GetAI_boss_volkhan;
     newscript->RegisterSelf();
-    
+
     newscript = new Script;
     newscript->Name="mob_molten_golem";
-    newscript->GetAI = GetAI_mob_molten_golem;
+    newscript->GetAI = &GetAI_mob_molten_golem;
     newscript->RegisterSelf();
 }

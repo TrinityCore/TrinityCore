@@ -1,12 +1,12 @@
 /* Script Data Start
 SDName: Boss anomalus
 SDAuthor: LordVanMartin
-SD%Complete: 
-SDComment: 
-SDCategory: 
+SD%Complete:
+SDComment:
+SDCategory:
 Script Data End */
 
-/*** SQL START *** 
+/*** SQL START ***
 update creature_template set scriptname = '' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
@@ -34,18 +34,18 @@ struct TRINITY_DLL_DECL boss_anomalusAI : public ScriptedAI
     boss_anomalusAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset() {}
-    void EnterCombat(Unit* who) 
+    void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if(!UpdateVictim())
             return;
-            
+
             //Source DBM
         if((((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 80) && ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) > 77))
             || (((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 55) && ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) > 52))
@@ -53,10 +53,10 @@ struct TRINITY_DLL_DECL boss_anomalusAI : public ScriptedAI
         {
                 //Summon rift at a random location
         }
-                
-        DoMeleeAttackIfReady();    
+
+        DoMeleeAttackIfReady();
     }
-    void JustDied(Unit* killer)  
+    void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
     }
@@ -79,13 +79,13 @@ struct TRINITY_DLL_DECL mob_crazed_mana_wraithAI : public ScriptedAI
 
     void Reset() {}
     void EnterCombat(Unit* who) {}
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if(!UpdateVictim())
             return;
-                
-        DoMeleeAttackIfReady();    
+
+        DoMeleeAttackIfReady();
     }
     void JustDied(Unit* killer)  {}
 };
@@ -102,13 +102,13 @@ struct TRINITY_DLL_DECL npc_chaotic_riftAI : public ScriptedAI
 
     void Reset() {}
     void EnterCombat(Unit* who) {}
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if(!UpdateVictim())
             return;
-                
-        DoMeleeAttackIfReady();    
+
+        DoMeleeAttackIfReady();
     }
     void JustDied(Unit* killer)  {}
 };
@@ -134,16 +134,16 @@ void AddSC_boss_anomalus()
 
     newscript = new Script;
     newscript->Name="boss_anomalus";
-    newscript->GetAI = GetAI_boss_anomalus;
+    newscript->GetAI = &GetAI_boss_anomalus;
     newscript->RegisterSelf();
-    
+
     newscript = new Script;
     newscript->Name="mob_crazed_mana_wraith";
-    newscript->GetAI = GetAI_mob_crazed_mana_wraith;
+    newscript->GetAI = &GetAI_mob_crazed_mana_wraith;
     newscript->RegisterSelf();
-    
+
     newscript = new Script;
     newscript->Name="npc_chaotic_rift";
-    newscript->GetAI = GetAI_npc_chaotic_rift;
+    newscript->GetAI = &GetAI_npc_chaotic_rift;
     newscript->RegisterSelf();
 }

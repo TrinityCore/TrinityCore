@@ -16,6 +16,6 @@ void AddSC_instance_obsidian_sanctum()
     Script *newscript;
     newscript = new Script;
     newscript->Name = "instance_obsidian_sanctum";
-    newscript->GetInstanceData = GetInstanceData_instance_obsidian_sanctum;
+    newscript->GetInstanceData = &GetInstanceData_instance_obsidian_sanctum;
     newscript->RegisterSelf();
 }

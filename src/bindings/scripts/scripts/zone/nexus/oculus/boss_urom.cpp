@@ -2,11 +2,11 @@
 SDName: Boss urom
 SDAuthor: LordVanMartin
 SD%Complete:  1%
-SDComment: 
-SDCategory: 
+SDComment:
+SDCategory:
 Script Data End */
 
-/*** SQL START *** 
+/*** SQL START ***
 update creature_template set scriptname = '' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
@@ -25,36 +25,36 @@ update creature_template set scriptname = '' where entry = '';
 
 //Yell
 #define SAY_AGGRO                             -1578012
-#define SAY_KILL_1                            -1578013 
-#define SAY_KILL_2                            -1578014 
-#define SAY_KILL_3                            -1578015 
+#define SAY_KILL_1                            -1578013
+#define SAY_KILL_2                            -1578014
+#define SAY_KILL_3                            -1578015
 #define SAY_DEATH                             -1578016
 #define SAY_EXPLOSION_1                       -1578017
-#define SAY_EXPLOSION_2                       -1578018      
-#define SAY_SUMMON_1                          -1578019   
-#define SAY_SUMMON_2                          -1578020   
-#define SAY_SUMMON_3                          -1578021   
+#define SAY_EXPLOSION_2                       -1578018
+#define SAY_SUMMON_1                          -1578019
+#define SAY_SUMMON_2                          -1578020
+#define SAY_SUMMON_3                          -1578021
 
 struct TRINITY_DLL_DECL boss_uromAI : public ScriptedAI
 {
     boss_uromAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset() {}
-    void EnterCombat(Unit* who) 
+    void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if(!UpdateVictim())
             return;
-                
-        DoMeleeAttackIfReady();    
+
+        DoMeleeAttackIfReady();
     }
-    void JustDied(Unit* killer)  
+    void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
     }
@@ -82,6 +82,6 @@ void AddSC_boss_urom()
 
     newscript = new Script;
     newscript->Name="boss_urom";
-    newscript->GetAI = GetAI_boss_urom;
+    newscript->GetAI = &GetAI_boss_urom;
     newscript->RegisterSelf();
 }

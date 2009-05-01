@@ -47,7 +47,7 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public ScriptedAI
     uint32 FrostAura_Timer;
     uint32 LifeDrain_Timer;
     uint32 Blizzard_Timer;
-    uint32 Tail_Sweep_Timer; 
+    uint32 Tail_Sweep_Timer;
     uint32 Cleave_Timer;
     uint32 Fly_Timer;
     uint32 Fly2_Timer;
@@ -104,14 +104,14 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public ScriptedAI
             if(Blizzard_Timer < diff)
             {
                 if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-                { 
+                {
                     DoCast(target,SPELL_BLIZZARD);
-                    //It seems NO damage?					
+                    //It seems NO damage?
                 }
                 Blizzard_Timer = 20000;
             }else Blizzard_Timer -= diff;
 
-            //SPELL_CLEAVE 
+            //SPELL_CLEAVE
             if(Cleave_Timer < diff)
             {
                 DoCast(m_creature->getVictim(),SPELL_CLEAVE);

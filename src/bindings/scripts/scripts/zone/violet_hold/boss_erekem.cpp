@@ -77,6 +77,6 @@ void AddSC_boss_erekem()
 
     newscript = new Script;
     newscript->Name="boss_erekem";
-    newscript->GetAI = GetAI_boss_erekem;
+    newscript->GetAI = &GetAI_boss_erekem;
     newscript->RegisterSelf();
 }

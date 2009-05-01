@@ -16,6 +16,6 @@ void AddSC_instance_halls_of_lightning()
     Script *newscript;
     newscript = new Script;
     newscript->Name = "instance_halls_of_lightning";
-    newscript->GetInstanceData = GetInstanceData_instance_halls_of_lightning;
+    newscript->GetInstanceData = &GetInstanceData_instance_halls_of_lightning;
     newscript->RegisterSelf();
 }

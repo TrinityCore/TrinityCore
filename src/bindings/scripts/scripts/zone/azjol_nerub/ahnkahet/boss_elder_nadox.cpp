@@ -19,7 +19,7 @@
 /* ScriptData
 SDName: boss_elder_nadox
 SD%Complete: 100
-SDComment: 
+SDComment:
 SDCategory: Ahn'kahet
 EndScriptData */
 
@@ -48,7 +48,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_elder_nadoxAI : public ScriptedAI
 {
-    boss_elder_nadoxAI(Creature *c) : ScriptedAI(c) 
+    boss_elder_nadoxAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         HeroicMode = c->GetMap()->IsHeroic();
@@ -99,7 +99,7 @@ struct TRINITY_DLL_DECL boss_elder_nadoxAI : public ScriptedAI
         }
     }
 
-    void JustDied(Unit* killer)  
+    void JustDied(Unit* killer)
     {
         DoScriptText(SAY_SLAY_3,m_creature);
 
@@ -180,7 +180,7 @@ CreatureAI* GetAI_boss_elder_nadox(Creature *_Creature)
 #define SPELL_SPRINT            56354
 struct TRINITY_DLL_DECL mob_ahnkahar_nerubianAI : public ScriptedAI
 {
-    mob_ahnkahar_nerubianAI(Creature *c) : ScriptedAI(c) 
+    mob_ahnkahar_nerubianAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
         Reset();

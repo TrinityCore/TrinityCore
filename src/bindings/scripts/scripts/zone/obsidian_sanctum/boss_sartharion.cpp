@@ -1,12 +1,12 @@
 /* Script Data Start
 SDName: Boss sartharion
 SDAuthor: LordVanMartin
-SD%Complete: 
-SDComment: 
-SDCategory: 
+SD%Complete:
+SDComment:
+SDCategory:
 Script Data End */
 
-/*** SQL START *** 
+/*** SQL START ***
 update creature_template set scriptname = '' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
@@ -50,7 +50,7 @@ update creature_template set scriptname = '' where entry = '';
 
 //Shadron
 #define MINIBOSS_SHADRON                              30451 //npc 30451  //In portal is a disciple, when disciple killed remove Power_of_vesperon, portal spawns multiple times
-#define BUFF_POWER_OF_SHADRON                         58105 //Shadron's presence increases Fire damage taken by all enemies by 100%.                     
+#define BUFF_POWER_OF_SHADRON                         58105 //Shadron's presence increases Fire damage taken by all enemies by 100%.
 
 //Tenebron
 #define MINIBOSS_TENEBRON                             30452 //npc 30452 //in the portal spawns 6 eggs, if not killed in time (approx. 20s)  they will hatch,  whelps can cast 60708
@@ -77,25 +77,25 @@ Hatch Eggs Tenebron summons a portal in which eggs are spawned. After about 20s 
 struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
 {
     boss_sartharionAI(Creature *c) : ScriptedAI(c) {}
-    
+
     bool berserk;
-    
-    void Reset() 
+
+    void Reset()
     {
         berserk = false;
     }
-    void EnterCombat(Unit* who) 
-	{
-		DoScriptText(SAY_SARTHARION_DEATH,m_creature);
-	}
+    void EnterCombat(Unit* who)
+    {
+        DoScriptText(SAY_SARTHARION_DEATH,m_creature);
+    }
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if(!UpdateVictim())
             return;
-            
+
         if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) <= 10)
         {
             if(!berserk){
@@ -103,13 +103,13 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
                 berserk = true;
             }
         }
-                
-        DoMeleeAttackIfReady();    
+
+        DoMeleeAttackIfReady();
     }
-    void JustDied(Unit* killer)  
-	{
-		DoScriptText(SAY_SARTHARION_DEATH,m_creature);
-	}
+    void JustDied(Unit* killer)
+    {
+        DoScriptText(SAY_SARTHARION_DEATH,m_creature);
+    }
 };
 
 /*######
@@ -129,24 +129,24 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
 struct TRINITY_DLL_DECL mob_vesperonAI : public ScriptedAI
 {
     mob_vesperonAI(Creature *c) : ScriptedAI(c) {}
-    
+
     void Reset() {}
-    void EnterCombat(Unit* who) 
-	{
-		DoScriptText(SAY_VESPERON_AGGRO,m_creature);
-	}
+    void EnterCombat(Unit* who)
+    {
+        DoScriptText(SAY_VESPERON_AGGRO,m_creature);
+    }
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if(!UpdateVictim())
             return;
-                
-        DoMeleeAttackIfReady();    
+
+        DoMeleeAttackIfReady();
     }
-    void JustDied(Unit* killer)  
-	{
-		DoScriptText(SAY_VESPERON_DEATH,m_creature);
-	}
+    void JustDied(Unit* killer)
+    {
+        DoScriptText(SAY_VESPERON_DEATH,m_creature);
+    }
 };
 
 /*######
@@ -168,22 +168,22 @@ struct TRINITY_DLL_DECL mob_shadronAI : public ScriptedAI
     mob_shadronAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset(){}
-    void EnterCombat(Unit* who) 
-	{
-		DoScriptText(SAY_SHADRON_AGGRO,m_creature);
-	}
+    void EnterCombat(Unit* who)
+    {
+        DoScriptText(SAY_SHADRON_AGGRO,m_creature);
+    }
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if(!UpdateVictim())
             return;
-            
-        DoMeleeAttackIfReady();    
+
+        DoMeleeAttackIfReady();
     }
-    void JustDied(Unit* killer)  
-	{
-		DoScriptText(SAY_SHADRON_DEATH,m_creature);
-	}
+    void JustDied(Unit* killer)
+    {
+        DoScriptText(SAY_SHADRON_DEATH,m_creature);
+    }
 };
 /*######
 ## Mob Tenebron
@@ -204,22 +204,22 @@ struct TRINITY_DLL_DECL mob_tenebronAI : public ScriptedAI
     mob_tenebronAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset() {}
-    void EnterCombat(Unit* who) 
-	{
-		DoScriptText(SAY_TENEBRON_AGGRO,m_creature);
-	}
+    void EnterCombat(Unit* who)
+    {
+        DoScriptText(SAY_TENEBRON_AGGRO,m_creature);
+    }
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if(!UpdateVictim())
             return;
-            
-        DoMeleeAttackIfReady();    
+
+        DoMeleeAttackIfReady();
     }
-    void JustDied(Unit* killer)  
-	{
-		DoScriptText(SAY_TENEBRON_DEATH,m_creature);
-	}
+    void JustDied(Unit* killer)
+    {
+        DoScriptText(SAY_TENEBRON_DEATH,m_creature);
+    }
 };
 
 /*######
@@ -228,9 +228,9 @@ struct TRINITY_DLL_DECL mob_tenebronAI : public ScriptedAI
 struct TRINITY_DLL_DECL mob_whelpAI : public ScriptedAI
 {
     mob_whelpAI(Creature *c) : ScriptedAI(c) {}
-    
+
     uint32 Fade_armor_Timer;
-    
+
     void Reset() {}
     void EnterCombat(Unit* who) {}
     void UpdateAI(const uint32 diff)
@@ -238,8 +238,8 @@ struct TRINITY_DLL_DECL mob_whelpAI : public ScriptedAI
         //Return since we have no target
         if(!UpdateVictim())
             return;
-            
-        DoMeleeAttackIfReady();    
+
+        DoMeleeAttackIfReady();
     }
     void JustDied(Unit* killer)  {}
 };
@@ -275,26 +275,26 @@ void AddSC_boss_sartharion()
 
     newscript = new Script;
     newscript->Name="boss_sartharion";
-    newscript->GetAI = GetAI_boss_sartharion;
+    newscript->GetAI = &GetAI_boss_sartharion;
     newscript->RegisterSelf();
-    
+
     newscript = new Script;
     newscript->Name="mob_vesperon";
-    newscript->GetAI = GetAI_mob_vesperon;
+    newscript->GetAI = &GetAI_mob_vesperon;
     newscript->RegisterSelf();
-    
+
     newscript = new Script;
     newscript->Name="mob_shadron";
-    newscript->GetAI = GetAI_mob_shadron;
-    newscript->RegisterSelf();    
+    newscript->GetAI = &GetAI_mob_shadron;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_tenebron";
-    newscript->GetAI = GetAI_mob_tenebron;
+    newscript->GetAI = &GetAI_mob_tenebron;
     newscript->RegisterSelf();
-    
+
     newscript = new Script;
     newscript->Name="mob_whelp";
-    newscript->GetAI = GetAI_mob_whelp;
+    newscript->GetAI = &GetAI_mob_whelp;
     newscript->RegisterSelf();
 }

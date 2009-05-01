@@ -16,6 +16,6 @@ void AddSC_instance_culling_of_stratholme()
     Script *newscript;
     newscript = new Script;
     newscript->Name = "instance_culling_of_stratholme";
-    newscript->GetInstanceData = GetInstanceData_instance_culling_of_stratholme;
+    newscript->GetInstanceData = &GetInstanceData_instance_culling_of_stratholme;
     newscript->RegisterSelf();
 }
