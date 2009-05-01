@@ -2434,8 +2434,7 @@ void Aura::HandleAuraModShapeshift(bool apply, bool Real)
         case FORM_FLIGHT:
         case FORM_MOONKIN:
             // remove movement affects
-            m_target->RemoveSpellsCausingAura(SPELL_AURA_MOD_ROOT);
-            m_target->RemoveSpellsCausingAura(SPELL_AURA_MOD_DECREASE_SPEED);
+            m_target->RemoveMovementImpairingAuras();
 
             // and polymorphic affects
             if(m_target->IsPolymorphed())

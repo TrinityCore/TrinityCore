@@ -503,6 +503,17 @@ void Unit::GetRandomContactPoint( const Unit* obj, float &x, float &y, float &z,
         , GetAngle(obj) + (attacker_number ? (M_PI/2 - M_PI * rand_norm()) * (float)attacker_number / combat_reach / 3 : 0));
 }
 
+void Unit::RemoveMovementImpairingAuras()
+{
+    for(AuraMap::iterator iter = m_Auras.begin(); iter != m_Auras.end();)
+    {
+        if(spellmgr.GetSpellCustomAttr(iter->second->GetId()) & SPELL_ATTR_CU_MOVEMENT_IMPAIR)
+            RemoveAura(iter);
+        else
+            ++iter;
+    }
+}
+
 void Unit::RemoveSpellsCausingAura(AuraType auraType)
 {
     if (auraType >= TOTAL_AURAS) return;
