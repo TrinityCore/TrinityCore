@@ -1,12 +1,12 @@
 /* Script Data Start
 SDName: Boss ormorok
 SDAuthor: LordVanMartin
-SD%Complete: 
-SDComment: 
-SDCategory: 
+SD%Complete:
+SDComment:
+SDCategory:
 Script Data End */
 
-/*** SQL START *** 
+/*** SQL START ***
 update creature_template set scriptname = '' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
@@ -34,23 +34,23 @@ struct TRINITY_DLL_DECL boss_ormorokAI : public ScriptedAI
     boss_ormorokAI(Creature *c) : ScriptedAI(c) {}
 
     bool   frenzy;
-    
-    void Reset() 
+
+    void Reset()
     {
         frenzy = false;
     }
-    void EnterCombat(Unit* who) 
+    void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if(!UpdateVictim())
             return;
-        
+
         if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) == 25)
         {
             if(!frenzy)
@@ -59,10 +59,10 @@ struct TRINITY_DLL_DECL boss_ormorokAI : public ScriptedAI
                 frenzy = true;
             }
         }
-                
-        DoMeleeAttackIfReady();    
+
+        DoMeleeAttackIfReady();
     }
-    void JustDied(Unit* killer)  
+    void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
     }
@@ -85,6 +85,6 @@ void AddSC_boss_ormorok()
 
     newscript = new Script;
     newscript->Name="boss_ormorok";
-    newscript->GetAI = GetAI_boss_ormorok;
+    newscript->GetAI = &GetAI_boss_ormorok;
     newscript->RegisterSelf();
 }

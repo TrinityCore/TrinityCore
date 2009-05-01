@@ -86,7 +86,7 @@ struct TRINITY_DLL_DECL boss_grobbulusAI : public ScriptedAI
                 case EVENT_CLOUD:
                     DoCastAOE(SPELL_POISON_CLOUD);
                     events.ScheduleEvent(EVENT_CLOUD, 15000);
-                    return; 
+                    return;
                 case EVENT_BERSERK:
                     DoCastAOE(SPELL_BERSERK);
                     return;

@@ -1,12 +1,12 @@
 /* Script Data Start
 SDName: Boss archavon
 SDAuthor: LordVanMartin
-SD%Complete: 
-SDComment: 
-SDCategory: 
+SD%Complete:
+SDComment:
+SDCategory:
 Script Data End */
 
-/*** SQL START *** 
+/*** SQL START ***
 update creature_template set scriptname = '' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
@@ -35,15 +35,15 @@ update creature_template set scriptname = '' where entry = '';
 struct TRINITY_DLL_DECL boss_archavonAI : public ScriptedAI
 {
     boss_archavonAI(Creature *c) : ScriptedAI(c) {}
-    
-    void Reset() {}    
+
+    void Reset() {}
     void EnterCombat(Unit* who)  {}
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if(!UpdateVictim())
             return;
-            
+
         DoMeleeAttackIfReady();
     }
 };
@@ -57,12 +57,12 @@ struct TRINITY_DLL_DECL mob_warderAI : public ScriptedAI //npc 32353
 
     void Reset() {}
     void EnterCombat(Unit* who) {}
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if(!UpdateVictim())
             return;
-        
+
         DoMeleeAttackIfReady();
     }
 };
@@ -83,11 +83,11 @@ void AddSC_boss_archavon()
 
     newscript = new Script;
     newscript->Name="boss_archavon";
-    newscript->GetAI = GetAI_boss_archavon;
+    newscript->GetAI = &GetAI_boss_archavon;
     newscript->RegisterSelf();
-    
+
     newscript = new Script;
     newscript->Name="mob_archavon_warder";
-    newscript->GetAI = GetAI_mob_warder;
+    newscript->GetAI = &GetAI_mob_warder;
     newscript->RegisterSelf();
 }

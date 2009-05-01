@@ -47,7 +47,7 @@ struct TRINITY_DLL_DECL boss_meathookAI : public ScriptedAI
     }
 
     void AttackStart(Unit* who) {}
-    
+
     std::list <Unit*>pList;
     void MoveInLineOfSight(Unit* who, const uint32 diff)
     {
@@ -133,6 +133,6 @@ void AddSC_boss_meathook()
 
     newscript = new Script;
     newscript->Name="boss_meathook";
-    newscript->GetAI = GetAI_boss_meathook;
+    newscript->GetAI = &GetAI_boss_meathook;
     newscript->RegisterSelf();
 }

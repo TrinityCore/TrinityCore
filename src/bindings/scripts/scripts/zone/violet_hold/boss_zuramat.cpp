@@ -77,6 +77,6 @@ void AddSC_boss_zuramat()
 
     newscript = new Script;
     newscript->Name="boss_zuramat";
-    newscript->GetAI = GetAI_boss_zuramat;
+    newscript->GetAI = &GetAI_boss_zuramat;
     newscript->RegisterSelf();
 }

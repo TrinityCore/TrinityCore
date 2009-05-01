@@ -24,7 +24,7 @@ SDComment: Placeholder
 SDCategory: Azjol Nerub
 EndScriptData */
 
-/*** SQL START *** 
+/*** SQL START ***
 update creature_template set scriptname = 'boss_krik_thir' where entry = '';
 *** SQL END ***/
 
@@ -61,27 +61,27 @@ update creature_template set scriptname = 'boss_krik_thir' where entry = '';
 struct TRINITY_DLL_DECL boss_krik_thirAI : public ScriptedAI
 {
     boss_krik_thirAI(Creature *c) : ScriptedAI(c) {}
-    
+
     void Reset() {}
-    
-    void EnterCombat(Unit* who) 
+
+    void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }
 
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         if(!UpdateVictim())
             return;
-        
+
         if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) >= 10)
         {
             //Frenzy
         }
-       
+
         DoMeleeAttackIfReady();
     }
-    void JustDied(Unit* killer)  
+    void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
     }
@@ -110,7 +110,7 @@ void AddSC_boss_krik_thir()
 
     newscript = new Script;
     newscript->Name="boss_krik_thir";
-    newscript->GetAI = GetAI_boss_krik_thir;
+    newscript->GetAI = &GetAI_boss_krik_thir;
     newscript->RegisterSelf();
 
 }

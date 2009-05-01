@@ -16,6 +16,6 @@ void AddSC_instance_eye_of_eternity()
     Script *newscript;
     newscript = new Script;
     newscript->Name = "instance_eye_of_eternity";
-    newscript->GetInstanceData = GetInstanceData_instance_eye_of_eternity;
+    newscript->GetInstanceData = &GetInstanceData_instance_eye_of_eternity;
     newscript->RegisterSelf();
 }

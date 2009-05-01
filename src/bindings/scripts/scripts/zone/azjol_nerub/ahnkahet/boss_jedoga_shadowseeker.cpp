@@ -24,7 +24,7 @@ SDComment:
 SDCategory: Ahn'kahet
 EndScriptData */
 
-/*** SQL START *** 
+/*** SQL START ***
 update creature_template set scriptname = 'boss_jedoga' where entry = '';
 *** SQL END ***/
 
@@ -48,7 +48,7 @@ update creature_template set scriptname = 'boss_jedoga' where entry = '';
 #define SAY_SLAY_2                                -1619006
 #define SAY_SLAY_3                                -1619007
 #define SAY_DEATH                                 -1619008
-#define SAY_PREACHING_1                           -1619009 
+#define SAY_PREACHING_1                           -1619009
 #define SAY_PREACHING_2                           -1619010
 #define SAY_PREACHING_3                           -1619011
 #define SAY_PREACHING_4                           -1619012
@@ -59,26 +59,26 @@ struct TRINITY_DLL_DECL boss_jedogaAI : public ScriptedAI
     boss_jedogaAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset() {}
-    void EnterCombat(Unit* who) 
+    void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if(!UpdateVictim())
             return;
-        
+
         DoMeleeAttackIfReady();
     }
-    
-    void JustDied(Unit* killer)  
+
+    void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
     }
-    
+
     void KilledUnit(Unit *victim)
     {
         if (victim == m_creature)
@@ -104,6 +104,6 @@ void AddSC_boss_jedoga()
 
     newscript = new Script;
     newscript->Name="boss_jedoga";
-    newscript->GetAI = GetAI_boss_jedoga;
+    newscript->GetAI = &GetAI_boss_jedoga;
     newscript->RegisterSelf();
 }

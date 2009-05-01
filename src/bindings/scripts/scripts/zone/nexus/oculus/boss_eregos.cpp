@@ -1,12 +1,12 @@
 /* Script Data Start
 SDName: Boss eregos
 SDAuthor: LordVanMartin
-SD%Complete: 
+SD%Complete:
 SDComment:  Encounter is done entirely on drake vehicles
-SDCategory: 
+SDCategory:
 Script Data End */
 
-/*** SQL START *** 
+/*** SQL START ***
 update creature_template set scriptname = '' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
@@ -25,9 +25,9 @@ update creature_template set scriptname = '' where entry = '';
 #define SPELL_ARCANE_BARRAGE_H                     59381
 #define SPELL_ARCANE_VOLLEY_H                      59382
 
-/*Ruby Drake , 
-(npc 27756) (item 37860) 
-(summoned by spell Ruby Essence = 37860 ---> Call Amber Drake == 49462 ---> Summon 27756) 
+/*Ruby Drake ,
+(npc 27756) (item 37860)
+(summoned by spell Ruby Essence = 37860 ---> Call Amber Drake == 49462 ---> Summon 27756)
 */
 #define NPC_RUBY_DRAKE_VEHICLE                     27756
 #define SPELL_RIDE_RUBY_DRAKE_QUE                  49463          //Apply Aura: Periodic Trigger, Interval: 3 seconds ---> 49464
@@ -38,12 +38,12 @@ update creature_template set scriptname = '' where entry = '';
 #define SPELL_RUBY_EVASIVE_MANEUVERS               50240          //Instant - 5 sec. cooldown - Allows your drake to dodge all incoming attacks and spells. Requires Evasive Charges to use. Each attack or spell dodged while this ability is active burns one Evasive Charge. Lasts 30 sec. or until all charges are exhausted.
 //you do not have acces to until you kill Mage-Lord Urom
 #define SPELL_RUBY_MARTYR                          50253          //Instant - 10 sec. cooldown - Redirect all harmful spells cast at friendly drakes to yourself for 10 sec.
-  
-/*Amber Drake, 
-(npc 27755)  (item 37859)  
-(summoned by spell Amber Essence = 37859 ---> Call Amber Drake == 49461 ---> Summon 27755) 
+
+/*Amber Drake,
+(npc 27755)  (item 37859)
+(summoned by spell Amber Essence = 37859 ---> Call Amber Drake == 49461 ---> Summon 27755)
 */
-#define NPC_AMBER_DRAKE_VEHICLE                    27755 
+#define NPC_AMBER_DRAKE_VEHICLE                    27755
 #define SPELL_RIDE_AMBER_DRAKE_QUE                 49459          //Apply Aura: Periodic Trigger, Interval: 3 seconds ---> 49460
 #define SPELL_AMBER_DRAKE_SADDLE                   49460          //Allows you to ride on the back of an Amber Drake. ---> Dummy
 
@@ -52,9 +52,9 @@ update creature_template set scriptname = '' where entry = '';
 //you do not have access to until you kill the  Mage-Lord Urom.
 #define SPELL_AMBER_TEMPORAL_RIFT                  49592         //(60 yds) - Channeled - Channels a temporal rift on an enemy dragon for 10 sec. While trapped in the rift, all damage done to the target is increased by 100%. In addition, for every 15,000 damage done to a target affected by Temporal Rift, 1 Shock Charge is generated.
 
-/*Emerald Drake, 
-(npc 27692)  (item 37815), 
- (summoned by spell Emerald Essence = 37815 ---> Call Emerald Drake == 49345 ---> Summon 27692) 
+/*Emerald Drake,
+(npc 27692)  (item 37815),
+ (summoned by spell Emerald Essence = 37815 ---> Call Emerald Drake == 49345 ---> Summon 27692)
 */
 #define NPC_EMERALD_DRAKE_VEHICLE                  27692
 #define SPELL_RIDE_EMERALD_DRAKE_QUE               49427         //Apply Aura: Periodic Trigger, Interval: 3 seconds ---> 49346
@@ -70,20 +70,20 @@ struct TRINITY_DLL_DECL boss_eregosAI : public ScriptedAI
     boss_eregosAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 phase;
-    
+
     void Reset() {}
     void EnterCombat(Unit* who) {}
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if(!UpdateVictim())
             return;
-            
-        phase =1;            
-    
-        DoMeleeAttackIfReady();    
+
+        phase =1;
+
+        DoMeleeAttackIfReady();
     }
     void JustDied(Unit* killer)  {}
 };
@@ -99,6 +99,6 @@ void AddSC_boss_eregos()
 
     newscript = new Script;
     newscript->Name="boss_eregos";
-    newscript->GetAI = GetAI_boss_eregos;
+    newscript->GetAI = &GetAI_boss_eregos;
     newscript->RegisterSelf();
 }

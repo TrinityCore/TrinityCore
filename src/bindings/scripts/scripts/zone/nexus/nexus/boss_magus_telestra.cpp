@@ -1,12 +1,12 @@
 /* Script Data Start
 SDName: Boss magus_telestra
 SDAuthor: LordVanMartin
-SD%Complete: 
-SDComment: 
-SDCategory: 
+SD%Complete:
+SDComment:
+SDCategory:
 Script Data End */
 
-/*** SQL START *** 
+/*** SQL START ***
 update creature_template set scriptname = '' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
@@ -45,8 +45,8 @@ update creature_template set scriptname = '' where entry = '';
 #define SPELL_TIME_STOP         47736
 
 //Yell
-#define SAY_AGGRO             -1576010   
-#define SAY_KILL              -1576011      
+#define SAY_AGGRO             -1576010
+#define SAY_KILL              -1576011
 #define SAY_DEATH             -1576012
 #define SAY_MERGE             -1576013
 #define SAY_SPLIT_1           -1576014
@@ -57,43 +57,43 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
 {
     boss_magus_telestraAI(Creature *c) : ScriptedAI(c) {}
 
-	bool splited;
-	uint64 Magus_frost,
-		   Magus_fire,
-		   Magus_arcane;
-    
-    void Reset() 
-	{
-		splited = false;
-	}
-    void EnterCombat(Unit* who) 
+    bool splited;
+    uint64 Magus_frost,
+           Magus_fire,
+           Magus_arcane;
+
+    void Reset()
+    {
+        splited = false;
+    }
+    void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if(!UpdateVictim())
             return;
-          
-		if(!splited)
-		{
-			if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) <= 50)
-			{
-				DoScriptText(SAY_SPLIT_1, m_creature);
-				//HandleSplit
-				splited = true;
-			}
-		}
-                
-        DoMeleeAttackIfReady();    
-	}
-    void JustDied(Unit* killer)  
-	{
-		DoScriptText(SAY_DEATH, m_creature);
-	}
+
+        if(!splited)
+        {
+            if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) <= 50)
+            {
+                DoScriptText(SAY_SPLIT_1, m_creature);
+                //HandleSplit
+                splited = true;
+            }
+        }
+
+        DoMeleeAttackIfReady();
+    }
+    void JustDied(Unit* killer)
+    {
+        DoScriptText(SAY_DEATH, m_creature);
+    }
     void KilledUnit(Unit *victim)
     {
         if(victim == m_creature)
@@ -113,6 +113,6 @@ void AddSC_boss_magus_telestra()
 
     newscript = new Script;
     newscript->Name="boss_magus_telestra";
-    newscript->GetAI = GetAI_boss_magus_telestra;
+    newscript->GetAI = &GetAI_boss_magus_telestra;
     newscript->RegisterSelf();
 }

@@ -1,12 +1,12 @@
 /* Script Data Start
 SDName: Boss Commander Kolurg
 SDAuthor: LordVanMartin
-SD%Complete: 
+SD%Complete:
 SDComment:  Only Alliance Heroic
-SDCategory: 
+SDCategory:
 Script Data End */
 
-/*** SQL START *** 
+/*** SQL START ***
 update creature_template set scriptname = 'boss_commander_kolurg' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
@@ -25,18 +25,18 @@ update creature_template set scriptname = 'boss_commander_kolurg' where entry = 
 struct TRINITY_DLL_DECL boss_commander_kolurgAI : public ScriptedAI
 {
     boss_commander_kolurgAI(Creature *c) : ScriptedAI(c) {}
-    
+
     void Reset() {}
     void EnterCombat(Unit* who) {}
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if(!UpdateVictim())
             return;
 
-        DoMeleeAttackIfReady();    
+        DoMeleeAttackIfReady();
     }
     void JustDied(Unit* killer)  {}
 };
@@ -52,6 +52,6 @@ void AddSC_boss_commander_kolurg()
 
     newscript = new Script;
     newscript->Name="boss_commander_kolurg";
-    newscript->GetAI = GetAI_boss_commander_kolurg;
+    newscript->GetAI = &GetAI_boss_commander_kolurg;
     newscript->RegisterSelf();
 }

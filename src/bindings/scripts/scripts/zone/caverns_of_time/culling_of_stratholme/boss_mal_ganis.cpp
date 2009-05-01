@@ -1,12 +1,12 @@
 /* Script Data Start
 SDName: Boss mal_ganis
 SDAuthor: LordVanMartin
-SD%Complete: 
-SDComment: 
-SDCategory: 
+SD%Complete:
+SDComment:
+SDCategory:
 Script Data End */
 
-/*** SQL START *** 
+/*** SQL START ***
 update creature_template set scriptname = 'boss_mal_ganis' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
@@ -34,61 +34,61 @@ update creature_template set scriptname = 'boss_mal_ganis' where entry = '';
 #define SAY_SLEEP_1                                  -1595020
 #define SAY_SLEEP_2                                  -1595021
 #define SAY_30HEALTH                                 -1595022
-#define SAY_15HEALTH                                 -1595023                             
-#define SAY_ESCAPE_SPEECH_1                          -1595024         
-#define SAY_ESCAPE_SPEECH_2                          -1595025                                   
+#define SAY_15HEALTH                                 -1595023
+#define SAY_ESCAPE_SPEECH_1                          -1595024
+#define SAY_ESCAPE_SPEECH_2                          -1595025
 
 struct TRINITY_DLL_DECL boss_mal_ganisAI : public ScriptedAI
 {
     boss_mal_ganisAI(Creature *c) : ScriptedAI(c) {}
 
-	bool yelled,
-		 yelled2,
+    bool yelled,
+         yelled2,
          yelled3;
-  
-    void Reset() 
-	{
-         yelled = false;
-		 yelled2 = false;
-         yelled3 = false;
-	}
 
-    void EnterCombat(Unit* who) 
+    void Reset()
     {
-		DoScriptText(SAY_AGGRO, m_creature);
-	}
+         yelled = false;
+         yelled2 = false;
+         yelled3 = false;
+    }
+
+    void EnterCombat(Unit* who)
+    {
+        DoScriptText(SAY_AGGRO, m_creature);
+    }
 
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if(!UpdateVictim())
             return;
 
-		if(!yelled)
-		{
-			if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 30)
-			{
-				DoScriptText(SAY_30HEALTH, m_creature);
-				yelled = true;
-			}
-		}
+        if(!yelled)
+        {
+            if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 30)
+            {
+                DoScriptText(SAY_30HEALTH, m_creature);
+                yelled = true;
+            }
+        }
 
-		if(!yelled2)
-		{
-			if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 15)
-			{
-				DoScriptText(SAY_15HEALTH, m_creature);
-				yelled2 = true;
-			}
-		}
+        if(!yelled2)
+        {
+            if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 15)
+            {
+                DoScriptText(SAY_15HEALTH, m_creature);
+                yelled2 = true;
+            }
+        }
 
-		if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 1)
-		{
-			//Handle Escape Event
-		}
-                
+        if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 1)
+        {
+            //Handle Escape Event
+        }
+
         DoMeleeAttackIfReady();
     }
     void JustDied(Unit* killer)  {}
@@ -118,6 +118,6 @@ void AddSC_boss_mal_ganis()
 
     newscript = new Script;
     newscript->Name="boss_mal_ganis";
-    newscript->GetAI = GetAI_boss_mal_ganis;
+    newscript->GetAI = &GetAI_boss_mal_ganis;
     newscript->RegisterSelf();
 }

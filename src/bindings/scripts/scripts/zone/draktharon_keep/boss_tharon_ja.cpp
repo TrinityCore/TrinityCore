@@ -1,12 +1,12 @@
 /* Script Data Start
 SDName: Boss tharon_ja
 SDAuthor: LordVanMartin
-SD%Complete: 
-SDComment: 
-SDCategory: 
+SD%Complete:
+SDComment:
+SDCategory:
 Script Data End */
 
-/*** SQL START *** 
+/*** SQL START ***
 update creature_template set scriptname = 'boss_tharon_ja' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
@@ -30,10 +30,10 @@ update creature_template set scriptname = 'boss_tharon_ja' where entry = '';
 #define SPELL_SHADOW_VOLLEY_H                         59973
 
 //Players skills durring Phase2
-#define PLAYER_PHASE2_SLAYING_STRIKE                  50799  
-#define PLAYER_PHASE2_TAUNT                           49613     
-#define PLAYER_PHASE2_BONE_ARMOR                      49609 
-#define PLAYER_PHASE2_TOUCH_OF_LIFE                   49617  
+#define PLAYER_PHASE2_SLAYING_STRIKE                  50799
+#define PLAYER_PHASE2_TAUNT                           49613
+#define PLAYER_PHASE2_BONE_ARMOR                      49609
+#define PLAYER_PHASE2_TOUCH_OF_LIFE                   49617
 //Phase 1 all abilities except Eye beam
 //Phase 2 turns players to skeletons with new abilities, boss grows skin
 
@@ -52,24 +52,24 @@ struct TRINITY_DLL_DECL boss_tharon_jaAI : public ScriptedAI
     boss_tharon_jaAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset() {}
-    void EnterCombat(Unit* who) 
-	{
-		DoScriptText(SAY_AGGRO, m_creature);
-	}
+    void EnterCombat(Unit* who)
+    {
+        DoScriptText(SAY_AGGRO, m_creature);
+    }
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if(!UpdateVictim())
             return;
-                
-        DoMeleeAttackIfReady();    
+
+        DoMeleeAttackIfReady();
     }
-    void JustDied(Unit* killer)  
-	{
-		DoScriptText(SAY_DEATH,m_creature);
-	}
+    void JustDied(Unit* killer)
+    {
+        DoScriptText(SAY_DEATH,m_creature);
+    }
 };
 
 CreatureAI* GetAI_boss_tharon_ja(Creature *_Creature)
@@ -83,6 +83,6 @@ void AddSC_boss_tharon_ja()
 
     newscript = new Script;
     newscript->Name="boss_tharon_ja";
-    newscript->GetAI = GetAI_boss_tharon_ja;
+    newscript->GetAI = &GetAI_boss_tharon_ja;
     newscript->RegisterSelf();
 }

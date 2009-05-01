@@ -1,23 +1,23 @@
 /* Script Data Start
 SDName: Boss loken
 SDAuthor: LordVanMartin
-SD%Complete: 
-SDComment: 
-SDCategory: 
+SD%Complete:
+SDComment:
+SDCategory:
 Script Data End */
 
-/*** SQL START *** 
+/*** SQL START ***
 update creature_template set scriptname = 'boss_loken' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
 
 //Spells
-#define SPELL_ARC_NOVA                            52921 
+#define SPELL_ARC_NOVA                            52921
 //Effect #1    School Damage (Nature), Value: 3238 to 3762
 //Effect #2    Apply Aura: Dummy,  Value: 3238 to 3762, Server-side script
 
 #define SPELL_LIGHTNING_NOVA                      52960
-#define SPELL_LIGHTNING_NOVA_2                    59835      
+#define SPELL_LIGHTNING_NOVA_2                    59835
 
 //Yell
 #define SAY_AGGRO                              -1602015
@@ -37,23 +37,23 @@ update creature_template set scriptname = 'boss_loken' where entry = '';
 struct TRINITY_DLL_DECL boss_lokenAI : public ScriptedAI
 {
     boss_lokenAI(Creature *c) : ScriptedAI(c) {}
-    
+
     void Reset() {}
-    void EnterCombat(Unit* who) 
+    void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if(!UpdateVictim())
             return;
-                
-        DoMeleeAttackIfReady();    
+
+        DoMeleeAttackIfReady();
     }
-    void JustDied(Unit* killer)  
+    void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
     }
@@ -81,6 +81,6 @@ void AddSC_boss_loken()
 
     newscript = new Script;
     newscript->Name="boss_loken";
-    newscript->GetAI = GetAI_boss_loken;
+    newscript->GetAI = &GetAI_boss_loken;
     newscript->RegisterSelf();
 }

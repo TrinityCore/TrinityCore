@@ -77,6 +77,6 @@ void AddSC_boss_xevozz()
 
     newscript = new Script;
     newscript->Name="boss_xevozz";
-    newscript->GetAI = GetAI_boss_xevozz;
+    newscript->GetAI = &GetAI_boss_xevozz;
     newscript->RegisterSelf();
 }
