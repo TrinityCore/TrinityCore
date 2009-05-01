@@ -2021,6 +2021,8 @@ void InstanceMap::CreateInstanceData(bool load)
     if(!i_data)
         return;
 
+    i_data->Initialize();
+
     if(load)
     {
         // TODO: make a global storage for this
@@ -2036,11 +2038,6 @@ void InstanceMap::CreateInstanceData(bool load)
             }
             delete result;
         }
-    }
-    else
-    {
-        sLog.outDebug("New instance data, \"%s\" ,initialized!", objmgr.GetScriptName(i_script_id));
-        i_data->Initialize();
     }
 }
 
