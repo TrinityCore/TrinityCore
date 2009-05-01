@@ -35,7 +35,7 @@ struct TRINITY_DLL_DECL boss_rage_winterchillAI : public hyjal_trashAI
     boss_rage_winterchillAI(Creature *c) : hyjal_trashAI(c)
     {
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        go = false;    
+        go = false;
         pos = 0;
     }
 
@@ -59,7 +59,7 @@ struct TRINITY_DLL_DECL boss_rage_winterchillAI : public hyjal_trashAI
     }
 
     void EnterCombat(Unit *who)
-    {    
+    {
         if(pInstance && IsEvent)
             pInstance->SetData(DATA_RAGEWINTERCHILLEVENT, IN_PROGRESS);
         DoPlaySoundToSet(m_creature, SOUND_ONAGGRO);
@@ -77,8 +77,8 @@ struct TRINITY_DLL_DECL boss_rage_winterchillAI : public hyjal_trashAI
             case 1:
                 DoPlaySoundToSet(m_creature, SOUND_ONSLAY2);
                 DoYell(SAY_ONSLAY2, LANG_UNIVERSAL, NULL);
-                break;        
-        }        
+                break;
+        }
     }
 
     void WaypointReached(uint32 i)
@@ -89,7 +89,7 @@ struct TRINITY_DLL_DECL boss_rage_winterchillAI : public hyjal_trashAI
             Unit* target = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_JAINAPROUDMOORE));
             if (target && target->isAlive())
                 m_creature->AddThreat(target,0.0);
-        }        
+        }
     }
 
     void JustDied(Unit *victim)
@@ -122,7 +122,7 @@ struct TRINITY_DLL_DECL boss_rage_winterchillAI : public hyjal_trashAI
                     ((npc_escortAI*)(m_creature->AI()))->AddWaypoint(7, 5067.23,    -1789.95,    1321.17);
                     ((npc_escortAI*)(m_creature->AI()))->Start(false, true, true);
                     ((npc_escortAI*)(m_creature->AI()))->SetDespawnAtEnd(false);
-                }            
+                }
             }
         }
 
@@ -148,8 +148,8 @@ struct TRINITY_DLL_DECL boss_rage_winterchillAI : public hyjal_trashAI
                 case 1:
                     DoPlaySoundToSet(m_creature, SOUND_DECAY2);
                     DoYell(SAY_DECAY2, LANG_UNIVERSAL, NULL);
-                    break;        
-            }    
+                    break;
+            }
         }else DecayTimer -= diff;
         if(NovaTimer < diff)
         {
@@ -164,7 +164,7 @@ struct TRINITY_DLL_DECL boss_rage_winterchillAI : public hyjal_trashAI
                 case 1:
                     DoPlaySoundToSet(m_creature, SOUND_NOVA2);
                     DoYell(SAY_NOVA2, LANG_UNIVERSAL, NULL);
-                    break;        
+                    break;
             }
         }else NovaTimer -= diff;
         if(IceboltTimer < diff)

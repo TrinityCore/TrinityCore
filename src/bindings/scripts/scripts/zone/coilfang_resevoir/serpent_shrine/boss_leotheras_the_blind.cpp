@@ -213,7 +213,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
             float ny = y;
             float o = 2.4f;
             if (i == 0) {nx += 10; ny -= 5; o=2.5f;}
-            if (i == 1) {nx -= 8; ny -= 7; o=0.9f;} 
+            if (i == 1) {nx -= 8; ny -= 7; o=0.9f;}
             if (i == 2) {nx -= 3; ny += 9; o=5.0f;}
             Creature* binder = m_creature->SummonCreature(MOB_SPELLBINDER,nx,ny,z,o,TEMPSUMMON_DEAD_DESPAWN,0);
             if (binder)

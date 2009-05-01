@@ -276,8 +276,12 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
                             m_creature->Relocate(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
                             m_creature->StopMoving();
                             WaitEvent = WE_LAND;
-                        }else EnterEvadeMode();
-                        return;
+                        }
+                        else
+                        {
+                            EnterEvadeMode();
+                            return;
+                        }
                     case WE_LAND:
                         WaitEvent = WE_SUMMON;
                         WaitTimer = 2000;
@@ -349,7 +353,8 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
             if(Charge_Timer < diff)
             {
                 Unit *target= SelectUnit(SELECT_TARGET_RANDOM, 1, GetSpellMaxRangeForHostile(SPELL_CHARGE), true);
-                DoCast(target, SPELL_CHARGE);
+                if(target)
+                    DoCast(target, SPELL_CHARGE);
                 Charge_Timer = 30000;
             }else Charge_Timer -= diff;
 
@@ -405,7 +410,7 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
             else
             {
                 Unit *target = NULL;
-                if(Phase1 && (target = m_creature->SelectNearestTarget(5)))
+                if(Phase1 && target && (target = m_creature->SelectNearestTarget(5)))
                     m_creature->AI()->AttackStart(target);
                 else
                 {

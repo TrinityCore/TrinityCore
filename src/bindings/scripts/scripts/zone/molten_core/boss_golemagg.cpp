@@ -65,10 +65,10 @@ struct TRINITY_DLL_DECL boss_golemaggAI : public ScriptedAI
 
     void JustDied(Unit* Killer)
     {
-
         if(pInstance)
             pInstance->SetData(DATA_GOLEMAGG_DEATH, 0);
     }
+
     void UpdateAI(const uint32 diff)
     {
         if (!UpdateVictim())

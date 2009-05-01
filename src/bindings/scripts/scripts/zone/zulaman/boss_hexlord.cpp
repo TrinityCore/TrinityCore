@@ -189,7 +189,10 @@ struct TRINITY_DLL_DECL boss_hexlord_addAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         if(pInstance && pInstance->GetData(DATA_HEXLORDEVENT) != IN_PROGRESS)
+        {
             EnterEvadeMode();
+            return;
+        }
 
         DoMeleeAttackIfReady();
     }
@@ -382,7 +385,11 @@ struct TRINITY_DLL_DECL boss_hex_lord_malacrassAI : public ScriptedAI
         {
             Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0, 70, true);
             Unit *trigger = DoSpawnCreature(MOB_TEMP_TRIGGER, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 30000);
-            if(!target || !trigger) EnterEvadeMode();
+            if(!target || !trigger)
+            {
+                EnterEvadeMode();
+                return;
+            }
             else
             {
                 trigger->SetUInt32Value(UNIT_FIELD_DISPLAYID, 11686);

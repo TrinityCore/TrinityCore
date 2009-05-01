@@ -464,7 +464,7 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
             if(HasKilledAkama)
             {
                 if(!HasKilledAkamaAndReseting)//do not let players kill Shade if Akama is dead and Shade is waiting for ResetTimer!! event would bug
-                {                    
+                {
                     HasKilledAkamaAndReseting = true;
                     m_creature->RemoveAllAuras();
                     m_creature->DeleteThreatList();
@@ -474,8 +474,10 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
                     m_creature->GetMotionMaster()->MoveTargetedHome();
                 }
                 if(ResetTimer < diff)
+                {
                     EnterEvadeMode();// Reset a little while after killing Akama, evade and respawn Akama
-                else ResetTimer -= diff;
+                    return;
+                }else ResetTimer -= diff;
             }
 
             DoMeleeAttackIfReady();
@@ -515,7 +517,7 @@ struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
         EndingTalkCount = 0;
         WayPointId = 0;
         BrokenSummonIndex = 0;
-        BrokenList.clear();        
+        BrokenList.clear();
         HasYelledOnce = false;
     }
 
@@ -545,7 +547,7 @@ struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
         DestructivePoisonTimer = 15000;
         LightningBoltTimer = 10000;
         CheckTimer = 2000;
-        
+
         if(!EventBegun)
         {
             m_creature->SetUInt32Value(UNIT_NPC_FLAGS, 0);      // Database sometimes has very very strange values
@@ -615,7 +617,7 @@ struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
         EndingTalkCount = 0;
         WayPointId = 0;
         BrokenSummonIndex = 0;
-        BrokenList.clear();        
+        BrokenList.clear();
         HasYelledOnce = false;
         Creature* Shade = Unit::GetCreature((*m_creature), ShadeGUID);
         if(Shade && Shade->isAlive())

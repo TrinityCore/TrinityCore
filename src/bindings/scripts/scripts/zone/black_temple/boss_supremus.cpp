@@ -250,6 +250,7 @@ struct TRINITY_DLL_DECL npc_volcanoAI : public ScriptedAI
     }
 
     void UpdateAI(const uint32 diff) {}
+
 };
 
 CreatureAI* GetAI_boss_supremus(Creature *_Creature)

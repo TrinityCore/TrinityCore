@@ -17,7 +17,7 @@ struct TRINITY_DLL_DECL hyjal_trashAI : public npc_escortAI
 
     void DamageTaken(Unit *done_by, uint32 &damage);
 
-    public:   
+    public:
         ScriptedInstance* pInstance;
         bool IsEvent;
         uint32 Delay;

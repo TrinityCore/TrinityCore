@@ -95,18 +95,18 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
     }
 
     void OnObjectCreate(GameObject *go)
-    {        
+    {
         switch(go->GetEntry())
         {
-            case 182060: 
-                HordeGate = go->GetGUID(); 
+            case 182060:
+                HordeGate = go->GetGUID();
                 if(allianceRetreat)
                     go->SetGoState(GO_STATE_ACTIVE);
                 else
                     go->SetGoState(GO_STATE_READY);
                 break;
-            case 182061: 
-                ElfGate = go->GetGUID(); 
+            case 182061:
+                ElfGate = go->GetGUID();
                 if(hordeRetreat)
                     go->SetGoState(GO_STATE_ACTIVE);
                 else
@@ -157,23 +157,23 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
         switch(type)
         {
             case DATA_RAGEWINTERCHILLEVENT: Encounters[0] = data; break;
-            case DATA_ANETHERONEVENT:       
-                Encounters[1] = data;                
+            case DATA_ANETHERONEVENT:
+                Encounters[1] = data;
                 break;
             case DATA_KAZROGALEVENT:        Encounters[2] = data; break;
-            case DATA_AZGALOREVENT:    
+            case DATA_AZGALOREVENT:
                 {
-                    Encounters[3] = data; 
+                    Encounters[3] = data;
                     if(data==DONE)
-                    {                    
+                    {
                         if(ArchiYell)break;
                         ArchiYell = true;
 
                         Creature* pCreature = instance->GetCreature(Azgalor);
                         if(pCreature)
-                        {                    
+                        {
                             Creature* pUnit = pCreature->SummonCreature(21987,pCreature->GetPositionX(),pCreature->GetPositionY(),pCreature->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,10000);
-            
+
                             Map *map = pCreature->GetMap();
                             if (map->IsDungeon() && pUnit)
                             {
@@ -181,12 +181,12 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
                                 Map::PlayerList const &PlayerList = map->GetPlayers();
                                 if (PlayerList.isEmpty())
                                      return;
-                              
+
                                 for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                                 {
                                      if (i->getSource())
                                      {
-                                        WorldPacket data(SMSG_MESSAGECHAT, 200);                
+                                        WorldPacket data(SMSG_MESSAGECHAT, 200);
                                         pUnit->BuildMonsterChat(&data,CHAT_MSG_MONSTER_YELL,"All of your efforts have been in vain, for the draining of the World Tree has already begun. Soon the heart of your world will beat no more.",0,"Archimonde",i->getSource()->GetGUID());
                                         i->getSource()->GetSession()->SendPacket(&data);
 
@@ -208,12 +208,12 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
                 else     Trash--;
                 UpdateWorldState(WORLD_STATE_ENEMYCOUNT, Trash);
                 break;
-            case DATA_ALLIANCE_RETREAT:                
+            case DATA_ALLIANCE_RETREAT:
                 allianceRetreat = data;
                 OpenDoor(HordeGate,true);
                 SaveToDB();
                 break;
-            case DATA_HORDE_RETREAT: 
+            case DATA_HORDE_RETREAT:
                 hordeRetreat = data;
                 OpenDoor(ElfGate,true);
                 SaveToDB();
@@ -268,7 +268,7 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
     void UpdateWorldState(uint32 id, uint32 state)
     {
         Map::PlayerList const& players = instance->GetPlayers();
- 
+
         if (!players.isEmpty())
         {
                 for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)

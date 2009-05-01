@@ -159,6 +159,7 @@ struct  TRINITY_DLL_DECL boss_vexallusAI : public ScriptedAI
             if (ArcaneShockTimer < diff)
             {
                 if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if(target)
                     DoCast(target, SPELL_ARCANE_SHOCK);
 
                 ArcaneShockTimer = 8000;
