@@ -2309,13 +2309,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 case SPELL_AURA_OBS_MOD_HEALTH:
                     mSpellCustomAttr[i] |= SPELL_ATTR_CU_AURA_HOT;
                     break;
-                case SPELL_AURA_MOD_POSSESS:
-                case SPELL_AURA_MOD_CONFUSE:
-                case SPELL_AURA_MOD_CHARM:
-                case SPELL_AURA_MOD_FEAR:
-                case SPELL_AURA_MOD_STUN:
                 case SPELL_AURA_MOD_ROOT:
                     mSpellCustomAttr[i] |= SPELL_ATTR_CU_AURA_CC;
+                    mSpellCustomAttr[i] |= SPELL_ATTR_CU_MOVEMENT_IMPAIR;
+                    break;
+                case SPELL_AURA_MOD_DECREASE_SPEED:
+                    mSpellCustomAttr[i] |= SPELL_ATTR_CU_MOVEMENT_IMPAIR;
                     break;
                 default:
                     break;
@@ -2343,15 +2342,30 @@ void SpellMgr::LoadSpellCustomAttr()
                         spellInfo->Effect[j] = SPELL_EFFECT_TRIGGER_MISSILE;
                     break;
             }
-
+            
             switch(SpellTargetType[spellInfo->EffectImplicitTargetA[j]])
             {
                 case TARGET_TYPE_UNIT_TARGET:
                 case TARGET_TYPE_DEST_TARGET:
                     spellInfo->Targets |= TARGET_FLAG_UNIT;
                     break;
-            }
+            }              
         }
+
+        for(uint32 j = 0; j < 3; ++j)
+        {
+            switch(spellInfo->EffectApplyAuraName[j])
+            {
+                case SPELL_AURA_MOD_POSSESS:
+                case SPELL_AURA_MOD_CONFUSE:
+                case SPELL_AURA_MOD_CHARM:
+                case SPELL_AURA_MOD_FEAR:
+                case SPELL_AURA_MOD_STUN:
+                    mSpellCustomAttr[i] |= SPELL_ATTR_CU_AURA_CC;
+                    mSpellCustomAttr[i] &= ~SPELL_ATTR_CU_MOVEMENT_IMPAIR;
+                    break;
+            }
+        }     
 
         if(spellInfo->SpellVisual[0] == 3879)
             mSpellCustomAttr[i] |= SPELL_ATTR_CU_CONE_BACK;
