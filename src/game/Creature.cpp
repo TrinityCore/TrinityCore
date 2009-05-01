@@ -184,7 +184,9 @@ void Creature::RemoveFromWorld()
 {
     if(IsInWorld())
     {
-        // Clear formation info
+        if(Map *map = FindMap())
+            if(map->IsDungeon() && ((InstanceMap*)map)->GetInstanceData())
+                ((InstanceMap*)map)->GetInstanceData()->OnCreatureRemove(this);
         if(m_formation)
             formation_mgr.RemoveCreatureFromGroup(m_formation, this);
         Unit::RemoveFromWorld();
@@ -1382,7 +1384,7 @@ bool Creature::CreateFromProto(uint32 guidlow, uint32 Entry, uint32 team, const 
     //Notify the map's instance data.
     //Only works if you create the object in it, not if it is moves to that map.
     //Normally non-players do not teleport to other maps.
-    Map *map = MapManager::Instance().FindMap(GetMapId(), GetInstanceId());
+    Map *map = FindMap();
     if(map && map->IsDungeon() && ((InstanceMap*)map)->GetInstanceData())
     {
         ((InstanceMap*)map)->GetInstanceData()->OnCreatureCreate(this, Entry);
