@@ -8,15 +8,6 @@
 #include "InstanceData.h"
 #include "Map.h"
 
-enum EncounterState
-{
-    NOT_STARTED   = 0,
-    IN_PROGRESS   = 1,
-    FAIL          = 2,
-    DONE          = 3,
-    SPECIAL       = 4
-};
-
 #define OUT_SAVE_INST_DATA             debug_log("TSCR: Saving Instance Data for Instance %s (Map %d, Instance Id %d)", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
 #define OUT_SAVE_INST_DATA_COMPLETE    debug_log("TSCR: Saving Instance Data for Instance %s (Map %d, Instance Id %d) completed.", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
 #define OUT_LOAD_INST_DATA(a)          debug_log("TSCR: Loading Instance Data for Instance %s (Map %d, Instance Id %d). Input is '%s'", instance->GetMapName(), instance->GetId(), instance->GetInstanceId(), a)

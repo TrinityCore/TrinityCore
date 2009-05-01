@@ -94,6 +94,9 @@ void GameObject::RemoveFromWorld()
     ///- Remove the gameobject from the accessor
     if(IsInWorld())
     {
+        if(Map *map = FindMap())
+            if(map->IsDungeon() && ((InstanceMap*)map)->GetInstanceData())
+                ((InstanceMap*)map)->GetInstanceData()->OnObjectRemove(this);
         ObjectAccessor::Instance().RemoveObject(this);
         WorldObject::RemoveFromWorld();
     }
