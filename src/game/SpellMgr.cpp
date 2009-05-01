@@ -1361,7 +1361,7 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2, bool
             return true;
 
     // spells with different specific always stack
-    if(spellId_spec_1 || spellId_spec_2)
+    if(spellId_spec_1 != spellId_spec_2)
         return false;
 
     if(spellInfo_1->SpellFamilyName != spellInfo_2->SpellFamilyName)
