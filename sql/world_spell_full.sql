@@ -107,6 +107,7 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 -- hyjal mount
 ( 38528,-31984, 2, 'Protection of Elune - Finger of Death'),
 ( 38528,-32111, 2, 'Protection of Elune - Finger of Death'),
+( 38528,-32124, 2, 'Protection of Elune - Denouement Wisp'),
 -- sunwell
 ( 44869, 44866, 1, 'Spectral Blast Portal'),
 # (44869, 46648, 1, 'Spectral Blast Visual'), cause severe lag seems should be casted by go
