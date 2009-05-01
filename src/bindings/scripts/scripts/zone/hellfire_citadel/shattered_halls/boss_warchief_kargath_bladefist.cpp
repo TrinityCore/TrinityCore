@@ -280,6 +280,7 @@ struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
             if (tempx > 255 || tempx < 205)
             {
                 EnterEvadeMode();
+                return;
             }
             resetcheck_timer = 5000;
         }else resetcheck_timer -= diff;

@@ -2758,7 +2758,6 @@ void Spell::EffectPersistentAA(uint32 i)
         return;
     }
     dynObj->SetUInt32Value(OBJECT_FIELD_TYPE, 65);
-    dynObj->SetUInt32Value(GAMEOBJECT_DISPLAYID, 368003);
     dynObj->SetUInt32Value(DYNAMICOBJECT_BYTES, 0x01eeeeee);
     caster->AddDynObject(dynObj);
     dynObj->GetMap()->Add(dynObj);

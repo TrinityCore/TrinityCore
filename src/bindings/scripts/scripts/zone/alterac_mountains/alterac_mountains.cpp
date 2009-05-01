@@ -46,6 +46,7 @@ struct TRINITY_DLL_DECL npc_ravenholdtAI : public ScriptedAI
 
     void EnterCombat(Unit* who) { }
 };
+
 CreatureAI* GetAI_npc_ravenholdt(Creature *_Creature)
 {
     return new npc_ravenholdtAI (_Creature);

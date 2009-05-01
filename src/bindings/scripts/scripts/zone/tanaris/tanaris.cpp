@@ -380,7 +380,7 @@ struct TRINITY_DLL_DECL npc_OOX17AI : public npc_escortAI
                 DoScriptText(SAY_CHICKEN_AMB, m_creature);
                 {Unit* scoff = FindCreature(SPAWN_SECOND_2, 30, m_creature);
                 if(scoff)
-                DoScriptText(SAY_SCOFF, scoff);}break;
+                    DoScriptText(SAY_SCOFF, scoff);}break;
                 break;
 
             case 86:

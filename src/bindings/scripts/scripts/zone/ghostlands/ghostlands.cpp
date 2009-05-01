@@ -171,7 +171,7 @@ struct TRINITY_DLL_DECL npc_ranger_lilathaAI : public npc_escortAI
             m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
             GameObject* Cage = FindGameObject(GO_CAGE, 20, m_creature);
             if(Cage)
-            Cage->SetGoState(GO_STATE_ACTIVE);
+                Cage->SetGoState(GO_STATE_ACTIVE);
             DoScriptText(SAY_START, m_creature, player);
             break;
             }
@@ -186,8 +186,11 @@ struct TRINITY_DLL_DECL npc_ranger_lilathaAI : public npc_escortAI
             DoScriptText(SAY_PROGRESS3, m_creature, player);
             Creature* Summ1 = m_creature->SummonCreature(16342, 7627.083984, -7532.538086, 152.128616, 1.082733, TEMPSUMMON_DEAD_DESPAWN, 0);
             Creature* Summ2 = m_creature->SummonCreature(16343, 7620.432129, -7532.550293, 152.454865, 0.827478, TEMPSUMMON_DEAD_DESPAWN, 0);
-            Summ1->Attack(m_creature, true);
-            Summ2->Attack(player, true);
+            if(Summ1 && Summ2)
+            {
+                Summ1->Attack(m_creature, true);
+                Summ2->Attack(player, true);
+            }
             m_creature->AI()->AttackStart(Summ1);
             break;
             }

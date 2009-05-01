@@ -396,6 +396,7 @@ struct TRINITY_DLL_DECL boss_sathrovarrAI : public ScriptedAI
                 {
                     DoTextEmote("is unable to find Kalecgos", NULL);
                     EnterEvadeMode();
+                    return;
                 }
             }
             CheckTimer = 1000;
@@ -594,6 +595,7 @@ void boss_kalecgosAI::UpdateAI(const uint32 diff)
                  {
                      error_log("TSCR: Didn't find Shathrowar. Kalecgos event reseted.");
                      EnterEvadeMode();
+                     return;
                  }
              }
              CheckTimer = 1000;
@@ -627,7 +629,7 @@ void boss_kalecgosAI::UpdateAI(const uint32 diff)
         {
             //this is a hack. we need to find a victim without aura in core
             Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-            if( ( target != m_creature->getVictim() ) && target->isAlive() && !(target->HasAura(AURA_SPECTRAL_EXHAUSTION)) )
+            if( target && target != m_creature->getVictim() && target->isAlive() && !target->HasAura(AURA_SPECTRAL_EXHAUSTION) )
             {
                 DoCast(target, SPELL_SPECTRAL_BLAST);
                 SpectralBlastTimer = 20000+(rand()%5000);

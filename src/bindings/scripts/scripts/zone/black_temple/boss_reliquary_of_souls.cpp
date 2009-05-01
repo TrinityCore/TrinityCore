@@ -387,7 +387,8 @@ struct TRINITY_DLL_DECL boss_essence_of_sufferingAI : public ScriptedAI
         targets.sort(TargetDistanceOrder(m_creature)); // Sort players by distance.
         targets.resize(1); // Only need closest target.
         Unit* target = targets.front(); // Get the first target.
-        target->CastSpell(m_creature, SPELL_FIXATE_TAUNT, true);
+        if(target)
+            target->CastSpell(m_creature, SPELL_FIXATE_TAUNT, true);
         DoResetThreat();
         m_creature->AddThreat(target,1000000);
     }

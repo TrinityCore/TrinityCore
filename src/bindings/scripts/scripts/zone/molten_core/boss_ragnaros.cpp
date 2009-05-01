@@ -224,9 +224,12 @@ struct TRINITY_DLL_DECL boss_ragnarosAI : public Scripted_NoMovementAI
                 for(int i = 0; i < 9;i++)
                 {
                     target = SelectUnit(SELECT_TARGET_RANDOM,0);
-                    Summoned = m_creature->SummonCreature(12143,target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(),0,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,900000);
-                    if (Summoned)
-                    ((CreatureAI*)Summoned->AI())->AttackStart(target);
+                    if(target)
+                    {
+                        Summoned = m_creature->SummonCreature(12143,target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(),0,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,900000);
+                        if(Summoned)
+                            ((CreatureAI*)Summoned->AI())->AttackStart(target);
+                    }
                 }
 
                 HasSubmergedOnce = true;
@@ -242,9 +245,12 @@ struct TRINITY_DLL_DECL boss_ragnarosAI : public Scripted_NoMovementAI
                 for(int i = 0; i < 9;i++)
                 {
                     target = SelectUnit(SELECT_TARGET_RANDOM,0);
-                    Summoned = m_creature->SummonCreature(12143,target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(),0,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,900000);
-                    if (Summoned)
-                    ((CreatureAI*)Summoned->AI())->AttackStart(target);
+                    if(target)
+                    {
+                        Summoned = m_creature->SummonCreature(12143,target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(),0,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,900000);
+                        if(Summoned)
+                            ((CreatureAI*)Summoned->AI())->AttackStart(target);
+                    }
                 }
 
                 WasBanished = true;

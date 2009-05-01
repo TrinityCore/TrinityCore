@@ -1032,9 +1032,8 @@ enum Targets
     TARGET_GAMEOBJECT_ITEM             = 26,
     //TARGET_OBJECT_ITEM_PICKLOCK
     TARGET_UNIT_MASTER                 = 27,
-    TARGET_ALL_ENEMY_IN_AREA_CHANNELED = 28,
-    TARGET_UNIT_AREA_ENEMY_CHANNEL     = 28,
-    TARGET_UNIT_AREA_ALLY_CHANNEL      = 29, // 28,29 only used for effect 27, if interrupt channel, pstAA cancel
+    TARGET_DEST_DYNOBJ_ENEMY           = 28,
+    TARGET_DEST_DYNOBJ_ALLY            = 29, // only for effect 27
     TARGET_ALL_FRIENDLY_UNITS_AROUND_CASTER = 30,           // in TargetB used only with TARGET_ALL_AROUND_CASTER and in self casting range in TargetA
     TARGET_UNIT_AREA_ALLY              = 30,
     TARGET_ALL_FRIENDLY_UNITS_IN_AREA  = 31,
