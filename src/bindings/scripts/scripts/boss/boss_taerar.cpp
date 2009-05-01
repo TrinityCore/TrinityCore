@@ -79,6 +79,9 @@ struct TRINITY_DLL_DECL boss_taerarAI : public ScriptedAI
 
     void SummonShades(Unit* victim)
     {
+        if(!victim)
+            return;
+
         Rand = rand()%15;
         switch (rand()%2)
         {

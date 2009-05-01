@@ -588,7 +588,7 @@ class Spell
         void AddGOTarget(uint64 goGUID, uint32 effIndex);
         void AddItemTarget(Item* target, uint32 effIndex);
         void DoAllEffectOnTarget(TargetInfo *target);
-        void DoSpellHitOnUnit(Unit *unit, uint32 effectMask);
+        SpellMissInfo DoSpellHitOnUnit(Unit *unit, uint32 effectMask);
         void DoTriggersOnSpellHit(Unit *unit);
         void DoAllEffectOnTarget(GOTargetInfo *target);
         void DoAllEffectOnTarget(ItemTargetInfo *target);

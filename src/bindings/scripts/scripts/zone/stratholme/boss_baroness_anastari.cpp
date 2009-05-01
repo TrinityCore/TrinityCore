@@ -116,7 +116,6 @@ CreatureAI* GetAI_boss_baroness_anastari(Creature *_Creature)
     return new boss_baroness_anastariAI (_Creature);
 }
 
-
 void AddSC_boss_baroness_anastari()
 {
     Script *newscript;

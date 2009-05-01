@@ -118,20 +118,26 @@ struct TRINITY_DLL_DECL boss_thekalAI : public ScriptedAI
                     {
                         //Resurrect LorKhan
                         Unit *pLorKhan = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_LORKHAN));
-                        pLorKhan->SetStandState(UNIT_STAND_STATE_STAND);
-                        pLorKhan->setFaction(14);
-                        pLorKhan->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        pLorKhan->SetHealth(int(pLorKhan->GetMaxHealth()*1.0));
+                        if(pLorKhan)
+                        {
+                            pLorKhan->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+                            pLorKhan->setFaction(14);
+                            pLorKhan->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                            pLorKhan->SetHealth(int(pLorKhan->GetMaxHealth()*1.0));
+                        }
                     }
 
                     if(pInstance->GetData(DATA_ZATHISDEAD))
                     {
                         //Resurrect Zath
                         Unit *pZath = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_ZATH));
-                        pZath->SetStandState(UNIT_STAND_STATE_STAND);
-                        pZath->setFaction(14);
-                        pZath->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        pZath->SetHealth(int(pZath->GetMaxHealth()*1.0));
+                        if(pZath)
+                        {
+                            pZath->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+                            pZath->setFaction(14);
+                            pZath->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                            pZath->SetHealth(int(pZath->GetMaxHealth()*1.0));
+                        }
                     }
                 }
 
@@ -192,9 +198,9 @@ struct TRINITY_DLL_DECL boss_thekalAI : public ScriptedAI
                 {
                     if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
                     {
-                    DoCast(target,SPELL_CHARGE);
-                    DoResetThreat();
-                    AttackStart(target);
+                        DoCast(target,SPELL_CHARGE);
+                        DoResetThreat();
+                        AttackStart(target);
                     }
 
                     Charge_Timer = 15000 + rand()%7000;
@@ -296,6 +302,9 @@ struct TRINITY_DLL_DECL mob_zealot_lorkhanAI : public ScriptedAI
                 Unit *pThekal = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_THEKAL));
                 Unit *pZath = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_ZATH));
 
+                if(!pThekal || !pZath)
+                    return;
+
                 switch(rand()%2)
                 {
                     case 0:
@@ -328,20 +337,26 @@ struct TRINITY_DLL_DECL mob_zealot_lorkhanAI : public ScriptedAI
                 {
                     //Resurrect Thekal
                     Unit *pThekal = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_THEKAL));
-                    pThekal->SetStandState(UNIT_STAND_STATE_STAND);
-                    pThekal->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    pThekal->setFaction(14);
-                    pThekal->SetHealth(int(pThekal->GetMaxHealth()*1.0));
+                    if(pThekal)
+                    {
+                        pThekal->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+                        pThekal->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        pThekal->setFaction(14);
+                        pThekal->SetHealth(int(pThekal->GetMaxHealth()*1.0));
+                    }
                 }
 
                 if(pInstance->GetData(DATA_ZATHISDEAD))
                 {
                     //Resurrect Zath
                     Unit *pZath = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_ZATH));
-                    pZath->SetStandState(UNIT_STAND_STATE_STAND);
-                    pZath->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    pZath->setFaction(14);
-                    pZath->SetHealth(int(pZath->GetMaxHealth()*1.0));
+                    if(pZath)
+                    {
+                        pZath->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+                        pZath->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        pZath->setFaction(14);
+                        pZath->SetHealth(int(pZath->GetMaxHealth()*1.0));
+                    }
                 }
             }
 
@@ -459,20 +474,26 @@ struct TRINITY_DLL_DECL mob_zealot_zathAI : public ScriptedAI
                 {
                     //Resurrect LorKhan
                     Unit *pLorKhan = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_LORKHAN));
-                    pLorKhan->SetStandState(UNIT_STAND_STATE_STAND);
-                    pLorKhan->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    pLorKhan->setFaction(14);
-                    pLorKhan->SetHealth(int(pLorKhan->GetMaxHealth()*1.0));
+                    if(pLorKhan)
+                    {
+                        pLorKhan->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+                        pLorKhan->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        pLorKhan->setFaction(14);
+                        pLorKhan->SetHealth(int(pLorKhan->GetMaxHealth()*1.0));
+                    }
                 }
 
                 if(pInstance->GetData(DATA_THEKALISFAKEDEAD))
                 {
                     //Resurrect Thekal
                     Unit *pThekal = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_THEKAL));
-                    pThekal->SetStandState(UNIT_STAND_STATE_STAND);
-                    pThekal->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    pThekal->setFaction(14);
-                    pThekal->SetHealth(int(pThekal->GetMaxHealth()*1.0));
+                    if(pThekal)
+                    {
+                        pThekal->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+                        pThekal->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        pThekal->setFaction(14);
+                        pThekal->SetHealth(int(pThekal->GetMaxHealth()*1.0));
+                    }
                 }
             }
 

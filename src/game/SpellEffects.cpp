@@ -372,7 +372,12 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                         if(!radius) return;
                         float distance = m_caster->GetDistance2d(unitTarget);
                         damage = (distance > radius ) ? 0 : (int32)(m_spellInfo->EffectBasePoints[0]*((radius - distance)/radius));
-                    }break;
+                        break;
+                    }
+                    // Cataclysmic Bolt
+                    case 38441:
+                        damage = unitTarget->GetMaxHealth() / 2;
+                        break;
                 }
                 break;
             }
@@ -2753,7 +2758,6 @@ void Spell::EffectPersistentAA(uint32 i)
         return;
     }
     dynObj->SetUInt32Value(OBJECT_FIELD_TYPE, 65);
-    dynObj->SetUInt32Value(GAMEOBJECT_DISPLAYID, 368003);
     dynObj->SetUInt32Value(DYNAMICOBJECT_BYTES, 0x01eeeeee);
     caster->AddDynObject(dynObj);
     dynObj->GetMap()->Add(dynObj);

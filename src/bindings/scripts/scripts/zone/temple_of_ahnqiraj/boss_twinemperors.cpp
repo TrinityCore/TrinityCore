@@ -265,8 +265,11 @@ struct TRINITY_DLL_DECL boss_twinemperorsAI : public ScriptedAI
                 m_creature->clearUnitState(UNIT_STAT_STUNNED);
                 Unit *nearu = m_creature->SelectNearestTarget(100);
                 //DoYell(nearu->GetName(), LANG_UNIVERSAL, 0);
-                AttackStart(nearu);
-                m_creature->getThreatManager().addThreat(nearu, 10000);
+                if(nearu)
+                {
+                    AttackStart(nearu);
+                    m_creature->getThreatManager().addThreat(nearu, 10000);
+                }
                 return true;
             }
             else
@@ -345,7 +348,7 @@ struct TRINITY_DLL_DECL boss_twinemperorsAI : public ScriptedAI
         for(std::list<Creature*>::iterator iter = unitList.begin(); iter != unitList.end(); ++iter)
         {
             Creature *c = (Creature *)(*iter);
-            if (c->isDead())
+            if (c && c->isDead())
             {
                 c->Respawn();
                 c->setFaction(7);

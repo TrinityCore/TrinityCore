@@ -258,6 +258,8 @@ struct TRINITY_DLL_DECL advisorbase_ai : public ScriptedAI
                 if (!Target)
                     Target = m_creature->getVictim();
                 DoResetThreat();
+                if(!Target)
+                    return;
                 AttackStart(Target);
                 m_creature->GetMotionMaster()->Clear();
                 m_creature->GetMotionMaster()->MoveChase(Target);
@@ -325,7 +327,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
             i_pl->DestroyItemCount(30318, 1, true);
             i_pl->DestroyItemCount(30319, 1, true);
             i_pl->DestroyItemCount(30320, 1, true);
-        }        
+        }
     }
 
     void Reset()
@@ -436,7 +438,8 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
         {
             summoned->setFaction(m_creature->getFaction());
             Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-            summoned->AI()->AttackStart(target);
+            if(target)
+                summoned->AI()->AttackStart(target);
         }
         summons.Summon(summoned);
     }
@@ -498,12 +501,12 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        
+
         if(pInstance && Phase)
         {
             if(pInstance->GetData(DATA_KAELTHASEVENT) == IN_PROGRESS && m_creature->getThreatManager().getThreatList().empty())
             {
-                EnterEvadeMode();            
+                EnterEvadeMode();
                 return;
             }
         }
@@ -730,7 +733,8 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                         Advisor = (Unit::GetCreature((*m_creature), AdvisorGuid[i]));
                         if (!Advisor)
                             error_log("TSCR: Kael'Thas Advisor %u does not exist. Possibly despawned? Incorrectly Killed?", i);
-                        else ((advisorbase_ai*)Advisor->AI())->Revive(Target);
+                        else if(Target)
+                            ((advisorbase_ai*)Advisor->AI())->Revive(Target);
                     }
 
                     PhaseSubphase = 1;
@@ -815,7 +819,8 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                             Unit* target =SelectUnit(SELECT_TARGET_RANDOM, 1, 70, true);
                             if(!target) target = m_creature->getVictim();
                             debug_log("TSCR: Kael'Thas mind control not supported.");
-                            DoCast(target, SPELL_MIND_CONTROL);
+                            if(target)
+                                DoCast(target, SPELL_MIND_CONTROL);
                         }
 
                         MindControl_Timer = 60000;
@@ -1078,8 +1083,11 @@ struct TRINITY_DLL_DECL boss_thaladred_the_darkenerAI : public advisorbase_ai
             if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0, 100, true))
             {
                 DoResetThreat();
-                m_creature->AddThreat(target, 5000000.0f);
-                DoScriptText(EMOTE_THALADRED_GAZE, m_creature, target);
+                if(target)
+                {
+                    m_creature->AddThreat(target, 5000000.0f);
+                    DoScriptText(EMOTE_THALADRED_GAZE, m_creature, target);
+                }
                 Gaze_Timer = 8500;
             }
         }else Gaze_Timer -= diff;
@@ -1390,7 +1398,7 @@ struct TRINITY_DLL_DECL mob_kael_flamestrikeAI : public ScriptedAI
 //Phoenix AI
 struct TRINITY_DLL_DECL mob_phoenix_tkAI : public ScriptedAI
 {
-    mob_phoenix_tkAI(Creature *c) : ScriptedAI(c) 
+    mob_phoenix_tkAI(Creature *c) : ScriptedAI(c)
     {
        pInstance = ((ScriptedInstance*)c->GetInstanceData());
     }
@@ -1400,7 +1408,7 @@ struct TRINITY_DLL_DECL mob_phoenix_tkAI : public ScriptedAI
     bool egg;
 
     void JustDied(Unit *victim)
-    {            
+    {
         if(egg)
         {
             float x,y,z;
@@ -1430,7 +1438,7 @@ struct TRINITY_DLL_DECL mob_phoenix_tkAI : public ScriptedAI
     }
 
     void UpdateAI(const uint32 diff)
-    {            
+    {
         if (Cycle_Timer < diff)
         {
             if(pInstance)//check for boss reset
@@ -1439,7 +1447,7 @@ struct TRINITY_DLL_DECL mob_phoenix_tkAI : public ScriptedAI
                 if (Kael && Kael->getThreatManager().getThreatList().empty())
                 {
                     egg = false;
-                    m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);                        
+                    m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                     Cycle_Timer = 2000;
                     return;
                 }
@@ -1452,7 +1460,7 @@ struct TRINITY_DLL_DECL mob_phoenix_tkAI : public ScriptedAI
                 m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
             Cycle_Timer = 2000;
         }else Cycle_Timer -= diff;
-        
+
         if (!UpdateVictim())
             return;
         DoMeleeAttackIfReady();

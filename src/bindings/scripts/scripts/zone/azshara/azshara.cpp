@@ -71,6 +71,7 @@ struct TRINITY_DLL_DECL mobs_spitelashesAI : public ScriptedAI
             m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
             m_creature->RemoveCorpse();                     //you don't see any corpse on off.
             EnterEvadeMode();                               //spellhit will be set to false
+            return;
         }
         // walk 5 seconds before summoning
         if( spellhit && morphtimer<5000 )

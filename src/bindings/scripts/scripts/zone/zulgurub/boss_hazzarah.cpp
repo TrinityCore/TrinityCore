@@ -75,8 +75,12 @@ struct TRINITY_DLL_DECL boss_hazzarahAI : public ScriptedAI
             for(int i = 0; i < 3;i++)
             {
                 target = SelectUnit(SELECT_TARGET_RANDOM,0);
+                if(!target)
+                    return;
+
                 Illusion = m_creature->SummonCreature(15163,target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(),0,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,30000);
-                ((CreatureAI*)Illusion->AI())->AttackStart(target);
+                if(Illusion)
+                    ((CreatureAI*)Illusion->AI())->AttackStart(target);
             }
 
             Illusions_Timer = 15000 + rand()%10000;

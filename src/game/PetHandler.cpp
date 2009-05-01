@@ -116,20 +116,20 @@ void WorldSession::HandlePetActionHelper(Unit *pet, uint64 guid1, uint16 spellid
                         //TODO: Send proper error message to client
                         return;
                     }
+
                     // only place where pet can be player
-                    pet->clearUnitState(UNIT_STAT_FOLLOW);
-                    const uint64& selguid = _player->GetSelection();
-                    Unit *TargetUnit = ObjectAccessor::GetUnit(*_player, selguid);
+                    Unit *TargetUnit = ObjectAccessor::GetUnit(*_player, guid2);
                     if(!TargetUnit)
                         return;
 
-                    // not let attack friendly units.
-                    if(GetPlayer()->IsFriendlyTo(TargetUnit))
+                    if(!pet->canAttack(TargetUnit))
                         return;
+
                     // Not let attack through obstructions
                     //if(!pet->IsWithinLOSInMap(TargetUnit))
                     //    return;
 
+                    pet->clearUnitState(UNIT_STAT_FOLLOW);
                     // This is true if pet has no target or has target but targets differs.
                     if(pet->getVictim() != TargetUnit)
                     {
@@ -209,7 +209,7 @@ void WorldSession::HandlePetActionHelper(Unit *pet, uint64 guid1, uint16 spellid
 
             for(uint32 i = 0; i < 3;++i)
             {
-                if(spellInfo->EffectImplicitTargetA[i] == TARGET_ALL_ENEMY_IN_AREA || spellInfo->EffectImplicitTargetA[i] == TARGET_ALL_ENEMY_IN_AREA_INSTANT || spellInfo->EffectImplicitTargetA[i] == TARGET_ALL_ENEMY_IN_AREA_CHANNELED)
+                if(spellInfo->EffectImplicitTargetA[i] == TARGET_ALL_ENEMY_IN_AREA || spellInfo->EffectImplicitTargetA[i] == TARGET_ALL_ENEMY_IN_AREA_INSTANT || spellInfo->EffectImplicitTargetA[i] == TARGET_DEST_DYNOBJ_ENEMY)
                     return;
             }
 
