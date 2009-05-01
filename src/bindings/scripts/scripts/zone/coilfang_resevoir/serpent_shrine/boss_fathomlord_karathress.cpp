@@ -250,9 +250,8 @@ struct TRINITY_DLL_DECL boss_fathomlord_karathressAI : public ScriptedAI
             if (!target)
                 target = m_creature->getVictim();
 
-            int32 dmg = target->GetMaxHealth() / 2;
-            m_creature->CastCustomSpell(target, SPELL_CATACLYSMIC_BOLT, &dmg, NULL, NULL, false, NULL, NULL, m_creature->GetGUID());
-
+            if(target)
+                DoCast(target, SPELL_CATACLYSMIC_BOLT);
             CataclysmicBolt_Timer = 10000;
         }else CataclysmicBolt_Timer -= diff;
 
