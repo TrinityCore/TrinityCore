@@ -31,6 +31,24 @@ class Player;
 class GameObject;
 class Creature;
 
+enum EncounterState
+{
+    NOT_STARTED   = 0,
+    IN_PROGRESS   = 1,
+    FAIL          = 2,
+    DONE          = 3,
+    SPECIAL       = 4
+};
+
+typedef std::set<GameObject*> DoorSet;
+
+struct BossInfo
+{
+    BossInfo() : state(NOT_STARTED) {}
+    EncounterState state;
+    DoorSet roomDoor, passageDoor;
+};
+
 class TRINITY_DLL_SPEC InstanceData
 {
     public:
@@ -56,7 +74,7 @@ class TRINITY_DLL_SPEC InstanceData
 
         //Used by the map's CanEnter function.
         //This is to prevent players from entering during boss encounters.
-        virtual bool IsEncounterInProgress() const { return false; };
+        virtual bool IsEncounterInProgress() const;
 
         //Called when a player successfully enters the instance.
         virtual void OnPlayerEnter(Player *) {}
@@ -67,6 +85,8 @@ class TRINITY_DLL_SPEC InstanceData
         //called on creature creation
         virtual void OnCreatureCreate(Creature * /*creature*/, uint32 /*creature_entry*/) {}
 
+        virtual void OnCreatureRemove(Creature*) {}
+        virtual void OnObjectRemove(GameObject*) {}
         //All-purpose data storage 64 bit
         virtual uint64 GetData64(uint32 /*Data*/) { return 0; }
         virtual void SetData64(uint32 /*Data*/, uint64 /*Value*/) { }
@@ -78,7 +98,27 @@ class TRINITY_DLL_SPEC InstanceData
         //Handle open / close objects
         //use HandleGameObject(NULL,boolen,GO); in OnObjectCreate in instance scripts
         //use HandleGameObject(GUID,boolen,NULL); in any other script
-        virtual void HandleGameObject(uint64 GUID, bool open, GameObject *go = NULL);
+        void HandleGameObject(uint64 GUID, bool open, GameObject *go = NULL);
+
+    protected:
+        void AddBossRoomDoor(uint32 id, GameObject *door);
+        void AddBossPassageDoor(uint32 id, GameObject *door);
+        void RemoveBossRoomDoor(uint32 id, GameObject *door);
+        void RemoveBossPassageDoor(uint32 id, GameObject *door);
+
+        void SetBossState(uint32 id, EncounterState state);
+
+        std::string GetBossSave()
+        {
+            std::ostringstream saveStream;
+            for(std::vector<BossInfo>::iterator i = bosses.begin(); i != bosses.end(); ++i)
+                saveStream << (uint32)i->state << " ";
+            return saveStream.str();
+        }        
+
+    private:
+        std::vector<BossInfo> bosses;
+
 };
 #endif
 

@@ -2930,6 +2930,8 @@ void Spell::SendLoot(uint64 guid, LootType loottype)
                         return;
 
                 Script->GOHello(player, gameObjTarget);
+                sWorld.ScriptsStart(sGameObjectScripts, gameObjTarget->GetDBTableGUIDLow(), player, gameObjTarget);
+
                 gameObjTarget->AddUniqueUse(player);
                 gameObjTarget->SetLootState(GO_JUST_DEACTIVATED);
 
@@ -2942,10 +2944,6 @@ void Spell::SendLoot(uint64 guid, LootType loottype)
                 // triggering linked GO
                 if(uint32 trapEntry = gameObjTarget->GetGOInfo()->goober.linkedTrapId)
                     gameObjTarget->TriggeringLinkedGameObject(trapEntry,m_caster);
-
-                // activate GO scripts
-                Script->GOHello(player, gameObjTarget);
-                sWorld.ScriptsStart(sGameObjectScripts, gameObjTarget->GetDBTableGUIDLow(), player, gameObjTarget);
 
                 return;
 
