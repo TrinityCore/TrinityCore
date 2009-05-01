@@ -1991,17 +1991,13 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                 break;
             }
 
-            if(cur == TARGET_DEST_DEST)
-                break;
-
-            float x, y, z, angle, dist;
-
-            dist = GetSpellRadiusForFriend(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
-            if (cur == TARGET_DEST_DEST_RANDOM)
-                dist *= rand_norm();
-
+            float angle;
             switch(cur)
             {
+                case TARGET_DEST_DYNOBJ_ENEMY:
+                case TARGET_DEST_DYNOBJ_ALLY:
+                case TARGET_DEST_DEST:
+                    return;
                 case TARGET_DEST_DEST_FRONT:      angle = 0.0f;       break;
                 case TARGET_DEST_DEST_BACK:       angle = M_PI;       break;
                 case TARGET_DEST_DEST_RIGHT:      angle = M_PI/2;     break;
@@ -2012,6 +2008,11 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
                 case TARGET_DEST_DEST_FRONT_RIGHT:angle = M_PI/4;     break;
                 default:                          angle = rand_norm()*2*M_PI; break;
             }
+
+            float dist, x, y, z;
+            dist = GetSpellRadiusForFriend(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
+            if (cur == TARGET_DEST_DEST_RANDOM)
+                dist *= rand_norm();
 
             x = m_targets.m_destX;
             y = m_targets.m_destY;

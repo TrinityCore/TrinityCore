@@ -372,6 +372,7 @@ struct TRINITY_DLL_DECL boss_illidari_councilAI : public ScriptedAI
         {
             error_log(ERROR_INST_DATA);
             EnterEvadeMode();
+            return;
         }
         DoZoneInCombat();
         // Load GUIDs on first aggro because the creature guids are only set as the creatures are created in world-

@@ -467,11 +467,14 @@ struct TRINITY_DLL_DECL npc_geezleAI : public ScriptedAI
         Step = 1;
         EventStarted = true;
         Creature* Spark = m_creature->SummonCreature(MOB_SPARK, SparkPos[0], SparkPos[1], SparkPos[2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1000);
-        SparkGUID = Spark->GetGUID();
-        Spark->setActive(true);
-        Spark->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        if(Spark)
+        {
+            SparkGUID = Spark->GetGUID();
+            Spark->setActive(true);
+            Spark->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            Spark->GetMotionMaster()->MovePoint(0, -5080.70, -11253.61, 0.56);
+        }
         m_creature->GetMotionMaster()->MovePoint(0, -5092.26, -11252, 0.71);
-        Spark->GetMotionMaster()->MovePoint(0, -5080.70, -11253.61, 0.56);
         SayTimer = 23000;
     }
 
@@ -488,8 +491,11 @@ struct TRINITY_DLL_DECL npc_geezleAI : public ScriptedAI
             return 1000;
         case 2:
             DoScriptText(GEEZLE_SAY_1, m_creature, Spark);
-            Spark->SetInFront(m_creature);
-            m_creature->SetInFront(Spark);
+            if(Spark)
+            {
+                Spark->SetInFront(m_creature);
+                m_creature->SetInFront(Spark);
+            }
             return 5000;
         case 3: DoScriptText(SPARK_SAY_2, Spark); return 7000;
         case 4: DoScriptText(SPARK_SAY_3, Spark); return 8000;
@@ -499,10 +505,12 @@ struct TRINITY_DLL_DECL npc_geezleAI : public ScriptedAI
         case 8: DoScriptText(GEEZLE_SAY_7, m_creature, Spark); return 2000;
         case 9:
             m_creature->GetMotionMaster()->MoveTargetedHome();
-            Spark->GetMotionMaster()->MovePoint(0, -5030.95, -11291.99, 7.97);
+            if(Spark)
+                Spark->GetMotionMaster()->MovePoint(0, -5030.95, -11291.99, 7.97);
             return 20000;
         case 10:
-            Spark->DealDamage(Spark,Spark->GetHealth(),NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+            if(Spark)
+                Spark->DealDamage(Spark,Spark->GetHealth(),NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
             //DespawnNagaFlag(false);
             m_creature->SetVisibility(VISIBILITY_OFF);
         default: return 99999999;

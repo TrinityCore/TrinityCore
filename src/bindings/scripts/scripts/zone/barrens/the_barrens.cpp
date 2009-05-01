@@ -149,6 +149,7 @@ struct TRINITY_DLL_DECL npc_taskmaster_fizzuleAI : public ScriptedAI
             if (Reset_Timer < diff)
             {
                 EnterEvadeMode();
+                return;
             } else Reset_Timer -= diff;
         }
 

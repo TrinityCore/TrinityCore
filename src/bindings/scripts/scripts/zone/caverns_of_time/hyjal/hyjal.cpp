@@ -202,7 +202,7 @@ bool GossipHello_npc_tyrande_whisperwind(Player* player, Creature* _Creature)
 
 bool GossipSelect_npc_tyrande_whisperwind(Player *player, Creature *_Creature, uint32 sender, uint32 action)
 {
-    if (action == GOSSIP_ACTION_INFO_DEF)  
+    if (action == GOSSIP_ACTION_INFO_DEF)
     {
             ItemPosCountVec dest;
             uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, ITEM_TEAR_OF_GODDESS, 1);
