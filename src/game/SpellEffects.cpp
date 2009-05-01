@@ -372,7 +372,12 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                         if(!radius) return;
                         float distance = m_caster->GetDistance2d(unitTarget);
                         damage = (distance > radius ) ? 0 : (int32)(m_spellInfo->EffectBasePoints[0]*((radius - distance)/radius));
-                    }break;
+                        break;
+                    }
+                    // Cataclysmic Bolt
+                    case 38441:
+                        damage = unitTarget->GetMaxHealth() / 2;
+                        break;
                 }
                 break;
             }
