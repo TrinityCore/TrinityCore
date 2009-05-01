@@ -280,6 +280,7 @@ inline bool IsDispel(SpellEntry const *spellInfo)
         return true;
     return false;
 }
+
 inline bool IsDispelSpell(SpellEntry const *spellInfo)
 {
     //spellsteal is also dispel
@@ -880,6 +881,7 @@ class SpellMgr
         bool IsPrimaryProfessionFirstRankSpell(uint32 spellId) const;
 
         bool IsSkillBonusSpell(uint32 spellId) const;
+        bool IsSkillTypeSpell(uint32 spellId, SkillType type) const;
 
 
         // Spell script targets

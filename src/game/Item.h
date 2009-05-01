@@ -290,6 +290,8 @@ class TRINITY_DLL_SPEC Item : public Object
         bool hasQuest(uint32 quest_id) const { return GetProto()->StartQuest == quest_id; }
         bool hasInvolvedQuest(uint32 /*quest_id*/) const { return false; }
         bool IsPotion() const { return GetProto()->IsPotion(); }
+        bool IsWeaponVellum() const { return GetProto()->IsWeaponVellum(); }
+        bool IsArmorVellum() const { return GetProto()->IsArmorVellum(); }
         bool IsConjuredConsumable() const { return GetProto()->IsConjuredConsumable(); }
     private:
         uint8 m_slot;

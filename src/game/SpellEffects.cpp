@@ -3685,37 +3685,57 @@ void Spell::EffectEnchantItemPerm(uint32 effect_idx)
 
     Player* p_caster = (Player*)m_caster;
 
-    // not grow at item use at item case
-    p_caster->UpdateCraftSkill(m_spellInfo->Id);
-
-    uint32 enchant_id = m_spellInfo->EffectMiscValue[effect_idx];
-    if (!enchant_id)
-        return;
-
-    SpellItemEnchantmentEntry const *pEnchant = sSpellItemEnchantmentStore.LookupEntry(enchant_id);
-    if(!pEnchant)
-        return;
-
-    // item can be in trade slot and have owner diff. from caster
-    Player* item_owner = itemTarget->GetOwner();
-    if(!item_owner)
-        return;
-
-    if(item_owner!=p_caster && p_caster->GetSession()->GetSecurity() > SEC_PLAYER && sWorld.getConfig(CONFIG_GM_LOG_TRADE) )
+    // Handle vellums
+    if (itemTarget->IsWeaponVellum() || itemTarget->IsArmorVellum())
     {
-        sLog.outCommand(p_caster->GetSession()->GetAccountId(),"GM %s (Account: %u) enchanting(perm): %s (Entry: %d) for player: %s (Account: %u)",
-            p_caster->GetName(),p_caster->GetSession()->GetAccountId(),
-            itemTarget->GetProto()->Name1,itemTarget->GetEntry(),
-            item_owner->GetName(),item_owner->GetSession()->GetAccountId());
+        // item can be in trade slot and have owner diff. from caster
+        Player* item_owner = itemTarget->GetOwner();
+        if(!item_owner)
+            return;
+
+        // destroy one vellum from stack
+        uint32 count=1;
+        item_owner->DestroyItemCount(itemTarget,count,true);
+        unitTarget=item_owner;
+        // and add a scroll
+        DoCreateItem(effect_idx,m_spellInfo->EffectItemType[effect_idx]);
+        itemTarget=NULL;
+        m_targets.setItemTarget(NULL);
     }
+    else
+    {
+        // not grow at item use at item case
+        p_caster->UpdateCraftSkill(m_spellInfo->Id);
 
-    // remove old enchanting before applying new if equipped
-    item_owner->ApplyEnchantment(itemTarget,PERM_ENCHANTMENT_SLOT,false);
+        uint32 enchant_id = m_spellInfo->EffectMiscValue[effect_idx];
+        if (!enchant_id)
+            return;
 
-    itemTarget->SetEnchantment(PERM_ENCHANTMENT_SLOT, enchant_id, 0, 0);
+        SpellItemEnchantmentEntry const *pEnchant = sSpellItemEnchantmentStore.LookupEntry(enchant_id);
+        if(!pEnchant)
+            return;
 
-    // add new enchanting if equipped
-    item_owner->ApplyEnchantment(itemTarget,PERM_ENCHANTMENT_SLOT,true);
+        // item can be in trade slot and have owner diff. from caster
+        Player* item_owner = itemTarget->GetOwner();
+        if(!item_owner)
+            return;
+
+        if(item_owner!=p_caster && p_caster->GetSession()->GetSecurity() > SEC_PLAYER && sWorld.getConfig(CONFIG_GM_LOG_TRADE) )
+        {
+            sLog.outCommand(p_caster->GetSession()->GetAccountId(),"GM %s (Account: %u) enchanting(perm): %s (Entry: %d) for player: %s (Account: %u)",
+                p_caster->GetName(),p_caster->GetSession()->GetAccountId(),
+                itemTarget->GetProto()->Name1,itemTarget->GetEntry(),
+                item_owner->GetName(),item_owner->GetSession()->GetAccountId());
+        }
+
+        // remove old enchanting before applying new if equipped
+        item_owner->ApplyEnchantment(itemTarget,PERM_ENCHANTMENT_SLOT,false);
+
+        itemTarget->SetEnchantment(PERM_ENCHANTMENT_SLOT, enchant_id, 0, 0);
+
+        // add new enchanting if equipped
+        item_owner->ApplyEnchantment(itemTarget,PERM_ENCHANTMENT_SLOT,true);
+    }
 }
 
 void Spell::EffectEnchantItemPrismatic(uint32 effect_idx)
