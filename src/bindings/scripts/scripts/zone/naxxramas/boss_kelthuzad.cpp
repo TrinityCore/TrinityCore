@@ -113,7 +113,6 @@ float Pos[12][4] =
     {3687.571777,-5126.831055,142.017807,0.604023},//RIGHT_FAR
     {3707.990733,-5151.450195,142.032562,1.376855},//RIGHT_MIDDLE   
     {3739.500000,-5141.883989,142.0141130, 2.121412}//RIGHT_NEAR            
-
 };
 
 struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
@@ -146,12 +145,12 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
     uint32 FrostBlast_Timer;  
 
     uint32 Phase1_Timer;   
-    unit32 Phase;
+    uint32 Phase;
 
     void Reset()
     {
-        SummonWasters_Timer=3000                           // 3s summon waster
-            SummonAbominations_Timer=25000;                   //25s summon abomination
+        SummonWasters_Timer=3000;                           // 3s summon waster
+        SummonAbominations_Timer=25000;                   //25s summon abomination
         SummonAWeavers_Timer=20000;						 //20s summon Weavers
 
         FrostBolt_Timer = 2000;                         //2s CD
@@ -212,7 +211,7 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
             Phase=2;			
         }else Phase1_Timer-=diff;
 
-        if(phase == 1)
+        if(Phase == 1)
         {
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             EnterEvadeMode();
@@ -330,17 +329,13 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
                     if (target = SelectUnit(SELECT_TARGET_RANDOM,0))
                     {
                         //check if the target is a manaplayer
-                        if ( (Player*)target->getPowerType()==POWER_MANA )
+                        if ( ((Player*)target)->getPowerType()==POWER_MANA )
                         {
                             // if yes cast the SPELL_MANA_DETONATION
                             DoCast(m_creature->getVictim(),SPELL_MANA_DETONATION);
                             //Obviously  the damage of this spell would be invalidation
                             break;
                             //exit the circle
-                        }
-                        else //debug
-                        {
-                            m_creature->Yell("A, no mana,you are cheat?",LANG_COMMON,target);
                         }
                     }
                 }
@@ -359,10 +354,10 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
                 {
                     //get the position of the target x,y,z,ang.
                     float x,y,z,ang;
-                    x=(Player*)target->GetPositionX;
-                    y=(Player*)target->GetPositionY;
-                    z=(Player*)target->GetPositionZ;
-                    ang=(Player*)target->GetOrientation;
+                    x=target->GetPositionX();
+                    y=target->GetPositionY();
+                    z=target->GetPositionZ();
+                    ang=target->GetOrientation();
                     //summon the MOB_SUMMON_FISSURE at this positon
                     Creature *Fissure= m_creature->SummonCreature(MOB_SUMMON_FISSURE,x,y,z,ang, TEMPSUMMON_CORPSE_DESPAWN, 0);
                     if(Fissure)
@@ -405,7 +400,7 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
                 if(GuardiansOfIcecrown_Timer < diff)
                 {
                     //Summon a Guardian of Icecrown in a random alcove                
-                    Unit* pUnit = NULL;               
+                    TempSummon* pUnit = NULL;               
                     switch(rand()%3)
                     {
                     case 0:
