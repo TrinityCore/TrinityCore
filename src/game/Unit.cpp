@@ -81,7 +81,7 @@ static bool procPrepared = InitTriggerAuraData();
 Unit::Unit()
 : WorldObject(), i_motionMaster(this), m_ThreatManager(this), m_HostilRefManager(this)
 , m_IsInNotifyList(false), m_Notified(false), IsAIEnabled(false), NeedChangeAI(false)
-, i_AI(NULL), i_disabledAI(NULL), m_removedAurasCount(0), m_Vehicle(NULL)
+, i_AI(NULL), i_disabledAI(NULL), m_removedAurasCount(0), m_Vehicle(NULL), m_transport(NULL)
 , m_ControlledByPlayer(false)
 {
     m_objectType |= TYPEMASK_UNIT;
