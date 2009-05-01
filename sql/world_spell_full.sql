@@ -1,4 +1,4 @@
--- up to TC2 2987 TC1 1434
+-- up to TC2 3019 TC1 1434
 
 -- --------
 -- LINKED
@@ -104,6 +104,9 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 ( 40604, 40616, 1, 'Fel Rage Aura'),
 ( 40616, 41625, 1, 'Fel Rage Aura'),
 ( 41292, 42017, 2, 'Aura of Suffering'),
+-- hyjal mount
+( 38528,-31984, 2, 'Protection of Elune - Finger of Death'),
+( 38528,-32111, 2, 'Protection of Elune - Finger of Death'),
 -- sunwell
 ( 44869, 44866, 1, 'Spectral Blast Portal'),
 # (44869, 46648, 1, 'Spectral Blast Visual'), cause severe lag seems should be casted by go
