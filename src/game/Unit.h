@@ -1161,6 +1161,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         bool RemoveNoStackAurasDueToAura(Aura *Aur);
         void RemoveAurasWithInterruptFlags(uint32 flags, uint32 except = 0);
         void RemoveAurasWithDispelType( DispelType type );
+        void RemoveMovementImpairingAuras();
 
         void RemoveAllAuras();
         void RemoveArenaAuras(bool onleave = false);
