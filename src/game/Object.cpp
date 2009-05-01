@@ -1649,6 +1649,8 @@ TempSummon *Map::SummonCreature(uint32 entry, float x, float y, float z, float a
     Add((Creature*)summon);
     summon->InitSummon(duration);
 
+    ObjectAccessor::UpdateObjectVisibility(summon);
+
     return summon;
 }
 
@@ -1705,6 +1707,8 @@ Vehicle* WorldObject::SummonVehicle(uint32 entry, float x, float y, float z, flo
     }
 
     map->Add((Creature*)v);
+
+    ObjectAccessor::UpdateObjectVisibility(v);
 
     return v;
 }
@@ -1809,6 +1813,8 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
 
     if(duration > 0)
         pet->SetDuration(duration);
+
+    ObjectAccessor::UpdateObjectVisibility(pet);
 
     return pet;
 }

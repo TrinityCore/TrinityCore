@@ -519,10 +519,10 @@ Map::Add(T *obj)
     DEBUG_LOG("Object %u enters grid[%u,%u]", GUID_LOPART(obj->GetGUID()), cell.GridX(), cell.GridY());
 
     //something, such as vehicle, needs to be update immediately
-    //if(obj->GetTypeId() != TYPEID_UNIT)
-    UpdateObjectVisibility(obj,cell,p);
+    if(obj->GetTypeId() != TYPEID_UNIT)
+        UpdateObjectVisibility(obj,cell,p);
 
-    //AddNotifier(obj);
+    AddNotifier(obj);
 }
 
 void Map::MessageBroadcast(Player *player, WorldPacket *msg, bool to_self, bool to_possessor)
