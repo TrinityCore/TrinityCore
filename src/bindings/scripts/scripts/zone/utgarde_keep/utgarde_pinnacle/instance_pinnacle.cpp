@@ -16,6 +16,6 @@ void AddSC_instance_pinnacle()
     Script *newscript;
     newscript = new Script;
     newscript->Name = "instance_pinnacle";
-    newscript->GetInstanceData = GetInstanceData_instance_pinnacle;
+    newscript->GetInstanceData = &GetInstanceData_instance_pinnacle;
     newscript->RegisterSelf();
 }

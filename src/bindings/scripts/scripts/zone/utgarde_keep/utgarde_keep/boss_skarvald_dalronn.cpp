@@ -128,7 +128,8 @@ struct TRINITY_DLL_DECL boss_skarvald_the_constructorAI : public ScriptedAI
                     m_creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
                     //DoCast(m_creature,SPELL_SUMMON_SKARVALD_GHOST,true);
                     Creature* temp = m_creature->SummonCreature(MOB_SKARVALD_GHOST,m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ(),0,TEMPSUMMON_CORPSE_DESPAWN,5000);
-                    temp->AI()->AttackStart(Killer);
+                    if(temp)
+                        temp->AI()->AttackStart(Killer);
                 }
             }
         }
@@ -279,7 +280,8 @@ struct TRINITY_DLL_DECL boss_dalronn_the_controllerAI : public ScriptedAI
                     m_creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
                     //DoCast(m_creature,SPELL_SUMMON_DALRONN_GHOST,true);
                     Creature* temp = m_creature->SummonCreature(MOB_DALRONN_GHOST,m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ(),0,TEMPSUMMON_CORPSE_DESPAWN,5000);
-                    temp->AI()->AttackStart(Killer);
+                    if(temp)
+                        temp->AI()->AttackStart(Killer);
                 }
         }
     }

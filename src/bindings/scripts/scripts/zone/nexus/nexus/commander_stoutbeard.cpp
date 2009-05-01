@@ -1,12 +1,12 @@
 /* Script Data Start
 SDName: Boss Commander Stoutbeard
 SDAuthor: LordVanMartin
-SD%Complete: 
+SD%Complete:
 SDComment:  Only Horde Heroic
-SDCategory: 
+SDCategory:
 Script Data End */
 
-/*** SQL START *** 
+/*** SQL START ***
 update creature_template set scriptname = 'boss_commander_stoutbeard' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
@@ -25,26 +25,26 @@ update creature_template set scriptname = 'boss_commander_stoutbeard' where entr
 struct TRINITY_DLL_DECL boss_commander_stoutbeardAI : public ScriptedAI
 {
     boss_commander_stoutbeardAI(Creature *c) : ScriptedAI(c) {}
-    
+
     void Reset() {}
-    void EnterCombat(Unit* who) 
-	{
-		DoScriptText(SAY_AGGRO, m_creature);
-	}
+    void EnterCombat(Unit* who)
+    {
+        DoScriptText(SAY_AGGRO, m_creature);
+    }
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if(!UpdateVictim())
             return;
-                
-        DoMeleeAttackIfReady();    
+
+        DoMeleeAttackIfReady();
     }
-    void JustDied(Unit* killer)  
-	{
-		DoScriptText(SAY_DEATH, m_creature);
-	}
+    void JustDied(Unit* killer)
+    {
+        DoScriptText(SAY_DEATH, m_creature);
+    }
 };
 
 CreatureAI* GetAI_boss_commander_stoutbeard(Creature *_Creature)
@@ -58,6 +58,6 @@ void AddSC_boss_commander_stoutbeard()
 
     newscript = new Script;
     newscript->Name="boss_commander_stoutbeard";
-    newscript->GetAI = GetAI_boss_commander_stoutbeard;
+    newscript->GetAI = &GetAI_boss_commander_stoutbeard;
     newscript->RegisterSelf();
 }

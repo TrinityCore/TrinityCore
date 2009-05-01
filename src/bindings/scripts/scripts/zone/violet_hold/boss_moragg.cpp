@@ -45,6 +45,6 @@ void AddSC_boss_moragg()
 
     newscript = new Script;
     newscript->Name="boss_moragg";
-    newscript->GetAI = GetAI_boss_moragg;
+    newscript->GetAI = &GetAI_boss_moragg;
     newscript->RegisterSelf();
 }

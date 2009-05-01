@@ -77,6 +77,6 @@ void AddSC_boss_cyanigosa()
 
     newscript = new Script;
     newscript->Name="boss_cyanigosa";
-    newscript->GetAI = GetAI_boss_cyanigosa;
+    newscript->GetAI = &GetAI_boss_cyanigosa;
     newscript->RegisterSelf();
 }

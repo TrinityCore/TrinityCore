@@ -24,7 +24,7 @@ SDComment:
 SDCategory: Ahn'kahet
 EndScriptData */
 
-/*** SQL START *** 
+/*** SQL START ***
 update creature_template set scriptname = 'boss_volazj' where entry = '';
 *** SQL END ***/
 
@@ -35,11 +35,11 @@ update creature_template set scriptname = 'boss_volazj' where entry = '';
 #define SPELL_INSANITY                         57496 //Dummy
 #define INSANITY_VISUAL                        57561
 #define SPELL_MIND_FLAY_N                      57941
-#define SPELL_MIND_FLAY_H                      59974 
-#define SPELL_SHADOW_BOLT_VOLLEY_1             57942 
-#define SPELL_SHADOW_BOLT_VOLLEY_2             59975 
-#define SPELL_SHIVER_N                         57949 
-#define SPELL_SHIVER_H                         59978 
+#define SPELL_MIND_FLAY_H                      59974
+#define SPELL_SHADOW_BOLT_VOLLEY_1             57942
+#define SPELL_SHADOW_BOLT_VOLLEY_2             59975
+#define SPELL_SHIVER_N                         57949
+#define SPELL_SHIVER_H                         59978
 
 //Yell
 #define SAY_AGGRO                               -1619030
@@ -55,29 +55,29 @@ struct TRINITY_DLL_DECL boss_volazjAI : public ScriptedAI
     boss_volazjAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 phase;
-    
+
     void Reset() {}
-    void EnterCombat(Unit* who) 
+    void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if(!UpdateVictim())
             return;
-            
+
         phase =1;
-        
+
         DoMeleeAttackIfReady();
     }
-    void JustDied(Unit* killer)  
+    void JustDied(Unit* killer)
     {
-        if(phase == 1)            
+        if(phase == 1)
         DoScriptText(SAY_DEATH_1, m_creature);
-        else 
+        else
         DoScriptText(SAY_DEATH_2, m_creature);
     }
 
@@ -106,6 +106,6 @@ void AddSC_boss_volazj()
 
     newscript = new Script;
     newscript->Name="boss_volazj";
-    newscript->GetAI = GetAI_boss_volazj;
+    newscript->GetAI = &GetAI_boss_volazj;
     newscript->RegisterSelf();
 }

@@ -16,6 +16,6 @@ void AddSC_instance_archavon()
     Script *newscript;
     newscript = new Script;
     newscript->Name = "instance_archavon";
-    newscript->GetInstanceData = GetInstanceData_instance_archavon;
+    newscript->GetInstanceData = &GetInstanceData_instance_archavon;
     newscript->RegisterSelf();
 }

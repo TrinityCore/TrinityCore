@@ -1,12 +1,12 @@
 /* Script Data Start
 SDName: Boss keristrasza
 SDAuthor: LordVanMartin
-SD%Complete: 
-SDComment: 
-SDCategory: 
+SD%Complete:
+SDComment:
+SDCategory:
 Script Data End */
 
-/*** SQL START *** 
+/*** SQL START ***
 update creature_template set scriptname = 'boss_maiden_of_grief' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
@@ -30,20 +30,20 @@ update creature_template set scriptname = 'boss_maiden_of_grief' where entry = '
 struct TRINITY_DLL_DECL boss_keristraszaAI : public ScriptedAI
 {
     boss_keristraszaAI(Creature *c) : ScriptedAI(c) {}
-           
+
     bool enraged;
-    
-    void Reset() 
+
+    void Reset()
     {
         enraged = false;
     }
-    void EnterCombat(Unit* who) 
+    void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if(!UpdateVictim())
@@ -58,10 +58,10 @@ struct TRINITY_DLL_DECL boss_keristraszaAI : public ScriptedAI
                 enraged = true;
             }
         }
-        
-        DoMeleeAttackIfReady();    
+
+        DoMeleeAttackIfReady();
     }
-    void JustDied(Unit* killer)  
+    void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
     }
@@ -84,6 +84,6 @@ void AddSC_boss_keristrasza()
 
     newscript = new Script;
     newscript->Name="boss_keristrasza";
-    newscript->GetAI = GetAI_boss_keristrasza;
+    newscript->GetAI = &GetAI_boss_keristrasza;
     newscript->RegisterSelf();
 }

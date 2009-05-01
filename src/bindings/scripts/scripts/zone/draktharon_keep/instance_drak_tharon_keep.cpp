@@ -16,6 +16,6 @@ void AddSC_instance_drak_tharon()
     Script *newscript;
     newscript = new Script;
     newscript->Name = "instance_drak_tharon";
-    newscript->GetInstanceData = GetInstanceData_instance_drak_tharon;
+    newscript->GetInstanceData = &GetInstanceData_instance_drak_tharon;
     newscript->RegisterSelf();
 }

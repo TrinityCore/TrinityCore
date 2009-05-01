@@ -1,12 +1,12 @@
 /* Script Data Start
 SDName: Boss novos
 SDAuthor: LordVanMartin
-SD%Complete: 
-SDComment: 
-SDCategory: 
+SD%Complete:
+SDComment:
+SDCategory:
 Script Data End */
 
-/*** SQL START *** 
+/*** SQL START ***
 update creature_template set scriptname = 'boss_novos' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
@@ -27,28 +27,28 @@ update creature_template set scriptname = 'boss_novos' where entry = '';
 #define SAY_AGGRO                              -1600000
 #define SAY_KILL                               -1600001
 #define SAY_DEATH                              -1600002
-#define SAY_NECRO_ADD                          -1600003  
-#define SAY_REUBBLE_1                          -1600004   
-#define SAY_REUBBLE_2                          -1600005  
+#define SAY_NECRO_ADD                          -1600003
+#define SAY_REUBBLE_1                          -1600004
+#define SAY_REUBBLE_2                          -1600005
 
 struct TRINITY_DLL_DECL boss_novosAI : public ScriptedAI
 {
     boss_novosAI(Creature *c) : ScriptedAI(c) {}
-    
+
     void Reset() {}
-    void EnterCombat(Unit* who) 
+    void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if(!UpdateVictim())
             return;
-                
-        DoMeleeAttackIfReady();    
+
+        DoMeleeAttackIfReady();
     }
     void JustDied(Unit* killer)  {}
     void KilledUnit(Unit *victim)
@@ -70,6 +70,6 @@ void AddSC_boss_novos()
 
     newscript = new Script;
     newscript->Name="boss_novos";
-    newscript->GetAI = GetAI_boss_novos;
+    newscript->GetAI = &GetAI_boss_novos;
     newscript->RegisterSelf();
 }

@@ -77,7 +77,7 @@ I also don't know the emotes
 
 //common needed defines
 #define NAXXRAMAS_MAP                533
-//Positional defines    
+//Positional defines
 
 //spells to be casted
 #define SPELL_FROST_BOLT            28478
@@ -93,7 +93,7 @@ I also don't know the emotes
 #define NORMAL_RAID                 10
 
 //creature needed summoned
-#define MOB_SUMMON_WASTE 16427 //Soldiers of the Frozen Wastes 
+#define MOB_SUMMON_WASTE 16427 //Soldiers of the Frozen Wastes
 #define MOB_SUMMON_ABOMINATION 16428 //Unstoppable Abominations
 #define MOB_SUMMON_WEAVER 16429//Soul Weavers
 #define MOB_SUMMON_FISSURE 16129 // Shadow Fissure
@@ -102,17 +102,17 @@ I also don't know the emotes
 float Pos[12][4] =
 {
     {3783.272705, -5062.697266, 143.711203,3.617599},//LEFT_FAR
-    {3730.291260, -5027.239258,143.956909,4.461900},//LEFT_MIDDLE 
+    {3730.291260, -5027.239258,143.956909,4.461900},//LEFT_MIDDLE
     {3683.868652,-5057.281250,143.183884,5.237086},//LEFT_NEAR
     {3759.355225,-5174.128418,143.802383,2.170104},//RIGHT_FAR
     {370.724365,-5185.123047,143.928024,1.309310},//RIGHT_MIDDLE
-    {3665.121094,-5138.679199,143.183212,0.604023},//RIGHT_NEAR             
-    {3754.431396,-5080.727734,142.036316,3.736189},//LEFT_FAR 
-    {3724.396484, -5061.330566,142.032700, 4.564785},//LEFT_MIDDLE 
+    {3665.121094,-5138.679199,143.183212,0.604023},//RIGHT_NEAR
+    {3754.431396,-5080.727734,142.036316,3.736189},//LEFT_FAR
+    {3724.396484, -5061.330566,142.032700, 4.564785},//LEFT_MIDDLE
     {3687.158424,-5076.834473,142.017319,5.237086},//LEFT_NEAR
     {3687.571777,-5126.831055,142.017807,0.604023},//RIGHT_FAR
-    {3707.990733,-5151.450195,142.032562,1.376855},//RIGHT_MIDDLE   
-    {3739.500000,-5141.883989,142.0141130, 2.121412}//RIGHT_NEAR            
+    {3707.990733,-5151.450195,142.032562,1.376855},//RIGHT_MIDDLE
+    {3739.500000,-5141.883989,142.0141130, 2.121412}//RIGHT_NEAR
 };
 
 struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
@@ -131,7 +131,7 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
     uint32 GuardiansOfIcecrown_Count;
     uint32 GuardiansOfIcecrown_Timer;
 
-    //phase==1 summon_timer	 
+    //phase==1 summon_timer
     uint32 SummonWasters_Timer;
     uint32 SummonAbominations_Timer;
     uint32 SummonAWeavers_Timer;
@@ -142,16 +142,16 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
     uint32 ChainsOfKelthuzad_Timer;
     uint32 ManaDetonation_Timer;
     uint32 ShadowFisure_Timer;
-    uint32 FrostBlast_Timer;  
+    uint32 FrostBlast_Timer;
 
-    uint32 Phase1_Timer;   
+    uint32 Phase1_Timer;
     uint32 Phase;
 
     void Reset()
     {
         SummonWasters_Timer=3000;                           // 3s summon waster
         SummonAbominations_Timer=25000;                   //25s summon abomination
-        SummonAWeavers_Timer=20000;						 //20s summon Weavers
+        SummonAWeavers_Timer=20000;                         //20s summon Weavers
 
         FrostBolt_Timer = 2000;                         //2s CD
         FrostBoltNova_Timer = 15000;                        //Cast every 15 seconds
@@ -208,7 +208,7 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
             return;
         if (Phase1_Timer<diff && Phase==1)
         {
-            Phase=2;			
+            Phase=2;
         }else Phase1_Timer-=diff;
 
         if(Phase == 1)
@@ -217,7 +217,7 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
             EnterEvadeMode();
             //SummonWasters_Timer at far positon
             if ( SummonWasters_Timer< diff)
-            {				  
+            {
 
                 Creature *Waster = NULL;
                 switch(rand()%4)
@@ -226,7 +226,7 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
                 case 1: Waster = m_creature->SummonCreature(MOB_SUMMON_WASTE,Pos[3][0], Pos[3][1], Pos[3][2], Pos[3][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
                 case 2: Waster = m_creature->SummonCreature(MOB_SUMMON_WASTE,Pos[6][0], Pos[6][1], Pos[6][2], Pos[6][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
                 case 3: Waster = m_creature->SummonCreature(MOB_SUMMON_WASTE,Pos[9][0], Pos[9][1], Pos[9][2], Pos[9][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
-                }			 
+                }
 
                 if(Waster)
                 {
@@ -240,7 +240,7 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
 
             //MOB_SUMMON_ABOMINATION at middle positon
             if ( SummonAbominations_Timer< diff)
-            {				  
+            {
 
                 Creature *Abominations = NULL;
                 switch(rand()%4)
@@ -249,7 +249,7 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
                 case 1: Abominations = m_creature->SummonCreature(MOB_SUMMON_ABOMINATION,Pos[4][0], Pos[4][1], Pos[4][2], Pos[4][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
                 case 2: Abominations = m_creature->SummonCreature(MOB_SUMMON_ABOMINATION,Pos[7][0], Pos[7][1], Pos[7][2], Pos[7][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
                 case 3: Abominations = m_creature->SummonCreature(MOB_SUMMON_ABOMINATION,Pos[10][0], Pos[10][1], Pos[10][2], Pos[10][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
-                }	
+                }
 
                 if(Abominations)
                 {
@@ -263,7 +263,7 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
 
             //SummonAWeavers_Timer at far positon
             if ( SummonAWeavers_Timer< diff)
-            {				  
+            {
 
                 Creature *Weavers = NULL;
                 switch(rand()%4)
@@ -272,7 +272,7 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
                 case 1: Weavers = m_creature->SummonCreature(MOB_SUMMON_WEAVER,Pos[3][0], Pos[3][1], Pos[3][2], Pos[3][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
                 case 2: Weavers = m_creature->SummonCreature(MOB_SUMMON_WEAVER,Pos[6][0], Pos[6][1], Pos[6][2], Pos[6][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
                 case 3: Weavers = m_creature->SummonCreature(MOB_SUMMON_WEAVER,Pos[9][0], Pos[9][1], Pos[9][2], Pos[9][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
-                }	
+                }
 
                 if(Weavers)
                 {
@@ -287,7 +287,7 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
         }
 
         if( Phase!=1 && m_creature->getVictim() && m_creature->isAlive())
-        {            
+        {
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
             //Check for Frost Bolt
@@ -323,7 +323,7 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
             if(ManaDetonation_Timer < diff)
             {
                 Unit* target;
-                //select a manaplayer during 10 raid	,how to make sure we can succed in finding a manaplayer or it's safty if there is no manaplayer in raid
+                //select a manaplayer during 10 raid    ,how to make sure we can succed in finding a manaplayer or it's safty if there is no manaplayer in raid
                 for(uint8 i = 0; i <NORMAL_RAID; i++)
                 {
                     if (target = SelectUnit(SELECT_TARGET_RANDOM,0))
@@ -344,8 +344,8 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
                 ManaDetonation_Timer = 20000;
             }else ManaDetonation_Timer -= diff;
 
-            //Summons a Shadow Fissure underneath a random player. 
-            //The fissure will stay inactive for about 3 seconds, after which it will become a beam of purple energy, 
+            //Summons a Shadow Fissure underneath a random player.
+            //The fissure will stay inactive for about 3 seconds, after which it will become a beam of purple energy,
             //instantly killing the player if they remain in it.
 
             if(ShadowFisure_Timer < diff)
@@ -365,22 +365,22 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
                         DoCast(target,SPELL_SHADOW_FISURE);
                         Fissure->AI()->AttackStart(target);
                     }
-                }                     
+                }
 
                 if (rand()%2)
                     DoScriptText(SAY_SPECIAL3_MANA_DET, m_creature);
                 ShadowFisure_Timer = 25000;
             }else ShadowFisure_Timer -= diff;
 
-            //cast Frost Blast to a random player 
+            //cast Frost Blast to a random player
             if(FrostBlast_Timer < diff)
             {
                 if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
                 {
                     DoCast(target,SPELL_FROST_BLAST);
-                    //obviously the spell doesn't work like the description 
+                    //obviously the spell doesn't work like the description
                     //So, we need script this spell?
-                }   
+                }
                 if(rand()%2 == 0)
                     DoScriptText(SAY_FROST_BLAST, m_creature);
                 FrostBlast_Timer = (rand()%30+30)*1000;
@@ -399,8 +399,8 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
             if(Phase==3 && (GuardiansOfIcecrown_Count < 2)) //in normal raid ,only two Icecrown
                 if(GuardiansOfIcecrown_Timer < diff)
                 {
-                    //Summon a Guardian of Icecrown in a random alcove                
-                    TempSummon* pUnit = NULL;               
+                    //Summon a Guardian of Icecrown in a random alcove
+                    TempSummon* pUnit = NULL;
                     switch(rand()%3)
                     {
                     case 0:
@@ -411,7 +411,7 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
                         break;
                     case 2:
                         pUnit = m_creature->SummonCreature(MOB_SUMMON_ICECROWN,Pos[8][0],Pos[8][1],Pos[8][2],Pos[8][3],TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,1000);
-                        break;                    
+                        break;
                     }
 
                     if (pUnit)

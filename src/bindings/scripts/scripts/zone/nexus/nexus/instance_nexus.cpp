@@ -5,40 +5,40 @@ struct TRINITY_DLL_DECL instance_nexus : public ScriptedInstance
 {
     instance_nexus(Map *Map) : ScriptedInstance(Map) {Initialize();};
 
-	uint64 Anomalus,
-		   Ormorok,
-		   Magus_telestra,
-		   Magus_frost,
-		   Magus_fire,
-		   Magus_arcane,
-		   keristrasza,
-		   Commander_kolurg,
-		   Commander_stoutbeard;
+    uint64 Anomalus,
+           Ormorok,
+           Magus_telestra,
+           Magus_frost,
+           Magus_fire,
+           Magus_arcane,
+           keristrasza,
+           Commander_kolurg,
+           Commander_stoutbeard;
     bool   IsBossDied[9];
 
     void Initialize()
     {
-		Anomalus = 0;
-		Ormorok = 0;
-		Magus_telestra =0;
-		Magus_frost =0;
-		Magus_fire =0;
-		Magus_arcane =0;
-		keristrasza =0;
-		Commander_kolurg = 0;
-		Commander_stoutbeard = 0;
-		IsBossDied[0] = false;
-		IsBossDied[1] = false;
-		IsBossDied[2] = false;
-		IsBossDied[3] = false;
-		IsBossDied[4] = false;
-		IsBossDied[5] = false;
-		IsBossDied[6] = false;
-		IsBossDied[7] = false;
-		IsBossDied[8] = false;
-	}
+        Anomalus = 0;
+        Ormorok = 0;
+        Magus_telestra =0;
+        Magus_frost =0;
+        Magus_fire =0;
+        Magus_arcane =0;
+        keristrasza =0;
+        Commander_kolurg = 0;
+        Commander_stoutbeard = 0;
+        IsBossDied[0] = false;
+        IsBossDied[1] = false;
+        IsBossDied[2] = false;
+        IsBossDied[3] = false;
+        IsBossDied[4] = false;
+        IsBossDied[5] = false;
+        IsBossDied[6] = false;
+        IsBossDied[7] = false;
+        IsBossDied[8] = false;
+    }
 
-	bool IsEncounterInProgress() const
+    bool IsEncounterInProgress() const
     {
         //not active
         return false;
@@ -46,7 +46,7 @@ struct TRINITY_DLL_DECL instance_nexus : public ScriptedInstance
     void OnCreatureCreate(Creature *creature, uint32 creature_entry)
     {
         switch(creature->GetEntry())
-        { 
+        {
             case 26763:    Anomalus = creature->GetGUID();             break;
             case 26794:    Ormorok = creature->GetGUID();              break;
             case 26731:    Magus_telestra = creature->GetGUID();       break;
@@ -153,6 +153,6 @@ void AddSC_instance_nexus()
     Script *newscript;
     newscript = new Script;
     newscript->Name = "instance_nexus";
-    newscript->GetInstanceData = GetInstanceData_instance_nexus;
+    newscript->GetInstanceData = &GetInstanceData_instance_nexus;
     newscript->RegisterSelf();
 }

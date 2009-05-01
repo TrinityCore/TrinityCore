@@ -1,12 +1,12 @@
 /* Script Data Start
 SDName: Boss skadi
 SDAuthor: LordVanMartin
-SD%Complete: 
-SDComment: 
-SDCategory: 
+SD%Complete:
+SDComment:
+SDCategory:
 Script Data End */
 
-/*** SQL START *** 
+/*** SQL START ***
 update creature_template set scriptname = 'boss_skadi' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
@@ -35,28 +35,28 @@ update creature_template set scriptname = 'boss_skadi' where entry = '';
 
 struct TRINITY_DLL_DECL boss_skadiAI : public ScriptedAI
 {
-    boss_skadiAI(Creature *c) : ScriptedAI(c) {} 
-    
+    boss_skadiAI(Creature *c) : ScriptedAI(c) {}
+
     uint32 phase;
-    
+
     void Reset() {}
-    void EnterCombat(Unit* who) 
+    void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if(!UpdateVictim())
-            return; 
+            return;
 
         phase = 0;
-                     
-        DoMeleeAttackIfReady();    
+
+        DoMeleeAttackIfReady();
     }
-    void JustDied(Unit* killer)  
+    void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
     }
@@ -84,6 +84,6 @@ void AddSC_boss_skadi()
 
     newscript = new Script;
     newscript->Name="boss_skadi";
-    newscript->GetAI = GetAI_boss_skadi;
+    newscript->GetAI = &GetAI_boss_skadi;
     newscript->RegisterSelf();
 }

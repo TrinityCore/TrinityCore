@@ -245,7 +245,7 @@ void npc_unworthy_initiateAI::UpdateAI(const uint32 diff)
     switch(phase)
     {
     case Chained:
-        if(!m_creature->HasAura(SPELL_SOUL_PRISON_CHAIN)) 
+        if(!m_creature->HasAura(SPELL_SOUL_PRISON_CHAIN))
         {
             float x, y, z;
             float dist = 99;
@@ -351,7 +351,7 @@ bool GOHello_go_acherus_soul_prison(Player *player, GameObject* _GO)
     uint64 owner = ((npc_unworthy_initiate_anchorAI*)((Creature*)prison_anchor)->AI())->GetTarget();
 
     Creature* prisoner = Creature::GetCreature((*player),owner);
-    
+
     if(prisoner && prison_anchor)
     {
         ((npc_unworthy_initiateAI*)(prisoner->AI()))->EventStart((Creature*)prison_anchor,player);
@@ -367,12 +367,12 @@ void AddSC_the_scarlet_enclave()
 
     newscript = new Script;
     newscript->Name="npc_unworthy_initiate";
-    newscript->GetAI = GetAI_npc_unworthy_initiate;
+    newscript->GetAI = &GetAI_npc_unworthy_initiate;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_unworthy_initiate_anchor";
-    newscript->GetAI = GetAI_npc_unworthy_initiate_anchor;
+    newscript->GetAI = &GetAI_npc_unworthy_initiate_anchor;
     newscript->RegisterSelf();
 
     newscript = new Script;

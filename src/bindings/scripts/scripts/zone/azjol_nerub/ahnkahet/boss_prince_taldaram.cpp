@@ -58,27 +58,27 @@ EndScriptData */
 struct TRINITY_DLL_DECL boss_taldaramAI : public ScriptedAI
 {
     boss_taldaramAI(Creature *c) : ScriptedAI(c) {}
-    
+
     void Reset() {}
-    void EnterCombat(Unit* who) 
+    void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if(!UpdateVictim())
             return;
-  
+
         DoMeleeAttackIfReady();
     }
-    void JustDied(Unit* killer)  
+    void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
     }
-    
+
     void KilledUnit(Unit *victim)
     {
         if (victim == m_creature)
@@ -104,6 +104,6 @@ void AddSC_boss_taldaram()
 
     newscript = new Script;
     newscript->Name="boss_taldaram";
-    newscript->GetAI = GetAI_boss_taldaram;
+    newscript->GetAI = &GetAI_boss_taldaram;
     newscript->RegisterSelf();
 }

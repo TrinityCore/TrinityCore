@@ -24,7 +24,7 @@ SDComment:
 SDCategory: Azjol Nerub
 EndScriptData */
 
-/*** SQL START *** 
+/*** SQL START ***
 update creature_template set scriptname = 'boss_anub_arak' where entry = '';
 *** SQL END ***/
 
@@ -43,11 +43,11 @@ update creature_template set scriptname = 'boss_anub_arak' where entry = '';
 #define SAY_SLAY_1                                 -1601001
 #define SAY_SLAY_2                                 -1601002
 #define SAY_SLAY_3                                 -1601003
-#define SAY_LOCUST_1                               -1601005  
-#define SAY_LOCUST_2                               -1601006  
-#define SAY_LOCUST_3                               -1601007  
-#define SAY_SUBMERGE_1                             -1601008    
-#define SAY_SUBMERGE_2                             -1601009    
+#define SAY_LOCUST_1                               -1601005
+#define SAY_LOCUST_2                               -1601006
+#define SAY_LOCUST_3                               -1601007
+#define SAY_SUBMERGE_1                             -1601008
+#define SAY_SUBMERGE_2                             -1601009
 #define SAY_DEATH                                  -1601004
 
 struct TRINITY_DLL_DECL boss_anub_arakAI : public ScriptedAI
@@ -55,33 +55,33 @@ struct TRINITY_DLL_DECL boss_anub_arakAI : public ScriptedAI
     boss_anub_arakAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 phase;
-    
+
     void Reset() {}
-    void EnterCombat(Unit* who) 
+    void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if(!UpdateVictim())
             return;
-            
+
         phase =1;
-            
+
         if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) <= 33)
             phase = 2;
         if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) == 15)
-            phase = 3;        
-            
+            phase = 3;
+
         DoMeleeAttackIfReady();
     }
-    void JustDied(Unit* killer)  
+    void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
-    }    
+    }
     void KilledUnit(Unit *victim)
     {
         if (victim == m_creature)
@@ -107,6 +107,6 @@ void AddSC_boss_anub_arak()
 
     newscript = new Script;
     newscript->Name="boss_anub_arak";
-    newscript->GetAI = GetAI_boss_anub_arak;
+    newscript->GetAI = &GetAI_boss_anub_arak;
     newscript->RegisterSelf();
 }

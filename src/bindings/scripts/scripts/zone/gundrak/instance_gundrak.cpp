@@ -16,6 +16,6 @@ void AddSC_instance_gundrak()
     Script *newscript;
     newscript = new Script;
     newscript->Name = "instance_gundrak";
-    newscript->GetInstanceData = GetInstanceData_instance_gundrak;
+    newscript->GetInstanceData = &GetInstanceData_instance_gundrak;
     newscript->RegisterSelf();
 }

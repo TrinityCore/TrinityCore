@@ -1,12 +1,12 @@
 /* Script Data Start
 SDName: Boss trollgore
 SDAuthor: LordVanMartin
-SD%Complete: 
-SDComment: 
-SDCategory: 
+SD%Complete:
+SDComment:
+SDCategory:
 Script Data End */
 
-/*** SQL START *** 
+/*** SQL START ***
 update creature_template set scriptname = 'boss_trollgore' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
@@ -33,21 +33,21 @@ struct TRINITY_DLL_DECL boss_trollgoreAI : public ScriptedAI
     boss_trollgoreAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset() {}
-    void EnterCombat(Unit* who) 
+    void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if(!UpdateVictim())
             return;
-                
-        DoMeleeAttackIfReady();    
+
+        DoMeleeAttackIfReady();
     }
-    void JustDied(Unit* killer)  
+    void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
     }
@@ -70,6 +70,6 @@ void AddSC_boss_trollgore()
 
     newscript = new Script;
     newscript->Name="boss_trollgore";
-    newscript->GetAI = GetAI_boss_trollgore;
+    newscript->GetAI = &GetAI_boss_trollgore;
     newscript->RegisterSelf();
 }
