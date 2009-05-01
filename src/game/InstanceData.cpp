@@ -40,3 +40,92 @@ void InstanceData::HandleGameObject(uint64 GUID, bool open, GameObject *go)
         debug_log("TSCR: InstanceData: HandleGameObject failed");
 }
 
+bool InstanceData::IsEncounterInProgress() const
+{
+    for(std::vector<BossInfo>::const_iterator itr = bosses.begin(); itr != bosses.end(); ++itr)
+        if(itr->state == IN_PROGRESS)
+            return true;
+
+    return false;
+}
+
+void InstanceData::AddBossRoomDoor(uint32 id, GameObject *door)
+{
+    if(id < bosses.size())
+    {
+        BossInfo *bossInfo = &bosses[id];
+        bossInfo->roomDoor.insert(door);
+        // Room door is only closed when encounter is in progress
+        if(bossInfo->state == IN_PROGRESS)
+            door->SetGoState(1);
+        else
+            door->SetGoState(0);
+    }
+}
+
+void InstanceData::AddBossPassageDoor(uint32 id, GameObject *door)
+{
+    if(id < bosses.size())
+    {
+        BossInfo *bossInfo = &bosses[id];
+        bossInfo->passageDoor.insert(door);
+        // Passage door is only opened when boss is defeated
+        if(bossInfo->state == DONE)
+            door->SetGoState(0);
+        else
+            door->SetGoState(1);
+    }
+}
+
+void InstanceData::RemoveBossRoomDoor(uint32 id, GameObject *door)
+{
+    if(id < bosses.size())
+    {
+        bosses[id].roomDoor.erase(door);
+    }
+}
+
+void InstanceData::RemoveBossPassageDoor(uint32 id, GameObject *door)
+{
+    if(id < bosses.size())
+    {
+        bosses[id].passageDoor.erase(door);
+    }
+}
+
+void InstanceData::SetBossState(uint32 id, EncounterState state)
+{
+    if(id < bosses.size())
+    {
+        BossInfo *bossInfo = &bosses[id];
+
+        bossInfo->state = state;
+        switch(state)
+        {
+        case NOT_STARTED:
+            // Open all room doors, close all passage doors
+            for(DoorSet::iterator i = bossInfo->roomDoor.begin(); i != bossInfo->roomDoor.end(); ++i)
+                (*i)->SetGoState(0);
+            for(DoorSet::iterator i = bossInfo->passageDoor.begin(); i != bossInfo->passageDoor.end(); ++i)
+                (*i)->SetGoState(1);
+            break;
+        case IN_PROGRESS:
+            // Close all doors
+            for(DoorSet::iterator i = bossInfo->roomDoor.begin(); i != bossInfo->roomDoor.end(); ++i)
+                (*i)->SetGoState(1);
+            for(DoorSet::iterator i = bossInfo->passageDoor.begin(); i != bossInfo->passageDoor.end(); ++i)
+                (*i)->SetGoState(1);
+            break;
+        case DONE:
+            // Open all doors
+            for(DoorSet::iterator i = bossInfo->roomDoor.begin(); i != bossInfo->roomDoor.end(); ++i)
+                (*i)->SetGoState(0);
+            for(DoorSet::iterator i = bossInfo->passageDoor.begin(); i != bossInfo->passageDoor.end(); ++i)
+                (*i)->SetGoState(0);
+            break;
+        default:
+            break;
+        }
+    }
+}
+
