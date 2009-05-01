@@ -1521,6 +1521,18 @@ bool SpellMgr::IsSkillBonusSpell(uint32 spellId) const
     return false;
 }
 
+bool SpellMgr::IsSkillTypeSpell(uint32 spellId, SkillType type) const
+{
+    SkillLineAbilityMap::const_iterator lower = GetBeginSkillLineAbilityMap(spellId);
+    SkillLineAbilityMap::const_iterator upper = GetEndSkillLineAbilityMap(spellId);
+    for (;lower!=upper;++lower)
+    {
+        if (lower->second->skillId==type)
+            return true;
+    }
+    return false;
+}
+
 SpellEntry const* SpellMgr::SelectAuraRankForPlayerLevel(SpellEntry const* spellInfo, uint32 playerLevel) const
 {
     // ignore passive spells
