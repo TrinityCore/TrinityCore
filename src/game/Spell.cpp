@@ -1431,34 +1431,38 @@ void Spell::SearchChainTarget(std::list<Unit*> &TagUnitMap, float max_range, uin
 void Spell::SearchAreaTarget(std::list<Unit*> &TagUnitMap, float radius, const uint32 type, SpellTargets TargetType, uint32 entry)
 {
     float x, y, z;
-    if(type == PUSH_DST_CENTER)
+    switch(type)
     {
-        if(!m_targets.HasDst())
+        case PUSH_DST_CENTER:
+            CheckDst();
+            x = m_targets.m_destX;
+            y = m_targets.m_destY;
+            z = m_targets.m_destZ;
+            break;
+        case PUSH_SRC_CENTER:
+            CheckSrc();
+            x = m_targets.m_srcX;
+            y = m_targets.m_srcY;
+            z = m_targets.m_srcZ;
+            break;
+        case PUSH_CHAIN:
         {
-            sLog.outError( "SPELL: cannot find destination for spell ID %u\n", m_spellInfo->Id );
-            return;
+            Unit *target = m_targets.getUnitTarget();
+            if(!target)
+            {
+                sLog.outError( "SPELL: cannot find unit target for spell ID %u\n", m_spellInfo->Id );
+                return;
+            }
+            x = target->GetPositionX();
+            y = target->GetPositionY();
+            z = target->GetPositionZ();
+            break;
         }
-        x = m_targets.m_destX;
-        y = m_targets.m_destY;
-        z = m_targets.m_destZ;
-    }
-    else if(type == PUSH_CHAIN)
-    {
-        Unit *target = m_targets.getUnitTarget();
-        if(!target)
-        {
-            sLog.outError( "SPELL: cannot find unit target for spell ID %u\n", m_spellInfo->Id );
-            return;
-        }
-        x = target->GetPositionX();
-        y = target->GetPositionY();
-        z = target->GetPositionZ();
-    }
-    else
-    {
-        x = m_caster->GetPositionX();
-        y = m_caster->GetPositionY();
-        z = m_caster->GetPositionZ();
+        default:
+            x = m_caster->GetPositionX();
+            y = m_caster->GetPositionY();
+            z = m_caster->GetPositionZ();
+            break;
     }
 
     Trinity::SpellNotifierCreatureAndPlayer notifier(*this, TagUnitMap, radius, type, TargetType, entry, x, y, z);
@@ -1672,12 +1676,10 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
         }
 
         case TARGET_TYPE_AREA_SRC:
-            CheckSrc();
             pushType = PUSH_SRC_CENTER;
             break;
 
         case TARGET_TYPE_AREA_DST:
-            CheckDst();
             pushType = PUSH_DST_CENTER;
             break;
 
