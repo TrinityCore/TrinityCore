@@ -114,12 +114,12 @@ ConfusedMovementGenerator<T>::Update(T &unit, const uint32 &diff)
     {
         // currently moving, update location
         Traveller<T> traveller(unit);
-        if( i_destinationHolder.UpdateTraveller(traveller, diff, false))
+        if( i_destinationHolder.UpdateTraveller(traveller, diff))
         {
             if( i_destinationHolder.HasArrived())
             {
                 // arrived, stop and wait a bit
-                unit.StopMoving();
+                unit.clearUnitState(UNIT_STAT_MOVE);
 
                 i_nextMove = urand(1,MAX_CONF_WAYPOINTS);
                 i_nextMoveTime.Reset(urand(0, 1500-1));     // TODO: check the minimum reset time, should be probably higher

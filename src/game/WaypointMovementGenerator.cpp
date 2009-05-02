@@ -151,7 +151,7 @@ WaypointMovementGenerator<Creature>::Update(Creature &unit, const uint32 &diff)
     Traveller<Creature> traveller(unit);
 
     i_nextMoveTime.Update(diff);
-    i_destinationHolder.UpdateTraveller(traveller, diff, false, true);
+    i_destinationHolder.UpdateTraveller(traveller, diff, true);
 
     if(i_nextMoveTime.Passed())
     {
@@ -291,7 +291,7 @@ FlightPathMovementGenerator::Update(Player &player, const uint32 &diff)
     if( MovementInProgress() )
     {
         Traveller<Player> traveller(player);
-        if( i_destinationHolder.UpdateTraveller(traveller, diff, false) )
+        if( i_destinationHolder.UpdateTraveller(traveller, diff) )
         {
             i_destinationHolder.ResetUpdate(FLIGHT_TRAVEL_UPDATE);
             if( i_destinationHolder.HasArrived() )

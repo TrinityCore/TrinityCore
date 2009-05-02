@@ -2110,7 +2110,7 @@ void Spell::EffectTriggerSpell(uint32 i)
     bool instant = false;
     for(uint32 j = i+1; j < 3; ++j)
     {
-        if(m_spellInfo->Effect[j]==SPELL_EFFECT_INSTAKILL && m_spellInfo->EffectImplicitTargetA[j]==TARGET_SELF)
+        if(m_spellInfo->Effect[j]==SPELL_EFFECT_INSTAKILL && m_spellInfo->EffectImplicitTargetA[j]==TARGET_UNIT_CASTER)
         {
             instant = true;
             break;
@@ -2153,7 +2153,7 @@ void Spell::EffectJump(uint32 i)
 
     // Init dest coordinates
     float x,y,z,o;
-    if(m_targets.HasDest())
+    if(m_targets.HasDst())
     {
         x = m_targets.m_destX;
         y = m_targets.m_destY;
@@ -2210,7 +2210,7 @@ void Spell::EffectTeleportUnits(uint32 i)
         return;
 
     // If not exist data for dest location - return
-    if(!m_targets.HasDest())
+    if(!m_targets.HasDst())
     {
         sLog.outError( "Spell::EffectTeleportUnits - does not have destination for spell ID %u\n", m_spellInfo->Id );
         return;
@@ -2230,7 +2230,7 @@ void Spell::EffectTeleportUnits(uint32 i)
     else if(unitTarget->GetTypeId() == TYPEID_PLAYER)
         ((Player*)unitTarget)->TeleportTo(mapid, x, y, z, orientation, unitTarget==m_caster ? TELE_TO_SPELL : 0);
 
-    // post effects for TARGET_TABLE_X_Y_Z_COORDINATES
+    // post effects for TARGET_DST_DB
     switch ( m_spellInfo->Id )
     {
         // Dimensional Ripper - Everlook
@@ -5674,7 +5674,7 @@ void Spell::EffectMomentMove(uint32 i)
     if(unitTarget->isInFlight())
         return;
 
-    if(!m_targets.HasDest())
+    if(!m_targets.HasDst())
         return;
 
     uint32 mapid = m_caster->GetMapId();

@@ -995,63 +995,43 @@ enum SpellImmunity
 
 enum Targets
 {
-    TARGET_SELF                        = 1,
     TARGET_UNIT_CASTER                 = 1,
-    TARGET_UNIT_NEARBY_ENEMY           = 2,
+    TARGET_UNIT_NEARBY_ENEMY           = 2, // only one spell has that, but regardless, it's a target type after all
     TARGET_UNIT_NEARBY_ALLY            = 3,
     TARGET_UNIT_NEARBY_ALLY_UNK        = 4,
-    TARGET_PET                         = 5,
     TARGET_UNIT_PET                    = 5,
-    TARGET_CHAIN_DAMAGE                = 6,
     TARGET_UNIT_TARGET_ENEMY           = 6,
-    TARGET_UNIT_AREA_ENTRY             = 7,
-    TARGET_AREAEFFECT_CUSTOM           = 8,
-    TARGET_UNIT_AREA_ENTRY_GROUND      = 8,
-    TARGET_INNKEEPER_COORDINATES       = 9,                 // uses in teleport to innkeeper spells
-    //TARGET_DEST_HOME
+    TARGET_UNIT_AREA_ENTRY_SRC         = 7,
+    TARGET_UNIT_AREA_ENTRY_DST         = 8,
+    TARGET_DST_HOME                    = 9,  // uses in teleport to innkeeper spells
     TARGET_UNIT_TARGET_DEST_CASTER     = 11, // teleport target to caster
-    TARGET_ALL_ENEMY_IN_AREA           = 15,
-    TARGET_UNIT_AREA_ENEMY             = 15,
-    TARGET_ALL_ENEMY_IN_AREA_INSTANT   = 16,
-    TARGET_UNIT_AREA_ENEMY_GROUND      = 16,
-    TARGET_TABLE_X_Y_Z_COORDINATES     = 17,                // uses in teleport spells and some other
-    //TARGET_DEST_TABLE
-    TARGET_EFFECT_SELECT               = 18,                // highly depends on the spell effect
-    TARGET_DEST_CASTER_GROUND          = 18,
+    TARGET_UNIT_AREA_ENEMY_SRC         = 15,
+    TARGET_UNIT_AREA_ENEMY_DST         = 16,
+    TARGET_DST_DB                      = 17, // uses in teleport spells and some other
+    TARGET_DST_CASTER                  = 18,
     TARGET_PREV_EFFECT_SUMMON          = 18,
-    TARGET_ALL_PARTY_AROUND_CASTER     = 20,
     TARGET_UNIT_PARTY_CASTER           = 20,
-    TARGET_SINGLE_FRIEND               = 21,
     TARGET_UNIT_TARGET_ALLY            = 21,
-    TARGET_DEST_CASTER                 = 22,
+    TARGET_SRC_CASTER                  = 22,
     TARGET_GAMEOBJECT                  = 23,
     //TARGET_OBJECT_OPEN
-    TARGET_IN_FRONT_OF_CASTER          = 24,
     TARGET_UNIT_CONE_ENEMY             = 24,
-    TARGET_DUELVSPLAYER                = 25,
     TARGET_UNIT_TARGET_ANY             = 25,
     TARGET_GAMEOBJECT_ITEM             = 26,
     //TARGET_OBJECT_ITEM_PICKLOCK
     TARGET_UNIT_MASTER                 = 27,
     TARGET_DEST_DYNOBJ_ENEMY           = 28,
     TARGET_DEST_DYNOBJ_ALLY            = 29, // only for effect 27
-    TARGET_ALL_FRIENDLY_UNITS_AROUND_CASTER = 30,           // in TargetB used only with TARGET_ALL_AROUND_CASTER and in self casting range in TargetA
-    TARGET_UNIT_AREA_ALLY              = 30,
-    TARGET_ALL_FRIENDLY_UNITS_IN_AREA  = 31,
-    TARGET_UNIT_AREA_ALLY_GROUND       = 31,
+    TARGET_UNIT_AREA_ALLY_SRC          = 30, // in TargetB used only with TARGET_SRC_CASTER and in self casting range in TargetA
+    TARGET_UNIT_AREA_ALLY_DST          = 31,
     TARGET_MINION                      = 32,
     //TARGET_DEST_SUMMON
-    TARGET_ALL_PARTY                   = 33,
-    TARGET_UNIT_AREA_PARTY             = 33,
-    TARGET_ALL_PARTY_AROUND_CASTER_2   = 34,                // used in Tranquility
-    TARGET_UNIT_AREA_PARTY_GROUND      = 34,
-    TARGET_SINGLE_PARTY                = 35,
+    TARGET_UNIT_AREA_PARTY_SRC         = 33,
+    TARGET_UNIT_AREA_PARTY_DST         = 34, // used in Tranquility
     TARGET_UNIT_TARGET_PARTY           = 35,
     TARGET_DEST_CASTER_RANDOM_UNKNOWN  = 36, //unknown
-    TARGET_AREAEFFECT_PARTY            = 37,
     TARGET_UNIT_PARTY_TARGET           = 37,
-    TARGET_SCRIPT                      = 38,
-    //TARGET_UNIT_NEARBY_ENTRY
+    TARGET_UNIT_NEARBY_ENTRY           = 38,
     TARGET_UNIT_CASTER_FISHING         = 39,
     TARGET_OBJECT_USE                  = 40,
     TARGET_DEST_CASTER_FRONT_LEFT      = 41, //earth totem
@@ -1059,28 +1039,23 @@ enum Targets
     TARGET_DEST_CASTER_BACK_RIGHT      = 43, //air totem
     TARGET_DEST_CASTER_FRONT_RIGHT     = 44, //fire totem
     TARGET_UNIT_CHAINHEAL              = 45,
-    TARGET_SCRIPT_COORDINATES          = 46,
-    //TARGET_DEST_NEARBY_ENTRY
+    TARGET_DST_NEARBY_ENTRY            = 46,
     TARGET_DEST_CASTER_FRONT           = 47,
     TARGET_DEST_CASTER_BACK            = 48,
     TARGET_DEST_CASTER_RIGHT           = 49,
     TARGET_DEST_CASTER_LEFT            = 50,
-    TARGET_OBJECT_AREA                 = 51,
-    TARGET_AREAEFFECT_CUSTOM_2         = 52,
-    //TARGET_DUMMY
-    TARGET_CURRENT_ENEMY_COORDINATES   = 53,                // set unit coordinates as dest, only 16 target B imlemented
-    TARGET_DEST_TARGET_ENEMY           = 53,
-    TARGET_UNIT_CONE_ENEMY_UNKNOWN     = 54,
+    TARGET_OBJECT_AREA_SRC             = 51,
+    TARGET_OBJECT_AREA_DST             = 52,
+    TARGET_DST_TARGET_ENEMY            = 53, // set unit coordinates as dest, only 16 target B imlemented
+    TARGET_UNIT_CONE_ENEMY_UNKNOWN     = 54, // 180 degree, or different angle
     TARGET_DEST_CASTER_FRONT_LEAP      = 55, // for a leap spell
-    TARGET_UNIT_RAID                   = 56,
-    TARGET_SINGLE_FRIEND_2             = 57,
+    TARGET_UNIT_RAID_CASTER                   = 56,
     TARGET_UNIT_TARGET_RAID            = 57,
+    TARGET_UNIT_NEARBY_RAID            = 58,
     TARGET_UNIT_CONE_ALLY              = 59,
-    TARGET_UNIT_AREA_SCRIPT            = 60,
-    TARGET_AREAEFFECT_PARTY_AND_CLASS  = 61,
+    TARGET_UNIT_CONE_ENTRY             = 60,
     TARGET_UNIT_CLASS_TARGET           = 61,
     TARGET_TEST                        = 62, // for a test spell
-    TARGET_DUELVSPLAYER_COORDINATES    = 63,
     TARGET_DEST_TARGET_ANY             = 63,
     TARGET_DEST_TARGET_FRONT           = 64,
     TARGET_DEST_TARGET_BACK            = 65,                // uses in teleport behind spells
@@ -1106,7 +1081,7 @@ enum Targets
     TARGET_DEST_DEST_FRONT_RIGHT       = 85,
     TARGET_DEST_DEST_RANDOM            = 86,
     TARGET_DEST_DEST                   = 87,
-    TARGET_UNIT_AREA_ALL_CHANNEL       = 88,
+    TARGET_DEST_DYNOBJ_NONE            = 88,
     TARGET_DEST_TRAJ                   = 89,
     TARGET_UNIT_MINIPET                = 90,
     TARGET_CORPSE_AREA_ENEMY_PLAYER    = 93,

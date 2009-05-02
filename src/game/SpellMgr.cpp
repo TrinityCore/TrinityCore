@@ -94,7 +94,7 @@ SpellMgr::SpellMgr()
             case TARGET_UNIT_MASTER:
             case TARGET_UNIT_PET:
             case TARGET_UNIT_PARTY_CASTER:
-            case TARGET_UNIT_RAID:
+            case TARGET_UNIT_RAID_CASTER:
                 SpellTargetType[i] = TARGET_TYPE_UNIT_CASTER;
                 break;
             case TARGET_UNIT_MINIPET:
@@ -104,24 +104,54 @@ SpellMgr::SpellMgr()
             case TARGET_UNIT_TARGET_ENEMY:
             case TARGET_UNIT_TARGET_PARTY:
             case TARGET_UNIT_PARTY_TARGET:
+            case TARGET_UNIT_CLASS_TARGET:
             case TARGET_UNIT_CHAINHEAL:
                 SpellTargetType[i] = TARGET_TYPE_UNIT_TARGET;
                 break;
-            case TARGET_UNIT_CHANNEL:
-            case TARGET_DEST_CHANNEL:
-                SpellTargetType[i] = TARGET_TYPE_CHANNEL;
+            case TARGET_UNIT_NEARBY_ENEMY:
+            case TARGET_UNIT_NEARBY_ALLY:
+            case TARGET_UNIT_NEARBY_ALLY_UNK:
+            case TARGET_UNIT_NEARBY_ENTRY:
+            case TARGET_UNIT_NEARBY_RAID:
+                SpellTargetType[i] = TARGET_TYPE_UNIT_NEARBY;
                 break;
-            case TARGET_UNIT_AREA_ENEMY_GROUND:
-            case TARGET_UNIT_AREA_ENEMY:
-            case TARGET_UNIT_AREA_ALLY_GROUND:
-            case TARGET_UNIT_AREA_ALLY:
-            case TARGET_UNIT_AREA_ENTRY_GROUND:
-            case TARGET_UNIT_AREA_ENTRY:
-            case TARGET_UNIT_AREA_PARTY_GROUND:
-            case TARGET_UNIT_AREA_PARTY:
-                SpellTargetType[i] = TARGET_TYPE_AREA_DEST;
+            case TARGET_UNIT_AREA_ENEMY_SRC:
+            case TARGET_UNIT_AREA_ALLY_SRC:
+            case TARGET_UNIT_AREA_ENTRY_SRC:
+            case TARGET_UNIT_AREA_PARTY_SRC:
+            case TARGET_OBJECT_AREA_SRC:
+                SpellTargetType[i] = TARGET_TYPE_AREA_SRC;
                 break;
-            case TARGET_DEST_TARGET_ENEMY:
+            case TARGET_UNIT_AREA_ENEMY_DST:
+            case TARGET_UNIT_AREA_ALLY_DST:
+            case TARGET_UNIT_AREA_ENTRY_DST:
+            case TARGET_UNIT_AREA_PARTY_DST:
+            case TARGET_OBJECT_AREA_DST:
+                SpellTargetType[i] = TARGET_TYPE_AREA_DST;
+                break;
+            case TARGET_UNIT_CONE_ENEMY:
+            case TARGET_UNIT_CONE_ALLY:
+            case TARGET_UNIT_CONE_ENTRY:
+            case TARGET_UNIT_CONE_ENEMY_UNKNOWN:
+                SpellTargetType[i] = TARGET_TYPE_AREA_CONE;
+                break;
+            case TARGET_DST_CASTER:
+            case TARGET_SRC_CASTER:
+            case TARGET_MINION:
+            case TARGET_DEST_CASTER_FRONT_LEAP:
+            case TARGET_DEST_CASTER_FRONT:
+            case TARGET_DEST_CASTER_BACK:
+            case TARGET_DEST_CASTER_RIGHT:
+            case TARGET_DEST_CASTER_LEFT:
+            case TARGET_DEST_CASTER_FRONT_LEFT:
+            case TARGET_DEST_CASTER_BACK_LEFT:
+            case TARGET_DEST_CASTER_BACK_RIGHT:
+            case TARGET_DEST_CASTER_FRONT_RIGHT:
+            case TARGET_DEST_CASTER_RANDOM:
+            case TARGET_DEST_CASTER_RADIUS:
+                SpellTargetType[i] = TARGET_TYPE_DEST_CASTER;
+                break;
+            case TARGET_DST_TARGET_ENEMY:
             case TARGET_DEST_TARGET_ANY:
             case TARGET_DEST_TARGET_FRONT:
             case TARGET_DEST_TARGET_BACK:
@@ -135,25 +165,11 @@ SpellMgr::SpellMgr()
             case TARGET_DEST_TARGET_RADIUS:
                 SpellTargetType[i] = TARGET_TYPE_DEST_TARGET;
                 break;
-            case TARGET_DEST_CASTER_GROUND:
-            case TARGET_DEST_CASTER:
-            case TARGET_DEST_CASTER_FRONT_LEFT:
-            case TARGET_DEST_CASTER_BACK_LEFT:
-            case TARGET_DEST_CASTER_BACK_RIGHT:
-            case TARGET_DEST_CASTER_FRONT_RIGHT:
-            case TARGET_DEST_CASTER_FRONT:
-            case TARGET_MINION:
-            case TARGET_DEST_CASTER_FRONT_LEAP:
-            case TARGET_DEST_CASTER_BACK:
-            case TARGET_DEST_CASTER_RIGHT:
-            case TARGET_DEST_CASTER_LEFT:
-            case TARGET_DEST_CASTER_RANDOM:
-            case TARGET_DEST_CASTER_RADIUS:
-                SpellTargetType[i] = TARGET_TYPE_DEST_CASTER;
-                break;
             case TARGET_DEST_DYNOBJ_ENEMY:
             case TARGET_DEST_DYNOBJ_ALLY:
+            case TARGET_DEST_DYNOBJ_NONE:
             case TARGET_DEST_DEST:
+            case TARGET_DEST_TRAJ:
             case TARGET_DEST_DEST_FRONT_LEFT:
             case TARGET_DEST_DEST_BACK_LEFT:
             case TARGET_DEST_DEST_BACK_RIGHT:
@@ -165,6 +181,15 @@ SpellMgr::SpellMgr()
             case TARGET_DEST_DEST_RANDOM:
                 SpellTargetType[i] = TARGET_TYPE_DEST_DEST;
                 break;
+            case TARGET_DST_DB:
+            case TARGET_DST_HOME:
+            case TARGET_DST_NEARBY_ENTRY:
+                SpellTargetType[i] = TARGET_TYPE_DEST_SPECIAL;
+                break;
+            case TARGET_UNIT_CHANNEL:
+            case TARGET_DEST_CHANNEL:
+                SpellTargetType[i] = TARGET_TYPE_CHANNEL;
+                break;
             default:
                 SpellTargetType[i] = TARGET_TYPE_DEFAULT;
         }
@@ -174,20 +199,20 @@ SpellMgr::SpellMgr()
     {
         switch(i)
         {
-            case TARGET_UNIT_AREA_ENEMY_GROUND:
-            case TARGET_UNIT_AREA_ENEMY:
-            case TARGET_UNIT_AREA_ALLY_GROUND:
-            case TARGET_UNIT_AREA_ALLY:
-            case TARGET_UNIT_AREA_ENTRY_GROUND:
-            case TARGET_UNIT_AREA_ENTRY:
-            case TARGET_UNIT_AREA_PARTY_GROUND:
-            case TARGET_UNIT_AREA_PARTY:
+            case TARGET_UNIT_AREA_ENEMY_DST:
+            case TARGET_UNIT_AREA_ENEMY_SRC:
+            case TARGET_UNIT_AREA_ALLY_DST:
+            case TARGET_UNIT_AREA_ALLY_SRC:
+            case TARGET_UNIT_AREA_ENTRY_DST:
+            case TARGET_UNIT_AREA_ENTRY_SRC:
+            case TARGET_UNIT_AREA_PARTY_DST:
+            case TARGET_UNIT_AREA_PARTY_SRC:
             case TARGET_UNIT_PARTY_TARGET:
             case TARGET_UNIT_PARTY_CASTER:
             case TARGET_UNIT_CONE_ENEMY:
             case TARGET_UNIT_CONE_ALLY:
             case TARGET_UNIT_CONE_ENEMY_UNKNOWN:
-            case TARGET_UNIT_RAID:
+            case TARGET_UNIT_RAID_CASTER:
                 IsAreaEffectTarget[i] = true;
                 break;
             default:
@@ -494,12 +519,12 @@ bool IsPositiveTarget(uint32 targetA, uint32 targetB)
     // non-positive targets
     switch(targetA)
     {
-        case TARGET_CHAIN_DAMAGE:
-        case TARGET_ALL_ENEMY_IN_AREA:
-        case TARGET_ALL_ENEMY_IN_AREA_INSTANT:
-        case TARGET_IN_FRONT_OF_CASTER:
+        case TARGET_UNIT_TARGET_ENEMY:
+        case TARGET_UNIT_AREA_ENEMY_SRC:
+        case TARGET_UNIT_AREA_ENEMY_DST:
+        case TARGET_UNIT_CONE_ENEMY:
         case TARGET_DEST_DYNOBJ_ENEMY:
-        case TARGET_CURRENT_ENEMY_COORDINATES:
+        case TARGET_DST_TARGET_ENEMY:
         case TARGET_UNIT_CHANNEL:
             return false;
         default:
@@ -622,12 +647,12 @@ bool IsPositiveEffect(uint32 spellId, uint32 effIndex, bool deep)
                     return false;
                 case SPELL_AURA_PERIODIC_DAMAGE:            // used in positive spells also.
                     // part of negative spell if casted at self (prevent cancel)
-                    if(spellproto->EffectImplicitTargetA[effIndex] == TARGET_SELF)
+                    if(spellproto->EffectImplicitTargetA[effIndex] == TARGET_UNIT_CASTER)
                         return false;
                     break;
                 case SPELL_AURA_MOD_DECREASE_SPEED:         // used in positive spells also
                     // part of positive spell if casted at self
-                    if(spellproto->EffectImplicitTargetA[effIndex] != TARGET_SELF)
+                    if(spellproto->EffectImplicitTargetA[effIndex] != TARGET_UNIT_CASTER)
                         return false;
                     // but not this if this first effect (don't found batter check)
                     if(spellproto->Attributes & 0x4000000 && effIndex==0)
@@ -918,7 +943,7 @@ void SpellMgr::LoadSpellTargetPositions()
         bool found = false;
         for(int i = 0; i < 3; ++i)
         {
-            if( spellInfo->EffectImplicitTargetA[i]==TARGET_TABLE_X_Y_Z_COORDINATES || spellInfo->EffectImplicitTargetB[i]==TARGET_TABLE_X_Y_Z_COORDINATES )
+            if( spellInfo->EffectImplicitTargetA[i]==TARGET_DST_DB || spellInfo->EffectImplicitTargetB[i]==TARGET_DST_DB )
             {
                 found = true;
                 break;
@@ -926,7 +951,7 @@ void SpellMgr::LoadSpellTargetPositions()
         }
         if(!found)
         {
-            sLog.outErrorDb("Spell (Id: %u) listed in `spell_target_position` does not have target TARGET_TABLE_X_Y_Z_COORDINATES (17).",Spell_ID);
+            sLog.outErrorDb("Spell (Id: %u) listed in `spell_target_position` does not have target TARGET_DST_DB (17).",Spell_ID);
             continue;
         }
 
@@ -2023,7 +2048,7 @@ void SpellMgr::LoadSpellLearnSpells()
                 // talent or passive spells or skill-step spells auto-casted and not need dependent learning,
                 // pet teaching spells don't must be dependent learning (casted)
                 // other required explicit dependent learning
-                dbc_node.autoLearned = entry->EffectImplicitTargetA[i]==TARGET_PET || GetTalentSpellCost(spell) > 0 || IsPassiveSpell(spell) || IsSpellHaveEffect(entry,SPELL_EFFECT_SKILL_STEP);
+                dbc_node.autoLearned = entry->EffectImplicitTargetA[i] == TARGET_UNIT_PET || GetTalentSpellCost(spell) > 0 || IsPassiveSpell(spell) || IsSpellHaveEffect(entry,SPELL_EFFECT_SKILL_STEP);
 
                 SpellLearnSpellMap::const_iterator db_node_begin = GetBeginSpellLearnSpell(spell);
                 SpellLearnSpellMap::const_iterator db_node_end   = GetEndSpellLearnSpell(spell);
@@ -2095,10 +2120,10 @@ void SpellMgr::LoadSpellScriptTarget()
         /*bool targetfound = false;
         for(int i = 0; i <3; ++i)
         {
-            if( spellProto->EffectImplicitTargetA[i]==TARGET_SCRIPT ||
-                spellProto->EffectImplicitTargetB[i]==TARGET_SCRIPT ||
-                spellProto->EffectImplicitTargetA[i]==TARGET_SCRIPT_COORDINATES ||
-                spellProto->EffectImplicitTargetB[i]==TARGET_SCRIPT_COORDINATES )
+            if( spellProto->EffectImplicitTargetA[i]==TARGET_UNIT_NEARBY_ENTRY ||
+                spellProto->EffectImplicitTargetB[i]==TARGET_UNIT_NEARBY_ENTRY ||
+                spellProto->EffectImplicitTargetA[i]==TARGET_DST_NEARBY_ENTRY ||
+                spellProto->EffectImplicitTargetB[i]==TARGET_DST_NEARBY_ENTRY )
             {
                 targetfound = true;
                 break;
@@ -2106,7 +2131,7 @@ void SpellMgr::LoadSpellScriptTarget()
         }
         if(!targetfound)
         {
-            sLog.outErrorDb("Table `spell_script_target`: spellId %u listed for TargetEntry %u does not have any implicit target TARGET_SCRIPT(38) or TARGET_SCRIPT_COORDINATES (46).",spellId,targetEntry);
+            sLog.outErrorDb("Table `spell_script_target`: spellId %u listed for TargetEntry %u does not have any implicit target TARGET_UNIT_NEARBY_ENTRY(38) or TARGET_DST_NEARBY_ENTRY (46).",spellId,targetEntry);
             continue;
         }*/
 
@@ -2172,13 +2197,13 @@ void SpellMgr::LoadSpellScriptTarget()
         bool found = false;
         for(int j=0; j<3; ++j)
         {
-            if( spellInfo->EffectImplicitTargetA[j] == TARGET_SCRIPT || spellInfo->EffectImplicitTargetA[j] != TARGET_SELF && spellInfo->EffectImplicitTargetB[j] == TARGET_SCRIPT )
+            if( spellInfo->EffectImplicitTargetA[j] == TARGET_UNIT_NEARBY_ENTRY || spellInfo->EffectImplicitTargetA[j] != TARGET_UNIT_CASTER && spellInfo->EffectImplicitTargetB[j] == TARGET_UNIT_NEARBY_ENTRY )
             {
                 SpellScriptTarget::const_iterator lower = spellmgr.GetBeginSpellScriptTarget(spellInfo->Id);
                 SpellScriptTarget::const_iterator upper = spellmgr.GetEndSpellScriptTarget(spellInfo->Id);
                 if(lower==upper)
                 {
-                    sLog.outErrorDb("Spell (ID: %u) has effect EffectImplicitTargetA/EffectImplicitTargetB = %u (TARGET_SCRIPT), but does not have record in `spell_script_target`",spellInfo->Id,TARGET_SCRIPT);
+                    sLog.outErrorDb("Spell (ID: %u) has effect EffectImplicitTargetA/EffectImplicitTargetB = %u (TARGET_UNIT_NEARBY_ENTRY), but does not have record in `spell_script_target`",spellInfo->Id,TARGET_UNIT_NEARBY_ENTRY);
                     break;                                  // effects of spell
                 }
             }
@@ -2255,7 +2280,7 @@ void SpellMgr::LoadSpellPetAuras()
                 continue;
             }
 
-            PetAura pa(pet, aura, spellInfo->EffectImplicitTargetA[i] == TARGET_PET, spellInfo->CalculateSimpleValue(i));
+            PetAura pa(pet, aura, spellInfo->EffectImplicitTargetA[i] == TARGET_UNIT_PET, spellInfo->CalculateSimpleValue(i));
             mSpellPetAuraMap[spell] = pa;
         }
 
