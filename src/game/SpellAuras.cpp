@@ -49,8 +49,6 @@
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
 
-class Vehicle;
-
 pAuraHandler AuraHandler[TOTAL_AURAS]=
 {
     &AuraEffect::HandleNULL,                                      //  0 SPELL_AURA_NONE

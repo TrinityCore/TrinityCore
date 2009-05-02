@@ -1289,7 +1289,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
 
         Pet* CreateTamedPetFrom(Creature* creatureTarget,uint32 spell_id = 0);
 
-        bool AddAura(Aura *aur);
+        bool AddAura(Aura *aur, bool handleEffects = true);
 
         void RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode = AURA_REMOVE_BY_DEFAULT);
         void RemoveAura(uint32 spellId, uint64 caster = 0 ,AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);

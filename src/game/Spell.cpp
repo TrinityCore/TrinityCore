@@ -1127,13 +1127,6 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
         if (effectMask & (1<<i) && (m_spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AURA || IsAreaAuraEffect(m_spellInfo->Effect[i])))
             aura_effmask |= 1<<i;
 
-    uint8 t_effmask = effectMask & ~aura_effmask;
-    for(uint32 effectNumber = 0; effectNumber < 3; ++effectNumber)
-    {
-        if (t_effmask & (1<<effectNumber))
-            HandleEffects(unit,NULL,NULL,effectNumber);
-    }
-
     if (aura_effmask)
     {
         Unit * caster =  m_originalCaster ? m_originalCaster : m_caster;
@@ -1163,8 +1156,14 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
                 m_caster->CastSpell(unit, 41637, true, NULL, NULL, m_originalCasterGUID);
         }
         // Set aura only when successfully applied
-        if (unit->AddAura(Aur))
+        if (unit->AddAura(Aur, false))
             m_spellAura = Aur;
+    }
+
+    for(uint32 effectNumber = 0; effectNumber < 3; ++effectNumber)
+    {
+        if (effectMask & (1<<effectNumber))
+            HandleEffects(unit,NULL,NULL,effectNumber);
     }
 
     return SPELL_MISS_NONE;
@@ -2031,43 +2030,6 @@ void Spell::SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap)
             TagUnitMap.remove(m_targets.getUnitTarget());
 
         Trinity::RandomResizeList(TagUnitMap, unMaxTargets);
-
-        /*if(m_spellInfo->Id==57669)                  //Replenishment (special target selection)
-        {
-            if(pGroup)
-            {
-                typedef std::priority_queue<PrioritizeManaPlayerWraper, std::vector<PrioritizeManaPlayerWraper>, PrioritizeMana> Top10;
-                Top10 manaUsers;
-
-                for(GroupReference *itr = pGroup->GetFirstMember(); itr != NULL && manaUsers.size() < 10; itr = itr->next())
-                {
-                    Player* Target = itr->getSource();
-                    if (m_caster->GetGUID() != Target->GetGUID() && Target->getPowerType() == POWER_MANA &&
-                        !Target->isDead() && m_caster->IsWithinDistInMap(Target, radius))
-                    {
-                        PrioritizeManaPlayerWraper  WTarget(Target);
-                        manaUsers.push(WTarget);
-                    }
-                }
-
-                while(!manaUsers.empty())
-                {
-                    TagUnitMap.push_back(manaUsers.top().getPlayer());
-                    manaUsers.pop();
-                }
-            }
-            else
-            {
-                Unit* ownerOrSelf = pTarget ? pTarget : m_caster->GetCharmerOrOwnerOrSelf();
-                if ((ownerOrSelf==m_caster || m_caster->IsWithinDistInMap(ownerOrSelf, radius)) &&
-                    ownerOrSelf->getPowerType() == POWER_MANA)
-                    TagUnitMap.push_back(ownerOrSelf);
-
-                if(Pet* pet = ownerOrSelf->GetGuardianPet())
-                    if( m_caster->IsWithinDistInMap(pet, radius) && pet->getPowerType() == POWER_MANA )
-                        TagUnitMap.push_back(pet);
-            }
-        }*/
     }
 }
 
