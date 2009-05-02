@@ -3681,7 +3681,7 @@ int32 Unit::GetMaxNegativeAuraModifierByMiscValue(AuraType auratype, int32 misc_
     return modifier;
 }
 
-bool Unit::AddAura(Aura *Aur)
+bool Unit::AddAura(Aura *Aur, bool handleEffects)
 {
     // aura doesn't apply effects-return
     if (!Aur->GetEffectMask() || Aur->IsExpired())
@@ -3779,7 +3779,8 @@ bool Unit::AddAura(Aura *Aur)
         m_ccAuras.push_back(Aur);
     }
 
-    Aur->HandleEffects(true);
+    if (handleEffects)
+        Aur->HandleEffects(true);
 
     sLog.outDebug("Aura %u now is in use", Aur->GetId());
     return true;
@@ -10175,7 +10176,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
                 // for some spells this mod is applied on vehicle owner
                 uint32 owner_speed_mod  = ((Vehicle*)this)->GetOwner()->GetMaxPositiveAuraModifier(SPELL_AURA_MOD_INCREASE_VEHICLE_FLIGHT_SPEED);
 
-                main_speed_mod>owner_speed_mod ? main_speed_mod : owner_speed_mod;
+                main_speed_mod = main_speed_mod>owner_speed_mod ? main_speed_mod : owner_speed_mod;
             }
             else if (IsMounted())
             {
