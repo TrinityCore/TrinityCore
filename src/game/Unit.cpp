@@ -6335,10 +6335,20 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                         sLog.outError("Unit::HandleDummyAuraProc: non handled spell id: %u (LO)", procSpell->Id);
                         return false;
                 }
+                // Remove cooldown (Chain Lightning - have Category Recovery time)
+                if (procSpell->SpellFamilyFlags[0] & 0x2)
+                    ((Player*)this)->RemoveSpellCooldown(spellId);
+
+                // do not reduce damage-spells have correct basepoints
+                int32 mod = 0;
+
                 // Apply spellmod
-                CastSpell(this, 39805, true, castItem, triggeredByAura);
+                CastCustomSpell(this, 39805, NULL, &mod, NULL, true, castItem, triggeredByAura);
 
                 CastSpell(pVictim, spellId, true, castItem, triggeredByAura);
+
+                if( cooldown && GetTypeId()==TYPEID_PLAYER )
+                    ((Player*)this)->AddSpellCooldown(dummySpell->Id,0,time(NULL) + cooldown);
 
                 return true;
             }
@@ -10157,12 +10167,30 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
             return;
         case MOVE_FLIGHT:
         {
-            if (IsMounted()) // Use on mount auras
-                main_speed_mod  = GetMaxPositiveAuraModifier(SPELL_AURA_MOD_INCREASE_FLIGHT_SPEED);
+            if (GetTypeId()==TYPEID_UNIT && ((Creature*)this)->isVehicle())
+            {
+                main_speed_mod  = GetMaxPositiveAuraModifier(SPELL_AURA_MOD_INCREASE_VEHICLE_FLIGHT_SPEED);
+                stack_bonus     = GetTotalAuraMultiplier(SPELL_AURA_MOD_VEHICLE_SPEED_ALWAYS);
+
+                // for some spells this mod is applied on vehicle owner
+                uint32 owner_speed_mod  = ((Vehicle*)this)->GetOwner()->GetMaxPositiveAuraModifier(SPELL_AURA_MOD_INCREASE_VEHICLE_FLIGHT_SPEED);
+
+                main_speed_mod>owner_speed_mod ? main_speed_mod : owner_speed_mod;
+            }
+            else if (IsMounted())
+            {
+                main_speed_mod  = GetMaxPositiveAuraModifier(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED);
+                stack_bonus     = GetTotalAuraMultiplier(SPELL_AURA_MOD_MOUNTED_FLIGHT_SPEED_ALWAYS);
+            }
             else             // Use not mount (shapeshift for example) auras (should stack)
-                main_speed_mod  = GetTotalAuraModifier(SPELL_AURA_MOD_SPEED_FLIGHT);
-            stack_bonus     = GetTotalAuraMultiplier(SPELL_AURA_MOD_FLIGHT_SPEED_ALWAYS);
+                main_speed_mod  = GetTotalAuraModifier(SPELL_AURA_MOD_INCREASE_FLIGHT_SPEED);
+
             non_stack_bonus = (100.0 + GetMaxPositiveAuraModifier(SPELL_AURA_MOD_FLIGHT_SPEED_NOT_STACK))/100.0f;
+
+            // Update speed for vehicle if avalible
+            if (GetTypeId()==TYPEID_PLAYER)
+                if (Unit * vehicle = ((Player*)this)->m_Vehicle)
+                    vehicle->UpdateSpeed(MOVE_FLIGHT, true);
             break;
         }
         case MOVE_FLIGHT_BACK:

@@ -2578,10 +2578,9 @@ void SpellMgr::LoadPetLevelupSpellMap()
                     continue;
                 SpellEntry const *spell = sSpellStore.LookupEntry(skillLine->spellId);
                 // not exist or triggered or talent
-                if(!spell || !spell->spellLevel || GetTalentSpellPos(spell->Id))
+                if(!spell || !spell->spellLevel)
                     continue;
-                // TODO: some spells have no spellfamilyflag but should be learned
-                if (!spell->SpellFamilyName)
+                if(skillLine->learnOnGetSkill != ABILITY_LEARNED_ON_GET_RACE_OR_CLASS_SKILL)
                     continue;
                 mPetLevelupSpellMap.insert(PetLevelupSpellMap::value_type(creatureFamily->ID, std::make_pair(spell->spellLevel , spell->Id )));
                 count++;
