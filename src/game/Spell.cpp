@@ -62,6 +62,54 @@ bool IsQuestTameSpell(uint32 spellId)
         && spellproto->Effect[1] == SPELL_EFFECT_APPLY_AURA && spellproto->EffectApplyAuraName[1] == SPELL_AURA_DUMMY;
 }
 
+class PrioritizeManaWraper
+{
+    friend struct PrioritizeMana;
+
+    public:
+        explicit PrioritizeManaWraper(Unit * unit) : unit(unit)
+        {
+            uint32 maxmana = unit->GetMaxPower(POWER_MANA);
+            percentMana = maxmana ? unit->GetPower(POWER_MANA) * 100 / maxmana : 101;
+        }
+        Unit* getUnit() const { return unit; }
+    private:
+        Unit* unit;
+        uint32 percentMana;
+};
+
+struct PrioritizeMana
+{
+    int operator()( PrioritizeManaWraper const& x, PrioritizeManaWraper const& y ) const
+    {
+        return x.percentMana < y.percentMana;
+    }
+};
+
+class PrioritizeHealthWraper
+{
+    friend struct PrioritizeHealth;
+
+    public:
+        explicit PrioritizeHealthWraper(Unit * unit) : unit(unit)
+        {
+            uint32 maxhp = unit->GetMaxHealth();
+            percentHealth = maxhp ? unit->GetHealth() * 100 / maxhp : 101;
+        }
+        Unit* getUnit() const { return unit; }
+    private:
+        Unit* unit;
+        uint32 percentHealth;
+};
+
+struct PrioritizeHealth
+{
+    int operator()( PrioritizeHealthWraper const& x, PrioritizeHealthWraper const& y ) const
+    {
+        return x.percentHealth < y.percentHealth;
+    }
+};
+
 SpellCastTargets::SpellCastTargets()
 {
     m_unitTarget = NULL;
@@ -1992,7 +2040,7 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
                 targetType = SPELL_TARGETS_NONE;
                 break;
         }
-                 
+
         if(modOwner)
             modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RADIUS, radius, this);
         radius *= m_spellValue->RadiusMod;
@@ -2082,8 +2130,48 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
 
                 if(m_spellInfo->Id == 5246) //Intimidating Shout
                     unitList.remove(m_targets.getUnitTarget());
+                else if (m_spellInfo->Id==57699) //Replenishment (special target selection) 10 targets with lowest mana
+                {
+                    typedef std::priority_queue<PrioritizeManaWraper, std::vector<PrioritizeManaWraper>, PrioritizeMana> TopMana;
+                    TopMana manaUsers;
+                    for (std::list<Unit*>::iterator itr = unitList.begin() ; itr != unitList.end() && manaUsers.size() <=m_spellValue->MaxAffectedTargets;++itr)
+                    {
+                        if ((*itr)->getPowerType() == POWER_MANA)
+                        {
+                            PrioritizeManaWraper  WTarget(*itr);
+                            manaUsers.push(WTarget);
+                        }
+                    }
 
-                Trinity::RandomResizeList(unitList, maxTargets);
+                    unitList.clear();
+                    while(!manaUsers.empty())
+                    {
+                        unitList.push_back(manaUsers.top().getUnit());
+                        manaUsers.pop();
+                    }
+                }
+                else if (m_spellInfo->EffectImplicitTargetA[i] == TARGET_DEST_TARGET_ANY
+                    && m_spellInfo->EffectImplicitTargetB[i] == TARGET_UNIT_AREA_ALLY_DST)// Wild Growth, Circle of Healing target special selection
+                {
+                    typedef std::priority_queue<PrioritizeHealthWraper, std::vector<PrioritizeHealthWraper>, PrioritizeHealth> TopHealth;
+                    TopHealth healedMembers;
+                    for (std::list<Unit*>::iterator itr = unitList.begin() ; itr != unitList.end() && healedMembers.size() <=m_spellValue->MaxAffectedTargets;++itr)
+                    {
+                        if ((*itr)->IsInRaidWith(m_targets.getUnitTarget()))
+                        {
+                            PrioritizeHealthWraper  WTarget(*itr);
+                            healedMembers.push(WTarget);
+                        }
+                    }
+
+                    unitList.clear();
+                    while(!healedMembers.empty())
+                    {
+                        unitList.push_back(healedMembers.top().getUnit());
+                        healedMembers.pop();
+                    }
+                }
+                Trinity::RandomResizeList(unitList, m_spellValue->MaxAffectedTargets);
             }
 
             for(std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
