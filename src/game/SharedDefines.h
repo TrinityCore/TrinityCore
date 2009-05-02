@@ -1018,6 +1018,7 @@ enum Targets
     //TARGET_DEST_TABLE
     TARGET_EFFECT_SELECT               = 18,                // highly depends on the spell effect
     TARGET_DEST_CASTER_GROUND          = 18,
+    TARGET_PREV_EFFECT_SUMMON          = 18,
     TARGET_ALL_PARTY_AROUND_CASTER     = 20,
     TARGET_UNIT_PARTY_CASTER           = 20,
     TARGET_SINGLE_FRIEND               = 21,
