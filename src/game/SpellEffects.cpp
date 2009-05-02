@@ -2329,7 +2329,16 @@ void Spell::EffectTeleportUnits(uint32 i)
 
 void Spell::EffectApplyAura(uint32 i)
 {
-    return; //handled elsewhere
+    if (m_spellAura)
+        if (AuraEffect * AurEff = m_spellAura->GetPartAura(i))
+            unitTarget->HandleAuraEffect(AurEff, true);
+}
+
+void Spell::EffectApplyAreaAura(uint32 i)
+{
+    if (m_spellAura)
+        if (AuraEffect * AurEff = m_spellAura->GetPartAura(i))
+            unitTarget->HandleAuraEffect(AurEff, true);
 }
 
 void Spell::EffectUnlearnSpecialization( uint32 i )
@@ -3181,18 +3190,6 @@ void Spell::EffectProficiency(uint32 /*i*/)
         p_target->AddArmorProficiency(subClassMask);
         p_target->SendProficiency(uint8(0x04),p_target->GetArmorProficiency());
     }
-}
-
-void Spell::EffectApplyAreaAura(uint32 i)
-{
-    return;
-/*    if(!unitTarget)
-        return;
-    if(!unitTarget->isAlive())
-        return;
-
-    AreaAura* Aur = new AreaAura(m_spellInfo, i, &damage, unitTarget, m_caster, m_CastItem);
-    unitTarget->AddAura(Aur);*/
 }
 
 void Spell::EffectSummonType(uint32 i)
