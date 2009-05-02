@@ -1073,6 +1073,10 @@
 						>
 					</File>
 					<File
+						RelativePath="..\scripts\zone\naxxramas\def_naxxramas.h"
+						>
+					</File>
+					<File
 						RelativePath="..\scripts\zone\naxxramas\instance_naxxramas.cpp"
 						>
 					</File>

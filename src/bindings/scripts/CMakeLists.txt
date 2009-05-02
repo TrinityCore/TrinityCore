@@ -236,6 +236,7 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/naxxramas/boss_razuvious.cpp
    scripts/zone/naxxramas/boss_sapphiron.cpp
    scripts/zone/naxxramas/boss_thaddius.cpp
+   scripts/zone/naxxramas/def_naxxramas.h
    scripts/zone/naxxramas/instance_naxxramas.cpp
    scripts/zone/netherstorm/netherstorm.cpp
    scripts/zone/onyxias_lair/boss_onyxia.cpp
