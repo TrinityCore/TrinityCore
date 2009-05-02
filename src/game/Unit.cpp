@@ -11064,7 +11064,7 @@ void CharmInfo::InitCharmCreateSpells()
             if(!spellInfo) onlyselfcast = false;
             for(uint32 i = 0;i<3 && onlyselfcast;++i)       //non existent spell will not make any problems as onlyselfcast would be false -> break right away
             {
-                if(spellInfo->EffectImplicitTargetA[i] != TARGET_SELF && spellInfo->EffectImplicitTargetA[i] != 0)
+                if(spellInfo->EffectImplicitTargetA[i] != TARGET_UNIT_CASTER && spellInfo->EffectImplicitTargetA[i] != 0)
                     onlyselfcast = false;
             }
 
