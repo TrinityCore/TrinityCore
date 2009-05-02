@@ -1684,12 +1684,10 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
         }
 
         case TARGET_TYPE_AREA_SRC:
-            CheckSrc();
             pushType = PUSH_SRC_CENTER;
             break;
 
         case TARGET_TYPE_AREA_DST:
-            CheckDst();
             pushType = PUSH_DST_CENTER;
             break;
 
@@ -1997,6 +1995,7 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
                  
         if(modOwner)
             modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RADIUS, radius, this);
+        radius *= m_spellValue->RadiusMod;
 
         std::list<Unit*> unitList;
         if(targetType == SPELL_TARGETS_ENTRY)
@@ -2074,11 +2073,17 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
 
         if(!unitList.empty())
         {
-            if(m_spellValue->MaxAffectedTargets)
+            if(uint32 maxTargets = m_spellValue->MaxAffectedTargets)
             {
+                Unit::AuraEffectList const& Auras = m_caster->GetAurasByType(SPELL_AURA_MOD_MAX_AFFECTED_TARGETS);
+                for(Unit::AuraEffectList::const_iterator j = Auras.begin();j != Auras.end(); ++j)
+                    if((*j)->isAffectedOnSpell(m_spellInfo))
+                        maxTargets += (*j)->GetAmount();
+
                 if(m_spellInfo->Id == 5246) //Intimidating Shout
                     unitList.remove(m_targets.getUnitTarget());
-                Trinity::RandomResizeList(unitList, m_spellValue->MaxAffectedTargets);
+
+                Trinity::RandomResizeList(unitList, maxTargets);
             }
 
             for(std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
