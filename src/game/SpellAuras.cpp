@@ -3199,7 +3199,7 @@ void AuraEffect::HandleAuraTransform(bool apply, bool Real)
                     m_target->SetDisplayId(modelid);
 
                 // Dragonmaw Illusion (set mount model also)
-                if(GetId()==42016 && m_target->GetMountID() && !m_target->GetAurasByType(SPELL_AURA_MOD_INCREASE_FLIGHT_SPEED).empty())
+                if(GetId()==42016 && m_target->GetMountID() && !m_target->GetAurasByType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED).empty())
                     m_target->SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID,16314);
             }
         }
@@ -4019,7 +4019,7 @@ void AuraEffect::HandleAuraModIncreaseFlightSpeed(bool apply, bool Real)
         return;
 
     // Enable Fly mode for flying mounts
-    if (m_auraName == SPELL_AURA_MOD_INCREASE_FLIGHT_SPEED)
+    if (m_auraName == SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED)
     {
         WorldPacket data;
         if(apply)
