@@ -2374,7 +2374,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 case TARGET_TYPE_DEST_TARGET:
                     spellInfo->Targets |= TARGET_FLAG_UNIT;
                     break;
-            }              
+            }
         }
 
         for(uint32 j = 0; j < 3; ++j)
@@ -2442,12 +2442,14 @@ void SpellMgr::LoadSpellCustomAttr()
         case 37676: //Insidious Whisper
         case 46009: //Negative Energy
         case 45641: //Fire Bloom
+        case 54937: //Glyph of Holy Light
             spellInfo->MaxAffectedTargets = 5;
             break;
         case 40827: //Sinful Beam
         case 40859: //Sinister Beam
         case 40860: //Vile Beam
         case 40861: //Wicked Beam
+        case 57669: // Replenishment
             spellInfo->MaxAffectedTargets = 10;
             break;
         case 8122: case 8124: case 10888: case 10890: // Psychic Scream
@@ -2488,9 +2490,12 @@ void SpellMgr::LoadSpellCustomAttr()
         switch(spellInfo->SpellFamilyName)
         {
             case SPELLFAMILY_DRUID:
-                //starfall
+                // starfall
                 if(spellInfo->SpellFamilyFlags[2] & 0x100)
                     spellInfo->MaxAffectedTargets = 2;
+                // Wild growth
+                else if(spellInfo->SpellFamilyFlags[1] & 0x4000000)
+                    spellInfo->MaxAffectedTargets = 5;
                 break;
                 // circle of healing
             case SPELLFAMILY_PRIEST:
