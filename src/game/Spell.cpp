@@ -1221,7 +1221,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
         ((Creature*)m_caster)->AI()->SpellHitTarget(unit, m_spellInfo);
 
     // spells with this flag can trigger only if not selfcast (eviscerate for example)
-    if (m_ChanceTriggerSpells.size() && (!m_spellInfo->AttributesEx4 & SPELL_ATTR_EX4_CANT_PROC_FROM_SELFCAST || unit!=m_caster)
+    if (m_ChanceTriggerSpells.size() && (!(m_spellInfo->AttributesEx4 & SPELL_ATTR_EX4_CANT_PROC_FROM_SELFCAST) || unit!=m_caster))
     {
         int _duration=0;
         for(ChanceTriggerSpells::const_iterator i = m_ChanceTriggerSpells.begin(); i != m_ChanceTriggerSpells.end(); ++i)
