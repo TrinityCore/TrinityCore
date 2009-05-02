@@ -364,6 +364,8 @@ void Unit::SendMonsterStop()
     data << getMSTime();
     data << uint8(1);
     SendMessageToSet(&data, true);
+
+    clearUnitState(UNIT_STAT_MOVE);
 }
 
 void Unit::SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint32 Time, Player* player)
@@ -385,6 +387,8 @@ void Unit::SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint32 T
         player->GetSession()->SendPacket(&data);
     else
         SendMessageToSet( &data, true );
+
+    addUnitState(UNIT_STAT_MOVE);
 }
 
 /*void Unit::SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint8 type, uint32 MovementFlags, uint32 Time, Player* player)
@@ -450,6 +454,8 @@ void Unit::SendMonsterMoveByPath(Path const& path, uint32 start, uint32 end)
 
     //WPAssert( data.size() == 37 + pathnodes.Size( ) * 4 * 3 );
     SendMessageToSet(&data, true);
+
+    addUnitState(UNIT_STAT_MOVE);
 }
 
 void Unit::resetAttackTimer(WeaponAttackType type)
