@@ -75,11 +75,14 @@ enum SpellRangeFlag
 
 enum SpellNotifyPushType
 {
+    PUSH_NONE           = 0,
     PUSH_IN_FRONT,
     PUSH_IN_BACK,
     PUSH_IN_LINE,
-    PUSH_DEST_CENTER,
-    PUSH_TARGET_CENTER,
+    PUSH_SRC_CENTER,
+    PUSH_DST_CENTER,
+    PUSH_CASTER_CENTER,
+    PUSH_CHAIN,
 };
 
 bool IsQuestTameSpell(uint32 spellId);
@@ -111,19 +114,19 @@ class SpellCastTargets
 
             m_itemTargetEntry  = target.m_itemTargetEntry;
 
-            //m_srcX = target.m_srcX;
-            //m_srcY = target.m_srcY;
-            //m_srcZ = target.m_srcZ;
+            m_srcX = target.m_srcX;
+            m_srcY = target.m_srcY;
+            m_srcZ = target.m_srcZ;
 
-            m_mapId = -1;
             m_destX = target.m_destX;
             m_destY = target.m_destY;
             m_destZ = target.m_destZ;
-            m_hasDest = target.m_hasDest;
 
             m_strTarget = target.m_strTarget;
 
             m_targetMask = target.m_targetMask;
+
+            m_mapId = -1;
 
             return *this;
         }
@@ -131,8 +134,10 @@ class SpellCastTargets
         uint64 getUnitTargetGUID() const { return m_unitTargetGUID; }
         Unit *getUnitTarget() const { return m_unitTarget; }
         void setUnitTarget(Unit *target);
-        void setDestination(float x, float y, float z, bool send = true, int32 mapId = -1);
-        void setDestination(Unit *target, bool send = true);
+        void setSrc(float x, float y, float z);
+        void setSrc(WorldObject *target);
+        void setDestination(float x, float y, float z, int32 mapId = -1);
+        void setDestination(WorldObject *target);
 
         uint64 getGOTargetGUID() const { return m_GOTargetGUID; }
         GameObject *getGOTarget() const { return m_GOTarget; }
@@ -154,14 +159,14 @@ class SpellCastTargets
         }
 
         bool IsEmpty() const { return m_GOTargetGUID==0 && m_unitTargetGUID==0 && m_itemTarget==0 && m_CorpseTargetGUID==0; }
-        bool HasDest() const { return m_hasDest; }
+        bool HasSrc() const { return m_targetMask & TARGET_FLAG_SOURCE_LOCATION; }
+        bool HasDst() const { return m_targetMask & TARGET_FLAG_DEST_LOCATION; }
 
         void Update(Unit* caster);
 
         float m_srcX, m_srcY, m_srcZ;
-        int32 m_mapId;
         float m_destX, m_destY, m_destZ;
-        bool m_hasDest;
+        int32 m_mapId;
         std::string m_strTarget;
 
         uint32 m_targetMask;
@@ -368,10 +373,13 @@ class Spell
         void WriteAmmoToPacket( WorldPacket * data );
         void FillTargetMap();
 
-        void SetTargetMap(uint32 i,uint32 cur,std::list<Unit*> &TagUnitMap);
+        void SetTargetMap(uint32 i, uint32 cur);
 
         Unit* SelectMagnetTarget();
-        bool CheckTarget( Unit* target, uint32 eff, bool hitPhase );
+        bool CheckTarget(Unit* target, uint32 eff);
+
+        void CheckSrc() { if(!m_targets.HasSrc()) m_targets.setSrc(m_caster); }
+        void CheckDst() { if(!m_targets.HasDst()) m_targets.setDestination(m_caster); }
 
         void SendCastResult(uint8 result);
         void SendSpellStart();
@@ -547,11 +555,9 @@ class Spell
         void DoAllEffectOnTarget(GOTargetInfo *target);
         void DoAllEffectOnTarget(ItemTargetInfo *target);
         bool IsAliveUnitPresentInTargetList();
-        void SearchAreaTarget(std::list<Unit*> &data, float radius, const uint32 &type,
-            SpellTargets TargetType, uint32 entry = 0);
-        void SearchChainTarget(std::list<Unit*> &data, float radius, uint32 unMaxTargets,
-            SpellTargets TargetType);
-        Unit* SearchNearbyTarget(float radius, SpellTargets TargetType, uint32 entry = 0);
+        void SearchAreaTarget(std::list<Unit*> &unitList, float radius, const uint32 type, SpellTargets TargetType, uint32 entry = 0);
+        void SearchChainTarget(std::list<Unit*> &unitList, float radius, uint32 unMaxTargets, SpellTargets TargetType);
+        WorldObject* SearchNearbyTarget(float range, SpellTargets TargetType);
         bool IsValidSingleTargetEffect(Unit const* target, Targets type) const;
         bool IsValidSingleTargetSpell(Unit const* target) const;
         void CalculateDamageDoneForAllTargets();
