@@ -337,9 +337,8 @@ void LoadDBCStores(const std::string& dataPath)
                 if(spellInfo->spellLevel)
                     continue;
 
-                // Passive spell has to have spellfamilyflags if name present (need to not apply 20782)
-                //if (spellInfo->Attributes & SPELL_ATTR_UNK18 && spellInfo->SpellFamilyName && !spellInfo->SpellFamilyFlags)
-                //    continue;
+                if(skillLine->learnOnGetSkill != ABILITY_LEARNED_ON_GET_RACE_OR_CLASS_SKILL)
+                    continue;
 
                 sPetFamilySpellsStore[i].insert(spellInfo->Id);
             }
