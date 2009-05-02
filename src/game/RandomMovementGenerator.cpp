@@ -164,14 +164,14 @@ RandomMovementGenerator<Creature>::Update(Creature &creature, const uint32 &diff
     i_nextMoveTime.Update(diff);
 
     if(i_destinationHolder.HasArrived() && !creature.IsStopped() && !creature.canFly())
-        creature.clearUnitState(UNIT_STAT_ROAMING);
+        creature.clearUnitState(UNIT_STAT_ROAMING | UNIT_STAT_MOVE);
 
     if(!i_destinationHolder.HasArrived() && creature.IsStopped())
         creature.addUnitState(UNIT_STAT_ROAMING);
 
     CreatureTraveller traveller(creature);
 
-    if( i_destinationHolder.UpdateTraveller(traveller, diff, false, true) )
+    if( i_destinationHolder.UpdateTraveller(traveller, diff, true) )
     {
         if(i_nextMoveTime.Passed())
         {

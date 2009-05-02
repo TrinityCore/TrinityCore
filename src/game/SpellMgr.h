@@ -89,11 +89,15 @@ enum SpellSelectTargetTypes
     TARGET_TYPE_DEFAULT,
     TARGET_TYPE_UNIT_CASTER,
     TARGET_TYPE_UNIT_TARGET,
-    TARGET_TYPE_CHANNEL,
-    TARGET_TYPE_AREA_DEST,
+    TARGET_TYPE_UNIT_NEARBY,
+    TARGET_TYPE_AREA_SRC,
+    TARGET_TYPE_AREA_DST,
+    TARGET_TYPE_AREA_CONE,
     TARGET_TYPE_DEST_CASTER,
     TARGET_TYPE_DEST_TARGET,
     TARGET_TYPE_DEST_DEST,
+    TARGET_TYPE_DEST_SPECIAL,
+    TARGET_TYPE_CHANNEL,
 };
 
 //Some SpellFamilyFlags
@@ -161,6 +165,18 @@ inline uint32 GetSpellRangeType(SpellRangeEntry const *range) { return (range ? 
 inline uint32 GetSpellRecoveryTime(SpellEntry const *spellInfo) { return spellInfo->RecoveryTime > spellInfo->CategoryRecoveryTime ? spellInfo->RecoveryTime : spellInfo->CategoryRecoveryTime; }
 int32 GetSpellDuration(SpellEntry const *spellInfo);
 int32 GetSpellMaxDuration(SpellEntry const *spellInfo);
+inline float GetSpellRadius(SpellEntry const *spellInfo, uint32 effectIdx, bool positive)
+{
+    return positive
+        ? GetSpellRadiusForFriend(sSpellRadiusStore.LookupEntry(spellInfo->EffectRadiusIndex[effectIdx]))
+        : GetSpellRadiusForHostile(sSpellRadiusStore.LookupEntry(spellInfo->EffectRadiusIndex[effectIdx]));
+}
+inline float GetSpellMaxRange(SpellEntry const *spellInfo, bool positive)
+{
+    return positive
+        ? GetSpellMaxRangeForFriend(sSpellRangeStore.LookupEntry(spellInfo->rangeIndex))
+        : GetSpellMaxRangeForHostile(sSpellRangeStore.LookupEntry(spellInfo->rangeIndex));
+}
 
 /*struct DispelEntry
 {

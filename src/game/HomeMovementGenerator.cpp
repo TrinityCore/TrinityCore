@@ -60,7 +60,7 @@ bool
 HomeMovementGenerator<Creature>::Update(Creature &owner, const uint32& time_diff)
 {
     CreatureTraveller traveller( owner);
-    i_destinationHolder.UpdateTraveller(traveller, time_diff, false);
+    i_destinationHolder.UpdateTraveller(traveller, time_diff);
 
     if (time_diff > i_travel_timer)
     {

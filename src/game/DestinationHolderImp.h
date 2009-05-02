@@ -93,37 +93,29 @@ DestinationHolder<TRAVELLER>::StartTravel(TRAVELLER &traveller, bool sendMove)
 
 template<typename TRAVELLER>
 bool
-DestinationHolder<TRAVELLER>::UpdateTraveller(TRAVELLER &traveller, uint32 diff, bool force_update, bool micro_movement)
+DestinationHolder<TRAVELLER>::UpdateTraveller(TRAVELLER &traveller, uint32 diff, bool micro_movement)
 {
+    i_timeElapsed += diff;
+
+    // Update every TRAVELLER_UPDATE_INTERVAL
+    i_tracker.Update(diff);
+    if(!i_tracker.Passed())
+        return false;
+    else
+        ResetUpdate();
+
+    if(!i_destSet) return true;
+
+    float x, y, z;
     if(!micro_movement)
     {
-        i_tracker.Update(diff);
-        i_timeElapsed += diff;
-        if( i_tracker.Passed() || force_update )
-        {
-            ResetUpdate();
-            if(!i_destSet) return true;
-            float x,y,z;
-            GetLocationNowNoMicroMovement(x, y, z);
-            if( x == -431602080 )
-                return false;
-            if( traveller.GetTraveller().GetPositionX() != x || traveller.GetTraveller().GetPositionY() != y )
-            {
-                float ori = traveller.GetTraveller().GetAngle(x, y);
-                traveller.Relocation(x, y, z, ori);
-            }
-            return true;
-        }
-        return false;
-    }
-    i_tracker.Update(diff);
-    i_timeElapsed += diff;
-    if( i_tracker.Passed() || force_update )
-    {
-        ResetUpdate();
-        if(!i_destSet) return true;
-        float x,y,z;
+        GetLocationNowNoMicroMovement(x, y, z);
 
+        if( x == -431602080 )
+            return false;
+    }
+    else
+    {
         if(!traveller.GetTraveller().hasUnitState(UNIT_STAT_MOVING | UNIT_STAT_IN_FLIGHT))
             return true;
 
@@ -135,11 +127,6 @@ DestinationHolder<TRAVELLER>::UpdateTraveller(TRAVELLER &traveller, uint32 diff,
         if( x == -431602080 )
             return false;
 
-        if( traveller.GetTraveller().GetPositionX() != x || traveller.GetTraveller().GetPositionY() != y )
-        {
-            float ori = traveller.GetTraveller().GetAngle(x, y);
-            traveller.Relocation(x, y, z, ori);
-        }
         // Change movement computation to micro movement based on last tick coords, this makes system work
         // even on multiple floors zones without hugh vmaps usage ;)
 
@@ -153,9 +140,15 @@ DestinationHolder<TRAVELLER>::UpdateTraveller(TRAVELLER &traveller, uint32 diff,
         i_fromX = x;                            // and change origine
         i_fromY = y;                            // then I take into account only micro movement
         i_fromZ = z;
-        return true;
     }
-    return false;
+
+    if( traveller.GetTraveller().GetPositionX() != x || traveller.GetTraveller().GetPositionY() != y )
+    {
+        float ori = traveller.GetTraveller().GetAngle(x, y);
+        traveller.Relocation(x, y, z, ori);
+    }
+
+    return true;
 }
 
 template<typename TRAVELLER>

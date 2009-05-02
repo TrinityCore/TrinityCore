@@ -383,7 +383,7 @@ FleeingMovementGenerator<T>::Update(T &owner, const uint32 & time_diff)
         return true;
     }
 
-    if (i_destinationHolder.UpdateTraveller(traveller, time_diff, false))
+    if (i_destinationHolder.UpdateTraveller(traveller, time_diff))
     {
         i_destinationHolder.ResetUpdate(50);
         if(i_nextCheckTime.Passed() && i_destinationHolder.HasArrived())
