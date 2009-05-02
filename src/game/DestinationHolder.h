@@ -51,7 +51,7 @@ class TRINITY_DLL_DECL DestinationHolder
         bool HasDestination(void) const { return i_destSet; }
         float GetDestinationDiff(float x, float y, float z) const;
         bool HasArrived(void) const { return (i_totalTravelTime == 0 || i_timeElapsed >= i_totalTravelTime); }
-        bool UpdateTraveller(TRAVELLER &traveller, uint32 diff, bool force_update=false, bool micro_movement=false);
+        bool UpdateTraveller(TRAVELLER &traveller, uint32 diff, bool micro_movement=false);
         uint32 StartTravel(TRAVELLER &traveller, bool sendMove = true);
         void GetLocationNow(uint32 mapid, float &x, float &y, float &z, bool is3D = false) const;
         void GetLocationNowNoMicroMovement(float &x, float &y, float &z) const; // For use without micro movement

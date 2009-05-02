@@ -53,10 +53,11 @@ bool PointMovementGenerator<T>::Update(T &unit, const uint32 &diff)
 
     Traveller<T> traveller(unit);
 
-    i_destinationHolder.UpdateTraveller(traveller, diff, false);
+    i_destinationHolder.UpdateTraveller(traveller, diff);
 
     if(i_destinationHolder.HasArrived())
     {
+        unit.clearUnitState(UNIT_STAT_MOVE);
         arrived = true;
         return false;
     }
