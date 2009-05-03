@@ -1724,7 +1724,7 @@ void Creature::Respawn()
         //Call AI respawn virtual function
         AI()->JustRespawned();
 
-        GetMap()->Add(this);
+        //GetMap()->Add(this);
     }
 }
 
