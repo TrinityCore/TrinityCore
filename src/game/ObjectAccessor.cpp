@@ -105,7 +105,7 @@ ObjectAccessor::GetNPCIfCanInteractWith(Player const &player, uint64 guid, uint3
         return NULL;
 
     // not allow interaction under control
-    if(unit->GetCharmerOrOwnerGUID())
+    if(unit->GetCharmerGUID())
         return NULL;
 
     // not enemy
