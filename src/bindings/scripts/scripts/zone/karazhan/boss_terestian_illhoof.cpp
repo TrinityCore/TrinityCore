@@ -46,7 +46,6 @@ EndScriptData */
 #define SPELL_FIENDISH_PORTAL_1     30179                   // Opens portal and summons Fiendish Portal, instant cast
 
 #define SPELL_FIREBOLT              30050                   // Blasts a target for 150 Fire damage.
-
 #define SPELL_BROKEN_PACT           30065                   // All damage taken increased by 25%.
 #define SPELL_AMPLIFY_FLAMES        30053                   // Increases the Fire damage taken by an enemy by 500 for 25 sec.
 
@@ -356,9 +355,11 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
     }
 };
 
-struct TRINITY_DLL_DECL mob_karazhan_impAI : public ScriptedAI
+#define SPELL_FIREBOLT  30050   // Blasts a target for 181-209 Fire damage.
+
+struct TRINITY_DLL_DECL mob_fiendish_impAI : public ScriptedAI
 {
-    mob_karazhan_impAI(Creature *c) : ScriptedAI(c) {}
+    mob_fiendish_impAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 FireboltTimer;
 
@@ -392,9 +393,9 @@ CreatureAI* GetAI_mob_kilrek(Creature *_Creature)
     return new mob_kilrekAI (_Creature);
 }
 
-CreatureAI* GetAI_mob_karazhan_imp(Creature *_Creature)
+CreatureAI* GetAI_mob_fiendish_imp(Creature *_Creature)
 {
-    return new mob_karazhan_impAI (_Creature);
+    return new mob_fiendish_impAI (_Creature);
 }
 
 CreatureAI* GetAI_mob_demon_chain(Creature *_Creature)
@@ -415,11 +416,10 @@ void AddSC_boss_terestian_illhoof()
     newscript->GetAI = &GetAI_boss_terestian_illhoof;
     newscript->RegisterSelf();
 
-    //Who can find out what is this for
-    //newscript = new Script;
-    //newscript->Name="mob_karazhan_imp";
-    //newscript->GetAI = &GetAI_mob_karazhan_imp;
-    //newscript->RegisterSelf();
+    newscript = new Script;
+    newscript->Name="mob_fiendish_imp";
+    newscript->GetAI = &GetAI_mob_fiendish_imp;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_kilrek";

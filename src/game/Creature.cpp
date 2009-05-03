@@ -1740,8 +1740,10 @@ void Creature::Respawn()
         uint16 poolid = poolhandler.IsPartOfAPool(GetGUIDLow(), GetTypeId());
         if (poolid)
             poolhandler.UpdatePool(poolid, GetGUIDLow(), GetTypeId());
-        else
-            GetMap()->Add(this);
+           
+        //GetMap()->Add(this);
+           
+
     }
 }
 

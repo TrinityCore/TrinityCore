@@ -220,8 +220,9 @@ void SpellCastTargets::Update(Unit* caster)
     {
         if(m_targetMask & TARGET_FLAG_ITEM)
             m_itemTarget = ((Player*)caster)->GetItemByGuid(m_itemTargetGUID);
-        else
+        else if(m_targetMask & TARGET_FLAG_TRADE_ITEM)
         {
+            // here it is not guid but slot
             Player* pTrader = ((Player*)caster)->GetTrader();
             if(pTrader && m_itemTargetGUID < TRADE_SLOT_COUNT)
                 m_itemTarget = pTrader->GetItemByPos(pTrader->GetItemPosByTradeSlot(m_itemTargetGUID));
