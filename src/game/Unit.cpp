@@ -8143,15 +8143,22 @@ Unit* Unit::GetCharm() const
 void Unit::SetMinion(Minion *minion, bool apply)
 {
     sLog.outDebug("SetMinion %u for %u, apply %u", minion->GetEntry(), GetEntry(), apply);
-    if(minion->GetOwnerGUID() != GetGUID())
-    {
-        sLog.outCrash("SetMinion: Minion %u is not the minion of owner %u", minion->GetEntry(), GetEntry());
-        return;
-    }
 
     if(apply)
     {
+        if(!minion->AddUInt64Value(UNIT_FIELD_SUMMONEDBY, GetGUID()))
+        {
+            sLog.outCrash("SetMinion: Minion %u is not the minion of owner %u", minion->GetEntry(), GetEntry());
+            return;
+        }
+
         m_Controlled.insert(minion);
+
+        if(GetTypeId() == TYPEID_PLAYER)
+        {
+            minion->m_ControlledByPlayer = true;
+            minion->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
+        }
 
         // Can only have one pet. If a new one is summoned, dismiss the old one.
         if(minion->isPet() || minion->m_Properties && minion->m_Properties->Category == SUMMON_CATEGORY_PET)
@@ -8206,6 +8213,12 @@ void Unit::SetMinion(Minion *minion, bool apply)
     }
     else
     {
+        if(minion->GetOwnerGUID() != GetGUID())
+        {
+            sLog.outCrash("SetMinion: Minion %u is not the minion of owner %u", minion->GetEntry(), GetEntry());
+            return;
+        }
+
         m_Controlled.erase(minion);
 
         if(minion->isPet() || minion->m_Properties && minion->m_Properties->Category == SUMMON_CATEGORY_PET)
