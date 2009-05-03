@@ -84,6 +84,15 @@ void Totem::InitSummon(uint32 duration)
     data << GetGUID();
     SendMessageToSet(&data,true);
 
+    // Get spell casted by totem
+    SpellEntry const * totemSpell = sSpellStore.LookupEntry(GetSpell());
+    if (totemSpell)
+    {
+        // If spell have cast time -> so its active totem
+        if (GetSpellCastTime(totemSpell))
+            m_type = TOTEM_ACTIVE;
+    }
+
     if(m_type == TOTEM_PASSIVE)
         CastSpell(this, GetSpell(), true);
 
@@ -93,15 +102,6 @@ void Totem::InitSummon(uint32 duration)
     m_duration = duration;
 
     SetLevel(m_owner->getLevel());
-
-    // Get spell casted by totem
-    SpellEntry const * totemSpell = sSpellStore.LookupEntry(GetSpell());
-    if (totemSpell)
-    {
-        // If spell have cast time -> so its active totem
-        if (GetSpellCastTime(totemSpell))
-            m_type = TOTEM_ACTIVE;
-    }
 }
 
 void Totem::UnSummon()
