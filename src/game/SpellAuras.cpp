@@ -2205,7 +2205,12 @@ void AuraEffect::TriggerSpell()
             case 28158:
             case 54362:
                 m_target->CastCustomSpell(trigger_spell_id, SPELLVALUE_RADIUS_MOD, (int32)((((float)m_tickNumber / 60) * 0.9f + 0.1f) * 10000), NULL, true, NULL, this);
-                return;                
+                return;
+            // Mind Sear (target 76/16) if let m_target cast, will damage caster
+            case 48045:
+            case 53023:
+                caster->CastSpell(m_target, trigger_spell_id, true);
+                return;
         }
     }
 
