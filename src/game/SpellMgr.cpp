@@ -2427,6 +2427,9 @@ void SpellMgr::LoadSpellCustomAttr()
         case 41071: // Raise Dead (HACK)
             spellInfo->MaxAffectedTargets = 1;
             break;
+        case 28542: // Life Drain - Sapphiron
+            spellInfo->MaxAffectedTargets = 1;
+            break;
         case 41376: // Spite
         case 39992: // Needle Spine
         case 29576: //Multi-Shot
@@ -2447,6 +2450,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 46009: //Negative Energy
         case 45641: //Fire Bloom
         case 54937: //Glyph of Holy Light
+        case 55665: // Life Drain - Sapphiron
             spellInfo->MaxAffectedTargets = 5;
             break;
         case 40827: //Sinful Beam

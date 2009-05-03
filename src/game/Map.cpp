@@ -519,7 +519,8 @@ Map::Add(T *obj)
     DEBUG_LOG("Object %u enters grid[%u,%u]", GUID_LOPART(obj->GetGUID()), cell.GridX(), cell.GridY());
 
     //something, such as vehicle, needs to be update immediately
-    if(obj->GetTypeId() != TYPEID_UNIT)
+    //also, trigger needs to cast spell, if not update, cannot see visual
+    //if(obj->GetTypeId() != TYPEID_UNIT)
         UpdateObjectVisibility(obj,cell,p);
 
     AddNotifier(obj);
