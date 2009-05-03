@@ -45,6 +45,7 @@
 #include "SocialMgr.h"
 #include "CellImpl.h"
 #include "Vehicle.h"
+#include "CreatureAI.h"
 
 void WorldSession::HandleRepopRequestOpcode( WorldPacket & /*recv_data*/ )
 {

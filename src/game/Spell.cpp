@@ -2060,9 +2060,9 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
                 sLog.outErrorDb("Spell (ID: %u) (caster Entry: %u) does not have record in `spell_script_target`", m_spellInfo->Id, m_caster->GetEntry());
 
                 if(IsPositiveEffect(m_spellInfo->Id, i))
-                    SearchAreaTarget(unitList, radius, targetType, SPELL_TARGETS_ALLY);
+                    SearchAreaTarget(unitList, radius, pushType, SPELL_TARGETS_ALLY);
                 else
-                    SearchAreaTarget(unitList, radius, targetType, SPELL_TARGETS_ENEMY);
+                    SearchAreaTarget(unitList, radius, pushType, SPELL_TARGETS_ENEMY);
             }
             // let it be done in one check?
             else
@@ -2070,7 +2070,7 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
                 for(SpellScriptTarget::const_iterator i_spellST = lower; i_spellST != upper; ++i_spellST)
                 {
                     if(i_spellST->second.type == SPELL_TARGET_TYPE_CREATURE)
-                        SearchAreaTarget(unitList, radius, targetType, SPELL_TARGETS_ENTRY, i_spellST->second.targetEntry);
+                        SearchAreaTarget(unitList, radius, pushType, SPELL_TARGETS_ENTRY, i_spellST->second.targetEntry);
                 }
             }
         }
