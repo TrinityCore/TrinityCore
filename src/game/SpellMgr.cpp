@@ -365,6 +365,10 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
             if (spellInfo->SpellFamilyFlags[0] & 0x12040000)
                 return SPELL_MAGE_ARMOR;
 
+            // Arcane brillance and Arcane intelect (normal check fails because of flags difference)
+            if (spellInfo->SpellFamilyFlags[0] & 0x400)
+                return SPELL_MAGE_ARCANE_BRILLANCE;
+
             if ((spellInfo->SpellFamilyFlags[0] & 0x1000000) && spellInfo->EffectApplyAuraName[0]==SPELL_AURA_MOD_CONFUSE)
                 return SPELL_MAGE_POLYMORPH;
 
@@ -498,6 +502,7 @@ bool IsSingleFromSpellSpecificPerTarget(uint32 spellSpec1,uint32 spellSpec2)
         case SPELL_FOOD:
         case SPELL_CHARM:
         case SPELL_SCROLL:
+        case SPELL_MAGE_ARCANE_BRILLANCE:
             return spellSpec1==spellSpec2;
         case SPELL_BATTLE_ELIXIR:
             return spellSpec2==SPELL_BATTLE_ELIXIR
@@ -1462,6 +1467,8 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2, bool
     {
         if (spellInfo_1->SpellFamilyFlags != spellInfo_2->SpellFamilyFlags)
             return false;
+        if (!spellInfo_1->SpellFamilyFlags)
+            return false;
     }
 
     //use data of highest rank spell(needed for spells which ranks have different effects)
@@ -1471,9 +1478,6 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2, bool
     //if spells have exactly the same effect they cannot stack
     for(uint32 i = 0; i < 3; ++i)
         if(spellInfo_1->Effect[i] != spellInfo_2->Effect[i]
-            // Allow dummy auras stack (needed by 31666 and 58428)
-            || spellInfo_1->EffectApplyAuraName[i] == SPELL_AURA_DUMMY
-            || spellInfo_1->EffectApplyAuraName[i] == SPELL_AURA_PERIODIC_DUMMY
             || spellInfo_1->EffectApplyAuraName[i] != spellInfo_2->EffectApplyAuraName[i]
             || spellInfo_1->EffectMiscValue[i] != spellInfo_2->EffectMiscValue[i]) // paladin resist aura
             return false; // need itemtype check? need an example to add that check
