@@ -28,7 +28,7 @@
 template<class T>
 void PointMovementGenerator<T>::Initialize(T &unit)
 {
-    //unit.StopMoving();
+    unit.StopMoving();
     unit.clearUnitState(UNIT_STAT_MOVING);
     Traveller<T> traveller(unit);
     i_destinationHolder.SetDestination(traveller,i_x,i_y,i_z, !unit.hasUnitState(UNIT_STAT_JUMPING));

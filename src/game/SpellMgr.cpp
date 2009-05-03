@@ -64,7 +64,9 @@ SpellMgr::SpellMgr()
             case SPELL_EFFECT_ENCHANT_ITEM:
             case SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY:
             case SPELL_EFFECT_DISENCHANT:
-            case SPELL_EFFECT_FEED_PET:
+            //in 243 this is 0, in 309 it is 1
+            //so both item target and unit target is pushed, and cause crash
+            //case SPELL_EFFECT_FEED_PET:
             case SPELL_EFFECT_PROSPECTING:
             case SPELL_EFFECT_MILLING:
             case SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC:
@@ -76,7 +78,10 @@ SpellMgr::SpellMgr()
             case SPELL_EFFECT_APPLY_AREA_AURA_ENEMY:
             case SPELL_EFFECT_APPLY_AREA_AURA_PET:
             case SPELL_EFFECT_APPLY_AREA_AURA_OWNER:
-            case SPELL_EFFECT_JUMP2:                //42
+            case SPELL_EFFECT_CHARGE:
+            case SPELL_EFFECT_JUMP:
+            case SPELL_EFFECT_JUMP2:
+            case SPELL_EFFECT_138:
                 EffectTargetType[i] = SPELL_REQUIRE_CASTER;
                 break;
             default:
@@ -2360,9 +2365,13 @@ void SpellMgr::LoadSpellCustomAttr()
                     mSpellCustomAttr[i] |= SPELL_ATTR_CU_DIRECT_DAMAGE;
                     break;
                 case SPELL_EFFECT_CHARGE:
+                case SPELL_EFFECT_JUMP:
+                case SPELL_EFFECT_JUMP2:
+                case SPELL_EFFECT_138:
                     if(!spellInfo->speed && !spellInfo->SpellFamilyName)
                         spellInfo->speed = SPEED_CHARGE;
                     mSpellCustomAttr[i] |= SPELL_ATTR_CU_CHARGE;
+                    break;
                 case SPELL_EFFECT_TRIGGER_SPELL:
                     if (SpellTargetType[spellInfo->EffectImplicitTargetA[j]]== TARGET_TYPE_DEST_CASTER ||
                         SpellTargetType[spellInfo->EffectImplicitTargetA[j]]== TARGET_TYPE_DEST_TARGET ||

@@ -428,7 +428,7 @@ class Spell
         void SendResurrectRequest(Player* target);
         void SendPlaySpellVisual(uint32 SpellID);
 
-        void HandleEffects(Unit *pUnitTarget,Item *pItemTarget,GameObject *pGOTarget,uint32 i, float DamageMultiplier = 1.0);
+        void HandleEffects(Unit *pUnitTarget,Item *pItemTarget,GameObject *pGOTarget,uint32 i);
         void HandleThreatSpells(uint32 spellId);
         //void HandleAddAura(Unit* Target);
 
@@ -639,6 +639,7 @@ class Spell
 
         uint32 m_customAttr;
         bool m_skipCheck;
+        uint32 m_effectMask;
 };
 
 namespace Trinity
