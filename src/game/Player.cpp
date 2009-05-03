@@ -15844,7 +15844,6 @@ void Player::_SaveAuras()
         // passive auras and stances
         if (itr->second->IsPassive()
             || itr->second->IsAuraType(SPELL_AURA_MOD_SHAPESHIFT)
-            || itr->second->IsAuraType(SPELL_AURA_MOD_STEALTH)
             || itr->second->IsRemovedOnShapeLost())
             continue;
         bool isCaster = itr->second->GetCasterGUID() == GetGUID();
