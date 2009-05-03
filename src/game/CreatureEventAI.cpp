@@ -1175,11 +1175,11 @@ void CreatureEventAI::AttackStart(Unit *who)
 
 void CreatureEventAI::MoveInLineOfSight(Unit *who)
 {
-    if (!who)
+    if(me->getVictim())
         return;
 
     //Check for OOC LOS Event
-    if (!bEmptyList && !m_creature->getVictim())
+    if (!bEmptyList)
     {
         for (std::list<CreatureEventAIHolder>::iterator itr = CreatureEventAIList.begin(); itr != CreatureEventAIList.end(); ++itr)
         {
