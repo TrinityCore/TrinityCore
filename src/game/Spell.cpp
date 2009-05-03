@@ -1929,9 +1929,9 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
             m_damageMultipliers[i] = 1.0f;
             m_applyMultiplierMask |= 1 << i;
 
-            float radius = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
+            float range = GetSpellMaxRange(sSpellRangeStore.LookupEntry(m_spellInfo->rangeIndex));
             if(modOwner)
-                modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RADIUS, radius, this);
+                modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RANGE, range, this);
 
             std::list<Unit*> unitList;
 
@@ -1940,13 +1940,13 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
                 case TARGET_UNIT_NEARBY_ENEMY:
                 case TARGET_UNIT_TARGET_ENEMY:
                 case TARGET_UNIT_NEARBY_ENTRY: // fix me
-                    SearchChainTarget(unitList, radius, maxTargets, SPELL_TARGETS_ENEMY);
+                    SearchChainTarget(unitList, range, maxTargets, SPELL_TARGETS_ENEMY);
                     break;
                 case TARGET_UNIT_CHAINHEAL:
                 case TARGET_UNIT_NEARBY_ALLY:  // fix me
                 case TARGET_UNIT_NEARBY_ALLY_UNK:
                 case TARGET_UNIT_NEARBY_RAID:
-                    SearchChainTarget(unitList, radius, maxTargets, SPELL_TARGETS_CHAINHEAL);
+                    SearchChainTarget(unitList, range, maxTargets, SPELL_TARGETS_CHAINHEAL);
                     break;
             }
             
