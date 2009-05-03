@@ -1257,7 +1257,7 @@ void Aura::DropAuraCharge()
         if(--m_procCharges) // Send charge change
             SendAuraUpdate();
         else              // Last charge dropped
-            m_target->RemoveAura(this);
+            m_target->RemoveAura(this, AURA_REMOVE_BY_EXPIRE);
     }
 }
 
@@ -6222,6 +6222,13 @@ void AuraEffect::PeriodicTick()
             {
                 // cannibalize anim
                 m_target->HandleEmoteCommand(EMOTE_STATE_CANNIBALIZE);
+            }
+            // Butchery
+            else if (m_spellProto->SpellFamilyName==SPELLFAMILY_DEATHKNIGHT
+                && m_spellProto->SpellIconID==2664)
+            {
+                if (m_target->isInCombat())
+                    m_target->ModifyPower(pt,m_amount);
             }
 
             // Anger Management

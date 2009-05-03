@@ -1665,14 +1665,14 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
             switch(cur)
             {
                 case TARGET_UNIT_TARGET_ENEMY:
-                    if(Unit *magnet = m_caster->SelectMagnetTarget(target))
+                    if(Unit *magnet = m_caster->SelectMagnetTarget(target, m_spellInfo))
                         if(magnet != target)
                             m_targets.setUnitTarget(magnet);
                     pushType = PUSH_CHAIN;
                     break;
                 case TARGET_UNIT_TARGET_ANY:
                     if(!IsPositiveSpell(m_spellInfo->Id))
-                        if(Unit *magnet = m_caster->SelectMagnetTarget(target))
+                        if(Unit *magnet = m_caster->SelectMagnetTarget(target, m_spellInfo))
                             if(magnet != target)
                                 m_targets.setUnitTarget(magnet);
                     pushType = PUSH_CHAIN;
@@ -2181,7 +2181,7 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
             for(std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
                 AddUnitTarget(*itr, i);
         }
-    } // Chain or Area
+    }
 }
 
 void Spell::prepare(SpellCastTargets const* targets, AuraEffect* triggeredByAura)
@@ -3667,7 +3667,7 @@ void Spell::HandleEffects(Unit *pUnitTarget,Item *pItemTarget,GameObject *pGOTar
 
     uint8 eff = m_spellInfo->Effect[i];
 
-    sLog.outDebug( "Spell: Effect : %u", eff);
+    sLog.outDebug( "Spell: %u Effect : %u", m_spellInfo->Id, eff);
 
     //we do not need DamageMultiplier here.
     damage = CalculateDamage(i, NULL);
@@ -5310,11 +5310,11 @@ SpellCastResult Spell::CheckItems()
 
             // skip spell if no weapon in slot or broken
             if(!item || item->IsBroken() )
-                return SPELL_FAILED_EQUIPPED_ITEM_CLASS;
+                return m_IsTriggeredSpell? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_EQUIPPED_ITEM_CLASS;
 
             // skip spell if weapon not fit to triggered spell
             if(!item->IsFitToSpellRequirements(m_spellInfo))
-                return SPELL_FAILED_EQUIPPED_ITEM_CLASS;
+                return m_IsTriggeredSpell? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_EQUIPPED_ITEM_CLASS;
         }
 
         // offhand hand weapon required
@@ -5324,11 +5324,11 @@ SpellCastResult Spell::CheckItems()
 
             // skip spell if no weapon in slot or broken
             if(!item || item->IsBroken() )
-                return m_IsTriggeredSpell ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_EQUIPPED_ITEM_CLASS;
+                return m_IsTriggeredSpell? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_EQUIPPED_ITEM_CLASS;
 
             // skip spell if weapon not fit to triggered spell
             if(!item->IsFitToSpellRequirements(m_spellInfo))
-                return m_IsTriggeredSpell ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_EQUIPPED_ITEM_CLASS;
+                return m_IsTriggeredSpell? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_EQUIPPED_ITEM_CLASS;
         }
     }
 

@@ -1016,8 +1016,7 @@ void Unit::CastSpell(Unit* Victim,SpellEntry const *spellInfo, bool triggered, I
 
     if (!originalCaster && GetTypeId()==TYPEID_UNIT && ((Creature*)this)->isTotem())
         if (Unit * owner = GetOwner())
-            if (owner->GetTypeId()==TYPEID_PLAYER)
-                originalCaster=owner->GetGUID();
+            originalCaster=owner->GetGUID();
 
     SpellCastTargets targets;
     uint32 targetMask = spellInfo->Targets;
@@ -4110,6 +4109,13 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
     m_removedAuras.push_back(Aur);
 
     Aur->_RemoveAura();
+
+    // Remove totem at next update if totem looses its aura
+    if (GetTypeId()==TYPEID_UNIT && ((Creature*)this)->isTotem()&& ((TempSummon*)this)->GetSummonerGUID()==Aur->GetCasterGUID())
+    {
+        if (((Totem*)this)->GetSpell()==Aur->GetId())
+            ((Totem*)this)->setDeathState(JUST_DIED);
+    }
 
     // only way correctly remove all auras from list
     i = m_Auras.begin();
@@ -8316,19 +8322,20 @@ Unit* Unit::SelectMagnetTarget(Unit *victim, SpellEntry const *spellInfo)
 
         Unit::AuraEffectList const& magnetAuras = victim->GetAurasByType(SPELL_AURA_SPELL_MAGNET);
         for(Unit::AuraEffectList::const_iterator itr = magnetAuras.begin(); itr != magnetAuras.end(); ++itr)
-            if(Unit* magnet = (*itr)->GetCaster())
-                if(magnet->isAlive())
-                {
-                    (*itr)->GetParentAura()->DropAuraCharge();
-                    return magnet;
-                }
+                if(Unit* magnet = (*itr)->IsAreaAura() ? ((AreaAuraEffect*)(*itr))->GetFormalCaster():(*itr)->GetCaster() )
+                    if(magnet->isAlive())
+                    {
+                        if (Aura * aur = magnet->GetAura((*itr)->GetId(),(*itr)->GetCasterGUID()))
+                            aur->DropAuraCharge();
+                        return magnet;
+                    }
     }
     // Melee && ranged case
     else
     {
         AuraEffectList const& hitTriggerAuras = victim->GetAurasByType(SPELL_AURA_ADD_CASTER_HIT_TRIGGER);
         for(AuraEffectList::const_iterator i = hitTriggerAuras.begin(); i != hitTriggerAuras.end(); ++i)
-            if(Unit* magnet = (*i)->GetCaster())
+            if(Unit* magnet = (*i)->IsAreaAura() ? ((AreaAuraEffect*)(*i))->GetFormalCaster():(*i)->GetCaster() )
                 if(magnet->isAlive() && magnet->IsWithinLOSInMap(this))
                     if(roll_chance_i((*i)->GetAmount()))
                     {
@@ -10413,7 +10420,6 @@ void Unit::setDeathState(DeathState s)
         RemoveAllControlled();
         RemoveAllAurasOnDeath();
         ExitVehicle();
-        //This is needed to clear visible auras after unit dies
 
         ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, false);
         ModifyAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, false);

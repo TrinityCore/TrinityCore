@@ -137,7 +137,8 @@ enum SpellSpecific
     SPELL_FOOD              = 20,
     SPELL_PRESENCE          = 21,
     SPELL_CHARM             = 22,
-    SPELL_SCROLL            = 23
+    SPELL_SCROLL            = 23,
+    SPELL_MAGE_ARCANE_BRILLANCE = 24
 };
 
 #define SPELL_LINKED_MAX_SPELLS  200000
