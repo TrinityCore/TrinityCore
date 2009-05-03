@@ -959,7 +959,10 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         ? PROC_EX_INTERNAL_TRIGGERED : PROC_EX_NONE;
     m_spellAura = NULL; // Set aura to null for every target-make sure that pointer is not used for unit without aura applied
 
+                            //Spells with this flag cannot trigger if effect is casted on self
+    bool canEffectTrigger = (m_spellInfo->AttributesEx4 & SPELL_ATTR_EX4_CANT_PROC_FROM_SELFCAST ? m_caster != unitTarget : true);
     Unit * spellHitTarget = NULL;
+
     if (missInfo==SPELL_MISS_NONE)                          // In case spell hit target, do all effect on that target
         spellHitTarget = unit;
     else if (missInfo == SPELL_MISS_REFLECT)                // In case spell reflect from target, do all effect on caster (if hit)
@@ -999,7 +1002,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
             procEx |= PROC_EX_NORMAL_HIT;
 
         // Do triggers for unit (reflect triggers passed on hit phase for correct drop charge)
-        if (missInfo != SPELL_MISS_REFLECT)
+        if (canEffectTrigger && missInfo != SPELL_MISS_REFLECT)
             caster->ProcDamageAndSpell(unitTarget, procAttacker, procVictim, procEx, addhealth, m_attackType, m_spellInfo);
 
         if (m_spellAura)
@@ -1024,7 +1027,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         procVictim |= PROC_FLAG_TAKEN_ANY_DAMAGE;
 
         // Do triggers for unit (reflect triggers passed on hit phase for correct drop charge)
-        if (missInfo != SPELL_MISS_REFLECT)
+        if (canEffectTrigger && missInfo != SPELL_MISS_REFLECT)
             caster->ProcDamageAndSpell(unitTarget, procAttacker, procVictim, procEx, damageInfo.damage, m_attackType, m_spellInfo);
 
         if (m_spellAura)
@@ -1046,7 +1049,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         SpellNonMeleeDamage damageInfo(caster, unitTarget, m_spellInfo->Id, m_spellSchoolMask);
         procEx |= createProcExtendMask(&damageInfo, missInfo);
         // Do triggers for unit (reflect triggers passed on hit phase for correct drop charge)
-        if (missInfo != SPELL_MISS_REFLECT)
+        if (canEffectTrigger && missInfo != SPELL_MISS_REFLECT)
             caster->ProcDamageAndSpell(unit, procAttacker, procVictim, procEx, 0, m_attackType, m_spellInfo);
     }
 
@@ -1230,7 +1233,8 @@ void Spell::DoTriggersOnSpellHit(Unit *unit)
             m_caster->CastSpell(unit,m_preCastSpell, true, m_CastItem);
     }
 
-    if (m_ChanceTriggerSpells.size())
+    // spells with this flag can trigger only if not selfcast (eviscerate for example)
+    if (m_ChanceTriggerSpells.size() && (!(m_spellInfo->AttributesEx4 & SPELL_ATTR_EX4_CANT_PROC_FROM_SELFCAST) || unit!=m_caster))
     {
         int _duration=0;
         for(ChanceTriggerSpells::const_iterator i = m_ChanceTriggerSpells.begin(); i != m_ChanceTriggerSpells.end(); ++i)
@@ -1911,7 +1915,7 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
 
         case TARGET_TYPE_CHANNEL:
         {
-            if(!m_caster->m_currentSpells[CURRENT_CHANNELED_SPELL])
+            if(!m_originalCaster || !m_originalCaster->m_currentSpells[CURRENT_CHANNELED_SPELL])
             {
                 sLog.outError( "SPELL: no current channeled spell for spell ID %u", m_spellInfo->Id );
                 break;
@@ -1920,14 +1924,14 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
             switch(cur)
             {
                 case TARGET_UNIT_CHANNEL:
-                    if(Unit* target = m_caster->m_currentSpells[CURRENT_CHANNELED_SPELL]->m_targets.getUnitTarget())
+                    if(Unit* target = m_originalCaster->m_currentSpells[CURRENT_CHANNELED_SPELL]->m_targets.getUnitTarget())
                         AddUnitTarget(target, i);
                     else
                         sLog.outError( "SPELL: cannot find channel spell target for spell ID %u", m_spellInfo->Id );
                     break;
                 case TARGET_DEST_CHANNEL:
-                    if(m_caster->m_currentSpells[CURRENT_CHANNELED_SPELL]->m_targets.HasDst())
-                        m_targets = m_caster->m_currentSpells[CURRENT_CHANNELED_SPELL]->m_targets;
+                    if(m_originalCaster->m_currentSpells[CURRENT_CHANNELED_SPELL]->m_targets.HasDst())
+                        m_targets = m_originalCaster->m_currentSpells[CURRENT_CHANNELED_SPELL]->m_targets;
                     else
                         sLog.outError( "SPELL: cannot find channel spell destination for spell ID %u", m_spellInfo->Id );
                     break;
