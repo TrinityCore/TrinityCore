@@ -257,37 +257,18 @@ void TempSummon::SaveToDB()
 {
 }
 
-bool TempSummon::SetOwner(Unit *owner, bool apply)
-{
-    if(apply)
-    {
-        if(!AddUInt64Value(UNIT_FIELD_SUMMONEDBY, owner->GetGUID()))
-        {
-            sLog.outCrash("Unit %u is summoned by %u but it already has a owner", GetEntry(), owner->GetEntry());
-            return false;
-        }
-        if(owner->GetTypeId() == TYPEID_PLAYER)
-        {
-            m_ControlledByPlayer = true;
-            SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
-        }
-    }
-    else
-    {
-        if(!RemoveUInt64Value(UNIT_FIELD_SUMMONEDBY, owner->GetGUID()))
-        {
-            sLog.outCrash("Unit %u is unsummoned by %u but it has another owner", GetEntry(), owner->GetEntry());
-            return false;
-        }
-    }
-
-    return true;
-}
-
 Minion::Minion(SummonPropertiesEntry const *properties, Unit *owner) : TempSummon(properties, owner)
 , m_owner(owner)
 {
+    assert(m_owner);
     m_summonMask |= SUMMON_MASK_MINION;
+    SetUInt64Value(UNIT_FIELD_SUMMONEDBY, m_owner->GetGUID());
+
+    if(m_owner->GetTypeId() == TYPEID_PLAYER)
+    {
+        m_ControlledByPlayer = true;
+        SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
+    }
 }
 
 void Minion::InitSummon(uint32 duration)

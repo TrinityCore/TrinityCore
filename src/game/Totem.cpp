@@ -110,35 +110,32 @@ void Totem::UnSummon()
 
     CombatStop();
     RemoveAurasDueToSpell(GetSpell());
-    Unit *owner = GetOwner();
-    if (owner)
+
+    // clear owenr's totem slot
+    for(int i = SUMMON_SLOT_TOTEM; i < MAX_TOTEM_SLOT; ++i)
     {
-        // clear owenr's totem slot
-        for(int i = SUMMON_SLOT_TOTEM; i < MAX_TOTEM_SLOT; ++i)
+        if(m_owner->m_SummonSlot[i]==GetGUID())
         {
-            if(owner->m_SummonSlot[i]==GetGUID())
-            {
-                owner->m_SummonSlot[i] = 0;
-                break;
-            }
+            m_owner->m_SummonSlot[i] = 0;
+            break;
         }
+    }
 
-        owner->RemoveAurasDueToSpell(GetSpell());
+    m_owner->RemoveAurasDueToSpell(GetSpell());
 
-        //remove aura all party members too
-        Group *pGroup = NULL;
-        if (owner->GetTypeId() == TYPEID_PLAYER)
+    //remove aura all party members too
+    Group *pGroup = NULL;
+    if (m_owner->GetTypeId() == TYPEID_PLAYER)
+    {
+        // Not only the player can summon the totem (scripted AI)
+        pGroup = ((Player*)m_owner)->GetGroup();
+        if (pGroup)
         {
-            // Not only the player can summon the totem (scripted AI)
-            pGroup = ((Player*)owner)->GetGroup();
-            if (pGroup)
+            for(GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
             {
-                for(GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
-                {
-                    Player* Target = itr->getSource();
-                    if(Target && pGroup->SameSubGroup((Player*)owner, Target))
-                        Target->RemoveAurasDueToSpell(GetSpell());
-                }
+                Player* Target = itr->getSource();
+                if(Target && pGroup->SameSubGroup((Player*)m_owner, Target))
+                    Target->RemoveAurasDueToSpell(GetSpell());
             }
         }
     }
