@@ -1692,15 +1692,20 @@ void WorldSession::HandleSpellClick( WorldPacket & recv_data )
     uint64 guid;
     recv_data >> guid;
 
-    Vehicle *vehicle = ObjectAccessor::GetVehicle(guid);
-
-    if(!vehicle)
+    Creature *creature = NULL;
+    if(IS_VEHICLE_GUID(guid))
     {
-        sLog.outError("Player %s cannot find vehicle %u", _player->GetName(), guid);
-        return;
+        Vehicle *vehicle = ObjectAccessor::GetVehicle(guid);
+        if(vehicle)
+        {
+            _player->EnterVehicle(vehicle);
+            creature = vehicle;
+        }
     }
-
-    _player->EnterVehicle(vehicle);
+    if(!creature)
+        creature = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, guid);
+    if(creature && creature->IsAIEnabled)
+        creature->AI()->SpellClick(_player);
 }
 
 void WorldSession::HandleInspectAchievements( WorldPacket & recv_data )
