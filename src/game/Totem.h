@@ -31,7 +31,7 @@ enum TotemType
 
 #define SENTRY_TOTEM_ENTRY  3968
 
-class Totem : public TempSummon
+class Totem : public Minion
 {
     public:
         explicit Totem(SummonPropertiesEntry const *properties, Unit *owner);
@@ -41,7 +41,6 @@ class Totem : public TempSummon
         void UnSummon();
         uint32 GetSpell() const { return m_spells[0]; }
         uint32 GetTotemDuration() const { return m_duration; }
-        Unit *GetOwner();
         TotemType GetTotemType() const { return m_type; }
 
         bool UpdateStats(Stats /*stat*/) { return true; }

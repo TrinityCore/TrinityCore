@@ -1883,7 +1883,7 @@ bool ChatHandler::HandleNpcTameCommand(const char* /*args*/)
     pet->SetUInt32Value(UNIT_FIELD_LEVEL, level);
 
     // caster have pet now
-    player->SetGuardian(pet, true);
+    player->SetMinion(pet, true);
 
     pet->SavePetToDB(PET_SAVE_AS_CURRENT);
     player->PetSpellInitialize();
@@ -4406,7 +4406,7 @@ bool ChatHandler::HandleCreatePetCommand(const char* args)
      // visual effect for levelup
      pet->SetUInt32Value(UNIT_FIELD_LEVEL,creatureTarget->getLevel());
 
-     player->SetGuardian(pet, true);
+     player->SetMinion(pet, true);
      pet->SavePetToDB(PET_SAVE_AS_CURRENT);
      player->PetSpellInitialize();
 

@@ -46,21 +46,27 @@ class TempSummon : public Creature
         uint64 m_summonerGUID;
 };
 
-class Guardian : public TempSummon
+class Minion : public TempSummon
+{
+    public:
+        Minion(SummonPropertiesEntry const *properties, Unit *owner);
+        void InitSummon(uint32 duration);
+        void RemoveFromWorld();
+        Unit *GetOwner() { return m_owner; }
+    protected:
+        Unit *m_owner;
+};
+
+class Guardian : public Minion
 {
     public:
         Guardian(SummonPropertiesEntry const *properties, Unit *owner);
-        bool Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, uint32 pet_number);
         void InitSummon(uint32 duration);
-        void RemoveFromWorld();
         bool InitStatsForLevel(uint32 level);
 
         int32 GetBonusDamage() { return m_bonusdamage; }
         void SetBonusDamage(int32 damage) { m_bonusdamage = damage; }
-
-        Unit *GetOwner() { return m_owner; }
     protected:
-        Unit *m_owner;
         int32   m_bonusdamage;
 };
 

@@ -284,8 +284,35 @@ bool TempSummon::SetOwner(Unit *owner, bool apply)
     return true;
 }
 
-Guardian::Guardian(SummonPropertiesEntry const *properties, Unit *owner) : TempSummon(properties, owner)
-, m_owner(owner), m_bonusdamage(0)
+Minion::Minion(SummonPropertiesEntry const *properties, Unit *owner) : TempSummon(properties, owner)
+, m_owner(owner)
+{
+    m_summonMask |= SUMMON_MASK_MINION;
+}
+
+void Minion::InitSummon(uint32 duration)
+{
+    TempSummon::InitSummon(duration);
+
+    SetReactState(REACT_PASSIVE);
+
+    SetCreatorGUID(m_owner->GetGUID());
+    setFaction(m_owner->getFaction());
+
+    m_owner->SetMinion(this, true);
+}
+
+void Minion::RemoveFromWorld()
+{
+    if(!IsInWorld())
+        return;
+
+    m_owner->SetMinion(this, false);
+    TempSummon::RemoveFromWorld();
+}
+
+Guardian::Guardian(SummonPropertiesEntry const *properties, Unit *owner) : Minion(properties, owner)
+, m_bonusdamage(0)
 {
     m_summonMask |= SUMMON_MASK_GUARDIAN;
     InitCharmInfo();
@@ -293,28 +320,10 @@ Guardian::Guardian(SummonPropertiesEntry const *properties, Unit *owner) : TempS
 
 void Guardian::InitSummon(uint32 duration)
 {
-    TempSummon::InitSummon(duration);
+    if(m_owner->GetTypeId() == TYPEID_PLAYER)
+        m_charmInfo->InitCharmCreateSpells();
+
+    Minion::InitSummon(duration);
 
     SetReactState(REACT_AGGRESSIVE);
-
-    SetCreatorGUID(m_owner->GetGUID());
-    setFaction(m_owner->getFaction());
-
-    if(m_owner->GetTypeId() == TYPEID_PLAYER)
-    {
-        m_charmInfo->InitCharmCreateSpells();
-        //((Player*)m_owner)->CharmSpellInitialize();
-    }
-
-    m_owner->SetGuardian(this, true);
 }
-
-void Guardian::RemoveFromWorld()
-{
-    if(!IsInWorld())
-        return;
-
-    m_owner->SetGuardian(this, false);
-    TempSummon::RemoveFromWorld();
-}
-
