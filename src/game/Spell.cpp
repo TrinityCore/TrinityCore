@@ -365,6 +365,7 @@ Spell::Spell( Unit* Caster, SpellEntry const *info, bool triggered, uint64 origi
     m_delayAtDamageCount = 0;
 
     m_applyMultiplierMask = 0;
+    m_effectMask = 0;
 
     // Get data for type of attack
     switch (m_spellInfo->DmgClass)
@@ -2450,7 +2451,21 @@ void Spell::cast(bool skipCheck)
     SendSpellGo();                                          // we must send smsg_spell_go packet before m_castItem delete in TakeCastItem()...
 
     if(m_customAttr & SPELL_ATTR_CU_CHARGE)
-        EffectCharge(0);
+    {
+        for(uint32 i = 0; i < 3; ++i)
+        {
+            switch(m_spellInfo->Effect[i])
+            {
+                case SPELL_EFFECT_CHARGE:
+                case SPELL_EFFECT_JUMP:
+                case SPELL_EFFECT_JUMP2:
+                case SPELL_EFFECT_138:
+                    HandleEffects(NULL,NULL,NULL,i);
+                    m_effectMask |= (1<<i);
+                    break;
+            }
+        }
+    }
 
     // Okay, everything is prepared. Now we need to distinguish between immediate and evented delayed spells
     if (m_spellInfo->speed > 0.0f && !IsChanneledSpell(m_spellInfo))
@@ -3660,8 +3675,12 @@ void Spell::HandleThreatSpells(uint32 spellId)
     DEBUG_LOG("Spell %u, rank %u, added an additional %i threat", spellId, spellmgr.GetSpellRank(spellId), threatSpell->threat);
 }
 
-void Spell::HandleEffects(Unit *pUnitTarget,Item *pItemTarget,GameObject *pGOTarget,uint32 i, float /*DamageMultiplier*/)
+void Spell::HandleEffects(Unit *pUnitTarget,Item *pItemTarget,GameObject *pGOTarget,uint32 i)
 {
+    //effect has been handled, skip it
+    if(m_effectMask & (1<<i))
+        return;
+
     unitTarget = pUnitTarget;
     itemTarget = pItemTarget;
     gameObjTarget = pGOTarget;
@@ -3676,21 +3695,8 @@ void Spell::HandleEffects(Unit *pUnitTarget,Item *pItemTarget,GameObject *pGOTar
     if(eff<TOTAL_SPELL_EFFECTS)
     {
         //sLog.outDebug( "WORLD: Spell FX %d < TOTAL_SPELL_EFFECTS ", eff);
-        (*this.*SpellEffects[eff])(i);
+        (this->*SpellEffects[eff])(i);
     }
-    /*
-    else
-    {
-        sLog.outDebug( "WORLD: Spell FX %d > TOTAL_SPELL_EFFECTS ", eff);
-        if (m_CastItem)
-            EffectEnchantItemTmp(i);
-        else
-        {
-            sLog.outError("SPELL: unknown effect %u spell id %u",
-                eff, m_spellInfo->Id);
-        }
-    }
-    */
 }
 
 void Spell::TriggerSpell()
