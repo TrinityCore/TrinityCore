@@ -262,7 +262,7 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
     }
 
     map->Add((Creature*)this);
-    owner->SetGuardian(this, true);
+    owner->SetMinion(this, true);
 
     m_resetTalentsCost = fields[17].GetUInt32();
     m_resetTalentsTime = fields[18].GetUInt64();

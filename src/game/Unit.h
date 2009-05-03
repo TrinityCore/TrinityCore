@@ -313,6 +313,7 @@ class Item;
 class Pet;
 class Path;
 class PetAura;
+class Minion;
 class Guardian;
 class UnitAI;
 class Transport;
@@ -1220,8 +1221,8 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         uint64 GetOwnerGUID() const { return  GetUInt64Value(UNIT_FIELD_SUMMONEDBY); }
         uint64 GetCreatorGUID() const { return GetUInt64Value(UNIT_FIELD_CREATEDBY); }
         void SetCreatorGUID(uint64 creator) { SetUInt64Value(UNIT_FIELD_CREATEDBY, creator); }
-        uint64 GetGuardianGUID() const { return GetUInt64Value(UNIT_FIELD_SUMMON); }
-        void SetGuardianGUID(uint64 guid) { SetUInt64Value(UNIT_FIELD_SUMMON, guid); }
+        uint64 GetMinionGUID() const { return GetUInt64Value(UNIT_FIELD_SUMMON); }
+        void SetMinionGUID(uint64 guid) { SetUInt64Value(UNIT_FIELD_SUMMON, guid); }
         uint64 GetCharmerGUID() const { return GetUInt64Value(UNIT_FIELD_CHARMEDBY); }
         void SetCharmerGUID(uint64 owner) { SetUInt64Value(UNIT_FIELD_CHARMEDBY, owner); }
         uint64 GetCharmGUID() const { return  GetUInt64Value(UNIT_FIELD_CHARM); }
@@ -1242,6 +1243,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
 
         Unit* GetOwner() const;
         Guardian *GetGuardianPet() const;
+        Minion *GetFirstMinion() const;
         Unit* GetCharmer() const;
         Unit* GetCharm() const;
         Unit* GetCharmerOrOwner() const { return GetCharmerGUID() ? GetCharmer() : GetOwner(); }
@@ -1254,7 +1256,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         }
         Player* GetCharmerOrOwnerPlayerOrPlayerItself() const;
 
-        void SetGuardian(Guardian* target, bool apply);
+        void SetMinion(Minion *minion, bool apply);
         void SetCharm(Unit* target, bool apply);
         Unit* GetNextRandomRaidMemberOrPet(float radius);
         void SetCharmedOrPossessedBy(Unit* charmer, bool possess);
