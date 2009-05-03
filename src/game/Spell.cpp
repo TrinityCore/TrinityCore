@@ -1983,7 +1983,7 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
             m_damageMultipliers[i] = 1.0f;
             m_applyMultiplierMask |= 1 << i;
 
-            float radius;
+            float range;
             std::list<Unit*> unitList;
 
             switch(cur)
@@ -1991,17 +1991,17 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
                 case TARGET_UNIT_NEARBY_ENEMY:
                 case TARGET_UNIT_TARGET_ENEMY:
                 case TARGET_UNIT_NEARBY_ENTRY: // fix me
-                    radius = GetSpellRadius(m_spellInfo, i, false);
-                    if(modOwner) modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RADIUS, radius, this);
-                    SearchChainTarget(unitList, radius, maxTargets, SPELL_TARGETS_ENEMY);
+                    range = GetSpellMaxRange(m_spellInfo, false);
+                    if(modOwner) modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RANGE, range, this);
+                    SearchChainTarget(unitList, range, maxTargets, SPELL_TARGETS_ENEMY);
                     break;
                 case TARGET_UNIT_CHAINHEAL:
                 case TARGET_UNIT_NEARBY_ALLY:  // fix me
                 case TARGET_UNIT_NEARBY_ALLY_UNK:
                 case TARGET_UNIT_NEARBY_RAID:
-                    radius = GetSpellRadius(m_spellInfo, i, true);
-                    if(modOwner) modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RADIUS, radius, this);
-                    SearchChainTarget(unitList, radius, maxTargets, SPELL_TARGETS_CHAINHEAL);
+                    range = GetSpellMaxRange(m_spellInfo, true);
+                    if(modOwner) modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RANGE, range, this);
+                    SearchChainTarget(unitList, range, maxTargets, SPELL_TARGETS_CHAINHEAL);
                     break;
             }
             
