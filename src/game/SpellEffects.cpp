@@ -2168,7 +2168,7 @@ void Spell::EffectJump(uint32 i)
             Unit* pTarget = NULL;
             if(m_targets.getUnitTarget() && m_targets.getUnitTarget()!=m_caster)
                 pTarget = m_targets.getUnitTarget();
-            else if(unitTarget->getVictim())
+            else if(m_caster->getVictim())
                 pTarget = m_caster->getVictim();
             else if(m_caster->GetTypeId() == TYPEID_PLAYER)
                 pTarget = ObjectAccessor::GetUnit(*m_caster, ((Player*)m_caster)->GetSelection());
@@ -2178,14 +2178,14 @@ void Spell::EffectJump(uint32 i)
         else
             o = m_caster->GetOrientation();
     }
-    else if(unitTarget)
+    else if(m_targets.getUnitTarget())
     {
-        unitTarget->GetContactPoint(m_caster,x,y,z,CONTACT_DISTANCE);
+        m_targets.getUnitTarget()->GetContactPoint(m_caster,x,y,z,CONTACT_DISTANCE);
         o = m_caster->GetOrientation();
     }
-    else if(gameObjTarget)
+    else if(m_targets.getGOTarget())
     {
-        gameObjTarget->GetContactPoint(m_caster,x,y,z,CONTACT_DISTANCE);
+        m_targets.getGOTarget()->GetContactPoint(m_caster,x,y,z,CONTACT_DISTANCE);
         o = m_caster->GetOrientation();
     }
     else
@@ -5851,20 +5851,17 @@ void Spell::EffectKnockBack(uint32 i)
 
 void Spell::EffectJump2(uint32 i)
 {
-    if(!unitTarget)
-        return;
-
     float speedxy = float(m_spellInfo->EffectMiscValue[i])/10;
     float speedz = float(damage/10);
     if(!speedxy)
     {
         if(m_targets.getUnitTarget())
-            unitTarget->JumpTo(m_targets.getUnitTarget(), speedz);
+            m_caster->JumpTo(m_targets.getUnitTarget(), speedz);
     }
     else
     {
         //1891: Disengage
-        unitTarget->JumpTo(speedxy, speedz, m_spellInfo->SpellIconID != 1891);           
+        m_caster->JumpTo(speedxy, speedz, m_spellInfo->SpellIconID != 1891);           
     }
 }
 

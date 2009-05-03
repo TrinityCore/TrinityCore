@@ -333,7 +333,6 @@ void MotionMaster::MoveJump(float x, float y, float z, float speedXY, float spee
 {
     uint32 moveFlag = MOVEFLAG_JUMP | MOVEFLAG_WALK;
     uint32 time = speedZ * 100;
-    i_owner->SendMonsterMove(x, y, z, moveFlag, time, speedZ);
 
     i_owner->addUnitState(UNIT_STAT_CHARGING | UNIT_STAT_JUMPING);
     i_owner->m_TempSpeed = speedXY;
@@ -348,6 +347,8 @@ void MotionMaster::MoveJump(float x, float y, float z, float speedXY, float spee
             i_owner->GetEntry(), i_owner->GetGUIDLow(), x, y, z );
         Mutate(new PointMovementGenerator<Creature>(0,x,y,z), MOTION_SLOT_CONTROLLED);
     }
+
+    i_owner->SendMonsterMove(x, y, z, moveFlag, time, speedZ);
 }
 
 void
