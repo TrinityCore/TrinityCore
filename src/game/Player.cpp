@@ -16524,7 +16524,7 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
             break;
     }
 
-    SetGuardian(pet, false);
+    SetMinion(pet, false);
 
     pet->CleanupsBeforeDelete();
     pet->AddObjectToRemoveList();
