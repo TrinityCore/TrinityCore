@@ -415,10 +415,11 @@ void AddSC_boss_terestian_illhoof()
     newscript->GetAI = &GetAI_boss_terestian_illhoof;
     newscript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name="mob_karazhan_imp";
-    newscript->GetAI = &GetAI_mob_karazhan_imp;
-    newscript->RegisterSelf();
+    //Who can find out what is this for
+    //newscript = new Script;
+    //newscript->Name="mob_karazhan_imp";
+    //newscript->GetAI = &GetAI_mob_karazhan_imp;
+    //newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="mob_kilrek";
