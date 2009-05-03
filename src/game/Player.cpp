@@ -2043,7 +2043,7 @@ Player::GetNPCIfCanInteractWith(uint64 guid, uint32 npcflagmask)
         return NULL;
 
     // not allow interaction under control
-    if(unit->GetCharmerOrOwnerGUID())
+    if(unit->GetCharmerGUID())
         return NULL;
 
     // not enemy
