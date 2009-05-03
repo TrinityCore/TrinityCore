@@ -8143,12 +8143,14 @@ Unit* Unit::GetCharm() const
 void Unit::SetMinion(Minion *minion, bool apply)
 {
     sLog.outDebug("SetMinion %u for %u, apply %u", minion->GetEntry(), GetEntry(), apply);
+    if(minion->GetOwnerGUID() != GetGUID())
+    {
+        sLog.outCrash("SetMinion: Minion %u is not the minion of owner %u", minion->GetEntry(), GetEntry());
+        return;
+    }
 
     if(apply)
     {
-        if(!minion->SetOwner(this, true))
-            return;
-
         m_Controlled.insert(minion);
 
         // Can only have one pet. If a new one is summoned, dismiss the old one.
@@ -8204,9 +8206,6 @@ void Unit::SetMinion(Minion *minion, bool apply)
     }
     else
     {
-        if(!minion->SetOwner(this, false))
-            return;
-
         m_Controlled.erase(minion);
 
         if(minion->isPet() || minion->m_Properties && minion->m_Properties->Category == SUMMON_CATEGORY_PET)
