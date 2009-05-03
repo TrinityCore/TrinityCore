@@ -214,7 +214,7 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
         if(Phase == 1)
         {
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            EnterEvadeMode();
+            //EnterEvadeMode();
             //SummonWasters_Timer at far positon
             if ( SummonWasters_Timer< diff)
             {
