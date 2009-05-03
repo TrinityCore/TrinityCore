@@ -107,7 +107,7 @@ enum SpellNotifyPushType
     PUSH_IN_LINE,
     PUSH_SRC_CENTER,
     PUSH_DST_CENTER,
-    PUSH_CASTER_CENTER,
+    PUSH_CASTER_CENTER, //this is never used in grid search
     PUSH_CHAIN,
 };
 

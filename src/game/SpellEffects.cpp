@@ -2110,7 +2110,9 @@ void Spell::EffectTriggerSpell(uint32 i)
     bool instant = false;
     for(uint32 j = i+1; j < 3; ++j)
     {
-        if(m_spellInfo->Effect[j]==SPELL_EFFECT_INSTAKILL && m_spellInfo->EffectImplicitTargetA[j]==TARGET_UNIT_CASTER)
+        if(m_spellInfo->EffectImplicitTargetA[j] == TARGET_UNIT_CASTER
+            && (m_spellInfo->Effect[j]==SPELL_EFFECT_INSTAKILL 
+            || m_spellInfo->Effect[j]==SPELL_EFFECT_SANCTUARY))
         {
             instant = true;
             break;
