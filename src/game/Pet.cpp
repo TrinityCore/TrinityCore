@@ -1181,13 +1181,13 @@ void Pet::_SaveAuras()
                 || itr->second->IsAreaAura())
                 continue;
 
-        uint32 amounts[MAX_SPELL_EFFECTS];
-        for (uint8 i=0;i<MAX_SPELL_EFFECTS;++i)
+        int32 amounts[MAX_SPELL_EFFECTS];
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
-            if (AuraEffect * partAura = itr->second->GetPartAura(i))
-                amounts[i]=partAura->GetAmount();
+            if (AuraEffect *partAura = itr->second->GetPartAura(i))
+                amounts[i] = partAura->GetAmount();
             else
-                amounts[i]=0;
+                amounts[i] = 0;
         }
 
         CharacterDatabase.PExecute("INSERT INTO pet_aura (guid,caster_guid,spell,effect_mask,stackcount,amount0, amount1, amount2,maxduration,remaintime,remaincharges) "
