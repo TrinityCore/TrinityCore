@@ -127,14 +127,6 @@ ObjectMgr::ObjectMgr()
     m_arenaTeamId       = 1;
     m_auctionid         = 1;
 
-    mGuildBankTabPrice.resize(GUILD_BANK_MAX_TABS);
-    mGuildBankTabPrice[0] = 100;
-    mGuildBankTabPrice[1] = 250;
-    mGuildBankTabPrice[2] = 500;
-    mGuildBankTabPrice[3] = 1000;
-    mGuildBankTabPrice[4] = 2500;
-    mGuildBankTabPrice[5] = 5000;
-
     // Only zero condition left, others will be added while loading DB tables
     mConditions.resize(1);
 }

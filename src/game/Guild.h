@@ -191,6 +191,22 @@ enum GuildEmblem
     ERR_GUILDEMBLEM_INVALIDVENDOR         = 5
 };
 
+inline uint32 GetGuildBankTabPrice(uint8 Index)
+{
+    switch(Index)
+    {
+        case 0: return 100;
+        case 1: return 250;
+        case 2: return 500;
+        case 3: return 1000;
+        case 4: return 2500;
+        case 5: return 5000;
+        default:
+            return 0;
+    }
+    return 0;
+}
+
 struct GuildBankEvent
 {
     uint32 LogGuid;
