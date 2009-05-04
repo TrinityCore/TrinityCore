@@ -1,13 +1,6 @@
-/* Script Data Start
-SDName: Boss archavon
-SDAuthor: LordVanMartin
-SD%Complete:
-SDComment:
-SDCategory:
-Script Data End */
-
 /*** SQL START ***
-update creature_template set scriptname = '' where entry = '';
+UPDATE `creature_template` SET `ScriptName`='boss_archavon' WHERE `entry`='31125';
+UPDATE `creature_template` SET `ScriptName`='mob_archavon_warder' WHERE `entry`='32353';
 *** SQL END ***/
 #include "precompiled.h"
 
@@ -22,8 +15,7 @@ update creature_template set scriptname = '' where entry = '';
 
 //Spells Archavon
 #define SPELL_ROCK_SHARDS                           HEROIC(58695,60884) //Instant -- Hurls a jagged rock shard, inflicting 707 to 793 Physical damage to any enemies within 5 of the target.
-#define SPELL_CRUSHING_LEAP                         HEROIC(58965,60895)//Instant (10-80yr range) -- Leaps at an enemy, inflicting 8000 Physical damage, knocking all nearby enemies away, and creating a cloud of choking debris.
-#define SPELL_CHOKING_CLOUD                         HEROIC(58963,60895) //Leaving behind CRUSHING_LEAP --> Slams into the ground, kicking up an asphyxiating cloud of debris, inflicting 2828 to 3172 Nature damage per second to all enemies caught within and reducing their chance to hit by 50%.
+#define SPELL_CRUSHING_LEAP                         HEROIC(58960,60894)//Instant (10-80yr range) -- Leaps at an enemy, inflicting 8000 Physical damage, knocking all nearby enemies away, and creating a cloud of choking debris.
 #define SPELL_STOMP                                 HEROIC(58663,60880)
 #define SPELL_IMPALE                                HEROIC(58666,60882) //Lifts an enemy off the ground with a spiked fist, inflicting 47125 to 52875 Physical damage and 9425 to 10575 additional damage each second for 8 sec.
 #define SPELL_BERSERK								47008
@@ -103,10 +95,7 @@ struct TRINITY_DLL_DECL boss_archavonAI : public ScriptedAI
                 case EVENT_CHOKING_CLOUD:
                 {
                     if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                    {
-                        DoCast(target, SPELL_CHOKING_CLOUD);
-                        DoCast(target, SPELL_CRUSHING_LEAP);
-                    }
+                        DoCast(target, SPELL_CRUSHING_LEAP, true); //10y~80y, ignore range
                     events.ScheduleEvent(EVENT_CHOKING_CLOUD, 30000);
                     return;
                 }
