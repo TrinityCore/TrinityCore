@@ -2026,8 +2026,8 @@ Player::GetNPCIfCanInteractWith(uint64 guid, uint32 npcflagmask)
     if(!IsInWorld())
         return NULL;
 
-    // exist
-    Creature *unit = GetMap()->GetCreature(guid);
+    // exist (we need look pets also for some interaction (quest/etc)
+    Creature *unit = ObjectAccessor::GetCreatureOrPetOrVehicle(*this,guid);
     if (!unit)
         return NULL;
 
@@ -2043,7 +2043,7 @@ Player::GetNPCIfCanInteractWith(uint64 guid, uint32 npcflagmask)
     if(!unit->isAlive() && (!unit->isSpiritService() || isAlive() ))
         return NULL;
 
-    // not allow interaction under control
+    // not allow interaction under control, but allow with own pets
     if(unit->GetCharmerGUID())
         return NULL;
 
@@ -12095,7 +12095,9 @@ void Player::PrepareQuestMenu( uint64 guid )
     Object *pObject;
     QuestRelations* pObjectQR;
     QuestRelations* pObjectQIR;
-    Creature *pCreature = GetMap()->GetCreature(guid);
+
+    // pets also can have quests
+    Creature *pCreature = ObjectAccessor::GetCreatureOrPetOrVehicle(*this,guid);
     if( pCreature )
     {
         pObject = (Object*)pCreature;
@@ -12181,7 +12183,9 @@ void Player::SendPreparedQuest( uint64 guid )
         qe._Delay = 0;
         qe._Emote = 0;
         std::string title = "";
-        Creature *pCreature = GetMap()->GetCreature(guid);
+
+        // need pet case for some quests
+        Creature *pCreature = ObjectAccessor::GetCreatureOrPetOrVehicle(*this,guid);
         if( pCreature )
         {
             uint32 textid = pCreature->GetNpcTextId();
@@ -12245,7 +12249,7 @@ Quest const * Player::GetNextQuest( uint64 guid, Quest const *pQuest )
     QuestRelations* pObjectQR;
     QuestRelations* pObjectQIR;
 
-    Creature *pCreature = GetMap()->GetCreature(guid);
+    Creature *pCreature = ObjectAccessor::GetCreatureOrPetOrVehicle(*this,guid);
     if( pCreature )
     {
         pObject = (Object*)pCreature;
