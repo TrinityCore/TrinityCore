@@ -23,7 +23,6 @@
 			OutputDirectory=".\trinityrealm__$(PlatformName)_$(ConfigurationName)"
 			IntermediateDirectory=".\trinityrealm__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
@@ -63,6 +62,7 @@
 				SuppressStartupBanner="true"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
+				CallingConvention="0"
 				CompileAs="0"
 			/>
 			<Tool
@@ -121,7 +121,6 @@
 			OutputDirectory=".\trinityrealm__$(PlatformName)_$(ConfigurationName)"
 			IntermediateDirectory=".\trinityrealm__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
@@ -162,6 +161,7 @@
 				SuppressStartupBanner="true"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
+				CallingConvention="0"
 				CompileAs="0"
 			/>
 			<Tool
@@ -187,6 +187,8 @@
 				GenerateMapFile="true"
 				MapFileName="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.map"
 				SubSystem="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -217,7 +219,6 @@
 			OutputDirectory=".\trinityrealm__$(PlatformName)_$(ConfigurationName)"
 			IntermediateDirectory=".\trinityrealm__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
@@ -247,6 +248,7 @@
 				IgnoreStandardIncludePath="false"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
+				EnableFunctionLevelLinking="true"
 				RuntimeTypeInfo="true"
 				PrecompiledHeaderFile=".\trinityrealm__$(PlatformName)_$(ConfigurationName)\realmd.pch"
 				AssemblerListingLocation=".\trinityrealm__$(PlatformName)_$(ConfigurationName)\"
@@ -256,6 +258,7 @@
 				SuppressStartupBanner="true"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
+				CallingConvention="0"
 				CompileAs="0"
 			/>
 			<Tool
@@ -315,7 +318,6 @@
 			OutputDirectory=".\trinityrealm__$(PlatformName)_$(ConfigurationName)"
 			IntermediateDirectory=".\trinityrealm__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
@@ -346,6 +348,7 @@
 				IgnoreStandardIncludePath="false"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
+				EnableFunctionLevelLinking="true"
 				RuntimeTypeInfo="true"
 				PrecompiledHeaderFile=".\trinityrealm__$(PlatformName)_$(ConfigurationName)\realmd.pch"
 				AssemblerListingLocation=".\trinityrealm__$(PlatformName)_$(ConfigurationName)\"
@@ -355,6 +358,7 @@
 				SuppressStartupBanner="true"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
+				CallingConvention="0"
 				CompileAs="0"
 			/>
 			<Tool
@@ -380,7 +384,9 @@
 				GenerateMapFile="true"
 				MapFileName="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.map"
 				SubSystem="1"
+				RandomizedBaseAddress="1"
 				FixedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -623,15 +629,15 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\src\trinityrealm\TrinityRealm.rc"
+			>
+		</File>
+		<File
 			RelativePath="..\..\src\trinityrealm\RealmList.cpp"
 			>
 		</File>
 		<File
 			RelativePath="..\..\src\trinityrealm\RealmList.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\src\trinityrealm\TrinityRealm.rc"
 			>
 		</File>
 		<File
