@@ -2665,6 +2665,10 @@
 									RelativePath="..\scripts\zone\utgarde_keep\utgarde_keep\instance_utgarde_keep.cpp"
 									>
 								</File>
+								<File
+									RelativePath="..\scripts\zone\utgarde_keep\utgarde_keep\utgarde_keep.cpp"
+									>
+								</File>
 							</Filter>
 							<Filter
 								Name="Utgarde Pinnacle"

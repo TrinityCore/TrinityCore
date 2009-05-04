@@ -391,6 +391,7 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/utgarde_keep/utgarde_keep/boss_skarvald_dalronn.cpp
    scripts/zone/utgarde_keep/utgarde_keep/boss_ingvar_the_plunderer.cpp
    scripts/zone/utgarde_keep/utgarde_keep/def_utgarde_keep.h
+   scripts/zone/utgarde_keep/utgarde_keep/utgarde_keep.cpp
    scripts/zone/utgarde_keep/utgarde_pinnacle/instance_pinnacle.cpp
    scripts/zone/utgarde_keep/utgarde_pinnacle/boss_skadi.cpp
    scripts/zone/utgarde_keep/utgarde_pinnacle/boss_ymiron.cpp
