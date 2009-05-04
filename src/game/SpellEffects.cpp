@@ -3294,9 +3294,7 @@ void Spell::EffectSummonType(uint32 i)
                         return;
 
                     //summon->InitPetCreateSpells();                         // e.g. disgusting oozeling has a create spell as summon...
-                    summon->SetMaxHealth(1);
-                    summon->SetHealth(1);
-                    summon->SetLevel(1);
+                    summon->SelectLevel(summon->GetCreatureInfo());       // some summoned creaters have different from 1 DB data for level/hp
 
                     summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
