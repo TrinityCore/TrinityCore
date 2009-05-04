@@ -1071,11 +1071,6 @@ void Aura::_RemoveAura()
 {
     Unit* caster = GetCaster();
 
-    //passive auras do not get put in slots
-    // Note: but totem can be not accessible for aura target in time remove (to far for find in grid)
-    //if(m_isPassive && !(caster && caster->GetTypeId() == TYPEID_UNIT && ((Creature*)caster)->isTotem()))
-    //    return;
-
     uint8 slot = GetAuraSlot();
 
     if (Aura * foundAura = m_target->GetAura(GetId(), GetCasterGUID()))
