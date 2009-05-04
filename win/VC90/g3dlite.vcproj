@@ -4,8 +4,8 @@
 	Version="9,00"
 	Name="g3dlite"
 	ProjectGUID="{8072769E-CF10-48BF-B9E1-12752A5DAC6E}"
+	RootNamespace="sockets"
 	Keyword="Win32Proj"
-	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -23,7 +23,6 @@
 			OutputDirectory=".\g3dlite__$(PlatformName)_$(ConfigurationName)"
 			IntermediateDirectory=".\g3dlite__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="4"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			CharacterSet="2"
 			>
 			<Tool
@@ -58,7 +57,7 @@
 				ProgramDataBaseFileName=".\g3dlite__$(PlatformName)_$(ConfigurationName)\"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="false"
-				DebugInformationFormat="3"
+				DebugInformationFormat="4"
 				CallingConvention="0"
 			/>
 			<Tool
@@ -96,7 +95,6 @@
 			OutputDirectory=".\g3dlite__$(PlatformName)_$(ConfigurationName)"
 			IntermediateDirectory=".\g3dlite__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="4"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			CharacterSet="2"
 			>
 			<Tool
@@ -170,7 +168,6 @@
 			OutputDirectory=".\g3dlite__$(PlatformName)_$(ConfigurationName)"
 			IntermediateDirectory=".\g3dlite__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="4"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			CharacterSet="2"
 			>
 			<Tool
@@ -195,7 +192,6 @@
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
 				EnableEnhancedInstructionSet="1"
-				FloatingPointModel="2"
 				UsePrecompiledHeader="0"
 				AssemblerListingLocation=".\g3dlite__$(PlatformName)_$(ConfigurationName)\"
 				ObjectFile=".\g3dlite__$(PlatformName)_$(ConfigurationName)\"
@@ -240,7 +236,6 @@
 			OutputDirectory=".\g3dlite__$(PlatformName)_$(ConfigurationName)"
 			IntermediateDirectory=".\g3dlite__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="4"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			CharacterSet="2"
 			>
 			<Tool
@@ -266,7 +261,6 @@
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
 				EnableEnhancedInstructionSet="0"
-				FloatingPointModel="2"
 				UsePrecompiledHeader="0"
 				AssemblerListingLocation=".\g3dlite__$(PlatformName)_$(ConfigurationName)\"
 				ObjectFile=".\g3dlite__$(PlatformName)_$(ConfigurationName)\"
