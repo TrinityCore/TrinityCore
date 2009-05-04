@@ -915,10 +915,6 @@
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath="..\..\src\shared\revision_nr.h"
-			>
-		</File>
-		<File
 			RelativePath="..\..\src\shared\ServiceWin32.cpp"
 			>
 		</File>
