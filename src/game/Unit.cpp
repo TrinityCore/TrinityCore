@@ -10219,7 +10219,9 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
                 stack_bonus     = GetTotalAuraMultiplier(SPELL_AURA_MOD_VEHICLE_SPEED_ALWAYS);
 
                 // for some spells this mod is applied on vehicle owner
-                if (Unit * owner = (Vehicle*)this)->GetOwner())
+                uint32 owner_speed_mod = 0;
+
+                if (Unit * owner = ((Vehicle*)this)->GetCharmer())
                     uint32 owner_speed_mod  = owner->GetMaxPositiveAuraModifier(SPELL_AURA_MOD_INCREASE_VEHICLE_FLIGHT_SPEED);
 
                 main_speed_mod = main_speed_mod>owner_speed_mod ? main_speed_mod : owner_speed_mod;
