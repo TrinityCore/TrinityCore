@@ -1196,7 +1196,7 @@ void Unit::CastSpell(GameObject *go, uint32 spellId, bool triggered, Item *castI
 }
 
 // Obsolete func need remove, here only for comotability vs another patches
-uint32 Unit::SpellNonMeleeDamageLog(Unit *pVictim, uint32 spellID, uint32 damage, bool isTriggeredSpell, bool useSpellDamage)
+uint32 Unit::SpellNonMeleeDamageLog(Unit *pVictim, uint32 spellID, uint32 damage)
 {
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellID);
     SpellNonMeleeDamage damageInfo(this, pVictim, spellInfo->Id, spellInfo->SchoolMask);
@@ -2601,7 +2601,7 @@ void Unit::SendAttackStop(Unit* victim)
     ((Creature*)victim)->AI().EnterEvadeMode(this);*/
 }
 
-bool Unit::isSpellBlocked(Unit *pVictim, SpellEntry const *spellProto, WeaponAttackType attackType)
+bool Unit::isSpellBlocked(Unit *pVictim, SpellEntry const * /*spellProto*/, WeaponAttackType attackType)
 {
     if (pVictim->HasInArc(M_PI,this))
     {
@@ -4986,7 +4986,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                         break;
                     }
                     return false;
-                }/**/
+                }*/
                 // Sunwell Exalted Caster Neck (Shattered Sun Pendant of Acumen neck)
                 // cast 45479 Light's Wrath if Exalted by Aldor
                 // cast 45429 Arcane Bolt if Exalted by Scryers
@@ -11148,6 +11148,7 @@ Powers Unit::GetPowerTypeByAuraGroup(UnitMods unitMod) const
         case UNIT_MOD_HAPPINESS:  return POWER_HAPPINESS;
         case UNIT_MOD_RUNE:       return POWER_RUNE;
         case UNIT_MOD_RUNIC_POWER:return POWER_RUNIC_POWER;
+        default:                  return POWER_MANA;
     }
 
     return POWER_MANA;
@@ -11367,6 +11368,8 @@ uint32 Unit::GetCreatePowers( Powers power ) const
         case POWER_ENERGY:    return 100;
         case POWER_HAPPINESS: return (GetTypeId()==TYPEID_PLAYER || !((Creature const*)this)->isPet() || ((Pet const*)this)->getPetType()!=HUNTER_PET ? 0 : 1050000);
         case POWER_RUNIC_POWER: return 1000;
+        case POWER_RUNE:      return 0;
+        case POWER_HEALTH:    return 0;
     }
 
     return 0;

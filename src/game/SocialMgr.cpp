@@ -242,6 +242,8 @@ void SocialMgr::SendFriendStatus(Player *player, FriendsResult result, uint32 fr
         case FRIEND_ADDED_ONLINE:
             data << fi.Note;
             break;
+        default:
+            break;
     }
 
     switch(result)
@@ -252,6 +254,8 @@ void SocialMgr::SendFriendStatus(Player *player, FriendsResult result, uint32 fr
             data << uint32(fi.Area);
             data << uint32(fi.Level);
             data << uint32(fi.Class);
+            break;
+        default:
             break;
     }
 

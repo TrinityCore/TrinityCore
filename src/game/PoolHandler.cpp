@@ -322,7 +322,7 @@ bool PoolGroup<GameObject>::ReSpawn1Object(uint32 guid)
 
 // Nothing to do for a child Pool
 template <>
-bool PoolGroup<Pool>::ReSpawn1Object(uint32 guid)
+bool PoolGroup<Pool>::ReSpawn1Object(uint32 /*guid*/)
 {
     return true;
 }

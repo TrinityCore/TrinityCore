@@ -176,6 +176,8 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData *data, Player *target) c
                 case GAMEOBJECT_TYPE_TRANSPORT:
                     flags |= UPDATEFLAG_TRANSPORT;
                     break;
+                default:
+                    break;
             }
         }
 
@@ -534,10 +536,10 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
                     *data << uint32(m_floatValues[ index ] < 0 ? 0 : m_floatValues[ index ]);
                 }
                 // there are some float values which may be negative or can't get negative due to other checks
-                else if(index >= UNIT_FIELD_NEGSTAT0   && index <= UNIT_FIELD_NEGSTAT4 ||
-                    index >= UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE  && index <= (UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 6) ||
-                    index >= UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE  && index <= (UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 6) ||
-                    index >= UNIT_FIELD_POSSTAT0   && index <= UNIT_FIELD_POSSTAT4)
+                else if ((index >= UNIT_FIELD_NEGSTAT0   && index <= UNIT_FIELD_NEGSTAT4) ||
+                    (index >= UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE  && index <= (UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 6)) ||
+                    (index >= UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE  && index <= (UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 6)) ||
+                    (index >= UNIT_FIELD_POSSTAT0   && index <= UNIT_FIELD_POSSTAT4))
                 {
                     *data << uint32(m_floatValues[ index ]);
                 }
