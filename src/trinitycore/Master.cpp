@@ -403,6 +403,7 @@ int Master::Run()
 /// Initialize connection to the databases
 bool Master::_StartDB()
 {
+    sLog.SetLogDB(false);
     std::string dbstring;
 
     ///- Get world database info from configuration file
@@ -459,7 +460,7 @@ bool Master::_StartDB()
     }
     sLog.outString("Realm running as realm ID %d", realmID);
 
-	///- Initialize the DB logging system
+    ///- Initialize the DB logging system
     if(sConfig.GetBoolDefault("EnableLogDB", false))
     {
         // everything successful - set var to enable DB logging once startup finished.
@@ -471,6 +472,7 @@ bool Master::_StartDB()
     {
         sLog.SetLogDBLater(false);
         sLog.SetLogDB(false);
+        sLog.SetRealmID(realmID);
     }
 
     ///- Clean the database before starting

@@ -83,6 +83,7 @@ void usage(const char *prog)
 /// Launch the realm server
 extern int main(int argc, char **argv)
 {
+    sLog.SetLogDB(false);
     ///- Command line parsing to get the configuration file name
     char const* cfg_file = _TRINITY_REALM_CONFIG;
     int c=1;
@@ -189,6 +190,12 @@ extern int main(int argc, char **argv)
         sLog.SetLogDBLater(true);
         sLog.SetLogDB(false);
         // ensure we've set realm to 0 (realmd realmid)
+        sLog.SetRealmID(0);
+    }
+    else
+    {
+        sLog.SetLogDBLater(false);
+        sLog.SetLogDB(false);
         sLog.SetRealmID(0);
     }
 
