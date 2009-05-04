@@ -3500,6 +3500,7 @@ bool Player::resetTalents(bool no_cost)
     {
         ModifyMoney(-(int32)cost);
         GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TALENTS, cost);
+        GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_NUMBER_OF_TALENT_RESETS, 1);
 
         m_resetTalentsCost = cost;
         m_resetTalentsTime = time(NULL);
