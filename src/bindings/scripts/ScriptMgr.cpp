@@ -567,6 +567,7 @@ extern void AddSC_boss_keleseth();
 extern void AddSC_boss_skarvald_dalronn();
 extern void AddSC_boss_ingvar_the_plunderer();
 extern void AddSC_instance_utgarde_keep();
+extern void AddSC_utgarde_keep();
 
 //Wailing caverns
 
@@ -1498,6 +1499,7 @@ void ScriptsInit(char const* cfg_file = "trinitycore.conf")
     AddSC_boss_skarvald_dalronn();
     AddSC_boss_ingvar_the_plunderer();
     AddSC_instance_utgarde_keep();
+    AddSC_utgarde_keep();
 
     //Wailing caverns
 

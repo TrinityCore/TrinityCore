@@ -28,6 +28,18 @@ EndScriptData */
 
 #define ENCOUNTERS     3
 
+#define ENTRY_BELLOW_1          186688
+#define ENTRY_BELLOW_2          186689
+#define ENTRY_BELLOW_3          186690
+
+#define ENTRY_FORGEFIRE_1       186692
+#define ENTRY_FORGEFIRE_2       186693
+#define ENTRY_FORGEFIRE_3       186691
+
+#define ENTRY_GLOWING_ANVIL_1   186609
+#define ENTRY_GLOWING_ANVIL_2   186610
+#define ENTRY_GLOWING_ANVIL_3   186611
+
 /* Utgarde Keep encounters:
 0 - Prince Keleseth
 1 - Skarvald Dalronn
@@ -43,6 +55,10 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
     uint64 Dalronn;
     uint64 Ingvar;
 
+    uint64 forge_bellow[3];
+    uint64 forge_fire[3];
+    uint64 forge_anvil[3];
+
     uint32 Encounters[ENCOUNTERS];
     std::string str_data;
 
@@ -52,6 +68,13 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
         Skarvald = 0;
         Dalronn =0;
         Ingvar =0;
+
+        for(uint8 i= 0; i < 3; i++)
+        {
+            forge_bellow[i] = 0;
+            forge_fire[i] = 0;
+            forge_anvil[i] = 0;
+        }
 
         for(uint8 i = 0; i < ENCOUNTERS; ++i)
             Encounters[i] = NOT_STARTED;
@@ -95,10 +118,19 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
 
     void OnObjectCreate(GameObject* go)
     {
-        //switch(go->GetEntry())
-        //{
+        switch(go->GetEntry())
+        {
         //door and object id
-        //}
+        case ENTRY_BELLOW_1: forge_bellow[0] = go->GetGUID(); break;
+        case ENTRY_BELLOW_2: forge_bellow[1] = go->GetGUID(); break;
+        case ENTRY_BELLOW_3: forge_bellow[2] = go->GetGUID(); break;
+        case ENTRY_FORGEFIRE_1: forge_fire[0] = go->GetGUID(); break;
+        case ENTRY_FORGEFIRE_2: forge_fire[1] = go->GetGUID(); break;
+        case ENTRY_FORGEFIRE_3: forge_fire[2] = go->GetGUID(); break;
+        case ENTRY_GLOWING_ANVIL_1: forge_anvil[0] = go->GetGUID(); break;
+        case ENTRY_GLOWING_ANVIL_2: forge_anvil[1] = go->GetGUID(); break;
+        case ENTRY_GLOWING_ANVIL_3: forge_anvil[2] = go->GetGUID(); break;
+        }
     }
 
     uint64 GetData64(uint32 identifier)
@@ -123,20 +155,63 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
             {
                 //HandleGameObject(doorname, 0);
             }
-            Encounters[0] = data;break;
+            Encounters[0] = data;
+            break;
         case DATA_SKARVALD_DALRONN_EVENT:
             if(data == DONE)
             {
                 //HandleGameObject(doorname, 0);
             }
-            Encounters[1] = data; break;
+            Encounters[1] = data;
+            break;
         case DATA_INGVAR_EVENT:
             if(data == DONE)
             {
                 //HandleGameObject(doorname, 0);
             }
-            Encounters[2] = data; break;
+            Encounters[2] = data;
+            break;
+        case EVENT_FORGE_1:
+            if(data == NOT_STARTED)
+            {
+                HandleGameObject(forge_bellow[0],false);
+                HandleGameObject(forge_fire[0],false);
+                HandleGameObject(forge_anvil[0],false);
+            }else
+            {
+                HandleGameObject(forge_bellow[0],true);
+                HandleGameObject(forge_fire[0],true);
+                HandleGameObject(forge_anvil[0],true);
+            }
+            break;
+        case EVENT_FORGE_2:
+            if(data == NOT_STARTED)
+            {
+                HandleGameObject(forge_bellow[1],false);
+                HandleGameObject(forge_fire[1],false);
+                HandleGameObject(forge_anvil[1],false);
+            }else
+            {
+                HandleGameObject(forge_bellow[1],true);
+                HandleGameObject(forge_fire[1],true);
+                HandleGameObject(forge_anvil[1],true);
+            }
+            break;
+        case EVENT_FORGE_3:
+            if(data == NOT_STARTED)
+            {
+                HandleGameObject(forge_bellow[2],false);
+                HandleGameObject(forge_fire[2],false);
+                HandleGameObject(forge_anvil[2],false);
+            }else
+            {
+                HandleGameObject(forge_bellow[2],true);
+                HandleGameObject(forge_fire[2],true);
+                HandleGameObject(forge_anvil[2],true);
+            }
+            break;
         }
+
 
         if (data == DONE)
         {

@@ -28,4 +28,8 @@
 #define DATA_SKARVALD_DALRONN_EVENT     5
 #define DATA_INGVAR_EVENT               7
 
+#define EVENT_FORGE_1                   8
+#define EVENT_FORGE_2                   9
+#define EVENT_FORGE_3                   10
+
 #endif
