@@ -325,6 +325,157 @@
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
+		<Configuration
+			Name="Debug_NoPCH|Win32"
+			OutputDirectory=".\framework__$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory=".\framework__$(PlatformName)_$(ConfigurationName)"
+			ConfigurationType="4"
+			CharacterSet="2"
+			ManagedExtensions="0"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalOptions="/Zl /MP"
+				Optimization="0"
+				AdditionalIncludeDirectories="..\..\src\framework;..\..\dep\ACE_wrappers"
+				PreprocessorDefinitions="WIN32;_DEBUG;MANGOS_DEBUG;_LIB"
+				MinimalRebuild="false"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="3"
+				EnableFunctionLevelLinking="true"
+				RuntimeTypeInfo="true"
+				UsePrecompiledHeader="0"
+				PrecompiledHeaderFile=".\framework__$(PlatformName)_$(ConfigurationName)\framework.pch"
+				AssemblerListingLocation=".\framework__$(PlatformName)_$(ConfigurationName)\"
+				ObjectFile=".\framework__$(PlatformName)_$(ConfigurationName)\"
+				ProgramDataBaseFileName=".\framework__$(PlatformName)_$(ConfigurationName)\"
+				WarningLevel="3"
+				SuppressStartupBanner="true"
+				Detect64BitPortabilityProblems="false"
+				DebugInformationFormat="3"
+				CallingConvention="0"
+				CompileAs="0"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLibrarianTool"
+				OutputFile=".\framework__$(PlatformName)_$(ConfigurationName)\framework.lib"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug_NoPCH|x64"
+			OutputDirectory=".\framework__$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory=".\framework__$(PlatformName)_$(ConfigurationName)"
+			ConfigurationType="4"
+			CharacterSet="2"
+			ManagedExtensions="0"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalOptions="/Zl /MP"
+				Optimization="0"
+				AdditionalIncludeDirectories="..\..\src\framework;..\..\dep\ACE_wrappers"
+				PreprocessorDefinitions="WIN32;_DEBUG;MANGOS_DEBUG;_LIB"
+				MinimalRebuild="false"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="3"
+				EnableFunctionLevelLinking="true"
+				RuntimeTypeInfo="true"
+				UsePrecompiledHeader="0"
+				PrecompiledHeaderFile=".\framework__$(PlatformName)_$(ConfigurationName)\framework.pch"
+				AssemblerListingLocation=".\framework__$(PlatformName)_$(ConfigurationName)\"
+				ObjectFile=".\framework__$(PlatformName)_$(ConfigurationName)\"
+				ProgramDataBaseFileName=".\framework__$(PlatformName)_$(ConfigurationName)\"
+				WarningLevel="3"
+				SuppressStartupBanner="true"
+				Detect64BitPortabilityProblems="false"
+				DebugInformationFormat="3"
+				CallingConvention="0"
+				CompileAs="0"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLibrarianTool"
+				OutputFile=".\framework__$(PlatformName)_$(ConfigurationName)\framework.lib"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
 	</Configurations>
 	<References>
 	</References>
@@ -425,15 +576,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\framework\Utilities\UnorderedMap.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\framework\Utilities\LinkedList.h"
 				>
 			</File>
 			<File
 				RelativePath="..\..\src\framework\Utilities\TypeList.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\framework\Utilities\UnorderedMap.h"
 				>
 			</File>
 			<Filter

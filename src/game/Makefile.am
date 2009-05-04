@@ -844,4 +844,7 @@ libmangosgame_a_SOURCES = \
 libmangosgame_a_LIBADD = ../shared/libmangosshared.a ../shared/Auth/libmangosauth.a ../shared/Config/libmangosconfig.a ../shared/Database/libmangosdatabase.a ../shared/vmap/libmangosvmaps.a
 
 ## Additional files to include when running 'make dist'
-#  Nothing yet.
+#  Precompiled Headers for WIN
+EXTRA_DIST = \
+	pchdef.cpp \
+	pchdef.h
