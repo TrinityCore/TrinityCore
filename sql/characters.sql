@@ -846,7 +846,7 @@ CREATE TABLE `gm_tickets` (
   `playerGuid` int(11) unsigned NOT NULL default '0',
   `name` varchar(15) NOT NULL,
   `message` text NOT NULL,
-  `timestamp` int(10) NOT NULL default '0',
+  `createtime` int(10) NOT NULL default '0',
   `closed` int(10) NOT NULL default '0',
   `assignedto` int(10) NOT NULL default '0',
   `comment` text NOT NULL,
