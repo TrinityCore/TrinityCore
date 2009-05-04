@@ -813,6 +813,8 @@ bool IsSingleTargetSpell(SpellEntry const *spellInfo)
     {
         case SPELL_JUDGEMENT:
             return true;
+        default:
+            break;
     }
 
     // single target triggered spell.
@@ -841,6 +843,8 @@ bool IsSingleTargetSpells(SpellEntry const *spellInfo1, SpellEntry const *spellI
         case SPELL_MAGE_POLYMORPH:
             if(GetSpellSpecific(spellInfo2->Id) == spec1)
                 return true;
+            break;
+        default:
             break;
     }
 
@@ -3144,6 +3148,8 @@ bool IsDiminishingReturnsGroupDurationLimited(DiminishingGroup group)
         case DIMINISHING_BANISH:
         case DIMINISHING_LIMITONLY:
             return true;
+        default:
+            return false;
     }
     return false;
 }
@@ -3171,6 +3177,8 @@ DiminishingReturnsType GetDiminishingReturnsGroupType(DiminishingGroup group)
         case DIMINISHING_WARLOCK_FEAR:
         case DIMINISHING_KNOCKOUT:
             return DRTYPE_PLAYER;
+        default:
+            break;
     }
 
     return DRTYPE_NONE;
