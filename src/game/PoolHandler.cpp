@@ -623,6 +623,7 @@ void PoolHandler::Initialize()
             SpawnPool(pool_entry);
             count++;
         } while (result->NextRow());
+        delete result;
     }
 
     sLog.outBasic("Pool handling system initialized, %u pools spawned.", count);
