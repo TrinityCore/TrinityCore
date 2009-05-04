@@ -49,7 +49,7 @@ CreatureEventAI::CreatureEventAI(Creature *c ) : CreatureAI(c)
         {
 
             //Debug check
-            #ifndef MANGOS_DEBUG
+            #ifndef TRINITY_DEBUG
             if ((*i).event_flags & EFLAG_DEBUG_ONLY)
                 continue;
             #endif
