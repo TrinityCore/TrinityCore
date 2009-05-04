@@ -377,7 +377,7 @@ Spell::Spell( Unit* Caster, SpellEntry const *info, bool triggered, uint64 origi
                 m_attackType = BASE_ATTACK;
             break;
         case SPELL_DAMAGE_CLASS_RANGED:
-            m_attackType = RANGED_ATTACK;
+            m_attackType = IsRangedSpell() ? RANGED_ATTACK : BASE_ATTACK;
             break;
         default:
                                                             // Wands
@@ -1345,7 +1345,10 @@ bool Spell::UpdateChanneledTargetList()
                 {
                     if(Aura * aur = unit->GetAura(m_spellInfo->Id, m_caster->GetGUID()))
                     {
-                        if (m_caster != unit && !m_caster->IsWithinDistInMap(unit,m_caster->GetSpellMaxRangeForTarget(unit,GetSpellRangeStore()->LookupEntry(m_spellInfo->rangeIndex))))
+                        float range = m_caster->GetSpellMaxRangeForTarget(unit,GetSpellRangeStore()->LookupEntry(m_spellInfo->rangeIndex));
+                        if(Player * modOwner = m_caster->GetSpellModOwner())
+                            modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RANGE, range, this);
+                        if (m_caster != unit && !m_caster->IsWithinDistInMap(unit,range))
                         {
                             ihit->effectMask &= ~aur->GetEffectMask();
                             unit->RemoveAura(aur);

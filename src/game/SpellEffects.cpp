@@ -1389,6 +1389,12 @@ void Spell::EffectDummy(uint32 i)
                 m_damage+= uint32(damage * m_caster->GetTotalAttackPowerValue(BASE_ATTACK) / 100);
                 return;
             }
+            // Shockwave
+            if(m_spellInfo->SpellFamilyFlags[1] & 0x8000)
+            {
+                m_damage+= uint32(damage * m_caster->GetTotalAttackPowerValue(BASE_ATTACK) / 100);
+                return;
+            }
             switch(m_spellInfo->Id)
             {
                 // Warrior's Wrath

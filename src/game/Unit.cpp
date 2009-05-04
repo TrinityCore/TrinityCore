@@ -3187,11 +3187,7 @@ uint32 Unit::GetWeaponSkillValue (WeaponAttackType attType, Unit const* target) 
 
         // feral or unarmed skill only for base attack
         if(attType != BASE_ATTACK && !item )
-        {
-            if(attType == RANGED_ATTACK && getClass() == CLASS_PALADIN) //hammer
-                return GetMaxSkillValueForLevel();
             return 0;
-        }
 
         if(IsInFeralForm())
             return GetMaxSkillValueForLevel();              // always maximized SKILL_FERAL_COMBAT in fact
@@ -3200,7 +3196,7 @@ uint32 Unit::GetWeaponSkillValue (WeaponAttackType attType, Unit const* target) 
         uint32  skill = item ? item->GetSkill() : SKILL_UNARMED;
 
         // in PvP use full skill instead current skill value
-        value = (target && target->GetTypeId() == TYPEID_PLAYER)
+        value = (target && target->GetTypeId() == TYPEID_PLAYER || IS_PLAYER_GUID(GetOwnerGUID()))
             ? ((Player*)this)->GetMaxSkillValue(skill)
             : ((Player*)this)->GetSkillValue(skill);
         // Modify value from ratings
