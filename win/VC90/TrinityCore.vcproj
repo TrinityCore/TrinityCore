@@ -23,7 +23,6 @@
 			OutputDirectory=".\trinitycore__$(PlatformName)_$(ConfigurationName)"
 			IntermediateDirectory=".\trinitycore__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
@@ -63,6 +62,7 @@
 				SuppressStartupBanner="true"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
+				CallingConvention="0"
 				CompileAs="0"
 			/>
 			<Tool
@@ -123,7 +123,6 @@
 			OutputDirectory=".\trinitycore__$(PlatformName)_$(ConfigurationName)"
 			IntermediateDirectory=".\trinitycore__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
@@ -164,6 +163,7 @@
 				SuppressStartupBanner="true"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
+				CallingConvention="0"
 				CompileAs="0"
 			/>
 			<Tool
@@ -190,6 +190,8 @@
 				MapFileName="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityCore.map"
 				SubSystem="1"
 				LinkTimeCodeGeneration="0"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary="$(OutDir)\TrinityCore.lib"
 				TargetMachine="17"
 			/>
@@ -221,7 +223,6 @@
 			OutputDirectory=".\trinitycore__$(PlatformName)_$(ConfigurationName)"
 			IntermediateDirectory=".\trinitycore__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
@@ -251,6 +252,7 @@
 				IgnoreStandardIncludePath="false"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
+				EnableFunctionLevelLinking="true"
 				RuntimeTypeInfo="true"
 				PrecompiledHeaderFile=".\trinitycore__$(PlatformName)_$(ConfigurationName)\trinitycore.pch"
 				AssemblerListingLocation=".\trinitycore__$(PlatformName)_$(ConfigurationName)\"
@@ -260,6 +262,7 @@
 				SuppressStartupBanner="true"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
+				CallingConvention="0"
 				CompileAs="0"
 			/>
 			<Tool
@@ -321,7 +324,6 @@
 			OutputDirectory=".\trinitycore__$(PlatformName)_$(ConfigurationName)"
 			IntermediateDirectory=".\trinitycore__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
@@ -352,6 +354,7 @@
 				IgnoreStandardIncludePath="false"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
+				EnableFunctionLevelLinking="true"
 				RuntimeTypeInfo="true"
 				PrecompiledHeaderFile=".\trinitycore__$(PlatformName)_$(ConfigurationName)\trinitycore.pch"
 				AssemblerListingLocation=".\trinitycore__$(PlatformName)_$(ConfigurationName)\"
@@ -361,6 +364,7 @@
 				SuppressStartupBanner="true"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
+				CallingConvention="0"
 				CompileAs="0"
 			/>
 			<Tool
@@ -387,7 +391,9 @@
 				GenerateMapFile="true"
 				MapFileName="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityCore.map"
 				SubSystem="1"
+				RandomizedBaseAddress="1"
 				FixedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary="$(OutDir)\TrinityCore.lib"
 				TargetMachine="17"
 			/>
@@ -665,6 +671,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\src\trinitycore\TrinityCore.rc"
+			>
+		</File>
+		<File
 			RelativePath="..\..\src\trinitycore\Master.cpp"
 			>
 		</File>
@@ -682,10 +692,6 @@
 		</File>
 		<File
 			RelativePath="..\..\src\trinitycore\resource.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\src\trinitycore\TrinityCore.rc"
 			>
 		</File>
 		<File

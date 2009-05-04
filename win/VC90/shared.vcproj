@@ -23,7 +23,6 @@
 			OutputDirectory=".\shared__$(PlatformName)_$(ConfigurationName)"
 			IntermediateDirectory=".\shared__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="4"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
@@ -54,7 +53,6 @@
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				EnableEnhancedInstructionSet="1"
-				FloatingPointModel="2"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile=".\shared__$(PlatformName)_$(ConfigurationName)/shared.pch"
@@ -81,7 +79,6 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies=".\g3dlite__$(PlatformName)_$(ConfigurationName)\g3dlite.lib"
 				OutputFile=".\shared__$(PlatformName)_$(ConfigurationName)\shared.lib"
 				SuppressStartupBanner="true"
 			/>
@@ -106,7 +103,6 @@
 			OutputDirectory=".\shared__$(PlatformName)_$(ConfigurationName)"
 			IntermediateDirectory=".\shared__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="4"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
@@ -138,7 +134,6 @@
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				EnableEnhancedInstructionSet="0"
-				FloatingPointModel="2"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile=".\shared__$(PlatformName)_$(ConfigurationName)/shared.pch"
@@ -190,7 +185,6 @@
 			OutputDirectory=".\shared__$(PlatformName)_$(ConfigurationName)"
 			IntermediateDirectory=".\shared__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="4"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
@@ -246,7 +240,6 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies=".\g3dlite__$(PlatformName)_$(ConfigurationName)\g3dlite.lib"
 				OutputFile=".\shared__$(PlatformName)_$(ConfigurationName)\shared.lib"
 				SuppressStartupBanner="true"
 			/>
@@ -271,7 +264,6 @@
 			OutputDirectory=".\shared__$(PlatformName)_$(ConfigurationName)"
 			IntermediateDirectory=".\shared__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="4"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
@@ -585,6 +577,10 @@
 			</File>
 			<File
 				RelativePath="..\..\src\shared\Database\SQLStorage.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\shared\Database\SQLStorageImpl.h"
 				>
 			</File>
 			<Filter
@@ -917,6 +913,22 @@
 					Outputs="revision.h"
 				/>
 			</FileConfiguration>
+		</File>
+		<File
+			RelativePath="..\..\src\shared\revision_nr.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\src\shared\ServiceWin32.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\src\shared\ServiceWin32.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\src\shared\SystemConfig.h"
+			>
 		</File>
 	</Files>
 	<Globals>
