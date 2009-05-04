@@ -38,6 +38,7 @@
 #include "Opcodes.h"
 #include "ObjectDefines.h"
 #include "MapInstanced.h"
+#include "World.h"
 
 #include <cmath>
 
@@ -423,7 +424,7 @@ ObjectAccessor::AddCorpsesToGrid(GridPair const& gridpair,GridType& grid,Map* ma
 }
 
 Corpse*
-ObjectAccessor::ConvertCorpseForPlayer(uint64 player_guid)
+ObjectAccessor::ConvertCorpseForPlayer(uint64 player_guid, bool insignia)
 {
     Corpse *corpse = GetCorpseForPlayerGUID(player_guid);
     if(!corpse)
@@ -449,7 +450,10 @@ ObjectAccessor::ConvertCorpseForPlayer(uint64 player_guid)
 
     Corpse *bones = NULL;
     // create the bones only if the map and the grid is loaded at the corpse's location
-    if(map && !map->IsRemovalGrid(corpse->GetPositionX(), corpse->GetPositionY()))
+    // ignore bones creating option in case insignia
+    if (map && (insignia ||
+       (map->IsBattleGroundOrArena() ? sWorld.getConfig(CONFIG_DEATH_BONES_BG_OR_ARENA) : sWorld.getConfig(CONFIG_DEATH_BONES_WORLD))) &&
+        !map->IsRemovalGrid(corpse->GetPositionX(), corpse->GetPositionY()))
     {
         // Create bones, don't change Corpse
         bones = new Corpse;
