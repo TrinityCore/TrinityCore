@@ -55,7 +55,7 @@ static void CorpsesEraseCallBack(QueryResult *result, bool bones)
         {
             if(!ObjectAccessor::Instance().ConvertCorpseForPlayer(player_guid))
             {
-                sLog.outDebug("Corpse %u not found in world. Delete from DB.",guidlow);
+                sLog.outDebug("Corpse %u not found in world or bones creating forbidden. Delete from DB.",guidlow);
                 CharacterDatabase.PExecute("DELETE FROM corpse WHERE guid = '%u'",guidlow);
             }
         }
