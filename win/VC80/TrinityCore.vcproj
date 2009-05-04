@@ -484,7 +484,7 @@
 				AdditionalDependencies="libmySQL.lib libeay32.lib ws2_32.lib winmm.lib odbc32.lib odbccp32.lib advapi32.lib dbghelp.lib msvcrtd.lib"
 				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityCore.exe"
 				Version=""
-				LinkIncremental="2"
+				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\..\dep\lib\$(PlatformName)_$(ConfigurationName)"
 				GenerateDebugInformation="true"
@@ -585,7 +585,7 @@
 				AdditionalDependencies="libmySQL.lib libeay32.lib ws2_32.lib winmm.lib odbc32.lib odbccp32.lib advapi32.lib dbghelp.lib MSVCPRTD.LIB msvcrtd.lib"
 				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityCore.exe"
 				Version=""
-				LinkIncremental="2"
+				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\..\dep\lib\$(PlatformName)_debug"
 				GenerateDebugInformation="true"
@@ -672,6 +672,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\src\trinitycore\TrinityCore.rc"
+			>
+		</File>
+		<File
 			RelativePath="..\..\src\trinitycore\Master.cpp"
 			>
 		</File>
@@ -689,10 +693,6 @@
 		</File>
 		<File
 			RelativePath="..\..\src\trinitycore\resource.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\src\trinitycore\TrinityCore.rc"
 			>
 		</File>
 		<File
