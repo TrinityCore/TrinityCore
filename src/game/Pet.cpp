@@ -1232,6 +1232,12 @@ bool Pet::addSpell(uint32 spell_id, uint16 active, PetSpellState state, PetSpell
         {
             // can be in case spell loading but learned at some previous spell loading
             itr->second->state = PETSPELL_UNCHANGED;
+
+            if(active == ACT_ENABLED)
+                ToggleAutocast(spell_id, true);
+            else if(active == ACT_DISABLED)
+                ToggleAutocast(spell_id, false);
+
             return false;
         }
         else
