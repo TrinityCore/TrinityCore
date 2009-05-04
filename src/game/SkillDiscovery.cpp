@@ -93,7 +93,7 @@ void LoadSkillDiscoveryTable()
                     // explicit discovery ability
                     !IsExplicitDiscoverySpell(spellEntry))
                 {
-                    sLog.outErrorDb("Spell (ID: %u) not have have MECHANIC_DISCOVERY (28) value in Mechanic field in spell.dbc and not 100% chance random discovery ability but listed in `skill_discovery_template` table",spellId);
+                    sLog.outErrorDb("Spell (ID: %u) not have have MECHANIC_DISCOVERY (28) value in Mechanic field in spell.dbc and not 100%% chance random discovery ability but listed in `skill_discovery_template` table",spellId);
                     continue;
                 }
 
