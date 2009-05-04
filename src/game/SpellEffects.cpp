@@ -413,14 +413,6 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                 // Heroic Throw ${$m1+$AP*.50}
                 else if(m_spellInfo->SpellFamilyFlags[1] & 0x00000001)
                     damage+= uint32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.5f);
-                // Shockwave ${$m3/100*$AP}
-                else if(m_spellInfo->SpellFamilyFlags[1] & 0x00008000)
-                {
-                    int32 pct = m_caster->CalculateSpellDamage(m_spellInfo, 2, m_spellInfo->EffectBasePoints[2], unitTarget);
-                    if (pct > 0)
-                        damage+= int32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * pct / 100);
-                    break;
-                }
                 // Thunder Clap
                 else if(m_spellInfo->SpellFamilyFlags[0] & 0x80)
                 {
