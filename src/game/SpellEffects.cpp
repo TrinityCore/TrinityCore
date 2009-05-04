@@ -160,7 +160,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectUnused,                                   // 93 SPELL_EFFECT_SUMMON_PHANTASM
     &Spell::EffectSelfResurrect,                            // 94 SPELL_EFFECT_SELF_RESURRECT
     &Spell::EffectSkinning,                                 // 95 SPELL_EFFECT_SKINNING
-    &Spell::EffectUnused,                                   // 96 SPELL_EFFECT_CHARGE
+    &Spell::EffectCharge,                                   // 96 SPELL_EFFECT_CHARGE
     &Spell::EffectUnused,                                   // 97 SPELL_EFFECT_97
     &Spell::EffectKnockBack,                                // 98 SPELL_EFFECT_KNOCK_BACK
     &Spell::EffectDisEnchant,                               // 99 SPELL_EFFECT_DISENCHANT
