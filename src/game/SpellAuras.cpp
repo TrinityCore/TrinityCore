@@ -6618,11 +6618,11 @@ void AuraEffect::PeriodicDummyTick()
             if (spell->SpellFamilyFlags[1] & 0x00004000)
             {
                 // Get 0 effect aura
-                AuraEffect *slow = m_target->GetAuraEffect(GetId(), 0);
+                AuraEffect *slow = GetParentAura()->GetPartAura(0);
                 if (slow)
                 {
-                    slow->ApplyModifier(false);;
-                    slow->SetAmount(GetAmount()*2);
+                    slow->ApplyModifier(false);
+                    slow->SetAmount(slow->GetAmount() + GetAmount());
                     if (slow->GetAmount() > 0) slow->SetAmount(0);
                     slow->ApplyModifier(true);
                 }
