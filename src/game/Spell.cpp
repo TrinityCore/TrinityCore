@@ -710,6 +710,8 @@ void Spell::FillTargetMap()
 void Spell::prepareDataForTriggerSystem()
 {
     //==========================================================================================
+    // Now fill data for trigger system, need know:
+    // an spell trigger another or not ( m_canTrigger )
     // Create base triggers flags for Attacker and Victim ( m_procAttacker and  m_procVictim)
     //==========================================================================================
 
@@ -1055,15 +1057,6 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
             caster->ProcDamageAndSpell(unit, procAttacker, procVictim, procEx, 0, m_attackType, m_spellInfo);
     }
 
-    // Call scripted function for AI if this spell is casted upon a creature (except pets)
-    if(IS_CREATURE_GUID(target->targetGUID))
-    {
-        // cast at creature (or GO) quest objectives update at successful cast finished (+channel finished)
-        // ignore autorepeat/melee casts for speed (not exist quest for spells (hm... )
-        if( m_caster->GetTypeId() == TYPEID_PLAYER && !IsAutoRepeat() && !IsNextMeleeSwingSpell() && !IsChannelActive() )
-            ((Player*)m_caster)->CastedCreatureOrGO(unit->GetEntry(),unit->GetGUID(),m_spellInfo->Id);
-    }
-
     if( !m_caster->IsFriendlyTo(unit) && !IsPositiveSpell(m_spellInfo->Id))
     {
         if( !(m_spellInfo->AttributesEx & SPELL_ATTR_EX_NO_INITIAL_AGGRO) )
@@ -1079,6 +1072,18 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
 
     if(spellHitTarget)
     {
+        // Call scripted function for AI if this spell is casted upon a creature (except pets)
+        if(IS_CREATURE_GUID(target->targetGUID))
+        {
+            // cast at creature (or GO) quest objectives update at successful cast finished (+channel finished)
+            // ignore pets or autorepeat/melee casts for speed (not exist quest for spells (hm... )
+            if( !((Creature*)unit)->isPet() && !IsAutoRepeat() && !IsNextMeleeSwingSpell() && !IsChannelActive() )
+            {
+                if ( Player* p = m_caster->GetCharmerOrOwnerPlayerOrPlayerItself() )
+                    p->CastedCreatureOrGO(unit->GetEntry(),unit->GetGUID(),m_spellInfo->Id);
+            }
+        }
+
         //AI functions
         if(spellHitTarget->GetTypeId() == TYPEID_UNIT && ((Creature*)spellHitTarget)->IsAIEnabled)
             ((Creature*)spellHitTarget)->AI()->SpellHit(m_caster, m_spellInfo);
@@ -1296,8 +1301,11 @@ void Spell::DoAllEffectOnTarget(GOTargetInfo *target)
 
     // cast at creature (or GO) quest objectives update at successful cast finished (+channel finished)
     // ignore autorepeat/melee casts for speed (not exist quest for spells (hm... )
-    if( m_caster->GetTypeId() == TYPEID_PLAYER && !IsAutoRepeat() && !IsNextMeleeSwingSpell() && !IsChannelActive() )
-        ((Player*)m_caster)->CastedCreatureOrGO(go->GetEntry(),go->GetGUID(),m_spellInfo->Id);
+    if( !IsAutoRepeat() && !IsNextMeleeSwingSpell() && !IsChannelActive() )
+    {
+        if ( Player* p = m_caster->GetCharmerOrOwnerPlayerOrPlayerItself() )
+            p->CastedCreatureOrGO(go->GetEntry(),go->GetGUID(),m_spellInfo->Id);
+    }
 }
 
 void Spell::DoAllEffectOnTarget(ItemTargetInfo *target)
@@ -2746,30 +2754,33 @@ void Spell::update(uint32 difftime)
                 // channeled spell processed independently for quest targeting
                 // cast at creature (or GO) quest objectives update at successful cast channel finished
                 // ignore autorepeat/melee casts for speed (not exist quest for spells (hm... )
-                if( m_caster->GetTypeId() == TYPEID_PLAYER && !IsAutoRepeat() && !IsNextMeleeSwingSpell() )
+                if( !IsAutoRepeat() && !IsNextMeleeSwingSpell() )
                 {
-                    for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin();ihit != m_UniqueTargetInfo.end();++ihit)
+                    if ( Player* p = m_caster->GetCharmerOrOwnerPlayerOrPlayerItself() )
                     {
-                        TargetInfo* target = &*ihit;
-                        if(!IS_CREATURE_GUID(target->targetGUID))
-                            continue;
+                        for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin();ihit != m_UniqueTargetInfo.end();++ihit)
+                        {
+                            TargetInfo* target = &*ihit;
+                            if(!IS_CREATURE_GUID(target->targetGUID))
+                                continue;
 
-                        Unit* unit = m_caster->GetGUID()==target->targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster,target->targetGUID);
-                        if (unit==NULL)
-                            continue;
+                            Unit* unit = m_caster->GetGUID()==target->targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster,target->targetGUID);
+                            if (unit==NULL)
+                                continue;
 
-                        ((Player*)m_caster)->CastedCreatureOrGO(unit->GetEntry(),unit->GetGUID(),m_spellInfo->Id);
-                    }
+                            p->CastedCreatureOrGO(unit->GetEntry(),unit->GetGUID(),m_spellInfo->Id);
+                        }
 
-                    for(std::list<GOTargetInfo>::iterator ihit= m_UniqueGOTargetInfo.begin();ihit != m_UniqueGOTargetInfo.end();++ihit)
-                    {
-                        GOTargetInfo* target = &*ihit;
+                        for(std::list<GOTargetInfo>::iterator ihit= m_UniqueGOTargetInfo.begin();ihit != m_UniqueGOTargetInfo.end();++ihit)
+                        {
+                            GOTargetInfo* target = &*ihit;
 
-                        GameObject* go = m_caster->GetMap()->GetGameObject(target->targetGUID);
-                        if(!go)
-                            continue;
+                            GameObject* go = m_caster->GetMap()->GetGameObject(target->targetGUID);
+                            if(!go)
+                                continue;
 
-                        ((Player*)m_caster)->CastedCreatureOrGO(go->GetEntry(),go->GetGUID(),m_spellInfo->Id);
+                            p->CastedCreatureOrGO(go->GetEntry(),go->GetGUID(),m_spellInfo->Id);
+                        }
                     }
                 }
 
