@@ -3196,7 +3196,7 @@ uint32 Unit::GetWeaponSkillValue (WeaponAttackType attType, Unit const* target) 
         uint32  skill = item ? item->GetSkill() : SKILL_UNARMED;
 
         // in PvP use full skill instead current skill value
-        value = (target && target->GetTypeId() == TYPEID_PLAYER || IS_PLAYER_GUID(GetOwnerGUID()))
+        value = (target && target->IsControlledByPlayer())
             ? ((Player*)this)->GetMaxSkillValue(skill)
             : ((Player*)this)->GetSkillValue(skill);
         // Modify value from ratings
@@ -5177,7 +5177,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             {
                 if (effIndex!=0)
                     return false;
-                AuraEffect *counter = GetAuraEffect(triggeredByAura->GetId(), 1);
+                AuraEffect *counter = triggeredByAura->GetParentAura()->GetPartAura(1);
                 if (!counter)
                     return true;
 
@@ -9657,7 +9657,7 @@ void Unit::MeleeDamageBonus(Unit *pVictim, uint32 *pdamage,WeaponAttackType attT
             case 6427: case 6428:                           // Dirty Deeds
                 if(pVictim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, spellProto, this))
                 {
-                    AuraEffect* eff0 = GetAuraEffect((*i)->GetId(),0,GetGUID());
+                    AuraEffect* eff0 = (*i)->GetParentAura()->GetPartAura(0);
                     if(!eff0 || (*i)->GetEffIndex()!=1)
                     {
                         sLog.outError("Spell structure of DD (%u) changed.",(*i)->GetId());
@@ -10219,7 +10219,8 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
                 stack_bonus     = GetTotalAuraMultiplier(SPELL_AURA_MOD_VEHICLE_SPEED_ALWAYS);
 
                 // for some spells this mod is applied on vehicle owner
-                uint32 owner_speed_mod  = ((Vehicle*)this)->GetOwner()->GetMaxPositiveAuraModifier(SPELL_AURA_MOD_INCREASE_VEHICLE_FLIGHT_SPEED);
+                if (Unit * owner = (Vehicle*)this)->GetOwner())
+                    uint32 owner_speed_mod  = owner->GetMaxPositiveAuraModifier(SPELL_AURA_MOD_INCREASE_VEHICLE_FLIGHT_SPEED);
 
                 main_speed_mod = main_speed_mod>owner_speed_mod ? main_speed_mod : owner_speed_mod;
             }

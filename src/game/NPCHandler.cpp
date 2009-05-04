@@ -453,7 +453,7 @@ void WorldSession::SendBindPoint(Creature *npc)
     _player->m_homebindZ = _player->GetPositionZ();
 
     // send spell for bind 3286 bind magic
-    npc->CastSpell(_player, bindspell, true);
+    _player->CastSpell(_player, bindspell, true);
 
     WorldPacket data( SMSG_TRAINER_BUY_SUCCEEDED, (8+4));
     data << npc->GetGUID();
