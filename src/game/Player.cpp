@@ -6325,6 +6325,13 @@ void Player::DuelComplete(DuelCompleteType type)
         SendMessageToSet(&data,true);
     }
 
+    if (type == DUEL_WON)
+    {
+        GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOSE_DUEL, 1);
+        if (duel->opponent)
+            duel->opponent->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_DUEL, 1);
+    }
+
     // cool-down duel spell
     /*data.Initialize(SMSG_SPELL_COOLDOWN, 17);
 
