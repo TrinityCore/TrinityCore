@@ -242,7 +242,7 @@ class TRINITY_DLL_SPEC CreatureAI : public UnitAI
 
         void OnCharmed(bool apply);
 
-        virtual void SpellClick(Player *player) {}
+        //virtual void SpellClick(Player *player) {}
 
         // Called at reaching home after evade
         virtual void JustReachedHome() {}

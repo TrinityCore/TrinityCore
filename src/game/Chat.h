@@ -374,6 +374,7 @@ class ChatHandler
         bool HandleReloadNpcVendorCommand(const char* args);
         bool HandleReloadPageTextsCommand(const char* args);
         bool HandleReloadPointsOfInterestCommand(const char* args);
+        bool HandleReloadSpellClickSpellsCommand(const char* args);
         bool HandleReloadQuestAreaTriggersCommand(const char* args);
         bool HandleReloadQuestEndScriptsCommand(const char* args);
         bool HandleReloadQuestStartScriptsCommand(const char* args);

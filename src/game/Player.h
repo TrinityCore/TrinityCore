@@ -1160,7 +1160,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         void ReputationChanged(FactionEntry const* factionEntry );
         bool HasQuestForItem( uint32 itemid ) const;
         bool HasQuestForGO(int32 GOId) const;
-        void UpdateForQuestsGO();
+        void UpdateForQuestWorldObjects();
         bool CanShareQuest(uint32 quest_id) const;
 
         void SendQuestComplete( uint32 quest_id );
@@ -2028,6 +2028,8 @@ class TRINITY_DLL_SPEC Player : public Unit
         bool HasTitle(CharTitlesEntry const* title) { return HasTitle(title->bit_index); }
         void SetTitle(CharTitlesEntry const* title);
 
+        //bool isActiveObject() const { return true; }
+        bool canSeeSpellClickOn(Creature const* creature) const;
     protected:
 
         /*********************************************************/
