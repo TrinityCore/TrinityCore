@@ -775,7 +775,7 @@ void Spell::AddUnitTarget(Unit* pVictim, uint32 effIndex)
 
     if(!CheckTarget(pVictim, effIndex))
         return;
-        
+
     // Check for effect immune skip if immuned
     bool immuned = pVictim->IsImmunedToSpellEffect(m_spellInfo, effIndex);
 
@@ -2643,9 +2643,13 @@ void Spell::_handle_immediate_phase()
             if(!m_targets.HasDst())
                 m_targets.setDestination(m_caster);
             HandleEffects(m_originalCaster, NULL, NULL, j);
+            m_effectMask |= (1<<j);
         }
         else if(spellmgr.EffectTargetType[m_spellInfo->Effect[j]] == SPELL_REQUIRE_NONE)
+        {
             HandleEffects(m_originalCaster, NULL, NULL, j);
+            m_effectMask |= (1<<j);
+        }
     }
 }
 
