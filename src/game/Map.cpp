@@ -1775,10 +1775,72 @@ uint16 Map::GetAreaFlag(float x, float y, float z) const
         case 2456:                                          // Death's Breach (Eastern Plaguelands)
             if(z > 350.0f) areaflag = 1950; break;
         // Dalaran
-        case 1593:                                          // Crystalsong Forest
-        case 2484:                                          // The Twilight Rivulet (Crystalsong Forest)
         case 2492:                                          // Forlorn Woods (Crystalsong Forest)
-            if (x > 5568.0f && x < 6116.0f && y > 282.0f && y < 982.0f && z > 563.0f) areaflag = 2153; break;
+            if (x > 5568.0f && x < 6116.0f && y > 282.0f && y < 982.0f && z > 563.0f)
+            {
+                // Krasus' Landing (Dalaran), fast check
+                if (x > 5758.77f && x < 5869.03f && y < 510.46f)
+                {
+                    // Krasus' Landing (Dalaran), with open east side
+                    if (y < 449.33f || (x-5813.9f)*(x-5813.9f)+(y-449.33f)*(y-449.33f) < 1864.0f)
+                    {
+                        areaflag = 2533;                    // Note: also 2633, possible one flight allowed and other not allowed case
+                        break;
+                    }
+                }
+
+                // Dalaran
+                areaflag = 2153;
+            }
+            break;
+        // The Violet Citadel (Dalaran) or Dalaran
+        case 2484:                                          // The Twilight Rivulet (Crystalsong Forest)
+        case 1593:                                          // Crystalsong Forest
+            // Dalaran
+            if (x > 5568.0f && x < 6116.0f && y > 282.0f && y < 982.0f && z > 563.0f)
+            {
+                // The Violet Citadel (Dalaran), fast check
+                if (x > 5721.1f && x < 5884.66f && y > 764.4f && y < 948.0f)
+                {
+                    // The Violet Citadel (Dalaran)
+                    if ((x-5803.0f)*(x-5803.0f)+(y-846.18f)*(y-846.18f) < 6690.0f)
+                    {
+                        areaflag = 2696;
+                        break;
+                    }
+                }
+
+                // Dalaran
+                areaflag = 2153;
+            }
+            break;
+        // Vargoth's Retreat (Dalaran) or The Violet Citadel (Dalaran) or Dalaran
+        case 2504:                                          // Violet Stand (Crystalsong Forest)
+            // Dalaran
+            if (x > 5568.0f && x < 6116.0f && y > 282.0f && y < 982.0f && z > 563.0f)
+            {
+                // The Violet Citadel (Dalaran), fast check
+                if (x > 5721.1f && x < 5884.66f && y > 764.4f && y < 948.0f)
+                {
+                    // Vargoth's Retreat (Dalaran), nice slow circle with upper limit
+                    if (z < 898.0f && (x-5765.0f)*(x-5765.0f)+(y-862.4f)*(y-862.4f) < 262.0f)
+                    {
+                        areaflag = 2748;
+                        break;
+                    }
+
+                    // The Violet Citadel (Dalaran)
+                    if ((x-5803.0f)*(x-5803.0f)+(y-846.18f)*(y-846.18f) < 6690.0f)
+                    {
+                        areaflag = 2696;
+                        break;
+                    }
+                }
+
+                // Dalaran
+                areaflag = 2153;
+            }
+            break;
         // Maw of Neltharion (cave)
         case 164:                                           // Dragonblight
         case 1797:                                          // Obsidian Dragonshrine (Dragonblight)
