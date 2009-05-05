@@ -583,6 +583,8 @@ void Spell::FillTargetMap()
                         default:
                             if(m_targets.getUnitTarget())
                                 AddUnitTarget(m_targets.getUnitTarget(), i);
+                            else
+                                AddUnitTarget(m_caster, i);
                             break;
                     }
                     break;
@@ -679,6 +681,7 @@ void Spell::FillTargetMap()
                     }
                     break;
                 default:
+                    AddUnitTarget(m_caster, i);
                     break;
             }
         }
