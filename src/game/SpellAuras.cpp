@@ -5630,26 +5630,36 @@ void AuraEffect::HandleSchoolAbsorb(bool apply, bool Real)
             switch(m_spellProto->SpellFamilyName)
             {
                 case SPELLFAMILY_PRIEST:
-                    if(m_spellProto->SpellFamilyFlags.IsEqual(0x1)) //PW:S
+                    // PW: S
+                    if(m_spellProto->SpellFamilyFlags.IsEqual(0x1, 0, 0x400))
                     {
-                        //+30% from +healing bonus
-                        DoneActualBenefit = caster->SpellBaseHealingBonus(GetSpellSchoolMask(m_spellProto)) * 0.3f;
+                        // +80.68% from sp bonus
+                        DoneActualBenefit = caster->SpellBaseHealingBonus(GetSpellSchoolMask(m_spellProto)) * 0.8068f;
                     }
                     break;
                 case SPELLFAMILY_MAGE:
-                    if(m_spellProto->SpellFamilyFlags.IsEqual(0x80100) || m_spellProto->SpellFamilyFlags.IsEqual(0x8) || m_spellProto->SpellFamilyFlags.IsEqual(0,0x1))
+                    // ice barrier
+                    if(m_spellProto->SpellFamilyFlags.IsEqual(0, 0x1, 0x8))
                     {
-                        //frost ward, fire ward, ice barrier
+                        // +80.67% from sp bonus
+                        DoneActualBenefit = caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellProto)) * 0.8067f;
+                    }
+                    /*
+                    TODO: find the correct spell power coefficient for frost ward and fire ward (if has)
+                    // frost ward, fire ward
+                    else if(m_spellProto->SpellFamilyFlags.IsEqual(0x100, 0, 0x8) || m_spellProto->SpellFamilyFlags.IsEqual(0x8, 0, 0x8))
+                    {
                         //+10% from +spd bonus
                         DoneActualBenefit = caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellProto)) * 0.1f;
                     }
+                    */
                     break;
                 case SPELLFAMILY_WARLOCK:
-                    if(m_spellProto->SpellFamilyFlags.IsEqual(0,0,0x40))
+                    // shadow ward
+                    if(m_spellProto->SpellFamilyFlags.IsEqual(0, 0, 0x40))
                     {
-                        //shadow ward
-                        //+10% from +spd bonus
-                        DoneActualBenefit = caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellProto)) * 0.1f;
+                        // +30% from sp bonus
+                        DoneActualBenefit = caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellProto)) * 0.3f;
                     }
                     break;
                 default:
