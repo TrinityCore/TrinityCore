@@ -630,7 +630,7 @@ void Spell::FillTargetMap()
                 case SPELL_EFFECT_STUCK:
                 case SPELL_EFFECT_FEED_PET:
                 case SPELL_EFFECT_DESTROY_ALL_TOTEMS:
-                case SPELL_EFFECT_KILL_CREDIT:
+                case SPELL_EFFECT_KILL_CREDIT2: // only one spell: 42793
                     AddUnitTarget(m_caster, i);
                     break;
                 case SPELL_EFFECT_LEARN_PET_SPELL:
