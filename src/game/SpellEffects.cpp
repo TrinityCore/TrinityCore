@@ -6385,7 +6385,15 @@ void Spell::EffectKillCredit(uint32 i)
     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    ((Player*)unitTarget)->RewardPlayerAndGroupAtEvent(m_spellInfo->EffectMiscValue[i], unitTarget);
+    int32 creatureEntry = m_spellInfo->EffectMiscValue[i];
+    if(!creatureEntry)
+    {
+        if(m_spellInfo->Id == 42793) // Burn Body
+            creatureEntry = 24008; // Fallen Combatant
+    }
+
+    if(creatureEntry)
+        ((Player*)unitTarget)->RewardPlayerAndGroupAtEvent(creatureEntry, unitTarget);
 }
 
 void Spell::EffectQuestFail(uint32 i)
