@@ -441,6 +441,10 @@ void WorldSession::HandleBinderActivateOpcode( WorldPacket & recv_data )
 
 void WorldSession::SendBindPoint(Creature *npc)
 {
+    // prevent set homebind to instances in any case
+    if(sMapStore.LookupEntry(GetPlayer()->GetMapId())->Instanceable())
+        return;
+
     uint32 bindspell = 3286;
     uint32 zone_id = _player->GetZoneId();
 
