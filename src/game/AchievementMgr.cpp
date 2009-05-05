@@ -563,6 +563,9 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             // std. case: increment at 1
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DAILY_QUEST:
             case ACHIEVEMENT_CRITERIA_TYPE_NUMBER_OF_TALENT_RESETS:
+            case ACHIEVEMENT_CRITERIA_TYPE_QUEST_ABANDONED:
+            case ACHIEVEMENT_CRITERIA_TYPE_FLIGHT_PATHS_TAKEN:
+            case ACHIEVEMENT_CRITERIA_TYPE_ACCEPTED_SUMMONINGS:
                 // AchievementMgr::UpdateAchievementCriteria might also be called on login - skip in this case
                 if(!miscvalue1)
                     continue;
@@ -1167,9 +1170,6 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             case ACHIEVEMENT_CRITERIA_TYPE_RECEIVE_EPIC_ITEM:
             case ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED:
             case ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED:
-            case ACHIEVEMENT_CRITERIA_TYPE_QUEST_ABANDONED:
-            case ACHIEVEMENT_CRITERIA_TYPE_FLIGHT_PATHS_TAKEN:
-            case ACHIEVEMENT_CRITERIA_TYPE_ACCEPTED_SUMMONINGS:
             case ACHIEVEMENT_CRITERIA_TYPE_TOTAL:
                 break;                                   // Not implemented yet :(
         }
@@ -1310,6 +1310,7 @@ bool AchievementMgr::IsCompletedCriteria(AchievementCriteriaEntry const* achieve
         case ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_PLAYER:
         case ACHIEVEMENT_CRITERIA_TYPE_DEATHS_FROM:
         case ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TALENTS:
+        case ACHIEVEMENT_CRITERIA_TYPE_NUMBER_OF_TALENT_RESETS:
         case ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_AT_BARBER:
         case ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_MAIL:
         case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_AUCTION_BID:
@@ -1321,6 +1322,9 @@ bool AchievementMgr::IsCompletedCriteria(AchievementCriteriaEntry const* achieve
         case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEALTH:
         case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_SPELLPOWER:
         case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_ARMOR:
+        case ACHIEVEMENT_CRITERIA_TYPE_QUEST_ABANDONED:
+        case ACHIEVEMENT_CRITERIA_TYPE_FLIGHT_PATHS_TAKEN:
+        case ACHIEVEMENT_CRITERIA_TYPE_ACCEPTED_SUMMONINGS:
             return false;
     }
     return false;
