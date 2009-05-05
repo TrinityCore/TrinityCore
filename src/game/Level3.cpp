@@ -576,6 +576,7 @@ bool ChatHandler::HandleReloadAllNpcCommand(const char* /*args*/)
     HandleReloadNpcTrainerCommand("a");
     HandleReloadNpcVendorCommand("a");
     HandleReloadPointsOfInterestCommand("a");
+    HandleReloadSpellClickSpellsCommand("a");
     return true;
 }
 
@@ -919,6 +920,14 @@ bool ChatHandler::HandleReloadPointsOfInterestCommand(const char*)
     sLog.outString( "Re-Loading `points_of_interest` Table!" );
     objmgr.LoadPointsOfInterest();
     SendGlobalSysMessage("DB table `points_of_interest` reloaded.");
+    return true;
+}
+
+bool ChatHandler::HandleReloadSpellClickSpellsCommand(const char*)
+{
+    sLog.outString( "Re-Loading `npc_spellclick_spells` Table!" );
+    objmgr.LoadNPCSpellClickSpells();
+    SendGlobalSysMessage("DB table `npc_spellclick_spells` reloaded.");
     return true;
 }
 

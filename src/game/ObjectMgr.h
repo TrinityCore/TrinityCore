@@ -99,6 +99,15 @@ extern ScriptMapMap sGameObjectScripts;
 extern ScriptMapMap sEventScripts;
 extern ScriptMapMap sWaypointScripts;
 
+struct SpellClickInfo
+{
+    uint32 spellId;
+    uint32 questId;
+    uint8 castFlags;
+};
+
+typedef std::multimap<uint32, SpellClickInfo> SpellClickInfoMap;
+
 struct AreaTrigger
 {
     uint32 access_id;
@@ -568,6 +577,9 @@ class ObjectMgr
 
         void LoadReputationOnKill();
         void LoadPointsOfInterest();
+
+        SpellClickInfoMap mSpellClickInfoMap;
+        void LoadNPCSpellClickSpells();
 
         void LoadWeatherZoneChances();
         void LoadGameTele();

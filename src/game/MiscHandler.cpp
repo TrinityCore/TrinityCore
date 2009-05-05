@@ -1686,29 +1686,6 @@ void WorldSession::HandleSetTaxiBenchmarkOpcode( WorldPacket & recv_data )
     sLog.outDebug("Client used \"/timetest %d\" command", mode);
 }
 
-void WorldSession::HandleSpellClick( WorldPacket & recv_data )
-{
-    CHECK_PACKET_SIZE(recv_data, 8);
-
-    uint64 guid;
-    recv_data >> guid;
-
-    Creature *creature = NULL;
-    if(IS_VEHICLE_GUID(guid))
-    {
-        Vehicle *vehicle = ObjectAccessor::GetVehicle(guid);
-        if(vehicle)
-        {
-            _player->EnterVehicle(vehicle);
-            creature = vehicle;
-        }
-    }
-    if(!creature)
-        creature = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, guid);
-    if(creature && creature->IsAIEnabled)
-        creature->AI()->SpellClick(_player);
-}
-
 void WorldSession::HandleInspectAchievements( WorldPacket & recv_data )
 {
     CHECK_PACKET_SIZE(recv_data, 1);
