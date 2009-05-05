@@ -154,7 +154,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectUnused,                                   // 87 SPELL_EFFECT_WMO_DAMAGE
     &Spell::EffectUnused,                                   // 88 SPELL_EFFECT_WMO_REPAIR
     &Spell::EffectUnused,                                   // 89 SPELL_EFFECT_WMO_CHANGE
-    &Spell::EffectUnused,                                   // 90 SPELL_EFFECT_KILL_CREDIT
+    &Spell::EffectKillCredit,                               // 90 SPELL_EFFECT_KILL_CREDIT
     &Spell::EffectUnused,                                   // 91 SPELL_EFFECT_THREAT_ALL               one spell: zzOLDBrainwash
     &Spell::EffectEnchantHeldItem,                          // 92 SPELL_EFFECT_ENCHANT_HELD_ITEM
     &Spell::EffectUnused,                                   // 93 SPELL_EFFECT_SUMMON_PHANTASM
