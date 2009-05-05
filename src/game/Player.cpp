@@ -12562,7 +12562,7 @@ void Player::AddQuest( Quest const *pQuest, Object *questGiver )
                     CastSpell(this,itr->second->spellId,true);
     }
 
-    UpdateForQuestsGO();
+    UpdateForQuestWorldObjects();
 }
 
 void Player::CompleteQuest( uint32 quest_id )
@@ -13293,7 +13293,7 @@ void Player::SetQuestStatus( uint32 quest_id, QuestStatus status )
         if (q_status.uState != QUEST_NEW) q_status.uState = QUEST_CHANGED;
     }
 
-    UpdateForQuestsGO();
+    UpdateForQuestWorldObjects();
 }
 
 // not used in TrinIty, but used in scripting code
@@ -13414,7 +13414,7 @@ void Player::ItemAddedQuestCheck( uint32 entry, uint32 count )
             }
         }
     }
-    UpdateForQuestsGO();
+    UpdateForQuestWorldObjects();
 }
 
 void Player::ItemRemovedQuestCheck( uint32 entry, uint32 count )
@@ -13455,7 +13455,7 @@ void Player::ItemRemovedQuestCheck( uint32 entry, uint32 count )
             }
         }
     }
-    UpdateForQuestsGO();
+    UpdateForQuestWorldObjects();
 }
 
 void Player::KilledMonster( uint32 entry, uint64 guid )
@@ -18890,7 +18890,7 @@ bool Player::HasQuestForGO(int32 GOId) const
     return false;
 }
 
-void Player::UpdateForQuestsGO()
+void Player::UpdateForQuestWorldObjects()
 {
     if(m_clientGUIDs.empty())
         return;
@@ -18904,6 +18904,24 @@ void Player::UpdateForQuestsGO()
             GameObject *obj = HashMapHolder<GameObject>::Find(*itr);
             if(obj)
                 obj->BuildValuesUpdateBlockForPlayer(&udata,this);
+        }
+        else if(IS_CREATURE_GUID(*itr) || IS_VEHICLE_GUID(*itr))
+        {
+            Creature *obj = ObjectAccessor::GetCreatureOrPetOrVehicle(*this, *itr);
+            if(!obj)
+                continue;
+            // check if this unit requires quest specific flags
+
+            SpellClickInfoMap const& map = objmgr.mSpellClickInfoMap;
+            for(SpellClickInfoMap::const_iterator itr = map.lower_bound(obj->GetEntry()); itr != map.upper_bound(obj->GetEntry()); ++itr)
+            {
+                if(itr->second.questId != 0)
+                {
+                    obj->BuildCreateUpdateBlockForPlayer(&udata,this);
+                    break;
+                }
+            }
+
         }
     }
     udata.BuildPacket(&packet);
@@ -20455,3 +20473,18 @@ void Player::ResummonPetTemporaryUnSummonedIfAny()
 
     m_temporaryUnsummonedPetNumber = 0;
 }
+
+bool Player::canSeeSpellClickOn(Creature const *c) const
+{
+    SpellClickInfoMap const& map = objmgr.mSpellClickInfoMap;
+    if(map.empty())
+        return true;
+
+    for(SpellClickInfoMap::const_iterator itr = map.lower_bound(c->GetEntry()); itr != map.upper_bound(c->GetEntry()); ++itr)
+    {
+        if(itr->second.questId == 0 || GetQuestStatus(itr->second.questId) == QUEST_STATUS_INCOMPLETE)
+            return true;
+    }
+    return false;
+}
+

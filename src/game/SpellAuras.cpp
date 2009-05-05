@@ -47,6 +47,7 @@
 #include "Util.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
+#include "Vehicle.h"
 #include "CellImpl.h"
 
 pAuraHandler AuraHandler[TOTAL_AURAS]=
@@ -6726,19 +6727,40 @@ void AuraEffect::HandleArenaPreparation(bool apply, bool Real)
         m_target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PREPARATION);
 }
 
+/**
+ * Such auras are applied from a caster(=player) to a vehicle.
+ * This has been verified using spell #49256
+ */
 void AuraEffect::HandleAuraControlVehicle(bool apply, bool Real)
 {
     if(!Real)
         return;
 
-    if(m_target->GetTypeId() != TYPEID_PLAYER)
+    if(m_target->GetTypeId() != TYPEID_UNIT || !((Creature*)m_target)->isVehicle())
         return;
 
-    if(Pet *pet = ((Player*)m_target)->GetPet())
-        pet->Remove(PET_SAVE_AS_CURRENT);
+    Unit *caster = GetCaster();
+    if(!caster)
+        return;
 
-    //WorldPacket data(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
-    //((Player*)m_target)->GetSession()->SendPacket(&data);
+    Vehicle *vehicle = dynamic_cast<Vehicle*>(m_target);
+
+    if (apply)
+    {
+        if(caster->GetTypeId() == TYPEID_PLAYER)
+            if(Pet *pet = ((Player*)caster)->GetPet())
+                pet->Remove(PET_SAVE_AS_CURRENT);
+        caster->EnterVehicle(vehicle);
+    }
+    else
+    {
+        SpellEntry const *spell = GetSpellProto();
+
+        // some SPELL_AURA_CONTROL_VEHICLE auras have a dummy effect on the player - remove them
+        caster->RemoveAurasDueToSpell(spell->Id);
+
+        caster->ExitVehicle();
+    }
 }
 
 void AuraEffect::HandleAuraConvertRune(bool apply, bool Real)

@@ -483,3 +483,30 @@ void WorldSession::HandleSelfResOpcode( WorldPacket & /*recv_data*/ )
     }
 }
 
+void WorldSession::HandleSpellClick( WorldPacket & recv_data )
+{
+    CHECK_PACKET_SIZE(recv_data, 8);
+
+    uint64 guid;
+    recv_data >> guid;
+
+    Creature *unit = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, guid);
+
+    if(!unit)
+        return;
+
+    SpellClickInfoMap const& map = objmgr.mSpellClickInfoMap;
+    for(SpellClickInfoMap::const_iterator itr = map.lower_bound(unit->GetEntry()); itr != map.upper_bound(unit->GetEntry()); ++itr)
+    {
+        if(itr->second.questId == 0 || _player->GetQuestStatus(itr->second.questId) == QUEST_STATUS_INCOMPLETE)
+        {
+            Unit *caster = (itr->second.castFlags & 0x1) ? (Unit*)_player : (Unit*)unit;
+            Unit *target = (itr->second.castFlags & 0x2) ? (Unit*)_player : (Unit*)unit;
+
+            caster->CastSpell(target, itr->second.spellId, true);
+        }
+    }
+
+    if(unit->isVehicle())
+        _player->EnterVehicle((Vehicle*)unit);
+}
