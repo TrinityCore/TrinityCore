@@ -1654,9 +1654,19 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
             switch(cur)
             {
                 case TARGET_UNIT_CASTER:
-                case TARGET_UNIT_CASTER_FISHING:
                     AddUnitTarget(m_caster, i);
                     break;
+                case TARGET_UNIT_CASTER_FISHING:
+                {
+                    AddUnitTarget(m_caster, i);                   
+                    float min_dis = GetSpellMinRange(m_spellInfo, true);
+                    float max_dis = GetSpellMaxRange(m_spellInfo, true);
+                    float dis = rand_norm() * (max_dis - min_dis) + min_dis;
+                    float x, y, z;
+                    m_caster->GetClosePoint(x, y, z, DEFAULT_WORLD_OBJECT_SIZE, dis);
+                    m_targets.setDestination(x, y, z);
+                    break;
+                }
                 case TARGET_UNIT_MASTER:
                     if(Unit* owner = m_caster->GetCharmerOrOwner())
                         AddUnitTarget(owner, i);
@@ -2647,7 +2657,7 @@ void Spell::_handle_immediate_phase()
     {
         if(spellmgr.EffectTargetType[m_spellInfo->Effect[j]] == SPELL_REQUIRE_DEST)
         {
-            if(!m_targets.HasDst())
+            if(!m_targets.HasDst()) // FIXME: this will ignore dest set in effect
                 m_targets.setDestination(m_caster);
             HandleEffects(m_originalCaster, NULL, NULL, j);
             m_effectMask |= (1<<j);
