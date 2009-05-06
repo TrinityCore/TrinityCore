@@ -29,20 +29,22 @@ EndScriptData */
 #define SAY_TAUNT           RAND(-1533113,-1533114,-1533115,-1533116,-1533117)
 #define SAY_DEATH           -1533118
 
-//Spells by boss
-#define SPELL_WILT          23772
-#define SPELL_FEAVER        29998
-
 #define SPELL_SPELL_DISRUPTION  29310
 #define SPELL_DECREPIT_FEVER    HEROIC(29998,55011)
-#define SPELL_PLAGUE_CLOUD      30122
+#define SPELL_PLAGUE_CLOUD      29350
 
 enum Events
 {
     EVENT_DISRUPT   = 1,
     EVENT_FEVER,
-    EVENT_CLOUD,
     EVENT_ERUPT,
+    EVENT_PHASE,
+};
+
+enum Phases
+{
+    PHASE_FIGHT = 1,
+    PHASE_DANCE,
 };
 
 //Spell by eye stalks
@@ -57,6 +59,9 @@ struct TRINITY_DLL_DECL boss_heiganAI : public ScriptedAI
 
     EventMap events;
     ScriptedInstance *instance;
+    uint32 eruptSection;
+    bool eruptDirection;
+    Phases phase;
 
     void Reset()
     {
@@ -80,10 +85,31 @@ struct TRINITY_DLL_DECL boss_heiganAI : public ScriptedAI
     {
         DoScriptText(SAY_AGGRO, me);
         DoZoneInCombat();
-        events.ScheduleEvent(EVENT_FEVER, 1200);
-        events.ScheduleEvent(EVENT_CLOUD, 360000);
-        events.ScheduleEvent(EVENT_ERUPT, 3000);
+        EnterPhase(PHASE_FIGHT);
         instance->SetBossState(BOSS_HEIGAN, IN_PROGRESS);
+    }
+
+    void EnterPhase(Phases newPhase)
+    {
+        phase = newPhase;
+        events.Reset();
+        eruptSection = 3;
+        if(phase == PHASE_FIGHT)
+        {
+            events.ScheduleEvent(EVENT_DISRUPT, 0);
+            events.ScheduleEvent(EVENT_FEVER, 20000);
+            events.ScheduleEvent(EVENT_PHASE, 85000);
+            events.ScheduleEvent(EVENT_ERUPT, 10000);
+        }
+        else
+        {
+            float x, y, z, o;
+            me->GetHomePosition(x, y, z, o);
+            me->NearTeleportTo(x, y, z, o);
+            DoCastAOE(SPELL_PLAGUE_CLOUD);
+            events.ScheduleEvent(EVENT_PHASE, 45000);
+            events.ScheduleEvent(EVENT_ERUPT, 5000);
+        }
     }
 
     void UpdateAI(const uint32 diff)
@@ -98,21 +124,27 @@ struct TRINITY_DLL_DECL boss_heiganAI : public ScriptedAI
             switch(eventId)
             {
                 case EVENT_DISRUPT:
-                    events.ScheduleEvent(EVENT_DISRUPT, 1200);
+                    DoCastAOE(SPELL_SPELL_DISRUPTION);
+                    events.ScheduleEvent(EVENT_DISRUPT, 5000);
                     return;
                 case EVENT_FEVER:
-                    events.ScheduleEvent(EVENT_FEVER, 2000);
+                    DoCastAOE(SPELL_DECREPIT_FEVER);
+                    events.ScheduleEvent(EVENT_FEVER, 20000);
                     return;
-                case EVENT_CLOUD:
-                    events.ScheduleEvent(EVENT_CLOUD, 2000);
+                case EVENT_PHASE:
+                    EnterPhase(phase == PHASE_FIGHT ? PHASE_DANCE : PHASE_FIGHT);
                     return;
                 case EVENT_ERUPT:
-                    if(instance)
-                    {
-                        uint32 section = rand()%4;
-                        instance->SetData(DATA_HEIGAN_ERUPT, section);
-                    }
-                    events.ScheduleEvent(EVENT_ERUPT, 2000);
+                    instance->SetData(DATA_HEIGAN_ERUPT, eruptSection);
+
+                    if(eruptSection == 0)
+                        eruptDirection = true;
+                    else if(eruptSection == 3)
+                        eruptDirection = false;
+
+                    eruptDirection ? ++eruptSection : --eruptSection;
+
+                    events.ScheduleEvent(EVENT_ERUPT, phase == PHASE_FIGHT ? 10000 : 3000);
                     break;
             }
         }
