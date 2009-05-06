@@ -6181,11 +6181,24 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
         }
     }
 
-    pvpInfo.inHostileArea =
-        GetTeam() == ALLIANCE && zone->team == AREATEAM_HORDE ||
-        GetTeam() == HORDE    && zone->team == AREATEAM_ALLY  ||
-        sWorld.IsPvPRealm()   && zone->team == AREATEAM_NONE  ||
-        InBattleGround();                                   // overwrite for battlegrounds, maybe batter some zone flags but current known not 100% fit to this
+    // in PvP, any not controlled zone (except zone->team == 6, default case)
+    // in PvE, only opposition team capital
+    switch(zone->team)
+    {
+        case AREATEAM_ALLY:
+            pvpInfo.inHostileArea = GetTeam() != ALLIANCE && (sWorld.IsPvPRealm() || zone->flags & AREA_FLAG_CAPITAL);
+            break;
+        case AREATEAM_HORDE:
+            pvpInfo.inHostileArea = GetTeam() != HORDE && (sWorld.IsPvPRealm() || zone->flags & AREA_FLAG_CAPITAL);
+            break;
+        case AREATEAM_NONE:
+            // overwrite for battlegrounds, maybe batter some zone flags but current known not 100% fit to this
+            pvpInfo.inHostileArea = sWorld.IsPvPRealm() || InBattleGround();
+            break;
+        default:                                            // 6 in fact
+            pvpInfo.inHostileArea = false;
+            break;
+    }
 
     if(pvpInfo.inHostileArea)                               // in hostile area
     {
