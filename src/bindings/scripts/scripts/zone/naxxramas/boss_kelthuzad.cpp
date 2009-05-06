@@ -79,25 +79,20 @@ I also don't know the emotes
 #define NAXXRAMAS_MAP                533
 //Positional defines
 
-//spells to be casted
-#define SPELL_FROST_BOLT            28478
-#define H_SPELL_FROST_BOLT          55802
-#define SPELL_FROST_BOLT_NOVA       28479
-#define H_SPELL_FROST_BOLT_NOVA     55807
-
-#define SPELL_CHAINS_OF_KELTHUZAD   28410
-#define SPELL_MANA_DETONATION       27819
+#define SPELL_FROST_BOLT            HEROIC(28478,55802)
+#define SPELL_FROST_BOLT_AOE        HEROIC(28479,55807)
 #define SPELL_SHADOW_FISURE         27810
+#define SPELL_VOID_BLAST            27812
+#define SPELL_MANA_DETONATION       27819
 #define SPELL_FROST_BLAST           27808
+#define SPELL_CHAINS_OF_KELTHUZAD   28410 //28408 script effect
+#define SPELL_BERSERK               28498
 
-#define NORMAL_RAID                 10
-
-//creature needed summoned
-#define MOB_SUMMON_WASTE 16427 //Soldiers of the Frozen Wastes
-#define MOB_SUMMON_ABOMINATION 16428 //Unstoppable Abominations
-#define MOB_SUMMON_WEAVER 16429//Soul Weavers
-#define MOB_SUMMON_FISSURE 16129 // Shadow Fissure
-#define MOB_SUMMON_ICECROWN 16441// Guardians of Icecrown
+#define MOB_WASTE                   16427 // Soldiers of the Frozen Wastes
+#define MOB_ABOMINATION             16428 // Unstoppable Abominations
+#define MOB_WEAVER                  16429 // Soul Weavers
+#define MOB_FISSURE                 16129 // Shadow Fissure
+#define MOB_ICECROWN                16441 // Guardians of Icecrown
 
 float Pos[12][4] =
 {
@@ -188,7 +183,12 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
     void JustDied(Unit* Killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
+    }
 
+    void SummonedCreatureDespawn(Creature *summon)
+    {
+        if(summon->GetEntry() == MOB_FISSURE)
+            summon->CastSpell(summon, SPELL_VOID_BLAST, true);
     }
 
     void EnterCombat(Unit* who)
@@ -222,10 +222,10 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
                 Creature *Waster = NULL;
                 switch(rand()%4)
                 {
-                case 0: Waster = m_creature->SummonCreature(MOB_SUMMON_WASTE,Pos[0][0], Pos[0][1], Pos[0][2], Pos[0][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
-                case 1: Waster = m_creature->SummonCreature(MOB_SUMMON_WASTE,Pos[3][0], Pos[3][1], Pos[3][2], Pos[3][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
-                case 2: Waster = m_creature->SummonCreature(MOB_SUMMON_WASTE,Pos[6][0], Pos[6][1], Pos[6][2], Pos[6][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
-                case 3: Waster = m_creature->SummonCreature(MOB_SUMMON_WASTE,Pos[9][0], Pos[9][1], Pos[9][2], Pos[9][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
+                case 0: Waster = m_creature->SummonCreature(MOB_WASTE,Pos[0][0], Pos[0][1], Pos[0][2], Pos[0][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
+                case 1: Waster = m_creature->SummonCreature(MOB_WASTE,Pos[3][0], Pos[3][1], Pos[3][2], Pos[3][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
+                case 2: Waster = m_creature->SummonCreature(MOB_WASTE,Pos[6][0], Pos[6][1], Pos[6][2], Pos[6][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
+                case 3: Waster = m_creature->SummonCreature(MOB_WASTE,Pos[9][0], Pos[9][1], Pos[9][2], Pos[9][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
                 }
 
                 if(Waster)
@@ -238,17 +238,17 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
                 SummonWasters_Timer=3000;
             }else  SummonWasters_Timer-=diff;
 
-            //MOB_SUMMON_ABOMINATION at middle positon
+            //MOB_ABOMINATION at middle positon
             if ( SummonAbominations_Timer< diff)
             {
 
                 Creature *Abominations = NULL;
                 switch(rand()%4)
                 {
-                case 0: Abominations = m_creature->SummonCreature(MOB_SUMMON_ABOMINATION,Pos[1][0], Pos[1][1], Pos[1][2], Pos[1][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
-                case 1: Abominations = m_creature->SummonCreature(MOB_SUMMON_ABOMINATION,Pos[4][0], Pos[4][1], Pos[4][2], Pos[4][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
-                case 2: Abominations = m_creature->SummonCreature(MOB_SUMMON_ABOMINATION,Pos[7][0], Pos[7][1], Pos[7][2], Pos[7][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
-                case 3: Abominations = m_creature->SummonCreature(MOB_SUMMON_ABOMINATION,Pos[10][0], Pos[10][1], Pos[10][2], Pos[10][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
+                case 0: Abominations = m_creature->SummonCreature(MOB_ABOMINATION,Pos[1][0], Pos[1][1], Pos[1][2], Pos[1][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
+                case 1: Abominations = m_creature->SummonCreature(MOB_ABOMINATION,Pos[4][0], Pos[4][1], Pos[4][2], Pos[4][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
+                case 2: Abominations = m_creature->SummonCreature(MOB_ABOMINATION,Pos[7][0], Pos[7][1], Pos[7][2], Pos[7][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
+                case 3: Abominations = m_creature->SummonCreature(MOB_ABOMINATION,Pos[10][0], Pos[10][1], Pos[10][2], Pos[10][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
                 }
 
                 if(Abominations)
@@ -268,10 +268,10 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
                 Creature *Weavers = NULL;
                 switch(rand()%4)
                 {
-                case 0: Weavers = m_creature->SummonCreature(MOB_SUMMON_WEAVER,Pos[0][0], Pos[0][1], Pos[0][2], Pos[0][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
-                case 1: Weavers = m_creature->SummonCreature(MOB_SUMMON_WEAVER,Pos[3][0], Pos[3][1], Pos[3][2], Pos[3][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
-                case 2: Weavers = m_creature->SummonCreature(MOB_SUMMON_WEAVER,Pos[6][0], Pos[6][1], Pos[6][2], Pos[6][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
-                case 3: Weavers = m_creature->SummonCreature(MOB_SUMMON_WEAVER,Pos[9][0], Pos[9][1], Pos[9][2], Pos[9][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
+                case 0: Weavers = m_creature->SummonCreature(MOB_WEAVER,Pos[0][0], Pos[0][1], Pos[0][2], Pos[0][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
+                case 1: Weavers = m_creature->SummonCreature(MOB_WEAVER,Pos[3][0], Pos[3][1], Pos[3][2], Pos[3][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
+                case 2: Weavers = m_creature->SummonCreature(MOB_WEAVER,Pos[6][0], Pos[6][1], Pos[6][2], Pos[6][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
+                case 3: Weavers = m_creature->SummonCreature(MOB_WEAVER,Pos[9][0], Pos[9][1], Pos[9][2], Pos[9][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
                 }
 
                 if(Weavers)
@@ -301,7 +301,7 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
             //Check for Frost Bolt Nova
             if(FrostBoltNova_Timer < diff)
             {
-                DoCast(m_creature->getVictim(),SPELL_FROST_BOLT_NOVA);
+                DoCast(m_creature->getVictim(),SPELL_FROST_BOLT_AOE);
                 FrostBoltNova_Timer = 15000;
             }else FrostBoltNova_Timer -= diff;
 
@@ -322,23 +322,24 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
             //Check for Mana Detonation
             if(ManaDetonation_Timer < diff)
             {
-                Unit* target;
-                //select a manaplayer during 10 raid    ,how to make sure we can succed in finding a manaplayer or it's safty if there is no manaplayer in raid
-                for(uint8 i = 0; i <NORMAL_RAID; i++)
+                std::list<HostilReference*> *threatList = &me->getThreatManager().getThreatList();
+                std::list<HostilReference*>::iterator itr = threatList->begin();
+                std::vector<Unit*> unitList;
+                for(;itr != threatList->end(); ++itr)
                 {
-                    if (target = SelectUnit(SELECT_TARGET_RANDOM,0))
-                    {
-                        //check if the target is a manaplayer
-                        if ( ((Player*)target)->getPowerType()==POWER_MANA )
-                        {
-                            // if yes cast the SPELL_MANA_DETONATION
-                            DoCast(m_creature->getVictim(),SPELL_MANA_DETONATION);
-                            //Obviously  the damage of this spell would be invalidation
-                            break;
-                            //exit the circle
-                        }
-                    }
+                    if((*itr)->getTarget()->GetTypeId() == TYPEID_PLAYER
+                        && (*itr)->getTarget()->getPowerType() == POWER_MANA
+                        && (*itr)->getTarget()->GetPower(POWER_MANA))
+                        unitList.push_back((*itr)->getTarget());
                 }
+
+                if(!unitList.empty())
+                {
+                    std::vector<Unit*>::iterator itr = unitList.begin();
+                    advance(itr, rand()%unitList.size());
+                    DoCast(*itr, SPELL_MANA_DETONATION);
+                }
+
                 if (rand()%2)
                     DoScriptText(SAY_SPECIAL1_MANA_DET, m_creature);
                 ManaDetonation_Timer = 20000;
@@ -350,22 +351,8 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
 
             if(ShadowFisure_Timer < diff)
             {
-                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-                {
-                    //get the position of the target x,y,z,ang.
-                    float x,y,z,ang;
-                    x=target->GetPositionX();
-                    y=target->GetPositionY();
-                    z=target->GetPositionZ();
-                    ang=target->GetOrientation();
-                    //summon the MOB_SUMMON_FISSURE at this positon
-                    Creature *Fissure= m_creature->SummonCreature(MOB_SUMMON_FISSURE,x,y,z,ang, TEMPSUMMON_CORPSE_DESPAWN, 0);
-                    if(Fissure)
-                    {
-                        DoCast(target,SPELL_SHADOW_FISURE);
-                        Fissure->AI()->AttackStart(target);
-                    }
-                }
+                if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+                    DoCast(target, SPELL_SHADOW_FISURE);
 
                 if (rand()%2)
                     DoScriptText(SAY_SPECIAL3_MANA_DET, m_creature);
@@ -404,13 +391,13 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
                     switch(rand()%3)
                     {
                     case 0:
-                        pUnit = m_creature->SummonCreature(MOB_SUMMON_ICECROWN,Pos[2][0],Pos[2][1],Pos[2][2],Pos[2][3],TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,1000);
+                        pUnit = m_creature->SummonCreature(MOB_ICECROWN,Pos[2][0],Pos[2][1],Pos[2][2],Pos[2][3],TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,1000);
                         break;
                     case 1:
-                        pUnit = m_creature->SummonCreature(MOB_SUMMON_ICECROWN,Pos[5][0],Pos[5][1],Pos[5][2],Pos[5][3],TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,1000);
+                        pUnit = m_creature->SummonCreature(MOB_ICECROWN,Pos[5][0],Pos[5][1],Pos[5][2],Pos[5][3],TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,1000);
                         break;
                     case 2:
-                        pUnit = m_creature->SummonCreature(MOB_SUMMON_ICECROWN,Pos[8][0],Pos[8][1],Pos[8][2],Pos[8][3],TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,1000);
+                        pUnit = m_creature->SummonCreature(MOB_ICECROWN,Pos[8][0],Pos[8][1],Pos[8][2],Pos[8][3],TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,1000);
                         break;
                     }
 

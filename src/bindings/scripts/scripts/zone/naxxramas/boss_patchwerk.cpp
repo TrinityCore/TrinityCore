@@ -23,8 +23,7 @@ EndScriptData */
 
 #include "precompiled.h"
 
-#define SAY_AGGRO1              -1533017
-#define SAY_AGGRO2              -1533018
+#define SAY_AGGRO               RAND(-1533017,-1533018)
 #define SAY_SLAY                -1533019
 #define SAY_DEATH               -1533020
 
@@ -66,7 +65,7 @@ struct TRINITY_DLL_DECL boss_patchwerkAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        DoScriptText(rand()%2 ? SAY_AGGRO1 : SAY_AGGRO2, me);
+        DoScriptText(SAY_AGGRO, me);
         DoZoneInCombat();
         events.ScheduleEvent(EVENT_HATEFUL, 1200);
         events.ScheduleEvent(EVENT_BERSERK, 360000);
@@ -144,4 +143,3 @@ void AddSC_boss_patchwerk()
     newscript->GetAI = &GetAI_boss_patchwerk;
     newscript->RegisterSelf();
 }
-

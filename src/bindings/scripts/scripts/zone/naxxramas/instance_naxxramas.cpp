@@ -24,9 +24,92 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_naxxramas.h"
 
+#define SPELL_ERUPTION      29371
+
+const float HeiganPos[2] = {2796, -3707};
+const float HeiganEruptionSlope[3] =
+{
+    (-3685 - HeiganPos[1]) /(2724 - HeiganPos[0]),
+    (-3647 - HeiganPos[1]) /(2749 - HeiganPos[0]),
+    (-3637 - HeiganPos[1]) /(2771 - HeiganPos[0]),
+};
+
+// 0  H  O-->x
+//  1    |
+//   2   V
+//    3  y
+inline uint32 GetEruptionSection(float x, float y)
+{
+    y -= HeiganPos[1];
+    if(y < 1.0f)
+        return 0;
+
+    x -= HeiganPos[0];
+    if(x > -1.0f)
+        return 3;
+
+    float slope = y/x;
+    for(uint32 i = 0; i < 3; ++i)
+        if(slope > HeiganEruptionSlope[i])
+            return i;
+    return 3;
+}
+
 struct TRINITY_DLL_DECL instance_naxxramas : public ScriptedInstance
 {
-    instance_naxxramas(Map *Map) : ScriptedInstance(Map) {Initialize();};
+    instance_naxxramas(Map *map) : ScriptedInstance(map)
+    {
+        SetBossNumber(15);
+    }
+
+    std::set<GameObject*> HeiganEruption[4];
+
+    void OnObjectCreate(GameObject* go, bool add)
+    {
+        if(go->GetGOInfo()->displayId == 6785 || go->GetGOInfo()->displayId == 1287)
+        {
+            uint32 section = GetEruptionSection(go->GetPositionX(), go->GetPositionY());
+            if(add)
+                HeiganEruption[section].insert(go);
+            else
+                HeiganEruption[section].erase(go);
+            return;
+        }
+
+        switch(go->GetEntry())
+        {
+            case 181200: SetBossRoomDoor(BOSS_NOTH, go, add); break;
+            case 181201: SetBossPassageDoor(BOSS_NOTH, go, add); break;
+            case 181202: SetBossRoomDoor(BOSS_HEIGAN, go, add); break;
+            case 181203: SetBossPassageDoor(BOSS_HEIGAN, go, add); break;
+            case 181241: SetBossRoomDoor(BOSS_LOATHEB, go, add); break;
+        }
+    }
+
+    void SetData(uint32 id, uint32 value)
+    {
+        switch(id)
+        {
+            case DATA_HEIGAN_ERUPT:
+                HeiganErupt(value);
+                break;
+        }
+    }
+
+    void HeiganErupt(uint32 section)
+    {
+        for(uint32 i = 0; i < 4; ++i)
+        {
+            if(i == section)
+                continue;
+
+            for(std::set<GameObject*>::iterator itr = HeiganEruption[i].begin(); itr != HeiganEruption[i].end(); ++itr)
+            {
+                (*itr)->SendCustomAnim();
+                (*itr)->CastSpell(NULL, SPELL_ERUPTION);
+            }
+        }
+    }
 };
 
 InstanceData* GetInstanceData_instance_naxxramas(Map* map)
@@ -42,4 +125,3 @@ void AddSC_instance_naxxramas()
     newscript->GetInstanceData = GetInstanceData_instance_naxxramas;
     newscript->RegisterSelf();
 }
-
