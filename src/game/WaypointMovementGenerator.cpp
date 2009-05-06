@@ -226,14 +226,12 @@ template bool WaypointMovementGenerator<Player>::Update(Player &, const uint32 &
 template void WaypointMovementGenerator<Player>::MovementInform(Player &);
 
 //----------------------------------------------------//
-void
-FlightPathMovementGenerator::LoadPath(Player &)
+void FlightPathMovementGenerator::LoadPath(Player &)
 {
     objmgr.GetTaxiPathNodes(i_pathId, i_path,i_mapIds);
 }
 
-uint32
-FlightPathMovementGenerator::GetPathAtMapEnd() const
+uint32 FlightPathMovementGenerator::GetPathAtMapEnd() const
 {
     if(i_currentNode >= i_mapIds.size())
         return i_mapIds.size();
@@ -248,8 +246,7 @@ FlightPathMovementGenerator::GetPathAtMapEnd() const
     return i_mapIds.size();
 }
 
-void
-FlightPathMovementGenerator::Initialize(Player &player)
+void FlightPathMovementGenerator::Initialize(Player &player)
 {
     player.getHostilRefManager().setOnlineOfflineState(false);
     player.addUnitState(UNIT_STAT_IN_FLIGHT);
@@ -285,8 +282,7 @@ void FlightPathMovementGenerator::Finalize(Player & player)
     }
 }
 
-bool
-FlightPathMovementGenerator::Update(Player &player, const uint32 &diff)
+bool FlightPathMovementGenerator::Update(Player &player, const uint32 &diff)
 {
     if( MovementInProgress() )
     {
@@ -321,8 +317,7 @@ FlightPathMovementGenerator::Update(Player &player, const uint32 &diff)
     return false;
 }
 
-void
-FlightPathMovementGenerator::SetCurrentNodeAfterTeleport()
+void FlightPathMovementGenerator::SetCurrentNodeAfterTeleport()
 {
     if(i_mapIds.empty())
         return;

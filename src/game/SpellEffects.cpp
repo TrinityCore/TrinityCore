@@ -3287,10 +3287,13 @@ void Spell::EffectSummonType(uint32 i)
                         summon->SetHealth(damage);
                     }
 
+                    //summon->SetUInt32Value(UNIT_CREATED_BY_SPELL,m_spellInfo->Id);
+
                     if(m_originalCaster->GetTypeId() == TYPEID_PLAYER
                         && properties->Slot >= SUMMON_SLOT_TOTEM
                         && properties->Slot < MAX_TOTEM_SLOT)
                     {
+                        //summon->SendUpdateToPlayer((Player*)m_originalCaster);
                         WorldPacket data(SMSG_TOTEM_CREATED, 1+8+4+4);
                         data << uint8(properties->Slot-1);
                         data << uint64(m_originalCaster->GetGUID());
@@ -3356,7 +3359,6 @@ void Spell::EffectSummonType(uint32 i)
                 return;
 
             pet->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
-            pet->SetCharmedOrPossessedBy(m_caster, true);
             break;
         }
         case SUMMON_CATEGORY_VEHICLE:
