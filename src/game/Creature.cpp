@@ -186,7 +186,7 @@ void Creature::RemoveFromWorld()
     {
         if(Map *map = FindMap())
             if(map->IsDungeon() && ((InstanceMap*)map)->GetInstanceData())
-                ((InstanceMap*)map)->GetInstanceData()->OnCreatureRemove(this);
+                ((InstanceMap*)map)->GetInstanceData()->OnCreatureCreate(this, false);
         if(m_formation)
             formation_mgr.RemoveCreatureFromGroup(m_formation, this);
         Unit::RemoveFromWorld();
@@ -1387,7 +1387,7 @@ bool Creature::CreateFromProto(uint32 guidlow, uint32 Entry, uint32 team, const 
     Map *map = FindMap();
     if(map && map->IsDungeon() && ((InstanceMap*)map)->GetInstanceData())
     {
-        ((InstanceMap*)map)->GetInstanceData()->OnCreatureCreate(this, Entry);
+        ((InstanceMap*)map)->GetInstanceData()->OnCreatureCreate(this);
     }
 
     return true;

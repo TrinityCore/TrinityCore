@@ -95,7 +95,7 @@ void GameObject::RemoveFromWorld()
     {
         if(Map *map = FindMap())
             if(map->IsDungeon() && ((InstanceMap*)map)->GetInstanceData())
-                ((InstanceMap*)map)->GetInstanceData()->OnObjectRemove(this);
+                ((InstanceMap*)map)->GetInstanceData()->OnObjectCreate(this, false);
         // Possible crash at access to deleted GO in Unit::m_gameobj
         if(uint64 owner_guid = GetOwnerGUID())
         {
@@ -1362,7 +1362,8 @@ void GameObject::CastSpell(Unit* target, uint32 spellId)
 
     if(self)
     {
-        target->CastSpell(target, spellInfo, true);
+        if(target)
+            target->CastSpell(target, spellInfo, true);
         return;
     }
 
@@ -1379,7 +1380,7 @@ void GameObject::CastSpell(Unit* target, uint32 spellId)
     else
     {
         trigger->setFaction(14);
-        trigger->CastSpell(target, spellInfo, true, 0, 0, target->GetGUID());
+        trigger->CastSpell(target, spellInfo, true);
     }
     //trigger->setDeathState(JUST_DIED);
     //trigger->RemoveCorpse();

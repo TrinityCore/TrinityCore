@@ -49,47 +49,47 @@ bool InstanceData::IsEncounterInProgress() const
     return false;
 }
 
-void InstanceData::AddBossRoomDoor(uint32 id, GameObject *door)
+//This will be removed in the future, just compitiable with Mangos
+void InstanceData::OnCreatureCreate(Creature *creature, bool add)
+{
+    OnCreatureCreate(creature, creature->GetEntry(), add);
+}
+
+void InstanceData::SetBossRoomDoor(uint32 id, GameObject *door, bool add)
 {
     if(id < bosses.size())
     {
-        BossInfo *bossInfo = &bosses[id];
-        bossInfo->roomDoor.insert(door);
-        // Room door is only closed when encounter is in progress
-        if(bossInfo->state == IN_PROGRESS)
-            door->SetGoState(GO_STATE_READY);
+        if(add)
+        {
+            BossInfo *bossInfo = &bosses[id];
+            bossInfo->roomDoor.insert(door);
+            // Room door is only closed when encounter is in progress
+            if(bossInfo->state == IN_PROGRESS)
+                door->SetGoState(GO_STATE_READY);
+            else
+                door->SetGoState(GO_STATE_ACTIVE);
+        }
         else
-            door->SetGoState(GO_STATE_ACTIVE);
+            bosses[id].roomDoor.erase(door);
     }
 }
 
-void InstanceData::AddBossPassageDoor(uint32 id, GameObject *door)
+void InstanceData::SetBossPassageDoor(uint32 id, GameObject *door, bool add)
 {
     if(id < bosses.size())
     {
-        BossInfo *bossInfo = &bosses[id];
-        bossInfo->passageDoor.insert(door);
-        // Passage door is only opened when boss is defeated
-        if(bossInfo->state == DONE)
-            door->SetGoState(GO_STATE_ACTIVE);
+        if(add)
+        {
+            BossInfo *bossInfo = &bosses[id];
+            bossInfo->passageDoor.insert(door);
+            // Passage door is only opened when boss is defeated
+            if(bossInfo->state == DONE)
+                door->SetGoState(GO_STATE_ACTIVE);
+            else
+                door->SetGoState(GO_STATE_READY);
+        }
         else
-            door->SetGoState(GO_STATE_READY);
-    }
-}
-
-void InstanceData::RemoveBossRoomDoor(uint32 id, GameObject *door)
-{
-    if(id < bosses.size())
-    {
-        bosses[id].roomDoor.erase(door);
-    }
-}
-
-void InstanceData::RemoveBossPassageDoor(uint32 id, GameObject *door)
-{
-    if(id < bosses.size())
-    {
-        bosses[id].passageDoor.erase(door);
+            bosses[id].passageDoor.erase(door);
     }
 }
 
@@ -98,7 +98,6 @@ void InstanceData::SetBossState(uint32 id, EncounterState state)
     if(id < bosses.size())
     {
         BossInfo *bossInfo = &bosses[id];
-
         bossInfo->state = state;
         switch(state)
         {
