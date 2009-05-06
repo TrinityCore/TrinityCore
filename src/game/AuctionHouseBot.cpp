@@ -478,300 +478,270 @@ static void addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *config, World
     if (!AHBBuyer)
         return;
 
-        // Fetches content of selected AH
-   AuctionHouseObject* auctionHouse = auctionmgr.GetAuctionsMap(config->GetAHFID());
-   AuctionHouseObject::AuctionEntryMap::iterator itr;
+    // Fetches content of selected AH
+    AuctionHouseObject* auctionHouse = auctionmgr.GetAuctionsMap(config->GetAHFID());
+    AuctionHouseObject::AuctionEntryMap::iterator itr;
 
-   itr = auctionHouse->GetAuctionsBegin();
-   vector<uint32> possibleBids;
+    itr = auctionHouse->GetAuctionsBegin();
+    vector<uint32> possibleBids;
 
-   while (itr != auctionHouse->GetAuctionsEnd())
-   {
-      AuctionHouseObject::AuctionEntryMap::iterator tmp = itr;
-      ++itr;
-         // Check if the auction is ours
-         // if it is, we skip this iteration.
-      if(tmp->second->owner == AHBplayerGUID)
-      {
-         continue;
-      }
-         // Check that we haven't bidded in this auction already.
-      if(tmp->second->bidder != AHBplayerGUID)
-      {
-         uint32 tmpdata = tmp->second->Id;
-         possibleBids.push_back(tmpdata);
-      }
-   }
-
-   uint32 bids = config->GetBidsPerInterval();
-   for (uint32 count = 1;count <= bids;count++)
-   {
-
-      // Do we have anything to bid? If not, stop here.
-   if(possibleBids.empty())
-   {
-      count = bids + 1;
-      return;
-   }
-
-      // Choose random auction from possible auctions
-   uint32 vectorPos = urand(0, possibleBids.size() - 1);
-   uint32 auctionID = possibleBids[vectorPos];
-
-      // Erase the auction from the vector to prevent bidding on item in next itteration.
-   vector<uint32>::iterator iter = possibleBids.begin();
-   advance(iter, vectorPos);
-   possibleBids.erase(iter);
-
-      // from auctionhousehandler.cpp, creates auction pointer & player pointer
-   AuctionEntry* auction = auctionHouse->GetAuction(auctionID);
-
-        // get exact item information
-   Item *pItem = auctionmgr.GetAItem(auction->item_guidlow);
-   if (!pItem)
-   {
-      sLog.outError("Item doesn't exists, perhaps bought already?");
-      return;
-   }
-
-        // get item prototype
-   ItemPrototype const* prototype = objmgr.GetItemPrototype(auction->item_template);
-
-        // check which price we have to use, startbid or if it is bidded already
-   if(debug_Out)
-   {
-       sLog.outError("Auction Number: %u", auction->Id);
-       sLog.outError("Item Template: %u", auction->item_template);
-       sLog.outError("Buy Price: %u", prototype->BuyPrice);
-       sLog.outError("Sell Price: %u", prototype->SellPrice);
-       sLog.outError("Quality: %u", prototype->Quality);
-   }
-   uint32 currentprice;
-   if(auction->bid)
-   {
-      currentprice = auction->bid;
-        if(debug_Out)
-        {sLog.outError("Current Price: %u", auction->bid);}
-   }
-   else
-   {
-      currentprice = auction->startbid;
-        if(debug_Out)
-        {sLog.outError("Current Price: %u", auction->startbid);}
-   }
-   uint32 bidprice;
-
-      // Prepare portion from maximum bid
-   uint32 tmprate2 = urand(0, 100);
-   double tmprate = static_cast<double>(tmprate2);
-    if(debug_Out)
-    {sLog.outError("tmprate: %f", tmprate);}
-   double bidrate = tmprate / 100;
-    if(debug_Out)
-    {sLog.outError("bidrate: %f", bidrate);}
-   long double bidMax = 0;
-
-      // check that bid has acceptable value and take bid based on vendorprice, stacksize and quality
-   switch (BuyMethod)
-   {
-   case 0:
-       switch (prototype->Quality)
-       {
-       case 0:
-          if(currentprice < prototype->SellPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_GREY))
-          {
-             bidMax = prototype->SellPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_GREY);
-          }
-          break;
-       case 1:
-          if(currentprice < prototype->SellPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_WHITE))
-          {
-             bidMax = prototype->SellPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_WHITE);
-          }
-          break;
-       case 2:
-          if(currentprice < prototype->SellPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_GREEN))
-          {
-             bidMax = prototype->SellPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_GREEN);
-          }
-          break;
-       case 3:
-          if(currentprice < prototype->SellPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_BLUE))
-          {
-             bidMax = prototype->SellPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_BLUE);
-          }
-          break;
-       case 4:
-          if(currentprice < prototype->SellPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_PURPLE))
-          {
-             bidMax = prototype->SellPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_PURPLE);
-          }
-       case 5:
-          if(currentprice < prototype->SellPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_ORANGE))
-          {
-             bidMax = prototype->SellPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_ORANGE);
-          }
-       case 6:
-          if(currentprice < prototype->SellPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_YELLOW))
-          {
-             bidMax = prototype->SellPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_YELLOW);
-          }
-          break;
-       default:
-                // quality is something it shouldn't be, let's get out of here
-            if(debug_Out)
-            {sLog.outError("bidMax(fail): %f", bidMax);}
-          return;
-          break;
-       }
-     break;
-   case 1:
-       switch (prototype->Quality)
-       {
-       case 0:
-          if(currentprice < prototype->BuyPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_GREY))
-          {
-             bidMax = prototype->BuyPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_GREY);
-          }
-          break;
-       case 1:
-          if(currentprice < prototype->BuyPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_WHITE))
-          {
-             bidMax = prototype->BuyPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_WHITE);
-          }
-          break;
-       case 2:
-          if(currentprice < prototype->BuyPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_GREEN))
-          {
-             bidMax = prototype->BuyPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_GREEN);
-          }
-          break;
-       case 3:
-          if(currentprice < prototype->BuyPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_BLUE))
-          {
-             bidMax = prototype->BuyPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_BLUE);
-          }
-          break;
-       case 4:
-          if(currentprice < prototype->BuyPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_PURPLE))
-          {
-             bidMax = prototype->BuyPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_PURPLE);
-          }
-       case 5:
-          if(currentprice < prototype->BuyPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_ORANGE))
-          {
-             bidMax = prototype->BuyPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_ORANGE);
-          }
-       case 6:
-          if(currentprice < prototype->BuyPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_YELLOW))
-          {
-             bidMax = prototype->BuyPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_YELLOW);
-          }
-          break;
-       default:
-                // quality is something it shouldn't be, let's get out of here
-            if(debug_Out)
-            {sLog.outError("bidMax(fail): %f", bidMax);}
-          return;
-          break;
-       }
-     break;
-   default:
-       bidMax = 0;
-       break;
-   }
-    if(debug_Out)
-    {sLog.outError("bidMax(succeed): %f", bidMax);}
-
-        // check some special items, and do recalculating to their prices
-    switch (prototype->Class)
+    while (itr != auctionHouse->GetAuctionsEnd())
     {
-        // ammo
-    case 6:
-        bidMax = 0;
-        break;
-    default:
-        break;
+        AuctionHouseObject::AuctionEntryMap::iterator tmp = itr;
+        ++itr;
+        // Check if the auction is ours
+        // if it is, we skip this iteration.
+        if(tmp->second->owner == AHBplayerGUID)
+        {
+            continue;
+        }
+        // Check that we haven't bidded in this auction already.
+        if(tmp->second->bidder != AHBplayerGUID)
+        {
+            uint32 tmpdata = tmp->second->Id;
+            possibleBids.push_back(tmpdata);
+        }
     }
 
-   if(bidMax == 0)
-   {
-         // quality check failed to get bidmax, let's get out of here
-      return;
-   }
+    uint32 bids = config->GetBidsPerInterval();
+    for (uint32 count = 0; count < bids; ++count)
+    {
+        // Do we have anything to bid? If not, stop here.
+        if(possibleBids.empty())
+            return;
 
-      // Calculate our bid
-   long double bidvalue = currentprice + ( (bidMax - currentprice) * bidrate);
-    if(debug_Out)
-    {sLog.outError("bidvalue: %f", bidvalue);}
-      // Convert to uint32
-   bidprice = static_cast<uint32>(bidvalue);
-    if(debug_Out)
-    {sLog.outError("bidprice: %u", bidprice);}
+        // Choose random auction from possible auctions
+        uint32 vectorPos = urand(0, possibleBids.size() - 1);
+        vector<uint32>::iterator iter = possibleBids.begin();
+        advance(iter, vectorPos);
+        // from auctionhousehandler.cpp, creates auction pointer & player pointer
+        AuctionEntry* auction = auctionHouse->GetAuction(*iter);
+        // Erase the auction from the vector to prevent bidding on item in next itteration.
+        possibleBids.erase(iter);
 
-      // Check our bid is high enough to be valid. If not, correct it to minimum.
-   if((currentprice + auction->GetAuctionOutBid()) > bidprice)
-   {
-      bidprice = currentprice + auction->GetAuctionOutBid();
+        // get exact item information
+        Item *pItem = auctionmgr.GetAItem(auction->item_guidlow);
+        if (!pItem)
+        {
+            sLog.outError("Item doesn't exists, perhaps bought already?");
+            return;
+        }
+
+        // get item prototype
+        ItemPrototype const* prototype = objmgr.GetItemPrototype(auction->item_template);
+
+        // check which price we have to use, startbid or if it is bidded already
         if(debug_Out)
-        {sLog.outError("bidprice(>): %u", bidprice);}
-   }
+        {
+            sLog.outError("Auction Number: %u", auction->Id);
+            sLog.outError("Item Template: %u", auction->item_template);
+            sLog.outError("Buy Price: %u", prototype->BuyPrice);
+            sLog.outError("Sell Price: %u", prototype->SellPrice);
+            sLog.outError("Quality: %u", prototype->Quality);
+        }
 
-      // Check wether we do normal bid, or buyout
-   if ((bidprice < auction->buyout) || (auction->buyout == 0))
-   {
+        uint32 currentprice;
+        if(auction->bid)
+        {
+            currentprice = auction->bid;
+            if(debug_Out)
+            {sLog.outError("Current Price: %u", auction->bid);}
+        }
+        else
+        {
+            currentprice = auction->startbid;
+            if(debug_Out)
+            {sLog.outError("Current Price: %u", auction->startbid);}
+        }
 
-      if (auction->bidder > 0)
-      {
-         if ( auction->bidder == AHBplayer->GetGUIDLow() )
-         {
-            //pl->ModifyMoney( -int32(price - auction->bid));
-         }
-         else
-         {
-               // mail to last bidder and return money
-             session->SendAuctionOutbiddedMail( auction , bidprice );
-            //pl->ModifyMoney( -int32(price) );
-         }
-      }
+        // Prepare portion from maximum bid
+        uint32 tmprate2 = urand(0, 100);
+        double tmprate = static_cast<double>(tmprate2);
+        double bidrate = tmprate / 100;
+        long double bidMax = 0;
+        if(debug_Out)
+        {
+            sLog.outError("tmprate: %f", tmprate);
+            sLog.outError("bidrate: %f", bidrate);
+        }
 
-      auction->bidder = AHBplayer->GetGUIDLow();
-      auction->bid = bidprice;
+        // check that bid has acceptable value and take bid based on vendorprice, stacksize and quality
+        switch (BuyMethod)
+        {
+            case 0:
+            {
+                switch (prototype->Quality)
+                {
+                    case 0:
+                        if(currentprice < prototype->SellPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_GREY))
+                            bidMax = prototype->SellPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_GREY);
+                        break;
+                    case 1:
+                        if(currentprice < prototype->SellPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_WHITE))
+                            bidMax = prototype->SellPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_WHITE);
+                        break;
+                    case 2:
+                        if(currentprice < prototype->SellPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_GREEN))
+                            bidMax = prototype->SellPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_GREEN);
+                        break;
+                    case 3:
+                        if(currentprice < prototype->SellPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_BLUE))
+                            bidMax = prototype->SellPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_BLUE);
+                        break;
+                    case 4:
+                        if(currentprice < prototype->SellPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_PURPLE))
+                            bidMax = prototype->SellPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_PURPLE);
+                    case 5:
+                        if(currentprice < prototype->SellPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_ORANGE))
+                            bidMax = prototype->SellPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_ORANGE);
+                    case 6:
+                        if(currentprice < prototype->SellPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_YELLOW))
+                            bidMax = prototype->SellPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_YELLOW);
+                        break;
+                    default:
+                        // quality is something it shouldn't be, let's get out of here
+                        if(debug_Out)
+                            sLog.outError("bidMax(fail): %f", bidMax);
+                        return;
+                }
+                break;
+            }
+            case 1:
+            {
+                switch (prototype->Quality)
+                {
+                    case 0:
+                        if(currentprice < prototype->BuyPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_GREY))
+                            bidMax = prototype->BuyPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_GREY);
+                        break;
+                    case 1:
+                        if(currentprice < prototype->BuyPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_WHITE))
+                            bidMax = prototype->BuyPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_WHITE);
+                        break;
+                    case 2:
+                        if(currentprice < prototype->BuyPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_GREEN))
+                            bidMax = prototype->BuyPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_GREEN);
+                        break;
+                    case 3:
+                        if(currentprice < prototype->BuyPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_BLUE))
+                            bidMax = prototype->BuyPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_BLUE);
+                        break;
+                    case 4:
+                        if(currentprice < prototype->BuyPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_PURPLE))
+                            bidMax = prototype->BuyPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_PURPLE);
+                    case 5:
+                        if(currentprice < prototype->BuyPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_ORANGE))
+                            bidMax = prototype->BuyPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_ORANGE);
+                    case 6:
+                        if(currentprice < prototype->BuyPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_YELLOW))
+                            bidMax = prototype->BuyPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_YELLOW);
+                        break;
+                    default:
+                        // quality is something it shouldn't be, let's get out of here
+                        if(debug_Out)
+                            sLog.outError("bidMax(fail): %f", bidMax);
+                        return;
+                }
+                break;
+            }
+            default:
+                bidMax = 0;
+                break;
+        }
 
-         // Saving auction into database
-      CharacterDatabase.PExecute("UPDATE auctionhouse SET buyguid = '%u',lastbid = '%u' WHERE id = '%u'", auction->bidder, auction->bid, auction->Id);
-   }
-   else
-   {
-         //buyout
-      if (AHBplayer->GetGUIDLow() == auction->bidder )
-      {
-         //pl->ModifyMoney(-int32(auction->buyout - auction->bid));
-      }
-      else
-      {
-         //pl->ModifyMoney(-int32(auction->buyout));
-         if ( auction->bidder )
-         {
-             session->SendAuctionOutbiddedMail( auction, auction->buyout );
-         }
-      }
-      auction->bidder = AHBplayer->GetGUIDLow();
-      auction->bid = auction->buyout;
+        if(debug_Out)
+            sLog.outError("bidMax(succeed): %f", bidMax);
 
-         // Send mails to buyer & seller
-      auctionmgr.SendAuctionSuccessfulMail( auction );
-      auctionmgr.SendAuctionWonMail( auction );
+        // check some special items, and do recalculating to their prices
+        switch (prototype->Class)
+        {
+            // ammo
+            case 6:
+                bidMax = 0;
+                break;
+            default:
+                break;
+        }
 
-         // Remove item from auctionhouse
-      auctionmgr.RemoveAItem(auction->item_guidlow);
-         // Remove auction
-      auctionHouse->RemoveAuction(auction->Id);
-         // Remove from database
-      auction->DeleteFromDB();
-   }
-      delete auction;
-   }
+        if(bidMax == 0)
+        {
+            // quality check failed to get bidmax, let's get out of here
+            return;
+        }
+
+        // Calculate our bid
+        long double bidvalue = currentprice + ( (bidMax - currentprice) * bidrate);
+        // Convert to uint32
+        uint32 bidprice = static_cast<uint32>(bidvalue);
+        if(debug_Out)
+        {
+            sLog.outError("bidprice: %u", bidprice);
+            sLog.outError("bidvalue: %f", bidvalue);
+        }
+
+        // Check our bid is high enough to be valid. If not, correct it to minimum.
+        if((currentprice + auction->GetAuctionOutBid()) > bidprice)
+        {
+            bidprice = currentprice + auction->GetAuctionOutBid();
+            if(debug_Out)
+                sLog.outError("bidprice(>): %u", bidprice);
+        }
+
+        // Check wether we do normal bid, or buyout
+        if ((bidprice < auction->buyout) || (auction->buyout == 0))
+        {
+
+            if (auction->bidder > 0)
+            {
+                if ( auction->bidder == AHBplayer->GetGUIDLow() )
+                {
+                    //pl->ModifyMoney( -int32(price - auction->bid));
+                }
+                else
+                {
+                    // mail to last bidder and return money
+                    session->SendAuctionOutbiddedMail( auction , bidprice );
+                    //pl->ModifyMoney( -int32(price) );
+                }
+            }
+
+            auction->bidder = AHBplayer->GetGUIDLow();
+            auction->bid = bidprice;
+
+            // Saving auction into database
+            CharacterDatabase.PExecute("UPDATE auctionhouse SET buyguid = '%u',lastbid = '%u' WHERE id = '%u'", auction->bidder, auction->bid, auction->Id);
+        }
+        else
+        {
+            //buyout
+            if (AHBplayer->GetGUIDLow() == auction->bidder )
+            {
+                //pl->ModifyMoney(-int32(auction->buyout - auction->bid));
+            }
+            else
+            {
+                //pl->ModifyMoney(-int32(auction->buyout));
+                if ( auction->bidder )
+                {
+                    session->SendAuctionOutbiddedMail( auction, auction->buyout );
+                }
+            }
+            auction->bidder = AHBplayer->GetGUIDLow();
+            auction->bid = auction->buyout;
+
+            // Send mails to buyer & seller
+            auctionmgr.SendAuctionSuccessfulMail( auction );
+            auctionmgr.SendAuctionWonMail( auction );
+
+            // Remove item from auctionhouse
+            auctionmgr.RemoveAItem(auction->item_guidlow);
+            // Remove auction
+            auctionHouse->RemoveAuction(auction->Id);
+            // Remove from database
+            auction->DeleteFromDB();
+            delete auction;
+        }
+    }
 }
 ///////////////////////////////////////////////////////////////////////////////
 //
