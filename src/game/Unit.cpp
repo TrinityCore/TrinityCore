@@ -5835,7 +5835,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 float ap = GetTotalAttackPowerValue(BASE_ATTACK);
                 int32 holy = SpellBaseDamageBonus(SPELL_SCHOOL_MASK_HOLY) +
                              SpellBaseDamageBonusForVictim(SPELL_SCHOOL_MASK_HOLY, pVictim);
-                basepoints0 = GetAttackTime(BASE_ATTACK) * int32(ap*0.022f + 0.044f * holy) / 1000;
+                basepoints0 = (int32)GetAttackTime(BASE_ATTACK) * int32(ap*0.022f + 0.044f * holy) / 1000;
                 break;
             }
             // Light's Beacon - Beacon of Light
@@ -8396,10 +8396,10 @@ void Unit::RemoveAllControlled()
             sLog.outError("Unit %u is trying to release unit %u which is neither charmed nor owned by it", GetEntry(), target->GetEntry());
         }
     }
-    if(GetPetGUID() != GetUInt64Value(UNIT_FIELD_SUMMON))
-        sLog.outCrash("Unit %u is not able to release its summon %u", GetEntry(), GetPetGUID());
+    if(GetPetGUID() != GetMinionGUID())
+        sLog.outCrash("Unit %u is not able to release its summon " I64FMT, GetEntry(), GetMinionGUID());
     if(GetCharmGUID())
-        sLog.outCrash("Unit %u is not able to release its charm %u", GetEntry(), GetCharmGUID());
+        sLog.outCrash("Unit %u is not able to release its charm " I64FMT, GetEntry(), GetCharmGUID());
 }
 
 Unit* Unit::GetNextRandomRaidMemberOrPet(float radius)
