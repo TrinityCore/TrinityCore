@@ -565,17 +565,25 @@ void Pet::Update(uint32 diff)
                 }
             }
 
-            if(getPetType() != HUNTER_PET)
-                break;
-
-            //regenerate Focus
+            //regenerate focus for hunter pets or energy for deathknight's ghoul
             if(m_regenTimer <= diff)
             {
-                RegenerateFocus();
+                switch (getPowerType())
+                {
+                    case POWER_FOCUS:
+                    case POWER_ENERGY:
+                        Regenerate(getPowerType());
+                        break;
+                    default:
+                        break;
+                }
                 m_regenTimer = 4000;
             }
             else
                 m_regenTimer -= diff;
+
+            if(getPetType() != HUNTER_PET)
+                break;
 
             if(m_happinessTimer <= diff)
             {
@@ -593,22 +601,41 @@ void Pet::Update(uint32 diff)
     Creature::Update(diff);
 }
 
-void Pet::RegenerateFocus()
+void Pet::Regenerate(Powers power)
 {
-    uint32 curValue = GetPower(POWER_FOCUS);
-    uint32 maxValue = GetMaxPower(POWER_FOCUS);
+    uint32 curValue = GetPower(power);
+    uint32 maxValue = GetMaxPower(power);
 
     if (curValue >= maxValue)
         return;
 
-    float addvalue = 24 * sWorld.getRate(RATE_POWER_FOCUS);
+    float addvalue = 0.0f;
 
+    switch (power)
+    {
+        case POWER_FOCUS:
+        {
+            // For hunter pets.
+            addvalue = 24 * sWorld.getRate(RATE_POWER_FOCUS);
+            break;
+        }
+        case POWER_ENERGY:
+        {
+            // For deathknight's ghoul.
+            addvalue = 20;
+            break;
+        }
+        default:
+            return;
+    }
+
+    // Apply modifiers (if any).
     AuraEffectList const& ModPowerRegenPCTAuras = GetAurasByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
     for(AuraEffectList::const_iterator i = ModPowerRegenPCTAuras.begin(); i != ModPowerRegenPCTAuras.end(); ++i)
-        if ((*i)->GetMiscValue() == POWER_FOCUS)
+        if ((*i)->GetMiscValue() == power)
             addvalue *= ((*i)->GetAmount() + 100) / 100.0f;
 
-    ModifyPower(POWER_FOCUS, (int32)addvalue);
+    ModifyPower(power, (int32)addvalue);
 }
 
 void Pet::LooseHappiness()

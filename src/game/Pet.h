@@ -159,7 +159,7 @@ class Pet : public Guardian
                 return m_autospells[pos];
         }
 
-        void RegenerateFocus();
+        void Regenerate(Powers power);
         void LooseHappiness();
         HappinessState GetHappinessState();
         void GivePetXP(uint32 xp);
