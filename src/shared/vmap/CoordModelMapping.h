@@ -24,6 +24,12 @@
 #include <G3D/Table.h>
 #include <G3D/Array.h>
 
+//#ifdef _DEBUG
+//#define DEB(x) x
+//#else
+#define DEB(x)
+//#endif
+
 /**
 This Class is a helper Class to convert the raw vector data into BSP-Trees.
 We read the directory file of the raw data output and build logical groups.
@@ -77,7 +83,7 @@ namespace VMAP
             static const std::string getKeyString(unsigned int pMapId, int pXPos, int pYPos)
             {
                 char b[100];
-                sprintf(b,"%03u_%d_%d", pMapId, pXPos, pYPos);
+DEB(            sprintf(b,"%03u_%d_%d", pMapId, pXPos, pYPos);)
                 return(std::string(b));
             }
 

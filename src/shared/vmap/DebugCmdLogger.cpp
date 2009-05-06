@@ -20,6 +20,12 @@
 
 #include "DebugCmdLogger.h"
 
+//#ifdef _DEBUG
+//#define DEB(x) x
+//#else
+#define DEB(x)
+//#endif
+
 using namespace G3D;
 
 namespace VMAP
@@ -97,25 +103,25 @@ namespace VMAP
     bool CommandFileRW::getNewCommands(Array<Command>& pCmdArray)
     {
         bool result = false;
-        FILE* f = fopen(iFileName.c_str(), "rb");
-        if(f)
+DEB(    FILE* f = fopen(iFileName.c_str(), "rb");)
+DEB(    if(f))
         {
             Command cmd;
-            if(fseek(f, iLastPos, SEEK_SET) == 0) { result = true; }
+DEB(        if(fseek(f, iLastPos, SEEK_SET) == 0) { result = true; })
             while(result)
             {
-                if(fread(&cmd, sizeof(Command), 1, f) != 1)
+DEB(            if(fread(&cmd, sizeof(Command), 1, f) != 1))
                 {
                     result = false;
                 }
-                iLastPos = ftell(f);
+DEB(            iLastPos = ftell(f);)
                 if(cmd.getType() == STOP)
                 {
                     break;
                 }
                 pCmdArray.append(cmd);
             }
-            fclose(f);
+DEB(        fclose(f);)
         }
         if(result)
         {

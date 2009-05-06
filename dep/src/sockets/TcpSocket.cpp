@@ -1012,7 +1012,7 @@ void TcpSocket::Sendf(const char *format, ...)
 #ifdef _WIN32
     vsprintf(slask, format, ap);
 #else
-    vsnprintf(slask, 5000, format, ap);
+DEB(vsnprintf(slask, 5000, format, ap);)
 #endif
     va_end(ap);
     Send( slask );
