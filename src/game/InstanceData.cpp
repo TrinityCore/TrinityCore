@@ -21,6 +21,8 @@
 #include "InstanceData.h"
 #include "Database/DatabaseEnv.h"
 #include "Map.h"
+#include "GameObject.h"
+#include "Creature.h"
 
 void InstanceData::SaveToDB()
 {
