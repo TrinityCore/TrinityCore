@@ -38,11 +38,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 namespace SOCKETS_NAMESPACE {
 #endif
 
-//#ifdef _DEBUG
-//#define DEB(x) x; fflush(stderr);
-//#else
-#define DEB(x)
-//#endif
+
 
 
 void StdoutLog::error(ISocketHandler *,Socket *sock,const std::string& call,int err,const std::string& sys_err,loglevel_t lvl)
@@ -73,22 +69,22 @@ void StdoutLog::error(ISocketHandler *,Socket *sock,const std::string& call,int 
     }
     if (sock)
     {
-DEB(        printf("%d-%02d-%02d %02d:%02d:%02d :: fd %d :: %s: %d %s (%s)\n",
+        printf("%d-%02d-%02d %02d:%02d:%02d :: fd %d :: %s: %d %s (%s)\n",
             tp.tm_year + 1900,
             tp.tm_mon + 1,
             tp.tm_mday,
             tp.tm_hour,tp.tm_min,tp.tm_sec,
             sock -> GetSocket(),
-            call.c_str(),err,sys_err.c_str(),level.c_str()));
+            call.c_str(),err,sys_err.c_str(),level.c_str());
     }
     else
     {
-DEB(        printf("%d-%02d-%02d %02d:%02d:%02d :: %s: %d %s (%s)\n",
+        printf("%d-%02d-%02d %02d:%02d:%02d :: %s: %d %s (%s)\n",
             tp.tm_year + 1900,
             tp.tm_mon + 1,
             tp.tm_mday,
             tp.tm_hour,tp.tm_min,tp.tm_sec,
-            call.c_str(),err,sys_err.c_str(),level.c_str()));
+            call.c_str(),err,sys_err.c_str(),level.c_str());
     }
 }
 
