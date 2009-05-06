@@ -310,6 +310,11 @@ class TRINITY_DLL_SPEC Aura
 
         int32 GetStackAmount() {return m_stackAmount;}
         void SetStackAmount(int32 amount) {m_stackAmount=amount;}
+
+        // Single cast aura helpers
+        void UnregisterSingleCastAura();
+        bool IsSingleTarget() const {return m_isSingleTargetAura;}
+        void SetIsSingleTarget(bool val) { m_isSingleTargetAura = val;}
     protected:
         Aura(SpellEntry const* spellproto, uint32 eff, int32 *currentBasePoints, Unit *target, Unit *caster = NULL, Item* castItem = NULL);
 
@@ -342,6 +347,7 @@ class TRINITY_DLL_SPEC Aura
         bool m_isRemovedOnShapeLost:1;
         bool m_updated:1;
         bool m_in_use:1;                                    // true while in Aura::ApplyModifier call
+        bool m_isSingleTargetAura:1;                        // true if it's a single target spell and registered at caster - can change at spell steal for example
 
         int32 m_periodicTimer;
         uint32 m_PeriodicEventId;
