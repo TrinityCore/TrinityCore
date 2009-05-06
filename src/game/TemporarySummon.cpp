@@ -166,7 +166,7 @@ void TempSummon::Update( uint32 diff )
     Creature::Update( diff );
 }
 
-void TempSummon::InitSummon(uint32 duration)
+void TempSummon::InitStats(uint32 duration)
 {
     assert(!isPet());
 
@@ -176,6 +176,29 @@ void TempSummon::InitSummon(uint32 duration)
     if(m_type == TEMPSUMMON_MANUAL_DESPAWN)
         m_type = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_DESPAWN;
 
+    if(!m_Properties)
+        return;
+
+    if(uint32 slot = m_Properties->Slot)
+    {
+        if(Unit *owner = GetSummoner())
+        {
+            if(owner->m_SummonSlot[slot] && owner->m_SummonSlot[slot] != GetGUID())
+            {
+                Creature *oldSummon = GetMap()->GetCreature(owner->m_SummonSlot[slot]);
+                if(oldSummon && oldSummon->isSummon())
+                    ((TempSummon*)oldSummon)->UnSummon();
+            }
+            owner->m_SummonSlot[slot] = GetGUID();
+        }
+    }
+
+    if(m_Properties->Faction)
+        setFaction(m_Properties->Faction);
+}
+
+void TempSummon::InitSummon()
+{
     Unit* owner = GetSummoner();
     if(owner)
     {
@@ -191,26 +214,6 @@ void TempSummon::InitSummon(uint32 duration)
                 CastSpell(this, m_spells[0], false, 0, 0, m_summonerGUID);
         }
     }
-
-    if(!m_Properties)
-        return;
-
-    if(uint32 slot = m_Properties->Slot)
-    {
-        if(owner)
-        {
-            if(owner->m_SummonSlot[slot] && owner->m_SummonSlot[slot] != GetGUID())
-            {
-                Creature *oldSummon = GetMap()->GetCreature(owner->m_SummonSlot[slot]);
-                if(oldSummon && oldSummon->isSummon())
-                    ((TempSummon*)oldSummon)->UnSummon();
-            }
-            owner->m_SummonSlot[slot] = GetGUID();
-        }
-    }
-
-    if(m_Properties->Faction)
-        setFaction(m_Properties->Faction);
 }
 
 void TempSummon::SetTempSummonType(TempSummonType type)
@@ -264,9 +267,9 @@ Minion::Minion(SummonPropertiesEntry const *properties, Unit *owner) : TempSummo
     m_summonMask |= SUMMON_MASK_MINION;
 }
 
-void Minion::InitSummon(uint32 duration)
+void Minion::InitStats(uint32 duration)
 {
-    TempSummon::InitSummon(duration);
+    TempSummon::InitStats(duration);
 
     SetReactState(REACT_PASSIVE);
 
@@ -274,6 +277,16 @@ void Minion::InitSummon(uint32 duration)
     setFaction(m_owner->getFaction());
 
     m_owner->SetMinion(this, true);
+}
+
+void Minion::InitSummon()
+{
+    TempSummon::InitSummon();
+
+    if(m_owner->GetTypeId() == TYPEID_PLAYER
+        && m_owner->GetMinionGUID() == GetGUID()
+        && !m_owner->GetCharmGUID())
+        ((Player*)m_owner)->CharmSpellInitialize();    
 }
 
 void Minion::RemoveFromWorld()
@@ -292,12 +305,12 @@ Guardian::Guardian(SummonPropertiesEntry const *properties, Unit *owner) : Minio
     InitCharmInfo();
 }
 
-void Guardian::InitSummon(uint32 duration)
+void Guardian::InitStats(uint32 duration)
 {
+    Minion::InitStats(duration);
+
     if(m_owner->GetTypeId() == TYPEID_PLAYER)
         m_charmInfo->InitCharmCreateSpells();
-
-    Minion::InitSummon(duration);
 
     SetReactState(REACT_AGGRESSIVE);
 }

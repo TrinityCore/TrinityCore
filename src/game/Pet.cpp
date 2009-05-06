@@ -261,8 +261,8 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
         SetPower(POWER_MANA, savedmana > GetMaxPower(POWER_MANA) ? GetMaxPower(POWER_MANA) : savedmana);
     }
 
-    map->Add((Creature*)this);
     owner->SetMinion(this, true);
+    map->Add((Creature*)this);
 
     m_resetTalentsCost = fields[17].GetUInt32();
     m_resetTalentsTime = fields[18].GetUInt64();
