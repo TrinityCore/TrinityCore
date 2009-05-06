@@ -1281,7 +1281,7 @@ void SocketHandler::CheckList(socket_v& ref,const std::string& listname)
         }
         if (!found)
         {
-            fprintf(stderr, "CheckList failed for \"%s\": fd %d\n", listname.c_str(), s);
+DEB(        fprintf(stderr, "CheckList failed for \"%s\": fd %d\n", listname.c_str(), s);)
         }
     }
 }
