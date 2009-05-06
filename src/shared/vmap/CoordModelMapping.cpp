@@ -22,12 +22,6 @@
 
 #include <string.h>
 
-//#ifdef _DEBUG
-//#define DEB(x) x
-//#else
-#define DEB(x)
-//#endif
-
 using namespace G3D;
 
 namespace VMAP
@@ -92,15 +86,15 @@ namespace VMAP
     //============================================================
     bool CoordModelMapping::readCoordinateMapping(const std::string& pDirectoryFileName)
     {
-DEB(    FILE *f = fopen(pDirectoryFileName.c_str(), "rb");)
+        FILE *f = fopen(pDirectoryFileName.c_str(), "rb");
         bool result = false;
         char buffer[500+1];
 
-DEB(    if(f))
+        if(f)
         {
             result = true;
             CMappingEntry* cMappingEntry;
-DEB(        while(fgets(buffer, 500, f)))
+            while(fgets(buffer, 500, f))
             {
                 //char namebuffer[500];
                 char positionbuffer[500];
@@ -121,8 +115,8 @@ DEB(        while(fgets(buffer, 500, f)))
                     nameEnd += findPosChar(&buffer[nameEnd], ' ', 1);
                     buffer[nameEnd] = 0;                    // terminate the name
 
-DEB(                sscanf(buffer, "%d %d", &xpos, &ypos);)
-DEB(                sscanf(&buffer[nameEnd+1], "%s %f %d", positionbuffer, &scale, &noVec);)
+                    sscanf(buffer, "%d %d", &xpos, &ypos);
+                    sscanf(&buffer[nameEnd+1], "%s %f %d", positionbuffer, &scale, &noVec);
                     unsigned int mapId = getMapIdFromFilename(std::string(&buffer[nameStart]));
                     if(!iMapIds.contains(mapId))
                     {
@@ -142,12 +136,12 @@ DEB(                sscanf(&buffer[nameEnd+1], "%s %f %d", positionbuffer, &scal
                         addCMappingEntry(cMappingEntry);
                     }
                     char namebuffer2[500];
-DEB(                sprintf(namebuffer2, "%d %s#%s_%f", noVec, &buffer[nameStart], positionbuffer, scale);)
+                    sprintf(namebuffer2, "%d %s#%s_%f", noVec, &buffer[nameStart], positionbuffer, scale);
                     cMappingEntry->addFilename(namebuffer2);
                     //break;
                 }
             }
-DEB(        fclose(f);)
+            fclose(f);
         }
         return result;
     }
@@ -171,10 +165,10 @@ DEB(        fclose(f);)
                 int noVerc;
                 int startName = findPosChar(rawNames[pos].c_str(), ' ', 1) + 1;
                 int endName = (int) rawNames[pos].length();
-DEB(            sscanf(rawNames[pos].c_str(), "%d", &noVerc);)
+                sscanf(rawNames[pos].c_str(), "%d", &noVerc);
                 memcpy(namebuffer, &rawNames[pos].c_str()[startName], endName-startName);
                 namebuffer[endName-startName]  = 0;
-DEB(            sscanf(rawNames[pos].c_str(), "%d", &noVerc);)
+                sscanf(rawNames[pos].c_str(), "%d", &noVerc);
                 std::string modelPosFileName = std::string(namebuffer);
                 if(noVerc > MIN_VERTICES_FOR_OWN_CONTAINER_FILE)
                 {
