@@ -13861,11 +13861,12 @@ void Unit::NearTeleportTo( float x, float y, float z, float orientation, bool ca
         DestroyForNearbyPlayers();
 
         GetMap()->CreatureRelocation((Creature*)this, x, y, z, orientation);
+        ObjectAccessor::UpdateObjectVisibility(this);
 
         //WorldPacket data;
         // Work strange for many spells: triggered active mover set for targeted player to creature
         //BuildTeleportAckMsg(&data, x, y, z, orientation);
-        BuildHeartBeatMsg(&data);
-        SendMessageToSet(&data, false);
+        //BuildHeartBeatMsg(&data);
+        //SendMessageToSet(&data, false);
     }
 }
