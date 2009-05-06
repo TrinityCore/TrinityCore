@@ -98,7 +98,7 @@ void CreatureAI::DoZoneInCombat(Creature* creature)
         }
     }
 
-    if (!creature->CanHaveThreatList() || creature->getThreatManager().isThreatListEmpty())
+    if (!creature->CanHaveThreatList() || !creature->getVictim())
     {
         sLog.outError("DoZoneInCombat called for creature that either cannot have threat list or has empty threat list (creature entry = %d)", creature->GetTypeId() == TYPEID_UNIT ? ((Creature*)creature)->GetEntry() : 0);
         return;

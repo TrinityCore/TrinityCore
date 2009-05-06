@@ -118,15 +118,7 @@ void ScriptedAI::EnterEvadeMode()
     m_creature->SetLootRecipient(NULL);
 
     if(m_creature->isAlive())
-    {
-        if(Unit* owner = m_creature->GetOwner())
-        {
-            if(owner->isAlive())
-                m_creature->GetMotionMaster()->MoveFollow(owner,PET_FOLLOW_DIST,PET_FOLLOW_ANGLE);
-        }
-        else
-            m_creature->GetMotionMaster()->MoveTargetedHome();
-    }
+        m_creature->GetMotionMaster()->MoveTargetedHome();
 
     Reset();
 }
@@ -288,7 +280,7 @@ Unit* ScriptedAI::SelectUnit(SelectAggroTarget targetType, uint32 position, floa
         std::list<HostilReference*>::iterator itr = m_threatlist.begin();
         for(; itr!= m_threatlist.end(); ++itr)
         {
-            Unit *target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
+            Unit *target = (*itr)->getTarget();
             if(!target
                 || playerOnly && target->GetTypeId() != TYPEID_PLAYER
                 || dist && !m_creature->IsWithinCombatRange(target, dist))
@@ -334,7 +326,7 @@ Unit* ScriptedAI::SelectUnit(SelectAggroTarget targetType, uint32 position, floa
                     advance(i, position + rand()%(m_threatlist.size() - position));
             }
 
-            target = Unit::GetUnit(*m_creature,(*i)->getUnitGuid());
+            target = (*i)->getTarget();
             if(!target
                 || playerOnly && target->GetTypeId() != TYPEID_PLAYER
                 || dist && !m_creature->IsWithinCombatRange(target, dist))
@@ -360,7 +352,7 @@ void ScriptedAI::SelectUnitList(std::list<Unit*> &targetList, uint32 num, Select
         std::list<HostilReference*>::iterator itr = m_threatlist.begin();
         for(; itr!= m_threatlist.end(); ++itr)
         {
-            Unit *target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
+            Unit *target = (*itr)->getTarget();
             if(!target
                 || playerOnly && target->GetTypeId() != TYPEID_PLAYER
                 || dist && !m_creature->IsWithinCombatRange(target, dist))
@@ -393,7 +385,7 @@ void ScriptedAI::SelectUnitList(std::list<Unit*> &targetList, uint32 num, Select
                     advance(i, rand()%m_threatlist.size());
             }
 
-            target = Unit::GetUnit(*m_creature,(*i)->getUnitGuid());
+            target = (*i)->getTarget();
             m_threatlist.erase(i);
             if(!target
                 || playerOnly && target->GetTypeId() != TYPEID_PLAYER
