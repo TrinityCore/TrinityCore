@@ -3822,7 +3822,7 @@ bool Unit::AddAura(Aura *Aur)
     }
 
     // update single target auras list (before aura add to aura list, to prevent unexpected remove recently added aura)
-    if (IsSingleTargetSpell(aurSpellInfo) && Aur->GetTarget())
+    if (Aur->IsSingleTarget() && Aur->GetTarget())
     {
         // caster pointer can be deleted in time aura remove, find it by guid at each iteration
         for(;;)
@@ -4160,9 +4160,12 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, uint64 casterGUID, Unit 
             new_aur->SetAuraMaxDuration( max_dur > dur ? dur : max_dur );
             new_aur->SetAuraDuration( max_dur > dur ? dur : max_dur );
 
+            // Unregister _before_ adding to stealer
+            aur->UnregisterSingleCastAura();
+            // strange but intended behaviour: Stolen single target auras won't be treated as single targeted
+            new_aur->SetIsSingleTarget(false);
             // add the new aura to stealer
             stealer->AddAura(new_aur);
-
             // Remove aura as dispel
             RemoveAura(iter, AURA_REMOVE_BY_DISPEL);
         }
@@ -4309,20 +4312,7 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
     ++m_removedAuras;                                       // internal count used by unit update
 
     Unit* caster = NULL;
-    if (IsSingleTargetSpell(AurSpellInfo))
-    {
-        caster = Aur->GetCaster();
-        if(caster)
-        {
-            AuraList& scAuras = caster->GetSingleCastAuras();
-            scAuras.remove(Aur);
-        }
-        else
-        {
-            sLog.outError("Couldn't find the caster of the single target aura, may crash later!");
-            assert(false);
-        }
-    }
+    Aur->UnregisterSingleCastAura();
 
     // remove from list before mods removing (prevent cyclic calls, mods added before including to aura list - use reverse order)
     if (Aur->GetModifier()->m_auraname < TOTAL_AURAS)
@@ -13087,4 +13077,3 @@ void Unit::AddAura(uint32 spellId, Unit* target)
         }
     }
 }
-
