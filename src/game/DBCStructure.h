@@ -1492,10 +1492,9 @@ struct TalentEntry
                                                             // 14-15 not used
     uint32    DependsOnRank;                                // 16
                                                             // 17-18 not used
-    //uint32  unk1;                                         // 19, 0 or 1
+    //uint32  needAddInSpellBook;                           // 19  also need disable higest ranks on reset talent tree
     //uint32  unk2;                                         // 20, all 0
-    //uint32  unkFlags1;                                    // 21, related to hunter pet talents
-    //uint32  unkFlags2;                                    // 22, related to hunter pet talents
+    //uint64  allowForPet;                                  // 21 its a 64 bit mask for pet 1<<m_categoryEnumID in CreatureFamily.dbc
 };
 
 struct TalentTabEntry
