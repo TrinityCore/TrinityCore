@@ -388,6 +388,7 @@ extern void AddSC_boss_gluth();
 extern void AddSC_boss_sapphiron();
 extern void AddSC_boss_four_horsemen();
 extern void AddSC_boss_faerlina();
+extern void AddSC_boss_heigan();
 extern void AddSC_instance_naxxramas();
 
 //Netherstorm
@@ -612,6 +613,11 @@ extern void AddSC_boss_nalorakk();
 extern void AddSC_boss_zuljin();
 extern void AddSC_instance_zulaman();
 extern void AddSC_zulaman();
+
+//Northrend
+//Dungeon
+//Vault of Archavon
+extern void AddSC_boss_archavon();
 
 // -------------------
 void LoadDatabase()
@@ -1074,7 +1080,6 @@ void ScriptsInit(char const* cfg_file = "trinitycore.conf")
     AddSC_boss_najentus();
     AddSC_boss_illidari_council();
     AddSC_instance_black_temple();
-    AddSC_instance_naxxramas();
 
     //Blackfathom Depths
     //Blackrock Depths
@@ -1321,6 +1326,8 @@ void ScriptsInit(char const* cfg_file = "trinitycore.conf")
     AddSC_boss_gluth();
     AddSC_boss_sapphiron();
     AddSC_boss_four_horsemen();
+    AddSC_boss_heigan();
+    AddSC_instance_naxxramas();
 
     //Netherstorm
     AddSC_netherstorm();
@@ -1544,6 +1551,11 @@ void ScriptsInit(char const* cfg_file = "trinitycore.conf")
     AddSC_boss_zuljin();
     AddSC_instance_zulaman();
     AddSC_zulaman();
+
+    //Northrend
+    //Dungeon
+    //Vault of Archavon
+    AddSC_boss_archavon();
 
     // -------------------
 

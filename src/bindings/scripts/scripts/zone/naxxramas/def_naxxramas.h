@@ -18,5 +18,18 @@
 
 #ifndef DEF_NAXXRAMAS_H
 #define DEF_NAXXRAMAS_H
+
+enum Encounter
+{
+    BOSS_NOTH,
+    BOSS_HEIGAN,
+    BOSS_LOATHEB,
+};
+
+enum Data
+{
+    DATA_HEIGAN_ERUPT,
+};
+
 #endif
 

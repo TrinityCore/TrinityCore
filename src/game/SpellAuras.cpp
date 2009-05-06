@@ -1677,13 +1677,19 @@ void AuraEffect::TriggerSpell()
 //                    case 27747: break;
                     // Frost Blast
                     case 27808:
-                    {
-                        int32 bpDamage = target->GetMaxHealth()*26/100;
-                        caster->CastCustomSpell(target,29879,&bpDamage,NULL,NULL,true,NULL,this);
+                        caster->CastCustomSpell(29879, SPELLVALUE_BASE_POINT0, target->GetMaxHealth()*0.26f, m_target, true, NULL, this);
                         return;
-                    }
-//                    // Detonate Mana
-//                    case 27819: break;
+                    // Detonate Mana
+                    case 27819:
+                    {
+                        int32 mana = (uint32)m_target->GetMaxPower(POWER_MANA)*0.25f;
+                        if(mana)
+                        {
+                            mana = m_target->ModifyPower(POWER_MANA, -mana);
+                            m_target->CastCustomSpell(27820, SPELLVALUE_BASE_POINT0, -mana*4, NULL, true, NULL, this, caster->GetGUID());
+                        }
+                        return;
+                    }                      
 //                    // Controller Timer
 //                    case 28095: break;
 //                    // Stalagg Chain
@@ -2205,6 +2211,9 @@ void AuraEffect::TriggerSpell()
             // Mind Sear (target 76/16) if let m_target cast, will damage caster
             case 48045:
             case 53023:
+            // Curse of the Plaguebringer (22/15)
+            case 29213:
+            case 54835:
                 caster->CastSpell(m_target, trigger_spell_id, true);
                 return;
         }
