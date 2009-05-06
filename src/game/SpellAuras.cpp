@@ -6752,7 +6752,7 @@ void AuraEffect::HandleAuraControlVehicle(bool apply, bool Real)
     if(!caster)
         return;
 
-    Vehicle *vehicle = dynamic_cast<Vehicle*>(m_target);
+    /*Vehicle *vehicle = dynamic_cast<Vehicle*>(m_target);
 
     if (apply)
     {
@@ -6769,7 +6769,7 @@ void AuraEffect::HandleAuraControlVehicle(bool apply, bool Real)
         caster->RemoveAurasDueToSpell(spell->Id);
 
         caster->ExitVehicle();
-    }
+    }*/
 }
 
 void AuraEffect::HandleAuraConvertRune(bool apply, bool Real)
