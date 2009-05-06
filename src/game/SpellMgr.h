@@ -178,6 +178,12 @@ inline float GetSpellMaxRange(SpellEntry const *spellInfo, bool positive)
         ? GetSpellMaxRangeForFriend(sSpellRangeStore.LookupEntry(spellInfo->rangeIndex))
         : GetSpellMaxRangeForHostile(sSpellRangeStore.LookupEntry(spellInfo->rangeIndex));
 }
+inline float GetSpellMinRange(SpellEntry const *spellInfo, bool positive)
+{
+    return positive
+        ? GetSpellMinRangeForFriend(sSpellRangeStore.LookupEntry(spellInfo->rangeIndex))
+        : GetSpellMinRangeForHostile(sSpellRangeStore.LookupEntry(spellInfo->rangeIndex));
+}
 
 /*struct DispelEntry
 {
