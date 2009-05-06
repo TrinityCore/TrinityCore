@@ -2420,6 +2420,9 @@ void SpellMgr::LoadSpellCustomAttr()
         case 45150:                             // Meteor Slash
             mSpellCustomAttr[i] |= SPELL_ATTR_CU_SHARE_DAMAGE;
             break;
+        case 27820:
+            mSpellCustomAttr[i] |= SPELL_ATTR_CU_EXCLUDE_SELF;
+            break;
         case 44978: case 45001: case 45002:     // Wild Magic
         case 45004: case 45006: case 45010:     // Wild Magic
         case 31347: // Doom
@@ -2429,8 +2432,6 @@ void SpellMgr::LoadSpellCustomAttr()
         case 45976: // Muru Portal Channel
         case 39365: // Thundering Storm
         case 41071: // Raise Dead (HACK)
-            spellInfo->MaxAffectedTargets = 1;
-            break;
         case 28542: // Life Drain - Sapphiron
             spellInfo->MaxAffectedTargets = 1;
             break;
@@ -2443,6 +2444,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 45248: //Shadow Blades
         case 41303: // Soul Drain
         case 54172: // Divine Storm (heal)
+        case 29213: // Curse of the Plaguebringer
             spellInfo->MaxAffectedTargets = 3;
             break;
         case 38310: //Multi-Shot
@@ -2457,11 +2459,12 @@ void SpellMgr::LoadSpellCustomAttr()
         case 55665: // Life Drain - Sapphiron
             spellInfo->MaxAffectedTargets = 5;
             break;
-        case 40827: //Sinful Beam
-        case 40859: //Sinister Beam
-        case 40860: //Vile Beam
-        case 40861: //Wicked Beam
+        case 40827: // Sinful Beam
+        case 40859: // Sinister Beam
+        case 40860: // Vile Beam
+        case 40861: // Wicked Beam
         case 57669: // Replenishment
+        case 54835: // Curse of the Plaguebringer
             spellInfo->MaxAffectedTargets = 10;
             break;
         case 8122: case 8124: case 10888: case 10890: // Psychic Scream

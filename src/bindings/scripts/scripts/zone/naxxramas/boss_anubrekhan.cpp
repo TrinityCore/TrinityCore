@@ -23,14 +23,8 @@ EndScriptData */
 
 #include "precompiled.h"
 
-#define SAY_GREET           -1533000
-#define SAY_AGGRO1          -1533001
-#define SAY_AGGRO2          -1533002
-#define SAY_AGGRO3          -1533003
-#define SAY_TAUNT1          -1533004
-#define SAY_TAUNT2          -1533005
-#define SAY_TAUNT3          -1533006
-#define SAY_TAUNT4          -1533007
+#define SAY_GREET           RAND(-1533000,-1533004,-1533005,-1533006,-1533007)
+#define SAY_AGGRO           RAND(-1533001,-1533002,-1533003)
 #define SAY_SLAY            -1533008
 
 #define SPELL_IMPALE        HEROIC(28783,56090)
@@ -52,14 +46,21 @@ struct TRINITY_DLL_DECL boss_anubrekhanAI : public ScriptedAI
     EventMap events;
     SummonList summons;
 
-    void Reset()
+    void Prepare()
     {
-        events.Reset();
-        summons.DespawnAll();
         HasTaunted = false;
         DoSpawnCreature(MOB_CRYPT_GUARD, 0, 10, 0, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
         if(HeroicMode)
             DoSpawnCreature(MOB_CRYPT_GUARD, 0, -10, 0, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
+    }
+
+    void InitializeAI() { Prepare(); }
+    void JustReachedHome() { Prepare(); }
+
+    void Reset()
+    {
+        events.Reset();
+        summons.DespawnAll();
     }
 
     void JustSummoned(Creature *summon)
@@ -81,13 +82,7 @@ struct TRINITY_DLL_DECL boss_anubrekhanAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        switch(rand()%3)
-        {
-        case 0: DoScriptText(SAY_AGGRO1, m_creature); break;
-        case 1: DoScriptText(SAY_AGGRO2, m_creature); break;
-        case 2: DoScriptText(SAY_AGGRO3, m_creature); break;
-        }
-
+        DoScriptText(SAY_AGGRO, me);
         DoZoneInCombat();
 
         events.ScheduleEvent(EVENT_IMPALE, 15000, 1);
@@ -96,16 +91,9 @@ struct TRINITY_DLL_DECL boss_anubrekhanAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit *who)
     {
-        if (!HasTaunted && m_creature->IsWithinDistInMap(who, 60.0f))
+        if(!HasTaunted && me->IsWithinDistInMap(who, 60.0f))
         {
-            switch(rand()%5)
-            {
-            case 0: DoScriptText(SAY_GREET, m_creature); break;
-            case 1: DoScriptText(SAY_TAUNT1, m_creature); break;
-            case 2: DoScriptText(SAY_TAUNT2, m_creature); break;
-            case 3: DoScriptText(SAY_TAUNT3, m_creature); break;
-            case 4: DoScriptText(SAY_TAUNT4, m_creature); break;
-            }
+            DoScriptText(SAY_GREET, me);
             HasTaunted = true;
         }
         ScriptedAI::MoveInLineOfSight(who);
