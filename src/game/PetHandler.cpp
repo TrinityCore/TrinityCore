@@ -161,17 +161,27 @@ void WorldSession::HandlePetActionHelper(Unit *pet, uint64 guid1, uint16 spellid
                     break;
                 }
                 case COMMAND_ABANDON:                       // abandon (hunter pet) or dismiss (summoned pet)
-                    if(((Creature*)pet)->isPet())
+                    if(pet->GetCharmerGUID() == GetPlayer()->GetGUID())
                     {
-                        Pet* p = (Pet*)pet;
-                        if(p->getPetType() == HUNTER_PET)
-                            _player->RemovePet(p,PET_SAVE_AS_DELETED);
-                        else
-                            //dismissing a summoned pet is like killing them (this prevents returning a soulshard...)
-                            p->setDeathState(CORPSE);
+                        if(GetPlayer()->m_seer != pet)
+                            _player->StopCastingCharm();
                     }
-                    else                                    // charmed or possessed
-                        _player->StopCastingCharm();
+                    else if(pet->GetOwnerGUID() == GetPlayer()->GetGUID())
+                    {
+                        assert(pet->GetTypeId() == TYPEID_UNIT);
+                        if(((Creature*)pet)->isPet())
+                        {
+                            if(((Pet*)pet)->getPetType() == HUNTER_PET)
+                                GetPlayer()->RemovePet((Pet*)pet, PET_SAVE_AS_DELETED);
+                            else
+                                //dismissing a summoned pet is like killing them (this prevents returning a soulshard...)
+                                pet->setDeathState(CORPSE);
+                        }
+                        else if(((Creature*)pet)->HasSummonMask(SUMMON_MASK_MINION))
+                        {
+                            ((Minion*)pet)->UnSummon();
+                        }
+                    }
                     break;
                 default:
                     sLog.outError("WORLD: unknown PET flag Action %i and spellid %i.", flag, spellid);
