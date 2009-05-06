@@ -186,6 +186,7 @@ Unit::~Unit()
 
     RemoveAllGameObjects();
     RemoveAllDynObjects();
+    _DeleteAuras();
 
     if(m_charmInfo) delete m_charmInfo;
 
@@ -11417,7 +11418,6 @@ void Unit::CleanupsBeforeDelete()
     //A unit may be in removelist and not in world, but it is still in grid
     //and may have some references during delete
     RemoveAllAuras();
-    _DeleteAuras();
     InterruptNonMeleeSpells(true);
     m_Events.KillAllEvents(false);                      // non-delatable (currently casted spells) will not deleted now but it will deleted at call in Map::RemoveAllObjectsInRemoveList
     CombatStop();
