@@ -6015,7 +6015,7 @@ void Spell::EffectSummonDeadPet(uint32 /*i*/)
 
 void Spell::EffectDestroyAllTotems(uint32 /*i*/)
 {
-    float mana = 0;
+    int32 mana = 0;
     for(int slot = SUMMON_SLOT_TOTEM; slot < MAX_TOTEM_SLOT; ++slot)
     {
         if(!m_caster->m_SummonSlot[slot])
@@ -6036,8 +6036,8 @@ void Spell::EffectDestroyAllTotems(uint32 /*i*/)
     }
     mana = mana * damage / 100;
 
-    int32 gain = m_caster->ModifyPower(POWER_MANA,int32(mana));
-    m_caster->SendEnergizeSpellLog(m_caster, m_spellInfo->Id, gain, POWER_MANA);
+    if (mana)
+        m_caster->CastCustomSpell(m_caster, 39104, &mana, NULL, NULL, true);
 }
 
 void Spell::EffectDurabilityDamage(uint32 i)
