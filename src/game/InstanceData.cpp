@@ -54,7 +54,7 @@ bool InstanceData::IsEncounterInProgress() const
 //This will be removed in the future, just compitiable with Mangos
 void InstanceData::OnCreatureCreate(Creature *creature, bool add)
 {
-    OnCreatureCreate(creature, creature->GetEntry(), add);
+    OnCreatureCreate(creature, creature->GetEntry());
 }
 
 void InstanceData::SetBossRoomDoor(uint32 id, GameObject *door, bool add)
