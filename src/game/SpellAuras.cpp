@@ -6641,10 +6641,10 @@ void AuraEffect::PeriodicDummyTick()
                 AuraEffect *slow = GetParentAura()->GetPartAura(0);
                 if (slow)
                 {
-                    slow->ApplyModifier(false);
+                    slow->ApplyModifier(false, true);
                     slow->SetAmount(slow->GetAmount() + GetAmount());
                     if (slow->GetAmount() > 0) slow->SetAmount(0);
-                    slow->ApplyModifier(true);
+                    slow->ApplyModifier(true, true);
                 }
                 return;
             }
