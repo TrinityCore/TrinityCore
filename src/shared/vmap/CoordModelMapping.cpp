@@ -22,6 +22,12 @@
 
 #include <string.h>
 
+//#ifdef _DEBUG
+//#define DEB(x) x
+//#else
+#define DEB(x)
+//#endif
+
 using namespace G3D;
 
 namespace VMAP
@@ -86,15 +92,15 @@ namespace VMAP
     //============================================================
     bool CoordModelMapping::readCoordinateMapping(const std::string& pDirectoryFileName)
     {
-        FILE *f = fopen(pDirectoryFileName.c_str(), "rb");
+DEB(    FILE *f = fopen(pDirectoryFileName.c_str(), "rb");)
         bool result = false;
         char buffer[500+1];
 
-        if(f)
+DEB(    if(f))
         {
             result = true;
             CMappingEntry* cMappingEntry;
-            while(fgets(buffer, 500, f))
+DEB(        while(fgets(buffer, 500, f)))
             {
                 //char namebuffer[500];
                 char positionbuffer[500];
@@ -115,8 +121,8 @@ namespace VMAP
                     nameEnd += findPosChar(&buffer[nameEnd], ' ', 1);
                     buffer[nameEnd] = 0;                    // terminate the name
 
-                    sscanf(buffer, "%d %d", &xpos, &ypos);
-                    sscanf(&buffer[nameEnd+1], "%s %f %d", positionbuffer, &scale, &noVec);
+DEB(                sscanf(buffer, "%d %d", &xpos, &ypos);)
+DEB(                sscanf(&buffer[nameEnd+1], "%s %f %d", positionbuffer, &scale, &noVec);)
                     unsigned int mapId = getMapIdFromFilename(std::string(&buffer[nameStart]));
                     if(!iMapIds.contains(mapId))
                     {
@@ -136,12 +142,12 @@ namespace VMAP
                         addCMappingEntry(cMappingEntry);
                     }
                     char namebuffer2[500];
-                    sprintf(namebuffer2, "%d %s#%s_%f", noVec, &buffer[nameStart], positionbuffer, scale);
+DEB(                sprintf(namebuffer2, "%d %s#%s_%f", noVec, &buffer[nameStart], positionbuffer, scale);)
                     cMappingEntry->addFilename(namebuffer2);
                     //break;
                 }
             }
-            fclose(f);
+DEB(        fclose(f);)
         }
         return result;
     }
@@ -165,10 +171,10 @@ namespace VMAP
                 int noVerc;
                 int startName = findPosChar(rawNames[pos].c_str(), ' ', 1) + 1;
                 int endName = (int) rawNames[pos].length();
-                sscanf(rawNames[pos].c_str(), "%d", &noVerc);
+DEB(            sscanf(rawNames[pos].c_str(), "%d", &noVerc);)
                 memcpy(namebuffer, &rawNames[pos].c_str()[startName], endName-startName);
                 namebuffer[endName-startName]  = 0;
-                sscanf(rawNames[pos].c_str(), "%d", &noVerc);
+DEB(            sscanf(rawNames[pos].c_str(), "%d", &noVerc);)
                 std::string modelPosFileName = std::string(namebuffer);
                 if(noVerc > MIN_VERTICES_FOR_OWN_CONTAINER_FILE)
                 {
