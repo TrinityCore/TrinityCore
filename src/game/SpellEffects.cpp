@@ -553,7 +553,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                 // Gouge
                 else if(m_spellInfo->SpellFamilyFlags[0] & 0x8)
                 {
-                    damage += int32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK)*0.02f);
+                    damage += int32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK)*0.21f);
                 }
                 // Instant Poison
                 else if(m_spellInfo->SpellFamilyFlags[0] & 0x2000)
