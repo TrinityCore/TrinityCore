@@ -4543,7 +4543,7 @@ SpellCastResult Spell::CheckCast(bool strict)
 
                 break;
             }
-            case SPELL_AURA_MOD_INCREASE_FLIGHT_SPEED:
+            case SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED:
             case SPELL_AURA_FLY:
             {
                 // not allow cast fly spells at old maps by players (all spells is self target)
