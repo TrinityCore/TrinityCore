@@ -80,11 +80,15 @@ class TRINITY_DLL_SPEC InstanceData
         virtual void OnPlayerEnter(Player *) {}
 
         //Called when a gameobject is created
-        virtual void OnObjectCreate(GameObject *, bool add = true) {}
+        virtual void OnObjectCreate(GameObject *go, bool add)
+        {
+            OnObjectCreate(go);
+        }
+        virtual void OnObjectCreate(GameObject *) {}
 
         //called on creature creation
-        virtual void OnCreatureCreate(Creature *, bool add = true);
-        virtual void OnCreatureCreate(Creature *, uint32 entry, bool add = true) {}
+        virtual void OnCreatureCreate(Creature *, bool add);
+        virtual void OnCreatureCreate(Creature *, uint32 entry) {}
 
         //All-purpose data storage 64 bit
         virtual uint64 GetData64(uint32 /*Data*/) { return 0; }
