@@ -8183,25 +8183,14 @@ void Unit::SetMinion(Minion *minion, bool apply)
             }
         }
 
-        // Check priority.
-        if(Minion *oldMinion = GetFirstMinion())
+        //if(minion->HasSummonMask(SUMMON_MASK_GUARDIAN))
         {
-            if(minion->HasSummonMask(SUMMON_MASK_GUARDIAN)
-                && !oldMinion->HasSummonMask(SUMMON_MASK_GUARDIAN))
-                SetMinionGUID(0);
-        }                
-
-        // Set first minion
-        if(AddUInt64Value(UNIT_FIELD_SUMMON, minion->GetGUID()))
-        {
-            if(GetTypeId() == TYPEID_PLAYER && !GetCharmGUID() && minion->HasSummonMask(SUMMON_MASK_GUARDIAN))
+            if(AddUInt64Value(UNIT_FIELD_SUMMON, minion->GetGUID()))
             {
-                if(minion->isPet())
-                    ((Player*)this)->PetSpellInitialize();
-                else
-                    ((Player*)this)->CharmSpellInitialize();
             }
         }
+        //else if(minion->m_Properties && minion->m_Properties->Type == SUMMON_TYPE_MINIPET)
+        //    AddUInt64Value(UNIT_FIELD_CRITTER, minion->GetGUID());
 
         // FIXME: hack, speed must be set only at follow
         if(HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP))
@@ -8227,30 +8216,39 @@ void Unit::SetMinion(Minion *minion, bool apply)
                 SetPetGUID(0);
         }
 
-        if(RemoveUInt64Value(UNIT_FIELD_SUMMON, minion->GetGUID()))
+        //if(minion->HasSummonMask(SUMMON_MASK_GUARDIAN))
         {
-            //Check if there is another minion
-            for(ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
+            if(RemoveUInt64Value(UNIT_FIELD_SUMMON, minion->GetGUID()))
             {
-                if(GetCharmGUID() == (*itr)->GetGUID())
-                    continue;
-
-                assert((*itr)->GetOwnerGUID() == GetGUID());
-                assert((*itr)->GetTypeId() == TYPEID_UNIT);
-                if(AddUInt64Value(UNIT_FIELD_SUMMON, (*itr)->GetGUID()))
+                //Check if there is another minion
+                for(ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
                 {
-                    //show another pet bar if there is no charm bar
-                    if(GetTypeId() == TYPEID_PLAYER && !GetCharmGUID() && ((Creature*)(*itr))->HasSummonMask(SUMMON_MASK_GUARDIAN))
+                    if(GetCharmGUID() == (*itr)->GetGUID())
+                        continue;
+
+                    assert((*itr)->GetOwnerGUID() == GetGUID());
+                    assert((*itr)->GetTypeId() == TYPEID_UNIT);
+
+                    if(!((Creature*)(*itr))->HasSummonMask(SUMMON_MASK_GUARDIAN))
+                        continue;
+
+                    if(AddUInt64Value(UNIT_FIELD_SUMMON, (*itr)->GetGUID()))
                     {
-                        if(((Creature*)(*itr))->isPet())
-                            ((Player*)this)->PetSpellInitialize();
-                        else
-                            ((Player*)this)->CharmSpellInitialize();
+                        //show another pet bar if there is no charm bar
+                        if(GetTypeId() == TYPEID_PLAYER && !GetCharmGUID() && ((Creature*)(*itr))->HasSummonMask(SUMMON_MASK_GUARDIAN))
+                        {
+                            if(((Creature*)(*itr))->isPet())
+                                ((Player*)this)->PetSpellInitialize();
+                            else
+                                ((Player*)this)->CharmSpellInitialize();
+                        }
                     }
+                    break;
                 }
-                break;
             }
         }
+        //else if(minion->m_Properties && minion->m_Properties->Type == SUMMON_TYPE_MINIPET)      
+        //    RemoveUInt64Value(UNIT_FIELD_CRITTER, minion->GetGUID());
     }
 }
 
