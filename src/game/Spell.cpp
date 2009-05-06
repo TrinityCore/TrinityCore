@@ -1535,6 +1535,9 @@ void Spell::SearchAreaTarget(std::list<Unit*> &TagUnitMap, float radius, SpellNo
         m_caster->GetMap()->VisitWorld(x, y, radius, notifier);
     else
         m_caster->GetMap()->VisitAll(x, y, radius, notifier);
+
+    if(m_customAttr & SPELL_ATTR_CU_EXCLUDE_SELF)
+        TagUnitMap.remove(m_caster);
 }
 
 WorldObject* Spell::SearchNearbyTarget(float range, SpellTargets TargetType)
