@@ -13595,18 +13595,16 @@ Aura * Unit::AddAuraEffect(uint32 spellId, uint8 effIndex, Unit* caster, int32 *
     if (aur)
     {
         AuraEffect *aurEffect = CreateAuraEffect(aur, effIndex, basePoints, caster);
-        if (!aurEffect)
-            return aur;
-        if (!aur->SetPartAura(aurEffect, effIndex))
+        if (aurEffect && !aur->SetPartAura(aurEffect, effIndex))
             delete aurEffect;
     }
     else
     {
         if (basePoints)
         {
-            int32 amount [3];
+            int32 amount[3];
             amount[effIndex] = *basePoints;
-            aur = new Aura(spellInfo, 1<<effIndex, &amount[0], this ,caster);
+            aur = new Aura(spellInfo, 1<<effIndex, amount, this ,caster);
         }
         else
         {
