@@ -5212,7 +5212,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 // only on dispel/remove aura by destroy
                 target = NULL;
                 triggered_spell_id = 55080;
-                CastSpell(target, triggered_spell_id, true);
+                CastSpell(target, triggered_spell_id, true, 0, triggeredByAura);
                 return true;
             }
             // Hot Streak
@@ -13581,7 +13581,7 @@ void Unit::AddAura(uint32 spellId, Unit* target)
     target->AddAura(Aur);
 }
 
-Aura * Unit::AddAuraEffect(uint32 spellId, uint8 effIndex, Unit* caster)
+Aura * Unit::AddAuraEffect(uint32 spellId, uint8 effIndex, Unit* caster, int32 * basePoints)
 {
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
     if(!spellInfo || !caster)
@@ -13594,7 +13594,7 @@ Aura * Unit::AddAuraEffect(uint32 spellId, uint8 effIndex, Unit* caster)
 
     if (aur)
     {
-        AuraEffect *aurEffect = CreateAuraEffect(aur, effIndex, NULL, caster);
+        AuraEffect *aurEffect = CreateAuraEffect(aur, effIndex, basePoints, caster);
         if (!aurEffect)
             return aur;
         if (!aur->SetPartAura(aurEffect, effIndex))
@@ -13602,7 +13602,16 @@ Aura * Unit::AddAuraEffect(uint32 spellId, uint8 effIndex, Unit* caster)
     }
     else
     {
-        aur = new Aura(spellInfo, 1<<effIndex, NULL, this ,caster);
+        if (basePoints)
+        {
+            int32 amount [3];
+            amount[effIndex] = *basePoints;
+            aur = new Aura(spellInfo, 1<<effIndex, &amount[0], this ,caster);
+        }
+        else
+        {
+            aur = new Aura(spellInfo, 1<<effIndex, NULL, this ,caster);
+        }
         AddAura(aur);
     }
     return aur;
