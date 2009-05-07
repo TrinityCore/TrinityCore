@@ -799,6 +799,21 @@ bool IsDispelableBySpell(SpellEntry const * dispelSpell, uint32 spellId, bool de
         else
             return false;
     }
+    else if (spellproto->Mechanic == MECHANIC_INVULNERABILITY)
+    {
+        if (dispelSpell->AttributesEx & SPELL_ATTR_EX_UNAFFECTED_BY_SCHOOL_IMMUNE)
+        {
+            return true;
+        }
+        else
+            return false;
+    }
+    else
+    {
+        if ((dispelSpell->AttributesEx & SPELL_ATTR_EX_UNAFFECTED_BY_SCHOOL_IMMUNE)
+            || (dispelSpell->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY))
+            return !def;
+    }
     return def;
 }
 
