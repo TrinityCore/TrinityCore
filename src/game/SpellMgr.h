@@ -326,6 +326,12 @@ inline bool IsSpellHaveEffect(SpellEntry const *spellInfo, SpellEffects effect)
             return true;
     return false;
 }
+inline float GetSpellMinRange(SpellEntry const *spellInfo, bool positive)
+{
+    return positive
+        ? GetSpellMinRangeForFriend(sSpellRangeStore.LookupEntry(spellInfo->rangeIndex))
+        : GetSpellMinRangeForHostile(sSpellRangeStore.LookupEntry(spellInfo->rangeIndex));
+}
 
 //bool IsNoStackAuraDueToAura(uint32 spellId_1, uint32 effIndex_1, uint32 spellId_2, uint32 effIndex_2);
 
