@@ -1598,8 +1598,8 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
                 case TARGET_UNIT_CASTER_FISHING:
                 {
                     AddUnitTarget(m_caster, i);                   
-                    float min_dis = GetSpellMinRange(m_spellInfo, true);
-                    float max_dis = GetSpellMaxRange(m_spellInfo, true);
+                    float min_dis = GetSpellMinRange(sSpellRangeStore.LookupEntry(m_spellInfo->rangeIndex));
+                    float max_dis = GetSpellMaxRange(sSpellRangeStore.LookupEntry(m_spellInfo->rangeIndex));
                     float dis = rand_norm() * (max_dis - min_dis) + min_dis;
                     float x, y, z;
                     m_caster->GetClosePoint(x, y, z, DEFAULT_WORLD_OBJECT_SIZE, dis);
