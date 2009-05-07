@@ -411,9 +411,9 @@ m_auraSlot(MAX_AURAS), m_auraLevel(1), m_procCharges(0), m_stackAmount(1),m_aura
         if (m_auraFlags & (uint8(1) << i))
         {
             if (currentBasePoints)
-                m_partAuras[i]=CreateAuraEffect(this, i,&currentBasePoints[i], caster, NULL, formalCaster);
+                m_partAuras[i] = CreateAuraEffect(this, i, currentBasePoints + i, caster, NULL, formalCaster);
             else
-                m_partAuras[i]=CreateAuraEffect(this, i, NULL , caster, NULL, formalCaster);
+                m_partAuras[i] = CreateAuraEffect(this, i, NULL, caster, NULL, formalCaster);
             // correct flags if aura couldn't be created
             if (!m_partAuras[i])
                 m_auraFlags &= uint8(~(1<< i));
