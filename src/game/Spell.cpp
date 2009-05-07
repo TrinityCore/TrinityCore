@@ -2308,8 +2308,8 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect* triggeredByAura
     ReSetTimer();
                              //Containers for channeled spells have to be set
                              //TODO:Apply this to all casted spells if needed
-    // Why check m_casttime? 29350: channelled triggers channelled
-    if(m_IsTriggeredSpell && (!IsChanneledSpell(m_spellInfo) || !m_casttime))
+    // Why check duration? 29350: channelled triggers channelled
+    if(m_IsTriggeredSpell && (!IsChanneledSpell(m_spellInfo) || !GetSpellMaxDuration(m_spellInfo)))
         cast(true);
     else
     {
