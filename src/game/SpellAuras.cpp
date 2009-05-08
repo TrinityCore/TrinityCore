@@ -6585,10 +6585,8 @@ void AuraEffect::PeriodicDummyTick()
             // Explosive Shot
             if (spell->SpellFamilyFlags[1] & 0x80000000)
             {
-                if (!caster)
-                    return;
-                int32 damage = m_amount;
-                caster->CastCustomSpell(m_target, 53352, &damage, 0, 0, true, 0, this);
+                if(caster)
+                    caster->CastCustomSpell(53352, SPELLVALUE_BASE_POINT0, m_amount, m_target, true, NULL, this);
                 return;
             }
             switch (spell->Id)

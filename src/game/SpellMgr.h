@@ -322,7 +322,14 @@ inline bool isSpellBreakStealth(SpellEntry const* spellInfo)
 
 inline bool IsAutoRepeatRangedSpell(SpellEntry const* spellInfo)
 {
-    return (spellInfo->Attributes & SPELL_ATTR_RANGED) && (spellInfo->AttributesEx2 & SPELL_ATTR_EX2_AUTOREPEAT_FLAG);
+    return spellInfo->AttributesEx2 & SPELL_ATTR_EX2_AUTOREPEAT_FLAG;
+}
+
+inline bool IsRangedWeaponSpell(SpellEntry const* spellInfo)
+{
+    //spell->DmgClass == SPELL_DAMAGE_CLASS_RANGED should be checked outside
+    return (spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER) // for 53352, cannot find better way
+        || (spellInfo->EquippedItemSubClassMask & ITEM_SUBCLASS_MASK_WEAPON_RANGED);
 }
 
 SpellCastResult GetErrorAtShapeshiftedCast (SpellEntry const *spellInfo, uint32 form);

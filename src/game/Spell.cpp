@@ -377,7 +377,7 @@ Spell::Spell( Unit* Caster, SpellEntry const *info, bool triggered, uint64 origi
                 m_attackType = BASE_ATTACK;
             break;
         case SPELL_DAMAGE_CLASS_RANGED:
-            m_attackType = IsRangedSpell() ? RANGED_ATTACK : BASE_ATTACK;
+            m_attackType = IsRangedWeaponSpell(m_spellInfo) ? RANGED_ATTACK : BASE_ATTACK;
             break;
         default:
                                                             // Wands
@@ -2973,7 +2973,7 @@ void Spell::SendSpellStart()
     sLog.outDebug("Sending SMSG_SPELL_START id=%u", m_spellInfo->Id);
 
     uint32 castFlags = CAST_FLAG_UNKNOWN1;
-    if(IsRangedSpell())
+    if(m_spellInfo->Attributes & SPELL_ATTR_REQ_AMMO)
         castFlags |= CAST_FLAG_AMMO;
     if ((m_caster->GetTypeId() == TYPEID_PLAYER ||
         (m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->isPet()))
@@ -3015,7 +3015,7 @@ void Spell::SendSpellGo()
     sLog.outDebug("Sending SMSG_SPELL_GO id=%u", m_spellInfo->Id);
 
     uint32 castFlags = CAST_FLAG_UNKNOWN3;
-    if(IsRangedSpell())
+    if(m_spellInfo->Attributes & SPELL_ATTR_REQ_AMMO)
         castFlags |= CAST_FLAG_AMMO;                        // arrows/bullets visual
     if ((m_caster->GetTypeId() == TYPEID_PLAYER ||
         (m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->isPet()))
