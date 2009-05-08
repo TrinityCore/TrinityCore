@@ -769,7 +769,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
     {
         sLog.outDebug( "WORLD: Restart character %u taxi flight", pCurrChar->GetGUIDLow() );
 
-        uint32 MountId = objmgr.GetTaxiMount(sourceNode, pCurrChar->GetTeam());
+        uint32 MountId = objmgr.GetTaxiMount(sourceNode, pCurrChar->GetTeam(),true);
         uint32 path = pCurrChar->m_taxi.GetCurrentTaxiPath();
 
         // search appropriate start path node
