@@ -2302,7 +2302,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect* triggeredByAura
 
     // calculate cast time (calculated after first CheckCast check to prevent charge counting for first CheckCast fail)
     m_casttime = GetSpellCastTime(m_spellInfo, this);
-    m_caster->ModSpellCastTime(m_spellInfo, m_casttime, this);
+    //m_caster->ModSpellCastTime(m_spellInfo, m_casttime, this);
 
     // set timer base at cast time
     ReSetTimer();
