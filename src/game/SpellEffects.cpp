@@ -4050,13 +4050,6 @@ void Spell::EffectSummonPet(uint32 i)
 
     pet->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
 
-    // this enables popup window (pet dismiss, cancel), hunter pet additional flags set later
-    if(m_caster->GetTypeId() == TYPEID_PLAYER)
-        pet->SetUInt32Value(UNIT_FIELD_FLAGS,UNIT_FLAG_PVP_ATTACKABLE);
-
-    pet->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, time(NULL));
-
-    pet->InitTalentForLevel();
     // generate new name for summon pet
     std::string new_name=objmgr.GeneratePetName(petentry);
     if(!new_name.empty())
