@@ -1,4 +1,4 @@
-ALTER TABLE db_version CHANGE COLUMN required_7776_01_mangos_npc_spellclick_spells required_7777_01_mangos_spell_proc_event bit;
+/*ALTER TABLE db_version CHANGE COLUMN required_7776_01_mangos_npc_spellclick_spells required_7777_01_mangos_spell_proc_event bit;*/
 
 DELETE FROM spell_proc_event WHERE entry IN (30299,30301,30302);
 INSERT INTO spell_proc_event VALUES (30299, 0x0000007E,  0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0.000000, 0.000000,  0);
