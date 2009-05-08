@@ -1,4 +1,4 @@
-ALTER TABLE db_version CHANGE COLUMN required_7720_01_mangos_mangos_string required_7776_01_mangos_npc_spellclick_spells bit;
+/*ALTER TABLE db_version CHANGE COLUMN required_7720_01_mangos_mangos_string required_7776_01_mangos_npc_spellclick_spells bit;*/
 
 CREATE TABLE `npc_spellclick_spells` (
     `npc_entry` INT UNSIGNED NOT NULL COMMENT 'reference to creature_template',
