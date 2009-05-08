@@ -1517,7 +1517,7 @@ struct TaxiNodesEntry
     float     x;                                            // 2        m_x
     float     y;                                            // 3        m_y
     float     z;                                            // 4        m_z
-    //char*     name[16];                                   // 5-21     m_Name_lang
+    char*     name[16];                                     // 5-21     m_Name_lang
                                                             // 22 string flags
     uint32    MountCreatureID[2];                           // 23-24    m_MountCreatureID[2]
 };

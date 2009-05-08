@@ -195,6 +195,7 @@ class ChatHandler
         bool HandleGoGraveyardCommand(const char* args);
         bool HandleGoGridCommand(const char* args);
         bool HandleGoObjectCommand(const char* args);
+        bool HandleGoTaxinodeCommand(const char* args);
         bool HandleGoTriggerCommand(const char* args);
         bool HandleGoXYCommand(const char* args);
         bool HandleGoXYZCommand(const char* args);
@@ -247,6 +248,7 @@ class ChatHandler
         bool HandleLookupQuestCommand(const char* args);
         bool HandleLookupSkillCommand(const char* args);
         bool HandleLookupSpellCommand(const char* args);
+        bool HandleLookupTaxiNodeCommand(const char * args);
         bool HandleLookupTeleCommand(const char * args);
 
         bool HandleModifyKnownTitlesCommand(const char* args);
