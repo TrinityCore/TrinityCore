@@ -217,6 +217,7 @@ class TRINITY_DLL_SPEC AuraEffect
         void HandlePeriodicTriggerSpellWithValue(bool apply, bool Real);
         void HandlePeriodicEnergize(bool Apply, bool Real);
         void HandleAuraModResistanceExclusive(bool Apply, bool Real);
+        void HandleAuraSafeFall(bool Apply, bool Real);
         void HandleAuraModPetTalentsPoints(bool Apply, bool Real);
         void HandleModStealth(bool Apply, bool Real);
         void HandleInvisibility(bool Apply, bool Real);
