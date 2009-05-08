@@ -248,8 +248,7 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
 
     SetCanModifyStats(true);
     InitStatsForLevel(petlevel);
-    uint32 savedhealth = fields[11].GetUInt32();
-    uint32 savedmana = fields[12].GetUInt32();
+
     if(getPetType() == SUMMON_PET && !current)              //all (?) summon pets come with full health when called, but not when they are current
     {
         SetHealth(GetMaxHealth());
@@ -257,6 +256,8 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
     }
     else
     {
+        uint32 savedhealth = fields[11].GetUInt32();
+        uint32 savedmana = fields[12].GetUInt32();
         SetHealth(savedhealth > GetMaxHealth() ? GetMaxHealth() : savedhealth);
         SetPower(POWER_MANA, savedmana > GetMaxPower(POWER_MANA) ? GetMaxPower(POWER_MANA) : savedmana);
     }
@@ -266,7 +267,13 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
 
     m_resetTalentsCost = fields[17].GetUInt32();
     m_resetTalentsTime = fields[18].GetUInt64();
+    InitTalentForLevel();
+
+    uint32 timediff = (time(NULL) - fields[16].GetUInt32());
+    _LoadAuras(timediff);
+
     uint8 loadFlags = fields[21].GetUInt8();
+    owner->SetPetAtLoginFlag(loadFlags);
     if (loadFlags & AT_LOAD_RESET_SPELLS)
     {
         CharacterDatabase.PExecute("UPDATE character_pet SET load_flags = load_flags & ~ %u WHERE id = '%u'",uint32(AT_LOAD_RESET_SPELLS),pet_number);
@@ -274,14 +281,14 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
         CharacterDatabase.PExecute("DELETE FROM pet_spell WHERE guid = '%u'",pet_number);
         InitPetCreateSpells();
         resetTalents(true);
-        learnLevelupSpells();
     }
     else
     {
-        learnLevelupSpells();
-        LearnPetPassives();
         _LoadSpells();
         _LoadSpellCooldowns();
+        LearnPetPassives();
+        learnLevelupSpells();
+        CastPetAuras(current);
 
         // Load action bar data
         if (!is_temporary_summoned)
@@ -330,14 +337,6 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
             }
         }
     }
-    owner->SetPetAtLoginFlag(loadFlags);
-
-    //load spells/cooldowns/auras
-    // Spells should be loaded after pet is added to map, because in CheckCast is check on it
-    // since last save (in seconds)
-    uint32 timediff = (time(NULL) - fields[16].GetUInt32());
-    _LoadAuras(timediff);
-    CastPetAuras(current);
 
     delete result;
     sLog.outDebug("New Pet has guid %u", GetGUIDLow());
@@ -749,6 +748,7 @@ void Pet::GivePetLevel(uint32 level)
 
     InitStatsForLevel(level);
     InitTalentForLevel();
+    learnLevelupSpells();
 }
 
 bool Pet::CreateBaseAtCreature(Creature* creature)
@@ -1479,6 +1479,7 @@ void Pet::InitPetCreateSpells()
     }
 
     LearnPetPassives();
+    learnLevelupSpells();
 
     CastPetAuras(false);
 }
