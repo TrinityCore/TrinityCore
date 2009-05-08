@@ -1074,7 +1074,7 @@ void Unit::CastCustomSpell(Unit* target, uint32 spellId, int32 const* bp0, int32
     CastCustomSpell(spellId, values, target, triggered, castItem, triggeredByAura, originalCaster);
 }
 
-void Unit::CastCustomSpell(uint32 spellId, SpellValueMod mod, uint32 value, Unit* target, bool triggered, Item *castItem, AuraEffect* triggeredByAura, uint64 originalCaster)
+void Unit::CastCustomSpell(uint32 spellId, SpellValueMod mod, int32 value, Unit* target, bool triggered, Item *castItem, AuraEffect* triggeredByAura, uint64 originalCaster)
 {
     CustomSpellValues values;
     values.AddSpellMod(mod, value);
@@ -2730,7 +2730,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit *pVictim, SpellEntry const *spell)
 {
     WeaponAttackType attType = BASE_ATTACK;
 
-    if (spell->DmgClass == SPELL_DAMAGE_CLASS_RANGED && spell->Attributes & SPELL_ATTR_RANGED)
+    if (spell->DmgClass == SPELL_DAMAGE_CLASS_RANGED && IsRangedWeaponSpell(spell))
         attType = RANGED_ATTACK;
 
     // bonus from skills is 0.04% per skill Diff
@@ -9479,30 +9479,30 @@ bool Unit::IsImmunedToSpell(SpellEntry const* spellInfo)
         if(itr->type == spellInfo->Id)
             return true;
 
-    SpellImmuneList const& dispelList = m_spellImmune[IMMUNITY_DISPEL];
-    for(SpellImmuneList::const_iterator itr = dispelList.begin(); itr != dispelList.end(); ++itr)
-        if(itr->type == spellInfo->Dispel)
-            return true;
+    if(spellInfo->Dispel)
+    {
+        SpellImmuneList const& dispelList = m_spellImmune[IMMUNITY_DISPEL];
+        for(SpellImmuneList::const_iterator itr = dispelList.begin(); itr != dispelList.end(); ++itr)
+            if(itr->type == spellInfo->Dispel)
+                return true;
+    }
+
+    if(spellInfo->Mechanic)
+    {
+        SpellImmuneList const& mechanicList = m_spellImmune[IMMUNITY_MECHANIC];
+        for(SpellImmuneList::const_iterator itr = mechanicList.begin(); itr != mechanicList.end(); ++itr)
+            if(itr->type == spellInfo->Mechanic)
+                return true;
+    }
 
     if(spellInfo->Id != 42292 && spellInfo->Id !=59752)
     {
         SpellImmuneList const& schoolList = m_spellImmune[IMMUNITY_SCHOOL];
         for(SpellImmuneList::const_iterator itr = schoolList.begin(); itr != schoolList.end(); ++itr)
-            if( !(IsPositiveSpell(itr->spellId) && IsPositiveSpell(spellInfo->Id)) &&
-                (itr->type & GetSpellSchoolMask(spellInfo)) && !IsDispelableBySpell(spellInfo, itr->spellId))
+            if((itr->type & GetSpellSchoolMask(spellInfo))
+                && !(IsPositiveSpell(itr->spellId) && IsPositiveSpell(spellInfo->Id))
+                && !IsDispelableBySpell(spellInfo, itr->spellId))
                 return true;
-    }
-
-    if (spellInfo->Mechanic)
-    {
-        SpellImmuneList const& mechanicList = m_spellImmune[IMMUNITY_MECHANIC];
-        for(SpellImmuneList::const_iterator itr = mechanicList.begin(); itr != mechanicList.end(); ++itr)
-        {
-            if(itr->type == spellInfo->Mechanic)
-            {
-                return true;
-            }
-        }
     }
 
     return false;
@@ -10834,7 +10834,7 @@ void Unit::ModSpellCastTime(SpellEntry const* spellProto, int32 & castTime, Spel
         castTime = int32( float(castTime) * GetFloatValue(UNIT_MOD_CAST_SPEED));
     else
     {
-        if (spellProto->Attributes & SPELL_ATTR_RANGED && !(spellProto->AttributesEx2 & SPELL_ATTR_EX2_AUTOREPEAT_FLAG))
+        if (spellProto->Attributes & SPELL_ATTR_REQ_AMMO && !(spellProto->AttributesEx2 & SPELL_ATTR_EX2_AUTOREPEAT_FLAG))
             castTime = int32 (float(castTime) * m_modAttackSpeedPct[RANGED_ATTACK]);
     }
 }
