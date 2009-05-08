@@ -12163,6 +12163,13 @@ void Unit::StopMoving()
     SendMessageToSet(&data,false);
 }
 
+void Unit::SendMovementFlagUpdate()
+{
+    WorldPacket data;
+    BuildHeartBeatMsg(&data);
+    SendMessageToSet(&data, false);
+}
+
 /*
 void Unit::SetFeared(bool apply, uint64 casterGUID, uint32 spellID)
 {
