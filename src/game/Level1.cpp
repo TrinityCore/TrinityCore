@@ -2753,6 +2753,51 @@ bool ChatHandler::HandleGroupgoCommand(const char* args)
     return true;
 }
 
+bool ChatHandler::HandleGoTaxinodeCommand(const char* args)
+{
+    Player* _player = m_session->GetPlayer();
+
+    if (!*args)
+        return false;
+
+    char* cNodeId = extractKeyFromLink((char*)args,"Htaxinode");
+    if (!cNodeId)
+        return false;
+
+    int32 i_nodeId = atoi(cNodeId);
+    if (!i_nodeId)
+        return false;
+
+    TaxiNodesEntry const* node = sTaxiNodesStore.LookupEntry(i_nodeId);
+    if (!node)
+    {
+        PSendSysMessage(LANG_COMMAND_GOTAXINODENOTFOUND,i_nodeId);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    if (node->x == 0.0f && node->y == 0.0f && node->z == 0.0f ||
+        !MapManager::IsValidMapCoord(node->map_id,node->x,node->y,node->z))
+    {
+        PSendSysMessage(LANG_INVALID_TARGET_COORD,node->x,node->y,node->map_id);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    // stop flight if need
+    if (_player->isInFlight())
+    {
+        _player->GetMotionMaster()->MovementExpired();
+        _player->m_taxi.ClearTaxiDestinations();
+    }
+    // save only in non-flight case
+    else
+        _player->SaveRecallPosition();
+
+    _player->TeleportTo(node->map_id, node->x, node->y, node->z, _player->GetOrientation());
+    return true;
+}
+
 //teleport at coordinates
 bool ChatHandler::HandleGoXYCommand(const char* args)
 {
