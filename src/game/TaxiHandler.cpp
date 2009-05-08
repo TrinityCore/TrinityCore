@@ -128,7 +128,8 @@ void WorldSession::SendDoFlight( uint16 MountId, uint32 path, uint32 pathNode )
     while(GetPlayer()->GetMotionMaster()->GetCurrentMovementGeneratorType()==FLIGHT_MOTION_TYPE)
         GetPlayer()->GetMotionMaster()->MovementExpired(false);
 
-    GetPlayer()->Mount( MountId );
+    if (MountId)
+        GetPlayer()->Mount( MountId );
     GetPlayer()->GetMotionMaster()->MoveTaxiFlight(path,pathNode);
 }
 
@@ -190,7 +191,7 @@ void WorldSession::HandleActivateTaxiFarOpcode ( WorldPacket & recv_data )
 
     sLog.outDebug( "WORLD: Received CMSG_ACTIVATETAXIEXPRESS from %d to %d" ,nodes.front(),nodes.back());
 
-    GetPlayer()->ActivateTaxiPathTo(nodes, 0, npc);
+    GetPlayer()->ActivateTaxiPathTo(nodes, npc);
 }
 
 void WorldSession::HandleTaxiNextDestinationOpcode(WorldPacket& /*recv_data*/)
@@ -275,6 +276,6 @@ void WorldSession::HandleActivateTaxiOpcode( WorldPacket & recv_data )
         return;
     }
 
-    GetPlayer()->ActivateTaxiPathTo(nodes, 0, npc);
+    GetPlayer()->ActivateTaxiPathTo(nodes, npc);
 }
 
