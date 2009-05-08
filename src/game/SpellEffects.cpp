@@ -5901,36 +5901,7 @@ void Spell::EffectSendTaxi(uint32 i)
     nodes[0] = entry->from;
     nodes[1] = entry->to;
 
-    uint32 mountid = 0;
-    switch(m_spellInfo->Id)
-    {
-        case 31606:                                         //Stormcrow Amulet
-            mountid = 17447;
-            break;
-        case 45071:                                         //Quest - Sunwell Daily - Dead Scar Bombing Run
-        case 45113:                                         //Quest - Sunwell Daily - Ship Bombing Run
-        case 45353:                                         //Quest - Sunwell Daily - Ship Bombing Run Return
-            mountid = 22840;
-            break;
-        case 34905:                                         //Stealth Flight
-            mountid = 6851;
-            break;
-        case 45883:                                         //Amber Ledge to Beryl Point
-            mountid = 23524;
-            break;
-        case 46064:                                         //Amber Ledge to Coldarra
-            mountid = 6371;
-            break;
-        case 53335:                                         //Stormwind Harbor Flight - Peaceful
-            mountid = 6852;
-            break;
-        case 41533:      //Fly of the Netherwing
-        case 41540:      //Fly of the Netherwing
-            mountid = 23468;
-            break;
-    }
-
-    ((Player*)unitTarget)->ActivateTaxiPathTo(nodes,mountid);
+    ((Player*)unitTarget)->ActivateTaxiPathTo(nodes);
 
 }
 

@@ -230,7 +230,7 @@ bool PlayerTaxi::LoadTaxiDestinationsFromString( const std::string& values, uint
     }
 
     // can't load taxi path without mount set (quest taxi path?)
-    if(!objmgr.GetTaxiMount(GetTaxiSource(),team))
+    if(!objmgr.GetTaxiMount(GetTaxiSource(),team,true))
         return false;
 
     return true;
@@ -17232,8 +17232,8 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, uint32 mount_i
         prevnode = lastnode;
     }
 
-    if(!mount_id)                                           // if not provide then attempt use default.
-        mount_id = objmgr.GetTaxiMount(sourcenode, GetTeam());
+    if(!mount_id)                                           // if not provide then attempt use default, allow seelct alt team mount creature model but for proper team in spell case.
+        mount_id = objmgr.GetTaxiMount(sourcenode, GetTeam(), npc == NULL);
 
     if (mount_id == 0 || sourcepath == 0)
     {

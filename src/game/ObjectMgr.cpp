@@ -4837,7 +4837,7 @@ void ObjectMgr::GetTaxiPath( uint32 source, uint32 destination, uint32 &path, ui
     path = dest_i->second.ID;
 }
 
-uint16 ObjectMgr::GetTaxiMount( uint32 id, uint32 team )
+uint16 ObjectMgr::GetTaxiMount( uint32 id, uint32 team, bool allowed_alt_team /* = false */)
 {
     uint16 mount_entry = 0;
     uint16 mount_id = 0;
@@ -4848,6 +4848,9 @@ uint16 ObjectMgr::GetTaxiMount( uint32 id, uint32 team )
         if (team == ALLIANCE)
         {
             mount_entry = node->MountCreatureID[1];
+            if(!mount_entry && allowed_alt_team)
+                mount_entry = node->MountCreatureID[0];
+
             CreatureInfo const *ci = GetCreatureTemplate(mount_entry);
             if(ci)
                 mount_id = ci->Modelid_A1;
@@ -4855,6 +4858,10 @@ uint16 ObjectMgr::GetTaxiMount( uint32 id, uint32 team )
         if (team == HORDE)
         {
             mount_entry = node->MountCreatureID[0];
+
+            if(!mount_entry && allowed_alt_team)
+                mount_entry = node->MountCreatureID[1];
+
             CreatureInfo const *ci = GetCreatureTemplate(mount_entry);
             if(ci)
                 mount_id = ci->Modelid_H1;
