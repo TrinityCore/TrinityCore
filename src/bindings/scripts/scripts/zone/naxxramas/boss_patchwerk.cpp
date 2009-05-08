@@ -88,15 +88,14 @@ struct TRINITY_DLL_DECL boss_patchwerkAI : public ScriptedAI
                     //amount of HP within melee distance
                     uint32 MostHP = 0;
                     Unit* pMostHPTarget = NULL;
-                    std::list<HostilReference*>::iterator i = m_creature->getThreatManager().getThreatList().begin();
-                    for(; i != m_creature->getThreatManager().getThreatList().end();)
+                    std::list<HostilReference*>::iterator i = me->getThreatManager().getThreatList().begin();
+                    for(; i != me->getThreatManager().getThreatList().end(); ++i)
                     {
-                        Unit* pTemp = Unit::GetUnit(*m_creature, (*i)->getUnitGuid());
-                        ++i;
-                        if (pTemp && pTemp->isAlive() && pTemp->GetHealth() > MostHP && m_creature->IsWithinMeleeRange(pTemp))
+                        Unit* target = (*i)->getTarget();
+                        if (target->isAlive() && target->GetHealth() > MostHP && me->IsWithinMeleeRange(target))
                         {
-                            MostHP = pTemp->GetHealth();
-                            pMostHPTarget = pTemp;
+                            MostHP = target->GetHealth();
+                            pMostHPTarget = target;
                         }
                     }
 
