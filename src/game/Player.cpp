@@ -1505,7 +1505,7 @@ void Player::BuildEnumData( QueryResult * result, WorldPacket * p_data )
         uint32 petFamily  = 0;
 
         // show pet at selection character in character list  only for non-ghost character
-        if(result && isAlive() && (pClass == CLASS_WARLOCK || pClass == CLASS_HUNTER))
+        if (result && isAlive() && (pClass == CLASS_WARLOCK || pClass == CLASS_HUNTER || pClass == CLASS_DEATH_KNIGHT))
         {
             uint32 entry = fields[10].GetUInt32();
             CreatureInfo const* cInfo = sCreatureStorage.LookupEntry<CreatureInfo>(entry);
@@ -16712,7 +16712,7 @@ void Player::PetSpellInitialize()
     uint8 addlist = 0;
     data << uint8(addlist);                                 // placeholder
 
-    if(pet->isControlled() && ((pet->getPetType() == HUNTER_PET) || ((pet->GetCreatureInfo()->type == CREATURE_TYPE_DEMON) && (getClass() == CLASS_WARLOCK))))
+    if (pet->IsPermanentPetFor(this))
     {
         // spells loop
         for (PetSpellMap::iterator itr = pet->m_spells.begin(); itr != pet->m_spells.end(); ++itr)
