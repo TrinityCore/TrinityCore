@@ -285,7 +285,7 @@ uint32 GetSpellCastTime(SpellEntry const* spellInfo, Spell const* spell)
     if (spell && spell->GetCaster())
         spell->GetCaster()->ModSpellCastTime(spellInfo, castTime, spell);
 
-    if (spellInfo->Attributes & SPELL_ATTR_RANGED && (!spell || !(spell->IsAutoRepeat())))
+    if (spellInfo->Attributes & SPELL_ATTR_REQ_AMMO && (!spell || !(spell->IsAutoRepeat())))
         castTime += 500;
 
     return (castTime > 0) ? uint32(castTime) : 0;
@@ -790,30 +790,9 @@ bool IsDispelableBySpell(SpellEntry const * dispelSpell, uint32 spellId, bool de
     SpellEntry const *spellproto = sSpellStore.LookupEntry(spellId);
     if (!spellproto) return false;
 
-    if (spellproto->Mechanic == MECHANIC_IMMUNE_SHIELD)
-    {
-        if (dispelSpell->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY)
-        {
-            return true;
-        }
-        else
-            return false;
-    }
-    else if (spellproto->Mechanic == MECHANIC_INVULNERABILITY)
-    {
-        if (dispelSpell->AttributesEx & SPELL_ATTR_EX_UNAFFECTED_BY_SCHOOL_IMMUNE)
-        {
-            return true;
-        }
-        else
-            return false;
-    }
-    else
-    {
-        if ((dispelSpell->AttributesEx & SPELL_ATTR_EX_UNAFFECTED_BY_SCHOOL_IMMUNE)
-            || (dispelSpell->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY))
-            return !def;
-    }
+    if(dispelSpell->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY)
+        return true;
+
     return def;
 }
 
