@@ -29,7 +29,10 @@ enum Encounter
 enum Data
 {
     DATA_HEIGAN_ERUPT,
+    DATA_SAPPHIRON_BIRTH,
 };
+
+#define GO_BIRTH                181356
 
 #endif
 

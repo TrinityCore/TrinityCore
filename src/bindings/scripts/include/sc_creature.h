@@ -137,7 +137,7 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
     void JustRespawned();
 
     //Called at waypoint reached or PointMovement end
-    void MovementInform(uint32, uint32){}
+    void MovementInform(uint32 type, uint32 id){}
 
     // Called when AI is temporarily replaced or put back when possess is applied or removed
     void OnPossess(bool apply) {}
@@ -264,7 +264,6 @@ struct TRINITY_DLL_DECL NullCreatureAI : public ScriptedAI
     void MoveInLineOfSight(Unit *) {}
     void AttackStart(Unit *) {}
     void EnterEvadeMode() {}
-    bool IsVisible(Unit *) const { return false; }
 
     void UpdateAI(const uint32) {}
 };

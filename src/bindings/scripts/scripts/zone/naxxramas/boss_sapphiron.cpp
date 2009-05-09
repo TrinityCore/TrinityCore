@@ -22,6 +22,7 @@ SDCategory: Naxxramas
 EndScriptData */
 
 #include "precompiled.h"
+#include "def_naxxramas.h"
 
 #define EMOTE_BREATH            -1533082
 #define EMOTE_ENRAGE            -1533083
@@ -33,8 +34,10 @@ EndScriptData */
 #define SPELL_LIFE_DRAIN        HEROIC(28542,55665)
 #define SPELL_ICEBOLT           28522
 #define SPELL_FROST_BREATH      29318
-#define SPELL_FROST_BREATH2     28524
+#define SPELL_FROST_EXPLOSION   28524
+#define SPELL_FROST_MISSILE     30101
 #define SPELL_BERSERK           26662
+#define SPELL_DIES              29357
 
 #define SPELL_CHILL             HEROIC(28547,55699)
 
@@ -44,6 +47,7 @@ EndScriptData */
 enum Phases
 {
     PHASE_NULL = 0,
+    PHASE_BIRTH,
     PHASE_GROUND,
     PHASE_FLIGHT,
 };
@@ -59,8 +63,10 @@ enum Events
     EVENT_LIFTOFF,
     EVENT_ICEBOLT,
     EVENT_BREATH,
+    EVENT_EXPLOSION,
     EVENT_LAND,
     EVENT_GROUND,
+    EVENT_BIRTH,
 };
 
 typedef std::map<uint64, uint64> IceBlockMap;
@@ -76,6 +82,17 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public ScriptedAI
     Phases phase;
     uint32 iceboltCount;
     IceBlockMap iceblocks;
+
+    void InitializeAI()
+    {
+        float x, y, z;
+        me->GetPosition(x, y, z);
+        me->SummonGameObject(GO_BIRTH, x, y, z, 0, 0, 0, 0, 0, 0);
+        me->SetVisibility(VISIBILITY_OFF);
+        me->SetReactState(REACT_PASSIVE);
+
+        Reset();
+    }
 
     void Reset()
     {
@@ -108,13 +125,35 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public ScriptedAI
         }
     }
 
+    void JustDied(Unit*)
+    {
+        me->CastSpell(me, SPELL_DIES, true);
+    }
+
+    void MovementInform(uint32, uint32 id)
+    {
+        if(id == 1)
+            events.ScheduleEvent(EVENT_LIFTOFF, 0);
+    }
+
+    void DoAction(const int32 param)
+    {
+        if(param == DATA_SAPPHIRON_BIRTH)
+        {
+            phase = PHASE_BIRTH;
+            events.ScheduleEvent(EVENT_BIRTH, 25000);
+        }
+    }
+
     void EnterPhaseGround()
     {
+        phase = PHASE_GROUND;
+        me->SetReactState(REACT_AGGRESSIVE);
         events.SetPhase(PHASE_GROUND);
         events.ScheduleEvent(EVENT_CLEAVE, 5000+rand()%10000, 0, PHASE_GROUND);
         events.ScheduleEvent(EVENT_TAIL, 5000+rand()%10000, 0, PHASE_GROUND);
         events.ScheduleEvent(EVENT_DRAIN, 24000, 0, PHASE_GROUND);
-        events.ScheduleEvent(EVENT_BLIZZARD, 5000+rand()%15000, 0, PHASE_GROUND);
+        events.ScheduleEvent(EVENT_BLIZZARD, 5000+rand()%5000, 0, PHASE_GROUND);
         events.ScheduleEvent(EVENT_FLIGHT, 45000);
     }
 
@@ -152,25 +191,37 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public ScriptedAI
                         return;
                     case EVENT_CLEAVE:
                         DoCast(me->getVictim(), SPELL_CLEAVE);
-                        events.ScheduleEvent(EVENT_CLEAVE, 10000, 0, PHASE_GROUND);
+                        events.ScheduleEvent(EVENT_CLEAVE, 5000+rand()%10000, 0, PHASE_GROUND);
                         return;
                     case EVENT_TAIL:
                         DoCastAOE(SPELL_TAIL_SWEEP);
-                        events.ScheduleEvent(EVENT_TAIL, (rand()%2+9)*1000, 0, PHASE_GROUND);
+                        events.ScheduleEvent(EVENT_TAIL, 5000+rand()%10000, 0, PHASE_GROUND);
                         return;
                     case EVENT_DRAIN:
                         DoCastAOE(SPELL_LIFE_DRAIN);
                         events.ScheduleEvent(EVENT_DRAIN, 24000, 0, PHASE_GROUND);
                         return;
                     case EVENT_BLIZZARD:
-                        if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-                            DoCast(target,SPELL_SUMMON_BLIZZARD);
-                        events.ScheduleEvent(EVENT_BLIZZARD, 20000, 0, PHASE_GROUND);
+                    {
+                        //DoCastAOE(SPELL_SUMMON_BLIZZARD);
+                        float x, y, z;
+                        me->GetGroundPointAroundUnit(x, y, z, rand_norm()*20, rand_norm()*2*M_PI);
+                        if(Creature *summon = me->SummonCreature(MOB_BLIZZARD, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN, 25000+rand()%5000))
+                        {
+                            summon->setFaction(me->getFaction());
+                            summon->GetMotionMaster()->MoveRandom(40);
+                        }
+                        events.ScheduleEvent(EVENT_BLIZZARD, HEROIC(20000,7000), 0, PHASE_GROUND);
                         break;
+                    }
                     case EVENT_FLIGHT:
                         phase = PHASE_FLIGHT;
                         events.SetPhase(PHASE_FLIGHT);
-                        events.ScheduleEvent(EVENT_LIFTOFF, 0);
+                        me->SetReactState(REACT_PASSIVE);
+                        me->AttackStop();
+                        float x, y, z, o;
+                        me->GetHomePosition(x, y, z, o);
+                        me->GetMotionMaster()->MovePoint(1, x, y, z);
                         return;
                 }
             }
@@ -179,24 +230,22 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public ScriptedAI
         }
         else
         {
-            if(me->getThreatManager().isThreatListEmpty())
+            /*if(me->getThreatManager().isThreatListEmpty())
             {
                 EnterEvadeMode();
                 return;
-            }
+            }*/
 
             if(uint32 eventId = events.ExecuteEvent())
             {
                 switch(eventId)
                 {
                     case EVENT_LIFTOFF:
-                        me->AttackStop();
-                        me->GetMotionMaster()->MoveIdle();
                         me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
                         me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                         me->SendMovementFlagUpdate();
-                        events.ScheduleEvent(EVENT_ICEBOLT, 1000);
-                        iceboltCount = HeroicMode ? 3 : 2;
+                        events.ScheduleEvent(EVENT_ICEBOLT, 1500);
+                        iceboltCount = HEROIC(2,3);
                         return;
                     case EVENT_ICEBOLT:
                     {
@@ -224,22 +273,72 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public ScriptedAI
                         return;
                     }
                     case EVENT_BREATH:
+                    {
                         DoScriptText(EMOTE_BREATH, me);
+                        DoCastAOE(SPELL_FROST_MISSILE);
+                        events.ScheduleEvent(EVENT_EXPLOSION, 8000);
+                        return;
+                    }
+                    case EVENT_EXPLOSION:
+                        CastExplosion();
                         ClearIceBlock();
-                        events.ScheduleEvent(EVENT_LAND, 1000);
+                        events.ScheduleEvent(EVENT_LAND, 3000);
                         return;
                     case EVENT_LAND:
                         me->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
                         me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                         me->SendMovementFlagUpdate();
-                        events.ScheduleEvent(EVENT_GROUND, 1000);
+                        events.ScheduleEvent(EVENT_GROUND, 1500);
                         return;
                     case EVENT_GROUND:
                         EnterPhaseGround();
                         return;
+                    case EVENT_BIRTH:
+                        me->SetVisibility(VISIBILITY_ON);
+                        me->SetReactState(REACT_AGGRESSIVE);
+                        return;
                 }
             }//if(uint32 eventId = events.ExecuteEvent())
         }//if(phase == PHASE_GROUND)
+    }
+
+    void CastExplosion()
+    {
+        DoZoneInCombat(); // make sure everyone is in threatlist
+        std::vector<Unit*> targets;
+        std::list<HostilReference*>::iterator i = me->getThreatManager().getThreatList().begin();
+        for(; i != me->getThreatManager().getThreatList().end(); ++i)
+        {
+            Unit *target = (*i)->getTarget();
+            if(target->GetTypeId() != TYPEID_PLAYER)
+                continue;
+
+            if(target->HasAura(SPELL_ICEBOLT))
+            {
+                target->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FROST_EXPLOSION, true);
+                targets.push_back(target);
+                continue;
+            }
+
+            for(IceBlockMap::iterator itr = iceblocks.begin(); itr != iceblocks.end(); ++itr)
+            {
+                if(GameObject *go = GameObject::GetGameObject(*me, itr->second))
+                {
+                    if(go->IsInBetween(me, target, 2.0f)
+                        && me->GetExactDistance2d(target->GetPositionX(), target->GetPositionY()) - me->GetExactDistance2d(go->GetPositionX(), go->GetPositionY()) < 5.0f)
+                    {
+                        target->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FROST_EXPLOSION, true);
+                        targets.push_back(target);
+                        break;
+                    }
+                }
+            }
+        }
+
+        me->CastSpell(me, SPELL_FROST_EXPLOSION, true);
+
+        for(std::vector<Unit*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
+            (*itr)->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FROST_EXPLOSION, false);
     }
 };
 
