@@ -86,14 +86,14 @@ void CreatureAI::DoZoneInCombat(Creature* creature)
     if(!creature->getVictim())
     {
         if(Unit *target = creature->SelectNearestTarget())
-            AttackStart(target);
+            creature->AI()->AttackStart(target);
         else if(creature->isSummon())
         {
             if(Unit *summoner = ((TempSummon*)creature)->GetSummoner())
             {
                 if(summoner->getVictim()
                     && (creature->IsFriendlyTo(summoner) || creature->IsHostileTo(summoner->getVictim())))
-                    AttackStart(summoner->getVictim());
+                    creature->AI()->AttackStart(summoner->getVictim());
             }
         }
     }

@@ -174,7 +174,7 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map *map, uint32 phaseMa
     //Normally non-players do not teleport to other maps.
     if(map->IsDungeon() && ((InstanceMap*)map)->GetInstanceData())
     {
-        ((InstanceMap*)map)->GetInstanceData()->OnObjectCreate(this);
+        ((InstanceMap*)map)->GetInstanceData()->OnObjectCreate(this, true);
     }
 
     return true;
