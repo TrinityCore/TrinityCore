@@ -4775,17 +4775,17 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     unitTarget->CastSpell(unitTarget, 44870, true);
                     break;
                 }               
-        // spell of Brutallus - Stomp
-        case 45185:
-        {
-                    if(!unitTarget)
-                        return;
-        
-            if(unitTarget->HasAura(46394)) // spell of Brutallus - Burn
-                unitTarget->RemoveAurasDueToSpell(46394);
+                // spell of Brutallus - Stomp
+                case 45185:
+                {
+                        if(!unitTarget)
+                            return;
 
-            break;
-        }
+                        if(unitTarget->HasAura(46394)) // spell of Brutallus - Burn
+                            unitTarget->RemoveAurasDueToSpell(46394);
+
+                        break;
+                }
                 // Negative Energy
                 case 46289:
                 {
