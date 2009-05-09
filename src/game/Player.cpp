@@ -17204,8 +17204,8 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
             return false;
         }
     }
-    // node must have pos if not spell case (npc!=0)
-    else if(!spellid)
+    // node must have pos if taxi master case (npc != NULL)
+    else if (npc)
     {
         WorldPacket data(SMSG_ACTIVATETAXIREPLY, 4);
         data << uint32(ERR_TAXIUNSPECIFIEDSERVERERROR);
@@ -17257,8 +17257,10 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
         prevnode = lastnode;
     }
 
-    uint16 mount_id = objmgr.GetTaxiMount(sourcenode, GetTeam(), spellid != 0);
+    // get mount model (in case non taximaster (npc==NULL) allow more wide lookup)
+    uint16 mount_id = objmgr.GetTaxiMount(sourcenode, GetTeam(), npc == NULL);
 
+    // in spell case allow 0 model
     if (mount_id == 0 && spellid == 0 || sourcepath == 0)
     {
         WorldPacket data(SMSG_ACTIVATETAXIREPLY, 4);
