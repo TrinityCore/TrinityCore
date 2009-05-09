@@ -17163,7 +17163,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     // cast case or scripted call case
     else
     {
-        RemoveSpellsCausingAura(SPELL_AURA_MOUNTED);
+        RemoveAurasByType(SPELL_AURA_MOUNTED);
 
         if( m_ShapeShiftFormSpellId && m_form != FORM_BATTLESTANCE && m_form != FORM_BERSERKERSTANCE && m_form != FORM_DEFENSIVESTANCE && m_form != FORM_SHADOW )
             RemoveAurasDueToSpell(m_ShapeShiftFormSpellId);
