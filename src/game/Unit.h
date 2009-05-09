@@ -1073,6 +1073,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
 
         uint16 GetMaxSkillValueForLevel(Unit const* target = NULL) const { return (target ? getLevelForTarget(target) : getLevel()) * 5; }
         void RemoveSpellbyDamageTaken(uint32 damage, uint32 spell);
+        void DealDamageMods(Unit *pVictim, uint32 &damage, uint32* absorb);
         uint32 DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDamage = NULL, DamageEffectType damagetype = DIRECT_DAMAGE, SpellSchoolMask damageSchoolMask = SPELL_SCHOOL_MASK_NORMAL, SpellEntry const *spellProto = NULL, bool durabilityLoss = true);
         void Kill(Unit *pVictim, bool durabilityLoss = true);
         int32 DealHeal(Unit *pVictim, uint32 addhealth, SpellEntry const *spellProto, bool critical = false);
