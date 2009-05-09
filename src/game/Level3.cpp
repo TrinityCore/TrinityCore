@@ -4028,31 +4028,34 @@ bool ChatHandler::HandleDamageCommand(const char * args)
 
     Unit* target = getSelectedUnit();
 
-    if(!target || !m_session->GetPlayer()->GetSelection())
+    if (!target || !m_session->GetPlayer()->GetSelection())
     {
         SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
         SetSentErrorMessage(true);
         return false;
     }
 
-    if( !target->isAlive() )
+    if (!target->isAlive())
         return true;
 
     char* damageStr = strtok((char*)args, " ");
-    if(!damageStr)
+    if (!damageStr)
         return false;
 
-    int32 damage = atoi((char*)damageStr);
-    if(damage <=0)
+    int32 damage_int = atoi((char*)damageStr);
+    if(damage_int <=0)
         return true;
+
+    uint32 damage = damage_int;
 
     char* schoolStr = strtok((char*)NULL, " ");
 
     // flat melee damage without resistence/etc reduction
-    if(!schoolStr)
+    if (!schoolStr)
     {
         m_session->GetPlayer()->DealDamage(target, damage, NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-        m_session->GetPlayer()->SendAttackStateUpdate (HITINFO_NORMALSWING2, target, 1, SPELL_SCHOOL_MASK_NORMAL, damage, 0, 0, VICTIMSTATE_NORMAL, 0);
+        if (target != m_session->GetPlayer())
+            m_session->GetPlayer()->SendAttackStateUpdate (HITINFO_NORMALSWING2, target, 1, SPELL_SCHOOL_MASK_NORMAL, damage, 0, 0, VICTIMSTATE_NORMAL, 0);
         return true;
     }
 
@@ -4068,7 +4071,7 @@ bool ChatHandler::HandleDamageCommand(const char * args)
     char* spellStr = strtok((char*)NULL, " ");
 
     // melee damage by specific school
-    if(!spellStr)
+    if (!spellStr)
     {
         uint32 absorb = 0;
         uint32 resist = 0;
@@ -4080,6 +4083,7 @@ bool ChatHandler::HandleDamageCommand(const char * args)
 
         damage -= absorb + resist;
 
+        m_session->GetPlayer()->DealDamageMods(target,damage,&absorb);
         m_session->GetPlayer()->DealDamage(target, damage, NULL, DIRECT_DAMAGE, schoolmask, NULL, false);
         m_session->GetPlayer()->SendAttackStateUpdate (HITINFO_NORMALSWING2, target, 1, schoolmask, damage, absorb, resist, VICTIMSTATE_NORMAL, 0);
         return true;
@@ -4089,7 +4093,7 @@ bool ChatHandler::HandleDamageCommand(const char * args)
 
     // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
     uint32 spellid = extractSpellIdFromLink((char*)args);
-    if(!spellid || !sSpellStore.LookupEntry(spellid))
+    if (!spellid || !sSpellStore.LookupEntry(spellid))
         return false;
 
     m_session->GetPlayer()->SpellNonMeleeDamageLog(target, spellid, damage);
