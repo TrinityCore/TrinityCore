@@ -141,7 +141,7 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public ScriptedAI
         if(param == DATA_SAPPHIRON_BIRTH)
         {
             phase = PHASE_BIRTH;
-            events.ScheduleEvent(EVENT_BIRTH, 25000);
+            events.ScheduleEvent(EVENT_BIRTH, 23000);
         }
     }
 

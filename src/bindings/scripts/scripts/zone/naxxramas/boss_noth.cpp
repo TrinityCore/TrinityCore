@@ -45,8 +45,16 @@ EndScriptData */
 #define TELE_Z 274.040
 #define TELE_O 6.277
 
-// IMPORTANT: BALCONY TELEPORT NOT ADDED YET! WILL BE ADDED SOON!
-// Dev note 26.12.2008: When is soon? :)
+#define MAX_SUMMON_POS 5
+
+const float SummonPos[MAX_SUMMON_POS][4] =
+{
+    {2728.12, -3544.43, 261.91, 6.04},
+    {2729.05, -3544.47, 261.91, 5.58},
+    {2728.24, -3465.08, 264.20, 3.56},
+    {2704.11, -3456.81, 265.53, 4.51},
+    {2663.56, -3464.43, 262.66, 5.20},
+};
 
 enum Events
 {
@@ -71,6 +79,7 @@ struct TRINITY_DLL_DECL boss_nothAI : public ScriptedAI
     {
         events.Reset();
         summons.DespawnAll();
+        me->setActive(false);
         instance->SetBossState(BOSS_NOTH, NOT_STARTED);
     }
 
@@ -78,6 +87,7 @@ struct TRINITY_DLL_DECL boss_nothAI : public ScriptedAI
     {
         DoScriptText(SAY_AGGRO, me);
         DoZoneInCombat();
+        me->setActive(true);
 
         events.ScheduleEvent(EVENT_CURSE, 20000+rand()%10000);
         events.ScheduleEvent(EVENT_WARRIOR, 30000);
@@ -95,6 +105,7 @@ struct TRINITY_DLL_DECL boss_nothAI : public ScriptedAI
     void JustSummoned(Creature *summon)
     {
         summons.Summon(summon);
+        summon->setActive(true);
         DoZoneInCombat(summon);
     }
 
@@ -102,8 +113,19 @@ struct TRINITY_DLL_DECL boss_nothAI : public ScriptedAI
 
     void JustDied(Unit* Killer)
     {
+        summons.DespawnAll();
         DoScriptText(SAY_DEATH, me);
         instance->SetBossState(BOSS_NOTH, DONE);
+    }
+
+    void SummonUndead(uint32 entry, uint32 num)
+    {
+        for(uint32 i = 0; i < num; ++i)
+        {
+            uint32 pos = rand()%MAX_SUMMON_POS;
+            me->SummonCreature(entry, SummonPos[pos][0], SummonPos[pos][1], SummonPos[pos][2],
+                SummonPos[pos][3], TEMPSUMMON_CORPSE_DESPAWN, 60000);
+        }
     }
 
     void UpdateAI(const uint32 diff)
@@ -123,8 +145,7 @@ struct TRINITY_DLL_DECL boss_nothAI : public ScriptedAI
                     return;
                 case EVENT_WARRIOR:
                     DoScriptText(SAY_SUMMON, me);
-                    for(uint8 i = 0; i < 6; i++)
-                        m_creature->SummonCreature(MOB_WARRIOR,2684.804,-3502.517,261.313,0,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,80000);
+                    SummonUndead(MOB_WARRIOR, HEROIC(2,3));
                     events.ScheduleEvent(EVENT_WARRIOR, 30000);
                     return;
                 case EVENT_BLINK:
