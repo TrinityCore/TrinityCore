@@ -6280,6 +6280,6 @@ void Spell::EffectQuestFail(uint32 i)
 void Spell::EffectRedirectThreat(uint32 /*i*/)
 {
     if(unitTarget)
-        m_caster->SetReducedThreatPercent((uint32)damage, unitTarget->GetGUID());
+        m_caster->SetReducedThreatPercent(100, unitTarget->GetGUID());
 }
 
