@@ -1597,6 +1597,8 @@ WorldObject* Spell::SearchNearbyTarget(float range, SpellTargets TargetType)
                         break;
                     }
                     case SPELL_TARGET_TYPE_CREATURE:
+                        if(m_targets.getUnitTarget() && m_targets.getUnitTarget()->GetEntry() == i_spellST->second.targetEntry)
+                            return m_targets.getUnitTarget();
                     case SPELL_TARGET_TYPE_DEAD:
                     default:
                     {
@@ -1925,7 +1927,13 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
                             m_targets.setDestination(st->target_X, st->target_Y, st->target_Z);
                     }
                     else
-                        sLog.outError( "SPELL: unknown target coordinates for spell ID %u\n", m_spellInfo->Id );
+                    {
+                        sLog.outError( "SPELL: unknown target coordinates for spell ID %u", m_spellInfo->Id );
+                        Unit *target = NULL;
+                        if(uint64 guid = m_caster->GetUInt64Value(UNIT_FIELD_TARGET))
+                            target = ObjectAccessor::GetUnit(*m_caster, guid);
+                        m_targets.setDestination(target ? target : m_caster);
+                    }
                     break;
                 case TARGET_DST_HOME:
                     if(m_caster->GetTypeId() == TYPEID_PLAYER)
@@ -2045,7 +2053,7 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
     else if(pushType)
     {
         // Dummy, just for client
-        if(spellmgr.EffectTargetType[m_spellInfo->Effect[i]] == SPELL_REQUIRE_DEST)
+        if(spellmgr.EffectTargetType[m_spellInfo->Effect[i]] != SPELL_REQUIRE_UNIT)
             return;
 
         float radius;
@@ -3971,13 +3979,16 @@ SpellCastResult Spell::CheckCast(bool strict)
                 return SPELL_FAILED_NOT_IN_ARENA;
 
     // zone check
-    uint32 zone, area;
-    m_caster->GetZoneAndAreaId(zone,area);
+    if(m_caster->GetTypeId() == TYPEID_UNIT || !((Player*)m_caster)->isGameMaster())
+    {
+        uint32 zone, area;
+        m_caster->GetZoneAndAreaId(zone,area);
 
-    SpellCastResult locRes= spellmgr.GetSpellAllowedInLocationError(m_spellInfo,m_caster->GetMapId(),zone,area,
-        m_caster->GetTypeId()==TYPEID_PLAYER ? ((Player*)m_caster) : NULL);
-    if(locRes != SPELL_CAST_OK)
-        return locRes;
+        SpellCastResult locRes= spellmgr.GetSpellAllowedInLocationError(m_spellInfo,m_caster->GetMapId(),zone,area,
+            m_caster->GetTypeId()==TYPEID_PLAYER ? ((Player*)m_caster) : NULL);
+        if(locRes != SPELL_CAST_OK)
+            return locRes;
+    }
 
     // not let players cast spells at mount (and let do it to creatures)
     if( m_caster->IsMounted() && m_caster->GetTypeId()==TYPEID_PLAYER && !m_IsTriggeredSpell &&

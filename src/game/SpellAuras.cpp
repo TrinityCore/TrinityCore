@@ -1000,7 +1000,7 @@ void Aura::_AddAura()
             for(std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
             {
                 if(*itr < 0)
-                    m_target->ApplySpellImmune(id, IMMUNITY_ID, -(*itr), m_target);
+                    m_target->ApplySpellImmune(id, IMMUNITY_ID, -(*itr), true);
                 else if(Unit* caster = GetCaster())
                     caster->AddAura(*itr, m_target);
             }
