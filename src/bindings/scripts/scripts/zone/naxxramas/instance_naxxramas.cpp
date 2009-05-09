@@ -24,6 +24,18 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_naxxramas.h"
 
+const DoorData doorData[] =
+{
+    {181200,    BOSS_NOTH,      DOOR_TYPE_ROOM},
+    {181201,    BOSS_NOTH,      DOOR_TYPE_PASSAGE},
+    {181202,    BOSS_NOTH,      DOOR_TYPE_PASSAGE},
+    {181202,    BOSS_HEIGAN,    DOOR_TYPE_ROOM},
+    {181203,    BOSS_HEIGAN,    DOOR_TYPE_PASSAGE},
+    {181241,    BOSS_HEIGAN,    DOOR_TYPE_PASSAGE},
+    {181241,    BOSS_LOATHEB,   DOOR_TYPE_ROOM},
+    {0,         0,              DOOR_TYPE_ROOM}, // EOF
+};
+
 #define SPELL_ERUPTION      29371
 
 const float HeiganPos[2] = {2796, -3707};
@@ -61,6 +73,7 @@ struct TRINITY_DLL_DECL instance_naxxramas : public ScriptedInstance
         , Sapphiron(NULL)
     {
         SetBossNumber(15);
+        LoadDoorData(doorData);
     }
 
     std::set<GameObject*> HeiganEruption[4];
@@ -88,13 +101,10 @@ struct TRINITY_DLL_DECL instance_naxxramas : public ScriptedInstance
 
         switch(go->GetEntry())
         {
-            case 181200: SetBossRoomDoor(BOSS_NOTH, go, add); break;
-            case 181201: SetBossPassageDoor(BOSS_NOTH, go, add); break;
-            case 181202: SetBossRoomDoor(BOSS_HEIGAN, go, add); break;
-            case 181203: SetBossPassageDoor(BOSS_HEIGAN, go, add); break;
-            case 181241: SetBossRoomDoor(BOSS_LOATHEB, go, add); break;
-            case GO_BIRTH: if(!add && Sapphiron) Sapphiron->AI()->DoAction(DATA_SAPPHIRON_BIRTH); break;
+            case GO_BIRTH: if(!add && Sapphiron) Sapphiron->AI()->DoAction(DATA_SAPPHIRON_BIRTH); return;
         }
+
+        AddDoor(go, add);
     }
 
     void SetData(uint32 id, uint32 value)
