@@ -785,13 +785,29 @@ void LoadOverridenSQLData()
         goInfo->goober.lockId = 57; // need LOCKTYPE_QUICK_OPEN
 }
 
+#define SPELL(x) const_cast<SpellEntry*>(GetSpellStore()->LookupEntry(x))
+
 void LoadOverridenDBCData()
 {
     SpellEntry *spellInfo;
 
     // Black Temple : Illidan : Parasitic Shadowfiend Passive
-    spellInfo = const_cast<SpellEntry*>(GetSpellStore()->LookupEntry(41913));
-    if(spellInfo)
+    if(spellInfo = SPELL(41913))
         spellInfo->EffectApplyAuraName[0] = 4; // proc debuff, and summon infinite fiends
-}
 
+    // Naxxramas : Sapphiron : Frost Breath Visual Effect
+    //if(spellInfo = SPELL(30101))
+    //    spellInfo->EffectImplicitTargetA[0] = TARGET_DEST_DEST; // orig 18
+
+    //temp, not needed in 310
+    if(spellInfo = SPELL(28531))
+    {
+        spellInfo->DurationIndex = 21;
+        spellInfo->Effect[0] = SPELL_EFFECT_APPLY_AREA_AURA_ENEMY;
+    }
+    if(spellInfo = SPELL(55799))
+    {
+        spellInfo->DurationIndex = 21;
+        spellInfo->Effect[0] = SPELL_EFFECT_APPLY_AREA_AURA_ENEMY;
+    }
+}

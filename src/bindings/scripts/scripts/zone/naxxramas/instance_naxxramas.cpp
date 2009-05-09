@@ -58,11 +58,21 @@ inline uint32 GetEruptionSection(float x, float y)
 struct TRINITY_DLL_DECL instance_naxxramas : public ScriptedInstance
 {
     instance_naxxramas(Map *map) : ScriptedInstance(map)
+        , Sapphiron(NULL)
     {
         SetBossNumber(15);
     }
 
     std::set<GameObject*> HeiganEruption[4];
+    Creature *Sapphiron;
+
+    void OnCreatureCreate(Creature *creature, bool add)
+    {
+        switch(creature->GetEntry())
+        {
+            case 15989: Sapphiron = add ? creature : NULL; break;
+        }
+    }
 
     void OnObjectCreate(GameObject* go, bool add)
     {
@@ -83,6 +93,7 @@ struct TRINITY_DLL_DECL instance_naxxramas : public ScriptedInstance
             case 181202: SetBossRoomDoor(BOSS_HEIGAN, go, add); break;
             case 181203: SetBossPassageDoor(BOSS_HEIGAN, go, add); break;
             case 181241: SetBossRoomDoor(BOSS_LOATHEB, go, add); break;
+            case GO_BIRTH: if(!add && Sapphiron) Sapphiron->AI()->DoAction(DATA_SAPPHIRON_BIRTH); break;
         }
     }
 

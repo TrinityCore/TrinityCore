@@ -480,6 +480,7 @@ class TRINITY_DLL_SPEC WorldObject : public Object
         float GetAngle( const float x, const float y ) const;
         void GetSinCos(const float x, const float y, float &vsin, float &vcos);
         bool HasInArc( const float arcangle, const WorldObject* obj ) const;
+        bool IsInBetween(const WorldObject *obj1, const WorldObject *obj2, float size = 0) const;
 
         virtual void SendMessageToSet(WorldPacket *data, bool self, bool to_possessor = true);
         virtual void SendMessageToSetInRange(WorldPacket *data, float dist, bool self, bool to_possessor = true);
