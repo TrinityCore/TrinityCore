@@ -416,7 +416,8 @@ bool GossipSelect_npc_susurrus(Player *player, Creature *_Creature, uint32 sende
         nodes.resize(2);
         nodes[0] = 92;                                      //from susurrus
         nodes[1] = 91;                                      //end at exodar
-        player->ActivateTaxiPathTo(nodes,11686);            //TaxiPath 506. Using invisible model, possible Trinity must allow 0(from dbc) for cases like this.
+//        player->ActivateTaxiPathTo(nodes,11686);            //TaxiPath 506. Using invisible model, possible Trinity must allow 0(from dbc) for cases like this.
+        player->ActivateTaxiPathTo(nodes);
     }
     return true;
 }
