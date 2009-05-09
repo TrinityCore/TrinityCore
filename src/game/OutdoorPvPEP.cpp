@@ -768,7 +768,7 @@ bool OutdoorPvPObjectiveEP_PWT::HandleGossipOption(Player *plr, uint64 guid, uin
             nodes[1] = dst;
 
             plr->PlayerTalkClass->CloseGossip();
-            plr->ActivateTaxiPathTo(nodes, 0, cr);
+            plr->ActivateTaxiPathTo(nodes, cr);
             // leave the opvp, seems like moveinlineofsight isn't called when entering a taxi
             HandlePlayerLeave(plr);
         }
