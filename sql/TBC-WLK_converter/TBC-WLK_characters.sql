@@ -261,6 +261,12 @@ DELETE FROM `character_spell` WHERE `spell` IN (27354,24513,24512,24511,24494,21
 UPDATE IGNORE character_spell SET spell = 2108 WHERE spell = 3104;
 DELETE FROM character_spell                    WHERE spell = 3104;
 
+/* Remove Mana Tap */
+DELETE FROM `character_action` WHERE `type` = 0 AND `action` = 28734;
+DELETE FROM `character_aura` WHERE `spell` = 28734;
+DELETE FROM `character_spell` WHERE `spell` = 28734;
+DELETE FROM `character_spell_cooldown` WHERE `spell` = 28734;
+
 /* This cleanup character_action. This is like delete from character_action where type=0 and action not in character_spell for same player */
 DELETE FROM ca,cs USING `character_action` ca LEFT JOIN `character_spell` cs ON ca.`guid`=cs.`guid` AND ca.`action`=cs.`spell` WHERE ca.`type`=0 AND cs.`guid` IS NULL;
 
