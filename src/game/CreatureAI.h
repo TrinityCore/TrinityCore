@@ -37,7 +37,7 @@ struct SpellEntry;
 #define VISIBILITY_RANGE    10000
 
 //Spell targets used by SelectSpell
-enum SelectTarget
+enum SelectTargetType
 {
     SELECT_TARGET_DONTCARE = 0,                             //All target types allowed
 
@@ -76,6 +76,35 @@ enum SCEquip
     EQUIP_NO_CHANGE = -1,
     EQUIP_UNEQUIP   = 0
 };
+
+enum AITarget
+{
+    AITARGET_SELF,
+    AITARGET_VICTIM,
+    AITARGET_ENEMY,
+    AITARGET_ALLY,
+    AITARGET_BUFF,
+    AITARGET_DEBUFF,
+};
+
+enum AICondition
+{
+    AICOND_AGGRO,
+    AICOND_COMBAT,
+    AICOND_DIE,
+};
+
+#define AI_DEFAULT_COOLDOWN 5000
+
+struct AISpellInfoType
+{
+    AISpellInfoType() : target(AITARGET_SELF), condition(AICOND_COMBAT), cooldown(AI_DEFAULT_COOLDOWN) {}
+    AITarget target;
+    AICondition condition;
+    uint32 cooldown;
+};
+
+extern AISpellInfoType *AISpellInfo;
 
 class EventMap : private std::map<uint32, uint32>
 {
@@ -273,6 +302,9 @@ class TRINITY_DLL_SPEC CreatureAI : public UnitAI
 
         // Pointer to controlled by AI creature
         //Creature* const m_creature;
+
+        Unit* SelectTarget(SelectAggroTarget target, uint32 position = 0, float dist = 0, bool playerOnly = false, int32 aura = 0);
+        void SelectTargetList(std::list<Unit*> &targetList, uint32 num, SelectAggroTarget target, float dist = 0, bool playerOnly = false, int32 aura = 0);
 };
 
 struct SelectableAI : public FactoryHolder<CreatureAI>, public Permissible<Creature>

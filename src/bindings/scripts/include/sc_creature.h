@@ -227,13 +227,11 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
 
     //Selects a unit from the creature's current aggro list
     Unit* SelectUnit(SelectAggroTarget target, uint32 position);
-    Unit* SelectUnit(SelectAggroTarget target, uint32 position, float dist, bool playerOnly);
-    void SelectUnitList(std::list<Unit*> &targetList, uint32 num, SelectAggroTarget target, float dist, bool playerOnly);
 
     bool HealthBelowPct(uint32 pct) const { return me->GetHealth() * 100 < m_creature->GetMaxHealth() * pct; }
 
     //Returns spells that meet the specified criteria from the creatures spell list
-    SpellEntry const* SelectSpell(Unit* Target, int32 School, int32 Mechanic, SelectTarget Targets,  uint32 PowerCostMin, uint32 PowerCostMax, float RangeMin, float RangeMax, SelectEffect Effect);
+    SpellEntry const* SelectSpell(Unit* Target, int32 School, int32 Mechanic, SelectTargetType Targets,  uint32 PowerCostMin, uint32 PowerCostMax, float RangeMin, float RangeMax, SelectEffect Effect);
 
     //Checks if you can cast the specified spell
     bool CanCast(Unit* Target, SpellEntry const *Spell, bool Triggered = false);

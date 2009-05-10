@@ -540,7 +540,7 @@ struct TRINITY_DLL_DECL boss_kiljaedenAI : public Scripted_NoMovementAI
             float x,y,z;
             Unit* target;
             for(uint8 z = 0; z < 6; ++z){
-                target = SelectUnit(SELECT_TARGET_RANDOM, 0, 100, true);
+                target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                 if (!target->HasAura(SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT,0)) break;
             }
             target->GetPosition(x,y,z);
@@ -584,7 +584,7 @@ struct TRINITY_DLL_DECL boss_kiljaedenAI : public Scripted_NoMovementAI
                         if(!m_creature->IsNonMeleeSpellCasted(false)){
                             m_creature->RemoveAurasDueToSpell(SPELL_SOUL_FLAY);
                             for(uint8 z = 0; z < 6; ++z){
-                                randomPlayer = SelectUnit(SELECT_TARGET_RANDOM, 0, 100, true);
+                                randomPlayer = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                                 if (!randomPlayer->HasAura(SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT,0)) break;
                             }
                             if(randomPlayer)DoCast(randomPlayer, SPELL_LEGION_LIGHTNING, false);
@@ -658,7 +658,7 @@ struct TRINITY_DLL_DECL boss_kiljaedenAI : public Scripted_NoMovementAI
                     case TIMER_ARMAGEDDON: //Phase 4
                         Unit* target;
                         for(uint8 z = 0; z < 6; ++z){
-                            target = SelectUnit(SELECT_TARGET_RANDOM, 0, 100, true);
+                            target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                             if (!target->HasAura(SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT,0)) break;
                         }
                         if(target){
@@ -1199,7 +1199,7 @@ struct TRINITY_DLL_DECL mob_sinster_reflectionAI : public ScriptedAI
                     Timer[1] = 4000;
                 }
                 if(Timer[2] < diff){
-                    DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_SR_CURSE_OF_AGONY, true);
+                    DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_SR_CURSE_OF_AGONY, true);
                     Timer[2] = 3000;
                 }
                 DoMeleeAttackIfReady();

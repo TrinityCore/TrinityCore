@@ -198,7 +198,7 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
                     events.ScheduleEvent(EVENT_HATEFUL_STRIKE, 5000, GCD_CAST, PHASE_STRIKE);
                     break;
                 case EVENT_SWITCH_TARGET:
-                    if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1, 100, true))
+                    if(Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
                     {
                         DoResetThreat();
                         m_creature->AddThreat(target, 5000000.0f);
@@ -208,7 +208,7 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
                     break;
                 case EVENT_VOLCANO:
                 {
-                    Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0, 999, true);
+                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 999, true);
                     if(!target) target = m_creature->getVictim();
                     if(target)
                     {

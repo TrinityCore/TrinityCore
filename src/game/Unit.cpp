@@ -413,7 +413,7 @@ void Unit::resetAttackTimer(WeaponAttackType type)
     m_attackTimer[type] = uint32(GetAttackTime(type) * m_modAttackSpeedPct[type]);
 }
 
-bool Unit::IsWithinCombatRange(Unit *obj, float dist2compare) const
+bool Unit::IsWithinCombatRange(const Unit *obj, float dist2compare) const
 {
     if (!obj || !IsInMap(obj)) return false;
 
@@ -428,7 +428,7 @@ bool Unit::IsWithinCombatRange(Unit *obj, float dist2compare) const
     return distsq < maxdist * maxdist;
 }
 
-bool Unit::IsWithinMeleeRange(Unit *obj, float dist) const
+bool Unit::IsWithinMeleeRange(const Unit *obj, float dist) const
 {
     if (!obj || !IsInMap(obj)) return false;
 
