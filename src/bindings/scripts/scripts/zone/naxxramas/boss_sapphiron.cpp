@@ -89,6 +89,7 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public ScriptedAI
         me->GetPosition(x, y, z);
         me->SummonGameObject(GO_BIRTH, x, y, z, 0, 0, 0, 0, 0, 0);
         me->SetVisibility(VISIBILITY_OFF);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         me->SetReactState(REACT_PASSIVE);
 
         Reset();
@@ -207,10 +208,7 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public ScriptedAI
                         float x, y, z;
                         me->GetGroundPointAroundUnit(x, y, z, rand_norm()*20, rand_norm()*2*M_PI);
                         if(Creature *summon = me->SummonCreature(MOB_BLIZZARD, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN, 25000+rand()%5000))
-                        {
-                            summon->setFaction(me->getFaction());
                             summon->GetMotionMaster()->MoveRandom(40);
-                        }
                         events.ScheduleEvent(EVENT_BLIZZARD, HEROIC(20000,7000), 0, PHASE_GROUND);
                         break;
                     }
@@ -295,6 +293,7 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public ScriptedAI
                         return;
                     case EVENT_BIRTH:
                         me->SetVisibility(VISIBILITY_ON);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         me->SetReactState(REACT_AGGRESSIVE);
                         return;
                 }
