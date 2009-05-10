@@ -19,7 +19,6 @@
  */
 
 #include "Creature.h"
-#include "CreatureAIImpl.h"
 #include "CreatureAISelector.h"
 #include "NullCreatureAI.h"
 #include "Policies/SingletonImp.h"
@@ -27,6 +26,7 @@
 #include "ScriptCalls.h"
 #include "Pet.h"
 #include "TemporarySummon.h"
+#include "CreatureAIFactory.h"
 
 INSTANTIATE_SINGLETON_1(CreatureAIRegistry);
 INSTANTIATE_SINGLETON_1(MovementGeneratorRegistry);

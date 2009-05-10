@@ -22,6 +22,7 @@
 #define TRINITY_NULLCREATUREAI_H
 
 #include "CreatureAI.h"
+#include "CreatureAIImpl.h"
 
 class TRINITY_DLL_DECL PassiveAI : public CreatureAI
 {

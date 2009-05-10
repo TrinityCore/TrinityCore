@@ -20,14 +20,155 @@
 #ifndef CREATUREAIIMPL_H
 #define CREATUREAIIMPL_H
 
-#include "CreatureAI.h"
+#define HEROIC(n,h) (HeroicMode ? h : n)
 
-template<class REAL_AI>
-inline CreatureAI*
-CreatureAIFactory<REAL_AI>::Create(void *data) const
+template<class T>
+inline
+const T& RAND(const T& v1, const T& v2)
 {
-    Creature* creature = reinterpret_cast<Creature *>(data);
-    return (new REAL_AI(creature));
+    return rand()%2 ? v1 : v2;
 }
+
+template<class T>
+inline
+const T& RAND(const T& v1, const T& v2, const T& v3)
+{
+    switch(rand()%3)
+    {
+        default:
+        case 0: return v1;
+        case 1: return v2;
+        case 2: return v3;
+    }
+}
+
+template<class T>
+inline
+const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4)
+{
+    switch(rand()%4)
+    {
+        default:
+        case 0: return v1;
+        case 1: return v2;
+        case 2: return v3;
+        case 3: return v4;
+    }
+}
+
+template<class T>
+inline
+const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5)
+{
+    switch(rand()%4)
+    {
+        default:
+        case 0: return v1;
+        case 1: return v2;
+        case 2: return v3;
+        case 3: return v4;
+        case 4: return v5;
+    }
+}
+
+class EventMap : private std::map<uint32, uint32>
+{
+    private:
+        uint32 m_time, m_phase;
+    public:
+        explicit EventMap() : m_phase(0), m_time(0) {}
+
+        void Reset() { clear(); m_time = 0; m_phase = 0; }
+
+        void Update(uint32 time) { m_time += time; }
+
+        void SetPhase(uint32 phase)
+        {
+            if(phase && phase < 9)
+                m_phase = (1 << (phase + 24));
+        }
+
+        void ScheduleEvent(uint32 eventId, uint32 time, uint32 gcd = 0, uint32 phase = 0)
+        {
+            time += m_time;
+            if(gcd && gcd < 9)
+                eventId |= (1 << (gcd + 16));
+            if(phase && phase < 9)
+                eventId |= (1 << (phase + 24));
+            iterator itr = find(time);
+            while(itr != end())
+            {
+                ++time;
+                itr = find(time);
+            }
+            insert(std::make_pair(time, eventId));
+        }
+
+        uint32 ExecuteEvent()
+        {
+            while(!empty())
+            {
+                if(begin()->first > m_time)
+                    return 0;
+                else if(m_phase && (begin()->second & 0xFF000000) && !(begin()->second & m_phase))
+                    erase(begin());
+                else
+                {
+                    uint32 eventId = (begin()->second & 0x0000FFFF);
+                    erase(begin());
+                    return eventId;
+                }
+            }
+            return 0;
+        }
+
+        void DelayEvents(uint32 time, uint32 gcd)
+        {
+            time += m_time;
+            gcd = (1 << (gcd + 16));
+            for(iterator itr = begin(); itr != end();)
+            {
+                if(itr->first >= time)
+                    break;
+                if(itr->second & gcd)
+                {
+                    ScheduleEvent(time, itr->second);
+                    erase(itr++);
+                }
+                else
+                    ++itr;
+            }
+        }
+};
+
+enum AITarget
+{
+    AITARGET_SELF,
+    AITARGET_VICTIM,
+    AITARGET_ENEMY,
+    AITARGET_ALLY,
+    AITARGET_BUFF,
+    AITARGET_DEBUFF,
+};
+
+enum AICondition
+{
+    AICOND_AGGRO,
+    AICOND_COMBAT,
+    AICOND_DIE,
+};
+
+#define AI_DEFAULT_COOLDOWN 5000
+
+struct AISpellInfoType
+{
+    AISpellInfoType() : target(AITARGET_SELF), condition(AICOND_COMBAT), cooldown(AI_DEFAULT_COOLDOWN) {}
+    AITarget target;
+    AICondition condition;
+    uint32 cooldown;
+};
+
+extern AISpellInfoType *AISpellInfo;
+
 #endif
 

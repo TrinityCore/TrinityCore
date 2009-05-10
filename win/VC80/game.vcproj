@@ -1070,14 +1070,6 @@
 			Name="Object"
 			>
 			<File
-				RelativePath="..\..\src\game\AggressorAI.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\AggressorAI.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\game\AnimalRandomMovementGenerator.h"
 				>
 			</File>
@@ -1138,50 +1130,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\game\CreatureAI.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\CreatureAI.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\CreatureAIImpl.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\CreatureAIRegistry.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\CreatureAIRegistry.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\CreatureAISelector.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\CreatureAISelector.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\CreatureEventAI.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\CreatureEventAI.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\CreatureEventAIMgr.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\CreatureEventAIMgr.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\game\CreatureGroups.cpp"
 				>
 			</File>
@@ -1227,14 +1175,6 @@
 			</File>
 			<File
 				RelativePath="..\..\src\game\GameObject.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\GuardAI.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\GuardAI.h"
 				>
 			</File>
 			<File
@@ -1306,14 +1246,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\game\NullCreatureAI.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\NullCreatureAI.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\game\Object.cpp"
 				>
 			</File>
@@ -1342,27 +1274,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\game\OutdoorPvPObjectiveAI.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\OutdoorPvPObjectiveAI.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\game\Pet.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\src\game\Pet.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\PetAI.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\PetAI.h"
 				>
 			</File>
 			<File
@@ -1382,27 +1298,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\game\PossessedAI.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\PossessedAI.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\game\RandomMovementGenerator.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\src\game\RandomMovementGenerator.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\ReactorAI.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\ReactorAI.h"
 				>
 			</File>
 			<File
@@ -1463,14 +1363,6 @@
 			</File>
 			<File
 				RelativePath="..\..\src\game\Totem.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\TotemAI.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\TotemAI.h"
 				>
 			</File>
 			<File
@@ -1679,6 +1571,122 @@
 			</File>
 			<File
 				RelativePath="..\..\src\game\ThreatManager.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="AI"
+			>
+			<File
+				RelativePath="..\..\src\game\AggressorAI.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\AggressorAI.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\CreatureAI.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\CreatureAI.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\CreatureAIFactory.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\CreatureAIImpl.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\CreatureAIRegistry.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\CreatureAIRegistry.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\CreatureAISelector.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\CreatureAISelector.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\CreatureEventAI.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\CreatureEventAI.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\CreatureEventAIMgr.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\CreatureEventAIMgr.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\GuardAI.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\GuardAI.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\NullCreatureAI.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\NullCreatureAI.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\OutdoorPvPObjectiveAI.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\OutdoorPvPObjectiveAI.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\PetAI.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\PetAI.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\ReactorAI.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\ReactorAI.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\TotemAI.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\TotemAI.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\UnitAI.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\UnitAI.h"
 				>
 			</File>
 		</Filter>
