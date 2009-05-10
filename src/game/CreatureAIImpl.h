@@ -20,6 +20,9 @@
 #ifndef CREATUREAIIMPL_H
 #define CREATUREAIIMPL_H
 
+#include "Common.h"
+#include "Platform/Define.h"
+
 #define HEROIC(n,h) (HeroicMode ? h : n)
 
 template<class T>
@@ -167,8 +170,6 @@ struct AISpellInfoType
     AICondition condition;
     uint32 cooldown;
 };
-
-extern AISpellInfoType *AISpellInfo;
 
 #endif
 

@@ -33,7 +33,7 @@ void CreatureAI::OnCharmed(bool apply)
     me->IsAIEnabled = false;
 }
 
-AISpellInfoType *AISpellInfo;
+AISpellInfoType * CreatureAI::AISpellInfo;
 
 void CreatureAI::DoZoneInCombat(Creature* creature)
 {
@@ -253,6 +253,24 @@ void CreatureAI::SelectTargetList(std::list<Unit*> &targetList, uint32 num, Sele
                 --num;
             }
             m_threatlist.erase(i);
+        }
+    }
+}
+
+void CreatureAI::FillAISpellInfo()
+{
+    AISpellInfo = new AISpellInfoType[GetSpellStore()->GetNumRows()];
+
+    const SpellEntry * spellInfo;
+
+    for(uint32 i = 0; i < GetSpellStore()->GetNumRows(); ++i)
+    {
+        spellInfo = GetSpellStore()->LookupEntry(i);
+        if (!spellInfo)
+            continue;
+
+        for(uint32 j = 0; j < 3; ++j)
+        {
         }
     }
 }

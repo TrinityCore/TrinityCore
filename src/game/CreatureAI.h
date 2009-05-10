@@ -21,8 +21,6 @@
 #ifndef TRINITY_CREATUREAI_H
 #define TRINITY_CREATUREAI_H
 
-#include "Common.h"
-#include "Platform/Define.h"
 #include "UnitAI.h"
 
 class WorldObject;
@@ -30,6 +28,7 @@ class Unit;
 class Creature;
 class Player;
 struct SpellEntry;
+struct AISpellInfoType;
 
 #define TIME_INTERVAL_LOOK   5000
 #define VISIBILITY_RANGE    10000
@@ -165,6 +164,9 @@ class TRINITY_DLL_SPEC CreatureAI : public UnitAI
 
         Unit* SelectTarget(SelectAggroTarget target, uint32 position = 0, float dist = 0, bool playerOnly = false, int32 aura = 0);
         void SelectTargetList(std::list<Unit*> &targetList, uint32 num, SelectAggroTarget target, float dist = 0, bool playerOnly = false, int32 aura = 0);
+
+        static AISpellInfoType *AISpellInfo;
+        static void FillAISpellInfo();
 };
 
 enum Permitions
