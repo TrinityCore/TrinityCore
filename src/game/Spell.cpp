@@ -1756,15 +1756,15 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
 
             if(!target)
                 return;
-            else if(target->GetTypeId() == TYPEID_UNIT)
+            else if(target->GetTypeId() == TYPEID_GAMEOBJECT)
+                AddGOTarget((GameObject*)target, i);
+            else
             {
                 pushType = PUSH_CHAIN;
 
-                if(!m_targets.getUnitTarget())
+                if(m_targets.getUnitTarget() != target)
                     m_targets.setUnitTarget((Unit*)target);
             }
-            else if(target->GetTypeId() == TYPEID_GAMEOBJECT)
-                AddGOTarget((GameObject*)target, i);
 
             break;
         }
@@ -2235,9 +2235,20 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect* triggeredByAura
 
     if(!m_targets.getUnitTargetGUID() && m_spellInfo->Targets & TARGET_FLAG_UNIT)
     {
-        if(Unit *target = ObjectAccessor::GetUnit(*m_caster, m_caster->GetUInt64Value(UNIT_FIELD_TARGET)))
-            if(IsValidSingleTargetSpell(target))
-                m_targets.setUnitTarget(target);
+        Unit *target = NULL;
+        if(m_caster->GetTypeId() == TYPEID_UNIT)
+            target = m_caster->getVictim();
+        else
+            target = ObjectAccessor::GetUnit(*m_caster, ((Player*)m_caster)->GetSelection());
+
+        if(target && IsValidSingleTargetSpell(target))
+            m_targets.setUnitTarget(target);
+        else
+        {
+            SendCastResult(SPELL_FAILED_BAD_TARGETS);
+            finish(false);
+            return;
+        }
     }
 
     m_spellState = SPELL_STATE_PREPARING;
