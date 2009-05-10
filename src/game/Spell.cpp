@@ -2856,8 +2856,7 @@ void Spell::finish(bool ok)
         m_caster->clearUnitState(UNIT_STAT_CASTING);
 
     // Unsummon summon as possessed creatures on spell cancel
-    if(IsChanneledSpell(m_spellInfo)
-        && m_caster->GetTypeId() == TYPEID_PLAYER)
+    if(IsChanneledSpell(m_spellInfo) && m_caster->GetTypeId() == TYPEID_PLAYER)
     {
         if (Unit * charm = m_caster->GetCharm())
         for(int i = 0; i < 3; ++i)
@@ -2875,7 +2874,12 @@ void Spell::finish(bool ok)
                     }
         }
     }
-    else if (m_caster->GetTypeId()==TYPEID_UNIT && ((Creature*)m_caster)->isSummon())
+
+    // other code related only to successfully finished spells
+    if(!ok)
+        return;
+
+    if (m_caster->GetTypeId()==TYPEID_UNIT && ((Creature*)m_caster)->isSummon())
     {
         // Unsummon statue
         uint32 spell = m_caster->GetUInt32Value(UNIT_CREATED_BY_SPELL);
@@ -2887,10 +2891,6 @@ void Spell::finish(bool ok)
             return;
         }
     }
-
-    // other code related only to successfully finished spells
-    if(!ok)
-        return;
 
     //remove spell mods
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
