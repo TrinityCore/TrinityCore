@@ -1800,7 +1800,7 @@ void Player::AddToWorld()
     ///- The player should only be added when logging in
     Unit::AddToWorld();
 
-    for(int i = PLAYER_SLOT_START; i < PLAYER_SLOT_END; i++)
+    for(int i = PLAYER_SLOT_START; i < PLAYER_SLOT_END; ++i)
     {
         if(m_items[i])
             m_items[i]->AddToWorld();
@@ -1817,7 +1817,7 @@ void Player::RemoveFromWorld()
         StopCastingBindSight();
     }
 
-    for(int i = PLAYER_SLOT_START; i < PLAYER_SLOT_END; i++)
+    for(int i = PLAYER_SLOT_START; i < PLAYER_SLOT_END; ++i)
     {
         if(m_items[i])
             m_items[i]->RemoveFromWorld();
@@ -20552,12 +20552,14 @@ void Player::ResummonPetTemporaryUnSummonedIfAny()
 
 bool Player::canSeeSpellClickOn(Creature const *c) const
 {
-    SpellClickInfoMap const& map = objmgr.mSpellClickInfoMap;
-    if(map.empty())
+    SpellClickInfoMap::const_iterator lower = objmgr.mSpellClickInfoMap.lower_bound(c->GetEntry());
+    SpellClickInfoMap::const_iterator upper = objmgr.mSpellClickInfoMap.upper_bound(c->GetEntry());
+    if(lower == upper)
         return true;
 
-    for(SpellClickInfoMap::const_iterator itr = map.lower_bound(c->GetEntry()); itr != map.upper_bound(c->GetEntry()); ++itr)
+    for(SpellClickInfoMap::const_iterator itr = lower; itr != upper; ++itr)
     {
+        sLog.outError("%u %u %u %u", (uint32)itr->second.castFlags, itr->second.questId, itr->second.spellId);
         if(itr->second.questId == 0 || GetQuestStatus(itr->second.questId) == QUEST_STATUS_INCOMPLETE)
             return true;
     }
