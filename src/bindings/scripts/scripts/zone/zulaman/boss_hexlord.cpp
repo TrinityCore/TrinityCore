@@ -383,7 +383,7 @@ struct TRINITY_DLL_DECL boss_hex_lord_malacrassAI : public ScriptedAI
 
         if(SiphonSoul_Timer < diff)
         {
-            Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0, 70, true);
+            Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 70, true);
             Unit *trigger = DoSpawnCreature(MOB_TEMP_TRIGGER, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 30000);
             if(!target || !trigger)
             {

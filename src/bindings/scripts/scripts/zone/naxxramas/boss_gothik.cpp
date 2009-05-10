@@ -30,8 +30,9 @@ EndScriptData */
 
 //Gothik
 #define SPELL_HARVESTSOUL           28679
-#define SPELL_SHADOWBOLT            29317
-#define H_SPELL_SHADOWBOLT          56405
+#define SPELL_SHADOWBOLT            HEROIC(29317,56405)
+#define SPELL_SOUL_SIPHON           43591   // cannot find the correct spell
+
 //Unrelenting Trainee
 #define SPELL_EAGLECLAW             30285
 #define SPELL_KNOCKDOWN_PASSIVE     6961

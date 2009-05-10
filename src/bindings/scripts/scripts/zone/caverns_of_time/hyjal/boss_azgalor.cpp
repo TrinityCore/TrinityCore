@@ -140,13 +140,13 @@ struct TRINITY_DLL_DECL boss_azgalorAI : public hyjal_trashAI
 
         if(RainTimer < diff)
         {
-            DoCast(SelectUnit(SELECT_TARGET_RANDOM,0,30,true), SPELL_RAIN_OF_FIRE);
+            DoCast(SelectTarget(SELECT_TARGET_RANDOM,0,30,true), SPELL_RAIN_OF_FIRE);
             RainTimer = 20000+rand()%15000;
         }else RainTimer -= diff;
 
         if(DoomTimer < diff)
         {
-            DoCast(SelectUnit(SELECT_TARGET_RANDOM,1,100,true), SPELL_DOOM);//never on tank
+            DoCast(SelectTarget(SELECT_TARGET_RANDOM,1,100,true), SPELL_DOOM);//never on tank
             DoomTimer = 45000+rand()%5000;
         }else DoomTimer -= diff;
 
@@ -260,7 +260,7 @@ struct TRINITY_DLL_DECL mob_lesser_doomguardAI : public hyjal_trashAI
 
         if(CrippleTimer < diff)
         {
-            DoCast(SelectUnit(SELECT_TARGET_RANDOM,0,100,true), SPELL_CRIPPLE);
+            DoCast(SelectTarget(SELECT_TARGET_RANDOM,0,100,true), SPELL_CRIPPLE);
             CrippleTimer = 25000+rand()%5000;
         }else CrippleTimer -= diff;
 

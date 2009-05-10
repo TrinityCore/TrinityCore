@@ -230,7 +230,7 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
             if( Wrath_Timer < diff)
             {
                 m_creature->InterruptNonMeleeSpells(false);
-                DoCast(SelectUnit(SELECT_TARGET_RANDOM,1,100,true), SPELL_WRATH_OF_THE_ASTROMANCER, true);
+                DoCast(SelectTarget(SELECT_TARGET_RANDOM,1,100,true), SPELL_WRATH_OF_THE_ASTROMANCER, true);
                 Wrath_Timer = 20000+rand()%5000;
             }else Wrath_Timer -= diff;
 
@@ -260,7 +260,7 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
 
             if (MarkOfTheAstromancer_Timer < diff) //A debuff that lasts for 5 seconds, cast several times each phase on a random raid member, but not the main tank
             {
-                Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1, 100, true);
+                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);
                 if(target)
                     DoCast(target, SPELL_MARK_OF_THE_ASTROMANCER);
                 else DoCast(m_creature->getVictim(), SPELL_MARK_OF_THE_ASTROMANCER);

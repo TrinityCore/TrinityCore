@@ -463,6 +463,7 @@ class TRINITY_DLL_SPEC WorldObject : public Object
         float GetDistance( const WorldObject* obj ) const;
         float GetDistance(const float x, const float y, const float z) const;
         float GetDistanceSq(const float &x, const float &y, const float &z) const;
+        float GetDistanceSq(const WorldObject *obj) const;
         float GetDistance2d(const WorldObject* obj) const;
         float GetDistance2d(const float x, const float y) const;
         float GetExactDistance2d(const float x, const float y) const;

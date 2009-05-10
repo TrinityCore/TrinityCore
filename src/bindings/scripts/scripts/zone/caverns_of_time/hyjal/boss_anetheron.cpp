@@ -148,7 +148,7 @@ struct TRINITY_DLL_DECL boss_anetheronAI : public hyjal_trashAI
 
         if(SwarmTimer < diff)
         {
-            Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0,100,true);
+            Unit* target = SelectTarget(SELECT_TARGET_RANDOM,0,100,true);
             if(target)
                 DoCast(target,SPELL_CARRION_SWARM);
 
@@ -170,7 +170,7 @@ struct TRINITY_DLL_DECL boss_anetheronAI : public hyjal_trashAI
         {
             for(uint8 i=0;i<3;++i)
             {
-                Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0,100,true);
+                Unit* target = SelectTarget(SELECT_TARGET_RANDOM,0,100,true);
                 if(target)
                     target->CastSpell(target,SPELL_SLEEP,true);
             }
@@ -194,7 +194,7 @@ struct TRINITY_DLL_DECL boss_anetheronAI : public hyjal_trashAI
         }else AuraTimer -= diff;
         if(InfernoTimer < diff)
         {
-            DoCast(SelectUnit(SELECT_TARGET_RANDOM,0,100,true), SPELL_INFERNO);
+            DoCast(SelectTarget(SELECT_TARGET_RANDOM,0,100,true), SPELL_INFERNO);
             InfernoTimer = 45000;
             switch(rand()%2)
             {

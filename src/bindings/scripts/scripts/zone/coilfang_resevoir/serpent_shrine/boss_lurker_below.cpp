@@ -322,7 +322,7 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
 
              if(WaterboltTimer < diff)
              {
-                 Unit* target = SelectUnit(SELECT_TARGET_NEAREST,0,14,true);
+                 Unit* target = SelectTarget(SELECT_TARGET_NEAREST,0,14,true);
                  if(!target)
                  {
                      target = SelectUnit(SELECT_TARGET_RANDOM,0);

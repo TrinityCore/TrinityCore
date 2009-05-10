@@ -235,7 +235,7 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
                 for(uint8 i = 0; i < 4; i++)
                 {
                     counter = 0;
-                    do{target = SelectUnit(SELECT_TARGET_RANDOM, 1, 50, true);    //target players only
+                    do{target = SelectTarget(SELECT_TARGET_RANDOM, 1, 50, true);    //target players only
                     if(counter < Playercount)
                         break;
                     if(target) itr = list.find(target->GetGUID());
@@ -272,7 +272,7 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
                 for (int8 g = 0; g < 4; g++)  //one unit cant cast more than one spell per update, so some players have to cast for us XD
                 {
                     counter = 0;
-                    do {globuletarget = SelectUnit(SELECT_TARGET_RANDOM, 0,50,true);
+                    do {globuletarget = SelectTarget(SELECT_TARGET_RANDOM, 0,50,true);
                     if(globuletarget) itr = globulelist.find(globuletarget->GetGUID());
                     if (counter > Playercount)
                         break;

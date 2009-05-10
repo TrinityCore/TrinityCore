@@ -259,147 +259,7 @@ Unit* ScriptedAI::SelectUnit(SelectAggroTarget target, uint32 position)
     return NULL;
 }
 
-struct TargetDistanceOrder : public std::binary_function<const Unit, const Unit, bool>
-{
-    const Unit* me;
-    TargetDistanceOrder(const Unit* Target) : me(Target) {};
-    // functor for operator ">"
-    bool operator()(const Unit* _Left, const Unit* _Right) const
-    {
-        return (me->GetDistance(_Left) < me->GetDistance(_Right));
-    }
-};
-
-Unit* ScriptedAI::SelectUnit(SelectAggroTarget targetType, uint32 position, float dist, bool playerOnly)
-{
-    if(targetType == SELECT_TARGET_NEAREST || targetType == SELECT_TARGET_FARTHEST)
-    {
-        std::list<HostilReference*> &m_threatlist = m_creature->getThreatManager().getThreatList();
-        if(m_threatlist.empty()) return NULL;
-        std::list<Unit*> targetList;
-        std::list<HostilReference*>::iterator itr = m_threatlist.begin();
-        for(; itr!= m_threatlist.end(); ++itr)
-        {
-            Unit *target = (*itr)->getTarget();
-            if(!target
-                || playerOnly && target->GetTypeId() != TYPEID_PLAYER
-                || dist && !m_creature->IsWithinCombatRange(target, dist))
-            {
-                continue;
-            }
-            targetList.push_back(target);
-        }
-        if(position >= targetList.size())
-            return NULL;
-        targetList.sort(TargetDistanceOrder(m_creature));
-        if(targetType == SELECT_TARGET_NEAREST)
-        {
-            std::list<Unit*>::iterator i = targetList.begin();
-            advance(i, position);
-            return *i;
-        }
-        else
-        {
-            std::list<Unit*>::reverse_iterator i = targetList.rbegin();
-            advance(i, position);
-            return *i;
-        }
-    }
-    else
-    {
-        std::list<HostilReference*> m_threatlist = m_creature->getThreatManager().getThreatList();
-        std::list<HostilReference*>::iterator i;
-        Unit *target;
-        while(position < m_threatlist.size())
-        {
-            if(targetType == SELECT_TARGET_BOTTOMAGGRO)
-            {
-                i = m_threatlist.end();
-                advance(i, - (int32)position - 1);
-            }
-            else
-            {
-                i = m_threatlist.begin();
-                if(targetType == SELECT_TARGET_TOPAGGRO)
-                    advance(i, position);
-                else // random
-                    advance(i, position + rand()%(m_threatlist.size() - position));
-            }
-
-            target = (*i)->getTarget();
-            if(!target
-                || playerOnly && target->GetTypeId() != TYPEID_PLAYER
-                || dist && !m_creature->IsWithinCombatRange(target, dist))
-            {
-                m_threatlist.erase(i);
-            }
-            else
-            {
-                return target;
-            }
-        }
-    }
-
-    return NULL;
-}
-
-void ScriptedAI::SelectUnitList(std::list<Unit*> &targetList, uint32 num, SelectAggroTarget targetType, float dist, bool playerOnly)
-{
-    if(targetType == SELECT_TARGET_NEAREST || targetType == SELECT_TARGET_FARTHEST)
-    {
-        std::list<HostilReference*> &m_threatlist = m_creature->getThreatManager().getThreatList();
-        if(m_threatlist.empty()) return;
-        std::list<HostilReference*>::iterator itr = m_threatlist.begin();
-        for(; itr!= m_threatlist.end(); ++itr)
-        {
-            Unit *target = (*itr)->getTarget();
-            if(!target
-                || playerOnly && target->GetTypeId() != TYPEID_PLAYER
-                || dist && !m_creature->IsWithinCombatRange(target, dist))
-            {
-                continue;
-            }
-            targetList.push_back(target);
-        }
-        targetList.sort(TargetDistanceOrder(m_creature));
-        targetList.resize(num);
-        if(targetType == SELECT_TARGET_FARTHEST)
-            targetList.reverse();
-    }
-    else
-    {
-        std::list<HostilReference*> m_threatlist = m_creature->getThreatManager().getThreatList();
-        std::list<HostilReference*>::iterator i;
-        Unit *target;
-        while(m_threatlist.size() && num)
-        {
-            if(targetType == SELECT_TARGET_BOTTOMAGGRO)
-            {
-                i = m_threatlist.end();
-                --i;
-            }
-            else
-            {
-                i = m_threatlist.begin();
-                if(targetType == SELECT_TARGET_RANDOM)
-                    advance(i, rand()%m_threatlist.size());
-            }
-
-            target = (*i)->getTarget();
-            m_threatlist.erase(i);
-            if(!target
-                || playerOnly && target->GetTypeId() != TYPEID_PLAYER
-                || dist && !m_creature->IsWithinCombatRange(target, dist))
-            {
-                continue;
-            }
-            targetList.push_back(target);
-            --num;
-        }
-    }
-}
-
-SpellEntry const* ScriptedAI::SelectSpell(Unit* Target, int32 School, int32 Mechanic, SelectTarget Targets, uint32 PowerCostMin, uint32 PowerCostMax, float RangeMin, float RangeMax, SelectEffect Effects)
+SpellEntry const* ScriptedAI::SelectSpell(Unit* Target, int32 School, int32 Mechanic, SelectTargetType Targets, uint32 PowerCostMin, uint32 PowerCostMax, float RangeMin, float RangeMax, SelectEffect Effects)
 {
     //No target so we can't cast
     if (!Target)
@@ -531,7 +391,7 @@ void FillSpellSummary()
 
     SpellEntry const* TempSpell;
 
-    for (int i=0; i < GetSpellStore()->GetNumRows(); i++ )
+    for(uint32 i = 0; i < GetSpellStore()->GetNumRows(); ++i)
     {
         SpellSummary[i].Effects = 0;
         SpellSummary[i].Targets = 0;
@@ -541,7 +401,7 @@ void FillSpellSummary()
         if (!TempSpell)
             continue;
 
-        for (int j=0; j<3; j++)
+        for(uint32 j = 0; j < 3; ++j)
         {
             //Spell targets self
             if ( TempSpell->EffectImplicitTargetA[j] == TARGET_UNIT_CASTER )
@@ -801,10 +661,6 @@ void LoadOverridenDBCData()
     // Black Temple : Illidan : Parasitic Shadowfiend Passive
     if(spellInfo = SPELL(41913))
         spellInfo->EffectApplyAuraName[0] = 4; // proc debuff, and summon infinite fiends
-
-    // Naxxramas : Sapphiron : Frost Breath Visual Effect
-    //if(spellInfo = SPELL(30101))
-    //    spellInfo->EffectImplicitTargetA[0] = TARGET_DEST_DEST; // orig 18
 
     //temp, not needed in 310
     if(spellInfo = SPELL(28531))
