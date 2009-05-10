@@ -7007,7 +7007,7 @@ void Player::CastItemCombatSpell(Item *item, CalcDamageInfo *damageInfo)
         return;
 
     // Can do effect if any damage done to target
-    if (damageInfo->procVictim & PROC_FLAG_TAKEN_ANY_DAMAGE)
+    if (damageInfo->damage)
     {
         for (int i = 0; i < 5; i++)
         {
@@ -7071,7 +7071,7 @@ void Player::CastItemCombatSpell(Item *item, CalcDamageInfo *damageInfo)
             else
             {
                 // Can do effect if any damage done to target
-                if (!(damageInfo->procVictim & PROC_FLAG_TAKEN_ANY_DAMAGE))
+                if (!(damageInfo->damage))
                     continue;
             }
 
