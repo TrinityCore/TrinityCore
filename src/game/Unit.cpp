@@ -4306,7 +4306,7 @@ bool Unit::HasAura(Aura * aur) const
 bool Unit::HasAuraEffect(uint32 spellId, uint8 effIndex, uint64 caster) const
 {
     if (Aura * aur = GetAura(spellId, caster))
-        return bool(aur->HasEffect(effIndex));
+        return aur->HasEffect(effIndex);
     return false;
 }
 
@@ -13614,6 +13614,8 @@ Aura * Unit::AddAuraEffect(const SpellEntry * spellInfo, uint8 effIndex, Unit* c
 {
     // can't do that for passive auras - they stack from same caster so there is no way to get exact aura which should get effect
     //assert (!IsPassiveSpell(spellInfo));
+
+    sLog.outDebug("AddAuraEffect: spell id: %u, effect index: %u", spellInfo->Id, (uint32)effIndex);
 
     Aura *aur = GetAura(spellInfo->Id, caster->GetGUID());
 
