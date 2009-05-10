@@ -774,12 +774,28 @@ void Aura::UpdateAuraDuration()
 
     Unit* caster = GetCaster();
 
-    if(caster && caster->GetTypeId() == TYPEID_PLAYER && caster != m_target)
+    if(caster && caster->GetTypeId() == TYPEID_PLAYER)
+    {
         SendAuraDurationForCaster((Player*)caster);
+
+        Group* CasterGroup = ((Player*)caster)->GetGroup();
+        if (CasterGroup && (spellmgr.GetSpellCustomAttr(GetId()) & SPELL_ATTR_CU_AURA_CC))
+        {
+            for (GroupReference *itr = CasterGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+            {
+                Player* player = itr->getSource();
+                if(player && player != caster)
+                    SendAuraDurationForCaster(player);
+            }
+        }
+    }
 }
 
 void Aura::SendAuraDurationForCaster(Player* caster)
 {
+    if (caster == m_target)
+        return;
+
     WorldPacket data(SMSG_SET_EXTRA_AURA_INFO_NEED_UPDATE, (8+1+4+4+4));
     data.append(m_target->GetPackGUID());
     data << uint8(m_auraSlot);
