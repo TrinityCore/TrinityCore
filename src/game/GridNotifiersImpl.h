@@ -208,7 +208,9 @@ inline void Trinity::DynamicObjectUpdater::VisitHelper(Unit* target)
     if (target->IsImmunedToSpell(spellInfo) || target->IsImmunedToSpellEffect(spellInfo, eff_index))
         return;
     // Apply PersistentAreaAura on target
-    target->AddAuraEffect(spellInfo, eff_index, i_dynobject.GetCaster());
+    if(Aura *aur = target->AddAuraEffect(spellInfo, eff_index, i_dynobject.GetCaster()))
+        aur->SetAuraDuration(i_dynobject.GetDuration());
+
     i_dynobject.AddAffected(target);
 }
 
