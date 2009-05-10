@@ -1612,11 +1612,7 @@ bool ChatHandler::HandleCooldownCommand(const char* args)
             return false;
         }
 
-        WorldPacket data( SMSG_CLEAR_COOLDOWN, (4+8) );
-        data << uint32(spell_id);
-        data << uint64(target->GetGUID());
-        target->GetSession()->SendPacket(&data);
-        target->RemoveSpellCooldown(spell_id);
+        target->RemoveSpellCooldown(spell_id,true);
         PSendSysMessage(LANG_REMOVE_COOLDOWN, spell_id, target==m_session->GetPlayer() ? GetMangosString(LANG_YOU) : tNameLink.c_str());
    }
     return true;
