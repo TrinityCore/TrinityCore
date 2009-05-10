@@ -476,6 +476,35 @@ Spell::~Spell()
     delete m_spellValue;
 }
 
+template<typename T>
+WorldObject* Spell::FindCorpseUsing()
+{
+    // non-standard target selection
+    float max_range = GetSpellMaxRange(m_spellInfo, false);
+
+    CellPair p(MaNGOS::ComputeCellPair(m_caster->GetPositionX(), m_caster->GetPositionY()));
+    Cell cell(p);
+    cell.data.Part.reserved = ALL_DISTRICT;
+    cell.SetNoCreate();
+
+    WorldObject* result = NULL;
+
+    T u_check(m_caster, max_range);
+    MaNGOS::WorldObjectSearcher<T> searcher(m_caster, result, u_check);
+
+    TypeContainerVisitor<MaNGOS::WorldObjectSearcher<T>, GridTypeMapContainer > grid_searcher(searcher);
+    CellLock<GridReadGuard> cell_lock(cell, p);
+    cell_lock->Visit(cell_lock, grid_searcher, *m_caster->GetMap());
+
+    if (!result)
+    {
+        TypeContainerVisitor<MaNGOS::WorldObjectSearcher<T>, WorldTypeMapContainer > world_searcher(searcher);
+        cell_lock->Visit(cell_lock, world_searcher, *m_caster->GetMap());
+    }
+
+    return result;
+}
+
 void Spell::FillTargetMap()
 {
     for(uint32 i = 0; i < 3; ++i)
@@ -535,17 +564,7 @@ void Spell::FillTargetMap()
                     {
                         case 20577:                         // Cannibalize
                         {
-                            // non-standard target selection
-                            SpellRangeEntry const* srange = sSpellRangeStore.LookupEntry(m_spellInfo->rangeIndex);
-                            float max_range = GetSpellMaxRangeForHostile(srange);
-                            WorldObject* result = NULL;
-
-                            Trinity::CannibalizeObjectCheck u_check(m_caster, max_range);
-                            Trinity::WorldObjectSearcher<Trinity::CannibalizeObjectCheck > searcher(m_caster, result, u_check);
-                            m_caster->VisitNearbyGridObject(max_range, searcher);
-                            if(!result)
-                                m_caster->VisitNearbyWorldObject(max_range, searcher);
-
+                            WorldObject* result = FindCorpseUsing<MaNGOS::CannibalizeObjectCheck> ();
 
                             if(result)
                             {
