@@ -1611,15 +1611,49 @@ void Unit::DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss)
         }
     }
 
-    // If not miss
-    if (!(damageInfo->HitInfo & HITINFO_MISS))
+    if(GetTypeId() == TYPEID_PLAYER && pVictim->isAlive())
     {
-        if(GetTypeId() == TYPEID_PLAYER && pVictim->isAlive())
+        for(int i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; i++)
         {
-            for(int i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; i++)
-                ((Player*)this)->CastItemCombatSpell(((Player*)this)->GetItemByPos(INVENTORY_SLOT_BAG_0,i), pVictim, damageInfo->attackType);
+            EquipmentSlots slot = (EquipmentSlots)i;
+            // For weapon slots check if valid attack type and if weapon useable
+            if (i == EQUIPMENT_SLOT_MAINHAND
+                || i == EQUIPMENT_SLOT_OFFHAND
+                || i == EQUIPMENT_SLOT_RANGED)
+            {
+                switch (damageInfo->attackType)
+                {
+                    case BASE_ATTACK:   slot = EQUIPMENT_SLOT_MAINHAND; break;
+                    case OFF_ATTACK:    slot = EQUIPMENT_SLOT_OFFHAND;  break;
+                    case RANGED_ATTACK: slot = EQUIPMENT_SLOT_RANGED;   break;
+                }
+                // offhand item cannot proc from main hand hit etc
+                if (slot != i)
+                    slot=EQUIPMENT_SLOT_END;
+                else
+                {
+                    // Check if item is useable (forms or disarm)
+                    if (damageInfo->attackType == BASE_ATTACK)
+                    {
+                        if (!((Player*)this)->IsUseEquipedWeapon(true))
+                            slot=EQUIPMENT_SLOT_END;
+                    }
+                    else
+                    {
+                        if (((Player*)this)->IsInFeralForm())
+                            slot=EQUIPMENT_SLOT_END;
+                    }
+                }
+            }
+            // If usable, try to cast item spell
+            if(slot!=EQUIPMENT_SLOT_END)
+                (((Player*)this)->GetItemByPos(INVENTORY_SLOT_BAG_0,i), &damageInfo);
         }
+    }
 
+    // Do effect if any damage done to target
+    if (damageInfo->procVictim & PROC_FLAG_TAKEN_ANY_DAMAGE)
+    {
         // victim's damage shield
         std::set<Aura*> alreadyDone;
         uint32 removedAuras = pVictim->m_removedAuras;
