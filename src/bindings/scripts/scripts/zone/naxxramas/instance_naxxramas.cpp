@@ -143,6 +143,6 @@ void AddSC_instance_naxxramas()
     Script *newscript;
     newscript = new Script;
     newscript->Name = "instance_naxxramas";
-    newscript->GetInstanceData = GetInstanceData_instance_naxxramas;
+    newscript->GetInstanceData = &GetInstanceData_instance_naxxramas;
     newscript->RegisterSelf();
 }
