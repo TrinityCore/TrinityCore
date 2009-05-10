@@ -151,13 +151,14 @@ INSERT INTO creature_template (entry, spell1, flags_extra, scriptname) VALUES
 (23069, 40029, 128, ''), # demon fire
 (24187, 43218, 128, ''), # pillar of fire
 (17662, 30914, 128, ''), # Broggok Poison Cloud
-(25879, 46262, 128, '')  # Void Zone Periodic
+(25879, 46262, 128, ''), # Void Zone Periodic
+(16363, 28158, 128, ''), # Grobbulus Cloud
+(29379, 54362, 128, ''), # Grobbulus Cloud (H)
 ON DUPLICATE KEY UPDATE
 spell1 = VALUES(spell1),
 flags_extra = VALUES(flags_extra),
 scriptname = VALUES(scriptname);
 
-UPDATE creature_template SET spell1 = 28158, spell2 = 54362, flags_extra = 128 WHERE entry = 16363;
 UPDATE creature_template SET speed = 1.0 WHERE entry = 23095; # molten_flame
 
 

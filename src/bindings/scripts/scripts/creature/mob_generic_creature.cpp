@@ -166,25 +166,8 @@ struct TRINITY_DLL_DECL trigger_periodicAI : public NullCreatureAI
 {
     trigger_periodicAI(Creature* c) : NullCreatureAI(c)
     {
-        if(me->m_spells[0])
-        {
-            if(me->m_spells[1])
-                spell = GetSpellStore()->LookupEntry(HEROIC(me->m_spells[0], me->m_spells[1]));
-            else
-                spell = GetSpellStore()->LookupEntry(me->m_spells[0]);
-        }
-        else
-            spell = NULL;
-
-        if(me->m_spells[2])
-        {
-            if(me->m_spells[3])
-                interval = HEROIC(me->m_spells[2], me->m_spells[3]);
-            else
-                interval = me->m_spells[2];
-        }
-        else
-            interval = 1000;
+        spell = me->m_spells[0] ? GetSpellStore()->LookupEntry(me->m_spells[0]) : NULL;
+        interval = me->m_spells[1] ? me->m_spells[1] : 1000;
         timer = interval;
     }
 
