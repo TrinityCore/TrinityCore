@@ -34,6 +34,7 @@ EndScriptData */
 #define SPELL_CURSE_PLAGUEBRINGER       HEROIC(29213,54835)
 #define SPELL_BLINK                     RAND(29208,29209,29210,29211)
 #define SPELL_CRIPPLE                   HEROIC(29212,54814)
+#define SPELL_TELEPORT                  29216
 
 #define MOB_WARRIOR         16984
 #define MOB_CHAMPION        16983
@@ -62,6 +63,9 @@ enum Events
     EVENT_CURSE,
     EVENT_BLINK,
     EVENT_WARRIOR,
+    EVENT_BALCONY,
+    EVENT_WAVE,
+    EVENT_GROUND,
 };
 
 struct TRINITY_DLL_DECL boss_nothAI : public ScriptedAI
@@ -74,6 +78,7 @@ struct TRINITY_DLL_DECL boss_nothAI : public ScriptedAI
     EventMap events;
     SummonList summons;
     ScriptedInstance *instance;
+    uint32 waveCount, balconyCount;
 
     void Reset()
     {
@@ -86,27 +91,38 @@ struct TRINITY_DLL_DECL boss_nothAI : public ScriptedAI
     void EnterCombat(Unit *who)
     {
         DoScriptText(SAY_AGGRO, me);
-        DoZoneInCombat();
         me->setActive(true);
-
-        events.ScheduleEvent(EVENT_CURSE, 20000+rand()%10000);
-        events.ScheduleEvent(EVENT_WARRIOR, 30000);
-        if(HeroicMode)
-            events.ScheduleEvent(EVENT_BLINK, 20000+rand()%10000);
-
+        balconyCount = 0;
+        EnterPhaseGround();
         instance->SetBossState(BOSS_NOTH, IN_PROGRESS);
+    }
+
+    void EnterPhaseGround()
+    {
+        DoZoneInCombat();
+        if(me->getThreatManager().isThreatListEmpty())
+            EnterEvadeMode();
+        else
+        {
+            events.ScheduleEvent(EVENT_BALCONY, 11000);
+            events.ScheduleEvent(EVENT_CURSE, 20000+rand()%10000);
+            events.ScheduleEvent(EVENT_WARRIOR, 30000);
+            if(HeroicMode)
+                events.ScheduleEvent(EVENT_BLINK, 20000+rand()%10000);
+        }
     }
 
     void KilledUnit(Unit* victim)
     {
-        DoScriptText(SAY_SLAY, me);
+        if(!(rand()%5))
+            DoScriptText(SAY_SLAY, me);
     }
 
     void JustSummoned(Creature *summon)
     {
         summons.Summon(summon);
         summon->setActive(true);
-        DoZoneInCombat(summon);
+        summon->AI()->DoZoneInCombat();
     }
 
     void SummonedCreatureDespawn(Creature *summon) { summons.Despawn(summon); }
@@ -130,8 +146,19 @@ struct TRINITY_DLL_DECL boss_nothAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!UpdateVictim())
-            return;
+        if(me->HasReactState(REACT_AGGRESSIVE)) // ground
+        {
+            if(!UpdateVictim())
+                return;
+        }
+        else // balcony
+        {
+            if(me->getThreatManager().isThreatListEmpty()) // if no enemy, go back at once
+            {
+                events.Reset();
+                events.ScheduleEvent(EVENT_GROUND, 0);
+            }
+        }
 
         events.Update(diff);
 
@@ -154,10 +181,46 @@ struct TRINITY_DLL_DECL boss_nothAI : public ScriptedAI
                     DoResetThreat();
                     events.ScheduleEvent(EVENT_BLINK, 20000+rand()%10000);
                     return;
+                case EVENT_BALCONY:
+                    me->SetReactState(REACT_PASSIVE);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    me->AttackStop();
+                    me->RemoveAllAuras();
+                    me->NearTeleportTo(TELE_X, TELE_Y, TELE_Z, TELE_O);
+                    events.Reset();
+                    events.ScheduleEvent(EVENT_WAVE, 2000);
+                    waveCount = 0;
+                    return;
+                case EVENT_WAVE:
+                    DoScriptText(SAY_SUMMON, me);
+                    switch(balconyCount)
+                    {
+                        case 0: SummonUndead(MOB_CHAMPION, HEROIC(2,4)); break;
+                        case 1: SummonUndead(MOB_CHAMPION, HEROIC(1,2));
+                                SummonUndead(MOB_GUARDIAN, HEROIC(1,2)); break;
+                        case 2: SummonUndead(MOB_GUARDIAN, HEROIC(2,4)); break;
+                        default:SummonUndead(MOB_CHAMPION, HEROIC(5,10));
+                                SummonUndead(MOB_GUARDIAN, HEROIC(5,10));break;
+                    }
+                    ++waveCount;
+                    events.ScheduleEvent(waveCount < 2 ? EVENT_WAVE : EVENT_GROUND, 34000);
+                    return;
+                case EVENT_GROUND:
+                {
+                    ++balconyCount;
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    float x, y, z, o;
+                    me->GetHomePosition(x, y, z, o);
+                    me->NearTeleportTo(x, y, z, o);
+                    EnterPhaseGround();
+                    return;
+                }
             }
         }
 
-        DoMeleeAttackIfReady();
+        if(me->HasReactState(REACT_AGGRESSIVE))
+            DoMeleeAttackIfReady();
     }
 };
 
