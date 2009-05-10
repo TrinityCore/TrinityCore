@@ -19,49 +19,11 @@
  */
 
 #include "CreatureAI.h"
+#include "CreatureAIImpl.h"
 #include "Creature.h"
 #include "Player.h"
 #include "Pet.h"
-#include "SpellAuras.h"
 #include "World.h"
-
-void UnitAI::AttackStart(Unit *victim)
-{
-    if(!victim)
-        return;
-
-    if(me->Attack(victim, true))
-    {
-        //DEBUG_LOG("Creature %s tagged a victim to kill [guid=%u]", me->GetName(), victim->GetGUIDLow());
-        me->GetMotionMaster()->MoveChase(victim);
-    }
-}
-
-void UnitAI::DoMeleeAttackIfReady()
-{
-    //Make sure our attack is ready and we aren't currently casting before checking distance
-    if (me->isAttackReady() && !me->hasUnitState(UNIT_STAT_CASTING))
-    {
-        //If we are within range melee the target
-        if (me->IsWithinMeleeRange(me->getVictim()))
-        {
-            me->AttackerStateUpdate(me->getVictim());
-            me->resetAttackTimer();
-        }
-    }
-    if (me->haveOffhandWeapon() && me->isAttackReady(OFF_ATTACK) && !me->hasUnitState(UNIT_STAT_CASTING))
-    {
-        //If we are within range melee the target
-        if (me->IsWithinMeleeRange(me->getVictim()))
-        {
-            me->AttackerStateUpdate(me->getVictim(), OFF_ATTACK);
-            me->resetAttackTimer(OFF_ATTACK);
-        }
-    }
-}
-
-//Enable PlayerAI when charmed
-void PlayerAI::OnCharmed(bool apply) { me->IsAIEnabled = apply; }
 
 //Disable CreatureAI when charmed
 void CreatureAI::OnCharmed(bool apply)
@@ -293,30 +255,6 @@ void CreatureAI::SelectTargetList(std::list<Unit*> &targetList, uint32 num, Sele
             m_threatlist.erase(i);
         }
     }
-}
-
-void SimpleCharmedAI::UpdateAI(const uint32 /*diff*/)
-{
-    Creature *charmer = (Creature*)me->GetCharmer();
-
-    //kill self if charm aura has infinite duration
-    if(charmer->IsInEvadeMode())
-    {
-        Unit::AuraEffectList const& auras = me->GetAurasByType(SPELL_AURA_MOD_CHARM);
-        for(Unit::AuraEffectList::const_iterator iter = auras.begin(); iter != auras.end(); ++iter)
-            if((*iter)->GetCasterGUID() == charmer->GetGUID() && (*iter)->GetParentAura()->IsPermanent())
-            {
-                charmer->Kill(me);
-                return;
-            }
-    }
-
-    if(!charmer->isInCombat())
-        me->GetMotionMaster()->MoveFollow(charmer, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
-
-    Unit *target = me->getVictim();
-    if(!target || !charmer->canAttack(target))
-        AttackStart(charmer->SelectNearestTarget());
 }
 
 /*void CreatureAI::AttackedBy( Unit* attacker )

@@ -28,11 +28,12 @@
 #include "OutdoorPvPObjectiveAI.h"
 #include "CreatureEventAI.h"
 #include "RandomMovementGenerator.h"
-#include "CreatureAIImpl.h"
 #include "MovementGeneratorImpl.h"
 #include "CreatureAIRegistry.h"
 #include "WaypointMovementGenerator.h"
+#include "CreatureAIFactory.h"
 
+#include "CreatureAIImpl.h"
 namespace AIRegistry
 {
     void Initialize()

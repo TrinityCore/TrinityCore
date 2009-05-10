@@ -68,6 +68,7 @@ SET(game_STAT_SRCS
    Corpse.h
    CreatureAI.cpp
    CreatureAI.h
+   CreatureAIFactory.h
    CreatureAIImpl.h
    CreatureAIRegistry.cpp
    CreatureAIRegistry.h
@@ -208,8 +209,6 @@ SET(game_STAT_SRCS
    PointMovementGenerator.h
    PoolHandler.cpp
    PoolHandler.h
-   PossessedAI.cpp
-   PossessedAI.h
    QueryHandler.cpp
    QuestDef.cpp
    QuestDef.h
@@ -262,6 +261,8 @@ SET(game_STAT_SRCS
    Traveller.h
    Unit.cpp
    Unit.h
+   UnitAI.cpp
+   UnitAI.h
    UnitEvents.h
    UpdateData.cpp
    UpdateData.h

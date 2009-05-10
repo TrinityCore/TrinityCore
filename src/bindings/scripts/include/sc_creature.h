@@ -8,74 +8,24 @@
 #ifndef SC_CREATURE_H
 #define SC_CREATURE_H
 
-#include "CreatureAI.h"
 #include "Creature.h"
-
-#define HEROIC(n,h) (HeroicMode ? h : n)
-
-template<class T>
-inline
-const T& RAND(const T& v1, const T& v2)
-{
-    return rand()%2 ? v1 : v2;
-}
-
-template<class T>
-inline
-const T& RAND(const T& v1, const T& v2, const T& v3)
-{
-    switch(rand()%3)
-    {
-        default:
-        case 0: return v1;
-        case 1: return v2;
-        case 2: return v3;
-    }
-}
-
-template<class T>
-inline
-const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4)
-{
-    switch(rand()%4)
-    {
-        default:
-        case 0: return v1;
-        case 1: return v2;
-        case 2: return v3;
-        case 3: return v4;
-    }
-}
-
-template<class T>
-inline
-const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5)
-{
-    switch(rand()%4)
-    {
-        default:
-        case 0: return v1;
-        case 1: return v2;
-        case 2: return v3;
-        case 3: return v4;
-        case 4: return v5;
-    }
-}
-
-float GetSpellMaxRangeForHostile(uint32 id);
+#include "CreatureAI.h"
+#include "CreatureAIImpl.h"
 
 class SummonList : private std::list<uint64>
 {
-public:
-    explicit SummonList(Creature* creature) : m_creature(creature) {}
-    void Summon(Creature *summon) { push_back(summon->GetGUID()); }
-    void Despawn(Creature *summon) { remove(summon->GetGUID()); }
-    void DespawnEntry(uint32 entry);
-    void DespawnAll();
-    void DoAction(uint32 entry, uint32 info);
-private:
-    Creature *m_creature;
+    public:
+        explicit SummonList(Creature* creature) : m_creature(creature) {}
+        void Summon(Creature *summon) { push_back(summon->GetGUID()); }
+        void Despawn(Creature *summon) { remove(summon->GetGUID()); }
+        void DespawnEntry(uint32 entry);
+        void DespawnAll();
+        void DoAction(uint32 entry, uint32 info);
+    private:
+        Creature *m_creature;
 };
+
+float GetSpellMaxRangeForHostile(uint32 id);
 
 //Get a single creature of given entry
 Unit* FindCreature(uint32 entry, float range, Unit* Finder);
