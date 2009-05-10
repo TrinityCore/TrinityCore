@@ -1626,6 +1626,8 @@ void Unit::DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss)
                     case BASE_ATTACK:   slot = EQUIPMENT_SLOT_MAINHAND; break;
                     case OFF_ATTACK:    slot = EQUIPMENT_SLOT_OFFHAND;  break;
                     case RANGED_ATTACK: slot = EQUIPMENT_SLOT_RANGED;   break;
+                    default:
+                    slot=EQUIPMENT_SLOT_END;
                 }
                 // offhand item cannot proc from main hand hit etc
                 if (slot != i)
@@ -1638,7 +1640,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss)
                         if (!((Player*)this)->IsUseEquipedWeapon(true))
                             slot=EQUIPMENT_SLOT_END;
                     }
-                    else
+                    else if (damageInfo->attackType == OFF_ATTACK)
                     {
                         if (((Player*)this)->IsInFeralForm())
                             slot=EQUIPMENT_SLOT_END;
@@ -1647,12 +1649,12 @@ void Unit::DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss)
             }
             // If usable, try to cast item spell
             if(slot!=EQUIPMENT_SLOT_END)
-                (((Player*)this)->GetItemByPos(INVENTORY_SLOT_BAG_0,i), &damageInfo);
+                ((Player*)this)->CastItemCombatSpell(((Player*)this)->GetItemByPos(INVENTORY_SLOT_BAG_0,i), damageInfo);
         }
     }
 
     // Do effect if any damage done to target
-    if (damageInfo->procVictim & PROC_FLAG_TAKEN_ANY_DAMAGE)
+    if (damageInfo->damage)
     {
         // victim's damage shield
         std::set<Aura*> alreadyDone;
