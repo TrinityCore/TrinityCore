@@ -71,6 +71,8 @@ void CreatureAI::OnCharmed(bool apply)
     me->IsAIEnabled = false;
 }
 
+AISpellInfoType *AISpellInfo;
+
 void CreatureAI::DoZoneInCombat(Creature* creature)
 {
     if (!creature)
@@ -149,6 +151,148 @@ void CreatureAI::EnterEvadeMode()
 
     if(me->isAlive())
         me->GetMotionMaster()->MoveTargetedHome();
+}
+
+inline bool SelectTargetHelper(const Unit * me, const Unit * target, const bool &playerOnly, const float &dist, const int32 &aura)
+{
+    if(playerOnly && target->GetTypeId() != TYPEID_PLAYER)
+        return false;
+
+    if(dist && !me->IsWithinCombatRange(target, dist))
+        return false;
+
+    if(aura)
+    {
+        if(aura > 0)
+        {
+            if(!target->HasAura(aura))
+                return false;
+        }
+        else
+        {
+            if(target->HasAura(aura))
+                return false;
+        }
+    }
+
+    return true;
+}
+
+struct TargetDistanceOrder : public std::binary_function<const Unit *, const Unit *, bool>
+{
+    const Unit * me;
+    TargetDistanceOrder(const Unit* Target) : me(Target) {};
+    // functor for operator ">"
+    bool operator()(const Unit * _Left, const Unit * _Right) const
+    {
+        return (me->GetDistanceSq(_Left) < me->GetDistanceSq(_Right));
+    }
+};
+
+Unit* CreatureAI::SelectTarget(SelectAggroTarget targetType, uint32 position, float dist, bool playerOnly, int32 aura)
+{
+    if(targetType == SELECT_TARGET_NEAREST || targetType == SELECT_TARGET_FARTHEST)
+    {
+        std::list<HostilReference*> &m_threatlist = me->getThreatManager().getThreatList();
+        if(position >= m_threatlist.size())
+            return NULL;
+
+        std::list<Unit*> targetList;
+        for(std::list<HostilReference*>::iterator itr = m_threatlist.begin(); itr!= m_threatlist.end(); ++itr)
+            if(SelectTargetHelper(me, (*itr)->getTarget(), playerOnly, dist, aura))
+                targetList.push_back((*itr)->getTarget());
+
+        if(position >= targetList.size())
+            return NULL;
+
+        targetList.sort(TargetDistanceOrder(m_creature));
+
+        if(targetType == SELECT_TARGET_NEAREST)
+        {
+            std::list<Unit*>::iterator i = targetList.begin();
+            advance(i, position);
+            return *i;
+        }
+        else
+        {
+            std::list<Unit*>::reverse_iterator i = targetList.rbegin();
+            advance(i, position);
+            return *i;
+        }
+    }
+    else
+    {
+        std::list<HostilReference*> m_threatlist = me->getThreatManager().getThreatList();
+        std::list<HostilReference*>::iterator i;
+        while(position < m_threatlist.size())
+        {
+            if(targetType == SELECT_TARGET_BOTTOMAGGRO)
+            {
+                i = m_threatlist.end();
+                advance(i, - (int32)position - 1);
+            }
+            else
+            {
+                i = m_threatlist.begin();
+                if(targetType == SELECT_TARGET_TOPAGGRO)
+                    advance(i, position);
+                else // random
+                    advance(i, position + rand()%(m_threatlist.size() - position));
+            }
+
+            if(SelectTargetHelper(me, (*i)->getTarget(), playerOnly, dist, aura))
+                return (*i)->getTarget();
+            else
+                m_threatlist.erase(i);
+        }
+    }
+
+    return NULL;
+}
+
+void CreatureAI::SelectTargetList(std::list<Unit*> &targetList, uint32 num, SelectAggroTarget targetType, float dist, bool playerOnly, int32 aura)
+{
+    if(targetType == SELECT_TARGET_NEAREST || targetType == SELECT_TARGET_FARTHEST)
+    {
+        std::list<HostilReference*> &m_threatlist = m_creature->getThreatManager().getThreatList();
+        if(m_threatlist.empty())
+            return;
+
+        for(std::list<HostilReference*>::iterator itr = m_threatlist.begin(); itr!= m_threatlist.end(); ++itr)
+            if(SelectTargetHelper(me, (*itr)->getTarget(), playerOnly, dist, aura))
+                targetList.push_back((*itr)->getTarget());
+
+        targetList.sort(TargetDistanceOrder(me));
+        targetList.resize(num);
+        if(targetType == SELECT_TARGET_FARTHEST)
+            targetList.reverse();
+    }
+    else
+    {
+        std::list<HostilReference*> m_threatlist = me->getThreatManager().getThreatList();
+        std::list<HostilReference*>::iterator i;
+        while(!m_threatlist.empty() && num)
+        {
+            if(targetType == SELECT_TARGET_BOTTOMAGGRO)
+            {
+                i = m_threatlist.end();
+                --i;
+            }
+            else
+            {
+                i = m_threatlist.begin();
+                if(targetType == SELECT_TARGET_RANDOM)
+                    advance(i, rand()%m_threatlist.size());
+            }
+
+            if(SelectTargetHelper(me, (*i)->getTarget(), playerOnly, dist, aura))
+            {
+                targetList.push_back((*i)->getTarget());
+                --num;
+            }
+            m_threatlist.erase(i);
+        }
+    }
 }
 
 void SimpleCharmedAI::UpdateAI(const uint32 /*diff*/)
