@@ -585,15 +585,7 @@ void Spell::FillTargetMap()
                             {
                                 // clear cooldown at fail
                                 if(m_caster->GetTypeId()==TYPEID_PLAYER)
-                                {
-                                    ((Player*)m_caster)->RemoveSpellCooldown(m_spellInfo->Id);
-
-                                    WorldPacket data(SMSG_CLEAR_COOLDOWN, (4+8));
-                                    data << uint32(m_spellInfo->Id);
-                                    data << uint64(m_caster->GetGUID());
-                                    ((Player*)m_caster)->GetSession()->SendPacket(&data);
-                                }
-
+                                    ((Player*)m_caster)->RemoveSpellCooldown(m_spellInfo->Id,true);
                                 SendCastResult(SPELL_FAILED_NO_EDIBLE_CORPSES);
                                 finish(false);
                             }
