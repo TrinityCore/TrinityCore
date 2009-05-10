@@ -726,12 +726,10 @@ void BattleGround::EndBattleGround(uint32 winner)
         if (team == winner)
         {
             RewardMark(plr,ITEM_WINNER_COUNT);
-            RewardQuest(plr);
+            RewardQuestComplete(plr);
         }
-        else if(winner !=0)
-        {
+        else if(winner)
             RewardMark(plr,ITEM_LOSER_COUNT);
-        }
 
         plr->CombatStopWithPets(true);
 
@@ -785,13 +783,6 @@ uint32 BattleGround::GetBattlemasterEntry() const
 
 void BattleGround::RewardMark(Player *plr,uint32 count)
 {
-    // 'Inactive' this aura prevents the player from gaining honor points and battleground tokens
-    if (plr->GetDummyAura(SPELL_AURA_PLAYER_INACTIVE))
-        return;
-
-    if(!plr || !count)
-        return;
-
     BattleGroundMarks mark;
     switch(GetTypeID())
     {
@@ -811,21 +802,53 @@ void BattleGround::RewardMark(Player *plr,uint32 count)
             return;
     }
 
-    if ( objmgr.GetItemPrototype( mark ) )
+    //if (IsSpell)
+    //    RewardSpellCast(plr,mark);
+    //else
+        RewardItem(plr,mark,count);
+}
+
+void BattleGround::RewardSpellCast(Player *plr, uint32 spell_id)
+{
+    // 'Inactive' this aura prevents the player from gaining honor points and battleground tokens
+    if (plr->GetDummyAura(SPELL_AURA_PLAYER_INACTIVE))
+        return;
+
+    SpellEntry const *spellInfo = sSpellStore.LookupEntry(spell_id);
+    if(!spellInfo)
     {
-        ItemPosCountVec dest;
-        uint32 no_space_count = 0;
-        uint8 msg = plr->CanStoreNewItem( NULL_BAG, NULL_SLOT, dest, mark, count, &no_space_count );
-        if( msg != EQUIP_ERR_OK )                       // convert to possible store amount
-            count -= no_space_count;
-
-        if(!dest.empty())                // can add some
-            if(Item* item = plr->StoreNewItem( dest, mark, true, 0))
-                plr->SendNewItem(item,count,false,true);
-
-        if (no_space_count > 0)
-            SendRewardMarkByMail(plr,mark,no_space_count);
+        sLog.outError("Battleground reward casting spell %u not exist.",spell_id);
+        return;
     }
+
+    plr->CastSpell(plr, spellInfo, true);
+}
+
+void BattleGround::RewardItem(Player *plr, uint32 item_id, uint32 count)
+{
+    // 'Inactive' this aura prevents the player from gaining honor points and battleground tokens
+    if (plr->GetDummyAura(SPELL_AURA_PLAYER_INACTIVE))
+        return;
+
+    ItemPosCountVec dest;
+    uint32 no_space_count = 0;
+    uint8 msg = plr->CanStoreNewItem( NULL_BAG, NULL_SLOT, dest, item_id, count, &no_space_count );
+
+    if( msg == EQUIP_ERR_ITEM_NOT_FOUND)
+    {
+        sLog.outErrorDb("Battleground reward item (Entry %u) not exist in `item_template`.",item_id);
+        return;
+    }
+
+    if( msg != EQUIP_ERR_OK )                               // convert to possible store amount
+        count -= no_space_count;
+
+    if( count != 0 && !dest.empty())                        // can add some
+        if (Item* item = plr->StoreNewItem( dest, item_id, true, 0))
+            plr->SendNewItem(item,count,false,true);
+
+    if (no_space_count > 0)
+        SendRewardMarkByMail(plr,item_id,no_space_count);
 }
 
 void BattleGround::SendRewardMarkByMail(Player *plr,uint32 mark, uint32 count)
@@ -865,12 +888,8 @@ void BattleGround::SendRewardMarkByMail(Player *plr,uint32 mark, uint32 count)
     }
 }
 
-void BattleGround::RewardQuest(Player *plr)
+void BattleGround::RewardQuestComplete(Player *plr)
 {
-    // 'Inactive' this aura prevents the player from gaining honor points and battleground tokens
-    if (plr->GetDummyAura(SPELL_AURA_PLAYER_INACTIVE))
-        return;
-
     uint32 quest;
     switch(GetTypeID())
     {
@@ -890,7 +909,7 @@ void BattleGround::RewardQuest(Player *plr)
             return;
     }
 
-    plr->CastSpell(plr, quest, true);
+    RewardSpellCast(plr, quest);
 }
 
 void BattleGround::BlockMovement(Player *plr)
