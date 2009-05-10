@@ -564,6 +564,15 @@ struct SpellProcEventEntry
 
 typedef UNORDERED_MAP<uint32, SpellProcEventEntry> SpellProcEventMap;
 
+struct SpellEnchantProcEntry
+{
+    uint32      customChance;
+    float       PPMChance;
+    uint32      procEx;
+};
+
+typedef UNORDERED_MAP<uint32, SpellEnchantProcEntry> SpellEnchantProcEventMap;
+
 #define ELIXIR_BATTLE_MASK    0x1
 #define ELIXIR_GUARDIAN_MASK  0x2
 #define ELIXIR_FLASK_MASK     (ELIXIR_BATTLE_MASK|ELIXIR_GUARDIAN_MASK)
@@ -785,6 +794,14 @@ class SpellMgr
 
         static bool IsSpellProcEventCanTriggeredBy( SpellProcEventEntry const * spellProcEvent, uint32 EventProcFlag, SpellEntry const * procSpell, uint32 procFlags, uint32 procExtra, bool active);
 
+        SpellEnchantProcEntry const* GetSpellEnchantProcEvent(uint32 enchId) const
+        {
+            SpellEnchantProcEventMap::const_iterator itr = mSpellEnchantProcEventMap.find(enchId);
+            if( itr != mSpellEnchantProcEventMap.end( ) )
+                return &itr->second;
+            return NULL;
+        }
+
         // Spell target coordinates
         SpellTargetPosition const* GetSpellTargetPosition(uint32 spell_id) const
         {
@@ -986,6 +1003,7 @@ class SpellMgr
         void LoadSpellPetAuras();
         void LoadSpellCustomAttr();
         void LoadSpellLinked();
+        void LoadSpellEnchantProcData();
 
     private:
         SpellScriptTarget  mSpellScriptTarget;
@@ -1002,6 +1020,7 @@ class SpellMgr
         SpellPetAuraMap     mSpellPetAuraMap;
         SpellCustomAttribute  mSpellCustomAttr;
         SpellLinkedMap      mSpellLinkedMap;
+        SpellEnchantProcEventMap     mSpellEnchantProcEventMap;
 };
 
 #define spellmgr SpellMgr::Instance()

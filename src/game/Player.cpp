@@ -6991,7 +6991,7 @@ void Player::UpdateEquipSpellsAtFormChange()
     }
 }
 
-void Player::CastItemCombatSpell(Item *item,Unit* Target, WeaponAttackType attType)
+void Player::CastItemCombatSpell(Item *item, CalcDamageInfo *damageInfo)
 {
     if(!item || item->IsBroken())
         return;
@@ -7000,46 +7000,53 @@ void Player::CastItemCombatSpell(Item *item,Unit* Target, WeaponAttackType attTy
     if(!proto)
         return;
 
+    Unit * Target = damageInfo->target;
+    WeaponAttackType attType = damageInfo->attackType;
+
     if (!Target || Target == this )
         return;
 
-    for (int i = 0; i < 5; i++)
+    // Can do effect if any damage done to target
+    if (damageInfo->procVictim & PROC_FLAG_TAKEN_ANY_DAMAGE)
     {
-        _Spell const& spellData = proto->Spells[i];
-
-        // no spell
-        if(!spellData.SpellId )
-            continue;
-
-        // wrong triggering type
-        if(spellData.SpellTrigger != ITEM_SPELLTRIGGER_CHANCE_ON_HIT)
-            continue;
-
-        SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellData.SpellId);
-        if(!spellInfo)
+        for (int i = 0; i < 5; i++)
         {
-            sLog.outError("WORLD: unknown Item spellid %i", spellData.SpellId);
-            continue;
+            _Spell const& spellData = proto->Spells[i];
+
+            // no spell
+            if(!spellData.SpellId )
+                continue;
+
+            // wrong triggering type
+            if(spellData.SpellTrigger != ITEM_SPELLTRIGGER_CHANCE_ON_HIT)
+                continue;
+
+            SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellData.SpellId);
+            if(!spellInfo)
+            {
+                sLog.outError("WORLD: unknown Item spellid %i", spellData.SpellId);
+                continue;
+            }
+
+            // not allow proc extra attack spell at extra attack
+            if( m_extraAttacks && IsSpellHaveEffect(spellInfo,SPELL_EFFECT_ADD_EXTRA_ATTACKS) )
+                return;
+
+            float chance = spellInfo->procChance;
+
+            if(spellData.SpellPPMRate)
+            {
+                uint32 WeaponSpeed = GetAttackTime(attType);
+                chance = GetPPMProcChance(WeaponSpeed, spellData.SpellPPMRate);
+            }
+            else if(chance > 100.0f)
+            {
+                chance = GetWeaponProcChance();
+            }
+
+            if (roll_chance_f(chance))
+                CastSpell(Target, spellInfo->Id, true, item);
         }
-
-        // not allow proc extra attack spell at extra attack
-        if( m_extraAttacks && IsSpellHaveEffect(spellInfo,SPELL_EFFECT_ADD_EXTRA_ATTACKS) )
-            return;
-
-        float chance = spellInfo->procChance;
-
-        if(spellData.SpellPPMRate)
-        {
-            uint32 WeaponSpeed = GetAttackTime(attType);
-            chance = GetPPMProcChance(WeaponSpeed, spellData.SpellPPMRate);
-        }
-        else if(chance > 100.0f)
-        {
-            chance = GetWeaponProcChance();
-        }
-
-        if (roll_chance_f(chance))
-            CastSpell(Target, spellInfo->Id, true, item);
     }
 
     // item combat enchantments
@@ -7053,6 +7060,21 @@ void Player::CastItemCombatSpell(Item *item,Unit* Target, WeaponAttackType attTy
             if(pEnchant->type[s]!=ITEM_ENCHANTMENT_TYPE_COMBAT_SPELL)
                 continue;
 
+            SpellEnchantProcEntry const* entry =  spellmgr.GetSpellEnchantProcEvent(enchant_id);
+
+            if (entry && entry->procEx)
+            {
+                // Check hit/crit/dodge/parry requirement
+                if((entry->procEx & damageInfo->procEx) == 0)
+                    continue;
+            }
+            else
+            {
+                // Can do effect if any damage done to target
+                if (!(damageInfo->procVictim & PROC_FLAG_TAKEN_ANY_DAMAGE))
+                    continue;
+            }
+
             SpellEntry const *spellInfo = sSpellStore.LookupEntry(pEnchant->spellid[s]);
             if (!spellInfo)
             {
@@ -7061,6 +7083,18 @@ void Player::CastItemCombatSpell(Item *item,Unit* Target, WeaponAttackType attTy
             }
 
             float chance = pEnchant->amount[s] != 0 ? float(pEnchant->amount[s]) : GetWeaponProcChance();
+
+            if (entry && entry->PPMChance)
+            {
+                uint32 WeaponSpeed = GetAttackTime(attType);
+                chance = GetPPMProcChance(WeaponSpeed, entry->PPMChance);
+            }
+            else if (entry && entry->customChance)
+                chance = entry->customChance;
+
+            // Apply spell mods
+            ApplySpellMod(pEnchant->spellid[s],SPELLMOD_CHANCE_OF_SUCCESS,chance);
+
             if (roll_chance_f(chance))
             {
                 if(IsPositiveSpell(pEnchant->spellid[s]))
