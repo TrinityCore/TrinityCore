@@ -1150,6 +1150,9 @@ void World::SetInitialWorldSettings()
     sLog.outString( "Loading NPC Texts..." );
     objmgr.LoadGossipText();
 
+    sLog.outString( "Loading Enchant Spells Proc datas...");
+    spellmgr.LoadSpellEnchantProcData();
+
     sLog.outString( "Loading Item Random Enchantments Table..." );
     LoadRandomEnchantmentsTable();
 
