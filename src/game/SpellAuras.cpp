@@ -750,7 +750,7 @@ void AreaAuraEffect::Update(uint32 diff)
                     // recalculate basepoints for lower rank (all AreaAura spell not use custom basepoints?)
                     //if(actualSpellInfo != GetSpellProto())
                     //    actualBasePoints = actualSpellInfo->EffectBasePoints[m_effIndex];
-                    Aura * aur = (*tIter)->AddAuraEffect(actualSpellInfo->Id, GetEffIndex(), caster, &m_currentBasePoints);
+                    (*tIter)->AddAuraEffect(actualSpellInfo, GetEffIndex(), caster, &m_currentBasePoints);
 
                     if(m_areaAuraType == AREA_AURA_ENEMY)
                         caster->CombatStart(*tIter);
@@ -5698,6 +5698,7 @@ void AuraEffect::PeriodicTick()
             if(!pCaster)
                 return;
 
+            // Consecrate ticks can miss and will not show up in the combat log
             if( GetSpellProto()->Effect[GetEffIndex()]==SPELL_EFFECT_PERSISTENT_AREA_AURA &&
                 pCaster->SpellHitResult(m_target,GetSpellProto(),false)!=SPELL_MISS_NONE)
                 return;
@@ -5746,7 +5747,8 @@ void AuraEffect::PeriodicTick()
                             }
                         }
                         m_amount = 100 * m_tickNumber;
-                    }break;
+                        break;
+                    }
                     default:
                         break;
                 }
