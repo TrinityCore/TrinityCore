@@ -251,6 +251,7 @@ void FlightPathMovementGenerator::Initialize(Player &player)
     player.getHostilRefManager().setOnlineOfflineState(false);
     player.addUnitState(UNIT_STAT_IN_FLIGHT);
     player.SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_TAXI_FLIGHT);
+    player.AddUnitMovementFlag(MOVEMENTFLAG_FLYING2);
     LoadPath(player);
     Traveller<Player> traveller(player);
     // do not send movement, it was sent already
@@ -270,6 +271,7 @@ void FlightPathMovementGenerator::Finalize(Player & player)
 
     player.Unmount();
     player.RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_TAXI_FLIGHT);
+    player.RemoveUnitMovementFlag(MOVEMENTFLAG_FLYING2);
 
     if(player.m_taxi.empty())
     {
