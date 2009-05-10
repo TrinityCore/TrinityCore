@@ -89,10 +89,6 @@ void WorldSession::HandlePetActionHelper(Unit *pet, uint64 guid1, uint16 spellid
     switch(flag)
     {
         case ACT_COMMAND:                                   //0x0700
-            // Possessed or shared vision pets are only able to attack
-            if ((pet->isPossessed() || pet->HasAuraType(SPELL_AURA_BIND_SIGHT)) && spellid != COMMAND_ATTACK)
-                return;
-
             switch(spellid)
             {
                 case COMMAND_STAY:                          //flat=1792  //STAY
@@ -162,10 +158,7 @@ void WorldSession::HandlePetActionHelper(Unit *pet, uint64 guid1, uint16 spellid
                 }
                 case COMMAND_ABANDON:                       // abandon (hunter pet) or dismiss (summoned pet)
                     if(pet->GetCharmerGUID() == GetPlayer()->GetGUID())
-                    {
-                        if(GetPlayer()->m_seer != pet)
-                            _player->StopCastingCharm();
-                    }
+                        _player->StopCastingCharm();
                     else if(pet->GetOwnerGUID() == GetPlayer()->GetGUID())
                     {
                         assert(pet->GetTypeId() == TYPEID_UNIT);
