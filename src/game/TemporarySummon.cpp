@@ -208,6 +208,7 @@ void TempSummon::InitSummon()
         if(GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER && m_spells[0])
         {
             setFaction(owner->getFaction());
+            SetLevel(owner->getLevel());
             CastSpell(this, m_spells[0], false, 0, 0, m_summonerGUID);
         }
     }
