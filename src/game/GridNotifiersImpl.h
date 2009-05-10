@@ -178,8 +178,11 @@ inline void Trinity::DynamicObjectUpdater::VisitHelper(Unit* target)
     if (i_dynobject.IsAffecting(target))
         return;
 
-    SpellEntry const *spellInfo = sSpellStore.LookupEntry(i_dynobject.GetSpellId());
     uint32 eff_index  = i_dynobject.GetEffIndex();
+    if(target->HasAuraEffect(i_dynobject.GetSpellId(), eff_index, i_check->GetGUID()))
+        return;
+
+    SpellEntry const *spellInfo = sSpellStore.LookupEntry(i_dynobject.GetSpellId());
     if(spellInfo->EffectImplicitTargetB[eff_index] == TARGET_DEST_DYNOBJ_ALLY
         || spellInfo->EffectImplicitTargetB[eff_index] == TARGET_UNIT_AREA_ALLY_DST)
     {
@@ -205,7 +208,7 @@ inline void Trinity::DynamicObjectUpdater::VisitHelper(Unit* target)
     if (target->IsImmunedToSpell(spellInfo) || target->IsImmunedToSpellEffect(spellInfo, eff_index))
         return;
     // Apply PersistentAreaAura on target
-    target->AddAuraEffect(spellInfo->Id, eff_index, i_dynobject.GetCaster());
+    target->AddAuraEffect(spellInfo, eff_index, i_dynobject.GetCaster());
     i_dynobject.AddAffected(target);
 }
 

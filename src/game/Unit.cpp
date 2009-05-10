@@ -13610,16 +13610,12 @@ void Unit::AddAura(uint32 spellId, Unit* target)
     target->AddAura(Aur);
 }
 
-Aura * Unit::AddAuraEffect(uint32 spellId, uint8 effIndex, Unit* caster, int32 * basePoints)
+Aura * Unit::AddAuraEffect(const SpellEntry * spellInfo, uint8 effIndex, Unit* caster, int32 * basePoints)
 {
-    SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
-    if(!spellInfo || !caster)
-        return NULL;
-
     // can't do that for passive auras - they stack from same caster so there is no way to get exact aura which should get effect
     //assert (!IsPassiveSpell(spellInfo));
 
-    Aura * aur = GetAura(spellId, caster->GetGUID());
+    Aura *aur = GetAura(spellInfo->Id, caster->GetGUID());
 
     if (aur)
     {
@@ -13636,10 +13632,10 @@ Aura * Unit::AddAuraEffect(uint32 spellId, uint8 effIndex, Unit* caster, int32 *
             aur = new Aura(spellInfo, 1<<effIndex, amount, this ,caster);
         }
         else
-        {
             aur = new Aura(spellInfo, 1<<effIndex, NULL, this ,caster);
-        }
-        AddAura(aur);
+
+        if(!AddAura(aur))
+            return NULL;
     }
     return aur;
 }

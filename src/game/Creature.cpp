@@ -164,8 +164,8 @@ Creature::~Creature()
         i_AI = NULL;
     }
 
-    if(m_uint32Values)
-        sLog.outDetail("Deconstruct Creature Entry = %u", GetEntry());
+    //if(m_uint32Values)
+    //    sLog.outDetail("Deconstruct Creature Entry = %u", GetEntry());
 }
 
 void Creature::AddToWorld()
@@ -2105,7 +2105,7 @@ bool Creature::LoadCreaturesAddon(bool reload)
                 continue;
             }
 
-            AddAuraEffect(AdditionalSpellInfo->Id, cAura->effect_idx, this);
+            AddAuraEffect(AdditionalSpellInfo, cAura->effect_idx, this);
             sLog.outDebug("Spell: %u with Aura %u added to creature (GUIDLow: %u Entry: %u )", cAura->spell_id, AdditionalSpellInfo->EffectApplyAuraName[cAura->effect_idx],GetGUIDLow(),GetEntry());
         }
     }
