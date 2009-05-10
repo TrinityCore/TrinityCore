@@ -2667,25 +2667,6 @@ void AuraEffect::HandleAuraDummy(bool apply, bool Real)
         }
         case SPELLFAMILY_HUNTER:
         {
-            // Improved Aspect of the Viper
-            if( GetId()==38390 && m_target->GetTypeId()==TYPEID_PLAYER )
-            {
-                if(apply)
-                {
-                    // + effect value for Aspect of the Viper
-                    SpellModifier *mod = new SpellModifier;
-                    mod->op = SPELLMOD_EFFECT1;
-                    mod->value = m_amount;
-                    mod->type = SPELLMOD_FLAT;
-                    mod->spellId = GetId();
-                    mod->mask[1] = 0x40000;
-
-                    m_spellmod = mod;
-                }
-
-                ((Player*)m_target)->AddSpellMod(m_spellmod, apply);
-                return;
-            }
             // Glyph of Aspect of the Monkey
             if(m_spellProto->Id==56833)
             {
