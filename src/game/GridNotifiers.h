@@ -499,6 +499,53 @@ namespace Trinity
     // CHECKS && DO classes
 
     // WorldObject check classes
+    class RaiseDeadObjectCheck
+    {
+        public:
+            RaiseDeadObjectCheck(Unit* funit, float range) : i_funit(funit), i_range(range) {}
+            bool operator()(Creature* u)
+            {
+                if (i_funit->GetTypeId()!=TYPEID_PLAYER || !((Player*)i_funit)->isHonorOrXPTarget(u) ||
+                    u->getDeathState() != CORPSE || u->isDeadByDefault() || u->isInFlight() ||
+                    ( u->GetCreatureTypeMask() & (1 << (CREATURE_TYPE_HUMANOID-1)) )==0 ||
+                    (u->GetDisplayId() != u->GetNativeDisplayId()))
+                    return false;
+
+                return i_funit->IsWithinDistInMap(u, i_range);
+            }
+            template<class NOT_INTERESTED> bool operator()(NOT_INTERESTED*) { return false; }
+        private:
+            Unit* const i_funit;
+            float i_range;
+    };
+
+    class ExplodeCorpseObjectCheck
+    {
+        public:
+            ExplodeCorpseObjectCheck(Unit* funit, float range) : i_funit(funit), i_range(range) {}
+            bool operator()(Player* u)
+            {
+                if (u->getDeathState()!=CORPSE || u->isInFlight() ||
+                    u->HasAuraType(SPELL_AURA_GHOST) || (u->GetDisplayId() != u->GetNativeDisplayId()))
+                    return false;
+
+                return i_funit->IsWithinDistInMap(u, i_range);
+            }
+            bool operator()(Creature* u)
+            {
+                if (u->getDeathState()!=CORPSE || u->isInFlight() || u->isDeadByDefault() ||
+                    (u->GetDisplayId() != u->GetNativeDisplayId()) ||
+                    (u->GetCreatureTypeMask() & CREATURE_TYPEMASK_MECHANICAL_OR_ELEMENTAL)!=0)
+                    return false;
+
+                return i_funit->IsWithinDistInMap(u, i_range);
+            }
+            template<class NOT_INTERESTED> bool operator()(NOT_INTERESTED*) { return false; }
+        private:
+            Unit* const i_funit;
+            float i_range;
+    };
+
     class CannibalizeObjectCheck
     {
         public:
@@ -508,22 +555,16 @@ namespace Trinity
                 if( i_funit->IsFriendlyTo(u) || u->isAlive() || u->isInFlight() )
                     return false;
 
-                if(i_funit->IsWithinDistInMap(u, i_range) )
-                    return true;
-
-                return false;
+                return i_funit->IsWithinDistInMap(u, i_range);
             }
             bool operator()(Corpse* u);
             bool operator()(Creature* u)
             {
-                if( i_funit->IsFriendlyTo(u) || u->isAlive() || u->isInFlight() ||
+                if (i_funit->IsFriendlyTo(u) || u->isAlive() || u->isInFlight() ||
                     (u->GetCreatureTypeMask() & CREATURE_TYPEMASK_HUMANOID_OR_UNDEAD)==0)
                     return false;
 
-                if(i_funit->IsWithinDistInMap(u, i_range) )
-                    return true;
-
-                return false;
+                return i_funit->IsWithinDistInMap(u, i_range);
             }
             template<class NOT_INTERESTED> bool operator()(NOT_INTERESTED*) { return false; }
         private:

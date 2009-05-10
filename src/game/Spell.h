@@ -412,6 +412,8 @@ class Spell
 
         void SetTargetMap(uint32 i, uint32 cur);
 
+        template<typename T> WorldObject* FindCorpseUsing();
+
         bool CheckTarget( Unit* target, uint32 eff );
         bool CanAutoCast(Unit* target);
         void CheckSrc() { if(!m_targets.HasSrc()) m_targets.setSrc(m_caster); }
