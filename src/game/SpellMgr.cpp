@@ -27,6 +27,7 @@
 #include "Chat.h"
 #include "Spell.h"
 #include "BattleGroundMgr.h"
+#include "CreatureAI.h"
 
 bool IsAreaEffectTarget[TOTAL_SPELL_TARGETS];
 
@@ -2520,6 +2521,8 @@ void SpellMgr::LoadSpellCustomAttr()
 
     SummonPropertiesEntry *properties = const_cast<SummonPropertiesEntry*>(sSummonPropertiesStore.LookupEntry(121));
     properties->Type = SUMMON_TYPE_TOTEM;
+
+    CreatureAI::FillAISpellInfo();
 }
 
 void SpellMgr::LoadSpellLinked()

@@ -21,9 +21,8 @@
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
 #include "Creature.h"
-#include "Player.h"
-#include "Pet.h"
 #include "World.h"
+#include "SpellMgr.h"
 
 //Disable CreatureAI when charmed
 void CreatureAI::OnCharmed(bool apply)
@@ -261,16 +260,47 @@ void CreatureAI::FillAISpellInfo()
 {
     AISpellInfo = new AISpellInfoType[GetSpellStore()->GetNumRows()];
 
+    AISpellInfoType *AIInfo = AISpellInfo;
     const SpellEntry * spellInfo;
 
-    for(uint32 i = 0; i < GetSpellStore()->GetNumRows(); ++i)
+    for(uint32 i = 0; i < GetSpellStore()->GetNumRows(); ++i, ++AIInfo)
     {
         spellInfo = GetSpellStore()->LookupEntry(i);
-        if (!spellInfo)
+        if(!spellInfo)
             continue;
+
+        if(spellInfo->Attributes & SPELL_ATTR_CASTABLE_WHILE_DEAD)
+            AIInfo->condition = AICOND_DIE;
+        else if(IsPassiveSpell(i) || GetSpellDuration(spellInfo) == -1)
+            AIInfo->condition = AICOND_AGGRO;
+        else
+            AIInfo->condition = AICOND_COMBAT;
+
+        if(AIInfo->cooldown < spellInfo->RecoveryTime)
+            AIInfo->cooldown = spellInfo->RecoveryTime;
 
         for(uint32 j = 0; j < 3; ++j)
         {
+            if(spellInfo->EffectImplicitTargetA[j] == TARGET_UNIT_TARGET_ENEMY
+                || spellInfo->EffectImplicitTargetA[j] == TARGET_DST_TARGET_ENEMY)
+            {
+                if(AIInfo->target < AITARGET_VICTIM)
+                    AIInfo->target = AITARGET_VICTIM;
+            }
+
+            if(spellInfo->Effect[j] == SPELL_EFFECT_APPLY_AURA)
+            {
+                if(spellInfo->EffectImplicitTargetA[j] == TARGET_UNIT_TARGET_ENEMY)
+                {
+                    if(AIInfo->target < AITARGET_DEBUFF)
+                        AIInfo->target = AITARGET_DEBUFF;
+                }
+                else if(IsPositiveSpell(i))
+                {
+                    if(AIInfo->target < AITARGET_BUFF)
+                        AIInfo->target = AITARGET_BUFF;
+                }
+            }
         }
     }
 }
