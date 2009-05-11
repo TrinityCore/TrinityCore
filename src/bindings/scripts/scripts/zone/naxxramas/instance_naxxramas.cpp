@@ -77,9 +77,9 @@ inline uint32 GetEruptionSection(float x, float y)
     return 3;
 }
 
-struct TRINITY_DLL_DECL instance_naxxramas : public ScriptedInstance
+struct TRINITY_DLL_DECL instance_naxxramas : public InstanceData
 {
-    instance_naxxramas(Map *map) : ScriptedInstance(map)
+    instance_naxxramas(Map *map) : InstanceData(map)
         , Sapphiron(NULL)
     {
         SetBossNumber(MAX_BOSS_NUMBER);
@@ -88,12 +88,14 @@ struct TRINITY_DLL_DECL instance_naxxramas : public ScriptedInstance
 
     std::set<GameObject*> HeiganEruption[4];
     Creature *Sapphiron;
+    std::set<Creature*> Worshipper;
 
     void OnCreatureCreate(Creature *creature, bool add)
     {
         switch(creature->GetEntry())
         {
             case 15989: Sapphiron = add ? creature : NULL; break;
+            case 16506: if(add) Worshipper.insert(creature); else Worshipper.erase(creature); break;
         }
     }
 
@@ -115,6 +117,20 @@ struct TRINITY_DLL_DECL instance_naxxramas : public ScriptedInstance
         }
 
         AddDoor(go, add);
+    }
+
+    void SetBossState(uint32 id, EncounterState state)
+    {
+        InstanceData::SetBossState(id, state);
+        switch(id)
+        {
+            case BOSS_FAERLINA:
+                if(state == NOT_STARTED)
+                    for(std::set<Creature*>::iterator itr = Worshipper.begin(); itr != Worshipper.end(); ++itr)
+                        if(!(*itr)->isAlive())
+                            (*itr)->Respawn();
+            break;
+        }
     }
 
     void SetData(uint32 id, uint32 value)

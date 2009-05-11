@@ -221,13 +221,13 @@ struct TRINITY_DLL_DECL NullCreatureAI : public ScriptedAI
 struct TRINITY_DLL_DECL BossAI : public ScriptedAI
 {
     BossAI(Creature *c, uint32 id) : ScriptedAI(c), bossId(id)
-        , summons(me), instance((ScriptedInstance*)c->GetInstanceData())
+        , summons(me), instance(c->GetInstanceData())
     {}
 
     uint32 bossId;
     EventMap events;
     SummonList summons;
-    ScriptedInstance *instance;
+    InstanceData *instance;
 
     void JustSummoned(Creature *summon);
     void SummonedCreatureDespawn(Creature *summon);
