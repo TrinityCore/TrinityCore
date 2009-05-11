@@ -1224,26 +1224,26 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const * spellP
 
     */
 
-    if (EventProcFlag & PROC_FLAG_ON_DO_PERIODIC)
+    if (procFlags & PROC_FLAG_ON_DO_PERIODIC)
     {
-        if (procFlags & PROC_FLAG_SUCCESSFUL_NEGATIVE_SPELL_HIT)
+        if (EventProcFlag & PROC_FLAG_SUCCESSFUL_NEGATIVE_SPELL_HIT)
         {
             if (!(procExtra & PROC_EX_INTERNAL_DOT))
                 return false;
         }
-        else if (procFlags & PROC_FLAG_SUCCESSFUL_POSITIVE_SPELL
+        else if (EventProcFlag & PROC_FLAG_SUCCESSFUL_POSITIVE_SPELL
             && !(procExtra & PROC_EX_INTERNAL_HOT))
             return false;
     }
 
-    if (EventProcFlag & PROC_FLAG_ON_TAKE_PERIODIC)
+    if (procFlags & PROC_FLAG_ON_TAKE_PERIODIC)
     {
-        if (procFlags & PROC_FLAG_TAKEN_NEGATIVE_SPELL_HIT)
+        if (EventProcFlag & PROC_FLAG_TAKEN_NEGATIVE_SPELL_HIT)
         {
             if (!(procExtra & PROC_EX_INTERNAL_DOT))
                 return false;
         }
-        else if (procFlags & PROC_FLAG_TAKEN_POSITIVE_SPELL
+        else if (EventProcFlag & PROC_FLAG_TAKEN_POSITIVE_SPELL
             && !(procExtra & PROC_EX_INTERNAL_HOT))
             return false;
     }
