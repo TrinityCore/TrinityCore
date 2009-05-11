@@ -39,12 +39,6 @@ struct TRINITY_DLL_DECL boss_patchwerkAI : public BossAI
 
     bool Enraged;
 
-    void Reset()
-    {
-        _Reset();
-        Enraged = false;
-    }
-
     void KilledUnit(Unit* Victim)
     {
         if(!(rand()%5))
@@ -60,6 +54,7 @@ struct TRINITY_DLL_DECL boss_patchwerkAI : public BossAI
     void EnterCombat(Unit *who)
     {
         _EnterCombat();
+        Enraged = false;
         DoScriptText(SAY_AGGRO, me);
         events.ScheduleEvent(EVENT_HATEFUL, 1200);
         events.ScheduleEvent(EVENT_BERSERK, 360000);
