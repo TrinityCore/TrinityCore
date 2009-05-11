@@ -42,7 +42,7 @@
 #define SPELL_UNBALANCING_STRIKE    26613
 #define SPELL_DISRUPTING_SHOUT      HEROIC(29107,55543)
 #define SPELL_JAGGED_KNIFE          55550
-#define SPELL_HOPELESS              29105
+#define SPELL_HOPELESS              29125
 
 enum Events
 {
@@ -66,7 +66,7 @@ struct TRINITY_DLL_DECL boss_razuviousAI : public BossAI
     {
         _JustDied();
         DoPlaySoundToSet(me, SOUND_DEATH);
-        me->CastSpell(me, SPELL_HOPELESS, true);
+        me->CastSpell(me, SPELL_HOPELESS, true); // TODO: this may affect other creatures
     }
 
     void EnterCombat(Unit *who)
