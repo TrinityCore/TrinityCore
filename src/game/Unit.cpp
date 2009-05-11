@@ -1615,41 +1615,39 @@ void Unit::DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss)
     {
         for(int i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; i++)
         {
-            EquipmentSlots slot = (EquipmentSlots)i;
-            // For weapon slots check if valid attack type and if weapon useable
-            if (i == EQUIPMENT_SLOT_MAINHAND
-                || i == EQUIPMENT_SLOT_OFFHAND
-                || i == EQUIPMENT_SLOT_RANGED)
-            {
-                switch (damageInfo->attackType)
-                {
-                    case BASE_ATTACK:   slot = EQUIPMENT_SLOT_MAINHAND; break;
-                    case OFF_ATTACK:    slot = EQUIPMENT_SLOT_OFFHAND;  break;
-                    case RANGED_ATTACK: slot = EQUIPMENT_SLOT_RANGED;   break;
-                    default:
-                    slot=EQUIPMENT_SLOT_END;
-                }
-                // offhand item cannot proc from main hand hit etc
-                if (slot != i)
-                    slot=EQUIPMENT_SLOT_END;
-                else
-                {
-                    // Check if item is useable (forms or disarm)
-                    if (damageInfo->attackType == BASE_ATTACK)
-                    {
-                        if (!((Player*)this)->IsUseEquipedWeapon(true))
-                            slot=EQUIPMENT_SLOT_END;
-                    }
-                    else if (damageInfo->attackType == OFF_ATTACK)
-                    {
-                        if (((Player*)this)->IsInFeralForm())
-                            slot=EQUIPMENT_SLOT_END;
-                    }
-                }
-            }
             // If usable, try to cast item spell
-            if(slot!=EQUIPMENT_SLOT_END)
-                ((Player*)this)->CastItemCombatSpell(((Player*)this)->GetItemByPos(INVENTORY_SLOT_BAG_0,i), damageInfo);
+            if (Item * item = ((Player*)this)->GetItemByPos(INVENTORY_SLOT_BAG_0,i))
+                if(!item->IsBroken())
+                    if (ItemPrototype const *proto = item->GetProto())
+                    {
+                        // Additional check for weapons
+                        if (proto->Class==ITEM_CLASS_WEAPON)
+                        {
+                            // offhand item cannot proc from main hand hit etc
+                            EquipmentSlots slot;
+                            switch (damageInfo->attackType)
+                            {
+                                case BASE_ATTACK:   slot = EQUIPMENT_SLOT_MAINHAND; break;
+                                case OFF_ATTACK:    slot = EQUIPMENT_SLOT_OFFHAND;  break;
+                                case RANGED_ATTACK: slot = EQUIPMENT_SLOT_RANGED;   break;
+                                default: slot = EQUIPMENT_SLOT_END; break;
+                            }
+                            if (slot != i)
+                                continue;
+                            // Check if item is useable (forms or disarm)
+                            if (damageInfo->attackType == BASE_ATTACK)
+                            {
+                                if (!((Player*)this)->IsUseEquipedWeapon(true))
+                                    continue;
+                            }
+                            else
+                            {
+                                if (((Player*)this)->IsInFeralForm())
+                                    continue;
+                            }
+                        }
+                        ((Player*)this)->CastItemCombatSpell(item, damageInfo, proto);
+                    }
         }
     }
 
