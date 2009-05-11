@@ -609,7 +609,7 @@ class Spell
         void SpellDamageWeaponDmg(uint32 i);
         void SpellDamageHeal(uint32 i);
 
-        void GetSummonPosition(float &x, float &y, float &z, float radius = 0.0f, uint32 count = 0);
+        void GetSummonPosition(uint32 i, float &x, float &y, float &z, float radius = 0.0f, uint32 count = 0);
         void SummonGuardian (uint32 entry, SummonPropertiesEntry const *properties);
 
         SpellCastResult CanOpenLock(uint32 effIndex, uint32 lockid, SkillType& skillid, int32& reqSkillValue, int32& skillValue);

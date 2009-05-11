@@ -3190,7 +3190,7 @@ void Spell::EffectSummonType(uint32 i)
         modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DURATION, duration);
 
     float x, y, z;
-    GetSummonPosition(x, y, z);
+    GetSummonPosition(i, x, y, z);
 
     /*//totem must be at same Z in case swimming caster and etc.
         if( fabs( z - m_caster->GetPositionZ() ) > 5 )
@@ -3291,7 +3291,7 @@ void Spell::EffectSummonType(uint32 i)
                     for(int32 count = 0; count < amount; ++count)
                     {
                         float px, py, pz;
-                        GetSummonPosition(px, py, pz, radius, count);
+                        GetSummonPosition(i, px, py, pz, radius, count);
 
                         TempSummonType summonType = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_DESPAWN;
 
@@ -6212,7 +6212,7 @@ void Spell::EffectSummonDemon(uint32 i)
     for(int32 count = 0; count < amount; ++count)
     {
         float px, py, pz;
-        GetSummonPosition(px, py, pz, radius, count);
+        GetSummonPosition(i, px, py, pz, radius, count);
 
         int32 duration = GetSpellDuration(m_spellInfo);
 
@@ -6412,7 +6412,7 @@ void Spell::SummonGuardian(uint32 entry, SummonPropertiesEntry const *properties
     for(int32 count = 0; count < amount; ++count)
     {
         float px, py, pz;
-        GetSummonPosition(px, py, pz, radius, count);
+        GetSummonPosition(0, px, py, pz, radius, count);
 
         TempSummon *summon = map->SummonCreature(entry, px, py, pz, m_caster->GetOrientation(), properties, duration, caster);
         if(!summon)
@@ -6427,7 +6427,7 @@ void Spell::SummonGuardian(uint32 entry, SummonPropertiesEntry const *properties
     }
 }
 
-void Spell::GetSummonPosition(float &x, float &y, float &z, float radius, uint32 count)
+void Spell::GetSummonPosition(uint32 i, float &x, float &y, float &z, float radius, uint32 count)
 {
     if (m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION)
     {
@@ -6440,7 +6440,25 @@ void Spell::GetSummonPosition(float &x, float &y, float &z, float radius, uint32
         }
         // Summon in random point all other units if location present
         else
-            m_caster->GetRandomPoint(m_targets.m_destX,m_targets.m_destY,m_targets.m_destZ,radius,x,y,z);
+        {
+            //This is a workaround. Do not have time to write much about it
+            switch(m_spellInfo->EffectImplicitTargetA[i])
+            {
+                case TARGET_MINION:
+                case TARGET_DEST_CASTER_RANDOM:
+                    m_caster->GetGroundPointAroundUnit(x, y, z, radius * rand_norm(), rand_norm()*2*M_PI);
+                    break;
+                case TARGET_DEST_DEST_RANDOM:
+                case TARGET_DEST_TARGET_RANDOM:
+                    m_caster->GetRandomPoint(m_targets.m_destX,m_targets.m_destY,m_targets.m_destZ,radius,x,y,z);
+                    break;
+                default:
+                    x = m_targets.m_destX;
+                    y = m_targets.m_destY;
+                    z = m_targets.m_destZ;
+                    break;
+            }
+        }
     }
     // Summon if dest location not present near caster
     else
