@@ -854,6 +854,7 @@ CREATE TABLE `gm_tickets` (
   `posX` float NOT NULL DEFAULT '0',
   `posY` float NOT NULL DEFAULT '0',
   `posZ` float NOT NULL DEFAULT '0',
+  `timestamp` int(10) NOT NULL default '0',
   `closed` int(10) NOT NULL default '0',
   `assignedto` int(10) NOT NULL default '0',
   `comment` text NOT NULL,
