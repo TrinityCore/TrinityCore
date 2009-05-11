@@ -6991,15 +6991,8 @@ void Player::UpdateEquipSpellsAtFormChange()
     }
 }
 
-void Player::CastItemCombatSpell(Item *item, CalcDamageInfo *damageInfo)
+void Player::CastItemCombatSpell(Item *item, CalcDamageInfo *damageInfo, ItemPrototype const * proto)
 {
-    if(!item || item->IsBroken())
-        return;
-
-    ItemPrototype const *proto = item->GetProto();
-    if(!proto)
-        return;
-
     Unit * Target = damageInfo->target;
     WeaponAttackType attType = damageInfo->attackType;
 
