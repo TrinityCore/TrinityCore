@@ -12,6 +12,8 @@
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
 
+class ScriptedInstance;
+
 class SummonList : private std::list<uint64>
 {
     public:
@@ -214,6 +216,31 @@ struct TRINITY_DLL_DECL NullCreatureAI : public ScriptedAI
     void EnterEvadeMode() {}
 
     void UpdateAI(const uint32) {}
+};
+
+struct TRINITY_DLL_DECL BossAI : public ScriptedAI
+{
+    BossAI(Creature *c, uint32 id) : ScriptedAI(c), bossId(id)
+        , summons(me), instance((ScriptedInstance*)c->GetInstanceData())
+    {}
+
+    uint32 bossId;
+    EventMap events;
+    SummonList summons;
+    ScriptedInstance *instance;
+
+    void JustSummoned(Creature *summon);
+    void SummonedCreatureDespawn(Creature *summon);
+
+    void UpdateAI(const uint32 diff) = 0;
+
+    void _Reset();
+    void _EnterCombat();
+    void _JustDied();
+
+    void Reset() { _Reset(); }
+    void EnterCombat(Unit *who) { _EnterCombat(); }
+    void JustDied(Unit *killer) { _JustDied(); }
 };
 
 #endif

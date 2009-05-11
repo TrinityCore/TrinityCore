@@ -55,6 +55,7 @@ void SummonList::DespawnAll()
         else
         {
             erase(begin());
+            summon->SetVisibility(VISIBILITY_OFF);
             summon->setDeathState(JUST_DIED);
             summon->RemoveCorpse();
         }
@@ -632,6 +633,37 @@ void Scripted_NoMovementAI::AttackStart(Unit* who)
     {
         DoStartNoMovement(who);
     }
+}
+
+void BossAI::_Reset()
+{
+    events.Reset();
+    summons.DespawnAll();
+    instance->SetBossState(bossId, NOT_STARTED);
+}
+
+void BossAI::_JustDied()
+{
+    events.Reset();
+    summons.DespawnAll();
+    instance->SetBossState(bossId, DONE);
+}
+
+void BossAI::_EnterCombat()
+{
+    DoZoneInCombat();
+    instance->SetBossState(bossId, IN_PROGRESS);
+}
+
+void BossAI::JustSummoned(Creature *summon)
+{
+    summons.Summon(summon);
+    DoZoneInCombat(summon);
+}
+
+void BossAI::SummonedCreatureDespawn(Creature *summon)
+{
+    summons.Despawn(summon);
 }
 
 #define GOBJECT(x) (const_cast<GameObjectInfo*>(GetGameObjectInfo(x)))
