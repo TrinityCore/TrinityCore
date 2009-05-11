@@ -22,6 +22,7 @@
 #define TRINITY_CREATUREAI_H
 
 #include "UnitAI.h"
+#include "Common.h"
 
 class WorldObject;
 class Unit;
