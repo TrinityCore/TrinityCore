@@ -1,4 +1,6 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/*
+ * Copyright (C) 2008 - 2009 Trinity <http://www.trinitycore.org/>
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -13,13 +15,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
-/* ScriptData
-SDName: Boss_Sapphiron
-SD%Complete: 0
-SDComment: Place Holder
-SDCategory: Naxxramas
-EndScriptData */
 
 #include "precompiled.h"
 #include "def_naxxramas.h"
@@ -71,14 +66,12 @@ enum Events
 
 typedef std::map<uint64, uint64> IceBlockMap;
 
-struct TRINITY_DLL_DECL boss_sapphironAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_sapphironAI : public BossAI
 {
-    boss_sapphironAI(Creature* c) : ScriptedAI(c)
+    boss_sapphironAI(Creature* c) : BossAI(c, BOSS_SAPPHIRON)
         , phase(PHASE_NULL)
-    {
-    }
+    {}
 
-    EventMap events;
     Phases phase;
     uint32 iceboltCount;
     IceBlockMap iceblocks;
@@ -97,16 +90,18 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public ScriptedAI
 
     void Reset()
     {
+        _Reset();
+
         if(phase = PHASE_FLIGHT)
             ClearIceBlock();
 
-        events.Reset();
         phase = PHASE_NULL;
     }
 
     void EnterCombat(Unit *who)
     {
-        DoZoneInCombat();
+        _EnterCombat();
+
         me->CastSpell(me, SPELL_FROST_AURA, true);
 
         events.ScheduleEvent(EVENT_BERSERK, 15*60000);
@@ -128,6 +123,7 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public ScriptedAI
 
     void JustDied(Unit*)
     {
+        _JustDied();
         me->CastSpell(me, SPELL_DIES, true);
     }
 
