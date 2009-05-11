@@ -100,7 +100,7 @@ WaypointMovementGenerator<Creature>::Initialize(Creature &u)
     //i_nextMoveTime.Reset(0);
     StopedByPlayer = false;
     if(!path_id)
-        path_id = u.GetWaypointPath();
+        path_id = u.GetWaypointPathId();
     waypoints = WaypointMgr.GetPath(path_id);
     i_currentNode = 0;
     if(waypoints && waypoints->size())
@@ -226,7 +226,7 @@ template bool WaypointMovementGenerator<Player>::Update(Player &, const uint32 &
 template void WaypointMovementGenerator<Player>::MovementInform(Player &);
 
 //----------------------------------------------------//
-void FlightPathMovementGenerator::LoadPath(Player &)
+void FlightPathMovementGenerator::SetWaypointPathId(Player &)
 {
     objmgr.GetTaxiPathNodes(i_pathId, i_path,i_mapIds);
 }
@@ -252,7 +252,7 @@ void FlightPathMovementGenerator::Initialize(Player &player)
     player.addUnitState(UNIT_STAT_IN_FLIGHT);
     player.SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_TAXI_FLIGHT);
     player.AddUnitMovementFlag(MOVEMENTFLAG_FLYING2);
-    LoadPath(player);
+    SetWaypointPathId(player);
     Traveller<Player> traveller(player);
     // do not send movement, it was sent already
     i_destinationHolder.SetDestination(traveller, i_path[i_currentNode].x, i_path[i_currentNode].y, i_path[i_currentNode].z, false);
