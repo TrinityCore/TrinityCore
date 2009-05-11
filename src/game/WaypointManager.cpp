@@ -24,12 +24,12 @@
 #include "ProgressBar.h"
 #include "MapManager.h"
 
-UNORDERED_MAP<uint32, WaypointPath*> waypoint_map;
+WaypointPathMap WaypointPathHolder;
 WaypointStore WaypointMgr;
 
 void WaypointStore::Free()
 {
-    waypoint_map.clear();
+    WaypointPathHolder.clear();
 }
 
 void WaypointStore::Load()
@@ -37,7 +37,7 @@ void WaypointStore::Load()
     QueryResult *result = WorldDatabase.PQuery("SELECT MAX(`id`) FROM `waypoint_data`");
     if(!result)
     {
-        sLog.outError(" an error occured while loading the table `waypoint_data` ( maybe it doesn't exist ?)\n");
+        sLog.outError("an error occured while loading the table `waypoint_data` (maybe it doesn't exist ?)");
         exit(1);                                            // Stop server at loading non exited table or not accessable table
     }
 
@@ -47,7 +47,7 @@ void WaypointStore::Load()
     result = WorldDatabase.PQuery("SELECT `id`,`point`,`position_x`,`position_y`,`position_z`,`move_flag`,`delay`,`action`,`action_chance` FROM `waypoint_data` ORDER BY `id`, `point`");
     if(!result)
     {
-        sLog.outErrorDb("The table `creature_addon` is empty or corrupted");
+        sLog.outErrorDb("The table `waypoint_data` is empty or corrupted");
         return;
     }
 
@@ -87,22 +87,21 @@ void WaypointStore::Load()
 
         path_data->push_back(wp);
 
-    if(id != last_id)
-        waypoint_map[id] = path_data;
+        if(id != last_id)
+            WaypointPathHolder[id] = path_data;
 
         last_id = id;
 
     } while(result->NextRow()) ;
-
 
     delete result;
 }
 
 void WaypointStore::UpdatePath(uint32 id)
 {
-
-    if(waypoint_map.find(id)!= waypoint_map.end())
-        waypoint_map[id]->clear();
+    // TODO: this will cause memory leak
+    if(WaypointPathHolder.find(id) != WaypointPathHolder.end())
+        WaypointPathHolder[id]->clear();
 
     QueryResult *result;
 
@@ -145,7 +144,7 @@ void WaypointStore::UpdatePath(uint32 id)
 
     }while (result->NextRow());
 
-    waypoint_map[id] = path_data;
+    WaypointPathHolder[id] = path_data;
 
     delete result;
 }
