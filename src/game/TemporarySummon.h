@@ -23,7 +23,7 @@
 
 #include "Creature.h"
 
-class TempSummon : public Creature
+class TRINITY_DLL_SPEC TempSummon : public Creature
 {
     public:
         explicit TempSummon(SummonPropertiesEntry const *properties, Unit *owner);

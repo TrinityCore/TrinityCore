@@ -53,7 +53,9 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL molten_flameAI : public NullCreatureAI
 {
-    molten_flameAI(Creature *c) : NullCreatureAI(c)
+    molten_flameAI(Creature *c) : NullCreatureAI(c) {}
+
+    void InitializeAI()
     {
         float x, y, z;
         me->GetNearPoint(me, x, y, z, 1, 50, M_PI*2*rand_norm());

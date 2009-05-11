@@ -37,7 +37,7 @@ class TRINITY_DLL_DECL AggressorAI : public CreatureAI
 
 typedef std::vector<uint32> SpellVct;
 
-class TRINITY_DLL_DECL SpellAI : public CreatureAI
+class TRINITY_DLL_SPEC SpellAI : public CreatureAI
 {
     public:
         explicit SpellAI(Creature *c) : CreatureAI(c) {}
