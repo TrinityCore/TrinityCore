@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2008 - 2009 Trinity <http://www.trinitycore.org/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -13,13 +13,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
-/* ScriptData
-SDName: Boss_Heigan
-SD%Complete: 0
-SDComment: Place Holder
-SDCategory: Naxxramas
-EndScriptData */
 
 #include "precompiled.h"
 #include "def_naxxramas.h"
@@ -50,24 +43,13 @@ enum Phases
 //Spell by eye stalks
 #define SPELL_MIND_FLAY     26143
 
-struct TRINITY_DLL_DECL boss_heiganAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_heiganAI : public BossAI
 {
-    boss_heiganAI(Creature *c) : ScriptedAI(c)
-    {
-        instance = ((ScriptedInstance*)c->GetInstanceData());
-    }
+    boss_heiganAI(Creature *c) : BossAI(c, BOSS_HEIGAN) {}
 
-    EventMap events;
-    ScriptedInstance *instance;
     uint32 eruptSection;
     bool eruptDirection;
     Phases phase;
-
-    void Reset()
-    {
-        events.Reset();
-        instance->SetBossState(BOSS_HEIGAN, NOT_STARTED);
-    }
 
     void KilledUnit(Unit* Victim)
     {
@@ -77,16 +59,15 @@ struct TRINITY_DLL_DECL boss_heiganAI : public ScriptedAI
 
     void JustDied(Unit* Killer)
     {
+        _JustDied();
         DoScriptText(SAY_DEATH, me);
-        instance->SetBossState(BOSS_HEIGAN, DONE);
     }
 
     void EnterCombat(Unit *who)
     {
+        _EnterCombat();
         DoScriptText(SAY_AGGRO, me);
-        DoZoneInCombat();
         EnterPhase(PHASE_FIGHT);
-        instance->SetBossState(BOSS_HEIGAN, IN_PROGRESS);
     }
 
     void EnterPhase(Phases newPhase)

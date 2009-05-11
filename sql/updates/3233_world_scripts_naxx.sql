@@ -30,5 +30,21 @@ DELETE FROM `spell_script_target` WHERE `entry` IN (55479);
 INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
 (55479, 1, 16803); # Force Obedience - Death Knight Understudy
 
-# Death Knight Understudy
-UPDATE creature_template SET spell1=0, spell2=0, spell3=0, spell4=61696, spell5=29060, spell6=29061 WHERE entry IN (16803,29941);
+INSERT INTO creature_template (entry, spell1, spell2, spell3, spell4, spell5, spell6, spell7, spell8) VALUES
+(16803, 0, 0, 0, 61696, 29060, 29061, 0, 0), # Death Knight Understudy
+(29941, 0, 0, 0, 61696, 29060, 29061, 0, 0), # Death Knight Understudy (H)
+(16573, 15284, 28991, 28969, 34970, 28864, 0, 0, 0), # Crypt Guard
+(29256, 15284, 28991, 56098, 34970, 28864, 0, 0, 0), # Crypt Guard (H)
+(16984, 15496, 0, 0, 0, 0, 0, 0, 0), # Plagued Warrior
+(29632, 15496, 0, 0, 0, 0, 0, 0, 0), # Plagued Warrior (H)
+(16290, 28156, 0, 0, 0, 0, 0, 0, 0), # Fallout Slime
+(29388, 54367, 0, 0, 0, 0, 0, 0, 0) # Fallout Slime (H)
+ON DUPLICATE KEY UPDATE
+spell1 = VALUES(spell1),
+spell2 = VALUES(spell2),
+spell3 = VALUES(spell3),
+spell4 = VALUES(spell4),
+spell5 = VALUES(spell5),
+spell6 = VALUES(spell6),
+spell7 = VALUES(spell7),
+spell8 = VALUES(spell8);
