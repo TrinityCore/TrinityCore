@@ -185,7 +185,7 @@ struct TRINITY_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
         return 0;
     }
 
-    const char* Save()
+    std::string GetSaveData()
     {
         return str_data.c_str();
     }
