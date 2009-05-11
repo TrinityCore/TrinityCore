@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2008 - 2009 Trinity <http://www.trinitycore.org/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -14,14 +14,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-/* ScriptData
-SDName: Boss_Anubrekhan
-SD%Complete: 100
-SDComment:
-SDCategory: Naxxramas
-EndScriptData */
-
 #include "precompiled.h"
+#include "def_naxxramas.h"
 
 #define SAY_GREET           RAND(-1533000,-1533004,-1533005,-1533006,-1533007)
 #define SAY_AGGRO           RAND(-1533001,-1533002,-1533003)
@@ -31,45 +25,28 @@ EndScriptData */
 #define SPELL_LOCUSTSWARM   HEROIC(28785,54021)
 
 #define SPELL_SELF_SPAWN_5  29105                           //This spawns 5 corpse scarabs ontop of us (most likely the player casts this on death)
-#define SPELL_SELF_SPAWN_10 28864                           //This is used by the crypt guards when they die
 
 #define EVENT_IMPALE        1
 #define EVENT_LOCUST        2
 
 #define MOB_CRYPT_GUARD     16573
 
-struct TRINITY_DLL_DECL boss_anubrekhanAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_anubrekhanAI : public BossAI
 {
-    boss_anubrekhanAI(Creature *c) : ScriptedAI(c), summons(me) {}
+    boss_anubrekhanAI(Creature *c) : BossAI(c, BOSS_ANUBREKHAN) {}
 
     bool HasTaunted;
-    EventMap events;
-    SummonList summons;
 
     void Prepare()
     {
         HasTaunted = false;
-        DoSpawnCreature(MOB_CRYPT_GUARD, 0, 10, 0, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
+        DoSpawnCreature(MOB_CRYPT_GUARD, 0, 10, 0, me->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
         if(HeroicMode)
-            DoSpawnCreature(MOB_CRYPT_GUARD, 0, -10, 0, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
+            DoSpawnCreature(MOB_CRYPT_GUARD, 0, -10, 0, me->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
     }
 
     void InitializeAI() { Prepare(); }
     void JustReachedHome() { Prepare(); }
-
-    void Reset()
-    {
-        events.Reset();
-        summons.DespawnAll();
-    }
-
-    void JustSummoned(Creature *summon)
-    {
-        summons.Summon(summon);
-        DoZoneInCombat(summon);
-    }
-
-    void SummonedCreatureDespawn(Creature *summon) {summons.Despawn(summon);}
 
     void KilledUnit(Unit* victim)
     {
@@ -82,9 +59,8 @@ struct TRINITY_DLL_DECL boss_anubrekhanAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
+        _EnterCombat();
         DoScriptText(SAY_AGGRO, me);
-        DoZoneInCombat();
-
         events.ScheduleEvent(EVENT_IMPALE, 15000, 1);
         events.ScheduleEvent(EVENT_LOCUST, 80000 + rand()%40000, 1);
     }

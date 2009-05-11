@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2008 - 2009 Trinity <http://www.trinitycore.org/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -13,13 +13,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
-/* ScriptData
-SDName: Boss_Noth
-SD%Complete: 40
-SDComment: Missing Balcony stage
-SDCategory: Naxxramas
-EndScriptData */
 
 #include "precompiled.h"
 #include "def_naxxramas.h"
@@ -68,33 +61,25 @@ enum Events
     EVENT_GROUND,
 };
 
-struct TRINITY_DLL_DECL boss_nothAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_nothAI : public BossAI
 {
-    boss_nothAI(Creature *c) : ScriptedAI(c), summons(me)
-    {
-        instance = ((ScriptedInstance*)c->GetInstanceData());
-    }
+    boss_nothAI(Creature *c) : BossAI(c, BOSS_NOTH) {}
 
-    EventMap events;
-    SummonList summons;
-    ScriptedInstance *instance;
     uint32 waveCount, balconyCount;
 
     void Reset()
     {
-        events.Reset();
-        summons.DespawnAll();
+        _Reset();
         me->setActive(false);
-        instance->SetBossState(BOSS_NOTH, NOT_STARTED);
     }
 
     void EnterCombat(Unit *who)
     {
+        _EnterCombat();
         DoScriptText(SAY_AGGRO, me);
         me->setActive(true);
         balconyCount = 0;
         EnterPhaseGround();
-        instance->SetBossState(BOSS_NOTH, IN_PROGRESS);
     }
 
     void EnterPhaseGround()
@@ -104,7 +89,7 @@ struct TRINITY_DLL_DECL boss_nothAI : public ScriptedAI
             EnterEvadeMode();
         else
         {
-            events.ScheduleEvent(EVENT_BALCONY, 11000);
+            events.ScheduleEvent(EVENT_BALCONY, 110000);
             events.ScheduleEvent(EVENT_CURSE, 20000+rand()%10000);
             events.ScheduleEvent(EVENT_WARRIOR, 30000);
             if(HeroicMode)
@@ -125,13 +110,10 @@ struct TRINITY_DLL_DECL boss_nothAI : public ScriptedAI
         summon->AI()->DoZoneInCombat();
     }
 
-    void SummonedCreatureDespawn(Creature *summon) { summons.Despawn(summon); }
-
     void JustDied(Unit* Killer)
     {
-        summons.DespawnAll();
+        _JustDied();
         DoScriptText(SAY_DEATH, me);
-        instance->SetBossState(BOSS_NOTH, DONE);
     }
 
     void SummonUndead(uint32 entry, uint32 num)
