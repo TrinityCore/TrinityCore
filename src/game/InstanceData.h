@@ -37,7 +37,8 @@ enum EncounterState
     IN_PROGRESS   = 1,
     FAIL          = 2,
     DONE          = 3,
-    SPECIAL       = 4
+    SPECIAL       = 4,
+    TO_BE_DECIDED = 5,
 };
 
 typedef std::set<GameObject*> DoorSet;
@@ -51,7 +52,7 @@ enum DoorType
 
 struct BossInfo
 {
-    BossInfo() : state(NOT_STARTED) {}
+    BossInfo() : state(TO_BE_DECIDED) {}
     EncounterState state;
     DoorSet door[MAX_DOOR_TYPES];
 };
@@ -85,10 +86,10 @@ class TRINITY_DLL_SPEC InstanceData
         virtual void Initialize() {}
 
         //On load
-        virtual void Load(const char* /*data*/) {}
+        virtual void Load(const char * data) { LoadBossState(data); }
 
         //When save is needed, this function generates the data
-        virtual const char* Save() { return ""; }
+        virtual std::string GetSaveData() { return GetBossSaveData(); }
 
         void SaveToDB();
 
@@ -121,7 +122,7 @@ class TRINITY_DLL_SPEC InstanceData
         //use HandleGameObject(GUID,boolen,NULL); in any other script
         void HandleGameObject(uint64 GUID, bool open, GameObject *go = NULL);
 
-        void SetBossState(uint32 id, EncounterState state);
+        virtual void SetBossState(uint32 id, EncounterState state);
     protected:
         void LoadDoorData(const DoorData *data);
 
@@ -129,14 +130,8 @@ class TRINITY_DLL_SPEC InstanceData
         void AddDoor(GameObject *door, bool add);
         void UpdateDoorState(GameObject *door);
 
-        std::string GetBossSave()
-        {
-            std::ostringstream saveStream;
-            for(std::vector<BossInfo>::iterator i = bosses.begin(); i != bosses.end(); ++i)
-                saveStream << (uint32)i->state << " ";
-            return saveStream.str();
-        }        
-
+        std::string LoadBossState(const char * data);
+        std::string GetBossSaveData();
     private:
         std::vector<BossInfo> bosses;
         DoorInfoMap doors;

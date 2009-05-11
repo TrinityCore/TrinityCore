@@ -165,11 +165,11 @@ void InstanceSave::SaveToDB()
     if(map)
     {
         assert(map->IsDungeon());
-        InstanceData *iData = ((InstanceMap *)map)->GetInstanceData();
-        if(iData && iData->Save())
+        if(InstanceData *iData = ((InstanceMap*)map)->GetInstanceData())
         {
-            data = iData->Save();
-            CharacterDatabase.escape_string(data);
+            data = iData->GetSaveData();
+            if(!data.empty())
+                CharacterDatabase.escape_string(data);
         }
     }
 
