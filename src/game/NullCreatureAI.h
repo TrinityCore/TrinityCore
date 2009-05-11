@@ -28,35 +28,41 @@ class TRINITY_DLL_DECL PassiveAI : public CreatureAI
 {
     public:
         explicit PassiveAI(Creature *c) : CreatureAI(c) {}
-        ~PassiveAI() {}
 
         void MoveInLineOfSight(Unit *) {}
         void AttackStart(Unit *) {}
-
         void UpdateAI(const uint32);
+
         static int Permissible(const Creature *) { return PERMIT_BASE_IDLE;  }
 };
 
-class TRINITY_DLL_DECL PossessedAI : public PassiveAI
+class TRINITY_DLL_DECL PossessedAI : public CreatureAI
 {
     public:
-        explicit PossessedAI(Creature *c) : PassiveAI(c) {}
+        explicit PossessedAI(Creature *c) : CreatureAI(c) {}
 
+        void MoveInLineOfSight(Unit *) {}
         void AttackStart(Unit *target);
         void UpdateAI(const uint32);
         void EnterEvadeMode() {}
 
         void JustDied(Unit*);
         void KilledUnit(Unit* victim);
+
+        static int Permissible(const Creature *) { return PERMIT_BASE_IDLE;  }
 };
 
-class TRINITY_DLL_DECL NullCreatureAI : public PassiveAI
+class TRINITY_DLL_DECL NullCreatureAI : public CreatureAI
 {
     public:
-        explicit NullCreatureAI(Creature *c) : PassiveAI(c) {}
+        explicit NullCreatureAI(Creature *c) : CreatureAI(c) {}
 
+        void MoveInLineOfSight(Unit *) {}
+        void AttackStart(Unit *) {}
         void UpdateAI(const uint32) {}
         void EnterEvadeMode() {}
+
+        static int Permissible(const Creature *) { return PERMIT_BASE_IDLE;  }
 };
 
 class TRINITY_DLL_DECL CritterAI : public PassiveAI

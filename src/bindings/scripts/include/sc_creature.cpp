@@ -9,6 +9,7 @@
 #include "Item.h"
 #include "Spell.h"
 #include "ObjectMgr.h"
+#include "TemporarySummon.h"
 
 // Spell summary for ScriptedAI::SelectSpell
 struct TSpellSummary {
@@ -56,7 +57,10 @@ void SummonList::DespawnAll()
         {
             erase(begin());
             summon->SetVisibility(VISIBILITY_OFF);
-            summon->setDeathState(JUST_DIED);
+            if(summon->HasSummonMask(SUMMON_MASK_SUMMON) && !summon->isPet())
+                ((TempSummon*)summon)->UnSummon();
+            else
+                summon->setDeathState(JUST_DIED);
             summon->RemoveCorpse();
         }
     }
@@ -107,26 +111,6 @@ void ScriptedAI::UpdateAI(const uint32 diff)
             }
         }
     }
-}
-
-void ScriptedAI::EnterEvadeMode()
-{
-    //m_creature->InterruptNonMeleeSpells(true);
-    m_creature->RemoveAllAuras();
-    m_creature->DeleteThreatList();
-    m_creature->CombatStop();
-    m_creature->LoadCreaturesAddon();
-    m_creature->SetLootRecipient(NULL);
-
-    if(m_creature->isAlive())
-        m_creature->GetMotionMaster()->MoveTargetedHome();
-
-    Reset();
-}
-
-void ScriptedAI::JustRespawned()
-{
-    Reset();
 }
 
 void ScriptedAI::DoStartMovement(Unit* victim, float distance, float angle)

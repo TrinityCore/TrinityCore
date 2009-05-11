@@ -112,6 +112,8 @@ void CreatureAI::EnterEvadeMode()
 
     if(me->isAlive())
         me->GetMotionMaster()->MoveTargetedHome();
+
+    Reset();
 }
 
 inline bool SelectTargetHelper(const Unit * me, const Unit * target, const bool &playerOnly, const float &dist, const int32 &aura)
