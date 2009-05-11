@@ -123,7 +123,7 @@ class TRINITY_DLL_SPEC CreatureAI : public UnitAI
         //virtual void AttackedBy(Unit* attacker);
 
         // Called when creature is spawned or respawned (for reseting variables)
-        virtual void JustRespawned() {}
+        virtual void JustRespawned() { Reset(); }
 
         // Called at waypoint reached or point movement finished
         virtual void MovementInform(uint32 /*MovementType*/, uint32 /*Data*/) {}

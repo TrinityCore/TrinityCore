@@ -58,9 +58,6 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
     void AttackStart(Unit *);
     void AttackStart(Unit *, bool melee);
 
-    //Called at stoping attack by any attacker
-    void EnterEvadeMode();
-
     // Called at any Damage from any attacker (before damage apply)
     void DamageTaken(Unit *done_by, uint32 &damage) {}
 
@@ -84,9 +81,6 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
 
     // Called when spell hits a target
     void SpellHitTarget(Unit* target, const SpellEntry*) {}
-
-    // Called when creature is spawned or respawned (for reseting variables)
-    void JustRespawned();
 
     //Called at waypoint reached or PointMovement end
     void MovementInform(uint32 type, uint32 id){}
@@ -202,20 +196,6 @@ struct TRINITY_DLL_DECL Scripted_NoMovementAI : public ScriptedAI
 
     //Called at each attack of m_creature by any victim
     void AttackStart(Unit *);
-};
-
-struct TRINITY_DLL_DECL NullCreatureAI : public ScriptedAI
-{
-    NullCreatureAI(Creature* c) : ScriptedAI(c) {}
-    ~NullCreatureAI() {}
-
-    void Reset() {}
-    void EnterCombat(Unit*) {}
-    void MoveInLineOfSight(Unit *) {}
-    void AttackStart(Unit *) {}
-    void EnterEvadeMode() {}
-
-    void UpdateAI(const uint32) {}
 };
 
 struct TRINITY_DLL_DECL BossAI : public ScriptedAI
