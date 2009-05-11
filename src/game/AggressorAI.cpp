@@ -19,16 +19,9 @@
  */
 
 #include "AggressorAI.h"
-#include "Errors.h"
-#include "Creature.h"
-#include "ObjectAccessor.h"
-#include "VMapFactory.h"
-#include "World.h"
+#include "SpellMgr.h"
 
-#include <list>
-
-int
-AggressorAI::Permissible(const Creature *creature)
+int AggressorAI::Permissible(const Creature *creature)
 {
     // have some hostile factions, it will be selected by IsHostileTo check at MoveInLineOfSight
     if( !creature->isCivilian() && !creature->IsNeutralToAll() )
@@ -37,79 +30,83 @@ AggressorAI::Permissible(const Creature *creature)
     return PERMIT_BASE_NO;
 }
 
-AggressorAI::AggressorAI(Creature *c) : CreatureAI(c), i_victimGuid(0), i_state(STATE_NORMAL), i_tracker(TIME_INTERVAL_LOOK)
+void AggressorAI::UpdateAI(const uint32 /*diff*/)
 {
-}
-
-void AggressorAI::EnterEvadeMode()
-{
-    if( !m_creature->isAlive() )
-    {
-        DEBUG_LOG("Creature stopped attacking cuz his dead [guid=%u]", m_creature->GetGUIDLow());
-        i_victimGuid = 0;
-        m_creature->CombatStop(true);
-        m_creature->DeleteThreatList();
-        return;
-    }
-
-    Unit* victim = ObjectAccessor::GetUnit(*m_creature, i_victimGuid );
-
-    if( !victim  )
-    {
-        DEBUG_LOG("Creature stopped attacking because victim is non exist [guid=%u]", m_creature->GetGUIDLow());
-    }
-    else if( !victim->isAlive() )
-    {
-        DEBUG_LOG("Creature stopped attacking cuz his victim is dead [guid=%u]", m_creature->GetGUIDLow());
-    }
-    else if( victim->HasStealthAura() )
-    {
-        DEBUG_LOG("Creature stopped attacking cuz his victim is stealth [guid=%u]", m_creature->GetGUIDLow());
-    }
-    else if( victim->isInFlight() )
-    {
-        DEBUG_LOG("Creature stopped attacking cuz his victim is fly away [guid=%u]", m_creature->GetGUIDLow());
-    }
-    else
-    {
-        DEBUG_LOG("Creature stopped attacking due to target out run him [guid=%u]", m_creature->GetGUIDLow());
-        //i_state = STATE_LOOK_AT_VICTIM;
-        //i_tracker.Reset(TIME_INTERVAL_LOOK);
-    }
-
-    if(!m_creature->GetCharmerOrOwner())
-    {
-        m_creature->RemoveAllAuras();
-
-        // Remove TargetedMovementGenerator from MotionMaster stack list, and add HomeMovementGenerator instead
-        if( m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE )
-            m_creature->GetMotionMaster()->MoveTargetedHome();
-    }
-    else if (m_creature->GetOwner() && m_creature->GetOwner()->isAlive())
-        m_creature->GetMotionMaster()->MoveFollow(m_creature->GetOwner(),PET_FOLLOW_DIST,PET_FOLLOW_ANGLE);
-
-    m_creature->DeleteThreatList();
-    i_victimGuid = 0;
-    m_creature->CombatStop(true);
-    m_creature->SetLootRecipient(NULL);
-}
-
-void
-AggressorAI::UpdateAI(const uint32 /*diff*/)
-{
-    // update i_victimGuid if m_creature->getVictim() !=0 and changed
     if(!UpdateVictim())
         return;
 
-    i_victimGuid = m_creature->getVictim()->GetGUID();
+    DoMeleeAttackIfReady();
+}
 
-    if( m_creature->isAttackReady() )
+int SpellAI::Permissible(const Creature *creature)
+{
+    return PERMIT_BASE_NO;
+}
+
+void SpellAI::InitializeAI()
+{
+    for(uint32 i = 0; i < CREATURE_MAX_SPELLS; ++i)
+        if(me->m_spells[i] && GetSpellStore()->LookupEntry(me->m_spells[i]))
+            spells.push_back(me->m_spells[i]);
+}
+
+void SpellAI::Reset()
+{
+    events.Reset();
+}
+
+void SpellAI::JustDied(Unit *killer)
+{
+    for(SpellVct::iterator i = spells.begin(); i != spells.end(); ++i)
+        if(AISpellInfo[*i].condition == AICOND_DIE)
+            me->CastSpell(killer, *i, true);
+}
+
+void SpellAI::EnterCombat(Unit *who)
+{
+    for(SpellVct::iterator i = spells.begin(); i != spells.end(); ++i)
     {
-        if( m_creature->IsWithinMeleeRange(m_creature->getVictim()))
-        {
-            m_creature->AttackerStateUpdate(m_creature->getVictim());
-            m_creature->resetAttackTimer();
-        }
+        if(AISpellInfo[*i].condition == AICOND_AGGRO)
+            me->CastSpell(who, *i, true);
+        else if(AISpellInfo[*i].condition == AICOND_COMBAT)
+            events.ScheduleEvent(*i, AISpellInfo[*i].cooldown + rand()%AISpellInfo[*i].cooldown);
     }
 }
 
+void SpellAI::UpdateAI(const uint32 diff)
+{
+    if(!UpdateVictim())
+        return;
+
+    events.Update(diff);
+
+    if(me->hasUnitState(UNIT_STAT_CASTING))
+        return;
+
+    if(uint32 spellId = events.ExecuteEvent())
+    {
+        Unit *target = NULL;
+        //sLog.outError("aggre %u %u", spellId, (uint32)AISpellInfo[spellId].target);
+        switch(AISpellInfo[spellId].target)
+        {
+            default:
+            case AITARGET_SELF:     target = me; break;
+            case AITARGET_VICTIM:   target = me->getVictim(); break;
+            case AITARGET_ENEMY:    target = SelectTarget(SELECT_TARGET_RANDOM); break;
+            case AITARGET_ALLY:     target = me; break;
+            case AITARGET_BUFF:     target = me; break;
+            case AITARGET_DEBUFF:
+            {
+                const SpellEntry * spellInfo = GetSpellStore()->LookupEntry(spellId);
+                bool playerOnly = spellInfo->AttributesEx3 & SPELL_ATTR_EX3_PLAYERS_ONLY;
+                float range = GetSpellMaxRange(spellInfo, false);
+                target = SelectTarget(SELECT_TARGET_RANDOM, 0, range, playerOnly, -(int32)spellId);
+                break;
+            }
+        }
+        me->CastSpell(target, spellId, false);
+        events.ScheduleEvent(spellId, AISpellInfo[spellId].cooldown + rand()%AISpellInfo[spellId].cooldown);
+    }
+    else
+        DoMeleeAttackIfReady();
+}

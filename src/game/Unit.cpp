@@ -11607,11 +11607,14 @@ void CharmInfo::InitPossessCreateSpells()
     {
         for(uint32 i = 0; i < CREATURE_MAX_SPELLS; ++i)
         {
-            uint32 spellid = ((Creature*)m_unit)->m_spells[i];
-            if(IsPassiveSpell(spellid))
-                m_unit->CastSpell(m_unit, spellid, true);
+            uint32 spellId = ((Creature*)m_unit)->m_spells[i];
+            SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
+            if(spellInfo && spellInfo->Attributes & SPELL_ATTR_CASTABLE_WHILE_DEAD)
+                spellId = 0;
+            if(IsPassiveSpell(spellId))
+                m_unit->CastSpell(m_unit, spellId, true);
             else
-                AddSpellToAB(0, spellid, ACT_DISABLED);
+                AddSpellToAB(0, spellId, ACT_DISABLED);
         }
     }
 }
@@ -11629,6 +11632,10 @@ void CharmInfo::InitCharmCreateSpells()
     for(uint32 x = 0; x < MAX_SPELL_CHARM; ++x)
     {
         uint32 spellId = ((Creature*)m_unit)->m_spells[x];
+        SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
+        if(spellInfo && spellInfo->Attributes & SPELL_ATTR_CASTABLE_WHILE_DEAD)
+            spellId = 0;
+
         m_charmspells[x].spellId = spellId;
 
         if(!spellId)
@@ -11643,7 +11650,6 @@ void CharmInfo::InitCharmCreateSpells()
         {
             ActiveStates newstate;
             bool onlyselfcast = true;
-            SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
 
             if(!spellInfo) onlyselfcast = false;
             for(uint32 i = 0;i<3 && onlyselfcast;++i)       //non existent spell will not make any problems as onlyselfcast would be false -> break right away
