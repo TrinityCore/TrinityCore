@@ -19,7 +19,8 @@
  */
 
 #include "UnitAI.h"
-#include "Unit.h"
+#include "Player.h"
+#include "Creature.h"
 #include "SpellAuras.h"
 
 void UnitAI::AttackStart(Unit *victim)
