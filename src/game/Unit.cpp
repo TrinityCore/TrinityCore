@@ -6778,6 +6778,9 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
 
     // Set trigger spell id, target, custom basepoints
     uint32 trigger_spell_id = auraSpellInfo->EffectTriggerSpell[triggeredByAura->GetEffIndex()];
+    if(procSpell && procSpell->Id == trigger_spell_id)
+        return false;
+
     Unit*  target = NULL;
     int32  basepoints0 = 0;
 
