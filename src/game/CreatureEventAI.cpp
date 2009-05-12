@@ -1054,14 +1054,7 @@ void CreatureEventAI::JustReachedHome()
 
 void CreatureEventAI::EnterEvadeMode()
 {
-    m_creature->RemoveAllAuras();
-    m_creature->DeleteThreatList();
-    m_creature->CombatStop(true);
-
-    if (m_creature->isAlive())
-        m_creature->GetMotionMaster()->MoveTargetedHome();
-
-    m_creature->SetLootRecipient(NULL);
+    CreatureAI::EnterEvadeMode();
 
     if (bEmptyList)
         return;

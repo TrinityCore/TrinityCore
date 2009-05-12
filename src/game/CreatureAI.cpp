@@ -104,14 +104,22 @@ bool CreatureAI::UpdateVictim()
 
 void CreatureAI::EnterEvadeMode()
 {
+    if(me->IsInEvadeMode())
+        return;
+
     me->RemoveAllAuras();
     me->DeleteThreatList();
-    me->CombatStop();
+    me->CombatStop(true);
     me->LoadCreaturesAddon();
     me->SetLootRecipient(NULL);
 
     if(me->isAlive())
-        me->GetMotionMaster()->MoveTargetedHome();
+    {
+        if(Unit *owner = me->GetCharmerOrOwner())
+            me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE, MOTION_SLOT_IDLE);
+        else
+            me->GetMotionMaster()->MoveTargetedHome();
+    }
 
     Reset();
 }
