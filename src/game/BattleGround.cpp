@@ -1758,7 +1758,7 @@ uint32 BattleGround::GetAlivePlayersCountByTeam(uint32 Team) const
         if (itr->second.Team == Team)
         {
             Player * pl = objmgr.GetPlayer(itr->first);
-            if (pl && pl->isAlive())
+            if (pl && pl->isAlive() && !pl->HasByteFlag(UNIT_FIELD_BYTES_2, 3, FORM_SPIRITOFREDEMPTION))
                 ++count;
         }
     }
