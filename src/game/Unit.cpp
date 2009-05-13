@@ -2767,7 +2767,9 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit *pVictim, SpellEntry const *spell)
 {
     WeaponAttackType attType = BASE_ATTACK;
 
-    if (spell->DmgClass == SPELL_DAMAGE_CLASS_RANGED && IsRangedWeaponSpell(spell))
+    // Check damage class instead of attack type to correctly handle judgements 
+    // - they are meele, but can't be dodged/parried/deflected because of ranged dmg class
+    if (spell->DmgClass == SPELL_DAMAGE_CLASS_RANGED)
         attType = RANGED_ATTACK;
 
     // bonus from skills is 0.04% per skill Diff
@@ -2809,9 +2811,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit *pVictim, SpellEntry const *spell)
         return SPELL_MISS_NONE;
 
     // Ranged attack cannot be parry/dodge only deflect
-    // Check damage class instead of attack type to correctly handle judgements 
-    // - they are meele, but can't be dodged/parried/deflected because of ranged dmg class
-    if (spell->DmgClass == SPELL_DAMAGE_CLASS_RANGED)
+    if (attType == RANGED_ATTACK)
     {
         // only if in front
         if (pVictim->HasInArc(M_PI,this))
