@@ -6,6 +6,7 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 (-28169, 28240,  0, 'Mutating Injection - Poison Cloud');
 
 UPDATE creature_template SET scriptname = 'boss_grobbulus' WHERE entry = 15931;
+update creature_template set scriptname='mob_gothik_minion' where entry in (16124,16125,16126,16127,16148,16149,16150);
 
 INSERT INTO creature_template (entry, spell1, flags_extra, scriptname) VALUES
 (16363, 28158, 128, ''), # Grobbulus Cloud
