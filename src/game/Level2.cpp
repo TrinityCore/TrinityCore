@@ -3827,6 +3827,9 @@ bool ChatHandler::HandleCreatePetCommand(const char* args)
     // Everything looks OK, create new pet
     Pet* pet = new Pet(HUNTER_PET);
 
+    if(!pet)
+      return false;
+    
     if(!pet->CreateBaseAtCreature(creatureTarget))
     {
         delete pet;
@@ -3846,6 +3849,7 @@ bool ChatHandler::HandleCreatePetCommand(const char* args)
     {
         sLog.outError("ERROR: InitStatsForLevel() in EffectTameCreature failed! Pet deleted.");
         PSendSysMessage("Error 2");
+        delete pet;
         return false;
     }
 
