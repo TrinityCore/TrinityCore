@@ -33,10 +33,17 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
+<<<<<<< HEAD:win/VC71/script.vcproj
 				AdditionalDependencies="trinitycore.lib zlib.lib zthread.lib libmySQL.lib libeay32.lib ws2_32.lib winmm.lib odbc32.lib odbccp32.lib MSVCPRTD.LIB msvcrtd.lib"
 				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityScript.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;.\trinitycore__$(PlatformName)_$(ConfigurationName)&quot;;&quot;..\..\dep\lib\$(PlatformName)_$(ConfigurationName)&quot;;&quot;.\zlib__$(PlatformName)_$(ConfigurationName)&quot;;&quot;.\zthread__$(PlatformName)_$(ConfigurationName)&quot;"
+=======
+				AdditionalDependencies="trinitycore.lib zlib.lib libmySQL.lib libeay32.lib ws2_32.lib winmm.lib odbc32.lib odbccp32.lib aced.lib"
+				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityScript.dll"
+				LinkIncremental="1"
+				AdditionalLibraryDirectories=";.\trinitycore__$(PlatformName)_$(ConfigurationName);.\zlib__$(PlatformName)_$(ConfigurationName);..\..\dep\lib\$(PlatformName)_$(ConfigurationName)"
+>>>>>>> 00c7d15a78b1dcdbf888b768c55424183b2231e4:win/VC71/script.vcproj
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/TrinityScript.pdb"
 				SubSystem="2"
@@ -83,10 +90,17 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
+<<<<<<< HEAD:win/VC71/script.vcproj
 				AdditionalDependencies="trinitycore.lib zlib.lib zthread.lib libmySQL.lib libeay32.lib ws2_32.lib winmm.lib odbc32.lib odbccp32.lib MSVCPRT.LIB msvcrt.lib"
 				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityScript.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;.\trinitycore__$(PlatformName)_$(ConfigurationName)&quot;;&quot;..\..\dep\lib\$(PlatformName)_$(ConfigurationName)&quot;;&quot;.\zlib__$(PlatformName)_$(ConfigurationName)&quot;;&quot;.\zthread__$(PlatformName)_$(ConfigurationName)&quot;"
+=======
+				AdditionalDependencies="trinitycore.lib zlib.lib libmySQL.lib libeay32.lib ws2_32.lib winmm.lib odbc32.lib odbccp32.lib ace.lib"
+				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityScript.dll"
+				LinkIncremental="1"
+				AdditionalLibraryDirectories=";.\trinitycore__$(PlatformName)_$(ConfigurationName);.\zlib__$(PlatformName)_$(ConfigurationName);..\..\dep\lib\$(PlatformName)_$(ConfigurationName)"
+>>>>>>> 00c7d15a78b1dcdbf888b768c55424183b2231e4:win/VC71/script.vcproj
 				GenerateDebugInformation="FALSE"
 				SubSystem="2"
 				OptimizeReferences="2"
