@@ -9958,7 +9958,7 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy)
             ((Creature*)this)->SetHomePosition(GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
         if(enemy)
         {
-            if(!((Creature*)this)->HasReactState(REACT_PASSIVE) && ((Creature*)this)->IsAIEnabled)
+            if(((Creature*)this)->IsAIEnabled)
                 ((Creature*)this)->AI()->EnterCombat(enemy);
             if(((Creature*)this)->GetFormation())
                 ((Creature*)this)->GetFormation()->MemberAttackStart((Creature*)this, enemy);
