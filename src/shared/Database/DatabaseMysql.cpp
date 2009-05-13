@@ -351,7 +351,7 @@ bool DatabaseMysql::CommitTransaction()
     // don't use queued execution if it has not been initialized
     if (!m_threadBody)
     {
-		if (tranThread != ACE_Based::Thread::current())
+        if (tranThread != ACE_Based::Thread::current())
             return false;
         bool _res = _TransactionCmd("COMMIT");
         tranThread = NULL;
