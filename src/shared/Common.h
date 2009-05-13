@@ -84,6 +84,7 @@
 #include <math.h>
 #include <errno.h>
 #include <signal.h>
+#include <assert.h>
 
 #if PLATFORM == PLATFORM_WINDOWS
 #define STRCASECMP stricmp
@@ -99,10 +100,13 @@
 #include <sstream>
 #include <algorithm>
 
-#include <zthread/FastMutex.h>
-#include <zthread/LockedQueue.h>
-#include <zthread/Runnable.h>
-#include <zthread/Thread.h>
+#include "LockedQueue.h"
+#include "Threading.h"
+
+#include <ace/Guard_T.h>
+#include <ace/RW_Thread_Mutex.h>
+#include <ace/Thread_Mutex.h>
+
 
 #if PLATFORM == PLATFORM_WINDOWS
 #  define FD_SETSIZE 4096

@@ -23,9 +23,8 @@
 
 #include "Common.h"
 
-#include "zthread/LockedQueue.h"
-#include "zthread/FastMutex.h"
-#include "zthread/Thread.h"
+#include "ace/Thread_Mutex.h"
+#include "LockedQueue.h"
 #include <queue>
 #include "Utilities/Callback.h"
 
@@ -72,7 +71,7 @@ class SqlResultQueue;                                       /// queue for thread
 class SqlQueryHolder;                                       /// groups several async quries
 class SqlQueryHolderEx;                                     /// points to a holder, added to the delay thread
 
-class SqlResultQueue : public ZThread::LockedQueue<Trinity::IQueryCallback*, ZThread::FastMutex>
+class SqlResultQueue : public ACE_Based::LockedQueue<MaNGOS::IQueryCallback* , ACE_Thread_Mutex>
 {
     public:
         SqlResultQueue() {}

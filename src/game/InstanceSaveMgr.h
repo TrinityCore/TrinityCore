@@ -24,7 +24,7 @@
 
 #include "Platform/Define.h"
 #include "Policies/Singleton.h"
-#include "zthread/Mutex.h"
+#include "ace/Thread_Mutex.h"
 #include <list>
 #include <map>
 #include "Utilities/UnorderedMap.h"
@@ -113,7 +113,7 @@ class InstanceSave
         bool m_canReset;
 };
 
-class TRINITY_DLL_DECL InstanceSaveManager : public Trinity::Singleton<InstanceSaveManager, Trinity::ClassLevelLockable<InstanceSaveManager, ZThread::Mutex> >
+class MANGOS_DLL_DECL InstanceSaveManager : public MaNGOS::Singleton<InstanceSaveManager, MaNGOS::ClassLevelLockable<InstanceSaveManager, ACE_Thread_Mutex> >
 {
     friend class InstanceSave;
     public:

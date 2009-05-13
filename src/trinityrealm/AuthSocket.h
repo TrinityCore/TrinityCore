@@ -33,7 +33,6 @@
 #include "sockets/Utility.h"
 #include "sockets/Parse.h"
 #include "sockets/Socket.h"
-#include "zthread/Mutex.h"
 
 /// Handle login commands
 class AuthSocket: public TcpSocket
@@ -61,7 +60,7 @@ class AuthSocket: public TcpSocket
         void _SetVSFields(const std::string& rI);
 
         FILE *pPatch;
-        ZThread::Mutex patcherLock;
+    ACE_Thread_Mutex patcherLock;
         bool IsLag();
 
     private:

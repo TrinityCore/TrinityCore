@@ -37,7 +37,7 @@ void SqlDelayThread::run()
     {
         // if the running state gets turned off while sleeping
         // empty the queue before exiting
-        ZThread::Thread::sleep(10);
+        ACE_Based::Thread::Sleep(10);
         while (!m_sqlQueue.empty())
         {
             s = m_sqlQueue.next();
