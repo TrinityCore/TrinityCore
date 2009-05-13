@@ -43,7 +43,6 @@ INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
 (27935, 1, 16060), # To Anchor 1 - Gothik
 (27936, 1, 16060); # To Anchor 2 - Gothik
 
-
 INSERT INTO creature_template (entry, spell1, spell2, spell3, spell4, spell5, spell6, spell7, spell8) VALUES
 (16573, 15284, 28991, 28969, 34970, 28864, 0, 0, 0), # Crypt Guard
 (29256, 15284, 28991, 56098, 34970, 28864, 0, 0, 0), # Crypt Guard (H)
