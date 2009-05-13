@@ -1350,24 +1350,29 @@ void Spell::EffectDummy(uint32 i)
                 if(!unitTarget)
                     return;
 
-                uint32 rage = m_caster->GetPower(POWER_RAGE);
+                uint32 rage=0;
                 // Glyph of Execution bonus
                 if (AuraEffect *aura = m_caster->GetDummyAura(58367))
                     rage+=aura->GetAmount();
 
                 spell_id = 20647;
-                bp = damage+int32(rage * m_spellInfo->DmgMultiplier[i] +
-                                                 m_caster->GetTotalAttackPowerValue(BASE_ATTACK)*0.2f);
                 // Sudden death cost modifier
                 if (Aura * aur = m_caster->GetAura(52437))
                 {
+                    rage += m_powerCost;
                     m_caster->ModifyPower(POWER_RAGE,- m_powerCost);
                     if (m_caster->GetPower(POWER_RAGE)<100)
                         m_caster->SetPower(POWER_RAGE,100);
                     m_caster->RemoveAura(aur);
                 }
                 else
+                {
+                    rage += m_caster->GetPower(POWER_RAGE);
                     m_caster->SetPower(POWER_RAGE,0);
+                }
+
+                bp = damage+int32(rage * m_spellInfo->DmgMultiplier[i] +
+                                                 m_caster->GetTotalAttackPowerValue(BASE_ATTACK)*0.2f);
                 break;
             }
             // Slam
