@@ -4,7 +4,7 @@
 	Version="9,00"
 	Name="TrinityCore"
 	ProjectGUID="{A3A04E47-43A2-4C08-90B3-029CEF558594}"
-	RootNamespace="mangosd"
+	RootNamespace="trinitycore"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="0"
 	>
@@ -42,7 +42,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\..\..\bin\Release\mangosd.tlb"
+				TypeLibraryName=".\..\..\bin\Release\trinitycore.tlb"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
@@ -143,7 +143,7 @@
 			<Tool
 				Name="VCMIDLTool"
 				TargetEnvironment="3"
-				TypeLibraryName=".\..\..\bin\Release\mangosd.tlb"
+				TypeLibraryName=".\..\..\bin\Release\trinitycore.tlb"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
@@ -242,7 +242,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\mangosd__$(PlatformName)_$(ConfigurationName)\mangosd.tlb"
+				TypeLibraryName=".\trinitycore__$(PlatformName)_$(ConfigurationName)\trinitycore.tlb"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
@@ -344,7 +344,7 @@
 			<Tool
 				Name="VCMIDLTool"
 				TargetEnvironment="3"
-				TypeLibraryName=".\mangosd__$(PlatformName)_$(ConfigurationName)\mangosd.tlb"
+				TypeLibraryName=".\trinitycore__$(PlatformName)_$(ConfigurationName)\trinitycore.tlb"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
@@ -423,8 +423,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug_NoPCH|Win32"
-			OutputDirectory=".\mangosd__$(PlatformName)_$(ConfigurationName)"
-			IntermediateDirectory=".\mangosd__$(PlatformName)_$(ConfigurationName)"
+			OutputDirectory=".\trinitycore__$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory=".\trinitycore__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -444,23 +444,23 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\mangosd__$(PlatformName)_$(ConfigurationName)\mangosd.tlb"
+				TypeLibraryName=".\trinitycore__$(PlatformName)_$(ConfigurationName)\trinitycore.tlb"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\dep\include,..\..\src\framework,..\..\src\shared,..\..\src\game,..\..\src\mangosd;..\..\dep\ACE_wrappers"
+				AdditionalIncludeDirectories="..\..\dep\include,..\..\src\framework,..\..\src\shared,..\..\src\game,..\..\src\trinitycore;..\..\dep\ACE_wrappers"
 				PreprocessorDefinitions="VERSION=&quot;0.13.0-DEV&quot;;WIN32;_DEBUG;TRINITY_DEBUG;_CONSOLE;ENABLE_CLI"
 				IgnoreStandardIncludePath="false"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				EnableFunctionLevelLinking="true"
 				RuntimeTypeInfo="true"
-				PrecompiledHeaderFile=".\mangosd__$(PlatformName)_$(ConfigurationName)\mangosd.pch"
-				AssemblerListingLocation=".\mangosd__$(PlatformName)_$(ConfigurationName)\"
-				ObjectFile=".\mangosd__$(PlatformName)_$(ConfigurationName)\"
-				ProgramDataBaseFileName=".\mangosd__$(PlatformName)_$(ConfigurationName)\"
+				PrecompiledHeaderFile=".\trinitycore__$(PlatformName)_$(ConfigurationName)\trinitycore.pch"
+				AssemblerListingLocation=".\trinitycore__$(PlatformName)_$(ConfigurationName)\"
+				ObjectFile=".\trinitycore__$(PlatformName)_$(ConfigurationName)\"
+				ProgramDataBaseFileName=".\trinitycore__$(PlatformName)_$(ConfigurationName)\"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				Detect64BitPortabilityProblems="false"
@@ -483,21 +483,21 @@
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
 				AdditionalDependencies="libmySQL.lib libeay32.lib ws2_32.lib winmm.lib odbc32.lib odbccp32.lib advapi32.lib dbghelp.lib MSVCPRTD.LIB msvcrtd.lib"
-				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\mangosd.exe"
+				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\trinitycore.exe"
 				Version=""
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\..\dep\lib\$(PlatformName)_debug"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\mangosd.pdb"
+				ProgramDatabaseFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\trinitycore.pdb"
 				GenerateMapFile="true"
-				MapFileName="..\..\bin\$(PlatformName)_$(ConfigurationName)\mangosd.map"
+				MapFileName="..\..\bin\$(PlatformName)_$(ConfigurationName)\trinitycore.map"
 				SubSystem="1"
 				LargeAddressAware="2"
 				RandomizedBaseAddress="1"
 				FixedBaseAddress="1"
 				DataExecutionPrevention="0"
-				ImportLibrary="$(OutDir)\mangosd.lib"
+				ImportLibrary="$(OutDir)\trinitycore.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -524,8 +524,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug_NoPCH|x64"
-			OutputDirectory=".\mangosd__$(PlatformName)_$(ConfigurationName)"
-			IntermediateDirectory=".\mangosd__$(PlatformName)_$(ConfigurationName)"
+			OutputDirectory=".\trinitycore__$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory=".\trinitycore__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -546,23 +546,23 @@
 			<Tool
 				Name="VCMIDLTool"
 				TargetEnvironment="3"
-				TypeLibraryName=".\mangosd__$(PlatformName)_$(ConfigurationName)\mangosd.tlb"
+				TypeLibraryName=".\trinitycore__$(PlatformName)_$(ConfigurationName)\trinitycore.tlb"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\dep\include,..\..\src\framework,..\..\src\shared,..\..\src\game,..\..\src\mangosd;..\..\dep\ACE_wrappers"
+				AdditionalIncludeDirectories="..\..\dep\include,..\..\src\framework,..\..\src\shared,..\..\src\game,..\..\src\trinitycore;..\..\dep\ACE_wrappers"
 				PreprocessorDefinitions="VERSION=&quot;0.13.0-DEV&quot;;WIN32;_DEBUG;TRINITY_DEBUG;_CONSOLE;ENABLE_CLI"
 				IgnoreStandardIncludePath="false"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				EnableFunctionLevelLinking="true"
 				RuntimeTypeInfo="true"
-				PrecompiledHeaderFile=".\mangosd__$(PlatformName)_$(ConfigurationName)\mangosd.pch"
-				AssemblerListingLocation=".\mangosd__$(PlatformName)_$(ConfigurationName)\"
-				ObjectFile=".\mangosd__$(PlatformName)_$(ConfigurationName)\"
-				ProgramDataBaseFileName=".\mangosd__$(PlatformName)_$(ConfigurationName)\"
+				PrecompiledHeaderFile=".\trinitycore__$(PlatformName)_$(ConfigurationName)\trinitycore.pch"
+				AssemblerListingLocation=".\trinitycore__$(PlatformName)_$(ConfigurationName)\"
+				ObjectFile=".\trinitycore__$(PlatformName)_$(ConfigurationName)\"
+				ProgramDataBaseFileName=".\trinitycore__$(PlatformName)_$(ConfigurationName)\"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				Detect64BitPortabilityProblems="false"
@@ -584,20 +584,20 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="libmySQL.lib libeay32.lib ws2_32.lib winmm.lib odbc32.lib odbccp32.lib advapi32.lib dbghelp.lib MSVCPRTD.LIB msvcrtd.lib"
-				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\mangosd.exe"
+				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\trinitycore.exe"
 				Version=""
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\..\dep\lib\$(PlatformName)_debug"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\mangosd.pdb"
+				ProgramDatabaseFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\trinitycore.pdb"
 				GenerateMapFile="true"
-				MapFileName="..\..\bin\$(PlatformName)_$(ConfigurationName)\mangosd.map"
+				MapFileName="..\..\bin\$(PlatformName)_$(ConfigurationName)\trinitycore.map"
 				SubSystem="1"
 				RandomizedBaseAddress="1"
 				FixedBaseAddress="1"
 				DataExecutionPrevention="0"
-				ImportLibrary="$(OutDir)\mangosd.lib"
+				ImportLibrary="$(OutDir)\trinitycore.lib"
 				TargetMachine="17"
 			/>
 			<Tool

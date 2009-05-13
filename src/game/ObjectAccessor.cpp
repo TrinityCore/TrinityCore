@@ -41,9 +41,9 @@
 
 #include <cmath>
 
-#define CLASS_LOCK Trinity::ClassLevelLockable<ObjectAccessor, ZThread::FastMutex>
+#define CLASS_LOCK MaNGOS::ClassLevelLockable<ObjectAccessor, ACE_Thread_Mutex>
 INSTANTIATE_SINGLETON_2(ObjectAccessor, CLASS_LOCK);
-INSTANTIATE_CLASS_MUTEX(ObjectAccessor, ZThread::FastMutex);
+INSTANTIATE_CLASS_MUTEX(ObjectAccessor, ACE_Thread_Mutex);
 
 ObjectAccessor::ObjectAccessor() {}
 ObjectAccessor::~ObjectAccessor() {}
@@ -470,7 +470,7 @@ ObjectAccessor::UpdateObjectVisibility(WorldObject *obj)
 /// Define the static member of HashMapHolder
 
 template <class T> UNORDERED_MAP< uint64, T* > HashMapHolder<T>::m_objectMap;
-template <class T> ZThread::FastMutex HashMapHolder<T>::i_lock;
+template <class T> ACE_Thread_Mutex HashMapHolder<T>::i_lock;
 
 /// Global definitions for the hashmap storage
 

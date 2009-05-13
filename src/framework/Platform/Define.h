@@ -129,5 +129,11 @@ typedef uint32      DWORD;
 
 typedef uint64 OBJECT_HANDLE;
 
+#define MaNGOS              Trinity
+#define MANGOS_DLL_DECL     TRINITY_DLL_DECL
+#define MANGOS_DLL_SPEC     TRINITY_DLL_SPEC
+#define MANGOS_DEBUG        TRINITY_DEBUG
+#define GetMangosString     GetTrinityString
+
 #endif //TRINITY_DEFINE_H
 

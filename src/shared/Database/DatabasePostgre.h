@@ -22,7 +22,6 @@
 #define _DatabasePostgre_H
 
 #include "Policies/Singleton.h"
-#include "zthread/FastMutex.h"
 #include <stdarg.h>
 
 #ifdef WIN32
@@ -63,10 +62,8 @@ class DatabasePostgre : public Database
         // must be call before finish thread run
         void ThreadEnd();
     private:
-        ZThread::FastMutex mMutex;
-        ZThread::FastMutex tranMutex;
-
-        ZThread::ThreadImpl* tranThread;
+        ACE_Thread_Mutex mMutex;
+        ACE_Based::Thread * tranThread;
 
         PGconn *mPGconn;
 

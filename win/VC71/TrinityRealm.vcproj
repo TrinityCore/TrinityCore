@@ -4,7 +4,7 @@
 	Version="7.10"
 	Name="TrinityRealm"
 	ProjectGUID="{563E9905-3657-460C-AE63-0AC39D162E23}"
-	RootNamespace="realmd"
+	RootNamespace="TrinityRealm"
 	SccProjectName=""
 	SccLocalPath="">
 	<Platforms>
@@ -15,7 +15,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory=".\trinityrealm__$(PlatformName)_$(ConfigurationName)"
-			IntermediateDirectory=".\realmd__$(PlatformName)_$(ConfigurationName)\"
+			IntermediateDirectory=".\TrinityRealm__$(PlatformName)_$(ConfigurationName)\"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
@@ -23,17 +23,17 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\realmd;..\..\dep\ACE_wrappers"
+				AdditionalIncludeDirectories="..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\TrinityRealm;..\..\dep\ACE_wrappers"
 				PreprocessorDefinitions="VERSION=&quot;0.12.0-SVN&quot;,WIN32,NDEBUG,_CONSOLE"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
 				EnableEnhancedInstructionSet="1"
 				RuntimeTypeInfo="TRUE"
-				PrecompiledHeaderFile=".\realmd__$(PlatformName)_$(ConfigurationName)\realmd.pch"
-				AssemblerListingLocation=".\realmd__$(PlatformName)_$(ConfigurationName)\"
-				ObjectFile=".\realmd__$(PlatformName)_$(ConfigurationName)\"
-				ProgramDataBaseFileName=".\realmd__$(PlatformName)_$(ConfigurationName)\"
+				PrecompiledHeaderFile=".\TrinityRealm__$(PlatformName)_$(ConfigurationName)\TrinityRealm.pch"
+				AssemblerListingLocation=".\TrinityRealm__$(PlatformName)_$(ConfigurationName)\"
+				ObjectFile=".\TrinityRealm__$(PlatformName)_$(ConfigurationName)\"
+				ProgramDataBaseFileName=".\TrinityRealm__$(PlatformName)_$(ConfigurationName)\"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -44,11 +44,16 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
+<<<<<<< HEAD:win/VC71/TrinityRealm.vcproj
 				AdditionalDependencies="zthread.lib libmySQL.lib libeay32.lib ws2_32.lib winmm.lib odbc32.lib odbccp32.lib advapi32.lib dbghelp.lib MSVCPRT.LIB msvcrt.lib"
 				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.exe"
+=======
+				AdditionalDependencies="libmySQL.lib libeay32.lib ws2_32.lib winmm.lib odbc32.lib odbccp32.lib advapi32.lib dbghelp.lib"
+				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.exe"
+>>>>>>> 00c7d15a78b1dcdbf888b768c55424183b2231e4:win/VC71/TrinityRealm.vcproj
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="&quot;..\..\dep\lib\$(PlatformName)_$(ConfigurationName)&quot;;&quot;.\zthread__$(PlatformName)_$(ConfigurationName)&quot;"
+				AdditionalLibraryDirectories="..\..\dep\lib\$(PlatformName)_$(ConfigurationName)"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.pdb"
 				GenerateMapFile="TRUE"
@@ -57,7 +62,7 @@
 				LargeAddressAware="2"/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\realmd__$(PlatformName)_$(ConfigurationName)\realmd.tlb"/>
+				TypeLibraryName=".\TrinityRealm__$(PlatformName)_$(ConfigurationName)\TrinityRealm.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				CommandLine="copy ..\..\src\trinityrealm\trinityrealm.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.conf.dist"/>
@@ -83,7 +88,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory=".\trinityrealm__$(PlatformName)_$(ConfigurationName)"
-			IntermediateDirectory=".\realmd__$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory=".\TrinityRealm__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
@@ -91,16 +96,16 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\realmd;..\..\dep\ACE_wrappers"
+				AdditionalIncludeDirectories="..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\TrinityRealm;..\..\dep\ACE_wrappers"
 				PreprocessorDefinitions="VERSION=&quot;0.12.0-SVN&quot;;WIN32;_DEBUG;TRINITY_DEBUG;_CONSOLE"
 				IgnoreStandardIncludePath="FALSE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				RuntimeTypeInfo="TRUE"
-				PrecompiledHeaderFile=".\realmd__$(PlatformName)_$(ConfigurationName)\realmd.pch"
-				AssemblerListingLocation=".\realmd__$(PlatformName)_$(ConfigurationName)\"
-				ObjectFile=".\realmd__$(PlatformName)_$(ConfigurationName)\"
-				ProgramDataBaseFileName=".\realmd__$(PlatformName)_$(ConfigurationName)\"
+				PrecompiledHeaderFile=".\TrinityRealm__$(PlatformName)_$(ConfigurationName)\TrinityRealm.pch"
+				AssemblerListingLocation=".\TrinityRealm__$(PlatformName)_$(ConfigurationName)\"
+				ObjectFile=".\TrinityRealm__$(PlatformName)_$(ConfigurationName)\"
+				ProgramDataBaseFileName=".\TrinityRealm__$(PlatformName)_$(ConfigurationName)\"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -111,11 +116,17 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
+<<<<<<< HEAD:win/VC71/TrinityRealm.vcproj
 				AdditionalDependencies="zthread.lib libmySQL.lib libeay32.lib ws2_32.lib winmm.lib odbc32.lib odbccp32.lib advapi32.lib dbghelp.lib MSVCPRTD.LIB msvcrtd.lib"
 				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.exe"
 				LinkIncremental="2"
+=======
+				AdditionalDependencies="libmySQL.lib libeay32.lib ws2_32.lib winmm.lib odbc32.lib odbccp32.lib advapi32.lib dbghelp.lib"
+				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.exe"
+				LinkIncremental="1"
+>>>>>>> 00c7d15a78b1dcdbf888b768c55424183b2231e4:win/VC71/TrinityRealm.vcproj
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="&quot;..\..\dep\lib\$(PlatformName)_$(ConfigurationName)&quot;;&quot;.\zthread__$(PlatformName)_$(ConfigurationName)&quot;"
+				AdditionalLibraryDirectories="..\..\dep\lib\$(PlatformName)_$(ConfigurationName)"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.pdb"
 				GenerateMapFile="TRUE"
@@ -125,7 +136,7 @@
 				FixedBaseAddress="1"/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\realmd__$(PlatformName)_$(ConfigurationName)\realmd.tlb"/>
+				TypeLibraryName=".\TrinityRealm__$(PlatformName)_$(ConfigurationName)\TrinityRealm.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				CommandLine="copy ..\..\src\trinityrealm\trinityrealm.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.conf.dist"/>

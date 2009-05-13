@@ -82,7 +82,7 @@ enum ColorTypes
 
 const int Colors = int(WHITE)+1;
 
-class Log : public Trinity::Singleton<Log, Trinity::ClassLevelLockable<Log, ZThread::FastMutex> >
+class Log : public Trinity::Singleton<Log, Trinity::ClassLevelLockable<Log, ACE_Thread_Mutex> >
 {
     friend class Trinity::OperatorNew<Log>;
     Log();

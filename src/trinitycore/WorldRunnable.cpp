@@ -76,7 +76,7 @@ void WorldRunnable::run()
         if (diff <= WORLD_SLEEP_CONST+prevSleepTime)
         {
             prevSleepTime = WORLD_SLEEP_CONST+prevSleepTime-diff;
-            ZThread::Thread::sleep(prevSleepTime);
+            ACE_Based::Thread::Sleep(prevSleepTime);
         }
         else
             prevSleepTime = 0;

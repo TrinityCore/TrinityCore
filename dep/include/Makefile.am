@@ -199,54 +199,6 @@ EXTRA_DIST += \
 	zlib/zconf.h \
 	zlib/zlib.h
 
-#  ZThread header files for Win32 builds
-EXTRA_DIST += \
-	zthread/AtomicCount.h \
-	zthread/Barrier.h \
-	zthread/BiasedReadWriteLock.h \
-	zthread/BlockingQueue.h \
-	zthread/BoundedQueue.h \
-	zthread/Cancelable.h \
-	zthread/ClassLockable.h \
-	zthread/ConcurrentExecutor.h \
-	zthread/Condition.h \
-	zthread/Config.h \
-	zthread/CountedPtr.h \
-	zthread/CountingSemaphore.h \
-	zthread/Exceptions.h \
-	zthread/Executor.h \
-	zthread/FairReadWriteLock.h \
-	zthread/FastMutex.h \
-	zthread/FastRecursiveMutex.h \
-	zthread/Guard.h \
-	zthread/GuardedClass.h \
-	zthread/Lockable.h \
-	zthread/LockedQueue.h \
-	zthread/MonitoredQueue.h \
-	zthread/Mutex.h \
-	zthread/NonCopyable.h \
-	zthread/PoolExecutor.h \
-	zthread/Priority.h \
-	zthread/PriorityCondition.h \
-	zthread/PriorityInheritanceMutex.h \
-	zthread/PriorityMutex.h \
-	zthread/PrioritySemaphore.h \
-	zthread/Queue.h \
-	zthread/ReadWriteLock.h \
-	zthread/RecursiveMutex.h \
-	zthread/Runnable.h \
-	zthread/Semaphore.h \
-	zthread/Singleton.h \
-	zthread/SynchronousExecutor.h \
-	zthread/Task.h \
-	zthread/Thread.h \
-	zthread/ThreadLocal.h \
-	zthread/ThreadLocalImpl.h \
-	zthread/ThreadedExecutor.h \
-	zthread/Time.h \
-	zthread/Waitable.h \
-	zthread/ZThread.h
-
 # Mersenne Twister random number generator header files
 EXTRA_DIST += \
 	mersennetwister/MersenneTwister.h
