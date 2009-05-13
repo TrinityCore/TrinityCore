@@ -455,6 +455,9 @@ void Creature::Update(uint32 diff)
             }
             else
             {
+                // for delayed spells
+                m_Events.Update( diff );
+
                 m_deathTimer -= diff;
                 if (m_groupLootTimer && lootingGroupLeaderGUID)
                 {

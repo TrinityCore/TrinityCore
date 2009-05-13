@@ -104,7 +104,7 @@ void SpellAI::UpdateAI(const uint32 diff)
                 break;
             }
         }
-        me->CastSpell(target, spellId, false);
+        if(target) me->CastSpell(target, spellId, false);
         events.ScheduleEvent(spellId, AISpellInfo[spellId].cooldown + rand()%AISpellInfo[spellId].cooldown);
     }
     else
