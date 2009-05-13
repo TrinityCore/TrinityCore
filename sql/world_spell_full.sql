@@ -153,7 +153,7 @@ INSERT INTO creature_template (entry, spell1, flags_extra, scriptname) VALUES
 (17662, 30914, 128, ''), # Broggok Poison Cloud
 (25879, 46262, 128, ''), # Void Zone Periodic
 (16363, 28158, 128, ''), # Grobbulus Cloud
-(29379, 54362, 128, ''), # Grobbulus Cloud (H)
+(29379, 54362, 128, '') # Grobbulus Cloud (H)
 ON DUPLICATE KEY UPDATE
 spell1 = VALUES(spell1),
 flags_extra = VALUES(flags_extra),

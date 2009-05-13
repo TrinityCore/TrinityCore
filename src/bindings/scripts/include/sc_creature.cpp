@@ -17,13 +17,26 @@ struct TSpellSummary {
     uint8 Effects;                                          // set of enum SelectEffect
 } *SpellSummary;
 
+void SummonList::DoZoneInCombat(uint32 entry)
+{
+    for(iterator i = begin(); i != end();)
+    {
+        Creature *summon = Unit::GetCreature(*m_creature, *i);
+        ++i;
+        if(summon && summon->IsAIEnabled
+            && (!entry || summon->GetEntry() == entry))
+            summon->AI()->DoZoneInCombat();
+    }
+}
+
 void SummonList::DoAction(uint32 entry, uint32 info)
 {
     for(iterator i = begin(); i != end();)
     {
         Creature *summon = Unit::GetCreature(*m_creature, *i);
         ++i;
-        if(summon && summon->IsAIEnabled)
+        if(summon && summon->IsAIEnabled
+            && (!entry || summon->GetEntry() == entry))
             summon->AI()->DoAction(info);
     }
 }
@@ -212,6 +225,19 @@ Creature* ScriptedAI::DoSpawnCreature(uint32 id, float x, float y, float z, floa
 {
     return m_creature->SummonCreature(id,m_creature->GetPositionX() + x,m_creature->GetPositionY() + y,m_creature->GetPositionZ() + z, angle, (TempSummonType)type, despawntime);
 }
+
+Creature *ScriptedAI::DoSummon(uint32 entry, const float pos[4], uint32 despawntime, TempSummonType type)
+{
+    return me->SummonCreature(entry, pos[0], pos[1], pos[2], pos[3], type, despawntime);
+}
+
+Creature *ScriptedAI::DoSummon(uint32 entry, WorldObject *obj, float radius, uint32 despawntime, TempSummonType type)
+{
+    float x, y, z;
+    obj->GetGroundPointAroundUnit(x, y, z, radius * rand_norm(), rand_norm()*2*M_PI);
+    return me->SummonCreature(entry, x, y, z, me->GetOrientation(), type, despawntime);
+}
+
 
 Unit* ScriptedAI::SelectUnit(SelectAggroTarget target, uint32 position)
 {
@@ -493,6 +519,11 @@ void ScriptedAI::DoTeleportTo(float x, float y, float z, uint32 time)
     m_creature->SendMonsterMove(x, y, z, time);
 }
 
+void ScriptedAI::DoTeleportTo(const float pos[4])
+{
+    me->NearTeleportTo(pos[0], pos[1], pos[2], pos[3]);
+}
+
 void ScriptedAI::DoTeleportPlayer(Unit* pUnit, float x, float y, float z, float o)
 {
     if(!pUnit || pUnit->GetTypeId() != TYPEID_PLAYER)
@@ -642,7 +673,8 @@ void BossAI::_EnterCombat()
 void BossAI::JustSummoned(Creature *summon)
 {
     summons.Summon(summon);
-    DoZoneInCombat(summon);
+    if(me->isInCombat())
+        DoZoneInCombat(summon);
 }
 
 void BossAI::SummonedCreatureDespawn(Creature *summon)
@@ -667,25 +699,36 @@ void LoadOverridenSQLData()
             goInfo->trap.radius = 50;
 }
 
-#define SPELL(x) const_cast<SpellEntry*>(GetSpellStore()->LookupEntry(x))
-
 void LoadOverridenDBCData()
 {
     SpellEntry *spellInfo;
-
-    // Black Temple : Illidan : Parasitic Shadowfiend Passive
-    if(spellInfo = SPELL(41913))
-        spellInfo->EffectApplyAuraName[0] = 4; // proc debuff, and summon infinite fiends
-
-    //temp, not needed in 310
-    if(spellInfo = SPELL(28531))
+    for(uint32 i = 0; i < GetSpellStore()->GetNumRows(); ++i)
     {
-        spellInfo->DurationIndex = 21;
-        spellInfo->Effect[0] = SPELL_EFFECT_APPLY_AREA_AURA_ENEMY;
-    }
-    if(spellInfo = SPELL(55799))
-    {
-        spellInfo->DurationIndex = 21;
-        spellInfo->Effect[0] = SPELL_EFFECT_APPLY_AREA_AURA_ENEMY;
+        spellInfo = (SpellEntry*)GetSpellStore()->LookupEntry(i);
+        if(!spellInfo)
+            continue;
+
+        switch(i)
+        {
+            // Black Temple : Illidan : Parasitic Shadowfiend Passive
+            case 41013:
+                spellInfo->EffectApplyAuraName[0] = 4; // proc debuff, and summon infinite fiends
+                break;
+            //temp, not needed in 310
+            case 28531:
+            case 55799:
+                spellInfo->DurationIndex = 21;
+                spellInfo->Effect[0] = SPELL_EFFECT_APPLY_AREA_AURA_ENEMY;
+                break;
+            // Naxxramas: Gothik : Inform Inf range
+            case 27892:
+            case 27928:
+            case 27935:
+            case 27915:
+            case 27931:
+            case 27937:
+                spellInfo->rangeIndex = 13;
+                break;
+        }
     }
 }

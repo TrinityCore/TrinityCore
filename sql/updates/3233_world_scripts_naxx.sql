@@ -6,6 +6,7 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 (-28169, 28240,  0, 'Mutating Injection - Poison Cloud');
 
 UPDATE creature_template SET scriptname = 'boss_grobbulus' WHERE entry = 15931;
+update creature_template set scriptname='mob_gothik_minion' where entry in (16124,16125,16126,16127,16148,16149,16150);
 
 INSERT INTO creature_template (entry, spell1, flags_extra, scriptname) VALUES
 (16363, 28158, 128, ''), # Grobbulus Cloud
@@ -44,16 +45,30 @@ INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
 (27936, 1, 16060); # To Anchor 2 - Gothik
 
 INSERT INTO creature_template (entry, spell1, spell2, spell3, spell4, spell5, spell6, spell7, spell8) VALUES
-(16573, 15284, 28991, 28969, 34970, 28864, 0, 0, 0), # Crypt Guard
-(29256, 15284, 28991, 56098, 34970, 28864, 0, 0, 0), # Crypt Guard (H)
-(16506, 54095, 28732, 0, 0, 0, 0, 0, 0), # Naxxramas Worshipper
-(29274, 54096, 54097, 0, 0, 0, 0, 0, 0), # Naxxramas Worshipper (H)
+(16573, 15284, 28991, 28969, 34970, 0, 0, 0, 28864), # Crypt Guard
+(29256, 15284, 28991, 56098, 34970, 0, 0, 0, 28864), # Crypt Guard (H)
+(16506, 54095, 0, 0, 0, 0, 0, 0, 28732), # Naxxramas Worshipper
+(29274, 54096, 0, 0, 0, 0, 0, 0, 54097), # Naxxramas Worshipper (H)
 (16984, 15496, 0, 0, 0, 0, 0, 0, 0), # Plagued Warrior
 (29632, 15496, 0, 0, 0, 0, 0, 0, 0), # Plagued Warrior (H)
 (16290, 28156, 0, 0, 0, 0, 0, 0, 0), # Fallout Slime
 (29388, 54367, 0, 0, 0, 0, 0, 0, 0), # Fallout Slime (H)
 (16803, 0, 0, 0, 61696, 29060, 29061, 0, 0), # Death Knight Understudy
-(29941, 0, 0, 0, 61696, 29060, 29061, 0, 0) # Death Knight Understudy (H)
+(29941, 0, 0, 0, 61696, 29060, 29061, 0, 0), # Death Knight Understudy (H)
+(16124, 55604, 0, 0, 0, 0, 0, 0, 27892), # Unrelenting Trainee
+(16125, 27825, 0, 0, 0, 0, 0, 0, 27928), # Unrelenting Death Knight
+(16126, 27831, 55606, 0, 0, 0, 0, 0, 27935), # Unrelenting Rider
+(16127, 27989, 0, 0, 0, 0, 0, 0, 0), # Spectral Trainee
+(16148, 56408, 0, 0, 0, 0, 0, 0, 0), # Spectral Death Knight
+(16150, 27994, 55648, 55606, 0, 0, 0, 0, 0), # Spectral Rider
+(16149, 27993, 0, 0, 0, 0, 0, 0, 0), # Spectral Horse
+(29985, 55645, 0, 0, 0, 0, 0, 0, 27892), # Unrelenting Trainee (H)
+(29986, 27825, 0, 0, 0, 0, 0, 0, 27928), # Unrelenting Death Knight (H)
+(29987, 55638, 55608, 0, 0, 0, 0, 0, 27935), # Unrelenting Rider (H)
+(30264, 56407, 0, 0, 0, 0, 0, 0, 0), # Spectral Trainee (H)
+(29990, 56408, 0, 0, 0, 0, 0, 0, 0), # Spectral Death Knight (H)
+(29988, 55646, 27995, 55608, 0, 0, 0, 0, 0), # Spectral Rider (H)
+(29989, 27993, 0, 0, 0, 0, 0, 0, 0) # Spectral Horse (H)
 ON DUPLICATE KEY UPDATE
 spell1 = VALUES(spell1),
 spell2 = VALUES(spell2),

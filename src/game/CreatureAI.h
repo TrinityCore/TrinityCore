@@ -168,6 +168,9 @@ class TRINITY_DLL_SPEC CreatureAI : public UnitAI
 
         static AISpellInfoType *AISpellInfo;
         static void FillAISpellInfo();
+
+    protected:
+        bool _EnterEvadeMode();
 };
 
 enum Permitions

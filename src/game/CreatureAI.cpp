@@ -39,6 +39,9 @@ void CreatureAI::DoZoneInCombat(Creature* creature)
     if (!creature)
         creature = me;
 
+    if(!creature->CanHaveThreatList())
+        return;
+
     Map *map = creature->GetMap();
     if (!map->IsDungeon())                                  //use IsDungeon instead of Instanceable, in case battlegrounds will be instantiated
     {
@@ -46,7 +49,7 @@ void CreatureAI::DoZoneInCombat(Creature* creature)
         return;
     }
 
-    if(!creature->getVictim())
+    if(!creature->HasReactState(REACT_PASSIVE) && !creature->getVictim())
     {
         if(Unit *target = creature->SelectNearestTarget())
             creature->AI()->AttackStart(target);
@@ -54,29 +57,30 @@ void CreatureAI::DoZoneInCombat(Creature* creature)
         {
             if(Unit *summoner = ((TempSummon*)creature)->GetSummoner())
             {
-                if(summoner->getVictim()
-                    && (creature->IsFriendlyTo(summoner) || creature->IsHostileTo(summoner->getVictim())))
-                    creature->AI()->AttackStart(summoner->getVictim());
+                Unit *target = summoner->getAttackerForHelper();
+                if(!target && summoner->CanHaveThreatList() && !summoner->getThreatManager().isThreatListEmpty())
+                    target = summoner->getThreatManager().getHostilTarget();
+                if(target && (creature->IsFriendlyTo(summoner) || creature->IsHostileTo(target)))
+                    creature->AI()->AttackStart(target);
             }
         }
     }
 
-    if (!creature->CanHaveThreatList() || !creature->getVictim())
+    if(!creature->HasReactState(REACT_PASSIVE) && !creature->getVictim())
     {
-        sLog.outError("DoZoneInCombat called for creature that either cannot have threat list or has empty threat list (creature entry = %d)", creature->GetTypeId() == TYPEID_UNIT ? ((Creature*)creature)->GetEntry() : 0);
+        sLog.outError("DoZoneInCombat called for creature that has empty threat list (creature entry = %u)", creature->GetEntry());
         return;
     }
 
     Map::PlayerList const &PlayerList = map->GetPlayers();
     for(Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
     {
-        if (Player* i_pl = i->getSource())
-            if (i_pl->isAlive())
-            {
-                creature->SetInCombatWith(i_pl);
-                i_pl->SetInCombatWith(creature);
-                creature->AddThreat(i_pl, 0.0f);
-            }
+        if (i->getSource()->isAlive())
+        {
+            creature->SetInCombatWith(i->getSource());
+            i->getSource()->SetInCombatWith(creature);
+            creature->AddThreat(i->getSource(), 0.0f);
+        }
     }
 }
 
@@ -102,10 +106,10 @@ bool CreatureAI::UpdateVictim()
     return me->getVictim();
 }
 
-void CreatureAI::EnterEvadeMode()
+bool CreatureAI::_EnterEvadeMode()
 {
-    if(me->IsInEvadeMode())
-        return;
+    if(me->IsInEvadeMode() || !me->isAlive())
+        return false;
 
     me->RemoveAllAuras();
     me->DeleteThreatList();
@@ -113,13 +117,18 @@ void CreatureAI::EnterEvadeMode()
     me->LoadCreaturesAddon();
     me->SetLootRecipient(NULL);
 
-    if(me->isAlive())
-    {
-        if(Unit *owner = me->GetCharmerOrOwner())
-            me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE, MOTION_SLOT_IDLE);
-        else
-            me->GetMotionMaster()->MoveTargetedHome();
-    }
+    return true;
+}
+
+void CreatureAI::EnterEvadeMode()
+{
+    if(!_EnterEvadeMode())
+        return;
+
+    if(Unit *owner = me->GetCharmerOrOwner())
+        me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE, MOTION_SLOT_IDLE);
+    else
+        me->GetMotionMaster()->MoveTargetedHome();
 
     Reset();
 }
