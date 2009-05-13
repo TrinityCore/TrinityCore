@@ -4124,7 +4124,11 @@ void ObjectMgr::LoadGossipText()
             pGText->Options[i].Emotes[2]._Emote  = fields[cic++].GetUInt32();
         }
 
-        if ( !pGText->Text_ID ) continue;
+        if ( !pGText->Text_ID ){
+          delete pGText;
+          continue;
+        }
+
         AddGossipText( pGText );
 
     } while( result->NextRow() );

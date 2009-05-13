@@ -766,6 +766,7 @@ void ChatHandler::SendGlobalGMSysMessage(const char *str)
         FillSystemMessageData(&data, line);
         sWorld.SendGlobalGMMessage(&data);
      }
+    delete buf;
 }
 
 void ChatHandler::SendSysMessage(int32 entry)
