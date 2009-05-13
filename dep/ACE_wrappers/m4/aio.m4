@@ -64,7 +64,6 @@ if test "$ace_has_aio_funcs" = yes; then
 #include <string.h>
 #include <errno.h>
 #include <stdio.h>
-#include <iostream.h>
 
 #include <aio.h>
 
