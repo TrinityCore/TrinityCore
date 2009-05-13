@@ -788,8 +788,15 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
         }
     }
 
-    if (pVictim->GetTypeId() == TYPEID_UNIT && !((Creature*)pVictim)->isPet() && !((Creature*)pVictim)->hasLootRecipient())
-        ((Creature*)pVictim)->SetLootRecipient(this);
+    if (pVictim->GetTypeId() == TYPEID_UNIT && !((Creature*)pVictim)->isPet())
+    {
+        if(!((Creature*)pVictim)->hasLootRecipient())
+            ((Creature*)pVictim)->SetLootRecipient(this);
+
+        if(GetCharmerOrOwnerPlayerOrPlayerItself())
+            ((Creature*)pVictim)->AddDamageByPlayers(health < damage ?  health : damage);
+    }
+    
     if (health <= damage)
     {
         DEBUG_LOG("DealDamage: victim just died");
@@ -12471,11 +12478,19 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
     // find player: owner of controlled `this` or `this` itself maybe
     Player *player = GetCharmerOrOwnerPlayerOrPlayerItself();
 
-    if(pVictim->GetTypeId() == TYPEID_UNIT && ((Creature*)pVictim)->GetLootRecipient())
+    bool bRewardIsAllowed = true;
+    if(pVictim->GetTypeId() == TYPEID_UNIT)
+    {
+        bRewardIsAllowed = ((Creature*)pVictim)->IsDamageEnoughForLootingAndReward();
+        if(!bRewardIsAllowed)
+            ((Creature*)pVictim)->SetLootRecipient(NULL);
+    }
+    
+    if(bRewardIsAllowed && pVictim->GetTypeId() == TYPEID_UNIT && ((Creature*)pVictim)->GetLootRecipient())
         player = ((Creature*)pVictim)->GetLootRecipient();
     // Reward player, his pets, and group/raid members
     // call kill spell proc event (before real die and combat stop to triggering auras removed at death/combat stop)
-    if(player && player!=pVictim)
+    if(bRewardIsAllowed && player && player!=pVictim)
     {
         if(player->RewardPlayerAndGroupAtKill(pVictim))
             player->ProcDamageAndSpell(pVictim, PROC_FLAG_KILL_AND_GET_XP, PROC_FLAG_KILLED, PROC_EX_NONE, 0);
