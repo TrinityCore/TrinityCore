@@ -2809,7 +2809,9 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit *pVictim, SpellEntry const *spell)
         return SPELL_MISS_NONE;
 
     // Ranged attack cannot be parry/dodge only deflect
-    if (attType == RANGED_ATTACK)
+    // Check damage class instead of attack type to correctly handle judgements 
+    // - they are meele, but can't be dodged/parried/deflected because of ranged dmg class
+    if (spell->DmgClass == SPELL_DAMAGE_CLASS_RANGED)
     {
         // only if in front
         if (pVictim->HasInArc(M_PI,this))
