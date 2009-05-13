@@ -23,6 +23,7 @@ class SummonList : private std::list<uint64>
         void DespawnEntry(uint32 entry);
         void DespawnAll();
         void DoAction(uint32 entry, uint32 info);
+        void DoZoneInCombat(uint32 entry = 0);
     private:
         Creature *m_creature;
 };
@@ -152,6 +153,7 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
     void DoModifyThreatPercent(Unit *pUnit, int32 pct);
 
     void DoTeleportTo(float x, float y, float z, uint32 time = 0);
+    void DoTeleportTo(const float pos[4]);
 
     void DoAction(const int32 param) {}
 
@@ -170,6 +172,8 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
 
     //Spawns a creature relative to m_creature
     Creature* DoSpawnCreature(uint32 id, float x, float y, float z, float angle, uint32 type, uint32 despawntime);
+    Creature *DoSummon(uint32 entry, const float pos[4], uint32 despawntime = 30000, TempSummonType type = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+    Creature *DoSummon(uint32 entry, WorldObject *obj, float radius = 5.0f, uint32 despawntime = 30000, TempSummonType type = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
 
     //Selects a unit from the creature's current aggro list
     Unit* SelectUnit(SelectAggroTarget target, uint32 position);
