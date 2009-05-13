@@ -159,6 +159,7 @@ m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),m_creatureInfo(NULL), m_DBTabl
     m_GlobalCooldown = 0;
     m_unit_movement_flags = MOVEMENTFLAG_WALK_MODE;
     DisableReputationGain = false;
+    ResetDamageByPlayers();
 }
 
 Creature::~Creature()
@@ -1653,6 +1654,7 @@ void Creature::setDeathState(DeathState s)
         //    setActive(true);
         SetHealth(GetMaxHealth());
         SetLootRecipient(NULL);
+        ResetDamageByPlayers();
         Unit::setDeathState(ALIVE);
         CreatureInfo const *cinfo = GetCreatureInfo();
         RemoveFlag (UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
