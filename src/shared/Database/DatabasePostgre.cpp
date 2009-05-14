@@ -126,13 +126,8 @@ QueryResult* DatabasePostgre::Query(const char *sql)
     uint32 fieldCount = 0;
 
     // guarded block for thread-safe request
-<<<<<<< HEAD:src/shared/Database/DatabasePostgre.cpp
-    ZThread::Guard<ZThread::FastMutex> query_connection_guard(mMutex);
-    #ifdef TRINITY_DEBUG
-=======
     ACE_Guard<ACE_Thread_Mutex> query_connection_guard(mMutex);
     #ifdef MANGOS_DEBUG
->>>>>>> 00c7d15a78b1dcdbf888b768c55424183b2231e4:src/shared/Database/DatabasePostgre.cpp
     uint32 _s = getMSTime();
     #endif
     // Send the query
