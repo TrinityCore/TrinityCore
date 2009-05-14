@@ -6668,6 +6668,9 @@ void Player::_ApplyItemBonuses(ItemPrototype const *proto, uint8 slot, bool appl
         if (uint32 ssvarmor = ssv->getArmorMod(proto->ScalingStatValue))
             armor = ssvarmor;
     }
+    // Add armor bonus from ArmorDamageModifier if > 0
+    if (proto->ArmorDamageModifier > 0)
+        armor+=proto->ArmorDamageModifier;
     if (armor)
         HandleStatModifier(UNIT_MOD_ARMOR, BASE_VALUE, float(armor), apply);
 
