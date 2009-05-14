@@ -86,10 +86,9 @@ struct TRINITY_DLL_DECL instance_naxxramas : public InstanceData
         LoadDoorData(doorData);
     }
 
-    std::set<Creature*> Worshipper;
     std::set<GameObject*> HeiganEruption[4];
-    GameObject *GothikGate;
     Creature *Sapphiron;
+    std::set<Creature*> Worshipper;
 
     void OnCreatureCreate(Creature *creature, bool add)
     {
@@ -115,7 +114,6 @@ struct TRINITY_DLL_DECL instance_naxxramas : public InstanceData
         switch(go->GetEntry())
         {
             case GO_BIRTH: if(!add && Sapphiron) Sapphiron->AI()->DoAction(DATA_SAPPHIRON_BIRTH); return;
-            case GO_GOTHIK_GATE: GothikGate = add ? go : NULL; break;
         }
 
         AddDoor(go, add);
@@ -141,10 +139,6 @@ struct TRINITY_DLL_DECL instance_naxxramas : public InstanceData
         {
             case DATA_HEIGAN_ERUPT:
                 HeiganErupt(value);
-                break;
-            case DATA_GOTHIK_GATE:
-                if(GothikGate)
-                    GothikGate->SetGoState(GOState(value));
                 break;
         }
     }
