@@ -450,7 +450,7 @@ namespace VMAP
 
                             // ---- vectors
                             if(fread(&blockId, 4, 1, rf) != 1) {fclose(rf); delete gtree; return(false); }
-                            if(strcmp(blockId, "VERT") != 0) { fclose(rf); return(false); }
+                            if(strcmp(blockId, "VERT") != 0) { fclose(rf); delete gtree; return(false); }
                             if(fread(&blocksize, sizeof(int), 1, rf) != 1) { fclose(rf); delete gtree; return(false); }
                             unsigned int nvectors;
                             if(fread(&nvectors, sizeof(int), 1, rf) != 1) { fclose(rf); delete gtree; return(false); }
