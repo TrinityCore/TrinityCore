@@ -410,7 +410,8 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
             else
             {
                 Unit *target = NULL;
-                if(Phase1 && target && (target = m_creature->SelectNearestTarget(5)))
+                target = m_creature->SelectNearestTarget(5);
+                if(Phase1 && target)
                     m_creature->AI()->AttackStart(target);
                 else
                 {
