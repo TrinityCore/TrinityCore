@@ -44,6 +44,7 @@
 #include "Pet.h"
 #include "SocialMgr.h"
 #include "CellImpl.h"
+#include "AccountMgr.h"
 #include "Vehicle.h"
 #include "CreatureAI.h"
 
@@ -561,12 +562,13 @@ void WorldSession::HandleAddFriendOpcode( WorldPacket & recv_data )
     sLog.outDebug( "WORLD: %s asked to add friend : '%s'",
         GetPlayer()->GetName(), friendName.c_str() );
 
-    CharacterDatabase.AsyncPQuery(&WorldSession::HandleAddFriendOpcodeCallBack, GetAccountId(), friendNote, "SELECT guid, race FROM characters WHERE name = '%s'", friendName.c_str());
+    CharacterDatabase.AsyncPQuery(&WorldSession::HandleAddFriendOpcodeCallBack, GetAccountId(), friendNote, "SELECT guid, race, account FROM characters WHERE name = '%s'", friendName.c_str());
 }
 
 void WorldSession::HandleAddFriendOpcodeCallBack(QueryResult *result, uint32 accountId, std::string friendNote)
 {
     uint64 friendGuid;
+    uint64 friendAcctid;
     uint32 team;
     FriendsResult friendResult;
 
@@ -582,30 +584,33 @@ void WorldSession::HandleAddFriendOpcodeCallBack(QueryResult *result, uint32 acc
     {
         friendGuid = MAKE_NEW_GUID((*result)[0].GetUInt32(), 0, HIGHGUID_PLAYER);
         team = Player::TeamForRace((*result)[1].GetUInt8());
+        friendAcctid = (*result)[2].GetUInt32();
 
         delete result;
 
-        if(friendGuid)
+        if ( session->GetSecurity() >= SEC_MODERATOR || sWorld.getConfig(CONFIG_ALLOW_GM_FRIEND) || accmgr.GetSecurity(friendAcctid) < SEC_MODERATOR)
         {
-            if(friendGuid==session->GetPlayer()->GetGUID())
-                friendResult = FRIEND_SELF;
-            else if(session->GetPlayer()->GetTeam() != team && !sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_ADD_FRIEND) && session->GetSecurity() < SEC_MODERATOR)
-                friendResult = FRIEND_ENEMY;
-            else if(session->GetPlayer()->GetSocial()->HasFriend(GUID_LOPART(friendGuid)))
-                friendResult = FRIEND_ALREADY;
-            else
+            if(friendGuid)
             {
-                Player* pFriend = ObjectAccessor::FindPlayer(friendGuid);
-                if( pFriend && pFriend->IsInWorld() && pFriend->IsVisibleGloballyFor(session->GetPlayer()))
-                    friendResult = FRIEND_ADDED_ONLINE;
+                if(friendGuid==session->GetPlayer()->GetGUID())
+                    friendResult = FRIEND_SELF;
+                else if(session->GetPlayer()->GetTeam() != team && !sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_ADD_FRIEND) && session->GetSecurity() < SEC_MODERATOR)
+                    friendResult = FRIEND_ENEMY;
+                else if(session->GetPlayer()->GetSocial()->HasFriend(GUID_LOPART(friendGuid)))
+                    friendResult = FRIEND_ALREADY;
                 else
-                    friendResult = FRIEND_ADDED_OFFLINE;
-                if(!session->GetPlayer()->GetSocial()->AddToSocialList(GUID_LOPART(friendGuid), false))
                 {
-                    friendResult = FRIEND_LIST_FULL;
-                    sLog.outDebug( "WORLD: %s's friend list is full.", session->GetPlayer()->GetName());
+                    Player* pFriend = ObjectAccessor::FindPlayer(friendGuid);
+                    if( pFriend && pFriend->IsInWorld() && pFriend->IsVisibleGloballyFor(session->GetPlayer()))
+                        friendResult = FRIEND_ADDED_ONLINE;
+                    else
+                        friendResult = FRIEND_ADDED_OFFLINE;
+                    if(!session->GetPlayer()->GetSocial()->AddToSocialList(GUID_LOPART(friendGuid), false))
+                    {
+                        friendResult = FRIEND_LIST_FULL;
+                        sLog.outDebug( "WORLD: %s's friend list is full.", session->GetPlayer()->GetName());
+                    }
                 }
-
                 session->GetPlayer()->GetSocial()->SetFriendNote(GUID_LOPART(friendGuid), friendNote);
             }
         }
