@@ -6500,7 +6500,7 @@ void Player::_ApplyItemBonuses(ItemPrototype const *proto, uint8 slot, bool appl
         }
         else
         {
-            if (proto->StatsCount >= i)
+            if (i >= proto->StatsCount)
                 continue;
             statType = proto->ItemStat[i].ItemStatType;
             val = proto->ItemStat[i].ItemStatValue;
