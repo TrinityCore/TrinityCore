@@ -884,6 +884,15 @@ Channel.SilentlyGMJoin = 0
 #        GM starting level (1-255)
 #        Default: 1
 #
+#    GM.AllowInvite
+#        Is GM accepting invites from players by default or not
+#        Default: 0 (false)
+#                 1 (true)
+#
+#    GM.AllowFriend
+#        Are players allowed to add GMs to their friend list
+#        Default: 0 (false)
+#                 1 (true)
 ###################################################################################################################
 
 GM.LoginState     = 2
@@ -894,6 +903,8 @@ GM.InGMList       = 0
 GM.InWhoList      = 0
 GM.LogTrade       = 1
 GM.StartLevel     = 70
+GM.AllowInvite    = 0
+GM.AllowFriend    = 0
 
 ###################################################################################################################
 # VISIBILITY AND RADIUSES
