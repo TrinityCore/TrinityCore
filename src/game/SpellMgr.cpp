@@ -345,6 +345,19 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
             else if((spellInfo->AttributesEx2 & SPELL_ATTR_EX2_FOOD)
                 && !spellInfo->Category)
                 return SPELL_WELL_FED;
+
+			switch(spellInfo->Id)
+			{
+				case 12880: // warrior's Enrage rank 1
+                case 14201: //           Enrage rank 2
+                case 14202: //           Enrage rank 3
+                case 14203: //           Enrage rank 4
+                case 14204: //           Enrage rank 5
+                case 12292: //	         Death Wish
+					return SPELL_WARRIOR_ENRAGE;
+				break;
+				default: break;
+			}
             break;
         }
         case SPELLFAMILY_MAGE:
@@ -489,6 +502,7 @@ bool IsSingleFromSpellSpecificPerTarget(uint32 spellSpec1,uint32 spellSpec2)
         case SPELL_DRINK:
         case SPELL_FOOD:
         case SPELL_CHARM:
+		case SPELL_WARRIOR_ENRAGE:
             return spellSpec1==spellSpec2;
         case SPELL_BATTLE_ELIXIR:
             return spellSpec2==SPELL_BATTLE_ELIXIR
