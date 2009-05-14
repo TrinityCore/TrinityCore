@@ -6441,8 +6441,8 @@ void Player::_ApplyItemMods(Item *item, uint8 slot,bool apply)
     if(slot >= INVENTORY_SLOT_BAG_END || !item)
         return;
 
-    // not apply/remove mods for broken item
-    if(item->IsBroken())
+    // not apply mods for broken item
+    if(item->IsBroken() && apply)
         return;
 
     ItemPrototype const *proto = item->GetProto();
