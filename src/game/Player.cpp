@@ -1673,7 +1673,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         if (!(options & TELE_TO_NOT_UNSUMMON_PET))
         {
             //same map, only remove pet if out of range for new position
-            if(pet && pet->GetDistance(x,y,z) >= OWNER_MAX_DISTANCE)
+            if(pet && !pet->IsWithinDist3d(x,y,z, OWNER_MAX_DISTANCE))
                 UnsummonPetTemporaryIfAny();
         }
 

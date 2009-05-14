@@ -1425,7 +1425,7 @@ struct TargetDistanceOrder : public std::binary_function<const Unit, const Unit,
     // functor for operator ">"
     bool operator()(const Unit* _Left, const Unit* _Right) const
     {
-        return (MainTarget->GetDistance(_Left) < MainTarget->GetDistance(_Right));
+        return MainTarget->GetDistanceOrder(_Left,_Right);
     }
 };
 
@@ -1490,7 +1490,7 @@ void Spell::SearchChainTarget(std::list<Unit*> &TagUnitMap, float max_range, uin
             if(cur->GetDistance(*next) > CHAIN_SPELL_JUMP_RADIUS)
                 break;
             while(m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MELEE
-                && !m_caster->isInFront(*next, max_range)
+                && !m_caster->isInFrontInMap(*next, max_range)
                 || !m_caster->canSeeOrDetect(*next, false)
                 || !cur->IsWithinLOSInMap(*next))
             {
@@ -4857,10 +4857,9 @@ SpellCastResult Spell::CheckRange(bool strict)
 
     if(m_targets.m_targetMask == TARGET_FLAG_DEST_LOCATION && m_targets.m_destX != 0 && m_targets.m_destY != 0 && m_targets.m_destZ != 0)
     {
-        float dist = m_caster->GetDistance(m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ);
-        if(dist > max_range)
+        if(!m_caster->IsWithinDist3d(m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ,max_range))
             return SPELL_FAILED_OUT_OF_RANGE;
-        if(dist < min_range)
+        if(m_caster->IsWithinDist3d(m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ,min_range))
             return SPELL_FAILED_TOO_CLOSE;
     }
 
