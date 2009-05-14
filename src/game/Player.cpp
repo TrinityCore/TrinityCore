@@ -6704,14 +6704,14 @@ void Player::_ApplyItemBonuses(ItemPrototype const *proto, uint8 slot, bool appl
     float minDamage = proto->Damage[0].DamageMin;
     float maxDamage = proto->Damage[0].DamageMax;
     int32 extraDPS = 0;
-    // If set dpsMod in ScalingStatValue use it for min (70% from avernge), max (130% from averange) damage
+    // If set dpsMod in ScalingStatValue use it for min (70% from average), max (130% from average) damage
     if (ssv)
     {
         if (extraDPS = ssv->getDPSMod(proto->ScalingStatValue))
         {
-            float averange = extraDPS * proto->Delay / 1000.0f;
-            minDamage = 0.7f * averange;
-            maxDamage = 1.3f * averange;
+            float average = extraDPS * proto->Delay / 1000.0f;
+            minDamage = 0.7f * average;
+            maxDamage = 1.3f * average;
         }
     }
     if (minDamage > 0 )
