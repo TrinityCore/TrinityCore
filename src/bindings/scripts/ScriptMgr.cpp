@@ -389,7 +389,6 @@ extern void AddSC_boss_sapphiron();
 extern void AddSC_boss_four_horsemen();
 extern void AddSC_boss_faerlina();
 extern void AddSC_boss_heigan();
-extern void AddSC_boss_gothik();
 extern void AddSC_instance_naxxramas();
 
 //Netherstorm
@@ -1328,7 +1327,6 @@ void ScriptsInit(char const* cfg_file = "trinitycore.conf")
     AddSC_boss_sapphiron();
     AddSC_boss_four_horsemen();
     AddSC_boss_heigan();
-    AddSC_boss_gothik();
     AddSC_instance_naxxramas();
 
     //Netherstorm
