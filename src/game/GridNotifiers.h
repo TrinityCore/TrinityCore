@@ -489,7 +489,7 @@ namespace Trinity
         void Visit(PlayerMapType &m)
         {
             for(PlayerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-                if(itr->getSource()->InSamePhase(i_searcher) && itr->getSource()->GetDistance(i_searcher) <= i_dist)
+                if (itr->getSource()->InSamePhase(i_searcher) && itr->getSource()->IsWithinDist(i_searcher,i_dist))
                     i_do(itr->getSource());
         }
 

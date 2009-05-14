@@ -775,9 +775,7 @@ void WorldSession::HandleCorpseReclaimOpcode(WorldPacket &recv_data)
     if(corpse->GetGhostTime() + GetPlayer()->GetCorpseReclaimDelay(corpse->GetType()==CORPSE_RESURRECTABLE_PVP) > time(NULL))
         return;
 
-    float dist = corpse->GetDistance2d(GetPlayer());
-    sLog.outDebug("Corpse 2D Distance: \t%f",dist);
-    if (dist > CORPSE_RECLAIM_RADIUS)
+    if (!corpse->IsWithinDist(GetPlayer(),CORPSE_RECLAIM_RADIUS,false))
         return;
 
     uint64 guid;
