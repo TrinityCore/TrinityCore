@@ -600,46 +600,6 @@ struct ItemPrototype
         return false;
     }
 
-    uint32 GetScalingStatValuesColumn() const
-    {
-        if(ScalingStatValue & 0x00000001)                   // stat mod
-            return 0;
-        if(ScalingStatValue & 0x00000002)                   // stat mod
-            return 1;
-        if(ScalingStatValue & 0x00000004)                   // stat mod
-            return 2;
-        if(ScalingStatValue & 0x00000008)                   // stat mod
-            return 3;
-        if(ScalingStatValue & 0x00000010)                   // stat mod
-            return 4;
-        if(ScalingStatValue & 0x00000020)                   // armor mod
-            return 5;
-        if(ScalingStatValue & 0x00000040)                   // armor mod
-            return 6;
-        if(ScalingStatValue & 0x00000080)                   // armor mod
-            return 7;
-        if(ScalingStatValue & 0x00000100)                   // armor mod
-            return 8;
-        if(ScalingStatValue & 0x00000200)                   // damage mod
-            return 9;
-        if(ScalingStatValue & 0x00000400)                   // damage mod
-            return 10;
-        if(ScalingStatValue & 0x00000800)                   // damage mod
-            return 11;
-        if(ScalingStatValue & 0x00001000)                   // damage mod
-            return 12;
-        if(ScalingStatValue & 0x00002000)                   // damage mod
-            return 13;
-        if(ScalingStatValue & 0x00004000)                   // damage mod
-            return 14;
-        if(ScalingStatValue & 0x00008000)                   // spell power
-            return 15;
-        if(ScalingStatValue & 0x00020000)                   // feral AP
-            return 16;
-
-        return 0;
-    }
-
     uint32 GetMaxStackSize() const { return Stackable > 0 ? uint32(Stackable) : uint32(0x7FFFFFFF-1); }
 
     float getDPS() const
@@ -652,12 +612,12 @@ struct ItemPrototype
         return temp*500/Delay;
     }
 
-    int32 getFeralBonus() const
+    int32 getFeralBonus(int32 extraDPS = 0) const
     {
         // 0x02A5F3 - is mask for Melee weapon from ItemSubClassMask.dbc
         if (Class == ITEM_CLASS_WEAPON && (1<<SubClass)&0x02A5F3)
         {
-            int32 bonus = int32(getDPS()*14.0f) - 767;
+            int32 bonus = int32((extraDPS + getDPS())*14.0f) - 767;
             if (bonus < 0)
                 return 0;
             return bonus;
