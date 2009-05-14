@@ -242,8 +242,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNoImmediateEffect,                         //187 SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_CHANCE  implemented in Unit::GetUnitCriticalChance
     &AuraEffect::HandleNoImmediateEffect,                         //188 SPELL_AURA_MOD_ATTACKER_RANGED_CRIT_CHANCE implemented in Unit::GetUnitCriticalChance
     &AuraEffect::HandleModRating,                                 //189 SPELL_AURA_MOD_RATING
-    &AuraEffect::HandleNULL,                                      //190 SPELL_AURA_MOD_FACTION_REPUTATION_GAIN
-    &AuraEffect::HandleAuraModUseNormalSpeed,                     //191 SPELL_AURA_USE_NORMAL_MOVEMENT_SPEED
+    &AuraEffect::HandleNoImmediateEffect,                         //190 SPELL_AURA_MOD_FACTION_REPUTATION_GAIN     implemented in Player::CalculateReputationGain    &AuraEffect::HandleAuraModUseNormalSpeed,                     //191 SPELL_AURA_USE_NORMAL_MOVEMENT_SPEED
     &AuraEffect::HandleModMeleeRangedSpeedPct,                    //192 SPELL_AURA_HASTE_MELEE
     &AuraEffect::HandleModCombatSpeedPct,                         //193 SPELL_AURA_MELEE_SLOW (in fact combat (any type attack) speed pct)
     &AuraEffect::HandleNULL,                                      //194 SPELL_AURA_MOD_TARGET_ABSORB_SCHOOL implemented in Unit::CalcAbsorbResist
