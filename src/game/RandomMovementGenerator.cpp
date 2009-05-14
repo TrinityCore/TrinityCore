@@ -195,7 +195,7 @@ RandomMovementGenerator<Creature>::Update(Creature &creature, const uint32 &diff
                 creature.SetUnitMovementFlags(irand(0,RUNNING_CHANCE_RANDOMMV) > 0 ? MOVEMENTFLAG_WALK_MODE : MOVEMENTFLAG_NONE);
             _setRandomLocation(creature);
         }
-        else if(creature.isPet() && creature.GetOwner() && creature.GetDistance(creature.GetOwner()) > PET_FOLLOW_DIST+2.5f)
+        else if(creature.isPet() && creature.GetOwner() && !creature.IsWithinDist(creature.GetOwner(),PET_FOLLOW_DIST+2.5f))
         {
            creature.SetUnitMovementFlags(MOVEMENTFLAG_NONE);
            _setRandomLocation(creature);
