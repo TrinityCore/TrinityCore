@@ -6894,6 +6894,18 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, Aura* triggeredB
     Item* castItem = triggeredByAura->GetCastItemGUID() && GetTypeId()==TYPEID_PLAYER
         ? ((Player*)this)->GetItemByGuid(triggeredByAura->GetCastItemGUID()) : NULL;
 
+	// check if triggering spell can stack with current target's auras (if not - don't proc)
+    AuraMap::iterator i,next;
+    for (i = m_Auras.begin(); i != m_Auras.end(); i = next)
+    {
+        next = i;
+        ++next;
+        if (!(*i).second) continue;
+		if ( (*i).second->GetSpellProto()->Id == trigger_spell_id) continue;
+        if (spellmgr.IsNoStackSpellDueToSpell(trigger_spell_id, (*i).second->GetSpellProto()->Id, (pVictim == this)))
+		    return false;
+    }
+
     // Try handle uncnown trigger spells
     if (sSpellStore.LookupEntry(trigger_spell_id)==NULL)
     switch (auraSpellInfo->SpellFamilyName)

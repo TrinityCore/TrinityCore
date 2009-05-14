@@ -295,6 +295,7 @@ enum SpellSpecific
     SPELL_DRINK             = 19,
     SPELL_FOOD              = 20,
     SPELL_CHARM             = 21,
+	SPELL_WARRIOR_ENRAGE    = 22,
 };
 
 #define SPELL_LINKED_MAX_SPELLS  200000
