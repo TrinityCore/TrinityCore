@@ -1283,11 +1283,11 @@ void CreatureEventAI::UpdateAI(const uint32 diff)
                     case EVENT_T_TARGET_HP:
                     case EVENT_T_TARGET_CASTING:
                     case EVENT_T_FRIENDLY_HP:
-                        if (Combat)
+                        if (me->getVictim())
                             ProcessEvent(*i);
                         break;
                     case EVENT_T_RANGE:
-                        if (Combat)
+                        if (me->getVictim())
                             if (m_creature->IsInMap(m_creature->getVictim()))
                                 if (m_creature->IsInRange(m_creature->getVictim(),
                                     (float)(*i).Event.event_param1,(float)(*i).Event.event_param2))
