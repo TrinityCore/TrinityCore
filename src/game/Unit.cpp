@@ -1699,15 +1699,41 @@ void Unit::DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss)
             CastSpell(pVictim, 1604, true);
     }
 
-    // If not miss
-    if (!(damageInfo->HitInfo & HITINFO_MISS))
+    if(GetTypeId() == TYPEID_PLAYER && pVictim->isAlive())
     {
-        if(GetTypeId() == TYPEID_PLAYER && pVictim->isAlive())
+        for(int i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; i++)
         {
-            for(int i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; i++)
-                ((Player*)this)->CastItemCombatSpell(((Player*)this)->GetUseableItemByPos(INVENTORY_SLOT_BAG_0,i), pVictim, damageInfo->attackType);
+            // If usable, try to cast item spell
+            if (Item * item = ((Player*)this)->GetUseableItemByPos(INVENTORY_SLOT_BAG_0,i))
+                if(!item->IsBroken())
+                    if (ItemPrototype const *proto = item->GetProto())
+                    {
+                        // Additional check for weapons
+                        if (proto->Class==ITEM_CLASS_WEAPON)
+                        {
+                            // offhand item cannot proc from main hand hit etc
+                            EquipmentSlots slot;
+                            switch (damageInfo->attackType)
+                            {
+                                case BASE_ATTACK:   slot = EQUIPMENT_SLOT_MAINHAND; break;
+                                case OFF_ATTACK:    slot = EQUIPMENT_SLOT_OFFHAND;  break;
+                                case RANGED_ATTACK: slot = EQUIPMENT_SLOT_RANGED;   break;
+                                default: slot = EQUIPMENT_SLOT_END; break;
+                            }
+                            if (slot != i)
+                                continue;
+                            // Check if item is useable (forms or disarm)
+                            if (((Player*)this)->IsInFeralForm())
+                                continue;
+                        }
+                        ((Player*)this)->CastItemCombatSpell(item, damageInfo, proto);
+                    }
         }
+    }
 
+    // Do effect if any damage done to target
+    if (damageInfo->damage)
+    {
         // victim's damage shield
         std::set<AuraEffect*> alreadyDone;
         uint32 removedAuras = pVictim->m_removedAurasCount;
