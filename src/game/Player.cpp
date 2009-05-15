@@ -2370,10 +2370,9 @@ void Player::GiveLevel(uint32 level)
     SetPower(POWER_FOCUS, 0);
     SetPower(POWER_HAPPINESS, 0);
 
-    // give level to summoned pet
-    Pet* pet = GetPet();
-    if(pet && pet->getPetType()==SUMMON_PET)
-        pet->GivePetLevel(level);
+    // update level to hunter/summon pet
+    if (Pet* pet = GetPet())
+        pet->SynchronizeLevelWithOwner();
     GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_LEVEL);
 }
 
@@ -2559,6 +2558,10 @@ void Player::InitStatsForLevel(bool reapplyMods)
     SetPower(POWER_FOCUS, 0);
     SetPower(POWER_HAPPINESS, 0);
     SetPower(POWER_RUNIC_POWER, 0);
+
+    // update level to hunter/summon pet
+    if (Pet* pet = GetPet())
+        pet->SynchronizeLevelWithOwner();
 }
 
 void Player::SendInitialSpells()
@@ -20653,4 +20656,3 @@ bool Player::canSeeSpellClickOn(Creature const *c) const
     }
     return false;
 }
-
