@@ -668,8 +668,9 @@ typedef std::multimap<uint32, SpellLearnSpellNode> SpellLearnSpellMap;
 
 typedef std::multimap<uint32, SkillLineAbilityEntry const*> SkillLineAbilityMap;
 
-typedef std::multimap<uint32, std::pair < uint32,uint32 > >PetLevelupSpellMap;
+//typedef std::multimap<uint32, uint32> PetLevelupSpellSet;
 //typedef std::map<uint32, PetLevelupSpellSet> PetLevelupSpellMap;
+typedef std::multimap<uint32, std::pair < uint32,uint32 > >PetLevelupSpellMap;
 
 inline bool IsPrimaryProfessionSkill(uint32 skill)
 {
