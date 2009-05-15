@@ -1714,7 +1714,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         void ApplyItemEquipSpell(Item *item, bool apply, bool form_change = false);
         void ApplyEquipSpell(SpellEntry const* spellInfo, Item* item, bool apply, bool form_change = false);
         void UpdateEquipSpellsAtFormChange();
-        void CastItemCombatSpell(Item *item,Unit* Target, WeaponAttackType attType);
+        void CastItemCombatSpell(Item *item, CalcDamageInfo *damageInfo, ItemPrototype const * proto);
         void CastItemUseSpell(Item *item,SpellCastTargets const& targets,uint8 cast_count, uint32 glyphIndex);
 
         void SendInitWorldStates(uint32 zone, uint32 area);

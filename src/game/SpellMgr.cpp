@@ -1351,6 +1351,58 @@ void SpellMgr::LoadSpellThreats()
     sLog.outString();
 }
 
+void SpellMgr::LoadSpellEnchantProcData()
+{
+    mSpellEnchantProcEventMap.clear();                             // need for reload case
+
+    uint32 count = 0;
+
+    //                                                0      1             2          3
+    QueryResult *result = WorldDatabase.Query("SELECT entry, customChance, PPMChance, procEx FROM spell_enchant_proc_data");
+    if( !result )
+    {
+
+        barGoLink bar( 1 );
+
+        bar.step();
+
+        sLog.outString();
+        sLog.outString( ">> Loaded %u spell enchant proc event conditions", count );
+        return;
+    }
+
+    barGoLink bar( result->GetRowCount() );
+    do
+    {
+        Field *fields = result->Fetch();
+
+        bar.step();
+
+        uint32 enchantId = fields[0].GetUInt32();
+
+        SpellItemEnchantmentEntry const *ench = sSpellItemEnchantmentStore.LookupEntry(enchantId);
+        if (!ench)
+        {
+            sLog.outErrorDb("Enchancment %u listed in `spell_enchant_proc_data` does not exist", enchantId);
+            continue;
+        }
+
+        SpellEnchantProcEntry spe;
+
+        spe.customChance = fields[1].GetUInt32();
+        spe.PPMChance = fields[2].GetFloat();
+        spe.procEx = fields[3].GetUInt32();
+
+        mSpellEnchantProcEventMap[enchantId] = spe;
+
+        ++count;
+    } while( result->NextRow() );
+
+    delete result;
+
+    sLog.outString( ">> Loaded %u enchant proc data definitions", count);
+}
+
 bool SpellMgr::IsRankSpellDueToSpell(SpellEntry const *spellInfo_1,uint32 spellId_2) const
 {
     SpellEntry const *spellInfo_2 = sSpellStore.LookupEntry(spellId_2);

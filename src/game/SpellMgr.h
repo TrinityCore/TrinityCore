@@ -500,6 +500,15 @@ struct SpellBonusEntry
 };
 
 typedef UNORDERED_MAP<uint32, SpellProcEventEntry> SpellProcEventMap;
+
+struct SpellEnchantProcEntry
+{
+    uint32      customChance;
+    float       PPMChance;
+    uint32      procEx;
+};
+
+typedef UNORDERED_MAP<uint32, SpellEnchantProcEntry> SpellEnchantProcEventMap;
 typedef UNORDERED_MAP<uint32, SpellBonusEntry>     SpellBonusMap;
 
 #define ELIXIR_BATTLE_MASK    0x1
@@ -758,6 +767,14 @@ class SpellMgr
         }
 
         bool IsSpellProcEventCanTriggeredBy( SpellProcEventEntry const * spellProcEvent, uint32 EventProcFlag, SpellEntry const * procSpell, uint32 procFlags, uint32 procExtra, bool active);
+
+        SpellEnchantProcEntry const* GetSpellEnchantProcEvent(uint32 enchId) const
+        {
+            SpellEnchantProcEventMap::const_iterator itr = mSpellEnchantProcEventMap.find(enchId);
+            if( itr != mSpellEnchantProcEventMap.end( ) )
+                return &itr->second;
+            return NULL;
+        }
 
         // Spell bonus data
         SpellBonusEntry const* GetSpellBonusData(uint32 spellId) const
@@ -1020,6 +1037,7 @@ class SpellMgr
         void LoadSkillLineAbilityMap();
         void LoadSpellPetAuras();
         void LoadSpellCustomAttr();
+        void LoadSpellEnchantProcData();
         void LoadSpellLinked();
         void LoadPetLevelupSpellMap();
         void LoadSpellAreas();
@@ -1040,6 +1058,7 @@ class SpellMgr
         SpellPetAuraMap     mSpellPetAuraMap;
         SpellCustomAttribute  mSpellCustomAttr;
         SpellLinkedMap      mSpellLinkedMap;
+        SpellEnchantProcEventMap     mSpellEnchantProcEventMap;
         PetLevelupSpellMap  mPetLevelupSpellMap;
         SpellAreaMap         mSpellAreaMap;
         SpellAreaForQuestMap mSpellAreaForQuestMap;
