@@ -72,8 +72,8 @@ struct PetSpell
 {
     uint16 active;
 
-    PetSpellState state : 16;
-    PetSpellType type   : 16;
+    PetSpellState state : 8;
+    PetSpellType type   : 8;
 };
 
 enum ActionFeedback
@@ -113,7 +113,7 @@ enum PetNameInvalidReason
     PET_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME              = 16
 };
 
-typedef UNORDERED_MAP<uint32, PetSpell*> PetSpellMap;
+typedef UNORDERED_MAP<uint32, PetSpell> PetSpellMap;
 typedef std::map<uint32,uint32> TeachSpellMap;
 typedef std::vector<uint32> AutoSpellList;
 
@@ -205,8 +205,6 @@ class Pet : public Guardian
         void learnLevelupSpells();
         bool unlearnSpell(uint32 spell_id);
         bool removeSpell(uint32 spell_id);
-        bool _removeSpell(uint32 spell_id);
-        void _resetSpells();
 
         PetSpellMap     m_spells;
         TeachSpellMap   m_teachspells;
