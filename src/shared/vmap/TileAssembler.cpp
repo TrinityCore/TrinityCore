@@ -415,57 +415,57 @@ namespace VMAP
                             AABSPTree<Triangle> *gtree = new AABSPTree<Triangle>();
 
                             G3D::uint32 flags;
-                            if(fread(&flags, sizeof(G3D::uint32), 1, rf) != 1) { fclose(rf); return(false); }
+                            if(fread(&flags, sizeof(G3D::uint32), 1, rf) != 1) { fclose(rf); delete gtree; return(false); }
 
                             G3D::uint32 branches;
-                            if(fread(&blockId, 4, 1, rf) != 1) { fclose(rf); return(false); }
-                            if(strcmp(blockId, "GRP ") != 0) { fclose(rf); return(false); }
-                            if(fread(&blocksize, sizeof(int), 1, rf) != 1) { fclose(rf); return(false); }
-                            if(fread(&branches, sizeof(G3D::uint32), 1, rf) != 1) { fclose(rf); return(false); }
+                            if(fread(&blockId, 4, 1, rf) != 1) { fclose(rf); delete gtree; return(false); }
+                            if(strcmp(blockId, "GRP ") != 0) { fclose(rf); delete gtree; return(false); }
+                            if(fread(&blocksize, sizeof(int), 1, rf) != 1) { fclose(rf); delete gtree; return(false); }
+                            if(fread(&branches, sizeof(G3D::uint32), 1, rf) != 1) { fclose(rf); delete gtree; return(false); }
                             for(int b=0;b<(int)branches; b++)
                             {
                                 G3D::uint32 indexes;
                                 // indexes for each branch (not used jet)
-                                if(fread(&indexes, sizeof(G3D::uint32), 1, rf) != 1) { fclose(rf); return(false); }
+                                if(fread(&indexes, sizeof(G3D::uint32), 1, rf) != 1) { fclose(rf); delete gtree; return(false); }
                             }
 
                             // ---- indexes
-                            if(fread(&blockId, 4, 1, rf) != 1) { fclose(rf); return(false); }
-                            if(strcmp(blockId, "INDX") != 0) { fclose(rf); return(false); }
-                            if(fread(&blocksize, sizeof(int), 1, rf) != 1) { fclose(rf); return(false); }
+                            if(fread(&blockId, 4, 1, rf) != 1) { fclose(rf); delete gtree; return(false); }
+                            if(strcmp(blockId, "INDX") != 0) { fclose(rf); delete gtree;  return(false); }
+                            if(fread(&blocksize, sizeof(int), 1, rf) != 1) { fclose(rf); delete gtree;  return(false); }
                             unsigned int nindexes;
                             if(fread(&nindexes, sizeof(G3D::uint32), 1, rf) != 1) { fclose(rf); return(false); }
                             if(nindexes >0)
                             {
                                 unsigned short *indexarray = new unsigned short[nindexes*sizeof(unsigned short)];
-                                if(fread(indexarray, sizeof(unsigned short), nindexes, rf) != nindexes) { fclose(rf); return(false); }
+                                if(fread(indexarray, sizeof(unsigned short), nindexes, rf) != nindexes) { fclose(rf); delete gtree; delete[] indexarray; return(false); }
                                 for(int i=0;i<(int)nindexes; i++)
                                 {
                                     unsigned short val = indexarray[i];
                                     tempIndexArray.append(val);
                                 }
-                                delete indexarray;
+                                delete[] indexarray;
                             }
 
                             // ---- vectors
-                            if(fread(&blockId, 4, 1, rf) != 1) {fclose(rf); return(false); }
+                            if(fread(&blockId, 4, 1, rf) != 1) {fclose(rf); delete gtree; return(false); }
                             if(strcmp(blockId, "VERT") != 0) { fclose(rf); return(false); }
-                            if(fread(&blocksize, sizeof(int), 1, rf) != 1) { fclose(rf); return(false); }
+                            if(fread(&blocksize, sizeof(int), 1, rf) != 1) { fclose(rf); delete gtree; return(false); }
                             unsigned int nvectors;
-                            if(fread(&nvectors, sizeof(int), 1, rf) != 1) { fclose(rf); return(false); }
+                            if(fread(&nvectors, sizeof(int), 1, rf) != 1) { fclose(rf); delete gtree; return(false); }
                             float *vectorarray = 0;
                             if(nvectors >0)
                             {
                                 vectorarray = new float[nvectors*sizeof(float)*3];
-                                if(fread(vectorarray, sizeof(float)*3, nvectors, rf) != nvectors) { fclose(rf); return(false); }
+                                if(fread(vectorarray, sizeof(float)*3, nvectors, rf) != nvectors) { fclose(rf); delete gtree; delete[] vectorarray; return(false); }
                             }
                             // ----- liquit
                             if(flags & 1)
                             {
                                 // we have liquit -> not handled yet ... skip
-                                if(fread(&blockId, 4, 1, rf) != 1) { fclose(rf); return(false); }
-                                if(strcmp(blockId, "LIQU") != 0) { fclose(rf); return(false); }
-                                if(fread(&blocksize, sizeof(int), 1, rf) != 1) { fclose(rf); return(false); }
+                              if(fread(&blockId, 4, 1, rf) != 1) { fclose(rf); delete gtree; delete[] vectorarray; return(false); }
+                              if(strcmp(blockId, "LIQU") != 0) { fclose(rf); delete gtree; delete[] vectorarray; return(false); }
+                              if(fread(&blocksize, sizeof(int), 1, rf) != 1) { fclose(rf); delete gtree; delete[] vectorarray; return(false); }
                                 fseek(rf, blocksize, SEEK_CUR);
                             }
 
