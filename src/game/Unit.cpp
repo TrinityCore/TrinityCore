@@ -2799,8 +2799,14 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit *pVictim, SpellEntry const *spell)
     if (spell->DmgClass == SPELL_DAMAGE_CLASS_RANGED && IsRangedWeaponSpell(spell))
         attType = RANGED_ATTACK;
 
+    int32 attackerWeaponSkill;
+    // skill value for these spells (for example judgements) is 5* level
+    if (spell->DmgClass == SPELL_DAMAGE_CLASS_RANGED && !IsRangedWeaponSpell(spell))
+        attackerWeaponSkill = getLevel() * 5;
     // bonus from skills is 0.04% per skill Diff
-    int32 attackerWeaponSkill = int32(GetWeaponSkillValue(attType,pVictim));
+    else 
+        attackerWeaponSkill = int32(GetWeaponSkillValue(attType,pVictim));
+
     int32 skillDiff = attackerWeaponSkill - int32(pVictim->GetMaxSkillValueForLevel(this));
     int32 fullSkillDiff = attackerWeaponSkill - int32(pVictim->GetDefenseSkillValue(this));
 
