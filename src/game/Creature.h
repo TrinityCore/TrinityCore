@@ -706,6 +706,10 @@ class TRINITY_DLL_SPEC Creature : public Unit
 
         void SetDisableReputationGain(bool disable) { DisableReputationGain = disable; }
         bool IsReputationGainDisabled() { return DisableReputationGain; }
+        bool IsDamageEnoughForLootingAndReward() { return m_unDamageByPlayers >= (uint32)(GetMaxHealth() / 2); }
+        void AddDamageByPlayers(uint32 unDamage) { m_unDamageByPlayers += unDamage; }
+        void ResetDamageByPlayers() { m_unDamageByPlayers = 0; }
+        
     protected:
         bool CreateFromProto(uint32 guidlow,uint32 Entry,uint32 team, const CreatureData *data = NULL);
         bool InitEntry(uint32 entry, uint32 team=ALLIANCE, const CreatureData* data=NULL);
@@ -720,6 +724,7 @@ class TRINITY_DLL_SPEC Creature : public Unit
 
         uint32 m_lootMoney;
         uint64 m_lootRecipient;
+        uint32 m_unDamageByPlayers;
 
         /// Timers
         uint32 m_deathTimer;                                // (msecs)timer for death or corpse disappearance
