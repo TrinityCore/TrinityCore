@@ -980,7 +980,8 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
     m_spellAura = NULL; // Set aura to null for every target-make sure that pointer is not used for unit without aura applied
 
                             //Spells with this flag cannot trigger if effect is casted on self
-    bool canEffectTrigger = (m_spellInfo->AttributesEx4 & SPELL_ATTR_EX4_CANT_PROC_FROM_SELFCAST ? m_caster != unitTarget : true);
+                            // Slice and Dice, relentless strikes, eviscerate
+    bool canEffectTrigger = (m_spellInfo->AttributesEx4 & (SPELL_ATTR_EX4_CANT_PROC_FROM_SELFCAST | SPELL_ATTR_EX4_UNK4) ? m_caster!=unitTarget : true) 
     Unit * spellHitTarget = NULL;
 
     if (missInfo==SPELL_MISS_NONE)                          // In case spell hit target, do all effect on that target
@@ -1258,7 +1259,7 @@ void Spell::DoTriggersOnSpellHit(Unit *unit)
     }
 
     // spells with this flag can trigger only if not selfcast (eviscerate for example)
-    if (m_ChanceTriggerSpells.size() && (!(m_spellInfo->AttributesEx4 & SPELL_ATTR_EX4_CANT_PROC_FROM_SELFCAST) || unit!=m_caster))
+    if (m_ChanceTriggerSpells.size() && (!(m_spellInfo->AttributesEx4 & SPELL_ATTR_EX4_CANT_PROC_FROM_SELFCAST | SPELL_ATTR_EX4_UNK4) || unit!=m_caster))
     {
         int _duration=0;
         for(ChanceTriggerSpells::const_iterator i = m_ChanceTriggerSpells.begin(); i != m_ChanceTriggerSpells.end(); ++i)
