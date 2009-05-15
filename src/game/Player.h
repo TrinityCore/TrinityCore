@@ -1669,6 +1669,8 @@ class TRINITY_DLL_SPEC Player : public Unit
 
         //End of PvP System
 
+        inline SpellCooldowns GetSpellCooldowns() const { return m_spellCooldowns; }
+
         void SetDrunkValue(uint16 newDrunkValue, uint32 itemid=0);
         uint16 GetDrunkValue() const { return m_drunk; }
         static DrunkenState GetDrunkenstateByValue(uint16 value);
@@ -2152,7 +2154,6 @@ class TRINITY_DLL_SPEC Player : public Unit
 
         PlayerMails m_mail;
         PlayerSpellMap m_spells;
-        SpellCooldowns m_spellCooldowns;
         uint32 m_lastPotionId;                              // last used health/mana potion in combat, that block next potion use
 
         ActionButtonList m_actionButtons;
@@ -2285,6 +2286,8 @@ class TRINITY_DLL_SPEC Player : public Unit
 
         AchievementMgr m_achievementMgr;
         ReputationMgr  m_reputationMgr;
+
+        SpellCooldowns m_spellCooldowns;
 };
 
 void AddItemsSetItem(Player*player,Item *item);
