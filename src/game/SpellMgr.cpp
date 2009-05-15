@@ -1234,6 +1234,41 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
     if((procFlags & EventProcFlag) == 0)
         return false;
 
+    /* Check Periodic Auras
+
+    * Both hots and dots can trigger if spell has no PROC_FLAG_SUCCESSFUL_POSITIVE_SPELL
+        nor PROC_FLAG_SUCCESSFUL_NEGATIVE_SPELL_HIT
+
+    *Only Hots can trigger if spell has PROC_FLAG_SUCCESSFUL_POSITIVE_SPELL
+
+    *Only dots can trigger if spell has both positivity flags or PROC_FLAG_SUCCESSFUL_NEGATIVE_SPELL_HIT
+
+    */
+
+    if (procFlags & PROC_FLAG_ON_DO_PERIODIC)
+    {
+        if (EventProcFlag & PROC_FLAG_SUCCESSFUL_NEGATIVE_SPELL_HIT)
+        {
+            if (!(procExtra & PROC_EX_INTERNAL_DOT))
+                return false;
+        }
+        else if (EventProcFlag & PROC_FLAG_SUCCESSFUL_POSITIVE_SPELL
+            && !(procExtra & PROC_EX_INTERNAL_HOT))
+            return false;
+    }
+
+    if (procFlags & PROC_FLAG_ON_TAKE_PERIODIC)
+    {
+        if (EventProcFlag & PROC_FLAG_TAKEN_NEGATIVE_SPELL_HIT)
+        {
+            if (!(procExtra & PROC_EX_INTERNAL_DOT))
+                return false;
+        }
+        else if (EventProcFlag & PROC_FLAG_TAKEN_POSITIVE_SPELL
+            && !(procExtra & PROC_EX_INTERNAL_HOT))
+            return false;
+    }
+
     // Always trigger for this
     if (EventProcFlag & (PROC_FLAG_KILLED | PROC_FLAG_KILL | PROC_FLAG_ON_TRAP_ACTIVATION))
         return true;
