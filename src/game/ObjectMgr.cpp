@@ -3774,20 +3774,53 @@ void ObjectMgr::LoadPetCreateSpells()
 
         uint32 creature_id = fields[0].GetUInt32();
 
-        if(!creature_id || !sCreatureStorage.LookupEntry<CreatureInfo>(creature_id))
+        if(!creature_id)
+        {
+            sLog.outErrorDb("Creature id %u listed in `petcreateinfo_spell` not exist.",creature_id);
             continue;
+        }
+
+        CreatureInfo const* cInfo = sCreatureStorage.LookupEntry<CreatureInfo>(creature_id);
+        if(!cInfo)
+        {
+            sLog.outErrorDb("Creature id %u listed in `petcreateinfo_spell` not exist.",creature_id);
+            continue;
+        }
 
         PetCreateSpellEntry PetCreateSpell;
+
+        bool have_spell = false;
+        bool have_spell_db = false;
         for(int i = 0; i < 4; i++)
         {
             PetCreateSpell.spellid[i] = fields[i + 1].GetUInt32();
 
-            if(PetCreateSpell.spellid[i] && !sSpellStore.LookupEntry(PetCreateSpell.spellid[i]))
+            if(!PetCreateSpell.spellid[i])
+                continue;
+
+            have_spell_db = true;
+
+            SpellEntry const* i_spell = sSpellStore.LookupEntry(PetCreateSpell.spellid[i]);
+            if(!i_spell)
+            {
                 sLog.outErrorDb("Spell %u listed in `petcreateinfo_spell` does not exist",PetCreateSpell.spellid[i]);
+                PetCreateSpell.spellid[i] = 0;
+                continue;
+            }
+
+            have_spell = true;
         }
 
-        mPetCreateSpell[creature_id] = PetCreateSpell;
+        if(!have_spell_db)
+        {
+            sLog.outErrorDb("Creature %u listed in `petcreateinfo_spell` have only 0 spell data, why it listed?",creature_id);
+            continue;
+        }
 
+        if(!have_spell)
+            continue;
+
+        mPetCreateSpell[creature_id] = PetCreateSpell;
         ++count;
     }
     while (result->NextRow());
