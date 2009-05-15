@@ -5331,6 +5331,25 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     CastSpell(this, 28682, true, castItem, triggeredByAura);
                     return (procEx & PROC_EX_CRITICAL_HIT);// charge update only at crit hits, no hidden cooldowns
                 }
+                // Glyph of Ice Block
+                case 56372:
+                {
+                    if(GetTypeId() != TYPEID_PLAYER)
+                        return false;
+
+                    SpellCooldowns SpellCDs = ((Player*)this)->GetSpellCooldowns();
+                    // remove cooldowns on all ranks of Frost Nova
+                    for(SpellCooldowns::const_iterator itr = SpellCDs.begin(); itr != SpellCDs.end(); itr++)
+                    {
+                        SpellEntry const* SpellCDs_entry = sSpellStore.LookupEntry(itr->first);
+                        // Frost Nova
+                        if(SpellCDs_entry && SpellCDs_entry->SpellFamilyName == SPELLFAMILY_MAGE && SpellCDs_entry->SpellFamilyFlags[0] & 0x00000040)
+                        {
+                            ((Player*)this)->RemoveSpellCooldown(SpellCDs_entry->Id, true);
+                        }
+                    }
+                    break;
+                }
             }
             break;
         }
