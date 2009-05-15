@@ -161,8 +161,8 @@ flags_extra = VALUES(flags_extra),
 scriptname = VALUES(scriptname);
 
 INSERT INTO creature_template (entry, spell1, spell2, flags_extra, scriptname) VALUES
-(16474, 28547, 1000, 128, 'trigger_periodic'), # Blizzard (Sapphiron)
-(30000, 55699, 1000, 128, 'trigger_periodic')  # Blizzard (Sapphiron) (H)
+(16474, 28547, 0, 128, 'trigger_periodic'), # Blizzard (Sapphiron)
+(30000, 55699, 0, 128, 'trigger_periodic')  # Blizzard (Sapphiron) (H)
 ON DUPLICATE KEY UPDATE
 spell1 = VALUES(spell1),
 spell2 = VALUES(spell2),
@@ -290,7 +290,6 @@ REPLACE INTO `spell_script_target` VALUES
 (34019,1,19422),
 (34946,1,20040),
 (34946,1,20041),
-(21934,1,21934),
 (43144,1,23817),
 (12613,1,5843),
 (9095,1,1200);
@@ -347,7 +346,6 @@ REPLACE INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
 (12134,2,5270),
 (12134,2,5271),
 (12134,2,5273),
-(12134,2,8313),
 (12134,2,5256),
 (12134,2,5259),
 (13489,1,9178),
@@ -447,7 +445,6 @@ REPLACE INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
 (38629,0,185214),
 (38722,1,21506),
 (38966,1,22293),
-(38968,1,38968),
 (39124,0,184738),
 (39126,1,19557),
 (39221,1,23116),
@@ -763,7 +760,6 @@ INSERT INTO `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `Spell
 (19388, 0, 9, 20, 8192, 0, 0, 0, 0, 0, 0),
 (19572, 0, 9, 8388608, 0, 0, 16384, 0, 0, 0, 0),
 (19573, 0, 9, 8388608, 0, 0, 16384, 0, 0, 0, 0),
-(19615, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0),
 (20049, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0),
 (20056, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0),
 (20057, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0),
@@ -1499,6 +1495,7 @@ INSERT INTO `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `Spell
 -- ENCHANT PROC
 -- --------
 
+DROP TABLE IF EXISTS `spell_enchant_proc_data`;
 CREATE TABLE `spell_enchant_proc_data` (
   `entry` INT(10) UNSIGNED NOT NULL,
   `customChance` INT(10) UNSIGNED NOT NULL DEFAULT '0',
