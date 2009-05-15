@@ -179,6 +179,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_twiggy_flathead' WHERE `entry`=
 UPDATE `creature_template` SET `ScriptName`='npc_wizzlecrank_shredder' WHERE `entry`=3439;
 
 /* BLACK TEMPLE */
+UPDATE `gameobject_template` SET `ScriptName` = 'go_najentus_spine' WHERE `entry` = 185584;
 UPDATE `gameobject_template` SET `ScriptName`='gameobject_cage_trap' WHERE `entry`=185916; -- Cage Trap GO in Illidan Encounter
 UPDATE `instance_template` SET `script`='instance_black_temple' WHERE `map`=564;
 UPDATE `creature_template` SET `ScriptName`='npc_akama_shade' WHERE `entry`=22990; -- Akama at Shade of Akama
@@ -367,6 +368,8 @@ UPDATE `creature_template` SET `ScriptName`='mob_steamrigger_mechanic' WHERE `en
 /* SERPENTSHRINE CAVERN */
 UPDATE `instance_template` SET `script`='instance_serpent_shrine' WHERE `map`=548;
 UPDATE `creature_template` SET `ScriptName`='boss_hydross_the_unstable' WHERE `entry`=21216;
+UPDATE `gameobject_template` SET `ScriptName` = 'go_bridge_console' WHERE `entry` = 184568;
+
 /* Leotheras the Blind event */
 UPDATE `creature_template` SET `ScriptName`='boss_leotheras_the_blind' WHERE `entry`=21215;
 UPDATE `creature_template` SET `ScriptName`='boss_leotheras_the_blind_demonform' WHERE `entry`=21845;
