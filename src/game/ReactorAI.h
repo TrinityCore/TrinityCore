@@ -29,17 +29,12 @@ class TRINITY_DLL_DECL ReactorAI : public CreatureAI
 {
     public:
 
-        explicit ReactorAI(Creature *c) : CreatureAI(c), i_victimGuid(0) {}
+        explicit ReactorAI(Creature *c) : CreatureAI(c) {}
 
         void MoveInLineOfSight(Unit *);
-        void EnterEvadeMode();
-        bool IsVisible(Unit *) const;
 
         void UpdateAI(const uint32);
         static int Permissible(const Creature *);
-
-    private:
-        uint64 i_victimGuid;
 };
 #endif
 
