@@ -36,7 +36,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Texts()
     m_CreatureEventAI_TextMap.clear();
 
     // Load EventAI Text
-    LoadTrinityStrings(WorldDatabase,"creature_ai_texts",-1,1+(TEXT_SOURCE_RANGE));
+    objmgr.LoadTrinityStrings(WorldDatabase,"creature_ai_texts",MIN_CREATURE_AI_TEXT_STRING_ID,MAX_CREATURE_AI_TEXT_STRING_ID);
 
     // Gather Additional data from EventAI Texts
     QueryResult *result = WorldDatabase.PQuery("SELECT entry, sound, type, language, emote FROM creature_ai_texts");
@@ -59,15 +59,17 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Texts()
             temp.Language       = fields[3].GetInt32();
             temp.Emote          = fields[4].GetInt32();
 
-            if (i >= 0)
+            // range negative
+            if (i > MIN_CREATURE_AI_TEXT_STRING_ID || i <= MAX_CREATURE_AI_TEXT_STRING_ID)
             {
-                sLog.outErrorDb("CreatureEventAI:  Entry %i in table `creature_ai_texts` is not a negative value.",i);
+                sLog.outErrorDb("CreatureEventAI:  Entry %i in table `creature_ai_texts` is not in valid range(%d-%d)",i,MIN_CREATURE_AI_TEXT_STRING_ID,MAX_CREATURE_AI_TEXT_STRING_ID);
                 continue;
             }
 
-            if (i <= TEXT_SOURCE_RANGE)
+            // range negative (don't must be happen, loaded from same table)
+            if (!objmgr.GetTrinityStringLocale(i))
             {
-                sLog.outErrorDb("CreatureEventAI:  Entry %i in table `creature_ai_texts` is out of accepted entry range for table.",i);
+                sLog.outErrorDb("CreatureEventAI:  Entry %i in table `creature_ai_texts` not found",i);
                 continue;
             }
 
