@@ -412,6 +412,8 @@ class Spell
 
         void SetTargetMap(uint32 i, uint32 cur);
 
+        template<typename T> WorldObject* FindCorpseUsing();
+
         bool CheckTarget( Unit* target, uint32 eff );
         bool CanAutoCast(Unit* target);
         void CheckSrc() { if(!m_targets.HasSrc()) m_targets.setSrc(m_caster); }
@@ -607,7 +609,7 @@ class Spell
         void SpellDamageWeaponDmg(uint32 i);
         void SpellDamageHeal(uint32 i);
 
-        void GetSummonPosition(float &x, float &y, float &z, float radius = 0.0f, uint32 count = 0);
+        void GetSummonPosition(uint32 i, float &x, float &y, float &z, float radius = 0.0f, uint32 count = 0);
         void SummonGuardian (uint32 entry, SummonPropertiesEntry const *properties);
 
         SpellCastResult CanOpenLock(uint32 effIndex, uint32 lockid, SkillType& skillid, int32& reqSkillValue, int32& skillValue);
@@ -666,6 +668,10 @@ namespace Trinity
             {
                 Unit *target = (Unit*)itr->getSource();
 
+                // mostly phase check
+                if(!itr->getSource()->IsInMap(i_source))
+                    continue;
+
                 switch (i_TargetType)
                 {
                     case SPELL_TARGETS_ENEMY:
@@ -706,11 +712,11 @@ namespace Trinity
                             i_data->push_back(target);
                         break;
                     case PUSH_IN_FRONT:
-                        if(i_source->isInFront(target, i_radius, M_PI/3))
+                        if(i_source->isInFrontInMap(target, i_radius, M_PI/3))
                             i_data->push_back(target);
                         break;
                     case PUSH_IN_BACK:
-                        if(i_source->isInBack(target, i_radius, M_PI/3))
+                        if(i_source->isInBackInMap(target, i_radius, M_PI/3))
                             i_data->push_back(target);
                         break;
                     case PUSH_IN_LINE:

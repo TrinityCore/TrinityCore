@@ -407,7 +407,14 @@ void AchievementMgr::LoadFromDB(QueryResult *achievementResult, QueryResult *cri
         do
         {
             Field *fields = achievementResult->Fetch();
-            CompletedAchievementData& ca = m_completedAchievements[fields[0].GetUInt32()];
+
+            uint32 achievement_id = fields[0].GetUInt32();
+
+            // don't must happen: cleanup at server startup in achievementmgr.LoadCompletedAchievements()
+            if(!sAchievementStore.LookupEntry(achievement_id))
+                continue;
+
+            CompletedAchievementData& ca = m_completedAchievements[achievement_id];
             ca.date = time_t(fields[1].GetUInt64());
             ca.changed = false;
         } while(achievementResult->NextRow());
@@ -425,7 +432,15 @@ void AchievementMgr::LoadFromDB(QueryResult *achievementResult, QueryResult *cri
             time_t date    = time_t(fields[2].GetUInt64());
 
             AchievementCriteriaEntry const* criteria = sAchievementCriteriaStore.LookupEntry(id);
-            if (!criteria || (criteria->timeLimit && time_t(date + criteria->timeLimit) < time(NULL)))
+            if (!criteria)
+            {
+                // we will remove not existed criteria for all characters
+                sLog.outError("Not existed achievement creataria %u data removed from table `character_achievement_progress`.",id);
+                CharacterDatabase.PExecute("DELETE FROM character_achievement_progress WHERE criteria = %u",id);
+                continue;
+            }
+
+            if (criteria->timeLimit && time_t(date + criteria->timeLimit) < time(NULL))
                 continue;
 
             CriteriaProgress& progress = m_criteriaProgress[id];
@@ -1763,7 +1778,17 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
     {
         bar.step();
         Field *fields = result->Fetch();
-        m_allCompletedAchievements.insert(fields[0].GetUInt32());
+
+        uint32 achievement_id = fields[0].GetUInt32();
+        if(!sAchievementStore.LookupEntry(achievement_id))
+        {
+            // we will remove not existed achievement for all characters
+            sLog.outError("Not existed achievement %u data removed from table `character_achievement`.",achievement_id);
+            CharacterDatabase.PExecute("DELETE FROM character_achievement WHERE achievement = %u",achievement_id);
+            continue;
+        }
+
+        m_allCompletedAchievements.insert(achievement_id);
     } while(result->NextRow());
 
     delete result;

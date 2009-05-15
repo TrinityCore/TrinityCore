@@ -724,7 +724,7 @@ struct mob_necromancerAI : public hyjal_trashAI
 
     void JustSummoned(Creature* summon)
     {
-        Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0,30,true);
+        Unit* target = SelectTarget(SELECT_TARGET_RANDOM,0,30,true);
         if(target && summon)
             summon->Attack(target,false);
         summons.Summon(summon);

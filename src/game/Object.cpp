@@ -1148,7 +1148,6 @@ InstanceData* WorldObject::GetInstanceData()
     Map *map = GetMap();
     return map->IsDungeon() ? ((InstanceMap*)map)->GetInstanceData() : NULL;
 }
-
                                                             //slow
 float WorldObject::GetDistance(const WorldObject* obj) const
 {
@@ -1176,7 +1175,7 @@ float WorldObject::GetExactDistance2d(const float x, const float y) const
     return sqrt((dx*dx) + (dy*dy));
 }
 
-float WorldObject::GetDistance(const float x, const float y, const float z) const
+float WorldObject::GetDistance(float x, float y, float z) const
 {
     float dx = GetPositionX() - x;
     float dy = GetPositionY() - y;
@@ -1191,6 +1190,14 @@ float WorldObject::GetDistanceSq(const float &x, const float &y, const float &z)
     float dx = GetPositionX() - x;
     float dy = GetPositionY() - y;
     float dz = GetPositionZ() - z;
+    return dx*dx + dy*dy + dz*dz;
+}
+
+float WorldObject::GetDistanceSq(const WorldObject *obj) const
+{
+    float dx = GetPositionX() - obj->GetPositionX();
+    float dy = GetPositionY() - obj->GetPositionY();
+    float dz = GetPositionZ() - obj->GetPositionZ();
     return dx*dx + dy*dy + dz*dz;
 }
 
@@ -1211,10 +1218,33 @@ float WorldObject::GetDistanceZ(const WorldObject* obj) const
     return ( dist > 0 ? dist : 0);
 }
 
-bool WorldObject::IsWithinDistInMap(const WorldObject* obj, const float dist2compare, const bool is3D) const
+bool WorldObject::IsWithinDist3d(float x, float y, float z, float dist2compare) const
 {
-    if (!obj || !IsInMap(obj)) return false;
+    float dx = GetPositionX() - x;
+    float dy = GetPositionY() - y;
+    float dz = GetPositionZ() - z;
+    float distsq = dx*dx + dy*dy + dz*dz;
 
+    float sizefactor = GetObjectSize();
+    float maxdist = dist2compare + sizefactor;
+
+    return distsq < maxdist * maxdist;
+}
+
+bool WorldObject::IsWithinDist2d(float x, float y, float dist2compare) const
+{
+    float dx = GetPositionX() - x;
+    float dy = GetPositionY() - y;
+    float distsq = dx*dx + dy*dy;
+
+    float sizefactor = GetObjectSize();
+    float maxdist = dist2compare + sizefactor;
+
+    return distsq < maxdist * maxdist;
+}
+
+bool WorldObject::_IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D) const
+{
     float dx = GetPositionX() - obj->GetPositionX();
     float dy = GetPositionY() - obj->GetPositionY();
     float distsq = dx*dx + dy*dy;
@@ -1237,12 +1267,89 @@ bool WorldObject::IsWithinLOSInMap(const WorldObject* obj) const
     return(IsWithinLOS(ox, oy, oz ));
 }
 
-bool WorldObject::IsWithinLOS(const float ox, const float oy, const float oz ) const
+bool WorldObject::IsWithinLOS(float ox, float oy, float oz) const
 {
     float x,y,z;
     GetPosition(x,y,z);
     VMAP::IVMapManager *vMapManager = VMAP::VMapFactory::createOrGetVMapManager();
     return vMapManager->isInLineOfSight(GetMapId(), x, y, z+2.0f, ox, oy, oz+2.0f);
+}
+
+bool WorldObject::GetDistanceOrder(WorldObject const* obj1, WorldObject const* obj2, bool is3D /* = true */) const
+{
+    float dx1 = GetPositionX() - obj1->GetPositionX();
+    float dy1 = GetPositionY() - obj1->GetPositionY();
+    float distsq1 = dx1*dx1 + dy1*dy1;
+    if(is3D)
+    {
+        float dz1 = GetPositionZ() - obj1->GetPositionZ();
+        distsq1 += dz1*dz1;
+    }
+
+    float dx2 = GetPositionX() - obj2->GetPositionX();
+    float dy2 = GetPositionY() - obj2->GetPositionY();
+    float distsq2 = dx2*dx2 + dy2*dy2;
+    if(is3D)
+    {
+        float dz2 = GetPositionZ() - obj2->GetPositionZ();
+        distsq2 += dz2*dz2;
+    }
+
+    return distsq1 < distsq2;
+}
+
+bool WorldObject::IsInRange(WorldObject const* obj, float minRange, float maxRange, bool is3D /* = true */) const
+{
+    float dx = GetPositionX() - obj->GetPositionX();
+    float dy = GetPositionY() - obj->GetPositionY();
+    float distsq = dx*dx + dy*dy;
+    if(is3D)
+    {
+        float dz = GetPositionZ() - obj->GetPositionZ();
+        distsq += dz*dz;
+    }
+
+    float sizefactor = GetObjectSize() + obj->GetObjectSize();
+
+    float mindist = minRange + sizefactor;
+    if(distsq < mindist * mindist)
+        return false;
+
+    float maxdist = maxRange + sizefactor;
+    return distsq < maxdist * maxdist;
+}
+
+bool WorldObject::IsInRange2d(float x, float y, float minRange, float maxRange) const
+{
+    float dx = GetPositionX() - x;
+    float dy = GetPositionY() - y;
+    float distsq = dx*dx + dy*dy;
+
+    float sizefactor = GetObjectSize();
+
+    float mindist = minRange + sizefactor;
+    if(distsq < mindist * mindist)
+        return false;
+
+    float maxdist = maxRange + sizefactor;
+    return distsq < maxdist * maxdist;
+}
+
+bool WorldObject::IsInRange3d(float x, float y, float z, float minRange, float maxRange) const
+{
+    float dx = GetPositionX() - x;
+    float dy = GetPositionY() - y;
+    float dz = GetPositionZ() - z;
+    float distsq = dx*dx + dy*dy + dz*dz;
+
+    float sizefactor = GetObjectSize();
+
+    float mindist = minRange + sizefactor;
+    if(distsq < mindist * mindist)
+        return false;
+
+    float maxdist = maxRange + sizefactor;
+    return distsq < maxdist * maxdist;
 }
 
 float WorldObject::GetAngle(const WorldObject* obj) const
@@ -1307,6 +1414,21 @@ bool WorldObject::HasInArc(const float arcangle, const WorldObject* obj) const
     float lborder =  -1 * (arc/2.0f);                       // in range -pi..0
     float rborder = (arc/2.0f);                             // in range 0..pi
     return (( angle >= lborder ) && ( angle <= rborder ));
+}
+
+bool WorldObject::IsInBetween(const WorldObject *obj1, const WorldObject *obj2, float size) const
+{
+    if(GetPositionX() > std::max(obj1->GetPositionX(), obj2->GetPositionX())
+        || GetPositionX() < std::min(obj1->GetPositionX(), obj2->GetPositionX())
+        || GetPositionY() > std::max(obj1->GetPositionY(), obj2->GetPositionY())
+        || GetPositionY() < std::min(obj1->GetPositionY(), obj2->GetPositionY()))
+        return false;
+
+    if(!size)
+        size = GetObjectSize() / 2;
+
+    float angle = obj1->GetAngle(this) - obj1->GetAngle(obj2);
+    return abs(sin(angle)) * GetExactDistance2d(obj1->GetPositionX(), obj1->GetPositionY()) < size;
 }
 
 void WorldObject::GetRandomPoint( float x, float y, float z, float distance, float &rand_x, float &rand_y, float &rand_z) const
@@ -1658,6 +1780,8 @@ TempSummon *Map::SummonCreature(uint32 entry, float x, float y, float z, float a
         return NULL;
     }
 
+    summon->SetHomePosition(x, y, z, angle);
+
     summon->InitStats(duration);
     Add((Creature*)summon);
     summon->InitSummon();
@@ -1680,7 +1804,6 @@ TempSummon* WorldObject::SummonCreature(uint32 entry, float x, float y, float z,
     if(!pCreature)
         return NULL;
 
-    pCreature->SetHomePosition(x, y, z, ang);
     pCreature->SetTempSummonType(spwtype);
 
     return pCreature;
@@ -1890,6 +2013,81 @@ Creature* WorldObject::SummonTrigger(float x, float y, float z, float ang, uint3
     return summon;
 }
 
+/*
+namespace MaNGOS
+{
+    class NearUsedPosDo
+    {
+        public:
+            NearUsedPosDo(WorldObject const& obj, WorldObject const* searcher, float angle, ObjectPosSelector& selector)
+                : i_object(obj), i_searcher(searcher), i_angle(angle), i_selector(selector) {}
+
+            void operator()(Corpse*) const {}
+            void operator()(DynamicObject*) const {}
+
+            void operator()(Creature* c) const
+            {
+                // skip self or target
+                if(c==i_searcher || c==&i_object)
+                    return;
+
+                float x,y,z;
+
+                if( !c->isAlive() || c->hasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED | UNIT_STAT_DISTRACTED) ||
+                    !c->GetMotionMaster()->GetDestination(x,y,z) )
+                {
+                    x = c->GetPositionX();
+                    y = c->GetPositionY();
+                }
+
+                add(c,x,y);
+            }
+
+            template<class T>
+                void operator()(T* u) const
+            {
+                // skip self or target
+                if(u==i_searcher || u==&i_object)
+                    return;
+
+                float x,y;
+
+                x = u->GetPositionX();
+                y = u->GetPositionY();
+
+                add(u,x,y);
+            }
+
+            // we must add used pos that can fill places around center
+            void add(WorldObject* u, float x, float y) const
+            {
+                // u is too nearest/far away to i_object
+                if(!i_object.IsInRange2d(x,y,i_selector.m_dist - i_selector.m_size,i_selector.m_dist + i_selector.m_size))
+                    return;
+
+                float angle = i_object.GetAngle(u)-i_angle;
+
+                // move angle to range -pi ... +pi
+                while( angle > M_PI)
+                    angle -= 2.0f * M_PI;
+                while(angle < -M_PI)
+                    angle += 2.0f * M_PI;
+
+                // dist include size of u
+                float dist2d = i_object.GetDistance2d(x,y);
+                i_selector.AddUsedPos(u->GetObjectSize(),angle,dist2d + i_object.GetObjectSize());
+            }
+        private:
+            WorldObject const& i_object;
+            WorldObject const* i_searcher;
+            float              i_angle;
+            ObjectPosSelector& i_selector;
+    };
+}                                                           // namespace MaNGOS
+*/
+
+//===================================================================================================
+
 void WorldObject::GetNearPoint2D(float &x, float &y, float distance2d, float absAngle ) const
 {
     x = GetPositionX() + (GetObjectSize() + distance2d) * cos(absAngle);
@@ -1902,10 +2100,127 @@ void WorldObject::GetNearPoint2D(float &x, float &y, float distance2d, float abs
 void WorldObject::GetNearPoint(WorldObject const* searcher, float &x, float &y, float &z, float searcher_size, float distance2d, float absAngle ) const
 {
     GetNearPoint2D(x,y,distance2d+searcher_size,absAngle);
-
     z = GetPositionZ();
-
     UpdateGroundPositionZ(x,y,z);
+
+    /*
+    // if detection disabled, return first point
+    if(!sWorld.getConfig(CONFIG_DETECT_POS_COLLISION))
+    {
+        UpdateGroundPositionZ(x,y,z);                       // update to LOS height if available
+        return;
+    }
+
+    // or remember first point
+    float first_x = x;
+    float first_y = y;
+    bool first_los_conflict = false;                        // first point LOS problems
+
+    // prepare selector for work
+    ObjectPosSelector selector(GetPositionX(),GetPositionY(),GetObjectSize(),distance2d+searcher_size);
+
+    // adding used positions around object
+    {
+        CellPair p(MaNGOS::ComputeCellPair(GetPositionX(), GetPositionY()));
+        Cell cell(p);
+        cell.data.Part.reserved = ALL_DISTRICT;
+        cell.SetNoCreate();
+
+        MaNGOS::NearUsedPosDo u_do(*this,searcher,absAngle,selector);
+        MaNGOS::WorldObjectWorker<MaNGOS::NearUsedPosDo> worker(this,u_do);
+
+        TypeContainerVisitor<MaNGOS::WorldObjectWorker<MaNGOS::NearUsedPosDo>, GridTypeMapContainer  > grid_obj_worker(worker);
+        TypeContainerVisitor<MaNGOS::WorldObjectWorker<MaNGOS::NearUsedPosDo>, WorldTypeMapContainer > world_obj_worker(worker);
+
+        CellLock<GridReadGuard> cell_lock(cell, p);
+        cell_lock->Visit(cell_lock, grid_obj_worker,  *GetMap());
+        cell_lock->Visit(cell_lock, world_obj_worker, *GetMap());
+    }
+
+    // maybe can just place in primary position
+    if( selector.CheckOriginal() )
+    {
+        UpdateGroundPositionZ(x,y,z);                       // update to LOS height if available
+
+        if(IsWithinLOS(x,y,z))
+            return;
+
+        first_los_conflict = true;                          // first point have LOS problems
+    }
+
+    float angle;                                            // candidate of angle for free pos
+
+    // special case when one from list empty and then empty side preferred
+    if(selector.FirstAngle(angle))
+    {
+        GetNearPoint2D(x,y,distance2d,absAngle+angle);
+        z = GetPositionZ();
+        UpdateGroundPositionZ(x,y,z);                       // update to LOS height if available
+
+        if(IsWithinLOS(x,y,z))
+            return;
+    }
+
+    // set first used pos in lists
+    selector.InitializeAngle();
+
+    // select in positions after current nodes (selection one by one)
+    while(selector.NextAngle(angle))                        // angle for free pos
+    {
+        GetNearPoint2D(x,y,distance2d,absAngle+angle);
+        z = GetPositionZ();
+        UpdateGroundPositionZ(x,y,z);                       // update to LOS height if available
+
+        if(IsWithinLOS(x,y,z))
+            return;
+    }
+
+    // BAD NEWS: not free pos (or used or have LOS problems)
+    // Attempt find _used_ pos without LOS problem
+
+    if(!first_los_conflict)
+    {
+        x = first_x;
+        y = first_y;
+
+        UpdateGroundPositionZ(x,y,z);                       // update to LOS height if available
+        return;
+    }
+
+    // special case when one from list empty and then empty side preferred
+    if( selector.IsNonBalanced() )
+    {
+        if(!selector.FirstAngle(angle))                     // _used_ pos
+        {
+            GetNearPoint2D(x,y,distance2d,absAngle+angle);
+            z = GetPositionZ();
+            UpdateGroundPositionZ(x,y,z);                   // update to LOS height if available
+
+            if(IsWithinLOS(x,y,z))
+                return;
+        }
+    }
+
+    // set first used pos in lists
+    selector.InitializeAngle();
+
+    // select in positions after current nodes (selection one by one)
+    while(selector.NextUsedAngle(angle))                    // angle for used pos but maybe without LOS problem
+    {
+        GetNearPoint2D(x,y,distance2d,absAngle+angle);
+        z = GetPositionZ();
+        UpdateGroundPositionZ(x,y,z);                       // update to LOS height if available
+
+        if(IsWithinLOS(x,y,z))
+            return;
+    }
+
+    // BAD BAD NEWS: all found pos (free and used) have LOS problem :(
+    x = first_x;
+    y = first_y;
+
+    UpdateGroundPositionZ(x,y,z);                           // update to LOS height if available
+    */
 }
 
 void WorldObject::GetGroundPoint(float &x, float &y, float &z, float dist, float angle)

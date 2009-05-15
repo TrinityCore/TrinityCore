@@ -867,7 +867,8 @@ class TRINITY_DLL_SPEC Player : public Unit
 
         PlayerTaxi m_taxi;
         void InitTaxiNodesForLevel() { m_taxi.InitTaxiNodesForLevel(getRace(), getClass(), getLevel()); }
-        bool ActivateTaxiPathTo(std::vector<uint32> const& nodes, uint32 mount_id = 0 , Creature* npc = NULL);
+        bool ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc = NULL, uint32 spellid = 0);
+        bool ActivateTaxiPathTo(uint32 taxi_path_id, uint32 spellid = 0);
                                                             // mount_id can be used in scripting calls
         bool isAcceptWhispers() const { return m_ExtraFlags & PLAYER_EXTRA_ACCEPT_WHISPERS; }
         void SetAcceptWhispers(bool on) { if(on) m_ExtraFlags |= PLAYER_EXTRA_ACCEPT_WHISPERS; else m_ExtraFlags &= ~PLAYER_EXTRA_ACCEPT_WHISPERS; }
@@ -1383,7 +1384,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         void AddSpellCooldown(uint32 spell_id, uint32 itemid, time_t end_time);
         void SendCooldownEvent(SpellEntry const *spellInfo, uint32 itemId = 0, Spell* spell = NULL);
         void ProhibitSpellScholl(SpellSchoolMask idSchoolMask, uint32 unTimeMs );
-        void RemoveSpellCooldown(uint32 spell_id) { m_spellCooldowns.erase(spell_id); }
+        void RemoveSpellCooldown(uint32 spell_id, bool update = false);
         void RemoveArenaSpellCooldowns();
         void RemoveAllSpellCooldown();
         void _LoadSpellCooldowns(QueryResult *result);
@@ -1667,6 +1668,8 @@ class TRINITY_DLL_SPEC Player : public Unit
         uint32 GetMaxPersonalArenaRatingRequirement();
 
         //End of PvP System
+
+        inline SpellCooldowns GetSpellCooldowns() const { return m_spellCooldowns; }
 
         void SetDrunkValue(uint16 newDrunkValue, uint32 itemid=0);
         uint16 GetDrunkValue() const { return m_drunk; }
@@ -2151,7 +2154,6 @@ class TRINITY_DLL_SPEC Player : public Unit
 
         PlayerMails m_mail;
         PlayerSpellMap m_spells;
-        SpellCooldowns m_spellCooldowns;
         uint32 m_lastPotionId;                              // last used health/mana potion in combat, that block next potion use
 
         ActionButtonList m_actionButtons;
@@ -2256,7 +2258,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         Item* _StoreItem( uint16 pos, Item *pItem, uint32 count, bool clone, bool update );
 
         void UpdateKnownCurrencies(uint32 itemId, bool apply);
-        int32 CalculateReputationGain(uint32 creatureOrQuestLevel, int32 rep, bool for_quest);
+        int32 CalculateReputationGain(uint32 creatureOrQuestLevel, int32 rep, int32 faction, bool for_quest);
         void AdjustQuestReqItemCount( Quest const* pQuest, QuestStatusData& questStatusData );
 
         GridReference<Player> m_gridRef;
@@ -2284,6 +2286,8 @@ class TRINITY_DLL_SPEC Player : public Unit
 
         AchievementMgr m_achievementMgr;
         ReputationMgr  m_reputationMgr;
+
+        SpellCooldowns m_spellCooldowns;
 };
 
 void AddItemsSetItem(Player*player,Item *item);

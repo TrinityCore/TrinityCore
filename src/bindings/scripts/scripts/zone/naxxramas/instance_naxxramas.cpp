@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2008 - 2009 Trinity <http://www.trinitycore.org/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -14,15 +14,37 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-/* ScriptData
-SDName: Instance_Naxxramas
-SD%Complete: 0
-SDComment: Place holder
-SDCategory: Naxxramas
-EndScriptData */
-
 #include "precompiled.h"
 #include "def_naxxramas.h"
+
+const DoorData doorData[] =
+{
+    {181126,    BOSS_ANUBREKHAN,DOOR_TYPE_ROOM},
+    {181195,    BOSS_ANUBREKHAN,DOOR_TYPE_PASSAGE},
+    {194022,    BOSS_FAERLINA,  DOOR_TYPE_PASSAGE},
+    {181209,    BOSS_FAERLINA,  DOOR_TYPE_PASSAGE},
+    {181209,    BOSS_MAEXXNA,   DOOR_TYPE_ROOM},
+    {181200,    BOSS_NOTH,      DOOR_TYPE_ROOM},
+    {181201,    BOSS_NOTH,      DOOR_TYPE_PASSAGE},
+    {181202,    BOSS_NOTH,      DOOR_TYPE_PASSAGE},
+    {181202,    BOSS_HEIGAN,    DOOR_TYPE_ROOM},
+    {181203,    BOSS_HEIGAN,    DOOR_TYPE_PASSAGE},
+    {181241,    BOSS_HEIGAN,    DOOR_TYPE_PASSAGE},
+    {181241,    BOSS_LOATHEB,   DOOR_TYPE_ROOM},
+    {181123,    BOSS_PATCHWERK, DOOR_TYPE_PASSAGE},
+    {181123,    BOSS_GROBBULUS, DOOR_TYPE_ROOM},
+    {181120,    BOSS_GLUTH,     DOOR_TYPE_PASSAGE},
+    {181121,    BOSS_GLUTH,     DOOR_TYPE_PASSAGE},
+    {181121,    BOSS_THADDIUS,  DOOR_TYPE_ROOM},
+    {181124,    BOSS_RAZUVIOUS, DOOR_TYPE_PASSAGE},
+    {181124,    BOSS_GOTHIK,    DOOR_TYPE_ROOM},
+    {181125,    BOSS_GOTHIK,    DOOR_TYPE_PASSAGE},
+    {181119,    BOSS_GOTHIK,    DOOR_TYPE_PASSAGE},
+    {181119,    BOSS_HORSEMEN,  DOOR_TYPE_ROOM},
+    {0,         0,              DOOR_TYPE_ROOM}, // EOF
+};
+
+#define GO_GOTHIK_GATE      181170
 
 #define SPELL_ERUPTION      29371
 
@@ -55,14 +77,28 @@ inline uint32 GetEruptionSection(float x, float y)
     return 3;
 }
 
-struct TRINITY_DLL_DECL instance_naxxramas : public ScriptedInstance
+struct TRINITY_DLL_DECL instance_naxxramas : public InstanceData
 {
-    instance_naxxramas(Map *map) : ScriptedInstance(map)
+    instance_naxxramas(Map *map) : InstanceData(map)
+        , Sapphiron(NULL)
     {
-        SetBossNumber(15);
+        SetBossNumber(MAX_BOSS_NUMBER);
+        LoadDoorData(doorData);
     }
 
+    std::set<Creature*> Worshipper;
     std::set<GameObject*> HeiganEruption[4];
+    GameObject *GothikGate;
+    Creature *Sapphiron;
+
+    void OnCreatureCreate(Creature *creature, bool add)
+    {
+        switch(creature->GetEntry())
+        {
+            case 15989: Sapphiron = add ? creature : NULL; break;
+            case 16506: if(add) Worshipper.insert(creature); else Worshipper.erase(creature); break;
+        }
+    }
 
     void OnObjectCreate(GameObject* go, bool add)
     {
@@ -78,11 +114,24 @@ struct TRINITY_DLL_DECL instance_naxxramas : public ScriptedInstance
 
         switch(go->GetEntry())
         {
-            case 181200: SetBossRoomDoor(BOSS_NOTH, go, add); break;
-            case 181201: SetBossPassageDoor(BOSS_NOTH, go, add); break;
-            case 181202: SetBossRoomDoor(BOSS_HEIGAN, go, add); break;
-            case 181203: SetBossPassageDoor(BOSS_HEIGAN, go, add); break;
-            case 181241: SetBossRoomDoor(BOSS_LOATHEB, go, add); break;
+            case GO_BIRTH: if(!add && Sapphiron) Sapphiron->AI()->DoAction(DATA_SAPPHIRON_BIRTH); return;
+            case GO_GOTHIK_GATE: GothikGate = add ? go : NULL; break;
+        }
+
+        AddDoor(go, add);
+    }
+
+    void SetBossState(uint32 id, EncounterState state)
+    {
+        InstanceData::SetBossState(id, state);
+        switch(id)
+        {
+            case BOSS_FAERLINA:
+                if(state == NOT_STARTED)
+                    for(std::set<Creature*>::iterator itr = Worshipper.begin(); itr != Worshipper.end(); ++itr)
+                        if(!(*itr)->isAlive())
+                            (*itr)->Respawn();
+            break;
         }
     }
 
@@ -92,6 +141,10 @@ struct TRINITY_DLL_DECL instance_naxxramas : public ScriptedInstance
         {
             case DATA_HEIGAN_ERUPT:
                 HeiganErupt(value);
+                break;
+            case DATA_GOTHIK_GATE:
+                if(GothikGate)
+                    GothikGate->SetGoState(GOState(value));
                 break;
         }
     }
@@ -122,6 +175,6 @@ void AddSC_instance_naxxramas()
     Script *newscript;
     newscript = new Script;
     newscript->Name = "instance_naxxramas";
-    newscript->GetInstanceData = GetInstanceData_instance_naxxramas;
+    newscript->GetInstanceData = &GetInstanceData_instance_naxxramas;
     newscript->RegisterSelf();
 }

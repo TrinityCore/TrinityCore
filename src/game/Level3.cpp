@@ -1612,11 +1612,7 @@ bool ChatHandler::HandleCooldownCommand(const char* args)
             return false;
         }
 
-        WorldPacket data( SMSG_CLEAR_COOLDOWN, (4+8) );
-        data << uint32(spell_id);
-        data << uint64(target->GetGUID());
-        target->GetSession()->SendPacket(&data);
-        target->RemoveSpellCooldown(spell_id);
+        target->RemoveSpellCooldown(spell_id,true);
         PSendSysMessage(LANG_REMOVE_COOLDOWN, spell_id, target==m_session->GetPlayer() ? GetMangosString(LANG_YOU) : tNameLink.c_str());
    }
     return true;
@@ -3694,6 +3690,68 @@ bool ChatHandler::HandleLookupObjectCommand(const char* args)
     return true;
 }
 
+bool ChatHandler::HandleLookupTaxiNodeCommand(const char * args)
+{
+    if(!*args)
+        return false;
+
+    std::string namepart = args;
+    std::wstring wnamepart;
+
+    if(!Utf8toWStr(namepart,wnamepart))
+        return false;
+
+    // converting string that we try to find to lower case
+    wstrToLower( wnamepart );
+
+    uint32 counter = 0;                                     // Counter for figure out that we found smth.
+
+    // Search in TaxiNodes.dbc
+    for (uint32 id = 0; id < sTaxiNodesStore.GetNumRows(); id++)
+    {
+        TaxiNodesEntry const *nodeEntry = sTaxiNodesStore.LookupEntry(id);
+        if(nodeEntry)
+        {
+            int loc = m_session ? m_session->GetSessionDbcLocale() : sWorld.GetDefaultDbcLocale();
+            std::string name = nodeEntry->name[loc];
+            if(name.empty())
+                continue;
+
+            if (!Utf8FitTo(name, wnamepart))
+            {
+                loc = 0;
+                for(; loc < MAX_LOCALE; ++loc)
+                {
+                    if(m_session && loc==m_session->GetSessionDbcLocale())
+                        continue;
+
+                    name = nodeEntry->name[loc];
+                    if(name.empty())
+                        continue;
+
+                    if (Utf8FitTo(name, wnamepart))
+                        break;
+                }
+            }
+
+            if(loc < MAX_LOCALE)
+            {
+                // send taxinode in "id - [name] (Map:m X:x Y:y Z:z)" format
+                if (m_session)
+                    PSendSysMessage (LANG_TAXINODE_ENTRY_LIST_CHAT, id, id, name.c_str(),localeNames[loc],
+                        nodeEntry->map_id,nodeEntry->x,nodeEntry->y,nodeEntry->z);
+                else
+                    PSendSysMessage (LANG_TAXINODE_ENTRY_LIST_CONSOLE, id, name.c_str(), localeNames[loc],
+                        nodeEntry->map_id,nodeEntry->x,nodeEntry->y,nodeEntry->z);
+                ++counter;
+            }
+        }
+    }
+    if (counter == 0)                                       // if counter == 0 then we found nth
+        SendSysMessage(LANG_COMMAND_NOSPELLFOUND);
+    return true;
+}
+
 /** \brief GM command level 3 - Create a guild.
  *
  * This command allows a GM (level 3) to create a guild.
@@ -3966,31 +4024,34 @@ bool ChatHandler::HandleDamageCommand(const char * args)
 
     Unit* target = getSelectedUnit();
 
-    if(!target || !m_session->GetPlayer()->GetSelection())
+    if (!target || !m_session->GetPlayer()->GetSelection())
     {
         SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
         SetSentErrorMessage(true);
         return false;
     }
 
-    if( !target->isAlive() )
+    if (!target->isAlive())
         return true;
 
     char* damageStr = strtok((char*)args, " ");
-    if(!damageStr)
+    if (!damageStr)
         return false;
 
-    int32 damage = atoi((char*)damageStr);
-    if(damage <=0)
+    int32 damage_int = atoi((char*)damageStr);
+    if(damage_int <=0)
         return true;
+
+    uint32 damage = damage_int;
 
     char* schoolStr = strtok((char*)NULL, " ");
 
     // flat melee damage without resistence/etc reduction
-    if(!schoolStr)
+    if (!schoolStr)
     {
         m_session->GetPlayer()->DealDamage(target, damage, NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-        m_session->GetPlayer()->SendAttackStateUpdate (HITINFO_NORMALSWING2, target, 1, SPELL_SCHOOL_MASK_NORMAL, damage, 0, 0, VICTIMSTATE_NORMAL, 0);
+        if (target != m_session->GetPlayer())
+            m_session->GetPlayer()->SendAttackStateUpdate (HITINFO_NORMALSWING2, target, 1, SPELL_SCHOOL_MASK_NORMAL, damage, 0, 0, VICTIMSTATE_NORMAL, 0);
         return true;
     }
 
@@ -4006,7 +4067,7 @@ bool ChatHandler::HandleDamageCommand(const char * args)
     char* spellStr = strtok((char*)NULL, " ");
 
     // melee damage by specific school
-    if(!spellStr)
+    if (!spellStr)
     {
         uint32 absorb = 0;
         uint32 resist = 0;
@@ -4018,6 +4079,7 @@ bool ChatHandler::HandleDamageCommand(const char * args)
 
         damage -= absorb + resist;
 
+        m_session->GetPlayer()->DealDamageMods(target,damage,&absorb);
         m_session->GetPlayer()->DealDamage(target, damage, NULL, DIRECT_DAMAGE, schoolmask, NULL, false);
         m_session->GetPlayer()->SendAttackStateUpdate (HITINFO_NORMALSWING2, target, 1, schoolmask, damage, absorb, resist, VICTIMSTATE_NORMAL, 0);
         return true;
@@ -4027,7 +4089,7 @@ bool ChatHandler::HandleDamageCommand(const char * args)
 
     // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
     uint32 spellid = extractSpellIdFromLink((char*)args);
-    if(!spellid || !sSpellStore.LookupEntry(spellid))
+    if (!spellid || !sSpellStore.LookupEntry(spellid))
         return false;
 
     m_session->GetPlayer()->SpellNonMeleeDamageLog(target, spellid, damage);

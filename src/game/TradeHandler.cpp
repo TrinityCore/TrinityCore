@@ -461,30 +461,30 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
 {
     CHECK_PACKET_SIZE(recvPacket,8);
 
-    if( GetPlayer()->pTrader )
+    if (GetPlayer()->pTrader)
         return;
 
     uint64 ID;
 
-    if( !GetPlayer()->isAlive() )
+    if (!GetPlayer()->isAlive())
     {
         SendTradeStatus(TRADE_STATUS_YOU_DEAD);
         return;
     }
 
-    if( GetPlayer()->hasUnitState(UNIT_STAT_STUNNED) )
+    if (GetPlayer()->hasUnitState(UNIT_STAT_STUNNED))
     {
         SendTradeStatus(TRADE_STATUS_YOU_STUNNED);
         return;
     }
 
-    if( isLogingOut() )
+    if (isLogingOut())
     {
         SendTradeStatus(TRADE_STATUS_YOU_LOGOUT);
         return;
     }
 
-    if( GetPlayer()->isInFlight() )
+    if (GetPlayer()->isInFlight())
     {
         SendTradeStatus(TRADE_STATUS_TARGET_TO_FAR);
         return;
@@ -494,43 +494,43 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
 
     Player* pOther = ObjectAccessor::FindPlayer( ID );
 
-    if( !pOther )
+    if (!pOther)
     {
         SendTradeStatus(TRADE_STATUS_NO_TARGET);
         return;
     }
 
-    if( pOther == GetPlayer() || pOther->pTrader )
+    if (pOther == GetPlayer() || pOther->pTrader)
     {
         SendTradeStatus(TRADE_STATUS_BUSY);
         return;
     }
 
-    if( !pOther->isAlive() )
+    if (!pOther->isAlive())
     {
         SendTradeStatus(TRADE_STATUS_TARGET_DEAD);
         return;
     }
 
-    if( pOther->isInFlight() )
+    if (pOther->isInFlight())
     {
         SendTradeStatus(TRADE_STATUS_TARGET_TO_FAR);
         return;
     }
 
-    if( pOther->hasUnitState(UNIT_STAT_STUNNED) )
+    if (pOther->hasUnitState(UNIT_STAT_STUNNED))
     {
         SendTradeStatus(TRADE_STATUS_TARGET_STUNNED);
         return;
     }
 
-    if( pOther->GetSession()->isLogingOut() )
+    if (pOther->GetSession()->isLogingOut())
     {
         SendTradeStatus(TRADE_STATUS_TARGET_LOGOUT);
         return;
     }
 
-    if( pOther->GetSocial()->HasIgnore(GetPlayer()->GetGUIDLow()) )
+    if (pOther->GetSocial()->HasIgnore(GetPlayer()->GetGUIDLow()))
     {
         SendTradeStatus(TRADE_STATUS_IGNORE_YOU);
         return;
@@ -542,7 +542,7 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    if( pOther->GetDistance2d( _player ) > 10.0f )
+    if (!pOther->IsWithinDistInMap(_player,10.0f,false))
     {
         SendTradeStatus(TRADE_STATUS_TARGET_TO_FAR);
         return;

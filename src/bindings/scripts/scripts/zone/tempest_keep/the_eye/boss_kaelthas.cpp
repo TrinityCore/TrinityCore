@@ -804,7 +804,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
 
                     if (FlameStrike_Timer < diff)
                     {
-                        if (Unit* pUnit = SelectUnit(SELECT_TARGET_RANDOM, 0, 70, true))
+                        if (Unit* pUnit = SelectTarget(SELECT_TARGET_RANDOM, 0, 70, true))
                             DoCast(pUnit, SPELL_FLAME_STRIKE);
 
                         FlameStrike_Timer = 30000;
@@ -816,7 +816,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                         for (uint32 i = 0; i < 3; i++)
                         {
 
-                            Unit* target =SelectUnit(SELECT_TARGET_RANDOM, 1, 70, true);
+                            Unit* target =SelectTarget(SELECT_TARGET_RANDOM, 1, 70, true);
                             if(!target) target = m_creature->getVictim();
                             debug_log("TSCR: Kael'Thas mind control not supported.");
                             if(target)
@@ -1080,7 +1080,7 @@ struct TRINITY_DLL_DECL boss_thaladred_the_darkenerAI : public advisorbase_ai
         //Gaze_Timer
         if(Gaze_Timer < diff)
         {
-            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0, 100, true))
+            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
             {
                 DoResetThreat();
                 if(target)

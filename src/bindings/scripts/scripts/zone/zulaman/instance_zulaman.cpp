@@ -179,7 +179,7 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
         instance->SendToPlayers(&data);
     }
 
-    const char* Save()
+    std::string GetSaveData()
     {
         std::ostringstream ss;
         ss << "S " << BossKilled << " " << ChestLooted << " " << QuestMinute;

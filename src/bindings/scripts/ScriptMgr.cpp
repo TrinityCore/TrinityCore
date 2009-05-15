@@ -389,6 +389,7 @@ extern void AddSC_boss_sapphiron();
 extern void AddSC_boss_four_horsemen();
 extern void AddSC_boss_faerlina();
 extern void AddSC_boss_heigan();
+extern void AddSC_boss_gothik();
 extern void AddSC_instance_naxxramas();
 
 //Netherstorm
@@ -1327,6 +1328,7 @@ void ScriptsInit(char const* cfg_file = "trinitycore.conf")
     AddSC_boss_sapphiron();
     AddSC_boss_four_horsemen();
     AddSC_boss_heigan();
+    AddSC_boss_gothik();
     AddSC_instance_naxxramas();
 
     //Netherstorm
@@ -1657,7 +1659,7 @@ void Script::RegisterSelf()
         m_scripts[id] = this;
         ++num_sc_scripts;
     }
-    else
+    else if(Name.find("example") == std::string::npos)
     {
         error_db_log("CRASH ALERT! TrinityScript: RegisterSelf, but script named %s does not have ScriptName assigned in database.",(this)->Name.c_str());
         delete this;

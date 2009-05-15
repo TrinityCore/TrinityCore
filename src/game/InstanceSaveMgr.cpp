@@ -40,6 +40,8 @@
 #include "Group.h"
 #include "InstanceData.h"
 #include "ProgressBar.h"
+#include "Policies/Singleton.h"
+#include "Policies/SingletonImp.h"
 
 INSTANTIATE_SINGLETON_1( InstanceSaveManager );
 
@@ -163,11 +165,11 @@ void InstanceSave::SaveToDB()
     if(map)
     {
         assert(map->IsDungeon());
-        InstanceData *iData = ((InstanceMap *)map)->GetInstanceData();
-        if(iData && iData->Save())
+        if(InstanceData *iData = ((InstanceMap*)map)->GetInstanceData())
         {
-            data = iData->Save();
-            CharacterDatabase.escape_string(data);
+            data = iData->GetSaveData();
+            if(!data.empty())
+                CharacterDatabase.escape_string(data);
         }
     }
 

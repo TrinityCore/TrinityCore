@@ -4,7 +4,7 @@
 	Version="7.10"
 	Name="TrinityCore"
 	ProjectGUID="{D1EA3EE9-4DCF-4CB9-BA6E-B9321E0D552A}"
-	RootNamespace="mangosd"
+	RootNamespace="trinitycore"
 	SccProjectName=""
 	SccLocalPath="">
 	<Platforms>
@@ -58,7 +58,7 @@
 				ImportLibrary="$(OutDir)\trinitycore.lib"/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\mangosd__$(PlatformName)_$(ConfigurationName)\mangosd.tlb"/>
+				TypeLibraryName=".\trinitycore__$(PlatformName)_$(ConfigurationName)\trinitycore.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				CommandLine="copy ..\..\dep\lib\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)
@@ -131,7 +131,7 @@ copy ..\..\src\trinitycore\trinitycore.conf.dist ..\..\bin\$(PlatformName)_$(Con
 				FixedBaseAddress="1"/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\mangosd__$(PlatformName)_$(ConfigurationName)\mangosd.tlb"/>
+				TypeLibraryName=".\trinitycore__$(PlatformName)_$(ConfigurationName)\trinitycore.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				CommandLine="copy ..\..\dep\lib\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)

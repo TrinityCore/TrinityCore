@@ -21,21 +21,22 @@
 #ifndef __SQLDELAYTHREAD_H
 #define __SQLDELAYTHREAD_H
 
-#include "zthread/Thread.h"
-#include "zthread/Runnable.h"
-#include "zthread/FastMutex.h"
-#include "zthread/LockedQueue.h"
+#include "ace/Thread_Mutex.h"
+#include "LockedQueue.h"
+#include "Threading.h"
+
 
 class Database;
 class SqlOperation;
 
-class SqlDelayThread : public ZThread::Runnable
+class SqlDelayThread : public ACE_Based::Runnable
 {
-    typedef ZThread::LockedQueue<SqlOperation*, ZThread::FastMutex> SqlQueue;
+    typedef ACE_Based::LockedQueue<SqlOperation*, ACE_Thread_Mutex> SqlQueue;
+
     private:
         SqlQueue m_sqlQueue;                                ///< Queue of SQL statements
         Database* m_dbEngine;                               ///< Pointer to used Database engine
-        bool m_running;
+        volatile bool m_running;
 
         SqlDelayThread();
     public:

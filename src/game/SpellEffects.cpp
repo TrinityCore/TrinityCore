@@ -286,8 +286,7 @@ void Spell::EffectInstaKill(uint32 /*i*/)
     if(m_caster==unitTarget)                                // prevent interrupt message
         finish();
 
-    uint32 health = unitTarget->GetHealth();
-    m_caster->DealDamage(unitTarget, health, NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+    m_caster->DealDamage(unitTarget, unitTarget->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
 }
 
 void Spell::EffectEnvirinmentalDMG(uint32 i)
@@ -652,9 +651,9 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                 else if(m_spellInfo->SpellFamilyFlags[1]&0x00040000)
                 {
                     // Add main hand dps * effect[2] amount
-                    float averange = (m_caster->GetFloatValue(UNIT_FIELD_MINDAMAGE) + m_caster->GetFloatValue(UNIT_FIELD_MAXDAMAGE)) / 2;
+                    float average = (m_caster->GetFloatValue(UNIT_FIELD_MINDAMAGE) + m_caster->GetFloatValue(UNIT_FIELD_MAXDAMAGE)) / 2;
                     int32 count = m_caster->CalculateSpellDamage(m_spellInfo, 2, m_spellInfo->EffectBasePoints[2], unitTarget);
-                    damage += count * int32(averange * IN_MILISECONDS) / m_caster->GetAttackTime(BASE_ATTACK);
+                    damage += count * int32(average * IN_MILISECONDS) / m_caster->GetAttackTime(BASE_ATTACK);
                 }
                 // Shield of Righteousness
                 else if(m_spellInfo->SpellFamilyFlags[1]&0x00100000)
@@ -1012,17 +1011,6 @@ void Spell::EffectDummy(uint32 i)
                         m_caster->CastSpell(unitTarget,29294,true);
                     return;
                 }
-                case 28730:                                 // Arcane Torrent (Mana)
-                {
-                    Aura * dummy = m_caster->GetAura(28734, m_caster->GetGUID());
-                    if (dummy)
-                    {
-                        int32 bp = damage * dummy->GetStackAmount();
-                        m_caster->CastCustomSpell(m_caster, 28733, &bp, NULL, NULL, true);
-                        m_caster->RemoveAurasDueToSpell(28734);
-                    }
-                    return;
-                }
                 case 29200:                                 // Purify Helboar Meat
                 {
                     if( m_caster->GetTypeId() != TYPEID_PLAYER )
@@ -1324,12 +1312,7 @@ void Spell::EffectDummy(uint32 i)
                             (GetSpellSchoolMask(spellInfo) & SPELL_SCHOOL_MASK_FROST) &&
                             spellInfo->Id != 11958 && GetSpellRecoveryTime(spellInfo) > 0 )
                         {
-                            ((Player*)m_caster)->RemoveSpellCooldown(classspell);
-
-                            WorldPacket data(SMSG_CLEAR_COOLDOWN, (4+8));
-                            data << uint32(classspell);
-                            data << uint64(m_caster->GetGUID());
-                            ((Player*)m_caster)->GetSession()->SendPacket(&data);
+                            ((Player*)m_caster)->RemoveSpellCooldown(classspell,true);
                         }
                     }
                     return;
@@ -1367,24 +1350,29 @@ void Spell::EffectDummy(uint32 i)
                 if(!unitTarget)
                     return;
 
-                uint32 rage = m_caster->GetPower(POWER_RAGE);
+                uint32 rage=0;
                 // Glyph of Execution bonus
                 if (AuraEffect *aura = m_caster->GetDummyAura(58367))
                     rage+=aura->GetAmount();
 
                 spell_id = 20647;
-                bp = damage+int32(rage * m_spellInfo->DmgMultiplier[i] +
-                                                 m_caster->GetTotalAttackPowerValue(BASE_ATTACK)*0.2f);
                 // Sudden death cost modifier
                 if (Aura * aur = m_caster->GetAura(52437))
                 {
+                    rage += m_powerCost;
                     m_caster->ModifyPower(POWER_RAGE,- m_powerCost);
                     if (m_caster->GetPower(POWER_RAGE)<100)
                         m_caster->SetPower(POWER_RAGE,100);
                     m_caster->RemoveAura(aur);
                 }
                 else
+                {
+                    rage += m_caster->GetPower(POWER_RAGE);
                     m_caster->SetPower(POWER_RAGE,0);
+                }
+
+                bp = damage+int32(rage * m_spellInfo->DmgMultiplier[i] +
+                                                 m_caster->GetTotalAttackPowerValue(BASE_ATTACK)*0.2f);
                 break;
             }
             // Slam
@@ -1580,14 +1568,7 @@ void Spell::EffectDummy(uint32 i)
                         SpellEntry const *spellInfo = sSpellStore.LookupEntry(classspell);
 
                         if (spellInfo->SpellFamilyName == SPELLFAMILY_ROGUE && (spellInfo->SpellFamilyFlags[1] & 0x00000240 || spellInfo->SpellFamilyFlags[0] & 0x00000860))
-                        {
-                            ((Player*)m_caster)->RemoveSpellCooldown(classspell);
-
-                            WorldPacket data(SMSG_CLEAR_COOLDOWN, (4+8));
-                            data << uint32(classspell);
-                            data << uint64(m_caster->GetGUID());
-                            ((Player*)m_caster)->GetSession()->SendPacket(&data);
-                        }
+                            ((Player*)m_caster)->RemoveSpellCooldown(classspell,true);
                     }
                     return;
                 }
@@ -1614,14 +1595,7 @@ void Spell::EffectDummy(uint32 i)
                         SpellEntry const *spellInfo = sSpellStore.LookupEntry(classspell);
 
                         if (spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER && spellInfo->Id != 23989 && GetSpellRecoveryTime(spellInfo) > 0 )
-                        {
-                            ((Player*)m_caster)->RemoveSpellCooldown(classspell);
-
-                            WorldPacket data(SMSG_CLEAR_COOLDOWN, (4+8));
-                            data << uint32(classspell);
-                            data << uint64(m_caster->GetGUID());
-                            ((Player*)m_caster)->GetSession()->SendPacket(&data);
-                        }
+                            ((Player*)m_caster)->RemoveSpellCooldown(classspell,true);
                     }
                     return;
                 }
@@ -1716,17 +1690,8 @@ void Spell::EffectDummy(uint32 i)
                     // non-standard cast requirement check
                     if (!unitTarget || unitTarget->getAttackers().empty())
                     {
-                        // clear cooldown at fail
                         if(m_caster->GetTypeId()==TYPEID_PLAYER)
-                        {
-                            ((Player*)m_caster)->RemoveSpellCooldown(m_spellInfo->Id);
-
-                            WorldPacket data(SMSG_CLEAR_COOLDOWN, (4+8));
-                            data << uint32(m_spellInfo->Id);
-                            data << uint64(m_caster->GetGUID());
-                            ((Player*)m_caster)->GetSession()->SendPacket(&data);
-                        }
-
+                            ((Player*)m_caster)->RemoveSpellCooldown(m_spellInfo->Id,true);
                         SendCastResult(SPELL_FAILED_TARGET_AFFECTING_COMBAT);
                         return;
                     }
@@ -3230,7 +3195,7 @@ void Spell::EffectSummonType(uint32 i)
         modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DURATION, duration);
 
     float x, y, z;
-    GetSummonPosition(x, y, z);
+    GetSummonPosition(i, x, y, z);
 
     /*//totem must be at same Z in case swimming caster and etc.
         if( fabs( z - m_caster->GetPositionZ() ) > 5 )
@@ -3315,7 +3280,7 @@ void Spell::EffectSummonType(uint32 i)
 
                     summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-                    summon->GetMotionMaster()->MoveTargetedHome();
+                    summon->AI()->EnterEvadeMode();
 
                     std::string name = m_originalCaster->GetName();
                     name.append(petTypeSuffix[3]);
@@ -3331,7 +3296,7 @@ void Spell::EffectSummonType(uint32 i)
                     for(int32 count = 0; count < amount; ++count)
                     {
                         float px, py, pz;
-                        GetSummonPosition(px, py, pz, radius, count);
+                        GetSummonPosition(i, px, py, pz, radius, count);
 
                         TempSummonType summonType = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_DESPAWN;
 
@@ -4776,17 +4741,17 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     unitTarget->CastSpell(unitTarget, 44870, true);
                     break;
                 }               
-        // spell of Brutallus - Stomp
-        case 45185:
-        {
-                    if(!unitTarget)
-                        return;
-        
-            if(unitTarget->HasAura(46394)) // spell of Brutallus - Burn
-                unitTarget->RemoveAurasDueToSpell(46394);
+                // spell of Brutallus - Stomp
+                case 45185:
+                {
+                        if(!unitTarget)
+                            return;
 
-            break;
-        }
+                        if(unitTarget->HasAura(46394)) // spell of Brutallus - Burn
+                            unitTarget->RemoveAurasDueToSpell(46394);
+
+                        break;
+                }
                 // Negative Energy
                 case 46289:
                 {
@@ -5891,47 +5856,7 @@ void Spell::EffectSendTaxi(uint32 i)
     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    TaxiPathEntry const* entry = sTaxiPathStore.LookupEntry(m_spellInfo->EffectMiscValue[i]);
-    if(!entry)
-        return;
-
-    std::vector<uint32> nodes;
-
-    nodes.resize(2);
-    nodes[0] = entry->from;
-    nodes[1] = entry->to;
-
-    uint32 mountid = 0;
-    switch(m_spellInfo->Id)
-    {
-        case 31606:                                         //Stormcrow Amulet
-            mountid = 17447;
-            break;
-        case 45071:                                         //Quest - Sunwell Daily - Dead Scar Bombing Run
-        case 45113:                                         //Quest - Sunwell Daily - Ship Bombing Run
-        case 45353:                                         //Quest - Sunwell Daily - Ship Bombing Run Return
-            mountid = 22840;
-            break;
-        case 34905:                                         //Stealth Flight
-            mountid = 6851;
-            break;
-        case 45883:                                         //Amber Ledge to Beryl Point
-            mountid = 23524;
-            break;
-        case 46064:                                         //Amber Ledge to Coldarra
-            mountid = 6371;
-            break;
-        case 53335:                                         //Stormwind Harbor Flight - Peaceful
-            mountid = 6852;
-            break;
-        case 41533:      //Fly of the Netherwing
-        case 41540:      //Fly of the Netherwing
-            mountid = 23468;
-            break;
-    }
-
-    ((Player*)unitTarget)->ActivateTaxiPathTo(nodes,mountid);
-
+    ((Player*)unitTarget)->ActivateTaxiPathTo(m_spellInfo->EffectMiscValue[i],m_spellInfo->Id);
 }
 
 void Spell::EffectPlayerPull(uint32 i)
@@ -6292,7 +6217,7 @@ void Spell::EffectSummonDemon(uint32 i)
     for(int32 count = 0; count < amount; ++count)
     {
         float px, py, pz;
-        GetSummonPosition(px, py, pz, radius, count);
+        GetSummonPosition(i, px, py, pz, radius, count);
 
         int32 duration = GetSpellDuration(m_spellInfo);
 
@@ -6492,7 +6417,7 @@ void Spell::SummonGuardian(uint32 entry, SummonPropertiesEntry const *properties
     for(int32 count = 0; count < amount; ++count)
     {
         float px, py, pz;
-        GetSummonPosition(px, py, pz, radius, count);
+        GetSummonPosition(0, px, py, pz, radius, count);
 
         TempSummon *summon = map->SummonCreature(entry, px, py, pz, m_caster->GetOrientation(), properties, duration, caster);
         if(!summon)
@@ -6503,11 +6428,11 @@ void Spell::SummonGuardian(uint32 entry, SummonPropertiesEntry const *properties
 
         summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
 
-        summon->GetMotionMaster()->MoveTargetedHome();
+        summon->AI()->EnterEvadeMode();
     }
 }
 
-void Spell::GetSummonPosition(float &x, float &y, float &z, float radius, uint32 count)
+void Spell::GetSummonPosition(uint32 i, float &x, float &y, float &z, float radius, uint32 count)
 {
     if (m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION)
     {
@@ -6520,7 +6445,25 @@ void Spell::GetSummonPosition(float &x, float &y, float &z, float radius, uint32
         }
         // Summon in random point all other units if location present
         else
-            m_caster->GetRandomPoint(m_targets.m_destX,m_targets.m_destY,m_targets.m_destZ,radius,x,y,z);
+        {
+            //This is a workaround. Do not have time to write much about it
+            switch(m_spellInfo->EffectImplicitTargetA[i])
+            {
+                case TARGET_MINION:
+                case TARGET_DEST_CASTER_RANDOM:
+                    m_caster->GetGroundPointAroundUnit(x, y, z, radius * rand_norm(), rand_norm()*2*M_PI);
+                    break;
+                case TARGET_DEST_DEST_RANDOM:
+                case TARGET_DEST_TARGET_RANDOM:
+                    m_caster->GetRandomPoint(m_targets.m_destX,m_targets.m_destY,m_targets.m_destZ,radius,x,y,z);
+                    break;
+                default:
+                    x = m_targets.m_destX;
+                    y = m_targets.m_destY;
+                    z = m_targets.m_destZ;
+                    break;
+            }
+        }
     }
     // Summon if dest location not present near caster
     else

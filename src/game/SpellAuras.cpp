@@ -196,7 +196,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &AuraEffect::HandleRangedAmmoHaste,                           //141 SPELL_AURA_MOD_RANGED_AMMO_HASTE
     &AuraEffect::HandleAuraModBaseResistancePCT,                  //142 SPELL_AURA_MOD_BASE_RESISTANCE_PCT
     &AuraEffect::HandleAuraModResistanceExclusive,                //143 SPELL_AURA_MOD_RESISTANCE_EXCLUSIVE
-    &AuraEffect::HandleNoImmediateEffect,                         //144 SPELL_AURA_SAFE_FALL                  implemented in WorldSession::HandleMovementOpcodes
+    &AuraEffect::HandleAuraSafeFall,                              //144 SPELL_AURA_SAFE_FALL                         implemented in WorldSession::HandleMovementOpcodes
     &AuraEffect::HandleAuraModPetTalentsPoints,                   //145 SPELL_AURA_MOD_PET_TALENT_POINTS
     &AuraEffect::HandleNoImmediateEffect,                         //146 SPELL_AURA_ALLOW_TAME_PET_TYPE
     &AuraEffect::HandleModStateImmunityMask,                      //147 SPELL_AURA_MECHANIC_IMMUNITY_MASK
@@ -242,7 +242,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNoImmediateEffect,                         //187 SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_CHANCE  implemented in Unit::GetUnitCriticalChance
     &AuraEffect::HandleNoImmediateEffect,                         //188 SPELL_AURA_MOD_ATTACKER_RANGED_CRIT_CHANCE implemented in Unit::GetUnitCriticalChance
     &AuraEffect::HandleModRating,                                 //189 SPELL_AURA_MOD_RATING
-    &AuraEffect::HandleNULL,                                      //190 SPELL_AURA_MOD_FACTION_REPUTATION_GAIN
+    &AuraEffect::HandleNoImmediateEffect,                         //190 SPELL_AURA_MOD_FACTION_REPUTATION_GAIN     implemented in Player::CalculateReputationGain
     &AuraEffect::HandleAuraModUseNormalSpeed,                     //191 SPELL_AURA_USE_NORMAL_MOVEMENT_SPEED
     &AuraEffect::HandleModMeleeRangedSpeedPct,                    //192 SPELL_AURA_HASTE_MELEE
     &AuraEffect::HandleModCombatSpeedPct,                         //193 SPELL_AURA_MELEE_SLOW (in fact combat (any type attack) speed pct)
@@ -721,28 +721,28 @@ void AreaAuraEffect::Update(uint32 diff)
                 }
             }
 
-            for(std::list<Unit *>::iterator tIter = targets.begin(); tIter != targets.end(); tIter++)
+            for(std::list<Unit*>::iterator tIter = targets.begin(); tIter != targets.end(); tIter++)
             {
-                bool skip=false;
-                for(Unit::AuraMap::iterator iter = (*tIter)->GetAuras().begin(); iter != (*tIter)->GetAuras().end();++iter)
+                if(Aura *aur = (*tIter)->GetAura(GetId(), m_formalCasterGUID))
                 {
-                    bool samecaster = iter->second->GetCasterGUID() == GetCasterGUID();
-                    if (samecaster && iter->first == GetId())
-                    {
-                        if (AuraEffect * aurEff = iter->second->GetPartAura(m_effIndex))
-                        {
-                            skip=true;
-                        }
-                        break;
-                    }
-                    if (spellmgr.IsNoStackSpellDueToSpell(GetId(), iter->first,samecaster))
-                    {
-                        skip=true;
-                        break;
-                    }
+                    if(aur->HasEffect(GetEffIndex()))
+                        continue;
                 }
-                if(skip)
-                    continue;
+                else
+                {
+                    bool skip = false;
+                    for(Unit::AuraMap::iterator iter = (*tIter)->GetAuras().begin(); iter != (*tIter)->GetAuras().end();++iter)
+                    {
+                        bool samecaster = iter->second->GetCasterGUID() == m_formalCasterGUID;
+                        if(spellmgr.IsNoStackSpellDueToSpell(GetId(), iter->first, samecaster))
+                        {
+                            skip = true;
+                            break;
+                        }
+                    }
+                    if(skip)
+                        continue;
+                }
 
                 if(SpellEntry const *actualSpellInfo = spellmgr.SelectAuraRankForPlayerLevel(GetSpellProto(), (*tIter)->getLevel()))
                 {
@@ -750,7 +750,7 @@ void AreaAuraEffect::Update(uint32 diff)
                     // recalculate basepoints for lower rank (all AreaAura spell not use custom basepoints?)
                     //if(actualSpellInfo != GetSpellProto())
                     //    actualBasePoints = actualSpellInfo->EffectBasePoints[m_effIndex];
-                    Aura * aur = (*tIter)->AddAuraEffect(actualSpellInfo->Id, GetEffIndex(), caster, &m_currentBasePoints);
+                    (*tIter)->AddAuraEffect(actualSpellInfo, GetEffIndex(), caster, &m_currentBasePoints);
 
                     if(m_areaAuraType == AREA_AURA_ENEMY)
                         caster->CombatStart(*tIter);
@@ -1000,7 +1000,7 @@ void Aura::_AddAura()
             for(std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
             {
                 if(*itr < 0)
-                    m_target->ApplySpellImmune(id, IMMUNITY_ID, -(*itr), m_target);
+                    m_target->ApplySpellImmune(id, IMMUNITY_ID, -(*itr), true);
                 else if(Unit* caster = GetCaster())
                     caster->AddAura(*itr, m_target);
             }
@@ -2667,25 +2667,6 @@ void AuraEffect::HandleAuraDummy(bool apply, bool Real)
         }
         case SPELLFAMILY_HUNTER:
         {
-            // Improved Aspect of the Viper
-            if( GetId()==38390 && m_target->GetTypeId()==TYPEID_PLAYER )
-            {
-                if(apply)
-                {
-                    // + effect value for Aspect of the Viper
-                    SpellModifier *mod = new SpellModifier;
-                    mod->op = SPELLMOD_EFFECT1;
-                    mod->value = m_amount;
-                    mod->type = SPELLMOD_FLAT;
-                    mod->spellId = GetId();
-                    mod->mask[1] = 0x40000;
-
-                    m_spellmod = mod;
-                }
-
-                ((Player*)m_target)->AddSpellMod(m_spellmod, apply);
-                return;
-            }
             // Glyph of Aspect of the Monkey
             if(m_spellProto->Id==56833)
             {
@@ -3880,25 +3861,11 @@ void AuraEffect::HandleAuraModSilence(bool apply, bool Real)
             if (m_target->m_currentSpells[i] && m_target->m_currentSpells[i]->m_spellInfo->PreventionType == SPELL_PREVENTION_TYPE_SILENCE)
                 m_target->InterruptSpell(i,false);          // Stop spells on prepare or casting state
 
+        /*
         switch (GetId())
         {
-            // Arcane Torrent (Energy)
-            case 25046:
-            {
-                Unit * caster = GetCaster();
-                if (!caster)
-                    return;
-
-                // Search Mana Tap auras on caster
-                AuraEffect * dummy = caster->GetDummyAura(28734);
-                if (dummy)
-                {
-                    int32 bp = dummy->GetParentAura()->GetStackAmount() * 10;
-                    caster->CastCustomSpell(caster, 25048, &bp, NULL, NULL, true);
-                    m_target->RemoveAurasDueToSpell(28734);
-                }
-            }
         }
+        */
     }
     else
     {
@@ -5698,6 +5665,7 @@ void AuraEffect::PeriodicTick()
             if(!pCaster)
                 return;
 
+            // Consecrate ticks can miss and will not show up in the combat log
             if( GetSpellProto()->Effect[GetEffIndex()]==SPELL_EFFECT_PERSISTENT_AREA_AURA &&
                 pCaster->SpellHitResult(m_target,GetSpellProto(),false)!=SPELL_MISS_NONE)
                 return;
@@ -5746,7 +5714,8 @@ void AuraEffect::PeriodicTick()
                             }
                         }
                         m_amount = 100 * m_tickNumber;
-                    }break;
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -5799,6 +5768,8 @@ void AuraEffect::PeriodicTick()
 
             sLog.outDetail("PeriodicTick: %u (TypeId: %u) attacked %u (TypeId: %u) for %u dmg inflicted by %u abs is %u",
                 GUID_LOPART(GetCasterGUID()), GuidHigh2TypeId(GUID_HIPART(GetCasterGUID())), m_target->GetGUIDLow(), m_target->GetTypeId(), pdamage, GetId(),absorb);
+
+            pCaster->DealDamageMods(m_target,pdamage,&absorb);
 
             WorldPacket data(SMSG_PERIODICAURALOG, (21+16));// we guess size
             data.append(m_target->GetPackGUID());
@@ -5983,10 +5954,13 @@ void AuraEffect::PeriodicTick()
                 }
                 else
                 {
-                    pCaster->SendSpellNonMeleeDamageLog(pCaster, GetId(), gain, GetSpellSchoolMask(GetSpellProto()), 0, 0, false, 0, false);
+                    uint32 damage = gain;
+                    uint32 absorb = 0;
+                    pCaster->DealDamageMods(pCaster,damage,&absorb);
+                    pCaster->SendSpellNonMeleeDamageLog(pCaster, GetId(), damage, GetSpellSchoolMask(GetSpellProto()), absorb, 0, false, 0, false);
 
                     CleanDamage cleanDamage =  CleanDamage(0, BASE_ATTACK, MELEE_HIT_NORMAL );
-                    pCaster->DealDamage(pCaster, gain, &cleanDamage, NODAMAGE, GetSpellSchoolMask(GetSpellProto()), GetSpellProto(), true);
+                    pCaster->DealDamage(pCaster, damage, &cleanDamage, NODAMAGE, GetSpellSchoolMask(GetSpellProto()), GetSpellProto(), true);
                 }
             }
 
@@ -6202,6 +6176,9 @@ void AuraEffect::PeriodicTick()
             SpellNonMeleeDamage damageInfo(pCaster, m_target, spellProto->Id, spellProto->SchoolMask);
             //no SpellDamageBonus for burn mana
             pCaster->CalculateSpellDamageTaken(&damageInfo, gain, spellProto);
+
+            pCaster->DealDamageMods(damageInfo.target,damageInfo.damage,&damageInfo.absorb);
+
             pCaster->SendSpellNonMeleeDamageLog(&damageInfo);
 
             // Set trigger flag
@@ -6972,4 +6949,13 @@ void Aura::UnregisterSingleCastAura()
         }
         m_isSingleTargetAura = false;
     }
+}
+
+void AuraEffect::HandleAuraSafeFall( bool Apply, bool Real )
+{
+    // implemented in WorldSession::HandleMovementOpcodes
+
+    // only special case
+    if(Apply && Real && GetId()==32474 && m_target->GetTypeId()==TYPEID_PLAYER)
+        ((Player*)m_target)->ActivateTaxiPathTo(506,GetId());
 }

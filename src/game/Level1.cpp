@@ -2091,12 +2091,12 @@ bool ChatHandler::HandleModifyMoneyCommand(const char* args)
 
     uint32 moneyuser = chr->GetMoney();
 
-    if(addmoney < 0)
+    if (addmoney < 0)
     {
-        int32 newmoney = moneyuser + addmoney;
+        int32 newmoney = int32(moneyuser) + addmoney;
 
         sLog.outDetail(GetTrinityString(LANG_CURRENT_MONEY), moneyuser, addmoney, newmoney);
-        if(newmoney <= 0 )
+        if (newmoney <= 0 )
         {
             PSendSysMessage(LANG_YOU_TAKE_ALL_MONEY, GetNameLink(chr).c_str());
             if (needReportToTarget(chr))
@@ -2106,6 +2106,9 @@ bool ChatHandler::HandleModifyMoneyCommand(const char* args)
         }
         else
         {
+            if (newmoney > MAX_MONEY_AMOUNT)
+                newmoney = MAX_MONEY_AMOUNT;
+
             PSendSysMessage(LANG_YOU_TAKE_MONEY, abs(addmoney), GetNameLink(chr).c_str());
             if (needReportToTarget(chr))
                 ChatHandler(chr).PSendSysMessage(LANG_YOURS_MONEY_TAKEN, GetNameLink().c_str(), abs(addmoney));
@@ -2117,7 +2120,11 @@ bool ChatHandler::HandleModifyMoneyCommand(const char* args)
         PSendSysMessage(LANG_YOU_GIVE_MONEY, addmoney, GetNameLink(chr).c_str());
         if (needReportToTarget(chr))
             ChatHandler(chr).PSendSysMessage(LANG_YOURS_MONEY_GIVEN, GetNameLink().c_str(), addmoney);
-        chr->ModifyMoney( addmoney );
+
+        if (addmoney >=MAX_MONEY_AMOUNT)
+            chr->SetMoney(MAX_MONEY_AMOUNT);
+        else
+            chr->ModifyMoney( addmoney );
     }
 
     sLog.outDetail(GetTrinityString(LANG_NEW_MONEY), moneyuser, addmoney, chr->GetMoney() );
@@ -2750,6 +2757,51 @@ bool ChatHandler::HandleGroupgoCommand(const char* args)
         pl->TeleportTo(m_session->GetPlayer()->GetMapId(),x,y,z,pl->GetOrientation());
     }
 
+    return true;
+}
+
+bool ChatHandler::HandleGoTaxinodeCommand(const char* args)
+{
+    Player* _player = m_session->GetPlayer();
+
+    if (!*args)
+        return false;
+
+    char* cNodeId = extractKeyFromLink((char*)args,"Htaxinode");
+    if (!cNodeId)
+        return false;
+
+    int32 i_nodeId = atoi(cNodeId);
+    if (!i_nodeId)
+        return false;
+
+    TaxiNodesEntry const* node = sTaxiNodesStore.LookupEntry(i_nodeId);
+    if (!node)
+    {
+        PSendSysMessage(LANG_COMMAND_GOTAXINODENOTFOUND,i_nodeId);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    if (node->x == 0.0f && node->y == 0.0f && node->z == 0.0f ||
+        !MapManager::IsValidMapCoord(node->map_id,node->x,node->y,node->z))
+    {
+        PSendSysMessage(LANG_INVALID_TARGET_COORD,node->x,node->y,node->map_id);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    // stop flight if need
+    if (_player->isInFlight())
+    {
+        _player->GetMotionMaster()->MovementExpired();
+        _player->m_taxi.ClearTaxiDestinations();
+    }
+    // save only in non-flight case
+    else
+        _player->SaveRecallPosition();
+
+    _player->TeleportTo(node->map_id, node->x, node->y, node->z, _player->GetOrientation());
     return true;
 }
 

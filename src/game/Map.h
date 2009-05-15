@@ -23,9 +23,9 @@
 
 #include "Platform/Define.h"
 #include "Policies/ThreadingModel.h"
-#include "zthread/Lockable.h"
-#include "zthread/Mutex.h"
-#include "zthread/FairReadWriteLock.h"
+#include "ace/RW_Thread_Mutex.h"
+#include "ace/Thread_Mutex.h"
+
 #include "DBCStructure.h"
 #include "GridDefines.h"
 #include "Cell.h"
@@ -46,13 +46,8 @@ class WorldObject;
 class TempSummon;
 class CreatureGroup;
 
-namespace ZThread
-{
-    class Lockable;
-    class ReadWriteLock;
-}
 
-typedef ZThread::FairReadWriteLock GridRWLock;
+typedef ACE_RW_Thread_Mutex GridRWLock;
 
 template<class MUTEX, class LOCK_TYPE>
 struct RGuard
@@ -68,9 +63,9 @@ struct WGuard
     Trinity::GeneralLock<LOCK_TYPE> i_lock;
 };
 
-typedef RGuard<GridRWLock, ZThread::Lockable> GridReadGuard;
-typedef WGuard<GridRWLock, ZThread::Lockable> GridWriteGuard;
-typedef Trinity::SingleThreaded<GridRWLock>::Lock NullGuard;
+typedef RGuard<GridRWLock, ACE_Thread_Mutex> GridReadGuard;
+typedef WGuard<GridRWLock, ACE_Thread_Mutex> GridWriteGuard;
+typedef MaNGOS::SingleThreaded<GridRWLock>::Lock NullGuard;
 
 //******************************************
 // Map file format defines
@@ -251,7 +246,7 @@ typedef UNORDERED_MAP<Creature*, CreatureMover> CreatureMoveList;
 
 typedef std::map<uint32/*leaderDBGUID*/, CreatureGroup*>        CreatureGroupHolderType;
 
-class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::ObjectLevelLockable<Map, ZThread::Mutex>
+class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>, public MaNGOS::ObjectLevelLockable<Map, ACE_Thread_Mutex>
 {
     friend class MapReference;
     public:
@@ -426,7 +421,7 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
     private:
         void LoadMapAndVMap(int gx, int gy);
         void LoadVMap(int gx, int gy);
-        void LoadMap(int gx,int gy);
+        void LoadMap(int gx,int gy, bool reload = false);
         GridMap *GetGrid(float x, float y);
 
         void SetTimer(uint32 t) { i_gridExpiry = t < MIN_GRID_DELAY ? MIN_GRID_DELAY : t; }
@@ -466,7 +461,7 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
     protected:
         void SetUnloadReferenceLock(const GridPair &p, bool on) { getNGrid(p.x_coord, p.y_coord)->setUnloadReferenceLock(on); }
 
-        typedef Trinity::ObjectLevelLockable<Map, ZThread::Mutex>::Lock Guard;
+        typedef MaNGOS::ObjectLevelLockable<Map, ACE_Thread_Mutex>::Lock Guard;
 
         MapEntry const* i_mapEntry;
         uint8 i_spawnMode;

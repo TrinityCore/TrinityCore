@@ -19,7 +19,6 @@
  */
 
 #include "Creature.h"
-#include "CreatureAIImpl.h"
 #include "CreatureAISelector.h"
 #include "NullCreatureAI.h"
 #include "Policies/SingletonImp.h"
@@ -27,6 +26,7 @@
 #include "ScriptCalls.h"
 #include "Pet.h"
 #include "TemporarySummon.h"
+#include "CreatureAIFactory.h"
 
 INSTANTIATE_SINGLETON_1(CreatureAIRegistry);
 INSTANTIATE_SINGLETON_1(MovementGeneratorRegistry);
@@ -67,6 +67,18 @@ namespace FactorySelector
                 ai_factory = ai_registry.GetRegistryItem("NullCreatureAI");
             else if(creature->GetCreatureType() == CREATURE_TYPE_CRITTER)
                 ai_factory = ai_registry.GetRegistryItem("CritterAI");
+        }
+
+        if(!ai_factory)
+        {
+            for(uint32 i = 0; i < CREATURE_MAX_SPELLS; ++i)
+            {
+                if(creature->m_spells[i])
+                {
+                    ai_factory = ai_registry.GetRegistryItem("SpellAI");
+                    break;
+                }
+            }
         }
 
         // select by permit check
