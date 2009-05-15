@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2008 - 2009 Trinity <http://www.trinitycore.org/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -14,20 +14,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-/* ScriptData
-SDName: Boss_Grobbulus
-SD%Complete: 0
-SDComment: Place holder
-SDCategory: Naxxramas
-EndScriptData */
-
-/*Poison Cloud 26590
-Slime Spray 28157
-Fallout slime 28218
-Mutating Injection 28169
-Enrages 26527*/
-
 #include "precompiled.h"
+#include "def_naxxramas.h"
 
 #define SPELL_BOMBARD_SLIME         28280
 
@@ -43,20 +31,13 @@ Enrages 26527*/
 
 #define MOB_FALLOUT_SLIME   16290
 
-struct TRINITY_DLL_DECL boss_grobbulusAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_grobbulusAI : public BossAI
 {
-    boss_grobbulusAI(Creature *c) : ScriptedAI(c) {}
-
-    EventMap events;
-
-    void Reset()
-    {
-        events.Reset();
-    }
+    boss_grobbulusAI(Creature *c) : BossAI(c, BOSS_GROBBULUS) {}
 
     void EnterCombat(Unit *who)
     {
-        DoZoneInCombat();
+        _EnterCombat();
         events.ScheduleEvent(EVENT_CLOUD, 15000);
         events.ScheduleEvent(EVENT_INJECT, 20000);
         events.ScheduleEvent(EVENT_SPRAY, 15000+rand()%15000); //not sure

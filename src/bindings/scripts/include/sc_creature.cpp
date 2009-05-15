@@ -9,6 +9,7 @@
 #include "Item.h"
 #include "Spell.h"
 #include "ObjectMgr.h"
+#include "TemporarySummon.h"
 
 // Spell summary for ScriptedAI::SelectSpell
 struct TSpellSummary {
@@ -16,13 +17,26 @@ struct TSpellSummary {
     uint8 Effects;                                          // set of enum SelectEffect
 } *SpellSummary;
 
+void SummonList::DoZoneInCombat(uint32 entry)
+{
+    for(iterator i = begin(); i != end();)
+    {
+        Creature *summon = Unit::GetCreature(*m_creature, *i);
+        ++i;
+        if(summon && summon->IsAIEnabled
+            && (!entry || summon->GetEntry() == entry))
+            summon->AI()->DoZoneInCombat();
+    }
+}
+
 void SummonList::DoAction(uint32 entry, uint32 info)
 {
     for(iterator i = begin(); i != end();)
     {
         Creature *summon = Unit::GetCreature(*m_creature, *i);
         ++i;
-        if(summon && summon->IsAIEnabled)
+        if(summon && summon->IsAIEnabled
+            && (!entry || summon->GetEntry() == entry))
             summon->AI()->DoAction(info);
     }
 }
@@ -55,7 +69,11 @@ void SummonList::DespawnAll()
         else
         {
             erase(begin());
-            summon->setDeathState(JUST_DIED);
+            summon->SetVisibility(VISIBILITY_OFF);
+            if(summon->HasSummonMask(SUMMON_MASK_SUMMON) && !summon->isPet())
+                ((TempSummon*)summon)->UnSummon();
+            else
+                summon->setDeathState(JUST_DIED);
             summon->RemoveCorpse();
         }
     }
@@ -106,26 +124,6 @@ void ScriptedAI::UpdateAI(const uint32 diff)
             }
         }
     }
-}
-
-void ScriptedAI::EnterEvadeMode()
-{
-    //m_creature->InterruptNonMeleeSpells(true);
-    m_creature->RemoveAllAuras();
-    m_creature->DeleteThreatList();
-    m_creature->CombatStop();
-    m_creature->LoadCreaturesAddon();
-    m_creature->SetLootRecipient(NULL);
-
-    if(m_creature->isAlive())
-        m_creature->GetMotionMaster()->MoveTargetedHome();
-
-    Reset();
-}
-
-void ScriptedAI::JustRespawned()
-{
-    Reset();
 }
 
 void ScriptedAI::DoStartMovement(Unit* victim, float distance, float angle)
@@ -228,6 +226,19 @@ Creature* ScriptedAI::DoSpawnCreature(uint32 id, float x, float y, float z, floa
     return m_creature->SummonCreature(id,m_creature->GetPositionX() + x,m_creature->GetPositionY() + y,m_creature->GetPositionZ() + z, angle, (TempSummonType)type, despawntime);
 }
 
+Creature *ScriptedAI::DoSummon(uint32 entry, const float pos[4], uint32 despawntime, TempSummonType type)
+{
+    return me->SummonCreature(entry, pos[0], pos[1], pos[2], pos[3], type, despawntime);
+}
+
+Creature *ScriptedAI::DoSummon(uint32 entry, WorldObject *obj, float radius, uint32 despawntime, TempSummonType type)
+{
+    float x, y, z;
+    obj->GetGroundPointAroundUnit(x, y, z, radius * rand_norm(), rand_norm()*2*M_PI);
+    return me->SummonCreature(entry, x, y, z, me->GetOrientation(), type, despawntime);
+}
+
+
 Unit* ScriptedAI::SelectUnit(SelectAggroTarget target, uint32 position)
 {
     //ThreatList m_threatlist;
@@ -259,147 +270,7 @@ Unit* ScriptedAI::SelectUnit(SelectAggroTarget target, uint32 position)
     return NULL;
 }
 
-struct TargetDistanceOrder : public std::binary_function<const Unit, const Unit, bool>
-{
-    const Unit* me;
-    TargetDistanceOrder(const Unit* Target) : me(Target) {};
-    // functor for operator ">"
-    bool operator()(const Unit* _Left, const Unit* _Right) const
-    {
-        return (me->GetDistance(_Left) < me->GetDistance(_Right));
-    }
-};
-
-Unit* ScriptedAI::SelectUnit(SelectAggroTarget targetType, uint32 position, float dist, bool playerOnly)
-{
-    if(targetType == SELECT_TARGET_NEAREST || targetType == SELECT_TARGET_FARTHEST)
-    {
-        std::list<HostilReference*> &m_threatlist = m_creature->getThreatManager().getThreatList();
-        if(m_threatlist.empty()) return NULL;
-        std::list<Unit*> targetList;
-        std::list<HostilReference*>::iterator itr = m_threatlist.begin();
-        for(; itr!= m_threatlist.end(); ++itr)
-        {
-            Unit *target = (*itr)->getTarget();
-            if(!target
-                || playerOnly && target->GetTypeId() != TYPEID_PLAYER
-                || dist && !m_creature->IsWithinCombatRange(target, dist))
-            {
-                continue;
-            }
-            targetList.push_back(target);
-        }
-        if(position >= targetList.size())
-            return NULL;
-        targetList.sort(TargetDistanceOrder(m_creature));
-        if(targetType == SELECT_TARGET_NEAREST)
-        {
-            std::list<Unit*>::iterator i = targetList.begin();
-            advance(i, position);
-            return *i;
-        }
-        else
-        {
-            std::list<Unit*>::reverse_iterator i = targetList.rbegin();
-            advance(i, position);
-            return *i;
-        }
-    }
-    else
-    {
-        std::list<HostilReference*> m_threatlist = m_creature->getThreatManager().getThreatList();
-        std::list<HostilReference*>::iterator i;
-        Unit *target;
-        while(position < m_threatlist.size())
-        {
-            if(targetType == SELECT_TARGET_BOTTOMAGGRO)
-            {
-                i = m_threatlist.end();
-                advance(i, - (int32)position - 1);
-            }
-            else
-            {
-                i = m_threatlist.begin();
-                if(targetType == SELECT_TARGET_TOPAGGRO)
-                    advance(i, position);
-                else // random
-                    advance(i, position + rand()%(m_threatlist.size() - position));
-            }
-
-            target = (*i)->getTarget();
-            if(!target
-                || playerOnly && target->GetTypeId() != TYPEID_PLAYER
-                || dist && !m_creature->IsWithinCombatRange(target, dist))
-            {
-                m_threatlist.erase(i);
-            }
-            else
-            {
-                return target;
-            }
-        }
-    }
-
-    return NULL;
-}
-
-void ScriptedAI::SelectUnitList(std::list<Unit*> &targetList, uint32 num, SelectAggroTarget targetType, float dist, bool playerOnly)
-{
-    if(targetType == SELECT_TARGET_NEAREST || targetType == SELECT_TARGET_FARTHEST)
-    {
-        std::list<HostilReference*> &m_threatlist = m_creature->getThreatManager().getThreatList();
-        if(m_threatlist.empty()) return;
-        std::list<HostilReference*>::iterator itr = m_threatlist.begin();
-        for(; itr!= m_threatlist.end(); ++itr)
-        {
-            Unit *target = (*itr)->getTarget();
-            if(!target
-                || playerOnly && target->GetTypeId() != TYPEID_PLAYER
-                || dist && !m_creature->IsWithinCombatRange(target, dist))
-            {
-                continue;
-            }
-            targetList.push_back(target);
-        }
-        targetList.sort(TargetDistanceOrder(m_creature));
-        targetList.resize(num);
-        if(targetType == SELECT_TARGET_FARTHEST)
-            targetList.reverse();
-    }
-    else
-    {
-        std::list<HostilReference*> m_threatlist = m_creature->getThreatManager().getThreatList();
-        std::list<HostilReference*>::iterator i;
-        Unit *target;
-        while(m_threatlist.size() && num)
-        {
-            if(targetType == SELECT_TARGET_BOTTOMAGGRO)
-            {
-                i = m_threatlist.end();
-                --i;
-            }
-            else
-            {
-                i = m_threatlist.begin();
-                if(targetType == SELECT_TARGET_RANDOM)
-                    advance(i, rand()%m_threatlist.size());
-            }
-
-            target = (*i)->getTarget();
-            m_threatlist.erase(i);
-            if(!target
-                || playerOnly && target->GetTypeId() != TYPEID_PLAYER
-                || dist && !m_creature->IsWithinCombatRange(target, dist))
-            {
-                continue;
-            }
-            targetList.push_back(target);
-            --num;
-        }
-    }
-}
-
-SpellEntry const* ScriptedAI::SelectSpell(Unit* Target, int32 School, int32 Mechanic, SelectTarget Targets, uint32 PowerCostMin, uint32 PowerCostMax, float RangeMin, float RangeMax, SelectEffect Effects)
+SpellEntry const* ScriptedAI::SelectSpell(Unit* Target, int32 School, int32 Mechanic, SelectTargetType Targets, uint32 PowerCostMin, uint32 PowerCostMax, float RangeMin, float RangeMax, SelectEffect Effects)
 {
     //No target so we can't cast
     if (!Target)
@@ -515,7 +386,6 @@ bool ScriptedAI::CanCast(Unit* Target, SpellEntry const *Spell, bool Triggered)
     return true;
 }
 
-
 float GetSpellMaxRangeForHostile(uint32 id)
 {
     SpellEntry const *spellInfo = GetSpellStore()->LookupEntry(id);
@@ -531,7 +401,7 @@ void FillSpellSummary()
 
     SpellEntry const* TempSpell;
 
-    for (int i=0; i < GetSpellStore()->GetNumRows(); i++ )
+    for(uint32 i = 0; i < GetSpellStore()->GetNumRows(); ++i)
     {
         SpellSummary[i].Effects = 0;
         SpellSummary[i].Targets = 0;
@@ -541,7 +411,7 @@ void FillSpellSummary()
         if (!TempSpell)
             continue;
 
-        for (int j=0; j<3; j++)
+        for(uint32 j = 0; j < 3; ++j)
         {
             //Spell targets self
             if ( TempSpell->EffectImplicitTargetA[j] == TARGET_UNIT_CASTER )
@@ -647,6 +517,11 @@ void ScriptedAI::DoTeleportTo(float x, float y, float z, uint32 time)
 {
     m_creature->Relocate(x,y,z);
     m_creature->SendMonsterMove(x, y, z, time);
+}
+
+void ScriptedAI::DoTeleportTo(const float pos[4])
+{
+    me->NearTeleportTo(pos[0], pos[1], pos[2], pos[3]);
 }
 
 void ScriptedAI::DoTeleportPlayer(Unit* pUnit, float x, float y, float z, float o)
@@ -775,23 +650,85 @@ void Scripted_NoMovementAI::AttackStart(Unit* who)
     }
 }
 
+void BossAI::_Reset()
+{
+    events.Reset();
+    summons.DespawnAll();
+    instance->SetBossState(bossId, NOT_STARTED);
+}
+
+void BossAI::_JustDied()
+{
+    events.Reset();
+    summons.DespawnAll();
+    instance->SetBossState(bossId, DONE);
+}
+
+void BossAI::_EnterCombat()
+{
+    DoZoneInCombat();
+    instance->SetBossState(bossId, IN_PROGRESS);
+}
+
+void BossAI::JustSummoned(Creature *summon)
+{
+    summons.Summon(summon);
+    if(me->isInCombat())
+        DoZoneInCombat(summon);
+}
+
+void BossAI::SummonedCreatureDespawn(Creature *summon)
+{
+    summons.Despawn(summon);
+}
+
+#define GOBJECT(x) (const_cast<GameObjectInfo*>(GetGameObjectInfo(x)))
+
 void LoadOverridenSQLData()
 {
     GameObjectInfo *goInfo;
 
     // Sunwell Plateau : Kalecgos : Spectral Rift
-    goInfo = const_cast<GameObjectInfo*>(GetGameObjectInfo(187055));
-    if(goInfo && goInfo->type == GAMEOBJECT_TYPE_GOOBER)
-        goInfo->goober.lockId = 57; // need LOCKTYPE_QUICK_OPEN
+    if(goInfo = GOBJECT(187055))
+        if(goInfo->type == GAMEOBJECT_TYPE_GOOBER)
+            goInfo->goober.lockId = 57; // need LOCKTYPE_QUICK_OPEN
+
+    // Naxxramas : Sapphiron Birth
+    if(goInfo = GOBJECT(181356))
+        if(goInfo->type == GAMEOBJECT_TYPE_TRAP)
+            goInfo->trap.radius = 50;
 }
 
 void LoadOverridenDBCData()
 {
     SpellEntry *spellInfo;
+    for(uint32 i = 0; i < GetSpellStore()->GetNumRows(); ++i)
+    {
+        spellInfo = (SpellEntry*)GetSpellStore()->LookupEntry(i);
+        if(!spellInfo)
+            continue;
 
-    // Black Temple : Illidan : Parasitic Shadowfiend Passive
-    spellInfo = const_cast<SpellEntry*>(GetSpellStore()->LookupEntry(41913));
-    if(spellInfo)
-        spellInfo->EffectApplyAuraName[0] = 4; // proc debuff, and summon infinite fiends
+        switch(i)
+        {
+            // Black Temple : Illidan : Parasitic Shadowfiend Passive
+            case 41013:
+                spellInfo->EffectApplyAuraName[0] = 4; // proc debuff, and summon infinite fiends
+                break;
+            //temp, not needed in 310
+            case 28531:
+            case 55799:
+                spellInfo->DurationIndex = 21;
+                spellInfo->Effect[0] = SPELL_EFFECT_APPLY_AREA_AURA_ENEMY;
+                break;
+            // Naxxramas: Gothik : Inform Inf range
+            case 27892:
+            case 27928:
+            case 27935:
+            case 27915:
+            case 27931:
+            case 27937:
+                spellInfo->rangeIndex = 13;
+                break;
+        }
+    }
 }
-

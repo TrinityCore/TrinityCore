@@ -165,7 +165,7 @@ struct TRINITY_DLL_DECL boss_the_black_stalkerAI : public ScriptedAI
         // Static Charge
         if(StaticCharge_Timer < diff)
         {
-            if(Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0,30,true))
+            if(Unit *target = SelectTarget(SELECT_TARGET_RANDOM,0,30,true))
                 DoCast(target, SPELL_STATIC_CHARGE);
             StaticCharge_Timer = 10000;
         }else StaticCharge_Timer -= diff;

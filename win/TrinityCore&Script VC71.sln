@@ -14,10 +14,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shared", "VC71\shared.vcpro
 		{DE0380F9-C910-4E99-A841-93550D0E61D7} = {DE0380F9-C910-4E99-A841-93550D0E61D7}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zthread", "VC71\zthread.vcproj", "{262199E8-EEDF-4700-A1D1-E9CC901CF480}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib", "VC71\zlib.vcproj", "{8F1DEA42-6A5B-4B62-839D-C141A7BFACF2}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection

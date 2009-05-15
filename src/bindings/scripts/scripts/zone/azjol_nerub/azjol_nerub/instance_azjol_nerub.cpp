@@ -117,7 +117,7 @@ struct TRINITY_DLL_DECL instance_azjol_nerub : public ScriptedInstance
         return 0;
     }
 
-   const char* Save()
+   std::string GetSaveData()
     {
         OUT_SAVE_INST_DATA;
 

@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -62,7 +62,10 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
 {
     boss_moroesAI(Creature *c) : ScriptedAI(c)
     {
-        FirstTime = true;
+        for(int i = 0; i < 4; i++)
+        {
+            AddId[i] = 0;
+        }
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
     }
 
@@ -77,7 +80,6 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
     uint32 CheckAdds_Timer;
     uint32 AddId[4];
 
-    bool FirstTime;
     bool InVanish;
     bool Enrage;
 
@@ -91,12 +93,10 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
 
         Enrage = false;
         InVanish = false;
-
-        SpawnAdds();
-
-        m_creature->setFaction(16);
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        if(m_creature->GetHealth() > 0)
+        {
+            SpawnAdds();
+        }
 
         if(pInstance)
             pInstance->SetData(DATA_MOROES_EVENT, NOT_STARTED);
@@ -106,9 +106,11 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
     {
         if(pInstance)
             pInstance->SetData(DATA_MOROES_EVENT, IN_PROGRESS);
+
+        DoZoneInCombat();
     }
 
-    void EnterCombat(Unit* who)
+    void Aggro(Unit* who)
     {
         StartEvent();
 
@@ -129,7 +131,7 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
 
     void JustDied(Unit* victim)
     {
-         DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, m_creature);
 
         if (pInstance)
             pInstance->SetData(DATA_MOROES_EVENT, DONE);
@@ -147,32 +149,20 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
 
             for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
             {
-                if (i->getSource()->isAlive() && i->getSource()->HasAura(SPELL_GARROTE))
+                if (i->getSource()->isAlive() && i->getSource()->HasAura(SPELL_GARROTE,0))
                     i->getSource()->RemoveAurasDueToSpell(SPELL_GARROTE);
             }
         }
     }
 
-    uint8 CheckAdd(uint64 guid)
-    {
-        Unit* pUnit = Unit::GetUnit((*m_creature), guid);
-        if (pUnit)
-        {
-            if (!pUnit->isAlive())
-                return 1;                                   // Exists but is dead
-            else
-                return 2;                                   // Exists and is alive
-        }
-        return 0;                                           // Does not exist
-    }
-
     void SpawnAdds()
     {
-        Creature *pCreature = NULL;
-
-        if (FirstTime)
+        DeSpawnAdds();
+        if(isAddlistEmpty())
         {
+            Creature *pCreature = NULL;
             std::vector<uint32> AddList;
+
 
             for(uint8 i = 0; i < 6; ++i)
                 AddList.push_back(Adds[i]);
@@ -193,48 +183,44 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
                 }
                 ++i;
             }
-
-            FirstTime = false;
-        }
-        else
+        }else
         {
-            for(uint8 i = 0; i < 4; ++i)
+            for(int i = 0; i < 4; i++)
             {
-                switch(CheckAdd(AddGUID[i]))
+                Creature *pCreature = m_creature->SummonCreature(AddId[i], Locations[i][0], Locations[i][1], POS_Z, Locations[i][2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);                
+                if (pCreature)
                 {
-                    case 0:
-                        pCreature = m_creature->SummonCreature(AddId[i], Locations[i][0], Locations[i][1], POS_Z, Locations[i][2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
-                        if (pCreature)
-                            AddGUID[i] = pCreature->GetGUID();
-                        break;
-                    case 1:
-                        pCreature = (Unit::GetCreature((*m_creature), AddGUID[i]));
-                        if (pCreature)
-                        {
-                            pCreature->Respawn();
-                            pCreature->AI()->EnterEvadeMode();
-                        }
-                        break;
-                    case 2:
-                        pCreature = (Unit::GetCreature((*m_creature), AddGUID[i]));
-                        if (!pCreature->IsInEvadeMode())
-                            pCreature->AI()->EnterEvadeMode();
-                        break;
+                    AddGUID[i] = pCreature->GetGUID();
                 }
             }
         }
+    }
+
+    bool isAddlistEmpty()
+    {
+        for(int i = 0; i < 4; i++)
+        {
+            if(AddId[i] == 0)
+                return true;
+        }
+        return false;
     }
 
     void DeSpawnAdds()
     {
         for(uint8 i = 0; i < 4 ; ++i)
         {
-            Unit* Temp = NULL;
+            Creature* Temp = NULL;
             if (AddGUID[i])
             {
-                Temp = Unit::GetUnit((*m_creature),AddGUID[i]);
+                Temp = Creature::GetCreature((*m_creature),AddGUID[i]);
                 if (Temp && Temp->isAlive())
+                {
+                    (*Temp).GetMotionMaster()->Clear(true);
                     Temp->DealDamage(Temp, Temp->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                    Temp->RemoveCorpse();
+                }
+
             }
         }
     }
@@ -246,7 +232,7 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
             Creature* Temp = NULL;
             if (AddGUID[i])
             {
-                Temp = Unit::GetCreature(*m_creature, AddGUID[i]);
+                Temp = Creature::GetCreature((*m_creature),AddGUID[i]);
                 if (Temp && Temp->isAlive())
                 {
                     Temp->AI()->AttackStart(m_creature->getVictim());
@@ -295,39 +281,12 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
             //Cast Vanish, then Garrote random victim
             if (Vanish_Timer < diff)
             {
-                m_creature->setFaction(35);
-                m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 DoCast(m_creature, SPELL_VANISH);
                 InVanish = true;
                 Vanish_Timer = 30000;
                 Wait_Timer = 5000;
             }else Vanish_Timer -= diff;
 
-            if (InVanish)
-            {
-                if (Wait_Timer < diff)
-                {
-                    switch(rand()%2)
-                    {
-                    case 0: DoScriptText(SAY_SPECIAL_1, m_creature); break;
-                    case 1: DoScriptText(SAY_SPECIAL_2, m_creature); break;
-                    }
-
-                     if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                        target->CastSpell(target, SPELL_GARROTE,true);
-
-                    m_creature->setFaction(16);
-                    m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    m_creature->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
-                    m_creature->ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, true);
-                    m_creature->AI()->AttackStart(m_creature->getVictim());
-                    InVanish = false;
-                }else Wait_Timer -= diff;
-            }
-
-            //Gouge highest aggro, and attack second highest
             if (Gouge_Timer < diff)
             {
                 DoCast(m_creature->getVictim(), SPELL_GOUGE);
@@ -336,27 +295,32 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
 
             if (Blind_Timer < diff)
             {
-                Unit* target = NULL;
-                std::list<HostilReference*> t_list = m_creature->getThreatManager().getThreatList();
-
-                if (t_list.empty())
-                    return;
-
-                std::vector<Unit*> target_list;
-                for (std::list<HostilReference*>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+                Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                if (target && target->GetTypeId() == TYPEID_PLAYER && m_creature->IsWithinMeleeRange(target))
                 {
-                    target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
-                    if (target && target->GetDistance2d(m_creature) < 5)
-                        target_list.push_back(target);
-                }
-                if (target_list.size())
-                    target = *(target_list.begin()+rand()%target_list.size());
-
-                if (target)
                     DoCast(target, SPELL_BLIND);
-
-                Blind_Timer = 40000;
+                    Blind_Timer = 40000;
+                }
+                else
+                    Blind_Timer = 1000;
             }else Blind_Timer -= diff;
+        }
+
+        if (InVanish)
+        {
+            if (Wait_Timer < diff)
+            {
+                switch(rand()%2)
+                {
+                    case 0: DoScriptText(SAY_SPECIAL_1, m_creature); break;
+                    case 1: DoScriptText(SAY_SPECIAL_2, m_creature); break;
+                }
+
+                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                   target->CastSpell(target, SPELL_GARROTE,true);
+
+                InVanish = false;
+            }else Wait_Timer -= diff;
         }
 
         if (!InVanish)
@@ -384,7 +348,7 @@ struct TRINITY_DLL_DECL boss_moroes_guestAI : public ScriptedAI
             pInstance->SetData(DATA_MOROES_EVENT, NOT_STARTED);
     }
 
-    void EnterCombat(Unit* who) {}
+    void Aggro(Unit* who) {}
 
     void AcquireGUID()
     {
@@ -542,7 +506,7 @@ struct TRINITY_DLL_DECL boss_baron_rafe_dreugerAI : public boss_moroes_guestAI
 struct TRINITY_DLL_DECL boss_lady_catriona_von_indiAI : public boss_moroes_guestAI
 {
     //Holy Priest
-    boss_lady_catriona_von_indiAI(Creature *c) : boss_moroes_guestAI(c) {Reset();}
+    boss_lady_catriona_von_indiAI(Creature *c) : boss_moroes_guestAI(c) {}
 
     uint32 DispelMagic_Timer;
     uint32 GreaterHeal_Timer;
@@ -612,7 +576,7 @@ struct TRINITY_DLL_DECL boss_lady_catriona_von_indiAI : public boss_moroes_guest
 struct TRINITY_DLL_DECL boss_lady_keira_berrybuckAI : public boss_moroes_guestAI
 {
     //Holy Pally
-    boss_lady_keira_berrybuckAI(Creature *c) : boss_moroes_guestAI(c) {Reset();}
+    boss_lady_keira_berrybuckAI(Creature *c) : boss_moroes_guestAI(c)  {}
 
     uint32 Cleanse_Timer;
     uint32 GreaterBless_Timer;
@@ -729,7 +693,7 @@ struct TRINITY_DLL_DECL boss_lord_robin_darisAI : public boss_moroes_guestAI
 struct TRINITY_DLL_DECL boss_lord_crispin_ferenceAI : public boss_moroes_guestAI
 {
     //Arms Warr
-    boss_lord_crispin_ferenceAI(Creature *c) : boss_moroes_guestAI(c) {Reset();}
+    boss_lord_crispin_ferenceAI(Creature *c) : boss_moroes_guestAI(c) {}
 
     uint32 Disarm_Timer;
     uint32 HeroicStrike_Timer;

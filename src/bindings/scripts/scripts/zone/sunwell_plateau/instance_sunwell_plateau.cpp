@@ -236,7 +236,7 @@ struct TRINITY_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
     {
     }
 
-    const char* Save()
+    std::string GetSaveData()
     {
         OUT_SAVE_INST_DATA;
         std::ostringstream stream;

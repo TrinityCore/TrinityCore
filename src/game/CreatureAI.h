@@ -21,23 +21,21 @@
 #ifndef TRINITY_CREATUREAI_H
 #define TRINITY_CREATUREAI_H
 
+#include "UnitAI.h"
 #include "Common.h"
-#include "Platform/Define.h"
-#include "Policies/Singleton.h"
-#include "Dynamic/ObjectRegistry.h"
-#include "Dynamic/FactoryHolder.h"
 
 class WorldObject;
 class Unit;
 class Creature;
 class Player;
 struct SpellEntry;
+struct AISpellInfoType;
 
 #define TIME_INTERVAL_LOOK   5000
 #define VISIBILITY_RANGE    10000
 
 //Spell targets used by SelectSpell
-enum SelectTarget
+enum SelectTargetType
 {
     SELECT_TARGET_DONTCARE = 0,                             //All target types allowed
 
@@ -77,120 +75,11 @@ enum SCEquip
     EQUIP_UNEQUIP   = 0
 };
 
-class EventMap : private std::map<uint32, uint32>
-{
-    private:
-        uint32 m_time, m_phase;
-    public:
-        explicit EventMap() : m_phase(0), m_time(0) {}
-
-        void Reset() { clear(); m_time = 0; m_phase = 0; }
-
-        void Update(uint32 time) { m_time += time; }
-
-        void SetPhase(uint32 phase)
-        {
-            if(phase && phase < 9)
-                m_phase = (1 << (phase + 24));
-        }
-
-        void ScheduleEvent(uint32 eventId, uint32 time, uint32 gcd = 0, uint32 phase = 0)
-        {
-            time += m_time;
-            if(gcd && gcd < 9)
-                eventId |= (1 << (gcd + 16));
-            if(phase && phase < 9)
-                eventId |= (1 << (phase + 24));
-            iterator itr = find(time);
-            while(itr != end())
-            {
-                ++time;
-                itr = find(time);
-            }
-            insert(std::make_pair(time, eventId));
-        }
-
-        uint32 ExecuteEvent()
-        {
-            while(!empty())
-            {
-                if(begin()->first > m_time)
-                    return 0;
-                else if(m_phase && (begin()->second & 0xFF000000) && !(begin()->second & m_phase))
-                    erase(begin());
-                else
-                {
-                    uint32 eventId = (begin()->second & 0x0000FFFF);
-                    erase(begin());
-                    return eventId;
-                }
-            }
-            return 0;
-        }
-
-        void DelayEvents(uint32 time, uint32 gcd)
-        {
-            time += m_time;
-            gcd = (1 << (gcd + 16));
-            for(iterator itr = begin(); itr != end();)
-            {
-                if(itr->first >= time)
-                    break;
-                if(itr->second & gcd)
-                {
-                    ScheduleEvent(time, itr->second);
-                    erase(itr++);
-                }
-                else
-                    ++itr;
-            }
-        }
-};
-
-class TRINITY_DLL_SPEC UnitAI
-{
-    protected:
-        Unit* const me;
-    public:
-        explicit UnitAI(Unit *u) : me(u) {}
-        virtual void AttackStart(Unit *);
-        virtual void UpdateAI(const uint32 diff) = 0;
-
-        virtual void InitializeAI() { Reset(); }
-
-        virtual void Reset() {};
-
-        // Called when unit is charmed
-        virtual void OnCharmed(bool apply) = 0;
-
-        // Pass parameters between AI
-        virtual void DoAction(const int32 param) {}
-
-        //Do melee swing of current victim if in rnage and ready and not casting
-        void DoMeleeAttackIfReady();
-};
-
-class TRINITY_DLL_SPEC PlayerAI : public UnitAI
-{
-    protected:
-        Player* const me;
-    public:
-        explicit PlayerAI(Player *p) : UnitAI((Unit*)p), me(p) {}
-
-        void OnCharmed(bool apply);
-};
-
-class TRINITY_DLL_SPEC SimpleCharmedAI : public PlayerAI
-{
-    public:
-        void UpdateAI(const uint32 diff);
-};
-
 class TRINITY_DLL_SPEC CreatureAI : public UnitAI
 {
     protected:
-        Creature* const me;
-        Creature* const m_creature;
+        Creature * const me;
+        Creature * const m_creature;
 
         bool UpdateVictim();
     public:
@@ -235,7 +124,7 @@ class TRINITY_DLL_SPEC CreatureAI : public UnitAI
         //virtual void AttackedBy(Unit* attacker);
 
         // Called when creature is spawned or respawned (for reseting variables)
-        virtual void JustRespawned() {}
+        virtual void JustRespawned() { Reset(); }
 
         // Called at waypoint reached or point movement finished
         virtual void MovementInform(uint32 /*MovementType*/, uint32 /*Data*/) {}
@@ -273,22 +162,15 @@ class TRINITY_DLL_SPEC CreatureAI : public UnitAI
 
         // Pointer to controlled by AI creature
         //Creature* const m_creature;
-};
 
-struct SelectableAI : public FactoryHolder<CreatureAI>, public Permissible<Creature>
-{
+        Unit* SelectTarget(SelectAggroTarget target, uint32 position = 0, float dist = 0, bool playerOnly = false, int32 aura = 0);
+        void SelectTargetList(std::list<Unit*> &targetList, uint32 num, SelectAggroTarget target, float dist = 0, bool playerOnly = false, int32 aura = 0);
 
-    SelectableAI(const char *id) : FactoryHolder<CreatureAI>(id) {}
-};
+        static AISpellInfoType *AISpellInfo;
+        static void FillAISpellInfo();
 
-template<class REAL_AI>
-struct CreatureAIFactory : public SelectableAI
-{
-    CreatureAIFactory(const char *name) : SelectableAI(name) {}
-
-    CreatureAI* Create(void *) const;
-
-    int Permit(const Creature *c) const { return REAL_AI::Permissible(c); }
+    protected:
+        bool _EnterEvadeMode();
 };
 
 enum Permitions
@@ -301,8 +183,4 @@ enum Permitions
     PERMIT_BASE_SPECIAL            = 800
 };
 
-typedef FactoryHolder<CreatureAI> CreatureAICreator;
-typedef FactoryHolder<CreatureAI>::FactoryHolderRegistry CreatureAIRegistry;
-typedef FactoryHolder<CreatureAI>::FactoryHolderRepository CreatureAIRepository;
 #endif
-

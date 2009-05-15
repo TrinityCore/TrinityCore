@@ -19,49 +19,10 @@
  */
 
 #include "CreatureAI.h"
+#include "CreatureAIImpl.h"
 #include "Creature.h"
-#include "Player.h"
-#include "Pet.h"
-#include "SpellAuras.h"
 #include "World.h"
-
-void UnitAI::AttackStart(Unit *victim)
-{
-    if(!victim)
-        return;
-
-    if(me->Attack(victim, true))
-    {
-        //DEBUG_LOG("Creature %s tagged a victim to kill [guid=%u]", me->GetName(), victim->GetGUIDLow());
-        me->GetMotionMaster()->MoveChase(victim);
-    }
-}
-
-void UnitAI::DoMeleeAttackIfReady()
-{
-    //Make sure our attack is ready and we aren't currently casting before checking distance
-    if (me->isAttackReady() && !me->hasUnitState(UNIT_STAT_CASTING))
-    {
-        //If we are within range melee the target
-        if (me->IsWithinMeleeRange(me->getVictim()))
-        {
-            me->AttackerStateUpdate(me->getVictim());
-            me->resetAttackTimer();
-        }
-    }
-    if (me->haveOffhandWeapon() && me->isAttackReady(OFF_ATTACK) && !me->hasUnitState(UNIT_STAT_CASTING))
-    {
-        //If we are within range melee the target
-        if (me->IsWithinMeleeRange(me->getVictim()))
-        {
-            me->AttackerStateUpdate(me->getVictim(), OFF_ATTACK);
-            me->resetAttackTimer(OFF_ATTACK);
-        }
-    }
-}
-
-//Enable PlayerAI when charmed
-void PlayerAI::OnCharmed(bool apply) { me->IsAIEnabled = apply; }
+#include "SpellMgr.h"
 
 //Disable CreatureAI when charmed
 void CreatureAI::OnCharmed(bool apply)
@@ -71,10 +32,15 @@ void CreatureAI::OnCharmed(bool apply)
     me->IsAIEnabled = false;
 }
 
+AISpellInfoType * CreatureAI::AISpellInfo;
+
 void CreatureAI::DoZoneInCombat(Creature* creature)
 {
     if (!creature)
         creature = me;
+
+    if(!creature->CanHaveThreatList())
+        return;
 
     Map *map = creature->GetMap();
     if (!map->IsDungeon())                                  //use IsDungeon instead of Instanceable, in case battlegrounds will be instantiated
@@ -83,37 +49,38 @@ void CreatureAI::DoZoneInCombat(Creature* creature)
         return;
     }
 
-    if(!creature->getVictim())
+    if(!creature->HasReactState(REACT_PASSIVE) && !creature->getVictim())
     {
         if(Unit *target = creature->SelectNearestTarget())
-            AttackStart(target);
+            creature->AI()->AttackStart(target);
         else if(creature->isSummon())
         {
             if(Unit *summoner = ((TempSummon*)creature)->GetSummoner())
             {
-                if(summoner->getVictim()
-                    && (creature->IsFriendlyTo(summoner) || creature->IsHostileTo(summoner->getVictim())))
-                    AttackStart(summoner->getVictim());
+                Unit *target = summoner->getAttackerForHelper();
+                if(!target && summoner->CanHaveThreatList() && !summoner->getThreatManager().isThreatListEmpty())
+                    target = summoner->getThreatManager().getHostilTarget();
+                if(target && (creature->IsFriendlyTo(summoner) || creature->IsHostileTo(target)))
+                    creature->AI()->AttackStart(target);
             }
         }
     }
 
-    if (!creature->CanHaveThreatList() || !creature->getVictim())
+    if(!creature->HasReactState(REACT_PASSIVE) && !creature->getVictim())
     {
-        sLog.outError("DoZoneInCombat called for creature that either cannot have threat list or has empty threat list (creature entry = %d)", creature->GetTypeId() == TYPEID_UNIT ? ((Creature*)creature)->GetEntry() : 0);
+        sLog.outError("DoZoneInCombat called for creature that has empty threat list (creature entry = %u)", creature->GetEntry());
         return;
     }
 
     Map::PlayerList const &PlayerList = map->GetPlayers();
     for(Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
     {
-        if (Player* i_pl = i->getSource())
-            if (i_pl->isAlive())
-            {
-                creature->SetInCombatWith(i_pl);
-                i_pl->SetInCombatWith(creature);
-                creature->AddThreat(i_pl, 0.0f);
-            }
+        if (i->getSource()->isAlive())
+        {
+            creature->SetInCombatWith(i->getSource());
+            i->getSource()->SetInCombatWith(creature);
+            creature->AddThreat(i->getSource(), 0.0f);
+        }
     }
 }
 
@@ -139,40 +106,222 @@ bool CreatureAI::UpdateVictim()
     return me->getVictim();
 }
 
-void CreatureAI::EnterEvadeMode()
+bool CreatureAI::_EnterEvadeMode()
 {
+    if(me->IsInEvadeMode() || !me->isAlive())
+        return false;
+
     me->RemoveAllAuras();
     me->DeleteThreatList();
-    me->CombatStop();
+    me->CombatStop(true);
     me->LoadCreaturesAddon();
     me->SetLootRecipient(NULL);
 
-    if(me->isAlive())
-        me->GetMotionMaster()->MoveTargetedHome();
+    return true;
 }
 
-void SimpleCharmedAI::UpdateAI(const uint32 /*diff*/)
+void CreatureAI::EnterEvadeMode()
 {
-    Creature *charmer = (Creature*)me->GetCharmer();
+    if(!_EnterEvadeMode())
+        return;
 
-    //kill self if charm aura has infinite duration
-    if(charmer->IsInEvadeMode())
+    if(Unit *owner = me->GetCharmerOrOwner())
+        me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE, MOTION_SLOT_IDLE);
+    else
+        me->GetMotionMaster()->MoveTargetedHome();
+
+    Reset();
+}
+
+inline bool SelectTargetHelper(const Unit * me, const Unit * target, const bool &playerOnly, const float &dist, const int32 &aura)
+{
+    if(playerOnly && target->GetTypeId() != TYPEID_PLAYER)
+        return false;
+
+    if(dist && !me->IsWithinCombatRange(target, dist))
+        return false;
+
+    if(aura)
     {
-        Unit::AuraEffectList const& auras = me->GetAurasByType(SPELL_AURA_MOD_CHARM);
-        for(Unit::AuraEffectList::const_iterator iter = auras.begin(); iter != auras.end(); ++iter)
-            if((*iter)->GetCasterGUID() == charmer->GetGUID() && (*iter)->GetParentAura()->IsPermanent())
-            {
-                charmer->Kill(me);
-                return;
-            }
+        if(aura > 0)
+        {
+            if(!target->HasAura(aura))
+                return false;
+        }
+        else
+        {
+            if(target->HasAura(aura))
+                return false;
+        }
     }
 
-    if(!charmer->isInCombat())
-        me->GetMotionMaster()->MoveFollow(charmer, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+    return true;
+}
 
-    Unit *target = me->getVictim();
-    if(!target || !charmer->canAttack(target))
-        AttackStart(charmer->SelectNearestTarget());
+struct TargetDistanceOrder : public std::binary_function<const Unit *, const Unit *, bool>
+{
+    const Unit * me;
+    TargetDistanceOrder(const Unit* Target) : me(Target) {};
+    // functor for operator ">"
+    bool operator()(const Unit * _Left, const Unit * _Right) const
+    {
+        return (me->GetDistanceSq(_Left) < me->GetDistanceSq(_Right));
+    }
+};
+
+Unit* CreatureAI::SelectTarget(SelectAggroTarget targetType, uint32 position, float dist, bool playerOnly, int32 aura)
+{
+    if(targetType == SELECT_TARGET_NEAREST || targetType == SELECT_TARGET_FARTHEST)
+    {
+        std::list<HostilReference*> &m_threatlist = me->getThreatManager().getThreatList();
+        if(position >= m_threatlist.size())
+            return NULL;
+
+        std::list<Unit*> targetList;
+        for(std::list<HostilReference*>::iterator itr = m_threatlist.begin(); itr!= m_threatlist.end(); ++itr)
+            if(SelectTargetHelper(me, (*itr)->getTarget(), playerOnly, dist, aura))
+                targetList.push_back((*itr)->getTarget());
+
+        if(position >= targetList.size())
+            return NULL;
+
+        targetList.sort(TargetDistanceOrder(m_creature));
+
+        if(targetType == SELECT_TARGET_NEAREST)
+        {
+            std::list<Unit*>::iterator i = targetList.begin();
+            advance(i, position);
+            return *i;
+        }
+        else
+        {
+            std::list<Unit*>::reverse_iterator i = targetList.rbegin();
+            advance(i, position);
+            return *i;
+        }
+    }
+    else
+    {
+        std::list<HostilReference*> m_threatlist = me->getThreatManager().getThreatList();
+        std::list<HostilReference*>::iterator i;
+        while(position < m_threatlist.size())
+        {
+            if(targetType == SELECT_TARGET_BOTTOMAGGRO)
+            {
+                i = m_threatlist.end();
+                advance(i, - (int32)position - 1);
+            }
+            else
+            {
+                i = m_threatlist.begin();
+                if(targetType == SELECT_TARGET_TOPAGGRO)
+                    advance(i, position);
+                else // random
+                    advance(i, position + rand()%(m_threatlist.size() - position));
+            }
+
+            if(SelectTargetHelper(me, (*i)->getTarget(), playerOnly, dist, aura))
+                return (*i)->getTarget();
+            else
+                m_threatlist.erase(i);
+        }
+    }
+
+    return NULL;
+}
+
+void CreatureAI::SelectTargetList(std::list<Unit*> &targetList, uint32 num, SelectAggroTarget targetType, float dist, bool playerOnly, int32 aura)
+{
+    if(targetType == SELECT_TARGET_NEAREST || targetType == SELECT_TARGET_FARTHEST)
+    {
+        std::list<HostilReference*> &m_threatlist = m_creature->getThreatManager().getThreatList();
+        if(m_threatlist.empty())
+            return;
+
+        for(std::list<HostilReference*>::iterator itr = m_threatlist.begin(); itr!= m_threatlist.end(); ++itr)
+            if(SelectTargetHelper(me, (*itr)->getTarget(), playerOnly, dist, aura))
+                targetList.push_back((*itr)->getTarget());
+
+        targetList.sort(TargetDistanceOrder(me));
+        targetList.resize(num);
+        if(targetType == SELECT_TARGET_FARTHEST)
+            targetList.reverse();
+    }
+    else
+    {
+        std::list<HostilReference*> m_threatlist = me->getThreatManager().getThreatList();
+        std::list<HostilReference*>::iterator i;
+        while(!m_threatlist.empty() && num)
+        {
+            if(targetType == SELECT_TARGET_BOTTOMAGGRO)
+            {
+                i = m_threatlist.end();
+                --i;
+            }
+            else
+            {
+                i = m_threatlist.begin();
+                if(targetType == SELECT_TARGET_RANDOM)
+                    advance(i, rand()%m_threatlist.size());
+            }
+
+            if(SelectTargetHelper(me, (*i)->getTarget(), playerOnly, dist, aura))
+            {
+                targetList.push_back((*i)->getTarget());
+                --num;
+            }
+            m_threatlist.erase(i);
+        }
+    }
+}
+
+void CreatureAI::FillAISpellInfo()
+{
+    AISpellInfo = new AISpellInfoType[GetSpellStore()->GetNumRows()];
+
+    AISpellInfoType *AIInfo = AISpellInfo;
+    const SpellEntry * spellInfo;
+
+    for(uint32 i = 0; i < GetSpellStore()->GetNumRows(); ++i, ++AIInfo)
+    {
+        spellInfo = GetSpellStore()->LookupEntry(i);
+        if(!spellInfo)
+            continue;
+
+        if(spellInfo->Attributes & SPELL_ATTR_CASTABLE_WHILE_DEAD)
+            AIInfo->condition = AICOND_DIE;
+        else if(IsPassiveSpell(i) || GetSpellDuration(spellInfo) == -1)
+            AIInfo->condition = AICOND_AGGRO;
+        else
+            AIInfo->condition = AICOND_COMBAT;
+
+        if(AIInfo->cooldown < spellInfo->RecoveryTime)
+            AIInfo->cooldown = spellInfo->RecoveryTime;
+
+        for(uint32 j = 0; j < 3; ++j)
+        {
+            if(spellInfo->EffectImplicitTargetA[j] == TARGET_UNIT_TARGET_ENEMY
+                || spellInfo->EffectImplicitTargetA[j] == TARGET_DST_TARGET_ENEMY)
+            {
+                if(AIInfo->target < AITARGET_VICTIM)
+                    AIInfo->target = AITARGET_VICTIM;
+            }
+
+            if(spellInfo->Effect[j] == SPELL_EFFECT_APPLY_AURA)
+            {
+                if(spellInfo->EffectImplicitTargetA[j] == TARGET_UNIT_TARGET_ENEMY)
+                {
+                    if(AIInfo->target < AITARGET_DEBUFF)
+                        AIInfo->target = AITARGET_DEBUFF;
+                }
+                else if(IsPositiveSpell(i))
+                {
+                    if(AIInfo->target < AITARGET_BUFF)
+                        AIInfo->target = AITARGET_BUFF;
+                }
+            }
+        }
+    }
 }
 
 /*void CreatureAI::AttackedBy( Unit* attacker )

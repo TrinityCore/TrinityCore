@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2008 - 2009 Trinity <http://www.trinitycore.org/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -14,14 +14,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-/* ScriptData
-SDName: Boss_Patchwerk
-SD%Complete: 80
-SDComment: Some issues with hateful strike inturrupting the melee swing timer.
-SDCategory: Naxxramas
-EndScriptData */
-
 #include "precompiled.h"
+#include "def_naxxramas.h"
 
 #define SAY_AGGRO               RAND(-1533017,-1533018)
 #define SAY_SLAY                -1533019
@@ -39,18 +33,11 @@ EndScriptData */
 #define EVENT_HATEFUL   2
 #define EVENT_SLIME     3
 
-struct TRINITY_DLL_DECL boss_patchwerkAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_patchwerkAI : public BossAI
 {
-    boss_patchwerkAI(Creature *c) : ScriptedAI(c) {}
+    boss_patchwerkAI(Creature *c) : BossAI(c, BOSS_PATCHWERK) {}
 
     bool Enraged;
-    EventMap events;
-
-    void Reset()
-    {
-        events.Reset();
-        Enraged = false;
-    }
 
     void KilledUnit(Unit* Victim)
     {
@@ -60,13 +47,15 @@ struct TRINITY_DLL_DECL boss_patchwerkAI : public ScriptedAI
 
     void JustDied(Unit* Killer)
     {
+        _JustDied();
         DoScriptText(SAY_DEATH, me);
     }
 
     void EnterCombat(Unit *who)
     {
+        _EnterCombat();
+        Enraged = false;
         DoScriptText(SAY_AGGRO, me);
-        DoZoneInCombat();
         events.ScheduleEvent(EVENT_HATEFUL, 1200);
         events.ScheduleEvent(EVENT_BERSERK, 360000);
     }
@@ -88,15 +77,14 @@ struct TRINITY_DLL_DECL boss_patchwerkAI : public ScriptedAI
                     //amount of HP within melee distance
                     uint32 MostHP = 0;
                     Unit* pMostHPTarget = NULL;
-                    std::list<HostilReference*>::iterator i = m_creature->getThreatManager().getThreatList().begin();
-                    for(; i != m_creature->getThreatManager().getThreatList().end();)
+                    std::list<HostilReference*>::iterator i = me->getThreatManager().getThreatList().begin();
+                    for(; i != me->getThreatManager().getThreatList().end(); ++i)
                     {
-                        Unit* pTemp = Unit::GetUnit(*m_creature, (*i)->getUnitGuid());
-                        ++i;
-                        if (pTemp && pTemp->isAlive() && pTemp->GetHealth() > MostHP && m_creature->IsWithinMeleeRange(pTemp))
+                        Unit* target = (*i)->getTarget();
+                        if (target->isAlive() && target->GetHealth() > MostHP && me->IsWithinMeleeRange(target))
                         {
-                            MostHP = pTemp->GetHealth();
-                            pMostHPTarget = pTemp;
+                            MostHP = target->GetHealth();
+                            pMostHPTarget = target;
                         }
                     }
 

@@ -120,7 +120,7 @@ void Map::LoadVMap(int gx,int gy)
     }
 }
 
-void Map::LoadMap(int gx,int gy)
+void Map::LoadMap(int gx,int gy, bool reload)
 {
     if( i_InstanceId != 0 )
     {
@@ -137,6 +137,9 @@ void Map::LoadMap(int gx,int gy)
         GridMaps[gx][gy] = baseMap->GridMaps[gx][gy];
         return;
     }
+
+    if(GridMaps[gx][gy] && !reload)
+        return;
 
     //map already load, delete it before reloading (Is it necessary? Do we really need the ability the reload maps during runtime?)
     if(GridMaps[gx][gy])
@@ -2503,7 +2506,7 @@ void InstanceMap::CreateInstanceData(bool load)
         {
             Field* fields = result->Fetch();
             const char* data = fields[0].GetString();
-            if(data)
+            if(data && data != "")
             {
                 sLog.outDebug("Loading instance data for `%s` with id %u", objmgr.GetScriptName(i_script_id), i_InstanceId);
                 i_data->Load(data);

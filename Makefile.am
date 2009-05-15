@@ -31,8 +31,7 @@ EXTRA_DIST = \
 	win/VC71/realmd.vcproj \
 	win/VC71/shared.vcproj \
 	win/VC71/zlib.vcproj \
-	win/VC71/g3dlite.vcproj \
-	win/VC71/zthread.vcproj
+	win/VC71/g3dlite.vcproj
 
 # Win32 project workspace for Visual Studio .NET 2005
 EXTRA_DIST += \
@@ -43,8 +42,7 @@ EXTRA_DIST += \
 	win/VC80/realmd.vcproj \
 	win/VC80/shared.vcproj \
 	win/VC80/zlib.vcproj \
-	win/VC80/g3dlite.vcproj \
-	win/VC80/zthread.vcproj
+	win/VC80/g3dlite.vcproj
 
 # Win32 project workspace for Visual Studio .NET 2008
 EXTRA_DIST += \
@@ -55,6 +53,5 @@ EXTRA_DIST += \
 	win/VC90/realmd.vcproj \
 	win/VC90/shared.vcproj \
 	win/VC90/zlib.vcproj \
-	win/VC90/g3dlite.vcproj \
-	win/VC90/zthread.vcproj
+	win/VC90/g3dlite.vcproj
 

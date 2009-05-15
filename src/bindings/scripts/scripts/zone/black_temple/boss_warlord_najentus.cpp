@@ -171,7 +171,7 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
                 {
                     //m_creature->CastSpell(m_creature, SPELL_NEEDLE_SPINE, true);
                     std::list<Unit*> target;
-                    SelectUnitList(target, 3, SELECT_TARGET_RANDOM, 80, true);
+                    SelectTargetList(target, 3, SELECT_TARGET_RANDOM, 80, true);
                     for(std::list<Unit*>::iterator i = target.begin(); i != target.end(); ++i)
                         m_creature->CastSpell(*i, 39835, true);
                     events.ScheduleEvent(EVENT_NEEDLE, 15000+rand()%10000, GCD_CAST);

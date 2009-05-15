@@ -1054,14 +1054,7 @@ void CreatureEventAI::JustReachedHome()
 
 void CreatureEventAI::EnterEvadeMode()
 {
-    m_creature->RemoveAllAuras();
-    m_creature->DeleteThreatList();
-    m_creature->CombatStop(true);
-
-    if (m_creature->isAlive())
-        m_creature->GetMotionMaster()->MoveTargetedHome();
-
-    m_creature->SetLootRecipient(NULL);
+    CreatureAI::EnterEvadeMode();
 
     if (bEmptyList)
         return;
@@ -1295,13 +1288,10 @@ void CreatureEventAI::UpdateAI(const uint32 diff)
                         break;
                     case EVENT_T_RANGE:
                         if (Combat)
-                        {
-                            if (m_creature->IsWithinDistInMap(m_creature->getVictim(),(float)(*i).Event.event_param2))
-                            {
-                                if (m_creature->GetDistance(m_creature->getVictim()) >= (float)(*i).Event.event_param1)
+                            if (m_creature->IsInMap(m_creature->getVictim()))
+                                if (m_creature->IsInRange(m_creature->getVictim(),
+                                    (float)(*i).Event.event_param1,(float)(*i).Event.event_param2))
                                     ProcessEvent(*i);
-                            }
-                        }
                         break;
                 }
             }
@@ -1555,8 +1545,7 @@ bool CreatureEventAI::CanCast(Unit* Target, SpellEntry const *Spell, bool Trigge
         return false;
 
     //Unit is out of range of this spell
-    if (me->GetDistance(Target) > me->GetSpellMaxRangeForTarget(Target, TempRange)
-        || me->GetDistance(Target) < me->GetSpellMinRangeForTarget(Target, TempRange))
+    if (!m_creature->IsInRange(Target,TempRange->minRangeHostile,TempRange->maxRangeHostile))
         return false;
 
     return true;

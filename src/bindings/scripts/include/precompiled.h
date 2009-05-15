@@ -12,10 +12,11 @@
 #include "GridNotifiersImpl.h"
 #include "Unit.h"
 #include "GameObject.h"
-#include "TemporarySummon.h"
 #include "sc_creature.h"
 #include "sc_gossip.h"
 #include "sc_instance.h"
+#include "AggressorAI.h"
+#include "NullCreatureAI.h"
 
 #ifdef WIN32
 #include <windows.h>

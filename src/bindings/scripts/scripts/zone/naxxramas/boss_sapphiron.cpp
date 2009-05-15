@@ -1,4 +1,6 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/*
+ * Copyright (C) 2008 - 2009 Trinity <http://www.trinitycore.org/>
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -14,171 +16,324 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-/* ScriptData
-SDName: Boss_Sapphiron
-SD%Complete: 0
-SDComment: Place Holder
-SDCategory: Naxxramas
-EndScriptData */
-
 #include "precompiled.h"
+#include "def_naxxramas.h"
 
 #define EMOTE_BREATH            -1533082
 #define EMOTE_ENRAGE            -1533083
 
+#define SPELL_FROST_AURA        HEROIC(28531,55799)
+#define SPELL_CLEAVE            19983
+#define SPELL_TAIL_SWEEP        HEROIC(55697,55696)
+#define SPELL_SUMMON_BLIZZARD   28560
+#define SPELL_LIFE_DRAIN        HEROIC(28542,55665)
 #define SPELL_ICEBOLT           28522
 #define SPELL_FROST_BREATH      29318
-#define SPELL_FROST_AURA        HEROIC(28531,55799)
-#define SPELL_LIFE_DRAIN        HEROIC(28542,55665)
-//#define SPELL_CHILL             28560
-#define SPELL_BLIZZARD          28547
-#define SPELL_BESERK            26662
-#define SPELL_CLEAVE            19983
-#define SPELL_TAIL_SWEEP        55697
+#define SPELL_FROST_EXPLOSION   28524
+#define SPELL_FROST_MISSILE     30101
+#define SPELL_BERSERK           26662
+#define SPELL_DIES              29357
 
+#define SPELL_CHILL             HEROIC(28547,55699)
 
-struct TRINITY_DLL_DECL boss_sapphironAI : public ScriptedAI
+#define MOB_BLIZZARD            16474
+#define GO_ICEBLOCK             181247
+
+enum Phases
 {
-    boss_sapphironAI(Creature* c) : ScriptedAI(c) {}
+    PHASE_NULL = 0,
+    PHASE_BIRTH,
+    PHASE_GROUND,
+    PHASE_FLIGHT,
+};
 
-    uint32 Icebolt_Count;
-    uint32 Icebolt_Timer;
-    uint32 FrostBreath_Timer;
-    uint32 FrostAura_Timer;
-    uint32 LifeDrain_Timer;
-    uint32 Blizzard_Timer;
-    uint32 Tail_Sweep_Timer;
-    uint32 Cleave_Timer;
-    uint32 Fly_Timer;
-    uint32 Fly2_Timer;
-    uint32 Beserk_Timer;
-    uint32 phase;
-    bool IsInFly;
-    uint32 land_Timer;
+enum Events
+{
+    EVENT_BERSERK   = 1,
+    EVENT_CLEAVE,
+    EVENT_TAIL,
+    EVENT_DRAIN,
+    EVENT_BLIZZARD,
+    EVENT_FLIGHT,
+    EVENT_LIFTOFF,
+    EVENT_ICEBOLT,
+    EVENT_BREATH,
+    EVENT_EXPLOSION,
+    EVENT_LAND,
+    EVENT_GROUND,
+    EVENT_BIRTH,
+};
+
+typedef std::map<uint64, uint64> IceBlockMap;
+
+struct TRINITY_DLL_DECL boss_sapphironAI : public BossAI
+{
+    boss_sapphironAI(Creature* c) : BossAI(c, BOSS_SAPPHIRON)
+        , phase(PHASE_NULL)
+    {}
+
+    Phases phase;
+    uint32 iceboltCount;
+    IceBlockMap iceblocks;
+
+    void InitializeAI()
+    {
+        float x, y, z;
+        me->GetPosition(x, y, z);
+        me->SummonGameObject(GO_BIRTH, x, y, z, 0, 0, 0, 0, 0, 0);
+        me->SetVisibility(VISIBILITY_OFF);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        me->SetReactState(REACT_PASSIVE);
+
+        Reset();
+    }
 
     void Reset()
     {
-        FrostAura_Timer = 2000;
-        LifeDrain_Timer = 24000;
-        Blizzard_Timer = 20000;
-        Tail_Sweep_Timer=(rand()%2+9)*1000;
-        Cleave_Timer=10000;
-        Fly_Timer = 45000;
-        Icebolt_Timer = 4000;
-        land_Timer = 0;
-        Beserk_Timer = 15*60000;
-        phase = 1;
-        Icebolt_Count = 0;
-        IsInFly = false;
+        _Reset();
 
-        m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+        if(phase = PHASE_FLIGHT)
+            ClearIceBlock();
+
+        phase = PHASE_NULL;
     }
 
     void EnterCombat(Unit *who)
     {
-        DoZoneInCombat();
+        _EnterCombat();
+
         me->CastSpell(me, SPELL_FROST_AURA, true);
+
+        events.ScheduleEvent(EVENT_BERSERK, 15*60000);
+        EnterPhaseGround();
+    }
+
+    void SpellHitTarget(Unit *target, const SpellEntry *spell)
+    {
+        if(spell->Id == SPELL_ICEBOLT)
+        {
+            IceBlockMap::iterator itr = iceblocks.find(target->GetGUID());
+            if(itr != iceblocks.end() && !itr->second)
+            {
+                if(GameObject *iceblock = me->SummonGameObject(GO_ICEBLOCK, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, 0, 0, 0, 0, 25000))
+                    itr->second = iceblock->GetGUID();
+            }
+        }
+    }
+
+    void JustDied(Unit*)
+    {
+        _JustDied();
+        me->CastSpell(me, SPELL_DIES, true);
+    }
+
+    void MovementInform(uint32, uint32 id)
+    {
+        if(id == 1)
+            events.ScheduleEvent(EVENT_LIFTOFF, 0);
+    }
+
+    void DoAction(const int32 param)
+    {
+        if(param == DATA_SAPPHIRON_BIRTH)
+        {
+            phase = PHASE_BIRTH;
+            events.ScheduleEvent(EVENT_BIRTH, 23000);
+        }
+    }
+
+    void EnterPhaseGround()
+    {
+        phase = PHASE_GROUND;
+        me->SetReactState(REACT_AGGRESSIVE);
+        events.SetPhase(PHASE_GROUND);
+        events.ScheduleEvent(EVENT_CLEAVE, 5000+rand()%10000, 0, PHASE_GROUND);
+        events.ScheduleEvent(EVENT_TAIL, 5000+rand()%10000, 0, PHASE_GROUND);
+        events.ScheduleEvent(EVENT_DRAIN, 24000, 0, PHASE_GROUND);
+        events.ScheduleEvent(EVENT_BLIZZARD, 5000+rand()%5000, 0, PHASE_GROUND);
+        events.ScheduleEvent(EVENT_FLIGHT, 45000);
+    }
+
+    void ClearIceBlock()
+    {
+        for(IceBlockMap::iterator itr = iceblocks.begin(); itr != iceblocks.end(); ++itr)
+        {
+            if(Player *player = Unit::GetPlayer(itr->first))
+                player->RemoveAura(SPELL_ICEBOLT);
+            if(GameObject *go = GameObject::GetGameObject(*me, itr->second))
+                go->Delete();
+        }
+        iceblocks.clear();
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if (!UpdateVictim())
+        if(!phase)
             return;
 
-        if(phase == 1)
+        events.Update(diff);
+
+        if(phase == PHASE_GROUND)
         {
-            if(LifeDrain_Timer < diff)
-            {
-                DoCastAOE(SPELL_LIFE_DRAIN);
-                LifeDrain_Timer = 24000;
-            }else LifeDrain_Timer -= diff;
+            if(!UpdateVictim())
+                return;
 
-            if(Blizzard_Timer < diff)
+            while(uint32 eventId = events.ExecuteEvent())
             {
-                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+                switch(eventId)
                 {
-                    DoCast(target,SPELL_BLIZZARD);
-                    //It seems NO damage?
+                    case EVENT_BERSERK:
+                        DoScriptText(EMOTE_ENRAGE, m_creature);
+                        DoCast(me, SPELL_BERSERK);
+                        return;
+                    case EVENT_CLEAVE:
+                        DoCast(me->getVictim(), SPELL_CLEAVE);
+                        events.ScheduleEvent(EVENT_CLEAVE, 5000+rand()%10000, 0, PHASE_GROUND);
+                        return;
+                    case EVENT_TAIL:
+                        DoCastAOE(SPELL_TAIL_SWEEP);
+                        events.ScheduleEvent(EVENT_TAIL, 5000+rand()%10000, 0, PHASE_GROUND);
+                        return;
+                    case EVENT_DRAIN:
+                        DoCastAOE(SPELL_LIFE_DRAIN);
+                        events.ScheduleEvent(EVENT_DRAIN, 24000, 0, PHASE_GROUND);
+                        return;
+                    case EVENT_BLIZZARD:
+                    {
+                        //DoCastAOE(SPELL_SUMMON_BLIZZARD);
+                        float x, y, z;
+                        me->GetGroundPointAroundUnit(x, y, z, rand_norm()*20, rand_norm()*2*M_PI);
+                        if(Creature *summon = me->SummonCreature(MOB_BLIZZARD, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN, 25000+rand()%5000))
+                            summon->GetMotionMaster()->MoveRandom(40);
+                        events.ScheduleEvent(EVENT_BLIZZARD, HEROIC(20000,7000), 0, PHASE_GROUND);
+                        break;
+                    }
+                    case EVENT_FLIGHT:
+                        phase = PHASE_FLIGHT;
+                        events.SetPhase(PHASE_FLIGHT);
+                        me->SetReactState(REACT_PASSIVE);
+                        me->AttackStop();
+                        float x, y, z, o;
+                        me->GetHomePosition(x, y, z, o);
+                        me->GetMotionMaster()->MovePoint(1, x, y, z);
+                        return;
                 }
-                Blizzard_Timer = 20000;
-            }else Blizzard_Timer -= diff;
+            }
 
-            //SPELL_CLEAVE
-            if(Cleave_Timer < diff)
+            DoMeleeAttackIfReady();
+        }
+        else
+        {
+            /*if(me->getThreatManager().isThreatListEmpty())
             {
-                DoCast(m_creature->getVictim(),SPELL_CLEAVE);
-                Cleave_Timer = 10000;
-            }else Cleave_Timer -= diff;
+                EnterEvadeMode();
+                return;
+            }*/
 
-            //Tail Sweep_Timer,
-            if(Tail_Sweep_Timer < diff)
+            if(uint32 eventId = events.ExecuteEvent())
             {
-                DoCast(m_creature,SPELL_TAIL_SWEEP);
-                Tail_Sweep_Timer=(rand()%2+9)*1000;
-            }else Tail_Sweep_Timer -= diff;
-
-            if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() > 10)
-            {
-                if(Fly_Timer < diff)
+                switch(eventId)
                 {
-                    phase = 2;
-                    m_creature->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
-                    m_creature->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-                    m_creature->GetMotionMaster()->Clear(false);
-                    m_creature->GetMotionMaster()->MoveIdle();
-                    m_creature->SetHover(true);
-                    Icebolt_Timer = 4000;
-                    Icebolt_Count = 0;
-                    IsInFly = true;
-                }else Fly_Timer -= diff;
+                    case EVENT_LIFTOFF:
+                        me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
+                        me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                        me->SendMovementFlagUpdate();
+                        events.ScheduleEvent(EVENT_ICEBOLT, 1500);
+                        iceboltCount = HEROIC(2,3);
+                        return;
+                    case EVENT_ICEBOLT:
+                    {
+                        std::vector<Unit*> targets;
+                        std::list<HostilReference*>::iterator i = me->getThreatManager().getThreatList().begin();
+                        for(; i != me->getThreatManager().getThreatList().end(); ++i)
+                            if((*i)->getTarget()->GetTypeId() == TYPEID_PLAYER && !(*i)->getTarget()->HasAura(SPELL_ICEBOLT))
+                                targets.push_back((*i)->getTarget());
+
+                        if(targets.empty())
+                            iceboltCount = 0;
+                        else
+                        {
+                            std::vector<Unit*>::iterator itr = targets.begin();
+                            advance(itr, rand()%targets.size());
+                            iceblocks.insert(std::make_pair((*itr)->GetGUID(), 0));
+                            DoCast(*itr, SPELL_ICEBOLT);
+                            --iceboltCount;
+                        }
+
+                        if(iceboltCount)
+                            events.ScheduleEvent(EVENT_ICEBOLT, 1000);
+                        else
+                            events.ScheduleEvent(EVENT_BREATH, 1000);
+                        return;
+                    }
+                    case EVENT_BREATH:
+                    {
+                        DoScriptText(EMOTE_BREATH, me);
+                        DoCastAOE(SPELL_FROST_MISSILE);
+                        events.ScheduleEvent(EVENT_EXPLOSION, 8000);
+                        return;
+                    }
+                    case EVENT_EXPLOSION:
+                        CastExplosion();
+                        ClearIceBlock();
+                        events.ScheduleEvent(EVENT_LAND, 3000);
+                        return;
+                    case EVENT_LAND:
+                        me->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
+                        me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                        me->SendMovementFlagUpdate();
+                        events.ScheduleEvent(EVENT_GROUND, 1500);
+                        return;
+                    case EVENT_GROUND:
+                        EnterPhaseGround();
+                        return;
+                    case EVENT_BIRTH:
+                        me->SetVisibility(VISIBILITY_ON);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        me->SetReactState(REACT_AGGRESSIVE);
+                        return;
+                }
+            }//if(uint32 eventId = events.ExecuteEvent())
+        }//if(phase == PHASE_GROUND)
+    }
+
+    void CastExplosion()
+    {
+        DoZoneInCombat(); // make sure everyone is in threatlist
+        std::vector<Unit*> targets;
+        std::list<HostilReference*>::iterator i = me->getThreatManager().getThreatList().begin();
+        for(; i != me->getThreatManager().getThreatList().end(); ++i)
+        {
+            Unit *target = (*i)->getTarget();
+            if(target->GetTypeId() != TYPEID_PLAYER)
+                continue;
+
+            if(target->HasAura(SPELL_ICEBOLT))
+            {
+                target->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FROST_EXPLOSION, true);
+                targets.push_back(target);
+                continue;
+            }
+
+            for(IceBlockMap::iterator itr = iceblocks.begin(); itr != iceblocks.end(); ++itr)
+            {
+                if(GameObject *go = GameObject::GetGameObject(*me, itr->second))
+                {
+                    if(go->IsInBetween(me, target, 2.0f)
+                        && me->GetExactDistance2d(target->GetPositionX(), target->GetPositionY()) - me->GetExactDistance2d(go->GetPositionX(), go->GetPositionY()) < 5.0f)
+                    {
+                        target->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FROST_EXPLOSION, true);
+                        targets.push_back(target);
+                        break;
+                    }
+                }
             }
         }
 
-        if (phase == 2)
-        {
-            if(Icebolt_Timer < diff && Icebolt_Count < 5)
-            {
-                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-                {
-                    DoCast(target,SPELL_ICEBOLT);
-                    ++Icebolt_Count;
-                    error_log("Count incremented");
-                }
-                FrostBreath_Timer = 6000;
-                Icebolt_Timer = 4000;
-            }else Icebolt_Timer -= diff;
+        me->CastSpell(me, SPELL_FROST_EXPLOSION, true);
 
-            if(Icebolt_Count == 5 && IsInFly && FrostBreath_Timer < diff )
-            {
-                DoScriptText(EMOTE_BREATH, m_creature);
-                DoCast(m_creature->getVictim(),SPELL_FROST_BREATH);
-                land_Timer = 2000;
-                IsInFly = false;
-                FrostBreath_Timer = 6000;
-            }else FrostBreath_Timer -= diff;
-
-            if(!IsInFly && land_Timer < diff)
-            {
-                phase = 1;
-                m_creature->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
-                m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-                m_creature->GetMotionMaster()->Clear(false);
-                m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
-                m_creature->SetHover(true);
-                land_Timer = 0;
-                Fly_Timer = 67000;
-            }else land_Timer -= diff;
-        }
-
-        if (Beserk_Timer < diff)
-        {
-            DoScriptText(EMOTE_ENRAGE, m_creature);
-            DoCast(m_creature,SPELL_BESERK);
-            Beserk_Timer = 300000;
-        }else Beserk_Timer -= diff;
-
-        if (phase!=2)
-            DoMeleeAttackIfReady();
+        for(std::vector<Unit*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
+            (*itr)->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FROST_EXPLOSION, false);
     }
 };
 
