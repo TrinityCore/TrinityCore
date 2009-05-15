@@ -104,6 +104,7 @@ ReactorAI::EnterEvadeMode()
     i_victimGuid = 0;
     m_creature->CombatStop(true);
     m_creature->SetLootRecipient(NULL);
+    i_creature.ResetDamageByPlayers();
 
     if(!m_creature->GetCharmerOrOwner())
     {

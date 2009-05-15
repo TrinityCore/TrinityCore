@@ -71,6 +71,7 @@ void SpellAI::EnterCombat(Unit *who)
         else if(AISpellInfo[*i].condition == AICOND_COMBAT)
             events.ScheduleEvent(*i, AISpellInfo[*i].cooldown + rand()%AISpellInfo[*i].cooldown);
     }
+    i_creature.ResetDamageByPlayers();
 }
 
 void SpellAI::UpdateAI(const uint32 diff)
