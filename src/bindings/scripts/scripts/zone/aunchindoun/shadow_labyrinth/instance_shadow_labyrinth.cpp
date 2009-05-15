@@ -191,7 +191,7 @@ struct TRINITY_DLL_DECL instance_shadow_labyrinth : public ScriptedInstance
         return 0;
     }
 
-    const char* Save()
+    std::string GetSaveData()
     {
         return str_data.c_str();
     }

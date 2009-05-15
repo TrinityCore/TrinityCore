@@ -1,4 +1,6 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/*
+ * Copyright (C) 2008 - 2009 Trinity <http://www.trinitycore.org/>
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -14,14 +16,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-/* ScriptData
-SDName: Boss_Razuvious
-SD%Complete: 50
-SDComment: Missing adds and event is impossible without Mind Control
-SDCategory: Naxxramas
-EndScriptData */
-
 #include "precompiled.h"
+#include "def_naxxramas.h"
 
 //Razuvious - NO TEXT sound only
 //8852 aggro01 - Hah hah, I'm just getting warmed up!
@@ -37,121 +33,86 @@ EndScriptData */
 //8860 death - An honorable... death...
 //8947 - Aggro Mixed? - ?
 
-#define SOUND_AGGRO1    8852
-#define SOUND_AGGRO2    8853
-#define SOUND_AGGRO3    8854
-#define SOUND_SLAY1     8861
-#define SOUND_SLAY2     8863
-#define SOUND_COMMND1   8855
-#define SOUND_COMMND2   8856
-#define SOUND_COMMND3   8858
-#define SOUND_COMMND4   8859
-#define SOUND_COMMND5   8861
+#define SOUND_AGGRO     RAND(8852,8853,8854)
+#define SOUND_SLAY      RAND(8861,8863)
+#define SOUND_COMMND    RAND(8855,8856,8858,8859,8861)
 #define SOUND_DEATH     8860
 #define SOUND_AGGROMIX  8847
 
-#define SPELL_UNBALANCINGSTRIKE     26613
-#define SPELL_DISRUPTINGSHOUT       29107
+#define SPELL_UNBALANCING_STRIKE    26613
+#define SPELL_DISRUPTING_SHOUT      HEROIC(29107,55543)
+#define SPELL_JAGGED_KNIFE          55550
+#define SPELL_HOPELESS              29125
 
-struct TRINITY_DLL_DECL boss_razuviousAI : public ScriptedAI
+enum Events
 {
-    boss_razuviousAI(Creature *c) : ScriptedAI(c) {}
+    EVENT_STRIKE,
+    EVENT_SHOUT,
+    EVENT_KNIFE,
+    EVENT_COMMAND,
+};
 
-    uint32 UnbalancingStrike_Timer;
-    uint32 DisruptingShout_Timer;
-    uint32 CommandSound_Timer;
+struct TRINITY_DLL_DECL boss_razuviousAI : public BossAI
+{
+    boss_razuviousAI(Creature *c) : BossAI(c, BOSS_RAZUVIOUS) {}
 
-    void Reset()
+    void KilledUnit(Unit* victim)
     {
-        UnbalancingStrike_Timer = 30000;                    //30 seconds
-        DisruptingShout_Timer = 25000;                      //25 seconds
-        CommandSound_Timer = 40000;                         //40 seconds
+        if(!(rand()%3))
+            DoPlaySoundToSet(me, SOUND_SLAY);
     }
 
-    void KilledUnit(Unit* Victim)
+    void JustDied(Unit* killer)
     {
-        if (rand()%3)
-            return;
-
-        switch (rand()%2)
-        {
-            case 0:
-                DoPlaySoundToSet(m_creature, SOUND_SLAY1);
-                break;
-            case 1:
-                DoPlaySoundToSet(m_creature, SOUND_SLAY2);
-                break;
-        }
-    }
-
-    void JustDied(Unit* Killer)
-    {
-        DoPlaySoundToSet(m_creature, SOUND_DEATH);
+        _JustDied();
+        DoPlaySoundToSet(me, SOUND_DEATH);
+        me->CastSpell(me, SPELL_HOPELESS, true); // TODO: this may affect other creatures
     }
 
     void EnterCombat(Unit *who)
     {
-        switch (rand()%3)
-        {
-            case 0:
-                DoPlaySoundToSet(m_creature, SOUND_AGGRO1);
-                break;
-            case 1:
-                DoPlaySoundToSet(m_creature, SOUND_AGGRO2);
-                break;
-            case 2:
-                DoPlaySoundToSet(m_creature, SOUND_AGGRO3);
-                break;
-        }
+        _EnterCombat();
+        DoPlaySoundToSet(m_creature, SOUND_AGGRO);
+        events.ScheduleEvent(EVENT_STRIKE, 30000);
+        events.ScheduleEvent(EVENT_SHOUT, 25000);
+        events.ScheduleEvent(EVENT_COMMAND, 40000);
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if (!UpdateVictim())
+        if(!UpdateVictim())
             return;
 
-        //UnbalancingStrike_Timer
-        if (UnbalancingStrike_Timer < diff)
-        {
-            DoCast(m_creature->getVictim(),SPELL_UNBALANCINGSTRIKE);
-            UnbalancingStrike_Timer = 30000;
-        }else UnbalancingStrike_Timer -= diff;
+        events.Update(diff);
 
-        //DisruptingShout_Timer
-        if (DisruptingShout_Timer < diff)
+        while(uint32 eventId = events.ExecuteEvent())
         {
-            DoCast(m_creature->getVictim(), SPELL_DISRUPTINGSHOUT);
-            DisruptingShout_Timer = 25000;
-        }else DisruptingShout_Timer -= diff;
-
-        //CommandSound_Timer
-        if (CommandSound_Timer < diff)
-        {
-            switch (rand()%5)
+            switch(eventId)
             {
-                case 0:
-                    DoPlaySoundToSet(m_creature, SOUND_COMMND1);
-                    break;
-                case 1:
-                    DoPlaySoundToSet(m_creature, SOUND_COMMND2);
-                    break;
-                case 2:
-                    DoPlaySoundToSet(m_creature, SOUND_COMMND3);
-                    break;
-                case 3:
-                    DoPlaySoundToSet(m_creature, SOUND_COMMND4);
-                    break;
-                case 4:
-                    DoPlaySoundToSet(m_creature, SOUND_COMMND5);
-                    break;
+                case EVENT_STRIKE:
+                    DoCast(me->getVictim(), SPELL_UNBALANCING_STRIKE);
+                    events.ScheduleEvent(EVENT_STRIKE, 30000);
+                    return;
+                case EVENT_SHOUT:
+                    DoCastAOE(SPELL_DISRUPTING_SHOUT);
+                    events.ScheduleEvent(EVENT_SHOUT, 25000);
+                    return;
+                case EVENT_KNIFE:
+                    if(Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45))
+                        DoCast(target, SPELL_JAGGED_KNIFE);
+                    events.ScheduleEvent(EVENT_KNIFE, 25000);
+                    return;
+                case EVENT_COMMAND:
+                    DoPlaySoundToSet(me, SOUND_COMMND);
+                    events.ScheduleEvent(EVENT_COMMAND, 40000);
+                    return;
             }
-
-            CommandSound_Timer = 40000;
-        }else CommandSound_Timer -= diff;
+        }
 
         DoMeleeAttackIfReady();
     }
 };
+
 CreatureAI* GetAI_boss_razuvious(Creature *_Creature)
 {
     return new boss_razuviousAI (_Creature);
@@ -165,4 +126,3 @@ void AddSC_boss_razuvious()
     newscript->GetAI = &GetAI_boss_razuvious;
     newscript->RegisterSelf();
 }
-

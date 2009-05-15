@@ -40,7 +40,7 @@ class TRINITY_DLL_SPEC QueryResult
                 if(iter->second == name)
                     return iter->first;
             }
-            assert(false && "unknown field name");
+            ASSERT(false && "unknown field name");
             return uint32(-1);
         }
 

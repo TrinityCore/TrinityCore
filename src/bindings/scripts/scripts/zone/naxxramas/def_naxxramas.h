@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Trinity <http://www.trinitycore.org/>
+ * Copyright (C) 2008 - 2009 Trinity <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,15 +21,32 @@
 
 enum Encounter
 {
+    BOSS_ANUBREKHAN,
+    BOSS_FAERLINA,
+    BOSS_MAEXXNA,
     BOSS_NOTH,
     BOSS_HEIGAN,
     BOSS_LOATHEB,
+    BOSS_PATCHWERK,
+    BOSS_GROBBULUS,
+    BOSS_GLUTH,
+    BOSS_THADDIUS,
+    BOSS_RAZUVIOUS,
+    BOSS_GOTHIK,
+    BOSS_HORSEMEN,
+    BOSS_SAPPHIRON,
+    BOSS_KELTHUZAD,
+    MAX_BOSS_NUMBER
 };
 
 enum Data
 {
     DATA_HEIGAN_ERUPT,
+    DATA_GOTHIK_GATE,
+    DATA_SAPPHIRON_BIRTH,
 };
+
+#define GO_BIRTH                181356
 
 #endif
 

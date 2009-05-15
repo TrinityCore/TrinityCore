@@ -164,8 +164,8 @@ Creature::~Creature()
         i_AI = NULL;
     }
 
-    if(m_uint32Values)
-        sLog.outDetail("Deconstruct Creature Entry = %u", GetEntry());
+    //if(m_uint32Values)
+    //    sLog.outDetail("Deconstruct Creature Entry = %u", GetEntry());
 }
 
 void Creature::AddToWorld()
@@ -175,7 +175,7 @@ void Creature::AddToWorld()
     {
         ObjectAccessor::Instance().AddObject(this);
         Unit::AddToWorld();
-        SearchFormation();
+        SearchFormationAndPath();
         AIM_Initialize();
     }
 }
@@ -194,7 +194,7 @@ void Creature::RemoveFromWorld()
     }
 }
 
-void Creature::SearchFormation()
+void Creature::SearchFormationAndPath()
 {
     if(isSummon())
         return;
@@ -203,9 +203,28 @@ void Creature::SearchFormation()
     if(!lowguid)
         return;
 
+    bool usePath = (GetDefaultMovementType() == WAYPOINT_MOTION_TYPE);
     CreatureGroupInfoType::iterator frmdata = CreatureGroupMap.find(lowguid);
     if(frmdata != CreatureGroupMap.end())
+    {
+        if(usePath && lowguid != frmdata->second->leaderGUID)
+        {
+            SetDefaultMovementType(IDLE_MOTION_TYPE);
+            usePath = false;
+        }
         formation_mgr.AddCreatureToGroup(frmdata->second->leaderGUID, this);
+    }
+
+    if(usePath)
+    {
+        if(WaypointMgr.GetPath(lowguid * 10))
+            SetWaypointPathId(lowguid * 10);
+        else
+        {
+            sLog.outErrorDb("Creature DBGUID %u has waypoint motion type, but it does not have a waypoint path!", lowguid);
+            SetDefaultMovementType(IDLE_MOTION_TYPE);
+        }
+    }
 }
 
 void Creature::RemoveCorpse()
@@ -436,6 +455,9 @@ void Creature::Update(uint32 diff)
             }
             else
             {
+                // for delayed spells
+                m_Events.Update( diff );
+
                 m_deathTimer -= diff;
                 if (m_groupLootTimer && lootingGroupLeaderGUID)
                 {
@@ -2036,12 +2058,12 @@ bool Creature::IsOutOfThreatArea(Unit* pVictim) const
     if(sMapStore.LookupEntry(GetMapId())->IsDungeon())
         return false;
 
-    float length = pVictim->GetDistance(mHome_X, mHome_Y, mHome_Z);
     float AttackDist = GetAttackDistance(pVictim);
     uint32 ThreatRadius = sWorld.getConfig(CONFIG_THREAT_RADIUS);
 
     //Use AttackDistance in distance check if threat radius is lower. This prevents creature bounce in and out of combat every update tick.
-    return ( length > (ThreatRadius > AttackDist ? ThreatRadius : AttackDist));
+    return !pVictim->IsWithinDist3d(mHome_X,mHome_Y,mHome_Z,
+        ThreatRadius > AttackDist ? ThreatRadius : AttackDist);
 }
 
 CreatureDataAddon const* Creature::GetCreatureAddon() const
@@ -2081,10 +2103,6 @@ bool Creature::LoadCreaturesAddon(bool reload)
     if (cainfo->move_flags != 0)
         SetUnitMovementFlags(cainfo->move_flags);
 
-    //Load Path
-    if (cainfo->path_id != 0)
-        m_path_id = cainfo->path_id;
-
     if(cainfo->auras)
     {
         for (CreatureDataAddonAura const* cAura = cainfo->auras; cAura->spell_id; ++cAura)
@@ -2105,7 +2123,7 @@ bool Creature::LoadCreaturesAddon(bool reload)
                 continue;
             }
 
-            AddAuraEffect(AdditionalSpellInfo->Id, cAura->effect_idx, this);
+            AddAuraEffect(AdditionalSpellInfo, cAura->effect_idx, this);
             sLog.outDebug("Spell: %u with Aura %u added to creature (GUIDLow: %u Entry: %u )", cAura->spell_id, AdditionalSpellInfo->EffectApplyAuraName[cAura->effect_idx],GetGUIDLow(),GetEntry());
         }
     }

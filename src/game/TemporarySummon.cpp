@@ -208,10 +208,8 @@ void TempSummon::InitSummon()
         if(GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER && m_spells[0])
         {
             setFaction(owner->getFaction());
-            if(m_spells[1] && GetMap()->IsHeroic())
-                CastSpell(this, m_spells[1], false, 0, 0, m_summonerGUID);
-            else
-                CastSpell(this, m_spells[0], false, 0, 0, m_summonerGUID);
+            SetLevel(owner->getLevel());
+            CastSpell(this, m_spells[0], false, 0, 0, m_summonerGUID);
         }
     }
 }
@@ -308,6 +306,8 @@ Guardian::Guardian(SummonPropertiesEntry const *properties, Unit *owner) : Minio
 void Guardian::InitStats(uint32 duration)
 {
     Minion::InitStats(duration);
+
+    InitStatsForLevel(m_owner->getLevel());
 
     if(m_owner->GetTypeId() == TYPEID_PLAYER)
         m_charmInfo->InitCharmCreateSpells();

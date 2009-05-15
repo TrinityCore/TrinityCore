@@ -34,7 +34,9 @@ struct WaypointData
 };
 
 typedef std::vector<WaypointData*> WaypointPath;
-extern UNORDERED_MAP<uint32, WaypointPath*> waypoint_map;
+typedef UNORDERED_MAP<uint32, WaypointPath*> WaypointPathMap;
+
+extern WaypointPathMap WaypointPathHolder;
 
 class WaypointStore
 {
@@ -48,9 +50,10 @@ class WaypointStore
 
         WaypointPath* GetPath(uint32 id)
         {
-            if(waypoint_map.find(id) != waypoint_map.end())
-                return waypoint_map[id];
-            else return 0;
+            WaypointPathMap::iterator itr = WaypointPathHolder.find(id);
+            if(itr != WaypointPathHolder.end())
+                return itr->second;
+            return NULL;
         }
 
         inline uint32 GetRecordsCount() { return records; }

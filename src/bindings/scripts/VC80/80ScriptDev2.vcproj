@@ -68,10 +68,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="TrinityCore.lib zthread.lib"
+				AdditionalDependencies="TrinityCore.lib aced.lib"
 				OutputFile="$(OutDir)/TrinityScript.dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="..\..\..\..\win\VC80\zthread__$(PlatformName)_$(ConfigurationName);..\..\..\..\win\VC80\trinitycore__$(PlatformName)_$(ConfigurationName)"
+				AdditionalLibraryDirectories="..\..\..\..\win\VC80\trinitycore__$(PlatformName)_$(ConfigurationName);..\..\..\..\dep\lib\$(PlatformName)_$(ConfigurationName)"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/TrinityScript.pdb"
 				SubSystem="2"
@@ -151,10 +151,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="TrinityCore.lib zthread.lib"
+				AdditionalDependencies="TrinityCore.lib ace.lib"
 				OutputFile="$(OutDir)/TrinityScript.dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\..\..\..\win\VC80\zthread__$(PlatformName)_$(ConfigurationName);..\..\..\..\win\VC80\trinitycore__$(PlatformName)_$(ConfigurationName)"
+				AdditionalLibraryDirectories="..\..\..\..\win\VC80\trinitycore__$(PlatformName)_$(ConfigurationName);..\..\..\..\dep\lib\$(PlatformName)_$(ConfigurationName)"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -236,10 +236,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="TrinityCore.lib zthread.lib"
+				AdditionalDependencies="TrinityCore.lib aced.lib"
 				OutputFile="$(OutDir)/TrinityScript.dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="..\..\..\..\win\VC80\zthread__$(PlatformName)_$(ConfigurationName);..\..\..\..\win\VC80\trinitycore__$(PlatformName)_$(ConfigurationName)"
+				AdditionalLibraryDirectories="..\..\..\..\win\VC80\trinitycore__$(PlatformName)_$(ConfigurationName);..\..\..\..\dep\lib\$(PlatformName)_$(ConfigurationName)"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/TrinityScript.pdb"
 				SubSystem="2"
@@ -320,10 +320,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="TrinityCore.lib zthread.lib"
+				AdditionalDependencies="TrinityCore.lib ace.lib"
 				OutputFile="$(OutDir)/TrinityScript.dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\..\..\..\win\VC80\zthread__$(PlatformName)_$(ConfigurationName);..\..\..\..\win\VC80\trinitycore__$(PlatformName)_$(ConfigurationName)"
+				AdditionalLibraryDirectories="..\..\..\..\win\VC80\trinitycore__$(PlatformName)_$(ConfigurationName);..\..\..\..\dep\lib\$(PlatformName)_$(ConfigurationName)"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"

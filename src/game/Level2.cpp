@@ -1288,7 +1288,7 @@ bool ChatHandler::HandleNpcAddMoveCommand(const char* args)
 
     // update movement type
     WorldDatabase.PExecuteLog("UPDATE creature SET MovementType = '%u' WHERE guid = '%u'", WAYPOINT_MOTION_TYPE,lowguid);
-    if(pCreature && pCreature->GetWaypointPath())
+    if(pCreature && pCreature->GetWaypointPathId())
     {
         pCreature->SetDefaultMovementType(WAYPOINT_MOTION_TYPE);
         pCreature->GetMotionMaster()->Initialize();
@@ -1609,7 +1609,7 @@ bool ChatHandler::HandleNpcSetMoveTypeCommand(const char* args)
     {
         // update movement type
         if(doNotDelete == false)
-            pCreature->LoadPath(0);
+            pCreature->SetWaypointPathId(0);
 
         pCreature->SetDefaultMovementType(move_type);
         pCreature->GetMotionMaster()->Initialize();
@@ -2639,7 +2639,7 @@ bool ChatHandler::HandleWpAddCommand(const char* args)
     if (!path_number)
         {
         if(target)
-            pathid = target->GetWaypointPath();
+            pathid = target->GetWaypointPathId();
                 else
                 {
                     QueryResult *result = WorldDatabase.PQuery( "SELECT MAX(id) FROM waypoint_data");
@@ -2694,7 +2694,6 @@ bool ChatHandler::HandleWpLoadPathCommand(const char *args)
     if(*args)
         path_number = strtok((char*)args, " ");
 
-
     uint32 pathid = 0;
     uint32 guidlow = 0;
     Creature* target = getSelectedCreature();
@@ -2725,6 +2724,7 @@ bool ChatHandler::HandleWpLoadPathCommand(const char *args)
         return true;
     }
 
+    /*
     guidlow = target->GetDBTableGUIDLow();
     QueryResult *result = WorldDatabase.PQuery( "SELECT guid FROM creature_addon WHERE guid = '%u'",guidlow);
 
@@ -2735,10 +2735,11 @@ bool ChatHandler::HandleWpLoadPathCommand(const char *args)
     }
     else
         WorldDatabase.PExecute("INSERT INTO creature_addon(guid,path_id) VALUES ('%u','%u')", guidlow, pathid);
+    */
 
     WorldDatabase.PExecute("UPDATE creature SET MovementType = '%u' WHERE guid = '%u'", WAYPOINT_MOTION_TYPE, guidlow);
 
-    target->LoadPath(pathid);
+    target->SetWaypointPathId(pathid);
     target->SetDefaultMovementType(WAYPOINT_MOTION_TYPE);
     target->GetMotionMaster()->Initialize();
     target->MonsterSay("Path loaded.",0,0);
@@ -2746,20 +2747,19 @@ bool ChatHandler::HandleWpLoadPathCommand(const char *args)
     return true;
 }
 
-
 bool ChatHandler::HandleReloadAllPaths(const char* args)
 {
-if(!*args)
-    return false;
+    if(!*args)
+        return false;
 
-uint32 id = atoi(args);
+    uint32 id = atoi(args);
 
-if(!id)
-    return false;
+    if(!id)
+        return false;
 
     PSendSysMessage("%s%s|r|cff00ffff%u|r", "|cff00ff00", "Loading Path: ", id);
     WaypointMgr.UpdatePath(id);
-        return true;
+    return true;
 }
 
 bool ChatHandler::HandleWpUnLoadPathCommand(const char *args)
@@ -2773,24 +2773,39 @@ bool ChatHandler::HandleWpUnLoadPathCommand(const char *args)
         return true;
     }
 
-    if(target->GetCreatureAddon())
+    if(target->GetWaypointPathId())
     {
-        if(target->GetCreatureAddon()->path_id != 0)
+        uint32 pathId = target->GetDBTableGUIDLow() * 10;
+        if(target->GetWaypointPathId() == pathId)
         {
-            WorldDatabase.PExecute("DELETE FROM creature_addon WHERE guid = %u", target->GetGUIDLow());
-            target->UpdateWaypointID(0);
-            WorldDatabase.PExecute("UPDATE creature SET MovementType = '%u' WHERE guid = '%u'", IDLE_MOTION_TYPE, guidlow);
-            target->LoadPath(0);
-            target->SetDefaultMovementType(IDLE_MOTION_TYPE);
-            target->GetMotionMaster()->MoveTargetedHome();
-            target->GetMotionMaster()->Initialize();
-            target->MonsterSay("Path unloaded.",0,0);
-            return true;
+            for(uint32 i = 1; i < 11; ++i)
+            {
+                if(i == 10)
+                {
+                    PSendSysMessage("%s%s|r", "|cffff33ff", "Target cannot have more than 9 script paths. Unloading failed.");
+                    break;
+                }
+
+                if(WaypointMgr.GetPath(++pathId))
+                    continue;
+
+                WorldDatabase.PExecute("UPDATE waypoint_data SET id = %u WHERE id = %u", pathId, target->GetDBTableGUIDLow() * 10);
+                WorldDatabase.PExecute("UPDATE creature SET MovementType = '%u' WHERE guid = '%u'", IDLE_MOTION_TYPE, guidlow);
+                target->SetWaypointPathId(0);
+                target->UpdateWaypointID(0);
+                target->SetDefaultMovementType(IDLE_MOTION_TYPE);
+                target->GetMotionMaster()->Initialize();
+                target->GetMotionMaster()->MoveTargetedHome();
+                PSendSysMessage("Path unloaded.");
+                break;
+            }
         }
-        PSendSysMessage("%s%s|r", "|cffff33ff", "Target have no loaded path.");
-        return true;
+        else
+            PSendSysMessage("%s%s|r", "|cffff33ff", "Target has path but that path is not its default path. Unloading failed.");
     }
-    PSendSysMessage("%s%s|r", "|cffff33ff", "Target have no loaded path.");
+    else
+        PSendSysMessage("%s%s|r", "|cffff33ff", "Target has no loaded path.");
+
     return true;
 }
 
@@ -3264,7 +3279,7 @@ bool ChatHandler::HandleWpShowCommand(const char* args)
             return false;
         }
 
-        pathid = target->GetWaypointPath();
+        pathid = target->GetWaypointPathId();
     }
 
     else
@@ -4629,7 +4644,7 @@ bool ChatHandler::HandleNpcAddFormationCommand(const char* args)
     group_member->groupAI        = 0;
 
     CreatureGroupMap[lowguid] = group_member;
-    pCreature->SearchFormation();
+    pCreature->SearchFormationAndPath();
 
     WorldDatabase.PExecuteLog("INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`) VALUES ('%u','%u','%f', '%f', '%u')",
         leaderGUID, lowguid, group_member->follow_dist, group_member->follow_angle, group_member->groupAI);

@@ -306,7 +306,7 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
         case 2:{
             error_log("Summon Vapor case 2");
             Unit* target;
-            target = SelectUnit(SELECT_TARGET_RANDOM, 0, 150, true);
+            target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true);
             if(!target) target = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_PLAYER_GUID));
             if(target)
             {
@@ -331,7 +331,7 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
             error_log("Summon Vapor case3");
             //m_creature->CastSpell(m_creature, SPELL_VAPOR_SELECT); need core support
             Unit* target;
-            target = SelectUnit(SELECT_TARGET_RANDOM, 0, 150, true);
+            target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true);
             if(!target) target = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_PLAYER_GUID));
             if(target)
             {
@@ -358,7 +358,7 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
             break;
         case 5:{
             Unit* target;
-            target = SelectUnit(SELECT_TARGET_RANDOM, 0, 150, true);
+            target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true);
             if(!target) target = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_PLAYER_GUID));
             if(target)
             {
@@ -471,7 +471,7 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
                 Timer[EVENT_GAS_NOVA] = 20000 + rand()%5 * 1000;
                 break;
             case EVENT_ENCAPSULATE:
-                if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0, 150, true))
+                if(Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true))
                 {
                     m_creature->CastSpell(target, SPELL_ENCAPSULATE_CHANNEL, false);
                     target->CastSpell(target, SPELL_ENCAPSULATE_EFFECT, true);// linked aura, need core patch to remove this hack

@@ -23,14 +23,14 @@
 
 #include "Platform/Define.h"
 #include "Policies/Singleton.h"
-#include "zthread/Mutex.h"
+#include "ace/Thread_Mutex.h"
 #include "Common.h"
 #include "Map.h"
 #include "GridStates.h"
 
 class Transport;
 
-class TRINITY_DLL_DECL MapManager : public Trinity::Singleton<MapManager, Trinity::ClassLevelLockable<MapManager, ZThread::Mutex> >
+class MANGOS_DLL_DECL MapManager : public MaNGOS::Singleton<MapManager, MaNGOS::ClassLevelLockable<MapManager, ACE_Thread_Mutex> >
 {
 
     friend class Trinity::OperatorNew<MapManager>;
@@ -149,7 +149,7 @@ class TRINITY_DLL_DECL MapManager : public Trinity::Singleton<MapManager, Trinit
             return (iter == i_maps.end() ? NULL : iter->second);
         }
 
-        typedef Trinity::ClassLevelLockable<MapManager, ZThread::Mutex>::Lock Guard;
+        typedef MaNGOS::ClassLevelLockable<MapManager, ACE_Thread_Mutex>::Lock Guard;
         uint32 i_gridCleanUpDelay;
         MapMapType i_maps;
         IntervalTimer i_timer;

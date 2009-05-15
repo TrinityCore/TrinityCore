@@ -316,9 +316,9 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `character_achievement`;
 CREATE TABLE `character_achievement` (
-  `guid` int(11) NOT NULL,
-  `achievement` int(11) NOT NULL,
-  `date` int(11) NOT NULL,
+  `guid` int(11) unsigned NOT NULL,
+  `achievement` int(11) unsigned  NOT NULL,
+  `date` bigint(11) unsigned NOT NULL default '0',
   PRIMARY KEY  (`guid`,`achievement`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
@@ -337,10 +337,10 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `character_achievement_progress`;
 CREATE TABLE `character_achievement_progress` (
-  `guid` int(11) NOT NULL,
-  `criteria` int(11) NOT NULL,
-  `counter` int(11) NOT NULL,
-  `date` int(11) NOT NULL,
+  `guid` int(11) unsigned NOT NULL,
+  `criteria` int(11) unsigned NOT NULL,
+  `counter` int(11) unsigned NOT NULL,
+  `date` bigint(11) unsigned NOT NULL default '0',
   PRIMARY KEY  (`guid`,`criteria`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
@@ -854,6 +854,7 @@ CREATE TABLE `gm_tickets` (
   `posX` float NOT NULL DEFAULT '0',
   `posY` float NOT NULL DEFAULT '0',
   `posZ` float NOT NULL DEFAULT '0',
+  `timestamp` int(10) NOT NULL default '0',
   `closed` int(10) NOT NULL default '0',
   `assignedto` int(10) NOT NULL default '0',
   `comment` text NOT NULL,

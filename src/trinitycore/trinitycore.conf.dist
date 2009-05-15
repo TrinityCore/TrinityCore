@@ -1006,6 +1006,16 @@ Channel.SilentlyGMJoin = 0
 #        GM starting level (1-100)
 #        Default: 1
 #
+#    GM.AllowInvite
+#        Is GM accepting invites from players by default or not
+#        Default: 0 (false)
+#                 1 (true)
+#
+#    GM.AllowFriend
+#        Are players allowed to add GMs to their friend list
+#        Default: 0 (false)
+#                 1 (true)
+#
 #    GM.LowerSecurity
 #        Disallow a lower security member to interact with a higher one using commands
 #        Default: 0 (disable)
@@ -1027,6 +1037,8 @@ GM.InGMList              = 0
 GM.InWhoList             = 0
 GM.LogTrade              = 1
 GM.StartLevel            = 80
+GM.AllowInvite           = 0
+GM.AllowFriend           = 0
 GM.LowerSecurity         = 0
 GM.AllowAchievementGain  = 1
 

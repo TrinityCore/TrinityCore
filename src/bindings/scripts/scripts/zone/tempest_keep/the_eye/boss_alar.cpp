@@ -352,7 +352,7 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
 
             if(Charge_Timer < diff)
             {
-                Unit *target= SelectUnit(SELECT_TARGET_RANDOM, 1, GetSpellMaxRangeForHostile(SPELL_CHARGE), true);
+                Unit *target= SelectTarget(SELECT_TARGET_RANDOM, 1, GetSpellMaxRangeForHostile(SPELL_CHARGE), true);
                 if(target)
                     DoCast(target, SPELL_CHARGE);
                 Charge_Timer = 30000;
@@ -410,7 +410,8 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
             else
             {
                 Unit *target = NULL;
-                if(Phase1 && target && (target = m_creature->SelectNearestTarget(5)))
+                target = m_creature->SelectNearestTarget(5);
+                if(Phase1 && target)
                     m_creature->AI()->AttackStart(target);
                 else
                 {

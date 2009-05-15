@@ -44,6 +44,7 @@
 				Name="VCLibrarianTool"
 				AdditionalDependencies=".\g3dlite__$(PlatformName)_$(ConfigurationName)\g3dlite.lib"
 				OutputFile=".\shared__$(PlatformName)_$(ConfigurationName)\shared.lib"
+				AdditionalLibraryDirectories="dep\lib\$(PlatformName)_$(ConfigurationName)"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"/>
@@ -98,6 +99,7 @@
 				Name="VCLibrarianTool"
 				AdditionalDependencies=".\g3dlite__$(PlatformName)_$(ConfigurationName)\g3dlite.lib"
 				OutputFile=".\shared__$(PlatformName)_$(ConfigurationName)\shared.lib"
+				AdditionalLibraryDirectories="dep\lib\$(PlatformName)_$(ConfigurationName)"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"/>
@@ -374,6 +376,7 @@
 		<File
 			RelativePath="..\..\src\shared\Common.h">
 		</File>
+<<<<<<< HEAD:win/VC71/shared.vcproj
  		<File
 		    RelativePath="..\..\src\shared\revision.h"
 		    >
@@ -399,6 +402,38 @@
 			Outputs="revision.h"
 		    />
 		    </FileConfiguration>
+=======
+		<File
+			RelativePath="..\..\src\shared\LockedQueue.h">
+		</File>
+		<File
+			RelativePath="..\..\src\shared\revision.h">
+			<FileConfiguration
+				Name="Release|Win32">
+				<Tool
+					Name="VCCustomBuildTool"
+					Description="Extract revision"
+					CommandLine="cd &quot;$(SolutionDir)..\src\shared&quot;
+&quot;$(TargetDir)\..\genrevision__$(PlatformName)_$(ConfigurationName)\genrevision.exe&quot; &quot;..\..&quot;
+"
+					AdditionalDependencies="$(SolutionDir)../.svn/entries;$(SolutionDir)../_svn/entries;$(SolutionDir)../.git/FETCH_HEAD"
+					Outputs="revision.h"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Debug|Win32">
+				<Tool
+					Name="VCCustomBuildTool"
+					Description="Extract revision"
+					CommandLine="cd &quot;$(SolutionDir)..\src\shared&quot;
+&quot;$(TargetDir)\..\genrevision__$(PlatformName)_$(ConfigurationName)\genrevision.exe&quot; &quot;..\..&quot;
+"
+					AdditionalDependencies="$(SolutionDir)../.svn/entries;$(SolutionDir)../_svn/entries;$(SolutionDir)../.git/FETCH_HEAD"
+					Outputs="revision.h"/>
+			</FileConfiguration>
+		</File>
+		<File
+			RelativePath="..\..\src\shared\revision_nr.h">
+>>>>>>> 00c7d15a78b1dcdbf888b768c55424183b2231e4:win/VC71/shared.vcproj
 		</File>
 		<File
 			RelativePath="..\..\src\shared\ServiceWin32.cpp">
@@ -408,6 +443,12 @@
 		</File>
 		<File
 			RelativePath="..\..\src\shared\SystemConfig.h">
+		</File>
+		<File
+			RelativePath="..\..\src\shared\Threading.cpp">
+		</File>
+		<File
+			RelativePath="..\..\src\shared\Threading.h">
 		</File>
 	</Files>
 	<Globals>

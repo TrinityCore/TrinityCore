@@ -32,8 +32,13 @@ trinity_realmd_SOURCES = \
     RealmList.h
 
 ## Link realm list daemon against the shared library
+<<<<<<< HEAD:src/realmd/Makefile.am
 trinity_realmd_LDADD = ../shared/Database/libmangosdatabase.a ../shared/Config/libmangosconfig.a ../shared/Auth/libmangosauth.a ../shared/libmangosshared.a ../framework/libmangosframework.a ../../dep/src/sockets/libmangossockets.a ../../dep/src/zthread/libZThread.la
 trinity_realmd_LDFLAGS = -L../../dep/src/sockets -L../../dep/src/zthread -L$(libdir) $(TRINI_LIBS)
+=======
+mangos_realmd_LDADD = ../shared/Database/libmangosdatabase.a ../shared/Config/libmangosconfig.a ../shared/Auth/libmangosauth.a ../shared/libmangosshared.a ../framework/libmangosframework.a ../../dep/src/sockets/libmangossockets.a
+mangos_realmd_LDFLAGS = -L../../dep/src/sockets -L$(libdir) $(MANGOS_LIBS)
+>>>>>>> 00c7d15a78b1dcdbf888b768c55424183b2231e4:src/realmd/Makefile.am
 
 ## Additional files to include when running 'make dist'
 #  Include realm list daemon configuration

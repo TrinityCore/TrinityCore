@@ -1,7 +1,6 @@
 ########### next target ###############
 
 SET(ZThread_LIB_SRCS
-   AtomicCount.cxx
    Condition.cxx
    ConcurrentExecutor.cxx
    CountingSemaphore.cxx

@@ -1143,7 +1143,7 @@ struct RandomPropertiesPointsEntry
 struct ScalingStatDistributionEntry
 {
     uint32  Id;
-    uint32  StatMod[10];
+    int32   StatMod[10];
     uint32  Modifier[10];
     uint32  MaxLevel;
 };
@@ -1152,7 +1152,58 @@ struct ScalingStatValuesEntry
 {
     uint32  Id;
     uint32  Level;
-    uint32  Multiplier[17];
+    uint32  ssdMultiplier[5];                               // Multiplier for ScalingStatDistribution
+    uint32  armorMod[4];                                    // Armor for level
+    uint32  dpsMod[6];                                      // DPS mod for level
+    uint32  spellBonus;                                     // not sure.. TODO: need more info about
+    uint32  feralBonus;                                     // Feral AP bonus
+
+    uint32  getssdMultiplier(uint32 mask) const
+    {
+        if (mask&0x001F)
+        {
+            if(mask & 0x00000001) return ssdMultiplier[0];
+            if(mask & 0x00000002) return ssdMultiplier[1];
+            if(mask & 0x00000004) return ssdMultiplier[2];
+            if(mask & 0x00000008) return ssdMultiplier[3];
+            if(mask & 0x00000010) return ssdMultiplier[4];
+        }
+        return 0;
+    }
+    uint32  getArmorMod(uint32 mask) const
+    {
+        if (mask&0x01E0)
+        {
+            if(mask & 0x00000020) return armorMod[0];
+            if(mask & 0x00000040) return armorMod[1];
+            if(mask & 0x00000080) return armorMod[2];
+            if(mask & 0x00000100) return armorMod[3];
+        }
+        return 0;
+    }
+    uint32 getDPSMod(uint32 mask) const
+    {
+        if (mask&0x7E00)
+        {
+            if(mask & 0x00000200) return dpsMod[0];
+            if(mask & 0x00000400) return dpsMod[1];
+            if(mask & 0x00000800) return dpsMod[2];
+            if(mask & 0x00001000) return dpsMod[3];
+            if(mask & 0x00002000) return dpsMod[4];
+            if(mask & 0x00004000) return dpsMod[5];
+        }
+        return 0;
+    }
+    uint32 getSpellBonus(uint32 mask) const
+    {
+        if (mask & 0x00008000) return spellBonus;
+        return 0;
+    }
+    uint32 getFeralBonus(uint32 mask) const
+    {
+        if (mask & 0x00010000) return feralBonus;
+        return 0;
+    }
 };
 
 //struct SkillLineCategoryEntry{
@@ -1517,7 +1568,7 @@ struct TaxiNodesEntry
     float     x;                                            // 2        m_x
     float     y;                                            // 3        m_y
     float     z;                                            // 4        m_z
-    //char*     name[16];                                   // 5-21     m_Name_lang
+    char*     name[16];                                     // 5-21     m_Name_lang
                                                             // 22 string flags
     uint32    MountCreatureID[2];                           // 23-24    m_MountCreatureID[2]
 };

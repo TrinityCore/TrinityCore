@@ -24,9 +24,6 @@
 #include "Platform/Define.h"
 #include <cassert>
 
-#define MaNGOS              Trinity
-#define GetMangosString     GetTrinityString
-
 enum Gender
 {
     GENDER_MALE                        = 0,
@@ -1109,9 +1106,10 @@ enum SpellHitType
 {
     SPELL_HIT_TYPE_UNK1 = 0x00001,
     SPELL_HIT_TYPE_CRIT = 0x00002,
-    SPELL_HIT_TYPE_UNK2 = 0x00004,
-    SPELL_HIT_TYPE_UNK3 = 0x00008,
-    SPELL_HIT_TYPE_UNK4 = 0x00020
+    SPELL_HIT_TYPE_UNK3 = 0x00004,
+    SPELL_HIT_TYPE_UNK4 = 0x00008,
+    SPELL_HIT_TYPE_UNK5 = 0x00010,                          // replace caster?
+    SPELL_HIT_TYPE_UNK6 = 0x00020
 };
 
 enum SpellDmgClass
@@ -1819,6 +1817,7 @@ enum CreatureType
 };
 
 uint32 const CREATURE_TYPEMASK_HUMANOID_OR_UNDEAD = (1 << (CREATURE_TYPE_HUMANOID-1)) | (1 << (CREATURE_TYPE_UNDEAD-1));
+uint32 const CREATURE_TYPEMASK_MECHANICAL_OR_ELEMENTAL = (1 << (CREATURE_TYPE_MECHANICAL-1)) | (1 << (CREATURE_TYPE_ELEMENTAL-1));
 
 // CreatureFamily.dbc
 enum CreatureFamily

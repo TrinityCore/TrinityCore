@@ -297,7 +297,7 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
         }
 
         if (ElectricalStorm_Timer < diff) {
-            Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0, 50, true);
+            Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50, true);
             if(!target)
             {
                 EnterEvadeMode();

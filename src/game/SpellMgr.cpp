@@ -27,6 +27,7 @@
 #include "Chat.h"
 #include "Spell.h"
 #include "BattleGroundMgr.h"
+#include "CreatureAI.h"
 
 bool IsAreaEffectTarget[TOTAL_SPELL_TARGETS];
 
@@ -1472,6 +1473,10 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2, bool
     //if spells have exactly the same effect they cannot stack
     for(uint32 i = 0; i < 3; ++i)
         if(spellInfo_1->Effect[i] != spellInfo_2->Effect[i]
+            // Overkill and master of subtlety need this
+            || spellInfo_1->EffectApplyAuraName[i] == SPELL_AURA_DUMMY
+            || spellInfo_1->EffectApplyAuraName[i] == SPELL_AURA_PERIODIC_DUMMY
+
             || spellInfo_1->EffectApplyAuraName[i] != spellInfo_2->EffectApplyAuraName[i]
             || spellInfo_1->EffectMiscValue[i] != spellInfo_2->EffectMiscValue[i]) // paladin resist aura
             return false; // need itemtype check? need an example to add that check
@@ -2426,31 +2431,32 @@ void SpellMgr::LoadSpellCustomAttr()
         case 45976: // Muru Portal Channel
         case 39365: // Thundering Storm
         case 41071: // Raise Dead (HACK)
-        case 28542: // Life Drain - Sapphiron
             spellInfo->MaxAffectedTargets = 1;
             break;
         case 41376: // Spite
         case 39992: // Needle Spine
-        case 29576: //Multi-Shot
-        case 40816: //Saber Lash
-        case 37790: //Spread Shot
-        case 46771: //Flame Sear
-        case 45248: //Shadow Blades
+        case 29576: // Multi-Shot
+        case 40816: // Saber Lash
+        case 37790: // Spread Shot
+        case 46771: // Flame Sear
+        case 45248: // Shadow Blades
         case 41303: // Soul Drain
         case 54172: // Divine Storm (heal)
-        case 29213: // Curse of the Plaguebringer
+        case 29213: // Curse of the Plaguebringer - Noth
+        case 28542: // Life Drain - Sapphiron
             spellInfo->MaxAffectedTargets = 3;
             break;
         case 38310: //Multi-Shot
             spellInfo->MaxAffectedTargets = 4;
             break;
         case 42005: // Bloodboil
-        case 38296: //Spitfire Totem
-        case 37676: //Insidious Whisper
-        case 46009: //Negative Energy
-        case 45641: //Fire Bloom
-        case 54937: //Glyph of Holy Light
-        case 55665: // Life Drain - Sapphiron
+        case 38296: // Spitfire Totem
+        case 37676: // Insidious Whisper
+        case 46009: // Negative Energy
+        case 45641: // Fire Bloom
+        case 54937: // Glyph of Holy Light
+        case 55665: // Life Drain - Sapphiron (H)
+        case 28796: // Poison Bolt Volly - Faerlina
             spellInfo->MaxAffectedTargets = 5;
             break;
         case 40827: // Sinful Beam
@@ -2458,7 +2464,8 @@ void SpellMgr::LoadSpellCustomAttr()
         case 40860: // Vile Beam
         case 40861: // Wicked Beam
         case 57669: // Replenishment
-        case 54835: // Curse of the Plaguebringer
+        case 54835: // Curse of the Plaguebringer - Noth (H)
+        case 54098: // Poison Bolt Volly - Faerlina (H)
             spellInfo->MaxAffectedTargets = 10;
             break;
         case 8122: case 8124: case 10888: case 10890: // Psychic Scream
@@ -2516,6 +2523,8 @@ void SpellMgr::LoadSpellCustomAttr()
 
     SummonPropertiesEntry *properties = const_cast<SummonPropertiesEntry*>(sSummonPropertiesStore.LookupEntry(121));
     properties->Type = SUMMON_TYPE_TOTEM;
+
+    CreatureAI::FillAISpellInfo();
 }
 
 void SpellMgr::LoadSpellLinked()

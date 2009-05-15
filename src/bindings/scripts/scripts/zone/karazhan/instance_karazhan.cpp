@@ -247,7 +247,7 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
         }
     }
 
-    const char* Save()
+    std::string GetSaveData()
     {
         return str_data.c_str();
     }
