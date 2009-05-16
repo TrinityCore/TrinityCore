@@ -14262,6 +14262,7 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
     uint32 transGUID = fields[24].GetUInt32();
     Relocate(fields[6].GetFloat(),fields[7].GetFloat(),fields[8].GetFloat(),fields[10].GetFloat());
     SetMapId(fields[9].GetUInt32());
+    SetInstanceId(fields[41].GetFloat());
     SetDifficulty(fields[32].GetUInt32());                  // may be changed in _LoadGroup
 
     _LoadGroup(holder->GetResult(PLAYER_LOGIN_QUERY_LOADGROUP));
@@ -14473,7 +14474,7 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
 
     // since the player may not be bound to the map yet, make sure subsequent
     // getmap calls won't create new maps
-    SetInstanceId(map->GetInstanceId());
+    //SetInstanceId(map->GetInstanceId());
 
     // if the player is in an instance and it has been reset in the meantime teleport him to the entrance
     if(GetInstanceId() && !sInstanceSaveManager.GetInstanceSave(GetInstanceId()))
@@ -15782,7 +15783,7 @@ void Player::SaveToDB()
 
     std::ostringstream ss;
     ss << "INSERT INTO characters (guid,account,name,race,class,"
-        "map, dungeon_difficulty, position_x, position_y, position_z, orientation, data, "
+        "map, instance_id, dungeon_difficulty, position_x, position_y, position_z, orientation, data, "
         "taximask, online, cinematic, "
         "totaltime, leveltime, rest_bonus, logout_time, is_logout_resting, resettalents_cost, resettalents_time, "
         "trans_x, trans_y, trans_z, trans_o, transguid, extra_flags, stable_slots, at_login, zone, "
@@ -15796,6 +15797,7 @@ void Player::SaveToDB()
     if(!IsBeingTeleported())
     {
         ss << GetMapId() << ", "
+        << (uint32)GetInstanceId() << ", "
         << (uint32)GetDifficulty() << ", "
         << finiteAlways(GetPositionX()) << ", "
         << finiteAlways(GetPositionY()) << ", "
@@ -15805,6 +15807,7 @@ void Player::SaveToDB()
     else
     {
         ss << GetTeleportDest().mapid << ", "
+        << (uint32)0 << ", "
         << (uint32)GetDifficulty() << ", "
         << finiteAlways(GetTeleportDest().x) << ", "
         << finiteAlways(GetTeleportDest().y) << ", "
