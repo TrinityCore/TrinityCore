@@ -76,6 +76,7 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 ( 32389, 60466, 2, 'Shadow Embrace Rank3'),
 ( 32390, 60467, 2, 'Shadow Embrace Rank4'),
 ( 32391, 60468, 2, 'Shadow Embrace Rank5'),
+( 33206, 44416, 2, 'Pain Suppression (threat)'),
 -- Creature
 ( 36574, 36650, 0, 'Apply Phase Slip Vulnerability'),
 -- instance
