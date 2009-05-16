@@ -44,6 +44,18 @@ const DoorData doorData[] =
     {0,         0,              DOOR_TYPE_ROOM}, // EOF
 };
 
+const MinionData minionData[] =
+{
+    //{16573,     BOSS_ANUBREKHAN},     there is no spawn point in db, so we do not add them here
+    {16506,     BOSS_FAERLINA},
+    {16803,     BOSS_RAZUVIOUS},
+    {16063,     BOSS_HORSEMEN},
+    {16064,     BOSS_HORSEMEN},
+    {16065,     BOSS_HORSEMEN},
+    {30549,     BOSS_HORSEMEN},
+    {0,         0,}
+};
+
 #define GO_GOTHIK_GATE      181170
 
 #define SPELL_ERUPTION      29371
@@ -84,9 +96,9 @@ struct TRINITY_DLL_DECL instance_naxxramas : public InstanceData
     {
         SetBossNumber(MAX_BOSS_NUMBER);
         LoadDoorData(doorData);
+        LoadMinionData(minionData);
     }
 
-    std::set<Creature*> Worshipper;
     std::set<GameObject*> HeiganEruption[4];
     GameObject *GothikGate;
     Creature *Sapphiron;
@@ -95,9 +107,10 @@ struct TRINITY_DLL_DECL instance_naxxramas : public InstanceData
     {
         switch(creature->GetEntry())
         {
-            case 15989: Sapphiron = add ? creature : NULL; break;
-            case 16506: if(add) Worshipper.insert(creature); else Worshipper.erase(creature); break;
+            case 15989: Sapphiron = add ? creature : NULL; return;
         }
+
+        AddMinion(creature, add);
     }
 
     void OnObjectCreate(GameObject* go, bool add)
@@ -119,20 +132,6 @@ struct TRINITY_DLL_DECL instance_naxxramas : public InstanceData
         }
 
         AddDoor(go, add);
-    }
-
-    void SetBossState(uint32 id, EncounterState state)
-    {
-        InstanceData::SetBossState(id, state);
-        switch(id)
-        {
-            case BOSS_FAERLINA:
-                if(state == NOT_STARTED)
-                    for(std::set<Creature*>::iterator itr = Worshipper.begin(); itr != Worshipper.end(); ++itr)
-                        if(!(*itr)->isAlive())
-                            (*itr)->Respawn();
-            break;
-        }
     }
 
     void SetData(uint32 id, uint32 value)

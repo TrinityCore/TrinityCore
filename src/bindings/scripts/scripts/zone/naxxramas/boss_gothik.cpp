@@ -202,16 +202,7 @@ struct TRINITY_DLL_DECL boss_gothikAI : public BossAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!me->isInCombat())
-            return;
-
-        if(me->getThreatManager().isThreatListEmpty())
-        {
-            EnterEvadeMode();
-            return;
-        }
-
-        if(me->HasReactState(REACT_AGGRESSIVE) && !UpdateVictim())
+        if(!UpdateVictimByReact())
             return;
 
         events.Update(diff);

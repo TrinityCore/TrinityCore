@@ -4612,6 +4612,16 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     unitTarget->RemoveAurasByTypeWithDispel(SPELL_AURA_MOD_DECREASE_SPEED, this);
                     return;
                 }
+                // Decimate
+                case 28374:
+                case 54426:
+                    if(unitTarget)
+                    {
+                        int32 damage = (int32)unitTarget->GetHealth() - (int32)unitTarget->GetMaxHealth() * 0.05f;
+                        if(damage > 0)
+                            m_caster->CastCustomSpell(28375, SPELLVALUE_BASE_POINT0, damage, unitTarget);
+                    }
+                    return;
                 // Mirren's Drinking Hat
                 case 29830:
                 {
