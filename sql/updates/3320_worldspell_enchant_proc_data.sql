@@ -6,7 +6,6 @@ CREATE TABLE `spell_enchant_proc_data` (
 ) ENGINE=MYISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Spell enchant proc data';
 
 -- Frostbrand Weapon
-
 INSERT INTO spell_enchant_proc_data (`entry`, `customChance`, `PPMChance`,`procEx`) VALUES (2, 0, 8.8,0);
 INSERT INTO spell_enchant_proc_data (`entry`, `customChance`, `PPMChance`,`procEx`) VALUES (12, 0, 8.8,0);
 INSERT INTO spell_enchant_proc_data (`entry`, `customChance`, `PPMChance`,`procEx`) VALUES (524, 0, 8.8,0);
