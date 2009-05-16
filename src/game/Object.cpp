@@ -1285,8 +1285,8 @@ void WorldObject::GetRandomPoint( float x, float y, float z, float distance, flo
     }
 
     // angle to face `obj` to `this`
-    float angle = rand_norm()*2*M_PI;
-    float new_dist = rand_norm()*distance;
+    float angle = GetMap()->rand_norm()*2*M_PI;
+    float new_dist = GetMap()->rand_norm()*distance;
 
     rand_x = x + new_dist * cos(angle);
     rand_y = y + new_dist * sin(angle);

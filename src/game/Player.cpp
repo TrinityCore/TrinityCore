@@ -293,7 +293,7 @@ Player::Player (WorldSession *session): Unit()
 
     // randomize first save time in range [CONFIG_INTERVAL_SAVE] around [CONFIG_INTERVAL_SAVE]
     // this must help in case next save after mass player load after server startup
-    m_nextSave = urand(m_nextSave/2,m_nextSave*3/2);
+    m_nextSave = GetMap()->urand(m_nextSave/2,m_nextSave*3/2);
 
     clearResurrectRequestData();
 
@@ -905,7 +905,7 @@ void Player::HandleDrowning()
         {
             //TODO: Check this formula
             uint64 guid = GetGUID();
-            uint32 damage = GetMaxHealth() / 5 + urand(0, getLevel()-1);
+            uint32 damage = GetMaxHealth() / 5 + GetMap()->urand(0, getLevel()-1);
 
             EnvironmentalDamage(guid, DAMAGE_DROWNING,damage);
             m_breathTimer = 2000;
@@ -944,7 +944,7 @@ void Player::HandleLava()
         if (!m_breathTimer)
         {
             uint64 guid = GetGUID();
-            uint32 damage = urand(600, 700);                // TODO: Get more detailed information about lava damage
+            uint32 damage = GetMap()->urand(600, 700);                // TODO: Get more detailed information about lava damage
             uint32 dmgZone = GetZoneId();                   // TODO: Find correct "lava dealing zone" flag in Area Table
 
             // Deal lava damage only in lava zones.
@@ -4724,7 +4724,7 @@ bool Player::UpdateSkill(uint32 skill_id, uint32 step)
     if ((!max) || (!value) || (value >= max))
         return false;
 
-    if (value*512 < max*urand(0,512))
+    if (value*512 < max*GetMap()->urand(0,512))
     {
         uint32 new_value = value+step;
         if(new_value > max)
@@ -4846,7 +4846,7 @@ bool Player::UpdateSkillPro(uint16 SkillId, int32 Chance, uint32 step)
     if ( !MaxValue || !SkillValue || SkillValue >= MaxValue )
         return false;
 
-    int32 Roll = irand(1,1000);
+    int32 Roll = GetMap()->irand(1,1000);
 
     if ( Roll <= Chance )
     {
@@ -6139,7 +6139,7 @@ bool Player::RewardHonor(Unit *uVictim, uint32 groupsize, float honor, bool pvpt
         if(groupsize > 1)
             honor /= groupsize;
 
-        honor *= (((float)urand(8,12))/10);                 // approx honor: 80% - 120% of real honor
+        honor *= (((float)GetMap()->urand(8,12))/10);                 // approx honor: 80% - 120% of real honor
     }
 
     // honor - for show honor points in log
@@ -7417,7 +7417,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
                 loot->FillLoot(1, LootTemplates_Creature, this);
             // It may need a better formula
             // Now it works like this: lvl10: ~6copper, lvl70: ~9silver
-            bones->loot.gold = (uint32)( urand(50, 150) * 0.016f * pow( ((float)pLevel)/5.76f, 2.5f) * sWorld.getRate(RATE_DROP_MONEY) );
+            bones->loot.gold = (uint32)( GetMap()->urand(50, 150) * 0.016f * pow( ((float)pLevel)/5.76f, 2.5f) * sWorld.getRate(RATE_DROP_MONEY) );
         }
 
         if (bones->lootRecipient != this)
@@ -7453,8 +7453,8 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
                     loot->FillLoot(lootid, LootTemplates_Pickpocketing, this);
 
                 // Generate extra money for pick pocket loot
-                const uint32 a = urand(0, creature->getLevel()/2);
-                const uint32 b = urand(0, getLevel()/2);
+                const uint32 a = GetMap()->urand(0, creature->getLevel()/2);
+                const uint32 b = GetMap()->urand(0, getLevel()/2);
                 loot->gold = uint32(10 * (a + b) * sWorld.getRate(RATE_DROP_MONEY));
             }
         }
@@ -19021,7 +19021,7 @@ Player* Player::GetNextRandomRaidMember(float radius)
     if (nearMembers.empty())
         return NULL;
 
-    uint32 randTarget = urand(0,nearMembers.size()-1);
+    uint32 randTarget = GetMap()->urand(0,nearMembers.size()-1);
     return nearMembers[randTarget];
 }
 

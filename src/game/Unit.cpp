@@ -505,8 +505,8 @@ void Unit::GetRandomContactPoint( const Unit* obj, float &x, float &y, float &z,
     }
     uint32 attacker_number = getAttackers().size();
     if(attacker_number > 0) --attacker_number;
-    GetNearPoint(obj,x,y,z,obj->GetCombatReach(), distance2dMin+(distance2dMax-distance2dMin)*rand_norm()
-        , GetAngle(obj) + (attacker_number ? (M_PI/2 - M_PI * rand_norm()) * (float)attacker_number / combat_reach / 3 : 0));
+    GetNearPoint(obj,x,y,z,obj->GetCombatReach(), distance2dMin+(distance2dMax-distance2dMin)*GetMap()->rand_norm()
+                 , GetAngle(obj) + (attacker_number ? (M_PI/2 - M_PI * GetMap()->rand_norm()) * (float)attacker_number / combat_reach / 3 : 0));
 }
 
 void Unit::RemoveMovementImpairingAuras()
@@ -851,7 +851,7 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
             // random durability for items (HIT TAKEN)
             if (roll_chance_f(sWorld.getRate(RATE_DURABILITY_LOSS_DAMAGE)))
             {
-                EquipmentSlots slot = EquipmentSlots(urand(0,EQUIPMENT_SLOT_END-1));
+              EquipmentSlots slot = EquipmentSlots(GetMap()->urand(0,EQUIPMENT_SLOT_END-1));
                 ((Player*)pVictim)->DurabilityPointLossForEquipSlot(slot);
             }
         }
@@ -861,7 +861,7 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
             // random durability for items (HIT DONE)
             if (roll_chance_f(sWorld.getRate(RATE_DURABILITY_LOSS_DAMAGE)))
             {
-                EquipmentSlots slot = EquipmentSlots(urand(0,EQUIPMENT_SLOT_END-1));
+              EquipmentSlots slot = EquipmentSlots(GetMap()->urand(0,EQUIPMENT_SLOT_END-1));
                 ((Player*)this)->DurabilityPointLossForEquipSlot(slot);
             }
         }
@@ -1754,7 +1754,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
             tmpvalue2 = 0.0f;
         if (tmpvalue2 > 0.75f)
             tmpvalue2 = 0.75f;
-        uint32 ran = urand(0, 100);
+        uint32 ran = GetMap()->urand(0, 100);
         uint32 faq[4] = {24,6,4,6};
         uint8 m = 0;
         float Binom = 0.0f;
@@ -2025,7 +2025,7 @@ void Unit::DoAttackDamage (Unit *pVictim, uint32 *damage, CleanDamage *cleanDama
         if(damageAfterArmor < *damage)
             if(pVictim->GetTypeId() == TYPEID_PLAYER)
                 if (roll_chance_f(sWorld.getRate(RATE_DURABILITY_LOSS_ABSORB)))
-                    ((Player*)pVictim)->DurabilityPointLossForEquipSlot(EquipmentSlots(urand(EQUIPMENT_SLOT_START,EQUIPMENT_SLOT_BACK)));
+                ((Player*)pVictim)->DurabilityPointLossForEquipSlot(EquipmentSlots(GetMap()->urand(EQUIPMENT_SLOT_START,EQUIPMENT_SLOT_BACK)));
 
         cleanDamage->damage += *damage - damageAfterArmor;
         *damage = damageAfterArmor;
@@ -2523,7 +2523,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst (const Unit *pVictim, WeaponAttack
     int32    skillBonus  = 4 * ( attackerWeaponSkill - victimMaxSkillValueForLevel );
     int32    skillBonus2 = 4 * ( attackerMaxSkillValueForLevel - victimDefenseSkill );
     int32    sum = 0, tmp = 0;
-    int32    roll = urand (0, 10000);
+    int32    roll = GetMap()->urand (0, 10000);
 
     DEBUG_LOG ("RollMeleeOutcomeAgainst: skill bonus of %d for attacker", skillBonus);
     DEBUG_LOG ("RollMeleeOutcomeAgainst: rolled %d, miss %d, dodge %d, parry %d, block %d, crit %d",
@@ -2714,7 +2714,7 @@ uint32 Unit::CalculateDamage (WeaponAttackType attType, bool normalized)
     if(max_damage == 0.0f)
         max_damage = 5.0f;
 
-    return urand((uint32)min_damage, (uint32)max_damage);
+    return GetMap()->urand((uint32)min_damage, (uint32)max_damage);
 }
 
 float Unit::CalculateLevelPenalty(SpellEntry const* spellProto) const
@@ -2841,7 +2841,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit *pVictim, SpellEntry const *spell)
     int32 skillDiff = attackerWeaponSkill - int32(pVictim->GetMaxSkillValueForLevel(this));
     int32 fullSkillDiff = attackerWeaponSkill - int32(pVictim->GetDefenseSkillValue(this));
 
-    uint32 roll = urand (0, 10000);
+    uint32 roll = GetMap()->urand (0, 10000);
     uint32 missChance = uint32(MeleeSpellMissChance(pVictim, attType, fullSkillDiff, spell->Id)*100.0f);
 
     // Roll miss
@@ -2970,7 +2970,7 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit *pVictim, SpellEntry const *spell)
     if (HitChance <  100) HitChance =  100;
     if (HitChance > 9900) HitChance = 9900;
 
-    uint32 rand = urand(0,10000);
+    uint32 rand = GetMap()->urand(0,10000);
     if (rand > HitChance)
         return SPELL_MISS_RESIST;
     return SPELL_MISS_NONE;
@@ -5205,14 +5205,14 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                         case CLASS_DRUID:                   // 39511,40997,40998,40999,41002,41005,41009,41011,41409
                         {
                             uint32 RandomSpell[]={39511,40997,40998,40999,41002,41005,41009,41011,41409};
-                            triggered_spell_id = RandomSpell[ irand(0, sizeof(RandomSpell)/sizeof(uint32) - 1) ];
+                            triggered_spell_id = RandomSpell[ GetMap()->irand(0, sizeof(RandomSpell)/sizeof(uint32) - 1) ];
                             break;
                         }
                         case CLASS_ROGUE:                   // 39511,40997,40998,41002,41005,41011
                         case CLASS_WARRIOR:                 // 39511,40997,40998,41002,41005,41011
                         {
                             uint32 RandomSpell[]={39511,40997,40998,41002,41005,41011};
-                            triggered_spell_id = RandomSpell[ irand(0, sizeof(RandomSpell)/sizeof(uint32) - 1) ];
+                            triggered_spell_id = RandomSpell[ GetMap()->irand(0, sizeof(RandomSpell)/sizeof(uint32) - 1) ];
                             break;
                         }
                         case CLASS_PRIEST:                  // 40999,41002,41005,41009,41011,41406,41409
@@ -5221,13 +5221,13 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                         case CLASS_WARLOCK:                 // 40999,41002,41005,41009,41011,41406,41409
                         {
                             uint32 RandomSpell[]={40999,41002,41005,41009,41011,41406,41409};
-                            triggered_spell_id = RandomSpell[ irand(0, sizeof(RandomSpell)/sizeof(uint32) - 1) ];
+                            triggered_spell_id = RandomSpell[ GetMap()->irand(0, sizeof(RandomSpell)/sizeof(uint32) - 1) ];
                             break;
                         }
                         case CLASS_HUNTER:                  // 40997,40999,41002,41005,41009,41011,41406,41409
                         {
                             uint32 RandomSpell[]={40997,40999,41002,41005,41009,41011,41406,41409};
-                            triggered_spell_id = RandomSpell[ irand(0, sizeof(RandomSpell)/sizeof(uint32) - 1) ];
+                            triggered_spell_id = RandomSpell[ GetMap()->irand(0, sizeof(RandomSpell)/sizeof(uint32) - 1) ];
                             break;
                         }
                         default:
@@ -10304,7 +10304,7 @@ int32 Unit::CalculateSpellDamage(SpellEntry const* spellProto, uint8 effect_inde
     float comboDamage = spellProto->EffectPointsPerComboPoint[effect_index];
 
     // prevent random generator from getting confused by spells casted with Unit::CastCustomSpell
-    int32 randvalue = spellProto->EffectBaseDice[effect_index] >= randomPoints ? spellProto->EffectBaseDice[effect_index]:irand(spellProto->EffectBaseDice[effect_index], randomPoints);
+    int32 randvalue = spellProto->EffectBaseDice[effect_index] >= randomPoints ? spellProto->EffectBaseDice[effect_index]:GetMap()->irand(spellProto->EffectBaseDice[effect_index], randomPoints);
     int32 value = basePoints + randvalue;
     //random damage
     if(comboDamage != 0 && unitPlayer /*&& target && (target->GetGUID() == unitPlayer->GetComboTarget())*/)
@@ -12060,7 +12060,7 @@ Unit* Unit::SelectNearbyTarget(float dist) const
         return NULL;
 
     // select random
-    uint32 rIdx = urand(0,targets.size()-1);
+    uint32 rIdx = GetMap()->urand(0,targets.size()-1);
     std::list<Unit *>::const_iterator tcIter = targets.begin();
     for(uint32 i = 0; i < rIdx; ++i)
         ++tcIter;
