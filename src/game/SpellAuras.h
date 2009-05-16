@@ -68,7 +68,7 @@ class TRINITY_DLL_SPEC Aura
         int32 GetAuraMaxDuration() const { return m_maxduration; }
         void SetAuraMaxDuration(int32 duration) { m_maxduration = duration; }
         int32 GetAuraDuration() const { return m_duration; }
-        void SetAuraDuration(int32 duration);
+        void SetAuraDuration(int32 duration, bool withMods = false);
         void RefreshAura() { SetAuraDuration(m_maxduration); }
         bool IsExpired() const { return !GetAuraDuration() && !(IsPermanent() || IsPassive()); }
 

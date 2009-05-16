@@ -1229,8 +1229,13 @@ bool Aura::modStackAmount(int32 num)
     return false;
 }
 
-void Aura::SetAuraDuration(int32 duration)
+void Aura::SetAuraDuration(int32 duration, bool withMods)
 {
+    if (withMods)
+    {
+        if (Player * modOwner = m_target->GetSpellModOwner())
+            modOwner->ApplySpellMod(GetId(), SPELLMOD_DURATION, duration);
+    }
     m_duration = duration;
     //if (duration<0)
         //m_permanent=true;
@@ -2480,6 +2485,13 @@ void AuraEffect::HandleAuraDummy(bool apply, bool Real, bool changeAmount)
         if(GetId()==34477)
         {
             m_target->SetReducedThreatPercent(0, 0);
+            return;
+        }
+
+        // Wrath of the Astromancer
+        if (GetId()==42783)
+        {
+            m_target->CastSpell(m_target,m_amount,true,NULL,this);
             return;
         }
 
