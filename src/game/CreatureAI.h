@@ -82,6 +82,7 @@ class TRINITY_DLL_SPEC CreatureAI : public UnitAI
         Creature * const m_creature;
 
         bool UpdateVictim();
+        bool UpdateVictimByReact();
     public:
         explicit CreatureAI(Creature *c) : UnitAI((Unit*)c), me(c), m_creature(c) {}
 
