@@ -5910,7 +5910,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 // lookup Slice and Dice
                 if (AuraEffect * aur = GetAura(SPELL_AURA_MOD_HASTE, SPELLFAMILY_ROGUE,0x40000, 0, 0))
                 {
-                    aur->GetParentAura()->SetAuraDuration(GetSpellMaxDuration(aur->GetSpellProto()));
+                    aur->GetParentAura()->SetAuraDuration(GetSpellMaxDuration(aur->GetSpellProto()), true);
                     return true;
                 }
                 return false;
@@ -12812,6 +12812,11 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit *pVictim, Aura * aura, SpellEntry co
     if (!EventProcFlag)
         return false;
 
+    // Do not proc spells for totem if aura does not require family to proc
+    if (GetTypeId()==TYPEID_UNIT && isTotem() && ((*Totem)this)->target->IsControlledByPlayer())
+        if (!spellProcEvent || !spellProcEvent->spellFamilyFlags)
+            return false;
+
     // Additional checks for triggered spells
     if (procExtra & PROC_EX_INTERNAL_TRIGGERED)
     {
@@ -12922,9 +12927,6 @@ bool Unit::HandleAuraRaidProcFromChargeWithValue( AuraEffect* triggeredByAura )
                 CastCustomSpell(target,spellProto->Id,&heal,NULL,NULL,true,NULL,triggeredByAura,caster->GetGUID());
                 if (Aura * aur = target->GetAura(spellProto->Id, caster->GetGUID()))
                     aur->SetAuraCharges(jumps);
-
-                //bonus must be applied after aura cast on target
-                heal = caster->SpellHealingBonus(this, spellProto, heal, HEAL);
             }
         }
     }
