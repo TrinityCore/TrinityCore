@@ -10681,6 +10681,9 @@ void Unit::TauntApply(Unit* taunter)
     if(!CanHaveThreatList())
         return;
 
+    if(((Creature*)this)->HasReactState(REACT_PASSIVE))
+        return;
+
     Unit *target = getVictim();
     if(target && target == taunter)
         return;
@@ -10702,6 +10705,9 @@ void Unit::TauntFadeOut(Unit *taunter)
         return;
 
     if(!CanHaveThreatList())
+        return;
+
+    if(((Creature*)this)->HasReactState(REACT_PASSIVE))
         return;
 
     Unit *target = getVictim();
@@ -12813,8 +12819,8 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit *pVictim, Aura * aura, SpellEntry co
         return false;
 
     // Do not proc spells for totem if aura does not require family to proc
-    if (GetTypeId()==TYPEID_UNIT && isTotem() && ((*Totem)this)->target->IsControlledByPlayer())
-        if (!spellProcEvent || !spellProcEvent->spellFamilyFlags)
+    if (GetTypeId()==TYPEID_UNIT && ((Creature*)this)->isTotem() && ((Totem*)this)->IsControlledByPlayer())
+        if (!spellProcEvent || !spellProcEvent->spellFamilyName)
             return false;
 
     // Additional checks for triggered spells
