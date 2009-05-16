@@ -1489,12 +1489,10 @@ INSERT INTO `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `Spell
 (9784, 0, 0, 0, 0, 0, 0, 64, 0, 0, 0),
 (9799, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0),
 (56372, 0, 3, 0, 128, 0, 16384, 0, 0, 0, 0);
--- (42370, 0x00, 11, 0x00000080, 0x00000000, 0x00000000, 0.000000, 0.000000, 0);
 
 -- --------
 -- ENCHANT PROC
 -- --------
-
 DROP TABLE IF EXISTS `spell_enchant_proc_data`;
 CREATE TABLE `spell_enchant_proc_data` (
   `entry` INT(10) UNSIGNED NOT NULL,
