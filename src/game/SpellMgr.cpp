@@ -2649,10 +2649,6 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2, bool
     //if spells have exactly the same effect they cannot stack
     for(uint32 i = 0; i < 3; ++i)
         if(spellInfo_1->Effect[i] != spellInfo_2->Effect[i]
-            // Overkill and master of subtlety need this
-            || spellInfo_1->EffectApplyAuraName[i] == SPELL_AURA_DUMMY
-            || spellInfo_1->EffectApplyAuraName[i] == SPELL_AURA_PERIODIC_DUMMY
-
             || spellInfo_1->EffectApplyAuraName[i] != spellInfo_2->EffectApplyAuraName[i]
             || spellInfo_1->EffectMiscValue[i] != spellInfo_2->EffectMiscValue[i]) // paladin resist aura
             return false; // need itemtype check? need an example to add that check
@@ -2665,6 +2661,9 @@ bool IsDispelableBySpell(SpellEntry const * dispelSpell, uint32 spellId, bool de
     if (!dispelSpell) return false;
     SpellEntry const *spellproto = sSpellStore.LookupEntry(spellId);
     if (!spellproto) return false;
+
+    if (spellproto->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY)
+        return false;
 
     if(dispelSpell->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY)
         return true;
