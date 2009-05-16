@@ -97,6 +97,33 @@ void CreatureAI::MoveInLineOfSight(Unit *who)
         AttackStart(who->getVictim());
 }
 
+void CreatureAI::SetGazeOn(Unit *target)
+{
+    if(me->canAttack(target))
+    {
+        AttackStart(target);
+        me->SetReactState(REACT_PASSIVE);
+    }
+}
+
+bool CreatureAI::UpdateVictimWithGaze()
+{
+    if(!me->isInCombat())
+        return false;
+
+    if(me->HasReactState(REACT_PASSIVE))
+    {
+        if(me->getVictim())
+            return true;
+        else
+            me->SetReactState(REACT_AGGRESSIVE);
+    }
+
+    if(Unit *victim = me->SelectVictim())
+        AttackStart(victim);
+    return me->getVictim();
+}
+
 bool CreatureAI::UpdateVictimByReact()
 {
     if(!me->isInCombat())
