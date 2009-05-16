@@ -4067,7 +4067,7 @@ void Spell::EffectTaunt(uint32 /*i*/)
             unitTarget->getThreatManager().addThreat(m_caster, itsThreat - myThreat);
     }
 
-    if(((Creature*)unitTarget)->IsAIEnabled)
+    if(((Creature*)unitTarget)->IsAIEnabled && !((Creature*)unitTarget)->HasReactState(REACT_PASSIVE))
         ((Creature*)unitTarget)->AI()->AttackStart(m_caster);
 }
 
