@@ -51,7 +51,7 @@ void CreatureAI::DoZoneInCombat(Creature* creature)
 
     if(!creature->HasReactState(REACT_PASSIVE) && !creature->getVictim())
     {
-        if(Unit *target = creature->SelectNearestTarget())
+        if(Unit *target = creature->SelectNearestTarget(50))
             creature->AI()->AttackStart(target);
         else if(creature->isSummon())
         {
@@ -95,6 +95,26 @@ void CreatureAI::MoveInLineOfSight(Unit *who)
         && me->IsWithinDistInMap(who, sWorld.getConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_RADIUS))
         && me->canAttack(who->getVictim()))
         AttackStart(who->getVictim());
+}
+
+bool CreatureAI::UpdateVictimByReact()
+{
+    if(!me->isInCombat())
+        return false;
+
+    if(me->HasReactState(REACT_AGGRESSIVE))
+    {
+        if(Unit *victim = me->SelectVictim())
+            AttackStart(victim);
+        return me->getVictim();
+    }
+    else if(me->getThreatManager().isThreatListEmpty())
+    {
+        EnterEvadeMode();
+        return false;
+    }
+
+    return true;
 }
 
 bool CreatureAI::UpdateVictim()

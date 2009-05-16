@@ -23,6 +23,7 @@
 #include "Map.h"
 #include "GameObject.h"
 #include "Creature.h"
+#include "CreatureAI.h"
 
 void InstanceData::SaveToDB()
 {
@@ -58,6 +59,18 @@ void InstanceData::OnCreatureCreate(Creature *creature, bool add)
     OnCreatureCreate(creature, creature->GetEntry());
 }
 
+void InstanceData::LoadMinionData(const MinionData *data)
+{
+    while(data->entry)
+    {
+        if(data->bossId < bosses.size())
+            minions.insert(std::make_pair(data->entry, MinionInfo(&bosses[data->bossId])));
+
+        ++data;
+    }
+    sLog.outDebug("InstanceData::LoadMinionData: %u minions loaded.", doors.size());
+}
+
 void InstanceData::LoadDoorData(const DoorData *data)
 {
     while(data->entry)
@@ -68,6 +81,25 @@ void InstanceData::LoadDoorData(const DoorData *data)
         ++data;
     }
     sLog.outDebug("InstanceData::LoadDoorData: %u doors loaded.", doors.size());
+}
+
+void InstanceData::UpdateMinionState(Creature *minion, EncounterState state)
+{
+    switch(state)
+    {
+        case NOT_STARTED:
+            if(!minion->isAlive())
+                minion->Respawn();
+            else if(minion->isInCombat())
+                minion->AI()->EnterEvadeMode();
+            break;
+        case IN_PROGRESS:
+            if(!minion->isAlive())
+                minion->Respawn();
+            else if(!minion->getVictim())
+                minion->AI()->DoZoneInCombat();
+            break;
+    }
 }
 
 void InstanceData::UpdateDoorState(GameObject *door)
@@ -120,6 +152,18 @@ void InstanceData::AddDoor(GameObject *door, bool add)
         UpdateDoorState(door);
 }
 
+void InstanceData::AddMinion(Creature *minion, bool add)
+{
+    MinionInfoMap::iterator itr = minions.find(minion->GetEntry());
+    if(itr == minions.end())
+        return;
+
+    if(add)
+        itr->second.bossInfo->minion.insert(minion);
+    else
+        itr->second.bossInfo->minion.erase(minion);
+}
+
 void InstanceData::SetBossState(uint32 id, EncounterState state)
 {
     if(id < bosses.size())
@@ -138,6 +182,9 @@ void InstanceData::SetBossState(uint32 id, EncounterState state)
         for(uint32 type = 0; type < MAX_DOOR_TYPES; ++type)
             for(DoorSet::iterator i = bossInfo->door[type].begin(); i != bossInfo->door[type].end(); ++i)
                 UpdateDoorState(*i);
+
+        for(MinionSet::iterator i = bossInfo->minion.begin(); i != bossInfo->minion.end(); ++i)
+            UpdateMinionState(*i, state);
     }
 }
 
