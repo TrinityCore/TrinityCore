@@ -145,15 +145,26 @@ Map* MapInstanced::GetInstance(const WorldObject* obj)
                 pSave = groupBind->save;
     }
 
-    if(instanceId && pSave && instanceId != pSave->GetInstanceId())
-        return NULL;
-    
-    if(!player->GetSession()->PlayerLoading()) // enter a new map
+    if(pSave)
     {
-        if(pSave)
-            return CreateInstance(pSave->GetInstanceId(), pSave, pSave->GetDifficulty());
-        else
-            return CreateInstance(MapManager::Instance().GenerateInstanceId(), NULL, player->GetDifficulty());
+        if(!instanceId)
+        {
+            instanceId = pSave->GetInstanceId(); // go from outside to instance
+            if(Map *map = _FindMap(instanceId))
+                return map;
+        }
+        else if(instanceId != pSave->GetInstanceId()) // cannot go from one instance to another
+            return NULL;
+        // else log in at a saved instance
+
+        return CreateInstance(instanceId, pSave, pSave->GetDifficulty());
+    }
+    else if(!player->GetSession()->PlayerLoading())
+    {
+        if(!instanceId)
+            instanceId = MapManager::Instance().GenerateInstanceId();
+
+        return CreateInstance(instanceId, NULL, player->GetDifficulty());
     }
 
     return NULL;
