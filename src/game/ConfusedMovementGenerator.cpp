@@ -44,8 +44,8 @@ ConfusedMovementGenerator<T>::Initialize(T &unit)
 
     for(unsigned int idx=0; idx < MAX_CONF_WAYPOINTS+1; ++idx)
     {
-        const float wanderX=wander_distance*rand_norm() - wander_distance/2;
-        const float wanderY=wander_distance*rand_norm() - wander_distance/2;
+      const float wanderX=wander_distance*rand_norm() - wander_distance/2;
+      const float wanderY=wander_distance*rand_norm() - wander_distance/2;
 
         i_waypoints[idx][0] = x + wanderX;
         i_waypoints[idx][1] = y + wanderY;

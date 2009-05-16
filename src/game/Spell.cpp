@@ -1601,7 +1601,7 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
                     AddUnitTarget(m_caster, i);                   
                     float min_dis = GetSpellMinRange(sSpellRangeStore.LookupEntry(m_spellInfo->rangeIndex));
                     float max_dis = GetSpellMaxRange(sSpellRangeStore.LookupEntry(m_spellInfo->rangeIndex));
-                    float dis = rand_norm() * (max_dis - min_dis) + min_dis;
+                    float dis = m_caster->GetMap()->rand_norm() * (max_dis - min_dis) + min_dis;
                     float x, y, z;
                     m_caster->GetClosePoint(x, y, z, DEFAULT_WORLD_OBJECT_SIZE, dis);
                     m_targets.setDestination(x, y, z);
@@ -1729,7 +1729,7 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
             if(dist < objSize)
                 dist = objSize;
             else if(cur == TARGET_DEST_CASTER_RANDOM)
-                dist = objSize + (dist - objSize) * rand_norm();
+              dist = objSize + (dist - objSize) * m_caster->GetMap()->rand_norm();
 
             switch(cur)
             {
@@ -1773,7 +1773,7 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
             if(dist < objSize)
                 dist = objSize;
             else if(cur == TARGET_DEST_CASTER_RANDOM)
-                dist = objSize + (dist - objSize) * rand_norm();
+              dist = objSize + (dist - objSize) * m_caster->GetMap()->rand_norm();
 
             switch(cur)
             {
@@ -1785,7 +1785,7 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
                 case TARGET_DEST_TARGET_BACK_LEFT:  angle = -3*M_PI/4;  break;
                 case TARGET_DEST_TARGET_BACK_RIGHT: angle = 3*M_PI/4;   break;
                 case TARGET_DEST_TARGET_FRONT_RIGHT:angle = M_PI/4;     break;
-                default:                            angle = rand_norm()*2*M_PI; break;
+            default:                            angle = m_caster->GetMap()->rand_norm()*2*M_PI; break;
             }
 
             target->GetGroundPointAroundUnit(x, y, z, dist, angle);
@@ -1818,13 +1818,13 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
                 case TARGET_DEST_DEST_BACK_LEFT:  angle = -3*M_PI/4;  break;
                 case TARGET_DEST_DEST_BACK_RIGHT: angle = 3*M_PI/4;   break;
                 case TARGET_DEST_DEST_FRONT_RIGHT:angle = M_PI/4;     break;
-                default:                          angle = rand_norm()*2*M_PI; break;
+            default:                          angle = m_caster->GetMap()->rand_norm()*2*M_PI; break;
             }
 
             float dist, x, y, z;
             dist = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
             if (cur == TARGET_DEST_DEST_RANDOM)
-                dist *= rand_norm();
+              dist *= m_caster->GetMap()->rand_norm();
 
             x = m_targets.m_destX;
             y = m_targets.m_destY;
@@ -3262,7 +3262,7 @@ void Spell::TakePower()
     if(hit)
         m_caster->ModifyPower(powerType, -m_powerCost);
     else
-        m_caster->ModifyPower(powerType, -irand(0, m_powerCost/4));
+      m_caster->ModifyPower(powerType, -m_caster->GetMap()->irand(0, m_powerCost/4));
 
     // Set the five second timer
     if (powerType == POWER_MANA && m_powerCost > 0)
@@ -3875,7 +3875,7 @@ uint8 Spell::CanCast(bool strict)
                 // chance for fail at orange skinning attempt
                 if( (m_selfContainer && (*m_selfContainer) == this) &&
                     skillValue < sWorld.GetConfigMaxSkillValue() &&
-                    (ReqValue < 0 ? 0 : ReqValue) > irand(skillValue-25, skillValue+37) )
+                    (ReqValue < 0 ? 0 : ReqValue) > m_caster->GetMap()->irand(skillValue-25, skillValue+37) )
                     return SPELL_FAILED_TRY_AGAIN;
 
                 break;
@@ -4013,7 +4013,7 @@ uint8 Spell::CanCast(bool strict)
                     return SPELL_FAILED_LOW_CASTLEVEL;
 
                 // chance for failure in orange gather / lockpick (gathering skill can't fail at maxskill)
-                if((canFailAtMax || SkillValue < sWorld.GetConfigMaxSkillValue()) && ReqValue > irand(SkillValue-25, SkillValue+37))
+                if((canFailAtMax || SkillValue < sWorld.GetConfigMaxSkillValue()) && ReqValue > m_caster->GetMap()->irand(SkillValue-25, SkillValue+37))
                     return SPELL_FAILED_TRY_AGAIN;
 
                 break;
