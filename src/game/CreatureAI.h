@@ -83,6 +83,7 @@ class TRINITY_DLL_SPEC CreatureAI : public UnitAI
 
         bool UpdateVictim();
         bool UpdateVictimByReact();
+        bool UpdateVictimWithGaze();
     public:
         explicit CreatureAI(Creature *c) : UnitAI((Unit*)c), me(c), m_creature(c) {}
 
@@ -166,6 +167,8 @@ class TRINITY_DLL_SPEC CreatureAI : public UnitAI
 
         Unit* SelectTarget(SelectAggroTarget target, uint32 position = 0, float dist = 0, bool playerOnly = false, int32 aura = 0);
         void SelectTargetList(std::list<Unit*> &targetList, uint32 num, SelectAggroTarget target, float dist = 0, bool playerOnly = false, int32 aura = 0);
+
+        void SetGazeOn(Unit *target);
 
         static AISpellInfoType *AISpellInfo;
         static void FillAISpellInfo();

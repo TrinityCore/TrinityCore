@@ -23,43 +23,14 @@
 #define SPELL_BERSERK           26662
 #define SPELL_INFECTED_WOUND    29306
 
-#define MOB_ZOMBIE
+#define MOB_ZOMBIE  16360
 
-#define ADD_1X 3269.590
-#define ADD_1Y -3161.287
-#define ADD_1Z 297.423
-
-#define ADD_2X 3277.797
-#define ADD_2Y -3170.352
-#define ADD_2Z 297.423
-
-#define ADD_3X 3267.049
-#define ADD_3Y -3172.820
-#define ADD_3Z 297.423
-
-#define ADD_4X 3252.157
-#define ADD_4Y -3132.135
-#define ADD_4Z 297.423
-
-#define ADD_5X 3259.990
-#define ADD_5Y -3126.590
-#define ADD_5Z 297.423
-
-#define ADD_6X 3259.815
-#define ADD_6Y -3137.576
-#define ADD_6Z 297.423
-
-#define ADD_7X 3308.030
-#define ADD_7Y -3132.135
-#define ADD_7Z 297.423
-
-#define ADD_8X 3303.046
-#define ADD_8Y -3180.682
-#define ADD_8Z 297.423
-
-#define ADD_9X 3313.283
-#define ADD_9Y -3180.766
-#define ADD_9Z 297.423
+const float PosSummon[3][4] =
+{
+    {3267.9, -3172.1, 297.42, 0.94},
+    {3253.2, -3132.3, 297.42, 0},
+    {3308.3, -3185.8, 297.42, 1.58},
+};
 
 enum Events
 {
@@ -78,18 +49,37 @@ struct TRINITY_DLL_DECL boss_gluthAI : public BossAI
         me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_INFECTED_WOUND, true);
     }
 
+    std::vector<Creature*> triggers;
+
+    void Reset()
+    {
+        triggers.clear();
+        _Reset();
+    }
+
     void MoveInLineOfSight(Unit *who)
     {
-        /*if(who->GetEntry() == MOB_ZOMBIE)
+        if(who->GetEntry() == MOB_ZOMBIE && me->IsWithinDistInMap(who, 20))
         {
-            me->AddThreat(who, 1000000
+            SetGazeOn(who);
+            me->MonsterTextEmote(" spots a nearby zombie to devour!", 0, true);
         }
         else
-            BossAI::MoveInLineOfSight(who);*/
+            BossAI::MoveInLineOfSight(who);
     }
 
     void EnterCombat(Unit *who)
     {
+        for(uint32 i = 0; i < 3; ++i)
+            if(Creature *trigger = DoSummon(WORLD_TRIGGER, PosSummon[i]))
+                triggers.push_back(trigger);
+        if(triggers.size() < 3)
+        {
+            error_log("Script Gluth: cannot summon triggers!");
+            EnterEvadeMode();
+            return;
+        }
+
         _EnterCombat();
         events.ScheduleEvent(EVENT_WOUND, 10000);
         events.ScheduleEvent(EVENT_ENRAGE, 30000);
@@ -98,9 +88,18 @@ struct TRINITY_DLL_DECL boss_gluthAI : public BossAI
         events.ScheduleEvent(EVENT_SUMMON, 10000);
     }
 
+    void JustSummoned(Creature *summon)
+    {
+        if(summon->GetEntry() == WORLD_TRIGGER)
+            summon->setActive(true);
+        else if(summon->GetEntry() == MOB_ZOMBIE)
+            summon->AI()->AttackStart(me);
+        summons.Summon(summon);
+    }
+
     void UpdateAI(const uint32 diff)
     {
-        if(!UpdateVictim())
+        if(!UpdateVictimWithGaze())
             return;
 
         events.Update(diff);
@@ -126,14 +125,25 @@ struct TRINITY_DLL_DECL boss_gluthAI : public BossAI
                     return;
                 case EVENT_SUMMON:
                     for(uint32 i = 0; i < HEROIC(1,2); ++i)
-                    //SummonZombie(HEROIC(1,2));
+                        DoSummon(MOB_ZOMBIE, triggers[rand()%3]);
+                    events.ScheduleEvent(EVENT_SUMMON, 10000);
                     return;
             }
         }
 
-        DoMeleeAttackIfReady();
+        if(me->getVictim()->GetEntry() == MOB_ZOMBIE)
+        {
+            if(me->IsWithinMeleeRange(me->getVictim()))
+            {
+                me->Kill(me->getVictim());
+                me->ModifyHealth(me->GetMaxHealth() * 0.05f);
+            }
+        }
+        else
+            DoMeleeAttackIfReady();
     }
 };
+
 CreatureAI* GetAI_boss_gluth(Creature *_Creature)
 {
     return new boss_gluthAI (_Creature);
