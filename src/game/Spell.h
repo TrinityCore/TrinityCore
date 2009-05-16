@@ -691,6 +691,8 @@ namespace Trinity
                         }
                         break;
                     case SPELL_TARGETS_ALLY:
+                        if(target->GetTypeId() == TYPEID_UNIT && ((Creature*)target)->isTotem())
+                            continue;
                         if(!target->isAttackableByAOE() || !i_source->IsFriendlyTo(target))
                             continue;
                         break;
