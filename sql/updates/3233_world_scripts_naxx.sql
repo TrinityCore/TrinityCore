@@ -53,6 +53,8 @@ INSERT INTO creature_template (entry, spell1, spell2, spell3, spell4, spell5, sp
 (29632, 15496, 0, 0, 0, 0, 0, 0, 0), # Plagued Warrior (H)
 (16290, 28156, 0, 0, 0, 0, 0, 0, 0), # Fallout Slime
 (29388, 54367, 0, 0, 0, 0, 0, 0, 0), # Fallout Slime (H)
+(16360, 29307, 0, 0, 0, 0, 0, 0, 0), # Zombie Chow
+(30303, 29307, 0, 0, 0, 0, 0, 0, 0), # Zombie Chow (H)
 (16803, 0, 0, 0, 61696, 29060, 29061, 0, 0), # Death Knight Understudy
 (29941, 0, 0, 0, 61696, 29060, 29061, 0, 0), # Death Knight Understudy (H)
 (16124, 55604, 0, 0, 0, 0, 0, 0, 27892), # Unrelenting Trainee
