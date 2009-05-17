@@ -1659,6 +1659,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void _DeleteAuras();
 
         void _UpdateAutoRepeatSpell();
+
         bool m_AutoRepeatFirstCast;
 
         uint32 m_attackTimer[MAX_ATTACK];
