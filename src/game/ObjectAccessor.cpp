@@ -97,6 +97,9 @@ ObjectAccessor::GetNPCIfCanInteractWith(Player const &player, uint64 guid, uint3
     if(!player.CanInteractWithNPCs(!unit->isSpiritService()))
         return NULL;
 
+    if(!player.IsFriendlyTo(unit))
+        return NULL;
+    
     // appropriate npc type
     if(npcflagmask && !unit->HasFlag( UNIT_NPC_FLAGS, npcflagmask ))
         return NULL;
