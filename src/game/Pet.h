@@ -255,5 +255,4 @@ class Pet : public Guardian
             assert(false);
         }
 };
-
 #endif
