@@ -94,7 +94,7 @@ bool GossipSelect_npc_raliq_the_drunk(Player *player, Creature *_Creature, uint3
     {
         player->CLOSE_GOSSIP_MENU();
         _Creature->setFaction(FACTION_HOSTILE_RD);
-        ((npc_raliq_the_drunkAI*)_Creature->AI())->AttackStart(player);
+        _Creature->AI()->AttackStart(player);
     }
     return true;
 }
@@ -158,7 +158,7 @@ bool GossipHello_npc_salsalabim(Player *player, Creature *_Creature)
     if( player->GetQuestStatus(QUEST_10004) == QUEST_STATUS_INCOMPLETE )
     {
         _Creature->setFaction(FACTION_HOSTILE_SA);
-        ((npc_salsalabimAI*)_Creature->AI())->AttackStart(player);
+        _Creature->AI()->AttackStart(player);
     }
     else
     {

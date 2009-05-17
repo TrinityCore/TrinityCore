@@ -150,9 +150,9 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
     void AttackStart(Unit* who)
     {
         if(Phase1)
-            ScriptedAI::AttackStart(who, false);
+            AttackStartNoMove(who);
         else
-            ScriptedAI::AttackStart(who, true);
+            ScriptedAI::AttackStart(who);
     }
 
     void DamageTaken(Unit* pKiller, uint32 &damage)

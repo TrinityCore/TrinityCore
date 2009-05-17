@@ -84,29 +84,13 @@ ScriptedAI::ScriptedAI(Creature* creature) : CreatureAI(creature), m_creature(cr
     HeroicMode = m_creature->GetMap()->IsHeroic();
 }
 
-void ScriptedAI::AttackStart(Unit* who, bool melee)
+void ScriptedAI::AttackStartNoMove(Unit* who)
 {
     if (!who)
         return;
 
-    if (m_creature->Attack(who, melee))
-    {
-        if(melee)
-            DoStartMovement(who);
-        else
-            DoStartNoMovement(who);
-    }
-}
-
-void ScriptedAI::AttackStart(Unit* who)
-{
-    if (!who)
-        return;
-
-    if (m_creature->Attack(who, true))
-    {
-        DoStartMovement(who);
-    }
+    if(m_creature->Attack(who, false))
+        DoStartNoMovement(who);
 }
 
 void ScriptedAI::UpdateAI(const uint32 diff)
@@ -650,6 +634,12 @@ void Scripted_NoMovementAI::AttackStart(Unit* who)
     }
 }
 
+BossAI::BossAI(Creature *c, uint32 id) : ScriptedAI(c)
+, bossId(id), summons(me), instance(c->GetInstanceData())
+, boundary(instance ? instance->GetBossBoundary(id) : NULL)
+{
+}
+
 void BossAI::_Reset()
 {
     events.Reset();
@@ -671,6 +661,53 @@ void BossAI::_EnterCombat()
     DoZoneInCombat();
     if(instance)
         instance->SetBossState(bossId, IN_PROGRESS);
+}
+
+bool BossAI::CheckBoundary(Unit *who)
+{
+    if(!boundary || !who)
+        return true;
+
+    for(BossBoundaryMap::const_iterator itr = boundary->begin(); itr != boundary->end(); ++itr)
+    {
+        switch(itr->first)
+        {
+            case BOUNDARY_N:
+                if(me->GetPositionX() > itr->second)
+                    return false;
+                break;
+            case BOUNDARY_S:
+                if(me->GetPositionX() < itr->second)
+                    return false;
+                break;
+            case BOUNDARY_E:
+                if(me->GetPositionY() < itr->second)
+                    return false;
+                break;
+            case BOUNDARY_W:
+                if(me->GetPositionY() > itr->second)
+                    return false;
+                break;
+            case BOUNDARY_NW:
+                if(me->GetPositionX() + me->GetPositionY() > itr->second)
+                    return false;
+                break;
+            case BOUNDARY_SE:
+                if(me->GetPositionX() + me->GetPositionY() < itr->second)
+                    return false;
+                break;
+            case BOUNDARY_NE:
+                if(me->GetPositionX() - me->GetPositionY() > itr->second)
+                    return false;
+                break;
+            case BOUNDARY_SW:
+                if(me->GetPositionX() - me->GetPositionY() < itr->second)
+                    return false;
+                break;
+        }
+    }
+
+    return true;
 }
 
 void BossAI::JustSummoned(Creature *summon)

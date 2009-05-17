@@ -441,9 +441,9 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
             return;
 
         if(Phase == PHASE_FLIGHT || Phase == PHASE_DEMON)
-            ScriptedAI::AttackStart(who, false);
+            AttackStartNoMove(who);
         else
-            ScriptedAI::AttackStart(who, true);
+            ScriptedAI::AttackStart(who);
     }
 
     void MoveInLineOfSight(Unit *who) {}
@@ -1415,16 +1415,16 @@ struct TRINITY_DLL_DECL boss_maievAI : public ScriptedAI
             return;
 
         if(Phase == PHASE_TALK_SEQUENCE)
-            ScriptedAI::AttackStart(who, false);
+            AttackStartNoMove(who);
         else if(Phase == PHASE_DEMON || Phase == PHASE_TRANSFORM_SEQUENCE )
         {
             GETUNIT(Illidan, IllidanGUID);
             if(Illidan && m_creature->IsWithinDistInMap(Illidan, 25))
                 BlinkToPlayer();//Do not let dread aura hurt her.
-            ScriptedAI::AttackStart(who, false);
+            AttackStartNoMove(who);
         }
         else
-            ScriptedAI::AttackStart(who, true);
+            ScriptedAI::AttackStart(who);
     }
 
     void DoAction(const int32 param)

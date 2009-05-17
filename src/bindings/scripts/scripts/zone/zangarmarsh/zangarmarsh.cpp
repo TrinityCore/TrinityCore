@@ -173,7 +173,7 @@ bool GossipSelect_npc_cooshcoosh(Player *player, Creature *_Creature, uint32 sen
     {
         player->CLOSE_GOSSIP_MENU();
         _Creature->setFaction(FACTION_HOSTILE_CO);
-        ((npc_cooshcooshAI*)_Creature->AI())->AttackStart(player);
+        _Creature->AI()->AttackStart(player);
     }
     return true;
 }

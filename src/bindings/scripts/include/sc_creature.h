@@ -11,6 +11,7 @@
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
+#include "InstanceData.h"
 
 class ScriptedInstance;
 
@@ -55,9 +56,7 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
     //CreatureAI Functions
     //*************
 
-    //Called at each attack of m_creature by any victim
-    void AttackStart(Unit *);
-    void AttackStart(Unit *, bool melee);
+    void AttackStartNoMove(Unit *target);
 
     // Called at any Damage from any attacker (before damage apply)
     void DamageTaken(Unit *done_by, uint32 &damage) {}
@@ -204,27 +203,36 @@ struct TRINITY_DLL_DECL Scripted_NoMovementAI : public ScriptedAI
 
 struct TRINITY_DLL_DECL BossAI : public ScriptedAI
 {
-    BossAI(Creature *c, uint32 id) : ScriptedAI(c), bossId(id)
-        , summons(me), instance(c->GetInstanceData())
-    {}
+    BossAI(Creature *c, uint32 id);
 
-    uint32 bossId;
+    const uint32 bossId;
     EventMap events;
     SummonList summons;
-    InstanceData *instance;
+    InstanceData * const instance;
+    const BossBoundaryMap * const boundary;
 
     void JustSummoned(Creature *summon);
     void SummonedCreatureDespawn(Creature *summon);
 
     void UpdateAI(const uint32 diff) = 0;
 
-    void _Reset();
-    void _EnterCombat();
-    void _JustDied();
-
     void Reset() { _Reset(); }
     void EnterCombat(Unit *who) { _EnterCombat(); }
     void JustDied(Unit *killer) { _JustDied(); }
+
+    protected:
+        void _Reset();
+        void _EnterCombat();
+        void _JustDied();
+
+        bool CheckInRoom()
+        {
+            if(CheckBoundary(me))
+                return true;
+            EnterEvadeMode();
+            return false;
+        }
+        bool CheckBoundary(Unit *who);
 };
 
 #endif

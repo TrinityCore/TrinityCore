@@ -99,7 +99,7 @@ struct TRINITY_DLL_DECL boss_gluthAI : public BossAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!UpdateVictimWithGaze())
+        if(!UpdateVictimWithGaze() || !CheckInRoom())
             return;
 
         events.Update(diff);

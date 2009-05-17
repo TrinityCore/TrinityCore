@@ -128,19 +128,8 @@ struct TRINITY_DLL_DECL boss_nothAI : public BossAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(me->HasReactState(REACT_AGGRESSIVE)) // ground
-        {
-            if(!UpdateVictim())
-                return;
-        }
-        else // balcony
-        {
-            if(me->getThreatManager().isThreatListEmpty()) // if no enemy, go back at once
-            {
-                events.Reset();
-                events.ScheduleEvent(EVENT_GROUND, 0);
-            }
-        }
+        if(!UpdateVictimByReact() || !CheckInRoom())
+            return;
 
         events.Update(diff);
 

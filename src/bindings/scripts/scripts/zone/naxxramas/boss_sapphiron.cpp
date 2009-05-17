@@ -171,13 +171,13 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public BossAI
         if(!phase)
             return;
 
+        if(!UpdateVictimByReact() || !CheckInRoom())
+            return;
+
         events.Update(diff);
 
         if(phase == PHASE_GROUND)
         {
-            if(!UpdateVictim())
-                return;
-
             while(uint32 eventId = events.ExecuteEvent())
             {
                 switch(eventId)
@@ -224,12 +224,6 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public BossAI
         }
         else
         {
-            /*if(me->getThreatManager().isThreatListEmpty())
-            {
-                EnterEvadeMode();
-                return;
-            }*/
-
             if(uint32 eventId = events.ExecuteEvent())
             {
                 switch(eventId)
