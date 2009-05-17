@@ -95,7 +95,7 @@ struct TRINITY_DLL_DECL boss_heiganAI : public BossAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!UpdateVictim())
+        if(!UpdateVictim() || !CheckInRoom())
             return;
 
         events.Update(diff);

@@ -51,10 +51,30 @@ enum DoorType
     MAX_DOOR_TYPES,
 };
 
+enum BoundaryType
+{
+    BOUNDARY_NONE = 0,
+    BOUNDARY_N,
+    BOUNDARY_S,
+    BOUNDARY_E,
+    BOUNDARY_W,
+    BOUNDARY_NE,
+    BOUNDARY_NW,
+    BOUNDARY_SE,
+    BOUNDARY_SW,
+    BOUNDARY_MAX_X = BOUNDARY_N,
+    BOUNDARY_MIN_X = BOUNDARY_S,
+    BOUNDARY_MAX_Y = BOUNDARY_W,
+    BOUNDARY_MIN_Y = BOUNDARY_E,
+};
+
+typedef std::map<BoundaryType, float> BossBoundaryMap;
+
 struct DoorData
 {
     uint32 entry, bossId;
     DoorType type;
+    uint32 boundary;
 };
 
 struct MinionData
@@ -68,14 +88,16 @@ struct BossInfo
     EncounterState state;
     DoorSet door[MAX_DOOR_TYPES];
     MinionSet minion;
+    BossBoundaryMap boundary;
 };
 
 struct DoorInfo
 {
-    explicit DoorInfo(BossInfo *_bossInfo, DoorType _type)
-        : bossInfo(_bossInfo), type(_type) {}
+    explicit DoorInfo(BossInfo *_bossInfo, DoorType _type, BoundaryType _boundary)
+        : bossInfo(_bossInfo), type(_type), boundary(_boundary) {}
     BossInfo *bossInfo;
     DoorType type;
+    BoundaryType boundary;
 };
 
 struct MinionInfo
@@ -137,6 +159,7 @@ class TRINITY_DLL_SPEC InstanceData
         void HandleGameObject(uint64 GUID, bool open, GameObject *go = NULL);
 
         virtual void SetBossState(uint32 id, EncounterState state);
+        const BossBoundaryMap * GetBossBoundary(uint32 id) const { return id < bosses.size() ? &bosses[id].boundary : NULL; }
     protected:
         void SetBossNumber(uint32 number) { bosses.resize(number); }
         void LoadDoorData(const DoorData *data);

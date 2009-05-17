@@ -339,7 +339,7 @@ struct TRINITY_DLL_DECL boss_vazruden_the_heraldAI : public ScriptedAI
             summoned->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
             summoned->SetSpeed(MOVE_FLIGHT, 2.5);
             if(victim)
-                ((ScriptedAI*)summoned->AI())->AttackStart(victim,false);
+                AttackStartNoMove(victim);
         }
         else if(victim)
             summoned->AI()->AttackStart(victim);
@@ -349,7 +349,7 @@ struct TRINITY_DLL_DECL boss_vazruden_the_heraldAI : public ScriptedAI
     {
         if(sentryDown)
         {
-            AttackStart(killer, false);
+            AttackStartNoMove(killer);
             sentryDown = false;
         }
         else
