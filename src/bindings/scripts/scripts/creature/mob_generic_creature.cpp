@@ -195,10 +195,10 @@ CreatureAI* GetAI_trigger_periodic(Creature *_Creature)
 void AddSC_generic_creature()
 {
     Script *newscript;
-    newscript = new Script;
+    /*newscript = new Script;
     newscript->Name="generic_creature";
     newscript->GetAI = &GetAI_generic_creature;
-    newscript->RegisterSelf();
+    newscript->RegisterSelf();*/
 
     newscript = new Script;
     newscript->Name="trigger_periodic";
