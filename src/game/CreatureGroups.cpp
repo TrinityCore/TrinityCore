@@ -115,8 +115,8 @@ void CreatureGroupManager::LoadCreatureFormations()
         //If creature is group leader we may skip loading of dist/angle
         if(group_member->leaderGUID != memberGUID)
         {
-            group_member->follow_dist            = fields[2].GetUInt32();
-            group_member->follow_angle            = fields[3].GetUInt32();
+            group_member->follow_dist       = fields[2].GetFloat();
+            group_member->follow_angle      = fields[3].GetFloat() * M_PI / 180;
         }
 
         // check data correctness
