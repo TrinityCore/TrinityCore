@@ -121,20 +121,24 @@ Map* MapInstanced::GetInstance(const WorldObject* obj)
     Player* player = (Player*)obj;
     uint32 instanceId = player->GetInstanceId();
 
-    if(IsBattleGroundOrArena())
-    {
-        if(!instanceId)
-            instanceId = player->GetBattleGroundId();
-
-        if(instanceId)
-            return _FindMap(instanceId);
-        else
-            return NULL;
-    }
-
     if(instanceId)
         if(Map *map = _FindMap(instanceId))
             return map;
+
+    if(IsBattleGroundOrArena())
+    {
+        instanceId = player->GetBattleGroundId();
+
+        if(instanceId)
+        {
+            if(Map *map = _FindMap(instanceId))
+                return map;
+            else
+                return CreateBattleGround(instanceId);
+        }
+        else
+            return NULL;
+    }
 
     InstancePlayerBind *pBind = player->GetBoundInstance(GetId(), player->GetDifficulty());
     InstanceSave *pSave = pBind ? pBind->save : NULL;
