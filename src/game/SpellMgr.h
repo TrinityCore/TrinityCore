@@ -668,9 +668,8 @@ typedef std::multimap<uint32, SpellLearnSpellNode> SpellLearnSpellMap;
 
 typedef std::multimap<uint32, SkillLineAbilityEntry const*> SkillLineAbilityMap;
 
-//typedef std::multimap<uint32, uint32> PetLevelupSpellSet;
-//typedef std::map<uint32, PetLevelupSpellSet> PetLevelupSpellMap;
-typedef std::multimap<uint32, std::pair < uint32,uint32 > >PetLevelupSpellMap;
+typedef std::multimap<uint32, uint32> PetLevelupSpellSet;
+typedef std::map<uint32, PetLevelupSpellSet> PetLevelupSpellMap;
 
 inline bool IsPrimaryProfessionSkill(uint32 skill)
 {
@@ -969,6 +968,15 @@ class SpellMgr
                 return NULL;
         }
 
+        PetLevelupSpellSet const* GetPetLevelupSpellList(uint32 petFamily) const
+        {
+            PetLevelupSpellMap::const_iterator itr = mPetLevelupSpellMap.find(petFamily);
+            if(itr != mPetLevelupSpellMap.end())
+                return &itr->second;
+            else
+                return NULL;
+        }
+
         uint32 GetSpellCustomAttr(uint32 spell_id) const
         {
             if(spell_id >= mSpellCustomAttr.size())
@@ -1014,11 +1022,6 @@ class SpellMgr
         SpellAreaForAreaMapBounds GetSpellAreaForAreaMapBounds(uint32 area_id) const
         {
             return SpellAreaForAreaMapBounds(mSpellAreaForAreaMap.lower_bound(area_id),mSpellAreaForAreaMap.upper_bound(area_id));
-        }
-
-        PetLevelupSpellMap const * GetPetLevelupSpellMap() const
-        {
-            return &mPetLevelupSpellMap;
         }
 
     // Modifiers

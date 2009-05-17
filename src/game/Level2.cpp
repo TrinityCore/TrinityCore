@@ -56,104 +56,89 @@ static uint32 ReputationRankStrIndex[MAX_REPUTATION_RANK] =
 //mute player for some times
 bool ChatHandler::HandleMuteCommand(const char* args)
 {
-    if (!*args)
+    char* nameStr;
+    char* delayStr;
+    extractOptFirstArg((char*)args,&nameStr,&delayStr);
+    if(!delayStr)
         return false;
 
-    std::string name = extractPlayerNameFromLink((char*)args);
-    if(name.empty())
-    {
-        SendSysMessage(LANG_PLAYER_NOT_FOUND);
-        SetSentErrorMessage(true);
+    Player* target;
+    uint64 target_guid;
+    std::string target_name;
+    if(!extractPlayerTarget(nameStr,&target,&target_guid,&target_name))
         return false;
+
+    uint32 account_id = target ? target->GetSession()->GetAccountId() : objmgr.GetPlayerAccountIdByGUID(target_guid);
+
+    // find only player from same account if any
+    if(!target)
+    {
+        if(WorldSession* session = sWorld.FindSession(account_id))
+            target = session->GetPlayer();
     }
 
-    char *timetonotspeak = strtok(NULL, " ");
-    if(!timetonotspeak)
-        return false;
-
-    uint32 notspeaktime = (uint32) atoi(timetonotspeak);
-
-    uint64 guid = objmgr.GetPlayerGUIDByName(name);
-    if(!guid)
-    {
-        SendSysMessage(LANG_PLAYER_NOT_FOUND);
-        SetSentErrorMessage(true);
-        return false;
-    }
-
-    Player *chr = objmgr.GetPlayer(guid);
+    uint32 notspeaktime = (uint32) atoi(delayStr);
 
     // must have strong lesser security level
-    if(HasLowerSecurity (chr,guid,true))
+    if(HasLowerSecurity (target,target_guid,true))
         return false;
-
-    uint32 account_id = chr ? chr->GetSession()->GetAccountId() : objmgr.GetPlayerAccountIdByGUID(guid);
 
     time_t mutetime = time(NULL) + notspeaktime*60;
 
-    if (chr)
-        chr->GetSession()->m_muteTime = mutetime;
+    if (target)
+        target->GetSession()->m_muteTime = mutetime;
 
     LoginDatabase.PExecute("UPDATE account SET mutetime = " I64FMTD " WHERE id = '%u'",uint64(mutetime), account_id );
 
-    if(chr)
-        ChatHandler(chr).PSendSysMessage(LANG_YOUR_CHAT_DISABLED, notspeaktime);
+    if(target)
+        ChatHandler(target).PSendSysMessage(LANG_YOUR_CHAT_DISABLED, notspeaktime);
 
-    std::string nameLink = playerLink(name);
+    std::string nameLink = playerLink(target_name);
 
     PSendSysMessage(LANG_YOU_DISABLE_CHAT, nameLink.c_str(), notspeaktime);
-
     return true;
 }
 
 //unmute player
 bool ChatHandler::HandleUnmuteCommand(const char* args)
 {
-    if (!*args)
+    Player* target;
+    uint64 target_guid;
+    std::string target_name;
+    if(!extractPlayerTarget((char*)args,&target,&target_guid,&target_name))
         return false;
 
-    std::string name = extractPlayerNameFromLink((char*)args);
-    if(name.empty())
+    uint32 account_id = target ? target->GetSession()->GetAccountId() : objmgr.GetPlayerAccountIdByGUID(target_guid);
+
+    // find only player from same account if any
+    if(!target)
     {
-        SendSysMessage(LANG_PLAYER_NOT_FOUND);
-        SetSentErrorMessage(true);
-        return false;
+        if(WorldSession* session = sWorld.FindSession(account_id))
+            target = session->GetPlayer();
     }
-
-    uint64 guid = objmgr.GetPlayerGUIDByName(name);
-    if(!guid)
-    {
-        SendSysMessage(LANG_PLAYER_NOT_FOUND);
-        SetSentErrorMessage(true);
-        return false;
-    }
-
-    Player *chr = objmgr.GetPlayer(guid);
 
     // must have strong lesser security level
-    if(HasLowerSecurity (chr,guid,true))
+    if(HasLowerSecurity (target,target_guid,true))
         return false;
 
-    uint32 account_id = chr ? chr->GetSession()->GetAccountId() : objmgr.GetPlayerAccountIdByGUID(guid);
-
-    if (chr)
+    if (target)
     {
-        if(chr->CanSpeak())
+        if(target->CanSpeak())
         {
             SendSysMessage(LANG_CHAT_ALREADY_ENABLED);
             SetSentErrorMessage(true);
             return false;
         }
 
-        chr->GetSession()->m_muteTime = 0;
+        target->GetSession()->m_muteTime = 0;
     }
 
     LoginDatabase.PExecute("UPDATE account SET mutetime = '0' WHERE id = '%u'", account_id );
 
-    if(chr)
-        ChatHandler(chr).PSendSysMessage(LANG_YOUR_CHAT_ENABLED);
+    if(target)
+        ChatHandler(target).PSendSysMessage(LANG_YOUR_CHAT_ENABLED);
 
-    std::string nameLink = playerLink(name);
+    std::string nameLink = playerLink(target_name);
 
     PSendSysMessage(LANG_YOU_ENABLE_CHAT, nameLink.c_str());
     return true;
@@ -2127,7 +2112,7 @@ bool ChatHandler::HandleModifyMorphCommand(const char* args)
 //kick player
 bool ChatHandler::HandleKickPlayerCommand(const char *args)
 {
-    const char* kickName = strtok((char*)args, " ");
+/*    const char* kickName = strtok((char*)args, " ");
     char* kickReason = strtok(NULL, "\n");
     std::string reason = "No Reason";
     std::string kicker = "Console";
@@ -2218,7 +2203,25 @@ bool ChatHandler::HandleKickPlayerCommand(const char *args)
             PSendSysMessage(LANG_COMMAND_KICKNOTFOUNDPLAYER,nameLink.c_str());
             return false;
         }
+    }*/
+    Player* target;
+    if(!extractPlayerTarget((char*)args,&target))
+        return false;
+
+    if (m_session && target==m_session->GetPlayer())
+    {
+        SendSysMessage(LANG_COMMAND_KICKSELF);
+        SetSentErrorMessage(true);
+        return false;
     }
+
+    // check online security
+    if (HasLowerSecurity(target, 0))
+        return false;
+
+    // send before target pointer invalidate
+    PSendSysMessage(LANG_COMMAND_KICKMESSAGE,GetNameLink(target).c_str());
+    target->GetSession()->KickPlayer();
     return true;
 }
 
@@ -2246,48 +2249,15 @@ bool ChatHandler::HandleModifyPhaseCommand(const char* args)
 //show info of player
 bool ChatHandler::HandlePInfoCommand(const char* args)
 {
-    Player* target = NULL;
-    uint64 targetGUID = 0;
+    char* nameStr;
+    char* subcommandStr;
+    extractOptFirstArg((char*)args,&nameStr,&subcommandStr);
 
-    char* px = strtok((char*)args, " ");
-    char* py = NULL;
-
-    std::string name;
-
-    if (px)
-    {
-        name = extractPlayerNameFromLink(px);
-        if(name.empty())
-        {
-            SendSysMessage(LANG_PLAYER_NOT_FOUND);
-            SetSentErrorMessage(true);
-            return false;
-        }
-
-        target = objmgr.GetPlayer(name.c_str());
-        if (target)
-            py = strtok(NULL, " ");
-        else
-        {
-            targetGUID = objmgr.GetPlayerGUIDByName(name);
-            if(targetGUID)
-                py = strtok(NULL, " ");
-            else
-                py = px;
-        }
-    }
-
-    if(!target && !targetGUID)
-    {
-        target = getSelectedPlayer();
-    }
-
-    if(!target && !targetGUID)
-    {
-        SendSysMessage(LANG_PLAYER_NOT_FOUND);
-        SetSentErrorMessage(true);
+    Player* target;
+    uint64 target_guid;
+    std::string target_name;
+    if(!extractPlayerTarget(nameStr,&target,&target_guid,&target_name))
         return false;
-    }
 
     uint32 accId = 0;
     uint32 money = 0;
@@ -2302,8 +2272,6 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
         if (HasLowerSecurity(target, 0))
             return false;
 
-        targetGUID = target->GetGUID();
-        name = target->GetName();                           // re-read for case getSelectedPlayer() target
         accId = target->GetSession()->GetAccountId();
         money = target->GetMoney();
         total_player_time = target->GetTotalPlayedTime();
@@ -2314,32 +2282,25 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
     else
     {
         // check offline security
-        if (HasLowerSecurity(NULL, targetGUID))
+        if (HasLowerSecurity(NULL, target_guid))
             return false;
 
         //                                                     0
-        QueryResult *result = CharacterDatabase.PQuery("SELECT totaltime FROM characters WHERE guid = '%u'", GUID_LOPART(targetGUID));
+        QueryResult *result = CharacterDatabase.PQuery("SELECT totaltime FROM characters WHERE guid = '%u'", GUID_LOPART(target_guid));
         if (!result)
-        {
-            SendSysMessage(LANG_PLAYER_NOT_FOUND);
-            SetSentErrorMessage(true);
             return false;
-        }
+
         Field *fields = result->Fetch();
         total_player_time = fields[0].GetUInt32();
         delete result;
 
         Tokens data;
-        if (!Player::LoadValuesArrayFromDB(data,targetGUID))
-        {
-            SendSysMessage(LANG_PLAYER_NOT_FOUND);
-            SetSentErrorMessage(true);
+        if (!Player::LoadValuesArrayFromDB(data,target_guid))
             return false;
-        }
 
         money = Player::GetUInt32ValueFromArray(data, PLAYER_FIELD_COINAGE);
         level = Player::GetUInt32ValueFromArray(data, UNIT_FIELD_LEVEL);
-        accId = objmgr.GetPlayerAccountIdByGUID(targetGUID);
+        accId = objmgr.GetPlayerAccountIdByGUID(target_guid);
     }
 
     std::string username = GetTrinityString(LANG_ERROR);
@@ -2368,9 +2329,9 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
         delete result;
     }
 
-    std::string nameLink = playerLink(name);
+    std::string nameLink = playerLink(target_name);
 
-    PSendSysMessage(LANG_PINFO_ACCOUNT, (target?"":GetMangosString(LANG_OFFLINE)), nameLink.c_str(), GUID_LOPART(targetGUID), username.c_str(), accId, security, last_ip.c_str(), last_login.c_str(), latency);
+    PSendSysMessage(LANG_PINFO_ACCOUNT, (target?"":GetMangosString(LANG_OFFLINE)), nameLink.c_str(), GUID_LOPART(target_guid), username.c_str(), accId, security, last_ip.c_str(), last_login.c_str(), latency);
 
     std::string timeStr = secsToTimeString(total_player_time,true,true);
     uint32 gold = money /GOLD;
@@ -2378,7 +2339,7 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
     uint32 copp = (money % GOLD) % SILVER;
     PSendSysMessage(LANG_PINFO_LEVEL,  timeStr.c_str(), level, gold,silv,copp );
 
-    if ( py && strncmp(py, "rep", 3) == 0 )
+    if( subcommandStr && strncmp(subcommandStr, "rep", 3) == 0 )
     {
         if(!target)
         {
@@ -2507,27 +2468,18 @@ bool ChatHandler::HandleTicketCommand(const char* args)
         return true;
     }
 
-    std::string name = extractPlayerNameFromLink(px);
-    if(name.empty())
-    {
-        SendSysMessage(LANG_PLAYER_NOT_FOUND);
-        SetSentErrorMessage(true);
-        return false;
-    }
-
-    uint64 guid = objmgr.GetPlayerGUIDByName(name);
-
-    if(!guid)
+    uint64 target_guid;
+    if(!extractPlayerTarget(px,NULL,&target_guid))
         return false;
 
     // ticket $char_name
-    GMTicket* ticket = ticketmgr.GetGMTicket(GUID_LOPART(guid));
+    GMTicket* ticket = ticketmgr.GetGMTicket(GUID_LOPART(target_guid));
     if(!ticket)
         return false;
 
     std::string time = TimeToTimestampStr(ticket->GetLastUpdate());
 
-    ShowTicket(guid, ticket->GetText(), time.c_str());
+    ShowTicket(target_guid, ticket->GetText(), time.c_str());
 
     return true;
 }
@@ -2577,27 +2529,20 @@ bool ChatHandler::HandleDelTicketCommand(const char *args)
         return true;
     }
 
-    std::string name = extractPlayerNameFromLink(px);
-    if(name.empty())
-    {
-        SendSysMessage(LANG_PLAYER_NOT_FOUND);
-        SetSentErrorMessage(true);
-        return false;
-    }
-
-    uint64 guid = objmgr.GetPlayerGUIDByName(name);
-
-    if(!guid)
+    Player* target;
+    uint64 target_guid;
+    std::string target_name;
+    if(!extractPlayerTarget(px,&target,&target_guid,&target_name))
         return false;
 
     // delticket $char_name
-    ticketmgr.Delete(GUID_LOPART(guid));
+    ticketmgr.Delete(GUID_LOPART(target_guid));
 
     // notify players about ticket deleting
-    if(Player* sender = objmgr.GetPlayer(guid))
-        sender->GetSession()->SendGMTicketGetTicket(0x0A,0);
+    if(target)
+        target->GetSession()->SendGMTicketGetTicket(0x0A,0);
 
-    std::string nameLink = playerLink(name);
+    std::string nameLink = playerLink(target_name);
 
     PSendSysMessage(LANG_COMMAND_TICKETPLAYERDEL,nameLink.c_str());
     return true;
@@ -3644,39 +3589,11 @@ bool ChatHandler::HandleWpShowCommand(const char* args)
 //rename characters
 bool ChatHandler::HandleCharacterRenameCommand(const char* args)
 {
-    Player* target = NULL;
-    uint64 targetGUID = 0;
-    std::string oldname;
-
-    char* px = strtok((char*)args, " ");
-
-    if(px)
-    {
-        oldname = extractPlayerNameFromLink(px);
-        if(oldname.empty())
-        {
-            SendSysMessage(LANG_PLAYER_NOT_FOUND);
-            SetSentErrorMessage(true);
-            return false;
-        }
-
-        target = objmgr.GetPlayer(oldname.c_str());
-
-        if (!target)
-            targetGUID = objmgr.GetPlayerGUIDByName(oldname);
-    }
-
-    if(!target && !targetGUID)
-    {
-        target = getSelectedPlayer();
-    }
-
-    if(!target && !targetGUID)
-    {
-        SendSysMessage(LANG_PLAYER_NOT_FOUND);
-        SetSentErrorMessage(true);
+    Player* target;
+    uint64 target_guid;
+    std::string target_name;
+    if(!extractPlayerTarget((char*)args,&target,&target_guid,&target_name))
         return false;
-    }
 
     if(target)
     {
@@ -3691,13 +3608,13 @@ bool ChatHandler::HandleCharacterRenameCommand(const char* args)
     else
     {
         // check offline security
-        if (HasLowerSecurity(NULL, targetGUID))
+        if (HasLowerSecurity(NULL, target_guid))
             return false;
 
-        std::string oldNameLink = playerLink(oldname);
+        std::string oldNameLink = playerLink(target_name);
 
-        PSendSysMessage(LANG_RENAME_PLAYER_GUID, oldNameLink.c_str(), GUID_LOPART(targetGUID));
-        CharacterDatabase.PExecute("UPDATE characters SET at_login = at_login | '1' WHERE guid = '%u'", GUID_LOPART(targetGUID));
+        PSendSysMessage(LANG_RENAME_PLAYER_GUID, oldNameLink.c_str(), GUID_LOPART(target_guid));
+        CharacterDatabase.PExecute("UPDATE characters SET at_login = at_login | '1' WHERE guid = '%u'", GUID_LOPART(target_guid));
     }
 
     return true;
@@ -3706,39 +3623,11 @@ bool ChatHandler::HandleCharacterRenameCommand(const char* args)
 // customize characters
 bool ChatHandler::HandleCharacterCustomizeCommand(const char* args)
 {
-    Player* target = NULL;
-    uint64 targetGUID = 0;
-    std::string oldname;
-
-    char* px = strtok((char*)args, " ");
-
-    if(px)
-    {
-        oldname = extractPlayerNameFromLink(px);
-        if(oldname.empty())
-        {
-            SendSysMessage(LANG_PLAYER_NOT_FOUND);
-            SetSentErrorMessage(true);
-            return false;
-        }
-
-        target = objmgr.GetPlayer(oldname.c_str());
-
-        if (!target)
-            targetGUID = objmgr.GetPlayerGUIDByName(oldname);
-    }
-
-    if(!target && !targetGUID)
-    {
-        target = getSelectedPlayer();
-    }
-
-    if(!target && !targetGUID)
-    {
-        SendSysMessage(LANG_PLAYER_NOT_FOUND);
-        SetSentErrorMessage(true);
+    Player* target;
+    uint64 target_guid;
+    std::string target_name;
+    if(!extractPlayerTarget((char*)args,&target,&target_guid,&target_name))
         return false;
-    }
 
     if(target)
     {
@@ -3748,10 +3637,10 @@ bool ChatHandler::HandleCharacterCustomizeCommand(const char* args)
     }
     else
     {
-        std::string oldNameLink = playerLink(oldname);
+        std::string oldNameLink = playerLink(target_name);
 
-        PSendSysMessage(LANG_CUSTOMIZE_PLAYER_GUID, oldNameLink.c_str(), GUID_LOPART(targetGUID));
-        CharacterDatabase.PExecute("UPDATE characters SET at_login = at_login | '8' WHERE guid = '%u'", GUID_LOPART(targetGUID));
+        PSendSysMessage(LANG_CUSTOMIZE_PLAYER_GUID, oldNameLink.c_str(), GUID_LOPART(target_guid));
+        CharacterDatabase.PExecute("UPDATE characters SET at_login = at_login | '8' WHERE guid = '%u'", GUID_LOPART(target_guid));
     }
 
     return true;
@@ -4035,41 +3924,16 @@ bool ChatHandler::HandleEventStopCommand(const char* args)
 
 bool ChatHandler::HandleCombatStopCommand(const char* args)
 {
-    Player *player;
-
-    if(*args)
-    {
-        std::string playername = extractPlayerNameFromLink((char*)args);
-        if(playername.empty())
-        {
-            SendSysMessage(LANG_PLAYER_NOT_FOUND);
-            SetSentErrorMessage(true);
-            return false;
-        }
-
-        player = objmgr.GetPlayer(playername.c_str());
-
-        if(!player)
-        {
-            SendSysMessage(LANG_PLAYER_NOT_FOUND);
-            SetSentErrorMessage(true);
-            return false;
-        }
-    }
-    else
-    {
-        player = getSelectedPlayer();
-
-        if (!player)
-            player = m_session->GetPlayer();
-    }
-
-    // check online security
-    if (HasLowerSecurity(player, 0))
+    Player* target;
+    if(!extractPlayerTarget((char*)args,&target))
         return false;
 
-    player->CombatStop();
-    player->getHostilRefManager().deleteReferences();
+    // check online security
+    if (HasLowerSecurity(target, 0))
+        return false;
+
+    target->CombatStop();
+    target->getHostilRefManager().deleteReferences();
     return true;
 }
 
@@ -4303,16 +4167,11 @@ bool ChatHandler::HandleServerCorpsesCommand(const char* /*args*/)
     return true;
 }
 
-bool ChatHandler::HandleRepairitemsCommand(const char* /*args*/)
+bool ChatHandler::HandleRepairitemsCommand(const char* args)
 {
-    Player *target = getSelectedPlayer();
-
-    if(!target)
-    {
-        PSendSysMessage(LANG_NO_CHAR_SELECTED);
-        SetSentErrorMessage(true);
+    Player* target;
+    if(!extractPlayerTarget((char*)args,&target))
         return false;
-    }
 
     // check online security
     if (HasLowerSecurity(target, 0))
@@ -4498,7 +4357,7 @@ bool ChatHandler::HandlePetUnlearnCommand(const char *args)
     uint32 spellId = extractSpellIdFromLink((char*)args);
 
     if(pet->HasSpell(spellId))
-        pet->removeSpell(spellId);
+        pet->removeSpell(spellId, false);
     else
         PSendSysMessage("Pet doesn't have that spell");
 

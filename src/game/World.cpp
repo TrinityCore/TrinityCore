@@ -2830,31 +2830,6 @@ void World::KickAllLess(AccountTypes sec)
             itr->second->KickPlayer();
 }
 
-/// Kick (and save) the designated player
-bool World::KickPlayer(const std::string& playerName)
-{
-    SessionMap::const_iterator itr;
-
-    // session not removed at kick and will removed in next update tick
-    for (itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
-    {
-        if(!itr->second)
-            continue;
-        Player *player = itr->second->GetPlayer();
-        if(!player)
-            continue;
-        if( player->IsInWorld() )
-        {
-            if (playerName == player->GetName())
-            {
-                itr->second->KickPlayer();
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
 /// Ban an account or ban an IP address, duration will be parsed using TimeStringToSecs if it is positive, otherwise permban
 BanReturn World::BanAccount(BanMode mode, std::string nameOrIP, std::string duration, std::string reason, std::string author)
 {
