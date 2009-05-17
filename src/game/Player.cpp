@@ -14482,7 +14482,7 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
 
     // since the player may not be bound to the map yet, make sure subsequent
     // getmap calls won't create new maps
-    //SetInstanceId(map->GetInstanceId());
+    SetInstanceId(map->GetInstanceId());
 
     // if the player is in an instance and it has been reset in the meantime teleport him to the entrance
     if(GetInstanceId() && !sInstanceSaveManager.GetInstanceSave(GetInstanceId()))
@@ -20665,7 +20665,6 @@ bool Player::canSeeSpellClickOn(Creature const *c) const
 
     for(SpellClickInfoMap::const_iterator itr = lower; itr != upper; ++itr)
     {
-        sLog.outError("%u %u %u %u", (uint32)itr->second.castFlags, itr->second.questId, itr->second.spellId);
         if(itr->second.questId == 0 || GetQuestStatus(itr->second.questId) == QUEST_STATUS_INCOMPLETE)
             return true;
     }
