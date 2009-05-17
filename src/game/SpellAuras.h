@@ -107,6 +107,8 @@ class TRINITY_DLL_SPEC Aura
         bool IsRemoved() const { return m_isRemoved; }
         void SetUpdated(bool val) { m_updated = val; }
 
+        bool CanProc(){return m_canProc;}
+        void SetCanProc(bool val){ m_canProc = val; }
         bool IsPersistent() const;
         bool IsAreaAura() const;
         bool IsAuraType(AuraType type) const;
@@ -152,10 +154,12 @@ class TRINITY_DLL_SPEC Aura
         uint8 m_auraFlags;                                  // Aura info flag (for send data to client)
         uint8 m_auraLevel;                                  // Aura level (store caster level for correct show level dep amount)
         uint8 m_procCharges;                                // Aura charges (0 for infinite)
-        uint32 m_procDamage;                                // used in aura proc code
         uint8 m_stackAmount;                                // Aura stack amount
         uint32 m_auraStateMask;
         AuraEffect * m_partAuras[3];
+
+        uint32 m_procDamage;                                // used in aura proc code
+        bool m_canProc:1;
 
         bool m_isDeathPersist:1;
         bool m_isRemovedOnShapeLost:1;
@@ -396,6 +400,7 @@ class TRINITY_DLL_SPEC AreaAuraEffect : public AuraEffect
         AreaAuraEffect(Aura * parentAura, uint32 effIndex, int32 * currentBasePoints, Unit * caster=NULL, Item * castItem=NULL, Unit * formalCaster=NULL);
         ~AreaAuraEffect();
         Unit* GetFormalCaster() const;
+        uint64 const& GetFormalCasterGUID() const { return m_formalCasterGUID; }
         void Update(uint32 diff);
     private:
         float m_radius;
