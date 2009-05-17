@@ -2137,11 +2137,17 @@ void Player::SetGameMaster(bool on)
         setFaction(35);
         SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_GM);
 
+        if (Pet* pet = GetPet())
+        {
+            pet->setFaction(35);
+            pet->getHostilRefManager().setOnlineOfflineState(false);
+        }
+
         RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
         ResetContestedPvP();
 
         getHostilRefManager().setOnlineOfflineState(false);
-        CombatStop();
+        CombatStopWithPets();
 
         SetPhaseMask(PHASEMASK_ANYWHERE,false);             // see and visible in all phases
     }
@@ -2154,6 +2160,12 @@ void Player::SetGameMaster(bool on)
         m_ExtraFlags &= ~ PLAYER_EXTRA_GM_ON;
         setFactionForRace(getRace());
         RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_GM);
+
+        if (Pet* pet = GetPet())
+        {
+            pet->setFaction(getFaction());
+            pet->getHostilRefManager().setOnlineOfflineState(true);
+        }
 
         // restore FFA PvP Server state
         if(sWorld.IsFFAPvPRealm())
