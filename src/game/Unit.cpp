@@ -13251,8 +13251,8 @@ void Unit::SetStunned(bool apply)
         // Creature specific
         if(GetTypeId() != TYPEID_PLAYER)
             ((Creature*)this)->StopMoving();
-        else
-            SetUnitMovementFlags(0);    //Clear movement flags
+        //else
+        //    SetUnitMovementFlags(0);    //Clear movement flags
 
         WorldPacket data(SMSG_FORCE_MOVE_ROOT, 8);
         data.append(GetPackGUID());
@@ -13284,7 +13284,7 @@ void Unit::SetRooted(bool apply)
 
         if(GetTypeId() == TYPEID_PLAYER)
         {
-            SetUnitMovementFlags(0);
+            //SetUnitMovementFlags(0);
 
             WorldPacket data(SMSG_FORCE_MOVE_ROOT, 10);
             data.append(GetPackGUID());
