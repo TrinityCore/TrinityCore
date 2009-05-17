@@ -346,7 +346,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
 Aura::Aura(SpellEntry const* spellproto, uint32 effMask, int32 *currentBasePoints, Unit *target, Unit *caster, Item* castItem, Unit * formalCaster) :
 m_caster_guid(0), m_castItemGuid(castItem?castItem->GetGUID():0), m_target(target),
 m_timeCla(1000), m_removeMode(AURA_REMOVE_BY_DEFAULT), m_AuraDRGroup(DIMINISHING_NONE),
-m_auraSlot(MAX_AURAS), m_auraLevel(1), m_procCharges(0), m_stackAmount(1),m_auraStateMask(0), m_updated(false), m_isRemoved(false)
+m_auraSlot(MAX_AURAS), m_auraLevel(1), m_procCharges(0), m_stackAmount(1),m_auraStateMask(0), m_updated(false), m_isRemoved(false), m_canProc(true)
 {
     assert(target);
 
@@ -613,6 +613,8 @@ Unit* AreaAuraEffect::GetFormalCaster() const
 
 void Aura::Update(uint32 diff)
 {
+    // Reset can proc requirement-prevent use of outdated value
+    m_canProc = true;
     if (m_duration > 0)
     {
         m_duration -= diff;
@@ -1837,7 +1839,7 @@ void AuraEffect::TriggerSpell()
                     // Doom
                     case 31347:
                     {
-                        m_target->CastSpell(m_target,31350,true);
+                        m_target->CastSpell(m_target,31350,true, NULL, this);
                         m_target->DealDamage(m_target, m_target->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                         return;
                     }
@@ -1867,9 +1869,9 @@ void AuraEffect::TriggerSpell()
                     {
                         // cast 24 spells 34269-34289, 34314-34316
                         for(uint32 spell_id = 34269; spell_id != 34290; ++spell_id)
-                            caster->CastSpell(m_target,spell_id,true);
+                            caster->CastSpell(m_target,spell_id,true, NULL, this);
                         for(uint32 spell_id = 34314; spell_id != 34317; ++spell_id)
-                            caster->CastSpell(m_target,spell_id,true);
+                            caster->CastSpell(m_target,spell_id,true, NULL, this);
                         return;
                     }
 //                    // Gravity Lapse
@@ -1951,7 +1953,7 @@ void AuraEffect::TriggerSpell()
                     // Eye of Grillok
                     case 38495:
                     {
-                        m_target->CastSpell(m_target, 38530, true);
+                        m_target->CastSpell(m_target, 38530, true, NULL, this);
                         return;
                     }
                     // Absorb Eye of Grillok (Zezzak's Shard)
@@ -1960,7 +1962,7 @@ void AuraEffect::TriggerSpell()
                         if(m_target->GetTypeId() != TYPEID_UNIT)
                             return;
 
-                        caster->CastSpell(caster, 38495, true);
+                        caster->CastSpell(caster, 38495, true, NULL, this);
 
                         Creature* creatureTarget = (Creature*)m_target;
 
@@ -2198,7 +2200,7 @@ void AuraEffect::TriggerSpell()
                         }
 
                         if(all)
-                            caster->CastSpell(caster,38437,true);
+                            caster->CastSpell(caster,38437,true, NULL, this);
                         else
                             caster->RemoveAurasDueToSpell(38437);
                         return;
@@ -2278,7 +2280,7 @@ void AuraEffect::TriggerSpell()
             // Curse of the Plaguebringer (22/15)
             case 29213:
             case 54835:
-                caster->CastSpell(m_target, trigger_spell_id, true);
+                caster->CastSpell(m_target, trigger_spell_id, true, NULL, this);
                 return;
         }
     }
@@ -4244,10 +4246,10 @@ void AuraEffect::HandleModMechanicImmunity(bool apply, bool Real, bool /*changeA
     {
         if(apply)
         {
-            m_target->CastSpell(m_target,24395,true);
-            m_target->CastSpell(m_target,24396,true);
-            m_target->CastSpell(m_target,24397,true);
-            m_target->CastSpell(m_target,26592,true);
+            m_target->CastSpell(m_target,24395,true, NULL, this);
+            m_target->CastSpell(m_target,24396,true, NULL, this);
+            m_target->CastSpell(m_target,24397,true, NULL, this);
+            m_target->CastSpell(m_target,26592,true, NULL, this);
         }
         else
         {

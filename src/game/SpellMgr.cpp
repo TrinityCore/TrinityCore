@@ -1222,6 +1222,8 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
     if((procFlags & EventProcFlag) == 0)
         return false;
 
+    bool hasFamilyMask = false;
+
     /* Check Periodic Auras
 
     * Both hots and dots can trigger if spell has no PROC_FLAG_SUCCESSFUL_POSITIVE_SPELL
@@ -1288,8 +1290,15 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
                 if ((spellProcEvent->spellFamilyMask & procSpell->SpellFamilyFlags ) == 0)
                     return false;
                 active = true; // Spell added manualy -> so its active spell
+                hasFamilyMask = true;
             }
         }
+    }
+
+    if (procExtra & PROC_EX_INTERNAL_REQ_FAMILY)
+    {
+        if (!hasFamilyMask)
+            return false;
     }
 
     // Check for extra req (if none) and hit/crit

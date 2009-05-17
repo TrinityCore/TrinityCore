@@ -467,11 +467,12 @@ enum ProcFlagsEx
    PROC_EX_AURA_REMOVE_DESTROY = 0x0002000,                 // aura absorb destroy or dispel
    PROC_EX_AURA_REMOVE_EXPIRE  = 0x0004000,                 // aura remove by default and by cancel
    PROC_EX_EX_TRIGGER_ALWAYS   = 0x0010000,                 // If set trigger always ( no matter another flags) used for drop charges
-   PROC_EX_EX_ONE_TIME_TRIGGER = 0x0020000,                  // If set trigger always but only one time (not used)
+   PROC_EX_EX_ONE_TIME_TRIGGER = 0x0020000,                 // If set trigger always but only one time (not used)
+   PROC_EX_INTERNAL_CANT_PROC  = 0x0800000,
    PROC_EX_INTERNAL_DOT        = 0x1000000,                 // Only for internal use
    PROC_EX_INTERNAL_HOT        = 0x2000000,                 // Only for internal use
    PROC_EX_INTERNAL_TRIGGERED  = 0x4000000,                 // Only for internal use
-   PROC_EX_INTERNAL_ITEM_CAST  = 0x8000000
+   PROC_EX_INTERNAL_REQ_FAMILY = 0x8000000                  // Only for internal use
 };
 #define AURA_REMOVE_PROC_EX_MASK \
    (PROC_EX_AURA_REMOVE_DESTROY | PROC_EX_AURA_REMOVE_EXPIRE)

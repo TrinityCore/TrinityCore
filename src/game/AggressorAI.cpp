@@ -67,7 +67,7 @@ void SpellAI::EnterCombat(Unit *who)
     for(SpellVct::iterator i = spells.begin(); i != spells.end(); ++i)
     {
         if(AISpellInfo[*i].condition == AICOND_AGGRO)
-            me->CastSpell(who, *i, true);
+            me->CastSpell(who, *i, false);
         else if(AISpellInfo[*i].condition == AICOND_COMBAT)
             events.ScheduleEvent(*i, AISpellInfo[*i].cooldown + rand()%AISpellInfo[*i].cooldown);
     }
