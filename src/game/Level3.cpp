@@ -2467,33 +2467,14 @@ bool ChatHandler::HandleLearnAllLangCommand(const char* /*args*/)
 
 bool ChatHandler::HandleLearnAllDefaultCommand(const char* args)
 {
-    Player *player = NULL;
-    if (*args)
-    {
-        std::string name = extractPlayerNameFromLink((char*)args);
-        if(name.empty())
-        {
-            SendSysMessage(LANG_PLAYER_NOT_FOUND);
-            SetSentErrorMessage(true);
-            return false;
-        }
-
-        player = objmgr.GetPlayer(name.c_str());
-    }
-    else
-        player = getSelectedPlayer();
-
-    if(!player)
-    {
-        SendSysMessage(LANG_NO_CHAR_SELECTED);
-        SetSentErrorMessage(true);
+    Player* target;
+    if(!extractPlayerTarget((char*)args,&target))
         return false;
-    }
 
-    player->learnDefaultSpells();
-    player->learnQuestRewardedSpells();
+    target->learnDefaultSpells();
+    target->learnQuestRewardedSpells();
 
-    PSendSysMessage(LANG_COMMAND_LEARN_ALL_DEFAULT_AND_QUEST,GetNameLink(player).c_str());
+    PSendSysMessage(LANG_COMMAND_LEARN_ALL_DEFAULT_AND_QUEST,GetNameLink(target).c_str());
     return true;
 }
 
@@ -3762,41 +3743,26 @@ bool ChatHandler::HandleLookupTaxiNodeCommand(const char * args)
  */
 bool ChatHandler::HandleGuildCreateCommand(const char* args)
 {
-
-    if (!*args)
+    char* nameStr;
+    char* guildStr;
+    extractOptFirstArg((char*)args,&nameStr,&guildStr);
+    if(!guildStr)
         return false;
 
-    char *lname = strtok ((char*)args, " ");
-    char *gname = strtok (NULL, "");
-
-    if (!lname)
+    Player* target;
+    if(!extractPlayerTarget(nameStr,&target))
         return false;
 
-    if (!gname)
-    {
-        SendSysMessage (LANG_INSERT_GUILD_NAME);
-        SetSentErrorMessage (true);
-        return false;
-    }
+    std::string guildname = guildStr;
 
-    std::string guildname = gname;
-
-    Player* player = ObjectAccessor::Instance ().FindPlayerByName (lname);
-    if (!player)
-    {
-        SendSysMessage (LANG_PLAYER_NOT_FOUND);
-        SetSentErrorMessage (true);
-        return false;
-    }
-
-    if (player->GetGuildId())
+    if (target->GetGuildId())
     {
         SendSysMessage (LANG_PLAYER_IN_GUILD);
         return true;
     }
 
     Guild *guild = new Guild;
-    if (!guild->create (player,guildname))
+    if (!guild->create (target,guildname))
     {
         delete guild;
         SendSysMessage (LANG_GUILD_NOT_CREATED);
@@ -3810,38 +3776,23 @@ bool ChatHandler::HandleGuildCreateCommand(const char* args)
 
 bool ChatHandler::HandleGuildInviteCommand(const char *args)
 {
-    if (!*args)
+    char* nameStr;
+    char* guildNameStr;
+    extractOptFirstArg((char*)args,&nameStr,&guildNameStr);
+    if(!guildNameStr)
         return false;
 
-    char* par1 = strtok ((char*)args, " ");
-    char* par2 = strtok (NULL, "");
-    if(!par1 || !par2)
+    uint64 target_guid;
+    if(!extractPlayerTarget(nameStr,NULL,&target_guid))
         return false;
 
-    std::string glName = par2;
+    std::string glName = guildNameStr;
     Guild* targetGuild = objmgr.GetGuildByName (glName);
     if (!targetGuild)
         return false;
 
-    std::string plName = extractPlayerNameFromLink(par1);
-    if(plName.empty())
-    {
-        SendSysMessage(LANG_PLAYER_NOT_FOUND);
-        SetSentErrorMessage(true);
-        return false;
-    }
-
-    uint64 plGuid = 0;
-    if (Player* targetPlayer = ObjectAccessor::Instance ().FindPlayerByName (plName.c_str ()))
-        plGuid = targetPlayer->GetGUID ();
-    else
-        plGuid = objmgr.GetPlayerGUIDByName (plName);
-
-    if (!plGuid)
-        return false;
-
     // player's guild membership checked in AddMember before add
-    if (!targetGuild->AddMember (plGuid,targetGuild->GetLowestRank ()))
+    if (!targetGuild->AddMember (target_guid,targetGuild->GetLowestRank ()))
         return false;
 
     return true;
@@ -3849,91 +3800,50 @@ bool ChatHandler::HandleGuildInviteCommand(const char *args)
 
 bool ChatHandler::HandleGuildUninviteCommand(const char *args)
 {
-    if (!*args)
+    Player* target;
+    uint64 target_guid;
+    if(!extractPlayerTarget((char*)args,&target,&target_guid))
         return false;
 
-    char* par1 = strtok ((char*)args, " ");
-    if(!par1)
-        return false;
-
-    std::string plName = extractPlayerNameFromLink(par1);
-    if(plName.empty())
-    {
-        SendSysMessage(LANG_PLAYER_NOT_FOUND);
-        SetSentErrorMessage(true);
-        return false;
-    }
-
-    uint64 plGuid = 0;
-    uint32 glId   = 0;
-    if (Player* targetPlayer = ObjectAccessor::Instance ().FindPlayerByName (plName.c_str ()))
-    {
-        plGuid = targetPlayer->GetGUID ();
-        glId   = targetPlayer->GetGuildId ();
-    }
-    else
-    {
-        plGuid = objmgr.GetPlayerGUIDByName (plName);
-        glId = Player::GetGuildIdFromDB (plGuid);
-    }
-
-    if (!plGuid || !glId)
+    uint32 glId   = target ? target->GetGuildId () : Player::GetGuildIdFromDB (target_guid);
+    if (!glId)
         return false;
 
     Guild* targetGuild = objmgr.GetGuildById (glId);
     if (!targetGuild)
         return false;
 
-    targetGuild->DelMember (plGuid);
-
+    targetGuild->DelMember (target_guid);
     return true;
 }
 
 bool ChatHandler::HandleGuildRankCommand(const char *args)
 {
-    if (!*args)
+    char* nameStr;
+    char* rankStr;
+    extractOptFirstArg((char*)args,&nameStr,&rankStr);
+    if(!rankStr)
         return false;
 
-    char* par1 = strtok ((char*)args, " ");
-    char* par2 = strtok (NULL, " ");
-    if (!par1 || !par2)
+    Player* target;
+    uint64 target_guid;
+    std::string target_name;
+    if(!extractPlayerTarget(nameStr,&target,&target_guid,&target_name))
         return false;
 
-    std::string plName = extractPlayerNameFromLink(par1);
-    if(plName.empty())
-    {
-        SendSysMessage(LANG_PLAYER_NOT_FOUND);
-        SetSentErrorMessage(true);
-        return false;
-    }
-
-
-    uint64 plGuid = 0;
-    uint32 glId   = 0;
-    if (Player* targetPlayer = ObjectAccessor::Instance ().FindPlayerByName (plName.c_str ()))
-    {
-        plGuid = targetPlayer->GetGUID ();
-        glId   = targetPlayer->GetGuildId ();
-    }
-    else
-    {
-        plGuid = objmgr.GetPlayerGUIDByName (plName);
-        glId = Player::GetGuildIdFromDB (plGuid);
-    }
-
-    if (!plGuid || !glId)
+    uint32 glId   = target ? target->GetGuildId () : Player::GetGuildIdFromDB (target_guid);
+    if (!glId)
         return false;
 
     Guild* targetGuild = objmgr.GetGuildById (glId);
     if (!targetGuild)
         return false;
 
-    uint32 newrank = uint32 (atoi (par2));
+    uint32 newrank = uint32 (atoi (rankStr));
     if (newrank > targetGuild->GetLowestRank ())
         return false;
 
-    targetGuild->ChangeRank (plGuid,newrank);
-
+    targetGuild->ChangeRank (target_guid,newrank);
     return true;
 }
 
@@ -4120,43 +4030,20 @@ bool ChatHandler::HandleModifyArenaCommand(const char * args)
 
 bool ChatHandler::HandleReviveCommand(const char* args)
 {
-    Player* player = NULL;
-    uint64 player_guid = 0;
-
-    if (*args)
-    {
-        std::string name = extractPlayerNameFromLink((char*)args);
-        if (name.empty())
-        {
-            SendSysMessage(LANG_PLAYER_NOT_FOUND);
-            SetSentErrorMessage(true);
-            return false;
-        }
-
-        player = objmgr.GetPlayer(name.c_str());
-        if (!player)
-            player_guid = objmgr.GetPlayerGUIDByName(name);
-    }
-    else
-        player = getSelectedPlayer();
-
-    if (player)
-    {
-        player->ResurrectPlayer(0.5f);
-        player->SpawnCorpseBones();
-        player->SaveToDB();
-    }
-    else if (player_guid)
-    {
-        // will resurrected at login without corpse
-        ObjectAccessor::Instance().ConvertCorpseForPlayer(player_guid);
-    }
-    else
-    {
-        SendSysMessage(LANG_NO_CHAR_SELECTED);
-        SetSentErrorMessage(true);
+    Player* target;
+    uint64 target_guid;
+    if(!extractPlayerTarget((char*)args,&target,&target_guid))
         return false;
+
+    if (target)
+    {
+        target->ResurrectPlayer(0.5f);
+        target->SpawnCorpseBones();
+        target->SaveToDB();
     }
+    else
+        // will resurrected at login without corpse
+        ObjectAccessor::Instance().ConvertCorpseForPlayer(target_guid);
 
     return true;
 }
@@ -4613,26 +4500,27 @@ void ChatHandler::HandleCharacterLevel(Player* player, uint64 player_guid, uint3
 
 bool ChatHandler::HandleCharacterLevelCommand(const char* args)
 {
-    char* px = strtok((char*)args, " ");
-    char* py = strtok((char*)NULL, " ");
+    char* nameStr;
+    char* levelStr;
+    extractOptFirstArg((char*)args,&nameStr,&levelStr);
+    if(!levelStr)
+        return false;
 
-    // command format parsing
-    char* pname = (char*)NULL;
-    int32 newlevel = 0;
+    // exception opt second arg: .character level $name
+    if(isalpha(levelStr[0]))
+    {
+        nameStr = levelStr;
+        levelStr = NULL;                                    // current level will used
+    }
 
-    if(px && py)                                            // .character level $name #level
-    {
-        newlevel = atoi(py);
-        pname = px;
-    }
-    else if(px && !py)                                      // .character level $name OR .character level #level
-    {
-        if(isalpha(px[0]))                                  // .character level $name
-            pname = px;
-        else                                                // .character level #level
-            newlevel = atoi(px);
-    }
-    //                                                      // .character level - progress reset
+    Player* target;
+    uint64 target_guid;
+    std::string target_name;
+    if(!extractPlayerTarget(nameStr,&target,&target_guid,&target_name))
+        return false;
+
+    int32 oldlevel = target ? target->getLevel() : Player::GetUInt32ValueFromDB(UNIT_FIELD_LEVEL,target_guid);
+    int32 newlevel = levelStr ? atoi(levelStr) : oldlevel;
 
     if(newlevel < 1)
         return false;                                       // invalid level
@@ -4640,60 +4528,11 @@ bool ChatHandler::HandleCharacterLevelCommand(const char* args)
     if(newlevel > STRONG_MAX_LEVEL)                         // hardcoded maximum level
         newlevel = STRONG_MAX_LEVEL;
 
-    // player
-    Player *chr = NULL;
-    uint64 chr_guid = 0;
+    HandleCharacterLevel(target,target_guid,oldlevel,newlevel);
 
-    std::string name;
-
-    if(pname)                                               // player by name
+    if(!m_session || m_session->GetPlayer() != target)      // including player==NULL
     {
-        name = extractPlayerNameFromLink(pname);
-        if(name.empty())
-        {
-            SendSysMessage(LANG_PLAYER_NOT_FOUND);
-            SetSentErrorMessage(true);
-            return false;
-        }
-
-        chr = objmgr.GetPlayer(name.c_str());
-        if(!chr)                                            // not in game
-        {
-            chr_guid = objmgr.GetPlayerGUIDByName(name);
-            if (chr_guid == 0)
-            {
-                SendSysMessage(LANG_PLAYER_NOT_FOUND);
-                SetSentErrorMessage(true);
-                return false;
-            }
-        }
-    }
-    else                                                    // player by selection
-    {
-        chr = getSelectedPlayer();
-
-        if (chr == NULL)
-        {
-            SendSysMessage(LANG_NO_CHAR_SELECTED);
-            SetSentErrorMessage(true);
-            return false;
-        }
-
-        name = chr->GetName();
-    }
-
-    assert(chr || chr_guid);
-
-    int32 oldlevel = chr ? chr->getLevel() : Player::GetUInt32ValueFromDB(UNIT_FIELD_LEVEL,chr_guid);
-
-    if(!px && !py)                                          // .character level - progress reset
-        newlevel = oldlevel;
-
-    HandleCharacterLevel(chr,chr_guid,oldlevel,newlevel);
-
-    if(m_session && m_session->GetPlayer() != chr)          // including player==NULL
-    {
-        std::string nameLink = playerLink(name);
+        std::string nameLink = playerLink(target_name);
         PSendSysMessage(LANG_YOU_CHANGE_LVL,nameLink.c_str(),newlevel);
     }
 
@@ -4702,83 +4541,38 @@ bool ChatHandler::HandleCharacterLevelCommand(const char* args)
 
 bool ChatHandler::HandleLevelUpCommand(const char* args)
 {
-    char* px = strtok((char*)args, " ");
-    char* py = strtok((char*)NULL, " ");
+    char* nameStr;
+    char* levelStr;
+    extractOptFirstArg((char*)args,&nameStr,&levelStr);
 
-    // command format parsing
-    char* pname = (char*)NULL;
-    int addlevel = 1;
-
-    if(px && py)                                            // .levelup name level
+    // exception opt second arg: .character level $name
+    if(levelStr && isalpha(levelStr[0]))
     {
-        addlevel = atoi(py);
-        pname = px;
-    }
-    else if(px && !py)                                      // .levelup name OR .levelup level
-    {
-        if(isalpha(px[0]))                                  // .levelup name
-            pname = px;
-        else                                                // .levelup level
-            addlevel = atoi(px);
-    }
-    // else .levelup - nothing do for preparing
-
-    // player
-    Player *chr = NULL;
-    uint64 chr_guid = 0;
-
-    std::string name;
-
-    if(pname)                                               // player by name
-    {
-        name = extractPlayerNameFromLink(pname);
-        if(name.empty())
-        {
-            SendSysMessage(LANG_PLAYER_NOT_FOUND);
-            SetSentErrorMessage(true);
-            return false;
-        }
-
-        chr = objmgr.GetPlayer(name.c_str());
-        if(!chr)                                            // not in game
-        {
-            chr_guid = objmgr.GetPlayerGUIDByName(name);
-            if (chr_guid == 0)
-            {
-                SendSysMessage(LANG_PLAYER_NOT_FOUND);
-                SetSentErrorMessage(true);
-                return false;
-            }
-        }
-    }
-    else                                                    // player by selection
-    {
-        chr = getSelectedPlayer();
-
-        if (chr == NULL)
-        {
-            SendSysMessage(LANG_NO_CHAR_SELECTED);
-            SetSentErrorMessage(true);
-            return false;
-        }
-
-        name = chr->GetName();
+        nameStr = levelStr;
+        levelStr = NULL;                                    // current level will used
     }
 
-    assert(chr || chr_guid);
+    Player* target;
+    uint64 target_guid;
+    std::string target_name;
+    if(!extractPlayerTarget(nameStr,&target,&target_guid,&target_name))
+        return false;
 
-    int32 oldlevel = chr ? chr->getLevel() : Player::GetUInt32ValueFromDB(UNIT_FIELD_LEVEL,chr_guid);
+    int32 oldlevel = target ? target->getLevel() : Player::GetUInt32ValueFromDB(UNIT_FIELD_LEVEL,target_guid);
+    int32 addlevel = levelStr ? atoi(levelStr) : 1;
     int32 newlevel = oldlevel + addlevel;
+
     if(newlevel < 1)
         newlevel = 1;
+
     if(newlevel > STRONG_MAX_LEVEL)                         // hardcoded maximum level
         newlevel = STRONG_MAX_LEVEL;
 
-    HandleCharacterLevel(chr,chr_guid,oldlevel,newlevel);
+    HandleCharacterLevel(target,target_guid,oldlevel,newlevel);
 
-    if(m_session && m_session->GetPlayer() != chr)          // including chr==NULL
+    if(!m_session || m_session->GetPlayer() != target)      // including chr==NULL
     {
-        std::string nameLink = playerLink(name);
+        std::string nameLink = playerLink(target_name);
         PSendSysMessage(LANG_YOU_CHANGE_LVL,nameLink.c_str(),newlevel);
     }
 
@@ -5234,76 +5028,31 @@ bool ChatHandler::HandleListAurasCommand (const char * /*args*/)
 
 bool ChatHandler::HandleResetAchievementsCommand (const char * args)
 {
-    char* pName = strtok((char*)args, "");
-    Player *player = NULL;
-    uint64 guid = 0;
-    if (pName)
-    {
-        std::string name = extractPlayerNameFromLink(pName);
-        if(name.empty())
-        {
-            SendSysMessage(LANG_PLAYER_NOT_FOUND);
-            SetSentErrorMessage(true);
-            return false;
-        }
+    Player* target;
+    uint64 target_guid;
+    if (!extractPlayerTarget((char*)args,&target,&target_guid))
+        return false;
 
-        guid = objmgr.GetPlayerGUIDByName(name);
-        player = objmgr.GetPlayer(guid);
-    }
+    if(target)
+        target->GetAchievementMgr().Reset();
     else
-    {
-        player = getSelectedPlayer();
-        if(player)
-            guid = player->GetGUID();
-    }
-
-    if(!player && !guid)
-    {
-        SendSysMessage(LANG_NO_CHAR_SELECTED);
-        return true;
-    }
-
-    if(player)
-        player->GetAchievementMgr().Reset();
-    else if(guid)
-        AchievementMgr::DeleteFromDB(GUID_LOPART(guid));
+        AchievementMgr::DeleteFromDB(GUID_LOPART(target_guid));
 
     return true;
 }
 
 bool ChatHandler::HandleResetHonorCommand (const char * args)
 {
-    char* pName = strtok((char*)args, "");
-    Player *player = NULL;
-    if (pName)
-    {
-        std::string name = extractPlayerNameFromLink(pName);
-        if(name.empty())
-        {
-            SendSysMessage(LANG_PLAYER_NOT_FOUND);
-            SetSentErrorMessage(true);
-            return false;
-        }
+    Player* target;
+    if (!extractPlayerTarget((char*)args,&target))
+        return false;
 
-        uint64 guid = objmgr.GetPlayerGUIDByName(name);
-        player = objmgr.GetPlayer(guid);
-    }
-    else
-        player = getSelectedPlayer();
-
-    if(!player)
-    {
-        SendSysMessage(LANG_NO_CHAR_SELECTED);
-        return true;
-    }
-
-    player->SetUInt32Value(PLAYER_FIELD_KILLS, 0);
-    player->SetUInt32Value(PLAYER_FIELD_LIFETIME_HONORBALE_KILLS, 0);
-    player->SetUInt32Value(PLAYER_FIELD_HONOR_CURRENCY, 0);
-    player->SetUInt32Value(PLAYER_FIELD_TODAY_CONTRIBUTION, 0);
-    player->SetUInt32Value(PLAYER_FIELD_YESTERDAY_CONTRIBUTION, 0);
-
-    player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EARN_HONORABLE_KILL);
+    target->SetUInt32Value(PLAYER_FIELD_KILLS, 0);
+    target->SetUInt32Value(PLAYER_FIELD_LIFETIME_HONORBALE_KILLS, 0);
+    target->SetUInt32Value(PLAYER_FIELD_HONOR_CURRENCY, 0);
+    target->SetUInt32Value(PLAYER_FIELD_TODAY_CONTRIBUTION, 0);
+    target->SetUInt32Value(PLAYER_FIELD_YESTERDAY_CONTRIBUTION, 0);
+    target->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EARN_HONORABLE_KILL);
 
     return true;
 }
@@ -5365,138 +5114,71 @@ static bool HandleResetStatsOrLevelHelper(Player* player)
 
 bool ChatHandler::HandleResetLevelCommand(const char * args)
 {
-    char* pName = strtok((char*)args, "");
-    Player *player = NULL;
-    if (pName)
-    {
-        std::string name = extractPlayerNameFromLink(pName);
-        if(name.empty())
-        {
-            SendSysMessage(LANG_PLAYER_NOT_FOUND);
-            SetSentErrorMessage(true);
-            return false;
-        }
-
-        uint64 guid = objmgr.GetPlayerGUIDByName(name);
-        player = objmgr.GetPlayer(guid);
-    }
-    else
-        player = getSelectedPlayer();
-
-    if(!player)
-    {
-        SendSysMessage(LANG_NO_CHAR_SELECTED);
-        SetSentErrorMessage(true);
+    Player* target;
+    if(!extractPlayerTarget((char*)args,&target))
         return false;
-    }
 
-    if(!HandleResetStatsOrLevelHelper(player))
+    if(!HandleResetStatsOrLevelHelper(target))
         return false;
 
     // set starting level
-    uint32 start_level = player->getClass() != CLASS_DEATH_KNIGHT
+    uint32 start_level = target->getClass() != CLASS_DEATH_KNIGHT
         ? sWorld.getConfig(CONFIG_START_PLAYER_LEVEL)
         : sWorld.getConfig(CONFIG_START_HEROIC_PLAYER_LEVEL);
 
-    player->SetLevel(start_level);
-    player->InitRunes();
-    player->InitStatsForLevel(true);
-    player->InitTaxiNodesForLevel();
-    player->InitGlyphsForLevel();
-    player->InitTalentForLevel();
-    player->SetUInt32Value(PLAYER_XP,0);
+    target->SetLevel(start_level);
+    target->InitRunes();
+    target->InitStatsForLevel(true);
+    target->InitTaxiNodesForLevel();
+    target->InitGlyphsForLevel();
+    target->InitTalentForLevel();
+    target->SetUInt32Value(PLAYER_XP,0);
 
-    // reset level to summoned pet
-    Guardian* pet = player->GetGuardianPet();
-    if(pet)
-    {
-        pet->InitStatsForLevel(1);
-        if(pet->isPet())
-            ((Pet*)pet)->InitTalentForLevel();
-    }
+    // reset level for pet
+    if(Pet* pet = target->GetPet())
+        pet->SynchronizeLevelWithOwner();
+
     return true;
 }
 
 bool ChatHandler::HandleResetStatsCommand(const char * args)
 {
-    char* pName = strtok((char*)args, "");
-    Player *player = NULL;
-    if (pName)
-    {
-        std::string name = extractPlayerNameFromLink(pName);
-        if(name.empty())
-        {
-            SendSysMessage(LANG_PLAYER_NOT_FOUND);
-            SetSentErrorMessage(true);
-            return false;
-        }
-
-        uint64 guid = objmgr.GetPlayerGUIDByName(name);
-        player = objmgr.GetPlayer(guid);
-    }
-    else
-        player = getSelectedPlayer();
-
-    if(!player)
-    {
-        SendSysMessage(LANG_NO_CHAR_SELECTED);
-        SetSentErrorMessage(true);
-        return false;
-    }
-
-    if(!HandleResetStatsOrLevelHelper(player))
+    Player* target;
+    if (!extractPlayerTarget((char*)args,&target))
         return false;
 
-    player->InitRunes();
-    player->InitStatsForLevel(true);
-    player->InitTaxiNodesForLevel();
-    player->InitGlyphsForLevel();
-    player->InitTalentForLevel();
+    if (!HandleResetStatsOrLevelHelper(target))
+        return false;
+
+    target->InitRunes();
+    target->InitStatsForLevel(true);
+    target->InitTaxiNodesForLevel();
+    target->InitGlyphsForLevel();
+    target->InitTalentForLevel();
 
     return true;
 }
 
 bool ChatHandler::HandleResetSpellsCommand(const char * args)
 {
-    char* pName = strtok((char*)args, "");
-    Player *player = NULL;
-    uint64 playerGUID = 0;
-    if (pName)
-    {
-        std::string name = extractPlayerNameFromLink(pName);
-        if(name.empty())
-        {
-            SendSysMessage(LANG_PLAYER_NOT_FOUND);
-            SetSentErrorMessage(true);
-            return false;
-        }
-
-        player = objmgr.GetPlayer(name.c_str());
-        if(!player)
-            playerGUID = objmgr.GetPlayerGUIDByName(name);
-    }
-    else
-        player = getSelectedPlayer();
-
-    if(!player && !playerGUID)
-    {
-        SendSysMessage(LANG_NO_CHAR_SELECTED);
-        SetSentErrorMessage(true);
+    Player* target;
+    uint64 target_guid;
+    std::string target_name;
+    if(!extractPlayerTarget((char*)args,&target,&target_guid,&target_name))
         return false;
-    }
 
-    if(player)
+    if(target)
     {
-        player->resetSpells();
+        target->resetSpells();
 
-        ChatHandler(player).SendSysMessage(LANG_RESET_SPELLS);
-        if(m_session->GetPlayer()!=player)
-            PSendSysMessage(LANG_RESET_SPELLS_ONLINE,GetNameLink(player).c_str());
+        ChatHandler(target).SendSysMessage(LANG_RESET_SPELLS);
+        if(!m_session || m_session->GetPlayer()!=target)
+            PSendSysMessage(LANG_RESET_SPELLS_ONLINE,GetNameLink(target).c_str());
     }
     else
     {
-        CharacterDatabase.PExecute("UPDATE characters SET at_login = at_login | '%u' WHERE guid = '%u'",uint32(AT_LOGIN_RESET_SPELLS), GUID_LOPART(playerGUID));
-        PSendSysMessage(LANG_RESET_SPELLS_OFFLINE,pName);
+        CharacterDatabase.PExecute("UPDATE characters SET at_login = at_login | '%u' WHERE guid = '%u'",uint32(AT_LOGIN_RESET_SPELLS), GUID_LOPART(target_guid));
+        PSendSysMessage(LANG_RESET_SPELLS_OFFLINE,target_name);
     }
 
     return true;
@@ -5504,43 +5186,30 @@ bool ChatHandler::HandleResetSpellsCommand(const char * args)
 
 bool ChatHandler::HandleResetTalentsCommand(const char * args)
 {
-    char* pName = strtok((char*)args, "");
-    Player *player = NULL;
-    uint64 playerGUID = 0;
-    if (pName)
+    Player* target;
+    uint64 target_guid;
+    std::string target_name;
+    if (!extractPlayerTarget((char*)args,&target,&target_guid,&target_name))
+        return false;
+
+    if (target)
     {
-        std::string name = extractPlayerNameFromLink(pName);
-        if(name.empty())
-        {
-            SendSysMessage(LANG_PLAYER_NOT_FOUND);
-            SetSentErrorMessage(true);
-            return false;
-        }
+        target->resetTalents(true);
 
-        player = objmgr.GetPlayer(name.c_str());
-        if(!player)
-            playerGUID = objmgr.GetPlayerGUIDByName(name);
-    }
-    else
-        player = getSelectedPlayer();
-
-    if(player)
-    {
-        player->resetTalents(true);
-
-        ChatHandler(player).SendSysMessage(LANG_RESET_TALENTS);
-        if(m_session->GetPlayer()!=player)
-            PSendSysMessage(LANG_RESET_TALENTS_ONLINE,GetNameLink(player).c_str());
+        ChatHandler(target).SendSysMessage(LANG_RESET_TALENTS);
+        if (!m_session || m_session->GetPlayer()!=target)
+            PSendSysMessage(LANG_RESET_TALENTS_ONLINE,GetNameLink(target).c_str());
 
         return true;
     }
-    else if (playerGUID)
+    else if (target_guid)
     {
-        CharacterDatabase.PExecute("UPDATE characters SET at_login = at_login | '%u' WHERE guid = '%u'",uint32(AT_LOGIN_RESET_TALENTS), GUID_LOPART(playerGUID) );
-        std::string nameLink = playerLink(pName);
+        CharacterDatabase.PExecute("UPDATE characters SET at_login = at_login | '%u' WHERE guid = '%u'",uint32(AT_LOGIN_RESET_TALENTS), GUID_LOPART(target_guid) );
+        std::string nameLink = playerLink(target_name);
         PSendSysMessage(LANG_RESET_TALENTS_OFFLINE,nameLink.c_str());
         return true;
     }
+
     // Try reset talenents as Hunter Pet
     Creature* creature = getSelectedCreature();
     if (creature && creature->isPet() && ((Pet *)creature)->getPetType() == HUNTER_PET)
@@ -5549,10 +5218,10 @@ bool ChatHandler::HandleResetTalentsCommand(const char * args)
         Unit *owner = creature->GetOwner();
         if (owner && owner->GetTypeId() == TYPEID_PLAYER)
         {
-            player = (Player *)owner;
-            ChatHandler(player).SendSysMessage(LANG_RESET_PET_TALENTS);
-            if(m_session->GetPlayer()!=player)
-                PSendSysMessage(LANG_RESET_PET_TALENTS_ONLINE,GetNameLink(player).c_str());
+            Player* owner_player = (Player *)owner;
+            ChatHandler(owner_player).SendSysMessage(LANG_RESET_PET_TALENTS);
+            if(!m_session || m_session->GetPlayer()!=owner_player)
+                PSendSysMessage(LANG_RESET_PET_TALENTS_ONLINE,GetNameLink(owner_player).c_str());
         }
         return true;
     }
@@ -5576,11 +5245,15 @@ bool ChatHandler::HandleResetAllCommand(const char * args)
     {
         atLogin = AT_LOGIN_RESET_SPELLS;
         sWorld.SendWorldText(LANG_RESETALL_SPELLS);
+        if(!m_session)
+            SendSysMessage(LANG_RESETALL_SPELLS);
     }
     else if(casename=="talents")
     {
         atLogin = AT_LOGIN_RESET_TALENTS;
         sWorld.SendWorldText(LANG_RESETALL_TALENTS);
+        if(!m_session)
+            SendSysMessage(LANG_RESETALL_TALENTS);
     }
     else if(casename=="pet_spells")
     {
@@ -6121,24 +5794,12 @@ bool ChatHandler::HandleBanInfoAccountCommand(const char* args)
 
 bool ChatHandler::HandleBanInfoCharacterCommand(const char* args)
 {
-    if (!*args)
+    Player* target;
+    uint64 target_guid;
+    if(!extractPlayerTarget((char*)args,&target,&target_guid))
         return false;
 
-    std::string name = extractPlayerNameFromLink((char*)args);
-    if(name.empty())
-    {
-        SendSysMessage(LANG_PLAYER_NOT_FOUND);
-        SetSentErrorMessage(true);
-        return false;
-    }
-
-    uint32 accountid = objmgr.GetPlayerAccountIdByPlayerName(name);
-    if(!accountid)
-    {
-        SendSysMessage(LANG_PLAYER_NOT_FOUND);
-        SetSentErrorMessage(true);
-        return false;
-    }
+    uint32 accountid = target ? target->GetSession()->GetAccountId() : objmgr.GetPlayerAccountIdByGUID(target_guid);
 
     std::string accountname;
     if(!accmgr.GetName(accountid,accountname))
@@ -7242,18 +6903,12 @@ bool ChatHandler::HandleAccountSetAddonCommand(const char* args)
 //Send items by mail
 bool ChatHandler::HandleSendItemsCommand(const char* args)
 {
-    if(!*args)
-        return false;
-
     // format: name "subject text" "mail text" item1[:count1] item2[:count2] ... item12[:count12]
-
-    std::string name = extractPlayerNameFromLink((char*)args);
-    if(name.empty())
-    {
-        SendSysMessage(LANG_PLAYER_NOT_FOUND);
-        SetSentErrorMessage(true);
+    Player* receiver;
+    uint64 receiver_guid;
+    std::string receiver_name;
+    if(!extractPlayerTarget((char*)args,&receiver,&receiver_guid,&receiver_name))
         return false;
-    }
 
     char* tail1 = strtok(NULL, "");
     if(!tail1)
@@ -7349,22 +7004,12 @@ bool ChatHandler::HandleSendItemsCommand(const char* args)
         }
     }
 
-    uint64 receiver_guid = objmgr.GetPlayerGUIDByName(name);
-    if(!receiver_guid)
-    {
-        SendSysMessage(LANG_PLAYER_NOT_FOUND);
-        SetSentErrorMessage(true);
-        return false;
-    }
-
     // from console show not existed sender
     uint32 sender_guidlo = m_session ? m_session->GetPlayer()->GetGUIDLow() : 0;
 
     uint32 messagetype = MAIL_NORMAL;
     uint32 stationery = MAIL_STATIONERY_GM;
     uint32 itemTextId = !text.empty() ? objmgr.CreateItemText( text ) : 0;
-
-    Player *receiver = objmgr.GetPlayer(receiver_guid);
 
     // fill mail
     MailItemsInfo mi;                                       // item list preparing
@@ -7380,7 +7025,7 @@ bool ChatHandler::HandleSendItemsCommand(const char* args)
 
     WorldSession::SendMailTo(receiver,messagetype, stationery, sender_guidlo, GUID_LOPART(receiver_guid), subject, itemTextId, &mi, 0, 0, MAIL_CHECK_MASK_NONE);
 
-    std::string nameLink = playerLink(name);
+    std::string nameLink = playerLink(receiver_name);
     PSendSysMessage(LANG_MAIL_SENT, nameLink.c_str());
     return true;
 }
@@ -7388,18 +7033,13 @@ bool ChatHandler::HandleSendItemsCommand(const char* args)
 ///Send money by mail
 bool ChatHandler::HandleSendMoneyCommand(const char* args)
 {
-    if (!*args)
-        return false;
-
     /// format: name "subject text" "mail text" money
 
-    std::string name = extractPlayerNameFromLink((char*)args);
-    if(name.empty())
-    {
-        SendSysMessage(LANG_PLAYER_NOT_FOUND);
-        SetSentErrorMessage(true);
+    Player* receiver;
+    uint64 receiver_guid;
+    std::string receiver_name;
+    if(!extractPlayerTarget((char*)args,&receiver,&receiver_guid,&receiver_name))
         return false;
-    }
 
     char* tail1 = strtok(NULL, "");
     if (!tail1)
@@ -7446,14 +7086,6 @@ bool ChatHandler::HandleSendMoneyCommand(const char* args)
     std::string subject = msgSubject;
     std::string text    = msgText;
 
-    uint64 receiver_guid = objmgr.GetPlayerGUIDByName(name);
-    if (!receiver_guid)
-    {
-        SendSysMessage(LANG_PLAYER_NOT_FOUND);
-        SetSentErrorMessage(true);
-        return false;
-    }
-
     // from console show not existed sender
     uint32 sender_guidlo = m_session ? m_session->GetPlayer()->GetGUIDLow() : 0;
 
@@ -7461,11 +7093,9 @@ bool ChatHandler::HandleSendMoneyCommand(const char* args)
     uint32 stationery = MAIL_STATIONERY_GM;
     uint32 itemTextId = !text.empty() ? objmgr.CreateItemText( text ) : 0;
 
-    Player *receiver = objmgr.GetPlayer(receiver_guid);
-
     WorldSession::SendMailTo(receiver,messagetype, stationery, sender_guidlo, GUID_LOPART(receiver_guid), subject, itemTextId, NULL, money, 0, MAIL_CHECK_MASK_NONE);
 
-    std::string nameLink = playerLink(name);
+    std::string nameLink = playerLink(receiver_name);
     PSendSysMessage(LANG_MAIL_SENT, nameLink.c_str());
     return true;
 }
@@ -7473,28 +7103,17 @@ bool ChatHandler::HandleSendMoneyCommand(const char* args)
 /// Send a message to a player in game
 bool ChatHandler::HandleSendMessageCommand(const char* args)
 {
-    ///- Get the command line arguments
-    std::string name = extractPlayerNameFromLink((char*)args);
-    if(name.empty())
-    {
-        SendSysMessage(LANG_PLAYER_NOT_FOUND);
-        SetSentErrorMessage(true);
+    ///- Find the player
+    Player *rPlayer;
+    std::string rName;
+    if(!extractPlayerTarget((char*)args,&rPlayer,NULL,&rName))
         return false;
-    }
 
     char* msg_str = strtok(NULL, "");
     if(!msg_str)
         return false;
 
-    ///- Find the player and check that he is not logging out.
-    Player *rPlayer = objmgr.GetPlayer(name.c_str());
-    if(!rPlayer)
-    {
-        SendSysMessage(LANG_PLAYER_NOT_FOUND);
-        SetSentErrorMessage(true);
-        return false;
-    }
-
+    ///- Check that he is not logging out.
     if(rPlayer->GetSession()->isLogingOut())
     {
         SendSysMessage(LANG_PLAYER_NOT_FOUND);
@@ -7508,7 +7127,7 @@ bool ChatHandler::HandleSendMessageCommand(const char* args)
     rPlayer->GetSession()->SendAreaTriggerMessage("|cffff0000[Message from administrator]:|r");
 
     //Confirmation message
-    std::string nameLink = playerLink(name);
+    std::string nameLink = playerLink(rName);
     PSendSysMessage(LANG_SENDMESSAGE,nameLink.c_str(),msg_str);
     return true;
 }

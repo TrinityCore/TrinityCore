@@ -495,13 +495,13 @@ ChatCommand * ChatHandler::getCommandTable()
 
     static ChatCommand resetCommandTable[] =
     {
-        { "achievements",   SEC_ADMINISTRATOR,  false, &ChatHandler::HandleResetAchievementsCommand,   "", NULL },
-        { "honor",          SEC_ADMINISTRATOR,  false, &ChatHandler::HandleResetHonorCommand,          "", NULL },
-        { "level",          SEC_ADMINISTRATOR,  false, &ChatHandler::HandleResetLevelCommand,          "", NULL },
-        { "spells",         SEC_ADMINISTRATOR,  false, &ChatHandler::HandleResetSpellsCommand,         "", NULL },
-        { "stats",          SEC_ADMINISTRATOR,  false, &ChatHandler::HandleResetStatsCommand,          "", NULL },
-        { "talents",        SEC_ADMINISTRATOR,  false, &ChatHandler::HandleResetTalentsCommand,        "", NULL },
-        { "all",            SEC_ADMINISTRATOR,  false, &ChatHandler::HandleResetAllCommand,            "", NULL },
+        { "achievements",   SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleResetAchievementsCommand,   "", NULL },
+        { "honor",          SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleResetHonorCommand,          "", NULL },
+        { "level",          SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleResetLevelCommand,          "", NULL },
+        { "spells",         SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleResetSpellsCommand,         "", NULL },
+        { "stats",          SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleResetStatsCommand,          "", NULL },
+        { "talents",        SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleResetTalentsCommand,        "", NULL },
+        { "all",            SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleResetAllCommand,            "", NULL },
         { NULL,             0,                  false, NULL,                                           "", NULL }
     };
 
@@ -634,7 +634,7 @@ ChatCommand * ChatHandler::getCommandTable()
         { "pdump",          SEC_ADMINISTRATOR,  true,  NULL,                                           "", pdumpCommandTable    },
         { "guild",          SEC_ADMINISTRATOR,  true,  NULL,                                           "", guildCommandTable    },
         { "cast",           SEC_ADMINISTRATOR,  false, NULL,                                           "", castCommandTable     },
-        { "reset",          SEC_ADMINISTRATOR,  false, NULL,                                           "", resetCommandTable    },
+        { "reset",          SEC_ADMINISTRATOR,  true,  NULL,                                           "", resetCommandTable    },
         { "instance",       SEC_ADMINISTRATOR,  true,  NULL,                                           "", instanceCommandTable },
         { "server",         SEC_ADMINISTRATOR,  true,  NULL,                                           "", serverCommandTable   },
 
@@ -680,7 +680,6 @@ ChatCommand * ChatHandler::getCommandTable()
         { "neargrave",      SEC_ADMINISTRATOR,  false, &ChatHandler::HandleNearGraveCommand,           "", NULL },
         { "explorecheat",   SEC_ADMINISTRATOR,  false, &ChatHandler::HandleExploreCheatCommand,        "", NULL },
         { "hover",          SEC_ADMINISTRATOR,  false, &ChatHandler::HandleHoverCommand,               "", NULL },
-        { "waterwalk",      SEC_ADMINISTRATOR,  false, &ChatHandler::HandleWaterwalkCommand,           "", NULL },
         { "levelup",        SEC_ADMINISTRATOR,  false, &ChatHandler::HandleLevelUpCommand,             "", NULL },
         { "showarea",       SEC_ADMINISTRATOR,  false, &ChatHandler::HandleShowAreaCommand,            "", NULL },
         { "hidearea",       SEC_ADMINISTRATOR,  false, &ChatHandler::HandleHideAreaCommand,            "", NULL },
@@ -702,7 +701,9 @@ ChatCommand * ChatHandler::getCommandTable()
         { "damage",         SEC_ADMINISTRATOR,  false, &ChatHandler::HandleDamageCommand,              "", NULL },
         { "combatstop",     SEC_GAMEMASTER,     false, &ChatHandler::HandleCombatStopCommand,          "", NULL },
         { "flusharenapoints",SEC_ADMINISTRATOR, false, &ChatHandler::HandleFlushArenaPointsCommand,    "", NULL },
-        { "repairitems",    SEC_GAMEMASTER,     false, &ChatHandler::HandleRepairitemsCommand,         "", NULL },
+        { "repairitems",    SEC_GAMEMASTER,     true,  &ChatHandler::HandleRepairitemsCommand,         "", NULL },
+        { "waterwalk",      SEC_GAMEMASTER,     false, &ChatHandler::HandleWaterwalkCommand,           "", NULL },
+
         { "freeze",         SEC_ADMINISTRATOR,  false, &ChatHandler::HandleFreezeCommand,              "", NULL },
         { "unfreeze",       SEC_ADMINISTRATOR,  false, &ChatHandler::HandleUnFreezeCommand,            "", NULL },
         { "listfreeze",     SEC_ADMINISTRATOR,  false, &ChatHandler::HandleListFreezeCommand,          "", NULL },
@@ -1315,7 +1316,7 @@ char* ChatHandler::extractKeyFromLink(char* text, char const* linkType, char** s
         *something1 = strtok(NULL, ":|");                   // extract something
 
     strtok(cKeysTail, "]");                                 // restart scan tail and skip name with possible spaces
-    strtok(NULL, " ");                                      // skip link tail (to allow continue strtok(NULL,s) use after retturn from function
+    strtok(NULL, " ");                                      // skip link tail (to allow continue strtok(NULL,s) use after return from function
     return cKey;
 }
 
@@ -1591,6 +1592,77 @@ std::string ChatHandler::extractPlayerNameFromLink(char* text)
         return "";
 
     return name;
+}
+
+bool ChatHandler::extractPlayerTarget(char* args, Player** player, uint64* player_guid /*=NULL*/,std::string* player_name /*= NULL*/)
+{
+    if (args && *args)
+    {
+        std::string name = extractPlayerNameFromLink(args);
+        if (name.empty())
+        {
+            SendSysMessage(LANG_PLAYER_NOT_FOUND);
+            SetSentErrorMessage(true);
+            return false;
+        }
+
+        Player* pl = objmgr.GetPlayer(name.c_str());
+
+        // if allowed player pointer
+        if(player)
+            *player = pl;
+
+        // if need guid value from DB (in name case for check player existence)
+        uint64 guid = !pl && (player_guid || player_name) ? objmgr.GetPlayerGUIDByName(name) : 0;
+
+        // if allowed player guid (if no then only online players allowed)
+        if(player_guid)
+            *player_guid = pl ? pl->GetGUID() : guid;
+
+        if(player_name)
+            *player_name = pl || guid ? name : "";
+    }
+    else
+    {
+        Player* pl = getSelectedPlayer();
+        // if allowed player pointer
+        if(player)
+            *player = pl;
+        // if allowed player guid (if no then only online players allowed)
+        if(player_guid)
+            *player_guid = pl ? pl->GetGUID() : 0;
+
+        if(player_name)
+            *player_name = pl ? pl->GetName() : "";
+    }
+
+    // some from req. data must be provided (note: name is empty if player not exist)
+    if((!player || !*player) && (!player_guid || !*player_guid) && (!player_name || player_name->empty()))
+    {
+        SendSysMessage(LANG_PLAYER_NOT_FOUND);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    return true;
+}
+
+void ChatHandler::extractOptFirstArg(char* args, char** arg1, char** arg2)
+{
+    char* p1 = strtok(args, " ");
+    char* p2 = strtok(NULL, " ");
+
+    if(!p2)
+    {
+        p2 = p1;
+        p1 = NULL;
+    }
+
+    if(arg1)
+        *arg1 = p1;
+
+    if(arg2)
+        *arg2 = p2;
 }
 
 bool ChatHandler::needReportToTarget(Player* chr) const

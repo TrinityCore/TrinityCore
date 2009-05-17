@@ -11767,20 +11767,30 @@ void CharmInfo::InitCharmCreateSpells()
 
 bool CharmInfo::AddSpellToAB(uint32 oldid, uint32 newid, ActiveStates newstate)
 {
-    for(uint8 i = 0; i < 10; i++)
-    {
-        if((PetActionBar[i].Type == ACT_DISABLED || PetActionBar[i].Type == ACT_ENABLED || PetActionBar[i].Type == ACT_PASSIVE) && PetActionBar[i].SpellOrAction == oldid)
-        {
-            PetActionBar[i].SpellOrAction = newid;
-            if(!oldid)
-            {
-                if(newstate == ACT_DECIDE)
-                    PetActionBar[i].Type = ACT_DISABLED;
-                else
-                    PetActionBar[i].Type = newstate;
-            }
+    // new spell already listed for example in case prepered switch to lesser rank in Pet::removeSpell
+    for(uint8 i = 0; i < 10; ++i)
+        if (PetActionBar[i].Type == ACT_DISABLED || PetActionBar[i].Type == ACT_ENABLED || PetActionBar[i].Type == ACT_PASSIVE)
+            if (newid && PetActionBar[i].SpellOrAction == newid)
+                return true;
 
-            return true;
+    // old spell can be leasted for example in case learn high rank
+    for(uint8 i = 0; i < 10; ++i)
+    {
+        if (PetActionBar[i].Type == ACT_DISABLED || PetActionBar[i].Type == ACT_ENABLED || PetActionBar[i].Type == ACT_PASSIVE)
+        {
+            if (PetActionBar[i].SpellOrAction == oldid)
+            {
+                PetActionBar[i].SpellOrAction = newid;
+                if (!oldid)
+                {
+                    if (newstate == ACT_DECIDE)
+                        PetActionBar[i].Type = ACT_DISABLED;
+                    else
+                        PetActionBar[i].Type = newstate;
+                }
+
+                return true;
+            }
         }
     }
     return false;
@@ -12795,6 +12805,7 @@ Pet* Unit::CreateTamedPetFrom(Creature* creatureTarget,uint32 spell_id)
     pet->GetCharmInfo()->SetPetNumber(objmgr.GeneratePetNumber(), true);
     // this enables pet details window (Shift+P)
     pet->InitPetCreateSpells();
+    //pet->InitLevelupSpellsForLevel();
     pet->InitTalentForLevel();
     pet->SetHealth(pet->GetMaxHealth());
 

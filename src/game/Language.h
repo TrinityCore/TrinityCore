@@ -96,7 +96,6 @@ enum TrinityStrings
     LANG_CANNOT_GO_TO_INST_GM           = 105,
     LANG_CANNOT_GO_INST_INST            = 106,
     LANG_CANNOT_SUMMON_INST_INST        = 107,
-
     LANG_SUMMONING                      = 108,
     LANG_SUMMONED_BY                    = 109,
     LANG_TELEPORTING_TO                 = 110,
@@ -104,7 +103,6 @@ enum TrinityStrings
     LANG_NO_PLAYER                      = 112,
     LANG_APPEARING_AT                   = 113,
     LANG_APPEARING_TO                   = 114,
-
     LANG_BAD_VALUE                      = 115,
     LANG_NO_CHAR_SELECTED               = 116,
     LANG_NOT_IN_GROUP                   = 117,
@@ -169,7 +167,7 @@ enum TrinityStrings
 
     LANG_MAIL_SENT                      = 169,
     LANG_SOUND_NOT_EXIST                = 170,
-    LANG_TELEPORTED_TO_BY_CONSOLE       = 171,
+    LANG_CANT_TELEPORT_SELF             = 171,
     LANG_CONSOLE_COMMAND                = 172,
     LANG_YOU_CHANGE_RUNIC_POWER         = 173,
     LANG_YOURS_RUNIC_POWER_CHANGED      = 174,
@@ -268,7 +266,7 @@ enum TrinityStrings
     LANG_COMMAND_ADDVENDORITEMITEMS     = 280,
     LANG_COMMAND_KICKSELF               = 281,
     LANG_COMMAND_KICKMESSAGE            = 282,
-    LANG_COMMAND_KICKNOTFOUNDPLAYER     = 283,
+    //                                    283, not used
     LANG_COMMAND_WHISPERACCEPTING       = 284,
     LANG_COMMAND_WHISPERON              = 285,
     LANG_COMMAND_WHISPEROFF             = 286,
@@ -855,7 +853,8 @@ enum TrinityStrings
     //LANG_INSTANCE_NOT_AS_GHOST        = 5008,
     LANG_COMMAND_PLAYED_TO_ALL          = 5009,
     LANG_NPCINFO_LINKGUID               = 5010,
-    // Room for more Trinity strings      5011-9999
+    LANG_TELEPORTED_TO_BY_CONSOLE       = 5011,
+    // Room for more Trinity strings      5012-9999
     // Used for GM Announcements
     LANG_GM_BROADCAST                    = 6613,
     LANG_GM_NOTIFY                       = 6614,
