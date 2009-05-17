@@ -564,8 +564,8 @@ void Unit::DealDamageMods(Unit *pVictim, uint32 &damage, uint32* absorb)
     //if( GetTypeId()== TYPEID_UNIT && ((Creature *)this)->AI())
     //    ((Creature *)this)->AI()->DamageDeal(pVictim, damage);
     //Script Event damage taken
-    if( pVictim->GetTypeId()== TYPEID_UNIT && ((Creature *)pVictim)->IsAIEnabled )
-        ((Creature *)pVictim)->AI()->DamageTaken(this, damage);
+    //if( pVictim->GetTypeId()== TYPEID_UNIT && ((Creature *)pVictim)->IsAIEnabled )
+    //    ((Creature *)pVictim)->AI()->DamageTaken(this, damage);
 
     if(absorb && originalDamage > damage)
         absorb += (originalDamage - damage);
@@ -575,6 +575,9 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
 {
     if( pVictim->GetTypeId()== TYPEID_UNIT)
     {
+        if(((Creature *)pVictim)->IsAIEnabled)
+            ((Creature *)pVictim)->AI()->DamageTaken(this, damage);
+
         // Set tagging
         if(!pVictim->HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_OTHER_TAGGER) && !((Creature*)pVictim)->isPet())
         {
