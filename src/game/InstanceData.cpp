@@ -76,7 +76,7 @@ void InstanceData::LoadDoorData(const DoorData *data)
     while(data->entry)
     {
         if(data->bossId < bosses.size())
-            doors.insert(std::make_pair(data->entry, DoorInfo(&bosses[data->bossId], data->type)));
+            doors.insert(std::make_pair(data->entry, DoorInfo(&bosses[data->bossId], data->type, BoundaryType(data->boundary))));
 
         ++data;
     }
@@ -143,7 +143,31 @@ void InstanceData::AddDoor(GameObject *door, bool add)
     for(DoorInfoMap::iterator itr = lower; itr != upper; ++itr)
     {
         if(add)
+        {
             itr->second.bossInfo->door[itr->second.type].insert(door);
+            switch(itr->second.boundary)
+            {
+                default:
+                case BOUNDARY_NONE:
+                    break;
+                case BOUNDARY_N:
+                case BOUNDARY_S:
+                    itr->second.bossInfo->boundary[itr->second.boundary] = door->GetPositionX();
+                    break;
+                case BOUNDARY_E:
+                case BOUNDARY_W:
+                    itr->second.bossInfo->boundary[itr->second.boundary] = door->GetPositionY();
+                    break;
+                case BOUNDARY_NW:
+                case BOUNDARY_SE:
+                    itr->second.bossInfo->boundary[itr->second.boundary] = door->GetPositionX() + door->GetPositionY();
+                    break;
+                case BOUNDARY_NE:
+                case BOUNDARY_SW:
+                    itr->second.bossInfo->boundary[itr->second.boundary] = door->GetPositionX() - door->GetPositionY();
+                    break;
+            }
+        }
         else
             itr->second.bossInfo->door[itr->second.type].erase(door);
     }
