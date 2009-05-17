@@ -11931,6 +11931,14 @@ void Player::ApplyEnchantment(Item *item,EnchantmentSlot slot,bool apply, bool a
                     sLog.outDebug("Adding %u to stat nb %u",enchant_amount,enchant_spell_id);
                     switch (enchant_spell_id)
                     {
+                        case ITEM_MOD_MANA:
+                            sLog.outDebug("+ %u MANA",enchant_amount);
+                            HandleStatModifier(UNIT_MOD_MANA, BASE_VALUE, float(enchant_amount), apply);
+                            break;
+                        case ITEM_MOD_HEALTH:
+                            sLog.outDebug("+ %u HEALTH",enchant_amount);
+                            HandleStatModifier(UNIT_MOD_HEALTH, BASE_VALUE, float(enchant_amount), apply);
+                            break;
                         case ITEM_MOD_AGILITY:
                             sLog.outDebug("+ %u AGILITY",enchant_amount);
                             HandleStatModifier(UNIT_MOD_STAT_AGILITY, TOTAL_VALUE, float(enchant_amount), apply);
