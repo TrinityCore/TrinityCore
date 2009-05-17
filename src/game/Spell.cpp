@@ -364,6 +364,8 @@ Spell::Spell( Unit* Caster, SpellEntry const *info, bool triggered, uint64 origi
     m_delayStart = 0;
     m_delayAtDamageCount = 0;
 
+    m_canTrigger=true;
+
     m_applyMultiplierMask = 0;
     m_effectMask = 0;
 
@@ -723,13 +725,37 @@ void Spell::FillTargetMap()
     }
 }
 
-void Spell::prepareDataForTriggerSystem()
+void Spell::prepareDataForTriggerSystem(AuraEffect * triggeredByAura)
 {
     //==========================================================================================
     // Now fill data for trigger system, need know:
-    // an spell trigger another or not ( m_canTrigger )
-    // Create base triggers flags for Attacker and Victim ( m_procAttacker and  m_procVictim)
+    // can spell trigger another or not ( m_canTrigger )
+    // Create base triggers flags for Attacker and Victim ( m_procAttacker, m_procVictim and m_procEx)
     //==========================================================================================
+
+    /*
+        Effects which are result of aura proc from triggered spell cannot proc
+        to prevent chain proc of these spells
+    */
+
+    if (triggeredByAura && !triggeredByAura->GetParentAura()->CanProc())
+    {
+        m_canTrigger=false;
+    }
+
+    m_procEx = (m_IsTriggeredSpell)
+        && !(m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_TRIGGERED_CAN_TRIGGER)
+        && !(m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_TRIGGERED_CAN_TRIGGER_2)
+        ? PROC_EX_INTERNAL_TRIGGERED : PROC_EX_NONE;
+
+    if (m_IsTriggeredSpell && (m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_TRIGGERED_CAN_TRIGGER_2 | SPELL_ATTR_EX2_TRIGGERED_CAN_TRIGGER))
+        m_procEx |= PROC_EX_INTERNAL_CANT_PROC;
+
+    // Totem casts require spellfamilymask defined in spell_proc_event to proc
+    if (m_originalCaster && m_caster != m_originalCaster && m_caster->GetTypeId()==TYPEID_UNIT && ((Creature*)m_caster)->isTotem() && m_caster->IsControlledByPlayer())
+    {
+        m_procEx |= PROC_EX_INTERNAL_REQ_FAMILY;
+    }
 
     // Get data for type of attack and fill base info for trigger
     switch (m_spellInfo->DmgClass)
@@ -973,15 +999,13 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
     // Fill base trigger info
     uint32 procAttacker = m_procAttacker;
     uint32 procVictim   = m_procVictim;
-    uint32 procEx       = m_triggeredByAuraSpell 
-        && !(m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_TRIGGERED_CAN_TRIGGER)
-        && !(m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_TRIGGERED_CAN_TRIGGER_2)
-        ? PROC_EX_INTERNAL_TRIGGERED : PROC_EX_NONE;
+    uint32 procEx = m_procEx;
+
     m_spellAura = NULL; // Set aura to null for every target-make sure that pointer is not used for unit without aura applied
 
                             //Spells with this flag cannot trigger if effect is casted on self
                             // Slice and Dice, relentless strikes, eviscerate
-    bool canEffectTrigger = (m_spellInfo->AttributesEx4 & (SPELL_ATTR_EX4_CANT_PROC_FROM_SELFCAST | SPELL_ATTR_EX4_UNK4) ? m_caster!=unitTarget : true);
+    bool canEffectTrigger = m_canTrigger && (m_spellInfo->AttributesEx4 & (SPELL_ATTR_EX4_CANT_PROC_FROM_SELFCAST | SPELL_ATTR_EX4_UNK4) ? m_caster!=unitTarget : true);
     Unit * spellHitTarget = NULL;
 
     if (missInfo==SPELL_MISS_NONE)                          // In case spell hit target, do all effect on that target
@@ -2327,7 +2351,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect* triggeredByAura
     }
 
     // Prepare data for triggers
-    prepareDataForTriggerSystem();
+    prepareDataForTriggerSystem(triggeredByAura);
 
     // Set combo point requirement
     if (m_IsTriggeredSpell || m_CastItem || m_caster->GetTypeId()!=TYPEID_PLAYER)
