@@ -846,6 +846,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_muru_portal' WHERE `entry`=2577
 UPDATE `creature_template` SET `ScriptName`='boss_kalecgos' WHERE `entry`=24850;
 UPDATE `creature_template` SET `ScriptName`='boss_sathrovarr' WHERE `entry`=24892;
 UPDATE `creature_template` SET `ScriptName`='boss_kalec' WHERE `entry`=24891;
+UPDATE gameobject_template SET scriptname = 'kalocegos_teleporter' WHERE entry = 187055;
 UPDATE `creature_template` SET `ScriptName`='npc_blackhole' WHERE `entry`=25855;
 
 /* SWAMP OF SORROWS */
