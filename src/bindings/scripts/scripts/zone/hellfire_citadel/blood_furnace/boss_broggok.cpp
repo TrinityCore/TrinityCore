@@ -86,24 +86,9 @@ struct TRINITY_DLL_DECL boss_broggokAI : public ScriptedAI
     }
 };
 
-struct TRINITY_DLL_DECL mob_broggok_poisoncloudAI : public ScriptedAI
-{
-    mob_broggok_poisoncloudAI(Creature *c) : ScriptedAI(c) {Reset();}
-
-    void Reset() { }
-    void MoveInLineOfSight(Unit *who) { }
-    void AttackStart(Unit *who) { }
-    void EnterCombat(Unit* who) { }
-};
-
 CreatureAI* GetAI_boss_broggok(Creature *_Creature)
 {
     return new boss_broggokAI (_Creature);
-}
-
-CreatureAI* GetAI_mob_broggok_poisoncloud(Creature *_Creature)
-{
-    return new mob_broggok_poisoncloudAI (_Creature);
 }
 
 void AddSC_boss_broggok()
@@ -112,10 +97,5 @@ void AddSC_boss_broggok()
     newscript = new Script;
     newscript->Name = "boss_broggok";
     newscript->GetAI = &GetAI_boss_broggok;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "mob_broggok_poisoncloud";
-    newscript->GetAI = &GetAI_mob_broggok_poisoncloud;
     newscript->RegisterSelf();
 }
