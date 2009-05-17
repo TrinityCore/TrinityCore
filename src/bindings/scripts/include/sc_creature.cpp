@@ -654,20 +654,23 @@ void BossAI::_Reset()
 {
     events.Reset();
     summons.DespawnAll();
-    instance->SetBossState(bossId, NOT_STARTED);
+    if(instance)
+        instance->SetBossState(bossId, NOT_STARTED);
 }
 
 void BossAI::_JustDied()
 {
     events.Reset();
     summons.DespawnAll();
-    instance->SetBossState(bossId, DONE);
+    if(instance)
+        instance->SetBossState(bossId, DONE);
 }
 
 void BossAI::_EnterCombat()
 {
     DoZoneInCombat();
-    instance->SetBossState(bossId, IN_PROGRESS);
+    if(instance)
+        instance->SetBossState(bossId, IN_PROGRESS);
 }
 
 void BossAI::JustSummoned(Creature *summon)
