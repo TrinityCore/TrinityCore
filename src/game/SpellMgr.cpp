@@ -3255,10 +3255,6 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->MaxAffectedTargets = 1;
             spellInfo->EffectTriggerSpell[0] = 33760;
             break;
-        case 1122: // Inferno
-        case 18662: // Curse of Doom
-            spellInfo->EffectBasePoints[0] = 0; //prevent summon too many of them
-            break;
         case 17941:    // Shadow Trance
         case 22008:    // Netherwind Focus
         case 31834:    // Light's Grace
