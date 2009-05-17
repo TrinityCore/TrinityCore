@@ -6420,6 +6420,13 @@ void Spell::SummonGuardian(uint32 entry, SummonPropertiesEntry const *properties
     //float radius = GetSpellRadiusForFriend(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
     float radius = 5.0f;
     int32 amount = damage > 0 ? damage : 1;
+    switch(m_spellInfo->Id)
+    {
+        case 1122: // Inferno
+        case 18662: // Curse of Doom
+            amount = 1;
+            break;
+    }
     int32 duration = GetSpellDuration(m_spellInfo);
     TempSummonType summonType = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_DESPAWN;
     Map *map = caster->GetMap();
