@@ -458,7 +458,7 @@ class Spell
         bool IsDeletable() const { return !m_referencedFromCurrentSpell && !m_executedCurrently; }
         void SetReferencedFromCurrent(bool yes) { m_referencedFromCurrentSpell = yes; }
         bool IsInterruptable() const { return !m_executedCurrently; }
-        void SetExecutedCurrently(bool yes) { m_executedCurrently = yes; }
+        void SetExecutedCurrently(bool yes) {m_executedCurrently = yes;}
         uint64 GetDelayStart() const { return m_delayStart; }
         void SetDelayStart(uint64 m_time) { m_delayStart = m_time; }
         uint64 GetDelayMoment() const { return m_delayMoment; }
@@ -552,7 +552,9 @@ class Spell
         //******************************************
         uint32 m_procAttacker;                // Attacker trigger flags
         uint32 m_procVictim;                  // Victim   trigger flags
-        void   prepareDataForTriggerSystem();
+        uint32 m_procEx;
+        bool m_canTrigger;
+        void   prepareDataForTriggerSystem(AuraEffect * triggeredByAura);
 
         //*****************************************
         // Spell target subsystem

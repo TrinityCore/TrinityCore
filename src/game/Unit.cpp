@@ -1043,7 +1043,7 @@ void Unit::CastSpell(Unit* Victim,SpellEntry const *spellInfo, bool triggered, I
         return;
     }
 
-    if (!originalCaster && GetTypeId()==TYPEID_UNIT && ((Creature*)this)->isTotem())
+    if (!originalCaster && GetTypeId()==TYPEID_UNIT && ((Creature*)this)->isTotem() && IsControlledByPlayer())
         if (Unit * owner = GetOwner())
             originalCaster=owner->GetGUID();
 
@@ -4233,7 +4233,7 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
     // Remove totem at next update if totem looses its aura
     if (GetTypeId()==TYPEID_UNIT && ((Creature*)this)->isTotem()&& ((TempSummon*)this)->GetSummonerGUID()==Aur->GetCasterGUID())
     {
-        if (((Totem*)this)->GetSpell()==Aur->GetId())
+        if (((Totem*)this)->GetSpell()==Aur->GetId() && ((Totem*)this)->GetTotemType()==TOTEM_PASSIVE)
             ((Totem*)this)->setDeathState(JUST_DIED);
     }
 
@@ -5568,7 +5568,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 {
                     if(!pVictim || !pVictim->isAlive())
                         return false;
-                    pVictim->CastSpell(pVictim, 60946,true);
+                    pVictim->CastSpell(pVictim, 60946,true, castItem, triggeredByAura);
                     return true;
                 }
                 // Improved Fear (Rank 2)
@@ -5576,7 +5576,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 {
                     if(!pVictim || !pVictim->isAlive())
                         return false;
-                    pVictim->CastSpell(pVictim, 60947,true);
+                    pVictim->CastSpell(pVictim, 60947,true, castItem, triggeredByAura);
                     return true;
                 }
                 // Shadowflame (Voidheart Raiment set bonus)
@@ -5708,7 +5708,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 {
                     if(!pVictim || !pVictim->isAlive())
                         return false;
-                    pVictim->CastSpell(pVictim, 59980,true);
+                    pVictim->CastSpell(pVictim, 59980,true, castItem, triggeredByAura);
                     return true;
                 }
                 // Psychic Horror (Rank 2)
@@ -5716,7 +5716,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 {
                     if(!pVictim || !pVictim->isAlive())
                         return false;
-                    pVictim->CastSpell(pVictim, 59981,true);
+                    pVictim->CastSpell(pVictim, 59981,true, castItem, triggeredByAura);
                     return true;
                 }
                 // Glyph of Dispel Magic
@@ -6035,7 +6035,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 target = this;
                 triggered_spell_id = 31930;
                 // replenishment
-                CastSpell(this,57669,true);
+                CastSpell(this,57669,true, castItem, triggeredByAura);
                 break;
             }
             // Sanctified Wrath
@@ -6866,8 +6866,6 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
 
     // Set trigger spell id, target, custom basepoints
     uint32 trigger_spell_id = auraSpellInfo->EffectTriggerSpell[triggeredByAura->GetEffIndex()];
-    if(procSpell && procSpell->Id == trigger_spell_id)
-        return false;
 
     Unit*  target = NULL;
     int32  basepoints0 = 0;
@@ -8499,8 +8497,6 @@ Unit* Unit::SelectMagnetTarget(Unit *victim, SpellEntry const *spellInfo)
                 if(Unit* magnet = (*itr)->IsAreaAura() ? ((AreaAuraEffect*)(*itr))->GetFormalCaster():(*itr)->GetCaster() )
                     if(magnet->isAlive())
                     {
-                        if (Aura * aur = magnet->GetAura((*itr)->GetId(),(*itr)->GetCasterGUID()))
-                            aur->DropAuraCharge();
                         return magnet;
                     }
     }
@@ -11990,7 +11986,6 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
     for(AuraMap::const_iterator itr = GetAuras().begin(); itr!= GetAuras().end(); ++itr)
     {
         ProcTriggeredData triggerData(itr->second);
-
         if(!IsTriggeredAtSpellProcEvent(pTarget, triggerData.aura, procSpell, procFlag, procExtra, attType, isVictim, (damage > 0), triggerData.spellProcEvent))
             continue;
         for (uint8 i=0; i<MAX_SPELL_EFFECTS;++i)
@@ -12004,6 +11999,10 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
                 if (!isTriggerAura[aurEff->GetAuraName()] && triggerData.spellProcEvent==NULL)
                     continue;
                 triggerData.effMask |= 1<<i;
+                if (procExtra & (PROC_EX_INTERNAL_TRIGGERED | PROC_EX_INTERNAL_CANT_PROC))
+                    itr->second->SetCanProc(false);
+                else
+                    itr->second->SetCanProc(true);
             }
         }
         if (triggerData.effMask)
@@ -12818,11 +12817,6 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit *pVictim, Aura * aura, SpellEntry co
     if (!EventProcFlag)
         return false;
 
-    // Do not proc spells for totem if aura does not require family to proc
-    if (GetTypeId()==TYPEID_UNIT && ((Creature*)this)->isTotem() && ((Totem*)this)->IsControlledByPlayer())
-        if (!spellProcEvent || !spellProcEvent->spellFamilyName)
-            return false;
-
     // Additional checks for triggered spells
     if (procExtra & PROC_EX_INTERNAL_TRIGGERED)
     {
@@ -13013,7 +13007,7 @@ void Unit::SetToNotify()
 void Unit::Kill(Unit *pVictim, bool durabilityLoss)
 {
     // Prevent killing unit twice (and giving reward from kill twice)
-    if (!pVictim->isAlive())
+    if (!pVictim->GetHealth())
         return;
     pVictim->SetHealth(0);
 
