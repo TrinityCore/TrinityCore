@@ -1944,6 +1944,8 @@ void SpellMgr::LoadPetLevelupSpellMap()
     mPetLevelupSpellMap.clear();                                   // need for reload case
 
     uint32 count = 0;
+    uint32 family_count = 0;
+
     for (uint32 i = 0; i < sCreatureFamilyStore.GetNumRows(); ++i)
     {
         CreatureFamilyEntry const *creatureFamily = sCreatureFamilyStore.LookupEntry(i);
@@ -1968,17 +1970,24 @@ void SpellMgr::LoadPetLevelupSpellMap()
                     continue;
 
                 SpellEntry const *spell = sSpellStore.LookupEntry(skillLine->spellId);
-                // not exist or triggered or talent
-                if(!spell || !spell->spellLevel)
+                if(!spell) // not exist or triggered or talent
                     continue;
-                mPetLevelupSpellMap.insert(PetLevelupSpellMap::value_type(creatureFamily->ID, std::make_pair(spell->spellLevel , spell->Id )));
+
+                if(!spell->spellLevel)
+                    continue;
+
+            PetLevelupSpellSet& spellSet = mPetLevelupSpellMap[creatureFamily->ID];
+            if(spellSet.empty())
+                ++family_count;
+
+            spellSet.insert(PetLevelupSpellSet::value_type(spell->spellLevel,spell->Id)); 
                 count++;
             }
         }
     }
 
     sLog.outString();
-    sLog.outString( ">> Loaded %u pet levelup spells", count );
+    sLog.outString( ">> Loaded %u pet levelup and default spells for %u families", count, family_count );
 }
 
 /// Some checks for spells, to prevent adding deprecated/broken spells for trainers, spell book, etc
