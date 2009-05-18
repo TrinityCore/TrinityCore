@@ -745,10 +745,12 @@ void Spell::prepareDataForTriggerSystem(AuraEffect * triggeredByAura)
 
     m_procEx = (m_IsTriggeredSpell)
         && !(m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_TRIGGERED_CAN_TRIGGER)
-        && !(m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_TRIGGERED_CAN_TRIGGER_2)
+        && !(m_spellInfo->AttributesEx3 & SPELL_ATTR_EX3_TRIGGERED_CAN_TRIGGER_2)
         ? PROC_EX_INTERNAL_TRIGGERED : PROC_EX_NONE;
 
-    if (m_IsTriggeredSpell && (m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_TRIGGERED_CAN_TRIGGER_2 | SPELL_ATTR_EX2_TRIGGERED_CAN_TRIGGER))
+    if (m_IsTriggeredSpell && 
+        (m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_TRIGGERED_CAN_TRIGGER ||
+        m_spellInfo->AttributesEx3 & SPELL_ATTR_EX3_TRIGGERED_CAN_TRIGGER_2))
         m_procEx |= PROC_EX_INTERNAL_CANT_PROC;
 
     // Totem casts require spellfamilymask defined in spell_proc_event to proc
