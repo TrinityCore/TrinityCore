@@ -154,7 +154,7 @@ typedef UNORDERED_MAP<uint32,ItemLocale> ItemLocaleMap;
 typedef UNORDERED_MAP<uint32,QuestLocale> QuestLocaleMap;
 typedef UNORDERED_MAP<uint32,NpcTextLocale> NpcTextLocaleMap;
 typedef UNORDERED_MAP<uint32,PageTextLocale> PageTextLocaleMap;
-typedef UNORDERED_MAP<uint32,TrinityStringLocale> TrinityStringLocaleMap;
+typedef UNORDERED_MAP<int32,TrinityStringLocale> TrinityStringLocaleMap;
 typedef UNORDERED_MAP<uint32,NpcOptionLocale> NpcOptionLocaleMap;
 typedef UNORDERED_MAP<uint32,PointOfInterestLocale> PointOfInterestLocaleMap;
 
