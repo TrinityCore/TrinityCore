@@ -35,6 +35,7 @@
 
 #define CONTACT_DISTANCE            0.5f
 #define INTERACTION_DISTANCE        5.0f
+#define ATTACK_DISTANCE             5.0f
 #define MAX_VISIBILITY_DISTANCE  (5*SIZE_OF_GRID_CELL/2.0f) // max distance for visible object show, limited by active zone for player based at cell size (active zone = 5x5 cells)
 #define DEFAULT_VISIBILITY_DISTANCE (SIZE_OF_GRID_CELL)     // default visible distance
 
