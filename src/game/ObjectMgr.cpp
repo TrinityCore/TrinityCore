@@ -6851,11 +6851,7 @@ bool ObjectMgr::LoadTrinityStrings(DatabaseType& db, char const* table, int32 mi
     for(TrinityStringLocaleMap::iterator itr = mTrinityStringLocaleMap.begin(); itr != mTrinityStringLocaleMap.end();)
     {
         if (itr->first >= start_value && itr->first < end_value)
-        {
-            TrinityStringLocaleMap::iterator itr2 = itr;
-            ++itr;
-            mTrinityStringLocaleMap.erase(itr2);
-        }
+            mTrinityStringLocaleMap.erase(itr++);
         else
             ++itr;
     }
