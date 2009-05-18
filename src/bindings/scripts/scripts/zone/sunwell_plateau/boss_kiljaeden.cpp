@@ -293,9 +293,9 @@ bool GOHello_go_orb_of_the_blue_flight(Player *plr, GameObject* go)
 }
 
 //AI for Kalecgos
-struct TRINITY_DLL_DECL boss_kalecgosKJAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_kalecgos_kjAI : public ScriptedAI
 {
-    boss_kalecgosKJAI(Creature* c) : ScriptedAI(c){
+    boss_kalecgos_kjAI(Creature* c) : ScriptedAI(c){
         pInstance = ((ScriptedInstance*)c->GetInstanceData());
     }
 
@@ -402,9 +402,9 @@ struct TRINITY_DLL_DECL boss_kalecgosKJAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_kalecgosKJ(Creature *_Creature)
+CreatureAI* GetAI_boss_kalecgos_kj(Creature *_Creature)
 {
-    return new boss_kalecgosKJAI (_Creature);
+    return new boss_kalecgos_kjAI (_Creature);
 }
 
 //AI for Kil'jaeden
@@ -649,8 +649,8 @@ struct TRINITY_DLL_DECL boss_kiljaedenAI : public Scripted_NoMovementAI
                         break;
                     case TIMER_ORBS_EMPOWER: //Phase 3
                         if(Phase == PHASE_SACRIFICE){
-                            if(Kalec)((boss_kalecgosKJAI*)Kalec->AI())->EmpowerOrb(true);
-                        }else if(Kalec)((boss_kalecgosKJAI*)Kalec->AI())->EmpowerOrb(false);
+                            if(Kalec)((boss_kalecgos_kjAI*)Kalec->AI())->EmpowerOrb(true);
+                        }else if(Kalec)((boss_kalecgos_kjAI*)Kalec->AI())->EmpowerOrb(false);
                         Timer[TIMER_ORBS_EMPOWER]= (Phase == PHASE_SACRIFICE) ? 45000 : 35000;
                         OrbActivated = true;
                         TimerIsDeactiveted[TIMER_ORBS_EMPOWER] = true;
@@ -749,7 +749,7 @@ struct TRINITY_DLL_DECL mob_kiljaeden_controllerAI : public Scripted_NoMovementA
 
     void Reset(){
         Phase = PHASE_DECEIVERS;
-        if(KalecKJ)((boss_kalecgosKJAI*)KalecKJ->AI())->ResetOrbs();
+        if(KalecKJ)((boss_kalecgos_kjAI*)KalecKJ->AI())->ResetOrbs();
         DeceiverDeathCount = 0;
         SummonedDeceivers = false;
         KiljaedenDeath = false;
@@ -1270,8 +1270,8 @@ void AddSC_boss_kiljaeden()
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->GetAI = &GetAI_boss_kalecgosKJ;
-    newscript->Name = "boss_kalecgosKJ";
+    newscript->GetAI = &GetAI_boss_kalecgos_kj;
+    newscript->Name = "boss_kalecgos_kj";
     newscript->RegisterSelf();
 
     newscript = new Script;
