@@ -9350,11 +9350,23 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
     int32 DoneAdvertisedBenefit  = SpellBaseHealingBonus(GetSpellSchoolMask(spellProto));
     int32 TakenAdvertisedBenefit = SpellBaseHealingBonusForVictim(GetSpellSchoolMask(spellProto), pVictim);
 
+    bool scripted = false;
+    for (uint8 i=0;i<3;++i)
+    {
+        switch (spellProto->EffectApplyAuraName[i])
+        {
+            // These auras do not use healing coeff
+            case SPELL_AURA_PERIODIC_LEECH:
+            case SPELL_AURA_PERIODIC_HEALTH_FUNNEL:
+                scripted = true;
+                break;
+        }
+    }
+
     // Check for table values
-    SpellBonusEntry const* bonus = spellmgr.GetSpellBonusData(spellProto->Id);
+    SpellBonusEntry const* bonus = scripted ? spellmgr.GetSpellBonusData(spellProto->Id) : NULL;
     float coeff;
     float factorMod = 1.0f;
-    bool scripted = false;
     if (bonus)
     {
         if (damagetype == DOT)
@@ -9383,6 +9395,11 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
         else if (spellProto->SpellFamilyName==SPELLFAMILY_SHAMAN && spellProto->SpellFamilyFlags[1] & 0x80000)
         {
             factorMod *= 0.45f;
+        }
+        // Already set to scripted? so not uses healing bonus coefficient
+        else if (scripted)
+        {
+            coeff = 0.0f;
         }
     }
 
@@ -13732,7 +13749,7 @@ void Unit::AddAura(uint32 spellId, Unit* target)
     if (!eff_mask)
         return;
 
-    Aura *Aur = new Aura(spellInfo, eff_mask, NULL, target, this);
+    Aura *Aur = new Aura(spellInfo, eff_mask, NULL, target, this, NULL, target);
     target->AddAura(Aur);
 }
 
