@@ -41,6 +41,7 @@ int CreatureEventAI::Permissible(const Creature *creature)
 
 CreatureEventAI::CreatureEventAI(Creature *c ) : CreatureAI(c)
 {
+    // Need make copy for filter unneeded steps and safe in case table reload
     CreatureEventAI_Event_Map::const_iterator CreatureEvents = CreatureEAI_Mgr.GetCreatureEventAIMap().find(m_creature->GetEntry());
     if (CreatureEvents != CreatureEAI_Mgr.GetCreatureEventAIMap().end())
     {
