@@ -2,6 +2,8 @@ DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (-28169,28732,54097);
 INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comment`) VALUES
 ( 28732,-28798,  1, 'Widow\'s Embrace - Frenzy'),
 ( 54097,-54100,  1, 'Widow\'s Embrace - Frenzy (H)'),
+(-29865, 55594,  0, 'Deathbloom'),
+(-55053, 55601,  0, 'Deathbloom (H)'),
 (-28169, 28206,  0, 'Mutating Injection - Mutagen Explosion'),
 (-28169, 28240,  0, 'Mutating Injection - Poison Cloud');
 
@@ -17,8 +19,8 @@ flags_extra = VALUES(flags_extra),
 scriptname = VALUES(scriptname);
 
 INSERT INTO creature_template (entry, spell1, spell2, flags_extra, scriptname) VALUES
-(16474, 28547, 1000, 128, 'trigger_periodic'), # Blizzard (Sapphiron)
-(30000, 55699, 1000, 128, 'trigger_periodic')  # Blizzard (Sapphiron) (H)
+(16474, 28547, 0, 128, 'trigger_periodic'), # Blizzard (Sapphiron)
+(30000, 55699, 0, 128, 'trigger_periodic')  # Blizzard (Sapphiron) (H)
 ON DUPLICATE KEY UPDATE
 spell1 = VALUES(spell1),
 spell2 = VALUES(spell2),
@@ -51,6 +53,12 @@ INSERT INTO creature_template (entry, spell1, spell2, spell3, spell4, spell5, sp
 (29274, 54096, 0, 0, 0, 0, 0, 0, 54097), # Naxxramas Worshipper (H)
 (16984, 15496, 0, 0, 0, 0, 0, 0, 0), # Plagued Warrior
 (29632, 15496, 0, 0, 0, 0, 0, 0, 0), # Plagued Warrior (H)
+(16983, 32736, 30138, 0, 0, 0, 0, 0, 0), # Plagued Champion
+(29632, 32736, 54889, 0, 0, 0, 0, 0, 0), # Plagued Champion (H)
+(16981, 15496, 54890, 0, 0, 0, 0, 0, 0), # Plagued Guardian
+(29632, 15496, 54891, 0, 0, 0, 0, 0, 0), # Plagued Guardian (H)
+(16286, 0, 0, 0, 0, 0, 0, 0, 29232), # Spore
+(30068, 0, 0, 0, 0, 0, 0, 0, 29232), # Spore (H)
 (16290, 28156, 0, 0, 0, 0, 0, 0, 0), # Fallout Slime
 (29388, 54367, 0, 0, 0, 0, 0, 0, 0), # Fallout Slime (H)
 (16360, 29307, 0, 0, 0, 0, 0, 0, 0), # Zombie Chow
