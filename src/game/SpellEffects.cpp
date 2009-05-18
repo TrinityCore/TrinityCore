@@ -337,6 +337,17 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
 
                 switch(m_spellInfo->Id)                     // better way to check unknown
                 {
+                    // Positive/Negative Charge
+                    case 28062:
+                    case 39090:
+                    case 28085:
+                    case 39093:
+                        if(m_triggeredByAuraSpell && unitTarget->HasAura(m_triggeredByAuraSpell->Id))
+                        {
+                            damage = 0;
+                            m_caster->CastSpell(m_caster, (m_spellInfo->Id == 28062 || m_spellInfo->Id == 39090) ? 29659 : 29660, true);
+                        }
+                        break;
                     // percent from health with min
                     case 25599:                             // Thundercrash
                     {
@@ -1011,6 +1022,9 @@ void Spell::EffectDummy(uint32 i)
                         m_caster->CastSpell(unitTarget,29294,true);
                     return;
                 }
+                // Polarity Shift
+                case 28089: spell_id = roll_chance_i(50) ? 28059 : 28084; break;
+                case 39096: spell_id = roll_chance_i(50) ? 39088 : 39091; break;
                 case 29200:                                 // Purify Helboar Meat
                 {
                     if( m_caster->GetTypeId() != TYPEID_PLAYER )

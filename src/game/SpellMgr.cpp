@@ -3198,7 +3198,9 @@ void SpellMgr::LoadSpellCustomAttr()
         case 45150:                             // Meteor Slash
             mSpellCustomAttr[i] |= SPELL_ATTR_CU_SHARE_DAMAGE;
             break;
-        case 27820:
+        case 27820:                             // Mana Detonation
+        case 28062: case 39090:                 // Positive/Negative Charge
+        case 28085: case 39093:
             mSpellCustomAttr[i] |= SPELL_ATTR_CU_EXCLUDE_SELF;
             break;
         case 44978: case 45001: case 45002:     // Wild Magic
