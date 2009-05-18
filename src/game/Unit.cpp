@@ -12012,14 +12012,14 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
                 if (!isTriggerAura[aurEff->GetAuraName()] && triggerData.spellProcEvent==NULL)
                     continue;
                 triggerData.effMask |= 1<<i;
-                if (procExtra & (PROC_EX_INTERNAL_TRIGGERED | PROC_EX_INTERNAL_CANT_PROC))
-                    itr->second->SetCanProc(false);
-                else
-                    itr->second->SetCanProc(true);
             }
         }
         if (triggerData.effMask)
+        {
             procTriggered.push_front(triggerData);
+            if (procExtra & (PROC_EX_INTERNAL_TRIGGERED | PROC_EX_INTERNAL_CANT_PROC))
+                itr->second->SetCantProc(true);
+        }
     }
 
     // Nothing found
@@ -12189,6 +12189,11 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
             i->aura->DropAuraCharge();
         }
     }
+
+    // Cleanup proc requirements
+    if (procExtra & (PROC_EX_INTERNAL_TRIGGERED | PROC_EX_INTERNAL_CANT_PROC))
+        for(ProcTriggeredList::iterator i = procTriggered.begin(); i != procTriggered.end(); ++i)
+            i->aura->SetCantProc(false);
 }
 
 SpellSchoolMask Unit::GetMeleeDamageSchoolMask() const

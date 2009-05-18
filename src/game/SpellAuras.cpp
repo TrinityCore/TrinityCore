@@ -346,7 +346,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
 Aura::Aura(SpellEntry const* spellproto, uint32 effMask, int32 *currentBasePoints, Unit *target, Unit *caster, Item* castItem, Unit * formalCaster) :
 m_caster_guid(0), m_castItemGuid(castItem?castItem->GetGUID():0), m_target(target),
 m_timeCla(1000), m_removeMode(AURA_REMOVE_BY_DEFAULT), m_AuraDRGroup(DIMINISHING_NONE),
-m_auraSlot(MAX_AURAS), m_auraLevel(1), m_procCharges(0), m_stackAmount(1),m_auraStateMask(0), m_updated(false), m_isRemoved(false), m_canProc(true)
+m_auraSlot(MAX_AURAS), m_auraLevel(1), m_procCharges(0), m_stackAmount(1),m_auraStateMask(0), m_updated(false), m_isRemoved(false), m_procDeep(0)
 {
     assert(target);
 
@@ -613,8 +613,6 @@ Unit* AreaAuraEffect::GetFormalCaster() const
 
 void Aura::Update(uint32 diff)
 {
-    // Reset can proc requirement-prevent use of outdated value
-    m_canProc = true;
     if (m_duration > 0)
     {
         m_duration -= diff;
