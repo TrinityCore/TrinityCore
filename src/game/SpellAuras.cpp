@@ -5944,12 +5944,10 @@ void AuraEffect::PeriodicTick()
                 }
             }
 
-
             if(Player *modOwner = pCaster->GetSpellModOwner())
                 modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_MULTIPLE_VALUE, multiplier);
 
-            // Don't apply heal mods for this aura
-            uint32 heal = uint32(new_damage * multiplier);//pCaster->SpellHealingBonus(pCaster, spellProto, uint32(new_damage * multiplier), DOT, stackAmount);
+            uint32 heal = uint32(pCaster->SpellHealingBonus(pCaster, spellProto, uint32(new_damage * multiplier), DOT, stackAmount));
 
             int32 gain = pCaster->DealHeal(pCaster, heal, spellProto);
             pCaster->getHostilRefManager().threatAssist(pCaster, gain * 0.5f, spellProto);
