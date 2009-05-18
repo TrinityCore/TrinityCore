@@ -167,7 +167,7 @@ struct TRINITY_DLL_DECL trigger_periodicAI : public NullCreatureAI
     trigger_periodicAI(Creature* c) : NullCreatureAI(c)
     {
         spell = me->m_spells[0] ? GetSpellStore()->LookupEntry(me->m_spells[0]) : NULL;
-        interval = me->m_spells[1] ? me->m_spells[1] : 1000;
+        interval = spell ? GetAISpellInfo(me->m_spells[0])->cooldown : 100000;   //me->m_spells[1] ? me->m_spells[1] : 1000;
         timer = interval;
     }
 
@@ -187,9 +187,24 @@ struct TRINITY_DLL_DECL trigger_periodicAI : public NullCreatureAI
     }
 };
 
+struct TRINITY_DLL_DECL trigger_deathAI : public NullCreatureAI
+{
+    trigger_deathAI(Creature* c) : NullCreatureAI(c) {}
+    void JustDied(Unit *killer)
+    {
+        if(me->m_spells[0])
+            me->CastSpell(killer, me->m_spells[0], true);
+    }
+};
+
 CreatureAI* GetAI_trigger_periodic(Creature *_Creature)
 {
     return new trigger_periodicAI (_Creature);
+}
+
+CreatureAI* GetAI_trigger_death(Creature *_Creature)
+{
+    return new trigger_deathAI (_Creature);
 }
 
 void AddSC_generic_creature()
@@ -204,5 +219,10 @@ void AddSC_generic_creature()
     newscript->Name="trigger_periodic";
     newscript->GetAI = &GetAI_trigger_periodic;
     newscript->RegisterSelf();
+
+    /*newscript = new Script;
+    newscript->Name="trigger_death";
+    newscript->GetAI = &GetAI_trigger_death;
+    newscript->RegisterSelf();*/
 }
 

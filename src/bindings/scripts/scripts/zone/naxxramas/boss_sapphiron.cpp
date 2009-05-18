@@ -343,4 +343,8 @@ void AddSC_boss_sapphiron()
     newscript->Name="boss_sapphiron";
     newscript->GetAI = &GetAI_boss_sapphiron;
     newscript->RegisterSelf();
+
+    // Chill
+    GetAISpellInfo(28547)->cooldown = 1000;
+    GetAISpellInfo(55699)->cooldown = 1000;
 }

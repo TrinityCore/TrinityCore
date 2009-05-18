@@ -81,6 +81,8 @@ class EventMap : private std::map<uint32, uint32>
     public:
         explicit EventMap() : m_phase(0), m_time(0) {}
 
+        uint32 GetTimer() const { return m_time; }
+
         void Reset() { clear(); m_time = 0; m_phase = 0; }
 
         void Update(uint32 time) { m_time += time; }
@@ -170,6 +172,8 @@ struct AISpellInfoType
     AICondition condition;
     uint32 cooldown;
 };
+
+TRINITY_DLL_SPEC AISpellInfoType * GetAISpellInfo(uint32 i);
 
 #endif
 
