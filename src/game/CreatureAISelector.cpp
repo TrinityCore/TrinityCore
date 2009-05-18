@@ -55,7 +55,7 @@ namespace FactorySelector
         // select by NPC flags
         if(!ai_factory)
         {
-            if(creature->isVehicle())
+            if(creature->isVehicle() || creature->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK))
                 ai_factory = ai_registry.GetRegistryItem("NullCreatureAI");
             else if(creature->isGuard())
                 ai_factory = ai_registry.GetRegistryItem("GuardAI");
