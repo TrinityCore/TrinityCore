@@ -3281,9 +3281,12 @@ void SpellMgr::LoadSpellCustomAttr()
         switch(spellInfo->SpellFamilyName)
         {
             case SPELLFAMILY_DRUID:
-                // starfall
+                // Starfall Target Selection
                 if(spellInfo->SpellFamilyFlags[2] & 0x100)
                     spellInfo->MaxAffectedTargets = 2;
+                // Starfall AOE Damage
+                else if(spellInfo->SpellFamilyFlags[2] & 0x800000)
+                    mSpellCustomAttr[i] |= SPELL_ATTR_CU_EXCLUDE_SELF;
                 // Wild growth
                 else if(spellInfo->SpellFamilyFlags[1] & 0x4000000)
                     spellInfo->MaxAffectedTargets = 5;
