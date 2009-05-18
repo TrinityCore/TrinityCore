@@ -107,8 +107,18 @@ class TRINITY_DLL_SPEC Aura
         bool IsRemoved() const { return m_isRemoved; }
         void SetUpdated(bool val) { m_updated = val; }
 
-        bool CanProc(){return !m_procDeep;}
-        void SetCantProc( bool apply) {if (apply) --m_procDeep; else ++m_procDeep; assert(m_procDeep>=0);}
+        bool CanProc() const { return !m_procDeep; }
+        void SetCantProc(bool apply)
+        {
+            if(apply)
+                ++m_procDeep;
+            else
+            {
+                assert(m_procDeep);
+                --m_procDeep;
+            }
+        }
+
         bool IsPersistent() const;
         bool IsAreaAura() const;
         bool IsAuraType(AuraType type) const;
