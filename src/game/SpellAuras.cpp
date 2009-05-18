@@ -2346,6 +2346,27 @@ void AuraEffect::HandleAuraDummy(bool apply, bool Real, bool changeAmount)
                 if(caster)
                     caster->CastSpell(caster,13138,true,NULL,this);
                 return;
+            case 28832:                                 // Mark of Korth'azz
+            case 28833:                                 // Mark of Blaumeux
+            case 28834:                                 // Mark of Rivendare
+            case 28835:                                 // Mark of Zeliek
+            {
+                int8 stack = GetParentAura()->GetStackAmount();
+                int32 damage;
+                switch(stack)
+                {
+                    case 1: return;
+                    case 2: damage = 500;   break;
+                    case 3: damage = 1000;  break;
+                    case 4: damage = 1500;  break;
+                    case 5: damage = 4000;  break;
+                    case 6: damage = 12000; break;
+                    default:damage = 20000 + 1000 * (stack - 7); break;
+                }
+                if(caster)
+                    caster->CastCustomSpell(28836, SPELLVALUE_BASE_POINT0, damage, m_target);
+                return;
+            }
             case 34026:   // kill command
             {
                 Unit * pet = m_target->GetGuardianPet();

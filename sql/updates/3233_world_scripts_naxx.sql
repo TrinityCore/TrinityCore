@@ -5,7 +5,20 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 (-29865, 55594,  0, 'Deathbloom'),
 (-55053, 55601,  0, 'Deathbloom (H)'),
 (-28169, 28206,  0, 'Mutating Injection - Mutagen Explosion'),
-(-28169, 28240,  0, 'Mutating Injection - Poison Cloud');
+(-28169, 28240,  0, 'Mutating Injection - Poison Cloud'),
+( 28059,-28084,  1, 'Positive Charge - Negative Charge'),
+( 39088,-39091,  1, 'Positive Charge - Negative Charge'),
+(-28059,-29659,  0, 'Positive Charge'),
+(-39088,-29659,  0, 'Positive Charge'),
+( 28062,-29659,  0, 'Positive Charge'),
+( 39090,-29659,  0, 'Positive Charge'),
+( 28084,-28059,  1, 'Negative Charge - Positive Charge'),
+( 39091,-39088,  1, 'Negative Charge - Positive Charge'),
+(-28084,-29660,  0, 'Negative Charge'),
+(-39091,-29660,  0, 'Negative Charge'),
+( 28085,-29660,  0, 'Negative Charge'),
+( 39093,-29660,  0, 'Negative Charge');
+
 
 UPDATE creature_template SET scriptname = 'boss_grobbulus' WHERE entry = 15931;
 update creature_template set scriptname='mob_gothik_minion' where entry in (16124,16125,16126,16127,16148,16149,16150);
