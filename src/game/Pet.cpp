@@ -1028,7 +1028,7 @@ bool Pet::InitStatsForLevel(uint32 petlevel)
         else if (getLevel() <= cFamily->minScaleLevel)
             scale = cFamily->minScale;
         else
-            scale = cFamily->minScale + (getLevel() - cFamily->minScaleLevel) / cFamily->maxScaleLevel * (cFamily->maxScale - cFamily->minScale);
+          scale = cFamily->minScale + (float)(getLevel() - cFamily->minScaleLevel) / (float)cFamily->maxScaleLevel * (cFamily->maxScale - cFamily->minScale);
 
         SetFloatValue(OBJECT_FIELD_SCALE_X, scale);
     }
