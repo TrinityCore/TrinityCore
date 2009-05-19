@@ -198,6 +198,40 @@ bool ChatHandler::HandleDebugSendOpcodeCommand(const char* /*args*/)
         {
             data.append(player->GetPackGUID());
         }
+        else if(type == "appgoguid")
+        {
+            uint32 lowguid;
+            ifs >> lowguid;
+            GameObject *obj = NULL;
+            if (GameObjectData const* go_data = objmgr.GetGOData(lowguid))
+                obj = GetObjectGlobalyWithGuidOrNearWithDbGuid(lowguid,go_data->id);
+
+            if(!obj)
+            {
+                PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, lowguid);
+                SetSentErrorMessage(true);
+                ifs.close();
+                return false;
+            }
+            data.append(obj->GetPackGUID());
+        }
+        else if(type == "goguid")
+        {
+            uint32 lowguid;
+            ifs >> lowguid;
+            GameObject *obj = NULL;
+            if (GameObjectData const* go_data = objmgr.GetGOData(lowguid))
+                obj = GetObjectGlobalyWithGuidOrNearWithDbGuid(lowguid,go_data->id);
+
+            if(!obj)
+            {
+                PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, lowguid);
+                SetSentErrorMessage(true);
+                ifs.close();
+                return false;
+            }
+            data << uint64(obj->GetGUID());
+        }
         else if(type == "myguid")
         {
             data << uint64(player->GetGUID());
