@@ -11762,20 +11762,26 @@ void CharmInfo::InitCharmCreateSpells()
         else
         {
             ActiveStates newstate;
-            bool onlyselfcast = true;
-
-            if(!spellInfo) onlyselfcast = false;
-            for(uint32 i = 0;i<3 && onlyselfcast;++i)       //non existent spell will not make any problems as onlyselfcast would be false -> break right away
+            if(spellInfo)
             {
-                if(spellInfo->EffectImplicitTargetA[i] != TARGET_UNIT_CASTER && spellInfo->EffectImplicitTargetA[i] != 0)
-                    onlyselfcast = false;
+                if(!IsAutocastableSpell(spellId))
+                    newstate = ACT_PASSIVE;
+                else
+                {
+                    bool autocast = false;
+                    for(uint32 i = 0; i < 3 && !autocast; ++i)
+                        if(spellmgr.SpellTargetType[spellInfo->EffectImplicitTargetA[i]] == TARGET_TYPE_UNIT_TARGET)
+                            autocast = true;
+
+                    if(autocast)
+                    {
+                        newstate = ACT_ENABLED;
+                        ToggleCreatureAutocast(spellId, true);
+                    }
+                    else
+                        newstate = ACT_DISABLED;
+                }
             }
-
-            if(onlyselfcast || !IsPositiveSpell(spellId))   //only self cast and spells versus enemies are autocastable
-                newstate = ACT_DISABLED;
-            else
-                newstate = ACT_PASSIVE;
-
             AddSpellToAB(0, spellId, newstate);
         }
     }
@@ -11799,7 +11805,9 @@ bool CharmInfo::AddSpellToAB(uint32 oldid, uint32 newid, ActiveStates newstate)
                 PetActionBar[i].SpellOrAction = newid;
                 if (!oldid)
                 {
-                    if (newstate == ACT_DECIDE)
+                    if(!IsAutocastableSpell(newid))
+                        PetActionBar[i].Type = ACT_PASSIVE;
+                    else if (newstate == ACT_DECIDE)
                         PetActionBar[i].Type = ACT_DISABLED;
                     else
                         PetActionBar[i].Type = newstate;
