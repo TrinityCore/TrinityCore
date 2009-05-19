@@ -2777,7 +2777,6 @@ void AuraEffect::HandleAuraDummy(bool apply, bool Real, bool changeAmount)
             {
                 if(apply)
                 {
-                    // Reduce backfire damage (dot damage) from Shadow Word: Death
                     SpellModifier *mod = new SpellModifier;
                     mod->op = SPELLMOD_CHANCE_OF_SUCCESS;
                     mod->value = 100;
@@ -6030,15 +6029,13 @@ void AuraEffect::PeriodicTick()
                 if( BattleGround *bg = ((Player*)pCaster)->GetBattleGround() )
                     bg->UpdatePlayerScore(((Player*)pCaster), SCORE_HEALING_DONE, gain);
 
-            //Do check before because m_modifier.auraName can be invalidate by DealDamage.
-            bool procSpell = (m_auraName == SPELL_AURA_PERIODIC_HEAL && m_target != pCaster);
-
             m_target->getHostilRefManager().threatAssist(pCaster, float(gain) * 0.5f, GetSpellProto());
 
             Unit* target = m_target;                        // aura can be deleted in DealDamage
             SpellEntry const* spellProto = GetSpellProto();
             bool haveCastItem = GetParentAura()->GetCastItemGUID()!=0;
 
+            // Health Funnel
             // heal for caster damage
             if(m_target!=pCaster && spellProto->SpellVisual[0]==163)
             {
@@ -6074,7 +6071,7 @@ void AuraEffect::PeriodicTick()
             uint32 procVictim   = PROC_FLAG_ON_TAKE_PERIODIC;
             uint32 procEx = PROC_EX_INTERNAL_HOT | PROC_EX_NORMAL_HIT;
             // ignore item heals
-            if(procSpell && !haveCastItem)
+            if(!haveCastItem)
                 pCaster->ProcDamageAndSpell(target, procAttacker, procVictim, procEx, pdamage, BASE_ATTACK, spellProto);
             break;
         }
