@@ -471,7 +471,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
             case SPELLFAMILY_PRIEST:
             {
                 // Shadow Word: Death - deals damage equal to damage done to caster
-                if (m_spellInfo->SpellFamilyFlags[1] & 0x2)
+                if ((m_spellInfo->SpellFamilyFlags[1] & 0x2 )&& m_damage < unitTarget->GetHealth())
                     m_caster->CastCustomSpell(m_caster, 32409, &damage, 0, 0, true);
                 break;
             }
@@ -1489,7 +1489,7 @@ void Spell::EffectDummy(uint32 i)
             // Penance
             if (m_spellInfo->SpellFamilyFlags[1] & 0x00800000)
             {
-                if (!unitTarget)
+                if (!unitTarget || !unitTarget->isAlive())
                     return;
 
                 int hurt = 0;
