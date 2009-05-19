@@ -718,9 +718,9 @@ bool ChatHandler::HandleGPSCommand(const char* args)
     uint32 have_vmap = Map::ExistVMap(obj->GetMapId(),gx,gy) ? 1 : 0;
 
     PSendSysMessage(LANG_MAP_POSITION,
-        obj->GetMapId(), (mapEntry ? mapEntry->name[m_session->GetSessionDbcLocale()] : "<unknown>" ),
-        zone_id, (zoneEntry ? zoneEntry->area_name[m_session->GetSessionDbcLocale()] : "<unknown>" ),
-        area_id, (areaEntry ? areaEntry->area_name[m_session->GetSessionDbcLocale()] : "<unknown>" ),
+        obj->GetMapId(), (mapEntry ? mapEntry->name[GetSessionDbcLocale()] : "<unknown>" ),
+        zone_id, (zoneEntry ? zoneEntry->area_name[GetSessionDbcLocale()] : "<unknown>" ),
+        area_id, (areaEntry ? areaEntry->area_name[GetSessionDbcLocale()] : "<unknown>" ),
         obj->GetPhaseMask(),
         obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ(), obj->GetOrientation(),
         cell.GridX(), cell.GridY(), cell.CellX(), cell.CellY(), obj->GetInstanceId(),
@@ -2236,7 +2236,7 @@ bool ChatHandler::HandleLookupAreaCommand(const char* args)
         AreaTableEntry const *areaEntry = sAreaStore.LookupEntry (areaflag);
         if (areaEntry)
         {
-            int loc = m_session ? m_session->GetSessionDbcLocale () : sWorld.GetDefaultDbcLocale();
+            int loc = GetSessionDbcLocale ();
             std::string name = areaEntry->area_name[loc];
             if (name.empty())
                 continue;
@@ -2246,7 +2246,7 @@ bool ChatHandler::HandleLookupAreaCommand(const char* args)
                 loc = 0;
                 for(; loc < MAX_LOCALE; ++loc)
                 {
-                    if (m_session && loc==m_session->GetSessionDbcLocale ())
+                    if (loc==GetSessionDbcLocale ())
                         continue;
 
                     name = areaEntry->area_name[loc];
@@ -2442,7 +2442,7 @@ bool ChatHandler::HandleTeleNameCommand(const char * args)
     Player* target;
     uint64 target_guid;
     std::string target_name;
-    if(!extractPlayerTarget(teleStr,&target,&target_guid,&target_name))
+    if(!extractPlayerTarget(nameStr,&target,&target_guid,&target_name))
         return false;
 
     // id, or string, or [name] Shift-click form |color|Htele:id|h[name]|h|r
@@ -2868,7 +2868,7 @@ bool ChatHandler::HandleGoZoneXYCommand(const char* args)
 
     if(map->Instanceable())
     {
-        PSendSysMessage(LANG_INVALID_ZONE_MAP,areaEntry->ID,areaEntry->area_name[m_session->GetSessionDbcLocale()],map->GetId(),map->GetMapName());
+        PSendSysMessage(LANG_INVALID_ZONE_MAP,areaEntry->ID,areaEntry->area_name[GetSessionDbcLocale()],map->GetId(),map->GetMapName());
         SetSentErrorMessage(true);
         return false;
     }
