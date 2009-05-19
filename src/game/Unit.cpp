@@ -5533,6 +5533,8 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 // Nightfall
                 case 18094:
                 case 18095:
+                // Glyph of corruption
+                case 56218:
                 {
                     target = this;
                     triggered_spell_id = 17941;
@@ -5795,7 +5797,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 // Glyph of Rejuvenation
                 case 54754:
                 {
-                    if (pVictim->GetHealth() >= triggerAmount * pVictim->GetMaxHealth()/100)
+                    if (!pVictim || pVictim->GetHealth() >= triggerAmount * pVictim->GetMaxHealth()/100)
                         return false;
                     basepoints0 = int32(triggerAmount * damage / 100);
                     triggered_spell_id = 54755;
