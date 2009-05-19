@@ -1188,7 +1188,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void CastSpell(GameObject *go, uint32 spellId, bool triggered, Item *castItem = NULL, AuraEffect* triggeredByAura = NULL, uint64 originalCaster = 0);
         void AddAura(uint32 spellId, Unit *target);
         void HandleAuraEffect(AuraEffect * aureff, bool apply);
-        Aura *AddAuraEffect(const SpellEntry * spellInfo, uint8 effIndex, Unit* caster, int32 * basePoints=NULL);
+        Aura *AddAuraEffect(const SpellEntry * spellInfo, uint8 effIndex, Unit* caster, int32 * basePoints=NULL, Unit * formalCaster=NULL);
 
         bool IsDamageToThreatSpell(SpellEntry const * spellInfo) const;
 
@@ -1607,6 +1607,19 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         // group updates
         void UpdateAuraForGroup(uint8 slot);
 
+        // proc trigger system
+        bool CanProc(){return !m_procDeep;}
+        void SetCantProc( bool apply)
+        {
+            if(apply)
+                ++m_procDeep;
+            else
+            {
+                assert(m_procDeep);
+                --m_procDeep;
+            }
+        }
+
         // pet auras
         typedef std::set<PetAura const*> PetAuraSet;
         PetAuraSet m_petAuras;
@@ -1673,6 +1686,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
 
         AuraMap m_Auras;
         uint32 m_removedAurasCount;
+        int32 m_procDeep;
 
         typedef std::list<uint64> DynObjectGUIDs;
         DynObjectGUIDs m_dynObjGUIDs;
