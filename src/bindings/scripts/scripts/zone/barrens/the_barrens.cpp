@@ -398,24 +398,33 @@ CreatureAI* GetAI_npc_twiggy_flathead(Creature *_Creature)
 ## npc_wizzlecrank_shredder
 #####*/
 
-#define SAY_PROGRESS_1  -1000272
-#define SAY_PROGRESS_2  -1000273
-#define SAY_PROGRESS_3  -1000274
+enum
+{
+    SAY_PROGRESS_1      = -1000272,
+    SAY_PROGRESS_2      = -1000273,
+    SAY_PROGRESS_3      = -1000274,
 
-#define SAY_MERCENARY_4 -1000275
+    SAY_MERCENARY_4     = -1000275,
 
-#define SAY_PROGRESS_5  -1000276
-#define SAY_PROGRESS_6  -1000277
-#define SAY_PROGRESS_7  -1000278
-#define SAY_PROGRESS_8  -1000279
+    SAY_PROGRESS_5      = -1000276,
+    SAY_PROGRESS_6      = -1000277,
+    SAY_PROGRESS_7      = -1000278,
+    SAY_PROGRESS_8      = -1000279,
 
-#define QUEST_ESCAPE    863
-#define NPC_PILOT       3451
-#define MOB_MERCENARY   3282
+    QUEST_ESCAPE        = 863,
+    FACTION_RATCHET     = 637,
+    NPC_PILOT           = 3451,
+    MOB_MERCENARY       = 3282,
+};
 
 struct TRINITY_DLL_DECL npc_wizzlecrank_shredderAI : public npc_escortAI
 {
-    npc_wizzlecrank_shredderAI(Creature* c) : npc_escortAI(c) {}
+    npc_wizzlecrank_shredderAI(Creature* c) : npc_escortAI(c)
+    {
+        uiNormFaction = c->getFaction();
+    }
+
+    uint32 uiNormFaction;
 
     bool Completed;
 
@@ -450,8 +459,7 @@ struct TRINITY_DLL_DECL npc_wizzlecrank_shredderAI : public npc_escortAI
         case 31: m_creature->SummonCreature(NPC_PILOT, 1088.77, -2985.39, 91.84, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 300000);
             m_creature->setDeathState(JUST_DIED);
             Completed = true;
-            if (player && player->GetTypeId() == TYPEID_PLAYER)
-                    ((Player*)player)->GroupEventHappens(QUEST_ESCAPE, m_creature);
+            player->GroupEventHappens(QUEST_ESCAPE, m_creature);
             break;
         }
     }
@@ -460,7 +468,12 @@ struct TRINITY_DLL_DECL npc_wizzlecrank_shredderAI : public npc_escortAI
     {
         m_creature->setDeathState(ALIVE);
         Completed = false;
-        m_creature->setFaction(69);
+        if(!IsBeingEscorted)
+        {
+            m_creature->setFaction(uiNormFaction);
+            if (m_creature->getStandState() == UNIT_STAND_STATE_DEAD)
+                 m_creature->SetStandState(UNIT_STAND_STATE_STAND);
+        }
     }
 
     void EnterCombat(Unit* who){}
@@ -471,7 +484,7 @@ struct TRINITY_DLL_DECL npc_wizzlecrank_shredderAI : public npc_escortAI
         {
             Player* player = Unit::GetPlayer(PlayerGUID);
             if (player)
-                ((Player*)player)->FailQuest(QUEST_ESCAPE);
+                player->FailQuest(QUEST_ESCAPE);
         }
     }
 
@@ -485,8 +498,8 @@ bool QuestAccept_npc_wizzlecrank_shredder(Player* player, Creature* creature, Qu
 {
     if (quest->GetQuestId() == QUEST_ESCAPE)
     {
+         creature->setFaction(FACTION_RATCHET);
         ((npc_escortAI*)(creature->AI()))->Start(true, true, false, player->GetGUID());
-        creature->setFaction(113);
     }
     return true;
 }
