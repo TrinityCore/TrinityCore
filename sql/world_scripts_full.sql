@@ -448,6 +448,7 @@ UPDATE `creature_template` SET `ScriptName`='npcs_riverbreeze_and_silversky' WHE
 /* FERALAS */
 UPDATE `creature_template` SET `ScriptName`='npc_gregan_brewspewer' WHERE `entry`=7775;
 UPDATE `creature_template` SET `ScriptName`='npc_screecher_spirit' WHERE `entry`=8612;
+UPDATE `creature_template` SET `ScriptName`='npc_oox22fe' WHERE `entry`=7807;
 
 /* GHOSTLANDS */
 UPDATE `creature_template` SET `ScriptName`='npc_blood_knight_dawnstar' WHERE `entry`=17832;

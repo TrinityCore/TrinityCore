@@ -91,24 +91,27 @@ bool GossipSelect_npc_astor_hadren(Player *player, Creature *_Creature, uint32 s
 ## npc_deathstalker_erland
 ######*/
 
-#define SAY_QUESTACCEPT -1000335
-#define SAY_START       -1000336
-#define SAY_AGGRO_1     -1000337
-#define SAY_AGGRO_2     -1000338
-#define SAY_LAST        -1000339
+enum
+{
+    SAY_QUESTACCEPT     = -1000335,
+    SAY_START           = -1000336,
+    SAY_AGGRO_1         = -1000337,
+    SAY_AGGRO_2         = -1000338,
+    SAY_LAST            = -1000339,
 
-#define SAY_THANKS      -1000340
-#define SAY_RANE        -1000341
-#define SAY_ANSWER      -1000342
-#define SAY_MOVE_QUINN  -1000343
+    SAY_THANKS          = -1000340,
+    SAY_RANE            = -1000341,
+    SAY_ANSWER          = -1000342,
+    SAY_MOVE_QUINN      = -1000343,
 
-#define SAY_GREETINGS   -1000344
-#define SAY_QUINN       -1000345
-#define SAY_ON_BYE      -1000346
+    SAY_GREETINGS       = -1000344,
+    SAY_QUINN           = -1000345,
+    SAY_ON_BYE          = -1000346,
 
-#define QUEST_ESCORTING 435
-#define NPC_RANE        1950
-#define NPC_QUINN       1951
+    QUEST_ESCORTING     = 435,
+    NPC_RANE            = 1950,
+    NPC_QUINN           = 1951
+};
 
 struct TRINITY_DLL_DECL npc_deathstalker_erlandAI : public npc_escortAI
 {
@@ -126,8 +129,7 @@ struct TRINITY_DLL_DECL npc_deathstalker_erlandAI : public npc_escortAI
         case 1: DoScriptText(SAY_START, m_creature, player);break;
         case 13:
             DoScriptText(SAY_LAST, m_creature, player);
-            if(player)
-                ((Player*)player)->GroupEventHappens(QUEST_ESCORTING, m_creature);break;
+            player->GroupEventHappens(QUEST_ESCORTING, m_creature);break;
         case 14: DoScriptText(SAY_THANKS, m_creature, player);break;
         case 15: {
                 Unit* Rane = FindCreature(NPC_RANE, 20, m_creature);
