@@ -79,7 +79,7 @@ void SummonList::DespawnAll()
     }
 }
 
-ScriptedAI::ScriptedAI(Creature* creature) : CreatureAI(creature), m_creature(creature), IsFleeing(false)
+ScriptedAI::ScriptedAI(Creature* creature) : CreatureAI(creature), m_creature(creature), IsFleeing(false), CombatMovement(true)
 {
     HeroicMode = m_creature->GetMap()->IsHeroic();
 }
@@ -605,6 +605,11 @@ void ScriptedAI::SetEquipmentSlots(bool bLoadDefault, int32 uiMainHand, int32 ui
 void ScriptedAI::SetSheathState(SheathState newState)
 {
     m_creature->SetByteValue(UNIT_FIELD_BYTES_2, 0, newState);
+}
+
+void ScriptedAI::SetCombatMovement(bool CombatMove)
+{
+    CombatMovement = CombatMove;
 }
 
 /*void Scripted_NoMovementAI::MoveInLineOfSight(Unit *who)

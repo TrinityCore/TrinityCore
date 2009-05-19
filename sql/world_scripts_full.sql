@@ -997,6 +997,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_the_scourge_cauldron' WHERE `en
 
 /* WESTFALL */
 UPDATE `creature_template` SET `ScriptName`='npc_defias_traitor' WHERE `entry`=467;
+UPDATE `creature_template` SET `ScriptName`='npc_daphne_stilwell' WHERE `entry`=6182;
 
 /* WETLANDS */
 

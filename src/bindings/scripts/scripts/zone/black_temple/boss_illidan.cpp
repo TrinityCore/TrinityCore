@@ -495,10 +495,10 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
         if(spell->Id == SPELL_GLAIVE_RETURNS) // Re-equip our warblades!
         {
             if(!m_creature->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID))
-                m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 45479);
+                SetEquipmentSlots(false, EQUIP_ID_MAIN_HAND, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
             else
-                m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID+1, 45481);
-            m_creature->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE );
+                SetEquipmentSlots(false, EQUIP_UNEQUIP, EQUIP_ID_OFF_HAND, EQUIP_NO_CHANGE);
+            SetEquipmentSlots(false, EQUIP_UNEQUIP, EQUIP_ID_OFF_HAND, EQUIP_NO_CHANGE);
         }
     }
 
@@ -574,8 +574,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
             Timer[EVENT_FLIGHT_SEQUENCE] = 700;
             break;
         case 4://throw another
-            m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);
-            m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID+1, 0);
+            SetEquipmentSlots(false, EQUIP_UNEQUIP, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
             {
                 uint8 i=0;
                 Creature* Glaive = m_creature->SummonCreature(BLADE_OF_AZZINOTH, GlaivePosition[i].x, GlaivePosition[i].y, GlaivePosition[i].z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
@@ -660,14 +659,14 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
 
         if(DemonTransformation[TransformCount].equip)
         {
-            m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 45479); // Requip warglaives if needed
-            m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID+1, 45481);
+            // Requip warglaives if needed
+            SetEquipmentSlots(false, EQUIP_ID_MAIN_HAND, EQUIP_ID_OFF_HAND, EQUIP_NO_CHANGE);
             m_creature->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE );
         }
         else
         {
-            m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID+0, 0); // Unequip warglaives if needed
-            m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID+1, 0);
+            // Unequip warglaives if needed
+            SetEquipmentSlots(false, EQUIP_UNEQUIP, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
         }
 
         switch(TransformCount)
@@ -1385,8 +1384,7 @@ struct TRINITY_DLL_DECL boss_maievAI : public ScriptedAI
         Timer[EVENT_MAIEV_STEALTH] = 0;
         Timer[EVENT_MAIEV_TAUNT] = 22000 + rand()%21 * 1000;
         Timer[EVENT_MAIEV_SHADOW_STRIKE] = 30000;
-        m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 44850);
-        m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, 0);
+        SetEquipmentSlots(false, 44850, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
         m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, 45738);
     }
 
@@ -1842,8 +1840,7 @@ void boss_illidan_stormrageAI::Reset()
     m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
     m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
     m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-    m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);
-    m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID+1, 0);
+    SetEquipmentSlots(false, EQUIP_UNEQUIP, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
     m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
     m_creature->setActive(false);
     Summons.DespawnAll();
@@ -1900,8 +1897,8 @@ void boss_illidan_stormrageAI::HandleTalkSequence()
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         break;
     case 8:
-        m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 45479); // Equip our warglaives!
-        m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID+1, 45481);
+        // Equip our warglaives!
+        SetEquipmentSlots(false, EQUIP_ID_MAIN_HAND, EQUIP_ID_OFF_HAND, EQUIP_NO_CHANGE);
         m_creature->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE );
         m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
         break;

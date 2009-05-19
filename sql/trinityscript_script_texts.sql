@@ -316,7 +316,12 @@ INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content
 (-1000398, 'Where shall I begin? I cannot bother myself with a worm such as yourself. There is a world to be conquered!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 'mobs_nether_Drake - SAY_NIHIL_3'),
 (-1000399, 'No doubt the fools that banished me are long dead. I shall take wing survey my demense. Pray to whatever gods you hold dear that we do not meet again.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 'mobs_nether_drake - SAY_NIHIL_4'),
 (-1000400, 'NOOOOooooooo!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 1, 0, 0, 'mobs_nether_drake - SAY_NIHIL_INTERRUPT'),
-(-1000401, 'Good $N, you are under the spell''s influence. I must analyze it quickly, then we can talk.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 7, 0, 'npc_daranelle - SAY_DARANELLE');
+(-1000401, 'Good $N, you are under the spell''s influence. I must analyze it quickly, then we can talk.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 7, 0, 'npc_daranelle - SAY_DARANELLE'),
+(-1000402, 'To the house! Stay close to me, no matter what! I have my gun and ammo there!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 7, 0, 'stilwell SAY_DS_START'),
+(-1000403, 'We showed that one!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 7, 0, 'stilwell SAY_DS_DOWN_1'),
+(-1000404, 'One more down!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 7, 0, 'stilwell SAY_DS_DOWN_2'),
+(-1000405, 'We\'ve done it! We won!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 7, 0, 'stilwell SAY_DS_DOWN_3'),
+(-1000406, 'Meet me down by the orchard--I just need to put my gun away.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 7, 0, 'stilwell SAY_DS_PROLOGUE');
 
 -- -1 033 000 SHADOWFANG KEEP
 INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`, `sound`, `type`, `language`, `emote`, `comment`) VALUES
