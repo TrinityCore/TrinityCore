@@ -231,13 +231,13 @@ This Event is commonly used for NPC's who have Ranged Combat and will Throw/Shoo
 ---------------------
 10 = EVENT_T_OOC_LOS:
 ---------------------
-Parameter 1: NoHostile - This Value is to Prevent this Action from Expiring When Caused by a Player/Creature Hostile to them (0 = Prevent Event from Expiring, 1 = Allow Event to Expire)
-Parameter 2: NoFriendly - This Value is to Prevent this Action from Expiring When Caused by a Player/Creature Friendly to them (0 = Prevent Event from Expiring, 1 = Allow Event to Expire)
+Parameter 1: Hostile-or-Not   - This will expire if Unit are hostile. If Param1=1 it will only expire if Unit are not Hostile(generally determined by faction)
+Parameter 2: MaxAllowedRange  - Expires when a Unit moves within this distance to creature
 Parameter 3: RepeatMin - Minimum Time used to calculate Random Repeat Expire
 Parameter 4: RepeatMax - Maximum Time used to calculate Random Repeat Expire
 
-OUT OF COMBAT ONLY! - Expires when a Player moves within visible distance to the NPC. Does not expire for Hostile Players if (Param1) is not 0. Does not expire for Friendly Players if (Param2) is not 0. Will repeat every (Param3) and (Param4). Does not expire for creatures or pets when they are in combat.
-This Event is commonly used for NPC's who Do Something or Say Something when you walk past them Out of Combat.
+OUT OF COMBAT!
+This Event is commonly used for NPC's who do something or say something to you when you walk past them Out of Comba
 
 ---------------------
 11 = EVENT_T_SPAWNED:

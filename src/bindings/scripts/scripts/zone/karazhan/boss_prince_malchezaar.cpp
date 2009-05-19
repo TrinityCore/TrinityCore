@@ -67,32 +67,31 @@ static InfernalPoint InfernalPoints[] =
     {-10935.7, -1996.0}
 };
 
-#define TOTAL_INFERNAL_POINTS 18
+#define TOTAL_INFERNAL_POINTS       18
 
 //Enfeeble is supposed to reduce hp to 1 and then heal player back to full when it ends
 //Along with reducing healing and regen while enfeebled to 0%
 //This spell effect will only reduce healing
 
-#define SPELL_ENFEEBLE          30843                       //Enfeeble during phase 1 and 2
-#define SPELL_ENFEEBLE_EFFECT   41624
+#define SPELL_ENFEEBLE              30843                       //Enfeeble during phase 1 and 2
+#define SPELL_ENFEEBLE_EFFECT       41624
 
-#define SPELL_SHADOWNOVA        30852                       //Shadownova used during all phases
-#define SPELL_SW_PAIN           30854                       //Shadow word pain during phase 1 and 3 (different targeting rules though)
-#define SPELL_THRASH_PASSIVE    12787                       //Extra attack chance during phase 2
-#define SPELL_SUNDER_ARMOR      30901                       //Sunder armor during phase 2
-#define SPELL_THRASH_AURA       12787                       //Passive proc chance for thrash
-#define SPELL_EQUIP_AXES        30857                       //Visual for axe equiping
-#define SPELL_AMPLIFY_DAMAGE    39095                       //Amplifiy during phase 3
-#define SPELL_CLEAVE            30131                       //Same as Nightbane.
-#define SPELL_HELLFIRE          30859                       //Infenals' hellfire aura
-#define NETHERSPITE_INFERNAL    17646                       //The netherspite infernal creature
-#define MALCHEZARS_AXE          17650                       //Malchezar's axes (creatures), summoned during phase 3
+#define SPELL_SHADOWNOVA            30852                       //Shadownova used during all phases
+#define SPELL_SW_PAIN               30854                       //Shadow word pain during phase 1 and 3 (different targeting rules though)
+#define SPELL_THRASH_PASSIVE        12787                       //Extra attack chance during phase 2
+#define SPELL_SUNDER_ARMOR          30901                       //Sunder armor during phase 2
+#define SPELL_THRASH_AURA           12787                       //Passive proc chance for thrash
+#define SPELL_EQUIP_AXES            30857                       //Visual for axe equiping
+#define SPELL_AMPLIFY_DAMAGE        39095                       //Amplifiy during phase 3
+#define SPELL_CLEAVE                30131                       //Same as Nightbane.
+#define SPELL_HELLFIRE              30859                       //Infenals' hellfire aura
+#define NETHERSPITE_INFERNAL        17646                       //The netherspite infernal creature
+#define MALCHEZARS_AXE              17650                       //Malchezar's axes (creatures), summoned during phase 3
 
-#define INFERNAL_MODEL_INVISIBLE 11686                      //Infernal Effects
-#define SPELL_INFERNAL_RELAY     30834
+#define INFERNAL_MODEL_INVISIBLE    11686                      //Infernal Effects
+#define SPELL_INFERNAL_RELAY        30834
 
-#define AXE_EQUIP_MODEL          40066                      //Axes info
-#define AXE_EQUIP_INFO           33448898
+#define EQUIP_ID_AXE                33542                      //Axes info
 
 //---------Infernal code first
 struct TRINITY_DLL_DECL netherspite_infernalAI : public ScriptedAI
@@ -291,11 +290,7 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
 
     void ClearWeapons()
     {
-        m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);
-        //m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_INFO, 0);
-
-        m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID+1, 0);
-        //m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_INFO+2, 0);
+        SetEquipmentSlots(false, EQUIP_UNEQUIP, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
 
         //damage
         const CreatureInfo *cinfo = m_creature->GetCreatureInfo();
@@ -435,11 +430,7 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
                 m_creature->CastSpell(m_creature, SPELL_THRASH_AURA, true);
 
                 //models
-                m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, AXE_EQUIP_MODEL);
-                //m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_INFO, AXE_EQUIP_INFO);
-
-                m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID+1, AXE_EQUIP_MODEL);
-                //m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_INFO+2, AXE_EQUIP_INFO);
+                SetEquipmentSlots(false, EQUIP_ID_AXE, EQUIP_ID_AXE, EQUIP_NO_CHANGE);
 
                 //damage
                 const CreatureInfo *cinfo = m_creature->GetCreatureInfo();
@@ -477,9 +468,6 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
                     Creature *axe = m_creature->SummonCreature(MALCHEZARS_AXE, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
                     if(axe)
                     {
-                        axe->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, AXE_EQUIP_MODEL);
-                        //axe->SetUInt32Value(UNIT_VIRTUAL_ITEM_INFO, AXE_EQUIP_INFO);
-
                         axe->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         axe->setFaction(m_creature->getFaction());
                         axes[i] = axe->GetGUID();
