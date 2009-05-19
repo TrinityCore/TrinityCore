@@ -82,7 +82,7 @@ Unit::Unit()
 : WorldObject(), i_motionMaster(this), m_ThreatManager(this), m_HostilRefManager(this)
 , m_IsInNotifyList(false), m_Notified(false), IsAIEnabled(false), NeedChangeAI(false)
 , i_AI(NULL), i_disabledAI(NULL), m_removedAurasCount(0), m_Vehicle(NULL), m_transport(NULL)
-, m_ControlledByPlayer(false)
+, m_ControlledByPlayer(false), m_procDeep(0)
 {
     m_objectType |= TYPEMASK_UNIT;
     m_objectTypeId = TYPEID_UNIT;
@@ -12040,16 +12040,16 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
             }
         }
         if (triggerData.effMask)
-        {
             procTriggered.push_front(triggerData);
-            if (procExtra & (PROC_EX_INTERNAL_TRIGGERED | PROC_EX_INTERNAL_CANT_PROC))
-                itr->second->SetCantProc(true);
-        }
     }
 
     // Nothing found
     if (procTriggered.empty())
         return;
+
+    if (procExtra & (PROC_EX_INTERNAL_TRIGGERED | PROC_EX_INTERNAL_CANT_PROC))
+        SetCantProc(true);
+
     // Handle effects proceed this time
     for(ProcTriggeredList::iterator i = procTriggered.begin(); i != procTriggered.end(); ++i)
     {
@@ -12217,8 +12217,7 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
 
     // Cleanup proc requirements
     if (procExtra & (PROC_EX_INTERNAL_TRIGGERED | PROC_EX_INTERNAL_CANT_PROC))
-        for(ProcTriggeredList::iterator i = procTriggered.begin(); i != procTriggered.end(); ++i)
-            i->aura->SetCantProc(false);
+        SetCantProc(false);
 }
 
 SpellSchoolMask Unit::GetMeleeDamageSchoolMask() const
@@ -13761,7 +13760,7 @@ void Unit::AddAura(uint32 spellId, Unit* target)
     target->AddAura(Aur);
 }
 
-Aura * Unit::AddAuraEffect(const SpellEntry * spellInfo, uint8 effIndex, Unit* caster, int32 * basePoints)
+Aura * Unit::AddAuraEffect(const SpellEntry * spellInfo, uint8 effIndex, Unit* caster, int32 * basePoints, Unit * formalCaster)
 {
     // can't do that for passive auras - they stack from same caster so there is no way to get exact aura which should get effect
     //assert (!IsPassiveSpell(spellInfo));
@@ -13772,7 +13771,7 @@ Aura * Unit::AddAuraEffect(const SpellEntry * spellInfo, uint8 effIndex, Unit* c
 
     if (aur)
     {
-        AuraEffect *aurEffect = CreateAuraEffect(aur, effIndex, basePoints, caster);
+        AuraEffect *aurEffect = CreateAuraEffect(aur, effIndex, basePoints, caster,NULL, formalCaster);
         if (aurEffect && !aur->SetPartAura(aurEffect, effIndex))
             delete aurEffect;
     }
@@ -13782,10 +13781,10 @@ Aura * Unit::AddAuraEffect(const SpellEntry * spellInfo, uint8 effIndex, Unit* c
         {
             int32 amount[3];
             amount[effIndex] = *basePoints;
-            aur = new Aura(spellInfo, 1<<effIndex, amount, this ,caster);
+            aur = new Aura(spellInfo, 1<<effIndex, amount, this ,caster, NULL,formalCaster);
         }
         else
-            aur = new Aura(spellInfo, 1<<effIndex, NULL, this ,caster);
+            aur = new Aura(spellInfo, 1<<effIndex, NULL, this ,caster, NULL,formalCaster);
 
         if(!AddAura(aur))
             return NULL;

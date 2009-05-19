@@ -346,7 +346,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
 Aura::Aura(SpellEntry const* spellproto, uint32 effMask, int32 *currentBasePoints, Unit *target, Unit *caster, Item* castItem, Unit * formalCaster) :
 m_caster_guid(0), m_castItemGuid(castItem?castItem->GetGUID():0), m_target(target),
 m_timeCla(1000), m_removeMode(AURA_REMOVE_BY_DEFAULT), m_AuraDRGroup(DIMINISHING_NONE),
-m_auraSlot(MAX_AURAS), m_auraLevel(1), m_procCharges(0), m_stackAmount(1),m_auraStateMask(0), m_updated(false), m_isRemoved(false), m_procDeep(0)
+m_auraSlot(MAX_AURAS), m_auraLevel(1), m_procCharges(0), m_stackAmount(1),m_auraStateMask(0), m_updated(false), m_isRemoved(false)
 {
     assert(target);
 
@@ -685,6 +685,9 @@ void AreaAuraEffect::Update(uint32 diff)
     if(m_formalCasterGUID == m_target->GetGUID())
     {
         Unit* caster = m_target;
+        Unit * originalCaster = GetCaster();
+        if (!originalCaster)
+            m_target->RemoveAura(GetParentAura());
 
         if( !caster->hasUnitState(UNIT_STAT_ISOLATED) )
         {
@@ -723,7 +726,7 @@ void AreaAuraEffect::Update(uint32 diff)
 
             for(std::list<Unit*>::iterator tIter = targets.begin(); tIter != targets.end(); tIter++)
             {
-                if(Aura *aur = (*tIter)->GetAura(GetId(), m_formalCasterGUID))
+                if(Aura *aur = (*tIter)->GetAura(GetId(), GetCasterGUID()))
                 {
                     if(aur->HasEffect(GetEffIndex()))
                         continue;
@@ -733,7 +736,7 @@ void AreaAuraEffect::Update(uint32 diff)
                     bool skip = false;
                     for(Unit::AuraMap::iterator iter = (*tIter)->GetAuras().begin(); iter != (*tIter)->GetAuras().end();++iter)
                     {
-                        bool samecaster = iter->second->GetCasterGUID() == m_formalCasterGUID;
+                        bool samecaster = iter->second->GetCasterGUID() == GetCasterGUID();
                         if(spellmgr.IsNoStackSpellDueToSpell(GetId(), iter->first, samecaster))
                         {
                             skip = true;
@@ -750,7 +753,7 @@ void AreaAuraEffect::Update(uint32 diff)
                     // recalculate basepoints for lower rank (all AreaAura spell not use custom basepoints?)
                     //if(actualSpellInfo != GetSpellProto())
                     //    actualBasePoints = actualSpellInfo->EffectBasePoints[m_effIndex];
-                    (*tIter)->AddAuraEffect(actualSpellInfo, GetEffIndex(), caster, &m_currentBasePoints);
+                    (*tIter)->AddAuraEffect(actualSpellInfo, GetEffIndex(), caster, &m_currentBasePoints, originalCaster);
 
                     if(m_areaAuraType == AREA_AURA_ENEMY)
                         caster->CombatStart(*tIter);
@@ -1507,8 +1510,10 @@ void AuraEffect::HandleAddModifier(bool apply, bool Real, bool changeAmount)
 
     ((Player*)m_target)->AddSpellMod(m_spellmod, apply);
 
+    // Auras with charges do not mod amount of passive auras
+    if (GetParentAura()->GetAuraCharges())
+        return;
     // reapply some passive spells after add/remove related spellmods
-    //if (GetParentAura()->IsPassive())
     // Warning: it is a dead loop if 2 auras each other amount-shouldn't happen
     switch (modOp)
     {
@@ -4165,6 +4170,8 @@ void AuraEffect::HandleAuraModUseNormalSpeed(bool /*apply*/, bool Real, bool cha
 
 void AuraEffect::HandleModStateImmunityMask(bool apply, bool Real, bool /*changeAmount*/)
 {
+    if (!Real)
+        return;
     std::list <AuraType> immunity_list;
     if (GetMiscValue() & (1<<10))
         immunity_list.push_back(SPELL_AURA_MOD_STUN);
@@ -4206,6 +4213,8 @@ void AuraEffect::HandleModStateImmunityMask(bool apply, bool Real, bool /*change
 
 void AuraEffect::HandleModMechanicImmunity(bool apply, bool Real, bool /*changeAmount*/)
 {
+    if (!Real)
+        return;
     uint32 mechanic;
     mechanic = 1 << GetMiscValue();
 
@@ -4280,14 +4289,18 @@ void AuraEffect::HandleModMechanicImmunity(bool apply, bool Real, bool /*changeA
     }
 
     // Heroic Fury (remove Intercept cooldown)
-    if( apply && GetId() == 60970 && m_target->GetTypeId() == TYPEID_PLAYER )
+    else if( apply && GetId() == 60970 && m_target->GetTypeId() == TYPEID_PLAYER )
     {
-        ((Player*)m_target)->RemoveSpellCooldown(20252);
+        ((Player*)m_target)->RemoveSpellCooldown(20252, true);
+    }
+    // Demonic Empowerment -- voidwalker -- missing movement impairing effects immunity
+    else if (GetId() == 54508)
+    {
+        if (apply)
+            m_target->RemoveMovementImpairingAuras();
 
-        WorldPacket data(SMSG_CLEAR_COOLDOWN, (4+8));
-        data << uint32(20252);
-        data << uint64(m_target->GetGUID());
-        ((Player*)m_target)->GetSession()->SendPacket(&data);
+        m_target->ApplySpellImmune(GetId(),IMMUNITY_STATE,SPELL_AURA_MOD_ROOT,apply);
+        m_target->ApplySpellImmune(GetId(),IMMUNITY_STATE,SPELL_AURA_MOD_DECREASE_SPEED,apply);
     }
 }
 

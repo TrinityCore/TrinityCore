@@ -738,7 +738,7 @@ void Spell::prepareDataForTriggerSystem(AuraEffect * triggeredByAura)
         to prevent chain proc of these spells
     */
 
-    if (triggeredByAura && !triggeredByAura->GetParentAura()->CanProc())
+    if (triggeredByAura && !triggeredByAura->GetParentAura()->GetTarget()->CanProc())
     {
         m_canTrigger=false;
     }

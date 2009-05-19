@@ -1986,8 +1986,7 @@ void Spell::EffectTriggerSpell(uint32 i)
         // Vanish
         case 18461:
         {
-            m_caster->RemoveAurasByType(SPELL_AURA_MOD_ROOT);
-            m_caster->RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
+            m_caster->RemoveMovementImpairingAuras();
             m_caster->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
 
             // if this spell is given to NPC it must handle rest by it's own AI
@@ -2026,6 +2025,17 @@ void Spell::EffectTriggerSpell(uint32 i)
             // Push stealth to list because it must be handled after combat remove
             m_TriggerSpells.push_back(spellInfo);
             return;
+        }
+        // Demonic Empowerment -- succubus
+        case 54437:
+        {
+            unitTarget->RemoveMovementImpairingAuras();
+            unitTarget->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
+            unitTarget->RemoveAurasByType(SPELL_AURA_MOD_STUN);
+
+            // Cast Lesser Invisibility
+            triggered_spell_id = 7870;
+            break;
         }
         // just skip
         case 23770:                                         // Sayge's Dark Fortune of *
@@ -4984,6 +4994,37 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     if (AuraEffect * aur = unitTarget->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_WARLOCK, 0x2, 0, 0, m_caster->GetGUID()))
                         aur->GetParentAura()->RefreshAura();
                     return;
+                // Demonic Empowerment
+                case 47193:
+                {
+                    if(!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT || !((Creature *)unitTarget)->isPet())
+                        return;
+                    CreatureInfo const * ci = objmgr.GetCreatureTemplate(unitTarget->GetEntry());
+                    switch (ci->family)
+                    {
+                    case CREATURE_FAMILY_SUCCUBUS:
+                        unitTarget->CastSpell(unitTarget, 54435, true);
+                        break;
+                    case CREATURE_FAMILY_VOIDWALKER:
+                    {
+                        SpellEntry const* spellInfo = sSpellStore.LookupEntry(54443);
+                        int32 hp = unitTarget->GetMaxHealth() * m_caster->CalculateSpellDamage(spellInfo, 0, spellInfo->EffectBasePoints[0], unitTarget) /100;
+                        unitTarget->CastCustomSpell(unitTarget, 54443,&hp, NULL, NULL,true);
+                        //unitTarget->CastSpell(unitTarget, 54441, true);
+                        break;
+                    }
+                    case CREATURE_FAMILY_FELGUARD:
+                        unitTarget->CastSpell(unitTarget, 54508, true);
+                        break;
+                    case CREATURE_FAMILY_FELHUNTER:
+                        unitTarget->CastSpell(unitTarget, 54509, true);
+                        break;
+                    case CREATURE_FAMILY_IMP:
+                        unitTarget->CastSpell(unitTarget, 54444, true);
+                        break;
+                    }
+                    return;
+                }
             }
             break;
         }
