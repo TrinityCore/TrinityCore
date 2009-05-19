@@ -455,7 +455,7 @@ class World
         /// Get the string for new characters (first login)
         const std::string& GetNewCharString() const { return m_newCharString; }
 
-        uint32 GetDefaultDbcLocale() const { return m_defaultDbcLocale; }
+        LocaleConstant GetDefaultDbcLocale() const { return m_defaultDbcLocale; }
 
         /// Get the path where data (dbc, maps) are stored on disk
         std::string GetDataPath() const { return m_dataPath; }

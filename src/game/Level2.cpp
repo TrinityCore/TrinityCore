@@ -926,7 +926,7 @@ bool ChatHandler::HandleLookupFactionCommand(const char* args)
         {
             FactionState const* repState = target ? target->GetReputationMgr().GetState(factionEntry) : NULL;
 
-            int loc = m_session ? m_session->GetSessionDbcLocale() : sWorld.GetDefaultDbcLocale();
+            int loc = GetSessionDbcLocale();
             std::string name = factionEntry->name[loc];
             if(name.empty())
                 continue;
@@ -936,7 +936,7 @@ bool ChatHandler::HandleLookupFactionCommand(const char* args)
                 loc = 0;
                 for(; loc < MAX_LOCALE; ++loc)
                 {
-                    if(m_session && loc==m_session->GetSessionDbcLocale())
+                    if(loc==GetSessionDbcLocale())
                         continue;
 
                     name = factionEntry->name[loc];
@@ -1081,13 +1081,13 @@ bool ChatHandler::HandleModifyRepCommand(const char * args)
 
     if (factionEntry->reputationListID < 0)
     {
-        PSendSysMessage(LANG_COMMAND_FACTION_NOREP_ERROR, factionEntry->name[m_session->GetSessionDbcLocale()], factionId);
+        PSendSysMessage(LANG_COMMAND_FACTION_NOREP_ERROR, factionEntry->name[GetSessionDbcLocale()], factionId);
         SetSentErrorMessage(true);
         return false;
     }
 
     target->GetReputationMgr().SetReputation(factionEntry,amount);
-    PSendSysMessage(LANG_COMMAND_MODIFY_REP, factionEntry->name[m_session->GetSessionDbcLocale()], factionId,
+    PSendSysMessage(LANG_COMMAND_MODIFY_REP, factionEntry->name[GetSessionDbcLocale()], factionId,
         GetNameLink(target).c_str(), target->GetReputationMgr().GetReputation(factionEntry));
     return true;
 }
@@ -2249,14 +2249,10 @@ bool ChatHandler::HandleModifyPhaseCommand(const char* args)
 //show info of player
 bool ChatHandler::HandlePInfoCommand(const char* args)
 {
-    char* nameStr;
-    char* subcommandStr;
-    extractOptFirstArg((char*)args,&nameStr,&subcommandStr);
-
     Player* target;
     uint64 target_guid;
     std::string target_name;
-    if(!extractPlayerTarget(nameStr,&target,&target_guid,&target_name))
+    if(!extractPlayerTarget((char*)args,&target,&target_guid,&target_name))
         return false;
 
     uint32 accId = 0;
@@ -2339,43 +2335,6 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
     uint32 copp = (money % GOLD) % SILVER;
     PSendSysMessage(LANG_PINFO_LEVEL,  timeStr.c_str(), level, gold,silv,copp );
 
-    if( subcommandStr && strncmp(subcommandStr, "rep", 3) == 0 )
-    {
-        if(!target)
-        {
-            // rep option not implemented for offline case
-            SendSysMessage(LANG_PINFO_NO_REP);
-            SetSentErrorMessage(true);
-            return false;
-        }
-
-        FactionStateList const& targetFSL = target->GetReputationMgr().GetStateList();
-        for(FactionStateList::const_iterator itr = targetFSL.begin(); itr != targetFSL.end(); ++itr)
-        {
-            FactionEntry const *factionEntry = sFactionStore.LookupEntry(itr->second.ID);
-            char const* factionName = factionEntry ? factionEntry->name[m_session->GetSessionDbcLocale()] : "#Not found#";
-            ReputationRank rank = target->GetReputationMgr().GetRank(factionEntry);
-            std::string rankName = GetMangosString(ReputationRankStrIndex[rank]);
-            std::ostringstream ss;
-            ss << itr->second.ID << ": |cffffffff|Hfaction:" << itr->second.ID << "|h[" << factionName << "]|h|r " << rankName << "|h|r ("
-               << target->GetReputationMgr().GetReputation(factionEntry) << ")";
-
-            if(itr->second.Flags & FACTION_FLAG_VISIBLE)
-                ss << GetTrinityString(LANG_FACTION_VISIBLE);
-            if(itr->second.Flags & FACTION_FLAG_AT_WAR)
-                ss << GetTrinityString(LANG_FACTION_ATWAR);
-            if(itr->second.Flags & FACTION_FLAG_PEACE_FORCED)
-                ss << GetTrinityString(LANG_FACTION_PEACE_FORCED);
-            if(itr->second.Flags & FACTION_FLAG_HIDDEN)
-                ss << GetTrinityString(LANG_FACTION_HIDDEN);
-            if(itr->second.Flags & FACTION_FLAG_INVISIBLE_FORCED)
-                ss << GetTrinityString(LANG_FACTION_INVISIBLE_FORCED);
-            if(itr->second.Flags & FACTION_FLAG_INACTIVE)
-                ss << GetTrinityString(LANG_FACTION_INACTIVE);
-
-            SendSysMessage(ss.str().c_str());
-        }
-    }
     return true;
 }
 
@@ -3646,6 +3605,47 @@ bool ChatHandler::HandleCharacterCustomizeCommand(const char* args)
     return true;
 }
 
+bool ChatHandler::HandleCharacterReputationCommand(const char* args)
+{
+    Player* target;
+    if(!extractPlayerTarget((char*)args,&target))
+        return false;
+
+    LocaleConstant loc = GetSessionDbcLocale();
+
+    FactionStateList const& targetFSL = target->GetReputationMgr().GetStateList();
+    for(FactionStateList::const_iterator itr = targetFSL.begin(); itr != targetFSL.end(); ++itr)
+    {
+        FactionEntry const *factionEntry = sFactionStore.LookupEntry(itr->second.ID);
+        char const* factionName = factionEntry ? factionEntry->name[loc] : "#Not found#";
+        ReputationRank rank = target->GetReputationMgr().GetRank(factionEntry);
+        std::string rankName = GetMangosString(ReputationRankStrIndex[rank]);
+        std::ostringstream ss;
+        if (m_session)
+            ss << itr->second.ID << " - |cffffffff|Hfaction:" << itr->second.ID << "|h[" << factionName << " " << localeNames[loc] << "]|h|r";
+        else
+            ss << itr->second.ID << " - " << factionName << " " << localeNames[loc];
+
+        ss << " " << rankName << " (" << target->GetReputationMgr().GetReputation(factionEntry) << ")";
+
+        if(itr->second.Flags & FACTION_FLAG_VISIBLE)
+            ss << GetMangosString(LANG_FACTION_VISIBLE);
+        if(itr->second.Flags & FACTION_FLAG_AT_WAR)
+            ss << GetMangosString(LANG_FACTION_ATWAR);
+        if(itr->second.Flags & FACTION_FLAG_PEACE_FORCED)
+            ss << GetMangosString(LANG_FACTION_PEACE_FORCED);
+        if(itr->second.Flags & FACTION_FLAG_HIDDEN)
+            ss << GetMangosString(LANG_FACTION_HIDDEN);
+        if(itr->second.Flags & FACTION_FLAG_INVISIBLE_FORCED)
+            ss << GetMangosString(LANG_FACTION_INVISIBLE_FORCED);
+        if(itr->second.Flags & FACTION_FLAG_INACTIVE)
+            ss << GetMangosString(LANG_FACTION_INACTIVE);
+
+        SendSysMessage(ss.str().c_str());
+    }
+    return true;
+}
+
 //change standstate
 bool ChatHandler::HandleModifyStandStateCommand(const char* args)
 {
@@ -4016,7 +4016,7 @@ bool ChatHandler::HandleLearnAllRecipesCommand(const char* args)
             skillInfo->categoryId != SKILL_CATEGORY_SECONDARY )
             continue;
 
-        int loc = m_session->GetSessionDbcLocale();
+        int loc = GetSessionDbcLocale();
         std::string name = skillInfo->name[loc];
 
         if(Utf8FitTo(name, wnamepart))
