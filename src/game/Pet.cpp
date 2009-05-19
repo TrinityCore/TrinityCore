@@ -272,12 +272,6 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
     }
     else
     {
-        _LoadSpells();
-        _LoadSpellCooldowns();
-        LearnPetPassives();
-        InitLevelupSpellsForLevel();
-        CastPetAuras(current);
-
         // Load action bar data
         if (!is_temporary_summoned)
         {
@@ -297,17 +291,8 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
                 m_charmInfo->GetActionBarEntry(index)->Type = atol((*iter).c_str());
                 ++iter;
                 m_charmInfo->GetActionBarEntry(index)->SpellOrAction = atol((*iter).c_str());
-
-                // patch for old data where some spells have ACT_DECIDE but should have ACT_CAST
-                // so overwrite old state
-                if(SpellEntry const *spellInfo = sSpellStore.LookupEntry(m_charmInfo->GetActionBarEntry(index)->SpellOrAction))
-                {
-                    if (spellInfo && spellInfo->AttributesEx & SPELL_ATTR_EX_UNAUTOCASTABLE_BY_PET)
-                        m_charmInfo->GetActionBarEntry(index)->Type = ACT_DISABLED;
-
-                    if(m_charmInfo->GetActionBarEntry(index)->Type == ACT_ENABLED)
-                        ToggleAutocast(spellInfo->Id, true);
-                }
+                if(m_charmInfo->GetActionBarEntry(index)->Type == ACT_ENABLED && !IsAutocastableSpell(m_charmInfo->GetActionBarEntry(index)->SpellOrAction))
+                    m_charmInfo->GetActionBarEntry(index)->Type = ACT_PASSIVE;
             }
 
             //init teach spells
@@ -323,6 +308,12 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
                 else
                     break;
             }
+
+            _LoadSpells();
+            _LoadSpellCooldowns();
+            LearnPetPassives();
+            InitLevelupSpellsForLevel();
+            CastPetAuras(current);
         }
     }
 
@@ -1249,10 +1240,6 @@ bool Pet::addSpell(uint32 spell_id,ActiveStates active /*= ACT_DECIDE*/, PetSpel
         return false;
     }
 
-    // same spells don't have autocast option
-    if (spellInfo->AttributesEx & SPELL_ATTR_EX_UNAUTOCASTABLE_BY_PET)
-        active = ACT_DISABLED;
-
     PetSpellMap::iterator itr = m_spells.find(spell_id);
     if (itr != m_spells.end())
     {
@@ -1285,10 +1272,10 @@ bool Pet::addSpell(uint32 spell_id,ActiveStates active /*= ACT_DECIDE*/, PetSpel
 
     if(active == ACT_DECIDE)                                //active was not used before, so we save it's autocast/passive state here
     {
-        if(IsPassiveSpell(spell_id))
-            newspell.active = ACT_PASSIVE;
-        else
+        if(IsAutocastableSpell(spell_id))
             newspell.active = ACT_DISABLED;
+        else
+            newspell.active = ACT_PASSIVE;
     }
     else
         newspell.active = active;
@@ -1344,8 +1331,7 @@ bool Pet::addSpell(uint32 spell_id,ActiveStates active /*= ACT_DECIDE*/, PetSpel
     if (IsPassiveSpell(spell_id))
         CastSpell(this, spell_id, true);
     else
-        //m_charmInfo->AddSpellToAB(oldspell_id, spell_id);
-        m_charmInfo->AddSpellToAB(oldspell_id, spell_id, (ActiveStates)active);
+        m_charmInfo->AddSpellToAB(oldspell_id, spell_id);
 
     if(newspell.active == ACT_ENABLED)
         ToggleAutocast(spell_id, true);
@@ -1668,7 +1654,7 @@ uint8 Pet::GetMaxTalentPointsForLevel(uint32 level)
 
 void Pet::ToggleAutocast(uint32 spellid, bool apply)
 {
-    if(IsPassiveSpell(spellid))
+    if(!IsAutocastableSpell(spellid))
         return;
 
     PetSpellMap::iterator itr = m_spells.find(spellid);
