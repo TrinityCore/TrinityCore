@@ -70,10 +70,9 @@ enum PetSpellType
 
 struct PetSpell
 {
-    ActiveStates active : 16;
-
-    PetSpellState state : 8;
-    PetSpellType type   : 8;
+    ActiveStates active;
+    PetSpellState state;
+    PetSpellType type;
 };
 
 enum ActionFeedback
