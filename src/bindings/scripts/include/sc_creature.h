@@ -188,6 +188,11 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
     void SetEquipmentSlots(bool bLoadDefault, int32 uiMainHand = EQUIP_NO_CHANGE, int32 uiOffHand = EQUIP_NO_CHANGE, int32 uiRanged = EQUIP_NO_CHANGE);
 
     void SetSheathState(SheathState newState);
+    
+    void SetCombatMovement(bool CombatMove);
+    
+    protected:
+        bool CombatMovement;
 };
 
 struct TRINITY_DLL_DECL Scripted_NoMovementAI : public ScriptedAI
