@@ -44,7 +44,7 @@ enum EventAI_Type
     EVENT_T_EVADE                   = 7,                    // NONE
     EVENT_T_SPELLHIT                = 8,                    // SpellID, School, RepeatMin, RepeatMax
     EVENT_T_RANGE                   = 9,                    // MinDist, MaxDist, RepeatMin, RepeatMax
-    EVENT_T_OOC_LOS                 = 10,                   // NoHostile, NoFriendly, RepeatMin, RepeatMax
+    EVENT_T_OOC_LOS                 = 10,                   // NoHostile, MaxRnage, RepeatMin, RepeatMax
     EVENT_T_SPAWNED                 = 11,                   // NONE
     EVENT_T_TARGET_HP               = 12,                   // HPMax%, HPMin%, RepeatMin, RepeatMax
     EVENT_T_TARGET_CASTING          = 13,                   // RepeatMin, RepeatMax
@@ -382,23 +382,116 @@ struct CreatureEventAI_Event
 
     union
     {
-        uint32 event_param1;
-        int32 event_param1_s;
-    };
-    union
-    {
-        uint32 event_param2;
-        int32 event_param2_s;
-    };
-    union
-    {
-        uint32 event_param3;
-        int32 event_param3_s;
-    };
-    union
-    {
-        uint32 event_param4;
-        int32 event_param4_s;
+        // EVENT_T_TIMER                                    = 0
+        // EVENT_T_TIMER_OOC                                = 1
+        struct
+        {
+            uint32 initialMin;
+            uint32 initialMax;
+            uint32 repeatMin;
+            uint32 repeatMax;
+        } timer;
+        // EVENT_T_HP                                       = 2
+        // EVENT_T_MANA                                     = 3
+        // EVENT_T_TARGET_HP                                = 12
+        // EVENT_T_TARGET_MANA                              = 18
+        struct
+        {
+            uint32 percentMax;
+            uint32 percentMin;
+            uint32 repeatMin;
+            uint32 repeatMax;
+        } percent_range;
+        // EVENT_T_KILL                                     = 5
+        struct
+        {
+            uint32 repeatMin;
+            uint32 repeatMax;
+        } kill;
+        // EVENT_T_SPELLHIT                                 = 8
+        struct
+        {
+            uint32 spellId;
+            uint32 schoolMask;                              // -1 (==0xffffffff) is ok value for full mask, or must be more limited mask like (0 < 1) = 1 for normal/physical school
+            uint32 repeatMin;
+            uint32 repeatMax;
+        } spell_hit;
+        // EVENT_T_RANGE                                    = 9
+        struct
+        {
+            uint32 minDist;
+            uint32 maxDist;
+            uint32 repeatMin;
+            uint32 repeatMax;
+        } range;
+        // EVENT_T_OOC_LOS                                  = 10
+        struct
+        {
+            uint32 noHostile;
+            uint32 maxRange;
+            uint32 repeatMin;
+            uint32 repeatMax;
+        } ooc_los;
+        // EVENT_T_TARGET_CASTING                           = 13
+        struct
+        {
+            uint32 repeatMin;
+            uint32 repeatMax;
+        } target_casting;
+        // EVENT_T_FRIENDLY_HP                              = 14
+        struct
+        {
+            uint32 hpDeficit;
+            uint32 radius;
+            uint32 repeatMin;
+            uint32 repeatMax;
+        } friendly_hp;
+        // EVENT_T_FRIENDLY_IS_CC                           = 15
+        struct
+        {
+            uint32 dispelType;                              // unused ?
+            uint32 radius;
+            uint32 repeatMin;
+            uint32 repeatMax;
+        } friendly_is_cc;
+        // EVENT_T_FRIENDLY_MISSING_BUFF                    = 16
+        struct
+        {
+            uint32 spellId;
+            uint32 radius;
+            uint32 repeatMin;
+            uint32 repeatMax;
+        } friendly_buff;
+        // EVENT_T_SUMMONED_UNIT                            = 17
+        struct
+        {
+            uint32 creatureId;
+            uint32 repeatMin;
+            uint32 repeatMax;
+        } summon_unit;
+        // EVENT_T_QUEST_ACCEPT                             = 19
+        // EVENT_T_QUEST_COMPLETE                           = 20
+        struct
+        {
+            uint32 questId;
+        } quest;
+        // EVENT_T_RECEIVE_EMOTE                            = 22
+        struct
+        {
+            uint32 emoteId;
+            uint32 condition;
+            uint32 conditionValue1;
+            uint32 conditionValue2;
+        } receive_emote;
+
+        // RAW
+        struct 
+        {
+            uint32 param1;
+            uint32 param2;
+            uint32 param3;
+            uint32 param4;
+        } raw;
     };
 
     CreatureEventAI_Action action[MAX_ACTIONS];
@@ -427,6 +520,9 @@ struct CreatureEventAIHolder
     CreatureEventAI_Event Event;
     uint32 Time;
     bool Enabled;
+
+    // helper
+    bool UpdateRepeatTimer(Creature* creature, uint32 repeatMin, uint32 repeatMax);
 };
 
 class TRINITY_DLL_SPEC CreatureEventAI : public CreatureAI
