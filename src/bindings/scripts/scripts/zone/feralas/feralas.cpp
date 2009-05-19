@@ -17,11 +17,12 @@
 /* ScriptData
 SDName: Feralas
 SD%Complete: 100
-SDComment: Quest support: 3520. Special vendor Gregan Brewspewer
+SDComment: Quest support: 3520, 2767, Special vendor Gregan Brewspewer
 SDCategory: Feralas
 EndScriptData */
 
 #include "precompiled.h"
+#include "../../npc/npc_escortAI.h"
 
 /*######
 ## npc_gregan_brewspewer
@@ -54,6 +55,148 @@ bool GossipSelect_npc_gregan_brewspewer(Player *player, Creature *_Creature, uin
 }
 
 /*######
+## npc_oox22fe
+######*/
+
+enum
+{
+    SAY_START               = -1060000,
+    SAY_AGGRO               = -1060001,
+    SAY_AGGRO2              = -1060002,
+    SAY_AMBUSH              = -1060003,
+    SAY_END                 = -1060005,
+
+    NPC_YETI                = 7848,
+    NPC_GORILLA             = 5260,
+    NPC_WOODPAW_REAVER      = 5255,
+    NPC_WOODPAW_BRUTE       = 5253,
+    NPC_WOODPAW_ALPHA       = 5258,
+    NPC_WOODPAW_MYSTIC      = 5254,
+
+    QUEST_RESCUE_OOX22FE    = 2767,
+    FACTION_ESCORTEE_A      = 774,
+    FACTION_ESCORTEE_H      = 775
+};
+
+struct TRINITY_DLL_DECL npc_oox22feAI : public npc_escortAI
+{
+    npc_oox22feAI(Creature* pCreature) : npc_escortAI(pCreature)
+    {
+        normFaction = pCreature->getFaction();
+    }
+
+    uint32 normFaction;
+
+    void WaypointReached(uint32 i)
+    {
+        switch (i)
+        {
+            // First Ambush(3 Yetis)
+            case 11:
+                DoScriptText(SAY_AMBUSH,m_creature);
+                m_creature->SummonCreature(NPC_YETI, -4841.01, 1593.91, 73.42, 3.98, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+                m_creature->SummonCreature(NPC_YETI, -4837.61, 1568.58, 78.21, 3.13, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+                m_creature->SummonCreature(NPC_YETI, -4841.89, 1569.95, 76.53, 0.68, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+                break;
+            //Second Ambush(3 Gorillas)
+            case 21:
+                DoScriptText(SAY_AMBUSH,m_creature);
+                m_creature->SummonCreature(NPC_GORILLA, -4595.81, 2005.99, 53.08, 3.74, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+                m_creature->SummonCreature(NPC_GORILLA, -4597.53, 2008.31, 52.70, 3.78, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+                m_creature->SummonCreature(NPC_GORILLA, -4599.37, 2010.59, 52.77, 3.84, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+                break;
+            //Third Ambush(4 Gnolls)
+            case 30:
+                DoScriptText(SAY_AMBUSH,m_creature);
+                m_creature->SummonCreature(NPC_WOODPAW_REAVER, -4425.14, 2075.87, 47.77, 3.77, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+                m_creature->SummonCreature(NPC_WOODPAW_BRUTE , -4426.68, 2077.98, 47.57, 3.77, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+                m_creature->SummonCreature(NPC_WOODPAW_MYSTIC, -4428.33, 2080.24, 47.43, 3.87, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+                m_creature->SummonCreature(NPC_WOODPAW_ALPHA , -4430.04, 2075.54, 46.83, 3.81, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+                break;
+            case 37:
+                DoScriptText(SAY_END,m_creature);
+                // Award quest credit
+                if(Player* pPlayer = Unit::GetPlayer( PlayerGUID))
+                {
+                        pPlayer->GroupEventHappens(QUEST_RESCUE_OOX22FE, m_creature);
+                }
+                break;
+        }
+    }
+
+    void Reset()
+    {
+        if (!IsBeingEscorted)
+        {
+            m_creature->setFaction(normFaction);
+            m_creature->SetStandState(UNIT_STAND_STATE_DEAD);
+        }
+    }
+
+    void Aggro(Unit* who)
+    {
+        //For an small probability the npc says something when he get aggro
+        switch(rand()%10)
+        {
+           case 0: DoScriptText(SAY_AGGRO,m_creature); break;
+           case 1: DoScriptText(SAY_AGGRO2,m_creature); break;
+        }
+    }
+
+    void JustSummoned(Creature* summoned)
+    {
+        summoned->AI()->AttackStart(m_creature);
+    }
+
+    void JustDied(Unit* killer)
+    {
+        if (!IsBeingEscorted)
+            return;
+
+        if(Player* pPlayer = Unit::GetPlayer(PlayerGUID))
+        {
+            // If NPC dies, player fails the quest
+            if(pPlayer->GetQuestStatus(QUEST_RESCUE_OOX22FE) != QUEST_STATUS_COMPLETE)
+                pPlayer->FailQuest(QUEST_RESCUE_OOX22FE);
+        }
+    }
+
+    void UpdateAI(const uint32 diff)
+    {
+        npc_escortAI::UpdateAI(diff);
+    }
+};
+
+CreatureAI* GetAI_npc_oox22fe(Creature* pCreature)
+{
+    npc_oox22feAI* oox22AI = new npc_oox22feAI(pCreature);
+
+    oox22AI->FillPointMovementListForCreature();
+
+    return (CreatureAI*)oox22AI;
+}
+
+bool QuestAccept_npc_oox22fe(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
+{
+    if (pQuest->GetQuestId() == QUEST_RESCUE_OOX22FE)
+    {
+        DoScriptText(SAY_START, pCreature);
+        //change that the npc is not lying dead on the ground
+        pCreature->SetStandState(UNIT_STAND_STATE_STAND);
+
+        if (pPlayer->GetTeam() == ALLIANCE)
+            pCreature->setFaction(FACTION_ESCORTEE_A);
+
+        if (pPlayer->GetTeam() == HORDE)
+            pCreature->setFaction(FACTION_ESCORTEE_H);
+
+        ((npc_escortAI*)(pCreature->AI()))->Start(true, true, false, pPlayer->GetGUID());
+
+    }
+    return true;
+}
+
+/*######
 ## npc_screecher_spirit
 ######*/
 
@@ -78,6 +221,12 @@ void AddSC_feralas()
     newscript->Name="npc_gregan_brewspewer";
     newscript->pGossipHello = &GossipHello_npc_gregan_brewspewer;
     newscript->pGossipSelect = &GossipSelect_npc_gregan_brewspewer;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_oox22fe";
+    newscript->GetAI = &GetAI_npc_oox22fe;
+    newscript->pQuestAccept = &QuestAccept_npc_oox22fe;
     newscript->RegisterSelf();
 
     newscript = new Script;

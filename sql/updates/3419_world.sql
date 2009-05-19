@@ -1,0 +1,51 @@
+UPDATE `creature_template` SET `ScriptName` = 'npc_oox22fe' WHERE `entry` = 7807;
+
+DELETE FROM `script_waypoint` WHERE `entry` = 7807;
+INSERT INTO `script_waypoint` VALUES
+(7807, 0, -4943.74, 1715.74, 62.74, 0, 'SAY_START'),
+(7807, 1, -4944.93, 1706.66, 63.16, 0, ''),
+(7807, 2, -4942.82, 1690.22, 64.25, 0, ''),
+(7807, 3, -4946.47, 1669.62, 63.84, 0, ''),
+(7807, 4, -4955.93, 1651.88, 63.00, 0, ''),
+(7807, 5, -4967.58, 1643.86, 64.31, 0, ''),
+(7807, 6, -4978.12, 1607.90, 64.30, 0, ''),
+(7807, 7, -4975.38, 1596.16, 64.70, 0, ''),
+(7807, 8, -4972.82, 1581.89, 61.75, 0, ''),
+(7807, 9, -4958.65, 1581.05, 61.81, 0, ''),
+(7807, 10, -4936.72, 1594.89, 65.96, 0, ''),
+(7807, 11, -4885.69, 1598.10, 67.45, 4000, 'first ambush SAY_AMBUSH'),
+(7807, 12, -4874.20, 1601.73, 68.54, 0, ''),
+(7807, 13, -4816.64, 1594.47, 78.20, 0, ''),
+(7807, 14, -4802.20, 1571.92, 87.01, 0, ''),
+(7807, 15, -4746.40, 1576.11, 84.59, 0, ''),
+(7807, 16, -4739.72, 1707.16, 94.04, 0, ''),
+(7807, 17, -4674.03, 1840.44, 89.17, 0, ''),
+(7807, 18, -4667.94, 1864.11, 85.18, 0, ''),
+(7807, 19, -4668.08, 1886.39, 81.14, 0, ''),
+(7807, 20, -4679.43, 1932.32, 73.76, 0, ''),
+(7807, 21, -4674.17, 1946.66, 70.83, 5000, 'second ambush SAY_AMBUSH'),
+(7807, 22, -4643.94, 1967.45, 65.27, 0, ''),
+(7807, 23, -4595.60, 2010.75, 52.10, 0, ''),
+(7807, 24, -4562.65, 2029.28, 45.41, 0, ''),
+(7807, 25, -4538.56, 2032.65, 45.28, 0, ''),
+(7807, 26, -4531.96, 2034.15, 48.34, 0, ''),
+(7807, 27, -4507.75, 2039.32, 51.57, 0, ''),
+(7807, 28, -4482.74, 2045.67, 48.15, 0, ''),
+(7807, 29, -4460.87, 2051.54, 45.55, 0, ''),
+(7807, 30, -4449.97, 2060.03, 45.51, 10000, 'third ambush SAY_AMBUSH'),
+(7807, 31, -4448.99, 2079.05, 44.64, 0, ''),
+(7807, 32, -4436.64, 2134.48, 28.83, 0, ''),
+(7807, 33, -4429.25, 2170.20, 15.44, 0, ''),
+(7807, 34, -4424.83, 2186.11, 11.48, 0, ''),
+(7807, 35, -4416.71, 2209.76, 7.36, 0, ''),
+(7807, 36, -4405.25, 2231.77, 5.94, 0, ''),
+(7807, 37, -4377.61, 2265.45, 06.71, 15000, 'complete quest SAY_END');
+
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1060005 AND -1060000;
+INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`, `sound`, `type`, `language`, `emote`, `comment`) VALUES
+(-1060005, 'Cloaking systems online! CLUCK! Engaging cloak for transport to Booty Bay!', NULL, NULL, 'Tarnsysteme online! GLUCK! Tarnung für Transport nach Beutebucht wird aktiviert.', NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 'oox17 SAY_END'),
+(-1060004, 'No one challenges the wastevander nomads -- not even robotic chickens! ATTACK!', NULL, NULL, 'Niemand fordert die Wüsenläufernomaden heraus - auch keine Robothühner! ANGRIFF!', NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 'oox17 SAY_AMBUSH_REPLY'),
+(-1060003, 'CLUCK! Sensors detect spatial anomaly -- danger imminent! CLUCK', NULL, NULL, 'GLUCK! Sensoren haben räumliche Anomalie entdeckt - Gefahr im Verzug! GLUCK!', NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 'oox17 SAY_AMBUSH'),
+(-1060002, 'Threat analyzed! Activating combat plan beta! CLUCK!', NULL, NULL, 'Bedrohung analysiert! Gefechtsplan Beta wird aktiviert! GLUCK!', NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 'oox17 SAY_AGGRO2'),
+(-1060001, 'Physical threat detected! Evasive action! CLUCK!', NULL, NULL, 'Körperliche Bedrohung entdeckt! Ausweichmanöver! GLUCK!', NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 'oox17 SAY_AGGRO1'),
+(-1060000, 'Emergency power activated! Initializing ambulatory motor! CLUCK!', NULL, NULL, 'Notfallenergie aktiviert! Ambulatorenantrieb wird gestartet! GLUCK!', NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 'oox17 SAY_START');

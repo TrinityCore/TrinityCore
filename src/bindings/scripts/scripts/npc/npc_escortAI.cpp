@@ -31,9 +31,17 @@ void npc_escortAI::AttackStart(Unit *who)
     if (IsBeingEscorted && !Defend)
         return;
 
-    if ( m_creature->Attack(who, true) )
+    if(m_creature->Attack(who, true) )
     {
-        m_creature->GetMotionMaster()->MoveChase(who);
+        m_creature->AddThreat(who, 0.0f);
+        m_creature->SetInCombatWith(who);
+        who->SetInCombatWith(m_creature);
+
+        if(CombatMovement)
+        {
+            m_creature->GetMotionMaster()->MovementExpired();
+            m_creature->GetMotionMaster()->MoveChase(who);
+        }
     }
 }
 
@@ -63,6 +71,7 @@ void npc_escortAI::JustRespawned()
 {
     IsBeingEscorted = false;
     IsOnHold = false;
+    CombatMovement = true;
 
     //Re-Enable questgiver flag
     m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
@@ -82,8 +91,12 @@ void npc_escortAI::EnterEvadeMode()
         debug_log("TSCR: EscortAI has left combat and is now returning to last point.");
         Returning = true;
         m_creature->GetMotionMaster()->MovementExpired();
-        m_creature->GetMotionMaster()->MovePoint(WP_LAST_POINT, LastPos.x, LastPos.y, LastPos.z);
 
+        //if default is WAYPOINT_MOTION_TYPE, must MoveIdle to prevent from using
+        if(m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
+            m_creature->GetMotionMaster()->MoveIdle();
+
+        m_creature->GetMotionMaster()->MovePoint(WP_LAST_POINT, LastPos.x, LastPos.y, LastPos.z);
     }
     else
     {
@@ -224,15 +237,16 @@ void npc_escortAI::MovementInform(uint32 type, uint32 id)
         debug_log("TSCR: EscortAI has returned to original position before combat");
         ReconnectWP = true;
         Returning = false;
-        WaitTimer = 1;
 
+        if(!WaitTimer)
+            WaitTimer = 1;
     }
     else
     {
         //Make sure that we are still on the right waypoint
         if (CurrentWP->id != id)
         {
-            debug_log("SD2 ERROR: EscortAI reached waypoint out of order %d, expected %d", id, CurrentWP->id);
+            debug_log("TSCR ERROR: EscortAI reached waypoint out of order %d, expected %d", id, CurrentWP->id);
             return;
         }
 
@@ -294,30 +308,25 @@ void npc_escortAI::SetRun(bool bRun)
     if (bRun)
     {
         if (!bIsRunning)
-        {
             m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
-            bIsRunning = true;
-        }
         else
             debug_log("TSCR: EscortAI attempt to set run mode, but is already running.");
     }
     else
     {
         if (bIsRunning)
-        {
             m_creature->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
-            bIsRunning = false;
-        }
         else
             debug_log("TSCR: EscortAI attempt to set walk mode, but is already walking.");
     }
+    bIsRunning = bRun;
 }
 
 void npc_escortAI::Start(bool bAttack, bool bDefend, bool bRun, uint64 pGUID)
 {
     if (m_creature->isInCombat())
     {
-        debug_log("SD2 ERROR: EscortAI attempt to Start while in combat");
+        debug_log("TSCR ERROR: EscortAI attempt to Start while in combat");
         return;
     }
 
@@ -331,6 +340,13 @@ void npc_escortAI::Start(bool bAttack, bool bDefend, bool bRun, uint64 pGUID)
     {
         error_db_log("TSCR: EscortAI Start with 0 waypoints (possible missing entry in script_waypoint)");
         return;
+    }
+
+    if(m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
+    {
+        m_creature->GetMotionMaster()->MovementExpired();
+        m_creature->GetMotionMaster()->MoveIdle();
+        debug_log("TSCR: EscortAI start with WAYPOINT_MOTION_TYPE, changed to MoveIdle.");
     }
 
     Attack = bAttack;
@@ -362,6 +378,6 @@ void npc_escortAI::Start(bool bAttack, bool bDefend, bool bRun, uint64 pGUID)
     ReconnectWP = false;
     Returning = false;
     IsOnHold = false;
-
+    CombatMovement = true;
 }
 
