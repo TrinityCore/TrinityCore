@@ -34,16 +34,19 @@ EndContentData */
 ## npc_aeranas
 ######*/
 
-#define SAY_SUMMON                      -1000138
-#define SAY_FREE                        -1000139
+enum
+{
+    SAY_SUMMON              = -1000138,
+    SAY_FREE                = -1000139,
 
-#define FACTION_HOSTILE                 16
-#define FACTION_FRIENDLY                35
+    FACTION_HOSTILE         = 16,
+    FACTION_FRIENDLY        = 35,
 
-#define SPELL_ENVELOPING_WINDS          15535
-#define SPELL_SHOCK                     12553
+    SPELL_ENVELOPING_WINDS  = 15535,
+    SPELL_SHOCK             = 12553,
 
-#define C_AERANAS                       17085
+    C_AERANAS               = 17085
+};
 
 struct TRINITY_DLL_DECL npc_aeranasAI : public ScriptedAI
 {
@@ -127,14 +130,17 @@ bool GOHello_go_haaleshi_altar(Player *player, GameObject* _GO)
 ## npc_wounded_blood_elf
 ######*/
 
-#define SAY_ELF_START               -1000117
-#define SAY_ELF_SUMMON1             -1000118
-#define SAY_ELF_RESTING             -1000119
-#define SAY_ELF_SUMMON2             -1000120
-#define SAY_ELF_COMPLETE            -1000121
-#define SAY_ELF_AGGRO               -1000122
+enum
+{
+    SAY_ELF_START               = -1000117,
+    SAY_ELF_SUMMON1             = -1000118,
+    SAY_ELF_RESTING             = -1000119,
+    SAY_ELF_SUMMON2             = -1000120,
+    SAY_ELF_COMPLETE            = -1000121,
+    SAY_ELF_AGGRO               = -1000122,
 
-#define QUEST_ROAD_TO_FALCON_WATCH  9375
+    QUEST_ROAD_TO_FALCON_WATCH  = 9375
+};
 
 struct TRINITY_DLL_DECL npc_wounded_blood_elfAI : public npc_escortAI
 {
@@ -171,8 +177,8 @@ struct TRINITY_DLL_DECL npc_wounded_blood_elfAI : public npc_escortAI
             DoScriptText(SAY_ELF_COMPLETE, m_creature, player);
             // Award quest credit
             Player* player = Unit::GetPlayer(PlayerGUID);
-            if (player && player->GetTypeId() == TYPEID_PLAYER)
-                ((Player*)player)->GroupEventHappens(QUEST_ROAD_TO_FALCON_WATCH,m_creature);
+            if (player)
+                player->GroupEventHappens(QUEST_ROAD_TO_FALCON_WATCH,m_creature);
             break;
         }
     }
@@ -203,8 +209,8 @@ struct TRINITY_DLL_DECL npc_wounded_blood_elfAI : public npc_escortAI
         {
             // If NPC dies, player fails the quest
             Player* player = Unit::GetPlayer(PlayerGUID);
-            if (player && player->GetTypeId() == TYPEID_PLAYER)
-                ((Player*)player)->FailQuest(QUEST_ROAD_TO_FALCON_WATCH);
+            if (player)
+                player->FailQuest(QUEST_ROAD_TO_FALCON_WATCH);
         }
     }
 

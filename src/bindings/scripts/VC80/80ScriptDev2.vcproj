@@ -777,6 +777,10 @@
 				<Filter
 					Name="Dalaran"
 					>
+					<File
+						RelativePath="..\scripts\zone\dragonblight\dragonblight.cpp"
+						>
+					</File>
 				</Filter>
 				<Filter
 					Name="Dragonblight"
@@ -1401,6 +1405,10 @@
 				<Filter
 					Name="Teldrassil"
 					>
+					<File
+						RelativePath="..\scripts\zone\teldrassil\teldrassil.cpp"
+						>
+					</File>
 				</Filter>
 				<Filter
 					Name="Temple of Ahn&apos;Qiraj"
@@ -1854,6 +1862,14 @@
 						</File>
 						<File
 							RelativePath="..\scripts\zone\hellfire_citadel\hellfire_ramparts\boss_watchkeeper_gargolmar.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\hellfire_citadel\hellfire_ramparts\def_hellfire_ramparts.h"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\hellfire_citadel\hellfire_ramparts\instance_hellfire_ramparts.cpp"
 							>
 						</File>
 					</Filter>

@@ -254,6 +254,9 @@ extern void AddSC_instance_deadmines();
 //Deadwind pass
 //Desolace
 //Dire Maul
+
+extern void AddSC_dragonblight();
+
 //Dun Morogh
 extern void AddSC_dun_morogh();
 
@@ -309,6 +312,7 @@ extern void AddSC_instance_shattered_halls();
 extern void AddSC_boss_watchkeeper_gargolmar();
 extern void AddSC_boss_omor_the_unscarred();
 extern void AddSC_boss_vazruden_the_herald();
+extern void AddSC_instance_ramparts();
 
 //Hellfire Peninsula
 extern void AddSC_boss_doomlordkazzak();
@@ -504,6 +508,8 @@ extern void AddSC_sunwell_plateau();
 extern void AddSC_tanaris();
 
 //Teldrassil
+ extern void AddSC_teldrassil();
+ 
 //Tempest Keep
 //--Arcatraz
 extern void AddSC_arcatraz();
@@ -1130,6 +1136,9 @@ void ScriptsInit(char const* cfg_file = "trinitycore.conf")
     //Deadwind pass
     //Desolace
     //Dire Maul
+
+    AddSC_dragonblight();
+
     //Dun Morogh
     AddSC_dun_morogh();
 
@@ -1185,6 +1194,7 @@ void ScriptsInit(char const* cfg_file = "trinitycore.conf")
     AddSC_boss_watchkeeper_gargolmar();
     AddSC_boss_omor_the_unscarred();
     AddSC_boss_vazruden_the_herald();
+    AddSC_instance_ramparts();
 
     //Hellfire Peninsula
     AddSC_boss_doomlordkazzak();
@@ -1380,6 +1390,8 @@ void ScriptsInit(char const* cfg_file = "trinitycore.conf")
     AddSC_tanaris();
 
     //Teldrassil
+    AddSC_teldrassil();
+
     //Tempest Keep
     //--Arcatraz
     AddSC_arcatraz();

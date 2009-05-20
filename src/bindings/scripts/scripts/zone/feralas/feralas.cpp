@@ -133,7 +133,7 @@ struct TRINITY_DLL_DECL npc_oox22feAI : public npc_escortAI
         }
     }
 
-    void Aggro(Unit* who)
+    void EnterCombat(Unit* who)
     {
         //For an small probability the npc says something when he get aggro
         switch(rand()%10)

@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Eversong_Woods
 SD%Complete: 100
-SDComment: Quest support: 8483, 8488, 8490
+SDComment: Quest support: 8483, 8488, 8490, 9686
 SDCategory: Eversong Woods
 EndScriptData */
 
@@ -25,6 +25,8 @@ EndScriptData */
 npc_prospector_anvilward
 npc_apprentice_mirveda
 npc_infused_crystal
+npc_kelerun_bloodmourn
+go_harbinger_second_trial
 EndContentData */
 
 #include "precompiled.h"
