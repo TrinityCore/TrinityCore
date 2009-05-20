@@ -573,42 +573,14 @@ void Unit::DealDamageMods(Unit *pVictim, uint32 &damage, uint32* absorb)
 
 uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDamage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask, SpellEntry const *spellProto, bool durabilityLoss)
 {
-    if( pVictim->GetTypeId()== TYPEID_UNIT)
-    {
-        if(((Creature *)pVictim)->IsAIEnabled)
-            ((Creature *)pVictim)->AI()->DamageTaken(this, damage);
-
-        // Set tagging
-        if(!pVictim->HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_OTHER_TAGGER) && !((Creature*)pVictim)->isPet())
-        {
-            //Set Loot
-            switch(GetTypeId())
-            {
-                case TYPEID_PLAYER:
-                {
-                    ((Creature *)pVictim)->SetLootRecipient(this);
-                    //Set tagged
-                    ((Creature *)pVictim)->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_OTHER_TAGGER);
-                    break;
-                }
-                case TYPEID_UNIT:
-                {
-                    if(((Creature*)this)->isPet())
-                    {
-                        ((Creature *)pVictim)->SetLootRecipient(this->GetOwner());
-                        ((Creature *)pVictim)->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_OTHER_TAGGER);
-                    }
-                    break;
-                }
-            }
-        }
-    }
+    if(pVictim->GetTypeId() == TYPEID_UNIT && ((Creature*)pVictim)->IsAIEnabled)
+        ((Creature*)pVictim)->AI()->DamageTaken(this, damage);
 
     if (damagetype != NODAMAGE)
     {
-       // interrupting auras with AURA_INTERRUPT_FLAG_DAMAGE before checking !damage (absorbed damage breaks that type of auras)
-       pVictim->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_DAMAGE, spellProto ? spellProto->Id : 0);
-       pVictim->RemoveSpellbyDamageTaken(damage, spellProto ? spellProto->Id : 0);
+        // interrupting auras with AURA_INTERRUPT_FLAG_DAMAGE before checking !damage (absorbed damage breaks that type of auras)
+        pVictim->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_DAMAGE, spellProto ? spellProto->Id : 0);
+        pVictim->RemoveSpellbyDamageTaken(damage, spellProto ? spellProto->Id : 0);
     }
 
     if(!damage)
@@ -713,13 +685,13 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
 
     if (pVictim->GetTypeId() == TYPEID_PLAYER)
         ((Player*)pVictim)->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HIT_RECEIVED, damage);
-
-    if (pVictim->GetTypeId() == TYPEID_UNIT && !((Creature*)pVictim)->isPet())
+    else if(!pVictim->IsControlledByPlayer()) 
     {
+        //!pVictim->HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_OTHER_TAGGER)
         if(!((Creature*)pVictim)->hasLootRecipient())
             ((Creature*)pVictim)->SetLootRecipient(this);
 
-        if(GetCharmerOrOwnerPlayerOrPlayerItself())
+        if(IsControlledByPlayer())
             ((Creature*)pVictim)->AddDamageByPlayers(health < damage ?  health : damage);
     }
     
