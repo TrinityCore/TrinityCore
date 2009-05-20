@@ -26,7 +26,6 @@ npc_draenei_survivor
 npc_engineer_spark_overgrind
 npc_injured_draenei
 npc_magwin
-npc_susurrus
 npc_geezle
 mob_nestlewood_owlkin
 EndContentData */
@@ -388,41 +387,6 @@ CreatureAI* GetAI_npc_magwinAI(Creature* pCreature)
 }
 
 /*######
-## npc_susurrus
-######*/
-
-bool GossipHello_npc_susurrus(Player *player, Creature *_Creature)
-{
-    if (_Creature->isQuestGiver())
-        player->PrepareQuestMenu( _Creature->GetGUID() );
-
-    if (player->HasItemCount(23843,1,true))
-        player->ADD_GOSSIP_ITEM(0, "I am ready.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-
-    player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
-
-    return true;
-}
-
-bool GossipSelect_npc_susurrus(Player *player, Creature *_Creature, uint32 sender, uint32 action )
-{
-    if (action == GOSSIP_ACTION_INFO_DEF)
-    {
-        player->CLOSE_GOSSIP_MENU();
-        player->CastSpell(player,32474,true);               //apparently correct spell, possible not correct place to cast, or correct caster
-
-        std::vector<uint32> nodes;
-
-        nodes.resize(2);
-        nodes[0] = 92;                                      //from susurrus
-        nodes[1] = 91;                                      //end at exodar
-//        player->ActivateTaxiPathTo(nodes,11686);            //TaxiPath 506. Using invisible model, possible Trinity must allow 0(from dbc) for cases like this.
-        player->ActivateTaxiPathTo(nodes);
-    }
-    return true;
-}
-
-/*######
 ## npc_geezle
 ######*/
 
@@ -643,12 +607,6 @@ void AddSC_azuremyst_isle()
     newscript->Name = "npc_magwin";
     newscript->GetAI = &GetAI_npc_magwinAI;
     newscript->pQuestAccept = &QuestAccept_npc_magwin;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name="npc_susurrus";
-    newscript->pGossipHello =  &GossipHello_npc_susurrus;
-    newscript->pGossipSelect = &GossipSelect_npc_susurrus;
     newscript->RegisterSelf();
 
     newscript = new Script;

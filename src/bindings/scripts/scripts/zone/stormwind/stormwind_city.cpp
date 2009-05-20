@@ -27,7 +27,6 @@ npc_bartleby
 npc_dashel_stonefist
 npc_general_marcus_jonathan
 npc_lady_katrana_prestor
-npc_harbor_taxi
 EndContentData */
 
 #include "precompiled.h"
@@ -239,28 +238,6 @@ bool GossipSelect_npc_lady_katrana_prestor(Player *player, Creature *_Creature, 
     return true;
 }
 
-/*######
-## npc_harbor_taxi
-######*/
-
-#define GOSSIP_STORMWIND "I'd like to take a flight around Stormwind Harbor."
-
-bool GossipHello_npc_stormwind_harbor_taxi(Player *player, Creature *_Creature)
-{
-    player->ADD_GOSSIP_ITEM(0, GOSSIP_STORMWIND, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 10);
-    player->SEND_GOSSIP_MENU(13454,_Creature->GetGUID());
-    return true;
-}
-
-bool GossipSelect_npc_stormwind_harbor_taxi(Player *player, Creature *_Creature, uint32 sender, uint32 action )
-{
-    if (action == GOSSIP_ACTION_INFO_DEF + 10)
-    {
-        player->GetSession()->SendDoFlight(1149, 1041);
-    }
-    return true;
-}
-
 void AddSC_stormwind_city()
 {
     Script *newscript;
@@ -292,12 +269,6 @@ void AddSC_stormwind_city()
     newscript->Name="npc_lady_katrana_prestor";
     newscript->pGossipHello = &GossipHello_npc_lady_katrana_prestor;
     newscript->pGossipSelect = &GossipSelect_npc_lady_katrana_prestor;
-    newscript->RegisterSelf();
-	
-    newscript = new Script;
-    newscript->Name="npc_stormwind_harbor_taxi";
-    newscript->pGossipHello = &GossipHello_npc_stormwind_harbor_taxi;
-    newscript->pGossipSelect = &GossipSelect_npc_stormwind_harbor_taxi;
     newscript->RegisterSelf();
 }
 

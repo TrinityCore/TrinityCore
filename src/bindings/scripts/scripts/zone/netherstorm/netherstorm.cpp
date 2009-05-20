@@ -25,8 +25,6 @@ EndScriptData */
 npc_manaforge_control_console
 go_manaforge_control_console
 npc_commander_dawnforge
-npc_protectorate_nether_drake
-npc_veronia
 npc_bessy
 EndContentData */
 
@@ -669,39 +667,6 @@ bool AreaTrigger_at_commander_dawnforge(Player *player, AreaTriggerEntry *at)
 }
 
 /*######
-## npc_protectorate_nether_drake
-######*/
-
-#define GOSSIP_ITEM "I'm ready to fly! Take me up, dragon!"
-
-bool GossipHello_npc_protectorate_nether_drake(Player *player, Creature *_Creature)
-{
-    //On Nethery Wings
-    if (player->GetQuestStatus(10438) == QUEST_STATUS_INCOMPLETE && player->HasItemCount(29778,1) )
-        player->ADD_GOSSIP_ITEM(0, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-    player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
-
-    return true;
-}
-
-bool GossipSelect_npc_protectorate_nether_drake(Player *player, Creature *_Creature, uint32 sender, uint32 action )
-{
-    if (action == GOSSIP_ACTION_INFO_DEF+1)
-    {
-        player->CLOSE_GOSSIP_MENU();
-
-        std::vector<uint32> nodes;
-
-        nodes.resize(2);
-        nodes[0] = 152;                                     //from drake
-        nodes[1] = 153;                                     //end at drake
-        player->ActivateTaxiPathTo(nodes);                  //TaxiPath 627 (possibly 627+628(152->153->154->155) )
-    }
-    return true;
-}
-
-/*######
 ## npc_professor_dabiri
 ######*/
 
@@ -741,36 +706,6 @@ bool QuestAccept_npc_professor_dabiri(Player *player, Creature *creature, Quest 
     if(quest->GetQuestId() == QUEST_DIMENSIUS)
         DoScriptText(WHISPER_DABIRI, creature, player);
 
-    return true;
-}
-
-/*######
-## npc_veronia
-######*/
-
-#define GOSSIP_HV "Fly me to Manaforge Coruu please"
-
-bool GossipHello_npc_veronia(Player *player, Creature *_Creature)
-{
-    if (_Creature->isQuestGiver())
-        player->PrepareQuestMenu( _Creature->GetGUID() );
-
-    //Behind Enemy Lines
-    if (player->GetQuestStatus(10652) && !player->GetQuestRewardStatus(10652))
-        player->ADD_GOSSIP_ITEM(0, GOSSIP_HV, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-
-    player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
-
-    return true;
-}
-
-bool GossipSelect_npc_veronia(Player *player, Creature *_Creature, uint32 sender, uint32 action )
-{
-    if (action == GOSSIP_ACTION_INFO_DEF)
-    {
-        player->CLOSE_GOSSIP_MENU();
-        player->CastSpell(player,34905,true);               //TaxiPath 606
-    }
     return true;
 }
 
@@ -1038,22 +973,10 @@ void AddSC_netherstorm()
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_protectorate_nether_drake";
-    newscript->pGossipHello =   &GossipHello_npc_protectorate_nether_drake;
-    newscript->pGossipSelect =  &GossipSelect_npc_protectorate_nether_drake;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
     newscript->Name = "npc_professor_dabiri";
     newscript->pGossipHello =   &GossipHello_npc_professor_dabiri;
     newscript->pGossipSelect =  &GossipSelect_npc_professor_dabiri;
     newscript->pQuestAccept = &QuestAccept_npc_professor_dabiri;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name="npc_veronia";
-    newscript->pGossipHello =   &GossipHello_npc_veronia;
-    newscript->pGossipSelect =  &GossipSelect_npc_veronia;
     newscript->RegisterSelf();
 
     newscript = new Script;
