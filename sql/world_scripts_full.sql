@@ -403,6 +403,9 @@ UPDATE `gameobject_template` SET `ScriptName`='go_defias_cannon' WHERE `entry`=1
 UPDATE `gameobject_template` SET `ScriptName`='go_door_lever_dm' WHERE `entry`=101833;
 UPDATE `gameobject_template` SET `ScriptName`='go_main_chambers_access_panel' WHERE `entry` IN (184125,184126);
 
+/* DRAGONBLIGHT */
+UPDATE `creature_template` SET `ScriptName`='npc_alexstrasza_wr_gate' WHERE `entry`=31333;
+
 /* DEADWIND PASS */
 
 /* DESOLACE */
@@ -479,6 +482,8 @@ UPDATE `creature_template` SET `ScriptName`='mob_broggok_poisoncloud' WHERE `ent
 UPDATE `creature_template` SET `ScriptName`='mob_shadowmoon_channeler' WHERE `entry`=17653;
 
 /* HELLFIRE RAMPARTS */
+UPDATE `instance_template` SET `script`='instance_ramparts' WHERE `map`=543;
+
 /* Vazruden,Omor the Unscarred,Watchkeeper Gargolmar */
 UPDATE `creature_template` SET `ScriptName`='boss_omor_the_unscarred' WHERE `entry`=17308;
 UPDATE `creature_template` SET `ScriptName`='boss_watchkeeper_gargolmar' WHERE `entry`=17306;
@@ -848,6 +853,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_stone_watcher_of_norgannon' WHE
 UPDATE `creature_template` SET `ScriptName`='npc_OOX17' WHERE `entry`=7784;
 
 /* TELDRASSIL */
+UPDATE `creature_template` SET `ScriptName`='npc_mist' WHERE `entry`=3568;
 
 /* TEMPEST KEEP */
 
