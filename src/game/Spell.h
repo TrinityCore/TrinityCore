@@ -568,6 +568,7 @@ class Spell
             SpellMissInfo reflectResult:8;
             uint8  effectMask:8;
             bool   processed:1;
+            bool   alive:1; 
             int32  damage;
         };
         std::list<TargetInfo> m_UniqueTargetInfo;
