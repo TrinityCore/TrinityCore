@@ -27,7 +27,6 @@ mob_infested_root_walker
 mob_rotting_forest_rager
 mob_netherweb_victim
 npc_floon
-npc_skyguard_handler_deesak
 npc_isla_starmane
 EndContentData */
 
@@ -329,35 +328,6 @@ bool GossipSelect_npc_floon(Player *player, Creature *_Creature, uint32 sender, 
 }
 
 /*######
-## npc_skyguard_handler_deesak
-######*/
-
-#define GOSSIP_SKYGUARD "Fly me to Ogri'la please"
-
-bool GossipHello_npc_skyguard_handler_deesak(Player *player, Creature *_Creature )
-{
-    if (_Creature->isQuestGiver())
-        player->PrepareQuestMenu( _Creature->GetGUID() );
-
-    if (player->GetReputationRank(1031) >= REP_HONORED)
-        player->ADD_GOSSIP_ITEM( 2, GOSSIP_SKYGUARD, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-    player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
-
-    return true;
-}
-
-bool GossipSelect_npc_skyguard_handler_deesak(Player *player, Creature *_Creature, uint32 sender, uint32 action )
-{
-    if (action == GOSSIP_ACTION_INFO_DEF+1)
-    {
-        player->CLOSE_GOSSIP_MENU();
-        player->CastSpell(player,41279,true);               //TaxiPath 705 (Taxi - Skettis to Skyguard Outpost)
-    }
-    return true;
-}
-
-/*######
 ## npc_isla_starmane
 ######*/
 
@@ -570,12 +540,6 @@ void AddSC_terokkar_forest()
     newscript->Name="npc_floon";
     newscript->pGossipHello =  &GossipHello_npc_floon;
     newscript->pGossipSelect = &GossipSelect_npc_floon;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name="npc_skyguard_handler_deesak";
-    newscript->pGossipHello =  &GossipHello_npc_skyguard_handler_deesak;
-    newscript->pGossipSelect = &GossipSelect_npc_skyguard_handler_deesak;
     newscript->RegisterSelf();
 
     newscript = new Script;
