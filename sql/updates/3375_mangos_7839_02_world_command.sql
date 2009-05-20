@@ -1,4 +1,4 @@
--- ALTER TABLE db_version CHANGE COLUMN required_7839_01_mangos_mangos_string required_7839_02_mangos_command bit;
+/* ALTER TABLE db_version CHANGE COLUMN required_7839_01_mangos_mangos_string required_7839_02_mangos_command bit;*/
 
 DELETE FROM `command` WHERE `name` IN (
    'baninfo account','baninfo character','baninfo ip','goname','groupgo',

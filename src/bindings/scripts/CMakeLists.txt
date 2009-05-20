@@ -32,6 +32,7 @@ SET(trinityscript_LIB_SRCS
    scripts/npc/npc_innkeeper.cpp
    scripts/npc/npc_professions.cpp
    scripts/npc/npcs_special.cpp
+   scripts/npc/npc_taxi.cpp
    scripts/zone/arathi_highlands/arathi_highlands.cpp
    scripts/zone/alterac_mountains/alterac_mountains.cpp
    scripts/zone/ashenvale_forest/ashenvale.cpp
