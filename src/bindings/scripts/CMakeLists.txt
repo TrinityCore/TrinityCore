@@ -149,6 +149,7 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/darkshore/darkshore.cpp
    scripts/zone/deadmines/def_deadmines.h
    scripts/zone/deadmines/deadmines.cpp
+   scripts/zone/dragonblight/dragonblight.cpp
    scripts/zone/dun_morogh/dun_morogh.cpp
    scripts/zone/dustwallow_marsh/dustwallow_marsh.cpp
    scripts/zone/eastern_plaguelands/eastern_plaguelands.cpp
@@ -170,6 +171,8 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/hellfire_citadel/hellfire_ramparts/boss_omor_the_unscarred.cpp
    scripts/zone/hellfire_citadel/hellfire_ramparts/boss_watchkeeper_gargolmar.cpp
    scripts/zone/hellfire_citadel/hellfire_ramparts/boss_vazruden_the_herald.cpp
+   scripts/zone/hellfire_citadel/hellfire_ramparts/def_hellfire_ramparts.h
+   scripts/zone/hellfire_citadel/hellfire_ramparts/instance_hellfire_ramparts.cpp
    scripts/zone/hellfire_citadel/magtheridons_lair/boss_magtheridon.cpp
    scripts/zone/hellfire_citadel/magtheridons_lair/def_magtheridons_lair.h
    scripts/zone/hellfire_citadel/magtheridons_lair/instance_magtheridons_lair.cpp
@@ -315,6 +318,7 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/sunwell_plateau/def_sunwell_plateau.h
    scripts/zone/sunwell_plateau/instance_sunwell_plateau.cpp
    scripts/zone/tanaris/tanaris.cpp
+   scrips/zone/teldrassil/teldrassil.cpp
    scripts/zone/tempest_keep/arcatraz/arcatraz.cpp
    scripts/zone/tempest_keep/arcatraz/boss_harbinger_skyriss.cpp
    scripts/zone/tempest_keep/arcatraz/def_arcatraz.h
