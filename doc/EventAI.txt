@@ -1,6 +1,6 @@
-=========================================
-EventAI documentation
-=========================================
+=============================================
+EventAI documentation: (Updated May 19, 2009)
+=============================================
 
 EventAI allows users to create new creature scripts entierly within the database.
 
@@ -67,7 +67,7 @@ Some events such as EVENT_T_AGGRO, EVENT_T_DEATH, EVENT_T_SPAWNED, and EVENT_T_E
 5    EVENT_T_KILL                RepeatMin, RepeatMax                                    Expires upon killing a player. Will repeat between every (Param1) and (Param2).
 6    EVENT_T_DEATH               NONE                                                    Expires upon Death of the Creature. 
 7    EVENT_T_EVADE               NONE                                                    Expires upon creature EnterEvadeMode().
-8    EVENT_T_SPELLHIT            SpellID, School, RepeatMin, RepeatMax                   Expires upon Spell hit. If (param1) is set will only expire on that spell. If (param2) will only expire on spells of that school (-1 for all). Will repeat every (Param3) and (Param4) .
+8    EVENT_T_SPELLHIT            SpellID, Schoolmask, RepeatMin, RepeatMax               Expires upon Spell hit. If (param1) is set will only expire on that spell. If (param2) will only expire on spells of the selected schools (-1 for all). Will repeat every (Param3) and (Param4) .
 9    EVENT_T_RANGE               MinDist, MaxDist, RepeatMin, RepeatMax                  Expires when the highest threat target distance is greater than (Param1) and less than (Param2). Will repeat every (Param3) and (Param4) .
 10   EVENT_T_OOC_LOS             Hostile-or-Not, MaxAllowedRange, RepeatMin, RepeatMax   Expires when a Unit moves within distance(MaxAllowedRange) to creature. If Param1=0 it will expire if Unit are Hostile. If Param1=1 it will only expire if Unit are not Hostile(generally determined by faction). Will repeat every (Param3) and (Param4). Does not expire when the creature is in combat.
 11   EVENT_T_SPAWNED             NONE                                                    Expires at initial spawn and at creature respawn (useful for setting ranged movement type)
@@ -219,8 +219,18 @@ Parameter 2: School - Spell School to trigger the event (NOTE: If you use a Spel
 Parameter 3: RepeatMin - Minimum Time used to calculate Random Repeat Expire
 Parameter 4: RepeatMax - Maximum Time used to calculate Random Repeat Expire
 
-BOTH - Expires upon Spell hit. If (param1) is set will only expire on that spell. If (param2) will only expire on spells of that school. Will repeat every (Param3) and (Param4).
+BOTH - Expires upon Spell hit. If (param1) is set will only expire on that spell OR If (param2) is set it will only expire on spells of that school. Will repeat every (Param3) and (Param4).
 This Event is commonly used for NPC's who can do special things when you cast a spell (Or specific spell) on them.
+
+(name, school, schoolmask)
+SPELL_SCHOOL_NORMAL = 0, ==> 1
+SPELL_SCHOOL_HOLY   = 1, ==> 2
+SPELL_SCHOOL_FIRE   = 2, ==> 4
+SPELL_SCHOOL_NATURE = 3, ==> 8
+SPELL_SCHOOL_FROST  = 4, ==> 16
+SPELL_SCHOOL_SHADOW = 5, ==> 32
+SPELL_SCHOOL_ARCANE = 6, ==> 64
+Use These Values For Schoolmask (Param2) or Any Combinations Of These Schoolmasks for Multiple Schools.
 
 ------------------
 9 = EVENT_T_RANGE:
