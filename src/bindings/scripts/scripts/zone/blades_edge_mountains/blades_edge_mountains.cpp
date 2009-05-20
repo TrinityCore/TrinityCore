@@ -27,7 +27,6 @@ mobs_nether_drake
 npc_daranelle
 npc_overseer_nuaar
 npc_saikkal_the_elder
-npc_skyguard_handler_irena
 go_legion_obelisk
 EndContentData */
 
@@ -331,35 +330,6 @@ bool GossipSelect_npc_saikkal_the_elder(Player *player, Creature *_Creature, uin
 }
 
 /*######
-## npc_skyguard_handler_irena
-######*/
-
-#define GOSSIP_SKYGUARD "Fly me to Skettis please"
-
-bool GossipHello_npc_skyguard_handler_irena(Player *player, Creature *_Creature )
-{
-    if (_Creature->isQuestGiver())
-        player->PrepareQuestMenu( _Creature->GetGUID() );
-
-    if (player->GetReputationRank(1031) >= REP_HONORED)
-        player->ADD_GOSSIP_ITEM( 2, GOSSIP_SKYGUARD, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-    player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
-
-    return true;
-}
-
-bool GossipSelect_npc_skyguard_handler_irena(Player *player, Creature *_Creature, uint32 sender, uint32 action )
-{
-    if (action == GOSSIP_ACTION_INFO_DEF+1)
-    {
-        player->CLOSE_GOSSIP_MENU();
-        player->CastSpell(player,41278,true);               //TaxiPath 706
-    }
-    return true;
-}
-
-/*######
 ## go_legion_obelisk
 ######*/
 
@@ -439,12 +409,6 @@ void AddSC_blades_edge_mountains()
     newscript = new Script;
     newscript->Name="go_legion_obelisk";
     newscript->pGOHello =           &GOHello_go_legion_obelisk;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name="npc_skyguard_handler_irena";
-    newscript->pGossipHello =  &GossipHello_npc_skyguard_handler_irena;
-    newscript->pGossipSelect = &GossipSelect_npc_skyguard_handler_irena;
     newscript->RegisterSelf();
 }
 

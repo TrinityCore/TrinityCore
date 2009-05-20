@@ -22,7 +22,6 @@ SDCategory: Caverns of Time, Old Hillsbrad Foothills
 EndScriptData */
 
 /* ContentData
-npc_brazen
 npc_erozion
 npc_thrall_old_hillsbrad
 npc_taretha
@@ -37,38 +36,6 @@ EndContentData */
 #define QUEST_ENTRY_ESCAPE      10284
 #define QUEST_ENTRY_RETURN      10285
 #define ITEM_ENTRY_BOMBS        25853
-
-/*######
-## npc_brazen
-######*/
-
-bool GossipHello_npc_brazen(Player *player, Creature *_Creature)
-{
-    player->ADD_GOSSIP_ITEM(0, "I am ready to go to Durnholde Keep.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-    player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
-    return true;
-}
-
-bool GossipSelect_npc_brazen(Player *player, Creature *_Creature, uint32 sender, uint32 action )
-{
-    if (action == GOSSIP_ACTION_INFO_DEF+1)
-    {
-        if( !player->HasItemCount(ITEM_ENTRY_BOMBS,1) )
-            player->SEND_GOSSIP_MENU(9780, _Creature->GetGUID());
-        else
-        {
-            player->CLOSE_GOSSIP_MENU();
-
-            std::vector<uint32> nodes;
-
-            nodes.resize(2);
-            nodes[0] = 115;                                 //from brazen
-            nodes[1] = 116;                                 //end outside durnholde
-            player->ActivateTaxiPathTo(nodes);              //TaxiPath 534
-        }
-    }
-    return true;
-}
 
 /*######
 ## npc_erozion
@@ -696,12 +663,6 @@ bool GossipSelect_npc_taretha(Player *player, Creature *_Creature, uint32 sender
 void AddSC_old_hillsbrad()
 {
     Script *newscript;
-
-    newscript = new Script;
-    newscript->Name="npc_brazen";
-    newscript->pGossipHello =   &GossipHello_npc_brazen;
-    newscript->pGossipSelect =  &GossipSelect_npc_brazen;
-    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_erozion";
