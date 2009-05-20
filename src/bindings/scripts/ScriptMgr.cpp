@@ -77,6 +77,7 @@ extern void AddSC_item_scripts();
 // -- NPC --
 extern void AddSC_npc_professions();
 extern void AddSC_npcs_special();
+extern void AddSC_npc_taxi();
 
 // -- Servers --
 
@@ -953,6 +954,7 @@ void ScriptsInit(char const* cfg_file = "trinitycore.conf")
     // -- NPC --
     AddSC_npc_professions();
     AddSC_npcs_special();
+    AddSC_npc_taxi();
 
     // -- Servers --
 

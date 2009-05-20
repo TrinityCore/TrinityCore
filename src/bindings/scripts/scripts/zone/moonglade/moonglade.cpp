@@ -71,12 +71,7 @@ bool GossipSelect_npc_bunthen_plainswind(Player *player, Creature *_Creature, ui
             player->CLOSE_GOSSIP_MENU();
             if (player->getClass() == CLASS_DRUID && player->GetTeam() == HORDE)
             {
-                std::vector<uint32> nodes;
-
-                nodes.resize(2);
-                nodes[0] = 63;                              // Nighthaven, Moonglade
-                nodes[1] = 22;                              // Thunder Bluff, Mulgore
-                player->ActivateTaxiPathTo(nodes);
+                player->ActivateTaxiPathTo(316);
             }
             break;
         }
@@ -177,14 +172,7 @@ bool GossipSelect_npc_silva_filnaveth(Player *player, Creature *_Creature, uint3
         {
             player->CLOSE_GOSSIP_MENU();
             if (player->getClass() == CLASS_DRUID && player->GetTeam() == ALLIANCE)
-            {
-                std::vector<uint32> nodes;
-
-                nodes.resize(2);
-                nodes[0] = 62;                              // Nighthaven, Moonglade
-                nodes[1] = 27;                              // Rut'theran Village, Teldrassil
-                player->ActivateTaxiPathTo(nodes);
-            }
+                player->ActivateTaxiPathTo(315);
             break;
         }
         case GOSSIP_ACTION_INFO_DEF + 2:
