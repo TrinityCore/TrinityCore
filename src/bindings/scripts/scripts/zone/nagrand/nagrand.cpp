@@ -333,13 +333,7 @@ bool QuestAccept_npc_altruis_the_sufferer(Player *player, Creature *creature, Qu
     if ( !player->GetQuestRewardStatus(9991) )              //Survey the Land, q-id 9991
     {
         player->CLOSE_GOSSIP_MENU();
-
-        std::vector<uint32> nodes;
-
-        nodes.resize(2);
-        nodes[0] = 113;                                     //from
-        nodes[1] = 114;                                     //end at
-        player->ActivateTaxiPathTo(nodes);                  //TaxiPath 532
+        player->ActivateTaxiPathTo(532);                  //TaxiPath 532
     }
     return true;
 }

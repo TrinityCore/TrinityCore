@@ -622,15 +622,7 @@ bool GossipSelect_npc_oronok_tornheart(Player *player, Creature *_Creature, uint
 bool QuestAccept_npc_karynaku(Player* player, Creature* creature, Quest const* quest)
 {
     if(quest->GetQuestId() == 10870)                        // Ally of the Netherwing
-    {
-        std::vector<uint32> nodes;
-
-        nodes.resize(2);
-        nodes[0] = 161;                                     // From Karynaku
-        nodes[1] = 162;                                     // To Mordenai
-        error_log("TSCR: Player %s started quest 10870 which has disabled taxi node, need to be fixed in core", player->GetName());
-        //player->ActivateTaxiPathTo(nodes, 20811);
-    }
+        player->ActivateTaxiPathTo(649);
 
     return true;
 }
