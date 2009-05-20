@@ -1,4 +1,4 @@
-DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (-28169,28732,54097);
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (28732,54097,-29865,-55053,-28169,28059,39088,-28059,-39088,28062,39090,28084,39091,-28084,-39091,28085,39093);
 INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comment`) VALUES
 ( 28732,-28798,  1, 'Widow\'s Embrace - Frenzy'),
 ( 54097,-54100,  1, 'Widow\'s Embrace - Frenzy (H)'),
