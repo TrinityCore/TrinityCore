@@ -99,7 +99,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_snake_trap_serpents' WHERE `ent
 UPDATE `creature_template` SET `ScriptName`='npc_unworthy_initiate' WHERE `entry` IN (29519,29520,29565,29566,29567);
 UPDATE `creature_template` SET `ScriptName`='npc_unworthy_initiate_anchor' WHERE `entry`=29521;
 UPDATE `creature_template` SET `ScriptName`='npc_kingdom_of_dalaran_quests' WHERE `entry` IN (29169,23729,26673,27158,29158,29161,26471,29155,29159,29160,29162);
-UPDATE `creature_template` SET `ScriptName`='npc_taxi' WHERE `entry` IN (17435, 23413, 18725, 19401, 19409, 20235, 25059, 25236, 20903, 20162, 29154, 23415);
+UPDATE `creature_template` SET `ScriptName`='npc_taxi' WHERE `entry` IN (17435, 23413, 18725, 19401, 19409, 20235, 25059, 25236, 20903, 20162, 29154, 23415, 27575, 26443, 26949);
 
 /*  */
 /* ZONE */
