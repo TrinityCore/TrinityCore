@@ -117,6 +117,12 @@ bool GossipHello_npc_taxi(Player *player, Creature *_Creature)
         // top -> ground
         player->ADD_GOSSIP_ITEM(0, "Yes, Please. I would like to return to the ground floor of the temple.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 22);
         break;
+    case 23816: // Howling Fjord - Bat Handler Camille
+        if (!player->GetQuestRewardStatus(11229))
+            player->ADD_GOSSIP_ITEM(0, "I need to fly to the Windrunner Official business!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 23);
+        if (player->GetQuestStatus(11170) == QUEST_STATUS_INCOMPLETE)
+            player->ADD_GOSSIP_ITEM(0, "I need to commandeer a riding bat for special assignment for us.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 24);
+        break;
     }
 
     player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
@@ -222,6 +228,14 @@ bool GossipSelect_npc_taxi(Player *player, Creature *_Creature, uint32 sender, u
     case GOSSIP_ACTION_INFO_DEF + 22:
         player->CLOSE_GOSSIP_MENU();
         player->ActivateTaxiPathTo(879);
+        break;
+    case GOSSIP_ACTION_INFO_DEF + 23:
+        player->CLOSE_GOSSIP_MENU();
+        player->CastSpell(player,43074,true);               //TaxiPath 736
+        break;
+    case GOSSIP_ACTION_INFO_DEF + 24:
+        player->CLOSE_GOSSIP_MENU();
+        player->ActivateTaxiPathTo(738);
         break;
     }
 
