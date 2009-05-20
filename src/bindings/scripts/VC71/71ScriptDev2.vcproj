@@ -293,6 +293,10 @@
 					RelativePath="..\scripts\npc\npcs_special.cpp"
 					>
 				</File>
+                <File
+                    RelativePath="..\scripts\npc\npc_taxi.cpp"
+                    >
+                </File>
 			</Filter>
 			<Filter
 				Name="servers"
