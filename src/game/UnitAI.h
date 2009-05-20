@@ -25,6 +25,8 @@
 
 class Unit;
 class Player;
+struct AISpellInfoType;
+enum SelectAggroTarget;
 
 class TRINITY_DLL_SPEC UnitAI
 {
@@ -43,10 +45,23 @@ class TRINITY_DLL_SPEC UnitAI
         virtual void OnCharmed(bool apply) = 0;
 
         // Pass parameters between AI
-        virtual void DoAction(const int32 param) {}
+        virtual void DoAction(const int32 param = 0) {}
+        virtual void SetGUID(const uint64 &guid, const int32 param = 0) {}
 
-        //Do melee swing of current victim if in rnage and ready and not casting
+        Unit* SelectTarget(SelectAggroTarget target, uint32 position = 0, float dist = 0, bool playerOnly = false, int32 aura = 0);
+        void SelectTargetList(std::list<Unit*> &targetList, uint32 num, SelectAggroTarget target, float dist = 0, bool playerOnly = false, int32 aura = 0);
+
+        void AttackStartCaster(Unit *victim, float dist);
+
+        void DoCast(uint32 spellId);
+        void DoCast(Unit* victim, uint32 spellId, bool triggered = false);
+        void DoCastAOE(uint32 spellId, bool triggered = false);
+
         void DoMeleeAttackIfReady();
+        bool DoSpellAttackIfReady(uint32 spell);
+
+        static AISpellInfoType *AISpellInfo;
+        static void FillAISpellInfo();
 };
 
 class TRINITY_DLL_SPEC PlayerAI : public UnitAI

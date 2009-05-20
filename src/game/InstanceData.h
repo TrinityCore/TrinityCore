@@ -158,7 +158,7 @@ class TRINITY_DLL_SPEC InstanceData
         //use HandleGameObject(GUID,boolen,NULL); in any other script
         void HandleGameObject(uint64 GUID, bool open, GameObject *go = NULL);
 
-        virtual void SetBossState(uint32 id, EncounterState state);
+        virtual bool SetBossState(uint32 id, EncounterState state);
         const BossBoundaryMap * GetBossBoundary(uint32 id) const { return id < bosses.size() ? &bosses[id].boundary : NULL; }
     protected:
         void SetBossNumber(uint32 number) { bosses.resize(number); }

@@ -29,7 +29,6 @@ class Unit;
 class Creature;
 class Player;
 struct SpellEntry;
-struct AISpellInfoType;
 
 #define TIME_INTERVAL_LOOK   5000
 #define VISIBILITY_RANGE    10000
@@ -59,16 +58,6 @@ enum SelectEffect
     SELECT_EFFECT_AURA,                                     //Spell applies an aura
 };
 
-//Selection method used by SelectTarget
-enum SelectAggroTarget
-{
-    SELECT_TARGET_RANDOM = 0,                               //Just selects a random target
-    SELECT_TARGET_TOPAGGRO,                                 //Selects targes from top aggro to bottom
-    SELECT_TARGET_BOTTOMAGGRO,                              //Selects targets from bottom aggro to top
-    SELECT_TARGET_NEAREST,
-    SELECT_TARGET_FARTHEST,
-};
-
 enum SCEquip
 {
     EQUIP_NO_CHANGE = -1,
@@ -84,6 +73,8 @@ class TRINITY_DLL_SPEC CreatureAI : public UnitAI
         bool UpdateVictim();
         bool UpdateVictimByReact();
         bool UpdateVictimWithGaze();
+
+        void SelectNearestTarget(Unit *who);
     public:
         explicit CreatureAI(Creature *c) : UnitAI((Unit*)c), me(c), m_creature(c) {}
 
@@ -165,13 +156,7 @@ class TRINITY_DLL_SPEC CreatureAI : public UnitAI
         // Pointer to controlled by AI creature
         //Creature* const m_creature;
 
-        Unit* SelectTarget(SelectAggroTarget target, uint32 position = 0, float dist = 0, bool playerOnly = false, int32 aura = 0);
-        void SelectTargetList(std::list<Unit*> &targetList, uint32 num, SelectAggroTarget target, float dist = 0, bool playerOnly = false, int32 aura = 0);
-
         void SetGazeOn(Unit *target);
-
-        static AISpellInfoType *AISpellInfo;
-        static void FillAISpellInfo();
 
     protected:
         bool _EnterEvadeMode();

@@ -85,26 +85,7 @@ void SpellAI::UpdateAI(const uint32 diff)
 
     if(uint32 spellId = events.ExecuteEvent())
     {
-        Unit *target = NULL;
-        //sLog.outError("aggre %u %u", spellId, (uint32)AISpellInfo[spellId].target);
-        switch(AISpellInfo[spellId].target)
-        {
-            default:
-            case AITARGET_SELF:     target = me; break;
-            case AITARGET_VICTIM:   target = me->getVictim(); break;
-            case AITARGET_ENEMY:    target = SelectTarget(SELECT_TARGET_RANDOM); break;
-            case AITARGET_ALLY:     target = me; break;
-            case AITARGET_BUFF:     target = me; break;
-            case AITARGET_DEBUFF:
-            {
-                const SpellEntry * spellInfo = GetSpellStore()->LookupEntry(spellId);
-                bool playerOnly = spellInfo->AttributesEx3 & SPELL_ATTR_EX3_PLAYERS_ONLY;
-                float range = GetSpellMaxRange(spellInfo, false);
-                target = SelectTarget(SELECT_TARGET_RANDOM, 0, range, playerOnly, -(int32)spellId);
-                break;
-            }
-        }
-        if(target) me->CastSpell(target, spellId, false);
+        DoCast(spellId);
         events.ScheduleEvent(spellId, AISpellInfo[spellId].cooldown + rand()%AISpellInfo[spellId].cooldown);
     }
     else

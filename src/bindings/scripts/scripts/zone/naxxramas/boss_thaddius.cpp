@@ -52,14 +52,14 @@
 #define SAY_SCREAM3             -1533038
 #define SAY_SCREAM4             -1533039
 
-#define SPELL_POLARITY_SHIFT        HEROIC(39096,28089)
+#define SPELL_POLARITY_SHIFT        28089
 #define SPELL_BALL_LIGHTNING        28299
 #define SPELL_CHAIN_LIGHTNING       HEROIC(28167,54531)
 #define SPELL_BERSERK               27680
 
 enum Events
 {
-    EVENT_SHIFT,
+    EVENT_SHIFT = 1,
     EVENT_CHAIN,
     EVENT_BERSERK,
 };
@@ -69,7 +69,7 @@ struct TRINITY_DLL_DECL boss_thaddiusAI : public BossAI
     boss_thaddiusAI(Creature *c) : BossAI(c, BOSS_THADDIUS)
     {
         // temp
-        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2 | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
     }
 
     void KilledUnit(Unit* victim)
