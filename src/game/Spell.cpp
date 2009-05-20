@@ -1116,21 +1116,20 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
 
     if(spellHitTarget)
     {
-        // Call scripted function for AI if this spell is casted upon a creature (except pets)
-        if(IS_CREATURE_GUID(target->targetGUID))
+        //AI functions
+        if(spellHitTarget->GetTypeId() == TYPEID_UNIT)
         {
+            if(((Creature*)spellHitTarget)->IsAIEnabled)
+                ((Creature*)spellHitTarget)->AI()->SpellHit(m_caster, m_spellInfo);
+
             // cast at creature (or GO) quest objectives update at successful cast finished (+channel finished)
             // ignore pets or autorepeat/melee casts for speed (not exist quest for spells (hm... )
-            if( !((Creature*)unit)->isPet() && !IsAutoRepeat() && !IsNextMeleeSwingSpell() && !IsChannelActive() )
+            if(!((Creature*)spellHitTarget)->isPet() && !IsAutoRepeat() && !IsNextMeleeSwingSpell() && !IsChannelActive() )
             {
                 if ( Player* p = m_caster->GetCharmerOrOwnerPlayerOrPlayerItself() )
-                    p->CastedCreatureOrGO(unit->GetEntry(),unit->GetGUID(),m_spellInfo->Id);
+                    p->CastedCreatureOrGO(spellHitTarget->GetEntry(),spellHitTarget->GetGUID(),m_spellInfo->Id);
             }
         }
-
-        //AI functions
-        if(spellHitTarget->GetTypeId() == TYPEID_UNIT && ((Creature*)spellHitTarget)->IsAIEnabled)
-            ((Creature*)spellHitTarget)->AI()->SpellHit(m_caster, m_spellInfo);
 
         if(m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->IsAIEnabled)
             ((Creature*)m_caster)->AI()->SpellHitTarget(spellHitTarget, m_spellInfo);
@@ -1146,11 +1145,12 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
         return SPELL_MISS_EVADE;
 
     // Recheck immune (only for delayed spells)
-    if( m_spellInfo->speed &&
-        (unit->IsImmunedToDamage(m_spellInfo) ||
-        unit->IsImmunedToSpell(m_spellInfo)))
+    if(m_spellInfo->speed)
     {
-        return SPELL_MISS_IMMUNE;
+        if(!unit->isAlive())
+            return SPELL_MISS_EVADE;
+        else if(unit->IsImmunedToDamage(m_spellInfo) || unit->IsImmunedToSpell(m_spellInfo))
+            return SPELL_MISS_IMMUNE;
     }
 
     if (unit->GetTypeId() == TYPEID_PLAYER)
