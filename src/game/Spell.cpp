@@ -842,6 +842,7 @@ void Spell::AddUnitTarget(Unit* pVictim, uint32 effIndex)
     target.targetGUID = targetGUID;                         // Store target GUID
     target.effectMask = immuned ? 0 : 1<<effIndex;          // Store index of effect if not immuned
     target.processed  = false;                              // Effects not apply on target
+    target.alive      = pVictim->isAlive();
     target.damage     = 0;
 
     // Calculate hit result
@@ -979,6 +980,9 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
 
     Unit* unit = m_caster->GetGUID()==target->targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster,target->targetGUID);
     if (!unit)
+        return;
+
+    if(unit->isAlive() != target->alive)
         return;
 
     // Get original caster (if exist) and calculate damage/healing from him data
@@ -1145,13 +1149,8 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
         return SPELL_MISS_EVADE;
 
     // Recheck immune (only for delayed spells)
-    if(m_spellInfo->speed)
-    {
-        if(!unit->isAlive())
-            return SPELL_MISS_EVADE;
-        else if(unit->IsImmunedToDamage(m_spellInfo) || unit->IsImmunedToSpell(m_spellInfo))
-            return SPELL_MISS_IMMUNE;
-    }
+    if(m_spellInfo->speed && (unit->IsImmunedToDamage(m_spellInfo) || unit->IsImmunedToSpell(m_spellInfo)))
+        return SPELL_MISS_IMMUNE;
 
     if (unit->GetTypeId() == TYPEID_PLAYER)
     {
@@ -5906,7 +5905,7 @@ void Spell::CalculateDamageDoneForAllTargets()
             continue;
 
         Unit* unit = m_caster->GetGUID()==target.targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, target.targetGUID);
-        if (!unit)
+        if (!unit) // || !unit->isAlive()) do we need to check alive here?
             continue;
 
         if (usesAmmo)
