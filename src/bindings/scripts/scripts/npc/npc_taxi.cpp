@@ -99,6 +99,24 @@ bool GossipHello_npc_taxi(Player *player, Creature *_Creature)
         if (player->GetReputationRank(1031) >= REP_HONORED)
             player->ADD_GOSSIP_ITEM(0, "Fly me to Ogri'la please", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 16);
         break;
+    case 27575: // Dragonblight - Lord Afrasastrasz
+        // middle -> ground
+        player->ADD_GOSSIP_ITEM(0, "I would like to take a flight to the ground, Lord Of Afrasastrasz.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 17);
+        // middle -> top
+        player->ADD_GOSSIP_ITEM(0, "My Lord, I must go to the upper floor of the temple.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 18);
+        break;
+    case 26443: // Dragonblight - Tariolstrasz //need to check if quests are required before gossip available (12123, 12124)
+        // ground -> top
+        player->ADD_GOSSIP_ITEM(0, "My Lord, I must go to the upper floor of the temple.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 19);
+        // ground -> middle
+        player->ADD_GOSSIP_ITEM(0, "Can you spare a drake to travel to Lord Of Afrasastrasz, in the middle of the temple?", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 20);
+        break;
+    case 26949: // Dragonblight - Torastrasza
+        // top -> middle
+        player->ADD_GOSSIP_ITEM(0, "I would like to see Lord Of Afrasastrasz, in the middle of the temple.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 21);
+        // top -> ground
+        player->ADD_GOSSIP_ITEM(0, "Yes, Please. I would like to return to the ground floor of the temple.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 22);
+        break;
     }
 
     player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
@@ -180,6 +198,30 @@ bool GossipSelect_npc_taxi(Player *player, Creature *_Creature, uint32 sender, u
     case GOSSIP_ACTION_INFO_DEF + 16:
         player->CLOSE_GOSSIP_MENU();
         player->CastSpell(player,41279,true);               //TaxiPath 705 (Taxi - Skettis to Skyguard Outpost)
+        break;
+    case GOSSIP_ACTION_INFO_DEF + 17:
+        player->CLOSE_GOSSIP_MENU();
+        player->ActivateTaxiPathTo(882);
+        break;
+    case GOSSIP_ACTION_INFO_DEF + 18:
+        player->CLOSE_GOSSIP_MENU();
+        player->ActivateTaxiPathTo(881);
+        break;
+    case GOSSIP_ACTION_INFO_DEF + 19:
+        player->CLOSE_GOSSIP_MENU();
+        player->ActivateTaxiPathTo(878);
+        break;
+    case GOSSIP_ACTION_INFO_DEF + 20:
+        player->CLOSE_GOSSIP_MENU();
+        player->ActivateTaxiPathTo(883);
+        break;
+    case GOSSIP_ACTION_INFO_DEF + 21:
+        player->CLOSE_GOSSIP_MENU();
+        player->ActivateTaxiPathTo(880);
+        break;
+    case GOSSIP_ACTION_INFO_DEF + 22:
+        player->CLOSE_GOSSIP_MENU();
+        player->ActivateTaxiPathTo(879);
         break;
     }
 
