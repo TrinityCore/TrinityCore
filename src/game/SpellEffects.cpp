@@ -339,14 +339,45 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                 {
                     // Positive/Negative Charge
                     case 28062:
-                    case 39090:
                     case 28085:
+                    case 39090:
                     case 39093:
-                        if(m_triggeredByAuraSpell && unitTarget->HasAura(m_triggeredByAuraSpell->Id))
+                        if(!m_triggeredByAuraSpell)
+                            break;
+                        if(unitTarget == m_caster)
                         {
-                            damage = 0;
-                            m_caster->CastSpell(m_caster, (m_spellInfo->Id == 28062 || m_spellInfo->Id == 39090) ? 29659 : 29660, true);
+                            uint8 count = 0;
+                            for(std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+                                if(ihit->targetGUID != m_caster->GetGUID())
+                                    if(Player *target = ObjectAccessor::FindPlayer(ihit->targetGUID))
+                                        if(target->HasAura(m_triggeredByAuraSpell->Id))
+                                            ++count;
+                            if(count)
+                            {
+                                uint32 spellId;
+                                switch(m_spellInfo->Id)
+                                {
+                                    case 28062: spellId = 29659; break;
+                                    case 28085: spellId = 29660; break;
+                                    case 39090: spellId = 39089; break;
+                                    case 39093: spellId = 39092; break;
+                                }
+                                Aura *aur = m_caster->GetAura(spellId);
+                                if(!aur)
+                                {
+                                    m_caster->CastSpell(m_caster, spellId, true);
+                                    aur = m_caster->GetAura(spellId);
+                                }
+                                if(aur)
+                                    aur->SetStackAmount(count);
+                            }
                         }
+                        else if(unitTarget->HasAura(m_triggeredByAuraSpell->Id))
+                            damage = 0;
+                        break;
+                    // Consumption
+                    case 28865:
+                        damage = (m_caster->GetMap()->IsHeroic() ? 4250 : 2750);
                         break;
                     // percent from health with min
                     case 25599:                             // Thundercrash
@@ -1023,8 +1054,15 @@ void Spell::EffectDummy(uint32 i)
                     return;
                 }
                 // Polarity Shift
-                case 28089: spell_id = roll_chance_i(50) ? 28059 : 28084; break;
-                case 39096: spell_id = roll_chance_i(50) ? 39088 : 39091; break;
+                case 28089:
+                    if(unitTarget)
+                        unitTarget->CastSpell(unitTarget, roll_chance_i(50) ? 28059 : 28084, true, NULL, NULL, m_caster->GetGUID());
+                    break;
+                // Polarity Shift
+                case 39096:
+                    if(unitTarget)
+                        unitTarget->CastSpell(unitTarget, roll_chance_i(50) ? 39088 : 39091, true, NULL, NULL, m_caster->GetGUID());
+                    break;
                 case 29200:                                 // Purify Helboar Meat
                 {
                     if( m_caster->GetTypeId() != TYPEID_PLAYER )

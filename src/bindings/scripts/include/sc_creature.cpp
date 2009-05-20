@@ -134,23 +134,6 @@ void ScriptedAI::DoStopAttack()
     }
 }
 
-void ScriptedAI::DoCast(Unit* victim, uint32 spellId, bool triggered)
-{
-    if (!victim || m_creature->hasUnitState(UNIT_STAT_CASTING) && !triggered)
-        return;
-
-    //m_creature->StopMoving();
-    m_creature->CastSpell(victim, spellId, triggered);
-}
-
-void ScriptedAI::DoCastAOE(uint32 spellId, bool triggered)
-{
-    if(!triggered && m_creature->hasUnitState(UNIT_STAT_CASTING))
-        return;
-
-    m_creature->CastSpell((Unit*)NULL, spellId, triggered);
-}
-
 void ScriptedAI::DoCastSpell(Unit* who,SpellEntry const *spellInfo, bool triggered)
 {
     if (!who || m_creature->IsNonMeleeSpellCasted(false))
@@ -368,15 +351,6 @@ bool ScriptedAI::CanCast(Unit* Target, SpellEntry const *Spell, bool Triggered)
         return false;
 
     return true;
-}
-
-float GetSpellMaxRangeForHostile(uint32 id)
-{
-    SpellEntry const *spellInfo = GetSpellStore()->LookupEntry(id);
-    if(!spellInfo) return 0;
-    SpellRangeEntry const *range = GetSpellRangeStore()->LookupEntry(spellInfo->rangeIndex);
-    if(!range) return 0;
-    return range->maxRangeHostile;
 }
 
 void FillSpellSummary()
@@ -647,6 +621,7 @@ BossAI::BossAI(Creature *c, uint32 id) : ScriptedAI(c)
 
 void BossAI::_Reset()
 {
+    me->setActive(false);
     events.Reset();
     summons.DespawnAll();
     if(instance)
@@ -663,6 +638,7 @@ void BossAI::_JustDied()
 
 void BossAI::_EnterCombat()
 {
+    me->setActive(true);
     DoZoneInCombat();
     if(instance)
         instance->SetBossState(bossId, IN_PROGRESS);

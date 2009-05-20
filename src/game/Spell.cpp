@@ -1249,8 +1249,43 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
             }
 
             // Prayer of Mending (jump animation), we need formal caster instead original for correct animation
-            if( m_spellInfo->SpellFamilyName == SPELLFAMILY_PRIEST && (m_spellInfo->SpellFamilyFlags[1] & 0x000020))
-                m_caster->CastSpell(unit, 41637, true, NULL, NULL, m_originalCasterGUID);
+            if( m_spellInfo->SpellFamilyName == SPELLFAMILY_PRIEST)
+            {
+                if(m_spellInfo->SpellFamilyFlags[1] & 0x000020)
+                    m_caster->CastSpell(unit, 41637, true, NULL, NULL, m_originalCasterGUID);
+            }
+            else
+            {
+                // spell is triggered with only stackamount change but no amount change
+                switch(m_spellInfo->Id)
+                {
+                    case 28832:                                 // Mark of Korth'azz
+                    case 28833:                                 // Mark of Blaumeux
+                    case 28834:                                 // Mark of Rivendare
+                    case 28835:                                 // Mark of Zeliek
+                    {
+                        Aura *aur = unit->GetAura(m_spellInfo->Id);
+                        if(!aur) break;
+                        //int8 stack = GetParentAura()->GetStackAmount();
+                        int8 stack = aur->GetStackAmount();
+                        ++stack;
+                        int32 damage;
+                        switch(stack)
+                        {
+                            case 1: damage = 0;     break;
+                            case 2: damage = 500;   break;
+                            case 3: damage = 1000;  break;
+                            case 4: damage = 1500;  break;
+                            case 5: damage = 4000;  break;
+                            case 6: damage = 12000; break;
+                            default:damage = 20000 + 1000 * (stack - 7); break;
+                        }
+                        if(damage)
+                            m_caster->CastCustomSpell(28836, SPELLVALUE_BASE_POINT0, damage, unit);
+                        break;
+                    }
+                }
+            }
         }
         // Set aura only when successfully applied
         if (unit->AddAura(Aur, false))
@@ -4610,9 +4645,9 @@ SpellCastResult Spell::CheckCast(bool strict)
             case SPELL_AURA_FLY:
             {
                 // not allow cast fly spells at old maps by players (all spells is self target)
-                if(m_caster->GetTypeId()==TYPEID_PLAYER)
+                if(m_originalCaster && m_originalCaster->GetTypeId()==TYPEID_PLAYER)
                 {
-                    if( !((Player*)m_caster)->IsAllowUseFlyMountsHere() )
+                    if( !((Player*)m_originalCaster)->IsAllowUseFlyMountsHere() )
                         return SPELL_FAILED_NOT_HERE;
                 }
                 break;

@@ -188,17 +188,26 @@ void InstanceData::AddMinion(Creature *minion, bool add)
         itr->second.bossInfo->minion.erase(minion);
 }
 
-void InstanceData::SetBossState(uint32 id, EncounterState state)
+bool InstanceData::SetBossState(uint32 id, EncounterState state)
 {
     if(id < bosses.size())
     {
         BossInfo *bossInfo = &bosses[id];
         if(bossInfo->state == TO_BE_DECIDED) // loading
+        {
             bossInfo->state = state;
+            return false;
+        }
         else
         {
             if(bossInfo->state == state)
-                return;
+                return false;
+
+            if(state == DONE)
+                for(MinionSet::iterator i = bossInfo->minion.begin(); i != bossInfo->minion.end(); ++i)
+                    if((*i)->isWorldBoss() && (*i)->isAlive())
+                        return false;
+
             bossInfo->state = state;
             SaveToDB();
         }
@@ -209,7 +218,10 @@ void InstanceData::SetBossState(uint32 id, EncounterState state)
 
         for(MinionSet::iterator i = bossInfo->minion.begin(); i != bossInfo->minion.end(); ++i)
             UpdateMinionState(*i, state);
+
+        return true;
     }
+    return false;
 }
 
 std::string InstanceData::LoadBossState(const char * data)

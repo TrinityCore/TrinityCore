@@ -3190,6 +3190,7 @@ void SpellMgr::LoadSpellCustomAttr()
             break;
         case 24340: case 26558: case 28884:     // Meteor
         case 36837: case 38903: case 41276:     // Meteor
+        case 57467:                             // Meteor
         case 26789:                             // Shard of the Fallen Star
         case 31436:                             // Malevolent Cleave
         case 35181:                             // Dive Bomb
@@ -3199,8 +3200,8 @@ void SpellMgr::LoadSpellCustomAttr()
             mSpellCustomAttr[i] |= SPELL_ATTR_CU_SHARE_DAMAGE;
             break;
         case 27820:                             // Mana Detonation
-        case 28062: case 39090:                 // Positive/Negative Charge
-        case 28085: case 39093:
+        //case 28062: case 39090:                 // Positive/Negative Charge
+        //case 28085: case 39093:
             mSpellCustomAttr[i] |= SPELL_ATTR_CU_EXCLUDE_SELF;
             break;
         case 44978: case 45001: case 45002:     // Wild Magic

@@ -29,7 +29,6 @@ class SummonList : private std::list<uint64>
         Creature *m_creature;
 };
 
-float GetSpellMaxRangeForHostile(uint32 id);
 
 //Get a single creature of given entry
 Unit* FindCreature(uint32 entry, float range, Unit* Finder);
@@ -122,10 +121,6 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
 
     //Stop attack of current victim
     void DoStopAttack();
-
-    //Cast spell by Id
-    void DoCast(Unit* victim, uint32 spellId, bool triggered = false);
-    void DoCastAOE(uint32 spellId, bool triggered = false);
 
     //Cast spell by spell info
     void DoCastSpell(Unit* who,SpellEntry const *spellInfo, bool triggered = false);
