@@ -318,7 +318,7 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/sunwell_plateau/def_sunwell_plateau.h
    scripts/zone/sunwell_plateau/instance_sunwell_plateau.cpp
    scripts/zone/tanaris/tanaris.cpp
-   scrips/zone/teldrassil/teldrassil.cpp
+   scripts/zone/teldrassil/teldrassil.cpp
    scripts/zone/tempest_keep/arcatraz/arcatraz.cpp
    scripts/zone/tempest_keep/arcatraz/boss_harbinger_skyriss.cpp
    scripts/zone/tempest_keep/arcatraz/def_arcatraz.h
