@@ -167,7 +167,7 @@ struct TRINITY_DLL_DECL trigger_periodicAI : public NullCreatureAI
     trigger_periodicAI(Creature* c) : NullCreatureAI(c)
     {
         spell = me->m_spells[0] ? GetSpellStore()->LookupEntry(me->m_spells[0]) : NULL;
-        interval = spell ? GetAISpellInfo(me->m_spells[0])->cooldown : 100000;   //me->m_spells[1] ? me->m_spells[1] : 1000;
+        interval = me->GetAttackTime(BASE_ATTACK);
         timer = interval;
     }
 
@@ -197,6 +197,28 @@ struct TRINITY_DLL_DECL trigger_deathAI : public NullCreatureAI
     }
 };
 
+struct TRINITY_DLL_DECL mob_webwrapAI : public NullCreatureAI
+{
+    mob_webwrapAI(Creature *c) : NullCreatureAI(c), victimGUID(0) {}
+
+    uint64 victimGUID;
+
+    void SetGUID(const uint64 &guid, const int32 param)
+    {
+        victimGUID = guid;
+        if(me->m_spells[0] && victimGUID)
+            if(Unit *victim = Unit::GetUnit(*me, victimGUID))
+                victim->CastSpell(victim, me->m_spells[0], true, NULL, NULL, me->GetGUID());
+    }
+
+    void JustDied(Unit *killer)
+    {
+        if(me->m_spells[0] && victimGUID)
+            if(Unit *victim = Unit::GetUnit(*me, victimGUID))
+                victim->RemoveAurasDueToSpell(me->m_spells[0], me->GetGUID());
+    }
+};
+
 CreatureAI* GetAI_trigger_periodic(Creature *_Creature)
 {
     return new trigger_periodicAI (_Creature);
@@ -205,6 +227,11 @@ CreatureAI* GetAI_trigger_periodic(Creature *_Creature)
 CreatureAI* GetAI_trigger_death(Creature *_Creature)
 {
     return new trigger_deathAI (_Creature);
+}
+
+CreatureAI* GetAI_mob_webwrap(Creature* _Creature)
+{
+    return new mob_webwrapAI (_Creature);
 }
 
 void AddSC_generic_creature()
@@ -224,5 +251,10 @@ void AddSC_generic_creature()
     newscript->Name="trigger_death";
     newscript->GetAI = &GetAI_trigger_death;
     newscript->RegisterSelf();*/
+
+    newscript = new Script;
+    newscript->Name="mob_webwrap";
+    newscript->GetAI = &GetAI_mob_webwrap;
+    newscript->RegisterSelf();
 }
 

@@ -57,6 +57,7 @@ const MinionData minionData[] =
 };
 
 #define GO_GOTHIK_GATE      181170
+#define GO_HORSEMEN_CHEST   181366
 
 #define SPELL_ERUPTION      29371
 
@@ -92,7 +93,7 @@ inline uint32 GetEruptionSection(float x, float y)
 struct TRINITY_DLL_DECL instance_naxxramas : public InstanceData
 {
     instance_naxxramas(Map *map) : InstanceData(map)
-        , Sapphiron(NULL)
+        , Sapphiron(NULL), GothikGate(NULL), HorsemenChest(NULL), HorsemenNum(0)
     {
         SetBossNumber(MAX_BOSS_NUMBER);
         LoadDoorData(doorData);
@@ -100,8 +101,9 @@ struct TRINITY_DLL_DECL instance_naxxramas : public InstanceData
     }
 
     std::set<GameObject*> HeiganEruption[4];
-    GameObject *GothikGate;
+    GameObject *GothikGate, *HorsemenChest;
     Creature *Sapphiron;
+    uint32 HorsemenNum;
 
     void OnCreatureCreate(Creature *creature, bool add)
     {
@@ -129,6 +131,7 @@ struct TRINITY_DLL_DECL instance_naxxramas : public InstanceData
         {
             case GO_BIRTH: if(!add && Sapphiron) Sapphiron->AI()->DoAction(DATA_SAPPHIRON_BIRTH); return;
             case GO_GOTHIK_GATE: GothikGate = add ? go : NULL; break;
+            case GO_HORSEMEN_CHEST: HorsemenChest = add ? go : NULL; break;
         }
 
         AddDoor(go, add);
@@ -146,6 +149,17 @@ struct TRINITY_DLL_DECL instance_naxxramas : public InstanceData
                     GothikGate->SetGoState(GOState(value));
                 break;
         }
+    }
+
+    bool SetBossState(uint32 id, EncounterState state)
+    {
+        if(!InstanceData::SetBossState(id, state))
+            return false;
+        
+        if(id == BOSS_HORSEMEN && state == DONE && HorsemenChest)
+            HorsemenChest->SetRespawnTime(HorsemenChest->GetRespawnDelay());
+
+        return true;
     }
 
     void HeiganErupt(uint32 section)
