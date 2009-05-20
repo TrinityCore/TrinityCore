@@ -107,37 +107,22 @@ bool GossipHello_npc_taxi(Player *player, Creature *_Creature)
 
 bool GossipSelect_npc_taxi(Player *player, Creature *_Creature, uint32 sender, uint32 action )
 {
-    std::vector<uint32> nodes;
-
     switch(action) {
     case GOSSIP_ACTION_INFO_DEF:
+        //spellId is correct, however it gives flight a somewhat funny effect //TaxiPath 506.
         player->CLOSE_GOSSIP_MENU();
-        player->CastSpell(player,32474,true);               //apparently correct spell, possible not correct place to cast, or correct caster
-
-        nodes.resize(2);
-        nodes[0] = 92;                                      //from susurrus
-        nodes[1] = 91;                                      //end at exodar
-//          player->ActivateTaxiPathTo(nodes,11686);            //TaxiPath 506. Using invisible model, possible Trinity must allow 0(from dbc) for cases like this.
-        player->ActivateTaxiPathTo(nodes);
+        player->CastSpell(player,32474,true);
         break;
     case GOSSIP_ACTION_INFO_DEF + 1:
         player->CLOSE_GOSSIP_MENU();
-
-        nodes.resize(2);
-        nodes[0] = 152;                                     //from drake
-        nodes[1] = 153;                                     //end at drake
-        player->ActivateTaxiPathTo(nodes);                  //TaxiPath 627 (possibly 627+628(152->153->154->155) )
+        player->ActivateTaxiPathTo(627);                  //TaxiPath 627 (possibly 627+628(152->153->154->155) )
         break;
     case GOSSIP_ACTION_INFO_DEF + 2:
         if( !player->HasItemCount(25853,1) ) {
             player->SEND_GOSSIP_MENU(9780, _Creature->GetGUID());
         } else {
             player->CLOSE_GOSSIP_MENU();
-
-            nodes.resize(2);
-            nodes[0] = 115;                                 //from brazen
-            nodes[1] = 116;                                 //end outside durnholde
-            player->ActivateTaxiPathTo(nodes);              //TaxiPath 534
+            player->ActivateTaxiPathTo(534);              //TaxiPath 534
         }
         break;
     case GOSSIP_ACTION_INFO_DEF + 3:
