@@ -2728,6 +2728,10 @@ void Spell::finish(bool ok)
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
         ((Player*)m_caster)->RemoveSpellMods(this);
 
+    // Okay to remove extra attacks
+    if(IsSpellHaveEffect(m_spellInfo, SPELL_EFFECT_ADD_EXTRA_ATTACKS))
+        m_caster->m_extraAttacks = 0;
+
     // Heal caster for all health leech from all targets
     if (m_healthLeech)
     {
@@ -2989,7 +2993,7 @@ void Spell::SendLogExecute()
                         data.append(unit->GetPackGUID());
                     else
                         data << uint8(0);
-                    data << uint32(0);                      // count?
+                    data << uint32(m_caster->m_extraAttacks); 
                     break;
                 case SPELL_EFFECT_INTERRUPT_CAST:
                     if(Unit *unit = m_targets.getUnitTarget())
