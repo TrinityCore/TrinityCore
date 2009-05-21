@@ -65,12 +65,5 @@ void
 AssistanceDistractMovementGenerator::Finalize(Unit &unit)
 {
     unit.clearUnitState(UNIT_STAT_DISTRACTED);
-    if (Unit* victim = unit.getVictim())
-    {
-        if (unit.isAlive())
-        {
-            unit.AttackStop();
-            ((Creature*)&unit)->AI()->AttackStart(victim);
-        }
-    }
+    ((Creature*)&unit)->SetReactState(REACT_AGGRESSIVE);
 }
