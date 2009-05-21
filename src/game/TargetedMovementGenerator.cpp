@@ -51,15 +51,25 @@ TargetedMovementGenerator<T>::_setTargetLocation(T &owner)
     if( owner.hasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED | UNIT_STAT_DISTRACTED) )
         return;
 
-    // prevent redundant micro-movement for pets, other followers.
-    //if(i_offset && i_target->IsWithinDistInMap(&owner,2*i_offset))
-    //    return;
-
     float x, y, z;
+    Traveller<T> traveller(owner);
+    // prevent redundant micro-movement for pets, other followers.
+    if(i_offset ? i_target->IsWithinDistInMap(&owner, i_offset + 1.0f) : i_target->IsWithinMeleeRange(&owner))
+    {
+        owner.GetPosition(x, y, z);
+        i_destinationHolder.SetDestination(traveller, x, y, z, false);
+        return;
+    }
+
     if(!i_offset)
     {
         // to nearest random contact position
         i_target->GetRandomContactPoint( &owner, x, y, z, 0, MELEE_RANGE - 0.5f );
+    }
+    else if(!i_angle && !owner.hasUnitState(UNIT_STAT_FOLLOW))
+    {
+        // caster chase
+        i_target->GetContactPoint(&owner, x, y, z, i_offset * urand(80, 100) * 0.01f);
     }
     else
     {
@@ -83,11 +93,11 @@ TargetedMovementGenerator<T>::_setTargetLocation(T &owner)
         if( i_destinationHolder.HasDestination() && i_destinationHolder.GetDestinationDiff(x,y,z) < bothObjectSize )
             return;
     */
-    Traveller<T> traveller(owner);
     i_destinationHolder.SetDestination(traveller, x, y, z);
     owner.addUnitState(UNIT_STAT_CHASE);
     if (owner.GetTypeId() == TYPEID_UNIT && ((Creature*)&owner)->canFly())
         owner.AddUnitMovementFlag(MOVEMENTFLAG_FLYING2);
+    i_destinationHolder.StartTravel(traveller);
 }
 
 template<class T>
@@ -133,7 +143,7 @@ TargetedMovementGenerator<T>::Update(T &owner, const uint32 & time_diff)
         return true;
 
     // prevent movement while casting spells with cast time or channel time
-    if ( owner.IsNonMeleeSpellCasted(false, false,  true))
+    if(owner.hasUnitState(UNIT_STAT_CASTING))
     {
         if (!owner.IsStopped())
             owner.StopMoving();
