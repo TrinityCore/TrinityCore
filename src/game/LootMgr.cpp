@@ -242,7 +242,7 @@ void LootStore::ReportNotExistedId(uint32 id) const
 // RATE_DROP_ITEMS is no longer used for all types of entries
 bool LootStoreItem::Roll(bool rate) const
 {
-    if(chance>=100.f)
+    if(chance>=100.0f)
         return true;
 
     if(mincountOrRef < 0)                                   // reference case
@@ -820,7 +820,7 @@ LootStoreItem const * LootTemplate::LootGroup::Roll() const
 
         for (uint32 i=0; i<ExplicitlyChanced.size(); ++i)    //check each explicitly chanced entry in the template and modify its chance based on quality.
         {
-            if(ExplicitlyChanced[i].chance>=100.f)
+            if(ExplicitlyChanced[i].chance>=100.0f)
                 return &ExplicitlyChanced[i];
 
             Roll -= ExplicitlyChanced[i].chance;

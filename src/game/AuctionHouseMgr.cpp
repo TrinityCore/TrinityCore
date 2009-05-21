@@ -660,7 +660,7 @@ bool AuctionEntry::BuildAuctionInfo(WorldPacket & data) const
 
 uint32 AuctionEntry::GetAuctionCut() const
 {
-    return uint32(auctionHouseEntry->cutPercent * bid * sWorld.getRate(RATE_AUCTION_CUT) / 100.f);
+    return uint32(auctionHouseEntry->cutPercent * bid * sWorld.getRate(RATE_AUCTION_CUT) / 100.0f);
 }
 
 /// the sum of outbid is (1% from current bid)*5, if bid is very small, it is 1c
