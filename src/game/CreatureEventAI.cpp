@@ -32,6 +32,40 @@
 #include "WorldPacket.h"
 #include "InstanceData.h"
 
+namespace MaNGOS
+{
+    class CallOfHelpCreatureInRangeDo                       // do attack at call of help to friendly crearture
+    {
+    public:
+        CallOfHelpCreatureInRangeDo(Unit* funit, Unit* enemy, float range)
+            : i_funit(funit), i_enemy(enemy), i_range(range)
+        {}
+        void operator()(Creature* u)
+        {
+            if (u == i_funit)
+                return;
+
+            if (!u->CanAssistTo(i_funit, i_enemy, false))
+                return;
+
+            // too far
+            if( !i_funit->IsWithinDistInMap(u, i_range) )
+                return;
+
+            // only if see assisted creature
+            if( !i_funit->IsWithinLOSInMap(u) )
+                return;
+
+            if(u->AI())
+                u->AI()->AttackStart(i_enemy);
+        }
+    private:
+        Unit* const i_funit;
+        Unit* const i_enemy;
+        float i_range;
+    };
+}
+
 bool CreatureEventAIHolder::UpdateRepeatTimer( Creature* creature, uint32 repeatMin, uint32 repeatMax )
 {
     if (repeatMin == repeatMax)
@@ -697,7 +731,6 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
             break;
         }
         case ACTION_T_UPDATE_TEMPLATE:
-        {
             if (m_creature->GetEntry() == action.update_template.creatureId)
             {
 
@@ -706,10 +739,8 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
             }
 
             m_creature->UpdateEntry(action.update_template.creatureId, action.update_template.team ? HORDE : ALLIANCE);
-        }
-        break;
+            break;
         case ACTION_T_DIE:
-        {
             if (m_creature->isDead())
             {
 
@@ -717,10 +748,8 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
                 return;
             }
             m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(),NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-        }
-        break;
+            break;
         case ACTION_T_ZONE_COMBAT_PULSE:
-        {
             if (!m_creature->isInCombat() || !m_creature->GetMap()->IsDungeon())
             {
 
@@ -729,6 +758,25 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
             }
 
             DoZoneInCombat(m_creature);
+            break;
+        case ACTION_T_CALL_FOR_HELP:
+        {
+            if (!m_creature->getVictim())
+                return;
+
+            CellPair p(MaNGOS::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
+            Cell cell(p);
+            cell.data.Part.reserved = ALL_DISTRICT;
+            cell.SetNoCreate();
+
+            MaNGOS::CallOfHelpCreatureInRangeDo u_do(m_creature, m_creature->getVictim(), action.call_for_help.radius);
+            MaNGOS::CreatureWorker<MaNGOS::CallOfHelpCreatureInRangeDo> worker(m_creature, u_do);
+
+            TypeContainerVisitor<MaNGOS::CreatureWorker<MaNGOS::CallOfHelpCreatureInRangeDo>, GridTypeMapContainer >  grid_creature_searcher(worker);
+
+            CellLock<GridReadGuard> cell_lock(cell, p);
+            cell_lock->Visit(cell_lock, grid_creature_searcher, *m_creature->GetMap());
+            break;
         }
         break;
 
@@ -755,10 +803,6 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
             }
             break;
         }
-        case ACTION_T_CALL_ASSISTANCE:
-            m_creature->SetNoCallAssistance(false);
-            m_creature->CallAssistance(action.raw.param1);
-            break;        
     }
 }
 

@@ -632,6 +632,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                     case ACTION_T_AUTO_ATTACK:              //AllowAttackState (0 = stop attack, anything else means continue attacking)
                     case ACTION_T_COMBAT_MOVEMENT:          //AllowCombatMovement (0 = stop combat based movement, anything else continue attacking)
                     case ACTION_T_RANGED_MOVEMENT:          //Distance, Angle
+                    case ACTION_T_CALL_FOR_HELP:            //Distance
                         break;
 
                     case ACTION_T_RANDOM_SAY:
@@ -644,7 +645,6 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                     case ACTION_T_SET_AGGRESSIVE:
                     case ACTION_T_ATTACK_START_PULSE:
                     case ACTION_T_SUMMON_GO:
-                    case ACTION_T_CALL_ASSISTANCE:
                         break;
 
                     default:

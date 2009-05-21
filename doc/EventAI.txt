@@ -128,6 +128,7 @@ Params are always read from Param1, then Param2, then Param3.
 36   ACTION_T_UPDATE_TEMPLATE          TemplateId, Team                Changes the creature to a new creature template of (param1) with team = Alliance if (param2) = false or Horde if (param2) = true
 37   ACTION_T_DIE                      No Params                       Kills the creature
 38   ACTION_T_ZONE_COMBAT_PULSE        No Params                       Places all players within the instance into combat with the creature. Only works in combat and only works inside of instances.
+39   ACTION_T_CALL_FOR_HELP            Radius                          Call any friendly creatures (if its not in combat/etc) in radius attack creature target.
 
 * = Use -1 to specify that if this param is picked to do nothing. Random is constant between actions within an event. So if you have a random Yell and a random Sound they will match up (ex: param2 with param2)
 
