@@ -3810,17 +3810,21 @@ bool Unit::AddAura(Aura *Aur, bool handleEffects)
     SpellEntry const* aurSpellInfo = Aur->GetSpellProto();
 
     // passive and persistent auras can stack with themselves any number of times
-    if (!Aur->IsPassive() && !Aur->IsPersistent() && aurSpellInfo->StackAmount>1)
+    if (!Aur->IsPassive() && !Aur->IsPersistent())
     {
         // find current aura from spell and change it's stackamount
-        if (Aura * foundAura = GetAura(aurSpellInfo->Id,Aur->GetCasterGUID()))
+        if (Aura * foundAura = GetAura(aurSpellInfo->Id, Aur->GetCasterGUID()))
         {
-            if(foundAura->GetStackAmount() < aurSpellInfo->StackAmount)
-                foundAura->SetStackAmount(foundAura->GetStackAmount()+1);
-            else
-                foundAura->RefreshAura();
-            delete Aur;
-            return false;
+            // hack for Incanter's Absorption
+            if (aurSpellInfo->Id != 44413)
+            {
+                if(aurSpellInfo->StackAmount && foundAura->GetStackAmount() < aurSpellInfo->StackAmount)
+                    foundAura->SetStackAmount(foundAura->GetStackAmount()+1);
+                else
+                    foundAura->RefreshAura();
+                delete Aur;
+                return false;
+            }
         }
     }
 
@@ -3888,9 +3892,6 @@ bool Unit::AddAura(Aura *Aur, bool handleEffects)
 
 bool Unit::RemoveNoStackAurasDueToAura(Aura *Aur)
 {
-    if (!Aur)
-        return false;
-
     SpellEntry const* spellProto = Aur->GetSpellProto();
 
     uint32 spellId = Aur->GetId();
@@ -3906,20 +3907,20 @@ bool Unit::RemoveNoStackAurasDueToAura(Aura *Aur)
 
     //bool linked = spellmgr.GetSpellCustomAttr(spellId) & SPELL_ATTR_CU_LINK_AURA? true : false;
 
-    AuraMap::iterator i,next;
-    for (i = m_Auras.begin(); i != m_Auras.end(); i = next)
+    for(AuraMap::iterator i = m_Auras.begin(); i != m_Auras.end(); ++i)
     {
-        next = i;
-        ++next;
-
-        SpellEntry const* i_spellProto = (*i).second->GetSpellProto();
-
+        SpellEntry const* i_spellProto = i->second->GetSpellProto();
         uint32 i_spellId = i_spellProto->Id;
+        bool sameCaster = Aur->GetCasterGUID() == (*i).second->GetCasterGUID();
+
+        // Incanter's Absorption, has been checked in refresh part
+        if(i_spellId == spellId && sameCaster)
+            continue;
 
         if(IsPassiveSpell(i_spellId))
         {
             // passive non-stackable spells not stackable only for same caster
-            if(Aur->GetCasterGUID()!=i->second->GetCasterGUID())
+            if(!sameCaster)
                 continue;
 
             // passive non-stackable spells not stackable only with another rank of same spell
@@ -3934,7 +3935,6 @@ bool Unit::RemoveNoStackAurasDueToAura(Aura *Aur)
                 is_triggered_by_spell = true;
 
         // check if they can stack
-        bool sameCaster = Aur->GetCasterGUID() == (*i).second->GetCasterGUID();
 
         /*// Dont remove by stack with linked auras
         // Not needed for now
@@ -3965,7 +3965,6 @@ bool Unit::RemoveNoStackAurasDueToAura(Aura *Aur)
 
         // Remove all auras by aura caster
         RemoveAura(i, AURA_REMOVE_BY_STACK);
-        next=i;
     }
     return true;
 }
