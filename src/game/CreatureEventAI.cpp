@@ -130,8 +130,6 @@ CreatureEventAI::CreatureEventAI(Creature *c ) : CreatureAI(c)
     AttackDistance = 0;
     AttackAngle = 0.0f;
 
-    IsFleeing = false;
-
     //Handle Spawned Events
     if (!bEmptyList)
     {
@@ -617,12 +615,8 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
         case ACTION_T_EVADE:
             EnterEvadeMode();
             break;
-        case ACTION_T_FLEE:
-            if(me->HasAuraType(SPELL_AURA_PREVENTS_FLEEING))
-                break;
-            TimetoFleeLeft = 8000;
-            me->DoFleeToGetAssistance();
-            IsFleeing = true;
+        case ACTION_T_FLEE_FOR_ASSIST:
+            m_creature->DoFleeToGetAssistance();
             break;
         case ACTION_T_QUEST_EVENT_ALL:
             if (pActionInvoker && pActionInvoker->GetTypeId() == TYPEID_PLAYER)
@@ -808,7 +802,6 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
 
 void CreatureEventAI::JustRespawned()
 {
-    IsFleeing = false;
     Reset();
 
     if (bEmptyList)
@@ -826,9 +819,6 @@ void CreatureEventAI::Reset()
 {
     EventUpdateTime = EVENT_UPDATE_TIME;
     EventDiff = 0;
-
-    TimetoFleeLeft = 0;
-    IsFleeing = false;
 
     if (bEmptyList)
         return;
@@ -888,7 +878,6 @@ void CreatureEventAI::EnterEvadeMode()
 
 void CreatureEventAI::JustDied(Unit* killer)
 {
-    IsFleeing = false;
     Reset();
 
     if (bEmptyList)
@@ -1032,23 +1021,6 @@ void CreatureEventAI::UpdateAI(const uint32 diff)
     //Must return if creature isn't alive. Normally select hostil target and get victim prevent this
     if (!m_creature->isAlive())
         return;
-
-    if (IsFleeing)
-    {
-        if(TimetoFleeLeft < diff)
-        {
-            me->SetControlled(false, UNIT_STAT_FLEEING);
-            me->SetNoCallAssistance(false);
-            me->CallAssistance();
-            if(me->getVictim())
-                me->GetMotionMaster()->MoveChase(me->getVictim());
-            IsFleeing = false;
-        }
-        else
-            TimetoFleeLeft -= diff;
-
-        return;
-    }
 
     if (!bEmptyList)
     {

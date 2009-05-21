@@ -114,7 +114,7 @@ Params are always read from Param1, then Param2, then Param3.
 22   ACTION_T_SET_PHASE                Phase                           Sets the current phase to (param1)
 23   ACTION_T_INC_PHASE                Value                           Increments the phase by (param1). May be negative to decrement phase but should not be 0.
 24   ACTION_T_EVADE                    No Params                       Forces the creature to evade. Wiping all threat and dropping combat.
-25   ACTION_T_FLEE                     No Params                       Causes the .creature to flee. Please use this action instead of directly casting this spell so we may change this when a more correct approach is found.
+25   ACTION_T_FLEE_FOR_ASSIST          No Params                       Causes the creature to flee for assistence (at low helth mostly).
 26   ACTION_T_QUEST_EVENT_ALL          QuestId                         Calls GroupEventHappens with (param1). Only used if it's _expected_ event should complete for all players in current party
 27   ACTION_T_CASTCREATUREGO_ALL       QuestId, SpellId                Calls CastedCreatureOrGo for all players on the threat list with QuestID(Param1) and SpellId(Param2)
 28   ACTION_T_REMOVEAURASFROMSPELL     Target, Spellid                 Removes all auras on Target caused by Spellid
