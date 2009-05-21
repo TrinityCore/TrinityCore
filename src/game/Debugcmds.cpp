@@ -200,15 +200,10 @@ bool ChatHandler::HandleDebugSendOpcodeCommand(const char* /*args*/)
         }
         else if(type == "appgoguid")
         {
-            uint32 lowguid;
-            ifs >> lowguid;
-            GameObject *obj = NULL;
-            if (GameObjectData const* go_data = objmgr.GetGOData(lowguid))
-                obj = GetObjectGlobalyWithGuidOrNearWithDbGuid(lowguid,go_data->id);
-
+            GameObject *obj = GetNearbyGameObject();
             if(!obj)
             {
-                PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, lowguid);
+                PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, 0);
                 SetSentErrorMessage(true);
                 ifs.close();
                 return false;
@@ -217,15 +212,10 @@ bool ChatHandler::HandleDebugSendOpcodeCommand(const char* /*args*/)
         }
         else if(type == "goguid")
         {
-            uint32 lowguid;
-            ifs >> lowguid;
-            GameObject *obj = NULL;
-            if (GameObjectData const* go_data = objmgr.GetGOData(lowguid))
-                obj = GetObjectGlobalyWithGuidOrNearWithDbGuid(lowguid,go_data->id);
-
+            GameObject *obj = GetNearbyGameObject();
             if(!obj)
             {
-                PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, lowguid);
+                PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, 0);
                 SetSentErrorMessage(true);
                 ifs.close();
                 return false;

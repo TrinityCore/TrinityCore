@@ -4788,7 +4788,7 @@ bool ChatHandler::HandleDebugSetValue(const char* args)
     if (!px || !py)
         return false;
 
-    Unit* target = getSelectedUnit();
+    WorldObject* target = getSelectedObject();
     if(!target)
     {
         SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
@@ -4881,7 +4881,7 @@ bool ChatHandler::HandleDebugSet32Bit(const char* args)
     if(!*args)
         return false;
 
-    Unit* target = getSelectedUnit();
+    WorldObject* target = getSelectedObject();
     if(!target)
     {
         SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
