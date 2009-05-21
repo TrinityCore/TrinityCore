@@ -6527,7 +6527,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                             default:
                                 return false;
                         }
-                        CastSpell(this, spell, true, castItem, triggeredByAura);
+                        CastSpell(target, spell, true, castItem, triggeredByAura);
                         (*itr)->GetParentAura()->DropAuraCharge();
                         return true;
                     }
