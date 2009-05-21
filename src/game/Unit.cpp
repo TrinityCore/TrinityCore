@@ -3897,16 +3897,20 @@ bool Unit::RemoveNoStackAurasDueToAura(Aura *Aur)
     uint32 spellId = Aur->GetId();
 
     // passive spell special case (only non stackable with ranks)
-    if(IsPassiveSpell(spellId))
-    {
-        if(IsPassiveSpellStackableWithRanks(spellProto))
-            return true;
-    }
+    if(IsPassiveSpell(spellId) && IsPassiveSpellStackableWithRanks(spellProto))
+        return true;
 
     //bool linked = spellmgr.GetSpellCustomAttr(spellId) & SPELL_ATTR_CU_LINK_AURA? true : false;
 
+    bool remove = false;
     for(AuraMap::iterator i = m_Auras.begin(); i != m_Auras.end(); ++i)
     {
+        if(remove)
+        {
+            remove = false;
+            i = m_Auras.begin();
+        }
+
         SpellEntry const* i_spellProto = i->second->GetSpellProto();
         uint32 i_spellId = i_spellProto->Id;
         bool sameCaster = Aur->GetCasterGUID() == (*i).second->GetCasterGUID();
@@ -3963,6 +3967,9 @@ bool Unit::RemoveNoStackAurasDueToAura(Aura *Aur)
 
         // Remove all auras by aura caster
         RemoveAura(i, AURA_REMOVE_BY_STACK);
+        if(i == m_Auras.end())
+            break;
+        remove = true;
     }
     return true;
 }
