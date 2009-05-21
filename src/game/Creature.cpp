@@ -139,6 +139,7 @@ m_gossipOptionLoaded(false),
 m_defaultMovementType(IDLE_MOTION_TYPE), m_DBTableGuid(0), m_equipmentId(0), m_AlreadyCallAssistance(false),
 m_regenHealth(true), m_AI_locked(false), m_isDeadByDefault(false), m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),
 m_creatureInfo(NULL), m_reactState(REACT_AGGRESSIVE), m_formation(NULL), m_summonMask(SUMMON_MASK_NONE)
+, m_AlreadySearchedAssistance(false)
 {
     m_regenTimer = 200;
     m_valuesCount = UNIT_END;
@@ -609,6 +610,41 @@ void Creature::RegenerateHealth()
         addvalue = maxValue/3;
 
     ModifyHealth(addvalue);
+}
+
+void Creature::DoFleeToGetAssistance()
+{
+    if (!getVictim())
+        return;
+
+    if(HasAuraType(SPELL_AURA_PREVENTS_FLEEING))
+        return;
+
+    float radius = sWorld.getConfig(CONFIG_CREATURE_FAMILY_FLEE_ASSISTANCE_RADIUS);
+    if (radius >0)
+    {
+        Creature* pCreature = NULL;
+
+        CellPair p(MaNGOS::ComputeCellPair(GetPositionX(), GetPositionY()));
+        Cell cell(p);
+        cell.data.Part.reserved = ALL_DISTRICT;
+        cell.SetNoCreate();
+        MaNGOS::NearestAssistCreatureInCreatureRangeCheck u_check(this, getVictim(), radius);
+        MaNGOS::CreatureLastSearcher<MaNGOS::NearestAssistCreatureInCreatureRangeCheck> searcher(this, pCreature, u_check);
+
+        TypeContainerVisitor<MaNGOS::CreatureLastSearcher<MaNGOS::NearestAssistCreatureInCreatureRangeCheck>, GridTypeMapContainer > grid_creature_searcher(searcher);
+
+        CellLock<GridReadGuard> cell_lock(cell, p);
+        cell_lock->Visit(cell_lock, grid_creature_searcher, *GetMap());
+
+        SetNoSearchAssistance(true);
+        if(!pCreature)
+            //SetFeared(true, getVictim()->GetGUID(), 0 ,sWorld.getConfig(CONFIG_CREATURE_FAMILY_FLEE_DELAY));
+            //TODO: use 31365
+            SetControlled(true, UNIT_STAT_FLEEING);
+        else
+            GetMotionMaster()->MoveSeekAssistance(pCreature->GetPositionX(), pCreature->GetPositionY(), pCreature->GetPositionZ());
+    }
 }
 
 bool Creature::AIM_Initialize(CreatureAI* ai)
@@ -1676,6 +1712,7 @@ void Creature::setDeathState(DeathState s)
         if (canFly() && FallGround())
             return;
 
+        SetNoSearchAssistance(false);
         Unit::setDeathState(CORPSE);
     
         //Dismiss group if is leader
@@ -1919,22 +1956,6 @@ bool Creature::IsVisibleInGridForPlayer(Player const* pl) const
     return false;
 }
 
-void Creature::DoFleeToGetAssistance(float radius) // Optional parameter
-{
-    if (!getVictim())
-        return;
-
-    Creature* pCreature = NULL;
-    Trinity::NearestAssistCreatureInCreatureRangeCheck u_check(this,getVictim(),radius);
-    Trinity::CreatureLastSearcher<Trinity::NearestAssistCreatureInCreatureRangeCheck> searcher(this, pCreature, u_check);
-    VisitNearbyGridObject(radius, searcher);
-
-    if(!pCreature)
-        SetControlled(true, UNIT_STAT_FLEEING);
-    else
-        GetMotionMaster()->MovePoint(0,pCreature->GetPositionX(),pCreature->GetPositionY(),pCreature->GetPositionZ());
-}
-
 Unit* Creature::SelectNearestTarget(float dist) const
 {
     CellPair p(Trinity::ComputeCellPair(GetPositionX(), GetPositionY()));
@@ -1959,14 +1980,13 @@ Unit* Creature::SelectNearestTarget(float dist) const
     return target;
 }
 
-void Creature::CallAssistance(float radius)
+void Creature::CallAssistance()
 {
     if( !m_AlreadyCallAssistance && getVictim() && !isPet() && !isCharmed())
     {
         SetNoCallAssistance(true);
 
-        if(!radius)
-            radius = sWorld.getConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_RADIUS);
+        float radius = sWorld.getConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_RADIUS);
 
         if(radius > 0)
         {

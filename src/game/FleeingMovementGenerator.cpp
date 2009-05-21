@@ -19,6 +19,7 @@
  */
 
 #include "Creature.h"
+#include "CreatureAI.h"
 #include "MapManager.h"
 #include "FleeingMovementGenerator.h"
 #include "DestinationHolderImp.h"
@@ -410,3 +411,32 @@ template void FleeingMovementGenerator<Creature>::Reset(Creature &);
 template bool FleeingMovementGenerator<Player>::Update(Player &, const uint32 &);
 template bool FleeingMovementGenerator<Creature>::Update(Creature &, const uint32 &);
 
+void TimedFleeingMovementGenerator::Finalize(Unit &owner)
+{
+    owner.clearUnitState(UNIT_STAT_FLEEING);
+    if (Unit* victim = owner.getVictim())
+    {
+        if (owner.isAlive())
+        {
+            owner.AttackStop();
+            ((Creature*)&owner)->AI()->AttackStart(victim);
+        }
+    }
+}
+
+bool TimedFleeingMovementGenerator::Update(Unit & owner, const uint32 & time_diff)
+{
+    if( !owner.isAlive() )
+        return false;
+
+    if( owner.hasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED) )
+        return true;
+
+    i_totalFleeTime.Update(time_diff);
+    if (i_totalFleeTime.Passed())
+        return false;
+
+    // This calls grant-parent Update method hiden by FleeingMovementGenerator::Update(Creature &, const uint32 &) version
+    // This is done instead of casting Unit& to Creature& and call parent method, then we can use Unit directly
+    return MovementGeneratorMedium< Creature, FleeingMovementGenerator<Creature> >::Update(owner, time_diff);
+}

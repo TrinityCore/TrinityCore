@@ -61,5 +61,22 @@ class TRINITY_DLL_SPEC FleeingMovementGenerator
 
         DestinationHolder< Traveller<T> > i_destinationHolder;
 };
+
+class MANGOS_DLL_SPEC TimedFleeingMovementGenerator
+: public FleeingMovementGenerator<Creature>
+{
+    public:
+        TimedFleeingMovementGenerator(uint64 fright, uint32 time) :
+            FleeingMovementGenerator<Creature>(fright),
+            i_totalFleeTime(time) {}
+
+        MovementGeneratorType GetMovementGeneratorType() { return TIMED_FLEEING_MOTION_TYPE; }
+        bool Update(Unit &, const uint32 &);
+        void Finalize(Unit &);
+
+    private:
+        TimeTracker i_totalFleeTime;
+};
+
 #endif
 
