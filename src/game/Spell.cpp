@@ -4479,15 +4479,12 @@ SpellCastResult Spell::CheckCast(bool strict)
                 switch(SummonProperties->Category)
                 {
                     case SUMMON_CATEGORY_PET:
-                    case SUMMON_CATEGORY_POSSESSED:
-                    {
                         if(m_caster->GetPetGUID())
                             return SPELL_FAILED_ALREADY_HAVE_SUMMON;
-
+                    case SUMMON_CATEGORY_POSSESSED:
                         if(m_caster->GetCharmGUID())
                             return SPELL_FAILED_ALREADY_HAVE_CHARM;
                         break;
-                    }
                 }
                 break;
             }
