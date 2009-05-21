@@ -655,8 +655,12 @@ namespace Trinity
             NearestGameObjectCheck(WorldObject const& obj) : i_obj(obj), i_range(999) {}
             bool operator()(GameObject* go)
             {
-                i_range = i_obj.GetDistance(go);        // use found GO range as new range limit for next check
-                return true;
+                if(i_obj.IsWithinDistInMap(go, i_range))
+                {
+                    i_range = i_obj.GetDistance(go);        // use found GO range as new range limit for next check
+                    return true;
+                }
+                return false;
             }
             float GetLastRange() const { return i_range; }
         private:
