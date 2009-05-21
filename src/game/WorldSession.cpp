@@ -711,22 +711,22 @@ void WorldSession::SendAddonsInfo()
 
     for(AddonsList::iterator itr = m_addonsList.begin(); itr != m_addonsList.end(); ++itr)
     {
-        uint8 state = 2;
+        uint8 state = 2;                                    // 2 is sent here
         data << uint8(state);
 
-        uint8 unk1 = 1;
+        uint8 unk1 = 1;                                     // 1 is sent here
         data << uint8(unk1);
         if (unk1)
         {
             uint8 unk2 = (itr->CRC != 0x4c1c776d);          // If addon is Standard addon CRC
             data << uint8(unk2);
-            if (unk2)
+            if (unk2)                                       // if CRC is wrong, add public key (client need it)
                 data.append(tdata, sizeof(tdata));
 
             data << uint32(0);
         }
 
-        uint8 unk3 = 0;
+        uint8 unk3 = 0;                                     // 0 is sent here
         data << uint8(unk3);
         if (unk3)
         {
