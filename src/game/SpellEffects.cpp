@@ -502,7 +502,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
             case SPELLFAMILY_PRIEST:
             {
                 // Shadow Word: Death - deals damage equal to damage done to caster
-                if ((m_spellInfo->SpellFamilyFlags[1] & 0x2 )&& m_damage < unitTarget->GetHealth())
+                if ((m_spellInfo->SpellFamilyFlags[1] & 0x2 ))
                     m_caster->CastCustomSpell(m_caster, 32409, &damage, 0, 0, true);
                 break;
             }
@@ -4850,7 +4850,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     unitTarget->CastSpell(unitTarget, spellId, true);
                     break;
                 }
-                //5,000 Gold
+                // 5,000 Gold
                 case 46642:
                 {
                     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
@@ -4859,6 +4859,17 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     ((Player*)unitTarget)->ModifyMoney(50000000);
 
                     break;
+                }
+                // Vigilance
+                case 50725:
+                {
+                    if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    // Remove Taunt cooldown
+                    ((Player*)unitTarget)->RemoveSpellCooldown(355, true);
+
+                    return;
                 }
                 // Emblazon Runeblade
                 case 51770:
@@ -5194,7 +5205,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         {
                             switch (iter->first)
                             {
-                            // Seal of light, wisdom, justice
+                            // Seal of light, Seal of wisdom, Seal of justice
                                 case 20165:
                                 case 20166:
                                 case 20164:
