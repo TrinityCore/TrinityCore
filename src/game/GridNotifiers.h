@@ -440,6 +440,25 @@ namespace Trinity
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) {}
     };
 
+    template<class Do>
+    struct MANGOS_DLL_DECL CreatureWorker
+    {
+        uint32 i_phaseMask;
+        Do& i_do;
+
+        CreatureWorker(WorldObject const* searcher, Do& _do)
+            : i_phaseMask(searcher->GetPhaseMask()), i_do(_do) {}
+
+        void Visit(CreatureMapType &m)
+        {
+            for(CreatureMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
+                if(itr->getSource()->InSamePhase(i_phaseMask))
+                    i_do(itr->getSource());
+        }
+
+        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) {}
+    };
+
     // Player searchers
 
     template<class Check>

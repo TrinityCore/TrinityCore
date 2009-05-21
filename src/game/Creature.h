@@ -636,8 +636,8 @@ class TRINITY_DLL_SPEC Creature : public Unit
         Unit* SelectNearestTarget(float dist = 0) const;
         void CallAssistance(float radius = 0);
         void SetNoCallAssistance(bool val) { m_AlreadyCallAssistance = val; }
-        bool CanAssistTo(const Unit* u, const Unit* enemy) const;
         void DoFleeToGetAssistance(float radius = 50);
+        bool CanAssistTo(const Unit* u, const Unit* enemy, bool checkfaction = true) const;
 
         MovementGeneratorType GetDefaultMovementType() const { return m_defaultMovementType; }
         void SetDefaultMovementType(MovementGeneratorType mgt) { m_defaultMovementType = mgt; }
