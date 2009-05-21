@@ -1269,6 +1269,19 @@ Unit* ChatHandler::getSelectedUnit()
     return ObjectAccessor::GetUnit(*m_session->GetPlayer(),guid);
 }
 
+WorldObject *ChatHandler::getSelectedObject()
+{
+    if(!m_session)
+        return NULL;
+
+    uint64 guid = m_session->GetPlayer()->GetSelection();
+
+    if (guid == 0)
+        return GetNearbyGameObject();
+
+    return ObjectAccessor::GetUnit(*m_session->GetPlayer(),guid);
+}
+
 Creature* ChatHandler::getSelectedCreature()
 {
     if(!m_session)
@@ -1419,6 +1432,19 @@ char const *fmtstring( char const *format, ... )
     index += len + 1;
 
     return buf;
+}
+
+GameObject* ChatHandler::GetNearbyGameObject()
+{
+    if(!m_session)
+        return NULL;
+
+    Player* pl = m_session->GetPlayer();
+    GameObject* obj = NULL;
+    Trinity::NearestGameObjectCheck check(*pl);
+    Trinity::GameObjectLastSearcher<Trinity::NearestGameObjectCheck> searcher(pl, obj, check);
+    pl->VisitNearbyGridObject(999, searcher);
+    return obj;
 }
 
 GameObject* ChatHandler::GetObjectGlobalyWithGuidOrNearWithDbGuid(uint32 lowguid,uint32 entry)
