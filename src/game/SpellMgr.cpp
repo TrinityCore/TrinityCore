@@ -2639,10 +2639,6 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2, bool
                 }
     }
 
-    // hack for Incanter's Absorption
-    if (spellInfo_1->Id==44413 && spellInfo_2->Id==44413)
-        return false;
-
     spellId_2 = GetLastSpellInChain(spellId_2);
     spellId_1 = GetLastSpellInChain(spellId_1);
     if (spellId_1 == spellId_2)
