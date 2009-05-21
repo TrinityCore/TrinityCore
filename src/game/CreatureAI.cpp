@@ -134,12 +134,12 @@ bool CreatureAI::UpdateVictimWithGaze()
     return me->getVictim();
 }
 
-bool CreatureAI::UpdateVictimByReact()
+bool CreatureAI::UpdateVictim()
 {
     if(!me->isInCombat())
         return false;
 
-    if(me->HasReactState(REACT_AGGRESSIVE))
+    if(!me->HasReactState(REACT_PASSIVE))
     {
         if(Unit *victim = me->SelectVictim())
             AttackStart(victim);
@@ -152,15 +152,6 @@ bool CreatureAI::UpdateVictimByReact()
     }
 
     return true;
-}
-
-bool CreatureAI::UpdateVictim()
-{
-    if(!me->isInCombat())
-        return false;
-    if(Unit *victim = me->SelectVictim())
-        AttackStart(victim);
-    return me->getVictim();
 }
 
 bool CreatureAI::_EnterEvadeMode()

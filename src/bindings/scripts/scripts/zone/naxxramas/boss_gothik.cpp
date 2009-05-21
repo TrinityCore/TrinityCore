@@ -202,7 +202,7 @@ struct TRINITY_DLL_DECL boss_gothikAI : public BossAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!UpdateVictimByReact() || !CheckInRoom())
+        if(!UpdateVictim() || !CheckInRoom())
             return;
 
         events.Update(diff);
