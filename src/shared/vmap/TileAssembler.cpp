@@ -379,9 +379,13 @@ namespace VMAP
                     int endgroup = INT_MAX;
                     #endif
 
+                    // temporary use defines to simplify read/check code (close file and return at fail)
+                    #define READ_OR_RETURN(V,S) if(fread((V), (S), 1, rf) != 1) { fclose(rf); return(false); }
+                    #define CMP_OR_RETURN(V,S)  if(strcmp((V),(S)) != 0)        { fclose(rf); return(false); }
+
                     if(rf)
                     {
-                        if(fread(&ident, 8, 1, rf) != 1) { fclose(rf); return(false); }
+                        READ_OR_RETURN(&ident, 8);
                         if(strcmp(ident, "VMAP001") == 0)
                         {
                             // OK, do nothing
@@ -390,7 +394,7 @@ namespace VMAP
                         {
                             // we have to read one int. This is needed during the export and we have to skip it here
                             int tempNVectors;
-                            if(fread(&tempNVectors, sizeof(int), 1, rf) != 1) { fclose(rf); return(false); }
+                            READ_OR_RETURN(&tempNVectors, sizeof(int));
 
                         }
                         else
@@ -404,7 +408,7 @@ namespace VMAP
                         blockId[4] = 0;
                         int blocksize;
 
-                        if(fread(&groups, sizeof(G3D::uint32), 1, rf) != 1) { fclose(rf); return(false); }
+                        READ_OR_RETURN(&groups, sizeof(G3D::uint32));
 
                         for(int g=0;g<(int)groups;g++)
                         {
@@ -414,31 +418,37 @@ namespace VMAP
 
                             AABSPTree<Triangle> *gtree = new AABSPTree<Triangle>();
 
+                            // add free gtree at fail
+                            #undef READ_OR_RETURN
+                            #undef CMP_OR_RETURN
+                            #define READ_OR_RETURN(V,S) if(fread((V), (S), 1, rf) != 1) { fclose(rf); delete gtree; return(false); }
+                            #define CMP_OR_RETURN(V,S)  if(strcmp((V),(S)) != 0)        { fclose(rf); delete gtree; return(false); }
+
                             G3D::uint32 flags;
-                            if(fread(&flags, sizeof(G3D::uint32), 1, rf) != 1) { fclose(rf); delete gtree; return(false); }
+                            READ_OR_RETURN(&flags, sizeof(G3D::uint32));
 
                             G3D::uint32 branches;
-                            if(fread(&blockId, 4, 1, rf) != 1) { fclose(rf); delete gtree; return(false); }
-                            if(strcmp(blockId, "GRP ") != 0) { fclose(rf); delete gtree; return(false); }
-                            if(fread(&blocksize, sizeof(int), 1, rf) != 1) { fclose(rf); delete gtree; return(false); }
-                            if(fread(&branches, sizeof(G3D::uint32), 1, rf) != 1) { fclose(rf); delete gtree; return(false); }
+                            READ_OR_RETURN(&blockId, 4);
+                            CMP_OR_RETURN(blockId, "GRP ");
+                            READ_OR_RETURN(&blocksize, sizeof(int));
+                            READ_OR_RETURN(&branches, sizeof(G3D::uint32));
                             for(int b=0;b<(int)branches; b++)
                             {
                                 G3D::uint32 indexes;
                                 // indexes for each branch (not used jet)
-                                if(fread(&indexes, sizeof(G3D::uint32), 1, rf) != 1) { fclose(rf); delete gtree; return(false); }
+                                READ_OR_RETURN(&indexes, sizeof(G3D::uint32));
                             }
 
                             // ---- indexes
-                            if(fread(&blockId, 4, 1, rf) != 1) { fclose(rf); delete gtree; return(false); }
-                            if(strcmp(blockId, "INDX") != 0) { fclose(rf); delete gtree;  return(false); }
-                            if(fread(&blocksize, sizeof(int), 1, rf) != 1) { fclose(rf); delete gtree;  return(false); }
+                            READ_OR_RETURN(&blockId, 4);
+                            CMP_OR_RETURN(blockId, "INDX");
+                            READ_OR_RETURN(&blocksize, sizeof(int));
                             unsigned int nindexes;
-                            if(fread(&nindexes, sizeof(G3D::uint32), 1, rf) != 1) { fclose(rf); return(false); }
+                            READ_OR_RETURN(&nindexes, sizeof(G3D::uint32));
                             if(nindexes >0)
                             {
                                 unsigned short *indexarray = new unsigned short[nindexes*sizeof(unsigned short)];
-                                if(fread(indexarray, sizeof(unsigned short), nindexes, rf) != nindexes) { fclose(rf); delete gtree; delete[] indexarray; return(false); }
+                                READ_OR_RETURN(indexarray, sizeof(unsigned short));
                                 for(int i=0;i<(int)nindexes; i++)
                                 {
                                     unsigned short val = indexarray[i];
@@ -448,26 +458,35 @@ namespace VMAP
                             }
 
                             // ---- vectors
-                            if(fread(&blockId, 4, 1, rf) != 1) {fclose(rf); delete gtree; return(false); }
-                            if(strcmp(blockId, "VERT") != 0) { fclose(rf); return(false); }
-                            if(fread(&blocksize, sizeof(int), 1, rf) != 1) { fclose(rf); delete gtree; return(false); }
+                            READ_OR_RETURN(&blockId, 4);
+                            CMP_OR_RETURN(blockId, "VERT");
+                            READ_OR_RETURN(&blocksize, sizeof(int));
                             unsigned int nvectors;
-                            if(fread(&nvectors, sizeof(int), 1, rf) != 1) { fclose(rf); delete gtree; return(false); }
+                            READ_OR_RETURN(&nvectors, sizeof(int));
+
                             float *vectorarray = 0;
+
+                            // add vectorarray free
+                            #undef READ_OR_RETURN
+                            #undef CMP_OR_RETURN
+                            #define READ_OR_RETURN(V,S) if(fread((V), (S), 1, rf) != 1) { fclose(rf); delete gtree; delete[] vectorarray; return(false); }
+                            #define CMP_OR_RETURN(V,S)  if(strcmp((V),(S)) != 0)        { fclose(rf); delete gtree; delete[] vectorarray; return(false); }
+
                             if(nvectors >0)
                             {
                                 vectorarray = new float[nvectors*sizeof(float)*3];
-                                if(fread(vectorarray, sizeof(float)*3, nvectors, rf) != nvectors) { fclose(rf); delete gtree; delete[] vectorarray; return(false); }
+                                READ_OR_RETURN(vectorarray, sizeof(float)*3);
                             }
                             // ----- liquit
                             if(flags & 1)
                             {
                                 // we have liquit -> not handled yet ... skip
-                              if(fread(&blockId, 4, 1, rf) != 1) { fclose(rf); delete gtree; delete[] vectorarray; return(false); }
-                              if(strcmp(blockId, "LIQU") != 0) { fclose(rf); delete gtree; delete[] vectorarray; return(false); }
-                              if(fread(&blocksize, sizeof(int), 1, rf) != 1) { fclose(rf); delete gtree; delete[] vectorarray; return(false); }
-                                fseek(rf, blocksize, SEEK_CUR);
+                              READ_OR_RETURN(&blockId, 4);
+                              CMP_OR_RETURN(blockId, "LIQU");
+                              READ_OR_RETURN(&blocksize, sizeof(int));
+                              fseek(rf, blocksize, SEEK_CUR);
                             }
+
 
                             for(unsigned int i=0, indexNo=0; indexNo<nvectors; indexNo++)
                             {
@@ -499,6 +518,10 @@ namespace VMAP
                                     gtree->insert(t);
                                 }
                             }
+
+                            // drop of temporary use defines
+                            #undef READ_OR_RETURN
+                            #undef CMP_OR_RETURN
 
                             if(vectorarray != 0)
                             {
