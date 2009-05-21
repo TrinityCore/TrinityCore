@@ -18218,14 +18218,14 @@ bool Player::canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList, bool
     if(u->GetVisibility() == VISIBILITY_RESPAWN)
         return false;
 
-    // always seen by owner
-    if(GetGUID() == u->GetCharmerOrOwnerGUID())
-        return true;
-
     // Grid dead/alive checks
     // non visible at grid for any stealth state
     if(!u->IsVisibleInGridForPlayer(this))
         return false;
+
+    // always seen by owner
+    if(GetGUID() == u->GetCharmerOrOwnerGUID())
+        return true;
 
     // different visible distance checks
     if(isInFlight())                                     // what see player in flight
