@@ -85,6 +85,11 @@ SpellMgr::SpellMgr()
             case SPELL_EFFECT_138:
                 EffectTargetType[i] = SPELL_REQUIRE_CASTER;
                 break;
+            //case SPELL_EFFECT_WMO_DAMAGE:
+            //case SPELL_EFFECT_WMO_REPAIR:
+            //case SPELL_EFFECT_WMO_CHANGE:
+            //    EffectTargetType[i] = SPELL_REQUIRE_GOBJECT;
+            //    break;
             default:
                 EffectTargetType[i] = SPELL_REQUIRE_UNIT;
                 break;

@@ -82,6 +82,7 @@ enum SpellEffectTargetTypes
     SPELL_REQUIRE_DEST,
     SPELL_REQUIRE_ITEM,
     SPELL_REQUIRE_CASTER,
+    SPELL_REQUIRE_GOBJECT,
 };
 
 enum SpellSelectTargetTypes
