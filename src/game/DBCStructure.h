@@ -837,6 +837,20 @@ struct FactionTemplateEntry
     bool IsContestedGuardFaction() const { return (factionFlags & FACTION_TEMPLATE_FLAG_CONTESTED_GUARD)!=0; }
 };
 
+struct GameObjectDisplayInfoEntry
+{
+    uint32  ID;         //0
+    //char*   mdx;        //1
+    //uint32  unk1[10];   //2-11
+    float   minX;
+    float   minY;
+    float   minZ;
+    float   maxX;
+    float   maxY;
+    float   maxZ;
+    //uint32  transport;  //18
+};
+
 struct GemPropertiesEntry
 {
     uint32      ID;
