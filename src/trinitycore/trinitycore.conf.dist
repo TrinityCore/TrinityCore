@@ -819,14 +819,23 @@ TalentsInspecting = 1
 #                 1.5 - 150%
 #                 0   - off (0%)
 #
+#    CreatureFamilyFleeAssistanceRadius
+#        Radius which creature will use to seek for a near creature for assistance. Creature will flee to this creature.
+#        Default: 30
+#                 0   - off
+#
 #    CreatureFamilyAssistanceRadius
-#        Creature family assistance radius
+#        Radius which creature will use to call assistance without moving
 #        Default: 10
 #                 0   - off
 #
 #    CreatureFamilyAssistanceDelay
 #        Reaction time for creature assistance call
 #        Default: 1500 (1.5s)
+#
+#    CreatureFamilyFleeDelay
+#        Time during which creature can flee when no assistant found
+#        Default: 7000 (7s)
 #
 #    WorldBossLevelDiff
 #        Difference for boss dynamic level with target
@@ -884,8 +893,10 @@ TalentsInspecting = 1
 
 ThreatRadius = 60
 Rate.Creature.Aggro = 1
+CreatureFamilyFleeAssistanceRadius = 30
 CreatureFamilyAssistanceRadius = 10
 CreatureFamilyAssistanceDelay = 1500
+CreatureFamilyFleeDelay = 7000
 WorldBossLevelDiff = 3
 Corpse.Decay.NORMAL = 60
 Corpse.Decay.RARE = 300

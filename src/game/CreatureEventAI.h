@@ -28,7 +28,6 @@ class Player;
 class WorldObject;
 
 #define EVENT_UPDATE_TIME               500
-#define SPELL_RUN_AWAY                  8225
 #define MAX_ACTIONS                     3
 #define MAX_PHASE                       32
 
@@ -88,7 +87,7 @@ enum EventAI_ActionType
     ACTION_T_SET_PHASE                  = 22,               // Phase
     ACTION_T_INC_PHASE                  = 23,               // Value (may be negative to decrement phase, should not be 0)
     ACTION_T_EVADE                      = 24,               // No Params
-    ACTION_T_FLEE                       = 25,               // No Params
+    ACTION_T_FLEE_FOR_ASSIST            = 25,               // No Params
     ACTION_T_QUEST_EVENT_ALL            = 26,               // QuestID
     ACTION_T_CAST_EVENT_ALL             = 27,               // CreatureId, SpellId
     ACTION_T_REMOVEAURASFROMSPELL       = 28,               // Target, Spellid
@@ -580,8 +579,5 @@ class TRINITY_DLL_SPEC CreatureEventAI : public CreatureAI
         bool MeleeEnabled;                                  //If we allow melee auto attack
         uint32 AttackDistance;                              //Distance to attack from
         float AttackAngle;                                  //Angle of attack
-
-        uint32 TimetoFleeLeft;
-        bool IsFleeing;
 };
 #endif
