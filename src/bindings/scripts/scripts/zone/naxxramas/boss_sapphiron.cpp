@@ -171,7 +171,7 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public BossAI
         if(!phase)
             return;
 
-        if(!UpdateVictimByReact() || !CheckInRoom())
+        if(!UpdateVictim() || !CheckInRoom())
             return;
 
         events.Update(diff);
