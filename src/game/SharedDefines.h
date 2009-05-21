@@ -1178,7 +1178,9 @@ enum GameObjectFlags
     GO_FLAG_TRANSPORT       = 0x00000008,                   //any kind of transport? Object can transport (elevator, boat, car)
     GO_FLAG_UNK1            = 0x00000010,                   //
     GO_FLAG_NODESPAWN       = 0x00000020,                   //never despawn, typically for doors, they just change state
-    GO_FLAG_TRIGGERED       = 0x00000040                    //typically, summoned objects. Triggered by spell or other events
+    GO_FLAG_TRIGGERED       = 0x00000040,                   //typically, summoned objects. Triggered by spell or other events
+    GO_FLAG_DAMAGED         = 0x00000200,
+    GO_FLAG_DESTROYED       = 0x00000400,
 };
 
 enum TextEmotes

@@ -346,10 +346,17 @@ struct GameObjectInfo
         //33 GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING
         struct
         {
-            uint32 dmgPctState1;                            //0
+            uint32 damagedHealth;                           //0
             uint32 dmgPctState2;                            //1
             uint32 state1Name;                              //2
             uint32 state2Name;                              //3
+            uint32 damagedDisplayId;                        //4
+            uint32 destroyedHealth;                         //5
+            uint32 unk6;
+            uint32 unk7;
+            uint32 unk8;
+            uint32 unk9;
+            uint32 destroyedDisplayId;                      //10
         } destructibleBuilding;
         //34 GAMEOBJECT_TYPE_TRAPDOOR
         struct
@@ -614,6 +621,9 @@ class TRINITY_DLL_SPEC GameObject : public WorldObject
 
         void CastSpell(Unit *target, uint32 spell);
         void SendCustomAnim();
+        bool IsInRange(float x, float y, float z, float radius) const;
+        void TakenDamage(uint32 damage);
+        void Rebuild();
     protected:
         uint32      m_charges;                              // Spell charges for GAMEOBJECT_TYPE_SPELLCASTER (22)
         uint32      m_spellId;
@@ -622,6 +632,7 @@ class TRINITY_DLL_SPEC GameObject : public WorldObject
         LootState   m_lootState;
         bool        m_spawnedByDefault;
         time_t      m_cooldownTime;                         // used as internal reaction delay time store (not state change reaction).
+        uint32      m_health;
                                                             // For traps this: spell casting cooldown, for doors/buttons: reset time.
         std::list<uint32> m_SkillupList;
 
