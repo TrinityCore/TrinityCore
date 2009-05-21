@@ -711,10 +711,10 @@ void WorldSession::SendAddonsInfo()
 
     for(AddonsList::iterator itr = m_addonsList.begin(); itr != m_addonsList.end(); ++itr)
     {
-        uint8 state = (itr->Enabled ? 2 : 1);
+        uint8 state = 2;
         data << uint8(state);
 
-        uint8 unk1 = (itr->Enabled ? 1 : 0);
+        uint8 unk1 = 1;
         data << uint8(unk1);
         if (unk1)
         {
@@ -726,7 +726,7 @@ void WorldSession::SendAddonsInfo()
             data << uint32(0);
         }
 
-        uint8 unk3 = (itr->Enabled ? 0 : 1);
+        uint8 unk3 = 0;
         data << uint8(unk3);
         if (unk3)
         {
