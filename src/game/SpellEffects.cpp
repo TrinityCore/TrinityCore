@@ -151,8 +151,8 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectStuck,                                    // 84 SPELL_EFFECT_STUCK
     &Spell::EffectSummonPlayer,                             // 85 SPELL_EFFECT_SUMMON_PLAYER
     &Spell::EffectActivateObject,                           // 86 SPELL_EFFECT_ACTIVATE_OBJECT
-    &Spell::EffectUnused,                                   // 87 SPELL_EFFECT_WMO_DAMAGE
-    &Spell::EffectUnused,                                   // 88 SPELL_EFFECT_WMO_REPAIR
+    &Spell::EffectWMODamage,                                // 87 SPELL_EFFECT_WMO_DAMAGE
+    &Spell::EffectWMORepair,                                // 88 SPELL_EFFECT_WMO_REPAIR
     &Spell::EffectUnused,                                   // 89 SPELL_EFFECT_WMO_CHANGE
     &Spell::EffectKillCredit,                               // 90 SPELL_EFFECT_KILL_CREDIT
     &Spell::EffectUnused,                                   // 91 SPELL_EFFECT_THREAT_ALL               one spell: zzOLDBrainwash
@@ -6483,6 +6483,18 @@ void Spell::EffectRedirectThreat(uint32 /*i*/)
 {
     if(unitTarget)
         m_caster->SetReducedThreatPercent((uint32)damage, unitTarget->GetGUID());
+}
+
+void Spell::EffectWMODamage(uint32 /*i*/)
+{
+    if(gameObjTarget && gameObjTarget->GetGoType() == GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING)
+        gameObjTarget->TakenDamage((uint32)damage);
+}
+
+void Spell::EffectWMORepair(uint32 /*i*/)
+{
+    if(gameObjTarget && gameObjTarget->GetGoType() == GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING)
+        gameObjTarget->Rebuild();
 }
 
 void Spell::SummonGuardian(uint32 entry, SummonPropertiesEntry const *properties)

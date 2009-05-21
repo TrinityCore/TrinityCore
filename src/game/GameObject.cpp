@@ -168,6 +168,8 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map *map, uint32 phaseMa
     // Spell charges for GAMEOBJECT_TYPE_SPELLCASTER (22)
     if (goinfo->type == GAMEOBJECT_TYPE_SPELLCASTER)
         m_charges = goinfo->spellcaster.charges;
+    else if(goinfo->type == GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING)
+        m_health = goinfo->destructibleBuilding.damagedHealth;
 
     //Notify the map's instance data.
     //Only works if you create the object in it, not if it is moves to that map.
@@ -1397,6 +1399,69 @@ void GameObject::SendCustomAnim()
     data << GetGUID();
     data << (uint32)0;
     SendMessageToSet(&data, true);
+}
+
+bool GameObject::IsInRange(float x, float y, float z, float radius) const
+{
+    GameObjectDisplayInfoEntry const * info = sGameObjectDisplayInfoStore.LookupEntry(GetUInt32Value(GAMEOBJECT_DISPLAYID));
+    if(!info)
+        return IsWithinDist3d(x, y, z, radius);
+
+    float sinA = sin(GetOrientation());
+    float cosA = cos(GetOrientation());
+    float dx = x - GetPositionX();
+    float dy = y - GetPositionY();
+    float dz = z - GetPositionZ();
+    float dist = sqrt(dx*dx + dy*dy);
+    float sinB = dx / dist;
+    float cosB = dy / dist;
+    dx = dist * (cosA * cosB + sinA * sinB);
+    dy = dist * (cosA * sinB - sinA * cosB);
+    return dx < info->maxX + radius && dx > info->minX - radius
+        && dy < info->maxY + radius && dy > info->minY - radius
+        && dz < info->maxZ + radius && dz > info->minZ - radius;
+}
+
+void GameObject::TakenDamage(uint32 damage)
+{
+    if(!m_health)
+        return;
+
+    if(m_health > damage)
+    {
+        m_health -= damage;
+        return;
+    }
+
+    m_health = 0;
+
+    if(HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED)) // from damaged to destroyed
+    {
+        RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED);
+        SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
+        SetUInt32Value(GAMEOBJECT_DISPLAYID, m_goInfo->destructibleBuilding.destroyedDisplayId);
+        m_health = 0;
+    }
+    else // from undamaged to damaged
+    {
+        SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED);
+        SetUInt32Value(GAMEOBJECT_DISPLAYID, m_goInfo->destructibleBuilding.damagedDisplayId);
+        if(m_goInfo->destructibleBuilding.destroyedDisplayId)
+        {
+            m_health = m_goInfo->destructibleBuilding.destroyedHealth;
+            if(!m_health)
+                m_health = 1;
+        }
+        else
+            m_health = 0;
+    }
+}
+
+void GameObject::Rebuild()
+{
+    RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED + GO_FLAG_DESTROYED);
+    SetUInt32Value(GAMEOBJECT_DISPLAYID, m_goInfo->displayId);
+    m_health = m_goInfo->destructibleBuilding.damagedHealth;
 }
 
 // overwrite WorldObject function for proper name localization
