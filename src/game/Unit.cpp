@@ -3903,8 +3903,6 @@ bool Unit::RemoveNoStackAurasDueToAura(Aura *Aur)
             return true;
     }
 
-    SpellSpecific spellId_spec = GetSpellSpecific(spellId);
-
     //bool linked = spellmgr.GetSpellCustomAttr(spellId) & SPELL_ATTR_CU_LINK_AURA? true : false;
 
     for(AuraMap::iterator i = m_Auras.begin(); i != m_Auras.end(); ++i)
