@@ -3324,6 +3324,14 @@ void Player::RemoveSpellCooldown( uint32 spell_id, bool update /* = false */ )
     }
 }
 
+void Player::RemoveCategoryCooldown( uint32 cat )
+{
+    SpellCategoryStore::const_iterator i_scstore = sSpellCategoryStore.find(cat);
+    if(i_scstore != sSpellCategoryStore.end())
+        for(SpellCategorySet::const_iterator i_scset = i_scstore->second.begin(); i_scset != i_scstore->second.end(); ++i_scset)
+            RemoveSpellCooldown(*i_scset, true);
+}
+
 void Player::RemoveArenaSpellCooldowns()
 {
     // remove cooldowns on spells that has < 15 min CD

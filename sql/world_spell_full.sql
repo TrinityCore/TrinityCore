@@ -77,6 +77,7 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 ( 32390, 60467, 2, 'Shadow Embrace Rank4'),
 ( 32391, 60468, 2, 'Shadow Embrace Rank5'),
 ( 33206, 44416, 2, 'Pain Suppression (threat)'),
+( 50720, 59665, 0, 'Vigilance (redirect threat)'),
 -- Creature
 ( 36574, 36650, 0, 'Apply Phase Slip Vulnerability'),
 -- instance
@@ -766,7 +767,11 @@ INSERT INTO `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `Spell
 (20164, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0),
 (20165, 0, 0, 0, 0, 0, 0, 0, 20, 0, 0),
 (20166, 0, 0, 0, 0, 0, 0, 0, 12, 0, 0),
-(20182, 0, 0, 0, 0, 0, 0, 64, 0, 0, 0),
+(20177, 0, 0, 0, 0, 0, 0, 67, 0, 0, 0),
+(20179, 0, 0, 0, 0, 0, 0, 67, 0, 0, 0),
+(20181, 0, 0, 0, 0, 0, 0, 67, 0, 0, 0),
+(20180, 0, 0, 0, 0, 0, 0, 67, 0, 0, 0),
+(20182, 0, 0, 0, 0, 0, 0, 67, 0, 0, 0),
 (20210, 0, 10, 3221225472, 0, 0, 0, 2, 0, 0, 0),
 (20212, 0, 10, 3221225472, 0, 0, 0, 2, 0, 0, 0),
 (20213, 0, 10, 3221225472, 0, 0, 0, 2, 0, 0, 0),
