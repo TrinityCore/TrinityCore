@@ -22,6 +22,7 @@
 #define TRINITY_UNITAI_H
 
 #include "Platform/Define.h"
+#include <list>
 
 class Unit;
 class Player;
