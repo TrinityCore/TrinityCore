@@ -260,6 +260,8 @@ This Event is commonly used for NPC's who do something or say something to you w
 ---------------------
 Expires at initial spawn and at creature respawn.
 This Event is commonly used for setting ranged movement type or Summoning a Pet on Spawn
+Parameter 1: 0: works always, 1: works on map in Parameter 2, 2: works on zone/subzone in Parameter 2
+Parameter 2: depends on Parameter 1: for 1 it is map ID, for 2 it is area ID to check
 
 -----------------------
 12 = EVENT_T_TARGET_HP:

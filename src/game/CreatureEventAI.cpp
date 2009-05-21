@@ -134,10 +134,8 @@ CreatureEventAI::CreatureEventAI(Creature *c ) : CreatureAI(c)
     if (!bEmptyList)
     {
         for (std::list<CreatureEventAIHolder>::iterator i = CreatureEventAIList.begin(); i != CreatureEventAIList.end(); ++i)
-        {
-            if ((*i).Event.event_type == EVENT_T_SPAWNED)
+            if (SpawnedEventConditionsCheck((*i).Event))
                 ProcessEvent(*i);
-        }
     }
 }
 
@@ -809,10 +807,8 @@ void CreatureEventAI::JustRespawned()
 
     //Handle Spawned Events
     for (std::list<CreatureEventAIHolder>::iterator i = CreatureEventAIList.begin(); i != CreatureEventAIList.end(); ++i)
-    {
-        if ((*i).Event.event_type == EVENT_T_SPAWNED)
+        if (SpawnedEventConditionsCheck((*i).Event))
             ProcessEvent(*i);
-    }
 }
 
 void CreatureEventAI::Reset()
@@ -1343,4 +1339,31 @@ void CreatureEventAI::ReceiveEmote(Player* pPlayer, uint32 text_emote)
             }
         }
     }
+}
+
+bool CreatureEventAI::SpawnedEventConditionsCheck(CreatureEventAI_Event const& event)
+{
+    if(event.event_type != EVENT_T_SPAWNED)
+        return false;
+
+    switch (event.spawned.condition)
+    {
+        case SPAWNED_EVENT_ALWAY:
+            // always
+            return true;
+        case SPAWNED_EVENT_MAP:
+            // map ID check
+            return m_creature->GetMapId() == event.spawned.conditionValue1;
+        case SPAWNED_EVENT_ZONE:
+        {
+            // zone ID check
+            uint32 zone, area;
+            m_creature->GetZoneAndAreaId(zone,area);
+            return zone == event.spawned.conditionValue1 || area == event.spawned.conditionValue1;
+        }
+        default:
+            break;
+    }
+
+    return false;
 }
