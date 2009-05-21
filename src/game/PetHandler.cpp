@@ -115,9 +115,14 @@ void WorldSession::HandlePetAction( WorldPacket & recv_data )
                         return;
 
                     // Not let attack through obstructions
-                    //if(!pet->IsWithinLOSInMap(TargetUnit))
-                    //    return;
+                    if(sWorld.getConfig(CONFIG_PET_LOS))
+                    {
 
+                      if(!pet->IsWithinLOSInMap(TargetUnit))
+                        return;
+
+                    }
+                    
                     pet->clearUnitState(UNIT_STAT_FOLLOW);
 
                     if(pet->GetTypeId() != TYPEID_PLAYER && ((Creature*)pet)->IsAIEnabled)
