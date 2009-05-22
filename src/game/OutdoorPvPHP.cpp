@@ -70,7 +70,7 @@ bool OutdoorPvPHP::SetupOutdoorPvP()
     m_HordeTowersControlled = 0;
     // add the zones affected by the pvp buff
     for(int i = 0; i < OutdoorPvPHPBuffZonesNum; ++i)
-        sOutdoorPvPMgr.AddZone(OutdoorPvPHPBuffZones[i],this);
+        RegisterZone(OutdoorPvPHPBuffZones[i]);
 
     m_OutdoorPvPObjectives.push_back(new OutdoorPvPObjectiveHP(this,HP_TOWER_BROKEN_HILL));
 

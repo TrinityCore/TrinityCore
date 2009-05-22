@@ -21,7 +21,7 @@
 
 // TODO: "sometimes" set to neutral
 
-#include "OutdoorPvP.h"
+#include "OutdoorPvPImpl.h"
 
 // kill credit for pks
 const uint32 NA_CREDIT_MARKER = 24867;

@@ -458,13 +458,13 @@
 					>
 				</File>
 				<File
+					RelativePath="..\scripts\npc\npc_taxi.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\scripts\npc\npcs_special.cpp"
 					>
 				</File>
-                <File
-                    RelativePath="..\scripts\npc\npc_taxi.cpp"
-                    >
-                </File>
 			</Filter>
 			<Filter
 				Name="servers"
@@ -1972,7 +1972,7 @@
 							</File>
 							<File
 								RelativePath="..\scripts\zone\hellfire_citadel\hellfire_ramparts\def_hellfire_ramparts.h"
-							>
+								>
 							</File>
 							<File
 								RelativePath="..\scripts\zone\hellfire_citadel\hellfire_ramparts\instance_hellfire_ramparts.cpp"
@@ -2414,6 +2414,10 @@
 						<Filter
 							Name="Wintergrasp"
 							>
+							<File
+								RelativePath="..\scripts\zone\wintergrasp\wintergrasp.cpp"
+								>
+							</File>
 						</Filter>
 						<Filter
 							Name="Icecrown"

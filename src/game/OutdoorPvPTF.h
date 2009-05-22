@@ -1,7 +1,7 @@
 #ifndef OUTDOOR_PVP_TF_
 #define OUTDOOR_PVP_TF_
 
-#include "OutdoorPvP.h"
+#include "OutdoorPvPImpl.h"
 
 const uint32 OutdoorPvPTFBuffZonesNum = 5;
 
