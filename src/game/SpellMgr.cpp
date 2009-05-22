@@ -2365,7 +2365,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 42005: // Bloodboil
         case 38296: //Spitfire Totem
         case 37676: //Insidious Whisper
-        case 46009: //Negative Energy
+        case 46008: //Negative Energy
         case 45641: //Fire Bloom
             spellInfo->MaxAffectedTargets = 5;
             break;
