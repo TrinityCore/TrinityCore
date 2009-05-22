@@ -87,9 +87,6 @@ void PetAI::_stopAttack()
 
 void PetAI::UpdateAI(const uint32 diff)
 {
-    if (!m_creature->isAlive())
-        return;
-
     Unit* owner = m_creature->GetCharmerOrOwner();
 
     if(m_updateAlliesTimer <= diff)
@@ -110,17 +107,12 @@ void PetAI::UpdateAI(const uint32 diff)
 
         DoMeleeAttackIfReady();
     }
-    else
+    else if(owner && m_creature->GetCharmInfo()) //no victim
     {
-        if(me->isInCombat())
-           _stopAttack();
-        else if(owner && m_creature->GetCharmInfo()) //no victim
-        {
-            if(owner->isInCombat() && !(m_creature->HasReactState(REACT_PASSIVE) || m_creature->GetCharmInfo()->HasCommandState(COMMAND_STAY)))
-                AttackStart(owner->getAttackerForHelper());
-            else if(m_creature->GetCharmInfo()->HasCommandState(COMMAND_FOLLOW) && !m_creature->hasUnitState(UNIT_STAT_FOLLOW))
-                m_creature->GetMotionMaster()->MoveFollow(owner,PET_FOLLOW_DIST,PET_FOLLOW_ANGLE);
-        }
+        if(owner->isInCombat() && !(m_creature->HasReactState(REACT_PASSIVE) || m_creature->GetCharmInfo()->HasCommandState(COMMAND_STAY)))
+            AttackStart(owner->getAttackerForHelper());
+        else if(m_creature->GetCharmInfo()->HasCommandState(COMMAND_FOLLOW) && !m_creature->hasUnitState(UNIT_STAT_FOLLOW))
+            m_creature->GetMotionMaster()->MoveFollow(owner,PET_FOLLOW_DIST,PET_FOLLOW_ANGLE);
     }
 
     if(!me->GetCharmInfo())
