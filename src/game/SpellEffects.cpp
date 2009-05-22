@@ -1306,6 +1306,11 @@ void Spell::EffectDummy(uint32 i)
                     }
                     return;
                 }
+                case 52759:                                 // Ancestral Awakening
+                    if (!unitTarget)
+                        return;
+                    m_caster->CastCustomSpell(unitTarget, 52752, &damage, NULL, NULL, true);
+                    return;
                 case 53341:
                 case 53343:
                 {
