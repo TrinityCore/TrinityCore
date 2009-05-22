@@ -6176,19 +6176,8 @@ void Player::UpdateArea(uint32 newArea)
     m_areaUpdateId    = newArea;
 
     AreaTableEntry const* area = GetAreaEntryByAreaID(newArea);
-
-    if(area && (area->flags & AREA_FLAG_ARENA))
-    {
-        if(!isGameMaster())
-            SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
-    }
-    else
-    {
-        // remove ffa flag only if not ffapvp realm
-        // removal in sanctuaries and capitals is handled in zone update
-        if(HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP) && !sWorld.IsFFAPvPRealm())
-            RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
-    }
+    pvpInfo.inFFAPvPArea = area && (area->flags & AREA_FLAG_ARENA);
+    UpdatePvPState(true);
 
     UpdateAreaDependentAuras(newArea);
 }
@@ -6241,29 +6230,18 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
             break;
         case AREATEAM_NONE:
             // overwrite for battlegrounds, maybe batter some zone flags but current known not 100% fit to this
-            pvpInfo.inHostileArea = sWorld.IsPvPRealm() || InBattleGround();
+            pvpInfo.inHostileArea = sWorld.IsPvPRealm() || InBattleGround() || (zone->flags & AREA_FLAG_OUTDOOR_PVP);
             break;
         default:                                            // 6 in fact
             pvpInfo.inHostileArea = false;
             break;
     }
 
-    if(pvpInfo.inHostileArea)                               // in hostile area
-    {
-        if(!IsPvP() || pvpInfo.endTimer != 0)
-            UpdatePvP(true, true);
-    }
-    else                                                    // in friendly area
-    {
-        if(IsPvP() && !HasFlag(PLAYER_FLAGS,PLAYER_FLAGS_IN_PVP) && pvpInfo.endTimer == 0)
-            pvpInfo.endTimer = time(0);                     // start toggle-off
-    }
-
+    pvpInfo.inNoPvPArea = false;
     if((zone->flags & AREA_FLAG_SANCTUARY) || zone->mapid == 609)       // in sanctuary
     {
         SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_SANCTUARY);
-        if(sWorld.IsFFAPvPRealm())
-            RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
+        pvpInfo.inNoPvPArea = true;
     }
     else
     {
@@ -6275,9 +6253,7 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
         SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING);
         SetRestType(REST_TYPE_IN_CITY);
         InnEnter(time(0),GetMapId(),0,0,0);
-
-        if(sWorld.IsFFAPvPRealm())
-            RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
+        pvpInfo.inNoPvPArea = true;
     }
     else                                                    // anywhere else
     {
@@ -6289,22 +6265,17 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
                 {
                     RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING);
                     SetRestType(REST_TYPE_NO);
-
-                    if(sWorld.IsFFAPvPRealm())
-                        SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
                 }
             }
             else                                            // not in tavern (leave city then)
             {
                 RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING);
                 SetRestType(REST_TYPE_NO);
-
-                // Set player to FFA PVP when not in rested environment.
-                if(sWorld.IsFFAPvPRealm())
-                    SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
             }
         }
     }
+
+    UpdatePvPState();
 
     // remove items with area/map limitations (delete only for alive player to allow back in ghost mode)
     // if player resurrected at teleport this will be applied in resurrect code
@@ -17819,16 +17790,46 @@ void Player::UpdateHomebindTime(uint32 time)
     }
 }
 
+void Player::UpdatePvPState(bool onlyFFA)
+{
+    // TODO: should we always synchronize UNIT_FIELD_BYTES_2, 1 of controller and controlled?
+    if(!pvpInfo.inNoPvPArea && !isGameMaster()
+        && (pvpInfo.inFFAPvPArea || sWorld.IsFFAPvPRealm()))
+    {
+        if(!HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP))
+        {
+            SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
+            for(ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
+                (*itr)->SetByteValue(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
+        }
+    }
+    else if(HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP))
+    {
+        RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
+        for(ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
+            (*itr)->RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
+    }
+
+    if(onlyFFA)
+        return;
+
+    if(pvpInfo.inHostileArea)                               // in hostile area
+    {
+        if(!IsPvP() || pvpInfo.endTimer != 0)
+            UpdatePvP(true, true);
+    }
+    else                                                    // in friendly area
+    {
+        if(IsPvP() && !HasFlag(PLAYER_FLAGS,PLAYER_FLAGS_IN_PVP) && pvpInfo.endTimer == 0)
+            pvpInfo.endTimer = time(0);                     // start toggle-off
+    }
+}
+
 void Player::UpdatePvP(bool state, bool ovrride)
 {
     if(!state || ovrride)
     {
         SetPvP(state);
-        if(Pet* pet = GetPet())
-            pet->SetPvP(state);
-        if(Unit* charmed = GetCharm())
-            charmed->SetPvP(state);
-
         pvpInfo.endTimer = 0;
     }
     else
@@ -17836,14 +17837,7 @@ void Player::UpdatePvP(bool state, bool ovrride)
         if(pvpInfo.endTimer != 0)
             pvpInfo.endTimer = time(NULL);
         else
-        {
             SetPvP(state);
-
-            if(Pet* pet = GetPet())
-                pet->SetPvP(state);
-            if(Unit* charmed = GetCharm())
-                charmed->SetPvP(state);
-        }
     }
 }
 
