@@ -37,7 +37,7 @@
 #  include <iterator>
 # endif  /* _MSC_VER >= 1400 */
 
-# if defined (_MSC_VER) && (_MSC_FULL_VER >= 140050000)
+# if defined (_MSC_VER) && (_MSC_FULL_VER >= 140050000 && _MSC_FULL_VER < 160020506)
 template <typename PTR>
 stdext::checked_array_iterator<PTR>
 ACE_make_checked_array_iterator (PTR buf, size_t len)
