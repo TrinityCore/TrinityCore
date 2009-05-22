@@ -17,6 +17,7 @@
  */
 
 #include "OutdoorPvP.h"
+#include "OutdoorPvPImpl.h"
 #include "OutdoorPvPMgr.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -776,3 +777,7 @@ bool OutdoorPvP::HandleAreaTrigger(Player *plr, uint32 trigger)
     return false;
 }
 
+void OutdoorPvP::RegisterZone(uint32 zoneId)
+{
+    sOutdoorPvPMgr.AddZone(zoneId, this);
+}

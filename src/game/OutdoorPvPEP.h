@@ -19,7 +19,7 @@
 #ifndef OUTDOOR_PVP_EP_
 #define OUTDOOR_PVP_EP_
 
-#include "OutdoorPvP.h"
+#include "OutdoorPvPImpl.h"
 
 #include "DBCStructure.h"
 

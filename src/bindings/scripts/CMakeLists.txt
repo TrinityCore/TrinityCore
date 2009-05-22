@@ -477,6 +477,7 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/vault_of_archavon/instance_vault_of_archavon.cpp
    scripts/zone/vault_of_archavon/boss_archavon.cpp
    scripts/zone/vault_of_archavon/def_vault_of_archavon.h
+   scripts/zone/wintergrasp/wintergrasp.cpp
    system.cpp
 )
 

@@ -45,10 +45,11 @@ void Vehicle::AddToWorld()
         AIM_Initialize();
         switch(GetEntry())
         {
-        case 27850:InstallAccessory(27905,1);break;
-        case 28312:InstallAccessory(28319,7);break;
-        case 32627:InstallAccessory(32629,7);break;
+            case 27850:InstallAccessory(27905,1);break;
+            case 28312:InstallAccessory(28319,7);break;
+            case 32627:InstallAccessory(32629,7);break;
         }
+        //setPowerType(POWER_ENERGY);SetMaxPower(POWER_ENERGY, 100);
     }
 }
 
@@ -84,6 +85,9 @@ void Vehicle::setDeathState(DeathState s)                       // overwrite vir
 void Vehicle::Update(uint32 diff)
 {
     Creature::Update(diff);
+    //310
+    //if(getPowerType() == POWER_ENERGY)
+    //    ModifyPower(POWER_ENERGY, 1);
 }
 
 bool Vehicle::Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, uint32 vehicleId, uint32 team)

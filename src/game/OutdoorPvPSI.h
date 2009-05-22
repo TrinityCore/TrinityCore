@@ -19,7 +19,7 @@
 #ifndef OUTDOOR_PVP_SI_
 #define OUTDOOR_PVP_SI_
 
-#include "OutdoorPvP.h"
+#include "OutdoorPvPImpl.h"
 
 const uint32 SI_SILITHYST_FLAG_GO_SPELL = 29518;
 

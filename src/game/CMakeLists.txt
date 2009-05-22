@@ -293,6 +293,9 @@ SET(game_STAT_SRCS
    GroupReference.cpp
    GroupReference.h
    GroupRefManager.h
+   OutdoorPvPImpl.h
+   Wintergrasp.h
+   Wintergrasp.cpp
 )
 
 add_library(game STATIC ${game_STAT_SRCS})

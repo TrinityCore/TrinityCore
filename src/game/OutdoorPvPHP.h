@@ -19,7 +19,7 @@
 #ifndef OUTDOOR_PVP_HP_
 #define OUTDOOR_PVP_HP_
 
-#include "OutdoorPvP.h"
+#include "OutdoorPvPImpl.h"
 
 #define OutdoorPvPHPBuffZonesNum 6
                                                          //  HP, citadel, ramparts, blood furnace, shattered halls, mag's lair
