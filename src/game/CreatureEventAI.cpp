@@ -1014,10 +1014,6 @@ void CreatureEventAI::UpdateAI(const uint32 diff)
     //Check if we are in combat (also updates calls threat update code)
     bool Combat = UpdateVictim();
 
-    //Must return if creature isn't alive. Normally select hostil target and get victim prevent this
-    if (!m_creature->isAlive())
-        return;
-
     if (!bEmptyList)
     {
         //Events are only updated once every EVENT_UPDATE_TIME ms to prevent lag with large amount of events
