@@ -20683,7 +20683,7 @@ bool Player::canSeeSpellClickOn(Creature const *c) const
 
     for(SpellClickInfoMap::const_iterator itr = lower; itr != upper; ++itr)
     {
-        if(itr->second.questId == 0 || GetQuestStatus(itr->second.questId) == QUEST_STATUS_INCOMPLETE)
+        if(itr->second.questId == 0 || GetQuestStatus(itr->second.questId) == itr->second.questStatus)
             return true;
     }
     return false;

@@ -3168,6 +3168,7 @@ CREATE TABLE `npc_spellclick_spells` (
     `npc_entry` INT UNSIGNED NOT NULL COMMENT 'reference to creature_template',
     `spell_id` INT UNSIGNED NOT NULL COMMENT 'spell which should be casted ',
     `quest_id` INT UNSIGNED NOT NULL COMMENT 'reference to quest_template',
+    `quest_status` INT(11) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Quest status: 3 incompleted, 1 completed/rewarded',
     `cast_flags` TINYINT UNSIGNED NOT NULL COMMENT 'first bit defines caster: 1=player, 0=creature; second bit defines target, same mapping as caster bit'
 ) ENGINE = MYISAM DEFAULT CHARSET=utf8;
 
