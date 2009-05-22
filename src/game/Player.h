@@ -213,9 +213,11 @@ struct PlayerInfo
 
 struct PvPInfo
 {
-    PvPInfo() : inHostileArea(false), endTimer(0) {}
+    PvPInfo() : inHostileArea(false), inNoPvPArea(false), inFFAPvPArea(false), endTimer(0) {}
 
     bool inHostileArea;
+    bool inNoPvPArea;
+    bool inFFAPvPArea;
     time_t endTimer;
 };
 
@@ -1423,6 +1425,13 @@ class TRINITY_DLL_SPEC Player : public Unit
         void SendInitialActionButtons() const;
 
         PvPInfo pvpInfo;
+        void UpdatePvPState(bool onlyFFA = false);
+        void SetPvP(bool state)
+        {
+            Unit::SetPvP(state);
+            for(ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
+                (*itr)->SetPvP(state);
+        }
         void UpdatePvP(bool state, bool ovrride=false);
         void UpdateZone(uint32 newZone,uint32 newArea);
         void UpdateArea(uint32 newArea);
