@@ -61,6 +61,10 @@ TargetedMovementGenerator<T>::_setTargetLocation(T &owner)
         return;
     }
 
+    // chaser is on the way, and target did not move much
+    if(GetDestination(x, y, z) && i_target->IsWithinDist3d(x, y, z, 0.3f))
+        return;
+
     if(!i_offset)
     {
         // to nearest random contact position
@@ -111,7 +115,6 @@ TargetedMovementGenerator<T>::Initialize(T &owner)
 
     if (owner.GetTypeId() == TYPEID_UNIT && ((Creature*)&owner)->canFly())
         owner.AddUnitMovementFlag(MOVEMENTFLAG_FLYING2);
-
     _setTargetLocation(owner);
 }
 
@@ -158,7 +161,7 @@ TargetedMovementGenerator<T>::Update(T &owner, const uint32 & time_diff)
 
     if( !i_destinationHolder.HasDestination() )
         _setTargetLocation(owner);
-    if( owner.IsStopped() && !i_destinationHolder.HasArrived() )
+    else if( owner.IsStopped() && !i_destinationHolder.HasArrived() )
     {
         owner.addUnitState(UNIT_STAT_CHASE);
         if (owner.GetTypeId() == TYPEID_UNIT && ((Creature*)&owner)->canFly())
@@ -180,8 +183,7 @@ TargetedMovementGenerator<T>::Update(T &owner, const uint32 & time_diff)
 
         // try to counter precision differences
         //if( i_destinationHolder.GetDistance2dFromDestSq(*i_target.getTarget()) >= dist * dist)
-        if(i_offset ? !i_target->IsWithinDistInMap(&owner,2*i_offset)
-            : !i_target->IsWithinMeleeRange(&owner))
+        if(i_offset ? !i_target->IsWithinDistInMap(&owner, i_offset + 1.0f) : !i_target->IsWithinMeleeRange(&owner))
         {
             owner.SetInFront(i_target.getTarget());         // Set new Angle For Map::
             _setTargetLocation(owner);                      //Calculate New Dest and Send data To Player
