@@ -2297,6 +2297,7 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
                 }
                 else if (m_spellInfo->EffectImplicitTargetA[i] == TARGET_DEST_TARGET_ANY
                     && m_spellInfo->EffectImplicitTargetB[i] == TARGET_UNIT_AREA_ALLY_DST)// Wild Growth, Circle of Healing target special selection
+                    // TODO: is Ancestral Awakening implemented?
                 {
                     typedef std::priority_queue<PrioritizeHealthWraper, std::vector<PrioritizeHealthWraper>, PrioritizeHealth> TopHealth;
                     TopHealth healedMembers;

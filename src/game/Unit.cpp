@@ -6409,7 +6409,6 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             // Ancestral Awakening
             if (dummySpell->SpellIconID == 3065)
             {
-                // TODO: frite dummy fot triggered spell
                 triggered_spell_id = 52759;
                 basepoints0 = triggerAmount * damage / 100;
                 target = this;
