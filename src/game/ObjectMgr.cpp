@@ -6253,7 +6253,7 @@ void ObjectMgr::LoadNPCSpellClickSpells()
 
     mSpellClickInfoMap.clear();
 
-    QueryResult *result = WorldDatabase.Query("SELECT npc_entry, spell_id, quest_id, cast_flags FROM npc_spellclick_spells");
+    QueryResult *result = WorldDatabase.Query("SELECT npc_entry, spell_id, quest_id, quest_status, cast_flags FROM npc_spellclick_spells");
 
     if(!result)
     {
@@ -6302,10 +6302,13 @@ void ObjectMgr::LoadNPCSpellClickSpells()
 
         }
 
-        uint8 castFlags = fields[3].GetUInt8();
+        uint32 queststatus = fields[3].GetUInt32();
+
+        uint8 castFlags = fields[4].GetUInt8();
         SpellClickInfo info;
         info.spellId = spellid;
         info.questId = quest;
+        info.questStatus = queststatus;
         info.castFlags = castFlags;
         mSpellClickInfoMap.insert(SpellClickInfoMap::value_type(npc_entry, info));
         ++count;
