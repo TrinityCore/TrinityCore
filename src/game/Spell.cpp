@@ -1598,7 +1598,7 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
                     break;
                 case TARGET_UNIT_CASTER_FISHING:
                 {
-                    AddUnitTarget(m_caster, i);                   
+                    //AddUnitTarget(m_caster, i);
                     float min_dis = GetSpellMinRange(sSpellRangeStore.LookupEntry(m_spellInfo->rangeIndex));
                     float max_dis = GetSpellMaxRange(sSpellRangeStore.LookupEntry(m_spellInfo->rangeIndex));
                     float dis = m_caster->GetMap()->rand_norm() * (max_dis - min_dis) + min_dis;
