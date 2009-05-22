@@ -1,0 +1,1597 @@
+﻿<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug_NoPCH|Win32">
+      <Configuration>Debug_NoPCH</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug_NoPCH|Win32">
+      <Configuration>Debug_NoPCH</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug_NoPCH|x64">
+      <Configuration>Debug_NoPCH</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug_NoPCH|x64">
+      <Configuration>Debug_NoPCH</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectName>ACE_Wrappers</ProjectName>
+    <ProjectGUID>{BD537C9A-FECA-1BAD-6757-8A6348EA12C8}</ProjectGUID>
+    <RootNamespace>ACE</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|X64'">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug_NoPCH|Win32'">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug_NoPCH|X64'">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(LocalAppData)\Microsoft\VisualStudio\10.0\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(LocalAppData)\Microsoft\VisualStudio\10.0\Microsoft.Cpp.$(Platform).user.props')" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\dep\lib\$(Platform)_$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\ace__$(Platform)_$(Configuration)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ACEd</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.dll</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">..\..\dep\lib\$(Platform)_$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">.\ace__$(Platform)_$(Configuration)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">ACEd</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">.dll</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">false</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\dep\lib\$(Platform)_$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\ace__$(Platform)_$(Configuration)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ACE</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.dll</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|X64'">..\..\dep\lib\$(Platform)_$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|X64'">.\ace__$(Platform)_$(Configuration)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|X64'">ACE</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|X64'">.dll</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|X64'">false</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug_NoPCH|Win32'">..\..\dep\lib\$(Platform)_debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug_NoPCH|Win32'">.\ace__$(Platform)_$(Configuration)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug_NoPCH|Win32'">ACEd</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug_NoPCH|Win32'">.dll</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug_NoPCH|Win32'">false</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug_NoPCH|X64'">..\..\dep\lib\$(Platform)_debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug_NoPCH|X64'">.\ace__$(Platform)_$(Configuration)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug_NoPCH|X64'">ACEd</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug_NoPCH|X64'">.dll</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug_NoPCH|X64'">false</LinkIncremental>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug_NoPCH|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug_NoPCH|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug_NoPCH|Win32'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug_NoPCH|X64'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug_NoPCH|X64'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug_NoPCH|X64'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|X64'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|X64'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|X64'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|X64'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|X64'" />
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Midl>
+      <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <TypeLibraryName>%(FileName).tlb</TypeLibraryName>
+      <HeaderFileName>%(FileName).h</HeaderFileName>
+      <InterfaceIdentifierFileName>%(FileName)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(FileName)_p.c</ProxyFileName>
+    </Midl>
+    <ClCompile>
+      <AdditionalOptions>/MP /wd 4748 %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\dep\ACE_wrappers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>ACE_BUILD_DLL;_DEBUG;WIN32;_WINDOWS;_CRT_NONSTDC_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4355;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(TargetDir)\ADEd.pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <ImportLibrary>$(OutDir)ACEd.lib</ImportLibrary>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">
+    <Midl>
+      <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <TypeLibraryName>%(FileName).tlb</TypeLibraryName>
+      <HeaderFileName>%(FileName).h</HeaderFileName>
+      <InterfaceIdentifierFileName>%(FileName)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(FileName)_p.c</ProxyFileName>
+    </Midl>
+    <ClCompile>
+      <AdditionalOptions>/MP /wd 4748 %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\dep\ACE_wrappers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>ACE_BUILD_DLL;_DEBUG;WIN32;_WINDOWS;_CRT_NONSTDC_NO_WARNINGS;_AMD64_;_WIN64;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4355;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalOptions>/machine:AMD64 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(TargetDir)\ADEd.pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <ImportLibrary>$(OutDir)ACEd.lib</ImportLibrary>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Midl>
+      <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <TypeLibraryName>%(FileName).tlb</TypeLibraryName>
+      <HeaderFileName>%(FileName).h</HeaderFileName>
+      <InterfaceIdentifierFileName>%(FileName)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(FileName)_p.c</ProxyFileName>
+    </Midl>
+    <ClCompile>
+      <AdditionalOptions>/MP /wd 4748 %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>MaxSpeed</Optimization>
+      <AdditionalIncludeDirectories>..\..\dep\ACE_wrappers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>ACE_BUILD_DLL;NDEBUG;WIN32;_WINDOWS;_CRT_NONSTDC_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+      <DisableSpecificWarnings>4355;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(TargetDir)\ACE.pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <ImportLibrary>$(OutDir)ACE.lib</ImportLibrary>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|X64'">
+    <Midl>
+      <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <TypeLibraryName>%(FileName).tlb</TypeLibraryName>
+      <HeaderFileName>%(FileName).h</HeaderFileName>
+      <InterfaceIdentifierFileName>%(FileName)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(FileName)_p.c</ProxyFileName>
+    </Midl>
+    <ClCompile>
+      <AdditionalOptions>/MP /wd 4748 %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>MaxSpeed</Optimization>
+      <AdditionalIncludeDirectories>..\..\dep\ACE_wrappers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>ACE_BUILD_DLL;NDEBUG;WIN32;_WINDOWS;_CRT_NONSTDC_NO_WARNINGS;_AMD64_;_WIN64;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+      <DisableSpecificWarnings>4355;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalOptions>/machine:AMD64 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(TargetDir)\ACE.pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <ImportLibrary>$(OutDir)ACE.lib</ImportLibrary>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_NoPCH|Win32'">
+    <Midl>
+      <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <TypeLibraryName>%(FileName).tlb</TypeLibraryName>
+      <HeaderFileName>%(FileName).h</HeaderFileName>
+      <InterfaceIdentifierFileName>%(FileName)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(FileName)_p.c</ProxyFileName>
+    </Midl>
+    <ClCompile>
+      <AdditionalOptions>/MP /wd 4748 %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\dep\ACE_wrappers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>ACE_BUILD_DLL;_DEBUG;WIN32;_WINDOWS;_CRT_NONSTDC_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4355;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(TargetDir)\ADEd.pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <ImportLibrary>$(OutDir)ACEd.lib</ImportLibrary>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_NoPCH|X64'">
+    <Midl>
+      <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <TypeLibraryName>%(FileName).tlb</TypeLibraryName>
+      <HeaderFileName>%(FileName).h</HeaderFileName>
+      <InterfaceIdentifierFileName>%(FileName)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(FileName)_p.c</ProxyFileName>
+    </Midl>
+    <ClCompile>
+      <AdditionalOptions>/MP /wd 4748 %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\dep\ACE_wrappers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>ACE_BUILD_DLL;_DEBUG;WIN32;_WINDOWS;_CRT_NONSTDC_NO_WARNINGS;_AMD64_;_WIN64;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4355;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalOptions>/machine:AMD64 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(TargetDir)\ADEd.pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <ImportLibrary>$(OutDir)ACEd.lib</ImportLibrary>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\dep\ACE_wrappers\README">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|X64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_NoPCH|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_NoPCH|X64'">true</ExcludedFromBuild>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\dep\ACE_wrappers\VERSION">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|X64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_NoPCH|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_NoPCH|X64'">true</ExcludedFromBuild>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\dep\ACE_wrappers\ace\ace.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\dep\ACE_wrappers\ace\ACE.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\ace_wchar.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Activation_Queue.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Active_Map_Manager.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Active_Map_Manager_T.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Addr.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\ARGV.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Argv_Type_Converter.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Array_Base.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Array_Map.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Asynch_IO_Impl.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\ATM_Acceptor.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\ATM_Addr.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\ATM_Connector.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\ATM_Params.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\ATM_QoS.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\ATM_Stream.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Atomic_Op.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Atomic_Op_T.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Auto_Event.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Auto_Functor.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Auto_IncDec_T.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Auto_Ptr.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Barrier.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Based_Pointer_T.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Base_Thread_Adapter.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Basic_Stats.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Basic_Types.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Bound_Ptr.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Cache_Map_Manager_T.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Caching_Strategies_T.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Capabilities.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\CDR_Base.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\CDR_Size.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\CDR_Stream.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Cleanup.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Codeset_Registry.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Condition_T.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Condition_Thread_Mutex.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Configuration.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Containers.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Containers_T.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Date_Time.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\DEV.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\DEV_Addr.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\DEV_Connector.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\DEV_IO.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Dev_Poll_Reactor.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Dirent.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Dirent_Selector.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Dynamic.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Dynamic_Message_Strategy.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Dynamic_Service.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Env_Value_T.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Event.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Event_Handler.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Event_Handler_T.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\FIFO.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\FIFO_Recv.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\FIFO_Recv_Msg.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\FIFO_Send.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\FIFO_Send_Msg.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\FILE.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\FILE_Addr.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\FILE_Connector.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\FILE_IO.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\File_Lock.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Flag_Manip.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Framework_Component.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Functor.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Functor_String.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Functor_T.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Get_Opt.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Guard_T.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Handle_Gobbler.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Handle_Set.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Hashable.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Hash_Cache_Map_Manager_T.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Hash_Map_Manager_T.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Hash_Map_With_Allocator_T.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Hash_Multi_Map_Manager_T.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\High_Res_Timer.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\INET_Addr.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Intrusive_Auto_Ptr.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Intrusive_List.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Intrusive_List_Node.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\IOStream_T.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\IO_Cntl_Msg.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\IO_SAP.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\IPC_SAP.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Local_Tokens.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Lock.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Lock_Adapter_T.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Log_Msg.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Log_Record.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\LSOCK.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\LSOCK_CODgram.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\LSOCK_Connector.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\LSOCK_Dgram.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\LSOCK_Stream.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Malloc.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Malloc_Allocator.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Malloc_T.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Managed_Object.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Manual_Event.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Map_Manager.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Map_T.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\MEM_Acceptor.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\MEM_Addr.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\MEM_Connector.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\MEM_IO.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Mem_Map.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\MEM_SAP.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\MEM_Stream.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Message_Block.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Message_Block_T.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Message_Queue.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Message_Queue_NT.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Message_Queue_Vx.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Metrics_Cache_T.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\MMAP_Memory_Pool.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Module.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Monitor_Base.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Msg_WFMO_Reactor.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Multihomed_INET_Addr.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Mutex.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Naming_Context.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Netlink_Addr.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Notification_Queue.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Notification_Strategy.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\NT_Service.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Obchunk.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Object_Manager.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Obstack_T.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\OS.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\OS_Errno.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\OS_Log_Msg_Attributes.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\OS_NS_arpa_inet.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\OS_NS_ctype.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\OS_NS_dirent.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\OS_NS_dlfcn.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\OS_NS_errno.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\OS_NS_fcntl.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\OS_NS_math.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\OS_NS_netdb.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\OS_NS_poll.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\OS_NS_pwd.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\OS_NS_regex.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\OS_NS_signal.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\OS_NS_stdio.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\OS_NS_stdlib.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\OS_NS_string.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\OS_NS_strings.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\OS_NS_stropts.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\OS_NS_sys_mman.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\OS_NS_sys_msg.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\OS_NS_sys_resource.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\OS_NS_sys_select.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\OS_NS_sys_sendfile.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\OS_NS_sys_shm.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\OS_NS_sys_socket.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\OS_NS_sys_stat.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\OS_NS_sys_time.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\OS_NS_sys_uio.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\OS_NS_sys_wait.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\OS_NS_Thread.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\OS_NS_time.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\OS_NS_unistd.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\OS_NS_wchar.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\OS_TLI.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Pagefile_Memory_Pool.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Pair_T.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Ping_Socket.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Pipe.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\PI_Malloc.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\POSIX_Proactor.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Proactor.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Process.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Process_Manager.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Process_Mutex.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Process_Semaphore.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Profile_Timer.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\RB_Tree.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Reactor.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Reactor_Notification_Strategy.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Read_Buffer.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Recursive_Thread_Mutex.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Recyclable.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Refcountable_T.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Refcounted_Auto_Ptr.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Remote_Tokens.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Reverse_Lock_T.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\RW_Mutex.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\RW_Process_Mutex.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\RW_Thread_Mutex.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Sample_History.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Sched_Params.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Select_Reactor_Base.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Select_Reactor_T.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Semaphore.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Service_Config.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Service_Gestalt.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Service_Object.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Service_Repository.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Service_Types.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Shared_Memory_MM.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Shared_Memory_SV.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Shared_Object.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Signal.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Sig_Handler.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Singleton.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\SOCK.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\SOCK_Acceptor.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\SOCK_CODgram.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\SOCK_Connector.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\SOCK_Dgram.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\SOCK_Dgram_Bcast.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\SOCK_Dgram_Mcast.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\SOCK_IO.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\SOCK_Netlink.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\SOCK_SEQPACK_Acceptor.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\SOCK_SEQPACK_Association.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\SOCK_SEQPACK_Connector.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\SOCK_Stream.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\SPIPE.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\SPIPE_Addr.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\SPIPE_Connector.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\SPIPE_Stream.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\SString.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Stats.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Strategies_T.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Stream.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\String_Base.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\SV_Message.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\SV_Message_Queue.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\SV_Semaphore_Complex.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\SV_Semaphore_Simple.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\SV_Shared_Memory.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Task.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Task_Ex_T.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Task_T.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Thread.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Thread_Adapter.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Thread_Control.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Thread_Manager.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Thread_Mutex.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Thread_Semaphore.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Timeprobe.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Timer_Queue_Adapters.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Timer_Queue_T.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Time_Value.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\TLI.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\TLI_Connector.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\TLI_Stream.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Token.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Token_Collection.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Token_Manager.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Token_Request_Reply.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\TP_Reactor.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\TSS_T.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Typed_SV_Message.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Typed_SV_Message_Queue.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Unbounded_Queue.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Unbounded_Set.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Unbounded_Set_Ex.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\UNIX_Addr.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\UPIPE_Acceptor.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\UPIPE_Connector.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\UPIPE_Stream.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\UTF16_Encoding_Converter.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\UUID.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\Vector_T.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\WFMO_Reactor.inl" />
+    <None Include="..\..\dep\ACE_wrappers\ace\XTI_ATM_Mcast.inl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Acceptor.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\ACE.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\ACE_export.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\ace_wchar.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Activation_Queue.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Active_Map_Manager.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Active_Map_Manager_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Addr.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\ARGV.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Argv_Type_Converter.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Arg_Shifter.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Array.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Array_Base.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Array_Map.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Assert.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Asynch_Acceptor.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Asynch_Connector.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Asynch_IO.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Asynch_IO_Impl.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Asynch_Pseudo_Task.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\ATM_Acceptor.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\ATM_Addr.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\ATM_Connector.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\ATM_Params.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\ATM_QoS.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\ATM_Stream.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Atomic_Op.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Atomic_Op_Sparc.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Atomic_Op_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Auto_Event.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Auto_Functor.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Auto_IncDec_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Auto_Ptr.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Barrier.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Based_Pointer_Repository.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Based_Pointer_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Base_Thread_Adapter.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Basic_Stats.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Basic_Types.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Bound_Ptr.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Cached_Connect_Strategy_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Cache_Map_Manager_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Caching_Strategies_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Caching_Utility_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Capabilities.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\CDR_Base.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\CDR_Size.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\CDR_Stream.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\CE_Screen_Output.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\checked_iterator.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Cleanup.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Cleanup_Strategies_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Codecs.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Codeset_IBM1047.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Codeset_Registry.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Codeset_Symbols.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Condition_Recursive_Thread_Mutex.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Condition_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Condition_Thread_Mutex.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-aix-5.x.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-all.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-borland-common.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-cray.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-cxx-common.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-cygwin32.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-doxygen.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-freebsd.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-g++-common.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-ghs-common.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-hpux-11.00.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-icc-common.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-integritySCA.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-irix6.5.x-sgic++.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-irix6.x-common.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-irix6.x-g++.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-irix6.x-sgic++.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-linux-common.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-linux.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-lite.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-lynxos.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-macosx-leopard.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-macosx-panther.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-macosx-tiger.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-macosx.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-macros.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-minimal.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-mvs.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-netbsd.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-openbsd.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-openvms.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-pharlap.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-posix-nonetworking.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-posix.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-qnx-neutrino.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-qnx-rtp-62x.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-qnx-rtp-common.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-qnx-rtp-pre62x.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-qnx-rtp.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-rtems.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-sco-5.0.0-nothread.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-sco-5.0.0.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-suncc-common.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-sunos5.10.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-sunos5.11.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-sunos5.4-g++.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-sunos5.4-sunc++-4.x.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-sunos5.5.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-sunos5.6.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-sunos5.7.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-sunos5.8.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-sunos5.9.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-tandem-nsk-mips-v2.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-tandem-nsk-mips-v3.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-tandem.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-tru64.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-unixware-7.1.0.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-unixware-7.1.0.udk.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-visualage.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-vxworks.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-vxworks5.x.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-vxworks6.2.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-vxworks6.3.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-vxworks6.4.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-vxworks6.5.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-vxworks6.6.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-win32-borland.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-win32-common.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-win32-dmc.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-win32-ghs.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-win32-interix.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-win32-mingw.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-win32-msvc-7.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-win32-msvc-8.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-win32-msvc-9.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-win32-msvc.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-win32.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config-WinCE.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\config.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Configuration.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Configuration_Import_Export.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Connection_Recycling_Strategy.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Connector.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Containers.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Containers_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Copy_Disabled.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\CORBA_macros.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Countdown_Time.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Date_Time.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Default_Constants.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\DEV.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\DEV_Addr.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\DEV_Connector.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\DEV_IO.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Dev_Poll_Reactor.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Dirent.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Dirent_Selector.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\DLL.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\DLL_Manager.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Dump.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Dump_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Dynamic.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Dynamic_Message_Strategy.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Dynamic_Service.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Dynamic_Service_Base.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Dynamic_Service_Dependency.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Encoding_Converter.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Encoding_Converter_Factory.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Env_Value_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Event.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Event_Handler.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Event_Handler_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Exception_Macros.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\FIFO.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\FIFO_Recv.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\FIFO_Recv_Msg.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\FIFO_Send.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\FIFO_Send_Msg.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\FILE.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Filecache.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\FILE_Addr.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\FILE_Connector.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\FILE_IO.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\File_Lock.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Flag_Manip.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Framework_Component.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Framework_Component_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Free_List.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Functor.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Functor_String.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Functor_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Future.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Future_Set.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Get_Opt.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Global_Macros.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Guard_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Handle_Gobbler.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Handle_Ops.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Handle_Set.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Hashable.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Hash_Cache_Map_Manager_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Hash_Map_Manager.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Hash_Map_Manager_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Hash_Map_With_Allocator_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Hash_Multi_Map_Manager_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\High_Res_Timer.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\ICMP_Socket.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\If_Then_Else.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\INET_Addr.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Init_ACE.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Intrusive_Auto_Ptr.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Intrusive_List.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Intrusive_List_Node.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\iosfwd.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\IOStream.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\IOStream_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\IO_Cntl_Msg.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\IO_SAP.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\IPC_SAP.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Lib_Find.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Local_Memory_Pool.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Local_Name_Space.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Local_Name_Space_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Local_Tokens.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Lock.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Lock_Adapter_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\LOCK_SOCK_Acceptor.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Logging_Strategy.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Log_Msg.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Log_Msg_Backend.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Log_Msg_Callback.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Log_Msg_IPC.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Log_Msg_NT_Event_Log.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Log_Msg_UNIX_Syslog.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Log_Priority.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Log_Record.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\LSOCK.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\LSOCK_Acceptor.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\LSOCK_CODgram.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\LSOCK_Connector.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\LSOCK_Dgram.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\LSOCK_Stream.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Malloc.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Malloc_Allocator.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Malloc_Base.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Malloc_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Managed_Object.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Manual_Event.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Map.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Map_Manager.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Map_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Memory_Pool.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\MEM_Acceptor.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\MEM_Addr.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\MEM_Connector.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\MEM_IO.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Mem_Map.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\MEM_SAP.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\MEM_Stream.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Message_Block.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Message_Block_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Message_Queue.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Message_Queue_NT.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Message_Queue_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Message_Queue_Vx.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Method_Object.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Method_Request.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Metrics_Cache.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Metrics_Cache_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Min_Max.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\MMAP_Memory_Pool.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Module.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Monitor_Admin.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Monitor_Admin_Manager.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Monitor_Base.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Monitor_Control_Action.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Monitor_Control_Types.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Monitor_Point_Registry.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Monitor_Size.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Msg_WFMO_Reactor.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Multihomed_INET_Addr.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Mutex.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Name_Proxy.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Name_Request_Reply.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Name_Space.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Naming_Context.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Netlink_Addr.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Node.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Notification_Queue.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Notification_Strategy.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\NT_Service.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Null_Barrier.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Null_Condition.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Null_Mutex.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Null_Semaphore.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Numeric_Limits.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Obchunk.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Object_Manager.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Object_Manager_Base.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Obstack.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Obstack_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\OS.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\OS_Dirent.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\OS_Errno.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\arpa\os_inet.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\netinet\os_in.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\netinet\os_tcp.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\net\os_if.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_aio.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_assert.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_byteswap.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_complex.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_cpio.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_ctype.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_dirent.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_dlfcn.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_errno.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_fcntl.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_fenv.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_float.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_fmtmsg.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_fnmatch.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_ftw.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_glob.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_grp.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_iconv.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_intrin.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_inttypes.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_iso646.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_kstat.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_langinfo.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_libgen.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_limits.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_local.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_math.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_monetary.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_mqueue.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_ndbm.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_netdb.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_nl_types.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_pdh.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_pdhmsg.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_poll.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_pthread.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_pwd.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_regex.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_sched.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_search.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_semaphore.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_setjmp.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_signal.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_spawn.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_stdarg.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_stdbool.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_stddef.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_stdint.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_stdio.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_stdlib.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_string.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_strings.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_stropts.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_syslog.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_tar.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_termios.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_tgmath.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_time.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_trace.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_ucontext.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_ulimit.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_unistd.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_utime.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_utmpx.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_wchar.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_wctype.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\os_wordexp.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\sys\os_ipc.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\sys\os_loadavg.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\sys\os_mman.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\sys\os_msg.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\sys\os_pstat.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\sys\os_resource.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\sys\os_select.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\sys\os_sem.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\sys\os_shm.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\sys\os_socket.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\sys\os_stat.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\sys\os_statvfs.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\sys\os_sysctl.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\sys\os_sysinfo.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\sys\os_time.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\sys\os_timeb.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\sys\os_times.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\sys\os_types.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\sys\os_uio.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\sys\os_un.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\sys\os_utsname.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\os_include\sys\os_wait.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\OS_Log_Msg_Attributes.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\OS_main.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\OS_Memory.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\OS_NS_arpa_inet.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\OS_NS_ctype.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\OS_NS_dirent.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\OS_NS_dlfcn.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\OS_NS_errno.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\OS_NS_fcntl.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\OS_NS_macros.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\OS_NS_math.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\OS_NS_netdb.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\OS_NS_poll.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\OS_NS_pwd.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\OS_NS_regex.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\OS_NS_signal.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\OS_NS_stdio.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\OS_NS_stdlib.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\OS_NS_string.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\OS_NS_strings.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\OS_NS_stropts.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\OS_NS_sys_mman.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\OS_NS_sys_msg.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\OS_NS_sys_resource.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\OS_NS_sys_select.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\OS_NS_sys_sendfile.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\OS_NS_sys_shm.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\OS_NS_sys_socket.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\OS_NS_sys_stat.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\OS_NS_sys_time.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\OS_NS_sys_uio.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\OS_NS_sys_utsname.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\OS_NS_sys_wait.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\OS_NS_Thread.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\OS_NS_time.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\OS_NS_unistd.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\OS_NS_wchar.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\OS_QoS.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\OS_String.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\OS_Thread_Adapter.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\OS_TLI.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Pagefile_Memory_Pool.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Pair.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Pair_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Parse_Node.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Ping_Socket.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Pipe.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\PI_Malloc.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\POSIX_Asynch_IO.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\POSIX_CB_Proactor.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\POSIX_Proactor.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\post.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\pre.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Priority_Reactor.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Proactor.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Proactor_Impl.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Process.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Process_Manager.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Process_Mutex.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Process_Semaphore.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Profile_Timer.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\RB_Tree.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Reactor.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Reactor_Impl.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Reactor_Notification_Strategy.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Reactor_Timer_Interface.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Reactor_Token_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Read_Buffer.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Recursive_Thread_Mutex.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Recyclable.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Refcountable.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Refcountable_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Refcounted_Auto_Ptr.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Registry.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Registry_Name_Space.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Remote_Name_Space.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Remote_Tokens.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Reverse_Lock_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\RW_Mutex.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\RW_Process_Mutex.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\RW_Thread_Mutex.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Sample_History.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Sbrk_Memory_Pool.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Sched_Params.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Select_Reactor.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Select_Reactor_Base.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Select_Reactor_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Semaphore.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Service_Config.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Service_Gestalt.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Service_Manager.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Service_Object.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Service_Repository.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Service_Templates.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Service_Types.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Shared_Memory.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Shared_Memory_MM.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Shared_Memory_Pool.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Shared_Memory_SV.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Shared_Object.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Signal.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Sig_Adapter.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Sig_Handler.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Singleton.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\SOCK.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\SOCK_Acceptor.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\SOCK_CODgram.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Sock_Connect.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\SOCK_Connector.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\SOCK_Dgram.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\SOCK_Dgram_Bcast.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\SOCK_Dgram_Mcast.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\SOCK_IO.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\SOCK_Netlink.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\SOCK_SEQPACK_Acceptor.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\SOCK_SEQPACK_Association.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\SOCK_SEQPACK_Connector.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\SOCK_Stream.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\SPIPE.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\SPIPE_Acceptor.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\SPIPE_Addr.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\SPIPE_Connector.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\SPIPE_Stream.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\SString.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\SStringfwd.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Stack_Trace.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Static_Object_Lock.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Stats.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Strategies.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Strategies_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Stream.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\streams.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Stream_Modules.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\String_Base.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\String_Base_Const.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\SUN_Proactor.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Svc_Conf.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Svc_Conf_Lexer.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Svc_Conf_Param.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Svc_Conf_Tokens.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Svc_Conf_Token_Table.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\svc_export.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Svc_Handler.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\SV_Message.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\SV_Message_Queue.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\SV_Semaphore_Complex.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\SV_Semaphore_Simple.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\SV_Shared_Memory.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Synch.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Synch_Options.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Synch_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Synch_Traits.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\System_Time.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Task.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Task_Ex_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Task_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Test_and_Set.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Thread.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Thread_Adapter.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Thread_Control.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Thread_Exit.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Thread_Hook.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Thread_Manager.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Thread_Mutex.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Thread_Semaphore.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Throughput_Stats.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Timeprobe.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Timeprobe_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Timer_Hash.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Timer_Hash_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Timer_Heap.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Timer_Heap_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Timer_List.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Timer_List_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Timer_Queue.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Timer_Queuefwd.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Timer_Queue_Adapters.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Timer_Queue_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Timer_Wheel.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Timer_Wheel_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Time_Value.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\TLI.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\TLI_Acceptor.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\TLI_Connector.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\TLI_Stream.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Token.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Token_Collection.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Token_Invariants.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Token_Manager.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Token_Request_Reply.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\TP_Reactor.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Trace.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Truncate.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\TSS_Adapter.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\TSS_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\TTY_IO.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Typed_SV_Message.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Typed_SV_Message_Queue.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Unbounded_Queue.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Unbounded_Set.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Unbounded_Set_Ex.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\UNIX_Addr.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\UPIPE_Acceptor.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\UPIPE_Addr.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\UPIPE_Connector.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\UPIPE_Stream.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\UTF16_Encoding_Converter.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\UTF32_Encoding_Converter.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\UTF8_Encoding_Converter.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\UUID.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Value_Ptr.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Vector_T.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Version.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\Versioned_Namespace.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\WFMO_Reactor.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\WIN32_Asynch_IO.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\WIN32_Proactor.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\XML_Svc_Conf.h" />
+    <ClInclude Include="..\..\dep\ACE_wrappers\ace\XTI_ATM_Mcast.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\ACE.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\ACE_crc32.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\ACE_crc_ccitt.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\ace_wchar.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Activation_Queue.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Active_Map_Manager.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Addr.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Argv_Type_Converter.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Assert.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Asynch_IO.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Asynch_IO_Impl.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Asynch_Pseudo_Task.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\ATM_Acceptor.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\ATM_Addr.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\ATM_Connector.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\ATM_Params.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\ATM_QoS.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\ATM_Stream.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Atomic_Op.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Atomic_Op_Sparc.c" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Auto_Event.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Barrier.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Based_Pointer_Repository.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Base_Thread_Adapter.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Basic_Stats.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Basic_Types.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Capabilities.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\CDR_Base.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\CDR_Size.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\CDR_Stream.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Cleanup.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Codecs.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Codeset_IBM1047.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Codeset_Registry.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Codeset_Registry_db.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Condition_Recursive_Thread_Mutex.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Condition_Thread_Mutex.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Configuration.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Configuration_Import_Export.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Connection_Recycling_Strategy.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Containers.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Copy_Disabled.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Countdown_Time.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Date_Time.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\DEV.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\DEV_Addr.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\DEV_Connector.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\DEV_IO.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Dev_Poll_Reactor.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Dirent.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Dirent_Selector.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\DLL.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\DLL_Manager.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Dump.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Dynamic.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Dynamic_Message_Strategy.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Dynamic_Service_Base.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Dynamic_Service_Dependency.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Encoding_Converter.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Encoding_Converter_Factory.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Event.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Event_Handler.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\FIFO.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\FIFO_Recv.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\FIFO_Recv_Msg.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\FIFO_Send.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\FIFO_Send_Msg.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\FILE.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Filecache.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\FILE_Addr.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\FILE_Connector.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\FILE_IO.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\File_Lock.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Flag_Manip.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Framework_Component.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Functor.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Functor_String.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\gethrtime.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Get_Opt.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Handle_Ops.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Handle_Set.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Hashable.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\High_Res_Timer.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\ICMP_Socket.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\INET_Addr.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Init_ACE.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\IOStream.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\IO_Cntl_Msg.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\IO_SAP.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\IPC_SAP.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Lib_Find.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Local_Memory_Pool.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Local_Name_Space.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Local_Tokens.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Lock.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Logging_Strategy.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Log_Msg.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Log_Msg_Backend.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Log_Msg_Callback.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Log_Msg_IPC.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Log_Msg_NT_Event_Log.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Log_Msg_UNIX_Syslog.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Log_Record.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\LSOCK.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\LSOCK_Acceptor.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\LSOCK_CODgram.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\LSOCK_Connector.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\LSOCK_Dgram.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\LSOCK_Stream.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Malloc.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Malloc_Allocator.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Manual_Event.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\MEM_Acceptor.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\MEM_Addr.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\MEM_Connector.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\MEM_IO.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Mem_Map.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\MEM_SAP.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\MEM_Stream.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Message_Block.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Message_Queue.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Message_Queue_NT.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Message_Queue_Vx.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Method_Request.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\MMAP_Memory_Pool.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Monitor_Admin.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Monitor_Admin_Manager.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Monitor_Base.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Monitor_Control_Action.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Monitor_Control_Types.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Monitor_Point_Registry.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Monitor_Size.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Msg_WFMO_Reactor.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Multihomed_INET_Addr.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Mutex.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Name_Proxy.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Name_Request_Reply.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Name_Space.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Naming_Context.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Netlink_Addr.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Notification_Queue.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Notification_Strategy.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\NT_Service.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Obchunk.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Object_Manager.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Object_Manager_Base.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\OS_Errno.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\OS_Log_Msg_Attributes.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\OS_main.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\OS_NS_arpa_inet.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\OS_NS_ctype.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\OS_NS_dirent.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\OS_NS_dlfcn.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\OS_NS_errno.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\OS_NS_fcntl.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\OS_NS_math.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\OS_NS_netdb.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\OS_NS_poll.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\OS_NS_pwd.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\OS_NS_regex.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\OS_NS_signal.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\OS_NS_stdio.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\OS_NS_stdlib.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\OS_NS_string.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\OS_NS_strings.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\OS_NS_stropts.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\OS_NS_sys_mman.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\OS_NS_sys_msg.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\OS_NS_sys_resource.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\OS_NS_sys_select.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\OS_NS_sys_sendfile.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\OS_NS_sys_shm.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\OS_NS_sys_socket.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\OS_NS_sys_stat.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\OS_NS_sys_time.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\OS_NS_sys_uio.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\OS_NS_sys_utsname.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\OS_NS_sys_wait.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\OS_NS_Thread.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\OS_NS_time.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\OS_NS_unistd.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\OS_NS_wchar.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\OS_QoS.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\OS_Thread_Adapter.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\OS_TLI.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Pagefile_Memory_Pool.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Parse_Node.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Ping_Socket.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Pipe.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\PI_Malloc.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\POSIX_Asynch_IO.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\POSIX_CB_Proactor.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\POSIX_Proactor.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Priority_Reactor.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Proactor.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Proactor_Impl.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Process.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Process_Manager.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Process_Mutex.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Process_Semaphore.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Profile_Timer.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Reactor.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Reactor_Impl.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Reactor_Notification_Strategy.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Reactor_Timer_Interface.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Read_Buffer.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Recursive_Thread_Mutex.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Recyclable.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Registry.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Registry_Name_Space.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Remote_Name_Space.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Remote_Tokens.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Rtems_init.c" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\RW_Mutex.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\RW_Process_Mutex.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\RW_Thread_Mutex.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Sample_History.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Sbrk_Memory_Pool.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Sched_Params.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Select_Reactor_Base.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Semaphore.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Service_Config.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Service_Gestalt.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Service_Manager.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Service_Object.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Service_Repository.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Service_Types.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Shared_Memory.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Shared_Memory_MM.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Shared_Memory_Pool.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Shared_Memory_SV.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Shared_Object.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Signal.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Sig_Adapter.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Sig_Handler.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\SOCK.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\SOCK_Acceptor.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\SOCK_CODgram.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Sock_Connect.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\SOCK_Connector.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\SOCK_Dgram.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\SOCK_Dgram_Bcast.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\SOCK_Dgram_Mcast.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\SOCK_IO.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\SOCK_Netlink.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\SOCK_SEQPACK_Acceptor.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\SOCK_SEQPACK_Association.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\SOCK_SEQPACK_Connector.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\SOCK_Stream.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\SPIPE.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\SPIPE_Acceptor.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\SPIPE_Addr.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\SPIPE_Connector.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\SPIPE_Stream.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\SString.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Stack_Trace.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Stats.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\String_Base_Const.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\SUN_Proactor.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Svc_Conf_Lexer.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Svc_Conf_y.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\SV_Message.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\SV_Message_Queue.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\SV_Semaphore_Complex.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\SV_Semaphore_Simple.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\SV_Shared_Memory.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Synch_Options.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\System_Time.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Task.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Thread.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Thread_Adapter.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Thread_Control.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Thread_Exit.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Thread_Hook.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Thread_Manager.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Thread_Mutex.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Thread_Semaphore.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Throughput_Stats.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Timeprobe.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Time_Value.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\TLI.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\TLI_Acceptor.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\TLI_Connector.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\TLI_Stream.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Token.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Token_Collection.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Token_Invariants.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Token_Manager.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Token_Request_Reply.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\TP_Reactor.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\Trace.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\TSS_Adapter.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\TTY_IO.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\UNIX_Addr.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\UPIPE_Acceptor.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\UPIPE_Connector.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\UPIPE_Stream.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\UTF16_Encoding_Converter.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\UTF32_Encoding_Converter.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\UTF8_Encoding_Converter.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\UUID.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\WFMO_Reactor.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\WIN32_Asynch_IO.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\WIN32_Proactor.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\XML_Svc_Conf.cpp" />
+    <ClCompile Include="..\..\dep\ACE_wrappers\ace\XTI_ATM_Mcast.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
