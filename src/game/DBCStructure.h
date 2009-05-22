@@ -964,7 +964,7 @@ struct ItemEntry
 {
    uint32   ID;                                             // 0
    uint32   Class;                                          // 1
-   //uint32   SubClass;                                     // 2 some items have strnage subclasses
+   uint32   SubClass;                                       // 2 some items have strnage subclasses
    int32    Unk0;                                           // 3
    int32    Material;                                       // 4
    uint32   DisplayId;                                      // 5
