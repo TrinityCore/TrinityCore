@@ -58,7 +58,7 @@ void OutdoorPvPSI::UpdateWorldState()
 bool OutdoorPvPSI::SetupOutdoorPvP()
 {
     for(int i = 0; i < OutdoorPvPSIBuffZonesNum; ++i)
-        sOutdoorPvPMgr.AddZone(OutdoorPvPSIBuffZones[i],this);
+        RegisterZone(OutdoorPvPSIBuffZones[i]);
     return true;
 }
 

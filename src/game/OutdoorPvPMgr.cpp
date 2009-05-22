@@ -23,6 +23,7 @@
 #include "OutdoorPvPZM.h"
 #include "OutdoorPvPSI.h"
 #include "OutdoorPvPEP.h"
+#include "Wintergrasp.h"
 #include "Player.h"
 #include "Policies/SingletonImp.h"
 
@@ -124,6 +125,19 @@ void OutdoorPvPMgr::InitOutdoorPvP()
     {
         m_OutdoorPvPSet.push_back(pOP);
         sLog.outDebug("OutdoorPvP : EP successfully initiated.");
+    }
+
+    pOP = new OPvPWintergrasp;
+    // respawn, init variables
+    if(!pOP->SetupOutdoorPvP())
+    {
+        sLog.outDebug("OutdoorPvP : Wintergrasp init failed.");
+        delete pOP;
+    }
+    else
+    {
+        m_OutdoorPvPSet.push_back(pOP);
+        sLog.outDebug("OutdoorPvP : Wintergrasp successfully initiated.");
     }
 }
 

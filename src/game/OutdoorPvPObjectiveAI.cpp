@@ -21,6 +21,7 @@
 #include "Player.h"
 #include "Unit.h"
 #include "OutdoorPvPMgr.h"
+#include "OutdoorPvPImpl.h"
 #include "World.h"
 
 #define MAX_OUTDOOR_PVP_DISTANCE 200 // the max value in capture point type go data0 is 100 currently, so use twice that much to handle leaving as well

@@ -276,7 +276,7 @@ bool OutdoorPvPTF::SetupOutdoorPvP()
 
     // add the zones affected by the pvp buff
     for(int i = 0; i < OutdoorPvPTFBuffZonesNum; ++i)
-        sOutdoorPvPMgr.AddZone(OutdoorPvPTFBuffZones[i],this);
+        RegisterZone(OutdoorPvPTFBuffZones[i]);
 
     m_OutdoorPvPObjectives.push_back(new OutdoorPvPObjectiveTF(this,TF_TOWER_NW));
     m_OutdoorPvPObjectives.push_back(new OutdoorPvPObjectiveTF(this,TF_TOWER_N));
