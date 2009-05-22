@@ -1,0 +1,632 @@
+﻿<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug_NoPCH|Win32">
+      <Configuration>Debug_NoPCH</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug_NoPCH|Win32">
+      <Configuration>Debug_NoPCH</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug_NoPCH|x64">
+      <Configuration>Debug_NoPCH</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug_NoPCH|x64">
+      <Configuration>Debug_NoPCH</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGUID>{1DC6C4DA-A028-41F3-877D-D5400C594F88}</ProjectGUID>
+    <RootNamespace>game</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|X64'">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug_NoPCH|Win32'">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug_NoPCH|X64'">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(LocalAppData)\Microsoft\VisualStudio\10.0\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(LocalAppData)\Microsoft\VisualStudio\10.0\Microsoft.Cpp.$(Platform).user.props')" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\game__$(Platform)_$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\game__$(Platform)_$(Configuration)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">game</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">.\game__$(Platform)_$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">.\game__$(Platform)_$(Configuration)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">game</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\game__$(Platform)_$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\game__$(Platform)_$(Configuration)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">game</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|X64'">.\game__$(Platform)_$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|X64'">.\game__$(Platform)_$(Configuration)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|X64'">game</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|X64'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug_NoPCH|Win32'">.\game__$(Platform)_$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug_NoPCH|Win32'">.\game__$(Platform)_$(Configuration)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug_NoPCH|Win32'">game</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug_NoPCH|Win32'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug_NoPCH|X64'">.\game__$(Platform)_$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug_NoPCH|X64'">.\game__$(Platform)_$(Configuration)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug_NoPCH|X64'">game</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug_NoPCH|X64'">.lib</TargetExt>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug_NoPCH|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug_NoPCH|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug_NoPCH|Win32'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug_NoPCH|X64'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug_NoPCH|X64'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug_NoPCH|X64'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|X64'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|X64'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|X64'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|X64'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|X64'" />
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalOptions>/MP /Zm200 %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\shared\vmap;..\..\dep\ACE_wrappers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;MANGOS_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>false</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pchdef.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>.\game__$(Platform)_$(Configuration)\game.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>.\game__$(Platform)_$(Configuration)\</AssemblerListingLocation>
+      <ObjectFileName>.\game__$(Platform)_$(Configuration)\</ObjectFileName>
+      <ProgramDataBaseFileName>.\game__$(Platform)_$(Configuration)\</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CallingConvention>Cdecl</CallingConvention>
+      <CompileAs>Default</CompileAs>
+      <ForcedIncludeFiles>pchdef.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Lib>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <AdditionalOptions>/MP /bigobj /Zm200 %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\shared\vmap;..\..\dep\ACE_wrappers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;MANGOS_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>false</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pchdef.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>.\game__$(Platform)_$(Configuration)\game.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>.\game__$(Platform)_$(Configuration)\</AssemblerListingLocation>
+      <ObjectFileName>.\game__$(Platform)_$(Configuration)\</ObjectFileName>
+      <ProgramDataBaseFileName>.\game__$(Platform)_$(Configuration)\</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CallingConvention>Cdecl</CallingConvention>
+      <CompileAs>Default</CompileAs>
+      <ForcedIncludeFiles>pchdef.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Lib>
+      <AdditionalDependencies>.\shared__$(Platform)_$(Configuration)\shared.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalOptions>/MP /Zm200 %(AdditionalOptions)</AdditionalOptions>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\shared\vmap;..\..\dep\ACE_wrappers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;FASTBUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pchdef.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>.\game__$(Platform)_$(Configuration)\game.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>.\game__$(Platform)_$(Configuration)\</AssemblerListingLocation>
+      <ObjectFileName>.\game__$(Platform)_$(Configuration)\</ObjectFileName>
+      <ProgramDataBaseFileName>.\game__$(Platform)_$(Configuration)\</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CallingConvention>Cdecl</CallingConvention>
+      <CompileAs>Default</CompileAs>
+      <ForcedIncludeFiles>pchdef.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Lib>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|X64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <AdditionalOptions>/MP /bigobj /Zm200 %(AdditionalOptions)</AdditionalOptions>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\shared\vmap;..\..\dep\ACE_wrappers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;FASTBUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pchdef.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>.\game__$(Platform)_$(Configuration)\game.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>.\game__$(Platform)_$(Configuration)\</AssemblerListingLocation>
+      <ObjectFileName>.\game__$(Platform)_$(Configuration)\</ObjectFileName>
+      <ProgramDataBaseFileName>.\game__$(Platform)_$(Configuration)\</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CallingConvention>Cdecl</CallingConvention>
+      <CompileAs>Default</CompileAs>
+      <ForcedIncludeFiles>pchdef.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Lib>
+      <AdditionalDependencies>.\shared__$(Platform)_$(Configuration)\shared.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_NoPCH|Win32'">
+    <ClCompile>
+      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\shared\vmap;..\..\dep\ACE_wrappers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;MANGOS_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>false</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderOutputFile>.\game__$(Platform)_$(Configuration)\game.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>.\game__$(Platform)_$(Configuration)\</AssemblerListingLocation>
+      <ObjectFileName>.\game__$(Platform)_$(Configuration)\</ObjectFileName>
+      <ProgramDataBaseFileName>.\game__$(Platform)_$(Configuration)\</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CallingConvention>Cdecl</CallingConvention>
+      <CompileAs>Default</CompileAs>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Lib>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_NoPCH|X64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <AdditionalOptions>/MP /bigobj %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\shared\vmap;..\..\dep\ACE_wrappers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;MANGOS_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>false</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderOutputFile>.\game__$(Platform)_$(Configuration)\game.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>.\game__$(Platform)_$(Configuration)\</AssemblerListingLocation>
+      <ObjectFileName>.\game__$(Platform)_$(Configuration)\</ObjectFileName>
+      <ProgramDataBaseFileName>.\game__$(Platform)_$(Configuration)\</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CallingConvention>Cdecl</CallingConvention>
+      <CompileAs>Default</CompileAs>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Lib>
+      <AdditionalDependencies>.\shared__$(Platform)_$(Configuration)\shared.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\game\AccountMgr.cpp" />
+    <ClCompile Include="..\..\src\game\AchievementMgr.cpp" />
+    <ClCompile Include="..\..\src\game\AggressorAI.cpp" />
+    <ClCompile Include="..\..\src\game\ArenaTeam.cpp" />
+    <ClCompile Include="..\..\src\game\ArenaTeamHandler.cpp" />
+    <ClCompile Include="..\..\src\game\AuctionHouseHandler.cpp" />
+    <ClCompile Include="..\..\src\game\AuctionHouseMgr.cpp" />
+    <ClCompile Include="..\..\src\game\Bag.cpp" />
+    <ClCompile Include="..\..\src\game\BattleGround.cpp" />
+    <ClCompile Include="..\..\src\game\BattleGroundAA.cpp" />
+    <ClCompile Include="..\..\src\game\BattleGroundAB.cpp" />
+    <ClCompile Include="..\..\src\game\BattleGroundAV.cpp" />
+    <ClCompile Include="..\..\src\game\BattleGroundBE.cpp" />
+    <ClCompile Include="..\..\src\game\BattleGroundDS.cpp" />
+    <ClCompile Include="..\..\src\game\BattleGroundEY.cpp" />
+    <ClCompile Include="..\..\src\game\BattleGroundHandler.cpp" />
+    <ClCompile Include="..\..\src\game\BattleGroundMgr.cpp" />
+    <ClCompile Include="..\..\src\game\BattleGroundNA.cpp" />
+    <ClCompile Include="..\..\src\game\BattleGroundRL.cpp" />
+    <ClCompile Include="..\..\src\game\BattleGroundRV.cpp" />
+    <ClCompile Include="..\..\src\game\BattleGroundSA.cpp" />
+    <ClCompile Include="..\..\src\game\BattleGroundWS.cpp" />
+    <ClCompile Include="..\..\src\game\Calendar.cpp" />
+    <ClCompile Include="..\..\src\game\CalendarHandler.cpp" />
+    <ClCompile Include="..\..\src\game\Channel.cpp" />
+    <ClCompile Include="..\..\src\game\ChannelHandler.cpp" />
+    <ClCompile Include="..\..\src\game\CharacterHandler.cpp" />
+    <ClCompile Include="..\..\src\game\Chat.cpp" />
+    <ClCompile Include="..\..\src\game\ChatHandler.cpp" />
+    <ClCompile Include="..\..\src\game\CombatHandler.cpp" />
+    <ClCompile Include="..\..\src\game\ConfusedMovementGenerator.cpp" />
+    <ClCompile Include="..\..\src\game\Corpse.cpp" />
+    <ClCompile Include="..\..\src\game\Creature.cpp" />
+    <ClCompile Include="..\..\src\game\CreatureAI.cpp" />
+    <ClCompile Include="..\..\src\game\CreatureAIRegistry.cpp" />
+    <ClCompile Include="..\..\src\game\CreatureAISelector.cpp" />
+    <ClCompile Include="..\..\src\game\CreatureEventAI.cpp" />
+    <ClCompile Include="..\..\src\game\CreatureEventAIMgr.cpp" />
+    <ClCompile Include="..\..\src\game\DBCStores.cpp" />
+    <ClCompile Include="..\..\src\game\debugcmds.cpp" />
+    <ClCompile Include="..\..\src\game\DestinationHolder.cpp" />
+    <ClCompile Include="..\..\src\game\DuelHandler.cpp" />
+    <ClCompile Include="..\..\src\game\DynamicObject.cpp" />
+    <ClCompile Include="..\..\src\game\FleeingMovementGenerator.cpp" />
+    <ClCompile Include="..\..\src\game\FollowerReference.cpp" />
+    <ClCompile Include="..\..\src\game\GameEventMgr.cpp" />
+    <ClCompile Include="..\..\src\game\GameObject.cpp" />
+    <ClCompile Include="..\..\src\game\GlobalEvents.cpp" />
+    <ClCompile Include="..\..\src\game\GMTicketHandler.cpp" />
+    <ClCompile Include="..\..\src\game\GMTicketMgr.cpp" />
+    <ClCompile Include="..\..\src\game\GossipDef.cpp" />
+    <ClCompile Include="..\..\src\game\GridNotifiers.cpp" />
+    <ClCompile Include="..\..\src\game\GridStates.cpp" />
+    <ClCompile Include="..\..\src\game\Group.cpp" />
+    <ClCompile Include="..\..\src\game\GroupHandler.cpp" />
+    <ClCompile Include="..\..\src\game\GroupReference.cpp" />
+    <ClCompile Include="..\..\src\game\GuardAI.cpp" />
+    <ClCompile Include="..\..\src\game\Guild.cpp" />
+    <ClCompile Include="..\..\src\game\GuildHandler.cpp" />
+    <ClCompile Include="..\..\src\game\HomeMovementGenerator.cpp" />
+    <ClCompile Include="..\..\src\game\HostilRefManager.cpp" />
+    <ClCompile Include="..\..\src\game\IdleMovementGenerator.cpp" />
+    <ClCompile Include="..\..\src\game\InstanceData.cpp" />
+    <ClCompile Include="..\..\src\game\InstanceSaveMgr.cpp" />
+    <ClCompile Include="..\..\src\game\Item.cpp" />
+    <ClCompile Include="..\..\src\game\ItemEnchantmentMgr.cpp" />
+    <ClCompile Include="..\..\src\game\ItemHandler.cpp" />
+    <ClCompile Include="..\..\src\game\Level0.cpp" />
+    <ClCompile Include="..\..\src\game\Level1.cpp" />
+    <ClCompile Include="..\..\src\game\Level2.cpp" />
+    <ClCompile Include="..\..\src\game\Level3.cpp" />
+    <ClCompile Include="..\..\src\game\LFGHandler.cpp" />
+    <ClCompile Include="..\..\src\game\LootHandler.cpp" />
+    <ClCompile Include="..\..\src\game\LootMgr.cpp" />
+    <ClCompile Include="..\..\src\game\Mail.cpp" />
+    <ClCompile Include="..\..\src\game\Map.cpp" />
+    <ClCompile Include="..\..\src\game\MapInstanced.cpp" />
+    <ClCompile Include="..\..\src\game\MapManager.cpp" />
+    <ClCompile Include="..\..\src\game\MiscHandler.cpp" />
+    <ClCompile Include="..\..\src\game\MotionMaster.cpp" />
+    <ClCompile Include="..\..\src\game\MovementGenerator.cpp" />
+    <ClCompile Include="..\..\src\game\MovementHandler.cpp" />
+    <ClCompile Include="..\..\src\game\NPCHandler.cpp" />
+    <ClCompile Include="..\..\src\game\NullCreatureAI.cpp" />
+    <ClCompile Include="..\..\src\game\Object.cpp" />
+    <ClCompile Include="..\..\src\game\ObjectAccessor.cpp" />
+    <ClCompile Include="..\..\src\game\ObjectGridLoader.cpp" />
+    <ClCompile Include="..\..\src\game\ObjectMgr.cpp" />
+    <ClCompile Include="..\..\src\game\ObjectPosSelector.cpp" />
+    <ClCompile Include="..\..\src\game\Opcodes.cpp" />
+    <ClCompile Include="..\..\src\game\pchdef.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">pchdef.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">Create</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">pchdef.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">pchdef.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|X64'">Create</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|X64'">pchdef.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\..\src\game\Pet.cpp" />
+    <ClCompile Include="..\..\src\game\PetAI.cpp" />
+    <ClCompile Include="..\..\src\game\PetHandler.cpp" />
+    <ClCompile Include="..\..\src\game\PetitionsHandler.cpp" />
+    <ClCompile Include="..\..\src\game\Player.cpp" />
+    <ClCompile Include="..\..\src\game\PlayerDump.cpp" />
+    <ClCompile Include="..\..\src\game\PointMovementGenerator.cpp" />
+    <ClCompile Include="..\..\src\game\PoolHandler.cpp" />
+    <ClCompile Include="..\..\src\game\QueryHandler.cpp" />
+    <ClCompile Include="..\..\src\game\QuestDef.cpp" />
+    <ClCompile Include="..\..\src\game\QuestHandler.cpp" />
+    <ClCompile Include="..\..\src\game\RandomMovementGenerator.cpp" />
+    <ClCompile Include="..\..\src\game\ReactorAI.cpp" />
+    <ClCompile Include="..\..\src\game\ReputationMgr.cpp" />
+    <ClCompile Include="..\..\src\game\ScriptCalls.cpp" />
+    <ClCompile Include="..\..\src\game\SkillDiscovery.cpp" />
+    <ClCompile Include="..\..\src\game\SkillExtraItems.cpp" />
+    <ClCompile Include="..\..\src\game\SkillHandler.cpp" />
+    <ClCompile Include="..\..\src\game\SocialMgr.cpp" />
+    <ClCompile Include="..\..\src\game\Spell.cpp" />
+    <ClCompile Include="..\..\src\game\SpellAuras.cpp" />
+    <ClCompile Include="..\..\src\game\SpellEffects.cpp" />
+    <ClCompile Include="..\..\src\game\SpellHandler.cpp" />
+    <ClCompile Include="..\..\src\game\SpellMgr.cpp" />
+    <ClCompile Include="..\..\src\game\StatSystem.cpp" />
+    <ClCompile Include="..\..\src\game\TargetedMovementGenerator.cpp" />
+    <ClCompile Include="..\..\src\game\TaxiHandler.cpp" />
+    <ClCompile Include="..\..\src\game\TemporarySummon.cpp" />
+    <ClCompile Include="..\..\src\game\ThreatManager.cpp" />
+    <ClCompile Include="..\..\src\game\Totem.cpp" />
+    <ClCompile Include="..\..\src\game\TotemAI.cpp" />
+    <ClCompile Include="..\..\src\game\TradeHandler.cpp" />
+    <ClCompile Include="..\..\src\game\Transports.cpp" />
+    <ClCompile Include="..\..\src\game\Unit.cpp" />
+    <ClCompile Include="..\..\src\game\UpdateData.cpp" />
+    <ClCompile Include="..\..\src\game\Vehicle.cpp" />
+    <ClCompile Include="..\..\src\game\VoiceChatHandler.cpp" />
+    <ClCompile Include="..\..\src\game\WaypointManager.cpp" />
+    <ClCompile Include="..\..\src\game\WaypointMovementGenerator.cpp" />
+    <ClCompile Include="..\..\src\game\Weather.cpp" />
+    <ClCompile Include="..\..\src\game\World.cpp" />
+    <ClCompile Include="..\..\src\game\WorldLog.cpp" />
+    <ClCompile Include="..\..\src\game\WorldSession.cpp" />
+    <ClCompile Include="..\..\src\game\WorldSocket.cpp" />
+    <ClCompile Include="..\..\src\game\WorldSocketMgr.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\game\AccountMgr.h" />
+    <ClInclude Include="..\..\src\game\AchievementMgr.h" />
+    <ClInclude Include="..\..\src\game\AggressorAI.h" />
+    <ClInclude Include="..\..\src\game\AnimalRandomMovementGenerator.h" />
+    <ClInclude Include="..\..\src\game\ArenaTeam.h" />
+    <ClInclude Include="..\..\src\game\AuctionHouseMgr.h" />
+    <ClInclude Include="..\..\src\game\Bag.h" />
+    <ClInclude Include="..\..\src\game\BattleGround.h" />
+    <ClInclude Include="..\..\src\game\BattleGroundAA.h" />
+    <ClInclude Include="..\..\src\game\BattleGroundAB.h" />
+    <ClInclude Include="..\..\src\game\BattleGroundAV.h" />
+    <ClInclude Include="..\..\src\game\BattleGroundBE.h" />
+    <ClInclude Include="..\..\src\game\BattleGroundDS.h" />
+    <ClInclude Include="..\..\src\game\BattleGroundEY.h" />
+    <ClInclude Include="..\..\src\game\BattleGroundMgr.h" />
+    <ClInclude Include="..\..\src\game\BattleGroundNA.h" />
+    <ClInclude Include="..\..\src\game\BattleGroundRL.h" />
+    <ClInclude Include="..\..\src\game\BattleGroundRV.h" />
+    <ClInclude Include="..\..\src\game\BattleGroundSA.h" />
+    <ClInclude Include="..\..\src\game\BattleGroundWS.h" />
+    <ClInclude Include="..\..\src\game\Calendar.h" />
+    <ClInclude Include="..\..\src\game\Cell.h" />
+    <ClInclude Include="..\..\src\game\CellImpl.h" />
+    <ClInclude Include="..\..\src\game\Channel.h" />
+    <ClInclude Include="..\..\src\game\ChannelMgr.h" />
+    <ClInclude Include="..\..\src\game\Chat.h" />
+    <ClInclude Include="..\..\src\game\ConfusedMovementGenerator.h" />
+    <ClInclude Include="..\..\src\game\Corpse.h" />
+    <ClInclude Include="..\..\src\game\Creature.h" />
+    <ClInclude Include="..\..\src\game\CreatureAI.h" />
+    <ClInclude Include="..\..\src\game\CreatureAIImpl.h" />
+    <ClInclude Include="..\..\src\game\CreatureAIRegistry.h" />
+    <ClInclude Include="..\..\src\game\CreatureAISelector.h" />
+    <ClInclude Include="..\..\src\game\CreatureEventAI.h" />
+    <ClInclude Include="..\..\src\game\CreatureEventAIMgr.h" />
+    <ClInclude Include="..\..\src\game\DBCEnums.h" />
+    <ClInclude Include="..\..\src\game\DBCfmt.h" />
+    <ClInclude Include="..\..\src\game\DBCStores.h" />
+    <ClInclude Include="..\..\src\game\DBCStructure.h" />
+    <ClInclude Include="..\..\src\game\DestinationHolder.h" />
+    <ClInclude Include="..\..\src\game\DestinationHolderImp.h" />
+    <ClInclude Include="..\..\src\game\DynamicObject.h" />
+    <ClInclude Include="..\..\src\game\FleeingMovementGenerator.h" />
+    <ClInclude Include="..\..\src\game\FollowerReference.h" />
+    <ClInclude Include="..\..\src\game\FollowerRefManager.h" />
+    <ClInclude Include="..\..\src\game\Formulas.h" />
+    <ClInclude Include="..\..\src\game\GameEventMgr.h" />
+    <ClInclude Include="..\..\src\game\GameObject.h" />
+    <ClInclude Include="..\..\src\game\GlobalEvents.h" />
+    <ClInclude Include="..\..\src\game\GMTicketMgr.h" />
+    <ClInclude Include="..\..\src\game\GossipDef.h" />
+    <ClInclude Include="..\..\src\game\GridDefines.h" />
+    <ClInclude Include="..\..\src\game\GridNotifiers.h" />
+    <ClInclude Include="..\..\src\game\GridNotifiersImpl.h" />
+    <ClInclude Include="..\..\src\game\GridStates.h" />
+    <ClInclude Include="..\..\src\game\Group.h" />
+    <ClInclude Include="..\..\src\game\GroupReference.h" />
+    <ClInclude Include="..\..\src\game\GroupRefManager.h" />
+    <ClInclude Include="..\..\src\game\GuardAI.h" />
+    <ClInclude Include="..\..\src\game\Guild.h" />
+    <ClInclude Include="..\..\src\game\HomeMovementGenerator.h" />
+    <ClInclude Include="..\..\src\game\HostilRefManager.h" />
+    <ClInclude Include="..\..\src\game\IdleMovementGenerator.h" />
+    <ClInclude Include="..\..\src\game\InstanceData.h" />
+    <ClInclude Include="..\..\src\game\InstanceSaveMgr.h" />
+    <ClInclude Include="..\..\src\game\Item.h" />
+    <ClInclude Include="..\..\src\game\ItemEnchantmentMgr.h" />
+    <ClInclude Include="..\..\src\game\ItemPrototype.h" />
+    <ClInclude Include="..\..\src\game\Language.h" />
+    <ClInclude Include="..\..\src\game\LootMgr.h" />
+    <ClInclude Include="..\..\src\game\Mail.h" />
+    <ClInclude Include="..\..\src\game\Map.h" />
+    <ClInclude Include="..\..\src\game\MapInstanced.h" />
+    <ClInclude Include="..\..\src\game\MapManager.h" />
+    <ClInclude Include="..\..\src\game\MapReference.h" />
+    <ClInclude Include="..\..\src\game\MapRefManager.h" />
+    <ClInclude Include="..\..\src\game\MotionMaster.h" />
+    <ClInclude Include="..\..\src\game\MovementGenerator.h" />
+    <ClInclude Include="..\..\src\game\NPCHandler.h" />
+    <ClInclude Include="..\..\src\game\NullCreatureAI.h" />
+    <ClInclude Include="..\..\src\game\Object.h" />
+    <ClInclude Include="..\..\src\game\ObjectAccessor.h" />
+    <ClInclude Include="..\..\src\game\ObjectDefines.h" />
+    <ClInclude Include="..\..\src\game\ObjectGridLoader.h" />
+    <ClInclude Include="..\..\src\game\ObjectMgr.h" />
+    <ClInclude Include="..\..\src\game\ObjectPosSelector.h" />
+    <ClInclude Include="..\..\src\game\Opcodes.h" />
+    <ClInclude Include="..\..\src\game\Path.h" />
+    <ClInclude Include="..\..\src\game\pchdef.h" />
+    <ClInclude Include="..\..\src\game\Pet.h" />
+    <ClInclude Include="..\..\src\game\PetAI.h" />
+    <ClInclude Include="..\..\src\game\Player.h" />
+    <ClInclude Include="..\..\src\game\PlayerDump.h" />
+    <ClInclude Include="..\..\src\game\PointMovementGenerator.h" />
+    <ClInclude Include="..\..\src\game\PoolHandler.h" />
+    <ClInclude Include="..\..\src\game\QuestDef.h" />
+    <ClInclude Include="..\..\src\game\RandomMovementGenerator.h" />
+    <ClInclude Include="..\..\src\game\ReactorAI.h" />
+    <ClInclude Include="..\..\src\game\ReputationMgr.h" />
+    <ClInclude Include="..\..\src\game\ScriptCalls.h" />
+    <ClInclude Include="..\..\src\game\SharedDefines.h" />
+    <ClInclude Include="..\..\src\game\SkillDiscovery.h" />
+    <ClInclude Include="..\..\src\game\SkillExtraItems.h" />
+    <ClInclude Include="..\..\src\game\SocialMgr.h" />
+    <ClInclude Include="..\..\src\game\Spell.h" />
+    <ClInclude Include="..\..\src\game\SpellAuraDefines.h" />
+    <ClInclude Include="..\..\src\game\SpellAuras.h" />
+    <ClInclude Include="..\..\src\game\SpellMgr.h" />
+    <ClInclude Include="..\..\src\game\TargetedMovementGenerator.h" />
+    <ClInclude Include="..\..\src\game\TemporarySummon.h" />
+    <ClInclude Include="..\..\src\game\ThreatManager.h" />
+    <ClInclude Include="..\..\src\game\Totem.h" />
+    <ClInclude Include="..\..\src\game\TotemAI.h" />
+    <ClInclude Include="..\..\src\game\Transports.h" />
+    <ClInclude Include="..\..\src\game\Traveller.h" />
+    <ClInclude Include="..\..\src\game\Unit.h" />
+    <ClInclude Include="..\..\src\game\UnitEvents.h" />
+    <ClInclude Include="..\..\src\game\UpdateData.h" />
+    <ClInclude Include="..\..\src\game\UpdateFields.h" />
+    <ClInclude Include="..\..\src\game\UpdateMask.h" />
+    <ClInclude Include="..\..\src\game\Vehicle.h" />
+    <ClInclude Include="..\..\src\game\WaypointManager.h" />
+    <ClInclude Include="..\..\src\game\WaypointMovementGenerator.h" />
+    <ClInclude Include="..\..\src\game\Weather.h" />
+    <ClInclude Include="..\..\src\game\World.h" />
+    <ClInclude Include="..\..\src\game\WorldLog.h" />
+    <ClInclude Include="..\..\src\game\WorldSession.h" />
+    <ClInclude Include="..\..\src\game\WorldSocket.h" />
+    <ClInclude Include="..\..\src\game\WorldSocketMgr.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="shared.vcxproj">
+      <Project>{90297c34-f231-4df4-848e-a74bcc0e40ed}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
