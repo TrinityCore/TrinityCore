@@ -82,7 +82,7 @@ class TRINITY_DLL_SPEC Aura
         uint32 GetProcDamage() const { return m_procDamage; }
 
         int8 GetStackAmount() const {return m_stackAmount;}
-        void SetStackAmount(uint8 num);
+        void SetStackAmount(uint8 num, bool applied = true);
         bool modStackAmount(int32 num); // return true if last charge dropped
         uint32 GetAuraStateMask(){return m_auraStateMask;}
         void SetAuraState(uint8 num){m_auraStateMask |= 1<<(num-1);}  //modifies auras' aura state (not unit!)
@@ -172,7 +172,7 @@ class TRINITY_DLL_SPEC AuraEffect
 {
     public:
         friend AuraEffect* CreateAuraEffect(Aura * parentAura, uint32 effIndex, int32 *currentBasePoints, Unit * caster, Item * castItem, Unit * formalCaster);
-        friend void Aura::SetStackAmount(uint8 stackAmount);
+        friend void Aura::SetStackAmount(uint8 stackAmount, bool applied);
         //aura handlers
         void HandleNULL(bool, bool, bool)
         {
@@ -351,7 +351,7 @@ class TRINITY_DLL_SPEC AuraEffect
         bool isAffectedOnSpell(SpellEntry const *spell) const;
 
         void ApplyModifier(bool apply, bool Real = false, bool changeAmount=false);
-        void RecalculateAmount();
+        void RecalculateAmount(bool applied = true);
         void HandleAuraEffect(bool apply);
         void ApplyAllModifiers(bool apply, bool Real);
 
