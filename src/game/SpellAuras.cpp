@@ -1145,7 +1145,7 @@ void Aura::_RemoveAura()
     }
     uint32 id = GetId();
     // Remove Linked Auras
-    if(spellmgr.GetSpellCustomAttr(id) & SPELL_ATTR_CU_LINK_REMOVE)
+    if(m_removeMode!=AURA_REMOVE_BY_STACK && m_removeMode!=AURA_REMOVE_BY_DEATH && spellmgr.GetSpellCustomAttr(id) & SPELL_ATTR_CU_LINK_REMOVE)
     {
         if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(-(int32)id))
             for(std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
@@ -1153,11 +1153,11 @@ void Aura::_RemoveAura()
                 if(*itr < 0)
                     m_target->RemoveAurasDueToSpell(-(*itr));
                 else if(Unit* caster = GetCaster())
-                    if (m_removeMode!=AURA_REMOVE_BY_DEFAULT && m_removeMode!=AURA_REMOVE_BY_DEATH)
+                    if (m_removeMode!=AURA_REMOVE_BY_DEFAULT)
                         m_target->CastSpell(m_target, *itr, true, 0, 0, caster->GetGUID());
             }
     }
-    if(spellmgr.GetSpellCustomAttr(id) & SPELL_ATTR_CU_LINK_AURA)
+    if(m_removeMode!=AURA_REMOVE_BY_STACK && m_removeMode!=AURA_REMOVE_BY_DEATH && spellmgr.GetSpellCustomAttr(id) & SPELL_ATTR_CU_LINK_AURA)
     {
         if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(id + SPELL_LINK_AURA))
             for(std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
