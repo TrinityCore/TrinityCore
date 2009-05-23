@@ -20162,8 +20162,9 @@ bool Player::IsAllowUseFlyMountsHere() const
     if (isGameMaster())
         return true;
 
-    uint32 v_map = GetVirtualMapForMapAndZone(GetMapId(), GetZoneId());
-    return v_map == 530 || v_map == 571 && HasSpell(54197);
+    uint32 zoneId = GetZoneId();
+    uint32 v_map = GetVirtualMapForMapAndZone(GetMapId(), zoneId);
+    return v_map == 530 || v_map == 571 && HasSpell(54197) && zoneId != 4197;
 }
 
 void Player::learnSpellHighRank(uint32 spellid)
