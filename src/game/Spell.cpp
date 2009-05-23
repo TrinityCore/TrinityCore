@@ -2044,6 +2044,8 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
                 case TARGET_DEST_CHANNEL:
                     if(m_originalCaster->m_currentSpells[CURRENT_CHANNELED_SPELL]->m_targets.HasDst())
                         m_targets = m_originalCaster->m_currentSpells[CURRENT_CHANNELED_SPELL]->m_targets;
+                    else if(Unit* target = m_originalCaster->m_currentSpells[CURRENT_CHANNELED_SPELL]->m_targets.getUnitTarget())
+                        m_targets.setDestination(target);
                     else
                         sLog.outError( "SPELL: cannot find channel spell destination for spell ID %u", m_spellInfo->Id );
                     break;
