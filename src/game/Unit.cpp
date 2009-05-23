@@ -3809,22 +3809,18 @@ bool Unit::AddAura(Aura *Aur, bool handleEffects)
 
     SpellEntry const* aurSpellInfo = Aur->GetSpellProto();
 
-    // passive and persistent auras can stack with themselves any number of times
-    if (!Aur->IsPassive() && !Aur->IsPersistent())
+    // passive and persistent and Incanter's Absorption auras can stack with themselves any number of times
+    if (!Aur->IsPassive() && !Aur->IsPersistent() && aurSpellInfo->Id != 44413)
     {
         // find current aura from spell and change it's stackamount
         if (Aura * foundAura = GetAura(aurSpellInfo->Id, Aur->GetCasterGUID()))
         {
-            // hack for Incanter's Absorption
-            if (aurSpellInfo->Id != 44413)
-            {
-                if(aurSpellInfo->StackAmount && foundAura->GetStackAmount() < aurSpellInfo->StackAmount)
-                    foundAura->SetStackAmount(foundAura->GetStackAmount()+1);
-                else
-                    foundAura->RefreshAura();
-                delete Aur;
-                return false;
-            }
+            uint8 stackAmount = foundAura->GetStackAmount() + 1;
+            if (stackAmount > aurSpellInfo->StackAmount)
+                stackAmount = aurSpellInfo->StackAmount;
+            Aur->SetStackAmount(stackAmount);
+            RemoveAura(foundAura, AURA_REMOVE_BY_STACK);
+            return true;
         }
     }
 
@@ -3914,10 +3910,6 @@ bool Unit::RemoveNoStackAurasDueToAura(Aura *Aur)
         SpellEntry const* i_spellProto = i->second->GetSpellProto();
         uint32 i_spellId = i_spellProto->Id;
         bool sameCaster = Aur->GetCasterGUID() == (*i).second->GetCasterGUID();
-
-        // Incanter's Absorption, has been checked in refresh part
-        if(i_spellId == spellId && sameCaster)
-            continue;
 
         if(IsPassiveSpell(i_spellId))
         {
