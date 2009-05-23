@@ -14,7 +14,7 @@ UPDATE `creature_template` SET `ScriptName`='mob_archavon_warder' WHERE `entry`=
 #define EMOTE_ENRAGE            -1533022
 
 //Spells Archavon
-#define SPELL_ROCK_SHARDS                           HEROIC(58695,60884) //Instant -- Hurls a jagged rock shard, inflicting 707 to 793 Physical damage to any enemies within 5 of the target.
+#define SPELL_ROCK_SHARDS                           58678
 #define SPELL_CRUSHING_LEAP                         HEROIC(58960,60894)//Instant (10-80yr range) -- Leaps at an enemy, inflicting 8000 Physical damage, knocking all nearby enemies away, and creating a cloud of choking debris.
 #define SPELL_STOMP                                 HEROIC(58663,60880)
 #define SPELL_IMPALE                                HEROIC(58666,60882) //Lifts an enemy off the ground with a spiked fist, inflicting 47125 to 52875 Physical damage and 9425 to 10575 additional damage each second for 8 sec.
@@ -80,6 +80,9 @@ struct TRINITY_DLL_DECL boss_archavonAI : public ScriptedAI
             return;
 
         events.Update(diff);
+
+        if(me->hasUnitState(UNIT_STAT_CASTING))
+            return;
 
         while(uint32 eventId = events.ExecuteEvent())
         {

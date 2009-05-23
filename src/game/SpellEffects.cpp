@@ -4933,6 +4933,26 @@ void Spell::EffectScriptEffect(uint32 effIndex)
 
                     return;
                 }
+                case 58941:                                 // Rock Shards
+                    if(unitTarget && m_originalCaster)
+                    {
+                        for(uint32 i = 0; i < 5; ++i)
+                        {
+                            m_originalCaster->CastSpell(unitTarget, 58689, true);
+                            m_originalCaster->CastSpell(unitTarget, 58692, true);
+                        }
+                        if(m_originalCaster->GetMap()->IsHeroic())
+                        {
+                            m_originalCaster->CastSpell(unitTarget, 60883, true);
+                            m_originalCaster->CastSpell(unitTarget, 60884, true);
+                        }
+                        else
+                        {
+                            m_originalCaster->CastSpell(unitTarget, 58695, true);
+                            m_originalCaster->CastSpell(unitTarget, 58696, true);
+                        }
+                    }
+                    return;
                 case 59317:                                 // Teleporting
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
                         return;
