@@ -23,6 +23,8 @@
 
 #define ZONE_WINTERGRASP    4197
 
+#define POS_X_CENTER        4700
+
 #define SPELL_RECRUIT       37795
 #define SPELL_CORPORAL      33280
 #define SPELL_LIEUTENANT    55629
@@ -30,13 +32,47 @@
 #define SPELL_TENICITY      58549
 #define SPELL_TENICITY_VEHICLE  59911
 
+enum TeamId
+{
+    TEAM_ALLIANCE = 0,
+    TEAM_HORDE,
+    TEAM_NEUTRAL,
+};
+
+enum DamageState
+{
+    DAMAGE_INTACT,
+    DAMAGE_DAMAGED,
+    DAMAGE_DESTROYED,
+};
+
+const uint32 AreaPOIIconId[3][3] = {{7,8,9},{4,5,6},{1,2,3}};
+
+struct BuildingState
+{
+    explicit BuildingState(uint32 _worldState, uint32 _health)
+        : worldState(_worldState), health(_health), team(TEAM_NEUTRAL), damageState(DAMAGE_INTACT)
+    {}
+    uint32 worldState;
+    uint32 health;
+    TeamId team;
+    DamageState damageState;
+};
+
 class OPvPWintergrasp : public OutdoorPvP
 {
+    protected:
+        typedef std::list<const AreaPOIEntry *> AreaPOIList;
+        typedef std::map<uint32, BuildingState *> BuildingStateMap;
     public:
         bool SetupOutdoorPvP();
         void HandlePlayerEnterZone(Player *plr, uint32 zone);
         void HandlePlayerLeaveZone(Player *plr, uint32 zone);
         void HandleKill(Player *killer, Unit *victim);
+    protected:
+        TeamId m_defender, m_attacker;
+        AreaPOIList areaPOIs;
+        BuildingStateMap buildingStates;
 };
 
 #endif

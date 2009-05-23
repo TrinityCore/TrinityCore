@@ -23,6 +23,17 @@
 bool OPvPWintergrasp::SetupOutdoorPvP()
 {
     RegisterZone(ZONE_WINTERGRASP);
+
+    for(uint32 i = 0; i < sAreaPOIStore.GetNumRows(); ++i)
+    {
+        const AreaPOIEntry * poiInfo = sAreaPOIStore.LookupEntry(i);
+        if(poiInfo && poiInfo->zoneId == ZONE_WINTERGRASP)
+            areaPOIs.push_back(poiInfo);
+    }
+
+    m_defender = TeamId(rand()%2);
+    m_attacker = (m_defender == TEAM_ALLIANCE ? TEAM_HORDE : TEAM_ALLIANCE);
+
     return true;
 }
 
@@ -31,6 +42,13 @@ void OPvPWintergrasp::HandlePlayerEnterZone(Player * plr, uint32 zone)
     if(!plr->HasAura(SPELL_RECRUIT) && !plr->HasAura(SPELL_CORPORAL)
         && !plr->HasAura(SPELL_LIEUTENANT))
         plr->CastSpell(plr, SPELL_RECRUIT, true);
+
+    for(AreaPOIList::iterator itr = areaPOIs.begin(); itr != areaPOIs.end(); ++itr)
+    {
+        TeamId team = ((*itr)->x > POS_X_CENTER ? m_defender : m_attacker);
+        plr->SendUpdateWorldState((*itr)->worldState, AreaPOIIconId[team][DAMAGE_INTACT]);
+    }
+
     OutdoorPvP::HandlePlayerEnterZone(plr, zone);
 }
 
