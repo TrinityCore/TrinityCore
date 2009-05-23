@@ -4936,7 +4936,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 case 58941:                                 // Rock Shards
                     if(unitTarget && m_originalCaster)
                     {
-                        for(uint32 i = 0; i < 5; ++i)
+                        for(uint32 i = 0; i < 3; ++i)
                         {
                             m_originalCaster->CastSpell(unitTarget, 58689, true);
                             m_originalCaster->CastSpell(unitTarget, 58692, true);
