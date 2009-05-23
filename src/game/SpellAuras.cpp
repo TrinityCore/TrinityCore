@@ -851,7 +851,7 @@ void AuraEffect::ApplyModifier(bool apply, bool Real, bool changeAmount)
 void AuraEffect::RecalculateAmount(bool applied)
 {
     Unit *caster = GetParentAura()->GetCaster();
-    int32 amount = GetParentAura()->GetStackAmount() * caster->CalculateSpellDamage(m_spellProto, GetEffIndex(), GetBasePoints(), m_target);
+    int32 amount = GetParentAura()->GetStackAmount() * (caster ? caster->CalculateSpellDamage(m_spellProto, GetEffIndex(), GetBasePoints(), NULL) : GetBasePoints());
     // Reapply if amount change
     if (amount!=GetAmount())
     {
@@ -1524,12 +1524,14 @@ void AuraEffect::HandleAddModifier(bool apply, bool Real, bool changeAmount)
         case SPELLMOD_EFFECT2:
         case SPELLMOD_EFFECT3:
         {
+            uint64 guid = m_target->GetGUID();
             Unit::AuraMap & auras = m_target->GetAuras();
             for(Unit::AuraMap::iterator iter = auras.begin(); iter != auras.end();++iter)
             {
                 Aura * aur = iter->second;
                 // only passive auras-active auras should have amount set on spellcast and not be affected
-                if (aur->IsPassive() && isAffectedOnSpell(aur->GetSpellProto()))
+                // if aura is casted by others, it will not be affected
+                if (aur->IsPassive() && aur->GetCasterGUID() == guid && isAffectedOnSpell(aur->GetSpellProto()))
                 {
                     if (modOp == SPELLMOD_ALL_EFFECTS)
                     {
