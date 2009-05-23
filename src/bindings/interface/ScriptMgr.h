@@ -152,7 +152,7 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
 
     void DoSay(char const* text, uint32 language)
     {
-        m_creature->Say(text,language,0);
+        m_creature->MonsterSay(text,language,0);
     }
 
     void DoGoHome();
