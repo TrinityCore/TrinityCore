@@ -3815,12 +3815,14 @@ bool Unit::AddAura(Aura *Aur, bool handleEffects)
         // find current aura from spell and change it's stackamount
         if (Aura * foundAura = GetAura(aurSpellInfo->Id, Aur->GetCasterGUID()))
         {
-            uint8 stackAmount = foundAura->GetStackAmount() + 1;
-            if (stackAmount > aurSpellInfo->StackAmount)
-                stackAmount = aurSpellInfo->StackAmount;
-            Aur->SetStackAmount(stackAmount, false);
+            if(foundAura->aurSpellInfo->StackAmount)
+            {
+                uint8 stackAmount = foundAura->GetStackAmount() + 1;
+                if (stackAmount > aurSpellInfo->StackAmount)
+                    stackAmount = aurSpellInfo->StackAmount;
+                Aur->SetStackAmount(stackAmount, false);
+            }
             RemoveAura(foundAura, AURA_REMOVE_BY_STACK);
-            return true;
         }
     }
 
