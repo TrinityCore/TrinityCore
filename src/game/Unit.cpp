@@ -9264,10 +9264,6 @@ uint32 Unit::SpellCriticalHealingBonus(SpellEntry const *spellProto, uint32 dama
 
 uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint32 healamount, DamageEffectType damagetype, uint32 stack)
 {
-    // No heal amount for this class spells
-    if (spellProto->DmgClass == SPELL_DAMAGE_CLASS_NONE)
-        return healamount;
-
     // For totems get healing bonus from owner (statue isn't totem in fact)
     if( GetTypeId()==TYPEID_UNIT && ((Creature*)this)->isTotem())
         if(Unit* owner = GetOwner())
@@ -9351,15 +9347,22 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
     int32 TakenAdvertisedBenefit = SpellBaseHealingBonusForVictim(GetSpellSchoolMask(spellProto), pVictim);
 
     bool scripted = false;
-    for (uint8 i=0;i<3;++i)
+
+    // No heal coeff for this class spells
+    if (spellProto->DmgClass == SPELL_DAMAGE_CLASS_NONE)
+        scripted = true;
+    else
     {
-        switch (spellProto->EffectApplyAuraName[i])
+        for (uint8 i=0;i<3;++i)
         {
-            // These auras do not use healing coeff
-            case SPELL_AURA_PERIODIC_LEECH:
-            case SPELL_AURA_PERIODIC_HEALTH_FUNNEL:
-                scripted = true;
-                break;
+            switch (spellProto->EffectApplyAuraName[i])
+            {
+                // These auras do not use healing coeff
+                case SPELL_AURA_PERIODIC_LEECH:
+                case SPELL_AURA_PERIODIC_HEALTH_FUNNEL:
+                    scripted = true;
+                    break;
+            }
         }
     }
 
@@ -12063,7 +12066,7 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
         bool useCharges= i->aura->GetAuraCharges()>0;
         bool takeCharges = false;
         SpellEntry const *spellInfo = i->aura->GetSpellProto();
-        uint32 Id=i->aura->GetId();
+        uint32 Id = i->aura->GetId();
 
         // For players set spell cooldown if need
         uint32 cooldown = 0;
