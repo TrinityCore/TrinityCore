@@ -3815,7 +3815,7 @@ bool Unit::AddAura(Aura *Aur, bool handleEffects)
         // find current aura from spell and change it's stackamount
         if (Aura * foundAura = GetAura(aurSpellInfo->Id, Aur->GetCasterGUID()))
         {
-            if(foundAura->aurSpellInfo->StackAmount)
+            if(aurSpellInfo->StackAmount)
             {
                 uint8 stackAmount = foundAura->GetStackAmount() + 1;
                 if (stackAmount > aurSpellInfo->StackAmount)
