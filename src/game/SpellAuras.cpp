@@ -848,7 +848,7 @@ void AuraEffect::ApplyModifier(bool apply, bool Real, bool changeAmount)
         (*this.*AuraHandler [m_auraName])(apply,Real, changeAmount);
 }
 
-void AuraEffect::RecalculateAmount()
+void AuraEffect::RecalculateAmount(bool applied)
 {
     Unit *caster = GetParentAura()->GetCaster();
     int32 amount = GetParentAura()->GetStackAmount() * caster->CalculateSpellDamage(m_spellProto, GetEffIndex(), GetBasePoints(), m_target);
@@ -856,9 +856,11 @@ void AuraEffect::RecalculateAmount()
     if (amount!=GetAmount())
     {
         // Auras which are applying spellmod should have removed spellmods for real
-        ApplyModifier(false,false,true);
+        if (applied)
+            ApplyModifier(false,false,true);
         SetAmount(amount);
-        ApplyModifier(true,false,true);
+        if (applied)
+            ApplyModifier(true,false,true);
     }
 }
 
@@ -1195,7 +1197,7 @@ void Aura::_RemoveAura()
     }
 }
 
-void Aura::SetStackAmount(uint8 stackAmount)
+void Aura::SetStackAmount(uint8 stackAmount, bool applied)
 {
     if (stackAmount != m_stackAmount)
     {
@@ -1204,7 +1206,7 @@ void Aura::SetStackAmount(uint8 stackAmount)
         {
             if (AuraEffect * part = GetPartAura(i))
             {
-                part->RecalculateAmount();
+                part->RecalculateAmount(applied);
             }
         }
     }
