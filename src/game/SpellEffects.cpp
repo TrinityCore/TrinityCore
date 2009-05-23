@@ -5504,8 +5504,8 @@ void Spell::EffectMomentMove(uint32 i)
       step = dist/10.0f;
     }
     
-    
-    for(int i = 0;i<10;i++)
+    int j = 0;
+    for(j; j<10 ;j++)
       {
 	if(fabs(z - destz) > 6)
 	  {
@@ -5517,7 +5517,7 @@ void Spell::EffectMomentMove(uint32 i)
 	  }else
 	  break;
       }
-    if(i == 9)
+    if(j == 9)
       {
 	return;
       }
