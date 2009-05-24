@@ -23,7 +23,7 @@ DROP TABLE IF EXISTS `db_version`;
 CREATE TABLE `db_version` (
   `version` varchar(120) default NULL,
   `creature_ai_version` varchar(120) default NULL,
-  `required_7884_02_mangos_playercreateinfo_action` bit(1) default NULL
+  `required_7886_01_mangos_petcreateinfo_spell` bit(1) default NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Used DB version notes';
 
 --
@@ -3658,29 +3658,6 @@ INSERT INTO `pet_name_generation` (`word`,`entry`,`half`) VALUES
 ('tom',17252,1);
 
 /*!40000 ALTER TABLE `pet_name_generation` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `petcreateinfo_spell`
---
-
-DROP TABLE IF EXISTS `petcreateinfo_spell`;
-CREATE TABLE `petcreateinfo_spell` (
-  `entry` mediumint(8) unsigned NOT NULL default '0',
-  `Spell1` mediumint(8) unsigned NOT NULL default '0',
-  `Spell2` mediumint(8) unsigned NOT NULL default '0',
-  `Spell3` mediumint(8) unsigned NOT NULL default '0',
-  `Spell4` mediumint(8) unsigned NOT NULL default '0',
-  PRIMARY KEY  (`entry`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Pet Create Spells';
-
---
--- Dumping data for table `petcreateinfo_spell`
---
-
-LOCK TABLES `petcreateinfo_spell` WRITE;
-/*!40000 ALTER TABLE `petcreateinfo_spell` DISABLE KEYS */;
-/*!40000 ALTER TABLE `petcreateinfo_spell` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
