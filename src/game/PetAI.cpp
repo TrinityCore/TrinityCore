@@ -199,8 +199,6 @@ void PetAI::UpdateAI(const uint32 diff)
             }
 
             m_creature->AddCreatureSpellCooldown(spell->m_spellInfo->Id);
-            if(m_creature->isPet())
-                ((Pet*)m_creature)->CheckLearning(spell->m_spellInfo->Id);
 
             spell->prepare(&targets);
         }

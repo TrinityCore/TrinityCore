@@ -2005,6 +2005,129 @@ void SpellMgr::LoadPetLevelupSpellMap()
     sLog.outString( ">> Loaded %u pet levelup and default spells for %u families", count, family_count );
 }
 
+bool LoadPetDefaultSpells_helper(CreatureInfo const* cInfo, PetDefaultSpellsEntry& petDefSpells)
+{
+    // skip empty list;
+    bool have_spell = false;
+    for(int j = 0; j < MAX_CREATURE_SPELL_DATA_SLOT; ++j)
+    {
+        if(petDefSpells.spellid[j])
+        {
+            have_spell = true;
+            break;
+        }
+    }
+    if(!have_spell)
+        return false;
+
+    // remove duplicates with levelupSpells if any
+    if(PetLevelupSpellSet const *levelupSpells = cInfo->family ? spellmgr.GetPetLevelupSpellList(cInfo->family) : NULL)
+    {
+        for(int j = 0; j < MAX_CREATURE_SPELL_DATA_SLOT; ++j)
+        {
+            if(!petDefSpells.spellid[j])
+                continue;
+
+            for(PetLevelupSpellSet::const_iterator itr = levelupSpells->begin(); itr != levelupSpells->end(); ++itr)
+            {
+                if (itr->second == petDefSpells.spellid[j])
+                {
+                    petDefSpells.spellid[j] = 0;
+                    break;
+                }
+            }
+        }
+    }
+
+    // skip empty list;
+    have_spell = false;
+    for(int j = 0; j < MAX_CREATURE_SPELL_DATA_SLOT; ++j)
+    {
+        if(petDefSpells.spellid[j])
+        {
+            have_spell = true;
+            break;
+        }
+    }
+
+    return have_spell;
+}
+
+void SpellMgr::LoadPetDefaultSpells()
+{
+    mPetDefaultSpellsMap.clear();
+
+    uint32 countCreature = 0;
+    uint32 countData = 0;
+
+    for(uint32 i = 0; i < sCreatureStorage.MaxEntry; ++i )
+    {
+        CreatureInfo const* cInfo = sCreatureStorage.LookupEntry<CreatureInfo>(i);
+        if(!cInfo)
+            continue;
+
+        if(!cInfo->PetSpellDataId)
+            continue;
+
+        // for creature with PetSpellDataId get default pet spells from dbc
+        CreatureSpellDataEntry const* spellDataEntry = sCreatureSpellDataStore.LookupEntry(cInfo->PetSpellDataId);
+        if(!spellDataEntry)
+            continue;
+
+        int32 petSpellsId = -(int32)cInfo->PetSpellDataId;
+        PetDefaultSpellsEntry petDefSpells;
+        for(int j = 0; j < MAX_CREATURE_SPELL_DATA_SLOT; ++j)
+            petDefSpells.spellid[j] = spellDataEntry->spellId[j];
+
+        if(LoadPetDefaultSpells_helper(cInfo, petDefSpells))
+        {
+            mPetDefaultSpellsMap[petSpellsId] = petDefSpells;
+            ++countData;
+        }
+    }
+
+    // different summon spells
+    for(uint32 i = 0; i < sSpellStore.GetNumRows(); ++i )
+    {
+        SpellEntry const* spellEntry = sSpellStore.LookupEntry(i);
+        if(!spellEntry)
+            continue;
+
+        for(int k = 0; k < 3; ++k)
+        {
+            if(spellEntry->Effect[k]==SPELL_EFFECT_SUMMON || spellEntry->Effect[k]==SPELL_EFFECT_SUMMON_PET)
+            {
+                uint32 creature_id = spellEntry->EffectMiscValue[k];
+                CreatureInfo const* cInfo = sCreatureStorage.LookupEntry<CreatureInfo>(creature_id);
+                if(!cInfo)
+                    continue;
+
+                // already loaded
+                if(cInfo->PetSpellDataId)
+                    continue;
+
+                // for creature without PetSpellDataId get default pet spells from creature_template
+                int32 petSpellsId = cInfo->Entry;
+                if(mPetDefaultSpellsMap.find(cInfo->Entry) != mPetDefaultSpellsMap.end())
+                    continue;
+
+                PetDefaultSpellsEntry petDefSpells;
+                for(int j = 0; j < MAX_CREATURE_SPELL_DATA_SLOT; ++j)
+                    petDefSpells.spellid[j] = cInfo->spells[j];
+
+                if(LoadPetDefaultSpells_helper(cInfo, petDefSpells))
+                {
+                    mPetDefaultSpellsMap[petSpellsId] = petDefSpells;
+                    ++countCreature;
+                }
+            }
+        }
+    }
+
+    sLog.outString();
+    sLog.outString( ">> Loaded addition spells for %u pet spell data entries and %u summonable creature templates", countData, countCreature );
+}
+
 /// Some checks for spells, to prevent adding deprecated/broken spells for trainers, spell book, etc
 bool SpellMgr::IsSpellValid(SpellEntry const* spellInfo, Player* pl, bool msg)
 {

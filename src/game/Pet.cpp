@@ -93,25 +93,25 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
     QueryResult *result;
 
     if (petnumber)
-        // known petnumber entry                  0   1      2(?)   3        4      5    6           7             8     9     10       11         12       13            14      15              16        17                 18                 19              20        21
-        result = CharacterDatabase.PQuery("SELECT id, entry, owner, modelid, level, exp, Reactstate, talentpoints, slot, name, renamed, curhealth, curmana, curhappiness, abdata, TeachSpelldata, savetime, resettalents_cost, resettalents_time, CreatedBySpell, PetType , load_flags "
+        // known petnumber entry                  0   1      2(?)   3        4      5    6           7             8     9     10       11         12       13            14      15        16                 17                 18              19
+        result = CharacterDatabase.PQuery("SELECT id, entry, owner, modelid, level, exp, Reactstate, talentpoints, slot, name, renamed, curhealth, curmana, curhappiness, abdata, savetime, resettalents_cost, resettalents_time, CreatedBySpell, PetType, load_flags "
             "FROM character_pet WHERE owner = '%u' AND id = '%u'",
             ownerid, petnumber);
     else if (current)
-        // current pet (slot 0)                   0   1      2(?)   3        4      5    6           7             8     9     10       11         12       13            14      15              16        17                 18                 19              20        21
-        result = CharacterDatabase.PQuery("SELECT id, entry, owner, modelid, level, exp, Reactstate, talentpoints, slot, name, renamed, curhealth, curmana, curhappiness, abdata, TeachSpelldata, savetime, resettalents_cost, resettalents_time, CreatedBySpell, PetType , load_flags "
+        // current pet (slot 0)                   0   1      2(?)   3        4      5    6           7             8     9     10       11         12       13            14      15        16                 17                 18              19
+        result = CharacterDatabase.PQuery("SELECT id, entry, owner, modelid, level, exp, Reactstate, talentpoints, slot, name, renamed, curhealth, curmana, curhappiness, abdata, savetime, resettalents_cost, resettalents_time, CreatedBySpell, PetType, load_flags "
             "FROM character_pet WHERE owner = '%u' AND slot = '%u'",
             ownerid, PET_SAVE_AS_CURRENT );
     else if (petentry)
         // known petentry entry (unique for summoned pet, but non unique for hunter pet (only from current or not stabled pets)
-        //                                        0   1      2(?)   3        4      5    6           7             8     9     10       11         12       13            14      15              16        17                 18                 19              20        21
-        result = CharacterDatabase.PQuery("SELECT id, entry, owner, modelid, level, exp, Reactstate, talentpoints, slot, name, renamed, curhealth, curmana, curhappiness, abdata, TeachSpelldata, savetime, resettalents_cost, resettalents_time, CreatedBySpell, PetType , load_flags "
+        //                                        0   1      2(?)   3        4      5    6           7             8     9     10       11         12       13            14      15        16                 17                 18              19
+        result = CharacterDatabase.PQuery("SELECT id, entry, owner, modelid, level, exp, Reactstate, talentpoints, slot, name, renamed, curhealth, curmana, curhappiness, abdata, savetime, resettalents_cost, resettalents_time, CreatedBySpell, PetType, load_flags "
             "FROM character_pet WHERE owner = '%u' AND entry = '%u' AND (slot = '%u' OR slot > '%u') ",
             ownerid, petentry,PET_SAVE_AS_CURRENT,PET_SAVE_LAST_STABLE_SLOT);
     else
         // any current or other non-stabled pet (for hunter "call pet")
-        //                                        0   1      2(?)   3        4      5    6           7             8     9     10       11         12       13            14      15              16        17                 18                 19              20        21
-        result = CharacterDatabase.PQuery("SELECT id, entry, owner, modelid, level, exp, Reactstate, talentpoints, slot, name, renamed, curhealth, curmana, curhappiness, abdata, TeachSpelldata, savetime, resettalents_cost, resettalents_time, CreatedBySpell, PetType , load_flags "
+        //                                        0   1      2(?)   3        4      5    6           7             8     9     10       11         12       13            14      15        16                 17                 18              19
+        result = CharacterDatabase.PQuery("SELECT id, entry, owner, modelid, level, exp, Reactstate, talentpoints, slot, name, renamed, curhealth, curmana, curhappiness, abdata, savetime, resettalents_cost, resettalents_time, CreatedBySpell, PetType, load_flags "
             "FROM character_pet WHERE owner = '%u' AND (slot = '%u' OR slot > '%u') ",
             ownerid,PET_SAVE_AS_CURRENT,PET_SAVE_LAST_STABLE_SLOT);
 
@@ -128,7 +128,7 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
         return false;
     }
 
-    uint32 summon_spell_id = fields[19].GetUInt32();
+    uint32 summon_spell_id = fields[18].GetUInt32();
     SpellEntry const* spellInfo = sSpellStore.LookupEntry(summon_spell_id);
 
     bool is_temporary_summoned = spellInfo && GetSpellDuration(spellInfo) > 0;
@@ -169,7 +169,7 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
         return false;
     }
 
-    setPetType(PetType(fields[20].GetUInt8()));
+    setPetType(PetType(fields[19].GetUInt8()));
     SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, owner->getFaction());
     SetUInt32Value(UNIT_CREATED_BY_SPELL, summon_spell_id);
 
@@ -253,14 +253,14 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
     owner->SetMinion(this, true);
     map->Add((Creature*)this);
 
-    m_resetTalentsCost = fields[17].GetUInt32();
-    m_resetTalentsTime = fields[18].GetUInt64();
+    m_resetTalentsCost = fields[16].GetUInt32();
+    m_resetTalentsTime = fields[17].GetUInt64();
     InitTalentForLevel();
 
-    uint32 timediff = (time(NULL) - fields[16].GetUInt32());
+    uint32 timediff = (time(NULL) - fields[15].GetUInt32());
     _LoadAuras(timediff);
 
-    uint8 loadFlags = fields[21].GetUInt8();
+    uint8 loadFlags = fields[20].GetUInt8();
     owner->SetPetAtLoginFlag(loadFlags);
     if (loadFlags & AT_LOAD_RESET_SPELLS)
     {
@@ -293,20 +293,6 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
                 m_charmInfo->GetActionBarEntry(index)->SpellOrAction = atol((*iter).c_str());
                 if(m_charmInfo->GetActionBarEntry(index)->Type == ACT_ENABLED && !IsAutocastableSpell(m_charmInfo->GetActionBarEntry(index)->SpellOrAction))
                     m_charmInfo->GetActionBarEntry(index)->Type = ACT_PASSIVE;
-            }
-
-            //init teach spells
-            tokens = StrSplit(fields[15].GetString(), " ");
-            for (iter = tokens.begin(), index = 0; index < 4; ++iter, ++index)
-            {
-                uint32 tmp = atol((*iter).c_str());
-
-                ++iter;
-
-                if(tmp)
-                    AddTeachSpell(tmp, atol((*iter).c_str()));
-                else
-                    break;
             }
 
             _LoadSpells();
@@ -414,7 +400,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
                 owner,PET_SAVE_AS_CURRENT,PET_SAVE_LAST_STABLE_SLOT);
         // save pet
         std::ostringstream ss;
-        ss  << "INSERT INTO character_pet ( id, entry,  owner, modelid, level, exp, Reactstate, talentpoints, slot, name, renamed, curhealth, curmana, curhappiness, abdata, TeachSpelldata, savetime, resettalents_cost, resettalents_time, CreatedBySpell, PetType, load_flags) "
+        ss  << "INSERT INTO character_pet ( id, entry,  owner, modelid, level, exp, Reactstate, talentpoints, slot, name, renamed, curhealth, curmana, curhappiness, abdata, savetime, resettalents_cost, resettalents_time, CreatedBySpell, PetType, load_flags) "
             << "VALUES ("
             << m_charmInfo->GetPetNumber() << ", "
             << GetEntry() << ", "
@@ -433,17 +419,6 @@ void Pet::SavePetToDB(PetSaveMode mode)
 
         for(uint32 i = 0; i < 10; ++i)
             ss << uint32(m_charmInfo->GetActionBarEntry(i)->Type) << " " << uint32(m_charmInfo->GetActionBarEntry(i)->SpellOrAction) << " ";
-        ss << "', '";
-
-        //save spells the pet can teach to it's Master
-        {
-            int i = 0;
-            for(TeachSpellMap::const_iterator itr = m_teachspells.begin(); i < 4 && itr != m_teachspells.end(); ++i, ++itr)
-                ss << itr->first << " " << itr->second << " ";
-            for(; i < 4; ++i)
-                ss << uint32(0) << " " << uint32(0) << " ";
-        }
-
         ss  << "', "
             << time(NULL) << ", "
             << uint32(m_resetTalentsCost) << ", "
@@ -1366,25 +1341,40 @@ bool Pet::learnSpell(uint32 spell_id)
 
 void Pet::InitLevelupSpellsForLevel()
 {
-    uint32 family = GetCreatureInfo()->family;
-    if(!family)
-        return;
-
-    PetLevelupSpellSet const *levelupSpells = spellmgr.GetPetLevelupSpellList(family);
-    if(!levelupSpells)
-        return;
-
     uint32 level = getLevel();
 
-    // PetLevelupSpellSet ordered by levels, process in reversed order
-    for(PetLevelupSpellSet::const_reverse_iterator itr = levelupSpells->rbegin(); itr != levelupSpells->rend(); ++itr)
+    if(PetLevelupSpellSet const *levelupSpells = GetCreatureInfo()->family ? spellmgr.GetPetLevelupSpellList(GetCreatureInfo()->family) : NULL)
     {
-        // will called first if level down
-        if(itr->first > level)
-            unlearnSpell(itr->second,true);                 // will learn prev rank if any
-        // will called if level up
-        else
-            learnSpell(itr->second);                        // will unlearn prev rank if any
+        // PetLevelupSpellSet ordered by levels, process in reversed order
+        for(PetLevelupSpellSet::const_reverse_iterator itr = levelupSpells->rbegin(); itr != levelupSpells->rend(); ++itr)
+        {
+            // will called first if level down
+            if(itr->first > level)
+                unlearnSpell(itr->second,true);                 // will learn prev rank if any
+            // will called if level up
+            else
+                learnSpell(itr->second);                        // will unlearn prev rank if any
+        }
+    }
+
+    int32 petSpellsId = GetCreatureInfo()->PetSpellDataId ? -(int32)GetCreatureInfo()->PetSpellDataId : GetEntry();
+
+    // default spells (can be not learned if pet level (as owner level decrease result for example) less first possible in normal game)
+    if(PetDefaultSpellsEntry const *defSpells = spellmgr.GetPetDefaultSpellsEntry(petSpellsId))
+    {
+        for(int i = 0; i < MAX_CREATURE_SPELL_DATA_SLOT; ++i)
+        {
+            SpellEntry const* spellEntry = sSpellStore.LookupEntry(defSpells->spellid[i]);
+            if(!spellEntry)
+                continue;
+
+            // will called first if level down
+            if(spellEntry->spellLevel > level)
+                unlearnSpell(spellEntry->Id,false);
+            // will called if level up
+            else
+                learnSpell(spellEntry->Id);
+        }
     }
 }
 
@@ -1442,14 +1432,16 @@ bool Pet::removeSpell(uint32 spell_id, bool learn_prev)
             learnSpell(prev_id);
         }
         else
-        {
-            m_charmInfo->AddSpellToAB(spell_id, 0);
+            learn_prev = false;
+    }
 
-            // need update action bar for last removed rank
-            if (Unit* owner = GetOwner())
-                if (owner->GetTypeId() == TYPEID_PLAYER)
-                    ((Player*)owner)->PetSpellInitialize();
-        }
+    // if remove last rank or non-ranked then update action bar at server and client if need
+    if(!learn_prev && m_charmInfo->AddSpellToAB(spell_id, 0))
+    {
+        // need update action bar for last removed rank
+        if (Unit* owner = GetOwner())
+            if (owner->GetTypeId() == TYPEID_PLAYER)
+                ((Player*)owner)->PetSpellInitialize();
     }
 
     return true;
@@ -1460,64 +1452,10 @@ void Pet::InitPetCreateSpells()
     m_charmInfo->InitPetActionBar();
     m_spells.clear();
 
-    uint32 petspellid;
-    PetCreateSpellEntry const* CreateSpells = objmgr.GetPetCreateSpellEntry(GetEntry());
-    if(CreateSpells)
-    {
-        for(uint8 i = 0; i < 4; ++i)
-        {
-            if(!CreateSpells->spellid[i])
-                break;
-
-            SpellEntry const *learn_spellproto = sSpellStore.LookupEntry(CreateSpells->spellid[i]);
-            if(!learn_spellproto)
-                continue;
-
-            if(learn_spellproto->Effect[0] == SPELL_EFFECT_LEARN_SPELL || learn_spellproto->Effect[0] == SPELL_EFFECT_LEARN_PET_SPELL)
-            {
-                petspellid = learn_spellproto->EffectTriggerSpell[0];
-                Unit* owner = GetOwner();
-                if(owner->GetTypeId() == TYPEID_PLAYER && !((Player*)owner)->HasSpell(learn_spellproto->Id))
-                {
-                    if(IsPassiveSpell(petspellid))          //learn passive skills when tamed, not sure if thats right
-                        ((Player*)owner)->learnSpell(learn_spellproto->Id,false);
-                    else
-                        AddTeachSpell(learn_spellproto->EffectTriggerSpell[0], learn_spellproto->Id);
-                }
-            }
-            else
-                petspellid = learn_spellproto->Id;
-
-            addSpell(petspellid);
-        }
-    }
-
     LearnPetPassives();
     InitLevelupSpellsForLevel();
 
     CastPetAuras(false);
-}
-
-void Pet::CheckLearning(uint32 spellid)
-{
-                                                            //charmed case -> prevent crash
-    if(GetTypeId() == TYPEID_PLAYER || getPetType() != HUNTER_PET)
-        return;
-
-    Unit* owner = GetOwner();
-
-    if(m_teachspells.empty() || !owner || owner->GetTypeId() != TYPEID_PLAYER)
-        return;
-
-    TeachSpellMap::iterator itr = m_teachspells.find(spellid);
-    if(itr == m_teachspells.end())
-        return;
-
-    if(urand(0, 100) < 10)
-    {
-        ((Player*)owner)->learnSpell(itr->second,false);
-        m_teachspells.erase(itr);
-    }
 }
 
 bool Pet::resetTalents(bool no_cost)
