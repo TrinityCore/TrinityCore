@@ -657,28 +657,8 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
             }
             case SPELLFAMILY_PALADIN:
             {
-                // Judgement of Vengeance/Corruption ${1+0.22*$SPH+0.14*$AP} + 10% for each application of Holy Vengeance/Blood Corruption on the target
-                if((m_spellInfo->SpellFamilyFlags[1] & 0x400000) && m_spellInfo->SpellIconID==2292)
-                {
-                    float ap = m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
-                    int32 holy = m_caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellInfo)) +
-                                 m_caster->SpellBaseDamageBonusForVictim(GetSpellSchoolMask(m_spellInfo), unitTarget);
-                    damage+=int32(ap * 0.14f) + int32(holy * 22 / 100);
-                    // Get stack of Holy Vengeance/Blood Corruption on the target added by caster
-                    uint32 stacks = 0;
-                    Unit::AuraEffectList const& auras = unitTarget->GetAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
-                    for(Unit::AuraEffectList::const_iterator itr = auras.begin(); itr!=auras.end(); ++itr)
-                        if(((*itr)->GetId() == 31803 || (*itr)->GetId() == 53742) && (*itr)->GetCasterGUID()==m_caster->GetGUID())
-                        {
-                            stacks = (*itr)->GetParentAura()->GetStackAmount();
-                            break;
-                        }
-                    // + 10% for each application of Holy Vengeance/Blood Corruption on the target
-                    if(stacks)
-                        damage += damage * stacks * 10 /100;
-                }
                 // Avenger's Shield ($m1+0.07*$SPH+0.07*$AP)
-                else if(m_spellInfo->SpellFamilyFlags[0] & 0x4000)
+                if(m_spellInfo->SpellFamilyFlags[0] & 0x4000)
                 {
                     float ap = m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
                     damage += int32(ap * 0.07f);

@@ -11717,7 +11717,7 @@ void Player::RemoveEnchantmentDurations(Item *item)
     }
 }
 
-void Player::RemoveAllEnchantments(EnchantmentSlot slot)
+void Player::RemoveArenaEnchantments(EnchantmentSlot slot)
 {
     // remove enchantments from equipped items first to clean up the m_enchantDuration list
     for(EnchantDurationList::iterator itr = m_enchantDuration.begin(),next;itr != m_enchantDuration.end();itr=next)
@@ -11727,6 +11727,12 @@ void Player::RemoveAllEnchantments(EnchantmentSlot slot)
         {
             if(itr->item && itr->item->GetEnchantmentId(slot))
             {
+                // Poisons and DK runes are enchants which are allowed on arenas
+                if (spellmgr.IsArenaAllowedEnchancment(itr->item->GetEnchantmentId(slot)))
+                {
+                    ++next;
+                    continue;
+                }
                 // remove from stats
                 ApplyEnchantment(itr->item,slot,false,false);
                 // remove visual

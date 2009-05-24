@@ -3432,6 +3432,40 @@ void SpellMgr::LoadSpellCustomAttr()
     CreatureAI::FillAISpellInfo();
 }
 
+// Fill custom data about enchancments
+void SpellMgr::LoadEnchantCustomAttr()
+{
+    uint32 size = sSpellItemEnchantmentStore.GetNumRows();
+    mEnchantCustomAttr.resize(size);
+
+    for (uint32 i = 0;i<size; ++i)
+       mEnchantCustomAttr[i] = 0;
+
+    for(uint32 i = 0; i < GetSpellStore()->GetNumRows(); ++i)
+    {
+        SpellEntry * spellInfo = (SpellEntry*)GetSpellStore()->LookupEntry(i);
+        if(!spellInfo)
+            continue;
+
+        // TODO: find a better check
+        if (!(spellInfo->AttributesEx2 & SPELL_ATTR_EX2_UNK13) || !(spellInfo->Attributes & SPELL_ATTR_NOT_SHAPESHIFT))
+            continue;
+
+        for(uint32 j = 0; j < 3; ++j)
+        {
+            if(spellInfo->Effect[j] == SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY)
+            {
+                uint32 enchId = spellInfo->EffectMiscValue[j];
+                SpellItemEnchantmentEntry const *ench = sSpellItemEnchantmentStore.LookupEntry(enchId);
+                if (!enchId)
+                    continue;
+                mEnchantCustomAttr[enchId] = true;
+                break;
+            }
+        }
+    }
+}
+
 bool SpellMgr::IsSkillTypeSpell(uint32 spellId, SkillType type) const
 {
     SkillLineAbilityMap::const_iterator lower = GetBeginSkillLineAbilityMap(spellId);
@@ -3516,4 +3550,3 @@ void SpellMgr::LoadSpellLinked()
     sLog.outString();
     sLog.outString( ">> Loaded %u linked spells", count );
 }
-

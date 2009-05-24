@@ -1339,6 +1339,9 @@ void World::SetInitialWorldSettings()
     sLog.outString( "Loading spell extra attributes...(TODO)" );
     spellmgr.LoadSpellCustomAttr();
 
+    sLog.outString( "Loading enchant custom attributes..." );
+    spellmgr.LoadEnchantCustomAttr();
+
     sLog.outString( "Loading linked spells..." );
     spellmgr.LoadSpellLinked();
 
