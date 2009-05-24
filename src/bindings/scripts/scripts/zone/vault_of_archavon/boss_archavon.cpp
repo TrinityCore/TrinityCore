@@ -104,14 +104,8 @@ struct TRINITY_DLL_DECL boss_archavonAI : public ScriptedAI
                 }
                 case EVENT_STOMP:
                 {
-                    DoCast(m_creature->getVictim(), SPELL_STOMP);
-                    Unit* pTarget = NULL;
-                    std::list<HostilReference*>::iterator i = m_creature->getThreatManager().getThreatList().begin();              
-                    pTarget=Unit::GetUnit(*m_creature, (*i)->getUnitGuid());
-                    if(pTarget)
-                    {
-                        DoCast(pTarget, SPELL_IMPALE);
-                    }
+                    DoCast(me->getVictim(), SPELL_STOMP, true);
+                    DoCast(me->getVictim(), SPELL_IMPALE);
                     events.ScheduleEvent(EVENT_STOMP, 45000);
                     return;
                 }
