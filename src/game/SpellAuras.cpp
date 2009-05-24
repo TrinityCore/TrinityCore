@@ -5916,19 +5916,16 @@ void Aura::PeriodicDummyTick()
             {
                 if ((*i)->GetId() == GetId())
                 {
+                    BattleGround *bg = ((Player*)m_target)->GetBattleGround();
                     // Get tick number
                     int32 tick = (m_maxduration - m_duration) / m_modifier.periodictime;
                     // Default case (not on arenas)
-                    if (tick == 0)
+                    if (tick == 0 )
                     {
                         (*i)->GetModifier()->m_amount = m_modifier.m_amount;
-                        ((Player*)m_target)->UpdateManaRegen();
-                        // Disable continue
-                        m_isPeriodic = false;
+                        
                     }
-                    return;
                     //**********************************************
-                    // Code commended since arena patch not added
                     // This feature uses only in arenas
                     //**********************************************
                     // Here need increase mana regen per tick (6 second rule)
@@ -5936,9 +5933,13 @@ void Aura::PeriodicDummyTick()
                     // on 1 tick - 166% (handled in 4 second)
                     // on 2 tick - 133% (handled in 6 second)
                     // Not need update after 3 tick
-                    BattleGround *bg = ((Player*)m_target)->GetBattleGround();
+                    
                     if(!bg || !bg->isArena())
+                    {
+                      m_isPeriodic = false;
+                      ((Player*)m_target)->UpdateManaRegen();
                       return;
+                    }
                     if (tick > 3)
                         return;
                     // Apply bonus for 0 - 3 tick
