@@ -2792,17 +2792,30 @@ void Spell::EffectCreateItem(uint32 i)
 
 void Spell::EffectCreateItem2(uint32 i)
 {
-    // special case: generate using spell_loot_template
-    if(!m_spellInfo->EffectItemType[i])
+    if(m_caster->GetTypeId()!=TYPEID_PLAYER)
+        return;
+    Player* player = (Player*)m_caster;
+
+    uint32 item_id = m_spellInfo->EffectItemType[i];
+    if(item_id)
+        DoCreateItem(i,item_id);
+
+    // special case: fake item replaced by generate using spell_loot_template
+    if(IsLootCraftingSpell(m_spellInfo))
     {
-        if(m_caster->GetTypeId()!=TYPEID_PLAYER)
-            return;
+        if(item_id)
+        {
+            if(!player->HasItemCount(item_id,1))
+                return;
+
+            // remove reagent
+            uint32 count = 1;
+            player->DestroyItemCount (item_id,count,true);
+        }
 
         // create some random items
-        ((Player*)m_caster)->AutoStoreLoot(m_spellInfo->Id,LootTemplates_Spell);
-        return;
+        player->AutoStoreLoot(m_spellInfo->Id,LootTemplates_Spell);
     }
-    DoCreateItem(i,m_spellInfo->EffectItemType[i]);
 }
 
 void Spell::EffectPersistentAA(uint32 i)
@@ -4973,32 +4986,12 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 case 61288:                                 // Minor Inscription Research
                 case 61756:                                 // Northrend Inscription Research (FAST QA VERSION)
                 {
-                    if(!IsExplicitDiscoverySpell(m_spellInfo))
-                    {
-                        sLog.outError("Wrong explicit discovery spell %u structure, or outdated...",m_spellInfo->Id);
-                        return;
-                    }
-
                     if(m_caster->GetTypeId()!=TYPEID_PLAYER)
                         return;
-                    Player* player = (Player*)m_caster;
-
-                    // need replace effect 0 item by loot
-                    uint32 reagent_id = m_spellInfo->EffectItemType[0];
-
-                    if(!player->HasItemCount(reagent_id,1))
-                        return;
-
-                    // remove reagent
-                    uint32 count = 1;
-                    player->DestroyItemCount (reagent_id,count,true);
-
-                    // create some random items
-                    player->AutoStoreLoot(m_spellInfo->Id,LootTemplates_Spell);
 
                     // learn random explicit discovery recipe (if any)
-                    if(uint32 discoveredSpell = GetExplicitDiscoverySpell(m_spellInfo->Id, player))
-                        player->learnSpell(discoveredSpell,false);
+                    if(uint32 discoveredSpell = GetExplicitDiscoverySpell(m_spellInfo->Id, (Player*)m_caster))
+                        ((Player*)m_caster)->learnSpell(discoveredSpell,false);
                     return;
                 }
             }
