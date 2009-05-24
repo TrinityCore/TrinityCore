@@ -1914,9 +1914,6 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     pet->SetCreatorGUID(GetGUID());
     pet->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, getFaction());
 
-    // this enables pet details window (Shift+P)
-    pet->GetCharmInfo()->SetPetNumber(pet_number, false);
-
     pet->setPowerType(POWER_MANA);
     pet->SetUInt32Value(UNIT_NPC_FLAGS , 0);
     pet->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
@@ -1927,9 +1924,11 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     switch(petType)
     {
         case POSSESSED_PET:
-            pet->SetUInt32Value(UNIT_FIELD_FLAGS,0);
+            pet->SetUInt32Value(UNIT_FIELD_FLAGS, 0);
             break;
         case SUMMON_PET:
+            // this enables pet details window (Shift+P)
+            pet->GetCharmInfo()->SetPetNumber(pet_number, true);
             pet->SetUInt32Value(UNIT_FIELD_BYTES_0, 2048);
             pet->SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, 0);
             pet->SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, 1000);
