@@ -13762,7 +13762,8 @@ void Unit::AddAura(uint32 spellId, Unit* target)
     if (!eff_mask)
         return;
 
-    Aura *Aur = new Aura(spellInfo, eff_mask, NULL, target, this, NULL, target);
+    //TODO: we use target as source for now, but that may not be true
+    Aura *Aur = new Aura(spellInfo, eff_mask, NULL, target, target, this, NULL);
     target->AddAura(Aur);
 }
 
@@ -13787,10 +13788,10 @@ Aura * Unit::AddAuraEffect(const SpellEntry * spellInfo, uint8 effIndex, Unit* c
         {
             int32 amount[3];
             amount[effIndex] = *basePoints;
-            aur = new Aura(spellInfo, 1<<effIndex, amount, this ,caster, NULL,source);
+            aur = new Aura(spellInfo, 1<<effIndex, amount, this, source, caster, NULL);
         }
         else
-            aur = new Aura(spellInfo, 1<<effIndex, NULL, this ,caster, NULL,source);
+            aur = new Aura(spellInfo, 1<<effIndex, NULL, this, source ,caster, NULL);
 
         if(!AddAura(aur))
             return NULL;
@@ -13959,7 +13960,7 @@ void Unit::EnterVehicle(Vehicle *vehicle, int8 seatId)
     }
 
     m_Vehicle->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);
-    m_Vehicle->setFaction(getFaction());
+    //m_Vehicle->setFaction(getFaction());
 
     addUnitState(UNIT_STAT_ONVEHICLE);
     //movementInfo is set in AddPassenger

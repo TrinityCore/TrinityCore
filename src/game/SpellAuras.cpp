@@ -343,7 +343,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &AuraEffect::HandleUnused,                                    //288 not used by any spells (3.09) except 1 test spell.
 };
 
-Aura::Aura(SpellEntry const* spellproto, uint32 effMask, int32 *currentBasePoints, Unit *target, Unit *caster, Item* castItem, Unit * source) :
+Aura::Aura(SpellEntry const* spellproto, uint32 effMask, int32 *currentBasePoints, Unit *target, WorldObject *source, Unit *caster, Item* castItem) :
 m_caster_guid(0), m_castItemGuid(castItem?castItem->GetGUID():0), m_target(target),
 m_timeCla(1000), m_removeMode(AURA_REMOVE_BY_DEFAULT), m_AuraDRGroup(DIMINISHING_NONE),
 m_auraSlot(MAX_AURAS), m_auraLevel(1), m_procCharges(0), m_stackAmount(1),m_auraStateMask(0), m_updated(false), m_isRemoved(false)
@@ -453,7 +453,7 @@ Aura::~Aura()
             delete m_partAuras[i];
 }
 
-AuraEffect::AuraEffect(Aura * parentAura, uint8 effIndex, int32 * currentBasePoints , Unit * caster, Item* castItem) :
+AuraEffect::AuraEffect(Aura * parentAura, uint8 effIndex, int32 * currentBasePoints , Unit *caster, Item* castItem, WorldObject *source) :
 m_parentAura(parentAura), m_spellmod(NULL), m_periodicTimer(0), m_isPeriodic(false), m_isAreaAura(false), m_isPersistent(false),
 m_target(parentAura->GetTarget()), m_tickNumber(0)
 {
@@ -496,6 +496,7 @@ m_target(parentAura->GetTarget()), m_tickNumber(0)
     }
 
     Player* modOwner = caster ? caster->GetSpellModOwner() : NULL;
+    m_sourceGUID = source ? source->GetGUID() : (caster ? caster->GetGUID() : 0);
     m_amplitude = m_spellProto->EffectAmplitude[m_effIndex];
 
     //apply casting time mods for channeled spells
@@ -512,12 +513,13 @@ m_target(parentAura->GetTarget()), m_tickNumber(0)
 }
 
 AreaAuraEffect::AreaAuraEffect(Aura * parentAura, uint32 effIndex, int32 * currentBasePoints, Unit * caster, Item * castItem, Unit * source)
-: AuraEffect(parentAura, effIndex, currentBasePoints, caster, castItem)
+: AuraEffect(parentAura, effIndex, currentBasePoints, caster, castItem, source)
 {
     m_removeTime = FRIENDLY_AA_REMOVE_TIME;
     m_isAreaAura = true;
 
     Unit* caster_ptr = source ? source : caster ? caster : m_target;
+    //this can be removed, already set in auraeffect
     m_sourceGUID = caster_ptr->GetGUID();
 
     if (m_spellProto->Effect[effIndex] == SPELL_EFFECT_APPLY_AREA_AURA_ENEMY)
@@ -567,8 +569,8 @@ AreaAuraEffect::~AreaAuraEffect()
 {
 }
 
-PersistentAreaAuraEffect::PersistentAreaAuraEffect(Aura * parentAura, uint32 effIndex, int32 * currentBasePoints, Unit * caster,Item * castItem)
-: AuraEffect(parentAura, effIndex, currentBasePoints, caster, castItem)
+PersistentAreaAuraEffect::PersistentAreaAuraEffect(Aura * parentAura, uint32 effIndex, int32 * currentBasePoints, Unit * caster,Item * castItem, DynamicObject *source)
+: AuraEffect(parentAura, effIndex, currentBasePoints, caster, castItem, source)
 {
     m_isPersistent = true;
 }
@@ -577,16 +579,21 @@ PersistentAreaAuraEffect::~PersistentAreaAuraEffect()
 {
 }
 
-AuraEffect* CreateAuraEffect(Aura * parentAura, uint32 effIndex, int32 *currentBasePoints, Unit * caster, Item * castItem, Unit* source)
+AuraEffect* CreateAuraEffect(Aura * parentAura, uint32 effIndex, int32 *currentBasePoints, Unit * caster, Item * castItem, WorldObject* source)
 {
-    assert (parentAura);
+    // TODO: source should belong to aura, but not areaeffect. multiple areaaura/persistent aura should use one source
+    assert(parentAura);
     if (IsAreaAuraEffect(parentAura->GetSpellProto()->Effect[effIndex]))
-        return new AreaAuraEffect(parentAura, effIndex, currentBasePoints, caster, castItem, source);
+    {
+        //TODO: determine source here
+        if(source && source->isType(TYPEMASK_UNIT))
+            return new AreaAuraEffect(parentAura, effIndex, currentBasePoints, caster, castItem, (Unit*)source);
+    }
     else if (parentAura->GetSpellProto()->Effect[effIndex] == SPELL_EFFECT_APPLY_AURA)
-        return new AuraEffect(parentAura, effIndex, currentBasePoints, caster, castItem);
+        return new AuraEffect(parentAura, effIndex, currentBasePoints, caster, castItem, source);
     else if (parentAura->GetSpellProto()->Effect[effIndex] == SPELL_EFFECT_PERSISTENT_AREA_AURA)
         return new PersistentAreaAuraEffect(parentAura, effIndex, currentBasePoints, caster, castItem);
-    else return NULL;
+    return NULL;
 }
 
 Unit* Aura::GetCaster() const
@@ -600,14 +607,15 @@ Unit* Aura::GetCaster() const
     return unit && unit->IsInWorld() ? unit : NULL;
 }
 
-Unit* AreaAuraEffect::GetSource() const
+Unit* AuraEffect::GetSource() const
 {
-    if(m_sourceGUID==m_target->GetGUID())
+    if(m_sourceGUID == m_target->GetGUID())
         return m_target;
 
     //return ObjectAccessor::GetUnit(*m_target,m_caster_guid);
     //must return caster even if it's in another grid/map
     Unit *unit = ObjectAccessor::GetObjectInWorld(m_sourceGUID, (Unit*)NULL);
+    //only player can be not in world while in objectaccessor
     return unit && unit->IsInWorld() ? unit : NULL;
 }
 
@@ -6811,7 +6819,7 @@ void AuraEffect::HandleAuraControlVehicle(bool apply, bool Real, bool /*changeAm
     if(m_target->GetTypeId() != TYPEID_UNIT || !((Creature*)m_target)->isVehicle())
         return;
 
-    Unit *caster = GetCaster();
+    Unit *caster = GetSource();
     if(!caster || caster == m_target)
         return;
 

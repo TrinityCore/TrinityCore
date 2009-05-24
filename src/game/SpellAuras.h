@@ -54,7 +54,7 @@ class TRINITY_DLL_SPEC Aura
     friend void Player::SendAurasForTarget(Unit *target);
     public:
         virtual ~Aura();
-                Aura(SpellEntry const* spellproto, uint32 effMask, int32 *currentBasePoints, Unit *target, Unit *caster = NULL, Item* castItem = NULL, Unit * source=NULL);
+        explicit Aura(SpellEntry const* spellproto, uint32 effMask, int32 *currentBasePoints, Unit *target, WorldObject *source = NULL, Unit *caster = NULL, Item *castItem = NULL);
 
         SpellEntry const* GetSpellProto() const { return m_spellProto; }
         uint32 GetId() const{ return m_spellProto->Id; }
@@ -171,7 +171,7 @@ class TRINITY_DLL_SPEC Aura
 class TRINITY_DLL_SPEC AuraEffect
 {
     public:
-        friend AuraEffect* CreateAuraEffect(Aura * parentAura, uint32 effIndex, int32 *currentBasePoints, Unit * caster, Item * castItem, Unit * source);
+        friend AuraEffect* CreateAuraEffect(Aura * parentAura, uint32 effIndex, int32 *currentBasePoints, Unit * caster, Item * castItem, WorldObject *source);
         friend void Aura::SetStackAmount(uint8 stackAmount, bool applied);
         //aura handlers
         void HandleNULL(bool, bool, bool)
@@ -333,8 +333,9 @@ class TRINITY_DLL_SPEC AuraEffect
         // add/remove SPELL_AURA_MOD_SHAPESHIFT (36) linked auras
         void HandleShapeshiftBoosts(bool apply);
 
-        inline Unit * GetCaster() const{ return m_parentAura->GetCaster(); }
-        inline uint64 GetCasterGUID() const{ return m_parentAura->GetCasterGUID(); }
+        Unit * GetCaster() const { return m_parentAura->GetCaster(); }
+        uint64 GetCasterGUID() const{ return m_parentAura->GetCasterGUID(); }
+        Unit* GetSource() const; // { return m_parentAura->GetSource(); }
         Aura * GetParentAura() const { return m_parentAura; }
 
         SpellEntry const* GetSpellProto() const { return m_spellProto; }
@@ -369,9 +370,10 @@ class TRINITY_DLL_SPEC AuraEffect
         void CleanupTriggeredSpells();
 
     protected:
-        AuraEffect (Aura * parentAura, uint8 effIndex, int32 * currentBasePoints , Unit * caster,Item * castItem);
+        explicit AuraEffect(Aura * parentAura, uint8 effIndex, int32 *currentBasePoints , Unit *caster, Item *castItem, WorldObject *source);
         Aura * const m_parentAura;
         Unit * const m_target;
+        uint64 m_sourceGUID; // Spell::m_caster/trap? for normal aura, totem/paladin for areaaura, dynobj for persistent aura
 
         SpellEntry const *m_spellProto;
         uint32 m_tickNumber;
@@ -394,23 +396,23 @@ class TRINITY_DLL_SPEC AuraEffect
 class TRINITY_DLL_SPEC AreaAuraEffect : public AuraEffect
 {
     public:
-        AreaAuraEffect(Aura * parentAura, uint32 effIndex, int32 * currentBasePoints, Unit * caster=NULL, Item * castItem=NULL, Unit * source=NULL);
+        AreaAuraEffect(Aura * parentAura, uint32 effIndex, int32 * currentBasePoints, Unit * caster=NULL, Item * castItem=NULL, Unit * source = NULL);
         ~AreaAuraEffect();
-        Unit* GetSource() const;
         void Update(uint32 diff);
     private:
         float m_radius;
         int32 m_removeTime;
         AreaAuraType m_areaAuraType;
-        uint64 m_sourceGUID;                          // used for check range
 };
 
 class TRINITY_DLL_SPEC PersistentAreaAuraEffect : public AuraEffect
 {
     public:
-        PersistentAreaAuraEffect(Aura * parentAura, uint32 eff, int32 *currentBasePoints, Unit *caster = NULL, Item* castItem = NULL);
+        PersistentAreaAuraEffect(Aura * parentAura, uint32 eff, int32 *currentBasePoints, Unit *caster = NULL, Item* castItem = NULL, DynamicObject * source = NULL);
         ~PersistentAreaAuraEffect();
         void Update(uint32 diff);
 };
-AuraEffect* CreateAuraEffect(Aura * parentAura, uint32 effIndex, int32 *currentBasePoints, Unit * caster, Item * castItem = NULL, Unit * source=NULL);
+
+AuraEffect* CreateAuraEffect(Aura * parentAura, uint32 effIndex, int32 *currentBasePoints, Unit *caster, Item *castItem = NULL, WorldObject *source = NULL);
+
 #endif
