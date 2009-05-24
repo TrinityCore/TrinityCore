@@ -844,7 +844,7 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    uint32 slot = _player->GetByteValue(PLAYER_BYTES_2, 2);
+    uint32 slot = _player->GetBankBagSlotCount();
 
     // next slot
     ++slot;
@@ -862,7 +862,7 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& recvPacket)
         return;
 
     _player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BUY_BANK_SLOT, slot);
-    _player->SetByteValue(PLAYER_BYTES_2, 2, slot);
+    _player->SetBankBagSlotCount(slot);
     _player->ModifyMoney(-int32(price));
 }
 
