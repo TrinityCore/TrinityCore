@@ -26,7 +26,7 @@
 
 #include "Chat.h"
 
-Vehicle::Vehicle() : Creature(), m_vehicleInfo(NULL)
+Vehicle::Vehicle() : Creature(), m_vehicleInfo(NULL), m_usableSeatNum(0)
 {
     m_summonMask |= SUMMON_MASK_VEHICLE;
     m_updateFlag = (UPDATEFLAG_LOWGUID | UPDATEFLAG_HIGHGUID | UPDATEFLAG_LIVING | UPDATEFLAG_HAS_POSITION | UPDATEFLAG_VEHICLE);
@@ -90,31 +90,12 @@ void Vehicle::Update(uint32 diff)
     //    ModifyPower(POWER_ENERGY, 1);
 }
 
-bool Vehicle::Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, uint32 vehicleId, uint32 team)
+bool Vehicle::Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, uint32 vehicleId, uint32 team, const CreatureData * data)
 {
-    //sLog.outError("create vehicle begin");
-    SetMapId(map->GetId());
-    SetInstanceId(map->GetInstanceId());
-
-    Object::_Create(guidlow, Entry, HIGHGUID_VEHICLE);
-
-    if(!InitEntry(Entry, team))
+    if(!Creature::Create(guidlow, map, phaseMask, Entry, team, data))
         return false;
 
-    m_defaultMovementType = IDLE_MOTION_TYPE;
-
     SetVehicleId(vehicleId);
-
-    SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-    SetFloatValue(UNIT_FIELD_HOVERHEIGHT, 1.0f);
-
-    CreatureInfo const *ci = GetCreatureInfo();
-    setFaction(team == ALLIANCE ? ci->faction_A : ci->faction_H);
-    SetMaxHealth(ci->maxhealth);
-    SelectLevel(ci);
-    SetHealth(GetMaxHealth());
-
-    //sLog.outError("create vehicle end");
     return true;
 }
 
@@ -143,16 +124,22 @@ void Vehicle::SetVehicleId(uint32 id)
 
     RemoveAllPassengers();
     m_Seats.clear();
+    m_usableSeatNum = 0;
 
     for(uint32 i = 0; i < 8; ++i)
     {
-        uint32 seatId = m_vehicleInfo->m_seatID[i];
-        if(seatId)
+        if(uint32 seatId = m_vehicleInfo->m_seatID[i])
             if(VehicleSeatEntry const *veSeat = sVehicleSeatStore.LookupEntry(seatId))
+            {
                 m_Seats.insert(std::make_pair(i, VehicleSeat(veSeat)));
+                if(veSeat->IsUsable())
+                    ++m_usableSeatNum;
+            }                    
     }
 
     assert(!m_Seats.empty());
+    if(m_usableSeatNum)
+        SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
 }
 
 bool Vehicle::HasEmptySeat(int8 seatId) const
@@ -166,7 +153,7 @@ int8 Vehicle::GetNextEmptySeat(int8 seatId, bool next) const
 {
     SeatMap::const_iterator seat = m_Seats.find(seatId);
     if(seat == m_Seats.end()) return -1;
-    while(seat->second.passenger)
+    while(seat->second.passenger || !seat->second.seatInfo->IsUsable())
     {
         if(next)
         {
@@ -181,7 +168,7 @@ int8 Vehicle::GetNextEmptySeat(int8 seatId, bool next) const
             --seat;
         }
         if(seat->first == seatId)
-            return -1;
+            return -1; // no available seat
     }
     return seat->first;
 }
@@ -206,7 +193,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
     if(seatId < 0) // no specific seat requirement
     {
         for(seat = m_Seats.begin(); seat != m_Seats.end(); ++seat)
-            if(!seat->second.passenger)
+            if(!seat->second.passenger && seat->second.seatInfo->IsUsable())
                 break;
 
         if(seat == m_Seats.end()) // no available seat
@@ -227,8 +214,14 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
     sLog.outDebug("Unit %s enter vehicle entry %u id %u dbguid %u", unit->GetName(), GetEntry(), m_vehicleInfo->m_ID, GetDBTableGUIDLow());
 
     seat->second.passenger = unit;
+    if(seat->second.seatInfo->IsUsable())
+    {
+        assert(m_usableSeatNum);
+        --m_usableSeatNum;
+        if(!m_usableSeatNum)
+            RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+    }
 
-    //RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
     //SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);
 
     unit->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
@@ -250,7 +243,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
     {
         //ChatHandler(player).PSendSysMessage("Enter seat %u %u", veSeat->m_ID, seat->first);
 
-        if(seat->first == 0)
+        if(seat->first == 0 && seat->second.seatInfo->IsUsable()) // not right
         {
             ((Player*)unit)->SetCharm(this, true);
             ((Player*)unit)->SetViewpoint(this, true);
@@ -278,6 +271,12 @@ void Vehicle::RemovePassenger(Unit *unit)
         if(seat->second.passenger == unit)
         {
             seat->second.passenger = NULL;
+            if(seat->second.seatInfo->IsUsable())
+            {
+                if(!m_usableSeatNum)
+                    SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                ++m_usableSeatNum;
+            }
             break;
         }
     }
@@ -288,7 +287,7 @@ void Vehicle::RemovePassenger(Unit *unit)
 
     //SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
 
-    if(unit->GetTypeId() == TYPEID_PLAYER && seat->first == 0)
+    if(unit->GetTypeId() == TYPEID_PLAYER && seat->first == 0 && seat->second.seatInfo->IsUsable())
     {
         ((Player*)unit)->SetCharm(this, false);
         ((Player*)unit)->SetViewpoint(this, false);
@@ -337,7 +336,7 @@ bool Vehicle::LoadFromDB(uint32 guid, Map *map)
     if (map->GetInstanceId() != 0) guid = objmgr.GenerateLowGuid(HIGHGUID_VEHICLE);
 
     uint16 team = 0;
-    if(!Create(guid,map,data->phaseMask,data->id,id,team))
+    if(!Create(guid,map,data->phaseMask,data->id,id,team,data))
         return false;
 
     Relocate(data->posX,data->posY,data->posZ,data->orientation);

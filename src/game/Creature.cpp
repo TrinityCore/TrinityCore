@@ -1434,7 +1434,10 @@ bool Creature::CreateFromProto(uint32 guidlow, uint32 Entry, uint32 team, const 
     }
     m_originalEntry = Entry;
 
-    Object::_Create(guidlow, Entry, HIGHGUID_UNIT);
+    if(isVehicle())
+        Object::_Create(guidlow, Entry, HIGHGUID_VEHICLE);
+    else
+        Object::_Create(guidlow, Entry, HIGHGUID_UNIT);
 
     if(!UpdateEntry(Entry, team, data))
         return false;

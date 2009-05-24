@@ -1719,6 +1719,8 @@ struct VehicleSeatEntry
     uint32  m_exitUISoundID;                                // 43
     int32   m_uiSkin;                                       // 44
     uint32  m_flagsB;                                       // 45
+
+    bool IsUsable() const { return m_flags & 0x2000000; }
 };
 
 struct WorldMapAreaEntry
