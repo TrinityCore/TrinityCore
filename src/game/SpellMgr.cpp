@@ -3247,7 +3247,6 @@ void SpellMgr::LoadSpellCustomAttr()
         case 37676: // Insidious Whisper
         case 46009: // Negative Energy
         case 45641: // Fire Bloom
-        case 54937: // Glyph of Holy Light
         case 55665: // Life Drain - Sapphiron (H)
         case 28796: // Poison Bolt Volly - Faerlina
             spellInfo->MaxAffectedTargets = 5;
@@ -3256,7 +3255,6 @@ void SpellMgr::LoadSpellCustomAttr()
         case 40859: // Sinister Beam
         case 40860: // Vile Beam
         case 40861: // Wicked Beam
-        case 57669: // Replenishment
         case 54835: // Curse of the Plaguebringer - Noth (H)
         case 54098: // Poison Bolt Volly - Faerlina (H)
             spellInfo->MaxAffectedTargets = 10;
@@ -3301,14 +3299,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 // Starfall AOE Damage
                 else if(spellInfo->SpellFamilyFlags[2] & 0x800000)
                     mSpellCustomAttr[i] |= SPELL_ATTR_CU_EXCLUDE_SELF;
-                // Wild growth
-                else if(spellInfo->SpellFamilyFlags[1] & 0x4000000)
-                    spellInfo->MaxAffectedTargets = 5;
-                break;
-                // circle of healing
-            case SPELLFAMILY_PRIEST:
-                if(spellInfo->SpellFamilyFlags[0] & 0x10000000)
-                    spellInfo->MaxAffectedTargets = 5;
                 break;
         }
     }
