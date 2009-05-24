@@ -961,7 +961,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 break;
             }
             case ACHIEVEMENT_CRITERIA_TYPE_BUY_BANK_SLOT:
-                SetCriteriaProgress(achievementCriteria, GetPlayer()->GetByteValue(PLAYER_BYTES_2, 2)+1);
+                SetCriteriaProgress(achievementCriteria, GetPlayer()->GetBankBagSlotCount());
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_GAIN_REPUTATION:
             {
