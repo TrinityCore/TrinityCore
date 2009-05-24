@@ -551,6 +551,11 @@ INSERT INTO spell_target_position () VALUES (46020, 580, 1704.34, 928.17, 53.079
 INSERT INTO spell_target_position () VALUES (53360, 571, 5807.829, 587.960, 660.939, 1.663);
 
 -- --------
+-- MISC
+-- --------
+UPDATE `creature_template` SET `flags_extra` = 33 WHERE `entry` = 23576; /*no crush*/
+
+-- --------
 -- REQUIRED
 -- --------
 DROP TABLE IF EXISTS `spell_required`;
