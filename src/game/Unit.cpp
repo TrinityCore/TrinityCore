@@ -1704,9 +1704,6 @@ void Unit::DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss)
                             }
                             if (slot != i)
                                 continue;
-                            // Check if item is useable (forms or disarm)
-                            if (((Player*)this)->IsInFeralForm())
-                                continue;
                         }
                         ((Player*)this)->CastItemCombatSpell(item, damageInfo, proto);
                     }
@@ -8869,6 +8866,23 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
     }
 
     // Custom scripted damage
+    // Judgement of Vengeance/ Judgement of Corruption
+    if((spellProto->SpellFamilyFlags[1] & 0x400000) && spellProto->SpellIconID==2292)
+    {
+        // Get stack of Holy Vengeance/Blood Corruption on the target added by caster
+        uint32 stacks = 0;
+        Unit::AuraEffectList const& auras = pVictim->GetAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
+        for(Unit::AuraEffectList::const_iterator itr = auras.begin(); itr!=auras.end(); ++itr)
+            if(((*itr)->GetId() == 31803 || (*itr)->GetId() == 53742) && (*itr)->GetCasterGUID()==GetGUID())
+            {
+                stacks = (*itr)->GetParentAura()->GetStackAmount();
+                break;
+            }
+        // + 10% for each application of Holy Vengeance/Blood Corruption on the target
+        if(stacks)
+            DoneTotalMod *= stacks * 10 + 100.0f /100.0f;
+    }
+
     // Ice Lance
     if (spellProto->SpellFamilyName == SPELLFAMILY_MAGE && spellProto->SpellIconID == 186)
     {
@@ -9368,21 +9382,15 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
 
     bool scripted = false;
 
-    // No heal coeff for this class spells
-    if (spellProto->DmgClass == SPELL_DAMAGE_CLASS_NONE)
-        scripted = true;
-    else
+    for (uint8 i=0;i<3;++i)
     {
-        for (uint8 i=0;i<3;++i)
+        switch (spellProto->EffectApplyAuraName[i])
         {
-            switch (spellProto->EffectApplyAuraName[i])
-            {
-                // These auras do not use healing coeff
-                case SPELL_AURA_PERIODIC_LEECH:
-                case SPELL_AURA_PERIODIC_HEALTH_FUNNEL:
-                    scripted = true;
-                    break;
-            }
+            // These auras do not use healing coeff
+            case SPELL_AURA_PERIODIC_LEECH:
+            case SPELL_AURA_PERIODIC_HEALTH_FUNNEL:
+                scripted = true;
+                break;
         }
     }
 
@@ -9420,7 +9428,8 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
             factorMod *= 0.45f;
         }
         // Already set to scripted? so not uses healing bonus coefficient
-        else if (scripted)
+        // No heal coeff for SPELL_DAMAGE_CLASS_NONE class spells by default
+        else if (scripted || spellProto->DmgClass == SPELL_DAMAGE_CLASS_NONE)
         {
             coeff = 0.0f;
         }
@@ -12997,6 +13006,7 @@ bool Unit::HandleAuraRaidProcFromChargeWithValue( AuraEffect* triggeredByAura )
                 CastCustomSpell(target,spellProto->Id,&heal,NULL,NULL,true,NULL,triggeredByAura,caster->GetGUID());
                 if (Aura * aur = target->GetAura(spellProto->Id, caster->GetGUID()))
                     aur->SetAuraCharges(jumps);
+                //caster->SpellHealingBonus(this, spellProto, heal, HEAL);
             }
         }
     }

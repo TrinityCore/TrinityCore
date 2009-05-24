@@ -726,6 +726,7 @@ inline bool IsProfessionSkill(uint32 skill)
 
 
 typedef std::vector<uint32> SpellCustomAttribute;
+typedef std::vector<bool> EnchantCustomAttribute;
 
 typedef std::map<int32, std::vector<int32> > SpellLinkedMap;
 
@@ -884,6 +885,11 @@ class SpellMgr
                 return node->last;
 
             return spell_id;
+        }
+
+        uint32 IsArenaAllowedEnchancment(uint32 ench_id) const
+        {
+            return mEnchantCustomAttr[ench_id];
         }
 
         uint8 IsHighRankOfSpell(uint32 spell1,uint32 spell2) const
@@ -1071,6 +1077,7 @@ class SpellMgr
         void LoadSkillLineAbilityMap();
         void LoadSpellPetAuras();
         void LoadSpellCustomAttr();
+        void LoadEnchantCustomAttr();
         void LoadSpellEnchantProcData();
         void LoadSpellLinked();
         void LoadPetLevelupSpellMap();
@@ -1094,6 +1101,7 @@ class SpellMgr
         SpellCustomAttribute  mSpellCustomAttr;
         SpellLinkedMap      mSpellLinkedMap;
         SpellEnchantProcEventMap     mSpellEnchantProcEventMap;
+        EnchantCustomAttribute  mEnchantCustomAttr;
         PetLevelupSpellMap  mPetLevelupSpellMap;
         PetDefaultSpellsMap mPetDefaultSpellsMap;           // only spells not listed in related mPetLevelupSpellMap entry
         SpellAreaMap         mSpellAreaMap;
