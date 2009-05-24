@@ -289,7 +289,6 @@ public:
     void FillInitialWorldStates(WorldPacket &data);
     void SendRemoveWorldStates(Player * plr);
     void HandleKillImpl(Player * plr, Unit * killed);
-    void BuffTeam(uint32 team);
 private:
     OutdoorPvPObjectiveNA * m_obj;
 };

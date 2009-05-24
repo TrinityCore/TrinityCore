@@ -117,11 +117,14 @@ bool OutdoorPvPHP::Update(uint32 diff)
     if(changed = OutdoorPvP::Update(diff))
     {
         if(m_AllianceTowersControlled == 3)
-            BuffTeam(ALLIANCE);
+            TeamApplyBuff(TEAM_ALLIANCE, AllianceBuff, HordeBuff);
         else if(m_HordeTowersControlled == 3)
-            BuffTeam(HORDE);
+            TeamApplyBuff(TEAM_HORDE, HordeBuff, AllianceBuff);
         else
-            BuffTeam(0);
+        {
+            TeamCastSpell(TEAM_ALLIANCE, -AllianceBuff);
+            TeamCastSpell(TEAM_HORDE, -HordeBuff);
+        }
         SendUpdateWorldState(HP_UI_TOWER_COUNT_A, m_AllianceTowersControlled);
         SendUpdateWorldState(HP_UI_TOWER_COUNT_H, m_HordeTowersControlled);
     }
@@ -326,49 +329,6 @@ void OutdoorPvPObjectiveHP::HandlePlayerLeave(Player *plr)
 {
     plr->SendUpdateWorldState(HP_UI_TOWER_SLIDER_DISPLAY, 0);
     OutdoorPvPObjective::HandlePlayerLeave(plr);
-}
-
-void OutdoorPvPHP::BuffTeam(uint32 team)
-{
-    if(team == ALLIANCE)
-    {
-        for(std::set<uint64>::iterator itr = m_PlayerGuids[0].begin(); itr != m_PlayerGuids[0].end(); ++itr)
-        {
-            if(Player * plr = objmgr.GetPlayer(*itr))
-                if(plr->IsInWorld()) plr->CastSpell(plr,AllianceBuff,true);
-        }
-        for(std::set<uint64>::iterator itr = m_PlayerGuids[1].begin(); itr != m_PlayerGuids[1].end(); ++itr)
-        {
-            if(Player * plr = objmgr.GetPlayer(*itr))
-                if(plr->IsInWorld()) plr->RemoveAurasDueToSpell(HordeBuff);
-        }
-    }
-    else if(team == HORDE)
-    {
-        for(std::set<uint64>::iterator itr = m_PlayerGuids[1].begin(); itr != m_PlayerGuids[1].end(); ++itr)
-        {
-            if(Player * plr = objmgr.GetPlayer(*itr))
-                if(plr->IsInWorld()) plr->CastSpell(plr,HordeBuff,true);
-        }
-        for(std::set<uint64>::iterator itr = m_PlayerGuids[0].begin(); itr != m_PlayerGuids[0].end(); ++itr)
-        {
-            if(Player * plr = objmgr.GetPlayer(*itr))
-                if(plr->IsInWorld()) plr->RemoveAurasDueToSpell(AllianceBuff);
-        }
-    }
-    else
-    {
-        for(std::set<uint64>::iterator itr = m_PlayerGuids[0].begin(); itr != m_PlayerGuids[0].end(); ++itr)
-        {
-            if(Player * plr = objmgr.GetPlayer(*itr))
-                if(plr->IsInWorld()) plr->RemoveAurasDueToSpell(AllianceBuff);
-        }
-        for(std::set<uint64>::iterator itr = m_PlayerGuids[1].begin(); itr != m_PlayerGuids[1].end(); ++itr)
-        {
-            if(Player * plr = objmgr.GetPlayer(*itr))
-                if(plr->IsInWorld()) plr->RemoveAurasDueToSpell(HordeBuff);
-        }
-    }
 }
 
 void OutdoorPvPHP::HandleKillImpl(Player *plr, Unit * killed)

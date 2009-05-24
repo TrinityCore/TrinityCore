@@ -26,7 +26,7 @@ const uint32 OutdoorPvPZMBuffZonesNum = 5;
 // the buff is cast in these zones
 const uint32 OutdoorPvPZMBuffZones[OutdoorPvPZMBuffZonesNum] = {3521,3607,3717,3715,3716};
 // cast on the players of the controlling faction
-const uint32 ZM_CAPTURE_BUFF = 33779;  // twin spire blessing
+#define ZM_CAPTURE_BUFF 33779  // twin spire blessing
 // spell that the field scout casts on the player to carry the flag
 const uint32 ZM_BATTLE_STANDARD_A = 32430;
 // spell that the field scout casts on the player to carry the flag
@@ -204,7 +204,6 @@ public:
     void FillInitialWorldStates(WorldPacket &data);
     void SendRemoveWorldStates(Player * plr);
     void HandleKillImpl(Player * plr, Unit * killed);
-    void BuffTeam(uint32 team);
 private:
     OutdoorPvPObjectiveZM_GraveYard * m_GraveYard;
     uint32 m_AllianceTowersControlled;

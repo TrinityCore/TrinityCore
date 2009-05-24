@@ -29,15 +29,8 @@
 #define SPELL_CORPORAL      33280
 #define SPELL_LIEUTENANT    55629
 
-#define SPELL_TENICITY      58549
-#define SPELL_TENICITY_VEHICLE  59911
-
-enum TeamId
-{
-    TEAM_ALLIANCE = 0,
-    TEAM_HORDE,
-    TEAM_NEUTRAL,
-};
+#define SPELL_TENACITY      58549
+#define SPELL_TENACITY_VEHICLE  59911
 
 enum DamageState
 {
@@ -65,14 +58,18 @@ class OPvPWintergrasp : public OutdoorPvP
         typedef std::list<const AreaPOIEntry *> AreaPOIList;
         typedef std::map<uint32, BuildingState *> BuildingStateMap;
     public:
+        explicit OPvPWintergrasp() : m_tenacityStack(0) {}
         bool SetupOutdoorPvP();
         void HandlePlayerEnterZone(Player *plr, uint32 zone);
         void HandlePlayerLeaveZone(Player *plr, uint32 zone);
         void HandleKill(Player *killer, Unit *victim);
     protected:
-        TeamId m_defender, m_attacker;
+        TeamId m_defender;
+        int32 m_tenacityStack;
         AreaPOIList areaPOIs;
         BuildingStateMap buildingStates;
+
+        void UpdateTenacityStack();
 };
 
 #endif
