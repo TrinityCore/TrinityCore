@@ -5263,6 +5263,22 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 CastSpell(target, triggered_spell_id, true, 0, triggeredByAura);
                 return true;
             }
+
+            //Arcane Potency
+            if (dummySpell->SpellIconID == 2120)
+            {
+                if(!procSpell)
+                    return false;
+
+                target = this;
+                switch (dummySpell->Id)
+                {
+                    case 31571: triggered_spell_id = 57529; break;
+                    case 31572: triggered_spell_id = 57531; break;
+                }
+                break;
+            }
+
             // Hot Streak
             if (dummySpell->SpellIconID == 2999)
             {
