@@ -979,8 +979,8 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
 
                             //Spells with this flag cannot trigger if effect is casted on self
                             // Slice and Dice, relentless strikes, eviscerate
-    bool canEffectTrigger = (m_spellInfo->AttributesEx4 & (SPELL_ATTR_EX4_CANT_PROC_FROM_SELFCAST | SPELL_ATTR_EX4_UNK4) ? m_caster!=unitTarget : true) 
-        && m_canTrigger;
+    //bool canEffectTrigger = (m_spellInfo->AttributesEx4 & (SPELL_ATTR_EX4_CANT_PROC_FROM_SELFCAST | SPELL_ATTR_EX4_UNK4) ? m_caster!=unitTarget : true) 
+    //    && m_canTrigger;
 
     if (missInfo==SPELL_MISS_NONE)                          // In case spell hit target, do all effect on that target
         DoSpellHitOnUnit(unit, mask);
@@ -1017,7 +1017,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         caster->SendHealSpellLog(unitTarget, m_spellInfo->Id, addhealth, crit);
 
         // Do triggers for unit (reflect triggers passed on hit phase for correct drop charge)
-        if (canEffectTrigger && missInfo != SPELL_MISS_REFLECT)
+        if (m_canTrigger && missInfo != SPELL_MISS_REFLECT)
             caster->ProcDamageAndSpell(unitTarget, procAttacker, procVictim, procEx, addhealth, m_attackType, m_spellInfo);
 
         int32 gain = unitTarget->ModifyHealth( int32(addhealth) );
@@ -1043,7 +1043,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         procVictim |= PROC_FLAG_TAKEN_ANY_DAMAGE;
 
         // Do triggers for unit (reflect triggers passed on hit phase for correct drop charge)
-        if (canEffectTrigger && missInfo != SPELL_MISS_REFLECT)
+        if (m_canTrigger && missInfo != SPELL_MISS_REFLECT)
             caster->ProcDamageAndSpell(unitTarget, procAttacker, procVictim, procEx, damageInfo.damage, m_attackType, m_spellInfo);
 
         caster->DealSpellDamage(&damageInfo, true);
@@ -1094,7 +1094,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         SpellNonMeleeDamage damageInfo(caster, unitTarget, m_spellInfo->Id, m_spellSchoolMask);
         procEx = createProcExtendMask(&damageInfo, missInfo);
         // Do triggers for unit (reflect triggers passed on hit phase for correct drop charge)
-        if (canEffectTrigger && missInfo != SPELL_MISS_REFLECT)
+        if (m_canTrigger && missInfo != SPELL_MISS_REFLECT)
             caster->ProcDamageAndSpell(unit, procAttacker, procVictim, procEx, 0, m_attackType, m_spellInfo);
     }
 
@@ -1222,8 +1222,8 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
     if(m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->IsAIEnabled)
         ((Creature*)m_caster)->AI()->SpellHitTarget(unit, m_spellInfo);
 
-    // spells with this flag can trigger only if not selfcast (eviscerate for example)
-    if (m_ChanceTriggerSpells.size() && (!(m_spellInfo->AttributesEx4 & SPELL_ATTR_EX4_CANT_PROC_FROM_SELFCAST | SPELL_ATTR_EX4_UNK4) && unit==m_caster))
+    // trigger only for first effect targets
+    if (m_ChanceTriggerSpells.size() && (effectMask & 0x1))
     {
         int _duration=0;
         for(ChanceTriggerSpells::const_iterator i = m_ChanceTriggerSpells.begin(); i != m_ChanceTriggerSpells.end(); ++i)
