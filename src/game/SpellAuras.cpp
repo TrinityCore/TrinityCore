@@ -543,7 +543,11 @@ void Aura::Update(uint32 diff)
     }
 
     // Channeled aura required check distance from caster except in possessed cases
-    if(IsChanneledSpell(m_spellProto) && m_caster_guid != m_target->GetGUID() && !m_target->isPossessed())
+    Unit *pRealTarget = (GetSpellProto()->EffectApplyAuraName[GetEffIndex()] == SPELL_AURA_PERIODIC_TRIGGER_SPELL) ? GetTriggerTarget() : m_target;
+    if(!pRealTarget)
+        return;
+
+    if(IsChanneledSpell(m_spellProto) && !pRealTarget->isPossessed() && pRealTarget->GetGUID() != GetCasterGUID())
     {
         Unit* caster = GetCaster();
         if(!caster)
@@ -569,11 +573,8 @@ void Aura::Update(uint32 diff)
         if(Player* modOwner = caster->GetSpellModOwner())
             modOwner->ApplySpellMod(GetId(), mod, radius,NULL);
 
-        if(!caster->IsWithinDistInMap(m_target,radius))
-        {
-            m_target->RemoveAura(GetId(),GetEffIndex());
+        if(!caster->IsWithinDistInMap(pRealTarget, radius))
             return;
-        }
     }
 
     if(m_isPeriodic && (m_duration >= 0 || m_isPassive || m_permanent))
