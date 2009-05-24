@@ -5935,7 +5935,9 @@ void Aura::PeriodicDummyTick()
                     // on 1 tick - 166% (handled in 4 second)
                     // on 2 tick - 133% (handled in 6 second)
                     // Not need update after 3 tick
-                    /*
+                    BattleGround *bg = ((Player*)m_target)->GetBattleGround();
+                    if(!bg || !bg->isArena())
+                      return;
                     if (tick > 3)
                         return;
                     // Apply bonus for 0 - 3 tick
@@ -5955,7 +5957,7 @@ void Aura::PeriodicDummyTick()
                             break;
                     }
                     ((Player*)m_target)->UpdateManaRegen();
-                    return;*/
+                    return;
                 }
             }
             return;
