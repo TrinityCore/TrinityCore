@@ -79,6 +79,7 @@ SpellMgr::SpellMgr()
             case SPELL_EFFECT_APPLY_AREA_AURA_ENEMY:
             case SPELL_EFFECT_APPLY_AREA_AURA_PET:
             case SPELL_EFFECT_APPLY_AREA_AURA_OWNER:
+            case SPELL_EFFECT_APPLY_AREA_AURA_RAID:
             case SPELL_EFFECT_CHARGE:
             case SPELL_EFFECT_JUMP:
             case SPELL_EFFECT_JUMP2:
