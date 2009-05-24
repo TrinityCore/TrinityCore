@@ -10652,8 +10652,8 @@ bool Unit::CanHaveThreatList() const
         return false;
 
     // vehicles can not have threat list
-    if( ((Creature*)this)->isVehicle() )
-        return false;
+    //if( ((Creature*)this)->isVehicle() )
+    //    return false;
 
     // pets can not have a threat list, unless they are controlled by a creature
     if( ((Creature*)this)->isPet() && IS_PLAYER_GUID(((Pet*)this)->GetOwnerGUID()) )
@@ -13929,6 +13929,9 @@ void Unit::JumpTo(WorldObject *obj, float speedZ)
 
 void Unit::EnterVehicle(Vehicle *vehicle, int8 seatId)
 {
+    if(!isAlive() || this == vehicle)
+        return;
+
     if(m_Vehicle)
     {
         if(m_Vehicle == vehicle)
@@ -14021,10 +14024,12 @@ void Unit::ExitVehicle()
     BuildHeartBeatMsg(&data);
     SendMessageToSet(&data, false);
 
-    if(m_Vehicle->GetOwnerGUID() == GetGUID())
-        m_Vehicle->Dismiss();
-
+    // This should be done before dismiss, because there may be some aura removal
+    Vehicle *vehicle = m_Vehicle;
     m_Vehicle = NULL;
+
+    if(vehicle->GetOwnerGUID() == GetGUID())
+        vehicle->Dismiss();
 }
 
 void Unit::BuildMovementPacket(ByteBuffer *data) const

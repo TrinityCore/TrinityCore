@@ -6812,27 +6812,25 @@ void AuraEffect::HandleAuraControlVehicle(bool apply, bool Real, bool /*changeAm
         return;
 
     Unit *caster = GetCaster();
-    if(!caster)
+    if(!caster || caster == m_target)
         return;
 
-    /*Vehicle *vehicle = dynamic_cast<Vehicle*>(m_target);
+    Vehicle *vehicle = dynamic_cast<Vehicle*>(m_target);
 
     if (apply)
     {
-        if(caster->GetTypeId() == TYPEID_PLAYER)
-            if(Pet *pet = ((Player*)caster)->GetPet())
-                pet->Remove(PET_SAVE_AS_CURRENT);
-        caster->EnterVehicle(vehicle);
+        //if(caster->GetTypeId() == TYPEID_PLAYER)
+        //    if(Pet *pet = ((Player*)caster)->GetPet())
+        //        pet->Remove(PET_SAVE_AS_CURRENT);
+        caster->EnterVehicle(vehicle, 0);
     }
     else
     {
-        SpellEntry const *spell = GetSpellProto();
-
         // some SPELL_AURA_CONTROL_VEHICLE auras have a dummy effect on the player - remove them
-        caster->RemoveAurasDueToSpell(spell->Id);
+        caster->RemoveAurasDueToSpell(GetId());
 
         caster->ExitVehicle();
-    }*/
+    }
 }
 
 void AuraEffect::HandleAuraConvertRune(bool apply, bool Real, bool /*changeAmount*/)
