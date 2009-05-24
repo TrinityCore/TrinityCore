@@ -518,9 +518,7 @@ AreaAuraEffect::AreaAuraEffect(Aura * parentAura, uint32 effIndex, int32 * curre
     m_removeTime = FRIENDLY_AA_REMOVE_TIME;
     m_isAreaAura = true;
 
-    Unit* caster_ptr = source ? source : caster ? caster : m_target;
-    //this can be removed, already set in auraeffect
-    m_sourceGUID = caster_ptr->GetGUID();
+    Unit* caster_ptr = caster ? caster : source ? source : m_target;
 
     if (m_spellProto->Effect[effIndex] == SPELL_EFFECT_APPLY_AREA_AURA_ENEMY)
         m_radius = GetSpellRadiusForHostile(sSpellRadiusStore.LookupEntry(GetSpellProto()->EffectRadiusIndex[m_effIndex]));
@@ -692,35 +690,35 @@ void AreaAuraEffect::Update(uint32 diff)
     // update for the caster of the aura
     if(m_sourceGUID == m_target->GetGUID())
     {
-        Unit* caster = m_target;
-        Unit * originalCaster = GetCaster();
-        if (!originalCaster)
+        Unit *source = m_target;
+        Unit *caster = GetCaster();
+        if (!caster)
             m_target->RemoveAura(GetParentAura());
 
-        if( !caster->hasUnitState(UNIT_STAT_ISOLATED) )
+        if( !source->hasUnitState(UNIT_STAT_ISOLATED) )
         {
             std::list<Unit *> targets;
 
             switch(m_areaAuraType)
             {
                 case AREA_AURA_PARTY:
-                    caster->GetPartyMember(targets, m_radius);
+                    source->GetPartyMember(targets, m_radius);
                     break;
                 case AREA_AURA_RAID:
-                    caster->GetRaidMember(targets, m_radius);
+                    source->GetRaidMember(targets, m_radius);
                     break;
                 case AREA_AURA_FRIEND:
                 {
-                    Trinity::AnyFriendlyUnitInObjectRangeCheck u_check(caster, caster, m_radius);
-                    Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(caster, targets, u_check);
-                    caster->VisitNearbyObject(m_radius, searcher);
+                    Trinity::AnyFriendlyUnitInObjectRangeCheck u_check(source, caster, m_radius);
+                    Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(source, targets, u_check);
+                    source->VisitNearbyObject(m_radius, searcher);
                     break;
                 }
                 case AREA_AURA_ENEMY:
                 {
-                    Trinity::AnyAoETargetUnitInObjectRangeCheck u_check(caster, caster, m_radius); // No GetCharmer in searcher
-                    Trinity::UnitListSearcher<Trinity::AnyAoETargetUnitInObjectRangeCheck> searcher(caster, targets, u_check);
-                    caster->VisitNearbyObject(m_radius, searcher);
+                    Trinity::AnyAoETargetUnitInObjectRangeCheck u_check(source, caster, m_radius); // No GetCharmer in searcher
+                    Trinity::UnitListSearcher<Trinity::AnyAoETargetUnitInObjectRangeCheck> searcher(source, targets, u_check);
+                    source->VisitNearbyObject(m_radius, searcher);
                     break;
                 }
                 case AREA_AURA_OWNER:
@@ -761,7 +759,7 @@ void AreaAuraEffect::Update(uint32 diff)
                     // recalculate basepoints for lower rank (all AreaAura spell not use custom basepoints?)
                     //if(actualSpellInfo != GetSpellProto())
                     //    actualBasePoints = actualSpellInfo->EffectBasePoints[m_effIndex];
-                    (*tIter)->AddAuraEffect(actualSpellInfo, GetEffIndex(), caster, &m_currentBasePoints, originalCaster);
+                    (*tIter)->AddAuraEffect(actualSpellInfo, GetEffIndex(), caster, &m_currentBasePoints, source);
 
                     if(m_areaAuraType == AREA_AURA_ENEMY)
                         caster->CombatStart(*tIter);
@@ -781,20 +779,21 @@ void AreaAuraEffect::Update(uint32 diff)
             return;
 
         // Caster may be deleted due to update
-        Unit* caster = GetSource();
+        Unit *caster = GetCaster();
+        Unit *source = GetSource();
 
         // remove aura if out-of-range from caster (after teleport for example)
         // or caster is isolated or caster no longer has the aura
         // or caster is (no longer) friendly
         bool needFriendly = (m_areaAuraType == AREA_AURA_ENEMY ? false : true);
-        if( !caster || caster->hasUnitState(UNIT_STAT_ISOLATED) ||
-            !caster->HasAuraEffect(GetId(), m_effIndex)         ||
+        if( !source || !caster ||
+            source->hasUnitState(UNIT_STAT_ISOLATED) || !source->HasAuraEffect(GetId(), m_effIndex) ||
             caster->IsFriendlyTo(m_target) != needFriendly
            )
         {
             m_target->RemoveAura(GetParentAura());
         }
-        else if (!caster->IsWithinDistInMap(m_target, m_radius))
+        else if (!source->IsWithinDistInMap(m_target, m_radius))
         {
             if (needFriendly)
             {
@@ -940,6 +939,40 @@ void Aura::SendAuraUpdate()
     m_target->SendMessageToSet(&data, true);
 }
 
+bool Aura::IsVisible() const
+{
+    // passive auras (except totem auras) do not get placed in the slots
+    // area auras with SPELL_AURA_NONE are not shown on target
+    //(m_spellProto->Attributes & 0x80 && GetTalentSpellPos(GetId()))
+
+    if(!m_isPassive)
+        return true;
+
+    bool noneAreaAura = true;
+    for(uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    {
+        if(m_partAuras[i])
+        {
+            if(m_partAuras[i]->IsAreaAura())
+            {
+                if(WorldObject *source = m_partAuras[i]->GetSource())
+                    if(source->GetTypeId() == TYPEID_UNIT && ((Creature*)source)->isTotem())
+                        return true;
+
+                if(m_partAuras[i]->GetAuraName() != SPELL_AURA_NONE)
+                    noneAreaAura = false;
+            }
+            else
+                noneAreaAura = false;
+        }
+    }
+
+    if(noneAreaAura)
+        return false;
+
+    return IsAuraType(SPELL_AURA_ABILITY_IGNORE_AURASTATE);
+}
+
 void Aura::_AddAura()
 {
     if (!GetId())
@@ -959,17 +992,7 @@ void Aura::_AddAura()
         }
     }
 
-    // passive auras (except totem auras) do not get placed in the slots
-    // area auras with SPELL_AURA_NONE are not shown on target
-    if(/*(m_spellProto->Attributes & 0x80 && GetTalentSpellPos(GetId())) 
-        || */!m_isPassive
-        || (caster && caster->GetTypeId() == TYPEID_UNIT && ((Creature*)caster)->isTotem())
-        || (IsAuraType(SPELL_AURA_ABILITY_IGNORE_AURASTATE))
-             && (!IsAreaAura()
-            || m_target!=caster ||
-            (m_spellProto->Effect[0]!=SPELL_EFFECT_APPLY_AREA_AURA_ENEMY
-            && m_spellProto->Effect[1]!=SPELL_EFFECT_APPLY_AREA_AURA_ENEMY
-            && m_spellProto->Effect[2]!=SPELL_EFFECT_APPLY_AREA_AURA_ENEMY)))
+    if(IsVisible())
     {
         // Try find slot for aura
         uint8 slot = MAX_AURAS;
