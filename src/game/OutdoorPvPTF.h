@@ -13,7 +13,7 @@ const uint32 TF_LOCK_TIME = 3600 * 6 * 1000;
 const uint32 TF_LOCK_TIME_UPDATE = 15000;
 
 // blessing of auchindoun
-const uint32 TF_CAPTURE_BUFF = 33377;
+#define TF_CAPTURE_BUFF 33377
 
 const uint32 TF_ALLY_QUEST = 11505;
 const uint32 TF_HORDE_QUEST = 11506;
@@ -104,7 +104,6 @@ public:
     bool Update(uint32 diff);
     void FillInitialWorldStates(WorldPacket &data);
     void SendRemoveWorldStates(Player * plr);
-    void BuffTeam(uint32 team);
 private:
     bool m_IsLocked;
     uint32 m_LockTimer;

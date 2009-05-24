@@ -853,24 +853,24 @@ void OutdoorPvPEP::HandlePlayerLeaveZone(Player * plr, uint32 zone)
 
 void OutdoorPvPEP::BuffTeams()
 {
-    for(std::set<uint64>::iterator itr = m_PlayerGuids[0].begin(); itr != m_PlayerGuids[0].end(); ++itr)
+    for(PlayerSet::iterator itr = m_players[0].begin(); itr != m_players[0].end(); ++itr)
     {
-        if(Player * plr = objmgr.GetPlayer(*itr))
+        Player * plr = *itr;
         {
             for(int i = 0; i < 4; ++i)
-                if(plr->IsInWorld()) plr->RemoveAurasDueToSpell(EP_AllianceBuffs[i]);
+                plr->RemoveAurasDueToSpell(EP_AllianceBuffs[i]);
             if(m_AllianceTowersControlled && m_AllianceTowersControlled < 5)
-                if(plr->IsInWorld()) plr->CastSpell(plr,EP_AllianceBuffs[m_AllianceTowersControlled-1],true);
+                plr->CastSpell(plr,EP_AllianceBuffs[m_AllianceTowersControlled-1],true);
         }
     }
-    for(std::set<uint64>::iterator itr = m_PlayerGuids[1].begin(); itr != m_PlayerGuids[1].end(); ++itr)
+    for(PlayerSet::iterator itr = m_players[1].begin(); itr != m_players[1].end(); ++itr)
     {
-        if(Player * plr = objmgr.GetPlayer(*itr))
+        Player * plr = *itr;
         {
             for(int i = 0; i < 4; ++i)
-                if(plr->IsInWorld()) plr->RemoveAurasDueToSpell(EP_HordeBuffs[i]);
+                plr->RemoveAurasDueToSpell(EP_HordeBuffs[i]);
             if(m_HordeTowersControlled && m_HordeTowersControlled < 5)
-                if(plr->IsInWorld()) plr->CastSpell(plr,EP_HordeBuffs[m_HordeTowersControlled-1],true);
+                plr->CastSpell(plr,EP_HordeBuffs[m_HordeTowersControlled-1],true);
         }
     }
 }

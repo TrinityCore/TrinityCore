@@ -64,7 +64,6 @@ public:
     bool HandleAreaTrigger(Player * plr, uint32 trigger);
     bool HandleDropFlag(Player * plr, uint32 spellId);
     bool HandleCustomSpell(Player * plr, uint32 spellId, GameObject *go);
-    void BuffTeam(uint32 team);
     void UpdateWorldState();
 private:
     uint32 m_Gathered_A;

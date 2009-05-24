@@ -25,9 +25,9 @@
                                                          //  HP, citadel, ramparts, blood furnace, shattered halls, mag's lair
 const uint32 OutdoorPvPHPBuffZones[OutdoorPvPHPBuffZonesNum] = { 3483, 3563, 3562, 3713, 3714, 3836 };
 
-const uint32 AllianceBuff = 32071;
+#define AllianceBuff 32071
 
-const uint32 HordeBuff = 32049;
+#define HordeBuff 32049
 
 const uint32 AlliancePlayerKillReward = 32155;
 
@@ -108,7 +108,6 @@ public:
     void FillInitialWorldStates(WorldPacket &data);
     void SendRemoveWorldStates(Player * plr);
     void HandleKillImpl(Player * plr, Unit * killed);
-    void BuffTeam(uint32 team);
 private:
     // how many towers are controlled
     uint32 m_AllianceTowersControlled;

@@ -151,24 +151,25 @@ void OutdoorPvPMgr::HandlePlayerEnterZone(Player *plr, uint32 zoneid)
 {
     OutdoorPvPMap::iterator itr = m_OutdoorPvPMap.find(zoneid);
     if(itr == m_OutdoorPvPMap.end())
-    {
-        // no handle for this zone, return
         return;
-    }
-    // add possibly beneficial buffs to plr for zone
+
+    if(itr->second->HasPlayer(plr))
+        return;
+
     itr->second->HandlePlayerEnterZone(plr, zoneid);
-    sLog.outDebug("Player %u entered outdoorpvp id %u",plr->GetGUIDLow(), itr->second->GetTypeId());
+    sLog.outDebug("Player %u entered outdoorpvp id %u", plr->GetGUIDLow(), itr->second->GetTypeId());
 }
 
 void OutdoorPvPMgr::HandlePlayerLeaveZone(Player *plr, uint32 zoneid)
 {
     OutdoorPvPMap::iterator itr = m_OutdoorPvPMap.find(zoneid);
     if(itr == m_OutdoorPvPMap.end())
-    {
-        // no handle for this zone, return
         return;
-    }
-    // inform the OutdoorPvP class of the leaving, it should remove the player from all objectives
+
+    // teleport: remove once in removefromworld, once in updatezone
+    if(!itr->second->HasPlayer(plr))
+        return;
+
     itr->second->HandlePlayerLeaveZone(plr, zoneid);
     sLog.outDebug("Player %u left outdoorpvp id %u",plr->GetGUIDLow(), itr->second->GetTypeId());
 }
