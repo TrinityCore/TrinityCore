@@ -97,7 +97,7 @@ ObjectAccessor::GetNPCIfCanInteractWith(Player const &player, uint64 guid, uint3
     if(!player.CanInteractWithNPCs(!unit->isSpiritService()))
         return NULL;
 
-    if(!player.IsFriendlyTo(unit))
+    if(player.IsHostileTo(unit))
         return NULL;
     
     // appropriate npc type
