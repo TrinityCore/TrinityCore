@@ -60,6 +60,7 @@ ObjectAccessor::GetCreatureOrPetOrVehicle(WorldObject const &u, uint64 guid)
     return u.GetMap()->GetCreature(guid);
 }
 
+/*
 Unit*
 ObjectAccessor::GetUnit(WorldObject const &u, uint64 guid)
 {
@@ -71,6 +72,7 @@ ObjectAccessor::GetUnit(WorldObject const &u, uint64 guid)
 
     return GetCreatureOrPetOrVehicle(u, guid);
 }
+*/
 
 Corpse*
 ObjectAccessor::GetCorpse(WorldObject const &u, uint64 guid)
