@@ -460,7 +460,7 @@ int WorldSocket::handle_input_payload (void)
 
 int WorldSocket::handle_input_missing_data (void)
 {
-    char buf [1024];
+    char buf [4096];
 
     ACE_Data_Block db ( sizeof (buf),
                         ACE_Message_Block::MB_DATA,
