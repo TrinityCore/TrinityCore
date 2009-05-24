@@ -3986,12 +3986,6 @@ void AuraEffect::HandleAuraModSilence(bool apply, bool Real, bool /*changeAmount
         for (uint32 i = CURRENT_MELEE_SPELL; i < CURRENT_MAX_SPELL;i++)
             if (m_target->m_currentSpells[i] && m_target->m_currentSpells[i]->m_spellInfo->PreventionType == SPELL_PREVENTION_TYPE_SILENCE)
                 m_target->InterruptSpell(i,false);          // Stop spells on prepare or casting state
-
-        /*
-        switch (GetId())
-        {
-        }
-        */
     }
     else
     {
