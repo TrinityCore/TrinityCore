@@ -739,16 +739,20 @@ bool ChatHandler::HandleDebugEnterVehicle(const char * args)
     uint32 entry = (uint32)atoi(i);
     int8 seatId = j ? (int8)atoi(j) : -1;
 
-    Creature *passenger = NULL;
-    Trinity::AllCreaturesOfEntryInRange check(m_session->GetPlayer(), entry, 20.0f);
-	Trinity::CreatureSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(m_session->GetPlayer(), passenger, check);
-    m_session->GetPlayer()->VisitNearbyObject(20.0f, searcher);
-    if(!passenger || passenger == target)
-        return false;
+    if(!entry)
+        m_session->GetPlayer()->EnterVehicle((Vehicle*)target, seatId);
+    else
+    {
+        Creature *passenger = NULL;
+        Trinity::AllCreaturesOfEntryInRange check(m_session->GetPlayer(), entry, 20.0f);
+	    Trinity::CreatureSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(m_session->GetPlayer(), passenger, check);
+        m_session->GetPlayer()->VisitNearbyObject(30.0f, searcher);
+        if(!passenger || passenger == target)
+            return false;
+        passenger->EnterVehicle((Vehicle*)target, seatId);
+    }
 
-    passenger->EnterVehicle((Vehicle*)target, seatId);
-
-    PSendSysMessage("Creature entered vehicle %d", (uint32)seatId);
+    PSendSysMessage("Unit %u entered vehicle %d", entry, (int32)seatId);
     return true;
 }
 
