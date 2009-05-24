@@ -8499,7 +8499,7 @@ Unit* Unit::SelectMagnetTarget(Unit *victim, SpellEntry const *spellInfo)
 
         Unit::AuraEffectList const& magnetAuras = victim->GetAurasByType(SPELL_AURA_SPELL_MAGNET);
         for(Unit::AuraEffectList::const_iterator itr = magnetAuras.begin(); itr != magnetAuras.end(); ++itr)
-                if(Unit* magnet = (*itr)->IsAreaAura() ? ((AreaAuraEffect*)(*itr))->GetFormalCaster():(*itr)->GetCaster() )
+                if(Unit* magnet = (*itr)->IsAreaAura() ? ((AreaAuraEffect*)(*itr))->GetSource():(*itr)->GetCaster() )
                     if(magnet->isAlive())
                     {
                         return magnet;
@@ -8510,7 +8510,7 @@ Unit* Unit::SelectMagnetTarget(Unit *victim, SpellEntry const *spellInfo)
     {
         AuraEffectList const& hitTriggerAuras = victim->GetAurasByType(SPELL_AURA_ADD_CASTER_HIT_TRIGGER);
         for(AuraEffectList::const_iterator i = hitTriggerAuras.begin(); i != hitTriggerAuras.end(); ++i)
-            if(Unit* magnet = (*i)->IsAreaAura() ? ((AreaAuraEffect*)(*i))->GetFormalCaster():(*i)->GetCaster() )
+            if(Unit* magnet = (*i)->IsAreaAura() ? ((AreaAuraEffect*)(*i))->GetSource():(*i)->GetCaster() )
                 if(magnet->isAlive() && magnet->IsWithinLOSInMap(this))
                     if(roll_chance_i((*i)->GetAmount()))
                     {
@@ -13766,7 +13766,7 @@ void Unit::AddAura(uint32 spellId, Unit* target)
     target->AddAura(Aur);
 }
 
-Aura * Unit::AddAuraEffect(const SpellEntry * spellInfo, uint8 effIndex, Unit* caster, int32 * basePoints, Unit * formalCaster)
+Aura * Unit::AddAuraEffect(const SpellEntry * spellInfo, uint8 effIndex, Unit* caster, int32 * basePoints, Unit * source)
 {
     // can't do that for passive auras - they stack from same caster so there is no way to get exact aura which should get effect
     //assert (!IsPassiveSpell(spellInfo));
@@ -13777,7 +13777,7 @@ Aura * Unit::AddAuraEffect(const SpellEntry * spellInfo, uint8 effIndex, Unit* c
 
     if (aur)
     {
-        AuraEffect *aurEffect = CreateAuraEffect(aur, effIndex, basePoints, caster,NULL, formalCaster);
+        AuraEffect *aurEffect = CreateAuraEffect(aur, effIndex, basePoints, caster,NULL, source);
         if (aurEffect && !aur->SetPartAura(aurEffect, effIndex))
             delete aurEffect;
     }
@@ -13787,10 +13787,10 @@ Aura * Unit::AddAuraEffect(const SpellEntry * spellInfo, uint8 effIndex, Unit* c
         {
             int32 amount[3];
             amount[effIndex] = *basePoints;
-            aur = new Aura(spellInfo, 1<<effIndex, amount, this ,caster, NULL,formalCaster);
+            aur = new Aura(spellInfo, 1<<effIndex, amount, this ,caster, NULL,source);
         }
         else
-            aur = new Aura(spellInfo, 1<<effIndex, NULL, this ,caster, NULL,formalCaster);
+            aur = new Aura(spellInfo, 1<<effIndex, NULL, this ,caster, NULL,source);
 
         if(!AddAura(aur))
             return NULL;

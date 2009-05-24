@@ -54,7 +54,7 @@ class TRINITY_DLL_SPEC Aura
     friend void Player::SendAurasForTarget(Unit *target);
     public:
         virtual ~Aura();
-                Aura(SpellEntry const* spellproto, uint32 effMask, int32 *currentBasePoints, Unit *target, Unit *caster = NULL, Item* castItem = NULL, Unit * formalCaster=NULL);
+                Aura(SpellEntry const* spellproto, uint32 effMask, int32 *currentBasePoints, Unit *target, Unit *caster = NULL, Item* castItem = NULL, Unit * source=NULL);
 
         SpellEntry const* GetSpellProto() const { return m_spellProto; }
         uint32 GetId() const{ return m_spellProto->Id; }
@@ -171,7 +171,7 @@ class TRINITY_DLL_SPEC Aura
 class TRINITY_DLL_SPEC AuraEffect
 {
     public:
-        friend AuraEffect* CreateAuraEffect(Aura * parentAura, uint32 effIndex, int32 *currentBasePoints, Unit * caster, Item * castItem, Unit * formalCaster);
+        friend AuraEffect* CreateAuraEffect(Aura * parentAura, uint32 effIndex, int32 *currentBasePoints, Unit * caster, Item * castItem, Unit * source);
         friend void Aura::SetStackAmount(uint8 stackAmount, bool applied);
         //aura handlers
         void HandleNULL(bool, bool, bool)
@@ -394,16 +394,15 @@ class TRINITY_DLL_SPEC AuraEffect
 class TRINITY_DLL_SPEC AreaAuraEffect : public AuraEffect
 {
     public:
-        AreaAuraEffect(Aura * parentAura, uint32 effIndex, int32 * currentBasePoints, Unit * caster=NULL, Item * castItem=NULL, Unit * formalCaster=NULL);
+        AreaAuraEffect(Aura * parentAura, uint32 effIndex, int32 * currentBasePoints, Unit * caster=NULL, Item * castItem=NULL, Unit * source=NULL);
         ~AreaAuraEffect();
-        Unit* GetFormalCaster() const;
-        uint64 const& GetFormalCasterGUID() const { return m_formalCasterGUID; }
+        Unit* GetSource() const;
         void Update(uint32 diff);
     private:
         float m_radius;
         int32 m_removeTime;
         AreaAuraType m_areaAuraType;
-        uint64 m_formalCasterGUID;                          // used for check range
+        uint64 m_sourceGUID;                          // used for check range
 };
 
 class TRINITY_DLL_SPEC PersistentAreaAuraEffect : public AuraEffect
@@ -413,5 +412,5 @@ class TRINITY_DLL_SPEC PersistentAreaAuraEffect : public AuraEffect
         ~PersistentAreaAuraEffect();
         void Update(uint32 diff);
 };
-AuraEffect* CreateAuraEffect(Aura * parentAura, uint32 effIndex, int32 *currentBasePoints, Unit * caster, Item * castItem = NULL, Unit * formalCaster=NULL);
+AuraEffect* CreateAuraEffect(Aura * parentAura, uint32 effIndex, int32 *currentBasePoints, Unit * caster, Item * castItem = NULL, Unit * source=NULL);
 #endif
