@@ -6,6 +6,6 @@ INSERT INTO `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `Spell
 (20180, 0, 0, 0, 0, 0, 0, 67, 0, 0, 0),
 (20182, 0, 0, 0, 0, 0, 0, 67, 0, 0, 0);
 
-DELETE FROM `spell_proc_event` WHERE `entry` IN (50720);
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (50720);
 INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comment`) VALUES
 ( 50720, 59665, 0, 'Vigilance (redirect threat)');
