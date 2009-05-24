@@ -128,6 +128,12 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
             }
             return true;
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_PLAYER_DEAD:
+            if(player_dead.own_team_flag > 1)
+            {
+                sLog.outErrorDb( "Table `achievement_criteria_data` (Entry: %u Type: %u) for data type %s (%u) have wrong boolean value1 (%u).",
+                    criteria->ID, criteria->requiredType,dataType,player_dead.own_team_flag);
+                return false;
+            }
             return true;
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_AURA:
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_AURA:
@@ -193,7 +199,10 @@ bool AchievementCriteriaData::Meets(Player const* source, Unit const* target) co
                 return false;
             return target->GetHealth()*100 <= health.percent*target->GetMaxHealth();
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_PLAYER_DEAD:
-            return target && target->GetTypeId() == TYPEID_PLAYER && !target->isAlive() && ((Player*)target)->GetDeathTimer() != 0;
+            if (!target || target->GetTypeId() != TYPEID_PLAYER || target->isAlive() || ((Player*)target)->GetDeathTimer() == 0)
+                return false;
+            // flag set == must be same team, not set == different team
+            return (((Player*)target)->GetTeam() == source->GetTeam()) == (player_dead.own_team_flag != 0);
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_AURA:
             return source->HasAuraEffect(aura.spell_id,aura.effect_idx);
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_AREA:
