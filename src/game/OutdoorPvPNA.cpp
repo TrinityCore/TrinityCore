@@ -83,49 +83,6 @@ uint32 OutdoorPvPObjectiveNA::GetAliveGuardsCount()
     return cnt;
 }
 
-void OutdoorPvPNA::BuffTeam(uint32 team)
-{
-    if(team == ALLIANCE)
-    {
-        for(std::set<uint64>::iterator itr = m_PlayerGuids[0].begin(); itr != m_PlayerGuids[0].end(); ++itr)
-        {
-            if(Player * plr = objmgr.GetPlayer(*itr))
-                if(plr->IsInWorld()) plr->CastSpell(plr,NA_CAPTURE_BUFF,true);
-        }
-        for(std::set<uint64>::iterator itr = m_PlayerGuids[1].begin(); itr != m_PlayerGuids[1].end(); ++itr)
-        {
-            if(Player * plr = objmgr.GetPlayer(*itr))
-                if(plr->IsInWorld()) plr->RemoveAurasDueToSpell(NA_CAPTURE_BUFF);
-        }
-    }
-    else if(team == HORDE)
-    {
-        for(std::set<uint64>::iterator itr = m_PlayerGuids[1].begin(); itr != m_PlayerGuids[1].end(); ++itr)
-        {
-            if(Player * plr = objmgr.GetPlayer(*itr))
-                if(plr->IsInWorld()) plr->CastSpell(plr,NA_CAPTURE_BUFF,true);
-        }
-        for(std::set<uint64>::iterator itr = m_PlayerGuids[0].begin(); itr != m_PlayerGuids[0].end(); ++itr)
-        {
-            if(Player * plr = objmgr.GetPlayer(*itr))
-                if(plr->IsInWorld()) plr->RemoveAurasDueToSpell(NA_CAPTURE_BUFF);
-        }
-    }
-    else
-    {
-        for(std::set<uint64>::iterator itr = m_PlayerGuids[0].begin(); itr != m_PlayerGuids[0].end(); ++itr)
-        {
-            if(Player * plr = objmgr.GetPlayer(*itr))
-                if(plr->IsInWorld()) plr->RemoveAurasDueToSpell(NA_CAPTURE_BUFF);
-        }
-        for(std::set<uint64>::iterator itr = m_PlayerGuids[1].begin(); itr != m_PlayerGuids[1].end(); ++itr)
-        {
-            if(Player * plr = objmgr.GetPlayer(*itr))
-                if(plr->IsInWorld()) plr->RemoveAurasDueToSpell(NA_CAPTURE_BUFF);
-        }
-    }
-}
-
 void OutdoorPvPObjectiveNA::SpawnNPCsForTeam(uint32 team)
 {
     const creature_type * creatures = NULL;
@@ -222,7 +179,7 @@ void OutdoorPvPObjectiveNA::FactionTakeOver(uint32 team)
     this->UpdateWyvernRoostWorldState(NA_ROOST_N);
     this->UpdateWyvernRoostWorldState(NA_ROOST_W);
     this->UpdateWyvernRoostWorldState(NA_ROOST_E);
-    ((OutdoorPvPNA*)m_PvP)->BuffTeam(team);
+    m_PvP->TeamApplyBuff(TEAM_ID(team), NA_CAPTURE_BUFF);
 }
 
 bool OutdoorPvPObjectiveNA::HandlePlayerEnter(Player *plr)

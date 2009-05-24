@@ -1189,6 +1189,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void CastCustomSpell(uint32 spellId, CustomSpellValues const &value, Unit* Victim = NULL, bool triggered = true, Item *castItem = NULL, AuraEffect* triggeredByAura = NULL, uint64 originalCaster = 0);
         void CastSpell(GameObject *go, uint32 spellId, bool triggered, Item *castItem = NULL, AuraEffect* triggeredByAura = NULL, uint64 originalCaster = 0);
         void AddAura(uint32 spellId, Unit *target);
+        void SetAuraStack(uint32 spellId, Unit *target, uint32 stack);
         void HandleAuraEffect(AuraEffect * aureff, bool apply);
         Aura *AddAuraEffect(const SpellEntry * spellInfo, uint8 effIndex, Unit* caster, int32 * basePoints=NULL, Unit * source=NULL);
 

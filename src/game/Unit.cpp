@@ -13796,6 +13796,18 @@ void Unit::AddAura(uint32 spellId, Unit* target)
     target->AddAura(Aur);
 }
 
+void Unit::SetAuraStack(uint32 spellId, Unit *target, uint32 stack)
+{
+    Aura *aur = target->GetAura(spellId, GetGUID());
+    if(!aur)
+    {
+        AddAura(spellId, target);
+        aur = target->GetAura(spellId, GetGUID());
+    }
+    if(aur && stack)
+        aur->SetStackAmount(stack);
+}
+
 Aura * Unit::AddAuraEffect(const SpellEntry * spellInfo, uint8 effIndex, Unit* caster, int32 * basePoints, Unit * source)
 {
     // can't do that for passive auras - they stack from same caster so there is no way to get exact aura which should get effect

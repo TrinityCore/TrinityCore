@@ -26,6 +26,13 @@
 
 #define OPVP_TRIGGER_CREATURE_ENTRY 12999
 
+enum TeamId
+{
+    TEAM_ALLIANCE = 0,
+    TEAM_HORDE,
+    TEAM_NEUTRAL,
+};
+
 enum OutdoorPvPTypes
 {
     OUTDOOR_PVP_HP = 1,
@@ -153,6 +160,7 @@ protected:
 // base class for specific outdoor pvp handlers
 class OutdoorPvP
 {
+    friend class OutdoorPvPMgr;
 public:
     // ctor
     OutdoorPvP();
@@ -163,9 +171,7 @@ public:
 
     typedef std::vector<OutdoorPvPObjective *> OutdoorPvPObjectiveSet;
 
-    // called from Player::UpdateZone to add / remove buffs given by outdoor pvp events
-    virtual void HandlePlayerEnterZone(Player * plr, uint32 zone);
-    virtual void HandlePlayerLeaveZone(Player * plr, uint32 zone);
+    virtual void FillInitialWorldStates(WorldPacket & data) {}
     virtual void HandlePlayerActivityChanged(Player * plr);
     // called when a player triggers an areatrigger
     virtual bool HandleAreaTrigger(Player * plr, uint32 trigger);
@@ -178,10 +184,6 @@ public:
 
     // setup stuff
     virtual bool SetupOutdoorPvP() {return true;}
-
-    // world state stuff
-    virtual void SendRemoveWorldStates(Player * plr) {}
-    virtual void FillInitialWorldStates(WorldPacket & data) {}
 
     // send world state update to all players present
     virtual void SendUpdateWorldState(uint32 field, uint32 value);
@@ -206,14 +208,25 @@ public:
     virtual bool HandleGossipOption(Player *plr, uint64 guid, uint32 gossipid);
 
     virtual bool CanTalkTo(Player * plr, Creature * c, GossipOption &gso);
+
+    void TeamApplyBuff(TeamId team, uint32 spellId, uint32 spellId2 = 0);
 protected:
     // the map of the objectives belonging to this outdoorpvp
     OutdoorPvPObjectiveSet m_OutdoorPvPObjectives;
-    // players in the zones of this outdoorpvp, 0 - alliance, 1 - horde
-    std::set<uint64> m_PlayerGuids[2];
+
+    typedef std::set<Player*> PlayerSet;
+    PlayerSet m_players[2];
     uint32 m_TypeId;
 
+    // world state stuff
+    virtual void SendRemoveWorldStates(Player * plr) {}
+
+    virtual void HandlePlayerEnterZone(Player * plr, uint32 zone);
+    virtual void HandlePlayerLeaveZone(Player * plr, uint32 zone);
+
     void RegisterZone(uint32 zoneid);
+    bool HasPlayer(Player *plr) const;
+    void TeamCastSpell(TeamId team, int32 spellId);
 };
 
 #endif /*OUTDOOR_PVP_H_*/

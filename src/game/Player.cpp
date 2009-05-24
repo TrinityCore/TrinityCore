@@ -1820,6 +1820,7 @@ void Player::RemoveFromWorld()
         ///- Release charmed creatures, unsummon totems and remove pets/guardians
         StopCastingCharm();
         StopCastingBindSight();
+        sOutdoorPvPMgr.HandlePlayerLeaveZone(this, m_zoneUpdateId);
     }
 
     for(int i = PLAYER_SLOT_START; i < PLAYER_SLOT_END; ++i)

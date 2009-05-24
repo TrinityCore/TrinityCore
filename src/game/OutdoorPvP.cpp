@@ -411,10 +411,7 @@ OutdoorPvP::~OutdoorPvP()
 
 void OutdoorPvP::HandlePlayerEnterZone(Player * plr, uint32 zone)
 {
-    if(plr->GetTeam()==ALLIANCE)
-        m_PlayerGuids[0].insert(plr->GetGUID());
-    else
-        m_PlayerGuids[1].insert(plr->GetGUID());
+    m_players[TEAM_ID(plr->GetTeam())].insert(plr);
 }
 
 void OutdoorPvP::HandlePlayerLeaveZone(Player * plr, uint32 zone)
@@ -423,13 +420,10 @@ void OutdoorPvP::HandlePlayerLeaveZone(Player * plr, uint32 zone)
     for(OutdoorPvPObjectiveSet::iterator itr = m_OutdoorPvPObjectives.begin(); itr != m_OutdoorPvPObjectives.end(); ++itr)
         (*itr)->HandlePlayerLeave(plr);
     // remove the world state information from the player (we can't keep everyone up to date, so leave out those who are not in the concerning zones)
-    if(zone != plr->GetZoneId())
+    if(!plr->GetSession()->PlayerLogout())
         SendRemoveWorldStates(plr);
-    if(plr->GetTeam()==ALLIANCE)
-        m_PlayerGuids[0].erase(plr->GetGUID());
-    else
-        m_PlayerGuids[1].erase(plr->GetGUID());
-    sLog.outDebug("player left an outdoorpvp zone");
+    m_players[TEAM_ID(plr->GetTeam())].erase(plr);
+    sLog.outDebug("Player %s left an outdoorpvp zone");
 }
 
 bool OutdoorPvP::Update(uint32 diff)
@@ -570,14 +564,8 @@ void OutdoorPvP::SendUpdateWorldState(uint32 field, uint32 value)
     for(int i = 0; i < 2; ++i)
     {
         // send to all players present in the area
-        for(std::set<uint64>::iterator itr = m_PlayerGuids[i].begin(); itr != m_PlayerGuids[i].end(); ++itr)
-        {
-            Player * plr = objmgr.GetPlayer(*itr);
-            if(plr)
-            {
-                plr->SendUpdateWorldState(field,value);
-            }
-        }
+        for(PlayerSet::iterator itr = m_players[i].begin(); itr != m_players[i].end(); ++itr)
+            (*itr)->SendUpdateWorldState(field,value);
     }
 }
 
@@ -780,4 +768,25 @@ bool OutdoorPvP::HandleAreaTrigger(Player *plr, uint32 trigger)
 void OutdoorPvP::RegisterZone(uint32 zoneId)
 {
     sOutdoorPvPMgr.AddZone(zoneId, this);
+}
+
+bool OutdoorPvP::HasPlayer(Player *plr) const
+{
+    return m_players[TEAM_ID(plr->GetTeam())].find(plr) != m_players[TEAM_ID(plr->GetTeam())].end();
+}
+
+void OutdoorPvP::TeamCastSpell(TeamId team, int32 spellId)
+{
+    if(spellId > 0)
+        for(PlayerSet::iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
+            (*itr)->CastSpell(*itr, (uint32)spellId, true);
+    else
+        for(PlayerSet::iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
+            (*itr)->RemoveAura((uint32)-spellId); // by stack?
+}
+
+void OutdoorPvP::TeamApplyBuff(TeamId team, uint32 spellId, uint32 spellId2)
+{
+    TeamCastSpell(team, spellId);
+    TeamCastSpell(OTHER_TEAM(team), spellId2 ? -(int32)spellId2 : -(int32)spellId);
 }

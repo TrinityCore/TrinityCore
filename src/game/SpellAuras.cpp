@@ -6593,6 +6593,11 @@ void AuraEffect::PeriodicDummyTick()
 //        case 50493: break;
 //        // Love Rocket Barrage
 //        case 50530: break;
+            // Tenacity
+            case 58549:
+            case 59911:
+                GetParentAura()->RefreshAura();
+                break;
 // Exist more after, need add later
             default:
                 break;
