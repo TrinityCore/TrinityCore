@@ -1226,7 +1226,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
     if (aura_effmask)
     {
         Unit * caster = m_originalCaster ? m_originalCaster : m_caster;
-        Aura * Aur = new Aura(m_spellInfo, aura_effmask, m_currentBasePoints, unit, caster, m_CastItem, m_caster);
+        Aura * Aur = new Aura(m_spellInfo, aura_effmask, m_currentBasePoints, unit, m_caster, caster, m_CastItem);
 
         if (!Aur->IsAreaAura())
         {
