@@ -10081,7 +10081,7 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy)
 
     if(GetTypeId() != TYPEID_PLAYER)
     {
-        if(GetMotionMaster()->GetMotionSlotType(MOTION_SLOT_IDLE) != IDLE_MOTION_TYPE)
+        //if(GetMotionMaster()->GetMotionSlotType(MOTION_SLOT_IDLE) != IDLE_MOTION_TYPE)
             ((Creature*)this)->SetHomePosition(GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
         if(enemy)
         {
