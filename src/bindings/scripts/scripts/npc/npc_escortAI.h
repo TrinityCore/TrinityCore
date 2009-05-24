@@ -35,11 +35,8 @@ struct TRINITY_DLL_DECL npc_escortAI : public ScriptedAI
         virtual void WaypointReached(uint32) = 0;
 
         // CreatureAI functions
-        npc_escortAI(Creature *c) : ScriptedAI(c), IsBeingEscorted(false), PlayerTimer(1000), MaxPlayerDistance(DEFAULT_MAX_PLAYER_DISTANCE), CanMelee(true), DespawnAtEnd(true), DespawnAtFar(true) {m_creature->GetPosition(LastPos.x, LastPos.y, LastPos.z);}
-
-        bool IsVisible(Unit*) const;
-
-        void EnterCombat(Unit *);
+        npc_escortAI(Creature *c) : ScriptedAI(c), IsBeingEscorted(false), PlayerTimer(1000), MaxPlayerDistance(DEFAULT_MAX_PLAYER_DISTANCE), CanMelee(true), DespawnAtEnd(true), DespawnAtFar(true)
+        {}
 
         void AttackStart(Unit*);
 
@@ -52,8 +49,6 @@ struct TRINITY_DLL_DECL npc_escortAI : public ScriptedAI
         void UpdateAI(const uint32);
 
         void MovementInform(uint32, uint32);
-
-        void OnPossess(bool apply);
 
         // EscortAI functions
         void AddWaypoint(uint32 id, float x, float y, float z, uint32 WaitTimeMs = 0);
@@ -82,13 +77,6 @@ struct TRINITY_DLL_DECL npc_escortAI : public ScriptedAI
         uint32 PlayerTimer;
         uint32 m_uiNpcFlags;
         float MaxPlayerDistance;
-
-        struct
-        {
-            float x;
-            float y;
-            float z;
-        }LastPos;
 
         std::list<Escort_Waypoint> WaypointList;
         std::list<Escort_Waypoint>::iterator CurrentWP;

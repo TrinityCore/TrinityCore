@@ -15,14 +15,6 @@ EndScriptData */
 #define WP_LAST_POINT   -1
 extern std::list<PointMovement> PointMovementList;
 
-bool npc_escortAI::IsVisible(Unit* who) const
-{
-    if (!who)
-        return false;
-
-    return (m_creature->GetDistance(who) < VISIBLE_RANGE) && who->isVisibleForOrDetect(m_creature,true);
-}
-
 void npc_escortAI::AttackStart(Unit *who)
 {
     if (!who)
@@ -33,10 +25,6 @@ void npc_escortAI::AttackStart(Unit *who)
 
     if(m_creature->Attack(who, true) )
     {
-        m_creature->AddThreat(who, 0.0f);
-        m_creature->SetInCombatWith(who);
-        who->SetInCombatWith(m_creature);
-
         if(CombatMovement)
         {
             m_creature->GetMotionMaster()->MovementExpired();
@@ -45,26 +33,12 @@ void npc_escortAI::AttackStart(Unit *who)
     }
 }
 
-void npc_escortAI::EnterCombat(Unit *who)
-{
-    if (IsBeingEscorted)
-    {
-        //Store last position
-        m_creature->GetPosition(LastPos.x, LastPos.y, LastPos.z);
-
-        debug_log("TSCR: EscortAI has entered combat and stored last location.");
-    }
-}
-
 void npc_escortAI::MoveInLineOfSight(Unit *who)
 {
     if (IsBeingEscorted && !Attack)
         return;
 
-    if(m_creature->getVictim() || !m_creature->canStartAttack(who))
-        return;
-
-    AttackStart(who);
+    ScriptedAI::MoveInLineOfSight(who);    
 }
 
 void npc_escortAI::JustRespawned()
@@ -83,26 +57,19 @@ void npc_escortAI::EnterEvadeMode()
 {
     m_creature->RemoveAllAuras();
     m_creature->DeleteThreatList();
-    m_creature->CombatStop();
+    m_creature->CombatStop(true);
     m_creature->SetLootRecipient(NULL);
 
     if (IsBeingEscorted)
     {
-        debug_log("TSCR: EscortAI has left combat and is now returning to last point.");
         Returning = true;
-        m_creature->GetMotionMaster()->MovementExpired();
-
-        //if default is WAYPOINT_MOTION_TYPE, must MoveIdle to prevent from using
-        if(m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
-            m_creature->GetMotionMaster()->MoveIdle();
-
-        m_creature->GetMotionMaster()->MovePoint(WP_LAST_POINT, LastPos.x, LastPos.y, LastPos.z);
+        float x, y, z, o;
+        m_creature->GetHomePosition(x, y, z, o);
+        m_creature->GetMotionMaster()->MovePoint(WP_LAST_POINT, x, y, z);
+        debug_log("TSCR: EscortAI has left combat and is now returning to last point %f %f %f.", x, y, z);
     }
     else
-    {
-        m_creature->GetMotionMaster()->MovementExpired();
         m_creature->GetMotionMaster()->MoveTargetedHome();
-    }
 
     Reset();
 }
@@ -208,22 +175,8 @@ void npc_escortAI::UpdateAI(const uint32 diff)
     }else PlayerTimer -= diff;
     }
 
-    if(CanMelee)
-    {
-        //Check if we have a current target
-        if( m_creature->isAlive() && UpdateVictim())
-        {
-            //If we are within range melee the target
-            if( m_creature->IsWithinMeleeRange(m_creature->getVictim()))
-            {
-                if( m_creature->isAttackReady() )
-                {
-                    m_creature->AttackerStateUpdate(m_creature->getVictim());
-                    m_creature->resetAttackTimer();
-                }
-            }
-        }
-    }
+    if(CanMelee && UpdateVictim())
+        DoMeleeAttackIfReady();
 }
 
 void npc_escortAI::MovementInform(uint32 type, uint32 id)
@@ -261,6 +214,7 @@ void npc_escortAI::MovementInform(uint32 type, uint32 id)
     }
 }
 
+/*
 void npc_escortAI::OnPossess(bool apply)
 {
     // We got possessed in the middle of being escorted, store the point
@@ -277,8 +231,7 @@ void npc_escortAI::OnPossess(bool apply)
         }
     }
 }
-
-
+*/
 
 void npc_escortAI::AddWaypoint(uint32 id, float x, float y, float z, uint32 WaitTimeMs)
 {
@@ -380,4 +333,3 @@ void npc_escortAI::Start(bool bAttack, bool bDefend, bool bRun, uint64 pGUID)
     IsOnHold = false;
     CombatMovement = true;
 }
-
