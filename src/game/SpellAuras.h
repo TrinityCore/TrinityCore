@@ -166,6 +166,8 @@ class TRINITY_DLL_SPEC Aura
         bool m_isRemoved:1;
         bool m_updated:1;                                   // Prevent remove aura by stack if set
         bool m_isSingleTargetAura:1;                        // true if it's a single target spell and registered at caster - can change at spell steal for example
+
+        bool IsVisible() const;
 };
 
 class TRINITY_DLL_SPEC AuraEffect
