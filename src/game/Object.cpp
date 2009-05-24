@@ -551,74 +551,85 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
                     *data << uint32(m_floatValues[ index ]);
                 }
                 // Gamemasters should be always able to select units - remove not selectable flag
-                else if(index == UNIT_FIELD_FLAGS && target->isGameMaster())
+                else if(index == UNIT_FIELD_FLAGS)
                 {
-                    *data << (m_uint32Values[ index ] & ~UNIT_FLAG_NOT_SELECTABLE);
+                    if(target->isGameMaster())
+                        *data << (m_uint32Values[ index ] & ~UNIT_FLAG_NOT_SELECTABLE);
+                    else
+                        *data << m_uint32Values[ index ];
                 }
                 // use modelid_a if not gm, _h if gm for CREATURE_FLAG_EXTRA_TRIGGER creatures
-                else if(index == UNIT_FIELD_DISPLAYID && GetTypeId() == TYPEID_UNIT)
+                else if(index == UNIT_FIELD_DISPLAYID)
                 {
-                    const CreatureInfo* cinfo = ((Creature*)this)->GetCreatureInfo();
-                    if(cinfo->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER)
+                    if(GetTypeId() == TYPEID_UNIT)
                     {
-                        if(target->isGameMaster())
+                        const CreatureInfo* cinfo = ((Creature*)this)->GetCreatureInfo();
+                        if(cinfo->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER)
                         {
-                            if(cinfo->Modelid_A2)
-                                *data << cinfo->Modelid_A1;
+                            if(target->isGameMaster())
+                            {
+                                if(cinfo->Modelid_A1)
+                                    *data << cinfo->Modelid_A1;
+                                else
+                                    *data << 17519; // world invisible trigger's model
+                            }
                             else
-                                *data << 17519; // world invisible trigger's model
+                            {
+                                if(cinfo->Modelid_A2)
+                                    *data << cinfo->Modelid_A2;
+                                else
+                                    *data << 11686; // world invisible trigger's model
+                            }
                         }
                         else
-                        {
-                            if(cinfo->Modelid_A2)
-                                *data << cinfo->Modelid_A2;
-                            else
-                                *data << 11686; // world invisible trigger's model
-                        }
+                            *data << m_uint32Values[ index ];
                     }
                     else
                         *data << m_uint32Values[ index ];
                 }
                 // hide lootable animation for unallowed players
-                else if(index == UNIT_DYNAMIC_FLAGS && GetTypeId() == TYPEID_UNIT)
+                else if(index == UNIT_DYNAMIC_FLAGS)
                 {
-                    if(!target->isAllowedToLoot((Creature*)this))
-                        *data << (m_uint32Values[ index ] & ~UNIT_DYNFLAG_LOOTABLE);
+                    if(GetTypeId() == TYPEID_UNIT)
+                    {
+                        if(!target->isAllowedToLoot((Creature*)this))
+                            *data << (m_uint32Values[ index ] & ~UNIT_DYNFLAG_LOOTABLE);
+                        else
+                            *data << (m_uint32Values[ index ] & ~UNIT_DYNFLAG_OTHER_TAGGER);
+                    }
                     else
-                        *data << (m_uint32Values[ index ] & ~UNIT_DYNFLAG_OTHER_TAGGER);
+                        *data << m_uint32Values[ index ];
                 }
                 // FG: pretend that OTHER players in own group are friendly ("blue")
                 else if(index == UNIT_FIELD_BYTES_2 || index == UNIT_FIELD_FACTIONTEMPLATE)
                 {
-                    bool ch = false;
-                    if(GetTypeId() == TYPEID_PLAYER && target != this
-                        && ((Player*)this)->IsInSameRaidWith(target))
+                    if(((Unit*)this)->IsControlledByPlayer() && target != this && sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP) && ((Unit*)this)->IsInRaidWith(target))
                     {
-                        // Allow targetting opposite faction in party when enabled in config
-                        if(sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP) && index == UNIT_FIELD_BYTES_2)
+                        FactionTemplateEntry const *ft1, *ft2;
+                        ft1 = ((Unit*)this)->getFactionTemplateEntry();
+                        ft2 = target->getFactionTemplateEntry();
+                        if(ft1 && ft2 && !ft1->IsFriendlyTo(*ft2))
                         {
-                            DEBUG_LOG("-- VALUES_UPDATE: Sending '%s' the blue-group-fix from '%s' (flag)", target->GetName(), ((Player*)this)->GetName());
-                            *data << ( m_uint32Values[ index ] & ((UNIT_BYTE2_FLAG_SANCTUARY /*| UNIT_BYTE2_FLAG_AURAS | UNIT_BYTE2_FLAG_UNK5*/) << 8) ); // this flag is at uint8 offset 1 !!
-
-                            ch = true;
-                        }
-                        else
-                        {
-                            FactionTemplateEntry const *ft1, *ft2;
-                            ft1 = ((Player*)this)->getFactionTemplateEntry();
-                            ft2 = target->getFactionTemplateEntry();
-                            if(ft1 && ft2 && !ft1->IsFriendlyTo(*ft2))
+                            if(index == UNIT_FIELD_BYTES_2)
                             {
-                                uint32 faction = target->getFaction(); // pretend that all other HOSTILE players have own faction, to allow follow, heal, rezz (trade wont work)
+                                // Allow targetting opposite faction in party when enabled in config
+                                DEBUG_LOG("-- VALUES_UPDATE: Sending '%s' the blue-group-fix from '%s' (flag)", target->GetName(), ((Player*)this)->GetName());
+                                *data << ( m_uint32Values[ index ] & ((UNIT_BYTE2_FLAG_SANCTUARY /*| UNIT_BYTE2_FLAG_AURAS | UNIT_BYTE2_FLAG_UNK5*/) << 8) ); // this flag is at uint8 offset 1 !!
+                            }
+                            else
+                            {
+                                // pretend that all other HOSTILE players have own faction, to allow follow, heal, rezz (trade wont work)
+                                uint32 faction = target->getFaction();
                                 DEBUG_LOG("-- VALUES_UPDATE: Sending '%s' the blue-group-fix from '%s' (faction %u)", target->GetName(), ((Player*)this)->GetName(), faction);
                                 *data << uint32(faction);
-                                ch = true;
                             }
                         }
+                        else
+                            *data << m_uint32Values[ index ];
                     }
-                    if(!ch)
+                    else
                         *data << m_uint32Values[ index ];
-                }
+                }                    
                 else
                 {
                     // send in current format (float as float, uint32 as uint32)
