@@ -54,7 +54,7 @@ void OPvPWintergrasp::HandlePlayerEnterZone(Player * plr, uint32 zone)
 
 void OPvPWintergrasp::HandlePlayerLeaveZone(Player * plr, uint32 zone)
 {
-    if(plr->m_Vehicle)
+    if(!plr->GetSession()->PlayerLogout() && plr->m_Vehicle) // dismiss in change zone case
         plr->m_Vehicle->Dismiss();
     OutdoorPvP::HandlePlayerLeaveZone(plr, zone);
 }
