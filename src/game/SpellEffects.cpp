@@ -3310,6 +3310,7 @@ void Spell::EffectSummonType(uint32 i)
                         return;
 
                     //vehicle->SetUInt64Value(UNIT_FIELD_SUMMONEDBY, m_caster->GetGUID());
+                    vehicle->setFaction(m_caster->getFaction());
                     vehicle->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
                     break;
                 }
@@ -3408,6 +3409,7 @@ void Spell::EffectSummonType(uint32 i)
                 return;
 
             vehicle->SetUInt64Value(UNIT_FIELD_SUMMONEDBY, m_caster->GetGUID());
+            vehicle->setFaction(m_caster->getFaction());
             vehicle->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
 
             if(damage)
