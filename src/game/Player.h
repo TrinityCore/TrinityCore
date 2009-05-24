@@ -962,7 +962,8 @@ class TRINITY_DLL_SPEC Player : public Unit
         static bool IsBankPos( uint8 bag, uint8 slot );
         bool IsValidPos( uint16 pos ) { return IsBankPos(pos >> 8,pos & 255); }
         bool IsValidPos( uint8 bag, uint8 slot );
-        bool HasBankBagSlot( uint8 slot ) const;
+        uint8 GetBankBagSlotCount() const { return GetByteValue(PLAYER_BYTES_2, 2); }
+        void SetBankBagSlotCount(uint8 count) { SetByteValue(PLAYER_BYTES_2, 2, count); }
         bool HasItemCount( uint32 item, uint32 count, bool inBankAlso = false ) const;
         bool HasItemFitToSpellReqirements(SpellEntry const* spellInfo, Item const* ignoreItem = NULL);
         bool CanNoReagentCast(SpellEntry const* spellInfo) const;
