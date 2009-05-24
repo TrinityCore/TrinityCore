@@ -681,6 +681,15 @@ typedef std::multimap<uint32, SkillLineAbilityEntry const*> SkillLineAbilityMap;
 typedef std::multimap<uint32, uint32> PetLevelupSpellSet;
 typedef std::map<uint32, PetLevelupSpellSet> PetLevelupSpellMap;
 
+struct PetDefaultSpellsEntry
+{
+    uint32 spellid[MAX_CREATURE_SPELL_DATA_SLOT];
+};
+
+// < 0 for petspelldata id, > 0 for creature_id
+typedef std::map<int32, PetDefaultSpellsEntry> PetDefaultSpellsMap;
+
+
 inline bool IsPrimaryProfessionSkill(uint32 skill)
 {
     SkillLineEntry const *pSkill = sSkillLineStore.LookupEntry(skill);
@@ -1004,6 +1013,15 @@ class SpellMgr
         SpellEffectTargetTypes EffectTargetType[TOTAL_SPELL_EFFECTS];
         SpellSelectTargetTypes SpellTargetType[TOTAL_SPELL_TARGETS];
 
+        // < 0 for petspelldata id, > 0 for creature_id
+        PetDefaultSpellsEntry const* GetPetDefaultSpellsEntry(int32 id) const
+        {
+            PetDefaultSpellsMap::const_iterator itr = mPetDefaultSpellsMap.find(id);
+            if(itr != mPetDefaultSpellsMap.end())
+                return &itr->second;
+            return NULL;
+        }
+
         SpellCastResult GetSpellAllowedInLocationError(SpellEntry const *spellInfo, uint32 map_id, uint32 zone_id, uint32 area_id, Player const* player = NULL);
 
         SpellAreaMapBounds GetSpellAreaMapBounds(uint32 spell_id) const
@@ -1056,6 +1074,7 @@ class SpellMgr
         void LoadSpellEnchantProcData();
         void LoadSpellLinked();
         void LoadPetLevelupSpellMap();
+        void LoadPetDefaultSpells();
         void LoadSpellAreas();
 
     private:
@@ -1076,6 +1095,7 @@ class SpellMgr
         SpellLinkedMap      mSpellLinkedMap;
         SpellEnchantProcEventMap     mSpellEnchantProcEventMap;
         PetLevelupSpellMap  mPetLevelupSpellMap;
+        PetDefaultSpellsMap mPetDefaultSpellsMap;           // only spells not listed in related mPetLevelupSpellMap entry
         SpellAreaMap         mSpellAreaMap;
         SpellAreaForQuestMap mSpellAreaForQuestMap;
         SpellAreaForQuestMap mSpellAreaForActiveQuestMap;

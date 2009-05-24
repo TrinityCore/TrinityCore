@@ -195,11 +195,6 @@ struct PointOfInterest
     std::string icon_name;
 };
 
-struct PetCreateSpellEntry
-{
-    uint32 spellid[4];
-};
-
 #define WEATHER_SEASONS 4
 struct WeatherSeasonChances
 {
@@ -338,8 +333,6 @@ class ObjectMgr
         typedef UNORDERED_MAP<uint32, PointOfInterest> PointOfInterestMap;
 
         typedef UNORDERED_MAP<uint32, WeatherZoneChances> WeatherZoneMap;
-
-        typedef UNORDERED_MAP<uint32, PetCreateSpellEntry> PetCreateSpellMap;
 
         typedef std::vector<std::string> ScriptNameMap;
 
@@ -494,14 +487,6 @@ class ObjectMgr
             return NULL;
         }
 
-        PetCreateSpellEntry const* GetPetCreateSpellEntry(uint32 id) const
-        {
-            PetCreateSpellMap::const_iterator itr = mPetCreateSpell.find(id);
-            if(itr != mPetCreateSpell.end())
-                return &itr->second;
-            return NULL;
-        }
-
         void LoadGuilds();
         void LoadArenaTeams();
         void LoadGroups();
@@ -534,8 +519,7 @@ class ObjectMgr
 
         bool LoadTrinityStrings(DatabaseType& db, char const* table, int32 min_value, int32 max_value);
         bool LoadTrinityStrings() { return LoadTrinityStrings(WorldDatabase,"trinity_string",MIN_TRINITY_STRING_ID,MAX_TRINITY_STRING_ID); }
-    void LoadDbScriptStrings();
-        void LoadPetCreateSpells();
+        void LoadDbScriptStrings();
         void LoadCreatureLocales();
         void LoadCreatureTemplates();
         void LoadCreatures();
@@ -866,8 +850,6 @@ class ObjectMgr
         PointOfInterestMap mPointsOfInterest;
 
         WeatherZoneMap      mWeatherZoneMap;
-
-        PetCreateSpellMap   mPetCreateSpell;
 
         //character reserved names
         typedef std::set<std::wstring> ReservedNamesMap;

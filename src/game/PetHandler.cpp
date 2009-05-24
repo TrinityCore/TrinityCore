@@ -250,8 +250,6 @@ void WorldSession::HandlePetActionHelper(Unit *pet, uint64 guid1, uint16 spellid
             if(result == SPELL_CAST_OK)
             {
                 ((Creature*)pet)->AddCreatureSpellCooldown(spellid);
-                if (((Creature*)pet)->isPet())
-                    ((Pet*)pet)->CheckLearning(spellid);
 
                 unit_target = spell->m_targets.getUnitTarget();
 
@@ -657,7 +655,6 @@ void WorldSession::HandlePetCastSpellOpcode( WorldPacket& recvPacket )
             if(pet->isPet())
             {
                 Pet* p = (Pet*)pet;
-                p->CheckLearning(spellid);
                 // 10% chance to play special pet attack talk, else growl
                 // actually this only seems to happen on special spells, fire shield for imp, torment for voidwalker, but it's stupid to check every spell
                 if(p->getPetType() == SUMMON_PET && (urand(0, 100) < 10))
