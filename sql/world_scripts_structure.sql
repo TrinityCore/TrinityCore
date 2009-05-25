@@ -1,3 +1,5 @@
+-- Up to ACID 0.0.9
+
 DROP TABLE IF EXISTS `creature_ai_scripts`;
 CREATE TABLE `creature_ai_scripts` (
   `id` int(11) unsigned NOT NULL COMMENT 'Identifier' AUTO_INCREMENT,

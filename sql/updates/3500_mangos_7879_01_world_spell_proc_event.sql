@@ -1,5 +1,4 @@
-ALTER TABLE db_version CHANGE COLUMN required_7855_01_mangos_pools required_7879_01_mangos_spell_proc_event bit;
-
+/*ALTER TABLE db_version CHANGE COLUMN required_7855_01_mangos_pools required_7879_01_mangos_spell_proc_event bit;*/
 
 DELETE FROM spell_proc_event WHERE entry IN (31571, 31572);
 INSERT INTO spell_proc_event VALUES
