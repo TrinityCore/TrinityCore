@@ -974,6 +974,42 @@ void SpellMgr::LoadSpellTargetPositions()
 
     } while( result->NextRow() );
 
+    // Check all spells
+    for(uint32 i = 1; i < sSpellStore.GetNumRows(); ++i)
+    {
+        SpellEntry const * spellInfo = sSpellStore.LookupEntry(i);
+        if(!spellInfo)
+            continue;
+
+        bool found = false;
+        for(int j = 0; j < 3; ++j)
+        {
+            switch(spellInfo->EffectImplicitTargetA[j])
+            {
+                case TARGET_DST_DB:
+                    found = true;
+                    break;
+            }
+            if(found)
+                break;
+            switch(spellInfo->EffectImplicitTargetB[j])
+            {
+                case TARGET_DST_DB:
+                    found = true;
+                    break;
+            }
+            if(found)
+                break;
+        }
+        if(found)
+        {
+            SpellScriptTarget::const_iterator lower = spellmgr.GetBeginSpellScriptTarget(i);
+            SpellScriptTarget::const_iterator upper = spellmgr.GetEndSpellScriptTarget(i);
+            if(lower == upper)
+                sLog.outDetail("Spell (ID: %u) does not have record in `spell_target_position`", i);
+        }
+    }
+
     delete result;
 
     sLog.outString();
@@ -1796,29 +1832,48 @@ void SpellMgr::LoadSpellScriptTarget()
     delete result;
 
     // Check all spells
-    /* Disabled (lot errors at this moment)
-    for(uint32 i = 1; i < sSpellStore.nCount; ++i)
+    for(uint32 i = 1; i < sSpellStore.GetNumRows(); ++i)
     {
         SpellEntry const * spellInfo = sSpellStore.LookupEntry(i);
         if(!spellInfo)
             continue;
 
         bool found = false;
-        for(int j=0; j<3; ++j)
+        for(int j = 0; j < 3; ++j)
         {
-            if( spellInfo->EffectImplicitTargetA[j] == TARGET_UNIT_NEARBY_ENTRY || spellInfo->EffectImplicitTargetA[j] != TARGET_UNIT_CASTER && spellInfo->EffectImplicitTargetB[j] == TARGET_UNIT_NEARBY_ENTRY )
+            switch(spellInfo->EffectImplicitTargetA[j])
             {
-                SpellScriptTarget::const_iterator lower = spellmgr.GetBeginSpellScriptTarget(spellInfo->Id);
-                SpellScriptTarget::const_iterator upper = spellmgr.GetEndSpellScriptTarget(spellInfo->Id);
-                if(lower==upper)
-                {
-                    sLog.outErrorDb("Spell (ID: %u) has effect EffectImplicitTargetA/EffectImplicitTargetB = %u (TARGET_UNIT_NEARBY_ENTRY), but does not have record in `spell_script_target`",spellInfo->Id,TARGET_UNIT_NEARBY_ENTRY);
-                    break;                                  // effects of spell
-                }
+                case TARGET_UNIT_AREA_ENTRY_SRC:
+                case TARGET_UNIT_AREA_ENTRY_DST:
+                case TARGET_UNIT_NEARBY_ENTRY:
+                case TARGET_DST_NEARBY_ENTRY:
+                case TARGET_UNIT_CONE_ENTRY:
+                    found = true;
+                    break;
             }
+            if(found)
+                break;
+            switch(spellInfo->EffectImplicitTargetB[j])
+            {
+                case TARGET_UNIT_AREA_ENTRY_SRC:
+                case TARGET_UNIT_AREA_ENTRY_DST:
+                case TARGET_UNIT_NEARBY_ENTRY:
+                case TARGET_DST_NEARBY_ENTRY:
+                case TARGET_UNIT_CONE_ENTRY:
+                    found = true;
+                    break;
+            }
+            if(found)
+                break;
+        }
+        if(found)
+        {
+            SpellScriptTarget::const_iterator lower = spellmgr.GetBeginSpellScriptTarget(i);
+            SpellScriptTarget::const_iterator upper = spellmgr.GetEndSpellScriptTarget(i);
+            if(lower == upper)
+                sLog.outDetail("Spell (ID: %u) does not have record in `spell_script_target`", i);
         }
     }
-    */
 
     sLog.outString();
     sLog.outString(">> Loaded %u Spell Script Targets", count);
