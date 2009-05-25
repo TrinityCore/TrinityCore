@@ -1,3 +1,5 @@
+-- Up to TC2 3515
+
 -- This file contains all waypoints used by escortAI scripts
 DROP TABLE IF EXISTS script_waypoint;
 CREATE TABLE script_waypoint (

@@ -1,3 +1,4 @@
+-- Up to TC2 3515
 -- 
 -- trinityscript_script_texts.sql Contains data for table `script_texts` mainly used in C++ parts.
 -- valid entries for table are between -1000000 and -1999999
@@ -321,7 +322,9 @@ INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content
 (-1000403, 'We showed that one!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 7, 0, 'stilwell SAY_DS_DOWN_1'),
 (-1000404, 'One more down!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 7, 0, 'stilwell SAY_DS_DOWN_2'),
 (-1000405, 'We\'ve done it! We won!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 7, 0, 'stilwell SAY_DS_DOWN_3'),
-(-1000406, 'Meet me down by the orchard--I just need to put my gun away.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 7, 0, 'stilwell SAY_DS_PROLOGUE');
+(-1000406, 'Meet me down by the orchard--I just need to put my gun away.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 7, 0, 'stilwell SAY_DS_PROLOGUE'),
+(-1000411, 'Mist! I feared I would never see you again! Yes, I am well, do not worry for me. You must rest and recover your health.', 0, 0, 7, 0, 'mist SAY_AT_HOME'),
+(-1000412, 'growls in acknowledgement before straightening and making her way off into the forest.', 0, 2, 0, 0, 'mist EMOTE_AT_HOME');
 
 -- -1 033 000 SHADOWFANG KEEP
 INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`, `sound`, `type`, `language`, `emote`, `comment`) VALUES
