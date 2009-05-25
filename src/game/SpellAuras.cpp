@@ -5917,13 +5917,14 @@ void Aura::PeriodicDummyTick()
                 if ((*i)->GetId() == GetId())
                 {
                     BattleGround *bg = ((Player*)m_target)->GetBattleGround();
-                    // Get tick number
-                    int32 tick = (m_maxduration - m_duration) / m_modifier.periodictime;
-                    // Default case (not on arenas)
-                    if (tick == 0 )
+                    if(!bg || !bg->isArena())
                     {
-                        (*i)->GetModifier()->m_amount = m_modifier.m_amount;
-                        
+                        // default case - not in arena
+                        m_isPeriodic = false;
+                        if(m_tickNumber == 1)
+                            (*i)->GetModifier()->m_amount = m_modifier.m_amount;
+                        ((Player*)m_target)->UpdateManaRegen();
+                        return;
                     }
                     //**********************************************
                     // This feature uses only in arenas
@@ -5932,26 +5933,19 @@ void Aura::PeriodicDummyTick()
                     // on 0 tick -   0  (handled in 2 second)
                     // on 1 tick - 166% (handled in 4 second)
                     // on 2 tick - 133% (handled in 6 second)
-                    // Not need update after 3 tick
-                    
-                    if(!bg || !bg->isArena())
-                    {
-                      m_isPeriodic = false;
-                      ((Player*)m_target)->UpdateManaRegen();
-                      return;
-                    }
-                    if (tick > 3)
+                    // Not need update after 4 tick
+                    if (m_tickNumber > 4)
                         return;
-                    // Apply bonus for 0 - 3 tick
-                    switch (tick)
+                    // Apply bonus for 1 - 4 tick
+                    switch (m_tickNumber)
                     {
-                        case 0:   // 0%
-                            (*i)->GetModifier()->m_amount = m_modifier.m_amount = 0;
+                        case 1:   // 0%
+                            (*i)->GetModifier()->m_amount = 0;
                             break;
-                        case 1:   // 166%
+                        case 2:   // 166%
                             (*i)->GetModifier()->m_amount = m_modifier.m_amount * 5 / 3;
                             break;
-                        case 2:   // 133%
+                        case 3:   // 133%
                             (*i)->GetModifier()->m_amount = m_modifier.m_amount * 4 / 3;
                             break;
                         default:  // 100% - normal regen
