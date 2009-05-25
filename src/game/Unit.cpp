@@ -6863,19 +6863,7 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
         basepoints0 = triggerAmount;
 
     Item* castItem = triggeredByAura->GetParentAura()->GetCastItemGUID() && GetTypeId()==TYPEID_PLAYER
-        ? ((Player*)this)->GetItemByGuid(triggeredByAura->GetParentAura()->GetCastItemGUID()) : NULL;
-        
-    // TODO: we need better rules here. Enrage should not overwrite death wish, but it should overwrite Wrecking Crew
-  //  AuraMap::iterator i,next;
-  //  for (i = m_Auras.begin(); i != m_Auras.end(); i = next)
-  //  {
-  //      next = i;
-  //      ++next;
-  //      if (!(*i).second) continue;
-		//if ( (*i).second->GetSpellProto()->Id == trigger_spell_id) continue;
-  //      if (spellmgr.IsNoStackSpellDueToSpell(trigger_spell_id, (*i).second->GetSpellProto()->Id, (pVictim == this)))
-		//    return false;
-  //  }
+        ? ((Player*)this)->GetItemByGuid(triggeredByAura->GetParentAura()->GetCastItemGUID()) : NULL;      
 
     // Try handle unknown trigger spells
     if (sSpellStore.LookupEntry(trigger_spell_id)==NULL)
@@ -7375,6 +7363,24 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
         // Not cast unknown spell
         // sLog.outError("Unit::HandleProcTriggerSpell: Spell %u have 0 in EffectTriggered[%d], not handled custom case?",auraSpellInfo->Id,triggeredByAura->GetEffIndex());
         return false;
+    }
+
+    // check if triggering spell can stack with current target's auras (if not - don't proc)
+    // don't check if 
+    // aura is passive (talent's aura)
+    // trigger_spell_id's aura is already active (allow to refresh triggered auras)
+    // trigger_spell_id's triggeredByAura is already active (for example shaman's shields)
+    AuraMap::iterator i,next;
+    uint32 aura_id = 0;
+    for (i = m_Auras.begin(); i != m_Auras.end(); i = next)
+    {
+        next = i;
+        ++next;
+        if (!(*i).second) continue;
+            aura_id = (*i).second->GetSpellProto()->Id;
+            if ( IsPassiveSpell(aura_id) || aura_id == trigger_spell_id || aura_id == triggeredByAura->GetSpellProto()->Id ) continue;
+        if (spellmgr.IsNoStackSpellDueToSpell(trigger_spell_id, (*i).second->GetSpellProto()->Id, ((*i).second->GetCasterGUID() == GetGUID())))
+            return false;
     }
 
     // not allow proc extra attack spell at extra attack

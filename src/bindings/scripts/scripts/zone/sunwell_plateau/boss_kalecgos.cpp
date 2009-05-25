@@ -644,7 +644,7 @@ void boss_kalecgosAI::UpdateAI(const uint32 diff)
     }
 }
 
-bool GOkalocegos_teleporter(Player *player, GameObject* _GO)
+bool GOkalecgos_teleporter(Player *player, GameObject* _GO)
 {
     if(player->HasAura(AURA_SPECTRAL_EXHAUSTION))
         player->GetSession()->SendNotification(GO_FAILED);
@@ -687,7 +687,7 @@ void AddSC_boss_kalecgos()
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="kalocegos_teleporter";
-    newscript->pGOHello = &GOkalocegos_teleporter;
+    newscript->Name="kalecgos_teleporter";
+    newscript->pGOHello = &GOkalecgos_teleporter;
     newscript->RegisterSelf();
 }
