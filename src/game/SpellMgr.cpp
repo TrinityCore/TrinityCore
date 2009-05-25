@@ -3367,7 +3367,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 42005: // Bloodboil
         case 38296: // Spitfire Totem
         case 37676: // Insidious Whisper
-        case 46009: // Negative Energy
+        case 46008: // Negative Energy
         case 45641: // Fire Bloom
         case 55665: // Life Drain - Sapphiron (H)
         case 28796: // Poison Bolt Volly - Faerlina

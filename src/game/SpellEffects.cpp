@@ -5783,47 +5783,47 @@ void Spell::EffectMomentMove(uint32 i)
         return;
 
     uint32 mapid = m_caster->GetMapId();
-    float dis = m_caster->GetSpellRadiusForTarget(unitTarget, sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
+    float dist = m_caster->GetSpellRadiusForTarget(unitTarget, sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
+    float x,y,z;
+    float destx,desty,destz,ground,floor;
+    float orientation = unitTarget->GetOrientation(), step = dist/10.0f;
 
-    // src point
-    float *fx = new float[11], *fy = new float[11], *fz = new float[11];
-    unitTarget->GetPosition(fx[0], fy[0], fz[0]);
+    unitTarget->GetPosition(x,y,z);
+    destx = x + dist * cos(orientation);
+    desty = y + dist * sin(orientation);
+    ground = unitTarget->GetMap()->GetHeight(destx,desty,MAX_HEIGHT,true);
+    floor = unitTarget->GetMap()->GetHeight(destx,desty,z, true);
+    destz = fabs(ground - z) <= fabs(floor - z) ? ground:floor;
 
-    float orientation = unitTarget->GetOrientation(), itr_i, step = dis / 10.0, fx2, fy2, fz2, ground, floor;
-    int itr_j = 1, last_valid = 0;
-    bool hit = false;
+    bool col = VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(mapid,x,y,z+0.5f,destx,desty,destz+0.5f,destx,desty,destz,-0.5f);
 
-    for (itr_i = step; itr_i <= dis; itr_i += step)
+    if(col)    // We had a collision!
     {
-        fx[itr_j] = fx[0] + itr_i * cos(orientation);
-        fy[itr_j] = fy[0] + itr_i * sin(orientation);
-        ground = MapManager::Instance().GetMap(mapid, unitTarget)->GetHeight(fx[itr_j], fy[itr_j], MAX_HEIGHT, true);
-        floor = MapManager::Instance().GetMap(mapid, unitTarget)->GetHeight(fx[itr_j], fy[itr_j], fz[last_valid], true);
-        fz[itr_j] = fabs(ground - fz[last_valid]) <= fabs(floor - fz[last_valid]) ? ground : floor;
-        if (fabs(fz[itr_j] - fz[0]) <= 6.0)
-        {
-            if (VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(mapid, fx[last_valid], fy[last_valid], fz[last_valid] + 0.5, fx[itr_j], fy[itr_j], fz[itr_j] + 0.5, fx2, fy2, fz2, -0.5))
-            {
-                hit = true;
-                fx[itr_j] = fx2 - 0.6 * cos(orientation);
-                fy[itr_j] = fy2 - 0.6 * sin(orientation);
-                ground = MapManager::Instance().GetMap(mapid, unitTarget)->GetHeight(fx[itr_j], fy[itr_j], MAX_HEIGHT, true);
-                floor = MapManager::Instance().GetMap(mapid, unitTarget)->GetHeight(fx[itr_j], fy[itr_j], fz[last_valid], true);
-                float tempz = fabs(ground - fz[last_valid]) <= fabs(floor - fz[last_valid]) ? ground : floor;
-                fz[itr_j] = fabs(tempz - fz[last_valid]) <= fabs(fz2 - fz[last_valid]) ? tempz : fz2;
-                break;
-            }
-            else
-                last_valid = itr_j;
-        }
-        itr_j++;
+      destx -= 0.6 * cos(orientation);
+      desty -= 0.6 * sin(orientation);
+      dist = sqrt((x-destx)*(x-destx) + (y-desty)*(y-desty));
+      step = dist/10.0f;
     }
-    if (hit == false)
-        itr_j = last_valid;
+    
+    int j = 0;
+    for(j; j<10 ;j++)
+      {
+	if(fabs(z - destz) > 6)
+	  {
+	  destx -= step * cos(orientation);
+	  desty -= step * sin(orientation);
+	  ground = unitTarget->GetMap()->GetHeight(destx,desty,MAX_HEIGHT,true);
+	  floor = unitTarget->GetMap()->GetHeight(destx,desty,z, true);
+	  destz = fabs(ground - z) <= fabs(floor - z) ? ground:floor;
+	  }else
+	  break;
+      }
+    if(j == 9)
+      {
+	return;
+      }
+    unitTarget->NearTeleportTo(destx, desty, destz + 0.07531, orientation, unitTarget==m_caster);
 
-    unitTarget->NearTeleportTo(fx[itr_j], fy[itr_j], fz[itr_j] + 0.07531, orientation, unitTarget==m_caster);
-
-    delete [] fx; delete [] fy; delete [] fz;
 }
 
 void Spell::EffectReputation(uint32 i)
