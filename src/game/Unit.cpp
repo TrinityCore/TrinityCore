@@ -7370,6 +7370,11 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
     // aura is passive (talent's aura)
     // trigger_spell_id's aura is already active (allow to refresh triggered auras)
     // trigger_spell_id's triggeredByAura is already active (for example shaman's shields)
+
+    // This is disabled because:
+    // TODO: we need better rules here. Enrage should not overwrite death wish, but it should overwrite Wrecking Crew
+    // Check if triggered spell is aura spell to reduce unnecessary check
+    /*
     AuraMap::iterator i,next;
     uint32 aura_id = 0;
     for (i = m_Auras.begin(); i != m_Auras.end(); i = next)
@@ -7382,6 +7387,7 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
         if (spellmgr.IsNoStackSpellDueToSpell(trigger_spell_id, (*i).second->GetSpellProto()->Id, ((*i).second->GetCasterGUID() == GetGUID())))
             return false;
     }
+    */
 
     // not allow proc extra attack spell at extra attack
     if( m_extraAttacks && IsSpellHaveEffect(triggerEntry, SPELL_EFFECT_ADD_EXTRA_ATTACKS) )
