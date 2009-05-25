@@ -423,15 +423,6 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                 break;
             }
 
-            case SPELLFAMILY_MAGE:
-            {
-                // Arcane Blast
-                if(m_spellInfo->SpellFamilyFlags[0] & 0x20000000)
-                {
-                    m_caster->CastSpell(m_caster,36032,true);
-                }
-                break;
-            }
             case SPELLFAMILY_WARRIOR:
             {
                 // Bloodthirst
