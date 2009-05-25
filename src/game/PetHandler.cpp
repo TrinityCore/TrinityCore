@@ -30,6 +30,7 @@
 #include "CreatureAI.h"
 #include "Util.h"
 #include "Pet.h"
+#include "World.h"
 
 void WorldSession::HandlePetAction( WorldPacket & recv_data )
 {
@@ -122,9 +123,14 @@ void WorldSession::HandlePetActionHelper(Unit *pet, uint64 guid1, uint16 spellid
                         return;
 
                     // Not let attack through obstructions
-                    //if(!pet->IsWithinLOSInMap(TargetUnit))
-                    //    return;
+                    if(sWorld.getConfig(CONFIG_PET_LOS))
+                    {
 
+                      if(!pet->IsWithinLOSInMap(TargetUnit))
+                        return;
+
+                    }
+                    
                     pet->clearUnitState(UNIT_STAT_FOLLOW);
                     // This is true if pet has no target or has target but targets differs.
                     if(pet->getVictim() != TargetUnit)

@@ -467,6 +467,9 @@ void WorldSession::HandleBattleGroundPlayerPortOpcode( WorldPacket &recv_data )
                 _player->SetBattleGroundId(bg->GetInstanceID(), bgTypeId);
                 // set the destination team
                 _player->SetBGTeam(team);
+                // clear AFK
+                if(_player->isAFK())
+                    _player->ToggleAFK();
                 // bg->HandleBeforeTeleportToBattleGround(_player);
                 sBattleGroundMgr.SendToBattleGround(_player, instanceId, bgTypeId);
                 // add only in HandleMoveWorldPortAck()
