@@ -161,51 +161,7 @@ spell1 = VALUES(spell1),
 flags_extra = VALUES(flags_extra),
 scriptname = VALUES(scriptname);
 
-INSERT INTO creature_template (entry, spell1, spell2, flags_extra, scriptname) VALUES
-(16474, 28547, 0, 128, 'trigger_periodic'), # Blizzard (Sapphiron)
-(30000, 55699, 0, 128, '')  # Blizzard (Sapphiron) (H)
-ON DUPLICATE KEY UPDATE
-spell1 = VALUES(spell1),
-spell2 = VALUES(spell2),
-flags_extra = VALUES(flags_extra),
-scriptname = VALUES(scriptname);
-
 UPDATE creature_template SET speed = 1.0 WHERE entry = 23095; # molten_flame
-
-INSERT INTO creature_template (entry, spell1, spell2, spell3, spell4, spell5, spell6, spell7, spell8) VALUES
-(16573, 15284, 28991, 28969, 34970, 0, 0, 0, 28864), # Crypt Guard
-(29256, 15284, 28991, 56098, 34970, 0, 0, 0, 28864), # Crypt Guard (H)
-(16506, 54095, 0, 0, 0, 0, 0, 0, 28732), # Naxxramas Worshipper
-(29274, 54096, 0, 0, 0, 0, 0, 0, 54097), # Naxxramas Worshipper (H)
-(16984, 15496, 0, 0, 0, 0, 0, 0, 0), # Plagued Warrior
-(29632, 15496, 0, 0, 0, 0, 0, 0, 0), # Plagued Warrior (H)
-(16290, 28156, 0, 0, 0, 0, 0, 0, 0), # Fallout Slime
-(29388, 54367, 0, 0, 0, 0, 0, 0, 0), # Fallout Slime (H)
-(16803, 0, 0, 0, 61696, 29060, 29061, 0, 0), # Death Knight Understudy
-(29941, 0, 0, 0, 61696, 29060, 29061, 0, 0), # Death Knight Understudy (H)
-(16124, 55604, 0, 0, 0, 0, 0, 0, 27892), # Unrelenting Trainee
-(16125, 27825, 0, 0, 0, 0, 0, 0, 27928), # Unrelenting Death Knight
-(16126, 27831, 55606, 0, 0, 0, 0, 0, 27935), # Unrelenting Rider
-(16127, 27989, 0, 0, 0, 0, 0, 0, 0), # Spectral Trainee
-(16148, 56408, 0, 0, 0, 0, 0, 0, 0), # Spectral Death Knight
-(16150, 27994, 55648, 55606, 0, 0, 0, 0, 0), # Spectral Rider
-(16149, 27993, 0, 0, 0, 0, 0, 0, 0), # Spectral Horse
-(29985, 55645, 0, 0, 0, 0, 0, 0, 27892), # Unrelenting Trainee (H)
-(29986, 27825, 0, 0, 0, 0, 0, 0, 27928), # Unrelenting Death Knight (H)
-(29987, 55638, 55608, 0, 0, 0, 0, 0, 27935), # Unrelenting Rider (H)
-(30264, 56407, 0, 0, 0, 0, 0, 0, 0), # Spectral Trainee (H)
-(29990, 56408, 0, 0, 0, 0, 0, 0, 0), # Spectral Death Knight (H)
-(29988, 55646, 27995, 55608, 0, 0, 0, 0, 0), # Spectral Rider (H)
-(29989, 27993, 0, 0, 0, 0, 0, 0, 0) # Spectral Horse (H)
-ON DUPLICATE KEY UPDATE
-spell1 = VALUES(spell1),
-spell2 = VALUES(spell2),
-spell3 = VALUES(spell3),
-spell4 = VALUES(spell4),
-spell5 = VALUES(spell5),
-spell6 = VALUES(spell6),
-spell7 = VALUES(spell7),
-spell8 = VALUES(spell8);
 
 -- --------
 -- CLICK
@@ -1619,7 +1575,7 @@ scriptname = VALUES(scriptname);
 
 INSERT INTO creature_template (entry, baseattacktime, spell1, flags_extra, scriptname) VALUES
 (16474, 1000, 28547, 128, 'trigger_periodic'), # Blizzard (Sapphiron)
-(30000, 1000, 55699, 128, 'trigger_periodic'), # Blizzard (Sapphiron) (H)
+(30000, 1000, 55699, 128, ''), # Blizzard (Sapphiron) (H)
 (16697, 1000, 28865, 128, 'trigger_periodic') # Void Zone (Lady Blaumeux)
 ON DUPLICATE KEY UPDATE
 baseattacktime = VALUES(baseattacktime),
