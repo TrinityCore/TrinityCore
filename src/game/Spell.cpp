@@ -1624,7 +1624,7 @@ WorldObject* Spell::SearchNearbyTarget(float range, SpellTargets TargetType)
             SpellScriptTarget::const_iterator upper = spellmgr.GetEndSpellScriptTarget(m_spellInfo->Id);
             if(lower == upper)
             {
-                sLog.outErrorDb("Spell (ID: %u) (caster Entry: %u) does not have record in `spell_script_target`", m_spellInfo->Id, m_caster->GetEntry());
+                sLog.outDebug("Spell (ID: %u) (caster Entry: %u) does not have record in `spell_script_target`", m_spellInfo->Id, m_caster->GetEntry());
                 if(IsPositiveSpell(m_spellInfo->Id))
                     return SearchNearbyTarget(range, SPELL_TARGETS_ALLY);
                 else
@@ -2000,7 +2000,7 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
                     }
                     else
                     {
-                        sLog.outError( "SPELL: unknown target coordinates for spell ID %u", m_spellInfo->Id );
+                        sLog.outDebug( "SPELL: unknown target coordinates for spell ID %u", m_spellInfo->Id );
                         Unit *target = NULL;
                         if(uint64 guid = m_caster->GetUInt64Value(UNIT_FIELD_TARGET))
                             target = ObjectAccessor::GetUnit(*m_caster, guid);
@@ -2170,7 +2170,7 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
             SpellScriptTarget::const_iterator upper = spellmgr.GetEndSpellScriptTarget(m_spellInfo->Id);
             if(lower == upper)
             {
-                sLog.outErrorDb("Spell (ID: %u) (caster Entry: %u) does not have record in `spell_script_target`", m_spellInfo->Id, m_caster->GetEntry());
+                sLog.outDebug("Spell (ID: %u) (caster Entry: %u) does not have record in `spell_script_target`", m_spellInfo->Id, m_caster->GetEntry());
 
                 if(IsPositiveEffect(m_spellInfo->Id, i))
                     SearchAreaTarget(unitList, radius, pushType, SPELL_TARGETS_ALLY);
