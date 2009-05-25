@@ -8880,7 +8880,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
             }
         // + 10% for each application of Holy Vengeance/Blood Corruption on the target
         if(stacks)
-            DoneTotalMod *= stacks * 10 + 100.0f /100.0f;
+            DoneTotalMod *= (1.0f + (float)stacks / 10.0f) ;
     }
 
     // Ice Lance
