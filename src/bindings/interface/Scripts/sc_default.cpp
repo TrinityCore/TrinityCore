@@ -105,6 +105,21 @@ bool AreaTrigger_default(Player* /*player*/, AreaTriggerEntry* /*atEntry*/ )
     return false;
 }
 
+bool EffectDummyCreature_default(Unit* /*caster*/, uint32 /*spellId*/, uint32 /*effIndex*/, Creature* /*crTarget*/ )
+{
+    return false;
+}
+
+bool EffectDummyGameObj_default(Unit* /*caster*/, uint32 /*spellId*/, uint32 /*effIndex*/, GameObject* /*gameObjTarget*/ )
+{
+    return false;
+}
+
+bool EffectDummyItem_default(Unit* /*caster*/, uint32 /*spellId*/, uint32 /*effIndex*/, Item* /*itemTarget*/ )
+{
+    return false;
+}
+
 void AddSC_default()
 {
     Script *newscript;
@@ -128,6 +143,9 @@ void AddSC_default()
     newscript->pItemQuestAccept      = &ItemQuestAccept_default;
     newscript->pGOQuestAccept        = &GOQuestAccept_default;
     newscript->pGOChooseReward       = &GOChooseReward_default;
+    newscript->pEffectDummyCreature  = &EffectDummyCreature_default;
+    newscript->pEffectDummyGameObj   = &EffectDummyGameObj_default;
+    newscript->pEffectDummyItem      = &EffectDummyItem_default;
 
     newscript->RegisterSelf();
 }
