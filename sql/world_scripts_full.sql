@@ -825,7 +825,7 @@ UPDATE `creature_template` SET `ScriptName`='boss_sacrolash' WHERE `entry`=25165
 UPDATE `creature_template` SET `ScriptName`='boss_alythess' WHERE `entry`=25166;
 UPDATE `creature_template` SET `ScriptName`='mob_shadow_image' WHERE `entry`=25214;
 UPDATE `creature_template` SET `ScriptName`='boss_kiljaeden' WHERE `entry`=25315;
-UPDATE `creature_template` SET `ScriptName`='boss_kalecgosKJ' WHERE `entry`=25319;
+UPDATE `creature_template` SET `ScriptName`='boss_kalecgos_kj' WHERE `entry`=25319;
 UPDATE `creature_template` SET `ScriptName`='mob_kiljaeden_controller' WHERE `entry`=25608;
 UPDATE `creature_template` SET `ScriptName`='mob_hand_of_the_deceiver' WHERE `entry`=25588;
 UPDATE `creature_template` SET `ScriptName`='mob_felfire_portal' WHERE `entry`=25603;
@@ -833,6 +833,7 @@ UPDATE `creature_template` SET `ScriptName`='mob_volatile_felfire_fiend' WHERE `
 UPDATE `creature_template` SET `ScriptName`='mob_armageddon' WHERE `entry`=25735;
 UPDATE `creature_template` SET `ScriptName`='mob_shield_orb' WHERE `entry`=25502;
 UPDATE `creature_template` SET `ScriptName`='mob_sinster_reflection' WHERE `entry`=25708;
+UPDATE `gameobject_template` SET `ScriptName`='go_orb_of_the_blue_flight' WHERE `entry`=188415;
 UPDATE `creature_template` SET `ScriptName`='npc_void_sentinel' WHERE `entry`=25772;
 UPDATE `creature_template` SET `ScriptName`='npc_dark_fiend' WHERE `entry`=25744;
 UPDATE `creature_template` SET `ScriptName`='boss_muru' WHERE `entry`=25741;
@@ -841,7 +842,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_muru_portal' WHERE `entry`=2577
 UPDATE `creature_template` SET `ScriptName`='boss_kalecgos' WHERE `entry`=24850;
 UPDATE `creature_template` SET `ScriptName`='boss_sathrovarr' WHERE `entry`=24892;
 UPDATE `creature_template` SET `ScriptName`='boss_kalec' WHERE `entry`=24891;
-UPDATE gameobject_template SET scriptname = 'kalocegos_teleporter' WHERE entry = 187055;
+UPDATE `gameobject_template` SET `ScriptName`='kalecgos_teleporter' WHERE `entry`=187055;
 UPDATE `creature_template` SET `ScriptName`='npc_blackhole' WHERE `entry`=25855;
 
 /* SWAMP OF SORROWS */
