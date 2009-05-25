@@ -613,7 +613,6 @@ void WorldSession::HandleAddFriendOpcodeCallBack(QueryResult *result, uint32 acc
                 }
                 session->GetPlayer()->GetSocial()->SetFriendNote(GUID_LOPART(friendGuid), friendNote);
             }
-        }
     }
 
     sSocialMgr.SendFriendStatus(session->GetPlayer(), friendResult, GUID_LOPART(friendGuid), false);
