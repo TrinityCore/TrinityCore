@@ -354,22 +354,19 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
                 uint32 firstSpell = spellmgr.GetFirstSpellInChain(spellInfo->Id);
                 switch (firstSpell)
                 {
-                    // Strength
-                    case 8118:
-                    // Stamina
-                    case 8099:
-                    // Spirit
-                    case 8112:
-                    //Intellect
-                    case 8096:
-                    // Agility
-                    case 8115:
-                    // Armor
-                    case 8091:
+                    case 8118: // Strength
+                    case 8099: // Stamina
+                    case 8112: // Spirit
+                    case 8096: // Intellect
+                    case 8115: // Agility
+                    case 8091: // Armor
                         return SPELL_SCROLL;
+                    case 12880: // Enrage
+                    case 12292: // Death Wish
+                        return SPELL_WARRIOR_ENRAGE;
                 }
-                break;
             }
+            break;
         }
         case SPELLFAMILY_MAGE:
         {
@@ -514,6 +511,7 @@ bool IsSingleFromSpellSpecificPerTarget(uint32 spellSpec1,uint32 spellSpec2)
         case SPELL_FOOD:
         case SPELL_CHARM:
         case SPELL_SCROLL:
+        case SPELL_WARRIOR_ENRAGE:
         case SPELL_MAGE_ARCANE_BRILLANCE:
             return spellSpec1==spellSpec2;
         case SPELL_BATTLE_ELIXIR:

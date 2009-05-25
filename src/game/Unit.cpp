@@ -6864,6 +6864,17 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
 
     Item* castItem = triggeredByAura->GetParentAura()->GetCastItemGUID() && GetTypeId()==TYPEID_PLAYER
         ? ((Player*)this)->GetItemByGuid(triggeredByAura->GetParentAura()->GetCastItemGUID()) : NULL;
+        
+    AuraMap::iterator i,next;
+    for (i = m_Auras.begin(); i != m_Auras.end(); i = next)
+    {
+        next = i;
+        ++next;
+        if (!(*i).second) continue;
+		if ( (*i).second->GetSpellProto()->Id == trigger_spell_id) continue;
+        if (spellmgr.IsNoStackSpellDueToSpell(trigger_spell_id, (*i).second->GetSpellProto()->Id, (pVictim == this)))
+		    return false;
+    }
 
     // Try handle unknown trigger spells
     if (sSpellStore.LookupEntry(trigger_spell_id)==NULL)
