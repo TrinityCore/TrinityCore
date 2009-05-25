@@ -643,6 +643,14 @@ class Spell
         uint32 m_customAttr;
         bool m_skipCheck;
         uint32 m_effectMask;
+
+#ifdef MAP_BASED_RAND_GEN
+        int32 irand(int32 min, int32 max)       { return int32 (m_caster->GetMap()->mtRand.randInt(max - min)) + min; }
+        uint32 urand(uint32 min, uint32 max)    { return m_caster->GetMap()->mtRand.randInt(max - min) + min; }
+        int32 rand32()                          { return m_caster->GetMap()->mtRand.randInt(); }
+        double rand_norm()                      { return m_caster->GetMap()->mtRand.randExc(); }
+        double rand_chance()                    { return m_caster->GetMap()->mtRand.randExc(100.0); }
+#endif
 };
 
 namespace Trinity
