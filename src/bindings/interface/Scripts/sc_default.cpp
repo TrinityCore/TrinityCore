@@ -35,6 +35,16 @@ bool GossipSelectWithCode_default( Player* /*player*/, Creature* /*_Creature*/, 
     return false;
 }
 
+bool GOSelect_default(Player* /*player*/, GameObject* /*_GO*/, uint32 /*sender*/, uint32 /*action*/)
+{
+    return false;
+}
+
+bool GOSelectWithCode_default(Player* /*player*/, GameObject* /*_GO*/, uint32 /*sender*/, uint32 /*action*/, const char* /*sCode*/)
+{
+    return false;
+}
+
 bool QuestAccept_default(Player* /*player*/, Creature* /*_Creature*/, Quest const* /*_Quest*/ )
 {
     return false;
@@ -105,6 +115,8 @@ void AddSC_default()
     newscript->pQuestAccept          = &QuestAccept_default;
     newscript->pGossipSelect         = &GossipSelect_default;
     newscript->pGossipSelectWithCode = &GossipSelectWithCode_default;
+    newscript->pGOSelect             = &GOSelect_default;
+    newscript->pGOSelectWithCode     = &GOSelectWithCode_default;
     newscript->pQuestSelect          = &QuestSelect_default;
     newscript->pQuestComplete        = &QuestComplete_default;
     newscript->pNPCDialogStatus      = &NPCDialogStatus_default;
@@ -117,6 +129,6 @@ void AddSC_default()
     newscript->pGOQuestAccept        = &GOQuestAccept_default;
     newscript->pGOChooseReward       = &GOChooseReward_default;
 
-    m_scripts[nrscripts++] = newscript;
+    newscript->RegisterSelf();
 }
 
