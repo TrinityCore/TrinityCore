@@ -163,7 +163,7 @@ scriptname = VALUES(scriptname);
 
 INSERT INTO creature_template (entry, spell1, spell2, flags_extra, scriptname) VALUES
 (16474, 28547, 0, 128, 'trigger_periodic'), # Blizzard (Sapphiron)
-(30000, 55699, 0, 128, 'trigger_periodic')  # Blizzard (Sapphiron) (H)
+(30000, 55699, 0, 128, '')  # Blizzard (Sapphiron) (H)
 ON DUPLICATE KEY UPDATE
 spell1 = VALUES(spell1),
 spell2 = VALUES(spell2),
