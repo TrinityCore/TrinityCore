@@ -5746,7 +5746,20 @@ void Spell::EffectAddExtraAttacks(uint32 /*i*/)
     if( unitTarget->m_extraAttacks )
         return;
 
+    Unit *victim = unitTarget->getVictim();
+
+    // attack prevented
+    // fixme, some attacks may not target current victim, this is right now not handled
+    if (!victim || !unitTarget->IsWithinMeleeRange(victim) || !unitTarget->HasInArc( 2*M_PI/3, victim ))
+        return;
+
+    // Only for proc/log informations
     unitTarget->m_extraAttacks = damage;
+    // Need to send log before attack is made
+    SendLogExecute();
+    m_needSpellLog = false;
+
+    unitTarget->AttackerStateUpdate(victim, BASE_ATTACK, true);
 }
 
 void Spell::EffectParry(uint32 /*i*/)
