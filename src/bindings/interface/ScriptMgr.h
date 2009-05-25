@@ -35,12 +35,11 @@ class SpellCastTargets;
 class Map;
 
 #define MAX_SCRIPTS 1000
-#define MAX_INSTANCE_SCRIPTS 1000
 
 struct Script
 {
     Script() :
-    pGossipHello(NULL), pQuestAccept(NULL), pGossipSelect(NULL), pGossipSelectWithCode(NULL),
+    pGossipHello(NULL), pQuestAccept(NULL), pGossipSelect(NULL), pGossipSelectWithCode(NULL), pGOSelect(NULL), pGOSelectWithCode(NULL),
         pQuestSelect(NULL), pQuestComplete(NULL), pNPCDialogStatus(NULL), pGODialogStatus(NULL), pChooseReward(NULL),
         pItemHello(NULL), pGOHello(NULL), pAreaTrigger(NULL), pItemQuestAccept(NULL), pGOQuestAccept(NULL),
         pGOChooseReward(NULL), pReceiveEmote(NULL), pItemUse(NULL), GetAI(NULL)
@@ -49,26 +48,30 @@ struct Script
     std::string Name;
 
     // -- Quest/gossip Methods to be scripted --
-    bool (*pGossipHello         )(Player *player, Creature *_Creature);
-    bool (*pQuestAccept         )(Player *player, Creature *_Creature, Quest const*_Quest );
-    bool (*pGossipSelect        )(Player *player, Creature *_Creature, uint32 sender, uint32 action );
-    bool (*pGossipSelectWithCode)(Player *player, Creature *_Creature, uint32 sender, uint32 action, const char* sCode );
-    bool (*pQuestSelect         )(Player *player, Creature *_Creature, Quest const*_Quest );
-    bool (*pQuestComplete       )(Player *player, Creature *_Creature, Quest const*_Quest );
-    uint32 (*pNPCDialogStatus   )(Player *player, Creature *_Creature );
-    uint32 (*pGODialogStatus    )(Player *player, GameObject * _GO );
-    bool (*pChooseReward        )(Player *player, Creature *_Creature, Quest const*_Quest, uint32 opt );
-    bool (*pItemHello           )(Player *player, Item *_Item, Quest const*_Quest );
-    bool (*pGOHello             )(Player *player, GameObject *_GO );
-    bool (*pAreaTrigger         )(Player *player, AreaTriggerEntry* at);
-    bool (*pItemQuestAccept     )(Player *player, Item *_Item, Quest const*_Quest );
-    bool (*pGOQuestAccept       )(Player *player, GameObject *_GO, Quest const*_Quest );
-    bool (*pGOChooseReward      )(Player *player, GameObject *_GO, Quest const*_Quest, uint32 opt );
-    bool (*pReceiveEmote        )(Player *player, Creature *_Creature, uint32 emote );
-    bool (*pItemUse             )(Player *player, Item* _Item, SpellCastTargets const& targets);
+    bool (*pGossipHello         )(Player*, Creature*);
+    bool (*pQuestAccept         )(Player*, Creature*, Quest const*);
+    bool (*pGossipSelect        )(Player*, Creature*, uint32, uint32);
+    bool (*pGossipSelectWithCode)(Player*, Creature*, uint32, uint32, const char*);
+    bool (*pGOSelect            )(Player*, GameObject*, uint32, uint32);
+    bool (*pGOSelectWithCode    )(Player*, GameObject*, uint32, uint32, const char*);
+    bool (*pQuestSelect         )(Player*, Creature*, Quest const*);
+    bool (*pQuestComplete       )(Player*, Creature*, Quest const*);
+    uint32 (*pNPCDialogStatus   )(Player*, Creature*);
+    uint32 (*pGODialogStatus    )(Player*, GameObject*);
+    bool (*pChooseReward        )(Player*, Creature*, Quest const*, uint32);
+    bool (*pItemHello           )(Player*, Item*, Quest const*);
+    bool (*pGOHello             )(Player*, GameObject*);
+    bool (*pAreaTrigger         )(Player*, AreaTriggerEntry*);
+    bool (*pItemQuestAccept     )(Player*, Item*, Quest const*);
+    bool (*pGOQuestAccept       )(Player*, GameObject*, Quest const*);
+    bool (*pGOChooseReward      )(Player*, GameObject*, Quest const*, uint32);
+    bool (*pReceiveEmote        )(Player*, Creature*, uint32);
+    bool (*pItemUse             )(Player*, Item*, SpellCastTargets const&);
 
-    CreatureAI* (*GetAI)(Creature *_Creature);
-    // -----------------------------------------
+    CreatureAI* (*GetAI)(Creature*);
+    InstanceData* (*GetInstanceData)(Map*);
+
+    void RegisterSelf();
 
 };
 
@@ -80,11 +83,6 @@ class InstanceDataScript
         std::string name;
         InstanceData* (*GetInstanceData)(Map *_Map);
 };
-
-extern int nrscripts;
-extern Script *m_scripts[MAX_SCRIPTS];
-extern InstanceDataScript *m_instance_scripts[MAX_INSTANCE_SCRIPTS];
-extern int num_inst_scripts;
 
 #define VISIBLE_RANGE (50.0f)
 
