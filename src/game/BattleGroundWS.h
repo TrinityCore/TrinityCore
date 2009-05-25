@@ -130,6 +130,12 @@ enum BG_WS_CreatureTypes
     BG_CREATURES_MAX_WS       = 2
 };
 
+enum BG_WS_CarrierDebuffs
+{
+    WS_SPELL_FOCUSED_ASSAULT   = 46392,
+    WS_SPELL_BRUTAL_ASSAULT    = 46393
+};
+
 class BattleGroundWGScore : public BattleGroundScore
 {
     public:
@@ -206,6 +212,9 @@ class BattleGroundWS : public BattleGround
         uint32 m_ReputationCapture;
         uint32 m_HonorWinKills;
         uint32 m_HonorEndKills;
+        int32 m_FlagSpellForceTimer;
+        bool m_BothFlagsKept;
+        uint8 m_FlagDebuffState;                            // 0 - no debuffs, 1 - focused assault, 2 - brutal assault
 };
 #endif
 

@@ -2369,23 +2369,10 @@ void Unit::AttackerStateUpdate (Unit *pVictim, WeaponAttackType attType, bool ex
     else
         return;                                             // ignore ranged case
 
-    uint32 extraAttacks = m_extraAttacks;
-
     // melee attack spell casted at main hand attack only
     if (attType == BASE_ATTACK && m_currentSpells[CURRENT_MELEE_SPELL])
     {
         m_currentSpells[CURRENT_MELEE_SPELL]->cast();
-
-        // not recent extra attack only at any non extra attack (melee spell case)
-        if(!extra && extraAttacks)
-        {
-            while(m_extraAttacks)
-            {
-                AttackerStateUpdate(pVictim, BASE_ATTACK, true);
-                if(m_extraAttacks > 0)
-                    --m_extraAttacks;
-            }
-        }
         return;
     }
 
@@ -2411,16 +2398,6 @@ void Unit::AttackerStateUpdate (Unit *pVictim, WeaponAttackType attType, bool ex
     //if(pVictim->GetTypeId()==TYPEID_UNIT && ((Creature*)pVictim)->AI())
     //    ((Creature*)pVictim)->AI()->AttackedBy(this);
 
-    // extra attack only at any non extra attack (normal case)
-    if(!extra && extraAttacks)
-    {
-        while(m_extraAttacks)
-        {
-            AttackerStateUpdate(pVictim, BASE_ATTACK, true);
-            if(m_extraAttacks > 0)
-                --m_extraAttacks;
-        }
-    }
 }
 
 MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(const Unit *pVictim, WeaponAttackType attType) const
@@ -2494,7 +2471,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst (const Unit *pVictim, WeaponAttack
             dodge_chance -= int32(((Player*)this)->GetExpertiseDodgeOrParryReduction(attType)*100);
 
         // Modify dodge chance by attacker SPELL_AURA_MOD_COMBAT_RESULT_CHANCE
-        dodge_chance+= GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_COMBAT_RESULT_CHANCE, VICTIMSTATE_DODGE);
+        dodge_chance+= GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_COMBAT_RESULT_CHANCE, VICTIMSTATE_DODGE)*100;
         dodge_chance = int32 (float (dodge_chance) * GetTotalAuraMultiplier(SPELL_AURA_MOD_ENEMY_DODGE));
 
         tmp = dodge_chance;
