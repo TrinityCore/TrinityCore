@@ -41,6 +41,10 @@ RandomMovementGenerator<Creature>::GetDestination(float &x, float &y, float &z) 
     return true;
 }
 
+#ifdef MAP_BASED_RAND_GEN
+#define rand_norm() creature.rand_norm()
+#endif
+
 template<>
 void
 RandomMovementGenerator<Creature>::_setRandomLocation(Creature &creature)

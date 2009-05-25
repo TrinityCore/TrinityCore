@@ -412,34 +412,17 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>, public MaNGOS::Obj
         template<class NOTIFIER> void VisitWorld(const float &x, const float &y, float radius, NOTIFIER &notifier);
         template<class NOTIFIER> void VisitGrid(const float &x, const float &y, float radius, NOTIFIER &notifier);
         CreatureGroupHolderType CreatureGroupHolder;
+
+#ifdef MAP_BASED_RAND_GEN
         MTRand mtRand;
+        int32 irand(int32 min, int32 max)       { return int32 (mtRand.randInt(max - min)) + min; }
+        uint32 urand(uint32 min, uint32 max)    { return mtRand.randInt(max - min) + min; }
+        int32 rand32()                          { return mtRand.randInt(); }
+        double rand_norm()                      { return mtRand.randExc(); }
+        double rand_chance()                    { return mtRand.randExc(100.0); }
+#endif
 
         TempSummon *SummonCreature(uint32 entry, float x, float y, float z, float angle, SummonPropertiesEntry const *properties = NULL, uint32 duration = 0, Unit *summoner = NULL);
-        int32 irand(int32 min, int32 max)
-        {
-          return int32 (mtRand.randInt(max - min)) + min;
-        }
-
-        uint32 urand(uint32 min, uint32 max)
-        {
-          return mtRand.randInt(max - min) + min;
-        }
-
-        int32 rand32()
-        {
-          return mtRand.randInt();
-        }
-
-        double rand_norm(void)
-        {
-          return mtRand.randExc();
-        }
-
-        double rand_chance(void)
-        {
-          return mtRand.randExc(100.0);
-        }
-
         Creature* GetCreature(uint64 guid);
         GameObject* GetGameObject(uint64 guid);
         DynamicObject* GetDynamicObject(uint64 guid);

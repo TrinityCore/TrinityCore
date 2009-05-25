@@ -129,6 +129,8 @@ typedef uint32      DWORD;
 
 typedef uint64 OBJECT_HANDLE;
 
+#define MAP_BASED_RAND_GEN
+
 #define MaNGOS              Trinity
 #define MANGOS_DLL_DECL     TRINITY_DLL_DECL
 #define MANGOS_DLL_SPEC     TRINITY_DLL_SPEC
