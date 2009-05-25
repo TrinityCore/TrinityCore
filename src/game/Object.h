@@ -548,6 +548,14 @@ class TRINITY_DLL_SPEC WorldObject : public Object
         template<class NOTIFIER> void VisitNearbyWorldObject(const float &radius, NOTIFIER &notifier) const { GetMap()->VisitWorld(GetPositionX(), GetPositionY(), radius, notifier); }
         bool IsTempWorldObject;
 
+#ifdef MAP_BASED_RAND_GEN
+        int32 irand(int32 min, int32 max) const     { return int32 (GetMap()->mtRand.randInt(max - min)) + min; }
+        uint32 urand(uint32 min, uint32 max) const  { return GetMap()->mtRand.randInt(max - min) + min; }
+        int32 rand32() const                        { return GetMap()->mtRand.randInt(); }
+        double rand_norm() const                    { return GetMap()->mtRand.randExc(); }
+        double rand_chance() const                  { return GetMap()->mtRand.randExc(100.0); }
+#endif
+
     protected:
         explicit WorldObject();
         std::string m_name;
