@@ -361,7 +361,8 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
                     case 8115: // Agility
                     case 8091: // Armor
                         return SPELL_SCROLL;
-                    case 12880: // Enrage
+                    case 12880: // Enrage (Enrage)
+                    case 57518: // Enrage (Wrecking Crew)
                     case 12292: // Death Wish
                         return SPELL_WARRIOR_ENRAGE;
                 }
