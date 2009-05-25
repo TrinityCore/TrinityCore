@@ -104,6 +104,7 @@ void extractDataFromArchive(FILE* EntriesFile, std::string path, bool url, RawDa
     char revision_str[200];
 
     bool found = false;
+    fgets(buf,200,EntriesFile);
     while(fgets(buf,200,EntriesFile))
     {
         if(sscanf(buf,"%s %s",revision_str,hash_str)==2)
