@@ -33,7 +33,8 @@ UPDATE `creature_template` SET `ScriptName`='mob_archavon_warder' WHERE `entry`=
 #define EVENT_ROCK_SHARDS		 1  //15s cd
 #define EVENT_CHOKING_CLOUD		 2  //30s cd
 #define EVENT_STOMP              3  //45s cd
-#define EVENT_BERSERK            4  //300s cd 
+#define EVENT_IMPALE             4
+#define EVENT_BERSERK            5  //300s cd 
 
 //mob
 #define EVENT_ROCK_SHOWER		 5  //set = 20s cd,unkown cd
@@ -89,32 +90,27 @@ struct TRINITY_DLL_DECL boss_archavonAI : public ScriptedAI
             switch(eventId)
             {
                 case EVENT_ROCK_SHARDS:
-                {
                     if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                         DoCast(target, SPELL_ROCK_SHARDS);
                     events.ScheduleEvent(EVENT_ROCK_SHARDS, 15000);
                     return;
-                }
                 case EVENT_CHOKING_CLOUD:
-                {
                     if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                         DoCast(target, SPELL_CRUSHING_LEAP, true); //10y~80y, ignore range
                     events.ScheduleEvent(EVENT_CHOKING_CLOUD, 30000);
                     return;
-                }
                 case EVENT_STOMP:
-                {
-                    DoCast(me->getVictim(), SPELL_STOMP, true);
-                    DoCast(me->getVictim(), SPELL_IMPALE);
+                    DoCast(me->getVictim(), SPELL_STOMP);
+                    events.ScheduleEvent(EVENT_IMPALE, 3000);
                     events.ScheduleEvent(EVENT_STOMP, 45000);
                     return;
-                }
+                case EVENT_IMPALE:
+                    DoCast(me->getVictim(), SPELL_IMPALE);
+                    return;
                 case EVENT_BERSERK:
-                {
                     DoCast(m_creature, SPELL_BERSERK);
                     DoScriptText(EMOTE_BERSERK, m_creature);  
                     return;
-                }
             }
         }
 
