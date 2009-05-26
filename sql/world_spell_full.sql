@@ -515,6 +515,12 @@ INSERT INTO spell_target_position () VALUES (46019, 580, 1704.34, 928.17, -74.55
 INSERT INTO spell_target_position () VALUES (46020, 580, 1704.34, 928.17, 53.079, 0);
 INSERT INTO spell_target_position () VALUES (53360, 571, 5807.829, 587.960, 660.939, 1.663);
 
+-- positions for teleports in acherus
+DELETE FROM `spell_target_position` WHERE `id` IN (54744,54746);
+INSERT INTO `spell_target_position` (`id`, `target_map`, `target_position_x`, `target_position_y`, `target_position_z`, `target_orientation`) VALUES
+(54744, 0, 2418.67, -5621.41, 420.644, 3.89597),
+(54746, 0, 2402.15, -5633.74, 377.021, 3.65249);
+
 -- --------
 -- MISC
 -- --------
