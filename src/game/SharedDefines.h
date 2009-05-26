@@ -2405,7 +2405,7 @@ enum SummonCategory
     SUMMON_CATEGORY_WILD        = 0,
     SUMMON_CATEGORY_ALLY        = 1,
     SUMMON_CATEGORY_PET         = 2,
-    SUMMON_CATEGORY_POSSESSED   = 3,
+    SUMMON_CATEGORY_PUPPET      = 3,
     SUMMON_CATEGORY_VEHICLE     = 4,
 };
 
