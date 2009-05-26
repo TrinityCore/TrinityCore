@@ -592,7 +592,7 @@ void Map::RelocationNotify()
         if(unit->GetTypeId() == TYPEID_PLAYER)
         {
             Trinity::PlayerRelocationNotifier notifier(*((Player*)unit));
-            VisitAll(unit->GetPositionX(), unit->GetPositionY(), World::GetMaxVisibleDistance() + dist, notifier);
+            VisitAll(((Player*)unit)->m_seer->GetPositionX(), ((Player*)unit)->m_seer->GetPositionY(), World::GetMaxVisibleDistance() + dist, notifier);
             notifier.Notify();
         }
         else
@@ -677,12 +677,8 @@ void Map::Update(const uint32 &t_diff)
             }
         }
 
-        if(plr->m_seer != plr && !plr->hasUnitState(UNIT_STAT_ONVEHICLE))
-        {
-            Trinity::PlayerVisibilityNotifier notifier(*plr);
-            VisitAll(plr->m_seer->GetPositionX(), plr->m_seer->GetPositionY(), World::GetMaxVisibleDistance(), notifier);
-            notifier.Notify();
-        }
+        if(plr->m_seer != plr && !plr->m_Vehicle)
+            AddUnitToNotify(plr);
     }
 
     // non-player active objects
