@@ -1184,8 +1184,9 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
             }
 
             unit->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_HITBYSPELL);
-            if(m_customAttr & SPELL_ATTR_CU_AURA_CC)
-                unit->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CC);
+            //TODO: This is a hack. But we do not know what types of stealth should be interrupted by CC
+            if((m_customAttr & SPELL_ATTR_CU_AURA_CC) && unit->IsControlledByPlayer())
+                unit->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
         }
         else
         {
@@ -2466,7 +2467,17 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect* triggeredByAura
         // stealth must be removed at cast starting (at show channel bar)
         // skip triggered spell (item equip spell casting and other not explicit character casts/item uses)
         if(isSpellBreakStealth(m_spellInfo) )
+        {
             m_caster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CAST);
+            for(uint32 i = 0; i < 3; ++i)
+            {
+                if(spellmgr.EffectTargetType[m_spellInfo->Effect[i]] == SPELL_REQUIRE_UNIT)
+                {
+                    m_caster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_SPELL_ATTACK);
+                    break;
+                }
+            }
+        }
 
         m_caster->SetCurrentCastedSpell( this );
         m_selfContainer = &(m_caster->m_currentSpells[GetCurrentContainer()]);
