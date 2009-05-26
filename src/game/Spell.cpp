@@ -1128,10 +1128,12 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
 
             // cast at creature (or GO) quest objectives update at successful cast finished (+channel finished)
             // ignore pets or autorepeat/melee casts for speed (not exist quest for spells (hm... )
-            if(!((Creature*)spellHitTarget)->isPet() && !IsAutoRepeat() && !IsNextMeleeSwingSpell() && !IsChannelActive() )
+            if(m_originalCaster && m_originalCaster->IsControlledByPlayer() && !((Creature*)spellHitTarget)->isPet() && !IsAutoRepeat() && !IsNextMeleeSwingSpell() && !IsChannelActive() )
             {
-                if ( Player* p = m_caster->GetCharmerOrOwnerPlayerOrPlayerItself() )
+                if ( Player* p = m_originalCaster->GetCharmerOrOwnerPlayerOrPlayerItself() )
+                {
                     p->CastedCreatureOrGO(spellHitTarget->GetEntry(),spellHitTarget->GetGUID(),m_spellInfo->Id);
+                }
             }
         }
 
@@ -1379,9 +1381,9 @@ void Spell::DoAllEffectOnTarget(GOTargetInfo *target)
 
     // cast at creature (or GO) quest objectives update at successful cast finished (+channel finished)
     // ignore autorepeat/melee casts for speed (not exist quest for spells (hm... )
-    if( !IsAutoRepeat() && !IsNextMeleeSwingSpell() && !IsChannelActive() )
+    if(m_originalCaster && m_originalCaster->IsControlledByPlayer() && !IsAutoRepeat() && !IsNextMeleeSwingSpell() && !IsChannelActive() )
     {
-        if ( Player* p = m_caster->GetCharmerOrOwnerPlayerOrPlayerItself() )
+        if ( Player* p = m_originalCaster->GetCharmerOrOwnerPlayerOrPlayerItself() )
             p->CastedCreatureOrGO(go->GetEntry(),go->GetGUID(),m_spellInfo->Id);
     }
 }
