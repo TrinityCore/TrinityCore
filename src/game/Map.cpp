@@ -2707,7 +2707,12 @@ void BattleGroundMap::UnloadAll()
 Creature*
 Map::GetCreature(uint64 guid)
 {
-    Creature * ret = ObjectAccessor::GetObjectInWorld(guid, (Creature*)NULL);
+    Creature * ret = NULL;
+    if(IS_CREATURE_GUID(guid))
+        ret = ObjectAccessor::GetObjectInWorld(guid, (Creature*)NULL);
+    else if(IS_VEHICLE_GUID(guid))
+        ret = ObjectAccessor::GetObjectInWorld(guid, (Vehicle*)NULL);
+
     if(!ret)
         return NULL;
 
