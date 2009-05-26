@@ -303,7 +303,11 @@ bool IsPassiveSpell(uint32 spellId)
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
     if (!spellInfo)
         return false;
-    return (spellInfo->Attributes & SPELL_ATTR_PASSIVE) != 0;
+    if(spellInfo->Attributes & SPELL_ATTR_PASSIVE)
+        return true;
+    if(spellInfo->activeIconID == 2158)  //flight
+        return true;
+    return false;
 }
 
 bool IsAutocastableSpell(uint32 spellId)
@@ -312,6 +316,8 @@ bool IsAutocastableSpell(uint32 spellId)
     if(!spellInfo)
         return false;
     if(spellInfo->Attributes & SPELL_ATTR_PASSIVE)
+        return false;
+    if(spellInfo->activeIconID == 2158)
         return false;
     if(spellInfo->AttributesEx & SPELL_ATTR_EX_UNAUTOCASTABLE_BY_PET)
         return false;

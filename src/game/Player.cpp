@@ -16909,7 +16909,7 @@ void Player::VehicleSpellInitialize()
         if(!spellInfo)
             continue;
 
-        if(IsPassiveSpell(spellId) || spellInfo->activeIconID == 2158) //flight
+        if(IsPassiveSpell(spellId))
         {
             charm->CastSpell(charm, spellId, true);
             data << uint16(0) << uint8(0) << uint8(i+8);
