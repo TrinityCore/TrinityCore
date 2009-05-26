@@ -320,14 +320,12 @@ Puppet::Puppet(SummonPropertiesEntry const *properties, Unit *owner) : Minion(pr
     assert(owner->GetTypeId() == TYPEID_PLAYER);
     m_owner = (Player*)owner;
     m_summonMask |= SUMMON_MASK_PUPPET;
-    InitCharmInfo();
 }
 
 void Puppet::InitStats(uint32 duration)
 {
     Minion::InitStats(duration);
-
-    m_charmInfo->InitPossessCreateSpells();
+    SetLevel(m_owner->getLevel());
     SetReactState(REACT_PASSIVE);
 }
 
@@ -343,6 +341,8 @@ void Puppet::Update(uint32 time)
     //check if caster is channelling?
     if(IsInWorld())
     {
+        if(!isAlive())
+            UnSummon();
     }
 }
 
