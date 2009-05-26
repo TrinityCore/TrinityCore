@@ -2985,21 +2985,11 @@ void Spell::finish(bool ok)
     // Unsummon summon as possessed creatures on spell cancel
     if(IsChanneledSpell(m_spellInfo) && m_caster->GetTypeId() == TYPEID_PLAYER)
     {
-        if (Unit * charm = m_caster->GetCharm())
-        for(int i = 0; i < 3; ++i)
-        {
-            if(m_spellInfo->Effect[i] == SPELL_EFFECT_SUMMON)
-                if(SummonPropertiesEntry const *SummonProperties = sSummonPropertiesStore.LookupEntry(m_spellInfo->EffectMiscValueB[i]))
-                    if(SummonProperties->Category == SUMMON_CATEGORY_POSSESSED)
-                    {
-                        if(charm->GetTypeId() == TYPEID_UNIT)
-                        {
-                            if(((Creature*)charm)->isPet() && ((Pet*)charm)->getPetType() == POSSESSED_PET)
-                                ((Pet*)charm)->Remove(PET_SAVE_AS_DELETED);
-                                    break;
-                        }
-                    }
-        }
+        if(Unit *charm = m_caster->GetCharm())
+            if(charm->GetTypeId() == TYPEID_UNIT
+                && ((Creature*)charm)->HasSummonMask(SUMMON_MASK_PUPPET)
+                && charm->GetUInt32Value(UNIT_CREATED_BY_SPELL) == m_spellInfo->Id)
+                ((Puppet*)charm)->UnSummon();
     }
 
     // other code related only to successfully finished spells
@@ -4544,7 +4534,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                     case SUMMON_CATEGORY_PET:
                         if(m_caster->GetPetGUID())
                             return SPELL_FAILED_ALREADY_HAVE_SUMMON;
-                    case SUMMON_CATEGORY_POSSESSED:
+                    case SUMMON_CATEGORY_PUPPET:
                         if(m_caster->GetCharmGUID())
                             return SPELL_FAILED_ALREADY_HAVE_CHARM;
                         break;

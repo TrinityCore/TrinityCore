@@ -16643,15 +16643,7 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
     }
 
     // only if current pet in slot
-    switch(pet->getPetType())
-    {
-        case POSSESSED_PET:
-            pet->RemoveCharmedOrPossessedBy(NULL);
-            break;
-        default:
-            pet->SavePetToDB(mode);
-            break;
-    }
+    pet->SavePetToDB(mode);
 
     SetMinion(pet, false);
 
@@ -16681,8 +16673,8 @@ void Player::StopCastingCharm()
 
     if(charm->GetTypeId() == TYPEID_UNIT)
     {
-        if(((Creature*)charm)->isPet() && ((Pet*)charm)->getPetType() == POSSESSED_PET)
-            ((Pet*)charm)->Remove(PET_SAVE_AS_DELETED);
+        if(((Creature*)charm)->HasSummonMask(SUMMON_MASK_PUPPET))
+            ((Puppet*)charm)->UnSummon();
     }
     if(GetCharmGUID())
     {

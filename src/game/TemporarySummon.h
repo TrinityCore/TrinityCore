@@ -71,5 +71,17 @@ class Guardian : public Minion
         int32   m_bonusdamage;
 };
 
+class Puppet : public Minion
+{
+    public:
+        Puppet(SummonPropertiesEntry const *properties, Unit *owner);
+        void InitStats(uint32 duration);
+        void InitSummon();
+        void Update(uint32 time);
+        void RemoveFromWorld();
+    protected:
+        Player *m_owner;
+};
+
 #endif
 

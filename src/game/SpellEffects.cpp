@@ -3367,23 +3367,9 @@ void Spell::EffectSummonType(uint32 i)
         case SUMMON_CATEGORY_PET:
             SummonGuardian(entry, properties);
             break;
-        case SUMMON_CATEGORY_POSSESSED:
-        {
-            if(m_caster->GetTypeId() != TYPEID_PLAYER)
-                return;
-
-            float x, y, z;
-            m_caster->GetClosePoint(x, y, z, DEFAULT_WORLD_OBJECT_SIZE);
-
-            int32 duration = GetSpellDuration(m_spellInfo);
-
-            Pet* pet = ((Player*)m_caster)->SummonPet(entry, x, y, z, m_caster->GetOrientation(), POSSESSED_PET, duration);
-            if(!pet)
-                return;
-
-            pet->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
+        case SUMMON_CATEGORY_PUPPET:
+            summon = m_caster->GetMap()->SummonCreature(entry, x, y, z, m_caster->GetOrientation(), properties, duration, m_originalCaster);
             break;
-        }
         case SUMMON_CATEGORY_VEHICLE:
         {
             float x, y, z;
@@ -4877,6 +4863,21 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     m_originalCaster->CastSpell(m_originalCaster, damage, false);
                     break;
                 }
+                // Summon Ghouls On Scarlet Crusade
+                case 51904:
+                {
+                    if(!m_targets.HasDst())
+                        return;
+
+                    float x, y, z;
+                    float radius = GetSpellRadius(m_spellInfo, effIndex, true);
+                    for(uint32 i = 0; i < 15; ++i)
+                    {
+                        m_caster->GetRandomPoint(m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ, radius, x, y, z);
+                        m_caster->CastSpell(x, y, z, 54522, true);
+                    }
+                    break;
+                }                
                 // Death Gate
                 case 52751:
                 {
