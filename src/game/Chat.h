@@ -574,6 +574,7 @@ class ChatHandler
 
         // if args have single value then it return in arg2 and arg1 == NULL
         void      extractOptFirstArg(char* args, char** arg1, char** arg2);
+        char*     extractQuotedArg(char* args);
 
         uint32    extractSpellIdFromLink(char* text);
         uint64    extractGuidFromLink(char* text);
