@@ -8470,7 +8470,7 @@ void Unit::SetCharm(Unit* charm, bool apply)
         if(!charm->RemoveUInt64Value(UNIT_FIELD_CHARMEDBY, GetGUID()))
             sLog.outCrash("Unit %u is being uncharmed, but it has another charmer %u", charm->GetEntry(), charm->GetCharmerGUID());
 
-        if(!charm->GetOwnerGUID() == GetGUID())
+        if(charm->GetOwnerGUID() != GetGUID())
             m_Controlled.erase(charm);
     }
 }
@@ -10421,7 +10421,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
             return;
         case MOVE_FLIGHT:
         {
-            if (GetTypeId()==TYPEID_UNIT && ((Creature*)this)->isVehicle())
+            if (GetTypeId()==TYPEID_UNIT && IsControlledByPlayer()) // not sure if good for pet
             {
                 main_speed_mod  = GetMaxPositiveAuraModifier(SPELL_AURA_MOD_INCREASE_VEHICLE_FLIGHT_SPEED);
                 stack_bonus     = GetTotalAuraMultiplier(SPELL_AURA_MOD_VEHICLE_SPEED_ALWAYS);
@@ -10429,7 +10429,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
                 // for some spells this mod is applied on vehicle owner
                 uint32 owner_speed_mod = 0;
 
-                if (Unit * owner = ((Vehicle*)this)->GetCharmer())
+                if (Unit * owner = GetCharmer())
                     uint32 owner_speed_mod  = owner->GetMaxPositiveAuraModifier(SPELL_AURA_MOD_INCREASE_VEHICLE_FLIGHT_SPEED);
 
                 main_speed_mod = main_speed_mod>owner_speed_mod ? main_speed_mod : owner_speed_mod;
