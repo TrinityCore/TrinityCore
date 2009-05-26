@@ -96,6 +96,47 @@ void extractDataFromHG(FILE* EntriesFile, std::string path, bool url, RawData& d
     strcpy(data.time_str,"*");
 }
 
+void extractDataFromArchive(FILE* EntriesFile, std::string path, bool url, RawData& data)
+{
+    char buf[200];
+
+    char hash_str[200];
+    char revision_str[200];
+
+    bool found = false;
+    fgets(buf,200,EntriesFile);
+    while(fgets(buf,200,EntriesFile))
+    {
+        if(sscanf(buf,"%s %s",revision_str,hash_str)==2)
+        {
+            found = true;
+            break;
+        }
+    }
+
+    if(!found)
+    {
+        strcpy(data.hash_str,"*");
+        strcpy(data.rev_str,"*");
+        strcpy(data.date_str,"*");
+        strcpy(data.time_str,"*");
+        return;
+    }
+
+    char thash_str[200];
+    for(int i = 11;i >= 0; --i)
+    {
+        thash_str[i] = hash_str[i];
+    }
+    thash_str[12] = '\0';
+
+    strcpy(data.hash_str,thash_str);
+    strcpy(data.rev_str,"Archive");
+
+    strcpy(data.date_str,"*");
+    strcpy(data.time_str,"*");
+}
+
 void extractDataFromGit(FILE* EntriesFile, std::string path, bool url, RawData& data)
 {
     char buf[200];
@@ -241,6 +282,17 @@ bool extractDataFromHG(std::string filename, std::string path, bool url, RawData
     return true;
 }
 
+bool extractDataFromArchive(std::string filename, std::string path, bool url, RawData& data)
+{
+    FILE* EntriesFile = fopen(filename.c_str(), "r");
+    if(!EntriesFile)
+        return false;
+
+    extractDataFromArchive(EntriesFile,path,url,data);
+    fclose(EntriesFile);
+    return true;
+}
+
 std::string generateHeader(char const* rev_str, char const* date_str, char const* time_str, char const* hash_str)
 {
     std::ostringstream newData;
@@ -339,6 +391,11 @@ int main(int argc, char **argv)
                 res = extractDataFromGit(path+".git/FETCH_HEAD",path,use_url,data);
             if (!res)
                 res = extractDataFromGit(path+"_git/FETCH_HEAD",path,use_url,data);
+            // Archive data
+            if (!res)
+                res = extractDataFromArchive(path+".hg_archival.txt",path,use_url,data);
+            if (!res)
+                res = extractDataFromArchive(path+"_hg_archival.txt",path,use_url,data);
         }
         else if(git_prefered)
         {
@@ -360,6 +417,11 @@ int main(int argc, char **argv)
                 res = extractDataFromSvn(path+".svn/entries",use_url,data);
             if (!res)
                 res = extractDataFromSvn(path+"_svn/entries",use_url,data);
+            // Archive data
+            if (!res)
+                res = extractDataFromArchive(path+".hg_archival.txt",path,use_url,data);
+            if (!res)
+                res = extractDataFromArchive(path+"_hg_archival.txt",path,use_url,data);
         }
 
         else if(hg_prefered)
@@ -382,7 +444,13 @@ int main(int argc, char **argv)
                 res = extractDataFromGit(path+".git/FETCH_HEAD",path,use_url,data);
             if (!res)
                 res = extractDataFromGit(path+"_git/FETCH_HEAD",path,use_url,data);
+            // Archive data
+            if (!res)
+                res = extractDataFromArchive(path+".hg_archival.txt",path,use_url,data);
+            if (!res)
+                res = extractDataFromArchive(path+"_hg_archival.txt",path,use_url,data);
         }
+
         if(res)
             newData = generateHeader(data.rev_str,data.date_str,data.time_str,data.hash_str);
         else
