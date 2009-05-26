@@ -240,7 +240,7 @@ bool SpellCastTargets::read ( WorldPacket * data, Unit *caster )
     //data->hexlike();
 
     *data >> m_targetMask;
-    sLog.outDebug("Spell read, target mask = %u", m_targetMask);
+    //sLog.outDebug("Spell read, target mask = %u", m_targetMask);
 
     if(m_targetMask == TARGET_FLAG_SELF)
         return true;
@@ -301,7 +301,7 @@ bool SpellCastTargets::read ( WorldPacket * data, Unit *caster )
 void SpellCastTargets::write ( WorldPacket * data )
 {
     *data << uint32(m_targetMask);
-    sLog.outDebug("Spell write, target mask = %u", m_targetMask);
+    //sLog.outDebug("Spell write, target mask = %u", m_targetMask);
 
     if( m_targetMask & ( TARGET_FLAG_UNIT | TARGET_FLAG_PVP_CORPSE | TARGET_FLAG_OBJECT | TARGET_FLAG_CORPSE | TARGET_FLAG_UNK2 ) )
     {
@@ -1421,7 +1421,7 @@ bool Spell::UpdateChanneledTargetList()
             {
                 if (needAuraMask & ihit->effectMask)
                 {
-                    if(Aura * aur = unit->GetAura(m_spellInfo->Id, m_caster->GetGUID()))
+                    if(Aura * aur = unit->GetAura(m_spellInfo->Id, m_originalCasterGUID))
                     {
                         float range = m_caster->GetSpellMaxRangeForTarget(unit,GetSpellRangeStore()->LookupEntry(m_spellInfo->rangeIndex));
                         if(Player * modOwner = m_caster->GetSpellModOwner())
@@ -2172,7 +2172,9 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
             {
                 sLog.outDebug("Spell (ID: %u) (caster Entry: %u) does not have record in `spell_script_target`", m_spellInfo->Id, m_caster->GetEntry());
 
-                if(IsPositiveEffect(m_spellInfo->Id, i))
+                if(m_spellInfo->Effect[i] == SPELL_EFFECT_TELEPORT_UNITS)
+                    SearchAreaTarget(unitList, radius, pushType, SPELL_TARGETS_ENTRY, 0);
+                else if(IsPositiveEffect(m_spellInfo->Id, i))
                     SearchAreaTarget(unitList, radius, pushType, SPELL_TARGETS_ALLY);
                 else
                     SearchAreaTarget(unitList, radius, pushType, SPELL_TARGETS_ENEMY);
@@ -2449,8 +2451,11 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect* triggeredByAura
 
     // set timer base at cast time
     ReSetTimer();
-                             //Containers for channeled spells have to be set
-                             //TODO:Apply this to all casted spells if needed
+
+    sLog.outDebug("Spell::prepare: spell id %u source %u caster %d target %d triggered %u", m_spellInfo->Id, m_caster->GetEntry(), m_originalCaster ? m_originalCaster->GetEntry() : -1, m_targets.getUnitTarget() ? m_targets.getUnitTarget()->GetEntry() : -1, m_IsTriggeredSpell ? 1 : 0);
+
+    //Containers for channeled spells have to be set
+    //TODO:Apply this to all casted spells if needed
     // Why check duration? 29350: channelled triggers channelled
     if(m_IsTriggeredSpell && (!IsChanneledSpell(m_spellInfo) || !GetSpellMaxDuration(m_spellInfo)))
         cast(true);
@@ -2502,10 +2507,10 @@ void Spell::cancel()
                 {
                     Unit* unit = m_caster->GetGUID()==(*ihit).targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, ihit->targetGUID);
                     if( unit && unit->isAlive() )
-                        unit->RemoveAurasDueToSpell(m_spellInfo->Id, m_caster->GetGUID(), AURA_REMOVE_BY_CANCEL);
+                        unit->RemoveAurasDueToSpell(m_spellInfo->Id, m_originalCasterGUID, AURA_REMOVE_BY_CANCEL);
                 }
             }
-            m_caster->RemoveAurasDueToSpell(m_spellInfo->Id, m_caster->GetGUID(), AURA_REMOVE_BY_CANCEL);
+            m_caster->RemoveAurasDueToSpell(m_spellInfo->Id, m_originalCasterGUID, AURA_REMOVE_BY_CANCEL);
             SendChannelUpdate(0);
             SendInterrupted(0);
             SendCastResult(SPELL_FAILED_INTERRUPTED);
@@ -3117,7 +3122,7 @@ void Spell::SendSpellStart()
     if(!IsNeedSendToClient())
         return;
 
-    sLog.outDebug("Sending SMSG_SPELL_START id=%u", m_spellInfo->Id);
+    //sLog.outDebug("Sending SMSG_SPELL_START id=%u", m_spellInfo->Id);
 
     uint32 castFlags = CAST_FLAG_UNKNOWN1;
     if(m_spellInfo->Attributes & SPELL_ATTR_REQ_AMMO)
@@ -3159,7 +3164,7 @@ void Spell::SendSpellGo()
     if(!IsNeedSendToClient())
         return;
 
-    sLog.outDebug("Sending SMSG_SPELL_GO id=%u", m_spellInfo->Id);
+    //sLog.outDebug("Sending SMSG_SPELL_GO id=%u", m_spellInfo->Id);
 
     uint32 castFlags = CAST_FLAG_UNKNOWN3;
     if(m_spellInfo->Attributes & SPELL_ATTR_REQ_AMMO)
