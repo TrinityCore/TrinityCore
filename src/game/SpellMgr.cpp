@@ -1963,57 +1963,6 @@ void SpellMgr::LoadSpellPetAuras()
     sLog.outString( ">> Loaded %u spell pet auras", count );
 }
 
-static uint32 family2skillline[MAX_CREATURE_FAMILY][2] = {
-    /* ----------------------------- = 0 */ {0,   0  },
-    /*CREATURE_FAMILY_WOLF           = 1 */ {208, 270},
-    /*CREATURE_FAMILY_CAT            = 2 */ {209, 270},
-    /*CREATURE_FAMILY_SPIDER         = 3 */ {203, 270},
-    /*CREATURE_FAMILY_BEAR           = 4 */ {210, 270},
-    /*CREATURE_FAMILY_BOAR           = 5 */ {211, 270},
-    /*CREATURE_FAMILY_CROCOLISK      = 6 */ {212, 270},
-    /*CREATURE_FAMILY_CARRION_BIRD   = 7 */ {213, 270},
-    /*CREATURE_FAMILY_CRAB           = 8 */ {214, 270},
-    /*CREATURE_FAMILY_GORILLA        = 9 */ {215, 270},
-    /*CREATURE_FAMILY_HORSE_CUSTOM   = 10*/ {0,   0  },
-    /*CREATURE_FAMILY_RAPTOR         = 11*/ {217, 270},
-    /*CREATURE_FAMILY_TALLSTRIDER    = 12*/ {218, 270},
-    /* ----------------------------- = 13*/ {0,   0  },
-    /* ----------------------------- = 14*/ {0,   0  },
-    /*CREATURE_FAMILY_FELHUNTER      = 15*/ {189, 0  },
-    /*CREATURE_FAMILY_VOIDWALKER     = 16*/ {204, 0  },
-    /*CREATURE_FAMILY_SUCCUBUS       = 17*/ {205, 0  },
-    /* ----------------------------- = 18*/ {0,   0  },
-    /*CREATURE_FAMILY_DOOMGUARD      = 19*/ {207, 0  },
-    /*CREATURE_FAMILY_SCORPID        = 20*/ {236, 270},
-    /*CREATURE_FAMILY_TURTLE         = 21*/ {251, 270},
-    /* ----------------------------- = 22*/ {0,   0  },
-    /*CREATURE_FAMILY_IMP            = 23*/ {188, 0  },
-    /*CREATURE_FAMILY_BAT            = 24*/ {653, 270},
-    /*CREATURE_FAMILY_HYENA          = 25*/ {654, 270},
-    /*CREATURE_FAMILY_BIRD_OF_PREY   = 26*/ {655, 270},
-    /*CREATURE_FAMILY_WIND_SERPENT   = 27*/ {656, 270},
-    /*CREATURE_FAMILY_REMOTE_CONTROL = 28*/ {758, 0  },
-    /*CREATURE_FAMILY_FELGUARD       = 29*/ {761, 0  },
-    /*CREATURE_FAMILY_DRAGONHAWK     = 30*/ {763, 270},
-    /*CREATURE_FAMILY_RAVAGER        = 31*/ {767, 270},
-    /*CREATURE_FAMILY_WARP_STALKER   = 32*/ {766, 270},
-    /*CREATURE_FAMILY_SPOREBAT       = 33*/ {765, 270},
-    /*CREATURE_FAMILY_NETHER_RAY     = 34*/ {764, 270},
-    /*CREATURE_FAMILY_SERPENT        = 35*/ {768, 270},
-    /* ----------------------------- = 36*/ {0,   0  },
-    /*CREATURE_FAMILY_MOTH           = 37*/ {775, 270},
-    /*CREATURE_FAMILY_CHIMAERA       = 38*/ {780, 270},
-    /*CREATURE_FAMILY_DEVILSAUR      = 39*/ {781, 270},
-    /*CREATURE_FAMILY_GHOUL          = 40*/ {782, 0  },
-    /*CREATURE_FAMILY_SILITHID       = 41*/ {783, 270},
-    /*CREATURE_FAMILY_WORM           = 42*/ {784, 270},
-    /*CREATURE_FAMILY_RHINO          = 43*/ {786, 270},
-    /*CREATURE_FAMILY_WASP           = 44*/ {785, 270},
-    /*CREATURE_FAMILY_CORE_HOUND     = 45*/ {787, 270},
-    /*CREATURE_FAMILY_SPIRIT_BEAST   = 46*/ {788, 270}
-};
-
-/// Some checks for spells, to prevent adding depricated/broken spells for trainers, spell book, etc
 void SpellMgr::LoadPetLevelupSpellMap()
 {
     mPetLevelupSpellMap.clear();                                   // need for reload case
@@ -2037,6 +1986,10 @@ void SpellMgr::LoadPetLevelupSpellMap()
                 SkillLineAbilityEntry const *skillLine = sSkillLineAbilityStore.LookupEntry(k);
                 if( !skillLine )
                     continue;
+
+                //if (skillLine->skillId!=creatureFamily->skillLine[0] &&
+                //    (!creatureFamily->skillLine[1] || skillLine->skillId!=creatureFamily->skillLine[1]))
+                //    continue;
 
                 if (skillLine->skillId!=creatureFamily->skillLine[j])
                     continue;

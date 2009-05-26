@@ -48,7 +48,7 @@ LootStore LootTemplates_Prospecting(  "prospecting_loot_template",  "item entry 
 LootStore LootTemplates_QuestMail(    "quest_mail_loot_template",   "quest id (with mail template)",false);
 LootStore LootTemplates_Reference(    "reference_loot_template",    "reference id",                 false);
 LootStore LootTemplates_Skinning(     "skinning_loot_template",     "creature skinning id",         true);
-LootStore LootTemplates_Spell(        "spell_loot_template",        "spell id (explicitly discovering ability)",false);
+LootStore LootTemplates_Spell(        "spell_loot_template",        "spell id (random item creating)",false);
 
 
 class LootTemplate::LootGroup                               // A set of loot definitions for items (refs are not allowed)
