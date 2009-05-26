@@ -8470,7 +8470,9 @@ void Unit::SetCharm(Unit* charm, bool apply)
         if(!charm->RemoveUInt64Value(UNIT_FIELD_CHARMEDBY, GetGUID()))
             sLog.outCrash("Unit %u is being uncharmed, but it has another charmer %u", charm->GetEntry(), charm->GetCharmerGUID());
 
-        if(charm->GetOwnerGUID() != GetGUID())
+        if(charm->GetTypeId() == TYPEID_PLAYER
+            || !((Creature*)charm)->HasSummonMask(SUMMON_MASK_MINION)
+            || charm->GetOwnerGUID() != GetGUID())
             m_Controlled.erase(charm);
     }
 }
