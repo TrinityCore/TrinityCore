@@ -398,7 +398,9 @@ void GameObject::Update(uint32 /*p_time*/)
                     for (; it != end; it++)
                     {
                         Unit* owner = Unit::GetUnit(*this, uint64(*it));
-                        if (owner) owner->CastSpell(owner, spellId, false, 0, 0, GetGUID());
+                        // For now we do not support go cast
+                        //if (owner) owner->CastSpell(owner, spellId, false, 0, 0, GetGUID());
+                        if (owner) owner->CastSpell(owner, spellId, false);
                     }
 
                     m_unique_users.clear();
