@@ -1696,6 +1696,22 @@ void ChatHandler::extractOptFirstArg(char* args, char** arg1, char** arg2)
         *arg2 = p2;
 }
 
+char* ChatHandler::extractQuotedArg( char* args )
+{
+    if(!*args)
+        return NULL;
+
+    if(*args=='"')
+        return strtok(args+1, "\"");
+    else
+    {
+        char* space = strtok(args, "\"");
+        if(!space)
+            return false;
+        return strtok(NULL, "\"");
+    }
+}
+
 bool ChatHandler::needReportToTarget(Player* chr) const
 {
     Player* pl = m_session->GetPlayer();
