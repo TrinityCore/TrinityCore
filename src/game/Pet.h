@@ -29,7 +29,6 @@ enum PetType
 {
     SUMMON_PET              = 0,
     HUNTER_PET              = 1,
-    POSSESSED_PET           = 2,
     MAX_PET_TYPE            = 4,
 };
 

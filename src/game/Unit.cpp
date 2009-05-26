@@ -8341,7 +8341,7 @@ void Unit::SetMinion(Minion *minion, bool apply)
             }
         }
 
-        //if(minion->HasSummonMask(SUMMON_MASK_GUARDIAN))
+        if(minion->HasSummonMask(SUMMON_MASK_GUARDIAN))
         {
             if(AddUInt64Value(UNIT_FIELD_SUMMON, minion->GetGUID()))
             {
@@ -8470,7 +8470,8 @@ void Unit::SetCharm(Unit* charm, bool apply)
         if(!charm->RemoveUInt64Value(UNIT_FIELD_CHARMEDBY, GetGUID()))
             sLog.outCrash("Unit %u is being uncharmed, but it has another charmer %u", charm->GetEntry(), charm->GetCharmerGUID());
 
-        m_Controlled.erase(charm);
+        if(!charm->GetOwnerGUID() == GetGUID())
+            m_Controlled.erase(charm);
     }
 }
 

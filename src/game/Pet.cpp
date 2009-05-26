@@ -51,9 +51,6 @@ m_declinedname(NULL), m_owner(owner)
     m_regenTimer = 4000;
 
     owner->SetPetAtLoginFlag(0);
-
-    if(type == POSSESSED_PET)                                    // always passive
-        SetReactState(REACT_PASSIVE);
 }
 
 Pet::~Pet()
