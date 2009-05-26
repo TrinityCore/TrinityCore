@@ -1107,7 +1107,7 @@ bool ChatHandler::HandleModifyHPCommand(const char* args)
         return false;
     }
 
-    Player *chr = getSelectedPlayer();
+    Unit *chr = getSelectedUnit();
     if (chr == NULL)
     {
         SendSysMessage(LANG_NO_CHAR_SELECTED);
@@ -1116,12 +1116,12 @@ bool ChatHandler::HandleModifyHPCommand(const char* args)
     }
 
     // check online security
-    if (HasLowerSecurity(chr, 0))
+    if (chr->GetTypeId() == TYPEID_PLAYER && HasLowerSecurity((Player*)chr, 0))
         return false;
 
-    PSendSysMessage(LANG_YOU_CHANGE_HP, GetNameLink(chr).c_str(), hp, hpm);
-    if (needReportToTarget(chr))
-        ChatHandler(chr).PSendSysMessage(LANG_YOURS_HP_CHANGED, GetNameLink().c_str(), hp, hpm);
+    PSendSysMessage(LANG_YOU_CHANGE_HP, GetNameLink((Player*)chr).c_str(), hp, hpm);
+    if (chr->GetTypeId() == TYPEID_PLAYER && needReportToTarget((Player*)chr))
+        ChatHandler((Player*)chr).PSendSysMessage(LANG_YOURS_HP_CHANGED, GetNameLink().c_str(), hp, hpm);
 
     chr->SetMaxHealth( hpm );
     chr->SetHealth( hp );
