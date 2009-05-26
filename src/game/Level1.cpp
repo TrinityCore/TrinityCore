@@ -2380,17 +2380,7 @@ bool ChatHandler::HandleSendMailCommand(const char* args)
     if(!tail1)
         return false;
 
-    char* msgSubject;
-    if(*tail1=='"')
-        msgSubject = strtok(tail1+1, "\"");
-    else
-    {
-        char* space = strtok(tail1, "\"");
-        if(!space)
-            return false;
-        msgSubject = strtok(NULL, "\"");
-    }
-
+    char* msgSubject = extractQuotedArg(tail1);
     if (!msgSubject)
         return false;
 
@@ -2398,17 +2388,7 @@ bool ChatHandler::HandleSendMailCommand(const char* args)
     if(!tail2)
         return false;
 
-    char* msgText;
-    if(*tail2=='"')
-        msgText = strtok(tail2+1, "\"");
-    else
-    {
-        char* space = strtok(tail2, "\"");
-        if(!space)
-            return false;
-        msgText = strtok(NULL, "\"");
-    }
-
+    char* msgText = extractQuotedArg(tail2);
     if (!msgText)
         return false;
 
