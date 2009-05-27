@@ -73,14 +73,24 @@ void CreatureAI::DoZoneInCombat(Creature* creature)
         return;
     }
 
-    Map::PlayerList const &PlayerList = map->GetPlayers();
-    for(Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+    Map::PlayerList const &PlList = map->GetPlayers();
+
+    if(PlList.isEmpty())
+        return;
+
+    for(Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
     {
-        if (i->getSource()->isAlive())
+        if(Player* pPlayer = i->getSource())
         {
-            creature->SetInCombatWith(i->getSource());
-            i->getSource()->SetInCombatWith(creature);
-            creature->AddThreat(i->getSource(), 0.0f);
+            if(pPlayer->isGameMaster())
+                continue;
+
+            if(pPlayer->isAlive())
+            {
+                creature->SetInCombatWith(pPlayer);
+                pPlayer->SetInCombatWith(creature);
+                creature->AddThreat(pPlayer, 0.0f);
+            }
         }
     }
 }
