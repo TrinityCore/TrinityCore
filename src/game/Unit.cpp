@@ -13626,16 +13626,16 @@ void Unit::RestoreFaction()
         ((Player*)this)->setFactionForRace(getRace());
     else
     {
-        CreatureInfo const *cinfo = ((Creature*)this)->GetCreatureInfo();
-
-        if(((Creature*)this)->isPet())
+        if(((Creature*)this)->HasSummonMask(SUMMON_MASK_MINION))
         {
             if(Unit* owner = GetOwner())
+            {
                 setFaction(owner->getFaction());
-            else if(cinfo)
-                setFaction(cinfo->faction_A);
+                return;
+            }
         }
-        else if(cinfo)  // normal creature
+
+        if(CreatureInfo const *cinfo = ((Creature*)this)->GetCreatureInfo())  // normal creature
             setFaction(cinfo->faction_A);
     }
 }
