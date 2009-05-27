@@ -118,8 +118,11 @@ enum InventoryChangeFailure
     EQUIP_ERR_TOO_MUCH_GOLD                      = 77,
     EQUIP_ERR_NOT_DURING_ARENA_MATCH             = 78,
     EQUIP_ERR_CANNOT_TRADE_THAT                  = 79,
-    EQUIP_ERR_PERSONAL_ARENA_RATING_TOO_LOW      = 80
-    // probably exist more
+    EQUIP_ERR_PERSONAL_ARENA_RATING_TOO_LOW      = 80,
+    // no output                                 = 81,
+    EQUIP_ERR_ARTEFACTS_ONLY_FOR_OWN_CHARACTERS  = 82,
+    // no output                                 = 83,
+    // crash client                              = 84,
 };
 
 enum BuyFailure

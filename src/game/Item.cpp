@@ -701,16 +701,16 @@ bool Item::IsEquipped() const
 
 bool Item::CanBeTraded() const
 {
-    if(IsSoulBound())
+    if (IsSoulBound())
         return false;
-    if(IsBag() && (Player::IsBagPos(GetPos()) || !((Bag const*)this)->IsEmpty()) )
+    if (IsBag() && (Player::IsBagPos(GetPos()) || !((Bag const*)this)->IsEmpty()) )
         return false;
 
-    if(Player* owner = GetOwner())
+    if (Player* owner = GetOwner())
     {
-        if(owner->CanUnequipItem(GetPos(),false) !=  EQUIP_ERR_OK )
+        if (owner->CanUnequipItem(GetPos(),false) !=  EQUIP_ERR_OK )
             return false;
-        if(owner->GetLootGUID()==GetGUID())
+        if (owner->GetLootGUID()==GetGUID())
             return false;
     }
 
