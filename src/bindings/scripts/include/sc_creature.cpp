@@ -644,6 +644,16 @@ void BossAI::_EnterCombat()
         instance->SetBossState(bossId, IN_PROGRESS);
 }
 
+void BossAI::TeleportCheaters()
+{
+    float x, y, z;
+    me->GetPosition(x, y, z);
+    std::list<HostilReference*> &m_threatlist = me->getThreatManager().getThreatList();
+    for(std::list<HostilReference*>::iterator itr = m_threatlist.begin(); itr!= m_threatlist.end(); ++itr)
+        if((*itr)->getTarget()->GetTypeId() == TYPEID_PLAYER && !CheckBoundary((*itr)->getTarget()))
+            (*itr)->getTarget()->NearTeleportTo(x, y, z, 0);
+}
+
 bool BossAI::CheckBoundary(Unit *who)
 {
     if(!boundary || !who)

@@ -116,7 +116,7 @@ struct TRINITY_DLL_DECL boss_thaddiusAI : public BossAI
                     events.ScheduleEvent(EVENT_CHAIN, 10000+rand()%10000);
                     return;
                 case EVENT_BERSERK:
-                    DoCast(me, EVENT_BERSERK);
+                    DoCast(me, SPELL_BERSERK);
                     return;
             }
         }
