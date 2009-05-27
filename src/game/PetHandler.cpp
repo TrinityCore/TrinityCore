@@ -393,7 +393,11 @@ void WorldSession::HandlePetSetAction( WorldPacket & recv_data )
 
         sLog.outDetail( "Player %s has changed pet spell action. Position: %u, Spell: %u, State: 0x%X", _player->GetName(), position, spell_id, act_state);
 
-                                                            //if it's act for spell (en/disable/cast) and there is a spell given (0 = remove spell) which pet doesn't know, don't add
+        //ignore invalid position
+        if(position >= MAX_UNIT_ACTION_BAR_INDEX)
+            return;
+
+        //if it's act for spell (en/disable/cast) and there is a spell given (0 = remove spell) which pet doesn't know, don't add
         if(!((act_state == ACT_ENABLED || act_state == ACT_DISABLED || act_state == ACT_PASSIVE) && spell_id && !pet->HasSpell(spell_id)))
         {
             //sign for autocast
@@ -414,8 +418,7 @@ void WorldSession::HandlePetSetAction( WorldPacket & recv_data )
 
             }
 
-            charmInfo->GetActionBarEntry(position)->Type = act_state;
-            charmInfo->GetActionBarEntry(position)->SpellOrAction = spell_id;
+            charmInfo->SetActionBar(position,spell_id,ActiveStates(act_state));
         }
     }
 }
@@ -594,11 +597,7 @@ void WorldSession::HandlePetSpellAutocastOpcode( WorldPacket& recvPacket )
     else
         pet->GetCharmInfo()->ToggleCreatureAutocast(spellid, state);
 
-    for(uint8 i = 0; i < 10; ++i)
-    {
-        if((charmInfo->GetActionBarEntry(i)->Type == ACT_ENABLED || charmInfo->GetActionBarEntry(i)->Type == ACT_DISABLED) && spellid == charmInfo->GetActionBarEntry(i)->SpellOrAction)
-            charmInfo->GetActionBarEntry(i)->Type = state ? ACT_ENABLED : ACT_DISABLED;
-    }
+    charmInfo->SetSpellAutocast(spellid,state);
 }
 
 void WorldSession::HandlePetCastSpellOpcode( WorldPacket& recvPacket )
