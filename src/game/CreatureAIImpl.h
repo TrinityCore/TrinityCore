@@ -107,6 +107,12 @@ class EventMap : private std::map<uint32, uint32>
             insert(std::make_pair(time, eventId));
         }
 
+        void RescheduleEvent(uint32 eventId, uint32 time, uint32 gcd = 0, uint32 phase = 0)
+        {
+            CancelEvent(eventId);
+            ScheduleEvent(eventId, time, gcd, phase);
+        }
+
         uint32 ExecuteEvent()
         {
             while(!empty())
@@ -138,6 +144,28 @@ class EventMap : private std::map<uint32, uint32>
                     ScheduleEvent(time, itr->second);
                     erase(itr++);
                 }
+                else
+                    ++itr;
+            }
+        }
+
+        void CancelEvent(uint32 eventId)
+        {
+            for(iterator itr = begin(); itr != end();)
+            {
+                if(eventId == (itr->second & 0x0000FFFF))
+                    erase(itr++);
+                else
+                    ++itr;
+            }
+        }
+
+        void CancelEventsByGCD(uint32 gcd)
+        {
+            for(iterator itr = begin(); itr != end();)
+            {
+                if(itr->second & gcd)
+                    erase(itr++);
                 else
                     ++itr;
             }
