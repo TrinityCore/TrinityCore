@@ -360,6 +360,106 @@ bool GOHello_go_acherus_soul_prison(Player *player, GameObject* _GO)
     return false;
 }
 
+/*######
+## npc_death_knight_initiate
+######*/
+
+#define GOSSIP_DKI      "Duel with me!"
+
+#define SAY_DKI_DUEL1   "Remember this day, $N, for it is the day that you will be thoroughly owned."
+#define SAY_DKI_DUEL2   "I'm going to tear your heart out, cupcake!"
+#define SAY_DKI_DUEL3   "You have challenged death itself!"
+#define SAY_DKI_DUEL4   "Don't make me laugh."
+#define SAY_DKI_DUEL5   "Here come the tears..."
+#define SAY_DKI_DUEL6   "No potions!"
+
+struct TRINITY_DLL_DECL npc_death_knight_initiateAI : public ScriptedAI
+{
+    npc_death_knight_initiateAI(Creature *c) : ScriptedAI(c) {Reset();}
+
+    void Reset()
+    {
+        m_creature->setFaction(2084);
+    }
+
+    void EnterCombat(Unit *who) {
+        if(who->GetTypeId() == TYPEID_PLAYER) {
+            switch(rand()%6)
+            {
+                case 0: DoSay(SAY_DKI_DUEL1, LANG_UNIVERSAL, who); break;
+                case 1: DoSay(SAY_DKI_DUEL2, LANG_UNIVERSAL, who); break;
+                case 2: DoSay(SAY_DKI_DUEL3, LANG_UNIVERSAL, who); break;
+                case 3: DoSay(SAY_DKI_DUEL4, LANG_UNIVERSAL, who); break;
+                case 4: DoSay(SAY_DKI_DUEL5, LANG_UNIVERSAL, who); break;
+                case 5: DoSay(SAY_DKI_DUEL6, LANG_UNIVERSAL, who); break;
+            }
+        }
+    }
+
+    void Aggro(Unit *who) { }
+
+    void JustDied(Unit *killer) { }
+
+    void UpdateAI(const uint32 diff)
+    {
+        if ( !UpdateVictim() )
+            return;
+
+        Unit *victim = m_creature->getVictim();
+
+        if(victim->GetTypeId() == TYPEID_PLAYER) {
+            if ( (victim->GetHealth()*100)/victim->GetMaxHealth() <= 10 ) {
+                m_creature->setFaction(2084);
+                victim->AttackStop();
+                m_creature->CombatStop();
+                m_creature->RemoveAllAuras();
+                EnterEvadeMode();
+            }
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+    void DamageTaken(Unit *done_by, uint32 & damage)
+    {
+        if(done_by->GetTypeId() == TYPEID_PLAYER && damage > m_creature->GetHealth())
+        {
+            //Take 0 damage
+            damage = 0;
+            ((Player*)done_by)->AttackStop();
+            ((Player*)done_by)->KilledMonster(29025,m_creature->GetGUID());
+            m_creature->setFaction(2084);
+            m_creature->RemoveAllAuras();
+            m_creature->CombatStop();
+            EnterEvadeMode();
+        }
+    }
+};
+
+CreatureAI* GetAI_npc_death_knight_initiate(Creature *_Creature)
+{
+    return new npc_death_knight_initiateAI(_Creature);
+}
+
+bool GossipHello_npc_death_knight_initiate(Player *player, Creature *_Creature)
+{
+    if( player->GetQuestStatus(12733) == QUEST_STATUS_INCOMPLETE )
+        player->ADD_GOSSIP_ITEM(0, GOSSIP_DKI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+
+    player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(),_Creature->GetGUID());
+    return true;
+}
+
+bool GossipSelect_npc_death_knight_initiate(Player *player, Creature *_Creature, uint32 sender, uint32 action )
+{
+    if( action == GOSSIP_ACTION_INFO_DEF )
+    {
+        player->CastSpell(player, 52991, true);
+        _Creature->setFaction(14);
+        ((npc_death_knight_initiateAI*)_Creature->AI())->AttackStart(player);
+    }
+    return true;
+}
 
 void AddSC_the_scarlet_enclave()
 {
@@ -378,5 +478,12 @@ void AddSC_the_scarlet_enclave()
     newscript = new Script;
     newscript->Name="go_acherus_soul_prison";
     newscript->pGOHello = &GOHello_go_acherus_soul_prison;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name="npc_death_knight_initiate";
+    newscript->pGossipHello = &GossipHello_npc_death_knight_initiate;
+    newscript->pGossipSelect = &GossipSelect_npc_death_knight_initiate;
+    newscript->GetAI = &GetAI_npc_death_knight_initiate;
     newscript->RegisterSelf();
 }
