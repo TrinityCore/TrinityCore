@@ -125,9 +125,9 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
 
     void ResetTimer(uint32 inc = 0)
     {
-        events.ScheduleEvent(EVENT_NEEDLE, 10000 + inc, GCD_CAST);
-        events.ScheduleEvent(EVENT_SPINE, 20000 + inc, GCD_CAST);
-        events.ScheduleEvent(EVENT_SHIELD, 60000 + inc);
+        events.RescheduleEvent(EVENT_NEEDLE, 10000 + inc, GCD_CAST);
+        events.RescheduleEvent(EVENT_SPINE, 20000 + inc, GCD_CAST);
+        events.RescheduleEvent(EVENT_SHIELD, 60000 + inc);
     }
 
     void UpdateAI(const uint32 diff)
