@@ -583,6 +583,8 @@ AuraEffect* CreateAuraEffect(Aura * parentAura, uint32 effIndex, int32 *currentB
     assert(parentAura);
     if (IsAreaAuraEffect(parentAura->GetSpellProto()->Effect[effIndex]))
     {
+        if(!source)
+            source = caster;
         //TODO: determine source here
         if(source && source->isType(TYPEMASK_UNIT))
             return new AreaAuraEffect(parentAura, effIndex, currentBasePoints, caster, castItem, (Unit*)source);
