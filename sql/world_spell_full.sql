@@ -167,11 +167,10 @@ UPDATE creature_template SET speed = 1.0 WHERE entry = 23095; # molten_flame
 -- CLICK
 -- --------
 
-DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (29501, 29488);
-INSERT INTO `npc_spellclick_spells` VALUES
-(29488, 54568, 12670, 1, 3),
-(29501, 54575, 12670, 1, 3);
-UPDATE `creature_template` SET `npcflag` = 16777216 WHERE `entry` IN (29501, 29488);
+DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN ('29501', '29488');
+INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `quest_id`, `quest_status`, `cast_flags`) VALUES
+('29488', '54568', '12670', '1', '3'),
+('29501', '54575', '12670', '1', '3');
 
 -- --------
 -- TARGET
@@ -1564,6 +1563,12 @@ INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
 (51859, 1, 28544);
 
 update creature_template set minlevel=50,maxlevel=52,minhealth=2215,maxhealth=2317,faction_A=2084,faction_H=2084,mindmg=50,maxdmg=50 where entry=28528; -- ghoul
+
+-- taxi
+DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN ('29501', '29488');
+INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `quest_id`, `quest_status`, `cast_flags`) VALUES
+('29488', '54568', '12670', '1', '3'),
+('29501', '54575', '12670', '1', '3');
 
 -- frostbrood vanquisher
 update creature_template set maxhealth = 133525, minhealth = 133525, maxmana = 51360, minmana = 51360, spell1 = 53114, spell2 = 53112, spell3=53110 where entry = 28670;
