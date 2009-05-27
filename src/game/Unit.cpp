@@ -11712,42 +11712,23 @@ CharmInfo::~CharmInfo()
 
 void CharmInfo::InitPetActionBar()
 {
-    if (m_barInit)
-        return;
-
     // the first 3 SpellOrActions are attack, follow and stay
     for(uint32 i = 0; i < 3; i++)
     {
-        PetActionBar[i].Type = ACT_COMMAND;
-        PetActionBar[i].SpellOrAction = COMMAND_ATTACK - i;
-
-        PetActionBar[i + 7].Type = ACT_REACTION;
-        PetActionBar[i + 7].SpellOrAction = COMMAND_ATTACK - i;
+        SetActionBar(i,COMMAND_ATTACK - i,ACT_COMMAND);
+        SetActionBar(i + 7,COMMAND_ATTACK - i,ACT_REACTION);
     }
-    for(uint32 i=0; i < 4; i++)
-    {
-        PetActionBar[i + 3].Type = ACT_DISABLED;
-        PetActionBar[i + 3].SpellOrAction = 0;
-    }
-    m_barInit = true;
+    for(uint32 i = 0; i < 4; ++i)
+        SetActionBar(i,0,ACT_DISABLED);
 }
 
 void CharmInfo::InitEmptyActionBar(bool withAttack)
 {
-    if (m_barInit)
-        return;
+    if(withAttack)
+        SetActionBar(0,COMMAND_ATTACK,ACT_COMMAND);
 
-    for(uint32 x = 0; x < 10; ++x)
-    {
-        PetActionBar[x].Type = ACT_PASSIVE;
-        PetActionBar[x].SpellOrAction = 0;
-    }
-    if (withAttack)
-    {
-        PetActionBar[0].Type = ACT_COMMAND;
-        PetActionBar[0].SpellOrAction = COMMAND_ATTACK;
-    }
-    m_barInit = true;
+    for(uint32 x = withAttack ? 1 : 0; x < MAX_UNIT_ACTION_BAR_INDEX; ++x)
+        SetActionBar(x,0,ACT_PASSIVE);
 }
 
 void CharmInfo::InitPossessCreateSpells()
@@ -11764,7 +11745,7 @@ void CharmInfo::InitPossessCreateSpells()
             if(IsPassiveSpell(spellId))
                 m_unit->CastSpell(m_unit, spellId, true);
             else
-                AddSpellToAB(0, spellId, ACT_DISABLED);
+                AddSpellToActionBar(((Creature*)m_unit)->m_spells[i], ACT_PASSIVE);
         }
     }
 }
@@ -11819,41 +11800,57 @@ void CharmInfo::InitCharmCreateSpells()
                         newstate = ACT_DISABLED;
                 }
             }
-            AddSpellToAB(0, spellId, newstate);
+
+            AddSpellToActionBar(spellId, newstate);
         }
     }
 }
 
-bool CharmInfo::AddSpellToAB(uint32 oldid, uint32 newid, ActiveStates newstate)
+bool CharmInfo::AddSpellToActionBar(uint32 spell_id, ActiveStates newstate)
 {
-    // new spell already listed for example in case prepered switch to lesser rank in Pet::removeSpell
-    for(uint8 i = 0; i < 10; ++i)
-        if (PetActionBar[i].Type == ACT_DISABLED || PetActionBar[i].Type == ACT_ENABLED || PetActionBar[i].Type == ACT_PASSIVE)
-            if (newid && PetActionBar[i].SpellOrAction == newid)
-                return true;
+    uint32 first_id = spellmgr.GetFirstSpellInChain(spell_id);
 
-    // old spell can be leasted for example in case learn high rank
-    for(uint8 i = 0; i < 10; ++i)
+    // new spell rank can be already listed
+    for(uint8 i = 0; i < MAX_UNIT_ACTION_BAR_INDEX; ++i)
     {
-        if (PetActionBar[i].Type == ACT_DISABLED || PetActionBar[i].Type == ACT_ENABLED || PetActionBar[i].Type == ACT_PASSIVE)
+        if (PetActionBar[i].SpellOrAction && PetActionBar[i].IsActionBarForSpell())
         {
-            if (PetActionBar[i].SpellOrAction == oldid)
+            if (spellmgr.GetFirstSpellInChain(PetActionBar[i].SpellOrAction) == first_id)
             {
-                PetActionBar[i].SpellOrAction = newid;
-                if (!oldid)
-                {
-                    if(!IsAutocastableSpell(newid))
-                        PetActionBar[i].Type = ACT_PASSIVE;
-                    else if (newstate == ACT_DECIDE)
-                        PetActionBar[i].Type = ACT_DISABLED;
-                    else
-                        PetActionBar[i].Type = newstate;
-                }
-
+                PetActionBar[i].SpellOrAction = spell_id;
                 return true;
             }
         }
     }
+
+    // or use empty slot in other case 
+    for(uint8 i = 0; i < MAX_UNIT_ACTION_BAR_INDEX; ++i)
+    {
+        if (!PetActionBar[i].SpellOrAction && PetActionBar[i].IsActionBarForSpell())
+        {
+            SetActionBar(i,spell_id,newstate == ACT_DECIDE ? IsAutocastableSpell(spell_id) ? ACT_DISABLED : ACT_PASSIVE : newstate);
+            return true;
+        }
+    }
+    return false;
+}
+
+bool CharmInfo::RemoveSpellFromActionBar(uint32 spell_id)
+{
+    uint32 first_id = spellmgr.GetFirstSpellInChain(spell_id);
+
+    for(uint8 i = 0; i < MAX_UNIT_ACTION_BAR_INDEX; ++i)
+    {
+        if (PetActionBar[i].SpellOrAction && PetActionBar[i].IsActionBarForSpell())
+        {
+            if (spellmgr.GetFirstSpellInChain(PetActionBar[i].SpellOrAction) == first_id)
+            {
+                SetActionBar(i,0,ACT_DISABLED);
+                return true;
+            }
+        }
+    }
+
     return false;
 }
 
@@ -11878,6 +11875,50 @@ void CharmInfo::SetPetNumber(uint32 petnumber, bool statwindow)
         m_unit->SetUInt32Value(UNIT_FIELD_PETNUMBER, m_petnumber);
     else
         m_unit->SetUInt32Value(UNIT_FIELD_PETNUMBER, 0);
+}
+
+bool CharmInfo::LoadActionBar( std::string data )
+{
+    Tokens tokens = StrSplit(data, " ");
+
+    if (tokens.size() != MAX_UNIT_ACTION_BAR_INDEX*2)
+        return false;
+
+    int index;
+    Tokens::iterator iter;
+    for(iter = tokens.begin(), index = 0; index < MAX_UNIT_ACTION_BAR_INDEX; ++iter, ++index )
+    {
+        // use unsigned cast to avoid sign negative format use at long-> ActiveStates (int) conversion
+        PetActionBar[index].Type  = atol((*iter).c_str());
+        ++iter;
+        PetActionBar[index].SpellOrAction = atol((*iter).c_str());
+
+        // check correctness
+        if(PetActionBar[index].IsActionBarForSpell() && !sSpellStore.LookupEntry(PetActionBar[index].SpellOrAction))
+            SetActionBar(index,0,ACT_DISABLED);
+    }
+    return true;
+}
+
+void CharmInfo::BuildActionBar( WorldPacket* data )
+{
+    for(uint32 i = 0; i < MAX_UNIT_ACTION_BAR_INDEX; ++i)
+    {
+        *data << uint16(PetActionBar[i].SpellOrAction);
+        *data << uint16(PetActionBar[i].Type);
+    }
+}
+
+void CharmInfo::SetSpellAutocast( uint32 spell_id, bool state )
+{
+    for(int i = 0; i < MAX_UNIT_ACTION_BAR_INDEX; ++i)
+    {
+        if(spell_id == PetActionBar[i].SpellOrAction && PetActionBar[i].IsActionBarForSpell())
+        {
+            PetActionBar[i].Type = state ? ACT_ENABLED : ACT_DISABLED;
+            break;
+        }
+    }
 }
 
 bool Unit::isFrozen() const
