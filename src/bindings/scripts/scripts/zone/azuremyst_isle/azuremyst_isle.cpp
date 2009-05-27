@@ -38,18 +38,21 @@ EndContentData */
 ## npc_draenei_survivor
 ######*/
 
-#define SAY_HEAL1        -1000248
-#define SAY_HEAL2        -1000249
-#define SAY_HEAL3        -1000250
-#define SAY_HEAL4        -1000251
+enum
+{
+    SAY_HEAL1           = -1000248,
+    SAY_HEAL2           = -1000249,
+    SAY_HEAL3           = -1000250,
+    SAY_HEAL4           = -1000251,
 
-#define SAY_HELP1        -1000252
-#define SAY_HELP2        -1000253
-#define SAY_HELP3        -1000254
-#define SAY_HELP4        -1000255
+    SAY_HELP1           = -1000252,
+    SAY_HELP2           = -1000253,
+    SAY_HELP3           = -1000254,
+    SAY_HELP4           = -1000255,
 
-#define SPELL_IRRIDATION    35046
-#define SPELL_STUNNED       28630
+    SPELL_IRRIDATION    = 35046,
+    SPELL_STUNNED       = 28630
+};
 
 struct TRINITY_DLL_DECL npc_draenei_survivorAI : public ScriptedAI
 {
@@ -126,9 +129,6 @@ struct TRINITY_DLL_DECL npc_draenei_survivorAI : public ScriptedAI
 
                 if (Player *pPlayer = Unit::GetPlayer(pCaster))
                 {
-                    if (pPlayer->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
                     switch (rand()%4)
                     {
                         case 0: DoScriptText(SAY_HEAL1, m_creature, pPlayer); break;
@@ -183,33 +183,59 @@ CreatureAI* GetAI_npc_draenei_survivor(Creature *_Creature)
 ## npc_engineer_spark_overgrind
 ######*/
 
-#define SAY_TEXT        -1000256
-#define SAY_EMOTE       -1000257
-#define ATTACK_YELL     -1000258
+enum
+{
+    SAY_TEXT        = -1000256,
+    SAY_EMOTE       = -1000257,
+    ATTACK_YELL     = -1000258,
 
-#define GOSSIP_FIGHT    "Traitor! You will be brought to justice!"
+    AREA_COVE       = 3579,
+    AREA_ISLE       = 3639,
+    QUEST_GNOMERCY  = 9537,
+    FACTION_HOSTILE = 14,
+    SPELL_DYNAMITE  = 7978
+};
 
-#define SPELL_DYNAMITE  7978
+#define GOSSIP_FIGHT "Traitor! You will be brought to justice!"
 
 struct TRINITY_DLL_DECL npc_engineer_spark_overgrindAI : public ScriptedAI
 {
-    npc_engineer_spark_overgrindAI(Creature *c) : ScriptedAI(c) {}
+    npc_engineer_spark_overgrindAI(Creature *c) : ScriptedAI(c)
+    {
+        NormFaction = c->getFaction();
+        NpcFlags = c->GetUInt32Value(UNIT_NPC_FLAGS);
+
+        if(c->GetAreaId() == AREA_COVE || c->GetAreaId() == AREA_ISLE)
+            IsTreeEvent = true; 
+    }
+
+    uint32 NormFaction;
+    uint32 NpcFlags;
 
     uint32 Dynamite_Timer;
     uint32 Emote_Timer;
+
+    bool IsTreeEvent;
 
     void Reset()
     {
         Dynamite_Timer = 8000;
         Emote_Timer = 120000 + rand()%30000;
-        m_creature->setFaction(875);
+
+        m_creature->setFaction(NormFaction);
+        m_creature->SetUInt32Value(UNIT_NPC_FLAGS, NpcFlags);
+
+        IsTreeEvent = false;
     }
 
-    void EnterCombat(Unit *who) { }
+    void EnterCombat(Unit* who)
+    {
+        DoScriptText(ATTACK_YELL, m_creature, who);
+    }
 
     void UpdateAI(const uint32 diff)
     {
-        if( !m_creature->isInCombat() )
+        if( !m_creature->isInCombat() && !IsTreeEvent )
         {
             if (Emote_Timer < diff)
             {
@@ -218,6 +244,8 @@ struct TRINITY_DLL_DECL npc_engineer_spark_overgrindAI : public ScriptedAI
                 Emote_Timer = 120000 + rand()%30000;
             }else Emote_Timer -= diff;
         }
+        else if(IsTreeEvent)
+            return;
 
         if(!UpdateVictim())
             return;
@@ -239,7 +267,7 @@ CreatureAI* GetAI_npc_engineer_spark_overgrind(Creature *_Creature)
 
 bool GossipHello_npc_engineer_spark_overgrind(Player *player, Creature *_Creature)
 {
-    if( player->GetQuestStatus(9537) == QUEST_STATUS_INCOMPLETE )
+    if( player->GetQuestStatus(QUEST_GNOMERCY) == QUEST_STATUS_INCOMPLETE )
         player->ADD_GOSSIP_ITEM(0, GOSSIP_FIGHT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
     player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
@@ -251,8 +279,7 @@ bool GossipSelect_npc_engineer_spark_overgrind(Player *player, Creature *_Creatu
     if( action == GOSSIP_ACTION_INFO_DEF )
     {
         player->CLOSE_GOSSIP_MENU();
-        _Creature->setFaction(14);
-        DoScriptText(ATTACK_YELL, _Creature, player);
+        _Creature->setFaction(FACTION_HOSTILE);
         ((npc_engineer_spark_overgrindAI*)_Creature->AI())->AttackStart(player);
     }
     return true;
@@ -299,14 +326,17 @@ CreatureAI* GetAI_npc_injured_draenei(Creature *_Creature)
 ## npc_magwin
 ######*/
 
-#define SAY_START               -1000111
-#define SAY_AGGRO               -1000112
-#define SAY_PROGRESS            -1000113
-#define SAY_END1                -1000114
-#define SAY_END2                -1000115
-#define EMOTE_HUG               -1000116
+enum
+{
+    SAY_START                   = -1000111,
+    SAY_AGGRO                   = -1000112,
+    SAY_PROGRESS                = -1000113,
+    SAY_END1                    = -1000114,
+    SAY_END2                    = -1000115,
+    EMOTE_HUG                   = -1000116,
 
-#define QUEST_A_CRY_FOR_SAY_HELP    9528
+    QUEST_A_CRY_FOR_SAY_HELP    = 9528
+};
 
 struct TRINITY_DLL_DECL npc_magwinAI : public npc_escortAI
 {
@@ -334,8 +364,7 @@ struct TRINITY_DLL_DECL npc_magwinAI : public npc_escortAI
         case 29:
             DoScriptText(EMOTE_HUG, m_creature, player);
             DoScriptText(SAY_END2, m_creature, player);
-            if (player && player->GetTypeId() == TYPEID_PLAYER)
-                ((Player*)player)->GroupEventHappens(QUEST_A_CRY_FOR_SAY_HELP,m_creature);
+            player->GroupEventHappens(QUEST_A_CRY_FOR_SAY_HELP,m_creature);
             break;
         }
     }
@@ -357,7 +386,7 @@ struct TRINITY_DLL_DECL npc_magwinAI : public npc_escortAI
         {
             Player* player = Unit::GetPlayer(PlayerGUID);
             if (player)
-                ((Player*)player)->FailQuest(QUEST_A_CRY_FOR_SAY_HELP);
+                player->FailQuest(QUEST_A_CRY_FOR_SAY_HELP);
         }
     }
 
@@ -390,18 +419,21 @@ CreatureAI* GetAI_npc_magwinAI(Creature* pCreature)
 ## npc_geezle
 ######*/
 
-#define GEEZLE_SAY_1    -1000259
-#define SPARK_SAY_2     -1000260
-#define SPARK_SAY_3     -1000261
-#define GEEZLE_SAY_4    -1000262
-#define SPARK_SAY_5     -1000263
-#define SPARK_SAY_6     -1000264
-#define GEEZLE_SAY_7    -1000265
+enum
+{
+    GEEZLE_SAY_1    = -1000259,
+    SPARK_SAY_2     = -1000260,
+    SPARK_SAY_3     = -1000261,
+    GEEZLE_SAY_4    = -1000262,
+    SPARK_SAY_5     = -1000263,
+    SPARK_SAY_6     = -1000264,
+    GEEZLE_SAY_7    = -1000265,
 
-#define EMOTE_SPARK     -1000266
+    EMOTE_SPARK     = -1000266,
 
-#define MOB_SPARK       17243
-#define GO_NAGA_FLAG    181694
+    MOB_SPARK       = 17243,
+    GO_NAGA_FLAG    = 181694
+};
 
 static float SparkPos[3] = {-5030.95, -11291.99, 7.97};
 
@@ -531,8 +563,11 @@ CreatureAI* GetAI_npc_geezleAI(Creature *_Creature)
 ## mob_nestlewood_owlkin
 ######*/
 
-#define INOCULATION_CHANNEL 29528
-#define INOCULATED_OWLKIN   16534
+enum
+{
+    INOCULATION_CHANNEL = 29528,
+    INOCULATED_OWLKIN   = 16534
+};
 
 struct TRINITY_DLL_DECL mob_nestlewood_owlkinAI : public ScriptedAI
 {
@@ -618,6 +653,5 @@ void AddSC_azuremyst_isle()
     newscript->Name="mob_nestlewood_owlkin";
     newscript->GetAI = &GetAI_mob_nestlewood_owlkinAI;
     newscript->RegisterSelf();
-
 }
 
