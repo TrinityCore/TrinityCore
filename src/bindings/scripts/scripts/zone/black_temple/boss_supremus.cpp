@@ -240,6 +240,7 @@ struct TRINITY_DLL_DECL npc_volcanoAI : public ScriptedAI
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         DoCast(m_creature, SPELL_VOLCANIC_ERUPTION);
+        me->SetReactState(REACT_PASSIVE);
     }
 
     void EnterCombat(Unit *who) {}
