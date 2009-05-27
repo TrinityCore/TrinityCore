@@ -117,6 +117,7 @@ struct TRINITY_DLL_DECL boss_heiganAI : public BossAI
                     return;
                 case EVENT_ERUPT:
                     instance->SetData(DATA_HEIGAN_ERUPT, eruptSection);
+                    TeleportCheaters();
 
                     if(eruptSection == 0)
                         eruptDirection = true;
