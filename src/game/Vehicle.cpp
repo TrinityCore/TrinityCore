@@ -245,6 +245,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
 
         if(seat->first == 0 && seat->second.seatInfo->IsUsable()) // not right
         {
+            setFaction(unit->getFaction());
             ((Player*)unit)->SetCharm(this, true);
             ((Player*)unit)->SetViewpoint(this, true);
             ((Player*)unit)->VehicleSpellInitialize();
@@ -289,6 +290,7 @@ void Vehicle::RemovePassenger(Unit *unit)
 
     if(unit->GetTypeId() == TYPEID_PLAYER && seat->first == 0 && seat->second.seatInfo->IsUsable())
     {
+        RestoreFaction();
         ((Player*)unit)->SetCharm(this, false);
         ((Player*)unit)->SetViewpoint(this, false);
         ((Player*)unit)->SendRemoveControlBar();
