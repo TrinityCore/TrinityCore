@@ -1585,9 +1585,9 @@ class TRINITY_DLL_SPEC Player : public Unit
         bool SetPosition(float x, float y, float z, float orientation, bool teleport = false);
         void UpdateUnderwaterState( Map * m, float x, float y, float z );
 
-        void SendMessageToSet(WorldPacket *data, bool self, bool to_possessor = true);// overwrite Object::SendMessageToSet
-        void SendMessageToSetInRange(WorldPacket *data, float fist, bool self, bool to_possessor = true);// overwrite Object::SendMessageToSetInRange
-        void SendMessageToSetInRange(WorldPacket *data, float dist, bool self, bool to_possessor, bool own_team_only);
+        void SendMessageToSet(WorldPacket *data, bool self);// overwrite Object::SendMessageToSet
+        void SendMessageToSetInRange(WorldPacket *data, float fist, bool self);// overwrite Object::SendMessageToSetInRange
+        void SendMessageToSetInRange(WorldPacket *data, float dist, bool self, bool own_team_only);
 
         static void DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmChars = true);
 

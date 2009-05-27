@@ -5626,19 +5626,19 @@ void Player::SaveRecallPosition()
     m_recallO = GetOrientation();
 }
 
-void Player::SendMessageToSet(WorldPacket *data, bool self, bool to_possessor)
+void Player::SendMessageToSet(WorldPacket *data, bool self)
 {
-    GetMap()->MessageBroadcast(this, data, self, to_possessor);
+    GetMap()->MessageBroadcast(this, data, self);
 }
 
-void Player::SendMessageToSetInRange(WorldPacket *data, float dist, bool self, bool to_possessor)
+void Player::SendMessageToSetInRange(WorldPacket *data, float dist, bool self)
 {
-    GetMap()->MessageDistBroadcast(this, data, dist, self, to_possessor);
+    GetMap()->MessageDistBroadcast(this, data, dist, self);
 }
 
-void Player::SendMessageToSetInRange(WorldPacket *data, float dist, bool self, bool to_possessor, bool own_team_only)
+void Player::SendMessageToSetInRange(WorldPacket *data, float dist, bool self, bool own_team_only)
 {
-    GetMap()->MessageDistBroadcast(this, data, dist, self, to_possessor, own_team_only);
+    GetMap()->MessageDistBroadcast(this, data, dist, self, own_team_only);
 }
 
 void Player::SendDirectMessage(WorldPacket *data)
@@ -16730,7 +16730,7 @@ void Player::TextEmote(const std::string& text)
 {
     WorldPacket data(SMSG_MESSAGECHAT, 200);
     BuildPlayerChat(&data, CHAT_MSG_EMOTE, text, LANG_UNIVERSAL);
-    SendMessageToSetInRange(&data,sWorld.getConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE),true, !sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT), true );
+    SendMessageToSetInRange(&data,sWorld.getConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE),true, !sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT));
 
     if(sWorld.getConfig(CONFIG_CHATLOG_PUBLIC))
         sLog.outChat("[TEXTEMOTE] Player %s emotes: %s",

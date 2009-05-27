@@ -270,10 +270,10 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>, public MaNGOS::Obj
 
         virtual void Update(const uint32&);
 
-        void MessageBroadcast(Player *, WorldPacket *, bool to_self, bool to_possessor);
-        void MessageBroadcast(WorldObject *, WorldPacket *, bool to_possessor);
-        void MessageDistBroadcast(Player *, WorldPacket *, float dist, bool to_self, bool to_possessor, bool own_team_only = false);
-        void MessageDistBroadcast(WorldObject *, WorldPacket *, float dist, bool to_possessor);
+        void MessageBroadcast(Player *, WorldPacket *, bool to_self);
+        void MessageBroadcast(WorldObject *, WorldPacket *);
+        void MessageDistBroadcast(Player *, WorldPacket *, float dist, bool to_self, bool own_team_only = false);
+        void MessageDistBroadcast(WorldObject *, WorldPacket *, float dist);
 
         void PlayerRelocation(Player *, float x, float y, float z, float angl);
         void CreatureRelocation(Creature *creature, float x, float y, float, float);

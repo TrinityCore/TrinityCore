@@ -499,8 +499,8 @@ class TRINITY_DLL_SPEC WorldObject : public Object
         bool HasInArc( const float arcangle, const WorldObject* obj ) const;
         bool IsInBetween(const WorldObject *obj1, const WorldObject *obj2, float size = 0) const;
 
-        virtual void SendMessageToSet(WorldPacket *data, bool self, bool to_possessor = true);
-        virtual void SendMessageToSetInRange(WorldPacket *data, float dist, bool self, bool to_possessor = true);
+        virtual void SendMessageToSet(WorldPacket *data, bool self);
+        virtual void SendMessageToSetInRange(WorldPacket *data, float dist, bool self);
         void BuildHeartBeatMsg( WorldPacket *data ) const;
         void BuildTeleportAckMsg( WorldPacket *data, float x, float y, float z, float ang) const;
 
