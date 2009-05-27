@@ -175,6 +175,12 @@ void WorldSession::HandleSendMail(WorldPacket & recv_data )
         return;
     }
 
+    uint32 rc_account = 0;
+    if(receive)
+        rc_account = receive->GetSession()->GetAccountId();
+    else
+        rc_account = objmgr.GetPlayerAccountIdByGUID(rc);
+
     if (items_count)
     {
         for(MailItemMap::iterator mailItemIter = mi.begin(); mailItemIter != mi.end(); ++mailItemIter)
@@ -195,9 +201,15 @@ void WorldSession::HandleSendMail(WorldPacket & recv_data )
                 return;
             }
 
-            if(!mailItem.item->CanBeTraded())
+            if(!mailItem.item->CanBeTraded(true))
             {
                 pl->SendMailResult(0, MAIL_SEND, MAIL_ERR_EQUIP_ERROR, EQUIP_ERR_MAIL_BOUND_ITEM);
+                return;
+            }
+
+            if(mailItem.item->IsBoundAccountWide() && mailItem.item->IsSoulBound() && pl->GetSession()->GetAccountId() != rc_account)
+            {
+                pl->SendMailResult(0, MAIL_SEND, MAIL_ERR_EQUIP_ERROR, EQUIP_ERR_ARTEFACTS_ONLY_FOR_OWN_CHARACTERS);
                 return;
             }
 
@@ -229,12 +241,6 @@ void WorldSession::HandleSendMail(WorldPacket & recv_data )
 
     if(items_count > 0 || money > 0)
     {
-        uint32 rc_account = 0;
-        if(receive)
-            rc_account = receive->GetSession()->GetAccountId();
-        else
-            rc_account = objmgr.GetPlayerAccountIdByGUID(rc);
-
         if (items_count > 0)
         {
             for(MailItemMap::iterator mailItemIter = mi.begin(); mailItemIter != mi.end(); ++mailItemIter)
