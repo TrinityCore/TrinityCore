@@ -2553,7 +2553,7 @@ void AuraEffect::HandleAuraDummy(bool apply, bool Real, bool changeAmount)
                 // Living Bomb
                 if(m_spellProto->SpellFamilyFlags[1] & 0x20000)
                 {
-                    if(caster && (GetParentAura()->GetRemoveMode() == AURA_REMOVE_BY_ENEMY_SPELL || GetParentAura()->GetRemoveMode() == AURA_REMOVE_BY_DEATH || GetParentAura()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE))
+                    if(caster && (GetParentAura()->GetRemoveMode() == AURA_REMOVE_BY_ENEMY_SPELL || GetParentAura()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE))
                         caster->CastSpell(m_target, GetAmount(), true);
                     return;
                 }
