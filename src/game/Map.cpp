@@ -530,28 +530,28 @@ Map::Add(T *obj)
     AddNotifier(obj);
 }
 
-void Map::MessageBroadcast(Player *player, WorldPacket *msg, bool to_self, bool to_possessor)
+void Map::MessageBroadcast(Player *player, WorldPacket *msg, bool to_self)
 {
-    Trinity::MessageDeliverer post_man(*player, msg, to_possessor, to_self);
+    Trinity::MessageDistDeliverer post_man(*player, msg, to_self, World::GetMaxVisibleDistance());
     VisitWorld(player->GetPositionX(), player->GetPositionY(), World::GetMaxVisibleDistance(), post_man);
 }
 
-void Map::MessageBroadcast(WorldObject *obj, WorldPacket *msg, bool to_possessor)
+void Map::MessageBroadcast(WorldObject *obj, WorldPacket *msg)
 {
-    Trinity::ObjectMessageDeliverer post_man(*obj, msg, to_possessor);
+    Trinity::MessageDistDeliverer post_man(*obj, msg, true, World::GetMaxVisibleDistance());
     VisitWorld(obj->GetPositionX(), obj->GetPositionY(), World::GetMaxVisibleDistance(), post_man);
 }
 
-void Map::MessageDistBroadcast(Player *player, WorldPacket *msg, float dist, bool to_self, bool to_possessor, bool own_team_only)
+void Map::MessageDistBroadcast(Player *player, WorldPacket *msg, float dist, bool to_self, bool own_team_only)
 {
-    Trinity::MessageDistDeliverer post_man(*player, msg, to_possessor, dist, to_self, own_team_only);
-    VisitWorld(player->GetPositionX(), player->GetPositionY(), World::GetMaxVisibleDistance(), post_man);
+    Trinity::MessageDistDeliverer post_man(*player, msg, to_self, dist/*, own_team_only*/);
+    VisitWorld(player->GetPositionX(), player->GetPositionY(), dist, post_man);
 }
 
-void Map::MessageDistBroadcast(WorldObject *obj, WorldPacket *msg, float dist, bool to_possessor)
+void Map::MessageDistBroadcast(WorldObject *obj, WorldPacket *msg, float dist)
 {
-    Trinity::ObjectMessageDistDeliverer post_man(*obj, msg, to_possessor, dist);
-    VisitWorld(obj->GetPositionX(), obj->GetPositionY(), World::GetMaxVisibleDistance(), post_man);
+    Trinity::MessageDistDeliverer post_man(*obj, msg, true, dist);
+    VisitWorld(obj->GetPositionX(), obj->GetPositionY(), dist, post_man);
 }
 
 bool Map::loaded(const GridPair &p) const
