@@ -1549,8 +1549,25 @@ spell4 = VALUES(spell4);
 -- Three-seat mammoth
 UPDATE creature_template SET VehicleId = 312 WHERE entry IN (31857,31858,31861,31862,32212,32213,32633,32640);
 
+
+-- --------
+-- Death Knight
+-- --------
+update creature_template set spell5=51890 where entry = 28511; -- Eye of Acherus flight
+
+DELETE FROM `spell_script_target` WHERE entry IN
+(51859);
+INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
+(51859, 1, 28525), -- siphon of archerus
+(51859, 1, 28542),
+(51859, 1, 28543),
+(51859, 1, 28544);
+
+update creature_template set minlevel=50,maxlevel=52,minhealth=2215,maxhealth=2317,faction_A=2084,faction_H=2084,mindmg=50,maxdmg=50 where entry=28528; -- ghoul
+
 -- frostbrood vanquisher
 update creature_template set maxhealth = 133525, minhealth = 133525, maxmana = 51360, minmana = 51360, spell1 = 53114, spell2 = 53112, spell3=53110 where entry = 28670;
+
 
 -- --------
 -- NAXXARAMAS
