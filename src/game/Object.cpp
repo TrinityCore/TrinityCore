@@ -1387,6 +1387,8 @@ float WorldObject::GetAngle( const float x, const float y ) const
     float dx = x - GetPositionX();
     float dy = y - GetPositionY();
 
+    if(!dx && !dy)
+        return 0;
     float ang = atan2(dy, dx);
     ang = (ang >= 0) ? ang : 2 * M_PI + ang;
     return ang;
