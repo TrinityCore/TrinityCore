@@ -104,102 +104,73 @@ PlayerVisibilityNotifier::Notify()
 }
 
 void
-Deliverer::Visit(PlayerMapType &m)
+MessageDistDeliverer::Visit(PlayerMapType &m)
 {
     for (PlayerMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
-        //if (!i_source.InSamePhase(iter->getSource()))
-        //    continue;
         if(!iter->getSource()->InSamePhase(i_phaseMask))
             continue;
 
-        if (!i_dist || iter->getSource()->GetDistance(&i_source) < i_dist)
-        {
-            // Send packet to all who are sharing the player's vision
-            if (!iter->getSource()->GetSharedVisionList().empty())
-            {
-                SharedVisionList::const_iterator i = iter->getSource()->GetSharedVisionList().begin();
-                for ( ; i != iter->getSource()->GetSharedVisionList().end(); ++i)
-                    if((*i)->m_seer == iter->getSource())
-                        SendPacket(*i);
-            }
+        if(iter->getSource()->GetDistanceSq(&i_source) > i_distSq)
+            continue;
 
-            VisitObject(iter->getSource());
+        // Send packet to all who are sharing the player's vision
+        if (!iter->getSource()->GetSharedVisionList().empty())
+        {
+            SharedVisionList::const_iterator i = iter->getSource()->GetSharedVisionList().begin();
+            for ( ; i != iter->getSource()->GetSharedVisionList().end(); ++i)
+                if((*i)->m_seer == iter->getSource())
+                    SendPacket(*i);
         }
+
+        SendPacket(iter->getSource());
     }
 }
 
 void
-Deliverer::Visit(CreatureMapType &m)
+MessageDistDeliverer::Visit(CreatureMapType &m)
 {
     for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
         if(!iter->getSource()->InSamePhase(i_phaseMask))
             continue;
 
-        if (!i_dist || iter->getSource()->GetDistance(&i_source) < i_dist)
+        if(iter->getSource()->GetDistanceSq(&i_source) > i_distSq)
+            continue;
+
+        // Send packet to all who are sharing the creature's vision
+        if (!iter->getSource()->GetSharedVisionList().empty())
         {
-            // Send packet to all who are sharing the creature's vision
-            if (!iter->getSource()->GetSharedVisionList().empty())
-            {
-                SharedVisionList::const_iterator i = iter->getSource()->GetSharedVisionList().begin();
-                for ( ; i != iter->getSource()->GetSharedVisionList().end(); ++i)
-                    if((*i)->m_seer == iter->getSource())
-                        SendPacket(*i);
-            }
+            SharedVisionList::const_iterator i = iter->getSource()->GetSharedVisionList().begin();
+            for ( ; i != iter->getSource()->GetSharedVisionList().end(); ++i)
+                if((*i)->m_seer == iter->getSource())
+                    SendPacket(*i);
         }
     }
 }
 
 void
-Deliverer::Visit(DynamicObjectMapType &m)
+MessageDistDeliverer::Visit(DynamicObjectMapType &m)
 {
     for (DynamicObjectMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
         if(!iter->getSource()->InSamePhase(i_phaseMask))
             continue;
 
-        if (!i_dist || iter->getSource()->GetDistance(&i_source) < i_dist)
+        if(iter->getSource()->GetDistanceSq(&i_source) > i_distSq)
+            continue;
+
+        if (IS_PLAYER_GUID(iter->getSource()->GetCasterGUID()))
         {
-            if (IS_PLAYER_GUID(iter->getSource()->GetCasterGUID()))
-            {
-                // Send packet back to the caster if the caster has vision of dynamic object
-                Player* caster = (Player*)iter->getSource()->GetCaster();
-                if (caster && caster->m_seer == iter->getSource())
-                    SendPacket(caster);
-            }
+            // Send packet back to the caster if the caster has vision of dynamic object
+            Player* caster = (Player*)iter->getSource()->GetCaster();
+            if (caster && caster->m_seer == iter->getSource())
+                SendPacket(caster);
         }
     }
 }
 
-void
-Deliverer::SendPacket(Player* plr)
-{
-    if (!plr)
-        return;
-
-    // Don't send the packet to self if not supposed to
-    if (!i_toSelf && plr == &i_source)
-        return;
-
-    // Don't send the packet to possesor if not supposed to
-    if (!i_toPossessor && plr->isPossessing() && plr->GetCharmGUID() == i_source.GetGUID())
-        return;
-
-    if (plr_list.find(plr->GetGUID()) == plr_list.end())
-    {
-        if (WorldSession* session = plr->GetSession())
-            session->SendPacket(i_message);
-        plr_list.insert(plr->GetGUID());
-    }
-}
-
-void
-MessageDeliverer::VisitObject(Player* plr)
-{
-    SendPacket(plr);
-}
-
+/*
 void
 MessageDistDeliverer::VisitObject(Player* plr)
 {
@@ -208,6 +179,7 @@ MessageDistDeliverer::VisitObject(Player* plr)
         SendPacket(plr);
     }
 }
+*/
 
 template<class T> void
 ObjectUpdater::Visit(GridRefManager<T> &m)
