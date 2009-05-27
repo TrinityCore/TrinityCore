@@ -23,7 +23,7 @@ DROP TABLE IF EXISTS `db_version`;
 CREATE TABLE `db_version` (
   `version` varchar(120) default NULL,
   `creature_ai_version` varchar(120) default NULL,
-  `required_7893_01_mangos_command` bit(1) default NULL
+  `required_7896_01_mangos_creature_template` bit(1) default NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Used DB version notes';
 
 --
@@ -819,8 +819,8 @@ CREATE TABLE `creature_template` (
   `family` tinyint(4) NOT NULL default '0',
   `trainer_type` tinyint(4) NOT NULL default '0',
   `trainer_spell` mediumint(8) unsigned NOT NULL default '0',
-  `class` tinyint(3) unsigned NOT NULL default '0',
-  `race` tinyint(3) unsigned NOT NULL default '0',
+  `trainer_class` tinyint(3) unsigned NOT NULL default '0',
+  `trainer_race` tinyint(3) unsigned NOT NULL default '0',
   `minrangedmg` float NOT NULL default '0',
   `maxrangedmg` float NOT NULL default '0',
   `rangedattackpower` smallint(5) unsigned NOT NULL default '0',
