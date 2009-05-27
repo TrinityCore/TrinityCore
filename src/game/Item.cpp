@@ -699,10 +699,11 @@ bool Item::IsEquipped() const
     return !IsInBag() && m_slot < EQUIPMENT_SLOT_END;
 }
 
-bool Item::CanBeTraded() const
+bool Item::CanBeTraded(bool mail) const
 {
-    if (IsSoulBound())
+    if ((!mail || !IsBoundAccountWide()) && IsSoulBound())
         return false;
+
     if (IsBag() && (Player::IsBagPos(GetPos()) || !((Bag const*)this)->IsEmpty()) )
         return false;
 
@@ -956,3 +957,28 @@ Item* Item::CloneItem( uint32 count, Player const* player ) const
     return newItem;
 }
 
+bool Item::IsBindedNotWith( Player const* player ) const
+{
+    // not binded item
+    if(!IsSoulBound())
+        return false;
+
+    // own item
+    if(GetOwnerGUID()== player->GetGUID())
+        return false;
+
+    // not BOA item case
+    if(!IsBoundAccountWide())
+        return true;
+
+    // online
+    if(Player* owner = objmgr.GetPlayer(GetOwnerGUID()))
+    {
+        return owner->GetSession()->GetAccountId() != player->GetSession()->GetAccountId();
+    }
+    // offline slow case
+    else
+    {
+        return objmgr.GetPlayerAccountIdByGUID(GetOwnerGUID()) != player->GetSession()->GetAccountId();
+    }
+}
