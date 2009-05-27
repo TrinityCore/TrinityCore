@@ -233,6 +233,7 @@ struct TRINITY_DLL_DECL BossAI : public ScriptedAI
             return false;
         }
         bool CheckBoundary(Unit *who);
+        void TeleportCheaters();
 };
 
 #endif
