@@ -461,6 +461,38 @@ bool GossipSelect_npc_death_knight_initiate(Player *player, Creature *_Creature,
     return true;
 }
 
+/*######
+## npc_salanar_the_horseman
+######*/
+
+struct TRINITY_DLL_DECL npc_salanar_the_horsemanAI : public ScriptedAI
+{
+    npc_salanar_the_horsemanAI(Creature *c) : ScriptedAI(c) {Reset();}
+
+    void Reset() { }
+
+    void MoveInLineOfSight(Unit *who)
+    {
+        if( (who->GetTypeId() == TYPEID_UNIT) && ((Creature*)who)->isVehicle() && m_creature->IsWithinDistInMap(who, 25.0f) )
+        {
+            if( Unit *charmer = who->GetCharmer() )
+            {
+                if( charmer->GetTypeId() == TYPEID_PLAYER && ((Player*)charmer)->GetQuestStatus(12680) == QUEST_STATUS_INCOMPLETE )
+                {
+                    ((Player*)charmer)->KilledMonster(28767,m_creature->GetGUID());
+                    ((Player*)charmer)->ExitVehicle();
+                    // TODO: dismiss Vehicle; Now we cant do it from script.
+                }
+            }
+        }
+    }
+};
+
+CreatureAI* GetAI_npc_salanar_the_horseman(Creature *_Creature)
+{
+    return new npc_salanar_the_horsemanAI(_Creature);
+}
+
 void AddSC_the_scarlet_enclave()
 {
     Script *newscript;
@@ -485,5 +517,10 @@ void AddSC_the_scarlet_enclave()
     newscript->pGossipHello = &GossipHello_npc_death_knight_initiate;
     newscript->pGossipSelect = &GossipSelect_npc_death_knight_initiate;
     newscript->GetAI = &GetAI_npc_death_knight_initiate;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name="npc_salanar_the_horseman";
+    newscript->GetAI = &GetAI_npc_salanar_the_horseman;
     newscript->RegisterSelf();
 }
