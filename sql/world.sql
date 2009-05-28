@@ -13746,7 +13746,7 @@ UNLOCK TABLES;
 DROP TABLE IF EXISTS `version`;
 CREATE TABLE `version` (
     `core_version` varchar(120) default NULL COMMENT 'Core revision dumped at startup.',
-    `core_revision` BIGINT UNSIGNED default '0',
+    `core_revision` varchar(120) default '0',
     `db_version` varchar(120) default NULL COMMENT 'Version of world DB.',
     `script_version` varchar(120) default NULL COMMENT 'Version of scripts DB.'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Version Notes';
