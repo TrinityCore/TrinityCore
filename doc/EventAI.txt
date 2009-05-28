@@ -129,6 +129,7 @@ Params are always read from Param1, then Param2, then Param3.
 37   ACTION_T_DIE                      No Params                       Kills the creature
 38   ACTION_T_ZONE_COMBAT_PULSE        No Params                       Places all players within the instance into combat with the creature. Only works in combat and only works inside of instances.
 39   ACTION_T_CALL_FOR_HELP            Radius                          Call any friendly creatures (if its not in combat/etc) in radius attack creature target.
+40   ACTION_T_SET_SHEATH               Sheath                          Let set sheath state for creature (0-no weapon show (not used mostly by creatures), 1-melee weapon show, 2-ranged weapon show)
 
 * = Use -1 to specify that if this param is picked to do nothing. Random is constant between actions within an event. So if you have a random Yell and a random Sound they will match up (ex: param2 with param2)
 
@@ -684,6 +685,25 @@ This is commonly used if you need to Instakill the creature for one reason or an
 --------------------------------
 Places all players within the instance into combat with the creature. Only works in combat and only works inside of instances. 
 
+----------------------------
+39 = ACTION_T_CALL_FOR_HELP:
+----------------------------
+Parameter 1: Radius - All friendly (not only same faction) creatures will go to help
+
+Call any friendly creatures (if its not in combat/etc) in radius attack creature target.
+Mostly used when call to help more wide that normal aggro radius or auto-used call for assistance, and need apply at some event.
+
+-------------------------
+40   ACTION_T_SET_SHEATH:
+-------------------------
+Parameter 1: Sheath state
+0    SHEATH_STATE_UNARMED               not prepared weapon show (not used mostly by creatures)
+1    SHEATH_STATE_MELEE                 melee weapon prepared show
+2    SHEATH_STATE_RANGED                ranged weapon prepared show
+
+Let set sheath state for creature.
+Note: SHEATH_STATE_RANGED case work in combat state only if combat not start as melee commands.
+This possible setup by set ar event AI start (single used EVENT_T_TIMER_OOC set ACTION_T_COMBAT_MOVEMENT 0 for creature that prefered ranged attack)
 
 =========================================
 Target Types

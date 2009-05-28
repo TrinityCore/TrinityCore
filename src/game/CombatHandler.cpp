@@ -75,7 +75,13 @@ void WorldSession::HandleSetSheathedOpcode( WorldPacket & recv_data )
 
     //sLog.outDebug( "WORLD: Recvd CMSG_SETSHEATHED Message guidlow:%u value1:%u", GetPlayer()->GetGUIDLow(), sheathed );
 
-    GetPlayer()->SetSheath(sheathed);
+    if(sheathed >= MAX_SHEATH_STATE)
+    {
+        sLog.outError("Unknown sheath state %u ??",sheathed);
+        return;
+    }
+
+    GetPlayer()->SetSheath(SheathState(sheathed));
 }
 
 void WorldSession::SendAttackStop(Unit const* enemy)
