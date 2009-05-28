@@ -456,7 +456,7 @@ void Unit::GetRandomContactPoint( const Unit* obj, float &x, float &y, float &z,
     uint32 attacker_number = getAttackers().size();
     if(attacker_number > 0) --attacker_number;
     GetNearPoint(obj,x,y,z,obj->GetCombatReach(), distance2dMin+(distance2dMax-distance2dMin)*rand_norm()
-        , GetAngle(obj) + (attacker_number ? (M_PI/2 - M_PI * rand_norm()) * (float)attacker_number / combat_reach / 3 : 0));
+        , GetAngle(obj) + (attacker_number ? (M_PI/2 - M_PI * rand_norm()) * (float)attacker_number / combat_reach * 0.3 : 0));
 }
 
 void Unit::RemoveMovementImpairingAuras()
@@ -12416,7 +12416,7 @@ void Unit::StopMoving()
     //float z = MapManager::Instance().GetBaseMap(GetMapId())->GetHeight(GetPositionX(), GetPositionY(), GetPositionZ(), true);
     //if (fabs(GetPositionZ() - z) < 2.0f)
     //    Relocate(GetPositionX(), GetPositionY(), z);
-    Relocate(GetPositionX(), GetPositionY(),GetPositionZ());
+    //Relocate(GetPositionX(), GetPositionY(),GetPositionZ());
 
     SendMonsterStop();
 
