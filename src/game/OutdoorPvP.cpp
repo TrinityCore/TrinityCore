@@ -245,10 +245,13 @@ bool OutdoorPvPObjective::AddCapturePoint(uint32 entry, uint32 map, float x, flo
 
     m_CapturePoint = MAKE_NEW_GUID(guid, entry, HIGHGUID_GAMEOBJECT);
 
+    if(goinfo->type != GAMEOBJECT_TYPE_CAPTURE_POINT)
+        sLog.outError("OutdoorPvP: GO %u is not capture point!", goinfo->id);
+
     // get the needed values from goinfo
-    m_ShiftMaxPhase = goinfo->raw.data[17];
-    m_ShiftMaxCaptureSpeed = m_ShiftMaxPhase / float(goinfo->raw.data[16]);
-    m_NeutralValue = goinfo->raw.data[12];
+    m_ShiftMaxPhase = goinfo->capturePoint.maxTime;
+    m_ShiftMaxCaptureSpeed = m_ShiftMaxPhase / float(goinfo->capturePoint.minTime);
+    m_NeutralValue = goinfo->capturePoint.neutralPercent;
 
     // add to map if map is already loaded
     Map * pMap = MapManager::Instance().FindMap(map);
@@ -546,16 +549,10 @@ bool OutdoorPvPObjective::HandleCaptureCreaturePlayerMoveInLos(Player * p, Creat
         return false;
 
     // check range and activity
-    if(cp->IsWithinDistInMap(p,cp->GetGOInfo()->raw.data[0]) && p->IsOutdoorPvPActive())
-    {
-        // data[8] will be used for player enter
-        return HandleCapturePointEvent(p, cp->GetGOInfo()->raw.data[8]); //i_objective->HandlePlayerEnter((Player*)u);
-    }
+    if(cp->IsWithinDistInMap(p,cp->GetGOInfo()->capturePoint.radius) && p->IsOutdoorPvPActive())
+        return HandleCapturePointEvent(p, cp->GetGOInfo()->capturePoint.progressEventID1); //i_objective->HandlePlayerEnter((Player*)u);
     else
-    {
-        // data[9] will be used for player leave
-        return HandleCapturePointEvent(p, cp->GetGOInfo()->raw.data[9]); //i_objective->HandlePlayerLeave((Player*)u);
-    }
+        return HandleCapturePointEvent(p, cp->GetGOInfo()->capturePoint.progressEventID2); //i_objective->HandlePlayerLeave((Player*)u);
 }
 
 void OutdoorPvP::SendUpdateWorldState(uint32 field, uint32 value)
