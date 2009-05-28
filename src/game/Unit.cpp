@@ -5467,6 +5467,8 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
             // Seed of Corruption
             if (dummySpell->SpellFamilyFlags & 0x0000001000000000LL)
             {
+                if(procSpell && procSpell->Id == 27285)
+                    return false;
                 Modifier* mod = triggeredByAura->GetModifier();
                 // if damage is more than need or target die from damage deal finish spell
                 if( mod->m_amount <= damage || GetHealth() <= damage )
