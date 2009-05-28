@@ -2069,7 +2069,8 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
                     unitList.remove(m_targets.getUnitTarget());
 
                 Trinity::RandomResizeList(unitList, m_spellValue->MaxAffectedTargets);
-            }
+            }else if(m_spellInfo->Id == 27285) // Seed of Corruption proc spell
+                unitList.remove(m_targets.getUnitTarget());
 
             for(std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
                 AddUnitTarget(*itr, i);
