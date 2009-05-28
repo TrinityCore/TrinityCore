@@ -11718,8 +11718,8 @@ void CharmInfo::InitPetActionBar()
         SetActionBar(i,COMMAND_ATTACK - i,ACT_COMMAND);
         SetActionBar(i + 7,COMMAND_ATTACK - i,ACT_REACTION);
     }
-    for(uint32 i = 0; i < 4; ++i)
-        SetActionBar(i,0,ACT_DISABLED);
+    for(uint32 i = 4; i < 8; ++i)
+        SetActionBar(i,0,ACT_PASSIVE);
 }
 
 void CharmInfo::InitEmptyActionBar(bool withAttack)
@@ -11845,7 +11845,7 @@ bool CharmInfo::RemoveSpellFromActionBar(uint32 spell_id)
         {
             if (spellmgr.GetFirstSpellInChain(PetActionBar[i].SpellOrAction) == first_id)
             {
-                SetActionBar(i,0,ACT_DISABLED);
+                SetActionBar(i,0,ACT_PASSIVE);
                 return true;
             }
         }
@@ -11894,8 +11894,13 @@ bool CharmInfo::LoadActionBar( std::string data )
         PetActionBar[index].SpellOrAction = atol((*iter).c_str());
 
         // check correctness
-        if(PetActionBar[index].IsActionBarForSpell() && !sSpellStore.LookupEntry(PetActionBar[index].SpellOrAction))
-            SetActionBar(index,0,ACT_DISABLED);
+        if(PetActionBar[index].IsActionBarForSpell())
+        {
+            if(!sSpellStore.LookupEntry(PetActionBar[index].SpellOrAction))
+                SetActionBar(index,0,ACT_PASSIVE);
+            else if(!IsAutocastableSpell(PetActionBar[index].SpellOrAction))
+                SetActionBar(index,PetActionBar[index].SpellOrAction,ACT_PASSIVE);
+        }
     }
     return true;
 }
