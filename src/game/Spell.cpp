@@ -2720,9 +2720,14 @@ void Spell::finish(bool ok)
     if(!m_caster->IsNonMeleeSpellCasted(false, false, true))
         m_caster->clearUnitState(UNIT_STAT_CASTING);
 
-    // other code related only to successfully finished spells
     if(!ok)
+    {
+        //restore spell mods
+        if (m_caster->GetTypeId() == TYPEID_PLAYER)
+            ((Player*)m_caster)->RestoreSpellMods(this);
         return;
+    }
+    // other code related only to successfully finished spells
 
     //remove spell mods
     if (m_caster->GetTypeId() == TYPEID_PLAYER)

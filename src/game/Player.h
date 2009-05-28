@@ -1447,6 +1447,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         bool IsAffectedBySpellmod(SpellEntry const *spellInfo, SpellModifier *mod, Spell const* spell = NULL);
         template <class T> T ApplySpellMod(uint32 spellId, SpellModOp op, T &basevalue, Spell const* spell = NULL);
         void RemoveSpellMods(Spell const* spell);
+        void RestoreSpellMods(Spell const* spell);
 
         bool HasSpellCooldown(uint32 spell_id) const
         {
@@ -2396,4 +2397,3 @@ template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &bas
     return T(diff);
 }
 #endif
-
