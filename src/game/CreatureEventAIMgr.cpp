@@ -641,6 +641,13 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                         if (!sCreatureStorage.LookupEntry<CreatureInfo>(action.update_template.creatureId))
                             sLog.outErrorDb("CreatureEventAI:  Event %u Action %u uses non-existant creature entry %u.", i, j+1, action.update_template.creatureId);
                         break;
+                    case ACTION_T_SET_SHEATH:
+                        if (action.set_sheath.sheath >= MAX_SHEATH_STATE)
+                        {
+                            sLog.outErrorDb("CreatureEventAI:  Event %u Action %u uses wrong sheath state %u.", i, j+1, action.set_sheath.sheath);
+                            action.set_sheath.sheath = SHEATH_STATE_UNARMED;
+                        }
+                        break;
                     case ACTION_T_EVADE:                    //No Params
                     case ACTION_T_FLEE_FOR_ASSIST:          //No Params
                     case ACTION_T_DIE:                      //No Params
