@@ -217,6 +217,7 @@ bool OutdoorPvPObjective::AddCapturePoint(uint32 entry, uint32 map, float x, flo
     cdata.is_dead = false;
     cdata.movementType = cinfo->MovementType;
     cdata.spawnMask = 1;
+    cdata.phaseMask = PHASEMASK_NORMAL;
 
     objmgr.AddCreatureToGrid(creature_guid, &cdata);
     m_CapturePointCreature = MAKE_NEW_GUID(creature_guid, OPVP_TRIGGER_CREATURE_ENTRY, HIGHGUID_UNIT);
@@ -240,6 +241,7 @@ bool OutdoorPvPObjective::AddCapturePoint(uint32 entry, uint32 map, float x, flo
     data.animprogress   = 100;
     data.spawnMask      = 1;
     data.go_state       = GO_STATE_READY;
+    data.phaseMask      = PHASEMASK_NORMAL;
 
     objmgr.AddGameobjectToGrid(guid, &data);
 
