@@ -61,7 +61,7 @@ template<class T>
 inline
 const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5)
 {
-    switch(rand()%4)
+    switch(rand()%5)
     {
         default:
         case 0: return v1;
@@ -69,6 +69,22 @@ const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5)
         case 2: return v3;
         case 3: return v4;
         case 4: return v5;
+    }
+}
+
+template<class T>
+inline
+const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5, const T& v6)
+{
+    switch(rand()%6)
+    {
+        default:
+        case 0: return v1;
+        case 1: return v2;
+        case 2: return v3;
+        case 3: return v4;
+        case 4: return v5;
+        case 5: return v6;
     }
 }
 

@@ -366,72 +366,79 @@ bool GOHello_go_acherus_soul_prison(Player *player, GameObject* _GO)
 
 #define GOSSIP_DKI      "Duel with me!"
 
-#define SAY_DKI_DUEL1   "Remember this day, $N, for it is the day that you will be thoroughly owned."
-#define SAY_DKI_DUEL2   "I'm going to tear your heart out, cupcake!"
-#define SAY_DKI_DUEL3   "You have challenged death itself!"
-#define SAY_DKI_DUEL4   "Don't make me laugh."
-#define SAY_DKI_DUEL5   "Here come the tears..."
-#define SAY_DKI_DUEL6   "No potions!"
+const char * SAY_DKI_DUEL1 = "Remember this day, $N, for it is the day that you will be thoroughly owned.";
+const char * SAY_DKI_DUEL2 = "I'm going to tear your heart out, cupcake!";
+const char * SAY_DKI_DUEL3 = "You have challenged death itself!";
+const char * SAY_DKI_DUEL4 = "Don't make me laugh.";
+const char * SAY_DKI_DUEL5 = "Here come the tears...";
+const char * SAY_DKI_DUEL6 = "No potions!";
+#define SAY_DKI_DUEL    RAND(SAY_DKI_DUEL1,SAY_DKI_DUEL2,SAY_DKI_DUEL3,SAY_DKI_DUEL4,SAY_DKI_DUEL5,SAY_DKI_DUEL6)
 
-struct TRINITY_DLL_DECL npc_death_knight_initiateAI : public ScriptedAI
+#define SPELL_DUEL_FLAG     52991
+
+struct TRINITY_DLL_DECL npc_death_knight_initiateAI : public SpellAI
 {
-    npc_death_knight_initiateAI(Creature *c) : ScriptedAI(c) {Reset();}
+    npc_death_knight_initiateAI(Creature *c) : SpellAI(c) {}
 
     void Reset()
     {
-        m_creature->setFaction(2084);
+        me->RestoreFaction();
+        lose = false;
+        SpellAI::Reset();
     }
 
-    void EnterCombat(Unit *who) {
-        if(who->GetTypeId() == TYPEID_PLAYER) {
-            switch(rand()%6)
-            {
-                case 0: DoSay(SAY_DKI_DUEL1, LANG_UNIVERSAL, who); break;
-                case 1: DoSay(SAY_DKI_DUEL2, LANG_UNIVERSAL, who); break;
-                case 2: DoSay(SAY_DKI_DUEL3, LANG_UNIVERSAL, who); break;
-                case 3: DoSay(SAY_DKI_DUEL4, LANG_UNIVERSAL, who); break;
-                case 4: DoSay(SAY_DKI_DUEL5, LANG_UNIVERSAL, who); break;
-                case 5: DoSay(SAY_DKI_DUEL6, LANG_UNIVERSAL, who); break;
-            }
-        }
+    bool lose;
+
+    void EnterCombat(Unit *who)
+    {
+        if(who->GetTypeId() == TYPEID_PLAYER)
+            me->MonsterSay(SAY_DKI_DUEL, LANG_UNIVERSAL, who->GetGUID());
+        SpellAI::EnterCombat(who);
     }
-
-    void Aggro(Unit *who) { }
-
-    void JustDied(Unit *killer) { }
 
     void UpdateAI(const uint32 diff)
     {
-        if ( !UpdateVictim() )
-            return;
-
-        Unit *victim = m_creature->getVictim();
-
-        if(victim->GetTypeId() == TYPEID_PLAYER) {
-            if ( (victim->GetHealth()*100)/victim->GetMaxHealth() <= 10 ) {
-                m_creature->setFaction(2084);
-                victim->AttackStop();
-                m_creature->CombatStop();
-                m_creature->RemoveAllAuras();
+        if(me->getVictim() && me->getVictim()->GetTypeId() == TYPEID_PLAYER)
+        {
+            if(lose)
+            {
+                if(!me->HasAura(7267)) // beg aura has faded
+                {
+                    ((Player*)me->getVictim())->KilledMonster(29025,m_creature->GetGUID());
+                    EnterEvadeMode();
+                }
+                return;
+            }
+            else if(me->getVictim()->GetHealth() * 10 < me->getVictim()->GetMaxHealth())
+            {
+                me->getVictim()->CastSpell(me->getVictim(), 7267, true); // beg
+                me->getVictim()->RemoveGameObject(SPELL_DUEL_FLAG, true);
                 EnterEvadeMode();
+                return; // must return after enterevademode
             }
         }
 
-        DoMeleeAttackIfReady();
+        SpellAI::UpdateAI(diff);
     }
 
     void DamageTaken(Unit *done_by, uint32 & damage)
     {
-        if(done_by->GetTypeId() == TYPEID_PLAYER && damage > m_creature->GetHealth())
+        if(done_by->GetTypeId() == TYPEID_PLAYER)
         {
-            //Take 0 damage
-            damage = 0;
-            ((Player*)done_by)->AttackStop();
-            ((Player*)done_by)->KilledMonster(29025,m_creature->GetGUID());
-            m_creature->setFaction(2084);
-            m_creature->RemoveAllAuras();
-            m_creature->CombatStop();
-            EnterEvadeMode();
+            if(done_by != me->getVictim())
+                damage = 0; // not allow other player to help
+            else if(damage > me->GetHealth())
+            {
+                damage = 0;
+                done_by->AttackStop();
+                if(!lose)
+                {
+                    lose = true;
+                    me->CastSpell(me, 7267, true); // beg
+                    me->getVictim()->RemoveGameObject(SPELL_DUEL_FLAG, true);
+                    me->RestoreFaction();
+                }
+            }
         }
     }
 };
@@ -443,7 +450,7 @@ CreatureAI* GetAI_npc_death_knight_initiate(Creature *_Creature)
 
 bool GossipHello_npc_death_knight_initiate(Player *player, Creature *_Creature)
 {
-    if( player->GetQuestStatus(12733) == QUEST_STATUS_INCOMPLETE )
+    if( player->GetQuestStatus(12733) == QUEST_STATUS_INCOMPLETE && _Creature->GetHealth() == _Creature->GetMaxHealth())
         player->ADD_GOSSIP_ITEM(0, GOSSIP_DKI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
     player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(),_Creature->GetGUID());
@@ -454,9 +461,9 @@ bool GossipSelect_npc_death_knight_initiate(Player *player, Creature *_Creature,
 {
     if( action == GOSSIP_ACTION_INFO_DEF )
     {
-        player->CastSpell(player, 52991, true);
-        _Creature->setFaction(14);
-        ((npc_death_knight_initiateAI*)_Creature->AI())->AttackStart(player);
+        player->CastSpell(player, SPELL_DUEL_FLAG, true);
+        _Creature->setFaction(10); // make him yellow, not red (will be killed by other npc)
+        _Creature->AI()->AttackStart(player);
     }
     return true;
 }
@@ -467,21 +474,23 @@ bool GossipSelect_npc_death_knight_initiate(Player *player, Creature *_Creature,
 
 struct TRINITY_DLL_DECL npc_salanar_the_horsemanAI : public ScriptedAI
 {
-    npc_salanar_the_horsemanAI(Creature *c) : ScriptedAI(c) {Reset();}
-
-    void Reset() { }
+    npc_salanar_the_horsemanAI(Creature *c) : ScriptedAI(c) {}
 
     void MoveInLineOfSight(Unit *who)
     {
-        if( (who->GetTypeId() == TYPEID_UNIT) && ((Creature*)who)->isVehicle() && m_creature->IsWithinDistInMap(who, 25.0f) )
+        ScriptedAI::MoveInLineOfSight(who);
+
+        if(who->GetTypeId() == TYPEID_UNIT && ((Creature*)who)->isVehicle() && me->IsWithinDistInMap(who, 10.0f))
         {
             if( Unit *charmer = who->GetCharmer() )
             {
                 if( charmer->GetTypeId() == TYPEID_PLAYER && ((Player*)charmer)->GetQuestStatus(12680) == QUEST_STATUS_INCOMPLETE )
                 {
-                    ((Player*)charmer)->KilledMonster(28767,m_creature->GetGUID());
+                    ((Player*)charmer)->KilledMonster(28767, me->GetGUID());
                     ((Player*)charmer)->ExitVehicle();
-                    // TODO: dismiss Vehicle; Now we cant do it from script.
+                    //without this we can see npc kill the horse
+                    //who->setDeathState(DEAD);
+                    //((Creature*)who)->Respawn();
                 }
             }
         }
