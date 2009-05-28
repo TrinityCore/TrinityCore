@@ -219,11 +219,13 @@ struct TRINITY_DLL_DECL BossAI : public ScriptedAI
     void Reset() { _Reset(); }
     void EnterCombat(Unit *who) { _EnterCombat(); }
     void JustDied(Unit *killer) { _JustDied(); }
+    void JustReachedHome() { me->setActive(false); }
 
     protected:
         void _Reset();
         void _EnterCombat();
         void _JustDied();
+        void _JustReachedHome() { me->setActive(false); }
 
         bool CheckInRoom()
         {

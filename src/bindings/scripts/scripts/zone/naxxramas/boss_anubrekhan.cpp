@@ -46,7 +46,7 @@ struct TRINITY_DLL_DECL boss_anubrekhanAI : public BossAI
     }
 
     void InitializeAI() { Prepare(); }
-    void JustReachedHome() { Prepare(); }
+    void JustReachedHome() { Prepare(); _JustReachedHome(); }
 
     void KilledUnit(Unit* victim)
     {
