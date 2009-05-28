@@ -4877,7 +4877,12 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         m_caster->CastSpell(x, y, z, 54522, true);
                     }
                     break;
-                }                
+                }
+                // Sky Darkener Assault
+                case 52124:
+                    if(unitTarget)
+                        m_caster->CastSpell(unitTarget, 52125, false);
+                    return;
                 // Death Gate
                 case 52751:
                 {
