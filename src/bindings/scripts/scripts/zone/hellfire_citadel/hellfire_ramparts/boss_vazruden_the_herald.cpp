@@ -281,7 +281,7 @@ struct TRINITY_DLL_DECL boss_vazruden_the_heraldAI : public ScriptedAI
         {
             Creature *Nazan = Unit::GetCreature(*m_creature, NazanGUID);
             Creature *Vazruden = Unit::GetCreature(*m_creature, VazrudenGUID);
-            if(Nazan || (Nazan = (Creature *)FindCreature(ENTRY_NAZAN, 5000, m_creature)))
+            if(Nazan || (Nazan = me->FindNearestCreature(ENTRY_NAZAN, 5000)))
             {
                 Nazan->SetLootRecipient(NULL);
                 Nazan->SetVisibility(VISIBILITY_OFF);
@@ -289,7 +289,7 @@ struct TRINITY_DLL_DECL boss_vazruden_the_heraldAI : public ScriptedAI
                 Nazan->RemoveCorpse();
                 NazanGUID = 0;
             }
-            if(Vazruden || (Vazruden = (Creature *)FindCreature(ENTRY_VAZRUDEN, 5000, m_creature)))
+            if(Vazruden || (Vazruden = me->FindNearestCreature(ENTRY_VAZRUDEN, 5000)))
             {
                 Vazruden->SetLootRecipient(NULL);
                 Vazruden->SetVisibility(VISIBILITY_OFF);
@@ -423,7 +423,7 @@ struct TRINITY_DLL_DECL mob_hellfire_sentryAI : public ScriptedAI
 
     void JustDied(Unit* who)
     {
-        if(Creature *herald = (Creature *)FindCreature(ENTRY_VAZRUDEN_HERALD,150, m_creature))
+        if(Creature *herald = me->FindNearestCreature(ENTRY_VAZRUDEN_HERALD,150))
             ((boss_vazruden_the_heraldAI *)herald->AI())->SentryDownBy(who);
     }
 

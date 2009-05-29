@@ -115,7 +115,7 @@ struct TRINITY_DLL_DECL npc_greengill_slaveAI : public ScriptedAI
                     ((Player*)plr)->KilledMonster(25086, m_creature->GetGUID());
             }
             DoCast(m_creature, ENRAGE);
-            Unit* Myrmidon = FindCreature(DM, 70, m_creature);
+            Unit* Myrmidon = me->FindNearestCreature(DM, 70);
             if(Myrmidon)
             {
                 m_creature->AddThreat(Myrmidon, 100000.0f);

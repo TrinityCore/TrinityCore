@@ -121,7 +121,7 @@ struct TRINITY_DLL_DECL boss_elder_nadoxAI : public ScriptedAI
         if(HeroicMode)
             if(rage_Timer < diff)
             {
-                Unit* Swarmer = FindCreature(MOB_AHNKAHAR_SWARMER,35,m_creature);
+                Unit* Swarmer = m_creature->FindNearestCreature(MOB_AHNKAHAR_SWARMER, 35);
 
                 if(Swarmer)
                 {

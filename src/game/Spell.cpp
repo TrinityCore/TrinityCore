@@ -1642,21 +1642,13 @@ WorldObject* Spell::SearchNearbyTarget(float range, SpellTargets TargetType)
                 switch(i_spellST->second.type)
                 {
                     case SPELL_TARGET_TYPE_GAMEOBJECT:
-                    {
-                        GameObject* p_GameObject = NULL;
-
                         if(i_spellST->second.targetEntry)
                         {
-                            Trinity::NearestGameObjectEntryInObjectRangeCheck go_check(*m_caster,i_spellST->second.targetEntry,range);
-                            Trinity::GameObjectLastSearcher<Trinity::NearestGameObjectEntryInObjectRangeCheck> checker(m_caster,p_GameObject,go_check);
-                            m_caster->VisitNearbyGridObject(range, checker);
-
-                            if(p_GameObject)
+                            if(goScriptTarget = m_caster->FindNearestGameObject(i_spellST->second.targetEntry, range))
                             {
                                 // remember found target and range, next attempt will find more near target with another entry
                                 creatureScriptTarget = NULL;
-                                goScriptTarget = p_GameObject;
-                                range = go_check.GetLastRange();
+                                range = m_caster->GetDistance(goScriptTarget);
                             }
                         }
                         else if( focusObject )          //Focus Object
@@ -1670,27 +1662,17 @@ WorldObject* Spell::SearchNearbyTarget(float range, SpellTargets TargetType)
                             }
                         }
                         break;
-                    }
                     case SPELL_TARGET_TYPE_CREATURE:
                         if(m_targets.getUnitTarget() && m_targets.getUnitTarget()->GetEntry() == i_spellST->second.targetEntry)
                             return m_targets.getUnitTarget();
                     case SPELL_TARGET_TYPE_DEAD:
                     default:
-                    {
-                        Creature *p_Creature = NULL;
-
-                        Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck u_check(*m_caster,i_spellST->second.targetEntry,i_spellST->second.type!=SPELL_TARGET_TYPE_DEAD,range);
-                        Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(m_caster,p_Creature, u_check);
-                        m_caster->VisitNearbyObject(range, searcher);
-
-                        if(p_Creature )
+                        if(creatureScriptTarget = m_caster->FindNearestCreature(i_spellST->second.targetEntry, range, i_spellST->second.type != SPELL_TARGET_TYPE_DEAD))
                         {
-                            creatureScriptTarget = p_Creature;
                             goScriptTarget = NULL;
-                            range = u_check.GetLastRange();
+                            range = m_caster->GetDistance(creatureScriptTarget);
                         }
                         break;
-                    }
                 }
             }
 

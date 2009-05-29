@@ -399,7 +399,7 @@ struct TRINITY_DLL_DECL mob_ingvar_throw_dummyAI : public ScriptedAI
 
     void Reset()
     {
-        Unit* target = FindCreature(ENTRY_THROW_TARGET,50,m_creature);
+        Unit* target = m_creature->FindNearestCreature(ENTRY_THROW_TARGET,50);
         if(target)
         {
             DoCast(m_creature, HeroicMode ? H_SPELL_SHADOW_AXE_DAMAGE : SPELL_SHADOW_AXE_DAMAGE);

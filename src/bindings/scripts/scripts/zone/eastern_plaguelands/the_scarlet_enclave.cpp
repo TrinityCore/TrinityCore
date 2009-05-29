@@ -266,7 +266,7 @@ void npc_unworthy_initiateAI::UpdateAI(const uint32 diff)
             for(int i = 0; i < 12; i++)
             {
                 GameObject* temp_prison;
-                temp_prison = FindGameObject(acherus_soul_prison[i],30,m_creature);
+                temp_prison = me->FindNearestGameObject(acherus_soul_prison[i],30);
                 if(!temp_prison) return;
                 if(dist == 99 || dist > m_creature->GetDistance2d(temp_prison))
                 {
@@ -363,7 +363,7 @@ bool GOHello_go_acherus_soul_prison(Player *player, GameObject* _GO)
     Creature* finder = player->SummonCreature(WORLD_TRIGGER,_GO->GetPositionX(),_GO->GetPositionY(),_GO->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,2000);
     if(!finder) return false;
 
-    Unit* prison_anchor = FindCreature(29521,5,finder);
+    Unit* prison_anchor = finder->FindNearestCreature(29521, 15);
     if(!prison_anchor) return false;
 
     uint64 owner = ((npc_unworthy_initiate_anchorAI*)((Creature*)prison_anchor)->AI())->GetTarget();

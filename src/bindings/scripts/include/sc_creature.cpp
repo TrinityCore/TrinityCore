@@ -507,28 +507,6 @@ void ScriptedAI::DoTeleportAll(float x, float y, float z, float o)
                 i_pl->TeleportTo(m_creature->GetMapId(), x, y, z, o, TELE_TO_NOT_LEAVE_COMBAT);
 }
 
-Unit* FindCreature(uint32 entry, float range, Unit* Finder)
-{
-    if(!Finder)
-        return NULL;
-    Creature* target = NULL;
-    Trinity::AllCreaturesOfEntryInRange check(Finder, entry, range);
-	Trinity::CreatureSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(Finder, target, check);
-    Finder->VisitNearbyObject(range, searcher);
-    return target;
-}
-
-GameObject* FindGameObject(uint32 entry, float range, Unit* Finder)
-{
-    if(!Finder)
-        return NULL;
-    GameObject* target = NULL;
-    Trinity::AllGameObjectsWithEntryInGrid go_check(entry);
-    Trinity::GameObjectSearcher<Trinity::AllGameObjectsWithEntryInGrid> searcher(Finder, target, go_check);
-    Finder->VisitNearbyGridObject(range, searcher);
-    return target;
-}
-
 Unit* ScriptedAI::DoSelectLowestHpFriendly(float range, uint32 MinHPDiff)
 {
     Unit* pUnit = NULL;
