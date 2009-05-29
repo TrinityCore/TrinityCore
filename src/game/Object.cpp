@@ -1428,14 +1428,14 @@ bool WorldObject::HasInArc(const float arcangle, const WorldObject* obj) const
     float angle = GetAngle( obj );
     angle -= m_orientation;
 
-    if(angle > 100 || angle < -100)
-    {
-        sLog.outCrash("Invalid Angle %f: this %u %u %f %f %f %f, that %u %u %f %f %f %f", angle,
-            GetEntry(), GetGUIDLow(), GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation(),
-            obj->GetEntry(), obj->GetGUIDLow(), obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ(), obj->GetOrientation());
-        assert(false);
-        return false;
-    }
+    //if(angle > 100 || angle < -100)
+    //{
+    //    sLog.outCrash("Invalid Angle %f: this %u %u %f %f %f %f, that %u %u %f %f %f %f", angle,
+    //        GetEntry(), GetGUIDLow(), GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation(),
+    //        obj->GetEntry(), obj->GetGUIDLow(), obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ(), obj->GetOrientation());
+    //    assert(false);
+    //    return false;
+    //}
 
     // move angle to range -pi ... +pi
     while( angle > M_PI)
