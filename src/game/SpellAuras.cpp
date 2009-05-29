@@ -695,7 +695,10 @@ void AreaAuraEffect::Update(uint32 diff)
         Unit *source = m_target;
         Unit *caster = GetCaster();
         if (!caster)
+        {
             m_target->RemoveAura(GetParentAura());
+            return;
+        }
 
         if( !source->hasUnitState(UNIT_STAT_ISOLATED) )
         {
