@@ -82,23 +82,22 @@ const go_type HPTowerFlags[HP_TOWER_NUM] = {
     {183515,530,-289.610,3696.83,75.9447,3.12414,0,0,0.999962,0.008727} // 2 stadium
 };
 
-class OutdoorPvPObjectiveHP : public OutdoorPvPObjective
+class OPvPCapturePointHP : public OPvPCapturePoint
 {
 public:
-    OutdoorPvPObjectiveHP(OutdoorPvP * pvp, OutdoorPvPHPTowerType type);
+    OPvPCapturePointHP(OutdoorPvP * pvp, OutdoorPvPHPTowerType type);
     bool Update(uint32 diff);
     void FillInitialWorldStates(WorldPacket & data);
     // used when player is activated/inactivated in the area
     bool HandlePlayerEnter(Player * plr);
     void HandlePlayerLeave(Player * plr);
-    bool HandleCapturePointEvent(Player * plr, uint32 eventId);
 private:
     OutdoorPvPHPTowerType m_TowerType;
 };
 
 class OutdoorPvPHP : public OutdoorPvP
 {
-friend class OutdoorPvPObjectiveHP;
+friend class OPvPCapturePointHP;
 public:
     OutdoorPvPHP();
     bool SetupOutdoorPvP();

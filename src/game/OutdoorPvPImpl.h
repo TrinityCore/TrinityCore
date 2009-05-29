@@ -22,7 +22,6 @@
 #include "OutdoorPvP.h"
 #include "Player.h"
 
-#define TEAM_ID(a) (a == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE)
 #define OTHER_TEAM(a) (a == TEAM_ALLIANCE ? TEAM_HORDE : TEAM_ALLIANCE)
 
 enum ObjectiveStates

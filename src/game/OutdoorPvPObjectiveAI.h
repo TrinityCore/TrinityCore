@@ -15,22 +15,3 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
-#ifndef TRINITY_OUTDOORPVPOBJECTIVEAI_H
-#define TRINITY_OUTDOORPVPOBJECTIVEAI_H
-
-#include "NullCreatureAI.h"
-
-class Creature;
-
-class TRINITY_DLL_DECL OutdoorPvPObjectiveAI : public NullCreatureAI
-{
-    public:
-        explicit OutdoorPvPObjectiveAI(Creature *c);
-
-        void MoveInLineOfSight(Unit *);
-
-        static int Permissible(const Creature *);
-};
-#endif
-

@@ -458,10 +458,8 @@ void WorldSession::HandleTogglePvP( WorldPacket & recv_data )
             GetPlayer()->pvpInfo.endTimer = time(NULL);     // start toggle-off
     }
 
-    if(OutdoorPvP * pvp = _player->GetOutdoorPvP())
-    {
-        pvp->HandlePlayerActivityChanged(_player);
-    }
+    //if(OutdoorPvP * pvp = _player->GetOutdoorPvP())
+    //    pvp->HandlePlayerActivityChanged(_player);
 }
 
 void WorldSession::HandleZoneUpdateOpcode( WorldPacket & recv_data )

@@ -33,8 +33,8 @@ const uint32 HP_LANG_CAPTURE_A[HP_TOWER_NUM] = {LANG_OPVP_HP_CAPTURE_BROKENHILL_
 
 const uint32 HP_LANG_CAPTURE_H[HP_TOWER_NUM] = {LANG_OPVP_HP_CAPTURE_BROKENHILL_H,LANG_OPVP_HP_CAPTURE_OVERLOOK_H,LANG_OPVP_HP_CAPTURE_STADIUM_H};
 
-OutdoorPvPObjectiveHP::OutdoorPvPObjectiveHP(OutdoorPvP *pvp,OutdoorPvPHPTowerType type)
-: OutdoorPvPObjective(pvp), m_TowerType(type)
+OPvPCapturePointHP::OPvPCapturePointHP(OutdoorPvP *pvp,OutdoorPvPHPTowerType type)
+: OPvPCapturePoint(pvp), m_TowerType(type)
 {
     AddCapturePoint(HPCapturePoints[type].entry,
         HPCapturePoints[type].map,
@@ -72,11 +72,11 @@ bool OutdoorPvPHP::SetupOutdoorPvP()
     for(int i = 0; i < OutdoorPvPHPBuffZonesNum; ++i)
         RegisterZone(OutdoorPvPHPBuffZones[i]);
 
-    m_OutdoorPvPObjectives.push_back(new OutdoorPvPObjectiveHP(this,HP_TOWER_BROKEN_HILL));
+    m_capturePoints.push_back(new OPvPCapturePointHP(this,HP_TOWER_BROKEN_HILL));
 
-    m_OutdoorPvPObjectives.push_back(new OutdoorPvPObjectiveHP(this,HP_TOWER_OVERLOOK));
+    m_capturePoints.push_back(new OPvPCapturePointHP(this,HP_TOWER_OVERLOOK));
 
-    m_OutdoorPvPObjectives.push_back(new OutdoorPvPObjectiveHP(this,HP_TOWER_STADIUM));
+    m_capturePoints.push_back(new OPvPCapturePointHP(this,HP_TOWER_STADIUM));
 
     return true;
 }
@@ -157,16 +157,16 @@ void OutdoorPvPHP::FillInitialWorldStates(WorldPacket &data)
     data << uint32(HP_UI_TOWER_SLIDER_DISPLAY) << uint32(0);
     data << uint32(HP_UI_TOWER_SLIDER_POS) << uint32(50);
     data << uint32(HP_UI_TOWER_SLIDER_N) << uint32(100);
-    for(OutdoorPvPObjectiveSet::iterator itr = m_OutdoorPvPObjectives.begin(); itr != m_OutdoorPvPObjectives.end(); ++itr)
+    for(OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
     {
         (*itr)->FillInitialWorldStates(data);
     }
 }
 
-bool OutdoorPvPObjectiveHP::Update(uint32 diff)
+bool OPvPCapturePointHP::Update(uint32 diff)
 {
     // if status changed:
-    if(OutdoorPvPObjective::Update(diff))
+    if(OPvPCapturePoint::Update(diff))
     {
         if(m_OldState != m_State)
         {
@@ -249,7 +249,7 @@ bool OutdoorPvPObjectiveHP::Update(uint32 diff)
                 break;
             }
 
-            GameObject* flag = HashMapHolder<GameObject>::Find(m_CapturePoint);
+            GameObject* flag = HashMapHolder<GameObject>::Find(m_CapturePointGUID);
             GameObject* flag2 = HashMapHolder<GameObject>::Find(m_Objects[m_TowerType]);
             if(flag)
             {
@@ -285,7 +285,7 @@ bool OutdoorPvPObjectiveHP::Update(uint32 diff)
     return false;
 }
 
-void OutdoorPvPObjectiveHP::FillInitialWorldStates(WorldPacket &data)
+void OPvPCapturePointHP::FillInitialWorldStates(WorldPacket &data)
 {
     switch(m_State)
     {
@@ -312,9 +312,9 @@ void OutdoorPvPObjectiveHP::FillInitialWorldStates(WorldPacket &data)
     }
 }
 
-bool OutdoorPvPObjectiveHP::HandlePlayerEnter(Player *plr)
+bool OPvPCapturePointHP::HandlePlayerEnter(Player *plr)
 {
-    if(OutdoorPvPObjective::HandlePlayerEnter(plr))
+    if(OPvPCapturePoint::HandlePlayerEnter(plr))
     {
         plr->SendUpdateWorldState(HP_UI_TOWER_SLIDER_DISPLAY, 1);
         uint32 phase = (uint32)ceil(( m_ShiftPhase + m_ShiftMaxPhase) / ( 2 * m_ShiftMaxPhase ) * 100.0f);
@@ -325,10 +325,10 @@ bool OutdoorPvPObjectiveHP::HandlePlayerEnter(Player *plr)
     return false;
 }
 
-void OutdoorPvPObjectiveHP::HandlePlayerLeave(Player *plr)
+void OPvPCapturePointHP::HandlePlayerLeave(Player *plr)
 {
     plr->SendUpdateWorldState(HP_UI_TOWER_SLIDER_DISPLAY, 0);
-    OutdoorPvPObjective::HandlePlayerLeave(plr);
+    OPvPCapturePoint::HandlePlayerLeave(plr);
 }
 
 void OutdoorPvPHP::HandleKillImpl(Player *plr, Unit * killed)
@@ -341,19 +341,3 @@ void OutdoorPvPHP::HandleKillImpl(Player *plr, Unit * killed)
     else if(plr->GetTeam() == HORDE && ((Player*)killed)->GetTeam() != HORDE)
         plr->CastSpell(plr,HordePlayerKillReward,true);
 }
-
-bool OutdoorPvPObjectiveHP::HandleCapturePointEvent(Player *plr, uint32 eventId)
-{
-    if(eventId == HP_CapturePointEvent_Enter[m_TowerType])
-    {
-        this->HandlePlayerEnter(plr);
-        return true;
-    }
-    else if(eventId == HP_CapturePointEvent_Leave[m_TowerType])
-    {
-        this->HandlePlayerLeave(plr);
-        return true;
-    }
-    return false;
-}
-

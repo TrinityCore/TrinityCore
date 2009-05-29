@@ -42,7 +42,7 @@ bool GossipSelect_npc_demolisher_engineerer(Player* player, Creature* me, uint32
     {
         case 0: player->CastSpell(player, 56663, false); break;
         case 1: player->CastSpell(player, 56575, false); break;
-        case 2: player->CastSpell(player, TEAM_ID(player->GetTeam()) ? 61408 : 56661, false); break;
+        case 2: player->CastSpell(player, player->GetTeamId() ? 61408 : 56661, false); break;
     }
 
     return true;
