@@ -21,6 +21,7 @@
 
 #include "Util.h"
 #include "SharedDefines.h"
+#include "GameObject.h"
 
 #include <map>
 #include <set>
