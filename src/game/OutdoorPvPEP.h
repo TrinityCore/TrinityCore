@@ -178,18 +178,17 @@ const go_type EP_NPT_LordaeronShrine = {181682,0,3167.72,-4355.91,138.785,1.6929
 
 class OutdoorPvPEP;
 
-class OutdoorPvPObjectiveEP_EWT : public OutdoorPvPObjective
+class OPvPCapturePointEP_EWT : public OPvPCapturePoint
 {
 friend class OutdoorPvPEP;
 public:
-    OutdoorPvPObjectiveEP_EWT(OutdoorPvP * pvp);
+    OPvPCapturePointEP_EWT(OutdoorPvP * pvp);
     bool Update(uint32 diff);
     void FillInitialWorldStates(WorldPacket & data);
     // used when player is activated/inactivated in the area
     bool HandlePlayerEnter(Player * plr);
     void HandlePlayerLeave(Player * plr);
 protected:
-    bool HandleCapturePointEvent(Player * plr, uint32 eventId);
     void SummonSupportUnitAtNorthpassTower(uint32 team);
     void UpdateTowerState();
 protected:
@@ -197,18 +196,17 @@ protected:
     uint32 m_UnitsSummonedSide;
 };
 
-class OutdoorPvPObjectiveEP_NPT : public OutdoorPvPObjective
+class OPvPCapturePointEP_NPT : public OPvPCapturePoint
 {
 friend class OutdoorPvPEP;
 public:
-    OutdoorPvPObjectiveEP_NPT(OutdoorPvP * pvp);
+    OPvPCapturePointEP_NPT(OutdoorPvP * pvp);
     bool Update(uint32 diff);
     void FillInitialWorldStates(WorldPacket & data);
     // used when player is activated/inactivated in the area
     bool HandlePlayerEnter(Player * plr);
     void HandlePlayerLeave(Player * plr);
 protected:
-    bool HandleCapturePointEvent(Player * plr, uint32 eventId);
     void SummonGO(uint32 team);
     void UpdateTowerState();
 protected:
@@ -216,18 +214,17 @@ protected:
     uint32 m_SummonedGOSide;
 };
 
-class OutdoorPvPObjectiveEP_CGT : public OutdoorPvPObjective
+class OPvPCapturePointEP_CGT : public OPvPCapturePoint
 {
 friend class OutdoorPvPEP;
 public:
-    OutdoorPvPObjectiveEP_CGT(OutdoorPvP * pvp);
+    OPvPCapturePointEP_CGT(OutdoorPvP * pvp);
     bool Update(uint32 diff);
     void FillInitialWorldStates(WorldPacket & data);
     // used when player is activated/inactivated in the area
     bool HandlePlayerEnter(Player * plr);
     void HandlePlayerLeave(Player * plr);
 protected:
-    bool HandleCapturePointEvent(Player * plr, uint32 eventId);
     void LinkGraveYard(uint32 team);
     void UpdateTowerState();
 protected:
@@ -235,11 +232,11 @@ protected:
     uint32 m_GraveyardSide;
 };
 
-class OutdoorPvPObjectiveEP_PWT : public OutdoorPvPObjective
+class OPvPCapturePointEP_PWT : public OPvPCapturePoint
 {
 friend class OutdoorPvPEP;
 public:
-    OutdoorPvPObjectiveEP_PWT(OutdoorPvP * pvp);
+    OPvPCapturePointEP_PWT(OutdoorPvP * pvp);
     bool Update(uint32 diff);
     void FillInitialWorldStates(WorldPacket & data);
     // used when player is activated/inactivated in the area
@@ -248,7 +245,6 @@ public:
     bool HandleGossipOption(Player *plr, uint64 guid, uint32 gossipid);
     bool CanTalkTo(Player * plr, Creature * c, GossipOption &gso);
 protected:
-    bool HandleCapturePointEvent(Player * plr, uint32 eventId);
     void SummonFlightMaster(uint32 team);
     void UpdateTowerState();
 protected:
@@ -258,10 +254,10 @@ protected:
 
 class OutdoorPvPEP : public OutdoorPvP
 {
-friend class OutdoorPvPObjectiveEP_EWT;
-friend class OutdoorPvPObjectiveEP_NPT;
-friend class OutdoorPvPObjectiveEP_PWT;
-friend class OutdoorPvPObjectiveEP_CGT;
+friend class OPvPCapturePointEP_EWT;
+friend class OPvPCapturePointEP_NPT;
+friend class OPvPCapturePointEP_PWT;
+friend class OPvPCapturePointEP_CGT;
 public:
     OutdoorPvPEP();
     bool SetupOutdoorPvP();

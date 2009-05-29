@@ -13277,9 +13277,9 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
         if(OutdoorPvP * pvp = player->GetOutdoorPvP())
             pvp->HandleKill(player, pVictim);
 
-    if(pVictim->GetTypeId() == TYPEID_PLAYER)
-        if(OutdoorPvP * pvp = ((Player*)pVictim)->GetOutdoorPvP())
-            pvp->HandlePlayerActivityChanged((Player*)pVictim);
+    //if(pVictim->GetTypeId() == TYPEID_PLAYER)
+    //    if(OutdoorPvP * pvp = ((Player*)pVictim)->GetOutdoorPvP())
+    //        pvp->HandlePlayerActivityChanged((Player*)pVictim);
 
     // battleground things (do this at the end, so the death state flag will be properly set to handle in the bg->handlekill)
     if(player && player->InBattleGround())

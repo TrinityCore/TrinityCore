@@ -28,16 +28,16 @@
 #include "World.h"
 #include "GossipDef.h"
 
-OutdoorPvPObjectiveEP_EWT::OutdoorPvPObjectiveEP_EWT(OutdoorPvP *pvp)
-: OutdoorPvPObjective(pvp), m_TowerState(EP_TS_N), m_UnitsSummonedSide(0)
+OPvPCapturePointEP_EWT::OPvPCapturePointEP_EWT(OutdoorPvP *pvp)
+: OPvPCapturePoint(pvp), m_TowerState(EP_TS_N), m_UnitsSummonedSide(0)
 {
     AddCapturePoint(EPCapturePoints[EP_EWT].entry,EPCapturePoints[EP_EWT].map,EPCapturePoints[EP_EWT].x,EPCapturePoints[EP_EWT].y,EPCapturePoints[EP_EWT].z,EPCapturePoints[EP_EWT].o,EPCapturePoints[EP_EWT].rot0,EPCapturePoints[EP_EWT].rot1,EPCapturePoints[EP_EWT].rot2,EPCapturePoints[EP_EWT].rot3);
     AddObject(EP_EWT_FLAGS,EPTowerFlags[EP_EWT].entry,EPTowerFlags[EP_EWT].map,EPTowerFlags[EP_EWT].x,EPTowerFlags[EP_EWT].y,EPTowerFlags[EP_EWT].z,EPTowerFlags[EP_EWT].o,EPTowerFlags[EP_EWT].rot0,EPTowerFlags[EP_EWT].rot1,EPTowerFlags[EP_EWT].rot2,EPTowerFlags[EP_EWT].rot3);
 }
 
-bool OutdoorPvPObjectiveEP_EWT::Update(uint32 diff)
+bool OPvPCapturePointEP_EWT::Update(uint32 diff)
 {
-    if(OutdoorPvPObjective::Update(diff))
+    if(OPvPCapturePoint::Update(diff))
     {
         if(m_OldState != m_State || fabs(m_ShiftPhase) == m_ShiftMaxPhase)  // state won't change, only phase when maxed out!
         {
@@ -90,7 +90,7 @@ bool OutdoorPvPObjectiveEP_EWT::Update(uint32 diff)
                 break;
             }
 
-            GameObject* flag = HashMapHolder<GameObject>::Find(m_CapturePoint);
+            GameObject* flag = HashMapHolder<GameObject>::Find(m_CapturePointGUID);
             GameObject* flag2 = HashMapHolder<GameObject>::Find(m_Objects[EP_EWT_FLAGS]);
             if(flag)
             {
@@ -126,7 +126,7 @@ bool OutdoorPvPObjectiveEP_EWT::Update(uint32 diff)
     return false;
 }
 
-void OutdoorPvPObjectiveEP_EWT::FillInitialWorldStates(WorldPacket &data)
+void OPvPCapturePointEP_EWT::FillInitialWorldStates(WorldPacket &data)
 {
     data << EP_EWT_A << uint32(bool(m_TowerState & EP_TS_A));
     data << EP_EWT_H << uint32(bool(m_TowerState & EP_TS_H));
@@ -137,7 +137,7 @@ void OutdoorPvPObjectiveEP_EWT::FillInitialWorldStates(WorldPacket &data)
     data << EP_EWT_N << uint32(bool(m_TowerState & EP_TS_N));
 }
 
-void OutdoorPvPObjectiveEP_EWT::UpdateTowerState()
+void OPvPCapturePointEP_EWT::UpdateTowerState()
 {
     m_PvP->SendUpdateWorldState(EP_EWT_A , bool(m_TowerState & EP_TS_A));
     m_PvP->SendUpdateWorldState(EP_EWT_H , bool(m_TowerState & EP_TS_H));
@@ -148,9 +148,9 @@ void OutdoorPvPObjectiveEP_EWT::UpdateTowerState()
     m_PvP->SendUpdateWorldState(EP_EWT_N , bool(m_TowerState & EP_TS_N));
 }
 
-bool OutdoorPvPObjectiveEP_EWT::HandlePlayerEnter(Player *plr)
+bool OPvPCapturePointEP_EWT::HandlePlayerEnter(Player *plr)
 {
-    if(OutdoorPvPObjective::HandlePlayerEnter(plr))
+    if(OPvPCapturePoint::HandlePlayerEnter(plr))
     {
         plr->SendUpdateWorldState(EP_UI_TOWER_SLIDER_DISPLAY, 1);
         uint32 phase = (uint32)ceil(( m_ShiftPhase + m_ShiftMaxPhase) / ( 2 * m_ShiftMaxPhase ) * 100.0f);
@@ -161,28 +161,13 @@ bool OutdoorPvPObjectiveEP_EWT::HandlePlayerEnter(Player *plr)
     return false;
 }
 
-void OutdoorPvPObjectiveEP_EWT::HandlePlayerLeave(Player *plr)
+void OPvPCapturePointEP_EWT::HandlePlayerLeave(Player *plr)
 {
     plr->SendUpdateWorldState(EP_UI_TOWER_SLIDER_DISPLAY, 0);
-    OutdoorPvPObjective::HandlePlayerLeave(plr);
+    OPvPCapturePoint::HandlePlayerLeave(plr);
 }
 
-bool OutdoorPvPObjectiveEP_EWT::HandleCapturePointEvent(Player *plr, uint32 eventId)
-{
-    if(eventId == EPTowerPlayerEnterEvents[EP_EWT])
-    {
-        this->HandlePlayerEnter(plr);
-        return true;
-    }
-    else if (eventId == EPTowerPlayerLeaveEvents[EP_EWT])
-    {
-        this->HandlePlayerLeave(plr);
-        return true;
-    }
-    return false;
-}
-
-void OutdoorPvPObjectiveEP_EWT::SummonSupportUnitAtNorthpassTower(uint32 team)
+void OPvPCapturePointEP_EWT::SummonSupportUnitAtNorthpassTower(uint32 team)
 {
     if(m_UnitsSummonedSide != team)
     {
@@ -202,16 +187,16 @@ void OutdoorPvPObjectiveEP_EWT::SummonSupportUnitAtNorthpassTower(uint32 team)
 }
 
 // NPT
-OutdoorPvPObjectiveEP_NPT::OutdoorPvPObjectiveEP_NPT(OutdoorPvP *pvp)
-: OutdoorPvPObjective(pvp), m_TowerState(EP_TS_N), m_SummonedGOSide(0)
+OPvPCapturePointEP_NPT::OPvPCapturePointEP_NPT(OutdoorPvP *pvp)
+: OPvPCapturePoint(pvp), m_TowerState(EP_TS_N), m_SummonedGOSide(0)
 {
     AddCapturePoint(EPCapturePoints[EP_NPT].entry,EPCapturePoints[EP_NPT].map,EPCapturePoints[EP_NPT].x,EPCapturePoints[EP_NPT].y,EPCapturePoints[EP_NPT].z,EPCapturePoints[EP_NPT].o,EPCapturePoints[EP_NPT].rot0,EPCapturePoints[EP_NPT].rot1,EPCapturePoints[EP_NPT].rot2,EPCapturePoints[EP_NPT].rot3);
     AddObject(EP_NPT_FLAGS,EPTowerFlags[EP_NPT].entry,EPTowerFlags[EP_NPT].map,EPTowerFlags[EP_NPT].x,EPTowerFlags[EP_NPT].y,EPTowerFlags[EP_NPT].z,EPTowerFlags[EP_NPT].o,EPTowerFlags[EP_NPT].rot0,EPTowerFlags[EP_NPT].rot1,EPTowerFlags[EP_NPT].rot2,EPTowerFlags[EP_NPT].rot3);
 }
 
-bool OutdoorPvPObjectiveEP_NPT::Update(uint32 diff)
+bool OPvPCapturePointEP_NPT::Update(uint32 diff)
 {
-    if(OutdoorPvPObjective::Update(diff))
+    if(OPvPCapturePoint::Update(diff))
     {
         if(m_OldState != m_State || fabs(m_ShiftPhase) == m_ShiftMaxPhase)  // state won't change, only phase when maxed out!
         {
@@ -266,7 +251,7 @@ bool OutdoorPvPObjectiveEP_NPT::Update(uint32 diff)
                 break;
             }
 
-            GameObject* flag = HashMapHolder<GameObject>::Find(m_CapturePoint);
+            GameObject* flag = HashMapHolder<GameObject>::Find(m_CapturePointGUID);
             GameObject* flag2 = HashMapHolder<GameObject>::Find(m_Objects[EP_NPT_FLAGS]);
             if(flag)
             {
@@ -301,7 +286,7 @@ bool OutdoorPvPObjectiveEP_NPT::Update(uint32 diff)
     return false;
 }
 
-void OutdoorPvPObjectiveEP_NPT::FillInitialWorldStates(WorldPacket &data)
+void OPvPCapturePointEP_NPT::FillInitialWorldStates(WorldPacket &data)
 {
     data << EP_NPT_A << uint32(bool(m_TowerState & EP_TS_A));
     data << EP_NPT_H << uint32(bool(m_TowerState & EP_TS_H));
@@ -312,7 +297,7 @@ void OutdoorPvPObjectiveEP_NPT::FillInitialWorldStates(WorldPacket &data)
     data << EP_NPT_N << uint32(bool(m_TowerState & EP_TS_N));
 }
 
-void OutdoorPvPObjectiveEP_NPT::UpdateTowerState()
+void OPvPCapturePointEP_NPT::UpdateTowerState()
 {
     m_PvP->SendUpdateWorldState(EP_NPT_A , bool(m_TowerState & EP_TS_A));
     m_PvP->SendUpdateWorldState(EP_NPT_H , bool(m_TowerState & EP_TS_H));
@@ -323,9 +308,9 @@ void OutdoorPvPObjectiveEP_NPT::UpdateTowerState()
     m_PvP->SendUpdateWorldState(EP_NPT_N , bool(m_TowerState & EP_TS_N));
 }
 
-bool OutdoorPvPObjectiveEP_NPT::HandlePlayerEnter(Player *plr)
+bool OPvPCapturePointEP_NPT::HandlePlayerEnter(Player *plr)
 {
-    if(OutdoorPvPObjective::HandlePlayerEnter(plr))
+    if(OPvPCapturePoint::HandlePlayerEnter(plr))
     {
         plr->SendUpdateWorldState(EP_UI_TOWER_SLIDER_DISPLAY, 1);
         uint32 phase = (uint32)ceil(( m_ShiftPhase + m_ShiftMaxPhase) / ( 2 * m_ShiftMaxPhase ) * 100.0f);
@@ -336,28 +321,13 @@ bool OutdoorPvPObjectiveEP_NPT::HandlePlayerEnter(Player *plr)
     return false;
 }
 
-void OutdoorPvPObjectiveEP_NPT::HandlePlayerLeave(Player *plr)
+void OPvPCapturePointEP_NPT::HandlePlayerLeave(Player *plr)
 {
     plr->SendUpdateWorldState(EP_UI_TOWER_SLIDER_DISPLAY, 0);
-    OutdoorPvPObjective::HandlePlayerLeave(plr);
+    OPvPCapturePoint::HandlePlayerLeave(plr);
 }
 
-bool OutdoorPvPObjectiveEP_NPT::HandleCapturePointEvent(Player *plr, uint32 eventId)
-{
-    if(eventId == EPTowerPlayerEnterEvents[EP_NPT])
-    {
-        this->HandlePlayerEnter(plr);
-        return true;
-    }
-    else if (eventId == EPTowerPlayerLeaveEvents[EP_NPT])
-    {
-        this->HandlePlayerLeave(plr);
-        return true;
-    }
-    return false;
-}
-
-void OutdoorPvPObjectiveEP_NPT::SummonGO(uint32 team)
+void OPvPCapturePointEP_NPT::SummonGO(uint32 team)
 {
     if(m_SummonedGOSide != team)
     {
@@ -371,16 +341,16 @@ void OutdoorPvPObjectiveEP_NPT::SummonGO(uint32 team)
 }
 
 // CGT
-OutdoorPvPObjectiveEP_CGT::OutdoorPvPObjectiveEP_CGT(OutdoorPvP *pvp)
-: OutdoorPvPObjective(pvp), m_TowerState(EP_TS_N), m_GraveyardSide(0)
+OPvPCapturePointEP_CGT::OPvPCapturePointEP_CGT(OutdoorPvP *pvp)
+: OPvPCapturePoint(pvp), m_TowerState(EP_TS_N), m_GraveyardSide(0)
 {
     AddCapturePoint(EPCapturePoints[EP_CGT].entry,EPCapturePoints[EP_CGT].map,EPCapturePoints[EP_CGT].x,EPCapturePoints[EP_CGT].y,EPCapturePoints[EP_CGT].z,EPCapturePoints[EP_CGT].o,EPCapturePoints[EP_CGT].rot0,EPCapturePoints[EP_CGT].rot1,EPCapturePoints[EP_CGT].rot2,EPCapturePoints[EP_CGT].rot3);
     AddObject(EP_CGT_FLAGS,EPTowerFlags[EP_CGT].entry,EPTowerFlags[EP_CGT].map,EPTowerFlags[EP_CGT].x,EPTowerFlags[EP_CGT].y,EPTowerFlags[EP_CGT].z,EPTowerFlags[EP_CGT].o,EPTowerFlags[EP_CGT].rot0,EPTowerFlags[EP_CGT].rot1,EPTowerFlags[EP_CGT].rot2,EPTowerFlags[EP_CGT].rot3);
 }
 
-bool OutdoorPvPObjectiveEP_CGT::Update(uint32 diff)
+bool OPvPCapturePointEP_CGT::Update(uint32 diff)
 {
-    if(OutdoorPvPObjective::Update(diff))
+    if(OPvPCapturePoint::Update(diff))
     {
         if(m_OldState != m_State || fabs(m_ShiftPhase) == m_ShiftMaxPhase)  // state won't change, only phase when maxed out!
         {
@@ -433,7 +403,7 @@ bool OutdoorPvPObjectiveEP_CGT::Update(uint32 diff)
                 break;
             }
 
-            GameObject* flag = HashMapHolder<GameObject>::Find(m_CapturePoint);
+            GameObject* flag = HashMapHolder<GameObject>::Find(m_CapturePointGUID);
             GameObject* flag2 = HashMapHolder<GameObject>::Find(m_Objects[EP_CGT_FLAGS]);
             if(flag)
             {
@@ -468,7 +438,7 @@ bool OutdoorPvPObjectiveEP_CGT::Update(uint32 diff)
     return false;
 }
 
-void OutdoorPvPObjectiveEP_CGT::FillInitialWorldStates(WorldPacket &data)
+void OPvPCapturePointEP_CGT::FillInitialWorldStates(WorldPacket &data)
 {
     data << EP_CGT_A << uint32(bool(m_TowerState & EP_TS_A));
     data << EP_CGT_H << uint32(bool(m_TowerState & EP_TS_H));
@@ -479,7 +449,7 @@ void OutdoorPvPObjectiveEP_CGT::FillInitialWorldStates(WorldPacket &data)
     data << EP_CGT_N << uint32(bool(m_TowerState & EP_TS_N));
 }
 
-void OutdoorPvPObjectiveEP_CGT::UpdateTowerState()
+void OPvPCapturePointEP_CGT::UpdateTowerState()
 {
     m_PvP->SendUpdateWorldState(EP_CGT_A , bool(m_TowerState & EP_TS_A));
     m_PvP->SendUpdateWorldState(EP_CGT_H , bool(m_TowerState & EP_TS_H));
@@ -490,9 +460,9 @@ void OutdoorPvPObjectiveEP_CGT::UpdateTowerState()
     m_PvP->SendUpdateWorldState(EP_CGT_N , bool(m_TowerState & EP_TS_N));
 }
 
-bool OutdoorPvPObjectiveEP_CGT::HandlePlayerEnter(Player *plr)
+bool OPvPCapturePointEP_CGT::HandlePlayerEnter(Player *plr)
 {
-    if(OutdoorPvPObjective::HandlePlayerEnter(plr))
+    if(OPvPCapturePoint::HandlePlayerEnter(plr))
     {
         plr->SendUpdateWorldState(EP_UI_TOWER_SLIDER_DISPLAY, 1);
         uint32 phase = (uint32)ceil(( m_ShiftPhase + m_ShiftMaxPhase) / ( 2 * m_ShiftMaxPhase ) * 100.0f);
@@ -503,28 +473,13 @@ bool OutdoorPvPObjectiveEP_CGT::HandlePlayerEnter(Player *plr)
     return false;
 }
 
-void OutdoorPvPObjectiveEP_CGT::HandlePlayerLeave(Player *plr)
+void OPvPCapturePointEP_CGT::HandlePlayerLeave(Player *plr)
 {
     plr->SendUpdateWorldState(EP_UI_TOWER_SLIDER_DISPLAY, 0);
-    OutdoorPvPObjective::HandlePlayerLeave(plr);
+    OPvPCapturePoint::HandlePlayerLeave(plr);
 }
 
-bool OutdoorPvPObjectiveEP_CGT::HandleCapturePointEvent(Player *plr, uint32 eventId)
-{
-    if(eventId == EPTowerPlayerEnterEvents[EP_CGT])
-    {
-        this->HandlePlayerEnter(plr);
-        return true;
-    }
-    else if (eventId == EPTowerPlayerLeaveEvents[EP_CGT])
-    {
-        this->HandlePlayerLeave(plr);
-        return true;
-    }
-    return false;
-}
-
-void OutdoorPvPObjectiveEP_CGT::LinkGraveYard(uint32 team)
+void OPvPCapturePointEP_CGT::LinkGraveYard(uint32 team)
 {
     if(m_GraveyardSide != team)
     {
@@ -535,16 +490,16 @@ void OutdoorPvPObjectiveEP_CGT::LinkGraveYard(uint32 team)
 }
 
 // PWT
-OutdoorPvPObjectiveEP_PWT::OutdoorPvPObjectiveEP_PWT(OutdoorPvP *pvp)
-: OutdoorPvPObjective(pvp), m_TowerState(EP_TS_N), m_FlightMasterSpawned(0)
+OPvPCapturePointEP_PWT::OPvPCapturePointEP_PWT(OutdoorPvP *pvp)
+: OPvPCapturePoint(pvp), m_TowerState(EP_TS_N), m_FlightMasterSpawned(0)
 {
     AddCapturePoint(EPCapturePoints[EP_PWT].entry,EPCapturePoints[EP_PWT].map,EPCapturePoints[EP_PWT].x,EPCapturePoints[EP_PWT].y,EPCapturePoints[EP_PWT].z,EPCapturePoints[EP_PWT].o,EPCapturePoints[EP_PWT].rot0,EPCapturePoints[EP_PWT].rot1,EPCapturePoints[EP_PWT].rot2,EPCapturePoints[EP_PWT].rot3);
     AddObject(EP_PWT_FLAGS,EPTowerFlags[EP_PWT].entry,EPTowerFlags[EP_PWT].map,EPTowerFlags[EP_PWT].x,EPTowerFlags[EP_PWT].y,EPTowerFlags[EP_PWT].z,EPTowerFlags[EP_PWT].o,EPTowerFlags[EP_PWT].rot0,EPTowerFlags[EP_PWT].rot1,EPTowerFlags[EP_PWT].rot2,EPTowerFlags[EP_PWT].rot3);
 }
 
-bool OutdoorPvPObjectiveEP_PWT::Update(uint32 diff)
+bool OPvPCapturePointEP_PWT::Update(uint32 diff)
 {
-    if(OutdoorPvPObjective::Update(diff))
+    if(OPvPCapturePoint::Update(diff))
     {
         if(m_OldState != m_State || fabs(m_ShiftPhase) == m_ShiftMaxPhase)  // state won't change, only phase when maxed out!
         {
@@ -599,7 +554,7 @@ bool OutdoorPvPObjectiveEP_PWT::Update(uint32 diff)
                 break;
             }
 
-            GameObject* flag = HashMapHolder<GameObject>::Find(m_CapturePoint);
+            GameObject* flag = HashMapHolder<GameObject>::Find(m_CapturePointGUID);
             GameObject* flag2 = HashMapHolder<GameObject>::Find(m_Objects[EP_PWT_FLAGS]);
             if(flag)
             {
@@ -634,7 +589,7 @@ bool OutdoorPvPObjectiveEP_PWT::Update(uint32 diff)
     return false;
 }
 
-void OutdoorPvPObjectiveEP_PWT::FillInitialWorldStates(WorldPacket &data)
+void OPvPCapturePointEP_PWT::FillInitialWorldStates(WorldPacket &data)
 {
     data << EP_PWT_A << uint32(bool(m_TowerState & EP_TS_A));
     data << EP_PWT_H << uint32(bool(m_TowerState & EP_TS_H));
@@ -645,7 +600,7 @@ void OutdoorPvPObjectiveEP_PWT::FillInitialWorldStates(WorldPacket &data)
     data << EP_PWT_N << uint32(bool(m_TowerState & EP_TS_N));
 }
 
-void OutdoorPvPObjectiveEP_PWT::UpdateTowerState()
+void OPvPCapturePointEP_PWT::UpdateTowerState()
 {
     m_PvP->SendUpdateWorldState(EP_PWT_A , bool(m_TowerState & EP_TS_A));
     m_PvP->SendUpdateWorldState(EP_PWT_H , bool(m_TowerState & EP_TS_H));
@@ -656,9 +611,9 @@ void OutdoorPvPObjectiveEP_PWT::UpdateTowerState()
     m_PvP->SendUpdateWorldState(EP_PWT_N , bool(m_TowerState & EP_TS_N));
 }
 
-bool OutdoorPvPObjectiveEP_PWT::HandlePlayerEnter(Player *plr)
+bool OPvPCapturePointEP_PWT::HandlePlayerEnter(Player *plr)
 {
-    if(OutdoorPvPObjective::HandlePlayerEnter(plr))
+    if(OPvPCapturePoint::HandlePlayerEnter(plr))
     {
         plr->SendUpdateWorldState(EP_UI_TOWER_SLIDER_DISPLAY, 1);
         uint32 phase = (uint32)ceil(( m_ShiftPhase + m_ShiftMaxPhase) / ( 2 * m_ShiftMaxPhase ) * 100.0f);
@@ -669,28 +624,13 @@ bool OutdoorPvPObjectiveEP_PWT::HandlePlayerEnter(Player *plr)
     return false;
 }
 
-void OutdoorPvPObjectiveEP_PWT::HandlePlayerLeave(Player *plr)
+void OPvPCapturePointEP_PWT::HandlePlayerLeave(Player *plr)
 {
     plr->SendUpdateWorldState(EP_UI_TOWER_SLIDER_DISPLAY, 0);
-    OutdoorPvPObjective::HandlePlayerLeave(plr);
+    OPvPCapturePoint::HandlePlayerLeave(plr);
 }
 
-bool OutdoorPvPObjectiveEP_PWT::HandleCapturePointEvent(Player *plr, uint32 eventId)
-{
-    if(eventId == EPTowerPlayerEnterEvents[EP_PWT])
-    {
-        this->HandlePlayerEnter(plr);
-        return true;
-    }
-    else if (eventId == EPTowerPlayerLeaveEvents[EP_PWT])
-    {
-        this->HandlePlayerLeave(plr);
-        return true;
-    }
-    return false;
-}
-
-void OutdoorPvPObjectiveEP_PWT::SummonFlightMaster(uint32 team)
+void OPvPCapturePointEP_PWT::SummonFlightMaster(uint32 team)
 {
     if(m_FlightMasterSpawned != team)
     {
@@ -728,7 +668,7 @@ void OutdoorPvPObjectiveEP_PWT::SummonFlightMaster(uint32 team)
     }
 }
 
-bool OutdoorPvPObjectiveEP_PWT::CanTalkTo(Player * p, Creature * c, GossipOption &gso)
+bool OPvPCapturePointEP_PWT::CanTalkTo(Player * p, Creature * c, GossipOption &gso)
 {
     if( p->GetTeam() == m_FlightMasterSpawned &&
         c->GetGUID() == m_Creatures[EP_PWT_FLIGHTMASTER] &&
@@ -737,7 +677,7 @@ bool OutdoorPvPObjectiveEP_PWT::CanTalkTo(Player * p, Creature * c, GossipOption
     return false;
 }
 
-bool OutdoorPvPObjectiveEP_PWT::HandleGossipOption(Player *plr, uint64 guid, uint32 gossipid)
+bool OPvPCapturePointEP_PWT::HandleGossipOption(Player *plr, uint64 guid, uint32 gossipid)
 {
     std::map<uint64,uint32>::iterator itr = m_CreatureTypes.find(guid);
     if(itr != m_CreatureTypes.end())
@@ -791,10 +731,10 @@ bool OutdoorPvPEP::SetupOutdoorPvP()
     for(int i = 0; i < EPBuffZonesNum; ++i)
         RegisterZone(EPBuffZones[i]);
 
-    m_OutdoorPvPObjectives.push_back(new OutdoorPvPObjectiveEP_EWT(this));
-    m_OutdoorPvPObjectives.push_back(new OutdoorPvPObjectiveEP_PWT(this));
-    m_OutdoorPvPObjectives.push_back(new OutdoorPvPObjectiveEP_CGT(this));
-    m_OutdoorPvPObjectives.push_back(new OutdoorPvPObjectiveEP_NPT(this));
+    m_capturePoints.push_back(new OPvPCapturePointEP_EWT(this));
+    m_capturePoints.push_back(new OPvPCapturePointEP_PWT(this));
+    m_capturePoints.push_back(new OPvPCapturePointEP_CGT(this));
+    m_capturePoints.push_back(new OPvPCapturePointEP_NPT(this));
     return true;
 }
 
@@ -882,7 +822,7 @@ void OutdoorPvPEP::FillInitialWorldStates(WorldPacket & data)
     data << EP_UI_TOWER_SLIDER_DISPLAY << uint32(0);
     data << EP_UI_TOWER_SLIDER_POS << uint32(50);
     data << EP_UI_TOWER_SLIDER_N << uint32(100);
-    for(OutdoorPvPObjectiveSet::iterator itr = m_OutdoorPvPObjectives.begin(); itr != m_OutdoorPvPObjectives.end(); ++itr)
+    for(OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
     {
         (*itr)->FillInitialWorldStates(data);
     }

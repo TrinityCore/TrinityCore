@@ -238,11 +238,11 @@ enum HalaaStates{
 class Unit;
 class Creature;
 class OutdoorPvPNA;
-class OutdoorPvPObjectiveNA : public OutdoorPvPObjective
+class OPvPCapturePointNA : public OPvPCapturePoint
 {
 friend class OutdoorPvPNA;
 public:
-    OutdoorPvPObjectiveNA(OutdoorPvP * pvp);
+    OPvPCapturePointNA(OutdoorPvP * pvp);
     bool Update(uint32 diff);
     void FillInitialWorldStates(WorldPacket & data);
     // used when player is activated/inactivated in the area
@@ -263,7 +263,6 @@ protected:
     void UpdateWyvernRoostWorldState(uint32 roost);
     void UpdateHalaaWorldState();
 
-    bool HandleCapturePointEvent(Player * plr, uint32 eventId);
 private:
     bool m_capturable;
     uint32 m_GuardsAlive;
@@ -279,7 +278,7 @@ private:
 
 class OutdoorPvPNA : public OutdoorPvP
 {
-friend class OutdoorPvPObjectiveNA;
+friend class OPvPCapturePointNA;
 public:
     OutdoorPvPNA();
     bool SetupOutdoorPvP();
@@ -290,7 +289,7 @@ public:
     void SendRemoveWorldStates(Player * plr);
     void HandleKillImpl(Player * plr, Unit * killed);
 private:
-    OutdoorPvPObjectiveNA * m_obj;
+    OPvPCapturePointNA * m_obj;
 };
 
 #endif

@@ -50,12 +50,12 @@ public:
     bool HandleCustomSpell(Player * plr, uint32 spellId, GameObject* go);
     // handle custom go if registered
     bool HandleOpenGo(Player * plr, uint64 guid);
+    
+    void OnGameObjectCreate(GameObject *go, bool add);
 
     void AddZone(uint32 zoneid, OutdoorPvP * handle);
 
     void Update(uint32 diff);
-
-    bool HandleCaptureCreaturePlayerMoveInLos(Player * plr, Creature * c);
 
     void HandleGossipOption(Player * player, uint64 guid, uint32 gossipid);
 
