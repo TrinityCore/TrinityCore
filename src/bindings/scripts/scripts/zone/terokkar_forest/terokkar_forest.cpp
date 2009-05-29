@@ -358,7 +358,7 @@ struct TRINITY_DLL_DECL npc_isla_starmaneAI : public npc_escortAI
         {
         case 0:
             {
-            GameObject* Cage = FindGameObject(GO_CAGE, 10, m_creature);
+            GameObject* Cage = me->FindNearestGameObject(GO_CAGE, 10);
             if(Cage)
                 Cage->SetGoState(GO_STATE_ACTIVE);
             }break;

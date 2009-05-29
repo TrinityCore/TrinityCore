@@ -881,11 +881,11 @@ struct TRINITY_DLL_DECL npc_bessyAI : public npc_escortAI
                     ((Player*)player)->GroupEventHappens(Q_ALMABTRIEB, m_creature);
                     Completed = true;
                 }
-                {Unit* Thadell = FindCreature(N_THADELL, 30, m_creature);
+                {Unit* Thadell = me->FindNearestCreature(N_THADELL, 30);
                 if(Thadell)
                     DoScriptText(SAY_THADELL_1, m_creature);}break;
             case 13:
-                {Unit* Thadell = FindCreature(N_THADELL, 30, m_creature);
+                {Unit* Thadell = me->FindNearestCreature(N_THADELL, 30);
                 if(Thadell)
                     DoScriptText(SAY_THADELL_2, m_creature, player);}break;
         }

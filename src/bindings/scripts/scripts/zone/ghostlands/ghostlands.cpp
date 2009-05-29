@@ -169,7 +169,7 @@ struct TRINITY_DLL_DECL npc_ranger_lilathaAI : public npc_escortAI
         case 0:
             {
             m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
-            GameObject* Cage = FindGameObject(GO_CAGE, 20, m_creature);
+            GameObject* Cage = me->FindNearestGameObject(GO_CAGE, 20);
             if(Cage)
                 Cage->SetGoState(GO_STATE_ACTIVE);
             DoScriptText(SAY_START, m_creature, player);
@@ -207,7 +207,7 @@ struct TRINITY_DLL_DECL npc_ranger_lilathaAI : public npc_escortAI
         case 33:
             m_creature->SetOrientation(5.858011);
             DoScriptText(SAY_END2, m_creature, player);
-            Unit* CaptainHelios = FindCreature(NPC_CAPTAIN_HELIOS, 50, m_creature);
+            Unit* CaptainHelios = me->FindNearestCreature(NPC_CAPTAIN_HELIOS, 50);
             if(CaptainHelios)
             DoScriptText(SAY_CAPTAIN_ANSWER, CaptainHelios, player);
             break;
@@ -221,7 +221,7 @@ struct TRINITY_DLL_DECL npc_ranger_lilathaAI : public npc_escortAI
         if (!IsBeingEscorted)
             m_creature->setFaction(1602);
 
-        GameObject* Cage = FindGameObject(GO_CAGE, 20, m_creature);
+        GameObject* Cage = me->FindNearestGameObject(GO_CAGE, 20);
         if(Cage)
         Cage->SetGoState(GO_STATE_READY);
     }
