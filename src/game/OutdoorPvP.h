@@ -20,6 +20,7 @@
 #define OUTDOOR_PVP_H_
 
 #include "Util.h"
+#include "SharedDefines.h"
 
 #include <map>
 #include <set>
