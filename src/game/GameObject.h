@@ -375,6 +375,22 @@ struct GameObjectInfo
     uint32 ScriptId;
 };
 
+class OPvPCapturePoint;
+
+union GameObjectValue
+{
+    //29 GAMEOBJECT_TYPE_CAPTURE_POINT
+    struct
+    {
+        OPvPCapturePoint *OPvPObj;
+    }capturePoint;
+    //33 GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING
+    struct
+    {
+        uint32 health;
+    }destructibleBuilding;
+};
+
 // GCC have alternative #pragma pack() syntax and old gcc version not support pack(pop), also any gcc version not support it at some platform
 #if defined( __GNUC__ )
 #pragma pack()
@@ -632,7 +648,6 @@ class TRINITY_DLL_SPEC GameObject : public WorldObject
         LootState   m_lootState;
         bool        m_spawnedByDefault;
         time_t      m_cooldownTime;                         // used as internal reaction delay time store (not state change reaction).
-        uint32      m_health;
                                                             // For traps this: spell casting cooldown, for doors/buttons: reset time.
         std::list<uint32> m_SkillupList;
 
@@ -641,6 +656,7 @@ class TRINITY_DLL_SPEC GameObject : public WorldObject
 
         uint32 m_DBTableGuid;                               ///< For new or temporary gameobjects is 0 for saved it is lowguid
         GameObjectInfo const* m_goInfo;
+        GameObjectValue * const m_goValue;
     private:
         void SwitchDoorOrButton(bool activate, bool alternative = false);
 

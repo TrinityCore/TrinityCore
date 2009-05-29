@@ -207,21 +207,22 @@ bool OutdoorPvPMgr::HandleCustomSpell(Player *plr, uint32 spellId, GameObject * 
     return false;
 }
 
+void OutdoorPvPMgr::OnGameObjectCreate(GameObject *go, bool add)
+{
+    if(go->GetGoType() != GAMEOBJECT_TYPE_CAPTURE_POINT)
+        return;
+
+    for(OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin(); itr != m_OutdoorPvPSet.end(); ++itr)
+        for(OutdoorPvP::OPvPCapturePointMap::iterator itr2 = (*itr)->m_capturePoints.begin(); itr2 != (*itr)->m_capturePoints.end(); ++itr2)
+            if((*itr2)->m_CapturePointGUID == go->GetDBTableGUIDLow())
+                (*itr2)->m_capturePoint = add ? go : NULL;
+}
+
 bool OutdoorPvPMgr::HandleOpenGo(Player *plr, uint64 guid)
 {
     for(OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin(); itr != m_OutdoorPvPSet.end(); ++itr)
     {
         if((*itr)->HandleOpenGo(plr,guid))
-            return true;
-    }
-    return false;
-}
-
-bool OutdoorPvPMgr::HandleCaptureCreaturePlayerMoveInLos(Player * plr, Creature * c)
-{
-    for(OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin(); itr != m_OutdoorPvPSet.end(); ++itr)
-    {
-        if((*itr)->HandleCaptureCreaturePlayerMoveInLos(plr,c))
             return true;
     }
     return false;
@@ -254,4 +255,3 @@ void OutdoorPvPMgr::HandleDropFlag(Player *plr, uint32 spellId)
             return;
     }
 }
-

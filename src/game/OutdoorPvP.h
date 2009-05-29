@@ -24,14 +24,7 @@
 #include <map>
 #include <set>
 
-#define OPVP_TRIGGER_CREATURE_ENTRY 12999
-
-enum TeamId
-{
-    TEAM_ALLIANCE = 0,
-    TEAM_HORDE,
-    TEAM_NEUTRAL,
-};
+class GameObject;
 
 enum OutdoorPvPTypes
 {
@@ -77,11 +70,13 @@ class Creature;
 class Unit;
 struct GossipOption;
 
+typedef std::set<Player*> PlayerSet;
+
 class OutdoorPvP;
-class OutdoorPvPObjective
+class OPvPCapturePoint
 {
 public:
-    OutdoorPvPObjective(OutdoorPvP * pvp);
+    OPvPCapturePoint(OutdoorPvP * pvp);
 
     virtual void FillInitialWorldStates(WorldPacket & data) {}
 
@@ -93,20 +88,16 @@ public:
     // used when player is activated/inactivated in the area
     virtual bool HandlePlayerEnter(Player * plr);
     virtual void HandlePlayerLeave(Player * plr);
-    virtual void HandlePlayerActivityChanged(Player * plr);
+    //virtual void HandlePlayerActivityChanged(Player * plr);
 
     // checks if player is in range of a capture credit marker
-    virtual bool IsInsideObjective(Player * plr);
+    bool IsInsideObjective(Player * plr) const;
 
     virtual bool HandleCustomSpell(Player *plr, uint32 spellId, GameObject * go);
     virtual int32 HandleOpenGo(Player *plr, uint64 guid);
 
     // returns true if the state of the objective has changed, in this case, the OutdoorPvP must send a world state ui update.
     virtual bool Update(uint32 diff);
-
-    virtual bool HandleCapturePointEvent(Player * plr, uint32 eventId) { return false; }
-
-    virtual bool HandleCaptureCreaturePlayerMoveInLos(Player * p, Creature * c);
 
     virtual bool HandleGossipOption(Player *plr, uint64 guid, uint32 gossipid);
 
@@ -115,6 +106,10 @@ public:
     virtual bool HandleDropFlag(Player * plr, uint32 spellId);
 
     virtual void DeleteSpawns();
+
+    uint32 m_CapturePointGUID;
+    GameObject *m_capturePoint;
+
 protected:
 
     virtual bool AddCapturePoint(uint32 entry, uint32 map, float x, float y, float z, float o, float rotation0, float rotation1, float rotation2, float rotation3);
@@ -125,11 +120,9 @@ protected:
     virtual bool DelObject(uint32 type);
     virtual bool DelCapturePoint();
 
-    virtual void UpdateActivePlayerProximityCheck();
-
 protected:
     // active players in the area of the objective, 0 - alliance, 1 - horde
-    std::set<uint64> m_ActivePlayerGuids[2];
+    PlayerSet m_activePlayers[2];
     // total shift needed to capture the objective
     float m_ShiftMaxPhase;
     // maximum speed of capture
@@ -153,8 +146,6 @@ protected:
     std::map<uint32,uint64> m_Creatures;
     std::map<uint64,uint32> m_ObjectTypes;
     std::map<uint64,uint32> m_CreatureTypes;
-    uint64 m_CapturePoint;
-    uint64 m_CapturePointCreature;
 };
 
 // base class for specific outdoor pvp handlers
@@ -169,18 +160,15 @@ public:
     // deletes all gos/creatures spawned by the pvp
     void DeleteSpawns();
 
-    typedef std::vector<OutdoorPvPObjective *> OutdoorPvPObjectiveSet;
+    typedef std::vector<OPvPCapturePoint*> OPvPCapturePointMap;
 
     virtual void FillInitialWorldStates(WorldPacket & data) {}
-    virtual void HandlePlayerActivityChanged(Player * plr);
     // called when a player triggers an areatrigger
     virtual bool HandleAreaTrigger(Player * plr, uint32 trigger);
     // called on custom spell
     virtual bool HandleCustomSpell(Player *plr, uint32 spellId, GameObject * go);
     // called on go use
     virtual bool HandleOpenGo(Player *plr, uint64 guid);
-    // called from moveinlineofsight
-    virtual bool HandleCaptureCreaturePlayerMoveInLos(Player * p, Creature * c);
 
     // setup stuff
     virtual bool SetupOutdoorPvP() {return true;}
@@ -196,7 +184,7 @@ public:
     virtual void HandleKillImpl(Player * killer, Unit * killed) {}
 
     // checks if player is in range of a capture credit marker
-    virtual bool IsInsideObjective(Player * plr);
+    bool IsInsideObjective(Player * plr) const;
 
     // awards rewards for player kill
     virtual void AwardKillBonus(Player * plr) {}
@@ -212,9 +200,8 @@ public:
     void TeamApplyBuff(TeamId team, uint32 spellId, uint32 spellId2 = 0);
 protected:
     // the map of the objectives belonging to this outdoorpvp
-    OutdoorPvPObjectiveSet m_OutdoorPvPObjectives;
+    OPvPCapturePointMap m_capturePoints;
 
-    typedef std::set<Player*> PlayerSet;
     PlayerSet m_players[2];
     uint32 m_TypeId;
 

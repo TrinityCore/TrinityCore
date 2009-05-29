@@ -40,7 +40,7 @@
 #include "OutdoorPvPMgr.h"
 #include "BattleGroundAV.h"
 
-GameObject::GameObject() : WorldObject()
+GameObject::GameObject() : WorldObject(), m_goValue(new GameObjectValue)
 {
     m_objectType |= TYPEMASK_GAMEOBJECT;
     m_objectTypeId = TYPEID_GAMEOBJECT;
@@ -96,6 +96,14 @@ void GameObject::RemoveFromWorld()
         if(Map *map = FindMap())
             if(map->IsDungeon() && ((InstanceMap*)map)->GetInstanceData())
                 ((InstanceMap*)map)->GetInstanceData()->OnObjectCreate(this, false);
+
+        switch(m_goInfo->type)
+        {
+            case GAMEOBJECT_TYPE_CAPTURE_POINT:
+                sOutdoorPvPMgr.OnGameObjectCreate(this, false);
+                break;
+        }
+
         // Possible crash at access to deleted GO in Unit::m_gameobj
         if(uint64 owner_guid = GetOwnerGUID())
         {
@@ -165,11 +173,18 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map *map, uint32 phaseMa
 
     SetByteValue(GAMEOBJECT_BYTES_1, 2, ArtKit);
 
-    // Spell charges for GAMEOBJECT_TYPE_SPELLCASTER (22)
-    if (goinfo->type == GAMEOBJECT_TYPE_SPELLCASTER)
-        m_charges = goinfo->spellcaster.charges;
-    else if(goinfo->type == GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING)
-        m_health = goinfo->destructibleBuilding.damagedHealth;
+    switch(goinfo->type)
+    {
+        case GAMEOBJECT_TYPE_SPELLCASTER:
+            m_charges = goinfo->spellcaster.charges;
+            break;
+        case GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING:
+            m_goValue->destructibleBuilding.health = goinfo->destructibleBuilding.damagedHealth;
+            break;
+        case GAMEOBJECT_TYPE_CAPTURE_POINT:
+            sOutdoorPvPMgr.OnGameObjectCreate(this, true);
+            break;
+    }
 
     //Notify the map's instance data.
     //Only works if you create the object in it, not if it is moves to that map.
@@ -1426,23 +1441,23 @@ bool GameObject::IsInRange(float x, float y, float z, float radius) const
 
 void GameObject::TakenDamage(uint32 damage)
 {
-    if(!m_health)
+    if(!m_goValue->destructibleBuilding.health)
         return;
 
-    if(m_health > damage)
+    if(m_goValue->destructibleBuilding.health > damage)
     {
-        m_health -= damage;
+        m_goValue->destructibleBuilding.health -= damage;
         return;
     }
 
-    m_health = 0;
+    m_goValue->destructibleBuilding.health = 0;
 
     if(HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED)) // from damaged to destroyed
     {
         RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED);
         SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
         SetUInt32Value(GAMEOBJECT_DISPLAYID, m_goInfo->destructibleBuilding.destroyedDisplayId);
-        m_health = 0;
+        m_goValue->destructibleBuilding.health = 0;
     }
     else // from undamaged to damaged
     {
@@ -1450,12 +1465,12 @@ void GameObject::TakenDamage(uint32 damage)
         SetUInt32Value(GAMEOBJECT_DISPLAYID, m_goInfo->destructibleBuilding.damagedDisplayId);
         if(m_goInfo->destructibleBuilding.destroyedDisplayId)
         {
-            m_health = m_goInfo->destructibleBuilding.destroyedHealth;
-            if(!m_health)
-                m_health = 1;
+            m_goValue->destructibleBuilding.health = m_goInfo->destructibleBuilding.destroyedHealth;
+            if(!m_goValue->destructibleBuilding.health)
+                m_goValue->destructibleBuilding.health = 1;
         }
         else
-            m_health = 0;
+            m_goValue->destructibleBuilding.health = 0;
     }
 }
 
@@ -1463,7 +1478,7 @@ void GameObject::Rebuild()
 {
     RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED + GO_FLAG_DESTROYED);
     SetUInt32Value(GAMEOBJECT_DISPLAYID, m_goInfo->displayId);
-    m_health = m_goInfo->destructibleBuilding.damagedHealth;
+    m_goValue->destructibleBuilding.health = m_goInfo->destructibleBuilding.damagedHealth;
 }
 
 // overwrite WorldObject function for proper name localization

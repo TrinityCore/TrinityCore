@@ -76,10 +76,10 @@ enum TFTowerStates {
     TF_TOWERSTATE_A = 4
 };
 
-class OutdoorPvPObjectiveTF : public OutdoorPvPObjective
+class OPvPCapturePointTF : public OPvPCapturePoint
 {
 public:
-    OutdoorPvPObjectiveTF(OutdoorPvP * pvp, OutdoorPvPTF_TowerType type);
+    OPvPCapturePointTF(OutdoorPvP * pvp, OutdoorPvPTF_TowerType type);
     bool Update(uint32 diff);
     void FillInitialWorldStates(WorldPacket & data);
     // used when player is activated/inactivated in the area
@@ -87,15 +87,13 @@ public:
     void HandlePlayerLeave(Player * plr);
     void UpdateTowerState();
 protected:
-    virtual bool HandleCapturePointEvent(Player * plr, uint32 eventId);
-protected:
     OutdoorPvPTF_TowerType m_TowerType;
     uint32 m_TowerState;
 };
 
 class OutdoorPvPTF : public OutdoorPvP
 {
-friend class OutdoorPvPObjectiveTF;
+friend class OPvPCapturePointTF;
 public:
     OutdoorPvPTF();
     bool SetupOutdoorPvP();
