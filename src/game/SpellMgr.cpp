@@ -3435,6 +3435,12 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch(spellInfo->SpellFamilyName)
         {
+            case SPELLFAMILY_WARRIOR:
+                // Shout
+                if(spellInfo->SpellFamilyFlags[0] & 0x20000
+                    || spellInfo->SpellFamilyFlags[1] & 0x20)
+                    mSpellCustomAttr[i] |= SPELL_ATTR_CU_AURA_CC;
+                break;
             case SPELLFAMILY_DRUID:
                 // Starfall Target Selection
                 if(spellInfo->SpellFamilyFlags[2] & 0x100)
@@ -3442,6 +3448,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 // Starfall AOE Damage
                 else if(spellInfo->SpellFamilyFlags[2] & 0x800000)
                     mSpellCustomAttr[i] |= SPELL_ATTR_CU_EXCLUDE_SELF;
+                // Roar
+                else if(spellInfo->SpellFamilyFlags[0] & 0x8)
+                    mSpellCustomAttr[i] |= SPELL_ATTR_CU_AURA_CC;
                 break;
         }
     }
