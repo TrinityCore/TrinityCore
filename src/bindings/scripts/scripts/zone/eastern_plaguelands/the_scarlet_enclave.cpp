@@ -124,22 +124,25 @@ float modelid_dk_unworthy[20] =
 
 struct TRINITY_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
 {
-    npc_unworthy_initiateAI(Creature *c) : ScriptedAI(c) {Reset();}
+    npc_unworthy_initiateAI(Creature *c) : ScriptedAI(c) { }
 
     bool event_startet;
     uint64 event_starter;
     initiate_phase phase;
     uint32 wait_timer;
     float targ_x,targ_y,targ_z;
+    uint64 anchor;
 
     EventMap events;
 
     void Reset()
     {
+        anchor = 0;
         phase = Chained;
         events.Reset();
         m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 8);
         m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID  , 0);
+        m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, m_creature->GetNativeDisplayId());
         event_startet = false;
     }
 
@@ -236,7 +239,7 @@ struct TRINITY_DLL_DECL npc_unworthy_initiate_anchorAI : public ScriptedAI
 
 void npc_unworthy_initiate_anchorAI::SetTarget(uint64 target)
 {
-    if(guid_target == 0)
+    if(guid_target <= 0)
         guid_target = target;
 }
 
@@ -245,7 +248,7 @@ void npc_unworthy_initiateAI::UpdateAI(const uint32 diff)
     switch(phase)
     {
     case Chained:
-        if(!m_creature->HasAura(SPELL_SOUL_PRISON_CHAIN))
+        if(anchor == 0)
         {
             float x, y, z;
             float dist = 99;
@@ -261,14 +264,14 @@ void npc_unworthy_initiateAI::UpdateAI(const uint32 diff)
                     dist = m_creature->GetDistance2d(temp_prison);
                 }
             }
-
-            Creature* trigger = m_creature->SummonCreature(29521,x,y,z,0,TEMPSUMMON_MANUAL_DESPAWN,1000);
+            if(dist == 99) return;
+            Creature* trigger = m_creature->SummonCreature(29521,x,y,z,0,TEMPSUMMON_MANUAL_DESPAWN,100);
             if(trigger)
             {
                 ((npc_unworthy_initiate_anchorAI*)trigger->AI())->SetTarget(m_creature->GetGUID());
                 trigger->CastSpell(m_creature,SPELL_SOUL_PRISON_CHAIN,true);
+                anchor = trigger->GetGUID();
             }
-
         }
         return;
     case ToEquipping:
@@ -351,8 +354,7 @@ bool GOHello_go_acherus_soul_prison(Player *player, GameObject* _GO)
     uint64 owner = ((npc_unworthy_initiate_anchorAI*)((Creature*)prison_anchor)->AI())->GetTarget();
 
     Creature* prisoner = Creature::GetCreature((*player),owner);
-
-    if(prisoner && prison_anchor)
+    if(prisoner)
     {
         ((npc_unworthy_initiateAI*)(prisoner->AI()))->EventStart((Creature*)prison_anchor,player);
     }
