@@ -124,8 +124,12 @@ float modelid_dk_unworthy[20] =
 
 struct TRINITY_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
 {
-    npc_unworthy_initiateAI(Creature *c) : ScriptedAI(c) { }
+    npc_unworthy_initiateAI(Creature *c) : ScriptedAI(c)
+    {
+        m_creature->GetHomePosition(home_x,home_y,home_z,home_ori);
+    }
 
+    float home_x,home_y,home_z,home_ori;
     bool event_startet;
     uint64 event_starter;
     initiate_phase phase;
@@ -140,10 +144,15 @@ struct TRINITY_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
         anchor = 0;
         phase = Chained;
         events.Reset();
+        m_creature->setFaction(7);
         m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 8);
         m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID  , 0);
         m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, m_creature->GetNativeDisplayId());
+        event_starter = 0;
         event_startet = false;
+
+        m_creature->SetHomePosition(home_x,home_y,home_z,home_ori);
+        m_creature->GetMotionMaster()->MoveTargetedHome();
     }
 
     void EnterCombat(Unit *who)
@@ -252,6 +261,7 @@ void npc_unworthy_initiateAI::UpdateAI(const uint32 diff)
         {
             float x, y, z;
             float dist = 99;
+            uint64 nearest_prison;
 
             for(int i = 0; i < 12; i++)
             {
@@ -262,12 +272,17 @@ void npc_unworthy_initiateAI::UpdateAI(const uint32 diff)
                 {
                     temp_prison->GetPosition(x, y, z);
                     dist = m_creature->GetDistance2d(temp_prison);
+                    nearest_prison = temp_prison->GetGUID();
                 }
             }
             if(dist == 99) return;
             Creature* trigger = m_creature->SummonCreature(29521,x,y,z,0,TEMPSUMMON_MANUAL_DESPAWN,100);
             if(trigger)
             {
+                GameObject* go_prison = GameObject::GetGameObject((*m_creature),nearest_prison);
+                if(go_prison)
+                    go_prison->ResetDoorOrButton();
+
                 ((npc_unworthy_initiate_anchorAI*)trigger->AI())->SetTarget(m_creature->GetGUID());
                 trigger->CastSpell(m_creature,SPELL_SOUL_PRISON_CHAIN,true);
                 anchor = trigger->GetGUID();
