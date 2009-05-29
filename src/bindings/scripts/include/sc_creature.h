@@ -29,13 +29,6 @@ class SummonList : private std::list<uint64>
         Creature *m_creature;
 };
 
-
-//Get a single creature of given entry
-Unit* FindCreature(uint32 entry, float range, Unit* Finder);
-
-//Get a single gameobject of given entry
-GameObject* FindGameObject(uint32 entry, float range, Unit* Finder);
-
 struct PointMovement
 {
     uint32 m_uiCreatureEntry;

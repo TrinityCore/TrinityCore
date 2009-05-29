@@ -240,7 +240,7 @@ struct TRINITY_DLL_DECL mob_ethereal_beaconAI : public ScriptedAI
         {
             DoCast(m_creature->getVictim(),SPELL_ARCANE_BOLT);
             ArcaneBolt_Timer = 2000 + rand()%2500;
-            Unit *shaffar = FindCreature(ENTRY_SHAFFAR, 100, m_creature);
+            Unit *shaffar = m_creature->FindNearestCreature(ENTRY_SHAFFAR, 100);
             if(!shaffar || shaffar->isDead())
             {
                 m_creature->SetVisibility(VISIBILITY_OFF);

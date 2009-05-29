@@ -215,7 +215,7 @@ struct TRINITY_DLL_DECL mob_enslaved_netherwing_drakeAI : public ScriptedAI
             m_creature->setFaction(FACTION_FRIENDLY);
             DoCast(caster, SPELL_FORCE_OF_NELTHARAKU, true);
 
-            Unit* Dragonmaw = FindCreature(CREATURE_DRAGONMAW_SUBJUGATOR, 50, m_creature);
+            Unit* Dragonmaw = me->FindNearestCreature(CREATURE_DRAGONMAW_SUBJUGATOR, 50);
 
             if(Dragonmaw)
             {
@@ -275,7 +275,7 @@ struct TRINITY_DLL_DECL mob_enslaved_netherwing_drakeAI : public ScriptedAI
 
                         float dx, dy, dz;
 
-                        Unit* EscapeDummy = FindCreature(CREATURE_ESCAPE_DUMMY, 30, m_creature);
+                        Unit* EscapeDummy = me->FindNearestCreature(CREATURE_ESCAPE_DUMMY, 30);
                         if(EscapeDummy)
                             EscapeDummy->GetPosition(dx, dy, dz);
                         else
@@ -773,7 +773,7 @@ struct TRINITY_DLL_DECL npc_overlord_morghorAI : public ScriptedAI
             return 6000; break;
         case 27:
             {
-            Unit* Yarzill = FindCreature(C_YARZILL, 50, m_creature);
+            Unit* Yarzill = me->FindNearestCreature(C_YARZILL, 50);
             if (Yarzill)
                 Yarzill->SetUInt64Value(UNIT_FIELD_TARGET, PlayerGUID);
             return 500; }break;
@@ -785,19 +785,19 @@ struct TRINITY_DLL_DECL npc_overlord_morghorAI : public ScriptedAI
             return 1000; break;
         case 29:
             {
-            Unit* Yarzill = FindCreature(C_YARZILL, 50, m_creature);
+            Unit* Yarzill = me->FindNearestCreature(C_YARZILL, 50);
             if(Yarzill)
                 DoScriptText(YARZILL_THE_MERC_SAY, Yarzill, plr);
             return 5000; }break;
         case 30:
             {
-            Unit* Yarzill = FindCreature(C_YARZILL, 50, m_creature);
+            Unit* Yarzill = me->FindNearestCreature(C_YARZILL, 50);
             if (Yarzill)
                 Yarzill->SetUInt64Value(UNIT_FIELD_TARGET, 0);
             return 5000; }break;
         case 31:
             {
-            Unit* Yarzill = FindCreature(C_YARZILL, 50, m_creature);
+            Unit* Yarzill = me->FindNearestCreature(C_YARZILL, 50);
             if (Yarzill)
                 Yarzill->CastSpell(plr, 41540, true);
             return 1000;}break;
@@ -1616,7 +1616,7 @@ bool GOQuestAccept_GO_crystal_prison(Player* plr, GameObject* go, Quest const* q
 {
     if(quest->GetQuestId() == QUEST_BATTLE_OF_THE_CRIMSON_WATCH )
     {
-        Unit* Illidan = FindCreature(22083, 50, plr);
+        Unit* Illidan = plr->FindNearestCreature(22083, 50);
 
         if(Illidan && !(((npc_lord_illidan_stormrageAI*)((Creature*)Illidan)->AI())->EventStarted))
         {
@@ -1736,7 +1736,7 @@ struct TRINITY_DLL_DECL npc_enraged_spiritAI : public ScriptedAI
         // FIND TOTEM, PROCESS QUEST
         if (Summoned)
         {
-             totemOspirits = FindCreature(ENTRY_TOTEM_OF_SPIRITS, RADIUS_TOTEM_OF_SPIRITS, m_creature);
+             totemOspirits = me->FindNearestCreature(ENTRY_TOTEM_OF_SPIRITS, RADIUS_TOTEM_OF_SPIRITS);
              if (totemOspirits)
              {
                  Summoned->setFaction(ENRAGED_SOUL_FRIENDLY);
