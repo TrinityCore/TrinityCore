@@ -9724,12 +9724,21 @@ bool Unit::IsDamageToThreatSpell(SpellEntry const * spellInfo) const
     if(!spellInfo)
         return false;
 
-    uint32 family = spellInfo->SpellFamilyName;
-    uint64 flags = spellInfo->SpellFamilyFlags;
-
-    if((family == 5 && flags == 256) ||                     //Searing Pain
-        (family == SPELLFAMILY_SHAMAN && flags == SPELLFAMILYFLAG_SHAMAN_FROST_SHOCK))
-        return true;
+    switch(spellInfo->SpellFamilyName)
+    {
+        case SPELLFAMILY_WARLOCK:
+            if(spellInfo->SpellFamilyFlags[0] == 0x100) // Searing Pain
+                return true;
+            break;
+        case SPELLFAMILY_SHAMAN:
+            if(spellInfo->SpellFamilyFlags[0] == SPELLFAMILYFLAG_SHAMAN_FROST_SHOCK)
+                return true;
+            break;
+        case SPELLFAMILY_DEATHKNIGHT:
+            if(spellInfo->SpellFamilyFlags[1] == 0x20000000) // Rune Strike
+                return true;
+            break;
+    }
 
     return false;
 }
@@ -11718,7 +11727,7 @@ void CharmInfo::InitPetActionBar()
         SetActionBar(i,COMMAND_ATTACK - i,ACT_COMMAND);
         SetActionBar(i + 7,COMMAND_ATTACK - i,ACT_REACTION);
     }
-    for(uint32 i = 4; i < 8; ++i)
+    for(uint32 i = 3; i < 7; ++i)
         SetActionBar(i,0,ACT_PASSIVE);
 }
 

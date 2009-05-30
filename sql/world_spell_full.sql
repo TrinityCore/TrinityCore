@@ -531,6 +531,10 @@ INSERT INTO `spell_target_position` (`id`, `target_map`, `target_position_x`, `t
 -- --------
 UPDATE `creature_template` SET `flags_extra` = 33 WHERE `entry` = 23576; /*no crush*/
 
+DELETE FROM `playercreateinfo_spell` WHERE Spell = 56816;
+INSERT INTO `playercreateinfo_spell` (`race`, `class`, `Spell`, `Note`) VALUES
+(0, 6, 56816, 'Rune Strike');
+
 -- --------
 -- REQUIRED
 -- --------
@@ -1440,6 +1444,7 @@ INSERT INTO `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `Spell
 (56636,	0x00,	4,	0x00000020,	0x00000000,	0x00000000,	0x00000000,	0x00000000,	0,	0,	0), -- Taste for Blood (Rank 1)
 (56637,	0x00,	4,	0x00000020,	0x00000000,	0x00000000,	0x00000000,	0x00000000,	0,	0,	0), -- Taste for Blood (Rank 2)
 (56638,	0x00,	4,	0x00000020,	0x00000000,	0x00000000,	0x00000000,	0x00000000,	0,	0,	0), -- Taste for Blood (Rank 3)
+(56816,	0x00,	0,	0x00000000,	0x00000000,	0x00000000,	0x00000000,	0x00000030,	0,	0,	0), -- Rune Strike
 (56821,	0x00,	8,	0x00000002,	0x00000000,	0x00000000,	0x00000000,	0x00000002,	0,	0,	0), -- Glyph of Sinister Strike
 (56822,	0x00,	15,	0x00000002,	0x00000000,	0x00000000,	0x00000000,	0x00000000,	0,	0,	0), -- Rime (Rank 2)
 (56834,	0x00,	15,	0x00440000,	0x00000000,	0x00000000,	0x00000000,	0x00000000,	0,	0,	0), -- Reaping (Rank 2)
@@ -1577,6 +1582,11 @@ DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN ('29501', '29488');
 INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `quest_id`, `quest_status`, `cast_flags`) VALUES
 ('29488', '54568', '12670', '1', '3'),
 ('29501', '54575', '12670', '1', '3');
+
+DELETE FROM `spell_script_target` WHERE entry IN (52124);
+INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
+(52124, 1, 28655);
+UPDATE `creature_template` SET spell1=52372,spell2=52373,spell3=52374,spell4=52375 WHERE `entry`=28406;
 
 -- frostbrood vanquisher
 update creature_template set maxhealth = 133525, minhealth = 133525, maxmana = 51360, minmana = 51360, spell1 = 53114, spell2 = 53112, spell3=53110 where entry = 28670;
