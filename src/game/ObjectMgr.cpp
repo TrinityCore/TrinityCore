@@ -892,7 +892,15 @@ uint32 ObjectMgr::ChooseDisplayId(uint32 team, const CreatureInfo *cinfo, const 
     if (!data || data->displayid == 0) // use defaults from the template
     {
         display_id = cinfo->GetRandomValidModelId();
-    } else display_id = data->displayid; // overwritten from creature data
+    }
+    else
+    {
+        display_id = data->displayid; // overwritten from creature data
+        // I do not know why but in db most display id are not zero
+        if(display_id == cinfo->Modelid_A1 || display_id == cinfo->Modelid_A2
+            || display_id == cinfo->Modelid_H1 || display_id == cinfo->Modelid_H2)
+            display_id = cinfo->GetRandomValidModelId();
+    }
 
     return display_id;
 }
@@ -1059,6 +1067,9 @@ void ObjectMgr::LoadCreatures()
             if(cInfo->HeroicEntry)
                 heroicCreatures.insert(cInfo->HeroicEntry);
 
+    //TODO: remove this
+    gameeventmgr.mGameEventCreatureGuids.resize(52*2-1);
+
     barGoLink bar(result->GetRowCount());
 
     do
@@ -1158,6 +1169,20 @@ void ObjectMgr::LoadCreatures()
         {
             sLog.outErrorDb("Table `creature` have creature (GUID: %u Entry: %u) with `phaseMask`=0 (not visible for anyone), set to 1.",guid,data.id );
             data.phaseMask = 1;
+        }
+
+        //if(entry == 32307 || entry == 32308)
+        if(entry == 30739 || entry == 30740)
+        {
+            gameEvent = 51;
+            uint32 guid2 = objmgr.GenerateLowGuid(HIGHGUID_UNIT);
+            CreatureData& data2 = mCreatureDataMap[guid2];
+            data2 = data;
+//            data2.id = (entry == 32307 ? 32308 : 32307);
+            data2.id = (entry == 30739 ? 30740 : 30739);
+            data2.displayid = 0;
+            gameeventmgr.mGameEventCreatureGuids[51+51].push_back(guid);
+            gameeventmgr.mGameEventCreatureGuids[51+50].push_back(guid2);
         }
 
         if (gameEvent==0 && PoolId==0)                      // if not this is to be managed by GameEvent System or Pool system
