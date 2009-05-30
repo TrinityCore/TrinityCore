@@ -196,8 +196,7 @@ struct TRINITY_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
             wait_timer = 5000;
             AddEquipp();
 
-            DoSay(SAY_EVENT_ATTACK,LANG_UNIVERSAL,NULL);
-            m_creature->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
+            DoSay(SAY_EVENT_ATTACK,LANG_UNIVERSAL,NULL,true);
 
             phase = ToAttacking;
         }
@@ -215,8 +214,7 @@ struct TRINITY_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
         m_creature->RemoveAurasDueToSpell(SPELL_SOUL_PRISON_CHAIN_SELF);
         m_creature->RemoveAurasDueToSpell(SPELL_SOUL_PRISON_CHAIN);
 
-        DoSay(SAY_EVENT_START,LANG_UNIVERSAL,NULL);
-        m_creature->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
+        DoSay(SAY_EVENT_START,LANG_UNIVERSAL,NULL,true);
         event_starter = target->GetGUID();
     }
 
@@ -259,22 +257,26 @@ void npc_unworthy_initiateAI::UpdateAI(const uint32 diff)
         if(anchor == 0)
         {
             float x, y, z;
-            float dist = 99;
+            float dist = 99.0f;
             uint64 nearest_prison;
 
             for(int i = 0; i < 12; i++)
             {
                 GameObject* temp_prison;
-                temp_prison = me->FindNearestGameObject(acherus_soul_prison[i],30);
-                if(!temp_prison) return;
-                if(dist == 99 || dist > m_creature->GetDistance2d(temp_prison))
+                temp_prison = m_creature->FindNearestGameObject(acherus_soul_prison[i],30);
+                if(temp_prison)
                 {
-                    temp_prison->GetPosition(x, y, z);
-                    dist = m_creature->GetDistance2d(temp_prison);
-                    nearest_prison = temp_prison->GetGUID();
+                    if(dist == 99.0f || dist > m_creature->GetDistance2d(temp_prison))
+                    {
+                        temp_prison->GetPosition(x, y, z);
+                        dist = m_creature->GetDistance2d(temp_prison);
+                        nearest_prison = temp_prison->GetGUID();
+                    }
                 }
             }
-            if(dist == 99) return;
+            if(dist == 99)
+                return;
+
             Creature* trigger = m_creature->SummonCreature(29521,x,y,z,0,TEMPSUMMON_MANUAL_DESPAWN,100);
             if(trigger)
             {
