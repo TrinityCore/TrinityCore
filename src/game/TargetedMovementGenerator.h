@@ -40,11 +40,7 @@ class TRINITY_DLL_SPEC TargetedMovementGenerator
 : public MovementGeneratorMedium< T, TargetedMovementGenerator<T> >, public TargetedMovementGeneratorBase
 {
     public:
-
-        TargetedMovementGenerator(Unit &target)
-            : TargetedMovementGeneratorBase(target), i_offset(0), i_angle(0), i_recalculateTravel(false) {}
-        TargetedMovementGenerator(Unit &target, float offset, float angle)
-            : TargetedMovementGeneratorBase(target), i_offset(offset), i_angle(angle), i_recalculateTravel(false) {}
+        TargetedMovementGenerator(Unit &target, float offset = 0, float angle = 0);
         ~TargetedMovementGenerator() {}
 
         void Initialize(T &);
@@ -65,12 +61,13 @@ class TRINITY_DLL_SPEC TargetedMovementGenerator
         void unitSpeedChanged() { i_recalculateTravel=true; }
     private:
 
-        void _setTargetLocation(T &);
+        bool _setTargetLocation(T &);
 
         float i_offset;
         float i_angle;
         DestinationHolder< Traveller<T> > i_destinationHolder;
         bool i_recalculateTravel;
+        float i_targetX, i_targetY, i_targetZ;
 };
 #endif
 
