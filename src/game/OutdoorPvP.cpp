@@ -72,6 +72,7 @@ bool OPvPCapturePoint::AddObject(uint32 type, uint32 entry, uint32 map, float x,
     data.animprogress   = 100;
     data.spawnMask      = 1;
     data.go_state       = GO_STATE_READY;
+    data.phaseMask      = PHASEMASK_NORMAL;
 
     objmgr.AddGameobjectToGrid(guid, &data);
 
@@ -134,6 +135,7 @@ bool OPvPCapturePoint::AddCreature(uint32 type, uint32 entry, uint32 teamval, ui
     data.is_dead = false;
     data.movementType = cinfo->MovementType;
     data.spawnMask = 1;
+    data.phaseMask = PHASEMASK_NORMAL;
 
     objmgr.AddCreatureToGrid(guid, &data);
 
