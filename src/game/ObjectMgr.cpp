@@ -553,6 +553,12 @@ void ObjectMgr::LoadCreatureTemplates()
                 continue;
             }
 
+            if(cInfo->unit_class != heroicInfo->unit_class)
+            {
+                sLog.outErrorDb("Creature (Entry: %u, class %u) has different `unit_class` in heroic mode (Entry: %u, class %u).",i, cInfo->unit_class, cInfo->HeroicEntry, heroicInfo->unit_class);
+                continue;
+            }
+
             if(cInfo->npcflag != heroicInfo->npcflag)
             {
                 sLog.outErrorDb("Creature (Entry: %u) listed in `creature_template_substitution` has different `npcflag` in heroic mode.",i);
@@ -628,6 +634,9 @@ void ObjectMgr::LoadCreatureTemplates()
             sLog.outErrorDb("Creature (Entry: %u) has non-existing Modelid_H2 (%u), setting it to 0", cInfo->Entry, cInfo->Modelid_H2);
             const_cast<CreatureInfo*>(cInfo)->Modelid_H2 = 0;
         }
+
+        if (cInfo->unit_class && ((1 << (cInfo->unit_class-1)) & CLASSMASK_ALL_CREATURES) == 0)
+            sLog.outErrorDb("Creature (Entry: %u) has invalid unit_class(%u) for creature_template", cInfo->Entry, cInfo->unit_class);
 
         if(cInfo->dmgschool >= MAX_SPELL_SCHOOL)
         {
