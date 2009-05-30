@@ -31,10 +31,11 @@
 enum GameEventState
 {
     GAMEEVENT_NORMAL = 0,   // standard game events
-    GAMEEVENT_WORLD_INACTIVE,   // not yet started
-    GAMEEVENT_WORLD_CONDITIONS,  // condition matching phase
-    GAMEEVENT_WORLD_NEXTPHASE,   // conditions are met, now 'lenght' timer to start next event
-    GAMEEVENT_WORLD_FINISHED    // next events are started, unapply this one
+    GAMEEVENT_WORLD_INACTIVE = 1,   // not yet started
+    GAMEEVENT_WORLD_CONDITIONS = 2,  // condition matching phase
+    GAMEEVENT_WORLD_NEXTPHASE = 3,   // conditions are met, now 'lenght' timer to start next event
+    GAMEEVENT_WORLD_FINISHED = 4,    // next events are started, unapply this one
+    GAMEEVENT_INTERNAL = 5, // never handled in update
 };
 
 struct GameEventFinishCondition
@@ -104,6 +105,7 @@ class GameEventMgr
         uint32 Update();
         bool IsActiveEvent(uint16 event_id) { return ( m_ActiveEvents.find(event_id)!=m_ActiveEvents.end()); }
         uint32 Initialize();
+        void StartInternalEvent(uint16 event_id);
         bool StartEvent(uint16 event_id, bool overwrite = false);
         void StopEvent(uint16 event_id, bool overwrite = false);
         void HandleQuestComplete(uint32 quest_id);  // called on world event type quest completions
@@ -153,8 +155,8 @@ class GameEventMgr
         GameEventQuestMap mGameEventGameObjectQuests;
         GameEventNPCVendorMap mGameEventVendors;
         GameEventModelEquipMap mGameEventModelEquip;
-        GameEventGuidMap  mGameEventCreatureGuids;
-        GameEventGuidMap  mGameEventGameobjectGuids;
+        //GameEventGuidMap  mGameEventCreatureGuids;
+        //GameEventGuidMap  mGameEventGameobjectGuids;
         GameEventIdMap    mGameEventPoolIds;
         GameEventDataMap  mGameEvent;
         GameEventBitmask  mGameEventBattleGroundHolidays;
@@ -163,6 +165,9 @@ class GameEventMgr
         GuidEventNpcGossipIdMap mNPCGossipIds;
         ActiveEvents m_ActiveEvents;
         bool isSystemInit;
+    public:
+        GameEventGuidMap  mGameEventCreatureGuids;
+        GameEventGuidMap  mGameEventGameobjectGuids;
 };
 
 #define gameeventmgr Trinity::Singleton<GameEventMgr>::Instance()
