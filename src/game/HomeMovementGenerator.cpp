@@ -28,6 +28,8 @@
 void
 HomeMovementGenerator<Creature>::Initialize(Creature & owner)
 {
+    float x, y, z;
+    owner.GetHomePosition(x, y, z, ori);
     owner.RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
     _setTargetLocation(owner);
 }
