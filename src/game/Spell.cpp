@@ -1017,8 +1017,8 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         caster->SendHealSpellLog(unitTarget, m_spellInfo->Id, addhealth, crit);
 
         // Do triggers for unit (reflect triggers passed on hit phase for correct drop charge)
-        if (m_canTrigger && missInfo != SPELL_MISS_REFLECT)
-            caster->ProcDamageAndSpell(unitTarget, procAttacker, procVictim, procEx, addhealth, m_attackType, m_spellInfo);
+        if (missInfo != SPELL_MISS_REFLECT)
+            caster->ProcDamageAndSpell(unitTarget, procAttacker, procVictim, procEx, addhealth, m_attackType, m_spellInfo, m_canTrigger);
 
         int32 gain = unitTarget->ModifyHealth( int32(addhealth) );
 
@@ -1043,8 +1043,8 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         procVictim |= PROC_FLAG_TAKEN_ANY_DAMAGE;
 
         // Do triggers for unit (reflect triggers passed on hit phase for correct drop charge)
-        if (m_canTrigger && missInfo != SPELL_MISS_REFLECT)
-            caster->ProcDamageAndSpell(unitTarget, procAttacker, procVictim, procEx, damageInfo.damage, m_attackType, m_spellInfo);
+        if (missInfo != SPELL_MISS_REFLECT)
+            caster->ProcDamageAndSpell(unitTarget, procAttacker, procVictim, procEx, damageInfo.damage, m_attackType, m_spellInfo, m_canTrigger);
 
         caster->DealSpellDamage(&damageInfo, true);
 
@@ -1094,8 +1094,8 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         SpellNonMeleeDamage damageInfo(caster, unitTarget, m_spellInfo->Id, m_spellSchoolMask);
         procEx = createProcExtendMask(&damageInfo, missInfo);
         // Do triggers for unit (reflect triggers passed on hit phase for correct drop charge)
-        if (m_canTrigger && missInfo != SPELL_MISS_REFLECT)
-            caster->ProcDamageAndSpell(unit, procAttacker, procVictim, procEx, 0, m_attackType, m_spellInfo);
+        if (missInfo != SPELL_MISS_REFLECT)
+            caster->ProcDamageAndSpell(unit, procAttacker, procVictim, procEx, 0, m_attackType, m_spellInfo, m_canTrigger);
     }
 
     // Call scripted function for AI if this spell is casted upon a creature (except pets)

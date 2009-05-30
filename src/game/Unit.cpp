@@ -1659,7 +1659,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss)
     }
 
     // Do effect if any damage done to target
-    if (damageInfo->damage)
+    if (damageInfo->procVictim & PROC_FLAG_TAKEN_ANY_DAMAGE)
     {
         // victim's damage shield
         std::set<Aura*> alreadyDone;
@@ -4725,10 +4725,10 @@ void Unit::SendSpellNonMeleeDamageLog(Unit *target,uint32 SpellID,uint32 Damage,
     SendMessageToSet( &data, true );
 }
 
-void Unit::ProcDamageAndSpell(Unit *pVictim, uint32 procAttacker, uint32 procVictim, uint32 procExtra, uint32 amount, WeaponAttackType attType, SpellEntry const *procSpell)
+void Unit::ProcDamageAndSpell(Unit *pVictim, uint32 procAttacker, uint32 procVictim, uint32 procExtra, uint32 amount, WeaponAttackType attType, SpellEntry const *procSpell, bool canTrigger)
 {
      // Not much to do if no flags are set.
-    if (procAttacker)
+    if (procAttacker && canTrigger)
         ProcDamageAndSpellFor(false,pVictim,procAttacker, procExtra,attType, procSpell, amount);
     // Now go on with a victim's events'n'auras
     // Not much to do if no flags are set or there is no victim
