@@ -1334,12 +1334,12 @@ void Unit::CalculateMeleeDamage(Unit *pVictim, uint32 damage, CalcDamageInfo *da
     switch (attackType)
     {
         case BASE_ATTACK:
-            damageInfo->procAttacker = PROC_FLAG_SUCCESSFUL_MILEE_HIT;
+            damageInfo->procAttacker = PROC_FLAG_SUCCESSFUL_MELEE_HIT;
             damageInfo->procVictim   = PROC_FLAG_TAKEN_MELEE_HIT;
             damageInfo->HitInfo      = HITINFO_NORMALSWING2;
             break;
         case OFF_ATTACK:
-            damageInfo->procAttacker = PROC_FLAG_SUCCESSFUL_MILEE_HIT | PROC_FLAG_SUCCESSFUL_OFFHAND_HIT;
+            damageInfo->procAttacker = PROC_FLAG_SUCCESSFUL_MELEE_HIT | PROC_FLAG_SUCCESSFUL_OFFHAND_HIT;
             damageInfo->procVictim   = PROC_FLAG_TAKEN_MELEE_HIT;//|PROC_FLAG_TAKEN_OFFHAND_HIT // not used
             damageInfo->HitInfo = HITINFO_LEFTSWING;
             break;
