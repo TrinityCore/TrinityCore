@@ -1447,8 +1447,13 @@ void Pet::CleanupActionBar()
 {
     for(int i = 0; i < MAX_UNIT_ACTION_BAR_INDEX; ++i)
         if(UnitActionBarEntry const* ab = m_charmInfo->GetActionBarEntry(i))
-            if(ab->SpellOrAction && ab->IsActionBarForSpell() && !HasSpell(ab->SpellOrAction))
-                m_charmInfo->SetActionBar(i,0,ACT_DISABLED);
+            if(ab->SpellOrAction && ab->IsActionBarForSpell())
+            {
+                if(!HasSpell(ab->SpellOrAction))
+                    m_charmInfo->SetActionBar(i, 0, ACT_PASSIVE);
+                else if(ab->Type == ACT_ENABLED)
+                    ToggleAutocast(ab->SpellOrAction, true);
+            }
 }
 
 void Pet::InitPetCreateSpells()
