@@ -2804,6 +2804,27 @@ float Unit::MeleeSpellMissChance(const Unit *pVictim, WeaponAttackType attType, 
     return miss_chance;
 }
 
+
+int32 Unit::GetMechanicResistChance(const SpellEntry *spell)
+{
+    if(!spell)
+        return 0;
+    int32 resist_mech = 0;
+    for(int eff = 0; eff < 3; ++eff)
+    {
+        if(spell->Effect[eff] == 0)
+           break;
+        int32 effect_mech = GetEffectMechanic(spell, eff);
+        if (effect_mech)
+        {
+            int32 temp = GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_MECHANIC_RESISTANCE, effect_mech);
+            if (resist_mech < temp)
+                resist_mech = temp;
+        }
+    }
+    return resist_mech;
+}
+
 // Melee based spells hit result calculations
 SpellMissInfo Unit::MeleeSpellHitResult(Unit *pVictim, SpellEntry const *spell)
 {
@@ -2828,6 +2849,12 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit *pVictim, SpellEntry const *spell)
     // Same spells cannot be parry/dodge
     if (spell->Attributes & SPELL_ATTR_IMPOSSIBLE_DODGE_PARRY_BLOCK)
         return SPELL_MISS_NONE;
+
+    // Chance resist mechanic
+    int32 resist_chance = pVictim->GetMechanicResistChance(spell)*100;
+    tmp += resist_chance;
+    if (roll < tmp)
+        return SPELL_MISS_RESIST;
 
     // Ranged attack can`t miss too
     if (attType == RANGED_ATTACK)
@@ -2917,20 +2944,9 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit *pVictim, SpellEntry const *spell)
     if (IsDispelSpell(spell))
         modHitChance-=pVictim->GetTotalAuraModifier(SPELL_AURA_MOD_DISPEL_RESIST);
     // Chance resist mechanic (select max value from every mechanic spell effect)
-    int32 resist_mech = 0;
-    // Get effects mechanic and chance
-    for(int eff = 0; eff < 3; ++eff)
-    {
-        int32 effect_mech = GetEffectMechanic(spell, eff);
-        if (effect_mech)
-        {
-            int32 temp = pVictim->GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_MECHANIC_RESISTANCE, effect_mech);
-            if (resist_mech < temp)
-                resist_mech = temp;
-        }
-    }
+    int32 resist_chance = pVictim->GetMechanicResistChance(spell);
     // Apply mod
-    modHitChance-=resist_mech;
+    modHitChance-=resist_chance;
 
     // Chance resist debuff
     modHitChance-=pVictim->GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_DEBUFF_RESISTANCE, int32(spell->Dispel));
