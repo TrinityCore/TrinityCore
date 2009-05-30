@@ -23,6 +23,8 @@
 
 #define ZONE_WINTERGRASP    4197
 
+const uint16 GameEventWintergraspDefender[2] = {50, 51};
+
 #define POS_X_CENTER        4700
 
 #define SPELL_RECRUIT       37795

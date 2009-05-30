@@ -19,6 +19,7 @@
 #include "Wintergrasp.h"
 #include "SpellAuras.h"
 #include "Vehicle.h"
+#include "GameEventMgr.h"
 
 bool OPvPWintergrasp::SetupOutdoorPvP()
 {
@@ -32,6 +33,7 @@ bool OPvPWintergrasp::SetupOutdoorPvP()
     }
 
     m_defender = TeamId(rand()%2);
+    gameeventmgr.StartInternalEvent(GameEventWintergraspDefender[m_defender]);
 
     return true;
 }
