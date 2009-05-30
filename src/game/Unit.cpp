@@ -13556,7 +13556,7 @@ void Unit::SetCharmedOrPossessedBy(Unit* charmer, bool possess)
         if(cinfo && cinfo->type == CREATURE_TYPE_DEMON)
         {
             //to prevent client crash
-            SetFlag(UNIT_FIELD_BYTES_0, 2048);
+            //SetFlag(UNIT_FIELD_BYTES_0, 2048);
 
             //just to enable stat window
             if(GetCharmInfo())
@@ -13637,12 +13637,6 @@ void Unit::RemoveCharmedOrPossessedBy(Unit *charmer)
         CreatureInfo const *cinfo = ((Creature*)this)->GetCreatureInfo();
         if(cinfo && cinfo->type == CREATURE_TYPE_DEMON)
         {
-            CreatureDataAddon const *cainfo = ((Creature*)this)->GetCreatureAddon();
-            if(cainfo && cainfo->bytes0 != 0)
-                SetUInt32Value(UNIT_FIELD_BYTES_0, cainfo->bytes0);
-            else
-                RemoveFlag(UNIT_FIELD_BYTES_0, 2048);
-
             if(GetCharmInfo())
                 GetCharmInfo()->SetPetNumber(0, true);
             else
