@@ -1521,6 +1521,10 @@ void World::SetInitialWorldSettings()
     sLog.outString( "Starting Map System" );
     MapManager::Instance().Initialize();
 
+    sLog.outString("Starting Game Event system..." );
+    uint32 nextGameEvent = gameeventmgr.Initialize();
+    m_timers[WUPDATE_EVENTS].SetInterval(nextGameEvent);    //depend on next event
+
     ///- Initialize Battlegrounds
     sLog.outString( "Starting BattleGround System" );
     sBattleGroundMgr.CreateInitialBattleGrounds();
@@ -1545,10 +1549,6 @@ void World::SetInitialWorldSettings()
 
     sLog.outString("Starting objects Pooling system..." );
     poolhandler.Initialize();
-
-    sLog.outString("Starting Game Event system..." );
-    uint32 nextGameEvent = gameeventmgr.Initialize();
-    m_timers[WUPDATE_EVENTS].SetInterval(nextGameEvent);    //depend on next event
 
     sLog.outString("Initialize AuctionHouseBot...");
     AuctionHouseBotInit();
