@@ -2293,8 +2293,18 @@ void ObjectMgr::LoadPlayerInfo()
                     continue;
                 }
 
-                PlayerInfo* pInfo = &playerInfo[current_race][current_class];
-                pInfo->spell.push_back(fields[2].GetUInt32());
+                if(!current_race || !current_class)
+                {
+                    uint32 min_race = current_race ? current_race : 1;
+                    uint32 max_race = current_race ? current_race + 1 : MAX_RACES;
+                    uint32 min_class = current_class ? current_class : 1;
+                    uint32 max_class = current_class ? current_class + 1 : MAX_CLASSES;
+                    for(uint32 r = min_race; r < max_race; ++r)
+                        for(uint32 c = min_class; c < max_class; ++c)
+                            playerInfo[r][c].spell.push_back(fields[2].GetUInt32());
+                }
+                else
+                    playerInfo[current_race][current_class].spell.push_back(fields[2].GetUInt32());
 
                 bar.step();
                 ++count;
