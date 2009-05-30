@@ -35,32 +35,40 @@ INSTANTIATE_SINGLETON_1(GameEventMgr);
 
 bool GameEventMgr::CheckOneGameEvent(uint16 entry) const
 {
-    time_t currenttime = time(NULL);
-    // if the state is conditions or nextphase, then the event should be active
-    if (mGameEvent[entry].state == GAMEEVENT_WORLD_CONDITIONS || mGameEvent[entry].state == GAMEEVENT_WORLD_NEXTPHASE)
-        return true;
-    // finished world events are inactive
-    else if (mGameEvent[entry].state == GAMEEVENT_WORLD_FINISHED)
-        return false;
-    // if inactive world event, check the prerequisite events
-    else if (mGameEvent[entry].state == GAMEEVENT_WORLD_INACTIVE)
+    switch(mGameEvent[entry].state)
     {
-        for(std::set<uint16>::const_iterator itr = mGameEvent[entry].prerequisite_events.begin(); itr != mGameEvent[entry].prerequisite_events.end(); ++itr)
+        default:
+        case GAMEEVENT_NORMAL:
         {
-            if( (mGameEvent[*itr].state != GAMEEVENT_WORLD_NEXTPHASE && mGameEvent[*itr].state != GAMEEVENT_WORLD_FINISHED) ||   // if prereq not in nextphase or finished state, then can't start this one
-                mGameEvent[*itr].nextstart > currenttime)               // if not in nextphase state for long enough, can't start this one
-                return false;
+            time_t currenttime = time(NULL);
+            // Get the event information
+            return mGameEvent[entry].start < currenttime
+                && currenttime < mGameEvent[entry].end
+                && (currenttime - mGameEvent[entry].start) % (mGameEvent[entry].occurence * MINUTE) < mGameEvent[entry].length * MINUTE;
         }
-        // all prerequisite events are met
-        // but if there are no prerequisites, this can be only activated through gm command
-        return !(mGameEvent[entry].prerequisite_events.empty());
+        // if the state is conditions or nextphase, then the event should be active
+        case GAMEEVENT_WORLD_CONDITIONS:
+        case GAMEEVENT_WORLD_NEXTPHASE:
+            return true;
+        // finished world events are inactive
+        case GAMEEVENT_WORLD_FINISHED:
+        case GAMEEVENT_INTERNAL:
+            return false;
+        // if inactive world event, check the prerequisite events
+        case GAMEEVENT_WORLD_INACTIVE:
+        {
+            time_t currenttime = time(NULL);
+            for(std::set<uint16>::const_iterator itr = mGameEvent[entry].prerequisite_events.begin(); itr != mGameEvent[entry].prerequisite_events.end(); ++itr)
+            {
+                if( (mGameEvent[*itr].state != GAMEEVENT_WORLD_NEXTPHASE && mGameEvent[*itr].state != GAMEEVENT_WORLD_FINISHED) ||   // if prereq not in nextphase or finished state, then can't start this one
+                    mGameEvent[*itr].nextstart > currenttime)               // if not in nextphase state for long enough, can't start this one
+                    return false;
+            }
+            // all prerequisite events are met
+            // but if there are no prerequisites, this can be only activated through gm command
+            return !(mGameEvent[entry].prerequisite_events.empty());
+        }
     }
-    // Get the event information
-    if( mGameEvent[entry].start < currenttime && currenttime < mGameEvent[entry].end &&
-        ((currenttime - mGameEvent[entry].start) % (mGameEvent[entry].occurence * MINUTE)) < (mGameEvent[entry].length * MINUTE) )
-        return true;
-    else
-        return false;
 }
 
 uint32 GameEventMgr::NextCheck(uint16 entry) const
@@ -97,9 +105,24 @@ uint32 GameEventMgr::NextCheck(uint16 entry) const
         return delay;
 }
 
+void GameEventMgr::StartInternalEvent(uint16 event_id)
+{
+    if(event_id < 1 || event_id >= mGameEvent.size())
+        return;
+
+    if(!mGameEvent[event_id].isValid())
+        return;
+
+    if(m_ActiveEvents.find(event_id) != m_ActiveEvents.end())
+        return;
+
+    StartEvent(event_id);
+}
+
 bool GameEventMgr::StartEvent( uint16 event_id, bool overwrite )
 {
-    if(mGameEvent[event_id].state == GAMEEVENT_NORMAL)
+    if(mGameEvent[event_id].state == GAMEEVENT_NORMAL
+        || mGameEvent[event_id].state == GAMEEVENT_INTERNAL)
     {
         AddActiveEvent(event_id);
         ApplyNewEvent(event_id);
@@ -138,7 +161,7 @@ bool GameEventMgr::StartEvent( uint16 event_id, bool overwrite )
 
 void GameEventMgr::StopEvent( uint16 event_id, bool overwrite )
 {
-    bool serverwide_evt = mGameEvent[event_id].state != GAMEEVENT_NORMAL;
+    bool serverwide_evt = mGameEvent[event_id].state != GAMEEVENT_NORMAL && mGameEvent[event_id].state != GAMEEVENT_INTERNAL;
 
     RemoveActiveEvent(event_id);
     UnApplyEvent(event_id);
@@ -281,7 +304,7 @@ void GameEventMgr::LoadFromDB()
                 continue;
             }
 
-            if(mGameEvent[event_id].state != GAMEEVENT_NORMAL)
+            if(mGameEvent[event_id].state != GAMEEVENT_NORMAL && mGameEvent[event_id].state != GAMEEVENT_INTERNAL)
             {
                 mGameEvent[event_id].state = (GameEventState)(fields[1].GetUInt8());
                 mGameEvent[event_id].nextstart    = time_t(fields[2].GetUInt64());
@@ -329,7 +352,7 @@ void GameEventMgr::LoadFromDB()
             }
 
 
-            if(mGameEvent[event_id].state != GAMEEVENT_NORMAL)
+            if(mGameEvent[event_id].state != GAMEEVENT_NORMAL && mGameEvent[event_id].state != GAMEEVENT_INTERNAL)
             {
                 uint16 prerequisite_event = fields[1].GetUInt16();
                 if(prerequisite_event >= mGameEvent.size())
