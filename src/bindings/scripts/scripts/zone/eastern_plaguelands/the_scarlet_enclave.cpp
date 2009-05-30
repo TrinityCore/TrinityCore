@@ -234,7 +234,6 @@ struct TRINITY_DLL_DECL npc_unworthy_initiate_anchorAI : public ScriptedAI
 
     uint64 guid_target;
 
-    void Aggro(Unit *who) {}
     void Reset(){}
 
     void SetTarget(uint64 target);
