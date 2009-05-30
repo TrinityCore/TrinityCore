@@ -383,7 +383,6 @@ class TRINITY_DLL_SPEC WorldObject : public Object
 
         void Relocate(float x, float y, float z, float orientation)
         {
-            assert(orientation > -100 && orientation < 100);
             m_positionX = x;
             m_positionY = y;
             m_positionZ = z;
@@ -403,7 +402,7 @@ class TRINITY_DLL_SPEC WorldObject : public Object
             Relocate(loc.x, loc.y, loc.z, loc.o);
         }
 
-        void SetOrientation(float orientation) { assert(orientation > -100 && orientation < 100); m_orientation = orientation; }
+        void SetOrientation(float orientation) { m_orientation = orientation; }
 
         float GetPositionX( ) const { return m_positionX; }
         float GetPositionY( ) const { return m_positionY; }
