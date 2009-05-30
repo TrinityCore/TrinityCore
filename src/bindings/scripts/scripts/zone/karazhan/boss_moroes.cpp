@@ -110,7 +110,7 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
         DoZoneInCombat();
     }
 
-    void Aggro(Unit* who)
+    void EnterCombat(Unit* who)
     {
         StartEvent();
 
@@ -348,8 +348,6 @@ struct TRINITY_DLL_DECL boss_moroes_guestAI : public ScriptedAI
         if(pInstance)
             pInstance->SetData(DATA_MOROES_EVENT, NOT_STARTED);
     }
-
-    void Aggro(Unit* who) {}
 
     void AcquireGUID()
     {
