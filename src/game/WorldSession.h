@@ -282,8 +282,8 @@ class TRINITY_DLL_SPEC WorldSession
         void HandleMountSpecialAnimOpcode(WorldPacket &recvdata);
 
         // character view
-        void HandleToggleHelmOpcode(WorldPacket& recv_data);
-        void HandleToggleCloakOpcode(WorldPacket& recv_data);
+        void HandleShowingHelmOpcode(WorldPacket& recv_data);
+        void HandleShowingCloakOpcode(WorldPacket& recv_data);
 
         // repair
         void HandleRepairItemOpcode(WorldPacket& recvPacket);
@@ -308,11 +308,11 @@ class TRINITY_DLL_SPEC WorldSession
         void HandleLogoutCancelOpcode(WorldPacket& recvPacket);
 
         // GM Ticket opcodes
-         void HandleGMTicketCreateOpcode(WorldPacket& recvPacket);
-         void HandleGMTicketUpdateOpcode(WorldPacket& recvPacket);
-         void HandleGMTicketDeleteOpcode(WorldPacket& recvPacket);
-         void HandleGMTicketGetTicketOpcode(WorldPacket& recvPacket);
-         void HandleGMTicketSystemStatusOpcode(WorldPacket& recvPacket);
+        void HandleGMTicketCreateOpcode(WorldPacket& recvPacket);
+        void HandleGMTicketUpdateOpcode(WorldPacket& recvPacket);
+        void HandleGMTicketDeleteOpcode(WorldPacket& recvPacket);
+        void HandleGMTicketGetTicketOpcode(WorldPacket& recvPacket);
+        void HandleGMTicketSystemStatusOpcode(WorldPacket& recvPacket);
 
         //void HandleGMSurveySubmit(WorldPacket& recvPacket);
 
@@ -323,14 +323,14 @@ class TRINITY_DLL_SPEC WorldSession
         void HandleSetSelectionOpcode(WorldPacket& recvPacket);
         void HandleStandStateChangeOpcode(WorldPacket& recvPacket);
         void HandleEmoteOpcode(WorldPacket& recvPacket);
-        void HandleFriendListOpcode(WorldPacket& recvPacket);
+        void HandleContactListOpcode(WorldPacket& recvPacket);
         void HandleAddFriendOpcode(WorldPacket& recvPacket);
         static void HandleAddFriendOpcodeCallBack(QueryResult *result, uint32 accountId, std::string friendNote);
         void HandleDelFriendOpcode(WorldPacket& recvPacket);
         void HandleAddIgnoreOpcode(WorldPacket& recvPacket);
         static void HandleAddIgnoreOpcodeCallBack(QueryResult *result, uint32 accountId);
         void HandleDelIgnoreOpcode(WorldPacket& recvPacket);
-        void HandleSetFriendNoteOpcode(WorldPacket& recvPacket);
+        void HandleSetContactNotesOpcode(WorldPacket& recvPacket);
         void HandleBugOpcode(WorldPacket& recvPacket);
         void HandleSetAmmoOpcode(WorldPacket& recvPacket);
         void HandleItemNameQueryOpcode(WorldPacket& recvPacket);
@@ -339,8 +339,8 @@ class TRINITY_DLL_SPEC WorldSession
 
         void HandleSetFactionAtWar( WorldPacket & recv_data );
         void HandleSetFactionCheat( WorldPacket & recv_data );
-        void HandleSetWatchedFactionIndexOpcode(WorldPacket & recv_data);
-        void HandleSetWatchedFactionInactiveOpcode(WorldPacket & recv_data);
+        void HandleSetWatchedFactionOpcode(WorldPacket & recv_data);
+        void HandleSetFactionInactiveOpcode(WorldPacket & recv_data);
 
         void HandleUpdateAccountData(WorldPacket& recvPacket);
         void HandleRequestAccountData(WorldPacket& recvPacket);
@@ -378,21 +378,21 @@ class TRINITY_DLL_SPEC WorldSession
         //void HandleGroupCancelOpcode(WorldPacket& recvPacket);
         void HandleGroupAcceptOpcode(WorldPacket& recvPacket);
         void HandleGroupDeclineOpcode(WorldPacket& recvPacket);
-        void HandleGroupUninviteNameOpcode(WorldPacket& recvPacket);
+        void HandleGroupUninviteOpcode(WorldPacket& recvPacket);
         void HandleGroupUninviteGuidOpcode(WorldPacket& recvPacket);
         void HandleGroupSetLeaderOpcode(WorldPacket& recvPacket);
-        void HandleGroupLeaveOpcode(WorldPacket& recvPacket);
-        void HandleGroupPassOnLootOpcode( WorldPacket &recv_data );
+        void HandleGroupDisbandOpcode(WorldPacket& recvPacket);
+        void HandleOptOutOfLootOpcode( WorldPacket &recv_data );
         void HandleLootMethodOpcode(WorldPacket& recvPacket);
         void HandleLootRoll( WorldPacket &recv_data );
         void HandleRequestPartyMemberStatsOpcode( WorldPacket &recv_data );
-        void HandleRaidIconTargetOpcode( WorldPacket & recv_data );
+        void HandleRaidTargetUpdateOpcode( WorldPacket & recv_data );
         void HandleRaidReadyCheckOpcode( WorldPacket & recv_data );
-        void HandleRaidReadyCheckFinishOpcode( WorldPacket & recv_data );
-        void HandleRaidConvertOpcode( WorldPacket & recv_data );
+        void HandleRaidReadyCheckFinishedOpcode( WorldPacket & recv_data );
+        void HandleGroupRaidConvertOpcode( WorldPacket & recv_data );
         void HandleGroupChangeSubGroupOpcode( WorldPacket & recv_data );
-        void HandleGroupAssistantOpcode( WorldPacket & recv_data );
-        void HandleGroupPromoteOpcode( WorldPacket & recv_data );
+        void HandleGroupAssistantLeaderOpcode( WorldPacket & recv_data );
+        void HandlePartyAssignmentOpcode( WorldPacket & recv_data );
 
         void HandlePetitionBuyOpcode(WorldPacket& recv_data);
         void HandlePetitionShowSignOpcode(WorldPacket& recv_data);
@@ -410,7 +410,7 @@ class TRINITY_DLL_SPEC WorldSession
         void HandleGuildAcceptOpcode(WorldPacket& recvPacket);
         void HandleGuildDeclineOpcode(WorldPacket& recvPacket);
         void HandleGuildInfoOpcode(WorldPacket& recvPacket);
-        void HandleGuildEventLogOpcode(WorldPacket& recvPacket);
+        void HandleGuildEventLogQueryOpcode(WorldPacket& recvPacket);
         void HandleGuildRosterOpcode(WorldPacket& recvPacket);
         void HandleGuildPromoteOpcode(WorldPacket& recvPacket);
         void HandleGuildDemoteOpcode(WorldPacket& recvPacket);
@@ -423,14 +423,14 @@ class TRINITY_DLL_SPEC WorldSession
         void HandleGuildRankOpcode(WorldPacket& recvPacket);
         void HandleGuildAddRankOpcode(WorldPacket& recvPacket);
         void HandleGuildDelRankOpcode(WorldPacket& recvPacket);
-        void HandleGuildChangeInfoOpcode(WorldPacket& recvPacket);
-        void HandleGuildSaveEmblemOpcode(WorldPacket& recvPacket);
+        void HandleGuildChangeInfoTextOpcode(WorldPacket& recvPacket);
+        void HandleSaveGuildEmblemOpcode(WorldPacket& recvPacket);
 
         void HandleTaxiNodeStatusQueryOpcode(WorldPacket& recvPacket);
         void HandleTaxiQueryAvailableNodes(WorldPacket& recvPacket);
         void HandleActivateTaxiOpcode(WorldPacket& recvPacket);
-        void HandleActivateTaxiFarOpcode(WorldPacket& recvPacket);
-        void HandleTaxiNextDestinationOpcode(WorldPacket& recvPacket);
+        void HandleActivateTaxiExpressOpcode(WorldPacket& recvPacket);
+        void HandleMoveSplineDoneOpcode(WorldPacket& recvPacket);
 
         void HandleTabardVendorActivateOpcode(WorldPacket& recvPacket);
         void HandleBankerActivateOpcode(WorldPacket& recvPacket);
@@ -473,16 +473,16 @@ class TRINITY_DLL_SPEC WorldSession
         void HandleAuctionPlaceBid( WorldPacket & recv_data );
         void HandleAuctionListPendingSales( WorldPacket & recv_data );
 
-        void HandleGetMail( WorldPacket & recv_data );
+        void HandleGetMailList( WorldPacket & recv_data );
         void HandleSendMail( WorldPacket & recv_data );
-        void HandleTakeMoney( WorldPacket & recv_data );
-        void HandleTakeItem( WorldPacket & recv_data );
-        void HandleMarkAsRead( WorldPacket & recv_data );
-        void HandleReturnToSender( WorldPacket & recv_data );
+        void HandleMailTakeMoney( WorldPacket & recv_data );
+        void HandleMailTakeItem( WorldPacket & recv_data );
+        void HandleMailMarkAsRead( WorldPacket & recv_data );
+        void HandleMailReturnToSender( WorldPacket & recv_data );
         void HandleMailDelete( WorldPacket & recv_data );
         void HandleItemTextQuery( WorldPacket & recv_data);
         void HandleMailCreateTextItem(WorldPacket & recv_data );
-        void HandleMsgQueryNextMailtime(WorldPacket & recv_data );
+        void HandleQueryNextMailTime(WorldPacket & recv_data );
         void HandleCancelChanneling(WorldPacket & recv_data );
 
         void SendItemPageInfo( ItemPrototype *itemProto );
@@ -517,14 +517,14 @@ class TRINITY_DLL_SPEC WorldSession
         void HandleCancelAutoRepeatSpellOpcode(WorldPacket& recvPacket);
 
         void HandleLearnTalentOpcode(WorldPacket& recvPacket);
-        void HandleTalentWipeOpcode(WorldPacket& recvPacket);
+        void HandleTalentWipeConfirmOpcode(WorldPacket& recvPacket);
         void HandleUnlearnSkillOpcode(WorldPacket& recvPacket);
 
         void HandleQuestgiverStatusQueryOpcode(WorldPacket& recvPacket);
-        void HandleQuestgiverStatusQueryMultipleOpcode(WorldPacket& recvPacket);
+        void HandleQuestgiverStatusMultipleQuery(WorldPacket& recvPacket);
         void HandleQuestgiverHelloOpcode(WorldPacket& recvPacket);
         void HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvPacket);
-        void HandleQuestgiverQuestQueryOpcode(WorldPacket& recvPacket);
+        void HandleQuestgiverQueryQuestOpcode(WorldPacket& recvPacket);
         void HandleQuestgiverChooseRewardOpcode(WorldPacket& recvPacket);
         void HandleQuestgiverRequestRewardOpcode(WorldPacket& recvPacket);
         void HandleQuestQueryOpcode(WorldPacket& recvPacket);
@@ -532,22 +532,22 @@ class TRINITY_DLL_SPEC WorldSession
         void HandleQuestLogSwapQuest(WorldPacket& recv_data );
         void HandleQuestLogRemoveQuest(WorldPacket& recv_data);
         void HandleQuestConfirmAccept(WorldPacket& recv_data);
-        void HandleQuestComplete(WorldPacket& recv_data);
-        void HandleQuestAutoLaunch(WorldPacket& recvPacket);
-        void HandleQuestPushToParty(WorldPacket& recvPacket);
+        void HandleQuestgiverCompleteQuest(WorldPacket& recv_data);
+        void HandleQuestgiverQuestAutoLaunch(WorldPacket& recvPacket);
+        void HandlePushQuestToParty(WorldPacket& recvPacket);
         void HandleQuestPushResult(WorldPacket& recvPacket);
 
         void HandleMessagechatOpcode(WorldPacket& recvPacket);
         void HandleTextEmoteOpcode(WorldPacket& recvPacket);
         void HandleChatIgnoredOpcode(WorldPacket& recvPacket);
 
-        void HandleCorpseReclaimOpcode( WorldPacket& recvPacket );
+        void HandleReclaimCorpseOpcode( WorldPacket& recvPacket );
         void HandleCorpseQueryOpcode( WorldPacket& recvPacket );
         void HandleResurrectResponseOpcode(WorldPacket& recvPacket);
         void HandleSummonResponseOpcode(WorldPacket& recv_data);
 
-        void HandleChannelJoin(WorldPacket& recvPacket);
-        void HandleChannelLeave(WorldPacket& recvPacket);
+        void HandleJoinChannel(WorldPacket& recvPacket);
+        void HandleLeaveChannel(WorldPacket& recvPacket);
         void HandleChannelList(WorldPacket& recvPacket);
         void HandleChannelPassword(WorldPacket& recvPacket);
         void HandleChannelSetOwner(WorldPacket& recvPacket);
@@ -560,18 +560,18 @@ class TRINITY_DLL_SPEC WorldSession
         void HandleChannelKick(WorldPacket& recvPacket);
         void HandleChannelBan(WorldPacket& recvPacket);
         void HandleChannelUnban(WorldPacket& recvPacket);
-        void HandleChannelAnnounce(WorldPacket& recvPacket);
+        void HandleChannelAnnouncements(WorldPacket& recvPacket);
         void HandleChannelModerate(WorldPacket& recvPacket);
-        void HandleChannelRosterQuery(WorldPacket& recvPacket);
-        void HandleChannelInfoQuery(WorldPacket& recvPacket);
-        void HandleChannelJoinNotify(WorldPacket& recvPacket);
         void HandleChannelDeclineInvite(WorldPacket& recvPacket);
+        void HandleChannelDisplayListQuery(WorldPacket& recvPacket);
+        void HandleGetChannelMemberCount(WorldPacket& recvPacket);
+        void HandleSetChannelWatch(WorldPacket& recvPacket);
 
-        void HandleCompleteCinema(WorldPacket& recvPacket);
+        void HandleCompleteCinematic(WorldPacket& recvPacket);
         void HandleNextCinematicCamera(WorldPacket& recvPacket);
 
         void HandlePageQuerySkippedOpcode(WorldPacket& recvPacket);
-        void HandlePageQueryOpcode(WorldPacket& recvPacket);
+        void HandlePageTextQueryOpcode(WorldPacket& recvPacket);
 
         void HandleTutorialFlag ( WorldPacket & recv_data );
         void HandleTutorialClear( WorldPacket & recv_data );
@@ -590,24 +590,24 @@ class TRINITY_DLL_SPEC WorldSession
         void HandlePetCastSpellOpcode( WorldPacket& recvPacket );
         void HandlePetLearnTalent( WorldPacket& recvPacket );
 
-        void HandleSetActionBar(WorldPacket& recv_data);
+        void HandleSetActionBarToggles(WorldPacket& recv_data);
 
-        void HandleChangePlayerNameOpcode(WorldPacket& recv_data);
+        void HandleCharRenameOpcode(WorldPacket& recv_data);
         static void HandleChangePlayerNameOpcodeCallBack(QueryResult *result, uint32 accountId, std::string newname);
-        void HandleDeclinedPlayerNameOpcode(WorldPacket& recv_data);
+        void HandleSetPlayerDeclinedNames(WorldPacket& recv_data);
 
-        void HandleTotemDestroy(WorldPacket& recv_data);
+        void HandleTotemDestroyed(WorldPacket& recv_data);
 
         //BattleGround
-        void HandleBattleGroundHelloOpcode(WorldPacket &recv_data);
-        void HandleBattleGroundJoinOpcode(WorldPacket &recv_data);
+        void HandleBattlemasterHelloOpcode(WorldPacket &recv_data);
+        void HandleBattlemasterJoinOpcode(WorldPacket &recv_data);
         void HandleBattleGroundPlayerPositionsOpcode(WorldPacket& recv_data);
-        void HandleBattleGroundPVPlogdataOpcode( WorldPacket &recv_data );
-        void HandleBattleGroundPlayerPortOpcode( WorldPacket &recv_data );
-        void HandleBattleGroundListOpcode( WorldPacket &recv_data );
-        void HandleBattleGroundLeaveOpcode( WorldPacket &recv_data );
-        void HandleBattleGroundArenaJoin( WorldPacket &recv_data );
-        void HandleBattleGroundReportAFK( WorldPacket &recv_data );
+        void HandlePVPLogDataOpcode( WorldPacket &recv_data );
+        void HandleBattleFieldPortOpcode( WorldPacket &recv_data );
+        void HandleBattlefieldListOpcode( WorldPacket &recv_data );
+        void HandleLeaveBattlefieldOpcode( WorldPacket &recv_data );
+        void HandleBattlemasterJoinArena( WorldPacket &recv_data );
+        void HandleReportPvPAFK( WorldPacket &recv_data );
 
         void HandleWardenDataOpcode(WorldPacket& recv_data);
         void HandleWorldTeleportOpcode(WorldPacket& recv_data);
@@ -615,64 +615,64 @@ class TRINITY_DLL_SPEC WorldSession
         void HandleRandomRollOpcode(WorldPacket& recv_data);
         void HandleFarSightOpcode(WorldPacket& recv_data);
         void HandleSetLfgOpcode(WorldPacket& recv_data);
-        void HandleDungeonDifficultyOpcode(WorldPacket& recv_data);
-        void HandleMoveFlyModeChangeAckOpcode(WorldPacket& recv_data);
-        void HandleLfgAutoJoinOpcode(WorldPacket& recv_data);
-        void HandleLfgCancelAutoJoinOpcode(WorldPacket& recv_data);
-        void HandleLfmAutoAddMembersOpcode(WorldPacket& recv_data);
-        void HandleLfmCancelAutoAddmembersOpcode(WorldPacket& recv_data);
+        void HandleSetDungeonDifficultyOpcode(WorldPacket& recv_data);
+        void HandleMoveSetCanFlyAckOpcode(WorldPacket& recv_data);
+        void HandleLfgSetAutoJoinOpcode(WorldPacket& recv_data);
+        void HandleLfgClearAutoJoinOpcode(WorldPacket& recv_data);
+        void HandleLfmSetAutoFillOpcode(WorldPacket& recv_data);
+        void HandleLfmClearAutoFillOpcode(WorldPacket& recv_data);
         void HandleLfgClearOpcode(WorldPacket& recv_data);
-        void HandleLfmSetNoneOpcode(WorldPacket& recv_data);
-        void HandleLfmSetOpcode(WorldPacket& recv_data);
-        void HandleLfgSetCommentOpcode(WorldPacket& recv_data);
-        void HandleChooseTitleOpcode(WorldPacket& recv_data);
-        void HandleRealmStateRequestOpcode(WorldPacket& recv_data);
+        void HandleLfmClearOpcode(WorldPacket& recv_data);
+        void HandleSetLfmOpcode(WorldPacket& recv_data);
+        void HandleSetLfgCommentOpcode(WorldPacket& recv_data);
+        void HandleSetTitleOpcode(WorldPacket& recv_data);
+        void HandleRealmSplitOpcode(WorldPacket& recv_data);
         void HandleTimeSyncResp(WorldPacket& recv_data);
         void HandleWhoisOpcode(WorldPacket& recv_data);
         void HandleResetInstancesOpcode(WorldPacket& recv_data);
 
         // Arena Team
-        void HandleInspectArenaStatsOpcode(WorldPacket& recv_data);
+        void HandleInspectArenaTeamsOpcode(WorldPacket& recv_data);
         void HandleArenaTeamQueryOpcode(WorldPacket& recv_data);
         void HandleArenaTeamRosterOpcode(WorldPacket& recv_data);
-        void HandleArenaTeamAddMemberOpcode(WorldPacket& recv_data);
-        void HandleArenaTeamInviteAcceptOpcode(WorldPacket& recv_data);
-        void HandleArenaTeamInviteDeclineOpcode(WorldPacket& recv_data);
+        void HandleArenaTeamInviteOpcode(WorldPacket& recv_data);
+        void HandleArenaTeamAcceptOpcode(WorldPacket& recv_data);
+        void HandleArenaTeamDeclineOpcode(WorldPacket& recv_data);
         void HandleArenaTeamLeaveOpcode(WorldPacket& recv_data);
-        void HandleArenaTeamRemoveFromTeamOpcode(WorldPacket& recv_data);
+        void HandleArenaTeamRemoveOpcode(WorldPacket& recv_data);
         void HandleArenaTeamDisbandOpcode(WorldPacket& recv_data);
-        void HandleArenaTeamPromoteToCaptainOpcode(WorldPacket& recv_data);
+        void HandleArenaTeamLeaderOpcode(WorldPacket& recv_data);
 
         void HandleAreaSpiritHealerQueryOpcode(WorldPacket& recv_data);
         void HandleAreaSpiritHealerQueueOpcode(WorldPacket& recv_data);
-        void HandleDismountOpcode(WorldPacket& recv_data);
+        void HandleCancelMountAuraOpcode(WorldPacket& recv_data);
         void HandleSelfResOpcode(WorldPacket& recv_data);
-        void HandleReportSpamOpcode(WorldPacket& recv_data);
+        void HandleComplainOpcode(WorldPacket& recv_data);
         void HandleRequestPetInfoOpcode(WorldPacket& recv_data);
 
         // Socket gem
         void HandleSocketOpcode(WorldPacket& recv_data);
 
-        void HandleCancelTempItemEnchantmentOpcode(WorldPacket& recv_data);
+        void HandleCancelTempEnchantmentOpcode(WorldPacket& recv_data);
 
-        void HandleChannelEnableVoiceOpcode(WorldPacket & recv_data);
-        void HandleVoiceSettingsOpcode(WorldPacket& recv_data);
-        void HandleChannelVoiceChatQuery(WorldPacket& recv_data);
+        void HandleChannelVoiceOnOpcode(WorldPacket & recv_data);
+        void HandleVoiceSessionEnableOpcode(WorldPacket& recv_data);
+        void HandleSetActiveVoiceChannel(WorldPacket& recv_data);
         void HandleSetTaxiBenchmarkOpcode(WorldPacket& recv_data);
 
         // Guild Bank
-        void HandleGuildBankGetRights(WorldPacket& recv_data);
-        void HandleGuildBankGetMoneyAmount(WorldPacket& recv_data);
-        void HandleGuildBankQuery(WorldPacket& recv_data);
-        void HandleGuildBankTabColon(WorldPacket& recv_data);
-        void HandleGuildBankLog(WorldPacket& recv_data);
-        void HandleGuildBankDeposit(WorldPacket& recv_data);
-        void HandleGuildBankWithdraw(WorldPacket& recv_data);
-        void HandleGuildBankDepositItem(WorldPacket& recv_data);
-        void HandleGuildBankModifyTab(WorldPacket& recv_data);
+        void HandleGuildPermissions(WorldPacket& recv_data);
+        void HandleGuildBankMoneyWithdrawn(WorldPacket& recv_data);
+        void HandleGuildBankerActivate(WorldPacket& recv_data);
+        void HandleGuildBankQueryTab(WorldPacket& recv_data);
+        void HandleGuildBankLogQuery(WorldPacket& recv_data);
+        void HandleGuildBankDepositMoney(WorldPacket& recv_data);
+        void HandleGuildBankWithdrawMoney(WorldPacket& recv_data);
+        void HandleGuildBankSwapItems(WorldPacket& recv_data);
+        void HandleGuildBankUpdateTab(WorldPacket& recv_data);
         void HandleGuildBankBuyTab(WorldPacket& recv_data);
-        void HandleGuildBankTabText(WorldPacket& recv_data);
-        void HandleGuildBankSetTabText(WorldPacket& recv_data);
+        void HandleQueryGuildBankTabText(WorldPacket& recv_data);
+        void HandleSetGuildBankTabText(WorldPacket& recv_data);
 
         // Calendar
         void HandleCalendarGetCalendar(WorldPacket& recv_data);
@@ -695,7 +695,7 @@ class TRINITY_DLL_SPEC WorldSession
         void HandleAlterAppearance(WorldPacket& recv_data);
         void HandleRemoveGlyph(WorldPacket& recv_data);
         void HandleCharCustomize(WorldPacket& recv_data);
-        void HandleInspectAchievements(WorldPacket& recv_data);
+        void HandleQueryInspectAchievements(WorldPacket& recv_data);
     private:
         // private trade methods
         void moveItems(Item* myItems[], Item* hisItems[]);

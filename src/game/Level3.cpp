@@ -3779,7 +3779,7 @@ bool ChatHandler::HandleLookupTaxiNodeCommand(const char * args)
 bool ChatHandler::HandleGuildCreateCommand(const char* args)
 {
     if(!*args)
-        return false; 
+        return false;
 
     // if not guild name only (in "") then player name
     Player* target;
@@ -3818,7 +3818,7 @@ bool ChatHandler::HandleGuildCreateCommand(const char* args)
 bool ChatHandler::HandleGuildInviteCommand(const char *args)
 {
     if(!*args)
-        return false; 
+        return false;
 
     // if not guild name only (in "") then player name
     uint64 target_guid;

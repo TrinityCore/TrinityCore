@@ -38,7 +38,7 @@ void WorldSession::HandleLearnTalentOpcode( WorldPacket & recv_data )
     _player->LearnTalent(talent_id, requested_rank);
 }
 
-void WorldSession::HandleTalentWipeOpcode( WorldPacket & recv_data )
+void WorldSession::HandleTalentWipeConfirmOpcode( WorldPacket & recv_data )
 {
     CHECK_PACKET_SIZE(recv_data,8);
 
@@ -49,7 +49,7 @@ void WorldSession::HandleTalentWipeOpcode( WorldPacket & recv_data )
     Creature *unit = GetPlayer()->GetNPCIfCanInteractWith(guid,UNIT_NPC_FLAG_TRAINER);
     if (!unit)
     {
-        sLog.outDebug( "WORLD: HandleTalentWipeOpcode - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(guid)) );
+        sLog.outDebug( "WORLD: HandleTalentWipeConfirmOpcode - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(guid)) );
         return;
     }
 

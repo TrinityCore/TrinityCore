@@ -123,6 +123,7 @@ enum ITEM_FLAGS
 
 enum BAG_FAMILY_MASK
 {
+    BAG_FAMILY_MASK_NONE                      = 0x00000000,
     BAG_FAMILY_MASK_ARROWS                    = 0x00000001,
     BAG_FAMILY_MASK_BULLETS                   = 0x00000002,
     BAG_FAMILY_MASK_SOUL_SHARDS               = 0x00000004,
@@ -564,7 +565,7 @@ struct ItemPrototype
     uint32 MaxDurability;
     uint32 Area;                                            // id from AreaTable.dbc
     uint32 Map;                                             // id from Map.dbc
-    uint32 BagFamily;                                       // bit string (1 << id from ItemBagFamily.dbc)
+    uint32 BagFamily;                                       // bit mask (1 << id from ItemBagFamily.dbc)
     uint32 TotemCategory;                                   // id from TotemCategory.dbc
     _Socket Socket[MAX_ITEM_PROTO_SOCKETS];
     uint32 socketBonus;                                     // id from SpellItemEnchantment.dbc

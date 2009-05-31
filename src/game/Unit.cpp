@@ -376,6 +376,7 @@ void Unit::SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint32 M
     }
 
     data << uint32(MovementFlags);
+
     data << uint32(Time);                                   // Time in between points
     data << uint32(1);                                      // 1 single waypoint
     data << NewPosX << NewPosY << NewPosZ;                  // the single waypoint Point B
@@ -390,14 +391,14 @@ void Unit::SendMonsterMoveByPath(Path const& path, uint32 start, uint32 end)
 {
     uint32 traveltime = uint32(path.GetTotalLength(start, end) * 32);
 
-    uint32 pathSize = end-start;
+    uint32 pathSize = end - start;
 
     WorldPacket data( SMSG_MONSTER_MOVE, (GetPackGUID().size()+4+4+4+4+1+4+4+4+pathSize*4*3) );
     data.append(GetPackGUID());
     data << GetPositionX();
     data << GetPositionY();
     data << GetPositionZ();
-    data << getMSTime();
+    data << uint32(getMSTime());
     data << uint8( 0 );
     data << uint32(((GetUnitMovementFlags() & MOVEMENTFLAG_LEVITATING) || isInFlight())? (MOVEFLAG_FLY|MOVEFLAG_WALK) : MOVEFLAG_WALK);
     data << uint32( traveltime );
@@ -1370,7 +1371,7 @@ void Unit::DealSpellDamage(SpellNonMeleeDamage *damageInfo, bool durabilityLoss)
     if(pVictim != this && GetTypeId() == TYPEID_PLAYER && pVictim->GetTypeId() == TYPEID_PLAYER)
     {
         const AreaTableEntry *area = GetAreaEntryByAreaID(pVictim->GetAreaId());
-        if(area && area->flags & 0x800)                     //sanctuary
+        if(area && area->flags & AREA_FLAG_SANCTUARY)       // sanctuary
             return;
     }
 
@@ -1606,11 +1607,11 @@ void Unit::DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss)
     if(pVictim != this && GetTypeId() == TYPEID_PLAYER && pVictim->GetTypeId() == TYPEID_PLAYER)
     {
         const AreaTableEntry *area = GetAreaEntryByAreaID(pVictim->GetAreaId());
-        if(area && area->flags & 0x800)                     //sanctuary
+        if(area && area->flags & AREA_FLAG_SANCTUARY)       // sanctuary
             return;
     }
 
-    // Hmmmm dont like this emotes cloent must by self do all animations
+    // Hmmmm dont like this emotes client must by self do all animations
     if (damageInfo->HitInfo&HITINFO_CRITICALHIT)
         pVictim->HandleEmoteCommand(EMOTE_ONESHOT_WOUNDCRITICAL);
     if(damageInfo->blocked_amount && damageInfo->TargetState!=VICTIMSTATE_BLOCKS)
@@ -1759,7 +1760,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss)
 
 void Unit::HandleEmoteCommand(uint32 anim_id)
 {
-    WorldPacket data( SMSG_EMOTE, 12 );
+    WorldPacket data( SMSG_EMOTE, 4 + 8 );
     data << uint32(anim_id);
     data << uint64(GetGUID());
     SendMessageToSet(&data, true);
@@ -2642,7 +2643,7 @@ float Unit::CalculateLevelPenalty(SpellEntry const* spellProto) const
 
 void Unit::SendAttackStart(Unit* pVictim)
 {
-    WorldPacket data( SMSG_ATTACKSTART, 16 );
+    WorldPacket data( SMSG_ATTACKSTART, 8 + 8 );
     data << uint64(GetGUID());
     data << uint64(pVictim->GetGUID());
 
@@ -4507,7 +4508,7 @@ void Unit::RemoveAllGameObjects()
 
 void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage *log)
 {
-    WorldPacket data(SMSG_SPELLNONMELEEDAMAGELOG, (16+4+4+1+4+4+1+1+4+4+1)); // we guess size
+    WorldPacket data(SMSG_SPELLNONMELEEDAMAGELOG, (16+4+4+4+1+4+4+1+1+4+4+1)); // we guess size
     data.append(log->target->GetPackGUID());
     data.append(log->attacker->GetPackGUID());
     data << uint32(log->SpellID);
@@ -4525,10 +4526,10 @@ void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage *log)
     SendMessageToSet( &data, true );
 }
 
-void Unit::SendSpellNonMeleeDamageLog(Unit *target,uint32 SpellID,uint32 Damage, SpellSchoolMask damageSchoolMask,uint32 AbsorbedDamage, uint32 Resist,bool PhysicalDamage, uint32 Blocked, bool CriticalHit)
+void Unit::SendSpellNonMeleeDamageLog(Unit *target, uint32 SpellID, uint32 Damage, SpellSchoolMask damageSchoolMask, uint32 AbsorbedDamage, uint32 Resist, bool PhysicalDamage, uint32 Blocked, bool CriticalHit)
 {
-    SpellNonMeleeDamage log(this,target,SpellID,damageSchoolMask);
-    log.damage = Damage-AbsorbedDamage-Resist-Blocked;
+    SpellNonMeleeDamage log(this, target, SpellID, damageSchoolMask);
+    log.damage = Damage - AbsorbedDamage - Resist - Blocked;
     log.absorb = AbsorbedDamage;
     log.resist = Resist;
     log.physicalLog = PhysicalDamage;
@@ -4550,6 +4551,51 @@ void Unit::ProcDamageAndSpell(Unit *pVictim, uint32 procAttacker, uint32 procVic
         pVictim->ProcDamageAndSpellFor(true,this,procVictim, procExtra, attType, procSpell, amount, procAura);
 }
 
+void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo *pInfo)
+{
+    AuraEffect *aura = pInfo->auraEff;
+
+    WorldPacket data(SMSG_PERIODICAURALOG, 30);
+    data.append(GetPackGUID());
+    data.appendPackGUID(aura->GetCasterGUID());
+    data << uint32(aura->GetId());                          // spellId
+    data << uint32(1);                                      // count
+    data << uint32(aura->GetAuraName());                    // auraId
+    switch(aura->GetAuraName())
+    {
+        case SPELL_AURA_PERIODIC_DAMAGE:
+        case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
+            data << uint32(pInfo->damage);                  // damage
+            data << uint32(pInfo->overDamage);              // overkill?
+            data << uint32(GetSpellSchoolMask(aura->GetSpellProto()));
+            data << uint32(pInfo->absorb);                  // absorb
+            data << uint32(pInfo->resist);                  // resist
+            data << uint8(0);                               // new 3.1.2
+            break;
+        case SPELL_AURA_PERIODIC_HEAL:
+        case SPELL_AURA_OBS_MOD_HEALTH:
+            data << uint32(pInfo->damage);                  // damage
+            data << uint32(pInfo->overDamage);              // overheal?
+            data << uint8(0);                               // new 3.1.2
+            break;
+        case SPELL_AURA_OBS_MOD_ENERGY:
+        case SPELL_AURA_PERIODIC_ENERGIZE:
+            data << uint32(aura->GetMiscValue());           // power type
+            data << uint32(pInfo->damage);                  // damage
+            break;
+        case SPELL_AURA_PERIODIC_MANA_LEECH:
+            data << uint32(aura->GetMiscValue());           // power type
+            data << uint32(pInfo->damage);                  // amount
+            data << float(pInfo->multiplier);               // gain multiplier
+            break;
+        default:
+            sLog.outError("Unit::SendPeriodicAuraLog: unknown aura %u", uint32(aura->GetAuraName()));
+            return;
+    }
+
+    SendMessageToSet(&data, true);
+}
+
 void Unit::SendSpellMiss(Unit *target, uint32 spellID, SpellMissInfo missInfo)
 {
     WorldPacket data(SMSG_SPELLLOGMISS, (4+8+1+4+8+1));
@@ -4566,41 +4612,43 @@ void Unit::SendSpellMiss(Unit *target, uint32 spellID, SpellMissInfo missInfo)
 
 void Unit::SendAttackStateUpdate(CalcDamageInfo *damageInfo)
 {
-    uint32 count = 1;
-    WorldPacket data(SMSG_ATTACKERSTATEUPDATE, (16+45));    // we guess size
-    data << (uint32)damageInfo->HitInfo;
-    data.append(GetPackGUID());
-    data.append(damageInfo->target->GetPackGUID());
-    data << (uint32)(damageInfo->damage);     // Full damage
-    data << uint32(int32 (damageInfo->target->GetHealth()-damageInfo->damage ) >0 ? 0 : damageInfo->damage - damageInfo->target->GetHealth()); // Overkill
+    sLog.outDebug("WORLD: Sending SMSG_ATTACKERSTATEUPDATE");
 
-    data << (uint8)count;                     // Sub damage count
+    uint32 count = 1;
+    WorldPacket data(SMSG_ATTACKERSTATEUPDATE, 16 + 45);    // we guess size
+    data << uint32(damageInfo->HitInfo);
+    data.append(damageInfo->attacker->GetPackGUID());
+    data.append(damageInfo->target->GetPackGUID());
+    data << uint32(damageInfo->damage);                     // Full damage
+    int32 overkill = damageInfo->damage - damageInfo->target->GetHealth();
+    data << uint32(overkill < 0 ? 0 : overkill);            // Overkill
+    data << uint8(count);                                   // Sub damage count
 
     for(int i = 0; i < count; ++i)
     {
-        data << (uint32)(damageInfo->damageSchoolMask); // School of sub damage
-        data << (float)damageInfo->damage;        // sub damage
-        data << (uint32)damageInfo->damage;       // Sub Damage
+        data << uint32(damageInfo->damageSchoolMask);       // School of sub damage
+        data << float(damageInfo->damage);                  // sub damage
+        data << uint32(damageInfo->damage);                 // Sub Damage
     }
 
     if(damageInfo->HitInfo & (HITINFO_ABSORB | HITINFO_ABSORB2))
     {
         for(int i = 0; i < count; ++i)
-            data << (uint32)damageInfo->absorb;       // Absorb
+            data << uint32(damageInfo->absorb);             // Absorb
     }
 
     if(damageInfo->HitInfo & (HITINFO_RESIST | HITINFO_RESIST2))
     {
         for(int i = 0; i < count; ++i)
-            data << (uint32)damageInfo->resist;       // Resist
+            data << uint32(damageInfo->resist);             // Resist
     }
 
-    data << (uint8)damageInfo->TargetState;
-    data << (uint32)0;
-    data << (uint32)0;
+    data << uint8(damageInfo->TargetState);
+    data << uint32(0);
+    data << uint32(0);
 
     if(damageInfo->HitInfo & HITINFO_BLOCK)
-        data << (uint32)damageInfo->blocked_amount;
+        data << uint32(damageInfo->blocked_amount);
 
     if(damageInfo->HitInfo & HITINFO_UNK3)
         data << uint32(0);
@@ -4629,72 +4677,17 @@ void Unit::SendAttackStateUpdate(CalcDamageInfo *damageInfo)
 
 void Unit::SendAttackStateUpdate(uint32 HitInfo, Unit *target, uint8 SwingType, SpellSchoolMask damageSchoolMask, uint32 Damage, uint32 AbsorbDamage, uint32 Resist, VictimState TargetState, uint32 BlockedAmount)
 {
-    sLog.outDebug("WORLD: Sending SMSG_ATTACKERSTATEUPDATE");
-
-    WorldPacket data(SMSG_ATTACKERSTATEUPDATE, (16+45));    // we guess size
-    data << uint32(HitInfo);                                // flags
-    data.append(GetPackGUID());
-    data.append(target->GetPackGUID());
-    int32 damageDone = Damage-AbsorbDamage-Resist-BlockedAmount;
-    data << uint32(damageDone);// damage
-    data << uint32(int32 (target->GetHealth()-damageDone ) >0 ? 0 : damageDone - target->GetHealth()); // Overkill
-
-    data << (uint8)SwingType;                               // count?
-
-    // for(i = 0; i < SwingType; ++i)
-    data << (uint32)damageSchoolMask;
-    data << (float)(damageDone);
-    data << (uint32)(damageDone);
-    // end loop
-
-    if(HitInfo & (HITINFO_ABSORB | HITINFO_ABSORB2))
-    {
-        // for(i = 0; i < SwingType; ++i)
-        data << uint32(AbsorbDamage);
-        // end loop
-    }
-
-    if(HitInfo & (HITINFO_RESIST | HITINFO_RESIST2))
-    {
-        // for(i = 0; i < SwingType; ++i)
-        data << uint32(Resist);
-        // end loop
-    }
-
-    data << (uint8)TargetState;
-    data << (uint32)0;
-    data << (uint32)0;
-
-    if(HitInfo & HITINFO_BLOCK)
-    {
-        data << uint32(BlockedAmount);
-    }
-
-    if(HitInfo & HITINFO_UNK3)
-    {
-        data << uint32(0);
-    }
-
-    if(HitInfo & HITINFO_UNK1)
-    {
-        data << uint32(0);
-        data << float(0);
-        data << float(0);
-        data << float(0);
-        data << float(0);
-        data << float(0);
-        data << float(0);
-        data << float(0);
-        data << float(0);
-        for(uint8 i = 0; i < 5; ++i)
-        {
-            data << float(0);
-            data << float(0);
-        }
-        data << uint32(0);
-    }
-
-    SendMessageToSet( &data, true );
+    CalcDamageInfo dmgInfo;
+    dmgInfo.HitInfo = HitInfo;
+    dmgInfo.attacker = this;
+    dmgInfo.target = target;
+    dmgInfo.damage = Damage - AbsorbDamage - Resist - BlockedAmount;
+    dmgInfo.damageSchoolMask = damageSchoolMask;
+    dmgInfo.absorb = AbsorbDamage;
+    dmgInfo.resist = Resist;
+    dmgInfo.TargetState = TargetState;
+    dmgInfo.blocked_amount = BlockedAmount;
+    SendAttackStateUpdate(&dmgInfo);
 }
 
 bool Unit::HandleHasteAuraProc(Unit *pVictim, uint32 damage, AuraEffect* triggeredByAura, SpellEntry const * procSpell, uint32 /*procFlag*/, uint32 /*procEx*/, uint32 cooldown)
@@ -7370,7 +7363,7 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
     if( m_extraAttacks && IsSpellHaveEffect(triggerEntry, SPELL_EFFECT_ADD_EXTRA_ATTACKS) )
         return false;
 
-    // Costum requirements (not listed in procEx) Warning! damage dealing after this
+    // Custom requirements (not listed in procEx) Warning! damage dealing after this
     // Custom triggered spells
     switch (auraSpellInfo->Id)
     {
@@ -7404,7 +7397,7 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
         // Greater Heal Refund (Avatar Raiment set)
         case 37594:
         {
-            // Not give if target alredy have full health
+            // Not give if target already have full health
             if (pVictim->GetHealth() == pVictim->GetMaxHealth())
                 return false;
             // If your Greater Heal brings the target to full health, you gain $37595s1 mana.
@@ -7439,7 +7432,7 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
         }
     }
 
-    // Costum basepoints/target for exist spell
+    // Custom basepoints/target for exist spell
     // dummy basepoints or other customs
     switch(trigger_spell_id)
     {
@@ -7452,7 +7445,7 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
             target = pVictim;
             break;
         }
-        // Combo points add triggers (need add combopoint only for main tatget, and after possible combopoints reset)
+        // Combo points add triggers (need add combopoint only for main target, and after possible combopoints reset)
         case 15250: // Rogue Setup
         {
             if(!pVictim || pVictim != getVictim())   // applied only for main target
@@ -10625,7 +10618,7 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
 void Unit::SetHover(bool on)
 {
     if(on)
-        CastSpell(this,11010,true);
+        CastSpell(this, 11010, true);
     else
         RemoveAurasDueToSpell(11010);
 }
@@ -11832,7 +11825,7 @@ bool CharmInfo::AddSpellToActionBar(uint32 spell_id, ActiveStates newstate)
         }
     }
 
-    // or use empty slot in other case 
+    // or use empty slot in other case
     for(uint8 i = 0; i < MAX_UNIT_ACTION_BAR_INDEX; ++i)
     {
         if (!PetActionBar[i].SpellOrAction && PetActionBar[i].IsActionBarForSpell())
@@ -12344,7 +12337,7 @@ void Unit::SendPetCastFail(uint32 spellid, SpellCastResult msg)
     if(!owner || owner->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    WorldPacket data(SMSG_PET_CAST_FAILED, (4+1));
+    WorldPacket data(SMSG_PET_CAST_FAILED, 1 + 4 + 1);
     data << uint8(0);                                       // cast count?
     data << uint32(spellid);
     data << uint8(msg);
@@ -12370,7 +12363,7 @@ void Unit::SendPetTalk (uint32 pettalk)
     if(!owner || owner->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    WorldPacket data(SMSG_PET_ACTION_SOUND, 8+4);
+    WorldPacket data(SMSG_PET_ACTION_SOUND, 8 + 4);
     data << uint64(GetGUID());
     data << uint32(pettalk);
     ((Player*)owner)->GetSession()->SendPacket(&data);
@@ -12397,7 +12390,7 @@ void Unit::SendPetClearCooldown (uint32 spellid)
     if(!owner || owner->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    WorldPacket data(SMSG_CLEAR_COOLDOWN, (4+8));
+    WorldPacket data(SMSG_CLEAR_COOLDOWN, 4+8);
     data << uint32(spellid);
     data << uint64(GetGUID());
     ((Player*)owner)->GetSession()->SendPacket(&data);
@@ -12409,8 +12402,9 @@ void Unit::SendPetAIReaction(uint64 guid)
     if(!owner || owner->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    WorldPacket data(SMSG_AI_REACTION, 12);
-    data << uint64(guid) << uint32(00000002);
+    WorldPacket data(SMSG_AI_REACTION, 8 + 4);
+    data << uint64(guid);
+    data << uint32(AI_REACTION_AGGRO);
     ((Player*)owner)->GetSession()->SendPacket(&data);
 }
 
