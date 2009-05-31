@@ -3971,6 +3971,7 @@ bool ChatHandler::HandleLearnAllRecipesCommand(const char* args)
     wstrToLower( wnamepart );
 
     uint32 classmask = m_session->GetPlayer()->getClassMask();
+
     std::string name;
 
     SkillLineEntry const *targetSkillInfo = NULL;
@@ -3987,8 +3988,27 @@ bool ChatHandler::HandleLearnAllRecipesCommand(const char* args)
 
         int loc = GetSessionDbcLocale();
         name = skillInfo->name[loc];
+        if(name.empty())
+            continue;
 
-        if(Utf8FitTo(name, wnamepart))
+        if (!Utf8FitTo(name, wnamepart))
+        {
+            loc = 0;
+            for(; loc < MAX_LOCALE; ++loc)
+            {
+                if(loc==GetSessionDbcLocale())
+                    continue;
+
+                name = skillInfo->name[loc];
+                if(name.empty())
+                    continue;
+
+                if (Utf8FitTo(name, wnamepart))
+                    break;
+            }
+        }
+
+        if(loc < MAX_LOCALE)
         {
             targetSkillInfo = skillInfo;
             break;
