@@ -802,6 +802,15 @@ void ObjectMgr::LoadCreatureAddons()
         if(!addon)
             continue;
 
+        if (addon->mount)
+        {
+            if (!sCreatureDisplayInfoStore.LookupEntry(addon->mount))
+                sLog.outErrorDb("Creature (Entry %u) have invalid displayInfoId for mount (%u) defined in `creature_template_addon`.",addon->guidOrEntry, addon->mount);
+        }
+
+        if (!sEmotesStore.LookupEntry(addon->emote))
+            sLog.outErrorDb("Creature (Entry %u) have invalid emote (%u) defined in `creature_template_addon`.",addon->guidOrEntry, addon->emote);
+
         ConvertCreatureAddonAuras(const_cast<CreatureDataAddon*>(addon), "creature_template_addon", "Entry");
 
         if(!sCreatureStorage.LookupEntry<CreatureInfo>(addon->guidOrEntry))
@@ -819,6 +828,15 @@ void ObjectMgr::LoadCreatureAddons()
         CreatureDataAddon const* addon = sCreatureDataAddonStorage.LookupEntry<CreatureDataAddon>(i);
         if(!addon)
             continue;
+
+        if (addon->mount)
+        {
+            if (!sCreatureDisplayInfoStore.LookupEntry(addon->mount))
+                sLog.outErrorDb("Creature (GUID %u) have invalid displayInfoId for mount (%u) defined in `creature_addon`.",addon->guidOrEntry, addon->mount);
+        }
+
+        if (!sEmotesStore.LookupEntry(addon->emote))
+            sLog.outErrorDb("Creature (GUID %u) have invalid emote (%u) defined in `creature_addon`.",addon->guidOrEntry, addon->emote);
 
         ConvertCreatureAddonAuras(const_cast<CreatureDataAddon*>(addon), "creature_addon", "GUIDLow");
 
