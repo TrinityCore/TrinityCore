@@ -530,10 +530,12 @@ This is commonly used in combination with EVENT_T_RANGE and ACTION_T_COMBAT_MOVE
 21 = ACTION_T_COMBAT_MOVEMENT:
 ------------------------------
 Parameter 1: If zero, then the creature will stop moving towards its victim (if its victim gets out of melee range) and will be stationary. If non-zero, then the creature will either continue to follow its victim (the action would have no effect) or it will start to follow the target with the top threat if its movement was disabled before. 
+Parameter 2: If non-zero, then stop melee combat state (if param1=0) or start melee combat state (if param1!=0) and creature in combat with selected target. 
 
 This action controls whether or not the creature will always move towards its target.
 NOTE: The ACID Dev Team has conformed to using either 0 or 1 for the Param values. (0 = Stop Movement, 1 = Start Movement)
 This is commonly used with EVENT_T_RANGE and ACTION_T_AUTO_ATTACK for NPC's who engage in Ranged Comabt (Either Spells or Ranged Attacks)
+Parameter 2 specialy used for ranged combat proper client side visual show ranged weapon in proper state.
 
 ------------------------
 22 = ACTION_T_SET_PHASE:

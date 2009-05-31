@@ -577,15 +577,27 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
             MeleeEnabled = action.auto_attack.state != 0;
             break;
         case ACTION_T_COMBAT_MOVEMENT:
+            // ignore no affect case
+            if(CombatMovementEnabled==(action.combat_movement.state!=0))
+                return;
+
             CombatMovementEnabled = action.combat_movement.state != 0;
 
             //Allow movement (create new targeted movement gen only if idle)
             if (CombatMovementEnabled)
             {
-                    m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim(), AttackDistance, AttackAngle);
+                if(action.combat_movement.melee && m_creature->isInCombat())
+                    if(Unit* victim = m_creature->getVictim())
+                        m_creature->SendMeleeAttackStart(victim);
+
+                m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim(), AttackDistance, AttackAngle);
             }
             else
             {
+                if(action.combat_movement.melee && m_creature->isInCombat())
+                    if(Unit* victim = m_creature->getVictim())
+                        m_creature->SendMeleeAttackStop(victim);
+
                 m_creature->GetMotionMaster()->MoveIdle();
             }
             break;
