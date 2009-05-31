@@ -16,8 +16,8 @@
 
 /* ScriptData
 SDName: Instance_Shadowfang_Keep
-SD%Complete: 75
-SDComment: TODO: check what other parts would require additional code (ex: make sure door are in open state if boss dead)
+SD%Complete: 90
+SDComment:
 SDCategory: Shadowfang Keep
 EndScriptData */
 
@@ -38,6 +38,7 @@ enum
     GO_SORCERER_DOOR        = 18972,                        //door to open when Fenrus the Devourer
     GO_ARUGAL_DOOR          = 18971                         //door to open when Wolf Master Nandos
 };
+
 struct TRINITY_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
 {
     instance_shadowfang_keep(Map *map) : ScriptedInstance(map) {Initialize();};

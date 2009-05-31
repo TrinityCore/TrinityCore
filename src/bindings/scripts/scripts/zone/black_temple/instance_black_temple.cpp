@@ -24,7 +24,7 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_black_temple.h"
 
-#define ENCOUNTERS     9
+#define ENCOUNTERS      9
 
 /* Black Temple encounters:
 0 - High Warlord Naj'entus event

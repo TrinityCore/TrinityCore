@@ -25,7 +25,10 @@ UPDATE `gameobject_template` SET `ScriptName`='go_mausoleum_door' WHERE `entry`=
 UPDATE `gameobject_template` SET `ScriptName`='go_crystal_prison' WHERE `entry`=185126;
 UPDATE `gameobject_template` SET `ScriptName`='go_legion_obelisk' WHERE `entry` IN (185193,185195,185196,185197,185198);
 UPDATE `gameobject_template` SET `ScriptName`='go_jump_a_tron' WHERE `entry`=183146;
-UPDATE `gameobject_template` SET `ScriptName`='go_ethereum_prison' WHERE `entry` IN (184418,184419,184420,184421,184422,184423,184424,184425,184426,184427,184428,184429,184430,184431);
+UPDATE `gameobject_template` SET `ScriptName`='go_ethereum_prison' WHERE `entry` BETWEEN 184418 AND 184431;
+UPDATE `gameobject_template` SET `ScriptName`='go_ethereum_stasis' WHERE `entry` BETWEEN 185465 AND 185467;
+UPDATE `gameobject_template` SET `ScriptName`='go_ethereum_stasis' WHERE `entry` = 184595;
+UPDATE `gameobject_template` SET `ScriptName`='go_ethereum_stasis' WHERE `entry` BETWEEN 185461 AND 185464;
 UPDATE `gameobject_template` SET `ScriptName`='go_sacred_fire_of_life' WHERE `entry`=175944;
 UPDATE `gameobject_template` SET `ScriptName`='go_skull_pile' WHERE `entry`=185913;
 UPDATE `gameobject_template` SET `ScriptName`='go_tele_to_dalaran_crystal' WHERE `entry`=191230;
@@ -89,6 +92,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_doctor' WHERE `entry` IN (12939
 UPDATE `creature_template` SET `ScriptName`='npc_injured_patient' WHERE `entry` IN (12936,12937,12938,12923,12924,12925);
 UPDATE `creature_template` SET `ScriptName`='npc_prof_alchemy' WHERE `entry` IN (17909,19052,22427);
 UPDATE `creature_template` SET `ScriptName`='npc_prof_blacksmith' WHERE `entry` IN (5164,11145,11146,11176,11177,11178,11191,11192,11193);
+UPDATE `creature_template` SET `ScriptName`='npc_engineering_tele_trinket' WHERE `entry` IN (14742, 14743, 21493, 21494);
 UPDATE `creature_template` SET `ScriptName`='npc_prof_leather' WHERE `entry` IN (7866,7867,7868,7869,7870,7871);
 UPDATE `creature_template` SET `ScriptName`='npc_prof_tailor' WHERE `entry` IN (22208,22212,22213);
 UPDATE `creature_template` SET `ScriptName`='npc_rogue_trainer' WHERE `entry` IN (918,4163,3328,4583,5165,5167,13283,16684);
