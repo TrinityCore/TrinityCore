@@ -21,7 +21,7 @@
 #ifndef TRINITY_INSTANCE_DATA_H
 #define TRINITY_INSTANCE_DATA_H
 
-#include "Common.h"
+#include "ZoneScript.h"
 //#include "GameObject.h"
 //#include "Map.h"
 
@@ -109,7 +109,7 @@ struct MinionInfo
 typedef std::multimap<uint32 /*entry*/, DoorInfo> DoorInfoMap;
 typedef std::map<uint32 /*entry*/, MinionInfo> MinionInfoMap;
 
-class TRINITY_DLL_SPEC InstanceData
+class TRINITY_DLL_SPEC InstanceData : public ZoneScript
 {
     public:
 
@@ -129,8 +129,7 @@ class TRINITY_DLL_SPEC InstanceData
 
         void SaveToDB();
 
-        //Called every map update
-        virtual void Update(uint32 /*diff*/) {}
+        virtual void Update(uint32 diff) {}
 
         //Used by the map's CanEnter function.
         //This is to prevent players from entering during boss encounters.
@@ -140,18 +139,10 @@ class TRINITY_DLL_SPEC InstanceData
         virtual void OnPlayerEnter(Player *) {}
 
         //Called when a gameobject is created
-        virtual void OnObjectCreate(GameObject *go, bool add) { OnObjectCreate(go); }
+        void OnGameObjectCreate(GameObject *go, bool add) { OnObjectCreate(go); }
 
         //called on creature creation
-        virtual void OnCreatureCreate(Creature *, bool add);
-
-        //All-purpose data storage 64 bit
-        virtual uint64 GetData64(uint32 /*Data*/) { return 0; }
-        virtual void SetData64(uint32 /*Data*/, uint64 /*Value*/) { }
-
-        //All-purpose data storage 32 bit
-        virtual uint32 GetData(uint32) { return 0; }
-        virtual void SetData(uint32, uint32 data) {}
+        void OnCreatureCreate(Creature *, bool add);
 
         //Handle open / close objects
         //use HandleGameObject(NULL,boolen,GO); in OnObjectCreate in instance scripts

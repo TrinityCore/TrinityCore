@@ -107,6 +107,7 @@ class GameObject;
 class TempSummon;
 class Vehicle;
 class CreatureAI;
+class ZoneScript;
 
 typedef UNORDERED_MAP<Player*, UpdateData> UpdateDataMapType;
 
@@ -537,6 +538,8 @@ class TRINITY_DLL_SPEC WorldObject : public Object
         Map      * FindMap() const  { return m_map ? m_map : const_cast<WorldObject*>(this)->_findMap(); }
         Map const* GetBaseMap() const;
 
+        void SetZoneScript();
+
         TempSummon* SummonCreature(uint32 id, float x, float y, float z, float ang = 0,TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN,uint32 despwtime = 0);
         Vehicle*    SummonVehicle(uint32 entry, float x, float y, float z, float ang = 0);
         GameObject* SummonGameObject(uint32 entry, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime);
@@ -565,6 +568,7 @@ class TRINITY_DLL_SPEC WorldObject : public Object
         explicit WorldObject();
         std::string m_name;
         bool m_isActive;
+        ZoneScript *m_zoneScript;
 
     private:
         uint32 m_mapId;                                     // object at map with map_id

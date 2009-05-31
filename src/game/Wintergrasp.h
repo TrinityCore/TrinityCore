@@ -24,6 +24,7 @@
 #define ZONE_WINTERGRASP    4197
 
 const uint16 GameEventWintergraspDefender[2] = {50, 51};
+const uint32 WintergraspFaction[2] = {1732, 1735};
 
 #define POS_X_CENTER        4700
 
@@ -62,6 +63,12 @@ class OPvPWintergrasp : public OutdoorPvP
     public:
         explicit OPvPWintergrasp() : m_tenacityStack(0) {}
         bool SetupOutdoorPvP();
+
+        uint32 GetCreatureEntry(uint32 guidlow, uint32 entry);
+        //uint32 GetGameObjectEntry(uint32 guidlow, uint32 entry);
+
+        void OnGameObjectCreate(GameObject *go, bool add);
+
         void HandlePlayerEnterZone(Player *plr, uint32 zone);
         void HandlePlayerLeaveZone(Player *plr, uint32 zone);
         void HandleKill(Player *killer, Unit *victim);

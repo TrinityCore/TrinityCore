@@ -146,18 +146,9 @@ bool OPvPCapturePoint::AddCreature(uint32 type, uint32 entry, uint32 teamval, ui
     if(!pMap)
         return true;
     Creature* pCreature = new Creature;
-    if (!pCreature->Create(guid, pMap, PHASEMASK_NORMAL, entry, teamval))
+    if (!pCreature->Create(guid, pMap, PHASEMASK_NORMAL, entry, teamval, x, y, z, o))
     {
         sLog.outError("Can't create creature entry: %u",entry);
-        delete pCreature;
-        return false;
-    }
-
-    pCreature->Relocate(x, y, z, o);
-
-    if(!pCreature->IsPositionValid())
-    {
-        sLog.outError("ERROR: Creature (guidlow %d, entry %d) not added to opvp. Suggested coordinates isn't valid (X: %f Y: %f)",pCreature->GetGUIDLow(),pCreature->GetEntry(),pCreature->GetPositionX(),pCreature->GetPositionY());
         delete pCreature;
         return false;
     }
@@ -637,4 +628,14 @@ void OutdoorPvP::TeamApplyBuff(TeamId team, uint32 spellId, uint32 spellId2)
 {
     TeamCastSpell(team, spellId);
     TeamCastSpell(OTHER_TEAM(team), spellId2 ? -(int32)spellId2 : -(int32)spellId);
+}
+
+void OutdoorPvP::OnGameObjectCreate(GameObject *go, bool add)
+{
+    if(go->GetGoType() != GAMEOBJECT_TYPE_CAPTURE_POINT)
+        return;
+
+    for(OutdoorPvP::OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
+        if((*itr)->m_CapturePointGUID == go->GetDBTableGUIDLow())
+            (*itr)->m_capturePoint = add ? go : NULL;
 }

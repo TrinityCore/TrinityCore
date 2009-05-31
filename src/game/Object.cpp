@@ -45,6 +45,7 @@
 
 #include "TemporarySummon.h"
 #include "Totem.h"
+#include "OutdoorPvPMgr.h"
 
 uint32 GuidHigh2TypeId(uint32 guid_hi)
 {
@@ -1074,20 +1075,10 @@ bool Object::PrintIndexError(uint32 index, bool set) const
 WorldObject::WorldObject()
     : m_mapId(0), m_InstanceId(0), m_phaseMask(PHASEMASK_NORMAL),
     m_positionX(0.0f), m_positionY(0.0f), m_positionZ(0.0f), m_orientation(0.0f)
+    , m_map(NULL), m_zoneScript(NULL)
+    , m_isActive(false), IsTempWorldObject(false)
+    , m_name("")
 {
-    m_positionX         = 0.0f;
-    m_positionY         = 0.0f;
-    m_positionZ         = 0.0f;
-    m_orientation       = 0.0f;
-
-    m_mapId             = 0;
-    m_InstanceId        = 0;
-    m_map               = NULL;
-
-    m_name = "";
-
-    m_isActive          = false;
-    IsTempWorldObject   = false;
 }
 
 void WorldObject::SetWorldObject(bool on)
@@ -1801,16 +1792,9 @@ TempSummon *Map::SummonCreature(uint32 entry, float x, float y, float z, float a
         case SUMMON_MASK_MINION:    summon = new Minion     (properties, summoner);  break;
         default:    return NULL;
     }
-    if(!summon->Create(objmgr.GenerateLowGuid(HIGHGUID_UNIT), this, phase, entry, team))
-    {
-        delete summon;
-        return NULL;
-    }
 
-    summon->Relocate(x, y, z, angle);
-    if(!summon->IsPositionValid())
+    if(!summon->Create(objmgr.GenerateLowGuid(HIGHGUID_UNIT), this, phase, entry, team, x, y, z, angle))
     {
-        sLog.outError("Creature (guidlow %d, entry %d) not summoned. Suggested coordinates isn't valid (X: %f Y: %f)",summon->GetGUIDLow(),summon->GetEntry(),summon->GetPositionX(),summon->GetPositionY());
         delete summon;
         return NULL;
     }
@@ -1824,6 +1808,17 @@ TempSummon *Map::SummonCreature(uint32 entry, float x, float y, float z, float a
     //ObjectAccessor::UpdateObjectVisibility(summon);
 
     return summon;
+}
+
+void WorldObject::SetZoneScript()
+{
+    if(Map *map = FindMap())
+    {
+        if(map->IsDungeon())
+            m_zoneScript = (ZoneScript*)((InstanceMap*)map)->GetInstanceData();
+        else if(!map->IsBattleGroundOrArena())
+            m_zoneScript = sOutdoorPvPMgr.GetZoneScript(GetZoneId());
+    }
 }
 
 TempSummon* WorldObject::SummonCreature(uint32 entry, float x, float y, float z, float ang, TempSummonType spwtype, uint32 duration)
@@ -1861,18 +1856,8 @@ Vehicle* WorldObject::SummonVehicle(uint32 entry, float x, float y, float z, flo
     uint32 team = 0;
     if (GetTypeId()==TYPEID_PLAYER)
         team = ((Player*)this)->GetTeam();
-    if(!v->Create(objmgr.GenerateLowGuid(HIGHGUID_VEHICLE), map, GetPhaseMask(), entry, id, team))
+    if(!v->Create(objmgr.GenerateLowGuid(HIGHGUID_VEHICLE), map, GetPhaseMask(), entry, id, team, x, y, z, ang))
     {
-        delete v;
-        return NULL;
-    }
-
-    v->Relocate(x, y, z, ang);
-
-    if(!v->IsPositionValid())
-    {
-        sLog.outError("ERROR: Vehicle (guidlow %d, entry %d) not created. Suggested coordinates isn't valid (X: %f Y: %f)",
-            v->GetGUIDLow(), v->GetEntry(), v->GetPositionX(), v->GetPositionY());
         delete v;
         return NULL;
     }
