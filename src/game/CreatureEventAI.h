@@ -199,7 +199,7 @@ struct CreatureEventAI_Action
         // ACTION_T_MORPH_TO_ENTRY_OR_MODEL                 = 3
         struct
         {
-            uint32 creatireId;                              // set one from fields (or 0 for both to demorph)
+            uint32 creatureId;                              // set one from fields (or 0 for both to demorph)
             uint32 modelId;
         } morph;
         // ACTION_T_SOUND                                   = 4
@@ -236,7 +236,7 @@ struct CreatureEventAI_Action
         // ACTION_T_SUMMON                                  = 12
         struct
         {
-            uint32 creatured;
+            uint32 creatureId;
             uint32 target;
             uint32 duration;
         } summon;

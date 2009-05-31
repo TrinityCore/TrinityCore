@@ -438,19 +438,19 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                         }
                         break;
                     case ACTION_T_MORPH_TO_ENTRY_OR_MODEL:
-                        if (action.morph.creatireId !=0 || action.morph.modelId !=0)
+                        if (action.morph.creatureId !=0 || action.morph.modelId !=0)
                         {
-                            if (action.morph.creatireId && !sCreatureStorage.LookupEntry<CreatureInfo>(action.morph.creatireId))
+                            if (action.morph.creatureId && !sCreatureStorage.LookupEntry<CreatureInfo>(action.morph.creatureId))
                             {
-                                sLog.outErrorDb("CreatureEventAI:  Event %u Action %u uses non-existant Creature entry %u.", i, j+1, action.morph.creatireId);
-                                action.morph.creatireId = 0;
+                                sLog.outErrorDb("CreatureEventAI:  Event %u Action %u uses non-existant Creature entry %u.", i, j+1, action.morph.creatureId);
+                                action.morph.creatureId = 0;
                             }
 
                             if (action.morph.modelId)
                             {
-                                if (action.morph.creatireId)
+                                if (action.morph.creatureId)
                                 {
-                                    sLog.outErrorDb("CreatureEventAI:  Event %u Action %u have unused ModelId %u with also set creature id %u.", i, j+1, action.morph.modelId,action.morph.creatireId);
+                                    sLog.outErrorDb("CreatureEventAI:  Event %u Action %u have unused ModelId %u with also set creature id %u.", i, j+1, action.morph.modelId,action.morph.creatureId);
                                     action.morph.modelId = 0;
                                 }
                                 else if (!sCreatureDisplayInfoStore.LookupEntry(action.morph.modelId))
@@ -512,8 +512,8 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                         break;
                     }
                     case ACTION_T_SUMMON:
-                        if (!sCreatureStorage.LookupEntry<CreatureInfo>(action.summon.creatured))
-                            sLog.outErrorDb("CreatureEventAI:  Event %u Action %u uses non-existent creature entry %u.", i, j+1, action.summon.creatured);
+                        if (!sCreatureStorage.LookupEntry<CreatureInfo>(action.summon.creatureId))
+                            sLog.outErrorDb("CreatureEventAI:  Event %u Action %u uses non-existent creature entry %u.", i, j+1, action.summon.creatureId);
 
                         if (action.summon.target >= TARGET_T_END)
                             sLog.outErrorDb("CreatureEventAI:  Event %u Action %u uses incorrect Target type", i, j+1);

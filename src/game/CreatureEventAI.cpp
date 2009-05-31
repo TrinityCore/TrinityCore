@@ -413,12 +413,12 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
         }
         case ACTION_T_MORPH_TO_ENTRY_OR_MODEL:
         {
-            if (action.morph.creatireId || action.morph.modelId)
+            if (action.morph.creatureId || action.morph.modelId)
             {
                 //set model based on entry from creature_template
-                if (action.morph.creatireId)
+                if (action.morph.creatureId)
                 {
-                    if (CreatureInfo const* ci = GetCreatureTemplateStore(action.morph.creatireId))
+                    if (CreatureInfo const* ci = GetCreatureTemplateStore(action.morph.creatureId))
                     {
                         //use default display
                         if (ci->Modelid_A1)
@@ -520,12 +520,12 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
             Creature* pCreature = NULL;
 
             if (action.summon.duration)
-                pCreature = m_creature->SummonCreature(action.summon.creatured, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, action.summon.duration);
+                pCreature = m_creature->SummonCreature(action.summon.creatureId, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, action.summon.duration);
             else
-                pCreature = m_creature->SummonCreature(action.summon.creatured, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0);
+                pCreature = m_creature->SummonCreature(action.summon.creatureId, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0);
 
             if (!pCreature)
-                sLog.outErrorDb( "CreatureEventAI: failed to spawn creature %u. Spawn event %d is on creature %d", action.summon.creatured, EventId, m_creature->GetEntry());
+                sLog.outErrorDb( "CreatureEventAI: failed to spawn creature %u. Spawn event %d is on creature %d", action.summon.creatureId, EventId, m_creature->GetEntry());
             else if (action.summon.target != TARGET_T_SELF && target)
                 pCreature->AI()->AttackStart(target);
             break;
