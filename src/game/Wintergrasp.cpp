@@ -37,6 +37,10 @@ bool OPvPWintergrasp::SetupOutdoorPvP()
     //m_defender = TEAM_ALLIANCE;
     //gameeventmgr.StartInternalEvent(GameEventWintergraspDefender[m_defender]);
 
+    //Titan Relic eventid = 19982
+    objmgr.AddGameObject(192829, 571, 5444.6, 2840.8, 420.43, 0);
+
+
     return true;
 }
 
@@ -48,6 +52,8 @@ uint32 OPvPWintergrasp::GetCreatureEntry(uint32 guidlow, uint32 entry)
         {
             case 30739: return 30740;
             case 30740: return 30739;
+            case 30400: return 30499;
+            case 30499: return 30400;
         }
     }
     return entry;

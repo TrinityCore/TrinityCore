@@ -417,6 +417,7 @@ enum GOState
 // from `gameobject`
 struct GameObjectData
 {
+    explicit GameObjectData() : dbData(true) {}
     uint32 id;                                              // entry in gamobject_template
     uint16 mapid;
     uint16 phaseMask;
@@ -432,7 +433,8 @@ struct GameObjectData
     uint32 animprogress;
     GOState go_state;
     uint8 spawnMask;
-    uint32 ArtKit;
+    uint8 ArtKit;
+    bool dbData;
 };
 
 // For containers:  [GO_NOT_READY]->GO_READY (close)->GO_ACTIVATED (open) ->GO_JUST_DEACTIVATED->GO_READY        -> ...
