@@ -9278,7 +9278,6 @@ uint32 Unit::SpellCriticalHealingBonus(SpellEntry const *spellProto, uint32 dama
             break;
     }
 
-
     if(pVictim)
     {
         uint32 creatureTypeMask = pVictim->GetCreatureTypeMask();
