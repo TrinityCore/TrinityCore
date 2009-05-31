@@ -36,7 +36,7 @@ void WorldSession::HandleInspectArenaTeamsOpcode(WorldPacket & recv_data)
 
     uint64 guid;
     recv_data >> guid;
-    sLog.outDebug("Inspect Arena stats " I64FMTD, guid);
+    sLog.outDebug("Inspect Arena stats (GUID: %u TypeId: %u)", GUID_LOPART(guid),GuidHigh2TypeId(GUID_HIPART(guid)));
 
     if(Player *plr = objmgr.GetPlayer(guid))
     {

@@ -353,7 +353,7 @@ void Log::outDB( LogTypes type, const char * str )
     LoginDatabase.escape_string(new_str);
 
     LoginDatabase.PExecute("INSERT INTO logs (time, realm, type, string) "
-        "VALUES ("I64FMTD", %u, %u, '%s');", uint64(time(0)), realm, (uint32)type, new_str.c_str());
+        "VALUES (" UI64FMTD ", %u, %u, '%s');", uint64(time(0)), realm, (uint32)type, new_str.c_str());
 }
 
 void Log::outString( const char * str, ... )
