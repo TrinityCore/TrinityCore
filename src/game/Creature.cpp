@@ -1532,6 +1532,9 @@ bool Creature::LoadFromDB(uint32 guid, Map *map)
     // checked at creature_template loading
     m_defaultMovementType = MovementGeneratorType(data->movementType);
 
+    if(!data->dbData)
+        SetInternallyAdded();
+
     return true;
 }
 
@@ -2079,7 +2082,7 @@ bool Creature::CanAssistTo(const Unit* u, const Unit* enemy, bool checkfaction /
 
 void Creature::SaveRespawnTime()
 {
-    if(isPet() || !m_DBTableGuid)
+    if(isSummon() || !m_DBTableGuid || m_isInternallyAdded)
         return;
 
     if(m_respawnTime > time(NULL))                          // dead (no corpse)

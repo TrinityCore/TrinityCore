@@ -1077,6 +1077,7 @@ WorldObject::WorldObject()
     m_positionX(0.0f), m_positionY(0.0f), m_positionZ(0.0f), m_orientation(0.0f)
     , m_map(NULL), m_zoneScript(NULL)
     , m_isActive(false), IsTempWorldObject(false)
+    , m_isInternallyAdded(false)
     , m_name("")
 {
 }

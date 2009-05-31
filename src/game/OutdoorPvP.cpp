@@ -50,114 +50,25 @@ void OPvPCapturePoint::HandlePlayerLeave(Player * plr)
 
 bool OPvPCapturePoint::AddObject(uint32 type, uint32 entry, uint32 map, float x, float y, float z, float o, float rotation0, float rotation1, float rotation2, float rotation3)
 {
-    GameObjectInfo const* goinfo = objmgr.GetGameObjectInfo(entry);
-    if (!goinfo)
+    uint32 guid = objmgr.AddGameObject(entry, map, x, y, z, o, 0, rotation0, rotation1, rotation2, rotation3);
+    if(!guid)
         return false;
-
-    uint32 guid = objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT);
-
-    GameObjectData& data = objmgr.NewGOData(guid);
-
-    data.id             = entry;
-    data.mapid          = map;
-    data.posX           = x;
-    data.posY           = y;
-    data.posZ           = z;
-    data.orientation    = o;
-    data.rotation0      = rotation0;
-    data.rotation1      = rotation1;
-    data.rotation2      = rotation2;
-    data.rotation3      = rotation3;
-    data.spawntimesecs  = 0;
-    data.animprogress   = 100;
-    data.spawnMask      = 1;
-    data.go_state       = GO_STATE_READY;
-    data.phaseMask      = PHASEMASK_NORMAL;
-
-    objmgr.AddGameobjectToGrid(guid, &data);
 
     // 2 way registering
     m_Objects[type] = MAKE_NEW_GUID(guid, entry, HIGHGUID_GAMEOBJECT);
     m_ObjectTypes[m_Objects[type]]=type;
 
-    Map * pMap = MapManager::Instance().FindMap(map);
-    if(!pMap)
-        return true;
-    GameObject * go = new GameObject;
-    if(!go->Create(guid,entry, pMap,PHASEMASK_NORMAL,x,y,z,o,rotation0,rotation1,rotation2,rotation3,100,GO_STATE_READY))
-    {
-        sLog.outError("Gameobject template %u not found in database.", entry);
-        delete go;
-        return true;
-    }
-
-    go->SetRespawnTime(0);
-    objmgr.SaveGORespawnTime(go->GetDBTableGUIDLow(),0,0);
-    pMap->Add(go);
-
     return true;
 }
 
-bool OPvPCapturePoint::AddCreature(uint32 type, uint32 entry, uint32 teamval, uint32 map, float x, float y, float z, float o, uint32 spawntimedelay)
+bool OPvPCapturePoint::AddCreature(uint32 type, uint32 entry, uint32 team, uint32 map, float x, float y, float z, float o, uint32 spawntimedelay)
 {
-    CreatureInfo const *cinfo = objmgr.GetCreatureTemplate(entry);
-    if(!cinfo)
-    {
+    uint32 guid = objmgr.AddCreature(entry, team, map, x, y, z, o, spawntimedelay);
+    if(!guid)
         return false;
-    }
-
-    uint32 displayId = objmgr.ChooseDisplayId(teamval, cinfo, NULL);
-    CreatureModelInfo const *minfo = objmgr.GetCreatureModelRandomGender(displayId);
-    if (!minfo)
-    {
-        return false;
-    }
-    else
-        displayId = minfo->modelid;                        // it can be different (for another gender)
-
-    uint32 guid = objmgr.GenerateLowGuid(HIGHGUID_UNIT);
-
-    CreatureData& data = objmgr.NewOrExistCreatureData(guid);
-
-    data.id = entry;
-    data.mapid = map;
-    data.displayid = displayId;
-    data.equipmentId = cinfo->equipmentId;
-    data.posX = x;
-    data.posY = y;
-    data.posZ = z;
-    data.orientation = o;
-    data.spawntimesecs = spawntimedelay;
-    data.spawndist = 0;
-    data.currentwaypoint = 0;
-    data.curhealth = cinfo->maxhealth;
-    data.curmana = cinfo->maxmana;
-    data.is_dead = false;
-    data.movementType = cinfo->MovementType;
-    data.spawnMask = 1;
-    data.phaseMask = PHASEMASK_NORMAL;
-
-    objmgr.AddCreatureToGrid(guid, &data);
 
     m_Creatures[type] = MAKE_NEW_GUID(guid, entry, HIGHGUID_UNIT);
     m_CreatureTypes[m_Creatures[type]] = type;
-
-    Map * pMap = MapManager::Instance().FindMap(map);
-    if(!pMap)
-        return true;
-    Creature* pCreature = new Creature;
-    if (!pCreature->Create(guid, pMap, PHASEMASK_NORMAL, entry, teamval, x, y, z, o))
-    {
-        sLog.outError("Can't create creature entry: %u",entry);
-        delete pCreature;
-        return false;
-    }
-
-    if(spawntimedelay)
-        pCreature->SetRespawnDelay(spawntimedelay);
-
-    pMap->Add(pCreature);
-
     return true;
 }
 
@@ -173,32 +84,14 @@ bool OPvPCapturePoint::AddCapturePoint(uint32 entry, uint32 map, float x, float 
         return false;
     }
 
-    // create capture point go
-    m_CapturePointGUID = objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT);
+    m_CapturePointGUID = objmgr.AddGameObject(entry, map, x, y, z, o, 0, rotation0, rotation1, rotation2, rotation3);
+    if(!m_CapturePointGUID)
+        return false;
+
     // get the needed values from goinfo
     m_ShiftMaxPhase = goinfo->capturePoint.maxTime;
     m_ShiftMaxCaptureSpeed = m_ShiftMaxPhase / float(goinfo->capturePoint.minTime);
     m_NeutralValue = goinfo->capturePoint.neutralPercent;
-
-    GameObjectData& data = objmgr.NewGOData(m_CapturePointGUID);
-
-    data.id             = entry;
-    data.mapid          = map;
-    data.posX           = x;
-    data.posY           = y;
-    data.posZ           = z;
-    data.orientation    = o;
-    data.rotation0      = rotation0;
-    data.rotation1      = rotation1;
-    data.rotation2      = rotation2;
-    data.rotation3      = rotation3;
-    data.spawntimesecs  = 1;
-    data.animprogress   = 100;
-    data.spawnMask      = 1;
-    data.go_state       = GO_STATE_READY;
-    data.phaseMask      = PHASEMASK_NORMAL;
-
-    objmgr.AddGameobjectToGrid(m_CapturePointGUID, &data);
 
     return true;
 }
