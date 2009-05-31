@@ -85,10 +85,10 @@ TargetedMovementGenerator<T>::_setTargetLocation(T &owner)
 
             if(stop)
             {
-                i_target->GetPosition(x, y, z);
+                owner.GetPosition(x, y, z);
                 i_destinationHolder.SetDestination(traveller, x, y, z);
                 i_destinationHolder.StartTravel(traveller, false);
-                i_target->StopMoving();
+                owner.StopMoving();
                 return false;
             }
         }
