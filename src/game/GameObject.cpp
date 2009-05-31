@@ -628,6 +628,9 @@ bool GameObject::LoadFromDB(uint32 guid, Map *map)
         }
     }
 
+    if(!data->dbData)
+        SetInternallyAdded();
+
     return true;
 }
 
@@ -707,7 +710,7 @@ Unit* GameObject::GetOwner() const
 
 void GameObject::SaveRespawnTime()
 {
-    if(m_respawnTime > time(NULL) && m_spawnedByDefault)
+    if(!m_isInternallyAdded && m_respawnTime > time(NULL) && m_spawnedByDefault)
         objmgr.SaveGORespawnTime(m_DBTableGuid,GetInstanceId(),m_respawnTime);
 }
 
