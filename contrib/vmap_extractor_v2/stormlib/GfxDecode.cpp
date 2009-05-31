@@ -3,9 +3,9 @@
 * Description:  GfxDecode -- functions for reading Diablo's GFX files
 * Author: Marko Friedemann <marko.friedemann@bmx-chemnitz.de>
 * Created at: Son Jan 27 15:20:43 CET 2002
-* Computer: hangloose.flachland-chemnitz.de
+* Computer: hangloose.flachland-chemnitz.de 
 * System: Linux 2.4.16 on i686
-*
+*    
 * Copyright (c) 2002  BMX-Chemnitz.DE  All rights reserved.
 *
 * ---------------------------------------------------------------------
@@ -60,12 +60,12 @@ static const uint16_t c_RampOffsetRight[17] = {
     2,      //        __         before this, there are 2 Pixels
     14,     // + 12     --__              4^2 - 2
     34,     // + 20         --__          6^2 - 2
-    62,     // + 28  this area  --__      8^2 - 2
+    62,     // + 28  this area  --__      8^2 - 2 
     98,     // + 36  is always      --__ 10^2 - 2  pattern anyone? ;)
-    142,    // + 44  colored            --__
+    142,    // + 44  colored            --__ 
     194,    // + 52                         --__
     254,    // + 60  lower ramp ends here       --__     (-30 == 224)
-    318,    // + 64  upper ramp might be missing  __--
+    318,    // + 64  upper ramp might be missing  __--   
     374,    // + 56                           __--   |
     422,    // + 48  this area            __--       |   note that this
     462,    // + 40  is always        __--           |   "drawing"
@@ -133,7 +133,7 @@ class FrameBuf
             cerr << "\n +++ at (" << uCols << "," << uRows << "), see for yourself *** \n\n";
             uColorNum = TRANS_COL;      // sane setting to avoid segfaults
         }
-
+        
         memcpy(pCurrRow + 4*uCols, pPalette + 4*uColorNum, 4*sizeof(uint8_t));
         if (++uCols == uXSize)
             addLine();
@@ -147,18 +147,18 @@ class FrameBuf
         vector <uint8_t *>::reverse_iterator vri;
         // allocate a buffer to hold the actual image size
         uint8_t *tmp = new uint8_t[4*uXSize*uRows];
-
+        
         // the lines are upside down inside the vector, use reverse iterator
         for (i=0, vri=vecData.rbegin(); vri!=vecData.rend(); vri++, i++)
             memcpy(tmp+4*uXSize*i, *vri, 4*uXSize*sizeof(uint8_t));
-
+        
         *upYSize = uRows;    // set height
-
+        
         if (uCols > 0) {
             cerr << "\n*** there seemed to be an error (last line does not match boundary, " << uCols << " pixels left)";
             cerr << "\n +++ this is often caused by specifying an invalid width, see for yourself *** \n\n";
         }
-
+        
         return tmp;
     }
 };
@@ -183,17 +183,17 @@ uint8_t *celDecodeBlocks(uint8_t *pFileBuf, FrameBuf *pFrame, uint32_t *framesta
 
     if (!pFrame->bHasBlocks)      // sanity check
         return NULL;
-
+        
     while (uFilePos < framestart[pFrame->uFrameNum+1]) {
         cRead = pFileBuf[uFilePos++];
-
+        
         if ((uFilePos == framestart[pFrame->uFrameNum]+1))
             // TODO: what is this 0x0A 0x00 stuff all about?
             if ((cRead == 0x0A) && (pFileBuf[uFilePos] == 0x00)) {
                 uFilePos += 9;
                 cRead = pFileBuf[uFilePos++];
             }
-
+    
         if (cRead > 0x7F)
             // transparent block (complement, 256-val)
             for (i=0; i<256-cRead; i++)
@@ -220,10 +220,10 @@ uint8_t *celDecodeRamps(uint8_t *pFileBuf, FrameBuf *pFrame, uint32_t *framestar
     uint32_t uFilePos=0;
     uint16_t uBlockLen=0, i=0, j=0;
     bool bFirstLonger=false;
-
+    
     if (!pFrame->bHasRamps)     // sanity check
         return NULL;
-
+        
     if (pFrame->uXSize != 32)   // only used in that case
         return NULL;
 
@@ -265,7 +265,7 @@ uint8_t *celDecodeRamps(uint8_t *pFileBuf, FrameBuf *pFrame, uint32_t *framestar
                 pFrame->addPixel(pFileBuf[uFilePos++]);
         }
     }
-
+    
     // now read the last 0x00 pair and fill up
     uBlockLen = (uFrameLen == c_2RampSize ? 30 : 2); // one or two ramps?
     uFilePos = framestart[pFrame->uFrameNum] + (bLeft ? c_RampOffsetLeft[i] : c_RampOffsetRight[i]) + 2;
@@ -276,16 +276,16 @@ uint8_t *celDecodeRamps(uint8_t *pFileBuf, FrameBuf *pFrame, uint32_t *framestar
         for (j=0; j<pFrame->uXSize - uBlockLen; j++)
             pFrame->addPixel(pFileBuf[uFilePos++]);
     }
-
+    
     // now the rest of the file (plain)
     while (uFilePos < framestart[pFrame->uFrameNum+1])
         pFrame->addPixel(pFileBuf[uFilePos++]);
-
+    
     // the uppermost line is emtpy when 2 ramps are used
     if (uFrameLen == c_2RampSize)
         for (j=0; j<pFrame->uXSize; j++)
             pFrame->addPixel(TRANS_COL);
-
+            
     return pFrame->getData();
 }
 
@@ -308,17 +308,17 @@ uint8_t *celDecodeRamps(uint8_t *pFileBuf, FrameBuf *pFrame, uint32_t *framestar
  * Comments:     dirty hack, started from scratch @ 2000-10-11
  *               cleanly rewritten during incorporation into ladiks StormLib
  *      status:  structured hack ;)
- *
+ *   
  *   It took me approx. 6 days to understand the format basics (hex viewer)
  *   For this I had a little help from a dos tool ("ddecode", from
- *   www.cowlevel.com, binary only, no sources) which, however, gave
+ *   www.cowlevel.com, binary only, no sources) which, however, gave 
  *   me the general idea what the pictures are actually supposed to look like.
- *
+ *   
  *   The fine adjustments, however, took quite some time and a little luck.
  *   After I had written to various people (mickyk and ladik), which could
  *   not help me, but wished best luck (thanks, btw, it helped ;)), I tried
  *   some reverse engineering which was not succesful in the end.
- *
+ *   
  *   I then had incidentally a new idea of what could be going on @ 2002-01-23.
  *   It just came to my mind that I could retry some actual painting in
  *   reverse order (had done that before to no avail) and when looking closer
@@ -334,48 +334,48 @@ uint8_t * WINAPI celGetFrameData(uint8_t *pFileBuf, uint8_t *palette, uint16_t u
     uint32_t *framestart=NULL, frames=0, uFilePos=0;
     uint16_t i, tmpWord=0;
     uint8_t cRead=0, *data;
-
+    
     memcpy(&frames, pFileBuf, sizeof(uint32_t));
     uFilePos += sizeof(uint32_t);
-
+    
     if (pFileBuf == NULL) {
         SetLastError(ERROR_INVALID_PARAMETER);
         return NULL;
     }
-
+    
     if (palette == NULL) {
         SetLastError(ERROR_INVALID_PARAMETER);
         return NULL;
     }
-
+    
     if (uFrameNum > frames-1) {
         SetLastError(ERROR_INVALID_PARAMETER);
         return NULL;
     }
-
+        
     if (uYSize == NULL) {
         SetLastError(ERROR_INVALID_PARAMETER);
         return NULL;
     }
-
+        
     // in case we want to know the rightmost pixels column (usable eg. for fonts)
     if (uMaxX != NULL)
         *uMaxX = 0;
-
+    
     // get the frame offsets
     framestart = new uint32_t[frames+1];
     for (i=0; i<frames+1; i++) {
         memcpy(&framestart[i], pFileBuf+uFilePos, sizeof(uint32_t));
         uFilePos += sizeof(uint32_t);
     }
-
+    
     /****** block size *************************************************
      * depends on the image width
      ******************************/
-
+    
     double erg = rint(sqrt(pow(2, rint(log((double)(framestart[uFrameNum+1] - framestart[uFrameNum])) / log(2.0)))));
     pFrame = new FrameBuf(palette, uFrameNum, uXSize, uYSize, uMaxX, max((uint16_t)min((int)erg, 0x7F), uXSize));
-
+    
     /****** ramp detection -- AFAIK only needed for 32x32 tiles ********
      * here I use hard coded constants because this is the only simple
      * way to get the detection done; plus this stuff is only to be
@@ -385,7 +385,7 @@ uint8_t * WINAPI celGetFrameData(uint8_t *pFileBuf, uint8_t *palette, uint16_t u
     uint32_t uFrameLen = framestart[uFrameNum+1] - framestart[uFrameNum];
     if ((uXSize == 32) && ((uFrameLen == c_2RampSize) || (uFrameLen == c_1RampSize))) {
 
-        // use the static arrays for the check
+        // use the static arrays for the check        
         for (i=0; i<(uFrameLen == c_2RampSize ? 16 : 8); i++) {
             memcpy(&tmpWord, pFileBuf+framestart[uFrameNum]+c_RampOffsetLeft[i], sizeof(uint16_t));
             if (tmpWord != 0)
@@ -400,7 +400,7 @@ uint8_t * WINAPI celGetFrameData(uint8_t *pFileBuf, uint8_t *palette, uint16_t u
             }
             pFrame->bHasRamps = (i==(uFrameLen == c_2RampSize ? 16 : 8)); // bRampsLeft stays false in this case
         }
-
+        
         if (pFrame->bHasRamps) {  // decode ramps and be off (if appropriate)
             data = celDecodeRamps(pFileBuf, pFrame, framestart, bRampsLeft);
             delete pFrame;
@@ -408,25 +408,25 @@ uint8_t * WINAPI celGetFrameData(uint8_t *pFileBuf, uint8_t *palette, uint16_t u
             return data;
         }
     }
-
+    
     /*********** block detection ***************************************
      * 0x0A as start byte seems to be sufficient (though I still dunno
      * what the trailing 10 bytes mean); in any other case we act as if
      * blocks were to be used and check afterwards if the image looks
      * OK (that is, the last line has no pixels in it)
      ******************************************************************/
-
+    
     cRead = pFileBuf[framestart[uFrameNum]];
     if (cRead == 0x0A)          // sufficient
         pFrame->bHasBlocks = true;
     // if width == 32 && framelen == 32*32, assume plain
     else if ((uXSize != 32) || (uFrameLen != 32*32)) {    // check needed
-        uFilePos=framestart[uFrameNum];
+        uFilePos=framestart[uFrameNum];             
         i=0;
         // rush through the frame
         while (uFilePos < framestart[uFrameNum+1]) {
             cRead = pFileBuf[uFilePos++];
-
+            
             // transparency blocks
             while (cRead > 0x7F) {
                 i += 256-cRead;
@@ -436,7 +436,7 @@ uint8_t * WINAPI celGetFrameData(uint8_t *pFileBuf, uint8_t *palette, uint16_t u
                 else
                     cRead = 0;
             }
-
+            
             // colored pixel block
             if (uFilePos < framestart[uFrameNum+1]) {
                 if (cRead < pFrame->uMaxBlock + 1) {
@@ -453,19 +453,19 @@ uint8_t * WINAPI celGetFrameData(uint8_t *pFileBuf, uint8_t *palette, uint16_t u
         if (i%uXSize == 0)      // looks as if we got it right
             pFrame->bHasBlocks=true;
     }
-
+    
     if (pFrame->bHasBlocks) {   // use block decoder if appropriate
         data = celDecodeBlocks(pFileBuf, pFrame, framestart);
         delete pFrame;
         delete[] framestart;
         return data;
     }
-
+        
     // plain mode (#3), read each color index and write the pixel
     uFilePos=framestart[uFrameNum];
     while (uFilePos < framestart[uFrameNum+1])
         pFrame->addPixel(pFileBuf[uFilePos++]);
-
+    
     // cleanup, return image data and height
     data = pFrame->getData();
     delete pFrame;
@@ -496,7 +496,7 @@ uint16_t WINAPI cl2GetFrameCount(uint8_t *pFileBuf)
  *
  * ---------------------------------------------------------------
  * Comments:     dirty hack, started from scratch @ 2000-10-12
- *
+ *   
  *   The format basics are similar to .cel, with the main difference
  *   that the values read have reverse interpretation. In .cel a value
  *   greater than 0x7F means transparency, while in .cl2 this means
@@ -507,7 +507,7 @@ uint16_t WINAPI cl2GetFrameCount(uint8_t *pFileBuf)
  *   .cl2 only uses the block scheme, so there is no detection
  *   necessary in order to get it right. The only thing still unknown
  *   is that 0x0A 0x00 stuff...
- *
+ *   
  * TODO: learn what 0x0A 0x00 means
  ***********************************************************************/
 BYTE ** WINAPI cl2GetDirData(BYTE *pFileBuf, BYTE *palette, WORD uXSize, WORD uDirNum, WORD *uYSize)
@@ -516,27 +516,27 @@ BYTE ** WINAPI cl2GetDirData(BYTE *pFileBuf, BYTE *palette, WORD uXSize, WORD uD
     uint32_t frames=0, *framestart=NULL, uFilePos=0;
     uint16_t i, fc;
     uint8_t cRead=0, **data=NULL;
-
+    
     if (pFileBuf == NULL) {
         SetLastError(ERROR_INVALID_PARAMETER);
         return NULL;
     }
-
+    
     if (palette == NULL) {
         SetLastError(ERROR_INVALID_PARAMETER);
         return NULL;
     }
-
+    
     if (uDirNum > 7) {
         SetLastError(ERROR_INVALID_PARAMETER);
         return NULL;
     }
-
+        
     if (uYSize == NULL) {
         SetLastError(ERROR_INVALID_PARAMETER);
         return NULL;
     }
-
+    
     // get direction offsets
     uint32_t dirstart[8];
     for (i=0; i<8; i++) {
@@ -545,23 +545,23 @@ BYTE ** WINAPI cl2GetDirData(BYTE *pFileBuf, BYTE *palette, WORD uXSize, WORD uD
     }
 
     uFilePos = dirstart[uDirNum];
-
+    
     memcpy(&frames, pFileBuf+uFilePos, sizeof(uint32_t));
     uFilePos += sizeof(uint32_t);
-
+    
     data = new uint8_t*[frames];
-
+    
     // get frame offsets
     framestart = new uint32_t[frames+1];
     for (i=0; i<frames+1; i++) {
         memcpy(&framestart[i], pFileBuf+uFilePos, sizeof(uint32_t));
         uFilePos += sizeof(uint32_t);
     }
-
-    // get frame data
+    
+    // get frame data        
     for (fc=0; fc<frames; fc++) {
         pFrame = new FrameBuf(palette, 0, uXSize, uYSize, NULL, 0);
-
+        
         uFilePos = dirstart[uDirNum] + framestart[fc];
         while (uFilePos < dirstart[uDirNum] + framestart[fc+1]) {
 
@@ -583,12 +583,12 @@ BYTE ** WINAPI cl2GetDirData(BYTE *pFileBuf, BYTE *palette, WORD uXSize, WORD uD
                 for (i=0; i < 256-cRead; i++)
                     pFrame->addPixel(pFileBuf[uFilePos++]);
         }
-
+        
         // got the frame data, save it
         data[fc] = pFrame->getData();
         delete pFrame;
     }
-
+    
     delete[] framestart;
     return data;
 }
@@ -616,7 +616,7 @@ BYTE * WINAPI pcxGetData(BYTE *pFileBuf, DWORD uFileSize, BYTE uTransColor, WORD
     uint16_t i=0;
     uint8_t *data, *palette;
     uint8_t uColorNum=0, uCount=0;
-
+    
     struct pcx_header_t {
         uint8_t     id;
         uint8_t     version;
@@ -635,17 +635,17 @@ BYTE * WINAPI pcxGetData(BYTE *pFileBuf, DWORD uFileSize, BYTE uTransColor, WORD
         uint16_t    colortype;
         uint8_t     pad[58];
     } pcxHeader;
-
+    
     if (pFileBuf == NULL) {
         SetLastError(ERROR_INVALID_PARAMETER);
         return NULL;
     }
-
+    
     if (uXSize == NULL) {
         SetLastError(ERROR_INVALID_PARAMETER);
         return NULL;
     }
-
+        
     if (uYSize == NULL) {
         SetLastError(ERROR_INVALID_PARAMETER);
         return NULL;
@@ -655,12 +655,12 @@ BYTE * WINAPI pcxGetData(BYTE *pFileBuf, DWORD uFileSize, BYTE uTransColor, WORD
     memcpy(&pcxHeader, pFileBuf, sizeof(struct pcx_header_t));
     *uXSize = (pcxHeader.x1 - pcxHeader.x0 + 1);
     *uYSize = (pcxHeader.y1 - pcxHeader.y0 + 1);
-
+    
     if ((pcxHeader.version != 2) && (pcxHeader.version != 5)) {
         cerr << "cannot handle pcx v" << pcxHeader.version << "\n";
         return NULL;
     }
-
+    
     // get palette
     palette = new uint8_t[256*4];
     if (pFileBuf[uFileSize - 768 - 1] != 0x0C) {
@@ -672,7 +672,7 @@ BYTE * WINAPI pcxGetData(BYTE *pFileBuf, DWORD uFileSize, BYTE uTransColor, WORD
         palette[i*4+3] = 0xFF;
     }
     memset(palette+uTransColor*4, 0, 4*sizeof(uint8_t)); // transparent black
-
+    
     // start right after the header
     uFilePos = sizeof(struct pcx_header_t);
     data = new uint8_t[*uXSize * *uYSize * 4];
@@ -684,15 +684,14 @@ BYTE * WINAPI pcxGetData(BYTE *pFileBuf, DWORD uFileSize, BYTE uTransColor, WORD
             uColorNum = pFileBuf[uFilePos++];
         } else
             uCount = 1;
-
+    
         // draw count pixels with color val
         for (i=0; i<uCount; i++)
             memcpy(data+(uDataRead++)*4, palette+uColorNum*4, 4*sizeof(uint8_t));
     }
-
+    
     // cleanup
     delete[] palette;
-
+    
     return data;
 }
-

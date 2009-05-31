@@ -28,7 +28,7 @@
 //-----------------------------------------------------------------------------
 // Tables
 
-static unsigned char DistBits[] =
+static unsigned char DistBits[] = 
 {
     0x02, 0x04, 0x04, 0x05, 0x05, 0x05, 0x05, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06,
     0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07,
@@ -36,7 +36,7 @@ static unsigned char DistBits[] =
     0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08
 };
 
-static unsigned char DistCode[] =
+static unsigned char DistCode[] = 
 {
     0x03, 0x0D, 0x05, 0x19, 0x09, 0x11, 0x01, 0x3E, 0x1E, 0x2E, 0x0E, 0x36, 0x16, 0x26, 0x06, 0x3A,
     0x1A, 0x2A, 0x0A, 0x32, 0x12, 0x22, 0x42, 0x02, 0x7C, 0x3C, 0x5C, 0x1C, 0x6C, 0x2C, 0x4C, 0x0C,
@@ -79,7 +79,7 @@ static unsigned char ChBitsAsc[] =
     0x0D, 0x0D, 0x0C, 0x0C, 0x0C, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D, 0x0D
 };
 
-static unsigned short ChCodeAsc[] =
+static unsigned short ChCodeAsc[] = 
 {
     0x0490, 0x0FE0, 0x07E0, 0x0BE0, 0x03E0, 0x0DE0, 0x05E0, 0x09E0,
     0x01E0, 0x00B8, 0x0062, 0x0EE0, 0x06E0, 0x0022, 0x0AE0, 0x02E0,
@@ -112,7 +112,7 @@ static unsigned short ChCodeAsc[] =
     0x0300, 0x0D40, 0x1D00, 0x0D00, 0x1500, 0x0540, 0x0500, 0x1900,
     0x0900, 0x0940, 0x1100, 0x0100, 0x1E00, 0x0E00, 0x0140, 0x1600,
     0x0600, 0x1A00, 0x0E40, 0x0640, 0x0A40, 0x0A00, 0x1200, 0x0200,
-    0x1C00, 0x0C00, 0x1400, 0x0400, 0x1800, 0x0800, 0x1000, 0x0000
+    0x1C00, 0x0C00, 0x1400, 0x0400, 0x1800, 0x0800, 0x1000, 0x0000  
 };
 
 //-----------------------------------------------------------------------------
@@ -215,7 +215,7 @@ static void OutputBits(TCmpStruct * pWork, unsigned int nbits, unsigned long bit
     {
         pWork->out_bytes++;
         bit_buff >>= (8 - out_bits);
-
+        
         pWork->out_buff[pWork->out_bytes] = (unsigned char)bit_buff;
         pWork->out_bits &= 7;
     }
@@ -341,7 +341,7 @@ static unsigned long FindRep(TCmpStruct * pWork, unsigned char * srcbuff)
     esi     = nreps;
     pin27CC = pWork->work_buff + pin49D0[0] + nreps;
     esp14   = pin27CC;
-
+    
     for(;;)   // 0040268B
     {
         esi = pWork->offs09BC[esi];
@@ -473,7 +473,7 @@ static void WriteCmpData(TCmpStruct * pWork)
         //
         switch(esp20)
         {
-            case 0:
+            case 0: 
                 SortBuffer(pWork, uncmp_begin, uncmp_end + 1);
                 esp20++;
                 if(pWork->dsize_bytes != 0x1000)
@@ -590,7 +590,7 @@ unsigned int PKEXPORT implode(
     // Initialize the work buffer. This is not in the Pklib,
     // but it seems to be a bug. Storm always pre-fills the data with zeros,
     // and always compresses one block only. So the bug will not appear.
-    // But when a larger data block (size > 0x1000) is compressed,
+    // But when a larger data block (size > 0x1000) is compressed, 
     // it may fail.
     memset(pWork, 0, sizeof(TCmpStruct));
 
@@ -650,7 +650,7 @@ unsigned int PKEXPORT implode(
 
     for(i = 0; i < 0x10; i++)
     {
-        int nCount2 = 0;    // EBX
+        int nCount2 = 0;    // EBX 
 
         if((1 << ExLenBits[i]) == 0)
             continue;

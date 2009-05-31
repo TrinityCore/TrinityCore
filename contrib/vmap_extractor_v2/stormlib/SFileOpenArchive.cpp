@@ -74,7 +74,7 @@ static int RelocateMpqTablePositions(TMPQArchive * ha)
     TempSize.QuadPart = ha->ExtBlockTablePos.QuadPart + (pHeader->dwBlockTableSize * sizeof(TMPQBlockEx));
     if(TempSize.QuadPart > ha->MpqSize.QuadPart)
         ha->MpqSize = TempSize;
-
+    
     // MPQ size does not include the bytes before MPQ header
     ha->MpqSize.QuadPart -= ha->MpqPos.QuadPart;
     return ERROR_SUCCESS;
@@ -122,7 +122,7 @@ BOOL SFileOpenArchiveEx(
     DWORD dwBlockTableSize = 0;         // Block table size.
     DWORD dwTransferred;                // Number of bytes read
     DWORD dwBytes = 0;                  // Number of bytes to read
-    int nError = ERROR_SUCCESS;
+    int nError = ERROR_SUCCESS;   
 
     // Check the right parameters
     if(nError == ERROR_SUCCESS)
@@ -142,7 +142,7 @@ BOOL SFileOpenArchiveEx(
         if(hFile == INVALID_HANDLE_VALUE)
             nError = GetLastError();
     }
-
+    
     // Allocate the MPQhandle
     if(nError == ERROR_SUCCESS)
     {
@@ -241,7 +241,7 @@ BOOL SFileOpenArchiveEx(
                 break;
             }
 
-            // If a MPQ shunt already has been found,
+            // If a MPQ shunt already has been found, 
             // and no MPQ header was at potision pointed by the shunt,
             // then the archive is corrupt
             if(ha->pShunt != NULL)
@@ -327,7 +327,7 @@ BOOL SFileOpenArchiveEx(
                     nError = ERROR_BAD_FORMAT;
                     break;
                 }
-
+            
                 // Remember the highest block table entry
                 if(pHash->dwBlockIndex > dwMaxBlockIndex)
                     dwMaxBlockIndex = pHash->dwBlockIndex;
@@ -437,7 +437,7 @@ BOOL SFileOpenArchiveEx(
         }
     }
 
-    // If the user didn't specified otherwise,
+    // If the user didn't specified otherwise, 
     // include the internal listfile to the TMPQArchive structure
     if((dwFlags & MPQ_OPEN_NO_LISTFILE) == 0)
     {
@@ -479,7 +479,7 @@ BOOL WINAPI SFileOpenArchive(const char * szMpqName, DWORD dwPriority, DWORD dwF
 BOOL WINAPI SFileCloseArchive(HANDLE hMPQ)
 {
     TMPQArchive * ha = (TMPQArchive *)hMPQ;
-
+    
     if(!IsValidMpqHandle(ha))
     {
         SetLastError(ERROR_INVALID_PARAMETER);
@@ -494,5 +494,4 @@ BOOL WINAPI SFileCloseArchive(HANDLE hMPQ)
     FreeMPQArchive(ha);
     return TRUE;
 }
-
 

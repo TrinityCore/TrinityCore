@@ -1,4 +1,4 @@
-/* zip.c -- IO on .zip files using zlib
+/* zip.c -- IO on .zip files using zlib 
    Version 0.15 beta, Mar 19th, 1998,
 
    Read zip.h for more info
@@ -99,11 +99,11 @@ typedef struct linkedlist_data_s
 
 typedef struct
 {
-    z_stream stream;            /* zLib stream structure for inflate */
+	z_stream stream;            /* zLib stream structure for inflate */
     int  stream_initialised;    /* 1 is stream is initialised */
     uInt pos_in_buffered_data;  /* last written byte in buffered_data */
 
-    uLong pos_local_header;     /* offset of the local header of the file
+    uLong pos_local_header;     /* offset of the local header of the file 
                                      currenty writing */
     char* central_header;       /* central header data for the current file */
     uLong size_centralheader;   /* size of the central header for cur file */
@@ -166,7 +166,7 @@ local void free_linkedlist(ll)
 
 
 local int add_data_in_datablock(ll,buf,len)
-    linkedlist_data* ll;
+    linkedlist_data* ll;    
     const void* buf;
     uLong len;
 {
@@ -222,7 +222,7 @@ local int add_data_in_datablock(ll,buf,len)
 
 local int write_datablock(fout,ll)
     FILE * fout;
-    linkedlist_data* ll;
+    linkedlist_data* ll;    
 {
     linkedlist_datablock_internal* ldi;
     ldi = ll->first_block;
@@ -322,7 +322,7 @@ extern zipFile ZEXPORT zipOpen (pathname, append)
     return (zipFile)zi;
 }
 
-extern int ZEXPORT zipOpenNewFileInZip (file, filename, zipfi,
+extern int ZEXPORT zipOpenNewFileInZip (file, filename, zipfi, 
                                         extrafield_local, size_extrafield_local,
                                         extrafield_global, size_extrafield_global,
                                         comment, method, level)
@@ -390,7 +390,7 @@ extern int ZEXPORT zipOpenNewFileInZip (file, filename, zipfi,
     zi->ci.stream_initialised = 0;
     zi->ci.pos_in_buffered_data = 0;
     zi->ci.pos_local_header = ftell(zi->filezip);
-    zi->ci.size_centralheader = SIZECENTRALHEADER + size_filename +
+    zi->ci.size_centralheader = SIZECENTRALHEADER + size_filename + 
                                       size_extrafield_global + size_comment;
     zi->ci.central_header = (char*)ALLOC((uInt)zi->ci.size_centralheader);
 
@@ -410,12 +410,12 @@ extern int ZEXPORT zipOpenNewFileInZip (file, filename, zipfi,
     ziplocal_putValue_inmemory(zi->ci.central_header+34,(uLong)0,2); /*disk nm start*/
 
     if (zipfi==NULL)
-        ziplocal_putValue_inmemory(zi->ci.central_header+36,(uLong)0,2);
+        ziplocal_putValue_inmemory(zi->ci.central_header+36,(uLong)0,2); 
     else
-        ziplocal_putValue_inmemory(zi->ci.central_header+36,(uLong)zipfi->internal_fa,2);
+        ziplocal_putValue_inmemory(zi->ci.central_header+36,(uLong)zipfi->internal_fa,2); 
 
     if (zipfi==NULL)
-        ziplocal_putValue_inmemory(zi->ci.central_header+38,(uLong)0,4);
+        ziplocal_putValue_inmemory(zi->ci.central_header+38,(uLong)0,4); 
     else
         ziplocal_putValue_inmemory(zi->ci.central_header+38,(uLong)zipfi->external_fa,4);
 
@@ -568,10 +568,10 @@ extern int ZEXPORT zipCloseFileInZip (file)
         return ZIP_PARAMERROR;
     zi = (zip_internal*)file;
 
-    if (zi->in_opened_file_inzip == 0)
+    if (zi->in_opened_file_inzip == 0)    
         return ZIP_PARAMERROR;
     zi->ci.stream.avail_in = 0;
-
+    
     if (zi->ci.method == Z_DEFLATED)
         while (err==ZIP_OK)
     {
@@ -618,22 +618,22 @@ extern int ZEXPORT zipCloseFileInZip (file)
     if (err==ZIP_OK)
     {
         long cur_pos_inzip = ftell(zi->filezip);
-        if (fseek(zi->filezip,
+	    if (fseek(zi->filezip,
                   zi->ci.pos_local_header + 14,SEEK_SET)!=0)
-            err = ZIP_ERRNO;
+		    err = ZIP_ERRNO;
 
         if (err==ZIP_OK)
             err = ziplocal_putValue(zi->filezip,(uLong)zi->ci.crc32,4); /* crc 32, unknown */
 
         if (err==ZIP_OK) /* compressed size, unknown */
-            err = ziplocal_putValue(zi->filezip,(uLong)zi->ci.stream.total_out,4);
+            err = ziplocal_putValue(zi->filezip,(uLong)zi->ci.stream.total_out,4); 
 
         if (err==ZIP_OK) /* uncompressed size, unknown */
             err = ziplocal_putValue(zi->filezip,(uLong)zi->ci.stream.total_in,4);
 
-        if (fseek(zi->filezip,
+	    if (fseek(zi->filezip,
                   cur_pos_inzip,SEEK_SET)!=0)
-            err = ZIP_ERRNO;
+		    err = ZIP_ERRNO;
     }
 
     zi->number_entry ++;
@@ -701,8 +701,8 @@ extern int ZEXPORT zipClose (file, global_comment)
     if (err==ZIP_OK) /* size of the central directory */
         err = ziplocal_putValue(zi->filezip,(uLong)size_centraldir,4);
 
-    if (err==ZIP_OK) /* offset of start of central directory with respect to the
-                            starting disk number */
+    if (err==ZIP_OK) /* offset of start of central directory with respect to the 
+	                        starting disk number */
         err = ziplocal_putValue(zi->filezip,(uLong)centraldir_pos_inzip ,4);
 
     if (err==ZIP_OK) /* zipfile comment length */

@@ -115,4 +115,3 @@ BOOL WINAPI SCOMP(Decompress)(char * pbOutBuffer, int * pdwOutLength, char * pbI
     SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
     return FALSE;
 }
-

@@ -20,7 +20,7 @@
 /* 12.11.03  1.02  Dan  Macintosh compatibility                              */
 /* 24.07.04  1.03  Sam  Mac OS X compatibility                               */
 /* 22.11.06  1.04  Sam  Mac OS X compatibility (for StormLib 6.0)            */
-/* 31.12.06  1.05  XPinguin  Full GNU/Linux compatibility            */
+/* 31.12.06  1.05  XPinguin  Full GNU/Linux compatibility		     */
 /*****************************************************************************/
 
 #ifndef __STORMPORT_H__
@@ -35,9 +35,9 @@
   #define _CRT_NON_CONFORMING_SWPRINTFS
   #endif
 
-  #include <assert.h>
-  #include <stdio.h>
-  #include <windows.h>
+  #include <assert.h>      
+  #include <stdio.h>      
+  #include <windows.h>      
   #define PLATFORM_LITTLE_ENDIAN  1
 
   #ifdef WIN64
@@ -50,20 +50,20 @@
 
 #endif
 
-// Defines for Mac Carbon
+// Defines for Mac Carbon 
 #if !defined(PLATFORM_DEFINED) && defined(__APPLE__)  // Mac Carbon API
 
   // Macintosh using Carbon
   #include <Carbon/Carbon.h> // Mac OS X
   #define _stricmp strcasecmp  // Case insensitive strcmp has a different name on this platform.
   #define _strnicmp strncasecmp
-
+  
   typedef void          * LPCSTR;
   typedef unsigned long * LPDWORD;
   typedef long          * PLONG;
   typedef void          * LPVOID;
   typedef unsigned int  UINT;
-
+  
   #define    PKEXPORT
   #define    __SYS_ZLIB
   #define    __SYS_BZLIB
@@ -120,17 +120,17 @@
   typedef void         * LPOVERLAPPED; // Unsupported on Linux
   typedef char           TCHAR;
   typedef unsigned long  LCID;
-
+  
   typedef void          * LPCSTR;
   typedef unsigned long * LPDWORD;
   typedef long          * PLONG;
   typedef void          * LPVOID;
   typedef unsigned int  UINT;
-
+  
   typedef struct _FILETIME
-  {
-      DWORD dwLowDateTime;
-      DWORD dwHighDateTime;
+  { 
+      DWORD dwLowDateTime; 
+      DWORD dwHighDateTime; 
   }
   FILETIME, *PFILETIME;
 
@@ -152,7 +152,7 @@
     LONGLONG QuadPart;
   }
   LARGE_INTEGER, *PLARGE_INTEGER;
-
+  
   // Some Windows-specific defines
   #ifndef MAX_PATH
     #define MAX_PATH 1024
@@ -167,24 +167,24 @@
   #endif
 
   #define VOID     void
-  #define WINAPI
+  #define WINAPI 
 
   #define FILE_BEGIN    SEEK_SET
   #define FILE_CURRENT  SEEK_CUR
   #define FILE_END      SEEK_END
-
+  
   #define CREATE_NEW    1
   #define CREATE_ALWAYS 2
   #define OPEN_EXISTING 3
   #define OPEN_ALWAYS   4
-
+  
   #define FILE_SHARE_READ 0x00000001L
   #define GENERIC_WRITE   0x40000000
   #define GENERIC_READ    0x80000000
-
+  
   #define FILE_FLAG_DELETE_ON_CLOSE         1   // Sam: Added these two defines so it would compile.
   #define FILE_FLAG_SEQUENTIAL_SCAN         2
-
+  
   #define ERROR_SUCCESS                     0
   #define ERROR_INVALID_FUNCTION            1
   #define ERROR_FILE_NOT_FOUND              2
@@ -204,22 +204,22 @@
   #define ERROR_PARAMETER_QUOTA_EXCEEDED 1283
   #define ERROR_FILE_CORRUPT             1392
   #define ERROR_INSUFFICIENT_BUFFER      4999
-
+  
   #define INVALID_HANDLE_VALUE ((HANDLE) -1)
-
+  
   #ifndef min
   #define min(a, b) ((a < b) ? a : b)
   #endif
-
+  
   #ifndef max
   #define max(a, b) ((a > b) ? a : b)
   #endif
-
+  
   #define _stricmp strcasecmp
   #define _strnicmp strncasecmp
-
+  
   extern int globalerr;
-
+  
   void  SetLastError(int err);
   int   GetLastError();
   char *ErrString(int err);
@@ -276,4 +276,3 @@
 #endif
 
 #endif // __STORMPORT_H__
-

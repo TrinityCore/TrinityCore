@@ -1,6 +1,6 @@
 /* infcodes.h -- header to use infcodes.c
  * Copyright (C) 1995-2002 Mark Adler
- * For conditions of distribution and use, see copyright notice in zlib.h
+ * For conditions of distribution and use, see copyright notice in zlib.h 
  */
 
 /* WARNING: this file should *not* be used by applications. It is
@@ -24,5 +24,4 @@ extern int inflate_codes OF((
 extern void inflate_codes_free OF((
     inflate_codes_statef *,
     z_streamp ));
-
 

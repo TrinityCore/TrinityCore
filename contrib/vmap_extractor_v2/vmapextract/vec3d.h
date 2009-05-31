@@ -4,9 +4,8 @@
 #include <iostream>
 #include <cmath>
 
-
-
-class Vec3D {
+class Vec3D
+{
 public:
     float x,y,z;
 
@@ -112,11 +111,11 @@ public:
     {
         return (float*)this;
     }
-
 };
 
 
-class Vec2D {
+class Vec2D
+{
 public:
     float x,y;
 
@@ -213,9 +212,7 @@ public:
     {
         return (float*)this;
     }
-
 };
-
 
 inline void rotate(float x0, float y0, float *x, float *y, float angle)
 {
@@ -224,8 +221,4 @@ inline void rotate(float x0, float y0, float *x, float *y, float angle)
     *y = xa*sinf(angle) + ya*cosf(angle) + y0;
 }
 
-
-
 #endif
-
-

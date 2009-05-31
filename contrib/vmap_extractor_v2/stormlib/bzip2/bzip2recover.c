@@ -5,7 +5,7 @@
 /*-----------------------------------------------------------*/
 
 /*--
-  This program is bzip2recover, a program to attempt data
+  This program is bzip2recover, a program to attempt data 
   salvage from damaged files created by the accompanying
   bzip2-1.0.3 program.
 
@@ -18,16 +18,16 @@
   1. Redistributions of source code must retain the above copyright
      notice, this list of conditions and the following disclaimer.
 
-  2. The origin of this software must not be misrepresented; you must
-     not claim that you wrote the original software.  If you use this
-     software in a product, an acknowledgment in the product
+  2. The origin of this software must not be misrepresented; you must 
+     not claim that you wrote the original software.  If you use this 
+     software in a product, an acknowledgment in the product 
      documentation would be appreciated but is not required.
 
   3. Altered source versions must be plainly marked as such, and must
      not be misrepresented as being the original software.
 
-  4. The name of the author may not be used to endorse or promote
-     products derived from this software without specific prior written
+  4. The name of the author may not be used to endorse or promote 
+     products derived from this software without specific prior written 
      permission.
 
   THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS
@@ -107,7 +107,7 @@ MaybeUInt64 bytesIn  = 0;
 #define BZ_HDR_Z 0x5a                         /* 'Z' */
 #define BZ_HDR_h 0x68                         /* 'h' */
 #define BZ_HDR_0 0x30                         /* '0' */
-
+ 
 
 /*---------------------------------------------------*/
 /*--- I/O errors                                  ---*/
@@ -160,7 +160,7 @@ void tooManyBlocks ( Int32 max_handled_blocks )
    fprintf ( stderr,
              "%s: and cannot be handled.  To fix, increase\n",
              progName );
-   fprintf ( stderr,
+   fprintf ( stderr, 
              "%s: BZ_MAX_HANDLED_BLOCKS in bzip2recover.c, and recompile.\n",
              progName );
    exit ( 1 );
@@ -344,7 +344,7 @@ Int32 main ( Int32 argc, Char** argv )
    strcpy ( progName, argv[0] );
    inFileName[0] = outFileName[0] = 0;
 
-   fprintf ( stderr,
+   fprintf ( stderr, 
              "bzip2recover 1.0.3: extracts blocks from damaged .bz2 files.\n" );
 
    if (argc != 2) {
@@ -352,18 +352,18 @@ Int32 main ( Int32 argc, Char** argv )
                         progName, progName );
       switch (sizeof(MaybeUInt64)) {
          case 8:
-            fprintf(stderr,
+            fprintf(stderr, 
                     "\trestrictions on size of recovered file: None\n");
             break;
          case 4:
-            fprintf(stderr,
+            fprintf(stderr, 
                     "\trestrictions on size of recovered file: 512 MB\n");
-            fprintf(stderr,
+            fprintf(stderr, 
                     "\tto circumvent, recompile with MaybeUInt64 as an\n"
                     "\tunsigned 64-bit int.\n");
             break;
          default:
-            fprintf(stderr,
+            fprintf(stderr, 
                     "\tsizeof(MaybeUInt64) is not 4 or 8 -- "
                     "configuration error.\n");
             break;
@@ -372,7 +372,7 @@ Int32 main ( Int32 argc, Char** argv )
    }
 
    if (strlen(argv[1]) >= BZ_MAX_FILENAME-20) {
-      fprintf ( stderr,
+      fprintf ( stderr, 
                 "%s: supplied filename is suspiciously (>= %d chars) long.  Bye!\n",
                 progName, (int)strlen(argv[1]) );
       exit(1);
@@ -404,7 +404,7 @@ Int32 main ( Int32 argc, Char** argv )
             (bitsRead - bStart[currBlock]) >= 40) {
             bEnd[currBlock] = bitsRead-1;
             if (currBlock > 0)
-               fprintf ( stderr, "   block %d runs from " MaybeUInt64_FMT
+               fprintf ( stderr, "   block %d runs from " MaybeUInt64_FMT 
                                  " to " MaybeUInt64_FMT " (incomplete)\n",
                          currBlock,  bStart[currBlock], bEnd[currBlock] );
          } else
@@ -413,10 +413,10 @@ Int32 main ( Int32 argc, Char** argv )
       }
       buffHi = (buffHi << 1) | (buffLo >> 31);
       buffLo = (buffLo << 1) | (b & 1);
-      if ( ( (buffHi & 0x0000ffff) == BLOCK_HEADER_HI
+      if ( ( (buffHi & 0x0000ffff) == BLOCK_HEADER_HI 
              && buffLo == BLOCK_HEADER_LO)
-           ||
-           ( (buffHi & 0x0000ffff) == BLOCK_ENDMARK_HI
+           || 
+           ( (buffHi & 0x0000ffff) == BLOCK_ENDMARK_HI 
              && buffLo == BLOCK_ENDMARK_LO)
          ) {
          if (bitsRead > 49) {
@@ -425,8 +425,8 @@ Int32 main ( Int32 argc, Char** argv )
             bEnd[currBlock] = 0;
          }
          if (currBlock > 0 &&
-         (bEnd[currBlock] - bStart[currBlock]) >= 130) {
-            fprintf ( stderr, "   block %d runs from " MaybeUInt64_FMT
+	     (bEnd[currBlock] - bStart[currBlock]) >= 130) {
+            fprintf ( stderr, "   block %d runs from " MaybeUInt64_FMT 
                               " to " MaybeUInt64_FMT "\n",
                       rbCtr+1,  bStart[currBlock], bEnd[currBlock] );
             rbStart[rbCtr] = bStart[currBlock];
@@ -472,7 +472,7 @@ Int32 main ( Int32 argc, Char** argv )
       if (b == 2) break;
       buffHi = (buffHi << 1) | (buffLo >> 31);
       buffLo = (buffLo << 1) | (b & 1);
-      if (bitsRead == 47+rbStart[wrBlock])
+      if (bitsRead == 47+rbStart[wrBlock]) 
          blockCRC = (buffHi << 16) | (buffLo >> 16);
 
       if (outFile != NULL && bitsRead >= rbStart[wrBlock]
@@ -494,11 +494,11 @@ Int32 main ( Int32 argc, Char** argv )
          wrBlock++;
       } else
       if (bitsRead == rbStart[wrBlock]) {
-         /* Create the output file name, correctly handling leading paths.
+         /* Create the output file name, correctly handling leading paths. 
             (31.10.2001 by Sergey E. Kusikov) */
          Char* split;
          Int32 ofs, k;
-         for (k = 0; k < BZ_MAX_FILENAME; k++)
+         for (k = 0; k < BZ_MAX_FILENAME; k++) 
             outFileName[k] = 0;
          strcpy (outFileName, inFileName);
          split = strrchr (outFileName, BZ_SPLIT_SYM);
@@ -506,8 +506,8 @@ Int32 main ( Int32 argc, Char** argv )
             split = outFileName;
          } else {
             ++split;
-     }
-     /* Now split points to the start of the basename. */
+	 }
+	 /* Now split points to the start of the basename. */
          ofs  = split - outFileName;
          sprintf (split, "rec%5d", wrBlock+1);
          for (p = split; *p != 0; p++) if (*p == ' ') *p = '0';
@@ -525,9 +525,9 @@ Int32 main ( Int32 argc, Char** argv )
             exit(1);
          }
          bsWr = bsOpenWriteStream ( outFile );
-         bsPutUChar ( bsWr, BZ_HDR_B );
-         bsPutUChar ( bsWr, BZ_HDR_Z );
-         bsPutUChar ( bsWr, BZ_HDR_h );
+         bsPutUChar ( bsWr, BZ_HDR_B );    
+         bsPutUChar ( bsWr, BZ_HDR_Z );    
+         bsPutUChar ( bsWr, BZ_HDR_h );    
          bsPutUChar ( bsWr, BZ_HDR_0 + 9 );
          bsPutUChar ( bsWr, 0x31 ); bsPutUChar ( bsWr, 0x41 );
          bsPutUChar ( bsWr, 0x59 ); bsPutUChar ( bsWr, 0x26 );

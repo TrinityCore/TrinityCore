@@ -55,7 +55,7 @@ uLong filetime(f, tmzip, dt)
   struct stat s;        /* results of stat() */
   struct tm* filedate;
   time_t tm_t=0;
-
+  
   if (strcmp(f,"-")!=0)
   {
     char name[MAXFILENAME];
@@ -98,10 +98,10 @@ uLong filetime(f, tmzip, dt)
 int check_exist_file(filename)
     const char* filename;
 {
-    FILE* ftestexist;
+	FILE* ftestexist;
     int ret = 1;
-    ftestexist = fopen(filename,"rb");
-    if (ftestexist==NULL)
+	ftestexist = fopen(filename,"rb");
+	if (ftestexist==NULL)
         ret = 0;
     else
         fclose(ftestexist);
@@ -110,59 +110,59 @@ int check_exist_file(filename)
 
 void do_banner()
 {
-    printf("MiniZip 0.15, demo of zLib + Zip package written by Gilles Vollant\n");
-    printf("more info at http://wwww.winimage/zLibDll/unzip.htm\n\n");
+	printf("MiniZip 0.15, demo of zLib + Zip package written by Gilles Vollant\n");
+	printf("more info at http://wwww.winimage/zLibDll/unzip.htm\n\n");
 }
 
 void do_help()
-{
-    printf("Usage : minizip [-o] file.zip [files_to_add]\n\n") ;
+{	
+	printf("Usage : minizip [-o] file.zip [files_to_add]\n\n") ;
 }
 
 int main(argc,argv)
-    int argc;
-    char *argv[];
+	int argc;
+	char *argv[];
 {
-    int i;
-    int opt_overwrite=0;
+	int i;
+	int opt_overwrite=0;
     int opt_compress_level=Z_DEFAULT_COMPRESSION;
     int zipfilenamearg = 0;
-    char filename_try[MAXFILENAME];
+	char filename_try[MAXFILENAME];
     int zipok;
     int err=0;
     int size_buf=0;
     void* buf=NULL,
 
 
-    do_banner();
-    if (argc==1)
-    {
-        do_help();
-        exit(0);
+	do_banner();
+	if (argc==1)
+	{
+		do_help();
+		exit(0);
         return 0;
-    }
-    else
-    {
-        for (i=1;i<argc;i++)
-        {
-            if ((*argv[i])=='-')
-            {
-                const char *p=argv[i]+1;
-
-                while ((*p)!='\0')
-                {
-                    char c=*(p++);;
-                    if ((c=='o') || (c=='O'))
-                        opt_overwrite = 1;
+	}
+	else
+	{
+		for (i=1;i<argc;i++)
+		{
+			if ((*argv[i])=='-')
+			{
+				const char *p=argv[i]+1;
+				
+				while ((*p)!='\0')
+				{			
+					char c=*(p++);;
+					if ((c=='o') || (c=='O'))
+						opt_overwrite = 1;
                     if ((c>='0') && (c<='9'))
                         opt_compress_level = c-'0';
-                }
-            }
-            else
-                if (zipfilenamearg == 0)
+				}
+			}
+			else
+				if (zipfilenamearg == 0)
                     zipfilenamearg = i ;
-        }
-    }
+		}
+	}
 
     size_buf = WRITEBUFFERSIZE;
     buf = (void*)malloc(size_buf);
@@ -172,15 +172,15 @@ int main(argc,argv)
         return ZIP_INTERNALERROR;
     }
 
-    if (zipfilenamearg==0)
+	if (zipfilenamearg==0)
         zipok=0;
     else
-    {
+	{
         int i,len;
         int dot_found=0;
 
         zipok = 1 ;
-        strcpy(filename_try,argv[zipfilenamearg]);
+		strcpy(filename_try,argv[zipfilenamearg]);
         len=strlen(filename_try);
         for (i=0;i<len;i++)
             if (filename_try[i]=='.')
@@ -191,21 +191,21 @@ int main(argc,argv)
 
         if (opt_overwrite==0)
             if (check_exist_file(filename_try)!=0)
-            {
+			{
                 char rep;
-                do
-                {
-                    char answer[128];
-                    printf("The file %s exist. Overwrite ? [y]es, [n]o : ",filename_try);
-                    scanf("%1s",answer);
-                    rep = answer[0] ;
-                    if ((rep>='a') && (rep<='z'))
-                        rep -= 0x20;
-                }
-                while ((rep!='Y') && (rep!='N'));
+				do
+				{
+					char answer[128];
+					printf("The file %s exist. Overwrite ? [y]es, [n]o : ",filename_try);
+					scanf("%1s",answer);
+					rep = answer[0] ;
+					if ((rep>='a') && (rep<='z'))
+						rep -= 0x20;
+				}
+				while ((rep!='Y') && (rep!='N'));
                 if (rep=='N')
                     zipok = 0;
-            }
+			}
     }
 
     if (zipok==1)
@@ -218,7 +218,7 @@ int main(argc,argv)
             printf("error opening %s\n",filename_try);
             err= ZIP_ERRNO;
         }
-        else
+        else 
             printf("creating %s\n",filename_try);
 
         for (i=zipfilenamearg+1;(i<argc) && (err==ZIP_OK);i++)
@@ -230,7 +230,7 @@ int main(argc,argv)
                 const char* filenameinzip = argv[i];
                 zip_fileinfo zi;
 
-                zi.tmz_date.tm_sec = zi.tmz_date.tm_min = zi.tmz_date.tm_hour =
+                zi.tmz_date.tm_sec = zi.tmz_date.tm_min = zi.tmz_date.tm_hour = 
                 zi.tmz_date.tm_mday = zi.tmz_date.tm_min = zi.tmz_date.tm_year = 0;
                 zi.dosDate = 0;
                 zi.internal_fa = 0;
@@ -275,7 +275,7 @@ int main(argc,argv)
                                 printf("error in writing %s in the zipfile\n",
                                                  filenameinzip);
                             }
-
+                                
                         }
                     } while ((err == ZIP_OK) && (size_read>0));
 
@@ -283,7 +283,7 @@ int main(argc,argv)
                 if (err<0)
                     err=ZIP_ERRNO;
                 else
-                {
+                {                    
                     err = zipCloseFileInZip(zf);
                     if (err!=ZIP_OK)
                         printf("error in closing %s in the zipfile\n",
@@ -298,5 +298,5 @@ int main(argc,argv)
 
     free(buf);
     exit(0);
-    return 0;  /* to avoid warning */
+	return 0;  /* to avoid warning */
 }

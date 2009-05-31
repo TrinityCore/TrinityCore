@@ -2,7 +2,7 @@
 /* SCompression.cpp                       Copyright (c) Ladislav Zezula 2003 */
 /*---------------------------------------------------------------------------*/
 /* This module serves as a bridge between StormLib code and (de)compression  */
-/* functions. All (de)compression calls go (and should only go) through this */
+/* functions. All (de)compression calls go (and should only go) through this */   
 /* module. No system headers should be included in this module to prevent    */
 /* compile-time problems.                                                    */
 /*---------------------------------------------------------------------------*/
@@ -19,7 +19,7 @@
 #include <string.h>
 
 // Include functions from Pkware Data Compression Library
-#include "pklib/pklib.h"
+#include "pklib/pklib.h"              
 
 // Include functions from zlib
 #ifndef __SYS_ZLIB
@@ -29,10 +29,10 @@
 #endif
 
 // Include functions from Huffmann compression
-#include "huffman/huff.h"
+#include "huffman/huff.h"  
 
 // Include functions from WAVe compression
-#include "wave/wave.h"
+#include "wave/wave.h"  
 
 // Include functions from BZip2 compression library
 #ifndef __SYS_BZLIB
@@ -57,7 +57,7 @@ typedef struct
 
 // Table of compression functions
 typedef int (*COMPRESS)(char *, int *, char *, int, int *, int);
-typedef struct
+typedef struct  
 {
     unsigned long dwMask;               // Compression mask
     COMPRESS Compress;                  // Compression function
@@ -81,7 +81,7 @@ typedef struct
 // Function loads data from the input buffer. Used by Pklib's "implode"
 // and "explode" function as user-defined callback
 // Returns number of bytes loaded
-//
+//    
 //   char * buf          - Pointer to a buffer where to store loaded data
 //   unsigned int * size - Max. number of bytes to read
 //   void * param        - Custom pointer, parameter of implode/explode
@@ -95,7 +95,7 @@ static unsigned int ReadInputData(char * buf, unsigned int * size, void * param)
     // Check the case when not enough data available
     if(nToRead > nMaxAvail)
         nToRead = nMaxAvail;
-
+    
     // Load data and increment offsets
     memcpy(buf, pInfo->pInBuff + pInfo->nInPos, nToRead);
     pInfo->nInPos += nToRead;
@@ -105,7 +105,7 @@ static unsigned int ReadInputData(char * buf, unsigned int * size, void * param)
 
 // Function for store output data. Used by Pklib's "implode" and "explode"
 // as user-defined callback
-//
+//    
 //   char * buf          - Pointer to data to be written
 //   unsigned int * size - Number of bytes to write
 //   void * param        - Custom pointer, parameter of implode/explode
@@ -272,7 +272,7 @@ int Compress_zlib(char * pbOutBuffer, int * pdwOutLength, char * pbInBuffer, int
     {
         // Call zlib to compress the data
         nResult = deflate(&z, Z_FINISH);
-
+        
         if(nResult == Z_OK || nResult == Z_STREAM_END)
             *pdwOutLength = z.total_out;
 
@@ -359,7 +359,7 @@ int Decompress_pklib(char * pbOutBuffer, int * pdwOutLength, char * pbInBuffer, 
 
     // Do the decompression
     explode(ReadInputData, WriteOutputData, work_buf, &Info);
-
+    
     // Fix: If PKLIB is unable to decompress the data, they are uncompressed
     if(Info.nOutPos == 0)
     {
@@ -487,7 +487,7 @@ int WINAPI SCompCompress(char * pbCompressed, int * pdwOutLength, char * pbUncom
     int dwInSize  = dwInLength;
     int dwEntries = (sizeof(cmp_table) / sizeof(TCompressTable));
     int nResult = 1;
-    int i;
+    int i;       
 
     // Check for valid parameters
     if(!pdwOutLength || *pdwOutLength < dwInLength || !pbCompressed || !pbUncompressed)
@@ -523,7 +523,7 @@ int WINAPI SCompCompress(char * pbCompressed, int * pdwOutLength, char * pbUncom
     {
         if(uCompressions2 & cmp_table[i].dwMask)
         {
-            // Set the right output buffer
+            // Set the right output buffer 
             dwCompressCount--;
             pbOutput = (dwCompressCount & 1) ? pbTempBuff : pbCompressed;
 
@@ -611,7 +611,7 @@ int WINAPI SCompDecompress(char * pbOutBuffer, int * pdwOutLength, char * pbInBu
     int      dwCount = 0;                 // Counter for every use
     int      dwEntries = (sizeof(dcmp_table) / sizeof(TDecompressTable));
     int      nResult = 1;
-    int      i;
+    int      i;       
 
     // If the input length is the same as output, do nothing.
     if(dwInLength == dwOutLength)
@@ -623,11 +623,11 @@ int WINAPI SCompDecompress(char * pbOutBuffer, int * pdwOutLength, char * pbInBu
         *pdwOutLength = dwInLength;
         return 1;
     }
-
+    
     // Get applied compression types and decrement data length
-    fDecompressions1 = fDecompressions2 = (unsigned char)*pbInBuffer++;
+    fDecompressions1 = fDecompressions2 = (unsigned char)*pbInBuffer++;              
     dwInLength--;
-
+    
     // Search decompression table type and get all types of compression
     for(i = 0; i < dwEntries; i++)
     {
@@ -681,13 +681,13 @@ int WINAPI SCompDecompress(char * pbOutBuffer, int * pdwOutLength, char * pbInBu
     {
         if(pbWorkBuff != pbOutBuffer)
             memcpy(pbOutBuffer, pbInBuffer, dwOutLength);
-
+        
     }
 
     // Delete temporary buffer, if necessary
     if(pbTempBuff != NULL)
         FREEMEM(pbTempBuff);
-
+    
     *pdwOutLength = dwOutLength;
     return nResult;
 }
@@ -711,6 +711,5 @@ int WINAPI SCompSetDataCompression(int nDataCompression)
     SetDataCompression(nDataCompression);
     return TRUE;
 }
-
 
 

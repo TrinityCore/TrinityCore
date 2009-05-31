@@ -29,7 +29,7 @@
 // Define calling convention
 
 #ifndef PKEXPORT
-#define PKEXPORT  //__cdecl               // Use for normal __cdecl calling
+#define PKEXPORT  //__cdecl               // Use for normal __cdecl calling 
 #endif
 //#define PKEXPORT  __stdcall
 //#define PKEXPORT  __fastcall
@@ -40,8 +40,8 @@
 // Compression structure
 typedef struct
 {
-    unsigned int   offs0000;            // 0000 :
-    unsigned int   out_bytes;           // 0004 : # bytes available in out_buff
+    unsigned int   offs0000;            // 0000 : 
+    unsigned int   out_bytes;           // 0004 : # bytes available in out_buff            
     unsigned int   out_bits;            // 0008 : # of bits available in the last out byte
     unsigned int   dsize_bits;          // 000C : Dict size : 4=0x400, 5=0x800, 6=0x1000
     unsigned int   dsize_mask;          // 0010 : Dict size : 0x0F=0x400, 0x1F=0x800, 0x3F=0x1000
@@ -49,23 +49,23 @@ typedef struct
     unsigned int   dsize_bytes;         // 0018 : Dictionary size in bytes
     unsigned char  dist_bits[0x40];     // 001C : Distance bits
     unsigned char  dist_codes[0x40];    // 005C : Distance codes
-    unsigned char  nChBits[0x306];      // 009C :
-    unsigned short nChCodes[0x306];     // 03A2 :
-    unsigned short offs09AE;            // 09AE :
+    unsigned char  nChBits[0x306];      // 009C : 
+    unsigned short nChCodes[0x306];     // 03A2 : 
+    unsigned short offs09AE;            // 09AE : 
 
     void         * param;               // 09B0 : User parameter
     unsigned int (*read_buf)(char *buf, unsigned int *size, void *param);  // 9B4
     void         (*write_buf)(char *buf, unsigned int *size, void *param); // 9B8
 
     unsigned short offs09BC[0x204];     // 09BC :
-    unsigned long  offs0DC4;            // 0DC4 :
+    unsigned long  offs0DC4;            // 0DC4 : 
     unsigned short offs0DC8[0x900];     // 0DC8 :
-    unsigned short offs1FC8;            // 1FC8 :
+    unsigned short offs1FC8;            // 1FC8 : 
     char           out_buff[0x802];     // 1FCA : Output (compressed) data
     unsigned char  work_buff[0x2204];   // 27CC : Work buffer
                                         //  + DICT_OFFSET  => Dictionary
                                         //  + UNCMP_OFFSET => Uncompressed data
-    unsigned short offs49D0[0x2000];    // 49D0 :
+    unsigned short offs49D0[0x2000];    // 49D0 : 
 } TCmpStruct;
 
 #define CMP_BUFFER_SIZE  sizeof(TCmpStruct) // Size of compression buffer
@@ -91,15 +91,15 @@ typedef struct
     unsigned char in_buff[0x800];       // 2234 - Buffer for data to be decompressed
     unsigned char position1[0x100];     // 2A34 - Positions in buffers
     unsigned char position2[0x100];     // 2B34 - Positions in buffers
-    unsigned char offs2C34[0x100];      // 2C34 - Buffer for
-    unsigned char offs2D34[0x100];      // 2D34 - Buffer for
-    unsigned char offs2E34[0x80];       // 2EB4 - Buffer for
-    unsigned char offs2EB4[0x100];      // 2EB4 - Buffer for
-    unsigned char ChBitsAsc[0x100];     // 2FB4 - Buffer for
+    unsigned char offs2C34[0x100];      // 2C34 - Buffer for 
+    unsigned char offs2D34[0x100];      // 2D34 - Buffer for 
+    unsigned char offs2E34[0x80];       // 2EB4 - Buffer for 
+    unsigned char offs2EB4[0x100];      // 2EB4 - Buffer for 
+    unsigned char ChBitsAsc[0x100];     // 2FB4 - Buffer for 
     unsigned char DistBits[0x40];       // 30B4 - Numbers of bytes to skip copied block length
     unsigned char LenBits[0x10];        // 30F4 - Numbers of bits for skip copied block length
     unsigned char ExLenBits[0x10];      // 3104 - Number of valid bits for copied block
-    unsigned short LenBase[0x10];       // 3114 - Buffer for
+    unsigned short LenBase[0x10];       // 3114 - Buffer for 
 } TDcmpStruct;
 
 #define EXP_BUFFER_SIZE    sizeof(TDcmpStruct)  // Size of decompress buffer
@@ -135,4 +135,3 @@ unsigned long PKEXPORT crc32pk(char *buffer, unsigned int *size, unsigned long *
 #endif
 
 #endif // __PKLIB_H__
-

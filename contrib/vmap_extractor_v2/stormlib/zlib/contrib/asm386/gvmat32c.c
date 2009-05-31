@@ -20,7 +20,7 @@
 
 
 /* if your C compiler don't add underline before function name,
-        define ADD_UNDERLINE_ASMFUNC */
+		define ADD_UNDERLINE_ASMFUNC */
 #ifdef ADD_UNDERLINE_ASMFUNC
 #define longest_match_7fff _longest_match_7fff
 #endif
@@ -46,15 +46,15 @@ uInt longest_match(
     deflate_state *s,
     IPos cur_match)                             /* current match */
 {
-    static uInt iIsPPro=2;
+	static uInt iIsPPro=2;
 
     if ((s->w_mask == 0x7fff) && (iIsPPro==0))
         return longest_match_7fff(s,cur_match);
 
-    if (iIsPPro==2)
-        iIsPPro = (((cpudetect32()/0x100)&0xf)>=6) ? 1 : 0;
+	if (iIsPPro==2)
+		iIsPPro = (((cpudetect32()/0x100)&0xf)>=6) ? 1 : 0;
 
-    return longest_match_c(s,cur_match);
+	return longest_match_c(s,cur_match);
 }
 
 
