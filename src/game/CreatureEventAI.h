@@ -287,6 +287,7 @@ struct CreatureEventAI_Action
         struct
         {
             uint32 state;                                   // 0 = stop combat based movement, anything else continue attacking
+            uint32 melee;                                   // if set: at stop send melee combat stop if in combat, use for terminate melee fighting state for switch to ranged
         } combat_movement;
         // ACTION_T_SET_PHASE                               = 22
         struct
