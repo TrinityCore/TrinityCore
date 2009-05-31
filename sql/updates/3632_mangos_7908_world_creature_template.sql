@@ -19,5 +19,3 @@ ALTER TABLE creature_addon
 
 ALTER TABLE creature_template_addon
   DROP COLUMN bytes0;
-
-

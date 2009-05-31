@@ -24,36 +24,39 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_black_temple.h"
 
-#define SAY_AGGRO                       -1564000
-#define SAY_NEEDLE1                     -1564001
-#define SAY_NEEDLE2                     -1564002
-#define SAY_SLAY1                       -1564003
-#define SAY_SLAY2                       -1564004
-#define SAY_SPECIAL1                    -1564005
-#define SAY_SPECIAL2                    -1564006
-#define SAY_ENRAGE1                     -1564007            //is this text actually in use?
-#define SAY_ENRAGE2                     -1564008
-#define SAY_DEATH                       -1564009
+enum
+{
+    SAY_AGGRO                       = -1564000,
+    SAY_NEEDLE1                     = -1564001,
+    SAY_NEEDLE2                     = -1564002,
+    SAY_SLAY1                       = -1564003,
+    SAY_SLAY2                       = -1564004,
+    SAY_SPECIAL1                    = -1564005,
+    SAY_SPECIAL2                    = -1564006,
+    SAY_ENRAGE1                     = -1564007,           //is this text actually in use?
+    SAY_ENRAGE2                     = -1564008,
+    SAY_DEATH                       = -1564009,
 
-//Spells
-#define SPELL_NEEDLE_SPINE             39992
-#define SPELL_TIDAL_BURST              39878
-#define SPELL_TIDAL_SHIELD             39872
-#define SPELL_IMPALING_SPINE           39837
-#define SPELL_CREATE_NAJENTUS_SPINE    39956
-#define SPELL_HURL_SPINE               39948
-#define SPELL_BERSERK                  45078
+    //Spells
+    SPELL_NEEDLE_SPINE              = 39992,
+    SPELL_TIDAL_BURST               = 39878,
+    SPELL_TIDAL_SHIELD              = 39872,
+    SPELL_IMPALING_SPINE            = 39837,
+    SPELL_CREATE_NAJENTUS_SPINE     = 39956,
+    SPELL_HURL_SPINE                = 39948,
+    SPELL_BERSERK                   = 45078,
 
-#define GOBJECT_SPINE                  185584
+    GOBJECT_SPINE                   = 185584,
 
-#define EVENT_BERSERK   1
-#define EVENT_YELL      2
-#define EVENT_NEEDLE    3
-#define EVENT_SPINE     4
-#define EVENT_SHIELD    5
+    EVENT_BERSERK                   = 1,
+    EVENT_YELL                      = 2,
+    EVENT_NEEDLE                    = 3,
+    EVENT_SPINE                     = 4,
+    EVENT_SHIELD                    = 5,
 
-#define GCD_CAST        1
-#define GCD_YELL        2
+    GCD_CAST                        = 1,
+    GCD_YELL                        = 2
+};
 
 struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
 {
