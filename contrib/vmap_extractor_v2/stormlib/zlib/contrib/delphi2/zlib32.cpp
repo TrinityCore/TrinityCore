@@ -40,4 +40,3 @@ int WINAPI DllEntryPoint(HINSTANCE hinst, unsigned long reason, void*)
 {
         return 1;
 }
-

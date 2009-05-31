@@ -143,7 +143,7 @@ static int CheckIfAllFilesKnown(TMPQArchive * ha, const char * szListFile, DWORD
                     SFileCloseFile(hFile);
                 }
 
-                // If the file is encrypted, we have to check
+                // If the file is encrypted, we have to check 
                 // If we can apply the file decryption seed
                 if(dwFlags & MPQ_FILE_ENCRYPTED && dwSeed == 0)
                 {
@@ -269,7 +269,7 @@ static int CopyMpqFileBlocks(
                 DecryptMPQBlock(pdwBlockPos, dwBytes, dwSeed1 - 1);
                 if(pdwBlockPos[0] != dwBytes)
                     nError = ERROR_FILE_CORRUPT;
-
+            
                 memcpy(pdwBlockPos2, pdwBlockPos, dwBytes);
                 EncryptMPQBlock(pdwBlockPos2, dwBytes, dwSeed2 - 1);
             }
@@ -315,7 +315,7 @@ static int CopyMpqFileBlocks(
             }
 
             // If necessary, re-encrypt the block
-            // Note: Recompression is not necessary here. Unlike encryption,
+            // Note: Recompression is not necessary here. Unlike encryption, 
             // the compression does not depend on the position of the file in MPQ.
             if((pBlock->dwFlags & MPQ_FILE_ENCRYPTED) && dwSeed1 != dwSeed2)
             {
@@ -583,7 +583,7 @@ BOOL WINAPI SFileCompactArchive(HANDLE hMPQ, const char * szListFile, BOOL /* bR
             TempPos.LowPart = pBlock->dwFilePos;
             if(TempPos.QuadPart < FirstFilePos.QuadPart)
                 FirstFilePos = TempPos;
-
+        
             pBlockEx++;
             pBlock++;
         }
@@ -689,4 +689,3 @@ BOOL WINAPI SFileCompactArchive(HANDLE hMPQ, const char * szListFile, BOOL /* bR
     CompactCB = NULL;
     return (nError == ERROR_SUCCESS);
 }
-

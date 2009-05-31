@@ -67,7 +67,7 @@ BOOL CheckWildCard(const char * szString, const char * szWildCard)
                 // The next N characters must not agree
                 nMustNotMatch |= 0x70000000;
                 break;
-
+            
             case '?':  // Means "One or no character"
                 while(*szWildCard == '?')
                 {
@@ -111,7 +111,7 @@ BOOL CheckWildCard(const char * szString, const char * szWildCard)
                 {
                     if((nResult = _strnicmp(szString, szWildCard, nMustMatch)) == 0)
                         break;
-
+                    
                     szString++;
                     nMustNotMatch--;
                 }
@@ -207,7 +207,7 @@ HANDLE WINAPI SFileFindFirstFile(HANDLE hMPQ, const char * szMask, SFILE_FIND_DA
     {
         if(!IsValidMpqHandle(ha))
             nError = ERROR_INVALID_PARAMETER;
-
+       
         if(szMask == NULL || lpFindFileData == NULL)
             nError = ERROR_INVALID_PARAMETER;
 
@@ -245,7 +245,7 @@ HANDLE WINAPI SFileFindFirstFile(HANDLE hMPQ, const char * szMask, SFILE_FIND_DA
         FreeMPQSearch(hs);
         SetLastError(nError);
     }
-
+    
     // Return the result value
     return (HANDLE)hs;
 }
@@ -289,4 +289,3 @@ BOOL WINAPI SFileFindClose(HANDLE hFind)
     FreeMPQSearch(hs);
     return TRUE;
 }
-

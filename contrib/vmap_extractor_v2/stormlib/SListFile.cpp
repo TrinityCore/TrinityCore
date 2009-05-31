@@ -71,7 +71,7 @@ static size_t ReadLine(TListFileCache * pCache, char * szLine, int nMaxChars)
 {
     char * szLineBegin = szLine;
     char * szLineEnd = szLine + nMaxChars - 1;
-
+    
 __BeginLoading:
 
     // Skip newlines, spaces, tabs and another non-printable stuff
@@ -156,7 +156,7 @@ int SListFileAddNode(TMPQArchive * ha, const char * szFileName)
     dwName2     = pHash->dwName2;
     if((DWORD_PTR)ha->pListFile[dwHashIndex] <= LISTFILE_ENTRY_DELETED)
         return ERROR_SUCCESS;
-
+    
     // Create the listfile node and insert it into the listfile table
     nLength = strlen(szFileName);
     pNode = (TFileNode *)ALLOCMEM(char, sizeof(TFileNode) + nLength);
@@ -310,8 +310,8 @@ int SListFileSaveToMpq(TMPQArchive * ha)
             szBuffer[nLength + 0] = 0x0D;
             szBuffer[nLength + 1] = 0x0A;
             WriteFile(hFile, szBuffer, (DWORD)(nLength + 2), &dwTransferred, NULL);
-        }
-
+        }                     
+        
         // Add the listfile into the archive.
         SFileSetLocale(LANG_NEUTRAL);
         nError = AddFileToArchive(ha, hFile, LISTFILE_NAME, MPQ_FILE_COMPRESS_PKWARE | MPQ_FILE_ENCRYPTED | MPQ_FILE_REPLACEEXISTING, 0, SFILE_TYPE_DATA, NULL);
@@ -329,7 +329,7 @@ int SListFileSaveToMpq(TMPQArchive * ha)
 // File functions
 
 // Adds a listfile into the MPQ archive.
-// Note that the function does not remove the
+// Note that the function does not remove the 
 // TODO: Test for archives > 4GB
 int WINAPI SFileAddListFile(HANDLE hMpq, const char * szListFile)
 {
@@ -359,7 +359,7 @@ int WINAPI SFileAddListFile(HANDLE hMpq, const char * szListFile)
 
     if(nError == ERROR_SUCCESS)
     {
-        dwCacheSize =
+        dwCacheSize = 
         dwFileSize = SFileGetFileSize(hListFile, NULL);
 
         // Try to allocate memory for the complete file. If it fails,
@@ -443,7 +443,7 @@ HANDLE SListFileFindFirstFile(HANDLE hMpq, const char * szListFile, const char *
 
     if(nError == ERROR_SUCCESS)
     {
-        dwCacheSize =
+        dwCacheSize = 
         dwFileSize = SFileGetFileSize(hListFile, NULL);
 
         // Try to allocate memory for the complete file. If it fails,
@@ -493,7 +493,7 @@ HANDLE SListFileFindFirstFile(HANDLE hMpq, const char * szListFile, const char *
 
             // If some mask entered, check it
             if(CheckWildCard(lpFindFileData->cFileName, pCache->szMask))
-                break;
+                break;                
         }
     }
 
@@ -558,5 +558,4 @@ BOOL SListFileFindClose(HANDLE hFind)
 
     return FALSE;
 }
-
 

@@ -1,6 +1,6 @@
 /* infcodes.c -- process literals and length/distance pairs
  * Copyright (C) 1995-2002 Mark Adler
- * For conditions of distribution and use, see copyright notice in zlib.h
+ * For conditions of distribution and use, see copyright notice in zlib.h 
  */
 
 #include "zutil.h"

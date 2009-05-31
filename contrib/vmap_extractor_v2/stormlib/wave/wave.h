@@ -20,4 +20,3 @@ int  CompressWave  (unsigned char * pbOutBuffer, int dwOutLength, short * pwInBu
 int  DecompressWave(unsigned char * pbOutBuffer, int dwOutLength, unsigned char * pbInBuffer, int dwInLength, int nChannels);
 
 #endif // __WAVE_H__
-

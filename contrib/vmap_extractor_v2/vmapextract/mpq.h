@@ -15,15 +15,29 @@ using namespace std;
 
 typedef unsigned int uint32;
 
-
 class MPQArchive
 {
-
-public:
-    HANDLE hMPQ;
-    MPQArchive(const char* filename);
-    void close();
+    public:
+	    HANDLE hMPQ;
+	    MPQArchive(const char* filename);
+	    void close();
+        bool isOpen() const { return hMPQ != 0; }
 };
+
+typedef std::vector<MPQArchive> ArchiveSet;
+
+class MPQArchiveSet
+{
+    public:
+        MPQArchiveSet() {}
+        ~MPQArchiveSet();
+
+        bool Open(std::vector<std::string> const& archiveNames);
+
+        ArchiveSet archives;
+};
+
+extern MPQArchiveSet gOpenArchives;
 
 class MPQFile
 {
@@ -63,8 +77,4 @@ inline void flipcc(char *fcc)
     fcc[2]=t;
 }
 
-
-
 #endif
-
-

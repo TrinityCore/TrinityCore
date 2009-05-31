@@ -78,42 +78,44 @@ bool readConfigFile(char *pConffile, VMAP::TileAssembler* pTa)
 //=======================================================
 int main(int argc, char* argv[])
 {
-    if(argc == 3 || argc == 4)
-    {
-        bool ok = true;
-        char *src = argv[1];
-        char *dest = argv[2];
-        char *conffile = NULL;
-        if(argc >= 4) {
-            conffile = argv[3];
-        }
-        VMAP::TileAssembler* ta = new VMAP::TileAssembler(std::string(src), std::string(dest));
-        ta->setModelNameFilterMethod(modelNameFilter);
-
-        /*
-        All the names in the list are considered to be world maps or huge instances.
-        These maps will be spilt into tiles in the vmap assemble process
-        */
-        if(conffile != NULL) {
-            ok = readConfigFile(conffile, ta);
-            if(!ok) {
-                printf("Can not open file config file: %s\n", conffile);
-            }
-        }
-        if(ok) { ok = ta->convertWorld(); }
-        if(ok) {
-            printf("Ok, all done\n");
-        } else {
-            printf("exit with errors\n");
-            return 1;
-        }
-        delete ta;
-    }
-    else
+    if(argc != 3 && argc != 4)
     {
         printf("\nusage: %s <raw data dir> <vmap dest dir> [config file name]\n", argv[0]);
         return 1;
     }
+
+    char *src = argv[1];
+    char *dest = argv[2];
+    char *conffile = NULL;
+    if(argc >= 4)
+        conffile = argv[3];
+
+    VMAP::TileAssembler* ta = new VMAP::TileAssembler(std::string(src), std::string(dest));
+    ta->setModelNameFilterMethod(modelNameFilter);
+
+    /*
+    All the names in the list are considered to be world maps or huge instances.
+    These maps will be spilt into tiles in the vmap assemble process
+    */
+    if(conffile != NULL)
+    {
+        if(!readConfigFile(conffile, ta))
+        {
+            printf("Can not open file config file: %s\n", conffile);
+            delete ta;
+            return 1;
+        }
+    }
+
+    if(!ta->convertWorld())
+    {
+        printf("exit with errors\n");
+        delete ta;
+        return 1;
+    }
+
+    delete ta;
+    printf("Ok, all done\n");
     return 0;
 }
 

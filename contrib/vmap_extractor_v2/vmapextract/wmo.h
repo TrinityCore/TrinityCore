@@ -43,13 +43,11 @@ public:
 private:
     std::string filename;
     char outfilename;
-
 };
 
 class WMOGroup
 {
 public:
-
     int offsize,flag,flag1,Xid,Xid2,Xid3,zero1,Xflag,nTexture,GroupID;
     int mopy_size,moba_size,hlq_xverts,hlq_yverts;
     int MopyEx_size,IndexExTr_size,LiquEx_size;
@@ -82,10 +80,9 @@ public:
 private:
     std::string filename;
     char outfilename;
-
 };
 
-struct WMOLiquidHeader
+struct WMOLiquidHeader 
 {
     int xverts, yverts, xtiles, ytiles;
     float pos_x;
@@ -94,7 +91,7 @@ struct WMOLiquidHeader
     short type;
 };
 
-class WMOInstance
+class WMOInstance 
 {
     static std::set<int> ids;
 public:
@@ -113,4 +110,3 @@ public:
 };
 
 #endif
-

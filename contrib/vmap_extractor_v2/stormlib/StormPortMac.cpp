@@ -1,7 +1,7 @@
 /********************************************************************
 *
 * Description:  implementation for StormLib - Macintosh port
-*
+*        
 *   these are function wraps to execute Windows API calls
 *   as native Macintosh file calls (open/close/read/write/...)
 *   requires Mac OS X
@@ -15,7 +15,7 @@
 *
 ********************************************************************/
 
-#ifndef _WIN32 || _WIN64
+#ifndef _WIN32
 #include "StormPort.h"
 #include "StormLib.h"
 
@@ -45,14 +45,14 @@ static OSErr FSGetFullPath(const FSRef *ref, UInt8 *fullPath, UInt32 fullPathLen
     OSErr       result;
 
     result = FSRefMakePath(ref, fullPath, fullPathLength);
-
+    
     return result;
 }
 
 static OSErr FSLocationFromFullPath(const void *fullPath, FSRef *ref)
 {
     OSErr       result;
-
+    
     result = FSPathMakeRef((UInt8 *)fullPath, ref, NULL); // Create an FSRef from the path
     return result;
 }
@@ -61,7 +61,7 @@ static OSErr FSLocationFromFullPath(const void *fullPath, FSRef *ref)
 
 /*****************************************************************************/
 
-static OSErr FSCreateCompat(const FSRef *parentRef, OSType creator, OSType fileType, const UniChar *fileName,
+static OSErr FSCreateCompat(const FSRef *parentRef, OSType creator, OSType fileType, const UniChar *fileName, 
                             UniCharCount nameLength, FSRef *ref)
 {
     FSCatalogInfo theCatInfo;
@@ -71,7 +71,7 @@ static OSErr FSCreateCompat(const FSRef *parentRef, OSType creator, OSType fileT
     ((FileInfo *)&theCatInfo.finderInfo)->finderFlags = 0;
     SetPt(&((FileInfo *)&theCatInfo.finderInfo)->location, 0, 0);
     ((FileInfo *)&theCatInfo.finderInfo)->reservedField = 0;
-
+        
     theErr = FSCreateFileUnicode(parentRef, nameLength, fileName, kFSCatInfoFinderInfo, &theCatInfo, ref, NULL);
     return theErr;
 }
@@ -84,11 +84,11 @@ static OSErr FSOpenDFCompat(FSRef *ref, char permission, short *refNum)
     HFSUniStr255 forkName;
     OSErr theErr;
     Boolean isFolder, wasChanged;
-
+    
     theErr = FSResolveAliasFile(ref, TRUE, &isFolder, &wasChanged);
     if (theErr != noErr)
         return theErr;
-
+    
     FSGetDataForkName(&forkName);
     theErr = FSOpenFork(ref, forkName.length, forkName.unicode, permission, refNum);
     return theErr;
@@ -209,7 +209,7 @@ void ConvertTMPQShunt(void *shunt)
 void ConvertTMPQHeader(void *header)
 {
     TMPQHeader2 * theHeader = (TMPQHeader2 *)header;
-
+    
     theHeader->dwID = SwapULong(theHeader->dwID);
     theHeader->dwHeaderSize = SwapULong(theHeader->dwHeaderSize);
     theHeader->dwArchiveSize = SwapULong(theHeader->dwArchiveSize);
@@ -271,7 +271,7 @@ int GetLastError()
 ********************************************************************/
 char *ErrString(int err)
 {
-    switch (err)
+    switch (err) 
     {
         case ERROR_INVALID_FUNCTION:
             return "function not implemented";
@@ -324,7 +324,7 @@ void GetTempPath(DWORD szTempLength, char * szTemp)  // I think I'll change this
     else
         szTemp[0] = '\0';
     strcat(szTemp, "/");
-
+    
     SetLastError(theErr);
 }
 
@@ -347,7 +347,7 @@ void GetTempFileName(const char * lpTempFolderPath, const char * lpFileName, DWO
         strcpy(szLFName, lpTempFolderPath);
         strcat(szLFName, lpFileName);
         strcat(szLFName, tmp);
-
+        
         if ((fHandle = CreateFile(szLFName, GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, 0)) == INVALID_HANDLE_VALUE)
             // OK we found it!
             break;
@@ -364,16 +364,16 @@ BOOL DeleteFile(const char * lpFileName)
 {
     OSErr   theErr;
     FSRef   theFileRef;
-
+    
     theErr = FSLocationFromFullPath(lpFileName, &theFileRef);
     if (theErr != noErr)
     {
         SetLastError(theErr);
         return FALSE;
     }
-
+    
     theErr = FSDeleteObject(&theFileRef);
-
+    
     SetLastError(theErr);
 
     return theErr == noErr;
@@ -390,7 +390,7 @@ BOOL MoveFile(const char * lpFromFileName, const char * lpToFileName)
     FSRef fromFileRef;
     FSRef toFileRef;
     FSRef parentFolderRef;
-
+    
     // Get the path to the old file
     theErr = FSLocationFromFullPath(lpFromFileName, &fromFileRef);
     if (theErr != noErr)
@@ -398,7 +398,7 @@ BOOL MoveFile(const char * lpFromFileName, const char * lpToFileName)
         SetLastError(theErr);
         return false;
     }
-
+    
     // Get the path to the new folder for the file
     char folderName[strlen(lpToFileName)];
     CFStringRef folderPathCFString = CFStringCreateWithCString(NULL, lpToFileName, kCFStringEncodingUTF8);
@@ -409,7 +409,7 @@ BOOL MoveFile(const char * lpFromFileName, const char * lpToFileName)
     CFRelease(fileURL);
     CFRelease(folderURL);
     CFRelease(folderPathCFString);
-
+    
     // Move the old file
     theErr = FSMoveObject(&fromFileRef, &parentFolderRef, &toFileRef);
     if (theErr != noErr)
@@ -417,19 +417,19 @@ BOOL MoveFile(const char * lpFromFileName, const char * lpToFileName)
         SetLastError(theErr);
         return false;
     }
-
+    
     // Get a CFString for the new file name
     CFStringRef newFileNameCFString = CFStringCreateWithCString(NULL, lpToFileName, kCFStringEncodingUTF8);
     fileURL = CFURLCreateWithFileSystemPath(NULL, newFileNameCFString, kCFURLPOSIXPathStyle, FALSE);
     CFRelease(newFileNameCFString);
     newFileNameCFString = CFURLCopyLastPathComponent(fileURL);
     CFRelease(fileURL);
-
+    
     // Convert CFString to Unicode and rename the file
-    UniChar unicodeFileName[256];
-    CFStringGetCharacters(newFileNameCFString, CFRangeMake(0, CFStringGetLength(newFileNameCFString)),
+    UniChar unicodeFileName[256]; 
+    CFStringGetCharacters(newFileNameCFString, CFRangeMake(0, CFStringGetLength(newFileNameCFString)), 
                           unicodeFileName);
-    theErr = FSRenameUnicode(&toFileRef, CFStringGetLength(newFileNameCFString), unicodeFileName,
+    theErr = FSRenameUnicode(&toFileRef, CFStringGetLength(newFileNameCFString), unicodeFileName, 
                              kTextEncodingUnknown, NULL);
     if (theErr != noErr)
     {
@@ -437,9 +437,9 @@ BOOL MoveFile(const char * lpFromFileName, const char * lpToFileName)
         CFRelease(newFileNameCFString);
         return false;
     }
-
+    
     CFRelease(newFileNameCFString);
-
+    
     SetLastError(theErr);
     return true;
 }
@@ -470,7 +470,7 @@ HANDLE CreateFile(  const char *sFileName,          /* file name */
     char    permission;
     static OSType   gCreator;
     static OSType   gType;
-
+    
     theErr = FSLocationFromFullPath(sFileName, &theFileRef);
     if (theErr == fnfErr)
     {   // Create the FSRef for the parent directory.
@@ -484,23 +484,23 @@ HANDLE CreateFile(  const char *sFileName,          /* file name */
         CFRelease(fileURL);
         CFRelease(folderURL);
         CFRelease(folderPathCFString);
-    }
+    }         
     if (theErr != noErr)
     {
         SetLastError(theErr);
         if (ulCreation == OPEN_EXISTING || theErr != fnfErr)
             return INVALID_HANDLE_VALUE;
     }
-
+    
     if (ulCreation != OPEN_EXISTING)
     {   /* We create the file */
         UniChar unicodeFileName[256];
         CFStringRef filePathCFString = CFStringCreateWithCString(NULL, sFileName, kCFStringEncodingUTF8);
         CFURLRef fileURL = CFURLCreateWithFileSystemPath(NULL, filePathCFString, kCFURLPOSIXPathStyle, FALSE);
         CFStringRef fileNameCFString = CFURLCopyLastPathComponent(fileURL);
-        CFStringGetCharacters(fileNameCFString, CFRangeMake(0, CFStringGetLength(fileNameCFString)),
+        CFStringGetCharacters(fileNameCFString, CFRangeMake(0, CFStringGetLength(fileNameCFString)), 
                               unicodeFileName);
-        theErr = FSCreateCompat(&theParentRef, gCreator, gType, unicodeFileName,
+        theErr = FSCreateCompat(&theParentRef, gCreator, gType, unicodeFileName, 
                                 CFStringGetLength(fileNameCFString), &theFileRef);
         CFRelease(fileNameCFString);
         CFRelease(filePathCFString);
@@ -522,7 +522,7 @@ HANDLE CreateFile(  const char *sFileName,          /* file name */
             permission = fsRdWrPerm;
     }
     theErr = FSOpenDFCompat(&theFileRef, permission, &fileRef);
-
+    
     SetLastError(theErr);
 
     if (theErr == noErr)
@@ -537,14 +537,14 @@ HANDLE CreateFile(  const char *sFileName,          /* file name */
 BOOL CloseHandle(   HANDLE hFile    )    /* handle to object */
 {
     OSErr theErr;
-
+    
     if ((hFile == NULL) || (hFile == INVALID_HANDLE_VALUE))
         return FALSE;
 
     theErr = FSCloseFork((short)(int)hFile);
-
+    
     SetLastError(theErr);
-
+    
     return theErr != noErr;
 }
 
@@ -562,19 +562,19 @@ DWORD GetFileSize(  HANDLE hFile,           /* handle to file */
         SetLastError(theErr);
         return -1u;
     }
-
+    
     theErr = FSGetForkSize((short)(int)hFile, &fileLength);
     if (theErr != noErr)
     {
         SetLastError(theErr);
         return -1u;
     }
-
+    
     if (ulOffSetHigh != NULL)
         *ulOffSetHigh = fileLength >> 32;
 
     SetLastError(theErr);
-
+    
     return fileLength;
 }
 
@@ -593,81 +593,81 @@ DWORD SetFilePointer(   HANDLE hFile,           /* handle to file */
     if (ulMethod == FILE_CURRENT)
     {
         SInt64  bytesToMove;
-
+        
         if (pOffSetHigh != NULL)
             bytesToMove = ((SInt64)*pOffSetHigh << 32) + lOffSetLow;
         else
             bytesToMove = lOffSetLow;
-
+        
         SInt64  newPos;
-
+        
         theErr = FSSetForkPosition((short)(int)hFile, fsFromMark, bytesToMove);
         if (theErr != noErr)
         {
             SetLastError(theErr);
             return -1u;
         }
-
+        
         theErr = FSGetForkPosition((short)(int)hFile, &newPos);
         if (theErr != noErr)
         {
             SetLastError(theErr);
             return -1u;
         }
-
+        
         if (pOffSetHigh != NULL)
             *pOffSetHigh = newPos >> 32;
-
+        
         SetLastError(theErr);
         return newPos;
     }
     else if (ulMethod == FILE_BEGIN)
     {
         SInt64  bytesToMove;
-
+        
         if (pOffSetHigh != NULL)
             bytesToMove = ((SInt64)*pOffSetHigh << 32) + lOffSetLow;
         else
             bytesToMove = lOffSetLow;
-
+        
         theErr = FSSetForkPosition((short)(int)hFile, fsFromStart, bytesToMove);
         if (theErr != noErr)
         {
             SetLastError(theErr);
             return -1u;
         }
-
+        
         SetLastError(theErr);
         return lOffSetLow;
     }
     else
     {
         SInt64  bytesToMove;
-
+        
         if (pOffSetHigh != NULL)
             bytesToMove = ((SInt64)*pOffSetHigh << 32) + lOffSetLow;
         else
             bytesToMove = lOffSetLow;
-
+        
         SInt64  newPos;
-
+        
         theErr = FSSetForkPosition((short)(int)hFile, fsFromLEOF, bytesToMove);
         if (theErr != noErr)
         {
             SetLastError(theErr);
             return -1u;
         }
-
+        
         theErr = FSGetForkPosition((short)(int)hFile, &newPos);
         if (theErr != noErr)
         {
             SetLastError(theErr);
             return -1u;
         }
-
+        
         if (pOffSetHigh != NULL)
             *pOffSetHigh = newPos >> 32;
-
+        
         SetLastError(theErr);
         return newPos;
     }
@@ -679,11 +679,11 @@ DWORD SetFilePointer(   HANDLE hFile,           /* handle to file */
 BOOL SetEndOfFile(  HANDLE hFile    )   /* handle to file */
 {
     OSErr theErr;
-
+    
     theErr = FSSetForkSize((short)(int)hFile, fsAtMark, 0);
-
+    
     SetLastError(theErr);
-
+    
     return theErr == noErr;
 }
 
@@ -701,13 +701,13 @@ BOOL ReadFile(  HANDLE hFile,           /* handle to file */
 
     ByteCount   nbCharsRead;
     OSErr       theErr;
-
+    
     nbCharsRead = ulLen;
     theErr = FSReadFork((short)(int)hFile, fsAtMark, 0, nbCharsRead, pBuffer, &nbCharsRead);
     *ulRead = nbCharsRead;
-
+    
     SetLastError(theErr);
-
+    
     return theErr == noErr;
 }
 
@@ -725,13 +725,13 @@ BOOL WriteFile( HANDLE hFile,           /* handle to file */
 
     ByteCount   nbCharsToWrite;
     OSErr       theErr;
-
-    nbCharsToWrite = ulLen;
+    
+    nbCharsToWrite = ulLen; 
     theErr = FSWriteFork((short)(int)hFile, fsAtMark, 0, nbCharsToWrite, pBuffer, &nbCharsToWrite);
     *ulWritten = nbCharsToWrite;
-
+    
     SetLastError(theErr);
-
+        
     return theErr == noErr;
 }
 
@@ -744,15 +744,15 @@ BOOL IsBadReadPtr(const void * ptr, int size)
     return FALSE;
 }
 
-// Returns attributes of a file. Actually, it doesn't, it just checks if
+// Returns attributes of a file. Actually, it doesn't, it just checks if 
 // the file exists, since that's all StormLib uses it for
 DWORD GetFileAttributes(const char * szFileName)
 {
     FSRef       theRef;
     OSErr       theErr;
-
+    
     theErr = FSLocationFromFullPath(szFileName, &theRef);
-
+    
     if (theErr != noErr)
         return -1u;
     else
@@ -760,4 +760,3 @@ DWORD GetFileAttributes(const char * szFileName)
 }
 
 #endif
-
