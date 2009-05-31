@@ -894,13 +894,7 @@ uint32 ObjectMgr::ChooseDisplayId(uint32 team, const CreatureInfo *cinfo, const 
         display_id = cinfo->GetRandomValidModelId();
     }
     else
-    {
         display_id = data->displayid; // overwritten from creature data
-        // I do not know why but in db most display id are not zero
-        if(display_id == cinfo->Modelid_A1 || display_id == cinfo->Modelid_A2
-            || display_id == cinfo->Modelid_H1 || display_id == cinfo->Modelid_H2)
-            display_id = cinfo->GetRandomValidModelId();
-    }
 
     return display_id;
 }
@@ -1068,7 +1062,7 @@ void ObjectMgr::LoadCreatures()
                 heroicCreatures.insert(cInfo->HeroicEntry);
 
     //TODO: remove this
-    gameeventmgr.mGameEventCreatureGuids.resize(52*2-1);
+    //gameeventmgr.mGameEventCreatureGuids.resize(52*2-1);
 
     barGoLink bar(result->GetRowCount());
 
@@ -1114,6 +1108,11 @@ void ObjectMgr::LoadCreatures()
             sLog.outErrorDb("Table `creature` have creature (GUID: %u) that listed as heroic template in `creature_template_substitution`, skipped.",guid,data.id );
             continue;
         }
+
+        // I do not know why but in db most display id are not zero
+        if(data.displayid == cInfo->Modelid_A1 || data.displayid == cInfo->Modelid_A2
+            || data.displayid == cInfo->Modelid_H1 || data.displayid == cInfo->Modelid_H2)
+            data.displayid = 0;
 
         if(data.equipmentId > 0)                            // -1 no equipment, 0 use default
         {
@@ -1172,7 +1171,7 @@ void ObjectMgr::LoadCreatures()
         }
 
         //if(entry == 32307 || entry == 32308)
-        if(entry == 30739 || entry == 30740)
+        /*if(entry == 30739 || entry == 30740)
         {
             gameEvent = 51;
             uint32 guid2 = objmgr.GenerateLowGuid(HIGHGUID_UNIT);
@@ -1183,7 +1182,7 @@ void ObjectMgr::LoadCreatures()
             data2.displayid = 0;
             gameeventmgr.mGameEventCreatureGuids[51+51].push_back(guid);
             gameeventmgr.mGameEventCreatureGuids[51+50].push_back(guid2);
-        }
+        }*/
 
         if (gameEvent==0 && PoolId==0)                      // if not this is to be managed by GameEvent System or Pool system
             AddCreatureToGrid(guid, &data);

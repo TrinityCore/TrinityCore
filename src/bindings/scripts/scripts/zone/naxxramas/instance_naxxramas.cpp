@@ -41,6 +41,7 @@ const DoorData doorData[] =
     {181125,    BOSS_GOTHIK,    DOOR_TYPE_PASSAGE,  BOUNDARY_S},
     {181119,    BOSS_GOTHIK,    DOOR_TYPE_PASSAGE,  0},
     {181119,    BOSS_HORSEMEN,  DOOR_TYPE_ROOM,     BOUNDARY_NE},
+    {181225,    BOSS_SAPPHIRON, DOOR_TYPE_PASSAGE,  BOUNDARY_W},
     {0,         0,              DOOR_TYPE_ROOM,     0}, // EOF
 };
 
@@ -115,7 +116,7 @@ struct TRINITY_DLL_DECL instance_naxxramas : public InstanceData
         AddMinion(creature, add);
     }
 
-    void OnObjectCreate(GameObject* go, bool add)
+    void OnGameObjectCreate(GameObject* go, bool add)
     {
         if(go->GetGOInfo()->displayId == 6785 || go->GetGOInfo()->displayId == 1287)
         {

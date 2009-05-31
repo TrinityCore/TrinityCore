@@ -19,7 +19,8 @@
 #include "Wintergrasp.h"
 #include "SpellAuras.h"
 #include "Vehicle.h"
-#include "GameEventMgr.h"
+//#include "GameEventMgr.h"
+#include "ObjectMgr.h"
 
 bool OPvPWintergrasp::SetupOutdoorPvP()
 {
@@ -33,9 +34,64 @@ bool OPvPWintergrasp::SetupOutdoorPvP()
     }
 
     m_defender = TeamId(rand()%2);
-    gameeventmgr.StartInternalEvent(GameEventWintergraspDefender[m_defender]);
+    //m_defender = TEAM_ALLIANCE;
+    //gameeventmgr.StartInternalEvent(GameEventWintergraspDefender[m_defender]);
 
     return true;
+}
+
+uint32 OPvPWintergrasp::GetCreatureEntry(uint32 guidlow, uint32 entry)
+{
+    if(m_defender == TEAM_ALLIANCE)
+    {
+        switch(entry)
+        {
+            case 30739: return 30740;
+            case 30740: return 30739;
+        }
+    }
+    return entry;
+}
+
+/*
+uint32 OPvPWintergrasp::GetGameObjectEntry(uint32 guidlow, uint32 entry)
+{
+    if(m_defender == TEAM_ALLIANCE)
+    {
+        GameObjectInfo const* goInfo = objmgr.GetGameObjectInfo(entry);
+        if(!goInfo)
+            return 0;
+        switch(goInfo->displayId)
+        {
+            case 5651: return 192289;
+            case 5652: return 192288;
+            case 8256: return 192502;
+            case 8257: return 192501;
+        }
+    }
+    return entry;
+}
+*/
+
+void OPvPWintergrasp::OnGameObjectCreate(GameObject *go, bool add)
+{
+    OutdoorPvP::OnGameObjectCreate(go, add);
+    if(m_defender == TEAM_ALLIANCE)
+    {
+        switch(go->GetEntry())
+        {
+            case 190763: go->SetUInt32Value(GAMEOBJECT_FACTION, WintergraspFaction[m_defender]); break;
+        }
+
+        // Note: this is only for test, still need db support
+        switch(go->GetGOInfo()->displayId)
+        {
+            case 5651: go->SetUInt32Value(GAMEOBJECT_DISPLAYID, 5652); break;
+            case 5652: go->SetUInt32Value(GAMEOBJECT_DISPLAYID, 5651); break;
+            case 8256: go->SetUInt32Value(GAMEOBJECT_DISPLAYID, 8257); break;
+            case 8257: go->SetUInt32Value(GAMEOBJECT_DISPLAYID, 8256); break;
+        }
+    }
 }
 
 void OPvPWintergrasp::HandlePlayerEnterZone(Player * plr, uint32 zone)

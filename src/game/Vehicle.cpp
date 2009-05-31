@@ -90,9 +90,9 @@ void Vehicle::Update(uint32 diff)
     //    ModifyPower(POWER_ENERGY, 1);
 }
 
-bool Vehicle::Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, uint32 vehicleId, uint32 team, const CreatureData * data)
+bool Vehicle::Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, uint32 vehicleId, uint32 team, float x, float y, float z, float o, const CreatureData * data)
 {
-    if(!Creature::Create(guidlow, map, phaseMask, Entry, team, data))
+    if(!Creature::Create(guidlow, map, phaseMask, Entry, team, x, y, z, o, data))
         return false;
 
     SetVehicleId(vehicleId);
@@ -338,16 +338,9 @@ bool Vehicle::LoadFromDB(uint32 guid, Map *map)
     if (map->GetInstanceId() != 0) guid = objmgr.GenerateLowGuid(HIGHGUID_VEHICLE);
 
     uint16 team = 0;
-    if(!Create(guid,map,data->phaseMask,data->id,id,team,data))
+    if(!Create(guid,map,data->phaseMask,data->id,id,team,data->posX,data->posY,data->posZ,data->orientation,data))
         return false;
 
-    Relocate(data->posX,data->posY,data->posZ,data->orientation);
-
-    if(!IsPositionValid())
-    {
-        sLog.outError("Creature (guidlow %d, entry %d) not loaded. Suggested coordinates isn't valid (X: %f Y: %f)",GetGUIDLow(),GetEntry(),GetPositionX(),GetPositionY());
-        return false;
-    }
     //We should set first home position, because then AI calls home movement
     SetHomePosition(data->posX,data->posY,data->posZ,data->orientation);
 

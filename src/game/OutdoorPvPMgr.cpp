@@ -207,15 +207,13 @@ bool OutdoorPvPMgr::HandleCustomSpell(Player *plr, uint32 spellId, GameObject * 
     return false;
 }
 
-void OutdoorPvPMgr::OnGameObjectCreate(GameObject *go, bool add)
+ZoneScript * OutdoorPvPMgr::GetZoneScript(uint32 zoneId)
 {
-    if(go->GetGoType() != GAMEOBJECT_TYPE_CAPTURE_POINT)
-        return;
-
-    for(OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin(); itr != m_OutdoorPvPSet.end(); ++itr)
-        for(OutdoorPvP::OPvPCapturePointMap::iterator itr2 = (*itr)->m_capturePoints.begin(); itr2 != (*itr)->m_capturePoints.end(); ++itr2)
-            if((*itr2)->m_CapturePointGUID == go->GetDBTableGUIDLow())
-                (*itr2)->m_capturePoint = add ? go : NULL;
+    OutdoorPvPMap::iterator itr = m_OutdoorPvPMap.find(zoneId);
+    if(itr != m_OutdoorPvPMap.end())
+        return itr->second;
+    else
+        return NULL;
 }
 
 bool OutdoorPvPMgr::HandleOpenGo(Player *plr, uint64 guid)

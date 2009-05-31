@@ -1341,6 +1341,10 @@
 				RelativePath="..\..\src\game\WaypointMovementGenerator.h"
 				>
 			</File>
+			<File
+				RelativePath="..\..\src\game\ZoneScript.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Server"
@@ -1583,14 +1587,6 @@
 			</File>
 			<File
 				RelativePath="..\..\src\game\NullCreatureAI.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\OutdoorPvPObjectiveAI.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\OutdoorPvPObjectiveAI.h"
 				>
 			</File>
 			<File
