@@ -3890,6 +3890,40 @@ bool ChatHandler::HandleCombatStopCommand(const char* args)
     return true;
 }
 
+void ChatHandler::HandleLearnSkillRecipesHelper(Player* player,uint32 skill_id)
+{
+    uint32 classmask = player->getClassMask();
+
+    for (uint32 j = 0; j < sSkillLineAbilityStore.GetNumRows(); ++j)
+    {
+        SkillLineAbilityEntry const *skillLine = sSkillLineAbilityStore.LookupEntry(j);
+        if (!skillLine)
+            continue;
+
+        // wrong skill
+        if( skillLine->skillId != skill_id)
+            continue;
+
+        // not high rank
+        if(skillLine->forward_spellid )
+            continue;
+
+        // skip racial skills
+        if (skillLine->racemask != 0)
+            continue;
+
+        // skip wrong class skills
+        if( skillLine->classmask && (skillLine->classmask & classmask) == 0)
+            continue;
+
+        SpellEntry const* spellInfo = sSpellStore.LookupEntry(skillLine->spellId);
+        if(!spellInfo || !SpellMgr::IsSpellValid(spellInfo,player,false))
+            continue;
+
+        player->learnSpell(skillLine->spellId,false);
+    }
+}
+
 bool ChatHandler::HandleLearnAllCraftsCommand(const char* /*args*/)
 {
     uint32 classmask = m_session->GetPlayer()->getClassMask();
@@ -3900,31 +3934,10 @@ bool ChatHandler::HandleLearnAllCraftsCommand(const char* /*args*/)
         if( !skillInfo )
             continue;
 
-        if( skillInfo->categoryId == SKILL_CATEGORY_PROFESSION || skillInfo->categoryId == SKILL_CATEGORY_SECONDARY )
+        if ((skillInfo->categoryId == SKILL_CATEGORY_PROFESSION || skillInfo->categoryId == SKILL_CATEGORY_SECONDARY) &&
+            skillInfo->canLink)                             // only prof. with recipes have
         {
-            for (uint32 j = 0; j < sSkillLineAbilityStore.GetNumRows(); ++j)
-            {
-                SkillLineAbilityEntry const *skillLine = sSkillLineAbilityStore.LookupEntry(j);
-                if( !skillLine )
-                    continue;
-
-                // skip racial skills
-                if( skillLine->racemask != 0 )
-                    continue;
-
-                // skip wrong class skills
-                if( skillLine->classmask && (skillLine->classmask & classmask) == 0)
-                    continue;
-
-                if( skillLine->skillId != i || skillLine->forward_spellid )
-                    continue;
-
-                SpellEntry const* spellInfo = sSpellStore.LookupEntry(skillLine->spellId);
-                if(!spellInfo || !SpellMgr::IsSpellValid(spellInfo,m_session->GetPlayer(),false))
-                    continue;
-
-                m_session->GetPlayer()->learnSpell(skillLine->spellId,false);
-            }
+            HandleLearnSkillRecipesHelper(m_session->GetPlayer(),skillInfo->id);
         }
     }
 
@@ -3958,55 +3971,39 @@ bool ChatHandler::HandleLearnAllRecipesCommand(const char* args)
     wstrToLower( wnamepart );
 
     uint32 classmask = m_session->GetPlayer()->getClassMask();
+    std::string name;
 
-    for (uint32 i = 0; i < sSkillLineStore.GetNumRows(); ++i)
+    SkillLineEntry const *targetSkillInfo = NULL;
+    for (uint32 i = 1; i < sSkillLineStore.GetNumRows(); ++i)
     {
         SkillLineEntry const *skillInfo = sSkillLineStore.LookupEntry(i);
-        if( !skillInfo )
+        if (!skillInfo)
             continue;
 
-        if( skillInfo->categoryId != SKILL_CATEGORY_PROFESSION &&
-            skillInfo->categoryId != SKILL_CATEGORY_SECONDARY )
+        if ((skillInfo->categoryId != SKILL_CATEGORY_PROFESSION &&
+            skillInfo->categoryId != SKILL_CATEGORY_SECONDARY) ||
+            !skillInfo->canLink)                            // only prof with recipes have set
             continue;
 
         int loc = GetSessionDbcLocale();
-        std::string name = skillInfo->name[loc];
+        name = skillInfo->name[loc];
 
         if(Utf8FitTo(name, wnamepart))
         {
-            for (uint32 j = 0; j < sSkillLineAbilityStore.GetNumRows(); ++j)
-            {
-                SkillLineAbilityEntry const *skillLine = sSkillLineAbilityStore.LookupEntry(j);
-                if( !skillLine )
-                    continue;
-
-                if( skillLine->skillId != i || skillLine->forward_spellid )
-                    continue;
-
-                // skip racial skills
-                if( skillLine->racemask != 0 )
-                    continue;
-
-                // skip wrong class skills
-                if( skillLine->classmask && (skillLine->classmask & classmask) == 0)
-                    continue;
-
-                SpellEntry const* spellInfo = sSpellStore.LookupEntry(skillLine->spellId);
-                if(!spellInfo || !SpellMgr::IsSpellValid(spellInfo,m_session->GetPlayer(),false))
-                    continue;
-
-                if( !target->HasSpell(spellInfo->Id) )
-                    m_session->GetPlayer()->learnSpell(skillLine->spellId,false);
-            }
-
-            uint16 maxLevel = target->GetPureMaxSkillValue(skillInfo->id);
-            target->SetSkill(skillInfo->id, maxLevel, maxLevel);
-            PSendSysMessage(LANG_COMMAND_LEARN_ALL_RECIPES, name.c_str());
-            return true;
+            targetSkillInfo = skillInfo;
+            break;
         }
     }
 
-    return false;
+    if(!targetSkillInfo)
+        return false;
+
+    HandleLearnSkillRecipesHelper(target,targetSkillInfo->id);
+
+    uint16 maxLevel = target->GetPureMaxSkillValue(targetSkillInfo->id);
+    target->SetSkill(targetSkillInfo->id, maxLevel, maxLevel);
+    PSendSysMessage(LANG_COMMAND_LEARN_ALL_RECIPES, name.c_str());
+    return true;
 }
 
 bool ChatHandler::HandleLookupPlayerIpCommand(const char* args)
