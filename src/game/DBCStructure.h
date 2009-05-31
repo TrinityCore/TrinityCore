@@ -756,7 +756,8 @@ struct CurrencyTypesEntry
 {
     //uint32    ID;                                         // 0        not used
     uint32    ItemId;                                       // 1        used as real index
-    uint32    BitIndex;                                     // 2        bit index in PLAYER_FIELD_KNOWN_CURRENCIES (1 << (index-1))
+    //uint32    Category;                                   // 2        may be category
+    uint32    BitIndex;                                     // 3        bit index in PLAYER_FIELD_KNOWN_CURRENCIES (1 << (index-1))
 };
 
 struct DurabilityCostsEntry
@@ -1038,8 +1039,8 @@ struct ItemLimitCategoryEntry
     uint32      ID;                                         // 0 Id
     //char*     name[16]                                    // 1-16     m_name_lang
                                                             // 17 name flags
-    uint32      maxCount;                                  // max allowed equipped as item or in gem slot
-    //uint32      unk;                                        // 1 for prismatic gems only...
+    uint32      maxCount;                                   // 18, max allowed equipped as item or in gem slot
+    //uint32      unk;                                      // 19, 1 for gems only...
 };
 
 struct ItemRandomPropertiesEntry

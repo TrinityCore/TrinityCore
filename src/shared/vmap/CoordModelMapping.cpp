@@ -87,63 +87,65 @@ namespace VMAP
     bool CoordModelMapping::readCoordinateMapping(const std::string& pDirectoryFileName)
     {
         FILE *f = fopen(pDirectoryFileName.c_str(), "rb");
-        bool result = false;
+        if(!f)
+        {
+            printf("ERROR: Can't open file: %s\n",pDirectoryFileName.c_str());
+            return false;
+        }
+
         char buffer[500+1];
 
-        if(f)
+        CMappingEntry* cMappingEntry;
+        while(fgets(buffer, 500, f))
         {
-            result = true;
-            CMappingEntry* cMappingEntry;
-            while(fgets(buffer, 500, f))
+            //char namebuffer[500];
+            char positionbuffer[500];
+            int xpos, ypos, noVec;
+            float scale;
+            xpos = ypos = noVec = 0;
+
+            //sscanf(buffer, "%d %d %s %s %f %d", &xpos, &ypos, namebuffer,positionbuffer, &scale, &noVec);
+
+            // this is ugly, but the format has no read delimiter and a space could be in the first part of the name
+            int nameStart = findPosChar(buffer, ' ', 2);// find the 2. space
+            if(nameStart > -1 && (iFilterMethod == NULL || (*iFilterMethod)(buffer)))
             {
-                //char namebuffer[500];
-                char positionbuffer[500];
-                int xpos, ypos, noVec;
-                float scale;
-                xpos = ypos = noVec = 0;
+                ++nameStart;
+                // find the 1. / (now a space only can be found at the end of the name)
+                int nameEnd = nameStart + findPosChar(&buffer[nameStart], '/', 1);
+                // find the 1. space (after the name)
+                nameEnd += findPosChar(&buffer[nameEnd], ' ', 1);
+                buffer[nameEnd] = 0;                    // terminate the name
 
-                //sscanf(buffer, "%d %d %s %s %f %d", &xpos, &ypos, namebuffer,positionbuffer, &scale, &noVec);
-
-                // this is ugly, but the format has no read delimiter and a space could be in the first part of the name
-                int nameStart = findPosChar(buffer, ' ', 2);// find the 2. space
-                if(nameStart > -1 && (iFilterMethod == NULL || (*iFilterMethod)(buffer)))
+                sscanf(buffer, "%d %d", &xpos, &ypos);
+                sscanf(&buffer[nameEnd+1], "%s %f %d", positionbuffer, &scale, &noVec);
+                unsigned int mapId = getMapIdFromFilename(std::string(&buffer[nameStart]));
+                if(!iMapIds.contains(mapId))
                 {
-                    ++nameStart;
-                                                            // find the 1. / (now a space only can be found at the end of the name)
-                    int nameEnd = nameStart + findPosChar(&buffer[nameStart], '/', 1);
-                                                            // find the 1. space (after the name)
-                    nameEnd += findPosChar(&buffer[nameEnd], ' ', 1);
-                    buffer[nameEnd] = 0;                    // terminate the name
-
-                    sscanf(buffer, "%d %d", &xpos, &ypos);
-                    sscanf(&buffer[nameEnd+1], "%s %f %d", positionbuffer, &scale, &noVec);
-                    unsigned int mapId = getMapIdFromFilename(std::string(&buffer[nameStart]));
-                    if(!iMapIds.contains(mapId))
-                    {
-                        iMapIds.append(mapId);
-                    }
-                    if(!isWorldAreaMap(mapId))
-                    {
-                        xpos = 0;                           // store all files under the groupKey
-                        ypos = 0;
-                    }
-
-                    std::string key = CMappingEntry::getKeyString(mapId, xpos, ypos);
-                    cMappingEntry = getCMappingEntry(key);
-                    if(cMappingEntry == 0)
-                    {
-                        cMappingEntry = new CMappingEntry(mapId, xpos, ypos);
-                        addCMappingEntry(cMappingEntry);
-                    }
-                    char namebuffer2[500];
-                    sprintf(namebuffer2, "%d %s#%s_%f", noVec, &buffer[nameStart], positionbuffer, scale);
-                    cMappingEntry->addFilename(namebuffer2);
-                    //break;
+                    iMapIds.append(mapId);
+                    printf("Coords for map %u...\n",mapId);
                 }
+                if(!isWorldAreaMap(mapId))
+                {
+                    xpos = 0;                           // store all files under the groupKey
+                    ypos = 0;
+                }
+
+                std::string key = CMappingEntry::getKeyString(mapId, xpos, ypos);
+                cMappingEntry = getCMappingEntry(key);
+                if(cMappingEntry == 0)
+                {
+                    cMappingEntry = new CMappingEntry(mapId, xpos, ypos);
+                    addCMappingEntry(cMappingEntry);
+                }
+                char namebuffer2[500];
+                sprintf(namebuffer2, "%d %s#%s_%f", noVec, &buffer[nameStart], positionbuffer, scale);
+                cMappingEntry->addFilename(namebuffer2);
+                //break;
             }
-            fclose(f);
         }
-        return result;
+        fclose(f);
+        return true;
     }
 
     //============================================================

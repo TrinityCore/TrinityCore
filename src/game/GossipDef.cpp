@@ -152,7 +152,7 @@ void PlayerMenu::SendGossipMenu( uint32 TitleTextId, uint64 npcGUID )
         Quest const* pQuest = objmgr.GetQuestTemplate(questID);
 
         data << uint32(questID);
-        data << uint32( qItem.m_qIcon );
+        data << uint32(qItem.m_qIcon);
         data << uint32(pSession->GetPlayer()->GetQuestLevel(pQuest));
         std::string Title = pQuest->GetTitle();
 
