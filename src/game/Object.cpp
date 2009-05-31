@@ -88,7 +88,7 @@ Object::~Object( )
 
     if(IsInWorld())
     {
-        sLog.outCrash("Object::~Object - guid="I64FMTD", typeid=%d deleted but still in world!!", GetGUID(), GetTypeId());
+        sLog.outCrash("Object::~Object - guid="UI64FMTD", typeid=%d deleted but still in world!!", GetGUID(), GetTypeId());
         assert(false);
     }
 

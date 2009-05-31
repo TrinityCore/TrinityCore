@@ -3734,7 +3734,7 @@ void AuraEffect::HandleAuraModPetTalentsPoints(bool Apply, bool Real, bool chang
                     if(m_target->GetCharmInfo())
                         m_target->GetCharmInfo()->SetPetNumber(0, true);
                     else
-                        sLog.outError("AuraEffect::HandleModCharm: target="I64FMTD" with typeid=%d has a charm aura but no charm info!", m_target->GetGUID(), m_target->GetTypeId());
+                        sLog.outError("AuraEffect::HandleModCharm: target="UI64FMTD" with typeid=%d has a charm aura but no charm info!", m_target->GetGUID(), m_target->GetTypeId());
                 }
             }
 

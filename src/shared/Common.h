@@ -103,6 +103,7 @@
 #include "LockedQueue.h"
 #include "Threading.h"
 
+#include <ace/Basic_Types.h>
 #include <ace/Guard_T.h>
 #include <ace/RW_Thread_Mutex.h>
 #include <ace/Thread_Mutex.h>
@@ -130,8 +131,6 @@
 #include <float.h>
 
 #define I64FMT "%016I64X"
-#define I64FMTD "%I64u"
-#define SI64FMTD "%I64d"
 #define snprintf _snprintf
 #define atoll __atoi64
 #define vsnprintf _vsnprintf
@@ -143,9 +142,14 @@
 #define stricmp strcasecmp
 #define strnicmp strncasecmp
 #define I64FMT "%016llX"
-#define I64FMTD "%llu"
-#define SI64FMTD "%lld"
+
 #endif
+
+#define UI64FMTD ACE_UINT64_FORMAT_SPECIFIER
+#define UI64LIT(N) ACE_UINT64_LITERAL(N)
+
+#define SI64FMTD ACE_INT64_FORMAT_SPECIFIER
+#define SI64LIT(N) ACE_INT64_LITERAL(N)
 
 inline float finiteAlways(float f) { return finite(f) ? f : 0.0f; }
 
