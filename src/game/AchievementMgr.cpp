@@ -1065,7 +1065,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 if(miscvalue1 != achievementCriteria->equip_item.itemID)
                     continue;
 
-                SetCriteriaProgress(achievementCriteria, 1, PROGRESS_ACCUMULATE);
+                SetCriteriaProgress(achievementCriteria, 1);
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_USE_GAMEOBJECT:
                 // miscvalue1 = go entry
