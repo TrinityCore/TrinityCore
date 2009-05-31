@@ -409,6 +409,16 @@ void WorldSession::HandleLootRoll( WorldPacket &recv_data )
 
     // everything's fine, do it
     group->CountRollVote(GetPlayer()->GetGUID(), Guid, NumberOfPlayers, Choise);
+
+    switch (Choise)
+    {
+        case 1:
+            GetPlayer()->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED, 1);
+            break;
+        case 2:
+            GetPlayer()->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED, 1);
+            break;
+    }
 }
 
 void WorldSession::HandleMinimapPingOpcode(WorldPacket& recv_data)
