@@ -152,7 +152,7 @@ void BattleGroundEY::CheckSomeoneJoinedPoint()
                 Player *plr = objmgr.GetPlayer(m_PlayersNearPoint[EY_POINTS_MAX][j]);
                 if (!plr)
                 {
-                    sLog.outError("BattleGroundEY: Player " I64FMTD " not found!", m_PlayersNearPoint[EY_POINTS_MAX][j]);
+                    sLog.outError("BattleGroundEY: Player (GUID: %u) not found!", GUID_LOPART(m_PlayersNearPoint[EY_POINTS_MAX][j]));
                     ++j;
                     continue;
                 }
@@ -192,7 +192,7 @@ void BattleGroundEY::CheckSomeoneLeftPoint()
                 Player *plr = objmgr.GetPlayer(m_PlayersNearPoint[i][j]);
                 if (!plr)
                 {
-                    sLog.outError("BattleGroundEY: Player " I64FMTD " not found!", m_PlayersNearPoint[i][j]);
+                    sLog.outError("BattleGroundEY: Player (GUID: %u) not found!", GUID_LOPART(m_PlayersNearPoint[i][j]));
                     //move not existed player to "free space" - this will cause many error showing in log, but it is a very important bug
                     m_PlayersNearPoint[EY_POINTS_MAX].push_back(m_PlayersNearPoint[i][j]);
                     m_PlayersNearPoint[i].erase(m_PlayersNearPoint[i].begin() + j);

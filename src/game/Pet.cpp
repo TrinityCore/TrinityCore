@@ -1035,7 +1035,7 @@ void Pet::_SaveSpellCooldowns()
             m_CreatureSpellCooldowns.erase(itr++);
         else
         {
-            CharacterDatabase.PExecute("INSERT INTO pet_spell_cooldown (guid,spell,time) VALUES ('%u', '%u', '" I64FMTD "')", m_charmInfo->GetPetNumber(), itr->first, uint64(itr->second));
+            CharacterDatabase.PExecute("INSERT INTO pet_spell_cooldown (guid,spell,time) VALUES ('%u', '%u', '" UI64FMTD "')", m_charmInfo->GetPetNumber(), itr->first, uint64(itr->second));
             ++itr;
         }
     }
@@ -1186,7 +1186,7 @@ void Pet::_SaveAuras()
         }
 
         CharacterDatabase.PExecute("INSERT INTO pet_aura (guid,caster_guid,spell,effect_mask,stackcount,amount0, amount1, amount2,maxduration,remaintime,remaincharges) "
-            "VALUES ('%u', '" I64FMTD "', '%u', '%u', '%d', '%d', '%d', '%d', '%d', '%d', '%u')",
+            "VALUES ('%u', '" UI64FMTD "', '%u', '%u', '%d', '%d', '%d', '%d', '%d', '%d', '%u')",
             m_charmInfo->GetPetNumber(), itr->second->GetCasterGUID(), itr->second->GetId(), (uint32)itr->second->GetEffectMask(),
             (int32)itr->second->GetStackAmount(), amounts[0], amounts[1], amounts[2]
             ,itr->second->GetAuraMaxDuration(), itr->second->GetAuraDuration(), (uint32)itr->second->GetAuraCharges());

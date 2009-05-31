@@ -25,8 +25,8 @@
 
 // used for creating values for respawn for example
 #define MAKE_PAIR64(l, h)  uint64( uint32(l) | ( uint64(h) << 32 ) )
-#define PAIR64_HIPART(x)   (uint32)((uint64(x) >> 32) & 0x00000000FFFFFFFFLL)
-#define PAIR64_LOPART(x)   (uint32)(uint64(x)         & 0x00000000FFFFFFFFLL)
+#define PAIR64_HIPART(x)   (uint32)((uint64(x) >> 32) & UI64LIT(0x00000000FFFFFFFF))
+#define PAIR64_LOPART(x)   (uint32)(uint64(x)         & UI64LIT(0x00000000FFFFFFFF))
 
 #define MAKE_PAIR32(l, h)  uint32( uint16(l) | ( uint32(h) << 16 ) )
 #define PAIR32_HIPART(x)   (uint16)((uint32(x) >> 16) & 0x0000FFFF)
@@ -72,9 +72,9 @@ enum HighGuid
 
 // We have different low and middle part size for different guid types
 #define _GUID_ENPART_2(x) 0
-#define _GUID_ENPART_3(x) (uint32)((uint64(x) >> 24) & 0x0000000000FFFFFFLL)
-#define _GUID_LOPART_2(x) (uint32)(uint64(x)         & 0x00000000FFFFFFFFLL)
-#define _GUID_LOPART_3(x) (uint32)(uint64(x)         & 0x0000000000FFFFFFLL)
+#define _GUID_ENPART_3(x) (uint32)((uint64(x) >> 24) & UI64LIT(0x0000000000FFFFFF))
+#define _GUID_LOPART_2(x) (uint32)(uint64(x)         & UI64LIT(0x00000000FFFFFFFF))
+#define _GUID_LOPART_3(x) (uint32)(uint64(x)         & UI64LIT(0x0000000000FFFFFF))
 
 inline bool IsGuidHaveEnPart(uint64 const& guid)
 {
