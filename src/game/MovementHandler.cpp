@@ -192,13 +192,6 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
     recv_data >> movementInfo.z;
     recv_data >> movementInfo.o;
 
-    if(MovementFlags & MOVEMENTFLAG_FLYING && !(MovementFlags & MOVEMENTFLAG_UNK3))
-    {
-      sLog.outError("Player %s (GUID %u) has incorrect movementflags, kicking.", _player->GetName(), _player->GetGUIDLow());
-      KickPlayer();
-      return;
-    }
-    
     if(MovementFlags & MOVEMENTFLAG_ONTRANSPORT)
     {
         // recheck
