@@ -1201,7 +1201,8 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
             if(unit->hasUnitState(UNIT_STAT_ATTACK_PLAYER))
             {
                 m_caster->SetContestedPvP();
-                //m_caster->UpdatePvP(true);
+                if(m_caster->GetTypeId() == TYPEID_PLAYER)
+                    ((Player*)m_caster)->UpdatePvP(true);
             }
             if( unit->isInCombat() && !(m_spellInfo->AttributesEx & SPELL_ATTR_EX_NO_INITIAL_AGGRO) )
             {
