@@ -1,5 +1,4 @@
-DELETE FROM `spell_script_target` WHERE entry IN
-(54643);
+DELETE FROM `spell_script_target` WHERE entry IN (54643);
 INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
 (54643,1,23472);
 
