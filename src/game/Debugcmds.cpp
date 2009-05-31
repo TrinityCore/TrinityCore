@@ -782,21 +782,11 @@ bool ChatHandler::HandleDebugSpawnVehicle(const char* args)
 
     Vehicle *v = new Vehicle;
     Map *map = m_session->GetPlayer()->GetMap();
-    if(!v->Create(objmgr.GenerateLowGuid(HIGHGUID_VEHICLE), map, m_session->GetPlayer()->GetPhaseMask(), entry, id, m_session->GetPlayer()->GetTeam()))
+    float x, y, z, o = m_session->GetPlayer()->GetOrientation();
+    m_session->GetPlayer()->GetClosePoint(x, y, z, m_session->GetPlayer()->GetObjectSize());
+
+    if(!v->Create(objmgr.GenerateLowGuid(HIGHGUID_VEHICLE), map, m_session->GetPlayer()->GetPhaseMask(), entry, id, m_session->GetPlayer()->GetTeam(), x, y, z, o))
     {
-        delete v;
-        return false;
-    }
-
-    float px, py, pz;
-    m_session->GetPlayer()->GetClosePoint(px, py, pz, m_session->GetPlayer()->GetObjectSize());
-
-    v->Relocate(px, py, pz, m_session->GetPlayer()->GetOrientation());
-
-    if(!v->IsPositionValid())
-    {
-        sLog.outError("Vehicle (guidlow %d, entry %d) not created. Suggested coordinates isn't valid (X: %f Y: %f)",
-            v->GetGUIDLow(), v->GetEntry(), v->GetPositionX(), v->GetPositionY());
         delete v;
         return false;
     }

@@ -21,10 +21,7 @@
 
 #include "Util.h"
 #include "SharedDefines.h"
-#include "GameObject.h"
-
-#include <map>
-#include <set>
+#include "ZoneScript.h"
 
 class GameObject;
 
@@ -151,7 +148,7 @@ protected:
 };
 
 // base class for specific outdoor pvp handlers
-class OutdoorPvP
+class OutdoorPvP : public ZoneScript
 {
     friend class OutdoorPvPMgr;
 public:
@@ -174,6 +171,9 @@ public:
 
     // setup stuff
     virtual bool SetupOutdoorPvP() {return true;}
+
+    void OnGameObjectCreate(GameObject *go, bool add);
+    void OnCreatureCreate(Creature *, bool add) {}
 
     // send world state update to all players present
     virtual void SendUpdateWorldState(uint32 field, uint32 value);
