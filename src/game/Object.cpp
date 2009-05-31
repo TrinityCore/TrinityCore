@@ -62,7 +62,7 @@ uint32 GuidHigh2TypeId(uint32 guid_hi)
         case HIGHGUID_MO_TRANSPORT: return TYPEID_GAMEOBJECT;
         case HIGHGUID_VEHICLE:      return TYPEID_UNIT;
     }
-    return MAX_TYPEID;                                      // unknown
+    return NUM_CLIENT_OBJECT_TYPES;                         // unknown
 }
 
 Object::Object( )
@@ -120,7 +120,7 @@ void Object::_Create( uint32 guidlow, uint32 entry, HighGuid guidhigh )
 {
     if(!m_uint32Values) _InitValues();
 
-    uint64 guid = MAKE_NEW_GUID(guidlow, entry, guidhigh);  // required more changes to make it working
+    uint64 guid = MAKE_NEW_GUID(guidlow, entry, guidhigh);
     SetUInt64Value( OBJECT_FIELD_GUID, guid );
     SetUInt32Value( OBJECT_FIELD_TYPE, m_objectType );
     m_PackGUID.clear();
@@ -129,10 +129,10 @@ void Object::_Create( uint32 guidlow, uint32 entry, HighGuid guidhigh )
 
 void Object::BuildMovementUpdateBlock(UpdateData * data, uint32 flags ) const
 {
-    ByteBuffer buf(500);
+    ByteBuffer buf(50);
 
     buf << uint8( UPDATETYPE_MOVEMENT );
-    buf << GetGUID();
+    buf.append(GetPackGUID());
 
     _BuildMovementUpdate(&buf, flags);
 
@@ -142,15 +142,13 @@ void Object::BuildMovementUpdateBlock(UpdateData * data, uint32 flags ) const
 void Object::BuildCreateUpdateBlockForPlayer(UpdateData *data, Player *target) const
 {
     if(!target)
-    {
         return;
-    }
 
     uint8  updatetype = UPDATETYPE_CREATE_OBJECT;
     uint8  flags      = m_updateFlag;
 
     /** lower flag1 **/
-    if(target == this)                                      // building packet for oneself
+    if(target == this)                                      // building packet for yourself
         flags |= UPDATEFLAG_SELF;
 
     if(flags & UPDATEFLAG_HAS_POSITION)
@@ -191,10 +189,9 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData *data, Player *target) c
 
     //sLog.outDebug("BuildCreateUpdate: update-type: %u, object-type: %u got flags: %X, flags2: %X", updatetype, m_objectTypeId, flags, flags2);
 
-    ByteBuffer buf(500);
+    ByteBuffer buf(50);
     buf << (uint8)updatetype;
-    //buf.append(GetPackGUID());    //client crashes when using this
-    buf << (uint8)0xFF << GetGUID();
+    buf.append(GetPackGUID());
     buf << (uint8)m_objectTypeId;
 
     _BuildMovementUpdate(&buf, flags);
@@ -202,7 +199,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData *data, Player *target) c
     UpdateMask updateMask;
     updateMask.SetCount( m_valuesCount );
     _SetCreateBits( &updateMask, target );
-    _BuildValuesUpdate(updatetype, &buf, &updateMask, target );
+    _BuildValuesUpdate(updatetype, &buf, &updateMask, target);
     data->AddUpdateBlock(buf);
 }
 
@@ -224,24 +221,20 @@ void Object::SendUpdateToPlayer(Player* player)
     BuildCreateUpdateBlockForPlayer(&upd, player);
     upd.BuildPacket(&packet);
     player->GetSession()->SendPacket(&packet);
-
-    // now object updated/(create updated)
 }
 
 void Object::BuildValuesUpdateBlockForPlayer(UpdateData *data, Player *target) const
 {
-    ByteBuffer buf(500);
+    ByteBuffer buf(50);
 
     buf << (uint8) UPDATETYPE_VALUES;
-    //buf.append(GetPackGUID());    //client crashes when using this. but not have crash in debug mode
-    buf << (uint8)0xFF;
-    buf << GetGUID();
+    buf.append(GetPackGUID());
 
     UpdateMask updateMask;
     updateMask.SetCount( m_valuesCount );
 
     _SetUpdateBits( &updateMask, target );
-    _BuildValuesUpdate(UPDATETYPE_VALUES, &buf, &updateMask, target );
+    _BuildValuesUpdate(UPDATETYPE_VALUES, &buf, &updateMask, target);
 
     data->AddUpdateBlock(buf);
 }
@@ -256,7 +249,7 @@ void Object::DestroyForPlayer(Player *target) const
     ASSERT(target);
 
     WorldPacket data(SMSG_DESTROY_OBJECT, 8);
-    data << GetGUID();
+    data << uint64(GetGUID());
     data << uint8(0);                                       // WotLK (bool)
     target->GetSession()->SendPacket( &data );
 }
@@ -502,7 +495,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
                 updateMask->SetBit(GAMEOBJECT_BYTES_1);
         }
     }
-    else                                                    //case UPDATETYPE_VALUES
+    else                                                    // case UPDATETYPE_VALUES
     {
         if (isType(TYPEMASK_GAMEOBJECT) && !((GameObject*)this)->IsTransport())
         {
@@ -659,7 +652,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
                                 *data << uint32(1);
                                 break;
                             default:
-                                *data << uint32(0);         // unknown. not happen.
+                                *data << uint32(0);         // unknown, not happen.
                                 break;
                         }
                     }
@@ -946,21 +939,21 @@ void Object::ApplyModUInt32Value(uint16 index, int32 val, bool apply)
     cur += (apply ? val : -val);
     if(cur < 0)
         cur = 0;
-    SetUInt32Value(index,cur);
+    SetUInt32Value(index, cur);
 }
 
 void Object::ApplyModInt32Value(uint16 index, int32 val, bool apply)
 {
     int32 cur = GetInt32Value(index);
     cur += (apply ? val : -val);
-    SetInt32Value(index,cur);
+    SetInt32Value(index, cur);
 }
 
 void Object::ApplyModSignedFloatValue(uint16 index, float  val, bool apply)
 {
     float cur = GetFloatValue(index);
     cur += (apply ? val : -val);
-    SetFloatValue(index,cur);
+    SetFloatValue(index, cur);
 }
 
 void Object::ApplyModPositiveFloatValue(uint16 index, float  val, bool apply)
@@ -969,7 +962,7 @@ void Object::ApplyModPositiveFloatValue(uint16 index, float  val, bool apply)
     cur += (apply ? val : -val);
     if(cur < 0)
         cur = 0;
-    SetFloatValue(index,cur);
+    SetFloatValue(index, cur);
 }
 
 void Object::SetFlag( uint16 index, uint32 newFlag )
@@ -1133,17 +1126,17 @@ void WorldObject::_Create( uint32 guidlow, HighGuid guidhigh, uint32 mapid, uint
 
 uint32 WorldObject::GetZoneId() const
 {
-    return MapManager::Instance().GetBaseMap(m_mapId)->GetZoneId(m_positionX,m_positionY,m_positionZ);
+    return MapManager::Instance().GetBaseMap(m_mapId)->GetZoneId(m_positionX, m_positionY, m_positionZ);
 }
 
 uint32 WorldObject::GetAreaId() const
 {
-    return MapManager::Instance().GetBaseMap(m_mapId)->GetAreaId(m_positionX,m_positionY,m_positionZ);
+    return MapManager::Instance().GetBaseMap(m_mapId)->GetAreaId(m_positionX, m_positionY, m_positionZ);
 }
 
 void WorldObject::GetZoneAndAreaId(uint32& zoneid, uint32& areaid) const
 {
-    MapManager::Instance().GetBaseMap(m_mapId)->GetZoneAndAreaId(zoneid,areaid,m_positionX,m_positionY,m_positionZ);
+    MapManager::Instance().GetBaseMap(m_mapId)->GetZoneAndAreaId(zoneid, areaid, m_positionX, m_positionY, m_positionZ);
 }
 
 InstanceData* WorldObject::GetInstanceData()
@@ -1653,10 +1646,10 @@ void WorldObject::BuildMonsterChat(WorldPacket *data, uint8 msgtype, char const*
     *data << (uint8)msgtype;
     *data << (uint32)language;
     *data << (uint64)GetGUID();
-    *data << (uint32)0;                                     //2.1.0
+    *data << (uint32)0;                                     // 2.1.0
     *data << (uint32)(strlen(name)+1);
     *data << name;
-    *data << (uint64)targetGuid;                            //Unit Target
+    *data << (uint64)targetGuid;                            // Unit Target
     if( targetGuid && !IS_PLAYER_GUID(targetGuid) )
     {
         *data << (uint32)1;                                 // target name length
@@ -1679,7 +1672,7 @@ void WorldObject::BuildHeartBeatMsg(WorldPacket *data) const
     data->append(GetPackGUID());
     *data << uint32(((Unit*)this)->GetUnitMovementFlags()); // movement flags
     *data << uint16(0);                                     // 2.3.0
-    *data << getMSTime();                                   // time
+    *data << uint32(getMSTime());                           // time
     *data << m_positionX;
     *data << m_positionY;
     *data << m_positionZ;
@@ -1699,7 +1692,7 @@ void WorldObject::BuildTeleportAckMsg(WorldPacket *data, float x, float y, float
     *data << uint32(0);                                     // this value increments every time
     *data << uint32(((Unit*)this)->GetUnitMovementFlags()); // movement flags
     *data << uint16(0);                                     // 2.3.0
-    *data << getMSTime();                                   // time
+    *data << uint32(getMSTime());                           // time
     *data << x;
     *data << y;
     *data << z;
@@ -2277,7 +2270,7 @@ void WorldObject::PlayDistanceSound( uint32 sound_id, Player* target /*= NULL*/ 
 {
     WorldPacket data(SMSG_PLAY_OBJECT_SOUND,4+8);
     data << uint32(sound_id);
-    data << GetGUID();
+    data << uint64(GetGUID());
     if (target)
         target->SendDirectMessage( &data );
     else

@@ -203,69 +203,69 @@ struct CreatureEventAI_Action
             uint32 modelId;
         } morph;
         // ACTION_T_SOUND                                   = 4
-        struct  
+        struct
         {
             uint32 soundId;
         } sound;
         // ACTION_T_EMOTE                                   = 5
-        struct  
+        struct
         {
             uint32 emoteId;
         } emote;
         // ACTION_T_RANDOM_SOUND                            = 9
-        struct  
+        struct
         {
             int32 soundId1;                                 // (-1 in any field means no output if randomed that field)
             int32 soundId2;
             int32 soundId3;
         } random_sound;
         // ACTION_T_RANDOM_EMOTE                            = 10
-        struct  
+        struct
         {
             int32 emoteId1;                                 // (-1 in any field means no output if randomed that field)
             int32 emoteId2;
             int32 emoteId3;
         } random_emote;
         // ACTION_T_CAST                                    = 11
-        struct  
+        struct
         {
             uint32 spellId;
             uint32 target;
             uint32 castFlags;
         } cast;
         // ACTION_T_SUMMON                                  = 12
-        struct  
+        struct
         {
             uint32 creatured;
             uint32 target;
             uint32 duration;
         } summon;
         // ACTION_T_THREAT_SINGLE_PCT                       = 13
-        struct  
+        struct
         {
             int32 percent;
             uint32 target;
         } threat_single_pct;
         // ACTION_T_THREAT_ALL_PCT                          = 14
-        struct  
+        struct
         {
             int32 percent;
         } threat_all_pct;
         // ACTION_T_QUEST_EVENT                             = 15
-        struct  
+        struct
         {
             uint32 questId;
             uint32 target;
         } quest_event;
         // ACTION_T_CAST_EVENT                              = 16
-        struct  
+        struct
         {
             uint32 creatureId;
             uint32 spellId;
             uint32 target;
         } cast_event;
         // ACTION_T_SET_UNIT_FIELD                          = 17
-        struct  
+        struct
         {
             uint32 field;
             uint32 value;
@@ -273,94 +273,94 @@ struct CreatureEventAI_Action
         } set_unit_field;
         // ACTION_T_SET_UNIT_FLAG                           = 18,  // value provided mask bits that will be set
         // ACTION_T_REMOVE_UNIT_FLAG                        = 19,  // value provided mask bits that will be clear
-        struct  
+        struct
         {
             uint32 value;
             uint32 target;
         } unit_flag;
         // ACTION_T_AUTO_ATTACK                             = 20
-        struct  
+        struct
         {
             uint32 state;                                   // 0 = stop attack, anything else means continue attacking
         } auto_attack;
         // ACTION_T_COMBAT_MOVEMENT                         = 21
-        struct  
+        struct
         {
             uint32 state;                                   // 0 = stop combat based movement, anything else continue attacking
         } combat_movement;
         // ACTION_T_SET_PHASE                               = 22
-        struct  
+        struct
         {
             uint32 phase;
         } set_phase;
         // ACTION_T_INC_PHASE                               = 23
-        struct  
+        struct
         {
             int32 step;
         } set_inc_phase;
         // ACTION_T_QUEST_EVENT_ALL                         = 26
-        struct  
+        struct
         {
             uint32 questId;
         } quest_event_all;
         // ACTION_T_CAST_EVENT_ALL                          = 27
-        struct  
+        struct
         {
             uint32 creatureId;
             uint32 spellId;
         } cast_event_all;
         // ACTION_T_REMOVEAURASFROMSPELL                    = 28
-        struct  
+        struct
         {
             uint32 target;
             uint32 spellId;
         } remove_aura;
         // ACTION_T_RANGED_MOVEMENT                         = 29
-        struct  
+        struct
         {
             uint32 distance;
             int32  angle;
         } ranged_movement;
         // ACTION_T_RANDOM_PHASE                            = 30
-        struct  
+        struct
         {
             uint32 phase1;
             uint32 phase2;
             uint32 phase3;
         } random_phase;
         // ACTION_T_RANDOM_PHASE_RANGE                      = 31
-        struct  
+        struct
         {
             uint32 phaseMin;
             uint32 phaseMax;
         } random_phase_range;
         // ACTION_T_SUMMON_ID                               = 32
-        struct  
+        struct
         {
             uint32 creatureId;
             uint32 target;
             uint32 spawnId;
         } summon_id;
         // ACTION_T_KILLED_MONSTER                          = 33
-        struct  
+        struct
         {
             uint32 creatureId;
             uint32 target;
         } killed_monster;
         // ACTION_T_SET_INST_DATA                           = 34
-        struct  
+        struct
         {
             uint32 field;
             uint32 value;
         } set_inst_data;
         // ACTION_T_SET_INST_DATA64                         = 35
-        struct  
+        struct
         {
             uint32 field;
             uint32 target;
         } set_inst_data64;
         // ACTION_T_UPDATE_TEMPLATE                         = 36
-        struct  
+        struct
         {
             uint32 creatureId;
             uint32 team;
@@ -508,7 +508,7 @@ struct CreatureEventAI_Event
         } receive_emote;
 
         // RAW
-        struct 
+        struct
         {
             uint32 param1;
             uint32 param2;

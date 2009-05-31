@@ -567,7 +567,7 @@ void Transport::UpdateForMap(Map const* targetMap)
                 UpdateData transData;
                 BuildCreateUpdateBlockForPlayer(&transData, itr->getSource());
                 WorldPacket packet;
-                transData.BuildPacket(&packet, true);
+                transData.BuildPacket(&packet);
                 itr->getSource()->SendDirectMessage(&packet);
             }
         }
@@ -577,7 +577,7 @@ void Transport::UpdateForMap(Map const* targetMap)
         UpdateData transData;
         BuildOutOfRangeUpdateBlock(&transData);
         WorldPacket out_packet;
-        transData.BuildPacket(&out_packet, true);
+        transData.BuildPacket(&out_packet);
 
         for(Map::PlayerList::const_iterator itr = pl.begin(); itr != pl.end(); ++itr)
             if(this != itr->getSource()->GetTransport())

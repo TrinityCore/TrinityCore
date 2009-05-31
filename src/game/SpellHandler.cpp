@@ -445,7 +445,7 @@ void WorldSession::HandleCancelChanneling( WorldPacket & /*recv_data */)
     */
 }
 
-void WorldSession::HandleTotemDestroy( WorldPacket& recvPacket)
+void WorldSession::HandleTotemDestroyed( WorldPacket& recvPacket)
 {
     CHECK_PACKET_SIZE(recvPacket, 1);
 

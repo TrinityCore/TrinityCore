@@ -638,8 +638,8 @@ enum MovementFlags
     MOVEMENTFLAG_RIGHT          = 0x00000020,
     MOVEMENTFLAG_PITCH_UP       = 0x00000040,
     MOVEMENTFLAG_PITCH_DOWN     = 0x00000080,
-    MOVEMENTFLAG_WALK_MODE      = 0x00000100,
-    MOVEMENTFLAG_ONTRANSPORT    = 0x00000200,
+    MOVEMENTFLAG_WALK_MODE      = 0x00000100,               // Walking
+    MOVEMENTFLAG_ONTRANSPORT    = 0x00000200,               // Used for flying on some creatures
     MOVEMENTFLAG_LEVITATING     = 0x00000400,
     MOVEMENTFLAG_FLY_UNK1       = 0x00000800,
     MOVEMENTFLAG_JUMPING        = 0x00001000,
@@ -656,6 +656,42 @@ enum MovementFlags
     MOVEMENTFLAG_WATERWALKING   = 0x10000000,               // prevent unit from falling through water
     MOVEMENTFLAG_SAFE_FALL      = 0x20000000,               // active rogue safe fall spell (passive)
     MOVEMENTFLAG_UNK3           = 0x40000000
+};
+
+enum MonsterMovementFlags
+{
+    MONSTER_MOVE_NONE           = 0x00000000,
+    MONSTER_MOVE_FORWARD        = 0x00000001,
+    MONSTER_MOVE_BACKWARD       = 0x00000002,
+    MONSTER_MOVE_STRAFE_LEFT    = 0x00000004,
+    MONSTER_MOVE_STRAFE_RIGHT   = 0x00000008,
+    MONSTER_MOVE_LEFT           = 0x00000010,               // turn
+    MONSTER_MOVE_RIGHT          = 0x00000020,               // turn
+    MONSTER_MOVE_PITCH_UP       = 0x00000040,
+    MONSTER_MOVE_PITCH_DOWN     = 0x00000080,
+    MONSTER_MOVE_TELEPORT       = 0x00000100,
+    MONSTER_MOVE_TELEPORT2      = 0x00000200,
+    MONSTER_MOVE_LEVITATING     = 0x00000400,
+    MONSTER_MOVE_UNK1           = 0x00000800,               // float+uint32
+    MONSTER_MOVE_WALK           = 0x00001000,               // run2?
+    MONSTER_MOVE_SPLINE         = 0x00002000,               // spline n*(float x,y,z)
+    // 0x4000, 0x8000, 0x10000, 0x20000 run
+    MONSTER_MOVE_SPLINE2        = 0x00040000,               // spline n*(float x,y,z)
+    MONSTER_MOVE_UNK2           = 0x00080000,               // used for flying mobs
+    MONSTER_MOVE_UNK3           = 0x00100000,               // used for flying mobs
+    MONSTER_MOVE_UNK4           = 0x00200000,               // uint8+uint32
+    MONSTER_MOVE_UNK5           = 0x00400000,               // run in place, then teleport to final point
+    MONSTER_MOVE_UNK6           = 0x00800000,               // teleport
+    MONSTER_MOVE_UNK7           = 0x01000000,               // run
+    MONSTER_MOVE_FLY            = 0x02000000,               // swimming/flying (depends on mob?)
+    MONSTER_MOVE_UNK9           = 0x04000000,               // run
+    MONSTER_MOVE_UNK10          = 0x08000000,               // run
+    MONSTER_MOVE_UNK11          = 0x10000000,               // run
+    MONSTER_MOVE_UNK12          = 0x20000000,               // run
+    MONSTER_MOVE_UNK13          = 0x40000000,               // levitating
+
+    // masks
+    MONSTER_MOVE_SPLINE_FLY     = 0x00003000,               // fly by points
 };
 
 struct MovementInfo
@@ -743,7 +779,7 @@ struct CalcDamageInfo
     uint32 procAttacker;
     uint32 procVictim;
     uint32 procEx;
-    uint32 cleanDamage;          // Used only fo rage calcultion
+    uint32 cleanDamage;          // Used only for rage calculation
     MeleeHitOutcome hitOutCome;  // TODO: remove this field (need use TargetState)
 };
 
@@ -768,6 +804,19 @@ struct SpellNonMeleeDamage{
     uint32 HitInfo;
     // Used for help
     uint32 cleanDamage;
+};
+
+struct SpellPeriodicAuraLogInfo
+{
+    SpellPeriodicAuraLogInfo(AuraEffect *_auraEff, uint32 _damage, uint32 _overDamage, uint32 _absorb, uint32 _resist, float _multiplier)
+        : auraEff(_auraEff), damage(_damage), overDamage(_overDamage), absorb(_absorb), resist(_resist), multiplier(_multiplier) {}
+
+    AuraEffect *auraEff;
+    uint32 damage;
+    uint32 absorb;
+    uint32 resist;
+    uint32 overDamage;                                      // overkill/overheal
+    float  multiplier;
 };
 
 uint32 createProcExtendMask(SpellNonMeleeDamage *damageInfo, SpellMissInfo missCondition);
@@ -1216,7 +1265,8 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void SendAttackStateUpdate(CalcDamageInfo *damageInfo);
         void SendAttackStateUpdate(uint32 HitInfo, Unit *target, uint8 SwingType, SpellSchoolMask damageSchoolMask, uint32 Damage, uint32 AbsorbDamage, uint32 Resist, VictimState TargetState, uint32 BlockedAmount);
         void SendSpellNonMeleeDamageLog(SpellNonMeleeDamage *log);
-        void SendSpellNonMeleeDamageLog(Unit *target,uint32 SpellID,uint32 Damage, SpellSchoolMask damageSchoolMask,uint32 AbsorbedDamage, uint32 Resist,bool PhysicalDamage, uint32 Blocked, bool CriticalHit = false);
+        void SendSpellNonMeleeDamageLog(Unit *target,uint32 SpellID, uint32 Damage, SpellSchoolMask damageSchoolMask, uint32 AbsorbedDamage, uint32 Resist, bool PhysicalDamage, uint32 Blocked, bool CriticalHit = false);
+        void SendPeriodicAuraLog(SpellPeriodicAuraLogInfo *pInfo);
         void SendSpellMiss(Unit *target, uint32 spellID, SpellMissInfo missInfo);
 
         void NearTeleportTo(float x, float y, float z, float orientation, bool casting = false);
