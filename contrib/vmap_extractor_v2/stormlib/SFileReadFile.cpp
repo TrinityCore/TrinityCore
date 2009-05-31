@@ -154,8 +154,8 @@ static DWORD WINAPI ReadMPQBlocks(TMPQFile * hf, DWORD dwBlockPos, BYTE * buffer
         }
     }
 
-    // Set file pointer, if necessary
-    if(ha->FilePointer.QuadPart != FilePos.QuadPart)
+    // Set file pointer, if necessary 
+    if(ha->FilePointer.QuadPart != FilePos.QuadPart) 
     {
         SetFilePointer(ha->hFile, FilePos.LowPart, &FilePos.HighPart, FILE_BEGIN);
     }
@@ -245,7 +245,7 @@ static DWORD WINAPI ReadMPQBlocks(TMPQFile * hf, DWORD dwBlockPos, BYTE * buffer
 // TODO: Test for archives > 4GB
 static DWORD WINAPI ReadMPQFileSingleUnit(TMPQFile * hf, DWORD dwFilePos, BYTE * pbBuffer, DWORD dwToRead)
 {
-    TMPQArchive * ha = hf->ha;
+    TMPQArchive * ha = hf->ha; 
     DWORD dwBytesRead = 0;
 
     if(ha->FilePointer.QuadPart != hf->MpqFilePos.QuadPart)
@@ -311,7 +311,7 @@ static DWORD WINAPI ReadMPQFileSingleUnit(TMPQFile * hf, DWORD dwFilePos, BYTE *
 // TODO: Test for archives > 4GB
 static DWORD WINAPI ReadMPQFile(TMPQFile * hf, DWORD dwFilePos, BYTE * pbBuffer, DWORD dwToRead)
 {
-    TMPQArchive * ha = hf->ha;
+    TMPQArchive * ha = hf->ha; 
     TMPQBlock * pBlock = hf->pBlock; // Pointer to file block
     DWORD dwBytesRead = 0;           // Number of bytes read from the file
     DWORD dwBlockPos;                // Position in the file aligned to the whole blocks
@@ -359,7 +359,7 @@ static DWORD WINAPI ReadMPQFile(TMPQFile * hf, DWORD dwFilePos, BYTE * pbBuffer,
 
         // Copy data from block buffer into target buffer
         memcpy(pbBuffer, ha->pbBlockBuffer + ha->dwBuffPos, dwToCopy);
-
+    
         // Update pointers
         dwToRead      -= dwToCopy;
         dwBytesRead   += dwToCopy;
@@ -374,7 +374,7 @@ static DWORD WINAPI ReadMPQFile(TMPQFile * hf, DWORD dwFilePos, BYTE * pbBuffer,
 
     // Load the whole ("middle") blocks only if there are more or equal one block
     if(dwToRead > ha->dwBlockSize)
-    {
+    {                                           
         DWORD dwBlockBytes = dwToRead & ~(ha->dwBlockSize - 1);
 
         dwLoaded = ReadMPQBlocks(hf, dwBlockPos, pbBuffer, dwBlockBytes);
@@ -419,7 +419,7 @@ static DWORD WINAPI ReadMPQFile(TMPQFile * hf, DWORD dwFilePos, BYTE * pbBuffer,
         dwBytesRead  += dwToCopy;
         ha->dwBuffPos = dwToCopy;
     }
-
+    
     // Return what we've read
     return dwBytesRead;
 }
@@ -456,7 +456,7 @@ BOOL WINAPI SFileReadFile(HANDLE hFile, VOID * lpBuffer, DWORD dwToRead, DWORD *
             SetLastError(ERROR_HANDLE_EOF);
             return FALSE;
         }
-
+        
         if(pdwRead != NULL)
             *pdwRead = dwTransferred;
         return TRUE;
@@ -498,7 +498,7 @@ BOOL WINAPI SFileReadFile(HANDLE hFile, VOID * lpBuffer, DWORD dwToRead, DWORD *
 DWORD WINAPI SFileGetFilePos(HANDLE hFile, DWORD * pdwFilePosHigh)
 {
     TMPQFile * hf = (TMPQFile *)hFile;
-
+    
     if(pdwFilePosHigh != NULL)
         *pdwFilePosHigh = 0;
 
@@ -525,7 +525,7 @@ DWORD WINAPI SFileGetFilePos(HANDLE hFile, DWORD * pdwFilePosHigh)
 DWORD WINAPI SFileGetFileSize(HANDLE hFile, DWORD * pdwFileSizeHigh)
 {
     TMPQFile * hf = (TMPQFile *)hFile;
-
+    
     if(pdwFileSizeHigh != NULL)
         *pdwFileSizeHigh = 0;
 
@@ -604,7 +604,7 @@ DWORD WINAPI SFileSetFilePointer(HANDLE hFile, LONG lFilePos, LONG * pdwFilePosH
 //-----------------------------------------------------------------------------
 // Tries to retrieve the file name
 
-static TID2Ext id2ext[] =
+static TID2Ext id2ext[] = 
 {
     {0x1A51504D, "mpq"},                // MPQ archive header ID ('MPQ\x1A')
     {0x46464952, "wav"},                // WAVE header 'RIFF'
@@ -623,7 +623,7 @@ static TID2Ext id2ext[] =
     {0x3032444D, "m2"},                 // WoW ??? .m2
     {0x43424457, "dbc"},                // ??? .dbc
     {0x47585053, "bls"},                // WoW pixel shaders
-    {0, NULL}                           // Terminator
+    {0, NULL}                           // Terminator 
 };
 
 // TODO: Test for archives > 4GB
@@ -646,7 +646,7 @@ BOOL WINAPI SFileGetFileName(HANDLE hFile, char * szFileName)
         if(hf == NULL || szFileName == NULL)
             nError = ERROR_INVALID_PARAMETER;
     }
-
+    
     // If the file name is already filled, return it.
     if(nError == ERROR_SUCCESS && *hf->szFileName != 0)
     {
@@ -665,7 +665,7 @@ BOOL WINAPI SFileGetFileName(HANDLE hFile, char * szFileName)
     if(nError == ERROR_SUCCESS)
     {
         dwFirstBytes[0] = dwFirstBytes[1] = 0;
-        dwFilePos = SFileSetFilePointer(hf, 0, NULL, FILE_CURRENT);
+        dwFilePos = SFileSetFilePointer(hf, 0, NULL, FILE_CURRENT);   
         if(!SFileReadFile(hFile, &dwFirstBytes, sizeof(dwFirstBytes), NULL))
             nError = GetLastError();
         BSWAP_ARRAY32_UNSIGNED(dwFirstBytes, sizeof(dwFirstBytes) / sizeof(DWORD));
@@ -824,4 +824,3 @@ DWORD_PTR WINAPI SFileGetFileInfo(HANDLE hMpqOrFile, DWORD dwInfoType)
     SetLastError(ERROR_INVALID_PARAMETER);
     return 0xFFFFFFFF;
 }
-

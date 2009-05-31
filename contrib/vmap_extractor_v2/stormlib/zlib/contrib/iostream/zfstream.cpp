@@ -17,7 +17,7 @@ gzfilebuf::~gzfilebuf() {
 }
 
 gzfilebuf *gzfilebuf::open( const char *name,
-                int io_mode ) {
+			    int io_mode ) {
 
   if ( is_open() )
     return NULL;
@@ -58,7 +58,7 @@ gzfilebuf *gzfilebuf::open( const char *name,
 }
 
 gzfilebuf *gzfilebuf::attach( int file_descriptor,
-                  int io_mode ) {
+			      int io_mode ) {
 
   if ( is_open() )
     return NULL;
@@ -151,7 +151,7 @@ int gzfilebuf::underflow() {
 
     if ( out_waiting() ) {
       if ( flushbuf() == EOF )
-    return EOF;
+	return EOF;
     }
 
   }
@@ -180,11 +180,11 @@ int gzfilebuf::overflow( int c ) {
     setg(0,0,0);
   } else {
     if (in_avail()) {
-    return EOF;
+	return EOF;
     }
     if (out_waiting()) {
       if (flushbuf() == EOF)
-    return EOF;
+	return EOF;
     }
   }
 
@@ -287,7 +287,7 @@ gzfilebuf *gzfilestream_common::rdbuf() {
   return &buffer;
 
 }
-
+     
 gzifstream::gzifstream() :
   ios( gzfilestream_common::rdbuf() )
 {
@@ -327,4 +327,3 @@ gzofstream::gzofstream( int fd, int io_mode ) :
 }
 
 gzofstream::~gzofstream() { }
-

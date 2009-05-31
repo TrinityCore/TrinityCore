@@ -99,9 +99,9 @@ private:
 };
 
 template<class T> gzofstream &operator<<(gzofstream &s,
-                     const gzomanip<T> &m) {
+					 const gzomanip<T> &m) {
   return (*m.func)(s, m.val);
-
+  
 }
 
 inline gzofstream &setcompressionlevel( gzofstream &s, int l ) {
@@ -125,7 +125,6 @@ inline gzomanip<int> setcompressionstrategy(int l)
 }
 
 #endif
-
 
 
 

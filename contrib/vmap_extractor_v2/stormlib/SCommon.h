@@ -86,4 +86,3 @@ int  SListFileSaveToMpq(TMPQArchive * ha);
 
 #endif // __SCOMMON_H__
 
-

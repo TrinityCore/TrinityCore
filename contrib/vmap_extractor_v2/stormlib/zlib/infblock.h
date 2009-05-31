@@ -1,6 +1,6 @@
 /* infblock.h -- header to use infblock.c
  * Copyright (C) 1995-2002 Mark Adler
- * For conditions of distribution and use, see copyright notice in zlib.h
+ * For conditions of distribution and use, see copyright notice in zlib.h 
  */
 
 /* WARNING: this file should *not* be used by applications. It is
@@ -37,4 +37,3 @@ extern void inflate_set_dictionary OF((
 
 extern int inflate_blocks_sync_point OF((
     inflate_blocks_statef *s));
-

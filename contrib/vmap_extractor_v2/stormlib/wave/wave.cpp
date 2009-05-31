@@ -35,8 +35,8 @@ static long Table1503F120[] =
 {
     0xFFFFFFFF, 0x00000000, 0xFFFFFFFF, 0x00000004, 0xFFFFFFFF, 0x00000002, 0xFFFFFFFF, 0x00000006,
     0xFFFFFFFF, 0x00000001, 0xFFFFFFFF, 0x00000005, 0xFFFFFFFF, 0x00000003, 0xFFFFFFFF, 0x00000007,
-    0xFFFFFFFF, 0x00000001, 0xFFFFFFFF, 0x00000005, 0xFFFFFFFF, 0x00000003, 0xFFFFFFFF, 0x00000007,
-    0xFFFFFFFF, 0x00000002, 0xFFFFFFFF, 0x00000004, 0xFFFFFFFF, 0x00000006, 0xFFFFFFFF, 0x00000008
+    0xFFFFFFFF, 0x00000001, 0xFFFFFFFF, 0x00000005, 0xFFFFFFFF, 0x00000003, 0xFFFFFFFF, 0x00000007,  
+    0xFFFFFFFF, 0x00000002, 0xFFFFFFFF, 0x00000004, 0xFFFFFFFF, 0x00000006, 0xFFFFFFFF, 0x00000008  
 };
 
 static long Table1503F1A0[] =
@@ -112,10 +112,10 @@ int CompressWave(unsigned char * pbOutBuffer, int dwOutLength, short * pwInBuffe
 
     nLength = (nLength / 2) - (int)(out.pb - pbOutBuffer);
     nLength = (nLength < 0) ? 0 : nLength;
-
+    
     nIndex  = nChannels - 1;            // edi
     nWordsRemains = dwInLength / 2;     // eax
-
+    
     // ebx - nChannels
     // ecx - pwOutPos
     for(int chnl = nChannels; chnl < nWordsRemains; chnl++)
@@ -184,7 +184,7 @@ int CompressWave(unsigned char * pbOutBuffer, int dwOutLength, short * pwInBuffe
                 }
                 if(dwBit == dwStopBit)
                     break;
-
+               
                 nTableValue >>= 1;
             }
 
@@ -205,7 +205,7 @@ int CompressWave(unsigned char * pbOutBuffer, int dwOutLength, short * pwInBuffe
             SInt32Array2[nIndex]  = nValue;
             *out.pb++ = (unsigned char)(dwBitBuff | ebx);
             nTableValue = Table1503F120[dwBitBuff & 0x1F];
-            SInt32Array1[nIndex]  = SInt32Array1[nIndex] + nTableValue;
+            SInt32Array1[nIndex]  = SInt32Array1[nIndex] + nTableValue; 
             if(SInt32Array1[nIndex] < 0)
                 SInt32Array1[nIndex] = 0;
             else if(SInt32Array1[nIndex] > 0x58)
@@ -280,7 +280,7 @@ int DecompressWave(unsigned char * pbOutBuffer, int dwOutLength, unsigned char *
                     SInt32Array1[nIndex] += 8;
                     if(SInt32Array1[nIndex] > 0x58)
                         SInt32Array1[nIndex] = 0x58;
-
+                    
                     if(nChannels == 2)
                         nIndex = (nIndex == 0) ? 1 : 0;
                     break;
@@ -354,4 +354,3 @@ int DecompressWave(unsigned char * pbOutBuffer, int dwOutLength, unsigned char *
     }
     return (int)(out.pb - pbOutBuffer);
 }
-

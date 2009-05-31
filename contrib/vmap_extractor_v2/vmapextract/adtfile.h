@@ -17,43 +17,48 @@ typedef unsigned int uint32;
 
 class Liquid;
 
-typedef struct {
-float x;
-float y;
-float z;
+typedef struct
+{
+    float x;
+    float y;
+    float z;
 }svec;
 
-typedef struct {
-double x;
-double y;
-double z;
-}vec;
+struct vec
+{
+    double x;
+    double y;
+    double z;
+};
 
-typedef struct{
+struct triangle
+{
     vec v[3];
+};
 
-}triangle;
-
-typedef struct{
-float v9[16*8+1][16*8+1];
-float v8[16*8][16*8];
+typedef struct
+{
+    float v9[16*8+1][16*8+1];
+    float v8[16*8][16*8];
 }Cell;
 
-typedef struct{
-double v9[9][9];
-double v8[8][8];
-uint16 area_id;
-//Liquid *lq;
-float waterlevel[9][9];
-uint8 flag;
+typedef struct
+{
+    double v9[9][9];
+    double v8[8][8];
+    uint16 area_id;
+    //Liquid *lq;
+    float waterlevel[9][9];
+    uint8 flag;
 }chunk;
 
 typedef struct
 {
-chunk ch[16][16];
+    chunk ch[16][16];
 }mcell;
 
-struct MapChunkHeader {
+struct MapChunkHeader
+{
     uint32 flags;
     uint32 ix;
     uint32 iy;
@@ -119,7 +124,4 @@ private:
 void fixnamen(char *name, size_t len);
 //void fixMapNamen(char *name, size_t len);
 
-
 #endif
-
-

@@ -11,51 +11,41 @@ class WMOInstance;
 
 Vec3D fixCoordSystem(Vec3D v);
 
-
-
-
 class Model
-{ 
+{
 public:
+    ModelHeader header;
+    uint32 offsBB_vertices, offsBB_indices;
+    Vec3D *BB_vertices, *vertices;
+    uint16 *BB_indices, *indices;
+    size_t nIndices;
 
-	ModelHeader header;
-	
-public:
+    bool open();
+    bool ConvertToVMAPModel(char * outfilename);
 
-	uint32 offsBB_vertices, offsBB_indices;
-	Vec3D *BB_vertices, *vertices;
-	uint16 *BB_indices, *indices;
-	size_t nIndices;
-	
-	bool open();
-	bool ConvertToVMAPModel(char * outfilename);
+    bool ok;
 
-public:
+    Model(std::string &filename);
+    ~Model();
 
-	bool ok;
-
-	Model(std::string &filename);
-	~Model();
-	
 private:
-	std::string filename;
-	char outfilename;
+    std::string filename;
+    char outfilename;
 };
 
 class ModelInstance 
 {
 public:
-	Model *model;
+    Model *model;
 
-	int id;
-	Vec3D pos, rot;
-	unsigned int d1, scale;
-	float w,sc;
+    int id;
+    Vec3D pos, rot;
+    unsigned int d1, scale;
+    float w,sc;
 
-	ModelInstance() {}
-	ModelInstance(MPQFile &f,const char* ModelInstName,const char*MapName, FILE *pDirfile);
+    ModelInstance() {}
+    ModelInstance(MPQFile &f,const char* ModelInstName,const char*MapName, FILE *pDirfile);
 
 };
 
 #endif
-

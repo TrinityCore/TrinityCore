@@ -1,6 +1,6 @@
 /* inftrees.h -- header to use inftrees.c
  * Copyright (C) 1995-2002 Mark Adler
- * For conditions of distribution and use, see copyright notice in zlib.h
+ * For conditions of distribution and use, see copyright notice in zlib.h 
  */
 
 /* WARNING: this file should *not* be used by applications. It is
@@ -56,4 +56,3 @@ extern int inflate_trees_fixed OF((
     inflate_huft * FAR *,       /* literal/length tree result */
     inflate_huft * FAR *,       /* distance tree result */
     z_streamp));                /* for memory allocation */
-
