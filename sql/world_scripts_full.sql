@@ -131,6 +131,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_ruul_snowhoof' WHERE `entry`=12
 UPDATE `creature_template` SET `ScriptName`='boss_pandemonius' WHERE `entry`=18341;
 UPDATE `creature_template` SET `ScriptName`='boss_nexusprince_shaffar' WHERE `entry`=18344;
 UPDATE `creature_template` SET `ScriptName`='mob_ethereal_beacon' WHERE `entry`=18431;
+UPDATE `creature_template` SET `ScriptName`='mob_ethereal_apprentice' WHERE `entry`=18430;
 
 /* AUCHENAI CRYPTS */
 UPDATE `creature_template` SET `ScriptName`='boss_exarch_maladaar' WHERE `entry`=18373;
