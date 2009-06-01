@@ -2570,17 +2570,24 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto
             else if (spellproto->SpellFamilyFlags[0] & 0x8)
                 return DIMINISHING_POLYMORPH;
             // Blind
-            else if (spellproto->SpellFamilyFlags[0] & 0x00001000000)
+            else if (spellproto->SpellFamilyFlags[0] & 0x1000000)
                 return DIMINISHING_BLIND_CYCLONE;
+            break;
+        }
+        case SPELLFAMILY_HUNTER:
+        {
+            // Freezing trap
+            if (spellproto->SpellFamilyFlags[0] & 0x8)
+                return DIMINISHING_FREEZE;
             break;
         }
         case SPELLFAMILY_WARLOCK:
         {
             // Death Coil
-            if (spellproto->SpellFamilyFlags[0] & 0x00000080000)
+            if (spellproto->SpellFamilyFlags[0] & 0x80000)
                 return DIMINISHING_DEATHCOIL;
             // Seduction
-            else if (spellproto->SpellFamilyFlags[0] & 0x00040000000)
+            else if (spellproto->SpellFamilyFlags[0] & 0x40000000)
                 return DIMINISHING_FEAR;
             // Curses/etc
             else if (spellproto->SpellFamilyFlags[0] & 0x80000000)
@@ -2590,14 +2597,14 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto
         case SPELLFAMILY_DRUID:
         {
             // Cyclone
-            if (spellproto->SpellFamilyFlags[1] & 0x020)
+            if (spellproto->SpellFamilyFlags[1] & 0x20)
                 return DIMINISHING_BLIND_CYCLONE;
             break;
         }
         case SPELLFAMILY_WARRIOR:
         {
             // Hamstring - limit duration to 10s in PvP
-            if (spellproto->SpellFamilyFlags[0] & 0x00000000002)
+            if (spellproto->SpellFamilyFlags[0] & 0x2)
                 return DIMINISHING_LIMITONLY;
             break;
         }
