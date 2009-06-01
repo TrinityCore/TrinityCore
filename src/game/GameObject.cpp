@@ -1442,6 +1442,7 @@ void GameObject::TakenDamage(uint32 damage)
         SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
         SetUInt32Value(GAMEOBJECT_DISPLAYID, m_goInfo->destructibleBuilding.destroyedDisplayId);
         m_goValue->destructibleBuilding.health = 0;
+        EventInform(m_goInfo->destructibleBuilding.destroyedEventId);
     }
     else // from undamaged to damaged
     {
@@ -1455,6 +1456,7 @@ void GameObject::TakenDamage(uint32 damage)
         }
         else
             m_goValue->destructibleBuilding.health = 0;
+        EventInform(m_goInfo->destructibleBuilding.damagedEventId);
     }
 }
 
@@ -1463,6 +1465,12 @@ void GameObject::Rebuild()
     RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED + GO_FLAG_DESTROYED);
     SetUInt32Value(GAMEOBJECT_DISPLAYID, m_goInfo->displayId);
     m_goValue->destructibleBuilding.health = m_goInfo->destructibleBuilding.damagedHealth;
+}
+
+void GameObject::EventInform(uint32 eventId)
+{
+    if(eventId && m_zoneScript)
+        m_zoneScript->ProcessEvent(this, eventId);
 }
 
 // overwrite WorldObject function for proper name localization

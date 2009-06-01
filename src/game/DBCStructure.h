@@ -519,7 +519,7 @@ struct AreaGroupEntry
 struct AreaPOIEntry
 {
     uint32 id;              //0
-    //uint32 icon[11];      //1-11
+    uint32 icon[11];        //1-11
     float x;                //12
     float y;                //13
     float z;                //14
