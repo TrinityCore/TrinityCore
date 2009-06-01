@@ -40,7 +40,7 @@ const int LogType_count = int(LogError) +1;
 
 Log::Log() :
     raLogfile(NULL), logfile(NULL), gmLogfile(NULL), charLogfile(NULL),
-    dberLogfile(NULL), m_colored(false), m_includeTime(false), m_gmlog_per_account(false)
+    dberLogfile(NULL), arenaLogFile(NULL), m_colored(false), m_includeTime(false), m_gmlog_per_account(false)
 {
     Initialize();
 }
@@ -231,6 +231,8 @@ void Log::Initialize()
     dberLogfile = openLogFile("DBErrorLogFile",NULL,"a");
     raLogfile = openLogFile("RaLogFile",NULL,"a");
 
+    arenaLogFile = openLogFile("ArenaLogFile",NULL,"a");
+
     // Main log file settings
     m_includeTime  = sConfig.GetBoolDefault("LogTime", false);
     m_logLevel     = sConfig.GetIntDefault("LogLevel", 0);
@@ -248,6 +250,7 @@ void Log::Initialize()
 
     // Char log settings
     m_charLog_Dump = sConfig.GetBoolDefault("CharLogDump", false);
+
 }
 
 FILE* Log::openLogFile(char const* configFileName,char const* configTimeStampFlag, char const* mode)
@@ -421,6 +424,24 @@ void Log::outError( const char * err, ... )
         fflush(logfile);
     }
     fflush(stderr);
+}
+
+void Log::outArena( const char * str, ... )
+{
+    if( !str )
+        return;
+
+    if(arenaLogFile)
+    {
+        va_list ap;
+        outTimestamp(arenaLogFile);
+        va_start(ap, str);
+        vfprintf(arenaLogFile, str, ap);
+        fprintf(arenaLogFile, "\n" );
+        va_end(ap);
+        fflush(arenaLogFile);
+    }
+    fflush(stdout);
 }
 
 void Log::outErrorDb( const char * err, ... )
