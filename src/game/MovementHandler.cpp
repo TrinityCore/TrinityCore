@@ -278,6 +278,17 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
         movementInfo.t_seat = -1;
     }
 
+    // Aura removal may remove mover
+    // fall damage generation (ignore in flight case that can be triggered also at lags in moment teleportation to another map).
+    if (opcode == MSG_MOVE_FALL_LAND && plMover && !plMover->isInFlight())
+        plMover->HandleFall(movementInfo);
+
+    if (plMover && ((movementInfo.flags & MOVEMENTFLAG_SWIMMING) != 0) != plMover->IsInWater())
+    {
+        // now client not include swimming flag in case jumping under water
+        plMover->SetInWater( !plMover->IsInWater() || plMover->GetBaseMap()->IsUnderWater(movementInfo.x, movementInfo.y, movementInfo.z) );
+    }
+
     /*----------------------*/
 
     /* process position-change */
@@ -331,18 +342,8 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
     }
     else                                                    // creature charmed
     {
+        uint32 entry = mover->GetEntry();
         mover->GetMap()->CreatureRelocation((Creature*)mover, movementInfo.x, movementInfo.y, movementInfo.z, movementInfo.o);
-    }
-
-    // Aura removal may remove mover
-    // fall damage generation (ignore in flight case that can be triggered also at lags in moment teleportation to another map).
-    if (opcode == MSG_MOVE_FALL_LAND && plMover && !plMover->isInFlight())
-        plMover->HandleFall(movementInfo);
-
-    if (plMover && ((movementInfo.flags & MOVEMENTFLAG_SWIMMING) != 0) != plMover->IsInWater())
-    {
-        // now client not include swimming flag in case jumping under water
-        plMover->SetInWater( !plMover->IsInWater() || plMover->GetBaseMap()->IsUnderWater(movementInfo.x, movementInfo.y, movementInfo.z) );
     }
 }
 
