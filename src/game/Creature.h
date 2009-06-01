@@ -716,6 +716,8 @@ class TRINITY_DLL_SPEC Creature : public Unit
         bool IsDamageEnoughForLootingAndReward() { return m_unDamageByPlayers >= (uint32)(GetMaxHealth() / 2); }
         void AddDamageByPlayers(uint32 unDamage) { m_unDamageByPlayers += unDamage; }
         void ResetDamageByPlayers() { m_unDamageByPlayers = 0; }
+
+        void SetOriginalEntry(uint32 entry) { m_originalEntry = entry; }
         
     protected:
         bool CreateFromProto(uint32 guidlow,uint32 Entry,uint32 team, const CreatureData *data = NULL);
