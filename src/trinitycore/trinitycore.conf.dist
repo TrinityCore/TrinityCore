@@ -310,6 +310,10 @@ AddonChannel = 1
 #        Default: "Ra.log"
 #                 "" - Empty name for disable
 #
+#	ArenaLogFile
+#        Log file of arena fights and arena team creations
+#        Default: "" - do not create arena log file
+#
 #    LogColors
 #        Color for messages (format "normal basic detail debug")
 #        Colors: 0 - BLACK, 1 - RED, 2 - GREEN,  3 - BROWN, 4 - BLUE, 5 - MAGENTA, 6 -  CYAN, 7 - GREY,
@@ -419,6 +423,7 @@ GmLogFile = "gm_commands.log"
 GmLogTimestamp = 0
 GmLogPerAccount = 0
 RaLogFile = "ra_commands.log"
+ArenaLogFile = ""
 LogColors = ""
 EnableLogDB = 0
 DBLogLevel = 1
