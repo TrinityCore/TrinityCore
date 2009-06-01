@@ -81,6 +81,10 @@ class Log : public Trinity::Singleton<Log, Trinity::ClassLevelLockable<Log, ZThr
         if (raLogfile != NULL)
             fclose(raLogfile);
         raLogfile = NULL;
+
+        if (arenaLogFile != NULL)
+            fclose(arenaLogFile);
+        arenaLogFile = NULL;
     }
     public:
         void Initialize();
@@ -109,6 +113,7 @@ class Log : public Trinity::Singleton<Log, Trinity::ClassLevelLockable<Log, ZThr
                                                             // any log level
         void outCharDump( const char * str, uint32 account_id, uint32 guid, const char * name );
         void outRALog( const char * str, ... )       ATTR_PRINTF(2,3);
+        void outArena( const char * str, ... )       ATTR_PRINTF(2,3);
         void SetLogLevel(char * Level);
         void SetLogFileLevel(char * Level);
         void SetColor(bool stdout_stream, Color color);
@@ -129,6 +134,7 @@ class Log : public Trinity::Singleton<Log, Trinity::ClassLevelLockable<Log, ZThr
         FILE* gmLogfile;
         FILE* charLogfile;
         FILE* dberLogfile;
+        FILE* arenaLogFile;
 
         // log/console control
         uint32 m_logLevel;
@@ -147,6 +153,7 @@ class Log : public Trinity::Singleton<Log, Trinity::ClassLevelLockable<Log, ZThr
 
         // gm log control
         bool m_gmlog_per_account;
+
         std::string m_gmlog_filename_format;
 };
 
