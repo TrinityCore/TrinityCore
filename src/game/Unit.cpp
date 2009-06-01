@@ -5434,6 +5434,8 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             // Seed of Corruption
             if (dummySpell->SpellFamilyFlags[1] & 0x00000010)
             {
+                if(procSpell && procSpell->Id == 27285)
+                    return false;
                 // if damage is more than need or target die from damage deal finish spell
                 if( triggeredByAura->GetAmount() <= damage || GetHealth() <= damage )
                 {
@@ -10000,7 +10002,19 @@ void Unit::Mount(uint32 mount)
 
     // unsummon pet
     if(GetTypeId() == TYPEID_PLAYER)
-        ((Player*)this)->UnsummonPetTemporaryIfAny();
+    {
+        Pet* pet = ((Player*)this)->GetPet();
+        if(pet)
+        {
+            BattleGround *bg = ((Player *)this)->GetBattleGround();
+            // don't unsummon pet in arena but SetFlag UNIT_FLAG_STUNNED to disable pet's interface
+            if(bg && bg->isArena())
+                pet->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
+            else
+                ((Player*)this)->UnsummonPetTemporaryIfAny();
+        }
+    }
+
 }
 
 void Unit::Unmount()
@@ -10017,7 +10031,15 @@ void Unit::Unmount()
     // this prevents adding a pet to a not created map which would otherwise cause a crash
     // (it could probably happen when logging in after a previous crash)
     if(GetTypeId() == TYPEID_PLAYER)
-        ((Player*)this)->ResummonPetTemporaryUnSummonedIfAny();
+    {    
+        if(Pet *pPet = ((Player*)this)->GetPet())
+        {
+            if(pPet->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED) && !pPet->hasUnitState(UNIT_STAT_STUNNED))
+                pPet->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
+        }
+        else
+            ((Player*)this)->ResummonPetTemporaryUnSummonedIfAny();
+    }
 }
 
 void Unit::SetInCombatWith(Unit* enemy)
@@ -13391,7 +13413,11 @@ void Unit::SetStunned(bool apply)
     {
         if(isAlive() && getVictim())
             SetUInt64Value(UNIT_FIELD_TARGET, getVictim()->GetGUID());
-        RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
+
+        // don't remove UNIT_FLAG_STUNNED for pet when owner is mounted (disabled pet's interface)
+        Unit *pOwner = GetOwner();
+        if(!pOwner || (pOwner->GetTypeId() == TYPEID_PLAYER && !((Player *)pOwner)->IsMounted()))
+            RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
 
         if(!hasUnitState(UNIT_STAT_ROOT))         // prevent allow move if have also root effect
         {

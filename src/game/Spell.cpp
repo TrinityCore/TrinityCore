@@ -2271,7 +2271,9 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
             }
             else
             {
-                if (m_spellInfo->Id==57699) //Replenishment (special target selection) 10 targets with lowest mana
+                if(m_spellInfo->Id == 27285) // Seed of Corruption proc spell
+                    unitList.remove(m_targets.getUnitTarget());
+                else if (m_spellInfo->Id==57699) //Replenishment (special target selection) 10 targets with lowest mana
                 {
                     typedef std::priority_queue<PrioritizeManaWraper, std::vector<PrioritizeManaWraper>, PrioritizeMana> TopMana;
                     TopMana manaUsers;
@@ -2990,9 +2992,13 @@ void Spell::finish(bool ok)
                 ((Puppet*)charm)->UnSummon();
     }
 
-    // other code related only to successfully finished spells
     if(!ok)
+    {
+        //restore spell mods
+        if (m_caster->GetTypeId() == TYPEID_PLAYER)
+            ((Player*)m_caster)->RestoreSpellMods(this);
         return;
+    }
 
     if (m_caster->GetTypeId()==TYPEID_UNIT && ((Creature*)m_caster)->isSummon())
     {
