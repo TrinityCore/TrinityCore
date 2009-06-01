@@ -46,8 +46,8 @@ enum Spells
     SPELL_CORROSION             =   45866,
     SPELL_GAS_NOVA              =   45855,
     SPELL_ENCAPSULATE_CHANNEL   =   45661,
-    SPELL_ENCAPSULATE_EFFECT    =   45665,
-    SPELL_ENCAPSULATE_AOE       =   45662,
+    // SPELL_ENCAPSULATE_EFFECT    =   45665,
+    // SPELL_ENCAPSULATE_AOE       =   45662,
 
     //Flight phase
     SPELL_VAPOR_SELECT          =   45391,   // fel to player, force cast 45392, 50000y selete target
@@ -474,7 +474,6 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
                 if(Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true))
                 {
                     m_creature->CastSpell(target, SPELL_ENCAPSULATE_CHANNEL, false);
-                    target->CastSpell(target, SPELL_ENCAPSULATE_EFFECT, true);// linked aura, need core patch to remove this hack
                     Timer[EVENT_ENCAPSULATE] = 25000 + rand()%5 * 1000;
                 }break;
             case EVENT_FLIGHT:
