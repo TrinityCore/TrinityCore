@@ -36,12 +36,14 @@ class TRINITY_DLL_SPEC ZoneScript
         virtual void OnGameObjectCreate(GameObject *go, bool add) {}
 
         //All-purpose data storage 64 bit
-        virtual uint64 GetData64(uint32 /*Data*/) { return 0; }
-        virtual void SetData64(uint32 /*Data*/, uint64 /*Value*/) {}
+        virtual uint64 GetData64(uint32 /*DataId*/) { return 0; }
+        virtual void SetData64(uint32 /*DataId*/, uint64 /*Value*/) {}
 
         //All-purpose data storage 32 bit
-        virtual uint32 GetData(uint32) { return 0; }
-        virtual void SetData(uint32, uint32 data) {}
+        virtual uint32 GetData(uint32 /*DataId*/) { return 0; }
+        virtual void SetData(uint32 /*DataId*/, uint32 /*Value*/) {}
+
+        virtual void ProcessEvent(WorldObject *obj, uint32 eventId) {}
 };
 
 #endif

@@ -2967,6 +2967,8 @@ void Spell::SendLoot(uint64 guid, LootType loottype)
                 {
                     sLog.outDebug("Goober ScriptStart id %u for GO %u", gameObjTarget->GetGOInfo()->goober.eventId,gameObjTarget->GetDBTableGUIDLow());
                     sWorld.ScriptsStart(sEventScripts, gameObjTarget->GetGOInfo()->goober.eventId, player, gameObjTarget);
+                    if(gameObjTarget->GetZoneScript())
+                        gameObjTarget->GetZoneScript()->ProcessEvent(gameObjTarget, gameObjTarget->GetGOInfo()->goober.eventId);
                 }
 
                 // cast goober spell
@@ -4395,7 +4397,11 @@ void Spell::EffectHealMaxHealth(uint32 /*i*/)
     if(!unitTarget->isAlive())
         return;
 
-    int32 addhealth = unitTarget->GetMaxHealth() - unitTarget->GetHealth();
+    int32 addhealth;
+    if(m_spellInfo->SpellFamilyName == SPELLFAMILY_PALADIN) // Lay on Hands
+        addhealth = m_caster->GetMaxHealth();
+    else
+        addhealth = unitTarget->GetMaxHealth() - unitTarget->GetHealth();
     if(m_originalCaster)
         m_originalCaster->DealHeal(unitTarget, addhealth, m_spellInfo);
 }
