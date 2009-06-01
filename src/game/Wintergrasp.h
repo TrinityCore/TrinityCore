@@ -46,13 +46,26 @@ const uint32 AreaPOIIconId[3][3] = {{7,8,9},{4,5,6},{1,2,3}};
 
 struct BuildingState
 {
-    explicit BuildingState(uint32 _worldState, uint32 _health)
-        : worldState(_worldState), health(_health), team(TEAM_NEUTRAL), damageState(DAMAGE_INTACT)
+    explicit BuildingState(uint32 _worldState, TeamId _team, bool asDefault)
+        : worldState(_worldState), health(0)
+        , defaultTeam(asDefault ? _team : OTHER_TEAM(_team)), team(_team), damageState(DAMAGE_INTACT)
+        , building(NULL)
     {}
     uint32 worldState;
     uint32 health;
-    TeamId team;
+    TeamId team, defaultTeam;
     DamageState damageState;
+    GameObject *building;
+
+    void SendUpdate(Player *player)
+    {
+        player->SendUpdateWorldState(worldState, AreaPOIIconId[team][damageState]);
+    }
+
+    void FillData(WorldPacket &data)
+    {
+        data << worldState << AreaPOIIconId[team][damageState];
+    }
 };
 
 typedef std::map<uint32, uint32> TeamPairMap;
@@ -60,7 +73,6 @@ typedef std::map<uint32, uint32> TeamPairMap;
 class OPvPWintergrasp : public OutdoorPvP
 {
     protected:
-        typedef std::list<const AreaPOIEntry *> AreaPOIList;
         typedef std::map<uint32, BuildingState *> BuildingStateMap;
         typedef std::set<Creature*> CreatureSet;
         typedef std::set<GameObject*> GameObjectSet;
@@ -74,16 +86,19 @@ class OPvPWintergrasp : public OutdoorPvP
         void OnCreatureCreate(Creature *creature, bool add);
         void OnGameObjectCreate(GameObject *go, bool add);
 
-        void ProcessEvent(WorldObject *obj, uint32 eventId);
+        void ProcessEvent(GameObject *obj, uint32 eventId);
 
         void HandlePlayerEnterZone(Player *plr, uint32 zone);
         void HandlePlayerLeaveZone(Player *plr, uint32 zone);
         void HandleKill(Player *killer, Unit *victim);
+
+        void SendInitWorldStatesTo(Player *player = NULL);
     protected:
         TeamId m_defender;
         int32 m_tenacityStack;
-        AreaPOIList areaPOIs;
-        BuildingStateMap buildingStates;
+
+        BuildingStateMap m_buildingStates;
+
         CreatureSet m_creatures;
         GameObjectSet m_gobjects;
 

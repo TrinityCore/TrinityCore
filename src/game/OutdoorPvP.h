@@ -210,6 +210,8 @@ protected:
     // world state stuff
     virtual void SendRemoveWorldStates(Player * plr) {}
 
+    void BroadcastPacket(WorldPacket & data);
+
     virtual void HandlePlayerEnterZone(Player * plr, uint32 zone);
     virtual void HandlePlayerLeaveZone(Player * plr, uint32 zone);
 

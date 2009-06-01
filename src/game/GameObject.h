@@ -353,13 +353,13 @@ struct GameObjectInfo
             uint32 damagedHealth;                           //0
             uint32 dmgPctState2;                            //1
             uint32 state1Name;                              //2
-            uint32 state2Name;                              //3
+            uint32 damagedEventId;                          //3
             uint32 damagedDisplayId;                        //4
             uint32 destroyedHealth;                         //5
             uint32 unk6;
             uint32 unk7;
             uint32 unk8;
-            uint32 unk9;
+            uint32 destroyedEventId;                        //9
             uint32 destroyedDisplayId;                      //10
         } destructibleBuilding;
         //34 GAMEOBJECT_TYPE_GUILDBANK - empty
@@ -648,6 +648,8 @@ class TRINITY_DLL_SPEC GameObject : public WorldObject
         bool IsInRange(float x, float y, float z, float radius) const;
         void TakenDamage(uint32 damage);
         void Rebuild();
+
+        void EventInform(uint32 eventId);
     protected:
         uint32      m_charges;                              // Spell charges for GAMEOBJECT_TYPE_SPELLCASTER (22)
         uint32      m_spellId;
