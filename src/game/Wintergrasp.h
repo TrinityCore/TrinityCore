@@ -55,11 +55,15 @@ struct BuildingState
     DamageState damageState;
 };
 
+typedef std::map<uint32, uint32> TeamPairMap;
+
 class OPvPWintergrasp : public OutdoorPvP
 {
     protected:
         typedef std::list<const AreaPOIEntry *> AreaPOIList;
         typedef std::map<uint32, BuildingState *> BuildingStateMap;
+        typedef std::set<Creature*> CreatureSet;
+        typedef std::set<GameObject*> GameObjectSet;
     public:
         explicit OPvPWintergrasp() : m_tenacityStack(0) {}
         bool SetupOutdoorPvP();
@@ -67,7 +71,10 @@ class OPvPWintergrasp : public OutdoorPvP
         uint32 GetCreatureEntry(uint32 guidlow, uint32 entry);
         //uint32 GetGameObjectEntry(uint32 guidlow, uint32 entry);
 
+        void OnCreatureCreate(Creature *creature, bool add);
         void OnGameObjectCreate(GameObject *go, bool add);
+
+        void ProcessEvent(WorldObject *obj, uint32 eventId);
 
         void HandlePlayerEnterZone(Player *plr, uint32 zone);
         void HandlePlayerLeaveZone(Player *plr, uint32 zone);
@@ -77,8 +84,17 @@ class OPvPWintergrasp : public OutdoorPvP
         int32 m_tenacityStack;
         AreaPOIList areaPOIs;
         BuildingStateMap buildingStates;
+        CreatureSet m_creatures;
+        GameObjectSet m_gobjects;
+
+        TeamPairMap m_creEntryPair, m_goDisplayPair;
+
+        void ChangeDefender();
 
         void UpdateTenacityStack();
+        bool UpdateCreatureInfo(Creature *creature);
+        void UpdateAllWorldObject();
+        bool UpdateGameObjectInfo(GameObject *go);
 };
 
 #endif
