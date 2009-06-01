@@ -16946,7 +16946,7 @@ void Player::CharmSpellInitialize()
     data << uint32(0);
 
     if(charm->GetTypeId() != TYPEID_PLAYER)
-        data << uint8(((Creature*)charm)->GetReactState()) << uint8(charmInfo->GetCommandState());
+        data << uint8(((Creature*)charm)->GetReactState()) << uint8(charmInfo->GetCommandState()) << uint16(0);
     else
         data << uint8(0) << uint8(0) << uint16(0);
 
