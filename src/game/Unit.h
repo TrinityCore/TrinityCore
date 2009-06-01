@@ -1170,6 +1170,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         float GetUnitParryChance()    const;
         float GetUnitBlockChance()    const;
         float GetUnitCriticalChance(WeaponAttackType attackType, const Unit *pVictim) const;
+        int32 GetMechanicResistChance(const SpellEntry *spell);
         bool CanUseAttackType( uint8 attacktype ) const
         {
             switch(attacktype)
