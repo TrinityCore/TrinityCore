@@ -17040,6 +17040,28 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
     }
 }
 
+// Restore spellmods in case of failed cast
+void Player::RestoreSpellMods(Spell const* spell)
+{
+    if(!spell || (m_SpellModRemoveCount == 0))
+        return;
+
+    for(int i=0;i<MAX_SPELLMOD;++i)
+    {
+        for (SpellModList::iterator itr = m_spellMods[i].begin(); itr != m_spellMods[i].end();++itr)
+        {
+            SpellModifier *mod = *itr;
+
+            if (mod && mod->charges == -1 && mod->lastAffected == spell)
+            {
+                mod->lastAffected = NULL;
+                mod->charges = 1;
+                m_SpellModRemoveCount--;
+            }
+        }
+    }
+}
+
 void Player::RemoveSpellMods(Spell const* spell)
 {
     if(!spell || (m_SpellModRemoveCount == 0))
