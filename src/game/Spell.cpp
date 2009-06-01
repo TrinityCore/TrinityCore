@@ -1645,9 +1645,10 @@ WorldObject* Spell::SearchNearbyTarget(float range, SpellTargets TargetType)
                     case SPELL_TARGET_TYPE_GAMEOBJECT:
                         if(i_spellST->second.targetEntry)
                         {
-                            if(goScriptTarget = m_caster->FindNearestGameObject(i_spellST->second.targetEntry, range))
+                            if(GameObject *go = m_caster->FindNearestGameObject(i_spellST->second.targetEntry, range))
                             {
                                 // remember found target and range, next attempt will find more near target with another entry
+                                goScriptTarget = go;
                                 creatureScriptTarget = NULL;
                                 range = m_caster->GetDistance(goScriptTarget);
                             }
@@ -1668,8 +1669,9 @@ WorldObject* Spell::SearchNearbyTarget(float range, SpellTargets TargetType)
                             return m_targets.getUnitTarget();
                     case SPELL_TARGET_TYPE_DEAD:
                     default:
-                        if(creatureScriptTarget = m_caster->FindNearestCreature(i_spellST->second.targetEntry, range, i_spellST->second.type != SPELL_TARGET_TYPE_DEAD))
+                        if(Creature *cre = m_caster->FindNearestCreature(i_spellST->second.targetEntry, range, i_spellST->second.type != SPELL_TARGET_TYPE_DEAD))
                         {
+                            creatureScriptTarget = cre;
                             goScriptTarget = NULL;
                             range = m_caster->GetDistance(creatureScriptTarget);
                         }
