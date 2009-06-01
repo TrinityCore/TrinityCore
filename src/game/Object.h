@@ -548,7 +548,6 @@ class TRINITY_DLL_SPEC WorldObject : public Object
 
         bool isActiveObject() const { return m_isActive; }
         void setActive(bool isActiveObject);
-        void SetInternallyAdded() { m_isInternallyAdded = true; }
         void SetWorldObject(bool apply);
         template<class NOTIFIER> void VisitNearbyObject(const float &radius, NOTIFIER &notifier) const { GetMap()->VisitAll(GetPositionX(), GetPositionY(), radius, notifier); }
         template<class NOTIFIER> void VisitNearbyGridObject(const float &radius, NOTIFIER &notifier) const { GetMap()->VisitGrid(GetPositionX(), GetPositionY(), radius, notifier); }
@@ -567,7 +566,6 @@ class TRINITY_DLL_SPEC WorldObject : public Object
         explicit WorldObject();
         std::string m_name;
         bool m_isActive;
-        bool m_isInternallyAdded;
         ZoneScript *m_zoneScript;
 
     private:

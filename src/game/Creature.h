@@ -579,6 +579,7 @@ class TRINITY_DLL_SPEC Creature : public Unit
         TrainerSpellData const* GetTrainerSpells() const;
 
         CreatureInfo const *GetCreatureInfo() const { return m_creatureInfo; }
+        CreatureData const *GetCreatureData() const { return m_creatureData; }
         CreatureDataAddon const* GetCreatureAddon() const;
 
         std::string GetAIName() const;
@@ -777,6 +778,7 @@ class TRINITY_DLL_SPEC Creature : public Unit
 
         GridReference<Creature> m_gridRef;
         CreatureInfo const* m_creatureInfo;                 // in heroic mode can different from ObjMgr::GetCreatureTemplate(GetEntry())
+        CreatureData const* m_creatureData;
 };
 
 class AssistDelayEvent : public BasicEvent

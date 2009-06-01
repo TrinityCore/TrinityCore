@@ -471,7 +471,8 @@ class TRINITY_DLL_SPEC GameObject : public WorldObject
         bool Create(uint32 guidlow, uint32 name_id, Map *map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 ArtKit = 0);
         void Update(uint32 p_time);
         static GameObject* GetGameObject(WorldObject& object, uint64 guid);
-        GameObjectInfo const* GetGOInfo() const;
+        GameObjectInfo const* GetGOInfo() const { return m_goInfo; }
+        GameObjectData const* GetGOData() const { return m_goData; }
 
         bool IsTransport() const;
 
@@ -663,6 +664,7 @@ class TRINITY_DLL_SPEC GameObject : public WorldObject
 
         uint32 m_DBTableGuid;                               ///< For new or temporary gameobjects is 0 for saved it is lowguid
         GameObjectInfo const* m_goInfo;
+        GameObjectData const* m_goData;
         GameObjectValue * const m_goValue;
     private:
         void SwitchDoorOrButton(bool activate, bool alternative = false);
