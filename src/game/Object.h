@@ -536,6 +536,7 @@ class TRINITY_DLL_SPEC WorldObject : public Object
         Map const* GetBaseMap() const;
 
         void SetZoneScript();
+        ZoneScript * GetZoneScript() const { return m_zoneScript; }
 
         TempSummon* SummonCreature(uint32 id, float x, float y, float z, float ang = 0,TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN,uint32 despwtime = 0);
         Vehicle*    SummonVehicle(uint32 entry, float x, float y, float z, float ang = 0);
