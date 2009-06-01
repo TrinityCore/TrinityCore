@@ -497,6 +497,14 @@ bool OutdoorPvP::HandleAreaTrigger(Player *plr, uint32 trigger)
     return false;
 }
 
+void OutdoorPvP::BroadcastPacket(WorldPacket &data)
+{
+    // This is faster than sWorld.SendZoneMessage
+    for(uint32 team = 0; team < 2; ++team)
+        for(PlayerSet::iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
+            (*itr)->GetSession()->SendPacket(&data);
+}
+
 void OutdoorPvP::RegisterZone(uint32 zoneId)
 {
     sOutdoorPvPMgr.AddZone(zoneId, this);
