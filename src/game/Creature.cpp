@@ -1464,7 +1464,7 @@ bool Creature::CreateFromProto(uint32 guidlow, uint32 Entry, uint32 team, const 
         return false;
     }
 
-    m_originalEntry = Entry;
+    SetOriginalEntry(Entry);
 
     if(isVehicle())
         Object::_Create(guidlow, Entry, HIGHGUID_VEHICLE);

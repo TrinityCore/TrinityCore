@@ -21,6 +21,33 @@
 #include "Vehicle.h"
 //#include "GameEventMgr.h"
 #include "ObjectMgr.h"
+#include "World.h"
+
+typedef uint32 TeamPair[2];
+
+const TeamPair CreatureEntryPair[] =
+{
+    {30739, 30740},
+    {30400, 30499},
+    {0,0}
+};
+
+const TeamPair GODisplayPair[] =
+{
+    {5651, 5652},
+    {8256, 8257},
+    {0,0}
+};
+
+void LoadTeamPair(TeamPairMap &pairMap, const TeamPair *pair)
+{
+    while((*pair)[0])
+    {
+        pairMap[(*pair)[0]] = (*pair)[1];
+        pairMap[(*pair)[1]] = (*pair)[0];
+        ++pair;
+    }
+}
 
 bool OPvPWintergrasp::SetupOutdoorPvP()
 {
@@ -38,66 +65,106 @@ bool OPvPWintergrasp::SetupOutdoorPvP()
     //gameeventmgr.StartInternalEvent(GameEventWintergraspDefender[m_defender]);
 
     //Titan Relic eventid = 19982
-    objmgr.AddGameObject(192829, 571, 5444.6, 2840.8, 420.43, 0);
+    objmgr.AddGameObject(192829, 571, 5440, 2840.8, 420.43, 0);
 
+    LoadTeamPair(m_goDisplayPair, GODisplayPair);
+    LoadTeamPair(m_creEntryPair, CreatureEntryPair);
 
     return true;
+}
+
+void OPvPWintergrasp::ProcessEvent(WorldObject *obj, uint32 eventId)
+{
+    if(eventId == 19982)
+        ChangeDefender();
+}
+
+void OPvPWintergrasp::ChangeDefender()
+{
+    m_defender = OTHER_TEAM(m_defender);
+    if(m_defender == TEAM_ALLIANCE)
+        sWorld.SendZoneText(ZONE_WINTERGRASP, "Alliance has taken over the fortress!");
+    else
+        sWorld.SendZoneText(ZONE_WINTERGRASP, "Horde has taken over the fortress!");
+    UpdateAllWorldObject();
 }
 
 uint32 OPvPWintergrasp::GetCreatureEntry(uint32 guidlow, uint32 entry)
 {
     if(m_defender == TEAM_ALLIANCE)
     {
-        switch(entry)
-        {
-            case 30739: return 30740;
-            case 30740: return 30739;
-            case 30400: return 30499;
-            case 30499: return 30400;
-        }
+        TeamPairMap::const_iterator itr = m_creEntryPair.find(entry);
+        if(itr != m_creEntryPair.end())
+            return itr->second;
     }
     return entry;
 }
 
-/*
-uint32 OPvPWintergrasp::GetGameObjectEntry(uint32 guidlow, uint32 entry)
+void OPvPWintergrasp::OnCreatureCreate(Creature *creature, bool add)
 {
-    if(m_defender == TEAM_ALLIANCE)
+    if(m_creEntryPair.find(creature->GetEntry()) != m_creEntryPair.end())
     {
-        GameObjectInfo const* goInfo = objmgr.GetGameObjectInfo(entry);
-        if(!goInfo)
-            return 0;
-        switch(goInfo->displayId)
-        {
-            case 5651: return 192289;
-            case 5652: return 192288;
-            case 8256: return 192502;
-            case 8257: return 192501;
-        }
+        if(add) m_creatures.insert(creature);
+        else m_creatures.erase(creature);
     }
-    return entry;
 }
-*/
 
 void OPvPWintergrasp::OnGameObjectCreate(GameObject *go, bool add)
 {
     OutdoorPvP::OnGameObjectCreate(go, add);
-    if(m_defender == TEAM_ALLIANCE)
-    {
-        switch(go->GetEntry())
-        {
-            case 190763: go->SetUInt32Value(GAMEOBJECT_FACTION, WintergraspFaction[m_defender]); break;
-        }
 
-        // Note: this is only for test, still need db support
-        switch(go->GetGOInfo()->displayId)
+    if(UpdateGameObjectInfo(go))
+    {
+        if(add) m_gobjects.insert(go);
+        else m_gobjects.erase(go);
+    }
+}
+
+void OPvPWintergrasp::UpdateAllWorldObject()
+{
+    for(GameObjectSet::iterator itr = m_gobjects.begin(); itr != m_gobjects.end(); ++itr)
+        UpdateGameObjectInfo(*itr);
+    for(CreatureSet::iterator itr = m_creatures.begin(); itr != m_creatures.end(); ++itr)
+        UpdateCreatureInfo(*itr);
+}
+
+bool OPvPWintergrasp::UpdateCreatureInfo(Creature *creature)
+{
+    TeamPairMap::const_iterator itr = m_creEntryPair.find(creature->GetCreatureData()->id);
+    if(itr != m_creEntryPair.end())
+    {
+        uint32 entry = m_defender == TEAM_ALLIANCE ? itr->second : itr->first;
+        if(entry != creature->GetEntry())
         {
-            case 5651: go->SetUInt32Value(GAMEOBJECT_DISPLAYID, 5652); break;
-            case 5652: go->SetUInt32Value(GAMEOBJECT_DISPLAYID, 5651); break;
-            case 8256: go->SetUInt32Value(GAMEOBJECT_DISPLAYID, 8257); break;
-            case 8257: go->SetUInt32Value(GAMEOBJECT_DISPLAYID, 8256); break;
+            creature->SetOriginalEntry(entry);
+            creature->setDeathState(DEAD);
+            creature->Respawn();
         }
     }
+
+    return false;
+}
+
+bool OPvPWintergrasp::UpdateGameObjectInfo(GameObject *go)
+{
+    switch(go->GetEntry())
+    {
+        // Defender's Portal
+        case 190763:
+            go->SetUInt32Value(GAMEOBJECT_FACTION, WintergraspFaction[m_defender]);
+            return true;
+    }
+
+    // Note: this is only for test, still need db support
+    TeamPairMap::const_iterator itr = m_goDisplayPair.find(go->GetGOInfo()->displayId);
+    if(itr != m_goDisplayPair.end())
+    {
+        go->SetUInt32Value(GAMEOBJECT_DISPLAYID, m_defender == TEAM_ALLIANCE ?
+            itr->second : itr->first);
+        return true;
+    }
+
+    return false;
 }
 
 void OPvPWintergrasp::HandlePlayerEnterZone(Player * plr, uint32 zone)
