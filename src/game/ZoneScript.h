@@ -21,6 +21,7 @@
 
 #include "Common.h"
 
+class WorldObject;
 class Creature;
 class GameObject;
 
