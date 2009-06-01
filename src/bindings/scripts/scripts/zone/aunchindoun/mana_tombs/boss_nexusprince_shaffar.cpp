@@ -42,8 +42,8 @@ EndContentData */
 #define SAY_DEAD                        -1557007
 
 #define SPELL_BLINK                     34605
-#define SPELL_FROSTBOLT                 32364
-#define SPELL_FIREBALL                  32363
+#define SPELL_FROSTBOLT                 32370
+#define SPELL_FIREBALL                  20420
 #define SPELL_FROSTNOVA                 32365
 
 #define SPELL_ETHEREAL_BEACON           32371               // Summon 18431
@@ -51,6 +51,8 @@ EndContentData */
 
 #define ENTRY_BEACON                    18431
 #define ENTRY_SHAFFAR                   18344
+
+#define NR_INITIAL_BEACONS              3
 
 struct TRINITY_DLL_DECL boss_nexusprince_shaffarAI : public ScriptedAI
 {
@@ -62,8 +64,17 @@ struct TRINITY_DLL_DECL boss_nexusprince_shaffarAI : public ScriptedAI
     uint32 Frostbolt_Timer;
     uint32 FrostNova_Timer;
 
+    Creature* Beacon[NR_INITIAL_BEACONS];
+
     bool HasTaunted;
     bool CanBlink;
+
+    void RemoveBeaconFromList(Creature* targetBeacon)
+    {
+        for(uint8 i = 0; i < NR_INITIAL_BEACONS; i++)
+            if(Beacon[i] && Beacon[i]->GetGUID() == targetBeacon->GetGUID())
+                Beacon[i] = NULL;
+    }
 
     void Reset()
     {
@@ -75,6 +86,36 @@ struct TRINITY_DLL_DECL boss_nexusprince_shaffarAI : public ScriptedAI
 
         HasTaunted = false;
         CanBlink = false;
+
+        float dist = 8.0f;
+        float posX, posY, posZ, angle;
+        m_creature->GetHomePosition(posX, posY, posZ, angle);
+
+        Beacon[0] = m_creature->SummonCreature(ENTRY_BEACON, posX - dist, posY - dist, posZ, angle, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 7200000);
+        Beacon[1] = m_creature->SummonCreature(ENTRY_BEACON, posX - dist, posY + dist, posZ, angle, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 7200000);
+        Beacon[2] = m_creature->SummonCreature(ENTRY_BEACON, posX + dist, posY, posZ, angle, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 7200000);
+
+        for(uint8 i = 0; i < NR_INITIAL_BEACONS; i++)
+        {
+            if(Beacon[i])
+                Beacon[i]->CastSpell(Beacon[i], SPELL_ETHEREAL_BEACON_VISUAL, false);
+        }
+    }
+
+    void EnterEvadeMode()
+    {
+        //Despawn still living initial beacons.
+        for(uint8 i = 0; i < NR_INITIAL_BEACONS; i++)
+        {
+            if(Beacon[i] && Beacon[i]->isAlive())
+            {
+                Beacon[i]->RemoveAllAuras();
+                Beacon[i]->CombatStop();
+                Beacon[i]->StopMoving();
+                Beacon[i]->Kill(Beacon[i]);
+            }
+        }
+        ScriptedAI::EnterEvadeMode();
     }
 
     void MoveInLineOfSight(Unit *who)
@@ -107,6 +148,11 @@ struct TRINITY_DLL_DECL boss_nexusprince_shaffarAI : public ScriptedAI
             case 1: DoScriptText(SAY_AGGRO_2, m_creature); break;
             case 2: DoScriptText(SAY_AGGRO_3, m_creature); break;
         }
+
+        // Send initial beacons to join the fight if not already
+        for(uint8 i = 0; i < NR_INITIAL_BEACONS; i++)
+            if(Beacon[i] && Beacon[i]->isAlive() && !Beacon[i]->isInCombat())
+                Beacon[i]->AI()->AttackStart(who);
     }
 
     void JustSummoned(Creature *summoned)
@@ -204,26 +250,36 @@ struct TRINITY_DLL_DECL mob_ethereal_beaconAI : public ScriptedAI
     mob_ethereal_beaconAI(Creature *c) : ScriptedAI(c), CanEvade(false)
     {
         HeroicMode = m_creature->GetMap()->IsHeroic();
-        CanEvade = false;
     }
 
     bool HeroicMode;
-    bool CanEvade;
     uint32 Apprentice_Timer;
     uint32 ArcaneBolt_Timer;
+    uint32 Check_Timer;
+
+    void KillSelf()
+    {
+        m_creature->Kill(m_creature);
+    }
 
     void Reset()
     {
-        if( CanEvade )
-            m_creature->SetVisibility(VISIBILITY_OFF);
-
-        CanEvade = false;
         Apprentice_Timer = (HeroicMode ? 10000 : 20000);
         ArcaneBolt_Timer = 1000;
+        Check_Timer = 1000;
     }
 
     void EnterCombat(Unit *who)
     {
+        // Send Shaffar to fight
+        Unit* Shaffar = FindCreature(ENTRY_SHAFFAR, 100, m_creature);
+        if(!Shaffar || Shaffar->isDead())
+        {
+            KillSelf();
+            return;
+        }
+        if(!Shaffar->isInCombat())
+            ((Creature*)Shaffar)->AI()->AttackStart(who);
     }
 
     void JustSummoned(Creature *summoned)
@@ -231,22 +287,33 @@ struct TRINITY_DLL_DECL mob_ethereal_beaconAI : public ScriptedAI
         summoned->AI()->AttackStart(m_creature->getVictim());
     }
 
+    void JustDied(Unit* Killer)
+    {
+        Unit *Shaffar = FindCreature(ENTRY_SHAFFAR, 100, m_creature);
+        if(Shaffar)
+            ((boss_nexusprince_shaffarAI*)(((Creature*)Shaffar)->AI()))->RemoveBeaconFromList(m_creature);
+    }
+
     void UpdateAI(const uint32 diff)
     {
         if (!UpdateVictim())
             return;
 
+        if(Check_Timer < diff)
+        {
+            Unit *Shaffar = FindCreature(ENTRY_SHAFFAR, 100, m_creature);
+            if(!Shaffar || Shaffar->isDead() || !Shaffar->isInCombat())
+            {
+                KillSelf();
+                return;
+            }
+            Check_Timer = 1000;
+        }else Check_Timer -= diff;
+
         if( ArcaneBolt_Timer < diff )
         {
             DoCast(m_creature->getVictim(),SPELL_ARCANE_BOLT);
             ArcaneBolt_Timer = 2000 + rand()%2500;
-            Unit *shaffar = m_creature->FindNearestCreature(ENTRY_SHAFFAR, 100);
-            if(!shaffar || shaffar->isDead())
-            {
-                m_creature->SetVisibility(VISIBILITY_OFF);
-                m_creature->SetLootRecipient(NULL);
-                m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-            }
         }else ArcaneBolt_Timer -= diff;
 
         if( Apprentice_Timer < diff )
@@ -257,22 +324,59 @@ struct TRINITY_DLL_DECL mob_ethereal_beaconAI : public ScriptedAI
             m_creature->CastSpell(m_creature,SPELL_ETHEREAL_APPRENTICE,true);
             if( m_creature->isPet() )
                 ((Pet*)m_creature)->SetDuration(0);
-            CanEvade = true;
-        }else Apprentice_Timer -= diff;
-
-        if( CanEvade )
-        {
-            EnterEvadeMode();
+            KillSelf();
             return;
-        }
-
-        DoMeleeAttackIfReady();
+        }else Apprentice_Timer -= diff;
     }
 };
 
 CreatureAI* GetAI_mob_ethereal_beacon(Creature *_Creature)
 {
     return new mob_ethereal_beaconAI (_Creature);
+}
+
+#define SPELL_ETHEREAL_APPRENTICE_FIREBOLT          32369
+#define SPELL_ETHEREAL_APPRENTICE_FROSTBOLT         32370
+
+struct TRINITY_DLL_DECL mob_ethereal_apprenticeAI : public ScriptedAI
+{
+    mob_ethereal_apprenticeAI(Creature *c) : ScriptedAI(c) {}
+
+    uint32 Cast_Timer;
+
+    bool isFireboltTurn;
+
+    void Reset()
+    {
+        Cast_Timer = 3000;
+        isFireboltTurn = true;
+    }
+
+    void Aggro(Unit* who) {}
+
+    void UpdateAI(const uint32 diff)
+    {
+        if(!UpdateVictim())
+            return;
+
+        if(Cast_Timer < diff)
+        {
+            if(isFireboltTurn)
+            {
+                m_creature->CastSpell(m_creature->getVictim(), SPELL_ETHEREAL_APPRENTICE_FIREBOLT, true);
+                isFireboltTurn = false;
+            }else{
+                m_creature->CastSpell(m_creature->getVictim(), SPELL_ETHEREAL_APPRENTICE_FROSTBOLT, true);
+                isFireboltTurn = true;
+            }
+            Cast_Timer = 3000;
+        }else Cast_Timer -= diff;
+    }
+};
+
+CreatureAI* GetAI_mob_ethereal_apprentice(Creature *_Creature)
+{
+    return new mob_ethereal_apprenticeAI (_Creature);
 }
 
 void AddSC_boss_nexusprince_shaffar()
@@ -287,6 +391,11 @@ void AddSC_boss_nexusprince_shaffar()
     newscript = new Script;
     newscript->Name="mob_ethereal_beacon";
     newscript->GetAI = &GetAI_mob_ethereal_beacon;
+    newscript->RegisterSelf();
+    
+    newscript = new Script;
+    newscript->Name="mob_ethereal_apprentice";
+    newscript->GetAI = &GetAI_mob_ethereal_apprentice;
     newscript->RegisterSelf();
 }
 
