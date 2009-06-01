@@ -247,7 +247,7 @@ CreatureAI* GetAI_boss_nexusprince_shaffar(Creature *_Creature)
 
 struct TRINITY_DLL_DECL mob_ethereal_beaconAI : public ScriptedAI
 {
-    mob_ethereal_beaconAI(Creature *c) : ScriptedAI(c), CanEvade(false)
+    mob_ethereal_beaconAI(Creature *c) : ScriptedAI(c)
     {
         HeroicMode = m_creature->GetMap()->IsHeroic();
     }
@@ -272,7 +272,7 @@ struct TRINITY_DLL_DECL mob_ethereal_beaconAI : public ScriptedAI
     void EnterCombat(Unit *who)
     {
         // Send Shaffar to fight
-        Unit* Shaffar = FindCreature(ENTRY_SHAFFAR, 100, m_creature);
+        Unit* Shaffar = me->FindNearestCreature(ENTRY_SHAFFAR, 100);
         if(!Shaffar || Shaffar->isDead())
         {
             KillSelf();
@@ -289,7 +289,7 @@ struct TRINITY_DLL_DECL mob_ethereal_beaconAI : public ScriptedAI
 
     void JustDied(Unit* Killer)
     {
-        Unit *Shaffar = FindCreature(ENTRY_SHAFFAR, 100, m_creature);
+        Unit *Shaffar = me->FindNearestCreature(ENTRY_SHAFFAR, 100);
         if(Shaffar)
             ((boss_nexusprince_shaffarAI*)(((Creature*)Shaffar)->AI()))->RemoveBeaconFromList(m_creature);
     }
@@ -301,7 +301,7 @@ struct TRINITY_DLL_DECL mob_ethereal_beaconAI : public ScriptedAI
 
         if(Check_Timer < diff)
         {
-            Unit *Shaffar = FindCreature(ENTRY_SHAFFAR, 100, m_creature);
+            Unit *Shaffar = me->FindNearestCreature(ENTRY_SHAFFAR, 100);
             if(!Shaffar || Shaffar->isDead() || !Shaffar->isInCombat())
             {
                 KillSelf();

@@ -109,6 +109,7 @@ class Log : public Trinity::Singleton<Log, Trinity::ClassLevelLockable<Log, ACE_
         void outCommand( uint32 account, const char * str, ...) ATTR_PRINTF(3,4);
         void outRemote( const char * str, ... )                 ATTR_PRINTF(2,3);
         void outChat( const char * str, ... )                   ATTR_PRINTF(2,3);
+        void outArena( const char * str, ... )                  ATTR_PRINTF(2,3);        
         void outCharDump( const char * str, uint32 account_id, uint32 guid, const char * name );
 
         static void outTimestamp(FILE* file);
@@ -137,6 +138,7 @@ class Log : public Trinity::Singleton<Log, Trinity::ClassLevelLockable<Log, ACE_
         FILE* charLogfile;
         FILE* dberLogfile;
         FILE* chatLogfile;
+        FILE* arenaLogFile;
 
         // cache values for after initilization use (like gm log per account case)
         std::string m_logsDir;

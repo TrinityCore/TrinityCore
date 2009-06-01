@@ -32,6 +32,7 @@ INSTANTIATE_SINGLETON_1( Log );
 Log::Log() :
     raLogfile(NULL), logfile(NULL), gmLogfile(NULL), charLogfile(NULL),
     dberLogfile(NULL), chatLogfile(NULL), m_gmlog_per_account(false), m_colored(false)
+    , arenaLogFile(NULL)
 {
     Initialize();
 }
@@ -61,6 +62,10 @@ Log::~Log()
     if (chatLogfile != NULL)
         fclose(chatLogfile);
     chatLogfile = NULL;
+
+    if (arenaLogFile != NULL)
+        fclose(arenaLogFile);
+    arenaLogFile = NULL;
 }
 
 void Log::SetLogLevel(char *Level)
@@ -154,6 +159,7 @@ void Log::Initialize()
     dberLogfile = openLogFile("DBErrorLogFile",NULL,"a");
     raLogfile = openLogFile("RaLogFile",NULL,"a");
     chatLogfile = openLogFile("ChatLogFile","ChatLogTimestamp","a");
+    arenaLogFile = openLogFile("ArenaLogFile",NULL,"a");
 
     // Main log file settings
     m_logLevel     = sConfig.GetIntDefault("LogLevel", LOGL_NORMAL);
@@ -173,6 +179,7 @@ void Log::Initialize()
 
     // Char log settings
     m_charLog_Dump = sConfig.GetBoolDefault("CharLogDump", false);
+
 }
 
 FILE* Log::openLogFile(char const* configFileName,char const* configTimeStampFlag, char const* mode)
@@ -489,6 +496,24 @@ void Log::outError( const char * err, ... )
         fflush(logfile);
     }
     fflush(stderr);
+}
+
+void Log::outArena( const char * str, ... )
+{
+    if( !str )
+        return;
+
+    if(arenaLogFile)
+    {
+        va_list ap;
+        outTimestamp(arenaLogFile);
+        va_start(ap, str);
+        vfprintf(arenaLogFile, str, ap);
+        fprintf(arenaLogFile, "\n" );
+        va_end(ap);
+        fflush(arenaLogFile);
+    }
+    fflush(stdout);
 }
 
 void Log::outErrorDb( const char * err, ... )
