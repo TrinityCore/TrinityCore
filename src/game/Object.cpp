@@ -126,12 +126,13 @@ void Object::_Create( uint32 guidlow, uint32 entry, HighGuid guidhigh )
     m_PackGUID.appendPackGUID(GetGUID());
 }
 
+// This function is never used
 void Object::BuildMovementUpdateBlock(UpdateData * data, uint32 flags ) const
 {
-    ByteBuffer buf(50);
+    ByteBuffer buf(500);
 
     buf << uint8( UPDATETYPE_MOVEMENT );
-    buf.append(GetPackGUID());
+    buf << (uint8)0xFF << GetGUID();
 
     _BuildMovementUpdate(&buf, flags);
 
@@ -188,9 +189,9 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData *data, Player *target) c
 
     //sLog.outDebug("BuildCreateUpdate: update-type: %u, object-type: %u got flags: %X, flags2: %X", updatetype, m_objectTypeId, flags, flags2);
 
-    ByteBuffer buf(50);
+    ByteBuffer buf(500);
     buf << (uint8)updatetype;
-    buf.append(GetPackGUID());
+    buf << (uint8)0xFF << GetGUID();
     buf << (uint8)m_objectTypeId;
 
     _BuildMovementUpdate(&buf, flags);
@@ -224,10 +225,10 @@ void Object::SendUpdateToPlayer(Player* player)
 
 void Object::BuildValuesUpdateBlockForPlayer(UpdateData *data, Player *target) const
 {
-    ByteBuffer buf(50);
+    ByteBuffer buf(500);
 
     buf << (uint8) UPDATETYPE_VALUES;
-    buf.append(GetPackGUID());
+    buf << (uint8)0xFF << GetGUID();
 
     UpdateMask updateMask;
     updateMask.SetCount( m_valuesCount );
