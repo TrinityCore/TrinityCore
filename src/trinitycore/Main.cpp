@@ -27,6 +27,8 @@
 #include "Config/ConfigEnv.h"
 #include "Log.h"
 #include "Master.h"
+#include <openssl/opensslv.h>
+#include <openssl/crypto.h>
 
 #ifndef _TRINITY_CORE_CONFIG
 # define _TRINITY_CORE_CONFIG  "TrinityCore.conf"
@@ -150,6 +152,14 @@ extern int main(int argc, char **argv)
         clock_t pause = 3000 + clock();
 
         while (pause > clock()) {}
+    }
+
+    sLog.outString("%s (Library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
+    if (SSLeay() < 0x009080bfL)
+    {
+        sLog.outError("Outdated version of OpenSSL lib, Logins to server impossible!");
+        sLog.outError("minimal required version [OpenSSL 0.9.8k]");
+        return 1;
     }
 
     ///- and run the 'Master'
