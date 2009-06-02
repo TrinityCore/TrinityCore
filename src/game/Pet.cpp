@@ -47,6 +47,8 @@ m_resetTalentsCost(0), m_resetTalentsTime(0), m_usedTalentCount(0), m_auraRaidUp
 m_declinedname(NULL), m_owner(owner)
 {
     m_summonMask |= SUMMON_MASK_PET;
+    if(type == HUNTER_PET)
+        m_summonMask |= SUMMON_MASK_HUNTER_PET;
     m_name = "Pet";
     m_regenTimer = 4000;
 

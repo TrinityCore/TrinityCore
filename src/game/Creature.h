@@ -162,6 +162,7 @@ enum SummonMask
     SUMMON_MASK_PET                   = 0x00000010,
     SUMMON_MASK_VEHICLE               = 0x00000020,
     SUMMON_MASK_PUPPET                = 0x00000040,
+    SUMMON_MASK_HUNTER_PET            = 0x00000080,
 };
 
 // GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push,N), also any gcc version not support it at some platform
@@ -494,10 +495,13 @@ class TRINITY_DLL_SPEC Creature : public Unit
 
         uint32 HasSummonMask(uint32 mask) const { return mask & m_summonMask; }
         bool isSummon() const   { return m_summonMask & SUMMON_MASK_SUMMON; }
+        bool isGuardian() const { return m_summonMask & SUMMON_MASK_GUARDIAN; }
         bool isPet() const      { return m_summonMask & SUMMON_MASK_PET; }
+        bool isHunterPet() const{ return m_summonMask & SUMMON_MASK_HUNTER_PET; }
         bool isVehicle() const  { return m_summonMask & SUMMON_MASK_VEHICLE; }
-        bool isWorldCreature() const { return m_summonMask & SUMMON_MASK_PET; }
         bool isTotem() const    { return m_summonMask & SUMMON_MASK_TOTEM; }
+        bool isWorldCreature() const { return m_summonMask & SUMMON_MASK_PET; }
+
         void SetCorpseDelay(uint32 delay) { m_corpseDelay = delay; }
         bool isRacialLeader() const { return GetCreatureInfo()->RacialLeader; }
         bool isCivilian() const { return GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_CIVILIAN; }

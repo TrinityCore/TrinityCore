@@ -65,6 +65,15 @@ class Guardian : public Minion
         void InitStats(uint32 duration);
         bool InitStatsForLevel(uint32 level);
 
+        bool UpdateStats(Stats stat);
+        bool UpdateAllStats();
+        void UpdateResistances(uint32 school);
+        void UpdateArmor();
+        void UpdateMaxHealth();
+        void UpdateMaxPower(Powers power);
+        void UpdateAttackPowerAndDamage(bool ranged = false);
+        void UpdateDamagePhysical(WeaponAttackType attType);
+
         int32 GetBonusDamage() { return m_bonusdamage; }
         void SetBonusDamage(int32 damage) { m_bonusdamage = damage; }
     protected:

@@ -884,7 +884,16 @@ void Creature::UpdateDamagePhysical(WeaponAttackType attType)
 ########                         ########
 #######################################*/
 
-bool Pet::UpdateStats(Stats stat)
+#define ENTRY_IMP               416
+#define ENTRY_VOIDWALKER        1860
+#define ENTRY_SUCCUBUS          1863
+#define ENTRY_FELHUNTER         417
+#define ENTRY_FELGUARD          17252
+#define ENTRY_WATER_ELEMENTAL   510
+#define ENTRY_TREANT            1964
+#define ENTRY_FIRE_ELEMENTAL    15438
+
+bool Guardian::UpdateStats(Stats stat)
 {
     if(stat > STAT_SPIRIT)
         return false;
@@ -893,25 +902,18 @@ bool Pet::UpdateStats(Stats stat)
     float value  = GetTotalStatValue(stat);
 
     Unit *owner = GetOwner();
-    if ( stat == STAT_STAMINA && !owner->getClass() == CLASS_WARLOCK)
+    if ( stat == STAT_STAMINA )
     {
-        if(owner)
+        if(owner->getClass() == CLASS_WARLOCK && isPet())
+            value += float(owner->GetStat(STAT_STAMINA)) * 0.75f;
+        else
             value += float(owner->GetStat(stat)) * 0.3f;
     }
                                                             //warlock's and mage's pets gain 30% of owner's intellect
-    else if ( stat == STAT_INTELLECT && getPetType() == SUMMON_PET )
+    else if ( stat == STAT_INTELLECT)
     {
-        if(owner && (owner->getClass() == CLASS_WARLOCK || owner->getClass() == CLASS_MAGE) )
+        if(owner->getClass() == CLASS_WARLOCK || owner->getClass() == CLASS_MAGE)
             value += float(owner->GetStat(stat)) * 0.3f;
-    }
-
-    // warlock pet stat scaling as calculated from nesocip for patch 3.0.9 and 3.1.0
-    if(getPetType() == SUMMON_PET && owner->getClass() == CLASS_WARLOCK)
-    {
-        if(owner && stat == STAT_STAMINA)
-        {
-            value += float(owner->GetStat(STAT_STAMINA)) * 0.75f;
-        }
     }
 
     SetStat(stat, int32(value));
@@ -930,7 +932,7 @@ bool Pet::UpdateStats(Stats stat)
     return true;
 }
 
-bool Pet::UpdateAllStats()
+bool Guardian::UpdateAllStats()
 {
     for (int i = STAT_STRENGTH; i < MAX_STATS; ++i)
         UpdateStats(Stats(i));
@@ -944,16 +946,15 @@ bool Pet::UpdateAllStats()
     return true;
 }
 
-void Pet::UpdateResistances(uint32 school)
+void Guardian::UpdateResistances(uint32 school)
 {
     if(school > SPELL_SCHOOL_NORMAL)
     {
         float value  = GetTotalAuraModValue(UnitMods(UNIT_MOD_RESISTANCE_START + school));
 
-        Unit *owner = GetOwner();
         // hunter and warlock pets gain 40% of owner's resistance
-        if(owner && (getPetType() == HUNTER_PET || getPetType() == SUMMON_PET && owner->getClass() == CLASS_WARLOCK))
-            value += float(owner->GetResistance(SpellSchools(school))) * 0.4f;
+        if(isPet())
+            value += float(m_owner->GetResistance(SpellSchools(school))) * 0.4f;
 
         SetResistance(SpellSchools(school), int32(value));
     }
@@ -961,16 +962,15 @@ void Pet::UpdateResistances(uint32 school)
         UpdateArmor();
 }
 
-void Pet::UpdateArmor()
+void Guardian::UpdateArmor()
 {
     float value = 0.0f;
     float bonus_armor = 0.0f;
     UnitMods unitMod = UNIT_MOD_ARMOR;
 
-    Unit *owner = GetOwner();
     // hunter and warlock pets gain 35% of owner's armor value
-    if(owner && (getPetType() == HUNTER_PET || getPetType() == SUMMON_PET && owner->getClass() == CLASS_WARLOCK))
-        bonus_armor = 0.35f * float(owner->GetArmor());
+    if(isPet())
+        bonus_armor = 0.35f * float(m_owner->GetArmor());
 
     value  = GetModifierValue(unitMod, BASE_VALUE);
     value *= GetModifierValue(unitMod, BASE_PCT);
@@ -981,38 +981,20 @@ void Pet::UpdateArmor()
     SetArmor(int32(value));
 }
 
-void Pet::UpdateMaxHealth()
+void Guardian::UpdateMaxHealth()
 {
     UnitMods unitMod = UNIT_MOD_HEALTH;
     float stamina = GetStat(STAT_STAMINA) - GetCreateStat(STAT_STAMINA);
-    float multiplicator = 10.0f;
 
-    // nesocips warlock pet stats calculation
+    float multiplicator;
     switch(GetEntry())
     {
-        case 416: // imp
-            multiplicator = 8.4f;
-            break;
-
-        case 1860: // voidwalker
-            multiplicator = 11.0f;
-            break;
-
-        case 1863: // succubus
-            multiplicator = 9.1f;
-            break;
-
-        case 417: // felhunter
-            multiplicator = 9.5f;
-            break;
-
-        case 17252: // felguard
-            multiplicator = 11.0f;
-            break;
-
-        default:
-            multiplicator = 10.0f;
-            break;
+        case ENTRY_IMP:         multiplicator = 8.4f;   break;
+        case ENTRY_VOIDWALKER:  multiplicator = 11.0f;  break;
+        case ENTRY_SUCCUBUS:    multiplicator = 9.1f;   break;
+        case ENTRY_FELHUNTER:   multiplicator = 9.5f;   break;
+        case ENTRY_FELGUARD:    multiplicator = 11.0f;  break;
+        default:                multiplicator = 10.0f;  break;
     }
 
     float value   = GetModifierValue(unitMod, BASE_VALUE) + GetCreateHealth();
@@ -1023,7 +1005,7 @@ void Pet::UpdateMaxHealth()
     SetMaxHealth((uint32)value);
 }
 
-void Pet::UpdateMaxPower(Powers power)
+void Guardian::UpdateMaxPower(Powers power)
 {
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + power);
 
@@ -1032,20 +1014,12 @@ void Pet::UpdateMaxPower(Powers power)
 
     switch(GetEntry())
     {
-        case 416: // imp
-            multiplicator = 4.95f;
-            break;
-
-        case 1860: // voidwalker
-        case 1863: // succubus
-        case 417: // felhunter
-        case 17252: // felguard
-            multiplicator = 11.5f;
-            break;
-
-        default:
-            multiplicator = 15.0f;
-            break;
+        case ENTRY_IMP:         multiplicator = 4.95f;  break;
+        case ENTRY_VOIDWALKER:
+        case ENTRY_SUCCUBUS:
+        case ENTRY_FELHUNTER:
+        case ENTRY_FELGUARD:    multiplicator = 11.5f;  break;
+        default:                multiplicator = 15.0f;  break;
     }
 
     float value  = GetModifierValue(unitMod, BASE_VALUE) + GetCreatePowers(power);
@@ -1056,7 +1030,7 @@ void Pet::UpdateMaxPower(Powers power)
     SetMaxPower(power, uint32(value));
 }
 
-void Pet::UpdateAttackPowerAndDamage(bool ranged)
+void Guardian::UpdateAttackPowerAndDamage(bool ranged)
 {
     if(ranged)
         return;
@@ -1065,7 +1039,7 @@ void Pet::UpdateAttackPowerAndDamage(bool ranged)
     float bonusAP = 0.0f;
     UnitMods unitMod = UNIT_MOD_ATTACK_POWER;
 
-    if(GetEntry() == 416)                                   // imp's attack power
+    if(GetEntry() == ENTRY_IMP)                                   // imp's attack power
         val = GetStat(STAT_STRENGTH) - 10.0f;
     else
         val = 2 * GetStat(STAT_STRENGTH) - 20.0f;
@@ -1073,13 +1047,13 @@ void Pet::UpdateAttackPowerAndDamage(bool ranged)
     Unit* owner = GetOwner();
     if( owner && owner->GetTypeId()==TYPEID_PLAYER)
     {
-        if(getPetType() == HUNTER_PET)                      //hunter pets benefit from owner's attack power
+        if(isHunterPet())                      //hunter pets benefit from owner's attack power
         {
             bonusAP = owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.22f;
             SetBonusDamage( int32(owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.1287f));
         }
         //demons benefit from warlocks shadow or fire damage
-        else if(getPetType() == SUMMON_PET && owner->getClass() == CLASS_WARLOCK)
+        else if(isPet())
         {
             int32 fire  = int32(owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_FIRE)) - owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_FIRE);
             int32 shadow = int32(owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_SHADOW)) - owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_SHADOW);
@@ -1090,7 +1064,7 @@ void Pet::UpdateAttackPowerAndDamage(bool ranged)
             bonusAP = maximum * 0.57f;
         }
         //water elementals benefit from mage's frost damage
-        else if(getPetType() == SUMMON_PET && owner->getClass() == CLASS_MAGE)
+        else if(GetEntry() == ENTRY_WATER_ELEMENTAL)
         {
             int32 frost = int32(owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_FROST)) - owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_FROST);
             if(frost < 0)
@@ -1117,30 +1091,27 @@ void Pet::UpdateAttackPowerAndDamage(bool ranged)
     UpdateDamagePhysical(BASE_ATTACK);
 }
 
-void Pet::UpdateDamagePhysical(WeaponAttackType attType)
+void Guardian::UpdateDamagePhysical(WeaponAttackType attType)
 {
     if(attType > BASE_ATTACK)
         return;
 
     float bonusDamage = 0.0f;
-    if(Unit* owner = GetOwner())
+    if(m_owner->GetTypeId() == TYPEID_PLAYER)
     {
         //force of nature
-        if(GetEntry() == 1964)
+        if(GetEntry() == ENTRY_TREANT)
         {
-            int32 spellDmg = int32(owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_NATURE)) - owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_NATURE);
+            int32 spellDmg = int32(m_owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_NATURE)) - m_owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_NATURE);
             if(spellDmg > 0)
                 bonusDamage = spellDmg * 0.09f;
         }
         //greater fire elemental
-        else if(GetEntry() == 15438)
+        else if(GetEntry() == ENTRY_FIRE_ELEMENTAL)
         {
-            if(Unit* shaman = owner->GetOwner())
-            {
-                int32 spellDmg = int32(shaman->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_FIRE)) - shaman->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_FIRE);
-                if(spellDmg > 0)
-                    bonusDamage = spellDmg * 0.4f;
-            }
+            int32 spellDmg = int32(m_owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_FIRE)) - m_owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_FIRE);
+            if(spellDmg > 0)
+                bonusDamage = spellDmg * 0.4f;
         }
     }
 
@@ -1160,9 +1131,9 @@ void Pet::UpdateDamagePhysical(WeaponAttackType attType)
     float maxdamage = ((base_value + weapon_maxdamage) * base_pct + total_value) * total_pct;
 
     //  Pet's base damage changes depending on happiness
-    if (getPetType() == HUNTER_PET && attType == BASE_ATTACK)
+    if (isHunterPet() && attType == BASE_ATTACK)
     {
-        switch(GetHappinessState())
+        switch(((Pet*)this)->GetHappinessState())
         {
             case HAPPY:
                 // 125% of normal damage
