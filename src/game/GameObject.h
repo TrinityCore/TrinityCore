@@ -361,7 +361,7 @@ struct GameObjectInfo
             uint32 unk8;
             uint32 destroyedEventId;                        //9
             uint32 destroyedDisplayId;                      //10
-        } destructibleBuilding;
+        } building;
         //34 GAMEOBJECT_TYPE_GUILDBANK - empty
         //35 GAMEOBJECT_TYPE_TRAPDOOR
         struct
@@ -393,7 +393,7 @@ union GameObjectValue
     struct
     {
         uint32 health;
-    }destructibleBuilding;
+    }building;
 };
 
 // GCC have alternative #pragma pack() syntax and old gcc version not support pack(pop), also any gcc version not support it at some platform
@@ -473,6 +473,7 @@ class TRINITY_DLL_SPEC GameObject : public WorldObject
         static GameObject* GetGameObject(WorldObject& object, uint64 guid);
         GameObjectInfo const* GetGOInfo() const { return m_goInfo; }
         GameObjectData const* GetGOData() const { return m_goData; }
+        GameObjectValue * GetGOValue() const { return m_goValue; }
 
         bool IsTransport() const;
 
