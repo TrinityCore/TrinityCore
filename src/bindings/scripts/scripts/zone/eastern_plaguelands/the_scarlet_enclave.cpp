@@ -502,9 +502,12 @@ struct TRINITY_DLL_DECL npc_salanar_the_horsemanAI : public ScriptedAI
         {
             if( Unit *charmer = who->GetCharmer() )
             {
-                if( charmer->GetTypeId() == TYPEID_PLAYER && ((Player*)charmer)->GetQuestStatus(12680) == QUEST_STATUS_INCOMPLETE )
+                if( charmer->GetTypeId() == TYPEID_PLAYER )
                 {
-                    ((Player*)charmer)->KilledMonster(28767, me->GetGUID());
+                    if( ((Player*)charmer)->GetQuestStatus(12680) == QUEST_STATUS_INCOMPLETE )
+                        ((Player*)charmer)->KilledMonster(28767, me->GetGUID());
+                    else if( ((Player*)charmer)->GetQuestStatus(12687) == QUEST_STATUS_INCOMPLETE )
+                        ((Player*)charmer)->GroupEventHappens(12687, who);   
                     ((Player*)charmer)->ExitVehicle();
                     //without this we can see npc kill the horse
                     //who->setDeathState(DEAD);
@@ -518,6 +521,42 @@ struct TRINITY_DLL_DECL npc_salanar_the_horsemanAI : public ScriptedAI
 CreatureAI* GetAI_npc_salanar_the_horseman(Creature *_Creature)
 {
     return new npc_salanar_the_horsemanAI(_Creature);
+}
+
+/*######
+## npc_ros_dark_rider
+######*/
+
+struct TRINITY_DLL_DECL npc_ros_dark_riderAI : public ScriptedAI
+{
+    npc_ros_dark_riderAI(Creature *c) : ScriptedAI(c) {}
+
+    void Reset()
+    {
+        Creature* deathcharger = me->FindNearestCreature(28782, 30);
+        if(!deathcharger) return;
+        deathcharger->RestoreFaction();
+        deathcharger->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+        deathcharger->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+    }
+
+    void JustDied(Unit *killer)
+    {
+        Creature* deathcharger = me->FindNearestCreature(28782, 30);
+        if(!deathcharger) return;
+        if( killer->GetTypeId() == TYPEID_PLAYER && deathcharger->GetTypeId() == TYPEID_UNIT && deathcharger->isVehicle() )
+        {
+            deathcharger->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+            deathcharger->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            deathcharger->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+            deathcharger->setFaction(2096);
+        }
+    }
+};
+
+CreatureAI* GetAI_npc_ros_dark_rider(Creature *_Creature)
+{
+    return new npc_ros_dark_riderAI(_Creature);
 }
 
 void AddSC_the_scarlet_enclave()
@@ -549,5 +588,10 @@ void AddSC_the_scarlet_enclave()
     newscript = new Script;
     newscript->Name="npc_salanar_the_horseman";
     newscript->GetAI = &GetAI_npc_salanar_the_horseman;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name="npc_ros_dark_rider";
+    newscript->GetAI = &GetAI_npc_ros_dark_rider;
     newscript->RegisterSelf();
 }

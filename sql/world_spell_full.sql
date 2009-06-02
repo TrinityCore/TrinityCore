@@ -178,6 +178,11 @@ INSERT INTO npc_spellclick_spells (`npc_entry`, `spell_id`, `quest_id`, `quest_s
 (28606, 52263, 12680, 3, 1),
 (28607, 52263, 12680, 3, 1);
 
+-- Spellclick spell to mount deathcharger
+DELETE FROM npc_spellclick_spells WHERE `npc_entry`=28782;
+INSERT INTO npc_spellclick_spells (`npc_entry`, `spell_id`, `quest_id`, `quest_status`, `cast_flags`) VALUES
+(28782, 52280, 12687, 3, 1);
+
 -- --------
 -- TARGET
 -- --------
@@ -1561,6 +1566,9 @@ UPDATE creature_template SET VehicleId = 312 WHERE entry IN (31857,31858,31861,3
 
 -- Horses for quest 12680 / not sure if its offilike
 UPDATE creature_template SET `VehicleId`=200 WHERE `entry` IN (28605,28606,28607);
+
+-- Vehicle and summon spell(summon npc 28788) for Acherus Deathcharger
+UPDATE creature_template SET `spell1`=52362, `VehicleId`=200 WHERE `entry`=28782;
 
 -- --------
 -- Death Knight
