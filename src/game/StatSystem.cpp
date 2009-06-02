@@ -893,7 +893,7 @@ bool Pet::UpdateStats(Stats stat)
     float value  = GetTotalStatValue(stat);
 
     Unit *owner = GetOwner();
-    if ( stat == STAT_STAMINA )
+    if ( stat == STAT_STAMINA && !owner->getClass() == CLASS_WARLOCK)
     {
         if(owner)
             value += float(owner->GetStat(stat)) * 0.3f;
@@ -903,6 +903,15 @@ bool Pet::UpdateStats(Stats stat)
     {
         if(owner && (owner->getClass() == CLASS_WARLOCK || owner->getClass() == CLASS_MAGE) )
             value += float(owner->GetStat(stat)) * 0.3f;
+    }
+
+    // warlock pet stat scaling as calculated from nesocip for patch 3.0.9 and 3.1.0
+    if(getPetType() == SUMMON_PET && owner->getClass() == CLASS_WARLOCK)
+    {
+        if(owner && stat == STAT_STAMINA)
+        {
+            value += float(owner->GetStat(STAT_STAMINA)) * 0.75f;
+        }
     }
 
     SetStat(stat, int32(value));
@@ -976,10 +985,39 @@ void Pet::UpdateMaxHealth()
 {
     UnitMods unitMod = UNIT_MOD_HEALTH;
     float stamina = GetStat(STAT_STAMINA) - GetCreateStat(STAT_STAMINA);
+    float multiplicator = 10.0f;
+
+    // nesocips warlock pet stats calculation
+    switch(GetEntry())
+    {
+        case 416: // imp
+            multiplicator = 8.4f;
+            break;
+
+        case 1860: // voidwalker
+            multiplicator = 11.0f;
+            break;
+
+        case 1863: // succubus
+            multiplicator = 9.1f;
+            break;
+
+        case 417: // felhunter
+            multiplicator = 9.5f;
+            break;
+
+        case 17252: // felguard
+            multiplicator = 11.0f;
+            break;
+
+        default:
+            multiplicator = 10.0f;
+            break;
+    }
 
     float value   = GetModifierValue(unitMod, BASE_VALUE) + GetCreateHealth();
     value  *= GetModifierValue(unitMod, BASE_PCT);
-    value  += GetModifierValue(unitMod, TOTAL_VALUE) + stamina * 10.0f;
+    value  += GetModifierValue(unitMod, TOTAL_VALUE) + stamina * multiplicator;
     value  *= GetModifierValue(unitMod, TOTAL_PCT);
 
     SetMaxHealth((uint32)value);
@@ -990,10 +1028,29 @@ void Pet::UpdateMaxPower(Powers power)
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + power);
 
     float addValue = (power == POWER_MANA) ? GetStat(STAT_INTELLECT) - GetCreateStat(STAT_INTELLECT) : 0.0f;
+    float multiplicator = 15.0f;
+
+    switch(GetEntry())
+    {
+        case 416: // imp
+            multiplicator = 4.95f;
+            break;
+
+        case 1860: // voidwalker
+        case 1863: // succubus
+        case 417: // felhunter
+        case 17252: // felguard
+            multiplicator = 11.5f;
+            break;
+
+        default:
+            multiplicator = 15.0f;
+            break;
+    }
 
     float value  = GetModifierValue(unitMod, BASE_VALUE) + GetCreatePowers(power);
     value *= GetModifierValue(unitMod, BASE_PCT);
-    value += GetModifierValue(unitMod, TOTAL_VALUE) +  addValue * 15.0f;
+    value += GetModifierValue(unitMod, TOTAL_VALUE) + addValue * multiplicator;
     value *= GetModifierValue(unitMod, TOTAL_PCT);
 
     SetMaxPower(power, uint32(value));
