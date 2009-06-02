@@ -193,7 +193,19 @@ void OPvPWintergrasp::OnGameObjectCreate(GameObject *go, bool add)
     {
         BuildingStateMap::const_iterator itr = m_buildingStates.find(go->GetDBTableGUIDLow());
         if(itr != m_buildingStates.end())
+        {
             itr->second->building = add ? go : NULL;
+            if(!add || itr->second->damageState == DAMAGE_INTACT && !itr->second->health)
+                itr->second->health = go->GetGOValue()->building.health;
+            else
+            {
+                go->GetGOValue()->building.health = itr->second->health;
+                if(itr->second->damageState == DAMAGE_DAMAGED)
+                    go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED);
+                else if(itr->second->damageState == DAMAGE_DESTROYED)
+                    go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
+            }
+        }
     }
 }
 
