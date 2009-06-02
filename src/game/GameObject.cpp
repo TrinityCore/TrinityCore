@@ -1024,6 +1024,9 @@ void GameObject::Use(Unit* user)
 
                 // possible quest objective for active quests
                 player->CastedCreatureOrGO(info->id, GetGUID(), 0);
+
+                if (info->goober.eventId)
+                    sWorld.ScriptsStart(sEventScripts, info->goober.eventId, player, this);
             }
 
             // cast this spell later if provided
@@ -1044,6 +1047,9 @@ void GameObject::Use(Unit* user)
 
             if (info->camera.cinematicId)
                 player->SendCinematicStart(info->camera.cinematicId);
+
+            if (info->camera.eventID)
+                sWorld.ScriptsStart(sEventScripts, info->camera.eventID, player, this);
 
             return;
         }
