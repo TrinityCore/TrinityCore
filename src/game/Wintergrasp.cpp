@@ -126,13 +126,19 @@ bool OPvPWintergrasp::SetupOutdoorPvP()
     LoadTeamPair(m_goDisplayPair, GODisplayPair);
     LoadTeamPair(m_creEntryPair, CreatureEntryPair);
 
+    m_wartime = false;
+    m_timer = 600000;
+
     return true;
 }
 
 void OPvPWintergrasp::ProcessEvent(GameObject *obj, uint32 eventId)
 {
     if(eventId == 19982)
-        ChangeDefender();
+    {
+        if(m_wartime)
+            ChangeDefender();
+    }
     else if(obj->GetGoType() == GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING)
     {
         BuildingStateMap::const_iterator itr = m_buildingStates.find(obj->GetDBTableGUIDLow());
@@ -157,6 +163,9 @@ void OPvPWintergrasp::ChangeDefender()
     else
         sWorld.SendZoneText(ZONE_WINTERGRASP, "Horde has taken over the fortress!");
     UpdateAllWorldObject();
+
+    m_wartime = false;
+    m_timer = 600000; // for test, should be 2 hour 30 min
 }
 
 uint32 OPvPWintergrasp::GetCreatureEntry(uint32 guidlow, uint32 entry)
@@ -215,16 +224,28 @@ void OPvPWintergrasp::UpdateAllWorldObject()
         UpdateGameObjectInfo(*itr);
     for(CreatureSet::iterator itr = m_creatures.begin(); itr != m_creatures.end(); ++itr)
         UpdateCreatureInfo(*itr);
-    for(BuildingStateMap::iterator itr = m_buildingStates.begin(); itr != m_buildingStates.end(); ++itr)
-    {
-        if(itr->second->building)
-            itr->second->building->Rebuild();
-        itr->second->damageState = DAMAGE_INTACT;
-        itr->second->team = m_defender == TEAM_ALLIANCE ? OTHER_TEAM(itr->second->defaultTeam) : itr->second->defaultTeam;
-    }
+    RebuildAllBuildings();
+
         //if(GameObject *obj = ObjectAccessor::GetObjectInWorld(
 
     SendInitWorldStatesTo();
+}
+
+void OPvPWintergrasp::RebuildAllBuildings()
+{
+    for(BuildingStateMap::iterator itr = m_buildingStates.begin(); itr != m_buildingStates.end(); ++itr)
+    {
+        if(itr->second->building)
+        {
+            itr->second->building->Rebuild();
+            itr->second->health = itr->second->building->GetGOValue()->building.health;
+        }
+        else
+            itr->second->health = 0;
+
+        itr->second->damageState = DAMAGE_INTACT;
+        itr->second->team = m_defender == TEAM_ALLIANCE ? OTHER_TEAM(itr->second->defaultTeam) : itr->second->defaultTeam;
+    }
 }
 
 void OPvPWintergrasp::SendInitWorldStatesTo(Player *player)
@@ -372,4 +393,30 @@ void OPvPWintergrasp::UpdateTenacityStack()
         for(PlayerSet::iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
             (*itr)->SetAuraStack(SPELL_TENACITY, *itr, newStack);
     }
+}
+
+bool OPvPWintergrasp::Update(uint32 diff)
+{
+    if(m_timer > diff)
+        m_timer -= diff;
+    else
+    {
+        if(m_wartime)
+        {
+            m_wartime = false;
+            m_timer = 600000; // for test, should be 2 hour 30 min
+            if(m_defender == TEAM_ALLIANCE)
+                sWorld.SendZoneText(ZONE_WINTERGRASP, "Alliance has successfully defended the fortress!");
+            else
+                sWorld.SendZoneText(ZONE_WINTERGRASP, "Horde has successfully defended the fortress!");
+        }
+        else
+        {
+            m_wartime = true;
+            m_timer = 30*60*1000;
+            sWorld.SendZoneText(ZONE_WINTERGRASP, "Battle begins!");
+            UpdateAllWorldObject();
+        }
+    }
+    return false;
 }
