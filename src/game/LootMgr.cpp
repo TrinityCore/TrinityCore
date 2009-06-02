@@ -1333,7 +1333,7 @@ void LoadLootTemplates_Spell()
     }
 
     // output error for any still listed (not referenced from appropriate table) ids
-    LootTemplates_QuestMail.ReportUnusedIds(ids_set);
+    LootTemplates_Spell.ReportUnusedIds(ids_set);
 }
 
 void LoadLootTemplates_Reference()
