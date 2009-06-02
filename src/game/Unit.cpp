@@ -11752,21 +11752,25 @@ CharmInfo::~CharmInfo()
 void CharmInfo::InitPetActionBar()
 {
     // the first 3 SpellOrActions are attack, follow and stay
-    for(uint32 i = 0; i < 3; i++)
-    {
-        SetActionBar(i,COMMAND_ATTACK - i,ACT_COMMAND);
-        SetActionBar(i + 7,COMMAND_ATTACK - i,ACT_REACTION);
-    }
-    for(uint32 i = 3; i < 7; ++i)
-        SetActionBar(i,0,ACT_PASSIVE);
+    for(uint32 i = 0; i < ACTION_BAR_INDEX_PET_SPELL_START - ACTION_BAR_INDEX_START; ++i)
+        SetActionBar(ACTION_BAR_INDEX_START + i,COMMAND_ATTACK - i,ACT_COMMAND);
+
+    // middle 4 SpellOrActions are spells/special attacks/abilities
+    for(uint32 i = 0; i < ACTION_BAR_INDEX_PET_SPELL_END-ACTION_BAR_INDEX_PET_SPELL_START; ++i)
+        SetActionBar(ACTION_BAR_INDEX_PET_SPELL_START + i,0,ACT_PASSIVE);
+
+    // last 3 SpellOrActions are reactions
+    for(uint32 i = 0; i < ACTION_BAR_INDEX_END - ACTION_BAR_INDEX_PET_SPELL_END; ++i)
+        SetActionBar(ACTION_BAR_INDEX_PET_SPELL_END + i,COMMAND_ATTACK - i,ACT_REACTION);
 }
 
 void CharmInfo::InitEmptyActionBar(bool withAttack)
 {
     if(withAttack)
-        SetActionBar(0,COMMAND_ATTACK,ACT_COMMAND);
-
-    for(uint32 x = withAttack ? 1 : 0; x < MAX_UNIT_ACTION_BAR_INDEX; ++x)
+        SetActionBar(ACTION_BAR_INDEX_START,COMMAND_ATTACK,ACT_COMMAND);
+    else
+        SetActionBar(ACTION_BAR_INDEX_START,0,ACT_PASSIVE);
+    for(uint32 x = ACTION_BAR_INDEX_START+1; x < ACTION_BAR_INDEX_END; ++x)
         SetActionBar(x,0,ACT_PASSIVE);
 }
 
@@ -11916,16 +11920,18 @@ void CharmInfo::SetPetNumber(uint32 petnumber, bool statwindow)
         m_unit->SetUInt32Value(UNIT_FIELD_PETNUMBER, 0);
 }
 
-bool CharmInfo::LoadActionBar( std::string data )
+void CharmInfo::LoadPetActionBar( std::string data )
 {
+    InitPetActionBar();
+
     Tokens tokens = StrSplit(data, " ");
 
-    if (tokens.size() != MAX_UNIT_ACTION_BAR_INDEX*2)
-        return false;
+    if (tokens.size() != (ACTION_BAR_INDEX_PET_SPELL_END-ACTION_BAR_INDEX_PET_SPELL_START)*2)
+        return;                                             // non critical, will reset to default
 
     int index;
     Tokens::iterator iter;
-    for(iter = tokens.begin(), index = 0; index < MAX_UNIT_ACTION_BAR_INDEX; ++iter, ++index )
+    for(iter = tokens.begin(), index = ACTION_BAR_INDEX_PET_SPELL_START; index < ACTION_BAR_INDEX_PET_SPELL_END; ++iter, ++index )
     {
         // use unsigned cast to avoid sign negative format use at long-> ActiveStates (int) conversion
         PetActionBar[index].Type  = atol((*iter).c_str());
@@ -11941,7 +11947,6 @@ bool CharmInfo::LoadActionBar( std::string data )
                 SetActionBar(index,PetActionBar[index].SpellOrAction,ACT_PASSIVE);
         }
     }
-    return true;
 }
 
 void CharmInfo::BuildActionBar( WorldPacket* data )
