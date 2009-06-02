@@ -105,7 +105,7 @@ void UpdateData::Compress(void* dst, uint32 *dst_size, void* src, int src_size)
 
 bool UpdateData::BuildPacket(WorldPacket *packet)
 {
-    ByteBuffer buf(m_data.size());
+    ByteBuffer buf(m_data.size() + 10 + m_outOfRangeGUIDs.size()*8);
 
     buf << (uint32) (!m_outOfRangeGUIDs.empty() ? m_blockCount + 1 : m_blockCount);
 
@@ -116,7 +116,8 @@ bool UpdateData::BuildPacket(WorldPacket *packet)
 
         for(std::set<uint64>::const_iterator i = m_outOfRangeGUIDs.begin(); i != m_outOfRangeGUIDs.end(); ++i)
         {
-            buf.appendPackGUID(*i);
+            //buf.appendPackGUID(*i);
+            buf << (uint8)0xFF << (uint64)*i;
         }
     }
 
