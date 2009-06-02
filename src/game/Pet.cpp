@@ -1053,17 +1053,7 @@ void Pet::_LoadSpells()
         {
             Field *fields = result->Fetch();
 
-            uint32 spell_id = fields[0].GetUInt32();
-
-            // load only pet talents, other spell types auto-learned
-            if(GetTalentSpellCost(spell_id)==0)
-            {
-                CharacterDatabase.PExecute("DELETE FROM pet_spell WHERE spell = '%u'",spell_id);
-                sLog.outError("Table `pet_spell` have non-talent spell %u , spell removed from table for all pets.",spell_id);
-                continue;
-            }
-
-            addSpell(spell_id, ActiveStates(fields[1].GetUInt16()), PETSPELL_UNCHANGED,PETSPELL_TALENT);
+            addSpell(fields[0].GetUInt32(), ActiveStates(fields[1].GetUInt16()), PETSPELL_UNCHANGED);
         }
         while( result->NextRow() );
 
@@ -1077,8 +1067,8 @@ void Pet::_SaveSpells()
     {
         ++next;
 
-        // save only talent spells for pets, other spells auto-applied
-        if (itr->second.type != PETSPELL_TALENT)
+        // prevent saving family passives to DB
+        if (itr->second.type == PETSPELL_FAMILY)
             continue;
 
         switch(itr->second.state)
@@ -1255,9 +1245,6 @@ bool Pet::addSpell(uint32 spell_id,ActiveStates active /*= ACT_DECIDE*/, PetSpel
     // talent: unlearn all other talent ranks (high and low)
     if(TalentSpellPos const* talentPos = GetTalentSpellPos(spell_id))
     {
-        // propertly mark spell for allow save
-        newspell.type = PETSPELL_TALENT;
-
         if(TalentEntry const *talentInfo = sTalentStore.LookupEntry( talentPos->talent_id ))
         {
             for(int i=0; i < MAX_TALENT_RANK; ++i)
