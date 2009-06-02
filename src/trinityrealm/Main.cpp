@@ -32,6 +32,8 @@
 #include "AuthSocket.h"
 #include "SystemConfig.h"
 #include "Util.h"
+#include <openssl/opensslv.h>
+#include <openssl/crypto.h>
 
 // Format is YYYYMMDDRR where RR is the change in the conf file
 // for that day.
@@ -160,6 +162,14 @@ extern int main(int argc, char **argv)
         clock_t pause = 3000 + clock();
 
         while (pause > clock()) {}
+    }
+
+    sLog.outString("%s (Library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
+    if (SSLeay() < 0x009080bfL )
+    {
+        sLog.outError("Outdated version of OpenSSL lib, Logins to server impossible!");
+        sLog.outError("minimal required version [OpenSSL 0.9.8k]");
+        return 1;
     }
 
     sLog.outString( "%s (realm-daemon)", _FULLVERSION );
