@@ -616,6 +616,17 @@ bool Unit::HasAuraType(AuraType auraType) const
     return (!m_modAuras[auraType].empty());
 }
 
+bool Unit::HasAuraTypeWithFamilyFlags(AuraType auraType, uint32 familyName  ,uint64 familyFlags) const
+{
+    if(!HasAuraType(auraType)) return false;
+    AuraList const &auras = GetAurasByType(auraType);
+    for(AuraList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+        if(SpellEntry const *iterSpellProto = (*itr)->GetSpellProto())
+            if(iterSpellProto->SpellFamilyName == familyName && iterSpellProto->SpellFamilyFlags & familyFlags)
+                return true;
+    return false;
+}
+
 /* Called by DealDamage for auras that have a chance to be dispelled on damage taken. */
 void Unit::RemoveSpellbyDamageTaken(uint32 damage, uint32 spell)
 {

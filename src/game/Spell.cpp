@@ -1150,14 +1150,17 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
         }
         if( !m_caster->IsFriendlyTo(unit) )
         {
+            // reset damage to 0 if target has Invisibility or Vanish aura (_only_ vanish, not stealth) and isn't visible for caster
+            bool isVisibleForHit = ( (unit->HasAuraType(SPELL_AURA_MOD_INVISIBILITY) || unit->HasAuraTypeWithFamilyFlags(SPELL_AURA_MOD_STEALTH, SPELLFAMILY_ROGUE ,SPELLFAMILYFLAG_ROGUE_VANISH)) && !unit->isVisibleForOrDetect(m_caster, true)) ? false : true;
+            
             // for delayed spells ignore not visible explicit target
-            if(m_spellInfo->speed > 0.0f && unit==m_targets.getUnitTarget() && !unit->isVisibleForOrDetect(m_caster,false))
+            if(m_spellInfo->speed > 0.0f && unit==m_targets.getUnitTarget() && !isVisibleForHit)
             {
-                m_caster->SendSpellMiss(unit, m_spellInfo->Id, SPELL_MISS_EVADE);
+                // that was causing CombatLog errors
+                //m_caster->SendSpellMiss(unit, m_spellInfo->Id, SPELL_MISS_EVADE);
                 m_damage = 0;
                 return;
             }
-
             unit->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_HITBYSPELL);
             if(m_customAttr & SPELL_ATTR_CU_AURA_CC)
                 unit->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CC);
