@@ -23,17 +23,14 @@
 #include "DatabaseEnv.h"
 
 QueryResultPostgre::QueryResultPostgre(PGresult *result, uint64 rowCount, uint32 fieldCount) :
-QueryResult(rowCount, fieldCount), mResult(result),  mTableIndex(0)
+    QueryResult(rowCount, fieldCount), mResult(result),  mTableIndex(0)
 {
 
     mCurrentRow = new Field[mFieldCount];
     ASSERT(mCurrentRow);
 
     for (uint32 i = 0; i < mFieldCount; i++)
-    {
-        mFieldNames[i] = PQfname(result, i);
         mCurrentRow[i].SetType(ConvertNativeType(PQftype( result, i )));
-    }
 }
 
 QueryResultPostgre::~QueryResultPostgre()

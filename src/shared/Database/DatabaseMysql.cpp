@@ -192,14 +192,10 @@ bool DatabaseMysql::Initialize(const char *infoString)
     }
 }
 
-QueryResult* DatabaseMysql::Query(const char *sql)
+bool DatabaseMysql::_Query(const char *sql, MYSQL_RES **pResult, MYSQL_FIELD **pFields, uint64* pRowCount, uint32* pFieldCount)
 {
     if (!mMysql)
         return 0;
-
-    MYSQL_RES *result = 0;
-    uint64 rowCount = 0;
-    uint32 fieldCount = 0;
 
     {
         // guarded block for thread-safe mySQL request
@@ -211,7 +207,7 @@ QueryResult* DatabaseMysql::Query(const char *sql)
         {
             sLog.outErrorDb( "SQL: %s", sql );
             sLog.outErrorDb("query ERROR: %s", mysql_error(mMysql));
-            return NULL;
+            return false;
         }
         else
         {
@@ -220,27 +216,61 @@ QueryResult* DatabaseMysql::Query(const char *sql)
             #endif
         }
 
-        result = mysql_store_result(mMysql);
-
-        rowCount = mysql_affected_rows(mMysql);
-        fieldCount = mysql_field_count(mMysql);
+        *pResult = mysql_store_result(mMysql);
+        *pRowCount = mysql_affected_rows(mMysql);
+        *pFieldCount = mysql_field_count(mMysql);
         // end guarded block
     }
 
-    if (!result )
-        return NULL;
+    if (!*pResult )
+        return false;
 
-    if (!rowCount)
+    if (!*pRowCount)
     {
-        mysql_free_result(result);
-        return NULL;
+        mysql_free_result(*pResult);
+        return false;
     }
 
-    QueryResultMysql *queryResult = new QueryResultMysql(result, rowCount, fieldCount);
+    *pFields = mysql_fetch_fields(*pResult);
+    return true;
+}
+
+QueryResult* DatabaseMysql::Query(const char *sql)
+{
+    MYSQL_RES *result = NULL;
+    MYSQL_FIELD *fields = NULL;
+    uint64 rowCount = 0;
+    uint32 fieldCount = 0;
+
+    if(!_Query(sql,&result,&fields,&rowCount,&fieldCount))
+        return NULL;
+
+    QueryResultMysql *queryResult = new QueryResultMysql(result, fields, rowCount, fieldCount);
 
     queryResult->NextRow();
 
     return queryResult;
+}
+
+QueryNamedResult* DatabaseMysql::QueryNamed(const char *sql)
+{
+    MYSQL_RES *result = NULL;
+    MYSQL_FIELD *fields = NULL;
+    uint64 rowCount = 0;
+    uint32 fieldCount = 0;
+
+    if(!_Query(sql,&result,&fields,&rowCount,&fieldCount))
+        return NULL;
+
+    QueryFieldNames names(fieldCount);
+    for (uint32 i = 0; i < fieldCount; i++)
+        names[i] = fields[i].name;
+
+    QueryResultMysql *queryResult = new QueryResultMysql(result, fields, rowCount, fieldCount);
+
+    queryResult->NextRow();
+
+    return new QueryNamedResult(queryResult,names);
 }
 
 bool DatabaseMysql::Execute(const char *sql)

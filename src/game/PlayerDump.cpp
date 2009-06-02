@@ -337,16 +337,16 @@ std::string PlayerDumpWriter::GetDump(uint32 guid)
     dump += "IMPORTANT NOTE: NOT APPLY ITS DIRECTLY to character DB or you will DAMAGE and CORRUPT character DB\n\n";
 
     // revision check guard
-    QueryResult* result = CharacterDatabase.Query("SELECT * FROM character_db_version LIMIT 1");
+    QueryNamedResult* result = CharacterDatabase.QueryNamed("SELECT * FROM character_db_version LIMIT 1");
     if(result)
     {
-        QueryResult::FieldNames const& namesMap = result->GetFieldNames();
+        QueryFieldNames const& namesMap = result->GetFieldNames();
         std::string reqName;
-        for(QueryResult::FieldNames::const_iterator itr = namesMap.begin(); itr != namesMap.end(); ++itr)
+        for(QueryFieldNames::const_iterator itr = namesMap.begin(); itr != namesMap.end(); ++itr)
         {
-            if(itr->second.substr(0,9)=="required_")
+            if(itr->substr(0,9)=="required_")
             {
-                reqName = itr->second;
+                reqName = *itr;
                 break;
             }
         }
