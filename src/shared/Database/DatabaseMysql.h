@@ -50,6 +50,7 @@ class TRINITY_DLL_SPEC DatabaseMysql : public Database
         void InitDelayThread();
         void HaltDelayThread();
         QueryResult* Query(const char *sql);
+        QueryNamedResult* QueryNamed(const char *sql);
         bool Execute(const char *sql);
         bool DirectExecute(const char* sql);
         bool BeginTransaction();
@@ -75,6 +76,7 @@ class TRINITY_DLL_SPEC DatabaseMysql : public Database
         static size_t db_count;
 
         bool _TransactionCmd(const char *sql);
+        bool _Query(const char *sql, MYSQL_RES **pResult, MYSQL_FIELD **pFields, uint64* pRowCount, uint32* pFieldCount);
 };
 #endif
 #endif

@@ -34,7 +34,7 @@
 class QueryResultMysql : public QueryResult
 {
     public:
-        QueryResultMysql(MYSQL_RES *result, uint64 rowCount, uint32 fieldCount);
+        QueryResultMysql(MYSQL_RES *result, MYSQL_FIELD *fields, uint64 rowCount, uint32 fieldCount);
 
         ~QueryResultMysql();
 

@@ -46,6 +46,7 @@ class DatabasePostgre : public Database
         void InitDelayThread();
         void HaltDelayThread();
         QueryResult* Query(const char *sql);
+        QueryNamedResult* QueryNamed(const char *sql);
         bool Execute(const char *sql);
         bool DirectExecute(const char* sql);
         bool BeginTransaction();
@@ -70,6 +71,7 @@ class DatabasePostgre : public Database
         static size_t db_count;
 
         bool _TransactionCmd(const char *sql);
+        bool _Query(const char *sql, PGresult **pResult, uint64* pRowCount, uint32* pFieldCount);
 };
 #endif
 
