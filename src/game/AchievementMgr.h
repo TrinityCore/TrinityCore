@@ -50,9 +50,10 @@ enum AchievementCriteriaDataType
     ACHIEVEMENT_CRITERIA_DATA_TYPE_S_AURA              = 5, // spell_id       effect_idx
     ACHIEVEMENT_CRITERIA_DATA_TYPE_S_AREA              = 6, // area id        0
     ACHIEVEMENT_CRITERIA_DATA_TYPE_T_AURA              = 7, // spell_id       effect_idx
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_VALUE               = 8, // minvalue                     value provided with achievement update must be not less that limit
 };
 
-#define MAX_ACHIEVEMENT_CRITERIA_DATA_TYPE               8  // maximum value in AchievementCriteriaDataType enum
+#define MAX_ACHIEVEMENT_CRITERIA_DATA_TYPE               9  // maximum value in AchievementCriteriaDataType enum
 
 class Player;
 class Unit;
@@ -95,6 +96,11 @@ struct AchievementCriteriaData
         {
             uint32 id;
         } area;
+        // ACHIEVEMENT_CRITERIA_DATA_TYPE_VALUE
+        struct
+        {
+            uint32 minvalue;
+        } value;
         // ...
         struct
         {
@@ -116,14 +122,14 @@ struct AchievementCriteriaData
     }
 
     bool IsValid(AchievementCriteriaEntry const* criteria);
-    bool Meets(Player const* source, Unit const* target) const;
+    bool Meets(Player const* source, Unit const* target, uint32 miscvalue1 = 0) const;
 };
 
 struct AchievementCriteriaDataSet
 {
         typedef std::vector<AchievementCriteriaData> Storage;
         void Add(AchievementCriteriaData const& data) { storage.push_back(data); }
-        bool Meets(Player const* source, Unit const* target) const;
+        bool Meets(Player const* source, Unit const* target, uint32 miscvalue = 0) const;
     private:
         Storage storage;
 };
