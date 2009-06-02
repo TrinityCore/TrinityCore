@@ -154,12 +154,11 @@ extern int main(int argc, char **argv)
         while (pause > clock()) {}
     }
 
-    sLog.outString("%s (Library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
-    if (SSLeay() < 0x009080bfL)
+    sLog.outDetail("%s (Library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
+    if (SSLeay() < 0x009080bfL )
     {
-        sLog.outError("Outdated version of OpenSSL lib, Logins to server impossible!");
-        sLog.outError("minimal required version [OpenSSL 0.9.8k]");
-        return 1;
+        sLog.outDetail("WARNING: Outdated version of OpenSSL lib. Logins to server impossible!");
+        sLog.outDetail("WARNING: Minimal required version [OpenSSL 0.9.8k]");
     }
 
     ///- and run the 'Master'
