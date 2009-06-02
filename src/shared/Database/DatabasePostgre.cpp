@@ -117,13 +117,10 @@ bool DatabasePostgre::Initialize(const char *infoString)
 
 }
 
-QueryResult* DatabasePostgre::Query(const char *sql)
+bool DatabasePostgre::_Query(const char *sql, PGresult** pResult, uint64* pRowCount, uint32* pFieldCount)
 {
     if (!mPGconn)
         return 0;
-
-    uint64 rowCount = 0;
-    uint32 fieldCount = 0;
 
     // guarded block for thread-safe request
     ACE_Guard<ACE_Thread_Mutex> query_connection_guard(mMutex);
@@ -131,18 +128,16 @@ QueryResult* DatabasePostgre::Query(const char *sql)
     uint32 _s = getMSTime();
     #endif
     // Send the query
-    PGresult * result = PQexec(mPGconn, sql);
-    if (!result )
-    {
-        return NULL;
-    }
+    *pResult = PQexec(mPGconn, sql);
+    if(!*pResult )
+        return false;
 
-    if (PQresultStatus(result) != PGRES_TUPLES_OK)
+    if (PQresultStatus(*pResult) != PGRES_TUPLES_OK)
     {
         sLog.outErrorDb( "SQL : %s", sql );
         sLog.outErrorDb( "SQL %s", PQerrorMessage(mPGconn));
-        PQclear(result);
-        return NULL;
+        PQclear(*pResult);
+        return false;
     }
     else
     {
@@ -151,20 +146,56 @@ QueryResult* DatabasePostgre::Query(const char *sql)
         #endif
     }
 
-    rowCount = PQntuples(result);
-    fieldCount = PQnfields(result);
+    *pRowCount = PQntuples(*pResult);
+    *pFieldCount = PQnfields(*pResult);
     // end guarded block
 
-    if (!rowCount)
+    if (!*pRowCount)
     {
-        PQclear(result);
-        return NULL;
+        PQclear(*pResult);
+        return false;
     }
+    return true;
+}
+
+QueryResult* DatabasePostgre::Query(const char *sql)
+{
+    if (!mPGconn)
+        return 0;
+
+    PGresult* result = NULL;
+    uint64 rowCount = 0;
+    uint32 fieldCount = 0;
+
+    if(!_Query(sql,&result,&rowCount,&fieldCount))
+        return NULL;
 
     QueryResultPostgre * queryResult = new QueryResultPostgre(result, rowCount, fieldCount);
     queryResult->NextRow();
 
     return queryResult;
+}
+
+QueryNamedResult* DatabasePostgre::QueryNamed(const char *sql)
+{
+    if (!mPGconn)
+        return 0;
+
+    PGresult* result = NULL;
+    uint64 rowCount = 0;
+    uint32 fieldCount = 0;
+
+    if(!_Query(sql,&result,&rowCount,&fieldCount))
+        return NULL;
+
+    QueryFieldNames names(fieldCount);
+    for (uint32 i = 0; i < fieldCount; i++)
+        names[i] = PQfname(result, i);
+
+    QueryResultPostgre * queryResult = new QueryResultPostgre(result, rowCount, fieldCount);
+    queryResult->NextRow();
+
+    return new QueryNamedResult(queryResult,names);
 }
 
 bool DatabasePostgre::Execute(const char *sql)

@@ -54,6 +54,8 @@ class TRINITY_DLL_SPEC Database
 
         virtual QueryResult* Query(const char *sql) = 0;
         QueryResult* PQuery(const char *format,...) ATTR_PRINTF(2,3);
+        virtual QueryNamedResult* QueryNamed(const char *sql) = 0;
+        QueryNamedResult* PQueryNamed(const char *format,...) ATTR_PRINTF(2,3);
 
         /// Async queries and query holders, implemented in DatabaseImpl.h
 
