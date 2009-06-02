@@ -767,7 +767,10 @@ bool Guardian::InitStatsForLevel(uint32 petlevel)
         if(m_owner->getClass() == CLASS_WARLOCK)
             petType = SUMMON_PET;
         else if(m_owner->getClass() == CLASS_HUNTER)
+        {
             petType = HUNTER_PET;
+            m_summonMask |= SUMMON_MASK_HUNTER_PET;
+        }
         else
             sLog.outError("Unknown type pet %u is summoned by player class %u", GetEntry(), m_owner->getClass());
     }
