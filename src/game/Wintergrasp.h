@@ -93,6 +93,8 @@ class OPvPWintergrasp : public OutdoorPvP
         void HandleKill(Player *killer, Unit *victim);
 
         void SendInitWorldStatesTo(Player *player = NULL);
+
+        bool Update(uint32 diff);
     protected:
         TeamId m_defender;
         int32 m_tenacityStack;
@@ -104,12 +106,17 @@ class OPvPWintergrasp : public OutdoorPvP
 
         TeamPairMap m_creEntryPair, m_goDisplayPair;
 
+        bool m_wartime;
+        uint32 m_timer;
+
         void ChangeDefender();
 
         void UpdateTenacityStack();
         bool UpdateCreatureInfo(Creature *creature);
         void UpdateAllWorldObject();
         bool UpdateGameObjectInfo(GameObject *go);
+
+        void RebuildAllBuildings();
 };
 
 #endif
