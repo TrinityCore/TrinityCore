@@ -507,7 +507,7 @@ struct TRINITY_DLL_DECL npc_salanar_the_horsemanAI : public ScriptedAI
                     if( ((Player*)charmer)->GetQuestStatus(12680) == QUEST_STATUS_INCOMPLETE )
                         ((Player*)charmer)->KilledMonster(28767, me->GetGUID());
                     else if( ((Player*)charmer)->GetQuestStatus(12687) == QUEST_STATUS_INCOMPLETE )
-                        ((Player*)charmer)->GroupEventHappens(12687, who);   
+                        ((Player*)charmer)->GroupEventHappens(12687, me->GetGUID());   
                     ((Player*)charmer)->ExitVehicle();
                     //without this we can see npc kill the horse
                     //who->setDeathState(DEAD);
