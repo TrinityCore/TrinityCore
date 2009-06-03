@@ -4979,6 +4979,10 @@ void AuraEffect::HandleAuraModIncreaseHealth(bool apply, bool Real, bool changeA
     {
         if(apply)
         {
+            // Vampiric Blood
+            if(GetSpellProto()->Id == 55233)
+                m_amount = m_target->GetMaxHealth() * m_amount / 100;
+
             m_target->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_VALUE, float(m_amount), apply);
             m_target->ModifyHealth(m_amount);
         }
