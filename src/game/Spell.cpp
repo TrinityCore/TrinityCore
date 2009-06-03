@@ -4659,6 +4659,7 @@ SpellCastResult Spell::CheckCast(bool strict)
             }
             case SPELL_AURA_MOD_POSSESS:
             case SPELL_AURA_MOD_CHARM:
+            //case SPELL_AURA_MOD_POSSESS_PET:
             {
                 if(m_caster->GetPetGUID())
                     return SPELL_FAILED_ALREADY_HAVE_SUMMON;
@@ -4669,13 +4670,15 @@ SpellCastResult Spell::CheckCast(bool strict)
                 if(m_caster->GetCharmerGUID())
                     return SPELL_FAILED_CHARMED;
 
-                if(!m_targets.getUnitTarget())
+                Unit *target = m_targets.getUnitTarget();
+                if(!target || target->GetTypeId() == TYPEID_UNIT
+                    && ((Creature*)target)->isVehicle())
                     return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
 
-                if(m_targets.getUnitTarget()->GetCharmerGUID())
+                if(target->GetCharmerGUID())
                     return SPELL_FAILED_CHARMED;
 
-                if(int32(m_targets.getUnitTarget()->getLevel()) > CalculateDamage(i,m_targets.getUnitTarget()))
+                if(int32(target->getLevel()) > CalculateDamage(i, target))
                     return SPELL_FAILED_HIGHLEVEL;
 
                 break;
