@@ -25,6 +25,7 @@
 #include "WorldPacket.h"
 
 #include "Chat.h"
+#include "CreatureAI.h"
 
 Vehicle::Vehicle() : Creature(), m_vehicleInfo(NULL), m_usableSeatNum(0)
 {
@@ -238,6 +239,8 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
         GetPositionZ() + unit->m_movementInfo.t_z,
         GetOrientation());
 
+    unit->GetMotionMaster()->MoveIdle(MOTION_SLOT_IDLE);
+
     WorldPacket data;
     if(unit->GetTypeId() == TYPEID_PLAYER)
     {
@@ -246,6 +249,8 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
         if(seat->first == 0 && seat->second.seatInfo->IsUsable()) // not right
         {
             setFaction(unit->getFaction());
+            AI()->OnCharmed(true);
+            GetMotionMaster()->MoveIdle();
             ((Player*)unit)->SetCharm(this, true);
             ((Player*)unit)->SetViewpoint(this, true);
             ((Player*)unit)->VehicleSpellInitialize();
@@ -291,6 +296,7 @@ void Vehicle::RemovePassenger(Unit *unit)
     if(unit->GetTypeId() == TYPEID_PLAYER && seat->first == 0 && seat->second.seatInfo->IsUsable())
     {
         RestoreFaction();
+        AI()->OnCharmed(false);
         ((Player*)unit)->SetCharm(this, false);
         ((Player*)unit)->SetViewpoint(this, false);
         ((Player*)unit)->SendRemoveControlBar();

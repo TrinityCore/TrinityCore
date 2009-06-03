@@ -11655,7 +11655,10 @@ void Unit::RemoveFromWorld()
         ExitVehicle();
 
         if(GetCharmerGUID())
+        {
             sLog.outCrash("Unit %u has charmer guid when removed from world", GetEntry());
+            assert(false);
+        }
 
         WorldObject::RemoveFromWorld();
     }
@@ -11701,7 +11704,7 @@ void Unit::UpdateCharmAI()
         if(isCharmed())
         {
             i_disabledAI = i_AI;
-            if(isPossessed())
+            if(isPossessed() || ((Creature*)this)->isVehicle())
                 i_AI = new PossessedAI((Creature*)this);
             else
                 i_AI = new PetAI((Creature*)this);
@@ -14000,7 +14003,7 @@ void Unit::SetPhaseMask(uint32 newPhaseMask, bool update)
         return;
 
     for(ControlList::const_iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
-        if((*itr)->GetOwnerGUID() == GetGUID())
+        if((*itr)->GetTypeId() == TYPEID_UNIT)
             (*itr)->SetPhaseMask(newPhaseMask,true);
 
     for(int8 i = 0; i < MAX_SUMMON_SLOT; ++i)
