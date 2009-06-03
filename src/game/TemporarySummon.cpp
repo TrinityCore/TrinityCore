@@ -332,7 +332,7 @@ void Puppet::InitStats(uint32 duration)
 void Puppet::InitSummon()
 {
     Minion::InitSummon();
-    SetCharmedOrPossessedBy(m_owner, true);
+    SetCharmedBy(m_owner, CHARM_TYPE_POSSESS);
 }
 
 void Puppet::Update(uint32 time)
@@ -351,6 +351,6 @@ void Puppet::RemoveFromWorld()
     if(!IsInWorld())
         return;
 
-    RemoveCharmedOrPossessedBy(NULL);
+    RemoveCharmedBy(NULL);
     Minion::RemoveFromWorld();
 }

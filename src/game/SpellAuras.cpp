@@ -532,12 +532,12 @@ AreaAuraEffect::AreaAuraEffect(Aura * parentAura, uint32 effIndex, int32 * curre
         case SPELL_EFFECT_APPLY_AREA_AURA_PARTY:
             m_areaAuraType = AREA_AURA_PARTY;
             if(m_target->GetTypeId() == TYPEID_UNIT && ((Creature*)m_target)->isTotem())
-                const_cast<AuraType>(m_auraName) = SPELL_AURA_NONE;
+                (AuraType)m_auraName = SPELL_AURA_NONE;
             break;
         case SPELL_EFFECT_APPLY_AREA_AURA_RAID:
             m_areaAuraType = AREA_AURA_RAID;
             if(m_target->GetTypeId() == TYPEID_UNIT && ((Creature*)m_target)->isTotem())
-                const_cast<AuraType>(m_auraName) = SPELL_AURA_NONE;
+                (AuraType)m_auraName = SPELL_AURA_NONE;
             break;
         case SPELL_EFFECT_APPLY_AREA_AURA_FRIEND:
             m_areaAuraType = AREA_AURA_FRIEND;
@@ -545,7 +545,7 @@ AreaAuraEffect::AreaAuraEffect(Aura * parentAura, uint32 effIndex, int32 * curre
         case SPELL_EFFECT_APPLY_AREA_AURA_ENEMY:
             m_areaAuraType = AREA_AURA_ENEMY;
             if(m_target == caster_ptr)
-                const_cast<AuraType>(m_auraName) = SPELL_AURA_NONE;    // Do not do any effect on self
+                (AuraType)m_auraName = SPELL_AURA_NONE;    // Do not do any effect on self
             break;
         case SPELL_EFFECT_APPLY_AREA_AURA_PET:
             m_areaAuraType = AREA_AURA_PET;
@@ -553,7 +553,7 @@ AreaAuraEffect::AreaAuraEffect(Aura * parentAura, uint32 effIndex, int32 * curre
         case SPELL_EFFECT_APPLY_AREA_AURA_OWNER:
             m_areaAuraType = AREA_AURA_OWNER;
             if(m_target == caster_ptr)
-                const_cast<AuraType>(m_auraName) = SPELL_AURA_NONE;
+                (AuraType)m_auraName = SPELL_AURA_NONE;
             break;
         default:
             sLog.outError("Wrong spell effect in AreaAura constructor");
@@ -6906,10 +6906,10 @@ void AuraEffect::HandleModPossess(bool apply, bool Real, bool /*changeAmount*/)
         if(m_target->getLevel() > m_amount)
             return;
 
-        m_target->SetCharmedOrPossessedBy(caster, true);
+        m_target->SetCharmedBy(caster, CHARM_TYPE_POSSESS);
     }
     else
-        m_target->RemoveCharmedOrPossessedBy(caster);
+        m_target->RemoveCharmedBy(caster);
 }
 
 void AuraEffect::HandleModPossessPet(bool apply, bool Real, bool /*changeAmount*/)
@@ -6926,11 +6926,11 @@ void AuraEffect::HandleModPossessPet(bool apply, bool Real, bool /*changeAmount*
         if(caster->GetGuardianPet() != m_target)
             return;
 
-        m_target->SetCharmedOrPossessedBy(caster, true);
+        m_target->SetCharmedBy(caster, CHARM_TYPE_POSSESS);
     }
     else
     {
-        m_target->RemoveCharmedOrPossessedBy(caster);
+        m_target->RemoveCharmedBy(caster);
 
         // Reinitialize the pet bar and make the pet come back to the owner
         ((Player*)caster)->PetSpellInitialize();
@@ -6954,10 +6954,10 @@ void AuraEffect::HandleModCharm(bool apply, bool Real, bool /*changeAmount*/)
         if(int32(m_target->getLevel()) > m_amount)
             return;
 
-        m_target->SetCharmedOrPossessedBy(caster, false);
+        m_target->SetCharmedBy(caster, CHARM_TYPE_CHARM);
     }
     else
-        m_target->RemoveCharmedOrPossessedBy(caster);
+        m_target->RemoveCharmedBy(caster);
 }
 
 void AuraEffect::HandlePhase(bool apply, bool Real, bool /*changeAmount*/)
