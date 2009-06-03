@@ -206,12 +206,6 @@ void Creature::SearchFormationAndPath()
     if(!lowguid)
         return;
 
-    if(isTrigger())
-    {
-        SetDefaultMovementType(IDLE_MOTION_TYPE);
-        return;
-    }
-
     bool usePath = (GetDefaultMovementType() == WAYPOINT_MOTION_TYPE);
     CreatureGroupInfoType::iterator frmdata = CreatureGroupMap.find(lowguid);
     if(frmdata != CreatureGroupMap.end())
