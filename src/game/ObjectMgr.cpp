@@ -1128,7 +1128,11 @@ void ObjectMgr::LoadCreatures()
         }
 
         // I do not know why but in db most display id are not zero
-        if(data.displayid == cInfo->Modelid_A1 || data.displayid == cInfo->Modelid_A2
+        if(data.displayid == 11686)
+        {
+            (const_cast<CreatureInfo*>(cInfo))->flags_extra |= CREATURE_FLAG_EXTRA_TRIGGER;
+        }
+        else if(data.displayid == cInfo->Modelid_A1 || data.displayid == cInfo->Modelid_A2
             || data.displayid == cInfo->Modelid_H1 || data.displayid == cInfo->Modelid_H2)
             data.displayid = 0;
 
@@ -1172,6 +1176,8 @@ void ObjectMgr::LoadCreatures()
                 sLog.outErrorDb("Table `creature` have creature (GUID: %u Entry: %u) with `MovementType`=1 (random movement) but with `spawndist`=0, replace by idle movement type (0).",guid,data.id );
                 data.movementType = IDLE_MOTION_TYPE;
             }
+            else if(cInfo->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER)
+                data.movementType = IDLE_MOTION_TYPE;
         }
         else if(data.movementType == IDLE_MOTION_TYPE)
         {
