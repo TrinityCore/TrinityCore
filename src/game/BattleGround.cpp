@@ -1277,10 +1277,56 @@ void BattleGround::RemoveFromBGFreeSlotQueue()
 // returns the number how many players can join battleground to MaxPlayersPerTeam
 uint32 BattleGround::GetFreeSlotsForTeam(uint32 Team) const
 {
-    //return free slot count to MaxPlayerPerTeam
-    if (GetStatus() == STATUS_WAIT_JOIN || GetStatus() == STATUS_IN_PROGRESS)
+    //if BG is starting ... invite anyone
+    if (GetStatus() == STATUS_WAIT_JOIN)
         return (GetInvitedCount(Team) < GetMaxPlayersPerTeam()) ? GetMaxPlayersPerTeam() - GetInvitedCount(Team) : 0;
+    //if BG is already started .. do not allow to join too much players of one faction
+    uint32 otherTeam;
+    uint32 otherIn;
+    if (Team == ALLIANCE)
+    {
+        otherTeam = GetInvitedCount(HORDE);
+        otherIn = GetPlayersCountByTeam(HORDE);
+    }
+    else
+    {
+        otherTeam = GetInvitedCount(ALLIANCE);
+        otherIn = GetPlayersCountByTeam(ALLIANCE);
+    }
+    if (GetStatus() == STATUS_IN_PROGRESS)
+    {
+        // difference based on ppl invited (not necessarily entered battle)
+        // default: allow 0
+        uint32 diff = 0;
+        // allow join one person if the sides are equal (to fill up bg to minplayersperteam)
+        if (otherTeam == GetInvitedCount(Team))
+            diff = 1;
+        // allow join more ppl if the other side has more players
+        else if(otherTeam > GetInvitedCount(Team))
+            diff = otherTeam - GetInvitedCount(Team);
 
+        // difference based on max players per team (don't allow inviting more)
+        uint32 diff2 = (GetInvitedCount(Team) < GetMaxPlayersPerTeam()) ? GetMaxPlayersPerTeam() - GetInvitedCount(Team) : 0;
+        // difference based on players who already entered
+        // default: allow 0
+        uint32 diff3 = 0;
+        // allow join one person if the sides are equal (to fill up bg minplayersperteam)
+        if (otherIn == GetPlayersCountByTeam(Team))
+            diff3 = 1;
+        // allow join more ppl if the other side has more players
+        else if (otherIn > GetPlayersCountByTeam(Team))
+            diff3 = otherIn - GetPlayersCountByTeam(Team);
+        // or other side has less than minPlayersPerTeam
+        else if (GetInvitedCount(Team) <= GetMinPlayersPerTeam())
+            diff3 = GetMinPlayersPerTeam() - GetInvitedCount(Team) + 1;
+
+        // return the minimum of the 3 differences
+
+        // min of diff and diff 2
+        diff = diff < diff2 ? diff : diff2;
+        // min of diff, diff2 and diff3
+        return diff < diff3 ? diff : diff3 ;
+    }
     return 0;
 }
 
