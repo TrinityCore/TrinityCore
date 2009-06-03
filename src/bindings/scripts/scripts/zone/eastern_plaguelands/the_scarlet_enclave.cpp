@@ -510,8 +510,8 @@ struct TRINITY_DLL_DECL npc_salanar_the_horsemanAI : public ScriptedAI
                         ((Player*)charmer)->GroupEventHappens(12687, me);   
                     ((Player*)charmer)->ExitVehicle();
                     //without this we can see npc kill the horse
-                    //who->setDeathState(DEAD);
-                    //((Creature*)who)->Respawn();
+                    who->setDeathState(DEAD);
+                    ((Creature*)who)->Respawn();
                 }
             }
         }
@@ -531,6 +531,23 @@ struct TRINITY_DLL_DECL npc_ros_dark_riderAI : public ScriptedAI
 {
     npc_ros_dark_riderAI(Creature *c) : ScriptedAI(c) {}
 
+    void MoveInLineOfSight(Unit *who)
+    {
+        if(me->getVictim())
+            return;
+
+        // this should be before next one otherwise he may enter vehicle again
+        if(!me->m_Vehicle && who->GetEntry() == 28782 && ((Creature*)who)->isVehicle() && !who->GetCharmerGUID())
+            me->EnterVehicle((Vehicle*)who);
+
+        ScriptedAI::MoveInLineOfSight(who);
+    }
+
+    void CombatStart(Unit *who)
+    {
+        me->ExitVehicle();
+    }
+
     void Reset()
     {
         Creature* deathcharger = me->FindNearestCreature(28782, 30);
@@ -548,7 +565,6 @@ struct TRINITY_DLL_DECL npc_ros_dark_riderAI : public ScriptedAI
         {
             deathcharger->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
             deathcharger->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            deathcharger->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
             deathcharger->setFaction(2096);
         }
     }
