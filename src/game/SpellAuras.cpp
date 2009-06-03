@@ -532,12 +532,12 @@ AreaAuraEffect::AreaAuraEffect(Aura * parentAura, uint32 effIndex, int32 * curre
         case SPELL_EFFECT_APPLY_AREA_AURA_PARTY:
             m_areaAuraType = AREA_AURA_PARTY;
             if(m_target->GetTypeId() == TYPEID_UNIT && ((Creature*)m_target)->isTotem())
-                (AuraType)m_auraName = SPELL_AURA_NONE;
+                *const_cast<AuraType*>(&m_auraName) = SPELL_AURA_NONE;
             break;
         case SPELL_EFFECT_APPLY_AREA_AURA_RAID:
             m_areaAuraType = AREA_AURA_RAID;
             if(m_target->GetTypeId() == TYPEID_UNIT && ((Creature*)m_target)->isTotem())
-                (AuraType)m_auraName = SPELL_AURA_NONE;
+                *const_cast<AuraType*>(&m_auraName) = SPELL_AURA_NONE;
             break;
         case SPELL_EFFECT_APPLY_AREA_AURA_FRIEND:
             m_areaAuraType = AREA_AURA_FRIEND;
@@ -545,7 +545,7 @@ AreaAuraEffect::AreaAuraEffect(Aura * parentAura, uint32 effIndex, int32 * curre
         case SPELL_EFFECT_APPLY_AREA_AURA_ENEMY:
             m_areaAuraType = AREA_AURA_ENEMY;
             if(m_target == caster_ptr)
-                (AuraType)m_auraName = SPELL_AURA_NONE;    // Do not do any effect on self
+                *const_cast<AuraType*>(&m_auraName) = SPELL_AURA_NONE;    // Do not do any effect on self
             break;
         case SPELL_EFFECT_APPLY_AREA_AURA_PET:
             m_areaAuraType = AREA_AURA_PET;
@@ -553,7 +553,7 @@ AreaAuraEffect::AreaAuraEffect(Aura * parentAura, uint32 effIndex, int32 * curre
         case SPELL_EFFECT_APPLY_AREA_AURA_OWNER:
             m_areaAuraType = AREA_AURA_OWNER;
             if(m_target == caster_ptr)
-                (AuraType)m_auraName = SPELL_AURA_NONE;
+                *const_cast<AuraType*>(&m_auraName) = SPELL_AURA_NONE;
             break;
         default:
             sLog.outError("Wrong spell effect in AreaAura constructor");
@@ -6816,7 +6816,7 @@ void AuraEffect::HandleAuraControlVehicle(bool apply, bool Real, bool /*changeAm
     if(!caster || caster == m_target)
         return;
 
-    Vehicle *vehicle = dynamic_cast<Vehicle*>(m_target);
+    Vehicle * const vehicle = dynamic_cast<Vehicle * const>(m_target);
 
     if (apply)
     {
