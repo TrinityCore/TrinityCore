@@ -66,9 +66,41 @@ AuctionHouseObject * AuctionHouseMgr::GetAuctionsMap( uint32 factionTemplateId )
 
 uint32 AuctionHouseMgr::GetAuctionDeposit(AuctionHouseEntry const* entry, uint32 time, Item *pItem)
 {
-    uint32 deposit = pItem->GetProto()->SellPrice * pItem->GetCount() * (time / MIN_AUCTION_TIME );
-
-    return uint32(deposit * entry->depositPercent * 3 * sWorld.getRate(RATE_AUCTION_DEPOSIT) / 100.0f );
+    uint32 MSV = pItem->GetProto()->SellPrice;
+    double deposit;
+    double faction_pct;
+    if (MSV > 0)
+    {
+        if(sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION))
+            faction_pct = (0.75 * (double)sWorld.getRate(RATE_AUCTION_DEPOSIT));
+        else
+        {
+            FactionTemplateEntry const* u_entry = sFactionTemplateStore.LookupEntry(entry->houseId);
+            if(!u_entry)
+                faction_pct = (0.75 * (double)sWorld.getRate(RATE_AUCTION_DEPOSIT));
+            else if(u_entry->ourMask & FACTION_MASK_ALLIANCE)
+                faction_pct = (0.15 * (double)sWorld.getRate(RATE_AUCTION_DEPOSIT));
+            else if(u_entry->ourMask & FACTION_MASK_HORDE)
+                faction_pct = (0.15 * (double)sWorld.getRate(RATE_AUCTION_DEPOSIT));
+            else
+                faction_pct = (0.75 * (double)sWorld.getRate(RATE_AUCTION_DEPOSIT));
+        }
+        deposit = ((double)MSV * faction_pct * (double)pItem->GetCount()) * (double)(time / MIN_AUCTION_TIME );
+    }
+    else
+    {
+        faction_pct = 0.0f;
+        deposit = 0.0f;
+    }
+    //sLog.outString("SellPrice:\t\t%u", MSV);
+    //sLog.outString("Deposit Percent:\t%f", faction_pct);
+    //sLog.outString("Min Auction Time:\t%u", (time / MIN_AUCTION_TIME ));
+    //sLog.outString("Count:\t\t\t%u", pItem->GetCount());
+    //sLog.outString("Deposit:\t\t%f", deposit);
+    if (deposit > 0)
+        return (uint32)deposit;
+    else
+        return 0;
 }
 
 //does not clear ram
