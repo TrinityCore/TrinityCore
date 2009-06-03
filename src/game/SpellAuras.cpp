@@ -456,10 +456,9 @@ Aura::~Aura()
 AuraEffect::AuraEffect(Aura * parentAura, uint8 effIndex, int32 * currentBasePoints , Unit *caster, Item* castItem, WorldObject *source) :
 m_parentAura(parentAura), m_spellmod(NULL), m_periodicTimer(0), m_isPeriodic(false), m_isAreaAura(false), m_isPersistent(false),
 m_target(parentAura->GetTarget()), m_tickNumber(0)
+, m_spellProto(parentAura->GetSpellProto()), m_effIndex(effIndex), m_auraName(AuraType(m_spellProto->EffectApplyAuraName[m_effIndex]))
 {
-    m_spellProto = parentAura->GetSpellProto();
-    m_effIndex = effIndex;
-    m_auraName = AuraType(m_spellProto->EffectApplyAuraName[m_effIndex]);
+    assert(m_auraName < TOTAL_AURAS);
 
     if(currentBasePoints)
         m_currentBasePoints = *currentBasePoints;
@@ -533,12 +532,12 @@ AreaAuraEffect::AreaAuraEffect(Aura * parentAura, uint32 effIndex, int32 * curre
         case SPELL_EFFECT_APPLY_AREA_AURA_PARTY:
             m_areaAuraType = AREA_AURA_PARTY;
             if(m_target->GetTypeId() == TYPEID_UNIT && ((Creature*)m_target)->isTotem())
-                m_auraName = SPELL_AURA_NONE;
+                const_cast<AuraType>(m_auraName) = SPELL_AURA_NONE;
             break;
         case SPELL_EFFECT_APPLY_AREA_AURA_RAID:
             m_areaAuraType = AREA_AURA_RAID;
             if(m_target->GetTypeId() == TYPEID_UNIT && ((Creature*)m_target)->isTotem())
-                m_auraName = SPELL_AURA_NONE;
+                const_cast<AuraType>(m_auraName) = SPELL_AURA_NONE;
             break;
         case SPELL_EFFECT_APPLY_AREA_AURA_FRIEND:
             m_areaAuraType = AREA_AURA_FRIEND;
@@ -546,7 +545,7 @@ AreaAuraEffect::AreaAuraEffect(Aura * parentAura, uint32 effIndex, int32 * curre
         case SPELL_EFFECT_APPLY_AREA_AURA_ENEMY:
             m_areaAuraType = AREA_AURA_ENEMY;
             if(m_target == caster_ptr)
-                m_auraName = SPELL_AURA_NONE;    // Do not do any effect on self
+                const_cast<AuraType>(m_auraName) = SPELL_AURA_NONE;    // Do not do any effect on self
             break;
         case SPELL_EFFECT_APPLY_AREA_AURA_PET:
             m_areaAuraType = AREA_AURA_PET;
@@ -554,7 +553,7 @@ AreaAuraEffect::AreaAuraEffect(Aura * parentAura, uint32 effIndex, int32 * curre
         case SPELL_EFFECT_APPLY_AREA_AURA_OWNER:
             m_areaAuraType = AREA_AURA_OWNER;
             if(m_target == caster_ptr)
-                m_auraName = SPELL_AURA_NONE;
+                const_cast<AuraType>(m_auraName) = SPELL_AURA_NONE;
             break;
         default:
             sLog.outError("Wrong spell effect in AreaAura constructor");
@@ -856,8 +855,7 @@ void AuraEffect::ApplyModifier(bool apply, bool Real, bool changeAmount)
     if (GetParentAura()->IsRemoved())
         return;
 
-    if(m_auraName<TOTAL_AURAS)
-        (*this.*AuraHandler [m_auraName])(apply,Real, changeAmount);
+    (*this.*AuraHandler [m_auraName])(apply,Real, changeAmount);
 }
 
 void AuraEffect::RecalculateAmount(bool applied)

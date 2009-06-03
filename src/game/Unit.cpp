@@ -4099,7 +4099,6 @@ void Unit::RemoveAurasDueToItemSpell(Item* castItem,uint32 spellId)
 
 void Unit::RemoveAurasByType(AuraType auraType, uint64 casterGUID, Aura * except)
 {
-    if (auraType >= TOTAL_AURAS) return;
     for (AuraEffectList::iterator iter = m_modAuras[auraType].begin(); iter != m_modAuras[auraType].end();)
     {
         Aura * aur = (*iter)->GetParentAura();
@@ -4116,7 +4115,6 @@ void Unit::RemoveAurasByType(AuraType auraType, uint64 casterGUID, Aura * except
 
 void Unit::RemoveAurasByTypeWithDispel(AuraType auraType, Spell * spell)
 {
-    if (auraType >= TOTAL_AURAS) return;
     std::queue < std::pair < uint32, uint64 > > remove_list;
 
     for (AuraEffectList::iterator iter = m_modAuras[auraType].begin(); iter != m_modAuras[auraType].end();++iter)
@@ -11999,10 +11997,10 @@ typedef std::list< ProcTriggeredData > ProcTriggeredList;
 // for example SPELL_AURA_MECHANIC_IMMUNITY - need check for mechanic
 bool InitTriggerAuraData()
 {
-    for (int i=0;i<TOTAL_AURAS;i++)
+    for (int i = 0; i < TOTAL_AURAS; ++i)
     {
-      isTriggerAura[i]=false;
-      isNonTriggerAura[i] = false;
+        isTriggerAura[i]=false;
+        isNonTriggerAura[i] = false;
     }
     isTriggerAura[SPELL_AURA_DUMMY] = true;
     isTriggerAura[SPELL_AURA_MOD_CONFUSE] = true;
