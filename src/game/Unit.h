@@ -885,6 +885,13 @@ struct CharmSpellEntry
 
 typedef std::list<Player*> SharedVisionList;
 
+enum CharmType
+{
+    CHARM_TYPE_CHARM,
+    CHARM_TYPE_POSSESS,
+    CHARM_TYPE_VEHICLE,
+};
+
 enum ActionBarIndex
 {
     ACTION_BAR_INDEX_START = 0,
@@ -1340,8 +1347,8 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void SetMinion(Minion *minion, bool apply);
         void SetCharm(Unit* target, bool apply);
         Unit* GetNextRandomRaidMemberOrPet(float radius);
-        void SetCharmedOrPossessedBy(Unit* charmer, bool possess);
-        void RemoveCharmedOrPossessedBy(Unit* charmer);
+        void SetCharmedBy(Unit* charmer, CharmType type);
+        void RemoveCharmedBy(Unit* charmer);
         void RestoreFaction();
 
         ControlList m_Controlled;

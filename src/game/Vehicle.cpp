@@ -247,14 +247,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
         //ChatHandler(player).PSendSysMessage("Enter seat %u %u", veSeat->m_ID, seat->first);
 
         if(seat->first == 0 && seat->second.seatInfo->IsUsable()) // not right
-        {
-            setFaction(unit->getFaction());
-            AI()->OnCharmed(true);
-            GetMotionMaster()->MoveIdle();
-            ((Player*)unit)->SetCharm(this, true);
-            ((Player*)unit)->SetViewpoint(this, true);
-            ((Player*)unit)->VehicleSpellInitialize();
-        }
+            SetCharmedBy(unit, CHARM_TYPE_VEHICLE);
 
         ((Player*)unit)->BuildTeleportAckMsg(&data, unit->GetPositionX(), unit->GetPositionY(), unit->GetPositionZ(), unit->GetOrientation());
         ((Player*)unit)->GetSession()->SendPacket(&data);
@@ -294,13 +287,7 @@ void Vehicle::RemovePassenger(Unit *unit)
     //SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
 
     if(unit->GetTypeId() == TYPEID_PLAYER && seat->first == 0 && seat->second.seatInfo->IsUsable())
-    {
-        RestoreFaction();
-        AI()->OnCharmed(false);
-        ((Player*)unit)->SetCharm(this, false);
-        ((Player*)unit)->SetViewpoint(this, false);
-        ((Player*)unit)->SendRemoveControlBar();
-    }
+        RemoveCharmedBy(unit);
 
     // only for flyable vehicles?
     //CastSpell(this, 45472, true);                           // Parachute

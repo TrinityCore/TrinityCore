@@ -16664,8 +16664,6 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
 
 void Player::StopCastingCharm()
 {
-    ExitVehicle();
-
     Unit* charm = GetCharm();
     if(!charm)
         return;
@@ -16674,6 +16672,8 @@ void Player::StopCastingCharm()
     {
         if(((Creature*)charm)->HasSummonMask(SUMMON_MASK_PUPPET))
             ((Puppet*)charm)->UnSummon();
+        else if(((Creature*)charm)->isVehicle())
+            ExitVehicle();
     }
     if(GetCharmGUID())
     {
@@ -16685,6 +16685,7 @@ void Player::StopCastingCharm()
     if(GetCharmGUID())
     {
         sLog.outCrash("Player %s is not able to uncharm unit (Entry: %u, Type: %u)", GetName(), charm->GetEntry(), charm->GetTypeId());
+        assert(false);
     }
 }
 
