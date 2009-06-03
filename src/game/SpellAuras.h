@@ -377,11 +377,11 @@ class TRINITY_DLL_SPEC AuraEffect
         Unit * const m_target;
         uint64 m_sourceGUID; // Spell::m_caster/trap? for normal aura, totem/paladin for areaaura, dynobj for persistent aura
 
-        SpellEntry const *m_spellProto;
         uint32 m_tickNumber;
 
-        uint8 m_effIndex;
-        AuraType m_auraName;
+        const SpellEntry * const m_spellProto;
+        const uint8 m_effIndex;
+        const AuraType m_auraName;
         int32 m_currentBasePoints;
         int32 m_amount;
 
