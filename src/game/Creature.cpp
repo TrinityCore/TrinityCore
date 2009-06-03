@@ -1756,6 +1756,8 @@ void Creature::setDeathState(DeathState s)
         SetMeleeDamageSchool(SpellSchools(cinfo->dmgschool));
         LoadCreaturesAddon(true);
         Motion_Initialize();
+        if(GetPhaseMask() != GetCreatureData()->phaseMask)
+            SetPhaseMask(GetCreatureData()->phaseMask, true);
     }
 }
 
