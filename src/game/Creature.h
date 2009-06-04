@@ -644,6 +644,7 @@ class TRINITY_DLL_SPEC Creature : public Unit
 
         Unit* SelectNearestTarget(float dist = 0) const;
         void DoFleeToGetAssistance();
+        void CallForHelp(float fRadius);
         void CallAssistance();
         void SetNoCallAssistance(bool val) { m_AlreadyCallAssistance = val; }
         void SetNoSearchAssistance(bool val) { m_AlreadySearchedAssistance = val; }
