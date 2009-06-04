@@ -89,9 +89,20 @@ string ConvertNativeType(enum_field_types mysqlType, uint32 length)
         case FIELD_TYPE_INT24:
             return "integer";
         case FIELD_TYPE_LONGLONG:
-            return "int8";
         case FIELD_TYPE_LONG:
-            return "bigint";
+            {
+                string temp;
+                char str[10];
+                temp = "numeric";
+                if (length)
+                {
+                    temp.append("(");
+                    sprintf(str,"%d",length);
+                    temp.append(str);
+                    temp.append(")");
+                }
+                return temp;
+            }
         case FIELD_TYPE_DECIMAL:
         case FIELD_TYPE_FLOAT:
         case FIELD_TYPE_DOUBLE:
