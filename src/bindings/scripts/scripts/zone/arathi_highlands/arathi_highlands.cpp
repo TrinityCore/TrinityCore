@@ -129,7 +129,7 @@ CreatureAI* GetAI_npc_professor_phizzlethorpeAI(Creature *_Creature)
 
     professor_phizzlethorpeAI->FillPointMovementListForCreature();
 
-    return (CreatureAI*)professor_phizzlethorpeAI;
+    return professor_phizzlethorpeAI;
 }
 
 void AddSC_arathi_highlands()

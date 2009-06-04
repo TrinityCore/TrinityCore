@@ -353,7 +353,7 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
                             pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                             pCreature->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
                             pCreature->setFaction(14);
-                            ((CreatureAI*)pCreature->AI())->AttackStart(pWarrior);
+                            (pCreature->AI())->AttackStart(pWarrior);
                             ++Wave;
                             Wave_Timer = 20000;
                         }
@@ -541,7 +541,7 @@ CreatureAI* GetAI_npc_wizzlecrank_shredderAI(Creature *_Creature)
     thisAI->AddWaypoint(30, 1091.28, -2985.82, 91.74, 7000);
     thisAI->AddWaypoint(31, 1091.28, -2985.82, 91.74, 3000);
 
-    return (CreatureAI*)thisAI;
+    return thisAI;
 }
 
 void AddSC_the_barrens()

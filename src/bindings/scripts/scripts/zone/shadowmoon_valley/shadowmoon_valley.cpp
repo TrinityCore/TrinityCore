@@ -1039,7 +1039,7 @@ CreatureAI* GetAI_npc_earthmender_wildaAI(Creature *_Creature)
        earthmender_wildaAI->AddWaypoint(49, -2841.754883, 1289.832520, 6.990304);
        earthmender_wildaAI->AddWaypoint(50, -2871.398438, 1302.348145, 6.807335, 8000); // SAY_END
 
-       return (CreatureAI*)earthmender_wildaAI;
+       return earthmender_wildaAI;
 }
 
 bool QuestAccept_npc_earthmender_wilda(Player* player, Creature* creature, Quest const* quest)

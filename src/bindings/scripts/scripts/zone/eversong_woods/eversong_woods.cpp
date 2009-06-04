@@ -89,7 +89,7 @@ CreatureAI* GetAI_npc_prospector_anvilward(Creature* pCreature)
 
     thisAI->FillPointMovementListForCreature();
 
-    return (CreatureAI*)thisAI;
+    return thisAI;
 }
 
 bool GossipHello_npc_prospector_anvilward(Player *player, Creature *_Creature)

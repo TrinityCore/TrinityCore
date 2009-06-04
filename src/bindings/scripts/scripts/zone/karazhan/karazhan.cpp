@@ -372,7 +372,7 @@ CreatureAI* GetAI_npc_barnesAI(Creature* _Creature)
     for(uint8 i = 0; i < 6; ++i)
         Barnes_AI->AddWaypoint(i, StageLocations[i][0], StageLocations[i][1], 90.465);
 
-    return ((CreatureAI*)Barnes_AI);
+    return (Barnes_AI);
 }
 
 bool GossipHello_npc_barnes(Player* player, Creature* _Creature)

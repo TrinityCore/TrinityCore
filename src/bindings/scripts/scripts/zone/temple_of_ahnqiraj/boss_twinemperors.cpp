@@ -434,7 +434,7 @@ struct TRINITY_DLL_DECL boss_veknilashAI : public boss_twinemperorsAI
     void CastSpellOnBug(Creature *target)
     {
         target->setFaction(14);
-        ((CreatureAI*)target->AI())->AttackStart(m_creature->getThreatManager().getHostilTarget());
+        (target->AI())->AttackStart(m_creature->getThreatManager().getHostilTarget());
         SpellEntry *spell = (SpellEntry *)GetSpellStore()->LookupEntry(SPELL_MUTATE_BUG);
         uint8 eff_mask=0;
         for (int i=0; i<3; i++)

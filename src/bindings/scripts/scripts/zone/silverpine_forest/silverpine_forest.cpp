@@ -209,7 +209,7 @@ CreatureAI* GetAI_npc_deathstalker_erlandAI(Creature *_Creature)
     deathstalker_erlandAI->AddWaypoint(25, 1310.51, 1207.36, 58.51, 5000);
     deathstalker_erlandAI->AddWaypoint(26, 1310.51, 1207.36, 58.51, 2000);
 
-    return (CreatureAI*)deathstalker_erlandAI;
+    return deathstalker_erlandAI;
 }
 
 /*######

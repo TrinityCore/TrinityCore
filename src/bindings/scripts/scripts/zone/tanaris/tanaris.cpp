@@ -217,7 +217,7 @@ CreatureAI* GetAI_npc_custodian_of_time(Creature* pCreature)
 
     custodian_of_timeAI->FillPointMovementListForCreature();
 
-    return (CreatureAI*)custodian_of_timeAI;
+    return custodian_of_timeAI;
 }
 
 /*######
@@ -533,7 +533,7 @@ CreatureAI* GetAI_npc_OOX17(Creature *_Creature)
     OOX17AI->AddWaypoint(85, -6944.81, -4816.58, 1.60);
     OOX17AI->AddWaypoint(86, -6942.06, -4839.40, 0.66,5000);
 
-    return (CreatureAI*)OOX17AI;
+    return OOX17AI;
 }
 
 /*######
