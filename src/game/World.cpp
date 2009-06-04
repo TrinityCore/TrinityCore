@@ -1079,6 +1079,9 @@ void World::LoadConfigSettings(bool reload)
     m_configs[CONFIG_PVP_TOKEN_COUNT] = sConfig.GetIntDefault("PvPToken.ItemCount", 1);
     if(m_configs[CONFIG_PVP_TOKEN_COUNT] < 1)
         m_configs[CONFIG_PVP_TOKEN_COUNT] = 1;
+    m_configs[CONFIG_OUTDOORPVP_WINTERGRASP_START_TIME]     = sConfig.GetIntDefault("OutdoorPvP.Wintergrasp.StartTime", 30);
+    m_configs[CONFIG_OUTDOORPVP_WINTERGRASP_BATTLE_TIME]    = sConfig.GetIntDefault("OutdoorPvP.Wintergrasp.BattleTime", 30); 
+    m_configs[CONFIG_OUTDOORPVP_WINTERGRASP_INTERVAL]       = sConfig.GetIntDefault("OutdoorPvP.Wintergrasp.Interval", 150);
     m_configs[CONFIG_NO_RESET_TALENT_COST] = sConfig.GetBoolDefault("NoResetTalentsCost", false);
     m_configs[CONFIG_SHOW_KICK_IN_WORLD] = sConfig.GetBoolDefault("ShowKickInWorld", false);
     m_configs[CONFIG_INTERVAL_LOG_UPDATE] = sConfig.GetIntDefault("RecordUpdateTimeDiffInterval", 60000);
