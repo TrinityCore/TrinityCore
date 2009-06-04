@@ -127,7 +127,7 @@ bool OPvPWintergrasp::SetupOutdoorPvP()
     LoadTeamPair(m_creEntryPair, CreatureEntryPair);
 
     m_wartime = false;
-    m_timer = 600000;
+    m_timer = sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_START_TIME) * MINUTE * IN_MILISECONDS;
 
     return true;
 }
@@ -407,7 +407,7 @@ bool OPvPWintergrasp::Update(uint32 diff)
         if(m_wartime)
         {
             m_wartime = false;
-            m_timer = 600000; // for test, should be 2 hour 30 min
+            m_timer = sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_INTERVAL) * MINUTE * IN_MILISECONDS;
             if(m_defender == TEAM_ALLIANCE)
                 sWorld.SendZoneText(ZONE_WINTERGRASP, "Alliance has successfully defended the fortress!");
             else
@@ -416,7 +416,7 @@ bool OPvPWintergrasp::Update(uint32 diff)
         else
         {
             m_wartime = true;
-            m_timer = 30*60*1000;
+            m_timer = sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_BATTLE_TIME) * MINUTE * IN_MILISECONDS;
             sWorld.SendZoneText(ZONE_WINTERGRASP, "Battle begins!");
             UpdateAllWorldObject();
         }

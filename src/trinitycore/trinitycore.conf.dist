@@ -1583,6 +1583,14 @@ Ra.Secure = 1
 #	NoResetTalentsCost
 #		Enable or disable no cost when reseting talents
 #
+#
+#   OutdoorPvP.Wintergrasp.StartTime = 30
+#       The start time of the first battle after server starts (default: 30 minutes)
+#   OutdoorPvP.Wintergrasp.BattleTime = 30
+#       Time limit of a battle
+#   OutdoorPvP.Wintergrasp.BattleInterval
+#       Interval between battles (default: 150 minutes)
+#
 #   ForbiddenMaps
 #       map ids that users below SEC_GAMEMASTER cannot enter, with delimiter ','
 #       Default: ""
@@ -1624,6 +1632,9 @@ PvPToken.Enable = 0
 PvPToken.MapAllowType = 4
 PvPToken.ItemID = 29434
 PvPToken.ItemCount = 1
+OutdoorPvP.Wintergrasp.StartTime = 30
+OutdoorPvP.Wintergrasp.BattleTime = 30
+OutdoorPvP.Wintergrasp.BattleInterval = 150
 NoResetTalentsCost = 0
 ShowKickInWorld = 0
 RecordUpdateTimeDiffInterval = 60000
