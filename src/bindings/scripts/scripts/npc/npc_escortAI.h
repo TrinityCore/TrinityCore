@@ -38,9 +38,9 @@ struct TRINITY_DLL_DECL npc_escortAI : public ScriptedAI
         npc_escortAI(Creature *c) : ScriptedAI(c), IsBeingEscorted(false), PlayerTimer(1000), MaxPlayerDistance(DEFAULT_MAX_PLAYER_DISTANCE), CanMelee(true), DespawnAtEnd(true), DespawnAtFar(true)
         {}
 
-        void AttackStart(Unit*);
+        void AttackStart(Unit* who);
 
-        void MoveInLineOfSight(Unit*);
+        void MoveInLineOfSight(Unit* who);
 
         void JustRespawned();
 

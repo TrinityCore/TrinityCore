@@ -712,7 +712,7 @@ void LoadOverridenDBCData()
     SpellEntry *spellInfo;
     for(uint32 i = 0; i < GetSpellStore()->GetNumRows(); ++i)
     {
-        spellInfo = (SpellEntry*)GetSpellStore()->LookupEntry(i);
+        spellInfo = GET_SPELL(i);
         if(!spellInfo)
             continue;
 

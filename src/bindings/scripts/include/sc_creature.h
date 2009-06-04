@@ -24,6 +24,8 @@
 #define CAST_AI(a,b)    (static_cast<a*>(b))
 #endif
 
+#define GET_SPELL(a)    (const_cast<SpellEntry*>(GetSpellStore()->LookupEntry(a)))
+
 class ScriptedInstance;
 
 class SummonList : private std::list<uint64>
@@ -68,10 +70,10 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
     void UpdateAI(const uint32);
 
     //Called at creature death
-    void JustDied(Unit*){}
+    void JustDied(Unit* who){}
 
     //Called at creature killing another unit
-    void KilledUnit(Unit*){}
+    void KilledUnit(Unit* who){}
 
     // Called when the creature summon successfully other creature
     void JustSummoned(Creature* ) {}
@@ -111,7 +113,7 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
     void Reset() {}
 
     //Called at creature aggro either by MoveInLOS or Attack Start
-    void EnterCombat(Unit*) {}
+    void EnterCombat(Unit* who) {}
 
     //*************
     //AI Helper Functions
@@ -199,10 +201,10 @@ struct TRINITY_DLL_DECL Scripted_NoMovementAI : public ScriptedAI
     Scripted_NoMovementAI(Creature* creature) : ScriptedAI(creature) {}
 
     //Called if IsVisible(Unit *who) is true at each *who move
-    //void MoveInLineOfSight(Unit*);
+    //void MoveInLineOfSight(Unit* who);
 
     //Called at each attack of m_creature by any victim
-    void AttackStart(Unit*);
+    void AttackStart(Unit* who);
 };
 
 struct TRINITY_DLL_DECL BossAI : public ScriptedAI

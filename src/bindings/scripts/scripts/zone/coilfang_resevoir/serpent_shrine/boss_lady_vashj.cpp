@@ -657,7 +657,7 @@ struct TRINITY_DLL_DECL mob_enchanted_elementalAI : public ScriptedAI
                 m_creature->GetMotionMaster()->MovePoint(0, MIDDLE_X, MIDDLE_Y, MIDDLE_Z);
                 if(m_creature->GetDistance(MIDDLE_X, MIDDLE_Y, MIDDLE_Z) < 3)
                 {
-                    SpellEntry *spell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_SURGE);
+                    SpellEntry *spell = GET_SPELL(SPELL_SURGE);
                     if( spell )
                     {
                         uint8 eff_mask=0;

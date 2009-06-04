@@ -226,7 +226,7 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
 
             DoScriptText(SAY_NOVA, m_creature);
 
-            if(SpellEntry *nova = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_BURNING_NOVA))
+            if(SpellEntry *nova = GET_SPELL(SPELL_BURNING_NOVA))
             {
                 uint8 eff_mask=0;
                 for (int i=0; i<3; i++)

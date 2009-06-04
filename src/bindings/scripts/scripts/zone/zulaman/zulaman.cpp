@@ -112,7 +112,7 @@ struct TRINITY_DLL_DECL npc_zulaman_hostageAI : public ScriptedAI
     uint64 PlayerGUID;
     void Reset() {}
     void EnterCombat(Unit *who) {}
-    void JustDied(Unit*)
+    void JustDied(Unit* who)
     {
         Player* player = Unit::GetPlayer(PlayerGUID);
         if(player) player->SendLoot(m_creature->GetGUID(), LOOT_CORPSE);

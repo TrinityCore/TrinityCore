@@ -728,7 +728,7 @@ void hyjalAI::DeSpawnVeins()
     {
         Creature* pUnit=Unit::GetCreature((*m_creature),pInstance->GetData64(DATA_JAINAPROUDMOORE));
         if (!pUnit)return;
-        hyjalAI* ai = ((hyjalAI*)pUnit->AI());
+        hyjalAI* ai = CAST_AI(hyjalAI, pUnit->AI());
         if(!ai)return;
         for (uint8 i = 0; i<7; i++)
         {
@@ -740,7 +740,7 @@ void hyjalAI::DeSpawnVeins()
     {
         Creature* pUnit=Unit::GetCreature((*m_creature),pInstance->GetData64(DATA_THRALL));
         if (!pUnit)return;
-        hyjalAI* ai = ((hyjalAI*)pUnit->AI());
+        hyjalAI* ai = CAST_AI(hyjalAI, pUnit->AI());
         if(!ai)return;
         for (uint8 i = 7; i<14; i++)
         {

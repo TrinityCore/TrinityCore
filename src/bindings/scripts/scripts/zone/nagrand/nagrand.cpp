@@ -586,7 +586,7 @@ struct TRINITY_DLL_DECL mob_sparrowhawkAI : public ScriptedAI
         if(!who || PlayerGUID)
             return;
 
-        if(!PlayerGUID && who->GetTypeId() == TYPEID_PLAYER && m_creature->IsWithinDistInMap(((Player*)who), 30) && ((Player*)who)->GetQuestStatus(10987) == QUEST_STATUS_INCOMPLETE)
+        if(!PlayerGUID && who->GetTypeId() == TYPEID_PLAYER && m_creature->IsWithinDistInMap(who, 30) && CAST_PLR(who)->GetQuestStatus(10987) == QUEST_STATUS_INCOMPLETE)
         {
             PlayerGUID = who->GetGUID();
             return;
