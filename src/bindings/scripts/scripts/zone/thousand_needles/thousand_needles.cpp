@@ -101,7 +101,7 @@ bool QuestAccept_npc_swiftmountain(Player* player, Creature* creature, Quest con
 {
     if (quest->GetQuestId() == QUEST_HOMEWARD_BOUND)
     {
-        ((npc_escortAI*)(creature->AI()))->Start(true, true, false, player->GetGUID());
+        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, true, false, player->GetGUID());
         DoScriptText(SAY_READY, creature, player);
         creature->setFaction(113);
     }

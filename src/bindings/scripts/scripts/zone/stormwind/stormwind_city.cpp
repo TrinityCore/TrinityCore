@@ -109,8 +109,8 @@ bool QuestAccept_npc_bartleby(Player *player, Creature *_Creature, Quest const *
     if(_Quest->GetQuestId() == 1640)
     {
         _Creature->setFaction(168);
-        ((npc_bartlebyAI*)_Creature->AI())->PlayerGUID = player->GetGUID();
-        ((npc_bartlebyAI*)_Creature->AI())->AttackStart(player);
+        CAST_AI(npc_bartlebyAI, _Creature->AI())->PlayerGUID = player->GetGUID();
+        CAST_AI(npc_bartlebyAI, _Creature->AI())->AttackStart(player);
     }
     return true;
 }
@@ -159,7 +159,7 @@ bool QuestAccept_npc_dashel_stonefist(Player *player, Creature *_Creature, Quest
     if(_Quest->GetQuestId() == 1447)
     {
         _Creature->setFaction(168);
-        ((npc_dashel_stonefistAI*)_Creature->AI())->AttackStart(player);
+        CAST_AI(npc_dashel_stonefistAI, _Creature->AI())->AttackStart(player);
     }
     return true;
 }

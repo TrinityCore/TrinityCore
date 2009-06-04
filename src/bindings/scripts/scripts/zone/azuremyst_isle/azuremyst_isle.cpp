@@ -280,7 +280,7 @@ bool GossipSelect_npc_engineer_spark_overgrind(Player *player, Creature *_Creatu
     {
         player->CLOSE_GOSSIP_MENU();
         _Creature->setFaction(FACTION_HOSTILE);
-        ((npc_engineer_spark_overgrindAI*)_Creature->AI())->AttackStart(player);
+        CAST_AI(npc_engineer_spark_overgrindAI, _Creature->AI())->AttackStart(player);
     }
     return true;
 }
@@ -401,7 +401,7 @@ bool QuestAccept_npc_magwin(Player* player, Creature* creature, Quest const* que
     if (quest->GetQuestId() == QUEST_A_CRY_FOR_SAY_HELP)
     {
         creature->setFaction(113);
-        ((npc_escortAI*)(creature->AI()))->Start(true, true, false, player->GetGUID());
+        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, true, false, player->GetGUID());
     }
     return true;
 }

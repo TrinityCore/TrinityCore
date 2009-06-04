@@ -518,7 +518,7 @@ struct TRINITY_DLL_DECL boss_kiljaedenAI : public Scripted_NoMovementAI
         if(pInstance){
             Creature* Control = CAST_CRE(Unit::GetUnit(*m_creature, pInstance->GetData64(DATA_KILJAEDEN_CONTROLLER)));
             if(Control)
-                ((Scripted_NoMovementAI*)Control->AI())->Reset();
+                CAST_AI(Scripted_NoMovementAI, Control->AI())->Reset();
         }
     }
 
@@ -647,8 +647,8 @@ struct TRINITY_DLL_DECL boss_kiljaedenAI : public Scripted_NoMovementAI
                         break;
                     case TIMER_ORBS_EMPOWER: //Phase 3
                         if(Phase == PHASE_SACRIFICE){
-                            if(Kalec)((boss_kalecgos_kjAI*)Kalec->AI())->EmpowerOrb(true);
-                        }else if(Kalec)((boss_kalecgos_kjAI*)Kalec->AI())->EmpowerOrb(false);
+                            if(Kalec)CAST_AI(boss_kalecgos_kjAI, Kalec->AI())->EmpowerOrb(true);
+                        }else if(Kalec)CAST_AI(boss_kalecgos_kjAI, Kalec->AI())->EmpowerOrb(false);
                         Timer[TIMER_ORBS_EMPOWER]= (Phase == PHASE_SACRIFICE) ? 45000 : 35000;
                         OrbActivated = true;
                         TimerIsDeactiveted[TIMER_ORBS_EMPOWER] = true;
@@ -747,7 +747,7 @@ struct TRINITY_DLL_DECL mob_kiljaeden_controllerAI : public Scripted_NoMovementA
 
     void Reset(){
         Phase = PHASE_DECEIVERS;
-        if(KalecKJ)((boss_kalecgos_kjAI*)KalecKJ->AI())->ResetOrbs();
+        if(KalecKJ)CAST_AI(boss_kalecgos_kjAI, KalecKJ->AI())->ResetOrbs();
         DeceiverDeathCount = 0;
         SummonedDeceivers = false;
         KiljaedenDeath = false;
@@ -767,7 +767,7 @@ struct TRINITY_DLL_DECL mob_kiljaeden_controllerAI : public Scripted_NoMovementA
                 break;
             case CREATURE_KILJAEDEN:
                 summoned->CastSpell(summoned, SPELL_REBIRTH, false);
-                ((boss_kiljaedenAI*)summoned->AI())->Phase=PHASE_NORMAL;
+                CAST_AI(boss_kiljaedenAI, summoned->AI())->Phase=PHASE_NORMAL;
                 summoned->AddThreat(m_creature->getVictim(), 1.0f);
                 break;
         }
@@ -848,7 +848,7 @@ struct TRINITY_DLL_DECL mob_hand_of_the_deceiverAI : public ScriptedAI
 
         Creature* Control = CAST_CRE(Unit::GetUnit(*m_creature, pInstance->GetData64(DATA_KILJAEDEN_CONTROLLER)));
         if(Control)
-            ((mob_kiljaeden_controllerAI*)Control->AI())->DeceiverDeathCount++;
+            CAST_AI(mob_kiljaeden_controllerAI, Control->AI())->DeceiverDeathCount++;
     }
 
     void UpdateAI(const uint32 diff){

@@ -230,7 +230,7 @@ struct TRINITY_DLL_DECL boss_twinemperorsAI : public ScriptedAI
             thismap->CreatureRelocation(m_creature, other_x, other_y, other_z, other_o);
 
             SetAfterTeleport();
-            ((boss_twinemperorsAI*) pOtherBoss->AI())->SetAfterTeleport();
+            CAST_AI(boss_twinemperorsAI,  pOtherBoss->AI())->SetAfterTeleport();
         }
     }
 

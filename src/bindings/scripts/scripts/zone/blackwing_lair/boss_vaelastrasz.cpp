@@ -223,7 +223,7 @@ void SendDefaultMenu_boss_vael(Player *player, Creature *_Creature, uint32 actio
     if (action == GOSSIP_ACTION_INFO_DEF + 1)               //Fight time
     {
         player->CLOSE_GOSSIP_MENU();
-        ((boss_vaelAI*)_Creature->AI())->BeginSpeach((Unit*)player);
+        CAST_AI(boss_vaelAI, _Creature->AI())->BeginSpeach((Unit*)player);
     }
 }
 

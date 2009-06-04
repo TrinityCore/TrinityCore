@@ -392,7 +392,7 @@ struct TRINITY_DLL_DECL boss_priestess_guestAI : public ScriptedAI
         {
             pInstance->SetData(DATA_DELRISSA_DEATH_COUNT, 1);
 
-            ((boss_priestess_delrissaAI*)Delrissa->AI())->KilledLackey();
+            CAST_AI(boss_priestess_delrissaAI, Delrissa->AI())->KilledLackey();
 
             if (!Delrissa->isAlive() && pInstance->GetData(DATA_DELRISSA_DEATH_COUNT) > 3)
                 Delrissa->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
@@ -423,7 +423,7 @@ struct TRINITY_DLL_DECL boss_priestess_guestAI : public ScriptedAI
         Creature* Delrissa = (Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_DELRISSA)));
         if (Delrissa)
         {
-            Group = ((boss_priestess_delrissaAI*)Delrissa->AI())->Adds;
+            Group = CAST_AI(boss_priestess_delrissaAI, Delrissa->AI())->Adds;
             Add* dAdd = new Add(Delrissa->GetEntry(), Delrissa->GetGUID());
             Group.push_back(dAdd);
         }
@@ -649,13 +649,13 @@ struct TRINITY_DLL_DECL boss_ellris_duskhallowAI : public boss_priestess_guestAI
 /*void mob_fizzleAI::JustDied(Unit* killer)
 {
     if(Creature* Ellris = (Unit::GetCreature(*m_creature, EllrisGUID)))
-        ((boss_ellris_duskhallowAI*)Ellris->AI())->ImpGUID = 0;
+        CAST_AI(boss_ellris_duskhallowAI, Ellris->AI())->ImpGUID = 0;
 }
 
 void mob_fizzleAI::KilledUnit(Unit* victim)
 {
     if(Creature* Ellris = (Unit::GetCreature(*m_creature, EllrisGUID)))
-        ((boss_ellris_duskhallowAI*)Ellris->AI())->KilledUnit(victim);
+        CAST_AI(boss_ellris_duskhallowAI, Ellris->AI())->KilledUnit(victim);
 }*/
 
 #define SPELL_KNOCKDOWN            11428
@@ -984,7 +984,7 @@ struct TRINITY_DLL_DECL boss_garaxxasAI : public boss_priestess_guestAI
             Creature* Sliver = m_creature->SummonCreature(CREATURE_SLIVER, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
             if (Sliver)
             {
-                //((mob_sliverAI*)Sliver->AI())->GaraxxasGUID = m_creature->GetGUID();
+                //CAST_AI(mob_sliverAI, Sliver->AI())->GaraxxasGUID = m_creature->GetGUID();
                 //SliverGUID = Sliver->GetGUID();
                 HasSummonedSliver = true;
             }
@@ -1043,13 +1043,13 @@ struct TRINITY_DLL_DECL boss_garaxxasAI : public boss_priestess_guestAI
 /*void mob_sliverAI::JustDied(Unit* killer)
 {
     if(Creature* Garaxxas = (Unit::GetCreature(*m_creature, GaraxxasGUID)))
-        ((boss_garaxxasAI*)Garaxxas->AI())->SliverGUID = 0;
+        CAST_AI(boss_garaxxasAI, Garaxxas->AI())->SliverGUID = 0;
 }
 
 void mob_sliverAI::KilledUnit(Unit* victim)
 {
     if(Creature* Garaxxas = (Unit::GetCreature(*m_creature, GaraxxasGUID)))
-        ((boss_garaxxasAI*)Garaxxas->AI())->KilledUnit(victim);
+        CAST_AI(boss_garaxxasAI, Garaxxas->AI())->KilledUnit(victim);
 }*/
 
 #define SPELL_WINDFURY_TOTEM         27621

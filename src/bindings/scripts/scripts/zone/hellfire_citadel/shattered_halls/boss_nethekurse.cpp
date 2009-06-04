@@ -330,7 +330,7 @@ struct TRINITY_DLL_DECL mob_fel_orc_convertAI : public ScriptedAI
                 Creature *pKurse = Unit::GetCreature(*m_creature,pInstance->GetData64(DATA_NETHEKURSE));
                 if (pKurse && m_creature->GetDistance(pKurse) < 45.0f)
                 {
-                    ((boss_grand_warlock_nethekurseAI*)pKurse->AI())->DoYellForPeonAggro();
+                    CAST_AI(boss_grand_warlock_nethekurseAI, pKurse->AI())->DoYellForPeonAggro();
 
                     if (pInstance->GetData(TYPE_NETHEKURSE) == IN_PROGRESS )
                         return;
@@ -350,7 +350,7 @@ struct TRINITY_DLL_DECL mob_fel_orc_convertAI : public ScriptedAI
             {
                 Creature *pKurse = Unit::GetCreature(*m_creature,pInstance->GetData64(DATA_NETHEKURSE));
                 if (pKurse)
-                    ((boss_grand_warlock_nethekurseAI*)pKurse->AI())->DoYellForPeonDeath();
+                    CAST_AI(boss_grand_warlock_nethekurseAI, pKurse->AI())->DoYellForPeonDeath();
             }
         }
     }

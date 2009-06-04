@@ -335,7 +335,7 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
                     if (uint64 TarethaGUID = pInstance->GetData64(DATA_TARETHA))
                     {
                         if (Creature* Taretha = (Unit::GetCreature(*m_creature, TarethaGUID)))
-                            ((npc_escortAI*)(Taretha->AI()))->Start(false, false, true, PlayerGUID);
+                            CAST_AI(npc_escortAI, (Taretha->AI()))->Start(false, false, true, PlayerGUID);
                     }
 
                     //kill credit creature for quest
@@ -536,10 +536,10 @@ bool GossipSelect_npc_thrall_old_hillsbrad(Player *player, Creature *_Creature, 
 
             DoScriptText(SAY_TH_START_EVENT_PART1, _Creature);
 
-            ((npc_escortAI*)(_Creature->AI()))->Start(true, true, true, player->GetGUID());
-            ((npc_escortAI*)(_Creature->AI()))->SetMaxPlayerDistance(100.0f);//not really needed, because it will not despawn if player is too far
-            ((npc_escortAI*)(_Creature->AI()))->SetDespawnAtEnd(false);
-            ((npc_escortAI*)(_Creature->AI()))->SetDespawnAtFar(false);
+            CAST_AI(npc_escortAI, (_Creature->AI()))->Start(true, true, true, player->GetGUID());
+            CAST_AI(npc_escortAI, (_Creature->AI()))->SetMaxPlayerDistance(100.0f);//not really needed, because it will not despawn if player is too far
+            CAST_AI(npc_escortAI, (_Creature->AI()))->SetDespawnAtEnd(false);
+            CAST_AI(npc_escortAI, (_Creature->AI()))->SetDespawnAtFar(false);
             break;
 
         case GOSSIP_ACTION_INFO_DEF+2:
@@ -555,14 +555,14 @@ bool GossipSelect_npc_thrall_old_hillsbrad(Player *player, Creature *_Creature, 
 
             DoScriptText(SAY_TH_START_EVENT_PART2, _Creature);
 
-            ((npc_thrall_old_hillsbradAI*)_Creature->AI())->StartWP();
+            CAST_AI(npc_thrall_old_hillsbradAI, _Creature->AI())->StartWP();
             break;
 
         case GOSSIP_ACTION_INFO_DEF+3:
             player->CLOSE_GOSSIP_MENU();
             if(pInstance)
                 pInstance->SetData(TYPE_THRALL_PART3,IN_PROGRESS);
-            ((npc_thrall_old_hillsbradAI*)_Creature->AI())->StartWP();
+            CAST_AI(npc_thrall_old_hillsbradAI, _Creature->AI())->StartWP();
             break;
     }
     return true;
@@ -649,7 +649,7 @@ bool GossipSelect_npc_taretha(Player *player, Creature *_Creature, uint32 sender
              {
                  Creature* Thrall = (Unit::GetCreature((*_Creature), ThrallGUID));
                  if(Thrall)
-                     ((npc_thrall_old_hillsbradAI*)Thrall->AI())->StartWP();
+                     CAST_AI(npc_thrall_old_hillsbradAI, Thrall->AI())->StartWP();
              }
         }
     }

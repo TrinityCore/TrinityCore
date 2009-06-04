@@ -380,8 +380,8 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
             Infernal->SetUInt32Value(UNIT_FIELD_DISPLAYID, INFERNAL_MODEL_INVISIBLE);
             Infernal->setFaction(m_creature->getFaction());
             if(point)
-                ((netherspite_infernalAI*)Infernal->AI())->point=point;
-            ((netherspite_infernalAI*)Infernal->AI())->malchezaar=m_creature->GetGUID();
+                CAST_AI(netherspite_infernalAI, Infernal->AI())->point=point;
+            CAST_AI(netherspite_infernalAI, Infernal->AI())->malchezaar=m_creature->GetGUID();
 
             infernals.push_back(Infernal->GetGUID());
             DoCast(Infernal, SPELL_INFERNAL_RELAY);
@@ -621,7 +621,7 @@ void netherspite_infernalAI::Cleanup()
     Unit *pMalchezaar = Unit::GetUnit(*m_creature, malchezaar);
 
     if(pMalchezaar && pMalchezaar->isAlive())
-        ((boss_malchezaarAI*)CAST_CRE(pMalchezaar)->AI())->Cleanup(m_creature, point);
+        CAST_AI(boss_malchezaarAI, CAST_CRE(pMalchezaar)->AI())->Cleanup(m_creature, point);
 }
 
 CreatureAI* GetAI_netherspite_infernal(Creature *_Creature)

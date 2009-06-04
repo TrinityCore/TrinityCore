@@ -75,7 +75,7 @@ bool QuestAccept_npc_calvin_montague(Player* player, Creature* creature, Quest c
     {
         creature->setFaction(FACTION_HOSTILE);
         creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
-        ((npc_calvin_montagueAI*)creature->AI())->AttackStart(player);
+        CAST_AI(npc_calvin_montagueAI, creature->AI())->AttackStart(player);
     }
     return true;
 }

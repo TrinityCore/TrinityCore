@@ -175,7 +175,7 @@ CreatureAI* GetAI_npc_mist(Creature* pCreature)
 bool QuestAccept_npc_mist(Player* pPlayer, Creature* pCreature, Quest const* pQuest)
 {
     if (pQuest->GetQuestId() == QUEST_MIST)
-        ((npc_mistAI*)(pCreature->AI()))->DoStart(pPlayer->GetGUID());
+        CAST_AI(npc_mistAI, (pCreature->AI()))->DoStart(pPlayer->GetGUID());
 
     return true;
 }

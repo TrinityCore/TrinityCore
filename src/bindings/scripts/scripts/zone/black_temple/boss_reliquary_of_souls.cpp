@@ -178,7 +178,7 @@ struct TRINITY_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
         if(!Soul) return false;
         if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
         {
-            ((npc_enslaved_soulAI*)Soul->AI())->ReliquaryGUID = m_creature->GetGUID();
+            CAST_AI(npc_enslaved_soulAI, Soul->AI())->ReliquaryGUID = m_creature->GetGUID();
             Soul->AI()->AttackStart(target);
         }else EnterEvadeMode();
         return true;
@@ -629,7 +629,7 @@ void npc_enslaved_soulAI::JustDied(Unit *killer)
     {
         Creature* Reliquary = (Unit::GetCreature((*m_creature), ReliquaryGUID));
         if(Reliquary)
-            ((boss_reliquary_of_soulsAI*)Reliquary->AI())->SoulDeathCount++;
+            CAST_AI(boss_reliquary_of_soulsAI, Reliquary->AI())->SoulDeathCount++;
     }
     DoCast(m_creature, SPELL_SOUL_RELEASE, true);
 }

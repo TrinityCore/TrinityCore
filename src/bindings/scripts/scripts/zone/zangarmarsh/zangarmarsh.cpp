@@ -333,7 +333,7 @@ bool QuestAccept_npc_kayra_longmane(Player* player, Creature* creature, Quest co
 {
     if (quest->GetQuestId() == QUEST_EFU)
     {
-        ((npc_escortAI*)(creature->AI()))->Start(true, true, false, player->GetGUID());
+        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, true, false, player->GetGUID());
         creature->setFaction(113);
     }
     return true;

@@ -368,7 +368,7 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
                 Creature *summon = m_creature->SummonCreature(MOB_ABYSSAL, x, y, z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
                 if(summon)
                 {
-                    ((mob_abyssalAI*)summon->AI())->SetTrigger(2);
+                    CAST_AI(mob_abyssalAI, summon->AI())->SetTrigger(2);
                     m_creature->CastSpell(summon, SPELL_BLAZE_TARGET, true);
                     summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 }
@@ -398,7 +398,7 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
                     float x, y, z;
                     target->GetPosition(x, y, z);
                     Creature *summon = m_creature->SummonCreature(MOB_ABYSSAL, x, y, z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-                    if(summon) ((mob_abyssalAI*)summon->AI())->SetTrigger(1);
+                    if(summon) CAST_AI(mob_abyssalAI, summon->AI())->SetTrigger(1);
                 }
                 Debris_Timer = 10000;
             }else Debris_Timer -= diff;
@@ -516,7 +516,7 @@ bool GOHello_go_Manticron_Cube(Player *player, GameObject* _GO)
     player->InterruptNonMeleeSpells(false);
     player->CastSpell(player, SPELL_SHADOW_GRASP, true);
     player->CastSpell(player, SPELL_SHADOW_GRASP_VISUAL, false);
-    ((boss_magtheridonAI*)Magtheridon->AI())->SetClicker(_GO->GetGUID(), player->GetGUID());
+    CAST_AI(boss_magtheridonAI, Magtheridon->AI())->SetClicker(_GO->GetGUID(), player->GetGUID());
     return true;
 }
 

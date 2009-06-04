@@ -111,7 +111,7 @@ bool GossipSelect_npc_prospector_anvilward(Player *player, Creature *_Creature, 
             break;
         case GOSSIP_ACTION_INFO_DEF+2:
             player->CLOSE_GOSSIP_MENU();
-            ((npc_escortAI*)(_Creature->AI()))->Start(true, true, false, player->GetGUID());
+            CAST_AI(npc_escortAI, (_Creature->AI()))->Start(true, true, false, player->GetGUID());
             break;
     }
     return true;
@@ -343,7 +343,7 @@ struct TRINITY_DLL_DECL master_kelerun_bloodmournAI : public ScriptedAI
           Creature* paladinSpawn;
           paladinSpawn = (Unit::GetCreature((*m_creature), paladinGuid[paladinPhase]));
             if ( paladinSpawn ) {
-               ((npc_secondTrialAI*)paladinSpawn->AI())->Activate(m_creature->GetGUID());
+               CAST_AI(npc_secondTrialAI, paladinSpawn->AI())->Activate(m_creature->GetGUID());
 
                switch(paladinPhase) {
                  case 0:
@@ -405,7 +405,7 @@ bool GossipHello_master_kelerun_bloodmourn(Player *player, Creature *_Creature)
     // Escort quests or any other event-driven quests. If player in party, all players that can accept this quest will receive confirmation box to accept quest.
     // !not sure if this really works!
 
-    if ( ((master_kelerun_bloodmournAI*)_Creature->AI())->questPhase == 0 ) {
+    if ( CAST_AI(master_kelerun_bloodmournAI, _Creature->AI())->questPhase == 0 ) {
         player->PrepareQuestMenu(_Creature->GetGUID());
         player->SendPreparedQuest(_Creature->GetGUID());
     }
@@ -418,7 +418,7 @@ bool QuestAccept_master_kelerun_bloodmourn(Player *player, Creature *creature, Q
 {
     // One Player exclusive quest, wait for user go activation
     if(quest->GetQuestId() == QUEST_SECOND_TRIAL )
-        ((master_kelerun_bloodmournAI*)creature->AI())->questPhase = 1;
+        CAST_AI(master_kelerun_bloodmournAI, creature->AI())->questPhase = 1;
 
     return true;
 }
@@ -444,7 +444,7 @@ void npc_secondTrialAI::JustDied(Unit* Killer) {
           Summoner = (Unit::GetCreature((*m_creature), summonerGuid));
 
           if ( Summoner )
-            ((master_kelerun_bloodmournAI*)Summoner->AI())->SecondTrialKill();
+            CAST_AI(master_kelerun_bloodmournAI, Summoner->AI())->SecondTrialKill();
 
           // last kill quest complete for group
           if ( m_creature->GetEntry() == CHAMPION_SUNSTRIKER ) {
@@ -514,7 +514,7 @@ bool GOHello_go_second_trial(Player *player, GameObject* _GO)
     cell_lock->Visit(cell_lock, grid_unit_searcher, *(_GO->GetMap()));
 
     if ( event_controller )
-       ((master_kelerun_bloodmournAI*)event_controller->AI())->StartEvent();
+       CAST_AI(master_kelerun_bloodmournAI, event_controller->AI())->StartEvent();
 
     return true;
 }
@@ -594,8 +594,8 @@ bool QuestAccept_npc_apprentice_mirveda(Player* player, Creature* creature, Ques
 {
     if (quest->GetQuestId() == QUEST_UNEXPECTED_RESULT)
     {
-        ((npc_apprentice_mirvedaAI*)creature->AI())->Summon = true;
-        ((npc_apprentice_mirvedaAI*)creature->AI())->PlayerGUID = player->GetGUID();
+        CAST_AI(npc_apprentice_mirvedaAI, creature->AI())->Summon = true;
+        CAST_AI(npc_apprentice_mirvedaAI, creature->AI())->PlayerGUID = player->GetGUID();
     }
     return true;
 }

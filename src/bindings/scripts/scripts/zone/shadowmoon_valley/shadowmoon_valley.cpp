@@ -832,8 +832,8 @@ bool QuestAccept_npc_overlord_morghor(Player *player, Creature *_Creature, const
 {
     if(_Quest->GetQuestId() == QUEST_LORD_ILLIDAN_STORMRAGE)
     {
-        ((npc_overlord_morghorAI*)_Creature->AI())->PlayerGUID = player->GetGUID();
-        ((npc_overlord_morghorAI*)_Creature->AI())->StartEvent();
+        CAST_AI(npc_overlord_morghorAI, _Creature->AI())->PlayerGUID = player->GetGUID();
+        CAST_AI(npc_overlord_morghorAI, _Creature->AI())->StartEvent();
         return true;
     }
     return false;
@@ -1047,7 +1047,7 @@ bool QuestAccept_npc_earthmender_wilda(Player* player, Creature* creature, Quest
     if (quest->GetQuestId() == QUEST_ESCAPE_FROM_COILSKAR_CISTERN)
     {
         creature->setFaction(113);
-        ((npc_escortAI*)(creature->AI()))->Start(true, true, false, player->GetGUID());
+        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, true, false, player->GetGUID());
     }
     return true;
 }
@@ -1490,14 +1490,14 @@ struct TRINITY_DLL_DECL npc_lord_illidan_stormrageAI : public ScriptedAI
                             Spawn->GetMotionMaster()->MovePoint(0,x, y, z);
                         }
                     }
-                    ((mob_illidari_spawnAI*)Spawn->AI())->LordIllidanGUID = m_creature->GetGUID();
+                    CAST_AI(mob_illidari_spawnAI, Spawn->AI())->LordIllidanGUID = m_creature->GetGUID();
                 }
 
                 if(WavesInfo[WaveCount].CreatureId == 22076) // Torloth
                 {
-                    ((mob_torloth_the_magnificentAI*)Spawn->AI())->LordIllidanGUID = m_creature->GetGUID();
+                    CAST_AI(mob_torloth_the_magnificentAI, Spawn->AI())->LordIllidanGUID = m_creature->GetGUID();
                     if(PlayerGUID)
-                        ((mob_torloth_the_magnificentAI*)Spawn->AI())->AggroTargetGUID = PlayerGUID;
+                        CAST_AI(mob_torloth_the_magnificentAI, Spawn->AI())->AggroTargetGUID = PlayerGUID;
                 }
             }
         }
@@ -1605,7 +1605,7 @@ void mob_illidari_spawnAI::JustDied(Unit *slayer)
     m_creature->RemoveCorpse();
     if(Creature* LordIllidan = (Unit::GetCreature(*m_creature, LordIllidanGUID)))
         if(LordIllidan)
-            ((npc_lord_illidan_stormrageAI*)LordIllidan->AI())->LiveCounter();
+            CAST_AI(npc_lord_illidan_stormrageAI, LordIllidan->AI())->LiveCounter();
 }
 
 /*#####
@@ -1616,13 +1616,13 @@ bool GOQuestAccept_GO_crystal_prison(Player* plr, GameObject* go, Quest const* q
 {
     if(quest->GetQuestId() == QUEST_BATTLE_OF_THE_CRIMSON_WATCH )
     {
-        Unit* Illidan = plr->FindNearestCreature(22083, 50);
+        Creature* Illidan = plr->FindNearestCreature(22083, 50);
 
-        if(Illidan && !(((npc_lord_illidan_stormrageAI*)CAST_CRE(Illidan)->AI())->EventStarted))
+        if(Illidan && !CAST_AI(npc_lord_illidan_stormrageAI, Illidan->AI())->EventStarted)
         {
-            ((npc_lord_illidan_stormrageAI*)CAST_CRE(Illidan)->AI())->PlayerGUID = plr->GetGUID();
-            ((npc_lord_illidan_stormrageAI*)CAST_CRE(Illidan)->AI())->LiveCount = 0;
-            ((npc_lord_illidan_stormrageAI*)CAST_CRE(Illidan)->AI())->EventStarted=true;
+            CAST_AI(npc_lord_illidan_stormrageAI, Illidan->AI())->PlayerGUID = plr->GetGUID();
+            CAST_AI(npc_lord_illidan_stormrageAI, Illidan->AI())->LiveCount = 0;
+            CAST_AI(npc_lord_illidan_stormrageAI, Illidan->AI())->EventStarted=true;
         }
     }
  return true;
