@@ -70,7 +70,7 @@ void SummonList::DespawnAll()
         {
             erase(begin());
             summon->SetVisibility(VISIBILITY_OFF);
-            if(summon->HasSummonMask(SUMMON_MASK_SUMMON) && !summon->isPet())
+            if(summon->isSummon() && !summon->isPet())
                 ((TempSummon*)summon)->UnSummon();
             else
                 summon->setDeathState(JUST_DIED);

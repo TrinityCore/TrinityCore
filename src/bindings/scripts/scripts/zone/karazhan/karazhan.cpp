@@ -606,7 +606,7 @@ struct TRINITY_DLL_DECL npc_image_of_medivhAI : public ScriptedAI
 
             if(map->IsDungeon())
             {
-                InstanceMap::PlayerList const &PlayerList = ((InstanceMap*)map)->GetPlayers();
+                InstanceMap::PlayerList const &PlayerList = map->GetPlayers();
                 for (InstanceMap::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                 {
                     if(i->getSource()->isAlive())
