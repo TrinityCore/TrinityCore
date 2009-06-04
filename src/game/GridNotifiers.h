@@ -32,6 +32,7 @@
 #include "GameObject.h"
 #include "Player.h"
 #include "Unit.h"
+#include "CreatureAI.h"
 
 class Player;
 //class Map;
@@ -902,6 +903,38 @@ namespace Trinity
             bool i_targetForPlayer;
             WorldObject const* i_obj;
             Unit const* i_funit;
+            float i_range;
+    };
+
+    // do attack at call of help to friendly crearture
+    class CallOfHelpCreatureInRangeDo
+    {
+        public:
+            CallOfHelpCreatureInRangeDo(Unit* funit, Unit* enemy, float range)
+                : i_funit(funit), i_enemy(enemy), i_range(range)
+            {}
+            void operator()(Creature* u)
+            {
+                if (u == i_funit)
+                    return;
+
+                if (!u->CanAssistTo(i_funit, i_enemy, false))
+                    return;
+
+                // too far
+                if (!i_funit->IsWithinDistInMap(u, i_range))
+                    return;
+
+                // only if see assisted creature
+                if (!i_funit->IsWithinLOSInMap(u))
+                    return;
+
+                if (u->AI())
+                    u->AI()->AttackStart(i_enemy);
+            }
+        private:
+            Unit* const i_funit;
+            Unit* const i_enemy;
             float i_range;
     };
 
