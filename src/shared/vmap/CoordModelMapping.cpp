@@ -21,6 +21,7 @@
 #include "CoordModelMapping.h"
 
 #include <string.h>
+#include <cstdio>
 
 using namespace G3D;
 
