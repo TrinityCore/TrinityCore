@@ -194,7 +194,7 @@ CreatureAI* GetAI_npc_ame(Creature *_Creature)
    thisAI->AddWaypoint(55, -6302.43, -1181.32, -269.328, 5000);
    thisAI->AddWaypoint(56, -6298.87, -1185.79, -269.278);
 
-    return (CreatureAI*)thisAI;
+    return thisAI;
 }
 
 void AddSC_ungoro_crater()

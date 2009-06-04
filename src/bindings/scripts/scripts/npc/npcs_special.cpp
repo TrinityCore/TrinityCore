@@ -800,7 +800,7 @@ CreatureAI* GetAI_npc_garments_of_quests(Creature* pCreature)
 
     tempAI->FillPointMovementListForCreature();
 
-    return (CreatureAI*)tempAI;
+    return tempAI;
 }
 
 /*######

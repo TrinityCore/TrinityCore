@@ -106,7 +106,7 @@ CreatureAI* GetAI_npc_shadowfang_prisoner(Creature* pCreature)
 
     prisonerAI->FillPointMovementListForCreature();
 
-    return (CreatureAI*)prisonerAI;
+    return prisonerAI;
 }
 
 bool GossipHello_npc_shadowfang_prisoner(Player* pPlayer, Creature* pCreature)

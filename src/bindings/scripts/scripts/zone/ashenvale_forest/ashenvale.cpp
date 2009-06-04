@@ -158,7 +158,7 @@ CreatureAI* GetAI_npc_torek(Creature* pCreature)
 
     thisAI->FillPointMovementListForCreature();
  
-    return (CreatureAI*)thisAI;
+    return thisAI;
 }
 
 /*####
@@ -255,7 +255,7 @@ CreatureAI* GetAI_npc_ruul_snowhoofAI(Creature *_Creature)
 
     ruul_snowhoofAI->FillPointMovementListForCreature();
 
-    return (CreatureAI*)ruul_snowhoofAI;
+    return ruul_snowhoofAI;
 }
 
 void AddSC_ashenvale()

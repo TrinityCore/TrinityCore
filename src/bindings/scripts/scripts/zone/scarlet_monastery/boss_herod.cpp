@@ -144,7 +144,7 @@ CreatureAI* GetAI_mob_scarlet_trainee(Creature* pCreature)
 
     thisAI->FillPointMovementListForCreature();
 
-    return (CreatureAI*)thisAI;
+    return thisAI;
 }
 
 void AddSC_boss_herod()

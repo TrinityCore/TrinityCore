@@ -186,7 +186,7 @@ CreatureAI* GetAI_npc_swiftmountain(Creature *_Creature)
    thisAI->AddWaypoint(70, -4938.3, -1100.41, -50.71, 5000);
    thisAI->AddWaypoint(71, -4937.34, -1102.87, -49.82);
 
-    return (CreatureAI*)thisAI;
+    return thisAI;
 }
 
 /*#####
