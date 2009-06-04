@@ -22,18 +22,19 @@
 /// @{
 /// \file
 
-#include "Common.h"
-#include "Database/DatabaseEnv.h"
-#include "RealmList.h"
-
-#include "Config/ConfigEnv.h"
-#include "Log.h"
-#include "sockets/ListenSocket.h"
-#include "AuthSocket.h"
-#include "SystemConfig.h"
-#include "Util.h"
 #include <openssl/opensslv.h>
 #include <openssl/crypto.h>
+
+#include "Common.h"
+#include "Config/ConfigEnv.h"
+#include "Database/DatabaseEnv.h"
+#include "sockets/ListenSocket.h"
+
+#include "AuthSocket.h"
+#include "Log.h"
+#include "RealmList.h"
+#include "SystemConfig.h"
+#include "Util.h"
 
 // Format is YYYYMMDDRR where RR is the change in the conf file
 // for that day.

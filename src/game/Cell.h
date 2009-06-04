@@ -21,10 +21,12 @@
 #ifndef TRINITY_CELL_H
 #define TRINITY_CELL_H
 
+#include <cmath>
+
 #include "GameSystem/TypeContainer.h"
 #include "GameSystem/TypeContainerVisitor.h"
+
 #include "GridDefines.h"
-#include <cmath>
 
 class Map;
 

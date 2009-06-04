@@ -17,23 +17,23 @@
  */
 
 #include "Common.h"
+#include "ObjectMgr.h"
+#include "Player.h"
+#include "World.h"
+#include "WorldPacket.h"
+#include "WorldSession.h"
 #include "Database/DatabaseEnv.h"
 #include "Database/SQLStorage.h"
+#include "Policies/SingletonImp.h"
 #include "DBCStores.h"
-#include "ProgressBar.h"
 
 #include "AccountMgr.h"
 #include "AuctionHouseMgr.h"
 #include "Item.h"
 #include "Language.h"
 #include "Log.h"
-#include "ObjectMgr.h"
-#include "Player.h"
-#include "World.h"
-#include "WorldPacket.h"
-#include "WorldSession.h"
+#include "ProgressBar.h"
 
-#include "Policies/SingletonImp.h"
 
 INSTANTIATE_SINGLETON_1( AuctionHouseMgr );
 

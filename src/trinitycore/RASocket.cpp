@@ -23,13 +23,14 @@
 */
 
 #include "Common.h"
+#include "Config/ConfigEnv.h"
 #include "Database/DatabaseEnv.h"
+
+#include "AccountMgr.h"
 #include "Log.h"
 #include "RASocket.h"
-#include "World.h"
-#include "Config/ConfigEnv.h"
 #include "Util.h"
-#include "AccountMgr.h"
+#include "World.h"
 
 /// \todo Make this thread safe if in the future 2 admins should be able to log at the same time.
 SOCKET r;

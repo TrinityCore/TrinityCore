@@ -1,17 +1,19 @@
-#include "AuctionHouseBot.h"
-#include "Bag.h"
-#include "Config/ConfigEnv.h"
-#include "Database/DatabaseEnv.h"
-#include "Item.h"
-#include "Log.h"
-#include "ObjectMgr.h"
-#include "AuctionHouseMgr.h"
-#include "Player.h"
-#include "World.h"
-#include "WorldSession.h"
-#include "time.h"
 #include <vector>
 #include <iostream>
+#include "time.h"
+
+#include "ObjectMgr.h"
+#include "World.h"
+#include "WorldSession.h"
+#include "Config/ConfigEnv.h"
+#include "Database/DatabaseEnv.h"
+
+#include "AuctionHouseBot.h"
+#include "AuctionHouseMgr.h"
+#include "Bag.h"
+#include "Item.h"
+#include "Log.h"
+#include "Player.h"
 
 using namespace std;
 

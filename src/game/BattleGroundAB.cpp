@@ -18,16 +18,17 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#include "Object.h"
-#include "Player.h"
+#include "ObjectMgr.h"
+#include "World.h"
+#include "WorldPacket.h"
+
 #include "BattleGround.h"
 #include "BattleGroundAB.h"
 #include "Creature.h"
-#include "ObjectMgr.h"
 #include "Language.h"
-#include "World.h"
+#include "Object.h"
+#include "Player.h"
 #include "Util.h"
-#include "WorldPacket.h"
 
 // these variables aren't used outside of this file, so declare them only here
 uint32 BG_AB_HonorScoreTicks[BG_HONOR_MODE_NUM] = {
