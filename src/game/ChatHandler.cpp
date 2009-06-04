@@ -19,25 +19,26 @@
  */
 
 #include "Common.h"
-#include "Log.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "World.h"
-#include "Opcodes.h"
-#include "ObjectMgr.h"
-#include "Chat.h"
 #include "Database/DatabaseEnv.h"
+
+#include "CellImpl.h"
+#include "Chat.h"
 #include "ChannelMgr.h"
+#include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "Guild.h"
-#include "ObjectAccessor.h"
-#include "ScriptCalls.h"
-#include "Player.h"
-#include "SpellAuras.h"
 #include "Language.h"
+#include "Log.h"
+#include "Opcodes.h"
+#include "Player.h"
+#include "ScriptCalls.h"
+#include "SpellAuras.h"
 #include "Util.h"
-#include "GridNotifiersImpl.h"
-#include "CellImpl.h"
 
 void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
 {

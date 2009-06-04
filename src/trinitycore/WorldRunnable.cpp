@@ -22,16 +22,16 @@
     \ingroup Trinityd
 */
 
-#include "WorldSocketMgr.h"
 #include "Common.h"
-#include "World.h"
-#include "WorldRunnable.h"
-#include "Timer.h"
 #include "ObjectAccessor.h"
-#include "MapManager.h"
-#include "BattleGroundMgr.h"
-
+#include "World.h"
+#include "WorldSocketMgr.h"
 #include "Database/DatabaseEnv.h"
+
+#include "BattleGroundMgr.h"
+#include "MapManager.h"
+#include "Timer.h"
+#include "WorldRunnable.h"
 
 #if (defined(WIN32) || defined(SHORT_SLEEP))
 #define WORLD_SLEEP_CONST 50

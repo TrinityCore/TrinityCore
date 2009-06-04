@@ -22,13 +22,16 @@
 /// @{
 /// \file
 
+#include <openssl/opensslv.h>
+#include <openssl/crypto.h>
+
 #include "Common.h"
 #include "Database/DatabaseEnv.h"
 #include "Config/ConfigEnv.h"
+
 #include "Log.h"
 #include "Master.h"
-#include <openssl/opensslv.h>
-#include <openssl/crypto.h>
+
 
 #ifndef _TRINITY_CORE_CONFIG
 # define _TRINITY_CORE_CONFIG  "TrinityCore.conf"

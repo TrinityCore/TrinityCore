@@ -25,8 +25,9 @@
 #ifndef _RASOCKET_H
 #define _RASOCKET_H
 
-#include "Common.h"
 #include "sockets/TcpSocket.h"
+
+#include "Common.h"
 
 #define RA_BUFF_SIZE 1024
 

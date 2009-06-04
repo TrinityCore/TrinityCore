@@ -1,8 +1,11 @@
 #ifndef AUCTION_HOUSE_BOT_H
 #define AUCTION_HOUSE_BOT_H
+
 #include "Common.h"
-#include "Log.h"
 #include "Config/ConfigEnv.h"
+
+#include "Log.h"
+
 #define AHB_GREY        0
 #define AHB_WHITE       1
 #define AHB_GREEN       2

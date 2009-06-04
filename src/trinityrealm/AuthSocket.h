@@ -25,14 +25,15 @@
 #ifndef _AUTHSOCKET_H
 #define _AUTHSOCKET_H
 
-#include "Common.h"
-#include "Auth/BigNumber.h"
 #include "sockets/TcpSocket.h"
 #include "sockets/SocketHandler.h"
 #include "sockets/ListenSocket.h"
 #include "sockets/Utility.h"
 #include "sockets/Parse.h"
 #include "sockets/Socket.h"
+
+#include "Common.h"
+#include "Auth/BigNumber.h"
 
 /// Handle login commands
 class AuthSocket: public TcpSocket

@@ -21,14 +21,15 @@
 #ifndef _CHANNEL_H
 #define _CHANNEL_H
 
-#include "Common.h"
-#include "WorldPacket.h"
-#include "Opcodes.h"
-#include "Player.h"
-
 #include <list>
 #include <map>
 #include <string>
+
+#include "Common.h"
+
+#include "Opcodes.h"
+#include "Player.h"
+#include "WorldPacket.h"
 
 enum ChatNotify
 {

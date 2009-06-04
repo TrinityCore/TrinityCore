@@ -18,12 +18,14 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
+#include "zlib/zlib.h"
+
 #include "AddonHandler.h"
 #include "Database/DatabaseEnv.h"
-#include "Opcodes.h"
-#include "Log.h"
 #include "Policies/SingletonImp.h"
-#include "zlib/zlib.h"
+#include "Opcodes.h"
+
+#include "Log.h"
 
 INSTANTIATE_SINGLETON_1( AddonHandler );
 

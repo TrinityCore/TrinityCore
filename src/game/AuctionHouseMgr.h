@@ -21,8 +21,9 @@
 #ifndef _AUCTION_HOUSE_MGR_H
 #define _AUCTION_HOUSE_MGR_H
 
-#include "SharedDefines.h"
 #include "Policies/Singleton.h"
+
+#include "SharedDefines.h"
 
 class Item;
 class Player;

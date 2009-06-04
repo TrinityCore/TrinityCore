@@ -16,10 +16,10 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "Player.h"
 #include "BattleGround.h"
 #include "BattleGroundSA.h"
 #include "Language.h"
+#include "Player.h"
 
 BattleGroundSA::BattleGroundSA()
 {

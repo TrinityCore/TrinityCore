@@ -18,9 +18,11 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+
+#include "Policies/SingletonImp.h"
+
 #include "ObjectMgr.h"                                      // for normalizePlayerName
 #include "ChannelMgr.h"
-#include "Policies/SingletonImp.h"
 
 INSTANTIATE_SINGLETON_1( AllianceChannelMgr );
 INSTANTIATE_SINGLETON_1( HordeChannelMgr );

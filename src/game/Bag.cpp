@@ -19,9 +19,10 @@
  */
 
 #include "Common.h"
-#include "Bag.h"
 #include "ObjectMgr.h"
 #include "Database/DatabaseEnv.h"
+
+#include "Bag.h"
 #include "Log.h"
 #include "UpdateData.h"
 
