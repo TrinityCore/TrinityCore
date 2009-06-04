@@ -18372,6 +18372,19 @@ bool Player::IsVisibleGloballyFor( Player* u ) const
     return true;
 }
 
+template<class T>
+inline void UpdateVisibilityOf_helper(std::set<uint64>& s64, T* target)
+{
+    s64.insert(target->GetGUID());
+}
+
+template<>
+inline void UpdateVisibilityOf_helper(std::set<uint64>& s64, GameObject* target)
+{
+    if(!target->IsTransport())
+        s64.insert(target->GetGUID());
+}
+
 void Player::UpdateVisibilityOf(WorldObject* target)
 {
     if(HaveAtClient(target))
@@ -18392,8 +18405,7 @@ void Player::UpdateVisibilityOf(WorldObject* target)
         if(target->isVisibleForInState(this,false))
         {
             target->SendUpdateToPlayer(this);
-            if(target->GetTypeId()!=TYPEID_GAMEOBJECT||!((GameObject*)target)->IsTransport())
-                m_clientGUIDs.insert(target->GetGUID());
+            UpdateVisibilityOf_helper(m_clientGUIDs, target);
 
             #ifdef TRINITY_DEBUG
             if((sLog.getLogFilter() & LOG_FILTER_VISIBILITY_CHANGES)==0)
@@ -18421,23 +18433,8 @@ void Player::SendInitialVisiblePackets(Unit* target)
 }
 
 template<class T>
-inline void UpdateVisibilityOf_helper(std::set<uint64>& s64, T* target)
-{
-    s64.insert(target->GetGUID());
-}
-
-template<>
-inline void UpdateVisibilityOf_helper(std::set<uint64>& s64, GameObject* target)
-{
-    if(!target->IsTransport())
-        s64.insert(target->GetGUID());
-}
-
-template<class T>
 void Player::UpdateVisibilityOf(T* target, UpdateData& data, std::set<WorldObject*>& visibleNow)
 {
-    if(!target)
-    return;
     if(HaveAtClient(target))
     {
         if(!target->isVisibleForInState(this,true))
@@ -18451,7 +18448,7 @@ void Player::UpdateVisibilityOf(T* target, UpdateData& data, std::set<WorldObjec
             #endif
         }
     }
-    else if(visibleNow.size() < 30)
+    else if(visibleNow.size() < 30 || target->GetTypeId() == TYPEID_UNIT && ((Creature*)target)->isVehicle())
     {
         if(target->isVisibleForInState(this,false))
         {
@@ -18466,41 +18463,6 @@ void Player::UpdateVisibilityOf(T* target, UpdateData& data, std::set<WorldObjec
         }
     }
 }
-
-/*template<>
-void Player::UpdateVisibilityOf<Creature>(Creature* target, UpdateData& data, UpdateDataMapType& data_updates, std::set<WorldObject*>& visibleNow)
-{
-    if(HaveAtClient(target))
-    {
-        if(!target->isVisibleForInState(this,true))
-        {
-            target->DestroyForPlayer(this);
-            target->BuildOutOfRangeUpdateBlock(&data);
-            m_clientGUIDs.erase(target->GetGUID());
-
-            #ifdef TRINITY_DEBUG
-            if((sLog.getLogFilter() & LOG_FILTER_VISIBILITY_CHANGES)==0)
-                sLog.outDebug("Object %u (Type: %u, Entry: %u) is out of range for player %u. Distance = %f",target->GetGUIDLow(),target->GetTypeId(),target->GetEntry(),GetGUIDLow(),GetDistance(target));
-            #endif
-        }
-    }
-    else
-    {
-        if(target->isVisibleForInState(this,false))
-        {
-            visibleNow.insert(target);
-            target->BuildUpdate(data_updates);
-            target->SendUpdateToPlayer(this);
-            target->SendMonsterMoveWithSpeedToCurrentDestination(this);
-            UpdateVisibilityOf_helper(m_clientGUIDs,target);
-
-            #ifdef TRINITY_DEBUG
-            if((sLog.getLogFilter() & LOG_FILTER_VISIBILITY_CHANGES)==0)
-                sLog.outDebug("Object %u (Type: %u, Entry: %u) is visible now for player %u. Distance = %f",target->GetGUIDLow(),target->GetTypeId(),target->GetEntry(),GetGUIDLow(),GetDistance(target));
-            #endif
-        }
-    }
-}*/
 
 template void Player::UpdateVisibilityOf(Player*        target, UpdateData& data, std::set<WorldObject*>& visibleNow);
 template void Player::UpdateVisibilityOf(Creature*      target, UpdateData& data, std::set<WorldObject*>& visibleNow);

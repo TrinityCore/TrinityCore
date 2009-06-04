@@ -343,6 +343,8 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
     else                                                    // creature charmed
     {
         uint32 entry = mover->GetEntry();
+        if(mover->m_Vehicle)
+            return;
         mover->GetMap()->CreatureRelocation((Creature*)mover, movementInfo.x, movementInfo.y, movementInfo.z, movementInfo.o);
     }
 }
