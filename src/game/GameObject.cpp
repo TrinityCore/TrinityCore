@@ -175,7 +175,7 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map *map, uint32 phaseMa
             m_charges = goinfo->spellcaster.charges;
             break;
         case GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING:
-            m_goValue->building.health = goinfo->building.damagedHealth + goinfo->building.destroyedHealth;
+            m_goValue->building.health = goinfo->building.intactNumHits + goinfo->building.damagedNumHits;
             break;
     }
 
@@ -1451,12 +1451,12 @@ void GameObject::TakenDamage(uint32 damage)
 
             SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
             SetUInt32Value(GAMEOBJECT_DISPLAYID, m_goInfo->building.destroyedDisplayId);
-            EventInform(m_goInfo->building.destroyedEventId);
+            EventInform(m_goInfo->building.damagedEvent);
         }
     }
     else // from intact to damaged
     {
-        if(m_goValue->building.health <= m_goInfo->building.destroyedHealth)
+        if(m_goValue->building.health <= m_goInfo->building.damagedNumHits)
         {
             if(!m_goInfo->building.destroyedDisplayId)
                 m_goValue->building.health = 0;
@@ -1465,7 +1465,7 @@ void GameObject::TakenDamage(uint32 damage)
 
             SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED);
             SetUInt32Value(GAMEOBJECT_DISPLAYID, m_goInfo->building.damagedDisplayId);
-            EventInform(m_goInfo->building.damagedEventId);
+            EventInform(m_goInfo->building.intactEvent);
         }
     }
 }
@@ -1474,7 +1474,7 @@ void GameObject::Rebuild()
 {
     RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED + GO_FLAG_DESTROYED);
     SetUInt32Value(GAMEOBJECT_DISPLAYID, m_goInfo->displayId);
-    m_goValue->building.health = m_goInfo->building.damagedHealth + m_goInfo->building.destroyedHealth;
+    m_goValue->building.health = m_goInfo->building.intactNumHits + m_goInfo->building.damagedNumHits;
 }
 
 void GameObject::EventInform(uint32 eventId)
