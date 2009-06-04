@@ -4892,6 +4892,10 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     if(unitTarget)
                         m_caster->CastSpell(unitTarget, 52125, false);
                     return;
+                case 52479: // Gift of the Harvester
+                    if(unitTarget && m_originalCaster)
+                        m_originalCaster->CastSpell(unitTarget, urand(0, 1) ? damage : 52505, true);
+                    return;
                 // Death Gate
                 case 52751:
                 {

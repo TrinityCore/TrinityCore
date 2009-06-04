@@ -3370,6 +3370,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 39365: // Thundering Storm
         case 41071: // Raise Dead (HACK)
         case 52124: // Sky Darkener Assault
+        case 52479: // Gift of the Harvester
             spellInfo->MaxAffectedTargets = 1;
             break;
         case 41376: // Spite
