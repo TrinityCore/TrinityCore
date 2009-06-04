@@ -90,7 +90,7 @@ npc_willixAI(Creature *c) : npc_escortAI(c) {}
         case 45:
             DoScriptText(SAY_WIN, m_creature, player);
             if (player && player->GetTypeId() == TYPEID_PLAYER)
-                ((Player*)player)->GroupEventHappens(QUEST_WILLIX_THE_IMPORTER,m_creature);
+                CAST_PLR(player)->GroupEventHappens(QUEST_WILLIX_THE_IMPORTER,m_creature);
             break;
         case 46:
             DoScriptText(SAY_END, m_creature, player);
@@ -115,7 +115,7 @@ npc_willixAI(Creature *c) : npc_escortAI(c) {}
         if (PlayerGUID)
         {
             if (Player* player = Unit::GetPlayer(PlayerGUID))
-                ((Player*)player)->FailQuest(QUEST_WILLIX_THE_IMPORTER);
+                CAST_PLR(player)->FailQuest(QUEST_WILLIX_THE_IMPORTER);
         }
     }
 

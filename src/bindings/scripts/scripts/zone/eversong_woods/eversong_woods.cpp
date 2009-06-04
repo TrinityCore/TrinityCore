@@ -449,7 +449,7 @@ void npc_secondTrialAI::JustDied(Unit* Killer) {
           // last kill quest complete for group
           if ( m_creature->GetEntry() == CHAMPION_SUNSTRIKER ) {
 
-            if( Group *pGroup = ((Player*)Killer)->GetGroup() )
+            if( Group *pGroup = CAST_PLR(Killer)->GetGroup() )
             {
                for(GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
                {
@@ -461,8 +461,8 @@ void npc_secondTrialAI::JustDied(Unit* Killer) {
                 }
             }
             else {
-               if ( ((Player*)Killer)->GetQuestStatus( QUEST_SECOND_TRIAL ) == QUEST_STATUS_INCOMPLETE )
-                   ((Player*)Killer)->CompleteQuest( QUEST_SECOND_TRIAL );
+               if ( CAST_PLR(Killer)->GetQuestStatus( QUEST_SECOND_TRIAL ) == QUEST_STATUS_INCOMPLETE )
+                   CAST_PLR(Killer)->CompleteQuest( QUEST_SECOND_TRIAL );
             }
           }
       }
@@ -472,8 +472,8 @@ void npc_secondTrialAI::KilledUnit(Unit* Killed) {
 
   if ( Killed->GetTypeId() == TYPEID_PLAYER ) {
 
-      if ( ((Player*)Killed)->GetQuestStatus(QUEST_SECOND_TRIAL) == QUEST_STATUS_INCOMPLETE )
-        ((Player*)Killed)->FailQuest(QUEST_SECOND_TRIAL);
+      if ( CAST_PLR(Killed)->GetQuestStatus(QUEST_SECOND_TRIAL) == QUEST_STATUS_INCOMPLETE )
+        CAST_PLR(Killed)->FailQuest(QUEST_SECOND_TRIAL);
   }
 }
 
@@ -564,7 +564,7 @@ struct TRINITY_DLL_DECL npc_apprentice_mirvedaAI : public ScriptedAI
         {
             Player* player = Unit::GetPlayer(PlayerGUID);
             if (player)
-                ((Player*)player)->FailQuest(QUEST_UNEXPECTED_RESULT);
+                CAST_PLR(player)->FailQuest(QUEST_UNEXPECTED_RESULT);
         }
     }
 
@@ -576,7 +576,7 @@ struct TRINITY_DLL_DECL npc_apprentice_mirvedaAI : public ScriptedAI
             {
                 Player* player = Unit::GetPlayer(PlayerGUID);
                 if(player)
-                    ((Player*)player)->CompleteQuest(QUEST_UNEXPECTED_RESULT);
+                    CAST_PLR(player)->CompleteQuest(QUEST_UNEXPECTED_RESULT);
             }
         }
 
@@ -655,7 +655,7 @@ struct TRINITY_DLL_DECL npc_infused_crystalAI : public Scripted_NoMovementAI
     {
         if( who->GetTypeId() == TYPEID_PLAYER && !m_creature->canStartAttack(who) && !Progress)
         {
-            if( ((Player*)who)->GetQuestStatus(QUEST_POWERING_OUR_DEFENSES) == QUEST_STATUS_INCOMPLETE )
+            if( CAST_PLR(who)->GetQuestStatus(QUEST_POWERING_OUR_DEFENSES) == QUEST_STATUS_INCOMPLETE )
             {
                 float Radius = 10.0;
                 if( m_creature->IsWithinDistInMap(who, Radius) )
@@ -680,7 +680,7 @@ struct TRINITY_DLL_DECL npc_infused_crystalAI : public Scripted_NoMovementAI
         {
             Player* player = Unit::GetPlayer(PlayerGUID);
             if (player)
-                ((Player*)player)->FailQuest(QUEST_POWERING_OUR_DEFENSES);
+                CAST_PLR(player)->FailQuest(QUEST_POWERING_OUR_DEFENSES);
         }
     }
 
@@ -694,7 +694,7 @@ struct TRINITY_DLL_DECL npc_infused_crystalAI : public Scripted_NoMovementAI
             {
                 Player* player = Unit::GetPlayer(PlayerGUID);
                 if(player)
-                    ((Player*)player)->CompleteQuest(QUEST_POWERING_OUR_DEFENSES);
+                    CAST_PLR(player)->CompleteQuest(QUEST_POWERING_OUR_DEFENSES);
             }
             m_creature->DealDamage(m_creature,m_creature->GetHealth(),NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
             m_creature->RemoveCorpse();

@@ -75,7 +75,7 @@ struct TRINITY_DLL_DECL npc_professor_phizzlethorpeAI : public npc_escortAI
             DoScriptText(SAY_PROGRESS_9, m_creature, player);
             Completed = true;
             if(player)
-                ((Player*)player)->GroupEventHappens(QUEST_SUNKEN_TREASURE, m_creature);
+                CAST_PLR(player)->GroupEventHappens(QUEST_SUNKEN_TREASURE, m_creature);
             break;
         }
     }
@@ -102,7 +102,7 @@ struct TRINITY_DLL_DECL npc_professor_phizzlethorpeAI : public npc_escortAI
         {
             Player* player = Unit::GetPlayer(PlayerGUID);
             if (player)
-                ((Player*)player)->FailQuest(QUEST_SUNKEN_TREASURE);
+                CAST_PLR(player)->FailQuest(QUEST_SUNKEN_TREASURE);
         }
     }
 

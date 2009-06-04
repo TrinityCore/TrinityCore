@@ -750,7 +750,7 @@ struct TRINITY_DLL_DECL npc_overlord_morghorAI : public ScriptedAI
                 plr->RemoveAurasDueToSpell(SPELL_FOUR);
                 return 5000;
             }else{
-                ((Player*)plr)->FailQuest(QUEST_LORD_ILLIDAN_STORMRAGE); Step = 30; return 100;
+                CAST_PLR(plr)->FailQuest(QUEST_LORD_ILLIDAN_STORMRAGE); Step = 30; return 100;
             }break;
         case 17: DoScriptText(LORD_ILLIDAN_SAY_5, Illi); return 5000; break;
         case 18: DoScriptText(LORD_ILLIDAN_SAY_6, Illi); return 5000; break;
@@ -769,7 +769,7 @@ struct TRINITY_DLL_DECL npc_overlord_morghorAI : public ScriptedAI
         case 25: DoScriptText(OVERLORD_SAY_6, m_creature); return 2000; break;
         case 26:
             if(plr)
-                ((Player*)plr)->GroupEventHappens(QUEST_LORD_ILLIDAN_STORMRAGE, m_creature);
+                CAST_PLR(plr)->GroupEventHappens(QUEST_LORD_ILLIDAN_STORMRAGE, m_creature);
             return 6000; break;
         case 27:
             {
@@ -943,7 +943,7 @@ struct TRINITY_DLL_DECL npc_earthmender_wildaAI : public npc_escortAI
                case 44: SummonAssassin(); break;
                case 50:
                    DoScriptText(SAY_END, m_creature, player);
-                   ((Player*)player)->GroupEventHappens(QUEST_ESCAPE_FROM_COILSKAR_CISTERN, m_creature);
+                   CAST_PLR(player)->GroupEventHappens(QUEST_ESCAPE_FROM_COILSKAR_CISTERN, m_creature);
                    Completed = true;
                    break;
                }
@@ -961,7 +961,7 @@ struct TRINITY_DLL_DECL npc_earthmender_wildaAI : public npc_escortAI
                case 0: DoScriptText(ASSASSIN_SAY_AGGRO1, CoilskarAssassin, player); break;
                case 1: DoScriptText(ASSASSIN_SAY_AGGRO2, CoilskarAssassin, player); break;
                }
-               ((Creature*)CoilskarAssassin)->AI()->AttackStart(m_creature);
+               CAST_CRE(CoilskarAssassin)->AI()->AttackStart(m_creature);
            }
            else error_log("TSCR ERROR: Coilskar Assassin couldn't be summmoned");
        }
@@ -972,7 +972,7 @@ struct TRINITY_DLL_DECL npc_earthmender_wildaAI : public npc_escortAI
            {
                Player* player = Unit::GetPlayer(PlayerGUID);
                if (player)
-                   ((Player*)player)->FailQuest(QUEST_ESCAPE_FROM_COILSKAR_CISTERN);
+                   CAST_PLR(player)->FailQuest(QUEST_ESCAPE_FROM_COILSKAR_CISTERN);
            }
        }
 
@@ -1381,12 +1381,12 @@ struct TRINITY_DLL_DECL mob_torloth_the_magnificentAI : public ScriptedAI
             switch(slayer->GetTypeId())
         {
             case TYPEID_UNIT:
-                if(((Creature*)slayer)->isPet() && ((Pet*)slayer)->GetOwner()->GetTypeId() == TYPEID_PLAYER)
-                    ((Player*)((Pet*)slayer->GetOwner()))->GroupEventHappens(QUEST_BATTLE_OF_THE_CRIMSON_WATCH, m_creature);
+                if(CAST_CRE(slayer)->isPet() && ((Pet*)slayer)->GetOwner()->GetTypeId() == TYPEID_PLAYER)
+                    CAST_PLR(((Pet*)slayer->GetOwner()))->GroupEventHappens(QUEST_BATTLE_OF_THE_CRIMSON_WATCH, m_creature);
                 break;
 
             case TYPEID_PLAYER:
-                ((Player*)slayer)->GroupEventHappens(QUEST_BATTLE_OF_THE_CRIMSON_WATCH, m_creature);
+                CAST_PLR(slayer)->GroupEventHappens(QUEST_BATTLE_OF_THE_CRIMSON_WATCH, m_creature);
                 break;
         }
 
@@ -1618,11 +1618,11 @@ bool GOQuestAccept_GO_crystal_prison(Player* plr, GameObject* go, Quest const* q
     {
         Unit* Illidan = plr->FindNearestCreature(22083, 50);
 
-        if(Illidan && !(((npc_lord_illidan_stormrageAI*)((Creature*)Illidan)->AI())->EventStarted))
+        if(Illidan && !(((npc_lord_illidan_stormrageAI*)CAST_CRE(Illidan)->AI())->EventStarted))
         {
-            ((npc_lord_illidan_stormrageAI*)((Creature*)Illidan)->AI())->PlayerGUID = plr->GetGUID();
-            ((npc_lord_illidan_stormrageAI*)((Creature*)Illidan)->AI())->LiveCount = 0;
-            ((npc_lord_illidan_stormrageAI*)((Creature*)Illidan)->AI())->EventStarted=true;
+            ((npc_lord_illidan_stormrageAI*)CAST_CRE(Illidan)->AI())->PlayerGUID = plr->GetGUID();
+            ((npc_lord_illidan_stormrageAI*)CAST_CRE(Illidan)->AI())->LiveCount = 0;
+            ((npc_lord_illidan_stormrageAI*)CAST_CRE(Illidan)->AI())->EventStarted=true;
         }
     }
  return true;

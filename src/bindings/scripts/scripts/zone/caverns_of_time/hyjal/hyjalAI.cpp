@@ -1000,8 +1000,8 @@ void hyjalAI::WaypointReached(uint32 i)
             Unit* Dummy = Unit::GetUnit((*m_creature),DummyGuid);
             if(Dummy)
             {
-                ((hyjalAI*)((Creature*)Dummy)->AI())->DoMassTeleport = true;
-                ((hyjalAI*)((Creature*)Dummy)->AI())->MassTeleportTimer = 20000;
+                ((hyjalAI*)CAST_CRE(Dummy)->AI())->DoMassTeleport = true;
+                ((hyjalAI*)CAST_CRE(Dummy)->AI())->MassTeleportTimer = 20000;
                 Dummy->CastSpell(m_creature,SPELL_MASS_TELEPORT,false);
             }
         }

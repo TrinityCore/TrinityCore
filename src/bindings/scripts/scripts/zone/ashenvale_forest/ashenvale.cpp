@@ -82,7 +82,7 @@ struct TRINITY_DLL_DECL npc_torekAI : public npc_escortAI
             DoScriptText(SAY_WIN, m_creature, player);
             Completed = true;
             if (player && player->GetTypeId() == TYPEID_PLAYER)
-                ((Player*)player)->GroupEventHappens(QUEST_TOREK_ASSULT,m_creature);
+                CAST_PLR(player)->GroupEventHappens(QUEST_TOREK_ASSULT,m_creature);
             break;
         case 21:
             DoScriptText(SAY_END, m_creature, player);
@@ -114,7 +114,7 @@ struct TRINITY_DLL_DECL npc_torekAI : public npc_escortAI
         if (PlayerGUID && !Completed)
         {
             if (Player* player = Unit::GetPlayer(PlayerGUID))
-                ((Player*)player)->FailQuest(QUEST_TOREK_ASSULT);
+                CAST_PLR(player)->FailQuest(QUEST_TOREK_ASSULT);
         }
     }
 
@@ -200,7 +200,7 @@ struct TRINITY_DLL_DECL npc_ruul_snowhoofAI : public npc_escortAI
 
         case 21:{
                 if (player && player->GetTypeId() == TYPEID_PLAYER)
-                    ((Player*)player)->GroupEventHappens(QUEST_FREEDOM_TO_RUUL,m_creature);
+                    CAST_PLR(player)->GroupEventHappens(QUEST_FREEDOM_TO_RUUL,m_creature);
 
                 break;  }
         }
@@ -229,7 +229,7 @@ struct TRINITY_DLL_DECL npc_ruul_snowhoofAI : public npc_escortAI
         {
             Player* player = Unit::GetPlayer(PlayerGUID);
             if (player)
-                ((Player*)player)->FailQuest(QUEST_FREEDOM_TO_RUUL);
+                CAST_PLR(player)->FailQuest(QUEST_FREEDOM_TO_RUUL);
         }
     }
 
