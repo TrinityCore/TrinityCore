@@ -892,9 +892,6 @@ void ObjectMgr::LoadEquipmentTemplates()
     }
     sLog.outString( ">> Loaded %u equipment template", sEquipmentStorage.RecordCount );
     sLog.outString();
-
-    // Creature items can be not listed in item_template
-    //sItemStore.Clear(); -- so used in spell casting
 }
 
 CreatureModelInfo const* ObjectMgr::GetCreatureModelInfo(uint32 modelid)
