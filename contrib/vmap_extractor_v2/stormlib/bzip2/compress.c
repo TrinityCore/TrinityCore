@@ -373,14 +373,14 @@ void sendMTFValues ( EState* s )
 
       /*---
         Set up an auxiliary length table which is used to fast-track
-	the common case (nGroups == 6). 
+        the common case (nGroups == 6).
       ---*/
       if (nGroups == 6) {
          for (v = 0; v < alphaSize; v++) {
             s->len_pack[v][0] = (s->len[1][v] << 16) | s->len[0][v];
             s->len_pack[v][1] = (s->len[3][v] << 16) | s->len[2][v];
             s->len_pack[v][2] = (s->len[5][v] << 16) | s->len[4][v];
-	 }
+         }
       }
 
       nSelectors = 0;
@@ -429,14 +429,14 @@ void sendMTFValues ( EState* s )
             cost[4] = cost45 & 0xffff; cost[5] = cost45 >> 16;
 
          } else {
-	    /*--- slow version which correctly handles all situations ---*/
-            for (i = gs; i <= ge; i++) { 
+            /*--- slow version which correctly handles all situations ---*/
+            for (i = gs; i <= ge; i++) {
                UInt16 icv = mtfv[i];
                for (t = 0; t < nGroups; t++) cost[t] += s->len[t][icv];
             }
          }
- 
-         /*-- 
+
+         /*--
             Find the coding table which is best for this group,
             and record its identity in the selector table.
          --*/
@@ -470,7 +470,7 @@ void sendMTFValues ( EState* s )
 #           undef BZ_ITUR
 
          } else {
-	    /*--- slow version which correctly handles all situations ---*/
+            /*--- slow version which correctly handles all situations ---*/
             for (i = gs; i <= ge; i++)
                s->rfreq[bt][ mtfv[i] ]++;
          }
@@ -623,14 +623,13 @@ void sendMTFValues ( EState* s )
 #           undef BZ_ITAH
 
       } else {
-	 /*--- slow version which correctly handles all situations ---*/
+         /*--- slow version which correctly handles all situations ---*/
          for (i = gs; i <= ge; i++) {
-            bsW ( s, 
+            bsW ( s,
                   s->len  [s->selector[selCtr]] [mtfv[i]],
                   s->code [s->selector[selCtr]] [mtfv[i]] );
          }
       }
-
 
       gs = ge+1;
       selCtr++;
