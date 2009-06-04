@@ -80,7 +80,7 @@ class OPvPWintergrasp : public OutdoorPvP
         explicit OPvPWintergrasp() : m_tenacityStack(0) {}
         bool SetupOutdoorPvP();
 
-        uint32 GetCreatureEntry(uint32 guidlow, uint32 entry);
+        uint32 GetCreatureEntry(uint32 guidlow, const CreatureData *data);
         //uint32 GetGameObjectEntry(uint32 guidlow, uint32 entry);
 
         void OnCreatureCreate(Creature *creature, bool add);
