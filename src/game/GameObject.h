@@ -350,16 +350,16 @@ struct GameObjectInfo
         //33 GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING
         struct
         {
-            uint32 damagedHealth;                           //0
-            uint32 dmgPctState2;                            //1
+            uint32 intactNumHits;                           //0
+            uint32 creditProxyCreature;                     //1
             uint32 state1Name;                              //2
-            uint32 damagedEventId;                          //3
+            uint32 intactEvent;                             //3
             uint32 damagedDisplayId;                        //4
-            uint32 destroyedHealth;                         //5
-            uint32 unk6;
-            uint32 unk7;
-            uint32 unk8;
-            uint32 destroyedEventId;                        //9
+            uint32 damagedNumHits;                          //5
+            uint32 empty3;                                  //6
+            uint32 empty4;                                  //7
+            uint32 empty5;                                  //8
+            uint32 damagedEvent;                            //9
             uint32 destroyedDisplayId;                      //10
         } building;
         //34 GAMEOBJECT_TYPE_GUILDBANK - empty
