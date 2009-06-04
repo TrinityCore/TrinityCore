@@ -6639,7 +6639,7 @@ void AuraEffect::PeriodicDummyTick()
                     std::list<Unit*> targets;
                     {
                         // eff_radius ==0
-                        float radius = GetSpellMaxRange(sSpellRangeStore.LookupEntry(spell->rangeIndex));
+                        float radius = GetSpellMaxRange(spell, false);
 
                         CellPair p(MaNGOS::ComputeCellPair(caster->GetPositionX(),caster->GetPositionY()));
                         Cell cell(p);
