@@ -134,10 +134,10 @@ struct TRINITY_DLL_DECL mob_wisp_invisAI : public ScriptedAI
     {
         Creaturetype = delay = spell = spell2 = 0;
         //that's hack but there are no info about range of this spells in dbc
-        SpellEntry *wisp = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_WISP_BLUE);
+        SpellEntry *wisp = GET_SPELL(SPELL_WISP_BLUE);
         if (wisp)
             wisp->rangeIndex = 6; //100 yards
-        SpellEntry *port = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_WISP_FLIGHT_PORT);
+        SpellEntry *port = GET_SPELL(SPELL_WISP_FLIGHT_PORT);
         if (port)
             port->rangeIndex = 6;
     }
@@ -321,7 +321,7 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
 {
     boss_headless_horsemanAI(Creature *c) : ScriptedAI(c)
     {
-        SpellEntry *confl = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_CONFLAGRATION);
+        SpellEntry *confl = GET_SPELL(SPELL_CONFLAGRATION);
         if(confl)
         {
             confl->EffectApplyAuraName[0] = SPELL_AURA_PERIODIC_DAMAGE_PERCENT;
@@ -329,11 +329,11 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
             confl->EffectBaseDice[0] = 10;
             confl->DmgMultiplier[0] = 1;
         }
-/*      SpellEntry *confl = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_CONFLAGRATION);
+/*      SpellEntry *confl = GET_SPELL(SPELL_CONFLAGRATION);
         if(confl)
             confl->EffectTriggerSpell[1] = 22587;
 
-        SpellEntry *speed = (SpellEntry*)GetSpellStore()->LookupEntry(22587);
+        SpellEntry *speed = GET_SPELL(22587);
         if(speed)
         {
             speed->Effect[1] = SPELL_EFFECT_APPLY_AURA;
@@ -635,7 +635,7 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
             case 2:
                 if (conflagrate < diff)
                 {
-                    Unit *plr = (Unit*)SelectRandomPlayer(30.0f);
+                    Unit *plr = SelectRandomPlayer(30.0f);
                     if (plr)
                         m_creature->CastSpell(plr,SPELL_CONFLAGRATION,false);
                     conflagrate = 10000 + rand()%7 * 1000;

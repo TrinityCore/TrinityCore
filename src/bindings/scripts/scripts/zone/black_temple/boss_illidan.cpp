@@ -369,7 +369,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
         pInstance = (c->GetInstanceData());
         m_creature->CastSpell(m_creature, SPELL_DUAL_WIELD, true);
 
-        SpellEntry *TempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_SHADOWFIEND_PASSIVE);
+        SpellEntry *TempSpell = GET_SPELL(SPELL_SHADOWFIEND_PASSIVE);
         if(TempSpell)
             TempSpell->EffectApplyAuraName[0] = 4; // proc debuff, and summon infinite fiends
     }
@@ -1045,7 +1045,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
     }
 
     void EnterCombat(Unit *who) {}
-    void MoveInLineOfSight(Unit*) {}
+    void MoveInLineOfSight(Unit* who) {}
 
     void MovementInform(uint32 MovementType, uint32 Data) {Timer = 1;}
 

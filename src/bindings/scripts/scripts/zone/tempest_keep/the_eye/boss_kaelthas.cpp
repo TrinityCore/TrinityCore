@@ -734,7 +734,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                         if (!Advisor)
                             error_log("TSCR: Kael'Thas Advisor %u does not exist. Possibly despawned? Incorrectly Killed?", i);
                         else if(Target)
-                            ((advisorbase_ai*)Advisor->AI())->Revive(Target);
+                            CAST_AI(advisorbase_ai, Advisor->AI())->Revive(Target);
                     }
 
                     PhaseSubphase = 1;

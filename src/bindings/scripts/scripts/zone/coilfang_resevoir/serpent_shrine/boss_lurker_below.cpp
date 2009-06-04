@@ -77,7 +77,7 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
     boss_the_lurker_belowAI(Creature *c) : Scripted_NoMovementAI(c), Summons(m_creature)
     {
         pInstance = (c->GetInstanceData());
-        SpellEntry *TempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_SPOUT_ANIM);
+        SpellEntry *TempSpell = GET_SPELL(SPELL_SPOUT_ANIM);
         if(TempSpell)
         {
             TempSpell->Effect[0] = 0;//remove all spell effect, only anim is needed
@@ -403,7 +403,7 @@ struct TRINITY_DLL_DECL mob_coilfang_ambusherAI : public Scripted_NoMovementAI
 {
     mob_coilfang_ambusherAI(Creature *c) : Scripted_NoMovementAI(c)
     {
-        SpellEntry *TempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_SHOOT);
+        SpellEntry *TempSpell = GET_SPELL(SPELL_SHOOT);
         if(TempSpell)
             TempSpell->Effect[0] = 2;//change spell effect from weapon % dmg to simple phisical dmg
     }

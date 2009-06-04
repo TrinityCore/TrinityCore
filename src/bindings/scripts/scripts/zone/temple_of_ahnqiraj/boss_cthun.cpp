@@ -925,7 +925,7 @@ struct TRINITY_DLL_DECL eye_tentacleAI : public Scripted_NoMovementAI
     uint32 KillSelfTimer;
     uint64 Portal;
 
-    void JustDied(Unit*)
+    void JustDied(Unit* who)
     {
         Unit* p = Unit::GetUnit(*m_creature, Portal);
         if (p)
@@ -988,7 +988,7 @@ struct TRINITY_DLL_DECL claw_tentacleAI : public Scripted_NoMovementAI
     uint32 EvadeTimer;
     uint64 Portal;
 
-    void JustDied(Unit*)
+    void JustDied(Unit* who)
     {
         Unit* p = Unit::GetUnit(*m_creature, Portal);
         if (p)
@@ -1083,7 +1083,7 @@ struct TRINITY_DLL_DECL giant_claw_tentacleAI : public Scripted_NoMovementAI
     uint32 EvadeTimer;
     uint64 Portal;
 
-    void JustDied(Unit*)
+    void JustDied(Unit* who)
     {
         Unit* p = Unit::GetUnit(*m_creature, Portal);
         if (p)
@@ -1184,7 +1184,7 @@ struct TRINITY_DLL_DECL giant_eye_tentacleAI : public Scripted_NoMovementAI
     uint32 BeamTimer;
     uint64 Portal;
 
-    void JustDied(Unit*)
+    void JustDied(Unit* who)
     {
         Unit* p = Unit::GetUnit(*m_creature, Portal);
         if (p)

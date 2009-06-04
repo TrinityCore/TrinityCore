@@ -704,7 +704,7 @@ struct TRINITY_DLL_DECL boss_kiljaedenAI : public Scripted_NoMovementAI
         if(Phase <= PHASE_ARMAGEDDON){
             if(Phase == PHASE_ARMAGEDDON && ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 25)){
                 Phase = PHASE_SACRIFICE;
-                Creature* Anveena = (Creature*)(Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_ANVEENA)));
+                Creature* Anveena = (Unit::GetCreature((*m_creature), pInstance->GetData64(DATA_ANVEENA)));
                 if (Anveena)Anveena->CastSpell(m_creature, SPELL_SACRIFICE_OF_ANVEENA, false);
                 OrbActivated = false;
                 ChangeTimers(true, 10000);// He shouldn't cast spells for ~10 seconds after Anveena's sacrifice. This will be done within Anveena's script
