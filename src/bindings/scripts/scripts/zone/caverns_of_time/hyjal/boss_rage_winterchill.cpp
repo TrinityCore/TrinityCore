@@ -112,16 +112,16 @@ struct TRINITY_DLL_DECL boss_rage_winterchillAI : public hyjal_trashAI
                 go = true;
                 if(pInstance)
                 {
-                    ((npc_escortAI*)(m_creature->AI()))->AddWaypoint(0, 4896.08,    -1576.35,    1333.65);
-                    ((npc_escortAI*)(m_creature->AI()))->AddWaypoint(1, 4898.68,    -1615.02,    1329.48);
-                    ((npc_escortAI*)(m_creature->AI()))->AddWaypoint(2, 4907.12,    -1667.08,    1321.00);
-                    ((npc_escortAI*)(m_creature->AI()))->AddWaypoint(3, 4963.18,    -1699.35,    1340.51);
-                    ((npc_escortAI*)(m_creature->AI()))->AddWaypoint(4, 4989.16,    -1716.67,    1335.74);
-                    ((npc_escortAI*)(m_creature->AI()))->AddWaypoint(5, 5026.27,    -1736.89,    1323.02);
-                    ((npc_escortAI*)(m_creature->AI()))->AddWaypoint(6, 5037.77,    -1770.56,    1324.36);
-                    ((npc_escortAI*)(m_creature->AI()))->AddWaypoint(7, 5067.23,    -1789.95,    1321.17);
-                    ((npc_escortAI*)(m_creature->AI()))->Start(false, true, true);
-                    ((npc_escortAI*)(m_creature->AI()))->SetDespawnAtEnd(false);
+                    AddWaypoint(0, 4896.08,    -1576.35,    1333.65);
+                    AddWaypoint(1, 4898.68,    -1615.02,    1329.48);
+                    AddWaypoint(2, 4907.12,    -1667.08,    1321.00);
+                    AddWaypoint(3, 4963.18,    -1699.35,    1340.51);
+                    AddWaypoint(4, 4989.16,    -1716.67,    1335.74);
+                    AddWaypoint(5, 5026.27,    -1736.89,    1323.02);
+                    AddWaypoint(6, 5037.77,    -1770.56,    1324.36);
+                    AddWaypoint(7, 5067.23,    -1789.95,    1321.17);
+                    Start(false, true, true);
+                    SetDespawnAtEnd(false);
                 }
             }
         }
