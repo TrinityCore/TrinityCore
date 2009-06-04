@@ -18,17 +18,19 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "WorldPacket.h"
-#include "WorldSession.h"
-#include "Opcodes.h"
-#include "Log.h"
-#include "World.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "UpdateMask.h"
-#include "AuctionHouseMgr.h"
-#include "Util.h"
+#include "World.h"
+#include "WorldPacket.h"
+#include "WorldSession.h"
+
 #include "AuctionHouseBot.h"
+#include "AuctionHouseMgr.h"
+#include "Log.h"
+#include "Opcodes.h"
+#include "UpdateMask.h"
+#include "Util.h"
+
 
 //please DO NOT use iterator++, because it is slower than ++iterator!!!
 //post-incrementation is always slower than pre-incrementation !

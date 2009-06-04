@@ -23,19 +23,20 @@
 /// \file
 
 #include "Common.h"
-#include "Language.h"
-#include "Log.h"
-#include "World.h"
-#include "ScriptCalls.h"
 #include "ObjectMgr.h"
+#include "World.h"
 #include "WorldSession.h"
 #include "Config/ConfigEnv.h"
-#include "Util.h"
+
 #include "AccountMgr.h"
+#include "Chat.h"
 #include "CliRunnable.h"
+#include "Language.h"
+#include "Log.h"
 #include "MapManager.h"
 #include "Player.h"
-#include "Chat.h"
+#include "ScriptCalls.h"
+#include "Util.h"
 
 void utf8print(const char* str)
 {

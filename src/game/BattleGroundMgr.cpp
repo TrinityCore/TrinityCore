@@ -19,8 +19,12 @@
  */
 
 #include "Common.h"
-#include "SharedDefines.h"
-#include "Player.h"
+#include "ObjectMgr.h"
+#include "World.h"
+#include "WorldPacket.h"
+#include "Policies/SingletonImp.h"
+
+#include "ArenaTeam.h"
 #include "BattleGroundMgr.h"
 #include "BattleGroundAV.h"
 #include "BattleGroundAB.h"
@@ -33,18 +37,13 @@
 #include "BattleGroundSA.h"
 #include "BattleGroundDS.h"
 #include "BattleGroundRV.h"
-#include "MapManager.h"
+#include "Chat.h"
 #include "Map.h"
 #include "MapInstanced.h"
-#include "ObjectMgr.h"
+#include "MapManager.h"
+#include "Player.h"
 #include "ProgressBar.h"
-#include "Chat.h"
-#include "ArenaTeam.h"
-#include "World.h"
-#include "WorldPacket.h"
-#include "ProgressBar.h"
-
-#include "Policies/SingletonImp.h"
+#include "SharedDefines.h"
 
 INSTANTIATE_SINGLETON_1( BattleGroundMgr );
 

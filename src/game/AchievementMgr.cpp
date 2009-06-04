@@ -16,24 +16,26 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "AchievementMgr.h"
 #include "Common.h"
-#include "Player.h"
-#include "WorldPacket.h"
 #include "DBCEnums.h"
-#include "GameEventMgr.h"
 #include "ObjectMgr.h"
-#include "Guild.h"
-#include "Database/DatabaseEnv.h"
 #include "World.h"
-#include "SpellMgr.h"
-#include "ArenaTeam.h"
-#include "ProgressBar.h"
-#include "GridNotifiersImpl.h"
-#include "CellImpl.h"
-#include "Language.h"
-
+#include "WorldPacket.h"
+#include "Database/DatabaseEnv.h"
 #include "Policies/SingletonImp.h"
+
+#include "AchievementMgr.h"
+#include "ArenaTeam.h"
+#include "CellImpl.h"
+#include "GameEventMgr.h"
+#include "GridNotifiersImpl.h"
+#include "Guild.h"
+#include "Language.h"
+#include "Player.h"
+#include "ProgressBar.h"
+#include "SpellMgr.h"
+
+
 
 INSTANTIATE_SINGLETON_1(AchievementGlobalMgr);
 

@@ -19,20 +19,21 @@
  */
 
 #include "Common.h"
-#include "Language.h"
-#include "Database/DatabaseEnv.h"
+#include "ObjectMgr.h"
+#include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "Opcodes.h"
-#include "Log.h"
-#include "World.h"
-#include "ObjectMgr.h"
-#include "Player.h"
-#include "UpdateMask.h"
+#include "Database/DatabaseEnv.h"
+
+#include "AccountMgr.h"
+#include "CellImpl.h"
 #include "Chat.h"
 #include "GridNotifiersImpl.h"
-#include "CellImpl.h"
-#include "AccountMgr.h"
+#include "Language.h"
+#include "Log.h"
+#include "Opcodes.h"
+#include "Player.h"
+#include "UpdateMask.h"
 #include "TicketMgr.h"
 
 // Supported shift-links (client generated and server side)

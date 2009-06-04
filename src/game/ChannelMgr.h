@@ -20,12 +20,13 @@
 #ifndef TRINITYCORE_CHANNELMGR_H
 #define TRINITYCORE_CHANNELMGR_H
 
-#include "Channel.h"
-#include "Policies/Singleton.h"
-#include "World.h"
-
 #include <map>
 #include <string>
+
+#include "Policies/Singleton.h"
+
+#include "Channel.h"
+#include "World.h"
 
 class ChannelMgr
 {
