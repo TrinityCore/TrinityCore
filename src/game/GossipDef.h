@@ -203,7 +203,7 @@ class TRINITY_DLL_SPEC PlayerMenu
         void SendQuestQueryResponse ( Quest const *pQuest );
         void SendQuestGiverQuestDetails( Quest const *pQuest, uint64 npcGUID, bool ActivateAccept);
 
-        void SendQuestGiverOfferReward( Quest const* pQuest, uint64 npcGUID, bool EnbleNext );
+        void SendQuestGiverOfferReward( Quest const* pQuest, uint64 npcGUID, bool EnableNext );
         void SendQuestGiverRequestItems( Quest const *pQuest, uint64 npcGUID, bool Completable, bool CloseOnCancel );
 };
 #endif

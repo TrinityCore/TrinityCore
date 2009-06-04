@@ -167,7 +167,7 @@ ObjectMgr::~ObjectMgr()
 
 void ObjectMgr::LoadPlayerInfoInCache()
 {
-    QueryResult *result = CharacterDatabase.PQuery("SELECT guid, name, data, class  FROM characters");
+    QueryResult *result = CharacterDatabase.PQuery("SELECT guid, name, data, class FROM characters");
     if(!result)
     {
         sLog.outError( "Loading Player Cache failed.");
