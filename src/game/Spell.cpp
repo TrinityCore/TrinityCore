@@ -2238,6 +2238,11 @@ void Spell::cancel()
 
 void Spell::cast(bool skipCheck)
 {
+    if(m_targets.getUnitTarget() && !m_targets.getUnitTarget()->isVisibleForOrDetect(m_caster, true))
+    {
+        cancel();
+        return;
+    }
     SetExecutedCurrently(true);
 
     uint8 castResult = 0;
