@@ -20,7 +20,7 @@
 /* 12.11.03  1.02  Dan  Macintosh compatibility                              */
 /* 24.07.04  1.03  Sam  Mac OS X compatibility                               */
 /* 22.11.06  1.04  Sam  Mac OS X compatibility (for StormLib 6.0)            */
-/* 31.12.06  1.05  XPinguin  Full GNU/Linux compatibility		     */
+/* 31.12.06  1.05  XPinguin  Full GNU/Linux compatibility                    */
 /*****************************************************************************/
 
 #ifndef __STORMPORT_H__
