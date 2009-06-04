@@ -412,7 +412,7 @@ CreatureAI* GetAI_npc_magwinAI(Creature* pCreature)
 
     magwinAI->FillPointMovementListForCreature();
 
-    return (CreatureAI*)magwinAI;
+    return magwinAI;
 }
 
 /*######

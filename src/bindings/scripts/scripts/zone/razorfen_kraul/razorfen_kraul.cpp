@@ -189,7 +189,7 @@ CreatureAI* GetAI_npc_willix(Creature *_Creature)
     thisAI->AddWaypoint(45, 1948.35, 1571.35, 80.96, 30000);
     thisAI->AddWaypoint(46, 1947.02, 1566.42, 81.80, 30000);
 
-    return (CreatureAI*)thisAI;
+    return thisAI;
 }
 
 void AddSC_razorfen_kraul()

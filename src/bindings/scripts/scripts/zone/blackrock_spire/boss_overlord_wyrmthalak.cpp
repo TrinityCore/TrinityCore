@@ -104,10 +104,10 @@ struct TRINITY_DLL_DECL boss_overlordwyrmthalakAI : public ScriptedAI
 
             SummonedCreature = m_creature->SummonCreature(9216,ADD_1X,ADD_1Y,ADD_1Z,ADD_1O,TEMPSUMMON_TIMED_DESPAWN,300000);
             if(SummonedCreature)
-            ((CreatureAI*)SummonedCreature->AI())->AttackStart(target);
+            (SummonedCreature->AI())->AttackStart(target);
             SummonedCreature = m_creature->SummonCreature(9268,ADD_2X,ADD_2Y,ADD_2Z,ADD_2O,TEMPSUMMON_TIMED_DESPAWN,300000);
             if(SummonedCreature)
-            ((CreatureAI*)SummonedCreature->AI())->AttackStart(target);
+            (SummonedCreature->AI())->AttackStart(target);
             Summoned = true;
         }
 

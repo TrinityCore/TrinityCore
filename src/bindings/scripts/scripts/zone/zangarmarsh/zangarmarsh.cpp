@@ -371,7 +371,7 @@ CreatureAI* GetAI_npc_kayra_longmaneAI(Creature* _Creature)
     thisAI->AddWaypoint(25, -488.45, 5447.83, 22.38);
     thisAI->AddWaypoint(26, -449.65, 5463.78, 21.77, 11000);//SAY_PROGRESS_6
 
-    return (CreatureAI*)thisAI;
+    return thisAI;
 }
 /*######
 ## AddSC

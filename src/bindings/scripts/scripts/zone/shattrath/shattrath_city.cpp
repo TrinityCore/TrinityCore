@@ -352,7 +352,7 @@ CreatureAI* GetAI_npc_kservantAI(Creature *_Creature)
 
     kservantAI->FillPointMovementListForCreature();
 
-    return (CreatureAI*)kservantAI;
+    return kservantAI;
 }
 
 /*######

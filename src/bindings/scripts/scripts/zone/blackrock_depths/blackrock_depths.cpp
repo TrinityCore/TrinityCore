@@ -310,7 +310,7 @@ CreatureAI* GetAI_npc_grimstone(Creature *_Creature)
 
     Grimstone_AI->FillPointMovementListForCreature();
 
-    return (CreatureAI*)Grimstone_AI;
+    return Grimstone_AI;
 }
 
 /*######
@@ -577,7 +577,7 @@ CreatureAI* GetAI_npc_dughal_stormwing(Creature *_Creature)
     dughal_stormwingAI->AddWaypoint(1, 287.64,-87.01, -76.79,0);
     dughal_stormwingAI->AddWaypoint(2, 354.63,-64.95, -67.53,0);
 
-    return (CreatureAI*)dughal_stormwingAI;
+    return dughal_stormwingAI;
 }
 bool GossipHello_npc_dughal_stormwing(Player *player, Creature *_Creature)
 {
@@ -742,7 +742,7 @@ CreatureAI* GetAI_npc_marshal_windsor(Creature *_Creature)
     marshal_windsorAI->AddWaypoint(18, 403.61,-51.71, -63.92,1000);
     marshal_windsorAI->AddWaypoint(19, 403.61,-51.71, -63.92,0);
 
-    return (CreatureAI*)marshal_windsorAI;
+    return marshal_windsorAI;
 }
 
 bool QuestAccept_npc_marshal_windsor(Player *player, Creature *creature, Quest const *quest )
@@ -969,7 +969,7 @@ CreatureAI* GetAI_npc_marshal_reginald_windsor(Creature *_Creature)
     marshal_reginald_windsorAI->AddWaypoint(33, 452.45,29.85, -70.37,10000);
     marshal_reginald_windsorAI->AddWaypoint(34, 451.27,31.85, -70.07,0);
 
-    return (CreatureAI*)marshal_reginald_windsorAI;
+    return marshal_reginald_windsorAI;
 }
 */
 /*######
@@ -1041,7 +1041,7 @@ CreatureAI* GetAI_npc_tobias_seecher(Creature *_Creature)
     tobias_seecherAI->AddWaypoint(3, 519.44, -217.02, -59.34);
     tobias_seecherAI->AddWaypoint(4, 506.55, -153.49, -62.34);
 
-    return (CreatureAI*)tobias_seecherAI;
+    return tobias_seecherAI;
 }
 
 bool GossipHello_npc_tobias_seecher(Player *player, Creature *_Creature)
@@ -1172,7 +1172,7 @@ CreatureAI* GetAI_npc_rocknot(Creature *_Creature)
 
     Rocknot_AI->FillPointMovementListForCreature();
 
-    return (CreatureAI*)Rocknot_AI;
+    return Rocknot_AI;
 }
 
 bool ChooseReward_npc_rocknot(Player *player, Creature *_Creature, const Quest *_Quest, uint32 item)

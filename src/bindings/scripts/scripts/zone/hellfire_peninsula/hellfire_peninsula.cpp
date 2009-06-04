@@ -226,7 +226,7 @@ CreatureAI* GetAI_npc_wounded_blood_elf(Creature* pCreature)
 
     welfAI->FillPointMovementListForCreature();
 
-    return (CreatureAI*)welfAI;
+    return welfAI;
 }
 
 bool QuestAccept_npc_wounded_blood_elf(Player* player, Creature* creature, Quest const* quest)

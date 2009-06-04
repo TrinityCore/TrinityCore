@@ -941,7 +941,7 @@ CreatureAI* GetAI_npc_bessy(Creature *_Creature)
     bessyAI->AddWaypoint(12, 2297.68, 2266.79, 95.07,4000);
     bessyAI->AddWaypoint(13, 2297.67, 2266.76, 95.07,4000);
 
-    return (CreatureAI*)bessyAI;
+    return bessyAI;
 }
 
 /*######

@@ -126,7 +126,7 @@ bool GOHello_gilded_brazier(Player *player, GameObject* _GO)
     {
         Creature *Stillblade = player->SummonCreature(17716, 8106.11, -7542.06, 151.775, 3.02598, TEMPSUMMON_DEAD_DESPAWN, 60000);
         if (Stillblade)
-            ((CreatureAI*)Stillblade->AI())->AttackStart(player);
+            (Stillblade->AI())->AttackStart(player);
     }
     return true;
 };
@@ -258,7 +258,7 @@ CreatureAI* GetAI_npc_ranger_lilathaAI(Creature *_Creature)
 
     ranger_lilathaAI->FillPointMovementListForCreature();
 
-    return (CreatureAI*)ranger_lilathaAI;
+    return ranger_lilathaAI;
 }
 
 void AddSC_ghostlands()

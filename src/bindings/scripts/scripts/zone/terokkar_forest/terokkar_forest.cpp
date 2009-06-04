@@ -459,7 +459,7 @@ CreatureAI* GetAI_npc_isla_starmaneAI(Creature *_Creature)
     thisAI->AddWaypoint(33, -2396.81, 3517.17, -3.55);
     thisAI->AddWaypoint(34, -2439.23, 3523.00, -1.05);
 
-    return (CreatureAI*)thisAI;
+    return thisAI;
 }
 
 /*######

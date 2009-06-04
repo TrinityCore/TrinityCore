@@ -73,7 +73,7 @@ struct TRINITY_DLL_DECL boss_jandicebarovAI : public ScriptedAI
         Rand = 0;
         Summoned = DoSpawnCreature(11439, RandX, RandY, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
         if(Summoned)
-            ((CreatureAI*)Summoned->AI())->AttackStart(victim);
+            (Summoned->AI())->AttackStart(victim);
     }
 
     void UpdateAI(const uint32 diff)

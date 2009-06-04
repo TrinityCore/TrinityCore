@@ -182,7 +182,7 @@ CreatureAI* GetAI_npc_kaya_flathoofAI(Creature *_Creature)
     thisAI->AddWaypoint(22, -43.77, -497.99, -46.13, 3000);// summon
     thisAI->AddWaypoint(23, -41.77, -518.15, -46.13, 5000);//end
 
-    return (CreatureAI*)thisAI;
+    return thisAI;
 }
 
 /*######

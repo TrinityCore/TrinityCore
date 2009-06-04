@@ -486,7 +486,7 @@ CreatureAI* GetAI_npc_thrall_old_hillsbrad(Creature *_Creature)
 
     thrall_walkAI->FillPointMovementListForCreature();
 
-    return (CreatureAI*)thrall_walkAI;
+    return thrall_walkAI;
 }
 
 bool GossipHello_npc_thrall_old_hillsbrad(Player *player, Creature *_Creature)
@@ -612,7 +612,7 @@ CreatureAI* GetAI_npc_taretha(Creature *_Creature)
 
     taretha_walkAI->FillPointMovementListForCreature();
 
-    return (CreatureAI*)taretha_walkAI;
+    return taretha_walkAI;
 }
 
 bool GossipHello_npc_taretha(Player *player, Creature *_Creature)

@@ -173,7 +173,7 @@ CreatureAI* GetAI_npc_oox22fe(Creature* pCreature)
 
     oox22AI->FillPointMovementListForCreature();
 
-    return (CreatureAI*)oox22AI;
+    return oox22AI;
 }
 
 bool QuestAccept_npc_oox22fe(Player* pPlayer, Creature* pCreature, const Quest* pQuest)

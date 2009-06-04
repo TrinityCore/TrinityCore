@@ -165,7 +165,7 @@ CreatureAI* GetAI_example_escort(Creature *_Creature)
     testAI->AddWaypoint(3, 1231, -4419, 23, 5000);
     testAI->AddWaypoint(4, 1208, -4392, 23, 5000);
 
-    return (CreatureAI*)testAI;
+    return testAI;
 }
 
 bool GossipHello_example_escort(Player *player, Creature *_Creature)

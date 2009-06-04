@@ -177,7 +177,7 @@ CreatureAI* GetAI_npc_daphne_stilwell(Creature* pCreature)
 
     thisAI->FillPointMovementListForCreature();
 
-    return (CreatureAI*)thisAI;
+    return thisAI;
 }
 
 /*######
@@ -264,7 +264,7 @@ CreatureAI* GetAI_npc_defias_traitor(Creature* pCreature)
 
     thisAI->FillPointMovementListForCreature();
 
-    return (CreatureAI*)thisAI;
+    return thisAI;
 }
 
 void AddSC_westfall()
