@@ -860,7 +860,7 @@ struct TRINITY_DLL_DECL npc_marshal_reginald_windsorAI : public npc_escortAI
                 if( m_creature->IsWithinDistInMap(who, Radius) )
                 {
                     IsOnHold = false;
-                    ((npc_escortAI*)(m_creature->AI()))->Start(true, true, false, who->GetGUID());
+                    Start(true, true, false, who->GetGUID());
                 }
             }
         }
