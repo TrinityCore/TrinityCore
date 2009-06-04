@@ -292,7 +292,7 @@ struct TRINITY_DLL_DECL mob_shadowmoon_channelerAI : public ScriptedAI
     void EnterCombat(Unit* who)
     {
         if(Creature *Kelidan = me->FindNearestCreature(ENTRY_KELIDAN, 100))
-            ((boss_kelidan_the_breakerAI*)Kelidan->AI())->ChannelerEngaged(who);
+            CAST_AI(boss_kelidan_the_breakerAI, Kelidan->AI())->ChannelerEngaged(who);
         if (m_creature->IsNonMeleeSpellCasted(false))
             m_creature->InterruptNonMeleeSpells(true);
         DoStartMovement(who);
@@ -301,7 +301,7 @@ struct TRINITY_DLL_DECL mob_shadowmoon_channelerAI : public ScriptedAI
     void JustDied(Unit* Killer)
     {
        if(Creature *Kelidan = me->FindNearestCreature(ENTRY_KELIDAN, 100))
-           ((boss_kelidan_the_breakerAI*)Kelidan->AI())->ChannelerDied(Killer);
+           CAST_AI(boss_kelidan_the_breakerAI, Kelidan->AI())->ChannelerDied(Killer);
     }
 
     void UpdateAI(const uint32 diff)
@@ -313,7 +313,7 @@ struct TRINITY_DLL_DECL mob_shadowmoon_channelerAI : public ScriptedAI
                 if (!m_creature->IsNonMeleeSpellCasted(false))
                     if(Creature *Kelidan = me->FindNearestCreature(ENTRY_KELIDAN, 100))
                     {
-                        uint64 channeler = ((boss_kelidan_the_breakerAI*)Kelidan->AI())->GetChanneled(m_creature);
+                        uint64 channeler = CAST_AI(boss_kelidan_the_breakerAI, Kelidan->AI())->GetChanneled(m_creature);
                         if(Unit *channeled = Unit::GetUnit(*m_creature, channeler))
                             DoCast(channeled,SPELL_CHANNELING);
                     }

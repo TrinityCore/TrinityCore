@@ -233,7 +233,7 @@ bool QuestAccept_npc_wounded_blood_elf(Player* player, Creature* creature, Quest
 {
     if (quest->GetQuestId() == QUEST_ROAD_TO_FALCON_WATCH)
     {
-        ((npc_escortAI*)(creature->AI()))->Start(true, true, false, player->GetGUID());
+        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, true, false, player->GetGUID());
         // Change faction so mobs attack
         creature->setFaction(775);
     }

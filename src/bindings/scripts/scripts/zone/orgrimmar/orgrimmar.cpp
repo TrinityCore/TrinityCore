@@ -137,8 +137,8 @@ bool QuestAccept_npc_shenthul(Player* player, Creature* creature, Quest const* q
 {
     if( quest->GetQuestId() == QUEST_2460 )
     {
-        ((npc_shenthulAI*)creature->AI())->CanTalk = true;
-        ((npc_shenthulAI*)creature->AI())->playerGUID = player->GetGUID();
+        CAST_AI(npc_shenthulAI, creature->AI())->CanTalk = true;
+        CAST_AI(npc_shenthulAI, creature->AI())->playerGUID = player->GetGUID();
     }
     return true;
 }

@@ -203,7 +203,7 @@ struct TRINITY_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
     void JustSummoned(Creature *summoned)
     {
         if (summoned && summoned->GetEntry() == MOB_VOID_TRAVELER)
-            ((mob_voidtravelerAI*)summoned->AI())->Vorpil = m_creature;
+            CAST_AI(mob_voidtravelerAI, summoned->AI())->Vorpil = m_creature;
     }
 
     void KilledUnit(Unit *victim)

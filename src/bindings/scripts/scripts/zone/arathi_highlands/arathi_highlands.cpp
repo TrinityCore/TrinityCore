@@ -117,7 +117,7 @@ bool QuestAccept_npc_professor_phizzlethorpe(Player* player, Creature* creature,
     if (quest->GetQuestId() == QUEST_SUNKEN_TREASURE)
     {
         DoScriptText(SAY_PROGRESS_1, creature, player);
-        ((npc_escortAI*)(creature->AI()))->Start(false, false, false, player->GetGUID());
+        CAST_AI(npc_escortAI, (creature->AI()))->Start(false, false, false, player->GetGUID());
         creature->setFaction(113);
     }
     return true;

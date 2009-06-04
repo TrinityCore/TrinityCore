@@ -283,7 +283,7 @@ struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
             Image1->SetHealth(m_creature->GetHealth() / 5);
             if (target)
                 Image1->AI()->AttackStart(target);
-            ((boss_skeramAI*)Image1->AI())->IsImage = true;
+            CAST_AI(boss_skeramAI, Image1->AI())->IsImage = true;
         }
 
         Image2 = m_creature->SummonCreature(15263,i2->x, i2->y, i2->z, i2->r, TEMPSUMMON_CORPSE_DESPAWN, 30000);
@@ -293,7 +293,7 @@ struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
             Image2->SetHealth(m_creature->GetHealth() / 5);
             if (target)
                 Image2->AI()->AttackStart(target);
-            ((boss_skeramAI*)Image2->AI())->IsImage = true;
+            CAST_AI(boss_skeramAI, Image2->AI())->IsImage = true;
         }
         Invisible = true;
     }

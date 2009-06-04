@@ -530,7 +530,7 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public hyjal_trashAI
                 if (Wisp)
                 {
                     Wisp->AI()->AttackStart(m_creature);
-                    ((mob_ancient_wispAI*)Wisp->AI())->ArchimondeGUID = m_creature->GetGUID();
+                    CAST_AI(mob_ancient_wispAI, Wisp->AI())->ArchimondeGUID = m_creature->GetGUID();
                 }
                 SummonWispTimer = 1500;
                 ++WispCount;

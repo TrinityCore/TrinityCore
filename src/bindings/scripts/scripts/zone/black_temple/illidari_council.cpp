@@ -261,8 +261,8 @@ struct TRINITY_DLL_DECL mob_illidari_councilAI : public ScriptedAI
             // Start the event for the Voice Trigger
             if(Creature* VoiceTrigger = (Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_BLOOD_ELF_COUNCIL_VOICE))))
             {
-                ((mob_blood_elf_council_voice_triggerAI*)VoiceTrigger->AI())->LoadCouncilGUIDs();
-                ((mob_blood_elf_council_voice_triggerAI*)VoiceTrigger->AI())->EventStarted = true;
+                CAST_AI(mob_blood_elf_council_voice_triggerAI, VoiceTrigger->AI())->LoadCouncilGUIDs();
+                CAST_AI(mob_blood_elf_council_voice_triggerAI, VoiceTrigger->AI())->EventStarted = true;
             }
 
             for(uint8 i = 0; i < 4; ++i)
@@ -366,7 +366,7 @@ struct TRINITY_DLL_DECL boss_illidari_councilAI : public ScriptedAI
         {
             Creature* Controller = (Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_ILLIDARICOUNCIL)));
             if(Controller)
-                ((mob_illidari_councilAI*)Controller->AI())->StartEvent(who);
+                CAST_AI(mob_illidari_councilAI, Controller->AI())->StartEvent(who);
         }
         else
         {

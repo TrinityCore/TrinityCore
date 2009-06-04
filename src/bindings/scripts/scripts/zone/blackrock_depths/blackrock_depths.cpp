@@ -594,7 +594,7 @@ bool GossipSelect_npc_dughal_stormwing(Player *player, Creature *_Creature, uint
     if (action == GOSSIP_ACTION_INFO_DEF + 1)
     {
         player->CLOSE_GOSSIP_MENU();
-        ((npc_escortAI*)(_Creature->AI()))->Start(false, false, true, player->GetGUID());
+        CAST_AI(npc_escortAI, (_Creature->AI()))->Start(false, false, true, player->GetGUID());
         _Creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         pInstance->SetData(DATA_QUEST_JAIL_BREAK,ENCOUNTER_STATE_IN_PROGRESS);
     }
@@ -751,7 +751,7 @@ bool QuestAccept_npc_marshal_windsor(Player *player, Creature *creature, Quest c
         {PlayerStart = player;
         if( pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_NOT_STARTED )
         {
-                ((npc_escortAI*)(creature->AI()))->Start(true, true, false, player->GetGUID());
+                CAST_AI(npc_escortAI, (creature->AI()))->Start(true, true, false, player->GetGUID());
                 pInstance->SetData(DATA_QUEST_JAIL_BREAK,ENCOUNTER_STATE_IN_PROGRESS);
                 creature->setFaction(11);
         }
@@ -1059,7 +1059,7 @@ bool GossipSelect_npc_tobias_seecher(Player *player, Creature *_Creature, uint32
     if (action == GOSSIP_ACTION_INFO_DEF + 1)
     {
         player->CLOSE_GOSSIP_MENU();
-        ((npc_escortAI*)(_Creature->AI()))->Start(false, false, true, player->GetGUID());
+        CAST_AI(npc_escortAI, (_Creature->AI()))->Start(false, false, true, player->GetGUID());
         _Creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         pInstance->SetData(DATA_TOBIAS,ENCOUNTER_STATE_IN_PROGRESS);
     }
@@ -1197,7 +1197,7 @@ bool ChooseReward_npc_rocknot(Player *player, Creature *_Creature, const Quest *
         {
             DoScriptText(SAY_GOT_BEER, _Creature);
             _Creature->CastSpell(_Creature,SPELL_DRUNKEN_RAGE,false);
-            ((npc_escortAI*)(_Creature->AI()))->Start(false, false, false);
+            CAST_AI(npc_escortAI, (_Creature->AI()))->Start(false, false, false);
         }
     }
 

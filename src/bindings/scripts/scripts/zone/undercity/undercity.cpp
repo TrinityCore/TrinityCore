@@ -134,8 +134,8 @@ bool ChooseReward_npc_lady_sylvanas_windrunner(Player *player, Creature *_Creatu
 {
     if( _Quest->GetQuestId() == 9180 )
     {
-        ((npc_lady_sylvanas_windrunnerAI*)_Creature->AI())->LamentEvent = true;
-        ((npc_lady_sylvanas_windrunnerAI*)_Creature->AI())->DoPlaySoundToSet(_Creature,SOUND_CREDIT);
+        CAST_AI(npc_lady_sylvanas_windrunnerAI, _Creature->AI())->LamentEvent = true;
+        CAST_AI(npc_lady_sylvanas_windrunnerAI, _Creature->AI())->DoPlaySoundToSet(_Creature,SOUND_CREDIT);
         _Creature->CastSpell(_Creature,SPELL_SYLVANAS_CAST,false);
 
         for( uint8 i = 0; i < 4; ++i)

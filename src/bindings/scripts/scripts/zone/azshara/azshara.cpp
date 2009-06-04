@@ -417,8 +417,8 @@ bool GossipSelect_mob_rizzle_sprysprocket(Player *player, Creature *_Creature, u
     {
         player->CLOSE_GOSSIP_MENU();
         _Creature->CastSpell(player, SPELL_GIVE_SOUTHFURY_MOONSTONE, true);
-        ((mob_rizzle_sprysprocketAI*)_Creature->AI())->Must_Die_Timer = 3000;
-        ((mob_rizzle_sprysprocketAI*)_Creature->AI())->Must_Die = true;
+        CAST_AI(mob_rizzle_sprysprocketAI, _Creature->AI())->Must_Die_Timer = 3000;
+        CAST_AI(mob_rizzle_sprysprocketAI, _Creature->AI())->Must_Die = true;
     }
     return true;
 }

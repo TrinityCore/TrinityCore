@@ -17,9 +17,11 @@
 #ifdef USE_DYNAMIC_CAST
 #define CAST_PLR(a)     (dynamic_cast<Player*>(a))
 #define CAST_CRE(a)     (dynamic_cast<Creature*>(a))
+#define CAST_AI(a,b)    (dynamic_cast<a*>(b))
 #else
 #define CAST_PLR(a)     (static_cast<Player*>(a))
 #define CAST_CRE(a)     (static_cast<Creature*>(a))
+#define CAST_AI(a,b)    (static_cast<a*>(b))
 #endif
 
 class ScriptedInstance;

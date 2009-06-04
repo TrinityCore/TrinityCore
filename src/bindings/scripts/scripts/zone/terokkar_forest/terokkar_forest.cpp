@@ -322,7 +322,7 @@ bool GossipSelect_npc_floon(Player *player, Creature *_Creature, uint32 sender, 
         player->CLOSE_GOSSIP_MENU();
         _Creature->setFaction(FACTION_HOSTILE_FL);
         DoScriptText(SAY_FLOON_ATTACK, _Creature, player);
-        ((npc_floonAI*)_Creature->AI())->AttackStart(player);
+        CAST_AI(npc_floonAI, _Creature->AI())->AttackStart(player);
     }
     return true;
 }
@@ -413,7 +413,7 @@ bool QuestAccept_npc_isla_starmane(Player* player, Creature* creature, Quest con
 {
     if (quest->GetQuestId() == QUEST_EFTW_H || quest->GetQuestId() == QUEST_EFTW_A)
     {
-        ((npc_escortAI*)(creature->AI()))->Start(true, true, false, player->GetGUID());
+        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, true, false, player->GetGUID());
         creature->setFaction(113);
     }
     return true;

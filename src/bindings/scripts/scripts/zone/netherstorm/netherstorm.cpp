@@ -324,8 +324,8 @@ bool GOHello_go_manaforge_control_console(Player *player, GameObject* _GO)
 
     if( manaforge )
     {
-        ((npc_manaforge_control_consoleAI*)manaforge->AI())->someplayer = player->GetGUID();
-        ((npc_manaforge_control_consoleAI*)manaforge->AI())->goConsole = _GO->GetGUID();
+        CAST_AI(npc_manaforge_control_consoleAI, manaforge->AI())->someplayer = player->GetGUID();
+        CAST_AI(npc_manaforge_control_consoleAI, manaforge->AI())->goConsole = _GO->GetGUID();
         _GO->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
     }
     return true;
@@ -660,7 +660,7 @@ bool AreaTrigger_at_commander_dawnforge(Player *player, AreaTriggerEntry *at)
         if (!Dawnforge)
             return false;
 
-        if (((npc_commander_dawnforgeAI*)Dawnforge->AI())->CanStartEvent(player))
+        if(CAST_AI(npc_commander_dawnforgeAI, Dawnforge->AI())->CanStartEvent(player))
             return true;
     }
     return false;
@@ -917,7 +917,7 @@ bool QuestAccept_npc_bessy(Player* player, Creature* creature, Quest const* ques
     {
         creature->setFaction(113);
         creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        ((npc_escortAI*)(creature->AI()))->Start(true, true, false, player->GetGUID());
+        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, true, false, player->GetGUID());
     }
     return true;
 }
