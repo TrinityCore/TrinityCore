@@ -42,7 +42,7 @@ struct TRINITY_DLL_DECL boss_aeonusAI : public ScriptedAI
 {
     boss_aeonusAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = (c->GetInstanceData());
         HeroicMode = m_creature->GetMap()->IsHeroic();
     }
 

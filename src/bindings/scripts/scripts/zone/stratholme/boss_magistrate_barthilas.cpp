@@ -36,7 +36,7 @@ struct TRINITY_DLL_DECL boss_magistrate_barthilasAI : public ScriptedAI
 {
     boss_magistrate_barthilasAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (ScriptedInstance*)m_creature->GetInstanceData();
+        pInstance = m_creature->GetInstanceData();
     }
 
     ScriptedInstance* pInstance;

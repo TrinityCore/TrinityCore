@@ -37,7 +37,7 @@ EndScriptData */
 
 bool GOHello_go_bridge_console(Player *player, GameObject* go)
 {
-    ScriptedInstance* pInstance = (ScriptedInstance*)go->GetInstanceData();
+    ScriptedInstance* pInstance = go->GetInstanceData();
 
     if(!pInstance)
         return false;

@@ -69,7 +69,7 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
 {
     boss_alarAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance =((ScriptedInstance*)c->GetInstanceData());
+        pInstance =(c->GetInstanceData());
         DefaultMoveSpeedRate = m_creature->GetSpeedRate(MOVE_RUN);
     }
 
@@ -432,7 +432,7 @@ struct TRINITY_DLL_DECL mob_ember_of_alarAI : public ScriptedAI
 {
     mob_ember_of_alarAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (ScriptedInstance*)c->GetInstanceData();
+        pInstance = c->GetInstanceData();
         m_creature->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING);
         m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
     }

@@ -115,7 +115,7 @@ struct TRINITY_DLL_DECL npc_barnesAI : public npc_escortAI
     npc_barnesAI(Creature* c) : npc_escortAI(c)
     {
         RaidWiped = false;
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = (c->GetInstanceData());
     }
 
     ScriptedInstance* pInstance;
@@ -378,7 +378,7 @@ CreatureAI* GetAI_npc_barnesAI(Creature* _Creature)
 bool GossipHello_npc_barnes(Player* player, Creature* _Creature)
 {
     // Check for death of Moroes.
-    ScriptedInstance* pInstance = ((ScriptedInstance*)_Creature->GetInstanceData());
+    ScriptedInstance* pInstance = (_Creature->GetInstanceData());
     if(pInstance && (pInstance->GetData(DATA_MOROES_EVENT) >= DONE))
     {
         player->ADD_GOSSIP_ITEM(0, OZ_GOSSIP1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -441,7 +441,7 @@ bool GossipSelect_npc_barnes(Player *player, Creature *_Creature, uint32 sender,
 
 bool GossipHello_npc_berthold(Player* player, Creature* _Creature)
 {
-    ScriptedInstance* pInstance = ((ScriptedInstance*)_Creature->GetInstanceData());
+    ScriptedInstance* pInstance = (_Creature->GetInstanceData());
                                                             // Check if Shade of Aran is dead or not
     if(pInstance && (pInstance->GetData(DATA_SHADEOFARAN_EVENT) >= DONE))
         player->ADD_GOSSIP_ITEM(0, GOSSIP_ITEM_TELEPORT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -486,7 +486,7 @@ struct TRINITY_DLL_DECL npc_image_of_medivhAI : public ScriptedAI
 {
     npc_image_of_medivhAI(Creature* c) : ScriptedAI(c)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = (c->GetInstanceData());
     }
 
     ScriptedInstance *pInstance;

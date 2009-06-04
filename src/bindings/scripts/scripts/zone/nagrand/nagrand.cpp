@@ -586,7 +586,7 @@ struct TRINITY_DLL_DECL mob_sparrowhawkAI : public ScriptedAI
         if(!who || PlayerGUID)
             return;
 
-        if(!PlayerGUID && who->GetTypeId() == TYPEID_PLAYER && m_creature->IsWithinDistInMap(((Player *)who), 30) && ((Player *)who)->GetQuestStatus(10987) == QUEST_STATUS_INCOMPLETE)
+        if(!PlayerGUID && who->GetTypeId() == TYPEID_PLAYER && m_creature->IsWithinDistInMap(((Player*)who), 30) && ((Player*)who)->GetQuestStatus(10987) == QUEST_STATUS_INCOMPLETE)
         {
             PlayerGUID = who->GetGUID();
             return;
@@ -604,7 +604,7 @@ struct TRINITY_DLL_DECL mob_sparrowhawkAI : public ScriptedAI
                 if(fleeing && m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() != FLEEING_MOTION_TYPE)
                     fleeing = false;
 
-                Player *player = (Player *)Unit::GetUnit((*m_creature), PlayerGUID);
+                Player *player = Unit::GetPlayer(PlayerGUID);
                 if(player && m_creature->IsWithinDistInMap(player, 30))
                 {
                     if(!fleeing)

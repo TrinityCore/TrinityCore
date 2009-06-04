@@ -57,7 +57,7 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
 {
     boss_harbinger_skyrissAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = (c->GetInstanceData());
         HeroicMode = m_creature->GetMap()->IsHeroic();
         Intro = false;
     }
@@ -279,7 +279,7 @@ struct TRINITY_DLL_DECL boss_harbinger_skyriss_illusionAI : public ScriptedAI
 {
     boss_harbinger_skyriss_illusionAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = (c->GetInstanceData());
         HeroicMode = m_creature->GetMap()->IsHeroic();
     }
 

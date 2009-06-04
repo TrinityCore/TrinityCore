@@ -100,7 +100,7 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
 {
     boss_morogrim_tidewalkerAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = (c->GetInstanceData());
     }
 
     ScriptedInstance* pInstance;

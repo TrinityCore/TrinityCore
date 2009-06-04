@@ -45,7 +45,7 @@ struct TRINITY_DLL_DECL boss_silver_hand_bossesAI : public ScriptedAI
 {
     boss_silver_hand_bossesAI(Creature* c) : ScriptedAI(c)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = (c->GetInstanceData());
     }
 
     ScriptedInstance *pInstance;

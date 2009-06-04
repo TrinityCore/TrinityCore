@@ -92,7 +92,7 @@ struct TRINITY_DLL_DECL mob_voidtravelerAI : public ScriptedAI
         {
             if(sacrificed)
             {
-                SpellEntry *spell = (SpellEntry *)GetSpellStore()->LookupEntry(HeroicMode?H_SPELL_EMPOWERING_SHADOWS:SPELL_EMPOWERING_SHADOWS);
+                SpellEntry *spell = (SpellEntry*)GetSpellStore()->LookupEntry(HeroicMode?H_SPELL_EMPOWERING_SHADOWS:SPELL_EMPOWERING_SHADOWS);
                 if( spell )
                     Vorpil->AddAura(new Aura(spell, 1, NULL, Vorpil, m_creature));
                 Vorpil->SetHealth(Vorpil->GetHealth()+Vorpil->GetMaxHealth()/25);
@@ -126,7 +126,7 @@ struct TRINITY_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
 {
     boss_grandmaster_vorpilAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = (c->GetInstanceData());
         HeroicMode = m_creature->GetMap()->IsHeroic();
         Intro = false;
     }

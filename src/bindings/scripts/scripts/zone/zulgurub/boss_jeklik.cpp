@@ -45,7 +45,7 @@ struct TRINITY_DLL_DECL boss_jeklikAI : public ScriptedAI
 {
     boss_jeklikAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = (c->GetInstanceData());
     }
 
     ScriptedInstance *pInstance;
@@ -212,7 +212,7 @@ struct TRINITY_DLL_DECL mob_batriderAI : public ScriptedAI
 {
     mob_batriderAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = (c->GetInstanceData());
     }
 
     ScriptedInstance *pInstance;
