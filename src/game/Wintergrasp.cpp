@@ -168,15 +168,18 @@ void OPvPWintergrasp::ChangeDefender()
     m_timer = 600000; // for test, should be 2 hour 30 min
 }
 
-uint32 OPvPWintergrasp::GetCreatureEntry(uint32 guidlow, uint32 entry)
+uint32 OPvPWintergrasp::GetCreatureEntry(uint32 guidlow, const CreatureData *data)
 {
     if(m_defender == TEAM_ALLIANCE)
     {
-        TeamPairMap::const_iterator itr = m_creEntryPair.find(entry);
+        TeamPairMap::const_iterator itr = m_creEntryPair.find(data->id);
         if(itr != m_creEntryPair.end())
+        {
+            const_cast<CreatureData*>(data)->displayid = 0;
             return itr->second;
+        }
     }
-    return entry;
+    return data->id;
 }
 
 void OPvPWintergrasp::OnCreatureCreate(Creature *creature, bool add)

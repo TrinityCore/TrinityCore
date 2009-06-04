@@ -1128,13 +1128,14 @@ void ObjectMgr::LoadCreatures()
         }
 
         // I do not know why but in db most display id are not zero
-        if(data.displayid == 11686)
+        /*if(data.displayid == 11686 || data.displayid == 24719)
         {
             (const_cast<CreatureInfo*>(cInfo))->flags_extra |= CREATURE_FLAG_EXTRA_TRIGGER;
         }
         else if(data.displayid == cInfo->Modelid_A1 || data.displayid == cInfo->Modelid_A2
             || data.displayid == cInfo->Modelid_H1 || data.displayid == cInfo->Modelid_H2)
             data.displayid = 0;
+            */
 
         if(data.equipmentId > 0)                            // -1 no equipment, 0 use default
         {

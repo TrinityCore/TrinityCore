@@ -1444,9 +1444,9 @@ float Creature::GetSpellDamageMod(int32 Rank)
 bool Creature::CreateFromProto(uint32 guidlow, uint32 Entry, uint32 team, const CreatureData *data)
 {
     SetZoneScript();
-    if(m_zoneScript)
+    if(m_zoneScript && data)
     {
-        Entry = m_zoneScript->GetCreatureEntry(guidlow, Entry);
+        Entry = m_zoneScript->GetCreatureEntry(guidlow, data);
         if(!Entry)
             return false;
     }
