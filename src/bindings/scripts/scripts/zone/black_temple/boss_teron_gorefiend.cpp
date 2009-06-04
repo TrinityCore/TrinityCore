@@ -197,7 +197,7 @@ struct TRINITY_DLL_DECL boss_teron_gorefiendAI : public ScriptedAI
 {
     boss_teron_gorefiendAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = (c->GetInstanceData());
     }
 
     ScriptedInstance* pInstance;

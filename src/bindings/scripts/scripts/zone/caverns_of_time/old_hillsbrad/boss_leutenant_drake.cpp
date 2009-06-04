@@ -31,7 +31,7 @@ EndScriptData */
 
 bool GOHello_go_barrel_old_hillsbrad(Player *player, GameObject* _GO)
 {
-    ScriptedInstance* pInstance = (ScriptedInstance*)_GO->GetInstanceData();
+    ScriptedInstance* pInstance = _GO->GetInstanceData();
 
     if (!pInstance)
         return false;

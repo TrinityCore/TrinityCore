@@ -62,7 +62,7 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
 {
     boss_najentusAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = (c->GetInstanceData());
     }
 
     ScriptedInstance* pInstance;
@@ -195,7 +195,7 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
 
 bool GOHello_go_najentus_spine(Player *player, GameObject* _GO)
 {
-    if(ScriptedInstance* pInstance = (ScriptedInstance*)_GO->GetInstanceData())
+    if(ScriptedInstance* pInstance = _GO->GetInstanceData())
         if(Creature* Najentus = Unit::GetCreature(*_GO, pInstance->GetData64(DATA_HIGHWARLORDNAJENTUS)))
             if(CAST_AI(boss_najentusAI, Najentus->AI())->RemoveImpalingSpine())
             {

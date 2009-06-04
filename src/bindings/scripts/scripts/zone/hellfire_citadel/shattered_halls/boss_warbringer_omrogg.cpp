@@ -128,7 +128,7 @@ struct TRINITY_DLL_DECL boss_warbringer_omroggAI : public ScriptedAI
 {
     boss_warbringer_omroggAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = (c->GetInstanceData());
         HeroicMode = m_creature->GetMap()->IsHeroic();
     }
 

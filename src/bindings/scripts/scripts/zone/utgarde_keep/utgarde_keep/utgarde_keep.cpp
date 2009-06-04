@@ -30,7 +30,7 @@ struct TRINITY_DLL_DECL npc_dragonflayer_forge_masterAI : public ScriptedAI
 {
     npc_dragonflayer_forge_masterAI(Creature *c) : ScriptedAI(c) 
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = (c->GetInstanceData());
         fm_Type = 0;
     }
 
