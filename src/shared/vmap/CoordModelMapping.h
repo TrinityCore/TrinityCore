@@ -21,6 +21,7 @@
 #ifndef _COORDMODELMAPPING_H_
 #define _COORDMODELMAPPING_H_
 
+#include <cstdio>
 #include <G3D/Table.h>
 #include <G3D/Array.h>
 
