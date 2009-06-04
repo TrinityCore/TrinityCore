@@ -23,7 +23,7 @@ DROP TABLE IF EXISTS `db_version`;
 CREATE TABLE `db_version` (
   `version` varchar(120) default NULL,
   `creature_ai_version` varchar(120) default NULL,
-  `required_7908_03_mangos_creature_template_addon` bit(1) default NULL
+  `required_7945_01_mangos_quest_template` bit(1) default NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Used DB version notes';
 
 --
@@ -13264,12 +13264,20 @@ CREATE TABLE `quest_template` (
   `DetailsEmote2` smallint(5) unsigned NOT NULL default '0',
   `DetailsEmote3` smallint(5) unsigned NOT NULL default '0',
   `DetailsEmote4` smallint(5) unsigned NOT NULL default '0',
+  `DetailsEmoteDelay1` int(11) unsigned NOT NULL default '0',
+  `DetailsEmoteDelay2` int(11) unsigned NOT NULL default '0',
+  `DetailsEmoteDelay3` int(11) unsigned NOT NULL default '0',
+  `DetailsEmoteDelay4` int(11) unsigned NOT NULL default '0',
   `IncompleteEmote` smallint(5) unsigned NOT NULL default '0',
   `CompleteEmote` smallint(5) unsigned NOT NULL default '0',
   `OfferRewardEmote1` smallint(5) unsigned NOT NULL default '0',
   `OfferRewardEmote2` smallint(5) unsigned NOT NULL default '0',
   `OfferRewardEmote3` smallint(5) unsigned NOT NULL default '0',
   `OfferRewardEmote4` smallint(5) unsigned NOT NULL default '0',
+  `OfferRewardEmoteDelay1` int(11) unsigned NOT NULL default '0',
+  `OfferRewardEmoteDelay2` int(11) unsigned NOT NULL default '0',
+  `OfferRewardEmoteDelay3` int(11) unsigned NOT NULL default '0',
+  `OfferRewardEmoteDelay4` int(11) unsigned NOT NULL default '0',
   `StartScript` mediumint(8) unsigned NOT NULL default '0',
   `CompleteScript` mediumint(8) unsigned NOT NULL default '0',
   PRIMARY KEY  (`entry`)

@@ -505,7 +505,7 @@ void PlayerMenu::SendQuestGiverQuestDetails( Quest const *pQuest, uint64 npcGUID
     for (uint32 i=0; i < QUEST_EMOTE_COUNT; ++i)
     {
         data << uint32(pQuest->DetailsEmote[i]);
-        data << uint32(0);                                  // DetailsEmoteDelay
+        data << uint32(pQuest->DetailsEmoteDelay[i]);       // DetailsEmoteDelay (in ms)
     }
     pSession->SendPacket( &data );
 
@@ -643,7 +643,7 @@ void PlayerMenu::SendQuestQueryResponse( Quest const *pQuest )
     sLog.outDebug( "WORLD: Sent SMSG_QUEST_QUERY_RESPONSE questid=%u", pQuest->GetQuestId() );
 }
 
-void PlayerMenu::SendQuestGiverOfferReward( Quest const* pQuest, uint64 npcGUID, bool EnbleNext )
+void PlayerMenu::SendQuestGiverOfferReward( Quest const* pQuest, uint64 npcGUID, bool EnableNext )
 {
     std::string Title = pQuest->GetTitle();
     std::string OfferRewardText = pQuest->GetOfferRewardText();
@@ -668,7 +668,7 @@ void PlayerMenu::SendQuestGiverOfferReward( Quest const* pQuest, uint64 npcGUID,
     data << Title;
     data << OfferRewardText;
 
-    data << uint32( EnbleNext );
+    data << uint32( EnableNext );
     data << uint32(0);                                      // unk
 
     uint32 EmoteCount = 0;
@@ -682,8 +682,8 @@ void PlayerMenu::SendQuestGiverOfferReward( Quest const* pQuest, uint64 npcGUID,
     data << EmoteCount;                                     // Emote Count
     for (uint32 i = 0; i < EmoteCount; ++i)
     {
-        data << uint32(0);                                  // Delay Emote
-        data << pQuest->OfferRewardEmote[i];
+        data << uint32(pQuest->OfferRewardEmoteDelay[i]);   // Delay Emote
+        data << uint32(pQuest->OfferRewardEmote[i]);
     }
 
     ItemPrototype const *pItem;
