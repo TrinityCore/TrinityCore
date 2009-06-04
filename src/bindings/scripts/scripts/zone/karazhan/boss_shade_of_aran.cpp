@@ -83,7 +83,7 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
 {
     boss_aranAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = (c->GetInstanceData());
     }
 
     ScriptedInstance* pInstance;

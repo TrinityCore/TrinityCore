@@ -42,7 +42,7 @@ struct TRINITY_DLL_DECL boss_marliAI : public ScriptedAI
 {
     boss_marliAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = (c->GetInstanceData());
     }
 
     ScriptedInstance *pInstance;

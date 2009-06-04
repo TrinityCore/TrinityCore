@@ -39,7 +39,7 @@ struct TRINITY_DLL_DECL boss_interrogator_vishasAI : public ScriptedAI
 {
     boss_interrogator_vishasAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (ScriptedInstance*)m_creature->GetInstanceData();
+        pInstance = m_creature->GetInstanceData();
     }
 
     ScriptedInstance* pInstance;

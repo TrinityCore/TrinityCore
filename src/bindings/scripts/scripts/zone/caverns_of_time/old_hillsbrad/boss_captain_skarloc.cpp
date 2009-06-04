@@ -42,7 +42,7 @@ struct TRINITY_DLL_DECL boss_captain_skarlocAI : public ScriptedAI
 {
     boss_captain_skarlocAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = (c->GetInstanceData());
     }
 
     ScriptedInstance *pInstance;

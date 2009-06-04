@@ -170,7 +170,7 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
 {
     boss_magtheridonAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance =(ScriptedInstance*)m_creature->GetInstanceData();
+        pInstance =m_creature->GetInstanceData();
         m_creature->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 10);
         m_creature->SetFloatValue(UNIT_FIELD_COMBATREACH, 10);
 
@@ -412,7 +412,7 @@ struct TRINITY_DLL_DECL mob_hellfire_channelerAI : public ScriptedAI
 {
     mob_hellfire_channelerAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance =(ScriptedInstance*)m_creature->GetInstanceData();
+        pInstance =m_creature->GetInstanceData();
     }
 
     ScriptedInstance* pInstance;
@@ -503,7 +503,7 @@ struct TRINITY_DLL_DECL mob_hellfire_channelerAI : public ScriptedAI
 //Manticron Cube
 bool GOHello_go_Manticron_Cube(Player *player, GameObject* _GO)
 {
-    ScriptedInstance* pInstance =(ScriptedInstance*)_GO->GetInstanceData();
+    ScriptedInstance* pInstance =_GO->GetInstanceData();
     if(!pInstance) return true;
     if(pInstance->GetData(DATA_MAGTHERIDON_EVENT) != IN_PROGRESS) return true;
     Creature *Magtheridon =Unit::GetCreature(*_GO, pInstance->GetData64(DATA_MAGTHERIDON));

@@ -55,7 +55,7 @@ struct TRINITY_DLL_DECL boss_majordomoAI : public ScriptedAI
 {
     boss_majordomoAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = (c->GetInstanceData());
     }
 
     ScriptedInstance* pInstance;

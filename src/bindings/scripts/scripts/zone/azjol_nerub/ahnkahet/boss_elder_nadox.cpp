@@ -50,7 +50,7 @@ struct TRINITY_DLL_DECL boss_elder_nadoxAI : public ScriptedAI
 {
     boss_elder_nadoxAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = (c->GetInstanceData());
         HeroicMode = c->GetMap()->IsHeroic();
     }
 
@@ -182,7 +182,7 @@ struct TRINITY_DLL_DECL mob_ahnkahar_nerubianAI : public ScriptedAI
 {
     mob_ahnkahar_nerubianAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = (c->GetInstanceData());
         Reset();
     }
 

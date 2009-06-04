@@ -40,7 +40,7 @@ struct TRINITY_DLL_DECL npc_forest_frogAI : public ScriptedAI
 {
     npc_forest_frogAI(Creature* c) : ScriptedAI(c)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = (c->GetInstanceData());
     }
 
     ScriptedInstance *pInstance;
@@ -112,7 +112,7 @@ struct TRINITY_DLL_DECL npc_zulaman_hostageAI : public ScriptedAI
     uint64 PlayerGUID;
     void Reset() {}
     void EnterCombat(Unit *who) {}
-    void JustDied(Unit *)
+    void JustDied(Unit*)
     {
         Player* player = Unit::GetPlayer(PlayerGUID);
         if(player) player->SendLoot(m_creature->GetGUID(), LOOT_CORPSE);
@@ -139,7 +139,7 @@ bool GossipSelect_npc_zulaman_hostage(Player* player, Creature* _Creature, uint3
         return true;
     _Creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
-    ScriptedInstance* pInstance = ((ScriptedInstance*)_Creature->GetInstanceData());
+    ScriptedInstance* pInstance = (_Creature->GetInstanceData());
     if(pInstance)
     {
         //uint8 progress = pInstance->GetData(DATA_CHESTLOOTED);

@@ -65,7 +65,7 @@ struct TRINITY_DLL_DECL mob_kilrekAI : public ScriptedAI
 {
     mob_kilrekAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = (c->GetInstanceData());
     }
 
     ScriptedInstance* pInstance;
@@ -157,7 +157,7 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
     {
         for(uint8 i = 0; i < 2; ++i)
             PortalGUID[i] = 0;
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = (c->GetInstanceData());
     }
 
     ScriptedInstance *pInstance;

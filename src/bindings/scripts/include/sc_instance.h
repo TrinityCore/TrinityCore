@@ -14,11 +14,7 @@
 #define OUT_LOAD_INST_DATA_COMPLETE    debug_log("TSCR: Instance Data Load for Instance %s (Map %d, Instance Id: %d) is complete.",instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
 #define OUT_LOAD_INST_DATA_FAIL        error_log("TSCR: Unable to load Instance Data for Instance %s (Map %d, Instance Id: %d).",instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
 
-class TRINITY_DLL_DECL ScriptedInstance : public InstanceData
-{
-    public:
-        ScriptedInstance(Map *map) : InstanceData(map) {}
-};
+#define ScriptedInstance InstanceData
 
 #endif
 
