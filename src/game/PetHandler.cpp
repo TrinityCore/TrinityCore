@@ -627,7 +627,10 @@ void WorldSession::HandlePetCastSpellOpcode( WorldPacket& recvPacket )
     }
 
     if (caster->GetTypeId() == TYPEID_UNIT && ((Creature*)caster)->GetGlobalCooldown() > 0)
+    {
+        caster->SendPetCastFail(spellid, SPELL_FAILED_NOT_READY);
         return;
+    }
 
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellid);
     if(!spellInfo)
@@ -646,8 +649,8 @@ void WorldSession::HandlePetCastSpellOpcode( WorldPacket& recvPacket )
 
     caster->clearUnitState(UNIT_STAT_FOLLOW);
 
-    Spell *spell = new Spell(caster, spellInfo, false);
-    spell->m_cast_count = cast_count;                       // probably pending spell cast
+    Spell *spell = new Spell(caster, spellInfo, spellid == 33395); // water elemental can cast freeze as triggered
+    spell->m_cast_count = spellid == 33395 ? 0 : cast_count;                       // probably pending spell cast
     spell->m_targets = targets;
 
     SpellCastResult result = spell->CheckPetCast(NULL);
