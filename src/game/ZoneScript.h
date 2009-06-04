@@ -20,8 +20,9 @@
 #define ZONE_SCRIPT_H_
 
 #include "Common.h"
+#include "Creature.h"
 
-struct CreatureData;
+//struct CreatureData;
 class Creature;
 class GameObject;
 
