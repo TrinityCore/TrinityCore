@@ -17,16 +17,16 @@
   1. Redistributions of source code must retain the above copyright
      notice, this list of conditions and the following disclaimer.
 
-  2. The origin of this software must not be misrepresented; you must 
-     not claim that you wrote the original software.  If you use this 
-     software in a product, an acknowledgment in the product 
+  2. The origin of this software must not be misrepresented; you must
+     not claim that you wrote the original software.  If you use this
+     software in a product, an acknowledgment in the product
      documentation would be appreciated but is not required.
 
   3. Altered source versions must be plainly marked as such, and must
      not be misrepresented as being the original software.
 
-  4. The name of the author may not be used to endorse or promote 
-     products derived from this software without specific prior written 
+  4. The name of the author may not be used to endorse or promote
+     products derived from this software without specific prior written
      permission.
 
   THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS
@@ -57,8 +57,8 @@
 
   For more information on these sources, see the manual.
 
-  To get some idea how the block sorting algorithms in this file 
-  work, read my paper 
+  To get some idea how the block sorting algorithms in this file
+  work, read my paper
      On the Performance of BWT Sorting Algorithms
   in Proceedings of the IEEE Data Compression Conference 2000,
   Snowbird, Utah, USA, 27-30 March 2000.  The main sort in this
@@ -321,7 +321,7 @@ void fallbackSort ( UInt32* fmap,
       r = -1;
       while (1) {
 
-	 /*-- find the next non-singleton bucket --*/
+         /*-- find the next non-singleton bucket --*/
          k = r + 1;
          while (ISSET_BH(k) && UNALIGNED_BH(k)) k++;
          if (ISSET_BH(k)) {
