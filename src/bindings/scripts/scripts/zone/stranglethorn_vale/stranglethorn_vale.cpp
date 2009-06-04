@@ -52,7 +52,7 @@ struct TRINITY_DLL_DECL mob_yennikuAI : public ScriptedAI
         if (caster->GetTypeId() == TYPEID_PLAYER)
         {
                                                             //Yenniku's Release
-            if(!bReset && ((Player*)caster)->GetQuestStatus(592) == QUEST_STATUS_INCOMPLETE && spell->Id == 3607)
+            if(!bReset && CAST_PLR(caster)->GetQuestStatus(592) == QUEST_STATUS_INCOMPLETE && spell->Id == 3607)
             {
                 m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STUN);
                 m_creature->CombatStop();                   //stop combat
@@ -86,7 +86,7 @@ struct TRINITY_DLL_DECL mob_yennikuAI : public ScriptedAI
                 if(m_creature->getVictim()->GetTypeId() == TYPEID_PLAYER)
                 {
                     Unit *victim = m_creature->getVictim();
-                    if(((Player*)victim)->GetTeam() == HORDE)
+                    if(CAST_PLR(victim)->GetTeam() == HORDE)
                     {
                         m_creature->CombatStop();
                         m_creature->DeleteThreatList();

@@ -103,20 +103,20 @@ struct TRINITY_DLL_DECL npc_manaforge_control_consoleAI : public ScriptedAI
                 switch( m_creature->GetEntry() )
                 {
                     case ENTRY_BNAAR_C_CONSOLE:
-                        ((Player*)p)->FailQuest(10299);
-                        ((Player*)p)->FailQuest(10329);
+                        CAST_PLR(p)->FailQuest(10299);
+                        CAST_PLR(p)->FailQuest(10329);
                         break;
                     case ENTRY_CORUU_C_CONSOLE:
-                        ((Player*)p)->FailQuest(10321);
-                        ((Player*)p)->FailQuest(10330);
+                        CAST_PLR(p)->FailQuest(10321);
+                        CAST_PLR(p)->FailQuest(10330);
                         break;
                     case ENTRY_DURO_C_CONSOLE:
-                        ((Player*)p)->FailQuest(10322);
-                        ((Player*)p)->FailQuest(10338);
+                        CAST_PLR(p)->FailQuest(10322);
+                        CAST_PLR(p)->FailQuest(10338);
                         break;
                     case ENTRY_ARA_C_CONSOLE:
-                        ((Player*)p)->FailQuest(10323);
-                        ((Player*)p)->FailQuest(10365);
+                        CAST_PLR(p)->FailQuest(10323);
+                        CAST_PLR(p)->FailQuest(10365);
                         break;
                 }
             }
@@ -255,7 +255,7 @@ struct TRINITY_DLL_DECL npc_manaforge_control_consoleAI : public ScriptedAI
                     {
                         Unit* u = Unit::GetUnit((*m_creature),someplayer);
                         if( u && u->GetTypeId() == TYPEID_PLAYER )
-                            ((Player*)u)->KilledMonster(m_creature->GetEntry(),m_creature->GetGUID());
+                            CAST_PLR(u)->KilledMonster(m_creature->GetEntry(),m_creature->GetGUID());
                         DoCast(m_creature,SPELL_DISABLE_VISUAL);
                     }
                     if( goConsole )
@@ -788,7 +788,7 @@ struct TRINITY_DLL_DECL mob_phase_hunterAI : public ScriptedAI
             Unit* target = Unit::GetUnit((*m_creature), PlayerGUID);
 
             if(target && !Weak && m_creature->GetHealth() < (m_creature->GetMaxHealth() / 100 * WeakPercent)
-                && ((Player*)target)->GetQuestStatus(10190) == QUEST_STATUS_INCOMPLETE)
+                && CAST_PLR(target)->GetQuestStatus(10190) == QUEST_STATUS_INCOMPLETE)
             {
                 DoScriptText(EMOTE_WEAK, m_creature);
                 Weak = true;
@@ -851,7 +851,7 @@ struct TRINITY_DLL_DECL npc_bessyAI : public npc_escortAI
         if (PlayerGUID)
         {
             if (Player* player = Unit::GetPlayer(PlayerGUID))
-                ((Player*)player)->FailQuest(Q_ALMABTRIEB);
+                CAST_PLR(player)->FailQuest(Q_ALMABTRIEB);
         }
     }
 
@@ -878,7 +878,7 @@ struct TRINITY_DLL_DECL npc_bessyAI : public npc_escortAI
             case 12:
                 if (player)
                 {
-                    ((Player*)player)->GroupEventHappens(Q_ALMABTRIEB, m_creature);
+                    CAST_PLR(player)->GroupEventHappens(Q_ALMABTRIEB, m_creature);
                     Completed = true;
                 }
                 {Unit* Thadell = me->FindNearestCreature(N_THADELL, 30);

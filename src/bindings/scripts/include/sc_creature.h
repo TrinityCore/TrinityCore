@@ -13,6 +13,15 @@
 #include "CreatureAIImpl.h"
 #include "InstanceData.h"
 
+#define USE_DYNAMIC_CAST
+#ifdef USE_DYNAMIC_CAST
+#define CAST_PLR(a)     (dynamic_cast<Player*>(a))
+#define CAST_CRE(a)     (dynamic_cast<Creature*>(a))
+#else
+#define CAST_PLR(a)     (static_cast<Player*>(a))
+#define CAST_CRE(a)     (static_cast<Creature*>(a))
+#endif
+
 class ScriptedInstance;
 
 class SummonList : private std::list<uint64>

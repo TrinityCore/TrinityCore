@@ -557,21 +557,21 @@ struct TRINITY_DLL_DECL npc_image_of_medivhAI : public ScriptedAI
             return 10000;
         case 2:
             if(arca)
-                ((Creature*)arca)->MonsterYell(SAY_DIALOG_ARCANAGOS_2,LANG_UNIVERSAL,NULL);
+                CAST_CRE(arca)->MonsterYell(SAY_DIALOG_ARCANAGOS_2,LANG_UNIVERSAL,NULL);
             return 20000;
         case 3:
             m_creature->MonsterYell(SAY_DIALOG_MEDIVH_3,LANG_UNIVERSAL,NULL);
             return 10000;
         case 4:
             if(arca)
-                ((Creature*)arca)->MonsterYell(SAY_DIALOG_ARCANAGOS_4, LANG_UNIVERSAL, NULL);
+                CAST_CRE(arca)->MonsterYell(SAY_DIALOG_ARCANAGOS_4, LANG_UNIVERSAL, NULL);
             return 20000;
         case 5:
             m_creature->MonsterYell(SAY_DIALOG_MEDIVH_5, LANG_UNIVERSAL, NULL);
             return 20000;
         case 6:
             if(arca)
-                ((Creature*)arca)->MonsterYell(SAY_DIALOG_ARCANAGOS_6, LANG_UNIVERSAL, NULL);
+                CAST_CRE(arca)->MonsterYell(SAY_DIALOG_ARCANAGOS_6, LANG_UNIVERSAL, NULL);
             return 10000;
         case 7:
             FireArcanagosTimer = 500;
@@ -589,7 +589,7 @@ struct TRINITY_DLL_DECL npc_image_of_medivhAI : public ScriptedAI
             return 1000;
         case 11:
             if(arca)
-                ((Creature*)arca)->MonsterYell(SAY_DIALOG_ARCANAGOS_8, LANG_UNIVERSAL, NULL);
+                CAST_CRE(arca)->MonsterYell(SAY_DIALOG_ARCANAGOS_8, LANG_UNIVERSAL, NULL);
             return 5000;
         case 12:
             arca->GetMotionMaster()->MovePoint(0, -11010.82,-1761.18, 156.47);

@@ -85,7 +85,7 @@ struct TRINITY_DLL_DECL boss_skarvald_the_constructorAI : public ScriptedAI
         {
             Unit* dalronn = Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_DALRONN));
             if(dalronn && dalronn->isDead())
-                ((Creature*)dalronn)->Respawn();
+                CAST_CRE(dalronn)->Respawn();
 
             if(pInstance)
                 pInstance->SetData(DATA_SKARVALD_DALRONN_EVENT, NOT_STARTED);
@@ -238,7 +238,7 @@ struct TRINITY_DLL_DECL boss_dalronn_the_controllerAI : public ScriptedAI
         {
             Unit* skarvald = Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_SKARVALD));
             if(skarvald && skarvald->isDead())
-                ((Creature*)skarvald)->Respawn();
+                CAST_CRE(skarvald)->Respawn();
 
             if(pInstance)
                 pInstance->SetData(DATA_SKARVALD_DALRONN_EVENT, NOT_STARTED);

@@ -672,7 +672,7 @@ struct TRINITY_DLL_DECL mob_enchanted_elementalAI : public ScriptedAI
                     m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                 }
             }
-            if(((boss_lady_vashjAI*)((Creature*)Vashj)->AI())->InCombat == false || ((boss_lady_vashjAI*)((Creature*)Vashj)->AI())->Phase != 2 || Vashj->isDead())
+            if(((boss_lady_vashjAI*)CAST_CRE(Vashj)->AI())->InCombat == false || ((boss_lady_vashjAI*)CAST_CRE(Vashj)->AI())->Phase != 2 || Vashj->isDead())
             {
                 //call Unsummon()
                 m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
@@ -827,7 +827,7 @@ struct TRINITY_DLL_DECL mob_toxic_sporebatAI : public ScriptedAI
                 //check if vashj is death
                 Unit *Vashj = NULL;
                 Vashj = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_LADYVASHJ));
-                if(!Vashj || (Vashj && !Vashj->isAlive()) || (Vashj && ((boss_lady_vashjAI*)((Creature*)Vashj)->AI())->Phase != 3))
+                if(!Vashj || (Vashj && !Vashj->isAlive()) || (Vashj && ((boss_lady_vashjAI*)CAST_CRE(Vashj)->AI())->Phase != 3))
                 {
                     //remove
                     m_creature->setDeathState(DEAD);

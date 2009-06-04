@@ -240,7 +240,7 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
     {
         if(!who || (!who->isAlive())) return;
 
-        if (m_creature->IsWithinDistInMap(who, 10.0f) && (who->GetTypeId() == TYPEID_PLAYER) && ((Player*)who)->GetQuestStatus(1719) == QUEST_STATUS_INCOMPLETE && !EventInProgress)
+        if (m_creature->IsWithinDistInMap(who, 10.0f) && (who->GetTypeId() == TYPEID_PLAYER) && CAST_PLR(who)->GetQuestStatus(1719) == QUEST_STATUS_INCOMPLETE && !EventInProgress)
         {
             PlayerGUID = who->GetGUID();
             EventInProgress = true;
@@ -447,7 +447,7 @@ struct TRINITY_DLL_DECL npc_wizzlecrank_shredderAI : public npc_escortAI
             if(Mercenary)
             {
                 DoScriptText(SAY_MERCENARY_4, Mercenary);
-                ((Creature*)Mercenary)->AI()->AttackStart(m_creature);
+                CAST_CRE(Mercenary)->AI()->AttackStart(m_creature);
                 AttackStart(Mercenary);
             }
                 }break;
