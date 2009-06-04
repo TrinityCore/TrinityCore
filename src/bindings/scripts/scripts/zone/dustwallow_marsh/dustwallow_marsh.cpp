@@ -57,7 +57,7 @@ struct TRINITY_DLL_DECL mobs_risen_husk_spiritAI : public ScriptedAI
     void DamageTaken(Unit *done_by, uint32 &damage)
     {
         if( done_by->GetTypeId() == TYPEID_PLAYER )
-            if( damage >= m_creature->GetHealth() && ((Player*)done_by)->GetQuestStatus(11180) == QUEST_STATUS_INCOMPLETE )
+            if( damage >= m_creature->GetHealth() && CAST_PLR(done_by)->GetQuestStatus(11180) == QUEST_STATUS_INCOMPLETE )
                 m_creature->CastSpell(done_by,SPELL_SUMMON_RESTLESS_APPARITION,false);
     }
 

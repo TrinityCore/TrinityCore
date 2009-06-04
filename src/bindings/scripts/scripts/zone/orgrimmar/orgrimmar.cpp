@@ -99,7 +99,7 @@ struct TRINITY_DLL_DECL npc_shenthulAI : public ScriptedAI
         {
             if( Unit* temp = Unit::GetUnit((*m_creature),playerGUID) )
                 if( temp->GetTypeId() == TYPEID_PLAYER )
-                    ((Player*)temp)->FailQuest(QUEST_2460);
+                    CAST_PLR(temp)->FailQuest(QUEST_2460);
             Reset();
         } else Reset_Timer -= diff;
 

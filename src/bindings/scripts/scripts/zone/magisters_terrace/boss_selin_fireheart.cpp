@@ -98,7 +98,7 @@ struct TRINITY_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
                 if (pUnit)
                 {
                     if(!pUnit->isAlive())
-                        ((Creature*)pUnit)->Respawn();      // Let MaNGOS handle setting death state, etc.
+                        CAST_CRE(pUnit)->Respawn();      // Let MaNGOS handle setting death state, etc.
 
                     // Only need to set unselectable flag. You can't attack unselectable units so non_attackable flag is not necessary here.
                     pUnit->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);

@@ -1776,7 +1776,7 @@ struct TRINITY_DLL_DECL mob_parasitic_shadowfiendAI : public ScriptedAI
         if(CheckTimer < diff)
         {
             GETUNIT(Illidan, IllidanGUID);
-            if(!Illidan || ((Creature*)Illidan)->IsInEvadeMode())
+            if(!Illidan || CAST_CRE(Illidan)->IsInEvadeMode())
             {
                 m_creature->SetVisibility(VISIBILITY_OFF);
                 m_creature->setDeathState(JUST_DIED);

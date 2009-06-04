@@ -113,12 +113,12 @@ struct TRINITY_DLL_DECL mob_lumpAI : public ScriptedAI
     {
         if (done_by->GetTypeId() == TYPEID_PLAYER && (m_creature->GetHealth() - damage)*100 / m_creature->GetMaxHealth() < 30)
         {
-            if (!bReset && ((Player*)done_by)->GetQuestStatus(9918) == QUEST_STATUS_INCOMPLETE)
+            if (!bReset && CAST_PLR(done_by)->GetQuestStatus(9918) == QUEST_STATUS_INCOMPLETE)
             {
                 //Take 0 damage
                 damage = 0;
 
-                ((Player*)done_by)->AttackStop();
+                CAST_PLR(done_by)->AttackStop();
                 m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 m_creature->RemoveAllAuras();
                 m_creature->DeleteThreatList();
@@ -529,14 +529,14 @@ struct TRINITY_DLL_DECL npc_creditmarker_visit_with_ancestorsAI : public Scripte
 
         if(who->GetTypeId() == TYPEID_PLAYER)
         {
-            if(((Player*)who)->GetQuestStatus(10085) == QUEST_STATUS_INCOMPLETE)
+            if(CAST_PLR(who)->GetQuestStatus(10085) == QUEST_STATUS_INCOMPLETE)
             {
                 uint32 creditMarkerId = m_creature->GetEntry();
                 if((creditMarkerId >= 18840) && (creditMarkerId <= 18843))
                 {
                     // 18840: Sunspring, 18841: Laughing, 18842: Garadar, 18843: Bleeding
-                    if(!((Player*)who)->GetReqKillOrCastCurrentCount(10085, creditMarkerId))
-                        ((Player*)who)->KilledMonster(creditMarkerId, m_creature->GetGUID());
+                    if(!CAST_PLR(who)->GetReqKillOrCastCurrentCount(10085, creditMarkerId))
+                        CAST_PLR(who)->KilledMonster(creditMarkerId, m_creature->GetGUID());
                 }
             }
         }
@@ -634,7 +634,7 @@ struct TRINITY_DLL_DECL mob_sparrowhawkAI : public ScriptedAI
     {
         if (caster->GetTypeId() == TYPEID_PLAYER)
         {
-            if(spell->Id == SPELL_SPARROWHAWK_NET && ((Player*)caster)->GetQuestStatus(10987) == QUEST_STATUS_INCOMPLETE)
+            if(spell->Id == SPELL_SPARROWHAWK_NET && CAST_PLR(caster)->GetQuestStatus(10987) == QUEST_STATUS_INCOMPLETE)
             {
                 m_creature->CastSpell(caster, SPELL_ITEM_CAPTIVE_SPARROWHAWK, true);
                 m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);

@@ -107,7 +107,7 @@ bool ItemUse_item_attuned_crystal_cores(Player *player, Item* _Item, SpellCastTa
         targets.getUnitTarget()->GetEntry() == 24972 && targets.getUnitTarget()->isDead() &&
         (player->GetQuestStatus(11524) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(11525) == QUEST_STATUS_INCOMPLETE) )
     {
-        ((Creature*)targets.getUnitTarget())->RemoveCorpse();
+        CAST_CRE(targets.getUnitTarget())->RemoveCorpse();
         return false;
     }
 
@@ -276,7 +276,7 @@ bool ItemUse_item_muiseks_vessel(Player *player, Item* _Item, SpellCastTargets c
         if( uTarget && uTarget->GetTypeId()==TYPEID_UNIT && uTarget->isDead() &&
             (uTarget->GetEntry()==cEntry || uTarget->GetEntry()==cEntry2 || uTarget->GetEntry()==cEntry3 || uTarget->GetEntry()==cEntry4) )
         {
-            ((Creature*)uTarget)->RemoveCorpse();
+            CAST_CRE(uTarget)->RemoveCorpse();
             return false;
         }
     }
@@ -463,7 +463,7 @@ bool ItemUse_item_yehkinyas_bramble(Player *player, Item* _Item, SpellCastTarget
                                                             // cast only on corpse 5307 or 5308
             (unit_target->GetEntry()==5307 || unit_target->GetEntry()==5308) )
         {
-            ((Creature*)unit_target)->RemoveCorpse();       // remove corpse for cancelling second use
+            CAST_CRE(unit_target)->RemoveCorpse();       // remove corpse for cancelling second use
             return false;                                   // all ok
         }
     }

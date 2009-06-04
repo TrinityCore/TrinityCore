@@ -111,7 +111,7 @@ struct TRINITY_DLL_DECL npc_kaya_flathoofAI : public npc_escortAI
         case 23: m_creature->SetInFront(player);
             DoScriptText(SAY_END, m_creature, player);
             if (player && player->GetTypeId() == TYPEID_PLAYER)
-                ((Player*)player)->GroupEventHappens(QUEST_PK, m_creature);
+                CAST_PLR(player)->GroupEventHappens(QUEST_PK, m_creature);
             break;
         }
     }
@@ -131,7 +131,7 @@ struct TRINITY_DLL_DECL npc_kaya_flathoofAI : public npc_escortAI
         {
             Player* player = Unit::GetPlayer(PlayerGUID);
             if (player)
-                ((Player*)player)->FailQuest(QUEST_PK);
+                CAST_PLR(player)->FailQuest(QUEST_PK);
         }
     }
 

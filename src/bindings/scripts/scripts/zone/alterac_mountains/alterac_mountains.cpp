@@ -40,8 +40,8 @@ struct TRINITY_DLL_DECL npc_ravenholdtAI : public ScriptedAI
     void MoveInLineOfSight(Unit *who)
     {
         if( who->GetTypeId() == TYPEID_PLAYER )
-            if( ((Player*)who)->GetQuestStatus(6681) == QUEST_STATUS_INCOMPLETE )
-                ((Player*)who)->KilledMonster(m_creature->GetEntry(),m_creature->GetGUID() );
+            if( CAST_PLR(who)->GetQuestStatus(6681) == QUEST_STATUS_INCOMPLETE )
+                CAST_PLR(who)->KilledMonster(m_creature->GetEntry(),m_creature->GetGUID() );
     }
 
     void EnterCombat(Unit* who) { }

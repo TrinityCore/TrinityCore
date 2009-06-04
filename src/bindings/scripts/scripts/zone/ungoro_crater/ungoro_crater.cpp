@@ -77,7 +77,7 @@ struct TRINITY_DLL_DECL npc_ameAI : public npc_escortAI
          case 55:
             DoScriptText(SAY_FINISH, m_creature, player);
             if (player && player->GetTypeId() == TYPEID_PLAYER)
-                ((Player*)player)->GroupEventHappens(QUEST_CHASING_AME,m_creature);
+                CAST_PLR(player)->GroupEventHappens(QUEST_CHASING_AME,m_creature);
             break;
 
         }
@@ -101,7 +101,7 @@ struct TRINITY_DLL_DECL npc_ameAI : public npc_escortAI
         if (PlayerGUID)
         {
             if (Player* player = Unit::GetPlayer(PlayerGUID))
-                ((Player*)player)->FailQuest(QUEST_CHASING_AME);
+                CAST_PLR(player)->FailQuest(QUEST_CHASING_AME);
         }
     }
 

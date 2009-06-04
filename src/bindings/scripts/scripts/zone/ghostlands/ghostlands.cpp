@@ -198,7 +198,7 @@ struct TRINITY_DLL_DECL npc_ranger_lilathaAI : public npc_escortAI
         case 25: m_creature->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE); break;
         case 30:
             if (player && player->GetTypeId() == TYPEID_PLAYER)
-                ((Player*)player)->GroupEventHappens(QUEST_ESCAPE_FROM_THE_CATACOMBS,m_creature);
+                CAST_PLR(player)->GroupEventHappens(QUEST_ESCAPE_FROM_THE_CATACOMBS,m_creature);
             break;
         case 32:
             m_creature->SetOrientation(2.978281);
@@ -232,7 +232,7 @@ struct TRINITY_DLL_DECL npc_ranger_lilathaAI : public npc_escortAI
         {
             Player* player = Unit::GetPlayer(PlayerGUID);
             if (player)
-                ((Player*)player)->FailQuest(QUEST_ESCAPE_FROM_THE_CATACOMBS);
+                CAST_PLR(player)->FailQuest(QUEST_ESCAPE_FROM_THE_CATACOMBS);
         }
     }
 

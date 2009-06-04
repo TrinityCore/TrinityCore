@@ -491,7 +491,7 @@ void ScriptedAI::DoTeleportPlayer(Unit* pUnit, float x, float y, float z, float 
         return;
     }
 
-    ((Player*)pUnit)->TeleportTo(pUnit->GetMapId(), x, y, z, o, TELE_TO_NOT_LEAVE_COMBAT);
+    CAST_PLR(pUnit)->TeleportTo(pUnit->GetMapId(), x, y, z, o, TELE_TO_NOT_LEAVE_COMBAT);
 }
 
 void ScriptedAI::DoTeleportAll(float x, float y, float z, float o)

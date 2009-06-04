@@ -57,7 +57,7 @@ struct TRINITY_DLL_DECL npc_ragged_johnAI : public ScriptedAI
             if( who->GetTypeId() == TYPEID_PLAYER && m_creature->IsWithinDistInMap(who, 15) && who->isInAccessiblePlaceFor(m_creature) )
             {
                 DoCast(who,16472);
-                ((Player*)who)->AreaExploredOrEventHappens(4866);
+                CAST_PLR(who)->AreaExploredOrEventHappens(4866);
             }
         }
 

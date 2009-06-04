@@ -81,7 +81,7 @@ struct TRINITY_DLL_DECL mob_unkor_the_ruthlessAI : public ScriptedAI
         if( done_by->GetTypeId() == TYPEID_PLAYER )
             if( (m_creature->GetHealth()-damage)*100 / m_creature->GetMaxHealth() < 30 )
         {
-            if( Group* pGroup = ((Player*)done_by)->GetGroup() )
+            if( Group* pGroup = CAST_PLR(done_by)->GetGroup() )
             {
                 for(GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
                 {
@@ -96,10 +96,10 @@ struct TRINITY_DLL_DECL mob_unkor_the_ruthlessAI : public ScriptedAI
                     }
                 }
             } else
-            if( ((Player*)done_by)->GetQuestStatus(QUEST_DONTKILLTHEFATONE) == QUEST_STATUS_INCOMPLETE &&
-                ((Player*)done_by)->GetReqKillOrCastCurrentCount(QUEST_DONTKILLTHEFATONE, 18260) == 10 )
+            if( CAST_PLR(done_by)->GetQuestStatus(QUEST_DONTKILLTHEFATONE) == QUEST_STATUS_INCOMPLETE &&
+                CAST_PLR(done_by)->GetReqKillOrCastCurrentCount(QUEST_DONTKILLTHEFATONE, 18260) == 10 )
             {
-                ((Player*)done_by)->AreaExploredOrEventHappens(QUEST_DONTKILLTHEFATONE);
+                CAST_PLR(done_by)->AreaExploredOrEventHappens(QUEST_DONTKILLTHEFATONE);
                 CanDoQuest = true;
             }
         }
@@ -215,12 +215,12 @@ struct TRINITY_DLL_DECL mob_netherweb_victimAI : public ScriptedAI
     {
         if( Killer->GetTypeId() == TYPEID_PLAYER )
         {
-            if( ((Player*)Killer)->GetQuestStatus(10873) == QUEST_STATUS_INCOMPLETE )
+            if( CAST_PLR(Killer)->GetQuestStatus(10873) == QUEST_STATUS_INCOMPLETE )
             {
                 if( rand()%100 < 25 )
                 {
                     DoSpawnCreature(QUEST_TARGET,0,0,0,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,60000);
-                    ((Player*)Killer)->KilledMonster(QUEST_TARGET, m_creature->GetGUID());
+                    CAST_PLR(Killer)->KilledMonster(QUEST_TARGET, m_creature->GetGUID());
                 }else
                 DoSpawnCreature(netherwebVictims[rand()%6],0,0,0,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,60000);
 
@@ -368,10 +368,10 @@ struct TRINITY_DLL_DECL npc_isla_starmaneAI : public npc_escortAI
         case 29:DoScriptText(SAY_PROGRESS_4, m_creature, player);
             if (player)
             {
-                if(((Player*)player)->GetTeam() == ALLIANCE)
-                    ((Player*)player)->GroupEventHappens(QUEST_EFTW_A, m_creature);
-                else if(((Player*)player)->GetTeam() == HORDE)
-                    ((Player*)player)->GroupEventHappens(QUEST_EFTW_H, m_creature);
+                if(CAST_PLR(player)->GetTeam() == ALLIANCE)
+                    CAST_PLR(player)->GroupEventHappens(QUEST_EFTW_A, m_creature);
+                else if(CAST_PLR(player)->GetTeam() == HORDE)
+                    CAST_PLR(player)->GroupEventHappens(QUEST_EFTW_H, m_creature);
             } Completed = true;
             m_creature->SetInFront(player); break;
         case 30: m_creature->HandleEmoteCommand(EMOTE_ONESHOT_WAVE); break;
@@ -395,10 +395,10 @@ struct TRINITY_DLL_DECL npc_isla_starmaneAI : public npc_escortAI
             Player* player = Unit::GetPlayer(PlayerGUID);
             if (player && !Completed)
             {
-                if(((Player*)player)->GetTeam() == ALLIANCE)
-                    ((Player*)player)->FailQuest(QUEST_EFTW_A);
-                else if(((Player*)player)->GetTeam() == HORDE)
-                    ((Player*)player)->FailQuest(QUEST_EFTW_H);
+                if(CAST_PLR(player)->GetTeam() == ALLIANCE)
+                    CAST_PLR(player)->FailQuest(QUEST_EFTW_A);
+                else if(CAST_PLR(player)->GetTeam() == HORDE)
+                    CAST_PLR(player)->FailQuest(QUEST_EFTW_H);
             }
         }
     }

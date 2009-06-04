@@ -167,7 +167,7 @@ struct TRINITY_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
     {
         if(m_creature->GetEntry() !=  29519)
             if(killer->GetTypeId() == TYPEID_PLAYER)
-                ((Player*)killer)->KilledMonster(29519,m_creature->GetGUID());
+                CAST_PLR(killer)->KilledMonster(29519,m_creature->GetGUID());
     }
 
     void AddEquipp()
@@ -367,12 +367,12 @@ bool GOHello_go_acherus_soul_prison(Player *player, GameObject* _GO)
     Unit* prison_anchor = finder->FindNearestCreature(29521, 15);
     if(!prison_anchor) return false;
 
-    uint64 owner = ((npc_unworthy_initiate_anchorAI*)((Creature*)prison_anchor)->AI())->GetTarget();
+    uint64 owner = ((npc_unworthy_initiate_anchorAI*)CAST_CRE(prison_anchor)->AI())->GetTarget();
 
     Creature* prisoner = Creature::GetCreature((*player),owner);
     if(prisoner)
     {
-        ((npc_unworthy_initiateAI*)(prisoner->AI()))->EventStart((Creature*)prison_anchor,player);
+        ((npc_unworthy_initiateAI*)(prisoner->AI()))->EventStart(CAST_CRE(prison_anchor),player);
     }
 
     return false;
@@ -422,7 +422,7 @@ struct TRINITY_DLL_DECL npc_death_knight_initiateAI : public SpellAI
             {
                 if(!me->HasAura(7267)) // beg aura has faded
                 {
-                    ((Player*)me->getVictim())->KilledMonster(29025,m_creature->GetGUID());
+                    CAST_PLR(me->getVictim())->KilledMonster(29025,m_creature->GetGUID());
                     EnterEvadeMode();
                 }
                 return;
@@ -498,20 +498,20 @@ struct TRINITY_DLL_DECL npc_salanar_the_horsemanAI : public ScriptedAI
     {
         ScriptedAI::MoveInLineOfSight(who);
 
-        if(who->GetTypeId() == TYPEID_UNIT && ((Creature*)who)->isVehicle() && me->IsWithinDistInMap(who, 10.0f))
+        if(who->GetTypeId() == TYPEID_UNIT && CAST_CRE(who)->isVehicle() && me->IsWithinDistInMap(who, 10.0f))
         {
             if( Unit *charmer = who->GetCharmer() )
             {
                 if( charmer->GetTypeId() == TYPEID_PLAYER )
                 {
-                    if( ((Player*)charmer)->GetQuestStatus(12680) == QUEST_STATUS_INCOMPLETE )
-                        ((Player*)charmer)->KilledMonster(28767, me->GetGUID());
-                    else if( ((Player*)charmer)->GetQuestStatus(12687) == QUEST_STATUS_INCOMPLETE )
-                        ((Player*)charmer)->GroupEventHappens(12687, me);   
-                    ((Player*)charmer)->ExitVehicle();
+                    if( CAST_PLR(charmer)->GetQuestStatus(12680) == QUEST_STATUS_INCOMPLETE )
+                        CAST_PLR(charmer)->KilledMonster(28767, me->GetGUID());
+                    else if( CAST_PLR(charmer)->GetQuestStatus(12687) == QUEST_STATUS_INCOMPLETE )
+                        CAST_PLR(charmer)->GroupEventHappens(12687, me);   
+                    CAST_PLR(charmer)->ExitVehicle();
                     //without this we can see npc kill the horse
                     who->setDeathState(DEAD);
-                    ((Creature*)who)->Respawn();
+                    CAST_CRE(who)->Respawn();
                 }
             }
         }
@@ -537,7 +537,7 @@ struct TRINITY_DLL_DECL npc_ros_dark_riderAI : public ScriptedAI
             return;
 
         // this should be before next one otherwise he may enter vehicle again
-        if(!me->m_Vehicle && who->GetEntry() == 28782 && ((Creature*)who)->isVehicle() && !who->GetCharmerGUID())
+        if(!me->m_Vehicle && who->GetEntry() == 28782 && CAST_CRE(who)->isVehicle() && !who->GetCharmerGUID())
             me->EnterVehicle((Vehicle*)who);
 
         ScriptedAI::MoveInLineOfSight(who);
