@@ -163,7 +163,7 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        PlayerList = &((InstanceMap*)m_creature->GetMap())->GetPlayers();
+        PlayerList = &m_creature->GetMap()->GetPlayers();
         Playercount = PlayerList->getSize();
         StartEvent();
     }
