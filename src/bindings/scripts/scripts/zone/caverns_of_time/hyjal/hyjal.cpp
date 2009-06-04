@@ -66,7 +66,7 @@ CreatureAI* GetAI_npc_jaina_proudmoore(Creature *_Creature)
 
 bool GossipHello_npc_jaina_proudmoore(Player *player, Creature *_Creature)
 {
-    hyjalAI* ai = ((hyjalAI*)_Creature->AI());
+    hyjalAI* ai = CAST_AI(hyjalAI, _Creature->AI());
     if(ai->EventBegun)
         return false;
 
@@ -88,7 +88,7 @@ bool GossipHello_npc_jaina_proudmoore(Player *player, Creature *_Creature)
 
 bool GossipSelect_npc_jaina_proudmoore(Player *player, Creature *_Creature, uint32 sender, uint32 action)
 {
-    hyjalAI* ai = ((hyjalAI*)_Creature->AI());
+    hyjalAI* ai = CAST_AI(hyjalAI, _Creature->AI());
     switch(action)
     {
         case GOSSIP_ACTION_INFO_DEF + 1:
@@ -130,7 +130,7 @@ CreatureAI* GetAI_npc_thrall(Creature *_Creature)
 
 bool GossipHello_npc_thrall(Player *player, Creature *_Creature)
 {
-    hyjalAI* ai = ((hyjalAI*)_Creature->AI());
+    hyjalAI* ai = CAST_AI(hyjalAI, _Creature->AI());
     if (ai->EventBegun)
         return false;
 
@@ -157,7 +157,7 @@ bool GossipHello_npc_thrall(Player *player, Creature *_Creature)
 
 bool GossipSelect_npc_thrall(Player *player, Creature *_Creature, uint32 sender, uint32 action)
 {
-    hyjalAI* ai = ((hyjalAI*)_Creature->AI());
+    hyjalAI* ai = CAST_AI(hyjalAI, _Creature->AI());
     ai->DeSpawnVeins();//despawn the alliance veins
     switch(action)
     {
@@ -190,7 +190,7 @@ CreatureAI* GetAI_npc_tyrande_whisperwind(Creature *_Creature)
 
 bool GossipHello_npc_tyrande_whisperwind(Player* player, Creature* _Creature)
 {
-    hyjalAI* ai = ((hyjalAI*)_Creature->AI());
+    hyjalAI* ai = CAST_AI(hyjalAI, _Creature->AI());
     uint32 AzgalorEvent = ai->GetInstanceData(DATA_AZGALOREVENT);
 
     // Only let them get item if Azgalor is dead.
@@ -213,7 +213,7 @@ bool GossipSelect_npc_tyrande_whisperwind(Player *player, Creature *_Creature, u
                      player->SendNewItem(item,1,true,false,true);
             }
             player->SEND_GOSSIP_MENU(907, _Creature->GetGUID());
-            hyjalAI* ai = ((hyjalAI*)_Creature->AI());
+            hyjalAI* ai = CAST_AI(hyjalAI, _Creature->AI());
     }
     return true;
 }

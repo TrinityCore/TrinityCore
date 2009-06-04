@@ -46,7 +46,7 @@ struct TRINITY_DLL_DECL mob_treantAI  : public ScriptedAI
 
     void EnterCombat(Unit *who) {}
 
-    void MoveInLineOfSight(Unit*) {}
+    void MoveInLineOfSight(Unit* who) {}
 
     void UpdateAI(const uint32 diff)
     {
@@ -54,7 +54,7 @@ struct TRINITY_DLL_DECL mob_treantAI  : public ScriptedAI
         {
             if(WarpGuid && check_Timer < diff)
             {
-                if(Unit *Warp = (Unit*)Unit::GetUnit(*m_creature, WarpGuid))
+                if(Unit *Warp = Unit::GetUnit(*m_creature, WarpGuid))
                 {
                     if(m_creature->IsWithinMeleeRange(Warp,2.5f))
                     {

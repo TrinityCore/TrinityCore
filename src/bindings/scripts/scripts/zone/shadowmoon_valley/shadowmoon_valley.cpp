@@ -1381,8 +1381,9 @@ struct TRINITY_DLL_DECL mob_torloth_the_magnificentAI : public ScriptedAI
             switch(slayer->GetTypeId())
         {
             case TYPEID_UNIT:
-                if(CAST_CRE(slayer)->isPet() && ((Pet*)slayer)->GetOwner()->GetTypeId() == TYPEID_PLAYER)
-                    CAST_PLR(((Pet*)slayer->GetOwner()))->GroupEventHappens(QUEST_BATTLE_OF_THE_CRIMSON_WATCH, m_creature);
+                if(Unit *owner = slayer->GetOwner()) 
+                    if(owner->GetTypeId() == TYPEID_PLAYER)
+                        CAST_PLR(owner)->GroupEventHappens(QUEST_BATTLE_OF_THE_CRIMSON_WATCH, m_creature);
                 break;
 
             case TYPEID_PLAYER:
@@ -1742,10 +1743,10 @@ struct TRINITY_DLL_DECL npc_enraged_spiritAI : public ScriptedAI
                  Summoned->setFaction(ENRAGED_SOUL_FRIENDLY);
                  Summoned->GetMotionMaster()->MovePoint(0,totemOspirits->GetPositionX(), totemOspirits->GetPositionY(), Summoned->GetPositionZ());
 
-                 Player* Owner = (Player*)totemOspirits->GetOwner();
-                 if (Owner)
+                 Unit* Owner = totemOspirits->GetOwner();
+                 if (Owner && Owner->GetTypeId() == TYPEID_PLAYER)
                      // DoCast(Owner, credit); -- not working!
-                     Owner->KilledMonster(credit, Summoned->GetGUID());
+                     CAST_PLR(Owner)->KilledMonster(credit, Summoned->GetGUID());
                  DoCast(totemOspirits,SPELL_SOUL_CAPTURED);
              }
         }

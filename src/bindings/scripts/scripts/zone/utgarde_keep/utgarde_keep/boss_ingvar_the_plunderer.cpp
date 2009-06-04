@@ -357,13 +357,13 @@ struct TRINITY_DLL_DECL mob_annhylde_the_callerAI : public ScriptedAI
                     Resurect_Phase = 2;
                 }else if (Resurect_Phase == 2)
                 {
-                    Unit* ingvar = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_INGVAR));
+                    Creature* ingvar = Unit::GetCreature((*m_creature), pInstance->GetData64(DATA_INGVAR));
                     if(ingvar)
                     {
                         ingvar->RemoveAurasDueToSpell(SPELL_SCOURG_RESURRECTION_DUMMY);
                         //ingvar->CastSpell(ingvar,SPELL_INGVAR_TRANSFORM,false);
                         ingvar->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_INGVAR_UNDEAD); // Visual Hack - when he dies he becomes human model -> wrong
-                        Creature* c_ingvar = (Creature*)ingvar;
+                        Creature* c_ingvar = ingvar;
 
                         CAST_AI(boss_ingvar_the_plundererAI, (c_ingvar->AI()))->StartZombiePhase();
 

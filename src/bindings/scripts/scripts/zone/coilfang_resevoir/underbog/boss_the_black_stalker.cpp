@@ -119,7 +119,7 @@ struct TRINITY_DLL_DECL boss_the_black_stalkerAI : public ScriptedAI
         {
             if(LevitatedTarget_Timer < diff)
             {
-                if(Unit* target = (Unit*)Unit::GetUnit(*m_creature, LevitatedTarget))
+                if(Unit* target = Unit::GetUnit(*m_creature, LevitatedTarget))
                 {
                     if(!target->HasAura(SPELL_LEVITATE))
                     {

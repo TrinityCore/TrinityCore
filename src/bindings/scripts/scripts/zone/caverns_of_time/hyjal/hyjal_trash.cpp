@@ -1346,7 +1346,7 @@ struct TRINITY_DLL_DECL alliance_riflemanAI : public Scripted_NoMovementAI
 
     uint32 ExplodeTimer;
 
-    void JustDied(Unit*)
+    void JustDied(Unit* who)
     {
     }
 

@@ -128,7 +128,7 @@ struct TRINITY_DLL_DECL mob_abyssalAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit*) {DoZoneInCombat();}
+    void EnterCombat(Unit* who) {DoZoneInCombat();}
     void AttackStart(Unit *who) {if(!trigger) ScriptedAI::AttackStart(who);}
     void MoveInLineOfSight(Unit *who) {if(!trigger) ScriptedAI::MoveInLineOfSight(who);}
 
@@ -176,13 +176,13 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
 
         // target 7, random target with certain entry spell, need core fix
         SpellEntry *TempSpell;
-        TempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_BLAZE_TARGET);
+        TempSpell = GET_SPELL(SPELL_BLAZE_TARGET);
         if(TempSpell && TempSpell->EffectImplicitTargetA[0] != 6)
         {
             TempSpell->EffectImplicitTargetA[0] = 6;
             TempSpell->EffectImplicitTargetB[0] = 0;
         }
-        TempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_QUAKE_TRIGGER);
+        TempSpell = GET_SPELL(SPELL_QUAKE_TRIGGER);
         if(TempSpell && TempSpell->EffectTriggerSpell[0] != SPELL_QUAKE_KNOCKBACK)
         {
             TempSpell->EffectTriggerSpell[0] = SPELL_QUAKE_KNOCKBACK;
@@ -289,7 +289,7 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
         DoScriptText(SAY_DEATH, m_creature);
     }
 
-    void MoveInLineOfSight(Unit*) {}
+    void MoveInLineOfSight(Unit* who) {}
 
     void AttackStart(Unit *who)
     {
@@ -450,7 +450,7 @@ struct TRINITY_DLL_DECL mob_hellfire_channelerAI : public ScriptedAI
 
     void JustSummoned(Creature *summon) {summon->AI()->AttackStart(m_creature->getVictim());}
 
-    void MoveInLineOfSight(Unit*) {}
+    void MoveInLineOfSight(Unit* who) {}
 
     void DamageTaken(Unit*, uint32 &damage)
     {
@@ -458,7 +458,7 @@ struct TRINITY_DLL_DECL mob_hellfire_channelerAI : public ScriptedAI
             m_creature->CastSpell(m_creature, SPELL_SOUL_TRANSFER, true);
     }
 
-    void JustDied(Unit*)
+    void JustDied(Unit* who)
     {
         if(pInstance)
             pInstance->SetData(DATA_CHANNELER_EVENT, DONE);

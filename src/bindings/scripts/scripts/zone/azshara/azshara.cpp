@@ -374,7 +374,7 @@ struct TRINITY_DLL_DECL mob_rizzle_sprysprocketAI : public ScriptedAI
         if (!who || PlayerGUID)
             return;
 
-        if(who->GetTypeId() == TYPEID_PLAYER && ((Player*)who)->GetQuestStatus(10994) == QUEST_STATUS_INCOMPLETE)
+        if(who->GetTypeId() == TYPEID_PLAYER && CAST_PLR(who)->GetQuestStatus(10994) == QUEST_STATUS_INCOMPLETE)
         {
             PlayerGUID = who->GetGUID();
             DoScriptText(SAY_RIZZLE_START, m_creature);

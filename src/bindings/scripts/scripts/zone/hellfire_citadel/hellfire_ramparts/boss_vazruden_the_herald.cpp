@@ -335,7 +335,7 @@ struct TRINITY_DLL_DECL boss_vazruden_the_heraldAI : public ScriptedAI
         Unit *victim = m_creature->getVictim();
         if(summoned->GetEntry() == ENTRY_NAZAN)
         {
-            ((boss_nazanAI*)summoned->AI())->VazrudenGUID = VazrudenGUID;
+            CAST_AI(boss_nazanAI, summoned->AI())->VazrudenGUID = VazrudenGUID;
             summoned->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
             summoned->SetSpeed(MOVE_FLIGHT, 2.5);
             if(victim)
@@ -424,7 +424,7 @@ struct TRINITY_DLL_DECL mob_hellfire_sentryAI : public ScriptedAI
     void JustDied(Unit* who)
     {
         if(Creature *herald = me->FindNearestCreature(ENTRY_VAZRUDEN_HERALD,150))
-            ((boss_vazruden_the_heraldAI*)herald->AI())->SentryDownBy(who);
+            CAST_AI(boss_vazruden_the_heraldAI, herald->AI())->SentryDownBy(who);
     }
 
     void UpdateAI(const uint32 diff)

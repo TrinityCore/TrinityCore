@@ -130,13 +130,13 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
         pInstance = (c->GetInstanceData());
 
         // wait for core patch be accepted
-        /*SpellEntry *TempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_ENCAPSULATE_EFFECT);
+        /*SpellEntry *TempSpell = GET_SPELL(SPELL_ENCAPSULATE_EFFECT);
         if(TempSpell->SpellIconID == 2294)
             TempSpell->SpellIconID = 2295;
-        TempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_VAPOR_TRIGGER);
+        TempSpell = GET_SPELL(SPELL_VAPOR_TRIGGER);
         if((TempSpell->Attributes & SPELL_ATTR_PASSIVE) == 0)
             TempSpell->Attributes |= SPELL_ATTR_PASSIVE;
-        TempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_FOG_CHARM2);
+        TempSpell = GET_SPELL(SPELL_FOG_CHARM2);
         if((TempSpell->Attributes & SPELL_ATTR_PASSIVE) == 0)
             TempSpell->Attributes |= SPELL_ATTR_PASSIVE;*/
     }

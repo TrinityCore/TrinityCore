@@ -133,7 +133,7 @@ struct TRINITY_DLL_DECL aqsentinelAI : public ScriptedAI
 
     void GiveBuddyMyList(Creature *c)
     {
-        aqsentinelAI *cai = (aqsentinelAI*)(c->AI());
+        aqsentinelAI *cai = CAST_AI(aqsentinelAI, (c)->AI());
         for (int i=0; i<3; i++)
             if (nearby[i] && nearby[i]!=c)
                 cai->AddBuddyToList(nearby[i]);
@@ -213,8 +213,8 @@ struct TRINITY_DLL_DECL aqsentinelAI : public ScriptedAI
             if (!nearby[bli])
                 break;
             AddSentinelsNear(nearby[bli]);
-            ((aqsentinelAI*)nearby[bli]->AI())->gatherOthersWhenAggro = false;
-            ((aqsentinelAI*)nearby[bli]->AI())->selectAbility(pickAbilityRandom(chosenAbilities));
+            CAST_AI(aqsentinelAI, nearby[bli]->AI())->gatherOthersWhenAggro = false;
+            CAST_AI(aqsentinelAI, nearby[bli]->AI())->selectAbility(pickAbilityRandom(chosenAbilities));
         }
         /*if (bli < 3)
             DoYell("I dont have enough buddies.", LANG_NEUTRAL, 0);*/
@@ -273,7 +273,7 @@ struct TRINITY_DLL_DECL aqsentinelAI : public ScriptedAI
         DoZoneInCombat();
     }
 
-    void JustDied(Unit*)
+    void JustDied(Unit* who)
     {
         for (int ni=0; ni<3; ni++)
         {
@@ -286,7 +286,7 @@ struct TRINITY_DLL_DECL aqsentinelAI : public ScriptedAI
             if (h > sent->GetMaxHealth())
                 h = sent->GetMaxHealth();
             sent->SetHealth(h);
-            ((aqsentinelAI*)sent->AI())->GainSentinelAbility(ability);
+            CAST_AI(aqsentinelAI, sent->AI())->GainSentinelAbility(ability);
         }
     }
 
