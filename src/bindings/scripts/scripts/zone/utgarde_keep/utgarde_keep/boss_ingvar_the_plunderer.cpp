@@ -365,7 +365,7 @@ struct TRINITY_DLL_DECL mob_annhylde_the_callerAI : public ScriptedAI
                         ingvar->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_INGVAR_UNDEAD); // Visual Hack - when he dies he becomes human model -> wrong
                         Creature* c_ingvar = (Creature*)ingvar;
 
-                        ((boss_ingvar_the_plundererAI*)(c_ingvar->AI()))->StartZombiePhase();
+                        CAST_AI(boss_ingvar_the_plundererAI, (c_ingvar->AI()))->StartZombiePhase();
 
                         m_creature->GetMotionMaster()->MovePoint(2,x+1,y,z+30);
                         Resurect_Phase++;

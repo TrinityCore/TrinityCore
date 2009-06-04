@@ -284,7 +284,7 @@ void npc_unworthy_initiateAI::UpdateAI(const uint32 diff)
                 if(go_prison)
                     go_prison->ResetDoorOrButton();
 
-                ((npc_unworthy_initiate_anchorAI*)trigger->AI())->SetTarget(m_creature->GetGUID());
+                CAST_AI(npc_unworthy_initiate_anchorAI, trigger->AI())->SetTarget(m_creature->GetGUID());
                 trigger->CastSpell(m_creature,SPELL_SOUL_PRISON_CHAIN,true);
                 anchor = trigger->GetGUID();
             }
@@ -367,12 +367,12 @@ bool GOHello_go_acherus_soul_prison(Player *player, GameObject* _GO)
     Unit* prison_anchor = finder->FindNearestCreature(29521, 15);
     if(!prison_anchor) return false;
 
-    uint64 owner = ((npc_unworthy_initiate_anchorAI*)CAST_CRE(prison_anchor)->AI())->GetTarget();
+    uint64 owner = CAST_AI(npc_unworthy_initiate_anchorAI, CAST_CRE(prison_anchor)->AI())->GetTarget();
 
     Creature* prisoner = Creature::GetCreature((*player),owner);
     if(prisoner)
     {
-        ((npc_unworthy_initiateAI*)(prisoner->AI()))->EventStart(CAST_CRE(prison_anchor),player);
+        CAST_AI(npc_unworthy_initiateAI, (prisoner->AI()))->EventStart(CAST_CRE(prison_anchor),player);
     }
 
     return false;

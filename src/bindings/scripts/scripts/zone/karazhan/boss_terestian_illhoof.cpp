@@ -297,7 +297,7 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
                 Creature* Chains = m_creature->SummonCreature(CREATURE_DEMONCHAINS, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 21000);
                 if(Chains)
                 {
-                    ((mob_demon_chainAI*)Chains->AI())->SacrificeGUID = target->GetGUID();
+                    CAST_AI(mob_demon_chainAI, Chains->AI())->SacrificeGUID = target->GetGUID();
                     Chains->CastSpell(Chains, SPELL_DEMON_CHAINS, true);
                     switch(rand()%2)
                     {

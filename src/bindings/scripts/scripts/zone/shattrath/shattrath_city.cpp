@@ -525,8 +525,8 @@ bool GossipSelect_npc_dirty_larry(Player *player, Creature *creature, uint32 sen
 {
     if (action == GOSSIP_ACTION_INFO_DEF+1)
     {
-        ((npc_dirty_larryAI*)creature->AI())->Event = true;
-        ((npc_dirty_larryAI*)creature->AI())->PlayerGUID = player->GetGUID();
+        CAST_AI(npc_dirty_larryAI, creature->AI())->Event = true;
+        CAST_AI(npc_dirty_larryAI, creature->AI())->PlayerGUID = player->GetGUID();
         player->CLOSE_GOSSIP_MENU();
     }
 

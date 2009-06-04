@@ -390,7 +390,7 @@ bool GossipHello_npc_barnes(Player* player, Creature* _Creature)
             player->ADD_GOSSIP_ITEM(5, OZ_GM_GOSSIP3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
         }
 
-        if(!((npc_barnesAI*)_Creature->AI())->RaidWiped)
+        if(!CAST_AI(npc_barnesAI, _Creature->AI())->RaidWiped)
             player->SEND_GOSSIP_MENU(8970, _Creature->GetGUID());
         else
             player->SEND_GOSSIP_MENU(8975, _Creature->GetGUID());
@@ -409,21 +409,21 @@ bool GossipSelect_npc_barnes(Player *player, Creature *_Creature, uint32 sender,
             break;
         case GOSSIP_ACTION_INFO_DEF+2:
             player->CLOSE_GOSSIP_MENU();
-            ((npc_barnesAI*)_Creature->AI())->StartEvent();
+            CAST_AI(npc_barnesAI, _Creature->AI())->StartEvent();
             break;
         case GOSSIP_ACTION_INFO_DEF+3:
             player->CLOSE_GOSSIP_MENU();
-            ((npc_barnesAI*)_Creature->AI())->Event = EVENT_OZ;
+            CAST_AI(npc_barnesAI, _Creature->AI())->Event = EVENT_OZ;
             outstring_log("TSCR: player (GUID %i) manually set Opera event to EVENT_OZ",player->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+4:
             player->CLOSE_GOSSIP_MENU();
-            ((npc_barnesAI*)_Creature->AI())->Event = EVENT_HOOD;
+            CAST_AI(npc_barnesAI, _Creature->AI())->Event = EVENT_HOOD;
             outstring_log("TSCR: player (GUID %i) manually set Opera event to EVENT_HOOD",player->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+5:
             player->CLOSE_GOSSIP_MENU();
-            ((npc_barnesAI*)_Creature->AI())->Event = EVENT_RAJ;
+            CAST_AI(npc_barnesAI, _Creature->AI())->Event = EVENT_RAJ;
             outstring_log("TSCR: player (GUID %i) manually set Opera event to EVENT_RAJ",player->GetGUID());
             break;
     }

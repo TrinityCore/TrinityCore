@@ -284,7 +284,7 @@ struct TRINITY_DLL_DECL boss_attumenAI : public ScriptedAI
                 Creature *pMidnight = Unit::GetCreature(*m_creature, Midnight);
                 if(pMidnight && pMidnight->GetTypeId() == TYPEID_UNIT)
                 {
-                    ((boss_midnightAI*)(pMidnight->AI()))->Mount(m_creature);
+                    CAST_AI(boss_midnightAI, (pMidnight->AI()))->Mount(m_creature);
                     m_creature->SetHealth(pMidnight->GetHealth());
                     DoResetThreat();
                 }
@@ -303,7 +303,7 @@ struct TRINITY_DLL_DECL boss_attumenAI : public ScriptedAI
 
 void boss_midnightAI::SetMidnight(Creature *pAttumen, uint64 value)
 {
-    ((boss_attumenAI*)pAttumen->AI())->Midnight = value;
+    CAST_AI(boss_attumenAI, pAttumen->AI())->Midnight = value;
 }
 
 CreatureAI* GetAI_boss_attumen(Creature *_Creature)

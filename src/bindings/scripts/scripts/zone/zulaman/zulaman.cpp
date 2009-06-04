@@ -158,8 +158,8 @@ bool GossipSelect_npc_zulaman_hostage(Player* player, Creature* _Creature, uint3
         /*Creature* summon = _Creature->SummonCreature(HostageInfo[progress], x-2, y, z, 0, TEMPSUMMON_DEAD_DESPAWN, 0);
         if(summon)
         {
-            ((npc_zulaman_hostageAI*)summon->AI())->PlayerGUID = player->GetGUID();
-            ((npc_zulaman_hostageAI*)summon->AI())->IsLoot = true;
+            CAST_AI(npc_zulaman_hostageAI, summon->AI())->PlayerGUID = player->GetGUID();
+            CAST_AI(npc_zulaman_hostageAI, summon->AI())->IsLoot = true;
             summon->SetDisplayId(10056);
             summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             summon->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);

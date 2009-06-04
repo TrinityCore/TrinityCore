@@ -523,7 +523,7 @@ bool QuestAccept_npc_clintar_dreamwalker(Player *player, Creature *creature, Que
     {
         Creature *clintar_spirit = creature->SummonCreature(CLINTAR_SPIRIT, CLINTAR_SPIRIT_SUMMON_X, CLINTAR_SPIRIT_SUMMON_Y, CLINTAR_SPIRIT_SUMMON_Z, CLINTAR_SPIRIT_SUMMON_O, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 100000);
         if(clintar_spirit)
-            ((npc_clintar_spiritAI*)clintar_spirit->AI())->StartEvent(player);
+            CAST_AI(npc_clintar_spiritAI, clintar_spirit->AI())->StartEvent(player);
     }
     return true;
 }

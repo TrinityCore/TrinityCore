@@ -309,7 +309,7 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
             Creature* Sorcerer = m_creature->SummonCreature(CREATURE_SORCERER, X, Y, Z_SPAWN, 0, TEMPSUMMON_DEAD_DESPAWN, 0);
             if(Sorcerer)
             {
-                ((mob_ashtongue_sorcererAI*)Sorcerer->AI())->ShadeGUID = m_creature->GetGUID();
+                CAST_AI(mob_ashtongue_sorcererAI, Sorcerer->AI())->ShadeGUID = m_creature->GetGUID();
                 Sorcerer->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
                 Sorcerer->GetMotionMaster()->MovePoint(0, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ());
                 Sorcerer->SetUInt64Value(UNIT_FIELD_TARGET, m_creature->GetGUID());
@@ -354,7 +354,7 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
         {
             for(std::list<Creature*>::iterator itr = ChannelerList.begin(); itr != ChannelerList.end(); ++itr)
             {
-                ((mob_ashtongue_channelerAI*)(*itr)->AI())->ShadeGUID = m_creature->GetGUID();
+                CAST_AI(mob_ashtongue_channelerAI, (*itr)->AI())->ShadeGUID = m_creature->GetGUID();
                 Channelers.push_back((*itr)->GetGUID());
                 debug_log("TSCR: Shade of Akama Grid Search found channeler %u. Adding to list", (*itr)->GetGUID());
             }
@@ -489,7 +489,7 @@ void mob_ashtongue_channelerAI::JustDied(Unit* killer)
 {
     Creature* Shade = (Unit::GetCreature((*m_creature), ShadeGUID));
     if(Shade && Shade->isAlive())
-        ((boss_shade_of_akamaAI*)Shade->AI())->IncrementDeathCount();
+        CAST_AI(boss_shade_of_akamaAI, Shade->AI())->IncrementDeathCount();
     else error_log("SD2 ERROR: Channeler dead but unable to increment DeathCount for Shade of Akama.");
 }
 
@@ -497,7 +497,7 @@ void mob_ashtongue_sorcererAI::JustDied(Unit* killer)
 {
     Creature* Shade = (Unit::GetCreature((*m_creature), ShadeGUID));
     if(Shade && Shade->isAlive())
-        ((boss_shade_of_akamaAI*)Shade->AI())->IncrementDeathCount(m_creature->GetGUID());
+        CAST_AI(boss_shade_of_akamaAI, Shade->AI())->IncrementDeathCount(m_creature->GetGUID());
     else error_log("SD2 ERROR: Sorcerer dead but unable to increment DeathCount for Shade of Akama.");
 }
 
@@ -572,8 +572,8 @@ struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
             pInstance->SetData(DATA_SHADEOFAKAMAEVENT, IN_PROGRESS);
             // Prevent players from trying to restart event
             m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            ((boss_shade_of_akamaAI*)Shade->AI())->SetAkamaGUID(m_creature->GetGUID());
-            ((boss_shade_of_akamaAI*)Shade->AI())->SetSelectableChannelers();
+            CAST_AI(boss_shade_of_akamaAI, Shade->AI())->SetAkamaGUID(m_creature->GetGUID());
+            CAST_AI(boss_shade_of_akamaAI, Shade->AI())->SetSelectableChannelers();
             Shade->AddThreat(m_creature, 1000000.0f);
             m_creature->CombatStart(Shade);
             Shade->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
@@ -621,7 +621,7 @@ struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
         HasYelledOnce = false;
         Creature* Shade = Unit::GetCreature((*m_creature), ShadeGUID);
         if(Shade && Shade->isAlive())
-            ((boss_shade_of_akamaAI*)Shade->AI())->HasKilledAkama = true;
+            CAST_AI(boss_shade_of_akamaAI, Shade->AI())->HasKilledAkama = true;
     }
 
     void UpdateAI(const uint32 diff)
@@ -640,7 +640,7 @@ struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
             Creature* Shade = (Unit::GetCreature((*m_creature), ShadeGUID));
             if(Shade && Shade->isAlive())
             {
-                if(((boss_shade_of_akamaAI*)Shade->AI())->IsBanished)
+                if(CAST_AI(boss_shade_of_akamaAI, Shade->AI())->IsBanished)
                 {
                     if(CastSoulRetrieveTimer < diff)
                     {
@@ -816,7 +816,7 @@ bool GossipSelect_npc_akama(Player *player, Creature *_Creature, uint32 sender, 
     if (action == GOSSIP_ACTION_INFO_DEF + 1)               //Fight time
     {
         player->CLOSE_GOSSIP_MENU();
-        ((npc_akamaAI*)_Creature->AI())->BeginEvent(player);
+        CAST_AI(npc_akamaAI, _Creature->AI())->BeginEvent(player);
     }
 
     return true;

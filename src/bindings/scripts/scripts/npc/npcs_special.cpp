@@ -118,7 +118,7 @@ CreatureAI* GetAI_npc_chicken_cluck(Creature *_Creature)
 bool QuestAccept_npc_chicken_cluck(Player *player, Creature *_Creature, const Quest *_Quest )
 {
     if(_Quest->GetQuestId() == QUEST_CLUCK)
-        ((npc_chicken_cluckAI*)_Creature->AI())->Reset();
+        CAST_AI(npc_chicken_cluckAI, _Creature->AI())->Reset();
 
     return true;
 }
@@ -126,7 +126,7 @@ bool QuestAccept_npc_chicken_cluck(Player *player, Creature *_Creature, const Qu
 bool QuestComplete_npc_chicken_cluck(Player *player, Creature *_Creature, const Quest *_Quest)
 {
     if(_Quest->GetQuestId() == QUEST_CLUCK)
-        ((npc_chicken_cluckAI*)_Creature->AI())->Reset();
+        CAST_AI(npc_chicken_cluckAI, _Creature->AI())->Reset();
 
     return true;
 }
@@ -366,7 +366,7 @@ struct TRINITY_DLL_DECL npc_injured_patientAI : public ScriptedAI
                 if (Doctorguid)
                 {
                     if(Creature* Doctor = Unit::GetCreature(*m_creature, Doctorguid))
-                        ((npc_doctorAI*)Doctor->AI())->PatientSaved(m_creature, CAST_PLR(caster), Coord);
+                        CAST_AI(npc_doctorAI, Doctor->AI())->PatientSaved(m_creature, CAST_PLR(caster), Coord);
                 }
             }
 
@@ -424,7 +424,7 @@ struct TRINITY_DLL_DECL npc_injured_patientAI : public ScriptedAI
             if (Doctorguid)
             {
                 if(Creature* Doctor = Unit::GetCreature((*m_creature), Doctorguid))
-                    ((npc_doctorAI*)Doctor->AI())->PatientDied(Coord);
+                    CAST_AI(npc_doctorAI, Doctor->AI())->PatientDied(Coord);
             }
         }
     }
@@ -561,10 +561,10 @@ void npc_doctorAI::UpdateAI(const uint32 diff)
                 Patient->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
 
                 Patients.push_back(Patient->GetGUID());
-                ((npc_injured_patientAI*)Patient->AI())->Doctorguid = m_creature->GetGUID();
+                CAST_AI(npc_injured_patientAI, Patient->AI())->Doctorguid = m_creature->GetGUID();
 
                 if (Point)
-                    ((npc_injured_patientAI*)Patient->AI())->Coord = Point;
+                    CAST_AI(npc_injured_patientAI, Patient->AI())->Coord = Point;
 
                 Coordinates.erase(itr);
             }
@@ -577,7 +577,7 @@ void npc_doctorAI::UpdateAI(const uint32 diff)
 bool QuestAccept_npc_doctor(Player *player, Creature *creature, Quest const *quest )
 {
     if ((quest->GetQuestId() == 6624) || (quest->GetQuestId() == 6622))
-        ((npc_doctorAI*)creature->AI())->BeginEvent(player);
+        CAST_AI(npc_doctorAI, creature->AI())->BeginEvent(player);
 
     return true;
 }

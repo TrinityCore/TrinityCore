@@ -129,7 +129,7 @@ bool QuestAccept_npc_willix(Player* player, Creature* creature, Quest const* que
 {
     if (quest->GetQuestId() == QUEST_WILLIX_THE_IMPORTER)
     {
-        ((npc_escortAI*)(creature->AI()))->Start(true, true, false, player->GetGUID());
+        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, true, false, player->GetGUID());
         DoScriptText(SAY_READY, creature, player);
         creature->setFaction(113);
     }

@@ -291,7 +291,7 @@ struct TRINITY_DLL_DECL mob_ethereal_beaconAI : public ScriptedAI
     {
         Unit *Shaffar = me->FindNearestCreature(ENTRY_SHAFFAR, 100);
         if(Shaffar)
-            ((boss_nexusprince_shaffarAI*)(CAST_CRE(Shaffar)->AI()))->RemoveBeaconFromList(m_creature);
+            CAST_AI(boss_nexusprince_shaffarAI, (CAST_CRE(Shaffar)->AI()))->RemoveBeaconFromList(m_creature);
     }
 
     void UpdateAI(const uint32 diff)

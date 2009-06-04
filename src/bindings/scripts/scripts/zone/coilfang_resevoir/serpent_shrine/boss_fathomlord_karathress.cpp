@@ -349,8 +349,8 @@ struct TRINITY_DLL_DECL boss_fathomguard_sharkkisAI : public ScriptedAI
             Karathress = (Unit::GetCreature((*m_creature), pInstance->GetData64(DATA_KARATHRESS)));
 
             if (Karathress)
-                ((boss_fathomlord_karathressAI*)Karathress->AI())->EventSharkkisDeath();
-                    ((boss_fathomlord_karathressAI*)Karathress->AI())->EventSharkkisDeath();
+                CAST_AI(boss_fathomlord_karathressAI, Karathress->AI())->EventSharkkisDeath();
+                    CAST_AI(boss_fathomlord_karathressAI, Karathress->AI())->EventSharkkisDeath();
         }
     }
 
@@ -479,7 +479,7 @@ struct TRINITY_DLL_DECL boss_fathomguard_tidalvessAI : public ScriptedAI
 
             if (Karathress)
                 if(!m_creature->isAlive() && Karathress)
-                    ((boss_fathomlord_karathressAI*)Karathress->AI())->EventTidalvessDeath();
+                    CAST_AI(boss_fathomlord_karathressAI, Karathress->AI())->EventTidalvessDeath();
         }
     }
 
@@ -594,7 +594,7 @@ struct TRINITY_DLL_DECL boss_fathomguard_caribdisAI : public ScriptedAI
 
             if (Karathress)
                 if(!m_creature->isAlive() && Karathress)
-                    ((boss_fathomlord_karathressAI*)Karathress->AI())->EventCaribdisDeath();
+                    CAST_AI(boss_fathomlord_karathressAI, Karathress->AI())->EventCaribdisDeath();
         }
     }
 

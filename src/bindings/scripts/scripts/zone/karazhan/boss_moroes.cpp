@@ -360,7 +360,7 @@ struct TRINITY_DLL_DECL boss_moroes_guestAI : public ScriptedAI
         {
             for(uint8 i = 0; i < 3; ++i)
             {
-                uint64 GUID = ((boss_moroesAI*)Moroes->AI())->AddGUID[i];
+                uint64 GUID = CAST_AI(boss_moroesAI, Moroes->AI())->AddGUID[i];
                 if(GUID && GUID != m_creature->GetGUID())
                     GuestGUID[i+1] = GUID;
             }

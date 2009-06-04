@@ -341,7 +341,7 @@ struct TRINITY_DLL_DECL boss_olm_the_summonerAI : public ScriptedAI
             Maulgar = (Unit::GetCreature((*m_creature), pInstance->GetData64(DATA_MAULGAR)));
 
             if(Maulgar)
-                ((boss_high_king_maulgarAI*)Maulgar->AI())->AddDeath();
+                CAST_AI(boss_high_king_maulgarAI, Maulgar->AI())->AddDeath();
 
             if(CheckAllBossDied(pInstance, m_creature))
                 pInstance->SetData(DATA_MAULGAREVENT, DONE);
@@ -445,7 +445,7 @@ struct TRINITY_DLL_DECL boss_kiggler_the_crazedAI : public ScriptedAI
             Maulgar = (Unit::GetCreature((*m_creature), pInstance->GetData64(DATA_MAULGAR)));
 
             if(Maulgar)
-                ((boss_high_king_maulgarAI*)Maulgar->AI())->AddDeath();
+                CAST_AI(boss_high_king_maulgarAI, Maulgar->AI())->AddDeath();
 
             if(CheckAllBossDied(pInstance, m_creature))
                 pInstance->SetData(DATA_MAULGAREVENT, DONE);
@@ -553,7 +553,7 @@ struct TRINITY_DLL_DECL boss_blindeye_the_seerAI : public ScriptedAI
             Maulgar = (Unit::GetCreature((*m_creature), pInstance->GetData64(DATA_MAULGAR)));
 
             if(Maulgar)
-                ((boss_high_king_maulgarAI*)Maulgar->AI())->AddDeath();
+                CAST_AI(boss_high_king_maulgarAI, Maulgar->AI())->AddDeath();
 
             if(CheckAllBossDied(pInstance, m_creature))
                 pInstance->SetData(DATA_MAULGAREVENT, DONE);
@@ -651,7 +651,7 @@ struct TRINITY_DLL_DECL boss_krosh_firehandAI : public ScriptedAI
             Maulgar = (Unit::GetCreature((*m_creature), pInstance->GetData64(DATA_MAULGAR)));
 
             if(Maulgar)
-                ((boss_high_king_maulgarAI*)Maulgar->AI())->AddDeath();
+                CAST_AI(boss_high_king_maulgarAI, Maulgar->AI())->AddDeath();
 
             if(CheckAllBossDied(pInstance, m_creature))
                 pInstance->SetData(DATA_MAULGAREVENT, DONE);
