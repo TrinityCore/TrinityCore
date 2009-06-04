@@ -303,20 +303,19 @@ void GameObject::Update(uint32 /*p_time*/)
                 if(m_cooldownTime >= time(NULL))
                     return;
 
+                if(!goInfo->trap.spellId)
+                    return;
+
                 bool IsBattleGroundTrap = false;
                 //FIXME: this is activation radius (in different casting radius that must be selected from spell data)
                 //TODO: move activated state code (cast itself) to GO_ACTIVATED, in this place only check activating and set state
-                float radius = 0.0f;
-                const SpellEntry *spellEntry = sSpellStore.LookupEntry(m_spellId);
-                if(spellEntry)
-                    radius = GetSpellRadiusForHostile(sSpellRadiusStore.LookupEntry(spellEntry->EffectRadiusIndex[0]));
-                else
-                    radius = goInfo->trap.radius;
+                float radius = goInfo->trap.radius;
+                if(!radius) // i think this is a hack, spell radius is determined by trap radius (spell itself does not have radius)
+                    if(const SpellEntry *spellEntry = sSpellStore.LookupEntry(m_spellId))
+                        radius = goInfo->trap.radius;
                 if(!radius)
                 {
-                    if(goInfo->trap.cooldown != 3)            // cast in other case (at some triggering/linked go/etc explicit call)
-                        return;
-                    else
+                    if(goInfo->trap.cooldown == 3)            // cast in other case (at some triggering/linked go/etc explicit call)
                     {
                         if(m_respawnTime > 0)
                             break;
@@ -324,13 +323,15 @@ void GameObject::Update(uint32 /*p_time*/)
                         radius = goInfo->trap.cooldown;       // battlegrounds gameobjects has data2 == 0 && data5 == 3
                         IsBattleGroundTrap = true;
                     }
+                    if(!radius)
+                        return;
                 }
 
                 bool NeedDespawn = (goInfo->trap.charges != 0);
 
                 // Note: this hack with search required until GO casting not implemented
                 // search unfriendly creature
-                if(owner && NeedDespawn)                    // hunter trap
+                if(owner)                    // hunter trap
                 {
                     Trinity::AnyUnfriendlyNoTotemUnitInObjectRangeCheck checker(this, owner, radius);
                     Trinity::UnitSearcher<Trinity::AnyUnfriendlyNoTotemUnitInObjectRangeCheck> searcher(this, ok, checker);
@@ -354,7 +355,10 @@ void GameObject::Update(uint32 /*p_time*/)
 
                     CastSpell(ok, goInfo->trap.spellId);
                     //caster->CastSpell(ok, goInfo->trap.spellId, true, 0, 0, GetGUID());
-                    m_cooldownTime = time(NULL) + 4;        // 4 seconds
+                    if(goInfo->trap.cooldown)
+                        m_cooldownTime = time(NULL) + goInfo->trap.cooldown;
+                    else
+                        m_cooldownTime = time(NULL) + 4;        // 4 seconds
 
                     if(NeedDespawn)
                         SetLootState(GO_JUST_DEACTIVATED);  // can be despawned or destroyed
