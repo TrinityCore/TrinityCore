@@ -1,5 +1,3 @@
-ALTER TABLE db_version CHANGE COLUMN required_7908_03_mangos_creature_template_addon required_7945_01_mangos_quest_template bit;
-
 ALTER TABLE quest_template
   ADD COLUMN `DetailsEmoteDelay1` int(11) unsigned NOT NULL default '0' AFTER `DetailsEmote4`,
   ADD COLUMN `DetailsEmoteDelay2` int(11) unsigned NOT NULL default '0' AFTER `DetailsEmoteDelay1`,
