@@ -6062,7 +6062,12 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 // Judgement of Wisdom
                 case 20186:
                 {
-                    pVictim->CastSpell(pVictim, 20268, true, NULL, triggeredByAura);
+                    if (pVictim->getPowerType() == POWER_MANA)
+                    {
+                        // 2% of maximum mana
+                        basepoints0 = int32(pVictim->GetMaxPower(POWER_MANA) * 2 / 100);
+                        pVictim->CastCustomSpell(pVictim, 20268, &basepoints0, NULL, NULL, true, 0, triggeredByAura);
+                    }
                     return true;
                 }
                 // Holy Power (Redemption Armor set)
