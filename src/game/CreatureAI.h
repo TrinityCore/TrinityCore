@@ -72,6 +72,7 @@ class TRINITY_DLL_SPEC CreatureAI : public UnitAI
 
         bool UpdateVictim();
         bool UpdateVictimWithGaze();
+        bool UpdateCombatState();
 
         void SelectNearestTarget(Unit *who);
     public:
