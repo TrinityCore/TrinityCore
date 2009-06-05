@@ -480,7 +480,10 @@ bool GossipSelect_npc_death_knight_initiate(Player *player, Creature *_Creature,
     if( action == GOSSIP_ACTION_INFO_DEF )
     {
         player->CastSpell(player, SPELL_DUEL_FLAG, true);
-        _Creature->setFaction(10); // make him yellow, not red (will be killed by other npc)
+        if (player->GetTeam() == HORDE ) // Check the player team, then choose faction
+            _Creature->setFaction(1); 
+        else 
+            _Creature->setFaction(2);
         _Creature->AI()->AttackStart(player);
     }
     return true;
