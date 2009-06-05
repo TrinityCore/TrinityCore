@@ -181,6 +181,8 @@ bool Corpse::LoadFromDB(uint32 guid, Field *fields)
     float ort       = fields[3].GetFloat();
     uint32 mapid    = fields[4].GetUInt32();
 
+    Object::_Create(guid, 0, HIGHGUID_CORPSE);
+
     if(!LoadValues( fields[5].GetString() ))
     {
         sLog.outError("Corpse #%d have broken data in `data` field. Can't be loaded.",guid);
