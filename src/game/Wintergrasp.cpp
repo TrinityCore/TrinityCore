@@ -155,19 +155,6 @@ void OPvPWintergrasp::ProcessEvent(GameObject *obj, uint32 eventId)
     }
 }
 
-void OPvPWintergrasp::ChangeDefender()
-{
-    m_defender = OTHER_TEAM(m_defender);
-    if(m_defender == TEAM_ALLIANCE)
-        sWorld.SendZoneText(ZONE_WINTERGRASP, "Alliance has taken over the fortress!");
-    else
-        sWorld.SendZoneText(ZONE_WINTERGRASP, "Horde has taken over the fortress!");
-    UpdateAllWorldObject();
-
-    m_wartime = false;
-    m_timer = 600000; // for test, should be 2 hour 30 min
-}
-
 uint32 OPvPWintergrasp::GetCreatureEntry(uint32 guidlow, const CreatureData *data)
 {
     if(m_defender == TEAM_ALLIANCE)
@@ -307,7 +294,7 @@ bool OPvPWintergrasp::UpdateGameObjectInfo(GameObject *go)
 
 void OPvPWintergrasp::HandlePlayerEnterZone(Player * plr, uint32 zone)
 {
-    if(!plr->HasAura(SPELL_RECRUIT) && !plr->HasAura(SPELL_CORPORAL)
+    if(m_wartime && !plr->HasAura(SPELL_RECRUIT) && !plr->HasAura(SPELL_CORPORAL)
         && !plr->HasAura(SPELL_LIEUTENANT))
         plr->CastSpell(plr, SPELL_RECRUIT, true);
 
@@ -412,6 +399,8 @@ bool OPvPWintergrasp::Update(uint32 diff)
                 sWorld.SendZoneText(ZONE_WINTERGRASP, "Alliance has successfully defended the fortress!");
             else
                 sWorld.SendZoneText(ZONE_WINTERGRASP, "Horde has successfully defended the fortress!");
+            GiveReward();
+            EndBattle();
         }
         else
         {
@@ -419,7 +408,59 @@ bool OPvPWintergrasp::Update(uint32 diff)
             m_timer = sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_BATTLE_TIME) * MINUTE * IN_MILISECONDS;
             sWorld.SendZoneText(ZONE_WINTERGRASP, "Battle begins!");
             UpdateAllWorldObject();
+            StartBattle();
         }
     }
     return false;
+}
+
+void OPvPWintergrasp::ChangeDefender()
+{
+    m_wartime = false;
+    m_timer = sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_INTERVAL) * MINUTE * IN_MILISECONDS;
+
+    m_defender = OTHER_TEAM(m_defender);
+    if(m_defender == TEAM_ALLIANCE)
+        sWorld.SendZoneText(ZONE_WINTERGRASP, "Alliance has taken over the fortress!");
+    else
+        sWorld.SendZoneText(ZONE_WINTERGRASP, "Horde has taken over the fortress!");
+    UpdateAllWorldObject();
+
+    GiveReward();
+    EndBattle();
+}
+
+void OPvPWintergrasp::GiveReward()
+{
+    for(uint32 team = 0; team < 2; ++team)
+        for(PlayerSet::iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
+            if((*itr)->HasAura(SPELL_LIEUTENANT))
+                (*itr)->CastSpell(*itr, team == m_defender ? SPELL_VICTORY_REWARD : SPELL_DEFEAT_REWARD, true);
+}
+
+void OPvPWintergrasp::StartBattle()
+{
+    for(uint32 team = 0; team < 2; ++team)
+    {
+        for(PlayerSet::iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
+        {
+            (*itr)->RemoveAura(SPELL_RECRUIT);
+            (*itr)->RemoveAura(SPELL_CORPORAL);
+            (*itr)->RemoveAura(SPELL_LIEUTENANT);
+            (*itr)->CastSpell(*itr, SPELL_RECRUIT, true);
+        }
+    }
+}
+
+void OPvPWintergrasp::EndBattle()
+{
+    for(uint32 team = 0; team < 2; ++team)
+    {
+        for(PlayerSet::iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
+        {
+            (*itr)->RemoveAura(SPELL_RECRUIT);
+            (*itr)->RemoveAura(SPELL_CORPORAL);
+            (*itr)->RemoveAura(SPELL_LIEUTENANT);
+        }
+    }
 }
