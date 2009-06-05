@@ -23,6 +23,10 @@
 #include "G3D/debug.h"
 #include "G3D/format.h"
 
+#if defined(__OpenBSD__)
+    #include <stdint.h>
+#endif
+
 #ifdef G3D_WIN32
 
     #include <conio.h>
