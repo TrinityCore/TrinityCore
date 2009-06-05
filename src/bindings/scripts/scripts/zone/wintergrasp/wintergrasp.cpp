@@ -40,9 +40,9 @@ bool GossipSelect_npc_demolisher_engineerer(Player* player, Creature* me, uint32
     player->CLOSE_GOSSIP_MENU();
     switch(uiAction - GOSSIP_ACTION_INFO_DEF)
     {
-        case 0: player->CastSpell(player, 56663, false); break;
-        case 1: player->CastSpell(player, 56575, false); break;
-        case 2: player->CastSpell(player, player->GetTeamId() ? 61408 : 56661, false); break;
+        case 0: player->CastSpell(player, 56663, false, NULL, NULL, me->GetGUID()); break;
+        case 1: player->CastSpell(player, 56575, false, NULL, NULL, me->GetGUID()); break;
+        case 2: player->CastSpell(player, player->GetTeamId() ? 61408 : 56661, false, NULL, NULL, me->GetGUID()); break;
     }
 
     return true;
