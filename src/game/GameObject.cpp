@@ -303,9 +303,6 @@ void GameObject::Update(uint32 /*p_time*/)
                 if(m_cooldownTime >= time(NULL))
                     return;
 
-                if(!goInfo->trap.spellId)
-                    return;
-
                 bool IsBattleGroundTrap = false;
                 //FIXME: this is activation radius (in different casting radius that must be selected from spell data)
                 //TODO: move activated state code (cast itself) to GO_ACTIVATED, in this place only check activating and set state
@@ -351,10 +348,12 @@ void GameObject::Update(uint32 /*p_time*/)
 
                 if (ok)
                 {
+                    // some traps do not have spell but should be triggered
+                    if(goInfo->trap.spellId)
+                        CastSpell(ok, goInfo->trap.spellId);
                     //Unit *caster =  owner ? owner : ok;
-
-                    CastSpell(ok, goInfo->trap.spellId);
                     //caster->CastSpell(ok, goInfo->trap.spellId, true, 0, 0, GetGUID());
+
                     if(goInfo->trap.cooldown)
                         m_cooldownTime = time(NULL) + goInfo->trap.cooldown;
                     else
