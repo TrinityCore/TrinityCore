@@ -373,7 +373,7 @@ namespace VMAP
         if(!rf)
         {
             printf("ERROR: Can't open model file in form: %s",pModelFilename.c_str());
-            printf("...                          or form: %s",filename );
+            printf("...                          or form: %s",filename.c_str() );
             return false;
         }
 
