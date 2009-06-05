@@ -345,7 +345,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
 
 Aura::Aura(SpellEntry const* spellproto, uint32 effMask, int32 *currentBasePoints, Unit *target, WorldObject *source, Unit *caster, Item* castItem) :
 m_caster_guid(0), m_castItemGuid(castItem?castItem->GetGUID():0), m_target(target),
-m_timeCla(1000), m_removeMode(AURA_REMOVE_BY_DEFAULT), m_AuraDRGroup(DIMINISHING_NONE),
+m_timeCla(0), m_removeMode(AURA_REMOVE_BY_DEFAULT), m_AuraDRGroup(DIMINISHING_NONE),
 m_auraSlot(MAX_AURAS), m_auraLevel(1), m_procCharges(0), m_stackAmount(1),m_auraStateMask(0), m_updated(false), m_isRemoved(false)
 {
     assert(target);
@@ -355,6 +355,9 @@ m_auraSlot(MAX_AURAS), m_auraLevel(1), m_procCharges(0), m_stackAmount(1),m_aura
     m_auraFlags = effMask;
 
     m_spellProto = spellproto;
+
+    if(m_spellProto->manaPerSecond || m_spellProto->manaPerSecondPerLevel)
+        m_timeCla = 1000;
 
     m_isPassive = IsPassiveSpell(GetId());
 
@@ -627,15 +630,15 @@ void Aura::Update(uint32 diff)
             m_duration = 0;
 
         // all spells with manaPerSecond/manaPerSecondPerLevel have aura in effect 0
-        if(m_timeCla > 0)
-            m_timeCla -= diff;
-        if(m_timeCla <= 0)
+        if(m_timeCla)
         {
-            if(Unit* caster = GetCaster())
+            if(m_timeCla > diff)
+                m_timeCla -= diff;
+            else if(Unit* caster = GetCaster())
             {
                 if(int32 manaPerSecond = m_spellProto->manaPerSecond + m_spellProto->manaPerSecondPerLevel * caster->getLevel())
                 {
-                    m_timeCla = 1000;
+                    m_timeCla += 1000 - diff;
 
                     Powers powertype = Powers(m_spellProto->powerType);
                     if(powertype == POWER_HEALTH)
@@ -672,13 +675,14 @@ void AuraEffect::Update(uint32 diff)
 {
     if (m_isPeriodic && (GetParentAura()->GetAuraDuration() >=0 || GetParentAura()->IsPassive() || GetParentAura()->IsPermanent()))
     {
-        m_periodicTimer -= diff;
-        if(m_periodicTimer <= 0) // tick also at m_periodicTimer==0 to prevent lost last tick in case max m_duration == (max m_periodicTimer)*N
+        if(m_periodicTimer > diff)
+            m_periodicTimer -= diff;
+        else // tick also at m_periodicTimer==0 to prevent lost last tick in case max m_duration == (max m_periodicTimer)*N
         {
             ++m_tickNumber;
 
             // update before applying (aura can be removed in TriggerSpell or PeriodicTick calls)
-            m_periodicTimer += m_amplitude;
+            m_periodicTimer += m_amplitude - diff;
 
             if(!m_target->hasUnitState(UNIT_STAT_ISOLATED))
                 PeriodicTick();

@@ -3305,12 +3305,11 @@ uint32 Unit::GetWeaponSkillValue (WeaponAttackType attType, Unit const* target) 
 
 void Unit::_DeleteAuras()
 {
-    for (AuraList::iterator i = m_removedAuras.begin(); i != m_removedAuras.end();i = m_removedAuras.begin())
+    while(!m_removedAuras.empty())
     {
-        Aura * Aur = *i;
-        sLog.outDebug("Aura %d is deleted from unit %d", Aur->GetId(), GetGUIDLow());
+        delete m_removedAuras.front();
         m_removedAuras.pop_front();
-        delete (Aur);
+//        sLog.outDebug("Aura %d is deleted from unit %d", Aur->GetId(), GetGUIDLow());
     }
 }
 
@@ -3320,7 +3319,7 @@ void Unit::_UpdateSpells( uint32 time )
         _UpdateAutoRepeatSpell();
 
     // remove finished spells from current pointers
-    for (uint32 i = 0; i < CURRENT_MAX_SPELL; i++)
+    for (uint32 i = 0; i < CURRENT_MAX_SPELL; ++i)
     {
         if (m_currentSpells[i] && m_currentSpells[i]->getState() == SPELL_STATE_FINISHED)
         {
@@ -3371,20 +3370,18 @@ void Unit::_UpdateSpells( uint32 time )
 
     if(!m_gameObj.empty())
     {
-        GameObjectList::iterator ite1, dnext1;
-        for (ite1 = m_gameObj.begin(); ite1 != m_gameObj.end(); ite1 = dnext1)
+        GameObjectList::iterator itr;
+        for(itr = m_gameObj.begin(); itr != m_gameObj.end();)
         {
-            dnext1 = ite1;
-            //(*i)->Update( difftime );
-            if( !(*ite1)->isSpawned() )
+            if( !(*itr)->isSpawned() )
             {
-                (*ite1)->SetOwnerGUID(0);
-                (*ite1)->SetRespawnTime(0);
-                (*ite1)->Delete();
-                dnext1 = m_gameObj.erase(ite1);
+                (*itr)->SetOwnerGUID(0);
+                (*itr)->SetRespawnTime(0);
+                (*itr)->Delete();
+                m_gameObj.erase(itr++);
             }
             else
-                ++dnext1;
+                ++itr;
         }
     }
 }
