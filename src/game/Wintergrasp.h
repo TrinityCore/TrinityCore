@@ -38,12 +38,12 @@ const uint32 WintergraspFaction[2] = {1732, 1735};
 #define SPELL_VICTORY_REWARD    56902
 #define SPELL_DEFEAT_REWARD     58494
 
+#define SPELL_SHUTDOWN_VEHICLE  21247
+
 const uint32 WG_KEEP_CM = 0; //Need data
 const uint32 WG_RULERS_BUFF   = 52108;
 //some cosmetics :D
 const uint32 WG_VICTORY_AURA  = 60044;
-
-const uint32 WG_SHUTDOWN_CAST = 21247;
 
 enum OutdoorPvP_WG_Sounds
 {
@@ -107,6 +107,7 @@ class OPvPWintergrasp : public OutdoorPvP
     protected:
         typedef std::map<uint32, BuildingState *> BuildingStateMap;
         typedef std::set<Creature*> CreatureSet;
+        typedef std::set<Vehicle*> VehicleSet;
         typedef std::set<GameObject*> GameObjectSet;
     public:
         explicit OPvPWintergrasp() : m_tenacityStack(0) {}
@@ -134,6 +135,7 @@ class OPvPWintergrasp : public OutdoorPvP
         BuildingStateMap m_buildingStates;
 
         CreatureSet m_creatures;
+        VehicleSet m_vehicles[2];
         GameObjectSet m_gobjects;
 
         TeamPairMap m_creEntryPair, m_goDisplayPair;
@@ -152,6 +154,8 @@ class OPvPWintergrasp : public OutdoorPvP
         void StartBattle();
         void EndBattle();
         void GiveReward();
+
+        void VehicleCastSpell(TeamId team, int32 spellId);
 };
 
 #endif

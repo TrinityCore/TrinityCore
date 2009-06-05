@@ -26,6 +26,7 @@
 
 #include "Chat.h"
 #include "CreatureAI.h"
+#include "ZoneScript.h"
 
 Vehicle::Vehicle() : Creature(), m_vehicleInfo(NULL), m_usableSeatNum(0)
 {
@@ -41,6 +42,8 @@ void Vehicle::AddToWorld()
 {
     if(!IsInWorld())
     {
+        if(m_zoneScript)
+            m_zoneScript->OnCreatureCreate(this, true);
         ObjectAccessor::Instance().AddObject(this);
         Unit::AddToWorld();
         AIM_Initialize();
@@ -58,6 +61,8 @@ void Vehicle::RemoveFromWorld()
 {
     if(IsInWorld())
     {
+        if(m_zoneScript)
+            m_zoneScript->OnCreatureCreate(this, false);
         RemoveAllPassengers();
         ///- Don't call the function for Creature, normal mobs + totems go in a different storage
         Unit::RemoveFromWorld();
