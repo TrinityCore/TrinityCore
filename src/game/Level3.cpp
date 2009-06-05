@@ -63,6 +63,16 @@ bool ChatHandler::HandleAHBotOptionsCommand(const char* args)
     if (ahMapIdStr)
     {
         ahMapID = (uint32) strtoul(ahMapIdStr, NULL, 0);
+        switch (ahMapID)
+        {
+        case 2:
+        case 6:
+        case 7:
+            break;
+        default:
+            opt = NULL;
+            break;
+        }
     }
     if (!opt)
     {
