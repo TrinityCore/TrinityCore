@@ -605,7 +605,7 @@ struct SpellEntry
     int32     EquippedItemInventoryTypeMask;                // 64 (mask)
     uint32    Effect[3];                                    // 65-67
     int32     EffectDieSides[3];                            // 68-70
-    uint32    EffectBaseDice[3];                            // 71-73
+    int32     EffectBaseDice[3];                            // 71-73
     float     EffectDicePerLevel[3];                        // 74-76
     float     EffectRealPointsPerLevel[3];                  // 77-79
     int32     EffectBasePoints[3];                          // 80-82 (don't must be used in spell/auras explicitly, must be used cached Spell::m_currentBasePoints)
