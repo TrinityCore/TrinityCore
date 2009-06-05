@@ -183,39 +183,6 @@ Debugging options:
 ])
 AC_MSG_RESULT($TRINITYD_DEBUG_INFO)
 
-
-# Enable CLI console?
-AC_MSG_CHECKING(whether cli console is enabled)
-TRINITYD_ENABLE_CLI=no
-AC_ARG_ENABLE(cli,
-[  --enable-cli Turn on command console system],
-[
-    if test "$enableval" = "yes" ; then
-	CFLAGS="-DENABLE_CLI $CFLAGS"
-	CXXFLAGS="-DENABLE_CLI $CXXFLAGS"
-	TRINITYD_ENABLE_CLI=yes
-    elif test "$withval" != "no" ; then
-	AC_MSG_ERROR(Please choose yes or no)
-    fi
-])
-AC_MSG_RESULT($TRINITYD_ENABLE_CLI)
-
-# Enable remote console?
-AC_MSG_CHECKING(whether remote console is enabled)
-TRINITYD_ENABLE_RA=no
-AC_ARG_ENABLE(ra,
-[  --enable-ra Turn on remote console system],
-[
-    if test "$enableval" = "yes" ; then
-	CFLAGS="-DENABLE_RA $CFLAGS"
-	CXXFLAGS="-DENABLE_RA $CXXFLAGS"
-	TRINITYD_ENABLE_RA=yes
-    elif test "$withval" != "no" ; then
-	AC_MSG_ERROR(Please choose yes or no)
-    fi
-])
-AC_MSG_RESULT($TRINITYD_ENABLE_RA)
-
 # Enable large cells?
 AC_MSG_CHECKING(whether we use large cells)
 TRINITYD_ENABLE_LC=no
@@ -263,10 +230,8 @@ AC_CHECK_HEADERS([zlib.h])
 AC_HEADER_STDBOOL
 AC_C_CONST
 AC_C_INLINE
-AC_TYPE_SIZE_T
 AC_HEADER_TIME
 AC_STRUCT_TM
-AC_TYPE_UINT64_T
 AC_C_VOLATILE
 AC_CHECK_TYPES([ptrdiff_t])
 
@@ -324,8 +289,6 @@ TRINI_LIBS="$POSTGRE_LIBS $MYSQL_LIBS $ZLIB $COMPATLIB $SSLLIB $TRINI_LIBS"
 ## Export defined variables
 AC_SUBST(DOXYGEN)
 AC_SUBST(TRINITYD_DEBUG_INFO)
-AC_SUBST(TRINITYD_ENABLE_CLI)
-AC_SUBST(TRINITYD_ENABLE_RA)
 
 ## Additional CPPFLAGS and LDFLAGS.
 AC_SUBST(TRINI_INCLUDES)

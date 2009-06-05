@@ -150,14 +150,14 @@ namespace SOCKETS_NAMESPACE {
 #  error FreeBSD versions prior to 400014 does not support ipv6
 # endif
 
-#elif defined __NetBSD__
-#  if !defined(MSG_NOSIGNAL)
-#   define MSG_NOSIGNAL 0
-#  endif
-#  include <netinet/in.h>
-typedef in_addr_t ipaddr_t;
-typedef in_port_t port_t;
-#elif defined MACOSX
+#elif defined (__NetBSD__) || defined (__OpenBSD__)
+#  if !defined(MSG_NOSIGNAL)  
+#   define MSG_NOSIGNAL 0  
+#  endif  
+#  include <netinet/in.h>  
+typedef in_addr_t ipaddr_t;  
+typedef in_port_t port_t;  
+#elif defined MACOSX 
 // ----------------------------------------
 // Mac OS X
 #include <string.h>
