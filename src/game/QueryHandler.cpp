@@ -288,21 +288,25 @@ void WorldSession::HandleCorpseQueryOpcode(WorldPacket & /*recv_data*/)
     float x = corpse->GetPositionX();
     float y = corpse->GetPositionY();
     float z = corpse->GetPositionZ();
-    int32 corpsemapid = _player->GetMapId();
+    int32 corpsemapid = mapid;
 
-    if(Map *map = MapManager::Instance().FindMap(corpse->GetMapId(), corpse->GetInstanceId()))
+    // if corpse at different map
+    if(mapid != _player->GetMapId())
     {
-        if(map->IsDungeon())
+        // search entrance map for proper show entrance
+        if(MapEntry const* corpseMapEntry = sMapStore.LookupEntry(mapid))
         {
-            if(!map->GetEntrancePos(mapid, x, y))
-                return;
-
-            Map *entrance_map = MapManager::Instance().GetMap(mapid, _player);
-            if(!entrance_map)
-                return;
-
-            z = entrance_map->GetHeight(x, y, MAX_HEIGHT);
-            corpsemapid = corpse->GetMapId();
+            if(corpseMapEntry->IsDungeon() && corpseMapEntry->entrance_map >= 0)
+            {
+                // if corpse map have entrance
+                if(Map const* entranceMap = MapManager::Instance().GetBaseMap(corpseMapEntry->entrance_map))
+                {
+                    mapid = corpseMapEntry->entrance_map;
+                    x = corpseMapEntry->entrance_x;
+                    y = corpseMapEntry->entrance_y;
+                    z = entranceMap->GetHeight(x, y, MAX_HEIGHT);
+                }
+            }
         }
     }
 
