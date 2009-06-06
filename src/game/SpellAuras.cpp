@@ -4335,6 +4335,18 @@ void AuraEffect::HandleModMechanicImmunity(bool apply, bool Real, bool /*changeA
         m_target->ApplySpellImmune(GetId(),IMMUNITY_STATE,SPELL_AURA_MOD_ROOT,apply);
         m_target->ApplySpellImmune(GetId(),IMMUNITY_STATE,SPELL_AURA_MOD_DECREASE_SPEED,apply);
     }
+    // Demonic Circle
+    else if (m_spellProto->SpellFamilyName == SPELLFAMILY_WARLOCK && m_spellProto->SpellIconID == 3221)
+    {
+        if (m_target->GetTypeId() != TYPEID_PLAYER)
+            return;
+        if (apply)
+        {
+            GameObject* obj = m_target->GetGameObject(48018);
+            if (obj)
+                ((Player*)m_target)->TeleportTo(obj->GetMapId(),obj->GetPositionX(),obj->GetPositionY(),obj->GetPositionZ(),obj->GetOrientation());
+        }
+    }
 }
 
 //this method is called whenever we add / remove aura which gives m_target some imunity to some spell effect
@@ -4491,6 +4503,27 @@ void AuraEffect::HandleAuraPeriodicDummy(bool apply, bool Real, bool changeAmoun
     SpellEntry const*spell = GetSpellProto();
     switch( spell->SpellFamilyName)
     {
+        case SPELLFAMILY_WARLOCK:
+        {
+            switch (spell->Id)
+            {
+                // Demonic Circle
+                case 48018:
+                    if (apply)
+                        // set to false at initial cast to enable button at next enable in periodic handler
+                        m_target->SendAuraVisualForSelf(false,62388);
+                    else
+                    {
+                        // Do not remove GO when aura is removed by stack
+                        // to prevent remove GO added by new spell
+                        // old one is already removed
+                        if (GetParentAura()->GetRemoveMode()!=AURA_REMOVE_BY_STACK)
+                            m_target->RemoveGameObject(spell->Id,true);
+                        m_target->SendAuraVisualForSelf(false,62388);
+                    }
+                break;
+            }
+        }
         case SPELLFAMILY_HUNTER:
         {
             // Explosive Shot
@@ -6614,6 +6647,20 @@ void AuraEffect::PeriodicDummyTick()
             }
             break;
         }
+        case SPELLFAMILY_WARLOCK:
+            switch (spell->Id)
+            {
+                case 48018:
+                    GameObject* obj = m_target->GetGameObject(spell->Id);
+                    if (!obj) return;
+                    // We must take a range of teleport spell, not summon.
+                    const SpellEntry* goToCircleSpell = sSpellStore.LookupEntry(48020);
+                    if (m_target->IsWithinDist(obj,GetSpellMaxRangeForFriend(sSpellRangeStore.LookupEntry(goToCircleSpell->rangeIndex))))
+                        m_target->SendAuraVisualForSelf(true,62388, 1);
+                    else
+                        m_target->SendAuraVisualForSelf(false,62388);
+            }
+            break;
         case SPELLFAMILY_DRUID:
         {
             switch (spell->Id)
@@ -6656,6 +6703,7 @@ void AuraEffect::PeriodicDummyTick()
                 // Killing Spree
                 case 51690:
                 {
+                    // TODO: this should use effect[1] of 51690
                     std::list<Unit*> targets;
                     {
                         // eff_radius ==0
