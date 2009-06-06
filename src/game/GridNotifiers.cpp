@@ -73,7 +73,7 @@ PlayerVisibilityNotifier::Notify()
 
     if( i_data.HasData() )
     {
-        uint32 entry = 0, map;
+        /*uint32 entry = 0, map;
         float x,y;
         if(!i_visibleNow.empty())
         {
@@ -81,7 +81,8 @@ PlayerVisibilityNotifier::Notify()
             map = (*i_visibleNow.begin())->GetMapId();
             x = (*i_visibleNow.begin())->GetPositionX();
             y = (*i_visibleNow.begin())->GetPositionY();
-        }
+            sLog.outError("notify %u %u %f %f", entry, map, x, y);
+        }*/
 
         // send create/outofrange packet to player (except player create updates that already sent using SendUpdateToPlayer)
         WorldPacket packet;
