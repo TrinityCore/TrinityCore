@@ -592,7 +592,10 @@ void Map::RelocationNotify()
         if(unit->GetTypeId() == TYPEID_PLAYER)
         {
             Trinity::PlayerRelocationNotifier notifier(*((Player*)unit));
+            if(((Player*)unit)->m_seer != unit)
             VisitAll(((Player*)unit)->m_seer->GetPositionX(), ((Player*)unit)->m_seer->GetPositionY(), World::GetMaxVisibleDistance() + dist, notifier);
+            else
+            VisitAll(((Player*)unit)->GetPositionX(), ((Player*)unit)->GetPositionY(), World::GetMaxVisibleDistance() + dist, notifier);
             notifier.Notify();
         }
         else
