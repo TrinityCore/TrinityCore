@@ -104,7 +104,7 @@ struct SpellModifier
     int32 value;
     flag96 mask;
     uint32 spellId;
-    Spell const* lastAffected;
+    Aura *const ownerAura;
 };
 
 typedef UNORDERED_MAP<uint32, PlayerSpell*> PlayerSpellMap;

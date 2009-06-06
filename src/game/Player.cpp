@@ -275,7 +275,7 @@ std::ostringstream& operator<< (std::ostringstream& ss, PlayerTaxi const& taxi)
 
 UpdateMask Player::updateVisualBits;
 
-Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputationMgr(this) , m_spellModTakingSpell(NULL)
+Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputationMgr(this)
 {
     m_speakTime = 0;
     m_speakCount = 0;
@@ -290,6 +290,8 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
     m_divider = 0;
 
     m_ExtraFlags = 0;
+
+    m_spellModTakingSpell = NULL;
 
     // players always accept
     if(GetSession()->GetSecurity() == SEC_PLAYER)
@@ -17036,7 +17038,7 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
 }
 
 // Restore spellmods in case of failed cast
-void Player::RestoreSpellMods(Spell const* spell)
+void Player::RestoreSpellMods(Spell * spell)
 {
     if (!spell || spell->m_appliedMods.empty())
         return;
