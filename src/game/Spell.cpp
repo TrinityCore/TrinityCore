@@ -733,32 +733,6 @@ void Spell::prepareDataForTriggerSystem(AuraEffect * triggeredByAura)
     // Create base triggers flags for Attacker and Victim ( m_procAttacker, m_procVictim and m_procEx)
     //==========================================================================================
 
-    /*
-        Effects which are result of aura proc from triggered spell cannot proc
-        to prevent chain proc of these spells
-    */
-
-    if (triggeredByAura && !triggeredByAura->GetParentAura()->GetTarget()->CanProc())
-    {
-        m_canTrigger=false;
-    }
-
-    m_procEx = (m_IsTriggeredSpell)
-        && !(m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_TRIGGERED_CAN_TRIGGER)
-        && !(m_spellInfo->AttributesEx3 & SPELL_ATTR_EX3_TRIGGERED_CAN_TRIGGER_2)
-        ? PROC_EX_INTERNAL_TRIGGERED : PROC_EX_NONE;
-
-    if (m_IsTriggeredSpell && 
-        (m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_TRIGGERED_CAN_TRIGGER ||
-        m_spellInfo->AttributesEx3 & SPELL_ATTR_EX3_TRIGGERED_CAN_TRIGGER_2))
-        m_procEx |= PROC_EX_INTERNAL_CANT_PROC;
-
-    // Totem casts require spellfamilymask defined in spell_proc_event to proc
-    if (m_originalCaster && m_caster != m_originalCaster && m_caster->GetTypeId()==TYPEID_UNIT && ((Creature*)m_caster)->isTotem() && m_caster->IsControlledByPlayer())
-    {
-        m_procEx |= PROC_EX_INTERNAL_REQ_FAMILY;
-    }
-
     // Get data for type of attack and fill base info for trigger
     switch (m_spellInfo->DmgClass)
     {
@@ -797,10 +771,36 @@ void Spell::prepareDataForTriggerSystem(AuraEffect * triggeredByAura)
             }
             break;
     }
+    m_procEx= PROC_EX_NONE;
+
     // Hunter traps spells (for Entrapment trigger)
     // Gives your Immolation Trap, Frost Trap, Explosive Trap, and Snake Trap ....
     if (m_spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER && (m_spellInfo->SpellFamilyFlags[1] & 0x00002000 || m_spellInfo->SpellFamilyFlags[0] & 0x1C))
-        m_procAttacker |= PROC_FLAG_ON_TRAP_ACTIVATION;
+    {
+        m_procAttacker = PROC_FLAG_ON_TRAP_ACTIVATION;
+    }
+    else
+    {
+        /*
+            Effects which are result of aura proc from triggered spell cannot proc
+            to prevent chain proc of these spells
+        */
+        if (triggeredByAura && !triggeredByAura->GetParentAura()->GetTarget()->CanProc())
+        {
+            m_canTrigger=false;
+        }
+
+        if (m_IsTriggeredSpell && 
+            (m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_TRIGGERED_CAN_TRIGGER ||
+            m_spellInfo->AttributesEx3 & SPELL_ATTR_EX3_TRIGGERED_CAN_TRIGGER_2))
+            m_procEx |= PROC_EX_INTERNAL_CANT_PROC | PROC_EX_INTERNAL_TRIGGERED;
+
+        // Totem casts require spellfamilymask defined in spell_proc_event to proc
+        if (m_originalCaster && m_caster != m_originalCaster && m_caster->GetTypeId()==TYPEID_UNIT && ((Creature*)m_caster)->isTotem() && m_caster->IsControlledByPlayer())
+        {
+            m_procEx |= PROC_EX_INTERNAL_REQ_FAMILY;
+        }
+    }
 }
 
 void Spell::CleanupTargetList()
@@ -2514,6 +2514,12 @@ void Spell::cancel()
             SendChannelUpdate(0);
             SendInterrupted(0);
             SendCastResult(SPELL_FAILED_INTERRUPTED);
+
+            // spell is canceled-take mods and clear list
+            if (m_caster->GetTypeId() == TYPEID_PLAYER)
+                ((Player*)m_caster)->RemoveSpellMods(this);
+
+            m_appliedMods.clear();
         } break;
 
         default:
@@ -2548,6 +2554,12 @@ void Spell::cast(bool skipCheck)
     if(m_caster->GetTypeId() != TYPEID_PLAYER && m_targets.getUnitTarget() && m_targets.getUnitTarget() != m_caster)
         m_caster->SetInFront(m_targets.getUnitTarget());
 
+    // Should this be done for original caster?
+    if (m_caster->GetTypeId()==TYPEID_PLAYER)
+    {
+        // Set spell which will drop charges for triggered cast spells
+        ((Player*)m_caster)->SetSpellModTakingSpell(this, true);
+    }
 
     // triggered cast called from Spell::prepare where it was already checked
     if(!m_IsTriggeredSpell || !skipCheck)
@@ -2673,6 +2685,9 @@ void Spell::cast(bool skipCheck)
                     m_caster->CastSpell(m_targets.getUnitTarget() ? m_targets.getUnitTarget() : m_caster, *i, true);
     }
 
+    if (m_caster->GetTypeId()==TYPEID_PLAYER)
+        ((Player*)m_caster)->SetSpellModTakingSpell(this, false);
+
     SetExecutedCurrently(false);
 }
 
@@ -2717,6 +2732,10 @@ void Spell::handle_immediate()
 uint64 Spell::handle_delayed(uint64 t_offset)
 {
     UpdatePointers();
+
+    if (m_caster->GetTypeId()==TYPEID_PLAYER)
+        ((Player*)m_caster)->SetSpellModTakingSpell(this, true);
+
     uint64 next_time = 0;
 
     if (!m_immediateHandled)
@@ -2750,6 +2769,7 @@ uint64 Spell::handle_delayed(uint64 t_offset)
                 next_time = ighit->timeDelay;
         }
     }
+
     // All targets passed - need finish phase
     if (next_time == 0)
     {
@@ -2763,6 +2783,9 @@ uint64 Spell::handle_delayed(uint64 t_offset)
     }
     else
     {
+        if (m_caster->GetTypeId()==TYPEID_PLAYER)
+            ((Player*)m_caster)->SetSpellModTakingSpell(this, false);
+
         // spell is unfinished, return next execution time
         return next_time;
     }
@@ -2996,7 +3019,12 @@ void Spell::finish(bool ok)
     {
         //restore spell mods
         if (m_caster->GetTypeId() == TYPEID_PLAYER)
+        {
             ((Player*)m_caster)->RestoreSpellMods(this);
+            // cleanup after mod system
+            // triggered spell pointer can be not removed in some cases
+            ((Player*)m_caster)->SetSpellModTakingSpell(this, false);
+        }
         return;
     }
 
@@ -3012,10 +3040,6 @@ void Spell::finish(bool ok)
             return;
         }
     }
-
-    //remove spell mods
-    if (m_caster->GetTypeId() == TYPEID_PLAYER)
-        ((Player*)m_caster)->RemoveSpellMods(this);
 
     // Okay to remove extra attacks
     if(IsSpellHaveEffect(m_spellInfo, SPELL_EFFECT_ADD_EXTRA_ATTACKS))
@@ -3036,12 +3060,26 @@ void Spell::finish(bool ok)
 
     // potions disabled by client, send event "not in combat" if need
     if (!m_triggeredByAuraSpell && m_caster->GetTypeId() == TYPEID_PLAYER)
+    {
         ((Player*)m_caster)->UpdatePotionCooldown(this);
+
+        // triggered spell pointer can be not set in some cases
+        // this is needed for proper apply of triggered spell mods
+        ((Player*)m_caster)->SetSpellModTakingSpell(this, true);
+    }
 
     // call triggered spell only at successful cast (after clear combo points -> for add some if need)
     // I assume what he means is that some triggered spells may add combo points
     if(!m_TriggerSpells.empty())
         TriggerSpell();
+
+    // Take mods after trigger spell (needed for 14177 to affect 48664)
+    // mods are taken only on succesfull cast and independantly from targets of the spell
+    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+    {
+        ((Player*)m_caster)->RemoveSpellMods(this);
+        ((Player*)m_caster)->SetSpellModTakingSpell(this, false);
+    }
 
     // Stop Attack for some spells
     if( m_spellInfo->Attributes & SPELL_ATTR_STOP_ATTACK_TARGET )
@@ -4797,10 +4835,8 @@ SpellCastResult Spell::CheckPetCast(Unit* target)
 
 SpellCastResult Spell::CheckCasterAuras() const
 {
-    // Flag drop spells totally immuned to caster auras
-    // FIXME: find more nice check for all totally immuned spells
-    // AttributesEx3 & 0x10000000?
-    if(m_spellInfo->Id == 23336 || m_spellInfo->Id == 23334 || m_spellInfo->Id == 34991)
+    // spells totally immuned to caster auras ( wsg flag drop, give marks etc
+    if(m_spellInfo->AttributesEx6& SPELL_ATTR_EX6_IGNORE_CASTER_AURAS)
         return SPELL_CAST_OK;
 
     uint8 school_immune = 0;
@@ -5863,8 +5899,13 @@ bool SpellEvent::Execute(uint64 e_time, uint32 p_time)
                     }
                     else
                     {
+                        // Set last not triggered spell for apply spellmods
+                        ((Player*)m_Spell->GetCaster())->SetSpellModTakingSpell(m_Spell, true);
                         // do the action (pass spell to channeling state)
                         m_Spell->handle_immediate();
+
+                        // And remove after effect handling
+                        ((Player*)m_Spell->GetCaster())->SetSpellModTakingSpell(m_Spell, false);
                     }
                     // event will be re-added automatically at the end of routine)
                 }

@@ -97,7 +97,7 @@ struct PlayerSpell
 // Spell modifier (used for modify other spells)
 struct SpellModifier
 {
-    SpellModifier() : charges(0), lastAffected(NULL) {}
+    SpellModifier(Aura * _ownerAura = NULL) : charges(0), ownerAura(_ownerAura) {}
     SpellModOp   op   : 8;
     SpellModType type : 8;
     int16 charges     : 16;
@@ -1389,10 +1389,12 @@ class TRINITY_DLL_SPEC Player : public Unit
         PlayerSpellMap      & GetSpellMap()       { return m_spells; }
 
         void AddSpellMod(SpellModifier* mod, bool apply);
-        bool IsAffectedBySpellmod(SpellEntry const *spellInfo, SpellModifier *mod, Spell const* spell = NULL);
-        template <class T> T ApplySpellMod(uint32 spellId, SpellModOp op, T &basevalue, Spell const* spell = NULL);
-        void RemoveSpellMods(Spell const* spell);
-        void RestoreSpellMods(Spell const* spell);
+        bool IsAffectedBySpellmod(SpellEntry const *spellInfo, SpellModifier *mod, Spell * spell = NULL);
+        template <class T> T ApplySpellMod(uint32 spellId, SpellModOp op, T &basevalue, Spell * spell = NULL);
+        void RemoveSpellMods(Spell * spell);
+        void RestoreSpellMods(Spell * spell);
+        void DropModCharge(SpellModifier * mod, Spell * spell);
+        void SetSpellModTakingSpell(Spell* spell, bool apply);
 
         bool HasSpellCooldown(uint32 spell_id) const
         {
@@ -2200,7 +2202,8 @@ class TRINITY_DLL_SPEC Player : public Unit
         uint16 m_baseManaRegen;
 
         SpellModList m_spellMods[MAX_SPELLMOD];
-        int32 m_SpellModRemoveCount;
+        Spell * m_spellModTakingSpell;  // Spell for which charges are dropped in spell::finish
+
         EnchantDurationList m_enchantDuration;
         ItemDurationList m_itemDuration;
 
@@ -2328,15 +2331,24 @@ void AddItemsSetItem(Player*player,Item *item);
 void RemoveItemsSetItem(Player*player,ItemPrototype const *proto);
 
 // "the bodies of template functions must be made available in a header file"
-template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &basevalue, Spell const* spell)
+template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &basevalue, Spell * spell)
 {
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
     if (!spellInfo) return 0;
     int32 totalpct = 0;
     int32 totalflat = 0;
+
+    // Drop charges for triggering spells instead of triggered ones
+    if (m_spellModTakingSpell)
+        spell = m_spellModTakingSpell;
+
     for (SpellModList::iterator itr = m_spellMods[op].begin(); itr != m_spellMods[op].end(); ++itr)
     {
         SpellModifier *mod = *itr;
+
+        // Charges can be set only for mods with auras
+        if (!mod->ownerAura)
+            assert(mod->charges==0);
 
         if(!IsAffectedBySpellmod(spellInfo,mod,spell))
             continue;
@@ -2355,18 +2367,7 @@ template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &bas
             totalpct += mod->value;
         }
 
-        if (mod->charges > 0 )
-        {
-            --mod->charges;
-            if (mod->charges == 0)
-            {
-                mod->charges = -1;
-                mod->lastAffected = spell;
-                if(!mod->lastAffected)
-                    mod->lastAffected = FindCurrentSpellBySpellId(spellId);
-                ++m_SpellModRemoveCount;
-            }
-        }
+        DropModCharge(mod, spell);
     }
 
     float diff = (float)basevalue*(float)totalpct/100.0f + (float)totalflat;
