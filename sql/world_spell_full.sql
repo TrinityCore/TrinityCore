@@ -1057,6 +1057,7 @@ INSERT INTO `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `Spell
 (35102,	0x00,	9,	0x00003001,	0x00000000,	0x00000000,	0x00000000,	0x00000000,	0,	0,	0), -- Concussive Barrage (Rank 2)
 (35103,	0x00,	9,	0x00003001,	0x00000000,	0x00000000,	0x00000000,	0x00000000,	0,	0,	0), -- Concussive Barrage (Rank 3)
 (35121,	0x00,	0,	0x00000000,	0x00000000,	0x00000000,	0x00000000,	0x00000002,	0,	0,	0), -- Nether Power
+(36032,	0x00,	3,	0x00000800,	0x00008000,	0x00000000,	0x00000000,	0x00000000,	0,	0,	0), -- Arcane Blast
 (36096,	0x00,	0,	0x00000000,	0x00000000,	0x00000000,	0x00000000,	0x00000800,	0,	0,	0), -- Spell Reflection
 (36111,	0x00,	0,	0x00000000,	0x00000000,	0x00000000,	0x00000000,	0x00000000,	0,	0,	0), -- World Breaker
 (36541,	0x04,	0,	0x00000000,	0x00000000,	0x00000000,	0x00000000,	0x00000000,	0,	0,	0), -- Curse of Burning Shadows
@@ -1163,7 +1164,6 @@ INSERT INTO `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `Spell
 (44471,	0x00,	3,	0x20E21277,	0x00019048,	0x00000000,	0x00000000,	0x00000002,	0,	0,	0), -- Burnout (Rank 4)
 (44472,	0x00,	3,	0x20E21277,	0x00019048,	0x00000000,	0x00000000,	0x00000002,	0,	0,	0), -- Burnout (Rank 5)
 (44543,	0x00,	3,	0x00100220,	0x00001000,	0x00000000,	0x00010000,	0x00000000,	0,	7,	0), -- Fingers of Frost (Rank 1)
-(44544,	0x00,	3,	0x00000000,	0x00100000,	0x00000000,	0x00010000,	0x00000000,	0,	0,	0), -- Fingers of Frost
 (44545,	0x00,	3,	0x00100220,	0x00001000,	0x00000000,	0x00010000,	0x00000000,	0,	15,	0), -- Fingers of Frost (Rank 2)
 (44546,	0x00,	3,	0x020002A0,	0x00000000,	0x00000000,	0x00000000,	0x00000000,	0,	0,	0), -- Brain Freeze (Rank 1)
 (44548,	0x00,	3,	0x020002A0,	0x00000000,	0x00000000,	0x00000000,	0x00000000,	0,	0,	0), -- Brain Freeze (Rank 2)
@@ -1492,7 +1492,6 @@ INSERT INTO `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `Spell
 (60176,	0x00,	4,	0x00000020,	0x00000010,	0x00000000,	0x00000000,	0x00000000,	0,	0,	0), -- Bleed Cost Reduction
 (60442,	0x00,	0,	0x00000000,	0x00000000,	0x00000000,	0x00000000,	0x00000000,	0,	0,	45), -- Bandit's Insignia
 (60493,	0x00,	0,	0x00000000,	0x00000000,	0x00000000,	0x00000000,	0x00000000,	0,	0,	45), -- Dying Curse
-(60503,	0x00,	4,	0x00000004,	0x00000000,	0x00000000,	0x00000000,	0x00000000,	0,	0,	0), -- Taste for Blood
 (60529,	0x00,	0,	0x00000000,	0x00000000,	0x00000000,	0x00000000,	0x00000000,	0,	0,	45), -- Forethought Talisman
 (60537,	0x00,	0,	0x00000000,	0x00000000,	0x00000000,	0x00000000,	0x00000002,	0,	0,	0), -- Soul of the Dead
 (60564,	0x00,	11,	0x90100000,	0x00000000,	0x00000000,	0x00000000,	0x00000000,	0,	0,	0), -- Savage Gladiator's Totem of Survival
@@ -1535,17 +1534,33 @@ CREATE TABLE `spell_enchant_proc_data` (
   `procEx` FLOAT UNSIGNED NOT NULL DEFAULT '0'
 ) ENGINE=MYISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Spell enchant proc data';
 
--- Frostbrand Weapon
-INSERT INTO spell_enchant_proc_data (`entry`, `customChance`, `PPMChance`,`procEx`) VALUES (2, 0, 8.8,0);
-INSERT INTO spell_enchant_proc_data (`entry`, `customChance`, `PPMChance`,`procEx`) VALUES (12, 0, 8.8,0);
-INSERT INTO spell_enchant_proc_data (`entry`, `customChance`, `PPMChance`,`procEx`) VALUES (524, 0, 8.8,0);
-INSERT INTO spell_enchant_proc_data (`entry`, `customChance`, `PPMChance`,`procEx`) VALUES (1667, 0, 8.8,0);
-INSERT INTO spell_enchant_proc_data (`entry`, `customChance`, `PPMChance`,`procEx`) VALUES (1668, 0, 8.8,0);
-INSERT INTO spell_enchant_proc_data (`entry`, `customChance`, `PPMChance`,`procEx`) VALUES (2635, 0, 8.8,0);
-INSERT INTO spell_enchant_proc_data (`entry`, `customChance`, `PPMChance`,`procEx`) VALUES (3782, 0, 8.8,0);
-INSERT INTO spell_enchant_proc_data (`entry`, `customChance`, `PPMChance`,`procEx`) VALUES (3783, 0, 8.8,0);
-INSERT INTO spell_enchant_proc_data (`entry`, `customChance`, `PPMChance`,`procEx`) VALUES (3784, 0, 8.8,0);
+INSERT INTO spell_enchant_proc_data (`entry`, `customChance`, `PPMChance`,`procEx`) VALUES 
+(2, 0, 8.8,0), -- Frostbrand Weapon
+(12, 0, 8.8,0), -- Frostbrand Weapon
+(524, 0, 8.8,0), -- Frostbrand Weapon
+(1667, 0, 8.8,0), -- Frostbrand Weapon
+(1668, 0, 8.8,0), -- Frostbrand Weapon
+(2635, 0, 8.8,0), -- Frostbrand Weapon
+(3782, 0, 8.8,0), -- Frostbrand Weapon
+(3783, 0, 8.8,0), -- Frostbrand Weapon
+(3784, 0, 8.8,0); -- Frostbrand Weapon
 
+-- --------
+-- SPELL AFFECT
+-- --------
+
+DROP TABLE IF EXISTS `spell_affect`;
+CREATE TABLE `spell_affect` (
+  `entry` smallint(5) unsigned NOT NULL default '0',
+  `effectId` tinyint(3) unsigned NOT NULL default '0',
+  `SpellClassMask0` int(5) unsigned NOT NULL default '0',
+  `SpellClassMask1` int(5) unsigned NOT NULL default '0',
+  `SpellClassMask2` int(5) unsigned NOT NULL default '0',
+  PRIMARY KEY  (`entry`,`effectId`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+INSERT INTO `spell_affect` (`entry`, `effectId`, `SpellClassMask0`, `SpellClassMask1`, `SpellClassMask2`) VALUES
+(44544,0,685904631,1151048,0); -- Fingers of frost
 
 -- --------
 -- PET
