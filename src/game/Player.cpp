@@ -15047,7 +15047,13 @@ void Player::_LoadInventory(QueryResult *result, uint32 timediff)
                 // the item is in a bag, find the bag
                 std::map<uint64, Bag*>::iterator itr = bagMap.find(bag_guid);
                 if(itr != bagMap.end())
-                    itr->second->StoreItem(slot, item, true );
+                {
+                    ItemPosCountVec dest;
+                    if(CanStoreItem(itr->second->GetBagSlot(), slot, dest, item))
+                        itr->second->StoreItem(slot, item, true );
+                    else
+                        success = false;
+                }
                 else
                     success = false;
             }
