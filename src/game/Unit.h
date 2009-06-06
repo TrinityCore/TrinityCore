@@ -1549,6 +1549,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         bool HasAura(Aura * aur) const;
         bool HasAuraType(AuraType auraType) const;
         bool HasAuraTypeWithMiscvalue(AuraType auratype, uint32 miscvalue) const;
+        uint32 GetDiseasesByCaster(uint64 casterGUID) const;
 
         int32 GetTotalAuraModifier(AuraType auratype) const;
         float GetTotalAuraMultiplier(AuraType auratype) const;

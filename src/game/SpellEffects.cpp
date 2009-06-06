@@ -1875,6 +1875,12 @@ void Spell::EffectDummy(uint32 i)
                 m_caster->CastSpell(m_caster,spell_id,true);
                 return;
             }
+            // Scourge Strike
+            else if(m_spellInfo->SpellFamilyFlags[1] & 0x8000000)
+            {
+                m_damage += int32(m_spellInfo->CalculateSimpleValue(0)*m_spellInfo->CalculateSimpleValue(1) * damage * unitTarget->GetDiseasesByCaster(m_caster->GetGUID()) / 10000);
+                return;
+            }
             // Death Coil
             else if(m_spellInfo->SpellFamilyFlags[0] & 0x002000)
             {
@@ -2847,15 +2853,6 @@ void Spell::EffectEnergize(uint32 i)
 
     if (level_diff > 0)
         damage -= multiplier * level_diff;
-
-    //Judgement of wisdom energize effect
-    if(m_spellInfo->Id == 20268)
-    {
-        if(unitTarget->GetTypeId() == TYPEID_PLAYER)
-        {
-            damage = unitTarget->GetCreateMana() * damage / 100;
-        }
-    }
 
     if(damage < 0)
         return;
