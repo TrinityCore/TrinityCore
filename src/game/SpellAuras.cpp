@@ -672,7 +672,7 @@ void Aura::Update(uint32 diff)
     // used for example when triggered spell of spell:10 is modded
     Spell * modSpell = NULL;
     Unit* caster = NULL;
-    if (IS_PLAYER_GUID(GetCasterGUID())
+    if (IS_PLAYER_GUID(GetCasterGUID()))
     {
         caster = GetCaster();
         modSpell = ((Player*)caster)->FindCurrentSpellBySpellId(GetId());
