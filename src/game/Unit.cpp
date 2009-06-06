@@ -13104,7 +13104,7 @@ bool Unit::HandleAuraRaidProcFromChargeWithValue( AuraEffect* triggeredByAura )
                 CastCustomSpell(target,spellProto->Id,&heal,NULL,NULL,true,NULL,triggeredByAura,caster->GetGUID());
                 if (Aura * aur = target->GetAura(spellProto->Id, caster->GetGUID()))
                     aur->SetAuraCharges(jumps);
-                //caster->SpellHealingBonus(this, spellProto, heal, HEAL);
+                caster->SpellHealingBonus(this, spellProto, heal, HEAL);
             }
         }
     }
@@ -13857,11 +13857,18 @@ void Unit::HandleAuraEffect(AuraEffect * aureff, bool apply)
         return;
     if (apply)
     {
+        if (aureff->IsApplied())
+            return;
+
+        aureff->SetApplied(true);
         m_modAuras[aureff->GetAuraName()].push_back(aureff);
         aureff->ApplyModifier(true, true);
     }
     else
     {
+        if (!aureff->IsApplied())
+            return;
+        aureff->SetApplied(false);
         // remove from list before mods removing (prevent cyclic calls, mods added before including to aura list - use reverse order)
         m_modAuras[aureff->GetAuraName()].remove(aureff);
         aureff->ApplyModifier(false, true);
