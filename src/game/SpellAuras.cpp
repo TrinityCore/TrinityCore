@@ -623,6 +623,8 @@ Unit* AuraEffect::GetSource() const
 
 void Aura::Update(uint32 diff)
 {
+    // TODO: store pointer to caster in aura class for update/mod handling code
+
     if (m_duration > 0)
     {
         m_duration -= diff;
@@ -666,9 +668,23 @@ void Aura::Update(uint32 diff)
         }
     }
 
+    // Apply charged spellmods for channeled auras
+    // used for example when triggered spell of spell:10 is modded
+    Spell * modSpell = NULL;
+    Unit* caster = NULL;
+    if (IS_PLAYER_GUID(GetCasterGUID())
+    {
+        caster = GetCaster();
+        modSpell = ((Player*)caster)->FindCurrentSpellBySpellId(GetId());
+        if (caster)
+            ((Player*)caster)->SetSpellModTakingSpell(modSpell, true);
+    }
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         if (m_partAuras[i])
             m_partAuras[i]->Update(diff);
+
+    if (caster)
+        ((Player*)caster)->SetSpellModTakingSpell(modSpell, false);
 }
 
 void AuraEffect::Update(uint32 diff)
@@ -1295,15 +1311,19 @@ void Aura::SetAuraCharges(uint8 charges)
     SendAuraUpdate();
 }
 
-void Aura::DropAuraCharge()
+bool Aura::DropAuraCharge()
 {
     if(m_procCharges) //auras without charges always have charge = 0
     {
         if(--m_procCharges) // Send charge change
             SendAuraUpdate();
         else              // Last charge dropped
+        {
             m_target->RemoveAura(this, AURA_REMOVE_BY_EXPIRE);
+            return true;
+        }
     }
+    return false;
 }
 
 bool Aura::IsPersistent() const
@@ -1533,7 +1553,7 @@ void AuraEffect::HandleAddModifier(bool apply, bool Real, bool changeAmount)
 
     if (apply)
     {
-        SpellModifier *mod = new SpellModifier;
+        SpellModifier *mod = new SpellModifier(GetParentAura());
         mod->op = SpellModOp(modOp);
         mod->value = m_amount;
         mod->type = SpellModType(m_auraName);    // SpellModType value == spell aura types

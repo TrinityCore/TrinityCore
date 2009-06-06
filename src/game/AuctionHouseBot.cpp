@@ -452,6 +452,40 @@ static void addNewAuctions(Player *AHBplayer, AHBConfig *config)
             break;
         }
 
+        if(auctionmgr.GetAItem(GUID_LOPART(item->GetGUID())))
+        {
+            sLog.outError("Item %u not found", item->GetEntry());
+            break;
+        }
+        if(!item->CanBeTraded())
+        {
+            sLog.outError("Item %u can't be traded", item->GetEntry());
+            break;
+        }
+
+        if (item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_CONJURED) || item->GetUInt32Value(ITEM_FIELD_DURATION))
+        {
+            sLog.outError("Item %u is conjured or has a duration", item->GetEntry());
+            break;
+        }
+        uint32 etime = urand(1,3);
+        switch(etime)
+        {
+            case 1:
+                etime = 43200;
+                break;
+            case 2:
+                etime = 86400;
+                break;
+            case 3:
+                etime = 172800;
+                break;
+            default:
+                etime = 86400;
+                break;
+        }
+        uint32 dep = auctionmgr.GetAuctionDeposit( ahEntry, etime, item );
+
         item->SetCount(stackCount);
 
         AuctionEntry* auctionEntry = new AuctionEntry;
@@ -464,8 +498,8 @@ static void addNewAuctions(Player *AHBplayer, AHBConfig *config)
         auctionEntry->buyout = buyoutPrice;
         auctionEntry->bidder = 0;
         auctionEntry->bid = 0;
-        auctionEntry->deposit = 0;
-        auctionEntry->expire_time = (time_t) (urand(config->GetMinTime(), config->GetMaxTime()) * 60 * 60 + time(NULL));
+        auctionEntry->deposit = dep;
+        auctionEntry->expire_time = (time_t) etime + time(NULL);
         auctionEntry->auctionHouseEntry = ahEntry;
         item->SaveToDB();
         item->RemoveFromUpdateQueueOf(AHBplayer);
@@ -1119,19 +1153,11 @@ void AuctionHouseBotCommands(uint32 command, uint32 ahMapID, uint32 col, char* a
             CharacterDatabase.PExecute("UPDATE auctionhousebot SET maxitems = '%u' WHERE auctionhouse = '%u'", maxItems, ahMapID);
             config->SetMaxItems(maxItems);
         }break;
-    case 3:     //min time
+    case 3:     //min time Deprecated (Place holder for future commands)
         {
-            char * param1 = strtok(args, " ");
-            uint32 minTime = (uint32) strtoul(param1, NULL, 0);
-            CharacterDatabase.PExecute("UPDATE auctionhousebot SET mintime = '%u' WHERE auctionhouse = '%u'", minTime, ahMapID);
-            config->SetMinTime(minTime);
         }break;
-    case 4:     //max time
+    case 4:     //max time Deprecated (Place holder for future commands)
         {
-            char * param1 = strtok(args, " ");
-            uint32 maxTime = (uint32) strtoul(param1, NULL, 0);
-            CharacterDatabase.PExecute("UPDATE auctionhousebot SET maxtime = '%u' WHERE auctionhouse = '%u'", maxTime, ahMapID);
-            config->SetMaxTime(maxTime);
         }break;
     case 5:     //percentages
         {
@@ -1252,12 +1278,6 @@ void AuctionHouseBotLoadValues(AHBConfig *config)
         if(debug_Out)
         {sLog.outError("minItems = %u", config->GetMinItems());
         sLog.outError("maxItems = %u", config->GetMaxItems());}
-        //load min and max auction times
-        config->SetMinTime(CharacterDatabase.PQuery("SELECT mintime FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
-        config->SetMaxTime(CharacterDatabase.PQuery("SELECT maxtime FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
-        if(debug_Out)
-        {sLog.outError("minTime = %u", config->GetMinTime());
-        sLog.outError("maxTime = %u", config->GetMaxTime());}
         //load percentages
         uint32 greytg = CharacterDatabase.PQuery("SELECT percentgreytradegoods FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32();
         uint32 whitetg = CharacterDatabase.PQuery("SELECT percentwhitetradegoods FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32();

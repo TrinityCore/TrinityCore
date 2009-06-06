@@ -366,6 +366,8 @@ class Spell
         void EffectTitanGrip(uint32 i);
         void EffectEnchantItemPrismatic(uint32 i);
 
+        typedef std::set<Aura *> UsedSpellMods;
+
         Spell( Unit* Caster, SpellEntry const *info, bool triggered, uint64 originalCasterGUID = 0, Spell** triggeringContainer = NULL, bool skipCheck = false );
         ~Spell();
 
@@ -445,6 +447,8 @@ class Spell
         uint32 m_preCastSpell;
         SpellCastTargets m_targets;
 
+        UsedSpellMods m_appliedMods;
+
         int32 GetCastTime() const { return m_casttime; }
         bool IsAutoRepeat() const { return m_autoRepeat; }
         void SetAutoRepeat(bool rep) { m_autoRepeat = rep; }
@@ -453,6 +457,7 @@ class Spell
         {
             return m_spellInfo->Attributes & SPELL_ATTR_ON_NEXT_SWING;
         }
+        bool IsTriggered() const {return m_IsTriggeredSpell;};
         bool IsChannelActive() const { return m_caster->GetUInt32Value(UNIT_CHANNEL_SPELL) != 0; }
         bool IsMeleeAttackResetSpell() const { return !m_IsTriggeredSpell && (m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_AUTOATTACK);  }
         bool IsRangedAttackResetSpell() const { return !m_IsTriggeredSpell && /*IsRangedSpell() &&*/ !(m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_NOT_RESET_AUTOSHOT); }

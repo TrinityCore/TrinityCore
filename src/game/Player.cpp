@@ -275,7 +275,7 @@ std::ostringstream& operator<< (std::ostringstream& ss, PlayerTaxi const& taxi)
 
 UpdateMask Player::updateVisualBits;
 
-Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputationMgr(this)
+Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputationMgr(this) , m_spellModTakingSpell(NULL)
 {
     m_speakTime = 0;
     m_speakCount = 0;
@@ -319,8 +319,6 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
     m_nextSave = urand(m_nextSave/2,m_nextSave*3/2);
 
     clearResurrectRequestData();
-
-    m_SpellModRemoveCount = 0;
 
     memset(m_items, 0, sizeof(Item*)*PLAYER_SLOTS_COUNT);
 
@@ -1133,6 +1131,10 @@ void Player::Update( uint32 p_time )
         // It will be recalculate at mailbox open (for unReadMails important non-0 until mailbox open, it also will be recalculated)
         m_nextMailDelivereTime = 0;
     }
+
+    // If this is set during update SetSpellModTakingSpell call is missing somewhere in the code
+    // Having this would prevent more aura charges to be dropped, so let's crash
+    assert (!m_spellModTakingSpell);
 
     Unit::Update( p_time );
 
@@ -16983,22 +16985,14 @@ void Player::SendRemoveControlBar()
     GetSession()->SendPacket(&data);
 }
 
-bool Player::IsAffectedBySpellmod(SpellEntry const *spellInfo, SpellModifier *mod, Spell const* spell)
+bool Player::IsAffectedBySpellmod(SpellEntry const *spellInfo, SpellModifier *mod, Spell * spell)
 {
-    if (!mod || !spellInfo)
-        return false;
+     if (!mod || !spellInfo)
+         return false;
 
-    if(mod->charges == -1 && mod->lastAffected )            // marked as expired but locked until spell casting finish
-    {
-        // prevent apply to any spell except spell that trigger expire
-        if(spell)
-        {
-            if(mod->lastAffected != spell)
-                return false;
-        }
-        else if(mod->lastAffected != FindCurrentSpellBySpellId(spellInfo->Id))
-            return false;
-    }
+    // Mod out of charges
+    if (spell && mod->charges == -1 && spell->m_appliedMods.find(mod->ownerAura) == spell->m_appliedMods.end())
+        return false;
 
     return spellmgr.IsAffectedByMod(spellInfo, mod);
 }
@@ -17036,8 +17030,6 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
         m_spellMods[mod->op].push_back(mod);
     else
     {
-        if (mod->charges == -1)
-            --m_SpellModRemoveCount;
         m_spellMods[mod->op].remove(mod);
         delete mod;
     }
@@ -17046,7 +17038,7 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
 // Restore spellmods in case of failed cast
 void Player::RestoreSpellMods(Spell const* spell)
 {
-    if(!spell || (m_SpellModRemoveCount == 0))
+    if (!spell || spell->m_appliedMods.empty())
         return;
 
     for(int i=0;i<MAX_SPELLMOD;++i)
@@ -17055,21 +17047,34 @@ void Player::RestoreSpellMods(Spell const* spell)
         {
             SpellModifier *mod = *itr;
 
-            if (mod && mod->charges == -1 && mod->lastAffected == spell)
-            {
-                mod->lastAffected = NULL;
+            // spellmods without aura set cannot be charged
+            if (!mod->ownerAura || !mod->ownerAura->GetAuraCharges())
+                continue;
+
+            // check if mod affected this spell
+            Spell::UsedSpellMods::iterator iterMod = spell->m_appliedMods.find(mod->ownerAura);
+            if (iterMod == spell->m_appliedMods.end())
+                continue;
+
+            // remove from list
+            spell->m_appliedMods.erase(iterMod);
+
+            // add mod charges back to mod
+            if (mod->charges == -1)
                 mod->charges = 1;
-                m_SpellModRemoveCount--;
-            }
+            else
+                mod->charges++;
+            assert (mod->ownerAura->GetAuraCharges() <=charges);
         }
     }
 }
 
-void Player::RemoveSpellMods(Spell const* spell)
+void Player::RemoveSpellMods(Spell * spell)
 {
-    if(!spell || (m_SpellModRemoveCount == 0))
+    if (!spell || spell->m_appliedMods.empty())
         return;
 
+    std::set <uint32> checkedSpells;
     for(int i=0;i<MAX_SPELLMOD;++i)
     {
         for (SpellModList::iterator itr = m_spellMods[i].begin(); itr != m_spellMods[i].end();)
@@ -17077,16 +17082,46 @@ void Player::RemoveSpellMods(Spell const* spell)
             SpellModifier *mod = *itr;
             ++itr;
 
-            if (mod && mod->charges == -1 && (mod->lastAffected == spell || mod->lastAffected==NULL))
-            {
-                RemoveAurasDueToSpell(mod->spellId, 0, AURA_REMOVE_BY_EXPIRE);
-                if (m_spellMods[i].empty())
-                    break;
-                else
-                    itr = m_spellMods[i].begin();
-            }
+            // spellmods without aura set cannot be charged
+            if (!mod->ownerAura || !mod->ownerAura->GetAuraCharges())
+                continue;
+
+            // check if mod affected this spell
+            Spell::UsedSpellMods::iterator iterMod = spell->m_appliedMods.find(mod->ownerAura);
+            if (iterMod == spell->m_appliedMods.end())
+                continue;
+
+            // remove from list
+            spell->m_appliedMods.erase(iterMod);
+
+            if (mod->ownerAura->DropAuraCharge())
+                itr = m_spellMods[i].begin();
         }
     }
+}
+
+void Player::DropModCharge(SpellModifier * mod, Spell * spell)
+{
+    if (spell && mod->ownerAura && mod->charges > 0 )
+    {
+        --mod->charges;
+        if (mod->charges == 0)
+        {
+            mod->charges = -1;
+        }
+        spell->m_appliedMods.insert(mod->ownerAura);
+    }
+}
+
+void Player::SetSpellModTakingSpell(Spell * spell, bool apply)
+{
+    if (!spell || (m_spellModTakingSpell && m_spellModTakingSpell != spell))
+        return;
+
+    if (apply)
+        m_spellModTakingSpell = spell;
+    else
+        m_spellModTakingSpell = NULL;
 }
 
 // send Proficiency
