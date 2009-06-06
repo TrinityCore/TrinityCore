@@ -31,7 +31,7 @@ INSTANTIATE_SINGLETON_1( OutdoorPvPMgr );
 
 OutdoorPvPMgr::OutdoorPvPMgr()
 {
-    m_UpdateTimer = OUTDOORPVP_OBJECTIVE_UPDATE_INTERVAL;
+    m_UpdateTimer = 0;
     //sLog.outDebug("Instantiating OutdoorPvPMgr");
 }
 
@@ -187,14 +187,13 @@ OutdoorPvP * OutdoorPvPMgr::GetOutdoorPvPToZoneId(uint32 zoneid)
 
 void OutdoorPvPMgr::Update(uint32 diff)
 {
-    if(m_UpdateTimer < diff)
+    m_UpdateTimer += diff;
+    if(m_UpdateTimer > OUTDOORPVP_OBJECTIVE_UPDATE_INTERVAL)
     {
         for(OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin(); itr != m_OutdoorPvPSet.end(); ++itr)
-        {
-            (*itr)->Update(diff);
-        }
-        m_UpdateTimer = OUTDOORPVP_OBJECTIVE_UPDATE_INTERVAL;
-    } else m_UpdateTimer -= diff;
+            (*itr)->Update(m_UpdateTimer);
+        m_UpdateTimer = 0;
+    }
 }
 
 bool OutdoorPvPMgr::HandleCustomSpell(Player *plr, uint32 spellId, GameObject * go)
