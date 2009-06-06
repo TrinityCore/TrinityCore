@@ -306,7 +306,7 @@ enum SpellCategory
 #define SPELL_ATTR_EX2_NOT_NEED_SHAPESHIFT        0x00080000            // 19 does not necessarly need shapeshift
 #define SPELL_ATTR_EX2_UNK20                      0x00100000            // 20
 #define SPELL_ATTR_EX2_DAMAGE_REDUCED_SHIELD      0x00200000            // 21 for ice blocks, pala immunity buffs, priest absorb shields, but used also for other spells -> not sure!
-#define SPELL_ATTR_EX2_UNK22                      0x00400000            // 22 spell can trigger even if triggered
+#define SPELL_ATTR_EX2_UNK22                      0x00400000            // 22
 #define SPELL_ATTR_EX2_UNK23                      0x00800000            // 23 Only mage Arcane Concentration have this flag
 #define SPELL_ATTR_EX2_UNK24                      0x01000000            // 24
 #define SPELL_ATTR_EX2_UNK25                      0x02000000            // 25
@@ -324,7 +324,7 @@ enum SpellCategory
 #define SPELL_ATTR_EX3_UNK4                       0x00000010            // 4 Druid Rebirth only this spell have this flag
 #define SPELL_ATTR_EX3_UNK5                       0x00000020            // 5
 #define SPELL_ATTR_EX3_UNK6                       0x00000040            // 6
-#define SPELL_ATTR_EX3_UNK7                       0x00000080            // 7
+#define SPELL_ATTR_EX3_UNK7                       0x00000080            // 7 separate stack for every caster
 #define SPELL_ATTR_EX3_PLAYERS_ONLY               0x00000100            // 8 Player only?
 #define SPELL_ATTR_EX3_TRIGGERED_CAN_TRIGGER_2    0x00000200            // 9 triggered from effect?
 #define SPELL_ATTR_EX3_MAIN_HAND                  0x00000400            // 10 Main hand weapon required
@@ -418,7 +418,7 @@ enum SpellCategory
 
 #define SPELL_ATTR_EX6_UNK0                       0x00000001            // 0 Only Move spell have this flag
 #define SPELL_ATTR_EX6_UNK1                       0x00000002            // 1 not set in 3.0.3
-#define SPELL_ATTR_EX6_UNK2                       0x00000004            // 2
+#define SPELL_ATTR_EX6_IGNORE_CASTER_AURAS        0x00000004            // 2
 #define SPELL_ATTR_EX6_UNK3                       0x00000008            // 3
 #define SPELL_ATTR_EX6_UNK4                       0x00000010            // 4
 #define SPELL_ATTR_EX6_UNK5                       0x00000020            // 5
