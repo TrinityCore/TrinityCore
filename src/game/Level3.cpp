@@ -78,8 +78,8 @@ bool ChatHandler::HandleAHBotOptionsCommand(const char* args)
         PSendSysMessage("ahexpire");
         PSendSysMessage("minitems");
         PSendSysMessage("maxitems");
-        PSendSysMessage("mintime");
-        PSendSysMessage("maxtime");
+        //PSendSysMessage("");
+        //PSendSysMessage("");
         PSendSysMessage("percentages");
         PSendSysMessage("minprice");
         PSendSysMessage("maxprice");
@@ -112,6 +112,9 @@ bool ChatHandler::HandleAHBotOptionsCommand(const char* args)
     }
     else if (strncmp(opt,"maxitems",l) == 0)
     {
+        PSendSysMessage("ahbotoptions mintime has been deprecated");
+        return false;
+        /*
         char * param1 = strtok(NULL, " ");
         if ((!ahMapIdStr) || (!param1))
         {
@@ -119,9 +122,13 @@ bool ChatHandler::HandleAHBotOptionsCommand(const char* args)
             return false;
         }
         AuctionHouseBotCommands(2, ahMapID, NULL, param1);
+        */
     }
     else if (strncmp(opt,"mintime",l) == 0)
     {
+        PSendSysMessage("ahbotoptions maxtime has been deprecated");
+        return false;
+        /*
         char * param1 = strtok(NULL, " ");
         if ((!ahMapIdStr) || (!param1))
         {
@@ -129,6 +136,7 @@ bool ChatHandler::HandleAHBotOptionsCommand(const char* args)
             return false;
         }
         AuctionHouseBotCommands(3, ahMapID, NULL, param1);
+        */
     }
     else if (strncmp(opt,"maxtime",l) == 0)
     {
