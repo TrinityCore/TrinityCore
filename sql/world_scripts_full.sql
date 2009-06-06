@@ -107,7 +107,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_unworthy_initiate_anchor' WHERE
 UPDATE `creature_template` SET `ScriptName`='npc_kingdom_of_dalaran_quests' WHERE `entry` IN (29169,23729,26673,27158,29158,29161,26471,29155,29159,29160,29162);
 UPDATE `creature_template` SET `ScriptName`='npc_taxi' WHERE `entry` IN (17435, 23413, 18725, 19401, 19409, 20235, 25059, 25236, 20903, 20162, 29154, 23415, 27575, 26443, 26949, 23816);
 UPDATE `creature_template` SET `ScriptName`='npc_death_knight_initiate' WHERE `entry`=28406;
-UPDATE `creature_template` SET `ScriptName`='npc_salanar_the_horseman' WHERE `entry`=28653;
+UPDATE `creature_template` SET `ScriptName`='npc_salanar_the_horseman' WHERE `entry` IN (28653, 28788);
 UPDATE `creature_template` SET `ScriptName`='npc_ros_dark_rider' WHERE `entry`=28768;
 
 /*  */
