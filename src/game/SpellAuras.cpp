@@ -677,9 +677,11 @@ void Aura::Update(uint32 diff)
     if (IS_PLAYER_GUID(GetCasterGUID()))
     {
         caster = GetCaster();
-        modSpell = ((Player*)caster)->FindCurrentSpellBySpellId(GetId());
         if (caster)
+        {
+            modSpell = ((Player*)caster)->FindCurrentSpellBySpellId(GetId());
             ((Player*)caster)->SetSpellModTakingSpell(modSpell, true);
+        }
     }
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         if (m_partAuras[i])
