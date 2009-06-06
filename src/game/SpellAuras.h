@@ -350,6 +350,8 @@ class TRINITY_DLL_SPEC AuraEffect
         bool IsAreaAura() const { return m_isAreaAura; }
         bool IsPeriodic() const { return m_isPeriodic; }
         bool IsPersistent() const { return m_isPersistent; }
+        bool IsApplied() const { return m_isApplied; }
+        void SetApplied (bool val) {m_isApplied = val; }
         bool isAffectedOnSpell(SpellEntry const *spell) const;
 
         void ApplyModifier(bool apply, bool Real = false, bool changeAmount=false);
@@ -392,6 +394,7 @@ class TRINITY_DLL_SPEC AuraEffect
         bool m_isPeriodic:1;
         bool m_isAreaAura:1;
         bool m_isPersistent:1;
+        bool m_isApplied:1;
 };
 
 class TRINITY_DLL_SPEC AreaAuraEffect : public AuraEffect

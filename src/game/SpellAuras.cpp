@@ -512,6 +512,8 @@ m_target(parentAura->GetTarget()), m_tickNumber(0)
     // Start periodic on next tick or at aura apply
     if (!(m_spellProto->AttributesEx5 & SPELL_ATTR_EX5_START_PERIODIC_AT_APPLY))
         m_periodicTimer += m_amplitude;
+
+    m_isApplied = false;
 }
 
 AreaAuraEffect::AreaAuraEffect(Aura * parentAura, uint32 effIndex, int32 * currentBasePoints, Unit * caster, Item * castItem, Unit * source)
@@ -3229,8 +3231,15 @@ void AuraEffect::HandleAuraModShapeshift(bool apply, bool Real, bool changeAmoun
     {
         if(form == FORM_CAT && apply) // add dash if in cat-from
         {
-            if(AuraEffect * aurEff =m_target->GetAura(SPELL_AURA_MOD_INCREASE_SPEED, SPELLFAMILY_DRUID, 0, 0, 0x8))
-                m_target->HandleAuraEffect(aurEff, true);
+            Unit::AuraMap & auras = m_target->GetAuras();
+            for (Unit::AuraMap::iterator iter = auras.begin(); iter != auras.end();++iter)
+            {
+                Aura * aur = iter->second;
+                if (aur->GetSpellProto()->SpellFamilyName==SPELLFAMILY_DRUID && aur->GetSpellProto()->SpellFamilyFlags[2] & 0x8)
+                {
+                    m_target->HandleAuraEffect(aur->GetPartAura(0), true);
+                }
+            }
         }
         else // remove dash effect(not buff) if out of cat-from
         {
@@ -4108,7 +4117,10 @@ void AuraEffect::HandleAuraModIncreaseSpeed(bool apply, bool Real, bool changeAm
 
     if(apply) // Dash wont work if you are not in cat form
         if(m_spellProto->SpellFamilyName==SPELLFAMILY_DRUID && m_spellProto->SpellFamilyFlags[2] & 0x8 && m_target->m_form != FORM_CAT )
+        {
+            m_target->HandleAuraEffect(this, false);
             return;
+        }
 
     m_target->UpdateSpeed(MOVE_RUN, true);
 }
