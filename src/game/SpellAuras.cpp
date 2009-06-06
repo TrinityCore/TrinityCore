@@ -6650,6 +6650,7 @@ void AuraEffect::PeriodicDummyTick()
         case SPELLFAMILY_WARLOCK:
             switch (spell->Id)
             {
+                // Demonic Circle
                 case 48018:
                     GameObject* obj = m_target->GetGameObject(spell->Id);
                     if (!obj) return;
