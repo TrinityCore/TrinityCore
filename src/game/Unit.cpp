@@ -9168,10 +9168,6 @@ bool Unit::isSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
                             if (!pVictim->HasAuraState(AURA_STATE_FROZEN, spellProto, this))
                                 break;
                             crit_chance+=modChance;
-                            // Fingers of Frost
-                            // TODO: Change this code to less hacky
-                            if (Aura * aur = GetAura(44544))
-                                aur->DropAuraCharge();
                             break;
                         case 7917: // Glyph of Shadowburn
                             if (pVictim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, spellProto, this))
@@ -12035,7 +12031,6 @@ bool InitTriggerAuraData()
     isTriggerAura[SPELL_AURA_RAID_PROC_FROM_CHARGE_WITH_VALUE] = true;
     isTriggerAura[SPELL_AURA_PROC_TRIGGER_SPELL_WITH_VALUE] = true;
     isTriggerAura[SPELL_AURA_MOD_DAMAGE_FROM_CASTER] = true;
-    isTriggerAura[SPELL_AURA_ABILITY_IGNORE_AURASTATE] = true;
     isTriggerAura[SPELL_AURA_MOD_SPELL_CRIT_CHANCE] = true;
 
     isNonTriggerAura[SPELL_AURA_MOD_POWER_REGEN]=true;

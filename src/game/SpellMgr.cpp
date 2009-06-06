@@ -1078,15 +1078,6 @@ void SpellMgr::LoadSpellAffects()
             continue;
         }
 
-        if( spellInfo->Effect[effectId] != SPELL_EFFECT_APPLY_AURA ||
-            spellInfo->EffectApplyAuraName[effectId] != SPELL_AURA_ADD_FLAT_MODIFIER &&
-            spellInfo->EffectApplyAuraName[effectId] != SPELL_AURA_ADD_PCT_MODIFIER  &&
-            spellInfo->EffectApplyAuraName[effectId] != SPELL_AURA_ADD_TARGET_TRIGGER )
-        {
-            sLog.outErrorDb("Spell %u listed in `spell_affect` have not SPELL_AURA_ADD_FLAT_MODIFIER (%u) or SPELL_AURA_ADD_PCT_MODIFIER (%u) or SPELL_AURA_ADD_TARGET_TRIGGER (%u) for effect index (%u)", entry,SPELL_AURA_ADD_FLAT_MODIFIER,SPELL_AURA_ADD_PCT_MODIFIER,SPELL_AURA_ADD_TARGET_TRIGGER,effectId);
-            continue;
-        }
-
         flag96 affect(fields[2].GetUInt32(), fields[3].GetUInt32(), fields[4].GetUInt32());
 
         // Spell.dbc have own data
@@ -1111,32 +1102,6 @@ void SpellMgr::LoadSpellAffects()
 
     sLog.outString();
     sLog.outString( ">> Loaded %u custom spell affect definitions", count );
-
-    for (uint32 id = 0; id < sSpellStore.GetNumRows(); ++id)
-    {
-        SpellEntry const* spellInfo = sSpellStore.LookupEntry(id);
-        if (!spellInfo)
-            continue;
-
-        for (int effectId = 0; effectId < 3; ++effectId)
-        {
-            if( spellInfo->Effect[effectId] != SPELL_EFFECT_APPLY_AURA ||
-                (spellInfo->EffectApplyAuraName[effectId] != SPELL_AURA_ADD_FLAT_MODIFIER &&
-                spellInfo->EffectApplyAuraName[effectId] != SPELL_AURA_ADD_PCT_MODIFIER  &&
-                spellInfo->EffectApplyAuraName[effectId] != SPELL_AURA_ADD_TARGET_TRIGGER) )
-                continue;
-
-            flag96 dbc_affect;
-            dbc_affect = spellInfo->EffectSpellClassMask[effectId];
-            if(dbc_affect)
-                continue;
-
-            if(mSpellAffectMap.find((id<<8) + effectId) !=  mSpellAffectMap.end())
-                continue;
-
-            sLog.outErrorDb("Spell %u (%s) misses spell_affect for effect %u",id,spellInfo->SpellName[sWorld.GetDefaultDbcLocale()], effectId);
-        }
-    }
 }
 
 bool SpellMgr::IsAffectedByMod(SpellEntry const *spellInfo, SpellModifier *mod) const

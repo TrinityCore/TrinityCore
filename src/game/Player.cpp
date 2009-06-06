@@ -17073,10 +17073,36 @@ void Player::RestoreSpellMods(Spell * spell)
 
 void Player::RemoveSpellMods(Spell * spell)
 {
-    if (!spell || spell->m_appliedMods.empty())
+    if (!spell)
+        return;
+    std::set <Aura *> checkedSpells;
+
+    AuraEffectList const & auraList = GetAurasByType(SPELL_AURA_ABILITY_IGNORE_AURASTATE);
+    for(AuraEffectList::const_iterator itr = auraList.begin(); itr != auraList.end(); ++itr)
+    {
+        if (!(*itr)->GetParentAura()->GetAuraCharges())
+            continue;
+        SpellEntry const * spellInfo = (*itr)->GetSpellProto();
+
+        if (spellInfo->SpellFamilyName != spell->m_spellInfo->SpellFamilyName ||
+            checkedSpells.find((*itr)->GetParentAura()) != checkedSpells.end())
+            continue;
+        flag96 const * mask = spellmgr.GetSpellAffect((*itr)->GetId(), (*itr)->GetEffIndex());
+        if (!mask)
+            mask = &spellInfo->EffectSpellClassMask[(*itr)->GetEffIndex()];
+
+        if (spell->m_spellInfo->SpellFamilyFlags & *mask)
+        {
+            checkedSpells.insert((*itr)->GetParentAura());
+            spell->m_appliedMods.erase((*itr)->GetParentAura());
+            if ((*itr)->GetParentAura()->DropAuraCharge())
+                itr = auraList.begin();
+        }
+    }
+
+    if (spell->m_appliedMods.empty())
         return;
 
-    std::set <uint32> checkedSpells;
     for(int i=0;i<MAX_SPELLMOD;++i)
     {
         for (SpellModList::iterator itr = m_spellMods[i].begin(); itr != m_spellMods[i].end();)

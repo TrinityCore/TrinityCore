@@ -161,7 +161,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &AuraEffect::HandleAuraHover,                                 //106 SPELL_AURA_HOVER
     &AuraEffect::HandleAddModifier,                               //107 SPELL_AURA_ADD_FLAT_MODIFIER
     &AuraEffect::HandleAddModifier,                               //108 SPELL_AURA_ADD_PCT_MODIFIER
-    &AuraEffect::HandleAddTargetTrigger,                          //109 SPELL_AURA_ADD_TARGET_TRIGGER
+    &AuraEffect::HandleNoImmediateEffect,                         //109 SPELL_AURA_ADD_TARGET_TRIGGER
     &AuraEffect::HandleModPowerRegenPCT,                          //110 SPELL_AURA_MOD_POWER_REGEN_PERCENT
     &AuraEffect::HandleNoImmediateEffect,                         //111 SPELL_AURA_ADD_CASTER_HIT_TRIGGER implemented in Unit::SelectMagnetTarget
     &AuraEffect::HandleNoImmediateEffect,                         //112 SPELL_AURA_OVERRIDE_CLASS_SCRIPTS
@@ -1513,8 +1513,13 @@ bool AuraEffect::isAffectedOnSpell(SpellEntry const *spell) const
     // Check family name
     if (spell->SpellFamilyName != m_spellProto->SpellFamilyName)
         return false;
-    // Check EffectClassMask
-    if (m_spellProto->EffectSpellClassMask[m_effIndex] & spell->SpellFamilyFlags)
+
+    // Check EffectClassMask and Spell_Affect table
+    flag96 const *spellAffect = spellmgr.GetSpellAffect(GetId(), m_effIndex);
+    if (!spellAffect)
+        spellAffect = &m_spellProto->EffectSpellClassMask[m_effIndex];
+
+    if (*spellAffect & spell->SpellFamilyFlags)
         return true;
     return false;
 }
@@ -1589,7 +1594,7 @@ void AuraEffect::HandleAddModifier(bool apply, bool Real, bool changeAmount)
                 Aura * aur = iter->second;
                 // only passive auras-active auras should have amount set on spellcast and not be affected
                 // if aura is casted by others, it will not be affected
-                if (aur->IsPassive() && aur->GetCasterGUID() == guid && isAffectedOnSpell(aur->GetSpellProto()))
+                if (aur->IsPassive() && aur->GetCasterGUID() == guid && spellmgr.IsAffectedByMod(aur->GetSpellProto(), m_spellmod))
                 {
                     if (modOp == SPELLMOD_ALL_EFFECTS)
                     {
@@ -1619,29 +1624,6 @@ void AuraEffect::HandleAddModifier(bool apply, bool Real, bool changeAmount)
         }
         default:
             break;
-    }
-}
-void AuraEffect::HandleAddTargetTrigger(bool apply, bool Real, bool /*changeAmount*/)
-{
-    // Use SpellModifier structure for check
-    // used only fields:
-    //  spellId, mask, mask2
-    if (apply)
-    {
-        SpellModifier *mod = new SpellModifier;
-        mod->spellId = GetId();
-
-        flag96 const *spellAffect = spellmgr.GetSpellAffect(GetId(), m_effIndex);
-        if (!spellAffect)
-            spellAffect = &m_spellProto->EffectSpellClassMask[m_effIndex];
-
-        mod->mask = *spellAffect;
-        m_spellmod = mod;
-    }
-    else
-    {
-        delete m_spellmod;
-        m_spellmod = NULL;
     }
 }
 
