@@ -390,6 +390,14 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
 
             break;
         }
+        case SPELLFAMILY_PRIEST:
+        {
+            // Divine Spirit and Prayer of Spirit
+            if (spellInfo->SpellFamilyFlags[0] & 0x20)
+                return SPELL_PRIEST_DIVINE_SPIRIT;
+
+            break;
+        }
         case SPELLFAMILY_WARRIOR:
         {
             if (spellInfo->SpellFamilyFlags[1] & 0x000080 || spellInfo->SpellFamilyFlags[0] & 0x10000LL)
@@ -520,6 +528,7 @@ bool IsSingleFromSpellSpecificPerTarget(uint32 spellSpec1,uint32 spellSpec2)
         case SPELL_SCROLL:
         case SPELL_WARRIOR_ENRAGE:
         case SPELL_MAGE_ARCANE_BRILLANCE:
+        case SPELL_PRIEST_DIVINE_SPIRIT:
             return spellSpec1==spellSpec2;
         case SPELL_BATTLE_ELIXIR:
             return spellSpec2==SPELL_BATTLE_ELIXIR
