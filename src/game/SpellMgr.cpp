@@ -279,7 +279,7 @@ bool GetDispelChance(Unit* caster, uint32 spellId)
     return !roll_chance_i(miss_chance);
 }
 
-uint32 GetSpellCastTime(SpellEntry const* spellInfo, Spell const* spell)
+uint32 GetSpellCastTime(SpellEntry const* spellInfo, Spell * spell)
 {
     SpellCastTimesEntry const *spellCastTimeEntry = sSpellCastTimesStore.LookupEntry(spellInfo->CastingTimeIndex);
 
@@ -1309,7 +1309,7 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
     }
 
     // Always trigger for this
-    if (EventProcFlag & (PROC_FLAG_KILLED | PROC_FLAG_KILL | PROC_FLAG_ON_TRAP_ACTIVATION))
+    if (procFlags & (PROC_FLAG_KILLED | PROC_FLAG_KILL | PROC_FLAG_ON_TRAP_ACTIVATION))
         return true;
     if (spellProcEvent)     // Exist event data
     {
