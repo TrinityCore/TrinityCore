@@ -4353,6 +4353,30 @@ AuraEffect* Unit::GetAura(AuraType type, uint32 family, uint32 familyFlag1, uint
     return NULL;
 }
 
+uint32 Unit::GetDiseasesByCaster(uint64 casterGUID) const
+{
+    static const AuraType diseaseAuraTypes[] =
+    {
+        SPELL_AURA_PERIODIC_DAMAGE, // Frost Fever and Blood Plague
+        SPELL_AURA_MOD_MECHANIC_DAMAGE_TAKEN_PERCENT,  // Crypt Fever and Ebon Plague
+        SPELL_AURA_NONE
+    };
+
+    uint32 diseases=0;
+    for(AuraType const* itr = &diseaseAuraTypes[0]; itr && itr[0] != SPELL_AURA_NONE; ++itr)
+    {
+        Unit::AuraEffectList const& auras = GetAurasByType(*itr);
+        for(AuraEffectList::const_iterator i = auras.begin();i != auras.end(); ++i)
+        {
+            // Get auras with disease dispel type by caster
+            if ((*i)->GetSpellProto()->Dispel == DISPEL_DISEASE
+                && (*i)->GetCasterGUID()==casterGUID)
+                ++diseases;
+        }
+    }
+    return diseases;
+}
+
 void Unit::AddDynObject(DynamicObject* dynObj)
 {
     m_dynObjGUIDs.push_back(dynObj->GetGUID());
@@ -6065,7 +6089,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     if (pVictim->getPowerType() == POWER_MANA)
                     {
                         // 2% of maximum mana
-                        basepoints0 = int32(pVictim->GetMaxPower(POWER_MANA) * 2 / 100);
+                        basepoints0 = int32(pVictim->GetCreateMana() * 2 / 100);
                         pVictim->CastCustomSpell(pVictim, 20268, &basepoints0, NULL, NULL, true, 0, triggeredByAura);
                     }
                     return true;
@@ -6613,18 +6637,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             // Death Strike healing effect
             if (dummySpell->Id == 45469)
             {
-                uint8 n=0;
-                Unit::AuraEffectList const& decSpeedList = pVictim->GetAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
-                for(Unit::AuraEffectList::const_iterator iter = decSpeedList.begin(); iter != decSpeedList.end(); ++iter)
-                {
-                    if((*iter)->GetSpellProto()->SpellFamilyName==SPELLFAMILY_DEATHKNIGHT
-                        && (*iter)->GetCasterGUID() == GetGUID()
-                        && (*iter)->GetSpellProto()->Dispel == DISPEL_DISEASE)
-                    {
-                       n++;
-                    }
-                }
-                int32 heal=0.5f*n*damage+damage;
+                int32 heal=0.5f * pVictim->GetDiseasesByCaster(GetGUID()) * damage+damage;
                 CastCustomSpell(this,45470,&heal,NULL,NULL,true);
                 return true;
             }
