@@ -74,7 +74,7 @@ private:
     // used in player event handling
     OutdoorPvPMap   m_OutdoorPvPMap;
     // update interval
-    float m_UpdateTimer;
+    uint32 m_UpdateTimer;
 };
 
 #define sOutdoorPvPMgr Trinity::Singleton<OutdoorPvPMgr>::Instance()
