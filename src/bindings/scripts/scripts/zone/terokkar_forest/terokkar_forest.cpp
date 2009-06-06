@@ -322,7 +322,7 @@ bool GossipSelect_npc_floon(Player *player, Creature *_Creature, uint32 sender, 
         player->CLOSE_GOSSIP_MENU();
         _Creature->setFaction(FACTION_HOSTILE_FL);
         DoScriptText(SAY_FLOON_ATTACK, _Creature, player);
-        CAST_AI(npc_floonAI, _Creature->AI())->AttackStart(player);
+        _Creature->AI()->AttackStart(player);
     }
     return true;
 }
@@ -540,6 +540,7 @@ void AddSC_terokkar_forest()
     newscript->Name="npc_floon";
     newscript->pGossipHello =  &GossipHello_npc_floon;
     newscript->pGossipSelect = &GossipSelect_npc_floon;
+    newscript->GetAI = &GetAI_npc_floon;
     newscript->RegisterSelf();
 
     newscript = new Script;
