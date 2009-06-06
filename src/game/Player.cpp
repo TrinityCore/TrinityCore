@@ -17066,7 +17066,7 @@ void Player::RestoreSpellMods(Spell * spell)
                 mod->charges = 1;
             else
                 mod->charges++;
-            assert (mod->ownerAura->GetAuraCharges() <=charges);
+            assert (mod->ownerAura->GetAuraCharges() <= mod->charges);
         }
     }
 }
