@@ -1326,7 +1326,7 @@ struct SpellEntry
     uint32    AttributesEx3;                                // 7        m_attributesExC
     uint32    AttributesEx4;                                // 8        m_attributesExD
     uint32    AttributesEx5;                                // 9        m_attributesExE
-    //uint32    AttributesEx6;                              // 10       m_attributesExF not used
+    uint32    AttributesEx6;                                // 10       m_attributesExF
     uint32    Stances;                                      // 11       m_shapeshiftMask
     uint32    StancesNot;                                   // 12       m_shapeshiftExclude
     uint32    Targets;                                      // 13       m_targets

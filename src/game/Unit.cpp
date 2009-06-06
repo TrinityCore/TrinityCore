@@ -7568,7 +7568,7 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
         case 56453:
         {
             // Proc only from trap activation (from periodic proc another aura of this spell)
-            if (!(procFlags & PROC_FLAG_ON_TRAP_ACTIVATION) || !roll_chance_i(triggerAmount))
+            if (!(procFlags & PROC_FLAG_ON_TRAP_ACTIVATION))
                 return false;
             break;
         }
@@ -11065,7 +11065,7 @@ int32 Unit::ModSpellDuration(SpellEntry const* spellProto, Unit const* target, i
     return duration>0 ? duration : 0;
 }
 
-void Unit::ModSpellCastTime(SpellEntry const* spellProto, int32 & castTime, Spell const * spell)
+void Unit::ModSpellCastTime(SpellEntry const* spellProto, int32 & castTime, Spell * spell)
 {
     if (!spellProto || castTime<0)
         return;
@@ -12359,6 +12359,10 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
                     if (triggeredByAura->GetCasterGUID() != pTarget->GetGUID())
                         continue;
                     break;
+                /*case SPELL_AURA_ADD_FLAT_MODIFIER:
+                case SPELL_AURA_ADD_PCT_MODIFIER:
+                    // HandleSpellModAuraProc
+                    break;*/
                 default:
                     // nothing do, just charges counter
                     break;
