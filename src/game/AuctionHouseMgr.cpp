@@ -92,11 +92,13 @@ uint32 AuctionHouseMgr::GetAuctionDeposit(AuctionHouseEntry const* entry, uint32
         faction_pct = 0.0f;
         deposit = 0.0f;
     }
-    //sLog.outString("SellPrice:\t\t%u", MSV);
-    //sLog.outString("Deposit Percent:\t%f", faction_pct);
-    //sLog.outString("Min Auction Time:\t%u", (time / MIN_AUCTION_TIME ));
-    //sLog.outString("Count:\t\t\t%u", pItem->GetCount());
-    //sLog.outString("Deposit:\t\t%f", deposit);
+    sLog.outDebug("SellPrice:\t\t%u", MSV);
+    sLog.outDebug("Deposit Percent:\t%f", faction_pct);
+    sLog.outDebug("Auction Time1:\t\t%u", time);
+    sLog.outDebug("Auction Time2:\t\t%u", MIN_AUCTION_TIME);
+    sLog.outDebug("Auction Time3:\t\t%u", (time / MIN_AUCTION_TIME ));
+    sLog.outDebug("Count:\t\t\t%u", pItem->GetCount());
+    sLog.outDebug("Deposit:\t\t%f", deposit);
     if (deposit > 0)
         return (uint32)deposit;
     else

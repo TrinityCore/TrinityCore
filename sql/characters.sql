@@ -176,8 +176,6 @@ CREATE TABLE `auctionhousebot` (
   `name` char(25) default NULL COMMENT 'Text name of the auctionhouse.',
   `minitems` int(11) default '0' COMMENT 'This is the minimum number of items you want to keep in the auction house. a 0 here will make it the same as the maximum.',
   `maxitems` int(11) default '0' COMMENT 'This is the number of items you want to keep in the auction house.',
-  `mintime` int(11) default '8' COMMENT 'Sets the minimum number of hours for an auction.',
-  `maxtime` int(11) default '24' COMMENT 'Sets the maximum number of hours for an auction.',
   `percentgreytradegoods` int(11) default '0' COMMENT 'Sets the percentage of the Grey Trade Goods auction items',
   `percentwhitetradegoods` int(11) default '27' COMMENT 'Sets the percentage of the White Trade Goods auction items',
   `percentgreentradegoods` int(11) default '12' COMMENT 'Sets the percentage of the Green Trade Goods auction items',

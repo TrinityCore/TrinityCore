@@ -40,8 +40,6 @@ class AHBConfig
      uint32 AHFID;
      uint32 minItems;
      uint32 maxItems;
-     uint32 minTime;
-     uint32 maxTime;
      uint32 percentGreyTradeGoods;
      uint32 percentWhiteTradeGoods;
      uint32 percentGreenTradeGoods;
@@ -168,27 +166,6 @@ class AHBConfig
      uint32 GetMaxItems()
      {
         return maxItems;
-     }
-     void SetMinTime(uint32 value)
-     {
-         minTime = value;
-     }
-     uint32 GetMinTime()
-     {
-        if (minTime < 1)
-          return 1;
-        else if ((maxTime) && (minTime > maxTime))
-            return maxTime;
-        else
-            return minTime;
-     }
-     void SetMaxTime(uint32 value)
-     {
-         maxTime = value;
-     }
-     uint32 GetMaxTime()
-     {
-        return maxTime;
      }
      void SetPercentages(uint32 greytg, uint32 whitetg, uint32 greentg, uint32 bluetg, uint32 purpletg, uint32 orangetg, uint32 yellowtg, uint32 greyi, uint32 whitei, uint32 greeni, uint32 bluei, uint32 purplei, uint32 orangei, uint32 yellowi)
      {
