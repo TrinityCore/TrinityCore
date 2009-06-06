@@ -209,7 +209,6 @@ class TRINITY_DLL_SPEC AuraEffect
         void HandleAuraFeatherFall(bool Apply, bool Real, bool changeAmount);
         void HandleAuraHover(bool Apply, bool Real, bool changeAmount);
         void HandleAddModifier(bool Apply, bool Real, bool changeAmount);
-        void HandleAddTargetTrigger(bool Apply, bool Real, bool changeAmount);
         void HandleAuraModStun(bool Apply, bool Real, bool changeAmount);
         void HandleModDamageDone(bool Apply, bool Real, bool changeAmount);
         void HandleAuraUntrackable(bool Apply, bool Real, bool changeAmount);
