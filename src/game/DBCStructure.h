@@ -1371,7 +1371,7 @@ struct SpellEntry
     int32     EquippedItemInventoryTypeMask;                // 67       m_equippedItemInvTypes (mask)
     uint32    Effect[MAX_SPELL_EFFECTS];                    // 68-70    m_effect
     int32     EffectDieSides[MAX_SPELL_EFFECTS];            // 71-73    m_effectDieSides
-    int32     EffectBaseDice[MAX_SPELL_EFFECTS];            // 74-76    m_effectBaseDice
+    uint32    EffectBaseDice[MAX_SPELL_EFFECTS];            // 74-76    m_effectBaseDice
     float     EffectDicePerLevel[MAX_SPELL_EFFECTS];        // 77-79    m_effectDicePerLevel
     float     EffectRealPointsPerLevel[MAX_SPELL_EFFECTS];  // 80-82    m_effectRealPointsPerLevel
     int32     EffectBasePoints[MAX_SPELL_EFFECTS];          // 83-85    m_effectBasePoints (don't must be used in spell/auras explicitly, must be used cached Spell::m_currentBasePoints)
