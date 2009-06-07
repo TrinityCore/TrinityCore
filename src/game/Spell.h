@@ -525,6 +525,7 @@ class Spell
             uint8  effectMask:8;
             bool   processed:1;
             int32  damage;
+            bool   crit;
         };
         std::list<TargetInfo> m_UniqueTargetInfo;
         uint8 m_needAliveTargetMask;                        // Mask req. alive targets
