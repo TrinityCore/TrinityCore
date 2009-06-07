@@ -532,25 +532,25 @@ Map::Add(T *obj)
 
 void Map::MessageBroadcast(Player *player, WorldPacket *msg, bool to_self)
 {
-    Trinity::MessageDistDeliverer post_man(*player, msg, to_self, World::GetMaxVisibleDistance());
+    Trinity::MessageDistDeliverer post_man(player, msg, World::GetMaxVisibleDistance(), to_self);
     VisitWorld(player->GetPositionX(), player->GetPositionY(), World::GetMaxVisibleDistance(), post_man);
 }
 
 void Map::MessageBroadcast(WorldObject *obj, WorldPacket *msg)
 {
-    Trinity::MessageDistDeliverer post_man(*obj, msg, true, World::GetMaxVisibleDistance());
+    Trinity::MessageDistDeliverer post_man(obj, msg, World::GetMaxVisibleDistance());
     VisitWorld(obj->GetPositionX(), obj->GetPositionY(), World::GetMaxVisibleDistance(), post_man);
 }
 
 void Map::MessageDistBroadcast(Player *player, WorldPacket *msg, float dist, bool to_self, bool own_team_only)
 {
-    Trinity::MessageDistDeliverer post_man(*player, msg, to_self, dist/*, own_team_only*/);
+    Trinity::MessageDistDeliverer post_man(player, msg, dist, to_self, own_team_only);
     VisitWorld(player->GetPositionX(), player->GetPositionY(), dist, post_man);
 }
 
 void Map::MessageDistBroadcast(WorldObject *obj, WorldPacket *msg, float dist)
 {
-    Trinity::MessageDistDeliverer post_man(*obj, msg, true, dist);
+    Trinity::MessageDistDeliverer post_man(obj, msg, dist);
     VisitWorld(obj->GetPositionX(), obj->GetPositionY(), dist, post_man);
 }
 

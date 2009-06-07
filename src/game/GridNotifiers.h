@@ -104,16 +104,16 @@ namespace Trinity
 
     struct TRINITY_DLL_DECL MessageDistDeliverer
     {
-        WorldObject &i_source;
+        WorldObject *i_source;
         WorldPacket *i_message;
-        std::set<Player*> plr_list;
         uint32 i_phaseMask;
         float i_distSq;
-        MessageDistDeliverer(WorldObject &src, WorldPacket *msg, bool to_self, float dist)
-            : i_source(src), i_message(msg), i_distSq(dist * dist), i_phaseMask(src.GetPhaseMask())
+        bool self;
+        uint32 team;
+        MessageDistDeliverer(WorldObject *src, WorldPacket *msg, float dist, bool to_self = true, bool own_team_only = false)
+            : i_source(src), i_message(msg), i_distSq(dist * dist), i_phaseMask(src->GetPhaseMask())
+            , self(to_self || src->GetTypeId() != TYPEID_PLAYER), team((own_team_only && src->GetTypeId() == TYPEID_PLAYER) ? ((Player*)src)->GetTeam() : 0)
         {
-            if(!to_self)
-                plr_list.insert((Player*)&i_source);
         }
         void Visit(PlayerMapType &m);
         void Visit(CreatureMapType &m);
@@ -122,11 +122,18 @@ namespace Trinity
 
         void SendPacket(Player* plr)
         {
-            if (plr_list.find(plr) == plr_list.end())
+            if(!self)
             {
-                plr->GetSession()->SendPacket(i_message);
-                plr_list.insert(plr);
+                if(plr == i_source)
+                    return;
             }
+            else if(team)
+            {
+                if(plr->GetTeam() != team)
+                    return;
+            }
+
+            plr->GetSession()->SendPacket(i_message);
         }
     };
 
