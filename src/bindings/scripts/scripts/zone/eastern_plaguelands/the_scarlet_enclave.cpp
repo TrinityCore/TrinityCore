@@ -493,6 +493,11 @@ bool GossipSelect_npc_death_knight_initiate(Player *player, Creature *_Creature,
 ## npc_salanar_the_horseman
 ######*/
 
+enum
+{
+    REALM_OF_SHADOWS = 52693
+};
+
 struct TRINITY_DLL_DECL npc_salanar_the_horsemanAI : public ScriptedAI
 {
     npc_salanar_the_horsemanAI(Creature *c) : ScriptedAI(c) {}
@@ -507,10 +512,25 @@ struct TRINITY_DLL_DECL npc_salanar_the_horsemanAI : public ScriptedAI
             {
                 if( charmer->GetTypeId() == TYPEID_PLAYER )
                 {
-                    if( CAST_PLR(charmer)->GetQuestStatus(12680) == QUEST_STATUS_INCOMPLETE )
-                        CAST_PLR(charmer)->KilledMonster(28767, me->GetGUID());
-                    else if( CAST_PLR(charmer)->GetQuestStatus(12687) == QUEST_STATUS_INCOMPLETE )
-                        CAST_PLR(charmer)->GroupEventHappens(12687, me);   
+                    switch(me->GetEntry())
+                    {
+                        // for quest Grand Theft Palomino(12680)
+                        case 28653:
+                            if( CAST_PLR(charmer)->GetQuestStatus(12680) == QUEST_STATUS_INCOMPLETE )
+                                CAST_PLR(charmer)->KilledMonster(28767, me->GetGUID());
+                            break;
+                        // for quest Into the Realm of Shadows(12687)
+                        case 28788:
+                            if( CAST_PLR(charmer)->GetQuestStatus(12687) == QUEST_STATUS_INCOMPLETE )
+                            {
+                                if(CAST_PLR(charmer)->HasAura(REALM_OF_SHADOWS))
+                                    charmer->RemoveAurasDueToSpell(REALM_OF_SHADOWS);
+                                CAST_PLR(charmer)->GroupEventHappens(12687, me);
+                            }
+                            break;
+                        default:
+                            return;
+                    }
                     CAST_PLR(charmer)->ExitVehicle();
                     //without this we can see npc kill the horse
                     who->setDeathState(DEAD);
