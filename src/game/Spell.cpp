@@ -1036,7 +1036,8 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         SpellMissInfo missInfo = DoSpellHitOnUnit(spellHitTarget, mask);
         if(missInfo != SPELL_MISS_NONE)
         {
-            m_caster->SendSpellMiss(unit, m_spellInfo->Id, missInfo);
+            if(missInfo != SPELL_MISS_MISS)
+                m_caster->SendSpellMiss(unit, m_spellInfo->Id, missInfo);
             m_damage = 0;
             spellHitTarget = NULL;
         }
@@ -1186,10 +1187,17 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
 
         if( !m_caster->IsFriendlyTo(unit) )
         {
+            // reset damage to 0 if target has Invisibility or Vanish aura (_only_ vanish, not stealth) and isn't visible for caster
+            // I do not think this is a correct way to fix it. Sanctuary effect should make all delayed spells invalid
             // for delayed spells ignore not visible explicit target
-            if(m_spellInfo->speed > 0.0f && unit == m_targets.getUnitTarget() && !unit->isVisibleForOrDetect(m_caster,false))
+            if(m_spellInfo->speed > 0.0f && unit == m_targets.getUnitTarget()
+                && (unit->HasAuraType(SPELL_AURA_MOD_INVISIBILITY)
+                || unit->HasAuraTypeWithFamilyFlags(SPELL_AURA_MOD_STEALTH, SPELLFAMILY_ROGUE, SPELLFAMILYFLAG_ROGUE_VANISH))
+                && !unit->isVisibleForOrDetect(m_caster, true))
             {
-                return SPELL_MISS_EVADE;
+                // that was causing CombatLog errors
+                // return SPELL_MISS_EVADE;
+                return SPELL_MISS_MISS; // miss = do not send anything here
             }
 
             unit->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_HITBYSPELL);
