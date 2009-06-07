@@ -631,7 +631,6 @@ ChatCommand * ChatHandler::getCommandTable()
         { "freeze",         SEC_ADMINISTRATOR,  false, &ChatHandler::HandleFreezeCommand,              "", NULL },
         { "unfreeze",       SEC_ADMINISTRATOR,  false, &ChatHandler::HandleUnFreezeCommand,            "", NULL },
         { "listfreeze",     SEC_ADMINISTRATOR,  false, &ChatHandler::HandleListFreezeCommand,          "", NULL },
-        { "flusharenapoints", SEC_ADMINISTRATOR, false, &ChatHandler::HandleFlushArenaPointsCommand,   "", NULL },
         { "possess",        SEC_ADMINISTRATOR,  false, &ChatHandler::HandlePossessCommand,             "", NULL },
         { "unpossess",      SEC_ADMINISTRATOR,  false, &ChatHandler::HandleUnPossessCommand,           "", NULL },
         { "bindsight",      SEC_ADMINISTRATOR,  false, &ChatHandler::HandleBindSightCommand,           "", NULL },
@@ -894,7 +893,7 @@ int ChatHandler::ParseCommands(const char* text)
 
     if(!ExecuteCommandInTable(getCommandTable(), text, fullcmd))
     {
-        if(m_session && m_session->GetSecurity() == SEC_PLAYER) 
+        if(m_session && m_session->GetSecurity() == SEC_PLAYER)
             return 0;
         SendSysMessage(LANG_NO_CMD);
     }
