@@ -254,7 +254,8 @@ bool ReputationMgr::SetOneFactionReputation(FactionEntry const* factionEntry, in
 
         if(incremental)
         {
-            standing *= sWorld.getRate(RATE_REPUTATION_GAIN);  //multiply gain by config rate
+            // int32 *= float cause one point loss?
+            standing = (int32)((float)standing * sWorld.getRate(RATE_REPUTATION_GAIN));
             standing += itr->second.Standing + BaseRep;
         }
 
