@@ -2238,13 +2238,13 @@ void Spell::cancel()
 
 void Spell::cast(bool skipCheck)
 {
-    if(m_targets.getUnitTarget() && !m_targets.getUnitTarget()->isVisibleForOrDetect(m_caster, true))
+    if(m_targets.getUnitTarget() && m_targets.getUnitTarget()->isAlive() && !m_targets.getUnitTarget()->isVisibleForOrDetect(m_caster, true))
     {
         cancel();
         return;
     }
-    SetExecutedCurrently(true);
 
+    SetExecutedCurrently(true);
     uint8 castResult = 0;
 
     // update pointers base at GUIDs to prevent access to non-existed already object
