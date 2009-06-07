@@ -578,6 +578,36 @@ CreatureAI* GetAI_npc_ros_dark_rider(Creature *_Creature)
     return new npc_ros_dark_riderAI(_Creature);
 }
 
+struct TRINITY_DLL_DECL npc_dkc1_gothikAI : public ScriptedAI
+{
+    npc_dkc1_gothikAI(Creature *c) : ScriptedAI(c) {}
+
+    void MoveInLineOfSight(Unit *who)
+    {
+        ScriptedAI::MoveInLineOfSight(who);
+
+        if(who->GetEntry() == 28845 && me->IsWithinDistInMap(who, 10.0f))
+        {
+            if(Unit *owner = who->GetOwner())
+            {
+                if(owner->GetTypeId() == TYPEID_PLAYER)
+                {
+                    if(CAST_PLR(owner)->GetQuestStatus(12698) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        CAST_PLR(owner)->KilledMonster(28845, me->GetGUID());
+                        who->setDeathState(DEAD);
+                    }
+                }
+            }
+        }
+    }
+};
+
+CreatureAI* GetAI_npc_dkc1_gothik(Creature *_Creature)
+{
+    return new npc_dkc1_gothikAI(_Creature);
+}
+
 void AddSC_the_scarlet_enclave()
 {
     Script *newscript;
@@ -612,5 +642,10 @@ void AddSC_the_scarlet_enclave()
     newscript = new Script;
     newscript->Name="npc_ros_dark_rider";
     newscript->GetAI = &GetAI_npc_ros_dark_rider;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name="npc_dkc1_gothik";
+    newscript->GetAI = &GetAI_npc_dkc1_gothik;
     newscript->RegisterSelf();
 }

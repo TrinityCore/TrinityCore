@@ -1579,12 +1579,6 @@ spell4 = VALUES(spell4);
 -- Three-seat mammoth
 UPDATE creature_template SET VehicleId = 312 WHERE entry IN (31857,31858,31861,31862,32212,32213,32633,32640);
 
--- Horses for quest 12680 / not sure if its offilike
-UPDATE creature_template SET `VehicleId`=200 WHERE `entry` IN (28605,28606,28607);
-
--- Vehicle and summon spell(summon npc 28788) for Acherus Deathcharger
-UPDATE creature_template SET `spell1`=52362, `VehicleId`=200 WHERE `entry`=28782;
-
 -- --------
 -- Death Knight
 -- --------
@@ -1611,8 +1605,26 @@ INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
 (52124, 1, 28655);
 UPDATE `creature_template` SET spell1=52372,spell2=52373,spell3=52374,spell4=52375 WHERE `entry`=28406;
 
+-- death charger
+DELETE FROM spell_area WHERE spell = 52693;
+INSERT INTO spell_area (`spell`, `area`, `quest_start`, `quest_start_active`, `quest_end`, `aura_spell`, `racemask`, `gender`, `autocast`) VALUES
+(52693, 4298, 12687, 1, 12687, 0, 0, 0, 1);
+
+-- Horses for quest 12680 / not sure if its offilike
+UPDATE creature_template SET `VehicleId`=200 WHERE `entry` IN (28605,28606,28607);
+
+-- Vehicle and summon spell(summon npc 28788) for Acherus Deathcharger
+UPDATE creature_template SET `spell1`=52362, `VehicleId`=200 WHERE `entry`=28782;
+
+-- gift of harvester
+DELETE FROM `spell_script_target` WHERE entry IN
+(52479);
+INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
+(52479,1,28819),
+(52479,1,28822);
+
 -- frostbrood vanquisher
-update creature_template set maxhealth = 133525, minhealth = 133525, maxmana = 51360, minmana = 51360, spell1 = 53114, spell2 = 53112, spell3=53110 where entry = 28670;
+update creature_template set maxhealth = 133525, minhealth = 133525, maxmana = 51360, minmana = 51360, spell1 = 53114, spell2 = 53112, spell3=53110, VehicleId = 156 where entry = 28670;
 
 
 -- --------
