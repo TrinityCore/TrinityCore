@@ -145,7 +145,7 @@ bool ArenaTeam::AddMember(const uint64& PlayerGuid)
         // hide promote/remove buttons
         if(CaptainGuid != PlayerGuid)
             pl->SetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (GetSlot() * 6) + 1, 1);
-        sLog.outArena("Player: %s [GUID: %u] joined arena team type: %u [Id: %u].", pl->GetName(), pl->GetGUID(), GetType(), GetId());
+        sLog.outArena("Player: %s [GUID: %u] joined arena team type: %u [Id: %u].", pl->GetName(), pl->GetGUIDLow(), GetType(), GetId());
     }
     return true;
 }
@@ -254,7 +254,7 @@ void ArenaTeam::SetCaptain(const uint64& guid)
     if(newcaptain)
     {
         newcaptain->SetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + 1 + (GetSlot() * 6), 0);
-        sLog.outArena("Player: %s [GUID: %u] promoted player: %s [GUID: %u] to leader of arena team [Id: %u] [Type: %u].", oldcaptain->GetName(), oldcaptain->GetGUID(), newcaptain->GetName(), newcaptain->GetGUID(), GetId(), GetType());
+        sLog.outArena("Player: %s [GUID: %u] promoted player: %s [GUID: %u] to leader of arena team [Id: %u] [Type: %u].", oldcaptain->GetName(), oldcaptain->GetGUIDLow(), newcaptain->GetName(), newcaptain->GetGUID(), GetId(), GetType());
     }
 }
 
@@ -280,7 +280,7 @@ void ArenaTeam::DelMember(uint64 guid)
         {
             player->SetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (GetSlot() * 6) + i, 0);
         }
-        sLog.outArena("Player: %s [GUID: %u] left arena team type: %u [Id: %u].", player->GetName(), guid, GetType(), GetId());
+        sLog.outArena("Player: %s [GUID: %u] left arena team type: %u [Id: %u].", player->GetName(), player->GetGUIDLow(), GetType(), GetId());
     }
     CharacterDatabase.PExecute("DELETE FROM arena_team_member WHERE arenateamid = '%u' AND guid = '%u'", GetId(), GUID_LOPART(guid));
 }
@@ -299,7 +299,7 @@ void ArenaTeam::Disband(WorldSession *session)
     }
 
     if(Player *player = session->GetPlayer())
-        sLog.outArena("Player: %s [GUID: %u] disbanded arena team type: %u [Id: %u].", player->GetName(), player->GetGUID(), GetType(), GetId());
+        sLog.outArena("Player: %s [GUID: %u] disbanded arena team type: %u [Id: %u].", player->GetName(), player->GetGUIDLow(), GetType(), GetId());
 
     CharacterDatabase.BeginTransaction();
     CharacterDatabase.PExecute("DELETE FROM arena_team WHERE arenateamid = '%u'", Id);

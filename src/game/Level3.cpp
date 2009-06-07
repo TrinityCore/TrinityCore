@@ -122,6 +122,9 @@ bool ChatHandler::HandleAHBotOptionsCommand(const char* args)
     }
     else if (strncmp(opt,"maxitems",l) == 0)
     {
+        PSendSysMessage("ahbotoptions mintime has been deprecated");
+        return false;
+        /*
         char * param1 = strtok(NULL, " ");
         if ((!ahMapIdStr) || (!param1))
         {
@@ -129,6 +132,7 @@ bool ChatHandler::HandleAHBotOptionsCommand(const char* args)
             return false;
         }
         AuctionHouseBotCommands(2, ahMapID, NULL, param1);
+        */
     }
     else if (strncmp(opt,"mintime",l) == 0)
     {
