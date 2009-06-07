@@ -41,7 +41,7 @@ class DynamicObject : public WorldObject
         uint32 GetSpellId() const { return m_spellId; }
         uint32 GetEffIndex() const { return m_effIndex; }
         uint32 GetDuration() const { return m_aliveDuration; }
-        uint64 GetCasterGUID() const { return m_casterGuid; }
+        uint64 GetCasterGUID() const { return GetUInt64Value(DYNAMICOBJECT_CASTER); }
         Unit* GetCaster() const;
         float GetRadius() const { return m_radius; }
         bool IsAffecting(Unit *unit) const { return m_affected.find(unit) != m_affected.end(); }
@@ -58,7 +58,6 @@ class DynamicObject : public WorldObject
 
         GridReference<DynamicObject> &GetGridRef() { return m_gridRef; }
     protected:
-        uint64 m_casterGuid;
         uint32 m_spellId;
         uint32 m_effIndex;
         int32 m_aliveDuration;
