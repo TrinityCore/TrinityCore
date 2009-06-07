@@ -75,7 +75,7 @@ bool DynamicObject::Create( uint32 guidlow, Unit *caster, uint32 spellId, uint32
     SetInstanceId(caster->GetInstanceId());
 
     WorldObject::_Create(guidlow, HIGHGUID_DYNAMICOBJECT, caster->GetMapId(), caster->GetPhaseMask());
-    Relocate(x,y,z,0);
+    Relocate(x, y, z, 0);
 
     if(!IsPositionValid())
     {
@@ -98,7 +98,6 @@ bool DynamicObject::Create( uint32 guidlow, Unit *caster, uint32 spellId, uint32
     m_radius = radius;
     m_effIndex = effIndex;
     m_spellId = spellId;
-    m_casterGuid = caster->GetGUID();
     m_updateTimer = 0;
     return true;
 }
@@ -106,7 +105,7 @@ bool DynamicObject::Create( uint32 guidlow, Unit *caster, uint32 spellId, uint32
 Unit* DynamicObject::GetCaster() const
 {
     // can be not found in some cases
-    return ObjectAccessor::GetUnit(*this,m_casterGuid);
+    return ObjectAccessor::GetUnit(*this, GetCasterGUID());
 }
 
 void DynamicObject::Update(uint32 p_time)
@@ -153,7 +152,7 @@ void DynamicObject::Delete()
 void DynamicObject::Delay(int32 delaytime)
 {
     m_aliveDuration -= delaytime;
-    for(AffectedSet::iterator iunit= m_affected.begin();iunit != m_affected.end();++iunit)
+    for(AffectedSet::iterator iunit= m_affected.begin(); iunit != m_affected.end(); ++iunit)
         if (*iunit)
             (*iunit)->DelayAura(m_spellId, GetCaster()->GetGUID() , delaytime);
 }
