@@ -109,6 +109,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_taxi' WHERE `entry` IN (17435, 
 UPDATE `creature_template` SET `ScriptName`='npc_death_knight_initiate' WHERE `entry`=28406;
 UPDATE `creature_template` SET `ScriptName`='npc_salanar_the_horseman' WHERE `entry`=28653;
 UPDATE `creature_template` SET `ScriptName`='npc_ros_dark_rider' WHERE `entry`=28768;
+UPDATE `creature_template` SET `ScriptName`='npc_dkc1_gothik' WHERE `entry`=28658;
 
 /*  */
 /* ZONE */
