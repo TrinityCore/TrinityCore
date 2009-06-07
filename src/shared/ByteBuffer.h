@@ -311,7 +311,7 @@ class ByteBuffer
         }
         void append(const ByteBuffer& buffer)
         {
-            if(buffer.size()) append(buffer.contents(),buffer.wpos());
+            if(buffer.wpos()) append(buffer.contents(),buffer.wpos());
         }
 
         void appendPackGUID(uint64 guid)
