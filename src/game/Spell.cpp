@@ -2555,18 +2555,29 @@ void Spell::cancel()
 
 void Spell::cast(bool skipCheck)
 {
-    SetExecutedCurrently(true);
-
     // update pointers base at GUIDs to prevent access to non-existed already object
     UpdatePointers();
 
-    // cancel at lost main target unit
-    if(!m_targets.getUnitTarget() && m_targets.getUnitTargetGUID() && m_targets.getUnitTargetGUID() != m_caster->GetGUID())
+    if(m_targets.getUnitTarget())
     {
-        cancel();
-        SetExecutedCurrently(false);
-        return;
+        // three check: prepare, cast (m_casttime > 0), hit (delayed)
+        if(m_casttime && m_targets.getUnitTarget()->isAlive() && !m_caster->canSeeOrDetect(m_targets.getUnitTarget(), true)))
+        {
+            cancel();
+            return;
+        }
     }
+    else
+    {
+        // cancel at lost main target unit
+        if(m_targets.getUnitTargetGUID() && m_targets.getUnitTargetGUID() != m_caster->GetGUID())
+        {
+            cancel();
+            return;
+        }
+    }
+
+    SetExecutedCurrently(true);
 
     if(m_caster->GetTypeId() != TYPEID_PLAYER && m_targets.getUnitTarget() && m_targets.getUnitTarget() != m_caster)
         m_caster->SetInFront(m_targets.getUnitTarget());
