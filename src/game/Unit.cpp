@@ -1987,20 +1987,6 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
             case SPELLFAMILY_PRIEST:
             {
                 // Guardian Spirit
-                // Two implementation please check it
-                /*if (spellProto->Id==47788)
-                {
-                    if (pVictim->GetHealth() <= RemainingDamage)        // Killing Blow
-                    {
-                        healAmount = pVictim->GetMaxHealth()/2;
-                        healCaster = pVictim;
-                        healSpell = 48153;
-                        (*i)->SetAmount(0);
-                        RemainingDamage=0;
-                    }
-                    continue;
-                }*/
-
                 if (spellProto->SpellIconID == 2873)
                 {
                     preventDeathSpell = (*i)->GetSpellProto();
@@ -2083,9 +2069,8 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
             case SPELLFAMILY_DEATHKNIGHT:
             {
                 // Shadow of Death
-                if (spellProto->SpellIconID == 1958)
+                if (spellProto->Id == 49157)
                 {
-                    // TODO: absorb only while transform
                     continue;
                 }
                 // Anti-Magic Shell (on self)
@@ -2287,7 +2272,6 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
     {
         switch(preventDeathSpell->SpellFamilyName)
         {
-            // Cheat Death
             case SPELLFAMILY_ROGUE:
             {
                 // Cheat Death
@@ -2301,7 +2285,6 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
                 }
                 break;
             }
-            // Guardian Spirit
             case SPELLFAMILY_PRIEST:
             {
                 // Guardian Spirit
@@ -8762,7 +8745,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
     if(!spellProto || !pVictim || damagetype==DIRECT_DAMAGE )
         return pdamage;
 
-    // For totems get damage bonus from owner (statue isn't totem in fact)
+    // For totems get damage bonus from owner
     if( GetTypeId()==TYPEID_UNIT && ((Creature*)this)->isTotem())
     {
         if(Unit* owner = GetOwner())
@@ -8988,7 +8971,9 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
     {
         AuraEffectList const& mDamageDoneMechanic = pVictim->GetAurasByType(SPELL_AURA_MOD_MECHANIC_DAMAGE_TAKEN_PERCENT);
         for(AuraEffectList::const_iterator i = mDamageDoneMechanic.begin();i != mDamageDoneMechanic.end(); ++i)
-            if(mechanicMask & uint32(1<<((*i)->GetMiscValue())))
+            if((mechanicMask & uint32(1<<((*i)->GetMiscValue())))
+                // Shred - "Effects which increase Bleed damage also increase Shred damage"
+                || ((*i)->GetMiscValue() == MECHANIC_BLEED && spellProto->SpellFamilyName == SPELLFAMILY_DRUID && spellProto->SpellFamilyFlags[0] & 0x8000))
                 TakenTotalMod *= ((*i)->GetAmount()+100.0f)/100.0f;
     }
 

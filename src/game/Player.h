@@ -83,7 +83,8 @@ enum PlayerSpellState
     PLAYERSPELL_UNCHANGED = 0,
     PLAYERSPELL_CHANGED   = 1,
     PLAYERSPELL_NEW       = 2,
-    PLAYERSPELL_REMOVED   = 3
+    PLAYERSPELL_REMOVED   = 3,
+    PLAYERSPELL_TEMPORARY = 4
 };
 
 struct PlayerSpell
@@ -1363,6 +1364,8 @@ class TRINITY_DLL_SPEC Player : public Unit
         void learnQuestRewardedSpells();
         void learnQuestRewardedSpells(Quest const* quest);
         void learnSpellHighRank(uint32 spellid);
+        void AddTemporarySpell(uint32 spellId);
+        void RemoveTemporarySpell(uint32 spellId);
 
         uint32 GetFreeTalentPoints() const { return GetUInt32Value(PLAYER_CHARACTER_POINTS1); }
         void SetFreeTalentPoints(uint32 points) { SetUInt32Value(PLAYER_CHARACTER_POINTS1,points); }

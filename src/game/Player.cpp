@@ -2756,7 +2756,11 @@ bool Player::addSpell(uint32 spell_id, bool active, bool learning, bool dependen
     bool superceded_old = false;
 
     PlayerSpellMap::iterator itr = m_spells.find(spell_id);
-    if (itr != m_spells.end())
+
+    // Remove temporary spell if found to prevent conflicts
+    if (itr != m_spells.end() && itr->second->state == PLAYERSPELL_TEMPORARY)
+        RemoveTemporarySpell(spell_id);
+    else if (itr != m_spells.end())
     {
         uint32 next_active_spell_id = 0;
         // fix activate state for non-stackable low rank (and find next spell for !active case)
@@ -3069,6 +3073,33 @@ bool Player::addSpell(uint32 spell_id, bool active, bool learning, bool dependen
     return active && !disabled && !superceded_old;
 }
 
+void Player::AddTemporarySpell(uint32 spellId)
+{
+    PlayerSpellMap::iterator itr = m_spells.find(spellId);
+    // spell already added - do not do anything
+    if (itr != m_spells.end())
+        return;
+    PlayerSpell *newspell = new PlayerSpell;
+    newspell->state     = PLAYERSPELL_TEMPORARY;
+    newspell->active    = true;
+    newspell->dependent = false;
+    newspell->disabled  = false;
+    m_spells[spellId]   = newspell;
+}
+
+void Player::RemoveTemporarySpell(uint32 spellId)
+{
+    PlayerSpellMap::iterator itr = m_spells.find(spellId);
+    // spell already not in list - do not do anything
+    if (itr == m_spells.end())
+        return;
+    // spell has other state than temporary - do not change it
+    if (itr->second->state != PLAYERSPELL_TEMPORARY)
+        return;
+    delete itr->second;
+    m_spells.erase(itr);
+}
+
 bool Player::IsNeedCastPassiveSpellAtLearn(SpellEntry const* spellInfo) const
 {
     bool need_cast =  false;
@@ -3130,7 +3161,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool update_action_bar_
     if (itr == m_spells.end())
         return;
 
-    if(itr->second->state == PLAYERSPELL_REMOVED || disabled && itr->second->disabled)
+    if(itr->second->state == PLAYERSPELL_REMOVED || disabled && itr->second->disabled || itr->second->state == PLAYERSPELL_TEMPORARY)
         return;
 
     // unlearn non talent higher ranks (recursive)
@@ -17084,7 +17115,10 @@ void Player::RestoreSpellMods(Spell * spell)
                 mod->charges = 1;
             else
                 mod->charges++;
-            assert (mod->ownerAura->GetAuraCharges() <= mod->charges);
+
+            // Skip this check for now - aura charges may change due to various reason
+            // TODO: trac these changes correctly
+            //assert (mod->ownerAura->GetAuraCharges() <= mod->charges);
         }
     }
 }
@@ -17547,6 +17581,7 @@ void Player::InitDataForForm(bool reapplyMods)
 
     switch(m_form)
     {
+        case FORM_GHOUL:
         case FORM_CAT:
         {
             if(getPowerType()!=POWER_ENERGY)

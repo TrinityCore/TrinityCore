@@ -884,9 +884,10 @@ SpellCastResult GetErrorAtShapeshiftedCast (SpellEntry const *spellInfo, uint32 
         return SPELL_CAST_OK;
 
     bool actAsShifted = false;
+    SpellShapeshiftEntry const *shapeInfo = NULL;
     if (form > 0)
     {
-        SpellShapeshiftEntry const *shapeInfo = sSpellShapeshiftStore.LookupEntry(form);
+        shapeInfo = sSpellShapeshiftStore.LookupEntry(form);
         if (!shapeInfo)
         {
             sLog.outError("GetErrorAtShapeshiftedCast: unknown shapeshift %u", form);
@@ -906,6 +907,15 @@ SpellCastResult GetErrorAtShapeshiftedCast (SpellEntry const *spellInfo, uint32 
     {
         // needs shapeshift
         if(!(spellInfo->AttributesEx2 & SPELL_ATTR_EX2_NOT_NEED_SHAPESHIFT) && spellInfo->Stances != 0)
+            return SPELL_FAILED_ONLY_SHAPESHIFT;
+    }
+
+    // Check if stance disables cast of not-stance spells
+    // Example: cannot cast any other spells in zombie or ghoul form
+    // TODO: Find a way to disable use of these spells clientside
+    if (shapeInfo && shapeInfo->flags1 & 0x400)
+    {
+        if(!(stanceMask & spellInfo->Stances))
             return SPELL_FAILED_ONLY_SHAPESHIFT;
     }
 
