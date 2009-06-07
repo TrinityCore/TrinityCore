@@ -6659,7 +6659,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             // Death Strike healing effect
             if (dummySpell->Id == 45469)
             {
-                int32 heal=0.5f * pVictim->GetDiseasesByCaster(GetGUID()) * damage+damage;
+                int32 heal=pVictim->GetDiseasesByCaster(GetGUID()) * GetMaxHealth()* 5 /100;
                 CastCustomSpell(this,45470,&heal,NULL,NULL,true);
                 return true;
             }
