@@ -119,22 +119,24 @@ MessageDistDeliverer::Visit(PlayerMapType &m)
 {
     for (PlayerMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
-        if(!iter->getSource()->InSamePhase(i_phaseMask))
+        Player *target = iter->getSource();
+        if(!target->InSamePhase(i_phaseMask))
             continue;
 
-        if(iter->getSource()->GetDistanceSq(&i_source) > i_distSq)
+        if(target->GetDistanceSq(i_source) > i_distSq)
             continue;
 
         // Send packet to all who are sharing the player's vision
-        if (!iter->getSource()->GetSharedVisionList().empty())
+        if (!target->GetSharedVisionList().empty())
         {
-            SharedVisionList::const_iterator i = iter->getSource()->GetSharedVisionList().begin();
-            for ( ; i != iter->getSource()->GetSharedVisionList().end(); ++i)
-                if((*i)->m_seer == iter->getSource())
+            SharedVisionList::const_iterator i = target->GetSharedVisionList().begin();
+            for ( ; i != target->GetSharedVisionList().end(); ++i)
+                if((*i)->m_seer == target)
                     SendPacket(*i);
         }
 
-        SendPacket(iter->getSource());
+        if(target->m_seer == target)
+            SendPacket(target);
     }
 }
 
@@ -146,7 +148,7 @@ MessageDistDeliverer::Visit(CreatureMapType &m)
         if(!iter->getSource()->InSamePhase(i_phaseMask))
             continue;
 
-        if(iter->getSource()->GetDistanceSq(&i_source) > i_distSq)
+        if(iter->getSource()->GetDistanceSq(i_source) > i_distSq)
             continue;
 
         // Send packet to all who are sharing the creature's vision
@@ -168,7 +170,7 @@ MessageDistDeliverer::Visit(DynamicObjectMapType &m)
         if(!iter->getSource()->InSamePhase(i_phaseMask))
             continue;
 
-        if(iter->getSource()->GetDistanceSq(&i_source) > i_distSq)
+        if(iter->getSource()->GetDistanceSq(i_source) > i_distSq)
             continue;
 
         if (IS_PLAYER_GUID(iter->getSource()->GetCasterGUID()))
