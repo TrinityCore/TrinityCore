@@ -1434,9 +1434,9 @@ void AuraEffect::HandleShapeshiftBoosts(bool apply)
             spellId  = 27792;
             spellId2 = 27795;                               // must be second, this important at aura remove to prevent to early iterator invalidation.
             break;
+        case FORM_GHOUL:
         case FORM_GHOSTWOLF:
         case FORM_AMBIENT:
-        case FORM_GHOUL:
         case FORM_SHADOW:
         case FORM_STEALTH:
         case FORM_CREATURECAT:
@@ -3035,8 +3035,8 @@ void AuraEffect::HandleAuraModShapeshift(bool apply, bool Real, bool changeAmoun
             PowerType = POWER_RAGE;
             break;
         case FORM_GHOUL:
-            if(Player::TeamForRace(m_target->getRace())==ALLIANCE)
-                modelid = 10045;
+            modelid = 24994;
+            PowerType = POWER_ENERGY;
             break;
         case FORM_DIREBEAR:
             if(Player::TeamForRace(m_target->getRace())==ALLIANCE)
@@ -3247,6 +3247,20 @@ void AuraEffect::HandleAuraModShapeshift(bool apply, bool Real, bool changeAmoun
         {
             if(AuraEffect * aurEff =m_target->GetAura(SPELL_AURA_MOD_INCREASE_SPEED, SPELLFAMILY_DRUID, 0, 0, 0x8))
                 m_target->HandleAuraEffect(aurEff, false);
+        }
+    }
+    if (m_target->GetTypeId()==TYPEID_PLAYER)
+    {
+        SpellShapeshiftEntry const *shapeInfo = sSpellShapeshiftStore.LookupEntry(form);
+        // Learn spells for shapeshift form - no need to send action bars or add spells to spellbook
+        for (uint8 i = 0;i<MAX_SHAPESHIFT_SPELLS;++i)
+        {
+            if (!shapeInfo->stanceSpell[i])
+                continue;
+            if (apply)
+                ((Player*)m_target)->AddTemporarySpell(shapeInfo->stanceSpell[i]);
+            else
+                ((Player*)m_target)->RemoveTemporarySpell(shapeInfo->stanceSpell[i]);
         }
     }
 }
