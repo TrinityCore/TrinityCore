@@ -49,6 +49,9 @@ void LoadTeamPair(TeamPairMap &pairMap, const TeamPair *pair)
     }
 }
 
+#define REMOVE_RANK_AURAS(p) (p)->RemoveAura(SPELL_RECRUIT);\
+    (p)->RemoveAura(SPELL_CORPORAL);(p)->RemoveAura(SPELL_LIEUTENANT)
+
 typedef std::list<const AreaPOIEntry *> AreaPOIList;
 
 bool OPvPWintergrasp::SetupOutdoorPvP()
@@ -342,8 +345,12 @@ void OPvPWintergrasp::HandlePlayerEnterZone(Player * plr, uint32 zone)
 
 void OPvPWintergrasp::HandlePlayerLeaveZone(Player * plr, uint32 zone)
 {
-    if(!plr->GetSession()->PlayerLogout() && plr->m_Vehicle) // dismiss in change zone case
-        plr->m_Vehicle->Dismiss();
+    if(!plr->GetSession()->PlayerLogout())
+    {
+        if(plr->m_Vehicle) // dismiss in change zone case
+            plr->m_Vehicle->Dismiss();
+        REMOVE_RANK_AURAS(plr);
+    }
     plr->RemoveAura(SPELL_TENACITY);
     OutdoorPvP::HandlePlayerLeaveZone(plr, zone);
     UpdateTenacityStack();
@@ -495,9 +502,7 @@ void OPvPWintergrasp::StartBattle()
     {
         for(PlayerSet::iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
         {
-            (*itr)->RemoveAura(SPELL_RECRUIT);
-            (*itr)->RemoveAura(SPELL_CORPORAL);
-            (*itr)->RemoveAura(SPELL_LIEUTENANT);
+            REMOVE_RANK_AURAS(*itr);
             (*itr)->CastSpell(*itr, SPELL_RECRUIT, true);
         }
     }
@@ -514,9 +519,7 @@ void OPvPWintergrasp::EndBattle()
 
         for(PlayerSet::iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
         {
-            (*itr)->RemoveAura(SPELL_RECRUIT);
-            (*itr)->RemoveAura(SPELL_CORPORAL);
-            (*itr)->RemoveAura(SPELL_LIEUTENANT);
+            REMOVE_RANK_AURAS(*itr);
         }
     }
 }
