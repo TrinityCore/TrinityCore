@@ -16779,8 +16779,10 @@ void Player::Yell(const std::string& text, const uint32 language)
 void Player::TextEmote(const std::string& text)
 {
     WorldPacket data(SMSG_MESSAGECHAT, 200);
-    BuildPlayerChat(&data, CHAT_MSG_EMOTE, text, LANG_UNIVERSAL);
-    SendMessageToSetInRange(&data,sWorld.getConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE),true, !sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT));
+    BuildPlayerChat(&data, CHAT_MSG_EMOTE, text,
+        sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT) ? LANG_UNIVERSAL
+        : GetTeam() == ALLIANCE ? LANG_COMMON : LANG_ORCISH);
+    SendMessageToSetInRange(&data,sWorld.getConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE),true);
 
     if(sWorld.getConfig(CONFIG_CHATLOG_PUBLIC))
         sLog.outChat("[TEXTEMOTE] Player %s emotes: %s",
