@@ -4672,14 +4672,19 @@ SpellCastResult Spell::CheckCast(bool strict)
                         break;
                     case 1515:
                     {
+                        if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                            return SPELL_FAILED_BAD_TARGETS;
+
                         if (!m_targets.getUnitTarget() || m_targets.getUnitTarget()->GetTypeId() == TYPEID_PLAYER)
                             return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
 
-                        if (m_targets.getUnitTarget()->getLevel() > m_caster->getLevel())
+                        Creature* target = (Creature*)m_targets.getUnitTarget();
+
+                        if (target->getLevel() > m_caster->getLevel())
                             return SPELL_FAILED_HIGHLEVEL;
 
                         // use SMSG_PET_TAME_FAILURE?
-                        if (!((Creature*)m_targets.getUnitTarget())->GetCreatureInfo()->isTameable ())
+                        if (!target->GetCreatureInfo()->isTameable (((Player*)m_caster)->CanTameExoticPets()))
                             return SPELL_FAILED_BAD_TARGETS;
 
                         if(m_caster->GetPetGUID())

@@ -139,8 +139,19 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
         return false;
     }
 
-    uint32 pet_number = fields[0].GetUInt32();
+    PetType pet_type = PetType(fields[18].GetUInt8());
+    if(pet_type==HUNTER_PET)
+    {
+        CreatureInfo const* creatureInfo = objmgr.GetCreatureTemplate(petentry);
+        if(!creatureInfo || !creatureInfo->isTameable(owner->CanTameExoticPets()))
+        {
+            delete result;
+            return false;
+        }
+    }
 
+    uint32 pet_number = fields[0].GetUInt32();
+    
     if (current && owner->IsPetNeedBeTemporaryUnsummoned())
     {
         owner->SetTemporaryUnsummonedPetNumber(pet_number);
@@ -168,7 +179,7 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
         return false;
     }
 
-    setPetType(PetType(fields[18].GetUInt8()));
+    setPetType(pet_type);
     setFaction(owner->getFaction());
     SetUInt32Value(UNIT_CREATED_BY_SPELL, summon_spell_id);
 
