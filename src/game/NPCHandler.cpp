@@ -823,13 +823,8 @@ void WorldSession::HandleStableSwapPet( WorldPacket & recv_data )
     _player->RemovePet(pet,pet->isAlive() ? PetSaveMode(slot) : PET_SAVE_AS_DELETED);
 
     // summon unstabled pet
-<<<<<<< HEAD:src/game/NPCHandler.cpp
     Pet *newpet = new Pet(_player);
-    if(!newpet->LoadPetFromDB(_player,petentry,pet_number))
-=======
-    Pet *newpet = new Pet;
     if(!newpet->LoadPetFromDB(_player,creature_id,pet_number))
->>>>>>> b8ce292c7048fb8c4e4a06971c3859efe2421f28:src/game/NPCHandler.cpp
     {
         delete newpet;
         data << uint8(0x06);

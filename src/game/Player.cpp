@@ -15057,10 +15057,14 @@ void Player::_LoadInventory(QueryResult *result, uint32 timediff)
                 if(itr != bagMap.end())
                 {
                     ItemPosCountVec dest;
-                    if(CanStoreItem(itr->second->GetBagSlot(), slot, dest, item))
+                    uint8 result = CanStoreItem(itr->second->GetSlot(), slot, dest, item);
+                    if(result == EQUIP_ERR_OK)
                         itr->second->StoreItem(slot, item, true );
                     else
+                    {
+                        sLog.outError("Player::_LoadInventory: Player %s has item (GUID: %u Entry: %u) can't be loaded to inventory (Bag GUID: %u Slot: %u) by reason %u.", GetName(),item_guid, item_id, bag_guid, slot, result);
                         success = false;
+                    }
                 }
                 else
                     success = false;
