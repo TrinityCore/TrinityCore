@@ -2134,13 +2134,18 @@ void Spell::EffectTriggerSpell(uint32 i)
         return;
     }
 
+    // Remove spell cooldown (not category) if spell triggering spell with cooldown and same category
+    // Needed by freezing trap and few other spells
+    if (m_caster->GetTypeId() == TYPEID_PLAYER && m_spellInfo->CategoryRecoveryTime && spellInfo->CategoryRecoveryTime
+        && m_spellInfo->Category == spellInfo->Category)
+        ((Player*)m_caster)->RemoveSpellCooldown(spellInfo->Id);
+
     // some triggered spells must be casted instantly (for example, if next effect case instant kill caster)
     bool instant = false;
     for(uint32 j = i+1; j < 3; ++j)
     {
         if(m_spellInfo->EffectImplicitTargetA[j] == TARGET_UNIT_CASTER
-            && (m_spellInfo->Effect[j]==SPELL_EFFECT_INSTAKILL 
-            || m_spellInfo->Effect[j]==SPELL_EFFECT_SANCTUARY))
+            && (m_spellInfo->Effect[j]==SPELL_EFFECT_INSTAKILL))
         {
             instant = true;
             break;
@@ -2172,6 +2177,12 @@ void Spell::EffectTriggerMissileSpell(uint32 effect_idx)
 
     if (m_CastItem)
         DEBUG_LOG("WORLD: cast Item spellId - %i", spellInfo->Id);
+
+    // Remove spell cooldown (not category) if spell triggering spell with cooldown and same category
+    // Needed by freezing trap and few other spells
+    if (m_caster->GetTypeId() == TYPEID_PLAYER && m_spellInfo->CategoryRecoveryTime && spellInfo->CategoryRecoveryTime
+        && m_spellInfo->Category == spellInfo->Category)
+        ((Player*)m_caster)->RemoveSpellCooldown(spellInfo->Id);
 
     m_caster->CastSpell(m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ, spellInfo->Id, true, m_CastItem, 0, m_originalCasterGUID);
 }
