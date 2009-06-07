@@ -2561,7 +2561,7 @@ void Spell::cast(bool skipCheck)
     if(m_targets.getUnitTarget())
     {
         // three check: prepare, cast (m_casttime > 0), hit (delayed)
-        if(m_casttime && m_targets.getUnitTarget()->isAlive() && !m_caster->canSeeOrDetect(m_targets.getUnitTarget(), true)))
+        if(m_casttime && m_targets.getUnitTarget()->isAlive() && !m_caster->canSeeOrDetect(m_targets.getUnitTarget(), true))
         {
             cancel();
             return;
