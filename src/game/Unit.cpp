@@ -11039,13 +11039,27 @@ int32 Unit::ModSpellDuration(SpellEntry const* spellProto, Unit const* target, i
     //cut duration only of negative effects
     if (!positive)
     {
-        int32 mechanic = spellProto->Mechanic;
+        int32 mechanic = GetAllSpellMechanicMask(spellProto);
 
-        // Find total mod value (negative bonus)
-        int32 durationMod_always = target->GetTotalAuraModifierByMiscValue(SPELL_AURA_MECHANIC_DURATION_MOD, mechanic);
-        // Find max mod (negative bonus)
-        int32 durationMod_not_stack = target->GetMaxNegativeAuraModifierByMiscValue(SPELL_AURA_MECHANIC_DURATION_MOD_NOT_STACK, mechanic);
-        int32 durationMod = 0;
+        int32 durationMod;
+        int32 durationMod_always = 0;
+        int32 durationMod_not_stack = 0;
+
+        for (uint8 i = 1;i<=MECHANIC_ENRAGED;++i)
+        {
+            if (!(mechanic & 1<<i))
+                continue;
+            // Find total mod value (negative bonus)
+            int32 new_durationMod_always = target->GetTotalAuraModifierByMiscValue(SPELL_AURA_MECHANIC_DURATION_MOD, i);
+            // Find max mod (negative bonus)
+            int32 new_durationMod_not_stack = target->GetMaxNegativeAuraModifierByMiscValue(SPELL_AURA_MECHANIC_DURATION_MOD_NOT_STACK, i);
+            // Check if mods applied before were weaker
+            if (new_durationMod_always < durationMod_always)
+                durationMod_always = new_durationMod_always;
+            if (new_durationMod_not_stack < durationMod_not_stack)
+                durationMod_not_stack = new_durationMod_not_stack;
+        }
+
         // Select strongest negative mod
         if (durationMod_always > durationMod_not_stack)
             durationMod = durationMod_not_stack;
