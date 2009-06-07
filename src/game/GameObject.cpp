@@ -324,8 +324,6 @@ void GameObject::Update(uint32 /*p_time*/)
                         return;
                 }
 
-                bool NeedDespawn = (goInfo->trap.charges != 0);
-
                 // Note: this hack with search required until GO casting not implemented
                 // search unfriendly creature
                 if(owner)                    // hunter trap
@@ -359,7 +357,7 @@ void GameObject::Update(uint32 /*p_time*/)
                     else
                         m_cooldownTime = time(NULL) + 4;        // 4 seconds
 
-                    if(NeedDespawn)
+                    if(owner)
                         SetLootState(GO_JUST_DEACTIVATED);  // can be despawned or destroyed
 
                     if(IsBattleGroundTrap && ok->GetTypeId() == TYPEID_PLAYER)
