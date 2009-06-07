@@ -285,7 +285,7 @@ enum SpellCategory
 #define SPELL_ATTR_EX_UNK31                       0x80000000            // 31
 
 #define SPELL_ATTR_EX2_UNK0                       0x00000001            // 0
-#define SPELL_ATTR_EX2_UNK1                       0x00000002            // 1
+#define SPELL_ATTR_EX2_UNK1                       0x00000002            // 1 ? many triggered spells have this flag
 #define SPELL_ATTR_EX2_CANT_REFLECTED             0x00000004            // 2 ? used for detect can or not spell reflected
 #define SPELL_ATTR_EX2_UNK3                       0x00000008            // 3
 #define SPELL_ATTR_EX2_UNK4                       0x00000010            // 4
