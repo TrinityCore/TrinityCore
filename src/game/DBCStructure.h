@@ -1488,6 +1488,8 @@ struct SpellRuneCostEntry
     bool NoRunicPowerGain() const { return runePowerGain == 0; }
 };
 
+#define MAX_SHAPESHIFT_SPELLS 8
+
 struct SpellShapeshiftEntry
 {
     uint32 ID;                                              // 0
@@ -1502,14 +1504,7 @@ struct SpellShapeshiftEntry
     //uint32 unk2;                                          // 24 unused
     //uint32 unk3;                                          // 25 unused
     //uint32 unk4;                                          // 26 unused
-    //uint32 unk5;                                          // 27 unused
-    //uint32 unk6;                                          // 28 unused
-    //uint32 unk7;                                          // 29 unused
-    //uint32 unk8;                                          // 30 unused
-    //uint32 unk9;                                          // 31 unused
-    //uint32 unk10;                                         // 32 unused
-    //uint32 unk11;                                         // 33 unused
-    //uint32 unk12;                                         // 34 unused
+    uint32 stanceSpell[MAX_SHAPESHIFT_SPELLS];                                  // 27 - 34 unused
 };
 
 struct SpellDurationEntry
