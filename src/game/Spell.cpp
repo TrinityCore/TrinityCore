@@ -2241,11 +2241,13 @@ void Spell::cast(bool skipCheck)
     // update pointers base at GUIDs to prevent access to non-existed already object
     UpdatePointers();
 
-    if(m_targets.getUnitTarget() && m_targets.getUnitTarget()->isAlive() && !m_targets.getUnitTarget()->isVisibleForOrDetect(m_caster, true))
-    {
-        cancel();
-        return;
-    }
+    if(Unit *pTarget = m_targets.getUnitTarget())
+        if(pTarget->isAlive() && (pTarget->HasAuraType(SPELL_AURA_MOD_STEALTH) || pTarget->HasAuraType(SPELL_AURA_MOD_INVISIBILITY)) && !pTarget->IsFriendlyTo(m_caster) && !pTarget->isVisibleForOrDetect(m_caster, true))
+        {
+            SendCastResult(SPELL_FAILED_BAD_TARGETS);
+            finish(false);
+            return;
+        }
 
     SetExecutedCurrently(true);
     uint8 castResult = 0;
