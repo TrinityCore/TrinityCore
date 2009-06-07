@@ -164,7 +164,7 @@ void WorldSession::HandleCharEnumOpcode( WorldPacket & /*recv_data*/ )
     //   ------- Query Without Declined Names --------
     //          0                1                2                3                      4                      5               6                     7                     8
         "SELECT characters.guid, characters.data, characters.name, characters.position_x, characters.position_y, characters.position_z, characters.map, characters.totaltime, characters.leveltime, "
-    //   9                     10                   11                     12                   13               14
+    //   9                     10              11                   12                     13                   14
         "characters.at_login, characters.zone, character_pet.entry, character_pet.modelid, character_pet.level, guild_member.guildid "
         "FROM characters LEFT JOIN character_pet ON characters.guid=character_pet.owner AND character_pet.slot='%u' "
         "LEFT JOIN guild_member ON characters.guid = guild_member.guid "
@@ -173,7 +173,7 @@ void WorldSession::HandleCharEnumOpcode( WorldPacket & /*recv_data*/ )
     //   --------- Query With Declined Names ---------
     //          0                1                2                3                      4                      5               6                     7                     8
         "SELECT characters.guid, characters.data, characters.name, characters.position_x, characters.position_y, characters.position_z, characters.map, characters.totaltime, characters.leveltime, "
-    //   9                    10                   11                     12                   13                    14                 15
+    //   9                    10               11                   12                     13                   14                 15
         "characters.at_login, characters.zone, character_pet.entry, character_pet.modelid, character_pet.level, guild_member.guildid, character_declinedname.genitive "
         "FROM characters LEFT JOIN character_pet ON characters.guid = character_pet.owner AND character_pet.slot='%u' "
         "LEFT JOIN character_declinedname ON characters.guid = character_declinedname.guid "
