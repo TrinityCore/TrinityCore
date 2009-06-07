@@ -1827,7 +1827,7 @@ bool ChatHandler::HandleNpcTameCommand(const char* /*args*/)
 
     CreatureInfo const* cInfo = creatureTarget->GetCreatureInfo();
 
-    if (!cInfo->isTameable ())
+    if (!cInfo->isTameable (player->CanTameExoticPets()))
     {
         PSendSysMessage (LANG_CREATURE_NON_TAMEABLE,cInfo->Entry);
         SetSentErrorMessage (true);

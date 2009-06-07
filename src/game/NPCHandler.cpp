@@ -593,11 +593,10 @@ void WorldSession::HandleStablePet( WorldPacket & recv_data )
 
     Pet *pet = _player->GetPet();
 
-    WorldPacket data(SMSG_STABLE_RESULT, 200);              // guess size
-
     // can't place in stable dead pet
     if(!pet||!pet->isAlive()||pet->getPetType()!=HUNTER_PET)
     {
+        WorldPacket data(SMSG_STABLE_RESULT, 1);
         data << uint8(0x06);
         SendPacket(&data);
         return;
@@ -626,6 +625,7 @@ void WorldSession::HandleStablePet( WorldPacket & recv_data )
         delete result;
     }
 
+    WorldPacket data(SMSG_STABLE_RESULT, 1);
     if( free_slot > 0 && free_slot <= GetPlayer()->m_stableSlots)
     {
         _player->RemovePet(pet,PetSaveMode(free_slot));
@@ -658,11 +658,40 @@ void WorldSession::HandleUnstablePet( WorldPacket & recv_data )
     if(GetPlayer()->hasUnitState(UNIT_STAT_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    WorldPacket data(SMSG_STABLE_RESULT, 200);              // guess size
+    uint32 creature_id = 0;
+
+    {
+        QueryResult *result = CharacterDatabase.PQuery("SELECT entry FROM character_pet WHERE owner = '%u' AND id = '%u' AND slot >='%u' AND slot <= '%u'",
+            _player->GetGUIDLow(),petnumber,PET_SAVE_FIRST_STABLE_SLOT,PET_SAVE_LAST_STABLE_SLOT);
+        if(result)
+        {
+            Field *fields = result->Fetch();
+            creature_id = fields[0].GetUInt32();
+            delete result;
+        }
+    }
+
+    if(!creature_id)
+    {
+        WorldPacket data(SMSG_STABLE_RESULT, 1);
+        data << uint8(0x06);
+        SendPacket(&data);
+        return;
+    }
+
+    CreatureInfo const* creatureInfo = objmgr.GetCreatureTemplate(creature_id);
+    if(!creatureInfo || !creatureInfo->isTameable(_player->CanTameExoticPets()))
+    {
+        WorldPacket data(SMSG_STABLE_RESULT, 1);
+        data << uint8(0x06);
+        SendPacket(&data);
+        return;
+    }
 
     Pet* pet = _player->GetPet();
     if(pet && pet->isAlive())
     {
+        WorldPacket data(SMSG_STABLE_RESULT, 1);
         data << uint8(0x06);
         SendPacket(&data);
         return;
@@ -672,28 +701,19 @@ void WorldSession::HandleUnstablePet( WorldPacket & recv_data )
     if(pet)
         _player->RemovePet(pet,PET_SAVE_AS_DELETED);
 
-    Pet *newpet = NULL;
-
-    QueryResult *result = CharacterDatabase.PQuery("SELECT entry FROM character_pet WHERE owner = '%u' AND id = '%u' AND slot >='%u' AND slot <= '%u'",
-        _player->GetGUIDLow(),petnumber,PET_SAVE_FIRST_STABLE_SLOT,PET_SAVE_LAST_STABLE_SLOT);
-    if(result)
+    Pet *newpet = new Pet(_player, HUNTER_PET);
+    if(!newpet->LoadPetFromDB(_player,creature_id,petnumber))
     {
-        Field *fields = result->Fetch();
-        uint32 petentry = fields[0].GetUInt32();
-
-        newpet = new Pet(_player, HUNTER_PET);
-        if(!newpet->LoadPetFromDB(_player,petentry,petnumber))
-        {
-            delete newpet;
-            newpet = NULL;
-        }
-        delete result;
+        delete newpet;
+        newpet = NULL;
+        WorldPacket data(SMSG_STABLE_RESULT, 1);
+        data << uint8(0x06);
+        SendPacket(&data);
+        return;
     }
 
-    if(newpet)
-        data << uint8(0x09);
-    else
-        data << uint8(0x06);
+    WorldPacket data(SMSG_STABLE_RESULT, 1);
+    data << uint8(0x09);
     SendPacket(&data);
 }
 
@@ -778,16 +798,38 @@ void WorldSession::HandleStableSwapPet( WorldPacket & recv_data )
 
     Field *fields = result->Fetch();
 
-    uint32 slot     = fields[0].GetUInt32();
-    uint32 petentry = fields[1].GetUInt32();
+    uint32 slot        = fields[0].GetUInt32();
+    uint32 creature_id = fields[1].GetUInt32();
     delete result;
+
+    if(!creature_id)
+    {
+        WorldPacket data(SMSG_STABLE_RESULT, 1);
+        data << uint8(0x06);
+        SendPacket(&data);
+        return;
+    }
+
+    CreatureInfo const* creatureInfo = objmgr.GetCreatureTemplate(creature_id);
+    if(!creatureInfo || !creatureInfo->isTameable(_player->CanTameExoticPets()))
+    {
+        WorldPacket data(SMSG_STABLE_RESULT, 1);
+        data << uint8(0x06);
+        SendPacket(&data);
+        return;
+    }
 
     // move alive pet to slot or delete dead pet
     _player->RemovePet(pet,pet->isAlive() ? PetSaveMode(slot) : PET_SAVE_AS_DELETED);
 
     // summon unstabled pet
+<<<<<<< HEAD:src/game/NPCHandler.cpp
     Pet *newpet = new Pet(_player);
     if(!newpet->LoadPetFromDB(_player,petentry,pet_number))
+=======
+    Pet *newpet = new Pet;
+    if(!newpet->LoadPetFromDB(_player,creature_id,pet_number))
+>>>>>>> b8ce292c7048fb8c4e4a06971c3859efe2421f28:src/game/NPCHandler.cpp
     {
         delete newpet;
         data << uint8(0x06);
