@@ -105,7 +105,7 @@ void UpdateData::Compress(void* dst, uint32 *dst_size, void* src, int src_size)
 
 bool UpdateData::BuildPacket(WorldPacket *packet)
 {
-    ByteBuffer buf(m_data.size());
+    ByteBuffer buf(m_data.size() + 10 + m_outOfRangeGUIDs.size()*8);
 
     buf << (uint32) (!m_outOfRangeGUIDs.empty() ? m_blockCount + 1 : m_blockCount);
 
@@ -128,7 +128,7 @@ bool UpdateData::BuildPacket(WorldPacket *packet)
 
     if (pSize > 100 )                                       // compress large packets
     {
-        packet->resize(pSize);
+        packet->resize(pSize * 1.1f + 16);
 
         packet->put<uint32>(0, pSize);
 
