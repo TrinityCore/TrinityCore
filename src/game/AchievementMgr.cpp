@@ -171,6 +171,22 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
                 return false;
             }
             return true;
+        case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_LEVEL:
+            if(level.minlevel < 0 || level.minlevel > STRONG_MAX_LEVEL)
+            {
+                sLog.outErrorDb( "Table `achievement_criteria_data` (Entry: %u Type: %u) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_T_LEVEL (%u) have wrong minlevel in value1 (%u), ignore.",
+                    criteria->ID, criteria->requiredType,dataType,level.minlevel);
+                return false;
+            }
+            return true;
+        case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_GENDER:
+            if(gender.gender > GENDER_NONE)
+            {
+                sLog.outErrorDb( "Table `achievement_criteria_data` (Entry: %u Type: %u) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_T_GENDER (%u) have wrong gender in value1 (%u), ignore.",
+                    criteria->ID, criteria->requiredType,dataType,gender.gender);
+                return false;
+            }
+            return true;
         default:
             sLog.outErrorDb( "Table `achievement_criteria_data` (Entry: %u Type: %u) have data for not supported data type (%u), ignore.", criteria->ID, criteria->requiredType,dataType);
             return false;
@@ -219,8 +235,15 @@ bool AchievementCriteriaData::Meets(Player const* source, Unit const* target, ui
             return target && target->HasAuraEffect(aura.spell_id,aura.effect_idx);
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_VALUE:
             return miscvalue1 >= value.minvalue;
+        case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_LEVEL:
+            if (!target)
+                return false;
+            return target->getLevel() >= level.minlevel;
+        case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_GENDER:
+            if (!target)
+                return false;
+            return target->getGender() == gender.gender;
     }
-
     return false;
 }
 
