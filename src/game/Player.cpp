@@ -15686,12 +15686,18 @@ bool Player::Satisfy(AccessRequirement const *ar, uint32 target_map, bool report
     if(!isGameMaster() && ar)
     {
         uint32 LevelMin = 0;
-        if(getLevel() < ar->levelMin && !sWorld.getConfig(CONFIG_INSTANCE_IGNORE_LEVEL))
-            LevelMin = ar->levelMin;
-
         uint32 LevelMax = 0;
-        if(ar->levelMax >= ar->levelMin && getLevel() > ar->levelMax && !sWorld.getConfig(CONFIG_INSTANCE_IGNORE_LEVEL))
-            LevelMax = ar->levelMax;
+
+        if(!sWorld.getConfig(CONFIG_INSTANCE_IGNORE_LEVEL))
+        {
+            if(ar->levelMin && getLevel() < ar->levelMin)
+                LevelMin = ar->levelMin;
+            else if(ar->heroicLevelMin && GetDifficulty() == DIFFICULTY_HEROIC
+                && getLevel() < ar->heroicLevelMin)
+                LevelMin = ar->heroicLevelMin;
+            if(ar->levelMax && getLevel() > ar->levelMax)
+                LevelMax = ar->levelMax;
+        }
 
         uint32 missingItem = 0;
         if(ar->item)
