@@ -22,6 +22,7 @@ SDCategory: Naxxramas
 EndScriptData */
 
 #include "precompiled.h"
+#include "def_naxxramas.h"
 
 //when shappiron dies. dialog between kel and lich king (in this order)
 #define SAY_SAPP_DIALOG1            -1533084
@@ -41,17 +42,12 @@ EndScriptData */
 
 #define SAY_SUMMON_MINIONS          -1533105                //start of phase 1
 
-#define SAY_AGGRO1                  -1533094                //start of phase 2
-#define SAY_AGGRO2                  -1533095
-#define SAY_AGGRO3                  -1533096
-
-#define SAY_SLAY1                   -1533097
-#define SAY_SLAY2                   -1533098
+#define SAY_AGGRO   RAND(-1533094,-1533095,-1533096)       //start of phase 2
+#define SAY_SLAY    RAND(-1533097,-1533098)
 
 #define SAY_DEATH                   -1533099
 
-#define SAY_CHAIN1                  -1533100
-#define SAY_CHAIN2                  -1533101
+#define SAY_CHAIN   RAND(-1533100,-1533101)
 #define SAY_FROST_BLAST             -1533102
 
 #define SAY_REQUEST_AID             -1533103                //start of phase 3
@@ -110,19 +106,13 @@ float Pos[12][4] =
     {3739.500000,-5141.883989,142.0141130, 2.121412}//RIGHT_NEAR
 };
 
-struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
 {
-    boss_kelthuzadAI(Creature* c) : ScriptedAI(c)
+    boss_kelthuzadAI(Creature* c) : BossAI(c, BOSS_KELTHUZAD)
     {
-        GuardiansOfIcecrown[0] = 0;
-        GuardiansOfIcecrown[1] = 0;
-        GuardiansOfIcecrown[2] = 0;
-        GuardiansOfIcecrown[3] = 0;
-        GuardiansOfIcecrown[4] = 0;
         GuardiansOfIcecrown_Count = 0;
     }
 
-    uint64 GuardiansOfIcecrown[5];
     uint32 GuardiansOfIcecrown_Count;
     uint32 GuardiansOfIcecrown_Timer;
 
@@ -144,6 +134,8 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
 
     void Reset()
     {
+        _Reset();
+
         SummonWasters_Timer=3000;                           // 3s summon waster
         SummonAbominations_Timer=25000;                   //25s summon abomination
         SummonAWeavers_Timer=20000;                         //20s summon Weavers
@@ -156,49 +148,25 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
         FrostBlast_Timer = (rand()%30+30)*1000;             //Random time between 30-60 seconds
         GuardiansOfIcecrown_Timer = 5000;                   //5 seconds for summoning each Guardian of Icecrown in phase 3
 
-        for(int i=0; i<5; i++)
-        {
-            if(GuardiansOfIcecrown[i])
-            {
-                //delete creature
-                Unit* pUnit = Unit::GetUnit((*m_creature), GuardiansOfIcecrown[i]);
-                if (pUnit && pUnit->isAlive())
-                    pUnit->DealDamage(pUnit, pUnit->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                GuardiansOfIcecrown[i] = 0;
-            }
-        }
-
         Phase1_Timer = 228000;                              //Phase 1 lasts 3 minutes and 48 seconds
         Phase=0;
     }
 
     void KilledUnit()
     {
-        if (rand()%2)
-            DoScriptText(SAY_SLAY1, m_creature);
-        else
-            DoScriptText(SAY_SLAY2, m_creature);
+        DoScriptText(SAY_SLAY, m_creature);
     }
 
     void JustDied(Unit* Killer)
     {
+        _JustDied();
         DoScriptText(SAY_DEATH, m_creature);
-    }
-
-    void SummonedCreatureDespawn(Creature *summon)
-    {
-        if(summon->GetEntry() == MOB_FISSURE)
-            summon->CastSpell(summon, SPELL_VOID_BLAST, true);
     }
 
     void EnterCombat(Unit* who)
     {
-        switch(rand()%3)
-        {
-        case 0: DoScriptText(SAY_AGGRO1, m_creature); break;
-        case 1: DoScriptText(SAY_AGGRO2, m_creature); break;
-        case 2: DoScriptText(SAY_AGGRO3, m_creature); break;
-        }
+        _EnterCombat();
+        DoScriptText(SAY_AGGRO, me);
         Phase=1;
     }
 
@@ -227,14 +195,6 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
                 case 2: Waster = m_creature->SummonCreature(MOB_WASTE,Pos[6][0], Pos[6][1], Pos[6][2], Pos[6][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
                 case 3: Waster = m_creature->SummonCreature(MOB_WASTE,Pos[9][0], Pos[9][1], Pos[9][2], Pos[9][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
                 }
-
-                if(Waster)
-                {
-                    Unit *target = NULL;
-                    target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                    if(target)
-                        Waster->AI()->AttackStart(target);
-                }
                 SummonWasters_Timer=3000;
             }else  SummonWasters_Timer-=diff;
 
@@ -249,14 +209,6 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
                 case 1: Abominations = m_creature->SummonCreature(MOB_ABOMINATION,Pos[4][0], Pos[4][1], Pos[4][2], Pos[4][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
                 case 2: Abominations = m_creature->SummonCreature(MOB_ABOMINATION,Pos[7][0], Pos[7][1], Pos[7][2], Pos[7][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
                 case 3: Abominations = m_creature->SummonCreature(MOB_ABOMINATION,Pos[10][0], Pos[10][1], Pos[10][2], Pos[10][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
-                }
-
-                if(Abominations)
-                {
-                    Unit *target = NULL;
-                    target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                    if(target)
-                        Abominations->AI()->AttackStart(target);
                 }
                 SummonAbominations_Timer=25000;
             }else  SummonAbominations_Timer-=diff;
@@ -274,58 +226,45 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
                 case 3: Weavers = m_creature->SummonCreature(MOB_WEAVER,Pos[9][0], Pos[9][1], Pos[9][2], Pos[9][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
                 }
 
-                if(Weavers)
-                {
-                    Unit *target = NULL;
-                    target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                    if(target)
-                        Weavers->AI()->AttackStart(target);
-                }
                 SummonAWeavers_Timer=30000;
             }else  SummonAWeavers_Timer-=diff;
 
         }
 
-        if( Phase!=1 && m_creature->getVictim() && m_creature->isAlive())
+        else if(m_creature->getVictim() && m_creature->isAlive())
         {
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-            //Check for Frost Bolt
             if(FrostBolt_Timer < diff)
             {
                 DoCast(m_creature->getVictim(),SPELL_FROST_BOLT);
-                //Cast again on time
                 FrostBolt_Timer = 2000;
             }else FrostBolt_Timer -= diff;
 
-            //Check for Frost Bolt Nova
             if(FrostBoltNova_Timer < diff)
             {
-                DoCast(m_creature->getVictim(),SPELL_FROST_BOLT_AOE);
+                DoCastAOE(SPELL_FROST_BOLT_AOE);
                 FrostBoltNova_Timer = 15000;
             }else FrostBoltNova_Timer -= diff;
 
-            //Cast  Chains Of Kelthuzad only on the Heroic instance
-            /*
+            if(HeroicMode)
+            {
             if(ChainsOfKelthuzad_Timer < diff)
             {
-            //DoCast(m_creature->getVictim(),SPELL_CHAINS_OF_KELTHUZAD);
+                if(Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
+                    DoCast(target, SPELL_CHAINS_OF_KELTHUZAD);
 
-            //if(rand()%2 == 0)
-            //DoScriptText(SAY_CHAIN1, m_creature);
-            //else
-            //DoScriptText(SAY_CHAIN2, m_creature);
-            ChainsOfKelthuzad_Timer = (rand()%30+30)*1000;
+                DoScriptText(SAY_CHAIN, me);
+                ChainsOfKelthuzad_Timer = (rand()%30+30)*1000;
             }else ChainsOfKelthuzad_Timer -= diff;
-            */
+            }
 
             //Check for Mana Detonation
             if(ManaDetonation_Timer < diff)
             {
-                std::list<HostilReference*> *threatList = &me->getThreatManager().getThreatList();
-                std::list<HostilReference*>::iterator itr = threatList->begin();
                 std::vector<Unit*> unitList;
-                for(;itr != threatList->end(); ++itr)
+                std::list<HostilReference*> *threatList = &me->getThreatManager().getThreatList();
+                for(std::list<HostilReference*>::const_iterator itr = threatList->begin(); itr != threatList->end(); ++itr)
                 {
                     if((*itr)->getTarget()->GetTypeId() == TYPEID_PLAYER
                         && (*itr)->getTarget()->getPowerType() == POWER_MANA
@@ -362,28 +301,27 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
             //cast Frost Blast to a random player
             if(FrostBlast_Timer < diff)
             {
-                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-                {
+                if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
                     DoCast(target,SPELL_FROST_BLAST);
-                    //obviously the spell doesn't work like the description
-                    //So, we need script this spell?
-                }
                 if(rand()%2 == 0)
                     DoScriptText(SAY_FROST_BLAST, m_creature);
                 FrostBlast_Timer = (rand()%30+30)*1000;
             }else FrostBlast_Timer -= diff;
 
             //start phase 3 when we are 40% health
-            if( Phase!=3 && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 40)
+            if(Phase != 3)
             {
-                Phase = 3 ;
-                DoScriptText(SAY_REQUEST_AID, m_creature);
-                //here Lich King should respond to KelThuzad but I don't know which creature to make talk
-                //so for now just make Kelthuzad says it.
-                DoScriptText(SAY_ANSWER_REQUEST, m_creature);
+                if(HealthBelowPct(40))
+                {
+                    Phase = 3 ;
+                    DoScriptText(SAY_REQUEST_AID, m_creature);
+                    //here Lich King should respond to KelThuzad but I don't know which creature to make talk
+                    //so for now just make Kelthuzad says it.
+                    DoScriptText(SAY_ANSWER_REQUEST, m_creature);
+                }
             }
-
-            if(Phase==3 && (GuardiansOfIcecrown_Count < 2)) //in normal raid ,only two Icecrown
+            else if(GuardiansOfIcecrown_Count < 2) //in normal raid ,only two Icecrown
+            {
                 if(GuardiansOfIcecrown_Timer < diff)
                 {
                     //Summon a Guardian of Icecrown in a random alcove
@@ -401,26 +339,15 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public ScriptedAI
                         break;
                     }
 
-                    if (pUnit)
-                    {
-
-                        if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-                        {
-                            pUnit->AI()->AttackStart(target);
-                        }
-                        //Safe storing of creatures
-                        GuardiansOfIcecrown[GuardiansOfIcecrown_Count] = pUnit->GetGUID();
-
                         //Update guardian count
                         GuardiansOfIcecrown_Count++;
-
-                    }
                     //5 seconds until summoning next guardian
                     GuardiansOfIcecrown_Timer = 5000;
                 }
                 else GuardiansOfIcecrown_Timer -= diff;
+            }
 
-                DoMeleeAttackIfReady();
+            DoMeleeAttackIfReady();
         }
     }
 };

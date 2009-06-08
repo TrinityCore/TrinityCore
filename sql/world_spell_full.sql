@@ -1666,7 +1666,8 @@ scriptname = VALUES(scriptname);
 INSERT INTO creature_template (entry, baseattacktime, spell1, flags_extra, scriptname) VALUES
 (16474, 1000, 28547, 128, 'trigger_periodic'), # Blizzard (Sapphiron)
 (30000, 1000, 55699, 128, ''), # Blizzard (Sapphiron) (H)
-(16697, 1000, 28865, 128, 'trigger_periodic') # Void Zone (Lady Blaumeux)
+(16697, 1000, 28865, 128, 'trigger_periodic'), # Void Zone (Lady Blaumeux)
+(16129, 10000, 27812, 128, 'trigger_periodic') # Shadow Fissure (Kel'thezad)
 ON DUPLICATE KEY UPDATE
 baseattacktime = VALUES(baseattacktime),
 spell1 = VALUES(spell1),
@@ -1738,6 +1739,10 @@ spell5 = VALUES(spell5),
 spell6 = VALUES(spell6),
 spell7 = VALUES(spell7),
 spell8 = VALUES(spell8);
+
+# Spore
+UPDATE `creature_template` SET `minlevel`='80',`maxlevel`='80',`faction_A`='21',`faction_H`='21' WHERE entry IN (16286,30068);
+
 
 -- --------
 -- WINTERGRASP
