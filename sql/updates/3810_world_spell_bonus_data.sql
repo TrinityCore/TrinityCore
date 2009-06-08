@@ -1,5 +1,5 @@
 -- by Drahy
-UPDATE `spell_bonus_data` SET `direct_bonus` = '0,6453' WHERE `entry`=33763;
+UPDATE `spell_bonus_data` SET `direct_bonus` = '0.6453' WHERE `entry`=33763;
 UPDATE `spell_bonus_data` SET `direct_bonus` = '0.67305' WHERE `entry`=50464;
 UPDATE `spell_bonus_data` SET `dot_bonus` = '0.2' WHERE `entry`=5570;
 UPDATE `spell_bonus_data` SET `direct_bonus` = '0.7143' WHERE `entry`=44425;
