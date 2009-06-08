@@ -369,7 +369,9 @@ void CliRunnable::run()
     bool canflush = true;
     ///- Display the list of available CLI functions then beep
     sLog.outString();
+	#if PLATFORM != WINDOWS
     rl_attempted_completion_function = cli_completion;
+    	#endif
     if(sConfig.GetBoolDefault("BeepAtStart", true))
         printf("\a");                                       // \a = Alert
 
@@ -417,8 +419,10 @@ void CliRunnable::run()
                 continue;
             }
 	    fflush(stdout);
+	     #if PLATFORM != WINDOWS
             sWorld.QueueCliCommand(&utf8print,command.c_str());
 	    add_history(command.c_str());
+	     #endif
 
 	}
         else if (feof(stdin))
