@@ -44,36 +44,28 @@ EndScriptData */
 
 #define SAY_AGGRO   RAND(-1533094,-1533095,-1533096)       //start of phase 2
 #define SAY_SLAY    RAND(-1533097,-1533098)
-
-#define SAY_DEATH                   -1533099
-
+#define SAY_DEATH   -1533099
 #define SAY_CHAIN   RAND(-1533100,-1533101)
 #define SAY_FROST_BLAST             -1533102
+#define SAY_SPECIAL RAND(-1533106,-1533107,-1533108)
 
 #define SAY_REQUEST_AID             -1533103                //start of phase 3
 #define SAY_ANSWER_REQUEST          -1533104                //lich king answer
 
-#define SAY_SPECIAL1_MANA_DET       -1533106
-#define SAY_SPECIAL3_MANA_DET       -1533107
-#define SAY_SPECIAL2_DISPELL        -1533108
+enum Event
+{
+    EVENT_BOLT = 1,
+    EVENT_NOVA,
+    EVENT_CHAIN,
+    EVENT_DETONATE,
+    EVENT_FISSURE,
+    EVENT_BLAST,
 
-//***THIS SCRIPTS IS UNDER DEVELOPMENT***
-/*
-DATA.
-This script has been made with info taken from wowwikki... so there are things wrong...
-like spell timers and Says. Also there's another major problem as there is no aggroed list
-I cannot make Kel'thuzad to target specific party members, that is needed for spells like
-Mana Detonation... so what I'm doing untill now is just to cast everything on my main aggroed
-target. Sorry for him.
-Another bug is that there are spells that are actually NOT working... I have to implement
-them first.
-Need DISPELL efect
-I also don't know the emotes
-*/
-
-//common needed defines
-#define NAXXRAMAS_MAP                533
-//Positional defines
+    EVENT_WASTE,
+    EVENT_ABOMIN,
+    EVENT_WEAVER,
+    EVENT_ICECROWN,
+};
 
 #define SPELL_FROST_BOLT            HEROIC(28478,55802)
 #define SPELL_FROST_BOLT_AOE        HEROIC(28479,55807)
@@ -87,7 +79,6 @@ I also don't know the emotes
 #define MOB_WASTE                   16427 // Soldiers of the Frozen Wastes
 #define MOB_ABOMINATION             16428 // Unstoppable Abominations
 #define MOB_WEAVER                  16429 // Soul Weavers
-#define MOB_FISSURE                 16129 // Shadow Fissure
 #define MOB_ICECROWN                16441 // Guardians of Icecrown
 
 float Pos[12][4] =
@@ -108,44 +99,20 @@ float Pos[12][4] =
 
 struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
 {
-    boss_kelthuzadAI(Creature* c) : BossAI(c, BOSS_KELTHUZAD)
-    {
-        GuardiansOfIcecrown_Count = 0;
-    }
+    boss_kelthuzadAI(Creature* c) : BossAI(c, BOSS_KELTHUZAD) {}
 
     uint32 GuardiansOfIcecrown_Count;
-    uint32 GuardiansOfIcecrown_Timer;
-
-    //phase==1 summon_timer
-    uint32 SummonWasters_Timer;
-    uint32 SummonAbominations_Timer;
-    uint32 SummonAWeavers_Timer;
-
-    //phase==2,spell_timer
-    uint32 FrostBolt_Timer;
-    uint32 FrostBoltNova_Timer;
-    uint32 ChainsOfKelthuzad_Timer;
-    uint32 ManaDetonation_Timer;
-    uint32 ShadowFisure_Timer;
-    uint32 FrostBlast_Timer;
 
     uint32 Phase1_Timer;
     uint32 Phase;
+    uint32 GuardiansOfIcecrown_Timer;
 
     void Reset()
     {
         _Reset();
+        me->SetReactState(REACT_AGGRESSIVE);
+        GuardiansOfIcecrown_Count = 0;
 
-        SummonWasters_Timer=3000;                           // 3s summon waster
-        SummonAbominations_Timer=25000;                   //25s summon abomination
-        SummonAWeavers_Timer=20000;                         //20s summon Weavers
-
-        FrostBolt_Timer = 2000;                         //2s CD
-        FrostBoltNova_Timer = 15000;                        //Cast every 15 seconds
-        ChainsOfKelthuzad_Timer = (rand()%30+30)*1000;      //Cast no sooner than once every 30 seconds
-        ManaDetonation_Timer = 20000;                       //Seems to cast about every 20 seconds
-        ShadowFisure_Timer = 25000;                         //25 seconds
-        FrostBlast_Timer = (rand()%30+30)*1000;             //Random time between 30-60 seconds
         GuardiansOfIcecrown_Timer = 5000;                   //5 seconds for summoning each Guardian of Icecrown in phase 3
 
         Phase1_Timer = 228000;                              //Phase 1 lasts 3 minutes and 48 seconds
@@ -168,146 +135,57 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
         _EnterCombat();
         DoScriptText(SAY_AGGRO, me);
         Phase=1;
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        me->SetReactState(REACT_PASSIVE);
+        events.ScheduleEvent(EVENT_WASTE, 3000);
+        events.ScheduleEvent(EVENT_ABOMIN, 25000);
+        events.ScheduleEvent(EVENT_WEAVER, 20000);
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if (!UpdateVictim())
+        if(!UpdateCombatState())
             return;
+
+        events.Update(diff);
+
         if (Phase1_Timer<diff && Phase==1)
         {
+            events.ScheduleEvent(EVENT_BOLT, 2000);
+            events.ScheduleEvent(EVENT_NOVA, 15000);
+            events.ScheduleEvent(EVENT_DETONATE, 20000);
+            events.ScheduleEvent(EVENT_FISSURE, 25000);
+            events.ScheduleEvent(EVENT_BLAST, (rand()%30+30)*1000);
+            if(HeroicMode)
+                events.ScheduleEvent(EVENT_CHAIN, (rand()%30+30)*1000);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->SetReactState(REACT_AGGRESSIVE);
             Phase=2;
         }else Phase1_Timer-=diff;
 
         if(Phase == 1)
         {
-            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            //EnterEvadeMode();
-            //SummonWasters_Timer at far positon
-            if ( SummonWasters_Timer< diff)
+            while(uint32 eventId = events.ExecuteEvent())
             {
-
-                Creature *Waster = NULL;
-                switch(rand()%4)
+                switch(eventId)
                 {
-                case 0: Waster = m_creature->SummonCreature(MOB_WASTE,Pos[0][0], Pos[0][1], Pos[0][2], Pos[0][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
-                case 1: Waster = m_creature->SummonCreature(MOB_WASTE,Pos[3][0], Pos[3][1], Pos[3][2], Pos[3][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
-                case 2: Waster = m_creature->SummonCreature(MOB_WASTE,Pos[6][0], Pos[6][1], Pos[6][2], Pos[6][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
-                case 3: Waster = m_creature->SummonCreature(MOB_WASTE,Pos[9][0], Pos[9][1], Pos[9][2], Pos[9][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
+                    case EVENT_WASTE:
+                        DoSummon(MOB_WASTE, Pos[RAND(0,3,6,9)]);
+                        events.ScheduleEvent(EVENT_WASTE, 3000);
+                        break;
+                    case EVENT_ABOMIN:
+                        DoSummon(MOB_ABOMINATION, Pos[RAND(1,4,7,10)]);
+                        events.ScheduleEvent(EVENT_ABOMIN, 25000);
+                        break;
+                    case EVENT_WEAVER:
+                        DoSummon(MOB_WEAVER, Pos[RAND(0,3,6,9)]);
+                        events.ScheduleEvent(EVENT_WEAVER, 20000);
+                        break;
                 }
-                SummonWasters_Timer=3000;
-            }else  SummonWasters_Timer-=diff;
-
-            //MOB_ABOMINATION at middle positon
-            if ( SummonAbominations_Timer< diff)
-            {
-
-                Creature *Abominations = NULL;
-                switch(rand()%4)
-                {
-                case 0: Abominations = m_creature->SummonCreature(MOB_ABOMINATION,Pos[1][0], Pos[1][1], Pos[1][2], Pos[1][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
-                case 1: Abominations = m_creature->SummonCreature(MOB_ABOMINATION,Pos[4][0], Pos[4][1], Pos[4][2], Pos[4][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
-                case 2: Abominations = m_creature->SummonCreature(MOB_ABOMINATION,Pos[7][0], Pos[7][1], Pos[7][2], Pos[7][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
-                case 3: Abominations = m_creature->SummonCreature(MOB_ABOMINATION,Pos[10][0], Pos[10][1], Pos[10][2], Pos[10][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
-                }
-                SummonAbominations_Timer=25000;
-            }else  SummonAbominations_Timer-=diff;
-
-            //SummonAWeavers_Timer at far positon
-            if ( SummonAWeavers_Timer< diff)
-            {
-
-                Creature *Weavers = NULL;
-                switch(rand()%4)
-                {
-                case 0: Weavers = m_creature->SummonCreature(MOB_WEAVER,Pos[0][0], Pos[0][1], Pos[0][2], Pos[0][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
-                case 1: Weavers = m_creature->SummonCreature(MOB_WEAVER,Pos[3][0], Pos[3][1], Pos[3][2], Pos[3][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
-                case 2: Weavers = m_creature->SummonCreature(MOB_WEAVER,Pos[6][0], Pos[6][1], Pos[6][2], Pos[6][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
-                case 3: Weavers = m_creature->SummonCreature(MOB_WEAVER,Pos[9][0], Pos[9][1], Pos[9][2], Pos[9][3], TEMPSUMMON_CORPSE_DESPAWN, 0); break;
-                }
-
-                SummonAWeavers_Timer=30000;
-            }else  SummonAWeavers_Timer-=diff;
-
-        }
-
-        else if(m_creature->getVictim() && m_creature->isAlive())
-        {
-            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-
-            if(FrostBolt_Timer < diff)
-            {
-                DoCast(m_creature->getVictim(),SPELL_FROST_BOLT);
-                FrostBolt_Timer = 2000;
-            }else FrostBolt_Timer -= diff;
-
-            if(FrostBoltNova_Timer < diff)
-            {
-                DoCastAOE(SPELL_FROST_BOLT_AOE);
-                FrostBoltNova_Timer = 15000;
-            }else FrostBoltNova_Timer -= diff;
-
-            if(HeroicMode)
-            {
-            if(ChainsOfKelthuzad_Timer < diff)
-            {
-                if(Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
-                    DoCast(target, SPELL_CHAINS_OF_KELTHUZAD);
-
-                DoScriptText(SAY_CHAIN, me);
-                ChainsOfKelthuzad_Timer = (rand()%30+30)*1000;
-            }else ChainsOfKelthuzad_Timer -= diff;
             }
-
-            //Check for Mana Detonation
-            if(ManaDetonation_Timer < diff)
-            {
-                std::vector<Unit*> unitList;
-                std::list<HostilReference*> *threatList = &me->getThreatManager().getThreatList();
-                for(std::list<HostilReference*>::const_iterator itr = threatList->begin(); itr != threatList->end(); ++itr)
-                {
-                    if((*itr)->getTarget()->GetTypeId() == TYPEID_PLAYER
-                        && (*itr)->getTarget()->getPowerType() == POWER_MANA
-                        && (*itr)->getTarget()->GetPower(POWER_MANA))
-                        unitList.push_back((*itr)->getTarget());
-                }
-
-                if(!unitList.empty())
-                {
-                    std::vector<Unit*>::iterator itr = unitList.begin();
-                    advance(itr, rand()%unitList.size());
-                    DoCast(*itr, SPELL_MANA_DETONATION);
-                }
-
-                if (rand()%2)
-                    DoScriptText(SAY_SPECIAL1_MANA_DET, m_creature);
-                ManaDetonation_Timer = 20000;
-            }else ManaDetonation_Timer -= diff;
-
-            //Summons a Shadow Fissure underneath a random player.
-            //The fissure will stay inactive for about 3 seconds, after which it will become a beam of purple energy,
-            //instantly killing the player if they remain in it.
-
-            if(ShadowFisure_Timer < diff)
-            {
-                if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-                    DoCast(target, SPELL_SHADOW_FISURE);
-
-                if (rand()%2)
-                    DoScriptText(SAY_SPECIAL3_MANA_DET, m_creature);
-                ShadowFisure_Timer = 25000;
-            }else ShadowFisure_Timer -= diff;
-
-            //cast Frost Blast to a random player
-            if(FrostBlast_Timer < diff)
-            {
-                if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-                    DoCast(target,SPELL_FROST_BLAST);
-                if(rand()%2 == 0)
-                    DoScriptText(SAY_FROST_BLAST, m_creature);
-                FrostBlast_Timer = (rand()%30+30)*1000;
-            }else FrostBlast_Timer -= diff;
-
+        }
+        else
+        {
             //start phase 3 when we are 40% health
             if(Phase != 3)
             {
@@ -320,31 +198,74 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
                     DoScriptText(SAY_ANSWER_REQUEST, m_creature);
                 }
             }
-            else if(GuardiansOfIcecrown_Count < 2) //in normal raid ,only two Icecrown
+            else if(GuardiansOfIcecrown_Count < HEROIC(2,5))
             {
                 if(GuardiansOfIcecrown_Timer < diff)
                 {
-                    //Summon a Guardian of Icecrown in a random alcove
-                    TempSummon* pUnit = NULL;
-                    switch(rand()%3)
-                    {
-                    case 0:
-                        pUnit = m_creature->SummonCreature(MOB_ICECROWN,Pos[2][0],Pos[2][1],Pos[2][2],Pos[2][3],TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,1000);
-                        break;
-                    case 1:
-                        pUnit = m_creature->SummonCreature(MOB_ICECROWN,Pos[5][0],Pos[5][1],Pos[5][2],Pos[5][3],TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,1000);
-                        break;
-                    case 2:
-                        pUnit = m_creature->SummonCreature(MOB_ICECROWN,Pos[8][0],Pos[8][1],Pos[8][2],Pos[8][3],TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,1000);
-                        break;
-                    }
-
-                        //Update guardian count
-                        GuardiansOfIcecrown_Count++;
-                    //5 seconds until summoning next guardian
+                    DoSummon(MOB_ICECROWN, Pos[RAND(2,5,8)]);
+                    ++GuardiansOfIcecrown_Count;
                     GuardiansOfIcecrown_Timer = 5000;
                 }
                 else GuardiansOfIcecrown_Timer -= diff;
+            }
+
+            if(me->hasUnitState(UNIT_STAT_CASTING))
+                return;
+
+            if(uint32 eventId = events.ExecuteEvent())
+            {
+                switch(eventId)
+                {
+                    case EVENT_BOLT:
+                        DoCast(m_creature->getVictim(),SPELL_FROST_BOLT);
+                        events.ScheduleEvent(EVENT_BOLT, 2000);
+                        return;
+                    case EVENT_NOVA:
+                        DoCastAOE(SPELL_FROST_BOLT_AOE);
+                        events.ScheduleEvent(EVENT_NOVA, 15000);
+                        return;
+                    case EVENT_CHAIN:
+                        if(Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
+                            DoCast(target, SPELL_CHAINS_OF_KELTHUZAD);
+                        DoScriptText(SAY_CHAIN, me);
+                        events.ScheduleEvent(EVENT_CHAIN, (rand()%30+30)*1000);
+                        return;
+                    case EVENT_DETONATE:
+                    {
+                        std::vector<Unit*> unitList;
+                        std::list<HostilReference*> *threatList = &me->getThreatManager().getThreatList();
+                        for(std::list<HostilReference*>::const_iterator itr = threatList->begin(); itr != threatList->end(); ++itr)
+                        {
+                            if((*itr)->getTarget()->GetTypeId() == TYPEID_PLAYER
+                                && (*itr)->getTarget()->getPowerType() == POWER_MANA
+                                && (*itr)->getTarget()->GetPower(POWER_MANA))
+                                unitList.push_back((*itr)->getTarget());
+                        }
+
+                        if(!unitList.empty())
+                        {
+                            std::vector<Unit*>::iterator itr = unitList.begin();
+                            advance(itr, rand()%unitList.size());
+                            DoCast(*itr, SPELL_MANA_DETONATION);
+                            DoScriptText(SAY_SPECIAL, me);
+                        }
+
+                        events.ScheduleEvent(EVENT_DETONATE, 20000);
+                        return;                        
+                    }
+                    case EVENT_FISSURE:
+                        if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+                            DoCast(target, SPELL_SHADOW_FISURE);
+                        events.ScheduleEvent(EVENT_FISSURE, 25000);
+                        return;
+                    case EVENT_BLAST:
+                        if(Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
+                            DoCast(target, SPELL_FROST_BLAST);
+                        if(rand()%2)
+                            DoScriptText(SAY_FROST_BLAST, m_creature);
+                        events.ScheduleEvent(EVENT_BLAST, (rand()%30+30)*1000);
+                        return;
+                }
             }
 
             DoMeleeAttackIfReady();
