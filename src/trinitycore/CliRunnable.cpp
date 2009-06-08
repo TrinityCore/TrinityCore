@@ -37,6 +37,56 @@
 #include "Player.h"
 #include "Chat.h"
 
+#if PLATFORM != WINDOWS
+#include <readline/readline.h>
+#include <readline/history.h>
+
+char * command_finder(const char* text, int state)
+{
+  static int idx,len;
+  const char* ret;
+  ChatCommand *cmd = ChatHandler::getCommandTable();
+
+  if(!state)
+    {
+      idx = 0;
+      len = strlen(text);
+    }
+
+  while(ret = cmd[idx].Name)
+    {
+      if(!cmd[idx].AllowConsole)
+	{
+	idx++;
+	continue;
+	}
+
+      idx++;
+      //printf("Checking %s \n", cmd[idx].Name);
+      if (strncmp(ret, text, len) == 0)
+	return strdup(ret);
+      if(cmd[idx].Name == NULL)
+	break;
+    }
+
+  return ((char*)NULL);
+
+}
+
+char ** cli_completion(const char * text, int start, int end)
+{
+  char ** matches;
+  matches = (char**)NULL;
+  
+  if(start == 0)
+    matches = rl_completion_matches((char*)text,&command_finder);
+  else
+    rl_bind_key('\t',rl_abort);
+  return (matches);
+}
+
+#endif
+
 void utf8print(const char* str)
 {
 #if PLATFORM == PLATFORM_WINDOWS
@@ -316,10 +366,10 @@ void CliRunnable::run()
     WorldDatabase.ThreadStart();                                // let thread do safe mySQL requests
 
     char commandbuf[256];
-
+    bool canflush = true;
     ///- Display the list of available CLI functions then beep
     sLog.outString();
-
+    rl_attempted_completion_function = cli_completion;
     if(sConfig.GetBoolDefault("BeepAtStart", true))
         printf("\a");                                       // \a = Alert
 
@@ -331,15 +381,16 @@ void CliRunnable::run()
     while (!World::IsStopped())
     {
         fflush(stdout);
-        #ifdef linux
-        while (!kb_hit_return() && !World::IsStopped())
-            // With this, we limit CLI to 10commands/second
-            usleep(100);
-        if (World::IsStopped())
-            break;
-        #endif
-        char *command_str = fgets(commandbuf,sizeof(commandbuf),stdin);
-        if (command_str != NULL)
+
+        char *command_str ;             // = fgets(commandbuf,sizeof(commandbuf),stdin);
+
+	#if PLATFORM == WINDOWS
+	command_str = fgets(commandbuf,sizeof(commandbuf),stdin);
+	#else
+	command_str = readline("TC>");
+	rl_bind_key('\t',rl_complete);
+	#endif
+	if (command_str != NULL)
         {
             for(int x=0;command_str[x];x++)
                 if(command_str[x]=='\r'||command_str[x]=='\n')
@@ -351,23 +402,30 @@ void CliRunnable::run()
 
             if(!*command_str)
             {
-                printf("TC>");
+	      #if PLATFORM == WINDOWS
+	        printf("TC>");
+	      #endif
                 continue;
             }
 
             std::string command;
             if(!consoleToUtf8(command_str,command))         // convert from console encoding to utf8
             {
-                printf("TC>");
+	      #if PLATFORM == WINDOWS
+	        printf("TC>");
+	      #endif
                 continue;
             }
-
+	    fflush(stdout);
             sWorld.QueueCliCommand(&utf8print,command.c_str());
-        }
+	    add_history(command.c_str());
+
+	}
         else if (feof(stdin))
         {
             World::StopNow(SHUTDOWN_EXIT_CODE);
         }
+
     }
 
     ///- End the database thread
