@@ -7472,9 +7472,7 @@ bool ChatHandler::HandleUnPossessCommand(const char* args)
     Unit* pUnit = getSelectedUnit();
     if(!pUnit) pUnit = m_session->GetPlayer();
 
-    pUnit->RemoveAurasByType(SPELL_AURA_MOD_CHARM);
-    pUnit->RemoveAurasByType(SPELL_AURA_MOD_POSSESS_PET);
-    pUnit->RemoveAurasByType(SPELL_AURA_MOD_POSSESS);
+    pUnit->RemoveCharmAuras();
 
     return true;
 }

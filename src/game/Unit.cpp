@@ -8711,6 +8711,7 @@ void Unit::RemoveCharmAuras()
     RemoveAurasByType(SPELL_AURA_MOD_CHARM);
     RemoveAurasByType(SPELL_AURA_MOD_POSSESS_PET);
     RemoveAurasByType(SPELL_AURA_MOD_POSSESS);
+    RemoveAurasByType(SPELL_AURA_AOE_CHARM);
 }
 
 void Unit::UnsummonAllTotems()
@@ -13673,6 +13674,7 @@ void Unit::SetCharmedBy(Unit* charmer, CharmType type)
                 ((Player*)charmer)->CharmSpellInitialize();
                 break;
             default:
+            case CHARM_TYPE_CONVERT:
                 break;
         }
     }      
@@ -13762,6 +13764,7 @@ void Unit::RemoveCharmedBy(Unit *charmer)
                 }
                 break;
             default:
+            case CHARM_TYPE_CONVERT:
                 break;
         }
     }
