@@ -759,6 +759,7 @@ struct AccessRequirement
 {
     uint8  levelMin;
     uint8  levelMax;
+    uint8  heroicLevelMin;
     uint32 item;
     uint32 item2;
     uint32 heroicKey;
