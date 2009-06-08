@@ -113,7 +113,6 @@ struct TRINITY_DLL_DECL boss_gothikAI : public BossAI
     {
         liveTrigger.clear();
         deadTrigger.clear();
-        me->setActive(false);
         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
         me->SetReactState(REACT_PASSIVE);
         _Reset();
@@ -136,7 +135,6 @@ struct TRINITY_DLL_DECL boss_gothikAI : public BossAI
         }
 
         _EnterCombat();
-        me->setActive(true);
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
         waveCount = 0;
         events.ScheduleEvent(EVENT_SUMMON, 30000);

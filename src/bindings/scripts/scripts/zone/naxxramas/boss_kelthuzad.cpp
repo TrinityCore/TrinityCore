@@ -65,6 +65,8 @@ enum Event
     EVENT_ABOMIN,
     EVENT_WEAVER,
     EVENT_ICECROWN,
+
+    EVENT_PHASE,
 };
 
 #define SPELL_FROST_BOLT            HEROIC(28478,55802)
@@ -103,7 +105,6 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
 
     uint32 GuardiansOfIcecrown_Count;
 
-    uint32 Phase1_Timer;
     uint32 Phase;
     uint32 GuardiansOfIcecrown_Timer;
 
@@ -115,7 +116,6 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
 
         GuardiansOfIcecrown_Timer = 5000;                   //5 seconds for summoning each Guardian of Icecrown in phase 3
 
-        Phase1_Timer = 228000;                              //Phase 1 lasts 3 minutes and 48 seconds
         Phase=0;
     }
 
@@ -140,6 +140,7 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
         events.ScheduleEvent(EVENT_WASTE, 3000);
         events.ScheduleEvent(EVENT_ABOMIN, 25000);
         events.ScheduleEvent(EVENT_WEAVER, 20000);
+        events.ScheduleEvent(EVENT_PHASE, 228000);
     }
 
     void UpdateAI(const uint32 diff)
@@ -149,37 +150,39 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
 
         events.Update(diff);
 
-        if (Phase1_Timer<diff && Phase==1)
-        {
-            events.ScheduleEvent(EVENT_BOLT, 2000);
-            events.ScheduleEvent(EVENT_NOVA, 15000);
-            events.ScheduleEvent(EVENT_DETONATE, 20000);
-            events.ScheduleEvent(EVENT_FISSURE, 25000);
-            events.ScheduleEvent(EVENT_BLAST, (rand()%30+30)*1000);
-            if(HeroicMode)
-                events.ScheduleEvent(EVENT_CHAIN, (rand()%30+30)*1000);
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            me->SetReactState(REACT_AGGRESSIVE);
-            Phase=2;
-        }else Phase1_Timer-=diff;
-
         if(Phase == 1)
         {
-            while(uint32 eventId = events.ExecuteEvent())
+            while(uint32 eventId = events.GetEvent())
             {
                 switch(eventId)
                 {
                     case EVENT_WASTE:
                         DoSummon(MOB_WASTE, Pos[RAND(0,3,6,9)]);
-                        events.ScheduleEvent(EVENT_WASTE, 3000);
+                        events.RepeatEvent(3000);
                         break;
                     case EVENT_ABOMIN:
                         DoSummon(MOB_ABOMINATION, Pos[RAND(1,4,7,10)]);
-                        events.ScheduleEvent(EVENT_ABOMIN, 25000);
+                        events.RepeatEvent(25000);
                         break;
                     case EVENT_WEAVER:
                         DoSummon(MOB_WEAVER, Pos[RAND(0,3,6,9)]);
-                        events.ScheduleEvent(EVENT_WEAVER, 20000);
+                        events.RepeatEvent(20000);
+                        break;
+                    case EVENT_PHASE:
+                        events.Reset();
+                        events.ScheduleEvent(EVENT_BOLT, 2000);
+                        events.ScheduleEvent(EVENT_NOVA, 15000);
+                        events.ScheduleEvent(EVENT_DETONATE, 20000);
+                        events.ScheduleEvent(EVENT_FISSURE, 25000);
+                        events.ScheduleEvent(EVENT_BLAST, (rand()%30+30)*1000);
+                        if(HeroicMode)
+                            events.ScheduleEvent(EVENT_CHAIN, (rand()%30+30)*1000);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        me->SetReactState(REACT_AGGRESSIVE);
+                        Phase = 2;
+                        return;
+                    default:
+                        events.PopEvent();
                         break;
                 }
             }
@@ -212,23 +215,23 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
             if(me->hasUnitState(UNIT_STAT_CASTING))
                 return;
 
-            if(uint32 eventId = events.ExecuteEvent())
+            if(uint32 eventId = events.GetEvent())
             {
                 switch(eventId)
                 {
                     case EVENT_BOLT:
                         DoCast(m_creature->getVictim(),SPELL_FROST_BOLT);
-                        events.ScheduleEvent(EVENT_BOLT, 2000);
+                        events.RepeatEvent(2000);
                         return;
                     case EVENT_NOVA:
                         DoCastAOE(SPELL_FROST_BOLT_AOE);
-                        events.ScheduleEvent(EVENT_NOVA, 15000);
+                        events.RepeatEvent(15000);
                         return;
                     case EVENT_CHAIN:
                         if(Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
                             DoCast(target, SPELL_CHAINS_OF_KELTHUZAD);
                         DoScriptText(SAY_CHAIN, me);
-                        events.ScheduleEvent(EVENT_CHAIN, (rand()%30+30)*1000);
+                        events.RepeatEvent((rand()%30+30)*1000);
                         return;
                     case EVENT_DETONATE:
                     {
@@ -250,20 +253,23 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
                             DoScriptText(SAY_SPECIAL, me);
                         }
 
-                        events.ScheduleEvent(EVENT_DETONATE, 20000);
+                        events.RepeatEvent(20000);
                         return;                        
                     }
                     case EVENT_FISSURE:
                         if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
                             DoCast(target, SPELL_SHADOW_FISURE);
-                        events.ScheduleEvent(EVENT_FISSURE, 25000);
+                        events.RepeatEvent(25000);
                         return;
                     case EVENT_BLAST:
                         if(Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
                             DoCast(target, SPELL_FROST_BLAST);
                         if(rand()%2)
                             DoScriptText(SAY_FROST_BLAST, m_creature);
-                        events.ScheduleEvent(EVENT_BLAST, (rand()%30+30)*1000);
+                        events.RepeatEvent((rand()%30+30)*1000);
+                        return;
+                    default:
+                        events.PopEvent();
                         return;
                 }
             }

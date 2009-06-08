@@ -129,6 +129,20 @@ class EventMap : private std::map<uint32, uint32>
             ScheduleEvent(eventId, time, gcd, phase);
         }
 
+        void RepeatEvent(uint32 time)
+        {
+            if(empty())
+                return;
+            uint32 eventId = begin()->second;
+            erase(begin());
+            insert(std::make_pair(time, eventId));
+        }
+
+        void PopEvent()
+        {
+            erase(begin());
+        }
+
         uint32 ExecuteEvent()
         {
             while(!empty())
@@ -141,6 +155,23 @@ class EventMap : private std::map<uint32, uint32>
                 {
                     uint32 eventId = (begin()->second & 0x0000FFFF);
                     erase(begin());
+                    return eventId;
+                }
+            }
+            return 0;
+        }
+
+        uint32 GetEvent()
+        {
+            while(!empty())
+            {
+                if(begin()->first > m_time)
+                    return 0;
+                else if(m_phase && (begin()->second & 0xFF000000) && !(begin()->second & m_phase))
+                    erase(begin());
+                else
+                {
+                    uint32 eventId = (begin()->second & 0x0000FFFF);
                     return eventId;
                 }
             }
