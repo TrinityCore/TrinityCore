@@ -359,6 +359,7 @@ class ChatHandler
         bool HandleReloadGOQuestRelationsCommand(const char* args);
         bool HandleReloadGOQuestInvRelationsCommand(const char* args);
         bool HandleReloadItemEnchantementsCommand(const char* args);
+        bool HandleReloadItemRequiredTragetCommand(const char* args);
         bool HandleReloadLocalesAchievementRewardCommand(const char* args);
         bool HandleReloadLocalesCreatureCommand(const char* args);
         bool HandleReloadLocalesGameobjectCommand(const char* args);

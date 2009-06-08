@@ -43,7 +43,7 @@ bool ChatHandler::HandleDebugSendSpellFailCommand(const char* args)
         return false;
 
     char* px = strtok((char*)args, " ");
-    if(!px)
+    if (!px)
         return false;
 
     uint8 failnum = (uint8)atoi(px);
@@ -56,14 +56,13 @@ bool ChatHandler::HandleDebugSendSpellFailCommand(const char* args)
     char* p2 = strtok(NULL, " ");
     uint8 failarg2 = p2 ? (uint8)atoi(p2) : 0;
 
-
     WorldPacket data(SMSG_CAST_FAILED, 5);
     data << uint8(0);
     data << uint32(133);
     data << uint8(failnum);
-    if(p1 || p2)
+    if (p1 || p2)
         data << uint32(failarg1);
-    if(p2)
+    if (p2)
         data << uint32(failarg2);
 
     m_session->SendPacket(&data);
