@@ -477,6 +477,7 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
                 case SPELL_AURA_MOD_CHARM:
                 case SPELL_AURA_MOD_POSSESS_PET:
                 case SPELL_AURA_MOD_POSSESS:
+                case SPELL_AURA_AOE_CHARM:
                     return SPELL_CHARM;
                 case SPELL_AURA_TRACK_CREATURES:
                 case SPELL_AURA_TRACK_RESOURCES:
@@ -3310,6 +3311,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 case SPELL_AURA_MOD_POSSESS:
                 case SPELL_AURA_MOD_CONFUSE:
                 case SPELL_AURA_MOD_CHARM:
+                case SPELL_AURA_AOE_CHARM:
                 case SPELL_AURA_MOD_FEAR:
                 case SPELL_AURA_MOD_STUN:
                     mSpellCustomAttr[i] |= SPELL_ATTR_CU_AURA_CC;

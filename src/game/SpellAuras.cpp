@@ -229,7 +229,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &AuraEffect::HandleModSpellDamagePercentFromStat,             //174 SPELL_AURA_MOD_SPELL_DAMAGE_OF_STAT_PERCENT  implemented in Unit::SpellBaseDamageBonus
     &AuraEffect::HandleModSpellHealingPercentFromStat,            //175 SPELL_AURA_MOD_SPELL_HEALING_OF_STAT_PERCENT implemented in Unit::SpellBaseHealingBonus
     &AuraEffect::HandleSpiritOfRedemption,                        //176 SPELL_AURA_SPIRIT_OF_REDEMPTION   only for Spirit of Redemption spell, die at aura end
-    &AuraEffect::HandleNULL,                                      //177 SPELL_AURA_AOE_CHARM
+    &AuraEffect::HandleCharmConvert,                              //177 SPELL_AURA_AOE_CHARM
     &AuraEffect::HandleNoImmediateEffect,                         //178 SPELL_AURA_MOD_DEBUFF_RESISTANCE          implemented in Unit::MagicSpellHitResult
     &AuraEffect::HandleNoImmediateEffect,                         //179 SPELL_AURA_MOD_ATTACKER_SPELL_CRIT_CHANCE implemented in Unit::SpellCriticalBonus
     &AuraEffect::HandleNoImmediateEffect,                         //180 SPELL_AURA_MOD_FLAT_SPELL_DAMAGE_VERSUS   implemented in Unit::SpellDamageBonus
@@ -1794,19 +1794,16 @@ void AuraEffect::TriggerSpell()
 //                    case 27747: break;
                     // Frost Blast
                     case 27808:
-                        caster->CastCustomSpell(29879, SPELLVALUE_BASE_POINT0, target->GetMaxHealth()*0.26f, m_target, true, NULL, this);
+                        caster->CastCustomSpell(29879, SPELLVALUE_BASE_POINT0, (float)m_target->GetMaxHealth()*0.26f, m_target, true, NULL, this);
                         return;
                     // Detonate Mana
                     case 27819:
-                    {
-                        int32 mana = (uint32)m_target->GetMaxPower(POWER_MANA)*0.25f;
-                        if(mana)
+                        if(int32 mana = (int32)(m_target->GetMaxPower(POWER_MANA) / 4))
                         {
                             mana = m_target->ModifyPower(POWER_MANA, -mana);
                             m_target->CastCustomSpell(27820, SPELLVALUE_BASE_POINT0, -mana*4, NULL, true, NULL, this, caster->GetGUID());
                         }
                         return;
-                    }                      
 //                    // Controller Timer
 //                    case 28095: break;
 //                    // Stalagg Chain
@@ -7067,10 +7064,28 @@ void AuraEffect::HandleModCharm(bool apply, bool Real, bool /*changeAmount*/)
 
     if(apply)
     {
-        if(int32(m_target->getLevel()) > m_amount)
+        if(m_amount && int32(m_target->getLevel()) > m_amount)
             return;
 
         m_target->SetCharmedBy(caster, CHARM_TYPE_CHARM);
+    }
+    else
+        m_target->RemoveCharmedBy(caster);
+}
+
+void AuraEffect::HandleCharmConvert(bool apply, bool Real, bool /*changeAmount*/)
+{
+    if(!Real)
+        return;
+
+    Unit* caster = GetCaster();
+
+    if(apply)
+    {
+        if(m_amount && int32(m_target->getLevel()) > m_amount)
+            return;
+
+        m_target->SetCharmedBy(caster, CHARM_TYPE_CONVERT);
     }
     else
         m_target->RemoveCharmedBy(caster);

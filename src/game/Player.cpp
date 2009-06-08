@@ -16729,11 +16729,7 @@ void Player::StopCastingCharm()
             ExitVehicle();
     }
     if(GetCharmGUID())
-    {
-        charm->RemoveAurasByType(SPELL_AURA_MOD_CHARM);
-        charm->RemoveAurasByType(SPELL_AURA_MOD_POSSESS_PET);
-        charm->RemoveAurasByType(SPELL_AURA_MOD_POSSESS);
-    }
+        charm->RemoveCharmAuras();
 
     if(GetCharmGUID())
     {

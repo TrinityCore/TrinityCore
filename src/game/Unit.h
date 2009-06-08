@@ -890,6 +890,7 @@ enum CharmType
     CHARM_TYPE_CHARM,
     CHARM_TYPE_POSSESS,
     CHARM_TYPE_VEHICLE,
+    CHARM_TYPE_CONVERT,
 };
 
 enum ActionBarIndex
