@@ -1097,7 +1097,7 @@ void SpellMgr::LoadSpellAffects()
 
         flag96 dbc_affect;
         dbc_affect = spellInfo->EffectSpellClassMask[effectId];
-        if(dbc_affect[0] == affect[0] || dbc_affect[1] == affect[1] || dbc_affect[2] == affect[2])
+        if(dbc_affect[0] == affect[0] && dbc_affect[1] == affect[1] && dbc_affect[2] == affect[2])
         {
             char text[]="ABC";
             sLog.outErrorDb("Spell %u listed in `spell_affect` have redundant (same with EffectSpellClassMask%c) data for effect index (%u) and not needed, skipped.", entry, text[effectId], effectId);
