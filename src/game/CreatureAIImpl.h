@@ -135,6 +135,13 @@ class EventMap : private std::map<uint32, uint32>
                 return;
             uint32 eventId = begin()->second;
             erase(begin());
+            time += m_time;
+            iterator itr = find(time);
+            while(itr != end())
+            {
+                ++time;
+                itr = find(time);
+            }
             insert(std::make_pair(time, eventId));
         }
 
@@ -171,8 +178,7 @@ class EventMap : private std::map<uint32, uint32>
                     erase(begin());
                 else
                 {
-                    uint32 eventId = (begin()->second & 0x0000FFFF);
-                    return eventId;
+                    return (begin()->second & 0x0000FFFF);
                 }
             }
             return 0;
