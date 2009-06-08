@@ -330,6 +330,7 @@ class TRINITY_DLL_SPEC AuraEffect
         void HandleNoReagentUseAura(bool Apply, bool Real, bool changeAmount);
         void HandlePhase(bool Apply, bool Real, bool changeAmount);
         void HandleAuraAllowOnlyAbility(bool apply, bool Real, bool changeAmount);
+        void HandleCharmConvert(bool apply, bool Real, bool changeAmount);
 
         // add/remove SPELL_AURA_MOD_SHAPESHIFT (36) linked auras
         void HandleShapeshiftBoosts(bool apply);
