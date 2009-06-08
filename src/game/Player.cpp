@@ -17126,24 +17126,28 @@ void Player::RemoveSpellMods(Spell * spell)
     std::set <Aura *> checkedSpells;
 
     AuraEffectList const & auraList = GetAurasByType(SPELL_AURA_ABILITY_IGNORE_AURASTATE);
-    for(AuraEffectList::const_iterator itr = auraList.begin(); itr != auraList.end(); ++itr)
+    for(AuraEffectList::const_iterator itr = auraList.begin(); itr != auraList.end();)
     {
-        if (!(*itr)->GetParentAura()->GetAuraCharges())
+        AuraEffect * aur = *itr;
+        ++itr;
+        if (!aur->GetParentAura()->GetAuraCharges())
             continue;
-        SpellEntry const * spellInfo = (*itr)->GetSpellProto();
+
+        SpellEntry const * spellInfo = aur->GetSpellProto();
 
         if (spellInfo->SpellFamilyName != spell->m_spellInfo->SpellFamilyName ||
-            checkedSpells.find((*itr)->GetParentAura()) != checkedSpells.end())
+            checkedSpells.find(aur->GetParentAura()) != checkedSpells.end())
             continue;
-        flag96 const * mask = spellmgr.GetSpellAffect((*itr)->GetId(), (*itr)->GetEffIndex());
+
+        flag96 const * mask = spellmgr.GetSpellAffect(aur->GetId(), aur->GetEffIndex());
         if (!mask)
-            mask = &spellInfo->EffectSpellClassMask[(*itr)->GetEffIndex()];
+            mask = &spellInfo->EffectSpellClassMask[aur->GetEffIndex()];
 
         if (spell->m_spellInfo->SpellFamilyFlags & *mask)
         {
-            checkedSpells.insert((*itr)->GetParentAura());
-            spell->m_appliedMods.erase((*itr)->GetParentAura());
-            if ((*itr)->GetParentAura()->DropAuraCharge())
+            checkedSpells.insert(aur->GetParentAura());
+            spell->m_appliedMods.erase(aur->GetParentAura());
+            if (aur->GetParentAura()->DropAuraCharge())
                 itr = auraList.begin();
         }
     }
