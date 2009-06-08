@@ -67,17 +67,10 @@ struct TRINITY_DLL_DECL boss_nothAI : public BossAI
 
     uint32 waveCount, balconyCount;
 
-    void Reset()
-    {
-        _Reset();
-        me->setActive(false);
-    }
-
     void EnterCombat(Unit *who)
     {
         _EnterCombat();
         DoScriptText(SAY_AGGRO, me);
-        me->setActive(true);
         balconyCount = 0;
         EnterPhaseGround();
     }
