@@ -1104,9 +1104,9 @@ GM.AllowAchievementGain  = 1
 ###################################################################################################################
 
 Visibility.GroupMode = 0
-Visibility.Distance.Creature      = 66
+Visibility.Distance.Creature      = 999
 Visibility.Distance.Player        = 66
-Visibility.Distance.Object        = 66
+Visibility.Distance.Object        = 999
 Visibility.Distance.InFlight      = 66
 Visibility.Distance.Grey.Unit   = 1
 Visibility.Distance.Grey.Object = 10
