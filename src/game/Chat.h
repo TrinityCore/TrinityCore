@@ -73,7 +73,7 @@ class ChatHandler
         int ParseCommands(const char* text);
 
         virtual char const* GetName() const;
-
+        static ChatCommand* getCommandTable();
     protected:
         explicit ChatHandler() : m_session(NULL) {}      // for CLI subclass
 
@@ -88,8 +88,6 @@ class ChatHandler
         bool ExecuteCommandInTable(ChatCommand *table, const char* text, const std::string& fullcommand);
         bool ShowHelpForCommand(ChatCommand *table, const char* cmd);
         bool ShowHelpForSubCommands(ChatCommand *table, char const* cmd, char const* subcmd);
-
-        ChatCommand* getCommandTable();
 
         bool HandleAccountCommand(const char* args);
         bool HandleAccountCreateCommand(const char* args);
