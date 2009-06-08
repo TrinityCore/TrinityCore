@@ -201,7 +201,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectKillCredit,                               //134 SPELL_EFFECT_KILL_CREDIT              misc value is creature entry
     &Spell::EffectNULL,                                     //135 SPELL_EFFECT_CALL_PET
     &Spell::EffectHealPct,                                  //136 SPELL_EFFECT_HEAL_PCT
-    &Spell::EffectEnergisePct,                              //137 SPELL_EFFECT_ENERGIZE_PCT
+    &Spell::EffectEnergizePct,                              //137 SPELL_EFFECT_ENERGIZE_PCT
     &Spell::EffectJump2,                                    //138 SPELL_EFFECT_138                      Leap
     &Spell::EffectUnused,                                   //139 SPELL_EFFECT_CLEAR_QUEST              (misc - is quest ID)
     &Spell::EffectForceCast,                                //140 SPELL_EFFECT_FORCE_CAST
@@ -2440,10 +2440,10 @@ void Spell::EffectPowerDrain(uint32 i)
             modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_MULTIPLE_VALUE, manaMultiplier);
 
         int32 gain = int32(new_damage * manaMultiplier);
-
-        m_caster->ModifyPower(POWER_MANA,gain);
+        
         //send log
         m_caster->SendEnergizeSpellLog(m_caster, m_spellInfo->Id, gain, POWER_MANA);
+        m_caster->ModifyPower(POWER_MANA,gain);
     }
 }
 
@@ -2871,8 +2871,8 @@ void Spell::EffectEnergize(uint32 i)
     if(unitTarget->GetMaxPower(power) == 0)
         return;
 
-    unitTarget->ModifyPower(power,damage);
     m_caster->SendEnergizeSpellLog(unitTarget, m_spellInfo->Id, damage, power);
+    unitTarget->ModifyPower(power,damage);
 
     // Mad Alchemist's Potion
     if (m_spellInfo->Id == 45051)
@@ -2917,7 +2917,7 @@ void Spell::EffectEnergize(uint32 i)
     }
 }
 
-void Spell::EffectEnergisePct(uint32 i)
+void Spell::EffectEnergizePct(uint32 i)
 {
     if(!unitTarget)
         return;
@@ -2934,8 +2934,8 @@ void Spell::EffectEnergisePct(uint32 i)
         return;
 
     uint32 gain = damage * maxPower / 100;
-    unitTarget->ModifyPower(power, gain);
     m_caster->SendEnergizeSpellLog(unitTarget, m_spellInfo->Id, gain, power);
+    unitTarget->ModifyPower(power, gain);
 }
 
 void Spell::SendLoot(uint64 guid, LootType loottype)

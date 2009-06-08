@@ -354,7 +354,7 @@ class Spell
         void EffectStealBeneficialBuff(uint32 i);
         void EffectUnlearnSpecialization(uint32 i);
         void EffectHealPct(uint32 i);
-        void EffectEnergisePct(uint32 i);
+        void EffectEnergizePct(uint32 i);
         void EffectTriggerSpellWithValue(uint32 i);
         void EffectTriggerRitualOfSummoning(uint32 i);
         void EffectKillCredit(uint32 i);
