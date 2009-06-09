@@ -598,6 +598,7 @@ CreatureAI* GetAI_npc_ros_dark_rider(Creature *_Creature)
     return new npc_ros_dark_riderAI(_Creature);
 }
 
+// correct way: 52312 52314 52555 ...
 struct TRINITY_DLL_DECL npc_dkc1_gothikAI : public ScriptedAI
 {
     npc_dkc1_gothikAI(Creature *c) : ScriptedAI(c) {}
@@ -627,6 +628,8 @@ CreatureAI* GetAI_npc_dkc1_gothik(Creature *_Creature)
 {
     return new npc_dkc1_gothikAI(_Creature);
 }
+
+// npc 28912 quest 17217 boss 29001 go 191092 
 
 void AddSC_the_scarlet_enclave()
 {

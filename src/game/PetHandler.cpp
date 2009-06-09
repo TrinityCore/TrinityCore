@@ -286,19 +286,7 @@ void WorldSession::HandlePetActionHelper(Unit *pet, uint64 guid1, uint16 spellid
             else
             {
                 if(pet->isPossessed())
-                {
-                    WorldPacket data(SMSG_CAST_FAILED, (4+1+1));
-                    data << uint8(0) << uint32(spellid) << uint8(result);
-                    switch (result)
-                    {
-                        case SPELL_FAILED_REQUIRES_SPELL_FOCUS:
-                            data << uint32(spellInfo->RequiresSpellFocus);
-                            break;
-                        default:
-                            break;
-                    }
-                    SendPacket(&data);
-                }
+                    Spell::SendCastResult(GetPlayer(),spellInfo,0,result);
                 else
                     pet->SendPetCastFail(spellid, result);
 

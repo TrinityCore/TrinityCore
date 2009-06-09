@@ -2341,7 +2341,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
              }
         }
         if (found)
-            pVictim->CastCustomSpell(pVictim, 44413, &spell_dmg, NULL, NULL, false);
+            pVictim->CastCustomSpell(pVictim, 44413, &spell_dmg, NULL, NULL, true);
     }
 }
 
@@ -3383,7 +3383,7 @@ void Unit::_UpdateSpells( uint32 time )
 void Unit::_UpdateAutoRepeatSpell()
 {
     //check "realtime" interrupts
-    if ( (GetTypeId() == TYPEID_PLAYER && ((Player*)this)->isMoving()) || IsNonMeleeSpellCasted(false,false,true) )
+    if ( (GetTypeId() == TYPEID_PLAYER && ((Player*)this)->isMoving()) || IsNonMeleeSpellCasted(false,false,true,m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->m_spellInfo->Id == SPELL_ID_AUTOSHOT) )
     {
         // cancel wand shoot
         if(m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->m_spellInfo->Id != SPELL_ID_AUTOSHOT)
@@ -3515,7 +3515,7 @@ void Unit::InterruptSpell(uint32 spellType, bool withDelayed, bool withInstant)
     }
 }
 
-bool Unit::IsNonMeleeSpellCasted(bool withDelayed, bool skipChanneled, bool skipAutorepeat) const
+bool Unit::IsNonMeleeSpellCasted(bool withDelayed, bool skipChanneled, bool skipAutorepeat, bool isAutoshoot) const
 {
     // We don't do loop here to explicitly show that melee spell is excluded.
     // Maybe later some special spells will be excluded too.
@@ -3524,12 +3524,14 @@ bool Unit::IsNonMeleeSpellCasted(bool withDelayed, bool skipChanneled, bool skip
     if ( m_currentSpells[CURRENT_GENERIC_SPELL] &&
         (m_currentSpells[CURRENT_GENERIC_SPELL]->getState() != SPELL_STATE_FINISHED) &&
         (withDelayed || m_currentSpells[CURRENT_GENERIC_SPELL]->getState() != SPELL_STATE_DELAYED) )
-        return(true);
+        if (!isAutoshoot || !(m_currentSpells[CURRENT_GENERIC_SPELL]->m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_NOT_RESET_AUTOSHOT))
+            return(true);
 
     // channeled spells may be delayed, but they are still considered casted
     else if ( !skipChanneled && m_currentSpells[CURRENT_CHANNELED_SPELL] &&
         (m_currentSpells[CURRENT_CHANNELED_SPELL]->getState() != SPELL_STATE_FINISHED) )
-        return(true);
+        if (!isAutoshoot || !(m_currentSpells[CURRENT_CHANNELED_SPELL]->m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_NOT_RESET_AUTOSHOT))
+            return(true);
 
     // autorepeat spells may be finished or delayed, but they are still considered casted
     else if ( !skipAutorepeat && m_currentSpells[CURRENT_AUTOREPEAT_SPELL] )
@@ -11000,7 +11002,11 @@ int32 Unit::CalculateSpellDamage(SpellEntry const* spellProto, uint8 effect_inde
 
     if(!basePointsPerLevel && (spellProto->Attributes & SPELL_ATTR_LEVEL_DAMAGE_CALCULATION && spellProto->spellLevel) &&
             spellProto->Effect[effect_index] != SPELL_EFFECT_WEAPON_PERCENT_DAMAGE &&
-            spellProto->Effect[effect_index] != SPELL_EFFECT_KNOCK_BACK)
+            spellProto->Effect[effect_index] != SPELL_EFFECT_KNOCK_BACK &&
+            spellProto->EffectApplyAuraName[effect_index] != SPELL_AURA_MOD_SPEED_ALWAYS &&
+            spellProto->EffectApplyAuraName[effect_index] != SPELL_AURA_MOD_SPEED_NOT_STACK &&
+            spellProto->EffectApplyAuraName[effect_index] != SPELL_AURA_MOD_INCREASE_SPEED &&
+            spellProto->EffectApplyAuraName[effect_index] != SPELL_AURA_MOD_DECREASE_SPEED)
             //there are many more: slow speed, -healing pct
         //value = int32(value*0.25f*exp(getLevel()*(70-spellProto->spellLevel)/1000.0f));
         value = int32(value * (int32)getLevel() / (int32)(spellProto->spellLevel ? spellProto->spellLevel : 1));
@@ -13618,7 +13624,6 @@ void Unit::SetCharmedBy(Unit* charmer, CharmType type)
     if(GetTypeId() == TYPEID_UNIT)
     {
         ((Creature*)this)->AI()->OnCharmed(true);
-        GetMotionMaster()->Clear(false);
         GetMotionMaster()->MoveIdle();
     }
     else
