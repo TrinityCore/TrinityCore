@@ -205,6 +205,14 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
                 return false;
             }
             return true;
+        case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_TEAM:
+            if(team.team != ALLIANCE && team.team != HORDE)
+            {
+                sLog.outErrorDb( "Table `achievement_criteria_data` (Entry: %u Type: %u) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_T_TEAM (%u) have unknown team in value1 (%u), ignore.",
+                    criteria->ID, criteria->requiredType,dataType,gender.gender);
+                return false;
+            }
+            return true;
         default:
             sLog.outErrorDb( "Table `achievement_criteria_data` (Entry: %u Type: %u) have data for not supported data type (%u), ignore.", criteria->ID, criteria->requiredType,dataType);
             return false;
@@ -265,6 +273,10 @@ bool AchievementCriteriaData::Meets(Player const* source, Unit const* target, ui
             return source->GetMap()->GetSpawnMode()==difficalty.difficalty;
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_PLAYER_COUNT:
             return source->GetMap()->GetPlayersCountExceptGMs() <= map_players.maxcount;
+        case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_TEAM:
+            if (!target || target->GetTypeId() != TYPEID_PLAYER)
+                return false;
+            return ((Player*)target)->GetTeam() == team.team;
     }
     return false;
 }
