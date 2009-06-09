@@ -154,6 +154,7 @@ m_creatureInfo(NULL), m_reactState(REACT_AGGRESSIVE), m_formation(NULL), m_summo
     m_unit_movement_flags = MOVEMENTFLAG_WALK_MODE;
     DisableReputationGain = false;
     ResetDamageByPlayers();
+    m_MinPlayerDamageReq = (uint32)(m_creature->GetHealth / m_creature->GetMaxHealth * 50);
 }
 
 Creature::~Creature()
