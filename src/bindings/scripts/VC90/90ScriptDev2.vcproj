@@ -2513,36 +2513,36 @@
 							<Filter
 								Name="Nexus"
 								>
-								<File
-									RelativePath="..\scripts\zone\nexus\nexus\boss_anomalus.cpp"
-									>
-								</File>
-								<File
-									RelativePath="..\scripts\zone\nexus\nexus\boss_keristrasza.cpp"
-									>
-								</File>
-								<File
-									RelativePath="..\scripts\zone\nexus\nexus\boss_magus_telestra.cpp"
-									>
-								</File>
-								<File
-									RelativePath="..\scripts\zone\nexus\nexus\boss_ormorok.cpp"
-									>
-								</File>
+						<File
+							RelativePath="..\scripts\zone\nexus\nexus\boss_magus_telestra.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\nexus\nexus\boss_anomalus.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\nexus\nexus\boss_ormorok.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\nexus\nexus\boss_keristrasza.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\nexus\nexus\def_nexus.h"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\nexus\nexus\instance_nexus.cpp"
+							>
+						</File>
 								<File
 									RelativePath="..\scripts\zone\nexus\nexus\commander_kolurg.cpp"
 									>
 								</File>
 								<File
 									RelativePath="..\scripts\zone\nexus\nexus\commander_stoutbeard.cpp"
-									>
-								</File>
-								<File
-									RelativePath="..\scripts\zone\nexus\nexus\def_nexus.h"
-									>
-								</File>
-								<File
-									RelativePath="..\scripts\zone\nexus\nexus\instance_nexus.cpp"
 									>
 								</File>
 							</Filter>
