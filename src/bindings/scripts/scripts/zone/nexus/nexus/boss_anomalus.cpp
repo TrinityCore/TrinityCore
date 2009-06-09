@@ -58,7 +58,7 @@ struct TRINITY_DLL_DECL boss_anomalusAI : public ScriptedAI
 {
     boss_anomalusAI(Creature *c) : ScriptedAI(c)
 	{
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = c->GetInstanceData();
         Reset();
         HeroicMode = c->GetMap()->IsHeroic();
 	}
@@ -196,7 +196,7 @@ struct TRINITY_DLL_DECL mob_chaotic_riftAI : public Scripted_NoMovementAI
 {
     mob_chaotic_riftAI(Creature *c) : Scripted_NoMovementAI(c)
 	{
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = c->GetInstanceData();
         Reset();
 	}
 
