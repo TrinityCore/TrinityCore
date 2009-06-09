@@ -2341,7 +2341,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
              }
         }
         if (found)
-            pVictim->CastCustomSpell(pVictim, 44413, &spell_dmg, NULL, NULL, false);
+            pVictim->CastCustomSpell(pVictim, 44413, &spell_dmg, NULL, NULL, true);
     }
 }
 
