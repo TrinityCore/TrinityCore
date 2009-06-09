@@ -3879,10 +3879,9 @@ void AuraEffect::HandleAuraModDisarm(bool apply, bool Real, bool /*changeAmount*
     AuraType type = AuraType(GetAuraName());
 
     //Prevent handling aura twice
-    if(apply && m_target->GetAurasByType(type).size()>1)
+    if(apply ? m_target->GetAurasByType(type).size() > 1 : m_target->HasAuraType(type))
         return;
-    if(!apply && m_target->HasAuraType(type))
-        return;
+
     uint32 field, flag, slot;
     WeaponAttackType attType;
     switch (type)
@@ -3905,6 +3904,8 @@ void AuraEffect::HandleAuraModDisarm(bool apply, bool Real, bool /*changeAmount*
         slot=EQUIPMENT_SLOT_RANGED;
         attType=RANGED_ATTACK;
         break;
+    default:
+        return;
     }
     if(apply)
         m_target->SetFlag(field, flag);
@@ -3913,10 +3914,8 @@ void AuraEffect::HandleAuraModDisarm(bool apply, bool Real, bool /*changeAmount*
 
     if (m_target->GetTypeId() == TYPEID_PLAYER)
     {
-        Item *pItem = ((Player*)m_target)->GetItemByPos( INVENTORY_SLOT_BAG_0, slot );
-        if(!pItem )
-            return;
-        ((Player*)m_target)->_ApplyItemMods(pItem, slot, !apply);
+        if(Item *pItem = ((Player*)m_target)->GetItemByPos( INVENTORY_SLOT_BAG_0, slot ))
+            ((Player*)m_target)->_ApplyItemMods(pItem, slot, !apply);
     }
     else if (((Creature*)m_target)->GetCurrentEquipmentId())
         m_target->UpdateDamagePhysical(attType);
