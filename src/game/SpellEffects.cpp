@@ -5133,6 +5133,15 @@ void Spell::EffectScriptEffect(uint32 effIndex)
         {
             switch(m_spellInfo->Id)
             {
+                // Heart of the Pheonix
+                case 55709:
+                {
+                    int pct = 100;
+                    if (unitTarget->GetTypeId()==TYPEID_UNIT && ((Creature*)unitTarget)->isPet())
+                        if (Unit* owner = ((Creature*)unitTarget)->GetOwner())
+                            owner->CastCustomSpell(unitTarget, 54114, &pct, NULL, NULL, true);
+                    break;
+                }
                 // Chimera Shot
                 case 53209:
                 {

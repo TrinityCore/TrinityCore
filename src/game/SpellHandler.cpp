@@ -333,6 +333,12 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         }
     }
 
+    // Client is resending autoshot cast opcode when other spell is casted during shoot rotation
+    // Skip it to prevent "interrupt" message
+    if (IsAutoRepeatRangedSpell(spellInfo) && _player->m_currentSpells[CURRENT_AUTOREPEAT_SPELL]
+        && _player->m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->m_spellInfo == spellInfo)
+        return;
+
     // can't use our own spells when we're in possession of another unit,
     if(_player->isPossessing())
         return;
