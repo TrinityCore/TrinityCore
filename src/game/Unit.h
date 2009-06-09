@@ -1100,7 +1100,12 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void ApplyPowerMod(Powers power, uint32 val, bool apply);
         void ApplyMaxPowerMod(Powers power, uint32 val, bool apply);
 
-        uint32 GetAttackTime(WeaponAttackType att) const { return (uint32)(GetFloatValue(UNIT_FIELD_BASEATTACKTIME+att)/m_modAttackSpeedPct[att]); }
+        uint32 GetAttackTime(WeaponAttackType att) const
+        {
+           float f_BaseAttackTime = GetFloatValue(UNIT_FIELD_BASEATTACKTIME+att) / m_modAttackSpeedPct[att];
+           return (uint32)f_BaseAttackTime;
+        }
+            
         void SetAttackTime(WeaponAttackType att, uint32 val) { SetFloatValue(UNIT_FIELD_BASEATTACKTIME+att,val*m_modAttackSpeedPct[att]); }
         void ApplyAttackTimePercentMod(WeaponAttackType att,float val, bool apply);
         void ApplyCastTimePercentMod(float val, bool apply);
