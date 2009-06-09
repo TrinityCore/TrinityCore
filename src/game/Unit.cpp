@@ -13669,7 +13669,7 @@ void Unit::SetCharmedBy(Unit* charmer, CharmType type)
                     if(cinfo && cinfo->type == CREATURE_TYPE_DEMON)
                     {
                         //to prevent client crash
-                        //SetFlag(UNIT_FIELD_BYTES_0, 2048);
+                        SetByteValue(UNIT_FIELD_BYTES_0, 1, (uint8)CLASS_MAGE);
 
                         //just to enable stat window
                         if(GetCharmInfo())
@@ -13764,6 +13764,7 @@ void Unit::RemoveCharmedBy(Unit *charmer)
                     CreatureInfo const *cinfo = ((Creature*)this)->GetCreatureInfo();
                     if(cinfo && cinfo->type == CREATURE_TYPE_DEMON)
                     {
+                        SetByteValue(UNIT_FIELD_BYTES_0, 1, uint8(cinfo->unit_class));
                         if(GetCharmInfo())
                             GetCharmInfo()->SetPetNumber(0, true);
                         else
