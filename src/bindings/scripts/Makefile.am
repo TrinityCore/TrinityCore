@@ -270,6 +270,12 @@ scripts/zone/naxxramas/boss_sapphiron.cpp \
 scripts/zone/naxxramas/boss_thaddius.cpp \
 scripts/zone/naxxramas/instance_naxxramas.cpp \
 scripts/zone/netherstorm/netherstorm.cpp \
+scripts/zone/nexus/nexus/boss_magus_telestra.cpp \
+scripts/zone/nexus/nexus/boss_anomalus.cpp \
+scripts/zone/nexus/nexus/boss_ormorok.cpp \
+scripts/zone/nexus/nexus/boss_keristrasza.cpp \
+scripts/zone/nexus/nexus/def_nexus.h \
+scripts/zone/nexus/nexus/instance_nexus.cpp \
 scripts/zone/onyxias_lair/boss_onyxia.cpp \
 scripts/zone/orgrimmar/orgrimmar.cpp \
 scripts/zone/razorfen_downs/boss_amnennar_the_coldbringer.cpp \
