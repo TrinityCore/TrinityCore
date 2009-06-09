@@ -20,6 +20,7 @@
 
 #include "NullCreatureAI.h"
 #include "Creature.h"
+#include "TemporarySummon.h"
 
 void PassiveAI::UpdateAI(const uint32)
 {
@@ -67,4 +68,14 @@ void CritterAI::EnterEvadeMode()
     if(me->hasUnitState(UNIT_STAT_FLEEING))
         me->SetControlled(false, UNIT_STAT_FLEEING);
     CreatureAI::EnterEvadeMode();
+}
+
+void TriggerAI::UpdateAI(const uint32 diff)
+{
+    if(!casted)
+    {
+        casted = true;
+        if(me->m_spells[0] && me->isSummon())
+            me->CastSpell(me, me->m_spells[0], false, 0, 0, ((TempSummon*)me)->GetSummonerGUID());
+    }
 }
