@@ -60,7 +60,7 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
 {
     boss_magus_telestraAI(Creature* c) : ScriptedAI(c) 
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = c->GetInstanceData();
         Reset();
         HeroicMode = c->GetMap()->IsHeroic();
 	}

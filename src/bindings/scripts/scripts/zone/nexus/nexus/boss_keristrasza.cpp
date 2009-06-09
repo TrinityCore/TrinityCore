@@ -45,7 +45,7 @@ struct TRINITY_DLL_DECL boss_keristraszaAI : public ScriptedAI
 {
     boss_keristraszaAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = c->GetInstanceData();
 		HeroicMode = m_creature->GetMap()->IsHeroic();
         Reset();
     }
