@@ -6467,6 +6467,9 @@ void ObjectMgr::LoadNPCSpellClickSpells()
             continue;
         }
 
+        if(!(cInfo->npcflag & UNIT_NPC_FLAG_SPELLCLICK))
+            const_cast<CreatureInfo*>(cInfo)->npcflag |= UNIT_NPC_FLAG_SPELLCLICK;
+
         uint32 spellid = fields[1].GetUInt32();
         SpellEntry const *spellinfo = sSpellStore.LookupEntry(spellid);
         if (!spellinfo)

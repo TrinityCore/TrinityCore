@@ -3393,10 +3393,8 @@ void Spell::EffectSummonType(uint32 i)
             vehicle->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
 
             if(damage)
-            {
                 m_caster->CastSpell(vehicle, damage, true);
-                m_caster->EnterVehicle(vehicle);
-            }
+            m_caster->EnterVehicle(vehicle);
             break;
         }
     }
