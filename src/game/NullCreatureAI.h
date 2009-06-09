@@ -75,5 +75,14 @@ class TRINITY_DLL_DECL CritterAI : public PassiveAI
         void EnterEvadeMode();
 };
 
+class TRINITY_DLL_DECL TriggerAI : public NullCreatureAI
+{
+    public:
+        explicit TriggerAI(Creature *c) : NullCreatureAI(c), casted(false) {}
+        void UpdateAI(const uint32);
+    private:
+        bool casted;
+};
+
 #endif
 

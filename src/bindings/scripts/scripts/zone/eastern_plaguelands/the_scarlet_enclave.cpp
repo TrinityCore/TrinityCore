@@ -629,7 +629,7 @@ CreatureAI* GetAI_npc_dkc1_gothik(Creature *_Creature)
     return new npc_dkc1_gothikAI(_Creature);
 }
 
-// npc 28912 quest 17217 boss 29001 go 191092 
+// npc 28912 quest 17217 boss 29001 mob 29007 go 191092 
 
 void AddSC_the_scarlet_enclave()
 {
