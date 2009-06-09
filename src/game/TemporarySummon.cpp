@@ -209,7 +209,6 @@ void TempSummon::InitSummon()
         {
             setFaction(owner->getFaction());
             SetLevel(owner->getLevel());
-            CastSpell(this, m_spells[0], false, 0, 0, m_summonerGUID);
         }
     }
 }
