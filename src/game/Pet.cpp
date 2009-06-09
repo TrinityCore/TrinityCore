@@ -459,12 +459,12 @@ void Pet::setDeathState(DeathState s)                       // overwrite virtual
             if(!mapEntry || (mapEntry->map_type != MAP_ARENA && mapEntry->map_type != MAP_BATTLEGROUND))
                 ModifyPower(POWER_HAPPINESS, -HAPPINESS_LEVEL_SIZE);
 
-            SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
+            //SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
         }
     }
     else if(getDeathState()==ALIVE)
     {
-        RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
+        //RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
         CastPetAuras(true);
     }
 }

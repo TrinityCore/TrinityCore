@@ -123,8 +123,28 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
     }
 
     SpellCastTargets targets;
-    if(!targets.read(&recvPacket, pUser))
+    if (!targets.read(&recvPacket, pUser))
         return;
+
+    targets.Update(pUser);
+
+    if (!pItem->IsTargetValidForItemUse(targets.getUnitTarget()))
+    {
+        // free greay item aftre use faul
+        pUser->SendEquipError(EQUIP_ERR_NONE, pItem, NULL);
+
+        // send spell error
+        if (SpellEntry const* spellInfo = sSpellStore.LookupEntry(spellid))
+        {
+            // for implicit area/coord target spells 
+            if(!targets.getUnitTarget())
+                Spell::SendCastResult(_player,spellInfo,cast_count,SPELL_FAILED_NO_VALID_TARGETS);
+            // for explicit target spells 
+            else
+                Spell::SendCastResult(_player,spellInfo,cast_count,SPELL_FAILED_BAD_TARGETS);                
+        }
+        return;
+    }
 
     //Note: If script stop casting it must send appropriate data to client to prevent stuck item in gray state.
     if(!Script->ItemUse(pUser,pItem,targets))
@@ -312,6 +332,12 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
             return;
         }
     }
+
+    // Client is resending autoshot cast opcode when other spell is casted during shoot rotation
+    // Skip it to prevent "interrupt" message
+    if (IsAutoRepeatRangedSpell(spellInfo) && _player->m_currentSpells[CURRENT_AUTOREPEAT_SPELL]
+        && _player->m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->m_spellInfo == spellInfo)
+        return;
 
     // can't use our own spells when we're in possession of another unit,
     if(_player->isPossessing())

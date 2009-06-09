@@ -24,7 +24,6 @@
 #include "Util.h"
 #include "WorldPacket.h"
 
-#include "Chat.h"
 #include "CreatureAI.h"
 #include "ZoneScript.h"
 
@@ -84,6 +83,11 @@ void Vehicle::setDeathState(DeathState s)                       // overwrite vir
                 }
         }
         RemoveAllPassengers();
+    }
+    else if(s == JUST_ALIVED)
+    {
+        if(m_usableSeatNum)
+            SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
     }
     Creature::setDeathState(s);
 }
@@ -244,13 +248,9 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
         GetPositionZ() + unit->m_movementInfo.t_z,
         GetOrientation());
 
-    unit->GetMotionMaster()->MoveIdle(MOTION_SLOT_IDLE);
-
     WorldPacket data;
     if(unit->GetTypeId() == TYPEID_PLAYER)
     {
-        //ChatHandler(player).PSendSysMessage("Enter seat %u %u", veSeat->m_ID, seat->first);
-
         if(seat->first == 0 && seat->second.seatInfo->IsUsable()) // not right
             SetCharmedBy(unit, CHARM_TYPE_VEHICLE);
 
