@@ -37,9 +37,9 @@ struct TRINITY_DLL_DECL instance_zulgurub : public ScriptedInstance
     uint64 ThekalGUID;
     uint64 JindoGUID;
 
-    void OnCreatureCreate (Creature *creature, uint32 creature_entry)
+    void OnCreatureCreate(Creature *creature, bool add)
     {
-        switch (creature_entry)
+        switch (creature->GetEntry())
         {
             case 11347:
                 LorKhanGUID = creature->GetGUID();

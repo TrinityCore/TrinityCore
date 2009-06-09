@@ -41,7 +41,7 @@ struct TRINITY_DLL_DECL instance_nexus : public ScriptedInstance
             Encounters[i] = NOT_STARTED;
     }
 
-    void OnCreatureCreate(Creature* pCreature)
+    void OnCreatureCreate(Creature* pCreature, bool add)
     {
         Map::PlayerList const& players = instance->GetPlayers();
 		uint32 TeamInInstance;
@@ -146,7 +146,7 @@ struct TRINITY_DLL_DECL instance_nexus : public ScriptedInstance
 		}
     }
 
-    const char* Save()
+    std::string GetSaveData()
     {
         return strInstData.c_str();
     }
