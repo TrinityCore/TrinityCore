@@ -91,7 +91,7 @@ struct TRINITY_DLL_DECL instance_arcatraz : public ScriptedInstance
         return false;
     }
 
-    void OnObjectCreate(GameObject *go)
+    void OnGameObjectCreate(GameObject *go, bool add)
     {
         switch(go->GetEntry())
         {
@@ -107,7 +107,7 @@ struct TRINITY_DLL_DECL instance_arcatraz : public ScriptedInstance
         }
     }
 
-    void OnCreatureCreate(Creature *creature, uint32 creature_entry)
+    void OnCreatureCreate(Creature *creature, bool add)
     {
         if (creature->GetEntry() == MELLICHAR)
             MellicharGUID = creature->GetGUID();

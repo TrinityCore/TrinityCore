@@ -105,9 +105,9 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
         return NULL;
     }
 
-    void OnCreatureCreate(Creature *creature, uint32 creature_entry)
+    void OnCreatureCreate(Creature *creature, bool add)
     {
-        switch(creature_entry)
+        switch(creature->GetEntry())
         {
             case 23953:    Keleseth = creature->GetGUID();             break;
             case 24201:    Dalronn = creature->GetGUID();              break;
@@ -116,7 +116,7 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
         }
     }
 
-    void OnObjectCreate(GameObject* go)
+    void OnGameObjectCreate(GameObject *go, bool add)
     {
         switch(go->GetEntry())
         {
@@ -242,7 +242,7 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
         str_data = saveStream.str();
 
         OUT_SAVE_INST_DATA_COMPLETE;
-        return str_data.c_str();
+        return str_data;
     }
 
     void Load(const char* in)

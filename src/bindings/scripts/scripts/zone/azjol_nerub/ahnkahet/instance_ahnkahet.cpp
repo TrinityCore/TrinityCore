@@ -69,9 +69,9 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
     }
 
 
-    void OnCreatureCreate(Creature *creature, uint32 creature_entry)
+    void OnCreatureCreate(Creature *creature, bool add)
     {
-        switch(creature_entry)
+        switch(creature->GetEntry())
         {
             case 29309:    Elder_Nadox = creature->GetGUID();                   break;
             case 29308:    Prince_Taldaram = creature->GetGUID();               break;
@@ -142,7 +142,7 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
         str_data = saveStream.str();
 
         OUT_SAVE_INST_DATA_COMPLETE;
-        return str_data.c_str();
+        return str_data;
     }
 
     void Load(const char* in)

@@ -113,7 +113,7 @@ struct TRINITY_DLL_DECL instance_magisters_terrace : public ScriptedInstance
         }
     }
 
-    void OnCreatureCreate(Creature *creature, uint32 entry)
+    void OnCreatureCreate(Creature *creature, bool add)
     {
         switch(creature->GetEntry())
         {
@@ -123,7 +123,7 @@ struct TRINITY_DLL_DECL instance_magisters_terrace : public ScriptedInstance
         }
     }
 
-    void OnObjectCreate(GameObject* go)
+    void OnGameObjectCreate(GameObject *go, bool add)
     {
         switch(go->GetEntry())
         {

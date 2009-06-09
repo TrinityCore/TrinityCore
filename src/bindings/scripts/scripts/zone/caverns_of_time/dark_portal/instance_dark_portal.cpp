@@ -149,7 +149,7 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
         player->SendUpdateWorldState(WORLD_STATE_BM,0);
     }
 
-    void OnCreatureCreate(Creature *creature, uint32 creature_entry)
+    void OnCreatureCreate(Creature *creature, bool add)
     {
         if (creature->GetEntry() == C_MEDIVH)
             MedivhGUID = creature->GetGUID();
