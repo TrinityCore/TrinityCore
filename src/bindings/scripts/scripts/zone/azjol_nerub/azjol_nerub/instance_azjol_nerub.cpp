@@ -64,9 +64,9 @@ struct TRINITY_DLL_DECL instance_azjol_nerub : public ScriptedInstance
     }
 
 
-    void OnCreatureCreate(Creature *creature, uint32 creature_entry)
+    void OnCreatureCreate(Creature *creature, bool add)
     {
-        switch(creature_entry)
+        switch(creature->GetEntry())
         {
             case 28684:    Krikthir = creature->GetGUID();  break;
             case 28921:    Hadronox = creature->GetGUID();  break;
@@ -130,7 +130,7 @@ struct TRINITY_DLL_DECL instance_azjol_nerub : public ScriptedInstance
         str_data = saveStream.str();
 
         OUT_SAVE_INST_DATA_COMPLETE;
-        return str_data.c_str();
+        return str_data;
     }
 
     void Load(const char* in)

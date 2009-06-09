@@ -119,9 +119,9 @@ struct TRINITY_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
         return NULL;
     }
 
-    void OnCreatureCreate(Creature* creature, uint32 entry)
+    void OnCreatureCreate(Creature *creature, bool add)
     {
-        switch(entry)
+        switch(creature->GetEntry())
         {
             case 24850: Kalecgos_Dragon     = creature->GetGUID(); break;
             case 24891: Kalecgos_Human      = creature->GetGUID(); break;
@@ -139,17 +139,17 @@ struct TRINITY_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
         }
     }
 
-    void OnObjectCreate(GameObject* gobj)
+    void OnGameObjectCreate(GameObject *go, bool add)
     {
-        switch(gobj->GetEntry())
+        switch(go->GetEntry())
         {
-            case 188421: ForceField     = gobj->GetGUID(); break;
-            case 188075: FireBarrier    = gobj->GetGUID(); break;
-            case 187979: Gate[0]        = gobj->GetGUID(); break;
-            case 187770: Gate[1]        = gobj->GetGUID(); break;
-            case 187896: Gate[2]        = gobj->GetGUID(); break;
-            case 187990: Gate[3]        = gobj->GetGUID(); break;
-            case 188118: Gate[4]        = gobj->GetGUID(); break;
+            case 188421: ForceField     = go->GetGUID(); break;
+            case 188075: FireBarrier    = go->GetGUID(); break;
+            case 187979: Gate[0]        = go->GetGUID(); break;
+            case 187770: Gate[1]        = go->GetGUID(); break;
+            case 187896: Gate[2]        = go->GetGUID(); break;
+            case 187990: Gate[3]        = go->GetGUID(); break;
+            case 188118: Gate[4]        = go->GetGUID(); break;
         }
     }
 

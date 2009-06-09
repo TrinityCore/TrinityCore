@@ -69,7 +69,7 @@ struct TRINITY_DLL_DECL instance_shadow_labyrinth : public ScriptedInstance
         return false;
     }
 
-    void OnObjectCreate(GameObject *go)
+    void OnGameObjectCreate(GameObject *go, bool add)
     {
         switch(go->GetEntry())
         {
@@ -78,7 +78,7 @@ struct TRINITY_DLL_DECL instance_shadow_labyrinth : public ScriptedInstance
         }
     }
 
-    void OnCreatureCreate(Creature *creature, uint32 creature_entry)
+    void OnCreatureCreate(Creature *creature, bool add)
     {
         switch(creature->GetEntry())
         {
@@ -193,7 +193,7 @@ struct TRINITY_DLL_DECL instance_shadow_labyrinth : public ScriptedInstance
 
     std::string GetSaveData()
     {
-        return str_data.c_str();
+        return str_data;
     }
 
     void Load(const char* in)

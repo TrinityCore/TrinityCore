@@ -33,10 +33,6 @@ struct TRINITY_DLL_DECL instance_mechanar : public ScriptedInstance
 
     uint32 Encounters[ENCOUNTERS];
 
-    void OnCreatureCreate (Creature *creature, uint32 creature_entry)
-    {
-    }
-
     void Initialize()
     {
         for(uint8 i = 0; i < ENCOUNTERS; ++i)
