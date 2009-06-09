@@ -148,7 +148,7 @@ struct TRINITY_DLL_DECL instance_nexus : public ScriptedInstance
 
     std::string GetSaveData()
     {
-        return strInstData.c_str();
+        return strInstData;
     }
 
     void Load(const char* chrIn)

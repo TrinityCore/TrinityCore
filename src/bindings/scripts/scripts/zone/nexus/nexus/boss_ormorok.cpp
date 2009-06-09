@@ -54,7 +54,7 @@ struct TRINITY_DLL_DECL boss_ormorokAI : public ScriptedAI
 {
     boss_ormorokAI(Creature *c) : ScriptedAI(c) 
 	{
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = c->GetInstanceData();
         Reset();
 		HeroicMode = c->GetMap()->IsHeroic();
     }
