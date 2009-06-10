@@ -997,7 +997,7 @@ namespace Trinity
                 }
                 else
                 {
-                    if(!m_creature->canStartAttack(u))
+                    if(!m_creature->canStartAttack(u, false))
                         return false;
                 }
 

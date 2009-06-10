@@ -401,6 +401,13 @@ extern void AddSC_instance_naxxramas();
 //Netherstorm
 extern void AddSC_netherstorm();
 
+//The Nexus
+extern void AddSC_boss_magus_telestra();
+extern void AddSC_boss_anomalus();
+extern void AddSC_boss_ormorok();
+extern void AddSC_boss_keristrasza();
+extern void AddSC_instance_nexus();
+
 //Onyxia's Lair
 extern void AddSC_boss_onyxia();
 
@@ -1285,6 +1292,13 @@ void ScriptsInit(char const* cfg_file = "trinitycore.conf")
 
     //Netherstorm
     AddSC_netherstorm();
+
+    //The Nexus
+    AddSC_boss_magus_telestra();
+    AddSC_boss_anomalus();
+    AddSC_boss_ormorok();
+    AddSC_boss_keristrasza();
+    AddSC_instance_nexus();
 
     //Onyxia's Lair
     AddSC_boss_onyxia();

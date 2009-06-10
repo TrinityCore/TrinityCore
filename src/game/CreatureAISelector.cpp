@@ -60,12 +60,17 @@ namespace FactorySelector
                 ai_factory = ai_registry.GetRegistryItem("NullCreatureAI");
             else if(creature->isGuard())
                 ai_factory = ai_registry.GetRegistryItem("GuardAI");
-            else if(creature->HasSummonMask(SUMMON_MASK_GUARDIAN))
+            else if(creature->isGuardian())
                 ai_factory = ai_registry.GetRegistryItem("PetAI");
             else if(creature->isTotem())
                 ai_factory = ai_registry.GetRegistryItem("TotemAI");
-            else if(creature->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER)
-                ai_factory = ai_registry.GetRegistryItem("NullCreatureAI");
+            else if(creature->isTrigger())
+            {
+                if(creature->m_spells[0])
+                    ai_factory = ai_registry.GetRegistryItem("TriggerAI");
+                else
+                    ai_factory = ai_registry.GetRegistryItem("NullCreatureAI");
+            }
             else if(creature->GetCreatureType() == CREATURE_TYPE_CRITTER)
                 ai_factory = ai_registry.GetRegistryItem("CritterAI");
         }

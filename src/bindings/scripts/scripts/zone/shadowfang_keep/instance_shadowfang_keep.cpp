@@ -82,7 +82,7 @@ struct TRINITY_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
         return NULL;
     }
 
-    void OnCreatureCreate(Creature* pCreature, uint32 uiCreature)
+    void OnCreatureCreate(Creature* pCreature, bool add)
     {
         switch(pCreature->GetEntry())
         {
@@ -91,7 +91,7 @@ struct TRINITY_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
         }
     }
 
-    void OnObjectCreate(GameObject *go)
+    void OnGameObjectCreate(GameObject *go, bool add)
     {
         switch(go->GetEntry())
         {
@@ -188,7 +188,7 @@ struct TRINITY_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
 
     std::string GetSaveData()
     {
-        return str_data.c_str();
+        return str_data;
     }
 
     void Load(const char* in)

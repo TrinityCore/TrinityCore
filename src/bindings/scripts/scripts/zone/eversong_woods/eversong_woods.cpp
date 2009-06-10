@@ -649,22 +649,16 @@ struct TRINITY_DLL_DECL npc_infused_crystalAI : public Scripted_NoMovementAI
         WaveTimer = 0;
     }
 
-    void EnterCombat(Unit* who){}
-
     void MoveInLineOfSight(Unit* who)
     {
-        if( who->GetTypeId() == TYPEID_PLAYER && !m_creature->canStartAttack(who) && !Progress)
+        if(!Progress && who->GetTypeId() == TYPEID_PLAYER && m_creature->IsWithinDistInMap(who, 10.0f))
         {
             if( CAST_PLR(who)->GetQuestStatus(QUEST_POWERING_OUR_DEFENSES) == QUEST_STATUS_INCOMPLETE )
             {
-                float Radius = 10.0;
-                if( m_creature->IsWithinDistInMap(who, Radius) )
-                {
-                    PlayerGUID = who->GetGUID();
-                    WaveTimer = 1000;
-                    EndTimer = 60000;
-                    Progress = true;
-                }
+                PlayerGUID = who->GetGUID();
+                WaveTimer = 1000;
+                EndTimer = 60000;
+                Progress = true;
             }
         }
     }

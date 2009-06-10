@@ -80,7 +80,7 @@ static bool procPrepared = InitTriggerAuraData();
 
 Unit::Unit()
 : WorldObject(), i_motionMaster(this), m_ThreatManager(this), m_HostilRefManager(this)
-, m_IsInNotifyList(false), m_Notified(false), IsAIEnabled(false), NeedChangeAI(false)
+, m_NotifyListPos(-1), m_Notified(false), IsAIEnabled(false), NeedChangeAI(false)
 , i_AI(NULL), i_disabledAI(NULL), m_removedAurasCount(0), m_Vehicle(NULL), m_transport(NULL)
 , m_ControlledByPlayer(false), m_procDeep(0)
 {
@@ -10450,8 +10450,7 @@ void Unit::SetVisibility(UnitVisibility x)
 {
     m_Visibility = x;
 
-    if(IsInWorld())
-        SetToNotify();
+    SetToNotify();
 
     if(x == VISIBILITY_GROUP_STEALTH)
         DestroyForNearbyPlayers();
@@ -11685,7 +11684,8 @@ void Unit::AddToWorld()
     {
         WorldObject::AddToWorld();
         m_Notified = false;
-        m_IsInNotifyList = false;
+        //assert(m_NotifyListPos < 0); instance : crash
+        m_NotifyListPos = -1;
         SetToNotify();
     }
 }
@@ -11703,6 +11703,12 @@ void Unit::RemoveFromWorld()
         RemoveBindSightAuras();
         RemoveNotOwnSingleTargetAuras();
         ExitVehicle();
+
+        if(m_NotifyListPos >= 0)
+        {
+            GetMap()->RemoveUnitFromNotify(m_NotifyListPos);
+            m_NotifyListPos = -1;
+        }
 
         if(GetCharmerGUID())
         {
@@ -13229,11 +13235,9 @@ bool Unit::HandleAuraRaidProcFromCharge( AuraEffect* triggeredByAura )
 
 void Unit::SetToNotify()
 {
-    if(m_IsInNotifyList)
-        return;
-
-    if(Map *map = GetMap())
-        map->AddUnitToNotify(this);
+    // it is called somewhere when obj is not in world (crash when log in instance)
+    if(m_NotifyListPos < 0)
+        GetMap()->AddUnitToNotify(this);
 }
 
 void Unit::Kill(Unit *pVictim, bool durabilityLoss)
@@ -13668,7 +13672,7 @@ void Unit::SetCharmedBy(Unit* charmer, CharmType type)
                     if(cinfo && cinfo->type == CREATURE_TYPE_DEMON)
                     {
                         //to prevent client crash
-                        //SetFlag(UNIT_FIELD_BYTES_0, 2048);
+                        SetByteValue(UNIT_FIELD_BYTES_0, 1, (uint8)CLASS_MAGE);
 
                         //just to enable stat window
                         if(GetCharmInfo())
@@ -13763,6 +13767,7 @@ void Unit::RemoveCharmedBy(Unit *charmer)
                     CreatureInfo const *cinfo = ((Creature*)this)->GetCreatureInfo();
                     if(cinfo && cinfo->type == CREATURE_TYPE_DEMON)
                     {
+                        SetByteValue(UNIT_FIELD_BYTES_0, 1, uint8(cinfo->unit_class));
                         if(GetCharmInfo())
                             GetCharmInfo()->SetPetNumber(0, true);
                         else

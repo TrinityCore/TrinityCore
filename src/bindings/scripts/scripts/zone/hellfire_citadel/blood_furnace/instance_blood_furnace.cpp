@@ -42,7 +42,7 @@ struct TRINITY_DLL_DECL instance_blood_furnace : public ScriptedInstance
         Sewer2GUID = 0;
     }
 
-    void OnObjectCreate(GameObject *go)
+    void OnGameObjectCreate(GameObject *go, bool add)
     {
         switch(go->GetEntry())
         {

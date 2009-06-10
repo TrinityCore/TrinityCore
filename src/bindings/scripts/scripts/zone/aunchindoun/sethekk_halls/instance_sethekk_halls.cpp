@@ -37,7 +37,7 @@ struct TRINITY_DLL_DECL instance_sethekk_halls : public ScriptedInstance
         IkissDoor = NULL;
     }
 
-    void OnObjectCreate(GameObject *go)
+    void OnGameObjectCreate(GameObject *go, bool add)
     {
         switch(go->GetEntry())
         {
