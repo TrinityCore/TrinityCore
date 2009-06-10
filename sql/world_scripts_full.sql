@@ -406,6 +406,8 @@ UPDATE `creature_template` SET `ScriptName`='mob_toxic_sporebat' WHERE `entry`=2
 UPDATE `creature_template` SET `ScriptName`='mob_shield_generator_channel' WHERE `entry`=19870;
 
 /* DARKSHORE */
+UPDATE `creature_template` SET `ScriptName`='npc_threshwackonator' WHERE `entry`=6669;
+UPDATE `creature_template` SET `ScriptName`='npc_prospector_remtravel' WHERE `entry`=2917;
 
 /* DEADMINES */
 UPDATE `instance_template` SET `script`='instance_deadmines' WHERE `map`=36;
@@ -999,6 +1001,7 @@ UPDATE `creature_template` SET `ScriptName`='mob_archavon_warder' WHERE `entry`=
 /* WESTERN PLAGUELANDS */
 UPDATE `creature_template` SET `ScriptName`='npcs_dithers_and_arbington' WHERE `entry` IN (11056,11057);
 UPDATE `creature_template` SET `ScriptName`='npc_the_scourge_cauldron' WHERE `entry`=11152;
+UPDATE `creature_template` SET `ScriptName`='npc_myranda_the_hag' WHERE `entry`=11872;
 
 /* WESTFALL */
 UPDATE `creature_template` SET `ScriptName`='npc_defias_traitor' WHERE `entry`=467;
