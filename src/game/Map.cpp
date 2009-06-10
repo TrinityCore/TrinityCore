@@ -616,7 +616,7 @@ void Map::RelocationNotify()
 
 void Map::AddUnitToNotify(Unit* u)
 {
-    if(u->m_NotifyListPos < 0)
+    if(u->m_NotifyListPos < 0 && u->IsInWorld())
     {
         u->oldX = u->GetPositionX();
         u->oldY = u->GetPositionY();

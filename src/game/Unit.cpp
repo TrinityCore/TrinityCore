@@ -9233,7 +9233,7 @@ bool Unit::isSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
                         {
                             AuraEffect *aura = pVictim->GetDummyAura(58597);
                             if (aura && aura->GetCasterGUID() == GetGUID())
-                            crit_chance+=aura->GetAmount();
+                                crit_chance+=aura->GetAmount();
                             break;
                         }
                     break;
@@ -11684,8 +11684,8 @@ void Unit::AddToWorld()
     {
         WorldObject::AddToWorld();
         m_Notified = false;
-        //assert(m_NotifyListPos < 0); instance : crash
-        m_NotifyListPos = -1;
+        assert(m_NotifyListPos < 0); //instance : crash
+        //m_NotifyListPos = -1;
         SetToNotify();
     }
 }
