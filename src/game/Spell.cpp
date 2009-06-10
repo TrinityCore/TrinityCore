@@ -2202,7 +2202,7 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
             {
                 case TARGET_UNIT_AREA_PARTY_SRC:
                 case TARGET_UNIT_AREA_PARTY_DST:
-                    m_caster->GetPartyMember(unitList, radius); //fix me
+                    m_caster->GetPartyMemberInDist(unitList, radius); //fix me
                     break;
                 case TARGET_OBJECT_AREA_SRC: // fix me
                 case TARGET_OBJECT_AREA_DST:
@@ -2237,10 +2237,10 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
                     break;
                 }
                 case TARGET_UNIT_PARTY_TARGET:
-                    m_targets.getUnitTarget()->GetPartyMember(unitList, radius);
+                    m_targets.getUnitTarget()->GetPartyMemberInDist(unitList, radius);
                     break;
                 case TARGET_UNIT_PARTY_CASTER:
-                    m_caster->GetPartyMember(unitList, radius);
+                    m_caster->GetPartyMemberInDist(unitList, radius);
                     break;
                 case TARGET_UNIT_RAID_CASTER:
                     m_caster->GetRaidMember(unitList, radius);
