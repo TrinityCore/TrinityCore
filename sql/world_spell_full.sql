@@ -782,10 +782,10 @@ INSERT INTO `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `Spell
 (17801,	0x00,	5,	0x00000001,	0x00000000,	0x00000000,	0x00000000,	0x00000002,	0,	0,	0), -- Improved Shadow Bolt (Rank 3)
 (17802,	0x00,	5,	0x00000001,	0x00000000,	0x00000000,	0x00000000,	0x00000002,	0,	0,	0), -- Improved Shadow Bolt (Rank 4)
 (17803,	0x00,	5,	0x00000001,	0x00000000,	0x00000000,	0x00000000,	0x00000002,	0,	0,	0), -- Improved Shadow Bolt (Rank 5)
-(18073,	0x00,	5,	0x00000060,	0x00000080,	0x00000000,	0x00000000,	0x00000000,	0,	0,	0), -- Pyroclasm (Rank 2)
+(18073,	0x00,	5,	0x00000060,	0x00800080,	0x00000000,	0x00000000,	0x00000000,	0,	0,	0), -- Pyroclasm (Rank 2)
 (18094,	0x00,	5,	0x0000000A,	0x00000000,	0x00000000,	0x00000000,	0x00000000,	0,	0,	0), -- Nightfall (Rank 1)
 (18095,	0x00,	5,	0x0000000A,	0x00000000,	0x00000000,	0x00000000,	0x00000000,	0,	0,	0), -- Nightfall (Rank 2)
-(18096,	0x00,	5,	0x00000060,	0x00000080,	0x00000000,	0x00000000,	0x00000000,	0,	0,	0), -- Pyroclasm (Rank 1)
+(18096,	0x00,	5,	0x00000060,	0x00800080,	0x00000000,	0x00000000,	0x00000000,	0,	0,	0), -- Pyroclasm (Rank 1)
 (18119,	0x00,	5,	0x000003E5,	0x000010C0,	0x00000000,	0x00000000,	0x00000000,	0,	0,	0), -- Aftermath (Rank 1)
 (18120,	0x00,	5,	0x000003E5,	0x000010C0,	0x00000000,	0x00000000,	0x00000000,	0,	0,	0), -- Aftermath (Rank 2)
 (18820,	0x00,	0,	0x00000000,	0x00000000,	0x00000000,	0x00000000,	0x00010000,	0,	0,	0), -- Insight
@@ -1585,7 +1585,7 @@ UPDATE creature_template SET VehicleId = 312 WHERE entry IN (31857,31858,31861,3
 update creature_template set spell5=51890 where entry = 28511; -- Eye of Acherus flight
 
 DELETE FROM `spell_script_target` WHERE entry IN
-(51859);
+(51859, 48743);
 INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
 (51859, 1, 28525), -- siphon of archerus
 (51859, 1, 28542),
