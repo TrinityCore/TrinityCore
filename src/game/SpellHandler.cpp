@@ -130,7 +130,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
 
     if (!pItem->IsTargetValidForItemUse(targets.getUnitTarget()))
     {
-        // free greay item aftre use faul
+        // free gray item after use fail
         pUser->SendEquipError(EQUIP_ERR_NONE, pItem, NULL);
 
         // send spell error
