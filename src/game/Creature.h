@@ -643,7 +643,7 @@ class TRINITY_DLL_SPEC Creature : public Unit
 
         bool canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList = false, bool is3dDistance = true) const;
         bool IsWithinSightDist(Unit const* u) const;
-        bool canStartAttack(Unit const* u) const;
+        bool canStartAttack(Unit const* u, bool force) const;
         float GetAttackDistance(Unit const* pl) const;
 
         Unit* SelectNearestTarget(float dist = 0) const;

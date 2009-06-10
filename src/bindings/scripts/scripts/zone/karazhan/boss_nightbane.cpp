@@ -170,10 +170,7 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
     void MoveInLineOfSight(Unit *who)
     {
         if(!Intro && !Flying)
-        {
-            if(!m_creature->getVictim() && m_creature->canStartAttack(who))
-                ScriptedAI::AttackStart(who);
-        }
+            ScriptedAI::MoveInLineOfSight(who);
     }
 
     void MovementInform(uint32 type, uint32 id)

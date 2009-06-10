@@ -1646,15 +1646,17 @@ bool Creature::IsWithinSightDist(Unit const* u) const
     return IsWithinDistInMap(u, sWorld.getConfig(CONFIG_SIGHT_MONSTER));
 }
 
-bool Creature::canStartAttack(Unit const* who) const
+bool Creature::canStartAttack(Unit const* who, bool force) const
 {
-    if(isCivilian() || IsNeutralToAll()
+    if(isCivilian()
         || !who->isInAccessiblePlaceFor(this)
-        || !canFly() && GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE
-        || !IsWithinDistInMap(who, GetAttackDistance(who)))
+        || !canFly() && GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
         return false;
 
-    if(!canAttack(who, false))
+    if(!force && (IsNeutralToAll() || !IsWithinDistInMap(who, GetAttackDistance(who))))
+        return false;
+
+    if(!canAttack(who, force))
         return false;
 
     return IsWithinLOSInMap(who);
