@@ -9233,7 +9233,7 @@ bool Unit::isSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
                         {
                             AuraEffect *aura = pVictim->GetDummyAura(58597);
                             if (aura && aura->GetCasterGUID() == GetGUID())
-                            crit_chance+=aura->GetAmount();
+                                crit_chance+=aura->GetAmount();
                             break;
                         }
                     break;
