@@ -153,7 +153,6 @@ m_creatureInfo(NULL), m_reactState(REACT_AGGRESSIVE), m_formation(NULL), m_summo
     m_GlobalCooldown = 0;
     m_unit_movement_flags = MOVEMENTFLAG_WALK_MODE;
     DisableReputationGain = false;
-    ResetDamageByPlayers();
 }
 
 Creature::~Creature()
@@ -1352,6 +1351,7 @@ void Creature::SelectLevel(const CreatureInfo *cinfo)
     SetCreateHealth(health);
     SetMaxHealth(health);
     SetHealth(health);
+    ResetDamageByPlayers();
 
     // mana
     uint32 minmana = std::min(cinfo->maxmana, cinfo->minmana);
