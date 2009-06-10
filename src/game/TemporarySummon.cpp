@@ -176,12 +176,22 @@ void TempSummon::InitStats(uint32 duration)
     if(m_type == TEMPSUMMON_MANUAL_DESPAWN)
         m_type = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_DESPAWN;
 
+    Unit *owner = GetSummoner();
+
+    if(owner && isTrigger() && m_spells[0])
+    {
+        setFaction(owner->getFaction());
+        SetLevel(owner->getLevel());
+        if(owner->GetTypeId() == TYPEID_PLAYER)
+            m_ControlledByPlayer = true;
+    }
+
     if(!m_Properties)
         return;
 
-    if(uint32 slot = m_Properties->Slot)
+    if(owner)
     {
-        if(Unit *owner = GetSummoner())
+        if(uint32 slot = m_Properties->Slot)
         {
             if(owner->m_SummonSlot[slot] && owner->m_SummonSlot[slot] != GetGUID())
             {
@@ -204,12 +214,6 @@ void TempSummon::InitSummon()
     {
         if(owner->GetTypeId()==TYPEID_UNIT && ((Creature*)owner)->IsAIEnabled)
             ((Creature*)owner)->AI()->JustSummoned(this);
-
-        if(GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER && m_spells[0])
-        {
-            setFaction(owner->getFaction());
-            SetLevel(owner->getLevel());
-        }
     }
 }
 
