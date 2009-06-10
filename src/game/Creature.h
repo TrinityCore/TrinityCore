@@ -725,10 +725,10 @@ class TRINITY_DLL_SPEC Creature : public Unit
         bool IsDamageEnoughForLootingAndReward() { return m_PlayerDamageReq == 0; }
         void AddDamageByPlayers(uint32 unDamage)
         {
-            if(m_PlayerDamageReq > 0)
+            if(m_PlayerDamageReq)
                 m_PlayerDamageReq > unDamage ? m_PlayerDamageReq -= unDamage : m_PlayerDamageReq = 0;
         }
-        void ResetDamageByPlayers() { m_PlayerDamageReq = (uint32)(GetHealth() *50 / GetMaxHealth()); }
+        void ResetDamageByPlayers() { m_PlayerDamageReq = GetHealth() / 2; }
         uint32 m_PlayerDamageReq;
         
         void SetOriginalEntry(uint32 entry) { m_originalEntry = entry; }
