@@ -324,7 +324,22 @@ INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content
 (-1000405, 'We\'ve done it! We won!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 7, 0, 'stilwell SAY_DS_DOWN_3'),
 (-1000406, 'Meet me down by the orchard--I just need to put my gun away.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 7, 0, 'stilwell SAY_DS_PROLOGUE'),
 (-1000411, 'Mist! I feared I would never see you again! Yes, I am well, do not worry for me. You must rest and recover your health.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 7, 0, 'mist SAY_AT_HOME'),
-(-1000412, 'growls in acknowledgement before straightening and making her way off into the forest.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, 0, 0, 'mist EMOTE_AT_HOME');
+(-1000412, 'growls in acknowledgement before straightening and making her way off into the forest.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, 0, 0, 'mist EMOTE_AT_HOME'),
+(-1000413, 'Threshwackonator First Mate unit prepared to follow', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, 0, 0, 'threshwackonator EMOTE_START'),
+(-1000414, 'YARRR! Swabie, what have ye done?! He\'s gone mad! Baton him down the hatches! Hoist the mast! ARRRR! Every man for hi\'self!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 7, 0, 'threshwackonator SAY_AT_CLOSE'),
+(-1000415, 'Ok, $n, let\'s go find where I left that mysterious fossil. Follow me!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 7, 0, 'remtravel SAY_REM_START'),
+(-1000416, 'Now where did I put that mysterious fossil? Ah, maybe up there...', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 7, 0, 'remtravel SAY_REM_RAMP1_1'),
+(-1000417, 'Hrm, nothing up here.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 7, 0, 'remtravel SAY_REM_RAMP1_2'),
+(-1000418, 'No mysterious fossil here... Ah, but my copy of Green Hills of Stranglethorn. What a good book!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 7, 0, 'remtravel SAY_REM_BOOK'),
+(-1000419, 'I bet you I left it in the tent!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 7, 0, 'remtravel SAY_REM_TENT1_1'),
+(-1000420, 'Oh wait, that\'s Hollee\'s tent... and it\'s empty.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 7, 0, 'remtravel SAY_REM_TENT1_2'),
+(-1000421, 'Interesting... I hadn\'t noticed this earlier...', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 7, 0, 'remtravel SAY_REM_MOSS'),
+(-1000422, '%s inspects the ancient, mossy stone.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, 7, 0, 'remtravel EMOTE_REM_MOSS'),
+(-1000423, 'Oh wait! I\'m supposed to be looking for that mysterious fossil!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 7, 0, 'remtravel SAY_REM_MOSS_PROGRESS'),
+(-1000424, 'Nope. didn\'t leave the fossil back here!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 7, 0, 'remtravel SAY_REM_PROGRESS'),
+(-1000425, 'Ah. I remember now! I gave the mysterious fossil to Hollee! Check with her.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 7, 0, 'remtravel SAY_REM_REMEMBER'),
+(-1000426, '%s goes back to work, oblivious to everything around him.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, 7, 0, 'remtravel EMOTE_REM_END'),
+(-1000427, 'Something tells me this $r wants the mysterious fossil too. Help!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 7, 0, 'remtravel SAY_REM_AGGRO');
 
 -- -1 033 000 SHADOWFANG KEEP
 INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`, `sound`, `type`, `language`, `emote`, `comment`) VALUES
