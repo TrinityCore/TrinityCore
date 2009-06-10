@@ -270,7 +270,7 @@ MapManager::Update(uint32 diff)
 void MapManager::DoDelayedMovesAndRemoves()
 {
     for(MapMapType::iterator iter=i_maps.begin(); iter != i_maps.end(); ++iter)
-        iter->second->DoDelayedMovesAndRemoves();
+        iter->second->RelocationNotify();
 }
 
 bool MapManager::ExistMapAndVMap(uint32 mapid, float x,float y)

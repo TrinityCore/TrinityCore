@@ -105,7 +105,7 @@ struct TRINITY_DLL_DECL instance_steam_vault : public ScriptedInstance
         return NULL;
     }
 
-    void OnCreatureCreate(Creature *creature, uint32 creature_entry)
+    void OnCreatureCreate(Creature *creature, bool add)
     {
           switch(creature->GetEntry())
         {
@@ -115,7 +115,7 @@ struct TRINITY_DLL_DECL instance_steam_vault : public ScriptedInstance
         }
     }
 
-    void OnObjectCreate(GameObject *go)
+    void OnGameObjectCreate(GameObject *go, bool add)
     {
         switch(go->GetEntry())
         {

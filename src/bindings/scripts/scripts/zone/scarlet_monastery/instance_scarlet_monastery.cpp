@@ -64,7 +64,7 @@ struct TRINITY_DLL_DECL instance_scarlet_monastery : public ScriptedInstance
             Encounter[i] = NOT_STARTED;
     }
 
-    void OnObjectCreate(GameObject *go)
+    void OnGameObjectCreate(GameObject *go, bool add)
     {
         switch(go->GetEntry())
         {
@@ -73,9 +73,9 @@ struct TRINITY_DLL_DECL instance_scarlet_monastery : public ScriptedInstance
         }
     }
 
-    void OnCreatureCreate(Creature *creature, uint32 creature_entry)
+    void OnCreatureCreate(Creature *creature, bool add)
     {
-        switch(creature_entry)
+        switch(creature->GetEntry())
         {
             case ENTRY_HORSEMAN:    HorsemanGUID = creature->GetGUID(); break;
             case ENTRY_HEAD:        HeadGUID = creature->GetGUID(); break;

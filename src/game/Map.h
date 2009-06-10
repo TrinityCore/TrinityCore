@@ -340,6 +340,7 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>, public MaNGOS::Obj
 
         virtual void MoveAllCreaturesInMoveList();
         virtual void RemoveAllObjectsInRemoveList();
+        virtual void RelocationNotify();
 
         bool CreatureRespawnRelocation(Creature *c);        // used only in MoveAllCreaturesInMoveList and ObjectGridUnloader
 
@@ -373,7 +374,7 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>, public MaNGOS::Obj
 
         void AddObjectToRemoveList(WorldObject *obj);
         void AddObjectToSwitchList(WorldObject *obj, bool on);
-        void DoDelayedMovesAndRemoves();
+        //void DoDelayedMovesAndRemoves();
 
         virtual bool RemoveBones(uint64 guid, float x, float y);
 
@@ -388,7 +389,7 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>, public MaNGOS::Obj
         bool ActiveObjectsNearGrid(uint32 x, uint32 y) const;
 
         void AddUnitToNotify(Unit* unit);
-        void RelocationNotify();
+        void RemoveUnitFromNotify(int32 slot);
 
         void SendToPlayers(WorldPacket const* data) const;
 
@@ -496,7 +497,7 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>, public MaNGOS::Obj
         time_t i_gridExpiry;
 
         bool i_lock;
-        std::vector<uint64> i_unitsToNotifyBacklog;
+        std::vector<Unit*> i_unitsToNotifyBacklog;
         std::vector<Unit*> i_unitsToNotify;
         std::set<WorldObject *> i_objectsToRemove;
         std::map<WorldObject*, bool> i_objectsToSwitch;

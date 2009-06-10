@@ -70,7 +70,7 @@ struct TRINITY_DLL_DECL instance_scholomance : public ScriptedInstance
             Encounter[i] = NOT_STARTED;
     }
 
-    void OnObjectCreate(GameObject *go)
+    void OnGameObjectCreate(GameObject *go, bool add)
     {
         switch(go->GetEntry())
         {

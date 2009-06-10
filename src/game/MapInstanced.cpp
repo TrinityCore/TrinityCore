@@ -77,6 +77,12 @@ void MapInstanced::RemoveAllObjectsInRemoveList()
     Map::RemoveAllObjectsInRemoveList();
 }
 
+void MapInstanced::RelocationNotify()
+{
+    for (InstancedMaps::iterator i = m_InstancedMaps.begin(); i != m_InstancedMaps.end(); ++i)
+        i->second->RelocationNotify();
+}
+
 bool MapInstanced::RemoveBones(uint64 guid, float x, float y)
 {
     bool remove_result = false;

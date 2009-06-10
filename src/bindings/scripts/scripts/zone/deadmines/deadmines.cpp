@@ -141,7 +141,7 @@ struct TRINITY_DLL_DECL instance_deadmines : public ScriptedInstance
         DoorLever->SetUInt32Value(GAMEOBJECT_FLAGS, 4);
     }
 
-    void OnObjectCreate(GameObject *go)
+    void OnGameObjectCreate(GameObject *go, bool add)
     {
         switch(go->GetEntry())
         {

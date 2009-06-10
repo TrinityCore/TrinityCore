@@ -96,7 +96,7 @@ struct TRINITY_DLL_DECL instance_old_hillsbrad : public ScriptedInstance
             debug_log("TSCR: Instance Old Hillsbrad: UpdateOHWorldState, but PlayerList is empty!");
     }
 
-    void OnCreatureCreate(Creature *creature, uint32 creature_entry)
+    void OnCreatureCreate(Creature *creature, bool add)
     {
         switch(creature->GetEntry())
         {
