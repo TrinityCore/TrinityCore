@@ -6502,7 +6502,7 @@ void Player::_ApplyItemMods(Item *item, uint8 slot,bool apply)
     uint8 attacktype = Player::GetAttackBySlot(slot);
 
     //check disarm only on mod apply to allow remove item mods
-    if (apply && !CanUseAttackType(attacktype) )
+    if (!CanUseAttackType(attacktype) )
         return;
 
     if(attacktype < MAX_ATTACK)

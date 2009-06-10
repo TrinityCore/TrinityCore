@@ -140,7 +140,7 @@ m_defaultMovementType(IDLE_MOTION_TYPE), m_DBTableGuid(0), m_equipmentId(0), m_A
 m_regenHealth(true), m_AI_locked(false), m_isDeadByDefault(false), m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),
 m_creatureInfo(NULL), m_reactState(REACT_AGGRESSIVE), m_formation(NULL), m_summonMask(SUMMON_MASK_NONE)
 , m_AlreadySearchedAssistance(false)
-, m_creatureData(NULL)
+, m_creatureData(NULL), m_PlayerDamageReq(0)
 {
     m_regenTimer = 200;
     m_valuesCount = UNIT_END;
