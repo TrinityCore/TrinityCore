@@ -3341,6 +3341,12 @@ void SpellMgr::LoadSpellCustomAttr()
         case 45150:                             // Meteor Slash
             mSpellCustomAttr[i] |= SPELL_ATTR_CU_SHARE_DAMAGE;
             break;
+        case 59725:                             // Improved Spell Reflection - aoe aura
+            // Target entry seems to be wrong for this spell :/
+            spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_PARTY_CASTER;
+            spellInfo->EffectRadiusIndex[0] = 45;
+            //mSpellCustomAttr[i] |= SPELL_ATTR_CU_EXCLUDE_SELF;
+            //break;
         case 27820:                             // Mana Detonation
         //case 28062: case 39090:                 // Positive/Negative Charge
         //case 28085: case 39093:
