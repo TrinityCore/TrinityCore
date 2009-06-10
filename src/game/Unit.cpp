@@ -7060,7 +7060,7 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                     if(!pVictim || !pVictim->isAlive() || pVictim == this || procSpell == NULL)
                         return false;
                     // Calculate spell tick count for spells
-                    uint32 tick = 1; // Default tick = 1
+                    uint32 tick;
 
                     // Hellfire have 15 tick
                     if (procSpell->SpellFamilyFlags[0]&0x40)
@@ -7069,7 +7069,7 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                     else if (procSpell->SpellFamilyFlags[0]&0x20)
                         tick = 4;
                     else
-                        return false;
+                        tick = 1;
 
                     // Calculate chance = baseChance / tick
                     float chance = 0;
