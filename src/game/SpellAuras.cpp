@@ -3907,17 +3907,19 @@ void AuraEffect::HandleAuraModDisarm(bool apply, bool Real, bool /*changeAmount*
     default:
         return;
     }
-    if(apply)
-        m_target->SetFlag(field, flag);
-    else
-        m_target->RemoveFlag(field, flag);
 
     if (m_target->GetTypeId() == TYPEID_PLAYER)
     {
         if(Item *pItem = ((Player*)m_target)->GetItemByPos( INVENTORY_SLOT_BAG_0, slot ))
             ((Player*)m_target)->_ApplyItemMods(pItem, slot, !apply);
     }
-    else if (((Creature*)m_target)->GetCurrentEquipmentId())
+
+    if(apply)
+        m_target->SetFlag(field, flag);
+    else
+        m_target->RemoveFlag(field, flag);
+
+    if (m_target->GetTypeId() == TYPEID_UNIT && ((Creature*)m_target)->GetCurrentEquipmentId())
         m_target->UpdateDamagePhysical(attType);
 }
 
@@ -5418,8 +5420,7 @@ void AuraEffect::HandleModDamageDone(bool apply, bool Real, bool changeAmount)
                     m_target->ApplyModUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG+i,m_amount,apply);
             }
         }
-        Pet* pet = ((Player*)m_target)->GetPet();
-        if(pet)
+        if(Guardian* pet = ((Player*)m_target)->GetGuardianPet())
             pet->UpdateAttackPowerAndDamage();
     }
 }
