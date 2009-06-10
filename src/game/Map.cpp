@@ -2126,12 +2126,11 @@ inline void Map::setNGrid(NGridType *grid, uint32 x, uint32 y)
     i_grids[x][y] = grid;
 }
 
-void Map::DoDelayedMovesAndRemoves()
-{
+//void Map::DoDelayedMovesAndRemoves()
+//{
     //MoveAllCreaturesInMoveList();
     //RemoveAllObjectsInRemoveList();
-    RelocationNotify();
-}
+//}
 
 void Map::AddObjectToRemoveList(WorldObject *obj)
 {
