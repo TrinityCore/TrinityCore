@@ -759,6 +759,7 @@ void Map::Update(const uint32 &t_diff)
     MoveAllCreaturesInMoveList();
     RemoveAllObjectsInRemoveList();
 
+    m_notifyTimer.Update(t_diff);
     if(m_notifyTimer.Passed())
     {
         m_notifyTimer.Reset();
