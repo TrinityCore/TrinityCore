@@ -240,9 +240,9 @@ struct TRINITY_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit *who)
     {
-        if(who && !m_creature->getVictim() && m_creature->canStartAttack(who))
-            AttackStart(who);
-        if (!Intro && who && m_creature->IsWithinLOSInMap(who)&& m_creature->IsWithinDistInMap(who, 100) && m_creature->IsHostileTo(who))
+        ScriptedAI::MoveInLineOfSight(who);
+
+        if (!Intro && m_creature->IsWithinLOSInMap(who)&& m_creature->IsWithinDistInMap(who, 100) && m_creature->IsHostileTo(who))
         {
             DoScriptText(SAY_INTRO, m_creature);
             Intro = true;
