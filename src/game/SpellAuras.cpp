@@ -3908,16 +3908,20 @@ void AuraEffect::HandleAuraModDisarm(bool apply, bool Real, bool /*changeAmount*
         return;
     }
 
+    if(!apply)
+        m_target->RemoveFlag(field, flag);
+
     if (m_target->GetTypeId() == TYPEID_PLAYER)
     {
+        // This is between the two because there is a check in _ApplyItemMods
+        // we must make sure that flag is always removed when call that function
+        // refer to DurabilityPointsLoss
         if(Item *pItem = ((Player*)m_target)->GetItemByPos( INVENTORY_SLOT_BAG_0, slot ))
             ((Player*)m_target)->_ApplyItemMods(pItem, slot, !apply);
     }
 
     if(apply)
-        m_target->SetFlag(field, flag);
-    else
-        m_target->RemoveFlag(field, flag);
+        m_target->SetFlag(field, flag);  
 
     if (m_target->GetTypeId() == TYPEID_UNIT && ((Creature*)m_target)->GetCurrentEquipmentId())
         m_target->UpdateDamagePhysical(attType);
