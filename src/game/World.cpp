@@ -1752,11 +1752,11 @@ void World::Update(uint32 diff)
     ///- Update objects when the timer has passed (maps, transport, creatures,...)
     MapManager::Instance().Update(diff);                // As interval = 0
 
-    if(m_timers[WUPDATE_OBJECTS].Passed())
+    /*if(m_timers[WUPDATE_OBJECTS].Passed())
     {
         m_timers[WUPDATE_OBJECTS].Reset();
         MapManager::Instance().DoDelayedMovesAndRemoves();
-    }
+    }*/
 
     ///- Process necessary scripts
     if (!m_scriptSchedule.empty())
