@@ -194,6 +194,8 @@ Map::Map(uint32 id, time_t expiry, uint32 InstanceId, uint8 SpawnMode)
   i_gridExpiry(expiry)
    , i_lock(true)
 {
+    m_notifyTimer.SetInterval(IN_MILISECONDS/2);
+
     for(unsigned int idx=0; idx < MAX_NUMBER_OF_GRIDS; ++idx)
     {
         for(unsigned int j=0; j < MAX_NUMBER_OF_GRIDS; ++j)
@@ -756,6 +758,12 @@ void Map::Update(const uint32 &t_diff)
 
     MoveAllCreaturesInMoveList();
     RemoveAllObjectsInRemoveList();
+
+    if(m_notifyTimer.Passed())
+    {
+        m_notifyTimer.Reset();
+        RelocationNotify();
+    }
 
     // Don't unload grids if it's battleground, since we may have manually added GOs,creatures, those doesn't load from DB at grid re-load !
     // This isn't really bother us, since as soon as we have instanced BG-s, the whole map unloads as the BG gets ended
