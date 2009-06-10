@@ -478,6 +478,22 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/vault_of_archavon/boss_archavon.cpp
    scripts/zone/vault_of_archavon/def_vault_of_archavon.h
    scripts/zone/wintergrasp/wintergrasp.cpp
+   scripts/zone/ulduar/ulduar/boss_algalon.cpp
+   scripts/zone/ulduar/ulduar/boss_assembly_of_iron.cpp
+   scripts/zone/ulduar/ulduar/boss_auriaya.cpp
+   scripts/zone/ulduar/ulduar/boss_flame_leviathan.cpp
+   scripts/zone/ulduar/ulduar/boss_freya.cpp
+   scripts/zone/ulduar/ulduar/boss_general_vezax.cpp
+   scripts/zone/ulduar/ulduar/boss_hodir.cpp
+   scripts/zone/ulduar/ulduar/boss_ignis.cpp
+   scripts/zone/ulduar/ulduar/boss_kologarn.cpp
+   scripts/zone/ulduar/ulduar/boss_mimiron.cpp
+   scripts/zone/ulduar/ulduar/boss_razorscale.cpp
+   scripts/zone/ulduar/ulduar/boss_thorim.cpp
+   scripts/zone/ulduar/ulduar/boss_xt002.cpp
+   scripts/zone/ulduar/ulduar/boss_yoggsaron.cpp
+   scripts/zone/ulduar/ulduar/def_ulduar.h
+   scripts/zone/ulduar/ulduar/instance_ulduar.cpp
    system.cpp
 )
 
