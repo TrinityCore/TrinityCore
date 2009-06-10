@@ -37,6 +37,7 @@ class TRINITY_DLL_DECL MapInstanced : public Map
         void Update(const uint32&);
         void MoveAllCreaturesInMoveList();
         void RemoveAllObjectsInRemoveList();
+        void RelocationNotify();
         bool RemoveBones(uint64 guid, float x, float y);
         void UnloadAll();
         bool CanEnter(Player* player);
