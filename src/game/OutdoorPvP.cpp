@@ -80,7 +80,7 @@ bool OPvPCapturePoint::AddCapturePoint(uint32 entry, uint32 map, float x, float 
     GameObjectInfo const* goinfo = objmgr.GetGameObjectInfo(entry);
     if(!goinfo || goinfo->type != GAMEOBJECT_TYPE_CAPTURE_POINT)
     {
-        sLog.outError("OutdoorPvP: GO %u is not capture point!", goinfo->id);
+        sLog.outError("OutdoorPvP: GO %u is not capture point!", entry);
         return false;
     }
 

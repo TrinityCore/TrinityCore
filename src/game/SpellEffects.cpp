@@ -321,7 +321,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                 //Gore
                 if(m_spellInfo->SpellIconID == 2269 )
                 {
-                    damage+= rand()%2 ? damage : 0;
+                    damage += (rand()%2 ? damage : 0);
                 }
 
                 // Meteor like spells (divided damage to targets)
