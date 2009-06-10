@@ -363,7 +363,8 @@ void OPvPWintergrasp::HandleKill(Player *killer, Unit *victim)
         // We handle promotion here because player should not get promotion if he has buff but do the kill outside the zone
         if(victim->getLevel() >= 70)
         {
-            if(Aura *aur = killer->GetAura(SPELL_RECRUIT))
+            Aura *aur;
+            if(aur = killer->GetAura(SPELL_RECRUIT))
             {
                 if(aur->GetStackAmount() >= 5)
                 {
@@ -373,7 +374,7 @@ void OPvPWintergrasp::HandleKill(Player *killer, Unit *victim)
                 else
                     killer->CastSpell(killer, SPELL_RECRUIT, true);
             }
-            else if(Aura *aur = killer->GetAura(SPELL_CORPORAL))
+            else if(aur = killer->GetAura(SPELL_CORPORAL))
             {
                 if(aur->GetStackAmount() >= 5)
                 {
