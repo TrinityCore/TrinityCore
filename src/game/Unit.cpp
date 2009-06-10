@@ -11684,8 +11684,8 @@ void Unit::AddToWorld()
     {
         WorldObject::AddToWorld();
         m_Notified = false;
-        //assert(m_NotifyListPos < 0); instance : crash
-        m_NotifyListPos = -1;
+        assert(m_NotifyListPos < 0); //instance : crash
+        //m_NotifyListPos = -1;
         SetToNotify();
     }
 }
