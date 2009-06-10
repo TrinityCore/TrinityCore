@@ -80,7 +80,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &AuraEffect::HandleAuraModPacify,                             // 25 SPELL_AURA_MOD_PACIFY
     &AuraEffect::HandleAuraModRoot,                               // 26 SPELL_AURA_MOD_ROOT
     &AuraEffect::HandleAuraModSilence,                            // 27 SPELL_AURA_MOD_SILENCE
-    &AuraEffect::HandleNoImmediateEffect,                         // 28 SPELL_AURA_REFLECT_SPELLS        implement in Unit::SpellHitResult
+    &AuraEffect::HandleReflectSpells,                             // 28 SPELL_AURA_REFLECT_SPELLS        implement in Unit::SpellHitResult
     &AuraEffect::HandleAuraModStat,                               // 29 SPELL_AURA_MOD_STAT
     &AuraEffect::HandleAuraModSkill,                              // 30 SPELL_AURA_MOD_SKILL
     &AuraEffect::HandleAuraModIncreaseSpeed,                      // 31 SPELL_AURA_MOD_INCREASE_SPEED
@@ -730,7 +730,7 @@ void AreaAuraEffect::Update(uint32 diff)
             switch(m_areaAuraType)
             {
                 case AREA_AURA_PARTY:
-                    source->GetPartyMember(targets, m_radius);
+                    source->GetPartyMemberInDist(targets, m_radius);
                     break;
                 case AREA_AURA_RAID:
                     source->GetRaidMember(targets, m_radius);
@@ -7161,3 +7161,29 @@ void AuraEffect::HandleAuraSafeFall( bool Apply, bool Real , bool /*changeAmount
     if(Apply && Real && GetId()==32474 && m_target->GetTypeId()==TYPEID_PLAYER)
         ((Player*)m_target)->ActivateTaxiPathTo(506,GetId());
 }
+
+void AuraEffect::HandleReflectSpells( bool Apply, bool Real , bool /*changeAmount*/)
+{
+    // implemented in Unit::SpellHitResult
+
+    // only special case
+    if(!Apply && Real && m_spellProto->SpellFamilyName == SPELLFAMILY_WARRIOR && m_spellProto->SpellFamilyFlags[1] & 0x2)
+    {
+        if (Unit * caster = GetCaster())
+        {
+            // Improved Spell Reflection
+            if (caster->GetDummyAura(59089) || caster->GetDummyAura(59088))
+            {
+                // aura remove - remove auras from all party members
+                std::list<Unit*> PartyMembers;
+                m_target->GetPartyMembers(PartyMembers);
+                for (std::list<Unit*>::iterator itr = PartyMembers.begin();itr!=PartyMembers.end();++itr)
+                {
+                    if ((*itr)!= m_target)
+                        (*itr)->RemoveAurasWithFamily(SPELLFAMILY_WARRIOR, 0, 0x2, 0, GetCasterGUID());
+                }
+            }
+        }
+    }
+}
+

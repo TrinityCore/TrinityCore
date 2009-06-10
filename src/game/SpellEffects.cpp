@@ -4211,7 +4211,12 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
                 }
                 if (!spellInfo)
                     break;
-                m_caster->CastSpell(unitTarget, spellInfo, true);
+                int32 count = 1;
+                // Glyph of Devastate
+                if (AuraEffect * aurEff = m_caster->GetDummyAura(58388))
+                    count += aurEff->GetAmount();
+                for (;count>0;count--)
+                    m_caster->CastSpell(unitTarget, spellInfo, true);
                 if (stack)
                     spell_bonus += stack * CalculateDamage(2, unitTarget);
             }
