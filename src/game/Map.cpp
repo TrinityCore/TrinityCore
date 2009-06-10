@@ -601,9 +601,8 @@ void Map::RelocationNotify()
         }
     }
     for(std::vector<Unit*>::iterator iter = i_unitsToNotify.begin(); iter != i_unitsToNotify.end(); ++iter)
-    {
-        (*iter)->m_Notified = false;
-    }
+        if(*iter)
+            (*iter)->m_Notified = false;
     i_unitsToNotify.clear();
 
     i_lock = false;
@@ -2130,8 +2129,9 @@ inline void Map::setNGrid(NGridType *grid, uint32 x, uint32 y)
 
 void Map::DoDelayedMovesAndRemoves()
 {
-    MoveAllCreaturesInMoveList();
-    RemoveAllObjectsInRemoveList();
+    //MoveAllCreaturesInMoveList();
+    //RemoveAllObjectsInRemoveList();
+    RelocationNotify();
 }
 
 void Map::AddObjectToRemoveList(WorldObject *obj)
