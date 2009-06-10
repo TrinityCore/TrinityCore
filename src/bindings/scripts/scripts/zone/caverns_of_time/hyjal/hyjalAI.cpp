@@ -434,14 +434,10 @@ void hyjalAI::EnterCombat(Unit *who)
 
 void hyjalAI::MoveInLineOfSight(Unit *who)
 {
-    if(IsDummy)return;
-    if (IsBeingEscorted && !GetAttack())
+    if(IsDummy)
         return;
 
-    if(m_creature->getVictim() || !m_creature->canStartAttack(who))
-        return;
-
-    AttackStart(who);
+    npc_escortAI::MoveInLineOfSight(who);
 }
 
 void hyjalAI::SummonCreature(uint32 entry, float Base[4][3])

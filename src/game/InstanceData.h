@@ -138,12 +138,6 @@ class TRINITY_DLL_SPEC InstanceData : public ZoneScript
         //Called when a player successfully enters the instance.
         virtual void OnPlayerEnter(Player *) {}
 
-        //Called when a gameobject is created
-        void OnGameObjectCreate(GameObject *go, bool add) { OnObjectCreate(go); }
-
-        //called on creature creation
-        void OnCreatureCreate(Creature *, bool add);
-
         //Handle open / close objects
         //use HandleGameObject(NULL,boolen,GO); in OnObjectCreate in instance scripts
         //use HandleGameObject(GUID,boolen,NULL); in any other script

@@ -6489,7 +6489,7 @@ void Player::_ApplyItemMods(Item *item, uint8 slot,bool apply)
         return;
 
     // not apply mods for broken item
-    if(item->IsBroken() && apply)
+    if(item->IsBroken())
         return;
 
     ItemPrototype const *proto = item->GetProto();

@@ -1722,7 +1722,8 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
 
         // relocation notification
         void SetToNotify();
-        bool m_Notified, m_IsInNotifyList;
+        bool m_Notified;
+        int32 m_NotifyListPos;
         float oldX, oldY;
 
         void SetReducedThreatPercent(uint32 pct, uint64 guid)

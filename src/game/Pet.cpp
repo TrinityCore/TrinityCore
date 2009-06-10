@@ -204,12 +204,12 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
         case SUMMON_PET:
             petlevel=owner->getLevel();
 
-            SetUInt32Value(UNIT_FIELD_BYTES_0, 2048);
+            SetUInt32Value(UNIT_FIELD_BYTES_0, 0x800); //class=mage
             SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
                                                             // this enables popup window (pet dismiss, cancel)
             break;
         case HUNTER_PET:
-            SetUInt32Value(UNIT_FIELD_BYTES_0, 0x02020100);
+            SetUInt32Value(UNIT_FIELD_BYTES_0, 0x02020100); //class=warrior,gender=none,power=focus
             SetSheath(SHEATH_STATE_MELEE);
             SetByteValue(UNIT_FIELD_BYTES_2, 2, fields[9].GetBool() ? UNIT_RENAME_NOT_ALLOWED : UNIT_RENAME_ALLOWED);
 

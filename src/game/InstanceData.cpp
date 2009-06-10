@@ -53,12 +53,6 @@ bool InstanceData::IsEncounterInProgress() const
     return false;
 }
 
-//This will be removed in the future, just compitiable with Mangos
-void InstanceData::OnCreatureCreate(Creature *creature, bool add)
-{
-    OnCreatureCreate(creature, creature->GetEntry());
-}
-
 void InstanceData::LoadMinionData(const MinionData *data)
 {
     while(data->entry)

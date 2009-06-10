@@ -71,7 +71,7 @@ struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
         return false;
     }
 
-    void OnCreatureCreate(Creature *creature, uint32 creature_entry)
+    void OnCreatureCreate(Creature *creature, bool add)
     {
         switch(creature->GetEntry())
         {
@@ -84,7 +84,7 @@ struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
         }
     }
 
-    void OnObjectCreate(GameObject *go)
+    void OnGameObjectCreate(GameObject *go, bool add)
     {
         switch(go->GetEntry())
         {

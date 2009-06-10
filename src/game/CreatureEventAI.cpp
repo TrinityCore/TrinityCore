@@ -957,11 +957,12 @@ void CreatureEventAI::MoveInLineOfSight(Unit *who)
         }
     }
 
-    //if (m_creature->isCivilian() && m_creature->IsNeutralToAll())
-    //    return;
-
-    if(me->canStartAttack(who))
+    if(me->canStartAttack(who, false))
         AttackStart(who);
+    else if(who->getVictim() && me->IsFriendlyTo(who)
+        && me->IsWithinDistInMap(who, sWorld.getConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_RADIUS))
+        && me->canStartAttack(who->getVictim(), true))
+        AttackStart(who->getVictim());
 }
 
 void CreatureEventAI::SpellHit(Unit* pUnit, const SpellEntry* pSpell)
