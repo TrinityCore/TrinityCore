@@ -500,6 +500,23 @@ void Unit::RemoveAurasWithInterruptFlags(uint32 flag, uint32 except)
     UpdateInterruptMask();
 }
 
+void Unit::RemoveAurasWithFamily(uint32 family, uint32 familyFlag1, uint32 familyFlag2, uint32 familyFlag3, uint64 casterGUID)
+{
+    for(AuraMap::iterator iter = m_Auras.begin(); iter != m_Auras.end();)
+    {
+        if (!casterGUID || iter->second->GetCasterGUID() == casterGUID)
+        {
+            SpellEntry const *spell = iter->second->GetSpellProto();
+            if (spell->SpellFamilyName == family && spell->SpellFamilyFlags.HasFlag(familyFlag1, familyFlag2, familyFlag3))
+            {
+                RemoveAura(iter);
+                continue;
+            }
+        }
+        ++iter;
+    }
+}
+
 void Unit::UpdateInterruptMask()
 {
     m_interruptMask = 0;
@@ -5421,35 +5438,13 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 triggered_spell_id = 22858;
                 break;
             }
-            // Glyph of Devastate
-            if(dummySpell->Id==58388)
+            // Improved Spell Reflection
+            if(dummySpell->Id==59088 
+                || dummySpell->Id==59089)
             {
-                // get highest rank of the Sunder Armor spell
-                if (GetTypeId()!=TYPEID_PLAYER)
-                    return false;
-                const PlayerSpellMap& sp_list = ((Player*)this)->GetSpellMap();
-                for (PlayerSpellMap::const_iterator itr = sp_list.begin(); itr != sp_list.end(); ++itr)
-                {
-                    // only highest rank is shown in spell book, so simply check if shown in spell book
-                    if(!itr->second->active || itr->second->disabled || itr->second->state == PLAYERSPELL_REMOVED)
-                        continue;
-
-                    SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
-                    if (!spellInfo)
-                        continue;
-
-                    if (spellInfo->SpellFamilyFlags.IsEqual(SPELLFAMILYFLAG_WARRIOR_SUNDERARMOR)
-                        && spellInfo->SpellFamilyName == SPELLFAMILY_WARRIOR)
-                    {
-                        triggered_spell_id = spellInfo->Id;
-                        break;
-                    }
-                }
-                if (!triggered_spell_id)
-                    return false;
-                for (int32 value = CalculateSpellDamage(dummySpell, 0 , dummySpell->EffectBasePoints[0], pVictim);value>0;value--)
-                    CastSpell(target,triggered_spell_id,true);
-                return true;
+                triggered_spell_id = 59725;
+                target = this;
+                break;
             }
             // Second Wind
             if (dummySpell->SpellIconID == 1697)
@@ -7046,11 +7041,6 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
             case SPELLFAMILY_WARRIOR:
                 if (auraSpellInfo->Id == 50421)             // Scent of Blood
                     trigger_spell_id = 50422;
-                // Sword and Board
-                else if (trigger_spell_id == 50227)
-                    // remove cooldown of Shield Slam
-                    if (GetTypeId()==TYPEID_PLAYER)
-                        ((Player*)this)->RemoveCategoryCooldown(1209);
                 break;
             case SPELLFAMILY_WARLOCK:
             {
@@ -7374,6 +7364,31 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
             }
             default:
                  break;
+        }
+    }
+    else
+    {
+        switch (auraSpellInfo->SpellFamilyName)
+        {
+            case SPELLFAMILY_WARRIOR:
+                // Sword and Board
+                if (trigger_spell_id == 50227)
+                    // remove cooldown of Shield Slam
+                    if (GetTypeId()==TYPEID_PLAYER)
+                        ((Player*)this)->RemoveCategoryCooldown(1209);
+                break;
+            case SPELLFAMILY_MAGE:
+                if (trigger_spell_id == 22959)
+                {
+                    // Glyph of Improved Scorch
+                    if (AuraEffect * aurEff = GetDummyAura(56371))
+                    {
+                        for (int32 count = aurEff->GetAmount();count>0;count--)
+                            CastSpell(pVictim, 22959, true);
+                        return true;
+                    }
+                }
+                break;
         }
     }
 
@@ -13874,7 +13889,7 @@ void Unit::GetRaidMember(std::list<Unit*> &nearMembers, float radius)
     }
 }
 
-void Unit::GetPartyMember(std::list<Unit*> &TagUnitMap, float radius)
+void Unit::GetPartyMemberInDist(std::list<Unit*> &TagUnitMap, float radius)
 {
     Unit *owner = GetCharmerOrOwnerOrSelf();
     Group *pGroup = NULL;
@@ -13907,6 +13922,43 @@ void Unit::GetPartyMember(std::list<Unit*> &TagUnitMap, float radius)
             TagUnitMap.push_back(owner);
         if(Guardian* pet = owner->GetGuardianPet())
             if(pet->isAlive() && (pet == this && IsWithinDistInMap(pet, radius)))
+                TagUnitMap.push_back(pet);
+    }
+}
+
+void Unit::GetPartyMembers(std::list<Unit*> &TagUnitMap)
+{
+    Unit *owner = GetCharmerOrOwnerOrSelf();
+    Group *pGroup = NULL;
+    if (owner->GetTypeId() == TYPEID_PLAYER)
+        pGroup = ((Player*)owner)->GetGroup();
+
+    if(pGroup)
+    {
+        uint8 subgroup = ((Player*)owner)->GetSubGroup();
+
+        for(GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+        {
+            Player* Target = itr->getSource();
+
+            // IsHostileTo check duel and controlled by enemy
+            if( Target && Target->GetSubGroup()==subgroup && !IsHostileTo(Target) )
+            {
+                if(Target->isAlive() && IsInMap(Target) )
+                    TagUnitMap.push_back(Target);
+
+                if(Guardian* pet = Target->GetGuardianPet())
+                    if(pet->isAlive() && IsInMap(Target) )
+                        TagUnitMap.push_back(pet);
+            }
+        }
+    }
+    else
+    {
+        if(owner->isAlive() && (owner == this || IsInMap(owner)))
+            TagUnitMap.push_back(owner);
+        if(Guardian* pet = owner->GetGuardianPet())
+            if(pet->isAlive() && (pet == this || IsInMap(pet)))
                 TagUnitMap.push_back(pet);
     }
 }
