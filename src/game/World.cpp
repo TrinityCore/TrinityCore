@@ -1500,7 +1500,7 @@ void World::SetInitialWorldSettings()
     LoginDatabase.PExecute("INSERT INTO uptime (realmid, starttime, startstring, uptime) VALUES('%u', " UI64FMTD ", '%s', 0)",
         realmID, uint64(m_startTime), isoDate);
 
-    m_timers[WUPDATE_OBJECTS].SetInterval(0);
+    m_timers[WUPDATE_OBJECTS].SetInterval(IN_MILISECONDS/2);
     m_timers[WUPDATE_SESSIONS].SetInterval(0);
     m_timers[WUPDATE_WEATHERS].SetInterval(1*IN_MILISECONDS);
     m_timers[WUPDATE_AUCTIONS].SetInterval(MINUTE*IN_MILISECONDS);
@@ -1698,14 +1698,9 @@ void World::Update(uint32 diff)
         auctionmgr.Update();
     }
 
-    RecordTimeDiff(NULL);
     /// <li> Handle session updates when the timer has passed
-    if (m_timers[WUPDATE_SESSIONS].Passed())
-    {
-        m_timers[WUPDATE_SESSIONS].Reset();
-
-        UpdateSessions(diff);
-    }
+    RecordTimeDiff(NULL);
+    UpdateSessions(diff);
     RecordTimeDiff("UpdateSessions");
 
     /// <li> Handle weather updates when the timer has passed
@@ -1754,26 +1749,29 @@ void World::Update(uint32 diff)
     }
 
     /// <li> Handle all other objects
-    if (m_timers[WUPDATE_OBJECTS].Passed())
+    ///- Update objects when the timer has passed (maps, transport, creatures,...)
+    MapManager::Instance().Update(diff);                // As interval = 0
+
+    if(m_timers[WUPDATE_OBJECTS].Passed())
     {
         m_timers[WUPDATE_OBJECTS].Reset();
-        ///- Update objects when the timer has passed (maps, transport, creatures,...)
-        MapManager::Instance().Update(diff);                // As interval = 0
-
-        RecordTimeDiff(NULL);
-        ///- Process necessary scripts
-        if (!m_scriptSchedule.empty())
-            ScriptsProcess();
-        RecordTimeDiff("UpdateScriptsProcess");
-
-        sBattleGroundMgr.Update(diff);
-        RecordTimeDiff("UpdateBattleGroundMgr");
-
-        sOutdoorPvPMgr.Update(diff);
-        RecordTimeDiff("UpdateOutdoorPvPMgr");
+        MapManager::Instance().DoDelayedMovesAndRemoves();
     }
 
-    RecordTimeDiff(NULL);
+    ///- Process necessary scripts
+    if (!m_scriptSchedule.empty())
+    {
+        RecordTimeDiff(NULL);
+        ScriptsProcess();
+        RecordTimeDiff("UpdateScriptsProcess");
+    }
+
+    sBattleGroundMgr.Update(diff);
+    RecordTimeDiff("UpdateBattleGroundMgr");
+
+    sOutdoorPvPMgr.Update(diff);
+    RecordTimeDiff("UpdateOutdoorPvPMgr");
+
     // execute callbacks from sql queries that were queued recently
     UpdateResultQueue();
     RecordTimeDiff("UpdateResultQueue");
@@ -1794,10 +1792,6 @@ void World::Update(uint32 diff)
         m_timers[WUPDATE_EVENTS].SetInterval(nextGameEvent);
         m_timers[WUPDATE_EVENTS].Reset();
     }
-
-    /// </ul>
-    ///- Move all creatures with "delayed move" and remove and delete all objects with "delayed remove"
-    //MapManager::Instance().DoDelayedMovesAndRemoves();
 
     // update the instance reset times
     sInstanceSaveManager.Update();
