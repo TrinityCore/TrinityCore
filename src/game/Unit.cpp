@@ -11682,7 +11682,8 @@ void Unit::AddToWorld()
     {
         WorldObject::AddToWorld();
         m_Notified = false;
-        assert(m_NotifyListPos < 0);
+        //assert(m_NotifyListPos < 0); instance : crash
+        m_NotifyListPos = -1;
         SetToNotify();
     }
 }
@@ -13233,7 +13234,7 @@ bool Unit::HandleAuraRaidProcFromCharge( AuraEffect* triggeredByAura )
 void Unit::SetToNotify()
 {
     // it is called somewhere when obj is not in world (crash when log in instance)
-    if(m_NotifyListPos < 0 && IsInWorld())
+    if(m_NotifyListPos < 0)
         GetMap()->AddUnitToNotify(this);
 }
 
