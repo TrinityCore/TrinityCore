@@ -3134,7 +3134,7 @@ void Spell::SendCastResult(Player* caster, SpellEntry const* spellInfo, uint8 ca
         return;
 
     WorldPacket data(SMSG_CAST_FAILED, (4+1+1));
-    data << uint8(cast_count);                            // single cast or multi 2.3 (0/1)
+    data << uint8(cast_count);                              // single cast or multi 2.3 (0/1)
     data << uint32(spellInfo->Id);
     data << uint8(result);                                  // problem
     switch (result)
