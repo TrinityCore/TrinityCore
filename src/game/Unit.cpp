@@ -86,8 +86,8 @@ Unit::Unit()
 {
     m_objectType |= TYPEMASK_UNIT;
     m_objectTypeId = TYPEID_UNIT;
-                                                            // 2.3.2 - 0x70
-    m_updateFlag = (UPDATEFLAG_LOWGUID | UPDATEFLAG_HIGHGUID | UPDATEFLAG_LIVING | UPDATEFLAG_HAS_POSITION);
+
+    m_updateFlag = (UPDATEFLAG_HIGHGUID | UPDATEFLAG_LIVING | UPDATEFLAG_HAS_POSITION);
 
     m_attackTimer[BASE_ATTACK]   = 0;
     m_attackTimer[OFF_ATTACK]    = 0;
@@ -163,7 +163,7 @@ Unit::Unit()
         m_speed_rate[i] = 1.0f;
 
     m_charmInfo = NULL;
-    m_unit_movement_flags = 0;
+    //m_unit_movement_flags = 0;
     m_reducedThreatPercent = 0;
     m_misdirectionTargetGUID = 0;
 
@@ -286,6 +286,7 @@ void Unit::SendMonsterStop()
 {
     WorldPacket data( SMSG_MONSTER_MOVE, (17 + GetPackGUID().size()) );
     data.append(GetPackGUID());
+    data << uint8(0);                                       // new in 3.1
     data << GetPositionX() << GetPositionY() << GetPositionZ();
     data << getMSTime();
     data << uint8(1);
@@ -296,15 +297,15 @@ void Unit::SendMonsterStop()
 
 void Unit::SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint32 Time, Player* player)
 {
-    WorldPacket data( SMSG_MONSTER_MOVE, 12+4+1+4+4+4+12+GetPackGUID().size());
+    WorldPacket data( SMSG_MONSTER_MOVE, 1+12+4+1+4+4+4+12+GetPackGUID().size());
     data.append(GetPackGUID());
 
+    data << uint8(0);                                       // new in 3.1
     data << GetPositionX() << GetPositionY() << GetPositionZ();
     data << getMSTime();
 
     data << uint8(0);
     data << uint32((GetUnitMovementFlags() & MOVEMENTFLAG_LEVITATING) ? MOVEFLAG_FLY : MOVEFLAG_WALK);
-
     data << Time;                                           // Time in between points
     data << uint32(1);                                      // 1 single waypoint
     data << NewPosX << NewPosY << NewPosZ;                  // the single waypoint Point B
@@ -322,6 +323,7 @@ void Unit::SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint32 M
     WorldPacket data( SMSG_MONSTER_MOVE, 12+4+1+4+4+4+12+GetPackGUID().size());
     data.append(GetPackGUID());
 
+    data << uint8(0);                                       // new in 3.1
     data << GetPositionX() << GetPositionY() << GetPositionZ();
     data << getMSTime();
 
@@ -348,9 +350,11 @@ void Unit::SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint32 M
 
 /*void Unit::SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint8 type, uint32 MovementFlags, uint32 Time, Player* player)
 {
+    float moveTime = Time;
+
     WorldPacket data( SMSG_MONSTER_MOVE, (41 + GetPackGUID().size()) );
     data.append(GetPackGUID());
-
+    data << uint8(0);                                       // new in 3.1
     data << GetPositionX() << GetPositionY() << GetPositionZ();
     data << uint32(getMSTime());
 
@@ -377,7 +381,10 @@ void Unit::SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint32 M
 
     data << uint32(MovementFlags);
 
-    data << uint32(Time);                                   // Time in between points
+    if(MovementFlags & MONSTER_MOVE_WALK)
+        moveTime *= 1.05f;
+
+    data << uint32(moveTime);                               // Time in between points
     data << uint32(1);                                      // 1 single waypoint
     data << NewPosX << NewPosY << NewPosZ;                  // the single waypoint Point B
 
@@ -393,8 +400,9 @@ void Unit::SendMonsterMoveByPath(Path const& path, uint32 start, uint32 end)
 
     uint32 pathSize = end - start;
 
-    WorldPacket data( SMSG_MONSTER_MOVE, (GetPackGUID().size()+4+4+4+4+1+4+4+4+pathSize*4*3) );
+    WorldPacket data( SMSG_MONSTER_MOVE, (GetPackGUID().size()+1+4+4+4+4+1+4+4+4+pathSize*4*3) );
     data.append(GetPackGUID());
+    data << uint8(0);
     data << GetPositionX();
     data << GetPositionY();
     data << GetPositionZ();
@@ -405,7 +413,7 @@ void Unit::SendMonsterMoveByPath(Path const& path, uint32 start, uint32 end)
     data << uint32( pathSize );
     data.append( (char*)path.GetNodes(start), pathSize * 4 * 3 );
     SendMessageToSet(&data, true);
-
+//MONSTER_MOVE_SPLINE_FLY
     addUnitState(UNIT_STAT_MOVE);
 }
 
@@ -498,6 +506,23 @@ void Unit::RemoveAurasWithInterruptFlags(uint32 flag, uint32 except)
             InterruptNonMeleeSpells(false);
 
     UpdateInterruptMask();
+}
+
+void Unit::RemoveAurasWithFamily(uint32 family, uint32 familyFlag1, uint32 familyFlag2, uint32 familyFlag3, uint64 casterGUID)
+{
+    for(AuraMap::iterator iter = m_Auras.begin(); iter != m_Auras.end();)
+    {
+        if (!casterGUID || iter->second->GetCasterGUID() == casterGUID)
+        {
+            SpellEntry const *spell = iter->second->GetSpellProto();
+            if (spell->SpellFamilyName == family && spell->SpellFamilyFlags.HasFlag(familyFlag1, familyFlag2, familyFlag3))
+            {
+                RemoveAura(iter);
+                continue;
+            }
+        }
+        ++iter;
+    }
 }
 
 void Unit::UpdateInterruptMask()
@@ -5420,35 +5445,13 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 triggered_spell_id = 22858;
                 break;
             }
-            // Glyph of Devastate
-            if(dummySpell->Id==58388)
+            // Improved Spell Reflection
+            if(dummySpell->Id==59088 
+                || dummySpell->Id==59089)
             {
-                // get highest rank of the Sunder Armor spell
-                if (GetTypeId()!=TYPEID_PLAYER)
-                    return false;
-                const PlayerSpellMap& sp_list = ((Player*)this)->GetSpellMap();
-                for (PlayerSpellMap::const_iterator itr = sp_list.begin(); itr != sp_list.end(); ++itr)
-                {
-                    // only highest rank is shown in spell book, so simply check if shown in spell book
-                    if(!itr->second->active || itr->second->disabled || itr->second->state == PLAYERSPELL_REMOVED)
-                        continue;
-
-                    SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
-                    if (!spellInfo)
-                        continue;
-
-                    if (spellInfo->SpellFamilyFlags.IsEqual(SPELLFAMILYFLAG_WARRIOR_SUNDERARMOR)
-                        && spellInfo->SpellFamilyName == SPELLFAMILY_WARRIOR)
-                    {
-                        triggered_spell_id = spellInfo->Id;
-                        break;
-                    }
-                }
-                if (!triggered_spell_id)
-                    return false;
-                for (int32 value = CalculateSpellDamage(dummySpell, 0 , dummySpell->EffectBasePoints[0], pVictim);value>0;value--)
-                    CastSpell(target,triggered_spell_id,true);
-                return true;
+                triggered_spell_id = 59725;
+                target = this;
+                break;
             }
             // Second Wind
             if (dummySpell->SpellIconID == 1697)
@@ -7045,11 +7048,6 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
             case SPELLFAMILY_WARRIOR:
                 if (auraSpellInfo->Id == 50421)             // Scent of Blood
                     trigger_spell_id = 50422;
-                // Sword and Board
-                else if (trigger_spell_id == 50227)
-                    // remove cooldown of Shield Slam
-                    if (GetTypeId()==TYPEID_PLAYER)
-                        ((Player*)this)->RemoveCategoryCooldown(1209);
                 break;
             case SPELLFAMILY_WARLOCK:
             {
@@ -7373,6 +7371,31 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
             }
             default:
                  break;
+        }
+    }
+    else
+    {
+        switch (auraSpellInfo->SpellFamilyName)
+        {
+            case SPELLFAMILY_WARRIOR:
+                // Sword and Board
+                if (trigger_spell_id == 50227)
+                    // remove cooldown of Shield Slam
+                    if (GetTypeId()==TYPEID_PLAYER)
+                        ((Player*)this)->RemoveCategoryCooldown(1209);
+                break;
+            case SPELLFAMILY_MAGE:
+                if (trigger_spell_id == 22959)
+                {
+                    // Glyph of Improved Scorch
+                    if (AuraEffect * aurEff = GetDummyAura(56371))
+                    {
+                        for (int32 count = aurEff->GetAmount();count>0;count--)
+                            CastSpell(pVictim, 22959, true);
+                        return true;
+                    }
+                }
+                break;
         }
     }
 
@@ -13514,7 +13537,7 @@ void Unit::SetRooted(bool apply)
     uint32 apply_stat = UNIT_STAT_ROOT;
     if(apply)
     {
-        SetFlag(UNIT_FIELD_FLAGS,(apply_stat<<16)); // probably wrong
+        //SetFlag(UNIT_FIELD_FLAGS,(apply_stat<<16)); // probably wrong
 
         if(GetTypeId() == TYPEID_PLAYER)
         {
@@ -13530,7 +13553,7 @@ void Unit::SetRooted(bool apply)
     }
     else
     {
-        RemoveFlag(UNIT_FIELD_FLAGS,(apply_stat<<16)); // probably wrong
+        //RemoveFlag(UNIT_FIELD_FLAGS,(apply_stat<<16)); // probably wrong
 
         if(!hasUnitState(UNIT_STAT_STUNNED))      // prevent allow move if have also stun effect
         {
@@ -13873,7 +13896,7 @@ void Unit::GetRaidMember(std::list<Unit*> &nearMembers, float radius)
     }
 }
 
-void Unit::GetPartyMember(std::list<Unit*> &TagUnitMap, float radius)
+void Unit::GetPartyMemberInDist(std::list<Unit*> &TagUnitMap, float radius)
 {
     Unit *owner = GetCharmerOrOwnerOrSelf();
     Group *pGroup = NULL;
@@ -13906,6 +13929,43 @@ void Unit::GetPartyMember(std::list<Unit*> &TagUnitMap, float radius)
             TagUnitMap.push_back(owner);
         if(Guardian* pet = owner->GetGuardianPet())
             if(pet->isAlive() && (pet == this && IsWithinDistInMap(pet, radius)))
+                TagUnitMap.push_back(pet);
+    }
+}
+
+void Unit::GetPartyMembers(std::list<Unit*> &TagUnitMap)
+{
+    Unit *owner = GetCharmerOrOwnerOrSelf();
+    Group *pGroup = NULL;
+    if (owner->GetTypeId() == TYPEID_PLAYER)
+        pGroup = ((Player*)owner)->GetGroup();
+
+    if(pGroup)
+    {
+        uint8 subgroup = ((Player*)owner)->GetSubGroup();
+
+        for(GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+        {
+            Player* Target = itr->getSource();
+
+            // IsHostileTo check duel and controlled by enemy
+            if( Target && Target->GetSubGroup()==subgroup && !IsHostileTo(Target) )
+            {
+                if(Target->isAlive() && IsInMap(Target) )
+                    TagUnitMap.push_back(Target);
+
+                if(Guardian* pet = Target->GetGuardianPet())
+                    if(pet->isAlive() && IsInMap(Target) )
+                        TagUnitMap.push_back(pet);
+            }
+        }
+    }
+    else
+    {
+        if(owner->isAlive() && (owner == this || IsInMap(owner)))
+            TagUnitMap.push_back(owner);
+        if(Guardian* pet = owner->GetGuardianPet())
+            if(pet->isAlive() && (pet == this || IsInMap(pet)))
                 TagUnitMap.push_back(pet);
     }
 }

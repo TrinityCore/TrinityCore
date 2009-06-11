@@ -2202,7 +2202,7 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
             {
                 case TARGET_UNIT_AREA_PARTY_SRC:
                 case TARGET_UNIT_AREA_PARTY_DST:
-                    m_caster->GetPartyMember(unitList, radius); //fix me
+                    m_caster->GetPartyMemberInDist(unitList, radius); //fix me
                     break;
                 case TARGET_OBJECT_AREA_SRC: // fix me
                 case TARGET_OBJECT_AREA_DST:
@@ -2237,10 +2237,10 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
                     break;
                 }
                 case TARGET_UNIT_PARTY_TARGET:
-                    m_targets.getUnitTarget()->GetPartyMember(unitList, radius);
+                    m_targets.getUnitTarget()->GetPartyMemberInDist(unitList, radius);
                     break;
                 case TARGET_UNIT_PARTY_CASTER:
-                    m_caster->GetPartyMember(unitList, radius);
+                    m_caster->GetPartyMemberInDist(unitList, radius);
                     break;
                 case TARGET_UNIT_RAID_CASTER:
                     m_caster->GetRaidMember(unitList, radius);
@@ -3482,7 +3482,6 @@ void Spell::SendLogExecute()
                     data << uint32(0);
                     break;
                 case SPELL_EFFECT_OPEN_LOCK:
-                case SPELL_EFFECT_OPEN_LOCK_ITEM:
                     if(Item *item = m_targets.getItemTarget())
                         data.append(item->GetPackGUID());
                     else
@@ -4081,7 +4080,7 @@ SpellCastResult Spell::CheckCast(bool strict)
     if( m_caster->GetTypeId()==TYPEID_PLAYER && ((Player*)m_caster)->isMoving() )
     {
         // skip stuck spell to allow use it in falling case and apply spell limitations at movement
-        if( (!m_caster->HasUnitMovementFlag(MOVEMENTFLAG_FALLING) || m_spellInfo->Effect[0] != SPELL_EFFECT_STUCK) &&
+        if( (!((Player*)m_caster)->m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FALLING) || m_spellInfo->Effect[0] != SPELL_EFFECT_STUCK) &&
             (IsAutoRepeat() || (m_spellInfo->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_SEATED) != 0) )
             return SPELL_FAILED_MOVING;
     }

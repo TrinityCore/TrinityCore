@@ -2514,36 +2514,32 @@
 							<Filter
 								Name="Nexus"
 								>
-						<File
-							RelativePath="..\scripts\zone\nexus\nexus\boss_magus_telestra.cpp"
-							>
-						</File>
-							<File
-							RelativePath="..\scripts\zone\nexus\nexus\boss_anomalus.cpp"
-							>
-						</File>
-						<File
-							RelativePath="..\scripts\zone\nexus\nexus\boss_ormorok.cpp"
-							>
-						</File>
-						<File
-							RelativePath="..\scripts\zone\nexus\nexus\boss_keristrasza.cpp"
-							>
-						</File>
-						<File
-							RelativePath="..\scripts\zone\nexus\nexus\def_nexus.h"
-							>
-						</File>
-						<File
-							RelativePath="..\scripts\zone\nexus\nexus\instance_nexus.cpp"
-							>
-						</File>
+								<File
+									RelativePath="..\scripts\zone\nexus\nexus\boss_anomalus.cpp"
+									>
+								</File>
+								<File
+									RelativePath="..\scripts\zone\nexus\nexus\boss_keristrasza.cpp"
+									>
+								</File>
+								<File
+									RelativePath="..\scripts\zone\nexus\nexus\boss_magus_telestra.cpp"
+									>
+								</File>
+								<File
+									RelativePath="..\scripts\zone\nexus\nexus\boss_ormorok.cpp"
+									>
+								</File>
 								<File
 									RelativePath="..\scripts\zone\nexus\nexus\commander_kolurg.cpp"
 									>
 								</File>
 								<File
 									RelativePath="..\scripts\zone\nexus\nexus\commander_stoutbeard.cpp"
+									>
+								</File>
+								<File
+									RelativePath="..\scripts\zone\nexus\nexus\def_nexus.h"
 									>
 								</File>
 								<File
@@ -2664,6 +2660,74 @@
 								</File>
 								<File
 									RelativePath="..\scripts\zone\ulduar\halls_of_lightning\instance_halls_of_lightning.cpp"
+									>
+								</File>
+							</Filter>
+							<Filter
+								Name="Ulduar"
+								>
+								<File
+									RelativePath="..\scripts\zone\ulduar\ulduar\boss_algalon.cpp"
+									>
+								</File>
+								<File
+									RelativePath="..\scripts\zone\ulduar\ulduar\boss_assembly_of_iron.cpp"
+									>
+								</File>
+								<File
+									RelativePath="..\scripts\zone\ulduar\ulduar\boss_auriaya.cpp"
+									>
+								</File>
+								<File
+									RelativePath="..\scripts\zone\ulduar\ulduar\boss_flame_leviathan.cpp"
+									>
+								</File>
+								<File
+									RelativePath="..\scripts\zone\ulduar\ulduar\boss_freya.cpp"
+									>
+								</File>
+								<File
+									RelativePath="..\scripts\zone\ulduar\ulduar\boss_general_vezax.cpp"
+									>
+								</File>
+								<File
+									RelativePath="..\scripts\zone\ulduar\ulduar\boss_hodir.cpp"
+									>
+								</File>
+								<File
+									RelativePath="..\scripts\zone\ulduar\ulduar\boss_ignis.cpp"
+									>
+								</File>
+								<File
+									RelativePath="..\scripts\zone\ulduar\ulduar\boss_kologarn.cpp"
+									>
+								</File>
+								<File
+									RelativePath="..\scripts\zone\ulduar\ulduar\boss_mimiron.cpp"
+									>
+								</File>
+								<File
+									RelativePath="..\scripts\zone\ulduar\ulduar\boss_razorscale.cpp"
+									>
+								</File>
+								<File
+									RelativePath="..\scripts\zone\ulduar\ulduar\boss_thorim.cpp"
+									>
+								</File>
+								<File
+									RelativePath="..\scripts\zone\ulduar\ulduar\boss_xt002.cpp"
+									>
+								</File>
+								<File
+									RelativePath="..\scripts\zone\ulduar\ulduar\boss_yoggsaron.cpp"
+									>
+								</File>
+								<File
+									RelativePath="..\scripts\zone\ulduar\ulduar\def_ulduar.h"
+									>
+								</File>
+								<File
+									RelativePath="..\scripts\zone\ulduar\ulduar\instance_ulduar.cpp"
 									>
 								</File>
 							</Filter>

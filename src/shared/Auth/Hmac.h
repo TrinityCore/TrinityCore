@@ -32,17 +32,16 @@ class BigNumber;
 class HmacHash
 {
     public:
-        HmacHash();
+        HmacHash(uint32 len, uint8 *seed);
         ~HmacHash();
         void UpdateBigNumber(BigNumber *bn);
         void UpdateData(const uint8 *data, int length);
-        void Initialize();
         void Finalize();
-        uint8 *GetDigest() { return m_digest; };
-        int GetLength() { return SHA_DIGEST_LENGTH; };
+        uint8 *ComputeHash(BigNumber *bn);
+        uint8 *GetDigest() { return (uint8*)m_digest; }
+        int GetLength() { return SHA_DIGEST_LENGTH; }
     private:
         HMAC_CTX m_ctx;
-        uint8 m_key[SEED_KEY_SIZE];
         uint8 m_digest[SHA_DIGEST_LENGTH];
 };
 #endif
