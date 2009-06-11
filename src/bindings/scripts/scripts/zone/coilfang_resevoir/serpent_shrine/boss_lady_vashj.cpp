@@ -638,7 +638,7 @@ struct TRINITY_DLL_DECL mob_enchanted_elementalAI : public ScriptedAI
 
         if(move < diff)
         {
-            m_creature->SetUnitMovementFlags(MOVEMENTFLAG_WALK_MODE);
+            m_creature->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
             if (phase == 1)
             {
                 m_creature->GetMotionMaster()->MovePoint(0, x, y, z);

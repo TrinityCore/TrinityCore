@@ -40,13 +40,14 @@ void WorldSession::SendNameQueryOpcode(Player *p)
         return;
 
                                                             // guess size
-    WorldPacket data( SMSG_NAME_QUERY_RESPONSE, (8+1+4+4+4+10) );
-    data << p->GetGUID();
-    data << p->GetName();
+    WorldPacket data( SMSG_NAME_QUERY_RESPONSE, (8+1+1+1+1+1+10) );
+    data.append(p->GetPackGUID());                          // player guid
+    data << uint8(0);                                       // added in 3.1
+    data << p->GetName();                                   // played name
     data << uint8(0);                                       // realm name for cross realm BG usage
-    data << uint32(p->getRace());
-    data << uint32(p->getGender());
-    data << uint32(p->getClass());
+    data << uint8(p->getRace());
+    data << uint8(p->getGender());
+    data << uint8(p->getClass());
     if(DeclinedName const* names = p->GetDeclinedNames())
     {
         data << uint8(1);                                   // is declined
@@ -98,14 +99,15 @@ void WorldSession::SendNameQueryOpcodeFromDBCallBack(QueryResult *result, uint32
     else
         field        = fields[2].GetUInt32();
 
-                                                        // guess size
-    WorldPacket data( SMSG_NAME_QUERY_RESPONSE, (8+1+4+4+4+10) );
-    data << MAKE_NEW_GUID(guid, 0, HIGHGUID_PLAYER);
+                                                            // guess size
+    WorldPacket data( SMSG_NAME_QUERY_RESPONSE, (8+1+1+1+1+1+1+10) );
+    data.appendPackGUID(MAKE_NEW_GUID(guid, 0, HIGHGUID_PLAYER));
+    data << uint8(0);                                       // added in 3.1
     data << name;
     data << uint8(0);
-    data << uint32(field & 0xFF);
-    data << uint32((field >> 16) & 0xFF);
-    data << uint32((field >> 8) & 0xFF);
+    data << uint8(field & 0xFF);
+    data << uint8((field >> 16) & 0xFF);
+    data << uint8((field >> 8) & 0xFF);
 
     // if the first declined name field (3) is empty, the rest must be too
     if(sWorld.getConfig(CONFIG_DECLINED_NAMES_USED) && fields[3].GetCppString() != "")
@@ -167,9 +169,9 @@ void WorldSession::HandleCreatureQueryOpcode( WorldPacket & recv_data )
             CreatureLocale const *cl = objmgr.GetCreatureLocale(entry);
             if (cl)
             {
-                if (cl->Name.size() > loc_idx && !cl->Name[loc_idx].empty())
+                if (cl->Name.size() > size_t(loc_idx) && !cl->Name[loc_idx].empty())
                     Name = cl->Name[loc_idx];
-                if (cl->SubName.size() > loc_idx && !cl->SubName[loc_idx].empty())
+                if (cl->SubName.size() > size_t(loc_idx) && !cl->SubName[loc_idx].empty())
                     SubName = cl->SubName[loc_idx];
             }
         }
@@ -185,13 +187,18 @@ void WorldSession::HandleCreatureQueryOpcode( WorldPacket & recv_data )
         data << uint32(ci->type);                           // CreatureType.dbc
         data << uint32(ci->family);                         // CreatureFamily.dbc
         data << uint32(ci->rank);                           // Creature Rank (elite, boss, etc)
-        data << uint32(ci->PetSpellDataId);                 // Id from CreatureSpellData.dbc    wdbField12
+        data << uint32(ci->unk1);                           // new in 3.1, creature entry?
+        data << uint32(ci->unk2);                           // new in 3.1, creature entry?
         data << (uint32)ci->Modelid_A1;                     // Modelid_A1
         data << (uint32)ci->Modelid_A2;                     // Modelid_A2
         data << (uint32)ci->Modelid_H1;                     // Modelid_H1
         data << (uint32)ci->Modelid_H2;                     // Modelid_H2
+        data << float(ci->unk16);                           // unk
         data << float(ci->unk17);                           // unk
         data << uint8(ci->RacialLeader);
+        for(uint32 i = 0; i < 4; ++i)
+            data << uint32(ci->questItems[i]);              // itemId[4], quest drop
+        data << uint32(ci->movementId);                     // CreatureMovementInfo.dbc
         SendPacket( &data );
         sLog.outDebug( "WORLD: Sent SMSG_CREATURE_QUERY_RESPONSE" );
     }
@@ -234,9 +241,9 @@ void WorldSession::HandleGameObjectQueryOpcode( WorldPacket & recv_data )
             GameObjectLocale const *gl = objmgr.GetGameObjectLocale(entryID);
             if (gl)
             {
-                if (gl->Name.size() > loc_idx && !gl->Name[loc_idx].empty())
+                if (gl->Name.size() > size_t(loc_idx) && !gl->Name[loc_idx].empty())
                     Name = gl->Name[loc_idx];
-                if (gl->CastBarCaption.size() > loc_idx && !gl->CastBarCaption[loc_idx].empty())
+                if (gl->CastBarCaption.size() > size_t(loc_idx) && !gl->CastBarCaption[loc_idx].empty())
                     CastBarCaption = gl->CastBarCaption[loc_idx];
             }
         }
@@ -249,9 +256,11 @@ void WorldSession::HandleGameObjectQueryOpcode( WorldPacket & recv_data )
         data << uint8(0) << uint8(0) << uint8(0);           // name2, name3, name4
         data << IconName;                                   // 2.0.3, string. Icon name to use instead of default icon for go's (ex: "Attack" makes sword)
         data << CastBarCaption;                             // 2.0.3, string. Text will appear in Cast Bar when using GO (ex: "Collecting")
-        data << uint8(0);                                   // 2.0.3, string
+        data << info->unk1;                                 // 2.0.3, string
         data.append(info->raw.data, 24);
         data << float(info->size);                          // go size
+        for(uint32 i = 0; i < 4; ++i)
+            data << uint32(info->questItems[i]);            // itemId[4], quest drop
         SendPacket( &data );
         sLog.outDebug( "WORLD: Sent SMSG_GAMEOBJECT_QUERY_RESPONSE" );
     }
@@ -371,9 +380,9 @@ void WorldSession::HandleNpcTextQueryOpcode( WorldPacket & recv_data )
             {
                 for (int i = 0; i < 8; ++i)
                 {
-                    if (nl->Text_0[i].size() > loc_idx && !nl->Text_0[i][loc_idx].empty())
+                    if (nl->Text_0[i].size() > size_t(loc_idx) && !nl->Text_0[i][loc_idx].empty())
                         Text_0[i]=nl->Text_0[i][loc_idx];
-                    if (nl->Text_1[i].size() > loc_idx && !nl->Text_1[i][loc_idx].empty())
+                    if (nl->Text_1[i].size() > size_t(loc_idx) && !nl->Text_1[i][loc_idx].empty())
                         Text_1[i]=nl->Text_1[i][loc_idx];
                 }
             }
@@ -440,7 +449,7 @@ void WorldSession::HandlePageTextQueryOpcode( WorldPacket & recv_data )
                 PageTextLocale const *pl = objmgr.GetPageTextLocale(pageID);
                 if (pl)
                 {
-                    if (pl->Text.size() > loc_idx && !pl->Text[loc_idx].empty())
+                    if (pl->Text.size() > size_t(loc_idx) && !pl->Text[loc_idx].empty())
                         Text = pl->Text[loc_idx];
                 }
             }
