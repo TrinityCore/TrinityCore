@@ -98,8 +98,6 @@ Object::~Object( )
         //DEBUG_LOG("Object desctr 1 check (%p)",(void*)this);
         delete [] m_uint32Values;
         delete [] m_uint32Values_mirror;
-        m_uint32Values = NULL;
-        m_uint32Values_mirror = NULL;
         //DEBUG_LOG("Object desctr 2 check (%p)",(void*)this);
     }
 }
@@ -128,7 +126,7 @@ void Object::_Create( uint32 guidlow, uint32 entry, HighGuid guidhigh )
 
 void Object::BuildMovementUpdateBlock(UpdateData * data, uint32 flags ) const
 {
-    ByteBuffer buf(50);
+    ByteBuffer buf(500);
 
     buf << uint8( UPDATETYPE_MOVEMENT );
     buf.append(GetPackGUID());
@@ -144,7 +142,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData *data, Player *target) c
         return;
 
     uint8  updatetype = UPDATETYPE_CREATE_OBJECT;
-    uint8  flags      = m_updateFlag;
+    uint16 flags      = m_updateFlag;
 
     /** lower flag1 **/
     if(target == this)                                      // building packet for yourself
@@ -188,7 +186,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData *data, Player *target) c
 
     //sLog.outDebug("BuildCreateUpdate: update-type: %u, object-type: %u got flags: %X, flags2: %X", updatetype, m_objectTypeId, flags, flags2);
 
-    ByteBuffer buf(50);
+    ByteBuffer buf(500);
     buf << (uint8)updatetype;
     buf.append(GetPackGUID());
     buf << (uint8)m_objectTypeId;
@@ -224,7 +222,7 @@ void Object::SendUpdateToPlayer(Player* player)
 
 void Object::BuildValuesUpdateBlockForPlayer(UpdateData *data, Player *target) const
 {
-    ByteBuffer buf(50);
+    ByteBuffer buf(500);
 
     buf << (uint8) UPDATETYPE_VALUES;
     buf.append(GetPackGUID());
@@ -253,9 +251,9 @@ void Object::DestroyForPlayer(Player *target) const
     target->GetSession()->SendPacket( &data );
 }
 
-void Object::_BuildMovementUpdate(ByteBuffer * data, uint8 flags) const
+void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags) const
 {
-    *data << (uint8)flags;                                  // update flags
+    *data << (uint16)flags;                                  // update flags
 
     // 0x20
     if (flags & UPDATEFLAG_LIVING)
@@ -265,9 +263,10 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint8 flags) const
         {
             case TYPEID_UNIT:
             {
-                flags2 &= ~MOVEMENTFLAG_SPLINE2;
                 if(((Creature*)this)->isVehicle())
                     ((Unit*)this)->m_movementInfo.unk1 |= 0x20;     // always allow pitch
+                if(((Unit*)this)->isInFlight())
+                    flags2 |= (MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_LEVITATING);
             }
             break;
             case TYPEID_PLAYER:
@@ -287,31 +286,14 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint8 flags) const
         *data << uint32(flags2);                            // movement flags
         *data << uint16(((Unit*)this)->m_movementInfo.unk1);// unknown 2.3.0
         *data << uint32(getMSTime());                       // time (in milliseconds)
-    }
 
-    // 0x40
-    if (flags & UPDATEFLAG_HAS_POSITION)
-    {
-        // 0x02
-        if(flags & UPDATEFLAG_TRANSPORT && ((GameObject*)this)->GetGoType() == GAMEOBJECT_TYPE_MO_TRANSPORT)
-        {
-            *data << (float)0;
-            *data << (float)0;
-            *data << (float)0;
-            *data << ((WorldObject *)this)->GetOrientation();
-        }
-        else
-        {
-            *data << ((WorldObject *)this)->GetPositionX();
-            *data << ((WorldObject *)this)->GetPositionY();
-            *data << ((WorldObject *)this)->GetPositionZ();
-            *data << ((WorldObject *)this)->GetOrientation();
-        }
-    }
+        // position
+        *data << ((WorldObject*)this)->GetPositionX();
+        *data << ((WorldObject*)this)->GetPositionY();
+        *data << ((WorldObject*)this)->GetPositionZ();
+        *data << ((WorldObject*)this)->GetOrientation();
 
-    // 0x20
-    if(flags & UPDATEFLAG_LIVING)
-    {
+        // 0x00000200
         ((Unit*)this)->BuildMovementPacket(data);
 
         *data << ((Unit*)this)->GetSpeed( MOVE_WALK );
@@ -331,25 +313,27 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint8 flags) const
 
             FlightPathMovementGenerator *fmg = (FlightPathMovementGenerator*)(((Player*)this)->GetMotionMaster()->top());
 
-            uint32 flags3 = 0x00000300;
+            uint32 flags3 = MOVEFLAG_GLIDE;
 
             *data << uint32(flags3);                        // splines flag?
 
-            if(flags3 & 0x10000)                            // probably x,y,z coords there
+            if(flags3 & 0x20000)                            // may be orientation
             {
-                *data << (float)0;
-                *data << (float)0;
                 *data << (float)0;
             }
-
-            if(flags3 & 0x20000)                            // probably guid there
+            else
             {
-                *data << uint64(0);
-            }
+                if(flags3 & 0x8000)                         // probably x,y,z coords there
+                {
+                    *data << (float)0;
+                    *data << (float)0;
+                    *data << (float)0;
+                }
 
-            if(flags3 & 0x40000)                            // may be orientation
-            {
-                *data << (float)0;
+                if(flags3 & 0x10000)                        // probably guid there
+                {
+                    *data << uint64(0);
+                }
             }
 
             Path &path = fmg->GetPath();
@@ -364,8 +348,13 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint8 flags) const
             *data << uint32(traveltime);                    // full move time?
             *data << uint32(0);                             // ticks count?
 
-            uint32 poscount = uint32(path.Size());
+            *data << float(0);                              // added in 3.1
+            *data << float(0);                              // added in 3.1
+            *data << float(0);                              // added in 3.1
 
+            *data << uint32(0);                             // added in 3.1
+
+            uint32 poscount = uint32(path.Size());
             *data << uint32(poscount);                      // points count
 
             for(uint32 i = 0; i < poscount; ++i)
@@ -377,22 +366,50 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint8 flags) const
 
             *data << uint8(0);                              // added in 3.0.8
 
-            /*for(uint32 i = 0; i < poscount; i++)
-            {
-                // path points
-                *data << (float)0;
-                *data << (float)0;
-                *data << (float)0;
-            }*/
-
             *data << path.GetNodes()[poscount-1].x;
             *data << path.GetNodes()[poscount-1].y;
             *data << path.GetNodes()[poscount-1].z;
+        }
+    }
+    else
+    {
+        if(flags & UPDATEFLAG_POSITION)
+        {
+            *data << uint8(0);                              // unk PGUID!
+            *data << ((WorldObject*)this)->GetPositionX();
+            *data << ((WorldObject*)this)->GetPositionY();
+            *data << ((WorldObject*)this)->GetPositionZ();
+            *data << ((WorldObject*)this)->GetPositionX();
+            *data << ((WorldObject*)this)->GetPositionY();
+            *data << ((WorldObject*)this)->GetPositionZ();
+            *data << ((WorldObject*)this)->GetOrientation();
 
-            // target position (path end)
-            /**data << ((Unit*)this)->GetPositionX();
-             *data << ((Unit*)this)->GetPositionY();
-             *data << ((Unit*)this)->GetPositionZ();*/
+            if(GetTypeId() == TYPEID_CORPSE)
+                *data << float(((WorldObject*)this)->GetOrientation());
+            else
+                *data << float(0);
+        }
+        else
+        {
+            // 0x40
+            if (flags & UPDATEFLAG_HAS_POSITION)
+            {
+                // 0x02
+                if(flags & UPDATEFLAG_TRANSPORT && ((GameObject*)this)->GetGoType() == GAMEOBJECT_TYPE_MO_TRANSPORT)
+                {
+                    *data << (float)0;
+                    *data << (float)0;
+                    *data << (float)0;
+                    *data << ((WorldObject *)this)->GetOrientation();
+                }
+                else
+                {
+                    *data << ((WorldObject *)this)->GetPositionX();
+                    *data << ((WorldObject *)this)->GetPositionY();
+                    *data << ((WorldObject *)this)->GetPositionZ();
+                    *data << ((WorldObject *)this)->GetOrientation();
+                }
+            }
         }
     }
 
@@ -473,6 +490,12 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint8 flags) const
         *data << uint32(((Vehicle*)this)->GetVehicleInfo()->m_ID);  // vehicle id
         *data << float(0);                                  // facing adjustment
     }
+
+    // 0x200
+    if(flags & UPDATEFLAG_ROTATION)
+    {
+        *data << uint64(((GameObject*)this)->GetRotation());
+    }
 }
 
 void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask *updateMask, Player *target) const
@@ -515,7 +538,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
     // 2 specialized loops for speed optimization in non-unit case
     if(isType(TYPEMASK_UNIT))                               // unit (creature/player) case
     {
-        for( uint16 index = 0; index < m_valuesCount; index ++ )
+        for( uint16 index = 0; index < m_valuesCount; ++index )
         {
             if( updateMask->GetBit( index ) )
             {
@@ -633,7 +656,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
     }
     else if(isType(TYPEMASK_GAMEOBJECT))                    // gameobject case
     {
-        for( uint16 index = 0; index < m_valuesCount; index ++ )
+        for( uint16 index = 0; index < m_valuesCount; ++index )
         {
             if( updateMask->GetBit( index ) )
             {
@@ -665,7 +688,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
     }
     else                                                    // other objects case (no special index checks)
     {
-        for( uint16 index = 0; index < m_valuesCount; index ++ )
+        for( uint16 index = 0; index < m_valuesCount; ++index )
         {
             if( updateMask->GetBit( index ) )
             {
@@ -678,8 +701,6 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
 
 void Object::ClearUpdateMask(bool remove)
 {
-    uint32 *temp = m_uint32Values;
-
     memcpy(m_uint32Values_mirror, m_uint32Values, m_valuesCount*sizeof(uint32));
 
     if(m_objectUpdated)
@@ -900,7 +921,7 @@ void Object::SetUInt16Value( uint16 index, uint8 offset, uint16 value )
         return;
     }
 
-    if(uint8(m_uint32Values[ index ] >> (offset * 16)) != value)
+    if(uint16(m_uint32Values[ index ] >> (offset * 16)) != value)
     {
         m_uint32Values[ index ] &= ~uint32(uint32(0xFFFF) << (offset * 16));
         m_uint32Values[ index ] |= uint32(uint32(value) << (offset * 16));
@@ -1669,7 +1690,7 @@ void WorldObject::BuildHeartBeatMsg(WorldPacket *data) const
     data->Initialize(MSG_MOVE_HEARTBEAT, 32);
     data->append(GetPackGUID());
     *data << uint32(((Unit*)this)->GetUnitMovementFlags()); // movement flags
-    *data << uint16(0);                                     // 2.3.0
+    *data << uint16(((Unit*)this)->m_movementInfo.unk1);    // 2.3.0
     *data << uint32(getMSTime());                           // time
     *data << m_positionX;
     *data << m_positionY;
@@ -1689,7 +1710,7 @@ void WorldObject::BuildTeleportAckMsg(WorldPacket *data, float x, float y, float
     data->append(GetPackGUID());
     *data << uint32(0);                                     // this value increments every time
     *data << uint32(((Unit*)this)->GetUnitMovementFlags()); // movement flags
-    *data << uint16(0);                                     // 2.3.0
+    *data << uint16(((Unit*)this)->m_movementInfo.unk1);    // 2.3.0
     *data << uint32(getMSTime());                           // time
     *data << x;
     *data << y;

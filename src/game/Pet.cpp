@@ -304,6 +304,8 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
     if(owner->GetGroup())
         owner->SetGroupUpdateFlag(GROUP_UPDATE_PET);
 
+    owner->SendTalentsInfoData(true);
+
     if(getPetType() == HUNTER_PET)
     {
         result = CharacterDatabase.PQuery("SELECT genitive, dative, accusative, instrumental, prepositional FROM character_pet_declinedname WHERE owner = '%u' AND id = '%u'", owner->GetGUIDLow(), GetCharmInfo()->GetPetNumber());
@@ -1570,6 +1572,13 @@ void Pet::InitTalentForLevel()
         resetTalents(true);
     }
     SetFreeTalentPoints(talentPointsForLevel - m_usedTalentCount);
+
+    Unit *owner = GetOwner();
+    if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    if(!m_loading)
+        ((Player*)owner)->SendTalentsInfoData(true);
 }
 
 uint32 Pet::resetTalentsCost() const

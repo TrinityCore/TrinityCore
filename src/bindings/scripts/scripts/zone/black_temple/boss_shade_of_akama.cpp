@@ -674,7 +674,7 @@ struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
                     {
                         ShadeHasDied = true;
                         WayPointId = 0;
-                        m_creature->SetUnitMovementFlags(MOVEMENTFLAG_WALK_MODE);
+                        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
                         m_creature->GetMotionMaster()->MovePoint(WayPointId, AkamaWP[0].x, AkamaWP[0].y, AkamaWP[0].z);
                     }
                     if(Shade && Shade->isAlive())

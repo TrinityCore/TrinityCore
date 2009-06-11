@@ -151,8 +151,8 @@ m_creatureInfo(NULL), m_reactState(REACT_AGGRESSIVE), m_formation(NULL), m_summo
     m_CreatureSpellCooldowns.clear();
     m_CreatureCategoryCooldowns.clear();
     m_GlobalCooldown = 0;
-    m_unit_movement_flags = MOVEMENTFLAG_WALK_MODE;
     DisableReputationGain = false;
+    //m_unit_movement_flags = MONSTER_MOVE_WALK;
 }
 
 Creature::~Creature()

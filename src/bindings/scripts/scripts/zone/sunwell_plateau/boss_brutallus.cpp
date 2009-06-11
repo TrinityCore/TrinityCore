@@ -195,7 +195,7 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
                 break;
             case 3:
                 DoCast(m_creature, SPELL_INTRO_FROST_BLAST);
-                Madrigosa->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT + MOVEMENTFLAG_LEVITATING);
+                Madrigosa->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                 IntroFrostBoltTimer = 3000;
                 IntroPhaseTimer = 28000;
                 ++IntroPhase;

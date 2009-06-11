@@ -67,9 +67,8 @@ enum LoginResult
 };
 
 // we need to stick to 1 version or half of the stuff will work for someone
-// others will not and opposite
-// will only support WoW, WoW:TBC and WoW:WotLK 3.0.9 client build 9551...
+// will only support WoW, WoW:TBC and WoW:WotLK 3.1.3 client build 9947...
 
-#define EXPECTED_TRINITY_CLIENT_BUILD        {9551, 0}
+#define EXPECTED_TRINITY_CLIENT_BUILD        {9947, 0}
 
 #endif

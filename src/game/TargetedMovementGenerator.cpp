@@ -148,6 +148,7 @@ TargetedMovementGenerator<T>::Initialize(T &owner)
 
     if (owner.GetTypeId() == TYPEID_UNIT && ((Creature*)&owner)->canFly())
         owner.AddUnitMovementFlag(MOVEMENTFLAG_FLYING2);
+
     _setTargetLocation(owner);
 }
 

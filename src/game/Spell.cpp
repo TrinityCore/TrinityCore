@@ -3482,7 +3482,6 @@ void Spell::SendLogExecute()
                     data << uint32(0);
                     break;
                 case SPELL_EFFECT_OPEN_LOCK:
-                case SPELL_EFFECT_OPEN_LOCK_ITEM:
                     if(Item *item = m_targets.getItemTarget())
                         data.append(item->GetPackGUID());
                     else
@@ -4081,7 +4080,7 @@ SpellCastResult Spell::CheckCast(bool strict)
     if( m_caster->GetTypeId()==TYPEID_PLAYER && ((Player*)m_caster)->isMoving() )
     {
         // skip stuck spell to allow use it in falling case and apply spell limitations at movement
-        if( (!m_caster->HasUnitMovementFlag(MOVEMENTFLAG_FALLING) || m_spellInfo->Effect[0] != SPELL_EFFECT_STUCK) &&
+        if( (!((Player*)m_caster)->m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FALLING) || m_spellInfo->Effect[0] != SPELL_EFFECT_STUCK) &&
             (IsAutoRepeat() || (m_spellInfo->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_SEATED) != 0) )
             return SPELL_FAILED_MOVING;
     }

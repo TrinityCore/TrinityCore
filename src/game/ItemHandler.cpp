@@ -441,6 +441,7 @@ void WorldSession::HandleItemQuerySingleOpcode( WorldPacket & recv_data )
         data << pProto->ArmorDamageModifier;
         data << pProto->Duration;                           // added in 2.4.2.8209, duration (seconds)
         data << pProto->ItemLimitCategory;                  // WotLK, ItemLimitCategory
+        data << pProto->HolidayId;                          // Holiday.dbc?
         SendPacket( &data );
     }
     else
@@ -664,28 +665,28 @@ void WorldSession::HandleBuybackItem(WorldPacket & recv_data)
 
 void WorldSession::HandleBuyItemInSlotOpcode( WorldPacket & recv_data )
 {
-    CHECK_PACKET_SIZE(recv_data,8+4+8+1+1);
+    CHECK_PACKET_SIZE(recv_data,8+4+4+8+1+4);
 
     sLog.outDebug(  "WORLD: Received CMSG_BUY_ITEM_IN_SLOT" );
     uint64 vendorguid, bagguid;
-    uint32 item;
-    uint8 slot, count;
+    uint32 item, slot, count;
+    uint8 bagslot;
 
-    recv_data >> vendorguid >> item >> bagguid >> slot >> count;
+    recv_data >> vendorguid >> item  >> slot >> bagguid >> bagslot >> count;
 
     GetPlayer()->BuyItemFromVendor(vendorguid,item,count,bagguid,slot);
 }
 
 void WorldSession::HandleBuyItemOpcode( WorldPacket & recv_data )
 {
-    CHECK_PACKET_SIZE(recv_data,8+4+1+1);
+    CHECK_PACKET_SIZE(recv_data,8+4+4+4+1);
 
     sLog.outDebug(  "WORLD: Received CMSG_BUY_ITEM" );
     uint64 vendorguid;
-    uint32 item;
-    uint8 count, unk1;
+    uint32 item, slot, count;
+    uint8 unk1;
 
-    recv_data >> vendorguid >> item >> count >> unk1;
+    recv_data >> vendorguid >> item >> slot >> count >> unk1;
 
     GetPlayer()->BuyItemFromVendor(vendorguid,item,count,NULL_BAG,NULL_SLOT);
 }

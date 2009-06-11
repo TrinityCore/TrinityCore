@@ -223,7 +223,10 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectEnchantItemPrismatic,                     //156 SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC
     &Spell::EffectCreateItem2,                              //157 SPELL_EFFECT_CREATE_ITEM_2            create/learn item/spell for profession
     &Spell::EffectMilling,                                  //158 SPELL_EFFECT_MILLING                  milling
-    &Spell::EffectRenamePet                                 //159 SPELL_EFFECT_ALLOW_RENAME_PET         allow rename pet once again
+    &Spell::EffectRenamePet,                                //159 SPELL_EFFECT_ALLOW_RENAME_PET         allow rename pet once again
+    &Spell::EffectNULL,                                     //160 SPELL_EFFECT_160                      unused
+    &Spell::EffectNULL,                                     //161 SPELL_EFFECT_161                      second talent spec (learn/revert)
+    &Spell::EffectNULL                                      //162 SPELL_EFFECT_162                      activate primary/secondary spec
 };
 
 void Spell::EffectNULL(uint32 /*i*/)
@@ -5551,6 +5554,7 @@ void Spell::EffectApplyGlyph(uint32 i)
 
             player->CastSpell(m_caster, gp->SpellId, true);
             player->SetGlyph(m_glyphIndex, glyph);
+            player->SendTalentsInfoData(false);
         }
     }
 }

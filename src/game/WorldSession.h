@@ -119,6 +119,7 @@ class TRINITY_DLL_SPEC WorldSession
         void SendNotification(int32 string_id,...);
         void SendPetNameInvalid(uint32 error, const std::string& name, DeclinedName *declinedName);
         void SendLfgResult(uint32 type, uint32 entry, uint8 lfg_type);
+        void SendLfgUpdate(uint8 unk1, uint8 unk2, uint8 unk3);
         void SendPartyResult(PartyOperation operation, const std::string& member, PartyResult res);
         void SendAreaTriggerMessage(const char* Text, ...) ATTR_PRINTF(2,3);
         void SendSetPhaseShift(uint32 phaseShift);
@@ -191,6 +192,22 @@ class TRINITY_DLL_SPEC WorldSession
         AccountData *GetAccountData(uint32 type) { return &m_accountData[type]; }
         void SetAccountData(uint32 type, time_t time_, std::string data);
         void LoadAccountData();
+        void LoadTutorialsData();
+        void SendTutorialsData();
+        void SaveTutorialsData();
+        uint32 GetTutorialInt(uint32 intId )
+        {
+            return m_Tutorials[intId];
+        }
+
+        void SetTutorialInt(uint32 intId, uint32 value)
+        {
+            if(m_Tutorials[intId] != value)
+            {
+                m_Tutorials[intId] = value;
+                m_TutorialsChanged = true;
+            }
+        }
 
         //mail
                                                             //used with item_page table
@@ -517,6 +534,7 @@ class TRINITY_DLL_SPEC WorldSession
         void HandleCancelAutoRepeatSpellOpcode(WorldPacket& recvPacket);
 
         void HandleLearnTalentOpcode(WorldPacket& recvPacket);
+        void HandleLearnPreviewTalents(WorldPacket& recvPacket);
         void HandleTalentWipeConfirmOpcode(WorldPacket& recvPacket);
         void HandleUnlearnSkillOpcode(WorldPacket& recvPacket);
 
@@ -589,6 +607,7 @@ class TRINITY_DLL_SPEC WorldSession
         void HandlePetSpellAutocastOpcode( WorldPacket& recvPacket );
         void HandlePetCastSpellOpcode( WorldPacket& recvPacket );
         void HandlePetLearnTalent( WorldPacket& recvPacket );
+        void HandleLearnPreviewTalentsPet( WorldPacket& recvPacket );
 
         void HandleSetActionBarToggles(WorldPacket& recv_data);
 
@@ -625,6 +644,7 @@ class TRINITY_DLL_SPEC WorldSession
         void HandleLfmClearOpcode(WorldPacket& recv_data);
         void HandleSetLfmOpcode(WorldPacket& recv_data);
         void HandleSetLfgCommentOpcode(WorldPacket& recv_data);
+        void HandleLfgSetRoles(WorldPacket& recv_data);
         void HandleSetTitleOpcode(WorldPacket& recv_data);
         void HandleRealmSplitOpcode(WorldPacket& recv_data);
         void HandleTimeSyncResp(WorldPacket& recv_data);
@@ -696,6 +716,9 @@ class TRINITY_DLL_SPEC WorldSession
         void HandleRemoveGlyph(WorldPacket& recv_data);
         void HandleCharCustomize(WorldPacket& recv_data);
         void HandleQueryInspectAchievements(WorldPacket& recv_data);
+        void HandleEquipmentSetSave(WorldPacket& recv_data);
+        void HandleEquipmentSetDelete(WorldPacket& recv_data);
+        void HandleEquipmentSetUse(WorldPacket& recv_data);
     private:
         // private trade methods
         void moveItems(Item* myItems[], Item* hisItems[]);
@@ -719,6 +742,8 @@ class TRINITY_DLL_SPEC WorldSession
         int m_sessionDbLocaleIndex;
         uint32 m_latency;
         AccountData m_accountData[NUM_ACCOUNT_DATA_TYPES];
+        uint32 m_Tutorials[8];
+        bool   m_TutorialsChanged;
         AddonsList m_addonsList;
         ACE_Based::LockedQueue<WorldPacket*, ACE_Thread_Mutex> _recvQueue;
 };
