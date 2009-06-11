@@ -223,7 +223,10 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectEnchantItemPrismatic,                     //156 SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC
     &Spell::EffectCreateItem2,                              //157 SPELL_EFFECT_CREATE_ITEM_2            create/learn item/spell for profession
     &Spell::EffectMilling,                                  //158 SPELL_EFFECT_MILLING                  milling
-    &Spell::EffectRenamePet                                 //159 SPELL_EFFECT_ALLOW_RENAME_PET         allow rename pet once again
+    &Spell::EffectRenamePet,                                //159 SPELL_EFFECT_ALLOW_RENAME_PET         allow rename pet once again
+    &Spell::EffectNULL,                                     //160 SPELL_EFFECT_160                      unused
+    &Spell::EffectNULL,                                     //161 SPELL_EFFECT_161                      second talent spec (learn/revert)
+    &Spell::EffectNULL                                      //162 SPELL_EFFECT_162                      activate primary/secondary spec
 };
 
 void Spell::EffectNULL(uint32 /*i*/)
@@ -4211,7 +4214,12 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
                 }
                 if (!spellInfo)
                     break;
-                m_caster->CastSpell(unitTarget, spellInfo, true);
+                int32 count = 1;
+                // Glyph of Devastate
+                if (AuraEffect * aurEff = m_caster->GetDummyAura(58388))
+                    count += aurEff->GetAmount();
+                for (;count>0;count--)
+                    m_caster->CastSpell(unitTarget, spellInfo, true);
                 if (stack)
                     spell_bonus += stack * CalculateDamage(2, unitTarget);
             }
@@ -5546,6 +5554,7 @@ void Spell::EffectApplyGlyph(uint32 i)
 
             player->CastSpell(m_caster, gp->SpellId, true);
             player->SetGlyph(m_glyphIndex, glyph);
+            player->SendTalentsInfoData(false);
         }
     }
 }

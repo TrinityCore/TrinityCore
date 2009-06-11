@@ -1203,6 +1203,7 @@ void ChatHandler::FillMessageData( WorldPacket *data, WorldSession* session, uin
         case CHAT_MSG_MONSTER_EMOTE:
         case CHAT_MSG_RAID_BOSS_WHISPER:
         case CHAT_MSG_RAID_BOSS_EMOTE:
+        case CHAT_MSG_BN:
         {
             *data << uint64(speaker->GetGUID());
             *data << uint32(0);                             // 2.1.0

@@ -130,7 +130,7 @@ void PlayerMenu::SendGossipMenu( uint32 TitleTextId, uint64 npcGUID )
     data << uint64(npcGUID);
     data << uint32(0);                                      // new 2.4.0
     data << uint32( TitleTextId );
-    data << uint32( mGossipMenu.MenuItemCount() );          // max count 0x0F
+    data << uint32( mGossipMenu.MenuItemCount() );          // max count 0x10
 
     for (uint32 iI = 0; iI < mGossipMenu.MenuItemCount(); ++iI )
     {
@@ -454,6 +454,7 @@ void PlayerMenu::SendQuestGiverQuestDetails( Quest const *pQuest, uint64 npcGUID
     data << uint32(ActivateAccept);
     data << uint32(pQuest->GetSuggestedPlayers());
     data << uint8(0);                                       // new wotlk
+    data << uint8(0);                                       // new 3.1
 
     if (pQuest->HasFlag(QUEST_FLAGS_HIDDEN_REWARDS))
     {
@@ -749,8 +750,7 @@ void PlayerMenu::SendQuestGiverRequestItems( Quest const *pQuest, uint64 npcGUID
         }
     }
 
-    // We may wish a better check, perhaps checking the real quest requirements
-    if (RequestItemsText.empty())
+    if (!pQuest->GetReqItemsCount() && Completable)
     {
         SendQuestGiverOfferReward(pQuest, npcGUID, true);
         return;

@@ -75,78 +75,171 @@ void WorldSession::HandleCalendarGetEvent(WorldPacket &recv_data)
 {
     sLog.outDebug("WORLD: CMSG_CALENDAR_GET_EVENT");
     recv_data.hexlike();
+    //uint64  unk1;
+    //recv_data >> (uint64)unk1;
 }
 
 void WorldSession::HandleCalendarGuildFilter(WorldPacket &recv_data)
 {
     sLog.outDebug("WORLD: CMSG_CALENDAR_GUILD_FILTER");
     recv_data.hexlike();
+    //uint32  unk1, unk2, unk3;
+    //recv_data >> (uint32)unk1;
+    //recv_data >> (uint32)unk2;
+    //recv_data >> (uint32)unk3;
 }
 
 void WorldSession::HandleCalendarArenaTeam(WorldPacket &recv_data)
 {
     sLog.outDebug("WORLD: CMSG_CALENDAR_ARENA_TEAM");
     recv_data.hexlike();
+    //uint32  unk;
+    //recv_data >> (uint32)unk;
+
 }
 
 void WorldSession::HandleCalendarAddEvent(WorldPacket &recv_data)
 {
     sLog.outDebug("WORLD: CMSG_CALENDAR_ADD_EVENT");
     recv_data.hexlike();
+
+    //std::string unk1, unk2;
+    //recv_data >> (std::string)unk1;
+    //recv_data >> (std::string)unk2;
+
+    //uint8   unk3, unk4;
+    //uint32  unk5, unk6, unk7, unk8, unk9, count = 0;
+    //recv_data >> (uint8)unk3;
+    //recv_data >> (uint8)unk4;
+    //recv_data >> (uint32)unk5;
+    //recv_data >> (uint32)unk6;
+    //recv_data >> (uint32)unk7;
+    //recv_data >> (uint32)unk8;
+    //recv_data >> (uint32)unk9;
+    //if (!((unk9 >> 6) & 1))
+    //{
+    //    recv_data >> (uint32)count;
+    //    if (count)
+    //    {
+    //        uint8 unk12,unk13;
+    //        uint64 guid;
+    //        for (int i=0;i<count;i++)
+    //        {
+    //            recv_data.readPackGUID(guid);
+    //            recv_data >> (uint8)unk12;
+    //            recv_data >> (uint8)unk13;
+    //        }
+    //    }
+    //}
 }
 
 void WorldSession::HandleCalendarUpdateEvent(WorldPacket &recv_data)
 {
     sLog.outDebug("WORLD: CMSG_CALENDAR_UPDATE_EVENT");
     recv_data.hexlike();
+
+    //recv_data >> uint64
+    //recv_data >> uint64
+    //recv_data >> std::string
+    //recv_data >> std::string
+    //recv_data >> uint8
+    //recv_data >> uint8
+    //recv_data >> uint32
+    //recv_data >> uint32
+    //recv_data >> uint32
+    //recv_data >> uint32
+    //recv_data >> uint32
 }
 
 void WorldSession::HandleCalendarRemoveEvent(WorldPacket &recv_data)
 {
     sLog.outDebug("WORLD: CMSG_CALENDAR_REMOVE_EVENT");
     recv_data.hexlike();
+
+    //recv_data >> uint64
+    //recv_data >> uint64
+    //recv_data >> uint32
+
 }
 
 void WorldSession::HandleCalendarCopyEvent(WorldPacket &recv_data)
 {
     sLog.outDebug("WORLD: CMSG_CALENDAR_COPY_EVENT");
     recv_data.hexlike();
+
+    //recv_data >> uint64
+    //recv_data >> uint64
+    //recv_data >> uint32
+
 }
 
 void WorldSession::HandleCalendarEventInvite(WorldPacket &recv_data)
 {
     sLog.outDebug("WORLD: CMSG_CALENDAR_EVENT_INVITE");
     recv_data.hexlike();
+
+    //recv_data >> uint64
+    //recv_data >> uint64
+    //recv_data >> std::string
+    //recv_data >> uint8
+    //recv_data >> uint8
+
 }
 
 void WorldSession::HandleCalendarEventRsvp(WorldPacket &recv_data)
 {
     sLog.outDebug("WORLD: CMSG_CALENDAR_EVENT_RSVP");
     recv_data.hexlike();
+
+    //recv_data >> uint64
+    //recv_data >> uint64
+    //recv_data >> uint32
+
 }
 
 void WorldSession::HandleCalendarEventRemoveInvite(WorldPacket &recv_data)
 {
     sLog.outDebug("WORLD: CMSG_CALENDAR_EVENT_REMOVE_INVITE");
     recv_data.hexlike();
+
+    //recv_data.readPackGUID(guid)
+    //recv_data >> uint64
+    //recv_data >> uint64
+    //recv_data >> uint64
 }
 
 void WorldSession::HandleCalendarEventStatus(WorldPacket &recv_data)
 {
     sLog.outDebug("WORLD: CMSG_CALENDAR_EVENT_STATUS");
     recv_data.hexlike();
+
+    //recv_data.readPackGUID(guid)
+    //recv_data >> uint64
+    //recv_data >> uint64
+    //recv_data >> uint64
+    //recv_data >> uint32
 }
 
 void WorldSession::HandleCalendarEventModeratorStatus(WorldPacket &recv_data)
 {
     sLog.outDebug("WORLD: CMSG_CALENDAR_EVENT_MODERATOR_STATUS");
     recv_data.hexlike();
+
+    //recv_data.readPackGUID(guid)
+    //recv_data >> uint64
+    //recv_data >> uint64
+    //recv_data >> uint64
+    //recv_data >> uint32
 }
 
 void WorldSession::HandleCalendarComplain(WorldPacket &recv_data)
 {
     sLog.outDebug("WORLD: CMSG_CALENDAR_COMPLAIN");
     recv_data.hexlike();
+
+    //recv_data >> uint64
+    //recv_data >> uint64
+    //recv_data >> uint64
 }
 
 void WorldSession::HandleCalendarGetNumPending(WorldPacket &recv_data)

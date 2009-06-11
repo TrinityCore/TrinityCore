@@ -1046,7 +1046,7 @@ struct TRINITY_DLL_DECL mob_shield_orbAI : public ScriptedAI
     float x, y, r, c, mx, my;
 
     void InitializeAI(){
-        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT + MOVEMENTFLAG_LEVITATING);
+        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
         PointReached = true;
         Timer = 500+ rand()%500;
         CheckTimer = 1000;
