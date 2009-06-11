@@ -5381,7 +5381,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 case 56374:
                     RemoveAurasByType(SPELL_AURA_MOD_HASTE, 0, 0, true, false);
                     RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
-                break;
+                return true;
                 // Ignite
                 case 11119:
                 case 11120:
@@ -8965,6 +8965,16 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
     {
         if (pVictim->HasAuraState(AURA_STATE_FROZEN, spellProto, this))
             DoneTotalMod *= 3.0f;
+    }
+
+    // Glyph of Shadow Word: Pain
+    if (spellProto->SpellFamilyName == SPELLFAMILY_PRIEST && spellProto->SpellFamilyFlags[0] & 0x800000)
+    {
+        // Increase Mind Flay damage
+        if (AuraEffect * aurEff = GetDummyAura(55687))
+            // if Shadow Word: Pain present
+            if (pVictim->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PRIEST, 0x8000, 0,0, GetGUID()))
+                DoneTotalMod *= (aurEff->GetAmount() + 100.0f) / 100.f;
     }
 
     // Torment the weak
