@@ -694,7 +694,10 @@ enum SpellEffects
     SPELL_EFFECT_CREATE_ITEM_2             = 157,
     SPELL_EFFECT_MILLING                   = 158,
     SPELL_EFFECT_ALLOW_RENAME_PET          = 159,
-    TOTAL_SPELL_EFFECTS                    = 160
+    SPELL_EFFECT_160                       = 160,
+    SPELL_EFFECT_161                       = 161,
+    SPELL_EFFECT_162                       = 162,
+    TOTAL_SPELL_EFFECTS                    = 163
 };
 
 enum SpellCastResult
@@ -1157,7 +1160,7 @@ enum GameobjectTypes
     GAMEOBJECT_TYPE_FISHINGNODE            = 17,
     GAMEOBJECT_TYPE_SUMMONING_RITUAL       = 18,
     GAMEOBJECT_TYPE_MAILBOX                = 19,
-    GAMEOBJECT_TYPE_AUCTIONHOUSE           = 20,
+    GAMEOBJECT_TYPE_DO_NOT_USE             = 20,
     GAMEOBJECT_TYPE_GUARDPOST              = 21,
     GAMEOBJECT_TYPE_SPELLCASTER            = 22,
     GAMEOBJECT_TYPE_MEETINGSTONE           = 23,
@@ -1165,7 +1168,7 @@ enum GameobjectTypes
     GAMEOBJECT_TYPE_FISHINGHOLE            = 25,
     GAMEOBJECT_TYPE_FLAGDROP               = 26,
     GAMEOBJECT_TYPE_MINI_GAME              = 27,
-    GAMEOBJECT_TYPE_LOTTERY_KIOSK          = 28,
+    GAMEOBJECT_TYPE_DO_NOT_USE_2           = 28,
     GAMEOBJECT_TYPE_CAPTURE_POINT          = 29,
     GAMEOBJECT_TYPE_AURA_GENERATOR         = 30,
     GAMEOBJECT_TYPE_DUNGEON_DIFFICULTY     = 31,

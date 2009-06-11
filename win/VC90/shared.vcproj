@@ -722,6 +722,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\shared\Auth\SARC4.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\shared\Auth\SARC4.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\shared\Auth\Sha1.cpp"
 				>
 			</File>

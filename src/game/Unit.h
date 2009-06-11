@@ -448,7 +448,8 @@ enum UnitState
     UNIT_STAT_CHARGING        = 0x00020000,
     UNIT_STAT_JUMPING         = 0x00040000,
     UNIT_STAT_ONVEHICLE       = 0x00080000,
-    UNIT_STAT_MOVE            = 0x00100000,    
+    UNIT_STAT_MOVE            = 0x00100000,
+    //UNIT_STAT_WALK            = 0x00200000,
     UNIT_STAT_UNATTACKABLE    = (UNIT_STAT_IN_FLIGHT | UNIT_STAT_ONVEHICLE),
     UNIT_STAT_MOVING          = (UNIT_STAT_ROAMING | UNIT_STAT_CHASE),
     UNIT_STAT_CONTROLLED      = (UNIT_STAT_CONFUSED | UNIT_STAT_STUNNED | UNIT_STAT_FLEEING),
@@ -618,13 +619,10 @@ enum NPCFlags
 
 enum MoveFlags
 {
-    MOVEFLAG_NONE               = 0x00000000,
-    MOVEFLAG_SLIDE              = 0x00000002,
-    MOVEFLAG_MARCH_ON_SPOT      = 0x00000004,
-    MOVEFLAG_JUMP               = 0x00000008,
-    MOVEFLAG_WALK               = 0x00000100,
-    MOVEFLAG_FLY                = 0x00000200,   //For dragon (+walk = glide)
-    MOVEFLAG_ORIENTATION        = 0x00000400,   //Fix orientation
+    MOVEFLAG_JUMP               = 0x00000800,
+    MOVEFLAG_WALK               = 0x00001000,
+    MOVEFLAG_FLY                = 0x00002000,
+    MOVEFLAG_GLIDE              = 0x00003000, // dragon
 };
 
 enum MovementFlags
@@ -658,6 +656,7 @@ enum MovementFlags
     MOVEMENTFLAG_UNK3           = 0x40000000
 };
 
+/*
 enum MonsterMovementFlags
 {
     MONSTER_MOVE_NONE           = 0x00000000,
@@ -693,6 +692,7 @@ enum MonsterMovementFlags
     // masks
     MONSTER_MOVE_SPLINE_FLY     = 0x00003000,               // fly by points
 };
+*/
 
 struct MovementInfo
 {
@@ -723,6 +723,10 @@ struct MovementInfo
         x = y = z = o = t_x = t_y = t_z = t_o = s_pitch = j_zspeed = j_sinAngle = j_cosAngle = j_xyspeed = u_unk1 = 0.0f;
         t_guid = 0;
     }
+
+    uint32 GetMovementFlags() { return flags; }
+    void AddMovementFlag(uint32 flag) { flags |= flag; }
+    bool HasMovementFlag(uint32 flag) const { return flags & flag; }
 };
 
 enum DiminishingLevels
@@ -1668,15 +1672,11 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         bool IsStopped() const { return !(hasUnitState(UNIT_STAT_MOVING)); }
         void StopMoving();
 
-        void AddUnitMovementFlag(uint32 f) { m_unit_movement_flags |= f; }
-        void RemoveUnitMovementFlag(uint32 f)
-        {
-            uint32 oldval = m_unit_movement_flags;
-            m_unit_movement_flags = oldval & ~f;
-        }
-        uint32 HasUnitMovementFlag(uint32 f) const { return m_unit_movement_flags & f; }
-        uint32 GetUnitMovementFlags() const { return m_unit_movement_flags; }
-        void SetUnitMovementFlags(uint32 f) { m_unit_movement_flags = f; }
+        void AddUnitMovementFlag(uint32 f) { m_movementInfo.flags |= f; }
+        void RemoveUnitMovementFlag(uint32 f) { m_movementInfo.flags &= ~f; }
+        uint32 HasUnitMovementFlag(uint32 f) const { return m_movementInfo.flags & f; }
+        uint32 GetUnitMovementFlags() const { return m_movementInfo.flags; }
+        void SetUnitMovementFlags(uint32 f) { m_movementInfo.flags = f; }
 
         void SetControlled(bool apply, UnitState state);
 
@@ -1814,7 +1814,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         virtual SpellSchoolMask GetMeleeDamageSchoolMask() const;
 
         MotionMaster i_motionMaster;
-        uint32 m_unit_movement_flags;
+        //uint32 m_unit_movement_flags;
 
         uint32 m_reactiveTimer[MAX_REACTIVE];
         uint32 m_regenTimer;

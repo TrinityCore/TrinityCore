@@ -542,6 +542,7 @@ void WorldSession::HandlePetUnlearnOpcode(WorldPacket& recvPacket)
         return;
     }
     pet->resetTalents();
+    _player->SendTalentsInfoData(true);
 }
 
 void WorldSession::HandlePetSpellAutocastOpcode( WorldPacket& recvPacket )
@@ -708,4 +709,31 @@ void WorldSession::HandlePetLearnTalent( WorldPacket & recv_data )
     recv_data >> guid >> talent_id >> requested_rank;
 
     _player->LearnPetTalent(guid, talent_id, requested_rank);
+    _player->SendTalentsInfoData(true);
+}
+
+void WorldSession::HandleLearnPreviewTalentsPet( WorldPacket & recv_data )
+{
+    sLog.outDebug("CMSG_LEARN_PREVIEW_TALENTS_PET");
+
+    CHECK_PACKET_SIZE(recv_data, 8+4);
+
+    uint64 guid;
+    recv_data >> guid;
+
+    uint32 talentsCount;
+    recv_data >> talentsCount;
+
+    uint32 talentId, talentRank;
+
+    for(uint32 i = 0; i < talentsCount; ++i)
+    {
+        CHECK_PACKET_SIZE(recv_data, recv_data.rpos()+4+4);
+
+        recv_data >> talentId >> talentRank;
+
+        _player->LearnPetTalent(guid, talentId, talentRank);
+    }
+
+    _player->SendTalentsInfoData(true);
 }
