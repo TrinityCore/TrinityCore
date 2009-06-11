@@ -32,8 +32,8 @@ Corpse::Corpse(CorpseType type) : WorldObject()
 {
     m_objectType |= TYPEMASK_CORPSE;
     m_objectTypeId = TYPEID_CORPSE;
-                                                            // 2.3.2 - 0x58
-    m_updateFlag = (UPDATEFLAG_LOWGUID | UPDATEFLAG_HIGHGUID | UPDATEFLAG_HAS_POSITION);
+
+    m_updateFlag = (UPDATEFLAG_HIGHGUID | UPDATEFLAG_HAS_POSITION | UPDATEFLAG_POSITION);
 
     m_valuesCount = CORPSE_END;
 
@@ -88,10 +88,6 @@ bool Corpse::Create( uint32 guidlow, Player *owner)
     }
 
     SetFloatValue( OBJECT_FIELD_SCALE_X, 1 );
-    SetFloatValue( CORPSE_FIELD_POS_X, GetPositionX() );
-    SetFloatValue( CORPSE_FIELD_POS_Y, GetPositionY() );
-    SetFloatValue( CORPSE_FIELD_POS_Z, GetPositionZ() );
-    SetFloatValue( CORPSE_FIELD_FACING, GetOrientation() );
     SetUInt64Value( CORPSE_FIELD_OWNER, owner->GetGUID() );
 
     m_grid = Trinity::ComputeGridPair(GetPositionX(), GetPositionY());

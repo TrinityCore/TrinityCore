@@ -20,64 +20,62 @@
 
 #include "AuthCrypt.h"
 #include "Hmac.h"
+#include "Log.h"
+#include "BigNumber.h"
 
 AuthCrypt::AuthCrypt()
 {
     _initialized = false;
 }
 
-void AuthCrypt::Init()
+AuthCrypt::~AuthCrypt()
 {
-    _send_i = _send_j = _recv_i = _recv_j = 0;
+
+}
+
+void AuthCrypt::Init(BigNumber *K)
+{
+    uint8 ServerEncryptionKey[SEED_KEY_SIZE] = { 0x22, 0xBE, 0xE5, 0xCF, 0xBB, 0x07, 0x64, 0xD9, 0x00, 0x45, 0x1B, 0xD0, 0x24, 0xB8, 0xD5, 0x45 };
+    HmacHash serverEncryptHmac(SEED_KEY_SIZE, (uint8*)ServerEncryptionKey);
+    uint8 *encryptHash = serverEncryptHmac.ComputeHash(K);
+
+    uint8 ServerDecryptionKey[SEED_KEY_SIZE] = { 0xF4, 0x66, 0x31, 0x59, 0xFC, 0x83, 0x6E, 0x31, 0x31, 0x02, 0x51, 0xD5, 0x44, 0x31, 0x67, 0x98 };
+    HmacHash clientDecryptHmac(SEED_KEY_SIZE, (uint8*)ServerDecryptionKey);
+    uint8 *decryptHash = clientDecryptHmac.ComputeHash(K);
+
+    //SARC4 _serverDecrypt(encryptHash);
+    _clientDecrypt.Init(decryptHash);
+    _serverEncrypt.Init(encryptHash);
+    //SARC4 _clientEncrypt(decryptHash);
+
+    uint8 syncBuf[1024];
+
+    memset(syncBuf, 0, 1024);
+
+    _serverEncrypt.UpdateData(1024, syncBuf);
+    //_clientEncrypt.UpdateData(1024, syncBuf);
+
+    memset(syncBuf, 0, 1024);
+
+    //_serverDecrypt.UpdateData(1024, syncBuf);
+    _clientDecrypt.UpdateData(1024, syncBuf);
+
     _initialized = true;
 }
 
 void AuthCrypt::DecryptRecv(uint8 *data, size_t len)
 {
-    if (!_initialized) return;
-    if (len < CRYPTED_RECV_LEN) return;
+    if (!_initialized)
+        return;
 
-    for (size_t t = 0; t < CRYPTED_RECV_LEN; t++)
-    {
-        _recv_i %= _key.size();
-        uint8 x = (data[t] - _recv_j) ^ _key[_recv_i];
-        ++_recv_i;
-        _recv_j = data[t];
-        data[t] = x;
-    }
+    _clientDecrypt.UpdateData(len, data);
 }
 
 void AuthCrypt::EncryptSend(uint8 *data, size_t len)
 {
-    if (!_initialized) return;
+    if (!_initialized)
+        return;
 
-    for (size_t t = 0; t < len; t++)
-    {
-        _send_i %= _key.size();
-        uint8 x = (data[t] ^ _key[_send_i]) + _send_j;
-        ++_send_i;
-        data[t] = _send_j = x;
-    }
-}
-
-void AuthCrypt::SetKey(BigNumber *bn)
-{
-    uint8 *key = new uint8[SHA_DIGEST_LENGTH];
-    GenerateKey(key, bn);
-    _key.resize(SHA_DIGEST_LENGTH);
-    std::copy(key, key + SHA_DIGEST_LENGTH, _key.begin());
-    delete[] key;
-}
-
-AuthCrypt::~AuthCrypt()
-{
-}
-
-void AuthCrypt::GenerateKey(uint8 *key, BigNumber *bn)
-{
-    HmacHash hash;
-    hash.UpdateBigNumber(bn);
-    hash.Finalize();
-    memcpy(key, hash.GetDigest(), SHA_DIGEST_LENGTH);
+    _serverEncrypt.UpdateData(len, data);
 }
 
