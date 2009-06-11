@@ -3325,6 +3325,11 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch(i)
         {
+        case 16007: // Draco-Incarcinatrix 900
+            // was 46, but effect is aura effect
+            spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_NEARBY_ENTRY;
+            spellInfo->EffectImplicitTargetB[0] = TARGET_DST_NEARBY_ENTRY;
+            break;
         case 26029: // dark glare
         case 37433: // spout
         case 43140: case 43215: // flame breath

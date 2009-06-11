@@ -2021,8 +2021,7 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
                     float range = GetSpellMaxRange(m_spellInfo, IsPositiveSpell(m_spellInfo->Id));
                     if(modOwner) modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RANGE, range, this);
 
-                    WorldObject *target = SearchNearbyTarget(range, SPELL_TARGETS_ENTRY);
-                    if(target)
+                    if(WorldObject *target = SearchNearbyTarget(range, SPELL_TARGETS_ENTRY))
                         m_targets.setDestination(target);
                     break;
                 }
