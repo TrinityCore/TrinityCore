@@ -588,7 +588,6 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
     if(pVictim->GetTypeId() == TYPEID_UNIT && ((Creature*)pVictim)->IsAIEnabled)
     {
         ((Creature*)pVictim)->AI()->DamageTaken(this, damage);
-        ((Creature*)pVictim)->AddDamageByPlayers(damage);
     }
     if (damagetype != NODAMAGE)
     {
@@ -706,7 +705,7 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
             ((Creature*)pVictim)->SetLootRecipient(this);
 
         if(IsControlledByPlayer())
-            ((Creature*)pVictim)->AddDamageByPlayers(health < damage ?  health : damage);
+            ((Creature*)pVictim)->LowerPlayerDamageReq(health < damage ?  health : damage);
     }
     
     if (health <= damage)

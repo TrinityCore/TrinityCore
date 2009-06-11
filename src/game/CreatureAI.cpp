@@ -184,7 +184,7 @@ bool CreatureAI::_EnterEvadeMode()
     me->CombatStop(true);
     me->LoadCreaturesAddon();
     me->SetLootRecipient(NULL);
-    me->ResetDamageByPlayers();
+    me->ResetPlayerDamageReq();
 
     return true;
 }
