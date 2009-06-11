@@ -4135,13 +4135,14 @@ void Unit::RemoveAurasDueToItemSpell(Item* castItem,uint32 spellId)
     }
 }
 
-void Unit::RemoveAurasByType(AuraType auraType, uint64 casterGUID, Aura * except)
+void Unit::RemoveAurasByType(AuraType auraType, uint64 casterGUID, Aura * except, bool negative, bool positive)
 {
     for (AuraEffectList::iterator iter = m_modAuras[auraType].begin(); iter != m_modAuras[auraType].end();)
     {
         Aura * aur = (*iter)->GetParentAura();
         ++iter;
-        if (aur != except && (!casterGUID || aur->GetCasterGUID()==casterGUID))
+        if (aur != except && (!casterGUID || aur->GetCasterGUID()==casterGUID)
+            && ((negative && !aur->IsPositive()) || (positive && aur->IsPositive())))
         {
             uint32 removedAuras = m_removedAurasCount;
             RemoveAura(aur);
@@ -5376,6 +5377,11 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             }
             switch(dummySpell->Id)
             {
+                // Glyph of Icy Veins
+                case 56374:
+                    RemoveAurasByType(SPELL_AURA_MOD_HASTE, 0, 0, true, false);
+                    RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
+                break;
                 // Ignite
                 case 11119:
                 case 11120:

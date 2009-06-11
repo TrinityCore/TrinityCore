@@ -1403,7 +1403,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void RemoveAurasDueToSpellByDispel(uint32 spellId, uint64 casterGUID, Unit *dispeler);
         void RemoveAurasDueToSpellBySteal(uint32 spellId, uint64 casterGUID, Unit *stealer);
         void RemoveAurasDueToItemSpell(Item* castItem,uint32 spellId);
-        void RemoveAurasByType(AuraType auraType, uint64 casterGUID = 0, Aura * except=NULL);
+        void RemoveAurasByType(AuraType auraType, uint64 casterGUID = 0, Aura * except=NULL, bool negative = true, bool positive = true);
         void RemoveAurasByTypeWithDispel(AuraType auraType, Spell * spell = NULL);
         void RemoveNotOwnSingleTargetAuras();
         bool RemoveNoStackAurasDueToAura(Aura *Aur);
