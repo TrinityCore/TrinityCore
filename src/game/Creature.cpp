@@ -1351,7 +1351,7 @@ void Creature::SelectLevel(const CreatureInfo *cinfo)
     SetCreateHealth(health);
     SetMaxHealth(health);
     SetHealth(health);
-    ResetDamageByPlayers();
+    ResetPlayerDamageReq();
 
     // mana
     uint32 minmana = std::min(cinfo->maxmana, cinfo->minmana);
@@ -1742,7 +1742,7 @@ void Creature::setDeathState(DeathState s)
         //    setActive(true);
         SetHealth(GetMaxHealth());
         SetLootRecipient(NULL);
-        ResetDamageByPlayers();
+        ResetPlayerDamageReq();
         Unit::setDeathState(ALIVE);
         CreatureInfo const *cinfo = GetCreatureInfo();
         RemoveFlag (UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
