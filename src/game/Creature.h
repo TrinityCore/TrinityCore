@@ -723,12 +723,12 @@ class TRINITY_DLL_SPEC Creature : public Unit
         void SetDisableReputationGain(bool disable) { DisableReputationGain = disable; }
         bool IsReputationGainDisabled() { return DisableReputationGain; }
         bool IsDamageEnoughForLootingAndReward() { return m_PlayerDamageReq == 0; }
-        void AddDamageByPlayers(uint32 unDamage)
+        void LowerPlayerDamageReq(uint32 unDamage)
         {
             if(m_PlayerDamageReq)
                 m_PlayerDamageReq > unDamage ? m_PlayerDamageReq -= unDamage : m_PlayerDamageReq = 0;
         }
-        void ResetDamageByPlayers() { m_PlayerDamageReq = GetHealth() / 2; }
+        void ResetPlayerDamageReq() { m_PlayerDamageReq = GetHealth() / 2; }
         uint32 m_PlayerDamageReq;
         
         void SetOriginalEntry(uint32 entry) { m_originalEntry = entry; }
