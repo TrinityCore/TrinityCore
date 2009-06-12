@@ -474,7 +474,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                         damage += int32(damage*0.25f);
                 }
                 // Conflagrate - consumes immolate
-                if (m_spellInfo->TargetAuraState == AURA_STATE_IMMOLATE)
+                else if (m_spellInfo->TargetAuraState == AURA_STATE_IMMOLATE)
                 {
                     // Glyph of Conflagrate
                     if (m_caster->HasAura(56235))
@@ -489,6 +489,15 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                             unitTarget->RemoveAurasDueToSpell((*i)->GetId(), m_caster->GetGUID());
                             break;
                         }
+                    }
+                }
+                // Shadow Bite
+                else if (m_spellInfo->SpellFamilyFlags[1] & 0x400000)
+                {
+                    if (m_caster->GetTypeId() == TYPEID_UNIT && ((Creature *)m_caster)->isPet())
+                    {
+                        // Get DoTs on target by owner (5% increase by dot)
+                        damage += 5 * unitTarget->GetDoTsByCaster(m_caster->GetOwnerGUID()) / 100;
                     }
                 }
                 break;
