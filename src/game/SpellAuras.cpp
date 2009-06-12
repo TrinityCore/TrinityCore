@@ -6440,24 +6440,59 @@ void AuraEffect::PeriodicDummyTick()
             case 22734:
             case 27089:
             case 34291:
-            case 43706:
             case 46755:
             case 49472: // Drink Coffee
             case 61830:
             {
                 if (m_target->GetTypeId() != TYPEID_PLAYER)
                     return;
-                // Search SPELL_AURA_MOD_POWER_REGEN aura for this spell and add bonus
-                Unit::AuraEffectList const& aura = m_target->GetAurasByType(SPELL_AURA_MOD_POWER_REGEN);
-                for(Unit::AuraEffectList::const_iterator i = aura.begin(); i != aura.end(); ++i)
+                // Get SPELL_AURA_MOD_POWER_REGEN aura from spell
+                if (AuraEffect * aurEff = GetParentAura()->GetPartAura(0))
                 {
-                    if ((*i)->GetId() == GetId())
+                    if (aurEff->GetAuraName() !=SPELL_AURA_MOD_POWER_REGEN)
                     {
-                        (*i)->SetAmount(m_amount);
-                        ((Player*)m_target)->UpdateManaRegen();
-                        // Disable continue
                         m_isPeriodic = false;
-                        return;
+                        sLog.outError("Aura %d structure has been changed - first aura is no longer SPELL_AURA_MOD_POWER_REGEN", spell->Id);
+                    }
+                    else
+                    {
+                        // default case - not in arena
+                        if (!((Player*)m_target)->InArena())
+                        {
+                            aurEff->SetAmount(GetAmount());
+                            ((Player*)m_target)->UpdateManaRegen();
+                            m_isPeriodic = false;
+                        }
+                        else
+                        {
+                            //**********************************************
+                            // This feature uses only in arenas
+                            //**********************************************
+                            // Here need increase mana regen per tick (6 second rule)
+                            // on 0 tick -   0  (handled in 2 second)
+                            // on 1 tick - 166% (handled in 4 second)
+                            // on 2 tick - 133% (handled in 6 second)
+
+                            // Apply bonus for 1 - 4 tick
+                            switch (m_tickNumber)
+                            {
+                                case 1:   // 0%
+                                    aurEff->SetAmount(0);
+                                    break;
+                                case 2:   // 166%
+                                    aurEff->SetAmount(GetAmount() * 5 / 3);
+                                    break;
+                                case 3:   // 133%
+                                    aurEff->SetAmount(GetAmount() * 4 / 3);
+                                    break;
+                                default:  // 100% - normal regen
+                                    aurEff->SetAmount(GetAmount());
+                                    // No need to update after 4th tick
+                                    m_isPeriodic = false;
+                                    break;
+                            }
+                            ((Player*)m_target)->UpdateManaRegen();
+                        }
                     }
                 }
                 return;
