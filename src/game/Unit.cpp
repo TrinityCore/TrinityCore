@@ -4078,6 +4078,15 @@ void Unit::RemoveAurasDueToSpellByDispel(uint32 spellId, uint64 casterGUID, Unit
                 dispeler->CastCustomSpell(dispeler, 31117, &damage, NULL, NULL, true, NULL, NULL,GetGUID());
                 return;
             }
+            // Vampiric Touch
+            else if (aur->GetSpellProto()->SpellFamilyName == SPELLFAMILY_PRIEST && (aur->GetSpellProto()->SpellFamilyFlags[1] & 0x0400))
+            {
+                int32 damage = aur->GetPartAura(1)->GetAmount()*4;
+                RemoveAuraFromStack(iter, AURA_REMOVE_BY_ENEMY_SPELL);
+                // backfire damage
+                dispeler->CastCustomSpell(dispeler, 64085, &damage, NULL, NULL, true, NULL, NULL,GetGUID());
+                return;
+            }
             RemoveAuraFromStack(iter, AURA_REMOVE_BY_ENEMY_SPELL);
             return;
         }
@@ -5909,7 +5918,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 }
             }
             // Eclipse
-            if (dummySpell->SpellIconID == 2856)
+            if (dummySpell->SpellIconID == 2856 && GetTypeId() == TYPEID_PLAYER)
             {
                 if (!procSpell)
                     return false;
@@ -5921,6 +5930,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 {
                     if (!roll_chance_i(60))
                         return false;
+                    ((Player*)this)->AddSpellCooldown(48517,0,time(NULL) + cooldown);
                     triggered_spell_id = 48518;
                     target = this;
                     break;
@@ -5928,6 +5938,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 // Starfire crit
                 if (procSpell->SpellFamilyFlags[0] & 0x4)
                 {
+                    ((Player*)this)->AddSpellCooldown(48518,0,time(NULL) + cooldown);
                     triggered_spell_id = 48517;
                     target = this;
                     break;
