@@ -5141,6 +5141,16 @@ void Spell::EffectScriptEffect(uint32 effIndex)
         {
             switch(m_spellInfo->Id)
             {
+                // Invigoration
+                case 53412:
+                {
+                    if (AuraEffect * aurEff = unitTarget->GetDummyAura(SPELLFAMILY_HUNTER, 3487))
+                    {
+                        if (roll_chance_i(aurEff->GetAmount()))
+                            unitTarget->CastSpell(unitTarget, 53398, true);
+                    }
+                    break;
+                }
                 // Heart of the Pheonix
                 case 55709:
                 {
