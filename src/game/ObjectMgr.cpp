@@ -2171,14 +2171,19 @@ void ObjectMgr::LoadItemRequiredTarget()
                     if (lower != upper)
                         break;
 
-                    if (pSpellInfo->EffectImplicitTargetA[i] == TARGET_UNIT_TARGET_ENEMY ||
-                        pSpellInfo->EffectImplicitTargetB[i] == TARGET_UNIT_TARGET_ENEMY ||
-                        pSpellInfo->EffectImplicitTargetA[i] == TARGET_UNIT_TARGET_ANY ||
-                        pSpellInfo->EffectImplicitTargetB[i] == TARGET_UNIT_TARGET_ANY)
+                    for (int j = 0; j < 3; ++j)
                     {
-                        bIsItemSpellValid = true;
-                        break;
+                        if (pSpellInfo->EffectImplicitTargetA[i] == TARGET_UNIT_TARGET_ENEMY ||
+                            pSpellInfo->EffectImplicitTargetB[i] == TARGET_UNIT_TARGET_ENEMY ||
+                            pSpellInfo->EffectImplicitTargetA[i] == TARGET_UNIT_TARGET_ANY ||
+                            pSpellInfo->EffectImplicitTargetB[i] == TARGET_UNIT_TARGET_ANY)
+                        {
+                            bIsItemSpellValid = true;
+                            break;
+                        }
                     }
+                    if (bIsItemSpellValid)
+                        break;
                 }
             }
         }
