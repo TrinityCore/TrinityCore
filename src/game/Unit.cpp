@@ -4422,6 +4422,29 @@ uint32 Unit::GetDiseasesByCaster(uint64 casterGUID) const
     return diseases;
 }
 
+uint32 Unit::GetDoTsByCaster(uint64 casterGUID) const
+{
+    static const AuraType diseaseAuraTypes[] =
+    {
+        SPELL_AURA_PERIODIC_DAMAGE,
+        SPELL_AURA_PERIODIC_DAMAGE_PERCENT,
+        SPELL_AURA_NONE
+    };
+
+    uint32 dots=0;
+    for(AuraType const* itr = &diseaseAuraTypes[0]; itr && itr[0] != SPELL_AURA_NONE; ++itr)
+    {
+        Unit::AuraEffectList const& auras = GetAurasByType(*itr);
+        for(AuraEffectList::const_iterator i = auras.begin();i != auras.end(); ++i)
+        {
+            // Get auras by caster
+            if ((*i)->GetCasterGUID()==casterGUID)
+                ++dots;
+        }
+    }
+    return dots;
+}
+
 void Unit::AddDynObject(DynamicObject* dynObj)
 {
     m_dynObjGUIDs.push_back(dynObj->GetGUID());
