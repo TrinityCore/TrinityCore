@@ -4565,7 +4565,11 @@ SpellCastResult Spell::CheckCast(bool strict)
                 // get the lock entry
                 uint32 lockId = 0;
                 if (GameObject* go = m_targets.getGOTarget())
+                {
                     lockId = go->GetLockId();
+                    if (!lockId)
+                        return SPELL_FAILED_BAD_TARGETS;
+                }
                 else if(Item* itm = m_targets.getItemTarget())
                     lockId = itm->GetProto()->LockID;
 
