@@ -9279,7 +9279,7 @@ bool Unit::isSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
                         // Lava Burst
                         if (spellProto->SpellFamilyFlags[1] & 0x00001000)
                         {
-                            if (AuraEffect *flameShock = pVictim->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_SHAMAN, 10000000, 0,0, GetGUID()))
+                            if (AuraEffect *flameShock = pVictim->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_SHAMAN, 0x10000000, 0,0, GetGUID()))
                             {
                                 // Consume shock aura if not have Glyph of Flame Shock
                                 if (!GetAuraEffect(55447, 0))
