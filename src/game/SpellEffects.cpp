@@ -1415,15 +1415,6 @@ void Spell::EffectDummy(uint32 i)
                                                  m_caster->GetTotalAttackPowerValue(BASE_ATTACK)*0.2f);
                 break;
             }
-            // Slam
-            if(m_spellInfo->SpellFamilyFlags[0] & 0x200000)
-            {
-                if(!unitTarget)
-                    return;
-                m_damage+=m_caster->CalculateDamage(m_attackType, false);
-                m_damage+=damage;
-                return;
-            }
             // Concussion Blow
             if(m_spellInfo->SpellFamilyFlags[0] & 0x4000000)
             {
