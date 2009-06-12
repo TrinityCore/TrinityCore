@@ -21,7 +21,7 @@
 #ifndef TRINITYCORE_ERRORS_H
 #define TRINITYCORE_ERRORS_H
 
-#include "ace/Stack_Trace.h"
+#include <ace/Stack_Trace.h>
 
 #define WPAssert( assertion ) { if (!(assertion)) { ACE_Stack_Trace st; fprintf( stderr, "\n%s:%i in %s ASSERTION FAILED:\n  %s\n%s\n", __FILE__, __LINE__,__FUNCTION__,  #assertion, st.c_str()); assert( #assertion &&0 ); } }
 #define WPError( assertion, errmsg ) if( ! (assertion) ) { sLog.outError( "%\n%s:%i in %s ERROR:\n  %s\n", __FILE__, __LINE__, __FUNCTION__, (char *)errmsg ); assert( false ); }
