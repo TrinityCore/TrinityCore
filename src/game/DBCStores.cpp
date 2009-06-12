@@ -23,6 +23,7 @@
 #include "Log.h"
 #include "ProgressBar.h"
 #include "SharedDefines.h"
+#include "SpellMgr.h"
 
 #include "DBCfmt.h"
 
@@ -339,7 +340,7 @@ void LoadDBCStores(const std::string& dataPath)
 
         SpellEntry const* spellInfo = sSpellStore.LookupEntry(skillLine->spellId);
 
-        if(spellInfo && (spellInfo->Attributes & 0x1D0) == 0x1D0)
+        if(spellInfo && IsPassiveSpell(spellInfo->Id))
         {
             for (uint32 i = 1; i < sCreatureFamilyStore.GetNumRows(); ++i)
             {
