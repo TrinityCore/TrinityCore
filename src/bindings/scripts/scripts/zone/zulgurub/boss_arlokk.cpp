@@ -51,8 +51,7 @@ struct TRINITY_DLL_DECL boss_arlokkAI : public ScriptedAI
     uint32 Summon_Timer;
     uint32 Visible_Timer;
 
-    Unit* markedTarget;
-    Creature *Panther;
+    uint64 markedTargetGUID;
     uint32 Counter;
 
     bool PhaseTwo;
@@ -70,7 +69,7 @@ struct TRINITY_DLL_DECL boss_arlokkAI : public ScriptedAI
 
         Counter = 0;
 
-        markedTarget = NULL;
+        markedTargetGUID = 0;
         PhaseTwo = false;
         VanishedOnce = false;
 
@@ -108,9 +107,11 @@ struct TRINITY_DLL_DECL boss_arlokkAI : public ScriptedAI
 
             if (!PhaseTwo && Mark_Timer < diff)
             {
-                markedTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
-
-                DoCast(markedTarget,SPELL_MARK);
+                if(Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
+                {
+                    DoCast(target, SPELL_MARK);
+                    markedTargetGUID = target->GetGUID();
+                }
                 Mark_Timer = 15000;
             }else Mark_Timer -= diff;
 
@@ -119,7 +120,8 @@ struct TRINITY_DLL_DECL boss_arlokkAI : public ScriptedAI
                 Unit* target = NULL;
                 target = SelectUnit(SELECT_TARGET_RANDOM,0);
 
-                Panther = m_creature->SummonCreature(15101,-11532.79980,-1649.6734,41.4800,0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                Creature *Panther = m_creature->SummonCreature(15101,-11532.79980,-1649.6734,41.4800,0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                Player *markedTarget = Unit::GetPlayer(markedTargetGUID);
 
                 if(markedTarget && Panther )
                 {
