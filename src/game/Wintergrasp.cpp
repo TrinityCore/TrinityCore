@@ -56,8 +56,6 @@ typedef std::list<const AreaPOIEntry *> AreaPOIList;
 
 bool OPvPWintergrasp::SetupOutdoorPvP()
 {
-    RegisterZone(ZONE_WINTERGRASP);
-
     m_defender = TeamId(rand()%2);
     //m_defender = TEAM_ALLIANCE;
 
@@ -132,6 +130,7 @@ bool OPvPWintergrasp::SetupOutdoorPvP()
     m_wartime = false;
     m_timer = sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_START_TIME) * MINUTE * IN_MILISECONDS;
 
+    RegisterZone(ZONE_WINTERGRASP);
     return true;
 }
 
