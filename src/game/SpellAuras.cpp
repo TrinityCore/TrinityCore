@@ -4462,6 +4462,22 @@ void AuraEffect::HandleAuraProcTriggerSpell(bool apply, bool Real, bool /*change
 {
     if(!Real)
         return;
+    // Elemental oath - "while Clearcasting from Elemental Focus is active, you deal 5%/10% more spell damage."
+    if (m_target->GetTypeId()==TYPEID_PLAYER && (GetId() == 51466 || GetId() == 51470))
+    {
+        if (apply)
+        {
+            SpellModifier *mod = new SpellModifier;
+            mod->op = SPELLMOD_EFFECT2;
+            mod->value = (GetId() == 51466) ? 5 : 10;
+            mod->type = SPELLMOD_FLAT;
+            mod->spellId = GetId();
+            mod->mask[1] = 0x0004000;
+            m_spellmod = mod;
+        }
+        ((Player*)m_target)->AddSpellMod(m_spellmod, apply);
+    }
+
 }
 
 void AuraEffect::HandleAuraModStalked(bool apply, bool Real, bool /*changeAmount*/)
