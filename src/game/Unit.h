@@ -36,6 +36,8 @@
 #include "DBCStructure.h"
 #include <list>
 
+enum SpellFamilyNames;
+
 #define WORLD_TRIGGER   12999
 
 enum SpellInterruptFlags
@@ -1563,6 +1565,8 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         bool HasAura(Aura * aur) const;
         bool HasAuraType(AuraType auraType) const;
         bool HasAuraTypeWithMiscvalue(AuraType auratype, uint32 miscvalue) const;
+        AuraEffect* GetDummyAura(uint32 spell_id) const;
+        AuraEffect* GetDummyAura(SpellFamilyNames name, uint32 iconId) const;
         uint32 GetDiseasesByCaster(uint64 casterGUID) const;
         uint32 GetDoTsByCaster(uint64 casterGUID) const;
 
@@ -1581,7 +1585,6 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         int32 GetMaxPositiveAuraModifierByMiscValue(AuraType auratype, int32 misc_value) const;
         int32 GetMaxNegativeAuraModifierByMiscValue(AuraType auratype, int32 misc_value) const;
 
-        AuraEffect* GetDummyAura(uint32 spell_id) const;
         uint32 GetInterruptMask() const { return m_interruptMask; }
         void AddInterruptMask(uint32 mask) { m_interruptMask |= mask; }
         void UpdateInterruptMask();

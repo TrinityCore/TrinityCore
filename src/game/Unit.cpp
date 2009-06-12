@@ -13039,6 +13039,19 @@ AuraEffect* Unit::GetDummyAura( uint32 spell_id ) const
     return NULL;
 }
 
+AuraEffect* Unit::GetDummyAura(SpellFamilyNames name, uint32 iconId) const
+{
+    Unit::AuraEffectList const& mDummy = GetAurasByType(SPELL_AURA_DUMMY);
+    for(Unit::AuraEffectList::const_iterator itr = mDummy.begin(); itr != mDummy.end(); ++itr)
+    {
+        SpellEntry const * spell = (*itr)->GetSpellProto();
+        if (spell->SpellIconID == iconId && spell->SpellFamilyName == name
+            && !spell->SpellFamilyFlags)
+            return *itr;
+    }
+    return NULL;
+}
+
 bool Unit::IsUnderLastManaUseEffect() const
 {
     return  getMSTimeDiff(m_lastManaUse,getMSTime()) < 5000;
