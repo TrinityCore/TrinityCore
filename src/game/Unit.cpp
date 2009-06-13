@@ -7420,41 +7420,6 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                  break;
         }
     }
-    else
-    {
-        switch (auraSpellInfo->SpellFamilyName)
-        {
-            case SPELLFAMILY_WARRIOR:
-                // Sword and Board
-                if (trigger_spell_id == 50227)
-                    // remove cooldown of Shield Slam
-                    if (GetTypeId()==TYPEID_PLAYER)
-                        ((Player*)this)->RemoveCategoryCooldown(1209);
-                break;
-            case SPELLFAMILY_MAGE:
-                if (trigger_spell_id == 22959)
-                {
-                    // Glyph of Improved Scorch
-                    if (AuraEffect * aurEff = GetDummyAura(56371))
-                    {
-                        for (int32 count = aurEff->GetAmount();count>0;count--)
-                            CastSpell(pVictim, 22959, true);
-                        return true;
-                    }
-                }
-                break;
-            case SPELLFAMILY_DEATHKNIGHT:
-                // Glyph of Death Grip
-                if (trigger_spell_id == 58628)
-                {
-                    // remove cooldown of Death Grip
-                    if (GetTypeId()==TYPEID_PLAYER)
-                        ((Player*)this)->RemoveCategoryCooldown(82);
-                    return true;
-                }
-                break;
-        }
-    }
 
     // All ok. Check current trigger spell
     SpellEntry const* triggerEntry = sSpellStore.LookupEntry(trigger_spell_id);
@@ -7589,6 +7554,17 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
             // Need add combopoint AFTER finish movie (or they dropped in finish phase)
             break;
         }
+        case 22959:
+        {
+            // Glyph of Improved Scorch
+            if (AuraEffect * aurEff = GetDummyAura(56371))
+            {
+                for (int32 count = aurEff->GetAmount();count>0;count--)
+                    CastSpell(pVictim, 22959, true);
+                return true;
+            }
+            break;
+        }
         // Bloodthirst (($m/100)% of max health)
         case 23880:
         {
@@ -7606,6 +7582,30 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
         {
             if(!procSpell || procSpell->powerType!=POWER_MANA || procSpell->manaCost==0 && procSpell->ManaCostPercentage==0 && procSpell->manaCostPerlevel==0)
                 return false;
+            break;
+        }
+        // Demonic Pact
+        case 48090:
+        {
+            // Get talent aura from owner
+            if (GetTypeId() == TYPEID_UNIT && ((Creature*)this)->isPet())
+                if (Unit * owner = GetOwner())
+                {
+                    if (AuraEffect * aurEff = owner->GetDummyAura(SPELLFAMILY_WARLOCK, 3220))
+                    {
+                        basepoints0 = aurEff->GetAmount();
+                        CastCustomSpell(this,trigger_spell_id,&basepoints0,&basepoints0,NULL,true,castItem,triggeredByAura);
+                        return true;
+                    }
+                }
+            break;
+        }
+        // Sword and Board
+        case 50227:
+        {
+            // remove cooldown of Shield Slam
+            if (GetTypeId()==TYPEID_PLAYER)
+                ((Player*)this)->RemoveCategoryCooldown(1209);
             break;
         }
         // Brain Freeze
@@ -7660,6 +7660,14 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
             if (!(procFlags & PROC_FLAG_ON_TRAP_ACTIVATION))
                 return false;
             break;
+        }
+        // Glyph of Death Grip
+        case 58628:
+        {
+            // remove cooldown of Death Grip
+            if (GetTypeId()==TYPEID_PLAYER)
+                ((Player*)this)->RemoveCategoryCooldown(82);
+            return true;
         }
     }
 
