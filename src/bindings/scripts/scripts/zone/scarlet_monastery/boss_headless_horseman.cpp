@@ -33,7 +33,7 @@ EndScriptData */
 #define SAY_PLAYER_DEATH            -1189006
 #define SAY_DEATH                   -1189007
 
-uint32 RandomLaught[] = {11965, 11975, 11976};
+uint32 RandomLaugh[] = {11965, 11975, 11976};
 
     // Entryes
 #define HH_MOUNTED                  23682
@@ -123,7 +123,7 @@ struct Summon
 static Summon Text[]=
 {
     {"Horseman rise..."},
-    {"Your time is night..."},
+    {"Your time is nigh..."},
     {"You felt death once..."},
     {"Now, know demise!"}
 };
@@ -293,12 +293,12 @@ struct TRINITY_DLL_DECL mob_headAI : public ScriptedAI
             if (laugh < diff)
             {
                 laugh = 15000 + (rand()%16)*1000;
-                DoPlaySoundToSet(m_creature, RandomLaught[rand()%3]);
+                DoPlaySoundToSet(m_creature, RandomLaugh[rand()%3]);
                 //DoCast(m_creature,SPELL_HEAD_SPEAKS,true); //this spell remove buff "head"
                 Creature *speaker = DoSpawnCreature(HELPER,0,0,0,0,TEMPSUMMON_TIMED_DESPAWN,1000);
                 if(speaker)
                     speaker->CastSpell(speaker,SPELL_HEAD_SPEAKS,false);
-                DoTextEmote("laughts",NULL);
+                DoTextEmote("laughs",NULL);
             } else laugh -= diff;
 
         } else {
@@ -654,8 +654,8 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
 
             if (laugh < diff) {
                 laugh = 11000 + rand()%12 * 1000;
-                DoTextEmote("laughts",NULL);
-                DoPlaySoundToSet(m_creature, RandomLaught[rand()%3]);
+                DoTextEmote("laughs",NULL);
+                DoPlaySoundToSet(m_creature, RandomLaugh[rand()%3]);
             } else laugh -= diff;
 
             if (UpdateVictim())
