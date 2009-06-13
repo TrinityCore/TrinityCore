@@ -599,6 +599,9 @@ BossAI::BossAI(Creature *c, uint32 id) : ScriptedAI(c)
 
 void BossAI::_Reset()
 {
+    if(!me->isAlive())
+        return;
+
     events.Reset();
     summons.DespawnAll();
     if(instance)

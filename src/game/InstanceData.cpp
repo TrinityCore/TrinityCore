@@ -125,6 +125,7 @@ void InstanceData::UpdateDoorState(GameObject *door)
     }
 
     door->SetGoState(open ? GO_STATE_ACTIVE : GO_STATE_READY);
+    //sLog.outError("Door %u is %s.", door->GetEntry(), open ? "opened" : "closed");
 }
 
 void InstanceData::AddDoor(GameObject *door, bool add)
@@ -190,6 +191,7 @@ bool InstanceData::SetBossState(uint32 id, EncounterState state)
         if(bossInfo->state == TO_BE_DECIDED) // loading
         {
             bossInfo->state = state;
+            //sLog.outError("Inialize boss %u state as %u.", id, (uint32)state);
             return false;
         }
         else
