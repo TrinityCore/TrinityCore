@@ -3191,6 +3191,11 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool update_action_bar_
     for (uint32 i=reqMap.count(spell_id);i>0;i--,itr2++)
         removeSpell(itr2->second,disabled);
 
+    // re-search, it can be corrupted in prev loop
+    itr = m_spells.find(spell_id);
+    if (itr == m_spells.end())
+        return;                                             // already unleared
+
     bool cur_active    = itr->second->active;
     bool cur_dependent = itr->second->dependent;
 
