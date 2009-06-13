@@ -1739,7 +1739,7 @@ void AuraEffect::TriggerSpell()
                     case 23493:
                     {
                         int32 heal = caster->GetMaxHealth() / 10;
-                        caster->DealHeal(caster, heal, auraSpellInfo);
+                        caster->DealHeal(m_target, heal, auraSpellInfo);
 
                         int32 mana = caster->GetMaxPower(POWER_MANA);
                         if (mana)
