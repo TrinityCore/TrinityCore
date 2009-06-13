@@ -92,20 +92,20 @@ uint32 CreatureInfo::GetRandomValidModelId() const
     uint32 c = 0;
     uint32 modelIDs[4];
 
-    if (Modelid_A1) modelIDs[c++] = Modelid_A1;
-    if (Modelid_A2) modelIDs[c++] = Modelid_A2;
-    if (Modelid_H1) modelIDs[c++] = Modelid_H1;
-    if (Modelid_H2) modelIDs[c++] = Modelid_H2;
+    if (DisplayID_A) modelIDs[c++] = DisplayID_A;
+    if (DisplayID_A2) modelIDs[c++] = DisplayID_A2;
+    if (DisplayID_H) modelIDs[c++] = DisplayID_H;
+    if (DisplayID_H2) modelIDs[c++] = DisplayID_H2;
 
     return ((c>0) ? modelIDs[urand(0,c-1)] : 0);
 }
 
 uint32 CreatureInfo::GetFirstValidModelId() const
 {
-    if(Modelid_A1) return Modelid_A1;
-    if(Modelid_A2) return Modelid_A2;
-    if(Modelid_H1) return Modelid_H1;
-    if(Modelid_H2) return Modelid_H2;
+    if(DisplayID_A) return DisplayID_A;
+    if(DisplayID_A2) return DisplayID_A2;
+    if(DisplayID_H) return DisplayID_H;
+    if(DisplayID_H2) return DisplayID_H2;
     return 0;
 }
 
@@ -1272,8 +1272,8 @@ void Creature::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
     CreatureInfo const *cinfo = GetCreatureInfo();
     if(cinfo)
     {
-        if(displayId == cinfo->Modelid_A1 || displayId == cinfo->Modelid_A2 ||
-            displayId == cinfo->Modelid_H1 || displayId == cinfo->Modelid_H2) displayId = 0;
+        if(displayId == cinfo->DisplayID_A || displayId == cinfo->DisplayID_A2 ||
+            displayId == cinfo->DisplayID_H || displayId == cinfo->DisplayID_H2) displayId = 0;
     }
 
     // data->guid = guid don't must be update at save

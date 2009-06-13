@@ -386,8 +386,8 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
                     if (CreatureInfo const* ci = GetCreatureTemplateStore(action.morph.creatureId))
                     {
                         //use default display
-                        if (ci->Modelid_A1)
-                            m_creature->SetDisplayId(ci->Modelid_A1);
+                        if (ci->DisplayID_A)
+                            m_creature->SetDisplayId(ci->DisplayID_A);
                     }
                 }
                 //if no param1, then use value from param2 (modelId)
