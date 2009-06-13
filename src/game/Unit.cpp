@@ -1084,7 +1084,7 @@ void Unit::CastSpell(Unit* Victim,SpellEntry const *spellInfo, bool triggered, I
     SpellCastTargets targets;
     uint32 targetMask = spellInfo->Targets;
     //if(targetMask & (TARGET_FLAG_UNIT|TARGET_FLAG_UNK2))
-    for(int i = 0; i < 3; ++i)
+    for(int i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
         if(spellmgr.SpellTargetType[spellInfo->EffectImplicitTargetA[i]] == TARGET_TYPE_UNIT_TARGET)
         {
@@ -1156,7 +1156,7 @@ void Unit::CastCustomSpell(uint32 spellId, CustomSpellValues const &value, Unit*
     uint32 targetMask = spellInfo->Targets;
 
     //check unit target
-    for(int i = 0; i < 3; ++i)
+    for(int i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
         if(spellmgr.SpellTargetType[spellInfo->EffectImplicitTargetA[i]] == TARGET_TYPE_UNIT_TARGET)
         {
@@ -2795,7 +2795,7 @@ int32 Unit::GetMechanicResistChance(const SpellEntry *spell)
     if(!spell)
         return 0;
     int32 resist_mech = 0;
-    for(int eff = 0; eff < 3; ++eff)
+    for(int eff = 0; eff < MAX_SPELL_EFFECTS; ++eff)
     {
         if(spell->Effect[eff] == 0)
            break;
@@ -2840,7 +2840,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit *pVictim, SpellEntry const *spell)
     // Chance resist mechanic (select max value from every mechanic spell effect)
     int32 resist_mech = 0;
     // Get effects mechanic and chance
-    for(int eff = 0; eff < 3; ++eff)
+    for(int eff = 0; eff < MAX_SPELL_EFFECTS; ++eff)
     {
         int32 effect_mech = GetEffectMechanic(spell, eff);
         if (effect_mech)
@@ -3857,7 +3857,7 @@ bool Unit::AddAura(Aura *Aur, bool handleEffects)
         return false;
     }
 
-    SpellEntry const * aurSpellInfo = Aur->GetSpellProto();
+    SpellEntry const* aurSpellInfo = Aur->GetSpellProto();
     uint32 aurId = aurSpellInfo->Id;
 
     // passive and persistent and Incanter's Absorption auras can stack with themselves any number of times
@@ -4010,7 +4010,7 @@ bool Unit::RemoveNoStackAurasDueToAura(Aura *Aur)
 
         bool is_triggered_by_spell = false;
         // prevent triggered aura of removing aura that triggered it
-        for(int j = 0; j < 3; ++j)
+        for(int j = 0; j < MAX_SPELL_EFFECTS; ++j)
             if (i_spellProto->EffectTriggerSpell[j] == spellProto->Id)
                 is_triggered_by_spell = true;
 
@@ -4160,8 +4160,8 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, uint64 casterGUID, Unit 
         Aura * aur= iter->second;
         if (casterGUID == aur->GetCasterGUID())
         {
-            int32 damage[3];
-            for (uint8 i=0;i<3;++i)
+            int32 damage[MAX_SPELL_EFFECTS];
+            for (uint8 i=0;i<MAX_SPELL_EFFECTS;++i)
             {
                 if (aur->GetPartAura(i))
                     damage[i]=aur->GetPartAura(i)->GetAmount();
@@ -5519,16 +5519,15 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     if(GetTypeId() != TYPEID_PLAYER)
                         return false;
 
-                    SpellCooldowns SpellCDs = ((Player*)this)->GetSpellCooldowns();
+                    SpellCooldowns const SpellCDs = ((Player*)this)->GetSpellCooldowns();
                     // remove cooldowns on all ranks of Frost Nova
                     for(SpellCooldowns::const_iterator itr = SpellCDs.begin(); itr != SpellCDs.end(); itr++)
                     {
                         SpellEntry const* SpellCDs_entry = sSpellStore.LookupEntry(itr->first);
                         // Frost Nova
-                        if(SpellCDs_entry && SpellCDs_entry->SpellFamilyName == SPELLFAMILY_MAGE && SpellCDs_entry->SpellFamilyFlags[0] & 0x00000040)
-                        {
+                        if(SpellCDs_entry && SpellCDs_entry->SpellFamilyName == SPELLFAMILY_MAGE
+                           && SpellCDs_entry->SpellFamilyFlags[0] & 0x00000040)
                             ((Player*)this)->RemoveSpellCooldown(SpellCDs_entry->Id, true);
-                        }
                     }
                     break;
                 }
@@ -6038,7 +6037,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             {
                 // "refresh your Slice and Dice duration to its 5 combo point maximum"
                 // lookup Slice and Dice
-                if (AuraEffect * aur = GetAura(SPELL_AURA_MOD_HASTE, SPELLFAMILY_ROGUE,0x40000, 0, 0))
+                if (AuraEffect const* aur = GetAura(SPELL_AURA_MOD_HASTE, SPELLFAMILY_ROGUE,0x40000, 0, 0))
                 {
                     aur->GetParentAura()->SetAuraDuration(GetSpellMaxDuration(aur->GetSpellProto()), true);
                     return true;
@@ -6137,7 +6136,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     // do not proc when target of beacon of light is healed
                     if (caster == pVictim)
                         return false;
-                    if (Aura * aur = caster->GetAura(53563))
+                    if (Aura const* aur = caster->GetAura(53563))
                     {
                         if (Unit * paladin = aur->GetCaster())
                         {
@@ -6356,7 +6355,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 case 54939:
                 {
                     // Lookup base amount mana restore
-                    for (int i=0; i<3;i++)
+                    for (int i=0; i<MAX_SPELL_EFFECTS;i++)
                         if (procSpell->Effect[i] == SPELL_EFFECT_ENERGIZE)
                         {
                             int32 mana = procSpell->EffectBasePoints[i];
@@ -6819,7 +6818,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             {
                 if (procSpell->SpellFamilyName == SPELLFAMILY_POTION)
                 {
-                    for (uint8 i=0;i<3;i++)
+                    for (uint8 i=0;i<MAX_SPELL_EFFECTS;i++)
                     {
                         if (procSpell->Effect[i]==SPELL_EFFECT_HEAL)
                         {
@@ -8406,7 +8405,7 @@ void Unit::ModifyAuraState(AuraState flag, bool apply)
             SetFlag(UNIT_FIELD_AURASTATE, 1<<(flag-1));
             if(GetTypeId() == TYPEID_PLAYER)
             {
-                const PlayerSpellMap& sp_list = ((Player*)this)->GetSpellMap();
+                PlayerSpellMap const& sp_list = ((Player*)this)->GetSpellMap();
                 for (PlayerSpellMap::const_iterator itr = sp_list.begin(); itr != sp_list.end(); ++itr)
                 {
                     if(itr->second->state == PLAYERSPELL_REMOVED) continue;
@@ -9228,7 +9227,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
                 if(DotDuration > 30000) DotDuration = 30000;
                 if(!IsChanneledSpell(spellProto)) DotFactor = DotDuration / 15000.0f;
                 int x = 0;
-                for(int j = 0; j < 3; j++)
+                for(int j = 0; j < MAX_SPELL_EFFECTS; j++)
                 {
                     if( spellProto->Effect[j] == SPELL_EFFECT_APPLY_AURA && (
                         spellProto->EffectApplyAuraName[j] == SPELL_AURA_PERIODIC_DAMAGE ||
@@ -9252,7 +9251,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
         CastingTime = GetCastingTimeForBonus( spellProto, damagetype, CastingTime );
 
         // 50% for damage and healing spells for leech spells from damage bonus and 0% from healing
-        for(int j = 0; j < 3; ++j)
+        for(int j = 0; j < MAX_SPELL_EFFECTS; ++j)
         {
             if( spellProto->Effect[j] == SPELL_EFFECT_HEALTH_LEECH ||
                 spellProto->Effect[j] == SPELL_EFFECT_APPLY_AURA && spellProto->EffectApplyAuraName[j] == SPELL_AURA_PERIODIC_LEECH )
@@ -9428,7 +9427,7 @@ bool Unit::isSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
                         // Sacred Shield
                         if (spellProto->SpellFamilyFlags[0] & 0x40000000)
                         {
-                            AuraEffect *aura = pVictim->GetDummyAura(58597);
+                            AuraEffect const* aura = pVictim->GetDummyAura(58597);
                             if (aura && aura->GetCasterGUID() == GetGUID())
                                 crit_chance+=aura->GetAmount();
                             break;
@@ -9438,7 +9437,7 @@ bool Unit::isSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
                         // Lava Burst
                         if (spellProto->SpellFamilyFlags[1] & 0x00001000)
                         {
-                            if (AuraEffect *flameShock = pVictim->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_SHAMAN, 0x10000000, 0,0, GetGUID()))
+                            if (AuraEffect const* flameShock = pVictim->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_SHAMAN, 0x10000000, 0,0, GetGUID()))
                             {
                                 // Consume shock aura if not have Glyph of Flame Shock
                                 if (!GetAuraEffect(55447, 0))
@@ -9625,7 +9624,7 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
 
     bool scripted = false;
 
-    for (uint8 i=0;i<3;++i)
+    for (uint8 i=0;i<MAX_SPELL_EFFECTS;++i)
     {
         switch (spellProto->EffectApplyAuraName[i])
         {
@@ -9696,7 +9695,7 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
                     if(DotDuration > 30000) DotDuration = 30000;
                     if(!IsChanneledSpell(spellProto)) DotFactor = DotDuration / 15000.0f;
                     int x = 0;
-                    for(int j = 0; j < 3; j++)
+                    for(int j = 0; j < MAX_SPELL_EFFECTS; j++)
                     {
                         if( spellProto->Effect[j] == SPELL_EFFECT_APPLY_AURA && (
                             spellProto->EffectApplyAuraName[j] == SPELL_AURA_PERIODIC_DAMAGE ||
@@ -9719,7 +9718,7 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
             // Distribute Damage over multiple effects, reduce by AoE
             CastingTime = GetCastingTimeForBonus( spellProto, damagetype, CastingTime );
             // 50% for damage and healing spells for leech spells from damage bonus and 0% from healing
-            for(int j = 0; j < 3; ++j)
+            for(int j = 0; j < MAX_SPELL_EFFECTS; ++j)
             {
                 if( spellProto->Effect[j] == SPELL_EFFECT_HEALTH_LEECH ||
                     spellProto->Effect[j] == SPELL_EFFECT_APPLY_AURA && spellProto->EffectApplyAuraName[j] == SPELL_AURA_PERIODIC_LEECH )
@@ -9759,14 +9758,14 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
     }
 
     // Taken mods
-    // Healing Wave cast
+
+    // Healing Wave
     if (spellProto->SpellFamilyName == SPELLFAMILY_SHAMAN && spellProto->SpellFamilyFlags[0] & 0x40)
     {
         // Search for Healing Way on Victim
-        Unit::AuraEffectList const& auraDummy = pVictim->GetAurasByType(SPELL_AURA_DUMMY);
-        for(Unit::AuraEffectList::const_iterator itr = auraDummy.begin(); itr!=auraDummy.end(); ++itr)
-            if((*itr)->GetId() == 29203)
-                TakenTotalMod *= ((*itr)->GetAmount()+100.0f) / 100.0f;
+        AuraEffect const* HealingWay = pVictim->GetAuraEffect(29203, 0);
+        if(HealingWay)
+            TakenTotalMod *= (HealingWay->GetAmount() + 100.0f) / 100.0f;
     }
 
     // Healing taken percent
@@ -10033,7 +10032,7 @@ void Unit::MeleeDamageBonus(Unit *pVictim, uint32 *pdamage,WeaponAttackType attT
         bool normalized = false;
         if(spellProto)
         {
-            for (uint8 i = 0; i<3;i++)
+            for (uint8 i = 0; i<MAX_SPELL_EFFECTS;i++)
             {
                 if (spellProto->Effect[i] == SPELL_EFFECT_NORMALIZED_WEAPON_DMG)
                 {
@@ -10633,7 +10632,7 @@ void Unit::DestroyForNearbyPlayers()
     Trinity::AnyUnitInObjectRangeCheck check(this, World::GetMaxVisibleDistance());
     Trinity::UnitListSearcher<Trinity::AnyUnitInObjectRangeCheck> searcher(this, targets, check);
     VisitNearbyWorldObject(World::GetMaxVisibleDistance(), searcher);
-    for(std::list<Unit*>::iterator iter = targets.begin(); iter != targets.end(); ++iter)
+    for(std::list<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
         if(*iter != this && (*iter)->GetTypeId() == TYPEID_PLAYER
             && ((Player*)(*iter))->HaveAtClient(this)
             && GetCharmerGUID() != (*iter)->GetGUID()) // TODO: this is for puppet
@@ -11985,7 +11984,7 @@ void Unit::DeleteCharmInfo()
 CharmInfo::CharmInfo(Unit* unit)
 : m_unit(unit), m_CommandState(COMMAND_FOLLOW), m_petnumber(0), m_barInit(false)
 {
-    for(int i =0; i<4; ++i)
+    for(int i =0; i<MAX_SPELL_CHARM; ++i)
     {
         m_charmspells[i].spellId = 0;
         m_charmspells[i].active = ACT_DISABLED;
@@ -12086,7 +12085,7 @@ void CharmInfo::InitCharmCreateSpells()
                 else
                 {
                     bool autocast = false;
-                    for(uint32 i = 0; i < 3 && !autocast; ++i)
+                    for(uint32 i = 0; i < MAX_SPELL_EFFECTS && !autocast; ++i)
                         if(spellmgr.SpellTargetType[spellInfo->EffectImplicitTargetA[i]] == TARGET_TYPE_UNIT_TARGET)
                             autocast = true;
 
@@ -12437,7 +12436,7 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
         SetCantProc(true);
 
     // Handle effects proceed this time
-    for(ProcTriggeredList::iterator i = procTriggered.begin(); i != procTriggered.end(); ++i)
+    for(ProcTriggeredList::const_iterator i = procTriggered.begin(); i != procTriggered.end(); ++i)
     {
         // look for aura in auras list, it may be removed while proc event processing
         if (!HasAura(i->aura))
@@ -13011,7 +13010,7 @@ uint32 Unit::GetCastingTimeForBonus( SpellEntry const *spellProto, DamageEffectT
     bool DirectDamage = false;
     bool AreaEffect   = false;
 
-    for ( uint32 i=0; i<3;i++)
+    for ( uint32 i=0; i<MAX_SPELL_EFFECTS;i++)
     {
         switch ( spellProto->Effect[i] )
         {
@@ -14205,7 +14204,7 @@ void Unit::AddAura(uint32 spellId, Unit* target)
 
     uint8 eff_mask=0;
 
-    for(uint32 i = 0; i < 3; ++i)
+    for(uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
         if(spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AURA || IsAreaAuraEffect(spellInfo->Effect[i]))
         {
@@ -14254,7 +14253,7 @@ Aura * Unit::AddAuraEffect(const SpellEntry * spellInfo, uint8 effIndex, Unit* c
     {
         if (basePoints)
         {
-            int32 amount[3];
+            int32 amount[MAX_SPELL_EFFECTS];
             amount[effIndex] = *basePoints;
             aur = new Aura(spellInfo, 1<<effIndex, amount, this, source, caster, NULL);
         }
