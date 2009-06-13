@@ -4312,8 +4312,16 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
         case SPELLFAMILY_DEATHKNIGHT:
         {
             // Obliterate (12.5% more damage per disease)
+            bool consumeDiseases = true;
+            // Annihilation
+            if (AuraEffect * aurEff = m_caster->GetDummyAura(SPELLFAMILY_DEATHKNIGHT, 2710))
+            {
+                // Do not consume diseases if roll sucesses
+                if (roll_chance_i(aurEff->GetAmount()))
+                    consumeDiseases = false;
+            }
             if (m_spellInfo->SpellFamilyFlags[1] & 0x20000)
-                totalDamagePercentMod *= (float(CalculateDamage(2, unitTarget) * unitTarget->GetDiseasesByCaster(m_caster->GetGUID(), true) / 2) + 100.0f) / 100.f;
+                totalDamagePercentMod *= (float(CalculateDamage(2, unitTarget) * unitTarget->GetDiseasesByCaster(m_caster->GetGUID(), consumeDiseases) / 2) + 100.0f) / 100.f;
             break;
         }
     }

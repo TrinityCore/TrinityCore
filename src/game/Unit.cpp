@@ -9067,7 +9067,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
                 }
                 else // Tundra Stalker
                 {
-                    if (pVictim->GetAura(SPELL_AURA_DUMMY, SPELLFAMILY_DEATHKNIGHT,0, 0x04000000,0))
+                    if (pVictim->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_DEATHKNIGHT,0, 0x4000000,0))
                         DoneTotalMod *= ((*i)->GetAmount()+100.0f)/100.0f;
                     break;
                 }
@@ -9100,56 +9100,77 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
         }
     }
 
-    // Custom scripted damage
-    // Judgement of Vengeance/ Judgement of Corruption
-    if((spellProto->SpellFamilyFlags[1] & 0x400000) && spellProto->SpellIconID==2292)
+     // Custom scripted damage
+    switch(spellProto->SpellFamilyName)
     {
-        // Get stack of Holy Vengeance/Blood Corruption on the target added by caster
-        uint32 stacks = 0;
-        Unit::AuraEffectList const& auras = pVictim->GetAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
-        for(Unit::AuraEffectList::const_iterator itr = auras.begin(); itr!=auras.end(); ++itr)
-            if(((*itr)->GetId() == 31803 || (*itr)->GetId() == 53742) && (*itr)->GetCasterGUID()==GetGUID())
+        case SPELLFAMILY_MAGE:
+            // Ice Lance
+            if (spellProto->SpellIconID == 186)
             {
-                stacks = (*itr)->GetParentAura()->GetStackAmount();
-                break;
+                if (pVictim->HasAuraState(AURA_STATE_FROZEN, spellProto, this))
+                    DoneTotalMod *= 3.0f;
             }
-        // + 10% for each application of Holy Vengeance/Blood Corruption on the target
-        if(stacks)
-            DoneTotalMod *= (1.0f + (float)stacks / 10.0f) ;
-    }
 
-    // Ice Lance
-    if (spellProto->SpellFamilyName == SPELLFAMILY_MAGE && spellProto->SpellIconID == 186)
-    {
-        if (pVictim->HasAuraState(AURA_STATE_FROZEN, spellProto, this))
-            DoneTotalMod *= 3.0f;
-    }
-
-    // Glyph of Shadow Word: Pain
-    if (spellProto->SpellFamilyName == SPELLFAMILY_PRIEST && spellProto->SpellFamilyFlags[0] & 0x800000)
-    {
-        // Increase Mind Flay damage
-        if (AuraEffect * aurEff = GetDummyAura(55687))
-            // if Shadow Word: Pain present
-            if (pVictim->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PRIEST, 0x8000, 0,0, GetGUID()))
-                DoneTotalMod *= (aurEff->GetAmount() + 100.0f) / 100.f;
-    }
-
-    // Torment the weak
-    if (spellProto->SpellFamilyName== SPELLFAMILY_MAGE && (spellProto->SpellFamilyFlags[0]&0x20200021 || spellProto->SpellFamilyFlags[1]& 0x9000))
-    {
-        if(pVictim->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED))
-        {
-            AuraEffectList const& mDumyAuras = GetAurasByType(SPELL_AURA_DUMMY);
-            for(AuraEffectList::const_iterator i = mDumyAuras.begin(); i != mDumyAuras.end(); ++i)
+            // Torment the weak
+            if (spellProto->SpellFamilyFlags[0]&0x20200021 || spellProto->SpellFamilyFlags[1]& 0x9000)
             {
-                if ((*i)->GetSpellProto()->SpellIconID == 3263)
+                if(pVictim->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED))
                 {
-                    DoneTotalMod *=float((*i)->GetAmount() + 100.f) / 100.f;
-                    break;
+                    AuraEffectList const& mDumyAuras = GetAurasByType(SPELL_AURA_DUMMY);
+                    for(AuraEffectList::const_iterator i = mDumyAuras.begin(); i != mDumyAuras.end(); ++i)
+                        if ((*i)->GetSpellProto()->SpellIconID == 3263)
+                        {
+                            DoneTotalMod *=float((*i)->GetAmount() + 100.f) / 100.f;
+                            break;
+                        }
                 }
             }
-        }
+        break;
+
+        // Glyph of Shadow Word: Pain
+        case SPELLFAMILY_PRIEST:
+            if (spellProto->SpellFamilyFlags[0] & 0x800000)
+            {
+                // Increase Mind Flay damage
+                if (AuraEffect * aurEff = GetDummyAura(55687))
+                    // if Shadow Word: Pain present
+                    if (pVictim->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PRIEST, 0x8000, 0,0, GetGUID()))
+                        DoneTotalMod *= (aurEff->GetAmount() + 100.0f) / 100.f;
+            }
+        break;
+
+        case SPELLFAMILY_PALADIN:
+            // Judgement of Vengeance/ Judgement of Corruption
+            if((spellProto->SpellFamilyFlags[1] & 0x400000) && spellProto->SpellIconID==2292)
+            {
+                // Get stack of Holy Vengeance/Blood Corruption on the target added by caster
+                uint32 stacks = 0;
+                Unit::AuraEffectList const& auras = pVictim->GetAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
+                for(Unit::AuraEffectList::const_iterator itr = auras.begin(); itr!=auras.end(); ++itr)
+                    if(((*itr)->GetId() == 31803 || (*itr)->GetId() == 53742) && (*itr)->GetCasterGUID()==GetGUID())
+                    {
+                        stacks = (*itr)->GetParentAura()->GetStackAmount();
+                        break;
+                    }
+                // + 10% for each application of Holy Vengeance/Blood Corruption on the target
+                if(stacks)
+                    DoneTotalMod *= (10.0f + (float)stacks) / 10.0f;
+            }
+        break;
+        case SPELLFAMILY_DEATHKNIGHT:
+            // Improved Icy Touch
+            if (spellProto->SpellFamilyFlags[0] & 0x2)
+            {
+                if (AuraEffect * aurEff = GetDummyAura(SPELLFAMILY_DEATHKNIGHT, 2721))
+                    DoneTotalMod *= (100.0f + aurEff->GetAmount()) / 100.0f ;
+            }
+            // Glacier Rot
+            if (spellProto->SpellFamilyFlags[0] & 0x2 || spellProto->SpellFamilyFlags[1] & 0x6)
+            {
+                if (AuraEffect * aurEff = GetDummyAura(SPELLFAMILY_DEATHKNIGHT, 196))
+                    DoneTotalMod *= (100.0f + aurEff->GetAmount()) / 100.0f;
+            }
+        break;
     }
 
     // ..taken
