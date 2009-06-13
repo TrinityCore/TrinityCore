@@ -625,6 +625,7 @@ enum MoveFlags
     MOVEFLAG_WALK               = 0x00001000,
     MOVEFLAG_FLY                = 0x00002000,
     MOVEFLAG_GLIDE              = 0x00003000, // dragon
+    MOVEFLAG_ENTER_TRANSPORT    = 0x00800000,
 };
 
 enum MovementFlags
@@ -647,10 +648,10 @@ enum MovementFlags
     MOVEMENTFLAG_FALLING        = 0x00004000,
     // 0x8000, 0x10000, 0x20000, 0x40000, 0x80000, 0x100000
     MOVEMENTFLAG_SWIMMING       = 0x00200000,               // appears with fly flag also
-    MOVEMENTFLAG_FLY_UP         = 0x00400000,
+    MOVEMENTFLAG_FLY_UP         = 0x00400000,               // press "space" when flying
     MOVEMENTFLAG_CAN_FLY        = 0x00800000,
-    MOVEMENTFLAG_FLYING         = 0x01000000,
-    MOVEMENTFLAG_FLYING2        = 0x02000000,               // Actual flying mode
+    MOVEMENTFLAG_FLYING         = 0x01000000,               // fly land
+    MOVEMENTFLAG_FLYING2        = 0x02000000,               // fly hover
     MOVEMENTFLAG_SPLINE         = 0x04000000,               // used for flight paths
     MOVEMENTFLAG_SPLINE2        = 0x08000000,               // used for flight paths
     MOVEMENTFLAG_WATERWALKING   = 0x10000000,               // prevent unit from falling through water
@@ -1311,9 +1312,13 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint32 MoveFlags, uint32 time, float speedZ, Player *player = NULL);
         //void SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint8 type, uint32 MovementFlags, uint32 Time, Player* player = NULL);
         void SendMonsterMoveByPath(Path const& path, uint32 start, uint32 end);
+        void SendMonsterMoveTransport(Vehicle *vehicle, bool apply);
         void SendMonsterMoveWithSpeed(float x, float y, float z, uint32 transitTime = 0, Player* player = NULL);
         void SendMonsterMoveWithSpeedToCurrentDestination(Player* player = NULL);
         void SendMovementFlagUpdate();
+
+        void BuildHeartBeatMsg(WorldPacket *data) const;
+        void OutMovementInfo() const;
 
         bool isAlive() const { return (m_deathState == ALIVE); };
         bool isDead() const { return ( m_deathState == DEAD || m_deathState == CORPSE ); };

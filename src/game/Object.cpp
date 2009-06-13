@@ -119,7 +119,20 @@ void Object::_Create( uint32 guidlow, uint32 entry, HighGuid guidhigh )
 
     uint64 guid = MAKE_NEW_GUID(guidlow, entry, guidhigh);
     SetUInt64Value( OBJECT_FIELD_GUID, guid );
-    SetUInt32Value( OBJECT_FIELD_TYPE, m_objectType );
+    uint32 type = 0;
+    switch(m_objectType)
+    {
+        //case TYPEID_ITEM:       type = 3; break;
+        //case TYPEID_CONTAINER:  type = 7; break;   //+4
+        //case TYPEID_UNIT:       type = 9; break;   //+2
+        //case TYPEID_PLAYER:     type = 25; break;  //+16
+        //case TYPEID_GAMEOBJECT: type = 33; break;  //+8
+        case TYPEID_DYNAMICOBJECT: type = 65; break;  //+32
+        //case TYPEID_CORPSE:     type = 129; break;  //+64
+        default: type = m_objectType; break;
+    }
+    SetUInt32Value( OBJECT_FIELD_TYPE, type );
+    //SetUInt32Value( OBJECT_FIELD_TYPE, m_objectType );
     m_PackGUID.wpos(0);
     m_PackGUID.appendPackGUID(GetGUID());
 }
@@ -258,42 +271,6 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags) const
     // 0x20
     if (flags & UPDATEFLAG_LIVING)
     {
-        uint32 flags2 = ((Unit*)this)->GetUnitMovementFlags();
-        switch(GetTypeId())
-        {
-            case TYPEID_UNIT:
-            {
-                if(((Creature*)this)->isVehicle())
-                    ((Unit*)this)->m_movementInfo.unk1 |= 0x20;     // always allow pitch
-                if(((Unit*)this)->isInFlight())
-                    flags2 |= (MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_LEVITATING);
-            }
-            break;
-            case TYPEID_PLAYER:
-            {
-                // remove unknown, unused etc flags for now
-                flags2 &= ~MOVEMENTFLAG_SPLINE2;            // will be set manually
-
-                if(((Player*)this)->isInFlight())
-                {
-                    WPAssert(((Player*)this)->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE);
-                    flags2 = (MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_SPLINE2);
-                }
-            }
-            break;
-        }
-
-        *data << uint32(flags2);                            // movement flags
-        *data << uint16(((Unit*)this)->m_movementInfo.unk1);// unknown 2.3.0
-        *data << uint32(getMSTime());                       // time (in milliseconds)
-
-        // position
-        *data << ((WorldObject*)this)->GetPositionX();
-        *data << ((WorldObject*)this)->GetPositionY();
-        *data << ((WorldObject*)this)->GetPositionZ();
-        *data << ((WorldObject*)this)->GetOrientation();
-
-        // 0x00000200
         ((Unit*)this)->BuildMovementPacket(data);
 
         *data << ((Unit*)this)->GetSpeed( MOVE_WALK );
@@ -444,29 +421,8 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags) const
     // 0x10
     if(flags & UPDATEFLAG_HIGHGUID)
     {
-        switch(GetTypeId())
-        {
-            case TYPEID_OBJECT:
-            case TYPEID_ITEM:
-            case TYPEID_CONTAINER:
-            case TYPEID_GAMEOBJECT:
-            case TYPEID_DYNAMICOBJECT:
-            case TYPEID_CORPSE:
-                *data << uint32(GetGUIDHigh());             // GetGUIDHigh()
-                break;
-            case TYPEID_UNIT:
-                *data << uint32(0x0000000B);                // unk, can be 0xB or 0xC
-                break;
-            case TYPEID_PLAYER:
-                if(flags & UPDATEFLAG_SELF)
-                    *data << uint32(0x0000002F);            // unk, can be 0x15 or 0x22
-                else
-                    *data << uint32(0x00000008);            // unk, can be 0x7 or 0x8
-                break;
-            default:
-                *data << uint32(0x00000000);                // unk
-                break;
-        }
+        // not high guid
+        *data << uint32(0x00000000);                // unk
     }
 
     // 0x4
@@ -1681,43 +1637,11 @@ void WorldObject::BuildMonsterChat(WorldPacket *data, uint8 msgtype, char const*
     *data << (uint8)0;                                      // ChatTag
 }
 
-void WorldObject::BuildHeartBeatMsg(WorldPacket *data) const
+void Unit::BuildHeartBeatMsg(WorldPacket *data) const
 {
-    //Heartbeat message cannot be used for non-units
-    if (!isType(TYPEMASK_UNIT))
-        return;
-
     data->Initialize(MSG_MOVE_HEARTBEAT, 32);
     data->append(GetPackGUID());
-    *data << uint32(((Unit*)this)->GetUnitMovementFlags()); // movement flags
-    *data << uint16(((Unit*)this)->m_movementInfo.unk1);    // 2.3.0
-    *data << uint32(getMSTime());                           // time
-    *data << m_positionX;
-    *data << m_positionY;
-    *data << m_positionZ;
-    *data << m_orientation;
-
-    ((Unit*)this)->BuildMovementPacket(data);
-}
-
-void WorldObject::BuildTeleportAckMsg(WorldPacket *data, float x, float y, float z, float ang) const
-{
-    //TeleportAck message cannot be used for non-units
-    if (!isType(TYPEMASK_UNIT))
-        return;
-
-    data->Initialize(MSG_MOVE_TELEPORT_ACK, 41);
-    data->append(GetPackGUID());
-    *data << uint32(0);                                     // this value increments every time
-    *data << uint32(((Unit*)this)->GetUnitMovementFlags()); // movement flags
-    *data << uint16(((Unit*)this)->m_movementInfo.unk1);    // 2.3.0
-    *data << uint32(getMSTime());                           // time
-    *data << x;
-    *data << y;
-    *data << z;
-    *data << ang;
-
-    ((Unit*)this)->BuildMovementPacket(data);
+    BuildMovementPacket(data);
 }
 
 void WorldObject::SendMessageToSet(WorldPacket *data, bool /*fake*/)

@@ -1602,6 +1602,15 @@ uint8 Player::chatTag() const
         return 0;
 }
 
+void Player::SendTeleportAckMsg()
+{
+    WorldPacket data(MSG_MOVE_TELEPORT_ACK, 41);
+    data.append(GetPackGUID());
+    data << uint32(0);                                     // this value increments every time
+    BuildMovementPacket(&data);
+    GetSession()->SendPacket(&data);
+}
+
 bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options)
 {
     if(!MapManager::IsValidMapCoord(mapid, x, y, z, orientation))
@@ -1695,9 +1704,11 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         // near teleport, triggering send MSG_MOVE_TELEPORT_ACK from client at landing
         if(!GetSession()->PlayerLogout())
         {
-            WorldPacket data;
-            BuildTeleportAckMsg(&data, x, y, z, orientation);
-            GetSession()->SendPacket(&data);
+            WorldLocation oldLoc;
+            GetPosition(oldLoc);
+            Relocate(x, y, z, orientation);
+            SendTeleportAckMsg();
+            Relocate(oldLoc);
         }
     }
     else

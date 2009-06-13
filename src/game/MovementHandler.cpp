@@ -346,6 +346,9 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
             return;
         mover->GetMap()->CreatureRelocation((Creature*)mover, movementInfo.x, movementInfo.y, movementInfo.z, movementInfo.o);
     }
+
+    //sLog.outString("Receive Movement Packet %s:", opcodeTable[recv_data.GetOpcode()]);
+    //mover->OutMovementInfo();
 }
 
 void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recv_data)

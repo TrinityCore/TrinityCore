@@ -2823,7 +2823,6 @@ void Spell::EffectPersistentAA(uint32 i)
         delete dynObj;
         return;
     }
-    dynObj->SetUInt32Value(OBJECT_FIELD_TYPE, 65);
     dynObj->SetUInt32Value(DYNAMICOBJECT_BYTES, 0x01eeeeee);
     caster->AddDynObject(dynObj);
     dynObj->GetMap()->Add(dynObj);
@@ -3569,10 +3568,8 @@ void Spell::EffectDistract(uint32 /*i*/)
     if ( unitTarget->GetTypeId() == TYPEID_PLAYER )
     {
         // For players just turn them
-        WorldPacket data;
-        ((Player*)unitTarget)->BuildTeleportAckMsg(&data, unitTarget->GetPositionX(), unitTarget->GetPositionY(), unitTarget->GetPositionZ(), angle);
-        ((Player*)unitTarget)->GetSession()->SendPacket( &data );
         ((Player*)unitTarget)->SetPosition(unitTarget->GetPositionX(), unitTarget->GetPositionY(), unitTarget->GetPositionZ(), angle, false);
+        ((Player*)unitTarget)->SendTeleportAckMsg();
     }
     else
     {
@@ -3625,7 +3622,6 @@ void Spell::EffectAddFarsight(uint32 i)
         delete dynObj;
         return;
     }
-    dynObj->SetUInt32Value(OBJECT_FIELD_TYPE, 65);
     dynObj->SetUInt32Value(DYNAMICOBJECT_BYTES, 0x80000002);
     m_caster->AddDynObject(dynObj);
 

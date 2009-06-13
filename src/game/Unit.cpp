@@ -417,6 +417,27 @@ void Unit::SendMonsterMoveByPath(Path const& path, uint32 start, uint32 end)
     addUnitState(UNIT_STAT_MOVE);
 }
 
+void Unit::SendMonsterMoveTransport(Vehicle *vehicle, bool apply)
+{
+    WorldPacket data(SMSG_MONSTER_MOVE_TRANSPORT, GetPackGUID().size()+vehicle->GetPackGUID().size());
+    data.append(GetPackGUID());
+    data.append(vehicle->GetPackGUID());
+    data << int8(GetTransSeat());
+    data << uint8(0);
+    data << GetPositionX() - vehicle->GetPositionX();
+    data << GetPositionY() - vehicle->GetPositionY();
+    data << GetPositionZ() - vehicle->GetPositionZ();
+    data << uint32(getMSTime());
+    data << uint8(4);
+    data << GetTransOffsetO();
+    data << uint32(MOVEFLAG_ENTER_TRANSPORT);
+    data << uint32(0); // move time
+    data << GetTransOffsetX();
+    data << GetTransOffsetY();
+    data << GetTransOffsetZ();
+    SendMessageToSet(&data, true);
+}
+
 void Unit::resetAttackTimer(WeaponAttackType type)
 {
     m_attackTimer[type] = uint32(GetAttackTime(type) * m_modAttackSpeedPct[type]);
@@ -14371,9 +14392,12 @@ void Unit::ExitVehicle()
     m_Vehicle->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);
     //setFaction((GetTeam() == ALLIANCE) ? GetCreatureInfo()->faction_A : GetCreatureInfo()->faction_H);
 
-    clearUnitState(UNIT_STAT_ONVEHICLE);
-    RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
+    // This should be done before dismiss, because there may be some aura removal
+    Vehicle *vehicle = m_Vehicle;
+    m_Vehicle = NULL;
 
+    clearUnitState(UNIT_STAT_ONVEHICLE);
+    RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT + MOVEMENTFLAG_FLY_UNK1);
     m_movementInfo.t_x = 0;
     m_movementInfo.t_y = 0;
     m_movementInfo.t_z = 0;
@@ -14382,20 +14406,16 @@ void Unit::ExitVehicle()
     m_movementInfo.t_seat = 0;
 
     //Send leave vehicle
-    WorldPacket data;
     if(GetTypeId() == TYPEID_PLAYER)
     {
         ((Player*)this)->SetClientControl(this, 1);
-        ((Player*)this)->BuildTeleportAckMsg(&data, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
-        ((Player*)this)->GetSession()->SendPacket(&data);
+        ((Player*)this)->SendTeleportAckMsg();
     }
-
+    WorldPacket data;
     BuildHeartBeatMsg(&data);
     SendMessageToSet(&data, false);
 
-    // This should be done before dismiss, because there may be some aura removal
-    Vehicle *vehicle = m_Vehicle;
-    m_Vehicle = NULL;
+    //SendMonsterMoveTransport(m_Vehicle, false);
 
     if(vehicle->GetOwnerGUID() == GetGUID())
         vehicle->Dismiss();
@@ -14403,15 +14423,43 @@ void Unit::ExitVehicle()
 
 void Unit::BuildMovementPacket(ByteBuffer *data) const
 {
+    switch(GetTypeId())
+    {
+        case TYPEID_UNIT:
+            if(isInFlight())
+                const_cast<Unit*>(this)->AddUnitMovementFlag(MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_LEVITATING);
+            break;
+        case TYPEID_PLAYER:
+            // remove unknown, unused etc flags for now
+            const_cast<Unit*>(this)->RemoveUnitMovementFlag(MOVEMENTFLAG_SPLINE2);
+            if(isInFlight())
+            {
+                WPAssert(const_cast<Unit*>(this)->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE);
+                const_cast<Unit*>(this)->AddUnitMovementFlag(MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_SPLINE2);
+            }
+            break;
+    }
+
+    *data << uint32(GetUnitMovementFlags()); // movement flags
+    *data << uint16(m_movementInfo.unk1);    // 2.3.0
+    *data << uint32(getMSTime());                           // time
+    *data << GetPositionX();
+    *data << GetPositionY();
+    *data << GetPositionZ();
+    *data << GetOrientation();
+
     // 0x00000200
     if(GetUnitMovementFlags() & MOVEMENTFLAG_ONTRANSPORT)
     {
         if(m_Vehicle)
-            *data << (uint64)m_Vehicle->GetGUID();
+            data->append(m_Vehicle->GetPackGUID());
         else if(GetTransport())
-            *data << (uint64)GetTransport()->GetGUID();
+            data->append(GetTransport()->GetPackGUID());
         else
-            *data << (uint64)0; //This will cause client crash
+        {
+            sLog.outError("Unit %u does not have transport!", GetEntry());
+            *data << (uint8)0;
+        }
         *data << float (GetTransOffsetX());
         *data << float (GetTransOffsetY());
         *data << float (GetTransOffsetZ());
@@ -14439,6 +14487,19 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
     // 0x04000000
     if(GetUnitMovementFlags() & MOVEMENTFLAG_SPLINE)
         *data << (float)m_movementInfo.u_unk1;
+}
+
+void Unit::OutMovementInfo() const
+{
+    sLog.outString("MovementInfo: Flag %u, Unk1 %u, Time %u, Pos %f %f %f %f, Fall %u", m_movementInfo.flags, (uint32)m_movementInfo.unk1, m_movementInfo.time, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation(), m_movementInfo.fallTime);
+    if(m_movementInfo.flags & MOVEMENTFLAG_ONTRANSPORT)
+        sLog.outString("Transport: GUID " UI64FMTD ", Pos %f %f %f %f, Time %u, Seat %d", m_movementInfo.t_guid, m_movementInfo.t_x, m_movementInfo.t_y, m_movementInfo.t_z, m_movementInfo.t_o, m_movementInfo.t_time, (int32)m_movementInfo.t_seat);
+    if((m_movementInfo.flags & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING2)) || (m_movementInfo.unk1 & 0x20))
+        sLog.outString("Pitch: %f", m_movementInfo.s_pitch);
+    if(m_movementInfo.flags & MOVEMENTFLAG_JUMPING)
+        sLog.outString("Jump: speedz %f, sin %f, cos %f, speedxy %f", m_movementInfo.j_zspeed, m_movementInfo.j_sinAngle, m_movementInfo.j_cosAngle, m_movementInfo.j_xyspeed);
+    if(m_movementInfo.flags & MOVEMENTFLAG_SPLINE)
+        sLog.outString("Spline: %f", m_movementInfo.u_unk1);
 }
 
 void Unit::NearTeleportTo( float x, float y, float z, float orientation, bool casting /*= false*/ )
