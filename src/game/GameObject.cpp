@@ -1393,7 +1393,9 @@ void GameObject::CastSpell(Unit* target, uint32 spellId)
     else
     {
         trigger->setFaction(14);
-        trigger->CastSpell(target, spellInfo, true);
+        // Set owner guid for target if no owner avalible - needed by trigger auras 
+        // - trigger gets despawned and there's no caster avalible (see AuraEffect::TriggerSpell())
+        trigger->CastSpell(target, spellInfo, true, 0, 0, target->GetGUID());
     }
     //trigger->setDeathState(JUST_DIED);
     //trigger->RemoveCorpse();
