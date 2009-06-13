@@ -4428,7 +4428,7 @@ AuraEffect* Unit::GetAura(AuraType type, uint32 family, uint32 familyFlag1, uint
     return NULL;
 }
 
-uint32 Unit::GetDiseasesByCaster(uint64 casterGUID) const
+uint32 Unit::GetDiseasesByCaster(uint64 casterGUID, bool remove)
 {
     static const AuraType diseaseAuraTypes[] =
     {
@@ -4440,13 +4440,22 @@ uint32 Unit::GetDiseasesByCaster(uint64 casterGUID) const
     uint32 diseases=0;
     for(AuraType const* itr = &diseaseAuraTypes[0]; itr && itr[0] != SPELL_AURA_NONE; ++itr)
     {
-        Unit::AuraEffectList const& auras = GetAurasByType(*itr);
-        for(AuraEffectList::const_iterator i = auras.begin();i != auras.end(); ++i)
+        for(AuraEffectList::iterator i = m_modAuras[*itr].begin();i != m_modAuras[*itr].end(); )
         {
             // Get auras with disease dispel type by caster
             if ((*i)->GetSpellProto()->Dispel == DISPEL_DISEASE
                 && (*i)->GetCasterGUID()==casterGUID)
+            {
                 ++diseases;
+
+                if (remove)
+                {
+                    RemoveAura((*i)->GetId(), (*i)->GetCasterGUID());
+                    i = m_modAuras[*itr].begin();
+                    continue;
+                }
+            }
+            ++i;
         }
     }
     return diseases;
