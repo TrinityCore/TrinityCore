@@ -162,9 +162,6 @@ class TRINITY_DLL_SPEC InstanceData : public ZoneScript
         std::vector<BossInfo> bosses;
         DoorInfoMap doors;
         MinionInfoMap minions;
-
-        virtual void OnObjectCreate(GameObject *) {}
-        virtual void OnCreatureCreate(Creature *, uint32 entry) {}
 };
 #endif
 
