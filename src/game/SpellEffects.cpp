@@ -4309,6 +4309,13 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
             }
             break;
         }
+        case SPELLFAMILY_DEATHKNIGHT:
+        {
+            // Obliterate (12.5% more damage per disease)
+            if (m_spellInfo->SpellFamilyFlags[1] & 0x20000)
+                totalDamagePercentMod *= (float(CalculateDamage(2, unitTarget) * unitTarget->GetDiseasesByCaster(m_caster->GetGUID(), true) / 2) + 100.0f) / 100.f;
+            break;
+        }
     }
 
     bool normalized = false;
