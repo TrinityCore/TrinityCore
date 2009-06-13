@@ -36,8 +36,6 @@
 #include "DBCStructure.h"
 #include <list>
 
-enum SpellFamilyNames;
-
 #define WORLD_TRIGGER   12999
 
 enum SpellInterruptFlags
