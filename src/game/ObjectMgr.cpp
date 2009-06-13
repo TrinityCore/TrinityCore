@@ -621,7 +621,8 @@ void ObjectMgr::LoadCreatureTemplates()
 
         if(cInfo->DisplayID_A2)
         {
-            if(CreatureDisplayInfoEntry const* displayEntry = sCreatureDisplayInfoStore.LookupEntry(cInfo->DisplayID_A2))
+            CreatureDisplayInfoEntry const* displayEntry = sCreatureDisplayInfoStore.LookupEntry(cInfo->DisplayID_A2);
+            if(!displayEntry)
             {
                 sLog.outErrorDb("Creature (Entry: %u) has non-existing DisplayID_A2 id (%u), can crash client", cInfo->Entry, cInfo->DisplayID_A2);
                 const_cast<CreatureInfo*>(cInfo)->DisplayID_A2 = 0;
@@ -635,7 +636,8 @@ void ObjectMgr::LoadCreatureTemplates()
 
         if(cInfo->DisplayID_H2)
         {
-            if(CreatureDisplayInfoEntry const* displayEntry = sCreatureDisplayInfoStore.LookupEntry(cInfo->DisplayID_H2))
+            CreatureDisplayInfoEntry const* displayEntry = sCreatureDisplayInfoStore.LookupEntry(cInfo->DisplayID_H2);
+            if(!displayEntry)
             {
                 sLog.outErrorDb("Creature (Entry: %u) has non-existing DisplayID_H2 id (%u), can crash client", cInfo->Entry, cInfo->DisplayID_H2);
                 const_cast<CreatureInfo*>(cInfo)->DisplayID_H2 = 0;
