@@ -3900,7 +3900,7 @@ bool Unit::AddAura(Aura *Aur, bool handleEffects)
                 if( (*itr)->GetTarget() != Aur->GetTarget() &&
                     IsSingleTargetSpells((*itr)->GetSpellProto(),aurSpellInfo) )
                 {
-                    (*itr)->GetTarget()->RemoveAurasDueToSpell((*itr)->GetId(), caster->GetGUID(), AURA_REMOVE_BY_STACK);
+                    (*itr)->GetTarget()->RemoveAurasDueToSpell((*itr)->GetId(), caster->GetGUID(), AURA_REMOVE_BY_DEFAULT);
                     restart = true;
                     break;
                 }
@@ -4010,7 +4010,7 @@ bool Unit::RemoveNoStackAurasDueToAura(Aura *Aur)
             return false;
 
         // Remove all auras by aura caster
-        RemoveAura(i, AURA_REMOVE_BY_STACK);
+        RemoveAura(i, AURA_REMOVE_BY_DEFAULT);
         if(i == m_Auras.end())
             break;
         remove = true;
