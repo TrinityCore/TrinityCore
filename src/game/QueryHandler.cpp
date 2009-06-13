@@ -189,10 +189,10 @@ void WorldSession::HandleCreatureQueryOpcode( WorldPacket & recv_data )
         data << uint32(ci->rank);                           // Creature Rank (elite, boss, etc)
         data << uint32(ci->unk1);                           // new in 3.1, creature entry?
         data << uint32(ci->unk2);                           // new in 3.1, creature entry?
-        data << (uint32)ci->Modelid_A1;                     // Modelid_A1
-        data << (uint32)ci->Modelid_A2;                     // Modelid_A2
-        data << (uint32)ci->Modelid_H1;                     // Modelid_H1
-        data << (uint32)ci->Modelid_H2;                     // Modelid_H2
+        data << (uint32)ci->DisplayID_A;                     // DisplayID_A
+        data << (uint32)ci->DisplayID_A2;                     // DisplayID_A2
+        data << (uint32)ci->DisplayID_H;                     // DisplayID_H
+        data << (uint32)ci->DisplayID_H2;                     // DisplayID_H2
         data << float(ci->unk16);                           // unk
         data << float(ci->unk17);                           // unk
         data << uint8(ci->RacialLeader);

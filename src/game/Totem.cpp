@@ -62,17 +62,17 @@ void Totem::InitStats(uint32 duration)
         uint32 modelid = 0;
         if(((Player*)m_owner)->GetTeam() == HORDE)
         {
-            if(cinfo->Modelid_H1)
-                modelid = cinfo->Modelid_H1;
-            else if(cinfo->Modelid_H2)
-                modelid = cinfo->Modelid_H2;
+            if(cinfo->DisplayID_H)
+                modelid = cinfo->DisplayID_H;
+            else if(cinfo->DisplayID_H2)
+                modelid = cinfo->DisplayID_H2;
         }
         else
         {
-            if(cinfo->Modelid_A1)
-                modelid = cinfo->Modelid_A1;
-            else if(cinfo->Modelid_A2)
-                modelid = cinfo->Modelid_A2;
+            if(cinfo->DisplayID_A)
+                modelid = cinfo->DisplayID_A;
+            else if(cinfo->DisplayID_A2)
+                modelid = cinfo->DisplayID_A2;
         }
         if (modelid)
             SetDisplayId(modelid);

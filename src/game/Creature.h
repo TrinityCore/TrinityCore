@@ -179,10 +179,10 @@ struct CreatureInfo
     uint32  HeroicEntry;
     uint32  unk1;
     uint32  unk2;
-    uint32  Modelid_A1;
-    uint32  Modelid_A2;
-    uint32  Modelid_H1;
-    uint32  Modelid_H2;
+    uint32  DisplayID_A;
+    uint32  DisplayID_A2;
+    uint32  DisplayID_H;
+    uint32  DisplayID_H2;
     char*   Name;
     char*   SubName;
     char*   IconName;
