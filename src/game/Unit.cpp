@@ -5598,7 +5598,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 target = GetGuardianPet();
                 if (!target)
                     return false;
-                basepoints0 = damage * 15 / 100;
+                basepoints0 = damage * triggerAmount / 100;
                 triggered_spell_id = 54181;
                 break;
             }
