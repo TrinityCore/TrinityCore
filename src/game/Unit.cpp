@@ -3857,13 +3857,14 @@ bool Unit::AddAura(Aura *Aur, bool handleEffects)
         return false;
     }
 
-    SpellEntry const* aurSpellInfo = Aur->GetSpellProto();
+    SpellEntry const * aurSpellInfo = Aur->GetSpellProto();
+    uint32 aurId = aurSpellInfo->Id;
 
     // passive and persistent and Incanter's Absorption auras can stack with themselves any number of times
-    if (!Aur->IsPassive() && !Aur->IsPersistent() && aurSpellInfo->Id != 44413)
+    if (!Aur->IsPassive() && !Aur->IsPersistent() && aurId != 44413)
     {
         // find current aura from spell and change it's stackamount
-        if (Aura * foundAura = GetAura(aurSpellInfo->Id, Aur->GetCasterGUID()))
+        if (Aura * foundAura = GetAura(aurId, Aur->GetCasterGUID()))
         {
             if(aurSpellInfo->StackAmount)
             {
@@ -3871,7 +3872,40 @@ bool Unit::AddAura(Aura *Aur, bool handleEffects)
                 if (stackAmount > aurSpellInfo->StackAmount)
                     stackAmount = aurSpellInfo->StackAmount;
                 Aur->SetStackAmount(stackAmount, false);
+
+                // spell is triggered with only stackamount change but no amount change
+                switch(aurId)
+                {
+                    case 28832: // Mark of Korth'azz
+                    case 28833: // Mark of Blaumeux
+                    case 28834: // Mark of Rivendare
+                    case 28835: // Mark of Zeliek
+                        if(Unit *caster = Aur->GetCaster()) // actually we can also use cast(this, originalcasterguid)
+                        {
+                            int32 damage;
+                            switch(stackAmount)
+                            {
+                                case 1: damage = 0;     break;
+                                case 2: damage = 500;   break;
+                                case 3: damage = 1000;  break;
+                                case 4: damage = 1500;  break;
+                                case 5: damage = 4000;  break;
+                                case 6: damage = 12000; break;
+                                default:damage = 20000 + 1000 * (stackAmount - 7); break;
+                            }
+                            if(damage)
+                                caster->CastCustomSpell(28836, SPELLVALUE_BASE_POINT0, damage, this);
+                        }
+                        break;
+                    case 64821: // Fuse Armor (Razorscale)
+                        if(stackAmount == aurSpellInfo->StackAmount)
+                            CastSpell(this, 64774, true, NULL, NULL, Aur->GetCasterGUID());
+                        break;                        
+                }
             }
+
+            // Use the new one to replace the old one
+            // This is the only place where AURA_REMOVE_BY_STACK should be used
             RemoveAura(foundAura, AURA_REMOVE_BY_STACK);
         }
     }
@@ -3917,16 +3951,16 @@ bool Unit::AddAura(Aura *Aur, bool handleEffects)
 
     // add aura, register in lists and arrays
     Aur->_AddAura();
-    m_Auras.insert(AuraMap::value_type(Aur->GetId(), Aur));
+    m_Auras.insert(AuraMap::value_type(aurId, Aur));
 
-    if(Aur->GetSpellProto()->AuraInterruptFlags)
+    if(aurSpellInfo->AuraInterruptFlags)
     {
         m_interruptableAuras.push_back(Aur);
-        AddInterruptMask(Aur->GetSpellProto()->AuraInterruptFlags);
+        AddInterruptMask(aurSpellInfo->AuraInterruptFlags);
     }
-    if((Aur->GetSpellProto()->Attributes & SPELL_ATTR_BREAKABLE_BY_DAMAGE
+    if((aurSpellInfo->Attributes & SPELL_ATTR_BREAKABLE_BY_DAMAGE
         && !Aur->IsAuraType(SPELL_AURA_MOD_POSSESS)) //only dummy aura is breakable
-        || ((GetAllSpellMechanicMask(Aur->GetSpellProto()) & 1<<MECHANIC_KNOCKOUT) && Aur->IsAuraType(SPELL_AURA_MOD_STUN)))
+        || ((GetAllSpellMechanicMask(aurSpellInfo) & 1<<MECHANIC_KNOCKOUT) && Aur->IsAuraType(SPELL_AURA_MOD_STUN)))
     {
         m_ccAuras.push_back(Aur);
     }
@@ -3934,7 +3968,7 @@ bool Unit::AddAura(Aura *Aur, bool handleEffects)
     if (handleEffects)
         Aur->HandleEffects(true);
 
-    sLog.outDebug("Aura %u now is in use", Aur->GetId());
+    sLog.outDebug("Aura %u now is in use", aurId);
     return true;
 }
 
