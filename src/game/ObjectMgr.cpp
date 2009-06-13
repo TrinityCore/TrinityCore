@@ -614,27 +614,40 @@ void ObjectMgr::LoadCreatureTemplates()
         if(!factionTemplate)
             sLog.outErrorDb("Creature (Entry: %u) has non-existing faction_H template (%u)", cInfo->Entry, cInfo->faction_H);
 
-        // check model ids, supplying and sending non-existent ids to the client might crash them
-        if(cInfo->Modelid_A1 && !sCreatureModelStorage.LookupEntry<CreatureModelInfo>(cInfo->Modelid_A1))
+        // used later for scale
+        CreatureDisplayInfoEntry const* displayEntryA = cInfo->DisplayID_A ? sCreatureDisplayInfoStore.LookupEntry(cInfo->DisplayID_A) : NULL;
+        if(cInfo->DisplayID_A && !displayEntryA)
+            sLog.outErrorDb("Creature (Entry: %u) has non-existing DisplayID_A id (%u), can crash client", cInfo->Entry, cInfo->DisplayID_A);
+
+        if(cInfo->DisplayID_A2)
         {
-            sLog.outErrorDb("Creature (Entry: %u) has non-existing Modelid_A1 (%u), setting it to 0", cInfo->Entry, cInfo->Modelid_A1);
-            const_cast<CreatureInfo*>(cInfo)->Modelid_A1 = 0;
+            if(CreatureDisplayInfoEntry const* displayEntry = sCreatureDisplayInfoStore.LookupEntry(cInfo->DisplayID_A2))
+            {
+                sLog.outErrorDb("Creature (Entry: %u) has non-existing DisplayID_A2 id (%u), can crash client", cInfo->Entry, cInfo->DisplayID_A2);
+                const_cast<CreatureInfo*>(cInfo)->DisplayID_A2 = 0;
+            }
         }
-        if(cInfo->Modelid_A2 && !sCreatureModelStorage.LookupEntry<CreatureModelInfo>(cInfo->Modelid_A2))
+
+        // used later for scale
+        CreatureDisplayInfoEntry const* displayEntryH = cInfo->DisplayID_H ? sCreatureDisplayInfoStore.LookupEntry(cInfo->DisplayID_H) : NULL;
+        if(cInfo->DisplayID_H && !displayEntryH)
+            sLog.outErrorDb("Creature (Entry: %u) has non-existing DisplayID_H id (%u), can crash client", cInfo->Entry, cInfo->DisplayID_H);
+
+        if(cInfo->DisplayID_H2)
         {
-            sLog.outErrorDb("Creature (Entry: %u) has non-existing Modelid_A2 (%u), setting it to 0", cInfo->Entry, cInfo->Modelid_A2);
-            const_cast<CreatureInfo*>(cInfo)->Modelid_A2 = 0;
+            if(CreatureDisplayInfoEntry const* displayEntry = sCreatureDisplayInfoStore.LookupEntry(cInfo->DisplayID_H2))
+            {
+                sLog.outErrorDb("Creature (Entry: %u) has non-existing DisplayID_H2 id (%u), can crash client", cInfo->Entry, cInfo->DisplayID_H2);
+                const_cast<CreatureInfo*>(cInfo)->DisplayID_H2 = 0;
+            }
         }
-        if(cInfo->Modelid_H1 && !sCreatureModelStorage.LookupEntry<CreatureModelInfo>(cInfo->Modelid_H1))
-        {
-            sLog.outErrorDb("Creature (Entry: %u) has non-existing Modelid_H1 (%u), setting it to 0", cInfo->Entry, cInfo->Modelid_H1);
-            const_cast<CreatureInfo*>(cInfo)->Modelid_H1 = 0;
-        }
-        if(cInfo->Modelid_H2 && !sCreatureModelStorage.LookupEntry<CreatureModelInfo>(cInfo->Modelid_H2))
-        {
-            sLog.outErrorDb("Creature (Entry: %u) has non-existing Modelid_H2 (%u), setting it to 0", cInfo->Entry, cInfo->Modelid_H2);
-            const_cast<CreatureInfo*>(cInfo)->Modelid_H2 = 0;
-        }
+
+        CreatureModelInfo const* minfo = sCreatureModelStorage.LookupEntry<CreatureModelInfo>(cInfo->DisplayID_A);
+        if (!minfo)
+            sLog.outErrorDb("Creature (Entry: %u) has non-existing modelId_A (%u)", cInfo->Entry, cInfo->DisplayID_A);
+        minfo = sCreatureModelStorage.LookupEntry<CreatureModelInfo>(cInfo->DisplayID_H);
+        if (!minfo)
+            sLog.outErrorDb("Creature (Entry: %u) has non-existing modelId_H (%u)", cInfo->Entry, cInfo->DisplayID_H);
 
         if (cInfo->unit_class && ((1 << (cInfo->unit_class-1)) & CLASSMASK_ALL_CREATURES) == 0)
             sLog.outErrorDb("Creature (Entry: %u) has invalid unit_class(%u) for creature_template", cInfo->Entry, cInfo->unit_class);
@@ -806,7 +819,10 @@ void ObjectMgr::LoadCreatureAddons()
         if (addon->mount)
         {
             if (!sCreatureDisplayInfoStore.LookupEntry(addon->mount))
+            {
                 sLog.outErrorDb("Creature (Entry %u) have invalid displayInfoId for mount (%u) defined in `creature_template_addon`.",addon->guidOrEntry, addon->mount);
+                const_cast<CreatureDataAddon*>(addon)->mount = 0;
+            }
         }
 
         if (!sEmotesStore.LookupEntry(addon->emote))
@@ -833,7 +849,10 @@ void ObjectMgr::LoadCreatureAddons()
         if (addon->mount)
         {
             if (!sCreatureDisplayInfoStore.LookupEntry(addon->mount))
+            {
                 sLog.outErrorDb("Creature (GUID %u) have invalid displayInfoId for mount (%u) defined in `creature_addon`.",addon->guidOrEntry, addon->mount);
+                const_cast<CreatureDataAddon*>(addon)->mount = 0;
+            }
         }
 
         if (!sEmotesStore.LookupEntry(addon->emote))
@@ -1130,8 +1149,8 @@ void ObjectMgr::LoadCreatures()
         {
             (const_cast<CreatureInfo*>(cInfo))->flags_extra |= CREATURE_FLAG_EXTRA_TRIGGER;
         }
-        else if(data.displayid == cInfo->Modelid_A1 || data.displayid == cInfo->Modelid_A2
-            || data.displayid == cInfo->Modelid_H1 || data.displayid == cInfo->Modelid_H2)
+        else if(data.displayid == cInfo->DisplayID_A || data.displayid == cInfo->DisplayID_A2
+            || data.displayid == cInfo->DisplayID_H || data.displayid == cInfo->DisplayID_H2)
             data.displayid = 0;
             */
 
@@ -1384,6 +1403,12 @@ void ObjectMgr::LoadGameobjects()
         if(!gInfo)
         {
             sLog.outErrorDb("Table `gameobject` has gameobject (GUID: %u) with non existing gameobject entry %u, skipped.", guid, entry);
+            continue;
+        }
+
+        if(gInfo->displayId && !sGameObjectDisplayInfoStore.LookupEntry(gInfo->displayId))
+        {
+            sLog.outErrorDb("Gameobject (GUID: %u Entry %u GoType: %u) have invalid displayId (%u), not loaded.",guid, entry, gInfo->type, gInfo->displayId);
             continue;
         }
 
@@ -5077,7 +5102,7 @@ uint16 ObjectMgr::GetTaxiMount( uint32 id, uint32 team, bool allowed_alt_team /*
 
             CreatureInfo const *ci = GetCreatureTemplate(mount_entry);
             if(ci)
-                mount_id = ci->Modelid_A1;
+                mount_id = ci->DisplayID_A;
         }
         if (team == HORDE)
         {
@@ -5088,7 +5113,7 @@ uint16 ObjectMgr::GetTaxiMount( uint32 id, uint32 team, bool allowed_alt_team /*
 
             CreatureInfo const *ci = GetCreatureTemplate(mount_entry);
             if(ci)
-                mount_id = ci->Modelid_H1;
+                mount_id = ci->DisplayID_H;
         }
     }
 
@@ -6010,6 +6035,8 @@ void ObjectMgr::LoadGameobjectInfo()
         GameObjectInfo const* goInfo = sGOStorage.LookupEntry<GameObjectInfo>(id);
         if (!goInfo)
             continue;
+
+        // some GO types have unused go template, check goInfo->displayId at GO spawn data loading or ignore
 
         switch(goInfo->type)
         {

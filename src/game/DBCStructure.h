@@ -861,8 +861,8 @@ struct FactionTemplateEntry
 
 struct GameObjectDisplayInfoEntry
 {
-    uint32  ID;         //0
-    //char*   mdx;        //1
+    uint32      Displayid;                                  // 0        m_ID
+    // char* filename;                                      // 1
     //uint32  unk1[10];   //2-11
     float   minX;
     float   minY;
