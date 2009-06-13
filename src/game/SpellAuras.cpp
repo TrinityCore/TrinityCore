@@ -1218,28 +1218,33 @@ void Aura::_RemoveAura()
     }
     uint32 id = GetId();
     // Remove Linked Auras
-    if(m_removeMode!=AURA_REMOVE_BY_STACK && m_removeMode!=AURA_REMOVE_BY_DEATH && spellmgr.GetSpellCustomAttr(id) & SPELL_ATTR_CU_LINK_REMOVE)
+    if(m_removeMode != AURA_REMOVE_BY_STACK && m_removeMode != AURA_REMOVE_BY_DEATH)
     {
-        if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(-(int32)id))
-            for(std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
+        if(uint32 customAttr = spellmgr.GetSpellCustomAttr(id))
+        {
+            if(customAttr & SPELL_ATTR_CU_LINK_REMOVE)
             {
-                if(*itr < 0)
-                    m_target->RemoveAurasDueToSpell(-(*itr));
-                else if(Unit* caster = GetCaster())
-                    if (m_removeMode!=AURA_REMOVE_BY_DEFAULT)
-                        m_target->CastSpell(m_target, *itr, true, 0, 0, caster->GetGUID());
+                if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(-(int32)id))
+                    for(std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
+                    {
+                        if(*itr < 0)
+                            m_target->RemoveAurasDueToSpell(-(*itr));
+                        else if (m_removeMode != AURA_REMOVE_BY_DEFAULT)
+                            m_target->CastSpell(m_target, *itr, true, 0, 0, GetCasterGUID());
+                    }
             }
-    }
-    if(m_removeMode!=AURA_REMOVE_BY_STACK && m_removeMode!=AURA_REMOVE_BY_DEATH && spellmgr.GetSpellCustomAttr(id) & SPELL_ATTR_CU_LINK_AURA)
-    {
-        if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(id + SPELL_LINK_AURA))
-            for(std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
+            if(customAttr & SPELL_ATTR_CU_LINK_AURA)
             {
-                if(*itr < 0)
-                    m_target->ApplySpellImmune(id, IMMUNITY_ID, -(*itr), false);
-                else
-                    m_target->RemoveAurasDueToSpell(*itr);
+                if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(id + SPELL_LINK_AURA))
+                    for(std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
+                    {
+                        if(*itr < 0)
+                            m_target->ApplySpellImmune(id, IMMUNITY_ID, -(*itr), false);
+                        else
+                            m_target->RemoveAurasDueToSpell(*itr);
+                    }
             }
+        }
     }
 
     // Proc on aura remove (only spell flags for now)
@@ -2527,39 +2532,25 @@ void AuraEffect::HandleAuraDummy(bool apply, bool Real, bool changeAmount)
             return;
         }
 
-        // Waiting to Resurrect
-        if(GetId()==2584)
-        {
-            // Waiting to resurrect spell cancel, we must remove player from resurrect queue
-            if(m_target->GetTypeId() == TYPEID_PLAYER)
-                if(BattleGround *bg = ((Player*)m_target)->GetBattleGround())
-                    bg->RemovePlayerFromResurrectQueue(m_target->GetGUID());
-            return;
-        }
-
-        // Burning Winds
-        if(GetId()==46308)                                  // casted only at creatures at spawn
-        {
-            m_target->CastSpell(m_target,47287,true,NULL,this);
-            return;
-        }
-
-        // Misdirection
-        if(GetId()==34477)
-        {
-            m_target->SetReducedThreatPercent(0, 0);
-            return;
-        }
-
-        // Wrath of the Astromancer
-        if (GetId()==42783)
-        {
-            m_target->CastSpell(m_target,m_amount,true,NULL,this);
-            return;
-        }
-
         switch(m_spellProto->SpellFamilyName)
         {
+            case SPELLFAMILY_GENERIC:
+                switch(GetId())
+                {
+                    case 2584: // Waiting to Resurrect
+                        // Waiting to resurrect spell cancel, we must remove player from resurrect queue
+                        if(m_target->GetTypeId() == TYPEID_PLAYER)
+                            if(BattleGround *bg = ((Player*)m_target)->GetBattleGround())
+                                bg->RemovePlayerFromResurrectQueue(m_target->GetGUID());
+                        return;
+                    case 42783: // Wrath of the Astromancer
+                        m_target->CastSpell(m_target,m_amount,true,NULL,this);
+                        return;
+                    case 46308: // Burning Winds casted only at creatures at spawn
+                        m_target->CastSpell(m_target,47287,true,NULL,this);
+                        return;        
+                }
+                break;
             case SPELLFAMILY_WARLOCK:
                 // Haunt
                 if(m_spellProto->SpellFamilyFlags[1] & 0x40000)
@@ -2578,6 +2569,16 @@ void AuraEffect::HandleAuraDummy(bool apply, bool Real, bool changeAmount)
                         caster->CastSpell(m_target, GetAmount(), true);
                     return;
                 }
+                break;
+            case SPELLFAMILY_HUNTER:
+                // Misdirection
+                if(GetId()==34477)
+                {
+                    m_target->SetReducedThreatPercent(0, 0);
+                    return;
+                }
+                break;
+            default:
                 break;
         }
     }
@@ -6692,9 +6693,8 @@ void AuraEffect::PeriodicDummyTick()
 //        case 50493: break;
 //        // Love Rocket Barrage
 //        case 50530: break;
-            // Tenacity
-            case 58549:
-            case 59911:
+            case 58549: // Tenacity
+            case 59911: // Tenacity (vehicle)
                 GetParentAura()->RefreshAura();
                 break;
 // Exist more after, need add later
