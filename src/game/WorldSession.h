@@ -112,7 +112,6 @@ class TRINITY_DLL_SPEC WorldSession
         void SendAddonsInfo();
 
         void ReadMovementInfo(WorldPacket &data, MovementInfo *mi);
-        void OutMovementInfo(MovementInfo *mi);
 
         void SendPacket(WorldPacket const* packet);
         void SendNotification(const char *format,...) ATTR_PRINTF(2,3);
