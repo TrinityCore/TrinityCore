@@ -309,6 +309,20 @@ void InstanceSaveManager::CleanupInstances()
         delete result;
     }
 
+    // gameobject_respawn
+    result = CharacterDatabase.Query("SELECT DISTINCT(instance_id) FROM characters WHERE instance_id <> 0");
+    if( result )
+    {
+        do
+        {
+            Field *fields = result->Fetch();
+            if(InstanceSet.find(fields[0].GetUInt32()) == InstanceSet.end())
+                CharacterDatabase.PExecute("UPDATE characters SET instance_id = '0' WHERE instance_id = '%u'", fields[0].GetUInt32());
+        }
+        while (result->NextRow());
+        delete result;
+    }
+
     bar.step();
     sLog.outString();
     sLog.outString( ">> Initialized %u instances", (uint32)InstanceSet.size());
