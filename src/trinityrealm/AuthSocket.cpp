@@ -21,19 +21,17 @@
 /** \file
     \ingroup realmd
 */
-#include <openssl/md5.h>
 
 #include "Common.h"
-#include "Auth/Sha1.h"
-#include "Config/ConfigEnv.h"
 #include "Database/DatabaseEnv.h"
-
-#include "AuthCodes.h"
-#include "AuthSocket.h"
 #include "ByteBuffer.h"
+#include "Config/ConfigEnv.h"
 #include "Log.h"
 #include "RealmList.h"
-
+#include "AuthSocket.h"
+#include "AuthCodes.h"
+#include <openssl/md5.h>
+#include "Auth/Sha1.h"
 //#include "Util.h" -- for commented utf8ToUpperOnlyLatin
 
 extern RealmList m_realmList;

@@ -679,19 +679,6 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo *mi)
     }
 }
 
-void WorldSession::OutMovementInfo(MovementInfo *mi)
-{
-    sLog.outString("MovementInfo: Flag %u, Unk1 %u, Time %u, Pos %f %f %f %f, Fall %u", mi->flags, (uint32)mi->unk1, mi->time, mi->x, mi->y, mi->z, mi->o, mi->fallTime);
-    if(mi->flags & MOVEMENTFLAG_ONTRANSPORT)
-        sLog.outString("Transport: GUID " I64FMT ", Pos %f %f %f %f, Time %u, Seat %d", mi->t_guid, mi->t_x, mi->t_y, mi->t_z, mi->t_o, mi->t_time, (int32)mi->t_seat);
-    if((mi->flags & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING2)) || (mi->unk1 & 0x20))
-        sLog.outString("Pitch: %f", mi->s_pitch);
-    if(mi->flags & MOVEMENTFLAG_JUMPING)
-        sLog.outString("Jump: speedz %f, sin %f, cos %f, speedxy %f", mi->j_zspeed, mi->j_sinAngle, mi->j_cosAngle, mi->j_xyspeed);
-    if(mi->flags & MOVEMENTFLAG_SPLINE)
-        sLog.outString("Spline: %f", mi->u_unk1);
-}
-
 void WorldSession::ReadAddonsInfo(WorldPacket &data)
 {
     if (data.rpos() + 4 > data.size())

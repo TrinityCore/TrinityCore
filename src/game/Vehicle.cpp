@@ -30,7 +30,7 @@
 Vehicle::Vehicle() : Creature(), m_vehicleInfo(NULL), m_usableSeatNum(0)
 {
     m_summonMask |= SUMMON_MASK_VEHICLE;
-    m_updateFlag = (UPDATEFLAG_LIVING | UPDATEFLAG_HAS_POSITION | UPDATEFLAG_VEHICLE);
+    m_updateFlag = (UPDATEFLAG_HIGHGUID | UPDATEFLAG_LIVING | UPDATEFLAG_HAS_POSITION | UPDATEFLAG_VEHICLE);
 }
 
 Vehicle::~Vehicle()
@@ -234,32 +234,28 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
 
     //SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);
 
-    unit->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
+    unit->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT + MOVEMENTFLAG_FLY_UNK1);
     VehicleSeatEntry const *veSeat = seat->second.seatInfo;
     unit->m_movementInfo.t_x = veSeat->m_attachmentOffsetX;
     unit->m_movementInfo.t_y = veSeat->m_attachmentOffsetY;
     unit->m_movementInfo.t_z = veSeat->m_attachmentOffsetZ;
     unit->m_movementInfo.t_o = 0;
-    unit->m_movementInfo.t_time = 4;
+    unit->m_movementInfo.t_time = 0; // 1 for player
     unit->m_movementInfo.t_seat = seat->first;
 
-    unit->Relocate(GetPositionX() + unit->m_movementInfo.t_x,
-        GetPositionY() + unit->m_movementInfo.t_y,
-        GetPositionZ() + unit->m_movementInfo.t_z,
-        GetOrientation());
+    if(unit->GetTypeId() == TYPEID_PLAYER && seat->first == 0 && seat->second.seatInfo->IsUsable()) // not right
+        SetCharmedBy(unit, CHARM_TYPE_VEHICLE);
 
-    WorldPacket data;
-    if(unit->GetTypeId() == TYPEID_PLAYER)
+    if(false)
     {
-        if(seat->first == 0 && seat->second.seatInfo->IsUsable()) // not right
-            SetCharmedBy(unit, CHARM_TYPE_VEHICLE);
-
-        ((Player*)unit)->BuildTeleportAckMsg(&data, unit->GetPositionX(), unit->GetPositionY(), unit->GetPositionZ(), unit->GetOrientation());
-        ((Player*)unit)->GetSession()->SendPacket(&data);
+        unit->SendMonsterMoveTransport(this, true);
     }
-
-    unit->BuildHeartBeatMsg(&data);
-    unit->SendMessageToSet(&data, false);
+    else
+    {
+        if(unit->GetTypeId() == TYPEID_PLAYER)
+            ((Player*)unit)->SendTeleportAckMsg();
+        unit->SendMovementFlagUpdate();
+    }
 
     return true;
 }

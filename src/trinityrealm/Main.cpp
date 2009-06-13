@@ -22,19 +22,18 @@
 /// @{
 /// \file
 
-#include <openssl/opensslv.h>
-#include <openssl/crypto.h>
-
 #include "Common.h"
-#include "Config/ConfigEnv.h"
 #include "Database/DatabaseEnv.h"
-#include "sockets/ListenSocket.h"
-
-#include "AuthSocket.h"
-#include "Log.h"
 #include "RealmList.h"
+
+#include "Config/ConfigEnv.h"
+#include "Log.h"
+#include "sockets/ListenSocket.h"
+#include "AuthSocket.h"
 #include "SystemConfig.h"
 #include "Util.h"
+#include <openssl/opensslv.h>
+#include <openssl/crypto.h>
 
 // Format is YYYYMMDDRR where RR is the change in the conf file
 // for that day.
@@ -149,6 +148,9 @@ extern int main(int argc, char **argv)
         sLog.outError("Could not find configuration file %s.", cfg_file);
         return 1;
     }
+
+    sLog.outString( "%s (realm-daemon)", _FULLVERSION );
+    sLog.outString( "<Ctrl-C> to stop.\n" );
     sLog.outString("Using configuration file %s.", cfg_file);
 
     ///- Check the version of the configuration file
@@ -171,9 +173,6 @@ extern int main(int argc, char **argv)
         sLog.outDetail("WARNING: Outdated version of OpenSSL lib. Logins to server impossible!");
         sLog.outDetail("WARNING: Minimal required version [OpenSSL 0.9.8k]");
     }
-
-    sLog.outString( "%s (realm-daemon)", _FULLVERSION );
-    sLog.outString( "<Ctrl-C> to stop.\n" );
 
     /// realmd PID file creation
     std::string pidfile = sConfig.GetStringDefault("PidFile", "");
@@ -261,7 +260,7 @@ extern int main(int argc, char **argv)
                         sLog.outError("Can't set used processors (hex): %x", curAff);
                 }
             }
-            sLog.outString("");
+            sLog.outString();
         }
 
         bool Prio = sConfig.GetBoolDefault("ProcessPriority", false);
@@ -272,7 +271,7 @@ extern int main(int argc, char **argv)
                 sLog.outString("TrinityRealm process priority class set to HIGH");
             else
                 sLog.outError("ERROR: Can't set realmd process priority class.");
-            sLog.outString("");
+            sLog.outString();
         }
     }
     #endif
