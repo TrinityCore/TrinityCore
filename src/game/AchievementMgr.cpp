@@ -209,7 +209,15 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
             if(team.team != ALLIANCE && team.team != HORDE)
             {
                 sLog.outErrorDb( "Table `achievement_criteria_data` (Entry: %u Type: %u) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_T_TEAM (%u) have unknown team in value1 (%u), ignore.",
-                    criteria->ID, criteria->requiredType,dataType,gender.gender);
+                    criteria->ID, criteria->requiredType,dataType,team.team);
+                return false;
+            }
+            return true;
+        case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_DRUNK:
+            if(drunk.state >= MAX_DRUNKEN)
+            {
+                sLog.outErrorDb( "Table `achievement_criteria_data` (Entry: %u Type: %u) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_S_DRUNK (%u) have unknown drunken state in value1 (%u), ignore.",
+                    criteria->ID, criteria->requiredType,dataType,drunk.state);
                 return false;
             }
             return true;
@@ -277,6 +285,8 @@ bool AchievementCriteriaData::Meets(Player const* source, Unit const* target, ui
             if (!target || target->GetTypeId() != TYPEID_PLAYER)
                 return false;
             return ((Player*)target)->GetTeam() == team.team;
+        case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_DRUNK:
+            return Player::GetDrunkenstateByValue(source->GetDrunkValue()) >= drunk.state;
     }
     return false;
 }

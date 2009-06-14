@@ -57,9 +57,10 @@ enum AchievementCriteriaDataType
     ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_DIFFICULTY      = 12,// difficulty                   normal/heroic difficulty for current event map
     ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_PLAYER_COUNT    = 13,// count                        "with less than %u people in the zone"
     ACHIEVEMENT_CRITERIA_DATA_TYPE_T_TEAM              = 14,// team                         HORDE(67), ALLIANCE(469)
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_S_DRUNK             = 15,// drunken_state  0             (enum DrunkenState) of player
 };
 
-#define MAX_ACHIEVEMENT_CRITERIA_DATA_TYPE               15 // maximum value in AchievementCriteriaDataType enum
+#define MAX_ACHIEVEMENT_CRITERIA_DATA_TYPE               16 // maximum value in AchievementCriteriaDataType enum
 
 class Player;
 class Unit;
@@ -134,6 +135,11 @@ struct AchievementCriteriaData
         {
             uint32 team;
         } team;
+        // ACHIEVEMENT_CRITERIA_DATA_TYPE_S_DRUNK           = 15
+        struct
+        {
+            uint32 state;
+        } drunk;
         // ...
         struct
         {
