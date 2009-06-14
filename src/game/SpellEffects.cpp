@@ -5345,6 +5345,25 @@ void Spell::EffectScriptEffect(uint32 effIndex)
             }
             break;
         }
+        case SPELLFAMILY_DEATHKNIGHT:
+        {
+            // Pestilence
+            if ( m_spellInfo->SpellFamilyFlags[1]&0x10000 )
+            {
+                // Get diseases on target of spell
+                if (m_targets.getUnitTarget() &&  // Glyph of Disease - cast on unit target too to refresh aura
+                    (m_targets.getUnitTarget() != unitTarget || m_caster->GetAura(63334)))
+                {
+                    // And spread them on target
+                    // Blood Plague
+                    if (m_targets.getUnitTarget()->GetAura(55078))
+                        m_caster->CastSpell(unitTarget, 55078, true);
+                    // Frost Fever
+                    if (m_targets.getUnitTarget()->GetAura(55095))
+                        m_caster->CastSpell(unitTarget, 55095, true);
+                }
+            }
+        }
     }
 
     // normal DB scripted effect
