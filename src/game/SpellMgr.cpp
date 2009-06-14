@@ -1249,7 +1249,7 @@ void SpellMgr::LoadSpellBonusess()
     sLog.outString( ">> Loaded %u extra spell bonus data",  count);
 }
 
-bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellProcEvent, uint32 EventProcFlag, SpellEntry const * procSpell, uint32 procFlags, uint32 procExtra, bool active)
+bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellProcEvent, uint32 EventProcFlag, SpellEntry const * procSpell, uint32 procFlags, uint32 procExtra)
 {
     // No extra req need
     uint32 procEvent_procEx = PROC_EX_NONE;
@@ -1262,36 +1262,36 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
 
     /* Check Periodic Auras
 
-    * Both hots and dots can trigger if spell has no PROC_FLAG_SUCCESSFUL_POSITIVE_SPELL
-        nor PROC_FLAG_SUCCESSFUL_NEGATIVE_SPELL_HIT
+    * Both hots and dots can trigger if spell has no PROC_FLAG_SUCCESSFUL_DAMAGING_SPELL_HIT
+        nor PROC_FLAG_SUCCESSFUL_HEALING_SPELL
 
-    *Only Hots can trigger if spell has PROC_FLAG_SUCCESSFUL_POSITIVE_SPELL
+    *Only Hots can trigger if spell has PROC_FLAG_SUCCESSFUL_HEALING_SPELL
 
-    *Only dots can trigger if spell has both positivity flags or PROC_FLAG_SUCCESSFUL_NEGATIVE_SPELL_HIT
+    *Only dots can trigger if spell has both positivity flags or PROC_FLAG_SUCCESSFUL_DAMAGING_SPELL_HIT
 
     */
 
     if (procFlags & PROC_FLAG_ON_DO_PERIODIC)
     {
-        if (EventProcFlag & PROC_FLAG_SUCCESSFUL_NEGATIVE_SPELL_HIT)
+        if (EventProcFlag & PROC_FLAG_SUCCESSFUL_DAMAGING_SPELL_HIT)
         {
-            if (!(procExtra & PROC_EX_INTERNAL_DOT))
+            if (!(procFlags & PROC_FLAG_SUCCESSFUL_DAMAGING_SPELL_HIT))
                 return false;
         }
-        else if (EventProcFlag & PROC_FLAG_SUCCESSFUL_POSITIVE_SPELL
-            && !(procExtra & PROC_EX_INTERNAL_HOT))
+        else if (EventProcFlag & PROC_FLAG_SUCCESSFUL_HEALING_SPELL
+            && !(procFlags & PROC_FLAG_SUCCESSFUL_HEALING_SPELL))
             return false;
     }
 
     if (procFlags & PROC_FLAG_ON_TAKE_PERIODIC)
     {
-        if (EventProcFlag & PROC_FLAG_TAKEN_NEGATIVE_SPELL_HIT)
+        if (EventProcFlag & PROC_FLAG_TAKEN_DAMAGING_SPELL_HIT)
         {
-            if (!(procExtra & PROC_EX_INTERNAL_DOT))
+            if (!(procFlags & PROC_FLAG_TAKEN_DAMAGING_SPELL_HIT))
                 return false;
         }
-        else if (EventProcFlag & PROC_FLAG_TAKEN_POSITIVE_SPELL
-            && !(procExtra & PROC_EX_INTERNAL_HOT))
+        else if (EventProcFlag & PROC_FLAG_TAKEN_HEALING_SPELL
+            && !(procFlags & PROC_FLAG_TAKEN_HEALING_SPELL))
             return false;
     }
 
@@ -1325,7 +1325,6 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
             {
                 if ((spellProcEvent->spellFamilyMask & procSpell->SpellFamilyFlags ) == 0)
                     return false;
-                active = true; // Spell added manualy -> so its active spell
                 hasFamilyMask = true;
             }
         }
@@ -1340,8 +1339,8 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
     // Check for extra req (if none) and hit/crit
     if (procEvent_procEx == PROC_EX_NONE)
     {
-        // No extra req, so can trigger only for active (damage/healing present) and hit/crit
-        if((procExtra & (PROC_EX_NORMAL_HIT|PROC_EX_CRITICAL_HIT)) && active)
+        // No extra req, so can trigger only for hit/crit
+        if((procExtra & (PROC_EX_NORMAL_HIT|PROC_EX_CRITICAL_HIT)))
             return true;
     }
     else // Passive spells hits here only if resist/reflect/immune/evade
@@ -1350,7 +1349,7 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
         if ((procExtra & AURA_SPELL_PROC_EX_MASK) && (procEvent_procEx & PROC_EX_EX_TRIGGER_ALWAYS))
             return true;
         // Passive spells can`t trigger if need hit
-        if ((procEvent_procEx & PROC_EX_NORMAL_HIT) && !active)
+        if ((procEvent_procEx & PROC_EX_NORMAL_HIT))
             return false;
         // Check Extra Requirement like (hit/crit/miss/resist/parry/dodge/block/immune/reflect/absorb and other)
         if (procEvent_procEx & procExtra)

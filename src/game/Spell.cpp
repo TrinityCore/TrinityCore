@@ -757,8 +757,16 @@ void Spell::prepareDataForTriggerSystem(AuraEffect * triggeredByAura)
         default:
             if (IsPositiveSpell(m_spellInfo->Id))                                 // Check for positive spell
             {
-                m_procAttacker = PROC_FLAG_SUCCESSFUL_POSITIVE_SPELL;
-                m_procVictim   = PROC_FLAG_TAKEN_POSITIVE_SPELL;
+                if(m_customAttr & SPELL_ATTR_CU_DIRECT_DAMAGE)
+                {
+                    m_procAttacker = PROC_FLAG_SUCCESSFUL_HEALING_SPELL;
+                    m_procVictim   = PROC_FLAG_TAKEN_HEALING_SPELL;
+                }
+                else
+                {
+                    m_procAttacker = PROC_FLAG_SUCCESSFUL_POSITIVE_SPELL;
+                    m_procVictim   = PROC_FLAG_TAKEN_POSITIVE_SPELL;
+                }
             }
             else if (m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_AUTOREPEAT_FLAG) // Wands auto attack
             {
@@ -767,10 +775,17 @@ void Spell::prepareDataForTriggerSystem(AuraEffect * triggeredByAura)
             }
             else                                           // Negative spell
             {
-                m_procAttacker = PROC_FLAG_SUCCESSFUL_NEGATIVE_SPELL_HIT;
-                m_procVictim   = PROC_FLAG_TAKEN_NEGATIVE_SPELL_HIT;
+                if(m_customAttr & SPELL_ATTR_CU_DIRECT_DAMAGE)
+                {
+                    m_procAttacker = PROC_FLAG_SUCCESSFUL_DAMAGING_SPELL_HIT;
+                    m_procVictim   = PROC_FLAG_TAKEN_DAMAGING_SPELL_HIT;
+                }
+                else
+                {
+                    m_procAttacker = PROC_FLAG_SUCCESSFUL_NEGATIVE_SPELL_HIT;
+                    m_procVictim   = PROC_FLAG_TAKEN_NEGATIVE_SPELL_HIT;
+                }
             }
-            break;
     }
     m_procEx= PROC_EX_NONE;
 
