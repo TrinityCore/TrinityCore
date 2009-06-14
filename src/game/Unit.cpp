@@ -3918,7 +3918,7 @@ bool Unit::AddAura(Aura *Aur, bool handleEffects)
     }
 
     // update single target auras list (before aura add to aura list, to prevent unexpected remove recently added aura)
-    if (Aur->IsSingleTarget() && Aur->GetTarget())
+    if (Aur->IsSingleTarget())
     {
         // caster pointer can be deleted in time aura remove, find it by guid at each iteration
         for(;;)
