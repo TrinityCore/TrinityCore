@@ -2280,46 +2280,56 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
             }
             else
             {
-                if(m_spellInfo->Id == 27285) // Seed of Corruption proc spell
-                    unitList.remove(m_targets.getUnitTarget());
-                else if (m_spellInfo->Id==57699) //Replenishment (special target selection) 10 targets with lowest mana
+                switch (m_spellInfo->Id)
                 {
-                    typedef std::priority_queue<PrioritizeManaWraper, std::vector<PrioritizeManaWraper>, PrioritizeMana> TopMana;
-                    TopMana manaUsers;
-                    for (std::list<Unit*>::iterator itr = unitList.begin() ; itr != unitList.end();++itr)
+                    case 27285: // Seed of Corruption proc spell
+                        unitList.remove(m_targets.getUnitTarget());
+                        break;
+                    case 55789: // Improved Icy Talons
+                    case 59725: // Improved Spell Reflection - aoe aura
+                        unitList.remove(m_caster);
+                        break;
+                    case 57699: //Replenishment (special target selection) 10 targets with lowest mana
                     {
-                        if ((*itr)->getPowerType() == POWER_MANA)
+                        typedef std::priority_queue<PrioritizeManaWraper, std::vector<PrioritizeManaWraper>, PrioritizeMana> TopMana;
+                        TopMana manaUsers;
+                        for (std::list<Unit*>::iterator itr = unitList.begin() ; itr != unitList.end();++itr)
                         {
-                            PrioritizeManaWraper  WTarget(*itr);
-                            manaUsers.push(WTarget);
+                            if ((*itr)->getPowerType() == POWER_MANA)
+                            {
+                                PrioritizeManaWraper  WTarget(*itr);
+                                manaUsers.push(WTarget);
+                            }
                         }
-                    }
 
-                    unitList.clear();
-                    while(!manaUsers.empty() && unitList.size()<10)
+                        unitList.clear();
+                        while(!manaUsers.empty() && unitList.size()<10)
+                        {
+                            unitList.push_back(manaUsers.top().getUnit());
+                            manaUsers.pop();
+                        }
+                        break;
+                    }
+                    case 52759: // Ancestral Awakening
                     {
-                        unitList.push_back(manaUsers.top().getUnit());
-                        manaUsers.pop();
+                        typedef std::priority_queue<PrioritizeHealthWraper, std::vector<PrioritizeHealthWraper>, PrioritizeHealth> TopHealth;
+                        TopHealth healedMembers;
+                        for (std::list<Unit*>::iterator itr = unitList.begin() ; itr != unitList.end();++itr)
+                        {
+                            PrioritizeHealthWraper  WTarget(*itr);
+                            healedMembers.push(WTarget);
+                        }
+
+                        unitList.clear();
+                        while(!healedMembers.empty() && unitList.size()<1)
+                        {
+                            unitList.push_back(healedMembers.top().getUnit());
+                            healedMembers.pop();
+                        }
+                        break;
                     }
                 }
-                else if (m_spellInfo->Id==52759)// Ancestral Awakening
-                {
-                    typedef std::priority_queue<PrioritizeHealthWraper, std::vector<PrioritizeHealthWraper>, PrioritizeHealth> TopHealth;
-                    TopHealth healedMembers;
-                    for (std::list<Unit*>::iterator itr = unitList.begin() ; itr != unitList.end();++itr)
-                    {
-                        PrioritizeHealthWraper  WTarget(*itr);
-                        healedMembers.push(WTarget);
-                    }
-
-                    unitList.clear();
-                    while(!healedMembers.empty() && unitList.size()<1)
-                    {
-                        unitList.push_back(healedMembers.top().getUnit());
-                        healedMembers.pop();
-                    }
-                }
-                else if (m_spellInfo->EffectImplicitTargetA[i] == TARGET_DEST_TARGET_ANY
+                if (m_spellInfo->EffectImplicitTargetA[i] == TARGET_DEST_TARGET_ANY
                     && m_spellInfo->EffectImplicitTargetB[i] == TARGET_UNIT_AREA_ALLY_DST)// Wild Growth, Circle of Healing, Glyph of holy light target special selection
                 {
                     typedef std::priority_queue<PrioritizeHealthWraper, std::vector<PrioritizeHealthWraper>, PrioritizeHealth> TopHealth;

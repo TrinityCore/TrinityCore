@@ -7035,6 +7035,32 @@ bool Unit::HandleModDamagePctTakenAuraProc(Unit *pVictim, uint32 damage, AuraEff
     return true;
 }
 
+// Used in case when access to whole aura is needed
+// All procs should be handled like this...
+bool Unit::HandleAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAura, SpellEntry const * procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown, bool * handled)
+{
+    SpellEntry const *dummySpell = triggeredByAura->GetSpellProto();
+
+    switch(dummySpell->SpellFamilyName)
+    {
+        case SPELLFAMILY_DEATHKNIGHT:
+        {
+            switch(dummySpell->Id)
+            {
+                // Hungering Cold aura drop
+                case 51209:
+                    *handled = true;
+                    // Drop only in disease case
+                    if (procSpell && procSpell->Dispel == DISPEL_DISEASE)
+                        return false;
+                    return true;
+            }
+            break;
+        }
+    }
+    return false;
+}
+
 bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* triggeredByAura, SpellEntry const *procSpell, uint32 procFlags, uint32 procEx, uint32 cooldown)
 {
     // Get triggered aura spell info
@@ -12498,8 +12524,16 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
         if (GetTypeId() == TYPEID_PLAYER && i->spellProcEvent && i->spellProcEvent->cooldown)
             cooldown = i->spellProcEvent->cooldown;
 
-        uint32 procDebug = 0;
+        // This bool is needed till separate aura effect procs are still here
+        bool handled = false;
+        if (HandleAuraProc(pTarget, damage, i->aura, procSpell, procFlag, procExtra, cooldown, &handled))
+        {
+            sLog.outDebug("ProcDamageAndSpell: casting spell %u (triggered with value by %s aura of spell %u)", spellInfo->Id,(isVictim?"a victim's":"an attacker's"), Id);
+            takeCharges = true;
+        }
 
+        uint32 procDebug = 0;
+        if (!handled)
         for (uint8 effIndex = 0; effIndex<MAX_SPELL_EFFECTS;++effIndex)
         {
             if (!(i->effMask & (1<<effIndex)))
