@@ -18796,10 +18796,16 @@ void Player::SendInstanceResetWarning(uint32 mapid, uint32 time)
         type = RAID_INSTANCE_WARNING_MIN;
     else
         type = RAID_INSTANCE_WARNING_MIN_SOON;
-    WorldPacket data(SMSG_RAID_INSTANCE_MESSAGE, 4+4+4);
+    WorldPacket data(SMSG_RAID_INSTANCE_MESSAGE, 4+4+4+4);
     data << uint32(type);
     data << uint32(mapid);
+    data << uint32(0);                                      // may be difficulty
     data << uint32(time);
+    if(type == RAID_INSTANCE_WELCOME)
+    {
+        data << uint8(0);
+        data << uint8(0);
+    }
     GetSession()->SendPacket(&data);
 }
 
