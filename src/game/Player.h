@@ -894,7 +894,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         void SendInitialPacketsBeforeAddToMap();
         void SendInitialPacketsAfterAddToMap();
         void SendTransferAborted(uint32 mapid, uint8 reason, uint8 arg = 0);
-        void SendInstanceResetWarning(uint32 mapid, uint32 time);
+        void SendInstanceResetWarning(uint32 mapid, uint32 difficulty, uint32 time);
 
         Creature* GetNPCIfCanInteractWith(uint64 guid, uint32 npcflagmask);
         bool CanInteractWithNPCs(bool alive = true) const;
@@ -1532,6 +1532,7 @@ class TRINITY_DLL_SPEC Player : public Unit
 
         void SetDifficulty(uint32 dungeon_difficulty) { m_dungeonDifficulty = dungeon_difficulty; }
         uint8 GetDifficulty() { return m_dungeonDifficulty; }
+        bool IsHeroic() { return m_dungeonDifficulty == DIFFICULTY_HEROIC; }
 
         bool UpdateSkill(uint32 skill_id, uint32 step);
         bool UpdateSkillPro(uint16 SkillId, int32 Chance, uint32 step);
@@ -1609,11 +1610,10 @@ class TRINITY_DLL_SPEC Player : public Unit
         void SendDelayResponse(const uint32);
         void SendLogXPGain(uint32 GivenXP,Unit* victim,uint32 RestXP);
 
-        //notifiers
+        // notifiers
         void SendAttackSwingCantAttack();
         void SendAttackSwingCancelAttack();
         void SendAttackSwingDeadTarget();
-        void SendAttackSwingNotStanding();
         void SendAttackSwingNotInRange();
         void SendAttackSwingBadFacingAttack();
         void SendAutoRepeatCancel();

@@ -363,7 +363,7 @@ enum Opcodes
     SMSG_ATTACKSTOP                                 = 0x144,
     SMSG_ATTACKSWING_NOTINRANGE                     = 0x145,
     SMSG_ATTACKSWING_BADFACING                      = 0x146,
-    SMSG_ATTACKSWING_NOTSTANDING                    = 0x147,
+    SMSG_INSTANCE_LOCK_QUERY                        = 0x147,
     SMSG_ATTACKSWING_DEADTARGET                     = 0x148,
     SMSG_ATTACKSWING_CANT_ATTACK                    = 0x149,
     SMSG_ATTACKERSTATEUPDATE                        = 0x14A,
