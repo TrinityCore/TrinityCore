@@ -763,10 +763,17 @@ bool ChatHandler::HandleDebugSpawnVehicle(const char* args)
     char* e = strtok((char*)args, " ");
     char* i = strtok(NULL, " ");
 
-    if (!e || !i)
+    if (!e)
         return false;
 
     uint32 entry = (uint32)atoi(e);
+
+    float x, y, z, o = m_session->GetPlayer()->GetOrientation();
+    m_session->GetPlayer()->GetClosePoint(x, y, z, m_session->GetPlayer()->GetObjectSize());
+
+    if(!i)
+        return m_session->GetPlayer()->SummonVehicle(entry, x, y, z, o);
+
     uint32 id = (uint32)atoi(i);
 
     CreatureInfo const *ci = objmgr.GetCreatureTemplate(entry);
@@ -781,8 +788,6 @@ bool ChatHandler::HandleDebugSpawnVehicle(const char* args)
 
     Vehicle *v = new Vehicle;
     Map *map = m_session->GetPlayer()->GetMap();
-    float x, y, z, o = m_session->GetPlayer()->GetOrientation();
-    m_session->GetPlayer()->GetClosePoint(x, y, z, m_session->GetPlayer()->GetObjectSize());
 
     if(!v->Create(objmgr.GenerateLowGuid(HIGHGUID_VEHICLE), map, m_session->GetPlayer()->GetPhaseMask(), entry, id, m_session->GetPlayer()->GetTeam(), x, y, z, o))
     {

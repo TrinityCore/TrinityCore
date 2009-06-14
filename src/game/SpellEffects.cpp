@@ -5010,6 +5010,11 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         ((Player*)m_caster)->learnSpell(discoveredSpell, false);
                     return;
                 }
+                case 62428: // Load into Catapult
+                    if(m_caster->m_Vehicle && m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->isVehicle())
+                        if(Unit *passenger = ((Vehicle*)m_caster)->GetPassenger(0))
+                            passenger->CastSpell(m_caster->m_Vehicle, damage, true);
+                    return;
             }
             break;
         }
