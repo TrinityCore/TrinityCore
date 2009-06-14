@@ -8713,7 +8713,8 @@ int32 Unit::DealHeal(Unit *pVictim, uint32 addhealth, SpellEntry const *spellPro
 
     if (GetTypeId()==TYPEID_PLAYER)
     {
-        SendHealSpellLog(pVictim, spellProto->Id, addhealth, critical, gain);
+        // overheal = addhealth - gain
+        SendHealSpellLog(pVictim, spellProto->Id, addhealth, addhealth > gain ? addhealth - gain : 0, critical);
 
         if (BattleGround *bg = ((Player*)this)->GetBattleGround())
             bg->UpdatePlayerScore((Player*)this, SCORE_HEALING_DONE, gain);
@@ -8917,7 +8918,7 @@ void Unit::UnsummonAllTotems()
     }
 }
 
-void Unit::SendHealSpellLog(Unit *pVictim, uint32 SpellID, uint32 Damage, bool critical, int32 gain)
+void Unit::SendHealSpellLog(Unit *pVictim, uint32 SpellID, uint32 Damage, uint32 OverHeal, bool critical)
 {
     // we guess size
     WorldPacket data(SMSG_SPELLHEALLOG, (8+8+4+4+1));
@@ -8925,7 +8926,7 @@ void Unit::SendHealSpellLog(Unit *pVictim, uint32 SpellID, uint32 Damage, bool c
     data.append(GetPackGUID());
     data << uint32(SpellID);
     data << uint32(Damage);
-    data << uint32((int32)Damage > gain ? (int32)Damage - gain : 0);       // overheal
+    data << uint32(OverHeal);
     data << uint8(critical ? 1 : 0);
     data << uint8(0);                                       // unused in client?
     SendMessageToSet(&data, true);
