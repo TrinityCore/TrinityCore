@@ -1092,10 +1092,16 @@ enum Targets
     TARGET_DEST_DYNOBJ_NONE            = 88,
     TARGET_DEST_TRAJ                   = 89,
     TARGET_UNIT_MINIPET                = 90,
+    TARGET_UNK_91                      = 91,
+    TARGET_UNK_92                      = 92,
     TARGET_CORPSE_AREA_ENEMY_PLAYER    = 93,
+    TARGET_UNIT_VEHICLE                = 94,
+    TARGET_UNIT_DRIVER                 = 95, //?
+    TARGET_UNIT_PASSENGER              = 97,
+    TARGET_UNIT_AREA_PATH              = 104,
 };
 
-#define TOTAL_SPELL_TARGETS              94
+#define TOTAL_SPELL_TARGETS              105
 
 enum SpellMissInfo
 {

@@ -48,6 +48,7 @@
 #include "BattleGround.h"
 #include "Util.h"
 #include "TemporarySummon.h"
+#include "Vehicle.h"
 
 #define SPELL_CHANNEL_UPDATE_INTERVAL (1 * IN_MILISECONDS)
 
@@ -1727,6 +1728,15 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
                 case TARGET_UNIT_PARTY_CASTER:
                 case TARGET_UNIT_RAID_CASTER:
                     pushType = PUSH_CASTER_CENTER;
+                    break;
+                case TARGET_UNIT_VEHICLE:
+                    if(Vehicle *vehicle = m_caster->m_Vehicle)
+                        AddUnitTarget(vehicle, i);
+                    break;
+                case TARGET_UNIT_PASSENGER:
+                    if(m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->isVehicle())
+                        if(Unit *unit = ((Vehicle*)m_caster)->GetPassenger(1)) // maybe not right
+                            AddUnitTarget(unit, i);
                     break;
             }
             break;

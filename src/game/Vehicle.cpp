@@ -48,11 +48,29 @@ void Vehicle::AddToWorld()
         AIM_Initialize();
         switch(GetEntry())
         {
-            case 27850:InstallAccessory(27905,1);break;
+            //case 27850:InstallAccessory(27905,1);break;
             case 28312:InstallAccessory(28319,7);break;
             case 32627:InstallAccessory(32629,7);break;
+            case 33109:InstallAccessory(33167,1);break;
+            case 33060:InstallAccessory(33067,7);break;
+            case 33113:
+                InstallAccessory(33114,0);
+                InstallAccessory(33114,1);
+                InstallAccessory(33114,2);
+                InstallAccessory(33114,3);
+                InstallAccessory(33139,7);
+                break;
+            case 33114:
+                InstallAccessory(33143,1);
+                //InstallAccessory(33142,0);
+                InstallAccessory(33142,2);
+                break;
         }
-        //setPowerType(POWER_ENERGY);SetMaxPower(POWER_ENERGY, 100);
+        if(!GetMaxPower(POWER_MANA)) // m_vehicleInfo->36
+        {
+            setPowerType(POWER_ENERGY);
+            SetMaxPower(POWER_ENERGY, 100);
+        }
     }
 }
 
@@ -96,8 +114,8 @@ void Vehicle::Update(uint32 diff)
 {
     Creature::Update(diff);
     //310
-    //if(getPowerType() == POWER_ENERGY)
-    //    ModifyPower(POWER_ENERGY, 1);
+    if(getPowerType() == POWER_ENERGY)
+        ModifyPower(POWER_ENERGY, 100);
 }
 
 bool Vehicle::Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, uint32 vehicleId, uint32 team, float x, float y, float z, float o, const CreatureData * data)
@@ -159,6 +177,13 @@ bool Vehicle::HasEmptySeat(int8 seatId) const
     return !seat->second.passenger;
 }
 
+Unit *Vehicle::GetPassenger(int8 seatId) const
+{
+    SeatMap::const_iterator seat = m_Seats.find(seatId);
+    if(seat == m_Seats.end()) return NULL;
+    return seat->second.passenger;
+}
+
 int8 Vehicle::GetNextEmptySeat(int8 seatId, bool next) const
 {
     SeatMap::const_iterator seat = m_Seats.find(seatId);
@@ -185,8 +210,15 @@ int8 Vehicle::GetNextEmptySeat(int8 seatId, bool next) const
 
 void Vehicle::InstallAccessory(uint32 entry, int8 seatId)
 {
-    //Creature *accessory = SummonCreature(entry, GetPositionX(), GetPositionY(), GetPositionZ());
-    Creature *accessory = SummonVehicle(entry, GetPositionX(), GetPositionY(), GetPositionZ());
+    const CreatureInfo *cInfo = objmgr.GetCreatureTemplate(entry);
+    if(!cInfo)
+        return;
+
+    Creature *accessory;
+    if(cInfo->VehicleId)
+        accessory = SummonVehicle(entry, GetPositionX(), GetPositionY(), GetPositionZ());
+    else
+        accessory = SummonCreature(entry, GetPositionX(), GetPositionY(), GetPositionZ());
     if(!accessory)
         return;
 

@@ -7000,7 +7000,7 @@ void AuraEffect::HandleAuraControlVehicle(bool apply, bool Real, bool /*changeAm
         //if(caster->GetTypeId() == TYPEID_PLAYER)
         //    if(Pet *pet = ((Player*)caster)->GetPet())
         //        pet->Remove(PET_SAVE_AS_CURRENT);
-        caster->EnterVehicle(vehicle, 0);
+        caster->EnterVehicle(vehicle, m_amount - 1);
     }
     else
     {
