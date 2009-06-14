@@ -740,7 +740,9 @@ void BattleGround::EndBattleGround(uint32 winner)
             if (team == winner)
             {
                 // update achievement BEFORE personal rating update
-                plr->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, winner_arena_team->GetMember(plr->GetGUID())->personal_rating);
+                ArenaTeamMember* member = winner_arena_team->GetMember(plr->GetGUID());
+                if (member)
+                    plr->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, member->personal_rating);
 
                 winner_arena_team->MemberWon(plr,loser_rating);
             }
