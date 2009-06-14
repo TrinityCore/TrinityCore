@@ -3354,6 +3354,7 @@ void SpellMgr::LoadSpellCustomAttr()
             //mSpellCustomAttr[i] |= SPELL_ATTR_CU_EXCLUDE_SELF;
             //break;
         case 27820:                             // Mana Detonation
+        case 55789:                             // Improved Icy Talons
         //case 28062: case 39090:                 // Positive/Negative Charge
         //case 28085: case 39093:
             mSpellCustomAttr[i] |= SPELL_ATTR_CU_EXCLUDE_SELF;
