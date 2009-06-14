@@ -5815,23 +5815,26 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                         else if (dummySpell->Id == 47537)
                             multiplier += 0.5f;
 
-                        int32 basepoints0 = (multiplier * GetMaxPower(POWER_MANA) / 100);
-                        CastCustomSpell(this, 47755, &basepoints0, 0, 0, true, 0, triggeredByAura);
-                        return false;
+                        basepoints0 = (multiplier * GetMaxPower(POWER_MANA) / 100);
+                        triggered_spell_id = 47755;
+                        target = this;
                     }
-                    if (!roll_chance_i(triggerAmount))
-                        return false;
-
-                    switch(pVictim->getPowerType())
+                    else
                     {
-                        target = pVictim;
-                        case POWER_MANA:
-                            triggered_spell_id = 63654;
-                            basepoints0 = 2 * (pVictim->GetMaxPower(POWER_MANA) / 100);
-                            break;
-                        case POWER_RAGE:   triggered_spell_id = 63653; break;
-                        case POWER_ENERGY: triggered_spell_id = 63655; break;
-                        case POWER_RUNIC_POWER: triggered_spell_id = 63652; break;
+                        if (!roll_chance_i(triggerAmount))
+                            return false;
+
+                        switch(pVictim->getPowerType())
+                        {
+                            target = pVictim;
+                            case POWER_MANA:
+                                triggered_spell_id = 63654;
+                                basepoints0 = 2 * (pVictim->GetMaxPower(POWER_MANA) / 100);
+                                break;
+                            case POWER_RAGE:   triggered_spell_id = 63653; break;
+                            case POWER_ENERGY: triggered_spell_id = 63655; break;
+                            case POWER_RUNIC_POWER: triggered_spell_id = 63652; break;
+                        }
                     }
                     break;
                 }
@@ -6707,6 +6710,12 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
         }
         case SPELLFAMILY_DEATHKNIGHT:
         {
+            // Blood-Caked Strike - Blood-Caked Blade
+            if (dummySpell->EffectTriggerSpell[effIndex] == 50463)
+            {
+                triggered_spell_id = dummySpell->EffectTriggerSpell[effIndex];
+                break;
+            }
             // Blood Aura
             if (dummySpell->SpellIconID == 2636)
             {
@@ -7705,7 +7714,7 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                     if (AuraEffect * aurEff = owner->GetDummyAura(SPELLFAMILY_WARLOCK, 3220))
                     {
                         if (owner->GetTypeId() == TYPEID_PLAYER)
-                             basepoints0 = aurEff->GetAmount() * ((Player*)owner)->GetBaseSpellDamageBonus() / 100;
+                             basepoints0 = (aurEff->GetAmount() * ((Player*)owner)->GetBaseSpellDamageBonus() + 100.0f) / 100;
                         CastCustomSpell(this,trigger_spell_id,&basepoints0,&basepoints0,NULL,true,castItem,triggeredByAura);
                         return true;
                     }
@@ -8965,6 +8974,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
     // Taken/Done total percent damage auras
     float DoneTotalMod = 1.0f;
     float TakenTotalMod = 1.0f;
+    float ApCoeffMod = 1.0f;
     int32 DoneTotal = 0;
     int32 TakenTotal = 0;
 
@@ -9084,7 +9094,11 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
             case 7293: // Rage of Rivendare
             {
                 if (pVictim->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_DEATHKNIGHT, 0,0x02000000,0))
-                    DoneTotalMod *= ((*i)->GetAmount()+100.0f)/100.0f;
+                {
+                    SpellChainNode const* chain = spellmgr.GetSpellChainNode((*i)->GetId());
+                    if (chain)
+                        DoneTotalMod *= (chain->rank * 2.0f + 100.0f)/100.0f;
+                }
                 break;
             }
             // Twisted Faith
@@ -9178,6 +9192,9 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
                 if (AuraEffect * aurEff = GetDummyAura(SPELLFAMILY_DEATHKNIGHT, 196))
                     DoneTotalMod *= (100.0f + aurEff->GetAmount()) / 100.0f;
             }
+            // This is not a typo - Impurity has SPELLFAMILY_DRUID
+            if (AuraEffect * aurEff = GetDummyAura(SPELLFAMILY_DRUID, 1986))
+                ApCoeffMod *= (100.0f + aurEff->GetAmount()) / 100.0f;
         break;
     }
 
@@ -9236,7 +9253,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
         else
             coeff = bonus->direct_damage;
         if (bonus->ap_bonus)
-            DoneTotal+=bonus->ap_bonus * GetTotalAttackPowerValue(BASE_ATTACK) * stack;
+            DoneTotal+=bonus->ap_bonus * GetTotalAttackPowerValue(BASE_ATTACK) * stack * ApCoeffMod;
     }
     // Default calculation
     if (DoneAdvertisedBenefit || TakenAdvertisedBenefit)
