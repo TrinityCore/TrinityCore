@@ -12196,7 +12196,7 @@ void CharmInfo::SetPetNumber(uint32 petnumber, bool statwindow)
         m_unit->SetUInt32Value(UNIT_FIELD_PETNUMBER, 0);
 }
 
-void CharmInfo::LoadPetActionBar( std::string data )
+void CharmInfo::LoadPetActionBar(const std::string& data )
 {
     InitPetActionBar();
 

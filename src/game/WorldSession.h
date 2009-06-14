@@ -60,7 +60,7 @@ struct AccountData
 
 struct AddonInfo
 {
-    AddonInfo(std::string name, uint8 enabled, uint32 crc)
+    AddonInfo(const std::string& name, uint8 enabled, uint32 crc)
     {
         Name = name;
         Enabled = enabled;
