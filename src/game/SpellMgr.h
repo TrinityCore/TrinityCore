@@ -405,17 +405,17 @@ enum ProcFlags
    PROC_FLAG_SUCCESSFUL_RANGED_SPELL_HIT   = 0x00000100,    // 08 Successful Ranged attack by Spell that use ranged weapon
    PROC_FLAG_TAKEN_RANGED_SPELL_HIT        = 0x00000200,    // 09 Taken damage by Spell that use ranged weapon
 
-   PROC_FLAG_SUCCESSFUL_POSITIVE_AOE_HIT   = 0x00000400,    // 10 Successful AoE (not 100% shure unused)
-   PROC_FLAG_TAKEN_POSITIVE_AOE            = 0x00000800,    // 11 Taken AoE      (not 100% shure unused)
+   PROC_FLAG_SUCCESSFUL_POSITIVE_SPELL     = 0x00000400,    // 10 Successful Positive spell hit
+   PROC_FLAG_TAKEN_POSITIVE_SPELL          = 0x00000800,    // 11 Taken Positive spell hit
 
-   PROC_FLAG_SUCCESSFUL_AOE_SPELL_HIT      = 0x00001000,    // 12 Successful AoE damage spell hit (not 100% shure unused)
-   PROC_FLAG_TAKEN_AOE_SPELL_HIT           = 0x00002000,    // 13 Taken AoE damage spell hit      (not 100% shure unused)
+   PROC_FLAG_SUCCESSFUL_NEGATIVE_SPELL_HIT = 0x00001000,    // 12 Successful Negative spell hit
+   PROC_FLAG_TAKEN_NEGATIVE_SPELL_HIT      = 0x00002000,    // 13 Taken Negative spell hit
 
-   PROC_FLAG_SUCCESSFUL_POSITIVE_SPELL     = 0x00004000,    // 14 Successful cast positive spell (by default only on healing)
-   PROC_FLAG_TAKEN_POSITIVE_SPELL          = 0x00008000,    // 15 Taken positive spell hit (by default only on healing)
+   PROC_FLAG_SUCCESSFUL_HEALING_SPELL      = 0x00004000,    // 14 Successful Direct Heal spell hit
+   PROC_FLAG_TAKEN_HEALING_SPELL           = 0x00008000,    // 15 Taken Direct Heal spell hit
 
-   PROC_FLAG_SUCCESSFUL_NEGATIVE_SPELL_HIT = 0x00010000,    // 16 Successful negative spell cast (by default only on damage)
-   PROC_FLAG_TAKEN_NEGATIVE_SPELL_HIT      = 0x00020000,    // 17 Taken negative spell (by default only on damage)
+   PROC_FLAG_SUCCESSFUL_DAMAGING_SPELL_HIT = 0x00010000,    // 16 Successful Direct Damage spell hit
+   PROC_FLAG_TAKEN_DAMAGING_SPELL_HIT      = 0x00020000,    // 17 Taken Direct Damage spell hit
 
    PROC_FLAG_ON_DO_PERIODIC                = 0x00040000,    // 18 Successful do periodic (damage / healing, determined from 14,16 flags)
    PROC_FLAG_ON_TAKE_PERIODIC              = 0x00080000,    // 19 Taken spell periodic (damage / healing, determined from 15,17 flags)
@@ -424,8 +424,9 @@ enum ProcFlags
    PROC_FLAG_ON_TRAP_ACTIVATION            = 0x00200000,    // 21 On trap activation
 
    PROC_FLAG_TAKEN_OFFHAND_HIT             = 0x00400000,    // 22 Taken off-hand melee attacks(not used)
-   PROC_FLAG_SUCCESSFUL_OFFHAND_HIT        = 0x00800000     // 23 Successful off-hand melee attacks
-//   PROC_FLAG_DEATH                         = 0x01000000
+   PROC_FLAG_SUCCESSFUL_OFFHAND_HIT        = 0x00800000,     // 23 Successful off-hand melee attacks
+
+   PROC_FLAG_DEATH                         = 0x01000000     // 24 Died in any way
 };
 
 #define MELEE_BASED_TRIGGER_MASK (PROC_FLAG_SUCCESSFUL_MILEE_HIT        | \
@@ -458,8 +459,6 @@ enum ProcFlagsEx
    PROC_EX_EX_TRIGGER_ALWAYS   = 0x0010000,                 // If set trigger always ( no matter another flags) used for drop charges
    PROC_EX_EX_ONE_TIME_TRIGGER = 0x0020000,                 // If set trigger always but only one time (not used)
    PROC_EX_INTERNAL_CANT_PROC  = 0x0800000,
-   PROC_EX_INTERNAL_DOT        = 0x1000000,                 // Only for internal use
-   PROC_EX_INTERNAL_HOT        = 0x2000000,                 // Only for internal use
    PROC_EX_INTERNAL_TRIGGERED  = 0x4000000,                 // Only for internal use
    PROC_EX_INTERNAL_REQ_FAMILY = 0x8000000                  // Only for internal use
 };
@@ -768,7 +767,7 @@ class SpellMgr
             return NULL;
         }
 
-        bool IsSpellProcEventCanTriggeredBy( SpellProcEventEntry const * spellProcEvent, uint32 EventProcFlag, SpellEntry const * procSpell, uint32 procFlags, uint32 procExtra, bool active);
+        bool IsSpellProcEventCanTriggeredBy( SpellProcEventEntry const * spellProcEvent, uint32 EventProcFlag, SpellEntry const * procSpell, uint32 procFlags, uint32 procExtra);
 
         SpellEnchantProcEntry const* GetSpellEnchantProcEvent(uint32 enchId) const
         {

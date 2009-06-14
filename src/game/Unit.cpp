@@ -2080,36 +2080,6 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
                         }
                     }
                 }
-                // no break here, rapture can proc with reflective shield
-                // Rapture
-                if (spellProto->SpellFamilyFlags.HasFlag(0x1, 0x1000000))
-                {
-                    if (pVictim == this)
-                        break;
-                    healCaster = (*i)->GetCaster();
-                    if (!healCaster)
-                        break;
-
-                    AuraEffectList const& lOverRideCS = pVictim->GetAurasByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
-                    for(AuraEffectList::const_iterator k = lOverRideCS.begin(); k != lOverRideCS.end(); ++k)
-                    {
-                        switch((*k)->GetMiscValue())
-                        {
-                                case 7556:                          // Rank 1
-                                case 7555:                          // Rank 2
-                                case 7554:                          // Rank 3
-                                case 7553:                          // Rank 4
-                                case 7552:                          // Rank 5
-                                {
-                                     healSpell = 47755;
-                                     healAmount += ((pVictim->getLevel() * (-0.2) + 18) / 1000000) * currentAbsorb * pVictim->GetMaxPower(POWER_MANA);
-                                     // limitation based on aura amount
-                                     if(healAmount > pVictim->GetMaxPower(POWER_MANA) * (*k)->GetAmount() / 1000)
-                                        healAmount = pVictim->GetMaxPower(POWER_MANA) * (*k)->GetAmount() / 1000;
-                                } break;
-                        }
-                    }
-                }
                 break;
             }
             case SPELLFAMILY_SHAMAN:
@@ -3064,7 +3034,7 @@ SpellMissInfo Unit::SpellHitResult(Unit *pVictim, SpellEntry const *spell, bool 
         if (reflectchance > 0 && roll_chance_i(reflectchance))
         {
             // Start triggers for remove charges if need (trigger only for victim, and mark as active spell)
-            ProcDamageAndSpell(pVictim, PROC_FLAG_NONE, PROC_FLAG_TAKEN_NEGATIVE_SPELL_HIT, PROC_EX_REFLECT, 1, BASE_ATTACK, spell);
+            ProcDamageAndSpell(pVictim, PROC_FLAG_NONE, PROC_FLAG_TAKEN_NEGATIVE_SPELL_HIT, PROC_EX_REFLECT, 0, BASE_ATTACK, spell);
             return SPELL_MISS_REFLECT;
         }
     }
@@ -5646,6 +5616,14 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             }
             switch(dummySpell->Id)
             {
+                // Siphon Life
+                case 63108:
+                {
+                    triggered_spell_id = 63106;
+                    target = this;
+                    basepoints0 = int32(damage*triggerAmount/100);
+                    break;
+                }
                 // Nightfall
                 case 18094:
                 case 18095:
@@ -5821,6 +5799,40 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 {
                     RemoveAurasByTypeWithDispel(SPELL_AURA_MOD_ROOT);
                     RemoveAurasByTypeWithDispel(SPELL_AURA_MOD_DECREASE_SPEED);
+                    break;
+                }
+                // Rapture
+                case 47535:                          // Rank 1 1.5% of max mana
+                case 47536:                          // Rank 2 2% of max mana
+                case 47537:                          // Rank 3 2.5% of max mana
+                {
+                    // Effect 0 - proc on self
+                    if (effIndex == 0)
+                    {
+                        float multiplier = triggerAmount;
+                        if (dummySpell->Id == 47535)
+                            multiplier -= 0.5f;
+                        else if (dummySpell->Id == 47537)
+                            multiplier += 0.5f;
+
+                        int32 basepoints0 = (multiplier * GetMaxPower(POWER_MANA) / 100);
+                        CastCustomSpell(this, 47755, &basepoints0, 0, 0, true, 0, triggeredByAura);
+                        return false;
+                    }
+                    if (!roll_chance_i(triggerAmount))
+                        return false;
+
+                    switch(pVictim->getPowerType())
+                    {
+                        target = pVictim;
+                        case POWER_MANA:
+                            triggered_spell_id = 63654;
+                            basepoints0 = 2 * (pVictim->GetMaxPower(POWER_MANA) / 100);
+                            break;
+                        case POWER_RAGE:   triggered_spell_id = 63653; break;
+                        case POWER_ENERGY: triggered_spell_id = 63655; break;
+                        case POWER_RUNIC_POWER: triggered_spell_id = 63652; break;
+                    }
                     break;
                 }
                 // Psychic Horror
@@ -7692,7 +7704,8 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                 {
                     if (AuraEffect * aurEff = owner->GetDummyAura(SPELLFAMILY_WARLOCK, 3220))
                     {
-                        basepoints0 = aurEff->GetAmount();
+                        if (owner->GetTypeId() == TYPEID_PLAYER)
+                             basepoints0 = aurEff->GetAmount() * ((Player*)owner)->GetBaseSpellDamageBonus() / 100;
                         CastCustomSpell(this,trigger_spell_id,&basepoints0,&basepoints0,NULL,true,castItem,triggeredByAura);
                         return true;
                     }
@@ -7869,19 +7882,6 @@ bool Unit::HandleOverrideClassScriptAuraProc(Unit *pVictim, uint32 damage, AuraE
             int32 cost = procSpell->manaCost + procSpell->ManaCostPercentage * GetCreateMana() / 100;
             int32 basepoints0 = cost * triggeredByAura->GetAmount()/100;
             CastCustomSpell(this, 47762, &basepoints0, 0, 0, true, 0, triggeredByAura);
-            return true;
-        }
-        // Rapture
-        case 7556:                          // Rank 1
-        case 7555:                          // Rank 2
-        case 7554:                          // Rank 3
-        case 7553:                          // Rank 4
-        case 7552:                          // Rank 5
-        {
-            int32 basepoints0 = ((getLevel() * (-0.2) + 18) / 1000000) * damage * GetMaxPower(POWER_MANA);
-            if(basepoints0 > (GetMaxPower(POWER_MANA) / 100) * (triggeredByAura->GetAmount() / 10))
-               basepoints0 = (GetMaxPower(POWER_MANA) / 100) * (triggeredByAura->GetAmount() / 10);
-            CastCustomSpell(this, 47755, &basepoints0, 0, 0, true, 0, triggeredByAura);
             return true;
         }
     }
@@ -13300,7 +13300,7 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit *pVictim, Aura * aura, SpellEntry co
     }
 
     // Check spellProcEvent data requirements
-    if(!spellmgr.IsSpellProcEventCanTriggeredBy(spellProcEvent, EventProcFlag, procSpell, procFlag, procExtra, active))
+    if(!spellmgr.IsSpellProcEventCanTriggeredBy(spellProcEvent, EventProcFlag, procSpell, procFlag, procExtra))
         return false;
     // In most cases req get honor or XP from kill
     if (EventProcFlag & PROC_FLAG_KILL && GetTypeId() == TYPEID_PLAYER)
