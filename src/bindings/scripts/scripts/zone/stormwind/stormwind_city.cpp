@@ -123,27 +123,33 @@ CreatureAI* GetAI_npc_bartleby(Creature *_creature)
 ## npc_dashel_stonefist
 ######*/
 
+enum
+{
+    QUEST_MISSING_DIPLO_PT8     = 1447,
+    FACTION_HOSTILE             = 168
+};
+
 struct TRINITY_DLL_DECL npc_dashel_stonefistAI : public ScriptedAI
 {
-    npc_dashel_stonefistAI(Creature *c) : ScriptedAI(c) {}
+    npc_dashel_stonefistAI(Creature *c) : ScriptedAI(c) { uiNormFaction = c->getFaction(); }
+
+    uint32 uiNormFaction;
 
     void Reset()
     {
-        m_creature->setFaction(11);
+        m_creature->setFaction(uiNormFaction);
     }
 
     void DamageTaken(Unit *done_by, uint32 & damage)
     {
-        if((damage > m_creature->GetHealth()) || (m_creature->GetHealth() - damage)*100 / m_creature->GetMaxHealth() < 15)
+        if ((damage > m_creature->GetHealth()) || (m_creature->GetHealth() - damage)*100 / m_creature->GetMaxHealth() < 15)
         {
             //Take 0 damage
             damage = 0;
 
             if (done_by->GetTypeId() == TYPEID_PLAYER)
-            {
-                CAST_PLR(done_by)->AttackStop();
-                CAST_PLR(done_by)->AreaExploredOrEventHappens(1447);
-            }
+                CAST_PLR(done_by)->AreaExploredOrEventHappens(QUEST_MISSING_DIPLO_PT8);
+
             //m_creature->CombatStop();
             EnterEvadeMode();
         }
@@ -152,19 +158,19 @@ struct TRINITY_DLL_DECL npc_dashel_stonefistAI : public ScriptedAI
     void EnterCombat(Unit *who) {}
 };
 
-bool QuestAccept_npc_dashel_stonefist(Player *player, Creature *_Creature, Quest const *_Quest)
+bool QuestAccept_npc_dashel_stonefist(Player* pPlayer, Creature* pCreature, Quest const* pQuest)
 {
-    if(_Quest->GetQuestId() == 1447)
+    if(pQuest->GetQuestId() == QUEST_MISSING_DIPLO_PT8)
     {
-        _Creature->setFaction(168);
-        CAST_AI(npc_dashel_stonefistAI, _Creature->AI())->AttackStart(player);
+        pCreature->setFaction(FACTION_HOSTILE);
+        CAST_AI(npc_dashel_stonefistAI, pCreature->AI())->AttackStart(pPlayer);
     }
     return true;
 }
 
-CreatureAI* GetAI_npc_dashel_stonefist(Creature *_creature)
+CreatureAI* GetAI_npc_dashel_stonefist(Creature* pCreature)
 {
-    return new npc_dashel_stonefistAI(_creature);
+    return new npc_dashel_stonefistAI(pCreature);
 }
 
 /*######

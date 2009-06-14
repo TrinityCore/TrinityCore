@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Zangarmarsh
 SD%Complete: 100
-SDComment: Quest support: 9785, 9803, 10009, 9752. Mark Of ... buffs.
+SDComment: Quest support: 9752, 9785, 9803, 10009. Mark Of ... buffs.
 SDCategory: Zangarmarsh
 EndScriptData */
 
@@ -255,71 +255,67 @@ bool GossipSelect_npc_mortog_steamhead(Player *player, Creature *_Creature, uint
 ## npc_kayra_longmane
 ######*/
 
-#define SAY_PROGRESS_1  -1000360
-#define SAY_PROGRESS_2  -1000361
-#define SAY_PROGRESS_3  -1000362
-#define SAY_PROGRESS_4  -1000363
-#define SAY_PROGRESS_5  -1000364
-#define SAY_PROGRESS_6  -1000365
+enum
+{
+    SAY_START           = -1000360,
+    SAY_AMBUSH1         = -1000361,
+    SAY_PROGRESS        = -1000362,
+    SAY_AMBUSH2         = -1000363,
+    SAY_NEAR_END        = -1000364,
+    SAY_END             = -1000365,
 
-#define QUEST_EFU   9752
-#define MOB_AMBUSH  18042
+    QUEST_ESCAPE_FROM   = 9752,
+    NPC_SLAVEBINDER     = 18042
+};
 
 struct TRINITY_DLL_DECL npc_kayra_longmaneAI : public npc_escortAI
 {
     npc_kayra_longmaneAI(Creature* c) : npc_escortAI(c) {}
 
-    bool Completed;
-
-    void Reset()
-    {
-        Completed = false;
-        m_creature->setFaction(1660);
-    }
+    void Reset() { }
 
     void EnterCombat(Unit* who){}
 
-    void JustSummoned(Creature *summoned)
-    {
-        summoned->AI()->AttackStart(m_creature);
-        summoned->setFaction(14);
-    }
-
     void WaypointReached(uint32 i)
     {
-        Player* player = Unit::GetPlayer(PlayerGUID);
+        Unit* pUnit = Unit::GetUnit(*m_creature, PlayerGUID);
+
+        if (!pUnit || pUnit->GetTypeId() != TYPEID_PLAYER)
+            return;
 
         switch(i)
         {
-        case 0: DoScriptText(SAY_PROGRESS_1, m_creature, player); break;
-        case 5: DoScriptText(SAY_PROGRESS_2, m_creature, player);
-            m_creature->SummonCreature(MOB_AMBUSH, -922.24, 5357.98, 17.93, 5.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
-            m_creature->SummonCreature(MOB_AMBUSH, -922.24, 5357.98, 17.93, 5.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
-            break;
-        case 6: DoScriptText(SAY_PROGRESS_3, m_creature, player);
-            m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
-            break;
-        case 18: DoScriptText(SAY_PROGRESS_4, m_creature, player);
-            m_creature->SummonCreature(MOB_AMBUSH, -671.86, 5379.81, 22.12, 5.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
-            m_creature->SummonCreature(MOB_AMBUSH, -671.86, 5379.81, 22.12, 5.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
-            break;
-        case 19: m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
-            DoScriptText(SAY_PROGRESS_5, m_creature, player); break;
-        case 26: DoScriptText(SAY_PROGRESS_6, m_creature, player);
-            Completed = true;
-            if(player)
-                player->GroupEventHappens(QUEST_EFU, m_creature);
-            break;
+            case 4:
+                DoScriptText(SAY_AMBUSH1, m_creature, pUnit);
+                DoSpawnCreature(NPC_SLAVEBINDER, -10.0f, -5.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+                DoSpawnCreature(NPC_SLAVEBINDER, -8.0f, 5.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+                break;
+            case 5:
+                DoScriptText(SAY_PROGRESS, m_creature, pUnit);
+                SetRun();
+                break;
+            case 16:
+                DoScriptText(SAY_AMBUSH2, m_creature, pUnit);
+                DoSpawnCreature(NPC_SLAVEBINDER, -10.0f, -5.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+                DoSpawnCreature(NPC_SLAVEBINDER, -8.0f, 5.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+                break;
+            case 17:
+                SetRun(false);
+                DoScriptText(SAY_NEAR_END, m_creature, pUnit);
+                break;
+            case 26:
+                DoScriptText(SAY_END, m_creature, pUnit);
+                ((Player*)pUnit)->GroupEventHappens(QUEST_ESCAPE_FROM, m_creature);
+                break;
         }
     }
 
     void JustDied(Unit* killer)
     {
-        if (PlayerGUID && !Completed)
+        if (Unit* pUnit = Unit::GetUnit(*m_creature, PlayerGUID))
         {
-            Player* player = Unit::GetPlayer(PlayerGUID);
-            if (player && !Completed)
-                player->FailQuest(QUEST_EFU);
+            if (((Player*)pUnit)->GetQuestStatus(QUEST_ESCAPE_FROM) == QUEST_STATUS_INCOMPLETE)
+                ((Player*)pUnit)->FailQuest(QUEST_ESCAPE_FROM);
         }
     }
 
@@ -329,49 +325,23 @@ struct TRINITY_DLL_DECL npc_kayra_longmaneAI : public npc_escortAI
     }
 };
 
-bool QuestAccept_npc_kayra_longmane(Player* player, Creature* creature, Quest const* quest)
+bool QuestAccept_npc_kayra_longmane(Player* pPlayer, Creature* pCreature, Quest const* pQuest)
 {
-    if (quest->GetQuestId() == QUEST_EFU)
+    if (pQuest->GetQuestId() == QUEST_ESCAPE_FROM)
     {
-        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, true, false, player->GetGUID());
-        creature->setFaction(113);
+        DoScriptText(SAY_START, pCreature, pPlayer);
+        ((npc_escortAI*)(pCreature->AI()))->Start(false, true, false, pPlayer->GetGUID());
     }
     return true;
 }
 
-CreatureAI* GetAI_npc_kayra_longmaneAI(Creature* _Creature)
+CreatureAI* GetAI_npc_kayra_longmaneAI(Creature* pCreature)
 {
-    npc_kayra_longmaneAI* thisAI = new npc_kayra_longmaneAI(_Creature);
+    npc_kayra_longmaneAI* thisAI = new npc_kayra_longmaneAI(pCreature);
 
-    thisAI->AddWaypoint(0, -931.88, 5283.56, 23.98);//SAY_PROGRESS_1
-    thisAI->AddWaypoint(1, -930.52, 5287.57, 23.82);
-    thisAI->AddWaypoint(2, -924.98, 5297.94, 17.78);
-    thisAI->AddWaypoint(3, -928.83, 5316.07, 18.18);
-    thisAI->AddWaypoint(4, -930.07, 5323.10, 18.63);
-    thisAI->AddWaypoint(5, -926.58, 5331.24, 18.74, 6000);//SAY_PROGRESS_2
-    thisAI->AddWaypoint(6, -926.58, 5331.24, 18.74, 3000);//SAY_PROGRESS_3 Run to the hills!
-    thisAI->AddWaypoint(7, -931.24, 5358.89, 18.14);
-    thisAI->AddWaypoint(8, -934.43, 5370.20, 22.41);
-    thisAI->AddWaypoint(9, -943.01, 5400.55, 22.74);
-    thisAI->AddWaypoint(10, -929.62, 5417.98, 23.07);
-    thisAI->AddWaypoint(11, -901.92, 5420.38, 24.19);
-    thisAI->AddWaypoint(12, -859.03, 5415.36, 23.64);
-    thisAI->AddWaypoint(13, -808.94, 5401.93, 23.11);
-    thisAI->AddWaypoint(14, -772.74, 5390.53, 22.97);
-    thisAI->AddWaypoint(15, -749.71, 5385.39, 22.75);
-    thisAI->AddWaypoint(16, -721.23, 5380.38, 22.47);
-    thisAI->AddWaypoint(17, -687.96, 5379.08, 22.16);
-    thisAI->AddWaypoint(18, -680.87, 5378.95, 21.99, 6000);//SAY_PROGRESS_4 Summon Ambush
-    thisAI->AddWaypoint(19, -680.87, 5378.95, 21.99, 6000);//SAY_PROGRESS_5
-    thisAI->AddWaypoint(20, -636.14, 5385.25, 22.20);
-    thisAI->AddWaypoint(21, -602.94, 5411.36, 21.48);
-    thisAI->AddWaypoint(22, -566.86, 5421.87, 21.25);
-    thisAI->AddWaypoint(23, -547.27, 5427.87, 21.10);
-    thisAI->AddWaypoint(24, -520.59, 5444.83, 21.15);
-    thisAI->AddWaypoint(25, -488.45, 5447.83, 22.38);
-    thisAI->AddWaypoint(26, -449.65, 5463.78, 21.77, 11000);//SAY_PROGRESS_6
+    thisAI->FillPointMovementListForCreature();
 
-    return thisAI;
+    return (CreatureAI*)thisAI;
 }
 /*######
 ## AddSC
