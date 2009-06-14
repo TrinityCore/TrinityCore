@@ -58,9 +58,10 @@ enum AchievementCriteriaDataType
     ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_PLAYER_COUNT    = 13,// count                        "with less than %u people in the zone"
     ACHIEVEMENT_CRITERIA_DATA_TYPE_T_TEAM              = 14,// team                         HORDE(67), ALLIANCE(469)
     ACHIEVEMENT_CRITERIA_DATA_TYPE_S_DRUNK             = 15,// drunken_state  0             (enum DrunkenState) of player
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_HOLIDAY             = 16,// holiday_id     0             event in holiday time
 };
 
-#define MAX_ACHIEVEMENT_CRITERIA_DATA_TYPE               16 // maximum value in AchievementCriteriaDataType enum
+#define MAX_ACHIEVEMENT_CRITERIA_DATA_TYPE               17 // maximum value in AchievementCriteriaDataType enum
 
 class Player;
 class Unit;
@@ -140,6 +141,11 @@ struct AchievementCriteriaData
         {
             uint32 state;
         } drunk;
+        // ACHIEVEMENT_CRITERIA_DATA_TYPE_HOLIDAY
+        struct
+        {
+            uint16 id;
+        } holiday;
         // ...
         struct
         {
