@@ -793,7 +793,7 @@ void Spell::prepareDataForTriggerSystem(AuraEffect * triggeredByAura)
     // Gives your Immolation Trap, Frost Trap, Explosive Trap, and Snake Trap ....
     if (m_spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER && (m_spellInfo->SpellFamilyFlags[1] & 0x00002000 || m_spellInfo->SpellFamilyFlags[0] & 0x1C))
     {
-        m_procAttacker = PROC_FLAG_ON_TRAP_ACTIVATION;
+        m_procAttacker |= PROC_FLAG_ON_TRAP_ACTIVATION;
     }
     else
     {
