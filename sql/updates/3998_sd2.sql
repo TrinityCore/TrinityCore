@@ -1,4 +1,4 @@
-DELETE FROM script_texts WHERE entry BETWEEN -1000342 AND -1000340;
+DELETE FROM script_texts WHERE entry BETWEEN -1000409 AND -1000407;
 INSERT INTO script_texts (entry,content_default,sound,type,language,emote,comment) VALUES
 (-1000407, '%s howls in delight at the sight of his lunch!',0,2,0,0,'kyle EMOTE_SEE_LUNCH'),
 (-1000408, '%s eats his lunch.',0,2,0,0,'kyle EMOTE_EAT_LUNCH'),
