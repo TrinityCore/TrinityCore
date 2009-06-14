@@ -15607,6 +15607,8 @@ void Player::SendRaidInfo()
     size_t p_counter = data.wpos();
     data << uint32(counter);                                // placeholder
 
+    time_t now = time(NULL);
+
     for(int i = 0; i < TOTAL_DIFFICULTIES; ++i)
     {
         for (BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end(); ++itr)
@@ -15614,10 +15616,11 @@ void Player::SendRaidInfo()
             if(itr->second.perm)
             {
                 InstanceSave *save = itr->second.save;
-                data << uint32(save->GetMapId());
-                data << uint32(save->GetResetTime() - time(NULL));
-                data << uint32(save->GetInstanceId());
-                data << uint32(save->GetDifficulty());
+                data << uint32(save->GetMapId());           // map id
+                data << uint32(save->GetDifficulty());      // difficulty
+                data << uint64(save->GetInstanceId());      // instance id
+                data << uint32(save->GetResetTime() - now); // reset time
+                data << uint32(0);                          // is extended
                 ++counter;
             }
         }
@@ -16449,12 +16452,6 @@ void Player::Customize(uint64 guid, uint8 gender, uint8 skin, uint8 face, uint8 
     SetUInt32ValueInArray(tokens, PLAYER_BYTES_3, player_bytes3);
 
     SaveValuesArrayInDB(tokens, guid);
-}
-
-void Player::SendAttackSwingNotStanding()
-{
-    WorldPacket data(SMSG_ATTACKSWING_NOTSTANDING, 0);
-    GetSession()->SendPacket( &data );
 }
 
 void Player::SendAttackSwingDeadTarget()
@@ -18784,7 +18781,7 @@ void Player::SendTransferAborted(uint32 mapid, uint8 reason, uint8 arg)
     GetSession()->SendPacket(&data);
 }
 
-void Player::SendInstanceResetWarning(uint32 mapid, uint32 time)
+void Player::SendInstanceResetWarning( uint32 mapid, uint32 difficulty, uint32 time )
 {
     // type of warning, based on the time remaining until reset
     uint32 type;
@@ -18796,15 +18793,16 @@ void Player::SendInstanceResetWarning(uint32 mapid, uint32 time)
         type = RAID_INSTANCE_WARNING_MIN;
     else
         type = RAID_INSTANCE_WARNING_MIN_SOON;
+
     WorldPacket data(SMSG_RAID_INSTANCE_MESSAGE, 4+4+4+4);
     data << uint32(type);
     data << uint32(mapid);
-    data << uint32(0);                                      // may be difficulty
+    data << uint32(difficulty);                             // difficulty
     data << uint32(time);
     if(type == RAID_INSTANCE_WELCOME)
     {
-        data << uint8(0);
-        data << uint8(0);
+        data << uint8(0);                                   // is your (1)
+        data << uint8(0);                                   // is extended (1), ignored if prev field is 0
     }
     GetSession()->SendPacket(&data);
 }
