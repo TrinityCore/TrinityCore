@@ -301,7 +301,6 @@ struct TRINITY_DLL_DECL eye_of_cthunAI : public Scripted_NoMovementAI
                     DoCast(m_creature,SPELL_RED_COLORATION);
 
                     //Freeze animation
-                    m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, 53);
 
                     //Darkbeam for 35 seconds
                     PhaseTimer = 35000;
@@ -351,7 +350,6 @@ struct TRINITY_DLL_DECL eye_of_cthunAI : public Scripted_NoMovementAI
                     m_creature->RemoveAurasDueToSpell(SPELL_RED_COLORATION);
 
                     //Freeze animation
-                    m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
                     m_creature->SetUInt32Value(UNIT_FIELD_FLAGS, 0);
 
                     //Eye Beam for 50 seconds
@@ -397,7 +395,6 @@ struct TRINITY_DLL_DECL eye_of_cthunAI : public Scripted_NoMovementAI
                 m_creature->RemoveAurasDueToSpell(SPELL_RED_COLORATION);
 
                 //Reset to normal emote state and prevent select and attack
-                m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
                 m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
 
                 //Remove Target field

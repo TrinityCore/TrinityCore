@@ -61,97 +61,120 @@ bool GossipSelect_npc_skorn_whitecloud(Player *player, Creature *_Creature, uint
 # npc_kyle_frenzied
 ######*/
 
+enum
+{
+    EMOTE_SEE_LUNCH         = -1000407,
+    EMOTE_EAT_LUNCH         = -1000408,
+    EMOTE_DANCE             = -1000409,
+
+    SPELL_LUNCH             = 42222,
+    NPC_KYLE_FRENZIED       = 23616,
+    NPC_KYLE_FRIENDLY       = 23622,
+    POINT_ID                = 1
+};
+
 struct TRINITY_DLL_DECL npc_kyle_frenziedAI : public ScriptedAI
 {
     npc_kyle_frenziedAI(Creature *c) : ScriptedAI(c) {}
 
-    int STATE;
-    uint32 wait;
-    uint64 player;
+    bool bEvent;
+    uint64 uiPlayerGUID;
+    uint32 uiEventTimer;
+    uint8 uiEventPhase;
 
     void Reset()
     {
-        STATE = 0;
-        m_creature->SetDefaultMovementType(WAYPOINT_MOTION_TYPE);
-        m_creature->GetMotionMaster()->Initialize();
-    }
-    void EnterCombat(Unit* who){}
+        bEvent = false;
+        uiPlayerGUID = 0;
+        uiEventTimer = 5000;
+        uiEventPhase = 1;
 
-    void SpellHit(Unit *caster, const SpellEntry* spell)
-    {   // we can feed him without any quest
-        if(spell->Id == 42222 && caster->GetTypeId() == TYPEID_PLAYER && CAST_PLR(caster)->GetTeam() == HORDE)
-        {
-            STATE = 1;
-            player = caster->GetGUID();
-            float x, y, z, z2;
-            caster->GetPosition(x, y, z);
-            x = x + 3.7*cos(caster->GetOrientation());
-            y = y + 3.7*sin(caster->GetOrientation());
-            z2 = m_creature->GetBaseMap()->GetHeight(x,y,z,false);
-            z = (z2 <= INVALID_HEIGHT) ? z : z2;
-            m_creature->SetDefaultMovementType(IDLE_MOTION_TYPE);       //there is other way to stop waypoint movement?
-            m_creature->GetMotionMaster()->Initialize();
-            m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
-            m_creature->GetMotionMaster()->MovePoint(0,x, y, z);
-        }
+        if (m_creature->GetEntry() == NPC_KYLE_FRIENDLY)
+            m_creature->UpdateEntry(NPC_KYLE_FRENZIED);
     }
 
-    void MovementInform(uint32 type, uint32 id)
+    void Aggro(Unit* who) { }
+
+    void SpellHit(Unit* pCaster, SpellEntry const* pSpell)
     {
-        if(type == POINT_MOTION_TYPE)
+        if (!InCombat && !bEvent && pSpell->Id == SPELL_LUNCH)
         {
-            switch(STATE)
+            if (pCaster->GetTypeId() == TYPEID_PLAYER)
+                uiPlayerGUID = pCaster->GetGUID();
+
+            if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
             {
-            case 1:
-                {
-                Unit *plr = Unit::GetUnit((*m_creature),player);
-                if(plr)
-                    m_creature->SetOrientation(m_creature->GetAngle(plr));
-                m_creature->HandleEmoteCommand(EMOTE_STATE_USESTANDING);    //eat
-                WorldPacket data;
-                m_creature->BuildHeartBeatMsg(&data);
-                m_creature->SendMessageToSet(&data,true);
-                wait = 3000;
-                STATE = 2;
-                break;
-                }
-            case 4:
-                m_creature->setDeathState(JUST_DIED);
-                m_creature->Respawn();
-                break;
+                m_creature->GetMotionMaster()->MovementExpired();
+                m_creature->GetMotionMaster()->MoveIdle();
+                m_creature->StopMoving();
             }
+
+            bEvent = true;
+            DoScriptText(EMOTE_SEE_LUNCH, m_creature);
+            m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_CREATURE_SPECIAL);
         }
+    }
+
+    void MovementInform(uint32 uiType, uint32 uiPointId)
+    {
+        if (uiType != POINT_MOTION_TYPE || !bEvent)
+            return;
+
+        if (uiPointId == POINT_ID)
+            uiEventTimer = 5000;
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if (!STATE || STATE == 4)
-            return;
-        if(wait < diff)
+        if (bEvent)
         {
-            switch(STATE)
+            if (!uiEventTimer)
+                return;
+
+            if (uiEventTimer < diff)
             {
-            case 2:
-                STATE = 3; wait = 7000;
-                m_creature->UpdateEntry(23622,HORDE);
-                m_creature->HandleEmoteCommand(EMOTE_ONESHOT_DANCE);
-                break;
-            case 3:
-                STATE = 4;  //go home
-                Unit *plr = Unit::GetUnit((*m_creature),player);
-                    if(plr && CAST_PLR(plr)->GetQuestStatus(11129) == QUEST_STATUS_INCOMPLETE)
-                        CAST_PLR(plr)->CompleteQuest(11129);
-                float x, y, z, z2, angle;
-                angle = m_creature->GetAngle(-2146, -430);
-                m_creature->GetPosition(x,y,z);
-                x = x + 40*cos(angle);
-                y = y + 40*sin(angle);
-                z2 = m_creature->GetBaseMap()->GetHeight(x,y,MAX_HEIGHT,false);
-                z = (z2 <= INVALID_HEIGHT) ? z : z2;
-                m_creature->GetMotionMaster()->MovePoint(0,x,y,z);
-                break;
+                switch(uiEventPhase)
+                {
+                    case 1:
+                        uiEventTimer = 0;
+
+                        if (Unit* pUnit = Unit::GetUnit(*m_creature,uiPlayerGUID))
+                        {
+                            if (GameObject* pGo = pUnit->GetGameObject(SPELL_LUNCH))
+                                m_creature->GetMotionMaster()->MovePoint(POINT_ID, pGo->GetPositionX(), pGo->GetPositionY(), pGo->GetPositionZ());
+                        }
+                        break;
+                    case 2:
+                        uiEventTimer = 5000;
+                        DoScriptText(EMOTE_EAT_LUNCH, m_creature);
+                        m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USESTANDING);
+                        break;
+                    case 3:
+                        uiEventTimer = 5000;
+                        
+                        if (Unit* pUnit = Unit::GetUnit(*m_creature,uiPlayerGUID))
+                            ((Player*)pUnit)->TalkedToCreature(m_creature->GetEntry(), m_creature->GetGUID());
+
+                        m_creature->UpdateEntry(NPC_KYLE_FRIENDLY);
+                        break;
+                    case 4:
+                        uiEventTimer = 30000;
+                        DoScriptText(EMOTE_DANCE, m_creature);
+                        m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_DANCESPECIAL);
+                        break;
+                    case 5:
+                        m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
+                        Reset();
+                        m_creature->GetMotionMaster()->Clear();
+                        break;
+                }
+
+                if (uiEventPhase != 5)
+                    ++uiEventPhase;
             }
-        }else wait -= diff;
+            else
+                uiEventTimer -= diff;
+        }
     }
 };
 
