@@ -1750,8 +1750,7 @@ void AuraEffect::TriggerSpell()
                         if (mana)
                         {
                             mana /= 10;
-                            caster->SendEnergizeSpellLog(caster, 23493, mana, POWER_MANA);
-                            caster->ModifyPower( POWER_MANA, mana );
+                            caster->EnergizeBySpell(caster, 23493, mana, POWER_MANA);
                         }
                         return;
                     }
