@@ -1879,13 +1879,13 @@ void Spell::EffectDummy(uint32 i)
                 return;
             }
             // Scourge Strike
-            else if(m_spellInfo->SpellFamilyFlags[1] & 0x8000000)
+            if(m_spellInfo->SpellFamilyFlags[1] & 0x8000000)
             {
-                m_damage += int32(m_spellInfo->CalculateSimpleValue(0)*m_spellInfo->CalculateSimpleValue(1) * damage * unitTarget->GetDiseasesByCaster(m_caster->GetGUID()) / 10000);
+                m_damage = float (m_damage) * (float(damage * unitTarget->GetDiseasesByCaster(m_caster->GetGUID()) + 100.0f) / 100.0f);
                 return;
             }
             // Death Coil
-            else if(m_spellInfo->SpellFamilyFlags[0] & 0x002000)
+            if(m_spellInfo->SpellFamilyFlags[0] & 0x002000)
             {
                 if(m_caster->IsFriendlyTo(unitTarget))
                 {
@@ -1903,13 +1903,13 @@ void Spell::EffectDummy(uint32 i)
                 return;
             }
             // Death Grip
-            else if(m_spellInfo->Id == 49560)
+            if(m_spellInfo->Id == 49560)
             {
                 unitTarget->CastSpell(m_caster, damage, true);
                 return;
             }
             // Hungering Cold
-            else if (m_spellInfo->SpellFamilyFlags[1] & 0x1000)
+            if (m_spellInfo->SpellFamilyFlags[1] & 0x1000)
             {
                 unitTarget->CastSpell(m_caster, 51209, true);
                 return;
@@ -4326,8 +4326,8 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
                 }
                 totalDamagePercentMod *= (float(CalculateDamage(2, unitTarget) * unitTarget->GetDiseasesByCaster(m_caster->GetGUID(), consumeDiseases) / 2) + 100.0f) / 100.f;
             }
-            // Blood-Caked Strike - Blood-Caked Blade
-            else if (m_spellInfo->SpellIconID == 1736)
+            // Blood-Caked Strike - Blood-Caked Blade     // Blood Strike
+            else if (m_spellInfo->SpellIconID == 1736 || m_spellInfo->SpellFamilyFlags[0] & 0x400000)
                 totalDamagePercentMod *= (float(unitTarget->GetDiseasesByCaster(m_caster->GetGUID())) * 12.5f + 100.0f) / 100.0f;
             break;
         }
