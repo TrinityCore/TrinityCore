@@ -1908,6 +1908,12 @@ void Spell::EffectDummy(uint32 i)
                 unitTarget->CastSpell(m_caster, damage, true);
                 return;
             }
+            // Hungering Cold
+            else if (m_spellInfo->SpellFamilyFlags[1] & 0x1000)
+            {
+                unitTarget->CastSpell(m_caster, 51209, true);
+                return;
+            }
             break;
     }
 

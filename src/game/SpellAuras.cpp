@@ -5994,9 +5994,9 @@ void AuraEffect::PeriodicTick()
             SpellEntry const* spellProto = GetSpellProto();
 
             // Set trigger flag
-            uint32 procAttacker = PROC_FLAG_ON_DO_PERIODIC;
-            uint32 procVictim   = PROC_FLAG_ON_TAKE_PERIODIC;
-            uint32 procEx = PROC_EX_INTERNAL_DOT | PROC_EX_NORMAL_HIT;
+            uint32 procAttacker = PROC_FLAG_ON_DO_PERIODIC | PROC_FLAG_SUCCESSFUL_DAMAGING_SPELL_HIT;
+            uint32 procVictim   = PROC_FLAG_ON_TAKE_PERIODIC | PROC_FLAG_TAKEN_DAMAGING_SPELL_HIT;
+            uint32 procEx = PROC_EX_NORMAL_HIT;
             pdamage = (pdamage <= absorb+resist) ? 0 : (pdamage-absorb-resist);
             if (pdamage)
                 procVictim|=PROC_FLAG_TAKEN_ANY_DAMAGE;
@@ -6060,9 +6060,9 @@ void AuraEffect::PeriodicTick()
             int32 stackAmount = GetParentAura()->GetStackAmount();
 
             // Set trigger flag
-            uint32 procAttacker = PROC_FLAG_ON_DO_PERIODIC;
-            uint32 procVictim   = PROC_FLAG_ON_TAKE_PERIODIC;
-            uint32 procEx = PROC_EX_INTERNAL_DOT | PROC_EX_NORMAL_HIT;
+            uint32 procAttacker = PROC_FLAG_ON_DO_PERIODIC | PROC_FLAG_SUCCESSFUL_DAMAGING_SPELL_HIT;
+            uint32 procVictim   = PROC_FLAG_ON_TAKE_PERIODIC | PROC_FLAG_TAKEN_DAMAGING_SPELL_HIT;
+            uint32 procEx = PROC_EX_NORMAL_HIT;
             pdamage = (pdamage <= absorb+resist) ? 0 : (pdamage-absorb-resist);
             if (pdamage)
                 procVictim|=PROC_FLAG_TAKEN_ANY_DAMAGE;
@@ -6161,9 +6161,9 @@ void AuraEffect::PeriodicTick()
                 }
             }
 
-            uint32 procAttacker = PROC_FLAG_ON_DO_PERIODIC;
-            uint32 procVictim   = PROC_FLAG_ON_TAKE_PERIODIC;
-            uint32 procEx = PROC_EX_INTERNAL_HOT | PROC_EX_NORMAL_HIT;
+            uint32 procAttacker = PROC_FLAG_ON_DO_PERIODIC | PROC_FLAG_SUCCESSFUL_HEALING_SPELL;
+            uint32 procVictim   = PROC_FLAG_ON_TAKE_PERIODIC | PROC_FLAG_TAKEN_HEALING_SPELL;
+            uint32 procEx = PROC_EX_NORMAL_HIT;
             // ignore item heals
             if(!haveCastItem)
                 pCaster->ProcDamageAndSpell(target, procAttacker, procVictim, procEx, pdamage, BASE_ATTACK, spellProto);
@@ -6358,9 +6358,9 @@ void AuraEffect::PeriodicTick()
             pCaster->SendSpellNonMeleeDamageLog(&damageInfo);
 
             // Set trigger flag
-            uint32 procAttacker = PROC_FLAG_ON_DO_PERIODIC;
-            uint32 procVictim   = PROC_FLAG_ON_TAKE_PERIODIC;
-            uint32 procEx       = createProcExtendMask(&damageInfo, SPELL_MISS_NONE) | PROC_EX_INTERNAL_DOT;
+            uint32 procAttacker = PROC_FLAG_ON_DO_PERIODIC | PROC_FLAG_SUCCESSFUL_DAMAGING_SPELL_HIT;
+            uint32 procVictim   = PROC_FLAG_ON_TAKE_PERIODIC | PROC_FLAG_TAKEN_DAMAGING_SPELL_HIT;
+            uint32 procEx       = createProcExtendMask(&damageInfo, SPELL_MISS_NONE);
             if (damageInfo.damage)
                 procVictim|=PROC_FLAG_TAKEN_ANY_DAMAGE;
 
