@@ -524,79 +524,79 @@ void ObjectMgr::LoadCreatureTemplates()
     for(uint32 i = 1; i < sCreatureStorage.MaxEntry; ++i)
     {
         CreatureInfo const* cInfo = sCreatureStorage.LookupEntry<CreatureInfo>(i);
-        if(!cInfo)
+        if (!cInfo)
             continue;
 
-        if(cInfo->HeroicEntry)
+        if (cInfo->HeroicEntry)
         {
             CreatureInfo const* heroicInfo = GetCreatureTemplate(cInfo->HeroicEntry);
-            if(!heroicInfo)
+            if (!heroicInfo)
             {
                 sLog.outErrorDb("Creature (Entry: %u) have `heroic_entry`=%u but creature entry %u not exist.",cInfo->HeroicEntry,cInfo->HeroicEntry);
                 continue;
             }
 
-            if(heroicEntries.find(i)!=heroicEntries.end())
+            if (heroicEntries.find(i)!=heroicEntries.end())
             {
                 sLog.outErrorDb("Creature (Entry: %u) listed as heroic but have value in `heroic_entry`.",i);
                 continue;
             }
 
-            if(heroicEntries.find(cInfo->HeroicEntry)!=heroicEntries.end())
+            if (heroicEntries.find(cInfo->HeroicEntry)!=heroicEntries.end())
             {
                 sLog.outErrorDb("Creature (Entry: %u) already listed as heroic for another entry.",cInfo->HeroicEntry);
                 continue;
             }
 
-            if(hasHeroicEntries.find(cInfo->HeroicEntry)!=hasHeroicEntries.end())
+            if (hasHeroicEntries.find(cInfo->HeroicEntry)!=hasHeroicEntries.end())
             {
                 sLog.outErrorDb("Creature (Entry: %u) have `heroic_entry`=%u but creature entry %u have heroic entry also.",i,cInfo->HeroicEntry,cInfo->HeroicEntry);
                 continue;
             }
 
-            if(cInfo->unit_class != heroicInfo->unit_class)
+            if (cInfo->unit_class != heroicInfo->unit_class)
             {
                 sLog.outErrorDb("Creature (Entry: %u, class %u) has different `unit_class` in heroic mode (Entry: %u, class %u).",i, cInfo->unit_class, cInfo->HeroicEntry, heroicInfo->unit_class);
                 continue;
             }
 
-            if(cInfo->npcflag != heroicInfo->npcflag)
+            if (cInfo->npcflag != heroicInfo->npcflag)
             {
                 sLog.outErrorDb("Creature (Entry: %u) listed in `creature_template_substitution` has different `npcflag` in heroic mode.",i);
                 continue;
             }
 
-            if(cInfo->trainer_class != heroicInfo->trainer_class)
+            if (cInfo->trainer_class != heroicInfo->trainer_class)
             {
                 sLog.outErrorDb("Creature (Entry: %u) has different `trainer_class` in heroic mode (Entry: %u).",i,cInfo->HeroicEntry);
                 continue;
             }
 
-            if(cInfo->trainer_race != heroicInfo->trainer_race)
+            if (cInfo->trainer_race != heroicInfo->trainer_race)
             {
                 sLog.outErrorDb("Creature (Entry: %u) has different `trainer_race` in heroic mode (Entry: %u).",i,cInfo->HeroicEntry);
                 continue;
             }
 
-            if(cInfo->trainer_type != heroicInfo->trainer_type)
+            if (cInfo->trainer_type != heroicInfo->trainer_type)
             {
                 sLog.outErrorDb("Creature (Entry: %u) listed in `creature_template_substitution` has different `trainer_type` in heroic mode.",i);
                 continue;
             }
 
-            if(cInfo->trainer_spell != heroicInfo->trainer_spell)
+            if (cInfo->trainer_spell != heroicInfo->trainer_spell)
             {
                 sLog.outErrorDb("Creature (Entry: %u) listed in `creature_template_substitution` has different `trainer_spell` in heroic mode.",i);
                 continue;
             }
 
-            if(heroicInfo->AIName && *heroicInfo->AIName)
+            if (heroicInfo->AIName && *heroicInfo->AIName)
             {
                 sLog.outErrorDb("Heroic mode creature (Entry: %u) has `AIName`, but in any case will used normal mode creature (Entry: %u) AIName.",cInfo->HeroicEntry,i);
                 continue;
             }
 
-            if(heroicInfo->ScriptID)
+            if (heroicInfo->ScriptID)
             {
                 sLog.outErrorDb("Heroic mode creature (Entry: %u) has `ScriptName`, but in any case will used normal mode creature (Entry: %u) ScriptName.",cInfo->HeroicEntry,i);
                 continue;
@@ -607,22 +607,22 @@ void ObjectMgr::LoadCreatureTemplates()
         }
 
         FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(cInfo->faction_A);
-        if(!factionTemplate)
+        if (!factionTemplate)
             sLog.outErrorDb("Creature (Entry: %u) has non-existing faction_A template (%u)", cInfo->Entry, cInfo->faction_A);
 
         factionTemplate = sFactionTemplateStore.LookupEntry(cInfo->faction_H);
-        if(!factionTemplate)
+        if (!factionTemplate)
             sLog.outErrorDb("Creature (Entry: %u) has non-existing faction_H template (%u)", cInfo->Entry, cInfo->faction_H);
 
         // used later for scale
         CreatureDisplayInfoEntry const* displayEntryA = cInfo->DisplayID_A ? sCreatureDisplayInfoStore.LookupEntry(cInfo->DisplayID_A) : NULL;
-        if(cInfo->DisplayID_A && !displayEntryA)
+        if (cInfo->DisplayID_A && !displayEntryA)
             sLog.outErrorDb("Creature (Entry: %u) has non-existing DisplayID_A id (%u), can crash client", cInfo->Entry, cInfo->DisplayID_A);
 
-        if(cInfo->DisplayID_A2)
+        if (cInfo->DisplayID_A2)
         {
             CreatureDisplayInfoEntry const* displayEntry = sCreatureDisplayInfoStore.LookupEntry(cInfo->DisplayID_A2);
-            if(!displayEntry)
+            if (!displayEntry)
             {
                 sLog.outErrorDb("Creature (Entry: %u) has non-existing DisplayID_A2 id (%u), can crash client", cInfo->Entry, cInfo->DisplayID_A2);
                 const_cast<CreatureInfo*>(cInfo)->DisplayID_A2 = 0;
@@ -631,25 +631,35 @@ void ObjectMgr::LoadCreatureTemplates()
 
         // used later for scale
         CreatureDisplayInfoEntry const* displayEntryH = cInfo->DisplayID_H ? sCreatureDisplayInfoStore.LookupEntry(cInfo->DisplayID_H) : NULL;
-        if(cInfo->DisplayID_H && !displayEntryH)
+        if (cInfo->DisplayID_H && !displayEntryH)
             sLog.outErrorDb("Creature (Entry: %u) has non-existing DisplayID_H id (%u), can crash client", cInfo->Entry, cInfo->DisplayID_H);
 
-        if(cInfo->DisplayID_H2)
+        if (cInfo->DisplayID_H2)
         {
             CreatureDisplayInfoEntry const* displayEntry = sCreatureDisplayInfoStore.LookupEntry(cInfo->DisplayID_H2);
-            if(!displayEntry)
+            if (!displayEntry)
             {
                 sLog.outErrorDb("Creature (Entry: %u) has non-existing DisplayID_H2 id (%u), can crash client", cInfo->Entry, cInfo->DisplayID_H2);
                 const_cast<CreatureInfo*>(cInfo)->DisplayID_H2 = 0;
             }
         }
 
-        CreatureModelInfo const* minfo = sCreatureModelStorage.LookupEntry<CreatureModelInfo>(cInfo->DisplayID_A);
-        if (!minfo)
-            sLog.outErrorDb("Creature (Entry: %u) has non-existing modelId_A (%u)", cInfo->Entry, cInfo->DisplayID_A);
-        minfo = sCreatureModelStorage.LookupEntry<CreatureModelInfo>(cInfo->DisplayID_H);
-        if (!minfo)
-            sLog.outErrorDb("Creature (Entry: %u) has non-existing modelId_H (%u)", cInfo->Entry, cInfo->DisplayID_H);
+        if (!displayEntryA && !displayEntryH)
+            sLog.outErrorDb("Creature (Entry: %u) has non-existing both DisplayID_A and DisplayID_H", cInfo->Entry);
+
+        if (cInfo->DisplayID_A)
+        {
+            CreatureModelInfo const* minfo = sCreatureModelStorage.LookupEntry<CreatureModelInfo>(cInfo->DisplayID_A);
+            if (!minfo)
+                sLog.outErrorDb("Creature (Entry: %u) has non-existing modelId_A (%u)", cInfo->Entry, cInfo->DisplayID_A);
+        }
+
+        if (cInfo->DisplayID_H)
+        {
+            CreatureModelInfo const* minfo = sCreatureModelStorage.LookupEntry<CreatureModelInfo>(cInfo->DisplayID_H);
+            if (!minfo)
+                sLog.outErrorDb("Creature (Entry: %u) has non-existing modelId_H (%u)", cInfo->Entry, cInfo->DisplayID_H);
+        }
 
         if (cInfo->unit_class && ((1 << (cInfo->unit_class-1)) & CLASSMASK_ALL_CREATURES) == 0)
             sLog.outErrorDb("Creature (Entry: %u) has invalid unit_class(%u) for creature_template", cInfo->Entry, cInfo->unit_class);
