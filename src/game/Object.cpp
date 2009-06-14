@@ -1646,12 +1646,18 @@ void Unit::BuildHeartBeatMsg(WorldPacket *data) const
 
 void WorldObject::SendMessageToSet(WorldPacket *data, bool /*fake*/)
 {
-    GetMap()->MessageBroadcast(this, data);
+    //if object is in world, map for it already created!
+    Map * _map = IsInWorld() ? GetMap() : MapManager::Instance().FindMap(GetMapId(), GetInstanceId());
+    if(_map)
+        _map->MessageBroadcast(this, data);
 }
 
 void WorldObject::SendMessageToSetInRange(WorldPacket *data, float dist, bool /*bToSelf*/)
 {
-    GetMap()->MessageDistBroadcast(this, data, dist);
+    //if object is in world, map for it already created!
+    Map * _map = IsInWorld() ? GetMap() : MapManager::Instance().FindMap(GetMapId(), GetInstanceId());
+    if(_map)
+        _map->MessageDistBroadcast(this, data, dist);
 }
 
 void WorldObject::SendObjectDeSpawnAnim(uint64 guid)
