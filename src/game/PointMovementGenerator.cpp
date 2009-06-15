@@ -35,7 +35,7 @@ void PointMovementGenerator<T>::Initialize(T &unit)
     i_destinationHolder.SetDestination(traveller,i_x,i_y,i_z, !unit.hasUnitState(UNIT_STAT_JUMPING));
 
     if (unit.GetTypeId() == TYPEID_UNIT && ((Creature*)&unit)->canFly())
-        unit.AddUnitMovementFlag(MOVEMENTFLAG_FLYING2);
+        unit.AddUnitMovementFlag(MOVEMENTFLAG_FLYING);
 }
 
 template<class T>

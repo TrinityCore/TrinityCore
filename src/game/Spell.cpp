@@ -423,7 +423,6 @@ Spell::Spell( Unit* Caster, SpellEntry const *info, bool triggered, uint64 origi
 
     m_spellState = SPELL_STATE_NULL;
 
-    m_castPositionX = m_castPositionY = m_castPositionZ = 0;
     m_TriggerSpells.clear();
     m_IsTriggeredSpell = triggered;
     //m_AreaAura = false;
@@ -2391,9 +2390,6 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect* triggeredByAura
 
     m_spellState = SPELL_STATE_PREPARING;
 
-    m_caster->GetPosition(m_castPositionX, m_castPositionY, m_castPositionZ);
-    m_castOrientation = m_caster->GetOrientation();
-
     if(triggeredByAura)
         m_triggeredByAuraSpell  = triggeredByAura->GetSpellProto();
 
@@ -2920,15 +2916,11 @@ void Spell::update(uint32 difftime)
 
     // check if the player caster has moved before the spell finished
     if ((m_caster->GetTypeId() == TYPEID_PLAYER && m_timer != 0) &&
-        (m_castPositionX != m_caster->GetPositionX() || m_castPositionY != m_caster->GetPositionY() || m_castPositionZ != m_caster->GetPositionZ()) &&
+        m_caster->isMoving() && (m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_MOVEMENT) &&
         (m_spellInfo->Effect[0] != SPELL_EFFECT_STUCK || !m_caster->HasUnitMovementFlag(MOVEMENTFLAG_FALLING)))
     {
-        // always cancel for channeled spells
-        //if( m_spellState == SPELL_STATE_CASTING )
-        //    cancel();
         // don't cancel for melee, autorepeat, triggered and instant spells
-        //else
-        if(!IsNextMeleeSwingSpell() && !IsAutoRepeat() && !m_IsTriggeredSpell && (m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_MOVEMENT))
+        if(!IsNextMeleeSwingSpell() && !IsAutoRepeat() && !m_IsTriggeredSpell)
             cancel();
     }
 
@@ -2951,17 +2943,6 @@ void Spell::update(uint32 difftime)
         {
             if(m_timer > 0)
             {
-                if( m_caster->GetTypeId() == TYPEID_PLAYER )
-                {
-                    // check if player has jumped before the channeling finished
-                    if(m_caster->HasUnitMovementFlag(MOVEMENTFLAG_JUMPING))
-                        cancel();
-
-                    // check for incapacitating player states
-                    //if( m_caster->hasUnitState(UNIT_STAT_STUNNED | UNIT_STAT_CONFUSED))
-                    //    cancel();
-                }
-
                 // check if there are alive targets left
                 if (!UpdateChanneledTargetList())
                 {

@@ -295,7 +295,7 @@ struct TRINITY_DLL_DECL mob_annhylde_the_callerAI : public ScriptedAI
 
     void Reset()
     {
-        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_FLYING + MOVEMENTFLAG_FLYING2);
+        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_FLYING + MOVEMENTFLAG_HOVER);
         m_creature->SetSpeed(MOVE_SWIM , 0.1f);
         m_creature->SetSpeed(MOVE_RUN , 0.1f);
         m_creature->SetSpeed(MOVE_WALK , 0.1f);
