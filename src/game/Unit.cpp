@@ -13368,7 +13368,7 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit *pVictim, Aura * aura, SpellEntry co
     // Aura added by spell can`t trogger from self (prevent drop charges/do triggers)
     // But except periodic and kill triggers (can triggered from self)
     if(procSpell && procSpell->Id == spellProto->Id 
-        && !(spellProto->procFlags&PROC_FLAG_ON_TAKE_PERIODIC | PROC_FLAG_KILL))
+        && !(spellProto->procFlags&(PROC_FLAG_ON_TAKE_PERIODIC | PROC_FLAG_KILL)))
         return false;
 
     // Check if current equipment allows aura to proc
