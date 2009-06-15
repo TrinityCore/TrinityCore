@@ -345,7 +345,10 @@ void Puppet::Update(uint32 time)
     if(IsInWorld())
     {
         if(!isAlive())
+        {
             UnSummon();
+            // TODO: why long distance .die does not remove it
+        }
     }
 }
 
