@@ -44,7 +44,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="/MP"
+				AdditionalOptions="/MP /openmp"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\shared\vmap;..\..\dep\ACE_wrappers"
 				PreprocessorDefinitions="WIN32;_DEBUG;TRINITY_DEBUG;_LIB;"
@@ -126,7 +126,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="/MP"
+				AdditionalOptions="/MP /openmp"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\shared\vmap;..\..\dep\ACE_wrappers"
 				PreprocessorDefinitions="WIN32;_DEBUG;TRINITY_DEBUG;_LIB;"
@@ -207,7 +207,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="/MP"
+				AdditionalOptions="/MP /openmp"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\shared\vmap;..\..\dep\ACE_wrappers"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;"
@@ -289,7 +289,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="/MP"
+				AdditionalOptions="/MP /openmp"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\shared\vmap;..\..\dep\ACE_wrappers"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;"

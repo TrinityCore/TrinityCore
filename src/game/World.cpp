@@ -1029,6 +1029,7 @@ void World::LoadConfigSettings(bool reload)
     m_configs[CONFIG_SHOW_KICK_IN_WORLD] = sConfig.GetBoolDefault("ShowKickInWorld", false);
     m_configs[CONFIG_INTERVAL_LOG_UPDATE] = sConfig.GetIntDefault("RecordUpdateTimeDiffInterval", 60000);
     m_configs[CONFIG_MIN_LOG_UPDATE] = sConfig.GetIntDefault("MinRecordUpdateTimeDiff", 10);
+    m_configs[CONFIG_NUMTHREADS] = sConfig.GetIntDefault("MapUpdate.Threads",1);
 
     std::string forbiddenmaps = sConfig.GetStringDefault("ForbiddenMaps", "");
     char * forbiddenMaps = new char[forbiddenmaps.length() + 1];
@@ -1596,8 +1597,10 @@ void World::Update(time_t diff)
         sBattleGroundMgr.Update(diff);
         RecordTimeDiff("UpdateBattleGroundMgr");
 
+
         sOutdoorPvPMgr.Update(diff);
         RecordTimeDiff("UpdateOutdoorPvPMgr");
+
     }
 
     RecordTimeDiff(NULL);

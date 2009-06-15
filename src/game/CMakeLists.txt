@@ -265,6 +265,6 @@ SET(game_STAT_SRCS
    GroupReference.h
    GroupRefManager.h
 )
-
+add_definitions(-fopenmp)
 add_library(game STATIC ${game_STAT_SRCS})
 ADD_DEPENDENCIES(game revision.h)
