@@ -79,7 +79,7 @@ inline float Traveller<Creature>::Speed()
         return i_traveller.m_TempSpeed;
     else if(i_traveller.HasUnitMovementFlag(MOVEMENTFLAG_WALK_MODE))
         return i_traveller.GetSpeed(MOVE_WALK);
-    else if(i_traveller.HasUnitMovementFlag(MOVEMENTFLAG_FLYING2))
+    else if(i_traveller.HasUnitMovementFlag(MOVEMENTFLAG_FLYING))
         return i_traveller.GetSpeed(MOVE_FLIGHT);
     else
         return i_traveller.GetSpeed(MOVE_RUN);
@@ -98,7 +98,7 @@ inline float Traveller<Creature>::GetMoveDestinationTo(float x, float y, float z
     float dy = y - GetPositionY();
     float dz = z - GetPositionZ();
 
-    if(i_traveller.HasUnitMovementFlag(MOVEMENTFLAG_FLYING2))
+    if(i_traveller.HasUnitMovementFlag(MOVEMENTFLAG_FLYING))
         return sqrt((dx*dx) + (dy*dy) + (dz*dz));
     else                                                    //Walking on the ground
         return sqrt((dx*dx) + (dy*dy));

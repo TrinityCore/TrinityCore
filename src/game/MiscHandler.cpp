@@ -1609,7 +1609,7 @@ void WorldSession::HandleMoveSetCanFlyAckOpcode( WorldPacket & recv_data )
 
     recv_data >> guid >> unk >> flags;
 
-    _player->m_movementInfo.flags = flags;
+    _player->m_mover->m_movementInfo.flags = flags;
 }
 
 void WorldSession::HandleRequestPetInfoOpcode( WorldPacket & /*recv_data */)

@@ -1648,9 +1648,13 @@ bool Creature::IsWithinSightDist(Unit const* u) const
 
 bool Creature::canStartAttack(Unit const* who, bool force) const
 {
-    if(isCivilian()
-        || !who->isInAccessiblePlaceFor(this)
-        || !canFly() && GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
+    if(isCivilian() || !who->isInAccessiblePlaceFor(this))
+        return false;
+    
+    if(!canFly() && (GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE))
+        //|| who->IsControlledByPlayer() && who->IsFlying()))
+        // we cannot check flying for other creatures, too much map/vmap calculation
+        // TODO: should switch to range attack
         return false;
 
     if(!force && (IsNeutralToAll() || !IsWithinDistInMap(who, GetAttackDistance(who))))
@@ -2189,6 +2193,9 @@ bool Creature::LoadCreaturesAddon(bool reload)
 
     if (cainfo->move_flags != 0)
         SetUnitMovementFlags(cainfo->move_flags);
+
+    if(GetCreatureInfo()->InhabitType & INHABIT_AIR)
+        AddUnitMovementFlag(MOVEMENTFLAG_FLY_MODE);
 
     if(cainfo->auras)
     {

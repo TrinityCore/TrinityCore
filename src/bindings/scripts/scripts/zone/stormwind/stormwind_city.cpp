@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Stormwind_City
 SD%Complete: 100
-SDComment: Quest support: 1640, 1447, 4185, 11223. Receive emote General Marcus
+SDComment: Quest support: 1640, 1447, 4185, 11223
 SDCategory: Stormwind City
 EndScriptData */
 
@@ -25,7 +25,6 @@ EndScriptData */
 npc_archmage_malin
 npc_bartleby
 npc_dashel_stonefist
-npc_general_marcus_jonathan
 npc_lady_katrana_prestor
 EndContentData */
 
@@ -123,27 +122,33 @@ CreatureAI* GetAI_npc_bartleby(Creature *_creature)
 ## npc_dashel_stonefist
 ######*/
 
+enum
+{
+    QUEST_MISSING_DIPLO_PT8     = 1447,
+    FACTION_HOSTILE             = 168
+};
+
 struct TRINITY_DLL_DECL npc_dashel_stonefistAI : public ScriptedAI
 {
-    npc_dashel_stonefistAI(Creature *c) : ScriptedAI(c) {}
+    npc_dashel_stonefistAI(Creature *c) : ScriptedAI(c) { uiNormFaction = c->getFaction(); }
+
+    uint32 uiNormFaction;
 
     void Reset()
     {
-        m_creature->setFaction(11);
+        m_creature->setFaction(uiNormFaction);
     }
 
     void DamageTaken(Unit *done_by, uint32 & damage)
     {
-        if((damage > m_creature->GetHealth()) || (m_creature->GetHealth() - damage)*100 / m_creature->GetMaxHealth() < 15)
+        if ((damage > m_creature->GetHealth()) || (m_creature->GetHealth() - damage)*100 / m_creature->GetMaxHealth() < 15)
         {
             //Take 0 damage
             damage = 0;
 
             if (done_by->GetTypeId() == TYPEID_PLAYER)
-            {
-                CAST_PLR(done_by)->AttackStop();
-                CAST_PLR(done_by)->AreaExploredOrEventHappens(1447);
-            }
+                CAST_PLR(done_by)->AreaExploredOrEventHappens(QUEST_MISSING_DIPLO_PT8);
+
             //m_creature->CombatStop();
             EnterEvadeMode();
         }
@@ -152,42 +157,19 @@ struct TRINITY_DLL_DECL npc_dashel_stonefistAI : public ScriptedAI
     void EnterCombat(Unit *who) {}
 };
 
-bool QuestAccept_npc_dashel_stonefist(Player *player, Creature *_Creature, Quest const *_Quest)
+bool QuestAccept_npc_dashel_stonefist(Player* pPlayer, Creature* pCreature, Quest const* pQuest)
 {
-    if(_Quest->GetQuestId() == 1447)
+    if(pQuest->GetQuestId() == QUEST_MISSING_DIPLO_PT8)
     {
-        _Creature->setFaction(168);
-        CAST_AI(npc_dashel_stonefistAI, _Creature->AI())->AttackStart(player);
+        pCreature->setFaction(FACTION_HOSTILE);
+        CAST_AI(npc_dashel_stonefistAI, pCreature->AI())->AttackStart(pPlayer);
     }
     return true;
 }
 
-CreatureAI* GetAI_npc_dashel_stonefist(Creature *_creature)
+CreatureAI* GetAI_npc_dashel_stonefist(Creature* pCreature)
 {
-    return new npc_dashel_stonefistAI(_creature);
-}
-
-/*######
-## npc_general_marcus_jonathan
-######*/
-
-#define SAY_GREETING    -1000005
-
-bool ReceiveEmote_npc_general_marcus_jonathan(Player *player, Creature *_Creature, uint32 emote)
-{
-    if(player->GetTeam() == ALLIANCE)
-    {
-        if (emote == TEXTEMOTE_SALUTE)
-        {
-            _Creature->SetOrientation(_Creature->GetAngle(player));
-            _Creature->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
-        }
-        if (emote == TEXTEMOTE_WAVE)
-        {
-            DoScriptText(SAY_GREETING, _Creature, player);
-        }
-    }
-    return true;
+    return new npc_dashel_stonefistAI(pCreature);
 }
 
 /*######
@@ -256,11 +238,6 @@ void AddSC_stormwind_city()
     newscript->Name = "npc_dashel_stonefist";
     newscript->GetAI = &GetAI_npc_dashel_stonefist;
     newscript->pQuestAccept = &QuestAccept_npc_dashel_stonefist;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "npc_general_marcus_jonathan";
-    //newscript->pReceiveEmote = &ReceiveEmote_npc_general_marcus_jonathan;
     newscript->RegisterSelf();
 
     newscript = new Script;

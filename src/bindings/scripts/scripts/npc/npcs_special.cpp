@@ -98,14 +98,18 @@ struct TRINITY_DLL_DECL npc_chicken_cluckAI : public ScriptedAI
                         DoScriptText(EMOTE_A_HELLO, m_creature);
                     }
                 }
-            } else DoScriptText(EMOTE_H_HELLO,m_creature);
+            }
+            else
+                DoScriptText(EMOTE_H_HELLO,m_creature);
         }
         if( emote == TEXTEMOTE_CHEER && player->GetTeam() == ALLIANCE )
-            if( player->GetQuestStatus(QUEST_CLUCK) == QUEST_STATUS_COMPLETE )
         {
-            m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-            m_creature->setFaction(FACTION_FRIENDLY);
-            DoScriptText(EMOTE_CLUCK_TEXT2, m_creature);
+            if( player->GetQuestStatus(QUEST_CLUCK) == QUEST_STATUS_COMPLETE )
+            {
+                m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                m_creature->setFaction(FACTION_FRIENDLY);
+                DoScriptText(EMOTE_CLUCK_TEXT2, m_creature);
+            }
         }
     }
 };

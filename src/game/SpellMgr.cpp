@@ -583,6 +583,7 @@ bool IsPositiveEffect(uint32 spellId, uint32 effIndex, bool deep)
         case 34700:                                         // Allergic Reaction
         case 31719:                                         // Suspension
         case 61987:                                         // Avenging Wrath Marker
+        case 11196:                                         // Recently Bandadged
             return false;
         case 12042:                                         // Arcane Power
             return true;
@@ -1275,11 +1276,11 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
     {
         if (EventProcFlag & PROC_FLAG_SUCCESSFUL_DAMAGING_SPELL_HIT)
         {
-            if (!(procFlags & PROC_FLAG_SUCCESSFUL_DAMAGING_SPELL_HIT))
+            if (!(procExtra & PROC_EX_INTERNAL_DOT))
                 return false;
         }
         else if (EventProcFlag & PROC_FLAG_SUCCESSFUL_HEALING_SPELL
-            && !(procFlags & PROC_FLAG_SUCCESSFUL_HEALING_SPELL))
+            && !(procExtra & PROC_EX_INTERNAL_HOT))
             return false;
     }
 
@@ -1287,11 +1288,11 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
     {
         if (EventProcFlag & PROC_FLAG_TAKEN_DAMAGING_SPELL_HIT)
         {
-            if (!(procFlags & PROC_FLAG_TAKEN_DAMAGING_SPELL_HIT))
+            if (!(procExtra & PROC_EX_INTERNAL_DOT))
                 return false;
         }
         else if (EventProcFlag & PROC_FLAG_TAKEN_HEALING_SPELL
-            && !(procFlags & PROC_FLAG_TAKEN_HEALING_SPELL))
+            && !(procExtra & PROC_EX_INTERNAL_HOT))
             return false;
     }
 
@@ -3351,10 +3352,8 @@ void SpellMgr::LoadSpellCustomAttr()
             // Target entry seems to be wrong for this spell :/
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_PARTY_CASTER;
             spellInfo->EffectRadiusIndex[0] = 45;
-            //mSpellCustomAttr[i] |= SPELL_ATTR_CU_EXCLUDE_SELF;
-            //break;
+            break;
         case 27820:                             // Mana Detonation
-        case 55789:                             // Improved Icy Talons
         //case 28062: case 39090:                 // Positive/Negative Charge
         //case 28085: case 39093:
             mSpellCustomAttr[i] |= SPELL_ATTR_CU_EXCLUDE_SELF;

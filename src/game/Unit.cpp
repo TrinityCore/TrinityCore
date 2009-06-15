@@ -417,7 +417,7 @@ void Unit::SendMonsterMoveByPath(Path const& path, uint32 start, uint32 end)
     addUnitState(UNIT_STAT_MOVE);
 }
 
-void Unit::SendMonsterMoveTransport(Vehicle *vehicle, bool apply)
+void Unit::SendMonsterMoveTransport(Vehicle *vehicle)
 {
     WorldPacket data(SMSG_MONSTER_MOVE_TRANSPORT, GetPackGUID().size()+vehicle->GetPackGUID().size());
     data.append(GetPackGUID());
@@ -432,9 +432,9 @@ void Unit::SendMonsterMoveTransport(Vehicle *vehicle, bool apply)
     data << GetTransOffsetO();
     data << uint32(MOVEFLAG_ENTER_TRANSPORT);
     data << uint32(0); // move time
-    data << GetTransOffsetX();
-    data << GetTransOffsetY();
-    data << GetTransOffsetZ();
+    data << uint32(0);//GetTransOffsetX();
+    data << uint32(0);//GetTransOffsetY();
+    data << uint32(0);//GetTransOffsetZ();
     SendMessageToSet(&data, true);
 }
 
@@ -3508,6 +3508,7 @@ void Unit::InterruptSpell(uint32 spellType, bool withDelayed, bool withInstant)
 {
     assert(spellType < CURRENT_MAX_SPELL);
 
+    //sLog.outDebug("Interrupt spell for unit %u.", GetEntry());
     Spell *spell = m_currentSpells[spellType];
     if(spell
         && (withDelayed || spell->getState() != SPELL_STATE_DELAYED)
@@ -7035,6 +7036,32 @@ bool Unit::HandleModDamagePctTakenAuraProc(Unit *pVictim, uint32 damage, AuraEff
     return true;
 }
 
+// Used in case when access to whole aura is needed
+// All procs should be handled like this...
+bool Unit::HandleAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAura, SpellEntry const * procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown, bool * handled)
+{
+    SpellEntry const *dummySpell = triggeredByAura->GetSpellProto();
+
+    switch(dummySpell->SpellFamilyName)
+    {
+        case SPELLFAMILY_DEATHKNIGHT:
+        {
+            switch(dummySpell->Id)
+            {
+                // Hungering Cold aura drop
+                case 51209:
+                    *handled = true;
+                    // Drop only in disease case
+                    if (procSpell && procSpell->Dispel == DISPEL_DISEASE)
+                        return false;
+                    return true;
+            }
+            break;
+        }
+    }
+    return false;
+}
+
 bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* triggeredByAura, SpellEntry const *procSpell, uint32 procFlags, uint32 procEx, uint32 cooldown)
 {
     // Get triggered aura spell info
@@ -7248,15 +7275,16 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
 
                     trigger_spell_id = 18093;
                 }
-                // Drain Soul
+                // Improved Drain Soul
                 else if (auraSpellInfo->SpellFamilyFlags[0] & 0x4000)
                 {
-                    Unit::AuraEffectList const& mAddFlatModifier = GetAurasByType(SPELL_AURA_ADD_FLAT_MODIFIER);
+                    Unit::AuraEffectList const& mAddFlatModifier = GetAurasByType(SPELL_AURA_DUMMY);
                     for(Unit::AuraEffectList::const_iterator i = mAddFlatModifier.begin(); i != mAddFlatModifier.end(); ++i)
                     {
                         if ((*i)->GetMiscValue() == SPELLMOD_CHANCE_OF_SUCCESS && (*i)->GetSpellProto()->SpellIconID == 113)
                         {
                             int32 value2 = CalculateSpellDamage((*i)->GetSpellProto(),2,(*i)->GetSpellProto()->EffectBasePoints[2],this);
+                            basepoints0 = value2 * GetMaxPower(POWER_MANA) / 100;
                             // Drain Soul
                             CastCustomSpell(this, 18371, &basepoints0, NULL, NULL, true, castItem, triggeredByAura);
                             break;
@@ -7651,6 +7679,27 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
     // dummy basepoints or other customs
     switch(trigger_spell_id)
     {
+        // Auras which should proc on area aura source (caster in this case):
+        // Turn the Tables
+        case 52914:
+        case 52915:
+        case 52910:
+        // Honor Among Thieves
+        case 52916:
+        {
+            target = triggeredByAura->GetParentAura()->GetCaster();
+            if(!target)
+                return false;
+
+            if( cooldown && GetTypeId()==TYPEID_PLAYER && ((Player*)target)->HasSpellCooldown(trigger_spell_id))
+                return false;
+
+            target->CastSpell(target,trigger_spell_id,true,castItem,triggeredByAura);
+
+            if( cooldown && GetTypeId()==TYPEID_PLAYER )
+                ((Player*)this)->AddSpellCooldown(trigger_spell_id,0,time(NULL) + cooldown);
+            return true;
+        }
         // Cast positive spell on enemy target
         case 7099:  // Curse of Mending
         case 39647: // Curse of Mending
@@ -7727,6 +7776,11 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
             // remove cooldown of Shield Slam
             if (GetTypeId()==TYPEID_PLAYER)
                 ((Player*)this)->RemoveCategoryCooldown(1209);
+            break;
+        }
+        case 63375: // Improved Stormstrike
+        {
+            basepoints0 = GetCreateMana() * 0.20f;
             break;
         }
         // Brain Freeze
@@ -12451,7 +12505,7 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
     // Fill procTriggered list
     for(AuraMap::const_iterator itr = GetAuras().begin(); itr!= GetAuras().end(); ++itr)
     {
-        // Do not allow auras to proc from effect of itself
+        // Do not allow auras to proc from effect triggered by itself
         if (procAura && procAura->Id == itr->first)
             continue;
         ProcTriggeredData triggerData(itr->second);
@@ -12498,8 +12552,16 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
         if (GetTypeId() == TYPEID_PLAYER && i->spellProcEvent && i->spellProcEvent->cooldown)
             cooldown = i->spellProcEvent->cooldown;
 
-        uint32 procDebug = 0;
+        // This bool is needed till separate aura effect procs are still here
+        bool handled = false;
+        if (HandleAuraProc(pTarget, damage, i->aura, procSpell, procFlag, procExtra, cooldown, &handled))
+        {
+            sLog.outDebug("ProcDamageAndSpell: casting spell %u (triggered with value by %s aura of spell %u)", spellInfo->Id,(isVictim?"a victim's":"an attacker's"), Id);
+            takeCharges = true;
+        }
 
+        uint32 procDebug = 0;
+        if (!handled)
         for (uint8 effIndex = 0; effIndex<MAX_SPELL_EFFECTS;++effIndex)
         {
             if (!(i->effMask & (1<<effIndex)))
@@ -13330,8 +13392,9 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit *pVictim, Aura * aura, SpellEntry co
             return false;
     }
     // Aura added by spell can`t trogger from self (prevent drop charges/do triggers)
-    // But except periodic triggers (can triggered from self)
-    if(procSpell && procSpell->Id == spellProto->Id && !(spellProto->procFlags&PROC_FLAG_ON_TAKE_PERIODIC))
+    // But except periodic and kill triggers (can triggered from self)
+    if(procSpell && procSpell->Id == spellProto->Id 
+        && !(spellProto->procFlags&(PROC_FLAG_ON_TAKE_PERIODIC | PROC_FLAG_KILL)))
         return false;
 
     // Check if current equipment allows aura to proc
@@ -13500,6 +13563,9 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
     // Prevent killing unit twice (and giving reward from kill twice)
     if (!pVictim->GetHealth())
         return;
+
+    //sLog.outError("%u kill %u", GetEntry(), pVictim->GetEntry());
+
     pVictim->SetHealth(0);
 
     // find player: owner of controlled `this` or `this` itself maybe
@@ -13699,7 +13765,7 @@ void Unit::SetControlled(bool apply, UnitState state)
         {
             case UNIT_STAT_STUNNED: if(HasAuraType(SPELL_AURA_MOD_STUN))    return;
                                     else    SetStunned(false);    break;
-            case UNIT_STAT_ROOT:    if(HasAuraType(SPELL_AURA_MOD_ROOT))    return;
+            case UNIT_STAT_ROOT:    if(HasAuraType(SPELL_AURA_MOD_ROOT) || m_Vehicle)    return;
                                     else    SetRooted(false);     break;
             case UNIT_STAT_CONFUSED:if(HasAuraType(SPELL_AURA_MOD_CONFUSE)) return;
                                     else    SetConfused(false);   break;
@@ -13732,13 +13798,13 @@ void Unit::SetStunned(bool apply)
         SetUInt64Value(UNIT_FIELD_TARGET, 0);
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
         CastStop();
+        AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
 
         // Creature specific
         if(GetTypeId() != TYPEID_PLAYER)
             ((Creature*)this)->StopMoving();
         else
             SetStandState(UNIT_STAND_STATE_STAND);
-        //    SetUnitMovementFlags(0);    //Clear movement flags
 
         WorldPacket data(SMSG_FORCE_MOVE_ROOT, 8);
         data.append(GetPackGUID());
@@ -13761,21 +13827,20 @@ void Unit::SetStunned(bool apply)
             data.append(GetPackGUID());
             data << uint32(0);
             SendMessageToSet(&data,true);
+
+            RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
         }
     }
 }
 
 void Unit::SetRooted(bool apply)
 {
-    uint32 apply_stat = UNIT_STAT_ROOT;
     if(apply)
     {
-        //SetFlag(UNIT_FIELD_FLAGS,(apply_stat<<16)); // probably wrong
+        AddUnitMovementFlag(MOVEMENTFLAG_ROOT);        
 
         if(GetTypeId() == TYPEID_PLAYER)
         {
-            //SetUnitMovementFlags(0);
-
             WorldPacket data(SMSG_FORCE_MOVE_ROOT, 10);
             data.append(GetPackGUID());
             data << (uint32)2;
@@ -13786,8 +13851,6 @@ void Unit::SetRooted(bool apply)
     }
     else
     {
-        //RemoveFlag(UNIT_FIELD_FLAGS,(apply_stat<<16)); // probably wrong
-
         if(!hasUnitState(UNIT_STAT_STUNNED))      // prevent allow move if have also stun effect
         {
             if(GetTypeId() == TYPEID_PLAYER)
@@ -13797,6 +13860,8 @@ void Unit::SetRooted(bool apply)
                 data << (uint32)2;
                 SendMessageToSet(&data,true);
             }
+
+            RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
         }
     }
 }
@@ -13805,6 +13870,8 @@ void Unit::SetFeared(bool apply)
 {
     if(apply)
     {
+        SetUInt64Value(UNIT_FIELD_TARGET, 0);
+
         Unit *caster = NULL;
         Unit::AuraEffectList const& fearAuras = GetAurasByType(SPELL_AURA_MOD_FEAR);
         if(!fearAuras.empty())
@@ -13815,8 +13882,13 @@ void Unit::SetFeared(bool apply)
     }
     else
     {
-        if(isAlive() && GetMotionMaster()->GetCurrentMovementGeneratorType() == FLEEING_MOTION_TYPE)
-            GetMotionMaster()->MovementExpired();
+        if(isAlive())
+        {
+            if(GetMotionMaster()->GetCurrentMovementGeneratorType() == FLEEING_MOTION_TYPE)
+                GetMotionMaster()->MovementExpired();
+            if(getVictim())
+                SetUInt64Value(UNIT_FIELD_TARGET, getVictim()->GetGUID());
+        }
     }
 
     if (GetTypeId() == TYPEID_PLAYER)
@@ -13827,12 +13899,18 @@ void Unit::SetConfused(bool apply)
 {
     if(apply)
     {
+        SetUInt64Value(UNIT_FIELD_TARGET, 0);
         GetMotionMaster()->MoveConfused();
     }
     else
     {
-        if(isAlive() && GetMotionMaster()->GetCurrentMovementGeneratorType() == CONFUSED_MOTION_TYPE)
-            GetMotionMaster()->MovementExpired();
+        if(isAlive())
+        {
+            if(GetMotionMaster()->GetCurrentMovementGeneratorType() == CONFUSED_MOTION_TYPE)
+                GetMotionMaster()->MovementExpired();
+            if(getVictim())
+                SetUInt64Value(UNIT_FIELD_TARGET, getVictim()->GetGUID());
+        }
     }
 
     if(GetTypeId() == TYPEID_PLAYER)
@@ -13909,6 +13987,8 @@ void Unit::SetCharmedBy(Unit* charmer, CharmType type)
         switch(type)
         {
             case CHARM_TYPE_VEHICLE:
+                SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);
+                ((Player*)charmer)->SetClientControl(this, 1);
                 ((Player*)charmer)->SetViewpoint(this, true);
                 ((Player*)charmer)->VehicleSpellInitialize();
                 break;
@@ -14009,6 +14089,7 @@ void Unit::RemoveCharmedBy(Unit *charmer)
         switch(type)
         {
             case CHARM_TYPE_VEHICLE:
+                ((Player*)charmer)->SetClientControl(charmer, 1);
                 ((Player*)charmer)->SetViewpoint(this, false);
                 break;
             case CHARM_TYPE_POSSESS:
@@ -14472,16 +14553,14 @@ void Unit::EnterVehicle(Vehicle *vehicle, int8 seatId)
         return;
     }
 
-    m_Vehicle->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);
-    //m_Vehicle->setFaction(getFaction());
-
     addUnitState(UNIT_STAT_ONVEHICLE);
+    SetControlled(true, UNIT_STAT_ROOT);
     //movementInfo is set in AddPassenger
     //packets are sent in AddPassenger
 
     if(GetTypeId() == TYPEID_PLAYER)
     {
-        ((Player*)this)->SetClientControl(vehicle, 1);
+        //((Player*)this)->SetClientControl(vehicle, 1);
         WorldPacket data(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
         ((Player*)this)->GetSession()->SendPacket(&data);
     }
@@ -14511,17 +14590,18 @@ void Unit::ExitVehicle()
     if(!m_Vehicle)
         return;
 
-    m_Vehicle->RemovePassenger(this);
+    //sLog.outError("exit vehicle");
 
-    m_Vehicle->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);
-    //setFaction((GetTeam() == ALLIANCE) ? GetCreatureInfo()->faction_A : GetCreatureInfo()->faction_H);
+    m_Vehicle->RemovePassenger(this);
 
     // This should be done before dismiss, because there may be some aura removal
     Vehicle *vehicle = m_Vehicle;
     m_Vehicle = NULL;
 
     clearUnitState(UNIT_STAT_ONVEHICLE);
-    RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT + MOVEMENTFLAG_FLY_UNK1);
+    SetControlled(false, UNIT_STAT_ROOT);
+
+    RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
     m_movementInfo.t_x = 0;
     m_movementInfo.t_y = 0;
     m_movementInfo.t_z = 0;
@@ -14529,17 +14609,15 @@ void Unit::ExitVehicle()
     m_movementInfo.t_time = 0;
     m_movementInfo.t_seat = 0;
 
-    //Send leave vehicle
+    //Send leave vehicle, not correct
     if(GetTypeId() == TYPEID_PLAYER)
     {
-        ((Player*)this)->SetClientControl(this, 1);
+        //((Player*)this)->SetClientControl(this, 1);
         ((Player*)this)->SendTeleportAckMsg();
     }
     WorldPacket data;
     BuildHeartBeatMsg(&data);
     SendMessageToSet(&data, false);
-
-    //SendMonsterMoveTransport(m_Vehicle, false);
 
     if(vehicle->GetOwnerGUID() == GetGUID())
         vehicle->Dismiss();
@@ -14593,7 +14671,7 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
     }
 
     // 0x02200000
-    if((GetUnitMovementFlags() & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING2))
+    if((GetUnitMovementFlags() & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING))
         || (m_movementInfo.unk1 & 0x20))
         *data << (float)m_movementInfo.s_pitch;
 
@@ -14611,19 +14689,39 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
     // 0x04000000
     if(GetUnitMovementFlags() & MOVEMENTFLAG_SPLINE)
         *data << (float)m_movementInfo.u_unk1;
+
+    /*if(GetTypeId() == TYPEID_PLAYER)
+    {
+        sLog.outString("Send MovementInfo:");
+        OutMovementInfo();
+    }*/
 }
 
 void Unit::OutMovementInfo() const
 {
-    sLog.outString("MovementInfo: Flag %u, Unk1 %u, Time %u, Pos %f %f %f %f, Fall %u", m_movementInfo.flags, (uint32)m_movementInfo.unk1, m_movementInfo.time, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation(), m_movementInfo.fallTime);
+    sLog.outString("MovementInfo for %u: Flag %u, Unk1 %u, Time %u, Pos %f %f %f %f, Fall %u", GetEntry(), m_movementInfo.flags, (uint32)m_movementInfo.unk1, m_movementInfo.time, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation(), m_movementInfo.fallTime);
     if(m_movementInfo.flags & MOVEMENTFLAG_ONTRANSPORT)
         sLog.outString("Transport: GUID " UI64FMTD ", Pos %f %f %f %f, Time %u, Seat %d", m_movementInfo.t_guid, m_movementInfo.t_x, m_movementInfo.t_y, m_movementInfo.t_z, m_movementInfo.t_o, m_movementInfo.t_time, (int32)m_movementInfo.t_seat);
-    if((m_movementInfo.flags & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING2)) || (m_movementInfo.unk1 & 0x20))
+    if((m_movementInfo.flags & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) || (m_movementInfo.unk1 & 0x20))
         sLog.outString("Pitch: %f", m_movementInfo.s_pitch);
     if(m_movementInfo.flags & MOVEMENTFLAG_JUMPING)
         sLog.outString("Jump: speedz %f, sin %f, cos %f, speedxy %f", m_movementInfo.j_zspeed, m_movementInfo.j_sinAngle, m_movementInfo.j_cosAngle, m_movementInfo.j_xyspeed);
     if(m_movementInfo.flags & MOVEMENTFLAG_SPLINE)
         sLog.outString("Spline: %f", m_movementInfo.u_unk1);
+}
+
+void Unit::SetFlying(bool apply)
+{
+    if(apply)
+    {
+        SetByteFlag(UNIT_FIELD_BYTES_1, 3, 0x02);
+        AddUnitMovementFlag(MOVEMENTFLAG_FLYING);
+    }
+    else
+    {
+        RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, 0x02);
+        RemoveUnitMovementFlag(MOVEMENTFLAG_FLYING);
+    }
 }
 
 void Unit::NearTeleportTo( float x, float y, float z, float orientation, bool casting /*= false*/ )

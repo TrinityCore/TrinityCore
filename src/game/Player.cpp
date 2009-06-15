@@ -1654,7 +1654,6 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
     // reset movement flags at teleport, because player will continue move with these flags after teleport
     SetUnitMovementFlags(0);
-    m_movementInfo.flags = 0;
 
     if (m_transport)
     {
@@ -5636,38 +5635,35 @@ bool Player::SetPosition(float x, float y, float z, float orientation, bool tele
         return false;
     }
 
-    Map *m = GetMap();
+    //if(movementInfo.flags & MOVEMENTFLAG_MOVING)
+    //    mover->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOVE);
+    //if(movementInfo.flags & MOVEMENTFLAG_TURNING)
+    //    mover->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TURNING);
+    //AURA_INTERRUPT_FLAG_JUMP not sure
 
-    const float old_x = GetPositionX();
-    const float old_y = GetPositionY();
-    const float old_z = GetPositionZ();
-    const float old_r = GetOrientation();
+    if(GetOrientation() != orientation)
+        RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TURNING);
 
-    if( teleport || old_x != x || old_y != y || old_z != z || old_r != orientation )
+    bool move2d = (teleport || GetPositionX() != x || GetPositionY() != y);
+    if(move2d || GetPositionZ() != z)
     {
-        if (teleport || old_x != x || old_y != y || old_z != z)
-            RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_TURNING);
-        else
-            RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TURNING);
+        RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOVE);
 
         // move and update visible state if need
-        m->PlayerRelocation(this, x, y, z, orientation);
+        GetMap()->PlayerRelocation(this, x, y, z, orientation);
 
         // reread after Map::Relocation
-        m = GetMap();
-        x = GetPositionX();
-        y = GetPositionY();
-        z = GetPositionZ();
+        GetPosition(x, y, z);
 
         // group update
-        if(GetGroup() && (old_x != x || old_y != y))
+        if(move2d && GetGroup())
             SetGroupUpdateFlag(GROUP_UPDATE_FLAG_POSITION);
+
+        // code block for underwater state update
+        UpdateUnderwaterState(GetMap(), x, y, z);
+
+        CheckExploreSystem();
     }
-
-    // code block for underwater state update
-    UpdateUnderwaterState(m, x, y, z);
-
-    CheckExploreSystem();
 
     return true;
 }
@@ -6416,7 +6412,7 @@ void Player::CheckDuelDistance(time_t currTime)
 
 bool Player::IsOutdoorPvPActive()
 {
-    return (isAlive() && !HasInvisibilityAura() && !HasStealthAura() && (HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP) || sWorld.IsPvPRealm())  && !HasUnitMovementFlag(MOVEMENTFLAG_FLYING2) && !isInFlight());
+    return (isAlive() && !HasInvisibilityAura() && !HasStealthAura() && (HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP) || sWorld.IsPvPRealm())  && !HasUnitMovementFlag(MOVEMENTFLAG_FLYING) && !isInFlight());
 }
 
 void Player::DuelComplete(DuelCompleteType type)
