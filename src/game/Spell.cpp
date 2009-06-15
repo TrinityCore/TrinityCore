@@ -1208,7 +1208,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
             if(m_spellInfo->speed > 0.0f && unit == m_targets.getUnitTarget()
                 && (unit->HasAuraType(SPELL_AURA_MOD_INVISIBILITY)
                 || unit->HasAuraTypeWithFamilyFlags(SPELL_AURA_MOD_STEALTH, SPELLFAMILY_ROGUE, SPELLFAMILYFLAG_ROGUE_VANISH))
-                && !unit->isVisibleForOrDetect(m_caster, true))
+                && !m_caster->canSeeOrDetect(unit, true))
             {
                 // that was causing CombatLog errors
                 // return SPELL_MISS_EVADE;
