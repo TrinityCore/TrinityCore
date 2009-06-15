@@ -46,12 +46,12 @@ struct TRINITY_DLL_DECL boss_keristraszaAI : public ScriptedAI
     boss_keristraszaAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-		HeroicMode = m_creature->GetMap()->IsHeroic();
+        HeroicMode = m_creature->GetMap()->IsHeroic();
         Reset();
     }
 
-	ScriptedInstance* pInstance;
-	bool HeroicMode;
+    ScriptedInstance* pInstance;
+    bool HeroicMode;
 
     uint32 CRYSTALFIRE_BREATH_Timer;
     uint32 CRYSTAL_CHAINS_CRYSTALIZE_Timer;
@@ -63,41 +63,41 @@ struct TRINITY_DLL_DECL boss_keristraszaAI : public ScriptedAI
         CRYSTALFIRE_BREATH_Timer = 14000;
         CRYSTAL_CHAINS_CRYSTALIZE_Timer = HeroicMode ? 30000 : 11000;
         TAIL_SWEEP_Timer = 5000;
-	    Enrage = false;
-		m_creature->RemoveAurasDueToSpell(SPELL_INTENSE_COLD);
+        Enrage = false;
+        m_creature->RemoveAurasDueToSpell(SPELL_INTENSE_COLD);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
         if (pInstance && pInstance->GetData(DATA_KERISTRASZA_FREED) == DONE)
         {
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-	    }else{
-	        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
-	        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-	        m_creature->CastSpell(m_creature, SPELL_FROZEN_PRISON, false);
-	    }
+        }else{
+            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
+            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            m_creature->CastSpell(m_creature, SPELL_FROZEN_PRISON, false);
+        }
     }
 
     void MoveInLineOfSight(Unit *who)
     {
-		if (pInstance && pInstance->GetData(DATA_KERISTRASZA_FREED) != DONE && pInstance->GetData(DATA_MAGUS_TELESTRA_EVENT) == DONE &&
-			pInstance->GetData(DATA_ANOMALUS_EVENT) == DONE && pInstance->GetData(DATA_ORMOROK_EVENT) == DONE &&
-			m_creature->IsHostileTo(who) && m_creature->IsWithinDist(who, 15.0f, false))
-		{
-			pInstance->SetData(DATA_KERISTRASZA_FREED, DONE);
-		}
-		if (pInstance->GetData(DATA_KERISTRASZA_FREED) == DONE)
-		{
-			m_creature->RemoveAurasDueToSpell(SPELL_FROZEN_PRISON);
-			m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
-			m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-			ScriptedAI::MoveInLineOfSight(who);
+        if (pInstance && pInstance->GetData(DATA_KERISTRASZA_FREED) != DONE && pInstance->GetData(DATA_MAGUS_TELESTRA_EVENT) == DONE &&
+            pInstance->GetData(DATA_ANOMALUS_EVENT) == DONE && pInstance->GetData(DATA_ORMOROK_EVENT) == DONE &&
+            m_creature->IsHostileTo(who) && m_creature->IsWithinDist(who, 15.0f, false))
+        {
+            pInstance->SetData(DATA_KERISTRASZA_FREED, DONE);
+        }
+        if (pInstance->GetData(DATA_KERISTRASZA_FREED) == DONE)
+        {
+            m_creature->RemoveAurasDueToSpell(SPELL_FROZEN_PRISON);
+            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
+            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            ScriptedAI::MoveInLineOfSight(who);
         }
     }
 
     void Aggro(Unit* who) 
     {
         DoScriptText(SAY_AGGRO, m_creature);
-		DoCast(m_creature, SPELL_INTENSE_COLD);
+        DoCast(m_creature, SPELL_INTENSE_COLD);
     }
 
     void UpdateAI(const uint32 diff) 
@@ -107,22 +107,22 @@ struct TRINITY_DLL_DECL boss_keristraszaAI : public ScriptedAI
             return;
         }
           
-		if (!Enrage && (m_creature->GetHealth() < m_creature->GetMaxHealth() * 0.25))
+        if (!Enrage && (m_creature->GetHealth() < m_creature->GetMaxHealth() * 0.25))
         {
-			DoScriptText(SAY_ENRAGE , m_creature);
+            DoScriptText(SAY_ENRAGE , m_creature);
             DoCast(m_creature, SPELL_ENRAGE);
-			Enrage = true;
-		}
+            Enrage = true;
+        }
 
         if (CRYSTALFIRE_BREATH_Timer < diff)
         {
-			DoCast(m_creature->getVictim(), HeroicMode ? SPELL_CRYSTALFIRE_BREATH_H : SPELL_CRYSTALFIRE_BREATH_N);
+            DoCast(m_creature->getVictim(), HeroicMode ? SPELL_CRYSTALFIRE_BREATH_H : SPELL_CRYSTALFIRE_BREATH_N);
             CRYSTALFIRE_BREATH_Timer = 14000;
         }else CRYSTALFIRE_BREATH_Timer -=diff;
 
         if (TAIL_SWEEP_Timer < diff)
         {
-			DoCast(m_creature, SPELL_TAIL_SWEEP);
+            DoCast(m_creature, SPELL_TAIL_SWEEP);
             TAIL_SWEEP_Timer = 5000;
         }else TAIL_SWEEP_Timer -=diff;
 
@@ -130,11 +130,11 @@ struct TRINITY_DLL_DECL boss_keristraszaAI : public ScriptedAI
         {
             DoScriptText(SAY_CRYSTAL_NOVA , m_creature);
             if (HeroicMode)
-				DoCast(m_creature, SPELL_CRYSTALIZE);
-			else
-				if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-					DoCast(target, SPELL_CRYSTAL_CHAINS);
-			CRYSTAL_CHAINS_CRYSTALIZE_Timer = HeroicMode ? 30000 : 11000;
+                DoCast(m_creature, SPELL_CRYSTALIZE);
+            else
+                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_CRYSTAL_CHAINS);
+            CRYSTAL_CHAINS_CRYSTALIZE_Timer = HeroicMode ? 30000 : 11000;
         }else CRYSTAL_CHAINS_CRYSTALIZE_Timer -= diff;
 
         DoMeleeAttackIfReady();    

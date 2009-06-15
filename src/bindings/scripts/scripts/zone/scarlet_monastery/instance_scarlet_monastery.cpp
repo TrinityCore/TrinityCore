@@ -57,7 +57,7 @@ struct TRINITY_DLL_DECL instance_scarlet_monastery : public ScriptedInstance
 
         MograineGUID = 0;
         WhitemaneGUID = 0;
-		VorrelGUID = 0;
+        VorrelGUID = 0;
         DoorHighInquisitorGUID = 0;
 
         for(uint8 i = 0; i < ENCOUNTERS; i++)
@@ -82,7 +82,7 @@ struct TRINITY_DLL_DECL instance_scarlet_monastery : public ScriptedInstance
             case ENTRY_PUMPKIN:     HorsemanAdds.insert(creature->GetGUID());break;
             case 3976: MograineGUID = creature->GetGUID(); break;
             case 3977: WhitemaneGUID = creature->GetGUID(); break;
-			case 3981: VorrelGUID = creature->GetGUID(); break;
+            case 3981: VorrelGUID = creature->GetGUID(); break;
         }
     }
 
@@ -95,7 +95,7 @@ struct TRINITY_DLL_DECL instance_scarlet_monastery : public ScriptedInstance
             {
             GameObject *Shrine = instance->GetGameObject(PumpkinShrineGUID);
             if(Shrine)
-				Shrine->SetGoState(GO_STATE_READY);
+                Shrine->SetGoState(GO_STATE_READY);
             }break;
         case DATA_HORSEMAN_EVENT:
             if (data == DONE)
@@ -109,7 +109,7 @@ struct TRINITY_DLL_DECL instance_scarlet_monastery : public ScriptedInstance
                 HorsemanAdds.clear();
                 GameObject *Shrine = instance->GetGameObject(PumpkinShrineGUID);
                 if(Shrine)
-					Shrine->SetGoState(GO_STATE_READY);
+                    Shrine->SetGoState(GO_STATE_READY);
             }
             break;
         }

@@ -261,14 +261,14 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
     {
         if (pInstance)
         {
-	        if (GameObject* Doors = GameObject::GetGameObject(*m_creature, pInstance->GetData64(DOOR)))
-	        {
-			    if (close == 1)
-			        Doors->SetGoState(GO_STATE_READY);                // Closed
+            if (GameObject* Doors = GameObject::GetGameObject(*m_creature, pInstance->GetData64(DOOR)))
+            {
+                if (close == 1)
+                    Doors->SetGoState(GO_STATE_READY);                // Closed
                 else
                     Doors->SetGoState(GO_STATE_ACTIVE);                // Open
-	        }
-	    }
+            }
+        }
     }
 };
 

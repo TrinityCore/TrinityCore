@@ -33,7 +33,7 @@ EndContentData */
 #include "precompiled.h"
 
 //Support for quest: You're Fired! (10821)
-bool 	obelisk_one, obelisk_two, obelisk_three, obelisk_four, obelisk_five;	
+bool     obelisk_one, obelisk_two, obelisk_three, obelisk_four, obelisk_five;    
 
 #define LEGION_OBELISK_ONE           185193
 #define LEGION_OBELISK_TWO           185195
@@ -334,41 +334,41 @@ bool GossipSelect_npc_saikkal_the_elder(Player *player, Creature *_Creature, uin
 ######*/
 
 bool GOHello_go_legion_obelisk(Player *player, GameObject* _GO)
-{	
-	if ( player->GetQuestStatus(10821) == QUEST_STATUS_INCOMPLETE )
-	{
-		switch( _GO->GetEntry() )
-		{
-			case LEGION_OBELISK_ONE:
-				  obelisk_one = true;
-				 break;
+{    
+    if ( player->GetQuestStatus(10821) == QUEST_STATUS_INCOMPLETE )
+    {
+        switch( _GO->GetEntry() )
+        {
+            case LEGION_OBELISK_ONE:
+                  obelisk_one = true;
+                 break;
             case LEGION_OBELISK_TWO:
-				  obelisk_two = true;
-			     break;
+                  obelisk_two = true;
+                 break;
             case LEGION_OBELISK_THREE:
-				  obelisk_three = true;
-			     break;
-			case LEGION_OBELISK_FOUR:
-			      obelisk_four = true;
-			     break;
-			case LEGION_OBELISK_FIVE:
-			      obelisk_five = true;
-			     break;
-		}
-	
-		if ( obelisk_one == true && obelisk_two == true && obelisk_three == true && obelisk_four == true && obelisk_five == true )
-		{
-			_GO->SummonCreature(19963,2943.40f,4778.20f,284.49f,0.94f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,120000);
-			//reset global var
-			obelisk_one = false;
-			obelisk_two = false;
-			obelisk_three = false;
-			obelisk_four = false;
-			obelisk_five = false;
-		}
-	}
-	
-	return true;
+                  obelisk_three = true;
+                 break;
+            case LEGION_OBELISK_FOUR:
+                  obelisk_four = true;
+                 break;
+            case LEGION_OBELISK_FIVE:
+                  obelisk_five = true;
+                 break;
+        }
+    
+        if ( obelisk_one == true && obelisk_two == true && obelisk_three == true && obelisk_four == true && obelisk_five == true )
+        {
+            _GO->SummonCreature(19963,2943.40f,4778.20f,284.49f,0.94f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,120000);
+            //reset global var
+            obelisk_one = false;
+            obelisk_two = false;
+            obelisk_three = false;
+            obelisk_four = false;
+            obelisk_five = false;
+        }
+    }
+    
+    return true;
 }
 
 /*######
@@ -405,7 +405,7 @@ void AddSC_blades_edge_mountains()
     newscript->pGossipHello = &GossipHello_npc_saikkal_the_elder;
     newscript->pGossipSelect = &GossipSelect_npc_saikkal_the_elder;
     newscript->RegisterSelf();
-	
+    
     newscript = new Script;
     newscript->Name="go_legion_obelisk";
     newscript->pGOHello =           &GOHello_go_legion_obelisk;

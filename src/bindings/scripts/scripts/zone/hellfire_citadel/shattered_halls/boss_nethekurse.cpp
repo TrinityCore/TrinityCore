@@ -179,7 +179,7 @@ struct TRINITY_DLL_DECL boss_grand_warlock_nethekurseAI : public ScriptedAI
             {
             if (who->GetTypeId() != TYPEID_PLAYER)
                 return;
-	
+    
                 DoScriptText(SAY_INTRO, m_creature);
                 IntroOnce = true;
                 IsIntroEvent = true;
@@ -209,7 +209,7 @@ struct TRINITY_DLL_DECL boss_grand_warlock_nethekurseAI : public ScriptedAI
         summoned->setFaction(16);
         summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-		
+        
         //triggered spell of consumption does not properly show it's SpellVisual, wrong spellid?
         summoned->CastSpell(summoned,SPELL_TEMPORARY_VISUAL,true);
         summoned->CastSpell(summoned,SPELL_CONSUMPTION,false,0,0,m_creature->GetGUID());
@@ -337,7 +337,7 @@ struct TRINITY_DLL_DECL mob_fel_orc_convertAI : public ScriptedAI
                     else pInstance->SetData(TYPE_NETHEKURSE,IN_PROGRESS);
                 }
             }
-	    }
+        }
     }
 
     void JustDied(Unit* Killer)

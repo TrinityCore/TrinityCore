@@ -46,7 +46,7 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
     instance_karazhan(Map* map) : ScriptedInstance(map) {Initialize();}
 
     uint32 Encounters[ENCOUNTERS];
-	std::string str_data;
+    std::string str_data;
 
     uint32 OperaEvent;
     uint32 OzDeathCount;

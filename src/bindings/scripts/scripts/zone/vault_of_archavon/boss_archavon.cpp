@@ -18,11 +18,11 @@ UPDATE `creature_template` SET `ScriptName`='mob_archavon_warder' WHERE `entry`=
 #define SPELL_CRUSHING_LEAP                         HEROIC(58960,60894)//Instant (10-80yr range) -- Leaps at an enemy, inflicting 8000 Physical damage, knocking all nearby enemies away, and creating a cloud of choking debris.
 #define SPELL_STOMP                                 HEROIC(58663,60880)
 #define SPELL_IMPALE                                HEROIC(58666,60882) //Lifts an enemy off the ground with a spiked fist, inflicting 47125 to 52875 Physical damage and 9425 to 10575 additional damage each second for 8 sec.
-#define SPELL_BERSERK								47008
+#define SPELL_BERSERK                                47008
 //Spells Archavon Warders                      
 #define SPELL_ROCK_SHOWER                           HEROIC(60919,60923)                                   
-#define SPELL_SHIELD_CRUSH							HEROIC(60897,60899)                          
-#define SPELL_WHIRL									HEROIC(60902,60916)
+#define SPELL_SHIELD_CRUSH                            HEROIC(60897,60899)                          
+#define SPELL_WHIRL                                    HEROIC(60902,60916)
 
 //4 Warders spawned
 #define ARCHAVON_WARDER                             32353 //npc 32353
@@ -30,16 +30,16 @@ UPDATE `creature_template` SET `ScriptName`='mob_archavon_warder' WHERE `entry`=
 //Yell
 #define SAY_LEAP "Archavon the Stone Watcher lunges for $N!" //$N should be the target
 
-#define EVENT_ROCK_SHARDS		 1  //15s cd
-#define EVENT_CHOKING_CLOUD		 2  //30s cd
+#define EVENT_ROCK_SHARDS         1  //15s cd
+#define EVENT_CHOKING_CLOUD         2  //30s cd
 #define EVENT_STOMP              3  //45s cd
 #define EVENT_IMPALE             4
 #define EVENT_BERSERK            5  //300s cd 
 
 //mob
-#define EVENT_ROCK_SHOWER		 5  //set = 20s cd,unkown cd
-#define EVENT_SHIELD_CRUSH		 6  //set = 30s cd
-#define EVENT_WHIRL	             8  //set= 10s cd
+#define EVENT_ROCK_SHOWER         5  //set = 20s cd,unkown cd
+#define EVENT_SHIELD_CRUSH         6  //set = 30s cd
+#define EVENT_WHIRL                 8  //set= 10s cd
 
 struct TRINITY_DLL_DECL boss_archavonAI : public ScriptedAI
 {
