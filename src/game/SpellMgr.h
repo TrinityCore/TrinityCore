@@ -424,7 +424,7 @@ enum ProcFlags
    PROC_FLAG_ON_TRAP_ACTIVATION            = 0x00200000,    // 21 On trap activation
 
    PROC_FLAG_TAKEN_OFFHAND_HIT             = 0x00400000,    // 22 Taken off-hand melee attacks(not used)
-   PROC_FLAG_SUCCESSFUL_OFFHAND_HIT        = 0x00800000,     // 23 Successful off-hand melee attacks
+   PROC_FLAG_SUCCESSFUL_OFFHAND_HIT        = 0x00800000,     // 23 Successful off-hand melee attacks ( this is probably wrong )
 
    PROC_FLAG_DEATH                         = 0x01000000     // 24 Died in any way
 };
@@ -459,6 +459,8 @@ enum ProcFlagsEx
    PROC_EX_EX_TRIGGER_ALWAYS   = 0x0010000,                 // If set trigger always ( no matter another flags) used for drop charges
    PROC_EX_EX_ONE_TIME_TRIGGER = 0x0020000,                 // If set trigger always but only one time (not used)
    PROC_EX_INTERNAL_CANT_PROC  = 0x0800000,
+   PROC_EX_INTERNAL_DOT        = 0x1000000,                 // Only for internal use
+   PROC_EX_INTERNAL_HOT        = 0x2000000,                  // Only for internal use
    PROC_EX_INTERNAL_TRIGGERED  = 0x4000000,                 // Only for internal use
    PROC_EX_INTERNAL_REQ_FAMILY = 0x8000000                  // Only for internal use
 };

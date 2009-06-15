@@ -344,7 +344,7 @@ enum SpellCategory
 #define SPELL_ATTR_EX3_REQ_OFFHAND                0x01000000            // 24 Req offhand weapon
 #define SPELL_ATTR_EX3_UNK25                      0x02000000            // 25 no cause spell pushback ?
 #define SPELL_ATTR_EX3_CAN_PROC_TRIGGERED         0x04000000            // 26
-#define SPELL_ATTR_EX3_UNK27                      0x08000000            // 27
+#define SPELL_ATTR_EX3_DRAIN_SOUL                 0x08000000            // 27 only drain soul has this flag
 #define SPELL_ATTR_EX3_UNK28                      0x10000000            // 28
 #define SPELL_ATTR_EX3_UNK29                      0x20000000            // 29
 #define SPELL_ATTR_EX3_UNK30                      0x40000000            // 30

@@ -689,17 +689,6 @@ enum InstanceResetWarningType
     RAID_INSTANCE_EXPIRED           = 5
 };
 
-// flags that use in movement check for example at spell casting
-MovementFlags const movementFlagsMask = MovementFlags(
-    MOVEMENTFLAG_FORWARD |MOVEMENTFLAG_BACKWARD  |MOVEMENTFLAG_STRAFE_LEFT|MOVEMENTFLAG_STRAFE_RIGHT|
-    MOVEMENTFLAG_PITCH_UP|MOVEMENTFLAG_PITCH_DOWN|MOVEMENTFLAG_FLY_UNK1    |
-    MOVEMENTFLAG_JUMPING |MOVEMENTFLAG_FALLING   |MOVEMENTFLAG_FLY_UP      |
-    MOVEMENTFLAG_FLYING  |MOVEMENTFLAG_SPLINE
-);
-
-MovementFlags const movementOrTurningFlagsMask = MovementFlags(
-    movementFlagsMask | MOVEMENTFLAG_LEFT | MOVEMENTFLAG_RIGHT
-);
 class InstanceSave;
 
 enum RestType
@@ -1951,11 +1940,6 @@ class TRINITY_DLL_SPEC Player : public Unit
         }
         void HandleFall(MovementInfo const& movementInfo);
 
-        bool isMoving() const { return m_movementInfo.HasMovementFlag(movementFlagsMask); }
-        bool isMovingOrTurning() const { return m_movementInfo.HasMovementFlag(movementOrTurningFlagsMask); }
-
-        bool CanFly() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_CAN_FLY); }
-        bool IsFlying() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FLYING); }
         bool IsAllowUseFlyMountsHere() const;
 
         void SetClientControl(Unit* target, uint8 allowMove);

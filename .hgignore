@@ -1,0 +1,14 @@
+# use glob syntax.
+syntax: glob
+
+src/shared/revision.h
+build/
+.directory
+*.orig
+*.rej
+*~
+
+# use regexp syntax.
+syntax: regexp
+
+^src/shared/revision\.h

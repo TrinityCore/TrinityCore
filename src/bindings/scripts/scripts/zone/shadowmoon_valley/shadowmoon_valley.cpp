@@ -46,110 +46,115 @@ EndContentData */
 # mob_mature_netherwing_drake
 #####*/
 
-#define SPELL_PLACE_CARCASS             38439
-#define SPELL_JUST_EATEN                38502
-#define SPELL_NETHER_BREATH             38467
+enum
+{
+    SAY_JUST_EATEN              = -1000222,
 
-#define SAY_JUST_EATEN                  -1000222
+    SPELL_PLACE_CARCASS         = 38439,
+    SPELL_JUST_EATEN            = 38502,
+    SPELL_NETHER_BREATH         = 38467,
+    POINT_ID                    = 1,
+
+    QUEST_KINDNESS              = 10804,
+    NPC_EVENT_PINGER            = 22131
+};
+
 
 struct TRINITY_DLL_DECL mob_mature_netherwing_drakeAI : public ScriptedAI
 {
-    mob_mature_netherwing_drakeAI(Creature* c) : ScriptedAI(c)
-    {
-        PlayerGUID = 0;
-        Reset();
-    }
+    mob_mature_netherwing_drakeAI(Creature* c) : ScriptedAI(c) { }
 
-    uint64 PlayerGUID;
+    uint64 uiPlayerGUID;
 
-    bool IsEating;
-    bool Evade;
+    bool bCanEat;
+    bool bIsEating;
 
-    uint32 ResetTimer;
-    uint32 CastTimer;
     uint32 EatTimer;
+    uint32 CastTimer;
 
     void Reset()
     {
-        IsEating = false;
-        Evade = false;
+        uiPlayerGUID = 0;
 
-        ResetTimer = 120000;
+        bCanEat = false;
+        bIsEating = false;
+
         EatTimer = 5000;
         CastTimer = 5000;
     }
 
     void EnterCombat(Unit* who) { }
 
-    void MoveInLineOfSight(Unit* who)
+    void SpellHit(Unit* pCaster, SpellEntry const* pSpell)
     {
-        if(m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
+        if (bCanEat || bIsEating)
             return;
 
-        ScriptedAI::MoveInLineOfSight(who);
-    }
-
-    void SpellHit(Unit* caster, const SpellEntry* spell)
-    {
-        if(!caster)
-            return;
-
-        if(caster->GetTypeId() == TYPEID_PLAYER && spell->Id == SPELL_PLACE_CARCASS && !m_creature->HasAura(SPELL_JUST_EATEN) && !PlayerGUID)
+        if (pCaster->GetTypeId() == TYPEID_PLAYER && pSpell->Id == SPELL_PLACE_CARCASS && !m_creature->HasAura(SPELL_JUST_EATEN))
         {
-            float PlayerX, PlayerY, PlayerZ;
-            caster->GetClosePoint(PlayerX, PlayerY, PlayerZ, m_creature->GetObjectSize());
-            m_creature->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-            m_creature->GetMotionMaster()->MovePoint(1, PlayerX, PlayerY, PlayerZ);
-            PlayerGUID = caster->GetGUID();
+            uiPlayerGUID = pCaster->GetGUID();
+            bCanEat = true;
         }
     }
 
     void MovementInform(uint32 type, uint32 id)
     {
-        if(type != POINT_MOTION_TYPE)
+        if (type != POINT_MOTION_TYPE)
             return;
 
-        if(id == 1)
+        if (id == POINT_ID)
         {
-            IsEating = true;
-            EatTimer = 5000;
-            m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_ATTACKUNARMED);
-            m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+            bIsEating = true;
+            EatTimer = 7000;
+            m_creature->HandleEmoteCommand(EMOTE_ONESHOT_ATTACKUNARMED);
         }
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if(IsEating)
-            if(EatTimer < diff)
+        if (bCanEat || bIsEating)
         {
-            IsEating = false;
-            DoCast(m_creature, SPELL_JUST_EATEN);
-            m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
-            DoScriptText(SAY_JUST_EATEN, m_creature);
-            if(PlayerGUID)
+            if (EatTimer < diff)
             {
-                Player* plr = Unit::GetPlayer(PlayerGUID);
-                if(plr && plr->GetQuestStatus(10804) == QUEST_STATUS_INCOMPLETE)
+                if (bCanEat && !bIsEating)
                 {
-                    plr->KilledMonster(22131, m_creature->GetGUID());
-                    Evade = true;
-                    PlayerGUID = 0;
+                    if (Unit* pUnit = Unit::GetUnit(*m_creature, uiPlayerGUID))
+                    {
+                        if (GameObject* pGo = pUnit->GetGameObject(SPELL_PLACE_CARCASS))
+                        {
+                            if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
+                                m_creature->GetMotionMaster()->MovementExpired();
+
+                            m_creature->GetMotionMaster()->MoveIdle();
+                            m_creature->StopMoving();
+
+                            m_creature->GetMotionMaster()->MovePoint(POINT_ID, pGo->GetPositionX(), pGo->GetPositionY(), pGo->GetPositionZ());
+                        }
+                    }
+                    bCanEat = false;
+                }
+                else if (bIsEating)
+                {
+                    DoCast(m_creature, SPELL_JUST_EATEN);
+                    DoScriptText(SAY_JUST_EATEN, m_creature);
+
+                    if (Player* pPlr = (Player*)Unit::GetUnit((*m_creature), uiPlayerGUID))
+                        pPlr->KilledMonster(NPC_EVENT_PINGER, m_creature->GetGUID());
+
+                    Reset();
+                    m_creature->GetMotionMaster()->Clear();
                 }
             }
-        }else EatTimer -= diff;
+            else
+                EatTimer -= diff;
 
-        if(Evade)
-            if(ResetTimer < diff)
-            {
-                EnterEvadeMode();
-                return;
-            }else ResetTimer -= diff;
+        return;
+        }
 
         if(!UpdateVictim())
             return;
 
-        if(CastTimer < diff)
+        if (CastTimer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_NETHER_BREATH);
             CastTimer = 5000;
@@ -159,9 +164,9 @@ struct TRINITY_DLL_DECL mob_mature_netherwing_drakeAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_mob_mature_netherwing_drake(Creature *_creature)
+CreatureAI* GetAI_mob_mature_netherwing_drake(Creature* pCreature)
 {
-    return new mob_mature_netherwing_drakeAI(_creature);
+    return new mob_mature_netherwing_drakeAI(pCreature);
 }
 
 /*###

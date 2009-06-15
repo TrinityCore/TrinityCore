@@ -423,7 +423,6 @@ Spell::Spell( Unit* Caster, SpellEntry const *info, bool triggered, uint64 origi
 
     m_spellState = SPELL_STATE_NULL;
 
-    m_castPositionX = m_castPositionY = m_castPositionZ = 0;
     m_TriggerSpells.clear();
     m_IsTriggeredSpell = triggered;
     //m_AreaAura = false;
@@ -1209,7 +1208,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
             if(m_spellInfo->speed > 0.0f && unit == m_targets.getUnitTarget()
                 && (unit->HasAuraType(SPELL_AURA_MOD_INVISIBILITY)
                 || unit->HasAuraTypeWithFamilyFlags(SPELL_AURA_MOD_STEALTH, SPELLFAMILY_ROGUE, SPELLFAMILYFLAG_ROGUE_VANISH))
-                && !unit->isVisibleForOrDetect(m_caster, true))
+                && !m_caster->canSeeOrDetect(unit, true))
             {
                 // that was causing CombatLog errors
                 // return SPELL_MISS_EVADE;
@@ -1410,11 +1409,19 @@ bool Spell::UpdateChanneledTargetList()
 
     uint8 needAliveTargetMask = m_needAliveTargetMask;
     uint8 needAuraMask = 0;
-    for (uint8 i=0;i<MAX_SPELL_EFFECTS;++i)
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         if (m_spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AURA)
             needAuraMask |= 1<<i;
 
     needAuraMask &= needAliveTargetMask;
+
+    float range;
+    if(needAuraMask)
+    {
+        range = GetSpellMaxRange(m_spellInfo, IsPositiveSpell(m_spellInfo->Id));
+        if(Player * modOwner = m_caster->GetSpellModOwner())
+            modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RANGE, range, this);
+    }
 
     for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
     {
@@ -1428,9 +1435,6 @@ bool Spell::UpdateChanneledTargetList()
                 {
                     if(Aura * aur = unit->GetAura(m_spellInfo->Id, m_originalCasterGUID))
                     {
-                        float range = m_caster->GetSpellMaxRangeForTarget(unit,GetSpellRangeStore()->LookupEntry(m_spellInfo->rangeIndex));
-                        if(Player * modOwner = m_caster->GetSpellModOwner())
-                            modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RANGE, range, this);
                         if (m_caster != unit && !m_caster->IsWithinDistInMap(unit,range))
                         {
                             ihit->effectMask &= ~aur->GetEffectMask();
@@ -1438,7 +1442,7 @@ bool Spell::UpdateChanneledTargetList()
                             continue;
                         }
                     }
-                    else
+                    else // aura is dispelled
                         continue;
                 }
 
@@ -2280,46 +2284,56 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
             }
             else
             {
-                if(m_spellInfo->Id == 27285) // Seed of Corruption proc spell
-                    unitList.remove(m_targets.getUnitTarget());
-                else if (m_spellInfo->Id==57699) //Replenishment (special target selection) 10 targets with lowest mana
+                switch (m_spellInfo->Id)
                 {
-                    typedef std::priority_queue<PrioritizeManaWraper, std::vector<PrioritizeManaWraper>, PrioritizeMana> TopMana;
-                    TopMana manaUsers;
-                    for (std::list<Unit*>::iterator itr = unitList.begin() ; itr != unitList.end();++itr)
+                    case 27285: // Seed of Corruption proc spell
+                        unitList.remove(m_targets.getUnitTarget());
+                        break;
+                    case 55789: // Improved Icy Talons
+                    case 59725: // Improved Spell Reflection - aoe aura
+                        unitList.remove(m_caster);
+                        break;
+                    case 57699: //Replenishment (special target selection) 10 targets with lowest mana
                     {
-                        if ((*itr)->getPowerType() == POWER_MANA)
+                        typedef std::priority_queue<PrioritizeManaWraper, std::vector<PrioritizeManaWraper>, PrioritizeMana> TopMana;
+                        TopMana manaUsers;
+                        for (std::list<Unit*>::iterator itr = unitList.begin() ; itr != unitList.end();++itr)
                         {
-                            PrioritizeManaWraper  WTarget(*itr);
-                            manaUsers.push(WTarget);
+                            if ((*itr)->getPowerType() == POWER_MANA)
+                            {
+                                PrioritizeManaWraper  WTarget(*itr);
+                                manaUsers.push(WTarget);
+                            }
                         }
-                    }
 
-                    unitList.clear();
-                    while(!manaUsers.empty() && unitList.size()<10)
+                        unitList.clear();
+                        while(!manaUsers.empty() && unitList.size()<10)
+                        {
+                            unitList.push_back(manaUsers.top().getUnit());
+                            manaUsers.pop();
+                        }
+                        break;
+                    }
+                    case 52759: // Ancestral Awakening
                     {
-                        unitList.push_back(manaUsers.top().getUnit());
-                        manaUsers.pop();
+                        typedef std::priority_queue<PrioritizeHealthWraper, std::vector<PrioritizeHealthWraper>, PrioritizeHealth> TopHealth;
+                        TopHealth healedMembers;
+                        for (std::list<Unit*>::iterator itr = unitList.begin() ; itr != unitList.end();++itr)
+                        {
+                            PrioritizeHealthWraper  WTarget(*itr);
+                            healedMembers.push(WTarget);
+                        }
+
+                        unitList.clear();
+                        while(!healedMembers.empty() && unitList.size()<1)
+                        {
+                            unitList.push_back(healedMembers.top().getUnit());
+                            healedMembers.pop();
+                        }
+                        break;
                     }
                 }
-                else if (m_spellInfo->Id==52759)// Ancestral Awakening
-                {
-                    typedef std::priority_queue<PrioritizeHealthWraper, std::vector<PrioritizeHealthWraper>, PrioritizeHealth> TopHealth;
-                    TopHealth healedMembers;
-                    for (std::list<Unit*>::iterator itr = unitList.begin() ; itr != unitList.end();++itr)
-                    {
-                        PrioritizeHealthWraper  WTarget(*itr);
-                        healedMembers.push(WTarget);
-                    }
-
-                    unitList.clear();
-                    while(!healedMembers.empty() && unitList.size()<1)
-                    {
-                        unitList.push_back(healedMembers.top().getUnit());
-                        healedMembers.pop();
-                    }
-                }
-                else if (m_spellInfo->EffectImplicitTargetA[i] == TARGET_DEST_TARGET_ANY
+                if (m_spellInfo->EffectImplicitTargetA[i] == TARGET_DEST_TARGET_ANY
                     && m_spellInfo->EffectImplicitTargetB[i] == TARGET_UNIT_AREA_ALLY_DST)// Wild Growth, Circle of Healing, Glyph of holy light target special selection
                 {
                     typedef std::priority_queue<PrioritizeHealthWraper, std::vector<PrioritizeHealthWraper>, PrioritizeHealth> TopHealth;
@@ -2375,9 +2389,6 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect* triggeredByAura
     }
 
     m_spellState = SPELL_STATE_PREPARING;
-
-    m_caster->GetPosition(m_castPositionX, m_castPositionY, m_castPositionZ);
-    m_castOrientation = m_caster->GetOrientation();
 
     if(triggeredByAura)
         m_triggeredByAuraSpell  = triggeredByAura->GetSpellProto();
@@ -2510,16 +2521,12 @@ void Spell::cancel()
 
         case SPELL_STATE_CASTING:
         {
-            for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin();ihit != m_UniqueTargetInfo.end();++ihit)
-            {
-                if( ihit->missCondition == SPELL_MISS_NONE )
-                {
-                    Unit* unit = m_caster->GetGUID()==(*ihit).targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, ihit->targetGUID);
-                    if( unit && unit->isAlive() )
-                        unit->RemoveAurasDueToSpell(m_spellInfo->Id, m_originalCasterGUID, AURA_REMOVE_BY_CANCEL);
-                }
-            }
-            m_caster->RemoveAurasDueToSpell(m_spellInfo->Id, m_originalCasterGUID, AURA_REMOVE_BY_CANCEL);
+            for(std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+                if(ihit->missCondition == SPELL_MISS_NONE)
+                    if(Unit* unit = m_caster->GetGUID() == ihit->targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, ihit->targetGUID))
+                        if(unit->isAlive())
+                            unit->RemoveAurasDueToSpell(m_spellInfo->Id, m_originalCasterGUID, AURA_REMOVE_BY_CANCEL);
+
             SendChannelUpdate(0);
             SendInterrupted(0);
             SendCastResult(SPELL_FAILED_INTERRUPTED);
@@ -2902,21 +2909,18 @@ void Spell::update(uint32 difftime)
 
     if(m_targets.getUnitTargetGUID() && !m_targets.getUnitTarget())
     {
+        sLog.outDebug("Spell %u is cancelled due to removal of target.", m_spellInfo->Id);
         cancel();
         return;
     }
 
     // check if the player caster has moved before the spell finished
     if ((m_caster->GetTypeId() == TYPEID_PLAYER && m_timer != 0) &&
-        (m_castPositionX != m_caster->GetPositionX() || m_castPositionY != m_caster->GetPositionY() || m_castPositionZ != m_caster->GetPositionZ()) &&
+        m_caster->isMoving() && (m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_MOVEMENT) &&
         (m_spellInfo->Effect[0] != SPELL_EFFECT_STUCK || !m_caster->HasUnitMovementFlag(MOVEMENTFLAG_FALLING)))
     {
-        // always cancel for channeled spells
-        //if( m_spellState == SPELL_STATE_CASTING )
-        //    cancel();
         // don't cancel for melee, autorepeat, triggered and instant spells
-        //else
-        if(!IsNextMeleeSwingSpell() && !IsAutoRepeat() && !m_IsTriggeredSpell && (m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_MOVEMENT))
+        if(!IsNextMeleeSwingSpell() && !IsAutoRepeat() && !m_IsTriggeredSpell)
             cancel();
     }
 
@@ -2939,17 +2943,6 @@ void Spell::update(uint32 difftime)
         {
             if(m_timer > 0)
             {
-                if( m_caster->GetTypeId() == TYPEID_PLAYER )
-                {
-                    // check if player has jumped before the channeling finished
-                    if(m_caster->HasUnitMovementFlag(MOVEMENTFLAG_JUMPING))
-                        cancel();
-
-                    // check for incapacitating player states
-                    //if( m_caster->hasUnitState(UNIT_STAT_STUNNED | UNIT_STAT_CONFUSED))
-                    //    cancel();
-                }
-
                 // check if there are alive targets left
                 if (!UpdateChanneledTargetList())
                 {
@@ -5924,6 +5917,7 @@ bool SpellEvent::Execute(uint64 e_time, uint32 p_time)
             {
                 // no, we aren't, do the typical update
                 // check, if we have channeled spell on our hands
+                /*
                 if (IsChanneledSpell(m_Spell->m_spellInfo))
                 {
                     // evented channeled spell is processed separately, casted once after delay, and not destroyed till finish
@@ -5946,6 +5940,7 @@ bool SpellEvent::Execute(uint64 e_time, uint32 p_time)
                     // event will be re-added automatically at the end of routine)
                 }
                 else
+                */
                 {
                     // run the spell handler and think about what we can do next
                     uint64 t_offset = e_time - m_Spell->GetDelayStart();
