@@ -17,6 +17,7 @@
  */
 
 #include "precompiled.h"
+#include "Vehicle.h"
 
 #define GCD_CAST    1
 
