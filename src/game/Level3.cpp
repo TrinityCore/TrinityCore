@@ -697,7 +697,7 @@ bool ChatHandler::HandleReloadAchievementCriteriaDataCommand(const char*)
 {
     sLog.outString( "Re-Loading Additional Achievement Criteria Data..." );
     achievementmgr.LoadAchievementCriteriaData();
-    SendGlobalSysMessage("DB table `achievement_criteria_data` reloaded.");
+    SendGlobalGMSysMessage("DB table `achievement_criteria_data` reloaded.");
     return true;
 }
 
@@ -705,7 +705,7 @@ bool ChatHandler::HandleReloadAchievementRewardCommand(const char*)
 {
     sLog.outString( "Re-Loading Achievement Reward Data..." );
     achievementmgr.LoadRewards();
-    SendGlobalSysMessage("DB table `achievement_reward` reloaded.");
+    SendGlobalGMSysMessage("DB table `achievement_reward` reloaded.");
     return true;
 }
 
@@ -851,7 +851,7 @@ bool ChatHandler::HandleReloadLootTemplatesMillingCommand(const char*)
     sLog.outString( "Re-Loading Loot Tables... (`milling_loot_template`)" );
     LoadLootTemplates_Milling();
     LootTemplates_Milling.CheckLootRefs();
-    SendGlobalSysMessage("DB table `milling_loot_template` reloaded.");
+    SendGlobalGMSysMessage("DB table `milling_loot_template` reloaded.");
     return true;
 }
 
@@ -904,7 +904,7 @@ bool ChatHandler::HandleReloadLootTemplatesSpellCommand(const char*)
     sLog.outString( "Re-Loading Loot Tables... (`spell_loot_template`)" );
     LoadLootTemplates_Spell();
     LootTemplates_Spell.CheckLootRefs();
-    SendGlobalSysMessage("DB table `spell_loot_template` reloaded.");
+    SendGlobalGMSysMessage("DB table `spell_loot_template` reloaded.");
     return true;
 }
 
@@ -952,7 +952,7 @@ bool ChatHandler::HandleReloadPointsOfInterestCommand(const char*)
 {
     sLog.outString( "Re-Loading `points_of_interest` Table!" );
     objmgr.LoadPointsOfInterest();
-    SendGlobalSysMessage("DB table `points_of_interest` reloaded.");
+    SendGlobalGMSysMessage("DB table `points_of_interest` reloaded.");
     return true;
 }
 
@@ -960,7 +960,7 @@ bool ChatHandler::HandleReloadSpellClickSpellsCommand(const char*)
 {
     sLog.outString( "Re-Loading `npc_spellclick_spells` Table!" );
     objmgr.LoadNPCSpellClickSpells();
-    SendGlobalSysMessage("DB table `npc_spellclick_spells` reloaded.");
+    SendGlobalGMSysMessage("DB table `npc_spellclick_spells` reloaded.");
     return true;
 }
 
@@ -1008,7 +1008,7 @@ bool ChatHandler::HandleReloadSpellAreaCommand(const char*)
 {
     sLog.outString( "Re-Loading SpellArea Data..." );
     spellmgr.LoadSpellAreas();
-    SendGlobalSysMessage("DB table `spell_area` (spell dependences from area/quest/auras state) reloaded.");
+    SendGlobalGMSysMessage("DB table `spell_area` (spell dependences from area/quest/auras state) reloaded.");
     return true;
 }
 
@@ -1056,7 +1056,7 @@ bool ChatHandler::HandleReloadSpellBonusesCommand(const char*)
 {
     sLog.outString( "Re-Loading Spell Bonus Data..." );
     spellmgr.LoadSpellBonusess();
-    SendGlobalSysMessage("DB table `spell_bonus_data` (spell damage/healing coefficients) reloaded.");
+    SendGlobalGMSysMessage("DB table `spell_bonus_data` (spell damage/healing coefficients) reloaded.");
     return true;
 }
 
@@ -1112,7 +1112,7 @@ bool ChatHandler::HandleReloadItemRequiredTragetCommand(const char*)
 {
     sLog.outString( "Re-Loading Item Required Targets Table..." );
     objmgr.LoadItemRequiredTarget();
-    SendGlobalSysMessage("DB table `item_required_target` reloaded.");
+    SendGlobalGMSysMessage("DB table `item_required_target` reloaded.");
     return true;
 }
 
@@ -1181,7 +1181,7 @@ bool ChatHandler::HandleReloadEventAITextsCommand(const char* arg)
 
     sLog.outString( "Re-Loading Texts from `creature_ai_texts`...");
     CreatureEAI_Mgr.LoadCreatureEventAI_Texts();
-    SendGlobalSysMessage("DB table `creature_ai_texts` reloaded.");
+    SendGlobalGMSysMessage("DB table `creature_ai_texts` reloaded.");
     return true;
 }
 
@@ -1189,7 +1189,7 @@ bool ChatHandler::HandleReloadEventAISummonsCommand(const char* arg)
 {
     sLog.outString( "Re-Loading Summons from `creature_ai_summons`...");
     CreatureEAI_Mgr.LoadCreatureEventAI_Summons();
-    SendGlobalSysMessage("DB table `creature_ai_summons` reloaded.");
+    SendGlobalGMSysMessage("DB table `creature_ai_summons` reloaded.");
     return true;
 }
 
@@ -1197,7 +1197,7 @@ bool ChatHandler::HandleReloadEventAIScriptsCommand(const char* arg)
 {
     sLog.outString( "Re-Loading Scripts from `creature_ai_scripts`...");
     CreatureEAI_Mgr.LoadCreatureEventAI_Scripts();
-    SendGlobalSysMessage("DB table `creature_ai_scripts` reloaded.");
+    SendGlobalGMSysMessage("DB table `creature_ai_scripts` reloaded.");
     return true;
 }
 
@@ -1306,7 +1306,7 @@ bool ChatHandler::HandleReloadLocalesAchievementRewardCommand(const char*)
 {
     sLog.outString( "Re-Loading Locales Achievement Reward Data..." );
     achievementmgr.LoadRewardLocales();
-    SendGlobalSysMessage("DB table `locales_achievement_reward` reloaded.");
+    SendGlobalGMSysMessage("DB table `locales_achievement_reward` reloaded.");
     return true;
 }
 
@@ -1354,7 +1354,7 @@ bool ChatHandler::HandleReloadLocalesPointsOfInterestCommand(const char* /*arg*/
 {
     sLog.outString( "Re-Loading Locales Points Of Interest ... ");
     objmgr.LoadPointOfInterestLocales();
-    SendGlobalSysMessage("DB table `locales_points_of_interest` reloaded.");
+    SendGlobalGMSysMessage("DB table `locales_points_of_interest` reloaded.");
     return true;
 }
 
