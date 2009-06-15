@@ -642,21 +642,29 @@ enum MovementFlags
     MOVEMENTFLAG_WALK_MODE      = 0x00000100,               // Walking
     MOVEMENTFLAG_ONTRANSPORT    = 0x00000200,               // Used for flying on some creatures
     MOVEMENTFLAG_LEVITATING     = 0x00000400,
-    MOVEMENTFLAG_FLY_UNK1       = 0x00000800,
+    MOVEMENTFLAG_ROOT           = 0x00000800,
     MOVEMENTFLAG_JUMPING        = 0x00001000,
-    MOVEMENTFLAG_UNK4           = 0x00002000,
+    MOVEMENTFLAG_FALL_DAMAGE    = 0x00002000,               // newZ < oldZ
     MOVEMENTFLAG_FALLING        = 0x00004000,
     // 0x8000, 0x10000, 0x20000, 0x40000, 0x80000, 0x100000
     MOVEMENTFLAG_SWIMMING       = 0x00200000,               // appears with fly flag also
-    MOVEMENTFLAG_FLY_UP         = 0x00400000,               // press "space" when flying
+    MOVEMENTFLAG_ASCEND         = 0x00400000,               // press "space" when flying
     MOVEMENTFLAG_CAN_FLY        = 0x00800000,
-    MOVEMENTFLAG_FLYING         = 0x01000000,               // fly land
-    MOVEMENTFLAG_FLYING2        = 0x02000000,               // fly hover
+    MOVEMENTFLAG_FLY_MODE       = 0x01000000,               // can fly
+    MOVEMENTFLAG_FLYING         = 0x02000000,               // hover
     MOVEMENTFLAG_SPLINE         = 0x04000000,               // used for flight paths
     MOVEMENTFLAG_SPLINE2        = 0x08000000,               // used for flight paths
     MOVEMENTFLAG_WATERWALKING   = 0x10000000,               // prevent unit from falling through water
     MOVEMENTFLAG_SAFE_FALL      = 0x20000000,               // active rogue safe fall spell (passive)
-    MOVEMENTFLAG_UNK3           = 0x40000000
+    MOVEMENTFLAG_HOVER          = 0x40000000,               // hover, cannot jump
+
+    MOVEMENTFLAG_MOVING         =
+        MOVEMENTFLAG_FORWARD |MOVEMENTFLAG_BACKWARD  |MOVEMENTFLAG_STRAFE_LEFT|MOVEMENTFLAG_STRAFE_RIGHT|
+        MOVEMENTFLAG_PITCH_UP|MOVEMENTFLAG_PITCH_DOWN|MOVEMENTFLAG_FALL_DAMAGE|
+        MOVEMENTFLAG_JUMPING |MOVEMENTFLAG_FALLING   |MOVEMENTFLAG_ASCEND     |
+        MOVEMENTFLAG_SPLINE,
+    MOVEMENTFLAG_TURNING        =
+        MOVEMENTFLAG_LEFT | MOVEMENTFLAG_RIGHT,        
 };
 
 /*
@@ -1767,6 +1775,12 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void SetTransport(Transport * t) { m_transport = t; }
 
         void BuildMovementPacket(ByteBuffer *data) const;
+
+        bool isMoving() const   { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_MOVING); }
+        bool isTurning() const  { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_TURNING); }
+        bool canFly() const     { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FLY_MODE); }
+        bool IsFlying() const   { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FLYING); }
+        void SetFlying(bool apply);
     protected:
         explicit Unit ();
 

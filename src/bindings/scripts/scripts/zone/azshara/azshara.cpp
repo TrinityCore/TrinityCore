@@ -310,7 +310,7 @@ struct TRINITY_DLL_DECL mob_rizzle_sprysprocketAI : public ScriptedAI
                 Player* player = Unit::GetPlayer(PlayerGUID);
                 SendText(MSG_ESCAPE_NOTICE, player);
                 DoCast(m_creature, SPELL_PERIODIC_DEPTH_CHARGE);
-                m_creature->SetUnitMovementFlags(MOVEMENTFLAG_FLYING2 | MOVEMENTFLAG_SWIMMING);
+                m_creature->SetUnitMovementFlags(MOVEMENTFLAG_HOVER | MOVEMENTFLAG_SWIMMING);
                 m_creature->SetSpeed(MOVE_RUN, 0.85f, true);
                 m_creature->GetMotionMaster()->MovementExpired();
                 m_creature->GetMotionMaster()->MovePoint(CurrWP, WPs[CurrWP][0], WPs[CurrWP][1], WPs[CurrWP][2]);
@@ -441,7 +441,7 @@ struct TRINITY_DLL_DECL mob_depth_chargeAI : public ScriptedAI
 
     void Reset()
     {
-        m_creature->SetUnitMovementFlags(MOVEMENTFLAG_FLYING2 | MOVEMENTFLAG_SWIMMING);
+        m_creature->SetUnitMovementFlags(MOVEMENTFLAG_HOVER | MOVEMENTFLAG_SWIMMING);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         we_must_die = false;
         must_die_timer = 1000;
