@@ -5872,7 +5872,7 @@ void AuraEffect::HandleSchoolAbsorb(bool apply, bool Real, bool changeAmount)
                     break;
                 case SPELLFAMILY_PALADIN:
                     // Sacred Shield
-                    if (m_spellInfo->SpellFamilyFlags[1] & 0x80000)
+                    if (m_spellProto->SpellFamilyFlags[1] & 0x80000)
                     {
                         // 0.75 from sp bonus
                         DoneActualBenefit = caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellProto)) * 0.75f;

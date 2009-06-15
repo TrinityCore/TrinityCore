@@ -1276,11 +1276,11 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
     {
         if (EventProcFlag & PROC_FLAG_SUCCESSFUL_DAMAGING_SPELL_HIT)
         {
-            if (!(procEx & PROC_EX_INTERNAL_DOT))
+            if (!(procExtra & PROC_EX_INTERNAL_DOT))
                 return false;
         }
         else if (EventProcFlag & PROC_FLAG_SUCCESSFUL_HEALING_SPELL
-            && !(procEx & PROC_EX_INTERNAL_HOT))
+            && !(procExtra & PROC_EX_INTERNAL_HOT))
             return false;
     }
 
@@ -1288,11 +1288,11 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
     {
         if (EventProcFlag & PROC_FLAG_TAKEN_DAMAGING_SPELL_HIT)
         {
-            if (!(procEx & PROC_EX_INTERNAL_DOT))
+            if (!(procExtra & PROC_EX_INTERNAL_DOT))
                 return false;
         }
         else if (EventProcFlag & PROC_FLAG_TAKEN_HEALING_SPELL
-            && !(procEx & PROC_EX_INTERNAL_HOT))
+            && !(procExtra & PROC_EX_INTERNAL_HOT))
             return false;
     }
 
