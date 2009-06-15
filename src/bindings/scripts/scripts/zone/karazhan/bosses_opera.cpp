@@ -905,7 +905,7 @@ void Resurrect(Creature* target)
 {
     target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     target->SetHealth(target->GetMaxHealth());
-	target->SetStandState(UNIT_STAND_STATE_STAND);
+    target->SetStandState(UNIT_STAND_STATE_STAND);
     target->CastSpell(target, SPELL_RES_VISUAL, true);
     if(target->getVictim())
     {
@@ -1040,7 +1040,7 @@ struct TRINITY_DLL_DECL boss_romuloAI : public ScriptedAI
         EntryYellTimer = 8000;
         AggroYellTimer = 15000;
     }
-	
+    
     ScriptedInstance* pInstance;
 
     uint64 JulianneGUID;
@@ -1140,7 +1140,7 @@ void boss_julianneAI::DamageTaken(Unit* done_by, uint32 &damage)
         DoCast(m_creature, SPELL_DRINK_POISON);
 
         IsFakingDeath = true;
-		//IS THIS USEFULL? Creature* Julianne = (Unit::GetCreature((*m_creature), JulianneGUID));
+        //IS THIS USEFULL? Creature* Julianne = (Unit::GetCreature((*m_creature), JulianneGUID));
         return;
     }
 
@@ -1270,7 +1270,7 @@ void boss_julianneAI::UpdateAI(const uint32 diff)
             DrinkPoisonTimer = 0;
         }else DrinkPoisonTimer -= diff;
     }
-	
+    
     if (Phase == PHASE_ROMULO && !SummonedRomulo)
     {
         if(SummonRomuloTimer < diff)
@@ -1282,7 +1282,7 @@ void boss_julianneAI::UpdateAI(const uint32 diff)
                 CAST_AI(boss_romuloAI, Romulo->AI())->JulianneGUID = m_creature->GetGUID();
                 CAST_AI(boss_romuloAI, Romulo->AI())->Phase = PHASE_ROMULO;
                 Romulo->setFaction(16);
-				
+                
                 if(m_creature->getVictim())
                 {
                     Romulo->AddThreat(m_creature->getVictim(), 0.0f);
@@ -1308,7 +1308,7 @@ void boss_julianneAI::UpdateAI(const uint32 diff)
             ResurrectTimer = 1000;
         }else ResurrectSelfTimer -= diff;
     }
-	
+    
     if(!UpdateVictim() || IsFakingDeath)
         return;
 
@@ -1322,7 +1322,7 @@ void boss_julianneAI::UpdateAI(const uint32 diff)
                 DoScriptText(SAY_JULIANNE_RESURRECT, m_creature);
                 Resurrect(Romulo);
                 CAST_AI(boss_romuloAI, Romulo->AI())->IsFakingDeath = false;
-			    RomuloDead = false;
+                RomuloDead = false;
                 ResurrectTimer = 10000;
             }
         }else ResurrectTimer -= diff;
@@ -1376,7 +1376,7 @@ void boss_romuloAI::UpdateAI(const uint32 diff)
                 DoScriptText(SAY_ROMULO_RESURRECT, m_creature);
                 Resurrect(Julianne);
                 CAST_AI(boss_julianneAI, Julianne->AI())->IsFakingDeath = false;
-				JulianneDead = false;
+                JulianneDead = false;
                 ResurrectTimer = 10000;
             }
         }else ResurrectTimer -= diff;

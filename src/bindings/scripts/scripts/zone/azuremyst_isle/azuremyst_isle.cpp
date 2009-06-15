@@ -522,7 +522,7 @@ struct TRINITY_DLL_DECL npc_geezleAI : public ScriptedAI
         cell.SetNoCreate();
 
         Trinity::AllGameObjectsWithEntryInGrid go_check(GO_NAGA_FLAG);
-		Trinity::GameObjectListSearcher<Trinity::AllGameObjectsWithEntryInGrid> go_search(m_creature, FlagList, go_check);
+        Trinity::GameObjectListSearcher<Trinity::AllGameObjectsWithEntryInGrid> go_search(m_creature, FlagList, go_check);
         TypeContainerVisitor
             <Trinity::GameObjectListSearcher<Trinity::AllGameObjectsWithEntryInGrid>, GridTypeMapContainer> go_visit(go_search);
         CellLock<GridReadGuard> cell_lock(cell, pair);

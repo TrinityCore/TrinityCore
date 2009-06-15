@@ -31,71 +31,71 @@ struct TRINITY_DLL_DECL instance_nexus : public ScriptedInstance
     instance_nexus(Map *Map) : ScriptedInstance(Map) {Initialize();};
 
     std::string strInstData;
-	uint64 Anomalus;
-	uint32 Encounters[NUMBER_OF_ENCOUNTERS];
+    uint64 Anomalus;
+    uint32 Encounters[NUMBER_OF_ENCOUNTERS];
 
     void Initialize()
     {
-		Anomalus = 0;
-		for(uint8 i = 0; i < NUMBER_OF_ENCOUNTERS; i++)
+        Anomalus = 0;
+        for(uint8 i = 0; i < NUMBER_OF_ENCOUNTERS; i++)
             Encounters[i] = NOT_STARTED;
     }
 
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
         Map::PlayerList const& players = instance->GetPlayers();
-		uint32 TeamInInstance;
+        uint32 TeamInInstance;
 
         if (!players.isEmpty())
         {
             if (Player* pPlayer = players.begin()->getSource())
             {
-				TeamInInstance = pPlayer->GetTeam();
-			}
+                TeamInInstance = pPlayer->GetTeam();
+            }
         }
-		switch(pCreature->GetEntry())
+        switch(pCreature->GetEntry())
         {
             case 26763: Anomalus = pCreature->GetGUID(); break;
-			case 26800:
-				{
-					//26799
-					pCreature->setFaction(16);
-					if (TeamInInstance == ALLIANCE)
-						pCreature->SetDisplayId(24358);
-					break;
-				}
-			case 26802:
-				{
-					//26801
-					pCreature->setFaction(16);
-					if (TeamInInstance == ALLIANCE)
-						pCreature->SetDisplayId(24354);
-					break;
-				}
-			case 26805:
-				{
-					//26803
-					pCreature->setFaction(16);
-					if (TeamInInstance == ALLIANCE)
-						pCreature->SetDisplayId(24357);
-					break;
-				}
-			case 27949:
-				{
-					//27947
-					pCreature->setFaction(16);
-					if (TeamInInstance == ALLIANCE)
-						pCreature->SetDisplayId(24352);
-					break;
-				}
-			case 26796: 
-				{
-					//26798
-					pCreature->setFaction(16);
-					if (TeamInInstance == ALLIANCE)
-						pCreature->SetDisplayId(24352);
-					break;
-				}
+            case 26800:
+                {
+                    //26799
+                    pCreature->setFaction(16);
+                    if (TeamInInstance == ALLIANCE)
+                        pCreature->SetDisplayId(24358);
+                    break;
+                }
+            case 26802:
+                {
+                    //26801
+                    pCreature->setFaction(16);
+                    if (TeamInInstance == ALLIANCE)
+                        pCreature->SetDisplayId(24354);
+                    break;
+                }
+            case 26805:
+                {
+                    //26803
+                    pCreature->setFaction(16);
+                    if (TeamInInstance == ALLIANCE)
+                        pCreature->SetDisplayId(24357);
+                    break;
+                }
+            case 27949:
+                {
+                    //27947
+                    pCreature->setFaction(16);
+                    if (TeamInInstance == ALLIANCE)
+                        pCreature->SetDisplayId(24352);
+                    break;
+                }
+            case 26796: 
+                {
+                    //26798
+                    pCreature->setFaction(16);
+                    if (TeamInInstance == ALLIANCE)
+                        pCreature->SetDisplayId(24352);
+                    break;
+                }
         }
     }
 
@@ -109,14 +109,14 @@ struct TRINITY_DLL_DECL instance_nexus : public ScriptedInstance
         return 0;
     }
 
-	uint32 GetData(uint32 identifier)
+    uint32 GetData(uint32 identifier)
     {
         switch(identifier)
         {
             case DATA_MAGUS_TELESTRA_EVENT: return Encounters[0];
             case DATA_ANOMALUS_EVENT:       return Encounters[1];
             case DATA_ORMOROK_EVENT:        return Encounters[2];
-			case DATA_KERISTRASZA_FREED:    return Encounters[3];
+            case DATA_KERISTRASZA_FREED:    return Encounters[3];
         }
         return 0;
     }
@@ -128,10 +128,10 @@ struct TRINITY_DLL_DECL instance_nexus : public ScriptedInstance
             case DATA_MAGUS_TELESTRA_EVENT: Encounters[0] = data;  break;
             case DATA_ANOMALUS_EVENT:       Encounters[1] = data;  break;
             case DATA_ORMOROK_EVENT:        Encounters[2] = data;  break;
-			case DATA_KERISTRASZA_FREED:    Encounters[3] = data;  break;
+            case DATA_KERISTRASZA_FREED:    Encounters[3] = data;  break;
         }
 
-		if (data == DONE)
+        if (data == DONE)
         {
             OUT_SAVE_INST_DATA;
 
@@ -143,7 +143,7 @@ struct TRINITY_DLL_DECL instance_nexus : public ScriptedInstance
 
             SaveToDB();
             OUT_SAVE_INST_DATA_COMPLETE;
-		}
+        }
     }
 
     std::string GetSaveData()
