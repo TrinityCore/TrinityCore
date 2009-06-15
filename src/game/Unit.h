@@ -36,6 +36,8 @@
 #include "DBCStructure.h"
 #include <list>
 
+class Vehicle;
+
 #define WORLD_TRIGGER   12999
 
 enum SpellInterruptFlags
