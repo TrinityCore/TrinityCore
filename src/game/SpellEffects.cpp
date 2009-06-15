@@ -3364,6 +3364,8 @@ void Spell::EffectSummonType(uint32 i)
                     float radius = GetSpellRadiusForHostile(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
 
                     int32 amount = damage > 0 ? damage : 1;
+                    if (m_spellInfo->Id == 18662) // Curse of Doom
+                        amount = 1;
 
                     for(int32 count = 0; count < amount; ++count)
                     {
@@ -6655,8 +6657,6 @@ void Spell::SummonGuardian(uint32 entry, SummonPropertiesEntry const *properties
     switch(m_spellInfo->Id)
     {
         case 1122: // Inferno
-        case 18662: // Curse of Doom
-            amount = 1;
             break;
     }
     int32 duration = GetSpellDuration(m_spellInfo);
