@@ -19,45 +19,31 @@
  */
 
 #include "Language.h"
-#include "ObjectAccessor.h"
 #include "WorldPacket.h"
 #include "Common.h"
-#include "Log.h"
-#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
 #include "Player.h"
-#include "Chat.h"
-#include "TicketMgr.h"
 #include "World.h"
-#include "Chat.h"
-
 
 void WorldSession::HandleGMTicketCreateOpcode( WorldPacket & recv_data )
 {
-    // always do a packet check
     CHECK_PACKET_SIZE(recv_data, 4*4+1+2*4);
 
     uint32 map;
     float x, y, z;
-    std::string ticketText = "";
-    std::string ticketText2 = "";
-    GM_Ticket *ticket = new GM_Ticket;
+    std::string ticketText, ticketText2;
 
     WorldPacket data(SMSG_GMTICKET_CREATE, 4);
-
-    // recv Data
-    //TODO: Add map coordinates to tickets.
     recv_data >> map;
     recv_data >> x;
     recv_data >> y;
     recv_data >> z;
     recv_data >> ticketText;
-
-    // get additional data, rarely used
     recv_data >> ticketText2;
 
-    // assign values
+    GM_Ticket *ticket = new GM_Ticket;    
     ticket->name = GetPlayer()->GetName();
-    ticket->guid = ticketmgr.GenerateTicketID();
+    ticket->guid = objmgr.GenerateGMTicketId();
     ticket->playerGuid = GetPlayer()->GetGUID();
     ticket->message = ticketText;
     ticket->createtime = time(NULL);
@@ -70,58 +56,37 @@ void WorldSession::HandleGMTicketCreateOpcode( WorldPacket & recv_data )
     ticket->assignedToGM = 0;
     ticket->comment = "";
 
-    // remove ticket by player, shouldn't happen
-    ticketmgr.RemoveGMTicketByPlayer(GetPlayer()->GetGUID(), GetPlayer()->GetGUID());
+    objmgr.AddOrUpdateGMTicket(*ticket, true);
 
-    // add ticket
-    ticketmgr.AddGMTicket(ticket, false);
-
-    // Response - no errors
     data << uint32(2);
-
-    // Send ticket creation
     SendPacket(&data);
 
-    sWorld.SendGMText(LANG_COMMAND_TICKETNEW, ticket->name.c_str(), ticket->guid);
+    sWorld.SendGMText(LANG_COMMAND_TICKETNEW, GetPlayer()->GetName(), ticket->guid);
 
 }
 
 void WorldSession::HandleGMTicketUpdateOpcode( WorldPacket & recv_data)
 {
-    // always do a packet check
-    CHECK_PACKET_SIZE(recv_data,1);
-
-    std::string message = "";
-    time_t t = time(NULL);
-
+    CHECK_PACKET_SIZE(recv_data, 1);
     WorldPacket data(SMSG_GMTICKET_UPDATETEXT, 4);
 
-    // recv Data
+    std::string message;
     recv_data >> message;
 
-    // Update Ticket
-    GM_Ticket *ticket = ticketmgr.GetGMTicketByPlayer(GetPlayer()->GetGUID());
-
-    // Check if player has a GM Ticket yet
+    GM_Ticket *ticket = objmgr.GetGMTicketByPlayer(GetPlayer()->GetGUID());
     if(!ticket)
     {
-        // Response - error couldnt find existing Ticket
         data << uint32(1);
-
-        // Send packet
         SendPacket(&data);
         return;
     }
 
     ticket->message = message;
-    ticket->timestamp = (uint32)t;
+    ticket->timestamp = time(NULL);
 
-    ticketmgr.UpdateGMTicket(ticket);
+    objmgr.AddOrUpdateGMTicket(*ticket);
 
-    // Response - no errors
     data << uint32(2);
-
-    // Send packet
     SendPacket(&data);
 
     sWorld.SendGMText(LANG_COMMAND_TICKETUPDATED, GetPlayer()->GetName(), ticket->guid);
@@ -130,66 +95,40 @@ void WorldSession::HandleGMTicketUpdateOpcode( WorldPacket & recv_data)
 
 void WorldSession::HandleGMTicketDeleteOpcode( WorldPacket & /*recv_data*/)
 {
-    // NO recv_data, NO packet check size
+    GM_Ticket* ticket = objmgr.GetGMTicketByPlayer(GetPlayer()->GetGUID());
 
-    GM_Ticket* ticket = ticketmgr.GetGMTicketByPlayer(GetPlayer()->GetGUID());
-
-    // CHeck for Ticket
     if(ticket)
     {
-        // Remove Tickets from Player
-
-        // Response - no errors
         WorldPacket data(SMSG_GMTICKET_DELETETICKET, 4);
         data << uint32(9);
-        // Send Packet
         SendPacket(&data);
 
         sWorld.SendGMText(LANG_COMMAND_TICKETPLAYERABANDON, GetPlayer()->GetName(), ticket->guid );
-        ticketmgr.RemoveGMTicketByPlayer(GetPlayer()->GetGUID(), GetPlayer()->GetGUID());
+        objmgr.RemoveGMTicket(ticket, GetPlayer()->GetGUID(), false);
     }
 }
 
 void WorldSession::HandleGMTicketGetTicketOpcode( WorldPacket & /*recv_data*/)
 {
-    // NO recv_data NO packet size check
-
     WorldPacket data(SMSG_GMTICKET_GETTICKET, 400);
 
-    // get Current Ticket
-    GM_Ticket *ticket = ticketmgr.GetGMTicketByPlayer(GetPlayer()->GetGUID());
+    GM_Ticket *ticket = objmgr.GetGMTicketByPlayer(GetPlayer()->GetGUID());
 
-    // check for existing ticket
     if(!ticket)
     {
         data << uint32(10);
-        // send packet
         SendPacket(&data);
         return;
     }
-
-    // Send current Ticket
-    data << uint32(6); // unk ?
+    data << uint32(6);
     data << ticket->message.c_str();
-
     SendPacket(&data);
 
 }
 
 void WorldSession::HandleGMTicketSystemStatusOpcode( WorldPacket & /*recv_data*/)
 {
-    // NO recv_data NO packet size check
-
     WorldPacket data(SMSG_GMTICKET_SYSTEMSTATUS, 4);
-
-    // Response - System is working Fine
-
-    // No need for checks, ticket system is active
-    // in case of disactivity, this should be set to (0)
-
     data << uint32(1);
-
-
-    // Send Packet
     SendPacket(&data);
 }
