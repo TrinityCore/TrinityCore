@@ -1,4 +1,4 @@
--- Up to TC2 3515
+-- Up to TC2 4006
 
 /* WORLD BOSS */
 UPDATE `creature_template` SET `ScriptName`='boss_ysondre' WHERE `entry`=14887;
