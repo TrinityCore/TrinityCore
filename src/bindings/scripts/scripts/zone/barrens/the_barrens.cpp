@@ -167,8 +167,8 @@ struct TRINITY_DLL_DECL npc_taskmaster_fizzuleAI : public ScriptedAI
             {
                 if (m_creature->getFaction() == FACTION_FRIENDLY_F)
                     return;
-                else
-                    DoFriend();
+
+                DoFriend();
             }
         }
     }
