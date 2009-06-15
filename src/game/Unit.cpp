@@ -7757,6 +7757,11 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                 ((Player*)this)->RemoveCategoryCooldown(1209);
             break;
         }
+        case 63375: // Improved Stormstrike
+        {
+            basepoints0 = GetCreateMana() * 0.20f;
+            break;
+        }
         // Brain Freeze
         case 57761:
         {
