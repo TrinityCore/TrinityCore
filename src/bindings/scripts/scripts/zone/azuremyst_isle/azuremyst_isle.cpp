@@ -565,56 +565,71 @@ CreatureAI* GetAI_npc_geezleAI(Creature *_Creature)
 
 enum
 {
-    INOCULATION_CHANNEL = 29528,
-    INOCULATED_OWLKIN   = 16534
+    SPELL_INOCULATE_OWLKIN  = 29528,
+    ENTRY_OWLKIN            = 16518,
+    ENTRY_OWLKIN_INOC       = 16534
 };
 
-struct TRINITY_DLL_DECL mob_nestlewood_owlkinAI : public ScriptedAI
+struct TRINITY_DLL_DECL npc_nestlewood_owlkinAI : public ScriptedAI
 {
-    mob_nestlewood_owlkinAI(Creature *c) : ScriptedAI(c) {}
+    npc_nestlewood_owlkinAI(Creature *c) : ScriptedAI(c) {}
 
-    uint32 ChannelTimer;
-    bool Channeled;
-    bool Hitted;
+    uint32 DespawnTimer;
 
     void Reset()
     {
-        ChannelTimer = 0;
-        Channeled = false;
-        Hitted = false;
+        DespawnTimer = 0;
+        m_creature->SetVisibility(VISIBILITY_ON);
     }
 
-    void EnterCombat(Unit *who){}
-
-    void SpellHit(Unit* caster, const SpellEntry* spell)
-    {
-        if(!caster)
-            return;
-
-        if(caster->GetTypeId() == TYPEID_PLAYER && spell->Id == INOCULATION_CHANNEL)
-        {
-            ChannelTimer = 3000;
-            Hitted = true;
-        }
-    }
+    void Aggro(Unit *who) {}
 
     void UpdateAI(const uint32 diff)
     {
-        if(ChannelTimer < diff && !Channeled && Hitted)
+        //timer gets adjusted by the triggered aura effect
+        if (DespawnTimer)
         {
-            m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-            m_creature->RemoveCorpse();
-            m_creature->SummonCreature(INOCULATED_OWLKIN, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 180000);
-            Channeled = true;
-        }else ChannelTimer -= diff;
+            if (DespawnTimer <= diff)
+            {
+                //once we are able to, despawn us
+                m_creature->SetVisibility(VISIBILITY_OFF);
+                m_creature->setDeathState(JUST_DIED);
+                m_creature->SetHealth(0);
+                m_creature->CombatStop();
+                m_creature->DeleteThreatList();
+                m_creature->RemoveCorpse();
+            }else DespawnTimer -= diff;
+        }
+
+        if (!UpdateVictim())
+            return;
 
         DoMeleeAttackIfReady();
     }
 };
 
-CreatureAI* GetAI_mob_nestlewood_owlkinAI(Creature *_Creature)
+CreatureAI* GetAI_npc_nestlewood_owlkinAI(Creature* pCreature)
 {
-    return new mob_nestlewood_owlkinAI (_Creature);
+    return new npc_nestlewood_owlkinAI (pCreature);
+}
+
+bool EffectDummyCreature_npc_nestlewood_owlkin(Unit *pCaster, uint32 spellId, uint32 effIndex, Creature *pCreatureTarget)
+{
+    //always check spellid and effectindex
+    if (spellId == SPELL_INOCULATE_OWLKIN && effIndex == 0)
+    {
+        if (pCreatureTarget->GetEntry() != ENTRY_OWLKIN)
+            return true;
+
+        pCreatureTarget->UpdateEntry(ENTRY_OWLKIN_INOC);
+
+        //set despawn timer, since we want to remove creature after a short time
+        ((npc_nestlewood_owlkinAI*)pCreatureTarget->AI())->DespawnTimer = 15000;
+
+        //always return true when we are handling this spell and effect
+        return true;
+    }
+    return false;
 }
 
 void AddSC_azuremyst_isle()
@@ -650,8 +665,8 @@ void AddSC_azuremyst_isle()
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_nestlewood_owlkin";
-    newscript->GetAI = &GetAI_mob_nestlewood_owlkinAI;
+    newscript->Name="npc_nestlewood_owlkin";
+    newscript->GetAI = &GetAI_npc_nestlewood_owlkinAI;
     newscript->RegisterSelf();
 }
 
