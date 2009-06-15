@@ -1287,14 +1287,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\game\TicketMgr.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\TicketMgr.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\game\Totem.cpp"
 				>
 			</File>

@@ -34,7 +34,6 @@
 #include "CellImpl.h"
 #include "InstanceSaveMgr.h"
 #include "Util.h"
-#include "TicketMgr.h"
 
 #ifdef _DEBUG_VMAPS
 #include "VMapFactory.h"
@@ -286,7 +285,7 @@ std::string ChatHandler::PGetParseString(int32 entry, ...)
 bool ChatHandler::HandleGMTicketListCommand(const char* args)
 {
     SendSysMessage(LANG_COMMAND_TICKETSHOWLIST);
-    for(GmTicketList::iterator itr = ticketmgr.GM_TicketList.begin(); itr != ticketmgr.GM_TicketList.end(); ++itr)
+    for(GmTicketList::iterator itr = objmgr.m_GMTicketList.begin(); itr != objmgr.m_GMTicketList.end(); ++itr)
     {
         if((*itr)->closed != 0)
             continue;
@@ -309,7 +308,7 @@ bool ChatHandler::HandleGMTicketListCommand(const char* args)
 bool ChatHandler::HandleGMTicketListOnlineCommand(const char* args)
 {
     SendSysMessage(LANG_COMMAND_TICKETSHOWONLINELIST);
-    for(GmTicketList::iterator itr = ticketmgr.GM_TicketList.begin(); itr != ticketmgr.GM_TicketList.end(); ++itr)
+    for(GmTicketList::iterator itr = objmgr.m_GMTicketList.begin(); itr != objmgr.m_GMTicketList.end(); ++itr)
     {
         if((*itr)->closed != 0 || !objmgr.GetPlayer((*itr)->playerGuid))
             continue;
@@ -332,7 +331,7 @@ bool ChatHandler::HandleGMTicketListOnlineCommand(const char* args)
 bool ChatHandler::HandleGMTicketListClosedCommand(const char* args)
 {
     SendSysMessage(LANG_COMMAND_TICKETSHOWCLOSEDLIST);
-    for(GmTicketList::iterator itr = ticketmgr.GM_TicketList.begin(); itr != ticketmgr.GM_TicketList.end(); ++itr)
+    for(GmTicketList::iterator itr = objmgr.m_GMTicketList.begin(); itr != objmgr.m_GMTicketList.end(); ++itr)
     {
         if((*itr)->closed == 0)
             continue;
@@ -358,7 +357,7 @@ bool ChatHandler::HandleGMTicketGetByIdCommand(const char* args)
         return false;
 
     uint64 tguid = atoi(args);
-    GM_Ticket *ticket = ticketmgr.GetGMTicket(tguid);
+    GM_Ticket *ticket = objmgr.GetGMTicket(tguid);
     if(!ticket)
     {
         SendSysMessage(LANG_COMMAND_TICKETNOTEXIST);
@@ -389,7 +388,14 @@ bool ChatHandler::HandleGMTicketGetByNameCommand(const char* args)
     if(!*args)
         return false;
 
-    GM_Ticket *ticket = ticketmgr.GetGMTicketByName(args);
+    Player *plr = objmgr.GetPlayer(args);
+    if(!plr)
+    {
+        SendSysMessage(LANG_NO_PLAYERS_FOUND);
+        return true;
+    }
+    
+    GM_Ticket *ticket = objmgr.GetGMTicketByPlayer(plr->GetGUID());
     if(!ticket)
     {
         SendSysMessage(LANG_COMMAND_TICKETNOTEXIST);
@@ -421,7 +427,7 @@ bool ChatHandler::HandleGMTicketCloseByIdCommand(const char* args)
         return false;
 
     uint64 tguid = atoi(args);
-    GM_Ticket *ticket = ticketmgr.GetGMTicket(tguid);
+    GM_Ticket *ticket = objmgr.GetGMTicket(tguid);
     if(!ticket || ticket->closed != 0)
     {
         SendSysMessage(LANG_COMMAND_TICKETNOTEXIST);
@@ -437,7 +443,7 @@ bool ChatHandler::HandleGMTicketCloseByIdCommand(const char* args)
     ss << PGetParseString(LANG_COMMAND_TICKETLISTNAME, ticket->name.c_str());
     ss << PGetParseString(LANG_COMMAND_TICKETCLOSED, m_session->GetPlayer()->GetName());
     SendGlobalGMSysMessage(ss.str().c_str());
-    ticketmgr.RemoveGMTicket(ticket->guid, m_session->GetPlayer()->GetGUID());
+    objmgr.RemoveGMTicket(ticket->guid, m_session->GetPlayer()->GetGUID());
     Player *plr = objmgr.GetPlayer(ticket->playerGuid);
 
     if(!plr || !plr->IsInWorld())
@@ -469,7 +475,7 @@ bool ChatHandler::HandleGMTicketAssignToCommand(const char* args)
 
     Player *cplr = m_session->GetPlayer();
     std::string gmname;
-    GM_Ticket *ticket = ticketmgr.GetGMTicket(ticketGuid);
+    GM_Ticket *ticket = objmgr.GetGMTicket(ticketGuid);
 
     if(!ticket || ticket->closed != 0)
     {
@@ -497,7 +503,7 @@ bool ChatHandler::HandleGMTicketAssignToCommand(const char* args)
     }
 
     ticket->assignedToGM = tarGUID;
-    ticketmgr.UpdateGMTicket(ticket);
+    objmgr.AddOrUpdateGMTicket(*ticket);
     std::stringstream ss;
     ss << PGetParseString(LANG_COMMAND_TICKETLISTGUID, ticket->guid);
     ss << PGetParseString(LANG_COMMAND_TICKETLISTNAME, ticket->name.c_str());
@@ -513,7 +519,7 @@ bool ChatHandler::HandleGMTicketUnAssignCommand(const char* args)
 
     uint64 ticketGuid = atoi(args);
     Player *cplr = m_session->GetPlayer();
-    GM_Ticket *ticket = ticketmgr.GetGMTicket(ticketGuid);
+    GM_Ticket *ticket = objmgr.GetGMTicket(ticketGuid);
 
     if(!ticket|| ticket->closed != 0)
     {
@@ -542,7 +548,7 @@ bool ChatHandler::HandleGMTicketUnAssignCommand(const char* args)
     ss << PGetParseString(LANG_COMMAND_TICKETLISTUNASSIGNED, cplr->GetName());
     SendGlobalGMSysMessage(ss.str().c_str());
     ticket->assignedToGM = 0;
-    ticketmgr.UpdateGMTicket(ticket);
+    objmgr.AddOrUpdateGMTicket(*ticket);
     return true;
 }
 
@@ -559,7 +565,7 @@ bool ChatHandler::HandleGMTicketCommentCommand(const char* args)
         return false;
 
     Player *cplr = m_session->GetPlayer();
-    GM_Ticket *ticket = ticketmgr.GetGMTicket(ticketGuid);
+    GM_Ticket *ticket = objmgr.GetGMTicket(ticketGuid);
 
     if(!ticket || ticket->closed != 0)
     {
@@ -575,7 +581,7 @@ bool ChatHandler::HandleGMTicketCommentCommand(const char* args)
     std::string gmname;
     objmgr.GetPlayerNameByGUID(ticket->assignedToGM, gmname);
     ticket->comment = comment;
-    ticketmgr.UpdateGMTicket(ticket);
+    objmgr.AddOrUpdateGMTicket(*ticket);
     std::stringstream ss;
     ss << PGetParseString(LANG_COMMAND_TICKETLISTGUID, ticket->guid);
     ss << PGetParseString(LANG_COMMAND_TICKETLISTNAME, ticket->name.c_str());
@@ -593,7 +599,7 @@ bool ChatHandler::HandleGMTicketDeleteByIdCommand(const char* args)
     if(!*args)
         return false;
     uint64 ticketGuid = atoi(args);
-    GM_Ticket *ticket = ticketmgr.GetGMTicket(ticketGuid);
+    GM_Ticket *ticket = objmgr.GetGMTicket(ticketGuid);
 
     if(!ticket)
     {
@@ -612,7 +618,7 @@ bool ChatHandler::HandleGMTicketDeleteByIdCommand(const char* args)
     ss << PGetParseString(LANG_COMMAND_TICKETDELETED, m_session->GetPlayer()->GetName());
     SendGlobalGMSysMessage(ss.str().c_str());
     Player *plr = objmgr.GetPlayer(ticket->playerGuid);
-    ticketmgr.DeleteGMTicketPermanently(ticket->guid);
+    objmgr.RemoveGMTicket(ticket, -1, true);
     if(plr && plr->IsInWorld())
     {
         // Force abandon ticket
@@ -627,7 +633,7 @@ bool ChatHandler::HandleGMTicketDeleteByIdCommand(const char* args)
 
 bool ChatHandler::HandleGMTicketReloadCommand(const char*)
 {
-    ticketmgr.LoadGMTickets();
+    objmgr.LoadGMTickets();
     return true;
 }
 

@@ -26,7 +26,6 @@
 #include "GameObject.h"
 #include "Opcodes.h"
 #include "Chat.h"
-#include "ObjectAccessor.h"
 #include "MapManager.h"
 #include "Language.h"
 #include "World.h"
@@ -34,7 +33,6 @@
 #include "SpellMgr.h"
 #include "PoolHandler.h"
 #include "AccountMgr.h"
-#include "TicketMgr.h"
 #include "WaypointManager.h"
 #include "Util.h"
 #include <cctype>
@@ -42,7 +40,6 @@
 #include <fstream>
 #include <map>
 #include "GlobalEvents.h"
-#include "TicketMgr.h"
 
 #include "TargetedMovementGenerator.h"                      // for HandleNpcUnFollowCommand
 #include "CreatureGroups.h"
@@ -158,7 +155,7 @@ bool ChatHandler::HandleGoTicketCommand(const char * args)
     if(!ticket_id)
         return false;
 
-    GM_Ticket *ticket = ticketmgr.GetGMTicket(ticket_id);
+    GM_Ticket *ticket = objmgr.GetGMTicket(ticket_id);
     if(!ticket)
     {
         SendSysMessage(LANG_COMMAND_TICKETNOTEXIST);
@@ -2350,7 +2347,7 @@ bool ChatHandler::HandleTicketCommand(const char* args)
             return false;
         }
 
-        size_t count = ticketmgr.GetTicketCount();
+        size_t count = objmgr.GetTicketCount();
 
         bool accept = m_session->GetPlayer()->isAcceptTickets();
 
@@ -2417,7 +2414,7 @@ bool ChatHandler::HandleTicketCommand(const char* args)
         return false;
 
     // ticket $char_name
-    GMTicket* ticket = ticketmgr.GetGMTicket(GUID_LOPART(target_guid));
+    GMTicket* ticket = objmgr.GetGMTicket(GUID_LOPART(target_guid));
     if(!ticket)
         return false;
 
@@ -2438,7 +2435,7 @@ bool ChatHandler::HandleDelTicketCommand(const char *args)
     // delticket all
     if(strncmp(px,"all",4) == 0)
     {
-        ticketmgr.DeleteAll();
+        objmgr.DeleteAll();
         SendSysMessage(LANG_COMMAND_ALLTICKETDELETED);
         return true;
     }
@@ -2459,7 +2456,7 @@ bool ChatHandler::HandleDelTicketCommand(const char *args)
         uint32 guid = fields[0].GetUInt32();
         delete result;
 
-        ticketmgr.Delete(guid);
+        objmgr.Delete(guid);
 
         //notify player
         if(Player* pl = objmgr.GetPlayer(MAKE_NEW_GUID(guid, 0, HIGHGUID_PLAYER)))
@@ -2480,7 +2477,7 @@ bool ChatHandler::HandleDelTicketCommand(const char *args)
         return false;
 
     // delticket $char_name
-    ticketmgr.Delete(GUID_LOPART(target_guid));
+    objmgr.Delete(GUID_LOPART(target_guid));
 
     // notify players about ticket deleting
     if(target)

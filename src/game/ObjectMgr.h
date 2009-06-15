@@ -288,6 +288,23 @@ enum SkillRangeType
     SKILL_RANGE_NONE,                                       // 0..0 always
 };
 
+struct GM_Ticket
+{
+    uint64 guid;
+    uint64 playerGuid;
+    std::string name;
+    float pos_x;
+    float pos_y;
+    float pos_z;
+    uint32 map;
+    std::string message;
+    uint64 createtime;
+    uint64 timestamp;
+    int64 closed; // 0 = Open, -1 = Console, playerGuid = player abandoned ticket, other = GM who closed it.
+    uint64 assignedToGM;
+    std::string comment;
+};
+typedef std::list<GM_Ticket*> GmTicketList;
 SkillRangeType GetSkillRangeType(SkillLineEntry const *pSkill, bool racial);
 
 #define MAX_PLAYER_NAME 12                                  // max allowed by client name length
@@ -578,6 +595,7 @@ class ObjectMgr
         void LoadNpcTextId();
         void LoadVendors();
         void LoadTrainerSpell();
+        void LoadGMTickets();
 
         std::string GeneratePetName(uint32 entry);
         uint32 GetBaseXP(uint32 level);
@@ -814,6 +832,30 @@ class ObjectMgr
         {
             return ItemRequiredTargetMapBounds(m_ItemRequiredTarget.lower_bound(uiItemEntry),m_ItemRequiredTarget.upper_bound(uiItemEntry));
         }
+        
+        GM_Ticket *GetGMTicket(uint64 ticketGuid)
+        {
+            for(GmTicketList::const_iterator i = m_GMTicketList.begin(); i != m_GMTicketList.end(); ++i)
+                if((*i) && (*i)->guid == ticketGuid)
+                    return (*i);
+                    
+            return NULL;
+        }
+        GM_Ticket *GetGMTicketByPlayer(uint64 playerGuid)
+        {
+            for(GmTicketList::const_iterator i = m_GMTicketList.begin(); i != m_GMTicketList.end(); ++i)
+                if((*i) && (*i)->playerGuid == playerGuid)
+                    return (*i);
+                    
+            return NULL;        
+        }
+        
+        void AddOrUpdateGMTicket(GM_Ticket &ticket, bool create = false);
+        void _AddOrUpdateGMTicket(GM_Ticket &ticket);
+        void RemoveGMTicket(uint64 ticketGuid, int64 source = -1, bool permanently = false);
+        void RemoveGMTicket(GM_Ticket *ticket, int64 source = -1, bool permanently = false);
+        GmTicketList m_GMTicketList;
+        uint64 GenerateGMTicketId();
 
     protected:
 
@@ -825,6 +867,7 @@ class ObjectMgr
         uint32 m_ItemTextId;
         uint32 m_mailid;
         uint32 m_hiPetNumber;
+        uint64 m_GMticketid;
 
         // first free low guid for seelcted guid type
         uint32 m_hiCharGuid;
