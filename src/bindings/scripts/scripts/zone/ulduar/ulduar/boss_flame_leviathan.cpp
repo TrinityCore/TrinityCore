@@ -65,7 +65,7 @@ struct TRINITY_DLL_DECL boss_flame_leviathan_seatAI : public ScriptedAI
     void Reset()
     {
         if(const CreatureInfo *cInfo = me->GetCreatureInfo())
-            me->SetDisplayId(cInfo->DisplayID_H2); // A for gm, H1 invisible
+            me->SetDisplayId(cInfo->DisplayID_H[1]); // A for gm, H1 invisible
     }
 
     void UpdateAI(const uint32 diff)

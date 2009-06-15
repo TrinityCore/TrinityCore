@@ -1408,6 +1408,7 @@ void GameEventMgr::ChangeEquipOrModel(int16 event_id, bool activate)
                 CreatureModelInfo const *minfo = objmgr.GetCreatureModelRandomGender(display_id);
                 if (minfo)
                     display_id = minfo->modelid;
+
                 if (data2->equipmentId == 0)
                     itr->second.equipement_id_prev = cinfo->equipmentId;
                 else if (data2->equipmentId != -1)

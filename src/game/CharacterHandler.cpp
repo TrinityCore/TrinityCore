@@ -770,7 +770,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
     {
         sLog.outDebug( "WORLD: Restart character %u taxi flight", pCurrChar->GetGUIDLow() );
 
-        uint32 MountId = objmgr.GetTaxiMount(sourceNode, pCurrChar->GetTeam(),true);
+        uint32 mountDisplayId = objmgr.GetTaxiMountDisplayId(sourceNode, pCurrChar->GetTeam(),true);
         uint32 path = pCurrChar->m_taxi.GetCurrentTaxiPath();
 
         // search appropriate start path node
@@ -812,7 +812,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
             }
         }
 
-        SendDoFlight( MountId, path, startNode );
+        SendDoFlight( mountDisplayId, path, startNode );
     }
 
     // Load pet if any (if player not alive and in taxi flight or another then pet will remember as temporary unsummoned)
