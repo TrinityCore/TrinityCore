@@ -5838,7 +5838,7 @@ void AuraEffect::HandleSchoolAbsorb(bool apply, bool Real, bool changeAmount)
             switch(m_spellProto->SpellFamilyName)
             {
                 case SPELLFAMILY_PRIEST:
-                    // PW: S
+                    // Power Word: Shield
                     if(m_spellProto->SpellFamilyFlags.IsEqual(0x1, 0, 0x400))
                     {
                         // +80.68% from sp bonus
@@ -5868,6 +5868,14 @@ void AuraEffect::HandleSchoolAbsorb(bool apply, bool Real, bool changeAmount)
                     {
                         // +30% from sp bonus
                         DoneActualBenefit = caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellProto)) * 0.3f;
+                    }
+                    break;
+                case SPELLFAMILY_PALADIN:
+                    // Sacred Shield
+                    if (m_spellInfo->SpellFamilyFlags[1] & 0x80000)
+                    {
+                        // 0.75 from sp bonus
+                        DoneActualBenefit = caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellProto)) * 0.75f;
                     }
                     break;
                 default:

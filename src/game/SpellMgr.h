@@ -460,7 +460,7 @@ enum ProcFlagsEx
    PROC_EX_EX_ONE_TIME_TRIGGER = 0x0020000,                 // If set trigger always but only one time (not used)
    PROC_EX_INTERNAL_CANT_PROC  = 0x0800000,
    PROC_EX_INTERNAL_DOT        = 0x1000000,                 // Only for internal use
-   PROC_EX_INTERNAL_HOT        = 0x2000000                  // Only for internal use
+   PROC_EX_INTERNAL_HOT        = 0x2000000,                  // Only for internal use
    PROC_EX_INTERNAL_TRIGGERED  = 0x4000000,                 // Only for internal use
    PROC_EX_INTERNAL_REQ_FAMILY = 0x8000000                  // Only for internal use
 };
