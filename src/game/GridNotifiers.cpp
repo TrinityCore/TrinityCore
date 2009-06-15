@@ -38,7 +38,34 @@ VisibleChangesNotifier::Visit(PlayerMapType &m)
             continue;
 
         iter->getSource()->UpdateVisibilityOf(&i_object);
+
+        if(!iter->getSource()->GetSharedVisionList().empty())
+            for(SharedVisionList::const_iterator i = iter->getSource()->GetSharedVisionList().begin();
+                i != iter->getSource()->GetSharedVisionList().end(); ++i)
+                if((*i)->m_seer == iter->getSource())
+                    (*i)->UpdateVisibilityOf(&i_object);
     }
+}
+
+void
+VisibleChangesNotifier::Visit(CreatureMapType &m)
+{
+    for(CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+        if(!iter->getSource()->GetSharedVisionList().empty())
+            for(SharedVisionList::const_iterator i = iter->getSource()->GetSharedVisionList().begin();
+                i != iter->getSource()->GetSharedVisionList().end(); ++i)
+                if((*i)->m_seer == iter->getSource())
+                    (*i)->UpdateVisibilityOf(&i_object);
+}
+
+void
+VisibleChangesNotifier::Visit(DynamicObjectMapType &m)
+{
+    for(DynamicObjectMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+        if(IS_PLAYER_GUID(iter->getSource()->GetCasterGUID()))
+            if(Player* caster = (Player*)iter->getSource()->GetCaster())
+                if(caster->m_seer == iter->getSource())
+                    caster->UpdateVisibilityOf(&i_object);
 }
 
 void
