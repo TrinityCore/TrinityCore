@@ -81,6 +81,8 @@ namespace Trinity
         explicit VisibleChangesNotifier(WorldObject &object) : i_object(object) {}
         template<class T> void Visit(GridRefManager<T> &) {}
         void Visit(PlayerMapType &);
+        void Visit(CreatureMapType &);
+        void Visit(DynamicObjectMapType &);
     };
 
     struct TRINITY_DLL_DECL GridUpdater
