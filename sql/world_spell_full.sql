@@ -1,4 +1,4 @@
--- Up to TC2 3515
+-- Up to TC2 4018
 
 -- --------
 -- LINKED
@@ -13,15 +13,7 @@
 # - + 0 target casts 2 on self (originalCaster = caster) when aura 1 casted by caster is removed
 # - - 0 aura 2 is removed when aura 1 is removed
 
-DROP TABLE IF EXISTS `spell_linked_spell`;
-CREATE TABLE `spell_linked_spell` (
-  `spell_trigger` mediumint(8) NOT NULL,
-  `spell_effect` mediumint(8) NOT NULL default '0',
-  `type` tinyint(3) unsigned NOT NULL default '0',
-  `comment` text NOT NULL,
-  UNIQUE KEY `trigger_effect_type` (`spell_trigger`,`spell_effect`,`type`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Spell System';
-
+TRUNCATE TABLE `spell_linked_spell`;
 INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comment`) VALUES
 -- class
 ( 31224, -1543, 2, 'Cloak of Shadows - Flare'),
@@ -545,53 +537,6 @@ INSERT INTO `playercreateinfo_spell` (`race`, `class`, `Spell`, `Note`) VALUES
 (0, 6, 56816, 'Rune Strike');
 
 -- --------
--- REQUIRED
--- --------
-DROP TABLE IF EXISTS `spell_required`;
-CREATE TABLE `spell_required` (
-  `spell_id` mediumint(9) NOT NULL default '0',
-  `req_spell` mediumint(9) NOT NULL default '0',
-  PRIMARY KEY  (`spell_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Spell Additinal Data';
-
-INSERT INTO `spell_required` (`spell_id`, `req_spell`) VALUES
-(53312, 53308),
-(48938, 48936),
-(48937, 48935),
-(48934, 48932),
-(48933, 48931),
-(27143, 27142),
-(27141, 27140),
-(27009, 26989),
-(25916, 25291),
-(25918, 25290),
-(25894, 19854),
-(25782, 19838),
-(27681, 14752),
-(17329, 9853),
-(16813, 9852),
-(16812, 5196),
-(16811, 5195),
-(16810, 1062),
-(16689, 339),
-(9788, 9785),
-(17039, 9787),
-(17040, 9787),
-(17041, 9787),
-(10660, 10662),
-(10658, 10662),
-(10656, 10662),
-(28672, 28596),
-(28675, 28596),
-(28677, 28596),
-(26801, 26790),
-(26798, 26790),
-(26797, 26790),
-(20222, 12656),
-(20219, 12656),
-(25899, 20911);
-
--- --------
 -- PROC
 -- --------
 /*
@@ -607,22 +552,7 @@ CONCAT('0x',LPAD(HEX(procex),8,'0')),
 ppmrate, customchance, cooldown
 from spell_proc_event order by entry;
 */
-DROP TABLE IF EXISTS `spell_proc_event`;
-CREATE TABLE `spell_proc_event` (
-  `entry` smallint(5) unsigned NOT NULL default '0',
-  `SchoolMask` tinyint(4) NOT NULL default '0',
-  `SpellFamilyName` smallint(5) unsigned NOT NULL default '0',
-  `SpellFamilyMask0` int(10) unsigned NOT NULL default '0',
-  `SpellFamilyMask1` int(10) unsigned NOT NULL default '0',
-  `SpellFamilyMask2` int(10) unsigned NOT NULL default '0',
-  `procFlags` int(10) unsigned NOT NULL default '0',
-  `procEx` int(10) unsigned NOT NULL default '0',
-  `ppmRate` float NOT NULL default '0',
-  `CustomChance` float NOT NULL default '0',
-  `Cooldown` int(10) unsigned NOT NULL default '0',
-  PRIMARY KEY  (`entry`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
+TRUNCATE TABLE `spell_proc_event`;
 INSERT INTO `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `procFlags`, `procEx`, `ppmRate`, `CustomChance`, `Cooldown`) VALUES
 (   324, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   3), -- Lightning Shield (Rank 1)
 (   325, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   3), -- Lightning Shield (Rank 2)
@@ -1531,14 +1461,7 @@ INSERT INTO `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `Spell
 -- --------
 -- ENCHANT PROC
 -- --------
-DROP TABLE IF EXISTS `spell_enchant_proc_data`;
-CREATE TABLE `spell_enchant_proc_data` (
-  `entry` INT(10) UNSIGNED NOT NULL,
-  `customChance` INT(10) UNSIGNED NOT NULL DEFAULT '0',
-  `PPMChance` FLOAT UNSIGNED NOT NULL DEFAULT '0', 
-  `procEx` FLOAT UNSIGNED NOT NULL DEFAULT '0'
-) ENGINE=MYISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Spell enchant proc data';
-
+TRUNCATE TABLE `spell_enchant_proc_data`;
 INSERT INTO spell_enchant_proc_data (`entry`, `customChance`, `PPMChance`,`procEx`) VALUES 
 (2, 0, 8.8,0), -- Frostbrand Weapon
 (12, 0, 8.8,0), -- Frostbrand Weapon
@@ -1554,16 +1477,7 @@ INSERT INTO spell_enchant_proc_data (`entry`, `customChance`, `PPMChance`,`procE
 -- SPELL AFFECT
 -- --------
 
-DROP TABLE IF EXISTS `spell_affect`;
-CREATE TABLE `spell_affect` (
-  `entry` smallint(5) unsigned NOT NULL default '0',
-  `effectId` tinyint(3) unsigned NOT NULL default '0',
-  `SpellClassMask0` int(5) unsigned NOT NULL default '0',
-  `SpellClassMask1` int(5) unsigned NOT NULL default '0',
-  `SpellClassMask2` int(5) unsigned NOT NULL default '0',
-  PRIMARY KEY  (`entry`,`effectId`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
+TRUNCATE TABLE `spell_affect`;
 INSERT INTO `spell_affect` (`entry`, `effectId`, `SpellClassMask0`, `SpellClassMask1`, `SpellClassMask2`) VALUES
 (44544,0,685904631,1151048,0); -- Fingers of frost
 
