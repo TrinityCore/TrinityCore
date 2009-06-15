@@ -64,7 +64,6 @@
 #include "CellImpl.h"
 #include "InstanceSaveMgr.h"
 #include "WaypointManager.h"
-#include "TicketMgr.h"
 #include "Util.h"
 #include "Language.h"
 #include "CreatureGroups.h"
@@ -1452,7 +1451,7 @@ void World::SetInitialWorldSettings()
     formation_mgr.LoadCreatureFormations();
 
     sLog.outString( "Loading GM tickets...");
-    ticketmgr.LoadGMTickets();
+    objmgr.LoadGMTickets();
 
     ///- Handle outdated emails (delete/return)
     sLog.outString( "Returning old mails..." );

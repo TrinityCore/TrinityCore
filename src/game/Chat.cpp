@@ -34,7 +34,6 @@
 #include "Opcodes.h"
 #include "Player.h"
 #include "UpdateMask.h"
-#include "TicketMgr.h"
 
 // Supported shift-links (client generated and server side)
 // |color|Harea:area_id|h[name]|h|r
