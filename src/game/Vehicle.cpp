@@ -44,8 +44,7 @@ void Vehicle::AddToWorld()
         if(m_zoneScript)
             m_zoneScript->OnCreatureCreate(this, true);
         ObjectAccessor::Instance().AddObject(this);
-        Unit::AddToWorld();
-        AIM_Initialize();
+
         switch(GetEntry())
         {
             //case 27850:InstallAccessory(27905,1);break;
@@ -66,11 +65,28 @@ void Vehicle::AddToWorld()
                 InstallAccessory(33142,2);
                 break;
         }
-        if(!GetMaxPower(POWER_MANA)) // m_vehicleInfo->36
+        for(uint32 i = 0; i < MAX_SPELL_VEHICLE; ++i)
         {
-            setPowerType(POWER_ENERGY);
-            SetMaxPower(POWER_ENERGY, 100);
+            if(!m_spells[i])
+                continue;
+
+            SpellEntry const *spellInfo = sSpellStore.LookupEntry(m_spells[i]);
+            if(!spellInfo)
+                continue;
+
+            if(spellInfo->powerType == POWER_MANA)
+                break;
+
+            if(spellInfo->powerType == POWER_ENERGY)
+            {
+                setPowerType(POWER_ENERGY);
+                SetMaxPower(POWER_ENERGY, 100);
+                break;
+            }
         }
+
+        Unit::AddToWorld();
+        AIM_Initialize();
     }
 }
 
@@ -114,7 +130,7 @@ void Vehicle::Update(uint32 diff)
 {
     Creature::Update(diff);
     //310
-    if(getPowerType() == POWER_ENERGY)
+    if(getPowerType() == POWER_ENERGY) // m_vehicleInfo->36
         ModifyPower(POWER_ENERGY, 100);
 }
 
@@ -224,6 +240,8 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId)
 
     accessory->m_Vehicle = this;
     AddPassenger(accessory, seatId);
+    // This is not good, we have to send update twice
+    accessory->SendMovementFlagUpdate();
 }
 
 bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
@@ -278,16 +296,12 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
     if(unit->GetTypeId() == TYPEID_PLAYER && seat->first == 0 && seat->second.seatInfo->IsUsable()) // not right
         SetCharmedBy(unit, CHARM_TYPE_VEHICLE);
 
-    if(false)
-    {
-        unit->SendMonsterMoveTransport(this, true);
-    }
-    else
-    {
-        if(unit->GetTypeId() == TYPEID_PLAYER)
-            ((Player*)unit)->SendTeleportAckMsg();
-        unit->SendMovementFlagUpdate();
-    }
+    if(IsInWorld())
+        unit->SendMonsterMoveTransport(this);
+
+    //if(unit->GetTypeId() == TYPEID_PLAYER)
+    //    ((Player*)unit)->SendTeleportAckMsg();
+    //unit->SendMovementFlagUpdate();
 
     return true;
 }
