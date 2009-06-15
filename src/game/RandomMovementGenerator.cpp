@@ -124,7 +124,7 @@ RandomMovementGenerator<Creature>::_setRandomLocation(Creature &creature)
     if (is_air_ok)
     {
         i_nextMoveTime.Reset(i_destinationHolder.GetTotalTravelTime());
-        creature.AddUnitMovementFlag(MOVEMENTFLAG_FLYING2);
+        creature.AddUnitMovementFlag(MOVEMENTFLAG_FLYING);
     }
     //else if (is_water_ok) // Swimming mode to be done with more than this check
     else
@@ -151,7 +151,7 @@ RandomMovementGenerator<Creature>::Initialize(Creature &creature)
         wander_distance = creature.GetRespawnRadius();
 
     if (creature.canFly())
-        creature.AddUnitMovementFlag(MOVEMENTFLAG_FLYING2);
+        creature.AddUnitMovementFlag(MOVEMENTFLAG_FLYING);
     else if(irand(0,RUNNING_CHANCE_RANDOMMV) > 0)
         creature.AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
     _setRandomLocation(creature);
@@ -194,7 +194,7 @@ RandomMovementGenerator<Creature>::Update(Creature &creature, const uint32 &diff
         if(i_nextMoveTime.Passed())
         {
             if (creature.canFly())
-                creature.AddUnitMovementFlag(MOVEMENTFLAG_FLYING2);
+                creature.AddUnitMovementFlag(MOVEMENTFLAG_FLYING);
             else if(irand(0,RUNNING_CHANCE_RANDOMMV) > 0)
                 creature.AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
             _setRandomLocation(creature);

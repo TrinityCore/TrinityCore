@@ -274,7 +274,6 @@ class Spell
         void EffectDualWield(uint32 i);
         void EffectPickPocket(uint32 i);
         void EffectAddFarsight(uint32 i);
-        void EffectSummonWild(uint32 i);
         void EffectHealMechanical(uint32 i);
         void EffectJump(uint32 i);
         void EffectJump2(uint32 i);
@@ -622,10 +621,6 @@ class Spell
         uint32 m_spellState;
         uint32 m_timer;
 
-        float m_castPositionX;
-        float m_castPositionY;
-        float m_castPositionZ;
-        float m_castOrientation;
         bool m_IsTriggeredSpell;
 
         // if need this can be replaced by Aura copy

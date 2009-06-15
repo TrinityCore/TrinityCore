@@ -293,15 +293,11 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
     GetPlayer()->SendMessageToSet(&data, false);
 
     mover->m_movementInfo = movementInfo;
-    mover->SetUnitMovementFlags(movementInfo.flags);
 
     if(plMover)                                             // nothing is charmed, or player charmed
     {
         plMover->SetPosition(movementInfo.x, movementInfo.y, movementInfo.z, movementInfo.o);
         plMover->UpdateFallInformationIfNeed(movementInfo, recv_data.GetOpcode());
-
-        if(plMover->isMovingOrTurning())
-            plMover->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
         if(movementInfo.z < -500.0f)
         {
@@ -340,6 +336,13 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
         if(mover->m_Vehicle)
             return;
         mover->GetMap()->CreatureRelocation((Creature*)mover, movementInfo.x, movementInfo.y, movementInfo.z, movementInfo.o);
+
+        /*if(mover->canFly())
+        {
+            bool flying = mover->IsFlying();
+            if(flying != ((mover->GetByteValue(UNIT_FIELD_BYTES_1, 3) & 0x02) ? true : false))
+                mover->SetFlying(flying);
+        }*/
     }
 
     //sLog.outString("Receive Movement Packet %s:", opcodeTable[recv_data.GetOpcode()]);
@@ -462,9 +465,7 @@ void WorldSession::HandleMoveNotActiveMover(WorldPacket &recv_data)
         return;
     }*/
 
-    MovementInfo mi;
-    ReadMovementInfo(recv_data, &mi);
-    _player->m_movementInfo = mi;
+    ReadMovementInfo(recv_data, &_player->m_mover->m_movementInfo);
 }
 
 void WorldSession::HandleDismissControlledVehicle(WorldPacket &recv_data)
@@ -477,9 +478,7 @@ void WorldSession::HandleDismissControlledVehicle(WorldPacket &recv_data)
     if(!vehicleGUID)                                        // something wrong here...
         return;
 
-    MovementInfo mi;
-    ReadMovementInfo(recv_data, &mi);
-    _player->m_movementInfo = mi;
+    ReadMovementInfo(recv_data, &_player->m_mover->m_movementInfo);
     _player->ExitVehicle();
 }
 

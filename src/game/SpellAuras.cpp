@@ -2478,6 +2478,10 @@ void AuraEffect::HandleAuraDummy(bool apply, bool Real, bool changeAmount)
                 if(m_target->GetTypeId()==TYPEID_PLAYER)
                     ((Player*)m_target)->RemoveAmmo();      // not use ammo and not allow use
                 return;
+            case 52916:  // Honor Among Thieves
+               if (Unit * target = ObjectAccessor::GetUnit(*m_target, m_target->GetUInt64Value(UNIT_FIELD_TARGET)))
+                   m_target->CastSpell(target, 51699, true);
+               return;
         }
 
         // Earth Shield
@@ -4593,6 +4597,20 @@ void AuraEffect::HandlePeriodicDamage(bool apply, bool Real, bool changeAmount)
     // For prevent double apply bonuses
     bool loading = (m_target->GetTypeId() == TYPEID_PLAYER && ((Player*)m_target)->GetSession()->PlayerLoading());
 
+    // Curse of Doom
+    // This is a hack - this aura should be handled by passive aura and proc doomguard spawn on kill, however there is no such aura in dbcs
+    if(m_spellProto->SpellFamilyName==SPELLFAMILY_WARLOCK && m_spellProto->SpellFamilyFlags.IsEqual(0,0x02,0))
+    {
+        if (Real && !apply && GetParentAura()->GetRemoveMode()==AURA_REMOVE_BY_DEATH)
+        {
+            if (Unit * caster = GetCaster())
+            {
+                if (caster->GetTypeId()==TYPEID_PLAYER && ((Player*)caster)->isHonorOrXPTarget(m_target))
+                    caster->CastSpell(m_target, 18662, true);
+            }
+        }
+    }
+
     // Custom damage calculation after
     if (!apply || loading)
         return;
@@ -5654,26 +5672,15 @@ void AuraEffect::HandleAuraAllowFlight(bool apply, bool Real, bool /*changeAmoun
     if(!Real)
         return;
 
+    if(m_target->GetTypeId() == TYPEID_UNIT)
+        m_target->SetFlying(apply);
+
     // allow fly
     WorldPacket data;
     if(apply)
-    {
         data.Initialize(SMSG_MOVE_SET_CAN_FLY, 12);
-        if(m_target->GetTypeId() == TYPEID_UNIT)
-        {
-            m_target->SetByteFlag(UNIT_FIELD_BYTES_1, 3, 0x02);
-            m_target->AddUnitMovementFlag(MOVEMENTFLAG_FLYING2);
-        }
-    }
     else
-    {
         data.Initialize(SMSG_MOVE_UNSET_CAN_FLY, 12);
-        if(m_target->GetTypeId() == TYPEID_UNIT)
-        {
-            m_target->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, 0x02);
-            m_target->RemoveUnitMovementFlag(MOVEMENTFLAG_FLYING2);
-        }
-    }
     data.append(m_target->GetPackGUID());
     data << uint32(0);                                      // unk
     m_target->SendMessageToSet(&data, true);
@@ -5824,7 +5831,7 @@ void AuraEffect::HandleSchoolAbsorb(bool apply, bool Real, bool changeAmount)
             switch(m_spellProto->SpellFamilyName)
             {
                 case SPELLFAMILY_PRIEST:
-                    // PW: S
+                    // Power Word: Shield
                     if(m_spellProto->SpellFamilyFlags.IsEqual(0x1, 0, 0x400))
                     {
                         // +80.68% from sp bonus
@@ -5854,6 +5861,14 @@ void AuraEffect::HandleSchoolAbsorb(bool apply, bool Real, bool changeAmount)
                     {
                         // +30% from sp bonus
                         DoneActualBenefit = caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellProto)) * 0.3f;
+                    }
+                    break;
+                case SPELLFAMILY_PALADIN:
+                    // Sacred Shield
+                    if (m_spellProto->SpellFamilyFlags[1] & 0x80000)
+                    {
+                        // 0.75 from sp bonus
+                        DoneActualBenefit = caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellProto)) * 0.75f;
                     }
                     break;
                 default:
@@ -5994,9 +6009,9 @@ void AuraEffect::PeriodicTick()
             SpellEntry const* spellProto = GetSpellProto();
 
             // Set trigger flag
-            uint32 procAttacker = PROC_FLAG_ON_DO_PERIODIC | PROC_FLAG_SUCCESSFUL_DAMAGING_SPELL_HIT;
-            uint32 procVictim   = PROC_FLAG_ON_TAKE_PERIODIC | PROC_FLAG_TAKEN_DAMAGING_SPELL_HIT;
-            uint32 procEx = PROC_EX_NORMAL_HIT;
+            uint32 procAttacker = PROC_FLAG_ON_DO_PERIODIC;
+            uint32 procVictim   = PROC_FLAG_ON_TAKE_PERIODIC;
+            uint32 procEx = PROC_EX_NORMAL_HIT | PROC_EX_INTERNAL_DOT;
             pdamage = (pdamage <= absorb+resist) ? 0 : (pdamage-absorb-resist);
             if (pdamage)
                 procVictim|=PROC_FLAG_TAKEN_ANY_DAMAGE;
@@ -6006,7 +6021,6 @@ void AuraEffect::PeriodicTick()
             break;
         }
         case SPELL_AURA_PERIODIC_LEECH:
-        case SPELL_AURA_PERIODIC_HEALTH_FUNNEL:
         {
             Unit *pCaster = GetCaster();
             if(!pCaster)
@@ -6060,9 +6074,9 @@ void AuraEffect::PeriodicTick()
             int32 stackAmount = GetParentAura()->GetStackAmount();
 
             // Set trigger flag
-            uint32 procAttacker = PROC_FLAG_ON_DO_PERIODIC | PROC_FLAG_SUCCESSFUL_DAMAGING_SPELL_HIT;
-            uint32 procVictim   = PROC_FLAG_ON_TAKE_PERIODIC | PROC_FLAG_TAKEN_DAMAGING_SPELL_HIT;
-            uint32 procEx = PROC_EX_NORMAL_HIT;
+            uint32 procAttacker = PROC_FLAG_ON_DO_PERIODIC;
+            uint32 procVictim   = PROC_FLAG_ON_TAKE_PERIODIC;
+            uint32 procEx = PROC_EX_NORMAL_HIT | PROC_EX_INTERNAL_DOT;
             pdamage = (pdamage <= absorb+resist) ? 0 : (pdamage-absorb-resist);
             if (pdamage)
                 procVictim|=PROC_FLAG_TAKEN_ANY_DAMAGE;
@@ -6085,6 +6099,30 @@ void AuraEffect::PeriodicTick()
 
             int32 gain = pCaster->DealHeal(pCaster, heal, spellProto);
             pCaster->getHostilRefManager().threatAssist(pCaster, gain * 0.5f, spellProto);
+            break;
+        }
+        case SPELL_AURA_PERIODIC_HEALTH_FUNNEL: // only three spells
+        {
+            Unit *donator = GetCaster();
+            if(!donator || !donator->GetHealth())
+                return;
+
+            uint32 pdamage = GetAmount() * GetParentAura()->GetStackAmount();
+            if(donator->GetHealth() < pdamage)
+                pdamage = donator->GetHealth() - 1;
+            if(!pdamage)
+                return;
+
+            Unit* target = m_target;                        // aura can be deleted in DealDamage
+            SpellEntry const* spellProto = GetSpellProto();
+            //donator->SendSpellNonMeleeDamageLog(donator, GetId(), pdamage, GetSpellSchoolMask(spellProto), 0, 0, false, 0);
+            donator->ModifyHealth(-(int32)pdamage);
+            sLog.outDetail("PeriodicTick: donator %u target %u damage %u.", donator->GetEntry(), target->GetEntry(), pdamage);
+
+            if(spellProto->EffectMultipleValue[GetEffIndex()] > 0)
+                pdamage *= spellProto->EffectMultipleValue[GetEffIndex()];
+
+            donator->DealHeal(target, pdamage, spellProto);
             break;
         }
         case SPELL_AURA_PERIODIC_HEAL:
@@ -6161,9 +6199,9 @@ void AuraEffect::PeriodicTick()
                 }
             }
 
-            uint32 procAttacker = PROC_FLAG_ON_DO_PERIODIC | PROC_FLAG_SUCCESSFUL_HEALING_SPELL;
-            uint32 procVictim   = PROC_FLAG_ON_TAKE_PERIODIC | PROC_FLAG_TAKEN_HEALING_SPELL;
-            uint32 procEx = PROC_EX_NORMAL_HIT;
+            uint32 procAttacker = PROC_FLAG_ON_DO_PERIODIC;
+            uint32 procVictim   = PROC_FLAG_ON_TAKE_PERIODIC;
+            uint32 procEx = PROC_EX_NORMAL_HIT | PROC_EX_INTERNAL_HOT;
             // ignore item heals
             if(!haveCastItem)
                 pCaster->ProcDamageAndSpell(target, procAttacker, procVictim, procEx, pdamage, BASE_ATTACK, spellProto);
@@ -6358,9 +6396,9 @@ void AuraEffect::PeriodicTick()
             pCaster->SendSpellNonMeleeDamageLog(&damageInfo);
 
             // Set trigger flag
-            uint32 procAttacker = PROC_FLAG_ON_DO_PERIODIC | PROC_FLAG_SUCCESSFUL_DAMAGING_SPELL_HIT;
-            uint32 procVictim   = PROC_FLAG_ON_TAKE_PERIODIC | PROC_FLAG_TAKEN_DAMAGING_SPELL_HIT;
-            uint32 procEx       = createProcExtendMask(&damageInfo, SPELL_MISS_NONE);
+            uint32 procAttacker = PROC_FLAG_ON_DO_PERIODIC;
+            uint32 procVictim   = PROC_FLAG_ON_TAKE_PERIODIC;
+            uint32 procEx       = createProcExtendMask(&damageInfo, SPELL_MISS_NONE) | PROC_EX_INTERNAL_DOT;
             if (damageInfo.damage)
                 procVictim|=PROC_FLAG_TAKEN_ANY_DAMAGE;
 
@@ -7003,9 +7041,15 @@ void AuraEffect::HandleAuraControlVehicle(bool apply, bool Real, bool /*changeAm
     }
     else
     {
+        if(GetId() == 53111) // Devour Humanoid
+        {
+            vehicle->Kill(caster);
+            if(caster->GetTypeId() == TYPEID_UNIT)
+                ((Creature*)caster)->RemoveCorpse();
+        }
+
         // some SPELL_AURA_CONTROL_VEHICLE auras have a dummy effect on the player - remove them
         caster->RemoveAurasDueToSpell(GetId());
-
         caster->ExitVehicle();
     }
 }

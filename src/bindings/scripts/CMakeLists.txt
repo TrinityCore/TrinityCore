@@ -149,6 +149,7 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/darkshore/darkshore.cpp
    scripts/zone/deadmines/def_deadmines.h
    scripts/zone/deadmines/deadmines.cpp
+   scripts/zone/desolace/desolace.cpp
    scripts/zone/dragonblight/dragonblight.cpp
    scripts/zone/dun_morogh/dun_morogh.cpp
    scripts/zone/dustwallow_marsh/dustwallow_marsh.cpp

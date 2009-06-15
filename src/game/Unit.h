@@ -36,6 +36,8 @@
 #include "DBCStructure.h"
 #include <list>
 
+class Vehicle;
+
 #define WORLD_TRIGGER   12999
 
 enum SpellInterruptFlags
@@ -354,8 +356,8 @@ enum DamageTypeToSchool
 
 enum AuraRemoveMode
 {
-    AURA_REMOVE_BY_DEFAULT=0,
-    AURA_REMOVE_BY_STACK,               // change stack, single aura remove,
+    AURA_REMOVE_BY_DEFAULT=0,           // scripted remove, remove by stack with aura with different ids and sc aura remove
+    AURA_REMOVE_BY_STACK,               // replace by aura with same id
     AURA_REMOVE_BY_CANCEL,
     AURA_REMOVE_BY_ENEMY_SPELL,              // dispel and absorb aura destroy
     AURA_REMOVE_BY_EXPIRE,              // dispel and absorb aura destroy
@@ -640,21 +642,29 @@ enum MovementFlags
     MOVEMENTFLAG_WALK_MODE      = 0x00000100,               // Walking
     MOVEMENTFLAG_ONTRANSPORT    = 0x00000200,               // Used for flying on some creatures
     MOVEMENTFLAG_LEVITATING     = 0x00000400,
-    MOVEMENTFLAG_FLY_UNK1       = 0x00000800,
+    MOVEMENTFLAG_ROOT           = 0x00000800,
     MOVEMENTFLAG_JUMPING        = 0x00001000,
-    MOVEMENTFLAG_UNK4           = 0x00002000,
+    MOVEMENTFLAG_FALL_DAMAGE    = 0x00002000,               // newZ < oldZ
     MOVEMENTFLAG_FALLING        = 0x00004000,
     // 0x8000, 0x10000, 0x20000, 0x40000, 0x80000, 0x100000
     MOVEMENTFLAG_SWIMMING       = 0x00200000,               // appears with fly flag also
-    MOVEMENTFLAG_FLY_UP         = 0x00400000,               // press "space" when flying
+    MOVEMENTFLAG_ASCEND         = 0x00400000,               // press "space" when flying
     MOVEMENTFLAG_CAN_FLY        = 0x00800000,
-    MOVEMENTFLAG_FLYING         = 0x01000000,               // fly land
-    MOVEMENTFLAG_FLYING2        = 0x02000000,               // fly hover
+    MOVEMENTFLAG_FLY_MODE       = 0x01000000,               // can fly
+    MOVEMENTFLAG_FLYING         = 0x02000000,               // hover
     MOVEMENTFLAG_SPLINE         = 0x04000000,               // used for flight paths
     MOVEMENTFLAG_SPLINE2        = 0x08000000,               // used for flight paths
     MOVEMENTFLAG_WATERWALKING   = 0x10000000,               // prevent unit from falling through water
     MOVEMENTFLAG_SAFE_FALL      = 0x20000000,               // active rogue safe fall spell (passive)
-    MOVEMENTFLAG_UNK3           = 0x40000000
+    MOVEMENTFLAG_HOVER          = 0x40000000,               // hover, cannot jump
+
+    MOVEMENTFLAG_MOVING         =
+        MOVEMENTFLAG_FORWARD |MOVEMENTFLAG_BACKWARD  |MOVEMENTFLAG_STRAFE_LEFT|MOVEMENTFLAG_STRAFE_RIGHT|
+        MOVEMENTFLAG_PITCH_UP|MOVEMENTFLAG_PITCH_DOWN|MOVEMENTFLAG_FALL_DAMAGE|
+        MOVEMENTFLAG_JUMPING |MOVEMENTFLAG_FALLING   |MOVEMENTFLAG_ASCEND     |
+        MOVEMENTFLAG_SPLINE,
+    MOVEMENTFLAG_TURNING        =
+        MOVEMENTFLAG_LEFT | MOVEMENTFLAG_RIGHT,        
 };
 
 /*
@@ -1311,7 +1321,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint32 MoveFlags, uint32 time, float speedZ, Player *player = NULL);
         //void SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint8 type, uint32 MovementFlags, uint32 Time, Player* player = NULL);
         void SendMonsterMoveByPath(Path const& path, uint32 start, uint32 end);
-        void SendMonsterMoveTransport(Vehicle *vehicle, bool apply);
+        void SendMonsterMoveTransport(Vehicle *vehicle);
         void SendMonsterMoveWithSpeed(float x, float y, float z, uint32 transitTime = 0, Player* player = NULL);
         void SendMonsterMoveWithSpeedToCurrentDestination(Player* player = NULL);
         void SendMovementFlagUpdate();
@@ -1765,6 +1775,12 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void SetTransport(Transport * t) { m_transport = t; }
 
         void BuildMovementPacket(ByteBuffer *data) const;
+
+        bool isMoving() const   { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_MOVING); }
+        bool isTurning() const  { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_TURNING); }
+        bool canFly() const     { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FLY_MODE); }
+        bool IsFlying() const   { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FLYING); }
+        void SetFlying(bool apply);
     protected:
         explicit Unit ();
 
@@ -1834,6 +1850,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         bool HandleDummyAuraProc(   Unit *pVictim, uint32 damage, AuraEffect* triggeredByAura, SpellEntry const *procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown);
         bool HandleObsModEnergyAuraProc(   Unit *pVictim, uint32 damage, AuraEffect* triggeredByAura, SpellEntry const *procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown);
         bool HandleModDamagePctTakenAuraProc(Unit *pVictim, uint32 damage, AuraEffect* triggeredByAura, SpellEntry const *procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown);
+        bool HandleAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAura, SpellEntry const * procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown, bool * handled);
         bool HandleHasteAuraProc(   Unit *pVictim, uint32 damage, AuraEffect* triggeredByAura, SpellEntry const *procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown);
         bool HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* triggeredByAura, SpellEntry const *procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown);
         bool HandleOverrideClassScriptAuraProc(Unit *pVictim, uint32 damage, AuraEffect* triggeredByAura, SpellEntry const *procSpell, uint32 cooldown);
