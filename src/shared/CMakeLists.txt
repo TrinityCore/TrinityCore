@@ -24,5 +24,5 @@ SET(shared_STAT_SRCS
    WorldPacket.h
    SystemConfig.h
 )
-
+add_definitions(-fopenmp)
 add_library(shared STATIC ${shared_STAT_SRCS})
