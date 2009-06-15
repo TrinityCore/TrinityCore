@@ -229,7 +229,7 @@ class TRINITY_DLL_SPEC WorldSession
         //Taxi
         void SendTaxiStatus( uint64 guid );
         void SendTaxiMenu( Creature* unit );
-        void SendDoFlight( uint16 MountId, uint32 path, uint32 pathNode = 0 );
+        void SendDoFlight( uint32 mountDisplayId, uint32 path, uint32 pathNode = 0 );
         bool SendLearnNewTaxiNode( Creature* unit );
 
         // Guild/Arena Team

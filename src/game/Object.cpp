@@ -540,15 +540,15 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
                         {
                             if(target->isGameMaster())
                             {
-                                if(cinfo->DisplayID_A)
-                                    *data << cinfo->DisplayID_A;
+                                if(cinfo->DisplayID_A[0])
+                                    *data << cinfo->DisplayID_A[0];
                                 else
                                     *data << 17519; // world invisible trigger's model
                             }
                             else
                             {
-                                if(cinfo->DisplayID_A2)
-                                    *data << cinfo->DisplayID_A2;
+                                if(cinfo->DisplayID_A[1])
+                                    *data << cinfo->DisplayID_A[1];
                                 else
                                     *data << 11686; // world invisible trigger's model
                             }
