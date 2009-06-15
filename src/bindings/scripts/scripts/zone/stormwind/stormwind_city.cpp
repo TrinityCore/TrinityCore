@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Stormwind_City
 SD%Complete: 100
-SDComment: Quest support: 1640, 1447, 4185, 11223. Receive emote General Marcus
+SDComment: Quest support: 1640, 1447, 4185, 11223
 SDCategory: Stormwind City
 EndScriptData */
 
@@ -25,7 +25,6 @@ EndScriptData */
 npc_archmage_malin
 npc_bartleby
 npc_dashel_stonefist
-npc_general_marcus_jonathan
 npc_lady_katrana_prestor
 EndContentData */
 
@@ -174,40 +173,6 @@ CreatureAI* GetAI_npc_dashel_stonefist(Creature* pCreature)
 }
 
 /*######
-## npc_general_marcus_jonathan
-######*/
-
-#define SAY_GREETING    -1000005
-
-struct TRINITY_DLL_DECL npc_general_marcus_jonathanAI : public ScriptedAI
-{
-    npc_general_marcus_jonathanAI(Creature *c) : ScriptedAI(c) { }
-
-    void Reset() {}
-    void Aggro(Unit*) {}
-
-    void ReceiveEmote(Player *player, uint32 emote)
-    {
-        if (player->GetTeam() == ALLIANCE)
-        {
-            if (emote == TEXTEMOTE_SALUTE)
-            {
-                m_creature->SetOrientation(m_creature->GetAngle(player));
-                m_creature->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
-            }
-
-            if (emote == TEXTEMOTE_WAVE)
-                DoScriptText(SAY_GREETING, m_creature, player);
-        }
-    }
-};
-
-CreatureAI* GetAI_npc_general_marcus_jonathan(Creature* pCreature)
-{
-    return new npc_general_marcus_jonathanAI(pCreature);
-}
-
-/*######
 ## npc_lady_katrana_prestor
 ######*/
 
@@ -273,11 +238,6 @@ void AddSC_stormwind_city()
     newscript->Name = "npc_dashel_stonefist";
     newscript->GetAI = &GetAI_npc_dashel_stonefist;
     newscript->pQuestAccept = &QuestAccept_npc_dashel_stonefist;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "npc_general_marcus_jonathan";
-    newscript->GetAI = &GetAI_npc_general_marcus_jonathan;
     newscript->RegisterSelf();
 
     newscript = new Script;
