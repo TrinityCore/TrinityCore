@@ -6006,7 +6006,6 @@ void AuraEffect::PeriodicTick()
             break;
         }
         case SPELL_AURA_PERIODIC_LEECH:
-        case SPELL_AURA_PERIODIC_HEALTH_FUNNEL:
         {
             Unit *pCaster = GetCaster();
             if(!pCaster)
@@ -6085,6 +6084,30 @@ void AuraEffect::PeriodicTick()
 
             int32 gain = pCaster->DealHeal(pCaster, heal, spellProto);
             pCaster->getHostilRefManager().threatAssist(pCaster, gain * 0.5f, spellProto);
+            break;
+        }
+        case SPELL_AURA_PERIODIC_HEALTH_FUNNEL: // only three spells
+        {
+            Unit *donator = GetCaster();
+            if(!donator || !donator->GetHealth())
+                return;
+
+            uint32 pdamage = GetAmount() * GetParentAura()->GetStackAmount();
+            if(donator->GetHealth() < pdamage)
+                pdamage = donator->GetHealth() - 1;
+            if(!pdamage)
+                return;
+
+            Unit* target = m_target;                        // aura can be deleted in DealDamage
+            SpellEntry const* spellProto = GetSpellProto();
+            //donator->SendSpellNonMeleeDamageLog(donator, GetId(), pdamage, GetSpellSchoolMask(spellProto), 0, 0, false, 0);
+            donator->ModifyHealth(-(int32)pdamage);
+            sLog.outDetail("PeriodicTick: donator %u target %u damage %u.", donator->GetEntry(), target->GetEntry(), pdamage);
+
+            if(spellProto->EffectMultipleValue[GetEffIndex()] > 0)
+                pdamage *= spellProto->EffectMultipleValue[GetEffIndex()];
+
+            donator->DealHeal(target, pdamage, spellProto);
             break;
         }
         case SPELL_AURA_PERIODIC_HEAL:
@@ -7003,9 +7026,15 @@ void AuraEffect::HandleAuraControlVehicle(bool apply, bool Real, bool /*changeAm
     }
     else
     {
+        if(GetId() == 53111) // Devour Humanoid
+        {
+            vehicle->Kill(caster);
+            if(caster->GetTypeId() == TYPEID_UNIT)
+                ((Creature*)caster)->RemoveCorpse();
+        }
+
         // some SPELL_AURA_CONTROL_VEHICLE auras have a dummy effect on the player - remove them
         caster->RemoveAurasDueToSpell(GetId());
-
         caster->ExitVehicle();
     }
 }
