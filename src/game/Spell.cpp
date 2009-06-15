@@ -1410,11 +1410,19 @@ bool Spell::UpdateChanneledTargetList()
 
     uint8 needAliveTargetMask = m_needAliveTargetMask;
     uint8 needAuraMask = 0;
-    for (uint8 i=0;i<MAX_SPELL_EFFECTS;++i)
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         if (m_spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AURA)
             needAuraMask |= 1<<i;
 
     needAuraMask &= needAliveTargetMask;
+
+    float range;
+    if(needAuraMask)
+    {
+        range = GetSpellMaxRange(m_spellInfo, IsPositiveSpell(m_spellInfo->Id));
+        if(Player * modOwner = m_caster->GetSpellModOwner())
+            modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RANGE, range, this);
+    }
 
     for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
     {
@@ -1428,9 +1436,6 @@ bool Spell::UpdateChanneledTargetList()
                 {
                     if(Aura * aur = unit->GetAura(m_spellInfo->Id, m_originalCasterGUID))
                     {
-                        float range = m_caster->GetSpellMaxRangeForTarget(unit,GetSpellRangeStore()->LookupEntry(m_spellInfo->rangeIndex));
-                        if(Player * modOwner = m_caster->GetSpellModOwner())
-                            modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RANGE, range, this);
                         if (m_caster != unit && !m_caster->IsWithinDistInMap(unit,range))
                         {
                             ihit->effectMask &= ~aur->GetEffectMask();
@@ -1438,7 +1443,7 @@ bool Spell::UpdateChanneledTargetList()
                             continue;
                         }
                     }
-                    else
+                    else // aura is dispelled
                         continue;
                 }
 
@@ -2520,16 +2525,12 @@ void Spell::cancel()
 
         case SPELL_STATE_CASTING:
         {
-            for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin();ihit != m_UniqueTargetInfo.end();++ihit)
-            {
-                if( ihit->missCondition == SPELL_MISS_NONE )
-                {
-                    Unit* unit = m_caster->GetGUID()==(*ihit).targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, ihit->targetGUID);
-                    if( unit && unit->isAlive() )
-                        unit->RemoveAurasDueToSpell(m_spellInfo->Id, m_originalCasterGUID, AURA_REMOVE_BY_CANCEL);
-                }
-            }
-            m_caster->RemoveAurasDueToSpell(m_spellInfo->Id, m_originalCasterGUID, AURA_REMOVE_BY_CANCEL);
+            for(std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+                if(ihit->missCondition == SPELL_MISS_NONE)
+                    if(Unit* unit = m_caster->GetGUID() == ihit->targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, ihit->targetGUID))
+                        if(unit->isAlive())
+                            unit->RemoveAurasDueToSpell(m_spellInfo->Id, m_originalCasterGUID, AURA_REMOVE_BY_CANCEL);
+
             SendChannelUpdate(0);
             SendInterrupted(0);
             SendCastResult(SPELL_FAILED_INTERRUPTED);
@@ -2912,6 +2913,7 @@ void Spell::update(uint32 difftime)
 
     if(m_targets.getUnitTargetGUID() && !m_targets.getUnitTarget())
     {
+        sLog.outDebug("Spell %u is cancelled due to removal of target.", m_spellInfo->Id);
         cancel();
         return;
     }
@@ -5934,6 +5936,7 @@ bool SpellEvent::Execute(uint64 e_time, uint32 p_time)
             {
                 // no, we aren't, do the typical update
                 // check, if we have channeled spell on our hands
+                /*
                 if (IsChanneledSpell(m_Spell->m_spellInfo))
                 {
                     // evented channeled spell is processed separately, casted once after delay, and not destroyed till finish
@@ -5956,6 +5959,7 @@ bool SpellEvent::Execute(uint64 e_time, uint32 p_time)
                     // event will be re-added automatically at the end of routine)
                 }
                 else
+                */
                 {
                     // run the spell handler and think about what we can do next
                     uint64 t_offset = e_time - m_Spell->GetDelayStart();

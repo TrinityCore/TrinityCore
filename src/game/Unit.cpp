@@ -417,7 +417,7 @@ void Unit::SendMonsterMoveByPath(Path const& path, uint32 start, uint32 end)
     addUnitState(UNIT_STAT_MOVE);
 }
 
-void Unit::SendMonsterMoveTransport(Vehicle *vehicle, bool apply)
+void Unit::SendMonsterMoveTransport(Vehicle *vehicle)
 {
     WorldPacket data(SMSG_MONSTER_MOVE_TRANSPORT, GetPackGUID().size()+vehicle->GetPackGUID().size());
     data.append(GetPackGUID());
@@ -432,9 +432,9 @@ void Unit::SendMonsterMoveTransport(Vehicle *vehicle, bool apply)
     data << GetTransOffsetO();
     data << uint32(MOVEFLAG_ENTER_TRANSPORT);
     data << uint32(0); // move time
-    data << GetTransOffsetX();
-    data << GetTransOffsetY();
-    data << GetTransOffsetZ();
+    data << uint32(0);//GetTransOffsetX();
+    data << uint32(0);//GetTransOffsetY();
+    data << uint32(0);//GetTransOffsetZ();
     SendMessageToSet(&data, true);
 }
 
@@ -3508,6 +3508,7 @@ void Unit::InterruptSpell(uint32 spellType, bool withDelayed, bool withInstant)
 {
     assert(spellType < CURRENT_MAX_SPELL);
 
+    //sLog.outDebug("Interrupt spell for unit %u.", GetEntry());
     Spell *spell = m_currentSpells[spellType];
     if(spell
         && (withDelayed || spell->getState() != SPELL_STATE_DELAYED)
@@ -13534,6 +13535,9 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
     // Prevent killing unit twice (and giving reward from kill twice)
     if (!pVictim->GetHealth())
         return;
+
+    //sLog.outError("%u kill %u", GetEntry(), pVictim->GetEntry());
+
     pVictim->SetHealth(0);
 
     // find player: owner of controlled `this` or `this` itself maybe
@@ -13733,7 +13737,7 @@ void Unit::SetControlled(bool apply, UnitState state)
         {
             case UNIT_STAT_STUNNED: if(HasAuraType(SPELL_AURA_MOD_STUN))    return;
                                     else    SetStunned(false);    break;
-            case UNIT_STAT_ROOT:    if(HasAuraType(SPELL_AURA_MOD_ROOT))    return;
+            case UNIT_STAT_ROOT:    if(HasAuraType(SPELL_AURA_MOD_ROOT) || m_Vehicle)    return;
                                     else    SetRooted(false);     break;
             case UNIT_STAT_CONFUSED:if(HasAuraType(SPELL_AURA_MOD_CONFUSE)) return;
                                     else    SetConfused(false);   break;
@@ -13943,6 +13947,8 @@ void Unit::SetCharmedBy(Unit* charmer, CharmType type)
         switch(type)
         {
             case CHARM_TYPE_VEHICLE:
+                SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);
+                ((Player*)charmer)->SetClientControl(this, 1);
                 ((Player*)charmer)->SetViewpoint(this, true);
                 ((Player*)charmer)->VehicleSpellInitialize();
                 break;
@@ -14043,6 +14049,7 @@ void Unit::RemoveCharmedBy(Unit *charmer)
         switch(type)
         {
             case CHARM_TYPE_VEHICLE:
+                ((Player*)charmer)->SetClientControl(charmer, 1);
                 ((Player*)charmer)->SetViewpoint(this, false);
                 break;
             case CHARM_TYPE_POSSESS:
@@ -14506,16 +14513,14 @@ void Unit::EnterVehicle(Vehicle *vehicle, int8 seatId)
         return;
     }
 
-    m_Vehicle->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);
-    //m_Vehicle->setFaction(getFaction());
-
     addUnitState(UNIT_STAT_ONVEHICLE);
+    SetControlled(true, UNIT_STAT_ROOT);
     //movementInfo is set in AddPassenger
     //packets are sent in AddPassenger
 
     if(GetTypeId() == TYPEID_PLAYER)
     {
-        ((Player*)this)->SetClientControl(vehicle, 1);
+        //((Player*)this)->SetClientControl(vehicle, 1);
         WorldPacket data(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
         ((Player*)this)->GetSession()->SendPacket(&data);
     }
@@ -14545,16 +14550,17 @@ void Unit::ExitVehicle()
     if(!m_Vehicle)
         return;
 
-    m_Vehicle->RemovePassenger(this);
+    //sLog.outError("exit vehicle");
 
-    m_Vehicle->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);
-    //setFaction((GetTeam() == ALLIANCE) ? GetCreatureInfo()->faction_A : GetCreatureInfo()->faction_H);
+    m_Vehicle->RemovePassenger(this);
 
     // This should be done before dismiss, because there may be some aura removal
     Vehicle *vehicle = m_Vehicle;
     m_Vehicle = NULL;
 
     clearUnitState(UNIT_STAT_ONVEHICLE);
+    SetControlled(false, UNIT_STAT_ROOT);
+
     RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT + MOVEMENTFLAG_FLY_UNK1);
     m_movementInfo.t_x = 0;
     m_movementInfo.t_y = 0;
@@ -14563,17 +14569,15 @@ void Unit::ExitVehicle()
     m_movementInfo.t_time = 0;
     m_movementInfo.t_seat = 0;
 
-    //Send leave vehicle
+    //Send leave vehicle, not correct
     if(GetTypeId() == TYPEID_PLAYER)
     {
-        ((Player*)this)->SetClientControl(this, 1);
+        //((Player*)this)->SetClientControl(this, 1);
         ((Player*)this)->SendTeleportAckMsg();
     }
     WorldPacket data;
     BuildHeartBeatMsg(&data);
     SendMessageToSet(&data, false);
-
-    //SendMonsterMoveTransport(m_Vehicle, false);
 
     if(vehicle->GetOwnerGUID() == GetGUID())
         vehicle->Dismiss();
@@ -14645,11 +14649,17 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
     // 0x04000000
     if(GetUnitMovementFlags() & MOVEMENTFLAG_SPLINE)
         *data << (float)m_movementInfo.u_unk1;
+
+    /*if(GetTypeId() == TYPEID_PLAYER)
+    {
+        sLog.outString("Send MovementInfo:");
+        OutMovementInfo();
+    }*/
 }
 
 void Unit::OutMovementInfo() const
 {
-    sLog.outString("MovementInfo: Flag %u, Unk1 %u, Time %u, Pos %f %f %f %f, Fall %u", m_movementInfo.flags, (uint32)m_movementInfo.unk1, m_movementInfo.time, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation(), m_movementInfo.fallTime);
+    sLog.outString("MovementInfo for %u: Flag %u, Unk1 %u, Time %u, Pos %f %f %f %f, Fall %u", GetEntry(), m_movementInfo.flags, (uint32)m_movementInfo.unk1, m_movementInfo.time, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation(), m_movementInfo.fallTime);
     if(m_movementInfo.flags & MOVEMENTFLAG_ONTRANSPORT)
         sLog.outString("Transport: GUID " UI64FMTD ", Pos %f %f %f %f, Time %u, Seat %d", m_movementInfo.t_guid, m_movementInfo.t_x, m_movementInfo.t_y, m_movementInfo.t_z, m_movementInfo.t_o, m_movementInfo.t_time, (int32)m_movementInfo.t_seat);
     if((m_movementInfo.flags & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING2)) || (m_movementInfo.unk1 & 0x20))
