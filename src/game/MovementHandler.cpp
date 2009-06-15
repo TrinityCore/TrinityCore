@@ -293,7 +293,6 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
     GetPlayer()->SendMessageToSet(&data, false);
 
     mover->m_movementInfo = movementInfo;
-    mover->SetUnitMovementFlags(movementInfo.flags);
 
     if(plMover)                                             // nothing is charmed, or player charmed
     {
@@ -462,9 +461,7 @@ void WorldSession::HandleMoveNotActiveMover(WorldPacket &recv_data)
         return;
     }*/
 
-    MovementInfo mi;
-    ReadMovementInfo(recv_data, &mi);
-    _player->m_movementInfo = mi;
+    ReadMovementInfo(recv_data, &_player->m_mover->m_movementInfo);
 }
 
 void WorldSession::HandleDismissControlledVehicle(WorldPacket &recv_data)
@@ -477,9 +474,7 @@ void WorldSession::HandleDismissControlledVehicle(WorldPacket &recv_data)
     if(!vehicleGUID)                                        // something wrong here...
         return;
 
-    MovementInfo mi;
-    ReadMovementInfo(recv_data, &mi);
-    _player->m_movementInfo = mi;
+    ReadMovementInfo(recv_data, &_player->m_mover->m_movementInfo);
     _player->ExitVehicle();
 }
 
