@@ -22,6 +22,8 @@ SDCategory: Hellfire Citadel, Blood Furnace
 EndScriptData */
 
 #include "precompiled.h"
+#include "def_blood_furnace.h"
+
 
 #define SAY_AGGRO               -1542008
 
@@ -33,8 +35,14 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_broggokAI : public ScriptedAI
 {
-    boss_broggokAI(Creature *c) : ScriptedAI(c) {}
+    boss_broggokAI(Creature *c) : ScriptedAI(c) 
+    {
+        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        Reset();
+    }
 
+    ScriptedInstance* pInstance;
+    
     uint32 AcidSpray_Timer;
     uint32 PoisonSpawn_Timer;
     uint32 PoisonBolt_Timer;
@@ -44,11 +52,17 @@ struct TRINITY_DLL_DECL boss_broggokAI : public ScriptedAI
         AcidSpray_Timer = 10000;
         PoisonSpawn_Timer = 5000;
         PoisonBolt_Timer = 7000;
+        ToggleDoors(0, DATA_DOOR4);
+        if(pInstance)
+            pInstance->SetData(TYPE_BROGGOK_EVENT, NOT_STARTED);
     }
 
     void EnterCombat(Unit *who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
+        ToggleDoors(1, DATA_DOOR4);
+        if(pInstance)
+            pInstance->SetData(TYPE_BROGGOK_EVENT, IN_PROGRESS);
     }
 
     void JustSummoned(Creature *summoned)
@@ -83,6 +97,28 @@ struct TRINITY_DLL_DECL boss_broggokAI : public ScriptedAI
         }else PoisonSpawn_Timer -=diff;
 
         DoMeleeAttackIfReady();
+    }
+    
+    void JustDied(Unit* who)
+    {   
+        ToggleDoors(0, DATA_DOOR4);
+        ToggleDoors(0, DATA_DOOR5);
+        if(pInstance)
+            pInstance->SetData(TYPE_BROGGOK_EVENT, DONE);
+    }
+    
+    void ToggleDoors(uint8 close, uint64 DOOR)
+    {
+        if (pInstance)
+        {
+	        if (GameObject* Doors = GameObject::GetGameObject(*m_creature, pInstance->GetData64(DOOR)))
+	        {
+			    if (close == 1)
+			        Doors->SetGoState(GO_STATE_READY);                // Closed
+                else
+                    Doors->SetGoState(GO_STATE_ACTIVE);                // Open
+	        }
+	    }
     }
 };
 

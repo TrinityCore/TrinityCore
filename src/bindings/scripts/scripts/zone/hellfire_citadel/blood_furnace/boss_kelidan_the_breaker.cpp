@@ -68,7 +68,8 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
     {
         pInstance = (c->GetInstanceData());
         HeroicMode = m_creature->GetMap()->IsHeroic();
-        for(int i=0; i<5; ++i) Channelers[i] = 0;
+        for(int i=0; i<5; ++i)
+            Channelers[i] = 0;
     }
 
     ScriptedInstance* pInstance;
@@ -92,14 +93,18 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
         Firenova = false;
         addYell = false;
         SummonChannelers();
+        if(pInstance)
+            pInstance->SetData(TYPE_KELIDAN_THE_BREAKER_EVENT, NOT_STARTED);
     }
-
+   
     void EnterCombat(Unit *who)
     {
         DoScriptText(SAY_WAKE, m_creature);
         if (m_creature->IsNonMeleeSpellCasted(false))
             m_creature->InterruptNonMeleeSpells(true);
         DoStartMovement(who);
+        if(pInstance)
+            pInstance->SetData(TYPE_KELIDAN_THE_BREAKER_EVENT, IN_PROGRESS);
     }
 
     void KilledUnit(Unit* victim)
@@ -178,8 +183,11 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
     void JustDied(Unit* Killer)
     {
         DoScriptText(SAY_DIE, m_creature);
-       if(pInstance)
-           pInstance->SetData(DATA_KELIDANEVENT, DONE);
+        ToggleDoors(0, DATA_DOOR1);
+        ToggleDoors(0, DATA_DOOR6);
+
+        if(pInstance)
+            pInstance->SetData(TYPE_KELIDAN_THE_BREAKER_EVENT, DONE);
     }
 
     void UpdateAI(const uint32 diff)
@@ -247,6 +255,20 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
         }else BurningNova_Timer -=diff;
 
         DoMeleeAttackIfReady();
+    }
+    
+    void ToggleDoors(uint8 close, uint64 DOOR)
+    {
+        if (pInstance)
+        {
+	        if (GameObject* Doors = GameObject::GetGameObject(*m_creature, pInstance->GetData64(DOOR)))
+	        {
+			    if (close == 1)
+			        Doors->SetGoState(GO_STATE_READY);                // Closed
+                else
+                    Doors->SetGoState(GO_STATE_ACTIVE);                // Open
+	        }
+	    }
     }
 };
 
