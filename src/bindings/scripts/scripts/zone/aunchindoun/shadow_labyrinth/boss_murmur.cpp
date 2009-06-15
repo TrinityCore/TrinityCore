@@ -82,7 +82,7 @@ struct TRINITY_DLL_DECL boss_murmurAI : public Scripted_NoMovementAI
            }
         }
     }
-	
+    
     void EnterCombat(Unit *who) { }
 
     // Sonic Boom instant damage (needs core fix instead of this)
@@ -102,7 +102,7 @@ struct TRINITY_DLL_DECL boss_murmurAI : public Scripted_NoMovementAI
         if(SonicBoom)
         {
             DoCast(m_creature, SPELL_SONIC_BOOM_EFFECT, true);
-			SonicBoomEffect();
+            SonicBoomEffect();
 
             SonicBoom = false;
             Resonance_Timer = 1500;

@@ -521,7 +521,7 @@ struct TRINITY_DLL_DECL boss_blindeye_the_seerAI : public ScriptedAI
 
     uint32 GreaterPowerWordShield_Timer;
     uint32 Heal_Timer;
-	uint32 PrayerofHealing_Timer;
+    uint32 PrayerofHealing_Timer;
 
     ScriptedInstance* pInstance;
 
@@ -529,7 +529,7 @@ struct TRINITY_DLL_DECL boss_blindeye_the_seerAI : public ScriptedAI
     {
         GreaterPowerWordShield_Timer = 5000;
         Heal_Timer = 25000 + rand()%15000;
-		PrayerofHealing_Timer = 45000 + rand()%10000;
+        PrayerofHealing_Timer = 45000 + rand()%10000;
 
         //reset encounter
         if (pInstance)

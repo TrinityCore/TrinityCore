@@ -540,7 +540,7 @@ void npc_doctorAI::UpdateAI(const uint32 diff)
             Creature* Patient = NULL;
             Location* Point = NULL;
 
-				if (Coordinates.empty())
+                if (Coordinates.empty())
                 return;
 
             std::vector<Location*>::iterator itr = Coordinates.begin()+rand()%Coordinates.size();

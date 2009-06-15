@@ -74,7 +74,7 @@ struct TRINITY_DLL_DECL boss_huhuranAI : public ScriptedAI
         if (!Frenzy && Frenzy_Timer < diff)
         {
             DoCast(m_creature, SPELL_FRENZY);
-			DoScriptText(EMOTE_GENERIC_FRENZY_KILL, m_creature);
+            DoScriptText(EMOTE_GENERIC_FRENZY_KILL, m_creature);
             Frenzy = true;
             PoisonBolt_Timer = 3000;
             Frenzy_Timer = 25000 + rand()%10000;
