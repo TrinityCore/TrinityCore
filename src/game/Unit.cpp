@@ -7679,6 +7679,27 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
     // dummy basepoints or other customs
     switch(trigger_spell_id)
     {
+        // Auras which should proc on area aura source (caster in this case):
+        // Turn the Tables
+        case 52914:
+        case 52915:
+        case 52910:
+        // Honor Among Thieves
+        case 52916:
+        {
+            target = triggeredByAura->GetParentAura()->GetCaster();
+            if(!target)
+                return false;
+
+            if( cooldown && GetTypeId()==TYPEID_PLAYER && ((Player*)target)->HasSpellCooldown(trigger_spell_id))
+                return false;
+
+            target->CastSpell(target,trigger_spell_id,true,castItem,triggeredByAura);
+
+            if( cooldown && GetTypeId()==TYPEID_PLAYER )
+                ((Player*)this)->AddSpellCooldown(trigger_spell_id,0,time(NULL) + cooldown);
+            return true;
+        }
         // Cast positive spell on enemy target
         case 7099:  // Curse of Mending
         case 39647: // Curse of Mending
