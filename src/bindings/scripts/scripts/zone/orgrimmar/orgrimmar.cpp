@@ -69,7 +69,10 @@ bool GossipSelect_npc_neeru_fireblade(Player *player, Creature *_Creature, uint3
 ## npc_shenthul
 ######*/
 
-#define QUEST_2460  2460
+enum
+{
+    QUEST_SHATTERED_SALUTE  = 2460
+};
 
 struct TRINITY_DLL_DECL npc_shenthulAI : public ScriptedAI
 {
@@ -95,21 +98,27 @@ struct TRINITY_DLL_DECL npc_shenthulAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         if( CanEmote )
-            if( Reset_Timer < diff )
         {
-            if( Unit* temp = Unit::GetUnit((*m_creature),playerGUID) )
-                if( temp->GetTypeId() == TYPEID_PLAYER )
-                    CAST_PLR(temp)->FailQuest(QUEST_2460);
-            Reset();
-        } else Reset_Timer -= diff;
+            if (Reset_Timer < diff)
+            {
+                if (Player* pPlayer = (Player*)Unit::GetUnit((*m_creature),playerGUID))
+                {
+                    if (pPlayer->GetTypeId() == TYPEID_PLAYER && pPlayer->GetQuestStatus(QUEST_SHATTERED_SALUTE) == QUEST_STATUS_INCOMPLETE)
+                        pPlayer->FailQuest(QUEST_SHATTERED_SALUTE);
+                }
+                Reset();
+            } else Reset_Timer -= diff;
+        }
 
         if( CanTalk && !CanEmote )
-            if( Salute_Timer < diff )
         {
-            m_creature->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
-            CanEmote = true;
-            Reset_Timer = 60000;
-        } else Salute_Timer -= diff;
+            if (Salute_Timer < diff)
+            {
+                m_creature->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
+                CanEmote = true;
+                Reset_Timer = 60000;
+            } else Salute_Timer -= diff;
+        }
 
         if (!UpdateVictim())
             return;
@@ -119,12 +128,14 @@ struct TRINITY_DLL_DECL npc_shenthulAI : public ScriptedAI
 
     void ReciveEmote_npc_shenthul(Player *player, uint32 emote)
     {
-        if( emote == TEXTEMOTE_SALUTE && player->GetQuestStatus(QUEST_2460) == QUEST_STATUS_INCOMPLETE )
+        if( emote == TEXTEMOTE_SALUTE && player->GetQuestStatus(QUEST_SHATTERED_SALUTE) == QUEST_STATUS_INCOMPLETE )
+        {
             if(CanEmote)
             {
-                player->AreaExploredOrEventHappens(QUEST_2460);
+                player->AreaExploredOrEventHappens(QUEST_SHATTERED_SALUTE);
                 Reset();
             }
+        }
     }
 };
 
@@ -135,7 +146,7 @@ CreatureAI* GetAI_npc_shenthul(Creature *_Creature)
 
 bool QuestAccept_npc_shenthul(Player* player, Creature* creature, Quest const* quest)
 {
-    if( quest->GetQuestId() == QUEST_2460 )
+    if( quest->GetQuestId() == QUEST_SHATTERED_SALUTE )
     {
         CAST_AI(npc_shenthulAI, creature->AI())->CanTalk = true;
         CAST_AI(npc_shenthulAI, creature->AI())->playerGUID = player->GetGUID();
