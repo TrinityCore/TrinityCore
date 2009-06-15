@@ -13777,13 +13777,13 @@ void Unit::SetStunned(bool apply)
         SetUInt64Value(UNIT_FIELD_TARGET, 0);
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
         CastStop();
+        AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
 
         // Creature specific
         if(GetTypeId() != TYPEID_PLAYER)
             ((Creature*)this)->StopMoving();
         else
             SetStandState(UNIT_STAND_STATE_STAND);
-        //    SetUnitMovementFlags(0);    //Clear movement flags
 
         WorldPacket data(SMSG_FORCE_MOVE_ROOT, 8);
         data.append(GetPackGUID());
@@ -13806,21 +13806,20 @@ void Unit::SetStunned(bool apply)
             data.append(GetPackGUID());
             data << uint32(0);
             SendMessageToSet(&data,true);
+
+            RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
         }
     }
 }
 
 void Unit::SetRooted(bool apply)
 {
-    uint32 apply_stat = UNIT_STAT_ROOT;
     if(apply)
     {
-        //SetFlag(UNIT_FIELD_FLAGS,(apply_stat<<16)); // probably wrong
+        AddUnitMovementFlag(MOVEMENTFLAG_ROOT);        
 
         if(GetTypeId() == TYPEID_PLAYER)
         {
-            //SetUnitMovementFlags(0);
-
             WorldPacket data(SMSG_FORCE_MOVE_ROOT, 10);
             data.append(GetPackGUID());
             data << (uint32)2;
@@ -13831,8 +13830,6 @@ void Unit::SetRooted(bool apply)
     }
     else
     {
-        //RemoveFlag(UNIT_FIELD_FLAGS,(apply_stat<<16)); // probably wrong
-
         if(!hasUnitState(UNIT_STAT_STUNNED))      // prevent allow move if have also stun effect
         {
             if(GetTypeId() == TYPEID_PLAYER)
@@ -13842,6 +13839,8 @@ void Unit::SetRooted(bool apply)
                 data << (uint32)2;
                 SendMessageToSet(&data,true);
             }
+
+            RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
         }
     }
 }
@@ -13850,6 +13849,8 @@ void Unit::SetFeared(bool apply)
 {
     if(apply)
     {
+        SetUInt64Value(UNIT_FIELD_TARGET, 0);
+
         Unit *caster = NULL;
         Unit::AuraEffectList const& fearAuras = GetAurasByType(SPELL_AURA_MOD_FEAR);
         if(!fearAuras.empty())
@@ -13860,8 +13861,13 @@ void Unit::SetFeared(bool apply)
     }
     else
     {
-        if(isAlive() && GetMotionMaster()->GetCurrentMovementGeneratorType() == FLEEING_MOTION_TYPE)
-            GetMotionMaster()->MovementExpired();
+        if(isAlive())
+        {
+            if(GetMotionMaster()->GetCurrentMovementGeneratorType() == FLEEING_MOTION_TYPE)
+                GetMotionMaster()->MovementExpired();
+            if(getVictim())
+                SetUInt64Value(UNIT_FIELD_TARGET, getVictim()->GetGUID());
+        }
     }
 
     if (GetTypeId() == TYPEID_PLAYER)
@@ -13872,12 +13878,18 @@ void Unit::SetConfused(bool apply)
 {
     if(apply)
     {
+        SetUInt64Value(UNIT_FIELD_TARGET, 0);
         GetMotionMaster()->MoveConfused();
     }
     else
     {
-        if(isAlive() && GetMotionMaster()->GetCurrentMovementGeneratorType() == CONFUSED_MOTION_TYPE)
-            GetMotionMaster()->MovementExpired();
+        if(isAlive())
+        {
+            if(GetMotionMaster()->GetCurrentMovementGeneratorType() == CONFUSED_MOTION_TYPE)
+                GetMotionMaster()->MovementExpired();
+            if(getVictim())
+                SetUInt64Value(UNIT_FIELD_TARGET, getVictim()->GetGUID());
+        }
     }
 
     if(GetTypeId() == TYPEID_PLAYER)
@@ -14568,7 +14580,7 @@ void Unit::ExitVehicle()
     clearUnitState(UNIT_STAT_ONVEHICLE);
     SetControlled(false, UNIT_STAT_ROOT);
 
-    RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT + MOVEMENTFLAG_FLY_UNK1);
+    RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
     m_movementInfo.t_x = 0;
     m_movementInfo.t_y = 0;
     m_movementInfo.t_z = 0;
@@ -14638,7 +14650,7 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
     }
 
     // 0x02200000
-    if((GetUnitMovementFlags() & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING2))
+    if((GetUnitMovementFlags() & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING))
         || (m_movementInfo.unk1 & 0x20))
         *data << (float)m_movementInfo.s_pitch;
 
@@ -14669,12 +14681,26 @@ void Unit::OutMovementInfo() const
     sLog.outString("MovementInfo for %u: Flag %u, Unk1 %u, Time %u, Pos %f %f %f %f, Fall %u", GetEntry(), m_movementInfo.flags, (uint32)m_movementInfo.unk1, m_movementInfo.time, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation(), m_movementInfo.fallTime);
     if(m_movementInfo.flags & MOVEMENTFLAG_ONTRANSPORT)
         sLog.outString("Transport: GUID " UI64FMTD ", Pos %f %f %f %f, Time %u, Seat %d", m_movementInfo.t_guid, m_movementInfo.t_x, m_movementInfo.t_y, m_movementInfo.t_z, m_movementInfo.t_o, m_movementInfo.t_time, (int32)m_movementInfo.t_seat);
-    if((m_movementInfo.flags & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING2)) || (m_movementInfo.unk1 & 0x20))
+    if((m_movementInfo.flags & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) || (m_movementInfo.unk1 & 0x20))
         sLog.outString("Pitch: %f", m_movementInfo.s_pitch);
     if(m_movementInfo.flags & MOVEMENTFLAG_JUMPING)
         sLog.outString("Jump: speedz %f, sin %f, cos %f, speedxy %f", m_movementInfo.j_zspeed, m_movementInfo.j_sinAngle, m_movementInfo.j_cosAngle, m_movementInfo.j_xyspeed);
     if(m_movementInfo.flags & MOVEMENTFLAG_SPLINE)
         sLog.outString("Spline: %f", m_movementInfo.u_unk1);
+}
+
+void Unit::SetFlying(bool apply)
+{
+    if(apply)
+    {
+        SetByteFlag(UNIT_FIELD_BYTES_1, 3, 0x02);
+        AddUnitMovementFlag(MOVEMENTFLAG_FLYING);
+    }
+    else
+    {
+        RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, 0x02);
+        RemoveUnitMovementFlag(MOVEMENTFLAG_FLYING);
+    }
 }
 
 void Unit::NearTeleportTo( float x, float y, float z, float orientation, bool casting /*= false*/ )
