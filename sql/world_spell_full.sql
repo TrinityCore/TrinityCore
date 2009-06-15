@@ -1659,6 +1659,12 @@ INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
 -- frostbrood vanquisher
 update creature_template set maxhealth = 133525, minhealth = 133525, maxmana = 51360, minmana = 51360, spell1 = 53114, spell2 = 53112, spell3=53110, VehicleId = 156 where entry = 28670;
 
+DELETE FROM `spell_script_target` WHERE entry IN
+(53110);
+INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
+(53110,1,28940);
+
+
 
 -- --------
 -- NAXXARAMAS
