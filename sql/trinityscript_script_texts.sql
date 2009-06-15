@@ -325,7 +325,7 @@ INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content
 (-1000406, 'Meet me down by the orchard--I just need to put my gun away.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 7, 0, 'stilwell SAY_DS_PROLOGUE'),
 (-1000407, '%s howls in delight at the sight of his lunch!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, 0, 0, 'kyle EMOTE_SEE_LUNCH'),
 (-1000408, '%s eats his lunch.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, 0, 0, 'kyle EMOTE_EAT_LUNCH'),
-(-1000409, '%s thanks you with a special dance.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, 0, 0, 'kyle EMOTE_DANCE');
+(-1000409, '%s thanks you with a special dance.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, 0, 0, 'kyle EMOTE_DANCE'),
 (-1000411, 'Mist! I feared I would never see you again! Yes, I am well, do not worry for me. You must rest and recover your health.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 7, 0, 'mist SAY_AT_HOME'),
 (-1000412, 'growls in acknowledgement before straightening and making her way off into the forest.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, 0, 0, 'mist EMOTE_AT_HOME'),
 (-1000413, 'Threshwackonator First Mate unit prepared to follow', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, 0, 0, 'threshwackonator EMOTE_START'),
