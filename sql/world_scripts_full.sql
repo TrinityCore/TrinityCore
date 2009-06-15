@@ -177,7 +177,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_engineer_spark_overgrind' WHERE
 UPDATE `creature_template` SET `ScriptName`='npc_injured_draenei' WHERE `entry`=16971;
 UPDATE `creature_template` SET `ScriptName`='npc_magwin' WHERE `entry`=17312;
 UPDATE `creature_template` SET `ScriptName`='npc_geezle' WHERE `entry`=17318;
-UPDATE `creature_template` SET `ScriptName`='mob_nestlewood_owlkin' WHERE `entry`=16518;
+UPDATE `creature_template` SET `ScriptName`='npc_nestlewood_owlkin' WHERE `entry`=16518;
 UPDATE `creature_template` SET `ScriptName`='npc_draenei_survivor' WHERE `entry`=16483;
 
 /* BADLANDS */
