@@ -424,7 +424,7 @@ enum ProcFlags
    PROC_FLAG_ON_TRAP_ACTIVATION            = 0x00200000,    // 21 On trap activation
 
    PROC_FLAG_TAKEN_OFFHAND_HIT             = 0x00400000,    // 22 Taken off-hand melee attacks(not used)
-   PROC_FLAG_SUCCESSFUL_OFFHAND_HIT        = 0x00800000,     // 23 Successful off-hand melee attacks
+   PROC_FLAG_SUCCESSFUL_OFFHAND_HIT        = 0x00800000,     // 23 Successful off-hand melee attacks ( this is probably wrong )
 
    PROC_FLAG_DEATH                         = 0x01000000     // 24 Died in any way
 };
