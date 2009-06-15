@@ -72,7 +72,8 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 ( 50720, 59665, 0, 'Vigilance (redirect threat)'),
 ( 52610, 62071, 0, 'Savage Roar'),
 ( -52610, -62071, 0, 'Savage Roar'),
-(51209, 55095, 2, 'Hungering cold - frost fever'),
+(51209, 55095, 1, 'Hungering cold - frost fever'),
+(50334, 58923, 2, 'Berserk - modify target number aura'),
 
 -- Creature
 ( 36574, 36650, 0, 'Apply Phase Slip Vulnerability'),
