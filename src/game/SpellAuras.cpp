@@ -2478,6 +2478,10 @@ void AuraEffect::HandleAuraDummy(bool apply, bool Real, bool changeAmount)
                 if(m_target->GetTypeId()==TYPEID_PLAYER)
                     ((Player*)m_target)->RemoveAmmo();      // not use ammo and not allow use
                 return;
+            case 52916:  // Honor Among Thieves
+               if (Unit * target = ObjectAccessor::GetUnit(*m_target, m_target->GetUInt64Value(UNIT_FIELD_TARGET)))
+                   m_target->CastSpell(target, 51699, true);
+               return;
         }
 
         // Earth Shield
