@@ -59,25 +59,11 @@ void Totem::InitStats(uint32 duration)
     CreatureInfo const *cinfo = GetCreatureInfo();
     if (m_owner->GetTypeId()==TYPEID_PLAYER && cinfo)
     {
-        uint32 modelid = 0;
-        if(((Player*)m_owner)->GetTeam() == HORDE)
-        {
-            if(cinfo->DisplayID_H)
-                modelid = cinfo->DisplayID_H;
-            else if(cinfo->DisplayID_H2)
-                modelid = cinfo->DisplayID_H2;
-        }
-        else
-        {
-            if(cinfo->DisplayID_A)
-                modelid = cinfo->DisplayID_A;
-            else if(cinfo->DisplayID_A2)
-                modelid = cinfo->DisplayID_A2;
-        }
-        if (modelid)
-            SetDisplayId(modelid);
-        else
-            sLog.outErrorDb("Totem::Summon: Missing modelid information for entry %u, team %u, totem will use default values.",GetEntry(),((Player*)m_owner)->GetTeam());
+        uint32 display_id = objmgr.ChooseDisplayId(((Player*)m_owner)->GetTeam(),cinfo);
+        CreatureModelInfo const *minfo = objmgr.GetCreatureModelRandomGender(display_id);
+        if (minfo)
+            display_id = minfo->modelid;
+        SetDisplayId(display_id);
     }
 
     // Get spell casted by totem
