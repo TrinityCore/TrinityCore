@@ -7275,15 +7275,16 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
 
                     trigger_spell_id = 18093;
                 }
-                // Drain Soul
+                // Improved Drain Soul
                 else if (auraSpellInfo->SpellFamilyFlags[0] & 0x4000)
                 {
-                    Unit::AuraEffectList const& mAddFlatModifier = GetAurasByType(SPELL_AURA_ADD_FLAT_MODIFIER);
+                    Unit::AuraEffectList const& mAddFlatModifier = GetAurasByType(SPELL_AURA_DUMMY);
                     for(Unit::AuraEffectList::const_iterator i = mAddFlatModifier.begin(); i != mAddFlatModifier.end(); ++i)
                     {
                         if ((*i)->GetMiscValue() == SPELLMOD_CHANCE_OF_SUCCESS && (*i)->GetSpellProto()->SpellIconID == 113)
                         {
                             int32 value2 = CalculateSpellDamage((*i)->GetSpellProto(),2,(*i)->GetSpellProto()->EffectBasePoints[2],this);
+                            basepoints0 = value2 * GetMaxPower(POWER_MANA) / 100;
                             // Drain Soul
                             CastCustomSpell(this, 18371, &basepoints0, NULL, NULL, true, castItem, triggeredByAura);
                             break;
@@ -12478,7 +12479,7 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
     // Fill procTriggered list
     for(AuraMap::const_iterator itr = GetAuras().begin(); itr!= GetAuras().end(); ++itr)
     {
-        // Do not allow auras to proc from effect of itself
+        // Do not allow auras to proc from effect triggered by itself
         if (procAura && procAura->Id == itr->first)
             continue;
         ProcTriggeredData triggerData(itr->second);
@@ -13365,8 +13366,9 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit *pVictim, Aura * aura, SpellEntry co
             return false;
     }
     // Aura added by spell can`t trogger from self (prevent drop charges/do triggers)
-    // But except periodic triggers (can triggered from self)
-    if(procSpell && procSpell->Id == spellProto->Id && !(spellProto->procFlags&PROC_FLAG_ON_TAKE_PERIODIC))
+    // But except periodic and kill triggers (can triggered from self)
+    if(procSpell && procSpell->Id == spellProto->Id 
+        && !(spellProto->procFlags&PROC_FLAG_ON_TAKE_PERIODIC | PROC_FLAG_KILL))
         return false;
 
     // Check if current equipment allows aura to proc
