@@ -1549,6 +1549,12 @@ void Spell::EffectDummy(uint32 i)
             }
             break;
         case SPELLFAMILY_ROGUE:
+            // Hunger for Blood
+            if (m_spellInfo->SpellFamilyFlags[1] & 0x1000000)
+            {
+                m_caster->CastSpell(m_caster, 63848, true);
+                break;
+            }
             switch(m_spellInfo->Id )
             {
                 case 5938:                                  // Shiv

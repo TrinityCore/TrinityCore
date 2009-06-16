@@ -7687,6 +7687,12 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                 return false;
             break;
         }
+        // Decimation
+        case 63156:
+        case 63158:
+            // Can proc only if target has hp below 35%
+            if(!pVictim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, procSpell, this))
+                return false;
     }
 
     // Custom basepoints/target for exist spell
