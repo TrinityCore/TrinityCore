@@ -4573,7 +4573,7 @@ void AuraEffect::HandleAuraPeriodicDummy(bool apply, bool Real, bool changeAmoun
         {
             // Explosive Shot
             if (apply && !loading && caster)
-                m_amount += int32(caster->GetTotalAttackPowerValue(RANGED_ATTACK) * 16 / 100);
+                m_amount += int32(caster->GetTotalAttackPowerValue(RANGED_ATTACK) * 14 / 100);
             break;
         }
     }
