@@ -4915,6 +4915,17 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     }
                     return false;
                 }
+                // Overkill
+                case 58426:
+                {
+                    if (procEx & AURA_REMOVE_PROC_EX_MASK)
+                        triggered_spell_id = 58428;
+                    else
+                    {
+                        triggered_spell_id = 58427;
+                    }
+                    break;
+                }
                 // Eye for an Eye
                 case 9799:
                 case 25988:
@@ -5031,18 +5042,6 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                         return false;
 
                     triggered_spell_id = 34650;
-                    break;
-                }
-                // Overkill
-                case 58426:
-                {
-                    if (procEx & AURA_REMOVE_PROC_EX_MASK)
-                        triggered_spell_id = 58428;
-                    else
-                    {
-                        basepoints0 = -triggerAmount;
-                        triggered_spell_id = 58427;
-                    }
                     break;
                 }
                 // Mark of Malice
@@ -13486,7 +13485,6 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit *pVictim, Aura * aura, SpellEntry co
     {
         modOwner->ApplySpellMod(spellProto->Id,SPELLMOD_CHANCE_OF_SUCCESS,chance);
     }
-
     return roll_chance_f(chance);
 }
 

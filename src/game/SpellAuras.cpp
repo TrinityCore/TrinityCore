@@ -960,7 +960,7 @@ void Aura::SendAuraUpdate()
     data << uint32(GetId());
     data << uint8(m_auraFlags);
     data << uint8(m_auraLevel);
-    data << uint8(m_stackAmount > 1 ? (m_procCharges > 1 ? m_stackAmount * m_procCharges : m_stackAmount) : m_procCharges);
+    data << uint8(m_stackAmount > 1 ? m_stackAmount : m_procCharges);
 
     if(!(m_auraFlags & AFLAG_CASTER))
     {
@@ -4804,7 +4804,7 @@ void AuraEffect::HandleAuraModResistance(bool apply, bool Real, bool /*changeAmo
         {
             m_target->HandleStatModifier(UnitMods(UNIT_MOD_RESISTANCE_START + x), TOTAL_VALUE, float(m_amount), apply);
             if(m_target->GetTypeId() == TYPEID_PLAYER || ((Creature*)m_target)->isPet())
-                m_target->ApplyResistanceBuffModsMod(SpellSchools(x),GetParentAura()->IsPositive(),m_amount, apply);
+                m_target->ApplyResistanceBuffModsMod(SpellSchools(x),m_amount > 0,m_amount, apply);
         }
     }
 
@@ -5441,7 +5441,7 @@ void AuraEffect::HandleModDamageDone(bool apply, bool Real, bool changeAmount)
 
         if(m_target->GetTypeId() == TYPEID_PLAYER)
         {
-            if(GetParentAura()->IsPositive())
+            if(m_amount > 0)
                 m_target->ApplyModUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS,m_amount,apply);
             else
                 m_target->ApplyModUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG,m_amount,apply);
@@ -5465,7 +5465,7 @@ void AuraEffect::HandleModDamageDone(bool apply, bool Real, bool changeAmount)
     // This information for client side use only
     if(m_target->GetTypeId() == TYPEID_PLAYER)
     {
-        if(GetParentAura()->IsPositive())
+        if(m_amount > 0)
         {
             for(int i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; i++)
             {
@@ -5488,7 +5488,7 @@ void AuraEffect::HandleModDamageDone(bool apply, bool Real, bool changeAmount)
 
 void AuraEffect::HandleModDamagePercentDone(bool apply, bool Real, bool changeAmount)
 {
-    sLog.outDebug("AURA MOD DAMAGE type:%u negative:%u", GetMiscValue(), GetParentAura()->IsPositive() ? 0 : 1);
+    sLog.outDebug("AURA MOD DAMAGE type:%u negative:%u", GetMiscValue(), m_amount > 0);
 
     // apply item specific bonuses for already equipped weapon
     if((Real || changeAmount) && m_target->GetTypeId()==TYPEID_PLAYER)
