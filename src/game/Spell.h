@@ -564,6 +564,7 @@ class Spell
             bool   processed:1;
             bool   alive:1; 
             int32  damage;
+            bool   crit;
         };
         std::list<TargetInfo> m_UniqueTargetInfo;
         uint8 m_needAliveTargetMask;                        // Mask req. alive targets
