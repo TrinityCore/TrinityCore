@@ -102,12 +102,17 @@ extern ScriptMapMap sWaypointScripts;
 struct SpellClickInfo
 {
     uint32 spellId;
-    uint32 questId;
-    uint32 questStatus;
+    uint32 questStart;                                      // quest start (quest must be active or rewarded for spell apply)
+    uint32 questEnd;                                        // quest end (quest don't must be rewarded for spell apply)
+    bool   questStartCanActive;                             // if true then quest start can be active (not only rewarded)
     uint8 castFlags;
+
+    // helpers
+    bool IsFitToRequirements(Player const* player) const;
 };
 
 typedef std::multimap<uint32, SpellClickInfo> SpellClickInfoMap;
+typedef std::pair<SpellClickInfoMap::const_iterator,SpellClickInfoMap::const_iterator> SpellClickInfoMapBounds;
 
 struct AreaTrigger
 {
@@ -585,7 +590,6 @@ class ObjectMgr
         void LoadReputationOnKill();
         void LoadPointsOfInterest();
 
-        SpellClickInfoMap mSpellClickInfoMap;
         void LoadNPCSpellClickSpells();
 
         void LoadWeatherZoneChances();
@@ -828,6 +832,11 @@ class ObjectMgr
 
         int GetOrNewIndexForLocale(LocaleConstant loc);
 
+        SpellClickInfoMapBounds GetSpellClickInfoMapBounds(uint32 creature_id) const
+        {
+            return SpellClickInfoMapBounds(mSpellClickInfoMap.lower_bound(creature_id),mSpellClickInfoMap.upper_bound(creature_id));
+        }
+
         ItemRequiredTargetMapBounds GetItemRequiredTargetMapBounds(uint32 uiItemEntry) const
         {
             return ItemRequiredTargetMapBounds(m_ItemRequiredTarget.lower_bound(uiItemEntry),m_ItemRequiredTarget.upper_bound(uiItemEntry));
@@ -920,6 +929,8 @@ class ObjectMgr
         GameTeleMap         m_GameTeleMap;
 
         ScriptNameMap       m_scriptNames;
+
+        SpellClickInfoMap   mSpellClickInfoMap;
 
         ItemRequiredTargetMap m_ItemRequiredTarget;
 
