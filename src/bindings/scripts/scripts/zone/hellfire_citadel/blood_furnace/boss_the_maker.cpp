@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -22,6 +22,7 @@ SDCategory: Hellfire Citadel, Blood Furnace
 EndScriptData */
 
 #include "precompiled.h"
+#include "def_blood_furnace.h"
 
 #define SAY_AGGRO_1                 -1542009
 #define SAY_AGGRO_2                 -1542010
@@ -37,7 +38,13 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_the_makerAI : public ScriptedAI
 {
-    boss_the_makerAI(Creature *c) : ScriptedAI(c) {}
+    boss_the_makerAI(Creature *c) : ScriptedAI(c)
+    {
+        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        Reset();
+    }
+
+    ScriptedInstance* pInstance;
 
     uint32 AcidSpray_Timer;
     uint32 ExplodingBreaker_Timer;
@@ -49,10 +56,14 @@ struct TRINITY_DLL_DECL boss_the_makerAI : public ScriptedAI
         AcidSpray_Timer = 15000;
         ExplodingBreaker_Timer = 6000;
         Domination_Timer = 120000;
-        Knockdown_Timer    = 10000;
+        Knockdown_Timer = 10000;
+        
+        ToggleDoors(0, DATA_DOOR2);
+        if(pInstance)
+            pInstance->SetData(TYPE_THE_MAKER_EVENT, NOT_STARTED);
     }
-
-    void Aggro(Unit *who)
+    
+    void EnterCombat(Unit *who)
     {
         switch(rand()%3)
         {
@@ -60,6 +71,10 @@ struct TRINITY_DLL_DECL boss_the_makerAI : public ScriptedAI
             case 1: DoScriptText(SAY_AGGRO_2, m_creature); break;
             case 2: DoScriptText(SAY_AGGRO_3, m_creature); break;
         }
+        
+        ToggleDoors(1, DATA_DOOR2);
+        if(pInstance)
+            pInstance->SetData(TYPE_THE_MAKER_EVENT, IN_PROGRESS);
     }
 
     void KilledUnit(Unit* victim)
@@ -74,7 +89,12 @@ struct TRINITY_DLL_DECL boss_the_makerAI : public ScriptedAI
     void JustDied(Unit* Killer)
     {
         DoScriptText(SAY_DIE, m_creature);
-    }
+        ToggleDoors(0, DATA_DOOR2);
+        ToggleDoors(0, DATA_DOOR3);
+        
+        if(pInstance)
+            pInstance->SetData(TYPE_THE_MAKER_EVENT, DONE);
+     }
 
     void UpdateAI(const uint32 diff)
     {
@@ -113,6 +133,20 @@ struct TRINITY_DLL_DECL boss_the_makerAI : public ScriptedAI
         }else Knockdown_Timer -=diff;
 
         DoMeleeAttackIfReady();
+    }
+    
+    void ToggleDoors(uint8 close, uint64 DOOR)
+    {
+        if (pInstance)
+        {
+            if (GameObject* Doors = GameObject::GetGameObject(*m_creature, pInstance->GetData64(DOOR)))
+            {
+                if (close == 1)
+                    Doors->SetGoState(GO_STATE_READY);                // Closed
+                else
+                    Doors->SetGoState(GO_STATE_ACTIVE);                // Open
+            }
+        }
     }
 };
 
