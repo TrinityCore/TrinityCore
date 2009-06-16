@@ -834,6 +834,14 @@
 							RelativePath="..\scripts\zone\razorfen_kraul\razorfen_kraul.cpp"
 							>
 						</File>
+						<File
+							RelativePath="..\scripts\zone\razorfen_kraul\instance_razorfen_kraul.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\zone\razorfen_kraul\def_razorfen_kraul.h"
+							>
+						</File>
 					</Filter>
 					<Filter
 						Name="Ruins of Ahn&apos;Qiraj"

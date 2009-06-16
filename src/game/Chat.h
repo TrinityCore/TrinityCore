@@ -73,6 +73,7 @@ class ChatHandler
 
         int ParseCommands(const char* text);
 
+        static ChatCommand* getCommandTable();
     protected:
         explicit ChatHandler() : m_session(NULL) {}      // for CLI subclass
 
@@ -91,12 +92,10 @@ class ChatHandler
         void SendGlobalSysMessage(const char *str);
         void SendGlobalGMSysMessage(const char *str);
 
-        bool SetDataForCommandInTable(ChatCommand *table, const char* text, uint32 security, std::string const& help, std::string const& fullcommand );
+        static bool SetDataForCommandInTable(ChatCommand *table, const char* text, uint32 security, std::string const& help, std::string const& fullcommand );
         bool ExecuteCommandInTable(ChatCommand *table, const char* text, const std::string& fullcommand);
         bool ShowHelpForCommand(ChatCommand *table, const char* cmd);
         bool ShowHelpForSubCommands(ChatCommand *table, char const* cmd, char const* subcmd);
-
-        ChatCommand* getCommandTable();
 
         bool HandleAccountCommand(const char* args);
         bool HandleAccountCreateCommand(const char* args);

@@ -27,6 +27,7 @@ EndContentData */
 
 #include "precompiled.h"
 #include "../../npc/npc_escortAI.h"
+#include "def_razorfen_kraul.h"
 
 #define SAY_READY -1047000
 #define SAY_POINT -10470001
@@ -42,10 +43,11 @@ EndContentData */
 
 #define QUEST_WILLIX_THE_IMPORTER 1144
 #define ENTRY_BOAR 4514
+#define SPELL_QUILLBOAR_CHANNELING 7083
 
 struct TRINITY_DLL_DECL npc_willixAI : public npc_escortAI
 {
-npc_willixAI(Creature *c) : npc_escortAI(c) {}
+    npc_willixAI(Creature *c) : npc_escortAI(c) {}
 
     void WaypointReached(uint32 i)
     {
@@ -137,6 +139,50 @@ bool QuestAccept_npc_willix(Player* player, Creature* creature, Quest const* que
     return true;
 }
 
+struct TRINITY_DLL_DECL npc_deaths_head_ward_keeperAI : public ScriptedAI
+{
+    npc_deaths_head_ward_keeperAI(Creature *c) : ScriptedAI(c)
+    {
+        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        Reset();
+    }
+
+    ScriptedInstance *pInstance;
+    uint32 QuillboarChanneling_Timer;
+
+    void Reset()
+    {
+        QuillboarChanneling_Timer = 1500;
+    }
+
+    void Aggro(Unit *who)
+    {
+    }
+
+    void UpdateAI(const uint32 diff)
+    {
+        if (!m_creature->isAlive())
+            return;
+
+        if (pInstance)
+            pInstance->SetData(TYPE_WARD_KEEPERS, NOT_STARTED);
+
+        if (QuillboarChanneling_Timer < diff)
+        {
+            if( m_creature->IsNonMeleeSpellCasted(false) )
+                m_creature->InterruptNonMeleeSpells(true);
+            DoCast(m_creature, SPELL_QUILLBOAR_CHANNELING);
+            QuillboarChanneling_Timer = 1100;
+        }else QuillboarChanneling_Timer -= diff;
+
+    }
+};
+
+CreatureAI* GetAI_npc_deaths_head_ward_keeper(Creature *_Creature)
+{
+    return new npc_deaths_head_ward_keeperAI(_Creature);
+}
+
 CreatureAI* GetAI_npc_willix(Creature *_Creature)
 {
     npc_willixAI* thisAI = new npc_willixAI(_Creature);
@@ -200,6 +246,11 @@ void AddSC_razorfen_kraul()
     newscript->Name = "npc_willix";
     newscript->GetAI = &GetAI_npc_willix;
     newscript->pQuestAccept = &QuestAccept_npc_willix;
+    newscript->RegisterSelf();
+    
+    newscript = new Script;
+    newscript->Name = "npc_deaths_head_ward_keeper";
+    newscript->GetAI = &GetAI_npc_deaths_head_ward_keeper;
     newscript->RegisterSelf();
 }
 
