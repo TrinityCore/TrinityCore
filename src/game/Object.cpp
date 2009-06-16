@@ -87,11 +87,15 @@ Object::~Object( )
 
     if(IsInWorld())
     {
-        sLog.outCrash("Object::~Object - guid="UI64FMTD", typeid=%d deleted but still in world!!", GetGUID(), GetTypeId());
+        sLog.outCrash("Object::~Object - guid="UI64FMTD", typeid=%d, entry=%u deleted but still in world!!", GetGUID(), GetTypeId(), GetEntry());
         assert(false);
     }
 
-    assert(!m_objectUpdated);
+    if(m_objectUpdated)
+    {
+        sLog.outCrash("Object::~Object - guid="UI64FMTD", typeid=%d, entry=%u deleted but still in update list!!", GetGUID(), GetTypeId(), GetEntry());
+        assert(false);
+    }
 
     if(m_uint32Values)
     {
