@@ -12731,6 +12731,10 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
                     if (triggeredByAura->GetCasterGUID() != pTarget->GetGUID())
                         continue;
                     break;
+                case SPELL_AURA_MOD_SPELL_CRIT_CHANCE:
+                    if (!procSpell)
+                        continue;
+                    break;
                 /*case SPELL_AURA_ADD_FLAT_MODIFIER:
                 case SPELL_AURA_ADD_PCT_MODIFIER:
                     // HandleSpellModAuraProc
