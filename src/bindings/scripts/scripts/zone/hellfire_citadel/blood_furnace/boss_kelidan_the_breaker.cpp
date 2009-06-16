@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -62,14 +62,19 @@ const float ShadowmoonChannelers[5][4]=
     {316,-109,-24.6,1.257}
 };
 
+class TRINITY_DLL_DECL BurningNovaAura : public Aura
+{
+    public:
+        BurningNovaAura(SpellEntry *spell, uint32 eff, Unit *target, Unit *caster) : Aura(spell, eff, NULL, target, caster, NULL){}
+};
+
 struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
 {
     boss_kelidan_the_breakerAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)c->GetInstanceData());
         HeroicMode = m_creature->GetMap()->IsHeroic();
-        for(int i=0; i<5; ++i)
-            Channelers[i] = 0;
+        for(int i=0; i<5; ++i) Channelers[i] = 0;
     }
 
     ScriptedInstance* pInstance;
@@ -93,18 +98,14 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
         Firenova = false;
         addYell = false;
         SummonChannelers();
-        if(pInstance)
-            pInstance->SetData(TYPE_KELIDAN_THE_BREAKER_EVENT, NOT_STARTED);
     }
-   
-    void EnterCombat(Unit *who)
+
+    void Aggro(Unit *who)
     {
         DoScriptText(SAY_WAKE, m_creature);
         if (m_creature->IsNonMeleeSpellCasted(false))
             m_creature->InterruptNonMeleeSpells(true);
         DoStartMovement(who);
-        if(pInstance)
-            pInstance->SetData(TYPE_KELIDAN_THE_BREAKER_EVENT, IN_PROGRESS);
     }
 
     void KilledUnit(Unit* victim)
@@ -183,11 +184,8 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
     void JustDied(Unit* Killer)
     {
         DoScriptText(SAY_DIE, m_creature);
-        ToggleDoors(0, DATA_DOOR1);
-        ToggleDoors(0, DATA_DOOR6);
-
-        if(pInstance)
-            pInstance->SetData(TYPE_KELIDAN_THE_BREAKER_EVENT, DONE);
+       if(pInstance)
+           pInstance->SetData(DATA_KELIDANEVENT, DONE);
     }
 
     void UpdateAI(const uint32 diff)
@@ -234,16 +232,14 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
 
             DoScriptText(SAY_NOVA, m_creature);
 
-            if(SpellEntry *nova = GET_SPELL(SPELL_BURNING_NOVA))
+            if(SpellEntry *nova = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_BURNING_NOVA))
             {
-                uint8 eff_mask=0;
-                for (int i=0; i<3; i++)
-                {
-                    if (!nova->Effect[i])
-                        continue;
-                    eff_mask|=1<<i;
-                }
-                m_creature->AddAura(new Aura(nova, eff_mask, NULL, m_creature, m_creature));
+                for(uint32 i = 0; i < 3; ++i)
+                    if(nova->Effect[i] == SPELL_EFFECT_APPLY_AURA)
+                    {
+                        Aura *Aur = new BurningNovaAura(nova, i, m_creature, m_creature);
+                        m_creature->AddAura(Aur);
+                    }
             }
 
             if (HeroicMode)
@@ -255,20 +251,6 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
         }else BurningNova_Timer -=diff;
 
         DoMeleeAttackIfReady();
-    }
-    
-    void ToggleDoors(uint8 close, uint64 DOOR)
-    {
-        if (pInstance)
-        {
-            if (GameObject* Doors = GameObject::GetGameObject(*m_creature, pInstance->GetData64(DOOR)))
-            {
-                if (close == 1)
-                    Doors->SetGoState(GO_STATE_READY);                // Closed
-                else
-                    Doors->SetGoState(GO_STATE_ACTIVE);                // Open
-            }
-        }
     }
 };
 
@@ -291,7 +273,7 @@ struct TRINITY_DLL_DECL mob_shadowmoon_channelerAI : public ScriptedAI
 {
     mob_shadowmoon_channelerAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)c->GetInstanceData());
         HeroicMode = m_creature->GetMap()->IsHeroic();
     }
 
@@ -311,10 +293,10 @@ struct TRINITY_DLL_DECL mob_shadowmoon_channelerAI : public ScriptedAI
             m_creature->InterruptNonMeleeSpells(true);
     }
 
-    void EnterCombat(Unit* who)
+    void Aggro(Unit* who)
     {
-        if(Creature *Kelidan = me->FindNearestCreature(ENTRY_KELIDAN, 100))
-            CAST_AI(boss_kelidan_the_breakerAI, Kelidan->AI())->ChannelerEngaged(who);
+        if(Creature *Kelidan = (Creature *)FindCreature(ENTRY_KELIDAN, 100, m_creature))
+            ((boss_kelidan_the_breakerAI*)Kelidan->AI())->ChannelerEngaged(who);
         if (m_creature->IsNonMeleeSpellCasted(false))
             m_creature->InterruptNonMeleeSpells(true);
         DoStartMovement(who);
@@ -322,8 +304,8 @@ struct TRINITY_DLL_DECL mob_shadowmoon_channelerAI : public ScriptedAI
 
     void JustDied(Unit* Killer)
     {
-       if(Creature *Kelidan = me->FindNearestCreature(ENTRY_KELIDAN, 100))
-           CAST_AI(boss_kelidan_the_breakerAI, Kelidan->AI())->ChannelerDied(Killer);
+       if(Creature *Kelidan = (Creature *)FindCreature(ENTRY_KELIDAN, 100, m_creature))
+           ((boss_kelidan_the_breakerAI*)Kelidan->AI())->ChannelerDied(Killer);
     }
 
     void UpdateAI(const uint32 diff)
@@ -333,9 +315,9 @@ struct TRINITY_DLL_DECL mob_shadowmoon_channelerAI : public ScriptedAI
             if(check_Timer < diff)
             {
                 if (!m_creature->IsNonMeleeSpellCasted(false))
-                    if(Creature *Kelidan = me->FindNearestCreature(ENTRY_KELIDAN, 100))
+                    if(Creature *Kelidan = (Creature *)FindCreature(ENTRY_KELIDAN, 100, m_creature))
                     {
-                        uint64 channeler = CAST_AI(boss_kelidan_the_breakerAI, Kelidan->AI())->GetChanneled(m_creature);
+                        uint64 channeler = ((boss_kelidan_the_breakerAI*)Kelidan->AI())->GetChanneled(m_creature);
                         if(Unit *channeled = Unit::GetUnit(*m_creature, channeler))
                             DoCast(channeled,SPELL_CHANNELING);
                     }
