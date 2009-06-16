@@ -80,6 +80,8 @@ Some events such as EVENT_T_AGGRO, EVENT_T_DEATH, EVENT_T_SPAWNED, and EVENT_T_E
 18   EVENT_T_TARGET_MANA         ManaMax%, ManaMin%, RepeatMin, RepeatMax
 21   EVENT_T_REACHED_HOME        NONE                                                    Expires when creature reach it's home(spawn) location after Evade.
 22   EVENT_T_RECEIVE_EMOTE       EmoteId, Condition, CondValue1, CondValue2              Expires when creature receive emote with text emote id(enum TextEmotes). Condition can be defined. If set, then most conditions has additional value (see enum ConditionType)
+23   EVENT_T_BUFFED              SpellID, AmmountInStack, RepeatMin, RepeatMax           Expires when creature have spell (Param1) auras applied stack greater or equal provided in Param2 amount. Will repeat every (Param3) and (Param4).
+24   EVENT_T_TARGET_BUFFED       SpellID, AmmountInStack, RepeatMin, RepeatMax           Expires when target unit have spell (Param1) auras applied stack greater or equal provided in Param2 amount. Will repeat every (Param3) and (Param4).
 
 =========================================
 Action Types
@@ -338,6 +340,22 @@ Most commonly used to cast spells that can not be casted in EVENT_T_EVADE and ot
 ---------------------------
 Expires only when creature receive emote from player. Valid text emote id's are in Mangos source (enum TextEmotes)
 Event does not require any conditions to process, however many are ecpected to have condition.
+
+---------------------------
+23 = EVENT_T_BUFFED       :
+---------------------------
+Parameter 1: SpellId - This is the SpellID That the Aura Check will look for
+Parameter 2: Amount -  This is the amount of SpellID's auras at creature required for event expire.
+Parameter 3: RepeatMin - Minimum Time used to calculate Random Repeat Expire
+Parameter 4: RepeatMax - Maximum Time used to calculate Random Repeat Expire
+
+---------------------------
+24 = EVENT_T_TARGET_BUFFED:
+---------------------------
+Parameter 1: SpellId - This is the SpellID That the Aura Check will look for
+Parameter 2: Amount -  This is the amount of SpellID's auras at target unit required for event expire.
+Parameter 3: RepeatMin - Minimum Time used to calculate Random Repeat Expire
+Parameter 4: RepeatMax - Maximum Time used to calculate Random Repeat Expire
 
 EventAI use conditions from available in Mangos (enum ConditionType)
 Current implemented conditions:
