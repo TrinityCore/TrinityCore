@@ -1129,6 +1129,10 @@ void Aura::_AddAura()
     if(m_spellProto->Dispel == DISPEL_ENRAGE)
         SetAuraState(AURA_STATE_ENRAGE);
 
+    // Bleeding aura state
+    if (GetAllSpellMechanicMask(m_spellProto) & 1<<MECHANIC_BLEED)
+        SetAuraState(AURA_STATE_BLEEDING);
+
     if(GetSpellSchoolMask(m_spellProto) & SPELL_SCHOOL_MASK_FROST)
     {
         for (uint8 i = 0;i<MAX_SPELL_EFFECTS;++i)
