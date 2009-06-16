@@ -6575,6 +6575,20 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     break;
                 }
             }
+            // Storm, Earth and Fire
+            if (dummySpell->SpellIconID == 3063)
+            {
+                // Earthbind Totem summon only
+                if(procSpell->Id != 2484)
+                    return false;
+
+                float chance = triggerAmount;
+                if (!roll_chance_f(chance))
+                    return false;
+
+                triggered_spell_id = 64695;
+                break;
+            }
             // Ancestral Awakening
             if (dummySpell->SpellIconID == 3065)
             {
