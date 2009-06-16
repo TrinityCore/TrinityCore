@@ -110,6 +110,25 @@ LanguageDesc const* GetLanguageDescByID(uint32 lang)
     return NULL;
 }
 
+bool SpellClickInfo::IsFitToRequirements(Player const* player) const
+{
+    if(questStart)
+    {
+        // not in expected required quest state
+        if(!player || (!questStartCanActive || !player->IsActiveQuest(questStart)) && !player->GetQuestRewardStatus(questStart))
+            return false;
+    }
+
+    if(questEnd)
+    {
+        // not in expected forbidden quest state
+        if(!player || player->GetQuestRewardStatus(questEnd))
+            return false;
+    }
+
+    return true;
+}
+
 ObjectMgr::ObjectMgr()
 {
     m_hiCharGuid        = 1;
@@ -698,6 +717,12 @@ void ObjectMgr::LoadCreatureTemplates()
 
         if(cInfo->rangeattacktime == 0)
             const_cast<CreatureInfo*>(cInfo)->rangeattacktime = BASE_ATTACK_TIME;
+
+        if(cInfo->npcflag & UNIT_NPC_FLAG_SPELLCLICK)
+        {
+            sLog.outErrorDb("Creature (Entry: %u) has dynamic flag UNIT_NPC_FLAG_SPELLCLICK (%u) set, it expect to be set by code base at `npc_spellclick_spells` content.",cInfo->Entry,UNIT_NPC_FLAG_SPELLCLICK);
+            const_cast<CreatureInfo*>(cInfo)->npcflag &= ~UNIT_NPC_FLAG_SPELLCLICK;
+        }
 
         if((cInfo->npcflag & UNIT_NPC_FLAG_TRAINER) && cInfo->trainer_type >= MAX_TRAINER_TYPE)
             sLog.outErrorDb("Creature (Entry: %u) has wrong trainer type %u",cInfo->Entry,cInfo->trainer_type);
@@ -6567,8 +6592,8 @@ void ObjectMgr::LoadNPCSpellClickSpells()
     uint32 count = 0;
 
     mSpellClickInfoMap.clear();
-
-    QueryResult *result = WorldDatabase.Query("SELECT npc_entry, spell_id, quest_id, quest_status, cast_flags FROM npc_spellclick_spells");
+    //                                                0          1         2            3                   4          5
+    QueryResult *result = WorldDatabase.Query("SELECT npc_entry, spell_id, quest_start, quest_start_active, quest_end, cast_flags FROM npc_spellclick_spells");
 
     if(!result)
     {
@@ -6607,28 +6632,45 @@ void ObjectMgr::LoadNPCSpellClickSpells()
             continue;
         }
 
-        uint32 quest = fields[2].GetUInt32();
+        uint32 quest_start = fields[2].GetUInt32();
 
         // quest might be 0 to enable spellclick independent of any quest
-        if (quest)
+        if (quest_start)
         {
-            if(mQuestTemplates.find(quest) == mQuestTemplates.end())
+            if(mQuestTemplates.find(quest_start) == mQuestTemplates.end())
             {
-                sLog.outErrorDb("Table npc_spellclick_spells references unknown quest %u. Skipping entry.", spellid);
+                sLog.outErrorDb("Table npc_spellclick_spells references unknown start quest %u. Skipping entry.", quest_start);
                 continue;
             }
 
         }
 
-        uint32 queststatus = fields[3].GetUInt32();
+        bool quest_start_active = fields[3].GetBool();
 
-        uint8 castFlags = fields[4].GetUInt8();
+        uint32 quest_end = fields[4].GetUInt32();
+        // quest might be 0 to enable spellclick active infinity after start quest
+        if (quest_end)
+        {
+            if(mQuestTemplates.find(quest_end) == mQuestTemplates.end())
+            {
+                sLog.outErrorDb("Table npc_spellclick_spells references unknown end quest %u. Skipping entry.", quest_end);
+                continue;
+            }
+
+        }
+
+        uint8 castFlags = fields[5].GetUInt8();
         SpellClickInfo info;
         info.spellId = spellid;
-        info.questId = quest;
-        info.questStatus = queststatus;
+        info.questStart = quest_start;
+        info.questStartCanActive = quest_start_active;
+        info.questEnd = quest_end;
         info.castFlags = castFlags;
         mSpellClickInfoMap.insert(SpellClickInfoMap::value_type(npc_entry, info));
+
+        // mark creature template as spell clickable
+        const_cast<CreatureInfo*>(cInfo)->npcflag |= UNIT_NPC_FLAG_SPELLCLICK;
+
         ++count;
     } while (result->NextRow());
 
