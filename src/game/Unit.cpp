@@ -6619,7 +6619,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
 
                 CastCustomSpell(pVictim,triggered_spell_id,&basepoints0,NULL,NULL,true,castItem,triggeredByAura);
                 return true;
-            }
+            } 
             // Improved Water Shield
             if (dummySpell->SpellIconID == 2287)
             {
