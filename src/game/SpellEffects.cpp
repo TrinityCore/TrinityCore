@@ -5249,7 +5249,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
         case SPELLFAMILY_PALADIN:
         {
             // Judgement
-            if (m_spellInfo->SpellFamilyFlags[0] & 0x800000)
+            if (m_spellInfo->SpellFamilyFlags[0] & 0x800000 || m_spellInfo->SpellFamilyFlags[2] & 0x8)
             {
                 if(!unitTarget || !unitTarget->isAlive())
                     return;
