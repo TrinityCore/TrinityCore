@@ -378,6 +378,20 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                     break;
                 }
 
+                case EVENT_T_BUFFED:
+                case EVENT_T_TARGET_BUFFED:
+                {
+                    SpellEntry const* pSpell = sSpellStore.LookupEntry(temp.buffed.spellId);
+                    if (!pSpell)
+                    {
+                        sLog.outErrorDb("CreatureEventAI:  Creature %u has non-existant SpellID(%u) defined in event %u.", temp.creature_id, temp.spell_hit.spellId, i);
+                        continue;
+                    }
+                    if (temp.buffed.repeatMax < temp.buffed.repeatMin)
+                        sLog.outErrorDb("CreatureEventAI:  Creature %u are using repeatable event(%u) with param4 < param3 (RepeatMax < RepeatMin). Event will never repeat.", temp.creature_id, i);
+                    break;
+                }
+
                 default:
                     sLog.outErrorDb("CreatureEventAI: Creature %u using not checked at load event (%u) in event %u. Need check code update?", temp.creature_id, temp.event_id, i);
                     break;
