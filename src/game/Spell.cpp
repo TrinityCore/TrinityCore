@@ -1206,7 +1206,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
             // I do not think this is a correct way to fix it. Sanctuary effect should make all delayed spells invalid
             // for delayed spells ignore not visible explicit target
             if(m_spellInfo->speed > 0.0f && unit == m_targets.getUnitTarget()
-                && (unit->HasAuraType(SPELL_AURA_MOD_INVISIBILITY)
+                && (unit->m_invisibilityMask || m_caster->m_invisibilityMask
                 || unit->HasAuraTypeWithFamilyFlags(SPELL_AURA_MOD_STEALTH, SPELLFAMILY_ROGUE, SPELLFAMILYFLAG_ROGUE_VANISH))
                 && !m_caster->canSeeOrDetect(unit, true))
             {
@@ -2557,12 +2557,16 @@ void Spell::cast(bool skipCheck)
     // update pointers base at GUIDs to prevent access to non-existed already object
     UpdatePointers();
 
-    if(m_targets.getUnitTarget())
+    if(Unit *target = m_targets.getUnitTarget())
     {
         // three check: prepare, cast (m_casttime > 0), hit (delayed)
-        if(m_casttime && m_targets.getUnitTarget()->isAlive() && !m_caster->canSeeOrDetect(m_targets.getUnitTarget(), true))
+        if(m_casttime && target->isAlive() 
+            && (target->m_invisibilityMask || m_caster->m_invisibilityMask
+            || target->GetVisibility() == VISIBILITY_GROUP_STEALTH)
+            && !target->IsFriendlyTo(m_caster) && !m_caster->canSeeOrDetect(target, true))
         {
-            cancel();
+            SendCastResult(SPELL_FAILED_BAD_TARGETS);
+            finish(false);
             return;
         }
     }
