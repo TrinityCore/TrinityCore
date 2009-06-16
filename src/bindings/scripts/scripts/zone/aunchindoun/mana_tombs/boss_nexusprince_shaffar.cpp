@@ -350,8 +350,6 @@ struct TRINITY_DLL_DECL mob_ethereal_apprenticeAI : public ScriptedAI
         isFireboltTurn = true;
     }
 
-    void Aggro(Unit* who) {}
-
     void UpdateAI(const uint32 diff)
     {
         if(!UpdateVictim())

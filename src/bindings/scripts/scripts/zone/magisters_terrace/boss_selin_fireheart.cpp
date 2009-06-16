@@ -53,7 +53,7 @@ struct TRINITY_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
 {
     boss_selin_fireheartAI(Creature* c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
 
         Crystals.clear();
         //GUIDs per instance is static, so we only need to load them once.

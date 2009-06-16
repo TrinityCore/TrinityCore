@@ -140,7 +140,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
     boss_leotheras_the_blindAI(Creature *c) : ScriptedAI(c)
     {
         m_creature->GetPosition(x,y,z);
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
         Demon = 0;
 
         for(uint8 i = 0; i < 3; i++)//clear guids
@@ -640,7 +640,7 @@ struct TRINITY_DLL_DECL mob_greyheart_spellbinderAI : public ScriptedAI
 {
     mob_greyheart_spellbinderAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData());;
+        pInstance = c->GetInstanceData();;
         leotherasGUID = 0;
         AddedBanish = false;
     }

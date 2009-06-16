@@ -562,7 +562,7 @@ struct TRINITY_DLL_DECL npc_ros_dark_riderAI : public ScriptedAI
 
         // this should be before next one otherwise he may enter vehicle again
         if(!me->m_Vehicle && who->GetEntry() == 28782 && CAST_CRE(who)->isVehicle() && CAST_VEH(who)->HasEmptySeat(0))
-            me->EnterVehicle((Vehicle*)who);
+            me->EnterVehicle(CAST_VEH(who));
 
         ScriptedAI::MoveInLineOfSight(who);
     }

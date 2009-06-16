@@ -41,7 +41,7 @@ struct TRINITY_DLL_DECL boss_temporusAI : public ScriptedAI
 {
     boss_temporusAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
         HeroicMode = m_creature->GetMap()->IsHeroic();
     }
 

@@ -105,7 +105,7 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
             pInstance->SetData(DATA_MAGUS_TELESTRA_EVENT, NOT_STARTED);
     }
 
-    void Aggro(Unit* who) 
+    void EnterCombat(Unit* who) 
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }

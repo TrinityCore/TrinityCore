@@ -64,7 +64,7 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
         SpellEntry *TempSpell = GET_SPELL(SPELL_ELECTRICAL_DAMAGE);
         if(TempSpell)
             TempSpell->EffectBasePoints[1] = 49;//disable bugged lightning until fixed in core
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
     }
     ScriptedInstance *pInstance;
 
