@@ -43,7 +43,7 @@ class TRINITY_DLL_DECL MapInstanced : public Map
         bool CanEnter(Player* player);
 
         Map* GetInstance(const WorldObject* obj);
-        Map* FindMap(uint32 InstanceId) { return _FindMap(InstanceId); }
+        Map* FindMap(uint32 InstanceId) const { return _FindMap(InstanceId); }
         void DestroyInstance(uint32 InstanceId);
         void DestroyInstance(InstancedMaps::iterator &itr);
 
@@ -69,10 +69,9 @@ class TRINITY_DLL_DECL MapInstanced : public Map
 
         InstancedMaps m_InstancedMaps;
 
-        Map* _FindMap(uint32 InstanceId)
+        Map* _FindMap(uint32 InstanceId) const
         {
-            InstancedMaps::iterator i = m_InstancedMaps.find(InstanceId);
-
+            InstancedMaps::const_iterator i = m_InstancedMaps.find(InstanceId);
             return(i == m_InstancedMaps.end() ? NULL : i->second);
         }
 

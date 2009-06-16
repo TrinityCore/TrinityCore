@@ -263,8 +263,8 @@ bool Creature::InitEntry(uint32 Entry, uint32 team, const CreatureData *data )
     CreatureInfo const *cinfo = normalInfo;
     if(normalInfo->HeroicEntry)
     {
-        Map *map = MapManager::Instance().FindMap(GetMapId(), GetInstanceId());
-        if(map && map->IsHeroic())
+        //we already have valid Map pointer for current creature!
+        if(GetMap()->IsHeroic())
         {
             cinfo = objmgr.GetCreatureTemplate(normalInfo->HeroicEntry);
             if(!cinfo)
