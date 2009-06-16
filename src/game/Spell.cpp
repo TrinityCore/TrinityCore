@@ -2887,6 +2887,11 @@ void Spell::SendSpellGo()
     Unit *target = m_targets.getUnitTarget() ? m_targets.getUnitTarget() : m_caster;
 
     uint32 castFlags = CAST_FLAG_UNKNOWN3;
+
+    // triggered spells with spell visual != 0
+    if(m_IsTriggeredSpell || m_triggeredByAuraSpell)
+        castFlags |= CAST_FLAG_UNKNOWN0; 
+
     if(IsRangedSpell())
         castFlags |= CAST_FLAG_AMMO;                        // arrows/bullets visual
 

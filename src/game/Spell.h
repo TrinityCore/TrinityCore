@@ -60,6 +60,7 @@ enum SpellCastTargetFlags
 
 enum SpellCastFlags
 {
+    CAST_FLAG_UNKNOWN0           = 0x00000001, // stucks spell highlight
     CAST_FLAG_UNKNOWN1           = 0x00000002,
     CAST_FLAG_UNKNOWN2           = 0x00000010,
     CAST_FLAG_AMMO               = 0x00000020,
