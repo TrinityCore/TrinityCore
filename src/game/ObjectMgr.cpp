@@ -1405,7 +1405,7 @@ uint32 ObjectMgr::AddGameObject(uint32 entry, uint32 mapId, float x, float y, fl
     AddGameobjectToGrid(guid, &data);
 
     // Spawn if necessary (loaded grids only)
-    if(Map* map = const_cast<Map*>(MapManager::Instance().GetBaseMap(mapId)))
+    if(Map* map = const_cast<Map*>(MapManager::Instance().CreateBaseMap(mapId)))
     {
         // We use spawn coords to spawn
         if(!map->Instanceable() && !map->IsRemovalGrid(x, y))
@@ -1454,7 +1454,7 @@ uint32 ObjectMgr::AddCreature(uint32 entry, uint32 team, uint32 mapId, float x, 
     AddCreatureToGrid(guid, &data);
 
     // Spawn if necessary (loaded grids only)
-    if(Map* map = const_cast<Map*>(MapManager::Instance().GetBaseMap(mapId)))
+    if(Map* map = const_cast<Map*>(MapManager::Instance().CreateBaseMap(mapId)))
     {
         // We use spawn coords to spawn
         if(!map->Instanceable() && !map->IsRemovalGrid(x, y))

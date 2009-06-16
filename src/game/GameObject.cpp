@@ -74,8 +74,17 @@ GameObject::~GameObject()
             Unit* owner = ObjectAccessor::GetUnit(*this,owner_guid);
             if(owner)
                 owner->RemoveGameObject(this,false);
-            else if(!IS_PLAYER_GUID(owner_guid))
-                sLog.outError("Delete GameObject (GUID: %u Entry: %u ) that have references in not found creature %u GO list. Crash possible later.",GetGUIDLow(),GetGOInfo()->id,GUID_LOPART(owner_guid));
+            else
+            {
+                char * ownerType = "creature";
+                if(IS_PLAYER_GUID(owner_guid))
+                    ownerType = "player";
+                else if(IS_PET_GUID(owner_guid))
+                    ownerType = "pet";
+
+                sLog.outError("Delete GameObject (GUID: %u Entry: %u SpellId %u LinkedGO %u) that lost references to owner (GUID %u Type '%s') GO list. Crash possible later.",
+                GetGUIDLow(), GetGOInfo()->id, m_spellId, GetLinkedGameObjectEntry(), GUID_LOPART(owner_guid), ownerType);
+            }
         }
     }*/
 }
