@@ -13340,6 +13340,12 @@ void Unit::AddPetAura(PetAura const* petSpell)
     if(GetTypeId() != TYPEID_PLAYER)
         return;
 
+    // Aura already added - not need to add it twice
+    // This check is to prevent existing pet having aura applied twice (passive auras can stack)
+    // if aura has more than 1 dummy effect
+    if (m_petAuras.find(petSpell)!= m_petAuras.end())
+        return;
+
     m_petAuras.insert(petSpell);
     if(Pet* pet = ((Player*)this)->GetPet())
         pet->CastPetAura(petSpell);
