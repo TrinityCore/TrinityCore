@@ -159,7 +159,7 @@ struct TRINITY_DLL_DECL advisorbase_ai : public ScriptedAI
 
     advisorbase_ai(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
     }
 
     void MoveInLineOfSight(Unit *who)
@@ -274,7 +274,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
 {
     boss_kaelthasAI(Creature *c) : ScriptedAI(c), summons(m_creature)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
         AdvisorGuid[0] = 0;
         AdvisorGuid[1] = 0;
         AdvisorGuid[2] = 0;
@@ -1397,7 +1397,7 @@ struct TRINITY_DLL_DECL mob_phoenix_tkAI : public ScriptedAI
 {
     mob_phoenix_tkAI(Creature *c) : ScriptedAI(c)
     {
-       pInstance = (c->GetInstanceData());
+       pInstance = c->GetInstanceData();
     }
 
     ScriptedInstance* pInstance;

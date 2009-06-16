@@ -75,7 +75,7 @@ struct TRINITY_DLL_DECL boss_twinemperorsAI : public ScriptedAI
 
     boss_twinemperorsAI(Creature *c): ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
     }
 
     void TwinReset()

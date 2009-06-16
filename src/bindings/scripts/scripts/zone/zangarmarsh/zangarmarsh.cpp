@@ -278,9 +278,9 @@ struct TRINITY_DLL_DECL npc_kayra_longmaneAI : public npc_escortAI
 
     void WaypointReached(uint32 i)
     {
-        Unit* pUnit = Unit::GetUnit(*m_creature, PlayerGUID);
+        Player* pUnit = Unit::GetPlayer(PlayerGUID);
 
-        if (!pUnit || pUnit->GetTypeId() != TYPEID_PLAYER)
+        if (!pUnit)
             return;
 
         switch(i)
@@ -305,17 +305,17 @@ struct TRINITY_DLL_DECL npc_kayra_longmaneAI : public npc_escortAI
                 break;
             case 26:
                 DoScriptText(SAY_END, m_creature, pUnit);
-                ((Player*)pUnit)->GroupEventHappens(QUEST_ESCAPE_FROM, m_creature);
+                pUnit->GroupEventHappens(QUEST_ESCAPE_FROM, m_creature);
                 break;
         }
     }
 
     void JustDied(Unit* killer)
     {
-        if (Unit* pUnit = Unit::GetUnit(*m_creature, PlayerGUID))
+        if (Player* pUnit = Unit::GetPlayer(PlayerGUID))
         {
-            if (((Player*)pUnit)->GetQuestStatus(QUEST_ESCAPE_FROM) == QUEST_STATUS_INCOMPLETE)
-                ((Player*)pUnit)->FailQuest(QUEST_ESCAPE_FROM);
+            if (pUnit->GetQuestStatus(QUEST_ESCAPE_FROM) == QUEST_STATUS_INCOMPLETE)
+                pUnit->FailQuest(QUEST_ESCAPE_FROM);
         }
     }
 
@@ -330,7 +330,7 @@ bool QuestAccept_npc_kayra_longmane(Player* pPlayer, Creature* pCreature, Quest 
     if (pQuest->GetQuestId() == QUEST_ESCAPE_FROM)
     {
         DoScriptText(SAY_START, pCreature, pPlayer);
-        ((npc_escortAI*)(pCreature->AI()))->Start(false, true, false, pPlayer->GetGUID());
+        CAST_AI(npc_escortAI, pCreature->AI())->Start(false, true, false, pPlayer->GetGUID());
     }
     return true;
 }
@@ -341,7 +341,7 @@ CreatureAI* GetAI_npc_kayra_longmaneAI(Creature* pCreature)
 
     thisAI->FillPointMovementListForCreature();
 
-    return (CreatureAI*)thisAI;
+    return thisAI;
 }
 /*######
 ## AddSC

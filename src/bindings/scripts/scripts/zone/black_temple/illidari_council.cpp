@@ -192,7 +192,7 @@ struct TRINITY_DLL_DECL mob_illidari_councilAI : public ScriptedAI
 {
     mob_illidari_councilAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
         for(uint8 i = 0; i < 4; ++i)
             Council[i] = 0;
     }
@@ -348,7 +348,7 @@ struct TRINITY_DLL_DECL boss_illidari_councilAI : public ScriptedAI
 {
     boss_illidari_councilAI(Creature* c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
         for(uint8 i = 0; i < 4; ++i)
             Council[i] = 0;
         LoadedGUIDs = false;

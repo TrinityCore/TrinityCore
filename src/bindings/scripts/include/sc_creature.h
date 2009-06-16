@@ -13,18 +13,15 @@
 #include "CreatureAIImpl.h"
 #include "InstanceData.h"
 
-#define USE_DYNAMIC_CAST
-#ifdef USE_DYNAMIC_CAST
-#define CAST_PLR(a)     (dynamic_cast<Player*>(a))
-#define CAST_CRE(a)     (dynamic_cast<Creature*>(a))
-#define CAST_VEH(a)     (dynamic_cast<Vehicle*>(a))
-#define CAST_AI(a,b)    (dynamic_cast<a*>(b))
-#else
-#define CAST_PLR(a)     (static_cast<Player*>(a))
-#define CAST_CRE(a)     (static_cast<Creature*>(a))
-#define CAST_VEH(a)     (static_cast<Vehicle*>(a))
-#define CAST_AI(a,b)    (static_cast<a*>(b))
-#endif
+#define SCRIPT_CAST_TYPE dynamic_cast
+//#define SCRIPT_CAST_TYPE static_cast
+
+#define CAST_PLR(a)     (SCRIPT_CAST_TYPE<Player*>(a))
+#define CAST_CRE(a)     (SCRIPT_CAST_TYPE<Creature*>(a))
+#define CAST_VEH(a)     (SCRIPT_CAST_TYPE<Vehicle*>(a))
+#define CAST_SUM(a)     (SCRIPT_CAST_TYPE<TempSummon*>(a))
+#define CAST_PET(a)     (SCRIPT_CAST_TYPE<Pet*>(a))
+#define CAST_AI(a,b)    (SCRIPT_CAST_TYPE<a*>(b))
 
 #define GET_SPELL(a)    (const_cast<SpellEntry*>(GetSpellStore()->LookupEntry(a)))
 
@@ -84,10 +81,10 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
     void SummonedCreatureDespawn(Creature* /*unit*/) {}
 
     // Called when hit by a spell
-    void SpellHit(Unit* caster, const SpellEntry*) {}
+    void SpellHit(Unit* caster, const SpellEntry *spell) {}
 
     // Called when spell hits a target
-    void SpellHitTarget(Unit* target, const SpellEntry*) {}
+    void SpellHitTarget(Unit* target, const SpellEntry *spell) {}
 
     //Called at waypoint reached or PointMovement end
     void MovementInform(uint32 type, uint32 id){}
