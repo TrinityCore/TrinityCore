@@ -338,7 +338,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleAuraIncreaseBaseHealthPercent,             //282 SPELL_AURA_INCREASE_BASE_HEALTH_PERCENT
     &Aura::HandleNoImmediateEffect,                         //283 SPELL_AURA_MOD_HEALING_RECEIVED       implemented in Unit::SpellHealingBonus
     &Aura::HandleUnused,                                    //284 not used by any spells (3.08a)
-    &Aura::HandleUnused,                                    //285 not used by any spells (3.08a)
+    &Aura::HandleAuraModAttackPowerOfArmor,                 //285 SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR  implemented in Player::UpdateAttackPowerAndDamage
     &Aura::HandleUnused,                                    //286 not used by any spells (3.08a)
     &Aura::HandleNoImmediateEffect,                         //287 SPELL_AURA_DEFLECT_SPELLS             implemented in Unit::MagicSpellHitResult and Unit::MeleeSpellHitResult
     &Aura::HandleUnused,                                    //288 not used by any spells (3.09) except 1 test spell.
@@ -5393,6 +5393,16 @@ void AuraEffect::HandleAuraModAttackPowerOfStatPercent(bool apply, bool Real, bo
         ((Player*)m_target)->UpdateAttackPowerAndDamage(false);
 }
 
+void AuraEffect::HandleAuraModAttackPowerOfArmor(bool /*apply*/, bool Real, bool /*changeAmount*/)
+{
+    // spells required only Real aura add/remove
+    if(!Real)
+        return;
+
+    // Recalculate bonus
+    if(m_target->GetTypeId() == TYPEID_PLAYER)
+        ((Player*)m_target)->UpdateAttackPowerAndDamage(false);
+}
 /********************************/
 /***        DAMAGE BONUS      ***/
 /********************************/
@@ -6753,34 +6763,19 @@ void AuraEffect::PeriodicDummyTick()
 //                return;
             break;
         }
-        case SPELLFAMILY_WARRIOR:
-        {
-            // Armored to the Teeth
-            if (spell->SpellIconID == 3516)
-            {
-                // Increases your attack power by $s1 for every $s2 armor value you have.
-                // Calculate AP bonus (from 1 efect of this spell)
-                int32 apBonus = m_amount * m_target->GetArmor() / m_target->CalculateSpellDamage(spell, 1, spell->EffectBasePoints[1], m_target);
-                m_target->CastCustomSpell(m_target, 61217, &apBonus, &apBonus, 0, true, 0, this);
-                return;
-            }
-            break;
-        }
         case SPELLFAMILY_WARLOCK:
+        {
             switch (spell->Id)
             {
                 // Demonic Circle
                 case 48018:
-                    GameObject* obj = m_target->GetGameObject(spell->Id);
-                    if (!obj) return;
-                    // We must take a range of teleport spell, not summon.
-                    const SpellEntry* goToCircleSpell = sSpellStore.LookupEntry(48020);
-                    if (m_target->IsWithinDist(obj,GetSpellMaxRangeForFriend(sSpellRangeStore.LookupEntry(goToCircleSpell->rangeIndex))))
-                        m_target->SendAuraVisualForSelf(true,62388, 1);
-                    else
-                        m_target->SendAuraVisualForSelf(false,62388);
+                    if(GameObject* obj = m_target->GetGameObject(spell->Id))
+                        // We must take a range of teleport spell, not summon.
+                        m_target->SendAuraVisualForSelf(m_target->IsWithinDist(obj, GetSpellMaxRange(48020, true)), 62388, 1);
+                    return;
             }
             break;
+        }
         case SPELLFAMILY_DRUID:
         {
             switch (spell->Id)
