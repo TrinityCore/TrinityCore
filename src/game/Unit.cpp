@@ -1373,37 +1373,6 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage *damageInfo, int32 dama
     damageInfo->damage = damage;
 }
 
-int32 Unit::GetIgnoredArmorMultiplier(SpellEntry const *spellInfo, WeaponAttackType attackType)
-{
-    if (GetTypeId() != TYPEID_PLAYER)
-        return 0;
-    //check if spell uses weapon
-    if (!spellInfo || spellInfo->EquippedItemClass!=ITEM_CLASS_WEAPON)
-        return 0;
-    Item *item = NULL;
-    if(attackType == BASE_ATTACK)
-        item = ((Player*)this)->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-    else if (attackType == OFF_ATTACK)
-        item = ((Player*)this)->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
-    else if (attackType == RANGED_ATTACK)
-        item = ((Player*)this)->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED);
-    if (!item)
-        return 0;
-
-    AuraEffectList const& armAuras = GetAurasByType(SPELL_AURA_MOD_WEAPONTYPE_IGNORE_TARGET_RESISTANCE);
-    int32 armorIgnored = 0;
-    for(AuraEffectList::const_iterator i = armAuras.begin();i != armAuras.end(); ++i)
-    {
-        if (!((*i)->GetSpellProto()->EquippedItemClass==item->GetProto()->Class
-            && (*i)->GetSpellProto()->EquippedItemSubClassMask & (1<<item->GetProto()->SubClass)))
-            continue;
-
-        if((*i)->GetAmount())
-            armorIgnored += (*i)->GetAmount();
-    }
-    return (-armorIgnored);
-}
-
 void Unit::DealSpellDamage(SpellNonMeleeDamage *damageInfo, bool durabilityLoss)
 {
     if (damageInfo==0)
@@ -1831,7 +1800,6 @@ uint32 Unit::CalcArmorReducedDamage(Unit* pVictim, const uint32 damage, SpellEnt
     // Ignore enemy armor by SPELL_AURA_MOD_TARGET_RESISTANCE aura
     armor += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_TARGET_RESISTANCE, SPELL_SCHOOL_MASK_NORMAL);
 
-    armor *= float((GetIgnoredArmorMultiplier(spellInfo, attackType)+100.0f)/100.0f);
     if(spellInfo)
         if(Player *modOwner = GetSpellModOwner())
             modOwner->ApplySpellMod(spellInfo->Id, SPELLMOD_IGNORE_ARMOR, armor);
@@ -7693,6 +7661,7 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
             // Can proc only if target has hp below 35%
             if(!pVictim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, procSpell, this))
                 return false;
+            break;
     }
 
     // Custom basepoints/target for exist spell
