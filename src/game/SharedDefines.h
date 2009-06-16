@@ -2384,30 +2384,23 @@ enum DiminishingGroup
 {
     // Common Groups
     DIMINISHING_NONE,
-    DIMINISHING_CONTROL_STUN,                               // Player Controlled stuns
-    DIMINISHING_TRIGGER_STUN,                               // By aura proced stuns, usualy chance on hit talents
-    DIMINISHING_SLEEP,
-    DIMINISHING_CONTROL_ROOT,                               // Immobilizing effects from casted spells
-    DIMINISHING_TRIGGER_ROOT,                               // Immobilizing effects from triggered spells like Frostbite
-    DIMINISHING_FEAR,                                       // Non-warlock fears
+    DIMINISHING_CONTROL_STUN,           // Player Controlled stuns
+    DIMINISHING_TRIGGER_STUN,           // By aura proced stuns, usualy chance on hit talents
+    DIMINISHING_CONTROL_ROOT,           // Immobilizing effects from casted spells
+    DIMINISHING_TRIGGER_ROOT,           // Immobilizing effects from triggered spells like Frostbite
     DIMINISHING_CHARM,
-    // Mage Specific
-    DIMINISHING_POLYMORPH,
-    // Rogue Specific
-    DIMINISHING_KIDNEYSHOT,                                 // Kidney Shot is not diminished with Cheap Shot
-    // Warlock Specific
-    DIMINISHING_DEATHCOIL,                                  // Death Coil Diminish only with another Death Coil
-    DIMINISHING_WARLOCK_FEAR,                               // Also with Sedduction
-    // Shared Class Specific
-    DIMINISHING_BLIND_CYCLONE,                              // From 2.3.0
-    DIMINISHING_DISARM,                                     // From 2.3.0
-    DIMINISHING_SILENCE,                                    // From 2.3.0
-    DIMINISHING_FREEZE,                                     // Hunter's Freezing Trap
-    DIMINISHING_KNOCKOUT,                                   // Also with Sap, all Knockout mechanics are here
+    DIMINISHING_SLEEP_FREEZE,
+    DIMINISHING_POLYMORPH,              // Also: Gouge, Sap, Repentance, Hungering Cold
+    DIMINISHING_CHEAPSHOT_POUNCE,
+    DIMINISHING_DEATHCOIL,              // Death Coil Diminish only with another Death Coil
+    DIMINISHING_SILENCE,
+    DIMINISHING_KNOCKOUT,               // Sap, Knockout mechanics
+    DIMINISHING_DISARM,
+    DIMINISHING_FEAR_BLIND,             // Intimidating Shout, Howl of Terror, Blind
+    DIMINISHING_FEAR,
     DIMINISHING_BANISH,
-    // Other
-    // Don't Diminish, but limit duration to 10s
-    DIMINISHING_LIMITONLY
+    DIMINISHING_TAUNT,
+    DIMINISHING_LIMITONLY               // Don't Diminish, but limit duration to 10s
 };
 
 enum DungeonDifficulties
