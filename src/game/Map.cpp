@@ -127,7 +127,7 @@ void Map::LoadMap(int gx,int gy, bool reload)
         if(GridMaps[gx][gy])
             return;
 
-        Map* baseMap = const_cast<Map*>(MapManager::Instance().GetBaseMap(i_id));
+        Map* baseMap = const_cast<Map*>(MapManager::Instance().CreateBaseMap(i_id));
 
         // load grid map for base map
         if (!baseMap->GridMaps[gx][gy])
@@ -498,9 +498,6 @@ void
 Map::Add(T *obj)
 {
     CellPair p = Trinity::ComputeCellPair(obj->GetPositionX(), obj->GetPositionY());
-
-    assert(obj);
-
     if(p.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || p.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP )
     {
         sLog.outError("Map::Add: Object " UI64FMTD " have invalid coordinates X:%f Y:%f grid cell [%u:%u]", obj->GetGUID(), obj->GetPositionX(), obj->GetPositionY(), p.x_coord, p.y_coord);
@@ -1161,7 +1158,7 @@ bool Map::UnloadGrid(const uint32 &x, const uint32 &y, bool unloadAll)
             VMAP::VMapFactory::createOrGetVMapManager()->unloadMap(GetId(), gy, gx);
         }
         else
-            ((MapInstanced*)(MapManager::Instance().GetBaseMap(i_id)))->RemoveGridMapReference(GridPair(gx, gy));
+            ((MapInstanced*)(MapManager::Instance().CreateBaseMap(i_id)))->RemoveGridMapReference(GridPair(gx, gy));
         GridMaps[gx][gy] = NULL;
     }
     DEBUG_LOG("Unloading grid[%u,%u] for map %u finished", x,y, i_id);
