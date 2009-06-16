@@ -44,6 +44,7 @@ trinityconfig
 vmaps
 ZThread
 g3dlite
+readline
 ${SCRIPT_LIB}
 ${MYSQL_LIBRARIES}
 ${POSTGRE_LIBS}
