@@ -800,7 +800,7 @@ void Spell::prepareDataForTriggerSystem(AuraEffect * triggeredByAura)
             Effects which are result of aura proc from triggered spell cannot proc
             to prevent chain proc of these spells
         */
-        if (triggeredByAura && !triggeredByAura->GetParentAura()->GetTarget()->CanProc())
+        if ((triggeredByAura && !triggeredByAura->GetParentAura()->GetTarget()->CanProc()) || !m_caster->CanProc())
         {
             m_canTrigger=false;
         }
@@ -808,7 +808,7 @@ void Spell::prepareDataForTriggerSystem(AuraEffect * triggeredByAura)
         if (m_IsTriggeredSpell && 
             (m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_TRIGGERED_CAN_TRIGGER ||
             m_spellInfo->AttributesEx3 & SPELL_ATTR_EX3_TRIGGERED_CAN_TRIGGER_2))
-            m_procEx |= PROC_EX_INTERNAL_CANT_PROC | PROC_EX_INTERNAL_TRIGGERED;
+            m_procEx |= PROC_EX_INTERNAL_TRIGGERED;
 
         // Totem casts require spellfamilymask defined in spell_proc_event to proc
         if (m_originalCaster && m_caster != m_originalCaster && m_caster->GetTypeId()==TYPEID_UNIT && ((Creature*)m_caster)->isTotem() && m_caster->IsControlledByPlayer())
@@ -825,6 +825,8 @@ void Spell::prepareDataForTriggerSystem(AuraEffect * triggeredByAura)
                 m_canTrigger=false;
         }
     }
+    if (m_IsTriggeredSpell || triggeredByAura)
+        m_procEx |= PROC_EX_INTERNAL_CANT_PROC;
 }
 
 void Spell::CleanupTargetList()
