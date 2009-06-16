@@ -303,6 +303,7 @@ class TRINITY_DLL_SPEC AuraEffect
         void HandleAuraModAttackPowerPercent(bool apply, bool Real, bool changeAmount);
         void HandleAuraModRangedAttackPowerPercent(bool apply, bool Real, bool changeAmount);
         void HandleAuraModRangedAttackPowerOfStatPercent(bool apply, bool Real, bool changeAmount);
+        void HandleAuraModAttackPowerOfArmor(bool apply, bool Real, bool changeAmount);
         void HandleAuraModAttackPowerOfStatPercent(bool apply, bool Real, bool changeAmount);
         void HandleSpiritOfRedemption(bool apply, bool Real, bool changeAmount);
         void HandleModManaRegen(bool apply, bool Real, bool changeAmount);

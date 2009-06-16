@@ -120,9 +120,9 @@ DestinationHolder<TRAVELLER>::UpdateTraveller(TRAVELLER &traveller, uint32 diff,
             return true;
 
         if(traveller.GetTraveller().hasUnitState(UNIT_STAT_IN_FLIGHT))
-            GetLocationNow(traveller.GetTraveller().GetMapId() ,x, y, z, true);                  // Should repositione Object with right Coord, so I can bypass some Grid Relocation
+            GetLocationNow(traveller.GetTraveller().GetBaseMap() ,x, y, z, true);                  // Should reposition Object with right Coord, so I can bypass some Grid Relocation
         else
-            GetLocationNow(traveller.GetTraveller().GetMapId(), x, y, z, false);
+            GetLocationNow(traveller.GetTraveller().GetBaseMap(), x, y, z, false);
 
         if( x == -431602080 )
             return false;
@@ -153,7 +153,7 @@ DestinationHolder<TRAVELLER>::UpdateTraveller(TRAVELLER &traveller, uint32 diff,
 
 template<typename TRAVELLER>
 void
-DestinationHolder<TRAVELLER>::GetLocationNow(uint32 mapid, float &x, float &y, float &z, bool is3D) const
+DestinationHolder<TRAVELLER>::GetLocationNow(const Map * map, float &x, float &y, float &z, bool is3D) const
 {
     if( HasArrived() )
     {
@@ -175,8 +175,8 @@ DestinationHolder<TRAVELLER>::GetLocationNow(uint32 mapid, float &x, float &y, f
             z = z2;
         else
         {
-            //That part is good for mob Walking on the floor. But the floor is not allways what we thought.
-            z = MapManager::Instance().GetBaseMap(mapid)->GetHeight(x,y,i_fromZ,false); // Disable cave check
+            //That part is good for mob Walking on the floor. But the floor is not always what we thought.
+            z = map->GetHeight(x,y,i_fromZ,false); // Disable cave check
             const float groundDist = sqrt(distanceX*distanceX + distanceY*distanceY);
             const float zDist = fabs(i_fromZ - z) + 0.000001f;
             const float slope = groundDist / zDist;

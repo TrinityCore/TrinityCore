@@ -54,8 +54,7 @@ RandomMovementGenerator<Creature>::_setRandomLocation(Creature &creature)
     creature.GetHomePosition(X, Y, Z, ori);
 
     z = creature.GetPositionZ();
-    uint32 mapid=creature.GetMapId();
-    Map const* map = MapManager::Instance().GetBaseMap(mapid);
+    Map const* map = creature.GetBaseMap();
 
     // For 2D/3D system selection
     bool is_land_ok  = creature.canWalk();
