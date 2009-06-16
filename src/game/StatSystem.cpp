@@ -160,6 +160,7 @@ bool Player::UpdateAllStats()
     UpdateManaRegen();
     UpdateExpertise(BASE_ATTACK);
     UpdateExpertise(OFF_ATTACK);
+    RecalculateRating(CR_ARMOR_PENETRATION);
     for (int i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; ++i)
         UpdateResistances(i);
 
@@ -616,6 +617,35 @@ void Player::UpdateSpellCritChance(uint32 school)
 
     // Store crit value
     SetFloatValue(PLAYER_SPELL_CRIT_PERCENTAGE1 + school, crit);
+}
+
+void Player::UpdateArmorPenetration(int32 amount)
+{
+    AuraEffectList const& expAuras = GetAurasByType(SPELL_AURA_MOD_ARMOR_PENETRATION_PCT);
+    for(AuraEffectList::const_iterator itr = expAuras.begin(); itr != expAuras.end(); ++itr)
+    {
+        // item neutral spell
+        if((*itr)->GetSpellProto()->EquippedItemClass == -1)
+        {
+            amount *= ((*itr)->GetAmount() + 100.0f) / 100.0f;
+            continue;
+        }
+
+        // item dependent spell - check curent weapons
+        for(int i = 0; i < MAX_ATTACK; ++i)
+        {
+            Item *weapon = GetWeaponForAttack(WeaponAttackType(i));
+
+            if(weapon && weapon->IsFitToSpellRequirements((*itr)->GetSpellProto()))
+            {
+                amount *= ((*itr)->GetAmount() + 100.0f) / 100.0f;
+                break;
+            }
+        }
+    }
+
+    // Store Rating Value
+    SetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + CR_ARMOR_PENETRATION, amount);
 }
 
 void Player::UpdateMeleeHitChances()

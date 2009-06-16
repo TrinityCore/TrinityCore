@@ -4332,7 +4332,7 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
                     if (roll_chance_i(aurEff->GetAmount()))
                         consumeDiseases = false;
                 }
-                totalDamagePercentMod *= (float(CalculateDamage(2, unitTarget) * unitTarget->GetDiseasesByCaster(m_caster->GetGUID(), consumeDiseases) / 2) + 100.0f) / 100.f;
+                totalDamagePercentMod *= (float(CalculateDamage(2, unitTarget) * unitTarget->GetDiseasesByCaster(m_caster->GetGUID(), consumeDiseases) / 2) + 100.0f) / 100.0f;
             }
             // Blood-Caked Strike - Blood-Caked Blade     // Blood Strike
             else if (m_spellInfo->SpellIconID == 1736 || m_spellInfo->SpellFamilyFlags[0] & 0x400000)
