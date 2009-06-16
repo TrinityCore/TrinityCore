@@ -143,7 +143,7 @@ struct TRINITY_DLL_DECL npc_deaths_head_ward_keeperAI : public ScriptedAI
 {
     npc_deaths_head_ward_keeperAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = c->GetInstanceData();
         Reset();
     }
 
@@ -153,10 +153,6 @@ struct TRINITY_DLL_DECL npc_deaths_head_ward_keeperAI : public ScriptedAI
     void Reset()
     {
         QuillboarChanneling_Timer = 1500;
-    }
-
-    void Aggro(Unit *who)
-    {
     }
 
     void UpdateAI(const uint32 diff)

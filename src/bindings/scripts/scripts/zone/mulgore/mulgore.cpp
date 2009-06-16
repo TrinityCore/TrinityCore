@@ -93,8 +93,6 @@ struct TRINITY_DLL_DECL npc_kyle_frenziedAI : public ScriptedAI
             m_creature->UpdateEntry(NPC_KYLE_FRENZIED);
     }
 
-    void Aggro(Unit* who) { }
-
     void SpellHit(Unit* pCaster, SpellEntry const* pSpell)
     {
         if (!m_creature->isInCombat() && !bEvent && pSpell->Id == SPELL_LUNCH)
@@ -152,8 +150,8 @@ struct TRINITY_DLL_DECL npc_kyle_frenziedAI : public ScriptedAI
                     case 3:
                         uiEventTimer = 5000;
                         
-                        if (Unit* pUnit = Unit::GetUnit(*m_creature,uiPlayerGUID))
-                            ((Player*)pUnit)->TalkedToCreature(m_creature->GetEntry(), m_creature->GetGUID());
+                        if (Player* pUnit = Unit::GetPlayer(uiPlayerGUID))
+                            pUnit->TalkedToCreature(m_creature->GetEntry(), m_creature->GetGUID());
 
                         m_creature->UpdateEntry(NPC_KYLE_FRIENDLY);
                         break;

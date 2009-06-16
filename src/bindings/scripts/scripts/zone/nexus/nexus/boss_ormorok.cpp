@@ -89,7 +89,7 @@ struct TRINITY_DLL_DECL boss_ormorokAI : public ScriptedAI
             pInstance->SetData(DATA_ORMOROK_EVENT, NOT_STARTED);
     }
 
-    void Aggro(Unit* who) 
+    void EnterCombat(Unit* who) 
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }

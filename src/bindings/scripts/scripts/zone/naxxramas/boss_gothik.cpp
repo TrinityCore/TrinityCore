@@ -276,7 +276,7 @@ struct TRINITY_DLL_DECL mob_gothik_minionAI : public SpellAI
     {
         if(me->isSummon())
         {
-            if(Unit *owner = ((TempSummon*)me)->GetSummoner())
+            if(Unit *owner = CAST_SUM(me)->GetSummoner())
                 SpellAI::JustDied(owner);
         }
     }

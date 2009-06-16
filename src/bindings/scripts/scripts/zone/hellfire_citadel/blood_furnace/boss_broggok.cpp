@@ -37,7 +37,7 @@ struct TRINITY_DLL_DECL boss_broggokAI : public ScriptedAI
 {
     boss_broggokAI(Creature *c) : ScriptedAI(c) 
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = c->GetInstanceData();
         Reset();
     }
 

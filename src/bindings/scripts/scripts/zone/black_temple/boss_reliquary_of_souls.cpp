@@ -120,7 +120,7 @@ struct TRINITY_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
 {
     boss_reliquary_of_soulsAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
         EssenceGUID = 0;
     }
 

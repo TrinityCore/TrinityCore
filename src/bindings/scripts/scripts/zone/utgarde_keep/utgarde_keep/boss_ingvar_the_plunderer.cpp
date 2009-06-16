@@ -69,7 +69,7 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
 {
     boss_ingvar_the_plundererAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
         HeroicMode = c->GetMap()->IsHeroic();
     }
 
@@ -285,7 +285,7 @@ struct TRINITY_DLL_DECL mob_annhylde_the_callerAI : public ScriptedAI
 {
     mob_annhylde_the_callerAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
     }
 
     float x,y,z;
@@ -388,7 +388,7 @@ struct TRINITY_DLL_DECL mob_ingvar_throw_dummyAI : public ScriptedAI
 {
     mob_ingvar_throw_dummyAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
         HeroicMode = c->GetMap()->IsHeroic();
     }
 

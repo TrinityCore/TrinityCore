@@ -67,7 +67,7 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
 {
     boss_supremusAI(Creature *c) : ScriptedAI(c), summons(m_creature)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
     }
 
     ScriptedInstance* pInstance;

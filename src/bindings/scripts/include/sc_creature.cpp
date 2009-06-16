@@ -71,7 +71,7 @@ void SummonList::DespawnAll()
             erase(begin());
             summon->SetVisibility(VISIBILITY_OFF);
             if(summon->isSummon() && !summon->isPet())
-                ((TempSummon*)summon)->UnSummon();
+                CAST_SUM(summon)->UnSummon();
             else
                 summon->setDeathState(JUST_DIED);
             summon->RemoveCorpse();

@@ -339,7 +339,7 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
             speed->Effect[1] = SPELL_EFFECT_APPLY_AURA;
             speed->EffectApplyAuraName[1] = SPELL_AURA_MOD_CONFUSE;
         }*/
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
     }
 
     ScriptedInstance *pInstance;

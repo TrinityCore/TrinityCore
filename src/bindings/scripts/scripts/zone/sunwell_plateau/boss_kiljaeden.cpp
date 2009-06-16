@@ -296,7 +296,7 @@ bool GOHello_go_orb_of_the_blue_flight(Player *plr, GameObject* go)
 struct TRINITY_DLL_DECL boss_kalecgos_kjAI : public ScriptedAI
 {
     boss_kalecgos_kjAI(Creature* c) : ScriptedAI(c){
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
     }
 
     GameObject* Orb[4];
@@ -409,7 +409,7 @@ CreatureAI* GetAI_boss_kalecgos_kj(Creature *_Creature)
 struct TRINITY_DLL_DECL boss_kiljaedenAI : public Scripted_NoMovementAI
 {
     boss_kiljaedenAI(Creature* c) : Scripted_NoMovementAI(c), Summons(m_creature){
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
     }
 
     ScriptedInstance* pInstance;
@@ -724,7 +724,7 @@ CreatureAI* GetAI_boss_kiljaeden(Creature *_Creature)
 struct TRINITY_DLL_DECL mob_kiljaeden_controllerAI : public Scripted_NoMovementAI
 {
     mob_kiljaeden_controllerAI(Creature* c) : Scripted_NoMovementAI(c), Summons(m_creature){
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
     }
 
     ScriptedInstance* pInstance;
@@ -813,7 +813,7 @@ CreatureAI* GetAI_mob_kiljaeden_controller(Creature *_Creature)
 struct TRINITY_DLL_DECL mob_hand_of_the_deceiverAI : public ScriptedAI
 {
     mob_hand_of_the_deceiverAI(Creature* c) : ScriptedAI(c){
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
     }
     ScriptedInstance* pInstance;
 
@@ -1035,7 +1035,7 @@ CreatureAI* GetAI_mob_armageddon(Creature *_Creature)
 struct TRINITY_DLL_DECL mob_shield_orbAI : public ScriptedAI
 {
     mob_shield_orbAI(Creature* c) : ScriptedAI(c) {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
     }
 
     bool PointReached;
