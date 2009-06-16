@@ -164,22 +164,6 @@ UPDATE creature_template SET speed = 1.0 WHERE entry = 23095; # molten_flame
 -- CLICK
 -- --------
 
-DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN ('29501', '29488');
-INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `quest_id`, `quest_status`, `cast_flags`) VALUES
-('29488', '54568', '12670', '1', '3'),
-('29501', '54575', '12670', '1', '3');
-
-DELETE FROM npc_spellclick_spells WHERE `npc_entry` IN (28605,28606,28607);
-INSERT INTO npc_spellclick_spells (`npc_entry`, `spell_id`, `quest_id`, `quest_status`, `cast_flags`) VALUES
-(28605, 52263, 12680, 3, 1),
-(28606, 52263, 12680, 3, 1),
-(28607, 52263, 12680, 3, 1);
-
--- Spellclick spell to mount deathcharger
-DELETE FROM npc_spellclick_spells WHERE `npc_entry`=28782;
-INSERT INTO npc_spellclick_spells (`npc_entry`, `spell_id`, `quest_id`, `quest_status`, `cast_flags`) VALUES
-(28782, 52280, 12687, 3, 1);
-
 -- --------
 -- TARGET
 -- --------
@@ -1510,25 +1494,24 @@ UPDATE creature_template SET VehicleId = 312 WHERE entry IN (31857,31858,31861,3
 update creature_template set spell5=51890 where entry = 28511; -- Eye of Acherus flight
 
 DELETE FROM `spell_script_target` WHERE entry IN
-(51859, 48743);
+(51859, 48743, 52124, 52479, 52576, 53110);
 INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
 (51859, 1, 28525), -- siphon of archerus
 (51859, 1, 28542),
 (51859, 1, 28543),
 (51859, 1, 28544),
+(52124, 1, 28655), -- Sky Darkener Assault
+(52479, 1, 28819), -- gift of harvester
+(52479, 1, 28822),
+(52576, 1, 28834), -- Electro-magnetic Pulse
+(52576, 1, 28886),
+(53110, 1, 28940), -- Devour Humanoid
 (48743, 1, 26125); -- Death pact
 
+-- Eye of Acherus
+REPLACE into `spell_target_position` values (51852, 609, 2361.21, -5660.45, 503.828, 4.49);
+
 update creature_template set minlevel=50,maxlevel=52,minhealth=2215,maxhealth=2317,faction_A=2084,faction_H=2084,mindmg=50,maxdmg=50 where entry=28528; -- ghoul
-
--- taxi
-DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN ('29501', '29488');
-INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `quest_id`, `quest_status`, `cast_flags`) VALUES
-('29488', '54568', '12670', '1', '3'),
-('29501', '54575', '12670', '1', '3');
-
-DELETE FROM `spell_script_target` WHERE entry IN (52124);
-INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
-(52124, 1, 28655);
 UPDATE `creature_template` SET spell1=52372,spell2=52373,spell3=52374,spell4=52375 WHERE `entry`=28406;
 
 -- death charger
@@ -1542,14 +1525,6 @@ UPDATE creature_template SET `VehicleId`=200 WHERE `entry` IN (28605,28606,28607
 -- Vehicle and summon spell(summon npc 28788) for Acherus Deathcharger
 UPDATE creature_template SET `spell1`=52362, `VehicleId`=200 WHERE `entry`=28782;
 
--- gift of harvester
-DELETE FROM `spell_script_target` WHERE entry IN
-(52479);
-INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
-(52479,1,28819),
-(52479,1,28822);
-
-
 replace into creature_questrelation (id,quest) VALUES (28377,12701);
 replace into creature_involvedrelation (id,quest) VALUES (28377,12701);
 replace into creature_involvedrelation (id,quest) VALUES (28914,12723);
@@ -1560,30 +1535,24 @@ replace into creature_involvedrelation (id,quest) VALUES (28912,12725);
 replace into creature_questrelation (id,quest) VALUES (28912,12727);
 replace into creature_involvedrelation (id,quest) VALUES (28913,12727);
 
--- ship cannon
-DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (28833,28887);
-INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `quest_id`, `quest_status`, `cast_flags`) VALUES
-(28833, 52447, 12701, 3, 3),
-(28887, 52447, 12701, 3, 3);
+DELETE FROM `npc_spellclick_spells` WHERE `spell_id` IN (
+54568, 54575, 52263, 52280, 52447);
+INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `quest_start`, `quest_start_active`, `quest_end`, `cast_flags`) VALUES
+(29488, 54568, 12670, 1, 0, 3), -- Taxi to Death's Breath
+(29501, 54575, 12670, 1, 0, 3),
+(28605, 52263, 12680, 1, 12680, 1), -- Stolen Horse
+(28606, 52263, 12680, 1, 12680, 1),
+(28607, 52263, 12680, 1, 12680, 1),
+(28782, 52280, 12687, 1, 12687, 1), -- Unbound Charger
+(28833, 52447, 12701, 1, 12701, 1), -- Scarlet Cannon Master
+(28887, 52447, 12701, 1, 12701, 1);
 
 UPDATE creature_template SET spell1=52435,spell2=52576,spell5=52588,VehicleId=68,speed=0 WHERE entry IN (28833,28887);
 UPDATE creature_template SET spell1=52211 WHERE entry=28864;
 
-DELETE FROM `spell_script_target` WHERE entry IN
-(52576);
-INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
-(52576,1,28834),
-(52576,1,28886);
-
 
 -- frostbrood vanquisher
 update creature_template set maxhealth = 133525, minhealth = 133525, maxmana = 51360, minmana = 51360, spell1 = 53114, spell2 = 53112, spell3=53110, VehicleId = 156 where entry = 28670;
-
-DELETE FROM `spell_script_target` WHERE entry IN
-(53110);
-INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
-(53110,1,28940);
-
 
 
 -- --------
@@ -1634,8 +1603,8 @@ flags_extra = VALUES(flags_extra),
 scriptname = VALUES(scriptname);
 
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (29912);
-INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `quest_id`, `cast_flags`) VALUES
-(29912, 55479, 0, 1); # Obedience Crystal - Force Obedience
+INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `quest_start`, `quest_start_active`, `quest_end`, `cast_flags`) VALUES
+(29912, 55479, 0, 0, 0, 3); # Obedience Crystal - Force Obedience
 
 DELETE FROM `spell_script_target` WHERE `entry` IN
 (28732,54097,55479,
