@@ -84,12 +84,12 @@ EndScriptData */
 #define CREATURE_ENSLAVED_SOUL          23469
 #define NUMBER_ENSLAVED_SOUL            8
 
-struct Position
+struct Position2d
 {
     float x,y;
 };
 
-static Position Coords[]=
+static Position2d Coords[]=
 {
     {450.4, 212.3},
     {542.1, 212.3},
