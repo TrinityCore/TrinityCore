@@ -25,6 +25,7 @@
 #include "Timer.h"
 
 class WorldObject;
+class Map;
 
 #define TRAVELLER_UPDATE_INTERVAL  300
 
@@ -53,7 +54,7 @@ class TRINITY_DLL_DECL DestinationHolder
         bool HasArrived(void) const { return (i_totalTravelTime == 0 || i_timeElapsed >= i_totalTravelTime); }
         bool UpdateTraveller(TRAVELLER &traveller, uint32 diff, bool micro_movement=false);
         uint32 StartTravel(TRAVELLER &traveller, bool sendMove = true);
-        void GetLocationNow(uint32 mapid, float &x, float &y, float &z, bool is3D = false) const;
+        void GetLocationNow(const Map * map, float &x, float &y, float &z, bool is3D = false) const;
         void GetLocationNowNoMicroMovement(float &x, float &y, float &z) const; // For use without micro movement
         float GetDistance2dFromDestSq(const WorldObject &obj) const;
 

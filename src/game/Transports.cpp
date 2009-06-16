@@ -93,7 +93,7 @@ void MapManager::LoadTransports()
         uint32 mapid;
         x = t->m_WayPoints[0].x; y = t->m_WayPoints[0].y; z = t->m_WayPoints[0].z; mapid = t->m_WayPoints[0].mapid; o = 1;
 
-                                                            // creates the Gameobject
+         // creates the Gameobject
         if(!t->Create(entry, mapid, x, y, z, o, 100, 0))
         {
             delete t;
