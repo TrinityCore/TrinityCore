@@ -597,6 +597,13 @@ bool IsPositiveEffect(uint32 spellId, uint32 effIndex, bool deep)
             break;
     }
 
+    // Special case: effects which determine positivity of whole spell
+    for (uint8 i = 0;i<MAX_SPELL_EFFECTS;++i)
+    {
+        if (spellproto->EffectApplyAuraName[i] == SPELL_AURA_MOD_STEALTH)
+            return true;
+    }
+
     switch(spellproto->Effect[effIndex])
     {
         // always positive effects (check before target checks that provided non-positive result in some case for positive effects)
@@ -1349,9 +1356,6 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
         // Exist req for PROC_EX_EX_TRIGGER_ALWAYS
         if ((procExtra & AURA_SPELL_PROC_EX_MASK) && (procEvent_procEx & PROC_EX_EX_TRIGGER_ALWAYS))
             return true;
-        // Passive spells can`t trigger if need hit
-        if ((procEvent_procEx & PROC_EX_NORMAL_HIT))
-            return false;
         // Check Extra Requirement like (hit/crit/miss/resist/parry/dodge/block/immune/reflect/absorb and other)
         if (procEvent_procEx & procExtra)
             return true;
