@@ -697,6 +697,8 @@ UPDATE `creature_template` SET `ScriptName`='npc_henry_stern' WHERE `entry`=8696
 
 /* RAZORFEN KRAUL */
 UPDATE `creature_template` SET `Scriptname`='npc_willix' WHERE `entry`=4508;
+UPDATE `instance_template` SET `script` = 'instance_razorfen_kraul' WHERE `map` = '47' LIMIT 1;
+UPDATE `creature_template` SET `ScriptName` = 'npc_deaths_head_ward_keeper' WHERE `entry` = '4625' LIMIT 1;
 
 /* REDRIDGE MOUNTAINS */
 
