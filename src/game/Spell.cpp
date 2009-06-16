@@ -868,6 +868,7 @@ void Spell::AddUnitTarget(Unit* pVictim, uint32 effIndex)
     target.processed  = false;                              // Effects not apply on target
     target.alive      = pVictim->isAlive();
     target.damage     = 0;
+    target.crit       = false;
 
     // Calculate hit result
     if(m_originalCaster)
@@ -1094,7 +1095,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         SpellNonMeleeDamage damageInfo(caster, unitTarget, m_spellInfo->Id, m_spellSchoolMask);
 
         // Add bonuses and fill damageInfo struct
-        caster->CalculateSpellDamageTaken(&damageInfo, m_damage, m_spellInfo);
+        caster->CalculateSpellDamageTaken(&damageInfo, m_damage, m_spellInfo, m_attackType,  target->crit);
         caster->DealDamageMods(damageInfo.target,damageInfo.damage,&damageInfo.absorb);
 
         // Send log damage message to client
@@ -6082,11 +6083,17 @@ void Spell::CalculateDamageDoneForAllTargets()
         }
 
         if (target.missCondition==SPELL_MISS_NONE)                          // In case spell hit target, do all effect on that target
-            target.damage += CalculateDamageDone(unit, mask, multiplier);
+        {
+            target.damage += CalculateDamageDone(unit, mask, multiplier);   
+            target.crit = m_caster->isSpellCrit(unit, m_spellInfo, m_spellSchoolMask, m_attackType);
+        }
         else if (target.missCondition == SPELL_MISS_REFLECT)                // In case spell reflect from target, do all effect on caster (if hit)
         {
             if (target.reflectResult == SPELL_MISS_NONE)       // If reflected spell hit caster -> do all effect on him
+            {
                 target.damage += CalculateDamageDone(m_caster, mask, multiplier);
+                target.crit = m_caster->isSpellCrit(m_caster, m_spellInfo, m_spellSchoolMask, m_attackType);
+            }
         }
     }
 }
