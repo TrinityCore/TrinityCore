@@ -56,6 +56,8 @@ enum EventAI_Type
     EVENT_T_QUEST_COMPLETE          = 20,                   //
     EVENT_T_REACHED_HOME            = 21,                   // NONE
     EVENT_T_RECEIVE_EMOTE           = 22,                   // EmoteId, Condition, CondValue1, CondValue2
+    EVENT_T_BUFFED                  = 23,                   // Param1 = SpellID, Param2 = Number of Time STacked, Param3/4 Repeat Min/Max
+    EVENT_T_TARGET_BUFFED           = 24,                   // Param1 = SpellID, Param2 = Number of Time STacked, Param3/4 Repeat Min/Max
 
     EVENT_T_END,
 };
@@ -507,6 +509,15 @@ struct CreatureEventAI_Event
             uint32 conditionValue1;
             uint32 conditionValue2;
         } receive_emote;
+        // EVENT_T_BUFFED                                   = 23
+        // EVENT_T_TARGET_BUFFED                            = 24
+        struct
+        {
+            uint32 spellId;
+            uint32 amount;
+            uint32 repeatMin;
+            uint32 repeatMax;
+        } buffed;
 
         // RAW
         struct
