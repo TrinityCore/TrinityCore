@@ -4758,6 +4758,10 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     }
                     break;
                 }
+                case 38358:
+                    if(unitTarget)
+                        m_caster->CastSpell(unitTarget, 38353, true);
+                    return;
                 /*// Flame Crash
                 case 41126:
                 {

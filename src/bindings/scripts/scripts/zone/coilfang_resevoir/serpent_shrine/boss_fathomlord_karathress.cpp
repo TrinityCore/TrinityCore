@@ -642,8 +642,6 @@ struct TRINITY_DLL_DECL boss_fathomguard_caribdisAI : public ScriptedAI
         if (TidalSurge_Timer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_TIDAL_SURGE);
-            // Hacky way to do it - won't trigger elseways
-            m_creature->getVictim()->CastSpell( m_creature->getVictim(), SPELL_TIDAL_SURGE_FREEZE, true );
             TidalSurge_Timer = 15000+rand()%5000;
         }else TidalSurge_Timer -= diff;
 
