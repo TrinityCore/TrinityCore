@@ -82,19 +82,20 @@ Object::Object( ) : m_PackGUID(sizeof(uint64)+1)
 
 Object::~Object( )
 {
-    //if(m_objectUpdated)
-    //    ObjectAccessor::Instance().RemoveUpdateObject(this);
-
     if(IsInWorld())
     {
         sLog.outCrash("Object::~Object - guid="UI64FMTD", typeid=%d, entry=%u deleted but still in world!!", GetGUID(), GetTypeId(), GetEntry());
+        if(isType(TYPEMASK_ITEM))
+            sLog.outCrash("Item slot %u", ((Item*)this)->GetSlot());
         assert(false);
+        RemoveFromWorld();
     }
 
     if(m_objectUpdated)
     {
         sLog.outCrash("Object::~Object - guid="UI64FMTD", typeid=%d, entry=%u deleted but still in update list!!", GetGUID(), GetTypeId(), GetEntry());
         assert(false);
+        ObjectAccessor::Instance().RemoveUpdateObject(this);
     }
 
     if(m_uint32Values)
