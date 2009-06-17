@@ -103,7 +103,7 @@ struct TRINITY_DLL_DECL npc_testAI : public npc_escortAI
             npc_escortAI::UpdateAI(diff);
 
             //Combat check
-            if (InCombat && m_creature->getVictim())
+            if (m_creature->isInCombat() && m_creature->getVictim())
             {
                 if (DeathCoilTimer < diff)
                 {

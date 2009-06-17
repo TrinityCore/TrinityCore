@@ -143,6 +143,12 @@ class TRINITY_DLL_SPEC InstanceData : public ZoneScript
         //use HandleGameObject(GUID,boolen,NULL); in any other script
         void HandleGameObject(uint64 GUID, bool open, GameObject *go = NULL);
 
+        //change active state of doors or buttons
+        void DoUseDoorOrButton(uint64 uiGuid, uint32 uiWithRestoreTime = 0, bool bUseAlternativeState = false);
+
+        //Respawns a GO having negative spawntimesecs in gameobject-table
+        void DoRespawnGameObject(uint64 uiGuid, uint32 uiTimeToDespawn = MINUTE);
+
         virtual bool SetBossState(uint32 id, EncounterState state);
         const BossBoundaryMap * GetBossBoundary(uint32 id) const { return id < bosses.size() ? &bosses[id].boundary : NULL; }
     protected:

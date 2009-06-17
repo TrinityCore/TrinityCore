@@ -128,7 +128,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
         {
         case EVENT_T_TIMER:
             {
-                if (!InCombat)
+                if (!m_creature->isInCombat())
                     return false;
 
                 //Repeat Timers
@@ -148,7 +148,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
             break;
         case EVENT_T_TIMER_OOC:
             {
-                if (InCombat)
+                if (m_creature->isInCombat())
                     return false;
 
                 //Repeat Timers
@@ -168,7 +168,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
             break;
         case EVENT_T_HP:
             {
-                if (!InCombat || !m_creature->GetMaxHealth())
+                if (!m_creature->isInCombat() || !m_creature->GetMaxHealth())
                     return false;
 
                 uint32 perc = (m_creature->GetHealth()*100) / m_creature->GetMaxHealth();
@@ -193,7 +193,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
             break;
         case EVENT_T_MANA:
             {
-                if (!InCombat || !m_creature->GetMaxPower(POWER_MANA))
+                if (!m_creature->isInCombat() || !m_creature->GetMaxPower(POWER_MANA))
                     return false;
 
                 uint32 perc = (m_creature->GetPower(POWER_MANA)*100) / m_creature->GetMaxPower(POWER_MANA);
@@ -303,7 +303,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
             break;
         case EVENT_T_TARGET_HP:
             {
-                if (!InCombat || !m_creature->getVictim() || !m_creature->getVictim()->GetMaxHealth())
+                if (!m_creature->isInCombat() || !m_creature->getVictim() || !m_creature->getVictim()->GetMaxHealth())
                     return false;
 
                 uint32 perc = (m_creature->getVictim()->GetHealth()*100) / m_creature->getVictim()->GetMaxHealth();
@@ -328,7 +328,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
             break;
         case EVENT_T_TARGET_CASTING:
             {
-                if (!InCombat || !m_creature->getVictim() || !m_creature->getVictim()->IsNonMeleeSpellCasted(false, false, true))
+                if (!m_creature->isInCombat() || !m_creature->getVictim() || !m_creature->getVictim()->IsNonMeleeSpellCasted(false, false, true))
                     return false;
 
                 //Repeat Timers
@@ -348,7 +348,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
             break;
         case EVENT_T_FRIENDLY_HP:
             {
-                if (!InCombat)
+                if (!m_creature->isInCombat())
                     return false;
 
                 Unit* pUnit = DoSelectLowestHpFriendly(param2, param1);
@@ -375,7 +375,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
             break;
         case EVENT_T_FRIENDLY_IS_CC:
             {
-                if (!InCombat)
+                if (!m_creature->isInCombat())
                     return false;
 
                 std::list<Creature*> pList = DoFindFriendlyCC(param2);
@@ -1030,7 +1030,6 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
 
     void JustRespawned()
     {
-        InCombat = false;
         IsFleeing = false;
         Reset();
 
@@ -1110,7 +1109,6 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
 
     void JustDied(Unit* killer)
     {
-        InCombat = false;
         IsFleeing = false;
         Reset();
 
@@ -1207,9 +1205,8 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
          {
             //Begin melee attack if we are within range
 
-            if (!InCombat)
+            if (!m_creature->isInCombat())
             {
-                InCombat = true;
                 Aggro(who);
             }
 
@@ -1226,7 +1223,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit *who)
     {
-        if (!who || InCombat)
+        if (!who || m_creature->isInCombat())
             return;
 
         //Check for OOC LOS Event
@@ -1278,7 +1275,7 @@ struct TRINITY_DLL_DECL Mob_EventAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Check if we are in combat (also updates calls threat update code)
-        bool Combat = InCombat ? UpdateVictim() : false;
+        bool Combat = m_creature->isInCombat() ? UpdateVictim() : false;
 
         //Must return if creature isn't alive. Normally select hostil target and get victim prevent this
         if (!m_creature->isAlive())

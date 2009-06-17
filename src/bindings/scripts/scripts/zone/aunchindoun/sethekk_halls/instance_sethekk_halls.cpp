@@ -30,21 +30,17 @@ struct TRINITY_DLL_DECL instance_sethekk_halls : public ScriptedInstance
 {
     instance_sethekk_halls(Map *map) : ScriptedInstance(map) {Initialize();};
 
-    GameObject *IkissDoor;
+    uint64 m_uiIkissDoorGUID;
 
     void Initialize()
     {
-        IkissDoor = NULL;
+        m_uiIkissDoorGUID = 0;
     }
 
-    void OnGameObjectCreate(GameObject *go, bool add)
+    void OnObjectCreate(GameObject* pGo)
     {
-        switch(go->GetEntry())
-        {
-            case IKISS_DOOR:
-                IkissDoor = go;
-                break;
-        }
+         if (pGo->GetEntry() == IKISS_DOOR)
+            m_uiIkissDoorGUID = pGo->GetGUID();
     }
 
     void SetData(uint32 type, uint32 data)
@@ -52,8 +48,8 @@ struct TRINITY_DLL_DECL instance_sethekk_halls : public ScriptedInstance
         switch(type)
         {
             case DATA_IKISSDOOREVENT:
-                if( IkissDoor )
-                    IkissDoor->SetGoState(GO_STATE_ACTIVE);
+                if (data == DONE)
+                    DoUseDoorOrButton(m_uiIkissDoorGUID,DAY*IN_MILISECONDS);
                 break;
         }
     }
