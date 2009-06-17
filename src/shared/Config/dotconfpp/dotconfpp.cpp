@@ -3,6 +3,18 @@
 
 #include "dotconfpp.h"
 
+#ifdef WIN32
+#define PATH_MAX _MAX_PATH
+#define strcasecmp stricmp
+#define realpath(path,resolved_path) _fullpath(resolved_path, path, _MAX_PATH)
+#include <io.h>
+#else
+#include <unistd.h>
+#include <limits.h>
+#include <stdint.h>
+#include <strings.h>
+#endif
+
 #if !defined(R_OK)
 #define R_OK 04
 #endif
