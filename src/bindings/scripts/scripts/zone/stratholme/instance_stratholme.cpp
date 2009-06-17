@@ -193,21 +193,21 @@ struct TRINITY_DLL_DECL instance_stratholme : public ScriptedInstance
         case TYPE_BARONESS:
             Encounter[1] = data;
             if (data == IN_PROGRESS)
-                UpdateGoState(ziggurat1GUID,0,false);
+                UpdateGoState(ziggurat1GUID,GO_STATE_ACTIVE,false);
             if (data == IN_PROGRESS)                    //change to DONE when crystals implemented
                 StartSlaugtherSquare();
             break;
         case TYPE_NERUB:
             Encounter[2] = data;
             if (data == IN_PROGRESS)
-                UpdateGoState(ziggurat2GUID,0,false);
+                UpdateGoState(ziggurat2GUID,GO_STATE_ACTIVE,false);
             if (data == IN_PROGRESS)                    //change to DONE when crystals implemented
                 StartSlaugtherSquare();
             break;
         case TYPE_PALLID:
             Encounter[3] = data;
             if (data == IN_PROGRESS)
-                UpdateGoState(ziggurat3GUID,0,false);
+                UpdateGoState(ziggurat3GUID,GO_STATE_ACTIVE,false);
             if (data == IN_PROGRESS)                    //change to DONE when crystals implemented
                 StartSlaugtherSquare();
             break;
@@ -215,7 +215,7 @@ struct TRINITY_DLL_DECL instance_stratholme : public ScriptedInstance
             if (data == IN_PROGRESS)
             {
                 if (Encounter[4] != IN_PROGRESS)
-                    UpdateGoState(portGauntletGUID,1,false);
+                    UpdateGoState(portGauntletGUID,GO_STATE_READY,false);
 
                 uint32 count = abomnationGUID.size();
                 for(std::set<uint64>::iterator i = abomnationGUID.begin(); i != abomnationGUID.end(); ++i)
@@ -348,8 +348,8 @@ struct TRINITY_DLL_DECL instance_stratholme : public ScriptedInstance
                     for(uint8 i = 0; i < 4; i++)
                         pBaron->SummonCreature(C_BLACK_GUARD,4032.84,-3390.24,119.73,4.71,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1800000);
 
-                    UpdateGoState(ziggurat4GUID,0,false);
-                    UpdateGoState(ziggurat5GUID,0,false);
+                    UpdateGoState(ziggurat4GUID,GO_STATE_ACTIVE,false);
+                    UpdateGoState(ziggurat5GUID,GO_STATE_ACTIVE,false);
                     debug_log("TSCR: Instance Stratholme: Black guard sentries spawned. Opening gates to baron.");
                 }
                 SlaugtherSquare_Timer = 0;

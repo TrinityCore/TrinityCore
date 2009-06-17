@@ -29,29 +29,32 @@ EndContentData */
 #include "precompiled.h"
 #include "def_blood_furnace.h"
 
-#define SAY_WAKE                    -1542000
+enum
+{
+    SAY_WAKE                    = -1542000,
+    SAY_ADD_AGGRO_1             = -1542001,
+    SAY_ADD_AGGRO_2             = -1542002,
+    SAY_ADD_AGGRO_3             = -1542003,
+    SAY_KILL_1                  = -1542004,
+    SAY_KILL_2                  = -1542005,
+    SAY_NOVA                    = -1542006,
+    SAY_DIE                     = -1542007,
 
-#define SAY_ADD_AGGRO_1             -1542001
-#define SAY_ADD_AGGRO_2             -1542002
-#define SAY_ADD_AGGRO_3             -1542003
+    SPELL_CORRUPTION            = 30938,
+    SPELL_EVOCATION             = 30935,
+ 
+    SPELL_FIRE_NOVA             = 33132,
+    H_SPELL_FIRE_NOVA           = 37371,
+ 
+    SPELL_SHADOW_BOLT_VOLLEY    = 28599,
+    H_SPELL_SHADOW_BOLT_VOLLEY  = 40070,
+ 
+    SPELL_BURNING_NOVA          = 30940,
+    SPELL_VORTEX                = 37370,
 
-#define SAY_KILL_1                  -1542004
-#define SAY_KILL_2                  -1542005
-#define SAY_NOVA                    -1542006
-#define SAY_DIE                     -1542007
-
-#define SPELL_CORRUPTION            30938
-#define SPELL_EVOCATION             30935
-#define SPELL_BURNING_NOVA          30940
-
-#define SPELL_FIRE_NOVA             33132
-#define H_SPELL_FIRE_NOVA           37371
-
-#define SPELL_SHADOW_BOLT_VOLLEY    28599
-#define H_SPELL_SHADOW_BOLT_VOLLEY  40070
-
-#define ENTRY_KELIDAN               17377
-#define ENTRY_CHANNELER             17653
+    ENTRY_KELIDAN               = 17377,
+    ENTRY_CHANNELER             = 17653
+};
 
 const float ShadowmoonChannelers[5][4]=
 {
@@ -67,7 +70,7 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
     boss_kelidan_the_breakerAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-        HeroicMode = m_creature->GetMap()->IsHeroic();
+        HeroicMode = c->GetMap()->IsHeroic();
         for(int i=0; i<5; ++i)
             Channelers[i] = 0;
     }
@@ -281,18 +284,21 @@ CreatureAI* GetAI_boss_kelidan_the_breaker(Creature *_Creature)
 ## mob_shadowmoon_channeler
 ######*/
 
-#define SPELL_SHADOW_BOLT       12739
-#define H_SPELL_SHADOW_BOLT     15472
-
-#define SPELL_MARK_OF_SHADOW    30937
-#define SPELL_CHANNELING        39123
+enum
+{
+    SPELL_SHADOW_BOLT       = 12739,
+    H_SPELL_SHADOW_BOLT     = 15472,
+ 
+    SPELL_MARK_OF_SHADOW    = 30937,
+    SPELL_CHANNELING        = 39123
+};
 
 struct TRINITY_DLL_DECL mob_shadowmoon_channelerAI : public ScriptedAI
 {
     mob_shadowmoon_channelerAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-        HeroicMode = m_creature->GetMap()->IsHeroic();
+        HeroicMode = c->GetMap()->IsHeroic();
     }
 
     ScriptedInstance* pInstance;
