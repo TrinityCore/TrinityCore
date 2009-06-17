@@ -139,7 +139,7 @@ struct TRINITY_DLL_DECL boss_the_makerAI : public ScriptedAI
     {
         if (pInstance)
         {
-            if (GameObject* Doors = GameObject::GetGameObject(*m_creature, pInstance->GetData64(DOOR)))
+            if (GameObject* Doors = pInstance->instance->GetGameObject(pInstance->GetData64(DOOR)))
             {
                 if (close == 1)
                     Doors->SetGoState(GO_STATE_READY);                // Closed

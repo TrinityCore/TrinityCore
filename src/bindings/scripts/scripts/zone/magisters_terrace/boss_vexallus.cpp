@@ -91,7 +91,7 @@ struct  TRINITY_DLL_DECL boss_vexallusAI : public ScriptedAI
         {
             pInstance->SetData(DATA_VEXALLUS_EVENT, DONE);
 
-            if (GameObject* Door = GameObject::GetGameObject((*m_creature), pInstance->GetData64(DATA_VEXALLUS_DOOR)))
+            if (GameObject* Door = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_VEXALLUS_DOOR)))
                 Door->SetGoState(GO_STATE_ACTIVE);
         }
     }

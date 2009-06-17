@@ -105,7 +105,7 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
 
     void ToggleDoors(bool close)
     {
-        if(GameObject* Doors = GameObject::GetGameObject(*m_creature, pInstance->GetData64(DATA_GAMEOBJECT_SUPREMUS_DOORS)))
+        if(GameObject* Doors = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_SUPREMUS_DOORS)))
         {
             if(close) Doors->SetGoState(GO_STATE_READY);                 // Closed
             else Doors->SetGoState(GO_STATE_ACTIVE);                      // Open
