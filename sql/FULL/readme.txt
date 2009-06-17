@@ -1,0 +1,1 @@
+Reapply these sqls whenever you install a new db or apply a db update pack!
