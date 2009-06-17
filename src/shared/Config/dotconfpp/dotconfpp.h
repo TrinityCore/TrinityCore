@@ -15,19 +15,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#ifdef WIN32
-#define PATH_MAX _MAX_PATH
-#define snprintf _snprintf
-#define strcasecmp stricmp
-#define realpath(path,resolved_path) _fullpath(resolved_path, path, _MAX_PATH)
-#include <io.h>
-#else
-#include <unistd.h>
-#include <limits.h>
-#include <stdint.h>
-#include <strings.h>
-#endif
-
 #include "mempool.h"
 
 class DOTCONFDocument;
