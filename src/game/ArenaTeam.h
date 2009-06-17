@@ -85,6 +85,9 @@ enum ArenaTeamTypes
     ARENA_TEAM_5v5      = 5
 };
 
+#define ARENA_NEW_TEAM_RATING       0
+#define AREAN_NEW_PERSONAL_RATING   0
+
 struct ArenaTeamMember
 {
     uint64 guid;
