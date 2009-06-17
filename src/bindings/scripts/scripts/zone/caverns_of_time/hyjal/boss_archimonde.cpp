@@ -76,7 +76,7 @@ struct mob_ancient_wispAI : public ScriptedAI
 {
     mob_ancient_wispAI(Creature* c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
     }
 
     ScriptedInstance* pInstance;
@@ -206,7 +206,7 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public hyjal_trashAI
 {
     boss_archimondeAI(Creature *c) : hyjal_trashAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
     }
 
     ScriptedInstance* pInstance;
@@ -458,7 +458,7 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public hyjal_trashAI
                     if (Unit *Nordrassil = Unit::GetUnit(*m_creature, WorldTreeGUID))
                     {
                         Nordrassil->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        Nordrassil->SetUInt32Value(UNIT_FIELD_DISPLAYID, 11686);
+                        Nordrassil->SetDisplayId(11686);
                         DoCast(Nordrassil, SPELL_DRAIN_WORLD_TREE);
                         IsChanneling = true;
                     }

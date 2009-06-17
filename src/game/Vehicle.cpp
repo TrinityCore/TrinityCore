@@ -45,26 +45,6 @@ void Vehicle::AddToWorld()
             m_zoneScript->OnCreatureCreate(this, true);
         ObjectAccessor::Instance().AddObject(this);
 
-        switch(GetEntry())
-        {
-            //case 27850:InstallAccessory(27905,1);break;
-            case 28312:InstallAccessory(28319,7);break;
-            case 32627:InstallAccessory(32629,7);break;
-            case 33109:InstallAccessory(33167,1);break;
-            case 33060:InstallAccessory(33067,7);break;
-            case 33113:
-                InstallAccessory(33114,0);
-                InstallAccessory(33114,1);
-                InstallAccessory(33114,2);
-                InstallAccessory(33114,3);
-                InstallAccessory(33139,7);
-                break;
-            case 33114:
-                InstallAccessory(33143,1);
-                //InstallAccessory(33142,0);
-                InstallAccessory(33142,2);
-                break;
-        }
         for(uint32 i = 0; i < MAX_SPELL_VEHICLE; ++i)
         {
             if(!m_spells[i])
@@ -85,8 +65,35 @@ void Vehicle::AddToWorld()
             }
         }
 
+        InstallAllAccessories();
+
         Unit::AddToWorld();
         AIM_Initialize();
+    }
+}
+
+void Vehicle::InstallAllAccessories()
+{
+    switch(GetEntry())
+    {
+        //case 27850:InstallAccessory(27905,1);break;
+        case 28782:InstallAccessory(28768,0);break; // Acherus Deathcharger
+        case 28312:InstallAccessory(28319,7);break;
+        case 32627:InstallAccessory(32629,7);break;
+        case 33109:InstallAccessory(33167,1);break;
+        case 33060:InstallAccessory(33067,7);break;
+        case 33113:
+            InstallAccessory(33114,0);
+            InstallAccessory(33114,1);
+            InstallAccessory(33114,2);
+            InstallAccessory(33114,3);
+            InstallAccessory(33139,7);
+            break;
+        case 33114:
+            InstallAccessory(33143,1);
+            //InstallAccessory(33142,0);
+            InstallAccessory(33142,2);
+            break;
     }
 }
 
@@ -110,7 +117,7 @@ void Vehicle::setDeathState(DeathState s)                       // overwrite vir
         for(SeatMap::iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
         {
             if(Unit *passenger = itr->second.passenger)
-                if(passenger->GetTypeId() == TYPEID_UNIT && ((Creature*)passenger)->isVehicle())
+                if(passenger->GetOwnerGUID() == GetGUID())
                 {
                     passenger->ExitVehicle();
                     ((Vehicle*)passenger)->setDeathState(s);
@@ -118,12 +125,15 @@ void Vehicle::setDeathState(DeathState s)                       // overwrite vir
         }
         RemoveAllPassengers();
     }
-    else if(s == JUST_ALIVED)
+
+    Creature::setDeathState(s);
+
+    if(s == JUST_ALIVED)
     {
+        InstallAllAccessories();
         if(m_usableSeatNum)
             SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
     }
-    Creature::setDeathState(s);
 }
 
 void Vehicle::Update(uint32 diff)
@@ -226,6 +236,15 @@ int8 Vehicle::GetNextEmptySeat(int8 seatId, bool next) const
 
 void Vehicle::InstallAccessory(uint32 entry, int8 seatId)
 {
+    if(Unit *passenger = GetPassenger(seatId))
+    {
+        // already installed
+        if(passenger->GetEntry() == entry)
+            return;
+
+        passenger->ExitVehicle(); // this should not happen
+    }
+
     const CreatureInfo *cInfo = objmgr.GetCreatureTemplate(entry);
     if(!cInfo)
         return;
@@ -420,6 +439,8 @@ bool Vehicle::LoadFromDB(uint32 guid, Map *map)
 
     // checked at creature_template loading
     m_defaultMovementType = MovementGeneratorType(data->movementType);
+
+    m_creatureData = data;
 
     return true;
 }

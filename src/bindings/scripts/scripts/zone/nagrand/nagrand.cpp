@@ -109,6 +109,17 @@ struct TRINITY_DLL_DECL mob_lumpAI : public ScriptedAI
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
     }
 
+    void AttackedBy(Unit* pAttacker)
+    {
+        if (m_creature->getVictim())
+            return;
+
+        if (m_creature->IsFriendlyTo(pAttacker))
+            return;
+
+        AttackStart(pAttacker);
+    }
+
     void DamageTaken(Unit *done_by, uint32 & damage)
     {
         if (done_by->GetTypeId() == TYPEID_PLAYER && (m_creature->GetHealth() - damage)*100 / m_creature->GetMaxHealth() < 30)
@@ -122,7 +133,7 @@ struct TRINITY_DLL_DECL mob_lumpAI : public ScriptedAI
                 m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 m_creature->RemoveAllAuras();
                 m_creature->DeleteThreatList();
-                m_creature->CombatStop();
+                m_creature->CombatStop(true);
                 m_creature->setFaction(1080);               //friendly
                 m_creature->SetStandState(UNIT_STAND_STATE_SIT);
                 DoScriptText(LUMP_DEFEAT, m_creature);

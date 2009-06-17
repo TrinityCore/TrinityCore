@@ -44,7 +44,6 @@ struct TRINITY_DLL_DECL boss_ouroAI : public ScriptedAI
 
     bool Enrage;
     bool Submerged;
-    bool InCombat;
 
     void Reset()
     {

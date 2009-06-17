@@ -50,7 +50,7 @@ struct TRINITY_DLL_DECL boss_mekgineer_steamriggerAI : public ScriptedAI
 {
     boss_mekgineer_steamriggerAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
         HeroicMode = m_creature->GetMap()->IsHeroic();
     }
 
@@ -199,7 +199,7 @@ struct TRINITY_DLL_DECL mob_steamrigger_mechanicAI : public ScriptedAI
 {
     mob_steamrigger_mechanicAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
         HeroicMode = m_creature->GetMap()->IsHeroic();
     }
 

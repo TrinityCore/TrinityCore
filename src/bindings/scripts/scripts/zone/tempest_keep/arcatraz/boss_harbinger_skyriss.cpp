@@ -57,7 +57,7 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
 {
     boss_harbinger_skyrissAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
         HeroicMode = m_creature->GetMap()->IsHeroic();
         Intro = false;
     }
@@ -162,7 +162,7 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
                 {
                     case 1:
                          DoScriptText(SAY_INTRO, m_creature);
-                        if (GameObject* Sphere = GameObject::GetGameObject(*m_creature,pInstance->GetData64(DATA_SPHERE_SHIELD)))
+                        if (GameObject* Sphere = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_SPHERE_SHIELD)))
                             Sphere->SetGoState(GO_STATE_ACTIVE);
                         ++Intro_Phase;
                         Intro_Timer = 25000;
@@ -279,7 +279,7 @@ struct TRINITY_DLL_DECL boss_harbinger_skyriss_illusionAI : public ScriptedAI
 {
     boss_harbinger_skyriss_illusionAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
         HeroicMode = m_creature->GetMap()->IsHeroic();
     }
 

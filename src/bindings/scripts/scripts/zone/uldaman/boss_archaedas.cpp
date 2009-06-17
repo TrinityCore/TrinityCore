@@ -59,7 +59,6 @@ struct TRINITY_DLL_DECL boss_archaedasAI : public ScriptedAI
     uint32 WallMinionTimer;
     bool wakingUp;
 
-    bool InCombat;
     bool guardiansAwake;
     bool vaultWalkersAwake;
     ScriptedInstance* pInstance;
@@ -70,7 +69,6 @@ struct TRINITY_DLL_DECL boss_archaedasAI : public ScriptedAI
         Awaken_Timer = 0;
         WallMinionTimer = 10000;
 
-        InCombat = false;
         wakingUp = false;
         guardiansAwake = false;
         vaultWalkersAwake = false;
@@ -217,7 +215,6 @@ struct TRINITY_DLL_DECL mob_archaedas_minionsAI : public ScriptedAI
     int32 Awaken_Timer;
     bool wakingUp;
 
-    bool InCombat;
     bool amIAwake;
     ScriptedInstance* pInstance;
 
@@ -226,7 +223,6 @@ struct TRINITY_DLL_DECL mob_archaedas_minionsAI : public ScriptedAI
         Arcing_Timer = 3000;
         Awaken_Timer = 0;
 
-        InCombat = false;
         wakingUp = false;
         amIAwake = false;
 
@@ -362,12 +358,10 @@ struct TRINITY_DLL_DECL mob_stonekeepersAI : public ScriptedAI
         pInstance = (m_creature->GetInstanceData());
     }
 
-    bool InCombat;
     ScriptedInstance* pInstance;
 
     void Reset()
     {
-        InCombat = false;
         m_creature->setFaction(35);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);

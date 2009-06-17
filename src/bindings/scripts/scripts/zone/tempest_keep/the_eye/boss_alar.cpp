@@ -69,7 +69,7 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
 {
     boss_alarAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance =(c->GetInstanceData());
+        pInstance =c->GetInstanceData();
         DefaultMoveSpeedRate = m_creature->GetSpeedRate(MOVE_RUN);
     }
 

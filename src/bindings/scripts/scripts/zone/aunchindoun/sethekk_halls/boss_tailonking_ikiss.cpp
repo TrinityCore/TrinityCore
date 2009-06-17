@@ -54,7 +54,7 @@ struct TRINITY_DLL_DECL boss_talon_king_ikissAI : public ScriptedAI
 {
     boss_talon_king_ikissAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
     }
 
     ScriptedInstance* pInstance;

@@ -56,9 +56,9 @@ struct TRINITY_DLL_DECL boss_magistrate_barthilasAI : public ScriptedAI
         AngerCount = 0;
 
         if (m_creature->isAlive())
-            m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_NORMAL);
+            m_creature->SetDisplayId(MODEL_NORMAL);
         else
-            m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_HUMAN);
+            m_creature->SetDisplayId(MODEL_HUMAN);
     }
 
     void MoveInLineOfSight(Unit *who)
@@ -70,7 +70,7 @@ struct TRINITY_DLL_DECL boss_magistrate_barthilasAI : public ScriptedAI
 
     void JustDied(Unit* Killer)
     {
-        m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_HUMAN);
+        m_creature->SetDisplayId(MODEL_HUMAN);
     }
 
     void EnterCombat(Unit *who)

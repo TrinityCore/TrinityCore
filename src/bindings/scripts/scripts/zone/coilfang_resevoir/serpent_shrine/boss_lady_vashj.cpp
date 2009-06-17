@@ -132,7 +132,7 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
 {
     boss_lady_vashjAI (Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
         Intro = false;
         JustCreated = true;
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE); //set it only once on creature create (no need do intro if wiped)
@@ -158,7 +158,6 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
     uint8 Phase;
 
     bool Entangle;
-    bool InCombat;
     bool Intro;
     bool CanAttack;
     bool JustCreated;
@@ -181,7 +180,6 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
         Phase = 0;
 
         Entangle = false;
-        InCombat = false;
         if(JustCreated)
         {
             CanAttack = false;
@@ -241,7 +239,6 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
             case 3: DoScriptText(SAY_AGGRO4, m_creature); break;
         }
 
-        InCombat = true;
         Phase = 1;
 
         if(pInstance)
@@ -266,7 +263,7 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
         if(Phase != 2)
             AttackStart(who);
 
-        if(!InCombat)
+        if(!m_creature->isInCombat())
             StartEvent();
     }
 
@@ -293,7 +290,7 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
                 if(Phase != 2)
                     AttackStart(who);
 
-                if(!InCombat)
+                if(!m_creature->isInCombat())
                     StartEvent();
             }
         }
@@ -340,7 +337,7 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
             }
         }
         //to prevent abuses during phase 2
-        if(Phase == 2 && !m_creature->getVictim() && InCombat)
+        if(Phase == 2 && !m_creature->getVictim() && m_creature->isInCombat())
         {
             EnterEvadeMode();
             return;
@@ -583,7 +580,7 @@ struct TRINITY_DLL_DECL mob_enchanted_elementalAI : public ScriptedAI
 {
     mob_enchanted_elementalAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
     }
 
     ScriptedInstance *pInstance;
@@ -672,7 +669,7 @@ struct TRINITY_DLL_DECL mob_enchanted_elementalAI : public ScriptedAI
                     m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                 }
             }
-            if(CAST_AI(boss_lady_vashjAI, Vashj->AI())->InCombat == false || CAST_AI(boss_lady_vashjAI, Vashj->AI())->Phase != 2 || Vashj->isDead())
+            if(!Vashj->isInCombat() || CAST_AI(boss_lady_vashjAI, Vashj->AI())->Phase != 2 || Vashj->isDead())
             {
                 //call Unsummon()
                 m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
@@ -688,7 +685,7 @@ struct TRINITY_DLL_DECL mob_tainted_elementalAI : public ScriptedAI
 {
     mob_tainted_elementalAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
     }
 
     ScriptedInstance *pInstance;
@@ -751,7 +748,7 @@ struct TRINITY_DLL_DECL mob_toxic_sporebatAI : public ScriptedAI
 {
     mob_toxic_sporebatAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
         EnterEvadeMode();
     }
 
@@ -883,7 +880,7 @@ struct TRINITY_DLL_DECL mob_shield_generator_channelAI : public ScriptedAI
 {
     mob_shield_generator_channelAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
     }
 
     ScriptedInstance *pInstance;
@@ -893,7 +890,7 @@ struct TRINITY_DLL_DECL mob_shield_generator_channelAI : public ScriptedAI
     {
         Check_Timer = 0;
         Casted = false;
-        m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID , 11686);  //invisible
+        m_creature->SetDisplayId(11686);  //invisible
 
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }

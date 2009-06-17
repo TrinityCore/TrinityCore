@@ -58,7 +58,7 @@ struct TRINITY_DLL_DECL npc_medivh_bmAI : public ScriptedAI
 {
     npc_medivh_bmAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
     }
 
     ScriptedInstance *pInstance;
@@ -244,7 +244,7 @@ struct TRINITY_DLL_DECL npc_time_riftAI : public ScriptedAI
 {
     npc_time_riftAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
     }
 
     ScriptedInstance *pInstance;
