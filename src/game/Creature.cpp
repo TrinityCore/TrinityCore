@@ -1393,12 +1393,12 @@ void Creature::SelectLevel(const CreatureInfo *cinfo)
     // damage
     float damagemod = _GetDamageMod(rank);
 
-    SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, cinfo->mindmg * damagemod);
-    SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, cinfo->maxdmg * damagemod);
-    SetBaseWeaponDamage(OFF_ATTACK, MINDAMAGE, cinfo->mindmg * damagemod);
-    SetBaseWeaponDamage(OFF_ATTACK, MAXDAMAGE, cinfo->maxdmg * damagemod);
-    SetBaseWeaponDamage(RANGED_ATTACK, MINDAMAGE, cinfo->minrangedmg * damagemod);
-    SetBaseWeaponDamage(RANGED_ATTACK, MAXDAMAGE, cinfo->maxrangedmg * damagemod);
+    SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg + cinfo->attackpower) * damagemod);
+    SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg + cinfo->attackpower) * damagemod);
+    SetBaseWeaponDamage(OFF_ATTACK, MINDAMAGE, (cinfo->mindmg + cinfo->attackpower) * damagemod);
+    SetBaseWeaponDamage(OFF_ATTACK, MAXDAMAGE, (cinfo->maxdmg + cinfo->attackpower) * damagemod);
+    SetBaseWeaponDamage(RANGED_ATTACK, MINDAMAGE, (cinfo->minrangedmg + cinfo->rangedattackpower) * damagemod);
+    SetBaseWeaponDamage(RANGED_ATTACK, MAXDAMAGE, (cinfo->maxrangedmg + cinfo->rangedattackpower) * damagemod);
 
     // this value is not accurate, but should be close to the real value
     SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, level * 5);
