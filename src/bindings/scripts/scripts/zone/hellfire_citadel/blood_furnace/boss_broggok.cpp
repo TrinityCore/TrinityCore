@@ -24,21 +24,22 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_blood_furnace.h"
 
-
-#define SAY_AGGRO               -1542008
-
-#define SPELL_SLIME_SPRAY       30913
-#define SPELL_POISON_CLOUD      30916
-#define SPELL_POISON_BOLT       30917
-
-#define SPELL_POISON            30914
+enum
+{
+    SAY_AGGRO               = -1542008,
+ 
+    SPELL_SLIME_SPRAY       = 30913,
+    SPELL_POISON_CLOUD      = 30916,
+    SPELL_POISON_BOLT       = 30917,
+ 
+    SPELL_POISON            = 30914
+};
 
 struct TRINITY_DLL_DECL boss_broggokAI : public ScriptedAI
 {
     boss_broggokAI(Creature *c) : ScriptedAI(c) 
     {
         pInstance = c->GetInstanceData();
-        Reset();
     }
 
     ScriptedInstance* pInstance;

@@ -189,7 +189,7 @@ struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
         case DATA_COLLAPSE:
             // true - collapse / false - reset
             for(std::set<uint64>::iterator i = ColumnGUID.begin(); i != ColumnGUID.end(); ++i)
-                HandleGameObject(*i, data);
+                DoUseDoorOrButton(*i);
             break;
         default:
             break;

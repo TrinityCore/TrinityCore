@@ -73,8 +73,16 @@ struct TRINITY_DLL_DECL instance_shadow_labyrinth : public ScriptedInstance
     {
         switch(go->GetEntry())
         {
-        case REFECTORY_DOOR: RefectoryDoorGUID = go->GetGUID(); break;
-        case SCREAMING_HALL_DOOR: ScreamingHallDoorGUID = go->GetGUID(); break;
+            case REFECTORY_DOOR:
+                RefectoryDoorGUID = go->GetGUID();
+                if (Encounter[2] == DONE)
+                    DoUseDoorOrButton(RefectoryDoorGUID);
+                break;
+            case SCREAMING_HALL_DOOR:
+                ScreamingHallDoorGUID = go->GetGUID();
+                if (Encounter[3] == DONE)
+                    DoUseDoorOrButton(ScreamingHallDoorGUID);
+                break;
         }
     }
 
@@ -117,17 +125,13 @@ struct TRINITY_DLL_DECL instance_shadow_labyrinth : public ScriptedInstance
 
             case DATA_BLACKHEARTTHEINCITEREVENT:
                 if( data == DONE )
-                {
-                    HandleGameObject(RefectoryDoorGUID, true);
-                }
+                    DoUseDoorOrButton(RefectoryDoorGUID);
                 Encounter[2] = data;
                 break;
 
             case DATA_GRANDMASTERVORPILEVENT:
                 if( data == DONE )
-                {
-                    HandleGameObject(ScreamingHallDoorGUID, true);
-                }
+                    DoUseDoorOrButton(ScreamingHallDoorGUID);
                 Encounter[3] = data;
                 break;
 
