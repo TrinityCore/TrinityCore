@@ -300,8 +300,7 @@ bool OPvPWintergrasp::UpdateCreatureInfo(Creature *creature)
         if(entry != creature->GetEntry())
         {
             creature->SetOriginalEntry(entry);
-            creature->setDeathState(DEAD);
-            creature->Respawn();
+            creature->Respawn(true);
         }
     }
 
