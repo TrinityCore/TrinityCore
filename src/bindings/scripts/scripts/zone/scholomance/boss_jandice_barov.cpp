@@ -83,7 +83,7 @@ struct TRINITY_DLL_DECL boss_jandicebarovAI : public ScriptedAI
             //Become visible again
             m_creature->setFaction(14);
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID,11073);     //Jandice Model
+            m_creature->SetDisplayId(11073);     //Jandice Model
             Invisible = false;
         } else if (Invisible)
         {
@@ -114,7 +114,7 @@ struct TRINITY_DLL_DECL boss_jandicebarovAI : public ScriptedAI
             m_creature->InterruptNonMeleeSpells(false);
             m_creature->setFaction(35);
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID,11686);  // Invisible Model
+            m_creature->SetDisplayId(11686);  // Invisible Model
             DoModifyThreatPercent(m_creature->getVictim(),-99);
 
             //Summon 10 Illusions attacking random gamers

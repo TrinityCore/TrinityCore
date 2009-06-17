@@ -148,7 +148,7 @@ struct TRINITY_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
         m_creature->setFaction(7);
         m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 8);
         m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID  , 0);
-        m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, m_creature->GetNativeDisplayId());
+        m_creature->SetDisplayId(m_creature->GetNativeDisplayId());
         event_starter = 0;
         event_startet = false;
 
@@ -183,7 +183,7 @@ struct TRINITY_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
             }
         }
 
-        m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, modelid_dk_armor[model_counter]);
+        m_creature->SetDisplayId(modelid_dk_armor[model_counter]);
         m_creature->LoadEquipment(m_creature->GetEquipmentId());
     }
 

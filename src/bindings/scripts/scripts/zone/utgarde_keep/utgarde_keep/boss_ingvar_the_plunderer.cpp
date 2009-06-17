@@ -89,7 +89,7 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
     void Reset()
     {
         if(undead) // Visual Hack
-            m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_INGVAR_HUMAN);
+            m_creature->SetDisplayId(MODEL_INGVAR_HUMAN);
 
         undead = false;
         event_inProgress = false;
@@ -362,7 +362,7 @@ struct TRINITY_DLL_DECL mob_annhylde_the_callerAI : public ScriptedAI
                     {
                         ingvar->RemoveAurasDueToSpell(SPELL_SCOURG_RESURRECTION_DUMMY);
                         //ingvar->CastSpell(ingvar,SPELL_INGVAR_TRANSFORM,false);
-                        ingvar->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_INGVAR_UNDEAD); // Visual Hack - when he dies he becomes human model -> wrong
+                        ingvar->SetDisplayId(MODEL_INGVAR_UNDEAD); // Visual Hack - when he dies he becomes human model -> wrong
                         Creature* c_ingvar = ingvar;
 
                         CAST_AI(boss_ingvar_the_plundererAI, (c_ingvar->AI()))->StartZombiePhase();

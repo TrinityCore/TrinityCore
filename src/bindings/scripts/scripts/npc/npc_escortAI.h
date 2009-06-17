@@ -34,11 +34,15 @@ struct TRINITY_DLL_DECL npc_escortAI : public ScriptedAI
         // Pure Virtual Functions
         virtual void WaypointReached(uint32) = 0;
 
+        virtual void Aggro(Unit*);
+
         // CreatureAI functions
         npc_escortAI(Creature *c) : ScriptedAI(c), IsBeingEscorted(false), PlayerTimer(1000), MaxPlayerDistance(DEFAULT_MAX_PLAYER_DISTANCE), CanMelee(true), DespawnAtEnd(true), DespawnAtFar(true)
         {}
 
         void AttackStart(Unit* who);
+
+        void EnterCombat(Unit*);
 
         void MoveInLineOfSight(Unit* who);
 

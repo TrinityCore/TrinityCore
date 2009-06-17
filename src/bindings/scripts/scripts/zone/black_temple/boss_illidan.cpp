@@ -565,7 +565,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
                 {
                     GlaiveGUID[i] = Glaive->GetGUID();
                     Glaive->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    Glaive->SetUInt32Value(UNIT_FIELD_DISPLAYID, 11686);
+                    Glaive->SetDisplayId(11686);
                     Glaive->setFaction(m_creature->getFaction());
                     DoCast(Glaive, SPELL_THROW_GLAIVE2);
                 }
@@ -581,7 +581,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
                 {
                     GlaiveGUID[i] = Glaive->GetGUID();
                     Glaive->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    Glaive->SetUInt32Value(UNIT_FIELD_DISPLAYID, 11686);
+                    Glaive->SetDisplayId(11686);
                     Glaive->setFaction(m_creature->getFaction());
                     DoCast(Glaive, SPELL_THROW_GLAIVE, true);
                 }
@@ -609,7 +609,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
                     if(Glaive)
                     {
                         Glaive->CastSpell(m_creature, SPELL_GLAIVE_RETURNS, false); // Make it look like the Glaive flies back up to us
-                        Glaive->SetUInt32Value(UNIT_FIELD_DISPLAYID, 11686); // disappear but not die for now
+                        Glaive->SetDisplayId(11686); // disappear but not die for now
                     }
                 }
             }
@@ -654,7 +654,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
             DoCast(m_creature, DemonTransformation[TransformCount].aura, true);
 
         if(DemonTransformation[TransformCount].displayid)
-            m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, DemonTransformation[TransformCount].displayid); // It's morphin time!
+            m_creature->SetDisplayId(DemonTransformation[TransformCount].displayid); // It's morphin time!
 
         if(DemonTransformation[TransformCount].equip)
         {
@@ -1100,7 +1100,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
         if(Creature* Channel = m_creature->SummonCreature(ILLIDAN_DOOR_TRIGGER, x, y, z+5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 360000))
         {
             ChannelGUID = Channel->GetGUID();
-            Channel->SetUInt32Value(UNIT_FIELD_DISPLAYID, 11686); // Invisible but spell visuals can still be seen.
+            Channel->SetDisplayId(11686); // Invisible but spell visuals can still be seen.
             m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             DoCast(Channel, SPELL_AKAMA_DOOR_FAIL);
         }
@@ -1793,7 +1793,7 @@ struct TRINITY_DLL_DECL blade_of_azzinothAI : public NullCreatureAI
     void SpellHit(Unit *caster, const SpellEntry *spell)
     {
         if(spell->Id == SPELL_THROW_GLAIVE2 || spell->Id == SPELL_THROW_GLAIVE)
-            me->SetUInt32Value(UNIT_FIELD_DISPLAYID, 21431);//appear when hit by Illidan's glaive
+            me->SetDisplayId(21431);//appear when hit by Illidan's glaive
     }
 };
 
@@ -1834,7 +1834,7 @@ void boss_illidan_stormrageAI::Reset()
     FlightCount = 0;
     TransformCount = 0;
 
-    m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, 21135);
+    m_creature->SetDisplayId(21135);
     m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
     m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
     m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);

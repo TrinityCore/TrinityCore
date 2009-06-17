@@ -381,7 +381,7 @@ struct mob_giant_infernalAI : public hyjal_trashAI
         Delay = rand()%30000;
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_INVIS);
+        m_creature->SetDisplayId(MODEL_INVIS);
         go = false;
         pos = 0;
         Reset();
@@ -447,7 +447,7 @@ struct mob_giant_infernalAI : public hyjal_trashAI
             {
                 m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, m_creature->GetUInt32Value(UNIT_FIELD_NATIVEDISPLAYID));
+                m_creature->SetDisplayId(m_creature->GetUInt32Value(UNIT_FIELD_NATIVEDISPLAYID));
                 CanMove = true;
                 if (pInstance)
                 {

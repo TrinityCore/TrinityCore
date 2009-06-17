@@ -890,7 +890,7 @@ struct TRINITY_DLL_DECL mob_shield_generator_channelAI : public ScriptedAI
     {
         Check_Timer = 0;
         Casted = false;
-        m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID , 11686);  //invisible
+        m_creature->SetDisplayId(11686);  //invisible
 
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }
