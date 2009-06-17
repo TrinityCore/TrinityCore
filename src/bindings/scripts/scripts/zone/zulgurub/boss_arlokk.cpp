@@ -73,7 +73,7 @@ struct TRINITY_DLL_DECL boss_arlokkAI : public ScriptedAI
         PhaseTwo = false;
         VanishedOnce = false;
 
-        m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID,15218);
+        m_creature->SetDisplayId(15218);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }
 
@@ -85,7 +85,7 @@ struct TRINITY_DLL_DECL boss_arlokkAI : public ScriptedAI
     void JustDied(Unit* Killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
-        m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID,15218);
+        m_creature->SetDisplayId(15218);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
         if(pInstance)
@@ -143,7 +143,7 @@ struct TRINITY_DLL_DECL boss_arlokkAI : public ScriptedAI
             if (Vanish_Timer < diff)
             {
                 //Invisble Model
-                m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID,11686);
+                m_creature->SetDisplayId(11686);
                 m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 //m_creature->CombatStop();
                 DoResetThreat();
@@ -159,7 +159,7 @@ struct TRINITY_DLL_DECL boss_arlokkAI : public ScriptedAI
                     Unit* target = NULL;
                     target = SelectUnit(SELECT_TARGET_RANDOM,0);
                     //The Panther Model
-                    m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID,15215);
+                    m_creature->SetDisplayId(15215);
                     m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
                     const CreatureInfo *cinfo = m_creature->GetCreatureInfo();
@@ -169,7 +169,7 @@ struct TRINITY_DLL_DECL boss_arlokkAI : public ScriptedAI
                     if(target)
                         AttackStart(target);
                     //The Panther Model
-                    m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID,15215);
+                    m_creature->SetDisplayId(15215);
                     m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     PhaseTwo = true;
                 }else Visible_Timer -= diff;

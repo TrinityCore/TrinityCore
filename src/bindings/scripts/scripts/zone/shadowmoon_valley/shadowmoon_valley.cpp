@@ -1470,17 +1470,17 @@ struct TRINITY_DLL_DECL npc_lord_illidan_stormrageAI : public ScriptedAI
                 {
                     if(rand()%3 == 1 && FelguardCount<2)
                     {
-                        Spawn->SetUInt32Value(UNIT_FIELD_DISPLAYID,18654);
+                        Spawn->SetDisplayId(18654);
                         ++FelguardCount;
                     }
                     else if(DreadlordCount < 3)
                     {
-                        Spawn->SetUInt32Value(UNIT_FIELD_DISPLAYID,19991);
+                        Spawn->SetDisplayId(19991);
                         ++DreadlordCount;
                     }
                     else if(FelguardCount<2)
                     {
-                        Spawn->SetUInt32Value(UNIT_FIELD_DISPLAYID,18654);
+                        Spawn->SetDisplayId(18654);
                         ++FelguardCount;
                     }
                 }

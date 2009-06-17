@@ -6,381 +6,321 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 /* ScriptData
 SDName: Boss_Hydross_The_Unstable
 SD%Complete: 90
-SDComment: Some details and adjustments left to do, probably nothing major. Spawns may be spawned in different way/location.
+SDComment: Some details and adjustments left to do, probably nothing major. Spawns may be spawned in different way/location. code cleanup needed
 SDCategory: Coilfang Resevoir, Serpent Shrine Cavern
 EndScriptData */
 
 #include "precompiled.h"
 #include "def_serpent_shrine.h"
 
-#define SAY_AGGRO                   -1548000
-#define SAY_SWITCH_TO_CLEAN         -1548001
-#define SAY_CLEAN_SLAY1             -1548002
-#define SAY_CLEAN_SLAY2             -1548003
-#define SAY_CLEAN_DEATH             -1548004
-#define SAY_SWITCH_TO_CORRUPT       -1548005
-#define SAY_CORRUPT_SLAY1           -1548006
-#define SAY_CORRUPT_SLAY2           -1548007
-#define SAY_CORRUPT_DEATH           -1548008
+enum
+{
+    SAY_AGGRO                   = -1548000,
+    SAY_SWITCH_TO_CLEAN         = -1548001,
+    SAY_CLEAN_SLAY1             = -1548002,
+    SAY_CLEAN_SLAY2             = -1548003,
+    SAY_CLEAN_DEATH             = -1548004,
+    SAY_SWITCH_TO_CORRUPT       = -1548005,
+    SAY_CORRUPT_SLAY1           = -1548006,
+    SAY_CORRUPT_SLAY2           = -1548007,
+    SAY_CORRUPT_DEATH           = -1548008,
 
-#define SWITCH_RADIUS               18
+    SWITCH_RADIUS               = 18,
 
-#define MODEL_CORRUPT               20609
-#define MODEL_CLEAN                 20162
+    MODEL_CORRUPT               = 20609,
+    MODEL_CLEAN                 = 20162,
 
-#define SPELL_WATER_TOMB            38235
-#define SPELL_MARK_OF_HYDROSS1      38215
-#define SPELL_MARK_OF_HYDROSS2      38216
-#define SPELL_MARK_OF_HYDROSS3      38217
-#define SPELL_MARK_OF_HYDROSS4      38218
-#define SPELL_MARK_OF_HYDROSS5      38231
-#define SPELL_MARK_OF_HYDROSS6      40584
-#define SPELL_MARK_OF_CORRUPTION1   38219
-#define SPELL_MARK_OF_CORRUPTION2   38220
-#define SPELL_MARK_OF_CORRUPTION3   38221
-#define SPELL_MARK_OF_CORRUPTION4   38222
-#define SPELL_MARK_OF_CORRUPTION5   38230
-#define SPELL_MARK_OF_CORRUPTION6   40583
-#define SPELL_VILE_SLUDGE           38246
-#define SPELL_ENRAGE                27680                   //this spell need verification
-#define SPELL_SUMMON_WATER_ELEMENT  36459                   //not in use yet(in use ever?)
-#define SPELL_ELEMENTAL_SPAWNIN     25035
-#define SPELL_BLUE_BEAM             /*40227*/40227                   //channeled Hydross Beam Helper (not in use yet)
+    SPELL_WATER_TOMB            = 38235,
+    SPELL_MARK_OF_HYDROSS1      = 38215,
+    SPELL_MARK_OF_HYDROSS2      = 38216,
+    SPELL_MARK_OF_HYDROSS3      = 38217,
+    SPELL_MARK_OF_HYDROSS4      = 38218,
+    SPELL_MARK_OF_HYDROSS5      = 38231,
+    SPELL_MARK_OF_HYDROSS6      = 40584,
+    SPELL_MARK_OF_CORRUPTION1   = 38219,
+    SPELL_MARK_OF_CORRUPTION2   = 38220,
+    SPELL_MARK_OF_CORRUPTION3   = 38221,
+    SPELL_MARK_OF_CORRUPTION4   = 38222,
+    SPELL_MARK_OF_CORRUPTION5   = 38230,
+    SPELL_MARK_OF_CORRUPTION6   = 40583,
+    SPELL_VILE_SLUDGE           = 38246,
+    SPELL_ENRAGE                = 27680,                    //this spell need verification
+    SPELL_SUMMON_WATER_ELEMENT  = 36459,                    //not in use yet(in use ever?)
+    SPELL_ELEMENTAL_SPAWNIN     = 25035,
+    SPELL_BLUE_BEAM             = 38015,                    //channeled Hydross Beam Helper (not in use yet)
 
-#define ENTRY_PURE_SPAWN            22035
-#define ENTRY_TAINTED_SPAWN         22036
-#define ENTRY_BEAM_DUMMY            21934
+    NPC_PURE_SPAWN              = 22035,
+    NPC_TAINTED_SPAWN           = 22036
+};
 
-#define HYDROSS_X                   -239.439
-#define HYDROSS_Y                   -363.481
-
-#define SPAWN_X_DIFF1               6.934003
-#define SPAWN_Y_DIFF1               -11.255012
-#define SPAWN_X_DIFF2               -6.934003
-#define SPAWN_Y_DIFF2               11.255012
-#define SPAWN_X_DIFF3               -12.577011
-#define SPAWN_Y_DIFF3               -4.72702
-#define SPAWN_X_DIFF4               12.577011
-#define SPAWN_Y_DIFF4               4.72702
+const float afSpawnDiffs[4][2] =
+{
+    {6.934003f  , -11.255012f},                             // diff 1
+    {-6.934003f , 11.255012f },                             // diff 2
+    {-12.577011f, -4.72702f  },                             // diff 3
+    {12.577011f , 4.72702f   }                              // diff 4
+};
 
 struct TRINITY_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
 {
-    boss_hydross_the_unstableAI(Creature *c) : ScriptedAI(c), Summons(m_creature)
+    boss_hydross_the_unstableAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = c->GetInstanceData();
+        m_pInstance = c->GetInstanceData();
     }
 
-    ScriptedInstance* pInstance;
-    uint64 beams[2];
-    uint32 PosCheck_Timer;
-    uint32 MarkOfHydross_Timer;
-    uint32 MarkOfCorruption_Timer;
-    uint32 WaterTomb_Timer;
-    uint32 VileSludge_Timer;
-    uint32 MarkOfHydross_Count;
-    uint32 MarkOfCorruption_Count;
-    uint32 EnrageTimer;
-    bool CorruptedForm;
-    bool beam;
-    SummonList Summons;
+    ScriptedInstance* m_pInstance;                          // the instance
+
+    uint32 m_uiPosCheck_Timer;
+    uint32 m_uiMarkOfHydross_Timer;
+    uint32 m_uiMarkOfCorruption_Timer;
+    uint32 m_uiWaterTomb_Timer;
+    uint32 m_uiVileSludge_Timer;
+    uint32 m_uiMarkOfHydross_Count;
+    uint32 m_uiMarkOfCorruption_Count;
+    uint32 m_uiEnrageTimer;
+    bool   m_bCorruptedForm;
 
     void Reset()
     {
-        DeSummonBeams();
-        beams[0] = 0;
-        beams[1] = 0;
-        PosCheck_Timer = 2500;
-        MarkOfHydross_Timer = 15000;
-        MarkOfCorruption_Timer = 15000;
-        WaterTomb_Timer = 7000;
-        VileSludge_Timer = 7000;
-        MarkOfHydross_Count = 0;
-        MarkOfCorruption_Count = 0;
-        EnrageTimer = 600000;
+        m_uiPosCheck_Timer          = 2500;
+        m_uiMarkOfHydross_Timer     = 15000;
+        m_uiMarkOfCorruption_Timer  = 15000;
+        m_uiWaterTomb_Timer         = 7000;
+        m_uiVileSludge_Timer        = 7000;
+        m_uiMarkOfHydross_Count     = 0;
+        m_uiMarkOfCorruption_Count  = 0;
+        m_uiEnrageTimer             = 600000;
 
-        CorruptedForm = false;
+        m_bCorruptedForm = false;
+
         m_creature->SetMeleeDamageSchool(SPELL_SCHOOL_FROST);
         m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, true);
         m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, false);
 
-        m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_CLEAN);
+        m_creature->SetDisplayId(MODEL_CLEAN);
 
-        if (pInstance)
-            pInstance->SetData(DATA_HYDROSSTHEUNSTABLEEVENT, NOT_STARTED);
-        beam = false;
-        Summons.DespawnAll();
+        if (m_pInstance)
+            m_pInstance->SetData(DATA_HYDROSSTHEUNSTABLEEVENT, NOT_STARTED);
     }
 
-    void SummonBeams()
-    {
-        Creature* beamer = m_creature->SummonCreature(ENTRY_BEAM_DUMMY,-258.333,-356.34,22.0499,5.90835,TEMPSUMMON_CORPSE_DESPAWN,0);
-        if(beamer)
-        {
-            beamer->CastSpell(m_creature,SPELL_BLUE_BEAM,true);
-            beamer->SetUInt32Value(UNIT_FIELD_DISPLAYID , 11686);  //invisible
-            beamer->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            beams[0]=beamer->GetGUID();
-        }
-        beamer = beamer = m_creature->SummonCreature(ENTRY_BEAM_DUMMY,-219.918,-371.308,22.0042,2.73072,TEMPSUMMON_CORPSE_DESPAWN,0);
-        if(beamer)
-        {
-            beamer->CastSpell(m_creature,SPELL_BLUE_BEAM,true);
-            beamer->SetUInt32Value(UNIT_FIELD_DISPLAYID , 11686);  //invisible
-            beamer->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            beams[1]=beamer->GetGUID();
-        }
-    }
-    void DeSummonBeams()
-    {
-        for(uint8 i=0;i<2;i++)
-        {
-            Creature* mob = Unit::GetCreature(*m_creature,beams[i]);
-            if(mob)
-            {
-                mob->setDeathState(DEAD);
-                mob->RemoveCorpse();
-            }
-        }
-    }
-    void EnterCombat(Unit *who)
+    void Aggro(Unit* pWho)
     {
         DoScriptText(SAY_AGGRO, m_creature);
 
-        if (pInstance)
-            pInstance->SetData(DATA_HYDROSSTHEUNSTABLEEVENT, IN_PROGRESS);
+        if (m_pInstance)
+            m_pInstance->SetData(DATA_HYDROSSTHEUNSTABLEEVENT, IN_PROGRESS);
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit* pVictim)
     {
-        if (CorruptedForm)
-        {
-            switch(rand()%2)
-            {
-                case 0: DoScriptText(SAY_CORRUPT_SLAY1, m_creature); break;
-                case 1: DoScriptText(SAY_CORRUPT_SLAY2, m_creature); break;
-            }
-        }
+        if (m_bCorruptedForm)
+            DoScriptText(urand(0,1) ? SAY_CORRUPT_SLAY1 : SAY_CORRUPT_SLAY2, m_creature);
         else
-        {
-            switch(rand()%2)
-            {
-                case 0: DoScriptText(SAY_CLEAN_SLAY1, m_creature); break;
-                case 1: DoScriptText(SAY_CLEAN_SLAY2, m_creature); break;
-            }
-        }
+            DoScriptText(urand(0,1) ? SAY_CLEAN_SLAY1 : SAY_CLEAN_SLAY2, m_creature);
     }
 
-    void JustSummoned(Creature* summoned)
+    void JustSummoned(Creature* pSummoned)
     {
-        if (summoned->GetEntry() == ENTRY_PURE_SPAWN)
-        {
-            summoned->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, true);
-            summoned->CastSpell(summoned,SPELL_ELEMENTAL_SPAWNIN,true);
-            Summons.Summon(summoned);
-        }
-        if (summoned->GetEntry() == ENTRY_TAINTED_SPAWN)
-        {
-            summoned->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);
-            summoned->CastSpell(summoned,SPELL_ELEMENTAL_SPAWNIN,true);
-            Summons.Summon(summoned);
-        }
+        if (pSummoned->GetEntry() == NPC_PURE_SPAWN)
+            pSummoned->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, true);
+        else if (pSummoned->GetEntry() == NPC_TAINTED_SPAWN)
+            pSummoned->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);
+
+        pSummoned->CastSpell(pSummoned, SPELL_ELEMENTAL_SPAWNIN, true);
     }
 
-    void SummonedCreatureDespawn(Creature *summon)
+    void JustDied(Unit* pVictim)
     {
-        Summons.Despawn(summon);
+        DoScriptText(m_bCorruptedForm ? SAY_CORRUPT_DEATH : SAY_CLEAN_DEATH, m_creature);
+
+        if (m_pInstance)
+            m_pInstance->SetData(DATA_HYDROSSTHEUNSTABLEEVENT, NOT_STARTED);
     }
 
-    void JustDied(Unit *victim)
+    void SpawnAdds()
     {
-        if (CorruptedForm)
-            DoScriptText(SAY_CORRUPT_DEATH, m_creature);
+        uint32 uiAdd = 0;
+
+        if (m_bCorruptedForm)
+            uiAdd = NPC_TAINTED_SPAWN;
         else
-            DoScriptText(SAY_CLEAN_DEATH, m_creature);
+            uiAdd = NPC_PURE_SPAWN;
 
-        if (pInstance)
-            pInstance->SetData(DATA_HYDROSSTHEUNSTABLEEVENT, DONE);
-        Summons.DespawnAll();
+        for(uint8 i = 0; i < 4; i++)
+            DoSpawnCreature(uiAdd, afSpawnDiffs[i][0], afSpawnDiffs[i][1], 0.0f, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
     }
 
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 uiDiff)
     {
-        if(!beam)
-        {
-            SummonBeams();
-            beam=true;
-        }
         //Return since we have no target
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
         // corrupted form
-        if (CorruptedForm)
+        if (m_bCorruptedForm)
         {
             //MarkOfCorruption_Timer
-            if (MarkOfCorruption_Timer < diff)
+            if (m_uiMarkOfCorruption_Timer < uiDiff)
             {
-                if (MarkOfCorruption_Count <= 5)
+                if (m_uiMarkOfCorruption_Count <= 5)
                 {
-                    uint32 mark_spell;
+                    uint32 uiMarkSpell = 0;
 
-                    switch(MarkOfCorruption_Count)
+                    switch(m_uiMarkOfCorruption_Count)
                     {
-                        case 0: mark_spell = SPELL_MARK_OF_CORRUPTION1; break;
-                        case 1: mark_spell = SPELL_MARK_OF_CORRUPTION2; break;
-                        case 2: mark_spell = SPELL_MARK_OF_CORRUPTION3; break;
-                        case 3: mark_spell = SPELL_MARK_OF_CORRUPTION4; break;
-                        case 4: mark_spell = SPELL_MARK_OF_CORRUPTION5; break;
-                        case 5: mark_spell = SPELL_MARK_OF_CORRUPTION6; break;
+                        case 0: uiMarkSpell = SPELL_MARK_OF_CORRUPTION1; break;
+                        case 1: uiMarkSpell = SPELL_MARK_OF_CORRUPTION2; break;
+                        case 2: uiMarkSpell = SPELL_MARK_OF_CORRUPTION3; break;
+                        case 3: uiMarkSpell = SPELL_MARK_OF_CORRUPTION4; break;
+                        case 4: uiMarkSpell = SPELL_MARK_OF_CORRUPTION5; break;
+                        case 5: uiMarkSpell = SPELL_MARK_OF_CORRUPTION6; break;
                     }
 
-                    DoCast(m_creature->getVictim(), mark_spell);
+                    DoCast(m_creature->getVictim(), uiMarkSpell);
 
-                    if (MarkOfCorruption_Count < 5)
-                        MarkOfCorruption_Count++;
+                    if (m_uiMarkOfCorruption_Count < 5)
+                        ++m_uiMarkOfCorruption_Count;
                 }
 
-                MarkOfCorruption_Timer = 15000;
-            }else MarkOfCorruption_Timer -= diff;
+                m_uiMarkOfCorruption_Timer = 15000;
+            }else m_uiMarkOfCorruption_Timer -= uiDiff;
 
             //VileSludge_Timer
-            if (VileSludge_Timer < diff)
+            if (m_uiVileSludge_Timer < uiDiff)
             {
-                Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                if (target)
-                    DoCast(target, SPELL_VILE_SLUDGE);
+                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    DoCast(pTarget, SPELL_VILE_SLUDGE);
 
-                VileSludge_Timer = 15000;
-            }else VileSludge_Timer -= diff;
+                m_uiVileSludge_Timer = 15000;
+            }else m_uiVileSludge_Timer -= uiDiff;
 
             //PosCheck_Timer
-            if (PosCheck_Timer < diff)
+            if (m_uiPosCheck_Timer < uiDiff)
             {
-                if (m_creature->GetDistance2d(HYDROSS_X, HYDROSS_Y) < SWITCH_RADIUS)
-                {
-                    // switch to clean form
-                    m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_CLEAN);
-                    CorruptedForm = false;
-                    MarkOfHydross_Count = 0;
+                float fPosX, fPosY, fPosZ, fPosO;
+                m_creature->GetHomePosition(fPosX, fPosY, fPosZ, fPosO);
 
+                if (m_creature->GetDistance2d(fPosX, fPosY) < SWITCH_RADIUS)
+                {
                     DoScriptText(SAY_SWITCH_TO_CLEAN, m_creature);
+
+                    // switch to clean form
+                    m_creature->SetDisplayId(MODEL_CLEAN);
+                    m_uiMarkOfHydross_Count = 0;
                     DoResetThreat();
-                    SummonBeams();
 
                     // spawn 4 adds
-                    DoSpawnCreature(ENTRY_PURE_SPAWN, SPAWN_X_DIFF1, SPAWN_Y_DIFF1, 3, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-                    DoSpawnCreature(ENTRY_PURE_SPAWN, SPAWN_X_DIFF2, SPAWN_Y_DIFF2, 3, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-                    DoSpawnCreature(ENTRY_PURE_SPAWN, SPAWN_X_DIFF3, SPAWN_Y_DIFF3, 3, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-                    DoSpawnCreature(ENTRY_PURE_SPAWN, SPAWN_X_DIFF4, SPAWN_Y_DIFF4, 3, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                    SpawnAdds();
 
                     m_creature->SetMeleeDamageSchool(SPELL_SCHOOL_FROST);
                     m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, true);
                     m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, false);
+
+                    m_bCorruptedForm = false;
                 }
 
-                PosCheck_Timer = 2500;
-            }else PosCheck_Timer -=diff;
+                m_uiPosCheck_Timer = 2500;
+            }else m_uiPosCheck_Timer -=uiDiff;
         }
         // clean form
         else
         {
             //MarkOfHydross_Timer
-            if (MarkOfHydross_Timer < diff)
+            if (m_uiMarkOfHydross_Timer < uiDiff)
             {
-                if (MarkOfHydross_Count <= 5)
+                if (m_uiMarkOfHydross_Count <= 5)
                 {
-                    uint32 mark_spell;
+                    uint32 uiMarkSpell;
 
-                    switch(MarkOfHydross_Count)
+                    switch(m_uiMarkOfHydross_Count)
                     {
-                        case 0:  mark_spell = SPELL_MARK_OF_HYDROSS1; break;
-                        case 1:  mark_spell = SPELL_MARK_OF_HYDROSS2; break;
-                        case 2:  mark_spell = SPELL_MARK_OF_HYDROSS3; break;
-                        case 3:  mark_spell = SPELL_MARK_OF_HYDROSS4; break;
-                        case 4:  mark_spell = SPELL_MARK_OF_HYDROSS5; break;
-                        case 5:  mark_spell = SPELL_MARK_OF_HYDROSS6; break;
+                        case 0: uiMarkSpell = SPELL_MARK_OF_HYDROSS1; break;
+                        case 1: uiMarkSpell = SPELL_MARK_OF_HYDROSS2; break;
+                        case 2: uiMarkSpell = SPELL_MARK_OF_HYDROSS3; break;
+                        case 3: uiMarkSpell = SPELL_MARK_OF_HYDROSS4; break;
+                        case 4: uiMarkSpell = SPELL_MARK_OF_HYDROSS5; break;
+                        case 5: uiMarkSpell = SPELL_MARK_OF_HYDROSS6; break;
                     }
 
-                    DoCast(m_creature->getVictim(), mark_spell);
+                    DoCast(m_creature->getVictim(), uiMarkSpell);
 
-                    if (MarkOfHydross_Count < 5)
-                        MarkOfHydross_Count++;
+                    if (m_uiMarkOfHydross_Count < 5)
+                        ++m_uiMarkOfHydross_Count;
                 }
 
-                MarkOfHydross_Timer = 15000;
-            }else MarkOfHydross_Timer -= diff;
+                m_uiMarkOfHydross_Timer = 15000;
+            }else m_uiMarkOfHydross_Timer -= uiDiff;
 
             //WaterTomb_Timer
-            if (WaterTomb_Timer < diff)
+            if (m_uiWaterTomb_Timer < uiDiff)
             {
-                Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                if (target)
-                    DoCast(target, SPELL_WATER_TOMB);
+                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    DoCast(pTarget, SPELL_WATER_TOMB);
 
-                WaterTomb_Timer = 7000;
-            }else WaterTomb_Timer -= diff;
+                m_uiWaterTomb_Timer = 7000;
+            }else m_uiWaterTomb_Timer -= uiDiff;
 
             //PosCheck_Timer
-            if (PosCheck_Timer < diff)
+            if (m_uiPosCheck_Timer < uiDiff)
             {
-                if (m_creature->GetDistance2d(HYDROSS_X, HYDROSS_Y) >= SWITCH_RADIUS)
-                {
-                    // switch to corrupted form
-                    m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_CORRUPT);
-                    MarkOfCorruption_Count = 0;
-                    CorruptedForm = true;
+                float fPosX, fPosY, fPosZ, fPosO;
+                m_creature->GetHomePosition(fPosX, fPosY, fPosZ, fPosO);
 
+                if (m_creature->GetDistance2d(fPosX, fPosY) >= SWITCH_RADIUS)
+                {
                     DoScriptText(SAY_SWITCH_TO_CORRUPT, m_creature);
+
+                    // switch to corrupted form
+                    m_creature->SetDisplayId(MODEL_CORRUPT);
+                    m_uiMarkOfCorruption_Count = 0;
                     DoResetThreat();
-                    DeSummonBeams();
 
                     // spawn 4 adds
-                    DoSpawnCreature(ENTRY_TAINTED_SPAWN, SPAWN_X_DIFF1, SPAWN_Y_DIFF1, 3, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-                    DoSpawnCreature(ENTRY_TAINTED_SPAWN, SPAWN_X_DIFF2, SPAWN_Y_DIFF2, 3, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-                    DoSpawnCreature(ENTRY_TAINTED_SPAWN, SPAWN_X_DIFF3, SPAWN_Y_DIFF3, 3, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-                    DoSpawnCreature(ENTRY_TAINTED_SPAWN, SPAWN_X_DIFF4, SPAWN_Y_DIFF4, 3, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                    SpawnAdds();
 
                     m_creature->SetMeleeDamageSchool(SPELL_SCHOOL_NATURE);
                     m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);
                     m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, false);
+
+                    m_bCorruptedForm = true;
                 }
 
-                PosCheck_Timer = 2500;
-            }else PosCheck_Timer -=diff;
+                m_uiPosCheck_Timer = 2500;
+            }else m_uiPosCheck_Timer -=uiDiff;
         }
 
         //EnrageTimer
-        if (EnrageTimer < diff)
+        if (m_uiEnrageTimer < uiDiff)
         {
             DoCast(m_creature, SPELL_ENRAGE);
-            EnrageTimer = 60000;
-        }else EnrageTimer -= diff;
+            m_uiEnrageTimer = 60000;
+        }else m_uiEnrageTimer -= uiDiff;
 
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_hydross_the_unstable(Creature *_Creature)
+
+CreatureAI* GetAI_boss_hydross_the_unstable(Creature* pCreature)
 {
-    return new boss_hydross_the_unstableAI (_Creature);
+    return new boss_hydross_the_unstableAI(pCreature);
 }
 
 void AddSC_boss_hydross_the_unstable()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_hydross_the_unstable";
+    newscript->Name = "boss_hydross_the_unstable";
     newscript->GetAI = &GetAI_boss_hydross_the_unstable;
     newscript->RegisterSelf();
 }
-

@@ -55,7 +55,7 @@ struct TRINITY_DLL_DECL boss_lajAI : public ScriptedAI
 
     void Reset()
     {
-        m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID,MODEL_DEFAULT);
+        m_creature->SetDisplayId(MODEL_DEFAULT);
         m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_SHADOW, true);
         m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_ARCANE, false);
         m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, false);
@@ -74,7 +74,7 @@ struct TRINITY_DLL_DECL boss_lajAI : public ScriptedAI
         switch(rand()%5)
         {
             case 0:
-                m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID,MODEL_DEFAULT);
+                m_creature->SetDisplayId(MODEL_DEFAULT);
                 m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_SHADOW, true);
                 m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_ARCANE, false);
                 m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, false);
@@ -82,7 +82,7 @@ struct TRINITY_DLL_DECL boss_lajAI : public ScriptedAI
                 m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, false);
                 break;
             case 1:
-                m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID,MODEL_ARCANE);
+                m_creature->SetDisplayId(MODEL_ARCANE);
                 m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_SHADOW, false);
                 m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_ARCANE, true);
                 m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, false);
@@ -90,7 +90,7 @@ struct TRINITY_DLL_DECL boss_lajAI : public ScriptedAI
                 m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, false);
                 break;
             case 2:
-                m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID,MODEL_FIRE);
+                m_creature->SetDisplayId(MODEL_FIRE);
                 m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_SHADOW, false);
                 m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_ARCANE, false);
                 m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
@@ -98,7 +98,7 @@ struct TRINITY_DLL_DECL boss_lajAI : public ScriptedAI
                 m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, false);
                 break;
             case 3:
-                m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID,MODEL_FROST);
+                m_creature->SetDisplayId(MODEL_FROST);
                 m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_SHADOW, false);
                 m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_ARCANE, false);
                 m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, false);
@@ -106,7 +106,7 @@ struct TRINITY_DLL_DECL boss_lajAI : public ScriptedAI
                 m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, false);
                 break;
             case 4:
-                m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID,MODEL_NATURE);
+                m_creature->SetDisplayId(MODEL_NATURE);
                 m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_SHADOW, false);
                 m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_ARCANE, false);
                 m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, false);

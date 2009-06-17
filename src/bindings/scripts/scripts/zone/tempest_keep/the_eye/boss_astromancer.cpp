@@ -129,7 +129,7 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->SetVisibility(VISIBILITY_ON);
         m_creature->SetFloatValue(OBJECT_FIELD_SCALE_X, defaultsize);
-        m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_HUMAN);
+        m_creature->SetDisplayId(MODEL_HUMAN);
 
         Summons.DespawnAll();
     }
@@ -155,7 +155,7 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
     void JustDied(Unit *victim)
     {
         m_creature->SetFloatValue(OBJECT_FIELD_SCALE_X, defaultsize);
-        m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_HUMAN);
+        m_creature->SetDisplayId(MODEL_HUMAN);
         DoScriptText(SAY_DEATH, m_creature);
 
         if(pInstance)
@@ -381,7 +381,7 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
             DoScriptText(SAY_VOIDA, m_creature);
             DoScriptText(SAY_VOIDB, m_creature);
             m_creature->SetArmor(WV_ARMOR);
-            m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_VOIDWALKER);
+            m_creature->SetDisplayId(MODEL_VOIDWALKER);
             m_creature->SetFloatValue(OBJECT_FIELD_SCALE_X, defaultsize*2.5f);
         }
 

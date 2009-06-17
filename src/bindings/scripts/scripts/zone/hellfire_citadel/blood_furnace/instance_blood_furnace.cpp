@@ -53,6 +53,7 @@ struct TRINITY_DLL_DECL instance_blood_furnace : public ScriptedInstance
     uint64 PrisonCell8GUID;
 
     uint32 Encounter[ENCOUNTERS];
+    std::string str_data;
 
     void Initialize()
     {
@@ -158,6 +159,19 @@ struct TRINITY_DLL_DECL instance_blood_furnace : public ScriptedInstance
              case TYPE_BROGGOK_EVENT:               Encounter[1] = data;     break;
              case TYPE_KELIDAN_THE_BREAKER_EVENT:   Encounter[2] = data;     break;
          }
+
+        if (data == DONE)
+        {
+            OUT_SAVE_INST_DATA;
+
+            std::ostringstream saveStream;
+            saveStream << Encounter[0] << " " << Encounter[1] << " " << Encounter[2];
+
+            str_data = saveStream.str();
+
+            SaveToDB();
+            OUT_SAVE_INST_DATA_COMPLETE;
+        }
     }
 
     uint32 GetData(uint32 data)
@@ -171,7 +185,31 @@ struct TRINITY_DLL_DECL instance_blood_furnace : public ScriptedInstance
 
         return 0;
     }
-     
+
+    const char* Save()
+    {
+        return str_data.c_str();
+    }
+
+    void Load(const char* in)
+    {
+        if (!in)
+        {
+            OUT_LOAD_INST_DATA_FAIL;
+            return;
+        }
+
+        OUT_LOAD_INST_DATA(in);
+
+        std::istringstream loadStream(in);
+        loadStream >> Encounter[0] >> Encounter[1] >> Encounter[2];
+
+        for(uint8 i = 0; i < ENCOUNTERS; ++i)
+            if (Encounter[i] == IN_PROGRESS || Encounter[i] == FAIL)
+                Encounter[i] = NOT_STARTED;
+
+        OUT_LOAD_INST_DATA_COMPLETE;
+    }
 };
 
 

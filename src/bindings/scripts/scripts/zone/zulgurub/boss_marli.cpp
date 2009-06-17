@@ -187,7 +187,7 @@ struct TRINITY_DLL_DECL boss_marliAI : public ScriptedAI
 
                 if (TransformBack_Timer < diff)
                 {
-                    m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID,15220);
+                    m_creature->SetDisplayId(15220);
                     const CreatureInfo *cinfo = m_creature->GetCreatureInfo();
                     m_creature->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 1)));
                     m_creature->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 1)));

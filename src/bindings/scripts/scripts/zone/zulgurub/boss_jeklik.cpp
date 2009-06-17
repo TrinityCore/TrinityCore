@@ -196,7 +196,7 @@ struct TRINITY_DLL_DECL boss_jeklikAI : public ScriptedAI
                 }
                 else
                 {
-                    m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID,15219);
+                    m_creature->SetDisplayId(15219);
                     DoResetThreat();
                     PhaseTwo = true;
                 }
