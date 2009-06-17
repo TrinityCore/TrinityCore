@@ -63,53 +63,54 @@ bool IsQuestTameSpell(uint32 spellId)
         && spellproto->Effect[1] == SPELL_EFFECT_APPLY_AURA && spellproto->EffectApplyAuraName[1] == SPELL_AURA_DUMMY;
 }
 
-class PrioritizeManaWraper
+class PrioritizeManaUnitWraper
 {
-    friend struct PrioritizeMana;
-
     public:
-        explicit PrioritizeManaWraper(Unit * unit) : unit(unit)
+        explicit PrioritizeManaUnitWraper(Unit* unit) : i_unit(unit)
         {
             uint32 maxmana = unit->GetMaxPower(POWER_MANA);
-            percentMana = maxmana ? unit->GetPower(POWER_MANA) * 100 / maxmana : 101;
+            i_percent = maxmana ? unit->GetPower(POWER_MANA) * 100 / maxmana : 101;
         }
-        Unit* getUnit() const { return unit; }
+        Unit* getUnit() const { return i_unit; }
+        uint32 getPercent() const { return i_percent; }
     private:
-        Unit* unit;
-        uint32 percentMana;
+        Unit* i_unit;
+        uint32 i_percent;
 };
 
 struct PrioritizeMana
 {
-    int operator()( PrioritizeManaWraper const& x, PrioritizeManaWraper const& y ) const
+    int operator()( PrioritizeManaUnitWraper const& x, PrioritizeManaUnitWraper const& y ) const
     {
-        return x.percentMana > y.percentMana;
+        return x.getPercent() < y.getPercent();
     }
 };
 
-class PrioritizeHealthWraper
-{
-    friend struct PrioritizeHealth;
+typedef std::priority_queue<PrioritizeManaUnitWraper, std::vector<PrioritizeManaUnitWraper>, PrioritizeMana> PrioritizeManaUnitQueue;
 
-    public:
-        explicit PrioritizeHealthWraper(Unit * unit) : unit(unit)
-        {
-            uint32 maxhp = unit->GetMaxHealth();
-            percentHealth = maxhp ? unit->GetHealth() * 100 / maxhp : 101;
-        }
-        Unit* getUnit() const { return unit; }
-    private:
-        Unit* unit;
-        uint32 percentHealth;
+class PrioritizeHealthUnitWraper
+{
+public:
+    explicit PrioritizeHealthUnitWraper(Unit* unit) : i_unit(unit)
+    {
+        i_percent = unit->GetHealth() * 100 / unit->GetMaxHealth();
+    }
+    Unit* getUnit() const { return i_unit; }
+    uint32 getPercent() const { return i_percent; }
+private:
+    Unit* i_unit;
+    uint32 i_percent;
 };
 
 struct PrioritizeHealth
 {
-    int operator()( PrioritizeHealthWraper const& x, PrioritizeHealthWraper const& y ) const
+    int operator()( PrioritizeHealthUnitWraper const& x, PrioritizeHealthUnitWraper const& y ) const
     {
-        return x.percentHealth > y.percentHealth;
+        return x.getPercent() < y.getPercent();
     }
 };
+
+typedef std::priority_queue<PrioritizeHealthUnitWraper, std::vector<PrioritizeHealthUnitWraper>, PrioritizeHealth> PrioritizeHealthUnitQueue;
 
 SpellCastTargets::SpellCastTargets()
 {
@@ -2298,13 +2299,13 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
                         break;
                     case 57699: //Replenishment (special target selection) 10 targets with lowest mana
                     {
-                        typedef std::priority_queue<PrioritizeManaWraper, std::vector<PrioritizeManaWraper>, PrioritizeMana> TopMana;
+                        typedef std::priority_queue<PrioritizeManaUnitWraper, std::vector<PrioritizeManaUnitWraper>, PrioritizeMana> TopMana;
                         TopMana manaUsers;
                         for (std::list<Unit*>::iterator itr = unitList.begin() ; itr != unitList.end();++itr)
                         {
                             if ((*itr)->getPowerType() == POWER_MANA)
                             {
-                                PrioritizeManaWraper  WTarget(*itr);
+                                PrioritizeManaUnitWraper  WTarget(*itr);
                                 manaUsers.push(WTarget);
                             }
                         }
@@ -2319,11 +2320,11 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
                     }
                     case 52759: // Ancestral Awakening
                     {
-                        typedef std::priority_queue<PrioritizeHealthWraper, std::vector<PrioritizeHealthWraper>, PrioritizeHealth> TopHealth;
+                        typedef std::priority_queue<PrioritizeHealthUnitWraper, std::vector<PrioritizeHealthUnitWraper>, PrioritizeHealth> TopHealth;
                         TopHealth healedMembers;
                         for (std::list<Unit*>::iterator itr = unitList.begin() ; itr != unitList.end();++itr)
                         {
-                            PrioritizeHealthWraper  WTarget(*itr);
+                            PrioritizeHealthUnitWraper  WTarget(*itr);
                             healedMembers.push(WTarget);
                         }
 
@@ -2339,13 +2340,13 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
                 if (m_spellInfo->EffectImplicitTargetA[i] == TARGET_DEST_TARGET_ANY
                     && m_spellInfo->EffectImplicitTargetB[i] == TARGET_UNIT_AREA_ALLY_DST)// Wild Growth, Circle of Healing, Glyph of holy light target special selection
                 {
-                    typedef std::priority_queue<PrioritizeHealthWraper, std::vector<PrioritizeHealthWraper>, PrioritizeHealth> TopHealth;
+                    typedef std::priority_queue<PrioritizeHealthUnitWraper, std::vector<PrioritizeHealthUnitWraper>, PrioritizeHealth> TopHealth;
                     TopHealth healedMembers;
                     for (std::list<Unit*>::iterator itr = unitList.begin() ; itr != unitList.end();++itr)
                     {
                         if ((*itr)->IsInRaidWith(m_targets.getUnitTarget()))
                         {
-                            PrioritizeHealthWraper  WTarget(*itr);
+                            PrioritizeHealthUnitWraper  WTarget(*itr);
                             healedMembers.push(WTarget);
                         }
                     }
@@ -6232,5 +6233,83 @@ void Spell::SetSpellValue(SpellValueMod mod, int32 value)
         case SPELLVALUE_MAX_TARGETS:
             m_spellValue->MaxAffectedTargets = (uint32)value;
             break;
+    }
+}
+
+void Spell::FillRaidOrPartyTargets( UnitList &TagUnitMap, Unit* target, float radius, bool raid, bool withPets, bool withcaster )
+{
+    Player *pTarget = target->GetCharmerOrOwnerPlayerOrPlayerItself();
+    Group *pGroup = pTarget ? pTarget->GetGroup() : NULL;
+
+    if (pGroup)
+    {
+        uint8 subgroup = pTarget->GetSubGroup();
+
+        for(GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+        {
+            Player* Target = itr->getSource();
+
+            // IsHostileTo check duel and controlled by enemy
+            if (Target && (raid || subgroup==Target->GetSubGroup())
+                && !m_caster->IsHostileTo(Target))
+            {
+                if (Target==m_caster && withcaster ||
+                    Target!=m_caster && m_caster->IsWithinDistInMap(Target, radius))
+                    TagUnitMap.push_back(Target);
+
+                if (withPets)
+                    if (Pet* pet = Target->GetPet())
+                        if (pet==m_caster && withcaster ||
+                            pet!=m_caster && m_caster->IsWithinDistInMap(pet, radius))
+                            TagUnitMap.push_back(pet);
+            }
+        }
+    }
+    else
+    {
+        Unit* ownerOrSelf = pTarget ? pTarget : target->GetCharmerOrOwnerOrSelf();
+        if (ownerOrSelf==m_caster && withcaster ||
+            ownerOrSelf!=m_caster && m_caster->IsWithinDistInMap(ownerOrSelf, radius))
+            TagUnitMap.push_back(ownerOrSelf);
+
+        if (withPets)
+            if (Guardian* pet = ownerOrSelf->GetGuardianPet())
+                if (pet==m_caster && withcaster ||
+                    pet!=m_caster && m_caster->IsWithinDistInMap(pet, radius))
+                    TagUnitMap.push_back(pet);
+    }
+}
+
+void Spell::FillRaidOrPartyManaPriorityTargets( UnitList &TagUnitMap, Unit* target, float radius, uint32 count, bool raid, bool withPets, bool withCaster )
+{
+    FillRaidOrPartyTargets(TagUnitMap,target,radius,raid,withPets,withCaster);
+
+    PrioritizeManaUnitQueue manaUsers;
+    for(UnitList::const_iterator itr = TagUnitMap.begin(); itr != TagUnitMap.end() && manaUsers.size() < count; ++itr)
+        if ((*itr)->getPowerType() == POWER_MANA && !(*itr)->isDead())
+            manaUsers.push(PrioritizeManaUnitWraper(*itr));
+
+    TagUnitMap.clear();
+    while(!manaUsers.empty())
+    {
+        TagUnitMap.push_back(manaUsers.top().getUnit());
+        manaUsers.pop();
+    }
+}
+
+void Spell::FillRaidOrPartyHealthPriorityTargets( UnitList &TagUnitMap, Unit* target, float radius, uint32 count, bool raid, bool withPets, bool withCaster )
+{
+    FillRaidOrPartyTargets(TagUnitMap,target,radius,raid,withPets,withCaster);
+
+    PrioritizeHealthUnitQueue healthQueue;
+    for(UnitList::const_iterator itr = TagUnitMap.begin(); itr != TagUnitMap.end() && healthQueue.size() < count; ++itr)
+        if (!(*itr)->isDead())
+            healthQueue.push(PrioritizeHealthUnitWraper(*itr));
+
+    TagUnitMap.clear();
+    while(!healthQueue.empty())
+    {
+        TagUnitMap.push_back(healthQueue.top().getUnit());
+        healthQueue.pop();
     }
 }
