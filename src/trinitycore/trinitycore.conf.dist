@@ -1620,6 +1620,11 @@ Ra.Secure = 1
 #       to a newly created character.
 #       Default: "" - send no text
 #
+#   CheckDB
+#       Check if your DB is outdated. Disabling this option means that you decide to use a DB which is
+#       not compatible with TrinityCore and are ready for all kinds of bugs. 
+#       Default: 1 = enable
+#
 ###################################################################################################################
 
 PlayerStart.AllReputation = 0
@@ -1640,3 +1645,4 @@ ShowKickInWorld = 0
 RecordUpdateTimeDiffInterval = 60000
 MinRecordUpdateTimeDiff = 10
 PlayerStart.String = ""
+CheckDB = 1

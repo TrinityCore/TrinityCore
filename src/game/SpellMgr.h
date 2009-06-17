@@ -1065,6 +1065,8 @@ class SpellMgr
         void LoadPetDefaultSpells();
         void LoadSpellAreas();
 
+        bool CheckDB() const;
+
     private:
         SpellScriptTarget  mSpellScriptTarget;
         SpellChainMap      mSpellChains;
