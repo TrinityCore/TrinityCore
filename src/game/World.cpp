@@ -1087,6 +1087,7 @@ void World::LoadConfigSettings(bool reload)
     m_configs[CONFIG_SHOW_KICK_IN_WORLD] = sConfig.GetBoolDefault("ShowKickInWorld", false);
     m_configs[CONFIG_INTERVAL_LOG_UPDATE] = sConfig.GetIntDefault("RecordUpdateTimeDiffInterval", 60000);
     m_configs[CONFIG_MIN_LOG_UPDATE] = sConfig.GetIntDefault("MinRecordUpdateTimeDiff", 10);
+    m_configs[CONFIG_CHECK_DB] = sConfig.GetBoolDefault("CheckDB", true);
 
     std::string forbiddenmaps = sConfig.GetStringDefault("ForbiddenMaps", "");
     char * forbiddenMaps = new char[forbiddenmaps.length() + 1];
@@ -1484,6 +1485,13 @@ void World::SetInitialWorldSettings()
     sLog.outString( "Initializing Scripts..." );
     if(!LoadScriptingModule())
         exit(1);
+
+    /// Check db
+    if(m_configs[CONFIG_CHECK_DB] && (!objmgr.CheckDB() || !spellmgr.CheckDB()))
+    {
+        sLog.outError("Your world DB is outdated. Please reapply sqls in sql\\FULL folder, or disable CheckDB option in config file (not recommended).");
+        exit(1);
+    }
 
     ///- Initialize game time and timers
     sLog.outDebug( "DEBUG:: Initialize game time and timers" );
