@@ -285,7 +285,7 @@ struct TRINITY_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
             DoCast(m_creature,HeroicMode?H_SPELL_RAIN_OF_FIRE:SPELL_RAIN_OF_FIRE);
 
             ShadowBoltVolley_Timer = 6000;
-            DrawShadows_Timer = 3000;
+            DrawShadows_Timer = 30000;
         }else DrawShadows_Timer -= diff;
 
         if ( summonTraveler_Timer < diff)
