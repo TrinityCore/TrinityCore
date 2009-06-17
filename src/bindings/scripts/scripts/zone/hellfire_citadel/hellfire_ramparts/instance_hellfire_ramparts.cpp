@@ -51,41 +51,21 @@ struct TRINITY_DLL_DECL instance_ramparts : public ScriptedInstance
         }
     }
 
-    Player* GetFirstPlayerInInstance()
-    {
-        Map::PlayerList const& pPlayers = instance->GetPlayers();
-
-        if (!pPlayers.isEmpty())
-        {
-            for(Map::PlayerList::const_iterator itr = pPlayers.begin(); itr != pPlayers.end(); ++itr)
-            {
-                if (Player* pPlr = itr->getSource())
-                    return pPlr;
-            }
-        }
-
-        debug_log("TSCR: Instance Ramparts: GetFirstPlayerInInstance, but PlayerList is empty.");
-        return NULL;
-    }
-
     void DoRespawnChest()
     {
-        if (Player* pPlayer = GetFirstPlayerInInstance())
+        uint64 uiChest;
+
+        if (instance->IsHeroic())
+            uiChest = m_uiChestHGUID;
+        else
+            uiChest = m_uiChestNGUID;
+
+        if (GameObject* pGo = instance->GetGameObject(uiChest))
         {
-            uint64 uiChest;
+            if (pGo->isSpawned())
+                return;
 
-            if (instance->IsHeroic())
-                uiChest = m_uiChestHGUID;
-            else
-                uiChest = m_uiChestNGUID;
-
-            if (GameObject* pGo = instance->GetGameObject(uiChest))
-            {
-                if (pGo->isSpawned())
-                    return;
-
-                pGo->SetRespawnTime(HOUR*IN_MILISECONDS);
-            }
+            pGo->SetRespawnTime(HOUR*IN_MILISECONDS);
         }
     }
 
