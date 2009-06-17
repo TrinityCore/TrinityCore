@@ -105,6 +105,8 @@ namespace Trinity
     struct SpellNotifierCreatureAndPlayer;
 }
 
+typedef std::list<Unit*> UnitList;
+
 class SpellCastTargets
 {
     public:
@@ -401,6 +403,9 @@ class Spell
         void FillTargetMap();
 
         void SetTargetMap(uint32 i, uint32 cur);
+        void FillRaidOrPartyTargets( UnitList &TagUnitMap, Unit* target, float radius, bool raid, bool withPets, bool withcaster );
+        void FillRaidOrPartyManaPriorityTargets( UnitList &TagUnitMap, Unit* target, float radius, uint32 count, bool raid, bool withPets, bool withcaster );
+        void FillRaidOrPartyHealthPriorityTargets( UnitList &TagUnitMap, Unit* target, float radius, uint32 count, bool raid, bool withPets, bool withcaster );
 
         template<typename T> WorldObject* FindCorpseUsing();
 
