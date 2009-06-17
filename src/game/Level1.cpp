@@ -55,6 +55,15 @@ bool ChatHandler::HandleNpcSayCommand(const char* args)
 
     pCreature->Say(args, LANG_UNIVERSAL, 0);
 
+    // make some emotes
+    char lastchar = args[strlen(args) - 1];
+    switch(lastchar)
+    {
+        case '?':   pCreature->HandleEmoteCommand(EMOTE_ONESHOT_QUESTION);      break;
+        case '!':   pCreature->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);   break;
+        default:    pCreature->HandleEmoteCommand(EMOTE_ONESHOT_TALK);          break;
+    }
+
     return true;
 }
 
@@ -72,6 +81,9 @@ bool ChatHandler::HandleNpcYellCommand(const char* args)
     }
 
     pCreature->Yell(args, LANG_UNIVERSAL, 0);
+
+    // make an emote
+    pCreature->HandleEmoteCommand(EMOTE_ONESHOT_SHOUT);
 
     return true;
 }
