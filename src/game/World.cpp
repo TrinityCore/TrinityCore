@@ -1487,11 +1487,17 @@ void World::SetInitialWorldSettings()
         exit(1);
 
     /// Check db
-    if(m_configs[CONFIG_CHECK_DB] && (!objmgr.CheckDB() || !spellmgr.CheckDB()))
+    if(m_configs[CONFIG_CHECK_DB])
     {
-        sLog.outError("Your world DB is outdated. Please reapply sqls in sql\\FULL folder, or disable CheckDB option in config file (not recommended).");
-        exit(1);
+        sLog.outString( "Checking DB..." );
+        if(!objmgr.CheckDB() || !spellmgr.CheckDB())
+        {
+            sLog.outError("Your world DB is outdated. Please reapply sqls in sql\\FULL folder, or disable CheckDB option in config file (not recommended).");
+            exit(1);
+        }
     }
+    else
+        sLog.outError("You have disabled DB check. We strongly recommend you to enable it to prevent unpredictable bugs and crashes.");
 
     ///- Initialize game time and timers
     sLog.outDebug( "DEBUG:: Initialize game time and timers" );

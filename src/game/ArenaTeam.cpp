@@ -35,7 +35,7 @@ ArenaTeam::ArenaTeam()
     stats.games_week    = 0;
     stats.games_season  = 0;
     stats.rank          = 0;
-    stats.rating        = 1500;
+    stats.rating        = ARENA_NEW_TEAM_RATING;
     stats.wins_week     = 0;
     stats.wins_season   = 0;
 }
@@ -131,7 +131,7 @@ bool ArenaTeam::AddMember(const uint64& PlayerGuid)
     newmember.games_week        = 0;
     newmember.wins_season       = 0;
     newmember.wins_week         = 0;
-    newmember.personal_rating   = 1500;
+    newmember.personal_rating   = AREAN_NEW_PERSONAL_RATING;
     members.push_back(newmember);
 
     CharacterDatabase.PExecute("INSERT INTO arena_team_member (arenateamid, guid, personal_rating) VALUES ('%u', '%u', '%u')", Id, GUID_LOPART(newmember.guid), newmember.personal_rating );
