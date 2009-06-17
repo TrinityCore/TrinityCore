@@ -37,7 +37,7 @@ struct TRINITY_DLL_DECL instance_sethekk_halls : public ScriptedInstance
         m_uiIkissDoorGUID = 0;
     }
 
-    void OnObjectCreate(GameObject* pGo)
+    void OnGameObjectCreate(GameObject *pGo, bool add)
     {
          if (pGo->GetEntry() == IKISS_DOOR)
             m_uiIkissDoorGUID = pGo->GetGUID();

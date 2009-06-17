@@ -82,7 +82,7 @@ struct TRINITY_DLL_DECL boss_noxxionAI : public ScriptedAI
             m_creature->setFaction(14);
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             //Noxxion model
-            m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID,11172);
+            m_creature->SetDisplayId(11172);
             Invisible = false;
             //m_creature->m_canMove = true;
         } else if (Invisible)
@@ -119,7 +119,7 @@ struct TRINITY_DLL_DECL boss_noxxionAI : public ScriptedAI
             m_creature->setFaction(35);
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             // Invisible Model
-            m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID,11686);
+            m_creature->SetDisplayId(11686);
             SummonAdds(m_creature->getVictim());
             SummonAdds(m_creature->getVictim());
             SummonAdds(m_creature->getVictim());

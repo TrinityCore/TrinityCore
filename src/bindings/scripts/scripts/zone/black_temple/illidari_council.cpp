@@ -240,7 +240,7 @@ struct TRINITY_DLL_DECL mob_illidari_councilAI : public ScriptedAI
 
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, 11686);
+        m_creature->SetDisplayId(11686);
     }
 
     void EnterCombat(Unit *who) {}

@@ -72,7 +72,7 @@ struct TRINITY_DLL_DECL boss_gythAI : public ScriptedAI
             Line2Count = 2;
 
         //Invisible for event start
-        m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, 11686);
+        m_creature->SetDisplayId(11686);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }
 
@@ -112,7 +112,7 @@ struct TRINITY_DLL_DECL boss_gythAI : public ScriptedAI
             {
                 bAggro = true;
                 // Visible now!
-                m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, 9723);
+                m_creature->SetDisplayId(9723);
                 m_creature->setFaction(14);
                 m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             } else Aggro_Timer -= diff;
@@ -180,7 +180,7 @@ struct TRINITY_DLL_DECL boss_gythAI : public ScriptedAI
                 //Inturrupt any spell casting
                 m_creature->InterruptNonMeleeSpells(false);
                 //Gyth model
-                m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, 9806);
+                m_creature->SetDisplayId(9806);
                 m_creature->SummonCreature(10429, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 900000);
                 SummonedRend = true;
             }
