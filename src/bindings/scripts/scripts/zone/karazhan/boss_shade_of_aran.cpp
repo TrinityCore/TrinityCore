@@ -142,7 +142,7 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
             // Not in progress
             pInstance->SetData(DATA_SHADEOFARAN_EVENT, NOT_STARTED);
 
-            if(GameObject* Door = GameObject::GetGameObject(*m_creature, pInstance->GetData64(DATA_GAMEOBJECT_LIBRARY_DOOR)))
+            if(GameObject* Door = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_LIBRARY_DOOR)))
                 Door->SetGoState(GO_STATE_ACTIVE);
         }
     }
@@ -164,7 +164,7 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
         {
             pInstance->SetData(DATA_SHADEOFARAN_EVENT, DONE);
 
-            if(GameObject* Door = GameObject::GetGameObject(*m_creature, pInstance->GetData64(DATA_GAMEOBJECT_LIBRARY_DOOR)))
+            if(GameObject* Door = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_LIBRARY_DOOR)))
                 Door->SetGoState(GO_STATE_ACTIVE);
         }
     }
@@ -181,7 +181,7 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
         if(pInstance)
         {
             pInstance->SetData(DATA_SHADEOFARAN_EVENT, IN_PROGRESS);
-            if(GameObject* Door = GameObject::GetGameObject(*m_creature, pInstance->GetData64(DATA_GAMEOBJECT_LIBRARY_DOOR)))
+            if(GameObject* Door = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_LIBRARY_DOOR)))
                 Door->SetGoState(GO_STATE_READY);
         }
     }
@@ -232,7 +232,7 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
             {
                 if(pInstance)
                 {
-                    if(GameObject* Door = GameObject::GetGameObject(*m_creature, pInstance->GetData64(DATA_GAMEOBJECT_LIBRARY_DOOR)))
+                    if(GameObject* Door = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_LIBRARY_DOOR)))
                         Door->SetGoState(GO_STATE_READY);
                     CloseDoorTimer = 0;
                 }

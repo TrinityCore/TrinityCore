@@ -79,7 +79,7 @@ struct TRINITY_DLL_DECL instance_ramparts : public ScriptedInstance
             else
                 uiChest = m_uiChestNGUID;
 
-            if (GameObject* pGo = GameObject::GetGameObject(*pPlayer,uiChest))
+            if (GameObject* pGo = instance->GetGameObject(uiChest))
             {
                 if (pGo->isSpawned())
                     return;

@@ -24,7 +24,7 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_black_temple.h"
 
-#define GETGO(obj, guid)      GameObject* obj = GameObject::GetGameObject(*m_creature, guid)
+#define GETGO(obj, guid)      GameObject* obj = pInstance->instance->GetGameObject(pInstance->GetData64(guid))
 #define GETUNIT(unit, guid)   Unit* unit = Unit::GetUnit(*m_creature, guid)
 #define GETCRE(cre, guid)     Creature* cre = Unit::GetCreature(*m_creature, guid)
 #define HPPCT(unit)           unit->GetHealth()*100 / unit->GetMaxHealth()
@@ -459,9 +459,8 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
 
         for(uint8 i = DATA_GAMEOBJECT_ILLIDAN_DOOR_R; i < DATA_GAMEOBJECT_ILLIDAN_DOOR_L + 1; ++i)
         {
-            GameObject* Door = GameObject::GetGameObject((*m_creature), pInstance->GetData64(i));
-            if(Door)
-                Door->SetGoState(GO_STATE_ACTIVE); // Open Doors
+            if (GameObject* pDoor = pInstance->instance->GetGameObject(pInstance->GetData64(i)))
+                pDoor->SetGoState(GO_STATE_ACTIVE); // Open Doors
         }
     }
 
@@ -1630,7 +1629,7 @@ struct TRINITY_DLL_DECL cage_trap_triggerAI : public ScriptedAI
                     DespawnTimer = 5000;
                     if(who->HasAura(SPELL_ENRAGE))
                         who->RemoveAurasDueToSpell(SPELL_ENRAGE); // Dispel his enrage
-                    //if(GameObject* CageTrap = GameObject::GetGameObject(*m_creature, CageTrapGUID))
+                    //if(GameObject* CageTrap = pInstance->instance->GetGameObject(pInstance->GetData64(CageTrapGUID)))
                     //    CageTrap->SetLootState(GO_JUST_DEACTIVATED);
                 }
             }

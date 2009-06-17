@@ -337,7 +337,7 @@ struct TRINITY_DLL_DECL boss_kalecgos_kjAI : public ScriptedAI
             return;
         uint8 i = 0;
         for(std::list<GameObject*>::iterator itr = orbList.begin(); itr != orbList.end(); ++itr, ++i){
-            Orb[i] = GameObject::GetGameObject(*m_creature, (*itr)->GetGUID());
+            Orb[i] = pInstance->instance->GetGameObject(pInstance->GetData64((*itr)->GetGUID()));
         }
     }
 
