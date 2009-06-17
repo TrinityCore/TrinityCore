@@ -102,7 +102,7 @@ struct TRINITY_DLL_DECL boss_kalecgosAI : public ScriptedAI
 {
     boss_kalecgosAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
         SathGUID = 0;
         DoorGUID = 0;
     }
@@ -136,8 +136,8 @@ struct TRINITY_DLL_DECL boss_kalecgosAI : public ScriptedAI
         Unit *Sath = Unit::GetUnit(*m_creature,SathGUID);
         if(Sath) CAST_CRE(Sath)->AI()->EnterEvadeMode();
 
-        GameObject *Door = GameObject::GetGameObject(*m_creature, DoorGUID);
-        if(Door) Door->SetLootState(GO_JUST_DEACTIVATED);
+        if(GameObject *Door = pInstance->instance->GetGameObject(pInstance->GetData64(DoorGUID)))
+            Door->SetLootState(GO_JUST_DEACTIVATED);
 
         m_creature->setFaction(14);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE + UNIT_FLAG_NOT_SELECTABLE);
@@ -169,8 +169,8 @@ struct TRINITY_DLL_DECL boss_kalecgosAI : public ScriptedAI
     {
         m_creature->SetStandState(UNIT_STAND_STATE_STAND);
         DoScriptText(SAY_EVIL_AGGRO, m_creature);
-        GameObject *Door = GameObject::GetGameObject(*m_creature, DoorGUID);
-        if(Door) Door->SetLootState(GO_ACTIVATED);
+        if(GameObject *Door = pInstance->instance->GetGameObject(pInstance->GetData64(DoorGUID)))
+            Door->SetLootState(GO_ACTIVATED);
         DoZoneInCombat();
 
         if(pInstance)
@@ -250,7 +250,7 @@ struct TRINITY_DLL_DECL boss_sathrovarrAI : public ScriptedAI
 {
     boss_sathrovarrAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
         KalecGUID = 0;
         KalecgosGUID = 0;
     }
@@ -458,7 +458,7 @@ struct TRINITY_DLL_DECL boss_kalecAI : public ScriptedAI
     bool isEnraged; // if demon is enraged
 
     boss_kalecAI(Creature *c) : ScriptedAI(c){
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
     }
 
     void Reset()
@@ -544,8 +544,8 @@ void boss_kalecgosAI::UpdateAI(const uint32 diff)
             m_creature->RemoveAllAuras();
             m_creature->DeleteThreatList();
             m_creature->CombatStop();
-            GameObject *Door = GameObject::GetGameObject(*m_creature, DoorGUID);
-            if(Door) Door->SetLootState(GO_JUST_DEACTIVATED);
+            if(GameObject *Door = pInstance->instance->GetGameObject(pInstance->GetData64(DoorGUID)))
+                Door->SetLootState(GO_JUST_DEACTIVATED);
             TalkSequence++;
         }
         if(TalkTimer <= diff)

@@ -179,7 +179,7 @@ struct TRINITY_DLL_DECL boss_hexlord_addAI : public ScriptedAI
 
     boss_hexlord_addAI(Creature* c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
     }
 
     void Reset() {}
@@ -202,7 +202,7 @@ struct TRINITY_DLL_DECL boss_hex_lord_malacrassAI : public ScriptedAI
 {
     boss_hex_lord_malacrassAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
         SelectAddEntry();
         for(uint8 i = 0; i < 4; ++i)
             AddGUID[i] = 0;
@@ -392,7 +392,7 @@ struct TRINITY_DLL_DECL boss_hex_lord_malacrassAI : public ScriptedAI
             }
             else
             {
-                trigger->SetUInt32Value(UNIT_FIELD_DISPLAYID, 11686);
+                trigger->SetDisplayId(11686);
                 trigger->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 trigger->CastSpell(target, SPELL_SIPHON_SOUL, true);
                 trigger->GetMotionMaster()->MoveChase(m_creature);

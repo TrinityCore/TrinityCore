@@ -112,7 +112,7 @@ struct TRINITY_DLL_DECL boss_dathrohan_balnazzarAI : public ScriptedAI
         //        MindControl_Timer = 10000;
         Transformed = false;
 
-        m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID,10545);
+        m_creature->SetDisplayId(10545);
         m_creature->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.00f);
 
     }
@@ -207,7 +207,7 @@ struct TRINITY_DLL_DECL boss_dathrohan_balnazzarAI : public ScriptedAI
             {
                 //Cast
                 DoCast(m_creature,SPELL_BALNAZZARTRANSFORM); //restore hp, mana and stun
-                m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID,10691); //then change disaply id
+                m_creature->SetDisplayId(10691); //then change disaply id
                 m_creature->SetFloatValue(OBJECT_FIELD_SCALE_X, 3.00f); //then, change size
                 Transformed = true;
             }

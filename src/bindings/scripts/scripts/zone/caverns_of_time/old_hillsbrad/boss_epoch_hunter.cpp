@@ -44,7 +44,7 @@ struct TRINITY_DLL_DECL boss_epoch_hunterAI : public ScriptedAI
 {
     boss_epoch_hunterAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
     }
 
     ScriptedInstance *pInstance;

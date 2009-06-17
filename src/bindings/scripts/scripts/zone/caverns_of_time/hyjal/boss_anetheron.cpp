@@ -40,7 +40,7 @@ struct TRINITY_DLL_DECL boss_anetheronAI : public hyjal_trashAI
 {
     boss_anetheronAI(Creature *c) : hyjal_trashAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
         go = false;
         pos = 0;
         SpellEntry *TempSpell = GET_SPELL(SPELL_SLEEP);
@@ -225,7 +225,7 @@ struct TRINITY_DLL_DECL mob_towering_infernalAI : public ScriptedAI
 {
     mob_towering_infernalAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
         if(pInstance)
             AnetheronGUID = pInstance->GetData64(DATA_ANETHERON);
     }

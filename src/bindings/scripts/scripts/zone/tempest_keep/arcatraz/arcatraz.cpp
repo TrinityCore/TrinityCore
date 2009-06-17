@@ -63,7 +63,7 @@ struct TRINITY_DLL_DECL npc_millhouse_manastormAI : public ScriptedAI
 {
     npc_millhouse_manastormAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
     }
 
     ScriptedInstance* pInstance;
@@ -251,7 +251,7 @@ struct TRINITY_DLL_DECL npc_warden_mellicharAI : public ScriptedAI
 {
     npc_warden_mellicharAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
     }
 
     ScriptedInstance* pInstance;
@@ -305,7 +305,7 @@ struct TRINITY_DLL_DECL npc_warden_mellicharAI : public ScriptedAI
         if( pInstance )
         {
             pInstance->SetData(TYPE_HARBINGERSKYRISS,IN_PROGRESS);
-            if (GameObject* Sphere = GameObject::GetGameObject(*m_creature,pInstance->GetData64(DATA_SPHERE_SHIELD)))
+            if (GameObject* Sphere = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_SPHERE_SHIELD)))
                 Sphere->SetGoState(GO_STATE_READY);
             IsRunning = true;
         }
@@ -346,7 +346,7 @@ struct TRINITY_DLL_DECL npc_warden_mellicharAI : public ScriptedAI
                 case 2:
                     DoCast(m_creature,SPELL_TARGET_ALPHA);
                     pInstance->SetData(TYPE_WARDEN_1,IN_PROGRESS);
-                    if (GameObject *Sphere = GameObject::GetGameObject(*m_creature,pInstance->GetData64(DATA_SPHERE_SHIELD)))
+                    if (GameObject *Sphere = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_SPHERE_SHIELD)))
                         Sphere->SetGoState(GO_STATE_READY);
                     break;
                 case 3:

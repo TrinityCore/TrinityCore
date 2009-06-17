@@ -24,21 +24,22 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_blood_furnace.h"
 
-
-#define SAY_AGGRO               -1542008
-
-#define SPELL_SLIME_SPRAY       30913
-#define SPELL_POISON_CLOUD      30916
-#define SPELL_POISON_BOLT       30917
-
-#define SPELL_POISON            30914
+enum
+{
+    SAY_AGGRO               = -1542008,
+ 
+    SPELL_SLIME_SPRAY       = 30913,
+    SPELL_POISON_CLOUD      = 30916,
+    SPELL_POISON_BOLT       = 30917,
+ 
+    SPELL_POISON            = 30914
+};
 
 struct TRINITY_DLL_DECL boss_broggokAI : public ScriptedAI
 {
     boss_broggokAI(Creature *c) : ScriptedAI(c) 
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
+        pInstance = c->GetInstanceData();
     }
 
     ScriptedInstance* pInstance;
@@ -111,7 +112,7 @@ struct TRINITY_DLL_DECL boss_broggokAI : public ScriptedAI
     {
         if (pInstance)
         {
-            if (GameObject* Doors = GameObject::GetGameObject(*m_creature, pInstance->GetData64(DOOR)))
+            if (GameObject* Doors = pInstance->instance->GetGameObject(pInstance->GetData64(DOOR)))
             {
                 if (close == 1)
                     Doors->SetGoState(GO_STATE_READY);                // Closed

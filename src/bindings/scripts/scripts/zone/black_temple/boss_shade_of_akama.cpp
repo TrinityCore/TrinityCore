@@ -167,7 +167,7 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
 {
     boss_shade_of_akamaAI(Creature* c) : ScriptedAI(c), summons(m_creature)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
         AkamaGUID = pInstance ? pInstance->GetData64(DATA_AKAMA_SHADE) : 0;
         m_creature->setActive(true);//if view distance is too low
         m_creature->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
@@ -257,17 +257,12 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
                         {
                             Channeler->RemoveCorpse();
                             Channeler->Respawn();
-                            Channeler->InterruptNonMeleeSpells(true);
-                            Channeler->RemoveAurasDueToSpell(SPELL_SHADE_SOUL_CHANNEL);
                         }
 
-                        if (Channeler->isAlive())
-                        {
-                            Channeler->CastSpell(m_creature, SPELL_SHADE_SOUL_CHANNEL, true);
-                            Channeler->CastSpell(m_creature, SPELL_SHADE_SOUL_CHANNEL_2, true);
-                            Channeler->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            GridSearcherSucceeded = true;
-                        }
+                        Channeler->CastSpell(m_creature, SPELL_SHADE_SOUL_CHANNEL, true);
+                        Channeler->CastSpell(m_creature, SPELL_SHADE_SOUL_CHANNEL_2, true);
+                        Channeler->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        GridSearcherSucceeded = true;
                     }
                 }
             }else error_log("SD2 ERROR: No Channelers are stored in the list. This encounter will not work properly");
@@ -507,7 +502,7 @@ struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
     {
         ShadeHasDied = false;
         StartCombat = false;
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
         ShadeGUID = pInstance ? pInstance->GetData64(DATA_SHADEOFAKAMA) : NOT_STARTED;
         m_creature->setActive(true);
         EventBegun = false;
