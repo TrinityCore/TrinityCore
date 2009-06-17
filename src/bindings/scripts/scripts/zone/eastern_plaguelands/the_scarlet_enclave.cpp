@@ -532,9 +532,7 @@ struct TRINITY_DLL_DECL npc_salanar_the_horsemanAI : public ScriptedAI
                             return;
                     }
                     CAST_PLR(charmer)->ExitVehicle();
-                    //without this we can see npc kill the horse
-                    who->setDeathState(DEAD);
-                    CAST_CRE(who)->Respawn();
+                    CAST_CRE(who)->Respawn(true);
                 }
             }
         }
@@ -553,18 +551,6 @@ CreatureAI* GetAI_npc_salanar_the_horseman(Creature *_Creature)
 struct TRINITY_DLL_DECL npc_ros_dark_riderAI : public ScriptedAI
 {
     npc_ros_dark_riderAI(Creature *c) : ScriptedAI(c) {}
-
-    void MoveInLineOfSight(Unit *who)
-    {
-        if(me->getVictim())
-            return;
-
-        // this should be before next one otherwise he may enter vehicle again
-        if(!me->m_Vehicle && who->GetEntry() == 28782 && CAST_CRE(who)->isVehicle() && CAST_VEH(who)->HasEmptySeat(0))
-            me->EnterVehicle(CAST_VEH(who));
-
-        ScriptedAI::MoveInLineOfSight(who);
-    }
 
     void EnterCombat(Unit *who)
     {
