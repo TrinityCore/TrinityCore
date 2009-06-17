@@ -564,6 +564,8 @@ struct TRINITY_DLL_DECL npc_ros_dark_riderAI : public ScriptedAI
         deathcharger->RestoreFaction();
         deathcharger->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
         deathcharger->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        if(!me->m_Vehicle && deathcharger->isVehicle() && CAST_VEH(deathcharger)->HasEmptySeat(0))
+            me->EnterVehicle(CAST_VEH(deathcharger));
     }
 
     void JustDied(Unit *killer)

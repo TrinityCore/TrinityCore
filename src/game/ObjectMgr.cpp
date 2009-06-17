@@ -8474,3 +8474,19 @@ void ObjectMgr::RemoveGMTicket(uint64 ticketGuid, int64 source, bool permanently
     RemoveGMTicket(ticket, source, permanently);
 }
 
+bool ObjectMgr::CheckDB() const
+{
+    CreatureInfo const* cInfo = sCreatureStorage.LookupEntry<CreatureInfo>(28511);
+    if(!cInfo || cInfo->spells[4] != 51890)
+        return false;
+
+    cInfo = sCreatureStorage.LookupEntry<CreatureInfo>(30068);
+    if(!cInfo || cInfo->faction_A != 21)
+        return false;
+
+    cInfo = sCreatureStorage.LookupEntry<CreatureInfo>(28768);
+    if(!cInfo || !cInfo->ScriptID)
+        return false;
+
+    return true;
+}

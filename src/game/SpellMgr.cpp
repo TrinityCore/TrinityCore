@@ -3626,3 +3626,13 @@ void SpellMgr::LoadSpellLinked()
     sLog.outString();
     sLog.outString( ">> Loaded %u linked spells", count );
 }
+
+bool SpellMgr::CheckDB() const
+{
+    SpellScriptTarget::const_iterator lower = GetBeginSpellScriptTarget(30531);
+    SpellScriptTarget::const_iterator upper = GetEndSpellScriptTarget(30531);
+    if(lower == upper || lower->second.targetEntry != 17256)
+        return false;
+
+    return true;
+}
