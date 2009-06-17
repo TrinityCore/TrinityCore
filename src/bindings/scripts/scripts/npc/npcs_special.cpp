@@ -43,12 +43,11 @@ EndContentData */
 # npc_chicken_cluck
 #########*/
 
-#define EMOTE_A_HELLO       -1070004
-#define EMOTE_H_HELLO       -1070005
-#define EMOTE_CLUCK_TEXT2   -1070006
+#define EMOTE_HELLO         -1070004
+#define EMOTE_CLUCK_TEXT    -1070006
 
 #define QUEST_CLUCK         3861
-#define FACTION_FRIENDLY    84
+#define FACTION_FRIENDLY    35
 #define FACTION_CHICKEN     31
 
 struct TRINITY_DLL_DECL npc_chicken_cluckAI : public ScriptedAI
@@ -60,7 +59,6 @@ struct TRINITY_DLL_DECL npc_chicken_cluckAI : public ScriptedAI
     void Reset()
     {
         ResetFlagTimer = 120000;
-
         m_creature->setFaction(FACTION_CHICKEN);
         m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
     }
@@ -85,31 +83,24 @@ struct TRINITY_DLL_DECL npc_chicken_cluckAI : public ScriptedAI
 
     void ReceiveEmote( Player *player, uint32 emote )
     {
-        if( emote == TEXTEMOTE_CHICKEN )
+        switch( emote )
         {
-            if( player->GetTeam() == ALLIANCE )
-            {
-                if( rand()%30 == 1 )
+            case TEXTEMOTE_CHICKEN:
+                if( player->GetQuestStatus(QUEST_CLUCK) == QUEST_STATUS_NONE && rand()%30 == 1 )
                 {
-                    if( player->GetQuestStatus(QUEST_CLUCK) == QUEST_STATUS_NONE )
-                    {
-                        m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-                        m_creature->setFaction(FACTION_FRIENDLY);
-                        DoScriptText(EMOTE_A_HELLO, m_creature);
-                    }
+                    m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                    m_creature->setFaction(FACTION_FRIENDLY);
+                    DoScriptText(EMOTE_HELLO, m_creature);
                 }
-            }
-            else
-                DoScriptText(EMOTE_H_HELLO,m_creature);
-        }
-        if( emote == TEXTEMOTE_CHEER && player->GetTeam() == ALLIANCE )
-        {
-            if( player->GetQuestStatus(QUEST_CLUCK) == QUEST_STATUS_COMPLETE )
-            {
-                m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-                m_creature->setFaction(FACTION_FRIENDLY);
-                DoScriptText(EMOTE_CLUCK_TEXT2, m_creature);
-            }
+                break;
+            case TEXTEMOTE_CHEER:
+                if( player->GetQuestStatus(QUEST_CLUCK) == QUEST_STATUS_COMPLETE )
+                {
+                    m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                    m_creature->setFaction(FACTION_FRIENDLY);
+                    DoScriptText(EMOTE_CLUCK_TEXT, m_creature);
+                }
+                break;
         }
     }
 };
