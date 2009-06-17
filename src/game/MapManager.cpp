@@ -251,11 +251,6 @@ MapManager::Update(uint32 diff)
     if( !i_timer.Passed() )
         return;
 
-    sWorld.RecordTimeDiff(NULL);
-    ObjectAccessor::Instance().UpdatePlayers(i_timer.GetCurrent());
-    sWorld.RecordTimeDiff("UpdatePlayers");
-
-
     for(MapMapType::iterator iter=i_maps.begin(); iter != i_maps.end(); ++iter)
     {
         checkAndCorrectGridStatesArray();                   // debugging code, should be deleted some day
