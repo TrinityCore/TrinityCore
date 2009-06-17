@@ -208,11 +208,8 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
 
         if(pInstance)
         {
-            GameObject* Door = GameObject::GetGameObject((*m_creature),pInstance->GetData64(DATA_GAMEOBJECT_NETHER_DOOR));
-            if(Door)
-            {
+            if(GameObject* Door = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_NETHER_DOOR)))
                 Door->SetGoState(GO_STATE_ACTIVE);
-            }
         }
     }
 
@@ -240,11 +237,8 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
 
         if(pInstance)
         {
-            GameObject* Door = GameObject::GetGameObject((*m_creature),pInstance->GetData64(DATA_GAMEOBJECT_NETHER_DOOR));
-            if(Door)
-            {
+            if(GameObject* Door = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_NETHER_DOOR)))
                 Door->SetGoState(GO_STATE_ACTIVE);
-            }
         }
     }
 
@@ -254,11 +248,8 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
 
         if(pInstance)
         {
-            GameObject* Door = GameObject::GetGameObject((*m_creature),pInstance->GetData64(DATA_GAMEOBJECT_NETHER_DOOR));
-            if(Door)
-            {
+            if(GameObject* Door = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_NETHER_DOOR)))
                 Door->SetGoState(GO_STATE_READY);
-            }
         }
     }
 

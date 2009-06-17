@@ -281,8 +281,7 @@ void npc_unworthy_initiateAI::UpdateAI(const uint32 diff)
             Creature* trigger = m_creature->SummonCreature(29521,x,y,z,0,TEMPSUMMON_MANUAL_DESPAWN,100);
             if(trigger)
             {
-                GameObject* go_prison = GameObject::GetGameObject((*m_creature),nearest_prison);
-                if(go_prison)
+                if(GameObject* go_prison = GameObject::GetGameObject((*m_creature),nearest_prison))
                     go_prison->ResetDoorOrButton();
 
                 CAST_AI(npc_unworthy_initiate_anchorAI, trigger->AI())->SetTarget(m_creature->GetGUID());

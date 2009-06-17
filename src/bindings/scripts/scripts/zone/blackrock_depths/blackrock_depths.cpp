@@ -1098,7 +1098,7 @@ struct TRINITY_DLL_DECL npc_rocknotAI : public npc_escortAI
 
     void DoGo(uint32 id, uint32 state)
     {
-        if (GameObject *go = GameObject::GetGameObject(*m_creature,pInstance->GetData64(id)))
+        if (GameObject *go = pInstance->instance->GetGameObject(pInstance->GetData64(id)))
             go->SetGoState((GOState)state);
     }
 

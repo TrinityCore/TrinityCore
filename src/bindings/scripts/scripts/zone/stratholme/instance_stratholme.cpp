@@ -136,12 +136,10 @@ struct TRINITY_DLL_DECL instance_stratholme : public ScriptedInstance
     //if withRestoreTime true, then newState will be ignored and GO should be restored to original state after 10 seconds
     void UpdateGoState(uint64 goGuid, uint32 newState, bool withRestoreTime)
     {
-        Player *player = GetPlayerInMap();
-
-        if (!player || !goGuid)
+        if (!goGuid)
             return;
 
-        if (GameObject *go = GameObject::GetGameObject(*player, goGuid))
+        if (GameObject *go = instance->GetGameObject(goGuid))
         {
             if (withRestoreTime)
                 go->UseDoorOrButton(10);

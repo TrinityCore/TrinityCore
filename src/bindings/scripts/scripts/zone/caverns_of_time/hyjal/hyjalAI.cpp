@@ -728,8 +728,7 @@ void hyjalAI::DeSpawnVeins()
         if(!ai)return;
         for (uint8 i = 0; i<7; i++)
         {
-            GameObject* gem = GameObject::GetGameObject((*m_creature), ai->VeinGUID[i]);
-            if(gem)
+            if (GameObject* gem = pInstance->instance->GetGameObject(pInstance->GetData64(ai->VeinGUID[i])))
                 gem->RemoveFromWorld();
         }
     }else if (Faction)
@@ -740,8 +739,7 @@ void hyjalAI::DeSpawnVeins()
         if(!ai)return;
         for (uint8 i = 7; i<14; i++)
         {
-            GameObject* gem = GameObject::GetGameObject((*m_creature), ai->VeinGUID[i]);
-            if(gem)
+            if(GameObject* gem = pInstance->instance->GetGameObject(pInstance->GetData64(ai->VeinGUID[i])))
                 gem->RemoveFromWorld();
         }
     }
