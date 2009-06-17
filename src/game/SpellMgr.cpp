@@ -2254,7 +2254,10 @@ void SpellMgr::LoadSpellAreas()
         spellArea.autocast            = fields[8].GetBool();
 
         if(const SpellEntry* spellInfo = sSpellStore.LookupEntry(spell))
-            const_cast<SpellEntry*>(spellInfo)->Attributes |= SPELL_ATTR_CANT_CANCEL;
+        {
+            if(spellArea.autocast)
+                const_cast<SpellEntry*>(spellInfo)->Attributes |= SPELL_ATTR_CANT_CANCEL;
+        }
         else
         {
             sLog.outErrorDb("Spell %u listed in `spell_area` does not exist", spell);
