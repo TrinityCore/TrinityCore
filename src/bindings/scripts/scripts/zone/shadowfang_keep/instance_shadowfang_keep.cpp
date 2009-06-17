@@ -66,22 +66,6 @@ struct TRINITY_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
              Encounter[i] = NOT_STARTED;
     }
 
-    Player* GetPlayerInMap()
-    {
-        Map::PlayerList const& players = instance->GetPlayers();
-
-        if (!players.isEmpty())
-        {
-            for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-            {
-                if (Player* plr = itr->getSource())
-                    return plr;
-            }
-        }
-        debug_log("TSCR: Instance Shadowfang Keep: GetPlayerInMap, but PlayerList is empty!");
-        return NULL;
-    }
-
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
         switch(pCreature->GetEntry())
@@ -115,18 +99,13 @@ struct TRINITY_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
 
     void DoSpeech()
     {
-        Player* pPlayer = GetPlayerInMap();
+        Creature* pAda = instance->GetCreature(uiAdaGUID);
+        Creature* pAsh = instance->GetCreature(uiAshGUID);
 
-        if (pPlayer)
+        if (pAda && pAda->isAlive() && pAsh && pAsh->isAlive())
         {
-            Unit* pAda = Unit::GetUnit(*pPlayer,uiAdaGUID);
-            Unit* pAsh = Unit::GetUnit(*pPlayer,uiAshGUID);
-
-            if (pAda && pAda->isAlive() && pAsh && pAsh->isAlive())
-            {
-                DoScriptText(SAY_BOSS_DIE_AD,pAda);
-                DoScriptText(SAY_BOSS_DIE_AS,pAsh);
-            }
+            DoScriptText(SAY_BOSS_DIE_AD,pAda);
+            DoScriptText(SAY_BOSS_DIE_AS,pAsh);
         }
     }
 

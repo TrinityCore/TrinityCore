@@ -64,58 +64,67 @@ bool GossipSelect_npc_archmage_malin(Player *player, Creature *_Creature, uint32
 ## npc_bartleby
 ######*/
 
+enum
+{
+    FACTION_ENEMY       = 168,
+    QUEST_BEAT          = 1640
+};
+
 struct TRINITY_DLL_DECL npc_bartlebyAI : public ScriptedAI
 {
-    npc_bartlebyAI(Creature *c) : ScriptedAI(c) {}
+    npc_bartlebyAI(Creature *c) : ScriptedAI(c)
+    {
+        m_uiNormalFaction = c->getFaction();
+    }
 
-    uint64 PlayerGUID;
+    uint32 m_uiNormalFaction;
 
     void Reset()
     {
-        m_creature->setFaction(11);
-
-        PlayerGUID = 0;
+        if (m_creature->getFaction() != m_uiNormalFaction)
+            m_creature->setFaction(m_uiNormalFaction);
     }
 
-    void JustDied(Unit *who)
+    void AttackedBy(Unit* pAttacker)
     {
-        m_creature->setFaction(11);
+        if (m_creature->getVictim())
+            return;
+
+        if (m_creature->IsFriendlyTo(pAttacker))
+            return;
+
+        AttackStart(pAttacker);
     }
 
-    void DamageTaken(Unit *done_by, uint32 & damage)
+    void Aggro(Unit *who) { }
+
+    void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
     {
-        if(damage > m_creature->GetHealth() || ((m_creature->GetHealth() - damage)*100 / m_creature->GetMaxHealth() < 15))
+        if (uiDamage > m_creature->GetHealth() || ((m_creature->GetHealth() - uiDamage)*100 / m_creature->GetMaxHealth() < 15))
         {
             //Take 0 damage
-            damage = 0;
+            uiDamage = 0;
 
-            if (done_by->GetTypeId() == TYPEID_PLAYER && done_by->GetGUID() == PlayerGUID)
-            {
-                CAST_PLR(done_by)->AttackStop();
-                CAST_PLR(done_by)->AreaExploredOrEventHappens(1640);
-            }
-            m_creature->CombatStop();
+            if (pDoneBy->GetTypeId() == TYPEID_PLAYER)
+                ((Player*)pDoneBy)->AreaExploredOrEventHappens(QUEST_BEAT);
             EnterEvadeMode();
         }
     }
-
-    void EnterCombat(Unit *who) {}
 };
 
-bool QuestAccept_npc_bartleby(Player *player, Creature *_Creature, Quest const *_Quest)
+bool QuestAccept_npc_bartleby(Player* pPlayer, Creature* pCreature, Quest const* pQuest)
 {
-    if(_Quest->GetQuestId() == 1640)
+    if (pQuest->GetQuestId() == QUEST_BEAT)
     {
-        _Creature->setFaction(168);
-        CAST_AI(npc_bartlebyAI, _Creature->AI())->PlayerGUID = player->GetGUID();
-        CAST_AI(npc_bartlebyAI, _Creature->AI())->AttackStart(player);
+        pCreature->setFaction(FACTION_ENEMY);
+        ((npc_bartlebyAI*)pCreature->AI())->AttackStart(pPlayer);
     }
     return true;
 }
 
-CreatureAI* GetAI_npc_bartleby(Creature *_creature)
+CreatureAI* GetAI_npc_bartleby(Creature* pCreature)
 {
-    return new npc_bartlebyAI(_creature);
+    return new npc_bartlebyAI(pCreature);
 }
 
 /*######
@@ -130,31 +139,44 @@ enum
 
 struct TRINITY_DLL_DECL npc_dashel_stonefistAI : public ScriptedAI
 {
-    npc_dashel_stonefistAI(Creature *c) : ScriptedAI(c) { uiNormFaction = c->getFaction(); }
+    npc_dashel_stonefistAI(Creature *c) : ScriptedAI(c)
+    {
+        m_uiNormalFaction = c->getFaction();
+    }
 
-    uint32 uiNormFaction;
+    uint32 m_uiNormalFaction;
 
     void Reset()
     {
-        m_creature->setFaction(uiNormFaction);
+        if (m_creature->getFaction() != m_uiNormalFaction)
+            m_creature->setFaction(m_uiNormalFaction);
     }
 
-    void DamageTaken(Unit *done_by, uint32 & damage)
+    void AttackedBy(Unit* pAttacker)
     {
-        if ((damage > m_creature->GetHealth()) || (m_creature->GetHealth() - damage)*100 / m_creature->GetMaxHealth() < 15)
+        if (m_creature->getVictim())
+            return;
+
+        if (m_creature->IsFriendlyTo(pAttacker))
+            return;
+
+        AttackStart(pAttacker);
+    }
+
+    void Aggro(Unit *who) {}
+
+    void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
+    {
+        if (uiDamage > m_creature->GetHealth() || ((m_creature->GetHealth() - uiDamage)*100 / m_creature->GetMaxHealth() < 15))
         {
-            //Take 0 damage
-            damage = 0;
+            uiDamage = 0;
 
-            if (done_by->GetTypeId() == TYPEID_PLAYER)
-                CAST_PLR(done_by)->AreaExploredOrEventHappens(QUEST_MISSING_DIPLO_PT8);
+            if (pDoneBy->GetTypeId() == TYPEID_PLAYER)
+                ((Player*)pDoneBy)->AreaExploredOrEventHappens(QUEST_MISSING_DIPLO_PT8);
 
-            //m_creature->CombatStop();
             EnterEvadeMode();
         }
     }
-
-    void EnterCombat(Unit *who) {}
 };
 
 bool QuestAccept_npc_dashel_stonefist(Player* pPlayer, Creature* pCreature, Quest const* pQuest)

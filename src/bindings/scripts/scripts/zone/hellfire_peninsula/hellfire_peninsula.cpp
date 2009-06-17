@@ -90,7 +90,7 @@ struct TRINITY_DLL_DECL npc_aeranasAI : public ScriptedAI
             m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
             m_creature->RemoveAllAuras();
             m_creature->DeleteThreatList();
-            m_creature->CombatStop();
+            m_creature->CombatStop(true);
             DoScriptText(SAY_FREE, m_creature);
             return;
         }

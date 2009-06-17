@@ -95,23 +95,6 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
         NextPortal_Timer    = 0;
     }
 
-    Player* GetPlayerInMap()
-    {
-        Map::PlayerList const& players = instance->GetPlayers();
-
-        if (!players.isEmpty())
-        {
-            for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-            {
-                if (Player* plr = itr->getSource())
-                    return plr;
-            }
-        }
-
-        debug_log("TSCR: Instance Black Portal: GetPlayerInMap, but PlayerList is empty!");
-        return NULL;
-    }
-
     void UpdateBMWorldState(uint32 id, uint32 state)
     {
         Map::PlayerList const& players = instance->GetPlayers();
@@ -158,7 +141,7 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
     //what other conditions to check?
     bool CanProgressEvent()
     {
-        if (!GetPlayerInMap())
+        if (instance->GetPlayers().isEmpty())
             return false;
 
         return true;
@@ -183,14 +166,6 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
 
     void SetData(uint32 type, uint32 data)
     {
-        Player *player = GetPlayerInMap();
-
-        if (!player)
-        {
-            debug_log("TSCR: Instance Black Portal: SetData (Type: %u Data %u) cannot find any player.", type, data);
-            return;
-        }
-
         switch(type)
         {
         case TYPE_MEDIVH:
@@ -201,11 +176,11 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
 
                 if (!mShieldPercent)
                 {
-                    if (Unit *medivh = Unit::GetUnit(*player,MedivhGUID))
+                    if (Creature* pMedivh = instance->GetCreature(MedivhGUID))
                     {
-                        if (medivh->isAlive())
+                        if (pMedivh->isAlive())
                         {
-                            medivh->DealDamage(medivh, medivh->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                            pMedivh->DealDamage(pMedivh, pMedivh->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                             Encounter[0] = FAIL;
                             Encounter[1] = NOT_STARTED;
                         }
@@ -225,11 +200,22 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
                 if (data == DONE)
                 {
                     //this may be completed further out in the post-event
-                    if (Unit *medivh = Unit::GetUnit(*player,MedivhGUID))
+                    debug_log("TSCR: Instance Dark Portal: Event completed.");
+                    Map::PlayerList const& players = instance->GetPlayers();
+
+                    if (!players.isEmpty())
                     {
-                        debug_log("TSCR: Instance Dark Portal: Event completed.");
-                        player->GroupEventHappens(QUEST_OPENING_PORTAL,medivh);
-                        player->GroupEventHappens(QUEST_MASTER_TOUCH,medivh);
+                        for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                        {
+                            if (Player* pPlayer = itr->getSource())
+                            {
+                                if (pPlayer->GetQuestStatus(QUEST_OPENING_PORTAL) == QUEST_STATUS_INCOMPLETE)
+                                    pPlayer->AreaExploredOrEventHappens(QUEST_OPENING_PORTAL);
+
+                                if (pPlayer->GetQuestStatus(QUEST_MASTER_TOUCH) == QUEST_STATUS_INCOMPLETE)
+                                    pPlayer->AreaExploredOrEventHappens(QUEST_MASTER_TOUCH);
+                            }
+                        }
                     }
                 }
 
@@ -272,24 +258,25 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
         return 0;
     }
 
-    Unit* SummonedPortalBoss(Unit* source)
+    Creature* SummonedPortalBoss(Creature* pSource)
     {
         uint32 entry = RiftWaves[GetRiftWaveId()].PortalBoss;
+
         if (entry == RIFT_BOSS)
             entry = RandRiftBoss();
 
         float x,y,z;
-        source->GetRandomPoint(source->GetPositionX(),source->GetPositionY(),source->GetPositionZ(),10.0f,x,y,z);
+        pSource->GetRandomPoint(pSource->GetPositionX(),pSource->GetPositionY(),pSource->GetPositionZ(),10.0f,x,y,z);
         //normalize Z-level if we can, if rift is not at ground level.
         z = std::max(instance->GetHeight(x, y, MAX_HEIGHT), instance->GetWaterLevel(x, y));
 
         debug_log("TSCR: Instance Dark Portal: Summoning rift boss entry %u.",entry);
 
-        Unit *Summon = source->SummonCreature(entry,x,y,z,source->GetOrientation(),
+        Creature* pSummoned = pSource->SummonCreature(entry,x,y,z,pSource->GetOrientation(),
             TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000);
 
-        if (Summon)
-            return Summon;
+        if (pSummoned)
+            return pSummoned;
 
         debug_log("TSCR: Instance Dark Portal: what just happened there? No boss, no loot, no fun...");
         return NULL;
@@ -297,11 +284,7 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
 
     void DoSpawnPortal()
     {
-        Player *player = GetPlayerInMap();
-        if (!player)
-            return;
-
-        if (Unit *medivh = Unit::GetUnit(*player,MedivhGUID))
+        if (Creature* pMedivh = instance->GetCreature(MedivhGUID))
         {
             int tmp = rand()%(4-1);
 
@@ -311,26 +294,26 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
 
                     CurrentRiftId = tmp;
 
-                    Unit *temp = medivh->SummonCreature(C_TIME_RIFT,
+                    Creature* pTemp = pMedivh->SummonCreature(C_TIME_RIFT,
                         PortalLocation[tmp][0],PortalLocation[tmp][1],PortalLocation[tmp][2],PortalLocation[tmp][3],
                         TEMPSUMMON_CORPSE_DESPAWN,0);
-                    if (temp)
+                    if (pTemp)
                     {
 
-                        temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                        temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
 
-                        if (Unit* boss = SummonedPortalBoss(temp))
+                        if (Creature* pBoss = SummonedPortalBoss(pTemp))
                         {
-                            if (boss->GetEntry() == C_AEONUS)
+                            if (pBoss->GetEntry() == C_AEONUS)
                             {
-                                boss->AddThreat(medivh,0.0f);
+                                pBoss->AddThreat(pMedivh,0.0f);
                             }
                             else
                             {
-                                boss->AddThreat(temp,0.0f);
-                                temp->CastSpell(boss,SPELL_RIFT_CHANNEL,false);
+                                pBoss->AddThreat(pTemp,0.0f);
+                                pTemp->CastSpell(pBoss,SPELL_RIFT_CHANNEL,false);
                             }
                         }
                     }

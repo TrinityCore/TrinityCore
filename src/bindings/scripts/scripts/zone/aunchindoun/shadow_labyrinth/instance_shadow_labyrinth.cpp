@@ -92,23 +92,6 @@ struct TRINITY_DLL_DECL instance_shadow_labyrinth : public ScriptedInstance
         }
     }
 
-    Player* GetPlayerInMap()
-    {
-        Map::PlayerList const& players = instance->GetPlayers();
-
-        if (!players.isEmpty())
-        {
-            for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-            {
-                if (Player* plr = itr->getSource())
-                    return plr;
-            }
-        }
-
-        debug_log("TSCR: Instance Shadow Labyrinth: GetPlayerInMap, but PlayerList is empty!");
-        return NULL;
-    }
-
     void SetData(uint32 type, uint32 data)
     {
         switch(type)
