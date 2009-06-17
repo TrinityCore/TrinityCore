@@ -152,34 +152,34 @@ struct TRINITY_DLL_DECL npc_custodian_of_timeAI : public npc_escortAI
 
     void WaypointReached(uint32 i)
     {
-        Unit *pTemp = Unit::GetUnit(*m_creature,PlayerGUID);
-        if( !pTemp )
+        Player *pPlayer = Unit::GetPlayer(PlayerGUID);
+        if( !pPlayer )
             return;
 
         switch( i )
         {
-            case 2: DoScriptText(WHISPER_CUSTODIAN_1, m_creature, pTemp); break;
-            case 3: DoScriptText(WHISPER_CUSTODIAN_2, m_creature, pTemp); break;
-            case 4: DoScriptText(WHISPER_CUSTODIAN_3, m_creature, pTemp); break;
-            case 5: DoScriptText(WHISPER_CUSTODIAN_4, m_creature, pTemp); break;
-            case 7: DoScriptText(WHISPER_CUSTODIAN_5, m_creature, pTemp); break;
-            case 8: DoScriptText(WHISPER_CUSTODIAN_6, m_creature, pTemp); break;
-            case 9: DoScriptText(WHISPER_CUSTODIAN_7, m_creature, pTemp); break;
-            case 10: DoScriptText(WHISPER_CUSTODIAN_8, m_creature, pTemp); break;
-            case 11: DoScriptText(WHISPER_CUSTODIAN_9, m_creature, pTemp); break;
-            case 12: DoScriptText(WHISPER_CUSTODIAN_4, m_creature, pTemp); break;
-            case 15: DoScriptText(WHISPER_CUSTODIAN_10, m_creature, pTemp); break;
-            case 16: DoScriptText(WHISPER_CUSTODIAN_4, m_creature, pTemp); break;
-            case 18: DoScriptText(WHISPER_CUSTODIAN_11, m_creature, pTemp); break;
-            case 19: DoScriptText(WHISPER_CUSTODIAN_12, m_creature, pTemp); break;
-            case 20: DoScriptText(WHISPER_CUSTODIAN_4, m_creature, pTemp); break;
-            case 24: DoScriptText(WHISPER_CUSTODIAN_13, m_creature, pTemp); break;
-            case 25: DoScriptText(WHISPER_CUSTODIAN_4, m_creature, pTemp); break;
-            case 26:
-                DoScriptText(WHISPER_CUSTODIAN_14, m_creature, pTemp);
-                DoCast(pTemp,34883);
-                //below here is temporary workaround, to be removed when spell works properly
-                CAST_PLR(pTemp)->AreaExploredOrEventHappens(10277);
+            case 0: DoScriptText(WHISPER_CUSTODIAN_1, m_creature, pPlayer); break;
+            case 1: DoScriptText(WHISPER_CUSTODIAN_2, m_creature, pPlayer); break;
+            case 2: DoScriptText(WHISPER_CUSTODIAN_3, m_creature, pPlayer); break;
+            case 3: DoScriptText(WHISPER_CUSTODIAN_4, m_creature, pPlayer); break;
+            case 5: DoScriptText(WHISPER_CUSTODIAN_5, m_creature, pPlayer); break;
+            case 6: DoScriptText(WHISPER_CUSTODIAN_6, m_creature, pPlayer); break;
+            case 7: DoScriptText(WHISPER_CUSTODIAN_7, m_creature, pPlayer); break;
+            case 8: DoScriptText(WHISPER_CUSTODIAN_8, m_creature, pPlayer); break;
+            case 9: DoScriptText(WHISPER_CUSTODIAN_9, m_creature, pPlayer); break;
+            case 10: DoScriptText(WHISPER_CUSTODIAN_4, m_creature, pPlayer); break;
+            case 13: DoScriptText(WHISPER_CUSTODIAN_10, m_creature, pPlayer); break;
+            case 14: DoScriptText(WHISPER_CUSTODIAN_4, m_creature, pPlayer); break;
+            case 16: DoScriptText(WHISPER_CUSTODIAN_11, m_creature, pPlayer); break;
+            case 17: DoScriptText(WHISPER_CUSTODIAN_12, m_creature, pPlayer); break;
+            case 18: DoScriptText(WHISPER_CUSTODIAN_4, m_creature, pPlayer); break;
+            case 22: DoScriptText(WHISPER_CUSTODIAN_13, m_creature, pPlayer); break;
+            case 23: DoScriptText(WHISPER_CUSTODIAN_4, m_creature, pPlayer); break;
+            case 24:
+                DoScriptText(WHISPER_CUSTODIAN_14, m_creature, pPlayer);
+                DoCast(pPlayer, 34883);
+                // below here is temporary workaround, to be removed when spell works properly
+                pPlayer->AreaExploredOrEventHappens(10277);
                 break;
         }
     }
@@ -191,7 +191,7 @@ struct TRINITY_DLL_DECL npc_custodian_of_timeAI : public npc_escortAI
 
         if( who->GetTypeId() == TYPEID_PLAYER )
         {
-            if( CAST_PLR(who)->HasAura(34877) && CAST_PLR(who)->GetQuestStatus(10277) == QUEST_STATUS_INCOMPLETE )
+            if( who->HasAura(34877) && CAST_PLR(who)->GetQuestStatus(10277) == QUEST_STATUS_INCOMPLETE )
             {
                 float Radius = 10.0;
                 if( m_creature->IsWithinDistInMap(who, Radius) )

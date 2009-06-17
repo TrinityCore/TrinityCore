@@ -57,7 +57,7 @@ class TRINITY_DLL_SPEC Vehicle : public Creature
         int8 GetNextEmptySeat(int8 seatId, bool next) const;
         bool AddPassenger(Unit *passenger, int8 seatId = -1);
         void RemovePassenger(Unit *passenger);
-        void InstallAccessory(uint32 entry, int8 seatId);
+        void InstallAllAccessories();
         void Dismiss();
 
         bool LoadFromDB(uint32 guid, Map *map);
@@ -68,6 +68,7 @@ class TRINITY_DLL_SPEC Vehicle : public Creature
         uint32 m_usableSeatNum;
 
         void RemoveAllPassengers();
+        void InstallAccessory(uint32 entry, int8 seatId);
 
     private:
         void SaveToDB(uint32, uint8)                        // overwrited of Creature::SaveToDB     - don't must be called

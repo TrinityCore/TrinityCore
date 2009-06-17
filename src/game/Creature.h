@@ -672,7 +672,7 @@ class TRINITY_DLL_SPEC Creature : public Unit
         time_t const& GetRespawnTime() const { return m_respawnTime; }
         time_t GetRespawnTimeEx() const;
         void SetRespawnTime(uint32 respawn) { m_respawnTime = respawn ? time(NULL) + respawn : 0; }
-        void Respawn();
+        void Respawn(bool force = false);
         void SaveRespawnTime();
 
         uint32 GetRespawnDelay() const { return m_respawnDelay; }
@@ -786,6 +786,9 @@ class TRINITY_DLL_SPEC Creature : public Unit
 
         bool DisableReputationGain;
 
+        CreatureInfo const* m_creatureInfo;                 // in heroic mode can different from ObjMgr::GetCreatureTemplate(GetEntry())
+        CreatureData const* m_creatureData;
+
     private:
         //WaypointMovementGenerator vars
         uint32 m_waypointID;
@@ -795,8 +798,6 @@ class TRINITY_DLL_SPEC Creature : public Unit
         CreatureGroup *m_formation;
 
         GridReference<Creature> m_gridRef;
-        CreatureInfo const* m_creatureInfo;                 // in heroic mode can different from ObjMgr::GetCreatureTemplate(GetEntry())
-        CreatureData const* m_creatureData;
 };
 
 class AssistDelayEvent : public BasicEvent

@@ -94,7 +94,7 @@ struct TRINITY_DLL_DECL boss_keristraszaAI : public ScriptedAI
         }
     }
 
-    void Aggro(Unit* who) 
+    void EnterCombat(Unit* who) 
     {
         DoScriptText(SAY_AGGRO, m_creature);
         DoCast(m_creature, SPELL_INTENSE_COLD);

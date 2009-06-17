@@ -140,7 +140,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
     boss_leotheras_the_blindAI(Creature *c) : ScriptedAI(c)
     {
         m_creature->GetPosition(x,y,z);
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
         Demon = 0;
 
         for(uint8 i = 0; i < 3; i++)//clear guids
@@ -187,7 +187,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
         EnrageUsed = false;
         InnderDemon_Count = 0;
         m_creature->SetSpeed( MOVE_RUN, 2.0f, true);
-        m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_NIGHTELF);
+        m_creature->SetDisplayId(MODEL_NIGHTELF);
         m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID  , 0);
         m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID+1, 0);
         m_creature->CastSpell(m_creature, SPELL_DUAL_WIELD, true);
@@ -270,7 +270,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
             m_creature->ApplySpellImmune(AURA_BANISH, IMMUNITY_MECHANIC, MECHANIC_BANISH, true);
 
             // changing model to bloodelf
-            m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_NIGHTELF);
+            m_creature->SetDisplayId(MODEL_NIGHTELF);
 
             // and reseting equipment
             m_creature->LoadEquipment(m_creature->GetEquipmentId());
@@ -292,7 +292,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
             DoCast(m_creature, AURA_BANISH);
 
             // changing model
-            m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_DEMON);
+            m_creature->SetDisplayId(MODEL_DEMON);
 
             // and removing weapons
             m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID  , 0);
@@ -457,7 +457,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
                 {
                     //switch to demon form
                     m_creature->RemoveAurasDueToSpell(SPELL_WHIRLWIND,0);
-                    m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_DEMON);
+                    m_creature->SetDisplayId(MODEL_DEMON);
                     DoScriptText(SAY_SWITCH_TO_DEMON, m_creature);
                     m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID  , 0);
                     m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID+1, 0);
@@ -534,7 +534,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
             if(SwitchToHuman_Timer < diff)
             {
                 //switch to nightelf form
-                m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_NIGHTELF);
+                m_creature->SetDisplayId(MODEL_NIGHTELF);
                 m_creature->LoadEquipment(m_creature->GetEquipmentId());
 
                 CastConsumingMadness();
@@ -563,7 +563,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
             DemonForm = false;
 
             DoScriptText(SAY_FINAL_FORM, m_creature);
-            m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, MODEL_NIGHTELF);
+            m_creature->SetDisplayId(MODEL_NIGHTELF);
             m_creature->LoadEquipment(m_creature->GetEquipmentId());
         }
     }
@@ -640,7 +640,7 @@ struct TRINITY_DLL_DECL mob_greyheart_spellbinderAI : public ScriptedAI
 {
     mob_greyheart_spellbinderAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData());;
+        pInstance = c->GetInstanceData();;
         leotherasGUID = 0;
         AddedBanish = false;
     }

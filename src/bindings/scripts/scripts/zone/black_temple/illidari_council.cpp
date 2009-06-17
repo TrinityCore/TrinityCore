@@ -192,7 +192,7 @@ struct TRINITY_DLL_DECL mob_illidari_councilAI : public ScriptedAI
 {
     mob_illidari_councilAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
         for(uint8 i = 0; i < 4; ++i)
             Council[i] = 0;
     }
@@ -240,7 +240,7 @@ struct TRINITY_DLL_DECL mob_illidari_councilAI : public ScriptedAI
 
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, 11686);
+        m_creature->SetDisplayId(11686);
     }
 
     void EnterCombat(Unit *who) {}
@@ -348,7 +348,7 @@ struct TRINITY_DLL_DECL boss_illidari_councilAI : public ScriptedAI
 {
     boss_illidari_councilAI(Creature* c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
         for(uint8 i = 0; i < 4; ++i)
             Council[i] = 0;
         LoadedGUIDs = false;

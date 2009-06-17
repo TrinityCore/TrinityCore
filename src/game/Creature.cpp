@@ -1780,7 +1780,7 @@ void Creature::setDeathState(DeathState s)
         LoadCreaturesAddon(true);
         Motion_Initialize();
         if(GetCreatureData() && GetPhaseMask() != GetCreatureData()->phaseMask)
-            SetPhaseMask(GetCreatureData()->phaseMask, true);
+            SetPhaseMask(GetCreatureData()->phaseMask, false);
     }
 }
 
@@ -1802,16 +1802,19 @@ bool Creature::FallGround()
     return true;
 }
 
-void Creature::Respawn()
+void Creature::Respawn(bool force)
 {
-    RemoveCorpse();
+    DestroyForNearbyPlayers();
 
-    // forced recreate creature object at clients
-    UnitVisibility currentVis = GetVisibility();
-    SetVisibility(VISIBILITY_RESPAWN);
-    ObjectAccessor::UpdateObjectVisibility(this);
-    SetVisibility(currentVis);                              // restore visibility state
-    ObjectAccessor::UpdateObjectVisibility(this);
+    if(force)
+    {
+        if(isAlive())
+            setDeathState(JUST_DIED);
+        else if(getDeathState() != CORPSE)
+            setDeathState(CORPSE);
+    }
+
+    RemoveCorpse();
 
     if(getDeathState()==DEAD)
     {
@@ -1846,11 +1849,9 @@ void Creature::Respawn()
         uint16 poolid = poolhandler.IsPartOfAPool(GetGUIDLow(), GetTypeId());
         if (poolid)
             poolhandler.UpdatePool(poolid, GetGUIDLow(), GetTypeId());
-           
-        //GetMap()->Add(this);
-           
-
     }
+
+    SetToNotify();
 }
 
 bool Creature::IsImmunedToSpell(SpellEntry const* spellInfo)

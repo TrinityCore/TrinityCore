@@ -91,7 +91,7 @@ struct TRINITY_DLL_DECL npc_grimstoneAI : public npc_escortAI
 {
     npc_grimstoneAI(Creature *c) : npc_escortAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
         MobSpawnId = rand()%6;
     }
 
@@ -622,7 +622,7 @@ struct TRINITY_DLL_DECL npc_marshal_windsorAI : public npc_escortAI
 {
     npc_marshal_windsorAI(Creature *c) : npc_escortAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
     }
 
     void WaypointReached(uint32 i)
@@ -1079,7 +1079,7 @@ struct TRINITY_DLL_DECL npc_rocknotAI : public npc_escortAI
 {
     npc_rocknotAI(Creature *c) : npc_escortAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
     }
 
     ScriptedInstance* pInstance;
@@ -1098,7 +1098,7 @@ struct TRINITY_DLL_DECL npc_rocknotAI : public npc_escortAI
 
     void DoGo(uint32 id, uint32 state)
     {
-        if (GameObject *go = GameObject::GetGameObject(*m_creature,pInstance->GetData64(id)))
+        if (GameObject *go = pInstance->instance->GetGameObject(pInstance->GetData64(id)))
             go->SetGoState((GOState)state);
     }
 

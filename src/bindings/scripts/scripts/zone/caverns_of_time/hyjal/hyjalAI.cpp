@@ -308,7 +308,7 @@ float HordeFirePos[65][8]=//spawn points for the fire visuals (GO) in the horde 
 
 hyjalAI::hyjalAI(Creature *c) : npc_escortAI(c), Summons(m_creature)
 {
-    pInstance = (c->GetInstanceData());
+    pInstance = c->GetInstanceData();
     VeinsSpawned[0] = false;
     VeinsSpawned[1] = false;
     for(uint8 i=0;i<14;i++)
@@ -409,11 +409,10 @@ void hyjalAI::Reset()
 
 void hyjalAI::EnterEvadeMode()
 {
-    m_creature->InterruptNonMeleeSpells(true);
     if(m_creature->GetEntry() != JAINA)
         m_creature->RemoveAllAuras();
     m_creature->DeleteThreatList();
-    m_creature->CombatStop();
+    m_creature->CombatStop(true);
     m_creature->LoadCreaturesAddon();
 
     if(m_creature->isAlive())
@@ -728,8 +727,7 @@ void hyjalAI::DeSpawnVeins()
         if(!ai)return;
         for (uint8 i = 0; i<7; i++)
         {
-            GameObject* gem = GameObject::GetGameObject((*m_creature), ai->VeinGUID[i]);
-            if(gem)
+            if (GameObject* gem = pInstance->instance->GetGameObject(pInstance->GetData64(ai->VeinGUID[i])))
                 gem->RemoveFromWorld();
         }
     }else if (Faction)
@@ -740,8 +738,7 @@ void hyjalAI::DeSpawnVeins()
         if(!ai)return;
         for (uint8 i = 7; i<14; i++)
         {
-            GameObject* gem = GameObject::GetGameObject((*m_creature), ai->VeinGUID[i]);
-            if(gem)
+            if(GameObject* gem = pInstance->instance->GetGameObject(pInstance->GetData64(ai->VeinGUID[i])))
                 gem->RemoveFromWorld();
         }
     }

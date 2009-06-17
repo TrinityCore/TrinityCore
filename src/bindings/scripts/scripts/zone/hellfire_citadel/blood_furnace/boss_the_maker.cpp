@@ -24,24 +24,26 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_blood_furnace.h"
 
-#define SAY_AGGRO_1                 -1542009
-#define SAY_AGGRO_2                 -1542010
-#define SAY_AGGRO_3                 -1542011
-#define SAY_KILL_1                  -1542012
-#define SAY_KILL_2                  -1542013
-#define SAY_DIE                     -1542014
+enum
+{
+    SAY_AGGRO_1                 = -1542009,
+    SAY_AGGRO_2                 = -1542010,
+    SAY_AGGRO_3                 = -1542011,
+    SAY_KILL_1                  = -1542012,
+    SAY_KILL_2                  = -1542013,
+    SAY_DIE                     = -1542014,
 
-#define SPELL_ACID_SPRAY            38153                   // heroic 38973 ??? 38153
-#define SPELL_EXPLODING_BREAKER     30925
-#define SPELL_KNOCKDOWN             20276
-#define SPELL_DOMINATION            25772                   // ???
+    SPELL_ACID_SPRAY            = 38153,                    // heroic 38973 ??? 38153
+    SPELL_EXPLODING_BREAKER     = 30925,
+    SPELL_KNOCKDOWN             = 20276,
+    SPELL_DOMINATION            = 25772                     // ???
+};
 
 struct TRINITY_DLL_DECL boss_the_makerAI : public ScriptedAI
 {
     boss_the_makerAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = ((ScriptedInstance*)c->GetInstanceData());
-        Reset();
+        pInstance = c->GetInstanceData();
     }
 
     ScriptedInstance* pInstance;
@@ -139,7 +141,7 @@ struct TRINITY_DLL_DECL boss_the_makerAI : public ScriptedAI
     {
         if (pInstance)
         {
-            if (GameObject* Doors = GameObject::GetGameObject(*m_creature, pInstance->GetData64(DOOR)))
+            if (GameObject* Doors = pInstance->instance->GetGameObject(pInstance->GetData64(DOOR)))
             {
                 if (close == 1)
                     Doors->SetGoState(GO_STATE_READY);                // Closed

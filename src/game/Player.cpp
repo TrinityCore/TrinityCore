@@ -1844,6 +1844,9 @@ void Player::RemoveFromWorld()
             m_items[i]->RemoveFromWorld();
     }
 
+    for (ItemMap::iterator iter = mMitems.begin(); iter != mMitems.end(); ++iter)
+        iter->second->RemoveFromWorld();
+
     ///- Do not add/remove the player from the object storage
     ///- It will crash when updating the ObjectAccessor
     ///- The player should only be removed when logging out
@@ -18366,8 +18369,8 @@ bool Player::canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList, bool
         return false;
 
     // forbidden to seen (at GM respawn command)
-    if(u->GetVisibility() == VISIBILITY_RESPAWN)
-        return false;
+    //if(u->GetVisibility() == VISIBILITY_RESPAWN)
+    //    return false;
 
     // Grid dead/alive checks
     // non visible at grid for any stealth state

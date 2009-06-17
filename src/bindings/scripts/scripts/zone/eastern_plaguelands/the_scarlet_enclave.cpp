@@ -148,7 +148,7 @@ struct TRINITY_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
         m_creature->setFaction(7);
         m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 8);
         m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID  , 0);
-        m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, m_creature->GetNativeDisplayId());
+        m_creature->SetDisplayId(m_creature->GetNativeDisplayId());
         event_starter = 0;
         event_startet = false;
 
@@ -183,7 +183,7 @@ struct TRINITY_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
             }
         }
 
-        m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, modelid_dk_armor[model_counter]);
+        m_creature->SetDisplayId(modelid_dk_armor[model_counter]);
         m_creature->LoadEquipment(m_creature->GetEquipmentId());
     }
 
@@ -281,8 +281,7 @@ void npc_unworthy_initiateAI::UpdateAI(const uint32 diff)
             Creature* trigger = m_creature->SummonCreature(29521,x,y,z,0,TEMPSUMMON_MANUAL_DESPAWN,100);
             if(trigger)
             {
-                GameObject* go_prison = GameObject::GetGameObject((*m_creature),nearest_prison);
-                if(go_prison)
+                if(GameObject* go_prison = GameObject::GetGameObject((*m_creature),nearest_prison))
                     go_prison->ResetDoorOrButton();
 
                 CAST_AI(npc_unworthy_initiate_anchorAI, trigger->AI())->SetTarget(m_creature->GetGUID());
@@ -533,9 +532,7 @@ struct TRINITY_DLL_DECL npc_salanar_the_horsemanAI : public ScriptedAI
                             return;
                     }
                     CAST_PLR(charmer)->ExitVehicle();
-                    //without this we can see npc kill the horse
-                    who->setDeathState(DEAD);
-                    CAST_CRE(who)->Respawn();
+                    CAST_CRE(who)->Respawn(true);
                 }
             }
         }
@@ -554,18 +551,6 @@ CreatureAI* GetAI_npc_salanar_the_horseman(Creature *_Creature)
 struct TRINITY_DLL_DECL npc_ros_dark_riderAI : public ScriptedAI
 {
     npc_ros_dark_riderAI(Creature *c) : ScriptedAI(c) {}
-
-    void MoveInLineOfSight(Unit *who)
-    {
-        if(me->getVictim())
-            return;
-
-        // this should be before next one otherwise he may enter vehicle again
-        if(!me->m_Vehicle && who->GetEntry() == 28782 && CAST_CRE(who)->isVehicle() && CAST_VEH(who)->HasEmptySeat(0))
-            me->EnterVehicle((Vehicle*)who);
-
-        ScriptedAI::MoveInLineOfSight(who);
-    }
 
     void EnterCombat(Unit *who)
     {

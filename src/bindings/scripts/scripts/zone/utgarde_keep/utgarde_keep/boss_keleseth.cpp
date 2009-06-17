@@ -95,7 +95,7 @@ struct TRINITY_DLL_DECL boss_kelesethAI : public ScriptedAI
 {
     boss_kelesethAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
         Heroic = c->GetMap()->IsHeroic();
     }
 
@@ -210,7 +210,7 @@ struct TRINITY_DLL_DECL mob_vrykul_skeletonAI : public ScriptedAI
 {
     mob_vrykul_skeletonAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
     }
 
     ScriptedInstance *pInstance;

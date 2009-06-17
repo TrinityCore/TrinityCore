@@ -66,22 +66,6 @@ struct TRINITY_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
              Encounter[i] = NOT_STARTED;
     }
 
-    Player* GetPlayerInMap()
-    {
-        Map::PlayerList const& players = instance->GetPlayers();
-
-        if (!players.isEmpty())
-        {
-            for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-            {
-                if (Player* plr = itr->getSource())
-                    return plr;
-            }
-        }
-        debug_log("TSCR: Instance Shadowfang Keep: GetPlayerInMap, but PlayerList is empty!");
-        return NULL;
-    }
-
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
         switch(pCreature->GetEntry())
@@ -98,35 +82,30 @@ struct TRINITY_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
             case GO_COURTYARD_DOOR:
                 DoorCourtyardGUID = go->GetGUID();
                 if (Encounter[0] == DONE)
-                    go->SetGoState(GO_STATE_ACTIVE);
+                    DoUseDoorOrButton(DoorCourtyardGUID);
                 break;
             case GO_SORCERER_DOOR:
                 DoorSorcererGUID = go->GetGUID();
                 if (Encounter[2] == DONE)
-                    go->SetGoState(GO_STATE_ACTIVE);
+                    DoUseDoorOrButton(DoorSorcererGUID);
                 break;
             case GO_ARUGAL_DOOR:
                 DoorArugalGUID = go->GetGUID();
                 if (Encounter[3] == DONE)
-                    go->SetGoState(GO_STATE_ACTIVE);
+                    DoUseDoorOrButton(DoorArugalGUID);
                 break;
         }
     }
 
     void DoSpeech()
     {
-        Player* pPlayer = GetPlayerInMap();
+        Creature* pAda = instance->GetCreature(uiAdaGUID);
+        Creature* pAsh = instance->GetCreature(uiAshGUID);
 
-        if (pPlayer)
+        if (pAda && pAda->isAlive() && pAsh && pAsh->isAlive())
         {
-            Unit* pAda = Unit::GetUnit(*pPlayer,uiAdaGUID);
-            Unit* pAsh = Unit::GetUnit(*pPlayer,uiAshGUID);
-
-            if (pAda && pAda->isAlive() && pAsh && pAsh->isAlive())
-            {
-                DoScriptText(SAY_BOSS_DIE_AD,pAda);
-                DoScriptText(SAY_BOSS_DIE_AS,pAsh);
-            }
+            DoScriptText(SAY_BOSS_DIE_AD,pAda);
+            DoScriptText(SAY_BOSS_DIE_AS,pAsh);
         }
     }
 
@@ -136,7 +115,7 @@ struct TRINITY_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
         {
             case TYPE_FREE_NPC:
                 if(data == DONE)
-                    HandleGameObject(DoorCourtyardGUID,0);
+                    DoUseDoorOrButton(DoorCourtyardGUID);
                 Encounter[0] = data;
                 break;
             case TYPE_RETHILGORE:
@@ -146,12 +125,12 @@ struct TRINITY_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
                 break;
             case TYPE_FENRUS:
                 if(data == DONE)
-                    HandleGameObject(DoorSorcererGUID,0);
+                    DoUseDoorOrButton(DoorSorcererGUID);
                 Encounter[2] = data;
                 break;
             case TYPE_NANDOS:
                 if(data == DONE)
-                    HandleGameObject(DoorArugalGUID,0);
+                    DoUseDoorOrButton(DoorArugalGUID);
                 Encounter[3] = data;
                 break;
         }

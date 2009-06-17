@@ -67,7 +67,7 @@ struct TRINITY_DLL_DECL boss_gurtogg_bloodboilAI : public ScriptedAI
 {
     boss_gurtogg_bloodboilAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
     }
 
     ScriptedInstance* pInstance;

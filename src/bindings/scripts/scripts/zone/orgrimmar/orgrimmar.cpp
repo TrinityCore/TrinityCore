@@ -101,7 +101,7 @@ struct TRINITY_DLL_DECL npc_shenthulAI : public ScriptedAI
         {
             if (Reset_Timer < diff)
             {
-                if (Player* pPlayer = (Player*)Unit::GetUnit((*m_creature),playerGUID))
+                if (Player* pPlayer = Unit::GetPlayer(playerGUID))
                 {
                     if (pPlayer->GetTypeId() == TYPEID_PLAYER && pPlayer->GetQuestStatus(QUEST_SHATTERED_SALUTE) == QUEST_STATUS_INCOMPLETE)
                         pPlayer->FailQuest(QUEST_SHATTERED_SALUTE);

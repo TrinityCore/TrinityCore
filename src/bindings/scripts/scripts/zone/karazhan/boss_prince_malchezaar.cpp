@@ -137,7 +137,7 @@ struct TRINITY_DLL_DECL netherspite_infernalAI : public ScriptedAI
     {
         if(spell->Id == SPELL_INFERNAL_RELAY)
         {
-            m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, m_creature->GetUInt32Value(UNIT_FIELD_NATIVEDISPLAYID));
+            m_creature->SetDisplayId(m_creature->GetUInt32Value(UNIT_FIELD_NATIVEDISPLAYID));
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             HellfireTimer = 4000;
             CleanupTimer = 170000;
@@ -157,7 +157,7 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
 {
     boss_malchezaarAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
     }
 
     ScriptedInstance *pInstance;
@@ -208,11 +208,8 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
 
         if(pInstance)
         {
-            GameObject* Door = GameObject::GetGameObject((*m_creature),pInstance->GetData64(DATA_GAMEOBJECT_NETHER_DOOR));
-            if(Door)
-            {
+            if(GameObject* Door = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_NETHER_DOOR)))
                 Door->SetGoState(GO_STATE_ACTIVE);
-            }
         }
     }
 
@@ -240,11 +237,8 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
 
         if(pInstance)
         {
-            GameObject* Door = GameObject::GetGameObject((*m_creature),pInstance->GetData64(DATA_GAMEOBJECT_NETHER_DOOR));
-            if(Door)
-            {
+            if(GameObject* Door = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_NETHER_DOOR)))
                 Door->SetGoState(GO_STATE_ACTIVE);
-            }
         }
     }
 
@@ -254,11 +248,8 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
 
         if(pInstance)
         {
-            GameObject* Door = GameObject::GetGameObject((*m_creature),pInstance->GetData64(DATA_GAMEOBJECT_NETHER_DOOR));
-            if(Door)
-            {
+            if(GameObject* Door = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_NETHER_DOOR)))
                 Door->SetGoState(GO_STATE_READY);
-            }
         }
     }
 
@@ -377,7 +368,7 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
 
         if (Infernal)
         {
-            Infernal->SetUInt32Value(UNIT_FIELD_DISPLAYID, INFERNAL_MODEL_INVISIBLE);
+            Infernal->SetDisplayId(INFERNAL_MODEL_INVISIBLE);
             Infernal->setFaction(m_creature->getFaction());
             if(point)
                 CAST_AI(netherspite_infernalAI, Infernal->AI())->point=point;

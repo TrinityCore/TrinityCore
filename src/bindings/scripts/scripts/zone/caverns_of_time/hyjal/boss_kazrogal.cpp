@@ -28,7 +28,7 @@ struct TRINITY_DLL_DECL boss_kazrogalAI : public hyjal_trashAI
 {
     boss_kazrogalAI(Creature *c) : hyjal_trashAI(c)
     {
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
         go = false;
         pos = 0;
         SpellEntry *TempSpell = GET_SPELL(SPELL_MARK);

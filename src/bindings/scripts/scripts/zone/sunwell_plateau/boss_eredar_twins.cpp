@@ -94,12 +94,11 @@ enum Creatures
 struct TRINITY_DLL_DECL boss_sacrolashAI : public ScriptedAI
 {
     boss_sacrolashAI(Creature *c) : ScriptedAI(c){
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
     }
 
     ScriptedInstance *pInstance;
 
-    bool InCombat;
     bool SisterDeath;
     bool Enraged;
 
@@ -112,7 +111,6 @@ struct TRINITY_DLL_DECL boss_sacrolashAI : public ScriptedAI
 
     void Reset()
     {
-        InCombat = false;
         Enraged = false;
 
         if(pInstance)
@@ -127,12 +125,11 @@ struct TRINITY_DLL_DECL boss_sacrolashAI : public ScriptedAI
                     if(Temp->getVictim())
                     {
                         m_creature->getThreatManager().addThreat(Temp->getVictim(),0.0f);
-                        InCombat = true;
                     }
                 }
         }
 
-        if(!InCombat)
+        if(!m_creature->isInCombat())
         {
             ShadowbladesTimer = 10000;
             ShadownovaTimer = 30000;
@@ -354,13 +351,12 @@ CreatureAI* GetAI_boss_sacrolash(Creature *_Creature)
 struct TRINITY_DLL_DECL boss_alythessAI : public Scripted_NoMovementAI
 {
     boss_alythessAI(Creature *c) : Scripted_NoMovementAI(c){
-        pInstance = (c->GetInstanceData());
+        pInstance = c->GetInstanceData();
         IntroStepCounter = 10;
     }
 
     ScriptedInstance *pInstance;
 
-    bool InCombat;
     bool SisterDeath;
     bool Enraged;
 
@@ -376,7 +372,6 @@ struct TRINITY_DLL_DECL boss_alythessAI : public Scripted_NoMovementAI
 
     void Reset()
     {
-        InCombat = false;
         Enraged = false;
 
         if(pInstance)
@@ -391,12 +386,11 @@ struct TRINITY_DLL_DECL boss_alythessAI : public Scripted_NoMovementAI
                     if(Temp->getVictim())
                     {
                         m_creature->getThreatManager().addThreat(Temp->getVictim(),0.0f);
-                        InCombat = true;
                     }
                 }
         }
 
-        if(!InCombat)
+        if(!m_creature->isInCombat())
         {
             ConflagrationTimer = 45000;
             BlazeTimer = 100;
@@ -430,7 +424,7 @@ struct TRINITY_DLL_DECL boss_alythessAI : public Scripted_NoMovementAI
 
     void AttackStart(Unit *who)
     {
-        if (!InCombat)
+        if (!m_creature->isInCombat())
         {
             Scripted_NoMovementAI::AttackStart(who);
         }
