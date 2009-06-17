@@ -2253,7 +2253,9 @@ void SpellMgr::LoadSpellAreas()
         spellArea.gender              = Gender(fields[7].GetUInt8());
         spellArea.autocast            = fields[8].GetBool();
 
-        if(!sSpellStore.LookupEntry(spell))
+        if(const SpellEntry* spellInfo = sSpellStore.LookupEntry(spell))
+            const_cast<SpellEntry*>(spellInfo)->Attributes |= SPELL_ATTR_CANT_CANCEL;
+        else
         {
             sLog.outErrorDb("Spell %u listed in `spell_area` does not exist", spell);
             continue;
