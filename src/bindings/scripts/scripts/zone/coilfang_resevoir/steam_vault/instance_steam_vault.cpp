@@ -88,23 +88,6 @@ struct TRINITY_DLL_DECL instance_steam_vault : public ScriptedInstance
         return false;
     }
 
-    Player* GetPlayerInMap()
-    {
-        Map::PlayerList const& players = instance->GetPlayers();
-
-        if (!players.isEmpty())
-        {
-            for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-            {
-                if (Player* plr = itr->getSource())
-                    return plr;
-            }
-        }
-
-        debug_log("TSCR: Instance Steamvault: GetPlayerInMap, but PlayerList is empty!");
-        return NULL;
-    }
-
     void OnCreatureCreate(Creature *creature, bool add)
     {
           switch(creature->GetEntry())
@@ -127,14 +110,6 @@ struct TRINITY_DLL_DECL instance_steam_vault : public ScriptedInstance
 
     void SetData(uint32 type, uint32 data)
     {
-        Player *player = GetPlayerInMap();
-
-        if (!player)
-        {
-            debug_log("TSCR: Instance Steamvault: SetData (Type: %u Data %u) cannot find any player.", type, data);
-            return;
-        }
-
         switch(type)
         {
             case TYPE_HYDROMANCER_THESPIA:

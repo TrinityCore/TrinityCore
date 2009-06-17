@@ -1037,10 +1037,9 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
     // Do not call reset in Akama's evade mode, as this will stop him from summoning minions after he kills the first bit
     void EnterEvadeMode()
     {
-        m_creature->InterruptNonMeleeSpells(true);
         m_creature->RemoveAllAuras();
         m_creature->DeleteThreatList();
-        m_creature->CombatStop();
+        m_creature->CombatStop(true);
     }
 
     void EnterCombat(Unit *who) {}

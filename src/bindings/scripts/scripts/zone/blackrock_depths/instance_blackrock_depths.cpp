@@ -114,23 +114,6 @@ struct TRINITY_DLL_DECL instance_blackrock_depths : public ScriptedInstance
             Encounter[i] = NOT_STARTED;
     }
 
-    Player* GetPlayerInMap()
-    {
-        Map::PlayerList const& players = instance->GetPlayers();
-
-        if (!players.isEmpty())
-        {
-            for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-            {
-                if (Player* plr = itr->getSource())
-                    return plr;
-            }
-        }
-
-        debug_log("TSCR: Instance Blackrock Depths: GetPlayerInMap, but PlayerList is empty!");
-        return NULL;
-    }
-
     void OnCreatureCreate(Creature *creature, bool add)
     {
         switch(creature->GetEntry())
@@ -166,14 +149,6 @@ struct TRINITY_DLL_DECL instance_blackrock_depths : public ScriptedInstance
 
     void SetData(uint32 type, uint32 data)
     {
-        Player *player = GetPlayerInMap();
-
-        if (!player)
-        {
-            debug_log("TSCR: Instance Blackrock Depths: SetData (Type: %u Data %u) cannot find any player.", type, data);
-            return;
-        }
-
         debug_log("TSCR: Instance Blackrock Depths: SetData update (Type: %u Data %u)", type, data);
 
         switch(type)
