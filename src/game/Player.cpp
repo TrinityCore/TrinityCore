@@ -1844,6 +1844,9 @@ void Player::RemoveFromWorld()
             m_items[i]->RemoveFromWorld();
     }
 
+    for (ItemMap::iterator iter = mMitems.begin(); iter != mMitems.end(); ++iter)
+        iter->second->RemoveFromWorld();
+
     ///- Do not add/remove the player from the object storage
     ///- It will crash when updating the ObjectAccessor
     ///- The player should only be removed when logging out
