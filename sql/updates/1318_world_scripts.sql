@@ -30,4 +30,3 @@ INSERT INTO creature_equip_template () VALUES (17921, 20732, 0, 20732, 33489666,
 
 
 
-

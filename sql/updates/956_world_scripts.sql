@@ -24,4 +24,3 @@ INSERT INTO script_texts (entry, content_default, type, comment) VALUES
 (-1000363, 'Look out, $N! Enemies ahead!', 0, 'npc_kayra_longmane - SAY_PROGRESS_4'),
 (-1000364, 'We\'re almost to the refuge! Let\'s go.', 0, 'npc_kayra_longmane - SAY_PROGRESS_5'),
 (-1000365, 'I can see my fellow druids from here. Thank you, $N. I\'m sure Ysiel will reward you for your actions!', 0, 'npc_kayra_longmane - SAY_PROGRESS_6');
-

@@ -62,4 +62,3 @@ UPDATE eventai_scripts SET action3_param3=(`action3_param3`) *-1 WHERE action3_t
 UPDATE eventai_texts SET entry=(`entry`) *-1 WHERE entry>0;
 
 ALTER TABLE script_texts MODIFY COLUMN `sound` mediumint(8) unsigned NOT NULL default '0';
-

@@ -7,4 +7,3 @@ CREATE TABLE `creature_formations` (
   `angle` float unsigned NOT NULL,
   `groupAI` int(11) unsigned NOT NULL,
   PRIMARY KEY  (`follower`));
-

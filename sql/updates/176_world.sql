@@ -30,4 +30,3 @@ CREATE TABLE `locales_npc_option` (
 ALTER TABLE `creature_template`
   CHANGE COLUMN `flags` `unit_flags` int(10) unsigned NOT NULL default '0',
   CHANGE COLUMN `flag1` `type_flags` int(10) unsigned NOT NULL default '0';
-

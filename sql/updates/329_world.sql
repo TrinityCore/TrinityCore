@@ -583,4 +583,3 @@ INSERT INTO `spell_proc_event` VALUES ('28744', '0', '7', '64', '278528', '0', '
 INSERT INTO `spell_proc_event` VALUES ('12488', '0', '3', '128', '327680', '0', '0', '0', '0');
 INSERT INTO `spell_proc_event` VALUES ('19573', '0', '9', '8388608', '16384', '0', '0', '0', '0');
 INSERT INTO `spell_proc_event` VALUES ('33757', '0', '0', '0', '0', '0', '0', '0', '3');
-

@@ -22,4 +22,3 @@ INSERT INTO script_texts (entry,content_default,sound,type,language,emote,commen
 (-1000393,'Directive accomplished.',11350,1,0,0,'doomwalker SAY_SLAY_2'),
 (-1000394,'Target exterminated.',11351,1,0,0,'doomwalker SAY_SLAY_3'),
 (-1000395,'System failure in five, f-o-u-r...',11352,1,0,0,'doomwalker SAY_DEATH');
-

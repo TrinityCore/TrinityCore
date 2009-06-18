@@ -6,4 +6,3 @@ insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comment`) values('27800','27804','0','Holy Nova (rank5)');
 insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comment`) values('27801','27805','0','Holy Nova (rank6)');
 insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comment`) values('25331','25329','0','Holy Nova (rank7)');
-

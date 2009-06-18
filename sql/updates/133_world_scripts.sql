@@ -78,4 +78,3 @@ INSERT INTO `script_texts` (`entry`,`content_default`,`sound`,`type`,`language`,
 (-1560020,'Not so fast!',10423,1,0,'epoch SAY_BREATH1'),
 (-1560021,'Struggle as much as you like!',10424,1,0,'epoch SAY_BREATH2'),
 (-1560022,'No!...The master... will not... be pleased.',10427,1,0,'epoch SAY_DEATH');
-

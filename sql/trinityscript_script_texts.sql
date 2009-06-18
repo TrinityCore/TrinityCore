@@ -1088,4 +1088,3 @@ INSERT INTO `script_texts` (`entry`,`content_default`,`sound`,`type`,`language`,
 -- 
 
 -- ALTER TABLE `script_texts` ORDER BY `entry` desc;
-

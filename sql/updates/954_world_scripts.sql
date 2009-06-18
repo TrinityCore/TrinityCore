@@ -17,4 +17,3 @@ INSERT INTO script_texts (entry, content_default, type, comment) VALUES
 
 (-1000304, 'Bessy, is that you?', 0, 'npc_bessy- SAY_THADELL_1'),
 (-1000305, 'Thank you for bringing back my Bessy, $N. I couldn\'t live without her!', 0, 'npc_bessy- SAY_THADELL_2');
-

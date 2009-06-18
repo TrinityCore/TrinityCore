@@ -28,4 +28,3 @@ INSERT INTO `command` (`name`,`security`,`help`) VALUES ('.ticket assign','3','U
 INSERT INTO `command` (`name`,`security`,`help`) VALUES ('.ticket unassign','3','Usage: .ticket unassign $ticketid.\r\nUnassigns the specified ticket from the current assigned Game Master.');
 INSERT INTO `command` (`name`,`security`,`help`) VALUES ('.ticket comment','2','Usage: .ticket comment $ticketid $comment.\r\nAllows the adding or modifying of a comment to the specified ticket.');
 INSERT INTO `command` (`name`,`security`,`help`) VALUES ('.reload tickets','4','Usage: .reload tickets.\r\nReloads GM Tickets from the database and re-caches them into memory.');
-

@@ -19,4 +19,3 @@ INSERT INTO script_texts (entry, content_default, type, comment) VALUES
 (-1000372, 'You are no challenge for the Crimson Sigil. Mind breakers, end this nonsense.', 1, 'Quest: Battle of the crimson watch WavesInfo - Second'),
 (-1000373, 'Run while you still can. The highlords come soon...', 1, 'Quest: Battle of the crimson watch WavesInfo - Third'),
 (-1000374, 'Torloth your master calls!', 1, 'Quest: Battle of the crimson watch WavesInfo - Fourth');
-

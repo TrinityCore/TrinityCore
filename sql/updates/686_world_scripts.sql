@@ -13,4 +13,3 @@ INSERT INTO script_texts (entry, content_default, sound, type, language, comment
 (-1047008, 'Finally! I am glad that I come, finally out here.', 0, 0, 0, 'Willix'),
 (-1047009, 'I will rather rest a moment and come again to breath, before I return to Ratchet.', 0, 0, 0, 'Willix'),
 (-1047010, 'Many thanks for your help.', 0, 0, 0, 'Willix');
-

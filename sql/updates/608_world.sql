@@ -164,4 +164,3 @@ INSERT INTO `spell_script_target` VALUES
 (46896,0,181605),
 (47104,1,26401),
 (49058,1,24968); -- Rocket Bot Attack
-
