@@ -108,7 +108,7 @@ Unit::Unit()
 
     m_addDmgOnce = 0;
 
-    for(int i = 0; i < MAX_SUMMON_SLOT; ++i)
+    for(uint8 i = 0; i < MAX_SUMMON_SLOT; ++i)
         m_SummonSlot[i] = 0;
 
     m_ObjectSlot[0] = m_ObjectSlot[1] = m_ObjectSlot[2] = m_ObjectSlot[3] = 0;
@@ -126,9 +126,9 @@ Unit::Unit()
     m_ShapeShiftFormSpellId = 0;
     m_canModifyStats = false;
 
-    for (int i = 0; i < MAX_SPELL_IMMUNITY; ++i)
+    for (uint8 i = 0; i < MAX_SPELL_IMMUNITY; ++i)
         m_spellImmune[i].clear();
-    for (int i = 0; i < UNIT_MOD_END; ++i)
+    for (uint8 i = 0; i < UNIT_MOD_END; ++i)
     {
         m_auraModifiersGroup[i][BASE_VALUE] = 0.0f;
         m_auraModifiersGroup[i][BASE_PCT] = 1.0f;
@@ -138,12 +138,12 @@ Unit::Unit()
                                                             // implement 50% base damage from offhand
     m_auraModifiersGroup[UNIT_MOD_DAMAGE_OFFHAND][TOTAL_PCT] = 0.5f;
 
-    for (int i = 0; i < MAX_ATTACK; ++i)
+    for (uint8 i = 0; i < MAX_ATTACK; ++i)
     {
         m_weaponDamage[i][MINDAMAGE] = BASE_MINDAMAGE;
         m_weaponDamage[i][MAXDAMAGE] = BASE_MAXDAMAGE;
     }
-    for (int i = 0; i < MAX_STATS; ++i)
+    for (uint8 i = 0; i < MAX_STATS; ++i)
         m_createStats[i] = 0.0f;
 
     m_attacking = NULL;
@@ -156,10 +156,10 @@ Unit::Unit()
     m_lastManaUse = 0;
 
     //m_victimThreat = 0.0f;
-    for (int i = 0; i < MAX_SPELL_SCHOOL; ++i)
+    for (uint8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
         m_threatModifier[i] = 1.0f;
     m_isSorted = true;
-    for (int i = 0; i < MAX_MOVE_TYPE; ++i)
+    for (uint8 i = 0; i < MAX_MOVE_TYPE; ++i)
         m_speed_rate[i] = 1.0f;
 
     m_charmInfo = NULL;
@@ -168,7 +168,7 @@ Unit::Unit()
     m_misdirectionTargetGUID = 0;
 
     // remove aurastates allowing special moves
-    for(int i=0; i < MAX_REACTIVE; ++i)
+    for(uint8 i=0; i < MAX_REACTIVE; ++i)
         m_reactiveTimer[i] = 0;
 }
 
@@ -1084,7 +1084,7 @@ void Unit::CastSpell(Unit* Victim,SpellEntry const *spellInfo, bool triggered, I
     SpellCastTargets targets;
     uint32 targetMask = spellInfo->Targets;
     //if(targetMask & (TARGET_FLAG_UNIT|TARGET_FLAG_UNK2))
-    for(int i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for(uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
         if(spellmgr.SpellTargetType[spellInfo->EffectImplicitTargetA[i]] == TARGET_TYPE_UNIT_TARGET)
         {
@@ -1156,7 +1156,7 @@ void Unit::CastCustomSpell(uint32 spellId, CustomSpellValues const &value, Unit*
     uint32 targetMask = spellInfo->Targets;
 
     //check unit target
-    for(int i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for(uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
         if(spellmgr.SpellTargetType[spellInfo->EffectImplicitTargetA[i]] == TARGET_TYPE_UNIT_TARGET)
         {
@@ -1711,7 +1711,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss)
 
     if(GetTypeId() == TYPEID_PLAYER && pVictim->isAlive())
     {
-        for(int i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; i++)
+        for(uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; i++)
         {
             // If usable, try to cast item spell
             if (Item * item = ((Player*)this)->GetUseableItemByPos(INVENTORY_SLOT_BAG_0,i))
@@ -2733,7 +2733,7 @@ int32 Unit::GetMechanicResistChance(const SpellEntry *spell)
     if(!spell)
         return 0;
     int32 resist_mech = 0;
-    for(int eff = 0; eff < MAX_SPELL_EFFECTS; ++eff)
+    for(uint8 eff = 0; eff < MAX_SPELL_EFFECTS; ++eff)
     {
         if(spell->Effect[eff] == 0)
            break;
@@ -2778,7 +2778,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit *pVictim, SpellEntry const *spell)
     // Chance resist mechanic (select max value from every mechanic spell effect)
     int32 resist_mech = 0;
     // Get effects mechanic and chance
-    for(int eff = 0; eff < MAX_SPELL_EFFECTS; ++eff)
+    for(uint8 eff = 0; eff < MAX_SPELL_EFFECTS; ++eff)
     {
         int32 effect_mech = GetEffectMechanic(spell, eff);
         if (effect_mech)
@@ -3949,7 +3949,7 @@ bool Unit::RemoveNoStackAurasDueToAura(Aura *Aur)
 
         bool is_triggered_by_spell = false;
         // prevent triggered aura of removing aura that triggered it
-        for(int j = 0; j < MAX_SPELL_EFFECTS; ++j)
+        for(uint8 j = 0; j < MAX_SPELL_EFFECTS; ++j)
             if (i_spellProto->EffectTriggerSpell[j] == spellProto->Id)
                 is_triggered_by_spell = true;
 
@@ -4739,7 +4739,7 @@ void Unit::SendAttackStateUpdate(CalcDamageInfo *damageInfo)
     data << uint32(overkill < 0 ? 0 : overkill);            // Overkill
     data << uint8(count);                                   // Sub damage count
 
-    for(int i = 0; i < count; ++i)
+    for(uint32 i = 0; i < count; ++i)
     {
         data << uint32(damageInfo->damageSchoolMask);       // School of sub damage
         data << float(damageInfo->damage);                  // sub damage
@@ -4748,13 +4748,13 @@ void Unit::SendAttackStateUpdate(CalcDamageInfo *damageInfo)
 
     if(damageInfo->HitInfo & (HITINFO_ABSORB | HITINFO_ABSORB2))
     {
-        for(int i = 0; i < count; ++i)
+        for(uint32 i = 0; i < count; ++i)
             data << uint32(damageInfo->absorb);             // Absorb
     }
 
     if(damageInfo->HitInfo & (HITINFO_RESIST | HITINFO_RESIST2))
     {
-        for(int i = 0; i < count; ++i)
+        for(uint32 i = 0; i < count; ++i)
             data << uint32(damageInfo->resist);             // Resist
     }
 
@@ -5746,7 +5746,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                         return false;
 
                     int EffIndex = 0;
-                    for(int i = 0; i < MAX_SPELL_EFFECTS; i++)
+                    for(uint8 i = 0; i < MAX_SPELL_EFFECTS; i++)
                     {
                         if(GoPoH->Effect[i] == SPELL_EFFECT_APPLY_AURA)
                         {
@@ -6338,7 +6338,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 case 54939:
                 {
                     // Lookup base amount mana restore
-                    for (int i=0; i<MAX_SPELL_EFFECTS;i++)
+                    for (uint8 i=0; i<MAX_SPELL_EFFECTS;i++)
                         if (procSpell->Effect[i] == SPELL_EFFECT_ENERGIZE)
                         {
                             int32 mana = procSpell->EffectBasePoints[i];
@@ -8472,7 +8472,7 @@ bool Unit::isAttackingPlayer() const
         if((*itr)->isAttackingPlayer())
             return true;
 
-    for(int8 i = 0; i < MAX_SUMMON_SLOT; ++i)
+    for(uint8 i = 0; i < MAX_SUMMON_SLOT; ++i)
         if(m_SummonSlot[i])
             if(Creature *summon = GetMap()->GetCreature(m_SummonSlot[i]))
                 if(summon->isAttackingPlayer())
@@ -8683,7 +8683,7 @@ void Unit::SetMinion(Minion *minion, bool apply)
 
         // FIXME: hack, speed must be set only at follow
         if(GetTypeId() == TYPEID_PLAYER && minion->HasSummonMask(SUMMON_MASK_PET))
-            for(int i = 0; i < MAX_MOVE_TYPE; ++i)
+            for(uint8 i = 0; i < MAX_MOVE_TYPE; ++i)
                 minion->SetSpeed(UnitMoveType(i), m_speed_rate[i], true);
 
         // Ghoul pets have energy instead of mana (is anywhere better place for this code?)
@@ -9388,7 +9388,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
                 if(DotDuration > 30000) DotDuration = 30000;
                 if(!IsChanneledSpell(spellProto)) DotFactor = DotDuration / 15000.0f;
                 int x = 0;
-                for(int j = 0; j < MAX_SPELL_EFFECTS; j++)
+                for(uint8 j = 0; j < MAX_SPELL_EFFECTS; j++)
                 {
                     if( spellProto->Effect[j] == SPELL_EFFECT_APPLY_AURA && (
                         spellProto->EffectApplyAuraName[j] == SPELL_AURA_PERIODIC_DAMAGE ||
@@ -9412,7 +9412,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
         CastingTime = GetCastingTimeForBonus( spellProto, damagetype, CastingTime );
 
         // 50% for damage and healing spells for leech spells from damage bonus and 0% from healing
-        for(int j = 0; j < MAX_SPELL_EFFECTS; ++j)
+        for(uint8 j = 0; j < MAX_SPELL_EFFECTS; ++j)
         {
             if( spellProto->Effect[j] == SPELL_EFFECT_HEALTH_LEECH ||
                 spellProto->Effect[j] == SPELL_EFFECT_APPLY_AURA && spellProto->EffectApplyAuraName[j] == SPELL_AURA_PERIODIC_LEECH )
@@ -9855,8 +9855,8 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
                 {
                     if(DotDuration > 30000) DotDuration = 30000;
                     if(!IsChanneledSpell(spellProto)) DotFactor = DotDuration / 15000.0f;
-                    int x = 0;
-                    for(int j = 0; j < MAX_SPELL_EFFECTS; j++)
+                    uint32 x = 0;
+                    for(uint8 j = 0; j < MAX_SPELL_EFFECTS; j++)
                     {
                         if( spellProto->Effect[j] == SPELL_EFFECT_APPLY_AURA && (
                             spellProto->EffectApplyAuraName[j] == SPELL_AURA_PERIODIC_DAMAGE ||
@@ -9879,7 +9879,7 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
             // Distribute Damage over multiple effects, reduce by AoE
             CastingTime = GetCastingTimeForBonus( spellProto, damagetype, CastingTime );
             // 50% for damage and healing spells for leech spells from damage bonus and 0% from healing
-            for(int j = 0; j < MAX_SPELL_EFFECTS; ++j)
+            for(uint8 j = 0; j < MAX_SPELL_EFFECTS; ++j)
             {
                 if( spellProto->Effect[j] == SPELL_EFFECT_HEALTH_LEECH ||
                     spellProto->Effect[j] == SPELL_EFFECT_APPLY_AURA && spellProto->EffectApplyAuraName[j] == SPELL_AURA_PERIODIC_LEECH )
@@ -10551,7 +10551,7 @@ void Unit::ClearInCombat()
     {
         if(Unit *owner = GetOwner())
         {
-            for(int i = 0; i < MAX_MOVE_TYPE; ++i)
+            for(uint8 i = 0; i < MAX_MOVE_TYPE; ++i)
                 SetSpeed(UnitMoveType(i), owner->GetSpeedRate(UnitMoveType(i)), true);
         }
     }
@@ -12145,7 +12145,7 @@ void Unit::DeleteCharmInfo()
 CharmInfo::CharmInfo(Unit* unit)
 : m_unit(unit), m_CommandState(COMMAND_FOLLOW), m_petnumber(0), m_barInit(false)
 {
-    for(int i =0; i<MAX_SPELL_CHARM; ++i)
+    for(uint8 i =0; i<MAX_SPELL_CHARM; ++i)
     {
         m_charmspells[i].spellId = 0;
         m_charmspells[i].active = ACT_DISABLED;
@@ -12345,7 +12345,7 @@ void CharmInfo::LoadPetActionBar(const std::string& data )
     if (tokens.size() != (ACTION_BAR_INDEX_PET_SPELL_END-ACTION_BAR_INDEX_PET_SPELL_START)*2)
         return;                                             // non critical, will reset to default
 
-    int index;
+    uint8 index;
     Tokens::iterator iter;
     for(iter = tokens.begin(), index = ACTION_BAR_INDEX_PET_SPELL_START; index < ACTION_BAR_INDEX_PET_SPELL_END; ++iter, ++index )
     {
@@ -12376,7 +12376,7 @@ void CharmInfo::BuildActionBar( WorldPacket* data )
 
 void CharmInfo::SetSpellAutocast( uint32 spell_id, bool state )
 {
-    for(int i = 0; i < MAX_UNIT_ACTION_BAR_INDEX; ++i)
+    for(uint8 i = 0; i < MAX_UNIT_ACTION_BAR_INDEX; ++i)
     {
         if(spell_id == PetActionBar[i].SpellOrAction && PetActionBar[i].IsActionBarForSpell())
         {
@@ -12412,7 +12412,7 @@ typedef std::list< ProcTriggeredData > ProcTriggeredList;
 // for example SPELL_AURA_MECHANIC_IMMUNITY - need check for mechanic
 bool InitTriggerAuraData()
 {
-    for (int i = 0; i < TOTAL_AURAS; ++i)
+    for (uint16 i = 0; i < TOTAL_AURAS; ++i)
     {
         isTriggerAura[i]=false;
         isNonTriggerAura[i] = false;
@@ -13046,7 +13046,7 @@ void Unit::ClearComboPointHolders()
 
 void Unit::ClearAllReactives()
 {
-    for(int i=0; i < MAX_REACTIVE; ++i)
+    for(uint8 i=0; i < MAX_REACTIVE; ++i)
         m_reactiveTimer[i] = 0;
 
     if (HasAuraState( AURA_STATE_DEFENSE))
@@ -13059,7 +13059,7 @@ void Unit::ClearAllReactives()
 
 void Unit::UpdateReactives( uint32 p_time )
 {
-    for(int i = 0; i < MAX_REACTIVE; ++i)
+    for(uint8 i = 0; i < MAX_REACTIVE; ++i)
     {
         ReactiveType reactive = ReactiveType(i);
 
@@ -14531,7 +14531,7 @@ void Unit::SetPhaseMask(uint32 newPhaseMask, bool update)
         if((*itr)->GetTypeId() == TYPEID_UNIT)
             (*itr)->SetPhaseMask(newPhaseMask,true);
 
-    for(int8 i = 0; i < MAX_SUMMON_SLOT; ++i)
+    for(uint8 i = 0; i < MAX_SUMMON_SLOT; ++i)
         if(m_SummonSlot[i])
             if(Creature *summon = GetMap()->GetCreature(m_SummonSlot[i]))
                 summon->SetPhaseMask(newPhaseMask,true);

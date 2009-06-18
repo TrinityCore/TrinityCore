@@ -5085,7 +5085,7 @@ bool ChatHandler::HandleListAurasCommand (const char * /*args*/)
                 IS_PLAYER_GUID(itr->second->GetCasterGUID()) ? "player" : "creature",GUID_LOPART(itr->second->GetCasterGUID()));
         }
     }
-    for (int i = 0; i < TOTAL_AURAS; ++i)
+    for (uint16 i = 0; i < TOTAL_AURAS; ++i)
     {
         Unit::AuraEffectList const& uAuraList = unit->GetAurasByType(AuraType(i));
         if (uAuraList.empty()) continue;

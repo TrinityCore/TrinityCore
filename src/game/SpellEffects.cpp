@@ -1806,7 +1806,7 @@ void Spell::EffectDummy(uint32 i)
                 if(m_caster->GetTypeId() != TYPEID_PLAYER)
                     return;
 
-                for(int j = BASE_ATTACK; j <= OFF_ATTACK; ++j)
+                for(uint8 j = BASE_ATTACK; j <= OFF_ATTACK; ++j)
                 {
                     if(Item* item = ((Player*)m_caster)->GetWeaponForAttack(WeaponAttackType(j)))
                     {
@@ -3409,7 +3409,7 @@ void Spell::EffectSummonType(uint32 i)
                     if (m_spellInfo->Id == 18662) // Curse of Doom
                         amount = 1;
 
-                    for(int32 count = 0; count < amount; ++count)
+                    for(uint32 count = 0; count < amount; ++count)
                     {
                         float px, py, pz;
                         GetSummonPosition(i, px, py, pz, radius, count);
@@ -3823,7 +3823,7 @@ void Spell::EffectEnchantItemPrismatic(uint32 effect_idx)
     // support only enchantings with add socket in this slot
     {
         bool add_socket = false;
-        for(int i = 0; i < 3; ++i)
+        for(uint8 i = 0; i < 3; ++i)
         {
             if(pEnchant->type[i]==ITEM_ENCHANTMENT_TYPE_PRISMATIC_SOCKET)
             {
@@ -4222,7 +4222,7 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
                     stack = aur->GetParentAura()->GetStackAmount();
                 }
 
-                for(int j = 0; j < 3; j++)
+                for(uint8 j = 0; j < 3; j++)
                 {
                     if(m_spellInfo->Effect[j] == SPELL_EFFECT_NORMALIZED_WEAPON_DMG)
                     {
@@ -4614,7 +4614,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     uint32 spells[4] = { 26272, 26157, 26273, 26274 };
 
                     // check presence
-                    for(int j = 0; j < 4; ++j)
+                    for(uint8 j = 0; j < 4; ++j)
                         if(unitTarget->HasAuraEffect(spells[j],0))
                             return;
 
@@ -6213,7 +6213,7 @@ void Spell::EffectSummonDeadPet(uint32 /*i*/)
 void Spell::EffectDestroyAllTotems(uint32 /*i*/)
 {
     int32 mana = 0;
-    for(int slot = SUMMON_SLOT_TOTEM; slot < MAX_TOTEM_SLOT; ++slot)
+    for(uint8 slot = SUMMON_SLOT_TOTEM; slot < MAX_TOTEM_SLOT; ++slot)
     {
         if(!m_caster->m_SummonSlot[slot])
             continue;
@@ -6493,7 +6493,7 @@ void Spell::EffectSummonDemon(uint32 i)
 
     int32 amount = damage > 0 ? damage : 1;
 
-    for(int32 count = 0; count < amount; ++count)
+    for(uint32 count = 0; count < amount; ++count)
     {
         float px, py, pz;
         GetSummonPosition(i, px, py, pz, radius, count);
@@ -6710,7 +6710,7 @@ void Spell::SummonGuardian(uint32 entry, SummonPropertiesEntry const *properties
     TempSummonType summonType = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_DESPAWN;
     Map *map = caster->GetMap();
 
-    for(int32 count = 0; count < amount; ++count)
+    for(uint32 count = 0; count < amount; ++count)
     {
         float px, py, pz;
         GetSummonPosition(0, px, py, pz, radius, count);

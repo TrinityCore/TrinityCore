@@ -105,7 +105,7 @@ bool Bag::LoadFromDB(uint32 guid, uint64 owner_guid, QueryResult *result)
         return false;
 
     // cleanup bag content related item value fields (its will be filled correctly from `character_inventory`)
-    for (int i = 0; i < MAX_BAG_SIZE; ++i)
+    for (uint8 i = 0; i < MAX_BAG_SIZE; ++i)
     {
         SetUInt64Value(CONTAINER_FIELD_SLOT_1 + (i*2), 0);
         if (m_bagslot[i])
@@ -120,7 +120,7 @@ bool Bag::LoadFromDB(uint32 guid, uint64 owner_guid, QueryResult *result)
 
 void Bag::DeleteFromDB()
 {
-    for (int i = 0; i < MAX_BAG_SIZE; ++i)
+    for (uint8 i = 0; i < MAX_BAG_SIZE; ++i)
         if (m_bagslot[i])
             m_bagslot[i]->DeleteFromDB();
 
