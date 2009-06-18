@@ -103,13 +103,26 @@ struct TRINITY_DLL_DECL instance_magisters_terrace : public ScriptedInstance
         switch(identifier)
         {
             case DATA_SELIN_EVENT:       Encounters[0] = data;  break;
-            case DATA_VEXALLUS_EVENT:    Encounters[1] = data;  break;
-            case DATA_DELRISSA_EVENT:    Encounters[2] = data;  break;
+            case DATA_VEXALLUS_EVENT:
+                if (data == DONE)
+                    DoUseDoorOrButton(VexallusDoorGUID);
+                Encounters[1] = data;
+                break;
+            case DATA_DELRISSA_EVENT:
+                if (data == DONE)
+                    DoUseDoorOrButton(DelrissaDoorGUID);
+                if (data == IN_PROGRESS)
+                    DelrissaDeathCount = 0;
+                Encounters[2] = data;
+                break;
             case DATA_KAELTHAS_EVENT:    Encounters[3] = data;  break;
 
             case DATA_DELRISSA_DEATH_COUNT:
-                if(data)  ++DelrissaDeathCount;
-                else      DelrissaDeathCount = 0;
+                if (data == SPECIAL)
+                    ++DelrissaDeathCount;
+                else
+                    DelrissaDeathCount = 0;
+                break;
         }
     }
 
