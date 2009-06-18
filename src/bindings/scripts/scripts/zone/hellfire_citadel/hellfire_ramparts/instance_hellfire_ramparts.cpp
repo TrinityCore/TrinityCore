@@ -51,24 +51,6 @@ struct TRINITY_DLL_DECL instance_ramparts : public ScriptedInstance
         }
     }
 
-    void DoRespawnChest()
-    {
-        uint64 uiChest;
-
-        if (instance->IsHeroic())
-            uiChest = m_uiChestHGUID;
-        else
-            uiChest = m_uiChestNGUID;
-
-        if (GameObject* pGo = instance->GetGameObject(uiChest))
-        {
-            if (pGo->isSpawned())
-                return;
-
-            pGo->SetRespawnTime(HOUR*IN_MILISECONDS);
-        }
-    }
-
     void SetData(uint32 uiType, uint32 uiData)
     {
         debug_log("TSCR: Instance Ramparts: SetData received for type %u with data %u",uiType,uiData);
@@ -77,12 +59,12 @@ struct TRINITY_DLL_DECL instance_ramparts : public ScriptedInstance
         {
             case TYPE_VAZRUDEN:
                 if (uiData == DONE && m_uiEncounter[1] == DONE)
-                    DoRespawnChest();
+                    DoRespawnGameObject(instance->IsHeroic() ? m_uiChestHGUID : m_uiChestNGUID, HOUR*IN_MILISECONDS);
                 m_uiEncounter[0] = uiData;
                 break;
             case TYPE_NAZAN:
                 if (uiData == DONE && m_uiEncounter[0] == DONE)
-                    DoRespawnChest();
+                    DoRespawnGameObject(instance->IsHeroic() ? m_uiChestHGUID : m_uiChestNGUID, HOUR*IN_MILISECONDS);
                 m_uiEncounter[1] = uiData;
                 break;
         }
