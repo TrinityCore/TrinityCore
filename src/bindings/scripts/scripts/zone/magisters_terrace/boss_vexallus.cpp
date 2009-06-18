@@ -24,30 +24,36 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_magisters_terrace.h"
 
-#define SAY_AGGRO                   -1585007
-#define SAY_ENERGY                  -1585008
-#define SAY_OVERLOAD                -1585009
-#define SAY_KILL                    -1585010
-#define EMOTE_DISCHARGE_ENERGY      -1585011
+enum
+{
+    SAY_AGGRO                       = -1585007,
+    SAY_ENERGY                      = -1585008,
+    SAY_OVERLOAD                    = -1585009,
+    SAY_KILL                        = -1585010,
+    EMOTE_DISCHARGE_ENERGY          = -1585011,
 
-//is this text for real?
-//#define SAY_DEATH                   "What...happen...ed."
+    //is this text for real?
+    //#define SAY_DEATH             "What...happen...ed."
 
-//Pure energy spell info
-#define SPELL_ENERGY_BOLT           46156
-#define SPELL_ENERGY_FEEDBACK       44335
+    //Pure energy spell info
+    SPELL_ENERGY_BOLT               = 46156,
+    SPELL_ENERGY_FEEDBACK           = 44335,
 
-//Vexallus spell info
-#define SPELL_CHAIN_LIGHTNING       44318
-#define SPELL_OVERLOAD              44353
-#define SPELL_ARCANE_SHOCK          44319
+    //Vexallus spell info
+    SPELL_CHAIN_LIGHTNING           = 44318,
+    SPELL_OVERLOAD                  = 44353,
+    SPELL_ARCANE_SHOCK              = 44319,
 
-#define SPELL_SUMMON_PURE_ENERGY    44322                   //mod scale -10
-#define H_SPELL_SUMMON_PURE_ENERGY1 46154                   //mod scale -5
-#define H_SPELL_SUMMON_PURE_ENERGY2 46159                   //mod scale -5
+    SPELL_SUMMON_PURE_ENERGY        = 44322,                //mod scale -10
+    H_SPELL_SUMMON_PURE_ENERGY1     = 46154,                //mod scale -5
+    H_SPELL_SUMMON_PURE_ENERGY2     = 46159,                //mod scale -5
 
-//Creatures
-#define CREATURE_PURE_ENERGY        24745
+    //Creatures
+    NPC_PURE_ENERGY                 = 24745,
+
+    INTERVAL_MODIFIER               = 15,
+    INTERVAL_SWITCH                 = 6
+};
 
 struct  TRINITY_DLL_DECL boss_vexallusAI : public ScriptedAI
 {
@@ -63,8 +69,7 @@ struct  TRINITY_DLL_DECL boss_vexallusAI : public ScriptedAI
     uint32 ChainLightningTimer;
     uint32 ArcaneShockTimer;
     uint32 OverloadTimer;
-    uint32 SpawnAddInterval;
-    uint32 AlreadySpawnedAmount;
+    uint32 IntervalHealthAmount;
     bool Enraged;
 
     void Reset()
@@ -72,8 +77,7 @@ struct  TRINITY_DLL_DECL boss_vexallusAI : public ScriptedAI
         ChainLightningTimer = 10000;
         ArcaneShockTimer = 8000;
         OverloadTimer = 2200;
-        SpawnAddInterval = 15;
-        AlreadySpawnedAmount = 0;
+        IntervalHealthAmount = 1;
         Enraged = false;
 
         if (pInstance)
@@ -88,12 +92,7 @@ struct  TRINITY_DLL_DECL boss_vexallusAI : public ScriptedAI
     void JustDied(Unit *victim)
     {
         if (pInstance)
-        {
             pInstance->SetData(DATA_VEXALLUS_EVENT, DONE);
-
-            if (GameObject* Door = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_VEXALLUS_DOOR)))
-                Door->SetGoState(GO_STATE_ACTIVE);
-        }
     }
 
     void EnterCombat(Unit *who)
@@ -118,16 +117,20 @@ struct  TRINITY_DLL_DECL boss_vexallusAI : public ScriptedAI
         if (!UpdateVictim() )
             return;
 
-        if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 10)
-        {
-            Enraged = true;
-        }
-
         if (!Enraged)
         {
             //used for check, when Vexallus cast adds 85%, 70%, 55%, 40%, 25%
-            if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < (100-(SpawnAddInterval*(AlreadySpawnedAmount+1))))
+            if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) <= (100-(INTERVAL_MODIFIER*IntervalHealthAmount)))
             {
+                //increase amount, unless we're at 10%, then we switch and return
+                if (IntervalHealthAmount == INTERVAL_SWITCH)
+                {
+                    Enraged = true;
+                    return;
+                }
+                else
+                    ++IntervalHealthAmount;
+
                 DoScriptText(SAY_ENERGY, m_creature);
                 DoScriptText(EMOTE_DISCHARGE_ENERGY, m_creature);
 
@@ -140,12 +143,10 @@ struct  TRINITY_DLL_DECL boss_vexallusAI : public ScriptedAI
                     m_creature->CastSpell(m_creature,SPELL_SUMMON_PURE_ENERGY,false);
 
                 //below are workaround summons, remove when summoning spells w/implicitTarget 73 implemented in Mangos
-                DoSpawnCreature(CREATURE_PURE_ENERGY, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                DoSpawnCreature(NPC_PURE_ENERGY, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
 
                 if (Heroic)
-                    DoSpawnCreature(CREATURE_PURE_ENERGY, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-
-                ++AlreadySpawnedAmount;
+                    DoSpawnCreature(NPC_PURE_ENERGY, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
             }
 
             if (ChainLightningTimer < diff)

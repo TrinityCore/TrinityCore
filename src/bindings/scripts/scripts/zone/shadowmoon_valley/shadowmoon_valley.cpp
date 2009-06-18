@@ -624,10 +624,25 @@ bool GossipSelect_npc_oronok_tornheart(Player *player, Creature *_Creature, uint
 # npc_karynaku
 ####*/
 
+enum
+{
+    QUEST_ALLY_OF_NETHER    = 10870,
+
+    TAXI_NODE_START         = 161,                          // From Karynaku
+    TAXI_NODE_END           = 162                           // To Mordenai
+};
+
 bool QuestAccept_npc_karynaku(Player* player, Creature* creature, Quest const* quest)
 {
-    if(quest->GetQuestId() == 10870)                        // Ally of the Netherwing
-        player->ActivateTaxiPathTo(649);
+    if(quest->GetQuestId() == QUEST_ALLY_OF_NETHER)
+    {
+        std::vector<uint32> nodes;
+
+        nodes.resize(2);
+        nodes[0] = TAXI_NODE_START;
+        nodes[1] = TAXI_NODE_END;
+        player->ActivateTaxiPathTo(nodes);        //player->ActivateTaxiPathTo(649);
+    }
 
     return true;
 }
