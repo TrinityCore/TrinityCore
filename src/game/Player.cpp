@@ -16155,8 +16155,9 @@ void Player::_SaveInventory()
 
         if (test == NULL)
         {
-            sLog.outError("Player(GUID: %u Name: %s)::_SaveInventory - the bag(%d) and slot(%d) values for the item with guid %d are incorrect, the player doesn't have an item at that position!", GetGUIDLow(), GetName(), item->GetBagSlot(), item->GetSlot(), item->GetGUIDLow());
-            error = true;
+            sLog.outCrash("Player(GUID: %u Name: %s)::_SaveInventory - the bag(%d) and slot(%d) values for the item with guid %d (state %d) are incorrect, the player doesn't have an item at that position!", GetGUIDLow(), GetName(), item->GetBagSlot(), item->GetSlot(), item->GetGUIDLow(), (int32)item->GetState());
+            //error = true;
+            //now some items in bags cannot be saved but after cleansup they appear again
         }
         else if (test != item)
         {
