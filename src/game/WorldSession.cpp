@@ -372,6 +372,17 @@ void WorldSession::LogoutPlayer(bool Save)
         if(_player->GetGroup() && !_player->GetGroup()->isRaidGroup() && m_Socket)
             _player->RemoveFromGroup();
 
+        ///- Send update to group
+        if(_player->GetGroup())
+            _player->GetGroup()->SendUpdate();
+
+        ///- Broadcast a logout message to the player's friends
+        sSocialMgr.SendFriendStatus(_player, FRIEND_OFFLINE, _player->GetGUIDLow(), true);
+        sSocialMgr.RemovePlayerSocial (_player->GetGUIDLow ());
+
+        ///- Delete the player object
+        _player->CleanupsBeforeDelete();                    // do some cleanup before deleting to prevent crash at crossreferences to already deleted data
+
         ///- Remove the player from the world
         // the player may not be in the world when logging out
         // e.g if he got disconnected during a transfer to another map
@@ -380,17 +391,6 @@ void WorldSession::LogoutPlayer(bool Save)
         // RemoveFromWorld does cleanup that requires the player to be in the accessor
         ObjectAccessor::Instance().RemoveObject(_player);
 
-        ///- Send update to group
-        if(_player->GetGroup())
-            _player->GetGroup()->SendUpdate();
-
-        ///- Broadcast a logout message to the player's friends
-        sSocialMgr.SendFriendStatus(_player, FRIEND_OFFLINE, _player->GetGUIDLow(), true);
-
-        ///- Delete the player object
-        _player->CleanupsBeforeDelete();                    // do some cleanup before deleting to prevent crash at crossreferences to already deleted data
-
-        sSocialMgr.RemovePlayerSocial (_player->GetGUIDLow ());
         delete _player;
         _player = NULL;
 
