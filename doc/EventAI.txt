@@ -132,6 +132,7 @@ Params are always read from Param1, then Param2, then Param3.
 38   ACTION_T_ZONE_COMBAT_PULSE        No Params                       Places all players within the instance into combat with the creature. Only works in combat and only works inside of instances.
 39   ACTION_T_CALL_FOR_HELP            Radius                          Call any friendly creatures (if its not in combat/etc) in radius attack creature target.
 40   ACTION_T_SET_SHEATH               Sheath                          Let set sheath state for creature (0-no weapon show (not used mostly by creatures), 1-melee weapon show, 2-ranged weapon show)
+41   ACTION_T_FORCE_DESPAWN            No Params                       Despawns the creature
 
 * = Use -1 to specify that if this param is picked to do nothing. Random is constant between actions within an event. So if you have a random Yell and a random Sound they will match up (ex: param2 with param2)
 
@@ -724,6 +725,12 @@ Parameter 1: Sheath state
 Let set sheath state for creature.
 Note: SHEATH_STATE_RANGED case work in combat state only if combat not start as melee commands.
 This possible setup by set ar event AI start (single used EVENT_T_TIMER_OOC set ACTION_T_COMBAT_MOVEMENT 0 for creature that prefered ranged attack)
+
+-------------------------
+41   ACTION_T_FORCE_DESPAWN
+-------------------------
+Despawns the creature (in or out of combat)
+No parameters
 
 =========================================
 Target Types
