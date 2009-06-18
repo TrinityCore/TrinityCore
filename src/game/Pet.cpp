@@ -332,7 +332,7 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
 
             m_declinedname = new DeclinedName;
             Field *fields2 = result->Fetch();
-            for(int i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+            for(uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
             {
                 m_declinedname->name[i] = fields2[i].GetCppString();
             }
@@ -856,7 +856,7 @@ bool Guardian::InitStatsForLevel(uint32 petlevel)
         if(pInfo->armor > 0)
             SetModifierValue(UNIT_MOD_ARMOR, BASE_VALUE, float(pInfo->armor));
 
-        for(int stat = 0; stat < MAX_STATS; ++stat)
+        for(uint8 stat = 0; stat < MAX_STATS; ++stat)
             SetCreateStat(Stats(stat), float(pInfo->stats[stat]));
     }
     else                                            // not exist in DB, use some default fake data
@@ -1275,7 +1275,7 @@ bool Pet::addSpell(uint32 spell_id,ActiveStates active /*= ACT_DECIDE*/, PetSpel
     {
         if(TalentEntry const *talentInfo = sTalentStore.LookupEntry( talentPos->talent_id ))
         {
-            for(int i=0; i < MAX_TALENT_RANK; ++i)
+            for(uint8 i=0; i < MAX_TALENT_RANK; ++i)
             {
                 // skip learning spell and no rank spell case
                 uint32 rankSpellId = talentInfo->RankID[i];
@@ -1377,7 +1377,7 @@ void Pet::InitLevelupSpellsForLevel()
     // default spells (can be not learned if pet level (as owner level decrease result for example) less first possible in normal game)
     if(PetDefaultSpellsEntry const *defSpells = spellmgr.GetPetDefaultSpellsEntry(petSpellsId))
     {
-        for(int i = 0; i < MAX_CREATURE_SPELL_DATA_SLOT; ++i)
+        for(uint8 i = 0; i < MAX_CREATURE_SPELL_DATA_SLOT; ++i)
         {
             SpellEntry const* spellEntry = sSpellStore.LookupEntry(defSpells->spellid[i]);
             if(!spellEntry)
@@ -1462,7 +1462,7 @@ bool Pet::removeSpell(uint32 spell_id, bool learn_prev, bool clear_ab)
 
 void Pet::CleanupActionBar()
 {
-    for(int i = 0; i < MAX_UNIT_ACTION_BAR_INDEX; ++i)
+    for(uint8 i = 0; i < MAX_UNIT_ACTION_BAR_INDEX; ++i)
         if(UnitActionBarEntry const* ab = m_charmInfo->GetActionBarEntry(i))
             if(ab->SpellOrAction && ab->IsActionBarForSpell())
             {

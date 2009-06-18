@@ -65,7 +65,7 @@ struct TRINITY_DLL_DECL boss_archavonAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        DoScriptText(rand()%2 ? SAY_AGGRO1 : SAY_AGGRO2, me);
+        DoScriptText((rand()%2) ? SAY_AGGRO1 : SAY_AGGRO2, me);
         DoZoneInCombat();
         events.ScheduleEvent(EVENT_ROCK_SHARDS, 15000);
         events.ScheduleEvent(EVENT_CHOKING_CLOUD, 30000);

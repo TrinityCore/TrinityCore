@@ -59,7 +59,7 @@ struct TRINITY_DLL_DECL boss_four_horsemenAI : public BossAI
     boss_four_horsemenAI(Creature *c) : BossAI(c, BOSS_HORSEMEN)
     {
         id = Horsemen(0);
-        for(uint32 i = 1; i < 4; ++i)
+        for(uint8 i = 1; i < 4; ++i)
             if(me->GetEntry() == MOB_HORSEMEN[i])
                 id = Horsemen(i);
         caster = (id == HORSEMEN_LADY || id == HORSEMEN_SIR);
@@ -107,9 +107,9 @@ struct TRINITY_DLL_DECL boss_four_horsemenAI : public BossAI
             DoScriptText(SAY_BARON_AGGRO, me);
         else
             DoScriptText(SAY_AGGRO[id], me);
-        events.ScheduleEvent(EVENT_MARK, 15000);
-        events.ScheduleEvent(EVENT_CAST, 20000+rand()%5000);
-        events.ScheduleEvent(EVENT_BERSERK, 15*100*1000);
+            events.ScheduleEvent(EVENT_MARK, 15000);
+            events.ScheduleEvent(EVENT_CAST, 20000+rand()%5000);
+            events.ScheduleEvent(EVENT_BERSERK, 15*100*1000);
     }
 
     void UpdateAI(const uint32 diff)

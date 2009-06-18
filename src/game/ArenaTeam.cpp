@@ -276,7 +276,7 @@ void ArenaTeam::DelMember(uint64 guid)
         player->SetInArenaTeam(0, GetSlot());
         player->GetSession()->SendArenaTeamCommandResult(ERR_ARENA_TEAM_QUIT_S, GetName(), "", 0);
         // delete all info regarding this team
-        for(int i = 0; i < 6; ++i)
+        for(uint8 i = 0; i < 6; ++i)
         {
             player->SetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (GetSlot() * 6) + i, 0);
         }

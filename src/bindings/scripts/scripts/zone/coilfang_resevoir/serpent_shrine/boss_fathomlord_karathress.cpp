@@ -688,7 +688,7 @@ struct TRINITY_DLL_DECL boss_fathomguard_caribdisAI : public ScriptedAI
 
     Unit* selectAdvisorUnit()
     {
-        Unit* pUnit;
+        Unit* pUnit = NULL;
         if(pInstance)
         {
             switch(rand()%4)

@@ -217,7 +217,7 @@ struct TRINITY_DLL_DECL boss_ragnarosAI : public Scripted_NoMovementAI
                 DoScriptText(SAY_REINFORCEMENTS1, m_creature);
 
                 // summon 10 elementals
-                for(int i = 0; i < 9; ++i)
+                for(uint8 i = 0; i < 9; ++i)
                 {
                     if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
                     {
@@ -236,7 +236,7 @@ struct TRINITY_DLL_DECL boss_ragnarosAI : public Scripted_NoMovementAI
             {
                 DoScriptText(SAY_REINFORCEMENTS2, m_creature);
 
-                for(int i = 0; i < 9; ++i)
+                for(uint8 i = 0; i < 9; ++i)
                 {
                     if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
                     {

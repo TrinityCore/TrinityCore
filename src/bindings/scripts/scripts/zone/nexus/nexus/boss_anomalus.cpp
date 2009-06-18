@@ -96,15 +96,16 @@ struct TRINITY_DLL_DECL boss_anomalusAI : public ScriptedAI
         
         if (m_creature->HasAura(SPELL_RIFT_SHIELD))
         {
-            Unit* Rift;
             if (ChaoticRiftGUID)
-                Rift = Unit::GetUnit((*m_creature), ChaoticRiftGUID);
-            if (Rift && Rift->isDead())
             {
-                m_creature->RemoveAurasDueToSpell(SPELL_RIFT_SHIELD);
-                ChaoticRiftGUID = 0;
+                Unit* Rift = Unit::GetUnit((*m_creature), ChaoticRiftGUID);
+                if (Rift && Rift->isDead())
+                {
+                    m_creature->RemoveAurasDueToSpell(SPELL_RIFT_SHIELD);
+                    ChaoticRiftGUID = 0;
+                }
+                return;
             }
-            return;
         } else
             ChaoticRiftGUID = 0;
 

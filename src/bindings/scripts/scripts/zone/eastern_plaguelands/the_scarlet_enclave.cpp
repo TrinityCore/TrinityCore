@@ -174,7 +174,7 @@ struct TRINITY_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
     void AddEquipp()
     {
         int model_counter = 0;
-        for(int i = 0; i< 20; i++)
+        for(uint8 i = 0; i< 20; i++)
         {
             if(m_creature->GetDisplayId() == modelid_dk_unworthy[i])
             {
@@ -261,7 +261,7 @@ void npc_unworthy_initiateAI::UpdateAI(const uint32 diff)
             float dist = 99.0f;
             uint64 nearest_prison;
 
-            for(int i = 0; i < 12; i++)
+            for(uint8 i = 0; i < 12; i++)
             {
                 GameObject* temp_prison;
                 temp_prison = m_creature->FindNearestGameObject(acherus_soul_prison[i],30);

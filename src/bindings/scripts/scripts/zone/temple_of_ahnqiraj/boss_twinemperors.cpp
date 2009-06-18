@@ -348,16 +348,19 @@ struct TRINITY_DLL_DECL boss_twinemperorsAI : public ScriptedAI
         for(std::list<Creature*>::iterator iter = unitList.begin(); iter != unitList.end(); ++iter)
         {
             Creature *c = *iter;
-            if (c && c->isDead())
+            if (c)
             {
-                c->Respawn();
-                c->setFaction(7);
-                c->RemoveAllAuras();
-            }
-            if (c->IsWithinDistInMap(m_creature, ABUSE_BUG_RANGE))
-            {
-                if (!nearb || (rand()%4)==0)
-                    nearb = c;
+                if(c->isDead())
+                {
+                    c->Respawn();
+                    c->setFaction(7);
+                    c->RemoveAllAuras();
+                }
+                if (c->IsWithinDistInMap(m_creature, ABUSE_BUG_RANGE))
+                {
+                    if (!nearb || (rand()%4) == 0)
+                        nearb = c;
+                }
             }
         }
         return nearb;

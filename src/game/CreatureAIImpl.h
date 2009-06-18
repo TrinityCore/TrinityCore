@@ -27,7 +27,7 @@ template<class T>
 inline
 const T& RAND(const T& v1, const T& v2)
 {
-    return rand()%2 ? v1 : v2;
+    return (rand()%2) ? v1 : v2;
 }
 
 template<class T>
