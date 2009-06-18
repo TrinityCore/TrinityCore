@@ -54,6 +54,7 @@ class Minion : public TempSummon
         void InitSummon();
         void RemoveFromWorld();
         Unit *GetOwner() { return m_owner; }
+        bool IsPetGhoul() const {return GetEntry() == 26125;} // Ghoul may be guardian or pet
     protected:
         Unit * const m_owner;
 };

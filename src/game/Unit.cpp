@@ -1821,7 +1821,7 @@ uint32 Unit::CalcArmorReducedDamage(Unit* pVictim, const uint32 damage, SpellEnt
 
     // Apply Player CR_ARMOR_PENETRATION rating
     if (GetTypeId()==TYPEID_PLAYER)
-        armor *= 1.0f - ((Player*)this)->GetRatingBonusValue(CR_ARMOR_PENETRATION) / 100.0f;
+        armor *= 1.0f - (((Player*)this)->GetRatingBonusValue(CR_ARMOR_PENETRATION) / 100.0f);
 
     if (armor < 0.0f) armor=0.0f;
 
@@ -8685,6 +8685,22 @@ void Unit::SetMinion(Minion *minion, bool apply)
         if(GetTypeId() == TYPEID_PLAYER && minion->HasSummonMask(SUMMON_MASK_PET))
             for(int i = 0; i < MAX_MOVE_TYPE; ++i)
                 minion->SetSpeed(UnitMoveType(i), m_speed_rate[i], true);
+
+        // Ghoul pets have energy instead of mana (is anywhere better place for this code?)
+        if (minion->IsPetGhoul())
+        {
+            minion->setPowerType(POWER_ENERGY);
+        }
+
+        if (GetTypeId() == TYPEID_PLAYER)
+        {
+            // Send infinity cooldown - client does that automatically but after relog cooldown needs to be set again
+            SpellEntry const *spellInfo = sSpellStore.LookupEntry(minion->GetUInt32Value(UNIT_CREATED_BY_SPELL));
+            if (spellInfo && (spellInfo->Attributes & SPELL_ATTR_DISABLED_WHILE_ACTIVE))
+            {
+                ((Player*)this)->AddSpellAndCategoryCooldowns(spellInfo, 0, NULL ,true);
+            }
+        }
     }
     else
     {
@@ -8700,6 +8716,16 @@ void Unit::SetMinion(Minion *minion, bool apply)
         {
             if(GetPetGUID() == minion->GetGUID())
                 SetPetGUID(0);
+        }
+
+        if (GetTypeId() == TYPEID_PLAYER)
+        {
+            SpellEntry const *spellInfo = sSpellStore.LookupEntry(minion->GetUInt32Value(UNIT_CREATED_BY_SPELL));
+            // Remove infinity cooldown
+            if (spellInfo && (spellInfo->Attributes & SPELL_ATTR_DISABLED_WHILE_ACTIVE))
+            {
+                ((Player*)this)->SendCooldownEvent(spellInfo);
+            }
         }
 
         //if(minion->HasSummonMask(SUMMON_MASK_GUARDIAN))
