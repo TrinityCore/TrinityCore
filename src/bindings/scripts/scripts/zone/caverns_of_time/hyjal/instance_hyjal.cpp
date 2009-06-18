@@ -25,8 +25,12 @@ EndScriptData */
 #include "def_hyjal.h"
 #include "hyjal_trash.h"
 
-#define ENCOUNTERS     5
+enum
+{
+    ENCOUNTERS          = 5,
 
+    GO_ANCIENT_GEM      = 185557
+};
 /* Battle of Mount Hyjal encounters:
 0 - Rage Winterchill event
 1 - Anetheron event
@@ -41,6 +45,8 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
 
     uint32 Encounters[ENCOUNTERS];
     std::string str_data;
+
+    std::list<uint64> m_uiAncientGemGUID;
 
     uint64 RageWinterchill;
     uint64 Anetheron;
@@ -64,6 +70,8 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
 
     void Initialize()
     {
+        m_uiAncientGemGUID.clear();
+
         RageWinterchill = 0;
         Anetheron = 0;
         Kazrogal = 0;
@@ -83,7 +91,6 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
 
         hordeRetreat = 0;
         allianceRetreat = 0;
-
     }
 
     bool IsEncounterInProgress() const
@@ -111,6 +118,9 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
                     go->SetGoState(GO_STATE_ACTIVE);
                 else
                     go->SetGoState(GO_STATE_READY);
+                break;
+            case GO_ANCIENT_GEM:
+                m_uiAncientGemGUID.push_back(go->GetGUID());
                 break;
         }
     }
@@ -207,6 +217,19 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
                 if(data) Trash = data;
                 else     Trash--;
                 UpdateWorldState(WORLD_STATE_ENEMYCOUNT, Trash);
+                break;
+            case TYPE_RETREAT:
+                if (data == SPECIAL)
+                {
+                    if (!m_uiAncientGemGUID.empty())
+                    {
+                        for(std::list<uint64>::iterator itr = m_uiAncientGemGUID.begin(); itr != m_uiAncientGemGUID.end(); ++itr)
+                        {
+                            //don't know how long it expected
+                            DoRespawnGameObject(*itr,DAY);
+                        }
+                    }
+                }
                 break;
             case DATA_ALLIANCE_RETREAT:
                 allianceRetreat = data;
