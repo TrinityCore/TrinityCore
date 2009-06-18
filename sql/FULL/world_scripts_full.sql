@@ -381,7 +381,7 @@ UPDATE `gameobject_template` SET `ScriptName` = 'go_bridge_console' WHERE `entry
 
 /* Leotheras the Blind event */
 UPDATE `creature_template` SET `ScriptName`='boss_leotheras_the_blind' WHERE `entry`=21215;
-UPDATE `creature_template` SET `ScriptName`='boss_leotheras_the_blind_demonform' WHERE `entry`=21845;
+UPDATE `creature_template` SET `ScriptName`='boss_leotheras_the_blind_demonform' WHERE `entry`=21875;
 UPDATE `creature_template` SET `ScriptName`='mob_greyheart_spellbinder' WHERE `entry`=21806;
 UPDATE `creature_template` SET `ScriptName`='mob_inner_demon' WHERE `entry`=21857;
 /* Fathom-lord Karathress event */

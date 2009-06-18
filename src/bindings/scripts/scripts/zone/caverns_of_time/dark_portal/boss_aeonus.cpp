@@ -24,19 +24,22 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_dark_portal.h"
 
-#define SAY_ENTER         -1269012
-#define SAY_AGGRO         -1269013
-#define SAY_BANISH        -1269014
-#define SAY_SLAY1         -1269015
-#define SAY_SLAY2         -1269016
-#define SAY_DEATH         -1269017
-#define EMOTE_FRENZY      -1269018
+enum
+{
+    SAY_ENTER           = -1269012,
+    SAY_AGGRO           = -1269013,
+    SAY_BANISH          = -1269014,
+    SAY_SLAY1           = -1269015,
+    SAY_SLAY2           = -1269016,
+    SAY_DEATH           = -1269017,
+    EMOTE_FRENZY        = -1269018,
 
-#define SPELL_CLEAVE        40504
-#define SPELL_TIME_STOP     31422
-#define SPELL_ENRAGE        37605
-#define SPELL_SAND_BREATH   31473
-#define H_SPELL_SAND_BREATH 39049
+    SPELL_CLEAVE        = 40504,
+    SPELL_TIME_STOP     = 31422,
+    SPELL_ENRAGE        = 37605,
+    SPELL_SAND_BREATH   = 31473,
+    H_SPELL_SAND_BREATH = 39049
+};
 
 struct TRINITY_DLL_DECL boss_aeonusAI : public ScriptedAI
 {
@@ -55,9 +58,9 @@ struct TRINITY_DLL_DECL boss_aeonusAI : public ScriptedAI
 
     void Reset()
     {
-        SandBreath_Timer = 30000;
-        TimeStop_Timer = 40000;
-        Frenzy_Timer = 120000;
+        SandBreath_Timer = 15000+rand()%15000;
+        TimeStop_Timer = 10000+rand()%5000;
+        Frenzy_Timer = 30000+rand()%15000;
     }
 
     void EnterCombat(Unit *who)
@@ -109,15 +112,15 @@ struct TRINITY_DLL_DECL boss_aeonusAI : public ScriptedAI
         //Sand Breath
         if (SandBreath_Timer < diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_SAND_BREATH);
-            SandBreath_Timer = 30000;
+            DoCast(m_creature->getVictim(), HeroicMode ? H_SPELL_SAND_BREATH : SPELL_SAND_BREATH);
+            SandBreath_Timer = 15000+rand()%10000;
         }else SandBreath_Timer -= diff;
 
         //Time Stop
         if (TimeStop_Timer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_TIME_STOP);
-            TimeStop_Timer = 40000;
+            TimeStop_Timer = 20000+rand()%15000;
         }else TimeStop_Timer -= diff;
 
         //Frenzy
@@ -125,7 +128,7 @@ struct TRINITY_DLL_DECL boss_aeonusAI : public ScriptedAI
         {
             DoScriptText(EMOTE_FRENZY, m_creature);
             DoCast(m_creature, SPELL_ENRAGE);
-            Frenzy_Timer = 120000;
+            Frenzy_Timer = 20000+rand()%15000;
         }else Frenzy_Timer -= diff;
 
         DoMeleeAttackIfReady();
