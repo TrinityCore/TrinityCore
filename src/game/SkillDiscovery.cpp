@@ -56,7 +56,7 @@ void LoadSkillDiscoveryTable()
     //                                                0        1         2              3
     QueryResult *result = WorldDatabase.Query("SELECT spellId, reqSpell, reqSkillValue, chance FROM skill_discovery_template");
 
-    if (result)
+    if (!result)
     {
         sLog.outString();
         sLog.outString( ">> Loaded 0 skill discovery definitions. DB table `skill_discovery_template` is empty." );
