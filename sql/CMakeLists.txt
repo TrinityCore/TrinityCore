@@ -1,6 +1,7 @@
 add_subdirectory(TBC-WLK_converter)
 add_subdirectory(updates)
 add_subdirectory(tools)
+add_subdirectory(FULL)
 
 ########### install files ###############
 
