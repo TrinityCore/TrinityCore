@@ -57,4 +57,3 @@ SAY_ON_BYE'),
 (-1000347, 'Let\'s go before they find out I\'m free!', 0, 'npc_kaya_flathoof - SAY_START'),
 (-1000348, 'Look out! We\'re under attack!', 0, 'npc_kaya_flathoof - SAY_AMBUSH'),
 (-1000349, 'Thank you for helping me. I know my way back from here.', 0, 'npc_kaya_flathoof - SAY_END');
-

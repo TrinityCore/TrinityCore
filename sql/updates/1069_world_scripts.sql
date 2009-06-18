@@ -10,4 +10,3 @@ INSERT INTO `spell_script_target` (`entry`,`type`,`targetEntry`) VALUES
 ('32314', '2', '18037'),
 ('32314', '2', '18064'),
 ('32314', '2', '18065');
-

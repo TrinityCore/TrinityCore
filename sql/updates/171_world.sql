@@ -15,4 +15,3 @@ INSERT INTO `command` (name,security,help) VALUES
 ('modify gender',2,'Syntax: .modify gender\r\n\r\n.modify gender #male/female - Turns selected player into a male or female'),
 ('gobject activate',2,'Syntax: .gobject activate #guid\r\n\r\nActivates an object like a door or a button.'),
 ('playall',2,'Syntax: .playall #soundid\r\n\r\nPlayer a sound to whole server.');
-

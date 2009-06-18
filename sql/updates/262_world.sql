@@ -99,4 +99,3 @@ ALTER TABLE creature_movement
   ADD COLUMN textid3 int(11) NOT NULL default '0' AFTER textid2,
   ADD COLUMN textid4 int(11) NOT NULL default '0' AFTER textid3,
   ADD COLUMN textid5 int(11) NOT NULL default '0' AFTER textid4;
-

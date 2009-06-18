@@ -39,4 +39,3 @@ INSERT INTO script_texts (entry, content_default, emote, comment) VALUES
 (-1000233, 'It shouldn\'t be much further, $N. The exit is just up ahead.', 0, 'SAY_PROGRESS6'),
 (-1000234, 'Thank you, $N. Please return to my brethren at the Altar of Damnation, near the Hand of Gul\'dan, and tell them that Wilda is safe. May the Earthmother watch over you...', 0, 'SAY_END');
 
-

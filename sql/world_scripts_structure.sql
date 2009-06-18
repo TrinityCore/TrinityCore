@@ -102,4 +102,3 @@ DROP TABLE IF EXISTS `script_db_version`;
 CREATE TABLE `script_db_version` (
   `version` varchar(255) NOT NULL default '' COMMENT 'Script Database version string'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-

@@ -21,4 +21,3 @@ INSERT INTO script_texts (entry, content_default, type, emote, comment) VALUES
 (-1000264, 'Our Bloodmyst scouts have located our contact. The fool, Velen, will soon leave himself open and defenseless -- long enough for us to strike! Now get out of my sight before I vaporize you...', 0, 0, 'geezle - SPARK_SAY_6'),
 (-1000265, 'Yes, sir. It won\'t happen again...', 0, 0, 'geezle - GEEZLE_SAY_7'),
 (-1000266, 'picks up the naga flag.', 2, 0, 'geezle - EMOTE_SPARK');
-

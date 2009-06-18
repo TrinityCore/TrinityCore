@@ -25,4 +25,3 @@ UPDATE `gameobject_template` SET `ScriptName` = 'go_movie_orb' WHERE `entry` = 1
 
 update creature_template SET spell1=6474 WHERE entry=22487;
 update creature_template SET spell1=3600 WHERE entry=22486;
-

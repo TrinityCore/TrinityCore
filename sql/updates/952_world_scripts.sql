@@ -8,4 +8,3 @@ INSERT INTO script_texts (entry, content_default, type, language, comment) VALUE
 
 (-1000284, 'Deployment sucessful. Trespassers will be neutralized.', 0, 0, 'sentry - SAY_CONVERTED_1'),
 (-1000285, 'Objective acquired. Initiating security routines.', 0, 0, 'sentry - SAY_CONVERTED_1');
-

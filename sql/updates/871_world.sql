@@ -29,4 +29,3 @@ INSERT INTO trinity_string (`entry`, `content_default`, `content_loc1`, `content
 
 DELETE FROM `command` WHERE (`name` LIKE '%ticket closedlist%');
 INSERT INTO `command` (`name`,`security`,`help`) VALUES ('.ticket closedlist','1','Displays a list of closed GM tickets.');
-

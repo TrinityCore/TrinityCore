@@ -7,4 +7,3 @@ insert into event_scripts values
 delete from creature where id = 17651;
 -- add script
 update creature_template set scriptname = 'npc_image_of_medivh' where entry = 17651;
-

@@ -11,4 +11,3 @@ CREATE TABLE `game_event_condition_save` (
  `done` float default '0',
  PRIMARY KEY  (`event_id`,`condition_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-

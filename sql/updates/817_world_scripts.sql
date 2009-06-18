@@ -11,4 +11,3 @@ VALUES
 UPDATE `quest_template` SET `QuestFlags` = 2, `SpecialFlags` = 2 WHERE `entry` = 4245;
 
 UPDATE `creature_template` SET `ScriptName` = 'npc_ame' WHERE `entry` = 9623;
-

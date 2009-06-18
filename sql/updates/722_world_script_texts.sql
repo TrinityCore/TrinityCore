@@ -7,4 +7,3 @@ INSERT INTO `script_texts` (`entry`,`content_default`,`sound`,`type`,`language`,
 (-1000144,'Thank you for saving my life and bringing me back to safety, $N',0,0,1,'lilatha SAY_END1'),
 (-1000145,'Captain Helios, I\'ve been rescued from the Amani Catacombs. Reporting for duty, sir!',0,0,1,'lilatha SAY_END2'),
 (-1000146,'Liatha, get someone to look at those injuries. Thank you for bringing her back safely.',0,0,1,'lilatha CAPTAIN_ANSWER');
-

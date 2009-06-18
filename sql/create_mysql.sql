@@ -12,4 +12,3 @@ GRANT ALL PRIVILEGES ON `characters` . * TO 'trinity'@'localhost' WITH GRANT OPT
 
 GRANT ALL PRIVILEGES ON `realmd` . * TO 'trinity'@'localhost' WITH GRANT OPTION;
 
-

@@ -4,4 +4,3 @@ update `creature_template` set `ScriptName`='mob_flame_patch_alar' where `entry`
 
 update gameobject_template set scriptname = "go_manticron_cube" where entry = 181713;
 update creature_template set scriptname = "mob_abyssal" where entry = 17454;
-

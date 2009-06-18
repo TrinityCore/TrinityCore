@@ -10,4 +10,3 @@ VALUES
    (-1060005, 'Cloaking systems online! CLUCK! Engaging cloak for transport to Booty Bay!', NULL, NULL, 'Tarnsysteme online! GLUCK! Tarnung für Transport nach Beutebucht wird aktiviert.', NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, NULL);
 
 UPDATE `creature_template` SET `ScriptName` = 'npc_OOX17' WHERE `entry` = 7784;
-

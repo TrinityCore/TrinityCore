@@ -24,4 +24,3 @@ INSERT INTO trinity_string (entry, content_default) VALUES
     (1138, 'You cannot teleport to a battleground from another battleground. Please leave the current battleground first.');
 
 DELETE FROM trinity_string WHERE entry = 714 OR entry = 716;
-

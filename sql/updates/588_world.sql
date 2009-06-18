@@ -5,4 +5,3 @@ INSERT INTO `trinity_string` (`entry`,`content_default`) VALUES ('6615','|cfffff
 INSERT INTO `command` (`name`,`security`,`help`) VALUES ('gmnotify', 2, 'Syntax: .gmnotify $notification\r\nDisplays a notification on the screen of all online GM\'s.');
 INSERT INTO `command` (`name`,`security`,`help`) VALUES ('gmnameannounce', 2, 'Syntax: .gmnameannounce $announcement.\r\nSend an announcement to all online GM\'s, displaying the name of the sender.');
 INSERT INTO `command` (`name`,`security`,`help`) VALUES ('gmannounce', 4, 'Syntax: .gmannounce $announcement\r\nSend an announcement to online Gamemasters.');
-
