@@ -296,10 +296,10 @@ struct TRINITY_DLL_DECL mob_annhylde_the_callerAI : public ScriptedAI
     void Reset()
     {
         m_creature->AddUnitMovementFlag(MOVEMENTFLAG_FLYING + MOVEMENTFLAG_HOVER);
-        m_creature->SetSpeed(MOVE_SWIM , 0.1f);
-        m_creature->SetSpeed(MOVE_RUN , 0.1f);
-        m_creature->SetSpeed(MOVE_WALK , 0.1f);
-        m_creature->SetSpeed(MOVE_FLIGHT , 0.1f);
+        m_creature->SetSpeed(MOVE_SWIM , 1.0f);
+        m_creature->SetSpeed(MOVE_RUN , 1.0f);
+        m_creature->SetSpeed(MOVE_WALK , 1.0f);
+        //m_creature->SetSpeed(MOVE_FLIGHT , 1.0f);
 
         m_creature->GetPosition(x,y,z);
         DoTeleportTo(x+1,y,z+30);
