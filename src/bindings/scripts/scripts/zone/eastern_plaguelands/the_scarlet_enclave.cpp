@@ -210,8 +210,8 @@ struct TRINITY_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
 
         m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
 
-        anchor->GetPosition(targ_x,targ_y,targ_z);
-        anchor->DealDamage(anchor,anchor->GetHealth());
+        anchor->GetNearPoint2D(targ_x,targ_y,1,anchor->GetAngle(m_creature));
+        //anchor->DealDamage(anchor,anchor->GetHealth());
         m_creature->RemoveAurasDueToSpell(SPELL_SOUL_PRISON_CHAIN_SELF);
         m_creature->RemoveAurasDueToSpell(SPELL_SOUL_PRISON_CHAIN);
 
@@ -275,10 +275,11 @@ void npc_unworthy_initiateAI::UpdateAI(const uint32 diff)
                     }
                 }
             }
+
             if(dist == 99)
                 return;
 
-            Creature* trigger = m_creature->SummonCreature(29521,x,y,z,0,TEMPSUMMON_MANUAL_DESPAWN,100);
+            Creature* trigger = m_creature->FindNearestCreature(29521,30);
             if(trigger)
             {
                 if(GameObject* go_prison = GameObject::GetGameObject((*m_creature),nearest_prison))
