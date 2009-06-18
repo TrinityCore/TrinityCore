@@ -20520,7 +20520,7 @@ void Player::LearnTalent(uint32 talentId, uint32 talentRank)
 
     // find current max talent rank
     int32 curtalent_maxrank = 0;
-    for(uint8 k = MAX_TALENT_RANK-1; k > -1; --k)
+    for(int8 k = MAX_TALENT_RANK-1; k > -1; --k)
     {
         if(talentInfo->RankID[k] && HasSpell(talentInfo->RankID[k]))
         {
