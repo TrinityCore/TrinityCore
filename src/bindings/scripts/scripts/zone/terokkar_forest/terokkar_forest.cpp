@@ -243,19 +243,26 @@ CreatureAI* GetAI_mob_netherweb_victim(Creature *_Creature)
 #define GOSSIP_FLOON1           "You owe Sim'salabim money. Hand them over or die!"
 #define GOSSIP_FLOON2           "Hand over the money or die...again!"
 
-#define SAY_FLOON_ATTACK        -1000352
+enum
+{
+    SAY_FLOON_ATTACK        = -1000352,
 
-#define FACTION_HOSTILE_FL      1738
-#define FACTION_FRIENDLY_FL     35
+    SPELL_SILENCE           = 6726,
+    SPELL_FROSTBOLT         = 9672,
+    SPELL_FROST_NOVA        = 11831,
 
-#define SPELL_SILENCE           6726
-#define SPELL_FROSTBOLT         9672
-#define SPELL_FROST_NOVA        11831
+    FACTION_HOSTILE_FL      = 1738,
+    QUEST_CRACK_SKULLS      = 10009
+};
 
 struct TRINITY_DLL_DECL npc_floonAI : public ScriptedAI
 {
-    npc_floonAI(Creature* c) : ScriptedAI(c) {}
+    npc_floonAI(Creature* c) : ScriptedAI(c)
+    {
+        m_uiNormFaction = c->getFaction();
+    }
 
+    uint32 m_uiNormFaction;
     uint32 Silence_Timer;
     uint32 Frostbolt_Timer;
     uint32 FrostNova_Timer;
@@ -265,7 +272,8 @@ struct TRINITY_DLL_DECL npc_floonAI : public ScriptedAI
         Silence_Timer = 2000;
         Frostbolt_Timer = 4000;
         FrostNova_Timer = 9000;
-        m_creature->setFaction(FACTION_FRIENDLY_FL);
+        if (m_creature->getFaction() != m_uiNormFaction)
+            m_creature->setFaction(m_uiNormFaction);
     }
 
     void EnterCombat(Unit *who) {}
@@ -296,6 +304,7 @@ struct TRINITY_DLL_DECL npc_floonAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
+
 CreatureAI* GetAI_npc_floon(Creature *_Creature)
 {
     return new npc_floonAI (_Creature);
@@ -303,8 +312,8 @@ CreatureAI* GetAI_npc_floon(Creature *_Creature)
 
 bool GossipHello_npc_floon(Player *player, Creature *_Creature )
 {
-    if( player->GetQuestStatus(10009) == QUEST_STATUS_INCOMPLETE )
-        player->ADD_GOSSIP_ITEM(1, GOSSIP_FLOON1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+    if( player->GetQuestStatus(QUEST_CRACK_SKULLS) == QUEST_STATUS_INCOMPLETE )
+        player->ADD_GOSSIP_ITEM(0, GOSSIP_FLOON1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
     player->SEND_GOSSIP_MENU(9442, _Creature->GetGUID());
     return true;
@@ -314,7 +323,7 @@ bool GossipSelect_npc_floon(Player *player, Creature *_Creature, uint32 sender, 
 {
     if( action == GOSSIP_ACTION_INFO_DEF )
     {
-        player->ADD_GOSSIP_ITEM(1, GOSSIP_FLOON2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        player->ADD_GOSSIP_ITEM(0, GOSSIP_FLOON2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
         player->SEND_GOSSIP_MENU(9443, _Creature->GetGUID());
     }
     if( action == GOSSIP_ACTION_INFO_DEF+1 )
@@ -538,9 +547,9 @@ void AddSC_terokkar_forest()
 
     newscript = new Script;
     newscript->Name="npc_floon";
+    newscript->GetAI = &GetAI_npc_floon;
     newscript->pGossipHello =  &GossipHello_npc_floon;
     newscript->pGossipSelect = &GossipSelect_npc_floon;
-    newscript->GetAI = &GetAI_npc_floon;
     newscript->RegisterSelf();
 
     newscript = new Script;

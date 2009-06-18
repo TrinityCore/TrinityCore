@@ -41,21 +41,28 @@ EndContentData */
 
 #define GOSSIP_RALIQ            "You owe Sim'salabim money. Hand them over or die!"
 
-#define FACTION_HOSTILE_RD      45
-#define FACTION_FRIENDLY_RD     35
-
-#define SPELL_UPPERCUT          10966
+enum
+{
+    SPELL_UPPERCUT          = 10966,
+    QUEST_CRACK_SKULLS      = 10009,
+    FACTION_HOSTILE_RD      = 45
+};
 
 struct TRINITY_DLL_DECL npc_raliq_the_drunkAI : public ScriptedAI
 {
-    npc_raliq_the_drunkAI(Creature* c) : ScriptedAI(c) {}
+    npc_raliq_the_drunkAI(Creature* c) : ScriptedAI(c)
+    {
+        m_uiNormFaction = c->getFaction();
+    }
 
+    uint32 m_uiNormFaction;
     uint32 Uppercut_Timer;
 
     void Reset()
     {
         Uppercut_Timer = 5000;
-        m_creature->setFaction(FACTION_FRIENDLY_RD);
+        if (m_creature->getFaction() != m_uiNormFaction)
+            m_creature->setFaction(m_uiNormFaction);
     }
 
     void EnterCombat(Unit *who) {}
@@ -74,6 +81,7 @@ struct TRINITY_DLL_DECL npc_raliq_the_drunkAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
+
 CreatureAI* GetAI_npc_raliq_the_drunk(Creature *_Creature)
 {
     return new npc_raliq_the_drunkAI (_Creature);
@@ -81,7 +89,7 @@ CreatureAI* GetAI_npc_raliq_the_drunk(Creature *_Creature)
 
 bool GossipHello_npc_raliq_the_drunk(Player *player, Creature *_Creature )
 {
-    if( player->GetQuestStatus(10009) == QUEST_STATUS_INCOMPLETE )
+    if( player->GetQuestStatus(QUEST_CRACK_SKULLS) == QUEST_STATUS_INCOMPLETE )
         player->ADD_GOSSIP_ITEM(1, GOSSIP_RALIQ, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
     player->SEND_GOSSIP_MENU(9440, _Creature->GetGUID());
@@ -634,6 +642,7 @@ void AddSC_shattrath_city()
 
     newscript = new Script;
     newscript->Name="npc_raliq_the_drunk";
+    newscript->GetAI = &GetAI_npc_raliq_the_drunk;
     newscript->pGossipHello =  &GossipHello_npc_raliq_the_drunk;
     newscript->pGossipSelect = &GossipSelect_npc_raliq_the_drunk;
     newscript->RegisterSelf();
