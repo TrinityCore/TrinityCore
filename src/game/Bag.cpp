@@ -38,7 +38,7 @@ Bag::Bag( ): Item()
 
 Bag::~Bag()
 {
-    for(int i = 0; i < MAX_BAG_SIZE; ++i)
+    for(uint8 i = 0; i < MAX_BAG_SIZE; ++i)
         if (m_bagslot[i])
             delete m_bagslot[i];
 }

@@ -145,7 +145,7 @@ m_creatureInfo(NULL), m_reactState(REACT_AGGRESSIVE), m_formation(NULL), m_summo
     m_regenTimer = 200;
     m_valuesCount = UNIT_END;
 
-    for(int i =0; i<CREATURE_MAX_SPELLS; ++i)
+    for(uint8 i =0; i<CREATURE_MAX_SPELLS; ++i)
         m_spells[i] = 0;
 
     m_CreatureSpellCooldowns.clear();
@@ -333,7 +333,7 @@ bool Creature::InitEntry(uint32 Entry, uint32 team, const CreatureData *data )
     if(!m_respawnradius && m_defaultMovementType==RANDOM_MOTION_TYPE)
         m_defaultMovementType = IDLE_MOTION_TYPE;
 
-    for(int i=0; i < CREATURE_MAX_SPELLS; ++i)
+    for(uint8 i=0; i < CREATURE_MAX_SPELLS; ++i)
         m_spells[i] = GetCreatureInfo()->spells[i];
 
     return true;

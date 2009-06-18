@@ -558,10 +558,10 @@ struct TRINITY_DLL_DECL boss_alyson_antilleAI : public boss_hexlord_addAI
             {
                 if(rand()%2)
                 {
-                    if(Unit* target = DoSelectLowestHpFriendly(50, 0))
+                    if(target = DoSelectLowestHpFriendly(50, 0))
                         m_creature->CastSpell(target, SPELL_DISPEL_MAGIC, false);
                 }
-                else if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                else if(target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                     m_creature->CastSpell(target, SPELL_DISPEL_MAGIC, false);
             }
             flashheal_timer = 2500;

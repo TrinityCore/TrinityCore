@@ -1074,7 +1074,7 @@ bool ChatHandler::HandleModifyKnownTitlesCommand(const char* args)
 
     uint64 titles2 = titles;
 
-    for(int i = 1; i < sCharTitlesStore.GetNumRows(); ++i)
+    for(uint32 i = 1; i < sCharTitlesStore.GetNumRows(); ++i)
         if(CharTitlesEntry const* tEntry = sCharTitlesStore.LookupEntry(i))
             titles2 &= ~(uint64(1) << tEntry->bit_index);
 

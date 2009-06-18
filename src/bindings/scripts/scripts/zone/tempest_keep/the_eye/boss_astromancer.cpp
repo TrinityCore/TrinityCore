@@ -275,7 +275,7 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
                 //After these 50 seconds she portals to the middle of the room and disappears, leaving 3 light portals behind.
                 m_creature->GetMotionMaster()->Clear();
                 m_creature->Relocate(SolarianPos[0], SolarianPos[1], SolarianPos[2], SolarianPos[3]);
-                for(int i=0; i<=2; ++i)
+                for(uint8 i=0; i<=2; ++i)
                 {
                     if (!i)
                     {

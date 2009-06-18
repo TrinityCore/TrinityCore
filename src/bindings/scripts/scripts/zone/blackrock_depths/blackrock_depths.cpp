@@ -516,7 +516,6 @@ bool GossipSelect_npc_lokhtos_darkbargainer(Player *player, Creature *_Creature,
 #define SAY_DUGHAL_FREE         "Thank you, $N! I'm free!!!"
 #define GOSSIP_DUGHAL           "You're free, Dughal! Get out of here!"
 
-ScriptedInstance *pInstance;
 /*
 struct TRINITY_DLL_DECL npc_dughal_stormwingAI : public npc_escortAI
 {

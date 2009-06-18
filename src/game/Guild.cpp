@@ -1096,7 +1096,7 @@ void Guild::DisplayGuildBankTabsInfo(WorldSession *session)
 
     data << uint8(purchased_tabs);                          // here is the number of tabs
 
-    for(int i = 0; i < purchased_tabs; ++i)
+    for(uint8 i = 0; i < purchased_tabs; ++i)
     {
         data << m_TabListMap[i]->Name.c_str();
         data << m_TabListMap[i]->Icon.c_str();

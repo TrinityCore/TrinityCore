@@ -108,7 +108,7 @@ struct TRINITY_DLL_DECL npc_dragonflayer_forge_masterAI : public ScriptedAI
         float diff = 30.0f;
         int near_f = 0;
 
-        for(int i = 0; i < 3 ; i++)
+        for(uint8 i = 0; i < 3 ; i++)
         {
             GameObject* temp;
             temp = m_creature->FindNearestGameObject(entry_search[i],30);

@@ -71,7 +71,7 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
     {
         pInstance = c->GetInstanceData();
         HeroicMode = c->GetMap()->IsHeroic();
-        for(int i=0; i<5; ++i)
+        for(uint8 i=0; i<5; ++i)
             Channelers[i] = 0;
     }
 
@@ -134,7 +134,7 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
                 default: DoScriptText(SAY_ADD_AGGRO_3, m_creature); break;
             }
         }
-        for(int i=0; i<5; ++i)
+        for(uint8 i=0; i<5; ++i)
         {
             Creature *channeler = Unit::GetCreature(*m_creature, Channelers[i]);
             if(who && channeler && !channeler->isInCombat())
@@ -144,7 +144,7 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
 
     void ChannelerDied(Unit* killer)
     {
-        for(int i=0; i<5; ++i)
+        for(uint8 i=0; i<5; ++i)
         {
             Creature *channeler = Unit::GetCreature(*m_creature, Channelers[i]);
             if(channeler && channeler->isAlive())
@@ -171,7 +171,7 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
 
     void SummonChannelers()
     {
-        for(int i=0; i<5; ++i)
+        for(uint8 i=0; i<5; ++i)
         {
             Creature *channeler = Unit::GetCreature(*m_creature, Channelers[i]);
             if(!channeler || channeler->isDead())

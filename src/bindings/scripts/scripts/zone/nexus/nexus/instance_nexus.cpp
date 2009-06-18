@@ -44,7 +44,7 @@ struct TRINITY_DLL_DECL instance_nexus : public ScriptedInstance
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
         Map::PlayerList const& players = instance->GetPlayers();
-        uint32 TeamInInstance;
+        uint32 TeamInInstance = 0;
 
         if (!players.isEmpty())
         {
