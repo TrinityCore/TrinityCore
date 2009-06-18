@@ -7,3 +7,4 @@ INSERT INTO spell_linked_spell (`spell_trigger`, `spell_effect`, `type`, `commen
 -- INSERT INTO spell_linked_spell (`spell_trigger`, `spell_effect`, `type`, `comment`) VALUES (-49011, 49009, 0, 'Wyvern Sting');
 -- Rank 6 (not available till wotlk)
 -- INSERT INTO spell_linked_spell (`spell_trigger`, `spell_effect`, `type`, `comment`) VALUES (-49012, 49010, 0, 'Wyvern Sting');
+
