@@ -199,7 +199,7 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
             std::ostringstream saveStream;
             saveStream << Encounters[0] << " " << Encounters[1] << " " << Encounters[2] << " "
                 << Encounters[3] << " " << Encounters[4] << " " << Encounters[5] << " " << Encounters[6] << " "
-                << Encounters[7] << " " << Encounters[8] << " " << Encounters[9] << " " << Encounters[10];
+                << Encounters[7] << " " << Encounters[8] << " " << Encounters[9] << " " << Encounters[10] << " " << Encounters[11];
 
             str_data = saveStream.str();
 

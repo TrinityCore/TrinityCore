@@ -77,6 +77,7 @@ struct mob_ancient_wispAI : public ScriptedAI
     mob_ancient_wispAI(Creature* c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
+        ArchimondeGUID = 0;
     }
 
     ScriptedInstance* pInstance;
@@ -85,8 +86,10 @@ struct mob_ancient_wispAI : public ScriptedAI
 
     void Reset()
     {
-        ArchimondeGUID = 0;
         CheckTimer = 1000;
+
+        if (pInstance)
+            ArchimondeGUID = pInstance->GetData64(DATA_ARCHIMONDE);
 
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
     }
@@ -97,24 +100,14 @@ struct mob_ancient_wispAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!ArchimondeGUID)
-        {
-            if (pInstance)
-                ArchimondeGUID = pInstance->GetData64(DATA_ARCHIMONDE);
-        }
-
         if (CheckTimer < diff)
         {
-            if (ArchimondeGUID)
+            if (Unit* Archimonde = Unit::GetUnit((*m_creature), ArchimondeGUID))
             {
-                Unit* Archimonde = Unit::GetUnit((*m_creature), ArchimondeGUID);
-                if (Archimonde)
-                {
-                    if ((((Archimonde->GetHealth()*100) / Archimonde->GetMaxHealth()) < 2) || !Archimonde->isAlive())
-                        DoCast(m_creature, SPELL_DENOUEMENT_WISP);
-                    else
-                        DoCast(Archimonde, SPELL_ANCIENT_SPARK);
-                }
+                if ((((Archimonde->GetHealth()*100) / Archimonde->GetMaxHealth()) < 2) || !Archimonde->isAlive())
+                    DoCast(m_creature, SPELL_DENOUEMENT_WISP);
+                else
+                    DoCast(Archimonde, SPELL_ANCIENT_SPARK);
             }
             CheckTimer = 1000;
         }else CheckTimer -= diff;
@@ -357,9 +350,14 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public hyjal_trashAI
 
     void JustSummoned(Creature *summoned)
     {
-        summoned->setFaction(m_creature->getFaction());
-        summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        if (summoned->GetEntry() == CREATURE_ANCIENT_WISP)
+            summoned->AI()->AttackStart(m_creature);
+        else
+        {
+            summoned->setFaction(m_creature->getFaction());
+            summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        }
 
         if (summoned->GetEntry() == CREATURE_DOOMFIRE_SPIRIT)
         {
@@ -526,12 +524,7 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public hyjal_trashAI
 
             if (SummonWispTimer < diff)
             {
-                Creature* Wisp = DoSpawnCreature(CREATURE_ANCIENT_WISP, rand()%40, rand()%40, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                if (Wisp)
-                {
-                    Wisp->AI()->AttackStart(m_creature);
-                    CAST_AI(mob_ancient_wispAI, Wisp->AI())->ArchimondeGUID = m_creature->GetGUID();
-                }
+                DoSpawnCreature(CREATURE_ANCIENT_WISP, rand()%40, rand()%40, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                 SummonWispTimer = 1500;
                 ++WispCount;
             }else SummonWispTimer -= diff;
