@@ -21,6 +21,15 @@
 
 #include "ArenaTeam.h"
 
+void ArenaTeamMember::ModifyPersonalRating(Player* plr, int32 mod, uint32 slot)
+{
+    int32 rating = int32(personal_rating) + mod;
+    personal_rating = rating < 0 ? 0 : rating;
+    if(plr)
+        plr->SetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (slot*6) + 5, personal_rating);
+    sLog.outArena("Modify personal rating for player %s: personal rating %u, mod %d, rating %d", plr->GetName(), personal_rating, mod, rating);
+}
+
 ArenaTeam::ArenaTeam()
 {
     Id                  = 0;
@@ -42,7 +51,6 @@ ArenaTeam::ArenaTeam()
 
 ArenaTeam::~ArenaTeam()
 {
-
 }
 
 bool ArenaTeam::Create(uint64 captainGuid, uint32 type, std::string ArenaTeamName)
