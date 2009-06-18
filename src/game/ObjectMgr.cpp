@@ -101,7 +101,7 @@ LanguageDesc lang_description[LANGUAGES_COUNT] =
 
 LanguageDesc const* GetLanguageDescByID(uint32 lang)
 {
-    for(int i = 0; i < LANGUAGES_COUNT; ++i)
+    for(uint8 i = 0; i < LANGUAGES_COUNT; ++i)
     {
         if(uint32(lang_description[i].lang_id) == lang)
             return &lang_description[i];
@@ -365,7 +365,7 @@ void ObjectMgr::LoadCreatureLocales()
 
         CreatureLocale& data = mCreatureLocaleMap[entry];
 
-        for(int i = 1; i < MAX_LOCALE; ++i)
+        for(uint8 i = 1; i < MAX_LOCALE; ++i)
         {
             std::string str = fields[1+2*(i-1)].GetCppString();
             if(!str.empty())
@@ -433,7 +433,7 @@ void ObjectMgr::LoadNpcOptionLocales()
 
         NpcOptionLocale& data = mNpcOptionLocaleMap[entry];
 
-        for(int i = 1; i < MAX_LOCALE; ++i)
+        for(uint8 i = 1; i < MAX_LOCALE; ++i)
         {
             std::string str = fields[1+2*(i-1)].GetCppString();
             if(!str.empty())
@@ -496,7 +496,7 @@ void ObjectMgr::LoadPointOfInterestLocales()
 
         PointOfInterestLocale& data = mPointOfInterestLocaleMap[entry];
 
-        for(int i = 1; i < MAX_LOCALE; ++i)
+        for(uint8 i = 1; i < MAX_LOCALE; ++i)
         {
             std::string str = fields[i].GetCppString();
             if(str.empty())
@@ -753,7 +753,7 @@ void ObjectMgr::LoadCreatureTemplates()
                 sLog.outErrorDb("Creature (Entry: %u) has non-existing PetSpellDataId (%u)", cInfo->Entry, cInfo->PetSpellDataId);
         }
 
-        for(int j = 0; j < CREATURE_MAX_SPELLS; ++j)
+        for(uint8 j = 0; j < CREATURE_MAX_SPELLS; ++j)
         {
             if(cInfo->spells[j] && !sSpellStore.LookupEntry(cInfo->spells[j]))
             {
@@ -831,7 +831,7 @@ void ObjectMgr::ConvertCreatureAddonAuras(CreatureDataAddon* addon, char const* 
     const_cast<CreatureDataAddonAura*&>(addon->auras) = new CreatureDataAddonAura[val.size()/2+1];
 
     int i=0;
-    for(int j=0;j<val.size()/2;++j)
+    for(uint32 j=0;j<val.size()/2;++j)
     {
         CreatureDataAddonAura& cAura = const_cast<CreatureDataAddonAura&>(addon->auras[i]);
         cAura.spell_id = (uint32)val[2*j+0];
@@ -1811,7 +1811,7 @@ void ObjectMgr::LoadItemLocales()
 
         ItemLocale& data = mItemLocaleMap[entry];
 
-        for(int i = 1; i < MAX_LOCALE; ++i)
+        for(uint8 i = 1; i < MAX_LOCALE; ++i)
         {
             std::string str = fields[1+2*(i-1)].GetCppString();
             if(!str.empty())
@@ -2294,7 +2294,7 @@ void ObjectMgr::LoadItemRequiredTarget()
 
         bool bIsItemSpellValid = false;
 
-        for(int i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
+        for(uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
         {
             if (SpellEntry const* pSpellInfo = sSpellStore.LookupEntry(pItemProto->Spells[i].SpellId))
             {
@@ -3065,7 +3065,8 @@ void ObjectMgr::BuildPlayerLevelInfo(uint8 race, uint8 _class, uint8 level, Play
     // base data (last known level)
     *info = playerInfo[race][_class].levelInfo[sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL)-1];
 
-    for(int lvl = sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL)-1; lvl < level; ++lvl)
+    // if conversion from uint32 to uint8 causes unexpected behaviour, change lvl to uint32
+    for(uint8 lvl = sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL)-1; lvl < level; ++lvl)
     {
         switch(_class)
         {
@@ -3477,7 +3478,7 @@ void ObjectMgr::LoadQuests()
         if(qinfo->QuestFlags & QUEST_FLAGS_AUTO_REWARDED)
         {
             // at auto-reward can be rewarded only RewChoiceItemId[0]
-            for(int j = 1; j < QUEST_REWARD_CHOICES_COUNT; ++j )
+            for(uint8 j = 1; j < QUEST_REWARD_CHOICES_COUNT; ++j )
             {
                 if(uint32 id = qinfo->RewChoiceItemId[j])
                 {
@@ -3671,7 +3672,7 @@ void ObjectMgr::LoadQuests()
             }
         }
 
-        for(int j = 0; j < QUEST_OBJECTIVES_COUNT; ++j )
+        for(uint8 j = 0; j < QUEST_OBJECTIVES_COUNT; ++j )
         {
             uint32 id = qinfo->ReqItemId[j];
             if(id)
@@ -3700,7 +3701,7 @@ void ObjectMgr::LoadQuests()
             }
         }
 
-        for(int j = 0; j < QUEST_SOURCE_ITEM_IDS_COUNT; ++j )
+        for(uint8 j = 0; j < QUEST_SOURCE_ITEM_IDS_COUNT; ++j )
         {
             uint32 id = qinfo->ReqSourceId[j];
             if(id)
@@ -3723,7 +3724,7 @@ void ObjectMgr::LoadQuests()
             }
         }
 
-        for(int j = 0; j < QUEST_OBJECTIVES_COUNT; ++j )
+        for(uint8 j = 0; j < QUEST_OBJECTIVES_COUNT; ++j )
         {
             uint32 id = qinfo->ReqSpell[j];
             if(id)
@@ -3739,7 +3740,7 @@ void ObjectMgr::LoadQuests()
                 if(!qinfo->ReqCreatureOrGOId[j])
                 {
                     bool found = false;
-                    for(int k = 0; k < 3; ++k)
+                    for(uint8 k = 0; k < 3; ++k)
                     {
                         if( spellInfo->Effect[k]==SPELL_EFFECT_QUEST_COMPLETE && uint32(spellInfo->EffectMiscValue[k])==qinfo->QuestId ||
                             spellInfo->Effect[k]==SPELL_EFFECT_SEND_EVENT)
@@ -3769,7 +3770,7 @@ void ObjectMgr::LoadQuests()
             }
         }
 
-        for(int j = 0; j < QUEST_OBJECTIVES_COUNT; ++j )
+        for(uint8 j = 0; j < QUEST_OBJECTIVES_COUNT; ++j )
         {
             int32 id = qinfo->ReqCreatureOrGOId[j];
             if(id < 0 && !sGOStorage.LookupEntry<GameObjectInfo>(-id))
@@ -3807,7 +3808,7 @@ void ObjectMgr::LoadQuests()
             }
         }
 
-        for(int j = 0; j < QUEST_REWARD_CHOICES_COUNT; ++j )
+        for(uint8 j = 0; j < QUEST_REWARD_CHOICES_COUNT; ++j )
         {
             uint32 id = qinfo->RewChoiceItemId[j];
             if(id)
@@ -3834,7 +3835,7 @@ void ObjectMgr::LoadQuests()
             }
         }
 
-        for(int j = 0; j < QUEST_REWARDS_COUNT; ++j )
+        for(uint8 j = 0; j < QUEST_REWARDS_COUNT; ++j )
         {
             uint32 id = qinfo->RewItemId[j];
             if(id)
@@ -3861,7 +3862,7 @@ void ObjectMgr::LoadQuests()
             }
         }
 
-        for(int j = 0; j < QUEST_REPUTATIONS_COUNT; ++j)
+        for(uint8 j = 0; j < QUEST_REPUTATIONS_COUNT; ++j)
         {
             if(qinfo->RewRepFaction[j])
             {
@@ -3991,7 +3992,7 @@ void ObjectMgr::LoadQuests()
         if(!spellInfo)
             continue;
 
-        for(int j = 0; j < 3; ++j)
+        for(uint8 j = 0; j < 3; ++j)
         {
             if(spellInfo->Effect[j] != SPELL_EFFECT_QUEST_COMPLETE)
                 continue;
@@ -4056,7 +4057,7 @@ void ObjectMgr::LoadQuestLocales()
 
         QuestLocale& data = mQuestLocaleMap[entry];
 
-        for(int i = 1; i < MAX_LOCALE; ++i)
+        for(uint8 i = 1; i < MAX_LOCALE; ++i)
         {
             std::string str = fields[1+10*(i-1)].GetCppString();
             if(!str.empty())
@@ -4130,7 +4131,7 @@ void ObjectMgr::LoadQuestLocales()
                     data.EndText[idx] = str;
                 }
             }
-            for(int k = 0; k < 4; ++k)
+            for(uint8 k = 0; k < 4; ++k)
             {
                 str = fields[1+10*(i-1)+6+k].GetCppString();
                 if(!str.empty())
@@ -4461,7 +4462,7 @@ void ObjectMgr::LoadSpellScripts()
 
         //check for correct spellEffect
         bool found = false;
-        for(int i=0; i<3; ++i)
+        for(uint8 i=0; i<3; ++i)
         {
             // skip empty effects
             if( !spellInfo->Effect[i] )
@@ -4514,7 +4515,7 @@ void ObjectMgr::LoadEventScripts()
         SpellEntry const * spell = sSpellStore.LookupEntry(i);
         if (spell)
         {
-            for(int j=0; j<3; ++j)
+            for(uint8 j=0; j<3; ++j)
             {
                 if( spell->Effect[j] == SPELL_EFFECT_SEND_EVENT )
                 {
@@ -4656,7 +4657,7 @@ void ObjectMgr::LoadPageTextLocales()
 
         PageTextLocale& data = mPageTextLocaleMap[entry];
 
-        for(int i = 1; i < MAX_LOCALE; ++i)
+        for(uint8 i = 1; i < MAX_LOCALE; ++i)
         {
             std::string str = fields[i].GetCppString();
             if(str.empty())
@@ -4787,7 +4788,7 @@ void ObjectMgr::LoadGossipText()
             gText.Options[i].Language         = fields[cic++].GetUInt32();
             gText.Options[i].Probability      = fields[cic++].GetFloat();
 
-            for(int j=0; j < 3; ++j)
+            for(uint8 j=0; j < 3; ++j)
             {
                 gText.Options[i].Emotes[j]._Delay  = fields[cic++].GetUInt32();
                 gText.Options[i].Emotes[j]._Emote  = fields[cic++].GetUInt32();
@@ -4837,9 +4838,9 @@ void ObjectMgr::LoadNpcTextLocales()
 
         NpcTextLocale& data = mNpcTextLocaleMap[entry];
 
-        for(int i=1; i<MAX_LOCALE; ++i)
+        for(uint8 i=1; i<MAX_LOCALE; ++i)
         {
-            for(int j=0; j<8; ++j)
+            for(uint8 j=0; j<8; ++j)
             {
                 std::string str0 = fields[1+8*2*(i-1)+2*j].GetCppString();
                 if(!str0.empty())
@@ -6024,7 +6025,7 @@ void ObjectMgr::LoadGameObjectLocales()
 
         GameObjectLocale& data = mGameObjectLocaleMap[entry];
 
-        for(int i = 1; i < MAX_LOCALE; ++i)
+        for(uint8 i = 1; i < MAX_LOCALE; ++i)
         {
             std::string str = fields[i].GetCppString();
             if(!str.empty())
@@ -6040,7 +6041,7 @@ void ObjectMgr::LoadGameObjectLocales()
             }
         }
 
-        for(int i = 1; i < MAX_LOCALE; ++i)
+        for(uint8 i = 1; i < MAX_LOCALE; ++i)
         {
             std::string str = fields[i+(MAX_LOCALE-1)].GetCppString();
             if(!str.empty())
@@ -6709,7 +6710,7 @@ void ObjectMgr::LoadWeatherZoneChances()
 
         WeatherZoneChances& wzc = mWeatherZoneMap[zone_id];
 
-        for(int season = 0; season < WEATHER_SEASONS; ++season)
+        for(uint8 season = 0; season < WEATHER_SEASONS; ++season)
         {
             wzc.data[season].rainChance  = fields[season * (MAX_WEATHER_TYPE-1) + 1].GetUInt32();
             wzc.data[season].snowChance  = fields[season * (MAX_WEATHER_TYPE-1) + 2].GetUInt32();
@@ -7271,7 +7272,7 @@ bool ObjectMgr::LoadTrinityStrings(DatabaseType& db, char const* table, int32 mi
         // 0 -> default, idx in to idx+1
         data.Content[0] = fields[1].GetCppString();
 
-        for(int i = 1; i < MAX_LOCALE; ++i)
+        for(uint8 i = 1; i < MAX_LOCALE; ++i)
         {
             std::string str = fields[i+1].GetCppString();
             if (!str.empty())
@@ -7437,7 +7438,7 @@ uint16 ObjectMgr::GetConditionId( ConditionType condition, uint32 value1, uint32
 
 bool ObjectMgr::CheckDeclinedNames( std::wstring mainpart, DeclinedName const& names )
 {
-    for(int i =0; i < MAX_DECLINED_NAME_CASES; ++i)
+    for(uint8 i =0; i < MAX_DECLINED_NAME_CASES; ++i)
     {
         std::wstring wname;
         if(!Utf8toWStr(names.name[i],wname))
@@ -7903,7 +7904,7 @@ void ObjectMgr::LoadTrainerSpell()
 
         // calculate learned spell for profession case when stored cast-spell
         trainerSpell.learnedSpell = spell;
-        for(int i = 0; i <3; ++i)
+        for(uint8 i = 0; i <3; ++i)
         {
             if(spellinfo->Effect[i] != SPELL_EFFECT_LEARN_SPELL)
                 continue;
