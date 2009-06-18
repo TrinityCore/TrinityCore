@@ -76,11 +76,11 @@ struct TRINITY_DLL_DECL instance_stratholme : public ScriptedInstance
 
     void Initialize()
     {
-        for(uint8 i = 0; i < ENCOUNTERS; i++)
+        for(uint8 i = 0; i < ENCOUNTERS; ++i)
             Encounter[i] = NOT_STARTED;
 
-        for(uint8 i = 0; i < 5; i++)
-            IsSilverHandDead[5] = false;
+        for(uint8 i = 0; i < 5; ++i)
+            IsSilverHandDead[i] = false;
 
         BaronRun_Timer = 0;
         SlaugtherSquare_Timer = 0;

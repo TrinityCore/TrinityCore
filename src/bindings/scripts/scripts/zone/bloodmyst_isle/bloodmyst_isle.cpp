@@ -49,7 +49,7 @@ struct TRINITY_DLL_DECL mob_webbed_creatureAI : public ScriptedAI
 
     void JustDied(Unit* Killer)
     {
-        uint32 spawnCreatureID;
+        uint32 spawnCreatureID = 0;
 
         switch(rand()%3)
         {

@@ -32,7 +32,8 @@ EndScriptData */
 #define SPELL_RIFT_CHANNEL      31387
 
 #define RIFT_BOSS               1
-inline uint32 RandRiftBoss() { return rand()%2 ? C_RKEEP : C_RLORD; }
+
+inline uint32 RandRiftBoss() { return ((rand()%2) ? C_RKEEP : C_RLORD); }
 
 float PortalLocation[4][4]=
 {

@@ -49,7 +49,7 @@ CreatureAI* GetAI_mob_ancient_core_hound(Creature *_Creature)
     ai->Spell[0].First_Cast       = 10000;
     ai->Spell[0].Cast_Target_Type = CAST_HOSTILE_TARGET;
 
-    uint32 RandDebuff;
+    uint32 RandDebuff = 0;
     switch(rand()%6)
     {
         case 0 : RandDebuff = SPELL_GROUND_STOMP;       break;

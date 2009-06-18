@@ -51,7 +51,7 @@ bool GossipHello_npc_archmage_malin(Player *player, Creature *_Creature)
 
 bool GossipSelect_npc_archmage_malin(Player *player, Creature *_Creature, uint32 sender, uint32 action)
 {
-    if(action = GOSSIP_ACTION_INFO_DEF)
+    if (action == GOSSIP_ACTION_INFO_DEF)
     {
         player->CLOSE_GOSSIP_MENU();
         _Creature->CastSpell(player, 42711, true);
