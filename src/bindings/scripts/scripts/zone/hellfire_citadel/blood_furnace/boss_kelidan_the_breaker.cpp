@@ -159,11 +159,11 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
     {
         SummonChannelers();
         if(!channeler1) return NULL;
-        int i;
+        uint8 i;
         for(i=0; i<5; ++i)
         {
             Creature *channeler = Unit::GetCreature(*m_creature, Channelers[i]);
-            if(channeler && channeler->GetGUID()==channeler1->GetGUID())
+            if(channeler && channeler->GetGUID() == channeler1->GetGUID())
                 break;
         }
         return Channelers[(i+2)%5];
