@@ -59,9 +59,9 @@ struct TRINITY_DLL_DECL boss_doomlordkazzakAI : public ScriptedAI
 
     void Reset()
     {
-        ShadowVolley_Timer = 8000 + rand()%4000;
+        ShadowVolley_Timer = 6000 + rand()%4000;
         Cleave_Timer = 7000;
-        ThunderClap_Timer = 16000 + rand()%4000;
+        ThunderClap_Timer = 14000 + rand()%4000;
         VoidBolt_Timer = 30000;
         MarkOfKazzak_Timer = 25000;
         Enrage_Timer = 60000;
