@@ -306,6 +306,7 @@ ChatCommand * ChatHandler::getCommandTable()
         { "spell",          SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleLookupSpellCommand,         "", NULL },
         { "taxinode",       SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleLookupTaxiNodeCommand,      "", NULL },
         { "tele",           SEC_MODERATOR,      true,  &ChatHandler::HandleLookupTeleCommand,          "", NULL },
+        { "map",            SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleLookupMapCommand,           "", NULL },
         { NULL,             0,                  false, NULL,                                           "", NULL }
     };
 
