@@ -710,7 +710,10 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                     if (Phase_Timer < diff)
                 {
                     DoScriptText(SAY_PHASE3_ADVANCE, m_creature);
-                    pInstance->SetData(DATA_KAELTHASEVENT, 3);
+                    
+                    if(pInstance)
+                        pInstance->SetData(DATA_KAELTHASEVENT, 3);
+                        
                     Phase = 3;
                     PhaseSubphase = 0;
                 }else Phase_Timer -= diff;

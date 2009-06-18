@@ -303,7 +303,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
     //Despawn all Inner Demon summoned
     void DespawnDemon()
     {
-        for(int i=0; i<5; i++)
+        for(uint8 i=0; i<5; i++)
         {
             if(InnderDemon[i])
             {
@@ -322,7 +322,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 
     void CastConsumingMadness() //remove this once SPELL_INSIDIOUS_WHISPER is supported by core
     {
-        for(int i=0; i<5; i++)
+        for(uint8 i=0; i<5; i++)
         {
             if(InnderDemon[i] > 0 )
             {

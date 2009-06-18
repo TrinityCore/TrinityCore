@@ -105,7 +105,7 @@ struct TRINITY_DLL_DECL boss_pathaleon_the_calculatorAI : public ScriptedAI
 
         if(Summon_Timer < diff)
         {
-            for(int i = 0; i < 3;i++)
+            for(uint8 i = 0; i < 3;i++)
             {
                 Unit* target = NULL;
                 target = SelectUnit(SELECT_TARGET_RANDOM,0);

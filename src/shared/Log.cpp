@@ -235,7 +235,7 @@ void Log::InitColors(const std::string& str)
 
     std::istringstream ss(str);
 
-    for(int i = 0; i < LogLevels; ++i)
+    for(uint8 i = 0; i < LogLevels; ++i)
     {
         ss >> color[i];
 
@@ -246,7 +246,7 @@ void Log::InitColors(const std::string& str)
             return;
     }
 
-    for(int i = 0; i < LogLevels; ++i)
+    for(uint8 i = 0; i < LogLevels; ++i)
         m_colors[i] = ColorTypes(color[i]);
 
     m_colored = true;

@@ -541,7 +541,6 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
         {
             if(entry == MOB_VAPOR_TRAIL && Phase == PHASE_FLIGHT)
             {
-                float x, y, z;
                 (*i)->GetPosition(x, y, z);
                 m_creature->SummonCreature(MOB_DEAD, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
             }

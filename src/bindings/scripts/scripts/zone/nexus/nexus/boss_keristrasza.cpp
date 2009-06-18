@@ -85,7 +85,7 @@ struct TRINITY_DLL_DECL boss_keristraszaAI : public ScriptedAI
         {
             pInstance->SetData(DATA_KERISTRASZA_FREED, DONE);
         }
-        if (pInstance->GetData(DATA_KERISTRASZA_FREED) == DONE)
+        if (pInstance && pInstance->GetData(DATA_KERISTRASZA_FREED) == DONE)
         {
             m_creature->RemoveAurasDueToSpell(SPELL_FROZEN_PRISON);
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);

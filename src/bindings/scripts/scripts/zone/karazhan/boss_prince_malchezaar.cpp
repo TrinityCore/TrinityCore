@@ -188,10 +188,10 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
         InfernalCleanup();
         positions.clear();
 
-        for(int i =0; i < 5; ++i)
+        for(uint8 i =0; i < 5; ++i)
             enfeeble_targets[i] = 0;
 
-        for(int i = 0; i < TOTAL_INFERNAL_POINTS; ++i)
+        for(uint8 i = 0; i < TOTAL_INFERNAL_POINTS; ++i)
             positions.push_back(&InfernalPoints[i]);
 
         EnfeebleTimer = 30000;
@@ -232,7 +232,7 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
         InfernalCleanup();
         positions.clear();
 
-        for(int i = 0; i < TOTAL_INFERNAL_POINTS; ++i)
+        for(uint8 i = 0; i < TOTAL_INFERNAL_POINTS; ++i)
             positions.push_back(&InfernalPoints[i]);
 
         if(pInstance)
@@ -270,7 +270,7 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
 
     void AxesCleanup()
     {
-        for(int i=0; i<2;++i)
+        for(uint8 i=0; i<2;++i)
         {
             Unit *axe = Unit::GetUnit(*m_creature, axes[i]);
             if(axe && axe->isAlive())
@@ -335,7 +335,7 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
 
     void EnfeebleResetHealth()
     {
-        for(int i = 0; i < 5; ++i)
+        for(uint8 i = 0; i < 5; ++i)
         {
             Unit *target = Unit::GetUnit(*m_creature, enfeeble_targets[i]);
             if(target && target->isAlive())
@@ -501,7 +501,7 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
                 Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0);
                 if(target)
                 {
-                    for(int i = 0; i < 2; ++i)
+                    for(uint8 i = 0; i < 2; ++i)
                     {
                         Unit *axe = Unit::GetUnit(*m_creature, axes[i]);
                         if(axe)

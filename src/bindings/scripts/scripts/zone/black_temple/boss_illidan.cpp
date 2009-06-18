@@ -1819,7 +1819,7 @@ void boss_illidan_stormrageAI::Reset()
     }
 
     MaievGUID = 0;
-    for(int i = 0; i < 2; ++i)
+    for(uint8 i = 0; i < 2; ++i)
     {
         FlameGUID[i] = 0;
         GlaiveGUID[i] = 0;

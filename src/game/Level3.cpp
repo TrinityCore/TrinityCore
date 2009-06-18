@@ -2421,7 +2421,7 @@ bool ChatHandler::HandleLearnAllMyTalentsCommand(const char* /*args*/)
         // search highest talent rank
         uint32 spellid = 0;
 
-        for(int rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
+        for(uint8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
         {
             if(talentInfo->RankID[rank]!=0)
             {
@@ -2497,7 +2497,7 @@ bool ChatHandler::HandleLearnAllMyPetTalentsCommand(const char* /*args*/)
         // search highest talent rank
         uint32 spellid = 0;
 
-        for(int rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
+        for(uint8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
         {
             if(talentInfo->RankID[rank]!=0)
             {
@@ -2524,7 +2524,7 @@ bool ChatHandler::HandleLearnAllMyPetTalentsCommand(const char* /*args*/)
 bool ChatHandler::HandleLearnAllLangCommand(const char* /*args*/)
 {
     // skipping UNIVERSAL language (0)
-    for(int i = 1; i < LANGUAGES_COUNT; ++i)
+    for(uint8 i = 1; i < LANGUAGES_COUNT; ++i)
         m_session->GetPlayer()->learnSpell(lang_description[i].spell_id,false);
 
     SendSysMessage(LANG_COMMAND_LEARN_ALL_LANG);
@@ -6391,7 +6391,7 @@ bool ChatHandler::HandleMovegensCommand(const char* /*args*/)
     PSendSysMessage(LANG_MOVEGENS_LIST,(unit->GetTypeId()==TYPEID_PLAYER ? "Player" : "Creature" ),unit->GetGUIDLow());
 
     MotionMaster* mm = unit->GetMotionMaster();
-    for(int i = 0; i < MAX_MOTION_SLOT; ++i)
+    for(uint8 i = 0; i < MAX_MOTION_SLOT; ++i)
     {
         MovementGenerator* mg = mm->GetMotionSlot(i);
         if(!mg)

@@ -131,13 +131,13 @@ struct TRINITY_DLL_DECL boss_kalecgosAI : public ScriptedAI
         {
             SathGUID = pInstance->GetData64(DATA_SATHROVARR);
             DoorGUID = pInstance->GetData64(DATA_GO_FORCEFIELD);
+            
+            if(GameObject *Door = pInstance->instance->GetGameObject(pInstance->GetData64(DoorGUID)))
+                Door->SetLootState(GO_JUST_DEACTIVATED);
         }
 
         Unit *Sath = Unit::GetUnit(*m_creature,SathGUID);
         if(Sath) CAST_CRE(Sath)->AI()->EnterEvadeMode();
-
-        if(GameObject *Door = pInstance->instance->GetGameObject(pInstance->GetData64(DoorGUID)))
-            Door->SetLootState(GO_JUST_DEACTIVATED);
 
         m_creature->setFaction(14);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE + UNIT_FLAG_NOT_SELECTABLE);

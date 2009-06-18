@@ -184,7 +184,7 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
         {
         case DATA_STRANGE_POOL: StrangePool = data;
         case DATA_CONTROL_CONSOLE:
-            if(data = DONE)
+            if(data == DONE)
             {
                 OpenDoor(BridgePart[0], true);
                 OpenDoor(BridgePart[1], true);
@@ -212,7 +212,7 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
         case DATA_SHIELDGENERATOR4:ShieldGeneratorDeactivated[3] = (data) ? true : false;   break;
         }
 
-        if(data = DONE)
+        if(data == DONE)
             SaveToDB();
     }
 

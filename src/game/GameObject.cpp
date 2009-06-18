@@ -1373,7 +1373,7 @@ void GameObject::CastSpell(Unit* target, uint32 spellId)
         return;
 
     bool self = false;
-    for(int i = 0; i < 3; ++i)
+    for(uint8 i = 0; i < 3; ++i)
     {
         if(spellInfo->EffectImplicitTargetA[i] == TARGET_UNIT_CASTER)
         {
