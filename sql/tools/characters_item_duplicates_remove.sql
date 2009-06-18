@@ -20,4 +20,3 @@ DELETE FROM guild_bank_item WHERE item_guid IN (SELECT item_guid FROM item_test 
 
 DELETE FROM guild_bank_item WHERE item_guid IN (SELECT item_guid FROM item_test WHERE `source`='m');
 DROP TABLE IF EXISTS item_test;
-

@@ -77,4 +77,3 @@ REPLACE INTO `script_texts` (`entry`, `content_default`, `sound`, `type`, `langu
 (-1576043,'Dragonqueen... Life-Binder... preserve... me.',13454,1,0,0,'keristrasza SAY_DEATH'),
 (-1576044,'Stay. Enjoy your final moments.',13451,1,0,0,'keristrasza SAY_CRYSTAL_NOVA');
 
-
