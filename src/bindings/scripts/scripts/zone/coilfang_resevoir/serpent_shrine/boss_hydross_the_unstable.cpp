@@ -150,15 +150,10 @@ struct TRINITY_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
 
     void SpawnAdds()
     {
-        uint32 uiAdd = 0;
+        for(uint8 i = 0; i < 4; ++i)
+            DoSpawnCreature(m_bCorruptedForm ? NPC_TAINTED_SPAWN : NPC_PURE_SPAWN,
+                afSpawnDiffs[i][0], afSpawnDiffs[i][1], 0.0f, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
 
-        if (m_bCorruptedForm)
-            uiAdd = NPC_TAINTED_SPAWN;
-        else
-            uiAdd = NPC_PURE_SPAWN;
-
-        for(uint8 i = 0; i < 4; i++)
-            DoSpawnCreature(uiAdd, afSpawnDiffs[i][0], afSpawnDiffs[i][1], 0.0f, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
     }
 
     void UpdateAI(const uint32 uiDiff)

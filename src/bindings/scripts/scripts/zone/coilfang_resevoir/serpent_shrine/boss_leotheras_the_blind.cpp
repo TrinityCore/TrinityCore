@@ -24,46 +24,51 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_serpent_shrine.h"
 
-// --- Spells used by Leotheras The Blind
-#define SPELL_WHIRLWIND         37640
-#define SPELL_CHAOS_BLAST       37674
-#define SPELL_BERSERK           26662
-#define SPELL_INSIDIOUS_WHISPER 37676
-#define SPELL_DUAL_WIELD        42459
+enum
+{
+    SAY_AGGRO               = -1548009,
+    SAY_SWITCH_TO_DEMON     = -1548010,
+    SAY_INNER_DEMONS        = -1548011,
+    SAY_DEMON_SLAY1         = -1548012,
+    SAY_DEMON_SLAY2         = -1548013,
+    SAY_DEMON_SLAY3         = -1548014,
+    SAY_NIGHTELF_SLAY1      = -1548015,
+    SAY_NIGHTELF_SLAY2      = -1548016,
+    SAY_NIGHTELF_SLAY3      = -1548017,
+    SAY_FINAL_FORM          = -1548018,
+    SAY_FREE                = -1548019,
+    SAY_DEATH               = -1548020,
 
-// --- Spells used in banish phase ---
-#define BANISH_BEAM             38909
-#define AURA_BANISH             37833
+    SPELL_BERSERK           = 26662,
 
-// --- Spells used by Greyheart Spellbinders
-#define SPELL_EARTHSHOCK        39076
-#define SPELL_MINDBLAST         37531
+    SPELL_WHIRLWIND         = 37640,
+    SPELL_CHAOS_BLAST       = 37674,
+    SPELL_INSIDIOUS_WHISPER = 37676,
+    SPELL_CONSUMING_MADNESS = 37749,
 
-// --- Spells used by Inner Demons and creature ID
-#define INNER_DEMON_ID          21857
-#define AURA_DEMONIC_ALIGNMENT  37713
-#define SPELL_SHADOWBOLT        39309
-#define SPELL_SOUL_LINK         38007
-#define SPELL_CONSUMING_MADNESS 37749 //not supported by core yet
+    AURA_DEMONIC_ALIGNMENT  = 37713,
+    SPELL_SHADOWBOLT        = 39309,
 
-//Misc.
-#define MODEL_DEMON             20125
-#define MODEL_NIGHTELF          20514
-#define DEMON_FORM              21875
-#define MOB_SPELLBINDER         21806
+    FACTION_DEMON_1         = 1829,
+    FACTION_DEMON_2         = 1830,
+    FACTION_DEMON_3         = 1831,
+    FACTION_DEMON_4         = 1832,
+    FACTION_DEMON_5         = 1833,
 
-#define SAY_AGGRO               -1548009
-#define SAY_SWITCH_TO_DEMON     -1548010
-#define SAY_INNER_DEMONS        -1548011
-#define SAY_DEMON_SLAY1         -1548012
-#define SAY_DEMON_SLAY2         -1548013
-#define SAY_DEMON_SLAY3         -1548014
-#define SAY_NIGHTELF_SLAY1      -1548015
-#define SAY_NIGHTELF_SLAY2      -1548016
-#define SAY_NIGHTELF_SLAY3      -1548017
-#define SAY_FINAL_FORM          -1548018
-#define SAY_FREE                -1548019
-#define SAY_DEATH               -1548020
+    MODEL_DEMON             = 20125,
+    MODEL_NIGHTELF          = 20514,
+
+    INNER_DEMON_ID          = 21857,
+    DEMON_FORM              = 21875,
+
+    SPELL_DUAL_WIELD        = 42459,
+    BANISH_BEAM             = 38909,
+    AURA_BANISH             = 37833,
+    SPELL_EARTHSHOCK        = 39076,
+    SPELL_MINDBLAST         = 37531,
+    SPELL_SOUL_LINK         = 38007,
+    MOB_SPELLBINDER         = 21806
+};
 
 struct TRINITY_DLL_DECL mob_inner_demonAI : public ScriptedAI
 {
@@ -187,7 +192,10 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
         EnrageUsed = false;
         InnderDemon_Count = 0;
         m_creature->SetSpeed( MOVE_RUN, 2.0f, true);
-        m_creature->SetDisplayId(MODEL_NIGHTELF);
+
+        if(m_creature->GetDisplayId() != MODEL_NIGHTELF)
+            m_creature->SetDisplayId(MODEL_NIGHTELF);
+
         m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID  , 0);
         m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID+1, 0);
         m_creature->CastSpell(m_creature, SPELL_DUAL_WIELD, true);
@@ -345,23 +353,20 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
         if (victim->GetTypeId() != TYPEID_PLAYER)
             return;
 
-        if (DemonForm)
+        switch(rand()%3)
         {
-            switch(rand()%3)
-            {
-                case 0: DoScriptText(SAY_DEMON_SLAY1, m_creature); break;
-                case 1: DoScriptText(SAY_DEMON_SLAY2, m_creature); break;
-                case 2: DoScriptText(SAY_DEMON_SLAY3, m_creature); break;
-            }
+            case 0: DoScriptText(DemonForm ? SAY_DEMON_SLAY1 : SAY_NIGHTELF_SLAY1, m_creature); break;
+            case 1: DoScriptText(DemonForm ? SAY_DEMON_SLAY2 : SAY_NIGHTELF_SLAY2, m_creature); break;
+            case 2: DoScriptText(DemonForm ? SAY_DEMON_SLAY3 : SAY_NIGHTELF_SLAY3, m_creature); break;
         }
-        else
+    }
+
+    void JustSummoned(Creature* pSummoned)
+    {
+        if (m_creature->getVictim() && pSummoned->GetEntry() == DEMON_FORM)
         {
-            switch(rand()%3)
-            {
-                case 0: DoScriptText(SAY_NIGHTELF_SLAY1, m_creature); break;
-                case 1: DoScriptText(SAY_NIGHTELF_SLAY2, m_creature); break;
-                case 2: DoScriptText(SAY_NIGHTELF_SLAY3, m_creature); break;
-            }
+            Demon = pSummoned->GetGUID();
+            pSummoned->AI()->AttackStart(m_creature->getVictim());
         }
     }
 
@@ -372,10 +377,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
         //despawn copy
         if (Demon)
         {
-            Unit *pUnit = NULL;
-            pUnit = Unit::GetUnit((*m_creature), Demon);
-
-            if (pUnit)
+            if (Unit* pUnit = Unit::GetUnit((*m_creature), Demon))
                 pUnit->DealDamage(pUnit, pUnit->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
         }
         if (pInstance)
@@ -446,7 +448,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
                 {
                     DoCast(m_creature, SPELL_WHIRLWIND);
                     // while whirlwinding this variable is used to countdown target's change
-                    Whirlwind_Timer = 2000;
+                    Whirlwind_Timer = 30000;
                     NeedThreatReset = true;
                 }else Whirlwind_Timer -= diff;
             }
@@ -615,7 +617,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blind_demonformAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
         //ChaosBlast_Timer
         if(m_creature->GetDistance(m_creature->getVictim()) < 30)
@@ -626,9 +628,9 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blind_demonformAI : public ScriptedAI
             // will cast only when in range od spell
             if(m_creature->GetDistance(m_creature->getVictim()) < 30)
             {
-                //m_creature->CastSpell(m_creature->getVictim(),SPELL_CHAOS_BLAST,true);
-                int damage = 100;
-                m_creature->CastCustomSpell(m_creature->getVictim(), SPELL_CHAOS_BLAST, &damage, NULL, NULL, false, NULL, NULL, m_creature->GetGUID());
+                m_creature->CastSpell(m_creature->getVictim(),SPELL_CHAOS_BLAST,true);
+                //int damage = 100;
+                //m_creature->CastSpell(m_creature->getVictim(), SPELL_CHAOS_BLAST, &damage, NULL, NULL, false, NULL, NULL, m_creature->GetGUID());
                 ChaosBlast_Timer = 3000;
             }
          }else ChaosBlast_Timer -= diff;

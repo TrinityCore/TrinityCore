@@ -24,18 +24,21 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_dark_portal.h"
 
-#define SAY_ENTER               -1269000
-#define SAY_AGGRO               -1269001
-#define SAY_BANISH              -1269002
-#define SAY_SLAY1               -1269003
-#define SAY_SLAY2               -1269004
-#define SAY_DEATH               -1269005
+enum
+{
+    SAY_ENTER               = -1269000,
+    SAY_AGGRO               = -1269001,
+    SAY_BANISH              = -1269002,
+    SAY_SLAY1               = -1269003,
+    SAY_SLAY2               = -1269004,
+    SAY_DEATH               = -1269005,
 
-#define SPELL_HASTE             31458
-#define SPELL_MORTAL_WOUND      31464
-#define SPELL_WING_BUFFET       31475
-#define H_SPELL_WING_BUFFET     38593
-#define SPELL_REFLECT           38592                       //Not Implemented (Heroic mod)
+    SPELL_HASTE             = 31458,
+    SPELL_MORTAL_WOUND      = 31464,
+    SPELL_WING_BUFFET       = 31475,
+    H_SPELL_WING_BUFFET     = 38593,
+    SPELL_REFLECT           = 38592                       //Not Implemented (Heroic mod)
+};
 
 struct TRINITY_DLL_DECL boss_temporusAI : public ScriptedAI
 {
@@ -50,14 +53,18 @@ struct TRINITY_DLL_DECL boss_temporusAI : public ScriptedAI
 
     uint32 Haste_Timer;
     uint32 SpellReflection_Timer;
+    uint32 MortalWound_Timer;
+    uint32 WingBuffet_Timer;
 
     void Reset()
     {
         m_creature->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
         m_creature->ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, true);
 
-        Haste_Timer = 20000;
-        SpellReflection_Timer = 40000;
+        Haste_Timer = 15000+rand()%8000;
+        SpellReflection_Timer = 30000;
+        MortalWound_Timer = 8000;
+        WingBuffet_Timer = 25000+rand()%10000;
     }
 
     void EnterCombat(Unit *who)
@@ -111,12 +118,28 @@ struct TRINITY_DLL_DECL boss_temporusAI : public ScriptedAI
             Haste_Timer = 20000+rand()%5000;
         }else Haste_Timer -= diff;
 
-        //Spell Reflection
-        if (SpellReflection_Timer < diff)
+        //MortalWound_Timer
+        if (MortalWound_Timer < diff)
         {
-            DoCast(m_creature, SPELL_REFLECT);
-            SpellReflection_Timer = 40000+rand()%10000;
-        }else SpellReflection_Timer -= diff;
+            DoCast(m_creature, SPELL_MORTAL_WOUND);
+            MortalWound_Timer = 10000+rand()%10000;
+        }else MortalWound_Timer -= diff;
+
+        //Wing ruffet
+        if (WingBuffet_Timer < diff)
+        {
+            DoCast(m_creature,HeroicMode ? H_SPELL_WING_BUFFET : SPELL_WING_BUFFET);
+            WingBuffet_Timer = 20000+rand()%10000;
+        }else WingBuffet_Timer -= diff;
+
+        if (HeroicMode)
+        {
+            if (SpellReflection_Timer < diff)
+            {
+                DoCast(m_creature,SPELL_REFLECT);
+                SpellReflection_Timer = 25000+rand()%10000;
+            }else SpellReflection_Timer -= diff;
+        }
 
         DoMeleeAttackIfReady();
     }

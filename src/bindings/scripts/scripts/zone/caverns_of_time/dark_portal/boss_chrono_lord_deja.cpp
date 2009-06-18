@@ -24,19 +24,22 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_dark_portal.h"
 
-#define SAY_ENTER                   -1269006
-#define SAY_AGGRO                   -1269007
-#define SAY_BANISH                  -1269008
-#define SAY_SLAY1                   -1269009
-#define SAY_SLAY2                   -1269010
-#define SAY_DEATH                   -1269011
+enum
+{
+    SAY_ENTER                   = -1269006,
+    SAY_AGGRO                   = -1269007,
+    SAY_BANISH                  = -1269008,
+    SAY_SLAY1                   = -1269009,
+    SAY_SLAY2                   = -1269010,
+    SAY_DEATH                   = -1269011,
 
-#define SPELL_ARCANE_BLAST          31457
-#define H_SPELL_ARCANE_BLAST        38538
-#define SPELL_ARCANE_DISCHARGE      31472
-#define H_SPELL_ARCANE_DISCHARGE    38539
-#define SPELL_TIME_LAPSE            31467
-#define SPELL_ATTRACTION            38540                       //Not Implemented (Heroic mode)
+    SPELL_ARCANE_BLAST          = 31457,
+    H_SPELL_ARCANE_BLAST        = 38538,
+    SPELL_ARCANE_DISCHARGE      = 31472,
+    H_SPELL_ARCANE_DISCHARGE    = 38539,
+    SPELL_TIME_LAPSE            = 31467,
+    SPELL_ATTRACTION            = 38540                       //Not Implemented (Heroic mode)
+};
 
 struct TRINITY_DLL_DECL boss_chrono_lord_dejaAI : public ScriptedAI
 {
@@ -51,11 +54,15 @@ struct TRINITY_DLL_DECL boss_chrono_lord_dejaAI : public ScriptedAI
 
     uint32 ArcaneBlast_Timer;
     uint32 TimeLapse_Timer;
+    uint32 Attraction_Timer;
+    uint32 ArcaneDischarge_Timer;
 
     void Reset()
     {
-        ArcaneBlast_Timer = 20000;
-        TimeLapse_Timer = 15000;
+        ArcaneBlast_Timer = 18000+rand()%5000;
+        TimeLapse_Timer = 10000+rand()%5000;
+        ArcaneDischarge_Timer = 20000+rand()%10000;
+        Attraction_Timer = 25000+rand()%10000;
     }
 
     void EnterCombat(Unit *who)
@@ -104,9 +111,17 @@ struct TRINITY_DLL_DECL boss_chrono_lord_dejaAI : public ScriptedAI
         //Arcane Blast
         if (ArcaneBlast_Timer < diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_ARCANE_BLAST);
-            ArcaneBlast_Timer = 20000+rand()%5000;
+            DoCast(m_creature->getVictim(), HeroicMode ? H_SPELL_ARCANE_BLAST : SPELL_ARCANE_BLAST);
+            ArcaneBlast_Timer = 15000+rand()%10000;
         }else ArcaneBlast_Timer -= diff;
+
+        //Arcane Discharge
+        if (ArcaneDischarge_Timer < diff)
+        {
+            Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0);
+            DoCast(target,HeroicMode ? H_SPELL_ARCANE_DISCHARGE : SPELL_ARCANE_DISCHARGE);
+            ArcaneDischarge_Timer = 20000+rand()%10000;
+        }else ArcaneDischarge_Timer -= diff;
 
         //Time Lapse
         if (TimeLapse_Timer < diff)
@@ -115,6 +130,15 @@ struct TRINITY_DLL_DECL boss_chrono_lord_dejaAI : public ScriptedAI
             DoCast(m_creature, SPELL_TIME_LAPSE);
             TimeLapse_Timer = 15000+rand()%10000;
         }else TimeLapse_Timer -= diff;
+
+        if (HeroicMode)
+        {
+            if (Attraction_Timer < diff)
+            {
+                DoCast(m_creature,SPELL_ATTRACTION);
+                Attraction_Timer = 25000+rand()%10000;
+            }else Attraction_Timer -= diff;
+        }
 
         DoMeleeAttackIfReady();
     }

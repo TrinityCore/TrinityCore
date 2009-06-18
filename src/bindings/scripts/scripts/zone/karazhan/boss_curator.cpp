@@ -59,6 +59,8 @@ struct  TRINITY_DLL_DECL boss_curatorAI : public ScriptedAI
         BerserkTimer = 720000;                              //12 minutes
         Enraged = false;
         Evocating = false;
+
+        m_creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_ARCANE, true);
     }
 
     void KilledUnit(Unit *victim)
