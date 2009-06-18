@@ -3465,7 +3465,7 @@ void ObjectMgr::LoadQuests()
             qinfo->QuestFlags &= QUEST_TRINITY_FLAGS_DB_ALLOWED;
         }
 
-        if(qinfo->QuestFlags & QUEST_FLAGS_DAILY)
+        if(qinfo->QuestFlags & (QUEST_FLAGS_DAILY | QUEST_FLAGS_WEEKLY))
         {
             if(!(qinfo->QuestFlags & QUEST_TRINITY_FLAGS_REPEATABLE))
             {
