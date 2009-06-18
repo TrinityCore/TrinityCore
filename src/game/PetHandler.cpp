@@ -334,7 +334,7 @@ void WorldSession::SendPetNameQuery( uint64 petguid, uint32 petnumber)
     if( pet->isPet() && ((Pet*)pet)->GetDeclinedNames() )
     {
         data << uint8(1);
-        for(int i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+        for(uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
             data << ((Pet*)pet)->GetDeclinedNames()->name[i];
     }
     else
@@ -457,7 +457,7 @@ void WorldSession::HandlePetRename( WorldPacket & recv_data )
 
     if(isdeclined)
     {
-        for(int i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+        for(uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
         {
             CHECK_PACKET_SIZE(recv_data, recv_data.rpos() + 1);
             recv_data >> declinedname.name[i];
@@ -475,7 +475,7 @@ void WorldSession::HandlePetRename( WorldPacket & recv_data )
     CharacterDatabase.BeginTransaction();
     if(isdeclined)
     {
-        for(int i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+        for(uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
             CharacterDatabase.escape_string(declinedname.name[i]);
         CharacterDatabase.PExecute("DELETE FROM character_pet_declinedname WHERE owner = '%u' AND id = '%u'", _player->GetGUIDLow(), pet->GetCharmInfo()->GetPetNumber());
         CharacterDatabase.PExecute("INSERT INTO character_pet_declinedname (id, owner, genitive, dative, accusative, instrumental, prepositional) VALUES ('%u','%u','%s','%s','%s','%s','%s')",

@@ -842,7 +842,7 @@ bool Guardian::InitStatsForLevel(uint32 petlevel)
         createResistance[SPELL_SCHOOL_SHADOW] = cinfo->resistance5;
         createResistance[SPELL_SCHOOL_ARCANE] = cinfo->resistance6;
     }
-    for (int i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
+    for (uint8 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
         SetModifierValue(UnitMods(UNIT_MOD_RESISTANCE_START + i), BASE_VALUE, float(createResistance[i]));
 
     //health, mana, armor and resistance
@@ -1522,7 +1522,7 @@ bool Pet::resetTalents(bool no_cost)
         }
     }
 
-    for (unsigned int i = 0; i < sTalentStore.GetNumRows(); ++i)
+    for (uint32 i = 0; i < sTalentStore.GetNumRows(); ++i)
     {
         TalentEntry const *talentInfo = sTalentStore.LookupEntry(i);
 
@@ -1632,7 +1632,7 @@ void Pet::ToggleAutocast(uint32 spellid, bool apply)
     if(itr == m_spells.end())
         return;
 
-    int i;
+    uint32 i;
 
     if(apply)
     {
