@@ -791,6 +791,11 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
             m_creature->SetSheath(SheathState(action.set_sheath.sheath));
             break;
         }
+        case ACTION_T_FORCE_DESPAWN:
+        {
+            m_creature->ForcedDespawn();
+            break;
+        }
     }
 }
 

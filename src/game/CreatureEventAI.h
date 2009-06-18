@@ -111,7 +111,8 @@ enum EventAI_ActionType
     ACTION_T_ATTACK_START_PULSE         = 103,  //Distance
     ACTION_T_SUMMON_GO                  = 104,  //GameObjectID, DespawnTime in ms
 
-    ACTION_T_END,
+    ACTION_T_FORCE_DESPAWN              = 41,               // No Params
+    ACTION_T_END = 105,
 };
 
 enum Target
