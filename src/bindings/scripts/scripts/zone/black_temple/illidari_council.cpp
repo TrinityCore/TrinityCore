@@ -405,11 +405,11 @@ struct TRINITY_DLL_DECL boss_illidari_councilAI : public ScriptedAI
         damage /= 4;
         for(uint8 i = 0; i < 4; ++i)
         {
-            if(Unit* pUnit = Unit::GetUnit(*m_creature, Council[i]))
+            if(Creature* pUnit = Unit::GetCreature(*m_creature, Council[i]))
                 if(pUnit != m_creature && damage < pUnit->GetHealth())
                 {
                     pUnit->SetHealth(pUnit->GetHealth() - damage);
-                    ((Creature*)pUnit)->LowerPlayerDamageReq(damage);
+                    pUnit->LowerPlayerDamageReq(damage);
                 }
         }
     }

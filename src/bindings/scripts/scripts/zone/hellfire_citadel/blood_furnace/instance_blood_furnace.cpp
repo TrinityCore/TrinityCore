@@ -82,8 +82,11 @@ struct TRINITY_DLL_DECL instance_blood_furnace : public ScriptedInstance
     }
 
 
-    void OnCreatureCreate(Creature *creature, uint32 creature_entry)
+    void OnCreatureCreate(Creature *creature, bool add)
     {
+        if(!add)
+            return;
+
         switch(creature->GetEntry())
         {
              case 17381: The_MakerGUID = creature->GetGUID(); break;
@@ -92,8 +95,11 @@ struct TRINITY_DLL_DECL instance_blood_furnace : public ScriptedInstance
         }
     }
 
-    void OnObjectCreate(GameObject *go)
+    void OnGameObjectCreate(GameObject *go, bool add)
     {
+        if(!add)
+            return;
+
      if (go->GetEntry() == 181766)                //Final exit door
          Door1GUID = go->GetGUID();
      if (go->GetEntry() == 181811)               //The Maker Front door
