@@ -703,6 +703,8 @@ void Spell::EffectDummy(uint32 i)
 
     uint32 spell_id = 0;
     int32 bp = 0;
+    bool triggered = true;
+    SpellCastTargets targets;
 
     // selection by spell family
     switch(m_spellInfo->SpellFamilyName)
@@ -1908,17 +1910,52 @@ void Spell::EffectDummy(uint32 i)
                 }
                 return;
             }
+            // Hungering Cold
+            if (m_spellInfo->SpellFamilyFlags[1] & 0x1000)
+            {
+                unitTarget->CastSpell(m_caster, 51209, true);
+                return;
+            }
             // Death Grip
             if(m_spellInfo->Id == 49560)
             {
                 unitTarget->CastSpell(m_caster, damage, true);
                 return;
             }
-            // Hungering Cold
-            if (m_spellInfo->SpellFamilyFlags[1] & 0x1000)
+            else if(m_spellInfo->Id == 46584) // Raise dead
             {
-                unitTarget->CastSpell(m_caster, 51209, true);
-                return;
+                if ( m_caster->GetTypeId() != TYPEID_PLAYER)
+                    return;
+
+                // Do we have talent Master of Ghouls?
+                if(m_caster->HasAura(52143))
+                    // summon as pet
+                    bp =  52150;
+                else
+                    // or guardian
+                    bp = 46585;
+
+                if (m_targets.HasDst())
+                {
+                    targets.setDestination(m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ);
+                }
+                else
+                {
+                    targets.setDestination(m_caster);
+                    // Corpse not found - take reagents ( only not triggered cast can take them)
+                    triggered = false;
+                }
+                // Remove cooldown - summon spellls have category
+                ((Player*)m_caster)->RemoveSpellCooldown(m_spellInfo->Id,true);
+                spell_id=48289;
+            }
+            // Raise dead - take reagents and trigger summon spells
+            else if (m_spellInfo->Id ==48289)
+            {
+                if (m_targets.HasDst())
+                    targets.setDestination(m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ);
+
+                spell_id = m_currentBasePoints[0];
             }
             break;
     }
@@ -1934,10 +1971,9 @@ void Spell::EffectDummy(uint32 i)
             return;
         }
 
-        Spell* spell = new Spell(m_caster, spellInfo, true, m_originalCasterGUID, NULL, true);
-        if(bp) spell->m_currentBasePoints[0] = bp;
-        SpellCastTargets targets;
         targets.setUnitTarget(unitTarget);
+        Spell* spell = new Spell(m_caster, spellInfo, triggered, m_originalCasterGUID, NULL, true);
+        if(bp) spell->m_currentBasePoints[0] = bp;
         spell->prepare(&targets);
     }
 
@@ -5379,6 +5415,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         m_caster->CastSpell(unitTarget, 55095, true);
                 }
             }
+            break;
         }
     }
 

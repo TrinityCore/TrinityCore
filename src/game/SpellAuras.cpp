@@ -6924,9 +6924,6 @@ void AuraEffect::PeriodicDummyTick()
                     caster->CastCustomSpell(m_target, 52212, &m_amount, NULL, NULL, true, 0, this);
                 return;
             }
-            // Raise Dead
-//            if (spell->SpellFamilyFlags & 0x0000000000001000LL)
-//                return;
             // Chains of Ice
             if (spell->SpellFamilyFlags[1] & 0x00004000)
             {

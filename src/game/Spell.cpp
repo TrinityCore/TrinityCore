@@ -2152,8 +2152,8 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
                 radius = GetSpellRadius(m_spellInfo, i, true);
                 targetType = SPELL_TARGETS_ALLY;
                 break;
-            case TARGET_UNIT_AREA_ENTRY_SRC:
             case TARGET_UNIT_AREA_ENTRY_DST:
+            case TARGET_UNIT_AREA_ENTRY_SRC:
             case TARGET_UNIT_CONE_ENTRY: // fix me
                 radius = GetSpellRadius(m_spellInfo, i, IsPositiveSpell(m_spellInfo->Id));
                 targetType = SPELL_TARGETS_ENTRY;
@@ -2175,14 +2175,36 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
             SpellScriptTarget::const_iterator upper = spellmgr.GetEndSpellScriptTarget(m_spellInfo->Id);
             if(lower == upper)
             {
-                sLog.outDebug("Spell (ID: %u) (caster Entry: %u) does not have record in `spell_script_target`", m_spellInfo->Id, m_caster->GetEntry());
+                // Custom entries
+                // TODO: move these to sql
+                switch (m_spellInfo->Id)
+                {
+                    case 46584: // Raise Dead
+                    {
+                        // TODO: change visual of corpses which gave ghoul?
+                        // Allow corpses to be ghouled only once?
+                        m_targets.m_targetMask &= ~TARGET_FLAG_DEST_LOCATION;
+                        WorldObject* result = FindCorpseUsing<MaNGOS::RaiseDeadObjectCheck> ();
+                        if(result)
+                        {
+                            switch(result->GetTypeId())
+                            {
+                                case TYPEID_UNIT:
+                                    m_targets.setDestination(result);
+                            }
+                        }
+                        break;
+                    }
+                    default:
+                        sLog.outDebug("Spell (ID: %u) (caster Entry: %u) does not have record in `spell_script_target`", m_spellInfo->Id, m_caster->GetEntry());
 
-                if(m_spellInfo->Effect[i] == SPELL_EFFECT_TELEPORT_UNITS)
-                    SearchAreaTarget(unitList, radius, pushType, SPELL_TARGETS_ENTRY, 0);
-                else if(IsPositiveEffect(m_spellInfo->Id, i))
-                    SearchAreaTarget(unitList, radius, pushType, SPELL_TARGETS_ALLY);
-                else
-                    SearchAreaTarget(unitList, radius, pushType, SPELL_TARGETS_ENEMY);
+                        if(m_spellInfo->Effect[i] == SPELL_EFFECT_TELEPORT_UNITS)
+                            SearchAreaTarget(unitList, radius, pushType, SPELL_TARGETS_ENTRY, 0);
+                        else if(IsPositiveEffect(m_spellInfo->Id, i))
+                            SearchAreaTarget(unitList, radius, pushType, SPELL_TARGETS_ALLY);
+                        else
+                            SearchAreaTarget(unitList, radius, pushType, SPELL_TARGETS_ENEMY);
+                }
             }
             // let it be done in one check?
             else
@@ -2448,6 +2470,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect* triggeredByAura
             triggeredByAura->GetParentAura()->SetAuraDuration(0);
         }
         SendCastResult(result);
+
         finish(false);
         return;
     }
