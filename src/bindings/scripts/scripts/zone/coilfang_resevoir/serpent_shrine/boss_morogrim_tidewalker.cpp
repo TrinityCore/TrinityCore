@@ -119,7 +119,7 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
             m_pInstance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, NOT_STARTED);
     }
 
-    void Aggro(Unit* pWho)
+    void EnterCombat(Unit* pWho)
     {
         DoScriptText(SAY_AGGRO, m_creature);
 
@@ -254,8 +254,6 @@ struct TRINITY_DLL_DECL mob_water_globuleAI : public ScriptedAI
         m_uiCheck_Timer = 1000;
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }
-
-    void Aggro(Unit* pWho) {}
 
     void MoveInLineOfSight(Unit* pWho)
     {

@@ -114,7 +114,7 @@ struct TRINITY_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
             m_pInstance->SetData(DATA_HYDROSSTHEUNSTABLEEVENT, NOT_STARTED);
     }
 
-    void Aggro(Unit* pWho)
+    void EnterCombat(Unit* pWho)
     {
         DoScriptText(SAY_AGGRO, m_creature);
 
