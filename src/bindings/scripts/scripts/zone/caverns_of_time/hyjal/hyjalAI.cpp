@@ -606,7 +606,7 @@ uint32 hyjalAI::GetInstanceData(uint32 Event)
 void hyjalAI::Talk(uint32 id)
 {
     std::list<uint8> index;
-    for(uint8 i = 0; i < 10; i++)
+    for(uint8 i = 0; i < 9; ++i)
     {
         if(Faction == 0)                                    // Alliance
         {

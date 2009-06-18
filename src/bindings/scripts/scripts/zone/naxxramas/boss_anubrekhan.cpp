@@ -33,7 +33,7 @@
 
 struct TRINITY_DLL_DECL boss_anubrekhanAI : public BossAI
 {
-    boss_anubrekhanAI(Creature *c) : BossAI(c, BOSS_ANUBREKHAN) {}
+    boss_anubrekhanAI(Creature *c) : BossAI(c, BOSS_ANUBREKHAN) { HasTaunted = false; }
 
     bool HasTaunted;
 

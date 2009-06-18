@@ -189,7 +189,7 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
 
     float Portal_Y(float x, float radius)
     {
-        float z;
+        float z = 0.0f;
 
         switch(rand()%2)
         {

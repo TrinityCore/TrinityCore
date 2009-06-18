@@ -318,9 +318,9 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
             targets.erase(targets.begin()+rand()%targets.size());
 
         int i = 0;
-        for(std::vector<Unit *>::iterator itr = targets.begin(); itr!= targets.end(); ++itr, ++i)
+        for(std::vector<Unit *>::iterator iter = targets.begin(); iter!= targets.end(); ++iter, ++i)
         {
-            Unit *target = *itr;
+            Unit *target = *iter;
             if(target)
             {
                 enfeeble_targets[i] = target->GetGUID();

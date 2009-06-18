@@ -221,6 +221,7 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
         RandChat_Timer = 90000;
 
         Phase3 = false;
+        NeedCheckCube = false;
 
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
