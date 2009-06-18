@@ -133,6 +133,7 @@ enum __QuestFlags
     QUEST_FLAGS_AUTO_REWARDED  = 0x00000400,                // These quests are automatically rewarded on quest complete and they will never appear in quest log client side.
     QUEST_FLAGS_TBC_RACES      = 0x00000800,                // Not used currently: Blood elf/Draenei starting zone quests
     QUEST_FLAGS_DAILY          = 0x00001000,                // Used to know quest is Daily one
+    QUEST_FLAGS_WEEKLY         = 0x00008000,
 
     // Trinity flags for set SpecialFlags in DB if required but used only at server
     QUEST_TRINITY_FLAGS_REPEATABLE           = 0x010000,     // Set by 1 in SpecialFlags from DB
@@ -225,7 +226,7 @@ class Quest
         bool   IsRepeatable() const { return QuestFlags & QUEST_TRINITY_FLAGS_REPEATABLE; }
         bool   IsAutoComplete() const { return QuestMethod ? false : true; }
         uint32 GetFlags() const { return QuestFlags; }
-        bool   IsDaily() const { return QuestFlags & QUEST_FLAGS_DAILY; }
+        bool   IsDaily() const { return QuestFlags & (QUEST_FLAGS_DAILY | QUEST_FLAGS_WEEKLY); }
 
         // multiple values
         std::string ObjectiveText[QUEST_OBJECTIVES_COUNT];
