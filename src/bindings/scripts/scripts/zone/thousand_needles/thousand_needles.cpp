@@ -193,87 +193,89 @@ CreatureAI* GetAI_npc_swiftmountain(Creature *_Creature)
 # npc_plucky
 ######*/
 
-#define GOSSIP_P    "<Learn Secret phrase>"
+#define GOSSIP_P    "Please tell me the Phrase.."
 
-#define SPELL_TRANSFORM_HUMAN 9192
-#define QUEST_GET_THE_SCOOP 1950
+enum
+{
+    FACTION_FRIENDLY        = 35,
+    QUEST_SCOOP             = 1950,
+    SPELL_PLUCKY_HUMAN      = 9192,
+    SPELL_PLUCKY_CHICKEN    = 9220
+};
 
 struct TRINITY_DLL_DECL npc_pluckyAI : public ScriptedAI
 {
-    npc_pluckyAI(Creature *c) : ScriptedAI(c) {}
+    npc_pluckyAI(Creature *c) : ScriptedAI(c) { m_uiNormFaction = c->getFaction(); }
 
-    bool Transformed;
-    bool Chicken;
+    uint32 m_uiNormFaction;
+    uint32 m_uiResetTimer;
 
-    uint32 Timer;
-    uint32 ChickenTimer;
-
-    void Reset()   {
-
-       Transformed = false;
-       Chicken     = false;
-       m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-       Timer        = 0;
-       ChickenTimer = 0;
-       }
-
-    void EnterCombat(Unit *who){}
-
-    void TransformHuman(uint32 emoteid)
+    void Reset()
     {
-         if (!Transformed)
-         {
-             Transformed = true;
-             DoCast(m_creature, SPELL_TRANSFORM_HUMAN);
-             Timer = 120000;
-             if (emoteid == TEXTEMOTE_BECKON)
-                 m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-             else
-             {
-                 ChickenTimer = 1500;
-                 Chicken = true;
-             }
-         }
+        m_uiResetTimer = 120000;
+
+        if (m_creature->getFaction() != m_uiNormFaction)
+            m_creature->setFaction(m_uiNormFaction);
+
+        if (m_creature->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
+            m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+
+        m_creature->CastSpell(m_creature, SPELL_PLUCKY_CHICKEN, false);
     }
 
-    void UpdateAI(const uint32 diff)
+    void ReceiveEmote(Player* pPlayer, uint32 uiTextEmote)
     {
-        if (Transformed)
+        if (pPlayer->GetQuestStatus(QUEST_SCOOP) == QUEST_STATUS_INCOMPLETE)
         {
-            if (Timer < diff)
-                Reset();
-            else Timer-=diff;
+            if (uiTextEmote == TEXTEMOTE_BECKON)
+            {
+                m_creature->setFaction(FACTION_FRIENDLY);
+                m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                m_creature->CastSpell(m_creature, SPELL_PLUCKY_HUMAN, false);
+            }
         }
 
-       if(Chicken)
-       {
-           if (ChickenTimer < diff)
-           {
-               m_creature->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
-               Chicken = false;
-           }else ChickenTimer-=diff;
-       }
+        if (uiTextEmote == TEXTEMOTE_CHICKEN)
+        {
+            if (m_creature->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
+                return;
+            else
+            {
+                m_creature->setFaction(FACTION_FRIENDLY);
+                m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                m_creature->CastSpell(m_creature, SPELL_PLUCKY_HUMAN, false);
+                m_creature->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
+            }
+        }
+    }
 
-        if(!UpdateVictim())
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (m_creature->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
+        {
+            if (m_uiResetTimer < uiDiff)
+            {
+                if (!m_creature->getVictim())
+                    EnterEvadeMode();
+                else
+                    m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+
+                return;
+            }
+            else
+                m_uiResetTimer -= uiDiff;
+        }
+
+        if (!UpdateVictim())
             return;
 
         DoMeleeAttackIfReady();
-   }
-
-    void ReceiveEmote( Player *player, uint32 emote )
-    {
-        if( (emote == TEXTEMOTE_BECKON || emote == TEXTEMOTE_CHICKEN &&
-            player->GetQuestStatus(QUEST_GET_THE_SCOOP) == QUEST_STATUS_INCOMPLETE) )
-        {
-            m_creature->SetInFront(player);
-            TransformHuman(emote);
-        }
     }
 };
 
 bool GossipHello_npc_plucky(Player *player, Creature *_Creature)
 {
-    if(player->GetQuestStatus(QUEST_GET_THE_SCOOP) == QUEST_STATUS_INCOMPLETE)
+    if(player->GetQuestStatus(QUEST_SCOOP) == QUEST_STATUS_INCOMPLETE)
         player->ADD_GOSSIP_ITEM(0, GOSSIP_P, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
     player->SEND_GOSSIP_MENU(738, _Creature->GetGUID());
 
@@ -286,7 +288,7 @@ bool GossipSelect_npc_plucky(Player *player, Creature *_Creature, uint32 sender,
     {
         case GOSSIP_ACTION_INFO_DEF+1:
             player->CLOSE_GOSSIP_MENU();
-            player->CompleteQuest(QUEST_GET_THE_SCOOP);
+            player->CompleteQuest(QUEST_SCOOP);
         break;
     }
     return true;
@@ -294,7 +296,7 @@ bool GossipSelect_npc_plucky(Player *player, Creature *_Creature, uint32 sender,
 
 CreatureAI* GetAI_npc_plucky(Creature *_Creature)
 {
-return new npc_pluckyAI(_Creature);
+    return new npc_pluckyAI(_Creature);
 }
 
 /*#####
