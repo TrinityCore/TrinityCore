@@ -457,7 +457,11 @@ bool GossipSelect_boss_gloomrel(Player *player, Creature *_Creature, uint32 send
             break;
         case GOSSIP_ACTION_INFO_DEF+22:
             player->CLOSE_GOSSIP_MENU();
-            //re-spawn object here
+            if (ScriptedInstance* pInstance = (ScriptedInstance*)_Creature->GetInstanceData())
+            {
+                //are 5 minutes expected? go template may have data to despawn when used at quest
+                pInstance->DoRespawnGameObject(pInstance->GetData64(DATA_GO_CHALICE),MINUTE*5);
+            }
             break;
     }
     return true;

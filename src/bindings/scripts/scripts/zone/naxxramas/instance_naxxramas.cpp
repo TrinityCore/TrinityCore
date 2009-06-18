@@ -57,10 +57,14 @@ const MinionData minionData[] =
     {0,         0,}
 };
 
-#define GO_GOTHIK_GATE      181170
-#define GO_HORSEMEN_CHEST   181366
+enum
+{
+    GO_HORSEMEN_CHEST_HERO  = 193426,
+    GO_HORSEMEN_CHEST       = 181366,                   //four horsemen event, DoRespawnGameObject() when event == DONE
+    GO_GOTHIK_GATE          = 181170,
 
-#define SPELL_ERUPTION      29371
+    SPELL_ERUPTION          = 29371
+};
 
 const float HeiganPos[2] = {2796, -3707};
 const float HeiganEruptionSlope[3] =

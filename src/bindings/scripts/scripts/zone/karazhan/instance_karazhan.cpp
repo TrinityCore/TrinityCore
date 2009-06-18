@@ -65,6 +65,7 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
     uint64 NetherspaceDoor;                                // Door at Malchezaar
     uint64 MastersTerraceDoor[2];
     uint64 ImageGUID;
+    uint64 DustCoveredChest;
 
     void Initialize()
     {
@@ -91,6 +92,7 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
         MastersTerraceDoor[0]= 0;
         MastersTerraceDoor[1]= 0;
         ImageGUID = 0;
+        DustCoveredChest    = 0;
     }
 
     bool IsEncounterInProgress() const
@@ -176,7 +178,11 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
             case DATA_SHADEOFARAN_EVENT:       Encounters[6]  = data; break;
             case DATA_TERESTIAN_EVENT:         Encounters[7]  = data; break;
             case DATA_NETHERSPITE_EVENT:       Encounters[8]  = data; break;
-            case DATA_CHESS_EVENT:             Encounters[9]  = data; break;
+            case DATA_CHESS_EVENT:
+                if (data == DONE)
+                    DoRespawnGameObject(DustCoveredChest,DAY);
+                Encounters[9]  = data;
+                break;
             case DATA_MALCHEZZAR_EVENT:        Encounters[10] = data; break;
             case DATA_NIGHTBANE_EVENT:
                 if (Encounters[11] == DONE)
@@ -231,6 +237,7 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
                 else
                     go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
                 break;
+            case 185119: DustCoveredChest = go->GetGUID(); break;
         }
 
         switch(OperaEvent)

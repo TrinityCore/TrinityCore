@@ -662,6 +662,8 @@ void hyjalAI::Retreat()
 {
     if(pInstance)
     {
+        pInstance->SetData(TYPE_RETREAT,SPECIAL);
+
         if(Faction == 0)
         {
             pInstance->SetData(DATA_ALLIANCE_RETREAT, 1);
