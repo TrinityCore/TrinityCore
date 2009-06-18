@@ -96,8 +96,6 @@ struct TRINITY_DLL_DECL npc_bartlebyAI : public ScriptedAI
         AttackStart(pAttacker);
     }
 
-    void Aggro(Unit *who) { }
-
     void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
     {
         if (uiDamage > m_creature->GetHealth() || ((m_creature->GetHealth() - uiDamage)*100 / m_creature->GetMaxHealth() < 15))
@@ -162,8 +160,6 @@ struct TRINITY_DLL_DECL npc_dashel_stonefistAI : public ScriptedAI
 
         AttackStart(pAttacker);
     }
-
-    void Aggro(Unit *who) {}
 
     void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
     {
