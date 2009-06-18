@@ -7849,6 +7849,8 @@ void ObjectMgr::LoadTrainerSpell()
 
     barGoLink bar( result->GetRowCount() );
 
+    std::set<uint32> talentIds;
+
     uint32 count = 0;
     do
     {
@@ -7887,6 +7889,16 @@ void ObjectMgr::LoadTrainerSpell()
         if(!SpellMgr::IsSpellValid(spellinfo))
         {
             sLog.outErrorDb("Table `npc_trainer` for Trainer (Entry: %u) has broken learning spell %u, ignore", entry, spell);
+            continue;
+        }
+
+        if(GetTalentSpellCost(spell))
+        {
+            if(talentIds.count(spell)==0)
+            {
+                sLog.outErrorDb("Table `npc_trainer` has talent as learning spell %u, ignore", spell);
+                talentIds.insert(spell);
+            }
             continue;
         }
 
