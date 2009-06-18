@@ -259,6 +259,21 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
         CharacterDatabase.CommitTransaction();
     }
 
+    // Send fake summon spell cast - this is needed for correct cooldown application for spells
+    // Example: 46584 - without this cooldown (which should be set always when pet is loaded) isn't set clientside
+    // TODO: pets should be summoned from real cast instead of just faking it?
+    if (GetUInt32Value(UNIT_CREATED_BY_SPELL))
+    {
+        WorldPacket data(SMSG_SPELL_GO, (8+8+4+4+2));
+        data.append(owner->GetPackGUID());
+        data.append(owner->GetPackGUID());
+        data << uint8(0);
+        data << uint32(GetUInt32Value(UNIT_CREATED_BY_SPELL));
+        data << uint32(256); // CAST_FLAG_UNKNOWN3
+        data << uint32(0);
+        SendMessageToSet(&data, true);
+    }
+
     owner->SetMinion(this, true);
     map->Add((Creature*)this);
 
@@ -766,6 +781,7 @@ bool Pet::CreateBaseAtCreature(Creature* creature)
     return true;
 }
 
+// TODO: Move stat mods code to pet passive auras
 bool Guardian::InitStatsForLevel(uint32 petlevel)
 {
     CreatureInfo const *cinfo = GetCreatureInfo();
@@ -949,7 +965,6 @@ bool Guardian::InitStatsForLevel(uint32 petlevel)
 
     SetHealth(GetMaxHealth());
     SetPower(POWER_MANA, GetMaxPower(POWER_MANA));
-
     return true;
 }
 

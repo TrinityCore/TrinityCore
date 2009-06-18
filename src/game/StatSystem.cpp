@@ -387,13 +387,12 @@ void Player::UpdateAttackPowerAndDamage(bool ranged )
     SetInt32Value(index_mod, (uint32)attPowerMod);          //UNIT_FIELD_(RANGED)_ATTACK_POWER_MODS field
     SetFloatValue(index_mult, attPowerMultiplier);          //UNIT_FIELD_(RANGED)_ATTACK_POWER_MULTIPLIER field
 
+    Pet *pet = GetPet();                                //update pet's AP
     //automatically update weapon damage after attack power modification
     if(ranged)
     {
         UpdateDamagePhysical(RANGED_ATTACK);
-
-        Pet *pet = GetPet();                                //update pet's AP
-        if(pet)
+        if(pet && pet->isHunterPet()) // At ranged attack change for hunter pet
             pet->UpdateAttackPowerAndDamage();
     }
     else
@@ -403,6 +402,9 @@ void Player::UpdateAttackPowerAndDamage(bool ranged )
             UpdateDamagePhysical(OFF_ATTACK);
         if(getClass() == CLASS_SHAMAN)                      // mental quickness
             UpdateSpellDamageAndHealingBonus();
+
+        if(pet && pet->IsPetGhoul()) // At ranged attack change for hunter pet
+            pet->UpdateAttackPowerAndDamage();
     }
 }
 
@@ -952,6 +954,11 @@ bool Guardian::UpdateStats(Stats stat)
         if(owner->getClass() == CLASS_WARLOCK || owner->getClass() == CLASS_MAGE)
             value += float(owner->GetStat(stat)) * 0.3f;
     }
+    else if ( stat == STAT_STRENGTH )
+    {
+        if (IsPetGhoul())
+            value += float(owner->GetStat(stat)) * 0.3f;
+    }
 
     SetStat(stat, int32(value));
 
@@ -1088,6 +1095,11 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
         {
             bonusAP = owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.22f;
             SetBonusDamage( int32(owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.1287f));
+        }
+        else if (IsPetGhoul()) //ghouls benefit from deathknight's attack power (may be summon pet or not)
+        {
+            bonusAP = owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.22f;
+            SetBonusDamage( int32(owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.1287f));
         }
         //demons benefit from warlocks shadow or fire damage
         else if(isPet())
