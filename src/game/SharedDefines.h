@@ -695,8 +695,8 @@ enum SpellEffects
     SPELL_EFFECT_MILLING                   = 158,
     SPELL_EFFECT_ALLOW_RENAME_PET          = 159,
     SPELL_EFFECT_160                       = 160,
-    SPELL_EFFECT_161                       = 161,
-    SPELL_EFFECT_162                       = 162,
+    SPELL_EFFECT_TALENT_SPEC_COUNT         = 161,
+    SPELL_EFFECT_TALENT_SPEC_SELECT        = 162,
     TOTAL_SPELL_EFFECTS                    = 163
 };
 
