@@ -176,7 +176,7 @@ struct TRINITY_DLL_DECL npc_wounded_blood_elfAI : public npc_escortAI
         case 27:
             DoScriptText(SAY_ELF_COMPLETE, m_creature, player);
             // Award quest credit
-            ((Player*)player)->GroupEventHappens(QUEST_ROAD_TO_FALCON_WATCH,m_creature);
+            player->GroupEventHappens(QUEST_ROAD_TO_FALCON_WATCH,m_creature);
             break;
         }
     }
