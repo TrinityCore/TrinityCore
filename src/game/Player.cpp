@@ -20820,7 +20820,7 @@ void Player::BuildPlayerTalentsInfoData(WorldPacket *data)
     if(talentGroupCount)
     {
         // loop through all specs (only 1 for now)
-        for(uint32 groups = 0; groups < talentGroupCount; ++groups)
+        for(uint8 groups = 0; groups < talentGroupCount; ++groups)
         {
             uint8 talentIdCount = 0;
             size_t pos = data->wpos();
@@ -20829,7 +20829,7 @@ void Player::BuildPlayerTalentsInfoData(WorldPacket *data)
             // find class talent tabs (all players have 3 talent tabs)
             uint32 const* talentTabIds = GetTalentTabPages(getClass());
 
-            for(uint32 i = 0; i < 3; ++i)
+            for(uint8 i = 0; i < 3; ++i)
             {
                 uint32 talentTabId = talentTabIds[i];
 
@@ -20845,7 +20845,7 @@ void Player::BuildPlayerTalentsInfoData(WorldPacket *data)
 
                     // find max talent rank
                     int32 curtalent_maxrank = -1;
-                    for(uint8 k = 4; k > -1; --k)
+                    for(int32 k = 4; k > -1; --k)
                     {
                         if(talentInfo->RankID[k] && HasSpell(talentInfo->RankID[k]))
                         {
@@ -20922,7 +20922,7 @@ void Player::BuildPetTalentsInfoData(WorldPacket *data)
 
             // find max talent rank
             int32 curtalent_maxrank = -1;
-            for(uint8 k = 4; k > -1; --k)
+            for(int32 k = 4; k > -1; --k)
             {
                 if(talentInfo->RankID[k] && pet->HasSpell(talentInfo->RankID[k]))
                 {
