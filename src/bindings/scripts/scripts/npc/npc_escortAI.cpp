@@ -33,18 +33,6 @@ void npc_escortAI::AttackStart(Unit *who)
     }
 }
 
-void npc_escortAI::EnterCombat(Unit* pEnemy)
-{
-    if (!pEnemy)
-        return;
-
-    Aggro(pEnemy);
-}
-
-void npc_escortAI::Aggro(Unit* pEnemy)
-{
-}
-
 void npc_escortAI::MoveInLineOfSight(Unit *who)
 {
     if (IsBeingEscorted && !Attack)
