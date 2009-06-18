@@ -126,7 +126,7 @@ void WorldSession::HandleGMTicketGetTicketOpcode( WorldPacket & /*recv_data*/)
 
     GM_Ticket *ticket = objmgr.GetGMTicketByPlayer(GetPlayer()->GetGUID());
     if(ticket)
-        SendGMTicketGetTicket(0x06, ticket->message);
+        SendGMTicketGetTicket(0x06, ticket->message.c_str());
     else
         SendGMTicketGetTicket(0x0A, 0);
 

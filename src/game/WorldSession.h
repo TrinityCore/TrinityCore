@@ -171,7 +171,6 @@ class TRINITY_DLL_SPEC WorldSession
         void SendTabardVendorActivate( uint64 guid );
         void SendSpiritResurrect();
         void SendBindPoint(Creature* npc);
-        void SendGMTicketGetTicket(uint32 status, char const* text);
 
         void SendAttackStop(Unit const* enemy);
 
