@@ -23,11 +23,11 @@
 
 void ArenaTeamMember::ModifyPersonalRating(Player* plr, int32 mod, uint32 slot)
 {
-    int32 rating = int32(personal_rating) + mod;
-    personal_rating = rating < 0 ? 0 : rating;
+    int32 memberRating = int32(personal_rating) + mod;
+    personal_rating = memberRating > 0 ? memberRating : 0;
     if(plr)
         plr->SetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (slot*6) + 5, personal_rating);
-    sLog.outArena("Modify personal rating for player %s: personal rating %u, mod %d, rating %d", plr->GetName(), personal_rating, mod, rating);
+    //sLog.outArena("Modify personal rating for player %s: personal rating %u, mod %d, rating %d", plr->GetName(), personal_rating, mod, rating);
 }
 
 ArenaTeam::ArenaTeam()
@@ -527,7 +527,8 @@ int32 ArenaTeam::WonAgainst(uint32 againstRating)
     // calculate the rating modification (ELO system with k=32)
     int32 mod = (int32)floor(32.0f * (1.0f - chance));
     // modify the team stats accordingly
-    stats.rating += mod;
+    int32 newTeamRating = (int32)stats.rating + mod;
+    stats.rating = newTeamRating > 0 ? newTeamRating : 0;
     stats.games_week += 1;
     stats.wins_week += 1;
     stats.games_season += 1;
@@ -553,7 +554,8 @@ int32 ArenaTeam::LostAgainst(uint32 againstRating)
     // calculate the rating modification (ELO system with k=32)
     int32 mod = (int32)ceil(32.0f * (0.0f - chance));
     // modify the team stats accordingly
-    stats.rating += mod;
+    int32 newTeamRating = (int32)stats.rating + mod;
+    stats.rating = newTeamRating > 0 ? newTeamRating : 0;
     stats.games_week += 1;
     stats.games_season += 1;
     //update team's rank
