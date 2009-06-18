@@ -117,7 +117,7 @@ bool QuestAccept_npc_bartleby(Player* pPlayer, Creature* pCreature, Quest const*
     if (pQuest->GetQuestId() == QUEST_BEAT)
     {
         pCreature->setFaction(FACTION_ENEMY);
-        ((npc_bartlebyAI*)pCreature->AI())->AttackStart(pPlayer);
+        pCreature->AI()->AttackStart(pPlayer);
     }
     return true;
 }
