@@ -733,4 +733,3 @@ INSERT INTO `script_texts` (`entry`,`content_default`,`sound`,`type`,`language`,
 (-1000125, 'You! Enter the fray!', 0, 0, 0, 'twiggy SAY_TWIGGY_FRAY'),
 (-1000126, 'Challenger is down!', 0, 0, 0, 'twiggy SAY_TWIGGY_DOWN'),
 (-1000127, 'The Affray is over.', 0, 0, 0, 'twiggy SAY_TWIGGY_OVER');
-

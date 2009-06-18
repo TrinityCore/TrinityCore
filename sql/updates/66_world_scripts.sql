@@ -16,4 +16,3 @@ INSERT INTO `spell_script_target` VALUES ('45389', '1', '25265');
 INSERT INTO `spell_script_target` VALUES ('44885', '1', '25160');
 INSERT INTO `spell_script_target` VALUES ('46350', '1', '25160');
 INSERT INTO `spell_script_target` VALUES ('45714', '1', '25038');
-

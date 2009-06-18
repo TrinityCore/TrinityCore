@@ -23,4 +23,3 @@ update creature_template set scriptname = 'mob_blade_of_azzinoth' where entry = 
 update creature_template set scriptname = 'mob_parasitic_shadowfiend' where entry = 23498;
 -- Maiev
 update creature_template set minlevel = 73, maxlevel = 73, minhealth = 500000, maxhealth = 500000, mindmg = 3000, maxdmg = 4000 where entry = 23197;
-

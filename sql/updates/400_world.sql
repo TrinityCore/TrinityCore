@@ -8,4 +8,3 @@ INSERT INTO `spell_script_target` VALUES (5628, 1, 2013);
 INSERT INTO `spell_script_target` VALUES (5628, 1, 2014);
 INSERT INTO `spell_script_target` VALUES (45109, 1, 25084);
 INSERT INTO `spell_script_target` VALUES (45149, 0, 300154);
-

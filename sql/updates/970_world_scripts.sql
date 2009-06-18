@@ -7,4 +7,3 @@ INSERT INTO script_texts (entry, content_default, type, language, comment) VALUE
 (-1000400, 'NOOOOooooooo!', 1, 0, 'mobs_nether_drake - SAY_NIHIL_INTERRUPT'),
 
 (-1000401, 'Good $N, you are under the spell\'s influence. I must analyze it quickly, then we can talk.', 0, 7, 'npc_daranelle - SAY_DARANELLE');
-

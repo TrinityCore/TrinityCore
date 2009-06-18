@@ -9,4 +9,3 @@ INSERT INTO `spell_proc_event` VALUES ('10608', '0', '0', '0', '0', '0', '0', '0
 INSERT INTO `spell_proc_event` VALUES ('10610', '0', '0', '0', '0', '0', '0', '0', '3');
 INSERT INTO `spell_proc_event` VALUES ('25583', '0', '0', '0', '0', '0', '0', '0', '3');
 INSERT INTO `spell_proc_event` VALUES ('25584', '0', '0', '0', '0', '0', '0', '0', '3');
-

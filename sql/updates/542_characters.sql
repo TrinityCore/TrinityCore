@@ -72,4 +72,3 @@ SET
 WHERE 
     `a`.`arenateamid` = `b`.`atid` AND 
     `a`.`guid` = `b`.`b_guid`;
-

@@ -3,4 +3,3 @@ update creature_template set scriptname = 'boss_nightbane', unit_flags=0 where e
 delete from event_scripts where id = 10951;
 insert into event_scripts values
 (10951,0,10,17651,180000,0,-11159,-1907.22,91.48,0);
-

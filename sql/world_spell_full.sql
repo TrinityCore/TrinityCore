@@ -384,4 +384,3 @@ INSERT INTO spell_target_position () VALUES (46020, 580, 1704.34, 928.17, 53.079
 DELETE FROM `spell_proc_event` WHERE `entry` IN (42370);
 INSERT INTO `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `SpellFamilyMask`, `procFlags`, `procEx`, `ppmRate`, `CustomChance`, `Cooldown`) VALUES
 (42370, 0x00, 11, 0x00000080, 0x00000000, 0x00000000, 0.000000, 0.000000, 0); -- Merciless Totem of the Third Wind --
-

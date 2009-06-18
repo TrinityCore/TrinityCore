@@ -20,4 +20,3 @@ INSERT INTO `script_texts` (`entry`,`content_default`,`sound`,`type`,`language`,
 (-1000135, 'I am returning to Tempest Keep. See to it that I do not have reason to return!', 0, 0, 0, 'dawnforge PATHALEON_CULATOR_IMAGE_2_2' ),
 (-1000136, 'Yes, my lord.', 0, 0, 0, 'dawnforge COMMANDER_DAWNFORGE_4 SAY_ARCANIST_ARDONIS_2'),
 (-1000137, 'See to it, Ardonis!', 0, 0, 0, 'dawnforge COMMANDER_DAWNFORGE_5');
-

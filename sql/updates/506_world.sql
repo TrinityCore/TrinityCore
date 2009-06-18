@@ -81,4 +81,3 @@ INSERT INTO spell_chain (spell_id,prev_spell,first_spell,rank,req_spell) VALUES 
 INSERT INTO spell_chain (spell_id,prev_spell,first_spell,rank,req_spell) VALUES (31896,20184,20184,2,0);
 
 ALTER TABLE spell_chain DROP COLUMN prev_spell;
-

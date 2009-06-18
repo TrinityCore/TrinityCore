@@ -14,4 +14,3 @@ DELETE FROM `command` WHERE `name` = 'freeze' or `name` = 'unfreeze' or name = '
 INSERT INTO `command` (`name`,`security`,`help`) VALUES ('freeze','2','Syntax: .freeze (#player)\r\n\"Freezes\" #player and disables his chat. When using this without #name it will freeze your target.');
 INSERT INTO `command` (`name`,`security`,`help`) VALUES ('unfreeze','2','Syntax: .unfreeze (#player)\r\n\"Unfreezes\" #player and enables his chat again. When using this without #name it will unfreeze your target.');
 INSERT INTO `command` (`name`,`security`,`help`) VALUES ('listfreeze','1','Syntax: .listfreeze\r\n\r\nSearch and output all frozen players.');
-

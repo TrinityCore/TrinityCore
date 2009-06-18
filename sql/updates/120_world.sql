@@ -160,4 +160,3 @@ INSERT INTO command VALUES
 ('server motd',0,'Syntax: .server motd\r\n\r\nShow server Message of the day.'),
 ('server set loglevel',4,'Syntax: .server set loglevel #level\r\n\r\nSet server log level (0 - errors only, 1 - basic, 2 - detail, 3 - debug).'),
 ('server set motd',3,'Syntax: .server set motd $MOTD\r\n\r\nSet server Message of the day.');
-
