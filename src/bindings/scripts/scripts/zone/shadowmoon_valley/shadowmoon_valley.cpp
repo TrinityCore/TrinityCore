@@ -628,21 +628,13 @@ enum
 {
     QUEST_ALLY_OF_NETHER    = 10870,
 
-    TAXI_NODE_START         = 161,                          // From Karynaku
-    TAXI_NODE_END           = 162                           // To Mordenai
+    TAXI_PATH_ID            = 649
 };
 
 bool QuestAccept_npc_karynaku(Player* player, Creature* creature, Quest const* quest)
 {
     if(quest->GetQuestId() == QUEST_ALLY_OF_NETHER)
-    {
-        std::vector<uint32> nodes;
-
-        nodes.resize(2);
-        nodes[0] = TAXI_NODE_START;
-        nodes[1] = TAXI_NODE_END;
-        player->ActivateTaxiPathTo(nodes);        //player->ActivateTaxiPathTo(649);
-    }
+        player->ActivateTaxiPathTo(TAXI_PATH_ID);        //player->ActivateTaxiPathTo(649);
 
     return true;
 }

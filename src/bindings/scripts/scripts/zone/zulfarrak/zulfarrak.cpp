@@ -104,7 +104,7 @@ bool GossipHello_npc_sergeant_bly(Player *player, Creature *_Creature )
 {
     /*if( pInstance->GetData(0) == DONE )
     {*/
-    player->ADD_GOSSIP_ITEM(1, GOSSIP_BLY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+    player->ADD_GOSSIP_ITEM(0, GOSSIP_BLY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
     player->SEND_GOSSIP_MENU(1517, _Creature->GetGUID());
     /*}
     else if( pInstance->GetData(0) == IN_PROGRESS )
@@ -182,7 +182,7 @@ bool GossipHello_npc_weegli_blastfuse(Player *player, Creature *_Creature )
     //event not implemented yet, this is only placeholder for future developement
     /*if( pInstance->GetData(0) == DONE )
     {
-        player->ADD_GOSSIP_ITEM(1, GOSSIP_WEEGLI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        player->ADD_GOSSIP_ITEM(0, GOSSIP_WEEGLI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
         player->SEND_GOSSIP_MENU(1514, _Creature->GetGUID());//if event can proceed to end
     }
     else if( pInstance->GetData(0) == IN_PROGRESS )
