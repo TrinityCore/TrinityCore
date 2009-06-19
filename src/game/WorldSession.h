@@ -171,7 +171,6 @@ class TRINITY_DLL_SPEC WorldSession
         void SendTabardVendorActivate( uint64 guid );
         void SendSpiritResurrect();
         void SendBindPoint(Creature* npc);
-        void SendGMTicketGetTicket(uint32 status, char const* text);
 
         void SendAttackStop(Unit const* enemy);
 
@@ -329,6 +328,7 @@ class TRINITY_DLL_SPEC WorldSession
         void HandleGMTicketDeleteOpcode(WorldPacket& recvPacket);
         void HandleGMTicketGetTicketOpcode(WorldPacket& recvPacket);
         void HandleGMTicketSystemStatusOpcode(WorldPacket& recvPacket);
+        void SendGMTicketGetTicket(uint32 status, char const* text);
 
         //void HandleGMSurveySubmit(WorldPacket& recvPacket);
 
