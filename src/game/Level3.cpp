@@ -3871,17 +3871,24 @@ bool ChatHandler::HandleLookupMapCommand(const char* args)
                     ss << GetTrinityString(LANG_HEROIC);
 
                 uint32 ResetTimeRaid = MapInfo->resetTimeRaid;
+                std::string ResetTimeRaidStr;
+                if(ResetTimeRaid)
+                    ResetTimeRaidStr = secsToTimeString(ResetTimeRaid, true, false);
+
                 uint32 ResetTimeHeroic = MapInfo->resetTimeHeroic;
+                std::string ResetTimeHeroicStr;
+                if(ResetTimeHeroic)
+                    ResetTimeHeroicStr = secsToTimeString(ResetTimeHeroic, true, false);
 
                 if(MapInfo->IsMountAllowed())
                     ss << GetTrinityString(LANG_MOUNTABLE);
 
                 if(ResetTimeRaid && !ResetTimeHeroic)
-                    PSendSysMessage(ss.str().c_str(), ResetTimeRaid);
+                    PSendSysMessage(ss.str().c_str(), ResetTimeRaidStr.c_str());
                 else if(!ResetTimeRaid && ResetTimeHeroic)
-                    PSendSysMessage(ss.str().c_str(), ResetTimeHeroic);
+                    PSendSysMessage(ss.str().c_str(), ResetTimeHeroicStr.c_str());
                 else if(ResetTimeRaid && ResetTimeHeroic)
-                    PSendSysMessage(ss.str().c_str(), ResetTimeRaid, ResetTimeHeroic);
+                    PSendSysMessage(ss.str().c_str(), ResetTimeRaidStr.c_str(), ResetTimeHeroicStr.c_str());
                 else
                     SendSysMessage(ss.str().c_str());
 
