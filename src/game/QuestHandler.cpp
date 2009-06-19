@@ -605,9 +605,6 @@ uint32 WorldSession::getDialogStatus(Player *pPlayer, Object* questgiver, uint32
             result = result2;
     }
 
-    if(questgiver->GetTypeId()==TYPEID_UNIT && ((Creature*)questgiver)->isCanTrainingAndResetTalentsOf(pPlayer) && result < DIALOG_STATUS_CHAT)
-        result = DIALOG_STATUS_CHAT;
-
     return result;
 }
 
