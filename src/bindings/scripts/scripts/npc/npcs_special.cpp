@@ -23,6 +23,7 @@ EndScriptData
 */
 
 /* ContentData
+npc_air_force_bots       80%    support for misc (invisible) guard bots in areas where player allowed to fly. Summon guards after a preset time if tagged by spell
 npc_chicken_cluck       100%    support for quest 3861 (Cluck!)
 npc_dancing_flames      100%    midsummer event NPC
 npc_guardian            100%    guardianAI used to prevent players from accessing off-limits areas. Not in use by SD2
@@ -38,6 +39,213 @@ EndContentData */
 
 #include "precompiled.h"
 #include "../npc/npc_escortAI.h"
+#include "ObjectMgr.h"
+
+/*########
+# npc_air_force_bots
+#########*/
+
+enum SpawnType
+{
+    SPAWNTYPE_TRIPWIRE_ROOFTOP,                             // no warning, summon creature at smaller range
+    SPAWNTYPE_ALARMBOT,                                     // cast guards mark and summon npc - if player shows up with that buff duration < 5 seconds attack
+};
+
+struct SpawnAssociation
+{
+    uint32 m_uiThisCreatureEntry;
+    uint32 m_uiSpawnedCreatureEntry;
+    SpawnType m_SpawnType;
+};
+
+enum
+{
+    SPELL_GUARDS_MARK               = 38067,
+    AURA_DURATION_TIME_LEFT         = 5000
+};
+
+const float RANGE_TRIPWIRE          = 15.0f;
+const float RANGE_GUARDS_MARK       = 50.0f;
+
+SpawnAssociation m_aSpawnAssociations[] =
+{
+    {2614,  15241, SPAWNTYPE_ALARMBOT},                     //Air Force Alarm Bot (Alliance)
+    {2615,  15242, SPAWNTYPE_ALARMBOT},                     //Air Force Alarm Bot (Horde)
+    {21974, 21976, SPAWNTYPE_ALARMBOT},                     //Air Force Alarm Bot (Area 52)
+    {21993, 15242, SPAWNTYPE_ALARMBOT},                     //Air Force Guard Post (Horde - Bat Rider)
+    {21996, 15241, SPAWNTYPE_ALARMBOT},                     //Air Force Guard Post (Alliance - Gryphon)
+    {21997, 21976, SPAWNTYPE_ALARMBOT},                     //Air Force Guard Post (Goblin - Area 52 - Zeppelin)
+    {21999, 15241, SPAWNTYPE_TRIPWIRE_ROOFTOP},             //Air Force Trip Wire - Rooftop (Alliance)
+    {22001, 15242, SPAWNTYPE_TRIPWIRE_ROOFTOP},             //Air Force Trip Wire - Rooftop (Horde)
+    {22002, 15242, SPAWNTYPE_TRIPWIRE_ROOFTOP},             //Air Force Trip Wire - Ground (Horde)
+    {22003, 15241, SPAWNTYPE_TRIPWIRE_ROOFTOP},             //Air Force Trip Wire - Ground (Alliance)
+    {22063, 21976, SPAWNTYPE_TRIPWIRE_ROOFTOP},             //Air Force Trip Wire - Rooftop (Goblin - Area 52)
+    {22065, 22064, SPAWNTYPE_ALARMBOT},                     //Air Force Guard Post (Ethereal - Stormspire)
+    {22066, 22067, SPAWNTYPE_ALARMBOT},                     //Air Force Guard Post (Scryer - Dragonhawk)
+    {22068, 22064, SPAWNTYPE_TRIPWIRE_ROOFTOP},             //Air Force Trip Wire - Rooftop (Ethereal - Stormspire)
+    {22069, 22064, SPAWNTYPE_ALARMBOT},                     //Air Force Alarm Bot (Stormspire)
+    {22070, 22067, SPAWNTYPE_TRIPWIRE_ROOFTOP},             //Air Force Trip Wire - Rooftop (Scryer)
+    {22071, 22067, SPAWNTYPE_ALARMBOT},                     //Air Force Alarm Bot (Scryer)
+    {22078, 22077, SPAWNTYPE_ALARMBOT},                     //Air Force Alarm Bot (Aldor)
+    {22079, 22077, SPAWNTYPE_ALARMBOT},                     //Air Force Guard Post (Aldor - Gryphon)
+    {22080, 22077, SPAWNTYPE_TRIPWIRE_ROOFTOP},             //Air Force Trip Wire - Rooftop (Aldor)
+    {22086, 22085, SPAWNTYPE_ALARMBOT},                     //Air Force Alarm Bot (Sporeggar)
+    {22087, 22085, SPAWNTYPE_ALARMBOT},                     //Air Force Guard Post (Sporeggar - Spore Bat)
+    {22088, 22085, SPAWNTYPE_TRIPWIRE_ROOFTOP},             //Air Force Trip Wire - Rooftop (Sporeggar)
+    {22090, 22089, SPAWNTYPE_ALARMBOT},                     //Air Force Guard Post (Toshley's Station - Flying Machine)
+    {22124, 22122, SPAWNTYPE_ALARMBOT},                     //Air Force Alarm Bot (Cenarion)
+    {22125, 22122, SPAWNTYPE_ALARMBOT},                     //Air Force Guard Post (Cenarion - Stormcrow)
+    {22126, 22122, SPAWNTYPE_ALARMBOT}                      //Air Force Trip Wire - Rooftop (Cenarion Expedition)
+};
+
+struct TRINITY_DLL_DECL npc_air_force_botsAI : public ScriptedAI
+{
+    npc_air_force_botsAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        m_pSpawnAssoc = NULL;
+        m_uiSpawnedGUID = 0;
+
+        // find the correct spawnhandling
+        static uint32 uiEntryCount = sizeof(m_aSpawnAssociations)/sizeof(SpawnAssociation);
+
+        for (uint8 i=0; i<uiEntryCount; ++i)
+        {
+            if (m_aSpawnAssociations[i].m_uiThisCreatureEntry == pCreature->GetEntry())
+            {
+                m_pSpawnAssoc = &m_aSpawnAssociations[i];
+                break;
+            }
+        }
+
+        if (!m_pSpawnAssoc)
+            error_db_log("TCSR: Creature template entry %u has ScriptName npc_air_force_bots, but it's not handled by that script", pCreature->GetEntry());
+        else
+        {
+            CreatureInfo const* spawnedTemplate = GetCreatureTemplateStore(m_pSpawnAssoc->m_uiSpawnedCreatureEntry);
+
+            if (!spawnedTemplate)
+            {
+                m_pSpawnAssoc = NULL;
+                error_db_log("TCSR: Creature template entry %u does not exist in DB, which is required by npc_air_force_bots", m_pSpawnAssoc->m_uiSpawnedCreatureEntry);
+                return;
+            }
+        }
+    }
+
+    SpawnAssociation* m_pSpawnAssoc;
+    uint64 m_uiSpawnedGUID;
+
+    void Reset() { }
+
+    Creature* SummonGuard()
+    {
+        Creature* pSummoned = m_creature->SummonCreature(m_pSpawnAssoc->m_uiSpawnedCreatureEntry, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 300000);
+
+        if (pSummoned)
+            m_uiSpawnedGUID = pSummoned->GetGUID();
+        else
+        {
+            error_db_log("TCSR: npc_air_force_bots: wasn't able to spawn creature %u", m_pSpawnAssoc->m_uiSpawnedCreatureEntry);
+            m_pSpawnAssoc = NULL;
+        }
+
+        return pSummoned;
+    }
+    
+    Creature* GetSummonedGuard()
+    {
+        Creature* pCreature = (Creature*)Unit::GetUnit(*m_creature, m_uiSpawnedGUID);
+
+        if (pCreature && pCreature->isAlive())
+            return pCreature;
+
+        return NULL;
+    }
+
+    void MoveInLineOfSight(Unit* pWho)
+    {
+        if (!m_pSpawnAssoc)
+            return;
+
+        if (pWho->isTargetableForAttack() && m_creature->IsHostileTo(pWho))
+        {
+            Player* pPlayerTarget = pWho->GetTypeId() == TYPEID_PLAYER ? (Player*)pWho : NULL;
+
+            // airforce guards only spawn for players
+            if (!pPlayerTarget)
+                return;
+
+            Creature* pLastSpawnedGuard = m_uiSpawnedGUID == 0 ? NULL : GetSummonedGuard();
+
+            // prevent calling Unit::GetUnit at next MoveInLineOfSight call - speedup
+            if (!pLastSpawnedGuard)
+                m_uiSpawnedGUID = 0;
+
+            switch(m_pSpawnAssoc->m_SpawnType)
+            {
+                case SPAWNTYPE_ALARMBOT:
+                {
+                    if (!pWho->IsWithinDistInMap(m_creature, RANGE_GUARDS_MARK))
+                        return;
+
+                    Aura* pMarkAura = pWho->GetAura(SPELL_GUARDS_MARK, 0);
+                    if (pMarkAura)
+                    {
+                        // the target wasn't able to move out of our range within 25 seconds
+                        if (!pLastSpawnedGuard)
+                        {
+                            pLastSpawnedGuard = SummonGuard();
+
+                            if (!pLastSpawnedGuard)
+                                return;
+                        }
+
+                        if (pMarkAura->GetAuraDuration() < AURA_DURATION_TIME_LEFT)
+                        {
+                            if (!pLastSpawnedGuard->getVictim())
+                                pLastSpawnedGuard->AI()->AttackStart(pWho);
+                        }
+                    }
+                    else
+                    {
+                        if (!pLastSpawnedGuard)
+                            pLastSpawnedGuard = SummonGuard();
+
+                        if (!pLastSpawnedGuard)
+                            return;
+
+                        pLastSpawnedGuard->CastSpell(pWho, SPELL_GUARDS_MARK, true);
+                    }
+                    break;
+                }
+                case SPAWNTYPE_TRIPWIRE_ROOFTOP:
+                {
+                    if (!pWho->IsWithinDistInMap(m_creature, RANGE_TRIPWIRE))
+                        return;
+
+                    if (!pLastSpawnedGuard)
+                        pLastSpawnedGuard = SummonGuard();
+
+                    if (!pLastSpawnedGuard)
+                        return;
+
+                    // ROOFTOP only triggers if the player is on the ground
+                    if (!pPlayerTarget->IsFlying())
+                    {
+                        if (!pLastSpawnedGuard->getVictim())
+                            pLastSpawnedGuard->AI()->AttackStart(pWho);
+                    }
+                    break;
+                }
+            }
+        }
+    }
+};
+
+CreatureAI* GetAI_npc_air_force_bots(Creature* pCreature)
+{
+    return new npc_air_force_botsAI(pCreature);
+}
 
 /*########
 # npc_chicken_cluck
@@ -1372,6 +1580,11 @@ CreatureAI* GetAI_npc_snake_trap_serpents(Creature *_Creature)
 void AddSC_npcs_special()
 {
     Script *newscript;
+
+    newscript = new Script;
+    newscript->Name = "npc_air_force_bots";
+    newscript->GetAI = &GetAI_npc_air_force_bots;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_chicken_cluck";

@@ -3799,6 +3799,103 @@ bool ChatHandler::HandleLookupTaxiNodeCommand(const char * args)
     return true;
 }
 
+bool ChatHandler::HandleLookupMapCommand(const char* args)
+{
+    if(!*args)
+        return false;
+
+    std::string namepart = args;
+    std::wstring wnamepart;
+
+    // converting string that we try to find to lower case
+    if(!Utf8toWStr(namepart, wnamepart))
+        return false;
+
+    wstrToLower(wnamepart);
+
+    uint32 counter = 0;
+
+    // search in Map.dbc
+    for(uint32 id = 0; id < sMapStore.GetNumRows(); id++)
+    {
+        MapEntry const* MapInfo = sMapStore.LookupEntry(id);
+        if(MapInfo)
+        {
+            uint8 loc = m_session ? m_session->GetSessionDbcLocale() : sWorld.GetDefaultDbcLocale();
+
+            std::string name = MapInfo->name[loc];
+            if(name.empty())
+                continue;
+
+            if(!Utf8FitTo(name, wnamepart))
+            {
+                loc = LOCALE_enUS;
+                for(; loc < MAX_LOCALE; loc++)
+                {
+                    if(m_session && loc == m_session->GetSessionDbcLocale())
+                        continue;
+
+                    name = MapInfo->name[loc];
+                    if(name.empty())
+                        continue;
+
+                    if(Utf8FitTo(name, wnamepart))
+                        break;
+                }
+            }
+
+            if(loc < MAX_LOCALE)
+            {
+                // send map in "id - [name][Continent][Instance/Battleground/Arena][Raid reset time:][Heroic reset time:][Mountable]" format
+                std::ostringstream ss;
+
+                if(m_session)
+                    ss << id << " - |cffffffff|Hmap:" << id << "|h[" << name << "]";
+                else // console
+                    ss << id << " - [" << name << "]";
+
+                if(MapInfo->IsContinent())
+                    ss << GetTrinityString(LANG_CONTINENT);
+
+                switch(MapInfo->map_type)
+                {
+                    case MAP_INSTANCE:      ss << GetTrinityString(LANG_INSTANCE);      break;
+                    case MAP_BATTLEGROUND:  ss << GetTrinityString(LANG_BATTLEGROUND);  break;
+                    case MAP_ARENA:         ss << GetTrinityString(LANG_ARENA);         break;
+                }
+
+                if(MapInfo->IsRaid())
+                    ss << GetTrinityString(LANG_RAID);
+
+                if(MapInfo->SupportsHeroicMode())
+                    ss << GetTrinityString(LANG_HEROIC);
+
+                uint32 ResetTimeRaid = MapInfo->resetTimeRaid;
+                uint32 ResetTimeHeroic = MapInfo->resetTimeHeroic;
+
+                if(MapInfo->IsMountAllowed())
+                    ss << GetTrinityString(LANG_MOUNTABLE);
+
+                if(ResetTimeRaid && !ResetTimeHeroic)
+                    PSendSysMessage(ss.str().c_str(), ResetTimeRaid);
+                else if(!ResetTimeRaid && ResetTimeHeroic)
+                    PSendSysMessage(ss.str().c_str(), ResetTimeHeroic);
+                else if(ResetTimeRaid && ResetTimeHeroic)
+                    PSendSysMessage(ss.str().c_str(), ResetTimeRaid, ResetTimeHeroic);
+                else
+                    SendSysMessage(ss.str().c_str());
+
+                counter++;
+            }
+        }
+    }
+
+    if(!counter)
+        SendSysMessage(LANG_COMMAND_NOMAPFOUND);
+
+    return true;
+}
+
 /** \brief GM command level 3 - Create a guild.
  *
  * This command allows a GM (level 3) to create a guild.

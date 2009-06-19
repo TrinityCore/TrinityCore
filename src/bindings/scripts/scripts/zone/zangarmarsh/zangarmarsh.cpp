@@ -120,21 +120,28 @@ bool GossipSelect_npcs_ashyen_and_keleth(Player *player, Creature *_Creature, ui
 
 #define GOSSIP_COOSH            "You owe Sim'salabim money. Hand them over or die!"
 
-#define FACTION_HOSTILE_CO      45
-#define FACTION_FRIENDLY_CO     35
-
-#define SPELL_LIGHTNING_BOLT    9532
+enum
+{
+    SPELL_LIGHTNING_BOLT    = 9532,
+    QUEST_CRACK_SKULLS      = 10009,
+    FACTION_HOSTILE_CO      = 45
+};
 
 struct TRINITY_DLL_DECL npc_cooshcooshAI : public ScriptedAI
 {
-    npc_cooshcooshAI(Creature* c) : ScriptedAI(c) {}
+    npc_cooshcooshAI(Creature* c) : ScriptedAI(c)
+    {
+        m_uiNormFaction = c->getFaction();
+    }
 
+    uint32 m_uiNormFaction;
     uint32 LightningBolt_Timer;
 
     void Reset()
     {
         LightningBolt_Timer = 2000;
-        m_creature->setFaction(FACTION_FRIENDLY_CO);
+        if (m_creature->getFaction() != m_uiNormFaction)
+            m_creature->setFaction(m_uiNormFaction);
     }
 
     void EnterCombat(Unit *who) {}
@@ -153,6 +160,7 @@ struct TRINITY_DLL_DECL npc_cooshcooshAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
+
 CreatureAI* GetAI_npc_cooshcoosh(Creature *_Creature)
 {
     return new npc_cooshcooshAI (_Creature);
@@ -160,8 +168,8 @@ CreatureAI* GetAI_npc_cooshcoosh(Creature *_Creature)
 
 bool GossipHello_npc_cooshcoosh(Player *player, Creature *_Creature )
 {
-    if( player->GetQuestStatus(10009) == QUEST_STATUS_INCOMPLETE )
-        player->ADD_GOSSIP_ITEM(1, GOSSIP_COOSH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+    if( player->GetQuestStatus(QUEST_CRACK_SKULLS) == QUEST_STATUS_INCOMPLETE )
+        player->ADD_GOSSIP_ITEM(0, GOSSIP_COOSH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
     player->SEND_GOSSIP_MENU(9441, _Creature->GetGUID());
     return true;
@@ -359,6 +367,7 @@ void AddSC_zangarmarsh()
 
     newscript = new Script;
     newscript->Name="npc_cooshcoosh";
+    newscript->GetAI = &GetAI_npc_cooshcoosh;
     newscript->pGossipHello =  &GossipHello_npc_cooshcoosh;
     newscript->pGossipSelect = &GossipSelect_npc_cooshcoosh;
     newscript->RegisterSelf();

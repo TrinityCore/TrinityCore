@@ -28,6 +28,14 @@
 void WorldSession::HandleGMTicketCreateOpcode( WorldPacket & recv_data )
 {
     CHECK_PACKET_SIZE(recv_data, 4*4+1+2*4);
+    
+    if(GM_Ticket *ticket = objmgr.GetGMTicketByPlayer(GetPlayer()->GetGUID()))
+    {
+        WorldPacket data( SMSG_GMTICKET_CREATE, 4 );
+        data << uint32(1); // 1 - You already have GM ticket
+        SendPacket( &data );
+        return;
+    }
 
     uint32 map;
     float x, y, z;
@@ -105,24 +113,22 @@ void WorldSession::HandleGMTicketDeleteOpcode( WorldPacket & /*recv_data*/)
 
         sWorld.SendGMText(LANG_COMMAND_TICKETPLAYERABANDON, GetPlayer()->GetName(), ticket->guid );
         objmgr.RemoveGMTicket(ticket, GetPlayer()->GetGUID(), false);
+        SendGMTicketGetTicket(0x0A, 0);
     }
 }
 
 void WorldSession::HandleGMTicketGetTicketOpcode( WorldPacket & /*recv_data*/)
 {
-    WorldPacket data(SMSG_GMTICKET_GETTICKET, 400);
+    WorldPacket data( SMSG_QUERY_TIME_RESPONSE, 4+4 );
+    data << (uint32)time(NULL);
+    data << (uint32)0;
+    SendPacket( &data );
 
     GM_Ticket *ticket = objmgr.GetGMTicketByPlayer(GetPlayer()->GetGUID());
-
-    if(!ticket)
-    {
-        data << uint32(10);
-        SendPacket(&data);
-        return;
-    }
-    data << uint32(6);
-    data << ticket->message.c_str();
-    SendPacket(&data);
+    if(ticket)
+        SendGMTicketGetTicket(0x06, ticket->message.c_str());
+    else
+        SendGMTicketGetTicket(0x0A, 0);
 
 }
 
@@ -131,4 +137,22 @@ void WorldSession::HandleGMTicketSystemStatusOpcode( WorldPacket & /*recv_data*/
     WorldPacket data(SMSG_GMTICKET_SYSTEMSTATUS, 4);
     data << uint32(1);
     SendPacket(&data);
+}
+
+void WorldSession::SendGMTicketGetTicket(uint32 status, char const* text)
+{
+    int len = text ? strlen(text) : 0;
+    WorldPacket data( SMSG_GMTICKET_GETTICKET, (4+len+1+4+2+4+4) );
+    data << uint32(status); // standard 0x0A, 0x06 if text present
+    if(status == 6)
+    {
+        data << text; // ticket text
+        data << uint8(0x7); // ticket category
+        data << float(0); // tickets in queue?
+        data << float(0); // if > "tickets in queue" then "We are currently experiencing a high volume of petitions."
+        data << float(0); // 0 - "Your ticket will be serviced soon", 1 - "Wait time currently unavailable"
+        data << uint8(0); // if == 2 and next field == 1 then "Your ticket has been escalated"
+        data << uint8(0); // const
+    }
+    SendPacket( &data );
 }
