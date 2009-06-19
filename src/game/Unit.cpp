@@ -8935,8 +8935,10 @@ void Unit::RemoveAllControlled()
             sLog.outError("Unit %u is trying to release unit %u which is neither charmed nor owned by it", GetEntry(), target->GetEntry());
         }
     }
-    if(GetPetGUID() != GetMinionGUID())
-        sLog.outCrash("Unit %u is not able to release its summon " I64FMT, GetEntry(), GetMinionGUID());
+    if(GetPetGUID())
+        sLog.outCrash("Unit %u is not able to release its pet " I64FMT, GetEntry(), GetPetGUID());
+    if(GetMinionGUID())
+        sLog.outCrash("Unit %u is not able to release its minion " I64FMT, GetEntry(), GetMinionGUID());
     if(GetCharmGUID())
         sLog.outCrash("Unit %u is not able to release its charm " I64FMT, GetEntry(), GetCharmGUID());
 }
@@ -12054,12 +12056,13 @@ void Unit::RemoveFromWorld()
 
     if(IsInWorld())
     {
-        UnsummonAllTotems();
-        RemoveAllControlled();
         RemoveCharmAuras();
         RemoveBindSightAuras();
         RemoveNotOwnSingleTargetAuras();
+
         ExitVehicle();
+        UnsummonAllTotems();
+        RemoveAllControlled();
 
         if(m_NotifyListPos >= 0)
         {

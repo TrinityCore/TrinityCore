@@ -161,7 +161,11 @@ void Vehicle::RemoveAllPassengers()
             if(passenger->GetTypeId() == TYPEID_UNIT && ((Creature*)passenger)->isVehicle())
                 ((Vehicle*)passenger)->RemoveAllPassengers();
             passenger->ExitVehicle();
-            assert(!itr->second.passenger);
+            if(itr->second.passenger)
+            {
+                sLog.outCrash("Vehicle %u cannot remove passenger %u.", GetEntry(), itr->second.passenger->GetEntry());
+                assert(!itr->second.passenger);
+            }
         }
 }
 
