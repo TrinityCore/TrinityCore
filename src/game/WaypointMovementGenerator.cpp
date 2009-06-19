@@ -202,7 +202,7 @@ WaypointMovementGenerator<Creature>::Update(Creature &unit, const uint32 &diff)
 
             MovementInform(unit);
             unit.UpdateWaypointID(i_currentNode);
-            unit.clearUnitState(UNIT_STAT_MOVING);
+            unit.clearUnitState(UNIT_STAT_ROAMING);
             unit.Relocate(node->x, node->y, node->z);
         }
     }

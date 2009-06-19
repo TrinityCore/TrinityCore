@@ -1835,6 +1835,7 @@ void Player::RemoveFromWorld()
         ///- Release charmed creatures, unsummon totems and remove pets/guardians
         StopCastingCharm();
         StopCastingBindSight();
+        UnsummonPetTemporaryIfAny();
         sOutdoorPvPMgr.HandlePlayerLeaveZone(this, m_zoneUpdateId);
     }
 
@@ -16694,6 +16695,9 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
 
     if(pet)
         sLog.outDebug("RemovePet %u, %u, %u", pet->GetEntry(), mode, returnreagent);
+
+    if(pet->m_removed)
+        return;
 
     if(returnreagent && (pet || m_temporaryUnsummonedPetNumber))
     {

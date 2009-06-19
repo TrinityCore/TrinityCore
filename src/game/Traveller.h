@@ -63,11 +63,11 @@ template<class T>
 inline uint32 Traveller<T>::GetTotalTrevelTimeTo(float x, float y, float z)
 {
     float dist = GetMoveDestinationTo(x,y,z);
-    float speed = 0.001f;
-    if (Speed() <= 0.0f)
+    float speed = Speed();;
+    if (speed <= 0.0f)
         return 0xfffffffe;  // almost infinity-unit should stop
     else
-        speed *= Speed();   // speed is in seconds so convert from second to millisecond
+        speed *= 0.001f;   // speed is in seconds so convert from second to millisecond
     return static_cast<uint32>(dist/speed);
 }
 
