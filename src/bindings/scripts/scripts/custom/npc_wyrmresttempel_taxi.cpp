@@ -12,8 +12,8 @@ bool GossipHello_npc_wyrmresttempel_middle_taxi(Player *player, Creature *_Creat
 {
 player->SetTaxiCheater(true);
 
-player->ADD_GOSSIP_ITEM(0, GOSSIP_UP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-player->ADD_GOSSIP_ITEM(0, GOSSIP_DOWN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_UP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DOWN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
         player->SEND_GOSSIP_MENU(12887,_Creature->GetGUID()); 
         
     return true;
@@ -39,8 +39,8 @@ bool GossipHello_npc_wyrmresttempel_bottom_taxi(Player *player, Creature *_Creat
 {
 player->SetTaxiCheater(true);
 
-player->ADD_GOSSIP_ITEM(0, GOSSIP_TOP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-player->ADD_GOSSIP_ITEM(0, GOSSIP_MIDDLE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TOP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_MIDDLE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
         player->SEND_GOSSIP_MENU(12713,_Creature->GetGUID());
         
     return true;
@@ -68,8 +68,8 @@ bool GossipHello_npc_wyrmresttempel_top_taxi(Player *player, Creature *_Creature
 {
 player->SetTaxiCheater(true);
 
-player->ADD_GOSSIP_ITEM(0, GOSSIP_BOTTOM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
-player->ADD_GOSSIP_ITEM(0, GOSSIP_ONEDOWN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
+player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BOTTOM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ONEDOWN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
         player->SEND_GOSSIP_MENU(12714,_Creature->GetGUID());
 
     return true;

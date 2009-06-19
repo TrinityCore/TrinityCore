@@ -699,7 +699,7 @@ CreatureAI* GetAI_mob_cyclone(Creature* _Creature)
 
 bool GossipHello_npc_grandmother(Player* player, Creature* _Creature)
 {
-    player->ADD_GOSSIP_ITEM(0, GOSSIP_GRANDMA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_GRANDMA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
     player->SEND_GOSSIP_MENU(8990, _Creature->GetGUID());
 
     return true;

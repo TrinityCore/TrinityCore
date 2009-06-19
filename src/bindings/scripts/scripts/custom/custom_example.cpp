@@ -239,7 +239,7 @@ bool GossipSelect_custom_example(Player *player, Creature *_Creature, uint32 sen
 //This function is called when the player opens the gossip menu
 bool GossipHello_custom_example(Player *player, Creature *_Creature)
 {
-    player->ADD_GOSSIP_ITEM( 0, GOSSIP_ITEM        , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM        , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
     player->PlayerTalkClass->SendGossipMenu(907,_Creature->GetGUID());
 
     return true;

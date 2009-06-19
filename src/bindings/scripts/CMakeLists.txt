@@ -66,6 +66,8 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/black_temple/def_black_temple.h
    scripts/zone/black_temple/illidari_council.cpp
    scripts/zone/black_temple/instance_black_temple.cpp
+   scripts/zone/blackfathom_depths/instance_blackfathom_deeps.cpp
+   scripts/zone/blackfathom_depths/def_blackfathom_deeps.h
    scripts/zone/blackrock_depths/blackrock_depths.cpp
    scripts/zone/blackrock_depths/boss_ambassador_flamelash.cpp
    scripts/zone/blackrock_depths/boss_anubshiah.cpp

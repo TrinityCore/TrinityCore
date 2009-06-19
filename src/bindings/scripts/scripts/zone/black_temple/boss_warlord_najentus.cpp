@@ -44,7 +44,7 @@ enum
     SPELL_IMPALING_SPINE            = 39837,
     SPELL_CREATE_NAJENTUS_SPINE     = 39956,
     SPELL_HURL_SPINE                = 39948,
-    SPELL_BERSERK                   = 45078,
+    SPELL_BERSERK                   = 26662,
 
     GOBJECT_SPINE                   = 185584,
 

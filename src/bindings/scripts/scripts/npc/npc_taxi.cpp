@@ -32,96 +32,96 @@ bool GossipHello_npc_taxi(Player *player, Creature *_Creature)
     switch(_Creature->GetEntry()) {
     case 17435: // Azuremyst Isle - Susurrus
         if (player->HasItemCount(23843,1,true))
-            player->ADD_GOSSIP_ITEM(0, "I am ready.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I am ready.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
         break;
     case 20903: // Netherstorm - Protectorate Nether Drake
         if(player->GetQuestStatus(10438) == QUEST_STATUS_INCOMPLETE && player->HasItemCount(29778,1))
-            player->ADD_GOSSIP_ITEM(0, "I'm ready to fly! Take me up, dragon!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I'm ready to fly! Take me up, dragon!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
         break;
     case 18725: // Old Hillsbrad Foothills - Brazen
-        player->ADD_GOSSIP_ITEM(0, "I am ready to go to Durnholde Keep.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I am ready to go to Durnholde Keep.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
         break;
     case 29154: // Stormwind City - Thargold Ironwing
-        player->ADD_GOSSIP_ITEM(0, "I'd like to take a flight around Stormwind Harbor.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I'd like to take a flight around Stormwind Harbor.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
         break;
     case 19409: // Hellfire Peninsula - Wing Commander Dabir'ee
         //Mission: The Murketh and Shaadraz Gateways
         if (player->GetQuestStatus(10146) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(0, "Fly me to Murketh and Shaadraz Gateways", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Fly me to Murketh and Shaadraz Gateways", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
 
         //Shatter Point
         if (!player->GetQuestRewardStatus(10340))
-            player->ADD_GOSSIP_ITEM(0, "Fly me to Shatter Point", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Fly me to Shatter Point", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
         break;
     case 20235: // Hellfire Peninsula - Gryphoneer Windbellow
         //Mission: The Abyssal Shelf || Return to the Abyssal Shelf
         if (player->GetQuestStatus(10163) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(10346) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(0, "Fly me to The Abyssal Shelf", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Fly me to The Abyssal Shelf", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
 
         //Go to the Front
         if (player->GetQuestStatus(10382) != QUEST_STATUS_NONE && !player->GetQuestRewardStatus(10382))
-            player->ADD_GOSSIP_ITEM(0, "Fly me to Honor Point", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Fly me to Honor Point", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);
         break;
     case 19401: // Hellfire Peninsula - Wing Commander Brack
         //Mission: The Murketh and Shaadraz Gateways
         if (player->GetQuestStatus(10129) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(0, "Fly me to Murketh and Shaadraz Gateways", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 8);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Fly me to Murketh and Shaadraz Gateways", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 8);
 
         //Mission: The Abyssal Shelf || Return to the Abyssal Shelf
         if (player->GetQuestStatus(10162) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(10347) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(0, "Fly me to The Abyssal Shelf", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 9);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Fly me to The Abyssal Shelf", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 9);
 
         //Spinebreaker Post
         if (player->GetQuestStatus(10242) == QUEST_STATUS_COMPLETE && !player->GetQuestRewardStatus(10242))
-            player->ADD_GOSSIP_ITEM(0, "Fly me to Spinebreaker Post", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 10);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Fly me to Spinebreaker Post", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 10);
         break;
     case 23413: // Blade's Edge Mountains - Skyguard Handler Irena
         if (player->GetReputationRank(1031) >= REP_HONORED)
-            player->ADD_GOSSIP_ITEM(0, "Fly me to Skettis please", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Fly me to Skettis please", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);
         break;
     case 25059: // Isle of Quel'Danas - Ayren Cloudbreaker
         if (player->GetQuestStatus(11532) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(11533) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(0, "Speaking of action, I've been ordered to undertake an air strike.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 12);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Speaking of action, I've been ordered to undertake an air strike.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 12);
 
         if (player->GetQuestStatus(11542) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(11543) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(0, "I need to intercept the Dawnblade reinforcements.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 13);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I need to intercept the Dawnblade reinforcements.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 13);
         break;
     case 25236: // Isle of Quel'Danas - Unrestrained Dragonhawk
         if (player->GetQuestStatus(11542) == QUEST_STATUS_COMPLETE || player->GetQuestStatus(11543) == QUEST_STATUS_COMPLETE)
-            player->ADD_GOSSIP_ITEM(0, "<Ride the dragonhawk to Sun's Reach>", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 14);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "<Ride the dragonhawk to Sun's Reach>", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 14);
         break;
     case 20162: // Netherstorm - Veronia
         //Behind Enemy Lines
         if (player->GetQuestStatus(10652) && !player->GetQuestRewardStatus(10652))
-            player->ADD_GOSSIP_ITEM(0, "Fly me to Manaforge Coruu please", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 15);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Fly me to Manaforge Coruu please", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 15);
         break;
     case 23415: // Terokkar Forest - Skyguard Handler Deesak
         if (player->GetReputationRank(1031) >= REP_HONORED)
-            player->ADD_GOSSIP_ITEM(0, "Fly me to Ogri'la please", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 16);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Fly me to Ogri'la please", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 16);
         break;
     case 27575: // Dragonblight - Lord Afrasastrasz
         // middle -> ground
-        player->ADD_GOSSIP_ITEM(0, "I would like to take a flight to the ground, Lord Of Afrasastrasz.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 17);
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to take a flight to the ground, Lord Of Afrasastrasz.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 17);
         // middle -> top
-        player->ADD_GOSSIP_ITEM(0, "My Lord, I must go to the upper floor of the temple.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 18);
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "My Lord, I must go to the upper floor of the temple.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 18);
         break;
     case 26443: // Dragonblight - Tariolstrasz //need to check if quests are required before gossip available (12123, 12124)
         // ground -> top
-        player->ADD_GOSSIP_ITEM(0, "My Lord, I must go to the upper floor of the temple.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 19);
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "My Lord, I must go to the upper floor of the temple.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 19);
         // ground -> middle
-        player->ADD_GOSSIP_ITEM(0, "Can you spare a drake to travel to Lord Of Afrasastrasz, in the middle of the temple?", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 20);
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Can you spare a drake to travel to Lord Of Afrasastrasz, in the middle of the temple?", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 20);
         break;
     case 26949: // Dragonblight - Torastrasza
         // top -> middle
-        player->ADD_GOSSIP_ITEM(0, "I would like to see Lord Of Afrasastrasz, in the middle of the temple.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 21);
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to see Lord Of Afrasastrasz, in the middle of the temple.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 21);
         // top -> ground
-        player->ADD_GOSSIP_ITEM(0, "Yes, Please. I would like to return to the ground floor of the temple.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 22);
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Yes, Please. I would like to return to the ground floor of the temple.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 22);
         break;
     case 23816: // Howling Fjord - Bat Handler Camille
         if (!player->GetQuestRewardStatus(11229))
-            player->ADD_GOSSIP_ITEM(0, "I need to fly to the Windrunner Official business!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 23);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I need to fly to the Windrunner Official business!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 23);
         if (player->GetQuestStatus(11170) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(0, "I need to commandeer a riding bat for special assignment for us.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 24);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I need to commandeer a riding bat for special assignment for us.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 24);
         break;
     }
 

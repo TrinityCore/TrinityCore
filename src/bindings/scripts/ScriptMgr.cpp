@@ -144,6 +144,8 @@ extern void AddSC_boss_illidari_council();
 extern void AddSC_instance_black_temple();
 
 //Blackfathom Depths
+extern void AddSC_instance_blackfathom_deeps();
+
 //Blackrock Depths
 extern void AddSC_blackrock_depths();
 extern void AddSC_boss_ambassador_flamelash();
@@ -1041,6 +1043,8 @@ void ScriptsInit(char const* cfg_file = "trinitycore.conf")
     AddSC_instance_black_temple();
 
     //Blackfathom Depths
+    AddSC_instance_blackfathom_deeps();
+
     //Blackrock Depths
     AddSC_blackrock_depths();
     AddSC_boss_ambassador_flamelash();

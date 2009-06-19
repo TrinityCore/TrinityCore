@@ -23,12 +23,12 @@ bool GossipHello_npc_demolisher_engineerer(Player *player, Creature *_creature)
         player->PrepareQuestMenu(_creature->GetGUID());
 
     if(player->HasAura(SPELL_CORPORAL))
-        player->ADD_GOSSIP_ITEM(0, "Build catapult.", GOSSIP_SENDER_MAIN,   GOSSIP_ACTION_INFO_DEF);
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Build catapult.", GOSSIP_SENDER_MAIN,   GOSSIP_ACTION_INFO_DEF);
     else if(player->HasAura(SPELL_LIEUTENANT))
     {
-        player->ADD_GOSSIP_ITEM(0, "Build catapult.", GOSSIP_SENDER_MAIN,   GOSSIP_ACTION_INFO_DEF);
-        player->ADD_GOSSIP_ITEM(0, "Build demolisher.", GOSSIP_SENDER_MAIN,   GOSSIP_ACTION_INFO_DEF+1);
-        player->ADD_GOSSIP_ITEM(0, "Build siege engine.", GOSSIP_SENDER_MAIN,   GOSSIP_ACTION_INFO_DEF+2);
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Build catapult.", GOSSIP_SENDER_MAIN,   GOSSIP_ACTION_INFO_DEF);
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Build demolisher.", GOSSIP_SENDER_MAIN,   GOSSIP_ACTION_INFO_DEF+1);
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Build siege engine.", GOSSIP_SENDER_MAIN,   GOSSIP_ACTION_INFO_DEF+2);
     }
 
     player->SEND_GOSSIP_MENU(_creature->GetNpcTextId(), _creature->GetGUID());

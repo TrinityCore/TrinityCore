@@ -107,7 +107,7 @@ bool GossipHello_npc_cairne_bloodhoof(Player *player, Creature *_Creature)
         player->PrepareQuestMenu( _Creature->GetGUID() );
 
     if( player->GetQuestStatus(925) == QUEST_STATUS_INCOMPLETE )
-        player->ADD_GOSSIP_ITEM( 0, GOSSIP_HCB, GOSSIP_SENDER_MAIN, GOSSIP_SENDER_INFO );
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HCB, GOSSIP_SENDER_MAIN, GOSSIP_SENDER_INFO );
 
     player->SEND_GOSSIP_MENU(7013, _Creature->GetGUID() );
 
