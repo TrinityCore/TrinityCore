@@ -18834,20 +18834,14 @@ bool Player::RewardPlayerAndGroupAtKill(Unit* pVictim)
 
 bool Player::IsAtGroupRewardDistance(WorldObject const* pRewardSource) const
 {
-    if(GetInstanceId() != pRewardSource->GetInstanceId())
+    const WorldObject* player = GetCorpse();
+    if(!player || isAlive())
+        player = this;
+    
+    if(player->GetMapId() != pRewardSource->GetMapId() || player->GetInstanceId() != pRewardSource->GetInstanceId())
         return false;
 
-    if(pRewardSource->GetDistance(this) <= sWorld.getConfig(CONFIG_GROUP_XP_DISTANCE))
-        return true;
-
-    if(isAlive())
-        return false;
-
-    Corpse* corpse = GetCorpse();
-    if(!corpse)
-        return false;
-
-    return pRewardSource->GetDistance(corpse) <= sWorld.getConfig(CONFIG_GROUP_XP_DISTANCE);
+    return pRewardSource->GetDistance(player) <= sWorld.getConfig(CONFIG_GROUP_XP_DISTANCE);
 }
 
 uint32 Player::GetBaseWeaponSkillValue (WeaponAttackType attType) const
