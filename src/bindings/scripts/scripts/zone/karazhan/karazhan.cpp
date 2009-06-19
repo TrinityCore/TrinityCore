@@ -381,13 +381,13 @@ bool GossipHello_npc_barnes(Player* player, Creature* _Creature)
     ScriptedInstance* pInstance = (_Creature->GetInstanceData());
     if(pInstance && (pInstance->GetData(DATA_MOROES_EVENT) >= DONE))
     {
-        player->ADD_GOSSIP_ITEM(0, OZ_GOSSIP1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, OZ_GOSSIP1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
         if (player->isGameMaster())
         {
-            player->ADD_GOSSIP_ITEM(5, OZ_GM_GOSSIP1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-            player->ADD_GOSSIP_ITEM(5, OZ_GM_GOSSIP2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-            player->ADD_GOSSIP_ITEM(5, OZ_GM_GOSSIP3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, OZ_GM_GOSSIP1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, OZ_GM_GOSSIP2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, OZ_GM_GOSSIP3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
         }
 
         if(!CAST_AI(npc_barnesAI, _Creature->AI())->RaidWiped)
@@ -404,7 +404,7 @@ bool GossipSelect_npc_barnes(Player *player, Creature *_Creature, uint32 sender,
     switch(action)
     {
         case GOSSIP_ACTION_INFO_DEF+1:
-            player->ADD_GOSSIP_ITEM(0, OZ_GOSSIP2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, OZ_GOSSIP2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
             player->SEND_GOSSIP_MENU(8971, _Creature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+2:
@@ -444,7 +444,7 @@ bool GossipHello_npc_berthold(Player* player, Creature* _Creature)
     ScriptedInstance* pInstance = (_Creature->GetInstanceData());
                                                             // Check if Shade of Aran is dead or not
     if(pInstance && (pInstance->GetData(DATA_SHADEOFARAN_EVENT) >= DONE))
-        player->ADD_GOSSIP_ITEM(0, GOSSIP_ITEM_TELEPORT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_TELEPORT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
     player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
     return true;

@@ -282,7 +282,7 @@ CreatureAI* GetAI_npc_daranelle(Creature *_Creature)
 bool GossipHello_npc_overseer_nuaar(Player *player, Creature *_Creature)
 {
     if (player->GetQuestStatus(10682) == QUEST_STATUS_INCOMPLETE)
-        player->ADD_GOSSIP_ITEM( 0, "Overseer, I am here to negotiate on behalf of the Cenarion Expedition.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Overseer, I am here to negotiate on behalf of the Cenarion Expedition.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
     player->SEND_GOSSIP_MENU(10532, _Creature->GetGUID());
 
@@ -306,7 +306,7 @@ bool GossipSelect_npc_overseer_nuaar(Player *player, Creature *_Creature, uint32
 bool GossipHello_npc_saikkal_the_elder(Player *player, Creature *_Creature)
 {
     if (player->GetQuestStatus(10980) == QUEST_STATUS_INCOMPLETE)
-        player->ADD_GOSSIP_ITEM( 0, "Yes... yes, it's me.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Yes... yes, it's me.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
     player->SEND_GOSSIP_MENU(10794, _Creature->GetGUID());
 
@@ -318,7 +318,7 @@ bool GossipSelect_npc_saikkal_the_elder(Player *player, Creature *_Creature, uin
     switch (action)
     {
         case GOSSIP_ACTION_INFO_DEF+1:
-            player->ADD_GOSSIP_ITEM( 0, "Yes elder. Tell me more of the book.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Yes elder. Tell me more of the book.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
             player->SEND_GOSSIP_MENU(10795, _Creature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+2:

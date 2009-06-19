@@ -42,7 +42,7 @@ bool GossipHello_npc_skorn_whitecloud(Player *player, Creature *_Creature)
         player->PrepareQuestMenu( _Creature->GetGUID() );
 
     if (!player->GetQuestRewardStatus(770))
-        player->ADD_GOSSIP_ITEM( 0, GOSSIP_SW, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF );
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SW, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF );
 
     player->SEND_GOSSIP_MENU(522,_Creature->GetGUID());
 

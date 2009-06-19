@@ -73,7 +73,7 @@ bool GossipHello_npc_innkeeper(Player *player, Creature *_Creature)
                 localizedEntry=LOCALE_TRICK_OR_TREAT_0;
         }
 
-        player->ADD_GOSSIP_ITEM(0, localizedEntry, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+HALLOWEEN_EVENTID);
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, localizedEntry, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+HALLOWEEN_EVENTID);
     }
 
     player->TalkedToCreature(_Creature->GetEntry(),_Creature->GetGUID());

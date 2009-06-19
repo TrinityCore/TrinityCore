@@ -470,7 +470,7 @@ CreatureAI* GetAI_npc_death_knight_initiate(Creature *_Creature)
 bool GossipHello_npc_death_knight_initiate(Player *player, Creature *_Creature)
 {
     if( player->GetQuestStatus(12733) == QUEST_STATUS_INCOMPLETE && _Creature->GetHealth() == _Creature->GetMaxHealth())
-        player->ADD_GOSSIP_ITEM(0, GOSSIP_DKI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DKI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
     player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(),_Creature->GetGUID());
     return true;

@@ -268,7 +268,7 @@ CreatureAI* GetAI_npc_engineer_spark_overgrind(Creature *_Creature)
 bool GossipHello_npc_engineer_spark_overgrind(Player *player, Creature *_Creature)
 {
     if( player->GetQuestStatus(QUEST_GNOMERCY) == QUEST_STATUS_INCOMPLETE )
-        player->ADD_GOSSIP_ITEM(0, GOSSIP_FIGHT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FIGHT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
     player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
     return true;

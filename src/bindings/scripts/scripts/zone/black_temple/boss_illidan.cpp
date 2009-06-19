@@ -1582,7 +1582,7 @@ bool GossipSelect_npc_akama_at_illidan(Player *player, Creature *_Creature, uint
 
 bool GossipHello_npc_akama_at_illidan(Player *player, Creature *_Creature)
 {
-    player->ADD_GOSSIP_ITEM(0, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
     player->SEND_GOSSIP_MENU(10465, _Creature->GetGUID());
 
     return true;

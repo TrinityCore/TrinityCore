@@ -276,7 +276,7 @@ struct TRINITY_DLL_DECL npc_pluckyAI : public ScriptedAI
 bool GossipHello_npc_plucky(Player *player, Creature *_Creature)
 {
     if(player->GetQuestStatus(QUEST_SCOOP) == QUEST_STATUS_INCOMPLETE)
-        player->ADD_GOSSIP_ITEM(0, GOSSIP_P, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_P, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
     player->SEND_GOSSIP_MENU(738, _Creature->GetGUID());
 
     return true;

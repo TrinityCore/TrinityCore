@@ -365,10 +365,18 @@
 						>
 					</File>
 				</Filter>
-				<Filter
-					Name="Blackfathom Depths"
-					>
-				</Filter>
+                <Filter
+                    Name="Blackfathom Depths"
+                    >
+                    <File
+                        RelativePath="..\scripts\zone\blackfathom_depths\instance_blackfathom_deeps.cpp"
+                        >
+                    </File>
+                    <File
+                        RelativePath="..\scripts\zone\blackfathom_depths\def_blackfathom_deeps.h"
+                        >
+                    </File>
+                </Filter>
 				<Filter
 					Name="Arathi Highlands"
 					>
