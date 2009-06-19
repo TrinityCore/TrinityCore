@@ -17793,7 +17793,8 @@ bool Player::BuyItemFromVendor(uint64 vendorguid, uint32 item, uint8 count, uint
                 {
                     if( bagguid == pBag->GetGUID() )
                     {
-                        bag = i;
+                        if(slot < pBag->GetBagSlot() && !pBag->GetItemByPos(slot))
+                            bag = i;
                         break;
                     }
                 }
