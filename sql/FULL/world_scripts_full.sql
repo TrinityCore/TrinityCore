@@ -232,6 +232,7 @@ UPDATE `creature_template` SET `ScriptName`='mob_shadowy_construct' WHERE `entry
 UPDATE `creature_template` SET `ScriptName`='mob_parasitic_shadowfiend' WHERE `entry`=23498;
 
 /* BLACKFATHOM DEPTHS */
+UPDATE `instance_template` SET `script`='instance_blackfathom_deeps' WHERE `map`=48;
 
 /* BLACKROCK DEPTHS */
 UPDATE `instance_template` SET `script`='instance_blackrock_depths' WHERE `map`=230;
