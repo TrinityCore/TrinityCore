@@ -1231,7 +1231,7 @@ void Spell::EffectDummy(uint32 i)
 
                     m_caster->CastSpell(m_caster, 30452, true, NULL);
                     return;
-                }                
+                }
             }
 
             //All IconID Check in there
@@ -2634,7 +2634,7 @@ void Spell::DoCreateItem(uint32 i, uint32 itemtype)
 
         // we succeeded in creating at least one item, so a levelup is possible
         player->UpdateCraftSkill(m_spellInfo->Id);
-    }       
+    }
 }
 
 void Spell::EffectCreateItem(uint32 i)
@@ -3998,7 +3998,7 @@ void Spell::EffectSummonPet(uint32 i)
     Pet* pet = owner->SummonPet(petentry, x, y, z, owner->GetOrientation(), SUMMON_PET, 0);
     if(!pet)
         return;
-        
+
     if(m_caster->GetTypeId() == TYPEID_UNIT)
     {
         if ( ((Creature*)m_caster)->isTotem() )
@@ -5522,23 +5522,23 @@ void Spell::EffectMomentMove(uint32 i)
       dist = sqrt((x-destx)*(x-destx) + (y-desty)*(y-desty));
       step = dist/10.0f;
     }
-    
+
     int j = 0;
     for(j; j<10 ;j++)
       {
-	if(fabs(z - destz) > 6)
-	  {
-	  destx -= step * cos(orientation);
-	  desty -= step * sin(orientation);
-	  ground = unitTarget->GetMap()->GetHeight(destx,desty,MAX_HEIGHT,true);
-	  floor = unitTarget->GetMap()->GetHeight(destx,desty,z, true);
-	  destz = fabs(ground - z) <= fabs(floor - z) ? ground:floor;
-	  }else
-	  break;
+    if(fabs(z - destz) > 6)
+      {
+      destx -= step * cos(orientation);
+      desty -= step * sin(orientation);
+      ground = unitTarget->GetMap()->GetHeight(destx,desty,MAX_HEIGHT,true);
+      floor = unitTarget->GetMap()->GetHeight(destx,desty,z, true);
+      destz = fabs(ground - z) <= fabs(floor - z) ? ground:floor;
+      }else
+      break;
       }
     if(j == 9)
       {
-	return;
+    return;
       }
 
     if(unitTarget->GetTypeId() == TYPEID_PLAYER)
