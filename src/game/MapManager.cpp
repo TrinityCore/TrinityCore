@@ -258,7 +258,7 @@ MapManager::Update(uint32 diff)
     uint32 i=0;
     MapMapType::iterator iter;
     std::vector<Map*> update_queue(i_maps.size());
-	omp_set_num_threads(sWorld.getConfig(CONFIG_NUMTHREADS));
+	int omp_set_num_threads(sWorld.getConfig(CONFIG_NUMTHREADS));
 	for(iter = i_maps.begin(), i=0;iter != i_maps.end(); ++iter, i++)
 		update_queue[i]=iter->second;		
 /*
