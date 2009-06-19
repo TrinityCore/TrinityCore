@@ -120,7 +120,7 @@ struct TRINITY_DLL_DECL boss_void_reaverAI : public ScriptedAI
             {
                 target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
                                                             //18 yard radius minimum
-                if(target && target->GetTypeId() == TYPEID_PLAYER && target->isAlive() && target->GetDistance2d(m_creature) >= 18)
+                if(target && target->GetTypeId() == TYPEID_PLAYER && target->isAlive() && !target->IsWithinDist(m_creature, 18, false))
                     target_list.push_back(target);
                 target = NULL;
             }

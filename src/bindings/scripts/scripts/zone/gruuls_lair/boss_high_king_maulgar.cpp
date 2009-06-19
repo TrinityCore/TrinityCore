@@ -683,7 +683,7 @@ struct TRINITY_DLL_DECL boss_krosh_firehandAI : public ScriptedAI
         }
 
         //GreaterFireball_Timer
-        if(GreaterFireball_Timer < diff || m_creature->GetDistance(m_creature->getVictim()) < 30)
+        if(GreaterFireball_Timer < diff || m_creature->IsWithinDist(m_creature->getVictim(), 30))
         {
             DoCast(m_creature->getVictim(), SPELL_GREATER_FIREBALL);
             GreaterFireball_Timer = 2000;
@@ -707,7 +707,7 @@ struct TRINITY_DLL_DECL boss_krosh_firehandAI : public ScriptedAI
             {
                 target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
                                                             //15 yard radius minimum
-                if(target && target->GetDistance2d(m_creature) < 15)
+                if(target && target->IsWithinDist(m_creature, 15,false))
                     target_list.push_back(target);
                 target = NULL;
             }

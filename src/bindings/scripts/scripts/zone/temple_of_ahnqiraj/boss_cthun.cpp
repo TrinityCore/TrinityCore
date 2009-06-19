@@ -708,7 +708,7 @@ struct TRINITY_DLL_DECL cthunAI : public Scripted_NoMovementAI
                             DoCast(pUnit, SPELL_DIGESTIVE_ACID, true);
 
                             //Check if player should be kicked from stomach
-                            if (pUnit->GetDistance(KICK_X, KICK_Y, KICK_Z) < 15)
+                            if (pUnit->IsWithinDist3d(KICK_X, KICK_Y, KICK_Z, 15.0f))
                             {
                                 //Teleport each player out
                                 DoTeleportPlayer(pUnit, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ()+10, rand()%6);

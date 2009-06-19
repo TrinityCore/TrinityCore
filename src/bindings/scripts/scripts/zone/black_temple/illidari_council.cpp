@@ -518,7 +518,7 @@ struct TRINITY_DLL_DECL boss_gathios_the_shattererAI : public boss_illidari_coun
             if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
             {
                 // is in ~10-40 yd range
-                if(m_creature->GetDistance2d(target) > 10 && m_creature->GetDistance2d(target) < 40)
+                if (m_creature->IsInRange(target, 10.0f, 40.0f, false))
                 {
                     DoCast(target, SPELL_HAMMER_OF_JUSTICE);
                     HammerOfJusticeTimer = 20000;

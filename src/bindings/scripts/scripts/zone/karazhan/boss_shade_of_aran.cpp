@@ -483,7 +483,7 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
                         continue;
 
                     Unit* pUnit = Unit::GetUnit(*m_creature, FlameWreathTarget[i]);
-                    if (pUnit && pUnit->GetDistance2d(FWTargPosX[i], FWTargPosY[i]) > 3)
+                    if (pUnit && !pUnit->IsWithinDist2d(FWTargPosX[i], FWTargPosY[i], 3))
                     {
                         pUnit->CastSpell(pUnit, 20476, true, 0, 0, m_creature->GetGUID());
                         pUnit->CastSpell(pUnit, 11027, true);

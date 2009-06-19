@@ -199,7 +199,7 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
             //dealdamege
             for(std::list<Unit*>::iterator i = tempUnitMap.begin(); i != tempUnitMap.end(); ++i)
             {
-                if(Cloud->GetDistance2d(*i)>= 6)
+                if(!Cloud->IsWithinDist(*i, 6, false))
                 {
                     Cloud->CastCustomSpell(*i, 43137, &bp0, NULL, NULL, true, 0, 0, m_creature->GetGUID());
                 }
@@ -274,8 +274,7 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
             m_creature->SetInFront(m_creature->getVictim());
             StaticDisruption_Timer = (10+rand()%8)*1000; // < 20s
 
-            /*float dist = m_creature->GetDistance(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
-            if (dist < 5.0f) dist = 5.0f;
+            /*if(float dist = m_creature->IsWithinDist3d(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 5.0f) dist = 5.0f;
             SDisruptAOEVisual_Timer = 1000 + floor(dist / 30 * 1000.0f);*/
         }else StaticDisruption_Timer -= diff;
 

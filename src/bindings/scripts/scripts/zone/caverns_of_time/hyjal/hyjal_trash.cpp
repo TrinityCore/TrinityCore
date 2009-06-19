@@ -1174,7 +1174,7 @@ struct mob_frost_wyrmAI : public hyjal_trashAI
         }
         if (!UpdateVictim())
             return;
-        if(m_creature->GetDistance(m_creature->getVictim()) >= 25){
+        if(!m_creature->IsWithinDist(m_creature->getVictim(), 25)){
             if(MoveTimer<diff)
             {
                 m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
@@ -1184,7 +1184,7 @@ struct mob_frost_wyrmAI : public hyjal_trashAI
 
         if(FrostBreathTimer<diff)
         {
-            if(m_creature->GetDistance(m_creature->getVictim()) < 25)
+            if(!m_creature->IsWithinDist(m_creature->getVictim(), 25))
             {
                 DoCast(m_creature->getVictim(),SPELL_FROST_BREATH);
                 m_creature->StopMoving();
@@ -1297,7 +1297,7 @@ struct mob_gargoyleAI : public hyjal_trashAI
         }
         if (!UpdateVictim())
             return;
-        if(m_creature->GetDistance(m_creature->getVictim()) >= 20 || forcemove)
+        if(!m_creature->IsWithinDist(m_creature->getVictim(), 20) || forcemove)
         {
             forcemove = false;
             if(forcemove)
@@ -1318,7 +1318,7 @@ struct mob_gargoyleAI : public hyjal_trashAI
         }
         if(StrikeTimer<diff)
         {
-            if(m_creature->GetDistance(m_creature->getVictim()) < 20)
+            if(m_creature->IsWithinDist(m_creature->getVictim(), 20))
             {
                 DoCast(m_creature->getVictim(),SPELL_GARGOYLE_STRIKE);
                 m_creature->StopMoving();

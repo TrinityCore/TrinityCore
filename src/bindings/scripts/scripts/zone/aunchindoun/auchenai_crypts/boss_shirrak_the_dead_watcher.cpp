@@ -86,7 +86,7 @@ struct TRINITY_DLL_DECL boss_shirrak_the_dead_watcherAI : public ScriptedAI
             Map::PlayerList const &PlayerList = map->GetPlayers();
             for(Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                 if (Player* i_pl = i->getSource())
-                    if (i_pl->isAlive() && (dist = i_pl->GetDistance(m_creature)) < 45)
+                    if (i_pl->isAlive() && (dist = i_pl->IsWithinDist(m_creature, 45)))
                     {
                         i_pl->RemoveAurasDueToSpell(SPELL_INHIBITMAGIC);
                         m_creature->AddAura(SPELL_INHIBITMAGIC, i_pl);

@@ -346,8 +346,7 @@ bool ScriptedAI::CanCast(Unit* Target, SpellEntry const *Spell, bool Triggered)
         return false;
 
     //Unit is out of range of this spell
-    if (me->GetDistance(Target) > me->GetSpellMaxRangeForTarget(Target, TempRange)
-        || me->GetDistance(Target) < me->GetSpellMinRangeForTarget(Target, TempRange))
+    if (me->IsInRange(Target,me->GetSpellMinRangeForTarget(Target, TempRange),me->GetSpellMaxRangeForTarget(Target, TempRange)))
         return false;
 
     return true;
@@ -568,7 +567,7 @@ void ScriptedAI::SetCombatMovement(bool CombatMove)
 {
     if( !m_creature->getVictim() && m_creature->canAttack(who) && ( m_creature->IsHostileTo( who )) && who->isInAccessiblePlaceFor(m_creature) )
     {
-        if (!m_creature->canFly() && m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
+        if (!m_creature->canFly() && !m_creature->IsWithinDist(who, CREATURE_Z_ATTACK_RANGE))
             return;
 
         float attackRadius = m_creature->GetAttackDistance(who);

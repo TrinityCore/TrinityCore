@@ -114,7 +114,7 @@ struct TRINITY_DLL_DECL npc_dragonflayer_forge_masterAI : public ScriptedAI
             temp = m_creature->FindNearestGameObject(entry_search[i],30);
             if(temp)
             {
-                if(diff > m_creature->GetDistance2d(temp))
+                if(m_creature->IsWithinDist(temp,diff,false))
                 {
                     near_f = i + 1;
                     diff = m_creature->GetDistance2d(temp);

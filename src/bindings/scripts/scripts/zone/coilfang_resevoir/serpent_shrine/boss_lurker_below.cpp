@@ -228,7 +228,7 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
              for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
              {
                  Player *target = i->getSource();
-                 if(target && target->isAlive() && m_creature->HasInArc((double)diff/20000*(double)M_PI*2,target) && m_creature->GetDistance(target) <= SPOUT_DIST && !target->IsInWater())
+                 if(target && target->isAlive() && m_creature->HasInArc((double)diff/20000*(double)M_PI*2,target) && m_creature->IsWithinDist(target, SPOUT_DIST) && !target->IsInWater())
                      DoCast(target,SPELL_SPOUT,true);//only knock back palyers in arc, in 100yards, not in water
              }
          }

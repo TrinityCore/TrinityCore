@@ -146,7 +146,7 @@ struct TRINITY_DLL_DECL boss_nazanAI : public ScriptedAI
             if(Turn_Timer < diff)
             {
                 uint32 waypoint = (Fly_Timer/10000)%2;
-                if(m_creature->GetDistance(VazrudenRing[waypoint][0],VazrudenRing[waypoint][1],VazrudenRing[waypoint][2]) > 5)
+                if(m_creature->IsWithinDist3d(VazrudenRing[waypoint][0],VazrudenRing[waypoint][1],VazrudenRing[waypoint][2], 5))
                     m_creature->GetMotionMaster()->MovePoint(0,VazrudenRing[waypoint][0],VazrudenRing[waypoint][1],VazrudenRing[waypoint][2]);
                 Turn_Timer = 10000;
             }else Turn_Timer -= diff;
@@ -366,7 +366,7 @@ struct TRINITY_DLL_DECL boss_vazruden_the_heraldAI : public ScriptedAI
         case 1: // go to the middle and begin the fight
             if(check < diff)
             {
-                if(m_creature->GetDistance(VazrudenMiddle[0],VazrudenMiddle[1],VazrudenMiddle[2])>5)
+                if(!m_creature->IsWithinDist3d(VazrudenMiddle[0],VazrudenMiddle[1],VazrudenMiddle[2],5))
                 {
                     m_creature->GetMotionMaster()->Clear();
                     m_creature->GetMotionMaster()->MovePoint(0,VazrudenMiddle[0],VazrudenMiddle[1],VazrudenMiddle[2]);
