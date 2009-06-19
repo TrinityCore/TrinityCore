@@ -45,6 +45,7 @@ vmaps
 ZThread
 g3dlite
 readline
+gomp
 ${SCRIPT_LIB}
 ${MYSQL_LIBRARIES}
 ${POSTGRE_LIBS}

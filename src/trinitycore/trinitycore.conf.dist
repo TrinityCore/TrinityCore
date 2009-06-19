@@ -188,6 +188,10 @@ EAIErrorLevel = 2
 #        Default: 1 (permit addon channel)
 #                 0 (do not permit addon channel)
 #
+#    MapUpdate.Threads
+#	Number of threads to update maps.
+#	Default: 1
+#
 ###################################################################################################################
 
 UseProcessors = 0
@@ -214,6 +218,7 @@ LogDB.Opt.ClearInterval = 10
 LogDB.Opt.ClearTime = 1209600
 MaxCoreStuckTime = 0
 AddonChannel = 1
+MapUpdate.Threads = 1
 
 ###################################################################################################################
 # SERVER LOGGING
