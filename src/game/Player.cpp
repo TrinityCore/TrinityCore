@@ -18834,6 +18834,9 @@ bool Player::RewardPlayerAndGroupAtKill(Unit* pVictim)
 
 bool Player::IsAtGroupRewardDistance(WorldObject const* pRewardSource) const
 {
+    if(GetInstanceId() != pRewardSource->GetInstanceId())
+        return false;
+
     if(pRewardSource->GetDistance(this) <= sWorld.getConfig(CONFIG_GROUP_XP_DISTANCE))
         return true;
 
