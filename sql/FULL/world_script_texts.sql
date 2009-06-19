@@ -999,6 +999,7 @@ INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content
 (-1543014, 'Die, weakling!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 10282, 1, 0, 0, 'omor SAY_KILL_1'),
 (-1543015, 'It is... not over.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 10284, 1, 0, 0, 'omor SAY_DIE'),
 (-1543016, 'I am victorious!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 10283, 1, 0, 0, 'omor SAY_WIPE'),
+
 (-1543017, 'You have faced many challenges, pity they were all in vain. Soon your people will kneel to my lord!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 10292, 1, 0, 0, 'vazruden SAY_INTRO'),
 (-1543018, 'Is there no one left to test me?', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 10293, 1, 0, 0, 'vazruden SAY_WIPE'),
 (-1543019, 'Your time is running out!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 10294, 1, 0, 0, 'vazruden SAY_AGGRO_1'),

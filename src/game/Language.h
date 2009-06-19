@@ -854,7 +854,16 @@ enum TrinityStrings
     LANG_COMMAND_PLAYED_TO_ALL          = 5009,
     LANG_NPCINFO_LINKGUID               = 5010,
     LANG_TELEPORTED_TO_BY_CONSOLE       = 5011,
-    // Room for more Trinity strings      5012-9999
+    // for command lookup map
+    LANG_COMMAND_NOMAPFOUND             = 5012,
+    LANG_CONTINENT                      = 5013,
+    LANG_INSTANCE                       = 5014,
+    LANG_BATTLEGROUND                   = 5015,
+    LANG_ARENA                          = 5016,
+    LANG_RAID                           = 5017,
+    LANG_HEROIC                         = 5018,
+    LANG_MOUNTABLE                      = 5019,
+    // Room for more Trinity strings      5020-9999
     // Used for GM Announcements
     LANG_GM_BROADCAST                    = 6613,
     LANG_GM_NOTIFY                       = 6614,
@@ -929,7 +938,7 @@ enum TrinityStrings
     LANG_OPVP_EP_FLIGHT_CGT             = 10053,
     LANG_OPVP_ZM_GOSSIP_ALLIANCE        = 10054,
     LANG_OPVP_ZM_GOSSIP_HORDE           = 10055,
-        
+
     // Use for custom patches             11000-11999
 
     // NOT RESERVED IDS                   12000-1999999999
