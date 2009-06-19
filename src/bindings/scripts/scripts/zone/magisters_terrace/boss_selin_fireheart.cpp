@@ -230,10 +230,7 @@ struct TRINITY_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
         DoScriptText(SAY_DEATH, m_creature);
 
         if(!pInstance)
-        {
-            error_log(ERROR_INST_DATA);
             return;
-        }
 
         pInstance->SetData(DATA_SELIN_EVENT, DONE);         // Encounter complete!
 
