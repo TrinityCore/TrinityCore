@@ -160,11 +160,16 @@ void Vehicle::RemoveAllPassengers()
         {
             if(passenger->GetTypeId() == TYPEID_UNIT && ((Creature*)passenger)->isVehicle())
                 ((Vehicle*)passenger)->RemoveAllPassengers();
+            if(!passenger->m_Vehicle || passenger->m_Vehicle != this)
+            {
+                sLog.outCrash("Vehicle %u has invalid passenger %u.", GetEntry(), passenger->GetEntry());
+            }
             passenger->ExitVehicle();
             if(itr->second.passenger)
             {
-                sLog.outCrash("Vehicle %u cannot remove passenger %u.", GetEntry(), itr->second.passenger->GetEntry());
-                assert(!itr->second.passenger);
+                sLog.outCrash("Vehicle %u cannot remove passenger %u. %u is still on it.", GetEntry(), passenger->GetEntry(), itr->second.passenger->GetEntry());
+                //assert(!itr->second.passenger);
+                itr->second.passenger = NULL;
             }
         }
 }
