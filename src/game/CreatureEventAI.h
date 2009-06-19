@@ -611,7 +611,7 @@ class TRINITY_DLL_SPEC CreatureEventAI : public CreatureAI
         uint8 Phase;                                        //Current phase, max 32 phases
         bool CombatMovementEnabled;                         //If we allow targeted movment gen (movement twoards top threat)
         bool MeleeEnabled;                                  //If we allow melee auto attack
-        uint32 AttackDistance;                              //Distance to attack from
+        float AttackDistance;                               //Distance to attack from
         float AttackAngle;                                  //Angle of attack
 };
 #endif
