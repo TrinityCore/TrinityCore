@@ -640,7 +640,7 @@ struct TRINITY_DLL_DECL mob_enchanted_elementalAI : public ScriptedAI
             {
                 m_creature->GetMotionMaster()->MovePoint(0, x, y, z);
             }
-            if (phase == 1 && m_creature->GetDistance(x,y,z) < 0.1)
+            if (phase == 1 && m_creature->IsWithinDist3d(x,y,z, 0.1))
             {
                 phase = 2;
             }
@@ -652,7 +652,7 @@ struct TRINITY_DLL_DECL mob_enchanted_elementalAI : public ScriptedAI
             if (phase == 3)
             {
                 m_creature->GetMotionMaster()->MovePoint(0, MIDDLE_X, MIDDLE_Y, MIDDLE_Z);
-                if(m_creature->GetDistance(MIDDLE_X, MIDDLE_Y, MIDDLE_Z) < 3)
+                if(m_creature->IsWithinDist3d(MIDDLE_X, MIDDLE_Y, MIDDLE_Z, 3))
                 {
                     SpellEntry *spell = GET_SPELL(SPELL_SURGE);
                     if( spell )

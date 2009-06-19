@@ -259,7 +259,7 @@ struct TRINITY_DLL_DECL mob_towering_infernalAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit *who)
     {
-        if (m_creature->GetDistance(who) <= 50 && !m_creature->isInCombat() && m_creature->IsHostileTo(who))
+        if (m_creature->IsWithinDist(who, 50) && !m_creature->isInCombat() && m_creature->IsHostileTo(who))
             AttackStart(who);
     }
 

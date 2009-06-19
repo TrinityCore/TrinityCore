@@ -472,12 +472,12 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
             //ChaosBlast_Timer
             if (!m_creature->getVictim())
                 return;
-            if(m_creature->GetDistance(m_creature->getVictim()) < 30)
+            if(m_creature->IsWithinDist(m_creature->getVictim(), 30))
                 m_creature->StopMoving();
             if(ChaosBlast_Timer < diff)
             {
                 // will cast only when in range of spell
-                if(m_creature->GetDistance(m_creature->getVictim()) < 30)
+                if(m_creature->IsWithinDist(m_creature->getVictim(), 30))
                 {
                     //m_creature->CastSpell(m_creature->getVictim(), SPELL_CHAOS_BLAST, true);
                     int damage = 100;
@@ -618,13 +618,13 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blind_demonformAI : public ScriptedAI
         if (!UpdateVictim() )
             return;
         //ChaosBlast_Timer
-        if(m_creature->GetDistance(m_creature->getVictim()) < 30)
+        if(m_creature->IsWithinDist(m_creature->getVictim(), 30))
             m_creature->StopMoving();
 
         if(ChaosBlast_Timer < diff)
          {
             // will cast only when in range od spell
-            if(m_creature->GetDistance(m_creature->getVictim()) < 30)
+            if(m_creature->IsWithinDist(m_creature->getVictim(), 30))
             {
                 //m_creature->CastSpell(m_creature->getVictim(),SPELL_CHAOS_BLAST,true);
                 int damage = 100;

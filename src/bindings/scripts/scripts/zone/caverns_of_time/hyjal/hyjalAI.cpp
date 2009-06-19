@@ -1024,7 +1024,7 @@ void hyjalAI::WaypointReached(uint32 i)
             {
                 if((*itr) && (*itr)->isAlive() && (*itr) != m_creature && (*itr)->GetEntry() != JAINA)
                 {
-                    if((*itr)->GetDistance(m_creature) >= 60)
+                    if(!(*itr)->IsWithinDist(m_creature, 60))
                         (*itr)->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
                     float x, y, z;
                     (*itr)->SetDefaultMovementType(IDLE_MOTION_TYPE);

@@ -141,9 +141,9 @@ struct TRINITY_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
             pCrystal = Unit::GetUnit(*m_creature, *itr);
             if (pCrystal && pCrystal->isAlive())
             {
-                if (!ShortestDistance || (ShortestDistance > m_creature->GetDistance2d(pCrystal)))
+                // select nearest
+                if(!CrystalChosen || m_creature->GetDistanceOrder(pCrystal, CrystalChosen, false))
                 {
-                    ShortestDistance = m_creature->GetDistance2d(pCrystal);
                     CrystalGUID = pCrystal->GetGUID();
                     CrystalChosen = pCrystal;               // Store a copy of pCrystal so we don't need to recreate a pointer to closest crystal for the movement and yell.
                 }

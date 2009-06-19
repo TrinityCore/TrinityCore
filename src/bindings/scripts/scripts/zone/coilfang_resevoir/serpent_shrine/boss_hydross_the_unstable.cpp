@@ -267,7 +267,7 @@ struct TRINITY_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
             //PosCheck_Timer
             if (PosCheck_Timer < diff)
             {
-                if (m_creature->GetDistance2d(HYDROSS_X, HYDROSS_Y) < SWITCH_RADIUS)
+                if (m_creature->IsWithinDist2d(HYDROSS_X, HYDROSS_Y, SWITCH_RADIUS))
                 {
                     // switch to clean form
                     m_creature->SetDisplayId( MODEL_CLEAN);
@@ -334,7 +334,7 @@ struct TRINITY_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
             //PosCheck_Timer
             if (PosCheck_Timer < diff)
             {
-                if (m_creature->GetDistance2d(HYDROSS_X, HYDROSS_Y) >= SWITCH_RADIUS)
+                if (!m_creature->IsWithinDist2d(HYDROSS_X, HYDROSS_Y, SWITCH_RADIUS))
                 {
                     // switch to corrupted form
                     m_creature->SetDisplayId( MODEL_CORRUPT);

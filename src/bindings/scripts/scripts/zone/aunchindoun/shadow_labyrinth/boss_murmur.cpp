@@ -155,7 +155,7 @@ struct TRINITY_DLL_DECL boss_murmurAI : public Scripted_NoMovementAI
                 std::list<HostilReference*>& m_threatlist = m_creature->getThreatManager().getThreatList();
                 for(std::list<HostilReference*>::iterator i = m_threatlist.begin(); i != m_threatlist.end(); ++i)
                     if(Unit* target = Unit::GetUnit((*m_creature),(*i)->getUnitGuid()))
-                        if(target->isAlive() && m_creature->GetDistance2d(target) > 35)
+                        if(target->isAlive() && !m_creature->IsWithinDist(target, 35, false))
                             DoCast(target, SPELL_THUNDERING_STORM, true);
                 ThunderingStorm_Timer = 15000;
             }else ThunderingStorm_Timer -= diff;

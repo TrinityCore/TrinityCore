@@ -267,7 +267,7 @@ void npc_unworthy_initiateAI::UpdateAI(const uint32 diff)
                 temp_prison = m_creature->FindNearestGameObject(acherus_soul_prison[i],30);
                 if(temp_prison)
                 {
-                    if(dist == 99.0f || dist > m_creature->GetDistance2d(temp_prison))
+                    if(dist == 99.0f || m_creature->IsWithinDist(temp_prison, dist, false))
                     {
                         temp_prison->GetPosition(x, y, z);
                         dist = m_creature->GetDistance2d(temp_prison);

@@ -266,7 +266,7 @@ struct TRINITY_DLL_DECL boss_attumenAI : public ScriptedAI
                 for(std::list<HostilReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                 {
                     target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
-                    if(target && target->GetDistance2d(m_creature) > 5)
+                    if (target && !target->IsWithinDist(m_creature, ATTACK_DISTANCE, false))
                         target_list.push_back(target);
                     target = NULL;
                 }

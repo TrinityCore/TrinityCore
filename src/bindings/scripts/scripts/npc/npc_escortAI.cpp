@@ -152,7 +152,7 @@ void npc_escortAI::UpdateAI(const uint32 diff)
     {
         Unit* p = Unit::GetUnit(*m_creature, PlayerGUID);
 
-        if (DespawnAtFar && (!p || m_creature->GetDistance(p) > GetMaxPlayerDistance()))
+        if (DespawnAtFar && (!p || !m_creature->IsWithinDist(p,GetMaxPlayerDistance())))
         {
             JustDied(m_creature);
             IsBeingEscorted = false;

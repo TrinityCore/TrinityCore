@@ -148,7 +148,7 @@ struct TRINITY_DLL_DECL mob_ashtongue_sorcererAI : public ScriptedAI
             Creature* Shade = Unit::GetCreature((*m_creature), ShadeGUID);
             if(Shade && Shade->isAlive() && m_creature->isAlive())
             {
-                if(m_creature->GetDistance2d(Shade) < 20)
+                if(m_creature->IsWithinDist(Shade, 20,false))
                 {
                     m_creature->GetMotionMaster()->Clear(false);
                     m_creature->GetMotionMaster()->MoveIdle();

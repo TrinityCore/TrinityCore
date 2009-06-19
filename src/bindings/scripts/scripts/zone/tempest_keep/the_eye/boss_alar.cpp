@@ -270,8 +270,8 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
                         {
                             m_creature->RemoveAurasDueToSpell(SPELL_DIVE_BOMB_VISUAL);
                             m_creature->CastSpell(target, SPELL_DIVE_BOMB, true);
-                            float dist = m_creature->GetDistance(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
-                            if (dist < 5.0f) dist = 5.0f;
+                            float dist;
+                            if (m_creature->IsWithinDist3d(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 5.0f)) dist = 5.0f;
                             WaitTimer = 1000 + floor(dist / 80 * 1000.0f);
                             m_creature->Relocate(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
                             m_creature->StopMoving();
