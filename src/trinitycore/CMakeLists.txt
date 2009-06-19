@@ -43,6 +43,7 @@ trinityauth
 trinityconfig
 vmaps
 ZThread
+termcap
 g3dlite
 readline
 gomp

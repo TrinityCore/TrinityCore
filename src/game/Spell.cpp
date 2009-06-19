@@ -3251,6 +3251,11 @@ void Spell::SendSpellGo()
     //sLog.outDebug("Sending SMSG_SPELL_GO id=%u", m_spellInfo->Id);
 
     uint32 castFlags = CAST_FLAG_UNKNOWN3;
+    
+    // triggered spells with spell visual != 0
+    if(m_IsTriggeredSpell || m_triggeredByAuraSpell)
+        castFlags |= CAST_FLAG_UNKNOWN0; 
+   
     if(m_spellInfo->Attributes & SPELL_ATTR_REQ_AMMO)
         castFlags |= CAST_FLAG_AMMO;                        // arrows/bullets visual
     if ((m_caster->GetTypeId() == TYPEID_PLAYER ||

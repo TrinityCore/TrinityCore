@@ -7,6 +7,13 @@ build/
 *.orig
 *.rej
 *~
+.git/
+win/VC90/*/
+src/bindings/scripts/VC90/*/
+src/mangosd/
+src/realmd/
+*.*-*
+*
 
 # use regexp syntax.
 syntax: regexp
