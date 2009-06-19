@@ -5646,10 +5646,12 @@ bool Player::SetPosition(float x, float y, float z, float orientation, bool tele
     //    mover->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TURNING);
     //AURA_INTERRUPT_FLAG_JUMP not sure
 
-    if(GetOrientation() != orientation)
+    bool turn = (GetOrientation() != orientation);
+    bool move2d = (teleport || GetPositionX() != x || GetPositionY() != y);
+
+    if(turn)
         RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TURNING);
 
-    bool move2d = (teleport || GetPositionX() != x || GetPositionY() != y);
     if(move2d || GetPositionZ() != z)
     {
         RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOVE);
@@ -5668,6 +5670,10 @@ bool Player::SetPosition(float x, float y, float z, float orientation, bool tele
         UpdateUnderwaterState(GetMap(), x, y, z);
 
         CheckExploreSystem();
+    }
+    else if(turn)
+    {
+        SetOrientation(orientation);
     }
 
     return true;
