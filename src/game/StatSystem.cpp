@@ -881,10 +881,10 @@ void Creature::UpdateDamagePhysical(WeaponAttackType attType)
     float weapon_mindamage = GetWeaponDamageRange(attType, MINDAMAGE);
     float weapon_maxdamage = GetWeaponDamageRange(attType, MAXDAMAGE);
 
-    float base_value  = GetModifierValue(unitMod, BASE_VALUE)
-        + (weapon_mindamage + weapon_maxdamage)
-        * GetTotalAttackPowerValue(attType) / (getLevel() * 30);
-    //float base_value  = GetModifierValue(unitMod, BASE_VALUE) + GetTotalAttackPowerValue(attType);
+    //float base_value  = GetModifierValue(unitMod, BASE_VALUE)
+    //    + (weapon_mindamage + weapon_maxdamage)
+    //    * GetTotalAttackPowerValue(attType) / (getLevel() * 30);
+    float base_value  = GetModifierValue(unitMod, BASE_VALUE) + GetTotalAttackPowerValue(attType);
     float base_pct    = GetModifierValue(unitMod, BASE_PCT);
     float total_value = GetModifierValue(unitMod, TOTAL_VALUE);
     float total_pct   = GetModifierValue(unitMod, TOTAL_PCT);
