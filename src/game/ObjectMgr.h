@@ -845,7 +845,7 @@ class ObjectMgr
         GM_Ticket *GetGMTicket(uint64 ticketGuid)
         {
             for(GmTicketList::const_iterator i = m_GMTicketList.begin(); i != m_GMTicketList.end(); ++i)
-                if((*i) && (*i)->guid == ticketGuid)
+                if((*i) && (*i)->guid == ticketGuid && (*i)->closed == 0)
                     return (*i);
                     
             return NULL;
@@ -853,7 +853,7 @@ class ObjectMgr
         GM_Ticket *GetGMTicketByPlayer(uint64 playerGuid)
         {
             for(GmTicketList::const_iterator i = m_GMTicketList.begin(); i != m_GMTicketList.end(); ++i)
-                if((*i) && (*i)->playerGuid == playerGuid)
+                if((*i) && (*i)->playerGuid == playerGuid && (*i)->closed == 0)
                     return (*i);
                     
             return NULL;        
