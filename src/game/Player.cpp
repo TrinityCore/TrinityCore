@@ -16694,10 +16694,12 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
         pet = GetPet();
 
     if(pet)
+    {
         sLog.outDebug("RemovePet %u, %u, %u", pet->GetEntry(), mode, returnreagent);
 
-    if(pet->m_removed)
-        return;
+        if(pet->m_removed)
+            return;
+    }
 
     if(returnreagent && (pet || m_temporaryUnsummonedPetNumber))
     {
