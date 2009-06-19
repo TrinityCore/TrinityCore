@@ -39,8 +39,17 @@ Bag::Bag( ): Item()
 Bag::~Bag()
 {
     for(uint8 i = 0; i < MAX_BAG_SIZE; ++i)
-        if (m_bagslot[i])
+        if (Item *item = m_bagslot[i])
+        {
+            if(item->IsInWorld())
+            {
+                sLog.outCrash("Item %u (slot %u, bag slot %u) in bag %u (slot %u, bag slot %u, m_bagslot %u) is to be deleted but is still in world.",
+                    item->GetEntry(), (uint32)item->GetSlot(), (uint32)item->GetBagSlot(),
+                    GetEntry(), (uint32)GetSlot(), (uint32)GetBagSlot(), (uint32)i);
+                item->RemoveFromWorld();
+            }
             delete m_bagslot[i];
+        }
 }
 
 void Bag::AddToWorld()
