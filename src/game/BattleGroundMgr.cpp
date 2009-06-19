@@ -396,6 +396,7 @@ void BattleGroundQueue::AnnounceWorld(GroupQueueInfo *ginfo, const uint64& playe
             uint32 qHorde = 0;
             uint32 qAlliance = 0;
             uint32 q_min_level = (queue_id + 1) * 10;
+            uint32 q_max_level = std::max(q_min_level + 10, sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL));
             GroupsQueueType::const_iterator itr;
             for(itr = m_QueuedGroups[queue_id][BG_QUEUE_NORMAL_ALLIANCE].begin(); itr != m_QueuedGroups[queue_id][BG_QUEUE_NORMAL_ALLIANCE].end(); ++itr)
                 if (!(*itr)->IsInvitedToBGInstanceGUID)
@@ -408,13 +409,13 @@ void BattleGroundQueue::AnnounceWorld(GroupQueueInfo *ginfo, const uint64& playe
             if (sWorld.getConfig(CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_PLAYERONLY))
             {
                 ChatHandler(plr).PSendSysMessage(LANG_BG_QUEUE_ANNOUNCE_SELF,
-                    bgName, q_min_level, q_min_level + 10, qAlliance, MinPlayers, qHorde, MinPlayers);
+                    bgName, q_min_level, q_max_level, qAlliance, MinPlayers, qHorde, MinPlayers);
             }
             // System message
             else
             {
                 sWorld.SendWorldText(LANG_BG_QUEUE_ANNOUNCE_WORLD,
-                    bgName, q_min_level, q_min_level + 10, qAlliance, MinPlayers, qHorde, MinPlayers);
+                    bgName, q_min_level, q_max_level, qAlliance, MinPlayers, qHorde, MinPlayers);
             }
         }
     }
