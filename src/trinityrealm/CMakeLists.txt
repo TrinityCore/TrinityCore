@@ -38,6 +38,7 @@ trinityauth
 trinityconfig
 ZThread
 zlib
+gomp
 ${SSLLIB}
 ${MYSQL_LIBRARIES}
 ${OSX_LIBS}
