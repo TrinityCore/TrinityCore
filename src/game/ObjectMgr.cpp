@@ -785,6 +785,8 @@ void ObjectMgr::LoadCreatureTemplates()
             else
                 const_cast<CreatureInfo*>(cInfo)->scale = 1.0f;
         }
+
+        const_cast<CreatureInfo*>(cInfo)->dmg_multiplier *= Creature::_GetDamageMod(cInfo->rank);
     }
 }
 
