@@ -176,7 +176,7 @@ struct TRINITY_DLL_DECL mob_wisp_invisAI : public ScriptedAI
         if (!who || Creaturetype != 1 || !who->isTargetableForAttack())
             return;
 
-        if (m_creature->GetDistance2d(who) < 0.1 && !who->HasAura(SPELL_SQUASH_SOUL))
+        if (m_creature->IsWithinDist(who, 0.1, false) && !who->HasAura(SPELL_SQUASH_SOUL))
             DoCast(who,SPELL_SQUASH_SOUL);
     }
 

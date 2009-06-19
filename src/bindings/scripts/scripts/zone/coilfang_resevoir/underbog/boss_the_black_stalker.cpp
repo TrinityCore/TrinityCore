@@ -99,7 +99,7 @@ struct TRINITY_DLL_DECL boss_the_black_stalkerAI : public ScriptedAI
         {
             float x,y,z,o;
             m_creature->GetHomePosition(x,y,z,o);
-            if(m_creature->GetDistance(x,y,z) > 60)
+            if(!m_creature->IsWithinDist3d(x,y,z, 60))
             {
                 EnterEvadeMode();
                 return;

@@ -345,8 +345,8 @@ struct TRINITY_DLL_DECL mob_rizzle_sprysprocketAI : public ScriptedAI
                 Despawn();
                 return;
             }
-            float dist = m_creature->GetDistance(player);
-            if(dist < 10 && m_creature->GetPositionX() > player->GetPositionX() && !Reached)
+
+            if(m_creature->IsWithinDist(player, 10) && m_creature->GetPositionX() > player->GetPositionX() && !Reached)
             {
                 DoScriptText(SAY_RIZZLE_FINAL, m_creature);
                 m_creature->SetUInt32Value(UNIT_NPC_FLAGS, 1);

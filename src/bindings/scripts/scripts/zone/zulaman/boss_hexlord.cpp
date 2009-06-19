@@ -339,7 +339,7 @@ struct TRINITY_DLL_DECL boss_hex_lord_malacrassAI : public ScriptedAI
 
         if(ResetTimer < diff)
         {
-            if(m_creature->GetDistance(119.223,1035.45,29.4481) <= 10)
+            if(m_creature->IsWithinDist3d(119.223,1035.45,29.4481, 10))
             {
                 EnterEvadeMode();
                 return;
