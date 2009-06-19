@@ -1395,11 +1395,12 @@ void Creature::SelectLevel(const CreatureInfo *cinfo)
 
     uint32 attackpower = cinfo->attackpower * level / 60;
     uint32 rangedattackpower = cinfo->rangedattackpower * level / 60;
-    SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg + attackpower) * damagemod);
+    damagemod *= 0.75f;
+    SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg + attackpower/2) * damagemod);
     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg + attackpower) * damagemod);
-    SetBaseWeaponDamage(OFF_ATTACK, MINDAMAGE, (cinfo->mindmg + attackpower) * damagemod);
+    SetBaseWeaponDamage(OFF_ATTACK, MINDAMAGE, (cinfo->mindmg + attackpower/2) * damagemod);
     SetBaseWeaponDamage(OFF_ATTACK, MAXDAMAGE, (cinfo->maxdmg + attackpower) * damagemod);
-    SetBaseWeaponDamage(RANGED_ATTACK, MINDAMAGE, (cinfo->minrangedmg + rangedattackpower) * damagemod);
+    SetBaseWeaponDamage(RANGED_ATTACK, MINDAMAGE, (cinfo->minrangedmg + rangedattackpower/2) * damagemod);
     SetBaseWeaponDamage(RANGED_ATTACK, MAXDAMAGE, (cinfo->maxrangedmg + rangedattackpower) * damagemod);
 
     // this value is not accurate, but should be close to the real value
