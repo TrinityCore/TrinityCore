@@ -1393,12 +1393,14 @@ void Creature::SelectLevel(const CreatureInfo *cinfo)
     // damage
     float damagemod = _GetDamageMod(rank);
 
-    SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg + cinfo->attackpower) * damagemod);
-    SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg + cinfo->attackpower) * damagemod);
-    SetBaseWeaponDamage(OFF_ATTACK, MINDAMAGE, (cinfo->mindmg + cinfo->attackpower) * damagemod);
-    SetBaseWeaponDamage(OFF_ATTACK, MAXDAMAGE, (cinfo->maxdmg + cinfo->attackpower) * damagemod);
-    SetBaseWeaponDamage(RANGED_ATTACK, MINDAMAGE, (cinfo->minrangedmg + cinfo->rangedattackpower) * damagemod);
-    SetBaseWeaponDamage(RANGED_ATTACK, MAXDAMAGE, (cinfo->maxrangedmg + cinfo->rangedattackpower) * damagemod);
+    uint32 attackpower = cinfo->attackpower * level / 60;
+    uint32 rangedattackpower = cinfo->rangedattackpower * level / 60;
+    SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg + attackpower) * damagemod);
+    SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg + attackpower) * damagemod);
+    SetBaseWeaponDamage(OFF_ATTACK, MINDAMAGE, (cinfo->mindmg + attackpower) * damagemod);
+    SetBaseWeaponDamage(OFF_ATTACK, MAXDAMAGE, (cinfo->maxdmg + attackpower) * damagemod);
+    SetBaseWeaponDamage(RANGED_ATTACK, MINDAMAGE, (cinfo->minrangedmg + rangedattackpower) * damagemod);
+    SetBaseWeaponDamage(RANGED_ATTACK, MAXDAMAGE, (cinfo->maxrangedmg + rangedattackpower) * damagemod);
 
     // this value is not accurate, but should be close to the real value
     SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, level * 5);
