@@ -8467,7 +8467,7 @@ void ObjectMgr::_AddOrUpdateGMTicket(GM_Ticket &ticket)
 void ObjectMgr::RemoveGMTicket(GM_Ticket *ticket, int64 source, bool permanently)
 {
     for(GmTicketList::iterator i = m_GMTicketList.begin(); i != m_GMTicketList.end(); ++i)
-        if((*i) == ticket)
+        if((*i)->guid == ticket->guid)
         {
             if(permanently)
             {
