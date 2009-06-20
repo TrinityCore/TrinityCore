@@ -1140,6 +1140,20 @@ void Aura::HandleAddModifier(bool apply, bool Real)
         if(apply)
             m_target->CastSpell(m_target,45471,true);
     }
+
+    if(spellInfo->SpellFamilyName==SPELLFAMILY_PALADIN && (spellFamilyMask & 0x0000100000000000LL)) // Spiritual Attunement
+    {
+        if(m_target->HasAura(31785,0)) // rank 1
+        {
+            m_target->RemoveAurasDueToSpell(31785);
+            m_target->CastSpell(m_target,31785,true);
+        }
+        if(m_target->HasAura(33776,0)) // rank 2
+        {
+            m_target->RemoveAurasDueToSpell(33776);
+            m_target->CastSpell(m_target,33776,true);
+        }
+    }
 }
 
 void Aura::TriggerSpell()

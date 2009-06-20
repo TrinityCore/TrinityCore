@@ -5908,9 +5908,11 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                         return false;
 
                     // heal amount
-                    basepoints0 = triggeredByAura->GetModifier()->m_amount*damage/100;
+                    basepoints0 = triggeredByAura->GetModifierValue()*std::min(damage,GetMaxHealth() - GetHealth())/100;
                     target = this;
-                    triggered_spell_id = 31786;
+
+                    if(basepoints0)
+                        triggered_spell_id = 31786;
                     break;
                 }
                 // Paladin Tier 6 Trinket (Ashtongue Talisman of Zeal)
