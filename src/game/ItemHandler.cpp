@@ -674,7 +674,7 @@ void WorldSession::HandleBuyItemInSlotOpcode( WorldPacket & recv_data )
 
     recv_data >> vendorguid >> item  >> slot >> bagguid >> bagslot >> count;
 
-    GetPlayer()->BuyItemFromVendor(vendorguid,item,count,bagguid,slot);
+    GetPlayer()->BuyItemFromVendor(vendorguid,item,count,bagguid,bagslot);
 }
 
 void WorldSession::HandleBuyItemOpcode( WorldPacket & recv_data )

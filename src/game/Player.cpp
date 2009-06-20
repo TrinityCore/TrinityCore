@@ -17779,7 +17779,6 @@ bool Player::BuyItemFromVendor(uint64 vendorguid, uint32 item, uint8 count, uint
 
     if (bagguid != NULL_BAG && slot != NULL_SLOT)
     {
-        Bag *pBag;
         if( bagguid == GetGUID() )
         {
             bag = INVENTORY_SLOT_BAG_0;
@@ -17788,8 +17787,7 @@ bool Player::BuyItemFromVendor(uint64 vendorguid, uint32 item, uint8 count, uint
         {
             for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END;i++)
             {
-                pBag = (Bag*)GetItemByPos(INVENTORY_SLOT_BAG_0,i);
-                if( pBag )
+                if( Bag *pBag = (Bag*)GetItemByPos(INVENTORY_SLOT_BAG_0,i) )
                 {
                     if( bagguid == pBag->GetGUID() )
                     {
