@@ -376,9 +376,25 @@ void BattleGroundQueue::AnnounceWorld(GroupQueueInfo *ginfo, const uint64& playe
 
             char const* bgName = bg->GetName();
             if (isAddedToQueue)
-                sWorld.SendWorldText(LANG_ARENA_QUEUE_ANNOUNCE_WORLD_JOIN, bgName, ginfo->ArenaType, ginfo->ArenaType, ginfo->ArenaTeamRating);
+            {
+                if (sWorld.getConfig(CONFIG_ARENA_QUEUE_ANNOUNCER_PLAYERONLY))
+                {
+                    if(Player *plr = objmgr.GetPlayer(playerGUID))
+                        ChatHandler(plr).PSendSysMessage(LANG_ARENA_QUEUE_ANNOUNCE_WORLD_JOIN, bgName, ginfo->ArenaType, ginfo->ArenaType, ginfo->ArenaTeamRating);
+                }
+                else
+                    sWorld.SendWorldText(LANG_ARENA_QUEUE_ANNOUNCE_WORLD_JOIN, bgName, ginfo->ArenaType, ginfo->ArenaType, ginfo->ArenaTeamRating);
+            }
             else
-                sWorld.SendWorldText(LANG_ARENA_QUEUE_ANNOUNCE_WORLD_EXIT, bgName, ginfo->ArenaType, ginfo->ArenaType, ginfo->ArenaTeamRating);
+            {
+                if (sWorld.getConfig(CONFIG_ARENA_QUEUE_ANNOUNCER_PLAYERONLY))
+                {
+                    if(Player *plr = objmgr.GetPlayer(playerGUID))
+                        ChatHandler(plr).PSendSysMessage(LANG_ARENA_QUEUE_ANNOUNCE_WORLD_EXIT, bgName, ginfo->ArenaType, ginfo->ArenaType, ginfo->ArenaTeamRating);
+                }
+                else
+                    sWorld.SendWorldText(LANG_ARENA_QUEUE_ANNOUNCE_WORLD_EXIT, bgName, ginfo->ArenaType, ginfo->ArenaType, ginfo->ArenaTeamRating);
+            }
         }
     }
     else //if BG
