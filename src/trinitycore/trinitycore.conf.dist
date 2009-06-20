@@ -1404,6 +1404,7 @@ Arena.RatingDiscardTimer = 600000
 Arena.AutoDistributePoints = 0
 Arena.AutoDistributeInterval = 7
 Arena.QueueAnnouncer.Enable = 0
+Arena.QueueAnnouncer.PlayerOnly = 0
 Arena.ArenaSeason.ID = 1
 Arena.ArenaSeason.InProgress = 1
 
