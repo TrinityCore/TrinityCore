@@ -147,7 +147,7 @@ m_deathTimer(0), m_respawnTime(0), m_respawnDelay(25), m_corpseDelay(60), m_resp
 m_gossipOptionLoaded(false), m_emoteState(0), m_isPet(false), m_isTotem(false), m_reactState(REACT_AGGRESSIVE),
 m_regenTimer(2000), m_defaultMovementType(IDLE_MOTION_TYPE), m_equipmentId(0),
 m_AlreadyCallAssistance(false), m_regenHealth(true), m_AI_locked(false), m_isDeadByDefault(false),
-m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),m_creatureInfo(NULL), m_DBTableGuid(0), m_formation(NULL)
+m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),m_creatureInfo(NULL), m_DBTableGuid(0), m_formation(NULL), m_PlayerDamageReq(0)
 {
     m_valuesCount = UNIT_END;
 
@@ -159,7 +159,6 @@ m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),m_creatureInfo(NULL), m_DBTabl
     m_GlobalCooldown = 0;
     m_unit_movement_flags = MOVEMENTFLAG_WALK_MODE;
     DisableReputationGain = false;
-    ResetDamageByPlayers();
 }
 
 Creature::~Creature()
@@ -1270,6 +1269,7 @@ void Creature::SelectLevel(const CreatureInfo *cinfo)
     SetCreateHealth(health);
     SetMaxHealth(health);
     SetHealth(health);
+    ResetPlayerDamageReq();
 
     // mana
     uint32 minmana = std::min(cinfo->maxmana, cinfo->minmana);
@@ -1654,7 +1654,7 @@ void Creature::setDeathState(DeathState s)
         //    setActive(true);
         SetHealth(GetMaxHealth());
         SetLootRecipient(NULL);
-        ResetDamageByPlayers();
+        ResetPlayerDamageReq();
         Unit::setDeathState(ALIVE);
         CreatureInfo const *cinfo = GetCreatureInfo();
         RemoveFlag (UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);

@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -241,7 +241,7 @@ struct TRINITY_DLL_DECL boss_shahrazAI : public ScriptedAI
             // Just make them explode three times... they're supposed to keep exploding while they are in range, but it'll take too much code. I'll try to think of an efficient way for it later.
             if(ExplosionCount < 3)
             {
-                for(uint8 i = 0; i < 4; i++)
+                for(uint8 i = 0; i < 3; ++i)
                 {
                     Unit* pUnit = NULL;
                     if(TargetGUID[i])

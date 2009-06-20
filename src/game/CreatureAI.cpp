@@ -100,7 +100,7 @@ void CreatureAI::EnterEvadeMode()
     me->CombatStop();
     me->LoadCreaturesAddon();
     me->SetLootRecipient(NULL);
-    me->ResetDamageByPlayers();
+    me->ResetPlayerDamageReq();
 
     if(me->isAlive())
         me->GetMotionMaster()->MoveTargetedHome();
