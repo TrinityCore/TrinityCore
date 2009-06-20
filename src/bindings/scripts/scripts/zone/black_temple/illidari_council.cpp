@@ -51,6 +51,8 @@ EndScriptData */
 
 #define ERROR_INST_DATA           "SD2 ERROR: Instance Data for Black Temple not set properly; Illidari Council event will not function properly."
 
+#define AKAMAID                 23089
+
 struct CouncilYells
 {
     int32 entry;
@@ -297,6 +299,7 @@ struct TRINITY_DLL_DECL mob_illidari_councilAI : public ScriptedAI
                         if(Creature* VoiceTrigger = (Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_BLOOD_ELF_COUNCIL_VOICE))))
                             VoiceTrigger->DealDamage(VoiceTrigger, VoiceTrigger->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                         pInstance->SetData(DATA_ILLIDARICOUNCILEVENT, DONE);
+                        m_creature->SummonCreature(AKAMAID,746.466980f,304.394989f,311.90208f,6.272870f,TEMPSUMMON_DEAD_DESPAWN,0);
                     }
                     m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                     return;
@@ -596,7 +599,7 @@ struct TRINITY_DLL_DECL boss_high_nethermancer_zerevorAI : public boss_illidari_
         {
             DoCast(m_creature, SPELL_DAMPEN_MAGIC);
             Cooldown = 1000;
-            DampenMagicTimer = 110000;                      // almost 2 minutes
+            DampenMagicTimer = 67200;                      // almost 1,12 minutes
             ArcaneBoltTimer += 1000;                        // Give the Mage some time to spellsteal Dampen.
         }else DampenMagicTimer -= diff;
 
