@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -50,6 +50,8 @@ EndScriptData */
 #define SAY_ZERE_SPECIAL2       -1564084
 
 #define ERROR_INST_DATA           "SD2 ERROR: Instance Data for Black Temple not set properly; Illidari Council event will not function properly."
+
+#define AKAMAID                 23089
 
 struct CouncilYells
 {
@@ -240,7 +242,7 @@ struct TRINITY_DLL_DECL mob_illidari_councilAI : public ScriptedAI
 
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        m_creature->SetUInt32Value(UNIT_FIELD_DISPLAYID, 11686);
+        m_creature->SetDisplayId(11686);
     }
 
     void Aggro(Unit *who) {}
@@ -297,6 +299,7 @@ struct TRINITY_DLL_DECL mob_illidari_councilAI : public ScriptedAI
                         if(Creature* VoiceTrigger = (Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_BLOOD_ELF_COUNCIL_VOICE))))
                             VoiceTrigger->DealDamage(VoiceTrigger, VoiceTrigger->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                         pInstance->SetData(DATA_ILLIDARICOUNCILEVENT, DONE);
+                        m_creature->SummonCreature(AKAMAID,746.466980f,304.394989f,311.90208f,6.272870f,TEMPSUMMON_DEAD_DESPAWN,0);
                     }
                     m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                     return;
@@ -405,9 +408,12 @@ struct TRINITY_DLL_DECL boss_illidari_councilAI : public ScriptedAI
         damage /= 4;
         for(uint8 i = 0; i < 4; ++i)
         {
-            if(Unit* pUnit = Unit::GetUnit(*m_creature, Council[i]))
+            if(Creature* pUnit = Unit::GetCreature(*m_creature, Council[i]))
                 if(pUnit != m_creature && damage < pUnit->GetHealth())
+                {
                     pUnit->SetHealth(pUnit->GetHealth() - damage);
+                    pUnit->LowerPlayerDamageReq(damage);
+                }
         }
     }
 
@@ -593,7 +599,7 @@ struct TRINITY_DLL_DECL boss_high_nethermancer_zerevorAI : public boss_illidari_
         {
             DoCast(m_creature, SPELL_DAMPEN_MAGIC);
             Cooldown = 1000;
-            DampenMagicTimer = 110000;                      // almost 2 minutes
+            DampenMagicTimer = 67200;                      // almost 1,12 minutes
             ArcaneBoltTimer += 1000;                        // Give the Mage some time to spellsteal Dampen.
         }else DampenMagicTimer -= diff;
 
