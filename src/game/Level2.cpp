@@ -70,8 +70,11 @@ bool ChatHandler::HandleMuteCommand(const char* args)
         return false;
 
     char *mutereason = strtok(NULL, " ");
+    std::string mutereasonstr;
     if(!mutereason)
-        strcpy(mutereason, "No reason.");
+        mutereasonstr = "No reason.";
+    else
+        mutereasonstr = mutereason;
         
     uint32 notspeaktime = (uint32) atoi(timetonotspeak);
 
@@ -122,9 +125,9 @@ bool ChatHandler::HandleMuteCommand(const char* args)
     LoginDatabase.PExecute("UPDATE account SET mutetime = " I64FMTD " WHERE id = '%u'",uint64(mutetime), account_id );
 
     if(chr)
-        ChatHandler(chr).PSendSysMessage(LANG_YOUR_CHAT_DISABLED, notspeaktime, mutereason);
+        ChatHandler(chr).PSendSysMessage(LANG_YOUR_CHAT_DISABLED, notspeaktime, mutereasonstr.c_str());
 
-    PSendSysMessage(LANG_YOU_DISABLE_CHAT, cname.c_str(), notspeaktime, mutereason);
+    PSendSysMessage(LANG_YOU_DISABLE_CHAT, cname.c_str(), notspeaktime, mutereasonstr.c_str());
 
     return true;
 }
