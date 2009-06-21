@@ -8478,7 +8478,8 @@ void ObjectMgr::RemoveGMTicket(GM_Ticket *ticket, int64 source, bool permanently
                 ticket = NULL;
                 return;
             }
-            (*i)->closed = source;    
+            (*i)->closed = source;
+            _AddOrUpdateGMTicket((*i));
         }
 }
 
