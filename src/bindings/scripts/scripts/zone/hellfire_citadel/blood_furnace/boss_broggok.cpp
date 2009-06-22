@@ -53,17 +53,21 @@ struct TRINITY_DLL_DECL boss_broggokAI : public ScriptedAI
         AcidSpray_Timer = 10000;
         PoisonSpawn_Timer = 5000;
         PoisonBolt_Timer = 7000;
-        ToggleDoors(0, DATA_DOOR4);
         if(pInstance)
+        {
             pInstance->SetData(TYPE_BROGGOK_EVENT, NOT_STARTED);
+            pInstance->HandleGameObject(pInstance->GetData64(DATA_DOOR4), true);
+        }
     }
 
     void EnterCombat(Unit *who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
-        ToggleDoors(1, DATA_DOOR4);
         if(pInstance)
+        {
             pInstance->SetData(TYPE_BROGGOK_EVENT, IN_PROGRESS);
+            pInstance->HandleGameObject(pInstance->GetData64(DATA_DOOR4), false);
+        }
     }
 
     void JustSummoned(Creature *summoned)
@@ -102,25 +106,14 @@ struct TRINITY_DLL_DECL boss_broggokAI : public ScriptedAI
     
     void JustDied(Unit* who)
     {   
-        ToggleDoors(0, DATA_DOOR4);
-        ToggleDoors(0, DATA_DOOR5);
         if(pInstance)
-            pInstance->SetData(TYPE_BROGGOK_EVENT, DONE);
-    }
-    
-    void ToggleDoors(uint8 close, uint64 DOOR)
-    {
-        if (pInstance)
         {
-            if (GameObject* Doors = pInstance->instance->GetGameObject(pInstance->GetData64(DOOR)))
-            {
-                if (close == 1)
-                    Doors->SetGoState(GO_STATE_READY);                // Closed
-                else
-                    Doors->SetGoState(GO_STATE_ACTIVE);                // Open
-            }
+            pInstance->HandleGameObject(pInstance->GetData64(DATA_DOOR4), true);
+            pInstance->HandleGameObject(pInstance->GetData64(DATA_DOOR5), true);
+            pInstance->SetData(TYPE_BROGGOK_EVENT, DONE);
         }
     }
+    
 };
 
 CreatureAI* GetAI_boss_broggok(Creature *_Creature)

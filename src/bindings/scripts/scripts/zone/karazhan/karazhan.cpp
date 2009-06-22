@@ -148,11 +148,8 @@ struct TRINITY_DLL_DECL npc_barnesAI : public npc_escortAI
 
             Event = pInstance->GetData(DATA_OPERA_PERFORMANCE);
 
-             if (GameObject* Door = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_STAGEDOORLEFT)))
-                Door->SetGoState(GO_STATE_READY);
-
-             if (GameObject* Curtain = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_CURTAINS)))
-                Curtain->SetGoState(GO_STATE_READY);
+            pInstance->HandleGameObject(pInstance->GetData64(DATA_GAMEOBJECT_STAGEDOORLEFT), false);
+            pInstance->HandleGameObject(pInstance->GetData64(DATA_GAMEOBJECT_CURTAINS), false);
         }
     }
 
@@ -179,10 +176,8 @@ struct TRINITY_DLL_DECL npc_barnesAI : public npc_escortAI
 
             case 5:
                 if(pInstance)
-                {
-                    if (GameObject* Door = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_STAGEDOORLEFT)))
-                        Door->SetGoState(GO_STATE_READY);
-                }
+                    pInstance->HandleGameObject(pInstance->GetData64(DATA_GAMEOBJECT_STAGEDOORLEFT), false);
+
                 IsBeingEscorted = false;
                 PerformanceReady = true;
                 m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
@@ -314,9 +309,7 @@ struct TRINITY_DLL_DECL npc_barnesAI : public npc_escortAI
             return;
 
         pInstance->SetData(DATA_OPERA_EVENT, IN_PROGRESS);
-
-        if (GameObject* Door = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_STAGEDOORLEFT)))
-            Door->SetGoState(GO_STATE_ACTIVE);
+        pInstance->HandleGameObject(pInstance->GetData64(DATA_GAMEOBJECT_STAGEDOORLEFT), true);
 
         m_creature->CastSpell(m_creature, SPELL_TUXEDO, true);
         m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);

@@ -130,10 +130,9 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
         if (pInstance)
         {
             pInstance->SetData(DATA_KAELTHAS_EVENT, NOT_STARTED);
-
-            if (GameObject* Door = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_KAEL_DOOR)))
-                Door->SetGoState(GO_STATE_ACTIVE);                        // Open the big encounter door. Close it in Aggro and open it only in JustDied(and here)
-                                                            // Small door opened after event are expected to be closed by default
+            pInstance->HandleGameObject(pInstance->GetData64(DATA_KAEL_DOOR), true);
+           // Open the big encounter door. Close it in Aggro and open it only in JustDied(and here)
+           // Small door opened after event are expected to be closed by default
         }
     }
 
@@ -143,9 +142,9 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
 
         if (!pInstance)
             return;
-
-        if (GameObject* EncounterDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_KAEL_DOOR)))
-            EncounterDoor->SetGoState(GO_STATE_ACTIVE);                   // Open the encounter door
+        
+        pInstance->HandleGameObject(pInstance->GetData64(DATA_KAEL_DOOR), true);
+        // Open the encounter door
     }
 
     void DamageTaken(Unit* done_by, uint32 &damage)
@@ -158,9 +157,9 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
     {
         if (!pInstance)
             return;
-
-            if (GameObject* EncounterDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_KAEL_DOOR)))
-                EncounterDoor->SetGoState(GO_STATE_READY);               //Close the encounter door, open it in JustDied/Reset
+        
+        pInstance->HandleGameObject(pInstance->GetData64(DATA_KAEL_DOOR), false);
+       //Close the encounter door, open it in JustDied/Reset
     }
 
     void MoveInLineOfSight(Unit *who)
@@ -350,10 +349,8 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
 
                                 if (pInstance)
                                 {
-                                    if (GameObject* KaelLeft = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_KAEL_STATUE_LEFT)))
-                                        KaelLeft->SetGoState(GO_STATE_ACTIVE);
-                                    if (GameObject* KaelRight = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_KAEL_STATUE_RIGHT)))
-                                        KaelRight->SetGoState(GO_STATE_ACTIVE);
+                                    pInstance->HandleGameObject(pInstance->GetData64(DATA_KAEL_STATUE_LEFT), true);
+                                    pInstance->HandleGameObject(pInstance->GetData64(DATA_KAEL_STATUE_RIGHT), true);
                                 }
                             }else
                             {

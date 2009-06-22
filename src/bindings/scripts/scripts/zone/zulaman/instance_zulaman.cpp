@@ -137,12 +137,6 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
         CheckInstanceStatus();
     }
 
-    void OpenDoor(uint64 DoorGUID, bool open)
-    {
-        if(GameObject *Door = instance->GetGameObject(DoorGUID))
-            Door->SetGoState(open ? GO_STATE_ACTIVE : GO_STATE_READY);
-    }
-
     void SummonHostage(uint8 num)
     {
         if(!QuestMinute)
@@ -166,10 +160,10 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
     void CheckInstanceStatus()
     {
         if(BossKilled >= 4)
-            OpenDoor(HexLordGateGUID, true);
+            HandleGameObject(HexLordGateGUID, true);
 
         if(BossKilled >= 5)
-            OpenDoor(ZulJinGateGUID, true);
+            HandleGameObject(ZulJinGateGUID, true);
     }
 
     void UpdateWorldState(uint32 field, uint32 value)
@@ -224,7 +218,7 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
             break;
         case DATA_AKILZONEVENT:
             Encounters[1] = data;
-            OpenDoor(AkilzonDoorGUID, data != IN_PROGRESS);
+            HandleGameObject(AkilzonDoorGUID, data != IN_PROGRESS);
             if(data == DONE)
             {
                 if(QuestMinute)
@@ -241,19 +235,19 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
             break;
         case DATA_HALAZZIEVENT:
             Encounters[3] = data;
-            OpenDoor(HalazziDoorGUID, data != IN_PROGRESS);
+            HandleGameObject(HalazziDoorGUID, data != IN_PROGRESS);
             if(data == DONE) SummonHostage(3);
             break;
         case DATA_HEXLORDEVENT:
             Encounters[4] = data;
             if(data == IN_PROGRESS)
-                OpenDoor(HexLordGateGUID, false);
+                HandleGameObject(HexLordGateGUID, false);
             else if(data == NOT_STARTED)
                 CheckInstanceStatus();
             break;
         case DATA_ZULJINEVENT:
             Encounters[5] = data;
-            OpenDoor(ZulJinDoorGUID, data != IN_PROGRESS);
+            HandleGameObject(ZulJinDoorGUID, data != IN_PROGRESS);
             break;
         case DATA_CHESTLOOTED:
             ChestLooted++;

@@ -108,26 +108,21 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
             case 182060:
                 HordeGate = go->GetGUID();
                 if(allianceRetreat)
-                    go->SetGoState(GO_STATE_ACTIVE);
+                    HandleGameObject(0, true, go);
                 else
-                    go->SetGoState(GO_STATE_READY);
+                    HandleGameObject(0, false, go);
                 break;
             case 182061:
                 ElfGate = go->GetGUID();
                 if(hordeRetreat)
-                    go->SetGoState(GO_STATE_ACTIVE);
+                    HandleGameObject(0, true, go);
                 else
-                    go->SetGoState(GO_STATE_READY);
+                    HandleGameObject(0, false, go);
                 break;
             case GO_ANCIENT_GEM:
                 m_uiAncientGemGUID.push_back(go->GetGUID());
                 break;
         }
-    }
-
-    void OpenDoor(uint64 DoorGUID, bool open)
-    {
-        HandleGameObject(DoorGUID, open, NULL);
     }
 
     void OnCreatureCreate(Creature *creature, bool add)
@@ -233,12 +228,12 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
                 break;
             case DATA_ALLIANCE_RETREAT:
                 allianceRetreat = data;
-                OpenDoor(HordeGate,true);
+                HandleGameObject(HordeGate, true);
                 SaveToDB();
                 break;
             case DATA_HORDE_RETREAT:
                 hordeRetreat = data;
-                OpenDoor(ElfGate,true);
+                HandleGameObject(ElfGate, true);
                 SaveToDB();
                 break;
             case DATA_RAIDDAMAGE:

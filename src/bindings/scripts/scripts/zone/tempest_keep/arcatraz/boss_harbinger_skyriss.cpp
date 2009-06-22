@@ -161,9 +161,8 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
                 switch( Intro_Phase )
                 {
                     case 1:
-                         DoScriptText(SAY_INTRO, m_creature);
-                        if (GameObject* Sphere = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_SPHERE_SHIELD)))
-                            Sphere->SetGoState(GO_STATE_ACTIVE);
+                        DoScriptText(SAY_INTRO, m_creature);
+                        pInstance->HandleGameObject(pInstance->GetData64(DATA_SPHERE_SHIELD), true);
                         ++Intro_Phase;
                         Intro_Timer = 25000;
                         break;
