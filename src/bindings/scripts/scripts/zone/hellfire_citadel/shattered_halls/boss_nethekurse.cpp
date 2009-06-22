@@ -232,12 +232,7 @@ struct TRINITY_DLL_DECL boss_grand_warlock_nethekurseAI : public ScriptedAI
             return;
 
         pInstance->SetData(TYPE_NETHEKURSE,DONE);
-
-        if (pInstance->GetData64(DATA_NETHEKURSE_DOOR))
-        {
-            if (GameObject *Door = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_NETHEKURSE_DOOR)))
-                Door->SetGoState(GO_STATE_ACTIVE);
-        }
+        pInstance->HandleGameObject(pInstance->GetData64(DATA_NETHEKURSE_DOOR), true);
     }
 
     void UpdateAI(const uint32 diff)

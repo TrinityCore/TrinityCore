@@ -105,8 +105,8 @@ struct TRINITY_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
                 }
             }
 
-            if (GameObject* Door = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_SELIN_ENCOUNTER_DOOR)))
-                Door->SetGoState(GO_STATE_ACTIVE);                        // Open the big encounter door. Close it in Aggro and open it only in JustDied(and here)
+            pInstance->HandleGameObject(pInstance->GetData64(DATA_SELIN_ENCOUNTER_DOOR), true);
+            // Open the big encounter door. Close it in Aggro and open it only in JustDied(and here)
                                                             // Small door opened after event are expected to be closed by default
             // Set Inst data for encounter
             pInstance->SetData(DATA_SELIN_EVENT, NOT_STARTED);
@@ -185,11 +185,9 @@ struct TRINITY_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
         DoScriptText(SAY_AGGRO, m_creature);
 
         if (pInstance)
-        {
-            if (GameObject* EncounterDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_SELIN_ENCOUNTER_DOOR)))
-                EncounterDoor->SetGoState(GO_STATE_READY);               //Close the encounter door, open it in JustDied/Reset
-        }
-    }
+            pInstance->HandleGameObject(pInstance->GetData64(DATA_SELIN_ENCOUNTER_DOOR), false);
+            //Close the encounter door, open it in JustDied/Reset
+     }
 
     void KilledUnit(Unit* victim)
     {
@@ -230,13 +228,8 @@ struct TRINITY_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
             return;
 
         pInstance->SetData(DATA_SELIN_EVENT, DONE);         // Encounter complete!
-
-        if (GameObject* EncounterDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_SELIN_ENCOUNTER_DOOR)))
-            EncounterDoor->SetGoState(GO_STATE_ACTIVE);                   // Open the encounter door
-
-        if (GameObject* ContinueDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_SELIN_DOOR)))
-            ContinueDoor->SetGoState(GO_STATE_ACTIVE);                    // Open the door leading further in
-
+        pInstance->HandleGameObject(pInstance->GetData64(DATA_SELIN_ENCOUNTER_DOOR), true);                  // Open the encounter door
+        pInstance->HandleGameObject(pInstance->GetData64(DATA_SELIN_DOOR), true);                 // Open the door leading further in
         ShatterRemainingCrystals();
     }
 

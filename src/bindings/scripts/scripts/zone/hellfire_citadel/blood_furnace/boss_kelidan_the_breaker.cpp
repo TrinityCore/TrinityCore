@@ -186,11 +186,13 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
     void JustDied(Unit* Killer)
     {
         DoScriptText(SAY_DIE, m_creature);
-        ToggleDoors(0, DATA_DOOR1);
-        ToggleDoors(0, DATA_DOOR6);
 
-        if(pInstance)
-            pInstance->SetData(TYPE_KELIDAN_THE_BREAKER_EVENT, DONE);
+        if(!pInstance)
+            return;
+            
+        pInstance->SetData(TYPE_KELIDAN_THE_BREAKER_EVENT, DONE);
+        pInstance->HandleGameObject(pInstance->GetData64(DATA_DOOR1), true);
+        pInstance->HandleGameObject(pInstance->GetData64(DATA_DOOR6), true);
     }
 
     void UpdateAI(const uint32 diff)
@@ -260,19 +262,6 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
     
-    void ToggleDoors(uint8 close, uint64 DOOR)
-    {
-        if (pInstance)
-        {
-            if (GameObject* Doors = pInstance->instance->GetGameObject(pInstance->GetData64(DOOR)))
-            {
-                if (close == 1)
-                    Doors->SetGoState(GO_STATE_READY);                // Closed
-                else
-                    Doors->SetGoState(GO_STATE_ACTIVE);                // Open
-            }
-        }
-    }
 };
 
 CreatureAI* GetAI_boss_kelidan_the_breaker(Creature *_Creature)
