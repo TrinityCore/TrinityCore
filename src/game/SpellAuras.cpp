@@ -4664,7 +4664,7 @@ void AuraEffect::HandlePeriodicDamage(bool apply, bool Real, bool changeAmount)
                 return;
             }
             // Rip
-            if (m_spellProto->SpellFamilyFlags[1] & 0x800000)
+            if (m_spellProto->SpellVisual[0] == 3941)
             {
                 // 0.01*$AP*cp
                 if (caster->GetTypeId() != TYPEID_PLAYER)
