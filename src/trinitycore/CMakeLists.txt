@@ -57,6 +57,7 @@ ${OSX_LIBS}
 
 IF (CENTOS)
 target_link_libraries(
+trinity-core
 termcap
 )
 ENDIF (CENTOS)
