@@ -2195,6 +2195,44 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
                         }
                         break;
                     }
+                    // Corpse Explosion
+                    case 53717:
+                    case 51325:
+                    case 51326:
+                    case 51327:
+                    case 51328:
+                        // Search for ghoul if our ghoul or dead body not valid unit target
+                        if (!(m_targets.getUnitTarget() && (m_targets.getUnitTarget()->GetEntry() == 26125 && m_targets.getUnitTarget()->GetOwnerGUID() == m_caster->GetGUID()
+                            || (m_targets.getUnitTarget()->getDeathState() == CORPSE
+                                && m_targets.getUnitTarget()->GetTypeId()== TYPEID_UNIT
+                                && !((Creature*)m_targets.getUnitTarget())->isDeadByDefault()
+                                && !(m_targets.getUnitTarget()->GetCreatureTypeMask() & CREATURE_TYPEMASK_MECHANICAL_OR_ELEMENTAL))
+                                && m_targets.getUnitTarget()->GetDisplayId() == m_targets.getUnitTarget()->GetNativeDisplayId())))
+                        {
+                            CleanupTargetList();
+
+                            WorldObject* result = FindCorpseUsing <Trinity::ExplodeCorpseObjectCheck> ();
+
+                            if(result)
+                            {
+                                switch(result->GetTypeId())
+                                {
+                                case TYPEID_UNIT:
+                                case TYPEID_PLAYER:
+                                    m_targets.setUnitTarget((Unit*)result);
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                if (m_caster->GetTypeId()==TYPEID_PLAYER)
+                                    ((Player*)m_caster)->RemoveSpellCooldown(m_spellInfo->Id,true);
+                                SendCastResult(SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW);
+                                finish(false);
+                            }
+                        }
+                        break;
+
                     default:
                         sLog.outDebug("Spell (ID: %u) (caster Entry: %u) does not have record in `spell_script_target`", m_spellInfo->Id, m_caster->GetEntry());
 
@@ -2378,6 +2416,34 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
                     {
                         unitList.push_back(healedMembers.top().getUnit());
                         healedMembers.pop();
+                    }
+                }
+                // Death Pact
+                if (m_spellInfo->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && m_spellInfo->SpellFamilyFlags[0] & 0x00080000)
+                {
+                    Unit * unit_to_add = NULL;
+                    for (std::list<Unit*>::iterator itr = unitList.begin() ; itr != unitList.end();++itr)
+                    {
+                        if ((*itr)->GetTypeId() == TYPEID_UNIT
+                            && (*itr)->GetOwnerGUID() == m_caster->GetGUID()
+                            && ((Creature*)(*itr))->GetCreatureInfo()->type == CREATURE_TYPE_UNDEAD)
+                        {
+                            unit_to_add = (*itr);
+                            break;
+                        }
+                    }
+                    if (unit_to_add)
+                    {
+                        unitList.clear();
+                        unitList.push_back(unit_to_add);
+                    }
+                    // Pet not found - remove cooldown
+                    else
+                    {
+                        if (modOwner->GetTypeId()==TYPEID_PLAYER)
+                            modOwner->RemoveSpellCooldown(m_spellInfo->Id,true);
+                        SendCastResult(SPELL_FAILED_NO_PET);
+                        finish(false);
                     }
                 }
             }

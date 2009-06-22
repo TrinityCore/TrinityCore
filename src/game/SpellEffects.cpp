@@ -1950,6 +1950,29 @@ void Spell::EffectDummy(uint32 i)
 
                 spell_id = m_currentBasePoints[0];
             }
+            // Corpse Explosion
+            else if(m_spellInfo->SpellIconID == 1737)
+            {
+                // Dummy effect 1 is used only for targeting and damage amount
+                if (i!=0)
+                    return;
+                int32 bp = 0;
+                // Living ghoul as a target
+                if (unitTarget->isAlive())
+                {
+                    bp = unitTarget->GetMaxHealth()*0.25f;
+                }
+                // Some corpse
+                else
+                {
+                    bp = damage;
+                }
+                m_caster->CastCustomSpell(unitTarget,m_spellInfo->CalculateSimpleValue(1),&bp,NULL,NULL,true);
+                // Suicide
+                unitTarget->CastCustomSpell(unitTarget,43999,&bp,NULL,NULL,true);
+                // Set corpse look
+                unitTarget->SetDisplayId(25537+urand(0,3));
+            }
             break;
     }
 
@@ -2634,6 +2657,11 @@ void Spell::SpellDamageHeal(uint32 /*i*/)
                 // consume aura
                 unitTarget->RemoveAura(aurEff->GetParentAura());
             }
+        }
+        // Death Pact - return pct of max health to caster
+        else if (m_spellInfo->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && m_spellInfo->SpellFamilyFlags[0] & 0x00080000)
+        {
+                addhealth = int32(caster->GetMaxHealth()*damage/100.0f);
         }
         else
             addhealth = caster->SpellHealingBonus(unitTarget, m_spellInfo, addhealth, HEAL);
