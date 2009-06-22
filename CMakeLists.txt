@@ -19,7 +19,6 @@ OPTION(DO_DEBUG "Debug mode" 0)
 OPTION(DO_WARN "Enable all compile warnings" 0)
 OPTION(LARGE_CELL "Large cell size" 0)
 OPTION(SHORT_SLEEP "Short sleep" 0)
-OPTION(CENTOS "Compile with termcap" 0)
 
 SET(GENREV_SRC
 src/tools/genrevision/genrevision.cpp
@@ -127,10 +126,12 @@ else(SHORT_SLEEP)
 message("* System sleep time is 100ms")
 endif(SHORT_SLEEP)
 
-if(CENTOS)
-add_definitions(-DCENTOS)
-message("* Building with termcap")
-endif(CENTOS)
+IF(EXISTS /etc/centos-release)
+    SET(CENTOS 1)
+    message("* Building with termcap")
+else(EXISTS /etc/centos-release)
+    SET(CENTOS 0)
+ENDIF(EXISTS /etc/centos-release)
 
 FIND_ACE(ACE)
 if(ACE_FOUND)

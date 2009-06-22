@@ -56,10 +56,10 @@ ${OSX_LIBS}
 )
 
 IF (CENTOS)
-target_link_libraries(
-trinity-core
-termcap
-)
+    target_link_libraries(
+        trinity-core
+        termcap
+    )
 ENDIF (CENTOS)
 
 install(TARGETS trinity-core DESTINATION bin)
