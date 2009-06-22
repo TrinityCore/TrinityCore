@@ -1423,7 +1423,7 @@ struct SpellEntry
     uint32    SchoolMask;                                   // 228      m_schoolMask
     uint32    runeCostID;                                   // 229      m_runeCostID
     //uint32    spellMissileID;                             // 230      m_spellMissileID not used
-    //uint32  PowerDisplayId;                               // 231 PowerDisplay.dbc, new in 3.1
+    //uint32  PowerDisplayId;                               // 231      PowerDisplay.dbc, new in 3.1
 
     // helpers
     int32 CalculateSimpleValue(uint8 eff) const { return EffectBasePoints[eff]+int32(EffectBaseDice[eff]); }
