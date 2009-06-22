@@ -458,10 +458,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
         pInstance->SetData(DATA_ILLIDANSTORMRAGEEVENT, DONE); // Completed
 
         for(uint8 i = DATA_GAMEOBJECT_ILLIDAN_DOOR_R; i < DATA_GAMEOBJECT_ILLIDAN_DOOR_L + 1; ++i)
-        {
-            if (GameObject* pDoor = pInstance->instance->GetGameObject(pInstance->GetData64(i)))
-                pDoor->SetGoState(GO_STATE_ACTIVE); // Open Doors
-        }
+            pInstance->HandleGameObject(pInstance->GetData64(i), true);
     }
 
     void KilledUnit(Unit *victim)
@@ -1002,11 +999,11 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
             DoorGUID[0] = pInstance->GetData64(DATA_GAMEOBJECT_ILLIDAN_DOOR_R);
             DoorGUID[1] = pInstance->GetData64(DATA_GAMEOBJECT_ILLIDAN_DOOR_L);
 
-            if(GETGO(Gate, GateGUID))
-                Gate->SetGoState(GO_STATE_READY);
+            pInstance->HandleGameObject(pInstance->GetData64(GateGUID), false);
+
             for(uint8 i = 0; i < 2; i++)
-                if(GETGO(Door, DoorGUID[i]))
-                    Door->SetGoState(GO_STATE_READY);
+                pInstance->HandleGameObject(pInstance->GetData64(DoorGUID[i]), false);
+
         }
         else
         {
@@ -1070,12 +1067,13 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
 
     void BeginTalk()
     {
-        if(pInstance)
-            pInstance->SetData(DATA_ILLIDANSTORMRAGEEVENT, IN_PROGRESS);
+        if(!pInstance)
+            return;
+            
+        pInstance->SetData(DATA_ILLIDANSTORMRAGEEVENT, IN_PROGRESS);
 
         for(uint8 i = 0; i < 2; i++)
-            if(GETGO(Door, DoorGUID[i]))
-                Door->SetGoState(GO_STATE_READY);
+            pInstance->HandleGameObject(pInstance->GetData64(DoorGUID[i]), false);
 
         if(GETCRE(Illidan, IllidanGUID))
         {
@@ -1240,8 +1238,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
             m_creature->InterruptNonMeleeSpells(true);
             Spirit[0]->InterruptNonMeleeSpells(true);
             Spirit[1]->InterruptNonMeleeSpells(true);
-            if(GETGO(Gate, GateGUID))
-                Gate->SetGoState(GO_STATE_ACTIVE);
+            pInstance->HandleGameObject(pInstance->GetData64(GateGUID), true);
             Timer = 2000;
             break;
         case 4:
@@ -1271,8 +1268,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
         {
         case 6:
             for(uint8 i = 0; i < 2; i++)
-                if(GETGO(Door, DoorGUID[i]))
-                    Door->SetGoState(GO_STATE_ACTIVE);
+                pInstance->HandleGameObject(pInstance->GetData64(DoorGUID[i]), true);
             break;
         case 8:
             if(Phase == PHASE_WALK)

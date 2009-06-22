@@ -59,10 +59,12 @@ struct TRINITY_DLL_DECL boss_the_makerAI : public ScriptedAI
         ExplodingBreaker_Timer = 6000;
         Domination_Timer = 120000;
         Knockdown_Timer = 10000;
-        
-        ToggleDoors(0, DATA_DOOR2);
-        if(pInstance)
-            pInstance->SetData(TYPE_THE_MAKER_EVENT, NOT_STARTED);
+
+        if(!pInstance)
+            return;
+            
+        pInstance->SetData(TYPE_THE_MAKER_EVENT, NOT_STARTED);
+        pInstance->HandleGameObject(pInstance->GetData64(DATA_DOOR2), true);
     }
     
     void EnterCombat(Unit *who)
@@ -74,9 +76,11 @@ struct TRINITY_DLL_DECL boss_the_makerAI : public ScriptedAI
             case 2: DoScriptText(SAY_AGGRO_3, m_creature); break;
         }
         
-        ToggleDoors(1, DATA_DOOR2);
-        if(pInstance)
-            pInstance->SetData(TYPE_THE_MAKER_EVENT, IN_PROGRESS);
+        if(!pInstance)
+            return;
+            
+        pInstance->SetData(TYPE_THE_MAKER_EVENT, IN_PROGRESS);
+        pInstance->HandleGameObject(pInstance->GetData64(DATA_DOOR2), false);
     }
 
     void KilledUnit(Unit* victim)
@@ -91,11 +95,15 @@ struct TRINITY_DLL_DECL boss_the_makerAI : public ScriptedAI
     void JustDied(Unit* Killer)
     {
         DoScriptText(SAY_DIE, m_creature);
-        ToggleDoors(0, DATA_DOOR2);
-        ToggleDoors(0, DATA_DOOR3);
         
-        if(pInstance)
-            pInstance->SetData(TYPE_THE_MAKER_EVENT, DONE);
+        if(!pInstance)
+            return;
+            
+        pInstance->SetData(TYPE_THE_MAKER_EVENT, DONE);
+        pInstance->HandleGameObject(pInstance->GetData64(DATA_DOOR2), true);
+        pInstance->HandleGameObject(pInstance->GetData64(DATA_DOOR3), true);
+        
+
      }
 
     void UpdateAI(const uint32 diff)
@@ -136,20 +144,6 @@ struct TRINITY_DLL_DECL boss_the_makerAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
-    
-    void ToggleDoors(uint8 close, uint64 DOOR)
-    {
-        if (pInstance)
-        {
-            if (GameObject* Doors = pInstance->instance->GetGameObject(pInstance->GetData64(DOOR)))
-            {
-                if (close == 1)
-                    Doors->SetGoState(GO_STATE_READY);                // Closed
-                else
-                    Doors->SetGoState(GO_STATE_ACTIVE);                // Open
-            }
-        }
-    }
 };
 
 CreatureAI* GetAI_boss_the_makerAI(Creature *_Creature)
@@ -161,7 +155,7 @@ void AddSC_boss_the_maker()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_the_maker";
+    newscript->Name = "boss_the_maker";
     newscript->GetAI = &GetAI_boss_the_makerAI;
     newscript->RegisterSelf();
 }

@@ -72,7 +72,7 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
         for (uint8 i = 0; i < ENCOUNTERS; ++i)
             Encounters[i] = NOT_STARTED;
 
-        OperaEvent          = urand(1,3);                   // 1 - OZ, 2 - HOOD, 3 - RAJ, this never gets altered.
+        OperaEvent      = urand(1,3);                   // 1 - OZ, 2 - HOOD, 3 - RAJ, this never gets altered.
         OzDeathCount    = 0;
 
         CurtainGUID         = 0;

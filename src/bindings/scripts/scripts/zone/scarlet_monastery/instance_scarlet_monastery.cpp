@@ -90,13 +90,12 @@ struct TRINITY_DLL_DECL instance_scarlet_monastery : public ScriptedInstance
     {
         switch(type)
         {
-        case TYPE_MOGRAINE_AND_WHITE_EVENT: Encounter[0] = data; break;
+        case TYPE_MOGRAINE_AND_WHITE_EVENT:
+            Encounter[0] = data;
+            break;
         case GAMEOBJECT_PUMPKIN_SHRINE:
-            {
-            GameObject *Shrine = instance->GetGameObject(PumpkinShrineGUID);
-            if(Shrine)
-                Shrine->SetGoState(GO_STATE_READY);
-            }break;
+            HandleGameObject(PumpkinShrineGUID, false);
+            break;
         case DATA_HORSEMAN_EVENT:
             if (data == DONE)
             {
@@ -107,9 +106,7 @@ struct TRINITY_DLL_DECL instance_scarlet_monastery : public ScriptedInstance
                         add->DealDamage(add, add->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                 }
                 HorsemanAdds.clear();
-                GameObject *Shrine = instance->GetGameObject(PumpkinShrineGUID);
-                if(Shrine)
-                    Shrine->SetGoState(GO_STATE_READY);
+                HandleGameObject(PumpkinShrineGUID, false);
             }
             break;
         }

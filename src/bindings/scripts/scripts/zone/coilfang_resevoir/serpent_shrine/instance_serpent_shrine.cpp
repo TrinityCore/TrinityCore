@@ -134,12 +134,6 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
         }
     }
 
-    void OpenDoor(uint64 DoorGUID, bool open)
-    {
-        if(GameObject *Door = instance->GetGameObject(DoorGUID))
-            Door->SetGoState(open ? GO_STATE_ACTIVE : GO_STATE_READY);
-    }
-
     void OnCreatureCreate(Creature *creature, bool add)
     {
         switch(creature->GetEntry())
@@ -186,9 +180,9 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
         case DATA_CONTROL_CONSOLE:
             if(data == DONE)
             {
-                OpenDoor(BridgePart[0], true);
-                OpenDoor(BridgePart[1], true);
-                OpenDoor(BridgePart[2], true);
+                HandleGameObject(BridgePart[0], true);
+                HandleGameObject(BridgePart[0], true);
+                HandleGameObject(BridgePart[0], true);
             }
             ControlConsole = data;
         case DATA_HYDROSSTHEUNSTABLEEVENT:  Encounters[0] = data;   break;

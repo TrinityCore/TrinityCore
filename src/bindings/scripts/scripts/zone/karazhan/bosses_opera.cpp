@@ -572,11 +572,9 @@ struct TRINITY_DLL_DECL boss_croneAI : public ScriptedAI
         if(pInstance)
         {
             pInstance->SetData(DATA_OPERA_EVENT, DONE);
+            pInstance->HandleGameObject(pInstance->GetData64(DATA_GAMEOBJECT_STAGEDOORLEFT), true);
+            pInstance->HandleGameObject(pInstance->GetData64(DATA_GAMEOBJECT_STAGEDOORRIGHT), true);
 
-            if (GameObject* lDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_STAGEDOORLEFT)))
-                lDoor->SetGoState(GO_STATE_ACTIVE);
-            if (GameObject* rDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_STAGEDOORRIGHT)))
-                rDoor->SetGoState(GO_STATE_ACTIVE);
             if (GameObject* pSideEntrance = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
                 pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
         }
@@ -767,11 +765,9 @@ struct TRINITY_DLL_DECL boss_bigbadwolfAI : public ScriptedAI
         if(pInstance)
         {
             pInstance->SetData(DATA_OPERA_EVENT, DONE);
+            pInstance->HandleGameObject(pInstance->GetData64(DATA_GAMEOBJECT_STAGEDOORLEFT), true);
+            pInstance->HandleGameObject(pInstance->GetData64(DATA_GAMEOBJECT_STAGEDOORRIGHT), true);
 
-            if (GameObject* lDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_STAGEDOORLEFT)))
-                lDoor->SetGoState(GO_STATE_ACTIVE);
-            if (GameObject* rDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_STAGEDOORRIGHT)))
-                rDoor->SetGoState(GO_STATE_ACTIVE);
             if (GameObject* pSideEntrance = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
                 pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
         }
@@ -1014,11 +1010,8 @@ struct TRINITY_DLL_DECL boss_julianneAI : public ScriptedAI
         if(pInstance)
         {
             pInstance->SetData(DATA_OPERA_EVENT, DONE);
-
-            if (GameObject* lDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_STAGEDOORLEFT)))
-                lDoor->SetGoState(GO_STATE_ACTIVE);
-            if (GameObject* rDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_STAGEDOORRIGHT)))
-                rDoor->SetGoState(GO_STATE_ACTIVE);
+            pInstance->HandleGameObject(pInstance->GetData64(DATA_GAMEOBJECT_STAGEDOORLEFT), true);
+            pInstance->HandleGameObject(pInstance->GetData64(DATA_GAMEOBJECT_STAGEDOORRIGHT), true);
             if (GameObject* pSideEntrance = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
                 pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
         }
@@ -1103,11 +1096,9 @@ struct TRINITY_DLL_DECL boss_romuloAI : public ScriptedAI
         if (pInstance)
         {
             pInstance->SetData(DATA_OPERA_EVENT, DONE);
+            pInstance->HandleGameObject(pInstance->GetData64(DATA_GAMEOBJECT_STAGEDOORLEFT), true);
+            pInstance->HandleGameObject(pInstance->GetData64(DATA_GAMEOBJECT_STAGEDOORRIGHT), true);
 
-            if (GameObject* lDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_STAGEDOORLEFT)))
-                lDoor->SetGoState(GO_STATE_ACTIVE);
-            if (GameObject* rDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_STAGEDOORRIGHT)))
-                rDoor->SetGoState(GO_STATE_ACTIVE);
             if (GameObject* pSideEntrance = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
                 pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
         }

@@ -103,17 +103,6 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
         events.ScheduleEvent(EVENT_FLAME, 20000, GCD_CAST);
     }
 
-    void ToggleDoors(bool close)
-    {
-        if(GameObject* Doors = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GAMEOBJECT_SUPREMUS_DOORS)))
-        {
-            if(close)
-                Doors->SetGoState(GO_STATE_READY);                 // Closed
-            else
-                Doors->SetGoState(GO_STATE_ACTIVE);                      // Open
-        }
-    }
-
     void ChangePhase()
     {
         if(!phase || phase == PHASE_CHASE)
@@ -145,7 +134,7 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
         if(pInstance)
         {
             pInstance->SetData(DATA_SUPREMUSEVENT, DONE);
-            ToggleDoors(false);
+            pInstance->HandleGameObject(pInstance->GetData64(DATA_GAMEOBJECT_SUPREMUS_DOORS), true);
         }
         summons.DespawnAll();
     }

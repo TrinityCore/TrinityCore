@@ -125,10 +125,7 @@ struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
             if(data == NOT_STARTED)
                 RespawnTimer = 10000;
             if(data != IN_PROGRESS)
-            {
-                if(GameObject *Door = instance->GetGameObject(DoorGUID))
-                    Door->SetGoState(GO_STATE_ACTIVE);
-            }
+               HandleGameObject(DoorGUID, true);
             break;
         case DATA_CHANNELER_EVENT:
             switch(data)
@@ -148,8 +145,7 @@ struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
                         }
                     }
                     CageTimer = 0;
-                    if(GameObject *Door = instance->GetGameObject(DoorGUID))
-                        Door->SetGoState(GO_STATE_ACTIVE);
+                    HandleGameObject(DoorGUID, true);
                 }break;
             case IN_PROGRESS: // Event start.
                 if(Encounters[1] != IN_PROGRESS)
@@ -169,8 +165,7 @@ struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
                         Magtheridon->MonsterTextEmote("'s bonds begin to weaken!", 0);
                         CageTimer = 120000;
                     }
-                    if(GameObject *Door = instance->GetGameObject(DoorGUID))
-                        Door->SetGoState(GO_STATE_READY);
+                    HandleGameObject(DoorGUID, false);
                 }break;
             case DONE: // Add buff and check if all channelers are dead.
                 for(std::set<uint64>::iterator i = ChannelerGUID.begin(); i != ChannelerGUID.end(); ++i)
