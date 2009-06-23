@@ -2155,8 +2155,9 @@ bool SpellMgr::IsSpellValid(SpellEntry const* spellInfo, Player* pl, bool msg)
             case 0:
                 continue;
 
-                // craft spell for crafting non-existed item (break client recipes list show)
+            // craft spell for crafting non-existed item (break client recipes list show)
             case SPELL_EFFECT_CREATE_ITEM:
+            case SPELL_EFFECT_CREATE_ITEM_2:
             {
                 if(!ObjectMgr::GetItemPrototype( spellInfo->EffectItemType[i] ))
                 {

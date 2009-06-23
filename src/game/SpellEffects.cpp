@@ -123,7 +123,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectSummonPet,                                // 56 SPELL_EFFECT_SUMMON_PET
     &Spell::EffectLearnPetSpell,                            // 57 SPELL_EFFECT_LEARN_PET_SPELL
     &Spell::EffectWeaponDmg,                                // 58 SPELL_EFFECT_WEAPON_DAMAGE
-    &Spell::EffectOpenSecretSafe,                           // 59 SPELL_EFFECT_OPEN_LOCK_ITEM
+    &Spell::EffectCreateRandomItem,                         // 59 SPELL_EFFECT_CREATE_RANDOM_ITEM       create item base at spell specific loot
     &Spell::EffectProficiency,                              // 60 SPELL_EFFECT_PROFICIENCY
     &Spell::EffectSendEvent,                                // 61 SPELL_EFFECT_SEND_EVENT
     &Spell::EffectPowerBurn,                                // 62 SPELL_EFFECT_POWER_BURN
@@ -221,7 +221,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //154 unused
     &Spell::EffectTitanGrip,                                //155 SPELL_EFFECT_TITAN_GRIP Allows you to equip two-handed axes, maces and swords in one hand, but you attack $49152s1% slower than normal.
     &Spell::EffectEnchantItemPrismatic,                     //156 SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC
-    &Spell::EffectCreateItem2,                              //157 SPELL_EFFECT_CREATE_ITEM_2            create/learn item/spell for profession
+    &Spell::EffectCreateItem2,                              //157 SPELL_EFFECT_CREATE_ITEM_2            create item or create item template and replace by some randon spell loot item
     &Spell::EffectMilling,                                  //158 SPELL_EFFECT_MILLING                  milling
     &Spell::EffectRenamePet,                                //159 SPELL_EFFECT_ALLOW_RENAME_PET         allow rename pet once again
     &Spell::EffectNULL,                                     //160 SPELL_EFFECT_160                      unused
@@ -2864,25 +2864,31 @@ void Spell::EffectCreateItem2(uint32 i)
     Player* player = (Player*)m_caster;
 
     uint32 item_id = m_spellInfo->EffectItemType[i];
-    if(item_id)
-        DoCreateItem(i, item_id);
+    DoCreateItem(i, item_id);
 
     // special case: fake item replaced by generate using spell_loot_template
     if(IsLootCraftingSpell(m_spellInfo))
     {
-        if(item_id)
-        {
-            if(!player->HasItemCount(item_id, 1))
-                return;
+        if(!player->HasItemCount(item_id, 1))
+            return;
 
-            // remove reagent
-            uint32 count = 1;
-            player->DestroyItemCount(item_id, count, true);
-        }
+        // remove reagent
+        uint32 count = 1;
+        player->DestroyItemCount(item_id, count, true);
 
         // create some random items
         player->AutoStoreLoot(m_spellInfo->Id, LootTemplates_Spell);
     }
+}
+
+void Spell::EffectCreateRandomItem(uint32 i)
+{
+    if(m_caster->GetTypeId()!=TYPEID_PLAYER)
+        return;
+    Player* player = (Player*)m_caster;
+
+    // create some random items
+    player->AutoStoreLoot(m_spellInfo->Id, LootTemplates_Spell);
 }
 
 void Spell::EffectPersistentAA(uint32 i)
@@ -3290,11 +3296,6 @@ void Spell::EffectSummonChangeItem(uint32 i)
 
     // fail
     delete pNewItem;
-}
-
-void Spell::EffectOpenSecretSafe(uint32 i)
-{
-    EffectOpenLock(i);                                      //no difference for now
 }
 
 void Spell::EffectProficiency(uint32 /*i*/)

@@ -213,15 +213,14 @@ inline bool IsElementalShield(SpellEntry const *spellInfo)
 
 inline bool IsExplicitDiscoverySpell(SpellEntry const *spellInfo)
 {
-    return spellInfo->Effect[0]==SPELL_EFFECT_CREATE_ITEM_2 && spellInfo->Effect[1]==SPELL_EFFECT_SCRIPT_EFFECT;
+    return spellInfo->Effect[0]==SPELL_EFFECT_CREATE_RANDOM_ITEM && spellInfo->Effect[1]==SPELL_EFFECT_SCRIPT_EFFECT;
 }
 
 inline bool IsLootCraftingSpell(SpellEntry const *spellInfo)
 {
-    return spellInfo->Effect[0]==SPELL_EFFECT_CREATE_ITEM_2 && (
-        spellInfo->Effect[1]==SPELL_EFFECT_SCRIPT_EFFECT || // see IsExplicitDiscoverySpell
-        !spellInfo->EffectItemType[0] ||                    // result item not provided
-        spellInfo->TotemCategory[0] == 121);                // different random cards from Inscription (121==Virtuoso Inking Set category)
+ return spellInfo->Effect[0]==SPELL_EFFECT_CREATE_RANDOM_ITEM ||
+        // different random cards from Inscription (121==Virtuoso Inking Set category)
+        spellInfo->Effect[0]==SPELL_EFFECT_CREATE_ITEM_2 && spellInfo->TotemCategory[0] == 121;
 }
 
 bool IsHigherHankOfSpell(uint32 spellId_1,uint32 spellId_2);

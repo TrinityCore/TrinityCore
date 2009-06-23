@@ -263,11 +263,11 @@ class Spell
         void EffectQuestComplete(uint32 i);
         void EffectCreateItem(uint32 i);
         void EffectCreateItem2(uint32 i);
+        void EffectCreateRandomItem(uint32 i);
         void EffectPersistentAA(uint32 i);
         void EffectEnergize(uint32 i);
         void EffectOpenLock(uint32 i);
         void EffectSummonChangeItem(uint32 i);
-        void EffectOpenSecretSafe(uint32 i);
         void EffectProficiency(uint32 i);
         void EffectApplyAreaAura(uint32 i);
         void EffectSummonType(uint32 i);
