@@ -266,10 +266,17 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId)
     if(!accessory)
         return;
 
-    accessory->m_Vehicle = this;
-    AddPassenger(accessory, seatId);
-    // This is not good, we have to send update twice
-    accessory->SendMovementFlagUpdate();
+    if (!accessory->m_Vehicle)
+    {
+        accessory->m_Vehicle = this;
+        if (!AddPassenger(accessory, seatId))
+        {
+            accessory->m_Vehicle = NULL;
+            return;
+        }
+        // This is not good, we have to send update twice
+        accessory->SendMovementFlagUpdate();
+    }
 }
 
 bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
