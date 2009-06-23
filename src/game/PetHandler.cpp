@@ -291,7 +291,7 @@ void WorldSession::HandlePetActionHelper(Unit *pet, uint64 guid1, uint16 spellid
                     pet->SendPetCastFail(spellid, result);
 
                 if(!((Creature*)pet)->HasSpellCooldown(spellid))
-                    pet->SendPetClearCooldown(spellid);
+                    GetPlayer()->SendClearCooldown(spellid, pet);
 
                 spell->finish(false);
                 delete spell;
@@ -669,12 +669,12 @@ void WorldSession::HandlePetCastSpellOpcode( WorldPacket& recvPacket )
         if(caster->GetTypeId() == TYPEID_PLAYER)
         {
             if(!((Player*)caster)->HasSpellCooldown(spellid))
-                caster->SendPetClearCooldown(spellid);
+                GetPlayer()->SendClearCooldown(spellid, caster);
         }
         else
         {
             if(!((Creature*)caster)->HasSpellCooldown(spellid))
-                caster->SendPetClearCooldown(spellid);
+                GetPlayer()->SendClearCooldown(spellid, caster);
         }
 
         spell->finish(false);
