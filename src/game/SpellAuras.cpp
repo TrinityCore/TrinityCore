@@ -6348,6 +6348,20 @@ void AuraEffect::PeriodicTick()
                     GetParentAura()->SetAuraDuration(0);
                 }
             }
+            // Mana Feed - Drain Mana
+            if (m_spellProto->SpellFamilyName == SPELLFAMILY_WARLOCK
+                && m_spellProto->SpellFamilyFlags[0] & 0x00000010)
+            {
+                int32 manaFeedVal = 0;
+                if (AuraEffect const * aurEff = GetParentAura()->GetPartAura(1))
+                    manaFeedVal = aurEff->GetAmount();
+
+                if(manaFeedVal > 0)
+                {
+                    manaFeedVal = manaFeedVal * gain_amount / 100;
+                    pCaster->CastCustomSpell(pCaster, 32554, &manaFeedVal, NULL, NULL, true, NULL, this);
+                }
+            }
             break;
         }
         case SPELL_AURA_OBS_MOD_ENERGY:
