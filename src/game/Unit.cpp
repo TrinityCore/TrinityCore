@@ -1630,45 +1630,8 @@ void Unit::DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss)
         }
     }
 
-    if(GetTypeId() == TYPEID_PLAYER && pVictim->isAlive())
-    {
-        for(int i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; i++)
-        {
-            // If usable, try to cast item spell
-            if (Item * item = ((Player*)this)->GetItemByPos(INVENTORY_SLOT_BAG_0,i))
-                if(!item->IsBroken())
-                    if (ItemPrototype const *proto = item->GetProto())
-                    {
-                        // Additional check for weapons
-                        if (proto->Class==ITEM_CLASS_WEAPON)
-                        {
-                            // offhand item cannot proc from main hand hit etc
-                            EquipmentSlots slot;
-                            switch (damageInfo->attackType)
-                            {
-                                case BASE_ATTACK:   slot = EQUIPMENT_SLOT_MAINHAND; break;
-                                case OFF_ATTACK:    slot = EQUIPMENT_SLOT_OFFHAND;  break;
-                                case RANGED_ATTACK: slot = EQUIPMENT_SLOT_RANGED;   break;
-                                default: slot = EQUIPMENT_SLOT_END; break;
-                            }
-                            if (slot != i)
-                                continue;
-                            // Check if item is useable (forms or disarm)
-                            if (damageInfo->attackType == BASE_ATTACK)
-                            {
-                                if (!((Player*)this)->IsUseEquipedWeapon(true))
-                                    continue;
-                            }
-                            else
-                            {
-                                if (((Player*)this)->IsInFeralForm())
-                                    continue;
-                            }
-                        }
-                        ((Player*)this)->CastItemCombatSpell(item, damageInfo, proto);
-                    }
-        }
-    }
+    if(GetTypeId() == TYPEID_PLAYER)
+        ((Player *)this)->CastItemCombatSpell(pVictim, damageInfo->attackType, damageInfo->procVictim, damageInfo->procEx);
 
     // Do effect if any damage done to target
     if (damageInfo->procVictim & PROC_FLAG_TAKEN_ANY_DAMAGE)
@@ -2373,7 +2336,7 @@ void Unit::DoAttackDamage (Unit *pVictim, uint32 *damage, CleanDamage *cleanDama
 
 void Unit::AttackerStateUpdate (Unit *pVictim, WeaponAttackType attType, bool extra )
 {
-    if(hasUnitState(UNIT_STAT_CANNOT_AUTOATTACK) || HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED) )
+    if(!extra && hasUnitState(UNIT_STAT_CANNOT_AUTOATTACK) || HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED) )
         return;
 
     if (!pVictim->isAlive())
@@ -2401,8 +2364,8 @@ void Unit::AttackerStateUpdate (Unit *pVictim, WeaponAttackType attType, bool ex
     CalculateMeleeDamage(pVictim, 0, &damageInfo, attType);
     // Send log damage message to client
     SendAttackStateUpdate(&damageInfo);
-    ProcDamageAndSpell(damageInfo.target, damageInfo.procAttacker, damageInfo.procVictim, damageInfo.procEx, damageInfo.damage, damageInfo.attackType);
     DealMeleeDamage(&damageInfo,true);
+    ProcDamageAndSpell(damageInfo.target, damageInfo.procAttacker, damageInfo.procVictim, damageInfo.procEx, damageInfo.damage, damageInfo.attackType);
 
     if (GetTypeId() == TYPEID_PLAYER)
         DEBUG_LOG("AttackerStateUpdate: (Player) %u attacked %u (TypeId: %u) for %u dmg, absorbed %u, blocked %u, resisted %u.",
@@ -7418,10 +7381,6 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, Aura* triggeredB
             return false;
     }
 
-    // not allow proc extra attack spell at extra attack
-    if( m_extraAttacks && IsSpellHaveEffect(triggerEntry, SPELL_EFFECT_ADD_EXTRA_ATTACKS) )
-        return false;
-
     // Costum requirements (not listed in procEx) Warning! damage dealing after this
     // Custom triggered spells
     switch (auraSpellInfo->Id)
@@ -7536,15 +7495,14 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, Aura* triggeredB
     if(!target || target!=this && !target->isAlive())
         return false;
 
-    if(basepoints0)
-        CastCustomSpell(target,trigger_spell_id,&basepoints0,NULL,NULL,true,castItem,triggeredByAura);
-    //else if(spellmgr.GetSpellCustomAttr(trigger_spell_id) & SPELL_ATTR_CU_AURA_SPELL)
-    //    AddAura(trigger_spell_id, target);
-    else
-        CastSpell(target,trigger_spell_id,true,castItem,triggeredByAura);
-
+    // apply spell cooldown before casting to prevent triggering spells with SPELL_EFFECT_ADD_EXTRA_ATTACKS if spell has hidden cooldown
     if( cooldown && GetTypeId()==TYPEID_PLAYER )
         ((Player*)this)->AddSpellCooldown(trigger_spell_id,0,time(NULL) + cooldown);
+
+    if(basepoints0)
+        CastCustomSpell(target,trigger_spell_id,&basepoints0,NULL,NULL,true,castItem,triggeredByAura);
+    else
+        CastSpell(target,trigger_spell_id,true,castItem,triggeredByAura);
 
     return true;
 }
