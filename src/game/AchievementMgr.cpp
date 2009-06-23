@@ -535,7 +535,7 @@ void AchievementMgr::LoadFromDB(QueryResult *achievementResult, QueryResult *cri
             if (!criteria)
             {
                 // we will remove not existed criteria for all characters
-                sLog.outError("Not existed achievement creataria %u data removed from table `character_achievement_progress`.",id);
+                sLog.outError("Not existed achievement criteria %u data removed from table `character_achievement_progress`.",id);
                 CharacterDatabase.PExecute("DELETE FROM character_achievement_progress WHERE criteria = %u",id);
                 continue;
             }

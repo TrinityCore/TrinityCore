@@ -2783,6 +2783,13 @@ void AuraEffect::HandleAuraDummy(bool apply, bool Real, bool changeAmount)
                     if(m_target->IsInWorld())
                         m_target->CastCustomSpell(m_target,33778,&m_amount,NULL,NULL,true,NULL,this,GetCasterGUID());
 
+                    // restore mana
+                    if (caster)
+                    {
+                        int32 returnmana = (GetSpellProto()->ManaCostPercentage * caster->GetCreateMana() / 100) * GetParentAura()->GetStackAmount() / 2;
+                        caster->CastCustomSpell(caster, 64372, &returnmana, NULL, NULL, true, NULL, this, GetCasterGUID());
+                    }
+
                     /*// have a look if there is still some other Lifebloom dummy aura
                     Unit::AuraList auras = m_target->GetAurasByType(SPELL_AURA_DUMMY);
                     for(Unit::AuraList::iterator itr = auras.begin(); itr!=auras.end(); ++itr)

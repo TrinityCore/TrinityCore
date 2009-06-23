@@ -57,7 +57,6 @@ typedef std::deque<Mail*> PlayerMails;
 
 #define PLAYER_MAX_SKILLS       127
 #define PLAYER_MAX_DAILY_QUESTS 25
-#define AT_LOAD_PET_FLAGS 16
 
 // Note: SPELLMOD_* values is aura types in fact
 enum SpellModType
@@ -510,11 +509,12 @@ enum PlayerExtraFlags
 // 2^n values
 enum AtLoginFlags
 {
-    AT_LOGIN_NONE          = 0,
-    AT_LOGIN_RENAME        = 1,
-    AT_LOGIN_RESET_SPELLS  = 2,
-    AT_LOGIN_RESET_TALENTS = 4,
-    AT_LOGIN_CUSTOMIZE     = 8,
+    AT_LOGIN_NONE              = 0x00,
+    AT_LOGIN_RENAME            = 0x01,
+    AT_LOGIN_RESET_SPELLS      = 0x02,
+    AT_LOGIN_RESET_TALENTS     = 0x04,
+    AT_LOGIN_CUSTOMIZE         = 0x08,
+    AT_LOGIN_RESET_PET_TALENTS = 0x10,
 };
 
 typedef std::map<uint32, QuestStatusData> QuestStatusMap;
@@ -1996,8 +1996,7 @@ class TRINITY_DLL_SPEC Player : public Unit
 
         bool HasAtLoginFlag(AtLoginFlags f) const { return m_atLoginFlags & f; }
         void SetAtLoginFlag(AtLoginFlags f) { m_atLoginFlags |= f; }
-        uint32 GetAtLoginFlag() { return m_atLoginFlags; }
-        void SetPetAtLoginFlag(uint8 f) { m_atLoginFlags |= uint32(f<<AT_LOAD_PET_FLAGS); }
+        void RemoveAtLoginFlag(AtLoginFlags f, bool in_db_also = false);
 
         LookingForGroup m_lookingForGroup;
 

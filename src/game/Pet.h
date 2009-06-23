@@ -89,12 +89,6 @@ enum PetTalk
     PET_TALK_ATTACK         = 1
 };
 
-enum AtLoadFlags
-{
-    AT_LOAD_NONE          = 0,
-    AT_LOAD_RESET_SPELLS  = 1,
-};
-
 enum PetNameInvalidReason
 {
     PET_NAME_INVALID                                        = 1,
@@ -212,6 +206,7 @@ class Pet : public Guardian
         void InitPetCreateSpells();
 
         bool resetTalents(bool no_cost = false);
+        static void resetTalentsForAllPetsOf(Player* owner, Pet* online_pet = NULL);
         uint32 resetTalentsCost() const;
         void InitTalentForLevel();
 

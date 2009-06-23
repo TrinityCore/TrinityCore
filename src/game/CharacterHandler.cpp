@@ -815,6 +815,10 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
         SendDoFlight( mountDisplayId, path, startNode );
     }
 
+    // reset for all pets before pet loading
+    if(pCurrChar->HasAtLoginFlag(AT_LOGIN_RESET_PET_TALENTS))
+        Pet::resetTalentsForAllPetsOf(pCurrChar);
+
     // Load pet if any (if player not alive and in taxi flight or another then pet will remember as temporary unsummoned)
     pCurrChar->LoadPet();
 
