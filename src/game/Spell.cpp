@@ -1043,11 +1043,16 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         procEx = createProcExtendMask(&damageInfo, missInfo);
         procVictim |= PROC_FLAG_TAKEN_ANY_DAMAGE;
 
+        
+        caster->DealSpellDamage(&damageInfo, true);
         // Do triggers for unit (reflect triggers passed on hit phase for correct drop charge)
         if (missInfo != SPELL_MISS_REFLECT)
+        {
             caster->ProcDamageAndSpell(unitTarget, procAttacker, procVictim, procEx, damageInfo.damage, m_attackType, m_spellInfo, m_canTrigger);
-
-        caster->DealSpellDamage(&damageInfo, true);
+            if(caster->GetTypeId() == TYPEID_PLAYER && (m_spellInfo->Attributes & SPELL_ATTR_STOP_ATTACK_TARGET) == 0 &&
+               (m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MELEE || m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_RANGED))
+                ((Player *)caster)->CastItemCombatSpell(unitTarget, m_attackType, procVictim, procEx);
+        }
 
         // Shadow Word: Death - deals damage equal to damage done to caster if victim is not killed
         if (m_spellInfo->SpellFamilyName == SPELLFAMILY_PRIEST && m_spellInfo->SpellFamilyFlags&0x0000000200000000LL &&
