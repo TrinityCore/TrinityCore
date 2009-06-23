@@ -1892,8 +1892,8 @@ void SpellMgr::LoadSpellPetAuras()
 
     uint32 count = 0;
 
-    //                                                0      1    2
-    QueryResult *result = WorldDatabase.Query("SELECT spell, pet, aura FROM spell_pet_auras");
+    //                                                0      1         2    3
+    QueryResult *result = WorldDatabase.Query("SELECT spell, effectId, pet, aura FROM spell_pet_auras");
     if( !result )
     {
 
@@ -1915,10 +1915,11 @@ void SpellMgr::LoadSpellPetAuras()
         bar.step();
 
         uint16 spell = fields[0].GetUInt16();
-        uint16 pet = fields[1].GetUInt16();
-        uint16 aura = fields[2].GetUInt16();
+        uint8 eff = fields[1].GetUInt8();
+        uint16 pet = fields[2].GetUInt16();
+        uint16 aura = fields[3].GetUInt16();
 
-        SpellPetAuraMap::iterator itr = mSpellPetAuraMap.find(spell);
+        SpellPetAuraMap::iterator itr = mSpellPetAuraMap.find((spell<<8) + eff);
         if(itr != mSpellPetAuraMap.end())
         {
             itr->second.AddAura(pet, aura);
@@ -1931,14 +1932,9 @@ void SpellMgr::LoadSpellPetAuras()
                 sLog.outErrorDb("Spell %u listed in `spell_pet_auras` does not exist", spell);
                 continue;
             }
-            int i = 0;
-            for(; i < 3; ++i)
-                if((spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AURA &&
-                    spellInfo->EffectApplyAuraName[i] == SPELL_AURA_DUMMY) ||
-                    spellInfo->Effect[i] == SPELL_EFFECT_DUMMY)
-                    break;
-
-            if(i == 3)
+            if (spellInfo->Effect[eff] != SPELL_EFFECT_DUMMY &&
+               (spellInfo->Effect[eff] != SPELL_EFFECT_APPLY_AURA ||
+                spellInfo->EffectApplyAuraName[eff] != SPELL_AURA_DUMMY))
             {
                 sLog.outError("Spell %u listed in `spell_pet_auras` does not have dummy aura or dummy effect", spell);
                 continue;
@@ -1951,8 +1947,8 @@ void SpellMgr::LoadSpellPetAuras()
                 continue;
             }
 
-            PetAura pa(pet, aura, spellInfo->EffectImplicitTargetA[i] == TARGET_UNIT_PET, spellInfo->CalculateSimpleValue(i));
-            mSpellPetAuraMap[spell] = pa;
+            PetAura pa(pet, aura, spellInfo->EffectImplicitTargetA[eff] == TARGET_UNIT_PET, spellInfo->CalculateSimpleValue(eff));
+            mSpellPetAuraMap[(spell<<8) + eff] = pa;
         }
 
         ++count;
