@@ -253,6 +253,7 @@ void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& /*recv_data*/)
             SendDoFlight( mountDisplayId, path, 1 );        // skip start fly node
         else
             GetPlayer()->m_taxi.ClearTaxiDestinations();    // clear problematic path and next
+        return;
     }
 
     GetPlayer()->m_taxi.ClearTaxiDestinations();        // not destinations, clear source node

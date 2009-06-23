@@ -1493,7 +1493,10 @@ void Spell::EffectDummy(uint32 i)
                     for(Unit::AuraEffectList::const_iterator itr = mod.begin(); itr != mod.end(); ++itr)
                     {
                         if((*itr)->GetSpellProto()->SpellFamilyName==SPELLFAMILY_WARLOCK && (*itr)->GetSpellProto()->SpellIconID == 1982)
-                            manaFeedVal+= (*itr)->GetAmount();
+                        {
+                            manaFeedVal = (*itr)->GetAmount();
+                            break;
+                        }
                     }
                     if(manaFeedVal > 0)
                     {
