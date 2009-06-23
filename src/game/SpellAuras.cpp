@@ -1904,6 +1904,22 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 if(caster)
                     caster->CastSpell(caster,13138,true,NULL,this);
                 return;
+            case 37096:                                     // Blood Elf Disguise
+                if(caster)
+                {
+                    switch(caster->getGender())
+                    {
+                        case GENDER_FEMALE:
+                            caster->CastSpell(m_target,37095,true,NULL,this);
+                            break;
+                        case GENDER_MALE:
+                            caster->CastSpell(m_target,37093,true,NULL,this);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                return;
             case 39850:                                     // Rocket Blast
                 if(roll_chance_i(20))                       // backfire stun
                     m_target->CastSpell(m_target, 51581, true, NULL, this);
