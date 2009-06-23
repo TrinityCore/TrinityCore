@@ -12845,33 +12845,6 @@ void Unit::SendPetTalk (uint32 pettalk)
     ((Player*)owner)->GetSession()->SendPacket(&data);
 }
 
-void Unit::SendPetSpellCooldown (uint32 spellid, time_t cooltime)
-{
-    Unit* owner = GetOwner();
-    if(!owner || owner->GetTypeId() != TYPEID_PLAYER)
-        return;
-
-    WorldPacket data(SMSG_SPELL_COOLDOWN, 8+1+4+4);
-    data << uint64(GetGUID());
-    data << uint8(0x0);                                     // flags (0x1, 0x2)
-    data << uint32(spellid);
-    data << uint32(cooltime);
-
-    ((Player*)owner)->GetSession()->SendPacket(&data);
-}
-
-void Unit::SendPetClearCooldown (uint32 spellid)
-{
-    Unit* owner = GetOwner();
-    if(!owner || owner->GetTypeId() != TYPEID_PLAYER)
-        return;
-
-    WorldPacket data(SMSG_CLEAR_COOLDOWN, 4+8);
-    data << uint32(spellid);
-    data << uint64(GetGUID());
-    ((Player*)owner)->GetSession()->SendPacket(&data);
-}
-
 void Unit::SendPetAIReaction(uint64 guid)
 {
     Unit* owner = GetOwner();
@@ -13366,12 +13339,6 @@ void Unit::SetContestedPvP(Player *attackedPlayer)
 void Unit::AddPetAura(PetAura const* petSpell)
 {
     if(GetTypeId() != TYPEID_PLAYER)
-        return;
-
-    // Aura already added - not need to add it twice
-    // This check is to prevent existing pet having aura applied twice (passive auras can stack)
-    // if aura has more than 1 dummy effect
-    if (m_petAuras.find(petSpell)!= m_petAuras.end())
         return;
 
     m_petAuras.insert(petSpell);
