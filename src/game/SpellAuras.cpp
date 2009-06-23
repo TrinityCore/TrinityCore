@@ -2435,6 +2435,24 @@ void AuraEffect::HandleAuraDummy(bool apply, bool Real, bool changeAmount)
                 }
                 return;
             }
+            case 37096:                                     // Blood Elf Disguise
+            {
+                if(caster)
+                {
+                    switch(caster->getGender())
+                    {
+                        case GENDER_FEMALE:
+                            caster->CastSpell(m_target,37095,true,NULL,this);
+                            break;
+                        case GENDER_MALE:
+                            caster->CastSpell(m_target,37093,true,NULL,this);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                return;
+            }
             case 55198:   // Tidal Force
             {
                 m_target->CastSpell(m_target,55166,true,NULL,this);
