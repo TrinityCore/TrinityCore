@@ -3418,11 +3418,12 @@ void Spell::TriggerSpell()
 uint8 Spell::CanCast(bool strict)
 {
     // check cooldowns to prevent cheating
-    if(m_caster->GetTypeId()==TYPEID_PLAYER && ((Player*)m_caster)->HasSpellCooldown(m_spellInfo->Id))
+    if(!m_IsTriggeredSpell && m_caster->GetTypeId()==TYPEID_PLAYER && ((Player*)m_caster)->HasSpellCooldown(m_spellInfo->Id))
     {
-        if(m_triggeredByAuraSpell)
-            return SPELL_FAILED_DONT_REPORT;
-        else
+       //triggered spells shouldn't be casted (cooldown check in handleproctriggerspell)
+       // if(m_triggeredByAuraSpell)
+       //     return SPELL_FAILED_DONT_REPORT;
+       // else
             return SPELL_FAILED_NOT_READY;
     }
 
