@@ -74,6 +74,7 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 ( -52610, -62071, 0, 'Savage Roar'),
 (51209, 55095, 1, 'Hungering cold - frost fever'),
 (50334, 58923, 2, 'Berserk - modify target number aura'),
+( -5229, -51185, 0, 'King of the Jungle - remove with enrage'),
 
 -- Creature
 ( 36574, 36650, 0, 'Apply Phase Slip Vulnerability'),
@@ -1141,6 +1142,9 @@ INSERT INTO `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `Spell
 ( 48483, 0x00,   7, 0x00008800, 0x00000440, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Infected Wounds (Rank 1)
 ( 48484, 0x00,   7, 0x00008800, 0x00000440, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Infected Wounds (Rank 2)
 ( 48485, 0x00,   7, 0x00008800, 0x00000440, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Infected Wounds (Rank 3)
+( 48492, 0x00,   7, 0x00080000, 0x00000000, 0x00000800, 0x00000400, 0x00000000,   0,   0,   0), -- King of the Jungle (Rank1)
+( 48494, 0x00,   7, 0x00080000, 0x00000000, 0x00000800, 0x00000400, 0x00000000,   0,   0,   0), -- King of the Jungle (Rank2)
+( 48495, 0x00,   7, 0x00080000, 0x00000000, 0x00000800, 0x00000400, 0x00000000,   0,   0,   0), -- King of the Jungle (Rank3)
 ( 48496, 0x00,   7, 0x00000060, 0x02000002, 0x00000000, 0x00000000, 0x00000002,   0,   0,   0), -- Living Seed (Rank 1)
 ( 48499, 0x00,   7, 0x00000060, 0x02000002, 0x00000000, 0x00000000, 0x00000002,   0,   0,   0), -- Living Seed (Rank 2)
 ( 48500, 0x00,   7, 0x00000060, 0x02000002, 0x00000000, 0x00000000, 0x00000002,   0,   0,   0), -- Living Seed (Rank 3)
