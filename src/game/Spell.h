@@ -438,6 +438,7 @@ class Spell
         uint32 m_glyphIndex;
         uint32 m_preCastSpell;
         SpellCastTargets m_targets;
+        int8 m_comboPointGain;
 
         UsedSpellMods m_appliedMods;
 

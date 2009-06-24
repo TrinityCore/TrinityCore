@@ -517,9 +517,9 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                     // converts each extra point of energy into ($f1+$AP/410) additional damage
                     float ap = m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
                     float multiple = ap / 410 + m_spellInfo->DmgMultiplier[effect_idx];
-                    damage += int32(m_caster->GetPower(POWER_ENERGY) * multiple);
+                    int32 energy = -(m_caster->ModifyPower(POWER_ENERGY, -30));
+                    damage += int32(energy * multiple);
                     damage += int32(((Player*)m_caster)->GetComboPoints() * ap * 7 / 100);
-                    m_caster->SetPower(POWER_ENERGY,0);
                 }
                 // Rake
                 else if(m_spellInfo->SpellFamilyFlags[0] & 0x1000)
@@ -660,20 +660,8 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
             }
             case SPELLFAMILY_PALADIN:
             {
-                // Avenger's Shield ($m1+0.07*$SPH+0.07*$AP)
-                if(m_spellInfo->SpellFamilyFlags[0] & 0x4000)
-                {
-                    float ap = m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
-                    damage += int32(ap * 0.07f);
-                }
-                // Hammer of Wrath ($m1+0.15*$SPH+0.15*$AP)
-                else if(m_spellInfo->SpellFamilyFlags[1] & 0x00000080)
-                {
-                    float ap = m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
-                    damage += int32(ap * 0.15f);
-                }
                 // Hammer of the Righteous
-                else if(m_spellInfo->SpellFamilyFlags[1]&0x00040000)
+                if(m_spellInfo->SpellFamilyFlags[1]&0x00040000)
                 {
                     // Add main hand dps * effect[2] amount
                     float average = (m_caster->GetFloatValue(UNIT_FIELD_MINDAMAGE) + m_caster->GetFloatValue(UNIT_FIELD_MAXDAMAGE)) / 2;
@@ -4310,7 +4298,7 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
             if(m_spellInfo->SpellFamilyFlags[0] & 0x2000000)
             {
                 if(m_caster->GetTypeId()==TYPEID_PLAYER)
-                    ((Player*)m_caster)->AddComboPoints(unitTarget, 1);
+                    ((Player*)m_caster)->AddComboPoints(unitTarget, 1, this);
             }
             // Fan of Knives
             else if(m_spellInfo->SpellFamilyFlags[1] & 0x40000)
@@ -4388,7 +4376,7 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
             if(m_spellInfo->SpellFamilyFlags.IsEqual(0,0x00000400))
             {
                 if(m_caster->GetTypeId()==TYPEID_PLAYER)
-                    ((Player*)m_caster)->AddComboPoints(unitTarget,1);
+                    ((Player*)m_caster)->AddComboPoints(unitTarget,1, this);
             }
             break;
         }
@@ -5505,7 +5493,7 @@ void Spell::EffectAddComboPoints(uint32 /*i*/)
     if(damage <= 0)
         return;
 
-    ((Player*)m_caster)->AddComboPoints(unitTarget, damage);
+    ((Player*)m_caster)->AddComboPoints(unitTarget, damage, this);
 }
 
 void Spell::EffectDuel(uint32 i)

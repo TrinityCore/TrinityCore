@@ -363,6 +363,7 @@ Spell::Spell( Unit* Caster, SpellEntry const *info, bool triggered, uint64 origi
     m_referencedFromCurrentSpell = false;
     m_executedCurrently = false;
     m_needComboPoints = NeedsComboPoints(m_spellInfo);
+    m_comboPointGain = 0;
     m_delayStart = 0;
     m_delayAtDamageCount = 0;
 
@@ -2730,7 +2731,13 @@ void Spell::cast(bool skipCheck)
         ((Player*)m_caster)->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL, m_spellInfo->Id);
     }
 
-    // this is related to combo points so must be done before takepower
+    if(!m_IsTriggeredSpell)
+    {
+        // Powers have to be taken before SendSpellGo
+        TakePower();
+        TakeReagents();                                         // we must remove reagents before HandleEffects to allow place crafted item in same slot
+    }
+
     // are there any spells need to be triggered after hit?
     // handle SPELL_AURA_ADD_TARGET_TRIGGER auras
     Unit::AuraEffectList const& targetTriggers = m_caster->GetAurasByType(SPELL_AURA_ADD_TARGET_TRIGGER);
@@ -2748,16 +2755,8 @@ void Spell::cast(bool skipCheck)
         }
     }
 
-    // this is related to combo points so must be done before takepower
     if(m_customAttr & SPELL_ATTR_CU_DIRECT_DAMAGE)
         CalculateDamageDoneForAllTargets();
-
-    if(!m_IsTriggeredSpell)
-    {
-        // Powers have to be taken before SendSpellGo
-        TakePower();
-        TakeReagents();                                         // we must remove reagents before HandleEffects to allow place crafted item in same slot
-    }
 
     // CAST SPELL
     SendSpellCooldown();
@@ -2971,6 +2970,10 @@ void Spell::_handle_finish_phase()
     // Take for real after all targets are processed
     if (m_needComboPoints)
         ((Player*)m_caster)->ClearComboPoints();
+
+    // Real add combo points from effects
+    if (m_caster->GetTypeId()==TYPEID_PLAYER)
+        ((Player*)m_caster)->GainSpellComboPoints(m_comboPointGain);
 
     // spell log
     if(m_needSpellLog)
