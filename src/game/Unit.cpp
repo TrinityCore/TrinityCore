@@ -9265,7 +9265,6 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
                 }
             }
         break;
-
         // Glyph of Shadow Word: Pain
         case SPELLFAMILY_PRIEST:
             if (spellProto->SpellFamilyFlags[0] & 0x800000)
