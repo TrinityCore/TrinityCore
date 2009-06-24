@@ -4673,6 +4673,17 @@ void AuraEffect::HandlePeriodicDamage(bool apply, bool Real, bool changeAmount)
             }
             break;
         }
+        // Drain Soul - If the target is at or below 25% health, Drain Soul causes four times the normal damage
+        case SPELLFAMILY_WARLOCK:
+        {
+            if (m_spellProto->SpellFamilyFlags[0] & 0x00004000)
+            {
+                // if victim is below 25% of hp
+                if (m_target->GetMaxHealth() / 4 > m_target->GetHealth())
+                    m_amount *= 4;
+            }
+            break;
+        }
         case SPELLFAMILY_DRUID:
         {
             // Rake
