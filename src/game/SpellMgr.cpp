@@ -3366,6 +3366,13 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch(i)
         {
+        // Heart of the Crusader
+        case 20335:
+        case 20336:
+        case 20337:
+        // Entries were not updated after spell effect change, we have to do that manually:/
+            spellInfo->AttributesEx3 |= SPELL_ATTR_EX3_CAN_PROC_TRIGGERED;
+            break;
         case 16007: // Draco-Incarcinatrix 900
             // was 46, but effect is aura effect
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_NEARBY_ENTRY;

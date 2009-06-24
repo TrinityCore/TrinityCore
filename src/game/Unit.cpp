@@ -6210,6 +6210,16 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             }
             switch(dummySpell->Id)
             {
+                // Heart of the Crusader
+                case 20335: // rank 1
+                    triggered_spell_id = 21183;
+                    break;
+                case 20336: // rank 2
+                    triggered_spell_id = 54498;
+                    break;
+                case 20337: // rank 3
+                    triggered_spell_id = 54499;
+                    break;
                 // Judgement of Light
                 case 20185:
                 {
@@ -9859,6 +9869,7 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
         // No heal coeff for SPELL_DAMAGE_CLASS_NONE class spells by default
         else if (scripted || spellProto->DmgClass == SPELL_DAMAGE_CLASS_NONE)
         {
+            scripted = true;
             coeff = 0.0f;
         }
     }
