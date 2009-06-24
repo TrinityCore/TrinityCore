@@ -370,7 +370,7 @@ bool ChatHandler::HandleGMTicketGetByIdCommand(const char* args)
 
     uint64 tguid = atoi(args);
     GM_Ticket *ticket = objmgr.GetGMTicket(tguid);
-    if(!ticket)
+    if(!ticket || ticket->closed != 0)
     {
         SendSysMessage(LANG_COMMAND_TICKETNOTEXIST);
         return true;
