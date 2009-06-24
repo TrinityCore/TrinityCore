@@ -6000,6 +6000,30 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 basepoints0 = triggerAmount * damage / 100;
                 break;
             }
+            // King of the Jungle
+            else if (dummySpell->SpellIconID == 2850)
+            {
+                // Effect 0 - mod damage while having Enrage
+                if (effIndex==0)
+                {
+                    if (!(procSpell->SpellFamilyFlags[0] & 0x00080000))
+                        return false;
+                    triggered_spell_id = 51185;
+                    basepoints0 = triggerAmount;
+                    target = this;
+                    break;
+                }
+                // Effect 1 - Tiger's Fury restore energy
+                else if (effIndex==1)
+                {
+                    if (!(procSpell->SpellFamilyFlags[2] & 0x00000800))
+                        return false;
+                    triggered_spell_id = 51178;
+                    basepoints0 = triggerAmount;
+                    target = this;
+                    break;
+                }
+            }
             break;
         }
         case SPELLFAMILY_ROGUE:
