@@ -12501,6 +12501,9 @@ uint32 createProcExtendMask(SpellNonMeleeDamage *damageInfo, SpellMissInfo missC
 
 void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, SpellEntry const * procSpell, uint32 damage , SpellEntry const * procAura)
 {
+    // Player is loaded now - do not allow passive spell casts to proc
+    if (GetTypeId() == TYPEID_PLAYER && ((Player*)this)->GetSession()->PlayerLoading())
+        return;
     // For melee/ranged based attack need update skills and set some Aura states
     if (procFlag & MELEE_BASED_TRIGGER_MASK)
     {
