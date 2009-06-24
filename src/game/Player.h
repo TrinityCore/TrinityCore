@@ -1292,7 +1292,8 @@ class TRINITY_DLL_SPEC Player : public Unit
         uint8 GetComboPoints() { return m_comboPoints; }
         const uint64& GetComboTarget() const { return m_comboTarget; }
 
-        void AddComboPoints(Unit* target, int8 count);
+        void AddComboPoints(Unit* target, int8 count, Spell * spell = NULL);
+        void GainSpellComboPoints(int8 count);
         void ClearComboPoints();
         void SendComboPoints();
 

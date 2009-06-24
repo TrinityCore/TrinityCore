@@ -18624,17 +18624,19 @@ void Player::SendComboPoints()
     }
 }
 
-void Player::AddComboPoints(Unit* target, int8 count)
+void Player::AddComboPoints(Unit* target, int8 count, Spell * spell)
 {
     if(!count)
         return;
+
+    int8 * comboPoints = spell ? &spell->m_comboPointGain : &m_comboPoints;
 
     // without combo points lost (duration checked in aura)
     RemoveAurasByType(SPELL_AURA_RETAIN_COMBO_POINTS);
 
     if(target->GetGUID() == m_comboTarget)
     {
-        m_comboPoints += count;
+        *comboPoints += count;
     }
     else
     {
@@ -18643,13 +18645,26 @@ void Player::AddComboPoints(Unit* target, int8 count)
                 target2->RemoveComboPointHolder(GetGUIDLow());
 
         m_comboTarget = target->GetGUID();
-        m_comboPoints = count;
+        *comboPoints = count;
 
         target->AddComboPointHolder(GetGUIDLow());
     }
 
+    if (*comboPoints > 5) *comboPoints = 5;
+    else if (*comboPoints < 0) *comboPoints = 0;
+
+    if (!spell)
+        SendComboPoints();
+}
+
+void Player::GainSpellComboPoints(int8 count)
+{
+    if(!count)
+        return;
+
+    m_comboPoints += count;
     if (m_comboPoints > 5) m_comboPoints = 5;
-    if (m_comboPoints < 0) m_comboPoints = 0;
+    else if (m_comboPoints < 0) m_comboPoints = 0;
 
     SendComboPoints();
 }
