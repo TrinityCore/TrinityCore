@@ -2616,6 +2616,10 @@ void AuraEffect::HandleAuraDummy(bool apply, bool Real, bool changeAmount)
                 break;
             switch(GetId())
             {
+                // Recently Bandaged
+                case 11196:
+                    m_target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, GetMiscValue(), apply);
+                    return;
                 // Unstable Power
                 case 24658:
                 {
