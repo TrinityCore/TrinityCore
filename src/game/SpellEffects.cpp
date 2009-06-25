@@ -473,12 +473,9 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                     if(unitTarget->HasAuraState(AURA_STATE_IMMOLATE, m_spellInfo, m_caster))
                         damage += int32(damage*0.25f);
                 }
-                // Conflagrate - consumes immolate
+                // Conflagrate - consumes immolate or shadowflame
                 else if (m_spellInfo->TargetAuraState == AURA_STATE_IMMOLATE)
                 {
-                    // Glyph of Conflagrate
-                    if (m_caster->HasAura(56235))
-                        break;
                     // for caster applied auras only
                     Unit::AuraEffectList const &mPeriodic = unitTarget->GetAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
                     for(Unit::AuraEffectList::const_iterator i = mPeriodic.begin(); i != mPeriodic.end(); ++i)
@@ -486,7 +483,12 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                         if( (*i)->GetSpellProto()->SpellFamilyName == SPELLFAMILY_WARLOCK && ((*i)->GetSpellProto()->SpellFamilyFlags[0] & 4 || (*i)->GetSpellProto()->SpellFamilyFlags[2] & 2) &&
                             (*i)->GetCasterGUID()==m_caster->GetGUID() )
                         {
-                            unitTarget->RemoveAurasDueToSpell((*i)->GetId(), m_caster->GetGUID());
+                            uint32 pdamage = (*i)->GetAmount() > 0 ? (*i)->GetAmount() : 0;
+                            pdamage = m_caster->SpellDamageBonus(unitTarget, (*i)->GetSpellProto(), pdamage, DOT, (*i)->GetParentAura()->GetStackAmount());
+                            damage += pdamage * 4; // 4 ticks of 3 seconds = 12 secs
+                            // Glyph of Conflagrate
+                            if (!m_caster->HasAura(56235))
+                                unitTarget->RemoveAurasDueToSpell((*i)->GetId(), m_caster->GetGUID());
                             break;
                         }
                     }
