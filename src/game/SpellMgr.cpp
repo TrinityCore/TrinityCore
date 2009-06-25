@@ -3164,7 +3164,7 @@ void SpellMgr::LoadSpellChains()
                 for (itr2 = RankErrorMap.lower_bound(err_entry);itr2!=RankErrorMap.upper_bound(err_entry);itr2++)
                 {
                     sLog.outDebug("There is a duplicate rank entry (%s) for spell: %u",itr2->first,itr2->second->second.Id);
-                    if (!(itr2->second->second.Id==52375 || itr2->second->second.Id==45902))
+                    if (!(itr2->second->second.Id==47541 || itr2->second->second.Id==45902 || itr2->second->second.Id==7620))
                     {
                         sLog.outDebug("Spell %u removed from chain data.",itr2->second->second.Id);
                         RankMap.erase(itr2->second);
@@ -3245,7 +3245,7 @@ void SpellMgr::LoadSpellChains()
         }
     }
 
-//uncomment these two lines to print yourself list of spell_chains on startup
+    //uncomment these two lines to print yourself list of spell_chains on startup
     //for (UNORDERED_MAP<uint32, SpellChainNode>::iterator itr=mSpellChains.begin();itr!=mSpellChains.end();itr++)
        //sLog.outString( "Id: %u, Rank: %d , %s, %u, %u, %u, %u",itr->first,itr->second.rank, sSpellStore.LookupEntry(itr->first)->Rank[sWorld.GetDefaultDbcLocale()], itr->second.first, itr->second.last,itr->second.next ,itr->second.prev);
 
