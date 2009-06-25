@@ -4687,13 +4687,13 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo *pInfo)
             data << uint32(GetSpellSchoolMask(aura->GetSpellProto()));
             data << uint32(pInfo->absorb);                  // absorb
             data << uint32(pInfo->resist);                  // resist
-            data << uint8(0);                               // new 3.1.2
+            data << uint8(pInfo->critical);                 // new 3.1.2 critical tick
             break;
         case SPELL_AURA_PERIODIC_HEAL:
         case SPELL_AURA_OBS_MOD_HEALTH:
             data << uint32(pInfo->damage);                  // damage
             data << uint32(pInfo->overDamage);              // overheal?
-            data << uint8(0);                               // new 3.1.2
+            data << uint8(pInfo->critical);                 // new 3.1.2 critical tick
             break;
         case SPELL_AURA_OBS_MOD_ENERGY:
         case SPELL_AURA_PERIODIC_ENERGIZE:
