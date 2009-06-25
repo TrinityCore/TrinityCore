@@ -6140,30 +6140,22 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             // Light's Beacon - Beacon of Light
             if ( dummySpell->Id == 53651 )
             {
-                if (Unit * caster = triggeredByAura->GetCaster())
+                if (Unit * source = triggeredByAura->GetSource())
                 {
                     // do not proc when target of beacon of light is healed
-                    if (caster == pVictim)
+                    if (source == this)
                         return false;
-                    if (Aura const* aur = caster->GetAura(53563))
+                    if (Unit * caster = triggeredByAura->GetCaster())
                     {
-                        if (Unit * paladin = aur->GetCaster())
-                        {
-                            if (paladin != this)
-                                return false;
-                            basepoints0 = damage;
-                            triggered_spell_id = 53654;
-                            target = caster;
-                            break;
-                        }
-                        else
-                        {
-                            pVictim->RemoveAura(triggeredByAura->GetParentAura());
+                        if (caster != pVictim)
                             return false;
-                        }
+                        basepoints0 = damage;
+                        triggered_spell_id = 53654;
+                        target = source;
+                        break;
                     }
                 }
-                else return false;
+                return false;
             }
             // Judgements of the Wise
             if (dummySpell->SpellIconID == 3017)
@@ -7833,7 +7825,7 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                     if (AuraEffect * aurEff = owner->GetDummyAura(SPELLFAMILY_WARLOCK, 3220))
                     {
                         if (owner->GetTypeId() == TYPEID_PLAYER)
-                             basepoints0 = (aurEff->GetAmount() * ((Player*)owner)->GetBaseSpellDamageBonus() + 100.0f) / 100;
+                             basepoints0 = int32((aurEff->GetAmount() * ((Player*)owner)->GetBaseSpellDamageBonus() + 100.0f) / 100.0f);
                         CastCustomSpell(this,trigger_spell_id,&basepoints0,&basepoints0,NULL,true,castItem,triggeredByAura);
                         return true;
                     }
@@ -9108,7 +9100,7 @@ void Unit::EnergizeBySpell(Unit *pVictim, uint32 SpellID, uint32 Damage, Powers 
 {
     SendEnergizeSpellLog(pVictim, SpellID, Damage, powertype);
     // needs to be called after sending spell log
-    ModifyPower(powertype, Damage);
+    pVictim->ModifyPower(powertype, Damage);
 }
 
 uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint32 pdamage, DamageEffectType damagetype, uint32 stack)
