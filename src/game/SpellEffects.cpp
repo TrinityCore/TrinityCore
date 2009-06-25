@@ -1914,7 +1914,10 @@ void Spell::EffectDummy(uint32 i)
             // Death Grip
             if(m_spellInfo->Id == 49560)
             {
-                unitTarget->CastSpell(m_caster, damage, true);
+                if (unitTarget->m_Vehicle)
+                    unitTarget->m_Vehicle->CastSpell(m_caster, damage, true);
+                else
+                    unitTarget->CastSpell(m_caster, damage, true);
                 return;
             }
             else if(m_spellInfo->Id == 46584) // Raise dead
