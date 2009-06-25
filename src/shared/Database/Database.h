@@ -50,7 +50,7 @@ class TRINITY_DLL_SPEC Database
         virtual ~Database();
 
         virtual bool Initialize(const char *infoString);
-        virtual void InitDelayThread() = 0;
+        virtual void InitDelayThread(const char *infoString) = 0;
         virtual void HaltDelayThread() = 0;
 
         virtual QueryResult* Query(const char *sql) = 0;
