@@ -3274,8 +3274,9 @@ void AuraEffect::HandleAuraModShapeshift(bool apply, bool Real, bool changeAmoun
 
     if(m_target->getClass() == CLASS_DRUID)
     {
-        if(form == FORM_CAT && apply) // add dash if in cat-from
+        if(form == FORM_CAT && apply)
         {
+            // add dash if in cat-from
             Unit::AuraMap & auras = m_target->GetAuras();
             for (Unit::AuraMap::iterator iter = auras.begin(); iter != auras.end();++iter)
             {
@@ -3290,6 +3291,24 @@ void AuraEffect::HandleAuraModShapeshift(bool apply, bool Real, bool changeAmoun
         {
             if(AuraEffect * aurEff =m_target->GetAura(SPELL_AURA_MOD_INCREASE_SPEED, SPELLFAMILY_DRUID, 0, 0, 0x8))
                 m_target->HandleAuraEffect(aurEff, false);
+        }
+        // Nurturing Instinct
+        if (AuraEffect const * aurEff = m_target->GetAuraEffect(SPELL_AURA_MOD_SPELL_HEALING_OF_STAT_PERCENT, SPELLFAMILY_DRUID, 2254))
+        {
+            uint32 spellId = 0;
+            switch (aurEff->GetId())
+            {
+            case 33872:
+                spellId = 47179;
+                break;
+            case 33873:
+                spellId = 47180;
+                break;
+            }
+            if(form == FORM_CAT && apply)
+                m_target->CastSpell(m_target, spellId, true, NULL, this);
+            else
+                m_target->RemoveAurasDueToSpell(spellId, m_target->GetGUID());
         }
     }
     if (m_target->GetTypeId()==TYPEID_PLAYER)
@@ -4954,13 +4973,33 @@ void AuraEffect::HandleModSpellDamagePercentFromStat(bool /*apply*/, bool Real, 
     ((Player*)m_target)->UpdateSpellDamageAndHealingBonus();
 }
 
-void AuraEffect::HandleModSpellHealingPercentFromStat(bool /*apply*/, bool Real, bool /*changeAmount*/)
+void AuraEffect::HandleModSpellHealingPercentFromStat(bool apply, bool Real, bool /*changeAmount*/)
 {
     if(m_target->GetTypeId() != TYPEID_PLAYER)
         return;
 
     // Recalculate bonus
     ((Player*)m_target)->UpdateSpellDamageAndHealingBonus();
+
+    if (Real && apply)
+    {
+        // Nurturing Instinct
+        if (m_target->m_form == FORM_CAT)
+        {
+            uint32 spellId = 0;
+            switch (GetId())
+            {
+            case 33872:
+                spellId = 47179;
+                break;
+            case 33873:
+                spellId = 47180;
+                break;
+            }
+            if (spellId)
+                m_target->CastSpell(m_target, spellId, true, NULL, this);
+        }
+    }
 }
 
 void AuraEffect::HandleModSpellDamagePercentFromAttackPower(bool /*apply*/, bool Real, bool /*changeAmount*/)

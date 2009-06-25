@@ -13335,9 +13335,9 @@ AuraEffect* Unit::GetDummyAura( uint32 spell_id ) const
     return NULL;
 }
 
-AuraEffect* Unit::GetDummyAura(SpellFamilyNames name, uint32 iconId) const
+AuraEffect* Unit::GetAuraEffect(AuraType type, SpellFamilyNames name, uint32 iconId) const
 {
-    Unit::AuraEffectList const& mDummy = GetAurasByType(SPELL_AURA_DUMMY);
+    Unit::AuraEffectList const& mDummy = GetAurasByType(type);
     for(Unit::AuraEffectList::const_iterator itr = mDummy.begin(); itr != mDummy.end(); ++itr)
     {
         SpellEntry const * spell = (*itr)->GetSpellProto();
