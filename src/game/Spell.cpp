@@ -1058,14 +1058,8 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         if (m_spellInfo->SpellFamilyName == SPELLFAMILY_PRIEST && m_spellInfo->SpellFamilyFlags&0x0000000200000000LL &&
             caster != unitTarget && unitTarget->isAlive())
         {
-            // Redirect damage to caster if victim Alive
-            damageInfo.target = caster;
-            damageInfo.absorb = 0;
-            damageInfo.resist = 0;
-            damageInfo.blocked = 0;
-            // Send log damage message to client
-            caster->SendSpellNonMeleeDamageLog(&damageInfo);
-            caster->DealSpellDamage(&damageInfo, true);
+            // Redirect damage to caster if victim alive
+            m_caster->CastCustomSpell(m_caster, 32409, &m_damage, NULL, NULL, true);
         }
         // Judgement of Blood
         else if (m_spellInfo->SpellFamilyName == SPELLFAMILY_PALADIN && m_spellInfo->SpellFamilyFlags & 0x0000000800000000LL && m_spellInfo->SpellIconID==153)
