@@ -331,7 +331,7 @@ enum AuraType
     SPELL_AURA_MOD_HEALING_RECEIVED = 283,                  // Possibly only for some spell family class spells
     SPELL_AURA_LINKED = 284,
     SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR = 285,
-    SPELL_AURA_286,
+    SPELL_AURA_ABILITY_PERIODIC_CRIT = 286,
     SPELL_AURA_DEFLECT_SPELLS,
     SPELL_AURA_288,
     SPELL_AURA_289,

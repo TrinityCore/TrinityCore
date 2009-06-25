@@ -339,7 +339,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleNoImmediateEffect,                         //283 SPELL_AURA_MOD_HEALING_RECEIVED       implemented in Unit::SpellHealingBonus
     &Aura::HandleUnused,                                    //284 not used by any spells (3.08a)
     &Aura::HandleAuraModAttackPowerOfArmor,                 //285 SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR  implemented in Player::UpdateAttackPowerAndDamage
-    &Aura::HandleUnused,                                    //286 not used by any spells (3.08a)
+    &Aura::HandleNoImmediateEffect,                         //286 SPELL_AURA_ABILITY_PERIODIC_CRIT implemented in AuraEffect::PeriodicTick
     &Aura::HandleNoImmediateEffect,                         //287 SPELL_AURA_DEFLECT_SPELLS             implemented in Unit::MagicSpellHitResult and Unit::MeleeSpellHitResult
     &Aura::HandleUnused,                                    //288 not used by any spells (3.09) except 1 test spell.
     &Aura::HandleUnused,                                    //289 unused
@@ -6093,6 +6093,21 @@ void AuraEffect::PeriodicTick()
             else
                 pdamage = uint32(m_target->GetMaxHealth()*pdamage/100);
 
+            bool crit = false;
+            Unit::AuraEffectList const& mPeriodicCritAuras= pCaster->GetAurasByType(SPELL_AURA_ABILITY_PERIODIC_CRIT);
+            for(Unit::AuraEffectList::const_iterator itr = mPeriodicCritAuras.begin(); itr != mPeriodicCritAuras.end(); ++itr)
+            {
+                if (!(*itr)->isAffectedOnSpell(m_spellProto))
+                    continue;
+
+                if (pCaster->isSpellCrit(m_target, m_spellProto, GetSpellSchoolMask(m_spellProto)))
+                {
+                    crit = true;
+                    pdamage = pCaster->SpellCriticalDamageBonus(m_spellProto, pdamage, m_target);
+                }
+                break;
+            }
+
             //As of 2.2 resilience reduces damage from DoT ticks as much as the chance to not be critically hit
             // Reduce dot damage from resilience for players
             if (m_target->GetTypeId()==TYPEID_PLAYER)
@@ -6105,7 +6120,7 @@ void AuraEffect::PeriodicTick()
 
             pCaster->DealDamageMods(m_target,pdamage,&absorb);
 
-            SpellPeriodicAuraLogInfo pInfo(this, pdamage, 0, absorb, resist, 0.0f);
+            SpellPeriodicAuraLogInfo pInfo(this, pdamage, 0, absorb, resist, 0.0f, crit);
             m_target->SendPeriodicAuraLog(&pInfo);
 
             Unit* target = m_target;                        // aura can be deleted in DealDamage
@@ -6251,12 +6266,27 @@ void AuraEffect::PeriodicTick()
             else
                 pdamage = pCaster->SpellHealingBonus(m_target, GetSpellProto(), pdamage, DOT, GetParentAura()->GetStackAmount());
 
+            bool crit = false;
+            Unit::AuraEffectList const& mPeriodicCritAuras= pCaster->GetAurasByType(SPELL_AURA_ABILITY_PERIODIC_CRIT);
+            for(Unit::AuraEffectList::const_iterator itr = mPeriodicCritAuras.begin(); itr != mPeriodicCritAuras.end(); ++itr)
+            {
+                if (!(*itr)->isAffectedOnSpell(m_spellProto))
+                    continue;
+
+                if (pCaster->isSpellCrit(m_target, m_spellProto, GetSpellSchoolMask(m_spellProto)))
+                {
+                    crit = true;
+                    pdamage = pCaster->SpellCriticalHealingBonus(m_spellProto, pdamage, m_target);
+                }
+                break;
+            }
+
             sLog.outDetail("PeriodicTick: %u (TypeId: %u) heal of %u (TypeId: %u) for %u health inflicted by %u",
                 GUID_LOPART(GetCasterGUID()), GuidHigh2TypeId(GUID_HIPART(GetCasterGUID())), m_target->GetGUIDLow(), m_target->GetTypeId(), pdamage, GetId());
 
             int32 gain = m_target->ModifyHealth(pdamage);
 
-            SpellPeriodicAuraLogInfo pInfo(this, pdamage, pdamage - gain, 0, 0, 0.0f);
+            SpellPeriodicAuraLogInfo pInfo(this, pdamage, pdamage - gain, 0, 0, 0.0f, crit);
             m_target->SendPeriodicAuraLog(&pInfo);
 
             // add HoTs to amount healed in bgs
@@ -6371,7 +6401,7 @@ void AuraEffect::PeriodicTick()
                     modOwner->ApplySpellMod(GetId(), SPELLMOD_MULTIPLE_VALUE, gain_multiplier);
             }
 
-            SpellPeriodicAuraLogInfo pInfo(this, drain_amount, 0, 0, 0, gain_multiplier);
+            SpellPeriodicAuraLogInfo pInfo(this, drain_amount, 0, 0, 0, gain_multiplier, false);
             m_target->SendPeriodicAuraLog(&pInfo);
 
             int32 gain_amount = int32(drain_amount*gain_multiplier);
@@ -6440,7 +6470,7 @@ void AuraEffect::PeriodicTick()
             sLog.outDetail("PeriodicTick: %u (TypeId: %u) energize %u (TypeId: %u) for %u dmg inflicted by %u",
                 GUID_LOPART(GetCasterGUID()), GuidHigh2TypeId(GUID_HIPART(GetCasterGUID())), m_target->GetGUIDLow(), m_target->GetTypeId(), amount, GetId());
 
-            SpellPeriodicAuraLogInfo pInfo(this, amount, 0, 0, 0, 0.0f);
+            SpellPeriodicAuraLogInfo pInfo(this, amount, 0, 0, 0, 0.0f, false);
             m_target->SendPeriodicAuraLog(&pInfo);
 
             int32 gain = m_target->ModifyPower(power,amount);
@@ -6465,7 +6495,7 @@ void AuraEffect::PeriodicTick()
 
             uint32 amount = m_amount;
 
-            SpellPeriodicAuraLogInfo pInfo(this, amount, 0, 0, 0, 0.0f);
+            SpellPeriodicAuraLogInfo pInfo(this, amount, 0, 0, 0, 0.0f, false);
             m_target->SendPeriodicAuraLog(&pInfo);
 
             sLog.outDetail("PeriodicTick: %u (TypeId: %u) energize %u (TypeId: %u) for %u dmg inflicted by %u",
