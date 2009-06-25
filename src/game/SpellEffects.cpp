@@ -5277,6 +5277,8 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         flag96 familyFlag = aura->GetSpellProto()->SpellFamilyFlags;
                         if (!(familyFlag[1] & 0x00000080 || familyFlag[0] & 0x0000C000))
                             continue;
+                        if (!aura->GetPartAura(0))
+                            continue;
 
                         // Serpent Sting - Instantly deals 40% of the damage done by your Serpent Sting.
                         if (familyFlag[0] & 0x4000)
