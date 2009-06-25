@@ -13991,7 +13991,8 @@ INSERT INTO `spell_bonus_data` VALUES
 (61295,0.4,0.18,0,'Shaman - Riptide'),
 (61391,0.193,0,0,'Druid - Typhoon'),
 (61651,0.2142,0,0,'Shaman - Fire Nova Totem Casted by Totem Rank 8'),
-(61660,0.2142,0,0,'Shaman - Fire Nova Totem Casted by Totem Rank 9');
+(61660,0.2142,0,0,'Shaman - Fire Nova Totem Casted by Totem Rank 9'),
+('17962', '0', '0', '0', 'Warlock - Conflagrate');
 /*!40000 ALTER TABLE `spell_bonus_data` ENABLE KEYS */;
 UNLOCK TABLES;
 
