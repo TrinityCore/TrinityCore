@@ -38,13 +38,13 @@
 #define EVENT_BLOOD_STRIKE              3
 #define EVENT_DEATH_COIL                4
 
-int say_event_start[8] =
+int32 say_event_start[8] =
 {
     -1609000,-1609001,-1609002,-1609003,
     -1609004,-1609005,-1609006,-1609007
 };
 
-int say_event_attack[9] =
+int32 say_event_attack[9] =
 {
     -1609008,-1609009,-1609010,-1609011,-1609012,
     -1609013,-1609014,-1609015,-1609016
