@@ -1378,10 +1378,26 @@ const char* BattleGroundAV::GetNodeName(BG_AV_Nodes node)
 
 void BattleGroundAV::AssaultNode(BG_AV_Nodes node, uint16 team)
 {
-    assert(m_Nodes[node].TotalOwner != team || sLog.outCrash("Assaulting team is TotalOwner of node"));
-    assert(m_Nodes[node].Owner != team || sLog.outCrash("Assaulting team is owner of node"));
-    assert(m_Nodes[node].State != POINT_DESTROYED || sLog.outCrash("Destroyed node is assaulted"));
-    assert(m_Nodes[node].State != POINT_ASSAULTED || !m_Nodes[node].TotalOwner || sLog.outCrash("Assault on an not assaulted node without total owner")); //only assault an assaulted node if no totalowner exists
+    if (m_Nodes[node].TotalOwner == team)
+    {
+        sLog.outCrash("Assaulting team is TotalOwner of node");
+        assert (false);
+    }
+    if (m_Nodes[node].Owner == team)
+    {
+        sLog.outCrash("Assaulting team is owner of node");
+        assert (false);
+    }
+    if (m_Nodes[node].State == POINT_DESTROYED)
+    {
+        sLog.outCrash("Destroyed node is being assaulted");
+        assert (false);
+    }
+    if (m_Nodes[node].State == POINT_ASSAULTED && m_Nodes[node].TotalOwner) //only assault an assaulted node if no totalowner exists
+    {
+        sLog.outCrash("Assault on an not assaulted node with total owner");
+        assert (false);
+    }
     //the timer gets another time, if the previous owner was 0==Neutral
     m_Nodes[node].Timer      = (m_Nodes[node].PrevOwner)? BG_AV_CAPTIME : BG_AV_SNOWFALL_FIRSTCAP;
     m_Nodes[node].PrevOwner  = m_Nodes[node].Owner;
