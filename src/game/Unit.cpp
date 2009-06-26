@@ -4941,14 +4941,9 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     break;
                 }
                 // Sweeping Strikes
-                case 12328:
                 case 18765:
                 case 35429:
                 {
-                    // prevent chain of triggered spell from same triggered spell
-                    if(procSpell && procSpell->Id==26654)
-                        return false;
-
                     target = SelectNearbyTarget();
                     if(!target)
                         return false;
@@ -5476,6 +5471,28 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
         }
         case SPELLFAMILY_WARRIOR:
         {
+            switch(dummySpell->Id)
+            {
+                // Sweeping Strikes
+                case 12328:
+                {
+                    target = SelectNearbyTarget();
+                    if(!target)
+                        return false;
+
+                    triggered_spell_id = 26654;
+                    break;
+                }
+                // Improved Spell Reflection
+                case 59088:
+                case 59089:
+                {
+                    triggered_spell_id = 59725;
+                    target = this;
+                    break;
+                }
+            }
+
             // Retaliation
             if(dummySpell->SpellFamilyFlags.IsEqual(0, 0x8, 0))
             {
@@ -5484,14 +5501,6 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     return false;
 
                 triggered_spell_id = 22858;
-                break;
-            }
-            // Improved Spell Reflection
-            if(dummySpell->Id==59088 
-                || dummySpell->Id==59089)
-            {
-                triggered_spell_id = 59725;
-                target = this;
                 break;
             }
             // Second Wind
@@ -7824,8 +7833,7 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                 {
                     if (AuraEffect * aurEff = owner->GetDummyAura(SPELLFAMILY_WARLOCK, 3220))
                     {
-                        if (owner->GetTypeId() == TYPEID_PLAYER)
-                             basepoints0 = int32((aurEff->GetAmount() * ((Player*)owner)->GetBaseSpellDamageBonus() + 100.0f) / 100.0f);
+                        basepoints0 = int32((aurEff->GetAmount() * owner->SpellBaseDamageBonus(SpellSchoolMask(SPELL_SCHOOL_MASK_MAGIC)) + 100.0f) / 100.0f);
                         CastCustomSpell(this,trigger_spell_id,&basepoints0,&basepoints0,NULL,true,castItem,triggeredByAura);
                         return true;
                     }
