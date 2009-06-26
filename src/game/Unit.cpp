@@ -9629,6 +9629,14 @@ bool Unit::isSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
                                 crit_chance+=aura->GetAmount();
                             break;
                         }
+                        // Exorcism - "If the target is Undead or Demon, it will always critically hit"
+                        else if(spellProto->SpellFamilyFlags[1]&0x2)
+                        {
+                            if(pVictim->GetCreatureType() == CREATURE_TYPE_DEMON
+                                || pVictim->GetCreatureType() == CREATURE_TYPE_UNDEAD)
+                                return true;
+                            break;
+                        }
                     break;
                     case SPELLFAMILY_SHAMAN:
                         // Lava Burst
