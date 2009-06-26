@@ -17145,15 +17145,6 @@ bool Player::BuyItemFromVendor(uint64 vendorguid, uint32 item, uint8 count, uint
         SendBuyError( BUY_ERR_CANT_FIND_ITEM, NULL, item, 0);
         return false;
     }
-    else
-    {
-        if(slot > pProto->ContainerSlots)
-        {
-            sLog.outDebug("CHEATING ATTEMPT slot > pProto->ContainerSlots in BuyItemFromVendor playerGUID: "I64FMT" name: %s slot: %u", GetGUID(), GetName(), slot);
-            return false;
-        }
-    }
-
 
     Creature *pCreature = ObjectAccessor::GetNPCIfCanInteractWith(*this, vendorguid,UNIT_NPC_FLAG_VENDOR);
     if (!pCreature)
@@ -17266,6 +17257,12 @@ bool Player::BuyItemFromVendor(uint64 vendorguid, uint32 item, uint8 count, uint
                 {
                     if( bagguid == pBag->GetGUID() )
                     {
+                        // slot is counted from 0 but BagSize from 1
+                        if(slot+1 > pBag->GetBagSize())
+                        {
+                            sLog.outDebug("CHEATING ATTEMPT slot > bagSize in BuyItemFromVendor playerGUID: "I64FMT" name: %s slot: %u", GetGUID(), GetName(), slot);
+                            return false;
+                        }
                         bag = i;
                         break;
                     }
