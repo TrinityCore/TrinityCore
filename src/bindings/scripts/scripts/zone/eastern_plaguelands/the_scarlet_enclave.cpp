@@ -25,9 +25,6 @@
 ##Quest 12848
 ######*/
 
-#define SAY_EVENT_START                 "I will dismantle this festering hellhole!"
-#define SAY_EVENT_ATTACK                "It ends here!"
-
 #define SPELL_SOUL_PRISON_CHAIN_SELF    54612
 #define SPELL_SOUL_PRISON_CHAIN         54613
 
@@ -40,6 +37,18 @@
 #define EVENT_PLAGUE_STRIKE             2
 #define EVENT_BLOOD_STRIKE              3
 #define EVENT_DEATH_COIL                4
+
+int say_event_start[8] =
+{
+    -1609000,-1609001,-1609002,-1609003,
+    -1609004,-1609005,-1609006,-1609007
+};
+
+int say_event_attack[9] =
+{
+    -1609008,-1609009,-1609010,-1609011,-1609012,
+    -1609013,-1609014,-1609015,-1609016
+};
 
 uint32 acherus_soul_prison[12] =
 {
@@ -146,6 +155,7 @@ struct TRINITY_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
         phase = Chained;
         events.Reset();
         m_creature->setFaction(7);
+        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
         m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 8);
         m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID  , 0);
         m_creature->SetDisplayId(m_creature->GetNativeDisplayId());
@@ -197,7 +207,8 @@ struct TRINITY_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
             wait_timer = 5000;
             AddEquipp();
 
-            DoSay(SAY_EVENT_ATTACK,LANG_UNIVERSAL,NULL,true);
+            if(Unit* starter = Unit::GetUnit((*m_creature),event_starter))
+                DoScriptText(say_event_attack[rand()%9],m_creature,starter);
 
             phase = ToAttacking;
         }
@@ -215,8 +226,9 @@ struct TRINITY_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
         m_creature->RemoveAurasDueToSpell(SPELL_SOUL_PRISON_CHAIN_SELF);
         m_creature->RemoveAurasDueToSpell(SPELL_SOUL_PRISON_CHAIN);
 
-        DoSay(SAY_EVENT_START,LANG_UNIVERSAL,NULL,true);
         event_starter = target->GetGUID();
+        if(Unit* starter = Unit::GetUnit((*m_creature),event_starter))
+            DoScriptText(say_event_start[rand()%8],m_creature,starter);
     }
 
     void UpdateAI(const uint32 diff);
