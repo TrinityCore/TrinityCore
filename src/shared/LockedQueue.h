@@ -58,7 +58,7 @@ namespace ACE_Based
                 ACE_Guard<LockType> g(_lock);
 
                 ASSERT(!_canceled);
-                //	throw Cancellation_Exception();
+                // throw Cancellation_Exception();
 
                 _queue.push_back(item);
 
@@ -73,7 +73,7 @@ namespace ACE_Based
                 ACE_Guard<LockType> g(_lock);
 
                 ASSERT (!_queue.empty() || !_canceled);
-                //	throw Cancellation_Exception();
+                // throw Cancellation_Exception();
 
                 T item = _queue.front();
                 _queue.pop_front();
@@ -87,7 +87,7 @@ namespace ACE_Based
                 ACE_Guard<LockType> g(_lock);
 
                 ASSERT (!_queue.empty());
-                //	throw NoSuchElement_Exception();
+                // throw NoSuchElement_Exception();
 
                 return _queue.front();
             }
