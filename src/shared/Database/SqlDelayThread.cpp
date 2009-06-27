@@ -22,10 +22,8 @@
 #include "Database/SqlOperations.h"
 #include "DatabaseEnv.h"
 
-SqlDelayThread::SqlDelayThread(Database* db, const char* infoString) :m_running(true)
+SqlDelayThread::SqlDelayThread(Database* db) : m_dbEngine(db), m_running(true)
 {
-    m_dbEngine = new DatabaseType;
-    ((DatabaseType*)m_dbEngine)->Initialize(infoString, false);
 }
 
 void SqlDelayThread::run()
@@ -37,16 +35,15 @@ void SqlDelayThread::run()
 
     while (m_running)
     {
-        try
+        // if the running state gets turned off while sleeping
+        // empty the queue before exiting
+        ACE_Based::Thread::Sleep(10);
+        while (!m_sqlQueue.empty())
         {
             s = m_sqlQueue.next();
+            s->Execute(m_dbEngine);
+            delete s;
         }
-        catch(...)
-            {continue;}
-        if(!s)
-            continue;
-        s->Execute(m_dbEngine);
-        delete s;
     }
 
     #ifndef DO_POSTGRESQL
@@ -57,6 +54,5 @@ void SqlDelayThread::run()
 void SqlDelayThread::Stop()
 {
     m_running = false;
-    m_sqlQueue.cancel();
 }
 
