@@ -146,16 +146,7 @@ Map* MapInstanced::GetInstance(const WorldObject* obj)
             return NULL;
     }
 
-    InstancePlayerBind *pBind = player->GetBoundInstance(GetId(), player->GetDifficulty());
-    InstanceSave *pSave = pBind ? pBind->save : NULL;
-    if(!pBind || !pBind->perm)
-    {
-        if(Group *group = player->GetGroup())
-            if(InstanceGroupBind *groupBind = group->GetBoundInstance(GetId(), player->GetDifficulty()))
-                pSave = groupBind->save;
-    }
-
-    if(pSave)
+    if(InstanceSave *pSave = player->GetInstanceSave(GetId()))
     {
         if(!instanceId)
         {
