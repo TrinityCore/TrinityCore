@@ -5930,8 +5930,8 @@ void Spell::EffectAddExtraAttacks(uint32 /*i*/)
     if(!unitTarget || !unitTarget->isAlive())
         return;
 
-    //if( unitTarget->m_extraAttacks )
-    //    return;
+    if( unitTarget->m_extraAttacks )
+        return;
 
     Unit *victim = unitTarget->getVictim();
 
