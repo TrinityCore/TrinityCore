@@ -11537,7 +11537,7 @@ void Unit::IncrDiminishing(DiminishingGroup group)
     m_Diminishing.push_back(DiminishingReturn(group,getMSTime(),DIMINISHING_LEVEL_2));
 }
 
-void Unit::ApplyDiminishingToDuration(DiminishingGroup group, int32 &duration,Unit* caster,DiminishingLevels Level)
+void Unit::ApplyDiminishingToDuration(DiminishingGroup group, int32 &duration,Unit* caster,DiminishingLevels Level, int32 limitduration)
 {
     if(duration == -1 || group == DIMINISHING_NONE || caster->IsFriendlyTo(this) )
         return;
@@ -11547,13 +11547,13 @@ void Unit::ApplyDiminishingToDuration(DiminishingGroup group, int32 &duration,Un
     Unit const* casterOwner = caster->GetCharmerOrOwner();
 
     // Duration of crowd control abilities on pvp target is limited by 10 sec. (2.2.0)
-    if(duration > 10000 && IsDiminishingReturnsGroupDurationLimited(group))
+    if(limitduration > 0 && duration > limitduration)
     {
         Unit const* target = targetOwner ? targetOwner : this;
         Unit const* source = casterOwner ? casterOwner : caster;
 
         if(target->GetTypeId() == TYPEID_PLAYER && source->GetTypeId() == TYPEID_PLAYER)
-            duration = 10000;
+            duration = limitduration;
     }
 
     float mod = 1.0f;
