@@ -142,9 +142,10 @@ class ChatHandler
         bool HandleDebugGetLootRecipient(const char * args);
         bool HandleDebugGetValue(const char* args);
         bool HandleDebugMod32Value(const char* args);
-        bool HandleDebugSetValue(const char* args);
+        bool HandleDebugSetAuraStateCommand(const char * args);
         bool HandleDebugSetItemFlagCommand(const char * args);
         bool HandleDebugSetVehicleId(const char * args);
+        bool HandleDebugSetValue(const char* args);
         bool HandleDebugSpawnVehicle(const char * args);
         bool HandleDebugEnterVehicle(const char * args);
         bool HandleDebugUpdate(const char* args);
