@@ -2618,7 +2618,7 @@ void Player::InitStatsForLevel(bool reapplyMods)
 void Player::SendInitialSpells()
 {
     time_t curTime = time(NULL);
-    time_t infTime = curTime + MONTH/2;
+    time_t infTime = curTime + infinityCooldownDelayCheck;
 
     uint16 spellCount = 0;
 
@@ -2652,18 +2652,21 @@ void Player::SendInitialSpells()
         if(!sEntry)
             continue;
 
-        // not send infinity cooldown
-        if(itr->second.end > infTime)
-            continue;
-
         data << uint32(itr->first);
-
-        time_t cooldown = 0;
-        if(itr->second.end > curTime)
-            cooldown = (itr->second.end-curTime)*IN_MILISECONDS;
 
         data << uint16(itr->second.itemid);                 // cast item id
         data << uint16(sEntry->Category);                   // spell category
+
+        // send infinity cooldown in special format
+        if(itr->second.end >= infTime)
+        {
+            data << uint32(1);                              // cooldown
+            data << uint32(0x80000000);                     // category cooldown
+            continue;
+        }
+
+        time_t cooldown = itr->second.end > curTime ? (itr->second.end-curTime)*IN_MILISECONDS : 0;
+
         if(sEntry->Category)                                // may be wrong, but anyway better than nothing...
         {
             data << uint32(0);                              // cooldown
@@ -3476,7 +3479,7 @@ void Player::_SaveSpellCooldowns()
     CharacterDatabase.PExecute("DELETE FROM character_spell_cooldown WHERE guid = '%u'", GetGUIDLow());
 
     time_t curTime = time(NULL);
-    time_t infTime = curTime + MONTH/2;
+    time_t infTime = curTime + infinityCooldownDelayCheck;
 
     // remove outdated and save active
     for(SpellCooldowns::iterator itr = m_spellCooldowns.begin();itr != m_spellCooldowns.end();)
@@ -18124,8 +18127,8 @@ void Player::AddSpellAndCategoryCooldowns(SpellEntry const* spellInfo, uint32 it
     {
         // use +MONTH as infinity mark for spell cooldown (will checked as MONTH/2 at save ans skipped)
         // but not allow ignore until reset or re-login
-        catrecTime = catrec > 0 ? curTime+MONTH : 0;
-        recTime    = rec    > 0 ? curTime+MONTH : catrecTime;
+        catrecTime = catrec > 0 ? curTime+infinityCooldownDelay : 0;
+        recTime    = rec    > 0 ? curTime+infinityCooldownDelay : catrecTime;
     }
     else
     {
