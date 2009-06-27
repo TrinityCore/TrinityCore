@@ -2384,20 +2384,23 @@ enum DiminishingGroup
 {
     // Common Groups
     DIMINISHING_NONE,
-    DIMINISHING_CONTROL_STUN,           // Player Controlled stuns
-    DIMINISHING_TRIGGER_STUN,           // By aura proced stuns, usualy chance on hit talents
-    DIMINISHING_CONTROL_ROOT,           // Immobilizing effects from casted spells
-    DIMINISHING_TRIGGER_ROOT,           // Immobilizing effects from triggered spells like Frostbite
+    DIMINISHING_CONTROL_STUN,                               // Player Controlled stuns
+    DIMINISHING_TRIGGER_STUN,                               // By aura proced stuns, usualy chance on hit talents
+    DIMINISHING_CONTROL_ROOT,                               // Immobilizing effects from casted spells
+    DIMINISHING_TRIGGER_ROOT,                               // Immobilizing effects from triggered spells like Frostbite
     DIMINISHING_CHARM,
-    DIMINISHING_SLEEP_FREEZE,
     DIMINISHING_POLYMORPH,              // Also: Gouge, Sap, Repentance, Hungering Cold
-    DIMINISHING_CHEAPSHOT_POUNCE,
-    DIMINISHING_DEATHCOIL,              // Death Coil Diminish only with another Death Coil
-    DIMINISHING_SILENCE,
     DIMINISHING_KNOCKOUT,               // Sap, Knockout mechanics
-    DIMINISHING_DISARM,
     DIMINISHING_FEAR_BLIND,             // Intimidating Shout, Howl of Terror, Blind
-    DIMINISHING_FEAR,
+    // Warlock Specific
+    DIMINISHING_DEATHCOIL,                                  // Death Coil Diminish only with another Death Coil
+    // Druid Specific
+    DIMINISHING_CYCLONE,                                    // From 2.3.0
+    // Shared Class Specific
+    DIMINISHING_CHEAPSHOT_POUNCE,
+    DIMINISHING_DISARM,                                     // From 2.3.0
+    DIMINISHING_SILENCE,                                    // From 2.3.0
+    DIMINISHING_FREEZE_SLEEP,                               // Hunter's Freezing Trap
     DIMINISHING_BANISH,
     DIMINISHING_TAUNT,
     DIMINISHING_LIMITONLY               // Don't Diminish, but limit duration to 10s
