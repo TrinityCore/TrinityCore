@@ -2266,7 +2266,7 @@ void Creature::SetInCombatWithZone()
 {
     if (!CanHaveThreatList())
     {
-        error_log("Creature entry %u call SetInCombatWithZone but creature cannot have threat list.", GetEntry());
+        sLog.outError("Creature entry %u call SetInCombatWithZone but creature cannot have threat list.", GetEntry());
         return;
     }
 
@@ -2274,7 +2274,7 @@ void Creature::SetInCombatWithZone()
 
     if (!pMap->IsDungeon())
     {
-        error_log("Creature entry %u call SetInCombatWithZone for map (id: %u) that isn't an instance.", GetEntry(), pMap->GetId());
+        sLog.outError("Creature entry %u call SetInCombatWithZone for map (id: %u) that isn't an instance.", GetEntry(), pMap->GetId());
         return;
     }
 
