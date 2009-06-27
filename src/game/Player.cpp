@@ -14565,6 +14565,12 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
         }
     }
 
+    // In some old saves players' instance id are not correctly ordered
+    // This fixes the crash. But it is not needed for a new db
+    if(InstanceSave *pSave = GetInstanceSave(GetMapId()))
+        if(pSave->GetInstanceId() != GetInstanceId())
+            SetInstanceId(pSave->GetInstanceId());
+
     // NOW player must have valid map
     // load the player's map here if it's not already loaded
     Map *map = GetMap();
@@ -15592,6 +15598,19 @@ InstancePlayerBind* Player::GetBoundInstance(uint32 mapid, uint8 difficulty)
         return &itr->second;
     else
         return NULL;
+}
+
+InstanceSave * Player::GetInstanceSave(uint32 mapid)
+{
+    InstancePlayerBind *pBind = GetBoundInstance(mapid, GetDifficulty());
+    InstanceSave *pSave = pBind ? pBind->save : NULL;
+    if(!pBind || !pBind->perm)
+    {
+        if(Group *group = GetGroup())
+            if(InstanceGroupBind *groupBind = group->GetBoundInstance(mapid, GetDifficulty()))
+                pSave = groupBind->save;
+    }
+    return pSave;
 }
 
 void Player::UnbindInstance(uint32 mapid, uint8 difficulty, bool unload)
