@@ -25,43 +25,46 @@ EndScriptData */
 #include "def_zulaman.h"
 #include "GridNotifiers.h"
 
-#define SAY_AGGRO                   -1568000
-#define SAY_FIRE_BOMBS              -1568001
-#define SAY_SUMMON_HATCHER          -1568002
-#define SAY_ALL_EGGS                -1568003
-#define SAY_BERSERK                 -1568004
-#define SAY_SLAY_1                  -1568005
-#define SAY_SLAY_2                  -1568006
-#define SAY_DEATH                   -1568007
-#define SAY_EVENT_STRANGERS         -1568008
-#define SAY_EVENT_FRIENDS           -1568009
+enum
+{
+    SAY_AGGRO                   = -1568000,
+    SAY_FIRE_BOMBS              = -1568001,
+    SAY_SUMMON_HATCHER          = -1568002,
+    SAY_ALL_EGGS                = -1568003,
+    SAY_BERSERK                 = -1568004,
+    SAY_SLAY_1                  = -1568005,
+    SAY_SLAY_2                  = -1568006,
+    SAY_DEATH                   = -1568007,
+    SAY_EVENT_STRANGERS         = -1568008,
+    SAY_EVENT_FRIENDS           = -1568009,
 
 // Jan'alai
-// --Spell
-#define SPELL_FLAME_BREATH          43140
-#define SPELL_FIRE_WALL             43113
-#define SPELL_ENRAGE                44779
-#define SPELL_SUMMON_PLAYERS        43097
-#define SPELL_TELE_TO_CENTER        43098 // coord
-#define SPELL_HATCH_ALL             43144
-#define SPELL_BERSERK               45078
+    SPELL_FLAME_BREATH          = 43140,
+    SPELL_FIRE_WALL             = 43113,
+    SPELL_ENRAGE                = 44779,
+    SPELL_SUMMON_PLAYERS        = 43097,
+    SPELL_TELE_TO_CENTER        = 43098, // coord
+    SPELL_HATCH_ALL             = 43144,
+    SPELL_BERSERK               = 45078,
+
 // -- Fire Bob Spells
-#define SPELL_FIRE_BOMB_CHANNEL     42621 // last forever
-#define SPELL_FIRE_BOMB_THROW       42628 // throw visual
-#define SPELL_FIRE_BOMB_DUMMY       42629 // bomb visual
-#define SPELL_FIRE_BOMB_DAMAGE      42630
+    SPELL_FIRE_BOMB_CHANNEL     = 42621, // last forever
+    SPELL_FIRE_BOMB_THROW       = 42628, // throw visual
+    SPELL_FIRE_BOMB_DUMMY       = 42629, // bomb visual
+    SPELL_FIRE_BOMB_DAMAGE      = 42630,
 
 // --Summons
-#define MOB_AMANI_HATCHER           23818
-#define MOB_HATCHLING               23598   // 42493
-#define MOB_EGG                     23817
-#define MOB_FIRE_BOMB               23920
+    MOB_AMANI_HATCHER           = 23818,
+    MOB_HATCHLING               = 23598,   // 42493
+    MOB_EGG                     = 23817,
+    MOB_FIRE_BOMB               = 23920,
 
 // -- Hatcher Spells
-#define SPELL_HATCH_EGG             43734   // 42471
+    SPELL_HATCH_EGG             = 43734,   // 42471
 
 // -- Hatchling Spells
-#define SPELL_FLAMEBUFFET           43299
+    SPELL_FLAMEBUFFET           = 43299
+};
 
 const int area_dx = 44;
 const int area_dy = 51;
@@ -139,7 +142,7 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
         BombSequenceTimer = 1000;
         BombCount = 0;
         HatcherTimer = 10000;
-        EnrageTimer = 300000;
+        EnrageTimer = MINUTE*5*IN_MILISECONDS;
         ResetTimer = 5000;
 
         noeggs = false;
