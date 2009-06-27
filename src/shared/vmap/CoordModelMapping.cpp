@@ -21,7 +21,7 @@
 #include "CoordModelMapping.h"
 
 #include <string.h>
-#include <cstdio>
+#include <stdio.h>
 
 using namespace G3D;
 
@@ -43,6 +43,13 @@ namespace VMAP
     const std::string CMappingEntry::getKeyString() const
     {
         return(CMappingEntry::getKeyString(iMapId,xPos, yPos));
+    }
+
+    const std::string CMappingEntry::getKeyString( unsigned int pMapId, int pXPos, int pYPos )
+    {
+        char b[100];
+        sprintf(b,"%03u_%d_%d", pMapId, pXPos, pYPos);
+        return(std::string(b));
     }
 
     //============================================================
