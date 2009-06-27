@@ -33,7 +33,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TrinityRealm", "VC80\Trinit
 		{90297C34-F231-4DF4-848E-A74BCC0E40ED} = {90297C34-F231-4DF4-848E-A74BCC0E40ED}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TrinityScript", "..\src\bindings\scripts\VC80\80ScriptDev2.vcproj", "{4295C8A9-79B7-4354-8064-F05FB9CA0C96}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TrinityScript", "..\src\bindings\scripts\VC80\80ScriptDev2.vcproj", "{4205C8A9-79B7-4354-8064-F05FB9CA0C96}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A3A04E47-43A2-4C08-90B3-029CEF558594} = {A3A04E47-43A2-4C08-90B3-029CEF558594}
 	EndProjectSection
