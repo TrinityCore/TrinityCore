@@ -70,7 +70,7 @@ DatabaseMysql::~DatabaseMysql()
         mysql_library_end();
 }
 
-bool DatabaseMysql::Initialize(const char *infoString)
+bool DatabaseMysql::Initialize(const char *infoString, bool initDelayThread)
 {
 
     if(!Database::Initialize(infoString))
@@ -85,7 +85,8 @@ bool DatabaseMysql::Initialize(const char *infoString)
         return false;
     }
 
-    InitDelayThread();
+    if(initDelayThread)
+        InitDelayThread(infoString);
 
     Tokens tokens = StrSplit(infoString, ";");
 
@@ -435,12 +436,12 @@ unsigned long DatabaseMysql::escape_string(char *to, const char *from, unsigned 
     return(mysql_real_escape_string(mMysql, to, from, length));
 }
 
-void DatabaseMysql::InitDelayThread()
+void DatabaseMysql::InitDelayThread(const char* infoString)
 {
     assert(!m_delayThread);
 
     //New delay thread for delay execute
-    m_threadBody = new MySQLDelayThread(this);
+    m_threadBody = new MySQLDelayThread(this,infoString);
     m_delayThread = new ACE_Based::Thread(*m_threadBody);
 }
 
