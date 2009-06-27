@@ -1709,34 +1709,8 @@ void Unit::DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss)
             CastSpell(pVictim, 1604, true);
     }
 
-    if(GetTypeId() == TYPEID_PLAYER && pVictim->isAlive())
-    {
-        for(uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; i++)
-        {
-            // If usable, try to cast item spell
-            if (Item * item = ((Player*)this)->GetUseableItemByPos(INVENTORY_SLOT_BAG_0,i))
-                if(!item->IsBroken())
-                    if (ItemPrototype const *proto = item->GetProto())
-                    {
-                        // Additional check for weapons
-                        if (proto->Class==ITEM_CLASS_WEAPON)
-                        {
-                            // offhand item cannot proc from main hand hit etc
-                            EquipmentSlots slot;
-                            switch (damageInfo->attackType)
-                            {
-                                case BASE_ATTACK:   slot = EQUIPMENT_SLOT_MAINHAND; break;
-                                case OFF_ATTACK:    slot = EQUIPMENT_SLOT_OFFHAND;  break;
-                                case RANGED_ATTACK: slot = EQUIPMENT_SLOT_RANGED;   break;
-                                default: slot = EQUIPMENT_SLOT_END; break;
-                            }
-                            if (slot != i)
-                                continue;
-                        }
-                        ((Player*)this)->CastItemCombatSpell(item, damageInfo, proto);
-                    }
-        }
-    }
+    if(GetTypeId() == TYPEID_PLAYER)
+        ((Player *)this)->CastItemCombatSpell(pVictim, damageInfo->attackType, damageInfo->procVictim, damageInfo->procEx);
 
     // Do effect if any damage done to target
     if (damageInfo->damage)
@@ -2334,7 +2308,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
 
 void Unit::AttackerStateUpdate (Unit *pVictim, WeaponAttackType attType, bool extra )
 {
-    if(hasUnitState(UNIT_STAT_CANNOT_AUTOATTACK) || HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED) )
+    if(!extra && hasUnitState(UNIT_STAT_CANNOT_AUTOATTACK) || HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED) )
         return;
 
     if (!pVictim->isAlive())
@@ -2366,8 +2340,8 @@ void Unit::AttackerStateUpdate (Unit *pVictim, WeaponAttackType attType, bool ex
     // Send log damage message to client
     DealDamageMods(pVictim,damageInfo.damage,&damageInfo.absorb);
     SendAttackStateUpdate(&damageInfo);
-    ProcDamageAndSpell(damageInfo.target, damageInfo.procAttacker, damageInfo.procVictim, damageInfo.procEx, damageInfo.damage, damageInfo.attackType);
     DealMeleeDamage(&damageInfo,true);
+    ProcDamageAndSpell(damageInfo.target, damageInfo.procAttacker, damageInfo.procVictim, damageInfo.procEx, damageInfo.damage, damageInfo.attackType);
 
     if (GetTypeId() == TYPEID_PLAYER)
         DEBUG_LOG("AttackerStateUpdate: (Player) %u attacked %u (TypeId: %u) for %u dmg, absorbed %u, blocked %u, resisted %u.",
@@ -6874,7 +6848,6 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     // check if shown in spell book
                     if(!itr->second->active || itr->second->disabled || itr->second->state == PLAYERSPELL_REMOVED)
                         continue;
-
                     SpellEntry const *spellProto = sSpellStore.LookupEntry(itr->first);
                     if (!spellProto)
                         continue;
@@ -6981,16 +6954,13 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
 
     return true;
 }
-
 bool Unit::HandleObsModEnergyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* triggeredByAura, SpellEntry const * procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown)
 {
     SpellEntry const *dummySpell = triggeredByAura->GetSpellProto ();
     uint32 effIndex = triggeredByAura->GetEffIndex();
     int32  triggerAmount = triggeredByAura->GetAmount();
-
     Item* castItem = triggeredByAura->GetParentAura()->GetCastItemGUID() && GetTypeId()==TYPEID_PLAYER
         ? ((Player*)this)->GetItemByGuid(triggeredByAura->GetParentAura()->GetCastItemGUID()) : NULL;
-
     uint32 triggered_spell_id = 0;
     Unit* target = pVictim;
     int32 basepoints0 = 0;
@@ -7004,7 +6974,6 @@ bool Unit::HandleObsModEnergyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* 
             {
                 uint32 maxmana = GetMaxPower(POWER_MANA);
                 basepoints0 = maxmana* GetAttackTime(RANGED_ATTACK)/1000.0f/100.0f;
-
                 target = this;
                 triggered_spell_id = 34075;
                 break;
@@ -7015,39 +6984,30 @@ bool Unit::HandleObsModEnergyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* 
     // processed charge only counting case
     if(!triggered_spell_id)
         return true;
-
     SpellEntry const* triggerEntry = sSpellStore.LookupEntry(triggered_spell_id);
-
     if(!triggerEntry)
     {
         sLog.outError("Unit::HandleObsModEnergyAuraProc: Spell %u have not existed triggered spell %u",dummySpell->Id,triggered_spell_id);
         return false;
     }
-
     // default case
     if(!target || target!=this && !target->isAlive())
         return false;
-
     if( cooldown && GetTypeId()==TYPEID_PLAYER && ((Player*)this)->HasSpellCooldown(triggered_spell_id))
         return false;
-
     if(basepoints0)
         CastCustomSpell(target,triggered_spell_id,&basepoints0,NULL,NULL,true,castItem,triggeredByAura);
     else
         CastSpell(target,triggered_spell_id,true,castItem,triggeredByAura);
-
     if( cooldown && GetTypeId()==TYPEID_PLAYER )
         ((Player*)this)->AddSpellCooldown(triggered_spell_id,0,time(NULL) + cooldown);
-
     return true;
 }
-
 bool Unit::HandleModDamagePctTakenAuraProc(Unit *pVictim, uint32 damage, AuraEffect* triggeredByAura, SpellEntry const * procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown)
 {
     SpellEntry const *dummySpell = triggeredByAura->GetSpellProto ();
     uint32 effIndex = triggeredByAura->GetEffIndex();
     int32  triggerAmount = triggeredByAura->GetAmount();
-
     Item* castItem = triggeredByAura->GetParentAura()->GetCastItemGUID() && GetTypeId()==TYPEID_PLAYER
         ? ((Player*)this)->GetItemByGuid(triggeredByAura->GetParentAura()->GetCastItemGUID()) : NULL;
 
@@ -7065,42 +7025,11 @@ bool Unit::HandleModDamagePctTakenAuraProc(Unit *pVictim, uint32 damage, AuraEff
                 switch (getPowerType())
                 {
                     case POWER_MANA:   triggered_spell_id = 57319; break;
-                    default:
-                        return false;
-                }
-            }
-            break;
-        }
-    }
     // processed charge only counting case
-    if(!triggered_spell_id)
         return true;
-
-    SpellEntry const* triggerEntry = sSpellStore.LookupEntry(triggered_spell_id);
-
-    if(!triggerEntry)
-    {
         sLog.outError("Unit::HandleModDamagePctTakenAuraProc: Spell %u have not existed triggered spell %u",dummySpell->Id,triggered_spell_id);
-        return false;
-    }
-
     // default case
     if(!target || target!=this && !target->isAlive())
-        return false;
-
-    if( cooldown && GetTypeId()==TYPEID_PLAYER && ((Player*)this)->HasSpellCooldown(triggered_spell_id))
-        return false;
-
-    if(basepoints0)
-        CastCustomSpell(target,triggered_spell_id,&basepoints0,NULL,NULL,true,castItem,triggeredByAura);
-    else
-        CastSpell(target,triggered_spell_id,true,castItem,triggeredByAura);
-
-    if( cooldown && GetTypeId()==TYPEID_PLAYER )
-        ((Player*)this)->AddSpellCooldown(triggered_spell_id,0,time(NULL) + cooldown);
-
-    return true;
-}
 
 // Used in case when access to whole aura is needed
 // All procs should be handled like this...
@@ -7668,10 +7597,6 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
     }
     */
 
-    // not allow proc extra attack spell at extra attack
-    if( m_extraAttacks && IsSpellHaveEffect(triggerEntry, SPELL_EFFECT_ADD_EXTRA_ATTACKS) )
-        return false;
-
     // Custom requirements (not listed in procEx) Warning! damage dealing after this
     // Custom triggered spells
     switch (auraSpellInfo->Id)
@@ -7929,15 +7854,14 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
     if(!target || target!=this && !target->isAlive())
         return false;
 
-    if(basepoints0)
-        CastCustomSpell(target,trigger_spell_id,&basepoints0,NULL,NULL,true,castItem,triggeredByAura);
-    //else if(spellmgr.GetSpellCustomAttr(trigger_spell_id) & SPELL_ATTR_CU_AURA_SPELL)
-    //    AddAura(trigger_spell_id, target);
-    else
-        CastSpell(target,trigger_spell_id,true,castItem,triggeredByAura);
-
+    // apply spell cooldown before casting to prevent triggering spells with SPELL_EFFECT_ADD_EXTRA_ATTACKS if spell has hidden cooldown
     if( cooldown && GetTypeId()==TYPEID_PLAYER )
         ((Player*)this)->AddSpellCooldown(trigger_spell_id,0,time(NULL) + cooldown);
+
+    if(basepoints0)
+        CastCustomSpell(target,trigger_spell_id,&basepoints0,NULL,NULL,true,castItem,triggeredByAura);
+    else
+        CastSpell(target,trigger_spell_id,true,castItem,triggeredByAura);
 
     return true;
 }
