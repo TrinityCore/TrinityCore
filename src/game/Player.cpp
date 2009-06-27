@@ -17670,7 +17670,7 @@ bool Player::BuyItemFromVendor(uint64 vendorguid, uint32 item, uint8 count, uint
 {
     // cheating attempt
     if(count < 1) count = 1;
-    
+
     // cheating attempt
     if(slot > MAX_BAG_SIZE && slot !=NULL_SLOT)
         return false;
@@ -17794,7 +17794,12 @@ bool Player::BuyItemFromVendor(uint64 vendorguid, uint32 item, uint8 count, uint
                 {
                     if( bagguid == pBag->GetGUID() )
                     {
-                        if(slot < pBag->GetBagSlot() && !pBag->GetItemByPos(slot))
+                        // slot is counted from 0 but BagSize from 1
+                        if(slot+1 > pBag->GetBagSize())
+                        {
+                            sLog.outDebug("CHEATING ATTEMPT slot > bagSize in BuyItemFromVendor playerGUID: "I64FMT" name: %s slot: %u", GetGUID(), GetName(), slot);
+                            return false;
+                        }
                             bag = i;
                         break;
                     }
