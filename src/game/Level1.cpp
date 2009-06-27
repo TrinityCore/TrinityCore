@@ -846,7 +846,7 @@ bool ChatHandler::HandleNamegoCommand(const char* args)
 
         PSendSysMessage(LANG_SUMMONING, nameLink.c_str(),"");
         if (needReportToTarget(target))
-            ChatHandler(target).PSendSysMessage(LANG_SUMMONED_BY, nameLink.c_str());
+            ChatHandler(target).PSendSysMessage(LANG_SUMMONED_BY, _player->GetName());
 
         // stop flight if need
         if (target->isInFlight())
