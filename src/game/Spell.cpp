@@ -1277,7 +1277,8 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
         {
             // Now Reduce spell duration using data received at spell hit
             int32 duration = Aur->GetAuraMaxDuration();
-            unit->ApplyDiminishingToDuration(m_diminishGroup,duration,caster,m_diminishLevel);
+            int32 limitduration = GetDiminishingReturnsLimitDuration(m_diminishGroup,m_spellInfo);
+            unitTarget->ApplyDiminishingToDuration(m_diminishGroup, duration, m_caster, m_diminishLevel,limitduration);
             Aur->setDiminishGroup(m_diminishGroup);
 
             duration = caster->ModSpellDuration(m_spellInfo, unit, duration, Aur->IsPositive());
