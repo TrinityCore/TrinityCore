@@ -15,9 +15,9 @@
 */
 
 /* ScriptData
-SDName: boss_darhrohan_balnazzar
-SD%Complete: 75
-SDComment: Fix timers, fix spells, possibly fix summons after death
+SDName: Boss_Dathrohan_Balnazzar
+SD%Complete: 95
+SDComment: Possibly need to fix/improve summons after death
 SDCategory: Stratholme
 EndScriptData */
 
@@ -28,17 +28,16 @@ enum
     //Dathrohan spells
     SPELL_CRUSADERSHAMMER           = 17286,                //AOE stun
     SPELL_CRUSADERSTRIKE            = 17281,
-    SPELL_MINDBLAST                 = 17287,
     SPELL_HOLYSTRIKE                = 17284,                //weapon dmg +3
 
     //Transform
     SPELL_BALNAZZARTRANSFORM        = 17288,                //restore full HP/mana, trigger spell Balnazzar Transform Stun
 
     //Balnazzar spells
-    SPELL_SHADOWSHOCK               = 20603,                //AOE 740-860dmg
-    SPELL_PSYCHICSCREAM             = 15398,                //One target, might want to make a code selecting random target
+    SPELL_SHADOWSHOCK               = 17399,
+    SPELL_MINDBLAST                 = 17287,
+    SPELL_PSYCHICSCREAM             = 13704,
     SPELL_SLEEP                     = 12098,
-    SPELL_SHADOWBOLTVOLLEY          = 20741,                //AOE, 255-345dmg
     SPELL_MINDCONTROL               = 15690,
 
     NPC_DATHROHAN                   = 10812,
@@ -75,20 +74,18 @@ struct TRINITY_DLL_DECL boss_dathrohan_balnazzarAI : public ScriptedAI
     uint32 m_uiShadowShock_Timer;
     uint32 m_uiPsychicScream_Timer;
     uint32 m_uiDeepSleep_Timer;
-    uint32 m_uiShadowBoltVolley_Timer;
     uint32 m_uiMindControl_Timer;
     bool m_bTransformed;
 
     void Reset()
     {
         m_uiCrusadersHammer_Timer = 8000;
-        m_uiCrusaderStrike_Timer = 14000;
-        m_uiMindBlast_Timer = 17000;
+        m_uiCrusaderStrike_Timer = 12000;
+        m_uiMindBlast_Timer = 6000;
         m_uiHolyStrike_Timer = 18000;
         m_uiShadowShock_Timer = 4000;
         m_uiPsychicScream_Timer = 16000;
         m_uiDeepSleep_Timer = 20000;
-        m_uiShadowBoltVolley_Timer = 9000;
         m_uiMindControl_Timer = 10000;
         m_bTransformed = false;
 
@@ -118,6 +115,13 @@ struct TRINITY_DLL_DECL boss_dathrohan_balnazzarAI : public ScriptedAI
         //START NOT TRANSFORMED
         if (!m_bTransformed)
         {
+            //MindBlast
+            if (m_uiMindBlast_Timer < uiDiff)
+            {
+                DoCast(m_creature->getVictim(),SPELL_MINDBLAST);
+                m_uiMindBlast_Timer = 15000 + rand()%5000;
+            }else m_uiMindBlast_Timer -= uiDiff;
+
             //CrusadersHammer
             if (m_uiCrusadersHammer_Timer < uiDiff)
             {
@@ -131,13 +135,6 @@ struct TRINITY_DLL_DECL boss_dathrohan_balnazzarAI : public ScriptedAI
                 DoCast(m_creature->getVictim(),SPELL_CRUSADERSTRIKE);
                 m_uiCrusaderStrike_Timer = 15000;
             }else m_uiCrusaderStrike_Timer -= uiDiff;
-
-            //MindBlast
-            if (m_uiMindBlast_Timer < uiDiff)
-            {
-                DoCast(m_creature->getVictim(),SPELL_MINDBLAST);
-                m_uiMindBlast_Timer = 10000;
-            }else m_uiMindBlast_Timer -= uiDiff;
 
             //HolyStrike
             if (m_uiHolyStrike_Timer < uiDiff)
@@ -164,7 +161,7 @@ struct TRINITY_DLL_DECL boss_dathrohan_balnazzarAI : public ScriptedAI
             if (m_uiMindBlast_Timer < uiDiff)
             {
                 DoCast(m_creature->getVictim(),SPELL_MINDBLAST);
-                m_uiMindBlast_Timer = 10000;
+                m_uiMindBlast_Timer = 15000 + rand()%5000;
             }else m_uiMindBlast_Timer -= uiDiff;
 
             //ShadowShock
@@ -191,13 +188,6 @@ struct TRINITY_DLL_DECL boss_dathrohan_balnazzarAI : public ScriptedAI
 
                 m_uiDeepSleep_Timer = 15000;
             }else m_uiDeepSleep_Timer -= uiDiff;
-
-            //ShadowBoltVolley
-            if (m_uiShadowBoltVolley_Timer < uiDiff)
-            {
-                DoCast(m_creature->getVictim(),SPELL_SHADOWBOLTVOLLEY);
-                m_uiShadowBoltVolley_Timer = 13000;
-            }else m_uiShadowBoltVolley_Timer -= uiDiff;
 
             //MindControl
             if (m_uiMindControl_Timer < uiDiff)
