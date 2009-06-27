@@ -14382,9 +14382,11 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
 
     // overwrite some data fields
     uint32 bytes0 = GetUInt32Value(UNIT_FIELD_BYTES_0) & 0xFF000000;
-    bytes0 |= fields[4].GetUInt8();
-    bytes0 |= fields[5].GetUInt8() << 8;
-    bytes0 |= fields[6].GetUInt8() << 16;
+    bytes0 |= fields[4].GetUInt8();                         // race
+    bytes0 |= fields[5].GetUInt8() << 8;                    // class
+    bytes0 |= fields[6].GetUInt8() << 16;                   // gender
+    SetUInt32Value(UNIT_FIELD_BYTES_0, bytes0);
+
     SetUInt32Value(UNIT_FIELD_LEVEL, fields[7].GetUInt8());
     SetUInt32Value(PLAYER_XP, fields[8].GetUInt32());
     SetUInt32Value(PLAYER_FIELD_COINAGE, fields[9].GetUInt32());
@@ -14687,7 +14689,7 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
     //speed collect rest bonus in offline, in logout, in tavern, city (section/in hour)
     float bubble1 = 0.125;
 
-    if((int32)fields[23].GetUInt32() > 0)
+    if(time_diff > 0)
     {
         float bubble = fields[24].GetUInt32() > 0
             ? bubble1*sWorld.getRate(RATE_REST_OFFLINE_IN_TAVERN_OR_CITY)
@@ -14711,7 +14713,7 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
 
     m_taxi.LoadTaxiMask( fields[18].GetString() );          // must be before InitTaxiNodesForLevel
 
-    uint32 extraflags = fields[25].GetUInt32();
+    uint32 extraflags = fields[32].GetUInt32();
 
     m_stableSlots = fields[33].GetUInt32();
     if(m_stableSlots > MAX_PET_STABLES)
