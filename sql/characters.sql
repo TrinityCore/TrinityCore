@@ -23,7 +23,7 @@
 
 DROP TABLE IF EXISTS `character_db_version`;
 CREATE TABLE `character_db_version` (
-  `required_8030_02_characters_character_action` bit(1) default NULL
+  `required_8072_02_characters_characters` bit(1) default NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Last applied sql update to DB';
 
 --
@@ -279,6 +279,13 @@ CREATE TABLE `characters` (
   `name` varchar(12) NOT NULL default '',
   `race` tinyint(3) unsigned NOT NULL default '0',
   `class` tinyint(3) unsigned NOT NULL default '0',
+  `gender` TINYINT UNSIGNED NOT NULL default '0',
+  `level` TINYINT UNSIGNED NOT NULL default '0',
+  `xp` INT UNSIGNED NOT NULL default '0',
+  `money` INT UNSIGNED NOT NULL default '0',
+  `playerBytes` INT UNSIGNED NOT NULL default '0',
+  `playerBytes2` INT UNSIGNED NOT NULL default '0',
+  `playerFlags` INT UNSIGNED NOT NULL default '0',
   `position_x` float NOT NULL default '0',
   `position_y` float NOT NULL default '0',
   `position_z` float NOT NULL default '0',

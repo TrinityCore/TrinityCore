@@ -2860,6 +2860,7 @@ void Spell::EffectCreateItem2(uint32 i)
     Player* player = (Player*)m_caster;
 
     uint32 item_id = m_spellInfo->EffectItemType[i];
+
     DoCreateItem(i, item_id);
 
     // special case: fake item replaced by generate using spell_loot_template
