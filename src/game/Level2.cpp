@@ -66,9 +66,9 @@ bool ChatHandler::HandleMuteCommand(const char* args)
         return false;
 
     uint32 account_id = target ? target->GetSession()->GetAccountId() : objmgr.GetPlayerAccountIdByGUID(target_guid);
-    std::string mutereasonstr;
+    std::string mutereasonstr = "No reason.";
     char *mutereason = strtok(NULL, " ");
-    if(!mutereason)
+    if(mutereason)
         mutereason = mutereason;
 
     // find only player from same account if any
