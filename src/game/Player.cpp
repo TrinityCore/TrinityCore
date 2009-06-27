@@ -17800,6 +17800,7 @@ bool Player::BuyItemFromVendor(uint64 vendorguid, uint32 item, uint8 count, uint
                             sLog.outDebug("CHEATING ATTEMPT slot > bagSize in BuyItemFromVendor playerGUID: "I64FMT" name: %s slot: %u", GetGUID(), GetName(), slot);
                             return false;
                         }
+                        if(slot < pBag->GetBagSlot() && !pBag->GetItemByPos(slot))
                             bag = i;
                         break;
                     }
