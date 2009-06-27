@@ -23,7 +23,7 @@ DROP TABLE IF EXISTS `db_version`;
 CREATE TABLE `db_version` (
   `version` varchar(120) default NULL,
   `creature_ai_version` varchar(120) default NULL,
-  `required_8030_03_mangos_npc_trainer` bit(1) default NULL
+  `required_8050_02_mangos_spell_bonus_data` bit(1) default NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Used DB version notes';
 
 --
@@ -17596,7 +17596,8 @@ INSERT INTO `spell_proc_event` VALUES
 (61346, 0x00000000,  0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000002, 0.000000, 0.000000,  0),
 (61356, 0x00000000,  0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000002, 0.000000, 0.000000,  0),
 (61846, 0x00000000,  0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000010, 0.000000, 0.000000,  0),
-(61847, 0x00000000,  0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000010, 0.000000, 0.000000,  0);
+(61847, 0x00000000,  0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000010, 0.000000, 0.000000,  0),
+(63108, 0x00000000,  5, 0x00000002, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0.000000, 0.000000,  0);
 /*!40000 ALTER TABLE `spell_proc_event` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -17843,7 +17844,8 @@ INSERT INTO `spell_bonus_data` VALUES
 ('18938', '0.96', '0', '0', 'Warlock - Dark Pact Rank 3'),
 ('27265', '0.96', '0', '0', 'Warlock - Dark Pact Rank 4'),
 ('59092', '0.96', '0', '0', 'Warlock - Dark Pact Rank 5'),
-('6229', '0.3', '0', '0', 'Warlock - Shadow Ward');
+('6229', '0.3', '0', '0', 'Warlock - Shadow Ward'),
+('63106', '0', '0', '0', 'Warlock - Siphon Life Triggered');
 /*!40000 ALTER TABLE `spell_bonus_data` ENABLE KEYS */;
 UNLOCK TABLES;
 

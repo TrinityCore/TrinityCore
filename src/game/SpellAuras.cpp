@@ -2839,20 +2839,6 @@ void AuraEffect::HandleAuraDummy(bool apply, bool Real, bool changeAmount)
                         int32 returnmana = (GetSpellProto()->ManaCostPercentage * caster->GetCreateMana() / 100) * GetParentAura()->GetStackAmount() / 2;
                         caster->CastCustomSpell(caster, 64372, &returnmana, NULL, NULL, true, NULL, this, GetCasterGUID());
                     }
-
-                    /*// have a look if there is still some other Lifebloom dummy aura
-                    Unit::AuraList auras = m_target->GetAurasByType(SPELL_AURA_DUMMY);
-                    for(Unit::AuraList::iterator itr = auras.begin(); itr!=auras.end(); ++itr)
-                        if((*itr)->GetSpellProto()->SpellFamilyName == SPELLFAMILY_DRUID &&
-                            (*itr)->GetSpellProto()->SpellFamilyFlags & 0x1000000000LL)
-                            return;
-
-                    // final heal
-                    if(m_target->IsInWorld() && m_stackAmount > 0)
-                    {
-                        int32 amount = m_amount / m_stackAmount;
-                        m_target->CastCustomSpell(m_target,33778,&amount,NULL,NULL,true,NULL,this,GetCasterGUID());
-                    }*/
                 }
                 return;
             }
@@ -6636,6 +6622,7 @@ void AuraEffect::PeriodicDummyTick()
             case 34291:
             case 43182:
             case 43183:
+            case 43706:
             case 46755:
             case 49472: // Drink Coffee
             case 57073:
