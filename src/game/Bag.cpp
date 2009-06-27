@@ -159,11 +159,7 @@ void Bag::RemoveItem( uint8 slot, bool /*update*/ )
 
 void Bag::StoreItem( uint8 slot, Item *pItem, bool /*update*/ )
 {
-    if(slot > MAX_BAG_SIZE)
-    {
-        sLog.outError("Player GUID " I64FMTD " tried to manipulate packets and crash the server.", GetOwnerGUID());
-        return;
-    }
+    assert(slot < MAX_BAG_SIZE);
 
     if( pItem )
     {
