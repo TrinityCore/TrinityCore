@@ -65,17 +65,17 @@ void WorldSession::SendNameQueryOpcodeFromDB(uint64 guid)
     CharacterDatabase.AsyncPQuery(&WorldSession::SendNameQueryOpcodeFromDBCallBack, GetAccountId(),
         !sWorld.getConfig(CONFIG_DECLINED_NAMES_USED) ?
     //   ------- Query Without Declined Names --------
-    //          0                1     2
-        "SELECT guid, name, SUBSTRING(data, LENGTH(SUBSTRING_INDEX(data, ' ', '%u'))+2, LENGTH(SUBSTRING_INDEX(data, ' ', '%u')) - LENGTH(SUBSTRING_INDEX(data, ' ', '%u'))-1) "
+    //          0     1     2     3       4
+        "SELECT guid, name, race, gender, class "
         "FROM characters WHERE guid = '%u'"
         :
     //   --------- Query With Declined Names ---------
-    //          0                1     2
-        "SELECT characters.guid, name, SUBSTRING(data, LENGTH(SUBSTRING_INDEX(data, ' ', '%u'))+2, LENGTH(SUBSTRING_INDEX(data, ' ', '%u')) - LENGTH(SUBSTRING_INDEX(data, ' ', '%u'))-1), "
-    //   3         4       5           6             7
+    //          0                1     2     3       4
+        "SELECT characters.guid, name, race, gender, class, "
+    //   5         6       7           8             9
         "genitive, dative, accusative, instrumental, prepositional "
         "FROM characters LEFT JOIN character_declinedname ON characters.guid = character_declinedname.guid WHERE characters.guid = '%u'",
-        UNIT_FIELD_BYTES_0, UNIT_FIELD_BYTES_0+1, UNIT_FIELD_BYTES_0, GUID_LOPART(guid));
+        GUID_LOPART(guid));
 }
 
 void WorldSession::SendNameQueryOpcodeFromDBCallBack(QueryResult *result, uint32 accountId)
@@ -93,31 +93,35 @@ void WorldSession::SendNameQueryOpcodeFromDBCallBack(QueryResult *result, uint32
     Field *fields = result->Fetch();
     uint32 guid      = fields[0].GetUInt32();
     std::string name = fields[1].GetCppString();
-    uint32 field     = 0;
+    uint8 pRace = 0, pGender = 0, pClass = 0;
     if(name == "")
         name         = session->GetTrinityString(LANG_NON_EXIST_CHARACTER);
     else
-        field        = fields[2].GetUInt32();
+    {
+        pRace        = fields[2].GetUInt8();
+        pGender      = fields[3].GetUInt8();
+        pClass       = fields[4].GetUInt8();
+    }
 
                                                             // guess size
     WorldPacket data( SMSG_NAME_QUERY_RESPONSE, (8+1+1+1+1+1+1+10) );
     data.appendPackGUID(MAKE_NEW_GUID(guid, 0, HIGHGUID_PLAYER));
     data << uint8(0);                                       // added in 3.1
     data << name;
-    data << uint8(0);
-    data << uint8(field & 0xFF);
-    data << uint8((field >> 16) & 0xFF);
-    data << uint8((field >> 8) & 0xFF);
+    data << uint8(0);                                       // realm name for cross realm BG usage
+    data << uint8(pRace);                                   // race
+    data << uint8(pGender);                                 // gender
+    data << uint8(pClass);                                  // class
 
-    // if the first declined name field (3) is empty, the rest must be too
-    if(sWorld.getConfig(CONFIG_DECLINED_NAMES_USED) && fields[3].GetCppString() != "")
+    // if the first declined name field (5) is empty, the rest must be too
+    if(sWorld.getConfig(CONFIG_DECLINED_NAMES_USED) && fields[5].GetCppString() != "")
     {
         data << uint8(1);                                   // is declined
-        for(int i = 3; i < MAX_DECLINED_NAME_CASES+3; ++i)
+        for(int i = 5; i < MAX_DECLINED_NAME_CASES+5; ++i)
             data << fields[i].GetCppString();
     }
     else
-        data << uint8(0);                                   // is declined
+        data << uint8(0);                                   // is not declined
 
     session->SendPacket( &data );
     delete result;
