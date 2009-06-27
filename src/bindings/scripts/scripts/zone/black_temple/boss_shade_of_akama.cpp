@@ -107,11 +107,11 @@ const uint32 spawnEntries[4]= { 23523, 23318, 23524 };
 
 struct TRINITY_DLL_DECL mob_ashtongue_channelerAI : public ScriptedAI
 {
-    mob_ashtongue_channelerAI(Creature* c) : ScriptedAI(c) {}
+    mob_ashtongue_channelerAI(Creature* c) : ScriptedAI(c) {ShadeGUID = 0;}
 
     uint64 ShadeGUID;
 
-    void Reset() { ShadeGUID = 0; }
+    void Reset() {}
     void JustDied(Unit* killer);
     void EnterCombat(Unit* who) {}
     void AttackStart(Unit* who) {}
@@ -121,7 +121,7 @@ struct TRINITY_DLL_DECL mob_ashtongue_channelerAI : public ScriptedAI
 
 struct TRINITY_DLL_DECL mob_ashtongue_sorcererAI : public ScriptedAI
 {
-    mob_ashtongue_sorcererAI(Creature* c) : ScriptedAI(c) {}
+    mob_ashtongue_sorcererAI(Creature* c) : ScriptedAI(c) {ShadeGUID = 0;}
 
     uint64 ShadeGUID;
     uint32 CheckTimer;
@@ -130,8 +130,7 @@ struct TRINITY_DLL_DECL mob_ashtongue_sorcererAI : public ScriptedAI
     void Reset()
     {
         StartBanishing = false;
-        CheckTimer = 5000;
-        ShadeGUID = 0;
+        CheckTimer = 5000;        
     }
 
     void JustDied(Unit* killer);
@@ -237,8 +236,20 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
 
         reseting = false;
     }
-    void JustSummoned(Creature *summon) {summons.Summon(summon);}
-    void SummonedCreatureDespawn(Creature *summon) {summons.Despawn(summon);}
+    void JustDied(Unit* killer)
+    {
+        summons.DespawnAll();
+    }
+    void JustSummoned(Creature *summon) 
+    {
+        if(summon->GetEntry() == CREATURE_DEFENDER || summon->GetEntry() == 23523 || summon->GetEntry() == 23318 || summon->GetEntry() == 23524)
+            summons.Summon(summon);
+    }
+    void SummonedCreatureDespawn(Creature *summon) 
+    {
+        if(summon->GetEntry() == CREATURE_DEFENDER || summon->GetEntry() == 23523 || summon->GetEntry() == 23318 || summon->GetEntry() == 23524)
+            summons.Despawn(summon);
+    }
 
     void MoveInLineOfSight(Unit *who)
     {
@@ -498,7 +509,7 @@ void mob_ashtongue_sorcererAI::JustDied(Unit* killer)
 
 struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
 {
-    npc_akamaAI(Creature* c) : ScriptedAI(c)
+    npc_akamaAI(Creature* c) : ScriptedAI(c), summons(m_creature)
     {
         ShadeHasDied = false;
         StartCombat = false;
@@ -536,6 +547,7 @@ struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
     bool ShadeHasDied;
     bool StartCombat;
     bool HasYelledOnce;
+    SummonList summons;
 
     void Reset()
     {
@@ -548,6 +560,18 @@ struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
             m_creature->SetUInt32Value(UNIT_NPC_FLAGS, 0);      // Database sometimes has very very strange values
             m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         }
+        summons.DespawnAll();
+    }
+
+    void JustSummoned(Creature *summon) 
+    {
+        if(summon->GetEntry() == CREATURE_BROKEN)
+            summons.Summon(summon);
+    }
+    void SummonedCreatureDespawn(Creature *summon) 
+    {
+        if(summon->GetEntry() == CREATURE_BROKEN)
+            summons.Despawn(summon);
     }
 
     void EnterCombat(Unit* who) {}
@@ -617,6 +641,7 @@ struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
         Creature* Shade = Unit::GetCreature((*m_creature), ShadeGUID);
         if(Shade && Shade->isAlive())
             CAST_AI(boss_shade_of_akamaAI, Shade->AI())->HasKilledAkama = true;
+        summons.DespawnAll();
     }
 
     void UpdateAI(const uint32 diff)
