@@ -6983,17 +6983,48 @@ void Player::UpdateEquipSpellsAtFormChange()
         }
     }
 }
-
-void Player::CastItemCombatSpell(Item *item, CalcDamageInfo *damageInfo, ItemPrototype const * proto)
+void Player::CastItemCombatSpell(Unit *target, WeaponAttackType attType, uint32 procVictim, uint32 procEx)
 {
-    Unit * Target = damageInfo->target;
-    WeaponAttackType attType = damageInfo->attackType;
-
-    if (!Target || Target == this )
+    if(!target || !target->isAlive() || target == this)
         return;
 
+    for(int i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; i++)
+    {
+        // If usable, try to cast item spell
+        if (Item * item = ((Player*)this)->GetItemByPos(INVENTORY_SLOT_BAG_0,i))
+            if(!item->IsBroken())
+                if (ItemPrototype const *proto = item->GetProto())
+                {
+                    // Additional check for weapons
+                    if (proto->Class==ITEM_CLASS_WEAPON)
+                    {
+                        // offhand item cannot proc from main hand hit etc
+                        EquipmentSlots slot;
+                        switch (attType)
+                        {
+                            case BASE_ATTACK:   slot = EQUIPMENT_SLOT_MAINHAND; break;
+                            case OFF_ATTACK:    slot = EQUIPMENT_SLOT_OFFHAND;  break;
+                            case RANGED_ATTACK: slot = EQUIPMENT_SLOT_RANGED;   break;
+                            default: slot = EQUIPMENT_SLOT_END; break;
+                        }
+                        if (slot != i)
+                            continue;
+                        // Check if item is useable (forms or disarm)
+                        if (attType == BASE_ATTACK)
+                        {
+                            if (!((Player*)this)->IsUseEquipedWeapon(true))
+                                continue;
+                        }
+                    }
+                    ((Player*)this)->CastItemCombatSpell(target, attType, procVictim, procEx, item, proto);
+                }
+    }
+}
+
+void Player::CastItemCombatSpell(Unit *target, WeaponAttackType attType, uint32 procVictim, uint32 procEx, Item *item, ItemPrototype const * proto)
+{
     // Can do effect if any damage done to target
-    if (damageInfo->damage)
+    if (procVictim & PROC_FLAG_TAKEN_ANY_DAMAGE)
     //if (damageInfo->procVictim & PROC_FLAG_TAKEN_ANY_DAMAGE)
     {
         for (int i = 0; i < 5; i++)
@@ -7016,7 +7047,7 @@ void Player::CastItemCombatSpell(Item *item, CalcDamageInfo *damageInfo, ItemPro
             }
 
             // not allow proc extra attack spell at extra attack
-            if( m_extraAttacks && IsSpellHaveEffect(spellInfo,SPELL_EFFECT_ADD_EXTRA_ATTACKS) )
+            if( m_extraAttacks && IsSpellHaveEffect(spellInfo, SPELL_EFFECT_ADD_EXTRA_ATTACKS) )
                 return;
 
             float chance = spellInfo->procChance;
@@ -7032,7 +7063,7 @@ void Player::CastItemCombatSpell(Item *item, CalcDamageInfo *damageInfo, ItemPro
             }
 
             if (roll_chance_f(chance))
-                CastSpell(Target, spellInfo->Id, true, item);
+                CastSpell(target, spellInfo->Id, true, item);
         }
     }
 
@@ -7052,13 +7083,13 @@ void Player::CastItemCombatSpell(Item *item, CalcDamageInfo *damageInfo, ItemPro
             if (entry && entry->procEx)
             {
                 // Check hit/crit/dodge/parry requirement
-                if((entry->procEx & damageInfo->procEx) == 0)
+                if((entry->procEx & procEx) == 0)
                     continue;
             }
             else
             {
                 // Can do effect if any damage done to target
-                if (!(damageInfo->damage))
+                if (!(procVictim & PROC_FLAG_TAKEN_ANY_DAMAGE))
                 //if (!(damageInfo->procVictim & PROC_FLAG_TAKEN_ANY_DAMAGE))
                     continue;
             }
@@ -7088,7 +7119,7 @@ void Player::CastItemCombatSpell(Item *item, CalcDamageInfo *damageInfo, ItemPro
                 if(IsPositiveSpell(pEnchant->spellid[s]))
                     CastSpell(this, pEnchant->spellid[s], true, item);
                 else
-                    CastSpell(Target, pEnchant->spellid[s], true, item);
+                    CastSpell(target, pEnchant->spellid[s], true, item);
             }
         }
     }
@@ -17639,7 +17670,7 @@ bool Player::BuyItemFromVendor(uint64 vendorguid, uint32 item, uint8 count, uint
 {
     // cheating attempt
     if(count < 1) count = 1;
-
+    
     // cheating attempt
     if(slot > MAX_BAG_SIZE && slot !=NULL_SLOT)
         return false;
