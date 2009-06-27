@@ -1602,13 +1602,18 @@ void Pet::resetTalentsForAllPetsOf(Player* owner, Pet* online_pet /*= NULL*/)
     do
     {
         Field *fields = resultPets->Fetch();
+
         uint32 id = fields[0].GetUInt32();
+
         if(need_comma)
             ss << ",";
+
         ss << id;
+
         need_comma = true;
     }
     while( resultPets->NextRow() );
+
     delete resultPets;
 
     ss << ") AND spell IN (";
@@ -1617,18 +1622,26 @@ void Pet::resetTalentsForAllPetsOf(Player* owner, Pet* online_pet /*= NULL*/)
     do
     {
         Field *fields = result->Fetch();
+
         uint32 spell = fields[0].GetUInt32();
+
         if(!GetTalentSpellCost(spell))
             continue;
+
         if(need_execute)
             ss << ",";
+
         ss << spell;
+
         need_execute = true;
     }
     while( result->NextRow() );
+
     delete result;
+
     if(!need_execute)
         return;
+
     ss << ")";
 
     CharacterDatabase.Execute(ss.str().c_str());
