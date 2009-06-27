@@ -40,7 +40,7 @@ class SqlDelayThread : public ACE_Based::Runnable
 
         SqlDelayThread();
     public:
-        SqlDelayThread(Database* db);
+        SqlDelayThread(Database* db,const char* infoString);
 
         ///< Put sql statement to delay queue
         bool Delay(SqlOperation* sql) { m_sqlQueue.add(sql); return true; }
