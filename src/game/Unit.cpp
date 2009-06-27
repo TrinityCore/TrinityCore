@@ -6306,7 +6306,9 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     // heal amount
                     basepoints0 = triggerAmount*damage/100;
                     target = this;
-                    triggered_spell_id = 31786;
+
+                    if(basepoints0)
+                        triggered_spell_id = 31786;
                     break;
                 }
                 // Seal of Blood do damage trigger

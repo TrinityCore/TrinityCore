@@ -5991,23 +5991,23 @@ void Spell::EffectMomentMove(uint32 i)
       dist = sqrt((x-destx)*(x-destx) + (y-desty)*(y-desty));
       step = dist/10.0f;
     }
-    
+
     int j = 0;
     for(j; j<10 ;j++)
       {
-	if(fabs(z - destz) > 6)
-	  {
-	  destx -= step * cos(orientation);
-	  desty -= step * sin(orientation);
-	  ground = unitTarget->GetMap()->GetHeight(destx,desty,MAX_HEIGHT,true);
-	  floor = unitTarget->GetMap()->GetHeight(destx,desty,z, true);
-	  destz = fabs(ground - z) <= fabs(floor - z) ? ground:floor;
-	  }else
-	  break;
+    if(fabs(z - destz) > 6)
+      {
+      destx -= step * cos(orientation);
+      desty -= step * sin(orientation);
+      ground = unitTarget->GetMap()->GetHeight(destx,desty,MAX_HEIGHT,true);
+      floor = unitTarget->GetMap()->GetHeight(destx,desty,z, true);
+      destz = fabs(ground - z) <= fabs(floor - z) ? ground:floor;
+      }else
+      break;
       }
     if(j == 9)
       {
-	return;
+    return;
       }
     unitTarget->NearTeleportTo(destx, desty, destz + 0.07531, orientation, unitTarget==m_caster);
 

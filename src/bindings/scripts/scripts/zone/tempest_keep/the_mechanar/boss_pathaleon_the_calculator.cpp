@@ -77,7 +77,6 @@ struct TRINITY_DLL_DECL boss_pathaleon_the_calculatorAI : public ScriptedAI
         Enraged = false;
 
         Counter = 0;
-
         summons.DespawnAll();
     }
     void EnterCombat(Unit *who)

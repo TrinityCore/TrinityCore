@@ -734,7 +734,7 @@ class TRINITY_DLL_SPEC Creature : public Unit
         }
         void ResetPlayerDamageReq() { m_PlayerDamageReq = GetHealth() / 2; }
         uint32 m_PlayerDamageReq;
-        
+
         void SetOriginalEntry(uint32 entry) { m_originalEntry = entry; }
 
         static float _GetDamageMod(int32 Rank);
@@ -751,7 +751,6 @@ class TRINITY_DLL_SPEC Creature : public Unit
 
         uint32 m_lootMoney;
         uint64 m_lootRecipient;
-        uint32 m_unDamageByPlayers;
 
         /// Timers
         uint32 m_deathTimer;                                // (msecs)timer for death or corpse disappearance
