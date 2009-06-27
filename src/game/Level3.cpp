@@ -5387,6 +5387,7 @@ bool ChatHandler::HandleResetTalentsCommand(const char * args)
             }
             return true;
         }
+
         SendSysMessage(LANG_NO_CHAR_SELECTED);
         SetSentErrorMessage(true);
         return false;
