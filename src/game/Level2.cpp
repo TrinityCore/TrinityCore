@@ -66,9 +66,10 @@ bool ChatHandler::HandleMuteCommand(const char* args)
         return false;
 
     uint32 account_id = target ? target->GetSession()->GetAccountId() : objmgr.GetPlayerAccountIdByGUID(target_guid);
+    std::string mutereasonstr;
     char *mutereason = strtok(NULL, " ");
     if(!mutereason)
-        strcpy(mutereason, "No reason.");
+        mutereason = mutereason;
 
     // find only player from same account if any
     if(!target)
@@ -91,11 +92,11 @@ bool ChatHandler::HandleMuteCommand(const char* args)
     LoginDatabase.PExecute("UPDATE account SET mutetime = " UI64FMTD " WHERE id = '%u'",uint64(mutetime), account_id );
 
     if(target)
-        ChatHandler(target).PSendSysMessage(LANG_YOUR_CHAT_DISABLED, notspeaktime, mutereason);
+        ChatHandler(target).PSendSysMessage(LANG_YOUR_CHAT_DISABLED, notspeaktime, mutereasonstr.c_str());
 
     std::string nameLink = playerLink(target_name);
 
-    PSendSysMessage(LANG_YOU_DISABLE_CHAT, nameLink, notspeaktime, mutereason);
+    PSendSysMessage(LANG_YOU_DISABLE_CHAT, nameLink, notspeaktime, mutereasonstr.c_str());
 
     return true;
 }
