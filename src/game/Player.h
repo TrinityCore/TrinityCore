@@ -1409,6 +1409,8 @@ class TRINITY_DLL_SPEC Player : public Unit
         void DropModCharge(SpellModifier * mod, Spell * spell);
         void SetSpellModTakingSpell(Spell* spell, bool apply);
 
+        static uint32 const infinityCooldownDelay = MONTH;  // used for set "infinity cooldowns" for spells and check
+        static uint32 const infinityCooldownDelayCheck = MONTH/2;
         bool HasSpellCooldown(uint32 spell_id) const
         {
             SpellCooldowns::const_iterator itr = m_spellCooldowns.find(spell_id);
