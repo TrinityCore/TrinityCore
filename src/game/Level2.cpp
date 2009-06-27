@@ -2268,22 +2268,17 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
         if (HasLowerSecurity(NULL, target_guid))
             return false;
 
-        //                                                     0
-        QueryResult *result = CharacterDatabase.PQuery("SELECT totaltime FROM characters WHERE guid = '%u'", GUID_LOPART(target_guid));
+        //                                                     0          1      2      3
+        QueryResult *result = CharacterDatabase.PQuery("SELECT totaltime, level, money, account FROM characters WHERE guid = '%u'", GUID_LOPART(target_guid));
         if (!result)
             return false;
 
         Field *fields = result->Fetch();
         total_player_time = fields[0].GetUInt32();
+        level = fields[1].GetUInt32();
+        money = fields[2].GetUInt32();
+        accId = fields[3].GetUInt32();
         delete result;
-
-        Tokens data;
-        if (!Player::LoadValuesArrayFromDB(data,target_guid))
-            return false;
-
-        money = Player::GetUInt32ValueFromArray(data, PLAYER_FIELD_COINAGE);
-        level = Player::GetUInt32ValueFromArray(data, UNIT_FIELD_LEVEL);
-        accId = objmgr.GetPlayerAccountIdByGUID(target_guid);
     }
 
     std::string username = GetTrinityString(LANG_ERROR);

@@ -1472,7 +1472,6 @@ bool ChatHandler::HandleModifyTalentCommand (const char* args)
         return false;
 
     Unit* target = getSelectedUnit();
-
     if(!target)
     {
         SendSysMessage(LANG_NO_CHAR_SELECTED);
