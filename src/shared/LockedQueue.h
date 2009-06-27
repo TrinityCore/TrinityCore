@@ -27,11 +27,9 @@
 
 namespace ACE_Based
 {
-
     template <class T, class LockType, typename StorageType=std::deque<T> >
         class LockedQueue
     {
-
         //! Serialize access to the Queue
         LockType _lock;
 
@@ -54,14 +52,12 @@ namespace ACE_Based
              */
             void add(const T& item)
             {
+                ACE_Guard<LockType> g(this->_lock);
 
-                ACE_Guard<LockType> g(_lock);
-
-                ASSERT(!_canceled);
+                ASSERT(!this->_canceled);
                 // throw Cancellation_Exception();
 
-                _queue.push_back(item);
-
+                this->_queue.push_back(item);
             }
 
             /**
@@ -69,27 +65,25 @@ namespace ACE_Based
              */
             T next()
             {
+                ACE_Guard<LockType> g(this->_lock);
 
-                ACE_Guard<LockType> g(_lock);
-
-                ASSERT (!_queue.empty() || !_canceled);
+                ASSERT (!_queue.empty() || !this->_canceled);
                 // throw Cancellation_Exception();
 
-                T item = _queue.front();
-                _queue.pop_front();
+                T item = this->_queue.front();
+                this->_queue.pop_front();
 
                 return item;
-
             }
 
             T front()
             {
-                ACE_Guard<LockType> g(_lock);
+                ACE_Guard<LockType> g(this->_lock);
 
-                ASSERT (!_queue.empty());
+                ASSERT (!this->_queue.empty());
                 // throw NoSuchElement_Exception();
 
-                return _queue.front();
+                return this->_queue.front();
             }
 
             /**
@@ -97,11 +91,9 @@ namespace ACE_Based
              */
             void cancel()
             {
+                ACE_Guard<LockType> g(this->_lock);
 
-                ACE_Guard<LockType> g(_lock);
-
-                _canceled = true;
-
+                this->_canceled = true;
             }
 
             /**
@@ -109,15 +101,13 @@ namespace ACE_Based
              */
             bool isCanceled()
             {
-
                 // Faster check since the queue will not become un-canceled
-                if(_canceled)
+                if(this->_canceled)
                     return true;
 
-                ACE_Guard<LockType> g(_lock);
+                ACE_Guard<LockType> g(this->_lock);
 
-                return _canceled;
-
+                return this->_canceled;
             }
 
             /**
@@ -125,20 +115,15 @@ namespace ACE_Based
              */
             size_t size()
             {
-
-                ACE_Guard<LockType> g(_lock);
-                return _queue.size();
-
+                ACE_Guard<LockType> g(this->_lock);
+                return this->_queue.size();
             }
 
             bool empty()
             {
-
-                ACE_Guard<LockType> g(_lock);
-                return _queue.empty();
+                ACE_Guard<LockType> g(this->_lock);
+                return this->_queue.empty();
             }
-
     };
-
 }
 #endif
