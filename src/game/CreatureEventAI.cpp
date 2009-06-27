@@ -746,15 +746,10 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
             m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(),NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
             break;
         case ACTION_T_ZONE_COMBAT_PULSE:
-            if (!m_creature->isInCombat() || !m_creature->GetMap()->IsDungeon())
-            {
-
-                sLog.outErrorDb("CreatureEventAI: Event %d ACTION_T_ZONE_COMBAT_PULSE on creature out of combat or in non-dungeon map. Creature %d", EventId, m_creature->GetEntry());
-                return;
-            }
-
-            DoZoneInCombat(m_creature);
+        {
+            m_creature->SetInCombatWithZone();
             break;
+        }
         case ACTION_T_CALL_FOR_HELP:
         {
             m_creature->CallForHelp(action.call_for_help.radius);
