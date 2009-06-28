@@ -3875,8 +3875,7 @@ bool Unit::AddAura(Aura *Aur, bool handleEffects)
         AddInterruptMask(aurSpellInfo->AuraInterruptFlags);
     }
     if((aurSpellInfo->Attributes & SPELL_ATTR_BREAKABLE_BY_DAMAGE
-        && !Aur->IsAuraType(SPELL_AURA_MOD_POSSESS)) //only dummy aura is breakable
-        || ((GetAllSpellMechanicMask(aurSpellInfo) & 1<<MECHANIC_KNOCKOUT) && Aur->IsAuraType(SPELL_AURA_MOD_STUN)))
+        && !Aur->IsAuraType(SPELL_AURA_MOD_POSSESS))) //only dummy aura is breakable
     {
         m_ccAuras.push_back(Aur);
     }
@@ -4195,8 +4194,7 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
     }
 
     if((Aur->GetSpellProto()->Attributes & SPELL_ATTR_BREAKABLE_BY_DAMAGE
-        && !Aur->IsAuraType(SPELL_AURA_MOD_POSSESS)) //only dummy aura is breakable
-        || ((GetAllSpellMechanicMask(Aur->GetSpellProto()) & 1<<MECHANIC_KNOCKOUT) && Aur->IsAuraType(SPELL_AURA_MOD_STUN)))
+        && !Aur->IsAuraType(SPELL_AURA_MOD_POSSESS))) //only dummy aura is breakable
     {
         m_ccAuras.remove(Aur);
     }
@@ -12460,7 +12458,8 @@ bool InitTriggerAuraData()
     isTriggerAura[SPELL_AURA_MOD_DAMAGE_DONE] = true;
     isTriggerAura[SPELL_AURA_MOD_DAMAGE_TAKEN] = true;
     isTriggerAura[SPELL_AURA_MOD_RESISTANCE] = true;
-    isTriggerAura[SPELL_AURA_MOD_STEALTH] = true; // Aura not have charges but need remove him on trigger
+    isTriggerAura[SPELL_AURA_MOD_STEALTH] = true;
+    isTriggerAura[SPELL_AURA_MOD_FEAR] = true; // Aura not have charges but need remove him on trigger
     isTriggerAura[SPELL_AURA_MOD_ROOT] = true;
     isTriggerAura[SPELL_AURA_REFLECT_SPELLS] = true;
     isTriggerAura[SPELL_AURA_DAMAGE_IMMUNITY] = true;
@@ -12798,6 +12797,19 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
                 case SPELL_AURA_MOD_SPELL_CRIT_CHANCE:
                     if (!procSpell)
                         continue;
+                    break;
+                // These auras may not have charges - that means they have chance to remove based on dmg
+                case SPELL_AURA_MOD_FEAR:
+                case SPELL_AURA_MOD_STUN:
+                case SPELL_AURA_MOD_ROOT:
+                    if (!useCharges && isVictim && damage && !i->spellProcEvent)
+                    {
+                        // The chance to dispel an aura depends on the damage taken with respect to the casters level.
+                        uint32 max_dmg = getLevel() > 8 ? 25 * getLevel() - 150 : 50;
+                        float chance = float(damage) / max_dmg * 100.0f;
+                        if (roll_chance_f(chance))
+                            RemoveAura(i->aura);
+                    }
                     break;
                 /*case SPELL_AURA_ADD_FLAT_MODIFIER:
                 case SPELL_AURA_ADD_PCT_MODIFIER:

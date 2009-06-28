@@ -3485,10 +3485,6 @@ void SpellMgr::LoadSpellCustomAttr()
         case 54098: // Poison Bolt Volly - Faerlina (H)
             spellInfo->MaxAffectedTargets = 10;
             break;
-        case 8122: case 8124: case 10888: case 10890: // Psychic Scream
-        case 12494: // Frostbite
-            spellInfo->Attributes |= SPELL_ATTR_BREAKABLE_BY_DAMAGE;
-            break;
         case 38794: case 33711: //Murmur's Touch
             spellInfo->MaxAffectedTargets = 1;
             spellInfo->EffectTriggerSpell[0] = 33760;
