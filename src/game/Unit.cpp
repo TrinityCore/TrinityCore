@@ -6447,6 +6447,9 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     if( cooldown && ((Player*)this)->HasSpellCooldown(dummySpell->Id))
                         return false;
 
+                    if(triggeredByAura->GetParentAura() && castItem->GetGUID() != triggeredByAura->GetParentAura()->GetCastItemGUID())
+                        return false;
+
                     // Now amount of extra power stored in 1 effect of Enchant spell
                     // Get it by item enchant id
                     uint32 spellId;
