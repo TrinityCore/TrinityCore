@@ -2,6 +2,7 @@ PROJECT(Trinity)
 cmake_minimum_required(VERSION 2.6)
 cmake_policy(SET CMP0005 OLD)
 
+include(CheckIncludeFiles)
 include(cmake/FindAce.cmake)
 include(cmake/FindMySql.cmake)
 CONFIGURE_FILE(
@@ -148,6 +149,8 @@ return()
 #message(STATUS "I will try to build ACE from: ${ACE_INCLUDE_DIR}")
 #message(STATUS "And link using: ${ACE_LIBRARY}")
 endif(ACE_FOUND)
+
+check_include_files(ace/Stack_Trace.h HAVE_STACK_TRACE_H)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
