@@ -1515,7 +1515,7 @@ void AuraEffect::HandleShapeshiftBoosts(bool apply)
             if (GetMiscValue() == FORM_CAT)
             {
                 // Nurturing Instinct
-                if (AuraEffect const * aurEff = m_target->GetAuraEffect(SPELL_AURA_MOD_SPELL_HEALING_OF_STAT_PERCENT, SPELLFAMILY_DRUID, 2254))
+                if (AuraEffect const * aurEff = m_target->GetAuraEffect(SPELL_AURA_MOD_SPELL_HEALING_OF_STAT_PERCENT, SPELLFAMILY_DRUID, 2254,0))
                 {
                     uint32 spellId = 0;
                     switch (aurEff->GetId())
@@ -1533,7 +1533,7 @@ void AuraEffect::HandleShapeshiftBoosts(bool apply)
             // Survival of the Fittest
             else if (GetMiscValue() == FORM_BEAR || GetMiscValue() == FORM_DIREBEAR)
             {
-                if (AuraEffect const * aurEff = m_target->GetAuraEffect(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE,SPELLFAMILY_DRUID, 961))
+                if (AuraEffect const * aurEff = m_target->GetAuraEffect(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE,SPELLFAMILY_DRUID, 961, 0))
                 {
                     int32 bp = m_target->CalculateSpellDamage(aurEff->GetSpellProto(),2,aurEff->GetSpellProto()->EffectBasePoints[2],m_target);
                     m_target->CastCustomSpell(m_target, 62069,&bp, NULL, NULL, true, 0, this);
@@ -7394,7 +7394,7 @@ void AuraEffect::HandleReflectSpells( bool Apply, bool Real , bool /*changeAmoun
         if (Unit * caster = GetCaster())
         {
             // Improved Spell Reflection
-            if (caster->GetDummyAura(SPELLFAMILY_WARRIOR,1935))
+            if (caster->GetDummyAura(SPELLFAMILY_WARRIOR,1935, 0))
             {
                 // aura remove - remove auras from all party members
                 std::list<Unit*> PartyMembers;

@@ -4366,6 +4366,14 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
                 if(m_caster->GetTypeId()==TYPEID_PLAYER)
                     ((Player*)m_caster)->AddComboPoints(unitTarget,1, this);
             }
+            // Shred, Maul - Rend and Tear
+            else if (m_spellInfo->SpellFamilyFlags[0] & 0x00008800 && unitTarget->HasAuraState(AURA_STATE_BLEEDING, m_spellInfo, m_caster))
+            {
+                if (AuraEffect const* rendAndTear = m_caster->GetDummyAura(SPELLFAMILY_DRUID, 2859, 0))
+                {
+                    totalDamagePercentMod *= float((rendAndTear->GetAmount() + 100.0f) / 100.0f);
+                }
+            }
             break;
         }
         case SPELLFAMILY_DEATHKNIGHT:
@@ -4375,7 +4383,7 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
             {
                 bool consumeDiseases = true;
                 // Annihilation
-                if (AuraEffect * aurEff = m_caster->GetDummyAura(SPELLFAMILY_DEATHKNIGHT, 2710))
+                if (AuraEffect * aurEff = m_caster->GetDummyAura(SPELLFAMILY_DEATHKNIGHT, 2710, 0))
                 {
                     // Do not consume diseases if roll sucesses
                     if (roll_chance_i(aurEff->GetAmount()))
@@ -5232,7 +5240,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 // Invigoration
                 case 53412:
                 {
-                    if (AuraEffect * aurEff = unitTarget->GetDummyAura(SPELLFAMILY_HUNTER, 3487))
+                    if (AuraEffect * aurEff = unitTarget->GetDummyAura(SPELLFAMILY_HUNTER, 3487, 0))
                     {
                         if (roll_chance_i(aurEff->GetAmount()))
                             unitTarget->CastSpell(unitTarget, 53398, true);

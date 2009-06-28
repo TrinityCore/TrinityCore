@@ -1346,7 +1346,7 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
         }
     }
 
-    if (procExtra & PROC_EX_INTERNAL_REQ_FAMILY)
+    if (procExtra & (PROC_EX_INTERNAL_REQ_FAMILY | PROC_EX_INTERNAL_HOT))
     {
         if (!hasFamilyMask)
             return false;
