@@ -1180,33 +1180,15 @@ void Spell::EffectDummy(uint32 i)
                 }
                 case 34665:                                 //Administer Antidote
                 {
-                    if(!unitTarget || m_caster->GetTypeId() != TYPEID_PLAYER )
+                    if(!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT
+                        || unitTarget->GetEntry() != 16880 || ((Creature*)unitTarget)->isPet())
                         return;
 
-                    if(!unitTarget)
-                        return;
+                    ((Creature*)unitTarget)->UpdateEntry(16992);
+                    ((Player*)m_caster)->RewardPlayerAndGroupAtEvent(16992, unitTarget);
 
-                    TempSummon* tempSummon = dynamic_cast<TempSummon*>(unitTarget);
-                    if(!tempSummon)
-                        return;
-
-                    uint32 health = tempSummon->GetHealth();
-
-                    float x = tempSummon->GetPositionX();
-                    float y = tempSummon->GetPositionY();
-                    float z = tempSummon->GetPositionZ();
-                    float o = tempSummon->GetOrientation();
-                    tempSummon->UnSummon();
-
-                    Creature* pCreature = m_caster->SummonCreature(16992, x, y, z, o,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,180000);
-                    if (!pCreature)
-                        return;
-
-                    pCreature->SetHealth(health);
-                    ((Player*)m_caster)->RewardPlayerAndGroupAtEvent(16992, pCreature);
-
-                    if (pCreature->IsAIEnabled)
-                        pCreature->AI()->AttackStart(m_caster);
+                    if (unitTarget->IsAIEnabled)
+                        ((Creature*)unitTarget)->AI()->AttackStart(m_caster);
 
                     return;
                 }
