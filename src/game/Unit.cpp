@@ -605,10 +605,10 @@ void Unit::DealDamageMods(Unit *pVictim, uint32 &damage, uint32* absorb)
 
     //You don't lose health from damage taken from another player while in a sanctuary
     //You still see it in the combat log though
-    if(pVictim != this && GetTypeId() == TYPEID_PLAYER && pVictim->GetTypeId() == TYPEID_PLAYER)
+    if(pVictim != this && IsControlledByPlayer() && pVictim->IsControlledByPlayer())
     {
         const AreaTableEntry *area = GetAreaEntryByAreaID(pVictim->GetAreaId());
-        if(area && area->flags & AREA_FLAG_SANCTUARY)       //sanctuary
+        if(area && area->IsSanctuary())       //sanctuary
         {
             if(absorb)
                 absorb += damage;
@@ -1380,7 +1380,7 @@ void Unit::DealSpellDamage(SpellNonMeleeDamage *damageInfo, bool durabilityLoss)
 
     Unit *pVictim = damageInfo->target;
 
-    if(!this || !pVictim)
+    if(!pVictim)
         return;
 
     if (!pVictim->isAlive() || pVictim->hasUnitState(UNIT_STAT_UNATTACKABLE) || pVictim->GetTypeId() == TYPEID_UNIT && ((Creature*)pVictim)->IsInEvadeMode())
@@ -1395,10 +1395,10 @@ void Unit::DealSpellDamage(SpellNonMeleeDamage *damageInfo, bool durabilityLoss)
 
     //You don't lose health from damage taken from another player while in a sanctuary
     //You still see it in the combat log though
-    if(pVictim != this && GetTypeId() == TYPEID_PLAYER && pVictim->GetTypeId() == TYPEID_PLAYER)
+    if(pVictim != this && IsControlledByPlayer() && pVictim->IsControlledByPlayer())
     {
         const AreaTableEntry *area = GetAreaEntryByAreaID(pVictim->GetAreaId());
-        if(area && area->flags & AREA_FLAG_SANCTUARY)       // sanctuary
+        if(area && area->IsSanctuary())       // sanctuary
             return;
     }
 
@@ -1623,7 +1623,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss)
     if (damageInfo==0) return;
     Unit *pVictim = damageInfo->target;
 
-    if(!this || !pVictim)
+    if(!pVictim)
         return;
 
     if (!pVictim->isAlive() || pVictim->hasUnitState(UNIT_STAT_UNATTACKABLE) || pVictim->GetTypeId() == TYPEID_UNIT && ((Creature*)pVictim)->IsInEvadeMode())
@@ -1631,10 +1631,10 @@ void Unit::DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss)
 
     //You don't lose health from damage taken from another player while in a sanctuary
     //You still see it in the combat log though
-    if(pVictim != this && GetTypeId() == TYPEID_PLAYER && pVictim->GetTypeId() == TYPEID_PLAYER)
+    if(pVictim != this && IsControlledByPlayer() && pVictim->IsControlledByPlayer())
     {
         const AreaTableEntry *area = GetAreaEntryByAreaID(pVictim->GetAreaId());
-        if(area && area->flags & AREA_FLAG_SANCTUARY)       // sanctuary
+        if(area && area->IsSanctuary())       // sanctuary
             return;
     }
 

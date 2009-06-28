@@ -6343,10 +6343,11 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
     }
 
     pvpInfo.inNoPvPArea = false;
-    if((zone->flags & AREA_FLAG_SANCTUARY) || zone->mapid == 609)       // in sanctuary
+    if(zone->IsSanctuary())       // in sanctuary
     {
         SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_SANCTUARY);
         pvpInfo.inNoPvPArea = true;
+        CombatStopWithPets();
     }
     else
     {
