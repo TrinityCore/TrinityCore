@@ -2839,6 +2839,7 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2, bool
                     case SPELL_AURA_POWER_BURN_MANA:
                     case SPELL_AURA_OBS_MOD_ENERGY:
                     case SPELL_AURA_OBS_MOD_HEALTH:
+                    case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
                         return false;
                     default:
                         break;
