@@ -7804,7 +7804,7 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
             if (GetTypeId() == TYPEID_UNIT && ((Creature*)this)->isPet())
                 if (Unit * owner = GetOwner())
                 {
-                    if (AuraEffect * aurEff = owner->GetDummyAura(SPELLFAMILY_WARLOCK, 3220))
+                    if (AuraEffect * aurEff = owner->GetDummyAura(SPELLFAMILY_WARLOCK, 3220, 0))
                     {
                         basepoints0 = int32((aurEff->GetAmount() * owner->SpellBaseDamageBonus(SpellSchoolMask(SPELL_SCHOOL_MASK_MAGIC)) + 100.0f) / 100.0f);
                         CastCustomSpell(this,trigger_spell_id,&basepoints0,&basepoints0,NULL,true,castItem,triggeredByAura);
@@ -9305,17 +9305,17 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
             // Improved Icy Touch
             if (spellProto->SpellFamilyFlags[0] & 0x2)
             {
-                if (AuraEffect * aurEff = GetDummyAura(SPELLFAMILY_DEATHKNIGHT, 2721))
+                if (AuraEffect * aurEff = GetDummyAura(SPELLFAMILY_DEATHKNIGHT, 2721, 0))
                     DoneTotalMod *= (100.0f + aurEff->GetAmount()) / 100.0f ;
             }
             // Glacier Rot
             if (spellProto->SpellFamilyFlags[0] & 0x2 || spellProto->SpellFamilyFlags[1] & 0x6)
             {
-                if (AuraEffect * aurEff = GetDummyAura(SPELLFAMILY_DEATHKNIGHT, 196))
+                if (AuraEffect * aurEff = GetDummyAura(SPELLFAMILY_DEATHKNIGHT, 196, 0))
                     DoneTotalMod *= (100.0f + aurEff->GetAmount()) / 100.0f;
             }
             // This is not a typo - Impurity has SPELLFAMILY_DRUID
-            if (AuraEffect * aurEff = GetDummyAura(SPELLFAMILY_DRUID, 1986))
+            if (AuraEffect * aurEff = GetDummyAura(SPELLFAMILY_DRUID, 1986, 0))
                 ApCoeffMod *= (100.0f + aurEff->GetAmount()) / 100.0f;
         break;
     }
@@ -9627,12 +9627,30 @@ bool Unit::isSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
             break;
         }
         case SPELL_DAMAGE_CLASS_MELEE:
+            if (pVictim)
+            {
+                // Custom crit by class
+                switch(spellProto->SpellFamilyName)
+                {
+                    case SPELLFAMILY_DRUID:
+                        // Rend and Tear - bonus crit chance for bleeding targets of Ferocious Bite
+                        if (spellProto->SpellFamilyFlags[0] & 0x00800000 && pVictim->HasAuraState(AURA_STATE_BLEEDING, spellProto, this))
+                        {
+                            if (AuraEffect const* rendAndTear = GetDummyAura(SPELLFAMILY_DRUID, 2859, 1))
+                            {
+                                crit_chance += rendAndTear->GetAmount();
+                            }
+                            break;
+                        }
+                    break;
+                }
+            }
         case SPELL_DAMAGE_CLASS_RANGED:
         {
             if (pVictim)
             {
-                crit_chance = GetUnitCriticalChance(attackType, pVictim);
-                crit_chance+= GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_SPELL_CRIT_CHANCE_SCHOOL, schoolMask);
+                crit_chance += GetUnitCriticalChance(attackType, pVictim);
+                crit_chance += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_SPELL_CRIT_CHANCE_SCHOOL, schoolMask);
             }
             break;
         }
@@ -10267,14 +10285,6 @@ void Unit::MeleeDamageBonus(Unit *pVictim, uint32 *pdamage,WeaponAttackType attT
                         mod = (*i)->GetAmount();
                     TakenTotalMod *= (mod+100.0f)/100.0f;
                 }
-                break;
-            //Mangle
-            case 2312:
-                if(spellProto==NULL)
-                    break;
-                // Should increase Shred (initial Damage of Lacerate and Rake handled in Spell::EffectSchoolDMG)
-                if(spellProto->SpellFamilyName==SPELLFAMILY_DRUID && spellProto->SpellFamilyFlags.IsEqual (0x00008000,0,0))
-                    TakenTotalMod *= (100.0f+(*i)->GetAmount())/100.0f;
                 break;
         }
     }
@@ -13343,11 +13353,13 @@ AuraEffect* Unit::GetDummyAura( uint32 spell_id ) const
     return NULL;
 }
 
-AuraEffect* Unit::GetAuraEffect(AuraType type, SpellFamilyNames name, uint32 iconId) const
+AuraEffect* Unit::GetAuraEffect(AuraType type, SpellFamilyNames name, uint32 iconId, uint8 effIndex) const
 {
     Unit::AuraEffectList const& mDummy = GetAurasByType(type);
     for(Unit::AuraEffectList::const_iterator itr = mDummy.begin(); itr != mDummy.end(); ++itr)
     {
+        if (effIndex != (*itr)->GetEffIndex())
+            continue;
         SpellEntry const * spell = (*itr)->GetSpellProto();
         if (spell->SpellIconID == iconId && spell->SpellFamilyName == name
             && !spell->SpellFamilyFlags)
