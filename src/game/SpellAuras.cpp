@@ -7388,7 +7388,8 @@ void AuraEffect::HandleReflectSpells( bool Apply, bool Real , bool /*changeAmoun
     // implemented in Unit::SpellHitResult
 
     // only special case
-    if(!Apply && Real && m_spellProto->SpellFamilyName == SPELLFAMILY_WARRIOR && m_spellProto->SpellFamilyFlags[1] & 0x2)
+    if(!Apply && Real && GetParentAura()->GetRemoveMode() != AURA_REMOVE_BY_DEFAULT
+        && m_spellProto->SpellFamilyName == SPELLFAMILY_WARRIOR && m_spellProto->SpellFamilyFlags[1] & 0x2)
     {
         if (Unit * caster = GetCaster())
         {
