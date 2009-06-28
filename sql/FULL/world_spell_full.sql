@@ -49,12 +49,6 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 ( 17850, 54501, 2, 'Consume Shadows - Rank 2'),
 ( 17767, 54501, 2, 'Consume Shadows - Rank 1'),
 ( 53563, 53651, 2, 'Beacon of Light'),
-( 16857, 60089, 0, 'Faerie Fire (Feral) Rank 1'),
-# ( 17390, 60089, 0, 'Faerie Fire (Feral) Rank 2'), removed in 313
-# ( 17391, 60089, 0, 'Faerie Fire (Feral) Rank 3'),
-# ( 17392, 60089, 0, 'Faerie Fire (Feral) Rank 4'),
-# ( 27011, 60089, 0, 'Faerie Fire (Feral) Rank 5'),
-# ( 48475, 60089, 0, 'Faerie Fire (Feral) Rank 6'),
 (   781, 56446, 0, 'Disengage'),
 ( 57635, 57636, 0, 'Disengage'),
 ( 60932, 60934, 0, 'Disengage'),
