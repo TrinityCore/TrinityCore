@@ -2826,6 +2826,11 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2, bool
         for(uint32 i = 0; i < 3; ++i)
             if (spellInfo_1->Effect[i] == SPELL_EFFECT_APPLY_AURA
                 || spellInfo_1->Effect[i] == SPELL_EFFECT_PERSISTENT_AREA_AURA)
+            {
+                // not channeled AOE effects can stack
+                if(IsAreaEffectTarget[spellInfo_1->EffectImplicitTargetA[i]] || IsAreaEffectTarget[spellInfo_1->EffectImplicitTargetB[i]]
+                    && !IsChanneledSpell(spellInfo_1))
+                        continue;
                 // not area auras (shaman totem)
                 switch(spellInfo_1->EffectApplyAuraName[i])
                 {
@@ -2844,6 +2849,7 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2, bool
                     default:
                         break;
                 }
+            }
     }
 
     spellId_2 = GetLastSpellInChain(spellId_2);
