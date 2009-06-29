@@ -60,7 +60,7 @@ float baseMoveSpeed[MAX_MOVE_TYPE] =
 {
     2.5f,                                                   // MOVE_WALK
     7.0f,                                                   // MOVE_RUN
-    1.25f,                                                  // MOVE_RUN_BACK
+    3.0f,                                                   // MOVE_RUN_BACK
     4.722222f,                                              // MOVE_SWIM
     4.5f,                                                   // MOVE_SWIM_BACK
     3.141594f,                                              // MOVE_TURN_RATE
@@ -10860,6 +10860,11 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
 
     switch(mtype)
     {
+        // Only apply debuffs
+        case MOVE_FLIGHT_BACK:
+        case MOVE_RUN_BACK:
+        case MOVE_SWIM_BACK:
+            break;
         case MOVE_WALK:
             return;
         case MOVE_RUN:
@@ -10878,15 +10883,11 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
             }
             break;
         }
-        case MOVE_RUN_BACK:
-            return;
         case MOVE_SWIM:
         {
             main_speed_mod  = GetMaxPositiveAuraModifier(SPELL_AURA_MOD_INCREASE_SWIM_SPEED);
             break;
         }
-        case MOVE_SWIM_BACK:
-            return;
         case MOVE_FLIGHT:
         {
             if (GetTypeId()==TYPEID_UNIT && IsControlledByPlayer()) // not sure if good for pet
@@ -10918,8 +10919,6 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
                     vehicle->UpdateSpeed(MOVE_FLIGHT, true);
             break;
         }
-        case MOVE_FLIGHT_BACK:
-            return;
         default:
             sLog.outError("Unit::UpdateSpeed: Unsupported move type (%d)", mtype);
             return;
