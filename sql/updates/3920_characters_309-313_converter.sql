@@ -1,4 +1,3 @@
-
 CREATE TABLE `character_equipmentsets` (
   `guid` int(11) NOT NULL default '0',
   `setguid` bigint(20) NOT NULL auto_increment,
@@ -28,10 +27,8 @@ CREATE TABLE `character_equipmentsets` (
   UNIQUE KEY `idx_set` (`guid`,`setguid`,`setindex`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-
 UPDATE characters SET data = REPLACE(data,'  ',' ');
 UPDATE characters SET data = CONCAT(TRIM(data),' ');
-
 UPDATE `characters` SET `data` = CONCAT(
 	SUBSTRING_INDEX(`data`, ' ', 257 + 1), ' ',
 	SUBSTRING_INDEX(SUBSTRING_INDEX(`data`, ' ', 261 + 1), ' ', -261 + 260 - 1), ' ',
@@ -62,6 +59,5 @@ UPDATE `characters` SET `data` = CONCAT(
 	SUBSTRING_INDEX(SUBSTRING_INDEX(`data`, ' ', 1700 + 1), ' ', -1700 + 1699 - 1), ' '
 	)
 WHERE length(SUBSTRING_INDEX(data, ' ', 1700)) < length(data) and length(SUBSTRING_INDEX(data, ' ', 1701)) >= length(data);
-
 UPDATE characters SET data = REPLACE(data,'  ',' ');
 UPDATE characters SET data = CONCAT(TRIM(data),' ');

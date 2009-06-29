@@ -9,8 +9,7 @@ UPDATE npc_spellclick_spells
   SET quest_end = quest_start, quest_start_active = 1
   WHERE quest_start <> 0;
 
-DELETE FROM `npc_spellclick_spells` WHERE `spell_id` IN (
-54568, 54575, 52263, 52280, 52447);
+DELETE FROM `npc_spellclick_spells` WHERE `spell_id` IN (54568, 54575, 52263, 52280, 52447);
 INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `quest_start`, `quest_start_active`, `quest_end`, `cast_flags`) VALUES
 (29488, 54568, 12670, 1, 0, 3), -- Taxi to Death's Breath
 (29501, 54575, 12670, 1, 0, 3),
@@ -23,6 +22,8 @@ INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `quest_start`, `qu
 
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (29912);
 INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `quest_start`, `quest_start_active`, `quest_end`, `cast_flags`) VALUES
-(29912, 55479, 0, 0, 0, 3); # Obedience Crystal - Force Obedience
+(29912, 55479, 0, 0, 0, 3); -- Obedience Crystal - Force Obedience
 
-REPLACE into `spell_target_position` values (51852, 609, 2361.21, -5660.45, 503.828, 4.49);
+DELETE FROM `spell_target_position` WHERE `id`=51852;
+INSERT INTO `spell_target_position` (`id`, `target_map`, `target_position_x`, `target_position_y`, `target_position_z`, `target_orientation`) VALUES
+(51852, 609, 2361.21, -5660.45, 503.828, 4.49);

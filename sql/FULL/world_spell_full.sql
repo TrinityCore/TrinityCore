@@ -1,4 +1,4 @@
--- Up to TC2 4018
+-- Up to TC2 4321
 
 -- --------
 -- LINKED
@@ -492,6 +492,15 @@ INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
 (54725,1,0),
 (54744,1,0),
 (54746,1,0);
+
+-- For quest The Denouncement and The Restless Dead
+DELETE FROM `spell_script_target` WHERE `entry` IN (48714,57806);
+INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES 
+('48714', '2', '27237'),
+('48714', '2', '27235'),
+('48714', '2', '27234'),
+('48714', '2', '27236'),
+('57806', '2', '31043');
 
 -- --------
 -- POSITION
@@ -1493,7 +1502,9 @@ INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
 (48743, 1, 26125); -- Death pact
 
 -- Eye of Acherus
-REPLACE into `spell_target_position` values (51852, 609, 2361.21, -5660.45, 503.828, 4.49);
+DELETE FROM `spell_target_position` WHERE `id`=51852;
+INSERT INTO `spell_target_position` (`id`, `target_map`, `target_position_x`, `target_position_y`, `target_position_z`, `target_orientation`) VALUES
+(51852, 609, 2361.21, -5660.45, 503.828, 4.49);
 
 update creature_template set minlevel=50,maxlevel=52,minhealth=2215,maxhealth=2317,faction_A=2084,faction_H=2084,mindmg=50,maxdmg=50 where entry=28528; -- ghoul
 UPDATE `creature_template` SET spell1=52372,spell2=52373,spell3=52374,spell4=52375 WHERE `entry`=28406;
@@ -1509,15 +1520,24 @@ UPDATE creature_template SET `VehicleId`=200 WHERE `entry` IN (28605,28606,28607
 -- Vehicle and summon spell(summon npc 28788) for Acherus Deathcharger
 UPDATE creature_template SET `spell1`=52362, `VehicleId`=200 WHERE `entry`=28782;
 
-replace into creature_questrelation (id,quest) VALUES (28377,12701);
-replace into creature_involvedrelation (id,quest) VALUES (28377,12701);
-replace into creature_involvedrelation (id,quest) VALUES (28914,12723);
-replace into creature_questrelation (id,quest) VALUES (28914,12724);
-replace into creature_involvedrelation (id,quest) VALUES (28914,12724);
-replace into creature_questrelation (id,quest) VALUES (28913,12725);
-replace into creature_involvedrelation (id,quest) VALUES (28912,12725);
-replace into creature_questrelation (id,quest) VALUES (28912,12727);
-replace into creature_involvedrelation (id,quest) VALUES (28913,12727);
+DELETE FROM `creature_questrelation` WHERE `quest`=12701;
+INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (28377, 12701);
+DELETE FROM `creature_involvedrelation` WHERE `quest`=12701;
+INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (28377, 12701);
+DELETE FROM `creature_involvedrelation` WHERE `quest`=12723;
+INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (28914, 12723);
+DELETE FROM `creature_questrelation` WHERE `quest`=12724;
+INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (28914, 12724);
+DELETE FROM `creature_involvedrelation` WHERE `quest`=12724;
+INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (28914, 12724);
+DELETE FROM `creature_questrelation` WHERE `quest`=12725;
+INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (28913, 12725);
+DELETE FROM `creature_involvedrelation` WHERE `quest`=12725;
+INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (28912, 12725);
+DELETE FROM `creature_questrelation` WHERE `quest`=12727;
+INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (28912, 12727);
+DELETE FROM `creature_involvedrelation` WHERE `quest`=12727;
+INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (28913, 12727);
 
 DELETE FROM `npc_spellclick_spells` WHERE `spell_id` IN (
 54568, 54575, 52263, 52280, 52447);

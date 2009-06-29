@@ -1,8 +1,4 @@
-DELETE FROM `spell_proc_event` WHERE `entry` IN
- (28716, 31221, 31222, 31223, 31571, 31572, 31871, 31872, 44745, 61257, 
- 59089, 59088, 58426, 57352, 57318, 56374, 56372, 56337, 56336, 
- 56333, 54787, 53375, 53376, 47570, 47569, 47537, 47536, 47535, 63108);
- 
+DELETE FROM `spell_proc_event` WHERE `entry` IN (28716, 31221, 31222, 31223, 31571, 31572, 31871, 31872, 44745, 61257, 59089, 59088, 58426, 57352, 57318, 56374, 56372, 56337, 56336, 56333, 54787, 53375, 53376, 47570, 47569, 47537, 47536, 47535, 63108);
 INSERT INTO `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `procFlags`, `procEx`, `ppmRate`, `CustomChance`, `Cooldown`) VALUES
 ( 28716, 0x00,   7, 0x00000010, 0x00000000, 0x00000000, 0x00044000, 0x00000000,   0,   0,   0), -- Rejuvenation 
 ( 31221, 0x00,   8, 0x00400000, 0x00000000, 0x00000000, 0x00000400, 0x00006001,   0,   0,   0), -- Master of Subtlety (Rank 1)
