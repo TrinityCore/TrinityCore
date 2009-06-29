@@ -85,55 +85,38 @@ bool QuestAccept_npc_calvin_montague(Player* player, Creature* creature, Quest c
 ## go_mausoleum_trigger
 ######*/
 
-#define QUEST_ULAG      1819
-#define C_ULAG          6390
-#define GO_TRIGGER      104593
-#define GO_DOOR         176594
-
-GameObject* SearchMausoleumGo(Unit *source, uint32 entry, float range)
+enum
 {
-    GameObject* pGo = NULL;
+    QUEST_ULAG      = 1819,
+    NPC_ULAG        = 6390,
+    GO_TRIGGER      = 104593,
+    GO_DOOR         = 176594
+};
 
-    CellPair pair(Trinity::ComputeCellPair(source->GetPositionX(), source->GetPositionY()));
-    Cell cell(pair);
-    cell.data.Part.reserved = ALL_DISTRICT;
-    cell.SetNoCreate();
-
-    Trinity::NearestGameObjectEntryInObjectRangeCheck go_check(*source, entry, range);
-    Trinity::GameObjectLastSearcher<Trinity::NearestGameObjectEntryInObjectRangeCheck> searcher(source, pGo, go_check);
-
-    TypeContainerVisitor<Trinity::GameObjectLastSearcher<Trinity::NearestGameObjectEntryInObjectRangeCheck>, GridTypeMapContainer> go_searcher(searcher);
-
-    CellLock<GridReadGuard> cell_lock(cell, pair);
-    cell_lock->Visit(cell_lock, go_searcher,*(source->GetMap()));
-
-    return pGo;
-}
-
-bool GOHello_go_mausoleum_door(Player *player, GameObject* _GO)
+bool GOHello_go_mausoleum_door(Player* pPlayer, GameObject* pGo)
 {
-    if (player->GetQuestStatus(QUEST_ULAG) != QUEST_STATUS_INCOMPLETE)
+    if (pPlayer->GetQuestStatus(QUEST_ULAG) != QUEST_STATUS_INCOMPLETE)
         return false;
 
-    if (GameObject *trigger = SearchMausoleumGo(player, GO_TRIGGER, 30))
+    if (GameObject* pTrigger = pPlayer->FindNearestGameObject(GO_TRIGGER, 30.0f))
     {
-        trigger->SetGoState(GO_STATE_READY);
-        player->SummonCreature(C_ULAG, 2390.26, 336.47, 40.01, 2.26, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 300000);
+        pTrigger->SetGoState(GO_STATE_READY);
+        pPlayer->SummonCreature(NPC_ULAG, 2390.26, 336.47, 40.01, 2.26, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 300000);
         return false;
     }
 
     return false;
 }
 
-bool GOHello_go_mausoleum_trigger(Player *player, GameObject* _GO)
+bool GOHello_go_mausoleum_trigger(Player* pPlayer, GameObject* pGo)
 {
-    if (player->GetQuestStatus(QUEST_ULAG) != QUEST_STATUS_INCOMPLETE)
+    if (pPlayer->GetQuestStatus(QUEST_ULAG) != QUEST_STATUS_INCOMPLETE)
         return false;
 
-    if (GameObject *door = SearchMausoleumGo(player, GO_DOOR, 30))
+    if (GameObject* pDoor = pPlayer->FindNearestGameObject(GO_DOOR, 30.0f))
     {
-        _GO->SetGoState(GO_STATE_ACTIVE);
-        door->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
+        pGo->SetGoState(GO_STATE_ACTIVE);
+        pDoor->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
         return true;
     }
 
