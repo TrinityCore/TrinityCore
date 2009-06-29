@@ -59,6 +59,11 @@ bool ChatHandler::HandleMuteCommand(const char* args)
     if(!delayStr)
         return false;
 
+    char *mutereason = strtok(NULL, "\r");
+    std::string mutereasonstr = "No reason";
+    if(mutereason != NULL)
+         mutereasonstr = mutereason;
+         
     Player* target;
     uint64 target_guid;
     std::string target_name;
@@ -66,10 +71,6 @@ bool ChatHandler::HandleMuteCommand(const char* args)
         return false;
 
     uint32 account_id = target ? target->GetSession()->GetAccountId() : objmgr.GetPlayerAccountIdByGUID(target_guid);
-    std::string mutereasonstr = "No reason.";
-    char *mutereason = strtok(NULL, " ");
-    if(mutereason)
-        mutereason = mutereason;
 
     // find only player from same account if any
     if(!target)
@@ -96,7 +97,7 @@ bool ChatHandler::HandleMuteCommand(const char* args)
 
     std::string nameLink = playerLink(target_name);
 
-    PSendSysMessage(LANG_YOU_DISABLE_CHAT, nameLink, notspeaktime, mutereasonstr.c_str());
+    PSendSysMessage(LANG_YOU_DISABLE_CHAT, nameLink.c_str(), notspeaktime, mutereasonstr.c_str());
 
     return true;
 }
