@@ -1,23 +1,23 @@
 -- Grand Magus Telestra
-update `creature_template` set `ScriptName`='boss_magus_telestra' where `entry`=26731;
+UPDATE `creature_template` SET `ScriptName`='boss_magus_telestra' WHERE `entry`=26731;
 
 -- Anomalus
-update `creature_template` set `ScriptName`='boss_anomalus' where `entry`=26763;
-update `creature_template` set `ScriptName`='mob_chaotic_rift' where `entry`=26918;
+UPDATE `creature_template` SET `ScriptName`='boss_anomalus' WHERE `entry`=26763;
+UPDATE `creature_template` SET `ScriptName`='mob_chaotic_rift' WHERE `entry`=26918;
 
 -- Ormorok the Tree-Shaper
-update `creature_template` set `ScriptName`='boss_ormorok' where `entry`=26794;
-update `creature_template` set `ScriptName`='mob_crystal_spike' where `entry`=27099;
-update `creature_template` set `ScriptName`='mob_crystalline_tangler' where `entry`=32665;
+UPDATE `creature_template` SET `ScriptName`='boss_ormorok' WHERE `entry`=26794;
+UPDATE `creature_template` SET `ScriptName`='mob_crystal_spike' WHERE `entry`=27099;
+UPDATE `creature_template` SET `ScriptName`='mob_crystalline_tangler' WHERE `entry`=32665;
 
 -- Keristrasza
-update `creature_template` set `ScriptName`='boss_keristrasza' where `entry`=26723;
+UPDATE `creature_template` SET `ScriptName`='boss_keristrasza' WHERE `entry`=26723;
 
 -- Instance script
-update `instance_template` set `script`='instance_nexus' where `map`=576;
+UPDATE `instance_template` SET `script`='instance_nexus' WHERE `map`=576;
 
-UPDATE creature_template set AIName = 'EventAI' where entry in  (26796, 26798, 26929, 26928, 26930);
-DELETE FROM `creature_ai_scripts` WHERE `creature_id` in (26796, 26798, 26929, 26928, 26930);
+UPDATE `creature_template` SET `AIName` = 'EventAI' WHERE entry IN  (26796, 26798, 26929, 26928, 26930);
+DELETE FROM `creature_ai_scripts` WHERE `creature_id` IN (26796, 26798, 26929, 26928, 26930);
 INSERT INTO `creature_ai_scripts` VALUES 
 -- Commander Stoutbeard
 ( 2679600, 26796, 4, 0, 100, 4, 0, 0, 0, 0, 28, 0, 47543, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Commander Stoutbeard - crystal prison remove'),
@@ -46,7 +46,8 @@ INSERT INTO `creature_ai_scripts` VALUES
 ( 2693004, 26930, 0, 0, 100, 5, 9000, 9000, 15000, 16000, 11, 56936, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Grand Magus Telestra frost - cast blizzard H');
 
 -- Grand Magus Telestra
-REPLACE INTO `script_texts` (`entry`, `content_default`, `sound`, `type`, `language`, `emote`, `comment`) VALUES
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1576005 AND -1576000;
+INSERT INTO `script_texts` (`entry`, `content_default`, `sound`, `type`, `language`, `emote`, `comment`) VALUES
 (-1576000,'You know what they say about curiosity.',13319,1,0,0,'grand magus telestra SAY_AGGRO'),
 (-1576001,'Death becomes you!',13324,1,0,0,'grand magus telestra SAY_KILL'),
 (-1576002,'Damn the... luck.',13320,1,0,0,'grand magus telestra SAY_DEATH'),
@@ -55,14 +56,16 @@ REPLACE INTO `script_texts` (`entry`, `content_default`, `sound`, `type`, `langu
 (-1576005,'I\'ll give you more than you can handle.',13322,1,0,0,'grand magus telestra SAY_SPLIT_2');
 
 -- Anomalus
-REPLACE INTO `script_texts` (`entry`, `content_default`, `sound`, `type`, `language`, `emote`, `comment`) VALUES
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1576013 AND -1576010;
+INSERT INTO `script_texts` (`entry`, `content_default`, `sound`, `type`, `language`, `emote`, `comment`) VALUES
 (-1576010,'Chaos beckons.',13186,1,0,0,'anomalus SAY_AGGRO'),
 (-1576011,'Of course.',13187,1,0,0,'anomalus SAY_DEATH'),
 (-1576012,'Reality... unwoven.',13188,1,0,0,'anomalus SAY_RIFT'),
 (-1576013,'Indestructible.',13189,1,0,0,'anomalus SAY_SHIELD');
 
 -- Ormorok the Tree-Shaper
-REPLACE INTO `script_texts` (`entry`, `content_default`, `sound`, `type`, `language`, `emote`, `comment`) VALUES
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1576024 AND -1576020;
+INSERT INTO `script_texts` (`entry`, `content_default`, `sound`, `type`, `language`, `emote`, `comment`) VALUES
 (-1576020,'Noo!',13328,1,0,0,'ormorok SAY_AGGRO'),
 (-1576021,'Aaggh!',13330,1,0,0,'ormorok SAY_DEATH'),
 (-1576022,'Back!',13331,1,0,0,'ormorok SAY_REFLECT'),
@@ -70,10 +73,10 @@ REPLACE INTO `script_texts` (`entry`, `content_default`, `sound`, `type`, `langu
 (-1576024,'Aaggh! Kill!',13329,1,0,0,'ormorok SAY_KILL');
 
 -- Keristrasza
-REPLACE INTO `script_texts` (`entry`, `content_default`, `sound`, `type`, `language`, `emote`, `comment`) VALUES
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1576044 AND -1576040;
+INSERT INTO `script_texts` (`entry`, `content_default`, `sound`, `type`, `language`, `emote`, `comment`) VALUES
 (-1576040,'Preserve? Why? There\'s no truth in it. No no no... only in the taking! I see that now!',13450,1,0,0,'keristrasza SAY_AGGRO'),
 (-1576041,'Now we\'ve come to the truth!',13453,1,0,0,'keristrasza SAY_SLAY'),
 (-1576042,'Finish it! FINISH IT! Kill me, or I swear by the Dragonqueen you\'ll never see daylight again!',13452,1,0,0,'keristrasza SAY_ENRAGE'),
 (-1576043,'Dragonqueen... Life-Binder... preserve... me.',13454,1,0,0,'keristrasza SAY_DEATH'),
 (-1576044,'Stay. Enjoy your final moments.',13451,1,0,0,'keristrasza SAY_CRYSTAL_NOVA');
-

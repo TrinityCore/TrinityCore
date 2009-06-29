@@ -1,4 +1,4 @@
-DELETE FROM `spell_bonus_data` where entry in (31893, 32221, 31898, 32220, 53719, 53718, 53726, 53725);
+DELETE FROM `spell_bonus_data` WHERE entry IN (31893, 32221, 31898, 32220, 53719, 53718, 53726, 53725);
 INSERT INTO `spell_bonus_data` VALUES
 (31893, 0, 0, 0, "Paladin - Seal of Blood Proc Enemy"),
 (32221, 0, 0, 0, "Paladin - Seal of Blood Proc Self"),
