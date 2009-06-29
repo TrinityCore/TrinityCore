@@ -169,8 +169,7 @@ struct TRINITY_DLL_DECL npc_ranger_lilathaAI : public npc_escortAI
         case 0:
             {
             m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
-            GameObject* Cage = me->FindNearestGameObject(GO_CAGE, 20);
-            if(Cage)
+            if(GameObject* Cage = me->FindNearestGameObject(GO_CAGE, 20))
                 Cage->SetGoState(GO_STATE_ACTIVE);
             DoScriptText(SAY_START, m_creature, player);
             break;

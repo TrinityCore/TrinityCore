@@ -391,27 +391,6 @@ struct TRINITY_DLL_DECL npc_commander_dawnforgeAI : public ScriptedAI
 
     void EnterCombat(Unit *who) { }
 
-    //Select any creature in a grid
-    Creature* SelectCreatureInGrid(uint32 entry, float range)
-    {
-        Creature* pCreature = NULL;
-
-        CellPair pair(Trinity::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
-        Cell cell(pair);
-        cell.data.Part.reserved = ALL_DISTRICT;
-        cell.SetNoCreate();
-
-        Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck creature_check(*m_creature, entry, true, range);
-        Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(m_creature, pCreature, creature_check);
-
-        TypeContainerVisitor<Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck>, GridTypeMapContainer> creature_searcher(searcher);
-
-        CellLock<GridReadGuard> cell_lock(cell, pair);
-        cell_lock->Visit(cell_lock, creature_searcher,*(m_creature->GetMap()));
-
-        return pCreature;
-    }
-
     void JustSummoned(Creature *summoned)
     {
         pathaleonGUID = summoned->GetGUID();
@@ -473,7 +452,7 @@ struct TRINITY_DLL_DECL npc_commander_dawnforgeAI : public ScriptedAI
     {
         if (!isEvent)
         {
-            Creature *ardonis = SelectCreatureInGrid(CreatureEntry[0], 10.0f);
+            Creature* ardonis = me->FindNearestCreature(CreatureEntry[0], 10.0f);
             if (!ardonis)
                 return false;
 
@@ -627,26 +606,6 @@ CreatureAI* GetAI_npc_commander_dawnforge(Creature* _Creature)
     return new npc_commander_dawnforgeAI(_Creature);
 }
 
-Creature* SearchDawnforge(Player *source, uint32 entry, float range)
-{
-    Creature* pCreature = NULL;
-
-    CellPair pair(Trinity::ComputeCellPair(source->GetPositionX(), source->GetPositionY()));
-    Cell cell(pair);
-    cell.data.Part.reserved = ALL_DISTRICT;
-    cell.SetNoCreate();
-
-    Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck creature_check(*source, entry, true, range);
-    Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(source, pCreature, creature_check);
-
-    TypeContainerVisitor<Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck>, GridTypeMapContainer> creature_searcher(searcher);
-
-    CellLock<GridReadGuard> cell_lock(cell, pair);
-    cell_lock->Visit(cell_lock, creature_searcher,*(source->GetMap()));
-
-    return pCreature;
-}
-
 bool AreaTrigger_at_commander_dawnforge(Player *player, AreaTriggerEntry *at)
 {
     //if player lost aura or not have at all, we should not try start event.
@@ -655,7 +614,7 @@ bool AreaTrigger_at_commander_dawnforge(Player *player, AreaTriggerEntry *at)
 
     if (player->isAlive() && player->GetQuestStatus(QUEST_INFO_GATHERING) == QUEST_STATUS_INCOMPLETE)
     {
-        Creature* Dawnforge = SearchDawnforge(player, CreatureEntry[1], 30.0f);
+        Creature* Dawnforge = player->FindNearestCreature(CreatureEntry[1], 30.0f);
 
         if (!Dawnforge)
             return false;

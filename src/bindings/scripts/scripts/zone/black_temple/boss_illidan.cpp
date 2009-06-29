@@ -1648,30 +1648,15 @@ struct TRINITY_DLL_DECL cage_trap_triggerAI : public ScriptedAI
     }
 };
 
-bool GOHello_cage_trap(Player* plr, GameObject* go)
+bool GOHello_cage_trap(Player* pPlayer, GameObject* pGo)
 {
     float x, y, z;
-    plr->GetPosition(x, y, z);
-
-    Creature* trigger = NULL;
-
-    CellPair pair(Trinity::ComputeCellPair(x, y));
-    Cell cell(pair);
-    cell.data.Part.reserved = ALL_DISTRICT;
-    cell.SetNoCreate();
+    pPlayer->GetPosition(x, y, z);
 
     // Grid search for nearest live creature of entry 23304 within 10 yards
-    Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck check(*plr, 23304, true, 10);
-    Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(plr, trigger, check);
-
-    TypeContainerVisitor<Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck>, GridTypeMapContainer> cSearcher(searcher);
-
-    CellLock<GridReadGuard> cell_lock(cell, pair);
-    cell_lock->Visit(cell_lock, cSearcher, *(plr->GetMap()));
-
-    if(trigger)
-        CAST_AI(cage_trap_triggerAI, trigger->AI())->Active = true;
-    go->SetGoState(GO_STATE_ACTIVE);
+    if(Creature* pTrigger = pGo->FindNearestCreature(23304, 10.0f))
+        CAST_AI(cage_trap_triggerAI, pTrigger->AI())->Active = true;
+    pGo->SetGoState(GO_STATE_ACTIVE);
     return true;
 }
 
