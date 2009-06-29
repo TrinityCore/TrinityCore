@@ -371,6 +371,7 @@ Spell::Spell( Unit* Caster, SpellEntry const *info, bool triggered, uint64 origi
 
     m_applyMultiplierMask = 0;
     m_effectMask = 0;
+    m_auraScaleMask = 0;
 
     // Get data for type of attack
     switch (m_spellInfo->DmgClass)
@@ -701,7 +702,6 @@ void Spell::FillTargetMap()
                     break;
             }
         }
-
         if(IsChanneledSpell(m_spellInfo))
         {
             uint8 mask = (1<<i);
@@ -712,6 +712,29 @@ void Spell::FillTargetMap()
                     m_needAliveTargetMask |= mask;
                     break;
                 }
+            }
+        }
+        else if (m_auraScaleMask)
+        {
+            bool checkLvl = !m_UniqueTargetInfo.empty();
+            for(std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end();)
+            {
+                // remove targets which did not pass min level check
+                if(m_auraScaleMask && ihit->effectMask == m_auraScaleMask)
+                {
+                    // Do not check for selfcast
+                    if (!ihit->scaleAura && ihit->targetGUID != m_caster->GetGUID())
+                    {
+                         m_UniqueTargetInfo.erase(ihit++);
+                         continue;
+                    }
+                    ++ihit;
+                }
+            }
+            if (checkLvl && m_UniqueTargetInfo.empty())
+            {
+                SendCastResult(SPELL_FAILED_LOWLEVEL);
+                finish(false);
             }
         }
     }
@@ -859,6 +882,13 @@ void Spell::AddUnitTarget(Unit* pVictim, uint32 effIndex)
         {
             if (!immuned)
                 ihit->effectMask |= 1 << effIndex;          // Add only effect mask if not immuned
+            ihit->scaleAura = false;
+            if (m_auraScaleMask && ihit->effectMask == m_auraScaleMask && m_caster != pVictim)
+            {
+                SpellEntry const * auraSpell = sSpellStore.LookupEntry(spellmgr.GetFirstSpellInChain(m_spellInfo->Id));
+                if ((pVictim->getLevel() + 10) >= auraSpell->spellLevel)
+                    ihit->scaleAura = true;
+            }
             return;
         }
     }
@@ -873,6 +903,13 @@ void Spell::AddUnitTarget(Unit* pVictim, uint32 effIndex)
     target.alive      = pVictim->isAlive();
     target.damage     = 0;
     target.crit       = false;
+    target.scaleAura  = false;
+    if (m_auraScaleMask && target.effectMask == m_auraScaleMask && m_caster != pVictim)
+    {
+        SpellEntry const * auraSpell = sSpellStore.LookupEntry(spellmgr.GetFirstSpellInChain(m_spellInfo->Id));
+        if ((pVictim->getLevel() + 10) >= auraSpell->spellLevel)
+            target.scaleAura = true;
+    }
 
     // Calculate hit result
     if(m_originalCaster)
@@ -1053,7 +1090,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
 
     if(spellHitTarget)
     {
-        SpellMissInfo missInfo = DoSpellHitOnUnit(spellHitTarget, mask);
+        SpellMissInfo missInfo = DoSpellHitOnUnit(spellHitTarget, mask, target->scaleAura);
         if(missInfo != SPELL_MISS_NONE)
         {
             if(missInfo != SPELL_MISS_MISS)
@@ -1179,7 +1216,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
     }
 }
 
-SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
+SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask, bool scaleAura)
 {
     if(!unit || !effectMask)
         return SPELL_MISS_EVADE;
@@ -1270,22 +1307,43 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
 
     if (aura_effmask)
     {
+        // Select rank for aura with level requirements only in specific cases
+        // Unit has to be target only of aura effect, both caster and target have to be players, target has to be other than unit target
+        SpellEntry const * aurSpellInfo = m_spellInfo;
+        int32 basePoints[3];
+        if (scaleAura)
+        {
+            aurSpellInfo = spellmgr.SelectAuraRankForPlayerLevel(m_spellInfo,unitTarget->getLevel());
+            assert (aurSpellInfo);
+            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            {
+                basePoints[i] = aurSpellInfo->EffectBasePoints[i];
+            }
+        }
+        else
+        {
+            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            {
+                basePoints[i] = m_currentBasePoints[i];
+            }
+        }
+
         Unit * caster = m_originalCaster ? m_originalCaster : m_caster;
-        Aura * Aur = new Aura(m_spellInfo, aura_effmask, m_currentBasePoints, unit, m_caster, caster, m_CastItem);
+        Aura * Aur = new Aura(aurSpellInfo, aura_effmask, basePoints, unit, m_caster, caster, m_CastItem);
 
         if (!Aur->IsAreaAura())
         {
             // Now Reduce spell duration using data received at spell hit
             int32 duration = Aur->GetAuraMaxDuration();
-            int32 limitduration = GetDiminishingReturnsLimitDuration(m_diminishGroup,m_spellInfo);
+            int32 limitduration = GetDiminishingReturnsLimitDuration(m_diminishGroup,aurSpellInfo);
             unitTarget->ApplyDiminishingToDuration(m_diminishGroup, duration, m_caster, m_diminishLevel,limitduration);
             Aur->setDiminishGroup(m_diminishGroup);
 
-            duration = caster->ModSpellDuration(m_spellInfo, unit, duration, Aur->IsPositive());
+            duration = caster->ModSpellDuration(aurSpellInfo, unit, duration, Aur->IsPositive());
 
             //mod duration of channeled aura by spell haste
             if (IsChanneledSpell(m_spellInfo))
-                caster->ModSpellCastTime(m_spellInfo, duration, this);
+                caster->ModSpellCastTime(aurSpellInfo, duration, this);
 
             if(duration != Aur->GetAuraMaxDuration())
             {
@@ -1294,9 +1352,9 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
             }
 
             // Prayer of Mending (jump animation), we need formal caster instead original for correct animation
-            if( m_spellInfo->SpellFamilyName == SPELLFAMILY_PRIEST)
+            if( aurSpellInfo->SpellFamilyName == SPELLFAMILY_PRIEST)
             {
-                if(m_spellInfo->SpellFamilyFlags[1] & 0x000020)
+                if(aurSpellInfo->SpellFamilyFlags[1] & 0x000020)
                     m_caster->CastSpell(unit, 41637, true, NULL, NULL, m_originalCasterGUID);
             }
         }
@@ -2486,6 +2544,27 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect* triggeredByAura
         }
     }
 
+    // Fill aura scaling information
+    if (m_caster->IsControlledByPlayer() && !IsPassiveSpell(m_spellInfo->Id) && m_spellInfo->spellLevel && !IsChanneledSpell(m_spellInfo) && !m_IsTriggeredSpell)
+    {
+        for (uint8 i = 0; i< MAX_SPELL_EFFECTS; ++i)
+        {
+            if (m_spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AURA)
+            {
+                // Change aura with ranks only if basepoints are taken from spellInfo and aura is positive
+                if (IsPositiveEffect(m_spellInfo->Id, i))
+                {
+                    m_auraScaleMask |= (1<<i);
+                    if (m_currentBasePoints[i] != m_spellInfo->EffectBasePoints[i])
+                    {
+                        m_auraScaleMask = 0;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
     m_spellState = SPELL_STATE_PREPARING;
 
     if(triggeredByAura)
@@ -2665,6 +2744,7 @@ void Spell::cast(bool skipCheck)
             && !target->IsFriendlyTo(m_caster) && !m_caster->canSeeOrDetect(target, true))
         {
             SendCastResult(SPELL_FAILED_BAD_TARGETS);
+            SendInterrupted(0);
             finish(false);
             return;
         }
@@ -2698,6 +2778,7 @@ void Spell::cast(bool skipCheck)
         if(castResult != SPELL_CAST_OK)
         {
             SendCastResult(castResult);
+            SendInterrupted(0);
             finish(false);
             SetExecutedCurrently(false);
             return;
@@ -2705,6 +2786,14 @@ void Spell::cast(bool skipCheck)
     }
 
     FillTargetMap();
+
+    // Spell may be finished after target map check
+    if(m_spellState == SPELL_STATE_FINISHED)
+    {
+        SendInterrupted(0);
+        SetExecutedCurrently(false);
+        return;
+    }
 
     if(m_spellInfo->SpellFamilyName)
     {
@@ -3337,11 +3426,11 @@ void Spell::SendSpellGo()
     //sLog.outDebug("Sending SMSG_SPELL_GO id=%u", m_spellInfo->Id);
 
     uint32 castFlags = CAST_FLAG_UNKNOWN3;
-    
+
     // triggered spells with spell visual != 0
     if(m_IsTriggeredSpell || m_triggeredByAuraSpell)
         castFlags |= CAST_FLAG_UNKNOWN0; 
-   
+
     if(m_spellInfo->Attributes & SPELL_ATTR_REQ_AMMO)
         castFlags |= CAST_FLAG_AMMO;                        // arrows/bullets visual
     if ((m_caster->GetTypeId() == TYPEID_PLAYER ||
@@ -4217,13 +4306,6 @@ SpellCastResult Spell::CheckCast(bool strict)
             if(!m_IsTriggeredSpell && VMAP::VMapFactory::checkSpellForLoS(m_spellInfo->Id) && !m_caster->IsWithinLOSInMap(target))
                 return SPELL_FAILED_LINE_OF_SIGHT;
 
-            // auto selection spell rank implemented in WorldSession::HandleCastSpellOpcode
-            // this case can be triggered if rank not found (too low-level target for first rank)
-            if(m_caster->GetTypeId() == TYPEID_PLAYER && !IsPassiveSpell(m_spellInfo->Id) && !m_CastItem)
-                for(int i=0;i<3;i++)
-                    if(IsPositiveEffect(m_spellInfo->Id, i) && m_spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AURA)
-                        if(target->getLevel() + 10 < m_spellInfo->spellLevel)
-                            return SPELL_FAILED_LOWLEVEL;
         }
         else if (m_caster->GetTypeId() == TYPEID_PLAYER)    // Target - is player caster
         {
@@ -5922,7 +6004,7 @@ bool Spell::CheckTarget(Unit* target, uint32 eff)
             return false;
     }
 
-    //Do not check LOS for triggered spells
+    //Do not do further checks for triggered spells
     if(m_IsTriggeredSpell)
         return true;
 
