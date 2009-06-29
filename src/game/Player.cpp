@@ -17316,6 +17316,9 @@ void Player::SetSpellModTakingSpell(Spell * spell, bool apply)
     if (!spell || (m_spellModTakingSpell && m_spellModTakingSpell != spell))
         return;
 
+    if (apply && spell->getState() == SPELL_STATE_FINISHED)
+        return;
+
     if (apply)
         m_spellModTakingSpell = spell;
     else
