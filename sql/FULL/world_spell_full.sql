@@ -1437,15 +1437,34 @@ INSERT INTO `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `Spell
 -- --------
 TRUNCATE TABLE `spell_enchant_proc_data`;
 INSERT INTO spell_enchant_proc_data (`entry`, `customChance`, `PPMChance`,`procEx`) VALUES 
-(2, 0, 8.8,0), -- Frostbrand Weapon
-(12, 0, 8.8,0), -- Frostbrand Weapon
-(524, 0, 8.8,0), -- Frostbrand Weapon
-(1667, 0, 8.8,0), -- Frostbrand Weapon
-(1668, 0, 8.8,0), -- Frostbrand Weapon
-(2635, 0, 8.8,0), -- Frostbrand Weapon
-(3782, 0, 8.8,0), -- Frostbrand Weapon
-(3783, 0, 8.8,0), -- Frostbrand Weapon
-(3784, 0, 8.8,0); -- Frostbrand Weapon
+ -- Frostbrand Weapon
+(2, 0, 8.8,0),
+(12, 0, 8.8,0),
+(524, 0, 8.8,0),
+(1667, 0, 8.8,0),
+(1668, 0, 8.8,0),
+(2635, 0, 8.8,0),
+(3782, 0, 8.8,0),
+(3783, 0, 8.8,0),
+(3784, 0, 8.8,0),
+ -- Wound Poison
+(703, 0, 21.43,0),
+(704, 0, 21.43,0),
+(705, 0, 21.43,0),
+(706, 0, 21.43,0),
+(2644, 0, 21.43,0),
+(3772, 0, 21.43,0),
+(3773, 0, 21.43,0),
+ -- Instant Poison
+(323, 0, 8.53,0),
+(324, 0, 8.53,0),
+(325, 0, 8.53,0),
+(623, 0, 8.53,0),
+(624, 0, 8.53,0),
+(625, 0, 8.53,0),
+(2641, 0, 8.53,0),
+(3768, 0, 8.53,0),
+(3769, 0, 8.53,0);
 
 -- --------
 -- SPELL AFFECT
