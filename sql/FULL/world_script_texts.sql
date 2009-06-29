@@ -1,4 +1,4 @@
--- Up to TC2 3515
+-- Up to TC2 4321
 -- 
 -- trinityscript_script_texts.sql Contains data for table `script_texts` mainly used in C++ parts.
 -- valid entries for table are between -1000000 and -1999999
@@ -343,12 +343,9 @@ INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content
 (-1000425, 'Ah. I remember now! I gave the mysterious fossil to Hollee! Check with her.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 7, 0, 'remtravel SAY_REM_REMEMBER'),
 (-1000426, '%s goes back to work, oblivious to everything around him.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, 7, 0, 'remtravel EMOTE_REM_END'),
 (-1000427, 'Something tells me this $r wants the mysterious fossil too. Help!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 7, 0, 'remtravel SAY_REM_AGGRO'),
-
 (-1000428, 'Ah...the wondrous sound of kodos. I love the way they make the ground shake... inspect the beast for me.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0,'kodo round SAY_SMEED_HOME_1'),
 (-1000429, 'Hey, look out with that kodo! You had better inspect that beast before i give you credit!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0,'kodo round SAY_SMEED_HOME_2'),
 (-1000430, 'That kodo sure is a beauty. Wait a minute, where are my bifocals? Perhaps you should inspect the beast for me.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 'kodo round SAY_SMEED_HOME_3');
-
-
 
 -- -1 033 000 SHADOWFANG KEEP
 INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`, `sound`, `type`, `language`, `emote`, `comment`) VALUES

@@ -1,4 +1,4 @@
--- Up to TC2 4006
+-- Up to TC2 4321
 
 /* WORLD BOSS */
 UPDATE `creature_template` SET `ScriptName`='boss_ysondre' WHERE `entry`=14887;
@@ -424,6 +424,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_alexstrasza_wr_gate' WHERE `ent
 /* DEADWIND PASS */
 
 /* DESOLACE */
+UPDATE `creature_template` SET `ScriptName`='npc_aged_dying_ancient_kodo' WHERE `entry` IN (4700,4701,4702,11627);
 
 /* DIRE MAUL */
 
@@ -488,7 +489,6 @@ UPDATE `creature_template` SET `ScriptName`='boss_krosh_firehand' WHERE `entry`=
 /* HELLFIRE CITADEL */
 
 /* BLOOD FURNACE */
-/* The Maker,Broggok,Kelidan,Broggok's cloud */
 UPDATE `instance_template` SET `script`='instance_blood_furnace' WHERE `map`=542;
 UPDATE `creature_template` SET `ScriptName`='boss_the_maker' WHERE `entry`=17381;
 UPDATE `creature_template` SET `ScriptName`='boss_broggok' WHERE `entry`=17380;
@@ -682,6 +682,16 @@ UPDATE `creature_template` SET `ScriptName`='mob_phase_hunter' WHERE `entry`=188
 UPDATE `creature_template` SET `ScriptName`='npc_professor_dabiri' WHERE `entry`=20907;
 UPDATE `creature_template` SET `ScriptName`='npc_bessy' WHERE `entry`=20415;
 UPDATE `creature_template` SET `ScriptName`='npc_commander_dawnforge' WHERE `entry`=19831;
+
+/* THE NEXUS */
+UPDATE `instance_template` SET `script`='instance_nexus' WHERE `map`=576;
+UPDATE `creature_template` SET `ScriptName`='boss_magus_telestra' WHERE `entry`=26731;
+UPDATE `creature_template` SET `ScriptName`='boss_anomalus' WHERE `entry`=26763;
+UPDATE `creature_template` SET `ScriptName`='mob_chaotic_rift' WHERE `entry`=26918
+UPDATE `creature_template` SET `ScriptName`='boss_ormorok' WHERE `entry`=26794;
+UPDATE `creature_template` SET `ScriptName`='mob_crystal_spike' WHERE `entry`=27099;
+UPDATE `creature_template` SET `ScriptName`='mob_crystalline_tangler' WHERE `entry`=32665;
+UPDATE `creature_template` SET `ScriptName`='boss_keristrasza' WHERE `entry`=26723;
 
 /* ONYXIA'S LAIR */
 UPDATE `creature_template` SET `ScriptName`='boss_onyxia' WHERE `entry`=10184;
@@ -1078,32 +1088,11 @@ UPDATE `creature_template` SET `ScriptName`='mob_batrider' WHERE `entry`=14965;
 UPDATE `creature_template` SET `ScriptName`='mob_shade_of_jindo' WHERE `entry`=14986;
 UPDATE `creature_template` SET `ScriptName`='mob_ohgan' WHERE `entry`=14988;
 
-
-
--- Grand Magus Telestra
-update `creature_template` set `ScriptName`='boss_magus_telestra' where `entry`=26731;
-
--- Anomalus
-update `creature_template` set `ScriptName`='boss_anomalus' where `entry`=26763;
-update `creature_template` set `ScriptName`='mob_chaotic_rift' where `entry`=26918;
-
--- Ormorok the Tree-Shaper
-update `creature_template` set `ScriptName`='boss_ormorok' where `entry`=26794;
-update `creature_template` set `ScriptName`='mob_crystal_spike' where `entry`=27099;
-update `creature_template` set `ScriptName`='mob_crystalline_tangler' where `entry`=32665;
-
--- Keristrasza
-update `creature_template` set `ScriptName`='boss_keristrasza' where `entry`=26723;
-
--- Instance script
-update `instance_template` set `script`='instance_nexus' where `map`=576;
-
 -- --------
 -- EVENT AI
 -- --------
-
-UPDATE creature_template set AIName = 'EventAI' where entry in  (26796, 26798, 26929, 26928, 26930);
-DELETE FROM `creature_ai_scripts` WHERE `creature_id` in (26796, 26798, 26929, 26928, 26930);
+UPDATE `creature_template` SET `AIName` = 'EventAI' WHERE entry IN  (26796, 26798, 26929, 26928, 26930);
+DELETE FROM `creature_ai_scripts` WHERE `creature_id` IN (26796, 26798, 26929, 26928, 26930);
 INSERT INTO `creature_ai_scripts` VALUES 
 -- Commander Stoutbeard
 ( 2679600, 26796, 4, 0, 100, 4, 0, 0, 0, 0, 28, 0, 47543, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Commander Stoutbeard - crystal prison remove'),
@@ -1130,7 +1119,5 @@ INSERT INTO `creature_ai_scripts` VALUES
 ( 2693002, 26930, 0, 0, 100, 5, 3000, 3000, 8000, 9000, 11, 56937, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Grand Magus Telestra frost - cast ice bard H'),
 ( 2693003, 26930, 0, 0, 100, 3, 9000, 9000, 15000, 16000, 11, 47727, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Grand Magus Telestra frost - cast blizzard N'),
 ( 2693004, 26930, 0, 0, 100, 5, 9000, 9000, 15000, 16000, 11, 56936, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Grand Magus Telestra frost - cast blizzard H');
-
-
 
 /* EOF */
