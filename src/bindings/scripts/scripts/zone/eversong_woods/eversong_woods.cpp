@@ -497,24 +497,11 @@ CreatureAI* GetAI_npc_secondTrial(Creature *_Creature)
 ## go_second_trial
 ######*/
 
-bool GOHello_go_second_trial(Player *player, GameObject* _GO)
+bool GOHello_go_second_trial(Player *player, GameObject* pGO)
 {
     // find spawn :: master_kelerun_bloodmourn
-    CellPair p(Trinity::ComputeCellPair(_GO->GetPositionX(), _GO->GetPositionY()));
-    Cell cell(p);
-    cell.data.Part.reserved = ALL_DISTRICT;
-    cell.SetNoCreate();
-    CellLock<GridReadGuard> cell_lock(cell, p);
-
-    Creature* event_controller = NULL;
-    Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck u_check(*_GO, MASTER_KELERUN_BLOODMOURN, true, 30);
-    Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(player, event_controller, u_check);
-    TypeContainerVisitor<Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);
-    //cell_lock->Visit(cell_lock, grid_unit_searcher, *MapManager::Instance().GetMap(_GO->GetMap(), _GO));
-    cell_lock->Visit(cell_lock, grid_unit_searcher, *(_GO->GetMap()));
-
-    if ( event_controller )
-       CAST_AI(master_kelerun_bloodmournAI, event_controller->AI())->StartEvent();
+    if (Creature* pCreature = pGO->FindNearestCreature(MASTER_KELERUN_BLOODMOURN, 30.0f))
+       CAST_AI(master_kelerun_bloodmournAI, pCreature->AI())->StartEvent();
 
     return true;
 }

@@ -133,26 +133,6 @@ struct TRINITY_DLL_DECL boss_warlord_kalithreshAI : public ScriptedAI
         }
     }
 
-    Creature* SelectCreatureInGrid(uint32 entry, float range)
-    {
-        Creature* pCreature = NULL;
-
-        CellPair pair(Trinity::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
-        Cell cell(pair);
-        cell.data.Part.reserved = ALL_DISTRICT;
-        cell.SetNoCreate();
-
-        Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck creature_check(*m_creature, entry, true, range);
-        Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(m_creature, pCreature, creature_check);
-
-        TypeContainerVisitor<Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck>, GridTypeMapContainer> creature_searcher(searcher);
-
-        CellLock<GridReadGuard> cell_lock(cell, pair);
-        cell_lock->Visit(cell_lock, creature_searcher,*(m_creature->GetMap()));
-
-        return pCreature;
-    }
-
     void SpellHit(Unit *caster, const SpellEntry *spell)
     {
         //hack :(
@@ -177,8 +157,7 @@ struct TRINITY_DLL_DECL boss_warlord_kalithreshAI : public ScriptedAI
 
         if (Rage_Timer < diff)
         {
-            Creature* distiller = SelectCreatureInGrid(17954, 100);
-            if (distiller)
+            if (Creature* distiller = me->FindNearestCreature(17954, 100.0f))
             {
                 DoScriptText(SAY_REGEN, m_creature);
                 DoCast(m_creature,SPELL_WARLORDS_RAGE);
