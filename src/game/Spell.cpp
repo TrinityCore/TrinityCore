@@ -728,8 +728,8 @@ void Spell::FillTargetMap()
                          m_UniqueTargetInfo.erase(ihit++);
                          continue;
                     }
-                    ++ihit;
                 }
+                ++ihit;
             }
             if (checkLvl && m_UniqueTargetInfo.empty())
             {
