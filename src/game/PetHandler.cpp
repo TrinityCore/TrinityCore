@@ -615,18 +615,19 @@ void WorldSession::HandlePetCastSpellOpcode( WorldPacket& recvPacket )
         return;
     }
 
-    if (caster->GetTypeId() == TYPEID_UNIT && ((Creature*)caster)->GetGlobalCooldown() > 0)
-    {
-        caster->SendPetCastFail(spellid, SPELL_FAILED_NOT_READY);
-        return;
-    }
-
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellid);
     if(!spellInfo)
     {
         sLog.outError("WORLD: unknown PET spell id %i", spellid);
         return;
     }
+
+    if (spellInfo->StartRecoveryCategory > 0) //Check if spell is affected by GCD
+        if (caster->GetTypeId() == TYPEID_UNIT && ((Creature*)caster)->GetGlobalCooldown() > 0)
+        {
+            caster->SendPetCastFail(spellid, SPELL_FAILED_NOT_READY);
+            return;
+        }
 
     // do not cast not learned spells
     if(!caster->HasSpell(spellid) || IsPassiveSpell(spellid))

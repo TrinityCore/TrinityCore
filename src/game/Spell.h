@@ -568,9 +568,10 @@ class Spell
             SpellMissInfo reflectResult:8;
             uint8  effectMask:8;
             bool   processed:1;
-            bool   alive:1; 
+            bool   alive:1;
+            bool   crit:1;
+            bool   scaleAura:1;
             int32  damage;
-            bool   crit;
         };
         std::list<TargetInfo> m_UniqueTargetInfo;
         uint8 m_needAliveTargetMask;                        // Mask req. alive targets
@@ -597,7 +598,7 @@ class Spell
         void AddGOTarget(uint64 goGUID, uint32 effIndex);
         void AddItemTarget(Item* target, uint32 effIndex);
         void DoAllEffectOnTarget(TargetInfo *target);
-        SpellMissInfo DoSpellHitOnUnit(Unit *unit, uint32 effectMask);
+        SpellMissInfo DoSpellHitOnUnit(Unit *unit, uint32 effectMask, bool scaleAura);
         void DoTriggersOnSpellHit(Unit *unit);
         void DoAllEffectOnTarget(GOTargetInfo *target);
         void DoAllEffectOnTarget(ItemTargetInfo *target);
@@ -638,6 +639,7 @@ class Spell
         uint32 m_customAttr;
         bool m_skipCheck;
         uint32 m_effectMask;
+        uint8 m_auraScaleMask;
 
 #ifdef MAP_BASED_RAND_GEN
         int32 irand(int32 min, int32 max)       { return int32 (m_caster->GetMap()->mtRand.randInt(max - min)) + min; }
