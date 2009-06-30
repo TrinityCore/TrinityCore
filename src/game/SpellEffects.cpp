@@ -1397,6 +1397,35 @@ void Spell::EffectDummy(uint32 i)
                 m_damage+= uint32(damage * m_caster->GetTotalAttackPowerValue(BASE_ATTACK) / 100);
                 return;
             }
+            // Overpower
+            if(m_spellInfo->SpellFamilyFlags[0] & 0x4)
+            {
+                // Must be casting target
+                if (!unitTarget->IsNonMeleeSpellCasted(false))
+                    return;
+                // Find Unrelenting Assault
+                Unit::AuraEffectList const& modifierAuras = m_caster->GetAurasByType(SPELL_AURA_ADD_FLAT_MODIFIER);
+                for(Unit::AuraEffectList::const_iterator itr = modifierAuras.begin(); itr != modifierAuras.end(); ++itr)
+                {
+                    if((*itr)->GetSpellProto()->SpellFamilyName==SPELLFAMILY_WARRIOR && (*itr)->GetSpellProto()->SpellIconID == 2775)
+                    {
+                        switch ((*itr)->GetSpellProto()->Id)
+                        {
+                            // Unrelenting Assault, rank 1
+                            case 46859:
+                                m_caster->CastSpell(unitTarget,64849,true,0,(*itr));
+                                break;
+                            // Unrelenting Assault, rank 2
+                            case 46860:
+                                m_caster->CastSpell(unitTarget,64850,true,0,(*itr));
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+                return;
+            }
             switch(m_spellInfo->Id)
             {
                 // Warrior's Wrath
