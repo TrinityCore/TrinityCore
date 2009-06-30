@@ -6759,6 +6759,7 @@ void Spell::SummonGuardian(uint32 entry, SummonPropertiesEntry const *properties
     switch(m_spellInfo->Id)
     {
         case 1122: // Inferno
+            amount = 1;
             break;
     }
     int32 duration = GetSpellDuration(m_spellInfo);
