@@ -1473,7 +1473,13 @@ void AuraEffect::HandleShapeshiftBoosts(bool apply)
 
     if(apply)
     {
+        // Remove cooldown of spells triggered on stance change - they may share cooldown with stance spell
+        if(m_target->GetTypeId() == TYPEID_PLAYER)
+            ((Player *)m_target)->RemoveSpellCooldown(spellId);
         if (spellId) m_target->CastSpell(m_target, spellId, true, NULL, this );
+
+        if(m_target->GetTypeId() == TYPEID_PLAYER)
+            ((Player *)m_target)->RemoveSpellCooldown(spellId2);
         if (spellId2) m_target->CastSpell(m_target, spellId2, true, NULL, this);
 
         if(m_target->GetTypeId() == TYPEID_PLAYER)
@@ -7251,11 +7257,13 @@ void AuraEffect::HandleModPossessPet(bool apply, bool Real, bool /*changeAmount*
     Unit* caster = GetCaster();
     if(!caster || caster->GetTypeId() != TYPEID_PLAYER)
         return;
-    if(caster->GetGuardianPet() != m_target)
-        return;
 
     if(apply)
+    {
+        if(caster->GetGuardianPet() != m_target)
+            return;
         m_target->SetCharmedBy(caster, CHARM_TYPE_POSSESS);
+    }
     else
     {
         m_target->RemoveCharmedBy(caster);
