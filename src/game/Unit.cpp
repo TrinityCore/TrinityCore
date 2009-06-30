@@ -7894,7 +7894,7 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
 
     // try detect target manually if not set
     if ( target == NULL )
-       target = !(procFlags & PROC_FLAG_SUCCESSFUL_POSITIVE_SPELL | PROC_FLAG_SUCCESSFUL_HEALING_SPELL) && IsPositiveSpell(trigger_spell_id) ? this : pVictim;
+       target = !(procFlags & (PROC_FLAG_SUCCESSFUL_POSITIVE_SPELL | PROC_FLAG_SUCCESSFUL_HEALING_SPELL)) && IsPositiveSpell(trigger_spell_id) ? this : pVictim;
 
     // default case
     if(!target || target!=this && !target->isAlive())

@@ -7227,6 +7227,9 @@ void AuraEffect::HandleModPossess(bool apply, bool Real, bool /*changeAmount*/)
     if(!Real)
         return;
 
+    if(m_target->getLevel() > m_amount)
+        return;
+
     Unit* caster = GetCaster();
     if(caster && caster->GetTypeId() == TYPEID_UNIT)
     {
@@ -7235,12 +7238,7 @@ void AuraEffect::HandleModPossess(bool apply, bool Real, bool /*changeAmount*/)
     }
 
     if(apply)
-    {
-        if(m_target->getLevel() > m_amount)
-            return;
-
         m_target->SetCharmedBy(caster, CHARM_TYPE_POSSESS);
-    }
     else
         m_target->RemoveCharmedBy(caster);
 }
@@ -7253,14 +7251,11 @@ void AuraEffect::HandleModPossessPet(bool apply, bool Real, bool /*changeAmount*
     Unit* caster = GetCaster();
     if(!caster || caster->GetTypeId() != TYPEID_PLAYER)
         return;
+    if(caster->GetGuardianPet() != m_target)
+        return;
 
     if(apply)
-    {
-        if(caster->GetGuardianPet() != m_target)
-            return;
-
         m_target->SetCharmedBy(caster, CHARM_TYPE_POSSESS);
-    }
     else
     {
         m_target->RemoveCharmedBy(caster);
@@ -7282,13 +7277,11 @@ void AuraEffect::HandleModCharm(bool apply, bool Real, bool /*changeAmount*/)
 
     Unit* caster = GetCaster();
 
-    if(apply)
-    {
-        if(m_amount && int32(m_target->getLevel()) > m_amount)
-            return;
+    if(m_amount && int32(m_target->getLevel()) > m_amount)
+        return;
 
+    if(apply)
         m_target->SetCharmedBy(caster, CHARM_TYPE_CHARM);
-    }
     else
         m_target->RemoveCharmedBy(caster);
 }
@@ -7298,15 +7291,13 @@ void AuraEffect::HandleCharmConvert(bool apply, bool Real, bool /*changeAmount*/
     if(!Real)
         return;
 
+    if(m_amount && int32(m_target->getLevel()) > m_amount)
+        return;
+
     Unit* caster = GetCaster();
 
     if(apply)
-    {
-        if(m_amount && int32(m_target->getLevel()) > m_amount)
-            return;
-
         m_target->SetCharmedBy(caster, CHARM_TYPE_CONVERT);
-    }
     else
         m_target->RemoveCharmedBy(caster);
 }
