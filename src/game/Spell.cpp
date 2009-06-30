@@ -2260,7 +2260,7 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
                         break;
                     }
                     // Corpse Explosion
-                    case 53717:
+                    case 49158:
                     case 51325:
                     case 51326:
                     case 51327:
