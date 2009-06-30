@@ -1272,6 +1272,17 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
     // No extra req need
     uint32 procEvent_procEx = PROC_EX_NONE;
 
+    // Some of not damaging spells have on damage procflags
+    // And all of them are specified by spellfamilymask in proc entry
+    // so, lets allow non dmg spells to proc on dmg auras if they have correct spellfamily
+    if (spellProcEvent && spellProcEvent->spellFamilyMask)
+    {
+        if (EventProcFlag & PROC_FLAG_SUCCESSFUL_DAMAGING_SPELL_HIT && procFlags & PROC_FLAG_SUCCESSFUL_NEGATIVE_SPELL_HIT)
+            procFlags |= PROC_FLAG_SUCCESSFUL_DAMAGING_SPELL_HIT;
+        if (EventProcFlag & PROC_FLAG_SUCCESSFUL_HEALING_SPELL && procFlags & PROC_FLAG_SUCCESSFUL_POSITIVE_SPELL)
+            procFlags |= PROC_FLAG_SUCCESSFUL_HEALING_SPELL;
+    }
+
     // check prockFlags for condition
     if((procFlags & EventProcFlag) == 0)
         return false;
