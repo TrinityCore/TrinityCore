@@ -315,6 +315,8 @@ void Spell::EffectSchoolDMG(uint32 effect_idx)
 
 void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
 {
+    bool apply_direct_bonus=true;
+
     if( unitTarget && unitTarget->isAlive())
     {
         switch(m_spellInfo->SpellFamilyName)
@@ -486,6 +488,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                             uint32 pdamage = (*i)->GetAmount() > 0 ? (*i)->GetAmount() : 0;
                             pdamage = m_caster->SpellDamageBonus(unitTarget, (*i)->GetSpellProto(), pdamage, DOT, (*i)->GetParentAura()->GetStackAmount());
                             damage += pdamage * 4; // 4 ticks of 3 seconds = 12 secs
+                            apply_direct_bonus = false;
                             // Glyph of Conflagrate
                             if (!m_caster->HasAura(56235))
                                 unitTarget->RemoveAurasDueToSpell((*i)->GetId(), m_caster->GetGUID());
@@ -679,7 +682,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
             }
         }
 
-        if(m_originalCaster && damage > 0)
+        if(m_originalCaster && damage > 0 && apply_direct_bonus)
             damage = m_originalCaster->SpellDamageBonus(unitTarget, m_spellInfo, (uint32)damage, SPELL_DIRECT_DAMAGE);
 
         m_damage += damage;
