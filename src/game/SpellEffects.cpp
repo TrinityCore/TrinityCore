@@ -6159,7 +6159,7 @@ void Spell::EffectCharge2(uint32 /*i*/)
     {
         target->GetContactPoint(m_caster, x, y, z);
         // not all charge effects used in negative spells
-        if ( !IsPositiveSpell(m_spellInfo->Id) && m_caster->GetTypeId() == TYPEID_PLAYER)
+        if(!IsPositiveSpell(m_spellInfo->Id) && m_caster->GetTypeId() == TYPEID_PLAYER)
             m_caster->Attack(target, true);
     }
     else
