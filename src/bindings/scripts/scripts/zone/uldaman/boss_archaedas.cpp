@@ -385,12 +385,11 @@ struct TRINITY_DLL_DECL mob_stonekeepersAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void DamageTaken (Unit *attacker, uint32 &damage) {
-        if (damage > m_creature->GetHealth()) {
-            DoCast (m_creature, SPELL_SELF_DESTRUCT,true);
-            if(pInstance)
-                pInstance->SetData(NULL, 1);    // activate next stonekeeper
-        }
+    void JustDied(Unit *attacker)
+    {
+        DoCast (m_creature, SPELL_SELF_DESTRUCT,true);
+        if(pInstance)
+            pInstance->SetData(NULL, 1);    // activate next stonekeeper
     }
 
 };
