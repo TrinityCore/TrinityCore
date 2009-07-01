@@ -1680,7 +1680,13 @@ void SpellMgr::LoadSpellLearnSpells()
 
         if(!sSpellStore.LookupEntry(node.spell))
         {
-            sLog.outErrorDb("Spell %u listed in `spell_learn_spell` does not exist",node.spell);
+            sLog.outErrorDb("Spell %u listed in `spell_learn_spell` learning not existed spell %u",spell_id,node.spell);
+            continue;
+        }
+
+        if(GetTalentSpellCost(node.spell))
+        {
+            sLog.outErrorDb("Spell %u listed in `spell_learn_spell` attempt learning talent spell %u, skipped",spell_id,node.spell);
             continue;
         }
 
