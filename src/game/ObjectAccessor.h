@@ -103,8 +103,14 @@ class MANGOS_DLL_DECL ObjectAccessor : public MaNGOS::Singleton<ObjectAccessor, 
             if(!guid)
                 return NULL;
 
-            if(IS_PLAYER_GUID(guid))
-                return (Unit*)HashMapHolder<Player>::Find(guid);
+            if (IS_PLAYER_GUID(guid))
+            {
+                Unit * u = (Unit*)HashMapHolder<Player>::Find(guid);
+                if(!u || !u->IsInWorld())
+                    return NULL;
+
+                return u;
+            }
 
             if(IS_CREATURE_GUID(guid))
                 return (Unit*)HashMapHolder<Creature>::Find(guid);
