@@ -17230,6 +17230,10 @@ void Player::RestoreSpellMods(Spell * spell)
             else
                 mod->charges++;
 
+            // Do not set more spellmods than avalible
+            if (mod->ownerAura->GetAuraCharges() < mod->charges)
+                mod->charges = mod->ownerAura->GetAuraCharges();
+
             // Skip this check for now - aura charges may change due to various reason
             // TODO: trac these changes correctly
             //assert (mod->ownerAura->GetAuraCharges() <= mod->charges);
@@ -17654,6 +17658,14 @@ bool Player::ActivateTaxiPathTo( uint32 taxi_path_id, uint32 spellid /*= 0*/ )
     nodes[1] = entry->to;
 
     return ActivateTaxiPathTo(nodes,NULL,spellid);
+}
+
+void Player::CleanupAfterTaxiFlight()
+{
+    m_taxi.ClearTaxiDestinations();        // not destinations, clear source node
+    Unmount();
+    RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_TAXI_FLIGHT);
+    getHostilRefManager().setOnlineOfflineState(true);
 }
 
 void Player::ProhibitSpellScholl(SpellSchoolMask idSchoolMask, uint32 unTimeMs )
@@ -19366,7 +19378,7 @@ void Player::SummonIfPossible(bool agree)
     if(isInFlight())
     {
         GetMotionMaster()->MovementExpired();
-        m_taxi.ClearTaxiDestinations();
+        CleanupAfterTaxiFlight();
     }
 
     // drop flag at summon

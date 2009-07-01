@@ -3278,9 +3278,10 @@ void Spell::finish(bool ok)
     }
 
     // potions disabled by client, send event "not in combat" if need
-    if (!m_triggeredByAuraSpell && m_caster->GetTypeId() == TYPEID_PLAYER)
+    if (m_caster->GetTypeId() == TYPEID_PLAYER)
     {
-        ((Player*)m_caster)->UpdatePotionCooldown(this);
+        if (!m_triggeredByAuraSpell)
+            ((Player*)m_caster)->UpdatePotionCooldown(this);
 
         // triggered spell pointer can be not set in some cases
         // this is needed for proper apply of triggered spell mods
