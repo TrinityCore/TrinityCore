@@ -633,6 +633,7 @@ bool IsPositiveEffect(uint32 spellId, uint32 effIndex, bool deep)
                         case 38637:                         // Nether Exhaustion (red)
                         case 38638:                         // Nether Exhaustion (green)
                         case 38639:                         // Nether Exhaustion (blue)
+                        case 11196:                         // Recently Bandaged
                             return false;
                         // some spells have unclear target modes for selection, so just make effect positive
                         case 27184:                         
