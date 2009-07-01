@@ -65,14 +65,18 @@ GameObject::GameObject() : WorldObject(), m_goValue(new GameObjectValue)
 
 GameObject::~GameObject()
 {
-    /*if(m_uint32Values)                                      // field array can be not exist if GameOBject not loaded
+    //if(m_uint32Values)                                      // field array can be not exist if GameOBject not loaded
+    //    CleanupsBeforeDelete();
+}
+
+void GameObject::CleanupsBeforeDelete()
+{
+    if(m_uint32Values)                                      // field array can be not exist if GameOBject not loaded
     {
         // Possible crash at access to deleted GO in Unit::m_gameobj
-        uint64 owner_guid = GetOwnerGUID();
-        if(owner_guid)
+        if(uint64 owner_guid = GetOwnerGUID())
         {
-            Unit* owner = ObjectAccessor::GetUnit(*this,owner_guid);
-            if(owner)
+            if(Unit* owner = ObjectAccessor::GetUnit(*this,owner_guid))
                 owner->RemoveGameObject(this,false);
             else
             {
@@ -83,10 +87,10 @@ GameObject::~GameObject()
                     ownerType = "pet";
 
                 sLog.outError("Delete GameObject (GUID: %u Entry: %u SpellId %u LinkedGO %u) that lost references to owner (GUID %u Type '%s') GO list. Crash possible later.",
-                GetGUIDLow(), GetGOInfo()->id, m_spellId, GetLinkedGameObjectEntry(), GUID_LOPART(owner_guid), ownerType);
+                    GetGUIDLow(), GetGOInfo()->id, m_spellId, GetLinkedGameObjectEntry(), GUID_LOPART(owner_guid), ownerType);
             }
         }
-    }*/
+    }
 }
 
 void GameObject::AddToWorld()

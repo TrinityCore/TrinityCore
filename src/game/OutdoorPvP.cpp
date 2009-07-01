@@ -116,7 +116,6 @@ bool OPvPCapturePoint::DelCreature(uint32 type)
     // Don't save respawn time
     cr->SetRespawnTime(0);
     cr->RemoveCorpse();
-    cr->CleanupsBeforeDelete();
     // explicit removal from map
     // beats me why this is needed, but with the recent removal "cleanup" some creatures stay in the map if "properly" deleted
     // so this is a big fat workaround, if AddObjectToRemoveList and DoDelayedMovesAndRemoves worked correctly, this wouldn't be needed
