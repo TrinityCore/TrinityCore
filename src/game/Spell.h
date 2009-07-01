@@ -319,6 +319,7 @@ class Spell
         void EffectSelfResurrect(uint32 i);
         void EffectSkinning(uint32 i);
         void EffectCharge(uint32 i);
+        void EffectCharge2(uint32 i);
         void EffectProspecting(uint32 i);
         void EffectMilling(uint32 i);
         void EffectRenamePet(uint32 i);
