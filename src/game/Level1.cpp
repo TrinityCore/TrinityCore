@@ -852,7 +852,7 @@ bool ChatHandler::HandleNamegoCommand(const char* args)
         if (target->isInFlight())
         {
             target->GetMotionMaster()->MovementExpired();
-            target->m_taxi.ClearTaxiDestinations();
+            target->CleanupAfterTaxiFlight();
         }
         // save only in non-flight case
         else
@@ -988,7 +988,7 @@ bool ChatHandler::HandleGonameCommand(const char* args)
         if (_player->isInFlight())
         {
             _player->GetMotionMaster()->MovementExpired();
-            _player->m_taxi.ClearTaxiDestinations();
+            _player->CleanupAfterTaxiFlight();
         }
         // save only in non-flight case
         else
@@ -1021,7 +1021,7 @@ bool ChatHandler::HandleGonameCommand(const char* args)
         if (_player->isInFlight())
         {
             _player->GetMotionMaster()->MovementExpired();
-            _player->m_taxi.ClearTaxiDestinations();
+            _player->CleanupAfterTaxiFlight();
         }
         // save only in non-flight case
         else
@@ -1055,7 +1055,7 @@ bool ChatHandler::HandleRecallCommand(const char* args)
     if(target->isInFlight())
     {
         target->GetMotionMaster()->MovementExpired();
-        target->m_taxi.ClearTaxiDestinations();
+        target->CleanupAfterTaxiFlight();
     }
 
     target->TeleportTo(target->m_recallMap, target->m_recallX, target->m_recallY, target->m_recallZ, target->m_recallO);
@@ -2241,7 +2241,7 @@ bool ChatHandler::HandleTeleCommand(const char * args)
     if(_player->isInFlight())
     {
         _player->GetMotionMaster()->MovementExpired();
-        _player->m_taxi.ClearTaxiDestinations();
+        _player->CleanupAfterTaxiFlight();
     }
     // save only in non-flight case
     else
@@ -2504,7 +2504,7 @@ bool ChatHandler::HandleTeleNameCommand(const char * args)
         if(target->isInFlight())
         {
             target->GetMotionMaster()->MovementExpired();
-            target->m_taxi.ClearTaxiDestinations();
+            target->CleanupAfterTaxiFlight();
         }
         // save only in non-flight case
         else
@@ -2600,7 +2600,7 @@ bool ChatHandler::HandleTeleGroupCommand(const char * args)
         if(pl->isInFlight())
         {
             pl->GetMotionMaster()->MovementExpired();
-            pl->m_taxi.ClearTaxiDestinations();
+            pl->CleanupAfterTaxiFlight();
         }
         // save only in non-flight case
         else
@@ -2689,7 +2689,7 @@ bool ChatHandler::HandleGroupgoCommand(const char* args)
         if(pl->isInFlight())
         {
             pl->GetMotionMaster()->MovementExpired();
-            pl->m_taxi.ClearTaxiDestinations();
+            pl->CleanupAfterTaxiFlight();
         }
         // save only in non-flight case
         else
@@ -2739,7 +2739,7 @@ bool ChatHandler::HandleGoTaxinodeCommand(const char* args)
     if (_player->isInFlight())
     {
         _player->GetMotionMaster()->MovementExpired();
-        _player->m_taxi.ClearTaxiDestinations();
+        _player->CleanupAfterTaxiFlight();
     }
     // save only in non-flight case
     else
@@ -2782,7 +2782,7 @@ bool ChatHandler::HandleGoXYCommand(const char* args)
     if(_player->isInFlight())
     {
         _player->GetMotionMaster()->MovementExpired();
-        _player->m_taxi.ClearTaxiDestinations();
+        _player->CleanupAfterTaxiFlight();
     }
     // save only in non-flight case
     else
@@ -2832,7 +2832,7 @@ bool ChatHandler::HandleGoXYZCommand(const char* args)
     if(_player->isInFlight())
     {
         _player->GetMotionMaster()->MovementExpired();
-        _player->m_taxi.ClearTaxiDestinations();
+        _player->CleanupAfterTaxiFlight();
     }
     // save only in non-flight case
     else
@@ -2903,7 +2903,7 @@ bool ChatHandler::HandleGoZoneXYCommand(const char* args)
     if(_player->isInFlight())
     {
         _player->GetMotionMaster()->MovementExpired();
-        _player->m_taxi.ClearTaxiDestinations();
+        _player->CleanupAfterTaxiFlight();
     }
     // save only in non-flight case
     else
@@ -2950,7 +2950,7 @@ bool ChatHandler::HandleGoGridCommand(const char* args)
     if(_player->isInFlight())
     {
         _player->GetMotionMaster()->MovementExpired();
-        _player->m_taxi.ClearTaxiDestinations();
+        _player->CleanupAfterTaxiFlight();
     }
     // save only in non-flight case
     else
