@@ -127,10 +127,7 @@ void PoolGroup<Creature>::Despawn1Object(uint32 guid)
         objmgr.RemoveCreatureFromGrid(guid, data);
 
         if (Creature* pCreature = ObjectAccessor::Instance().GetObjectInWorld(MAKE_NEW_GUID(guid, data->id, HIGHGUID_UNIT), (Creature*)NULL))
-        {
-            pCreature->CleanupsBeforeDelete();
             pCreature->AddObjectToRemoveList();
-        }
     }
 }
 

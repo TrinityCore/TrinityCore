@@ -230,7 +230,6 @@ void TempSummon::UnSummon()
     if(owner && owner->GetTypeId() == TYPEID_UNIT && ((Creature*)owner)->IsAIEnabled)
         ((Creature*)owner)->AI()->SummonedCreatureDespawn(this);
 
-    CleanupsBeforeDelete();
     AddObjectToRemoveList();
 }
 
