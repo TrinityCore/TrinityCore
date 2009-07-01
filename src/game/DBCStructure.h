@@ -490,7 +490,9 @@ struct AchievementCriteriaEntry
     //uint32 name_flags;                                    // 25
     uint32  completionFlag;                                 // 26
     uint32  groupFlag;                                      // 27
-    //uint32 unk1;                                          // 28
+    //uint32 unk1;                                          // 28 Alway appears with timed events
+                                                            // for timed spells it is spell id for
+                                                            // timed kills it is creature id
     uint32  timeLimit;                                      // 29 time limit in seconds
     //uint32 showOrder;                                     // 30 show order
 };
