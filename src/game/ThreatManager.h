@@ -35,6 +35,8 @@ class Creature;
 class ThreatManager;
 struct SpellEntry;
 
+#define THREAT_UPDATE_INTERVAL 1 * IN_MILISECONDS    // Server should send threat update to client periodically each second
+
 //==============================================================
 // Class to calculate the real threat based
 
@@ -187,6 +189,8 @@ class TRINITY_DLL_SPEC ThreatManager
 
         void processThreatEvent(ThreatRefStatusChangeEvent* threatRefStatusChangeEvent);
 
+        bool isNeedUpdateToClient(uint32 time);
+
         HostilReference* getCurrentVictim() { return iCurrentVictim; }
 
         Unit*  getOwner() { return iOwner; }
@@ -211,6 +215,7 @@ class TRINITY_DLL_SPEC ThreatManager
 
         HostilReference* iCurrentVictim;
         Unit* iOwner;
+        uint32 iUpdateTimer;
         ThreatContainer iThreatContainer;
         ThreatContainer iThreatOfflineContainer;
 };

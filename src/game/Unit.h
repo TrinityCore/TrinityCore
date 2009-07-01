@@ -1326,6 +1326,11 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void SendMonsterMoveWithSpeedToCurrentDestination(Player* player = NULL);
         void SendMovementFlagUpdate();
 
+        void SendChangeCurrentVictimOpcode(HostilReference* pHostilReference);
+        void SendClearThreatListOpcode();
+        void SendRemoveFromThreatListOpcode(HostilReference* pHostilReference);
+        void SendThreatListUpdate();
+
         void BuildHeartBeatMsg(WorldPacket *data) const;
         void OutMovementInfo() const;
 
