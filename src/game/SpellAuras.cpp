@@ -7233,9 +7233,6 @@ void AuraEffect::HandleModPossess(bool apply, bool Real, bool /*changeAmount*/)
     if(!Real)
         return;
 
-    if(m_target->getLevel() > m_amount)
-        return;
-
     Unit* caster = GetCaster();
     if(caster && caster->GetTypeId() == TYPEID_UNIT)
     {
@@ -7285,9 +7282,6 @@ void AuraEffect::HandleModCharm(bool apply, bool Real, bool /*changeAmount*/)
 
     Unit* caster = GetCaster();
 
-    if(m_amount && int32(m_target->getLevel()) > m_amount)
-        return;
-
     if(apply)
         m_target->SetCharmedBy(caster, CHARM_TYPE_CHARM);
     else
@@ -7297,9 +7291,6 @@ void AuraEffect::HandleModCharm(bool apply, bool Real, bool /*changeAmount*/)
 void AuraEffect::HandleCharmConvert(bool apply, bool Real, bool /*changeAmount*/)
 {
     if(!Real)
-        return;
-
-    if(m_amount && int32(m_target->getLevel()) > m_amount)
         return;
 
     Unit* caster = GetCaster();
