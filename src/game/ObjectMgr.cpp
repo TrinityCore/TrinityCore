@@ -2035,6 +2035,12 @@ void ObjectMgr::LoadItemPrototypes()
             const_cast<ItemPrototype*>(proto)->Stackable = 1000;
         }
 
+        if(proto->ContainerSlots > MAX_BAG_SIZE)
+        {
+            sLog.outErrorDb("Item (Entry: %u) has too large value in ContainerSlots (%u), replace by hardcoded limit (%u).",i,proto->ContainerSlots,MAX_BAG_SIZE);
+            const_cast<ItemPrototype*>(proto)->ContainerSlots = MAX_BAG_SIZE;
+        }
+
         if(proto->StatsCount > MAX_ITEM_PROTO_STATS)
         {
             sLog.outErrorDb("Item (Entry: %u) has too large value in statscount (%u), replace by hardcoded limit (%u).",i,proto->StatsCount,MAX_ITEM_PROTO_STATS);
