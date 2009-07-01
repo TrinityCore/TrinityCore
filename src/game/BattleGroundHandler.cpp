@@ -448,7 +448,8 @@ void WorldSession::HandleBattleFieldPortOpcode( WorldPacket &recv_data )
                 if (_player->isInFlight())
                 {
                     _player->GetMotionMaster()->MovementExpired();
-                    _player->m_taxi.ClearTaxiDestinations();
+                    _player->CleanupAfterTaxiFlight();
+
                 }
 
                 sBattleGroundMgr.BuildBattleGroundStatusPacket(&data, bg, queueSlot, STATUS_IN_PROGRESS, 0, bg->GetStartTime(), bg->GetArenaType());
