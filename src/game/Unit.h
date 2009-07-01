@@ -856,12 +856,12 @@ enum CurrentSpellTypes
 
 enum ActiveStates
 {
-    ACT_PASSIVE  = 0x0100,                                  // 0x0100 - passive
-    ACT_DISABLED = 0x8100,                                  // 0x8000 - castable
-    ACT_ENABLED  = 0xC100,                                  // 0x4000 | 0x8000 - auto cast + castable
-    ACT_COMMAND  = 0x0700,                                  // 0x0100 | 0x0200 | 0x0400
-    ACT_REACTION = 0x0600,                                  // 0x0200 | 0x0400
-    ACT_DECIDE   = 0x0001                                   // what is it?
+    ACT_PASSIVE  = 0x01,                                    // 0x01 - passive
+    ACT_DISABLED = 0x81,                                    // 0x80 - castable
+    ACT_ENABLED  = 0xC1,                                    // 0x40 | 0x80 - auto cast + castable
+    ACT_COMMAND  = 0x07,                                    // 0x01 | 0x02 | 0x04
+    ACT_REACTION = 0x06,                                    // 0x02 | 0x04
+    ACT_DECIDE   = 0x00                                     // custom
 };
 
 enum ReactStates
@@ -879,24 +879,40 @@ enum CommandStates
     COMMAND_ABANDON = 3
 };
 
+#define UNIT_ACTION_BUTTON_ACTION(X) (uint32(X) & 0x00FFFFFF)
+#define UNIT_ACTION_BUTTON_TYPE(X)   ((uint32(X) & 0xFF000000) >> 24)
+#define MAX_UNIT_ACTION_BUTTON_ACTION_VALUE (0x00FFFFFF+1)
+#define MAKE_UNIT_ACTION_BUTTON(A,T) (uint32(A) | (uint32(T) << 24))
+
 struct UnitActionBarEntry
 {
-    UnitActionBarEntry() : SpellOrAction(0), Type(ACT_DISABLED) {}
+    UnitActionBarEntry() : packedData(uint32(ACT_DISABLED) << 24) {}
 
-    uint16 SpellOrAction;
-    uint16 Type;
+    uint32 packedData;
 
     // helper
+    ActiveStates GetType() const { return ActiveStates(UNIT_ACTION_BUTTON_TYPE(packedData)); }
+    uint32 GetAction() const { return UNIT_ACTION_BUTTON_ACTION(packedData); }
     bool IsActionBarForSpell() const
     {
+        ActiveStates Type = GetType();
         return Type == ACT_DISABLED || Type == ACT_ENABLED || Type == ACT_PASSIVE;
     }
-};
 
-struct CharmSpellEntry
-{
-    uint16 spellId;
-    uint16 active;
+    void SetActionAndType(uint32 action, ActiveStates type)
+    {
+        packedData = MAKE_UNIT_ACTION_BUTTON(action,type);
+    }
+
+    void SetType(ActiveStates type)
+    {
+        packedData = MAKE_UNIT_ACTION_BUTTON(UNIT_ACTION_BUTTON_ACTION(packedData),type);
+    }
+
+    void SetAction(uint32 action)
+    {
+        packedData = (packedData & 0xFF000000) | UNIT_ACTION_BUTTON_ACTION(action);
+    }
 };
 
 typedef std::list<Player*> SharedVisionList;
@@ -908,6 +924,8 @@ enum CharmType
     CHARM_TYPE_VEHICLE,
     CHARM_TYPE_CONVERT,
 };
+
+typedef UnitActionBarEntry CharmSpellEntry;
 
 enum ActionBarIndex
 {
@@ -947,8 +965,7 @@ struct CharmInfo
         void SetSpellAutocast(uint32 spell_id, bool state);
         void SetActionBar(uint8 index, uint32 spellOrAction,ActiveStates type)
         {
-            PetActionBar[index].Type = type;
-            PetActionBar[index].SpellOrAction = spellOrAction;
+            PetActionBar[index].SetActionAndType(spellOrAction,type);
         }
         UnitActionBarEntry const* GetActionBarEntry(uint8 index) const { return &(PetActionBar[index]); }
 

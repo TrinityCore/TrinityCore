@@ -134,17 +134,6 @@ enum ActionButtonUpdateState
     ACTIONBUTTON_DELETED   = 3
 };
 
-struct ActionButton
-{
-    ActionButton() : action(0), type(0), misc(0), uState( ACTIONBUTTON_NEW ) {}
-    ActionButton(uint16 _action, uint8 _type, uint8 _misc) : action(_action), type(_type), misc(_misc), uState( ACTIONBUTTON_NEW ) {}
-
-    uint16 action;
-    uint8 type;
-    uint8 misc;
-    ActionButtonUpdateState uState;
-};
-
 enum ActionButtonType
 {
     ACTION_BUTTON_SPELL = 0,
@@ -152,6 +141,32 @@ enum ActionButtonType
     ACTION_BUTTON_MACRO = 64,
     ACTION_BUTTON_CMACRO= 65,
     ACTION_BUTTON_ITEM  = 128
+};
+
+#define ACTION_BUTTON_ACTION(X) (uint32(X) & 0x00FFFFFF)
+#define ACTION_BUTTON_TYPE(X)   ((uint32(X) & 0xFF000000) >> 24)
+#define MAX_ACTION_BUTTON_ACTION_VALUE (0x00FFFFFF+1)
+
+struct ActionButton
+{
+    ActionButton() : packedData(0), uState( ACTIONBUTTON_NEW ) {}
+
+    uint32 packedData;
+    ActionButtonUpdateState uState;
+
+    // helpers
+    ActionButtonType GetType() const { return ActionButtonType(ACTION_BUTTON_TYPE(packedData)); }
+    uint32 GetAction() const { return ACTION_BUTTON_ACTION(packedData); }
+    void SetActionAndType(uint32 action, ActionButtonType type)
+    {
+        uint32 newData = action | (uint32(type) << 24);
+        if (newData != packedData)
+        {
+            packedData = newData;
+            if (uState != ACTIONBUTTON_NEW)
+                uState = ACTIONBUTTON_CHANGED;
+        }
+    }
 };
 
 #define  MAX_ACTION_BUTTONS 132                             //checked in 2.3.0
@@ -191,6 +206,18 @@ struct PlayerLevelInfo
 
 typedef std::list<uint32> PlayerCreateInfoSpells;
 
+struct PlayerCreateInfoAction
+{
+    PlayerCreateInfoAction() : button(0), type(0), action(0) {}
+    PlayerCreateInfoAction(uint8 _button, uint32 _action, uint8 _type) : button(_button), type(_type), action(_action) {}
+
+    uint8 button;
+    uint8 type;
+    uint32 action;
+};
+
+typedef std::list<PlayerCreateInfoAction> PlayerCreateInfoActions;
+
 struct PlayerInfo
 {
                                                             // existence checked by displayId != 0             // existence checked by displayId != 0
@@ -207,7 +234,7 @@ struct PlayerInfo
     uint16 displayId_f;
     PlayerCreateInfoItems item;
     PlayerCreateInfoSpells spell;
-    std::list<uint16> action[4];
+    PlayerCreateInfoActions action;
 
     PlayerLevelInfo* levelInfo;                             //[level-1] 0..MaxPlayerLevel-1
 };
@@ -1462,7 +1489,7 @@ class TRINITY_DLL_SPEC Player : public Unit
             m_cinematic = cine;
         }
 
-        bool addActionButton(uint8 button, uint16 action, uint8 type, uint8 misc);
+        ActionButton* addActionButton(uint8 button, uint32 action, uint8 type);
         void removeActionButton(uint8 button);
         void SendInitialActionButtons() const;
 
