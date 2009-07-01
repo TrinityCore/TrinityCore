@@ -16814,7 +16814,6 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
 
     SetMinion(pet, false);
 
-    pet->CleanupsBeforeDelete();
     pet->AddObjectToRemoveList();
     pet->m_removed = true;
 

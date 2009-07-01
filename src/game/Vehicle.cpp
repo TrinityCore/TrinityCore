@@ -389,7 +389,6 @@ void Vehicle::Dismiss()
     RemoveAllPassengers();
     SendObjectDeSpawnAnim(GetGUID());
     CombatStop();
-    CleanupsBeforeDelete();
     AddObjectToRemoveList();
 }
 

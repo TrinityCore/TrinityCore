@@ -1010,7 +1010,6 @@ void Map::MoveAllCreaturesInMoveList()
                 if((sLog.getLogFilter() & LOG_FILTER_CREATURE_MOVES)==0)
                     sLog.outDebug("Creature (GUID: %u Entry: %u ) can't be move to unloaded respawn grid.",c->GetGUIDLow(),c->GetEntry());
                 #endif
-                c->CleanupsBeforeDelete();
                 AddObjectToRemoveList(c);
             }
         }
@@ -2150,6 +2149,8 @@ inline void Map::setNGrid(NGridType *grid, uint32 x, uint32 y)
 void Map::AddObjectToRemoveList(WorldObject *obj)
 {
     assert(obj->GetMapId()==GetId() && obj->GetInstanceId()==GetInstanceId());
+
+    obj->CleanupsBeforeDelete();                            // remove or simplify at least cross referenced links
 
     i_objectsToRemove.insert(obj);
     //sLog.outDebug("Object (GUID: %u TypeId: %u ) added to removing list.",obj->GetGUIDLow(),obj->GetTypeId());

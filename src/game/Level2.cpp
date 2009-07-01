@@ -1377,7 +1377,6 @@ bool ChatHandler::HandleNpcDeleteCommand(const char* args)
     // Delete the creature
     unit->CombatStop();
     unit->DeleteFromDB();
-    unit->CleanupsBeforeDelete();
     unit->AddObjectToRemoveList();
 
     SendSysMessage(LANG_COMMAND_DELCREATMESSAGE);
@@ -3449,7 +3448,6 @@ bool ChatHandler::HandleWpShowCommand(const char* args)
             Field *fields = result->Fetch();
             uint32 guid = fields[0].GetUInt32();
             Creature* pCreature = m_session->GetPlayer()->GetMap()->GetCreature(MAKE_NEW_GUID(guid,VISUAL_WAYPOINT,HIGHGUID_UNIT));
-
             if(!pCreature)
             {
                 PSendSysMessage(LANG_WAYPOINT_NOTREMOVED, guid);
