@@ -380,6 +380,16 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, QueryResult *result)
     if(!proto)
         return false;
 
+    // update max durability (and durability) if need
+    if(proto->MaxDurability!= GetUInt32Value(ITEM_FIELD_MAXDURABILITY))
+    {
+        SetUInt32Value(ITEM_FIELD_MAXDURABILITY,proto->MaxDurability);
+        if(GetUInt32Value(ITEM_FIELD_DURABILITY) > proto->MaxDurability)
+            SetUInt32Value(ITEM_FIELD_DURABILITY,proto->MaxDurability);
+
+        need_save = true;
+    }
+
     // recalculate suffix factor
     if(GetItemRandomPropertyId() < 0)
     {
