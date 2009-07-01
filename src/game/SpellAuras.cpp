@@ -4177,7 +4177,7 @@ void AuraEffect::HandleModTaunt(bool apply, bool Real, bool /*changeAmount*/)
 
     Unit* caster = GetCaster();
 
-    if(!caster || !caster->isAlive() || caster->GetTypeId() != TYPEID_PLAYER)
+    if(!caster || !caster->isAlive())
         return;
 
     if(apply)
