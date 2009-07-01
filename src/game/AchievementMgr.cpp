@@ -35,6 +35,7 @@
 #include "ProgressBar.h"
 #include "SpellMgr.h"
 
+#include "MapManager.h"
 
 
 INSTANTIATE_SINGLETON_1(AchievementGlobalMgr);
@@ -827,8 +828,8 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 if(!miscvalue1)
                     continue;
 
-                Map const* map = GetPlayer()->GetMap();
-                if(!map->IsDungeon())
+                Map const* map = GetPlayer()->IsInWorld() ? GetPlayer()->GetMap() : MapManager::Instance().FindMap(GetPlayer()->GetMapId(), GetPlayer()->GetInstanceId());
+                if(!map || !map->IsDungeon())
                     continue;
 
                 // search case
