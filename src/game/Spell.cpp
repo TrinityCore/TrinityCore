@@ -4934,16 +4934,21 @@ SpellCastResult Spell::CheckCast(bool strict)
             }
             case SPELL_AURA_MOD_POSSESS:
             case SPELL_AURA_MOD_CHARM:
-            //case SPELL_AURA_MOD_POSSESS_PET:
+            case SPELL_AURA_MOD_POSSESS_PET:
+            case SPELL_AURA_AOE_CHARM:
             {
-                if(m_caster->GetPetGUID())
-                    return SPELL_FAILED_ALREADY_HAVE_SUMMON;
-
-                if(m_caster->GetCharmGUID())
-                    return SPELL_FAILED_ALREADY_HAVE_CHARM;
-
                 if(m_caster->GetCharmerGUID())
                     return SPELL_FAILED_CHARMED;
+
+                if(m_spellInfo->EffectApplyAuraName[i] == SPELL_AURA_MOD_CHARM
+                    || m_spellInfo->EffectApplyAuraName[i] == SPELL_AURA_MOD_POSSESS)
+                {
+                    if(m_caster->GetPetGUID())
+                        return SPELL_FAILED_ALREADY_HAVE_SUMMON;
+
+                    if(m_caster->GetCharmGUID())
+                        return SPELL_FAILED_ALREADY_HAVE_CHARM;
+                }
 
                 Unit *target = m_targets.getUnitTarget();
                 if(!target || target->GetTypeId() == TYPEID_UNIT
@@ -4953,7 +4958,8 @@ SpellCastResult Spell::CheckCast(bool strict)
                 if(target->GetCharmerGUID())
                     return SPELL_FAILED_CHARMED;
 
-                if(int32(target->getLevel()) > CalculateDamage(i, target))
+                int32 damage = CalculateDamage(i, target);
+                if(damage && int32(target->getLevel()) > damage)
                     return SPELL_FAILED_HIGHLEVEL;
 
                 break;
