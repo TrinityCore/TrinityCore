@@ -341,6 +341,11 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
     mSemaphoreTeleport_Near = false;
     mSemaphoreTeleport_Far = false;
 
+    m_DelayedOperations = 0;
+    m_bCanDelayTeleport = false;
+    m_bHasDelayedTeleport = false;
+    m_teleport_options = 0;
+
     pTrader = 0;
     ClearTrade();
 
@@ -1122,7 +1127,10 @@ void Player::Update( uint32 p_time )
     // Having this would prevent more aura charges to be dropped, so let's crash
     assert (!m_spellModTakingSpell);
 
+    //used to implement delayed far teleports
+    SetCanDelayTeleport(true);
     Unit::Update( p_time );
+    SetCanDelayTeleport(false);
 
     time_t now = time (NULL);
 
@@ -1378,8 +1386,12 @@ void Player::Update( uint32 p_time )
     //if(pet && !IsWithinDistInMap(pet, OWNER_MAX_DISTANCE) && (GetCharmGUID() && (pet->GetGUID() != GetCharmGUID())))
     {
         RemovePet(pet, PET_SAVE_NOT_IN_SLOT, true);
-        return;
     }
+
+    //we should execute delayed teleports only for alive(!) players
+    //because we don't want player's ghost teleported from graveyard
+    if(IsHasDelayedTeleport() && isAlive())
+        TeleportTo(m_teleport_dest, m_teleport_options);
 }
 
 void Player::setDeathState(DeathState s)
@@ -1685,6 +1697,21 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
     if ((GetMapId() == mapid) && (!m_transport))
     {
+        //lets reset far teleport flag if it wasn't reset during chained teleports
+        SetSemaphoreTeleportFar(false);
+        //setup delayed teleport flag
+        SetDelayedTeleportFlag(IsCanDelayTeleport());
+        //if teleport spell is casted in Unit::Update() func
+        //then we need to delay it until update process will be finished
+        if(IsHasDelayedTeleport())
+        {
+            SetSemaphoreTeleportNear(true);
+            //lets save teleport destination for player
+            m_teleport_dest = WorldLocation(mapid, x, y, z, orientation);
+            m_teleport_options = options;
+            return true;
+        }
+
         if (!(options & TELE_TO_NOT_UNSUMMON_PET))
         {
             //same map, only remove pet if out of range for new position
@@ -1728,6 +1755,21 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         Map *map = MapManager::Instance().FindMap(mapid);
         if (!map ||  map->CanEnter(this))
         {
+            //lets reset near teleport flag if it wasn't reset during chained teleports
+            SetSemaphoreTeleportNear(false);
+            //setup delayed teleport flag
+            SetDelayedTeleportFlag(IsCanDelayTeleport());
+            //if teleport spell is casted in Unit::Update() func
+            //then we need to delay it until update process will be finished
+            if(IsHasDelayedTeleport())
+            {
+                SetSemaphoreTeleportFar(true);
+                //lets save teleport destination for player
+                m_teleport_dest = WorldLocation(mapid, x, y, z, orientation);
+                m_teleport_options = options;
+                return true;
+            }
+
             SetSelection(0);
 
             CombatStop();
@@ -1756,6 +1798,9 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             if(!(options & TELE_TO_SPELL))
                 if(IsNonMeleeSpellCasted(true))
                     InterruptNonMeleeSpells(true);
+
+            //remove auras before removing from map...
+            RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CHANGE_MAP | AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_TURNING);
 
             if(!GetSession()->PlayerLogout())
             {
@@ -1803,8 +1848,6 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             // if the player is saved before worldportack (at logout for example)
             // this will be used instead of the current location in SaveToDB
 
-            RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CHANGE_MAP | AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_TURNING);
-
             // move packet sent by client always after far teleport
             // code for finish transfer to new map called in WorldSession::HandleMoveWorldportAckOpcode at client packet
             SetSemaphoreTeleportFar(true);
@@ -1813,6 +1856,53 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             return false;
     }
     return true;
+}
+
+void Player::ProcessDelayedOperations()
+{
+    if(m_DelayedOperations == 0)
+        return;
+
+    if(m_DelayedOperations & DELAYED_RESURRECT_PLAYER)
+    {
+        ResurrectPlayer(0.0f, false);
+
+        if(GetMaxHealth() > m_resurrectHealth)
+            SetHealth( m_resurrectHealth );
+        else
+            SetHealth( GetMaxHealth() );
+
+        if(GetMaxPower(POWER_MANA) > m_resurrectMana)
+            SetPower(POWER_MANA, m_resurrectMana );
+        else
+            SetPower(POWER_MANA, GetMaxPower(POWER_MANA) );
+
+        SetPower(POWER_RAGE, 0 );
+        SetPower(POWER_ENERGY, GetMaxPower(POWER_ENERGY) );
+
+        SpawnCorpseBones();
+    }
+
+    if(m_DelayedOperations & DELAYED_SAVE_PLAYER)
+    {
+        SaveToDB();
+    }
+
+    if(m_DelayedOperations & DELAYED_SPELL_CAST_DESERTER)
+    {
+        CastSpell(this, 26013, true);               // Deserter
+    }
+
+    //we have executed ALL delayed ops, so clear the flag
+    m_DelayedOperations = 0;
+}
+
+void Player::ScheduleDelayedOperation(uint32 operation)
+{
+    if(operation >= DELAYED_END)
+        return;
+
+    m_DelayedOperations |= operation;
 }
 
 void Player::AddToWorld()
@@ -12489,7 +12579,11 @@ Quest const * Player::GetNextQuest( uint64 guid, Quest const *pQuest )
     }
     else
     {
-        GameObject *pGameObject = GetMap()->GetGameObject(guid);
+        //we should obtain map pointer from GetMap() in 99% of cases. Special case
+        //only for quests which cast teleport spells on player
+        Map * _map = IsInWorld() ? GetMap() : MapManager::Instance().FindMap(GetMapId(), GetInstanceId());
+        ASSERT(_map);
+        GameObject *pGameObject = _map->GetGameObject(guid);
         if( pGameObject )
         {
             pObject = (Object*)pGameObject;
@@ -12823,6 +12917,10 @@ void Player::IncompleteQuest( uint32 quest_id )
 
 void Player::RewardQuest( Quest const *pQuest, uint32 reward, Object* questGiver, bool announce )
 {
+    //this THING should be here to protect code from quest, which cast on player far teleport as a reward
+    //should work fine, cause far teleport will be executed in Player::Update()
+    SetCanDelayTeleport(true);
+
     uint32 quest_id = pQuest->GetQuestId();
 
     for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; i++ )
@@ -13015,6 +13113,9 @@ void Player::RewardQuest( Quest const *pQuest, uint32 reward, Object* questGiver
                 if( !HasAura(itr->second->spellId) )
                     CastSpell(this,itr->second->spellId,true);
     }
+
+    //lets remove flag for delayed teleports
+    SetCanDelayTeleport(false);
 }
 
 void Player::FailQuest( uint32 quest_id )
@@ -15941,6 +16042,13 @@ void Player::SaveToDB()
     // delay auto save at any saves (manual, in code, or autosave)
     m_nextSave = sWorld.getConfig(CONFIG_INTERVAL_SAVE);
 
+    //lets allow only players in world to be saved
+    if(IsBeingTeleportedFar())
+    {
+        ScheduleDelayedOperation(DELAYED_SAVE_PLAYER);
+        return;
+    }
+
     // first save/honor gain after midnight will also update the player's honor fields
     UpdateHonorFields();
 
@@ -18398,7 +18506,16 @@ void Player::LeaveBattleground(bool teleportToEntryPoint)
         if( bg->isBattleGround() && !isGameMaster() && sWorld.getConfig(CONFIG_BATTLEGROUND_CAST_DESERTER) )
         {
             if( bg->GetStatus() == STATUS_IN_PROGRESS || bg->GetStatus() == STATUS_WAIT_JOIN )
+            {
+                //lets check if player was teleported from BG and schedule delayed Deserter spell cast
+                if(IsBeingTeleportedFar())
+                {
+                    ScheduleDelayedOperation(DELAYED_SPELL_CAST_DESERTER);
+                    return;
+                }
+
                 CastSpell(this, 26013, true);               // Deserter
+            }
         }
     }
 }
@@ -19754,6 +19871,14 @@ void Player::ResurectUsingRequestData()
     /// Teleport before resurrecting by player, otherwise the player might get attacked from creatures near his corpse
     if(IS_PLAYER_GUID(m_resurrectGUID))
         TeleportTo(m_resurrectMap, m_resurrectX, m_resurrectY, m_resurrectZ, GetOrientation());
+
+    //we cannot resurrect player when we triggered far teleport
+    //player will be resurrected upon teleportation
+    if(IsBeingTeleportedFar())
+    {
+        ScheduleDelayedOperation(DELAYED_RESURRECT_PLAYER);
+        return;
+    }
 
     ResurrectPlayer(0.0f,false);
 

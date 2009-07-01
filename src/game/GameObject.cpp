@@ -76,7 +76,13 @@ void GameObject::CleanupsBeforeDelete()
         // Possible crash at access to deleted GO in Unit::m_gameobj
         if(uint64 owner_guid = GetOwnerGUID())
         {
-            if(Unit* owner = ObjectAccessor::GetUnit(*this,owner_guid))
+            Unit* owner = NULL;
+            if(IS_PLAYER_GUID(owner_guid))
+                owner = ObjectAccessor::GetObjectInWorld(owner_guid, (Player*)NULL);
+            else
+                owner = ObjectAccessor::GetUnit(*this,owner_guid);
+
+            if(owner)
                 owner->RemoveGameObject(this,false);
             else
             {
