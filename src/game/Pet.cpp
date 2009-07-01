@@ -412,8 +412,8 @@ void Pet::SavePetToDB(PetSaveMode mode)
         // save only spell slots from action bar
         for(uint32 i = ACTION_BAR_INDEX_PET_SPELL_START; i < ACTION_BAR_INDEX_PET_SPELL_END; ++i)
         {
-            ss << uint32(m_charmInfo->GetActionBarEntry(i)->Type) << " "
-               << uint32(m_charmInfo->GetActionBarEntry(i)->SpellOrAction) << " ";
+            ss << uint32(m_charmInfo->GetActionBarEntry(i)->GetType()) << " "
+               << uint32(m_charmInfo->GetActionBarEntry(i)->GetAction()) << " ";
         };
 
         ss  << "', "
@@ -1064,7 +1064,7 @@ void Pet::_LoadSpells()
         {
             Field *fields = result->Fetch();
 
-            addSpell(fields[0].GetUInt32(), ActiveStates(fields[1].GetUInt16()), PETSPELL_UNCHANGED);
+            addSpell(fields[0].GetUInt32(), ActiveStates(fields[1].GetUInt8()), PETSPELL_UNCHANGED);
         }
         while( result->NextRow() );
 
@@ -1329,8 +1329,8 @@ bool Pet::learnSpell(uint32 spell_id)
 
     if(!m_loading)
     {
-        WorldPacket data(SMSG_PET_LEARNED_SPELL, 2);
-        data << uint16(spell_id);
+        WorldPacket data(SMSG_PET_LEARNED_SPELL, 4);
+        data << uint32(spell_id);
         m_owner->GetSession()->SendPacket(&data);
         m_owner->PetSpellInitialize();
     }
@@ -1382,8 +1382,8 @@ bool Pet::unlearnSpell(uint32 spell_id, bool learn_prev, bool clear_ab)
     {
         if(!m_loading)
         {
-            WorldPacket data(SMSG_PET_REMOVED_SPELL, 2);
-            data << uint16(spell_id);
+            WorldPacket data(SMSG_PET_REMOVED_SPELL, 4);
+            data << uint32(spell_id);
             m_owner->GetSession()->SendPacket(&data);
         }
         return true;
@@ -1447,12 +1447,12 @@ void Pet::CleanupActionBar()
 {
     for(uint8 i = 0; i < MAX_UNIT_ACTION_BAR_INDEX; ++i)
         if(UnitActionBarEntry const* ab = m_charmInfo->GetActionBarEntry(i))
-            if(ab->SpellOrAction && ab->IsActionBarForSpell())
+            if(ab->GetAction() && ab->IsActionBarForSpell())
             {
-                if(!HasSpell(ab->SpellOrAction))
+                if(!HasSpell(ab->GetAction()))
                     m_charmInfo->SetActionBar(i, 0, ACT_PASSIVE);
-                else if(ab->Type == ACT_ENABLED)
-                    ToggleAutocast(ab->SpellOrAction, true);
+                else if(ab->GetType() == ACT_ENABLED)
+                    ToggleAutocast(ab->GetAction(), true);
             }
 }
 
@@ -1832,7 +1832,7 @@ void Pet::CastPetAuras(bool current)
 
 void Pet::CastPetAura(PetAura const* aura)
 {
-    uint16 auraId = aura->GetAura(GetEntry());
+    uint32 auraId = aura->GetAura(GetEntry());
     if(!auraId)
         return;
 
