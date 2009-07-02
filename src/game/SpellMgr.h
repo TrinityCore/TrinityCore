@@ -393,7 +393,7 @@ enum ProcFlags
    PROC_FLAG_KILLED                        = 0x00000001,    // 00 Killed by agressor
    PROC_FLAG_KILL                          = 0x00000002,    // 01 Kill target (in most cases need XP/Honor reward)
 
-   PROC_FLAG_SUCCESSFUL_MILEE_HIT          = 0x00000004,    // 02 Successful melee auto attack
+   PROC_FLAG_SUCCESSFUL_MELEE_HIT          = 0x00000004,    // 02 Successful melee auto attack
    PROC_FLAG_TAKEN_MELEE_HIT               = 0x00000008,    // 03 Taken damage from melee auto attack hit
 
    PROC_FLAG_SUCCESSFUL_MELEE_SPELL_HIT    = 0x00000010,    // 04 Successful attack by Spell that use melee weapon
@@ -429,7 +429,7 @@ enum ProcFlags
    PROC_FLAG_DEATH                         = 0x01000000     // 24 Died in any way
 };
 
-#define MELEE_BASED_TRIGGER_MASK (PROC_FLAG_SUCCESSFUL_MILEE_HIT        | \
+#define MELEE_BASED_TRIGGER_MASK (PROC_FLAG_SUCCESSFUL_MELEE_HIT        | \
                                   PROC_FLAG_TAKEN_MELEE_HIT             | \
                                   PROC_FLAG_SUCCESSFUL_MELEE_SPELL_HIT  | \
                                   PROC_FLAG_TAKEN_MELEE_SPELL_HIT       | \
@@ -458,9 +458,9 @@ enum ProcFlagsEx
    PROC_EX_AURA_REMOVE_EXPIRE  = 0x0004000,                 // aura remove by default and by cancel
    PROC_EX_EX_TRIGGER_ALWAYS   = 0x0010000,                 // If set trigger always ( no matter another flags) used for drop charges
    PROC_EX_EX_ONE_TIME_TRIGGER = 0x0020000,                 // If set trigger always but only one time (not used)
-   PROC_EX_INTERNAL_CANT_PROC  = 0x0800000,
+   PROC_EX_INTERNAL_CANT_PROC  = 0x0800000,                 // Only for internal use
    PROC_EX_INTERNAL_DOT        = 0x1000000,                 // Only for internal use
-   PROC_EX_INTERNAL_HOT        = 0x2000000,                  // Only for internal use
+   PROC_EX_INTERNAL_HOT        = 0x2000000,                 // Only for internal use
    PROC_EX_INTERNAL_TRIGGERED  = 0x4000000,                 // Only for internal use
    PROC_EX_INTERNAL_REQ_FAMILY = 0x8000000                  // Only for internal use
 };
@@ -769,7 +769,7 @@ class SpellMgr
             return NULL;
         }
 
-        bool IsSpellProcEventCanTriggeredBy( SpellProcEventEntry const * spellProcEvent, uint32 EventProcFlag, SpellEntry const * procSpell, uint32 procFlags, uint32 procExtra);
+        bool IsSpellProcEventCanTriggeredBy( SpellProcEventEntry const * spellProcEvent, uint32 EventProcFlag, SpellEntry const * procSpell, uint32 procFlags, uint32 procExtra, bool active);
 
         SpellEnchantProcEntry const* GetSpellEnchantProcEvent(uint32 enchId) const
         {
