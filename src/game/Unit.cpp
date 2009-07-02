@@ -13610,7 +13610,7 @@ bool Unit::HandleAuraRaidProcFromCharge( AuraEffect* triggeredByAura )
         damageSpellId=43594;
         break;
     default:
-        sLog.outDebug("Unit::HandleAuraRaidProcFromCharge, received not handled spell: %u", spellProto->Id);
+        sLog.outError("Unit::HandleAuraRaidProcFromCharge, received not handled spell: %u", spellProto->Id);
         return false;
     }
 
