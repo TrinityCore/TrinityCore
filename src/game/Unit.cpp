@@ -12834,7 +12834,6 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
         // Remove charge (aura can be removed by triggers)
         if(useCharges && takeCharges)
         {
-            sLog.outError("%d, %d, %d", Id, procSpell? procSpell->Id : 0, procFlag);
             i->aura->DropAuraCharge();
         }
     }
