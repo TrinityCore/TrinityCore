@@ -1264,13 +1264,13 @@ void Aura::_RemoveAura()
             uint32 ProcCaster, ProcVictim;
             if (IsPositiveSpell(GetId()))
             {
-                ProcCaster = PROC_FLAG_SUCCESSFUL_POSITIVE_SPELL;
-                ProcVictim = PROC_FLAG_TAKEN_POSITIVE_SPELL;
+                ProcCaster = PROC_FLAG_SUCCESSFUL_POSITIVE_MAGIC_SPELL | PROC_FLAG_SUCCESSFUL_POSITIVE_SPELL_HIT;
+                ProcVictim = PROC_FLAG_TAKEN_POSITIVE_MAGIC_SPELL | PROC_FLAG_TAKEN_POSITIVE_SPELL;
             }
             else
             {
-                ProcCaster = PROC_FLAG_SUCCESSFUL_NEGATIVE_SPELL_HIT;
-                ProcVictim = PROC_FLAG_TAKEN_NEGATIVE_SPELL_HIT;
+                ProcCaster = PROC_FLAG_SUCCESSFUL_NEGATIVE_MAGIC_SPELL | PROC_FLAG_SUCCESSFUL_NEGATIVE_SPELL_HIT;
+                ProcVictim = PROC_FLAG_TAKEN_NEGATIVE_MAGIC_SPELL | PROC_FLAG_TAKEN_NEGATIVE_SPELL_HIT;
             }
             caster->ProcDamageAndSpell(m_target,ProcCaster, ProcVictim, procEx, m_procDamage, BASE_ATTACK, m_spellProto);
         }

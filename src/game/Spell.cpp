@@ -1084,16 +1084,54 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         if( missInfo != SPELL_MISS_NONE && missInfo != SPELL_MISS_MISS)
             m_needComboPoints = false;
 
+    // Trigger info was not filled in spell::preparedatafortriggersystem - we do it now
+    if (canEffectTrigger && !procAttacker && !procVictim)
+    {
+        bool positive = true;
+        if (m_damage > 0)
+            positive = false;
+        else if (!m_healing)
+        {
+            for (uint8 i = 0; i< MAX_SPELL_EFFECTS; ++i)
+                // If at least one effect negative spell is negative hit
+                if (mask & (1<<i) && !IsPositiveEffect(m_spellInfo->Id, i))
+                {
+                    positive = false;
+                    break;
+                }
+        }
+        switch(m_spellInfo->DmgClass)
+        {
+            case SPELL_DAMAGE_CLASS_MAGIC:
+                if (positive)
+                {
+                    procAttacker |= PROC_FLAG_SUCCESSFUL_POSITIVE_MAGIC_SPELL;
+                    procVictim   |= PROC_FLAG_TAKEN_POSITIVE_MAGIC_SPELL;
+                }
+                else
+                {
+                    procAttacker |= PROC_FLAG_SUCCESSFUL_NEGATIVE_MAGIC_SPELL;
+                    procVictim   |= PROC_FLAG_TAKEN_NEGATIVE_MAGIC_SPELL;
+                }
+            break;
+            case SPELL_DAMAGE_CLASS_NONE:
+                if (positive)
+                {
+                    procAttacker |= PROC_FLAG_SUCCESSFUL_POSITIVE_SPELL_HIT;
+                    procVictim   |= PROC_FLAG_TAKEN_POSITIVE_SPELL;
+                }
+                else
+                {
+                    procAttacker |= PROC_FLAG_SUCCESSFUL_NEGATIVE_SPELL_HIT;
+                    procVictim   |= PROC_FLAG_TAKEN_NEGATIVE_SPELL_HIT;
+                }
+            break;
+        }
+    }
     // All calculated do it!
     // Do healing and triggers
     if (m_healing > 0)
     {
-        // Trigger info was not filled in spell::preparedatafortriggersystem - we do it now
-        if (canEffectTrigger && !procAttacker && !procVictim)
-        {
-            procAttacker |= PROC_FLAG_SUCCESSFUL_HEALING_SPELL;
-            procVictim |= PROC_FLAG_TAKEN_HEALING_SPELL;
-        }
         bool crit = caster->isSpellCrit(unitTarget, m_spellInfo, m_spellSchoolMask);
         uint32 addhealth = m_healing;
         if (crit)
@@ -1117,13 +1155,6 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
     // Do damage and triggers
     else if (m_damage > 0)
     {
-        // Trigger info was not filled in spell::preparedatafortriggersystem - we do it now
-        if (canEffectTrigger && !procAttacker && !procVictim)
-        {
-            procAttacker |= PROC_FLAG_SUCCESSFUL_DAMAGING_SPELL_HIT;
-            procVictim |= PROC_FLAG_TAKEN_DAMAGING_SPELL_HIT;
-        }
-
         // Fill base damage struct (unitTarget - is real spell target)
         SpellNonMeleeDamage damageInfo(caster, unitTarget, m_spellInfo->Id, m_spellSchoolMask);
 
@@ -1160,30 +1191,6 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
     // Passive spell hits/misses or active spells only misses (only triggers)
     else
     {
-        // Trigger info was not filled in spell::preparedatafortriggersystem - we do it now
-        if (canEffectTrigger && !procAttacker && !procVictim)
-        {
-            // Check spell positivity on target
-            bool positive = true;
-            for (uint8 i = 0; i< MAX_SPELL_EFFECTS; ++i)
-                // If at least one effect negative spell is negative hit
-                if (mask & (1<<i) && !IsPositiveEffect(m_spellInfo->Id, i))
-                {
-                    positive = false;
-                    break;
-                }
-            if (positive)
-            {
-                procAttacker |= PROC_FLAG_SUCCESSFUL_POSITIVE_SPELL;
-                procVictim   |= PROC_FLAG_TAKEN_POSITIVE_SPELL;
-            }
-            else
-            {
-                procAttacker |= PROC_FLAG_SUCCESSFUL_NEGATIVE_SPELL_HIT;
-                procVictim   |= PROC_FLAG_TAKEN_NEGATIVE_SPELL_HIT;
-            }
-        }
-
         // Fill base damage struct (unitTarget - is real spell target)
         SpellNonMeleeDamage damageInfo(caster, unitTarget, m_spellInfo->Id, m_spellSchoolMask);
         procEx |= createProcExtendMask(&damageInfo, missInfo);
