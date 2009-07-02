@@ -1273,17 +1273,6 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
     // No extra req need
     uint32 procEvent_procEx = PROC_EX_NONE;
 
-    // Some of not damaging spells have on damage procflags
-    // And all of them are specified by spellfamilymask in proc entry
-    // so, lets allow non dmg spells to proc on dmg auras if they have correct spellfamily
-    if (spellProcEvent && spellProcEvent->spellFamilyMask)
-    {
-        if (EventProcFlag & PROC_FLAG_SUCCESSFUL_DAMAGING_SPELL_HIT && procFlags & PROC_FLAG_SUCCESSFUL_NEGATIVE_SPELL_HIT)
-            procFlags |= PROC_FLAG_SUCCESSFUL_DAMAGING_SPELL_HIT;
-        if (EventProcFlag & PROC_FLAG_SUCCESSFUL_HEALING_SPELL && procFlags & PROC_FLAG_SUCCESSFUL_POSITIVE_SPELL)
-            procFlags |= PROC_FLAG_SUCCESSFUL_HEALING_SPELL;
-    }
-
     // check prockFlags for condition
     if((procFlags & EventProcFlag) == 0)
         return false;
@@ -1303,24 +1292,24 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
 
     if (procFlags & PROC_FLAG_ON_DO_PERIODIC)
     {
-        if (EventProcFlag & PROC_FLAG_SUCCESSFUL_DAMAGING_SPELL_HIT)
+        if (EventProcFlag & PROC_FLAG_SUCCESSFUL_NEGATIVE_MAGIC_SPELL)
         {
             if (!(procExtra & PROC_EX_INTERNAL_DOT))
                 return false;
         }
-        else if (EventProcFlag & PROC_FLAG_SUCCESSFUL_HEALING_SPELL
+        else if (EventProcFlag & PROC_FLAG_TAKEN_POSITIVE_MAGIC_SPELL
             && !(procExtra & PROC_EX_INTERNAL_HOT))
             return false;
     }
 
     if (procFlags & PROC_FLAG_ON_TAKE_PERIODIC)
     {
-        if (EventProcFlag & PROC_FLAG_TAKEN_DAMAGING_SPELL_HIT)
+        if (EventProcFlag & PROC_FLAG_TAKEN_NEGATIVE_MAGIC_SPELL)
         {
             if (!(procExtra & PROC_EX_INTERNAL_DOT))
                 return false;
         }
-        else if (EventProcFlag & PROC_FLAG_TAKEN_HEALING_SPELL
+        else if (EventProcFlag & PROC_FLAG_TAKEN_POSITIVE_MAGIC_SPELL
             && !(procExtra & PROC_EX_INTERNAL_HOT))
             return false;
     }
@@ -1370,17 +1359,23 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
     // Check for extra req (if none) and hit/crit
     if (procEvent_procEx == PROC_EX_NONE)
     {
-        // No extra req, so can trigger only for hit/crit - spell has to be active or to have PROC_FLAG_TAKEN_NEGATIVE_SPELL_HIT
-        if((procExtra & (PROC_EX_NORMAL_HIT|PROC_EX_CRITICAL_HIT)) && (active || procFlags & PROC_FLAG_TAKEN_NEGATIVE_SPELL_HIT))
+        // No extra req, so can trigger only for hit/crit - spell has to be active
+        if((procExtra & (PROC_EX_NORMAL_HIT|PROC_EX_CRITICAL_HIT)) && active)
             return true;
     }
     else // Passive spells hits here only if resist/reflect/immune/evade
     {
-        // Exist req for PROC_EX_EX_TRIGGER_ALWAYS
-        if ((procExtra & AURA_SPELL_PROC_EX_MASK) && (procEvent_procEx & PROC_EX_EX_TRIGGER_ALWAYS))
-            return true;
-        // Check Extra Requirement like (hit/crit/miss/resist/parry/dodge/block/immune/reflect/absorb and other)
-        if (procEvent_procEx & procExtra)
+        if (procExtra & AURA_SPELL_PROC_EX_MASK)
+        {
+            // Exist req for PROC_EX_EX_TRIGGER_ALWAYS
+            if (procEvent_procEx & PROC_EX_EX_TRIGGER_ALWAYS)
+                return true;
+            // Check Extra Requirement like (hit/crit/miss/resist/parry/dodge/block/immune/reflect/absorb and other)
+            if (procEvent_procEx & procExtra)
+                return true;
+        }
+        // if spell marked as procing from not active spells it can proc from normal or critical hit
+        if (procEvent_procEx & PROC_EX_NOT_ACTIVE_SPELL && (procExtra & (PROC_EX_NORMAL_HIT|PROC_EX_CRITICAL_HIT)))
             return true;
     }
     return false;

@@ -388,45 +388,45 @@ typedef UNORDERED_MAP<uint32, flag96> SpellAffectMap;
 // Spell proc event related declarations (accessed using SpellMgr functions)
 enum ProcFlags
 {
-   PROC_FLAG_NONE                          = 0x00000000,
+   PROC_FLAG_NONE                            = 0x00000000,
 
-   PROC_FLAG_KILLED                        = 0x00000001,    // 00 Killed by agressor
-   PROC_FLAG_KILL                          = 0x00000002,    // 01 Kill target (in most cases need XP/Honor reward)
+   PROC_FLAG_KILLED                          = 0x00000001,    // 00 Killed by agressor
+   PROC_FLAG_KILL                            = 0x00000002,    // 01 Kill target (in most cases need XP/Honor reward)
 
-   PROC_FLAG_SUCCESSFUL_MELEE_HIT          = 0x00000004,    // 02 Successful melee auto attack
-   PROC_FLAG_TAKEN_MELEE_HIT               = 0x00000008,    // 03 Taken damage from melee auto attack hit
+   PROC_FLAG_SUCCESSFUL_MELEE_HIT            = 0x00000004,    // 02 Successful melee auto attack
+   PROC_FLAG_TAKEN_MELEE_HIT                 = 0x00000008,    // 03 Taken damage from melee auto attack hit
 
-   PROC_FLAG_SUCCESSFUL_MELEE_SPELL_HIT    = 0x00000010,    // 04 Successful attack by Spell that use melee weapon
-   PROC_FLAG_TAKEN_MELEE_SPELL_HIT         = 0x00000020,    // 05 Taken damage by Spell that use melee weapon
+   PROC_FLAG_SUCCESSFUL_MELEE_SPELL_HIT      = 0x00000010,    // 04 Successful attack by Spell that use melee weapon
+   PROC_FLAG_TAKEN_MELEE_SPELL_HIT           = 0x00000020,    // 05 Taken damage by Spell that use melee weapon
 
-   PROC_FLAG_SUCCESSFUL_RANGED_HIT         = 0x00000040,    // 06 Successful Ranged auto attack
-   PROC_FLAG_TAKEN_RANGED_HIT              = 0x00000080,    // 07 Taken damage from ranged auto attack
+   PROC_FLAG_SUCCESSFUL_RANGED_HIT           = 0x00000040,    // 06 Successful Ranged auto attack
+   PROC_FLAG_TAKEN_RANGED_HIT                = 0x00000080,    // 07 Taken damage from ranged auto attack
 
-   PROC_FLAG_SUCCESSFUL_RANGED_SPELL_HIT   = 0x00000100,    // 08 Successful Ranged attack by Spell that use ranged weapon
-   PROC_FLAG_TAKEN_RANGED_SPELL_HIT        = 0x00000200,    // 09 Taken damage by Spell that use ranged weapon
+   PROC_FLAG_SUCCESSFUL_RANGED_SPELL_HIT     = 0x00000100,    // 08 Successful Ranged attack by Spell that use ranged weapon
+   PROC_FLAG_TAKEN_RANGED_SPELL_HIT          = 0x00000200,    // 09 Taken damage by Spell that use ranged weapon
 
-   PROC_FLAG_SUCCESSFUL_POSITIVE_SPELL     = 0x00000400,    // 10 Successful Positive spell hit
-   PROC_FLAG_TAKEN_POSITIVE_SPELL          = 0x00000800,    // 11 Taken Positive spell hit
+   PROC_FLAG_SUCCESSFUL_POSITIVE_SPELL_HIT   = 0x00000400,    // 10 Successful Positive spell hit
+   PROC_FLAG_TAKEN_POSITIVE_SPELL            = 0x00000800,    // 11 Taken Positive spell hit
 
-   PROC_FLAG_SUCCESSFUL_NEGATIVE_SPELL_HIT = 0x00001000,    // 12 Successful Negative spell hit
-   PROC_FLAG_TAKEN_NEGATIVE_SPELL_HIT      = 0x00002000,    // 13 Taken Negative spell hit
+   PROC_FLAG_SUCCESSFUL_NEGATIVE_SPELL_HIT   = 0x00001000,    // 12 Successful Negative spell hit
+   PROC_FLAG_TAKEN_NEGATIVE_SPELL_HIT        = 0x00002000,    // 13 Taken Negative spell hit
 
-   PROC_FLAG_SUCCESSFUL_HEALING_SPELL      = 0x00004000,    // 14 Successful Direct Heal spell hit
-   PROC_FLAG_TAKEN_HEALING_SPELL           = 0x00008000,    // 15 Taken Direct Heal spell hit
+   PROC_FLAG_SUCCESSFUL_POSITIVE_MAGIC_SPELL = 0x00004000,    // 14 Successful Positive Magic spell hit
+   PROC_FLAG_TAKEN_POSITIVE_MAGIC_SPELL      = 0x00008000,    // 15 Taken Positive Magic spell hit
 
-   PROC_FLAG_SUCCESSFUL_DAMAGING_SPELL_HIT = 0x00010000,    // 16 Successful Direct Damage spell hit
-   PROC_FLAG_TAKEN_DAMAGING_SPELL_HIT      = 0x00020000,    // 17 Taken Direct Damage spell hit
+   PROC_FLAG_SUCCESSFUL_NEGATIVE_MAGIC_SPELL = 0x00010000,    // 16 Successful Negative Magic spell hit
+   PROC_FLAG_TAKEN_NEGATIVE_MAGIC_SPELL      = 0x00020000,    // 17 Taken Negative Magic spell hit
 
-   PROC_FLAG_ON_DO_PERIODIC                = 0x00040000,    // 18 Successful do periodic (damage / healing, determined from 14,16 flags)
-   PROC_FLAG_ON_TAKE_PERIODIC              = 0x00080000,    // 19 Taken spell periodic (damage / healing, determined from 15,17 flags)
+   PROC_FLAG_ON_DO_PERIODIC                  = 0x00040000,    // 18 Successful do periodic (damage / healing, determined from 14,16 flags)
+   PROC_FLAG_ON_TAKE_PERIODIC                = 0x00080000,    // 19 Taken spell periodic (damage / healing, determined from 15,17 flags)
 
-   PROC_FLAG_TAKEN_ANY_DAMAGE              = 0x00100000,    // 20 Taken any damage
-   PROC_FLAG_ON_TRAP_ACTIVATION            = 0x00200000,    // 21 On trap activation
+   PROC_FLAG_TAKEN_ANY_DAMAGE                = 0x00100000,    // 20 Taken any damage
+   PROC_FLAG_ON_TRAP_ACTIVATION              = 0x00200000,    // 21 On trap activation
 
-   PROC_FLAG_TAKEN_OFFHAND_HIT             = 0x00400000,    // 22 Taken off-hand melee attacks ( this is probably wrong )
-   PROC_FLAG_SUCCESSFUL_OFFHAND_HIT        = 0x00800000,     // 23 Successful off-hand melee attacks ( this is probably wrong )
+   PROC_FLAG_TAKEN_OFFHAND_HIT               = 0x00400000,    // 22 Taken off-hand melee attacks ( this is probably wrong )
+   PROC_FLAG_SUCCESSFUL_OFFHAND_HIT          = 0x00800000,    // 23 Successful off-hand melee attacks ( this is probably wrong )
 
-   PROC_FLAG_DEATH                         = 0x01000000     // 24 Died in any way
+   PROC_FLAG_DEATH                           = 0x01000000     // 24 Died in any way
 };
 
 #define MELEE_BASED_TRIGGER_MASK (PROC_FLAG_SUCCESSFUL_MELEE_HIT        | \
@@ -456,13 +456,16 @@ enum ProcFlagsEx
    PROC_EX_INTERRUPT           = 0x0001000,                 // Melee hit result can be Interrupt (not used)
    PROC_EX_AURA_REMOVE_DESTROY = 0x0002000,                 // aura absorb destroy or dispel
    PROC_EX_AURA_REMOVE_EXPIRE  = 0x0004000,                 // aura remove by default and by cancel
+   PROC_EX_NOT_ACTIVE_SPELL    = 0x0008000,                 // to mark spells which can proc without damage, but not specified with spellfamilyflags
    PROC_EX_EX_TRIGGER_ALWAYS   = 0x0010000,                 // If set trigger always ( no matter another flags) used for drop charges
    PROC_EX_EX_ONE_TIME_TRIGGER = 0x0020000,                 // If set trigger always but only one time (not used)
-   PROC_EX_INTERNAL_CANT_PROC  = 0x0800000,                 // Only for internal use
-   PROC_EX_INTERNAL_DOT        = 0x1000000,                 // Only for internal use
-   PROC_EX_INTERNAL_HOT        = 0x2000000,                 // Only for internal use
-   PROC_EX_INTERNAL_TRIGGERED  = 0x4000000,                 // Only for internal use
-   PROC_EX_INTERNAL_REQ_FAMILY = 0x8000000                  // Only for internal use
+
+   // Flags for internal use - do not use these in db!
+   PROC_EX_INTERNAL_CANT_PROC  = 0x0800000,
+   PROC_EX_INTERNAL_DOT        = 0x1000000,
+   PROC_EX_INTERNAL_HOT        = 0x2000000,
+   PROC_EX_INTERNAL_TRIGGERED  = 0x4000000,
+   PROC_EX_INTERNAL_REQ_FAMILY = 0x8000000
 };
 #define AURA_REMOVE_PROC_EX_MASK \
    (PROC_EX_AURA_REMOVE_DESTROY | PROC_EX_AURA_REMOVE_EXPIRE)
