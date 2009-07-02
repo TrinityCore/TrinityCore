@@ -4,7 +4,7 @@ ALTER TABLE playercreateinfo_action
   CHANGE COLUMN action action int(11) unsigned NOT NULL default '0';
 
 UPDATE playercreateinfo_action
-  SET action = action | ( misc < 16 );
+  SET action = action | ( misc << 16 );
 
 ALTER TABLE playercreateinfo_action
     DROP COLUMN misc;
