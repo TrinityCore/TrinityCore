@@ -1,3 +1,4 @@
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1609016 AND -1609000;
 INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`, `sound`, `type`, `language`, `emote`, `comment`) VALUES
 (-1609000, 'You have made a grave error, fiend!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 'unworthy_initiate SAY_EVENT_START_1' ),
 (-1609001, 'I was a soldier of the Light once... Look at what I have become... ', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 'unworthy_initiate SAY_EVENT_START_2'),
