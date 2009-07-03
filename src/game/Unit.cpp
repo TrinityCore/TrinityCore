@@ -7285,38 +7285,8 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                 break;
             case SPELLFAMILY_WARLOCK:
             {
-                // Pyroclasm
-                if (auraSpellInfo->SpellIconID == 1137)
-                {
-                    if(!pVictim || !pVictim->isAlive() || pVictim == this || procSpell == NULL)
-                        return false;
-                    // Calculate spell tick count for spells
-                    uint32 tick;
-
-                    // Hellfire have 15 tick
-                    if (procSpell->SpellFamilyFlags[0]&0x40)
-                        tick = 15;
-                    // Rain of Fire have 4 tick
-                    else if (procSpell->SpellFamilyFlags[0]&0x20)
-                        tick = 4;
-                    else
-                        tick = 1;
-
-                    // Calculate chance = baseChance / tick
-                    float chance = 0;
-                    switch (auraSpellInfo->Id)
-                    {
-                        case 18096: chance = 13.0f / tick; break;
-                        case 18073: chance = 26.0f / tick; break;
-                    }
-                    // Roll chance
-                    if (!roll_chance_f(chance))
-                        return false;
-
-                    trigger_spell_id = 18093;
-                }
                 // Improved Drain Soul
-                else if (auraSpellInfo->SpellFamilyFlags[0] & 0x4000)
+                if (auraSpellInfo->SpellFamilyFlags[0] & 0x4000)
                 {
                     Unit::AuraEffectList const& mAddFlatModifier = GetAurasByType(SPELL_AURA_DUMMY);
                     for(Unit::AuraEffectList::const_iterator i = mAddFlatModifier.begin(); i != mAddFlatModifier.end(); ++i)
