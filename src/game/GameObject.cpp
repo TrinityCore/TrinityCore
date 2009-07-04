@@ -77,9 +77,10 @@ void GameObject::CleanupsBeforeDelete()
         if(uint64 owner_guid = GetOwnerGUID())
         {
             Unit* owner = NULL;
-            if(IS_PLAYER_GUID(owner_guid))
+            // Object may be deleted while player is not in world, skip this check for now.
+            /*if(IS_PLAYER_GUID(owner_guid))
                 owner = ObjectAccessor::GetObjectInWorld(owner_guid, (Player*)NULL);
-            else
+            else*/
                 owner = ObjectAccessor::GetUnit(*this,owner_guid);
 
             if(owner)
