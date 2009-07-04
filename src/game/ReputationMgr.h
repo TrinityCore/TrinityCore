@@ -21,8 +21,15 @@
 
 #include "Common.h"
 #include "SharedDefines.h"
+#include "Language.h"
 #include "DBCStructure.h"
 #include <map>
+
+static uint32 ReputationRankStrIndex[MAX_REPUTATION_RANK] =
+{
+    LANG_REP_HATED,    LANG_REP_HOSTILE, LANG_REP_UNFRIENDLY, LANG_REP_NEUTRAL,
+    LANG_REP_FRIENDLY, LANG_REP_HONORED, LANG_REP_REVERED,    LANG_REP_EXALTED
+};
 
 enum FactionFlags
 {
