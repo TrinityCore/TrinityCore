@@ -3211,7 +3211,7 @@ bool ChatHandler::HandleLookupItemCommand(const char* args)
 
     wstrToLower(wnamepart);
 
-    uint32 counter = 0;
+    bool found = false;
 
     // Search in `item_template`
     for (uint32 id = 0; id < sItemStorage.MaxEntry; id++)
@@ -3236,7 +3236,10 @@ bool ChatHandler::HandleLookupItemCommand(const char* args)
                             PSendSysMessage(LANG_ITEM_LIST_CHAT, id, id, name.c_str());
                         else
                             PSendSysMessage(LANG_ITEM_LIST_CONSOLE, id, name.c_str());
-                        ++counter;
+
+                        if(!found)
+                            found = true;
+
                         continue;
                     }
                 }
@@ -3253,11 +3256,13 @@ bool ChatHandler::HandleLookupItemCommand(const char* args)
                 PSendSysMessage(LANG_ITEM_LIST_CHAT, id, id, name.c_str());
             else
                 PSendSysMessage(LANG_ITEM_LIST_CONSOLE, id, name.c_str());
-            ++counter;
+
+            if(!found)
+                found = true;
         }
     }
 
-    if (counter==0)
+    if (!found)
         SendSysMessage(LANG_COMMAND_NOITEMFOUND);
 
     return true;
@@ -3277,7 +3282,7 @@ bool ChatHandler::HandleLookupItemSetCommand(const char* args)
     // converting string that we try to find to lower case
     wstrToLower( wnamepart );
 
-    uint32 counter = 0;                                     // Counter for figure out that we found smth.
+    bool found = false;
 
     // Search in ItemSet.dbc
     for (uint32 id = 0; id < sItemSetStore.GetNumRows(); id++)
@@ -3314,11 +3319,13 @@ bool ChatHandler::HandleLookupItemSetCommand(const char* args)
                     PSendSysMessage(LANG_ITEMSET_LIST_CHAT,id,id,name.c_str(),localeNames[loc]);
                 else
                     PSendSysMessage(LANG_ITEMSET_LIST_CONSOLE,id,name.c_str(),localeNames[loc]);
-                ++counter;
+
+                if(!found)
+                    found = true;
             }
         }
     }
-    if (counter == 0)                                       // if counter == 0 then we found nth
+    if (!found)
         SendSysMessage(LANG_COMMAND_NOITEMSETFOUND);
     return true;
 }
@@ -3340,7 +3347,7 @@ bool ChatHandler::HandleLookupSkillCommand(const char* args)
     // converting string that we try to find to lower case
     wstrToLower( wnamepart );
 
-    uint32 counter = 0;                                     // Counter for figure out that we found smth.
+    bool found = false;
 
     // Search in SkillLine.dbc
     for (uint32 id = 0; id < sSkillLineStore.GetNumRows(); id++)
@@ -3392,11 +3399,12 @@ bool ChatHandler::HandleLookupSkillCommand(const char* args)
                 else
                     PSendSysMessage(LANG_SKILL_LIST_CONSOLE,id,name.c_str(),localeNames[loc],knownStr,valStr);
 
-                ++counter;
+                if(!found)
+                    found = true;
             }
         }
     }
-    if (counter == 0)                                       // if counter == 0 then we found nth
+    if (!found)
         SendSysMessage(LANG_COMMAND_NOSKILLFOUND);
     return true;
 }
@@ -3418,7 +3426,7 @@ bool ChatHandler::HandleLookupSpellCommand(const char* args)
     // converting string that we try to find to lower case
     wstrToLower( wnamepart );
 
-    uint32 counter = 0;                                     // Counter for figure out that we found smth.
+    bool found = false;
 
     // Search in Spell.dbc
     for (uint32 id = 0; id < sSpellStore.GetNumRows(); id++)
@@ -3492,11 +3500,12 @@ bool ChatHandler::HandleLookupSpellCommand(const char* args)
 
                 SendSysMessage(ss.str().c_str());
 
-                ++counter;
+                if(!found)
+                    found = true;
             }
         }
     }
-    if (counter == 0)                                       // if counter == 0 then we found nth
+    if (!found)
         SendSysMessage(LANG_COMMAND_NOSPELLFOUND);
     return true;
 }
@@ -3518,7 +3527,7 @@ bool ChatHandler::HandleLookupQuestCommand(const char* args)
 
     wstrToLower(wnamepart);
 
-    uint32 counter = 0 ;
+    bool found = false;
 
     ObjectMgr::QuestMap const& qTemplates = objmgr.GetQuestTemplates();
     for (ObjectMgr::QuestMap::const_iterator iter = qTemplates.begin(); iter != qTemplates.end(); ++iter)
@@ -3558,7 +3567,10 @@ bool ChatHandler::HandleLookupQuestCommand(const char* args)
                             PSendSysMessage(LANG_QUEST_LIST_CHAT,qinfo->GetQuestId(),qinfo->GetQuestId(),title.c_str(),statusStr);
                         else
                             PSendSysMessage(LANG_QUEST_LIST_CONSOLE,qinfo->GetQuestId(),title.c_str(),statusStr);
-                        ++counter;
+
+                        if(!found)
+                            found = true;
+
                         continue;
                     }
                 }
@@ -3593,11 +3605,12 @@ bool ChatHandler::HandleLookupQuestCommand(const char* args)
             else
                 PSendSysMessage(LANG_QUEST_LIST_CONSOLE,qinfo->GetQuestId(),title.c_str(),statusStr);
 
-            ++counter;
+            if(!found)
+                found = true;
         }
     }
 
-    if (counter==0)
+    if (!found)
         SendSysMessage(LANG_COMMAND_NOQUESTFOUND);
 
     return true;
@@ -3617,7 +3630,7 @@ bool ChatHandler::HandleLookupCreatureCommand(const char* args)
 
     wstrToLower (wnamepart);
 
-    uint32 counter = 0;
+    bool found = false;
 
     for (uint32 id = 0; id< sCreatureStorage.MaxEntry; ++id)
     {
@@ -3641,7 +3654,10 @@ bool ChatHandler::HandleLookupCreatureCommand(const char* args)
                             PSendSysMessage (LANG_CREATURE_ENTRY_LIST_CHAT, id, id, name.c_str ());
                         else
                             PSendSysMessage (LANG_CREATURE_ENTRY_LIST_CONSOLE, id, name.c_str ());
-                        ++counter;
+
+                        if(!found)
+                            found = true;
+ 
                         continue;
                     }
                 }
@@ -3658,11 +3674,13 @@ bool ChatHandler::HandleLookupCreatureCommand(const char* args)
                 PSendSysMessage (LANG_CREATURE_ENTRY_LIST_CHAT, id, id, name.c_str ());
             else
                 PSendSysMessage (LANG_CREATURE_ENTRY_LIST_CONSOLE, id, name.c_str ());
-            ++counter;
+
+            if(!found)
+                found = true;
         }
     }
 
-    if (counter==0)
+    if (!found)
         SendSysMessage (LANG_COMMAND_NOCREATUREFOUND);
 
     return true;
@@ -3682,7 +3700,7 @@ bool ChatHandler::HandleLookupObjectCommand(const char* args)
 
     wstrToLower(wnamepart);
 
-    uint32 counter = 0;
+    bool found = false;
 
     for (uint32 id = 0; id< sGOStorage.MaxEntry; id++ )
     {
@@ -3706,7 +3724,10 @@ bool ChatHandler::HandleLookupObjectCommand(const char* args)
                             PSendSysMessage(LANG_GO_ENTRY_LIST_CHAT, id, id, name.c_str());
                         else
                             PSendSysMessage(LANG_GO_ENTRY_LIST_CONSOLE, id, name.c_str());
-                        ++counter;
+ 
+                        if(!found)
+                            found = true;
+
                         continue;
                     }
                 }
@@ -3723,11 +3744,13 @@ bool ChatHandler::HandleLookupObjectCommand(const char* args)
                 PSendSysMessage(LANG_GO_ENTRY_LIST_CHAT, id, id, name.c_str());
             else
                 PSendSysMessage(LANG_GO_ENTRY_LIST_CONSOLE, id, name.c_str());
-            ++counter;
+
+            if(!found)
+                found = true;
         }
     }
 
-    if(counter==0)
+    if(!found)
         SendSysMessage(LANG_COMMAND_NOGAMEOBJECTFOUND);
 
     return true;
@@ -3747,7 +3770,7 @@ bool ChatHandler::HandleLookupTaxiNodeCommand(const char * args)
     // converting string that we try to find to lower case
     wstrToLower( wnamepart );
 
-    uint32 counter = 0;                                     // Counter for figure out that we found smth.
+    bool found = false;
 
     // Search in TaxiNodes.dbc
     for (uint32 id = 0; id < sTaxiNodesStore.GetNumRows(); id++)
@@ -3786,11 +3809,13 @@ bool ChatHandler::HandleLookupTaxiNodeCommand(const char * args)
                 else
                     PSendSysMessage (LANG_TAXINODE_ENTRY_LIST_CONSOLE, id, name.c_str(), localeNames[loc],
                         nodeEntry->map_id,nodeEntry->x,nodeEntry->y,nodeEntry->z);
-                ++counter;
+
+                if(!found)
+                    found = true;
             }
         }
     }
-    if (counter == 0)                                       // if counter == 0 then we found nth
+    if (!found)
         SendSysMessage(LANG_COMMAND_NOSPELLFOUND);
     return true;
 }
@@ -3809,7 +3834,7 @@ bool ChatHandler::HandleLookupMapCommand(const char* args)
 
     wstrToLower(wnamepart);
 
-    uint32 counter = 0;
+    bool found = false;
 
     // search in Map.dbc
     for(uint32 id = 0; id < sMapStore.GetNumRows(); id++)
@@ -3888,12 +3913,13 @@ bool ChatHandler::HandleLookupMapCommand(const char* args)
                 else
                     SendSysMessage(ss.str().c_str());
 
-                counter++;
+                if(!found)
+                    found = true;
             }
         }
     }
 
-    if(!counter)
+    if(!found)
         SendSysMessage(LANG_COMMAND_NOMAPFOUND);
 
     return true;
