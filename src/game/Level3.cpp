@@ -3910,7 +3910,7 @@ bool ChatHandler::HandleLookupTaxiNodeCommand(const char * args)
         }
     }
     if (!found)
-        SendSysMessage(LANG_COMMAND_NOSPELLFOUND);
+        SendSysMessage(LANG_COMMAND_NOTAXINODEFOUND);
     return true;
 }
 
