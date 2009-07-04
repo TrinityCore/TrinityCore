@@ -6146,7 +6146,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             if (dummySpell->SpellIconID == 3017)
             {
                 // hardcoded amount
-                basepoints0 = 15 * GetCreatePowers(POWER_MANA)/100;
+                basepoints0 = 25 * GetCreatePowers(POWER_MANA)/100;
                 target = this;
                 triggered_spell_id = 31930;
                 // replenishment
