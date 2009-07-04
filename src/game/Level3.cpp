@@ -3756,6 +3756,100 @@ bool ChatHandler::HandleLookupObjectCommand(const char* args)
     return true;
 }
 
+bool ChatHandler::HandleLookupFactionCommand(const char* args)
+{
+    if (!*args)
+        return false;
+
+    // Can be NULL at console call
+    Player *target = getSelectedPlayer ();
+
+    std::string namepart = args;
+    std::wstring wnamepart;
+
+    if (!Utf8toWStr (namepart,wnamepart))
+        return false;
+
+    // converting string that we try to find to lower case
+    wstrToLower (wnamepart);
+
+    bool found = false;
+
+    for (uint32 id = 0; id < sFactionStore.GetNumRows(); ++id)
+    {
+        FactionEntry const *factionEntry = sFactionStore.LookupEntry (id);
+        if (factionEntry)
+        {
+            FactionState const* repState = target ? target->GetReputationMgr().GetState(factionEntry) : NULL;
+
+            int loc = GetSessionDbcLocale();
+            std::string name = factionEntry->name[loc];
+            if(name.empty())
+                continue;
+
+            if (!Utf8FitTo(name, wnamepart))
+            {
+                loc = 0;
+                for(; loc < MAX_LOCALE; ++loc)
+                {
+                    if(loc==GetSessionDbcLocale())
+                        continue;
+
+                    name = factionEntry->name[loc];
+                    if(name.empty())
+                        continue;
+
+                    if (Utf8FitTo(name, wnamepart))
+                        break;
+                }
+            }
+
+            if(loc < MAX_LOCALE)
+            {
+                // send faction in "id - [faction] rank reputation [visible] [at war] [own team] [unknown] [invisible] [inactive]" format
+                // or              "id - [faction] [no reputation]" format
+                std::ostringstream ss;
+                if (m_session)
+                    ss << id << " - |cffffffff|Hfaction:" << id << "|h[" << name << " " << localeNames[loc] << "]|h|r";
+                else
+                    ss << id << " - " << name << " " << localeNames[loc];
+
+                if (repState)                               // and then target!=NULL also
+                {
+                    ReputationRank rank = target->GetReputationMgr().GetRank(factionEntry);
+                    std::string rankName = GetMangosString(ReputationRankStrIndex[rank]);
+
+                    ss << " " << rankName << "|h|r (" << target->GetReputationMgr().GetReputation(factionEntry) << ")";
+
+                    if(repState->Flags & FACTION_FLAG_VISIBLE)
+                        ss << GetTrinityString(LANG_FACTION_VISIBLE);
+                    if(repState->Flags & FACTION_FLAG_AT_WAR)
+                        ss << GetTrinityString(LANG_FACTION_ATWAR);
+                    if(repState->Flags & FACTION_FLAG_PEACE_FORCED)
+                        ss << GetTrinityString(LANG_FACTION_PEACE_FORCED);
+                    if(repState->Flags & FACTION_FLAG_HIDDEN)
+                        ss << GetTrinityString(LANG_FACTION_HIDDEN);
+                    if(repState->Flags & FACTION_FLAG_INVISIBLE_FORCED)
+                        ss << GetTrinityString(LANG_FACTION_INVISIBLE_FORCED);
+                    if(repState->Flags & FACTION_FLAG_INACTIVE)
+                        ss << GetTrinityString(LANG_FACTION_INACTIVE);
+                }
+                else
+                    ss << GetTrinityString(LANG_FACTION_NOREPUTATION);
+
+                SendSysMessage(ss.str().c_str());
+
+                if(!found)
+                    found = true;
+            }
+        }
+    }
+
+    if (!found)
+        SendSysMessage(LANG_COMMAND_FACTION_NOTFOUND);
+    return true;
+}
+
 bool ChatHandler::HandleLookupTaxiNodeCommand(const char * args)
 {
     if(!*args)
