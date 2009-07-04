@@ -914,7 +914,7 @@ bool ChatHandler::HandleLookupFactionCommand(const char* args)
     // converting string that we try to find to lower case
     wstrToLower (wnamepart);
 
-    uint32 counter = 0;                                     // Counter for figure out that we found smth.
+    bool found = false;
 
     for (uint32 id = 0; id < sFactionStore.GetNumRows(); ++id)
     {
@@ -979,12 +979,14 @@ bool ChatHandler::HandleLookupFactionCommand(const char* args)
                     ss << GetTrinityString(LANG_FACTION_NOREPUTATION);
 
                 SendSysMessage(ss.str().c_str());
-                counter++;
+
+                if(!found)
+                    found = true;
             }
         }
     }
 
-    if (counter == 0)                                       // if counter == 0 then we found nth
+    if (!found)
         SendSysMessage(LANG_COMMAND_FACTION_NOTFOUND);
     return true;
 }
@@ -3677,7 +3679,7 @@ bool ChatHandler::HandleLookupEventCommand(const char* args)
 
     wstrToLower(wnamepart);
 
-    uint32 counter = 0;
+    bool found = false;
 
     GameEventMgr::GameEventDataMap const& events = gameeventmgr.GetEventMap();
     GameEventMgr::ActiveEvents const& activeEvents = gameeventmgr.GetActiveEventList();
@@ -3699,11 +3701,12 @@ bool ChatHandler::HandleLookupEventCommand(const char* args)
             else
                 PSendSysMessage(LANG_EVENT_ENTRY_LIST_CONSOLE,id,eventData.description.c_str(),active );
 
-            ++counter;
+            if(!found)
+                found = true;
         }
     }
 
-    if (counter==0)
+    if (!found)
         SendSysMessage(LANG_NOEVENTFOUND);
 
     return true;
