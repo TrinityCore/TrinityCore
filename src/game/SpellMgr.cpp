@@ -236,6 +236,7 @@ SpellMgr::SpellMgr()
     }
 }
 
+
 SpellMgr::~SpellMgr()
 {
 }
@@ -244,6 +245,16 @@ SpellMgr& SpellMgr::Instance()
 {
     static SpellMgr spellMgr;
     return spellMgr;
+}
+
+bool SpellMgr::IsSrcTargetSpell(SpellEntry const *spellInfo) const
+{
+    for (uint8 i = 0; i< MAX_SPELL_EFFECTS; ++i)
+    {
+        if(SpellTargetType[spellInfo->EffectImplicitTargetA[i]] == TARGET_TYPE_AREA_SRC || SpellTargetType[spellInfo->EffectImplicitTargetB[i]] == TARGET_TYPE_AREA_SRC)
+            return true;
+    }
+    return false;
 }
 
 int32 GetSpellDuration(SpellEntry const *spellInfo)
