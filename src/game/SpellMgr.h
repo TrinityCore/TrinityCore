@@ -1042,6 +1042,8 @@ class SpellMgr
             return SpellAreaForAreaMapBounds(mSpellAreaForAreaMap.lower_bound(area_id),mSpellAreaForAreaMap.upper_bound(area_id));
         }
 
+        bool SpellMgr::IsSrcTargetSpell(SpellEntry const *spellInfo) const;
+
     // Modifiers
     public:
         static SpellMgr& Instance();
