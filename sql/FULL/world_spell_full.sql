@@ -69,6 +69,9 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 (51209, 55095, 1, 'Hungering cold - frost fever'),
 (50334, 58923, 2, 'Berserk - modify target number aura'),
 ( -5229, -51185, 0, 'King of the Jungle - remove with enrage'),
+(48384, 50170, 2, 'Improved Moonkin Form'),
+(48395, 50171, 2, 'Improved Moonkin Form'),
+(48396, 50172, 2, 'Improved Moonkin Form'),
 
 -- Creature
 ( 36574, 36650, 0, 'Apply Phase Slip Vulnerability'),
