@@ -1398,6 +1398,7 @@ void AuraEffect::HandleShapeshiftBoosts(bool apply)
 {
     uint32 spellId = 0;
     uint32 spellId2 = 0;
+    uint32 spellId3 = 0;
     uint32 HotWSpellId = 0;
 
     switch(GetMiscValue())
@@ -1465,7 +1466,6 @@ void AuraEffect::HandleShapeshiftBoosts(bool apply)
         case FORM_STEALTH:
         case FORM_CREATURECAT:
         case FORM_CREATUREBEAR:
-            spellId = 0;
             break;
     }
 
@@ -1474,13 +1474,19 @@ void AuraEffect::HandleShapeshiftBoosts(bool apply)
     if(apply)
     {
         // Remove cooldown of spells triggered on stance change - they may share cooldown with stance spell
-        if(m_target->GetTypeId() == TYPEID_PLAYER)
-            ((Player *)m_target)->RemoveSpellCooldown(spellId);
-        if (spellId) m_target->CastSpell(m_target, spellId, true, NULL, this );
+        if (spellId)
+        {
+            if(m_target->GetTypeId() == TYPEID_PLAYER)
+                ((Player *)m_target)->RemoveSpellCooldown(spellId);
+            m_target->CastSpell(m_target, spellId, true, NULL, this );
+        }
 
-        if(m_target->GetTypeId() == TYPEID_PLAYER)
-            ((Player *)m_target)->RemoveSpellCooldown(spellId2);
-        if (spellId2) m_target->CastSpell(m_target, spellId2, true, NULL, this);
+        if (spellId2)
+        {
+            if(m_target->GetTypeId() == TYPEID_PLAYER)
+                ((Player *)m_target)->RemoveSpellCooldown(spellId2);
+            m_target->CastSpell(m_target, spellId2, true, NULL, this);
+        }
 
         if(m_target->GetTypeId() == TYPEID_PLAYER)
         {
@@ -1549,8 +1555,10 @@ void AuraEffect::HandleShapeshiftBoosts(bool apply)
     }
     else
     {
-        m_target->RemoveAurasDueToSpell(spellId);
-        m_target->RemoveAurasDueToSpell(spellId2);
+        if (spellId)
+            m_target->RemoveAurasDueToSpell(spellId);
+        if (spellId2)
+            m_target->RemoveAurasDueToSpell(spellId2);
 
         Unit::AuraMap& tAuras = m_target->GetAuras();
         for (Unit::AuraMap::iterator itr = tAuras.begin(); itr != tAuras.end();)
@@ -2821,6 +2829,14 @@ void AuraEffect::HandleAuraDummy(bool apply, bool Real, bool changeAmount)
                     return;
                 }
             }
+            // Predatory Strikes
+            if(m_target->GetTypeId()==TYPEID_PLAYER && GetSpellProto()->SpellIconID == 1563)
+            {
+                ((Player*)m_target)->UpdateAttackPowerAndDamage();
+                return;
+            }
+            if (!Real)
+                break;
             // Lifebloom
             if ( GetSpellProto()->SpellFamilyFlags[1] & 0x10 )
             {
@@ -2848,13 +2864,6 @@ void AuraEffect::HandleAuraDummy(bool apply, bool Real, bool changeAmount)
                         caster->CastCustomSpell(caster, 64372, &returnmana, NULL, NULL, true, NULL, this, GetCasterGUID());
                     }
                 }
-                return;
-            }
-
-            // Predatory Strikes
-            if(m_target->GetTypeId()==TYPEID_PLAYER && GetSpellProto()->SpellIconID == 1563)
-            {
-                ((Player*)m_target)->UpdateAttackPowerAndDamage();
                 return;
             }
             break;
