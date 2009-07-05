@@ -91,6 +91,9 @@ void Totem::InitSummon()
 
     if(m_type == TOTEM_PASSIVE)
         CastSpell(this, GetSpell(), true);
+    // Some totems can have both instant effect and passive spell
+    if (GetSpell(1))
+        CastSpell(this, GetSpell(1), true);
 }
 
 void Totem::UnSummon()

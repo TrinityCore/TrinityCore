@@ -4213,7 +4213,7 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
     Aur->_RemoveAura();
 
     // Remove totem at next update if totem looses its aura
-    if (GetTypeId()==TYPEID_UNIT && ((Creature*)this)->isTotem()&& ((TempSummon*)this)->GetSummonerGUID()==Aur->GetCasterGUID())
+    if (Aur->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE && GetTypeId()==TYPEID_UNIT && ((Creature*)this)->isTotem()&& ((TempSummon*)this)->GetSummonerGUID()==Aur->GetCasterGUID())
     {
         if (((Totem*)this)->GetSpell()==Aur->GetId() && ((Totem*)this)->GetTotemType()==TOTEM_PASSIVE)
             ((Totem*)this)->setDeathState(JUST_DIED);
