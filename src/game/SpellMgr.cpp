@@ -2597,6 +2597,9 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto
             // Cheap Shot
             else if (spellproto->SpellFamilyFlags[0] & 0x400)
                 return DIMINISHING_CHEAPSHOT_POUNCE;
+            // Crippling poison - Limit to 10 seconds in PvP (No SpellFamilyFlags)
+            else if (spellproto->SpellIconID == 163)
+                return DIMINISHING_LIMITONLY;
             break;
         }
         case SPELLFAMILY_WARLOCK:
@@ -2626,6 +2629,9 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto
             //Entangling Roots: to force natures grasp proc to be control root
             else if (spellproto->SpellFamilyFlags[0] & 0x00000200)
                 return DIMINISHING_CONTROL_ROOT;
+            // Faerie Fire
+            else if (spellproto->SpellFamilyFlags[0] & 0x400)
+                return DIMINISHING_LIMITONLY;
             break;
         }
         case SPELLFAMILY_MAGE:
@@ -2713,6 +2719,13 @@ int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellEntry cons
             // Repentance - limit to 6 seconds in PvP
             if (spellproto->SpellFamilyFlags[0] & 0x4)
                 return 6000;
+            break;
+        }
+        case SPELLFAMILY_DRUID:
+        {
+            // Faerie Fire - limit to 40 seconds in PvP (3.1)
+            if (spellproto->SpellFamilyFlags[0] & 0x400)
+                return 40000;
             break;
         }
         default:
