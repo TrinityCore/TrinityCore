@@ -4858,6 +4858,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
     uint32 triggered_spell_id = 0;
     Unit* target = pVictim;
     int32 basepoints0 = 0;
+    uint64 originalCaster = 0;
 
     // Master of subtlety (checked here because ranks have different spellfamilynames)
     if (dummySpell->Id == 31223 || dummySpell->Id == 31221 || dummySpell->Id == 31222)
@@ -6588,6 +6589,8 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             // Earth Shield
             if(dummySpell->SpellFamilyFlags[1] & 0x00000400)
             {
+                // 3.0.8: Now correctly uses the Shaman's own spell critical strike chance to determine the chance of a critical heal.
+                originalCaster = triggeredByAura->GetCasterGUID();
                 basepoints0 = triggerAmount;
                 target = this;
                 triggered_spell_id = 379;
@@ -6951,9 +6954,9 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
         return false;
 
     if(basepoints0)
-        CastCustomSpell(target,triggered_spell_id,&basepoints0,NULL,NULL,true,castItem,triggeredByAura);
+        CastCustomSpell(target,triggered_spell_id,&basepoints0,NULL,NULL,true,castItem,triggeredByAura, originalCaster);
     else
-        CastSpell(target,triggered_spell_id,true,castItem,triggeredByAura);
+        CastSpell(target,triggered_spell_id,true,castItem,triggeredByAura, originalCaster);
 
     if( cooldown && GetTypeId()==TYPEID_PLAYER )
         ((Player*)this)->AddSpellCooldown(triggered_spell_id,0,time(NULL) + cooldown);
@@ -9496,8 +9499,9 @@ bool Unit::isSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
     float crit_chance = 0.0f;
     switch(spellProto->DmgClass)
     {
-        case SPELL_DAMAGE_CLASS_NONE:
-            return false;
+        case SPELL_DAMAGE_CLASS_NONE:  // Exception for earth shield
+            if (spellProto->Id != 379) // We need more spells to find a general way (if there is any)
+                return false;
         case SPELL_DAMAGE_CLASS_MAGIC:
         {
             if (schoolMask & SPELL_SCHOOL_MASK_NORMAL)
