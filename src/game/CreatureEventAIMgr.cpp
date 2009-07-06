@@ -473,9 +473,8 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                                     action.morph.modelId = 0;
                                 }
                             }
-
-                            break;
                         }
+                        break;
                     case ACTION_T_SOUND:
                         if (!sSoundEntriesStore.LookupEntry(action.sound.soundId))
                             sLog.outErrorDb("CreatureEventAI:  Event %u Action %u uses non-existant SoundID %u.", i, j+1, action.sound.soundId);
