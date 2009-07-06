@@ -1395,7 +1395,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         void SendInitialSpells();
         bool addSpell(uint32 spell_id, bool active, bool learning, bool dependent, bool disabled);
         void learnSpell(uint32 spell_id, bool dependent);
-        void removeSpell(uint32 spell_id, bool disabled = false, bool update_action_bar_for_low_rank = false);
+        void removeSpell(uint32 spell_id, bool disabled = false, bool learn_low_rank = true);
         void resetSpells();
         void learnDefaultSpells();
         void learnQuestRewardedSpells();
