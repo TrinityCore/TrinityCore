@@ -1640,6 +1640,9 @@ bool ChatHandler::HandleUnLearnCommand(const char* args)
     else
         SendSysMessage(LANG_FORGET_SPELL);
 
+    if(GetTalentSpellCost(spell_id))
+        target->SendTalentsInfoData(false);
+
     return true;
 }
 
@@ -2581,6 +2584,10 @@ bool ChatHandler::HandleLearnCommand(const char* args)
         targetPlayer->learnSpellHighRank(spell);
     else
         targetPlayer->learnSpell(spell,false);
+
+    uint32 first_spell = spellmgr.GetFirstSpellInChain(spell);
+    if(GetTalentSpellCost(first_spell))
+        targetPlayer->SendTalentsInfoData(false);
 
     return true;
 }
