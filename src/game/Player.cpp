@@ -3472,12 +3472,29 @@ void Player::RemoveSpellCooldown( uint32 spell_id, bool update /* = false */ )
         SendClearCooldown(spell_id, this);
 }
 
+// I am not sure which one is more efficient
 void Player::RemoveCategoryCooldown( uint32 cat )
 {
     SpellCategoryStore::const_iterator i_scstore = sSpellCategoryStore.find(cat);
     if(i_scstore != sSpellCategoryStore.end())
         for(SpellCategorySet::const_iterator i_scset = i_scstore->second.begin(); i_scset != i_scstore->second.end(); ++i_scset)
             RemoveSpellCooldown(*i_scset, true);
+}
+
+void Player::RemoveSpellCategoryCooldown(uint32 cat, bool update /* = false */)
+{
+    SpellCategoryStore::const_iterator ct = sSpellCategoryStore.find(cat);
+    if (ct == sSpellCategoryStore.end())
+        return;
+
+    const SpellCategorySet& ct_set = ct->second;
+    for (SpellCooldowns::const_iterator i = m_spellCooldowns.begin(); i != m_spellCooldowns.end();)
+    {
+        if (ct_set.find(i->first) != ct_set.end())
+            RemoveSpellCooldown((i++)->first, update);
+        else
+            ++i;
+    }
 }
 
 void Player::RemoveArenaSpellCooldowns()
@@ -17966,42 +17983,7 @@ bool Player::BuyItemFromVendor(uint64 vendorguid, uint32 item, uint8 count, uint
         return false;
     }
 
-<<<<<<< HEAD:src/game/Player.cpp
-    uint8 bag = 0;                                          // init for case invalid bagGUID
-
-    if (bagguid != NULL_BAG && slot != NULL_SLOT)
-    {
-        if( bagguid == GetGUID() )
-        {
-            bag = INVENTORY_SLOT_BAG_0;
-        }
-        else
-        {
-            for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END;i++)
-            {
-                if( Bag *pBag = (Bag*)GetItemByPos(INVENTORY_SLOT_BAG_0,i) )
-                {
-                    if( bagguid == pBag->GetGUID() )
-                    {
-                        // slot is counted from 0 but BagSize from 1
-                        if(slot+1 > pBag->GetBagSize())
-                        {
-                            sLog.outDebug("CHEATING ATTEMPT slot > bagSize in BuyItemFromVendor playerGUID: "I64FMT" name: %s slot: %u", GetGUID(), GetName(), slot);
-                            return false;
-                        }
-                        if(slot < pBag->GetBagSlot() && !pBag->GetItemByPos(slot))
-                            bag = i;
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-    if( IsInventoryPos( bag, slot ) || (bagguid == NULL_BAG && slot == NULL_SLOT) )
-=======
     if ((bag == NULL_BAG && slot == NULL_SLOT) || IsInventoryPos(bag, slot))
->>>>>>> 03c14bd3ebd8da13b803d18cf147d3ea8b8b5620:src/game/Player.cpp
     {
         ItemPosCountVec dest;
         uint8 msg = CanStoreNewItem( bag, slot, dest, item, pProto->BuyCount * count );
