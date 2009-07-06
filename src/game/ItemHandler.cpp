@@ -674,7 +674,31 @@ void WorldSession::HandleBuyItemInSlotOpcode( WorldPacket & recv_data )
 
     recv_data >> vendorguid >> item  >> slot >> bagguid >> bagslot >> count;
 
-    GetPlayer()->BuyItemFromVendor(vendorguid,item,count,bagguid,bagslot);
+    uint8 bag = NULL_BAG;                                   // init for case invalid bagGUID
+
+    // find bag slot by bag guid
+    if (bagguid == _player->GetGUID())
+        bag = INVENTORY_SLOT_BAG_0;
+    else
+    {
+        for (int i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END;++i)
+        {
+            if (Bag *pBag = (Bag*)_player->GetItemByPos(INVENTORY_SLOT_BAG_0,i))
+            {
+                if (bagguid == pBag->GetGUID())
+                {
+                    bag = i;
+                    break;
+                }
+            }
+        }
+    }
+
+    // bag not found, cheating?
+    if (bag == NULL_BAG)
+        return;
+
+    GetPlayer()->BuyItemFromVendor(vendorguid,item,count,bag,bagslot);
 }
 
 void WorldSession::HandleBuyItemOpcode( WorldPacket & recv_data )
