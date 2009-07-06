@@ -12519,8 +12519,8 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
     // Player is loaded now - do not allow passive spell casts to proc
     if (GetTypeId() == TYPEID_PLAYER && ((Player*)this)->GetSession()->PlayerLoading())
         return;
-    // For melee/ranged based attack need update skills and set some Aura states
-    if (procFlag & MELEE_BASED_TRIGGER_MASK)
+    // For melee/ranged based attack need update skills and set some Aura states if victim present
+    if (procFlag & MELEE_BASED_TRIGGER_MASK && pTarget)
     {
         // Update skills here for players
         if (GetTypeId() == TYPEID_PLAYER)
