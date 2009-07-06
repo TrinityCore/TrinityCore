@@ -1268,6 +1268,7 @@ INSERT INTO `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `Spell
 ( 53256, 0x00,   9, 0x00000800, 0x00800001, 0x00000000, 0x00000000, 0x00000002,   0,   0,   0), -- Cobra Strikes (Rank 1)
 ( 53259, 0x00,   9, 0x00000800, 0x00800001, 0x00000000, 0x00000000, 0x00000002,   0,   0,   0), -- Cobra Strikes (Rank 2)
 ( 53260, 0x00,   9, 0x00000800, 0x00800001, 0x00000000, 0x00000000, 0x00000002,   0,   0,   0), -- Cobra Strikes (Rank 3)
+
 ( 53290, 0x00,   9, 0x00000800, 0x7FFFFFFF, 0x00000000, 0x00000000, 0x00000002,   0,   0,   0), -- Hunting Party (Rank 1)
 ( 53291, 0x00,   9, 0x00000800, 0x7FFFFFFF, 0x00000000, 0x00000000, 0x00000002,   0,   0,   0), -- Hunting Party (Rank 2)
 ( 53292, 0x00,   9, 0x00000800, 0x7FFFFFFF, 0x00000000, 0x00000000, 0x00000002,   0,   0,   0), -- Hunting Party (Rank 3)
@@ -1292,6 +1293,9 @@ INSERT INTO `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `Spell
 ( 53671, 0x00,  10, 0x00800000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Judgements of the Pure (Rank 1)
 ( 53672, 0x00,  10, 0x00200000, 0x00010000, 0x00000000, 0x00000000, 0x00000002,   0,   0,   0), -- Infusion of Light 
 ( 53673, 0x00,  10, 0x00800000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Judgements of the Pure (Rank 2)
+( 53709, 0x02,  10, 0x00004000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Shield of the templar
+( 53710, 0x02,  10, 0x00004000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Shield of the templar
+( 53711, 0x02,  10, 0x00004000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Shield of the templar
 ( 53754, 0x00,   5, 0x00000000, 0x00000400, 0x00000000, 0x00000000, 0x00006000,   0,   0,   0), -- Improved Fear (Rank 1)
 ( 53759, 0x00,   5, 0x00000000, 0x00000400, 0x00000000, 0x00000000, 0x00006000,   0,   0,   0), -- Improved Fear (Rank 2)
 ( 54149, 0x00,  10, 0x00200000, 0x00010000, 0x00000000, 0x00000000, 0x00000002,   0,   0,   0), -- Infusion of Light (Rank 2)
@@ -1486,6 +1490,7 @@ INSERT INTO `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `Spell
 ( 64890, 0x00,  10, 0x00000000, 0x00010000, 0x00000000, 0x00000000, 0x00000002,   0,   0,   0), -- Item - Paladin T8 Holy 2P Bonus
 ( 64908, 0x00,   6, 0x00000000, 0x00000000, 0x00000040, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Priest T8 Shadow 4P Bonus
 ( 64912, 0x00,   6, 0x00000001, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0); -- Item - Priest T8 Healer 4P Bonus
+
 
 -- --------
 -- ENCHANT PROC
