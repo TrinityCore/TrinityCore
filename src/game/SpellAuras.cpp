@@ -960,7 +960,7 @@ void Aura::SendAuraUpdate()
     data << uint32(GetId());
     data << uint8(m_auraFlags);
     data << uint8(m_auraLevel);
-    data << uint8(m_stackAmount > 1 ? m_stackAmount : m_procCharges);
+    data << uint8(m_stackAmount > 1 ? m_stackAmount : (m_procCharges) ? m_procCharges : 1);
 
     if(!(m_auraFlags & AFLAG_CASTER))
     {
