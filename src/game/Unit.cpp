@@ -11537,7 +11537,7 @@ void Unit::ApplyDiminishingToDuration(DiminishingGroup group, int32 &duration,Un
     if(duration == -1 || group == DIMINISHING_NONE || caster->IsFriendlyTo(this) )
         return;
 
-        // test pet/charm masters instead pets/charmeds
+    // test pet/charm masters instead pets/charmeds
     Unit const* targetOwner = GetCharmerOrOwner();
     Unit const* casterOwner = caster->GetCharmerOrOwner();
 
@@ -11554,7 +11554,7 @@ void Unit::ApplyDiminishingToDuration(DiminishingGroup group, int32 &duration,Un
     float mod = 1.0f;
 
     // Some diminishings applies to mobs too (for example, Stun)
-    if((GetDiminishingReturnsGroupType(group) == DRTYPE_PLAYER && (targetOwner ? targetOwner->GetTypeId():GetTypeId())  == TYPEID_PLAYER) || GetDiminishingReturnsGroupType(group) == DRTYPE_ALL)
+    if((GetDiminishingReturnsGroupType(group) == DRTYPE_PLAYER && (targetOwner ? (targetOwner->GetTypeId() == TYPEID_PLAYER) : (GetTypeId() == TYPEID_PLAYER))) || GetDiminishingReturnsGroupType(group) == DRTYPE_ALL)
     {
         DiminishingLevels diminish = Level;
         switch(diminish)
