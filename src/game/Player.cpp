@@ -19158,8 +19158,10 @@ void Player::learnQuestRewardedSpells(Quest const* quest)
         if(!learnedInfo)
             return;
 
+        uint32 profSpell = spellmgr.GetSpellRequired(learned_0);
+
         // specialization
-        if(learnedInfo->Effect[0]==SPELL_EFFECT_TRADE_SKILL && learnedInfo->Effect[1]==0)
+        if(learnedInfo->Effect[0]==SPELL_EFFECT_TRADE_SKILL && learnedInfo->Effect[1]==0 && profSpell)
         {
             // search other specialization for same prof
             for(PlayerSpellMap::const_iterator itr = m_spells.begin(); itr != m_spells.end(); ++itr)
@@ -19176,11 +19178,7 @@ void Player::learnQuestRewardedSpells(Quest const* quest)
                     continue;
 
                 // compare same chain spells
-                if(spellmgr.GetFirstSpellInChain(itr->first) != first_spell)
-                    continue;
-
-                // now we have 2 specialization, learn possible only if found is lesser specialization rank
-                if(!spellmgr.IsHighRankOfSpell(learned_0,itr->first))
+                if (spellmgr.GetSpellRequired(itr->first) == profSpell)
                     return;
             }
         }
