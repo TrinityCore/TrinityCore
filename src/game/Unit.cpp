@@ -7792,9 +7792,9 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
         // Sword and Board
         case 50227:
         {
-            // remove cooldown of Shield Slam
+            // Remove cooldown on Shield Slam
             if (GetTypeId()==TYPEID_PLAYER)
-                ((Player*)this)->RemoveCategoryCooldown(1209);
+                ((Player*)this)->RemoveSpellCategoryCooldown(1209, true);
             break;
         }
         case 63375: // Improved Stormstrike
