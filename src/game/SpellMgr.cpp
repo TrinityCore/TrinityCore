@@ -2861,7 +2861,7 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2, bool
     SpellSpecific spellId_spec_2 = GetSpellSpecific(spellId_2);
     if (spellId_spec_1 && spellId_spec_2)
         if (IsSingleFromSpellSpecificPerTarget(spellId_spec_1, spellId_spec_2)
-            ||(IsSingleFromSpellSpecificPerCaster(spellId_spec_1, spellId_spec_2) && sameCaster))
+            ||(sameCaster && IsSingleFromSpellSpecificPerCaster(spellId_spec_1, spellId_spec_2)))
             return true;
 
     if(spellInfo_1->SpellFamilyName != spellInfo_2->SpellFamilyName)
@@ -2902,7 +2902,7 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2, bool
     spellId_1 = GetLastSpellInChain(spellId_1);
 
     // Hack for Incanter's Absorption
-    if (spellId_1 == spellId_2 && spellId_1 == 44413)
+    if (spellId_1 == spellId_2 && (spellId_1 == 44413 || (!sameCaster && spellInfo_1->AttributesEx3 & SPELL_ATTR_EX3_STACKS_FOR_DIFFERENT_CASTERS)))
         return false;
 
     if (spellId_1 == spellId_2)
@@ -2936,7 +2936,7 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2, bool
             || spellInfo_1->EffectMiscValue[i] != spellInfo_2->EffectMiscValue[i]) // paladin resist aura
             return false; // need itemtype check? need an example to add that check
 
-    return true;
+    return (!(!sameCaster && spellInfo_1->AttributesEx3 & SPELL_ATTR_EX3_STACKS_FOR_DIFFERENT_CASTERS));
 }
 
 bool IsDispelableBySpell(SpellEntry const * dispelSpell, uint32 spellId, bool def)
