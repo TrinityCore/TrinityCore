@@ -2773,9 +2773,9 @@ DiminishingReturnsType GetDiminishingReturnsGroupType(DiminishingGroup group)
         case DIMINISHING_CONTROL_STUN:
         case DIMINISHING_TRIGGER_STUN:
         case DIMINISHING_CHEAPSHOT_POUNCE:
-        case DIMINISHING_FEAR_BLIND:
         case DIMINISHING_CYCLONE:
             return DRTYPE_ALL;
+        case DIMINISHING_FEAR_BLIND:
         case DIMINISHING_CONTROL_ROOT:
         case DIMINISHING_TRIGGER_ROOT:
         case DIMINISHING_CHARM:
