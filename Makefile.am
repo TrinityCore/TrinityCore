@@ -22,17 +22,6 @@
 SUBDIRS = dep doc src
 
 ## Additional files to include when running 'make dist'
-# Win32 project workspace for Visual Studio .NET 2003
-EXTRA_DIST = \
-	win/mangosdVC71.sln \
-	win/VC71/framework.vcproj \
-	win/VC71/game.vcproj \
-	win/VC71/mangosd.vcproj \
-	win/VC71/realmd.vcproj \
-	win/VC71/shared.vcproj \
-	win/VC71/zlib.vcproj \
-	win/VC71/g3dlite.vcproj
-
 # Win32 project workspace for Visual Studio .NET 2005
 EXTRA_DIST += \
 	win/mangosdVC80.sln \
@@ -54,4 +43,15 @@ EXTRA_DIST += \
 	win/VC90/shared.vcproj \
 	win/VC90/zlib.vcproj \
 	win/VC90/g3dlite.vcproj
+
+# Win32 project workspace for Visual Studio .NET 2010
+EXTRA_DIST = \
+	win/mangosdVC100.sln \
+	win/VC100/framework.vcxproj \
+	win/VC100/game.vcxproj \
+	win/VC100/mangosd.vcxproj \
+	win/VC100/realmd.vcxproj \
+	win/VC100/shared.vcxproj \
+	win/VC100/zlib.vcxproj \
+	win/VC100/g3dlite.vcxproj
 
