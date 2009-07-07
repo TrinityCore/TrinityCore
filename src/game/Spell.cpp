@@ -809,13 +809,16 @@ void Spell::prepareDataForTriggerSystem(AuraEffect * triggeredByAura)
             m_canTrigger=false;
         }
 
-        if (m_IsTriggeredSpell && 
-            (m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_TRIGGERED_CAN_TRIGGER ||
-            m_spellInfo->AttributesEx3 & SPELL_ATTR_EX3_TRIGGERED_CAN_TRIGGER_2))
-            m_procEx |= PROC_EX_INTERNAL_CANT_PROC;
-        else if (m_IsTriggeredSpell)
-            m_procEx |= PROC_EX_INTERNAL_TRIGGERED;
-
+        // Ranged autorepeat attack is set as triggered spell - ignore it
+        if (!(m_procAttacker & PROC_FLAG_SUCCESSFUL_RANGED_HIT))
+        {
+            if (m_IsTriggeredSpell && 
+                (m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_TRIGGERED_CAN_TRIGGER ||
+                m_spellInfo->AttributesEx3 & SPELL_ATTR_EX3_TRIGGERED_CAN_TRIGGER_2))
+                m_procEx |= PROC_EX_INTERNAL_CANT_PROC;
+            else if (m_IsTriggeredSpell)
+                m_procEx |= PROC_EX_INTERNAL_TRIGGERED;
+        }
         // Totem casts require spellfamilymask defined in spell_proc_event to proc
         if (m_originalCaster && m_caster != m_originalCaster && m_caster->GetTypeId()==TYPEID_UNIT && ((Creature*)m_caster)->isTotem() && m_caster->IsControlledByPlayer())
         {
