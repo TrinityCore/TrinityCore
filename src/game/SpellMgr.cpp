@@ -2586,6 +2586,19 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto
     // Explicit Diminishing Groups
     switch(spellproto->SpellFamilyName)
     {
+        case SPELLFAMILY_MAGE:
+        {
+            // Frostbite 0x80000000
+            if (spellproto->SpellFamilyFlags[1] & 0x80000000)
+                return DIMINISHING_TRIGGER_ROOT;
+            // Shattered Barrier (triggered so doesn't share with Frost Nova)           
+            else if (spellproto->SpellFamilyFlags[0] & 0x80000)
+                return DIMINISHING_TRIGGER_ROOT;
+            // Frost Nova / Freeze (Water Elemental)
+            else if (spellproto->SpellIconID == 193)
+                return DIMINISHING_CONTROL_ROOT;
+            break;
+        }
         case SPELLFAMILY_ROGUE:
         {
             // Sap 0x80 Gouge 0x8
@@ -2632,13 +2645,6 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto
             // Faerie Fire
             else if (spellproto->SpellFamilyFlags[0] & 0x400)
                 return DIMINISHING_LIMITONLY;
-            break;
-        }
-        case SPELLFAMILY_MAGE:
-        {
-            // Frostbite
-            if (spellproto->SpellFamilyFlags[1] & 0x80000000)
-                return DIMINISHING_TRIGGER_ROOT;
             break;
         }
         case SPELLFAMILY_WARRIOR:
