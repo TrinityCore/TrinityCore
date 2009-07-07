@@ -2591,9 +2591,6 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto
             // Frostbite 0x80000000
             if (spellproto->SpellFamilyFlags[1] & 0x80000000)
                 return DIMINISHING_TRIGGER_ROOT;
-            // Shattered Barrier (triggered so doesn't share with Frost Nova)           
-            else if (spellproto->SpellFamilyFlags[0] & 0x80000)
-                return DIMINISHING_TRIGGER_ROOT;
             // Frost Nova / Freeze (Water Elemental)
             else if (spellproto->SpellIconID == 193)
                 return DIMINISHING_CONTROL_ROOT;
@@ -2626,9 +2623,6 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto
             // Howl of Terror
             else if (spellproto->SpellFamilyFlags[1] & 0x8)
                 return DIMINISHING_FEAR_BLIND;
-            // Seduction
-            else if (spellproto->SpellFamilyFlags[1] & 0x40000000)
-                return DIMINISHING_CHARM;
             break;
         }
         case SPELLFAMILY_DRUID:
