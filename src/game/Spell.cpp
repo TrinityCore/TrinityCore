@@ -3477,7 +3477,7 @@ void Spell::SendSpellGo()
     uint32 castFlags = CAST_FLAG_UNKNOWN3;
 
     // triggered spells with spell visual != 0
-    if(m_IsTriggeredSpell || m_triggeredByAuraSpell)
+    if((m_IsTriggeredSpell && !IsAutoRepeatRangedSpell(m_spellInfo)) || m_triggeredByAuraSpell)
         castFlags |= CAST_FLAG_UNKNOWN0; 
 
     if(m_spellInfo->Attributes & SPELL_ATTR_REQ_AMMO)
