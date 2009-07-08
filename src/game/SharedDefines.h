@@ -337,7 +337,7 @@ enum SpellCategory
 #define SPELL_ATTR_EX3_UNK16                      0x00010000            // 16 no triggers effects that trigger on casting a spell??
 #define SPELL_ATTR_EX3_NO_INITIAL_AGGRO           0x00020000            // 17 Soothe Animal, 39758, Mind Soothe
 #define SPELL_ATTR_EX3_UNK18                      0x00040000            // 18
-#define SPELL_ATTR_EX3_UNK19                      0x00080000            // 19 spells triggered by spell with this flag can't proc caster auras and can proc from triggered (swings too - 20178)
+#define SPELL_ATTR_EX3_DISABLE_PROC               0x00080000            // 19 during aura proc no spells can trigger (20178, 20375)
 #define SPELL_ATTR_EX3_DEATH_PERSISTENT           0x00100000            // 20 Death persistent spells
 #define SPELL_ATTR_EX3_UNK21                      0x00200000            // 21
 #define SPELL_ATTR_EX3_REQ_WAND                   0x00400000            // 22 Req wand
