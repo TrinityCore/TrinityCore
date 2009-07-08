@@ -824,15 +824,6 @@ void Spell::prepareDataForTriggerSystem(AuraEffect * triggeredByAura)
         {
             m_procEx |= PROC_EX_INTERNAL_REQ_FAMILY;
         }
-        // Check done for judgements to make them not trigger seal effects
-        else if (m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_UNK1)
-        {
-            // Rogue poisons
-            if (m_spellInfo->SpellFamilyName && m_spellInfo->SpellFamilyFlags)
-                m_procEx |= PROC_EX_INTERNAL_REQ_FAMILY;
-            else
-                m_canTrigger=false;
-        }
     }
 }
 
