@@ -1,4 +1,4 @@
-DELETE FROM `spell_proc_event` WHERE `entry` IN (49223, 49599);
+DELETE FROM `spell_proc_event` WHERE `entry` IN (49223, 49599,49188 , 56822, 59057, 55666, 55667, 55668, 55669, 55670, 58616);
 INSERT INTO `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `procFlags`, `procEx`, `ppmRate`, `CustomChance`, `Cooldown`) VALUES
 ( 49223, 0x00,  15, 0x00000011, 0x08020000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Dirge
 ( 49599, 0x00,  15, 0x00000011, 0x08020000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Dirge

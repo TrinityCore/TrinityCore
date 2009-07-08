@@ -4998,17 +4998,22 @@ SpellCastResult Spell::CheckCast(bool strict)
                         return SPELL_FAILED_ALREADY_HAVE_CHARM;
                 }
 
-                Unit *target = m_targets.getUnitTarget();
-                if(!target || target->GetTypeId() == TYPEID_UNIT
-                    && ((Creature*)target)->isVehicle())
-                    return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
+                // Skip TARGET_UNIT_PET - pet is always valid
+                if (m_spellInfo->EffectImplicitTargetA[i] != TARGET_UNIT_PET 
+                    && m_spellInfo->EffectImplicitTargetB[i] != TARGET_UNIT_PET)
+                {
+                    Unit *target = m_targets.getUnitTarget();
+                    if(!target || target->GetTypeId() == TYPEID_UNIT
+                        && ((Creature*)target)->isVehicle())
+                        return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
 
-                if(target->GetCharmerGUID())
-                    return SPELL_FAILED_CHARMED;
+                    if(target->GetCharmerGUID())
+                        return SPELL_FAILED_CHARMED;
 
-                int32 damage = CalculateDamage(i, target);
-                if(damage && int32(target->getLevel()) > damage)
-                    return SPELL_FAILED_HIGHLEVEL;
+                    int32 damage = CalculateDamage(i, target);
+                    if(damage && int32(target->getLevel()) > damage)
+                        return SPELL_FAILED_HIGHLEVEL;
+                }
 
                 break;
             }
