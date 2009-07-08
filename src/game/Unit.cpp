@@ -14033,6 +14033,10 @@ void Unit::SetCharmedBy(Unit* charmer, CharmType type)
     if(GetTypeId() == TYPEID_PLAYER && ((Player*)this)->GetTransport())
         return;
 
+    // Already charmed
+    if(GetCharmerGUID())
+        return;
+
     CastStop();
     CombatStop(); //TODO: CombatStop(true) may cause crash (interrupt spells)
     DeleteThreatList();
@@ -14122,12 +14126,16 @@ void Unit::SetCharmedBy(Unit* charmer, CharmType type)
             case CHARM_TYPE_CONVERT:
                 break;
         }
-    }      
+    }
 }
 
 void Unit::RemoveCharmedBy(Unit *charmer)
 {
     if(!isCharmed())
+        return;
+
+    // Charm was not set for unit - return
+    if (charmer && charmer->m_Controlled.find(this) == charmer->m_Controlled.end())
         return;
 
     if(!charmer)
