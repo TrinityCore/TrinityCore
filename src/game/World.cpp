@@ -3203,14 +3203,14 @@ void World::UpdateMaxSessionCounters()
 
 void World::LoadDBVersion()
 {
-    QueryResult* result = WorldDatabase.Query("SELECT db_version FROM version LIMIT 1");
+    QueryResult* result = WorldDatabase.Query("SELECT db_version, script_version FROM version LIMIT 1");
     //QueryResult* result = WorldDatabase.Query("SELECT version, creature_ai_version FROM db_version LIMIT 1");
     if(result)
     {
         Field* fields = result->Fetch();
 
         m_DBVersion              = fields[0].GetCppString();
-        //m_CreatureEventAIVersion = fields[1].GetCppString();
+        m_CreatureEventAIVersion = fields[1].GetCppString();
         delete result;
     }
 
