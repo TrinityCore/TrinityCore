@@ -1467,17 +1467,14 @@ struct TRINITY_DLL_DECL npc_snake_trap_serpentsAI : public ScriptedAI
     npc_snake_trap_serpentsAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 SpellTimer;
-    Unit *Owner;
     bool IsViper;
+    bool Spawn;
 
     void EnterCombat(Unit *who) {}
 
     void Reset()
     {
-        Owner = m_creature->GetOwner();
-
-        if (!m_creature->isPet() || !Owner)
-            return;
+        Spawn = true;
 
         CreatureInfo const *Info = m_creature->GetCreatureInfo();
 
@@ -1499,10 +1496,7 @@ struct TRINITY_DLL_DECL npc_snake_trap_serpentsAI : public ScriptedAI
     //Redefined for random target selection:
     void MoveInLineOfSight(Unit *who)
     {
-        if (!m_creature->isPet() || !Owner)
-            return;
-
-        if( !m_creature->getVictim() && who->isTargetableForAttack() && ( m_creature->IsHostileTo( who )) && who->isInAccessiblePlaceFor(m_creature) && Owner->IsHostileTo(who))//don't attack not-pvp-flaged
+        if( !m_creature->getVictim() && who->isTargetableForAttack() && ( m_creature->IsHostileTo( who )) && who->isInAccessiblePlaceFor(m_creature))
         {
             if (m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
                 return;
@@ -1522,25 +1516,20 @@ struct TRINITY_DLL_DECL npc_snake_trap_serpentsAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->isPet() || !Owner)
-            return;
-
-        //Follow if not in combat
-        if (!m_creature->hasUnitState(UNIT_STAT_FOLLOW)&& !m_creature->isInCombat())
+        if(Spawn)
         {
-            m_creature->GetMotionMaster()->Clear();
-            m_creature->GetMotionMaster()->MoveFollow(Owner,PET_FOLLOW_DIST,PET_FOLLOW_ANGLE);
+            Spawn = false;
+            // Start attacking attacker of owner on first ai update after spawn - move in line of sight may choose better target
+            if (!m_creature->getVictim() && m_creature->isSummon())
+                if (Unit * Owner = ((TempSummon*)m_creature)->GetSummoner())
+                    if(Owner->getAttackerForHelper())
+                        AttackStart(Owner->getAttackerForHelper());
         }
 
-        //No victim -> get new from owner (need this because MoveInLineOfSight won't work while following -> corebug)
         if (!m_creature->getVictim())
         {
             if (m_creature->isInCombat())
                 DoStopAttack();
-
-            if(Owner->getAttackerForHelper())
-                AttackStart(Owner->getAttackerForHelper());
-
             return;
         }
 

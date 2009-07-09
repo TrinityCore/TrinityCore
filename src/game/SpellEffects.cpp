@@ -3468,7 +3468,9 @@ void Spell::EffectSummonType(uint32 i)
 
                         TempSummonType summonType = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_DESPAWN;
 
-                        m_originalCaster->SummonCreature(entry,px,py,pz,m_caster->GetOrientation(),summonType,duration);
+                        TempSummon * summon = m_originalCaster->SummonCreature(entry,px,py,pz,m_caster->GetOrientation(),summonType,duration);
+                        if (properties->Category == SUMMON_CATEGORY_ALLY)
+                            summon->setFaction(m_caster->getFaction());
                     }
                     break;
                 }
