@@ -14016,26 +14016,26 @@ void Unit::SetConfused(bool apply)
         ((Player*)this)->SetClientControl(this, !apply);
 }
 
-void Unit::SetCharmedBy(Unit* charmer, CharmType type)
+bool Unit::SetCharmedBy(Unit* charmer, CharmType type)
 {
     if(!charmer)
-        return;
+        return false;
 
     assert(type != CHARM_TYPE_POSSESS || charmer->GetTypeId() == TYPEID_PLAYER);
     assert(type != CHARM_TYPE_VEHICLE || GetTypeId() == TYPEID_UNIT && ((Creature*)this)->isVehicle());
 
     if(this == charmer)
-        return;
+        return false;
 
     if(hasUnitState(UNIT_STAT_UNATTACKABLE))
-        return;
+        return false;
 
     if(GetTypeId() == TYPEID_PLAYER && ((Player*)this)->GetTransport())
-        return;
+        return false;
 
     // Already charmed
     if(GetCharmerGUID())
-        return;
+        return false;
 
     CastStop();
     CombatStop(); //TODO: CombatStop(true) may cause crash (interrupt spells)
@@ -14057,7 +14057,7 @@ void Unit::SetCharmedBy(Unit* charmer, CharmType type)
 
     // StopCastingCharm may remove a possessed pet?
     if(!IsInWorld())
-        return;
+        return false;
 
     // Set charmed
     setFaction(charmer->getFaction());
@@ -14127,6 +14127,7 @@ void Unit::SetCharmedBy(Unit* charmer, CharmType type)
                 break;
         }
     }
+    return true;
 }
 
 void Unit::RemoveCharmedBy(Unit *charmer)
@@ -14134,17 +14135,13 @@ void Unit::RemoveCharmedBy(Unit *charmer)
     if(!isCharmed())
         return;
 
-    // Charm was not set for unit - return
-    if (charmer && charmer->m_Controlled.find(this) == charmer->m_Controlled.end())
-        return;
-
     if(!charmer)
         charmer = GetCharmer();
     else if(charmer != GetCharmer()) // one aura overrides another?
     {
-        sLog.outCrash("Unit::RemoveCharmedBy: this: " UI64FMTD " true charmer: " UI64FMTD " false charmer: " UI64FMTD,
-            GetGUID(), GetCharmerGUID(), charmer->GetGUID());
-        assert(false);
+//        sLog.outCrash("Unit::RemoveCharmedBy: this: " UI64FMTD " true charmer: " UI64FMTD " false charmer: " UI64FMTD,
+//            GetGUID(), GetCharmerGUID(), charmer->GetGUID());
+//        assert(false);
         return;
     }
 

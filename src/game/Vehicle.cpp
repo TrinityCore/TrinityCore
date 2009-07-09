@@ -329,7 +329,8 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
     unit->m_movementInfo.t_seat = seat->first;
 
     if(unit->GetTypeId() == TYPEID_PLAYER && seat->first == 0 && seat->second.seatInfo->IsUsable()) // not right
-        SetCharmedBy(unit, CHARM_TYPE_VEHICLE);
+        if (!SetCharmedBy(unit, CHARM_TYPE_VEHICLE))
+            assert(false);
 
     if(IsInWorld())
         unit->SendMonsterMoveTransport(this);
