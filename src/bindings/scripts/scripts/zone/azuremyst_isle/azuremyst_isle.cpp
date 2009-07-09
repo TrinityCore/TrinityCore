@@ -579,7 +579,6 @@ struct TRINITY_DLL_DECL npc_nestlewood_owlkinAI : public ScriptedAI
     void Reset()
     {
         DespawnTimer = 0;
-        m_creature->SetVisibility(VISIBILITY_ON);
     }
 
     void UpdateAI(const uint32 diff)
@@ -590,12 +589,8 @@ struct TRINITY_DLL_DECL npc_nestlewood_owlkinAI : public ScriptedAI
             if (DespawnTimer <= diff)
             {
                 //once we are able to, despawn us
-                m_creature->SetVisibility(VISIBILITY_OFF);
-                m_creature->setDeathState(JUST_DIED);
-                m_creature->SetHealth(0);
-                m_creature->CombatStop(true);
-                m_creature->DeleteThreatList();
-                m_creature->RemoveCorpse();
+                m_creature->ForcedDespawn();
+                return;
             }else DespawnTimer -= diff;
         }
 
