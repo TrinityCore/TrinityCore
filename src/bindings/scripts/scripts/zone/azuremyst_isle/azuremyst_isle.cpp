@@ -660,6 +660,7 @@ void AddSC_azuremyst_isle()
     newscript = new Script;
     newscript->Name="npc_nestlewood_owlkin";
     newscript->GetAI = &GetAI_npc_nestlewood_owlkinAI;
+    newscript->pEffectDummyCreature = &EffectDummyCreature_npc_nestlewood_owlkin;
     newscript->RegisterSelf();
 }
 
