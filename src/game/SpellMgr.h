@@ -454,11 +454,12 @@ enum ProcFlagsEx
    PROC_EX_ABSORB              = 0x0000400,
    PROC_EX_REFLECT             = 0x0000800,
    PROC_EX_INTERRUPT           = 0x0001000,                 // Melee hit result can be Interrupt (not used)
-   PROC_EX_AURA_REMOVE_DESTROY = 0x0002000,                 // aura absorb destroy or dispel
-   PROC_EX_AURA_REMOVE_EXPIRE  = 0x0004000,                 // aura remove by default and by cancel
-   PROC_EX_NOT_ACTIVE_SPELL    = 0x0008000,                 // to mark spells which can proc without damage, but not specified with spellfamilyflags
-   PROC_EX_EX_TRIGGER_ALWAYS   = 0x0010000,                 // If set trigger always ( no matter another flags) used for drop charges
-   PROC_EX_EX_ONE_TIME_TRIGGER = 0x0020000,                 // If set trigger always but only one time (not used)
+   PROC_EX_AURA_REMOVE_DESTROY = 0x0002000,                 // Aura absorb destroy or dispel
+   PROC_EX_AURA_REMOVE_EXPIRE  = 0x0004000,                 // Aura remove by default and by cancel
+   PROC_EX_NOT_ACTIVE_SPELL    = 0x0008000,                 // Spell mustn't do damage/heal to proc
+   PROC_EX_EX_TRIGGER_ALWAYS   = 0x0010000,                 // If set trigger always no matter of hit result
+   PROC_EX_EX_ONE_TIME_TRIGGER = 0x0020000,                 // If set trigger always but only one time (not implemented yet)
+   PROC_EX_ONLY_ACTIVE_SPELL   = 0x0040000,                 // Spell has to do damage/heal to proc
 
    // Flags for internal use - do not use these in db!
    PROC_EX_INTERNAL_CANT_PROC  = 0x0800000,
