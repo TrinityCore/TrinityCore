@@ -334,7 +334,8 @@ void Puppet::InitStats(uint32 duration)
 void Puppet::InitSummon()
 {
     Minion::InitSummon();
-    SetCharmedBy(m_owner, CHARM_TYPE_POSSESS);
+    if (!SetCharmedBy(m_owner, CHARM_TYPE_POSSESS))
+        assert(false);
 }
 
 void Puppet::Update(uint32 time)

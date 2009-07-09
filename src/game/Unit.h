@@ -1397,7 +1397,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void SetMinion(Minion *minion, bool apply);
         void SetCharm(Unit* target, bool apply);
         Unit* GetNextRandomRaidMemberOrPet(float radius);
-        void SetCharmedBy(Unit* charmer, CharmType type);
+        bool SetCharmedBy(Unit* charmer, CharmType type);
         void RemoveCharmedBy(Unit* charmer);
         void RestoreFaction();
 
