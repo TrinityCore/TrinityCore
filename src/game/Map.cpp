@@ -1989,7 +1989,7 @@ void Map::GetZoneAndAreaIdByAreaFlag(uint32& zoneid, uint32& areaid, uint16 area
     zoneid = entry ? (( entry->zone != 0 ) ? entry->zone : entry->ID) : 0;
 }
 
-bool Map::IsInWater(float x, float y, float pZ) const
+bool Map::IsInWater(float x, float y, float pZ, float min_depth) const
 {
     // Check surface in x, y point for liquid
     if (GridMap* gmap = const_cast<Map*>(this)->GetGrid(x, y))
@@ -1997,7 +1997,7 @@ bool Map::IsInWater(float x, float y, float pZ) const
         LiquidData liquid_status;
         if (getLiquidStatus(x, y, pZ, MAP_ALL_LIQUIDS, &liquid_status))
         {
-            if (liquid_status.level - liquid_status.depth_level > 2)
+            if (liquid_status.level - liquid_status.depth_level > min_depth)
                 return true;
         }
     }
