@@ -1356,7 +1356,9 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
                 if ((spellProcEvent->spellFamilyMask & procSpell->SpellFamilyFlags ) == 0)
                     return false;
                 hasFamilyMask = true;
-                active = true;
+                // Some spells are not considered as active even with have spellfamilyflags
+                if (!(procEvent_procEx & PROC_EX_ONLY_ACTIVE_SPELL))
+                    active = true;
             }
         }
     }
@@ -1378,16 +1380,22 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
     {
         if (procExtra & AURA_SPELL_PROC_EX_MASK)
         {
+            // if spell marked as procing only from not active spells
+            if (active && procEvent_procEx & PROC_EX_NOT_ACTIVE_SPELL)
+                return false;
+            // if spell marked as procing only from active spells
+            if (!active && procEvent_procEx & PROC_EX_ONLY_ACTIVE_SPELL)
+                return false;
             // Exist req for PROC_EX_EX_TRIGGER_ALWAYS
             if (procEvent_procEx & PROC_EX_EX_TRIGGER_ALWAYS)
                 return true;
             // Check Extra Requirement like (hit/crit/miss/resist/parry/dodge/block/immune/reflect/absorb and other)
             if (procEvent_procEx & procExtra)
                 return true;
+            // PROC_EX_NOT_ACTIVE_SPELL and PROC_EX_ONLY_ACTIVE_SPELL flags handle: if passed checks before
+            if ((procExtra & (PROC_EX_NORMAL_HIT|PROC_EX_CRITICAL_HIT)) && ((procEvent_procEx & (AURA_SPELL_PROC_EX_MASK | AURA_REMOVE_PROC_EX_MASK)) == 0))
+                return true;
         }
-        // if spell marked as procing from not active spells it can proc from normal or critical hit
-        if (procEvent_procEx & PROC_EX_NOT_ACTIVE_SPELL && (procExtra & (PROC_EX_NORMAL_HIT|PROC_EX_CRITICAL_HIT)))
-            return true;
     }
     return false;
 }
