@@ -536,6 +536,18 @@ ChatLogTimestamp = 0
 #                   (included in client by default, with active official localization or custom localization fonts in clientdir/Fonts).
 #                 3 basic latin characters + server timezone specific
 #
+#    MinPlayerName
+#        Minimal name length (1..12)
+#        Default: 2
+#
+#    MinCharterName
+#        Minimal name length (1..24)
+#        Default: 2
+#
+#    MinPetName
+#        Minimal name length (1..12)
+#        Default: 2
+#
 #    CharactersCreatingDisabled
 #        Disable characters creating for specific team or any (non-player accounts not affected)
 #        Default: 0 - enabled
@@ -729,6 +741,9 @@ StrictPlayerNames = 0
 StrictCharterNames = 0
 StrictPetNames = 0
 MaxWhoListReturns = 49
+MinPlayerName = 2
+MinCharterName = 2
+MinPetName = 2
 CharactersCreatingDisabled = 0
 CharactersPerAccount = 50
 CharactersPerRealm = 10

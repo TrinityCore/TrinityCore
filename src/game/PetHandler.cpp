@@ -438,9 +438,10 @@ void WorldSession::HandlePetRename( WorldPacket & recv_data )
         pet->GetOwnerGUID() != _player->GetGUID() || !pet->GetCharmInfo() )
         return;
 
-    if(!ObjectMgr::IsValidPetName(name))
+    PetNameInvalidReason res = ObjectMgr::CheckPetName(name);
+    if(res != PET_NAME_SUCCESS)
     {
-        SendPetNameInvalid(PET_NAME_INVALID, name, NULL);
+        SendPetNameInvalid(res, name, NULL);
         return;
     }
 
