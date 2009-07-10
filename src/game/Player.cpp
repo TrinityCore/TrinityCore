@@ -3205,7 +3205,6 @@ bool Player::IsNeedCastPassiveSpellAtLearn(SpellEntry const* spellInfo) const
     switch(spellInfo->Id)
     {
         // some spells not have stance data expected cast at form change or present
-        case  5420: need_cast = (m_form == FORM_TREE);            break;
         case  5419: need_cast = (m_form == FORM_TRAVEL);          break;
         case  7376: need_cast = (m_form == FORM_DEFENSIVESTANCE); break;
         case  7381: need_cast = (m_form == FORM_BERSERKERSTANCE); break;
