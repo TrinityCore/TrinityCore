@@ -779,7 +779,7 @@ void WorldSession::HandleQueryNextMailTime(WorldPacket & /*recv_data*/ )
         {
             Mail *m = (*itr);
             // must be not checked yet
-            if(m->checked & MAIL_CHECK_MASK_RED)
+            if(m->checked & MAIL_CHECK_MASK_READ)
                 continue;
 
             // and already delivered
