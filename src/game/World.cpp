@@ -639,6 +639,27 @@ void World::LoadConfigSettings(bool reload)
     m_configs[CONFIG_STRICT_CHARTER_NAMES]               = sConfig.GetIntDefault ("StrictCharterNames", 0);
     m_configs[CONFIG_STRICT_PET_NAMES]                   = sConfig.GetIntDefault ("StrictPetNames",     0);
 
+    m_configs[CONFIG_MIN_PLAYER_NAME]                    = sConfig.GetIntDefault ("MinPlayerName",  2);
+    if(m_configs[CONFIG_MIN_PLAYER_NAME] < 1 || m_configs[CONFIG_MIN_PLAYER_NAME] > MAX_PLAYER_NAME)
+    {
+        sLog.outError("MinPlayerName (%i) must be in range 1..%u. Set to 2.",m_configs[CONFIG_MIN_PLAYER_NAME],MAX_PLAYER_NAME);
+        m_configs[CONFIG_MIN_PLAYER_NAME] = 2;
+    }
+
+    m_configs[CONFIG_MIN_CHARTER_NAME]                   = sConfig.GetIntDefault ("MinCharterName", 2);
+    if(m_configs[CONFIG_MIN_CHARTER_NAME] < 1 || m_configs[CONFIG_MIN_CHARTER_NAME] > MAX_CHARTER_NAME)
+    {
+        sLog.outError("MinCharterName (%i) must be in range 1..%u. Set to 2.",m_configs[CONFIG_MIN_CHARTER_NAME],MAX_CHARTER_NAME);
+        m_configs[CONFIG_MIN_CHARTER_NAME] = 2;
+    }
+
+    m_configs[CONFIG_MIN_PET_NAME]                       = sConfig.GetIntDefault ("MinPetName",     2);
+    if(m_configs[CONFIG_MIN_PET_NAME] < 1 || m_configs[CONFIG_MIN_PET_NAME] > MAX_PET_NAME)
+    {
+        sLog.outError("MinPetName (%i) must be in range 1..%u. Set to 2.",m_configs[CONFIG_MIN_PET_NAME],MAX_PET_NAME);
+        m_configs[CONFIG_MIN_PET_NAME] = 2;
+    }
+
     m_configs[CONFIG_CHARACTERS_CREATING_DISABLED]       = sConfig.GetIntDefault ("CharactersCreatingDisabled", 0);
 
     m_configs[CONFIG_CHARACTERS_PER_REALM] = sConfig.GetIntDefault("CharactersPerRealm", 10);

@@ -14484,7 +14484,8 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
     m_name = fields[3].GetCppString();
 
     // check name limitations
-    if(!ObjectMgr::IsValidName(m_name) || (GetSession()->GetSecurity() == SEC_PLAYER && objmgr.IsReservedName(m_name)))
+    if (ObjectMgr::CheckPlayerName(m_name) != CHAR_NAME_SUCCESS ||
+        GetSession()->GetSecurity() == SEC_PLAYER && objmgr.IsReservedName(m_name))
     {
         delete result;
         CharacterDatabase.PExecute("UPDATE characters SET at_login = at_login | '%u' WHERE guid ='%u'", uint32(AT_LOGIN_RENAME),guid);
