@@ -921,6 +921,20 @@ void GameObject::SetGoArtKit(uint8 kit)
         data->ArtKit = kit;
 }
 
+void GameObject::SetOwnerGUID(uint64 owner)
+{
+    // Owner already found and different than expected owner - remove object from old owner
+    if (owner && GetOwnerGUID() && GetOwnerGUID() != owner)
+    {
+        if (Unit* owner = GetOwner())
+            owner->RemoveGameObject(this, false);
+        else
+            assert(false);
+    }
+    m_spawnedByDefault = false;                     // all object with owner is despawned after delay
+    SetUInt64Value(OBJECT_FIELD_CREATED_BY, owner);
+}
+
 void GameObject::SwitchDoorOrButton(bool activate, bool alternative /* = false */)
 {
     if(activate)
