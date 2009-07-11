@@ -112,6 +112,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_salanar_the_horseman' WHERE `en
 UPDATE `creature_template` SET `ScriptName`='npc_dark_rider_of_acherus' WHERE `entry` =28654;
 UPDATE `creature_template` SET `ScriptName`='npc_ros_dark_rider' WHERE `entry`=28768;
 UPDATE `creature_template` SET `ScriptName`='npc_dkc1_gothik' WHERE `entry`=28658;
+UPDATE `creature_template` SET `ScriptName`='npc_a_special_surprise' WHERE `entry` IN (29032, 29061, 29065, 29067, 29068, 29070, 29074, 29072, 29073, 29071);
 
 /*  */
 /* ZONE */
