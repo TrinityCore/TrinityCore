@@ -424,8 +424,18 @@ class World
         /// Get the maximum number of parallel sessions on the server since last reboot
         uint32 GetMaxQueuedSessionCount() const { return m_maxQueuedSessionCount; }
         uint32 GetMaxActiveSessionCount() const { return m_maxActiveSessionCount; }
-        Player* FindPlayerInZone(uint32 zone);
+        /// Get number of players
+        inline uint32 GetPlayerCount() const { return m_PlayerCount; }
+        inline uint32 GetMaxPlayerCount() const { return m_MaxPlayerCount; }
+        /// Increase/Decrease number of players
+        inline void IncreasePlayerCount()
+        {
+            m_PlayerCount++;
+            m_MaxPlayerCount = std::max(m_MaxPlayerCount, m_PlayerCount);
+        }
+        inline void DecreasePlayerCount() { m_PlayerCount--; }
 
+        Player* FindPlayerInZone(uint32 zone);
         Weather* FindWeather(uint32 id) const;
         Weather* AddWeather(uint32 zone_id);
         void RemoveWeather(uint32 zone_id);
@@ -613,6 +623,8 @@ class World
         DisconnectMap m_disconnects;
         uint32 m_maxActiveSessionCount;
         uint32 m_maxQueuedSessionCount;
+        uint32 m_PlayerCount;
+        uint32 m_MaxPlayerCount;
 
         std::multimap<time_t, ScriptAction> m_scriptSchedule;
 
