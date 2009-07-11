@@ -1089,6 +1089,9 @@ UPDATE `creature_template` SET `ScriptName`='mob_batrider' WHERE `entry`=14965;
 UPDATE `creature_template` SET `ScriptName`='mob_shade_of_jindo' WHERE `entry`=14986;
 UPDATE `creature_template` SET `ScriptName`='mob_ohgan' WHERE `entry`=14988;
 
+UPDATE `creature_template` SET `ScriptName`='EventAI', `modelid_A` = 16925,`modelid_H` = 16925, `minmana` = 1000000,`maxmana` = 1000000, `unit_flags` = 33554434 WHERE `entry` IN(29998, 33753, 33752, 33751, 33750);
+DELETE FROM `creature_ai_scripts` WHERE `creature_id` IN (29998, 33753, 33752, 33751, 33750);
+
 -- --------
 -- EVENT AI
 -- --------
@@ -1119,6 +1122,20 @@ INSERT INTO `creature_ai_scripts` VALUES
 ( 2693001, 26930, 0, 0, 100, 3, 3000, 3000, 8000, 9000, 11, 47729, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Grand Magus Telestra frost - cast ice bard N'),
 ( 2693002, 26930, 0, 0, 100, 5, 3000, 3000, 8000, 9000, 11, 56937, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Grand Magus Telestra frost - cast ice bard H'),
 ( 2693003, 26930, 0, 0, 100, 3, 9000, 9000, 15000, 16000, 11, 47727, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Grand Magus Telestra frost - cast blizzard N'),
-( 2693004, 26930, 0, 0, 100, 5, 9000, 9000, 15000, 16000, 11, 56936, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Grand Magus Telestra frost - cast blizzard H');
-
+( 2693004, 26930, 0, 0, 100, 5, 9000, 9000, 15000, 16000, 11, 56936, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Grand Magus Telestra frost - cast blizzard H'),
+-- Desecration
+( 2999801, 29998, 11, 0, 100, 0, 0, 0, 0, 0, 11, 55741, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Desecration'),
+( 2999800, 29998, 1, 0, 100, 0, 1, 1, 0, 0, 11, 55671, 0, 2, 11, 55710, 0, 2, 0, 0, 0, 0, 'Desecration'),
+-- Desecration
+( 3375301, 33753, 11, 0, 100, 0, 0, 0, 0, 0, 11, 55741, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Desecration'),
+( 3375300, 33753, 1, 0, 100, 0, 1, 1, 0, 0, 11, 63584, 0, 2, 11, 63580, 0, 2, 0, 0, 0, 0, 'Desecration'),
+-- Desecration
+( 3375201, 33752, 11, 0, 100, 0, 0, 0, 0, 0, 11, 55741, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Desecration'),
+( 3375200, 33752, 1, 0, 100, 0, 1, 1, 0, 0, 11, 63585, 0, 2, 11, 63581, 0, 2, 0, 0, 0, 0, 'Desecration'),
+-- Desecration
+( 3375101, 33751, 11, 0, 100, 0, 0, 0, 0, 0, 11, 55741, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Desecration'),
+( 3375100, 33751, 1, 0, 100, 0, 1, 1, 0, 0, 11, 63586, 0, 2, 11, 63582, 0, 2, 0, 0, 0, 0, 'Desecration'),
+-- Desecration
+( 3375001, 33750, 11, 0, 100, 0, 0, 0, 0, 0, 11, 55741, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Desecration'),
+( 3375000, 33750, 1, 0, 100, 0, 1, 1, 0, 0, 11, 63587, 0, 2, 11, 63583, 0, 2, 0, 0, 0, 0, 'Desecration');
 /* EOF */

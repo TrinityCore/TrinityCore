@@ -3568,6 +3568,8 @@ void SpellMgr::LoadSpellCustomAttr()
         case 51904:     // Summon Ghouls On Scarlet Crusade (core does not know the triggered spell is summon spell)
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
             break;
+        case 29809:     // Desecration Arm - 36 instead of 37 - typo? :/
+            spellInfo->EffectRadiusIndex[0] = 37;
         default:
             break;
         }
