@@ -1608,6 +1608,7 @@ UPDATE creature_template SET `VehicleId`=200 WHERE `entry` IN (28605,28606,28607
 -- Vehicle and summon spell(summon npc 28788) for Acherus Deathcharger
 UPDATE creature_template SET `spell1`=52362, `VehicleId`=200 WHERE `entry`=28782;
 
+-- DK quest data TODO: remove these when DB projects release with proper data
 DELETE FROM `creature_questrelation` WHERE `quest`=12701;
 INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (28377, 12701);
 DELETE FROM `creature_involvedrelation` WHERE `quest`=12701;
@@ -1626,6 +1627,30 @@ DELETE FROM `creature_questrelation` WHERE `quest`=12727;
 INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (28912, 12727);
 DELETE FROM `creature_involvedrelation` WHERE `quest`=12727;
 INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (28913, 12727);
+DELETE FROM `creature_questrelation` WHERE `quest` = 12754; 
+INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (28914, 12754); 
+DELETE FROM `creature_involvedrelation` WHERE `quest` = 12754; 
+INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (28914, 12754); 
+DELETE FROM `creature_questrelation` WHERE `quest` = 12757; 
+INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (28914, 12757); 
+DELETE FROM `creature_questrelation` WHERE `quest` = 12754; 
+INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (28914, 12754); 
+DELETE FROM `creature_involvedrelation` WHERE `quest` = 12754; 
+INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (28914, 12754); 
+DELETE FROM `creature_questrelation` WHERE `quest` = 12755; 
+INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (28914, 12755); 
+DELETE FROM `creature_involvedrelation` WHERE `quest` = 12756; 
+INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (28914, 12756); 
+DELETE FROM `creature_questrelation` WHERE `quest` = 12757; 
+INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (28914, 12757); 
+DELETE FROM `creature_involvedrelation` WHERE `quest` = 12800; 
+INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (31082, 12800); 
+DELETE FROM `creature_questrelation` WHERE `quest` = 12801; 
+INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (31082, 12801); 
+DELETE FROM `creature_involvedrelation` WHERE `quest` = 12801; 
+INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (29173, 12801);
+UPDATE `quest_template` SET `PrevQuestId`=13166 WHERE `entry`=13188;
+UPDATE `quest_template` SET `PrevQuestId`=13166 WHERE `entry`=13189;
 
 DELETE FROM `npc_spellclick_spells` WHERE `spell_id` IN (
 54568, 54575, 52263, 52280, 52447);
@@ -1641,10 +1666,12 @@ INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `quest_start`, `qu
 
 UPDATE creature_template SET spell1=52435,spell2=52576,spell5=52588,VehicleId=68,speed=0 WHERE entry IN (28833,28887);
 UPDATE creature_template SET spell1=52211 WHERE entry=28864;
-
-
+-- Citizen of New Avalon
+UPDATE creature_template SET unit_flags = 537166336, dynamicflags = 0 WHERE entry = 28942;
 -- frostbrood vanquisher
 update creature_template set maxhealth = 133525, minhealth = 133525, maxmana = 51360, minmana = 51360, spell1 = 53114, spell2 = 53112, spell3=53110, VehicleId = 156 where entry = 28670;
+
+UPDATE `creature` SET `phaseMask`=128 WHERE `id` IN (31082,29173,29199,29204,29200);
 
 
 -- --------
