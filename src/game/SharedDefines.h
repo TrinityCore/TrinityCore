@@ -249,7 +249,7 @@ enum SpellCategory
 #define SPELL_ATTR_CASTABLE_WHILE_SITTING         0x08000000            // 27 castable while sitting
 #define SPELL_ATTR_CANT_USED_IN_COMBAT            0x10000000            // 28 Cannot be used in combat
 #define SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY  0x20000000            // 29 unaffected by invulnerability (hmm possible not...)
-#define SPELL_ATTR_BREAKABLE_BY_DAMAGE            0x40000000            // 30 breakable by damage?
+#define SPELL_ATTR_BREAKABLE_BY_DAMAGE            0x40000000            // 30
 #define SPELL_ATTR_CANT_CANCEL                    0x80000000            // 31 positive aura can't be canceled
 
 #define SPELL_ATTR_EX_DISMISS_PET                 0x00000001            // 0 dismiss pet and not allow to summon new one?
