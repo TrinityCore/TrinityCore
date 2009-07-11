@@ -486,6 +486,9 @@ m_target(parentAura->GetTarget()), m_tickNumber(0)
     else
         m_amount = m_currentBasePoints + 1;
 
+    if (int32 amount = CalculateCrowdControlAuraAmount(caster))
+        m_amount = amount;
+
     if (!m_amount && castItem && castItem->GetItemSuffixFactor())
     {
         ItemRandomSuffixEntry const *item_rand_suffix = sItemRandomSuffixStore.LookupEntry(abs(castItem->GetItemRandomPropertyId()));
@@ -7419,5 +7422,39 @@ void AuraEffect::HandleReflectSpells( bool Apply, bool Real , bool /*changeAmoun
             }
         }
     }
+}
+
+int32 AuraEffect::CalculateCrowdControlAuraAmount(Unit * caster)
+{
+    // Damage cap for CC effects
+    if (!m_spellProto->procFlags)
+        return 0;
+
+    if (m_auraName !=SPELL_AURA_MOD_CONFUSE &&
+        m_auraName !=SPELL_AURA_MOD_FEAR &&
+        m_auraName !=SPELL_AURA_MOD_STUN &&
+        m_auraName !=SPELL_AURA_MOD_ROOT)
+        return 0;
+
+    int32 damageCap = (int32)(m_target->GetCreateHealth()*0.10f);
+
+    if (!caster)
+        return damageCap;
+
+    // Glyphs increasing damage cap
+    Unit::AuraEffectList const& overrideClassScripts = caster->GetAurasByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
+    for(Unit::AuraEffectList::const_iterator itr = overrideClassScripts.begin();itr != overrideClassScripts.end(); ++itr)
+    {
+        if((*itr)->isAffectedOnSpell(m_spellProto))
+        {
+            // Glyph of Fear
+            if ((*itr)->GetMiscValue() == 7801)
+            {
+                damageCap += (int32)(damageCap*(*itr)->GetAmount()/100.0f);
+                break;
+            }
+        }
+    }
+    return damageCap;
 }
 

@@ -335,6 +335,8 @@ class TRINITY_DLL_SPEC AuraEffect
         void HandleReflectSpells( bool Apply, bool Real , bool changeAmount);
         void HandleModArmorPenetrationPct(bool Apply, bool Real, bool changeAmount);
 
+        int32 CalculateCrowdControlAuraAmount(Unit * caster);
+
         // add/remove SPELL_AURA_MOD_SHAPESHIFT (36) linked auras
         void HandleShapeshiftBoosts(bool apply);
 
