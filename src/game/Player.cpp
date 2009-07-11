@@ -476,6 +476,8 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
     m_lastFallZ = 0;
 
     m_ControlledByPlayer = true;
+
+    sWorld.IncreasePlayerCount();
 }
 
 Player::~Player ()
@@ -508,6 +510,8 @@ Player::~Player ()
 
     delete m_declinedname;
     delete m_runes;
+
+    sWorld.DecreasePlayerCount();
 }
 
 void Player::CleanupsBeforeDelete()
