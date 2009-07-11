@@ -4673,6 +4673,15 @@ void Spell::EffectScriptEffect(uint32 effIndex)
         {
             switch(m_spellInfo->Id)
             {
+                // Despawn Horse
+                case 52267:
+                {
+                    if(!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
+                        return;
+                    
+                    unitTarget->ForcedDespawn();
+                    return;
+                }
                 // PX-238 Winter Wondervolt TRAP
                 case 26275:
                 {
