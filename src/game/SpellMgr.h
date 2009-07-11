@@ -421,7 +421,7 @@ enum ProcFlags
    PROC_FLAG_ON_TAKE_PERIODIC                = 0x00080000,    // 19 Taken spell periodic (damage / healing, determined from 15,17 flags)
 
    PROC_FLAG_TAKEN_ANY_DAMAGE                = 0x00100000,    // 20 Taken any damage
-   PROC_FLAG_ON_TRAP_ACTIVATION              = 0x00200000,    // 21 On trap activation
+   PROC_FLAG_ON_TRAP_ACTIVATION              = 0x00200000,    // 21 On trap activation (possibly needs name change to ON_GAMEOBJECT_CAST or USE)
 
    PROC_FLAG_TAKEN_OFFHAND_HIT               = 0x00400000,    // 22 Taken off-hand melee attacks ( this is probably wrong )
    PROC_FLAG_SUCCESSFUL_OFFHAND_HIT          = 0x00800000,    // 23 Successful off-hand melee attacks ( this is probably wrong )
