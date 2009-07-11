@@ -4679,7 +4679,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
                         return;
                     
-                    unitTarget->ForcedDespawn();
+                    ((Creature*)unitTarget)->ForcedDespawn();
                     return;
                 }
                 // PX-238 Winter Wondervolt TRAP
