@@ -766,7 +766,8 @@ void AreaAuraEffect::Update(uint32 diff)
                 case AREA_AURA_PET:
                 {
                     if(Unit *owner = caster->GetCharmerOrOwner())
-                        targets.push_back(owner);
+                        if (owner->IsWithinDistInMap(source, m_radius))
+                            targets.push_back(owner);
                     break;
                 }
             }
@@ -836,7 +837,7 @@ void AreaAuraEffect::Update(uint32 diff)
         }
         else if (!source->IsWithinDistInMap(m_target, m_radius))
         {
-            if (needFriendly)
+            if (needFriendly && source->isMoving())
             {
                 m_removeTime -= diff;
                 if (m_removeTime < 0)

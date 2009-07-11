@@ -12686,6 +12686,7 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
                     DealDamageMods(damageInfo.target,damageInfo.damage,&damageInfo.absorb);
                     SendSpellNonMeleeDamageLog(&damageInfo);
                     DealSpellDamage(&damageInfo, true);
+                    takeCharges=true;
                     break;
                 }
                 case SPELL_AURA_MANA_SHIELD:
@@ -12751,6 +12752,7 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
                         (isVictim?"a victim's":"an attacker's"),triggeredByAura->GetId());
 
                     HandleAuraRaidProcFromChargeWithValue(triggeredByAura);
+                    takeCharges=true;
                     break;
                 }
                 case SPELL_AURA_RAID_PROC_FROM_CHARGE:
@@ -12759,6 +12761,7 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
                         (isVictim?"a victim's":"an attacker's"),triggeredByAura->GetId());
 
                     HandleAuraRaidProcFromCharge(triggeredByAura);
+                    takeCharges=true;
                     break;
                 }
                 case SPELL_AURA_PROC_TRIGGER_SPELL_WITH_VALUE:
