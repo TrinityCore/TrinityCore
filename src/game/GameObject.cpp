@@ -490,6 +490,7 @@ void GameObject::AddUniqueUse(Player* player)
 
 void GameObject::Delete()
 {
+    assert (!GetOwnerGUID());
     SendObjectDeSpawnAnim(GetGUID());
 
     SetGoState(GO_STATE_READY);
