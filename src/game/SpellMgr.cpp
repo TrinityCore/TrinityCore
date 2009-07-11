@@ -1324,10 +1324,14 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
             && !(procExtra & PROC_EX_INTERNAL_HOT))
             return false;
     }
+    // Trap casts are active by default
+    if (procFlags & PROC_FLAG_ON_TRAP_ACTIVATION)
+        active = true;
 
     // Always trigger for this
-    if (procFlags & (PROC_FLAG_KILLED | PROC_FLAG_KILL | PROC_FLAG_ON_TRAP_ACTIVATION))
+    if (procFlags & (PROC_FLAG_KILLED | PROC_FLAG_KILL | PROC_FLAG_DEATH))
         return true;
+
     if (spellProcEvent)     // Exist event data
     {
         // Store extra req
