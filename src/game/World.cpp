@@ -102,6 +102,8 @@ World::World()
     m_startTime=m_gameTime;
     m_maxActiveSessionCount = 0;
     m_maxQueuedSessionCount = 0;
+    m_PlayerCount = 0;
+    m_MaxPlayerCount = 0;
     m_resultQueue = NULL;
     m_NextDailyQuestReset = 0;
 

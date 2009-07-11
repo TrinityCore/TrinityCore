@@ -85,7 +85,8 @@ enum TrinityStrings
     LANG_USING_WORLD_DB                 = 57,
     LANG_USING_SCRIPT_LIB               = 58,
     LANG_USING_EVENT_AI                 = 59,
-    // Room for more level 0              60-99 not used
+    LANG_CONNECTED_PLAYERS              = 60,
+    // Room for more level 0              61-99 not used
 
     // level 1 chat
     LANG_GLOBAL_NOTIFY                  = 100,
