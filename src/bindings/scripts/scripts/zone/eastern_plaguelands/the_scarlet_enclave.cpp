@@ -503,17 +503,116 @@ bool GossipSelect_npc_death_knight_initiate(Player *player, Creature *_Creature,
 }
 
 /*######
+## npc_dark_rider_of_acherus
+######*/
+
+#define DESPAWN_HORSE 52267
+
+struct TRINITY_DLL_DECL npc_dark_rider_of_acherusAI : public ScriptedAI
+{
+    npc_dark_rider_of_acherusAI(Creature *c) : ScriptedAI(c) {}
+
+    uint32 PhaseTimer;
+    uint32 Phase;
+    bool Intro;
+    Unit *Target;
+
+    void Reset()
+    {
+        PhaseTimer = 4000;
+        Phase = 0;
+        Intro = false;
+        Target = NULL;
+    }
+
+    void UpdateAI(const uint32 diff)
+    {
+        if (!Intro)
+            return;
+
+        if (PhaseTimer < diff)
+        {
+            switch(Phase)
+            {
+               case 0:
+                    DoSay("The realm of shadows awaits...", LANG_UNIVERSAL, NULL);
+                    PhaseTimer = 5000;
+                    Phase = 1;
+                    break;
+                case 1:
+                    DoCast(Target, DESPAWN_HORSE, true);
+                    PhaseTimer = 3000;
+                    Phase = 2;
+                    break;
+                case 2:
+                    m_creature->SetVisibility(VISIBILITY_OFF);
+                    PhaseTimer = 2000;
+                    Phase = 3;
+                    break;
+                case 3:
+                    m_creature->ForcedDespawn();
+                    break;
+                default:
+                    break;
+            }
+        }else PhaseTimer -= diff;
+
+    }
+
+    void InitDespawnHorse(Unit *who)
+    {   
+        if (!who)
+            return;
+
+        Target = who;
+        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+        m_creature->SetSpeed(MOVE_RUN, 0.4f);
+        m_creature->GetMotionMaster()->MoveChase(Target);
+        m_creature->SetUInt64Value(UNIT_FIELD_TARGET, Target->GetGUID());
+        Intro = true;
+    }
+
+};
+
+CreatureAI* GetAI_npc_dark_rider_of_acherus(Creature *_Creature)
+{
+    return new npc_dark_rider_of_acherusAI(_Creature);
+}
+
+/*######
 ## npc_salanar_the_horseman
 ######*/
 
 enum
 {
-    REALM_OF_SHADOWS = 52693
+    REALM_OF_SHADOWS     = 52693,
+    DELIVER_STOLEN_HORSE = 52264,
+    CALL_DARK_RIDER      = 52266
 };
 
 struct TRINITY_DLL_DECL npc_salanar_the_horsemanAI : public ScriptedAI
 {
     npc_salanar_the_horsemanAI(Creature *c) : ScriptedAI(c) {}
+
+    void SpellHit(Unit *caster, const SpellEntry *spell)
+    {
+        if (spell->Id == DELIVER_STOLEN_HORSE)
+        {
+            if(caster->GetTypeId() == TYPEID_UNIT && CAST_CRE(caster)->isVehicle())
+            {
+                if( Unit *charmer = caster->GetCharmer() )
+                {
+                    CAST_PLR(charmer)->ExitVehicle();
+                    caster->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                    caster->setFaction(35);
+                    DoCast(caster, CALL_DARK_RIDER, true);
+                    Creature* Dark_Rider = m_creature->FindNearestCreature(28654, 15);
+                    if (Dark_Rider)
+                        CAST_AI(npc_dark_rider_of_acherusAI, Dark_Rider->AI())->InitDespawnHorse(caster);
+                }
+            }
+        }
+    }
 
     void MoveInLineOfSight(Unit *who)
     {
@@ -527,11 +626,6 @@ struct TRINITY_DLL_DECL npc_salanar_the_horsemanAI : public ScriptedAI
                 {
                     switch(me->GetEntry())
                     {
-                        // for quest Grand Theft Palomino(12680)
-                        case 28653:
-                            if( CAST_PLR(charmer)->GetQuestStatus(12680) == QUEST_STATUS_INCOMPLETE )
-                                CAST_PLR(charmer)->KilledMonster(28767, me->GetGUID());
-                            break;
                         // for quest Into the Realm of Shadows(12687)
                         case 28788:
                             if( CAST_PLR(charmer)->GetQuestStatus(12687) == QUEST_STATUS_INCOMPLETE )
@@ -656,6 +750,11 @@ void AddSC_the_scarlet_enclave()
     newscript->pGossipHello = &GossipHello_npc_death_knight_initiate;
     newscript->pGossipSelect = &GossipSelect_npc_death_knight_initiate;
     newscript->GetAI = &GetAI_npc_death_knight_initiate;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name="npc_dark_rider_of_acherus";
+    newscript->GetAI = &GetAI_npc_dark_rider_of_acherus;
     newscript->RegisterSelf();
 
     newscript = new Script;
