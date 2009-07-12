@@ -151,6 +151,8 @@
 #define SI64FMTD ACE_INT64_FORMAT_SPECIFIER
 #define SI64LIT(N) ACE_INT64_LITERAL(N)
 
+#define SIZEFMTD ACE_SIZE_T_FORMAT_SPECIFIER
+
 inline float finiteAlways(float f) { return finite(f) ? f : 0.0f; }
 
 #define atol(a) strtoul( a, NULL, 10)
