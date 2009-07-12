@@ -20496,7 +20496,8 @@ uint32 Player::CalculateTalentsPoints() const
     if(getClass() != CLASS_DEATH_KNIGHT)
         return uint32(base_talent * sWorld.getRate(RATE_TALENT));
 
-    uint32 talentPointsForLevel = getLevel() < 56 ? 0 : getLevel() - 55 + m_questRewardTalentCount;
+    uint32 talentPointsForLevel = getLevel() < 56 ? 0 : getLevel() - 55;
+    talentPointsForLevel += m_questRewardTalentCount;
 
     if(talentPointsForLevel > base_talent)
         talentPointsForLevel = base_talent;
