@@ -283,7 +283,7 @@ bool Guild::LoadRanksFromDB(uint32 GuildId)
             std::string name = m_ranks[i].name;
             uint32 rights = m_ranks[i].rights;
             CharacterDatabase.escape_string(name);
-            CharacterDatabase.PExecute( "INSERT INTO guild_rank (guildid,rid,rname,rights) VALUES ('%u', '%u', '%s', '%u')", GuildId, i+1, name.c_str(), rights);
+            CharacterDatabase.PExecute( "INSERT INTO guild_rank (guildid,rid,rname,rights) VALUES ('%u', '%u', '%s', '%u')", GuildId, uint32(i+1), name.c_str(), rights);
         }
         CharacterDatabase.CommitTransaction();
     }
@@ -2010,4 +2010,3 @@ bool GuildItemPosCount::isContainedIn(GuildItemPosCountVec const &vec) const
 
     return false;
 }
-
