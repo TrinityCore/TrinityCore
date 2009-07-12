@@ -5008,13 +5008,9 @@ SpellCastResult Spell::CheckCast(bool strict)
                         return SPELL_FAILED_ALREADY_HAVE_CHARM;
                 }
 
-                // Skip TARGET_UNIT_PET - pet is always valid
-                if (m_spellInfo->EffectImplicitTargetA[i] != TARGET_UNIT_PET 
-                    && m_spellInfo->EffectImplicitTargetB[i] != TARGET_UNIT_PET)
+                if(Unit *target = m_targets.getUnitTarget())
                 {
-                    Unit *target = m_targets.getUnitTarget();
-                    if(!target || target->GetTypeId() == TYPEID_UNIT
-                        && ((Creature*)target)->isVehicle())
+                    if(target->GetTypeId() == TYPEID_UNIT && ((Creature*)target)->isVehicle())
                         return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
 
                     if(target->GetCharmerGUID())
@@ -6076,6 +6072,25 @@ bool Spell::CheckTarget(Unit* target, uint32 eff)
 
         if(((Player*)target)->isGameMaster() && !IsPositiveSpell(m_spellInfo->Id))
             return false;
+    }
+
+    switch(m_spellInfo->EffectApplyAuraName[eff])
+    {
+        case SPELL_AURA_NONE:
+        default:
+            break;
+        case SPELL_AURA_MOD_POSSESS:
+        case SPELL_AURA_MOD_CHARM:
+        case SPELL_AURA_MOD_POSSESS_PET:
+        case SPELL_AURA_AOE_CHARM:
+            if(target->GetTypeId() == TYPEID_UNIT && ((Creature*)target)->isVehicle())
+                return false;
+            if(target->GetCharmerGUID())
+                return false;
+            if(int32 damage = CalculateDamage(eff, target))
+                if((int32)target->getLevel() > damage)
+                    return false;
+            break;
     }
 
     //Do not do further checks for triggered spells
