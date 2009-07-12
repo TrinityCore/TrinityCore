@@ -87,7 +87,7 @@ void GameObject::CleanupsBeforeDelete()
                 owner->RemoveGameObject(this,false);
             else
             {
-                char * ownerType = "creature";
+                const char * ownerType = "creature";
                 if(IS_PLAYER_GUID(owner_guid))
                     ownerType = "player";
                 else if(IS_PET_GUID(owner_guid))
