@@ -25,10 +25,12 @@
 #define FD_SETSIZE 1024
 #include <winsock2.h>
 #include <postgre/libpq-fe.h>
+#include <postgre/postgres.h>
 #include <postgre/pg_type.h>
 #else
 #include <libpq-fe.h>
-//#include <pg_type.h>
+#include <postgres.h>
+#include <catalog/pg_type.h>
 #endif
 
 class QueryResultPostgre : public QueryResult

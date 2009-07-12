@@ -5,6 +5,7 @@ cmake_policy(SET CMP0005 OLD)
 include(CheckIncludeFiles)
 include(cmake/FindAce.cmake)
 include(cmake/FindMySql.cmake)
+include(cmake/FindPostgreSql.cmake)
 CONFIGURE_FILE(
   "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
   "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
@@ -61,13 +62,10 @@ message("* Libs install dir at: ${LIBSDIR}")
 FIND_LIBRARY(SSLLIB NAMES ssl DOC "SSL library")
 FIND_LIBRARY(ZLIB z "Zlib library")
 
-
 IF(DO_POSTGRESQL)
-message("* With PostgreSQL")
-set(DO_MYSQL 0)
-SET(POSTGRE_INCLUDES "-I/usr/include/postgresql -I/usr/local/postgresql ${POSTGRE_INCLUDES}")
-SET(POSTGRE_LIBS "-L/usr/lib/postresql -lpq -lz -lpthread -lcrypt -lnsl -lm -lpthread -L/usr/lib -lssl -lcrypto ${POSTGRE_LIBS}")
-ADD_DEFINITIONS(-DDO_POSTGRESQL)
+    MESSAGE("* With PostgreSQL")
+    FIND_PostgreSQL()
+    ADD_DEFINITIONS(-DDO_POSTGRESQL)
 ENDIF(DO_POSTGRESQL)
 
 IF(DO_MYSQL)
@@ -174,7 +172,7 @@ src/shared/vmap
 src/game 
 ${SCRIPT_INCLUDE}
 ${MYSQL_INCLUDE_DIR} 
-${POSTGRE_INCLUDES} 
+${POSTGRESQL_INCLUDE_DIR} 
 ${CMAKE_CURRENT_BINARY_DIR}/src/shared 
 ${CMAKE_CURRENT_SOURCE_DIR}/..
 ${ACE_INCLUDE_DIR}
