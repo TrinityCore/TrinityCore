@@ -1720,7 +1720,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         m_teleport_dest = WorldLocation(mapid, x, y, z, orientation);
         SetFallInformation(0, z);
 
-        // code for finish transfer called in WorldSession::HandleMovementOpcodes() 
+        // code for finish transfer called in WorldSession::HandleMovementOpcodes()
         // at client packet MSG_MOVE_TELEPORT_ACK
         SetSemaphoreTeleportNear(true);
         // near teleport, triggering send MSG_MOVE_TELEPORT_ACK from client at landing
@@ -5706,7 +5706,7 @@ ActionButton* Player::addActionButton(uint8 button, uint32 action, uint8 type)
     }
 
 
-    // it create new button (NEW state) if need or return existed 
+    // it create new button (NEW state) if need or return existed
     ActionButton& ab = m_actionButtons[button];
 
     // set data and update to CHANGED if not NEW
@@ -12951,12 +12951,12 @@ void Player::RewardQuest( Quest const *pQuest, uint32 reward, Object* questGiver
 
     if (pQuest->GetRewChoiceItemsCount() > 0)
     {
-        if (pQuest->RewChoiceItemId[reward])
+        if (uint32 itemId = pQuest->RewChoiceItemId[reward])
         {
             ItemPosCountVec dest;
-            if (CanStoreNewItem( NULL_BAG, NULL_SLOT, dest, pQuest->RewChoiceItemId[reward], pQuest->RewChoiceItemCount[reward] ) == EQUIP_ERR_OK)
+            if (CanStoreNewItem( NULL_BAG, NULL_SLOT, dest, itemId, pQuest->RewChoiceItemCount[reward] ) == EQUIP_ERR_OK)
             {
-                Item* item = StoreNewItem( dest, pQuest->RewChoiceItemId[reward], true);
+                Item* item = StoreNewItem( dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId));
                 SendNewItem(item, pQuest->RewChoiceItemCount[reward], true, false);
             }
         }
@@ -12966,12 +12966,12 @@ void Player::RewardQuest( Quest const *pQuest, uint32 reward, Object* questGiver
     {
         for (uint32 i=0; i < pQuest->GetRewItemsCount(); ++i)
         {
-            if (pQuest->RewItemId[i])
+            if (uint32 itemId = pQuest->RewItemId[i])
             {
                 ItemPosCountVec dest;
-                if (CanStoreNewItem( NULL_BAG, NULL_SLOT, dest, pQuest->RewItemId[i], pQuest->RewItemCount[i] ) == EQUIP_ERR_OK)
+                if (CanStoreNewItem( NULL_BAG, NULL_SLOT, dest, itemId, pQuest->RewItemCount[i] ) == EQUIP_ERR_OK)
                 {
-                    Item* item = StoreNewItem( dest, pQuest->RewItemId[i], true);
+                    Item* item = StoreNewItem( dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId));
                     SendNewItem(item, pQuest->RewItemCount[i], true, false);
                 }
             }
