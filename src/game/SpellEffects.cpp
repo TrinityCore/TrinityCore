@@ -5874,7 +5874,7 @@ void Spell::EffectSummonObject(uint32 i)
             // Recast case - null spell id to make auras not be removed on object remove from world
             if (m_spellInfo->Id == obj->GetSpellId())
                 obj->SetSpellId(0);
-            obj->Delete();
+            m_caster->RemoveGameObject(obj, true);
         }
         m_caster->m_ObjectSlot[slot] = 0;
     }
