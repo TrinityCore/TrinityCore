@@ -1266,7 +1266,7 @@ void Aura::_RemoveAura()
         if (procEx)
         {
             uint32 ProcCaster, ProcVictim;
-            if (IsPositiveSpell(GetId()))
+            if (IsPositive())
             {
                 ProcCaster = PROC_FLAG_SUCCESSFUL_POSITIVE_MAGIC_SPELL | PROC_FLAG_SUCCESSFUL_POSITIVE_SPELL_HIT;
                 ProcVictim = PROC_FLAG_TAKEN_POSITIVE_MAGIC_SPELL | PROC_FLAG_TAKEN_POSITIVE_SPELL;
