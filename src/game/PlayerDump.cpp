@@ -304,19 +304,19 @@ void PlayerDumpWriter::DumpTable(std::string& dump, uint32 guid, char const*tabl
             // collect guids
             switch ( type )
             {
-            case DTT_INVENTORY:
-                StoreGUID(result,3,items); break;           // item guid collection
-            case DTT_ITEM:
-                StoreGUID(result,0,ITEM_FIELD_ITEM_TEXT_ID,texts); break;
-                // item text id collection
-            case DTT_PET:
-                StoreGUID(result,0,pets);  break;           // pet guid collection
-            case DTT_MAIL:
-                StoreGUID(result,0,mails);                  // mail id collection
-                StoreGUID(result,6,texts); break;           // item text id collection
-            case DTT_MAIL_ITEM:
-                StoreGUID(result,1,items); break;           // item guid collection
-            default:                       break;
+                case DTT_INVENTORY:
+                    StoreGUID(result,3,items); break;       // item guid collection
+                case DTT_ITEM:
+                    StoreGUID(result,0,ITEM_FIELD_ITEM_TEXT_ID,texts); break;
+                    // item text id collection
+                case DTT_PET:
+                    StoreGUID(result,0,pets);  break;       // pet guid collection
+                case DTT_MAIL:
+                    StoreGUID(result,0,mails);              // mail id collection
+                    StoreGUID(result,7,texts); break;       // item text id collection
+                case DTT_MAIL_ITEM:
+                    StoreGUID(result,1,items); break;       // item guid collection
+                default:                       break;
             }
 
             dump += CreateDumpString(tableTo, result);
@@ -454,6 +454,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
 
     std::map<uint32,uint32> items;
     std::map<uint32,uint32> mails;
+    std::map<uint32,uint32> itemTexts;
     char buf[32000] = "";
 
     typedef std::map<uint32, uint32> PetIds;                // old->new petid relation
@@ -548,8 +549,8 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
                     if (result)
                     {
                         delete result;
-                                                            // rename on login: `at_login` field 30 in raw field list
-                        if(!changenth(line, 30, "1"))
+
+                        if(!changenth(line, 37, "1"))       // rename on login: `at_login` field 37 in raw field list
                             ROLLBACK(DUMP_FILE_BROKEN);
                     }
                 }
@@ -581,6 +582,8 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
                 if(!changetokGuid(vals, OBJECT_FIELD_GUID+1, items, objmgr.m_hiItemGuid))
                     ROLLBACK(DUMP_FILE_BROKEN);
                 if(!changetoknth(vals, ITEM_FIELD_OWNER+1, newguid))
+                    ROLLBACK(DUMP_FILE_BROKEN);
+                if(!changetokGuid(vals, ITEM_FIELD_ITEM_TEXT_ID+1, itemTexts, objmgr.m_ItemTextId))
                     ROLLBACK(DUMP_FILE_BROKEN);
                 if(!changenth(line, 3, vals.c_str()))
                     ROLLBACK(DUMP_FILE_BROKEN);
@@ -639,10 +642,12 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
             }
             case DTT_MAIL:                                  // mail
             {
-                // id,messageType,stationery,sender,receiver
+                // id,messageType,stationery,mailtemplate,sender,receiver,subject,itemText
                 if(!changeGuid(line, 1, mails, objmgr.m_mailid))
                     ROLLBACK(DUMP_FILE_BROKEN);
-                if(!changenth(line, 5, newguid))
+                if(!changenth(line, 6, newguid))
+                    ROLLBACK(DUMP_FILE_BROKEN);
+                if(!changeGuid(line, 8, itemTexts, objmgr.m_ItemTextId))
                     ROLLBACK(DUMP_FILE_BROKEN);
                 break;
             }
@@ -655,6 +660,18 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
                     ROLLBACK(DUMP_FILE_BROKEN);
                 if(!changenth(line, 4, newguid))
                     ROLLBACK(DUMP_FILE_BROKEN);
+                break;
+            }
+            case DTT_ITEM_TEXT:                             // item_text
+            {
+                // id
+                if(!changeGuid(line, 1, itemTexts, objmgr.m_ItemTextId))
+                    ROLLBACK(DUMP_FILE_BROKEN);
+
+                // add it to cache
+                uint32 id= atoi(getnth(line,1).c_str());
+                std::string text = getnth(line,2);
+                objmgr.AddItemText(id,text);
                 break;
             }
             default:
@@ -670,6 +687,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
 
     objmgr.m_hiItemGuid += items.size();
     objmgr.m_mailid     += mails.size();
+    objmgr.m_ItemTextId += itemTexts.size();
 
     if(incHighest)
         ++objmgr.m_hiCharGuid;
