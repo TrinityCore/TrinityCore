@@ -630,6 +630,7 @@ class ObjectMgr
         CachePlayerInfoMap m_mPlayerInfoMap;
 
         uint32 CreateItemText(std::string text);
+        void AddItemText(uint32 itemTextId, std::string text) { mItemTexts[itemTextId] = text; }
         std::string GetItemText( uint32 id )
         {
             ItemTextMap::const_iterator itr = mItemTexts.find( id );
