@@ -567,14 +567,10 @@ class PetAura
             std::map<uint32, uint32>::const_iterator itr = auras.find(petEntry);
             if(itr != auras.end())
                 return itr->second;
-            else
-            {
-                std::map<uint32, uint32>::const_iterator itr2 = auras.find(0);
-                if(itr2 != auras.end())
-                    return itr2->second;
-                else
-                    return 0;
-            }
+            std::map<uint32, uint32>::const_iterator itr2 = auras.find(0);
+            if(itr2 != auras.end())
+                return itr2->second;
+            return 0;
         }
 
         void AddAura(uint32 petEntry, uint32 aura)
