@@ -191,7 +191,7 @@ inline void LoadDBC(uint32& availableDbcLocales,barGoLink& bar, StoreProblemList
         if(f)
         {
             char buf[100];
-            snprintf(buf,100," (exist, but have %d fields instead %d) Wrong client version DBC file?",storage.GetFieldCount(),strlen(storage.GetFormat()));
+            snprintf(buf,100," (exist, but have %d fields instead " SIZEFMTD ") Wrong client version DBC file?",storage.GetFieldCount(),strlen(storage.GetFormat()));
             errlist.push_back(dbc_filename + buf);
             fclose(f);
         }
