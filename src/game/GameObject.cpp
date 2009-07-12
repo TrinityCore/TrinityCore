@@ -432,10 +432,11 @@ void GameObject::Update(uint32 /*p_time*/)
             if(GetOwnerGUID())
             {
                 if(Unit* owner = GetOwner())
+                {
                     owner->RemoveGameObject(this, false);
-
-                SetRespawnTime(0);
-                Delete();
+                    SetRespawnTime(0);
+                    Delete();
+                }
                 return;
             }
 
