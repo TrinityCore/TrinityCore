@@ -4119,12 +4119,12 @@ void AuraEffect::HandleModThreat(bool apply, bool Real, bool changeAmount)
     if(!Real && !changeAmount)
         return;
 
-    if(!m_target->isAlive())
+    if (!m_target->isAlive())
         return;
 
     Unit* caster = GetCaster();
 
-    if(!caster || !caster->isAlive())
+    if (!caster || !caster->isAlive())
         return;
 
     int level_diff = 0;
@@ -4142,17 +4142,14 @@ void AuraEffect::HandleModThreat(bool apply, bool Real, bool changeAmount)
             multiplier = 1;
             break;
     }
+
     if (level_diff > 0)
         m_amount += multiplier * level_diff;
 
-    for(int8 x=0;x < MAX_SPELL_SCHOOL;x++)
-    {
-        if(GetMiscValue() & int32(1<<x))
-        {
-            if(m_target->GetTypeId() == TYPEID_PLAYER)
+    if (m_target->GetTypeId() == TYPEID_PLAYER)
+        for(int8 x=0;x < MAX_SPELL_SCHOOL;x++)
+            if (GetMiscValue() & int32(1<<x))
                 ApplyPercentModFloatVar(m_target->m_threatModifier[x], m_amount, apply);
-        }
-    }
 }
 
 void AuraEffect::HandleAuraModTotalThreat(bool apply, bool Real, bool changeAmount)
@@ -4161,19 +4158,15 @@ void AuraEffect::HandleAuraModTotalThreat(bool apply, bool Real, bool changeAmou
     if(!Real && !changeAmount)
         return;
 
-    if(!m_target->isAlive() || m_target->GetTypeId()!= TYPEID_PLAYER)
+    if (!m_target->isAlive() || m_target->GetTypeId() != TYPEID_PLAYER)
         return;
 
     Unit* caster = GetCaster();
 
-    if(!caster || !caster->isAlive())
+    if (!caster || !caster->isAlive())
         return;
 
-    float threatMod = 0.0f;
-    if(apply)
-        threatMod = float(m_amount);
-    else
-        threatMod =  float(-m_amount);
+    float threatMod = apply ? float(m_amount) : float(-m_amount);
 
     m_target->getHostilRefManager().threatAssist(caster, threatMod);
 }
@@ -4181,18 +4174,18 @@ void AuraEffect::HandleAuraModTotalThreat(bool apply, bool Real, bool changeAmou
 void AuraEffect::HandleModTaunt(bool apply, bool Real, bool /*changeAmount*/)
 {
     // only at real add/remove aura
-    if(!Real)
+    if (!Real)
         return;
 
-    if(!m_target->isAlive() || !m_target->CanHaveThreatList())
+    if (!m_target->isAlive() || !m_target->CanHaveThreatList())
         return;
 
     Unit* caster = GetCaster();
 
-    if(!caster || !caster->isAlive())
+    if (!caster || !caster->isAlive())
         return;
 
-    if(apply)
+    if (apply)
         m_target->TauntApply(caster);
     else
     {
