@@ -113,13 +113,6 @@ bool CreatureEventAI::ProcessEvent(CreatureEventAIHolder& pHolder, Unit* pAction
     if (pHolder.Event.event_inverse_phase_mask & (1 << Phase))
         return false;
 
-    //Store random here so that all random actions match up
-    uint32 rnd = rand();
-
-    //Return if chance for event is not met
-    if (pHolder.Event.event_chance <= rnd % 100)
-        return false;
-
     CreatureEventAI_Event const& event = pHolder.Event;
 
     //Check event conditions based on the event type, also reset events
@@ -330,6 +323,13 @@ bool CreatureEventAI::ProcessEvent(CreatureEventAIHolder& pHolder, Unit* pAction
     //Disable non-repeatable events
     if (!(pHolder.Event.event_flags & EFLAG_REPEATABLE))
         pHolder.Enabled = false;
+
+    //Store random here so that all random actions match up
+    uint32 rnd = rand();
+
+    //Return if chance for event is not met
+    if (pHolder.Event.event_chance <= rnd % 100)
+        return false;
 
     //Process actions
     for (uint32 j = 0; j < MAX_ACTIONS; j++)
