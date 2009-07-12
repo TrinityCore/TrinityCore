@@ -113,6 +113,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_dark_rider_of_acherus' WHERE `e
 UPDATE `creature_template` SET `ScriptName`='npc_ros_dark_rider' WHERE `entry`=28768;
 UPDATE `creature_template` SET `ScriptName`='npc_dkc1_gothik' WHERE `entry`=28658;
 UPDATE `creature_template` SET `ScriptName`='npc_a_special_surprise' WHERE `entry` IN (29032, 29061, 29065, 29067, 29068, 29070, 29074, 29072, 29073, 29071);
+UPDATE `creature_template` SET `ScriptName`='npc_demolisher_engineerer' WHERE `entry` IN (30400, 30499);
 
 /*  */
 /* ZONE */
@@ -675,7 +676,8 @@ UPDATE `creature_template` SET `ScriptName`='boss_stalagg' WHERE `entry`=15929;
 UPDATE `creature_template` SET `ScriptName`='boss_fugen' WHERE `entry`=15930;
 UPDATE `creature_template` SET `ScriptName`='boss_sapphiron' WHERE `entry`=15989;
 UPDATE `creature_template` SET `ScriptName`='boss_kelthuzad' WHERE `entry`=15990;
-UPDATE `creature_template` SET `ScriptName`='' WHERE `entry`=16062;
+UPDATE `creature_template` SET `ScriptName`='' WHERE `entry` IN (16062, 30000);
+UPDATE `creature_template` SET `ScriptName`='trigger_periodic' WHERE `entry` IN (16474, 16697, 16129);
 
 /* NETHERSTORM */
 UPDATE `gameobject_template` SET `ScriptName`='go_manaforge_control_console' WHERE `entry` IN (183770,183956,184311,184312);
