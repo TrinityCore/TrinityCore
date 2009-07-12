@@ -1553,7 +1553,12 @@ bool Player::BuildEnumData( QueryResult * result, WorldPacket * p_data )
         uint32 enchants = GetUInt32ValueFromArray(data, visualbase + 1);
         for(uint8 enchantSlot = PERM_ENCHANTMENT_SLOT; enchantSlot <= TEMP_ENCHANTMENT_SLOT; ++enchantSlot)
         {
-            if(enchant = sSpellItemEnchantmentStore.LookupEntry(enchants >> enchantSlot*16))
+            // values stored in 2 uint16
+            uint32 enchantId = 0x0000FFFF & (enchants >> enchantSlot*16);
+            if(!enchantId)
+                continue;
+
+            if(enchant = sSpellItemEnchantmentStore.LookupEntry(enchantId))
                 break;
         }
 
