@@ -195,7 +195,7 @@ void CreatureAI::EnterEvadeMode()
         return;
 
     if(Unit *owner = me->GetCharmerOrOwner())
-        me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE, MOTION_SLOT_IDLE);
+        me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE, MOTION_SLOT_ACTIVE);
     else
         me->GetMotionMaster()->MoveTargetedHome();
 
