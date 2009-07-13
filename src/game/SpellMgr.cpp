@@ -1393,13 +1393,13 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
             // Exist req for PROC_EX_EX_TRIGGER_ALWAYS
             if (procEvent_procEx & PROC_EX_EX_TRIGGER_ALWAYS)
                 return true;
-            // Check Extra Requirement like (hit/crit/miss/resist/parry/dodge/block/immune/reflect/absorb and other)
-            if (procEvent_procEx & procExtra)
-                return true;
             // PROC_EX_NOT_ACTIVE_SPELL and PROC_EX_ONLY_ACTIVE_SPELL flags handle: if passed checks before
             if ((procExtra & (PROC_EX_NORMAL_HIT|PROC_EX_CRITICAL_HIT)) && ((procEvent_procEx & (AURA_SPELL_PROC_EX_MASK | AURA_REMOVE_PROC_EX_MASK)) == 0))
                 return true;
         }
+        // Check Extra Requirement like (hit/crit/miss/resist/parry/dodge/block/immune/reflect/absorb and other)
+        if (procEvent_procEx & procExtra)
+            return true;
     }
     return false;
 }
