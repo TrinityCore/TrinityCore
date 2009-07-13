@@ -4346,6 +4346,18 @@ AuraEffect* Unit::GetAura(AuraType type, uint32 family, uint32 familyFlag1, uint
     return NULL;
 }
 
+AuraEffect * Unit::IsScriptOverriden(SpellEntry const * spell, int32 script) const
+{
+    AuraEffectList const& auras = GetAurasByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
+    for(AuraEffectList::const_iterator i = auras.begin();i != auras.end(); ++i)
+    {
+        if ((*i)->GetMiscValue() == script)
+            if ((*i)->isAffectedOnSpell(spell))
+                return (*i);
+    }
+    return NULL;
+}
+
 uint32 Unit::GetDiseasesByCaster(uint64 casterGUID, bool remove)
 {
     static const AuraType diseaseAuraTypes[] =
@@ -7930,6 +7942,21 @@ bool Unit::HandleOverrideClassScriptAuraProc(Unit *pVictim, uint32 damage, AuraE
             int32 basepoints0 = cost * triggeredByAura->GetAmount()/100;
             CastCustomSpell(this, 47762, &basepoints0, 0, 0, true, 0, triggeredByAura);
             return true;
+        }
+        case 7010:  // Revitalize - can proc on full hp target
+        case 7011:
+        case 7012:
+        {
+            if (!roll_chance_i(triggeredByAura->GetAmount()))
+                return false;
+            switch(pVictim->getPowerType())
+            {
+                case POWER_MANA:   triggered_spell_id = 48542; break;
+                case POWER_RAGE:   triggered_spell_id = 48541; break;
+                case POWER_ENERGY: triggered_spell_id = 48540; break;
+                case POWER_RUNIC_POWER: triggered_spell_id = 48543; break;
+            }
+            break;
         }
     }
 
