@@ -10455,20 +10455,22 @@ void Unit::SetInCombatWith(Unit* enemy)
     SetInCombatState(false,enemy);
 }
 
-void Unit::CombatStart(Unit* target)
+void Unit::CombatStart(Unit* target, bool initialAggro)
 {
-    if(!target->IsStandState()/* && !target->hasUnitState(UNIT_STAT_STUNNED)*/)
-        target->SetStandState(UNIT_STAND_STATE_STAND);
-
-    if(!target->isInCombat() && target->GetTypeId() != TYPEID_PLAYER
-        && !((Creature*)target)->HasReactState(REACT_PASSIVE) && ((Creature*)target)->IsAIEnabled)
+    if (initialAggro)
     {
-        ((Creature*)target)->AI()->AttackStart(this);
+        if(!target->IsStandState()/* && !target->hasUnitState(UNIT_STAT_STUNNED)*/)
+            target->SetStandState(UNIT_STAND_STATE_STAND);
+
+        if(!target->isInCombat() && target->GetTypeId() != TYPEID_PLAYER
+            && !((Creature*)target)->HasReactState(REACT_PASSIVE) && ((Creature*)target)->IsAIEnabled)
+        {
+            ((Creature*)target)->AI()->AttackStart(this);
+        }
+
+        SetInCombatWith(target);
+        target->SetInCombatWith(this);
     }
-
-    SetInCombatWith(target);
-    target->SetInCombatWith(this);
-
     Unit *who = target->GetCharmerOrOwnerOrSelf();
     if(who->GetTypeId() == TYPEID_PLAYER)
         SetContestedPvP((Player*)who);
