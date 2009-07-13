@@ -4367,7 +4367,7 @@ void AuraEffect::HandleModMechanicImmunity(bool apply, bool Real, bool /*changeA
         mechanic=IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK;
     // Forbearance
     // in DBC wrong mechanic immune since 3.0.x
-    else if (GetId() == 25771)   
+    else if (GetId() == 25771)
         mechanic = 1 << MECHANIC_IMMUNE_SHIELD;
 
     if (!mechanic)
@@ -7451,7 +7451,7 @@ int32 AuraEffect::CalculateCrowdControlAuraAmount(Unit * caster)
         m_auraName !=SPELL_AURA_MOD_ROOT)
         return 0;
 
-    int32 damageCap = (int32)(m_target->GetCreateHealth()*0.10f);
+    int32 damageCap = (int32)(m_target->GetMaxHealth()*0.10f);
 
     if (!caster)
         return damageCap;
@@ -7462,7 +7462,7 @@ int32 AuraEffect::CalculateCrowdControlAuraAmount(Unit * caster)
     {
         if((*itr)->isAffectedOnSpell(m_spellProto))
         {
-            // Glyph of Fear
+            // Glyph of Fear, Glyph of Frost nova and similar auras
             if ((*itr)->GetMiscValue() == 7801)
             {
                 damageCap += (int32)(damageCap*(*itr)->GetAmount()/100.0f);
