@@ -499,7 +499,8 @@ uint32 ArenaTeam::GetPoints(uint32 MemberRating)
     uint32 rating = MemberRating + 150 < stats.rating ? MemberRating : stats.rating;
 
     if(rating<=1500)
-        points = (float)rating * 0.22f + 14.0f;
+        // points = (float)1500 * 0.22f + 14.0f;
+        points = 344f; // 3.1 change - teams with rating below 1500 get arena points for 1500 rating
     else
         points = 1511.26f / (1.0f + 1639.28f * exp(-0.00412f * (float)rating));
 
