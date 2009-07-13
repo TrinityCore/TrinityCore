@@ -201,6 +201,9 @@ bool GOHello_go_najentus_spine(Player *player, GameObject* _GO)
             {
                 player->CastSpell(player, SPELL_CREATE_NAJENTUS_SPINE, true);
                 _GO->SetLootState(GO_NOT_READY);
+                if (_GO->GetOwnerGUID())
+                    if (Unit * owner = _GO->GetOwner())
+                        owner->RemoveGameObject(_GO, false);
                 _GO->Delete();
             }
     return true;
