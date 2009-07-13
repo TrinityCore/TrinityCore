@@ -3261,28 +3261,6 @@ void AuraEffect::HandleAuraModShapeshift(bool apply, bool Real, bool changeAmoun
                     }
                     break;
                 }
-                case FORM_BATTLESTANCE:
-                case FORM_DEFENSIVESTANCE:
-                case FORM_BERSERKERSTANCE:
-                {
-                    uint32 Rage_val = 0;
-                    // Stance mastery + Tactical mastery (both passive, and last have aura only in defense stance, but need apply at any stance switch)
-                    if(m_target->GetTypeId() == TYPEID_PLAYER)
-                    {
-                        PlayerSpellMap const& sp_list = ((Player *)m_target)->GetSpellMap();
-                        for (PlayerSpellMap::const_iterator itr = sp_list.begin(); itr != sp_list.end(); ++itr)
-                        {
-                            if(itr->second->state == PLAYERSPELL_REMOVED) continue;
-                            SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
-                            if (spellInfo && spellInfo->SpellFamilyName == SPELLFAMILY_WARRIOR && spellInfo->SpellIconID == 139)
-                                Rage_val += m_target->CalculateSpellDamage(spellInfo,0,spellInfo->EffectBasePoints[0],m_target) * 10;
-                        }
-                    }
-
-                    if (m_target->GetPower(POWER_RAGE) > Rage_val)
-                        m_target->SetPower(POWER_RAGE,Rage_val);
-                    break;
-                }
                 default:
                     break;
             }
@@ -3315,6 +3293,33 @@ void AuraEffect::HandleAuraModShapeshift(bool apply, bool Real, bool changeAmoun
                 if(AuraEffect* dummy = m_target->GetDummyAura(37324) )
                     m_target->CastSpell(m_target,37325,true,NULL,dummy);
                 break;
+            case FORM_BATTLESTANCE:
+            case FORM_DEFENSIVESTANCE:
+            case FORM_BERSERKERSTANCE:
+            {
+                uint32 Rage_val = 0;
+                // Defensive Tactics
+                if (form == FORM_DEFENSIVESTANCE)
+                {
+                    if (AuraEffect const * aurEff = m_target->IsScriptOverriden(m_spellProto,831))
+                        Rage_val += aurEff->GetAmount() * 10;
+                }
+                // Stance mastery + Tactical mastery (both passive, and last have aura only in defense stance, but need apply at any stance switch)
+                if(m_target->GetTypeId() == TYPEID_PLAYER)
+                {
+                    PlayerSpellMap const& sp_list = ((Player *)m_target)->GetSpellMap();
+                    for (PlayerSpellMap::const_iterator itr = sp_list.begin(); itr != sp_list.end(); ++itr)
+                    {
+                        if(itr->second->state == PLAYERSPELL_REMOVED) continue;
+                        SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
+                        if (spellInfo && spellInfo->SpellFamilyName == SPELLFAMILY_WARRIOR && spellInfo->SpellIconID == 139)
+                            Rage_val += m_target->CalculateSpellDamage(spellInfo,0,spellInfo->EffectBasePoints[0],m_target) * 10;
+                    }
+                }
+                if (m_target->GetPower(POWER_RAGE) > Rage_val)
+                    m_target->SetPower(POWER_RAGE,Rage_val);
+                break;
+            }
             default:
                 break;
         }
