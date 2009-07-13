@@ -2965,6 +2965,12 @@ void Spell::EffectEnergize(uint32 i)
     if(unitTarget->GetMaxPower(power) == 0)
         return;
 
+    // Spells which use pct of max mana, but have wrong effect
+    if (m_spellInfo->Id == 48542)
+    {
+        damage = damage * unitTarget->GetMaxPower(power) / 100;
+    }
+
     m_caster->EnergizeBySpell(unitTarget, m_spellInfo->Id, damage, power);
 
     // Mad Alchemist's Potion
@@ -4379,19 +4385,8 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
         {
             // Skyshatter Harness item set bonus
             // Stormstrike
-            if(m_spellInfo->SpellFamilyFlags[1] & 0x0010)
-            {
-                Unit::AuraEffectList const& m_OverrideClassScript = m_caster->GetAurasByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
-                for(Unit::AuraEffectList::const_iterator citr = m_OverrideClassScript.begin(); citr != m_OverrideClassScript.end(); ++citr)
-                {
-                    // Stormstrike AP Buff
-                    if ( (*citr)->GetMiscValue() == 5634 )
-                    {
-                        m_caster->CastSpell(m_caster, 38430, true, NULL, *citr);
-                        break;
-                    }
-                }
-            }
+            if (AuraEffect * aurEff = m_caster->IsScriptOverriden(m_spellInfo, 5634))
+                m_caster->CastSpell(m_caster, 38430, true, NULL, aurEff);
             break;
         }
         case SPELLFAMILY_DRUID:
