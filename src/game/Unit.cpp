@@ -12819,6 +12819,10 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
                 case SPELL_AURA_MOD_ROOT:
                     if (isVictim && damage)
                     {
+                        // Damage is dealt after proc system - lets ignore auras which wasn't updated yet
+                        // to make spell not remove its own aura
+                        if (i->aura->GetAuraDuration() == i->aura->GetAuraMaxDuration())
+                            break;
                         int32 damageLeft = triggeredByAura->GetAmount();
                         // No damage left
                         if (damageLeft < damage )
