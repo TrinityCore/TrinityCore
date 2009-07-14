@@ -7433,7 +7433,7 @@ void AuraEffect::HandleReflectSpells( bool Apply, bool Real , bool /*changeAmoun
         if (Unit * caster = GetCaster())
         {
             // Improved Spell Reflection
-            if (caster->GetDummyAura(SPELLFAMILY_WARRIOR,1935, 0))
+            if (caster->GetDummyAura(SPELLFAMILY_WARRIOR,1935, 1))
             {
                 // aura remove - remove auras from all party members
                 std::list<Unit*> PartyMembers;
