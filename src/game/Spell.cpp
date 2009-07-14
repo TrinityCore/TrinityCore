@@ -781,7 +781,7 @@ void Spell::prepareDataForTriggerSystem(AuraEffect * triggeredByAura)
             break;
         default:
             if (m_spellInfo->EquippedItemClass == ITEM_CLASS_WEAPON && 
-                m_spellInfo->EquippedItemSubClassMask & ITEM_SUBCLASS_WEAPON_WAND
+                m_spellInfo->EquippedItemSubClassMask & (1<<ITEM_SUBCLASS_WEAPON_WAND)
                 && m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_AUTOREPEAT_FLAG) // Wands auto attack
             {
                 m_procAttacker = PROC_FLAG_SUCCESSFUL_RANGED_HIT;
