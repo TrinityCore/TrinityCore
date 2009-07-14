@@ -10537,8 +10537,8 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy)
     if(GetTypeId() != TYPEID_PLAYER)
     {
         //if(GetMotionMaster()->GetMotionSlotType(MOTION_SLOT_IDLE) != IDLE_MOTION_TYPE)
-        if (((Creature *)this)->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
-            ((Creature*)this)->SetHomePosition(GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
+        //if (((Creature *)this)->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
+            //((Creature*)this)->SetHomePosition(GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
         if(enemy)
         {
             if(((Creature*)this)->IsAIEnabled)
