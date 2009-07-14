@@ -1905,9 +1905,6 @@ void Spell::EffectDummy(uint32 i)
             {
                 if(m_caster->IsFriendlyTo(unitTarget))
                 {
-                    if(unitTarget->GetCreatureType() != CREATURE_TYPE_UNDEAD)
-                        return;
-
                     int32 bp = damage * 1.5f;
                     m_caster->CastCustomSpell(unitTarget, 47633, &bp, NULL, NULL, true);
                 }
