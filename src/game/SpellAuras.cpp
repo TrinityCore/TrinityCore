@@ -1117,6 +1117,10 @@ void Aura::_AddAura()
     if (m_spellProto->SpellFamilyName == SPELLFAMILY_DRUID && m_spellProto->SpellFamilyFlags[0] & 0x400)
         SetAuraState(AURA_STATE_FAERIE_FIRE);
 
+    // Sting (hunter's pet ability)
+    if (m_spellProto->Category == 1133)
+        SetAuraState(AURA_STATE_FAERIE_FIRE);
+
     // Victorious
     if (m_spellProto->SpellFamilyName == SPELLFAMILY_WARRIOR &&  m_spellProto->SpellFamilyFlags[1] & 0x00040000)
         SetAuraState(AURA_STATE_WARRIOR_VICTORY_RUSH);
@@ -3192,42 +3196,6 @@ void AuraEffect::HandleAuraModShapeshift(bool apply, bool Real, bool changeAmoun
         default:
             sLog.outError("Auras: Unknown Shapeshift Type: %u", GetMiscValue());
     }
-
-        Unit::AuraEffectList const& mDummy = m_target->GetAurasByType(SPELL_AURA_DUMMY);
-        for(Unit::AuraEffectList::const_iterator i = mDummy.begin(); i != mDummy.end(); ++i)
-        {
-            int32 mastervalue = 0;
-            uint32 trigg_id = 0;
-
-            if ((*i)->GetSpellProto()->Id == 48411 || (*i)->GetSpellProto()->Id == 48412)
-            {
-                mastervalue = (*i)->GetAmount();
-
-                switch (form)
-                {
-                    case FORM_BEAR:
-                    case FORM_DIREBEAR: 
-                        trigg_id = 48418; 
-                        break;
-                    case FORM_CAT:
-                        trigg_id = 48420; 
-                        break;
-                    case FORM_MOONKIN: 
-                        trigg_id = 48421; 
-                        break;
-                    case FORM_TREE: 
-                        trigg_id = 48422; 
-                        break;
-                    default:
-                        break;
-                }
-
-                if (trigg_id)
-                    m_target->CastCustomSpell(m_target, trigg_id, &mastervalue, NULL, NULL, true);
-
-                break;
-            }
-        }
 
     // remove polymorph before changing display id to keep new display id
     switch ( form )
