@@ -2268,6 +2268,10 @@ void AuraEffect::TriggerSpell()
 
                         trigger_spell_id = 64418 + auraId - 53302;
 
+                        // If aura is active - no need to continue
+                        if (target->HasAura(trigger_spell_id))
+                            return;
+
                         break;
 //                    //Frost Trap Aura
 //                    case 13810:
