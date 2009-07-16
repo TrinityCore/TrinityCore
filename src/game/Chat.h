@@ -138,17 +138,17 @@ class ChatHandler
         bool HandleDebugAnimCommand(const char* args);
         bool HandleDebugArenaCommand(const char * args);
         bool HandleDebugBattlegroundCommand(const char * args);
-        bool HandleDebugGetItemState(const char * args);
-        bool HandleDebugGetLootRecipient(const char * args);
-        bool HandleDebugGetValue(const char* args);
-        bool HandleDebugMod32Value(const char* args);
+        bool HandleDebugGetItemStateCommand(const char * args);
+        bool HandleDebugGetLootRecipientCommand(const char * args);
+        bool HandleDebugGetValueCommand(const char* args);
+        bool HandleDebugMod32ValueCommand(const char* args);
         bool HandleDebugSetAuraStateCommand(const char * args);
         bool HandleDebugSetItemFlagCommand(const char * args);
         bool HandleDebugSetVehicleId(const char * args);
-        bool HandleDebugSetValue(const char* args);
-        bool HandleDebugSpawnVehicle(const char * args);
         bool HandleDebugEnterVehicle(const char * args);
-        bool HandleDebugUpdate(const char* args);
+        bool HandleDebugSetValueCommand(const char* args);
+        bool HandleDebugSpawnVehicle(const char * args);
+        bool HandleDebugUpdateCommand(const char* args);
         bool HandleDebugUpdateWorldStateCommand(const char* args);
 
         bool HandleDebugSet32Bit(const char* args);
@@ -563,7 +563,7 @@ class ChatHandler
         bool HandleQuestRemove(const char * args);
         bool HandleQuestComplete(const char * args);*/
 
-        bool HandleSet32Bit(const char* args);
+        //bool HandleSet32Bit(const char* args);
         bool HandleSaveAllCommand(const char* args);
 
         Player*   getSelectedPlayer();
