@@ -87,7 +87,7 @@ INSERT INTO spell_check (spellid,SpellFamilyName,SpellFamilyMaskA,SpellFamilyMas
 (    0, 8,0x0000000000002000,0x00000000,  -1,  -1,  -1,  2, -1,-1,'Instant Poison',                     'Spell::EffectSchoolDMG'),
 (    0,10,0x0000000800000000,0x00000000,2292,  -1,  -1,  2, -1,-1,'Judgement of Vengeance',             'Spell::EffectSchoolDMG'),
 (    0, 7,0x0000010000000000,0x00000000,2246,  -1,  -1,  2, -1,-1,'Lacerate',                           'Spell::EffectSchoolDMG'),
-(    0, 7,0x0000044000000000,0x00000000,  -1,  -1,  -1, -1,  4,-1,'Mangle Bonus',                       'Spell::EffectSchoolDMG'),
+(    0, 7,0x0000044000000000,0x00000000,  -1,  -1,  -1, -1, -1,-1,'Mangle (Cat) and Mangle (Bear)',     'Unit::HandleDummyAuraProc'),
 (    0, 9,0x0000000000000002,0x00000000,  -1, 342,  -1,  2, -1,-1,'Mongoose Bite',                      'Spell::EffectSchoolDMG'),
 (    0, 7,0x0000000000001000,0x00000000, 494,  -1,  -1,  2, -1,-1,'Rake',                               'Spell::EffectSchoolDMG'),
 (    0, 7,0x0000000000001000,0x00000000,  -1,  -1,  -1,  2, -1,-1,'Rake',                               'Spell::EffectSchoolDMG'),

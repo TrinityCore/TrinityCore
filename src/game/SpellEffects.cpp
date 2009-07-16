@@ -530,18 +530,6 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                 {
                     damage += int32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK)*0.08f);
                 }
-                //Mangle Bonus for the initial damage of Lacerate and Rake
-                if((m_spellInfo->SpellFamilyFlags.IsEqual(0x1000,0,0) && m_spellInfo->SpellIconID==494) ||
-                    (m_spellInfo->SpellFamilyFlags.IsEqual(0,0x100,0) && m_spellInfo->SpellIconID==2246))
-                {
-                    Unit::AuraEffectList const& mDummyAuras = unitTarget->GetAurasByType(SPELL_AURA_DUMMY);
-                    for(Unit::AuraEffectList::const_iterator i = mDummyAuras.begin(); i != mDummyAuras.end(); ++i)
-                        if((*i)->GetSpellProto()->SpellFamilyFlags[1] & 0x00000440 && (*i)->GetSpellProto()->SpellFamilyName==SPELLFAMILY_DRUID)
-                        {
-                            damage = int32(damage*(100.0f+(*i)->GetAmount())/100.0f);
-                            break;
-                        }
-                }
                 break;
             }
             case SPELLFAMILY_ROGUE:
