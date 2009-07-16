@@ -5556,7 +5556,7 @@ SpellCastResult Spell::CheckItems()
 
         TypeContainerVisitor<Trinity::GameObjectSearcher<Trinity::GameObjectFocusCheck>, GridTypeMapContainer > object_checker(checker);
         CellLock<GridReadGuard> cell_lock(cell, p);
-        cell_lock->Visit(cell_lock, object_checker, *MapManager::Instance().GetMap(m_caster->GetMapId(), m_caster));
+        cell_lock->Visit(cell_lock, object_checker, *m_caster->GetMap());
 
         if(!ok)
             return SPELL_FAILED_REQUIRES_SPELL_FOCUS;

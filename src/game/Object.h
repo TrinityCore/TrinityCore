@@ -371,7 +371,7 @@ class TRINITY_DLL_SPEC WorldObject : public Object
 
         virtual void Update ( uint32 /*time_diff*/ ) { }
 
-        void _Create( uint32 guidlow, HighGuid guidhigh, uint32 mapid, uint32 phaseMask);
+        void _Create( uint32 guidlow, HighGuid guidhigh, uint32 phaseMask);
 
         void Relocate(WorldObject *obj)
         {
@@ -439,9 +439,7 @@ class TRINITY_DLL_SPEC WorldObject : public Object
 
         void GetRandomPoint( float x, float y, float z, float distance, float &rand_x, float &rand_y, float &rand_z ) const;
 
-        void SetMapId(uint32 newMap) { m_mapId = newMap; m_map = NULL; }
         uint32 GetMapId() const { return m_mapId; }
-        void SetInstanceId(uint32 val) { m_InstanceId = val; m_map = NULL; }
         uint32 GetInstanceId() const { return m_InstanceId; }
 
         virtual void SetPhaseMask(uint32 newPhaseMask, bool update);
@@ -470,8 +468,7 @@ class TRINITY_DLL_SPEC WorldObject : public Object
         float GetDistanceZ(const WorldObject* obj) const;
         bool IsInMap(const WorldObject* obj) const
         {
-            return IsInWorld() && obj->IsInWorld() && GetMapId()==obj->GetMapId() &&
-                GetInstanceId()==obj->GetInstanceId() && InSamePhase(obj);
+            return IsInWorld() && obj->IsInWorld() && (GetMap() == obj->GetMap()) && InSamePhase(obj);
         }
         bool IsWithinDist3d(float x, float y, float z, float dist2compare) const;
         bool IsWithinDist2d(float x, float y, float dist2compare) const;
@@ -520,7 +517,6 @@ class TRINITY_DLL_SPEC WorldObject : public Object
         void SendObjectDeSpawnAnim(uint64 guid);
 
         virtual void SaveRespawnTime() {}
-
         void AddObjectToRemoveList();
 
         // main visibility check function in normal case (ignore grey zone distance check)
@@ -532,8 +528,13 @@ class TRINITY_DLL_SPEC WorldObject : public Object
         // Low Level Packets
         void SendPlaySound(uint32 Sound, bool OnlySelf);
 
-        Map      * GetMap() const   { return m_map ? m_map : const_cast<WorldObject*>(this)->_getMap(); }
-        Map      * FindMap() const  { return m_map ? m_map : const_cast<WorldObject*>(this)->_findMap(); }
+        void SetMap(Map * map);
+        Map * GetMap() const { ASSERT(m_currMap); return m_currMap; }
+        Map * FindMap() const { return m_currMap; }
+        //used to check all object's GetMap() calls when object is not in world!
+        void ResetMap() { m_currMap = NULL; }
+
+        //this function should be removed in nearest time...
         Map const* GetBaseMap() const;
 
         void SetZoneScript();
@@ -569,14 +570,18 @@ class TRINITY_DLL_SPEC WorldObject : public Object
         bool m_isActive;
         ZoneScript *m_zoneScript;
 
+        //these functions are used mostly for Relocate() and Corpse/Player specific stuff...
+        //use them ONLY in LoadFromDB()/Create() funcs and nowhere else!
+        //mapId/instanceId should be set in SetMap() function!
+        void SetLocationMapId(uint32 _mapId) { m_mapId = _mapId; }
+        void SetLocationInstanceId(uint32 _instanceId) { m_InstanceId = _instanceId; }
+
     private:
+        Map * m_currMap;                                    //current object's Map location
+
         uint32 m_mapId;                                     // object at map with map_id
         uint32 m_InstanceId;                                // in map copy with instance id
         uint32 m_phaseMask;                                 // in area phase state
-        Map    *m_map;
-
-        Map* _getMap();
-        Map* _findMap();
 
         float m_positionX;
         float m_positionY;
