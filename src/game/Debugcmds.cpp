@@ -394,7 +394,7 @@ bool ChatHandler::HandleDebugSendQuestPartyMsgCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleDebugGetLootRecipient(const char* /*args*/)
+bool ChatHandler::HandleDebugGetLootRecipientCommand(const char* /*args*/)
 {
     Creature* target = getSelectedCreature();
     if (!target)
@@ -411,7 +411,7 @@ bool ChatHandler::HandleDebugSendQuestInvalidMsgCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleDebugGetItemState(const char* args)
+bool ChatHandler::HandleDebugGetItemStateCommand(const char* args)
 {
     if (!*args)
         return false;
@@ -882,5 +882,188 @@ bool ChatHandler::HandleDebugSetAuraStateCommand(const char* args)
     }
 
     unit->ModifyAuraState(AuraState(abs(state)),state > 0);
+    return true;
+}
+
+bool ChatHandler::HandleDebugSetValueCommand(const char* args)
+{
+    if(!*args)
+        return false;
+
+    char* px = strtok((char*)args, " ");
+    char* py = strtok(NULL, " ");
+    char* pz = strtok(NULL, " ");
+
+    if (!px || !py)
+        return false;
+
+    WorldObject* target = getSelectedObject();
+    if(!target)
+    {
+        SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    uint64 guid = target->GetGUID();
+
+    uint32 Opcode = (uint32)atoi(px);
+    if(Opcode >= target->GetValuesCount())
+    {
+        PSendSysMessage(LANG_TOO_BIG_INDEX, Opcode, GUID_LOPART(guid), target->GetValuesCount());
+        return false;
+    }
+    uint32 iValue;
+    float fValue;
+    bool isint32 = true;
+    if(pz)
+        isint32 = (bool)atoi(pz);
+    if(isint32)
+    {
+        iValue = (uint32)atoi(py);
+        sLog.outDebug(GetTrinityString(LANG_SET_UINT), GUID_LOPART(guid), Opcode, iValue);
+        target->SetUInt32Value( Opcode , iValue );
+        PSendSysMessage(LANG_SET_UINT_FIELD, GUID_LOPART(guid), Opcode,iValue);
+    }
+    else
+    {
+        fValue = (float)atof(py);
+        sLog.outDebug(GetTrinityString(LANG_SET_FLOAT), GUID_LOPART(guid), Opcode, fValue);
+        target->SetFloatValue( Opcode , fValue );
+        PSendSysMessage(LANG_SET_FLOAT_FIELD, GUID_LOPART(guid), Opcode,fValue);
+    }
+
+    return true;
+}
+
+bool ChatHandler::HandleDebugGetValueCommand(const char* args)
+{
+    if(!*args)
+        return false;
+
+    char* px = strtok((char*)args, " ");
+    char* pz = strtok(NULL, " ");
+
+    if (!px)
+        return false;
+
+    Unit* target = getSelectedUnit();
+    if(!target)
+    {
+        SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    uint64 guid = target->GetGUID();
+
+    uint32 Opcode = (uint32)atoi(px);
+    if(Opcode >= target->GetValuesCount())
+    {
+        PSendSysMessage(LANG_TOO_BIG_INDEX, Opcode, GUID_LOPART(guid), target->GetValuesCount());
+        return false;
+    }
+    uint32 iValue;
+    float fValue;
+    bool isint32 = true;
+    if(pz)
+        isint32 = (bool)atoi(pz);
+
+    if(isint32)
+    {
+        iValue = target->GetUInt32Value( Opcode );
+        sLog.outDebug(GetTrinityString(LANG_GET_UINT), GUID_LOPART(guid), Opcode, iValue);
+        PSendSysMessage(LANG_GET_UINT_FIELD, GUID_LOPART(guid), Opcode,    iValue);
+    }
+    else
+    {
+        fValue = target->GetFloatValue( Opcode );
+        sLog.outDebug(GetTrinityString(LANG_GET_FLOAT), GUID_LOPART(guid), Opcode, fValue);
+        PSendSysMessage(LANG_GET_FLOAT_FIELD, GUID_LOPART(guid), Opcode, fValue);
+    }
+
+    return true;
+}
+
+bool ChatHandler::HandleDebugMod32ValueCommand(const char* args)
+{
+    if(!*args)
+        return false;
+
+    char* px = strtok((char*)args, " ");
+    char* py = strtok(NULL, " ");
+
+    if (!px || !py)
+        return false;
+
+    uint32 Opcode = (uint32)atoi(px);
+    int Value = atoi(py);
+
+    if(Opcode >= m_session->GetPlayer()->GetValuesCount())
+    {
+        PSendSysMessage(LANG_TOO_BIG_INDEX, Opcode, m_session->GetPlayer()->GetGUIDLow(), m_session->GetPlayer( )->GetValuesCount());
+        return false;
+    }
+
+    sLog.outDebug(GetTrinityString(LANG_CHANGE_32BIT), Opcode, Value);
+
+    int CurrentValue = (int)m_session->GetPlayer( )->GetUInt32Value( Opcode );
+
+    CurrentValue += Value;
+    m_session->GetPlayer( )->SetUInt32Value( Opcode , (uint32)CurrentValue );
+
+    PSendSysMessage(LANG_CHANGE_32BIT_FIELD, Opcode,CurrentValue);
+
+    return true;
+}
+
+bool ChatHandler::HandleDebugUpdateCommand(const char* args)
+{
+    if(!*args)
+        return false;
+
+    uint32 updateIndex;
+    uint32 value;
+
+    char* pUpdateIndex = strtok((char*)args, " ");
+
+    Unit* chr = getSelectedUnit();
+    if (chr == NULL)
+    {
+        SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    if(!pUpdateIndex)
+    {
+        return true;
+    }
+    updateIndex = atoi(pUpdateIndex);
+    //check updateIndex
+    if(chr->GetTypeId() == TYPEID_PLAYER)
+    {
+        if (updateIndex>=PLAYER_END) return true;
+    }
+    else
+    {
+        if (updateIndex>=UNIT_END) return true;
+    }
+
+    char*  pvalue = strtok(NULL, " ");
+    if (!pvalue)
+    {
+        value=chr->GetUInt32Value(updateIndex);
+
+        PSendSysMessage(LANG_UPDATE, chr->GetGUIDLow(),updateIndex,value);
+        return true;
+    }
+
+    value=atoi(pvalue);
+
+    PSendSysMessage(LANG_UPDATE_CHANGE, chr->GetGUIDLow(),updateIndex,value);
+
+    chr->SetUInt32Value(updateIndex,value);
+
     return true;
 }
