@@ -323,12 +323,6 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
         {
             case SPELLFAMILY_GENERIC:
             {
-                //Gore
-                if(m_spellInfo->SpellIconID == 2269 )
-                {
-                    damage += (rand()%2 ? damage : 0);
-                }
-
                 // Meteor like spells (divided damage to targets)
                 if(m_customAttr & SPELL_ATTR_CU_SHARE_DAMAGE)
                 {
@@ -618,8 +612,13 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
             }
             case SPELLFAMILY_HUNTER:
             {
+                //Gore
+                if (m_spellInfo->SpellIconID == 1578)
+                {
+                    damage+= rand()%2 ? damage : 0;
+                }
                 // Mongoose Bite
-                if((m_spellInfo->SpellFamilyFlags[0] & 0x2) && m_spellInfo->SpellVisual[0]==342)
+                else if((m_spellInfo->SpellFamilyFlags[0] & 0x2) && m_spellInfo->SpellVisual[0]==342)
                 {
                     damage += int32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK)*0.2f);
                 }
