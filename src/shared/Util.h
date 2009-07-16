@@ -321,6 +321,11 @@ uint32 CreatePIDFile(const std::string& filename);
 #ifndef _FLAG96
 #define _FLAG96
 
+#ifndef PAIR64_HIPART
+#define PAIR64_HIPART(x)   (uint32)((uint64(x) >> 32) & UI64LIT(0x00000000FFFFFFFF))
+#define PAIR64_LOPART(x)   (uint32)(uint64(x)         & UI64LIT(0x00000000FFFFFFFF))
+#endif
+
 class flag96
 {
 private:
@@ -331,6 +336,13 @@ public:
         part[0]=p1;
         part[1]=p2;
         part[2]=p3;
+    }
+
+    flag96(uint64 p1, uint32 p2)
+    {
+        part[0]=PAIR64_LOPART(p1);
+        part[1]=PAIR64_HIPART(p1);
+        part[2]=p2;
     }
 
     inline bool IsEqual(uint32 p1=0, uint32 p2=0, uint32 p3=0) const
