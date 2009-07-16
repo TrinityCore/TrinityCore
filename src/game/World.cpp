@@ -2218,7 +2218,7 @@ void World::ScriptsProcess()
 
                 TypeContainerVisitor<Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck>, GridTypeMapContainer > object_checker(checker);
                 CellLock<GridReadGuard> cell_lock(cell, p);
-                cell_lock->Visit(cell_lock, object_checker, *MapManager::Instance().GetMap(summoner->GetMapId(), summoner));
+                cell_lock->Visit(cell_lock, object_checker, *summoner->GetMap());
 
                 if ( !go )
                 {
@@ -2278,7 +2278,7 @@ void World::ScriptsProcess()
 
                 TypeContainerVisitor<Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck>, GridTypeMapContainer > object_checker(checker);
                 CellLock<GridReadGuard> cell_lock(cell, p);
-                cell_lock->Visit(cell_lock, object_checker, *MapManager::Instance().GetMap(caster->GetMapId(), (Unit*)source));
+                cell_lock->Visit(cell_lock, object_checker, *caster->GetMap());
 
                 if (!door)
                 {
@@ -2334,7 +2334,7 @@ void World::ScriptsProcess()
 
                 TypeContainerVisitor<Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck>, GridTypeMapContainer > object_checker(checker);
                 CellLock<GridReadGuard> cell_lock(cell, p);
-                cell_lock->Visit(cell_lock, object_checker, *MapManager::Instance().GetMap(caster->GetMapId(), (Unit*)source));
+                cell_lock->Visit(cell_lock, object_checker, *caster->GetMap());
 
                 if ( !door )
                 {

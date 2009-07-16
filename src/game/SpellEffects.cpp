@@ -746,7 +746,7 @@ void Spell::EffectDummy(uint32 i)
                     //pGameObj->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel());
                     pGameObj->SetSpellId(m_spellInfo->Id);
 
-                    MapManager::Instance().GetMap(unitTarget->GetMapId(), pGameObj)->Add(pGameObj);
+                    unitTarget->GetMap()->Add(pGameObj);
 
                     WorldPacket data(SMSG_GAMEOBJECT_SPAWN_ANIM_OBSOLETE, 8);
                     data << uint64(pGameObj->GetGUID());
@@ -4124,7 +4124,6 @@ void Spell::EffectSummonPet(uint32 i)
                 return;
 
             OldSummon->GetMap()->Remove((Creature*)OldSummon,false);
-            OldSummon->SetMapId(owner->GetMapId());
 
             float px, py, pz;
             owner->GetClosePoint(px, py, pz, OldSummon->GetObjectSize());

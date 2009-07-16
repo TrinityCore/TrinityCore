@@ -156,7 +156,7 @@ bool OutdoorPvPSI::HandleDropFlag(Player *plr, uint32 spellId)
                     {
                         // he dropped it further, summon mound
                         GameObject * go = new GameObject;
-                        Map * map = MapManager::Instance().GetMap(plr->GetMapId(), plr);
+                        Map * map = plr->GetMap();
                         if(!map)
                         {
                             delete go;
@@ -186,7 +186,7 @@ bool OutdoorPvPSI::HandleDropFlag(Player *plr, uint32 spellId)
                     {
                         // he dropped it further, summon mound
                         GameObject * go = new GameObject;
-                        Map * map = MapManager::Instance().GetMap(plr->GetMapId(), plr);
+                        Map * map = plr->GetMap();
                         if(!map)
                         {
                           delete go;
