@@ -114,6 +114,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_ros_dark_rider' WHERE `entry`=2
 UPDATE `creature_template` SET `ScriptName`='npc_dkc1_gothik' WHERE `entry`=28658;
 UPDATE `creature_template` SET `ScriptName`='npc_a_special_surprise' WHERE `entry` IN (29032, 29061, 29065, 29067, 29068, 29070, 29074, 29072, 29073, 29071);
 UPDATE `creature_template` SET `ScriptName`='npc_demolisher_engineerer' WHERE `entry` IN (30400, 30499);
+UPDATE `creature_template` SET `ScriptName`='npc_valkyr_battle_maiden' WHERE `entry`=28534;
 
 /*  */
 /* ZONE */
