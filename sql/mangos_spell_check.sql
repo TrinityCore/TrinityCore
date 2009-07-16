@@ -98,6 +98,7 @@ INSERT INTO spell_check (spellid,SpellFamilyName,SpellFamilyMaskA,SpellFamilyMas
 (    0,10,0x0010000000000000,0x00000000,  -1,  -1,  -1,  2, -1,-1,'Shield of Righteousness',            'Spell::EffectSchoolDMG'),
 (    0, 4,0x0000020000000000,0x00000000,  -1,  -1,1209,  2, -1,-1,'Shield Slam',                        'Spell::EffectSchoolDMG'),
 (    0, 4,0x0000800000000000,0x00000000,  -1,  -1,  -1,  2, -1,-1,'Shockwave',                          'Spell::EffectSchoolDMG'),
+(    0, 7,0x0000000000008000,0x00000000,  -1,  -1,  -1, -1, -1,-1,'Shred',                              'Unit::MeleeDamageBonus'),
 (    0, 9,0x0000000100000000,0x00000000,  -1,  -1,  -1,  2, -1,-1,'Steady Shot',                        'Spell::EffectSchoolDMG'),
 (    0, 7,0x0010000000000000,0x00000000,  -1,  -1,  -1,  2, -1,-1,'Swipe',                              'Spell::EffectSchoolDMG'),
 (    0, 4,0x0000000000000080,0x00000000,  -1,  -1,  -1,  2, -1,-1,'Thunder Clap',                       'Spell::EffectSchoolDMG'),
