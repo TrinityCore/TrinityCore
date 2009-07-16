@@ -65,6 +65,8 @@ class SQLStorage
         uint32 MaxEntry;
         uint32 iNumFields;
 
+        char const* GetTableName() const { return table; }
+
         void Load();
         void Free();
 
