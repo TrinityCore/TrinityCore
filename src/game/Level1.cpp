@@ -937,7 +937,7 @@ bool ChatHandler::HandleGonameCommand(const char* args)
         }
         else if(cMap->IsDungeon())
         {
-            Map* pMap = MapManager::Instance().GetMap(_player->GetMapId(),_player);
+            Map* pMap = _player->GetMap();
 
             // we have to go to instance, and can go to player only if:
             //   1) we are in his group (either as leader or as member)

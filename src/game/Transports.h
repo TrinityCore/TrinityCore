@@ -56,23 +56,10 @@ class TransportPath
         std::vector<PathNode> i_nodes;
 };
 
-class Transport : protected GameObject
+class Transport : public GameObject
 {
     public:
         explicit Transport();
-
-        // prevent using Transports as normal GO, but allow call some inherited functions
-        using GameObject::IsTransport;
-        using GameObject::GetEntry;
-        using GameObject::GetGUID;
-        using GameObject::GetGUIDLow;
-        using GameObject::GetMapId;
-        using GameObject::GetPositionX;
-        using GameObject::GetPositionY;
-        using GameObject::GetPositionZ;
-        using GameObject::BuildCreateUpdateBlockForPlayer;
-        using GameObject::BuildOutOfRangeUpdateBlock;
-        using GameObject::GetPackGUID;
 
         bool Create(uint32 guidlow, uint32 mapid, float x, float y, float z, float ang, uint32 animprogress, uint32 dynflags);
         bool GenerateWaypoints(uint32 pathid, std::set<uint32> &mapids);

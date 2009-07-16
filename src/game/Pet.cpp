@@ -715,9 +715,6 @@ bool Pet::CreateBaseAtCreature(Creature* creature)
     }
     uint32 guid=objmgr.GenerateLowGuid(HIGHGUID_PET);
 
-    sLog.outDebug("SetInstanceID()");
-    SetInstanceId(creature->GetInstanceId());
-
     sLog.outDebug("Create pet");
     uint32 pet_number = objmgr.GeneratePetNumber();
     if(!Create(guid, creature->GetMap(), creature->GetPhaseMask(), creature->GetEntry(), pet_number))
@@ -1764,8 +1761,7 @@ bool Pet::IsPermanentPetFor(Player* owner)
 
 bool Pet::Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, uint32 pet_number)
 {
-    SetMapId(map->GetId());
-    SetInstanceId(map->GetInstanceId());
+    SetMap(map);
     SetPhaseMask(phaseMask,false);
 
     Object::_Create(guidlow, pet_number, HIGHGUID_PET);
