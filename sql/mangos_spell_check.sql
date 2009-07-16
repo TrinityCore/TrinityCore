@@ -78,7 +78,7 @@ INSERT INTO spell_check (spellid,SpellFamilyName,SpellFamilyMaskA,SpellFamilyMas
 (    0, 8,0x0000000000020000,0x00000000,  -1,  -1,  -1,  2, -1,-1,'Eviscerate',                         'Spell::EffectSchoolDMG'),
 (    0, 9,0x0000000000000004,0x00000000,  -1,  -1,  -1,  2, -1,-1,'Explosive Trap Effect',              'Spell::EffectSchoolDMG'),
 (    0, 7,0x0000000000800000,0x00000000,  -1,6587,  -1,  2, -1,-1,'Ferocious Bite',                     'Spell::EffectSchoolDMG'),
-(    0, 0,                -1,        -1,2269,  -1,  -1,  2, -1,-1,'Gore',                               'Spell::EffectSchoolDMG'),
+(    0, 9,                -1,        -1,1578,  -1,  -1,  2, -1,-1,'Gore',                               'Spell::EffectSchoolDMG'),
 (    0, 8,0x0000000000000008,0x00000000,  -1,  -1,  -1,  2, -1,-1,'Gouge',                              'Spell::EffectSchoolDMG'),
 (    0,10,0x0000008000000000,0x00000000,  -1,  -1,  -1,  2, -1,-1,'Hammer of Wrath',                    'Spell::EffectSchoolDMG'),
 (    0,10,0x0004000000000000,0x00000000,  -1,  -1,  -1,  2, -1,-1,'Hammer of the Righteous',            'Spell::EffectSchoolDMG'),
