@@ -4763,8 +4763,8 @@ void AuraEffect::HandlePeriodicDamage(bool apply, bool Real, bool changeAmount)
             // Rake
             if (m_spellProto->SpellFamilyFlags[0] & 0x1000)
             {
-                // $AP*0.06 bonus per tick
-                m_amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * 6 / 100);
+                // $AP*0.18 bonus per tick
+                m_amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * 18 / 100);
                 return;
             }
             // Lacerate

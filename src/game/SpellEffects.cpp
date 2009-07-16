@@ -521,8 +521,9 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                     damage += int32(((Player*)m_caster)->GetComboPoints() * ap * 7 / 100);
                 }
                 // Rake
-                else if(m_spellInfo->SpellFamilyFlags[0] & 0x1000)
+                else if(m_spellInfo->SpellFamilyFlags[0] & 0x1000 && m_spellInfo->Effect[2]==SPELL_EFFECT_ADD_COMBO_POINTS)
                 {
+                    // $AP*0.01 bonus
                     damage += int32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK) / 100);
                 }
                 // Swipe

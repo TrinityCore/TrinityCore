@@ -32,7 +32,7 @@ CREATE TABLE `spell_check` (
   EffectIdx         tinyint(3)  NOT NULL default '-1',
   Name              varchar(40) NOT NULL default '',
   Code              varchar(40) NOT NULL default '',
-  PRIMARY KEY (spellid,SpellFamilyName,SpellFamilyMaskA,SpellFamilyMaskB,SpellIcon,SpellVisual,SpellCategory,Code)
+  PRIMARY KEY (spellid,SpellFamilyName,SpellFamilyMaskA,SpellFamilyMaskB,SpellIcon,SpellVisual,SpellCategory,EffectType,EffectAura,Code)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 INSERT INTO spell_check (spellid,SpellFamilyName,SpellFamilyMaskA,SpellFamilyMaskB,SpellIcon,SpellVisual,SpellCategory,EffectType,EffectAura,EffectIdx,Name,Code) VALUES
@@ -89,8 +89,10 @@ INSERT INTO spell_check (spellid,SpellFamilyName,SpellFamilyMaskA,SpellFamilyMas
 (    0, 7,0x0000010000000000,0x00000000,2246,  -1,  -1,  2, -1,-1,'Lacerate',                           'Spell::EffectSchoolDMG'),
 (    0, 7,0x0000044000000000,0x00000000,  -1,  -1,  -1, -1, -1,-1,'Mangle (Cat) and Mangle (Bear)',     'Unit::HandleDummyAuraProc'),
 (    0, 9,0x0000000000000002,0x00000000,  -1, 342,  -1,  2, -1,-1,'Mongoose Bite',                      'Spell::EffectSchoolDMG'),
-(    0, 7,0x0000000000001000,0x00000000, 494,  -1,  -1,  2, -1,-1,'Rake',                               'Spell::EffectSchoolDMG'),
-(    0, 7,0x0000000000001000,0x00000000,  -1,  -1,  -1,  2, -1,-1,'Rake',                               'Spell::EffectSchoolDMG'),
+(    0, 7,0x0000000000001000,0x00000000,  -1,  -1,  -1,  2, -1,-1,'Rake',                               'Spell::EffectSchoolDMG'),     /* used in */
+(    0, 7,0x0000000000001000,0x00000000,  -1,  -1,  -1, 80, -1, 2,'Rake',                               'Spell::EffectSchoolDMG'),     /* exactly selected */
+(    0, 7,0x0000000000001000,0x00000000,  -1,  -1,  -1, -1,  3,-1,'Rake',                               'Aura::HandlePeriodicDamage'), /* used in */
+(    0, 7,0x0000000000001000,0x00000000,  -1,  -1,  -1, 80, -1, 2,'Rake',                               'Aura::HandlePeriodicDamage'), /* exactly selected */
 (    0, 4,0x0000000000000400,0x00000000,  -1,  -1,  -1,  2, -1,-1,'Revenge',                            'Spell::EffectSchoolDMG'),
 (    0, 6,0x0000000200000000,0x00000000,  -1,  -1,  -1,  2, -1,-1,'Shadow Word: Death',                 'Spell::EffectSchoolDMG'),
 (    0,10,0x0010000000000000,0x00000000,  -1,  -1,  -1,  2, -1,-1,'Shield of Righteousness',            'Spell::EffectSchoolDMG'),
