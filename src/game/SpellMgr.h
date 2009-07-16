@@ -196,7 +196,7 @@ inline bool IsSpellHaveEffect(SpellEntry const *spellInfo, SpellEffects effect)
 inline bool IsSpellHaveAura(SpellEntry const *spellInfo, AuraType aura)
 {
     for(int i= 0; i < 3; ++i)
-        if(SpellEffects(spellInfo->EffectApplyAuraName[i])==aura)
+        if(AuraType(spellInfo->EffectApplyAuraName[i])==aura)
             return true;
     return false;
 }
