@@ -399,6 +399,87 @@ struct GameObjectInfo
         } raw;
     };
     uint32 ScriptId;
+
+    // helpers
+    bool IsDespawnAtAction() const
+    {
+        switch(type)
+        {
+            case GAMEOBJECT_TYPE_CHEST:  return chest.consumable;
+            case GAMEOBJECT_TYPE_GOOBER: return goober.consumable;
+            default: return false;
+        }
+    }
+
+    uint32 GetLockId() const
+    {
+        switch(type)
+        {
+            case GAMEOBJECT_TYPE_DOOR:       return door.lockId;
+            case GAMEOBJECT_TYPE_BUTTON:     return button.lockId;
+            case GAMEOBJECT_TYPE_QUESTGIVER: return questgiver.lockId;
+            case GAMEOBJECT_TYPE_CHEST:      return chest.lockId;
+            case GAMEOBJECT_TYPE_TRAP:       return trap.lockId;
+            case GAMEOBJECT_TYPE_GOOBER:     return goober.lockId;
+            case GAMEOBJECT_TYPE_AREADAMAGE: return areadamage.lockId;
+            case GAMEOBJECT_TYPE_CAMERA:     return camera.lockId;
+            case GAMEOBJECT_TYPE_FLAGSTAND:  return flagstand.lockId;
+            case GAMEOBJECT_TYPE_FISHINGHOLE:return fishinghole.lockId;
+            case GAMEOBJECT_TYPE_FLAGDROP:   return flagdrop.lockId;
+            default: return 0;
+        }
+    }
+
+    bool GetDespawnPossibility() const                      // despawn at targeting of cast?
+    {
+        switch(type)
+        {
+            case GAMEOBJECT_TYPE_DOOR:       return door.noDamageImmune;
+            case GAMEOBJECT_TYPE_BUTTON:     return button.noDamageImmune;
+            case GAMEOBJECT_TYPE_QUESTGIVER: return questgiver.noDamageImmune;
+            case GAMEOBJECT_TYPE_GOOBER:     return goober.noDamageImmune;
+            case GAMEOBJECT_TYPE_FLAGSTAND:  return flagstand.noDamageImmune;
+            case GAMEOBJECT_TYPE_FLAGDROP:   return flagdrop.noDamageImmune;
+            default: return true;
+        }
+    }
+
+    uint32 GetLinkedGameObjectEntry() const
+    {
+        switch(type)
+        {
+            case GAMEOBJECT_TYPE_CHEST:       return chest.linkedTrapId;
+            case GAMEOBJECT_TYPE_SPELL_FOCUS: return spellFocus.linkedTrapId;
+            case GAMEOBJECT_TYPE_GOOBER:      return goober.linkedTrapId;
+            default: return 0;
+        }
+    }
+
+    uint32 GetAutoCloseTime() const
+    {
+        uint32 autoCloseTime = 0;
+        switch(type)
+        {
+            case GAMEOBJECT_TYPE_DOOR:          autoCloseTime = door.autoCloseTime; break;
+            case GAMEOBJECT_TYPE_BUTTON:        autoCloseTime = button.autoCloseTime; break;
+            case GAMEOBJECT_TYPE_TRAP:          autoCloseTime = trap.autoCloseTime; break;
+            case GAMEOBJECT_TYPE_GOOBER:        autoCloseTime = goober.autoCloseTime; break;
+            case GAMEOBJECT_TYPE_TRANSPORT:     autoCloseTime = transport.autoCloseTime; break;
+            case GAMEOBJECT_TYPE_AREADAMAGE:    autoCloseTime = areadamage.autoCloseTime; break;
+            default: break;
+        }
+        return autoCloseTime / 0x10000;
+    }
+
+    uint32 GetLootId() const
+    {
+        switch(type)
+        {
+            case GAMEOBJECT_TYPE_CHEST:       return chest.lootId;
+            case GAMEOBJECT_TYPE_FISHINGHOLE: return fishinghole.lootId;
+            default: return 0;
+        }
+    }
 };
 
 class OPvPCapturePoint;
@@ -520,40 +601,6 @@ class TRINITY_DLL_SPEC GameObject : public WorldObject
         void SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask);
         bool LoadFromDB(uint32 guid, Map *map);
         void DeleteFromDB();
-        static uint32 GetLootId(GameObjectInfo const* info);
-        uint32 GetLootId() const { return GetLootId(GetGOInfo()); }
-        uint32 GetLockId() const
-        {
-            switch(GetGoType())
-            {
-                case GAMEOBJECT_TYPE_DOOR:       return GetGOInfo()->door.lockId;
-                case GAMEOBJECT_TYPE_BUTTON:     return GetGOInfo()->button.lockId;
-                case GAMEOBJECT_TYPE_QUESTGIVER: return GetGOInfo()->questgiver.lockId;
-                case GAMEOBJECT_TYPE_CHEST:      return GetGOInfo()->chest.lockId;
-                case GAMEOBJECT_TYPE_TRAP:       return GetGOInfo()->trap.lockId;
-                case GAMEOBJECT_TYPE_GOOBER:     return GetGOInfo()->goober.lockId;
-                case GAMEOBJECT_TYPE_AREADAMAGE: return GetGOInfo()->areadamage.lockId;
-                case GAMEOBJECT_TYPE_CAMERA:     return GetGOInfo()->camera.lockId;
-                case GAMEOBJECT_TYPE_FLAGSTAND:  return GetGOInfo()->flagstand.lockId;
-                case GAMEOBJECT_TYPE_FISHINGHOLE:return GetGOInfo()->fishinghole.lockId;
-                case GAMEOBJECT_TYPE_FLAGDROP:   return GetGOInfo()->flagdrop.lockId;
-                default: return 0;
-            }
-        }
-
-        bool GetDespawnPossibility() const
-        {
-            switch(GetGoType())
-            {
-                case GAMEOBJECT_TYPE_DOOR:       return GetGOInfo()->door.noDamageImmune;
-                case GAMEOBJECT_TYPE_BUTTON:     return GetGOInfo()->button.noDamageImmune;
-                case GAMEOBJECT_TYPE_QUESTGIVER: return GetGOInfo()->questgiver.noDamageImmune;
-                case GAMEOBJECT_TYPE_GOOBER:     return GetGOInfo()->goober.noDamageImmune;
-                case GAMEOBJECT_TYPE_FLAGSTAND:  return GetGOInfo()->flagstand.noDamageImmune;
-                case GAMEOBJECT_TYPE_FLAGDROP:   return GetGOInfo()->flagdrop.noDamageImmune;
-                default: return true;
-            }
-        }
 
         time_t GetRespawnTime() const { return m_respawnTime; }
         time_t GetRespawnTimeEx() const
@@ -624,34 +671,7 @@ class TRINITY_DLL_SPEC GameObject : public WorldObject
         void UseDoorOrButton(uint32 time_to_restore = 0, bool alternative = false);
                                                             // 0 = use `gameobject`.`spawntimesecs`
         void ResetDoorOrButton();
-        // 0 = use `gameobject`.`spawntimesecs`
 
-        uint32 GetLinkedGameObjectEntry() const
-        {
-            switch(GetGoType())
-            {
-                case GAMEOBJECT_TYPE_CHEST:       return GetGOInfo()->chest.linkedTrapId;
-                case GAMEOBJECT_TYPE_SPELL_FOCUS: return GetGOInfo()->spellFocus.linkedTrapId;
-                case GAMEOBJECT_TYPE_GOOBER:      return GetGOInfo()->goober.linkedTrapId;
-                default: return 0;
-            }
-        }
-
-        uint32 GetAutoCloseTime() const
-        {
-            uint32 autoCloseTime = 0;
-            switch(GetGoType())
-            {
-                case GAMEOBJECT_TYPE_DOOR:          autoCloseTime = GetGOInfo()->door.autoCloseTime; break;
-                case GAMEOBJECT_TYPE_BUTTON:        autoCloseTime = GetGOInfo()->button.autoCloseTime; break;
-                case GAMEOBJECT_TYPE_TRAP:          autoCloseTime = GetGOInfo()->trap.autoCloseTime; break;
-                case GAMEOBJECT_TYPE_GOOBER:        autoCloseTime = GetGOInfo()->goober.autoCloseTime; break;
-                case GAMEOBJECT_TYPE_TRANSPORT:     autoCloseTime = GetGOInfo()->transport.autoCloseTime; break;
-                case GAMEOBJECT_TYPE_AREADAMAGE:    autoCloseTime = GetGOInfo()->areadamage.autoCloseTime; break;
-                default: break;
-            }
-            return autoCloseTime / 0x10000;
-        }
 
         void TriggeringLinkedGameObject( uint32 trapEntry, Unit* target);
 
