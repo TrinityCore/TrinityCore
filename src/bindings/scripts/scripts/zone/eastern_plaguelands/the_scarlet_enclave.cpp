@@ -891,7 +891,7 @@ struct TRINITY_DLL_DECL npc_death_knight_initiateAI : public SpellAI
             {
                 if(!me->HasAura(7267)) // beg aura has faded
                 {
-                    CAST_PLR(me->getVictim())->KilledMonster(29025,m_creature->GetGUID());
+                    me->getVictim()->CastSpell(me->getVictim(), 52994, true);
                     EnterEvadeMode();
                 }
                 return;
