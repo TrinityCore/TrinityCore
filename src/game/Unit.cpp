@@ -5768,22 +5768,6 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     }
                     break;
                 }
-                // Psychic Horror
-                case 47571:
-                {
-                    if(!pVictim || !pVictim->isAlive())
-                        return false;
-                    pVictim->CastSpell(pVictim, 59980,true, castItem, triggeredByAura);
-                    return true;
-                }
-                // Psychic Horror (Rank 2)
-                case 47572:
-                {
-                    if(!pVictim || !pVictim->isAlive())
-                        return false;
-                    pVictim->CastSpell(pVictim, 59981,true, castItem, triggeredByAura);
-                    return true;
-                }
                 // Glyph of Dispel Magic
                 case 55677:
                 {
