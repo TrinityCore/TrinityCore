@@ -2899,30 +2899,6 @@ void AuraEffect::HandleAuraDummy(bool apply, bool Real, bool changeAmount)
             }
             break;
         }
-        case SPELLFAMILY_HUNTER:
-        {
-            if (!Real)
-                break;
-            // Glyph of Aspect of the Monkey
-            if(m_spellProto->Id==56833)
-            {
-                if(apply)
-                {
-                    SpellModifier *mod = new SpellModifier;
-                    mod->op = SPELLMOD_CHANCE_OF_SUCCESS;
-                    mod->value = 100;
-                    mod->type = SPELLMOD_FLAT;
-                    mod->spellId = GetId();
-                    mod->mask[2] = 8192;
-                    mod->mask[1] = 0x00000000;
-                    mod->mask[0] = 524288;
-                    m_spellmod = mod;
-                }
-                ((Player*)m_target)->AddSpellMod(m_spellmod, apply);
-                return;
-            }
-            break;
-        }
         case SPELLFAMILY_SHAMAN:
         {
             if (!Real)
