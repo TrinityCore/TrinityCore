@@ -1203,6 +1203,7 @@ INSERT INTO `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `Spell
 ( 51698, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000002,   0,   0,   1), -- Honor Among Thieves (Rank 1)
 ( 51700, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000002,   0,   0,   1), -- Honor Among Thieves (Rank 2)
 ( 51701, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000002,   0,   0,   1), -- Honor Among Thieves (Rank 3)
+( 51915, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x01000000, 0x00000000,   0, 100, 600), -- Undying Resolve
 ( 51940, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,  20,   0), -- Earthliving Weapon (Passive) (Rank 1)
 ( 51989, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,  20,   0), -- Earthliving Weapon (Passive) (Rank 2)
 ( 52004, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,  20,   0), -- Earthliving Weapon (Passive) (Rank 3)

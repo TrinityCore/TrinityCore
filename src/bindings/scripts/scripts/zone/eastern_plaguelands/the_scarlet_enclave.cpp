@@ -1227,7 +1227,7 @@ struct TRINITY_DLL_DECL npc_valkyr_battle_maidenAI : public ScriptedAI
         }
 
         if (Owner->isAlive())
-            phase = 3;
+            phase = 4;
 
         if (FlyBackTimer < diff)
         {
