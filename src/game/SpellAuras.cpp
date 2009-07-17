@@ -1531,32 +1531,62 @@ void AuraEffect::HandleShapeshiftBoosts(bool apply)
                     }
                 }
             }
-            if (GetMiscValue() == FORM_CAT)
+            switch(GetMiscValue())
             {
-                // Nurturing Instinct
-                if (AuraEffect const * aurEff = m_target->GetAuraEffect(SPELL_AURA_MOD_SPELL_HEALING_OF_STAT_PERCENT, SPELLFAMILY_DRUID, 2254,0))
-                {
-                    uint32 spellId = 0;
-                    switch (aurEff->GetId())
+                case FORM_CAT:
+                    // Nurturing Instinct
+                    if (AuraEffect const * aurEff = m_target->GetAuraEffect(SPELL_AURA_MOD_SPELL_HEALING_OF_STAT_PERCENT, SPELLFAMILY_DRUID, 2254,0))
                     {
-                    case 33872:
-                        spellId = 47179;
-                        break;
-                    case 33873:
-                        spellId = 47180;
-                        break;
+                        uint32 spellId = 0;
+                        switch (aurEff->GetId())
+                        {
+                        case 33872:
+                            spellId = 47179;
+                            break;
+                        case 33873:
+                            spellId = 47180;
+                            break;
+                        }
+                        m_target->CastSpell(m_target, spellId, true, NULL, this);
                     }
-                    m_target->CastSpell(m_target, spellId, true, NULL, this);
-                }
-            }
-            // Survival of the Fittest
-            else if (GetMiscValue() == FORM_BEAR || GetMiscValue() == FORM_DIREBEAR)
-            {
-                if (AuraEffect const * aurEff = m_target->GetAuraEffect(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE,SPELLFAMILY_DRUID, 961, 0))
-                {
-                    int32 bp = m_target->CalculateSpellDamage(aurEff->GetSpellProto(),2,aurEff->GetSpellProto()->EffectBasePoints[2],m_target);
-                    m_target->CastCustomSpell(m_target, 62069,&bp, NULL, NULL, true, 0, this);
-                }
+                    // Master Shapeshifter - Cat
+                    if (AuraEffect const * aurEff = m_target->GetDummyAura(SPELLFAMILY_GENERIC, 2851, 0))
+                    {
+                        int32 bp = aurEff->GetAmount();
+                        m_target->CastCustomSpell(m_target, 48420, &bp, NULL, NULL, true);
+                    }
+                break;
+                case FORM_DIREBEAR:
+                case FORM_BEAR:
+                    // Master Shapeshifter - Bear
+                    if (AuraEffect const * aurEff = m_target->GetDummyAura(SPELLFAMILY_GENERIC, 2851, 0))
+                    {
+                        int32 bp = aurEff->GetAmount();
+                        m_target->CastCustomSpell(m_target, 48418, &bp, NULL, NULL, true);
+                    }
+                    // Survival of the Fittest
+                    if (AuraEffect const * aurEff = m_target->GetAuraEffect(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE,SPELLFAMILY_DRUID, 961, 0))
+                    {
+                        int32 bp = m_target->CalculateSpellDamage(aurEff->GetSpellProto(),2,aurEff->GetSpellProto()->EffectBasePoints[2],m_target);
+                        m_target->CastCustomSpell(m_target, 62069,&bp, NULL, NULL, true, 0, this);
+                    }
+                break;
+                case FORM_MOONKIN:
+                    // Master Shapeshifter - Moonkin
+                    if (AuraEffect const * aurEff = m_target->GetDummyAura(SPELLFAMILY_GENERIC, 2851, 0))
+                    {
+                        int32 bp = aurEff->GetAmount();
+                        m_target->CastCustomSpell(m_target, 48421, &bp, NULL, NULL, true);
+                    }
+                break;
+                    // Master Shapeshifter - Tree of Life
+                case FORM_TREE:
+                    if (AuraEffect const * aurEff = m_target->GetDummyAura(SPELLFAMILY_GENERIC, 2851, 0))
+                    {
+                        int32 bp = aurEff->GetAmount();
+                        m_target->CastCustomSpell(m_target, 48422, &bp, NULL, NULL, true);
+                    }
+                break;
             }
         }
     }
