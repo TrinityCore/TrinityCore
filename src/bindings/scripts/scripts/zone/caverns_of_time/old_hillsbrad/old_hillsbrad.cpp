@@ -235,7 +235,7 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
                 break;
             case 29:
                 DoScriptText(SAY_TH_SKARLOC_MEET, m_creature);
-                m_creature->SummonCreature(17862,2036.48,271.22,63.43,5.27,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,30000);
+                m_creature->SummonCreature(ENTRY_SCARLOC,2036.48,271.22,63.43,5.27,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,30000);
                 //temporary,skarloc should rather be triggered to walk up to thrall
                 break;
             case 30:
