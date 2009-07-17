@@ -601,7 +601,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
             }
             case SPELLFAMILY_HUNTER:
             {
-                //Gore
+                // Gore
                 if (m_spellInfo->SpellIconID == 1578)
                 {
                     damage+= rand()%2 ? damage : 0;

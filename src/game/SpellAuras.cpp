@@ -2227,8 +2227,6 @@ void AuraEffect::TriggerSpell()
                         return;
                     // Frenzied Regeneration
                     case 22842:
-                    case 22895:
-                    case 22896:
                     case 26999:
                     {
                         int32 LifePerRage = GetAmount();
@@ -2927,34 +2925,6 @@ void AuraEffect::HandleAuraDummy(bool apply, bool Real, bool changeAmount)
         }
         case SPELLFAMILY_SHAMAN:
         {
-            if (!Real && !changeAmount)
-                break;
-            // Improved Weapon Totems
-            if( GetSpellProto()->SpellIconID == 57 && m_target->GetTypeId()==TYPEID_PLAYER )
-            {
-                if(apply)
-                {
-                    SpellModifier *mod = new SpellModifier;
-                    mod->op = SPELLMOD_EFFECT1;
-                    mod->value = m_amount;
-                    mod->type = SPELLMOD_PCT;
-                    mod->spellId = GetId();
-                    switch (m_effIndex)
-                    {
-                        case 0:
-                            mod->mask[1] = 0x002;    // Windfury Totem
-                            break;
-                        case 1:
-                            mod->mask[1] = 0x004;    // Flametongue Totem
-                            break;
-                    }
-
-                    m_spellmod = mod;
-                }
-
-                ((Player*)m_target)->AddSpellMod(m_spellmod, apply);
-                return;
-            }
             if (!Real)
                 break;
             // Sentry Totem
