@@ -5252,16 +5252,6 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         aur->GetParentAura()->RefreshAura();
                     return;
                 }
-                // Divine Hymn
-                case 47951:
-                {
-                    if (!unitTarget)
-                        return;
-                    Unit * target=NULL;
-                    unitTarget->CastSpell(target, 59600, false);
-                    unitTarget->CastSpell(target, 47953, false);
-                    return;
-                }
                 default:
                     break;
             }
