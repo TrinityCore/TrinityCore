@@ -3818,6 +3818,18 @@ void SpellMgr::LoadSpellCustomAttr()
             break;
         case 29809:     // Desecration Arm - 36 instead of 37 - typo? :/
             spellInfo->EffectRadiusIndex[0] = 37;
+            break;
+        // Master Shapeshifter: missing stance data for forms other than bear - bear version has correct data
+        // To prevent aura staying on target after talent unlearned
+        case 48420:
+            spellInfo->Stances = 1 << (FORM_CAT - 1);
+            break;
+        case 48421:
+            spellInfo->Stances = 1 << (FORM_MOONKIN - 1);
+            break;
+        case 48422:
+            spellInfo->Stances = 1 << (FORM_TREE - 1);
+            break;
         default:
             break;
         }
