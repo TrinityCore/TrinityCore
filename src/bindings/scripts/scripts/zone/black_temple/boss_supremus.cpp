@@ -58,8 +58,10 @@ struct TRINITY_DLL_DECL molten_flameAI : public NullCreatureAI
     void InitializeAI()
     {
         float x, y, z;
-        me->GetNearPoint(me, x, y, z, 1, 50, M_PI*2*rand_norm());
+        me->GetNearPoint(me, x, y, z, 1, 100, M_PI*2*rand_norm());
         me->GetMotionMaster()->MovePoint(0, x, y, z);
+        me->SetVisibility(VISIBILITY_OFF);
+        me->CastSpell(me,SPELL_MOLTEN_FLAME,true);
     }
 };
 
@@ -205,7 +207,8 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
                     if(!target) target = m_creature->getVictim();
                     if(target)
                     {
-                        DoCast(target, SPELL_VOLCANIC_SUMMON);
+                        //DoCast(target, SPELL_VOLCANIC_SUMMON);//movement bugged
+                        m_creature->SummonCreature(CREATURE_VOLCANO,target->GetPositionX(),target->GetPositionY(),target->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,30000);
                         DoScriptText(EMOTE_GROUND_CRACK, m_creature);
                         events.DelayEvents(1500, GCD_CAST);
                     }
@@ -222,17 +225,19 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
     }
 };
 
-struct TRINITY_DLL_DECL npc_volcanoAI : public ScriptedAI
+struct TRINITY_DLL_DECL npc_volcanoAI : public Scripted_NoMovementAI
 {
-    npc_volcanoAI(Creature *c) : ScriptedAI(c) {}
+    npc_volcanoAI(Creature *c) : Scripted_NoMovementAI(c) {}
 
     void Reset()
     {
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        DoCast(m_creature, SPELL_VOLCANIC_ERUPTION);
+        //DoCast(m_creature, SPELL_VOLCANIC_ERUPTION);
         me->SetReactState(REACT_PASSIVE);
+        wait = 3000;
     }
+    uint32 wait;
 
     void EnterCombat(Unit *who) {}
 
@@ -243,7 +248,15 @@ struct TRINITY_DLL_DECL npc_volcanoAI : public ScriptedAI
         m_creature->RemoveAura(SPELL_VOLCANIC_ERUPTION);
     }
 
-    void UpdateAI(const uint32 diff) {}
+    void UpdateAI(const uint32 diff) 
+    {
+        if(wait<=diff)//wait 3secs before casting
+        {
+            DoCast(m_creature, SPELL_VOLCANIC_ERUPTION);
+            wait = 60000;
+        }
+        else wait -= diff;
+    }
 
 };
 

@@ -48,8 +48,11 @@ void WorldSession::HandleJoinChannel(WorldPacket& recvPacket)
 
     recvPacket >> pass;
     if(ChannelMgr* cMgr = channelMgr(_player->GetTeam()))
+    {
+        cMgr->team = _player->GetTeam();
         if(Channel *chn = cMgr->GetJoinChannel(channelname, channel_id))
             chn->Join(_player->GetGUID(), pass.c_str());
+    }
 }
 
 void WorldSession::HandleLeaveChannel(WorldPacket& recvPacket)

@@ -128,7 +128,7 @@ struct TRINITY_DLL_DECL boss_void_reaverAI : public ScriptedAI
                 target = *(target_list.begin()+rand()%target_list.size());
 
             if (target)
-                m_creature->CastSpell(target->GetPositionX(),target->GetPositionY(),target->GetPositionZ(), SPELL_ARCANE_ORB, false);
+                m_creature->CastSpell(target->GetPositionX(),target->GetPositionY(),target->GetPositionZ(), SPELL_ARCANE_ORB, false, NULL, NULL, NULL, target);
 
             ArcaneOrb_Timer = 3000;
         }else ArcaneOrb_Timer -= diff;
