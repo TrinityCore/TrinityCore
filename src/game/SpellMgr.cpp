@@ -3810,6 +3810,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 57761:    // Fireball!
         case 39805:    // Lightning Overload
         case 52437:    // Sudden Death
+        case 64823:    // Item - Druid T8 Balance 4P Bonus
             spellInfo->procCharges=1;
             break;
         case 44544:    // Fingers of Frost
