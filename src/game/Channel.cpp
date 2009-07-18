@@ -23,9 +23,10 @@
 #include "SocialMgr.h"
 #include "World.h"
 
-Channel::Channel(const std::string& name, uint32 channel_id)
-: m_announce(true), m_moderate(false), m_name(name), m_flags(0), m_channelId(channel_id), m_ownerGUID(0)
+Channel::Channel(const std::string& name, uint32 channel_id, uint32 Team)
+ : m_name(name), m_announce(true), m_moderate(false), m_channelId(channel_id), m_ownerGUID(0), m_password(""), m_flags(0)
 {
+    m_Team = Team;
     // set special flags if built-in channel
     ChatChannelsEntry const* ch = GetChannelEntryFor(channel_id);
     if(ch)                                                  // it's built-in channel
@@ -45,10 +46,54 @@ Channel::Channel(const std::string& name, uint32 channel_id)
             m_flags |= CHANNEL_FLAG_LFG;
         else                                                // for all other channels
             m_flags |= CHANNEL_FLAG_NOT_LFG;
+        m_IsSaved = false;  
     }
     else                                                    // it's custom channel
     {
         m_flags |= CHANNEL_FLAG_CUSTOM;
+        //load not built in channel if saved
+        QueryResult *result = CharacterDatabase.PQuery("SELECT m_name, m_team, m_ownerGUID, m_announce, m_moderate, m_password, BannedList FROM channels WHERE m_name = '%s' AND m_team = '%u'", name.c_str(), m_Team);
+        if (result)//load
+        {
+            Field *fields = result->Fetch();
+            const char* db_name = fields[0].GetString();
+            uint32 db_team = fields[1].GetUInt32();
+            uint64 db_owner = fields[2].GetUInt64();
+            bool db_announce = fields[3].GetBool();
+            bool db_moderate = fields[4].GetBool();
+            const char* db_password = fields[5].GetString();
+            const char* db_BannedList = fields[6].GetString();
+            
+            m_ownerGUID = db_owner;
+            m_announce = db_announce;
+            m_moderate = db_moderate;
+            m_password = db_password;
+            m_IsSaved = true;
+
+            if(db_BannedList)
+            {
+                Tokens tokens = StrSplit(db_BannedList, " ");
+                Tokens::iterator iter;
+                for (iter = tokens.begin();iter != tokens.end(); ++iter)
+                {
+                    uint64 banned_guid = atol((*iter).c_str());
+                    if(banned_guid)
+                    {
+                        sLog.outDebug("Channel(%s) loaded banned guid: %u",name.c_str(), banned_guid);
+                        banned.insert(banned_guid);
+                    }
+                }
+            }
+        }else{//save
+            std::ostringstream ss;
+            ss << "INSERT INTO channels (m_name,m_team,m_ownerGUID,m_announce,m_moderate,m_password) VALUES ('"
+                 << name.c_str() << "','" << m_Team << "','0','1','0','')";
+            if(CharacterDatabase.PExecuteLog( ss.str( ).c_str( ) ))
+            {
+                sLog.outDebug("New Channel(%s) saved", name.c_str());
+                m_IsSaved = true;
+            }            
+        }
     }
 }
 
@@ -120,6 +165,10 @@ void Channel::Join(uint64 p, const char *pass)
     if(!IsConstant() && !m_ownerGUID)
     {
         SetOwner(p, (players.size() > 1 ? true : false));
+        players[p].SetModerator(true);        
+    }else if(!IsConstant() && m_ownerGUID && plr && m_ownerGUID == plr->GetGUID())
+    {
+        SetOwner(p, (players.size() > 1 ? true : false));
         players[p].SetModerator(true);
     }
 }
@@ -161,7 +210,7 @@ void Channel::Leave(uint64 p, bool send)
 
         LeaveNotify(p);
 
-        if(changeowner)
+        if(changeowner && !m_IsSaved)
         {
             uint64 newowner = !players.empty() ? players.begin()->second.player : 0;
             SetOwner(newowner);
@@ -213,6 +262,23 @@ void Channel::KickOrBan(uint64 good, const char *badname, bool ban)
             {
                 banned.insert(bad->GetGUID());
                 MakePlayerBanned(&data, bad->GetGUID(), good);
+                //save banlist
+                if(m_IsSaved)
+                {
+                    std::ostringstream banlist;
+                    BannedList::iterator iter;
+                    for (iter = banned.begin();iter != banned.end(); ++iter)
+                    {
+                        banlist << (*iter) << " ";
+                    }
+                    std::ostringstream ss;
+                    ss << "UPDATE channels SET BannedList = '" << banlist.str().c_str() << "' WHERE m_name = '"<<m_name.c_str()<<"' AND m_team = '"<<m_Team<<"'";
+                    if(CharacterDatabase.PExecuteLog( ss.str( ).c_str( ) ))
+                    {
+                        sLog.outDebug("Channel(%s) BannedList saved", m_name.c_str());
+                    }    
+                }
+
             }
             else
                 MakePlayerKicked(&data, bad->GetGUID(), good);
@@ -265,6 +331,22 @@ void Channel::UnBan(uint64 good, const char *badname)
             WorldPacket data;
             MakePlayerUnbanned(&data, bad->GetGUID(), good);
             SendToAll(&data);
+            //save banlist
+            if(m_IsSaved)
+            {
+                std::ostringstream banlist;
+                BannedList::iterator iter;
+                for (iter = banned.begin();iter != banned.end(); ++iter)
+                {
+                    banlist << (*iter) << " ";
+                }
+                std::ostringstream ss;
+                ss << "UPDATE channels SET BannedList = '" << banlist.str().c_str() << "' WHERE m_name = '"<<m_name.c_str()<<"' AND m_team = '"<<m_Team<<"'";
+                if(CharacterDatabase.PExecuteLog( ss.str( ).c_str( ) ))
+                {
+                    sLog.outDebug("Channel(%s) BannedList saved", m_name.c_str());
+                }    
+            }
         }
     }
 }
@@ -295,6 +377,15 @@ void Channel::Password(uint64 p, const char *pass)
         WorldPacket data;
         MakePasswordChanged(&data, p);
         SendToAll(&data);
+        if(m_IsSaved)
+        {
+            std::ostringstream ss;
+            ss << "UPDATE channels SET m_password = '" << pass << "' WHERE m_name = '"<<m_name.c_str()<<"' AND m_team = '"<<m_Team<<"'";
+            if(CharacterDatabase.PExecuteLog( ss.str( ).c_str( ) ))
+            {
+                sLog.outDebug("Channel(%s) password saved", m_name.c_str());
+            }    
+        }
     }
 }
 
@@ -500,6 +591,16 @@ void Channel::Announce(uint64 p)
         else
             MakeAnnouncementsOff(&data, p);
         SendToAll(&data);
+        if(m_IsSaved)
+        {
+            std::ostringstream ss;
+            ss << "UPDATE channels SET m_announce = '" << m_announce << "' WHERE m_name = '"<<m_name.c_str()<<"' AND m_team = '"<<m_Team<<"'";
+            if(CharacterDatabase.PExecuteLog( ss.str( ).c_str( ) ))
+            {
+                sLog.outDebug("Channel(%s) announce saved", m_name.c_str());
+            }    
+        }
+
     }
 }
 
@@ -532,6 +633,15 @@ void Channel::Moderate(uint64 p)
         else
             MakeModerationOff(&data, p);
         SendToAll(&data);
+        if(m_IsSaved)
+        {
+            std::ostringstream ss;
+            ss << "UPDATE channels SET m_moderate = '" << m_moderate << "' WHERE m_name = '"<<m_name.c_str()<<"' AND m_team = '"<<m_Team<<"'";
+            if(CharacterDatabase.PExecuteLog( ss.str( ).c_str( ) ))
+            {
+                sLog.outDebug("Channel(%s) moderate saved", m_name.c_str());
+            }    
+        }
     }
 }
 
@@ -659,6 +769,16 @@ void Channel::SetOwner(uint64 guid, bool exclaim)
             MakeOwnerChanged(&data, m_ownerGUID);
             SendToAll(&data);
         }
+        if(m_IsSaved)
+        {
+            std::ostringstream ss;
+            ss << "UPDATE channels SET m_ownerGUID = '" << guid << "' WHERE m_name = '"<<m_name.c_str()<<"' AND m_team = '"<<m_Team<<"'";
+            if(CharacterDatabase.PExecuteLog( ss.str( ).c_str( ) ))
+            {
+                sLog.outDebug("Channel(%s) owner saved", m_name.c_str());
+            }   
+        }
+
     }
 }
 

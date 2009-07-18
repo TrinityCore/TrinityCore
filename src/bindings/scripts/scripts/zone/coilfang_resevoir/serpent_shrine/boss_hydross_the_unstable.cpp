@@ -56,7 +56,7 @@ EndScriptData */
 #define SPELL_ENRAGE                27680                   //this spell need verification
 #define SPELL_SUMMON_WATER_ELEMENT  36459                   //not in use yet(in use ever?)
 #define SPELL_ELEMENTAL_SPAWNIN     25035
-#define SPELL_BLUE_BEAM             /*40227*/40227                   //channeled Hydross Beam Helper (not in use yet)
+#define SPELL_BLUE_BEAM             40227                   //channeled Hydross Beam Helper (not in use yet)
 
 #define ENTRY_PURE_SPAWN            22035
 #define ENTRY_TAINTED_SPAWN         22036
@@ -324,7 +324,7 @@ struct TRINITY_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
             //WaterTomb_Timer
             if (WaterTomb_Timer < diff)
             {
-                Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                 if (target)
                     DoCast(target, SPELL_WATER_TOMB);
 

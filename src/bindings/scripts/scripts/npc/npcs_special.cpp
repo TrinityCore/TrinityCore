@@ -1566,6 +1566,76 @@ CreatureAI* GetAI_npc_snake_trap_serpents(Creature *_Creature)
     return new npc_snake_trap_serpentsAI(_Creature);
 }
 
+struct TRINITY_DLL_DECL mob_mojoAI : public ScriptedAI
+{    
+    mob_mojoAI(Creature *c) : ScriptedAI(c) {Reset();}
+    uint32 hearts;
+    uint64 victimGUID;
+    void Reset()
+    {
+        victimGUID = 0;
+        hearts = 15000;
+        Unit* own = m_creature->GetOwner();
+        if (own)
+            m_creature->GetMotionMaster()->MoveFollow(own,0,0);
+    }
+    void Aggro(Unit *who){}
+    void UpdateAI(const uint32 diff)
+    {
+        if(m_creature->HasAura(20372,0))
+        {
+            if(hearts<diff)
+            {
+                m_creature->RemoveAurasDueToSpell(20372);
+                hearts = 15000;
+            }hearts-=diff;
+        }
+    }
+    void ReceiveEmote(Player *player, uint32 emote)
+    {
+        m_creature->HandleEmoteCommand(emote);
+        Unit* own = m_creature->GetOwner();
+        if (own && ((Player*)own)->GetTeam() != player->GetTeam())
+            return;
+        if (emote == TEXTEMOTE_KISS)
+        {
+            std::string whisp = "";
+            switch (rand()%8)
+            {
+                case 0:whisp.append("Now that's what I call froggy-style!");break;
+                case 1:whisp.append("Your lily pad or mine?");break;
+                case 2:whisp.append("This won't take long, did it?");break;
+                case 3:whisp.append("I thought you'd never ask!");break;
+                case 4:whisp.append("I promise not to give you warts...");break;
+                case 5:whisp.append("Feelin' a little froggy, are ya?");break;
+                case 6:
+                    whisp.append("Listen, ");
+                    whisp.append(player->GetName());
+                    whisp.append(", I know of a little swamp not too far from here....");
+                    break;
+                case 7:whisp.append("There's just never enough Mojo to go around...");break;
+            }
+            m_creature->MonsterWhisper(whisp.c_str(),player->GetGUID());
+            if(victimGUID)
+            {
+                Player* victim = Unit::GetPlayer(victimGUID);
+                if(victim)
+                    victim->RemoveAura(43906);//remove polymorph frog thing
+            }
+            m_creature->AddAura(43906,player);//add polymorph frog thing
+            victimGUID = player->GetGUID();            
+            m_creature->CastSpell(m_creature,20372,true);//tag.hearts
+            m_creature->GetMotionMaster()->MoveFollow(player,0,0);
+			hearts = 15000;
+        }   
+    }
+};
+
+CreatureAI* GetAI_mob_mojo(Creature *_Creature)
+{
+    return new mob_mojoAI (_Creature);
+}
+
 void AddSC_npcs_special()
 {
     Script *newscript;
@@ -1655,6 +1725,11 @@ void AddSC_npcs_special()
     newscript = new Script;
     newscript->Name="npc_snake_trap_serpents";
     newscript->GetAI = &GetAI_npc_snake_trap_serpents;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name="mob_mojo";
+    newscript->GetAI = &GetAI_mob_mojo;
     newscript->RegisterSelf();
 }
 
