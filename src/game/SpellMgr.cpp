@@ -1228,8 +1228,8 @@ void SpellMgr::LoadSpellBonusess()
 {
     mSpellBonusMap.clear();                             // need for reload case
     uint32 count = 0;
-    //                                                0      1             2          3
-    QueryResult *result = WorldDatabase.Query("SELECT entry, direct_bonus, dot_bonus, ap_bonus FROM spell_bonus_data");
+    //                                                0      1             2          3         4
+    QueryResult *result = WorldDatabase.Query("SELECT entry, direct_bonus, dot_bonus, ap_bonus, ap_dot_bonus FROM spell_bonus_data");
     if( !result )
     {
         barGoLink bar( 1 );
@@ -1258,8 +1258,10 @@ void SpellMgr::LoadSpellBonusess()
         sbe.direct_damage = fields[1].GetFloat();
         sbe.dot_damage    = fields[2].GetFloat();
         sbe.ap_bonus      = fields[3].GetFloat();
+        sbe.ap_dot_bonus   = fields[4].GetFloat();
 
         mSpellBonusMap[entry] = sbe;
+        ++count;
     } while( result->NextRow() );
 
     delete result;
@@ -1281,12 +1283,14 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
 
     /* Check Periodic Auras
 
-    * Both hots and dots can trigger if spell has no PROC_FLAG_SUCCESSFUL_DAMAGING_SPELL_HIT
-        nor PROC_FLAG_SUCCESSFUL_HEALING_SPELL
+    *Dots can trigger if spell has no PROC_FLAG_SUCCESSFUL_NEGATIVE_MAGIC_SPELL
+        nor PROC_FLAG_TAKEN_POSITIVE_MAGIC_SPELL
 
-    *Only Hots can trigger if spell has PROC_FLAG_SUCCESSFUL_HEALING_SPELL
+    *Only Hots can trigger if spell has PROC_FLAG_TAKEN_POSITIVE_MAGIC_SPELL
 
-    *Only dots can trigger if spell has both positivity flags or PROC_FLAG_SUCCESSFUL_DAMAGING_SPELL_HIT
+    *Only dots can trigger if spell has both positivity flags or PROC_FLAG_SUCCESSFUL_NEGATIVE_MAGIC_SPELL
+
+    *Aura has to have PROC_FLAG_TAKEN_POSITIVE_MAGIC_SPELL or spellfamily specified to trigger from Hot
 
     */
 
@@ -1300,6 +1304,8 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
         else if (EventProcFlag & PROC_FLAG_TAKEN_POSITIVE_MAGIC_SPELL
             && !(procExtra & PROC_EX_INTERNAL_HOT))
             return false;
+        else if (procExtra & PROC_EX_INTERNAL_HOT)
+            procExtra |= PROC_EX_INTERNAL_REQ_FAMILY;
     }
 
     if (procFlags & PROC_FLAG_ON_TAKE_PERIODIC)
@@ -1312,6 +1318,8 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
         else if (EventProcFlag & PROC_FLAG_TAKEN_POSITIVE_MAGIC_SPELL
             && !(procExtra & PROC_EX_INTERNAL_HOT))
             return false;
+        else if (procExtra & PROC_EX_INTERNAL_HOT)
+            procExtra |= PROC_EX_INTERNAL_REQ_FAMILY;
     }
     // Trap casts are active by default
     if (procFlags & PROC_FLAG_ON_TRAP_ACTIVATION)
@@ -1356,7 +1364,7 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
         }
     }
 
-    if (procExtra & (PROC_EX_INTERNAL_REQ_FAMILY | PROC_EX_INTERNAL_HOT))
+    if (procExtra & (PROC_EX_INTERNAL_REQ_FAMILY))
     {
         if (!hasFamilyMask)
             return false;
