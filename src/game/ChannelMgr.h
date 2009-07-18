@@ -31,8 +31,9 @@
 class ChannelMgr
 {
     public:
+        uint32 team;
         typedef std::map<std::string,Channel *> ChannelMap;
-        ChannelMgr() {}
+        ChannelMgr() {team = 0;}
         ~ChannelMgr()
         {
             for(ChannelMap::const_iterator itr = channels.begin();itr!=channels.end(); ++itr)
@@ -43,7 +44,7 @@ class ChannelMgr
         {
             if (channels.find(name) == channels.end())
             {
-                Channel *nchan = new Channel(name,channel_id);
+                Channel *nchan = new Channel(name,channel_id, team);
                 channels[name] = nchan;
             }
             return channels[name];
