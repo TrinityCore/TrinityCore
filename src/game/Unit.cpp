@@ -6799,9 +6799,15 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             // Death Strike healing effect
             if (dummySpell->Id == 45469)
             {
-                int32 heal=pVictim->GetDiseasesByCaster(GetGUID()) * GetMaxHealth()* 5 /100;
-                CastCustomSpell(this,45470,&heal,NULL,NULL,true);
-                return true;
+                basepoints0=pVictim->GetDiseasesByCaster(GetGUID()) * GetMaxHealth()* procSpell->DmgMultiplier[0] / 100.0f;
+                // Do not heal when no diseases on target
+                if (!basepoints0)
+                    return true;
+                // Improved Death Strike
+                if (AuraEffect const * aurEff = GetAuraEffect(SPELL_AURA_ADD_PCT_MODIFIER, SPELLFAMILY_DEATHKNIGHT, 2751, 0))
+                    basepoints0 = basepoints0 * (CalculateSpellDamage(aurEff->GetSpellProto(), 2, aurEff->GetSpellProto()->EffectBasePoints[2], this) + 100.0f) / 100.0f;
+                triggered_spell_id = 45470;
+                break;
             }
             // Sudden Doom
             if (dummySpell->SpellIconID == 1939 && GetTypeId() == TYPEID_PLAYER)
