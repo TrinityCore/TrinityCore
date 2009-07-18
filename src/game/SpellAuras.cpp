@@ -2499,6 +2499,29 @@ void AuraEffect::HandleAuraDummy(bool apply, bool Real, bool changeAmount)
     // AT APPLY
     if(apply)
     {
+        // Overpower
+        if (caster && m_spellProto->SpellFamilyName == SPELLFAMILY_WARRIOR && 
+            m_spellProto->SpellFamilyFlags[0] & 0x4)
+        {
+            // Must be casting target
+            if (!m_target->IsNonMeleeSpellCasted(false))
+                return;
+            if (AuraEffect * aurEff = caster->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_WARRIOR, 2775, 0))
+            {
+                switch (aurEff->GetId())
+                {
+                    // Unrelenting Assault, rank 1
+                    case 46859:
+                        caster->CastSpell(m_target,64849,true,NULL,aurEff);
+                        break;
+                    // Unrelenting Assault, rank 2
+                    case 46860:
+                        caster->CastSpell(m_target,64850,true,NULL,aurEff);
+                        break;
+                }
+            }
+            return;
+        }
         switch(GetId())
         {
             // Haunting Spirits - perdiodic trigger demon
