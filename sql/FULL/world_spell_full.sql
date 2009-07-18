@@ -33,7 +33,6 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 (-49011, 49009, 0, 'Wyvern Sting'),
 (-49012, 49010, 0, 'Wyvern Sting'),
 ( 47585, 60069, 0, 'Dispersion (transform/regen)'),
-# (-47953, 60406, 0, 'Divine hymn buff to enemies'), removed in 313
 ( 48265, 49772, 2, 'Unholy Presence'),
 ( 49772, 55222, 2, 'Unholy Presence'),
 ( 48263, 61261, 2, 'Frost Presence'),
@@ -73,6 +72,7 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 (48395, 50171, 2, 'Improved Moonkin Form'),
 (48396, 50172, 2, 'Improved Moonkin Form'),
 ( 20594, 65116, 2, 'Stoneform'),
+( 1038, 53055, 2, 'Hand of Salvation'),
 
 -- Creature
 ( 36574, 36650, 0, 'Apply Phase Slip Vulnerability'),

@@ -4606,7 +4606,7 @@ void AuraEffect::HandlePeriodicEnergize(bool apply, bool Real, bool changeAmount
         if (m_spellProto->SpellIconID == 3184 && m_spellProto->SpellVisual[0] == 12495)
             m_amount = m_target->GetMaxPower(POWER_MANA) * 25 / 10000;
         else if (m_spellProto->Id == 29166) // Innervate
-            m_amount = m_target->GetCreatePowers(POWER_MANA) * m_amount / ((GetParentAura()->GetAuraMaxDuration() / 10.0f) * (m_amplitude / IN_MILISECONDS));
+            m_amount = m_target->GetCreatePowers(POWER_MANA) * m_amount / (GetTotalTicks() * 100.0f);
     }
 }
 
@@ -4707,8 +4707,8 @@ void AuraEffect::HandlePeriodicDamage(bool apply, bool Real, bool changeAmount)
             // Pounce Bleed
             if ( m_spellProto->SpellIconID == 147 && m_spellProto->SpellVisual[0] == 0 )
             {
-                // $AP*0.18/6 bonus per tick
-                m_amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * 3 / 100);
+                // 0.18*$AP / number of ticks
+                m_amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.18f / GetTotalTicks());
                 return;
             }
             break;
@@ -4814,8 +4814,8 @@ void AuraEffect::HandlePeriodicDamage(bool apply, bool Real, bool changeAmount)
             // Deadly Poison
             if (m_spellProto->SpellFamilyFlags[0] & 0x10000)
             {
-                // 0.08*$AP / 4 * amount of stack
-                m_amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * 2 * GetParentAura()->GetStackAmount() / 100);
+                // 0.12*$AP * amount of stack / number of ticks
+                m_amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.12f * GetParentAura()->GetStackAmount() / GetTotalTicks());
                 return;
             }
             break;
@@ -4825,15 +4825,15 @@ void AuraEffect::HandlePeriodicDamage(bool apply, bool Real, bool changeAmount)
             // Serpent Sting
             if (m_spellProto->SpellFamilyFlags[0] & 0x4000)
             {
-                // $RAP*0.1/5 bonus per tick
-                m_amount += int32(caster->GetTotalAttackPowerValue(RANGED_ATTACK) * 10 / 500);
+                // $RAP*0.2 / number of ticks
+                m_amount += int32(caster->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.02f / GetTotalTicks());
                 return;
             }
             // Immolation Trap
-            if (m_spellProto->SpellFamilyFlags[0] & 0x4 && m_spellProto->SpellIconID == 678)
+            if (m_spellProto->SpellFamilyFlags[2] & 0x00020000)
             {
-                // $RAP*0.1/5 bonus per tick
-                m_amount += int32(caster->GetTotalAttackPowerValue(RANGED_ATTACK) * 10 / 500);
+                // $RAP*0.1 / number of ticks
+                m_amount += int32(caster->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.01f / GetTotalTicks());
                 return;
             }
             break;
