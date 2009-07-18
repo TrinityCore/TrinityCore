@@ -322,7 +322,7 @@ inline bool IsAutoRepeatRangedSpell(SpellEntry const* spellInfo)
 inline bool IsRangedWeaponSpell(SpellEntry const* spellInfo)
 {
     //spell->DmgClass == SPELL_DAMAGE_CLASS_RANGED should be checked outside
-    return (spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER && !(spellInfo->SpellFamilyFlags[1] & 0x100000000)) // for 53352, cannot find better way
+    return (spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER && !(spellInfo->SpellFamilyFlags[1] & 0x10000000)) // for 53352, cannot find better way
         || (spellInfo->EquippedItemSubClassMask & ITEM_SUBCLASS_MASK_WEAPON_RANGED);
 }
 
