@@ -9335,7 +9335,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
         {
             coeff = bonus->direct_damage;
             if (bonus->ap_bonus > 0)
-                DoneTotal+=bonus->ap_dot_bonus * stack * ApCoeffMod * GetTotalAttackPowerValue(
+                DoneTotal+=bonus->ap_bonus * stack * ApCoeffMod * GetTotalAttackPowerValue(
                 (IsRangedWeaponSpell(spellProto) && spellProto->DmgClass !=SPELL_DAMAGE_CLASS_MELEE)? RANGED_ATTACK : BASE_ATTACK);
         }
     }
@@ -9810,7 +9810,7 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
         {
             coeff = bonus->direct_damage;
             if (bonus->ap_bonus > 0)
-                DoneTotal+=bonus->ap_dot_bonus * stack * GetTotalAttackPowerValue(
+                DoneTotal+=bonus->ap_bonus * stack * GetTotalAttackPowerValue(
                 (IsRangedWeaponSpell(spellProto) && spellProto->DmgClass !=SPELL_DAMAGE_CLASS_MELEE)? RANGED_ATTACK : BASE_ATTACK);
         }
     }
