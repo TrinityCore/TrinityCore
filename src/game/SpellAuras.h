@@ -353,6 +353,7 @@ class TRINITY_DLL_SPEC AuraEffect
         virtual void Update(uint32 diff);
 
         uint32 GetTickNumber() const { return m_tickNumber; }
+        int32 GetTotalTicks () const { return m_amplitude ? (GetParentAura()->GetAuraMaxDuration() / m_amplitude) : 1;}
         bool IsAreaAura() const { return m_isAreaAura; }
         bool IsPeriodic() const { return m_isPeriodic; }
         bool IsPersistent() const { return m_isPersistent; }
