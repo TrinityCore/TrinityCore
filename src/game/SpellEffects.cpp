@@ -386,13 +386,6 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                             damage = 200;
                         break;
                     }
-                    // Intercept (warrior spell trigger)
-                    case 20253:
-                    case 61491:
-                    {
-                        damage+= uint32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.12f);
-                        break;
-                    }
                     // arcane charge. must only affect demons (also undead?)
                     case 45072:
                     {
@@ -426,9 +419,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
             {
                 // Bloodthirst
                 if(m_spellInfo->SpellFamilyFlags[1] & 0x400)
-                {
                     damage = uint32(damage * (m_caster->GetTotalAttackPowerValue(BASE_ATTACK)) / 100);
-                }
                 // Shield Slam
                 else if(m_spellInfo->SpellFamilyFlags[1] & 0x200 && m_spellInfo->Category==1209)
                     damage += int32(m_caster->GetShieldBlockValue());
@@ -438,24 +429,12 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                     damage = uint32(damage * m_caster->GetTotalAttackPowerValue(BASE_ATTACK) / 100);
                     m_caster->ModifyAuraState(AURA_STATE_WARRIOR_VICTORY_RUSH, false);
                 }
-                // Revenge ${$m1+$AP*0.207} to ${$M1+$AP*0.207}
-                else if(m_spellInfo->SpellFamilyFlags[0] & 0x400)
-                    damage+= uint32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.207f);
-                // Heroic Throw ${$m1+$AP*.50}
-                else if(m_spellInfo->SpellFamilyFlags[1] & 0x00000001)
-                    damage+= uint32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.5f);
                 // Shockwave ${$m3/100*$AP}
                 else if(m_spellInfo->SpellFamilyFlags[1] & 0x00008000)
                 {
                     int32 pct = m_caster->CalculateSpellDamage(m_spellInfo, 2, m_spellInfo->EffectBasePoints[2], unitTarget);
                     if (pct > 0)
                         damage+= int32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * pct / 100);
-                    break;
-                }
-                // Thunder Clap
-                else if(m_spellInfo->SpellFamilyFlags[0] & 0x80)
-                {
-                    damage += int32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * 12 / 100);
                     break;
                 }
                 break;
@@ -520,17 +499,6 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                     damage += int32(energy * multiple);
                     damage += int32(((Player*)m_caster)->GetComboPoints() * ap * 7 / 100);
                 }
-                // Rake
-                else if(m_spellInfo->SpellFamilyFlags[0] & 0x1000 && m_spellInfo->Effect[2]==SPELL_EFFECT_ADD_COMBO_POINTS)
-                {
-                    // $AP*0.01 bonus
-                    damage += int32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK) / 100);
-                }
-                // Swipe
-                else if(m_spellInfo->SpellFamilyFlags[1] & 0x00100000)
-                {
-                    damage += int32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK)*0.08f);
-                }
                 break;
             }
             case SPELLFAMILY_ROGUE:
@@ -582,53 +550,14 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                             damage += combo*40;
                     }
                 }
-                // Gouge
-                else if(m_spellInfo->SpellFamilyFlags[0] & 0x8)
-                {
-                    damage += int32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK)*0.21f);
-                }
-                // Instant Poison
-                else if(m_spellInfo->SpellFamilyFlags[0] & 0x2000)
-                {
-                    damage += int32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK)*0.10f);
-                }
-                // Wound Poison
-                else if(m_spellInfo->SpellFamilyFlags[0] & 0x10000000)
-                {
-                    damage += int32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK)*0.04f);
-                }
                 break;
             }
             case SPELLFAMILY_HUNTER:
             {
-                // Gore
-                if (m_spellInfo->SpellIconID == 1578)
-                {
-                    damage+= rand()%2 ? damage : 0;
-                }
-                // Mongoose Bite
-                else if((m_spellInfo->SpellFamilyFlags[0] & 0x2) && m_spellInfo->SpellVisual[0]==342)
-                {
-                    damage += int32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK)*0.2f);
-                }
-                // Counterattack
-                else if(m_spellInfo->SpellFamilyFlags[1] & 0x00080000)
-                {
-                    damage += int32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK)*0.2f);
-                }
-                // Arcane Shot
-                else if((m_spellInfo->SpellFamilyFlags[0] & 0x00000800) && m_spellInfo->maxLevel > 0)
-                {
-                    damage += int32(m_caster->GetTotalAttackPowerValue(RANGED_ATTACK)*0.15f);
-                }
                 // Steady Shot
-                else if(m_spellInfo->SpellFamilyFlags[1] & 0x1)
+                if(m_spellInfo->SpellFamilyFlags[1] & 0x1)
                 {
-                    int32 base = irand((int32)m_caster->GetWeaponDamageRange(RANGED_ATTACK, MINDAMAGE),(int32)m_caster->GetWeaponDamageRange(RANGED_ATTACK, MAXDAMAGE));
-                    damage += int32(float(base)/m_caster->GetAttackTime(RANGED_ATTACK)*2800 + m_caster->GetTotalAttackPowerValue(RANGED_ATTACK)*0.1f);
-
                     bool found = false;
-
                     // check dazed affect
                     Unit::AuraEffectList const& decSpeedList = unitTarget->GetAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
                     for(Unit::AuraEffectList::const_iterator iter = decSpeedList.begin(); iter != decSpeedList.end(); ++iter)
@@ -643,11 +572,6 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                     //TODO: should this be put on taken but not done?
                     if(found)
                         damage += m_spellInfo->EffectBasePoints[1];
-                }
-                // Explosive Trap Effect
-                else if(m_spellInfo->SpellFamilyFlags[0] & 0x00000004)
-                {
-                    damage += int32(m_caster->GetTotalAttackPowerValue(RANGED_ATTACK)*0.1f);
                 }
                 break;
             }

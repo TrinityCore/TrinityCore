@@ -9326,15 +9326,15 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
         {
             coeff = bonus->dot_damage;
             if (bonus->ap_dot_bonus > 0)
-                DoneTotal+=bonus->ap_dot_bonus * stack * ApCoeffMod * 
-                    GetTotalAttackPowerValue(IsRangedWeaponSpell(spellProto) ? RANGED_ATTACK: BASE_ATTACK);
+                DoneTotal+=bonus->ap_dot_bonus * stack * ApCoeffMod * GetTotalAttackPowerValue(
+                (IsRangedWeaponSpell(spellProto) && spellProto->DmgClass !=SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK);
         }
         else
         {
             coeff = bonus->direct_damage;
             if (bonus->ap_bonus > 0)
-                DoneTotal+=bonus->ap_bonus * stack * ApCoeffMod * 
-                    GetTotalAttackPowerValue(IsRangedWeaponSpell(spellProto) ? RANGED_ATTACK: BASE_ATTACK);
+                DoneTotal+=bonus->ap_dot_bonus * stack * ApCoeffMod * GetTotalAttackPowerValue(
+                (IsRangedWeaponSpell(spellProto) && spellProto->DmgClass !=SPELL_DAMAGE_CLASS_MELEE)? RANGED_ATTACK : BASE_ATTACK);
         }
     }
     // Default calculation
@@ -9801,15 +9801,15 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
         {
             coeff = bonus->dot_damage;
             if (bonus->ap_dot_bonus > 0)
-                DoneTotal+=bonus->ap_dot_bonus * stack * 
-                    GetTotalAttackPowerValue(IsRangedWeaponSpell(spellProto) ? RANGED_ATTACK: BASE_ATTACK);
+                DoneTotal+=bonus->ap_dot_bonus * stack * GetTotalAttackPowerValue(
+                (IsRangedWeaponSpell(spellProto) && spellProto->DmgClass !=SPELL_DAMAGE_CLASS_MELEE)? RANGED_ATTACK : BASE_ATTACK);
         }
         else
         {
             coeff = bonus->direct_damage;
             if (bonus->ap_bonus > 0)
-                DoneTotal+=bonus->ap_bonus * stack * 
-                    GetTotalAttackPowerValue(IsRangedWeaponSpell(spellProto) ? RANGED_ATTACK: BASE_ATTACK);
+                DoneTotal+=bonus->ap_dot_bonus * stack * GetTotalAttackPowerValue(
+                (IsRangedWeaponSpell(spellProto) && spellProto->DmgClass !=SPELL_DAMAGE_CLASS_MELEE)? RANGED_ATTACK : BASE_ATTACK);
         }
     }
     else // scripted bonus
