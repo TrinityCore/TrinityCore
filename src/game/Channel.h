@@ -158,6 +158,7 @@ class Channel
     uint8       m_flags;
     uint32      m_channelId;
     uint64      m_ownerGUID;
+    bool        m_IsSaved;
 
     private:
         // initial packet data (notify type and channel name)
@@ -243,7 +244,8 @@ class Channel
         }
 
     public:
-        Channel(const std::string& name, uint32 channel_id);
+        uint32 m_Team;
+        Channel(const std::string& name, uint32 channel_id, uint32 Team = 0);
         std::string GetName() const { return m_name; }
         uint32 GetChannelId() const { return m_channelId; }
         bool IsConstant() const { return m_channelId != 0; }
