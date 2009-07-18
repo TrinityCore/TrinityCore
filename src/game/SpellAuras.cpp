@@ -4594,15 +4594,20 @@ void AuraEffect::HandlePeriodicTriggerSpellWithValue(bool apply, bool Real, bool
 
 void AuraEffect::HandlePeriodicEnergize(bool apply, bool Real, bool changeAmount)
 {
-    if(!Real && !changeAmount)
+    if(!Real)
         return;
 
     m_isPeriodic = apply;
 
-    // Replenishment (0.25% from max)
-    // Infinite Replenishment
-    if (m_spellProto->SpellIconID == 3184 && m_spellProto->SpellVisual[0] == 12495)
-        m_amount = m_target->GetMaxPower(POWER_MANA) * 25 / 10000;
+    if (apply)
+    {
+        // Replenishment (0.25% from max)
+        // Infinite Replenishment
+        if (m_spellProto->SpellIconID == 3184 && m_spellProto->SpellVisual[0] == 12495)
+            m_amount = m_target->GetMaxPower(POWER_MANA) * 25 / 10000;
+        else if (m_spellProto->Id == 29166) // Innervate
+            m_amount = m_target->GetCreatePowers(POWER_MANA) * m_amount / ((GetParentAura()->GetAuraMaxDuration() / 10.0f) * (m_amplitude / IN_MILISECONDS));
+    }
 }
 
 void AuraEffect::HandleAuraPowerBurn(bool apply, bool Real, bool /*changeAmount*/)
