@@ -8,7 +8,6 @@ CREATE TABLE `spell_bonus_data` (
   `comments` varchar(255) default NULL,
   PRIMARY KEY  (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-TRUNCATE TABLE `spell_bonus_data`;
 INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `ap_dot_bonus`, `comments`) VALUES
 (49941, -1, -1, 0.04, -1, 'Death Knight - Blood Boil'),
 (48721, -1, -1, 0.04, -1, 'Death Knight - Blood Boil'),
@@ -242,6 +241,6 @@ INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`
 (57969, -1, -1, -1, 0.03, 'Rogue - Deadly Poison Rank 8($AP*0.12 / number of ticks)'),
 (57970, -1, -1, -1, 0.03, 'Rogue - Deadly Poison Rank 9($AP*0.12 / number of ticks)'),
 (48628, -1, -1, -1, 0.15, 'Druid - Lock Jaw'),
-(1822, -1, -1, -1, 0.06, 'Druid - Rake ($AP*0.18 / number of ticks)'),
+(1822, -1, -1, 0.01, 0.06, 'Druid - Rake ($AP*0.18 / number of ticks)'),
 (33745, -1, -1, -1, 0.01, 'Druid - Lacerate($AP*0.05 / number of ticks)');
 
