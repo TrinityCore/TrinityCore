@@ -944,6 +944,101 @@ void Aura::ApplyAllModifiers(bool apply, bool Real)
             m_partAuras[i]->ApplyModifier(apply, Real);
 }
 
+void Aura::HandleAuraSpecificMods(bool apply)
+{
+    if (GetSpellSpecific(m_spellProto->Id) == SPELL_PRESENCE)
+    {
+        AuraEffect *bloodPresenceAura=0;  // healing by damage done
+        AuraEffect *frostPresenceAura=0;  // increased health
+        AuraEffect *unholyPresenceAura=0; // increased movement speed, faster rune recovery
+
+        // Improved Presences
+        Unit::AuraEffectList const& vDummyAuras = m_target->GetAurasByType(SPELL_AURA_DUMMY);
+        for(Unit::AuraEffectList::const_iterator itr = vDummyAuras.begin(); itr != vDummyAuras.end(); ++itr)
+        {
+            switch((*itr)->GetId())
+            {
+                // Improved Blood Presence
+                case 50365:
+                case 50371:
+                {
+                    bloodPresenceAura = (*itr);
+                    break;
+                }
+                // Improved Frost Presence
+                case 50384:
+                case 50385:
+                {
+                    frostPresenceAura = (*itr);
+                    break;
+                }
+                // Improved Unholy Presence
+                case 50391:
+                case 50392:
+                {
+                    unholyPresenceAura = (*itr);
+                    break;
+                }
+            }
+        }
+
+        uint32 presence=GetId();
+        if (apply)
+        {
+            // Blood Presence bonus
+            if (presence == SPELL_ID_BLOOD_PRESENCE)
+                m_target->CastSpell(m_target,63611,true);
+            else if (bloodPresenceAura)
+            {
+                int32 basePoints1=bloodPresenceAura->GetAmount();
+                m_target->CastCustomSpell(m_target,63611,NULL,&basePoints1,NULL,true,0,bloodPresenceAura);
+            }
+            // Frost Presence bonus
+            if (presence == SPELL_ID_FROST_PRESENCE)
+                m_target->CastSpell(m_target,61261,true);
+            else if (frostPresenceAura)
+            {
+                int32 basePoints0=frostPresenceAura->GetAmount();
+                m_target->CastCustomSpell(m_target,61261,&basePoints0,NULL,NULL,true,0,frostPresenceAura);
+            }
+            // Unholy Presence bonus
+            if (presence == SPELL_ID_UNHOLY_PRESENCE)
+            {
+                if(unholyPresenceAura)
+                {
+                    // Not listed as any effect, only base points set
+                    int32 basePoints0 = unholyPresenceAura->GetSpellProto()->EffectBasePoints[1];
+                    //m_target->CastCustomSpell(m_target,63622,&basePoints0 ,NULL,NULL,true,0,unholyPresenceAura);
+                    m_target->CastCustomSpell(m_target,65095,&basePoints0 ,NULL,NULL,true,0,unholyPresenceAura);
+                }
+                m_target->CastSpell(m_target,49772, true);
+            }
+            else if (unholyPresenceAura)
+            {
+                int32 basePoints0=unholyPresenceAura->GetAmount();
+                m_target->CastCustomSpell(m_target,49772,&basePoints0,NULL,NULL,true,0,unholyPresenceAura);
+            }
+        }
+        else
+        {
+            // Remove passive auras
+            if (presence == SPELL_ID_BLOOD_PRESENCE || bloodPresenceAura)
+                m_target->RemoveAurasDueToSpell(63611);
+            if (presence == SPELL_ID_FROST_PRESENCE || frostPresenceAura)
+                m_target->RemoveAurasDueToSpell(61261);
+            if (presence == SPELL_ID_UNHOLY_PRESENCE || unholyPresenceAura)
+            {
+                if(presence == SPELL_ID_UNHOLY_PRESENCE && unholyPresenceAura)
+                {
+                    //m_target->RemoveAurasDueToSpell(63622);
+                    m_target->RemoveAurasDueToSpell(65095);
+                }
+                m_target->RemoveAurasDueToSpell(49772);
+            }
+        }
+    }
+}
+
 void Aura::SendAuraUpdate()
 {
     if (m_auraSlot>=MAX_AURAS)
@@ -1155,6 +1250,8 @@ void Aura::_AddAura()
     }
 
     m_target->ApplyModFlag(UNIT_FIELD_AURASTATE, GetAuraStateMask(), true);
+
+    HandleAuraSpecificMods(true);
 }
 
 bool Aura::SetPartAura(AuraEffect* aurEff, uint8 effIndex)
@@ -1283,6 +1380,7 @@ void Aura::_RemoveAura()
             caster->ProcDamageAndSpell(m_target,ProcCaster, ProcVictim, procEx, m_procDamage, BASE_ATTACK, m_spellProto);
         }
     }
+    HandleAuraSpecificMods(false);
 }
 
 void Aura::SetStackAmount(uint8 stackAmount, bool applied)
@@ -2504,7 +2602,7 @@ void AuraEffect::HandleAuraDummy(bool apply, bool Real, bool changeAmount)
             m_spellProto->SpellFamilyFlags[0] & 0x4)
         {
             // Must be casting target
-            if (!m_target->IsNonMeleeSpellCasted(false))
+            if (!m_target->IsNonMeleeSpellCasted(false, false, true))
                 return;
             if (AuraEffect * aurEff = caster->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_WARRIOR, 2775, 0))
             {
