@@ -2192,6 +2192,10 @@
 								RelativePath="..\scripts\zone\coilfang_resevoir\serpent_shrine\instance_serpent_shrine.cpp"
 								>
 							</File>
+							<File
+								RelativePath="..\scripts\zone\coilfang_resevoir\serpent_shrine\mob_underbog_colossus.cpp"
+								>
+							</File>
 						</Filter>
 						<Filter
 							Name="Slave Pens"

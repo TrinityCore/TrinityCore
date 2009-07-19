@@ -235,6 +235,7 @@ extern void AddSC_boss_leotheras_the_blind();
 extern void AddSC_boss_morogrim_tidewalker();
 extern void AddSC_instance_serpentshrine_cavern();
 extern void AddSC_boss_the_lurker_below();
+extern void AddSC_mob_underbog_colossus();
 
 //--Slave Pens
 
@@ -1134,6 +1135,7 @@ void ScriptsInit(char const* cfg_file = "trinitycore.conf")
     AddSC_boss_morogrim_tidewalker();
     AddSC_instance_serpentshrine_cavern();
     AddSC_boss_the_lurker_below();
+    AddSC_mob_underbog_colossus();
 
     //--Slave Pens
     //--Steam Vault

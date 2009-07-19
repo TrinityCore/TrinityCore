@@ -1,0 +1,1 @@
+UPDATE `creature_template` SET `ScriptName`='mob_underbog_colossus' WHERE `entry`='21251';
