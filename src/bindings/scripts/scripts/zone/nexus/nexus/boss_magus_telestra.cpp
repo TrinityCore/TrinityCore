@@ -83,6 +83,7 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
     uint32 SPELL_ICE_NOVA_Timer;                    
     uint32 SPELL_FIREBOMB_Timer;                    
     uint32 SPELL_GRAVITY_WELL_Timer;
+    uint32 Cooldown;
 
     void Reset()
     {
@@ -91,6 +92,7 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
         SPELL_ICE_NOVA_Timer =  7000;                  
         SPELL_FIREBOMB_Timer =  0;                
         SPELL_GRAVITY_WELL_Timer = 15000;
+        Cooldown = 0;
 
         FireMagusGUID = 0;
         FrostMagusGUID = 0;
@@ -238,26 +240,44 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
             return;
         }
 
+        if(Cooldown)
+        {
+            if(Cooldown < diff)
+                Cooldown = 0;
+            else
+            {
+                Cooldown -= diff;
+                return;                                     
+            }
+        }
+
         if (SPELL_ICE_NOVA_Timer < diff)
         {
-            m_creature->CastStop();
             if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            {
                 DoCast(target, HeroicMode ? SPELL_ICE_NOVA_H : SPELL_ICE_NOVA_N);
+                Cooldown = 1500;
+            }
             SPELL_ICE_NOVA_Timer = 15000;
         }else SPELL_ICE_NOVA_Timer -=diff;
 
         if (SPELL_GRAVITY_WELL_Timer < diff)
         {
-            m_creature->CastStop();
             if (Unit* target = m_creature->getVictim())
+            {
                 DoCast(target, SPELL_GRAVITY_WELL);
+                Cooldown = 6000;
+            }
             SPELL_GRAVITY_WELL_Timer = 15000;
         }else SPELL_GRAVITY_WELL_Timer -=diff;
 
         if (SPELL_FIREBOMB_Timer < diff)
         {
             if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            {
                 DoCast(target, HeroicMode ? SPELL_FIREBOMB_H : SPELL_FIREBOMB_N);
+                Cooldown = 2000;
+            }
             SPELL_FIREBOMB_Timer = 2000;
         }else SPELL_FIREBOMB_Timer -=diff;
 
