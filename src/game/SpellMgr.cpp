@@ -2913,8 +2913,8 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto
             // Intimidating Shout
             else if (spellproto->SpellFamilyFlags[0] & 0x40000)
                 return DIMINISHING_FEAR_BLIND;
-            // Charge
-            else if (spellproto->SpellFamilyFlags[0] & 0x1)
+            // Charge Stun
+            else if (spellproto->SpellFamilyFlags[0] & 0x01000000)
                 return DIMINISHING_NONE;
             break;
         }
