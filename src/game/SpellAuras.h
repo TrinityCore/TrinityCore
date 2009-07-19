@@ -119,6 +119,7 @@ class TRINITY_DLL_SPEC Aura
                     m_target->HandleAuraEffect(m_partAuras[i], apply);
         }
         void ApplyAllModifiers(bool apply, bool Real=false);
+        void HandleAuraSpecificMods(bool apply);
 
         void Update(uint32 diff);
 

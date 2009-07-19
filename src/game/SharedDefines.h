@@ -2270,7 +2270,9 @@ enum CorpseDynFlags
 #define SPELL_ID_WEAPON_SWITCH_COOLDOWN_1_0s    6123
 #define SPELL_ID_AUTOSHOT                       75          // used for checks in other spells interruption
 #define SPELL_ID_SHADOWMELD                     58984       // used for check ignore stealth stance state
-
+#define SPELL_ID_BLOOD_PRESENCE 48266 // Blood Presence
+#define SPELL_ID_FROST_PRESENCE 48263 // Frost Presence
+#define SPELL_ID_UNHOLY_PRESENCE 48265 // Unholy Presence
 enum WeatherType
 {
     WEATHER_TYPE_FINE       = 0,

@@ -7531,8 +7531,8 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                             return false;
                     }
                 }
-                // Blood Presence
-                else if (auraSpellInfo->Id == 48266)
+                // Blood Presence (Improved)
+                else if (auraSpellInfo->Id == 63611)
                 {
                     if (GetTypeId() != TYPEID_PLAYER)
                         return false;
