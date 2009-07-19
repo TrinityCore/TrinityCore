@@ -452,8 +452,8 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
 
             if (spellInfo->SpellFamilyFlags[0] & 0x11010002)
                 return SPELL_BLESSING;
-
-            if ((spellInfo->SpellFamilyFlags[1] & 0x000008 || spellInfo->SpellFamilyFlags[0] & 0x20180400) && (spellInfo->AttributesEx3 & 0x200))
+            // Judgement of Wisdom, Judgement of Light, Judgement of Justice
+            if (spellInfo->Id == 20184 || spellInfo->Id == 20185 || spellInfo->Id == 20186)
                 return SPELL_JUDGEMENT;
 
             for (int i = 0; i < 3; ++i)
@@ -476,7 +476,7 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
             return spellmgr.GetSpellElixirSpecific(spellInfo->Id);
 
         case SPELLFAMILY_DEATHKNIGHT:
-            if ((spellInfo->Attributes & 0x10) && (spellInfo->AttributesEx2 & 0x10) && (spellInfo->AttributesEx4 & 0x200000))
+            if (spellInfo->Id == SPELL_ID_BLOOD_PRESENCE || spellInfo->Id == SPELL_ID_FROST_PRESENCE || spellInfo->Id == SPELL_ID_UNHOLY_PRESENCE)
                 return SPELL_PRESENCE;
             break;
     }
