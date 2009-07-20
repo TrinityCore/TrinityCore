@@ -25,17 +25,18 @@
 // For more high level function for sSpellStore data
 
 #include "SharedDefines.h"
+#include "SpellAuraDefines.h"
 #include "DBCStructure.h"
+#include "DBCStores.h"
 #include "Database/SQLStorage.h"
 
 #include "Utilities/UnorderedMap.h"
-
-#include "Player.h"
 
 #include <map>
 
 class Player;
 class Spell;
+struct SpellModifier;
 
 extern SQLStorage sSpellThreatStore;
 
