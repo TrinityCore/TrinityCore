@@ -163,7 +163,8 @@ bool ChatHandler::HandleGMListIngameCommand(const char* /*args*/)
     HashMapHolder<Player>::MapType::const_iterator itr = m.begin();
     for(; itr != m.end(); ++itr)
     {
-        if ((itr->second->isGameMaster() || itr->second->GetSession()->GetSecurity() <= sWorld.getConfig(CONFIG_GM_LEVEL_IN_GM_LIST)) &&
+        AccountTypes itr_sec = itr->second->GetSession()->GetSecurity();
+        if ((itr->second->isGameMaster() || itr_sec > SEC_PLAYER && itr_sec <= sWorld.getConfig(CONFIG_GM_LEVEL_IN_GM_LIST)) &&
             (!m_session || itr->second->IsVisibleGloballyFor(m_session->GetPlayer())))
         {
             if(first)
