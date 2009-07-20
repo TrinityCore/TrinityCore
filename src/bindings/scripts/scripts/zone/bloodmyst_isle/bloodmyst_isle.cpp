@@ -56,7 +56,7 @@ struct TRINITY_DLL_DECL mob_webbed_creatureAI : public ScriptedAI
             case 0:
                 spawnCreatureID = 17681;
                 if (Killer->GetTypeId() == TYPEID_PLAYER)
-                    CAST_PLR(Killer)->KilledMonster(spawnCreatureID, m_creature->GetGUID());
+                    CAST_PLR(Killer)->KilledMonsterCredit(spawnCreatureID, m_creature->GetGUID());
                 break;
             case 1:
             case 2:

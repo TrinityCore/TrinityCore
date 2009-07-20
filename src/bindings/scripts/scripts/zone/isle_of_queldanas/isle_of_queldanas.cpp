@@ -114,7 +114,7 @@ struct TRINITY_DLL_DECL npc_greengill_slaveAI : public ScriptedAI
             {
                 Unit* plr = Unit::GetUnit((*m_creature), PlayerGUID);
                 if(plr && CAST_PLR(plr)->GetQuestStatus(QUESTG) == QUEST_STATUS_INCOMPLETE)
-                    CAST_PLR(plr)->KilledMonster(25086, m_creature->GetGUID());
+                    CAST_PLR(plr)->KilledMonsterCredit(25086, m_creature->GetGUID());
             }
             DoCast(m_creature, ENRAGE);
             Unit* Myrmidon = me->FindNearestCreature(DM, 70);
