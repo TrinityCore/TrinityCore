@@ -1257,12 +1257,19 @@ void Spell::EffectDummy(uint32 i)
                     }
                     return;
                 }
-                case 32826:
+                case 32826:                                 // Polymorph Cast Visual
                 {
                     if ( unitTarget && unitTarget->GetTypeId() == TYPEID_UNIT )
                     {
                         //Polymorph Cast Visual Rank 1
-                        const uint32 spell_list[6] = {32813, 32816, 32817, 32818, 32819, 32820};
+                        const uint32 spell_list[6] = {
+                            32813,                          // Squirrel Form
+                            32816,                          // Giraffe Form
+                            32817,                          // Serpent Form
+                            32818,                          // Dragonhawk Form
+                            32819,                          // Worgen Form
+                            32820                           // Sheep Form
+                        };
                         unitTarget->CastSpell( unitTarget, spell_list[urand(0, 5)], true);
                     }
                     return;
