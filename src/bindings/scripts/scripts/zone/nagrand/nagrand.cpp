@@ -547,7 +547,7 @@ struct TRINITY_DLL_DECL npc_creditmarker_visit_with_ancestorsAI : public Scripte
                 {
                     // 18840: Sunspring, 18841: Laughing, 18842: Garadar, 18843: Bleeding
                     if(!CAST_PLR(who)->GetReqKillOrCastCurrentCount(10085, creditMarkerId))
-                        CAST_PLR(who)->KilledMonster(creditMarkerId, m_creature->GetGUID());
+                        CAST_PLR(who)->KilledMonsterCredit(creditMarkerId, m_creature->GetGUID());
                 }
             }
         }

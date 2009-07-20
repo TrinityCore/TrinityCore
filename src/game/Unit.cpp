@@ -649,7 +649,7 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
 
             // some critters required for quests
             if(GetTypeId() == TYPEID_PLAYER)
-                ((Player*)this)->KilledMonster(pVictim->GetEntry(),pVictim->GetGUID());
+                ((Player*)this)->KilledMonster(cInfo ,pVictim->GetGUID());
         }
         else
             pVictim->ModifyHealth(- (int32)damage);

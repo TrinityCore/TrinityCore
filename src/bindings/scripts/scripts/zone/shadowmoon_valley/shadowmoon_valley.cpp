@@ -139,7 +139,7 @@ struct TRINITY_DLL_DECL mob_mature_netherwing_drakeAI : public ScriptedAI
                     DoScriptText(SAY_JUST_EATEN, m_creature);
 
                     if (Player* pPlr = Unit::GetPlayer(uiPlayerGUID))
-                        pPlr->KilledMonster(NPC_EVENT_PINGER, m_creature->GetGUID());
+                        pPlr->KilledMonsterCredit(NPC_EVENT_PINGER, m_creature->GetGUID());
 
                     Reset();
                     m_creature->GetMotionMaster()->Clear();
@@ -269,7 +269,7 @@ struct TRINITY_DLL_DECL mob_enslaved_netherwing_drakeAI : public ScriptedAI
                     Player* plr = Unit::GetPlayer(PlayerGUID);
                     if(plr && plr->GetQuestStatus(10854) == QUEST_STATUS_INCOMPLETE)
                     {
-                        plr->KilledMonster(22316, m_creature->GetGUID());
+                        plr->KilledMonsterCredit(22316, m_creature->GetGUID());
                         /*
                         float x,y,z;
                         m_creature->GetPosition(x,y,z);
@@ -366,7 +366,7 @@ struct TRINITY_DLL_DECL mob_dragonmaw_peonAI : public ScriptedAI
             {
                 Player* plr = Unit::GetPlayer(PlayerGUID);
                 if(plr && plr->GetQuestStatus(11020) == QUEST_STATUS_INCOMPLETE)
-                    plr->KilledMonster(23209, m_creature->GetGUID());
+                    plr->KilledMonsterCredit(23209, m_creature->GetGUID());
             }
             PoisonTimer = 0;
             m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
@@ -1681,13 +1681,13 @@ CreatureAI* GetAI_mob_torloth_the_magnificent(Creature* c)
 #define ENTRY_ENRAGED_AIRY_SOUL 21116
 #define ENTRY_ENRAGED_WATERY_SOUL 21109  // wrong model
 
-/* SPELL KILLCREDIT - not working!?! - using KilledMonster */
+/* SPELL KILLCREDIT - not working!?! - using KilledMonsterCredit */
 #define SPELL_EARTHEN_SOUL_CAPTURED_CREDIT 36108
 #define SPELL_FIERY_SOUL_CAPTURED_CREDIT 36117
 #define SPELL_AIRY_SOUL_CAPTURED_CREDIT 36182
 #define SPELL_WATERY_SOUL_CAPTURED_CREDIT 36171
 
-/* KilledMonster Workaround */
+/* KilledMonsterCredit Workaround */
 #define CREDIT_FIRE 21094
 #define CREDIT_WATER 21095
 #define CREDIT_AIR 21096
@@ -1758,7 +1758,7 @@ struct TRINITY_DLL_DECL npc_enraged_spiritAI : public ScriptedAI
                  Unit* Owner = totemOspirits->GetOwner();
                  if (Owner && Owner->GetTypeId() == TYPEID_PLAYER)
                      // DoCast(Owner, credit); -- not working!
-                     CAST_PLR(Owner)->KilledMonster(credit, Summoned->GetGUID());
+                     CAST_PLR(Owner)->KilledMonsterCredit(credit, Summoned->GetGUID());
                  DoCast(totemOspirits,SPELL_SOUL_CAPTURED);
              }
         }
