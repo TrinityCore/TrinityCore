@@ -220,7 +220,7 @@ struct TRINITY_DLL_DECL mob_netherweb_victimAI : public ScriptedAI
                 if( rand()%100 < 25 )
                 {
                     DoSpawnCreature(QUEST_TARGET,0,0,0,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,60000);
-                    CAST_PLR(Killer)->KilledMonster(QUEST_TARGET, m_creature->GetGUID());
+                    CAST_PLR(Killer)->KilledMonsterCredit(QUEST_TARGET, m_creature->GetGUID());
                 }else
                 DoSpawnCreature(netherwebVictims[rand()%6],0,0,0,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,60000);
 

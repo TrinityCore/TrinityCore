@@ -634,7 +634,7 @@ struct TRINITY_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
     {
         if(m_creature->GetEntry() !=  29519)
             if(killer->GetTypeId() == TYPEID_PLAYER)
-                CAST_PLR(killer)->KilledMonster(29519,m_creature->GetGUID());
+                CAST_PLR(killer)->KilledMonsterCredit(29519,m_creature->GetGUID());
     }
 
     void AddEquipp()
@@ -1166,7 +1166,7 @@ struct TRINITY_DLL_DECL npc_dkc1_gothikAI : public ScriptedAI
                 {
                     if(CAST_PLR(owner)->GetQuestStatus(12698) == QUEST_STATUS_INCOMPLETE)
                     {
-                        CAST_PLR(owner)->KilledMonster(28845, me->GetGUID());
+                        CAST_PLR(owner)->KilledMonsterCredit(28845, me->GetGUID());
                         who->setDeathState(DEAD);
                     }
                 }

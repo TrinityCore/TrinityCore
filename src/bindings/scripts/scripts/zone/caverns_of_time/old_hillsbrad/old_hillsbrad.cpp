@@ -347,7 +347,7 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
                         for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                         {
                             if (Player* pPlayer = itr->getSource())
-                                pPlayer->KilledMonster(20156,m_creature->GetGUID());
+                                pPlayer->KilledMonsterCredit(20156,m_creature->GetGUID());
                         }
                     }
 

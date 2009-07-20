@@ -89,7 +89,7 @@ struct TRINITY_DLL_DECL instance_old_hillsbrad : public ScriptedInstance
                     player->SendUpdateWorldState(WORLD_STATE_OH,mBarrelCount);
 
                     if (mBarrelCount == 5)
-                        player->KilledMonster(LODGE_QUEST_TRIGGER,0);
+                        player->KilledMonsterCredit(LODGE_QUEST_TRIGGER,0);
                 }
             }
         }else

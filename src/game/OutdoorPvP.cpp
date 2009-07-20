@@ -359,7 +359,7 @@ void OPvPCapturePoint::SendObjectiveComplete(uint32 id,uint64 guid)
 
     // send to all players present in the area
     for(PlayerSet::iterator itr = m_activePlayers[team].begin(); itr != m_activePlayers[team].end(); ++itr)
-        (*itr)->KilledMonster(id, guid);
+        (*itr)->KilledMonsterCredit(id, guid);
 }
 
 void OutdoorPvP::HandleKill(Player *killer, Unit * killed)
