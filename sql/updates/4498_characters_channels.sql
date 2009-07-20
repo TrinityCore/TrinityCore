@@ -11,4 +11,4 @@ CREATE TABLE `channels` (
   `m_password` text,
   `BannedList` longtext,
   PRIMARY KEY  (`m_name`(10),`m_team`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Access Requirements';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Channel System';
