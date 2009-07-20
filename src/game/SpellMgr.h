@@ -32,6 +32,8 @@
 
 #include "Utilities/UnorderedMap.h"
 
+#include "Player.h"
+
 #include <map>
 
 class Player;
