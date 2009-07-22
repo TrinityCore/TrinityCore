@@ -69,6 +69,7 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 (48395, 50171, 2, 'Improved Moonkin Form'),
 (48396, 50172, 2, 'Improved Moonkin Form'),
 ( 20594, 65116, 0, 'Stoneform'),
+( 49039, 50397, 2, 'Lichborne - shapeshift'),
 
 -- Creature
 ( 36574, 36650, 0, 'Apply Phase Slip Vulnerability'),
