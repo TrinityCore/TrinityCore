@@ -1053,7 +1053,7 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x3FE*/ { "MSG_GUILD_BANK_MONEY_WITHDRAWN",               STATUS_LOGGEDIN, &WorldSession::HandleGuildBankMoneyWithdrawn   },
     /*0x3FF*/ { "MSG_GUILD_EVENT_LOG_QUERY",                    STATUS_LOGGEDIN, &WorldSession::HandleGuildEventLogQueryOpcode  },
     /*0x400*/ { "CMSG_MAELSTROM_RENAME_GUILD",                  STATUS_NEVER,    &WorldSession::Handle_NULL                     },
-    /*0x401*/ { "CMSG_GET_MIRRORIMAGE_DATA",                    STATUS_NEVER,    &WorldSession::Handle_NULL                     },
+    /*0x401*/ { "CMSG_GET_MIRRORIMAGE_DATA",                    STATUS_LOGGEDIN, &WorldSession::HandleMirrrorImageDataRequest                     },
     /*0x402*/ { "SMSG_MIRRORIMAGE_DATA",                        STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
     /*0x403*/ { "SMSG_FORCE_DISPLAY_UPDATE",                    STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
     /*0x404*/ { "SMSG_SPELL_CHANCE_RESIST_PUSHBACK",            STATUS_NEVER,    &WorldSession::Handle_ServerSide               },

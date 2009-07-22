@@ -2577,3 +2577,4 @@ time_t Creature::GetLinkedCreatureRespawnTime() const
 
     return 0;
 }
+

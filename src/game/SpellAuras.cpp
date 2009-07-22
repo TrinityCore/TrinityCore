@@ -300,7 +300,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleComprehendLanguage,                        //244 SPELL_AURA_COMPREHEND_LANGUAGE
     &Aura::HandleNoImmediateEffect,                         //245 SPELL_AURA_MOD_AURA_DURATION_BY_DISPEL
     &Aura::HandleNoImmediateEffect,                         //246 SPELL_AURA_MOD_AURA_DURATION_BY_DISPEL_NOT_STACK implemented in Spell::EffectApplyAura
-    &Aura::HandleNULL,                                      //247 target to become a clone of the caster
+    &Aura::HandleAuraCloneCaster,                           //247 SPELL_AURA_CLONE_CASTER
     &Aura::HandleNoImmediateEffect,                         //248 SPELL_AURA_MOD_COMBAT_RESULT_CHANCE         implemented in Unit::RollMeleeOutcomeAgainst
     &Aura::HandleAuraConvertRune,                           //249 SPELL_AURA_CONVERT_RUNE
     &Aura::HandleAuraModIncreaseHealth,                     //250 SPELL_AURA_MOD_INCREASE_HEALTH_2
@@ -332,7 +332,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleNULL,                                      //276 mod damage % mechanic?
     &Aura::HandleNoImmediateEffect,                         //277 SPELL_AURA_MOD_ABILITY_AFFECTED_TARGETS implemented in spell::settargetmap
     &Aura::HandleAuraModDisarm,                             //278 SPELL_AURA_MOD_DISARM_RANGED disarm ranged weapon
-    &Aura::HandleNULL,                                      //279 visual effects? 58836 and 57507 - makes summon to have name of caster
+    &Aura::HandleAuraInitializeImages,                      //279 SPELL_AURA_INITIALIZE_IMAGES
     &Aura::HandleModArmorPenetrationPct,                    //280 SPELL_AURA_MOD_ARMOR_PENETRATION_PCT
     &Aura::HandleNoImmediateEffect,                         //281 SPELL_AURA_MOD_HONOR_GAIN_PCT implemented in Player::RewardHonor
     &Aura::HandleAuraIncreaseBaseHealthPercent,             //282 SPELL_AURA_INCREASE_BASE_HEALTH_PERCENT
@@ -6966,7 +6966,7 @@ void AuraEffect::PeriodicDummyTick()
             if (spell->Id == 55342)
             {
                 // Set name of summons to name of caster
-                m_target->CastSpell(m_target, m_spellProto->EffectTriggerSpell[m_effIndex], true);
+                m_target->CastSpell((Unit *)NULL, m_spellProto->EffectTriggerSpell[m_effIndex], true);
                 m_isPeriodic = false;
             }
             break;
@@ -7357,7 +7357,7 @@ void AuraEffect::HandleModPossessPet(bool apply, bool Real, bool /*changeAmount*
         ((Player*)caster)->PetSpellInitialize();
         if(!m_target->getVictim())
         {
-            m_target->GetMotionMaster()->MoveFollow(caster, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+            m_target->GetMotionMaster()->MoveFollow(caster, PET_FOLLOW_DIST, m_target->GetFollowAngle());
             m_target->GetCharmInfo()->SetCommandState(COMMAND_FOLLOW);
         }
     }
@@ -7489,7 +7489,40 @@ void AuraEffect::HandleReflectSpells( bool Apply, bool Real , bool /*changeAmoun
         }
     }
 }
+void AuraEffect::HandleAuraInitializeImages( bool Apply, bool Real , bool /*changeAmount*/)
+{
+    if (!Real || !Apply)
+        return;
+    Unit * caster = GetCaster();
+    if (!caster)
+        return;
+    // Set item visual
+    if (caster->GetTypeId()== TYPEID_PLAYER)
+    {
+        if (Item const * item = ((Player *)caster)->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
+            m_target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, item->GetProto()->ItemId);
+        if (Item const * item = ((Player *)caster)->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
+            m_target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, item->GetProto()->ItemId);
+    }
+    else
+    {
+        m_target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, caster->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID));
+        m_target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, caster->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1));
+        m_target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, caster->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2));
+    }
+}
 
+void AuraEffect::HandleAuraCloneCaster( bool Apply, bool Real , bool /*changeAmount*/)
+{
+    if (!Real || !Apply)
+        return;
+    Unit * caster = GetCaster();
+    if (!caster)
+        return;
+    // Set item visual
+    m_target->SetDisplayId(caster->GetDisplayId());
+    m_target->SetUInt32Value(UNIT_FIELD_FLAGS_2, 2064);
+}
 int32 AuraEffect::CalculateCrowdControlAuraAmount(Unit * caster)
 {
     // Damage cap for CC effects

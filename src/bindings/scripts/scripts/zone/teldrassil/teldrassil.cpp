@@ -81,7 +81,7 @@ struct TRINITY_DLL_DECL npc_mistAI : public ScriptedAI
         if (m_creature->isAlive())
         {
             if (Player* pPlayer = Unit::GetPlayer(uiPlayerGUID))
-                m_creature->GetMotionMaster()->MoveFollow(pPlayer, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+                m_creature->GetMotionMaster()->MoveFollow(pPlayer, PET_FOLLOW_DIST, m_creature->GetFollowAngle());
             else
             {
                 m_creature->GetMotionMaster()->MovementExpired();
@@ -100,7 +100,7 @@ struct TRINITY_DLL_DECL npc_mistAI : public ScriptedAI
         m_creature->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
 
         if (Player* pPlayer = Unit::GetPlayer(uiPlayer))
-            m_creature->GetMotionMaster()->MoveFollow(pPlayer, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+            m_creature->GetMotionMaster()->MoveFollow(pPlayer, PET_FOLLOW_DIST, m_creature->GetFollowAngle());
     }
 
     void DoComplete()
