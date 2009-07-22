@@ -5577,6 +5577,8 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     {
                         if ((*i)->GetId()==54117 || (*i)->GetId()==54118)
                         {
+                            if ((*i)->GetEffIndex() != 0)
+                                continue;
                             basepoints0 = int32((*i)->GetAmount());
                             if (target = GetGuardianPet())
                             {
@@ -5585,6 +5587,15 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                             }
                             // regen mana for caster
                             CastCustomSpell(this,59117,&basepoints0,NULL,NULL,true,castItem,triggeredByAura);
+                            // Get second aura of spell for replenishment effect on party
+                            if (AuraEffect const * aurEff = (*i)->GetParentAura()->GetPartAura(1))
+                            {
+                                // Replenishment - roll chance
+                                if (roll_chance_i(aurEff->GetAmount()))
+                                {
+                                    CastSpell(this,57669,true, castItem, triggeredByAura);
+                                }
+                            }
                             break;
                         }
                     }
