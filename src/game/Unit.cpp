@@ -218,13 +218,13 @@ void Unit::Update( uint32 p_time )
     if (CanHaveThreatList() && getThreatManager().isNeedUpdateToClient(p_time))
         SendThreatListUpdate();
 
-    // update combat timer only for players and pets
-    if (isInCombat() && IsControlledByPlayer())
+    // update combat timer only for players and pets (only pets with PetAI)
+    if (isInCombat() && (GetTypeId() == TYPEID_PLAYER || (((Creature *)this)->isPet()) && IsControlledByPlayer()))
     {
         // Check UNIT_STAT_MELEE_ATTACKING or UNIT_STAT_CHASE (without UNIT_STAT_FOLLOW in this case) so pets can reach far away
         // targets without stopping half way there and running off.
         // These flags are reset after target dies or another command is given.
-        if( m_HostilRefManager.isEmpty() )
+        if( m_HostilRefManager.isEmpty())
         {
             // m_CombatTimer set at aura start and it will be freeze until aura removing
             if ( m_CombatTimer <= p_time )
@@ -8359,7 +8359,7 @@ bool Unit::Attack(Unit *victim, bool meleeAttack)
     //if(GetTypeId()==TYPEID_UNIT)
     //    ((Creature*)this)->SetCombatStartPosition(GetPositionX(), GetPositionY(), GetPositionZ());
 
-    if(GetTypeId()==TYPEID_UNIT && !IsControlledByPlayer())
+    if(GetTypeId()==TYPEID_UNIT)
     {
         // should not let player enter combat by right clicking target
         SetInCombatWith(victim);
@@ -8704,13 +8704,13 @@ void Unit::SetMinion(Minion *minion, bool apply)
                     assert((*itr)->GetOwnerGUID() == GetGUID());
                     assert((*itr)->GetTypeId() == TYPEID_UNIT);
 
-                    if(!((Creature*)(*itr))->HasSummonMask(SUMMON_MASK_GUARDIAN))
+                    if(!((Creature*)(*itr))->HasSummonMask(SUMMON_MASK_CONTROLABLE_GUARDIAN))
                         continue;
 
                     if(AddUInt64Value(UNIT_FIELD_SUMMON, (*itr)->GetGUID()))
                     {
                         //show another pet bar if there is no charm bar
-                        if(GetTypeId() == TYPEID_PLAYER && !GetCharmGUID() && ((Creature*)(*itr))->HasSummonMask(SUMMON_MASK_GUARDIAN))
+                        if(GetTypeId() == TYPEID_PLAYER && !GetCharmGUID() && ((Creature*)(*itr))->HasSummonMask(SUMMON_MASK_CONTROLABLE_GUARDIAN))
                         {
                             if(((Creature*)(*itr))->isPet())
                                 ((Player*)this)->PetSpellInitialize();
@@ -11140,8 +11140,8 @@ bool Unit::CanHaveThreatList() const
     //if( ((Creature*)this)->isVehicle() )
     //    return false;
 
-    // pets can not have a threat list, unless they are controlled by a creature
-    if( ((Creature*)this)->isPet() && IS_PLAYER_GUID(((Pet*)this)->GetOwnerGUID()) )
+    // summons can not have a threat list, unless they are controlled by a creature
+    if( ((Creature*)this)->HasSummonMask(SUMMON_MASK_MINION | SUMMON_MASK_GUARDIAN | SUMMON_MASK_CONTROLABLE_GUARDIAN) && IS_PLAYER_GUID(((Pet*)this)->GetOwnerGUID()) )
         return false;
 
     return true;
@@ -11284,9 +11284,39 @@ Unit* Creature::SelectVictim()
             target = getVictim();
     }
 
-    if ( !target && !m_ThreatManager.isThreatListEmpty() )
-        // No taunt aura or taunt aura caster is dead standart target selection
-        target = m_ThreatManager.getHostilTarget();
+    if (CanHaveThreatList())
+    {
+        if ( !target && !m_ThreatManager.isThreatListEmpty() )
+            // No taunt aura or taunt aura caster is dead standart target selection
+            target = m_ThreatManager.getHostilTarget();
+    }
+    else
+    {
+        // We have player pet probably
+        target = getAttackerForHelper();
+        if (!target && isSummon())
+        {
+            if (Unit * owner = ((TempSummon*)this)->GetOwner())
+            {
+                if (HasReactState(REACT_AGGRESSIVE) || HasReactState(REACT_DEFENSIVE))
+                {
+                    if (owner->isInCombat())
+                        target = owner->getAttackerForHelper();
+                    if (!target)
+                    {
+                        for(ControlList::const_iterator itr = owner->m_Controlled.begin(); itr != owner->m_Controlled.end(); ++itr)
+                        {
+                            if ((*itr)->isInCombat())
+                            {
+                                target = (*itr)->getAttackerForHelper();
+                                if (target) break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     if(target)
     {
@@ -11299,7 +11329,7 @@ Unit* Creature::SelectVictim()
     // it in combat but attacker not make any damage and not enter to aggro radius to have record in threat list
     // for example at owner command to pet attack some far away creature
     // Note: creature not have targeted movement generator but have attacker in this case
-    if(m_attackers.size() && m_ThreatManager.isThreatListEmpty()) //there are some cases null target are always returned,so creature evade can not be called at all. such as pull creature at a distance beyond the attackdist to the attacker
+    if(m_attackers.size() && CanHaveThreatList() && m_ThreatManager.isThreatListEmpty()) //there are some cases null target are always returned,so creature evade can not be called at all. such as pull creature at a distance beyond the attackdist to the attacker
         return NULL;
     /*if( GetMotionMaster()->GetCurrentMovementGeneratorType() != TARGETED_MOTION_TYPE )
     {
@@ -14844,6 +14874,15 @@ void Unit::SetFlying(bool apply)
         RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, 0x02);
         RemoveUnitMovementFlag(MOVEMENTFLAG_FLYING);
     }
+}
+
+float Unit::GetFollowAngle() const
+{
+    if (GetTypeId()!=TYPEID_UNIT)
+        return PET_FOLLOW_ANGLE;
+    if (!((Creature*)this)->HasSummonMask(SUMMON_MASK_MINION))
+        return PET_FOLLOW_ANGLE;
+    return ((Minion*)this)->GetFollowAngle();
 }
 
 void Unit::NearTeleportTo( float x, float y, float z, float orientation, bool casting /*= false*/ )

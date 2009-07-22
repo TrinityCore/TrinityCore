@@ -54,13 +54,13 @@ namespace FactorySelector
         // select by NPC flags
         if(!ai_factory)
         {
-            if(creature->isGuardian() && ((Guardian*)creature)->GetOwner()->GetTypeId() == TYPEID_PLAYER)
+            if(creature->HasSummonMask(SUMMON_MASK_CONTROLABLE_GUARDIAN) && ((Guardian*)creature)->GetOwner()->GetTypeId() == TYPEID_PLAYER)
                 ai_factory = ai_registry.GetRegistryItem("PetAI");
             else if(creature->isVehicle() || creature->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK))
                 ai_factory = ai_registry.GetRegistryItem("NullCreatureAI");
             else if(creature->isGuard())
                 ai_factory = ai_registry.GetRegistryItem("GuardAI");
-            else if(creature->isGuardian())
+            else if(creature->HasSummonMask(SUMMON_MASK_CONTROLABLE_GUARDIAN))
                 ai_factory = ai_registry.GetRegistryItem("PetAI");
             else if(creature->isTotem())
                 ai_factory = ai_registry.GetRegistryItem("TotemAI");

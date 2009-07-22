@@ -265,6 +265,7 @@ Minion::Minion(SummonPropertiesEntry const *properties, Unit *owner) : TempSummo
 {
     assert(m_owner);
     m_summonMask |= SUMMON_MASK_MINION;
+    m_followAngle = PET_FOLLOW_ANGLE;
 }
 
 void Minion::InitStats(uint32 duration)
@@ -286,7 +287,7 @@ void Minion::InitSummon()
     if(m_owner->GetTypeId() == TYPEID_PLAYER
         && m_owner->GetMinionGUID() == GetGUID()
         && !m_owner->GetCharmGUID())
-        ((Player*)m_owner)->CharmSpellInitialize();    
+        ((Player*)m_owner)->CharmSpellInitialize();
 }
 
 void Minion::RemoveFromWorld()
@@ -302,7 +303,11 @@ Guardian::Guardian(SummonPropertiesEntry const *properties, Unit *owner) : Minio
 , m_bonusdamage(0)
 {
     m_summonMask |= SUMMON_MASK_GUARDIAN;
-    InitCharmInfo();
+    if (properties && properties->Type == SUMMON_TYPE_PET)
+    {
+        m_summonMask |= SUMMON_MASK_CONTROLABLE_GUARDIAN;
+        InitCharmInfo();
+    }
 }
 
 void Guardian::InitStats(uint32 duration)
@@ -311,7 +316,7 @@ void Guardian::InitStats(uint32 duration)
 
     InitStatsForLevel(m_owner->getLevel());
 
-    if(m_owner->GetTypeId() == TYPEID_PLAYER)
+    if(m_owner->GetTypeId() == TYPEID_PLAYER && HasSummonMask(SUMMON_MASK_CONTROLABLE_GUARDIAN))
         m_charmInfo->InitCharmCreateSpells();
 
     SetReactState(REACT_AGGRESSIVE);

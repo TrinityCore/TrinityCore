@@ -54,9 +54,12 @@ class Minion : public TempSummon
         void InitSummon();
         void RemoveFromWorld();
         Unit *GetOwner() { return m_owner; }
+        float GetFollowAngle() { return m_followAngle; }
+        void SetFollowAngle(float angle) { m_followAngle = angle; }
         bool IsPetGhoul() const {return GetEntry() == 26125;} // Ghoul may be guardian or pet
     protected:
         Unit * const m_owner;
+        float m_followAngle;
 };
 
 class Guardian : public Minion

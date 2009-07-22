@@ -74,7 +74,7 @@ void PetAI::_stopAttack()
 
     if(owner && m_creature->GetCharmInfo() && m_creature->GetCharmInfo()->HasCommandState(COMMAND_FOLLOW))
     {
-        m_creature->GetMotionMaster()->MoveFollow(owner,PET_FOLLOW_DIST,PET_FOLLOW_ANGLE);
+        m_creature->GetMotionMaster()->MoveFollow(owner,PET_FOLLOW_DIST, m_creature->GetFollowAngle());
     }
     else
     {
@@ -112,8 +112,10 @@ void PetAI::UpdateAI(const uint32 diff)
         if(owner->isInCombat() && !(m_creature->HasReactState(REACT_PASSIVE) || m_creature->GetCharmInfo()->HasCommandState(COMMAND_STAY)))
             AttackStart(owner->getAttackerForHelper());
         else if(m_creature->GetCharmInfo()->HasCommandState(COMMAND_FOLLOW) && !m_creature->hasUnitState(UNIT_STAT_FOLLOW))
-            m_creature->GetMotionMaster()->MoveFollow(owner,PET_FOLLOW_DIST,PET_FOLLOW_ANGLE);
+            m_creature->GetMotionMaster()->MoveFollow(owner,PET_FOLLOW_DIST, m_creature->GetFollowAngle());
     }
+    else if (owner && !m_creature->hasUnitState(UNIT_STAT_FOLLOW)) // no charm info and no victim
+        m_creature->GetMotionMaster()->MoveFollow(owner,PET_FOLLOW_DIST, m_creature->GetFollowAngle());
 
     if(!me->GetCharmInfo())
         return;

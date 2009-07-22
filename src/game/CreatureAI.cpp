@@ -148,7 +148,6 @@ bool CreatureAI::UpdateVictim()
 {
     if(!me->isInCombat())
         return false;
-
     if(Unit *victim = me->SelectVictim())
         AttackStart(victim);
     return me->getVictim();
@@ -195,7 +194,10 @@ void CreatureAI::EnterEvadeMode()
         return;
 
     if(Unit *owner = me->GetCharmerOrOwner())
-        me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE, MOTION_SLOT_ACTIVE);
+    {
+        me->GetMotionMaster()->Clear(false);
+        me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, m_creature->GetFollowAngle(), MOTION_SLOT_ACTIVE);
+    }
     else
         me->GetMotionMaster()->MoveTargetedHome();
 

@@ -348,7 +348,7 @@ void SimpleCharmedAI::UpdateAI(const uint32 /*diff*/)
     }
 
     if(!charmer->isInCombat())
-        me->GetMotionMaster()->MoveFollow(charmer, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+        me->GetMotionMaster()->MoveFollow(charmer, PET_FOLLOW_DIST, me->GetFollowAngle());
 
     Unit *target = me->getVictim();
     if(!target || !charmer->canAttack(target))

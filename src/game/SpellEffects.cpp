@@ -3280,6 +3280,9 @@ void Spell::EffectSummonType(uint32 i)
     switch(properties->Category)
     {
         default:
+            if (properties->Flags & 512)
+                SummonGuardian(entry, properties);
+                break;
             switch(properties->Type)
             {
                 case SUMMON_TYPE_PET:
@@ -3363,7 +3366,7 @@ void Spell::EffectSummonType(uint32 i)
                         TempSummonType summonType = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_DESPAWN;
 
                         TempSummon * summon = m_originalCaster->SummonCreature(entry,px,py,pz,m_caster->GetOrientation(),summonType,duration);
-                        summon->SetUInt64Value(UNIT_FIELD_SUMMONEDBY, m_originalCaster->GetGUID());
+                        summon->SetUInt64Value(UNIT_FIELD_SUMONEDBY, m_originalCaster->GetGUID());
                         if (properties->Category == SUMMON_CATEGORY_ALLY)
                             summon->setFaction(m_originalCaster->getFaction());
                     }
@@ -4556,6 +4559,15 @@ void Spell::EffectScriptEffect(uint32 effIndex)
         {
             switch(m_spellInfo->Id)
             {
+                case 45204: // Clone Me!
+                case 41055: // Copy Weapon
+                case 45206: // Copy Off-hand Weapon
+                    unitTarget->CastSpell(m_caster, damage, false);
+                    break;
+                case 45205: // Copy Offhand Weapon
+                case 41054: // Copy Weapon
+                    m_caster->CastSpell(unitTarget, damage, false);
+                    break;
                 // Despawn Horse
                 case 52267:
                 {
@@ -6695,6 +6707,8 @@ void Spell::SummonGuardian(uint32 entry, SummonPropertiesEntry const *properties
             ((Guardian*)summon)->InitStatsForLevel(level);
 
         summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
+        if(summon->HasSummonMask(SUMMON_MASK_MINION) && m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION)
+            ((Minion*)summon)->SetFollowAngle(m_caster->GetAngle(summon));
 
         summon->AI()->EnterEvadeMode();
     }
