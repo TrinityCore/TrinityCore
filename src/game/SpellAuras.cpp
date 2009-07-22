@@ -3278,6 +3278,8 @@ void AuraEffect::HandleAuraModShapeshift(bool apply, bool Real, bool changeAmoun
         case FORM_AMBIENT:
         case FORM_SHADOW:
         case FORM_STEALTH:
+        case FORM_UNDEAD:
+        case FORM_SHADOW_DANCE:
             break;
         case FORM_TREE:
             modelid = 864;
