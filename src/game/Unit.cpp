@@ -7349,7 +7349,25 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                 break;
             }
             case SPELLFAMILY_HUNTER:
+            {
+                if (auraSpellInfo->SpellIconID == 3247)     // Piercing Shots
+                {
+                    switch (auraSpellInfo->Id)
+                    {
+                        case 53234:  // Rank 1
+                        case 53237:  // Rank 2
+                        case 53238:  // Rank 3
+                            trigger_spell_id = 63468;
+                            break;
+                        default:
+                            sLog.outError("Unit::HandleProcTriggerSpell: Spell %u miss posibly Piercing Shots",auraSpellInfo->Id);
+                            return false;
+                    }
+                    basepoints0 = int32(damage * triggerAmount / 100);
+                    target = pVictim;
+                }                              
                 break;
+            }
             case SPELLFAMILY_PALADIN:
             {
                 /*
@@ -12132,6 +12150,7 @@ void Unit::RemoveFromWorld()
         ExitVehicle();
         UnsummonAllTotems();
         RemoveAllControlled();
+        GetMotionMaster()->Clear(false);                    // remove different non-standard movement generators.
 
         if(m_NotifyListPos >= 0)
         {
@@ -12164,7 +12183,6 @@ void Unit::CleanupsBeforeDelete()
     getHostilRefManager().setOnlineOfflineState(false);
     RemoveAllGameObjects();
     RemoveAllDynObjects();
-    GetMotionMaster()->Clear(false);                    // remove different non-standard movement generators.
 
     if(IsInWorld())
         RemoveFromWorld();
