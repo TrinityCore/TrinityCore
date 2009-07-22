@@ -999,10 +999,10 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
             DoorGUID[0] = pInstance->GetData64(DATA_GAMEOBJECT_ILLIDAN_DOOR_R);
             DoorGUID[1] = pInstance->GetData64(DATA_GAMEOBJECT_ILLIDAN_DOOR_L);
 
-            pInstance->HandleGameObject(pInstance->GetData64(GateGUID), false);
+            pInstance->HandleGameObject(GateGUID, false);
 
             for(uint8 i = 0; i < 2; i++)
-                pInstance->HandleGameObject(pInstance->GetData64(DoorGUID[i]), false);
+                pInstance->HandleGameObject(DoorGUID[i], false);
 
         }
         else
@@ -1073,7 +1073,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
         pInstance->SetData(DATA_ILLIDANSTORMRAGEEVENT, IN_PROGRESS);
 
         for(uint8 i = 0; i < 2; i++)
-            pInstance->HandleGameObject(pInstance->GetData64(DoorGUID[i]), false);
+            pInstance->HandleGameObject(DoorGUID[i], false);
 
         if(GETCRE(Illidan, IllidanGUID))
         {
@@ -1238,7 +1238,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
             m_creature->InterruptNonMeleeSpells(true);
             Spirit[0]->InterruptNonMeleeSpells(true);
             Spirit[1]->InterruptNonMeleeSpells(true);
-            pInstance->HandleGameObject(pInstance->GetData64(GateGUID), true);
+            pInstance->HandleGameObject(GateGUID, true);
             Timer = 2000;
             break;
         case 4:
@@ -1268,7 +1268,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
         {
         case 6:
             for(uint8 i = 0; i < 2; i++)
-                pInstance->HandleGameObject(pInstance->GetData64(DoorGUID[i]), true);
+                pInstance->HandleGameObject(DoorGUID[i], true);
             break;
         case 8:
             if(Phase == PHASE_WALK)
