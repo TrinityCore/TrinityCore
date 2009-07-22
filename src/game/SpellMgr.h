@@ -860,8 +860,6 @@ class SpellMgr
 
         SpellsRequiringSpellMap const& GetSpellsRequiringSpell() const { return mSpellsReqSpell; }
 
-        // Note: not use rank for compare to spell ranks: spell chains isn't linear order
-        // Use IsHighRankOfSpell instead
         uint8 GetSpellRank(uint32 spell_id) const
         {
             if(SpellChainNode const* node = GetSpellChainNode(spell_id))
