@@ -49,6 +49,13 @@ m_declinedname(NULL), m_owner(owner)
     m_summonMask |= SUMMON_MASK_PET;
     if(type == HUNTER_PET)
         m_summonMask |= SUMMON_MASK_HUNTER_PET;
+
+    if (!(m_summonMask & SUMMON_MASK_CONTROLABLE_GUARDIAN))
+    {
+        m_summonMask |= SUMMON_MASK_CONTROLABLE_GUARDIAN;
+        InitCharmInfo();
+    }
+
     m_name = "Pet";
     m_regenTimer = 4000;
 }
