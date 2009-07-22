@@ -7532,7 +7532,8 @@ int32 AuraEffect::CalculateCrowdControlAuraAmount(Unit * caster)
     if (m_auraName !=SPELL_AURA_MOD_CONFUSE &&
         m_auraName !=SPELL_AURA_MOD_FEAR &&
         m_auraName !=SPELL_AURA_MOD_STUN &&
-        m_auraName !=SPELL_AURA_MOD_ROOT)
+        m_auraName !=SPELL_AURA_MOD_ROOT &&
+        m_auraName !=SPELL_AURA_TRANSFORM)
         return 0;
 
     int32 damageCap = (int32)(m_target->GetMaxHealth()*0.10f);
