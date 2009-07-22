@@ -12843,6 +12843,7 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
                 case SPELL_AURA_MOD_FEAR:
                 case SPELL_AURA_MOD_STUN:
                 case SPELL_AURA_MOD_ROOT:
+                case SPELL_AURA_TRANSFORM:
                     if (isVictim && damage)
                     {
                         // Damage is dealt after proc system - lets ignore auras which wasn't updated yet
