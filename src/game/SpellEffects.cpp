@@ -3281,8 +3281,10 @@ void Spell::EffectSummonType(uint32 i)
     {
         default:
             if (properties->Flags & 512)
+            {
                 SummonGuardian(entry, properties);
                 break;
+            }
             switch(properties->Type)
             {
                 case SUMMON_TYPE_PET:

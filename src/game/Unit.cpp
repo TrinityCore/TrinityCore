@@ -219,7 +219,7 @@ void Unit::Update( uint32 p_time )
         SendThreatListUpdate();
 
     // update combat timer only for players and pets (only pets with PetAI)
-    if (isInCombat() && (GetTypeId() == TYPEID_PLAYER || (((Creature *)this)->isPet()) && IsControlledByPlayer()))
+    if (isInCombat() && (GetTypeId() == TYPEID_PLAYER || (((Creature *)this)->isPet() && IsControlledByPlayer())))
     {
         // Check UNIT_STAT_MELEE_ATTACKING or UNIT_STAT_CHASE (without UNIT_STAT_FOLLOW in this case) so pets can reach far away
         // targets without stopping half way there and running off.
