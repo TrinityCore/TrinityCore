@@ -140,7 +140,9 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 -- --------
 -- TARGET
 -- --------
-
+-- Mirror Image
+DELETE FROM `spell_script_target` WHERE `entry` IN (58836);
+INSERT INTO `spell_script_target` VALUES (58836, 1, 31216);
 -- zulaman
 DELETE FROM `spell_script_target` WHERE `entry` IN
 (42577,42471,43734,42631);

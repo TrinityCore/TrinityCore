@@ -227,7 +227,7 @@ struct TRINITY_DLL_DECL npc_threshwackonatorAI : public ScriptedAI
         if(me->isAlive())
         {
             if(Player* pPlayer = Unit::GetPlayer(PlayerGUID))
-                me->GetMotionMaster()->MoveFollow(pPlayer, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+                me->GetMotionMaster()->MoveFollow(pPlayer, PET_FOLLOW_DIST, m_creature->GetFollowAngle());
             else
             {
                 me->GetMotionMaster()->MovementExpired();
@@ -246,7 +246,7 @@ struct TRINITY_DLL_DECL npc_threshwackonatorAI : public ScriptedAI
         me->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
 
         if(Player* pPlayer = Unit::GetPlayer(PlayerGUID))
-            me->GetMotionMaster()->MoveFollow(pPlayer, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+            me->GetMotionMaster()->MoveFollow(pPlayer, PET_FOLLOW_DIST, m_creature->GetFollowAngle());
 
         DoScriptText(EMOTE_START, me);
     }

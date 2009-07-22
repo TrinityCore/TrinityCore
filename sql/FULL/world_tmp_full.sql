@@ -179,6 +179,8 @@ spell6 = VALUES(spell6),
 spell7 = VALUES(spell7),
 spell8 = VALUES(spell8);
 
+UPDATE `creature_template` SET `spell1`=59638, `spell2` = 59637 WHERE `entry`=31216; # Mirror Image
+
 # Spore
 UPDATE `creature_template` SET `minlevel`='80',`maxlevel`='80',`faction_A`='21',`faction_H`='21' WHERE entry IN (16286,30068);
 

@@ -1092,6 +1092,7 @@ UPDATE `creature_template` SET `ScriptName`='mob_spawn_of_marli' WHERE `entry`=1
 UPDATE `creature_template` SET `ScriptName`='mob_batrider' WHERE `entry`=14965;
 UPDATE `creature_template` SET `ScriptName`='mob_shade_of_jindo' WHERE `entry`=14986;
 UPDATE `creature_template` SET `ScriptName`='mob_ohgan' WHERE `entry`=14988;
+UPDATE `creature_template` SET `ScriptName`='npc_mirror_image' WHERE `entry`=31216;
 
 UPDATE `creature_template` SET `ScriptName`='EventAI', `modelid_A` = 16925,`modelid_H` = 16925, `minmana` = 1000000,`maxmana` = 1000000, `unit_flags` = 33554434 WHERE `entry` IN(29998, 33753, 33752, 33751, 33750);
 DELETE FROM `creature_ai_scripts` WHERE `creature_id` IN (29998, 33753, 33752, 33751, 33750);

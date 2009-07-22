@@ -1718,6 +1718,8 @@ TempSummon *Map::SummonCreature(uint32 entry, float x, float y, float z, float a
             mask = SUMMON_MASK_PUPPET;
         else if(properties->Type == SUMMON_TYPE_MINIPET)
             mask = SUMMON_MASK_MINION;
+        else if (properties->Flags & 512) // Mirror Image, Summon Gargoyle
+            mask = SUMMON_MASK_GUARDIAN;
     }
 
     uint32 phase = PHASEMASK_NORMAL, team = 0;
