@@ -1718,12 +1718,8 @@ bool AuraEffect::isAffectedOnSpell(SpellEntry const *spell) const
     if (spell->SpellFamilyName != m_spellProto->SpellFamilyName)
         return false;
 
-    // Check EffectClassMask and Spell_Affect table
-    flag96 const *spellAffect = spellmgr.GetSpellAffect(GetId(), m_effIndex);
-    if (!spellAffect)
-        spellAffect = &m_spellProto->EffectSpellClassMask[m_effIndex];
-
-    if (*spellAffect & spell->SpellFamilyFlags)
+    // Check EffectClassMask
+    if (m_spellProto->EffectSpellClassMask[m_effIndex] & spell->SpellFamilyFlags)
         return true;
     return false;
 }
@@ -1768,10 +1764,7 @@ void AuraEffect::HandleAddModifier(bool apply, bool Real, bool changeAmount)
         mod->type = SpellModType(m_auraName);    // SpellModType value == spell aura types
         mod->spellId = GetId();
 
-        flag96 const *spellAffect = spellmgr.GetSpellAffect(GetId(), m_effIndex);
-        if (!spellAffect)
-            spellAffect = &m_spellProto->EffectSpellClassMask[m_effIndex];
-        mod->mask = *spellAffect;
+        mod->mask = m_spellProto->EffectSpellClassMask[m_effIndex];
         mod->charges = GetParentAura()->GetAuraCharges();
 
         m_spellmod = mod;

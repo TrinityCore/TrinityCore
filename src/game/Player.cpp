@@ -17387,11 +17387,7 @@ void Player::RemoveSpellMods(Spell * spell)
             checkedSpells.find(aur->GetParentAura()) != checkedSpells.end())
             continue;
 
-        flag96 const * mask = spellmgr.GetSpellAffect(aur->GetId(), aur->GetEffIndex());
-        if (!mask)
-            mask = &spellInfo->EffectSpellClassMask[aur->GetEffIndex()];
-
-        if (spell->m_spellInfo->SpellFamilyFlags & *mask)
+        if (spell->m_spellInfo->SpellFamilyFlags & spellInfo->EffectSpellClassMask[aur->GetEffIndex()])
         {
             checkedSpells.insert(aur->GetParentAura());
             spell->m_appliedMods.erase(aur->GetParentAura());
