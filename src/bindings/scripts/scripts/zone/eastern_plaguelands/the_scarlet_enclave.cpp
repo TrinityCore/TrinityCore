@@ -484,6 +484,7 @@ CreatureAI* GetAI_npc_a_special_surprise(Creature* pCreature)
 
 #define SPELL_SOUL_PRISON_CHAIN_SELF    54612
 #define SPELL_SOUL_PRISON_CHAIN         54613
+#define SPELL_DK_INITIATE_VISUAL        51519
 
 #define SPELL_ICY_TOUCH                 52372
 #define SPELL_PLAGUE_STRIKE             52373
@@ -541,54 +542,6 @@ enum initiate_phase
     Attacking
 };
 
-float modelid_dk_armor[20] =
-{
-    25432, // bloodelf female
-    25422, // bloodelf male
-    25412, // draenei female
-    25420, // draenei male
-    25406, // dwarf female
-    25414, // dwarf male
-    25438, // forsaken female
-    25426, // forsaken male
-    25408, // gnome female
-    25426, // gnome male
-    25404, // human female
-    25375, // human male
-    25410, // nightelf female
-    25418, // nightelf male
-    25436, // orc female
-    25424, // orc male
-    25440, // tauren female
-    25430, // tauren male
-    25434, // troll female
-    25428  // troll male
-};
-
-float modelid_dk_unworthy[20] =
-{
-    25369, // bloodelf female
-    25373, // bloodelf male
-    25363, // draenei female
-    25357, // draenei male
-    25361, // dwarf female
-    25356, // dwarf male
-    25372, // forsaken female
-    25367, // forsaken male
-    25362, // gnome female
-    25359, // gnome male
-    25355, // human female
-    25354, // human male
-    25360, // nightelf female
-    25358, // nightelf male
-    25368, // orc female
-    25364, // orc male
-    25371, // tauren female
-    25366, // tauren male
-    25370, // troll female
-    25365  // troll male
-};
-
 struct TRINITY_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
 {
     npc_unworthy_initiateAI(Creature *c) : ScriptedAI(c)
@@ -637,22 +590,6 @@ struct TRINITY_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
                 CAST_PLR(killer)->KilledMonsterCredit(29519,m_creature->GetGUID());
     }
 
-    void AddEquipp()
-    {
-        int model_counter = 0;
-        for(uint8 i = 0; i< 20; i++)
-        {
-            if(m_creature->GetDisplayId() == modelid_dk_unworthy[i])
-            {
-                model_counter = i;
-                break;
-            }
-        }
-
-        m_creature->SetDisplayId(modelid_dk_armor[model_counter]);
-        m_creature->LoadEquipment(m_creature->GetEquipmentId());
-    }
-
     void MovementInform(uint32 type, uint32 id)
     {
         if(type != POINT_MOTION_TYPE)
@@ -661,7 +598,7 @@ struct TRINITY_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
         if(id == 1)
         {
             wait_timer = 5000;
-            AddEquipp();
+            m_creature->CastSpell(m_creature,SPELL_DK_INITIATE_VISUAL,true);
 
             if(Unit* starter = Unit::GetUnit((*m_creature),event_starter))
                 DoScriptText(say_event_attack[rand()%9],m_creature,starter);
