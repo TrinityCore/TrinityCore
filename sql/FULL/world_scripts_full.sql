@@ -81,6 +81,7 @@ UPDATE `item_template` SET `ScriptName`='item_yehkinyas_bramble' WHERE `entry`=1
 UPDATE `item_template` SET `ScriptName`='item_zezzaks_shard' WHERE `entry`=31463;
 UPDATE `item_template` SET `ScriptName`='item_only_for_flight' WHERE `entry` IN (34475, 34489, 24538);
 UPDATE `item_template` SET `ScriptName`='item_inoculating_crystal' WHERE `entry`=22962;
+UPDATE `item_template` SET `ScriptName`='item_incendiary_explosives' WHERE (`entry`=35704);
 
 /* NPC (usually creatures to be found in more than one specific zone) */
 UPDATE `creature_template` SET `ScriptName`='npc_air_force_bots' WHERE `entry` IN (2614, 2615, 21974, 21993, 21996, 21997, 21999, 22001, 22002, 22003, 22063, 22065, 22066, 22068, 22069, 22070, 22071, 22078, 22079, 22080, 22086, 22087, 22088, 22090, 22124, 22125, 22126);
@@ -115,6 +116,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_dkc1_gothik' WHERE `entry`=2865
 UPDATE `creature_template` SET `ScriptName`='npc_a_special_surprise' WHERE `entry` IN (29032, 29061, 29065, 29067, 29068, 29070, 29074, 29072, 29073, 29071);
 UPDATE `creature_template` SET `ScriptName`='npc_demolisher_engineerer' WHERE `entry` IN (30400, 30499);
 UPDATE `creature_template` SET `ScriptName`='npc_valkyr_battle_maiden' WHERE `entry`=28534;
+UPDATE `creature_template` SET `ScriptName`='npc_mirror_image' WHERE `entry`=31216;
 
 /*  */
 /* ZONE */
@@ -309,6 +311,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_captured_sunhawk_agent' WHERE `
 /* BOREAN TUNDRA */
 UPDATE `creature_template` SET `ScriptName`='npc_surristrasz' WHERE `entry`=24795;
 UPDATE `creature_template` SET `ScriptName`='npc_tiare' WHERE `entry`=30051;
+UPDATE `creature_template` SET `ScriptName`='npc_sinkhole_kill_credit' WHERE `entry` IN (26248,26249);
 
 /* BURNING STEPPES */
 UPDATE `creature_template` SET `ScriptName`='npc_ragged_john' WHERE `entry`=9563;
@@ -1092,7 +1095,6 @@ UPDATE `creature_template` SET `ScriptName`='mob_spawn_of_marli' WHERE `entry`=1
 UPDATE `creature_template` SET `ScriptName`='mob_batrider' WHERE `entry`=14965;
 UPDATE `creature_template` SET `ScriptName`='mob_shade_of_jindo' WHERE `entry`=14986;
 UPDATE `creature_template` SET `ScriptName`='mob_ohgan' WHERE `entry`=14988;
-UPDATE `creature_template` SET `ScriptName`='npc_mirror_image' WHERE `entry`=31216;
 
 UPDATE `creature_template` SET `ScriptName`='EventAI', `modelid_A` = 16925,`modelid_H` = 16925, `minmana` = 1000000,`maxmana` = 1000000, `unit_flags` = 33554434 WHERE `entry` IN(29998, 33753, 33752, 33751, 33750);
 DELETE FROM `creature_ai_scripts` WHERE `creature_id` IN (29998, 33753, 33752, 33751, 33750);

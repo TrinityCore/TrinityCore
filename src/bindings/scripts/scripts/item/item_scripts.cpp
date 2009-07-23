@@ -489,6 +489,23 @@ bool ItemUse_item_zezzak_shard(Player *player, Item* _Item, SpellCastTargets con
     return true;
 }
 
+/*#####
+# item_incendiary_explosives
+#####*/
+
+bool ItemUse_item_incendiary_explosives(Player *player, Item* _Item, SpellCastTargets const& targets)
+{
+    if ( player->FindNearestCreature(26248,15) || player->FindNearestCreature(26249,15) )
+    {
+        return false;
+    }
+    else
+    {
+        player->SendEquipError(EQUIP_ERR_OUT_OF_RANGE,_Item,NULL);
+        return true;
+    }
+}
+
 void AddSC_item_scripts()
 {
     Script *newscript;
@@ -591,6 +608,11 @@ void AddSC_item_scripts()
     newscript = new Script;
     newscript->Name="item_zezzaks_shard";
     newscript->pItemUse = &ItemUse_item_zezzak_shard;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name="item_incendiary_explosives";
+    newscript->pItemUse = &ItemUse_item_incendiary_explosives;
     newscript->RegisterSelf();
 }
 
