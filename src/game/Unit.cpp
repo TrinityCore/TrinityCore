@@ -14906,15 +14906,6 @@ void Unit::SetFlying(bool apply)
     }
 }
 
-float Unit::GetFollowAngle() const
-{
-    if (GetTypeId()!=TYPEID_UNIT)
-        return PET_FOLLOW_ANGLE;
-    if (!((Creature*)this)->HasSummonMask(SUMMON_MASK_MINION))
-        return PET_FOLLOW_ANGLE;
-    return ((Minion*)this)->GetFollowAngle();
-}
-
 void Unit::NearTeleportTo( float x, float y, float z, float orientation, bool casting /*= false*/ )
 {
     if(GetTypeId() == TYPEID_PLAYER)
