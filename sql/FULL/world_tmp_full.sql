@@ -1,4 +1,4 @@
---- Khunok Will Know ----
+-- Khunok Will Know --
 UPDATE `quest_template` SET `SrcSpell`='46232' WHERE (`entry`='11878');
 
 -- --------

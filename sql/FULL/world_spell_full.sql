@@ -483,7 +483,7 @@ INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
 ('48714', '2', '27236'),
 ('57806', '2', '31043');
 
---- Zul'Drak
+-- Zul'Drak
 DELETE FROM `spell_script_target` WHERE `entry` IN (55083,55223,59951,59952);
 INSERT INTO `spell_script_target` VALUES (55083, 1, 29700),(55223, 1, 29686),(59951, 1, 29686),(59952, 1, 29686);
 
