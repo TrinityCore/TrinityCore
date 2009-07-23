@@ -636,6 +636,9 @@ extern void AddSC_boss_zuljin();
 extern void AddSC_instance_zulaman();
 extern void AddSC_zulaman();
 
+//Zul'Drak
+extern void AddSC_zuldrak();
+
 //Northrend
 //Dungeon
 //Vault of Archavon
@@ -1533,6 +1536,9 @@ void ScriptsInit(char const* cfg_file = "trinitycore.conf")
     AddSC_boss_zuljin();
     AddSC_instance_zulaman();
     AddSC_zulaman();
+
+    //Zul'Drak
+    AddSC_zuldrak();
 
     //Northrend
     //Dungeon
