@@ -1836,6 +1836,14 @@
 							>
 						</File>
 					</Filter>
+                    <Filter
+                        Name="Zul&apos;Drak"
+                        >
+                        <File
+                            RelativePath="..\scripts\zone\zuldrak\zuldrak.cpp"
+                            >
+                        </File>
+                    </Filter>
 					<Filter
 						Name="Wetlands"
 						>
