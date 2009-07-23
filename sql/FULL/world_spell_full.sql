@@ -1924,14 +1924,6 @@ INSERT INTO `spell_elixir` (`entry`, `mask`) VALUES
 (62380, 0x3);
 
 -- --------
--- SPELL AFFECT
--- --------
-
-TRUNCATE TABLE `spell_affect`;
-INSERT INTO `spell_affect` (`entry`, `effectId`, `SpellClassMask0`, `SpellClassMask1`, `SpellClassMask2`) VALUES
-(44544,0,685904631,1151048,0); -- Fingers of frost
-
--- --------
 -- Death Knight
 -- --------
 DELETE FROM `spell_script_target` WHERE entry IN
