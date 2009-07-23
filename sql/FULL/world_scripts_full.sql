@@ -312,6 +312,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_captured_sunhawk_agent' WHERE `
 UPDATE `creature_template` SET `ScriptName`='npc_surristrasz' WHERE `entry`=24795;
 UPDATE `creature_template` SET `ScriptName`='npc_tiare' WHERE `entry`=30051;
 UPDATE `creature_template` SET `ScriptName`='npc_sinkhole_kill_credit' WHERE `entry` IN (26248,26249);
+UPDATE `creature_template` SET `ScriptName`='npc_khunok_the_behemoth' WHERE (`entry`='25862');
 
 /* BURNING STEPPES */
 UPDATE `creature_template` SET `ScriptName`='npc_ragged_john' WHERE `entry`=9563;
@@ -1068,6 +1069,10 @@ UPDATE `creature_template` SET `ScriptName`='boss_zuljin' WHERE `entry` =23863;
 UPDATE `creature_template` SET `ScriptName`='do_nothing' WHERE `entry`=24187;
 UPDATE `creature_template` SET `ScriptName`='mob_zuljin_vortex' WHERE `entry`=24136;
 UPDATE `creature_template` SET `ScriptName`='npc_zulaman_hostage' WHERE `entry` IN (23790, 23999, 24024, 24001);
+
+/* ZUL'DRAK */
+UPDATE `creature_template` SET `ScriptName`='npc_captured_rageclaw' WHERE (`entry`='29686');
+UPDATE `creature_template` SET `ScriptName`='npc_drakuru_shackles' WHERE (`entry`='29700');
 
 /* ZUL'FARRAK */
 UPDATE `creature_template` SET `ScriptName`='npc_sergeant_bly' WHERE `entry`=7604;
