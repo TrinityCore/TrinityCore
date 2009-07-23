@@ -342,6 +342,70 @@ bool IsHigherHankOfSpell(uint32 spellId_1, uint32 spellId_2)
     return spellmgr.GetSpellRank(spellId_1)<spellmgr.GetSpellRank(spellId_2);
 }
 
+uint32 CalculatePowerCost(SpellEntry const * spellInfo, Unit const * caster, SpellSchoolMask schoolMask)
+{
+    // Spell drain all exist power on cast (Only paladin lay of Hands)
+    if (spellInfo->AttributesEx & SPELL_ATTR_EX_DRAIN_ALL_POWER)
+    {
+        // If power type - health drain all
+        if (spellInfo->powerType == POWER_HEALTH)
+            return caster->GetHealth();
+        // Else drain all power
+        if (spellInfo->powerType < MAX_POWERS)
+            return caster->GetPower(Powers(spellInfo->powerType));
+        sLog.outError("CalculateManaCost: Unknown power type '%d' in spell %d", spellInfo->powerType, spellInfo->Id);
+        return 0;
+    }
+
+    // Base powerCost
+    int32 powerCost = spellInfo->manaCost;
+    // PCT cost from total amount
+    if (spellInfo->ManaCostPercentage)
+    {
+        switch (spellInfo->powerType)
+        {
+            // health as power used
+            case POWER_HEALTH:
+                powerCost += spellInfo->ManaCostPercentage * caster->GetCreateHealth() / 100;
+                break;
+            case POWER_MANA:
+                powerCost += spellInfo->ManaCostPercentage * caster->GetCreateMana() / 100;
+                break;
+            case POWER_RAGE:
+            case POWER_FOCUS:
+            case POWER_ENERGY:
+            case POWER_HAPPINESS:
+                powerCost += spellInfo->ManaCostPercentage * caster->GetMaxPower(Powers(spellInfo->powerType)) / 100;
+                break;
+            case POWER_RUNE:
+            case POWER_RUNIC_POWER:
+                sLog.outDebug("CalculateManaCost: Not implemented yet!");
+                break;
+            default:
+                sLog.outError("CalculateManaCost: Unknown power type '%d' in spell %d", spellInfo->powerType, spellInfo->Id);
+                return 0;
+        }
+    }
+    SpellSchools school = GetFirstSchoolInMask(schoolMask);
+    // Flat mod from caster auras by spell school
+    powerCost += caster->GetInt32Value(UNIT_FIELD_POWER_COST_MODIFIER + school);
+    // Shiv - costs 20 + weaponSpeed*10 energy (apply only to non-triggered spell with energy cost)
+    if ( spellInfo->AttributesEx4 & SPELL_ATTR_EX4_SPELL_VS_EXTEND_COST )
+        powerCost += caster->GetAttackTime(OFF_ATTACK)/100;
+    // Apply cost mod by spell
+    if(Player* modOwner = caster->GetSpellModOwner())
+        modOwner->ApplySpellMod(spellInfo->Id, SPELLMOD_COST, powerCost);
+
+    if(spellInfo->Attributes & SPELL_ATTR_LEVEL_DAMAGE_CALCULATION)
+        powerCost = int32(powerCost/ (1.117f* spellInfo->spellLevel / caster->getLevel() -0.1327f));
+
+    // PCT mod from user auras by school
+    powerCost = int32(powerCost * (1.0f+caster->GetFloatValue(UNIT_FIELD_POWER_COST_MULTIPLIER+school)));
+    if (powerCost < 0)
+        powerCost = 0;
+    return powerCost;
+}
+
 SpellSpecific GetSpellSpecific(uint32 spellId)
 {
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
