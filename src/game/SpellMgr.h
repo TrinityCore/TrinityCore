@@ -240,6 +240,8 @@ bool IsSingleFromSpellSpecificPerTarget(uint32 spellSpec1, uint32 spellSpec2);
 bool IsPassiveSpell(uint32 spellId);
 bool IsAutocastableSpell(uint32 spellId);
 
+uint32 CalculatePowerCost(SpellEntry const * spellInfo, Unit const * caster, SpellSchoolMask schoolMask);
+
 inline bool IsPassiveSpellStackableWithRanks(SpellEntry const* spellProto)
 {
     if(!IsPassiveSpell(spellProto->Id))
