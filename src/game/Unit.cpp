@@ -1412,7 +1412,7 @@ void Unit::CalculateMeleeDamage(Unit *pVictim, uint32 damage, CalcDamageInfo *da
     damageInfo->procEx           = PROC_EX_NONE;
     damageInfo->hitOutCome       = MELEE_HIT_EVADE;
 
-    if(!this || !pVictim)
+    if(!pVictim)
         return;
     if(!this->isAlive() || !pVictim->isAlive())
         return;
