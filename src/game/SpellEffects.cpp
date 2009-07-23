@@ -4563,6 +4563,14 @@ void Spell::EffectScriptEffect(uint32 effIndex)
         {
             switch(m_spellInfo->Id)
             {
+                // Dispelling Analysis
+                case 37028:
+                {
+                    if (unitTarget->HasAura(36904))
+                        unitTarget->RemoveAurasDueToSpell(36904);
+
+                    return;
+                }
                 case 45204: // Clone Me!
                 case 41055: // Copy Weapon
                 case 45206: // Copy Off-hand Weapon
