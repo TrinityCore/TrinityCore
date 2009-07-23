@@ -197,6 +197,40 @@ CreatureAI* GetAI_npc_sinkhole_kill_credit(Creature* pCreature)
     return new npc_sinkhole_kill_creditAI(pCreature);
 }
 
+/*######
+## npc_khunok_the_behemoth
+######*/
+
+struct TRINITY_DLL_DECL npc_khunok_the_behemothAI : public ScriptedAI
+{
+    npc_khunok_the_behemothAI(Creature *c) : ScriptedAI(c) {}
+
+    void MoveInLineOfSight(Unit *who)
+    {
+        ScriptedAI::MoveInLineOfSight(who);
+
+        if(who->GetTypeId() != TYPEID_UNIT)
+            return;
+
+        if(who->GetEntry() == 25861 && me->IsWithinDistInMap(who, 10.0f))
+        {
+            if(Unit *owner = who->GetOwner())
+            {
+                if(owner->GetTypeId() == TYPEID_PLAYER)
+                {
+                    DoCast(owner, 46231, true);
+                    ((Creature*)who)->ForcedDespawn();
+                }
+            }
+        }
+    }
+};
+
+CreatureAI* GetAI_npc_khunok_the_behemoth(Creature *_Creature)
+{
+    return new npc_khunok_the_behemothAI(_Creature);
+}
+
 void AddSC_borean_tundra()
 {
     Script *newscript;
@@ -216,5 +250,10 @@ void AddSC_borean_tundra()
     newscript = new Script;
     newscript->Name="npc_sinkhole_kill_credit";
     newscript->GetAI = &GetAI_npc_sinkhole_kill_credit;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name="npc_khunok_the_behemoth";
+    newscript->GetAI = &GetAI_npc_khunok_the_behemoth;
     newscript->RegisterSelf();
 }
