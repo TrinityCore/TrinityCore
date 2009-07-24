@@ -79,9 +79,6 @@ struct TRINITY_DLL_DECL boss_nefarianAI : public ScriptedAI
         TailLash_Timer = 10000;
         ClassCall_Timer = 35000;                            //35-40 seconds
         Phase3 = false;
-
-        m_creature->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
-        m_creature->ApplySpellImmune(1, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, true);
     }
 
     void KilledUnit(Unit* Victim)

@@ -17,6 +17,7 @@ UPDATE `gameobject_template` SET `ScriptName`='go_eastern_crystal_pylon' WHERE `
 UPDATE `gameobject_template` SET `ScriptName`='go_barov_journal' WHERE `entry`=180794;
 UPDATE `gameobject_template` SET `ScriptName`='go_field_repair_bot_74A' WHERE `entry`=179552;
 UPDATE `gameobject_template` SET `ScriptName`='go_orb_of_command' WHERE `entry`=179879;
+UPDATE `gameobject_template` SET `ScriptName`='go_resonite_cask' WHERE entry=178145;
 UPDATE `gameobject_template` SET `ScriptName`='go_tablet_of_madness' WHERE `entry`=180368;
 UPDATE `gameobject_template` SET `ScriptName`='go_tablet_of_the_seven' WHERE `entry`=169294;
 UPDATE `gameobject_template` SET `ScriptName`='go_manticron_cube' WHERE `entry`=181713;
@@ -704,6 +705,14 @@ UPDATE `creature_template` SET `ScriptName`='boss_keristrasza' WHERE `entry`=267
 
 /* OBSIDIAN SANCTUM */
 UPDATE `instance_template` SET `script`='instance_obsidian_sanctum' WHERE map=615;
+UPDATE creature_template SET ScriptName='boss_sartharion' WHERE entry=28860;
+UPDATE creature_template SET ScriptName='mob_vesperon' WHERE entry=30449;
+UPDATE creature_template SET ScriptName='mob_shadron' WHERE entry=30451;
+UPDATE creature_template SET ScriptName='mob_tenebron' WHERE entry=30452;
+UPDATE creature_template SET ScriptName='mob_twilight_eggs' WHERE entry=30882;
+UPDATE creature_template SET ScriptName='mob_twilight_whelp' WHERE entry IN (30890, 31214);
+UPDATE creature_template SET ScriptName='mob_acolyte_of_shadron' WHERE entry=31218;
+UPDATE creature_template SET ScriptName='mob_acolyte_of_vesperon' WHERE entry=31219;
 
 /* ONYXIA'S LAIR */
 UPDATE `creature_template` SET `ScriptName`='boss_onyxia' WHERE `entry`=10184;
