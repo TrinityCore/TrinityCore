@@ -6,6 +6,7 @@
 	ProjectGUID="{04BAF755-0D67-46F8-B1C6-77AE5368F3CB}"
 	RootNamespace="sockets"
 	Keyword="Win32Proj"
+	TargetFrameworkVersion="0"
 	>
 	<Platforms>
 		<Platform
@@ -47,7 +48,7 @@
 				AdditionalOptions="/MP"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="..\..\dep\include\sockets"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_SECURE_SCL=0"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -126,7 +127,7 @@
 				AdditionalOptions="/MP"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="..\..\dep\include\sockets"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_SECURE_SCL=0"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
