@@ -6,6 +6,7 @@ include(CheckIncludeFiles)
 include(cmake/FindAce.cmake)
 include(cmake/FindMySql.cmake)
 include(cmake/FindPostgreSql.cmake)
+include(cmake/FindReadline.cmake)
 CONFIGURE_FILE(
   "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
   "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
@@ -139,7 +140,8 @@ message(STATUS "Include dir is: ${ACE_INCLUDE_DIR}")
 else(ACE_FOUND)
 message(SEND_ERROR "** ACE library not found! Trinity Core cannot be compiled!")
 message(SEND_ERROR "** Please build ACE from http://www.cs.wustl.edu/~schmidt/ACE.html")
-message(SEND_ERROR "** your distro may provide a binary for ACE e.g. for ubuntu try apt-get install libace-dev")
+#For now remove msg about install from repo, as ubuntu/debian don't have needed ver in repos.
+#message(SEND_ERROR "** your distro may provide a binary for ACE e.g. for ubuntu try apt-get install libace-dev")
 return()
 #SET(BUILD_ACE 1)
 #SET(ACE_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/dep/ACE_wrappers ${CMAKE_BINARY_DIR}/dep/ACE_wrappers")
@@ -147,6 +149,18 @@ return()
 #message(STATUS "I will try to build ACE from: ${ACE_INCLUDE_DIR}")
 #message(STATUS "And link using: ${ACE_LIBRARY}")
 endif(ACE_FOUND)
+
+IF(UNIX)
+  FIND_READLINE()
+  IF(READLINE_FOUND)
+  message(STATUS "Found Readline library: ${READLINE_LIBRARY}")
+  message(STATUS "Include dir is: ${READLINE_INCLUDE_DIR}")
+  ELSE(READLINE_FOUND)
+  message(SEND_ERROR "** Readline library not found!")
+  message(SEND_ERROR "** Your distro may provide a binary for Readline e.g. for ubuntu try apt-get install libreadline5-dev")
+  return()
+  ENDIF(READLINE_FOUND)
+ENDIF(UNIX)
 
 check_include_files(ace/Stack_Trace.h HAVE_STACK_TRACE_H)
 
@@ -176,6 +190,7 @@ ${POSTGRESQL_INCLUDE_DIR}
 ${CMAKE_CURRENT_BINARY_DIR}/src/shared 
 ${CMAKE_CURRENT_SOURCE_DIR}/..
 ${ACE_INCLUDE_DIR}
+${READLINE_INCLUDE_DIR}
 )
 
 SET(CMAKE_SKIP_BUILD_RPATH FALSE)
