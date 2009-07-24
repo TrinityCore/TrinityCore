@@ -5067,7 +5067,7 @@ INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`a
 (23455, 0.3035, -1, -1, -1, 'Priest - Holy Nova Heal Rank 1'),
 (8129, 0, 0, 0, 0, 'Priest - Mana Burn'),
 (8092, 0.428, -1, -1, -1, 'Priest - Mind Blast'),
-(15407, 0.257, -1, -1, -1, 'Priest - Mind Flay'),
+(58381, 0.257, -1, -1, -1, 'Priest - Mind Flay'),
 (49821, 0.2861, -1, -1, -1, 'Priest - Mind Sear Trigger Rank 1'),
 (47750, 0.5362, -1, -1, -1, 'Priest - Penance Heal (Rank 1)'),
 (52983, 0.5362, -1, -1, -1, 'Priest - Penance Heal (Rank 2)'),
