@@ -71,9 +71,6 @@ struct TRINITY_DLL_DECL boss_marliAI : public ScriptedAI
 
         Spawned = false;
         PhaseTwo = false;
-
-        m_creature->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
-        m_creature->ApplySpellImmune(1, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, true);
     }
 
     void EnterCombat(Unit *who)
