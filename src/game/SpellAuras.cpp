@@ -1203,10 +1203,13 @@ void Aura::_AddAura()
     if (IsSealSpell(m_spellProto))
         SetAuraState(AURA_STATE_JUDGEMENT);
 
-    // Conflagrate aura state on Immolate or Shadowflame
-    if (m_spellProto->SpellFamilyName == SPELLFAMILY_WARLOCK && (m_spellProto->SpellFamilyFlags[0] & 4
-        || m_spellProto->SpellFamilyFlags[2] & 2))
-        SetAuraState(AURA_STATE_IMMOLATE);
+    // Conflagrate aura state on Immolate and Shadowflame
+    if (m_spellProto->SpellFamilyName == SPELLFAMILY_WARLOCK &&
+        // Immolate
+        ((m_spellProto->SpellFamilyFlags[0] & 4) ||
+        // Shadowflame
+        (m_spellProto->SpellFamilyFlags[2] & 2)))
+        SetAuraState(AURA_STATE_CONFLAGRATE);
 
     // Faerie Fire (druid versions)
     if (m_spellProto->SpellFamilyName == SPELLFAMILY_DRUID && m_spellProto->SpellFamilyFlags[0] & 0x400)
