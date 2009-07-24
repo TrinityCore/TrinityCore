@@ -6,6 +6,7 @@
 	ProjectGUID="{BF6F5D0E-33A5-4E23-9E7D-DD481B7B5B9E}"
 	RootNamespace="framework"
 	Keyword="Win32Proj"
+	TargetFrameworkVersion="0"
 	>
 	<Platforms>
 		<Platform
@@ -197,7 +198,7 @@
 				AdditionalOptions="/Zl /MP"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="..\..\src\framework;..\..\dep\ACE_wrappers"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_SECURE_SCL=0"
 				StringPooling="true"
 				MinimalRebuild="false"
 				RuntimeLibrary="2"
@@ -273,7 +274,7 @@
 				AdditionalOptions="/Zl /MP"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="..\..\src\framework;..\..\dep\ACE_wrappers"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_SECURE_SCL=0"
 				StringPooling="true"
 				MinimalRebuild="false"
 				RuntimeLibrary="2"
