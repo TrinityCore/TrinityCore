@@ -8827,19 +8827,24 @@ int32 Unit::DealHeal(Unit *pVictim, uint32 addhealth, SpellEntry const *spellPro
 {
     int32 gain = pVictim->ModifyHealth(int32(addhealth));
 
-    if (GetTypeId()==TYPEID_PLAYER)
+    Unit* unit = this;
+
+    if( GetTypeId()==TYPEID_UNIT && ((Creature*)this)->isTotem() && ((Totem*)this)->GetTotemType()!=TOTEM_STATUE)
+        unit = GetOwner();
+
+    if (unit->GetTypeId()==TYPEID_PLAYER)
     {
         // overheal = addhealth - gain
-        SendHealSpellLog(pVictim, spellProto->Id, addhealth, addhealth > gain ? addhealth - gain : 0, critical);
+        unit->SendHealSpellLog(pVictim, spellProto->Id, addhealth, addhealth - gain, critical);
 
-        if (BattleGround *bg = ((Player*)this)->GetBattleGround())
-            bg->UpdatePlayerScore((Player*)this, SCORE_HEALING_DONE, gain);
+        if (BattleGround *bg = ((Player*)unit)->GetBattleGround())
+            bg->UpdatePlayerScore((Player*)unit, SCORE_HEALING_DONE, gain);
 
         // use the actual gain, as the overheal shall not be counted, skip gain 0 (it ignored anyway in to criteria)
         if (gain)
-            ((Player*)this)->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HEALING_DONE, gain, 0, pVictim);
+            ((Player*)unit)->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HEALING_DONE, gain, 0, pVictim);
 
-        ((Player*)this)->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEAL_CASTED, addhealth);
+        ((Player*)unit)->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEAL_CASTED, addhealth);
     }
 
     if (pVictim->GetTypeId()==TYPEID_PLAYER)
