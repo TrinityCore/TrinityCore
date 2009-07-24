@@ -2818,6 +2818,18 @@
 								</File>
 							</Filter>
 						</Filter>
+                        <Filter
+                              Name="Obsidian Sanctum"
+                              >
+                            <File
+                                RelativePath="..\scripts\zone\obsidian_sanctum\def_obsidian_sanctum.h"
+                                >
+                            </File>
+                            <File
+                                RelativePath="..\scripts\zone\obsidian_sanctum\instance_obsidian_sanctum.cpp"
+                                >
+                            </File>
+                        </Filter>
 						<Filter
 							Name="Vault of Archavon"
 							>
