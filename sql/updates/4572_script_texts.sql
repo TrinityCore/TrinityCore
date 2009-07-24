@@ -46,4 +46,4 @@ INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content
 (-1615040,'Unlike, I have many talents.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,14138,1,0,0,'vesperon SAY_VESPERON_SPECIAL_2'),
 (-1615041,'A Vesperon Disciple appears in the Twilight!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,5,0,0,'shadron WHISPER_VESPERON_DICIPLE'),
 
-(-1615042,'%s begins to open a Twilight Portal!',0,5,0,0,'sartharion drake WHISPER_OPEN_PORTAL');
+(-1615042,'%s begins to open a Twilight Portal!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,5,0,0,'sartharion drake WHISPER_OPEN_PORTAL');
