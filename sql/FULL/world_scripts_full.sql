@@ -702,6 +702,9 @@ UPDATE `creature_template` SET `ScriptName`='mob_crystal_spike' WHERE `entry`=27
 UPDATE `creature_template` SET `ScriptName`='mob_crystalline_tangler' WHERE `entry`=32665;
 UPDATE `creature_template` SET `ScriptName`='boss_keristrasza' WHERE `entry`=26723;
 
+/* OBSIDIAN SANCTUM */
+UPDATE `instance_template` SET `script`='instance_obsidian_sanctum' WHERE map=615;
+
 /* ONYXIA'S LAIR */
 UPDATE `creature_template` SET `ScriptName`='boss_onyxia' WHERE `entry`=10184;
 

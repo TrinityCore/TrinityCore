@@ -414,6 +414,9 @@ extern void AddSC_boss_ormorok();
 extern void AddSC_boss_keristrasza();
 extern void AddSC_instance_nexus();
 
+//Obsidian Sanctum
+extern void AddSC_instance_obsidian_sanctum();
+
 //Onyxia's Lair
 extern void AddSC_boss_onyxia();
 
@@ -1314,6 +1317,9 @@ void ScriptsInit(char const* cfg_file = "trinitycore.conf")
     AddSC_boss_ormorok();
     AddSC_boss_keristrasza();
     AddSC_instance_nexus();
+
+    //Obsidian Sanctum
+    AddSC_instance_obsidian_sanctum();
 
     //Onyxia's Lair
     AddSC_boss_onyxia();
