@@ -2541,6 +2541,9 @@ void AuraEffect::TriggerSpell()
             case 29213:
             case 54835:
                 caster->CastSpell(m_target, trigger_spell_id, true, NULL, this);
+            // Ground Slam
+            case 33525:
+                target->CastSpell(target, trigger_spell_id, true);
                 return;
         }
     }
@@ -4388,11 +4391,21 @@ void AuraEffect::HandleAuraModIncreaseSwimSpeed(bool /*apply*/, bool Real, bool 
     m_target->UpdateSpeed(MOVE_SWIM, true);
 }
 
-void AuraEffect::HandleAuraModDecreaseSpeed(bool /*apply*/, bool Real, bool changeAmount)
+void AuraEffect::HandleAuraModDecreaseSpeed(bool apply, bool Real, bool changeAmount)
 {
     // all applied/removed only at real aura add/remove
     if(!Real && !changeAmount)
         return;
+
+    if (apply)
+    {
+        // Gronn Lord's Grasp, becomes stoned
+        if (GetId() == 33572)
+        {
+            if (GetParentAura()->GetStackAmount() >= 5 && !m_target->HasAura(33652))
+                m_target->CastSpell(m_target, 33652, true);
+        }
+    }
 
     m_target->UpdateSpeed(MOVE_RUN, true);
     m_target->UpdateSpeed(MOVE_SWIM, true);
