@@ -441,8 +441,6 @@ struct TRINITY_DLL_DECL npc_geezleAI : public ScriptedAI
 {
     npc_geezleAI(Creature *c) : ScriptedAI(c) {}
 
-    std::list<GameObject*> FlagList;
-
     uint64 SparkGUID;
 
     uint32 Step;
@@ -516,17 +514,8 @@ struct TRINITY_DLL_DECL npc_geezleAI : public ScriptedAI
 
     void DespawnNagaFlag(bool despawn)
     {
-        CellPair pair(Trinity::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
-        Cell cell(pair);
-        cell.data.Part.reserved = ALL_DISTRICT;
-        cell.SetNoCreate();
-
-        Trinity::AllGameObjectsWithEntryInGrid go_check(GO_NAGA_FLAG);
-        Trinity::GameObjectListSearcher<Trinity::AllGameObjectsWithEntryInGrid> go_search(m_creature, FlagList, go_check);
-        TypeContainerVisitor
-            <Trinity::GameObjectListSearcher<Trinity::AllGameObjectsWithEntryInGrid>, GridTypeMapContainer> go_visit(go_search);
-        CellLock<GridReadGuard> cell_lock(cell, pair);
-        cell_lock->Visit(cell_lock, go_visit, *(m_creature->GetMap()));
+        std::list<GameObject*> FlagList;
+        m_creature->GetGameObjectListWithEntryInGrid(FlagList,GO_NAGA_FLAG, 50.0f);
 
         Player* player = NULL;
         if (!FlagList.empty())
