@@ -169,6 +169,9 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
     //Returns a list of all friendly units missing a specific buff within range
     std::list<Creature*> DoFindFriendlyMissingBuff(float range, uint32 spellid);
 
+    //Return a player with at least minimumRange from m_creature
+    Player* GetPlayerAtMinimumRange(float fMinimumRange);
+
     //Spawns a creature relative to m_creature
     Creature* DoSpawnCreature(uint32 id, float x, float y, float z, float angle, uint32 type, uint32 despawntime);
     Creature *DoSummon(uint32 entry, const float pos[4], uint32 despawntime = 30000, TempSummonType type = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
@@ -247,7 +250,6 @@ struct TRINITY_DLL_DECL BossAI : public ScriptedAI
 
 //return closest creature alive in grid, with range from pSource
 Creature* GetClosestCreatureWithEntry(WorldObject* pSource, uint32 Entry, float MaxSearchRange);
-
 
 #endif
 
