@@ -281,6 +281,10 @@ INSERT INTO spell_check (spellid,SpellFamilyName,SpellFamilyMaskA,SpellFamilyMas
 (58367,-1,                -1,        -1,  -1,  -1,  -1, -1,  4,-1,'Glyph of Execution',                 'Spell::EffectDummy'),
 (58418, 0,                -1,        -1,  -1,  -1,  -1,  3, -1,-1,'Portal to Orgrimmar',                'Spell::EffectDummy'),
 (58420, 0,                -1,        -1,  -1,  -1,  -1,  3, -1,-1,'Portal to Stormwind',                'Spell::EffectDummy'),
+(59640, 0,                -1,        -1,  -1,  -1,  -1,  3, -1,-1,'Underbelly Elixir',                  'Spell::EffectDummy'),
+(59645,-1,                -1,        -1,  -1,  -1,  -1, -1, -1,-1,'Underbelly Elixir',                  'Spell::EffectDummy'),
+(59831,-1,                -1,        -1,  -1,  -1,  -1, -1, -1,-1,'Underbelly Elixir',                  'Spell::EffectDummy'),
+(59843,-1,                -1,        -1,  -1,  -1,  -1, -1, -1,-1,'Underbelly Elixir',                  'Spell::EffectDummy'),
 (61491, 0,                -1,        -1,  -1,  -1,  -1,  2, -1,-1,'Intercept',                          'Spell::EffectSchoolDMG'),
 /* sorted by spell names */
 /*id   fm familyMaskA        fmMaskB    icon vis  cat  eff aur ef name                                  code                   */
