@@ -464,26 +464,40 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                 // Conflagrate - consumes Immolate or Shadowflame
                 else if (m_spellInfo->TargetAuraState == AURA_STATE_CONFLAGRATE)
                 {
-                    // for caster applied auras only
+                    AuraEffect const* aura = NULL;                // found req. aura for damage calculation
+
                     Unit::AuraEffectList const &mPeriodic = unitTarget->GetAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
                     for(Unit::AuraEffectList::const_iterator i = mPeriodic.begin(); i != mPeriodic.end(); ++i)
                     {
-                        if ((*i)->GetSpellProto()->SpellFamilyName == SPELLFAMILY_WARLOCK &&
-                            (*i)->GetCasterGUID()==m_caster->GetGUID() &&
-                            // Immolate
-                            ((*i)->GetSpellProto()->SpellFamilyFlags[0] & 4 ||
-                            // Shadowflame
-                            (*i)->GetSpellProto()->SpellFamilyFlags[2] & 2))
+                        // for caster applied auras only
+                        if ((*i)->GetSpellProto()->SpellFamilyName != SPELLFAMILY_WARLOCK ||
+                            (*i)->GetCasterGUID()!=m_caster->GetGUID())
+                            continue;
+
+                        // Immolate
+                        if ((*i)->GetSpellProto()->SpellFamilyFlags[0] & 0x4)
                         {
-                            uint32 pdamage = (*i)->GetAmount() > 0 ? (*i)->GetAmount() : 0;
-                            pdamage = m_caster->SpellDamageBonus(unitTarget, (*i)->GetSpellProto(), pdamage, DOT, (*i)->GetParentAura()->GetStackAmount());
-                            damage += pdamage * 4; // 4 ticks of 3 seconds = 12 secs
-                            apply_direct_bonus = false;
-                            // Glyph of Conflagrate
-                            if (!m_caster->HasAura(56235))
-                                unitTarget->RemoveAurasDueToSpell((*i)->GetId(), m_caster->GetGUID());
+                            aura = *i;                      // it selected always if exist
                             break;
                         }
+
+                        // Shadowflame
+                        if ((*i)->GetSpellProto()->SpellFamilyFlags[2] & 0x00000002)
+                            aura = *i;                      // remember but wait possible Immolate as primary priority
+                    }
+
+                    // found Immolate or Shadowflame
+                    if (aura)
+                    {
+                        uint32 pdamage = aura->GetAmount() > 0 ? aura->GetAmount() : 0;
+                        pdamage = m_caster->SpellDamageBonus(unitTarget, aura->GetSpellProto(), pdamage, DOT, aura->GetParentAura()->GetStackAmount());
+                        damage += pdamage * 4; // 4 ticks of 3 seconds = 12 secs
+                        apply_direct_bonus = false;
+                        // Glyph of Conflagrate
+                        if (!m_caster->HasAura(56235))
+                            unitTarget->RemoveAurasDueToSpell(aura->GetId(), m_caster->GetGUID());
+
+                        break;
                     }
                 }
                 // Shadow Bite
