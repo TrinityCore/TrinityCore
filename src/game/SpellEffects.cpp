@@ -5206,6 +5206,14 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     }
                     return;
                 }
+                // Guarded by The Light
+                case 63521:
+                {
+                    // Divine Plea
+                    if(Aura *AuraDivinePlea = m_caster->GetAura(54428))
+                        AuraDivinePlea->RefreshAura();
+                    return;
+                }
             }
             break;
         }
