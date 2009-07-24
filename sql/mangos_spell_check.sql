@@ -236,6 +236,8 @@ INSERT INTO spell_check (spellid,SpellFamilyName,SpellFamilyMaskA,SpellFamilyMas
 (47633,-1,                -1,        -1,  -1,  -1,  -1, 10, -1, 0,'Death Coil',                         'Spell::EffectDummy'),
 (47757,-1,                -1,        -1,  -1,  -1,  -1, -1, -1,-1,'Penance',                            'Spell::EffectDummy'),
 (47758,-1,                -1,        -1,  -1,  -1,  -1, -1, -1,-1,'Penance',                            'Spell::EffectDummy'),
+(47897, 5,0x0001000000000000,0x00000000,  -1,  -1,  -1,  2, -1,-1,'Shadowflame',                        'Spell::EffectSchoolDMG'),
+(47960,-1,                -1,        -1,  -1,  -1,  -1, -1, -1,-1,'Shadowflame',                        'Spell::EffectSchoolDMG'),
 (48820,-1,                -1,        -1,  -1,  -1,  -1, -1, -1,-1,'Holy Shock',                         'Spell::EffectDummy'),
 (48821,-1,                -1,        -1,  -1,  -1,  -1, -1, -1,-1,'Holy Shock',                         'Spell::EffectDummy'),
 (48822,-1,                -1,        -1,  -1,  -1,  -1, -1, -1,-1,'Holy Shock',                         'Spell::EffectDummy'),
@@ -277,6 +279,7 @@ INSERT INTO spell_check (spellid,SpellFamilyName,SpellFamilyMaskA,SpellFamilyMas
 (54861,-1,                -1,        -1,  -1,  -1,  -1, -1, -1,-1,'Nitro Boosts',                       'Spell::EffectDummy'),
 (55004, 0,                -1,        -1,  -1,  -1,  -1,  3, -1,-1,'Nitro Boosts',                       'Spell::EffectDummy'),
 (55441,11,                -1,        -1,  -1,  -1,  -1, -1,  4,-1,'Glyph of Mana Tide',                 'Spell::EffectDummy'),
+(56235,-1,                -1,        -1,  -1,  -1,  -1, -1, -1,-1,'Glyph of Conflagrate',               'Spell::EffectSchoolDMG'),
 (57946, 5,0x0000000000040000,0x00000000,  -1,  -1,  -1,  3, -1,-1,'Life Tap',                           'Spell::EffectDummy'),
 (58367,-1,                -1,        -1,  -1,  -1,  -1, -1,  4,-1,'Glyph of Execution',                 'Spell::EffectDummy'),
 (58418, 0,                -1,        -1,  -1,  -1,  -1,  3, -1,-1,'Portal to Orgrimmar',                'Spell::EffectDummy'),
@@ -285,7 +288,10 @@ INSERT INTO spell_check (spellid,SpellFamilyName,SpellFamilyMaskA,SpellFamilyMas
 (59645,-1,                -1,        -1,  -1,  -1,  -1, -1, -1,-1,'Underbelly Elixir',                  'Spell::EffectDummy'),
 (59831,-1,                -1,        -1,  -1,  -1,  -1, -1, -1,-1,'Underbelly Elixir',                  'Spell::EffectDummy'),
 (59843,-1,                -1,        -1,  -1,  -1,  -1, -1, -1,-1,'Underbelly Elixir',                  'Spell::EffectDummy'),
+(61290, 5,0x0001000000000000,0x00000000,  -1,  -1,  -1,  2, -1,-1,'Shadowflame',                        'Spell::EffectSchoolDMG'),
+(61291,-1,                -1,        -1,  -1,  -1,  -1, -1, -1,-1,'Shadowflame',                        'Spell::EffectSchoolDMG'),
 (61491, 0,                -1,        -1,  -1,  -1,  -1,  2, -1,-1,'Intercept',                          'Spell::EffectSchoolDMG'),
+
 /* sorted by spell names */
 /*id   fm familyMaskA        fmMaskB    icon vis  cat  eff aur ef name                                  code                   */
 (    0, 3,0x0000000020000000,0x00000000,  -1,  -1,  -1,  2, -1,-1,'Arcane Blast',                       'Spell::EffectSchoolDMG'),
@@ -334,7 +340,8 @@ INSERT INTO spell_check (spellid,SpellFamilyName,SpellFamilyMaskA,SpellFamilyMas
 (    0, 4,0x0000000000000400,0x00000000,  -1,  -1,  -1,  2, -1,-1,'Revenge',                            'Spell::EffectSchoolDMG'),
 (    0,11,0x0000000000400000,0x00000000,  -1,  -1,  -1,  3, -1,-1,'Rockbiter Weapon',                   'Spell::EffectDummy'),
 (    0, 6,0x0000000200000000,0x00000000,  -1,  -1,  -1,  2, -1,-1,'Shadow Word: Death',                 'Spell::EffectSchoolDMG'),
-(    0, 5,0x0000000000000000,0x00000002,  -1,  -1,  -1, -1,  3,-1,'Shadowflame',                        'Spell::EffectSchoolDMG'),
+(    0, 5,0x0000000000000000,0x00000002,  -1,  -1,  -1, -1,  3,-1,'Shadowflame',                        'Spell::EffectSchoolDMG'),     /* dot */
+(    0, 5,0x0001000000000000,0x00000000,  -1,  -1,  -1,  2, -1,-1,'Shadowflame',                        'Spell::EffectSchoolDMG'),     /* explcit damage */
 (    0,10,0x0010000000000000,0x00000000,  -1,  -1,  -1,  2, -1,-1,'Shield of Righteousness',            'Spell::EffectSchoolDMG'),
 (    0, 4,0x0000020000000000,0x00000000,  -1,  -1,1209,  2, -1,-1,'Shield Slam',                        'Spell::EffectSchoolDMG'),
 (    0, 4,0x0000800000000000,0x00000000,  -1,  -1,  -1,  2, -1,-1,'Shockwave',                          'Spell::EffectSchoolDMG'),
