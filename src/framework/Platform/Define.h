@@ -145,8 +145,17 @@ typedef uint64 OBJECT_HANDLE;
 #define MaNGOS              Trinity
 #define MANGOS_DLL_DECL     TRINITY_DLL_DECL
 #define MANGOS_DLL_SPEC     TRINITY_DLL_SPEC
-#define MANGOS_DEBUG        TRINITY_DEBUG
 #define GetMangosString     GetTrinityString
+
+#if defined(MANGOS_DEBUG) || defined(TRINITY_DEBUG)
+#  ifndef TRINITY_DEBUG
+#    define TRINITY_DEBUG
+#  endif
+#  ifndef MANGOS_DEBUG
+#    define MANGOS_DEBUG
+#  endif
+#endif
+
 
 #endif //TRINITY_DEFINE_H
 
