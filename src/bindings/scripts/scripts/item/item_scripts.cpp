@@ -25,6 +25,7 @@ EndScriptData */
 item_area_52_special(i28132)        Prevents abuse of this item
 item_attuned_crystal_cores(i34368)  Prevent abuse(quest 11524 & 11525)
 item_blackwhelp_net(i31129)         Quest Whelps of the Wyrmcult (q10747). Prevents abuse
+item_dart_gun                       Prevent quest provided item instakill anything but the expected
 item_draenei_fishing_net(i23654)    Hacklike implements chance to spawn item or creature
 item_disciplinary_rod               Prevents abuse
 item_nether_wraith_beacon(i31742)   Summons creatures for quest Becoming a Spellfire Tailor (q10832)
@@ -126,6 +127,25 @@ bool ItemUse_item_blackwhelp_net(Player *player, Item* _Item, SpellCastTargets c
         return false;
 
     player->SendEquipError(EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM,_Item,NULL);
+    return true;
+}
+
+/*#####
+# item_dart_gun
+#####*/
+
+enum
+{
+    NPC_HAMMER_SCOUT    = 32201
+};
+
+bool ItemUse_item_dart_gun(Player* pPlayer, Item* pItem, const SpellCastTargets &pTargets)
+{
+    if (pTargets.getUnitTarget() && pTargets.getUnitTarget()->GetTypeId() == TYPEID_UNIT &&
+        pTargets.getUnitTarget()->GetEntry() == NPC_HAMMER_SCOUT)
+        return false;
+
+    pPlayer->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW, pItem, NULL);
     return true;
 }
 
@@ -528,6 +548,11 @@ void AddSC_item_scripts()
     newscript = new Script;
     newscript->Name="item_blackwhelp_net";
     newscript->pItemUse = &ItemUse_item_blackwhelp_net;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "item_dart_gun";
+    newscript->pItemUse = &ItemUse_item_dart_gun;
     newscript->RegisterSelf();
 
     newscript = new Script;
