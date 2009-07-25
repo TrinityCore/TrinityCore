@@ -162,10 +162,12 @@ IF(UNIX)
   ENDIF(READLINE_FOUND)
 ENDIF(UNIX)
 
-check_include_files(ace/Stack_Trace.h HAVE_STACK_TRACE_H)
+check_include_files(ace/Stack_Trace.h HAVE_ACE_STACK_TRACE_H)
+IF(NOT HAVE_ACE_STACK_TRACE_H)
+    message(STATUS "** Your libace is old. Please update your libace!")
+ENDIF(NOT HAVE_ACE_STACK_TRACE_H)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)
-
 
 IF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
   SET(OSX_LIBS -lcrypto)
@@ -184,6 +186,7 @@ src/framework
 src/shared/Database 
 src/shared/vmap
 src/game 
+${CMAKE_BINARY_DIR}
 ${SCRIPT_INCLUDE}
 ${MYSQL_INCLUDE_DIR} 
 ${POSTGRESQL_INCLUDE_DIR} 
