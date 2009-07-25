@@ -7363,7 +7363,10 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                             sLog.outError("Unit::HandleProcTriggerSpell: Spell %u miss posibly Piercing Shots",auraSpellInfo->Id);
                             return false;
                     }
-                    basepoints0 = int32(damage * triggerAmount / 100);
+                    SpellEntry const *TriggerPS = sSpellStore.LookupEntry(trigger_spell_id);
+                    if(!TriggerPS)
+                        return false;
+                    basepoints0 = int32(damage * triggerAmount / 100 / (GetSpellMaxDuration(TriggerPS) / TriggerPS->EffectAmplitude[0]));
                     target = pVictim;
                 }                              
                 break;
