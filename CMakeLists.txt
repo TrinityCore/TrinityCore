@@ -150,6 +150,14 @@ return()
 #message(STATUS "And link using: ${ACE_LIBRARY}")
 endif(ACE_FOUND)
 
+#somehow line below don't work. so for now change it to if exist
+#check_include_files(${ACE_INCLUDE_DIR}/ace/Stack_Trace.h HAVE_ACE_STACK_TRACE_H)
+IF(EXISTS ${ACE_INCLUDE_DIR}/ace/Stack_Trace.h)
+    SET(HAVE_ACE_STACK_TRACE_H 1)
+ELSE(EXISTS ${ACE_INCLUDE_DIR}/ace/Stack_Trace.h)
+    message(STATUS "** Your libace is out of date. Please update your libace!")
+ENDIF(EXISTS ${ACE_INCLUDE_DIR}/ace/Stack_Trace.h)
+
 IF(UNIX AND NOT CENTOS)
   FIND_READLINE()
   IF(READLINE_FOUND)
@@ -161,11 +169,6 @@ IF(UNIX AND NOT CENTOS)
   return()
   ENDIF(READLINE_FOUND)
 ENDIF(UNIX AND NOT CENTOS)
-
-check_include_files(ace/Stack_Trace.h HAVE_ACE_STACK_TRACE_H)
-IF(NOT HAVE_ACE_STACK_TRACE_H)
-    message(STATUS "** Your libace is old. Please update your libace!")
-ENDIF(NOT HAVE_ACE_STACK_TRACE_H)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
