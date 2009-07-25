@@ -30,12 +30,6 @@
 
 /*** GameObjects ***/
 #define DATA_GO_FORCEFIELD          20
-#define DATA_GO_FIRE_BARRIER        21
-#define DATA_GATE_1                 22
-#define DATA_GATE_2                 23
-#define DATA_GATE_3                 24
-#define DATA_GATE_4                 25
-#define DATA_GATE_5                 26
 
 /*** Misc ***/
 #define DATA_PLAYER_GUID            27
