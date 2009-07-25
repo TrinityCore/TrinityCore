@@ -208,6 +208,7 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/magisters_terrace/boss_vexallus.cpp
    scripts/zone/magisters_terrace/def_magisters_terrace.h
    scripts/zone/magisters_terrace/instance_magisters_terrace.cpp
+   scripts/zone/magisters_terrace/magisters_terrace.cpp
    scripts/zone/maraudon/boss_celebras_the_cursed.cpp
    scripts/zone/maraudon/boss_landslide.cpp
    scripts/zone/maraudon/boss_noxxion.cpp

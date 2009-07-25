@@ -64,6 +64,7 @@ UPDATE `creature_template` SET `ScriptName`='guard_shattrath_scryer' WHERE `entr
 UPDATE `item_template` SET `ScriptName`='item_area_52_special' WHERE `entry`=28132;
 UPDATE `item_template` SET `ScriptName`='item_attuned_crystal_cores' WHERE `entry`=34368;
 UPDATE `item_template` SET `ScriptName`='item_blackwhelp_net' WHERE `entry`=31129;
+UPDATE `item_template` SET `ScriptName`='item_dart_gun' WHERE `entry`=44222;
 UPDATE `item_template` SET `ScriptName`='item_disciplinary_rod' WHERE `entry`=22473;
 UPDATE `item_template` SET `ScriptName`='item_draenei_fishing_net' WHERE `entry`=23654;
 UPDATE `item_template` SET `ScriptName`='item_flying_machine' WHERE `entry` IN (34060,34061);
@@ -615,6 +616,7 @@ UPDATE `creature_template` SET `ScriptName`='mob_arcane_sphere' WHERE `entry`=24
 UPDATE `creature_template` SET `ScriptName`='mob_felkael_phoenix' WHERE `entry`=24674;
 UPDATE `creature_template` SET `ScriptName`='mob_felkael_phoenix_egg' WHERE `entry`=24675;
 UPDATE `creature_template` SET `ScriptName`='mob_felkael_flamestrike' WHERE `entry`=24666;
+UPDATE `creature_template` SET `ScriptName`='npc_kalecgos' WHERE `entry` IN (24844, 24848);
 
 /* MARAUDON */
 UPDATE `creature_template` SET `ScriptName`='boss_princess_theradras' WHERE `entry`=12201;
