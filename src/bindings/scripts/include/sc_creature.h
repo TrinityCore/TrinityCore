@@ -189,8 +189,6 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
     bool CanCast(Unit* Target, SpellEntry const *Spell, bool Triggered = false);
 
     void SetEquipmentSlots(bool bLoadDefault, int32 uiMainHand = EQUIP_NO_CHANGE, int32 uiOffHand = EQUIP_NO_CHANGE, int32 uiRanged = EQUIP_NO_CHANGE);
-
-    void SetSheathState(SheathState newState);
     
     void SetCombatMovement(bool CombatMove);
     

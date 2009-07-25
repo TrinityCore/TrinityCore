@@ -117,8 +117,7 @@ struct TRINITY_DLL_DECL boss_thekalAI : public ScriptedAI
                     if(pInstance->GetData(DATA_LORKHANISDEAD))
                     {
                         //Resurrect LorKhan
-                        Unit *pLorKhan = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_LORKHAN));
-                        if(pLorKhan)
+                        if(Unit *pLorKhan = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_LORKHAN)))
                         {
                             pLorKhan->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                             pLorKhan->setFaction(14);
@@ -336,8 +335,7 @@ struct TRINITY_DLL_DECL mob_zealot_lorkhanAI : public ScriptedAI
                 if(pInstance->GetData(DATA_THEKALISFAKEDEAD))
                 {
                     //Resurrect Thekal
-                    Unit *pThekal = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_THEKAL));
-                    if(pThekal)
+                    if(Unit *pThekal = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_THEKAL)))
                     {
                         pThekal->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                         pThekal->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -349,8 +347,7 @@ struct TRINITY_DLL_DECL mob_zealot_lorkhanAI : public ScriptedAI
                 if(pInstance->GetData(DATA_ZATHISDEAD))
                 {
                     //Resurrect Zath
-                    Unit *pZath = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_ZATH));
-                    if(pZath)
+                    if(Unit *pZath = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_ZATH)))
                     {
                         pZath->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                         pZath->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -473,8 +470,7 @@ struct TRINITY_DLL_DECL mob_zealot_zathAI : public ScriptedAI
                 if(pInstance->GetData(DATA_LORKHANISDEAD))
                 {
                     //Resurrect LorKhan
-                    Unit *pLorKhan = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_LORKHAN));
-                    if(pLorKhan)
+                    if(Unit *pLorKhan = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_LORKHAN)))
                     {
                         pLorKhan->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                         pLorKhan->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -486,8 +482,7 @@ struct TRINITY_DLL_DECL mob_zealot_zathAI : public ScriptedAI
                 if(pInstance->GetData(DATA_THEKALISFAKEDEAD))
                 {
                     //Resurrect Thekal
-                    Unit *pThekal = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_THEKAL));
-                    if(pThekal)
+                    if(Unit *pThekal = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_THEKAL)))
                     {
                         pThekal->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                         pThekal->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
