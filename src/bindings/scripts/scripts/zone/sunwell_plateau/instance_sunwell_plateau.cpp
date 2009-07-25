@@ -4,8 +4,8 @@
 
 /* ScriptData
 SDName: Instance_Sunwell_Plateau
-SD%Complete: 20
-SDComment: VERIFY SCRIPT, rename Gates
+SD%Complete: 25
+SDComment: VERIFY SCRIPT
 SDCategory: Sunwell_Plateau
 EndScriptData */
 
@@ -13,11 +13,6 @@ EndScriptData */
 #include "def_sunwell_plateau.h"
 
 #define ENCOUNTERS 6
-
-enum GoState{
-CLOSE    = 1,
-OPEN    = 0
-};
 
 /* Sunwell Plateau:
 0 - Kalecgos and Sathrovarr
@@ -51,8 +46,8 @@ struct TRINITY_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
 
     /** GameObjects **/
     uint64 ForceField;                                      // Kalecgos Encounter
-    uint64 FireBarrier;                                     // Brutallus Encounter
-    uint64 Gate[5];                                         // Rename this to be more specific after door placement is verified.
+    uint64 FireBarrier;                                     // Felmysts Encounter
+    uint64 MurusGate[2];                                    // Murus Encounter
 
     /*** Misc ***/
     uint32 SpectralRealmTimer;
@@ -78,11 +73,8 @@ struct TRINITY_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
         /*** GameObjects ***/
         ForceField  = 0;
         FireBarrier = 0;
-        Gate[0]     = 0;                                    // TODO: Rename Gate[n] with gate_<boss name> for better specificity
-        Gate[1]     = 0;
-        Gate[2]     = 0;
-        Gate[3]     = 0;
-        Gate[4]     = 0;
+        MurusGate[0] = 0;
+        MurusGate[1] = 0;
 
         /*** Encounters ***/
         for(uint8 i = 0; i < ENCOUNTERS; ++i)
@@ -144,12 +136,17 @@ struct TRINITY_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
         switch(go->GetEntry())
         {
             case 188421: ForceField     = go->GetGUID(); break;
-            case 188075: FireBarrier    = go->GetGUID(); break;
-            case 187979: Gate[0]        = go->GetGUID(); break;
-            case 187770: Gate[1]        = go->GetGUID(); break;
-            case 187896: Gate[2]        = go->GetGUID(); break;
-            case 187990: Gate[3]        = go->GetGUID(); break;
-            case 188118: Gate[4]        = go->GetGUID(); break;
+            case 188075:
+                if(Encounters[2] == DONE)
+                    HandleGameObject(NULL, true, go);
+                FireBarrier = go->GetGUID();
+                break;
+            case 187990: MurusGate[0]   = go->GetGUID(); break;
+            case 188118:
+                if(Encounters[4] == DONE)
+                    HandleGameObject(NULL, true, go);
+                MurusGate[1]= go->GetGUID();
+                break;
         }
     }
 
@@ -157,14 +154,13 @@ struct TRINITY_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
     {
         switch(id)
         {
-            case DATA_KALECGOS_EVENT:     return Encounters[0]; break;
-            case DATA_BRUTALLUS_EVENT:    return Encounters[1]; break;
-            case DATA_FELMYST_EVENT:      return Encounters[2]; break;
-            case DATA_EREDAR_TWINS_EVENT: return Encounters[3]; break;
-            case DATA_MURU_EVENT:         return Encounters[4]; break;
-            case DATA_KILJAEDEN_EVENT:    return Encounters[5]; break;
+            case DATA_KALECGOS_EVENT:     return Encounters[0];
+            case DATA_BRUTALLUS_EVENT:    return Encounters[1];
+            case DATA_FELMYST_EVENT:      return Encounters[2];
+            case DATA_EREDAR_TWINS_EVENT: return Encounters[3];
+            case DATA_MURU_EVENT:         return Encounters[4];
+            case DATA_KILJAEDEN_EVENT:    return Encounters[5];
         }
-
         return 0;
     }
 
@@ -172,25 +168,24 @@ struct TRINITY_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
     {
         switch(id)
         {
-            case DATA_KALECGOS_DRAGON:      return Kalecgos_Dragon;     break;
-            case DATA_KALECGOS_HUMAN:       return Kalecgos_Human;      break;
-            case DATA_SATHROVARR:           return Sathrovarr;          break;
-            case DATA_BRUTALLUS:            return Brutallus;           break;
-            case DATA_MADRIGOSA:            return Madrigosa;           break;
-            case DATA_FELMYST:              return Felmyst;             break;
-            case DATA_ALYTHESS:             return Alythess;            break;
-            case DATA_SACROLASH:            return Sacrolash;           break;
-            case DATA_MURU:                 return Muru;                break;
-            case DATA_KILJAEDEN:            return KilJaeden;           break;
-            case DATA_KILJAEDEN_CONTROLLER: return KilJaedenController; break;
-            case DATA_ANVEENA:              return Anveena;             break;
-            case DATA_KALECGOS_KJ:          return KalecgosKJ;          break;
+            case DATA_KALECGOS_DRAGON:      return Kalecgos_Dragon;
+            case DATA_KALECGOS_HUMAN:       return Kalecgos_Human;
+            case DATA_SATHROVARR:           return Sathrovarr;
+            case DATA_GO_FORCEFIELD:        return ForceField;
+            case DATA_BRUTALLUS:            return Brutallus;
+            case DATA_MADRIGOSA:            return Madrigosa;
+            case DATA_FELMYST:              return Felmyst;
+            case DATA_ALYTHESS:             return Alythess;
+            case DATA_SACROLASH:            return Sacrolash;
+            case DATA_MURU:                 return Muru;
+            case DATA_KILJAEDEN:            return KilJaeden;
+            case DATA_KILJAEDEN_CONTROLLER: return KilJaedenController;
+            case DATA_ANVEENA:              return Anveena;
+            case DATA_KALECGOS_KJ:          return KalecgosKJ;
             case DATA_PLAYER_GUID:
                 Player* Target = GetPlayerInMap();
                 return Target->GetGUID();
-                break;
         }
-
         return 0;
     }
 
@@ -202,22 +197,23 @@ struct TRINITY_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
             case DATA_BRUTALLUS_EVENT:     Encounters[1] = data; break;
             case DATA_FELMYST_EVENT:
                 if(data == DONE)
-                    HandleGameObject(FireBarrier, OPEN);
+                    HandleGameObject(FireBarrier, true);
                 Encounters[2] = data; break;
             case DATA_EREDAR_TWINS_EVENT:  Encounters[3] = data; break;
             case DATA_MURU_EVENT:
-                switch(data){
+                switch(data)
+                {
                     case DONE:
-                        HandleGameObject(Gate[4], OPEN);
-                        HandleGameObject(Gate[3], OPEN);
+                        HandleGameObject(MurusGate[0], true);
+                        HandleGameObject(MurusGate[1], true);
                         break;
                     case IN_PROGRESS:
-                        HandleGameObject(Gate[4], CLOSE);
-                        HandleGameObject(Gate[3], CLOSE);
+                        HandleGameObject(MurusGate[0], false);
+                        HandleGameObject(MurusGate[1], false);
                         break;
                     case NOT_STARTED:
-                        HandleGameObject(Gate[4], CLOSE);
-                        HandleGameObject(Gate[3], OPEN);
+                        HandleGameObject(MurusGate[0], true);
+                        HandleGameObject(MurusGate[1], false);
                         break;
                 }
                 Encounters[4] = data; break;
@@ -226,14 +222,6 @@ struct TRINITY_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
 
         if(data == DONE)
             SaveToDB();
-    }
-
-    void SetData64(uint32 id, uint64 guid)
-    {
-    }
-
-    void Update(uint32 diff)
-    {
     }
 
     std::string GetSaveData()
@@ -249,7 +237,6 @@ struct TRINITY_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
             OUT_SAVE_INST_DATA_COMPLETE;
             return out;
         }
-
         return NULL;
     }
 
@@ -280,6 +267,7 @@ InstanceData* GetInstanceData_instance_sunwell_plateau(Map* map)
 void AddSC_instance_sunwell_plateau()
 {
     Script *newscript;
+
     newscript = new Script;
     newscript->Name = "instance_sunwell_plateau";
     newscript->GetInstanceData = &GetInstanceData_instance_sunwell_plateau;
