@@ -30,16 +30,16 @@ MACRO(FIND_PostgreSQL)
       )
 
   find_library(POSTGRESQL_LIBRARIES NAMES pq libpq
-     PATHS
-     /usr/lib
-     /usr/local/lib
-     /usr/lib/postgresql
-     /usr/lib64
-     /usr/local/lib64
-     /usr/lib64/postgresql
-     $ENV{ProgramFiles}/PostgreSQL/*/lib/ms
-     $ENV{SystemDrive}/PostgreSQL/*/lib/ms
-     )
+      PATHS
+      /usr/lib
+      /usr/local/lib
+      /usr/lib/postgresql
+      /usr/lib64
+      /usr/local/lib64
+      /usr/lib64/postgresql
+      $ENV{ProgramFiles}/PostgreSQL/*/lib/ms
+      $ENV{SystemDrive}/PostgreSQL/*/lib/ms
+      )
       
   if(POSTGRESQL_INCLUDE_DIR AND POSTGRESQL_LIBRARIES)
     set(POSTGRESQL_FOUND TRUE)
