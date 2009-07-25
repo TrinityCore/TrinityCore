@@ -573,7 +573,6 @@ INSERT INTO `command` VALUES
 ('reload skill_extra_item_template',3,'Syntax: .reload skill_extra_item_template\nReload skill_extra_item_template table.'),
 ('reload skill_fishing_base_level',3,'Syntax: .reload skill_fishing_base_level\nReload skill_fishing_base_level table.'),
 ('reload skinning_loot_template',3,'Syntax: .reload skinning_loot_template\nReload skinning_loot_template table.'),
-('reload spell_affect',3,'Syntax: .reload spell_affect\nReload spell_affect table.'),
 ('reload spell_area',3,'Syntax: .reload spell_area\nReload spell_area table.'),
 ('reload spell_bonus_data',3,'Syntax: .reload spell_bonus_data\nReload spell_bonus_data table.'),
 ('reload spell_disabled',3,'Syntax: .reload spell_disabled\nReload spell_disabled table.'),
