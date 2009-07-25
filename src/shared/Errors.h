@@ -23,8 +23,10 @@
 
 #include "Common.h"
 
+#if PLATFORM != PLATFORM_WINDOWS
 #ifndef HAVE_CONFIG_H
 #include <config.h>
+#endif
 #endif
 
 #ifdef HAVE_ACE_STACK_TRACE_H
