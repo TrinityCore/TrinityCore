@@ -24,7 +24,7 @@
 #include "Common.h"
 
 #ifndef HAVE_CONFIG_H
-#define HAVE_ACE_STACK_TRACE_H 1
+#include <config.h>
 #endif
 
 #ifdef HAVE_ACE_STACK_TRACE_H
