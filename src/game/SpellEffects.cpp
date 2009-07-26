@@ -619,7 +619,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                 // Shield of Righteousness
                 else if(m_spellInfo->SpellFamilyFlags[1]&0x00100000)
                 {
-                    damage+=int32(m_caster->GetShieldBlockValue());
+                    damage += int32(m_caster->GetShieldBlockValue() * 1.3f);
                 }
                 break;
             }
