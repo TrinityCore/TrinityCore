@@ -24,7 +24,6 @@
 #include "Language.h"
 #include "DBCStructure.h"
 #include <map>
-#include <math.h>
 
 static uint32 ReputationRankStrIndex[MAX_REPUTATION_RANK] =
 {
