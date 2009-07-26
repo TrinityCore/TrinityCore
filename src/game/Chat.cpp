@@ -373,6 +373,7 @@ ChatCommand * ChatHandler::getCommandTable()
         { "tame",           SEC_GAMEMASTER,     false, &ChatHandler::HandleNpcTameCommand,             "", NULL },
         { "setdeathstate",  SEC_GAMEMASTER,     false, &ChatHandler::HandleNpcSetDeathStateCommand,    "", NULL },
         { "addformation",   SEC_MODERATOR,      false, &ChatHandler::HandleNpcAddFormationCommand,     "", NULL },
+        { "setlink",        SEC_MODERATOR,      false, &ChatHandler::HandleNpcSetLinkCommand,          "", NULL },
 
         //{ TODO: fix or remove this commands
         { "addweapon",      SEC_ADMINISTRATOR,  false, &ChatHandler::HandleNpcAddWeaponCommand,        "", NULL },
@@ -547,7 +548,6 @@ ChatCommand * ChatHandler::getCommandTable()
     {
         { "cancel",         SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleServerShutDownCancelCommand,"", NULL },
         { ""   ,            SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleServerShutDownCommand,      "", NULL },
-        { "setlink",        SEC_MODERATOR,      false, &ChatHandler::HandleNpcSetLinkCommand,          "", NULL },
         { NULL,             0,                  false, NULL,                                           "", NULL }
     };
 
