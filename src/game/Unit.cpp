@@ -5843,10 +5843,13 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     basepoints0 = triggerAmount * GetMaxHealth() / 100;
                     target = this;
                     triggered_spell_id = 34299;
-                    if (triggeredByAura->GetCaster() != this)
+                    if (triggeredByAura->GetCasterGUID() != GetGUID())
                         break;
                     int32 basepoints1 = triggerAmount * 2;
-                    CastCustomSpell(this,60889,&basepoints1,0,0,true,0,triggeredByAura);
+                    // Improved Leader of the Pack
+                    // Check cooldown of heal spell cooldown
+                    if (GetTypeId()==TYPEID_PLAYER && !((Player *)this)->HasSpellCooldown(34299))
+                        CastCustomSpell(this,60889,&basepoints1,0,0,true,0,triggeredByAura);
                     break;
                 }
                 // Healing Touch (Dreamwalker Raiment set)
@@ -10451,8 +10454,7 @@ float Unit::GetPPMProcChance(uint32 WeaponSpeed, float PPM, const SpellEntry * s
         if(Player* modOwner = GetSpellModOwner())
             modOwner->ApplySpellMod(spellProto->Id,SPELLMOD_PROC_PER_MINUTE,PPM);
 
-    uint32 result = uint32((WeaponSpeed * PPM) / 600.0f);   // result is chance in percents (probability = Speed_in_sec * (PPM / 60))
-    return result;
+    return uint32((WeaponSpeed * PPM) / 600.0f);   // result is chance in percents (probability = Speed_in_sec * (PPM / 60))
 }
 
 void Unit::Mount(uint32 mount)

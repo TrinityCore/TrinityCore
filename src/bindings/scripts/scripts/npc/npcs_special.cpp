@@ -1639,9 +1639,10 @@ CreatureAI* GetAI_mob_mojo(Creature *_Creature)
 struct TRINITY_DLL_DECL npc_mirror_image : public SpellAI
 {
     npc_mirror_image(Creature *c) : SpellAI(c) {}
-    Unit * owner;
+
     void Reset()
     {
+        Unit * owner = NULL;
         if (m_creature->isSummon())
             owner = ((TempSummon*)me)->GetOwner();
         if (!owner)
