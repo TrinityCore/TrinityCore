@@ -25,7 +25,6 @@
 #include "Common.h"
 #include "Config/ConfigEnv.h"
 #include "Database/DatabaseEnv.h"
-
 #include "AccountMgr.h"
 #include "Log.h"
 #include "RASocket.h"
@@ -198,8 +197,8 @@ void RASocket::OnRead()
                     LoginDatabase.escape_string(pw);
 
                     QueryResult *check = LoginDatabase.PQuery(
-                        "SELECT 1 FROM account WHERE username = '%s' AND sha_pass_hash=SHA1(CONCAT(username,':','%s'))",
-                        login.c_str(), pw.c_str());
+                        "SELECT 1 FROM account WHERE username = '%s' AND sha_pass_hash=SHA1(CONCAT('%s',':','%s'))",
+                        login.c_str(), login.c_str(), pw.c_str());
 
                     if(check)
                     {
