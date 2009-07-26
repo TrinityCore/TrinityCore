@@ -1388,6 +1388,7 @@ void Aura::_RemoveAura()
 
 void Aura::SetStackAmount(uint8 stackAmount, bool applied)
 {
+    bool refresh = stackAmount >= m_stackAmount;
     if (stackAmount != m_stackAmount)
     {
         m_stackAmount = stackAmount;
@@ -1399,7 +1400,11 @@ void Aura::SetStackAmount(uint8 stackAmount, bool applied)
             }
         }
     }
-    RefreshAura();
+
+    if (refresh)
+        RefreshAura();
+    else
+        SendAuraUpdate();
 }
 
 bool Aura::modStackAmount(int32 num)
