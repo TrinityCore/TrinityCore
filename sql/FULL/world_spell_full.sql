@@ -1630,7 +1630,6 @@ INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`
 (25742, 0.07, -1, 0.039, -1, 'Paladin - Seal of Righteousness Dummy Proc'),
 (53719, 0, 0, 0, 0, 'Paladin - Seal of the Martyr Proc Enemy'),
 (53718, 0, 0, 0, 0, 'Paladin - Seal of the Martyr Proc Self'),
-(53600, 0, 0, 0, 0, 'Paladin - Shield of Righteousness'),
 (32546, 0.8068, -1, -1, -1, 'Priest - Binding Heal'),
 (27813, 0, 0, 0, 0, 'Priest - Blessed Recovery Rank 1'),
 (34861, 0.402, -1, -1, -1, 'Priest - Circle of Healing'),
