@@ -4850,6 +4850,13 @@ void AuraEffect::HandlePeriodicDamage(bool apply, bool Real, bool changeAmount)
                 float mwb_min = caster->GetWeaponDamageRange(BASE_ATTACK,MINDAMAGE);
                 float mwb_max = caster->GetWeaponDamageRange(BASE_ATTACK,MAXDAMAGE);
                 m_amount+=int32(((mwb_min+mwb_max)/2+ap*mws/14000)*0.2f);
+                // "If used while your target is above 75% health, Rend does 35% more damage."
+                // as for 3.1.3 only ranks above 9 (wrong tooltip?)
+                if (spellmgr.GetSpellRank(m_spellProto->Id) >= 9)
+                {
+                    if (m_target->HasAuraState(AURA_STATE_HEALTH_ABOVE_75_PERCENT, m_spellProto, caster))
+                        m_amount += int32(m_amount*0.35);
+                }
                 return;
             }
             break;
