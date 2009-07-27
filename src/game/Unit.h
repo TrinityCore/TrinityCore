@@ -1450,6 +1450,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void RemoveAurasWithInterruptFlags(uint32 flag, uint32 except = NULL);
         void RemoveAurasWithFamily(uint32 family, uint32 familyFlag1, uint32 familyFlag2, uint32 familyFlag3, uint64 casterGUID);
         void RemoveMovementImpairingAuras();
+        void RemoveAurasWithMechanic(uint32 mechanic_mask, uint32 except=0);
         void RemoveAllAuras();
         void RemoveArenaAuras(bool onleave = false);
         void RemoveAllAurasOnDeath();

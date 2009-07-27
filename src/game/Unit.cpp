@@ -553,6 +553,22 @@ void Unit::RemoveAurasWithFamily(uint32 family, uint32 familyFlag1, uint32 famil
     }
 }
 
+void Unit::RemoveAurasWithMechanic(uint32 mechanic_mask, uint32 except)
+{
+    for (AuraMap::iterator iter = m_Auras.begin(); iter != m_Auras.end();)
+    {
+        if (!except || iter->second->GetId() != except)
+        {
+            if(GetAllSpellMechanicMask(iter->second->GetSpellProto()) & mechanic_mask)
+            {
+                RemoveAura(iter, AURA_REMOVE_BY_ENEMY_SPELL);
+                continue;
+            }
+        }
+        ++iter;
+    }
+}
+
 void Unit::UpdateInterruptMask()
 {
     m_interruptMask = 0;
