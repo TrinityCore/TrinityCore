@@ -2458,6 +2458,10 @@
 						<Filter
 							Name="Sholazar Basin"
 							>
+                            <File
+                                RelativePath="..\scripts\zone\sholazar_basin\sholazar_basin.cpp"
+                                >
+                            </File>
 						</Filter>
 						<Filter
 							Name="Dalaran"

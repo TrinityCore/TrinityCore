@@ -476,6 +476,9 @@ extern void AddSC_shadowmoon_valley();
 //Shattrath
 extern void AddSC_shattrath_city();
 
+//Sholazar Basin
+extern void AddSC_sholazar_basin();
+
 //Silithus
 extern void AddSC_silithus();
 
@@ -1380,6 +1383,9 @@ void ScriptsInit(char const* cfg_file = "trinitycore.conf")
 
     //Shattrath
     AddSC_shattrath_city();
+
+    //Sholazar Basin
+    AddSC_sholazar_basin();
 
     //Silithus
     AddSC_silithus();
