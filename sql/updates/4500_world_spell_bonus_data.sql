@@ -243,4 +243,3 @@ INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`
 (48628, -1, -1, -1, 0.15, 'Druid - Lock Jaw'),
 (1822, -1, -1, 0.01, 0.06, 'Druid - Rake ($AP*0.18 / number of ticks)'),
 (33745, -1, -1, -1, 0.01, 'Druid - Lacerate($AP*0.05 / number of ticks)');
-
