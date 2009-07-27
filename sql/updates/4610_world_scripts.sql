@@ -32,7 +32,7 @@ INSERT INTO `script_waypoint` VALUES
 (28217, 27, 5596.56,4642.26,-136.593, 0, ''),
 (28217, 28, 5634.02,4600.35,-137.291,2000,'');
 
-INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`, `sound`, `type`, `language`, `emote`, `comment`)
+INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`, `sound`, `type`, `language`, `emote`, `comment`) VALUES
 (-1571000, 'You save me! We thank you. We going to go back to village now. You come too... you can stay with us! Puppy-men kind of mean anyway. ', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 'npc_injured_rainspeaker_oracle SAY_END_IRO'),
 (-1571001, 'Let me know when you ready to go, okay?', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 'npc_injured_rainspeaker_oracle SAY_QUEST_ACCEPT_IRO '),
 (-1571002, 'Home time!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 'npc_injured_rainspeaker_oracle SAY_START_IRO');
