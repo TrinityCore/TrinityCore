@@ -771,10 +771,12 @@ enum MeleeHitOutcome
 
 struct CleanDamage
 {
-    CleanDamage(uint32 _damage, WeaponAttackType _attackType, MeleeHitOutcome _hitOutCome) :
-    damage(_damage), attackType(_attackType), hitOutCome(_hitOutCome) {}
+    CleanDamage(uint32 mitigated, uint32 absorbed, WeaponAttackType _attackType, MeleeHitOutcome _hitOutCome) :
+    mitigated_damage(mitigated), absorbed_damage(absorbed), attackType(_attackType), hitOutCome(_hitOutCome) {}
 
-    uint32 damage;
+    uint32 absorbed_damage;
+    uint32 mitigated_damage;
+
     WeaponAttackType attackType;
     MeleeHitOutcome hitOutCome;
 };
@@ -1806,6 +1808,9 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         bool canFly() const     { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FLY_MODE); }
         bool IsFlying() const   { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FLYING); }
         void SetFlying(bool apply);
+
+        void RewardRage( uint32 damage, uint32 weaponSpeedHitFactor, bool attacker );
+
         virtual float GetFollowAngle() const { return M_PI/2; }
     protected:
         explicit Unit ();
