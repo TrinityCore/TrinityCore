@@ -4218,11 +4218,11 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
                 SpellEntry const *spellInfo = NULL;
                 uint32 stack = 0;
 
-                if (AuraEffect * aur = unitTarget->GetAura(SPELL_AURA_MOD_RESISTANCE,SPELLFAMILY_WARRIOR,SPELLFAMILYFLAG_WARRIOR_SUNDERARMOR, 0, 0, m_caster->GetGUID()))
+                if (Aura * aur = unitTarget->GetAura(58567, m_caster->GetGUID()))
                 {
-                    aur->GetParentAura()->RefreshAura();
+                    aur->RefreshAura();
                     spellInfo = aur->GetSpellProto();
-                    stack = aur->GetParentAura()->GetStackAmount();
+                    stack = aur->GetStackAmount();
                 }
 
                 for(uint8 j = 0; j < 3; j++)
