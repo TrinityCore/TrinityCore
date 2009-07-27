@@ -1574,7 +1574,7 @@ INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`
 (53195, 0.0458, -1, -1, -1, 'Druid - Starfall rank 4'),
 (2912, 1, -1, -1, -1, 'Druid - Starfire'),
 (18562, 0, 0, 0, 0, 'Druid - Swiftmend'),
-(50256, -1, -1, 0.08, -1, 'Druid - Swipe'),
+(779, -1, -1, 0.063, -1, 'Druid - Swipe (Bear)');
 (44203, 0.538, -1, -1, -1, 'Druid - Tranquility Triggered'),
 (61391, 0.193, -1, -1, -1, 'Druid - Typhoon'),
 (48438, -1, 0.11505, -1, -1, 'Druid - Wild Growth'),
@@ -1645,6 +1645,7 @@ INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`
 (25742, 0.07, -1, 0.039, -1, 'Paladin - Seal of Righteousness Dummy Proc'),
 (53719, 0, 0, 0, 0, 'Paladin - Seal of the Martyr Proc Enemy'),
 (53718, 0, 0, 0, 0, 'Paladin - Seal of the Martyr Proc Self'),
+(50256, -1, -1, 0.08, -1, 'Pet Skills - Bear (Swipe)'),
 (32546, 0.8068, -1, -1, -1, 'Priest - Binding Heal'),
 (27813, 0, 0, 0, 0, 'Priest - Blessed Recovery Rank 1'),
 (34861, 0.402, -1, -1, -1, 'Priest - Circle of Healing'),
