@@ -261,8 +261,7 @@ struct TRINITY_DLL_DECL npc_daranelleAI : public ScriptedAI
             {
                 DoScriptText(SAY_SPELL_INFLUENCE, m_creature, who);
                 //TODO: Move the below to updateAI and run if this statement == true
-                CAST_PLR(who)->KilledMonsterCredit(21511, m_creature->GetGUID());
-                CAST_PLR(who)->RemoveAurasDueToSpell(36904);
+                DoCast(who,37028,true);
             }
         }
 

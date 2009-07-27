@@ -84,11 +84,8 @@ struct TRINITY_DLL_DECL npc_daphne_stilwellAI : public npc_escortAI
         {
             case 4:
                 SetEquipmentSlots(false, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE, EQUIP_ID_RIFLE);
-                SetSheathState(SHEATH_STATE_RANGED);
+                m_creature->SetSheath(SHEATH_STATE_RANGED);
                 m_creature->HandleEmoteCommand(EMOTE_STATE_USESTANDING_NOSHEATHE);
-                break;
-            case 6:
-                SetCombatMovement(false);
                 break;
             case 7:
                 m_creature->SummonCreature(NPC_DEFIAS_RAIDER, -11450.836, 1569.755, 54.267, 4.230, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
@@ -96,12 +93,14 @@ struct TRINITY_DLL_DECL npc_daphne_stilwellAI : public npc_escortAI
                 m_creature->SummonCreature(NPC_DEFIAS_RAIDER, -11448.237, 1568.307, 54.620, 4.206, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
                 break;
             case 8:
+                m_creature->SetSheath(SHEATH_STATE_RANGED);
                 m_creature->SummonCreature(NPC_DEFIAS_RAIDER, -11450.836, 1569.755, 54.267, 4.230, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
                 m_creature->SummonCreature(NPC_DEFIAS_RAIDER, -11449.697, 1569.124, 54.421, 4.206, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
                 m_creature->SummonCreature(NPC_DEFIAS_RAIDER, -11448.237, 1568.307, 54.620, 4.206, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
                 m_creature->SummonCreature(NPC_DEFIAS_RAIDER, -11448.037, 1570.213, 54.961, 4.283, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
                 break;
             case 9:
+                m_creature->SetSheath(SHEATH_STATE_RANGED);
                 m_creature->SummonCreature(NPC_DEFIAS_RAIDER, -11450.836, 1569.755, 54.267, 4.230, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
                 m_creature->SummonCreature(NPC_DEFIAS_RAIDER, -11449.697, 1569.124, 54.421, 4.206, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
                 m_creature->SummonCreature(NPC_DEFIAS_RAIDER, -11448.237, 1568.307, 54.620, 4.206, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
@@ -115,13 +114,28 @@ struct TRINITY_DLL_DECL npc_daphne_stilwellAI : public npc_escortAI
                 DoScriptText(SAY_DS_PROLOGUE, m_creature);
                 break;
             case 13:
-                SetSheathState(SHEATH_STATE_UNARMED);
-                m_creature->HandleEmoteCommand(EMOTE_STATE_USESTANDING_NOSHEATHE);
                 SetEquipmentSlots(true);
+                m_creature->SetSheath(SHEATH_STATE_UNARMED);
+                m_creature->HandleEmoteCommand(EMOTE_STATE_USESTANDING_NOSHEATHE);
                 break;
             case 17:
                 pPlayer->GroupEventHappens(QUEST_TOME_VALOR, m_creature);
                 break;
+        }
+    }
+
+    void AttackStart(Unit* pWho)
+    {
+        if (!pWho)
+            return;
+
+        if (m_creature->Attack(pWho, false))
+        {
+            m_creature->AddThreat(pWho, 0.0f);
+            m_creature->SetInCombatWith(pWho);
+            pWho->SetInCombatWith(m_creature);
+
+            m_creature->GetMotionMaster()->MoveChase(pWho, 30.0f);
         }
     }
 
@@ -148,14 +162,10 @@ struct TRINITY_DLL_DECL npc_daphne_stilwellAI : public npc_escortAI
 
         if (uiShootTimer < diff)
         {
-            if (m_creature->IsWithinDistInMap(m_creature->getVictim(), ATTACK_DISTANCE))
-                SetCombatMovement(true);
-            else
-                SetCombatMovement(false);
-
             uiShootTimer = 1500;
 
-            DoCast(m_creature->getVictim(), SPELL_SHOOT);
+            if (!m_creature->IsWithinDist(m_creature->getVictim(), ATTACK_DISTANCE))
+                DoCast(m_creature->getVictim(), SPELL_SHOOT);
         }else uiShootTimer -= diff;
     }
 };

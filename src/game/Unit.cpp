@@ -1412,7 +1412,7 @@ void Unit::CalculateMeleeDamage(Unit *pVictim, uint32 damage, CalcDamageInfo *da
     damageInfo->procEx           = PROC_EX_NONE;
     damageInfo->hitOutCome       = MELEE_HIT_EVADE;
 
-    if(!this || !pVictim)
+    if(!pVictim)
         return;
     if(!this->isAlive() || !pVictim->isAlive())
         return;
@@ -5843,10 +5843,13 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     basepoints0 = triggerAmount * GetMaxHealth() / 100;
                     target = this;
                     triggered_spell_id = 34299;
-                    if (triggeredByAura->GetCaster() != this)
+                    if (triggeredByAura->GetCasterGUID() != GetGUID())
                         break;
                     int32 basepoints1 = triggerAmount * 2;
-                    CastCustomSpell(this,60889,&basepoints1,0,0,true,0,triggeredByAura);
+                    // Improved Leader of the Pack
+                    // Check cooldown of heal spell cooldown
+                    if (GetTypeId()==TYPEID_PLAYER && !((Player *)this)->HasSpellCooldown(34299))
+                        CastCustomSpell(this,60889,&basepoints1,0,0,true,0,triggeredByAura);
                     break;
                 }
                 // Healing Touch (Dreamwalker Raiment set)
@@ -7363,7 +7366,10 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                             sLog.outError("Unit::HandleProcTriggerSpell: Spell %u miss posibly Piercing Shots",auraSpellInfo->Id);
                             return false;
                     }
-                    basepoints0 = int32(damage * triggerAmount / 100);
+                    SpellEntry const *TriggerPS = sSpellStore.LookupEntry(trigger_spell_id);
+                    if(!TriggerPS)
+                        return false;
+                    basepoints0 = int32(damage * triggerAmount / 100 / (GetSpellMaxDuration(TriggerPS) / TriggerPS->EffectAmplitude[0]));
                     target = pVictim;
                 }                              
                 break;
@@ -7865,6 +7871,12 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
             if (GetTypeId()==TYPEID_PLAYER)
                 ((Player*)this)->RemoveCategoryCooldown(82);
             return true;
+        }
+        // Savage Defense
+        case 62606:
+        {
+            basepoints0 = int32(GetTotalAttackPowerValue(BASE_ATTACK) * triggerAmount / 100.0f);
+            break;
         }
     }
 
@@ -8827,19 +8839,24 @@ int32 Unit::DealHeal(Unit *pVictim, uint32 addhealth, SpellEntry const *spellPro
 {
     int32 gain = pVictim->ModifyHealth(int32(addhealth));
 
-    if (GetTypeId()==TYPEID_PLAYER)
+    Unit* unit = this;
+
+    if( GetTypeId()==TYPEID_UNIT && ((Creature*)this)->isTotem())
+        unit = GetOwner();
+
+    if (unit->GetTypeId()==TYPEID_PLAYER)
     {
         // overheal = addhealth - gain
-        SendHealSpellLog(pVictim, spellProto->Id, addhealth, addhealth > gain ? addhealth - gain : 0, critical);
+        unit->SendHealSpellLog(pVictim, spellProto->Id, addhealth, addhealth - gain, critical);
 
-        if (BattleGround *bg = ((Player*)this)->GetBattleGround())
-            bg->UpdatePlayerScore((Player*)this, SCORE_HEALING_DONE, gain);
+        if (BattleGround *bg = ((Player*)unit)->GetBattleGround())
+            bg->UpdatePlayerScore((Player*)unit, SCORE_HEALING_DONE, gain);
 
         // use the actual gain, as the overheal shall not be counted, skip gain 0 (it ignored anyway in to criteria)
         if (gain)
-            ((Player*)this)->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HEALING_DONE, gain, 0, pVictim);
+            ((Player*)unit)->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HEALING_DONE, gain, 0, pVictim);
 
-        ((Player*)this)->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEAL_CASTED, addhealth);
+        ((Player*)unit)->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEAL_CASTED, addhealth);
     }
 
     if (pVictim->GetTypeId()==TYPEID_PLAYER)
@@ -10437,8 +10454,7 @@ float Unit::GetPPMProcChance(uint32 WeaponSpeed, float PPM, const SpellEntry * s
         if(Player* modOwner = GetSpellModOwner())
             modOwner->ApplySpellMod(spellProto->Id,SPELLMOD_PROC_PER_MINUTE,PPM);
 
-    uint32 result = uint32((WeaponSpeed * PPM) / 600.0f);   // result is chance in percents (probability = Speed_in_sec * (PPM / 60))
-    return result;
+    return uint32((WeaponSpeed * PPM) / 600.0f);   // result is chance in percents (probability = Speed_in_sec * (PPM / 60))
 }
 
 void Unit::Mount(uint32 mount)
@@ -14904,15 +14920,6 @@ void Unit::SetFlying(bool apply)
         RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, 0x02);
         RemoveUnitMovementFlag(MOVEMENTFLAG_FLYING);
     }
-}
-
-float Unit::GetFollowAngle() const
-{
-    if (GetTypeId()!=TYPEID_UNIT)
-        return PET_FOLLOW_ANGLE;
-    if (!((Creature*)this)->HasSummonMask(SUMMON_MASK_MINION))
-        return PET_FOLLOW_ANGLE;
-    return ((Minion*)this)->GetFollowAngle();
 }
 
 void Unit::NearTeleportTo( float x, float y, float z, float orientation, bool casting /*= false*/ )

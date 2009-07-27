@@ -1,3 +1,6 @@
+-- Khunok Will Know --
+UPDATE `quest_template` SET `SrcSpell`='46232' WHERE (`entry`='11878');
+
 -- --------
 -- TRIGGER
 -- --------
@@ -179,6 +182,7 @@ spell6 = VALUES(spell6),
 spell7 = VALUES(spell7),
 spell8 = VALUES(spell8);
 
+UPDATE `creature_template` SET `flags_extra`=2 WHERE (`entry`=26250);              # Plug the Sinkholes - worm
 UPDATE `creature_template` SET `spell1`=59638, `spell2` = 59637 WHERE `entry`=31216; # Mirror Image
 
 # Spore

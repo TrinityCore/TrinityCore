@@ -6,6 +6,7 @@
 	ProjectGUID="{563E9905-3657-460C-AE63-0AC39D162E23}"
 	RootNamespace="TrinityRealm"
 	Keyword="Win32Proj"
+	TargetFrameworkVersion="0"
 	>
 	<Platforms>
 		<Platform
