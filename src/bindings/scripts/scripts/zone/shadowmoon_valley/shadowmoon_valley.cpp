@@ -269,7 +269,7 @@ struct TRINITY_DLL_DECL mob_enslaved_netherwing_drakeAI : public ScriptedAI
                     Player* plr = Unit::GetPlayer(PlayerGUID);
                     if(plr && plr->GetQuestStatus(10854) == QUEST_STATUS_INCOMPLETE)
                     {
-                        plr->KilledMonsterCredit(22316, m_creature->GetGUID());
+                        DoCast(plr, SPELL_FORCE_OF_NELTHARAKU, true);
                         /*
                         float x,y,z;
                         m_creature->GetPosition(x,y,z);

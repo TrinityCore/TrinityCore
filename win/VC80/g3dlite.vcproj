@@ -181,18 +181,14 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TargetEnvironment="3"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
-				Optimization="0"
 				AdditionalIncludeDirectories="..\..\dep\include\g3dlite"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
-				MinimalRebuild="false"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				BufferSecurityCheck="true"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				RuntimeLibrary="2"
+				EnableEnhancedInstructionSet="1"
 				UsePrecompiledHeader="0"
 				AssemblerListingLocation=".\g3dlite__$(PlatformName)_$(ConfigurationName)\"
 				ObjectFile=".\g3dlite__$(PlatformName)_$(ConfigurationName)\"
@@ -232,7 +228,7 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="Release|Win32"
+			Name="Debug|x64"
 			OutputDirectory=".\g3dlite__$(PlatformName)_$(ConfigurationName)"
 			IntermediateDirectory=".\g3dlite__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="4"
@@ -253,15 +249,18 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
+				TargetEnvironment="3"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
+				Optimization="0"
 				AdditionalIncludeDirectories="..\..\dep\include\g3dlite"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
-				RuntimeLibrary="2"
-				EnableEnhancedInstructionSet="1"
-				FloatingPointModel="2"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
+				MinimalRebuild="false"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="3"
+				BufferSecurityCheck="true"
 				UsePrecompiledHeader="0"
 				AssemblerListingLocation=".\g3dlite__$(PlatformName)_$(ConfigurationName)\"
 				ObjectFile=".\g3dlite__$(PlatformName)_$(ConfigurationName)\"
@@ -403,7 +402,6 @@
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
 				EnableEnhancedInstructionSet="0"
-				FloatingPointModel="2"
 				UsePrecompiledHeader="0"
 				AssemblerListingLocation=".\g3dlite__$(PlatformName)_$(ConfigurationName)\"
 				ObjectFile=".\g3dlite__$(PlatformName)_$(ConfigurationName)\"

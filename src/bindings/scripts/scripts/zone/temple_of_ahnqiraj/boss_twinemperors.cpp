@@ -312,40 +312,18 @@ struct TRINITY_DLL_DECL boss_twinemperorsAI : public ScriptedAI
         }
     }
 
-    class AnyBugCheck
-    {
-        public:
-            AnyBugCheck(WorldObject const* obj, float range) : i_obj(obj), i_range(range) {}
-            bool operator()(Creature* u)
-            {
-                Creature *c = u;
-                if (!i_obj->IsWithinDistInMap(c, i_range))
-                    return false;
-                return (c->GetEntry() == 15316 || c->GetEntry() == 15317);
-            }
-        private:
-            WorldObject const* i_obj;
-            float i_range;
-    };
-
     Creature *RespawnNearbyBugsAndGetOne()
     {
-        CellPair p(Trinity::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
-        Cell cell(p);
-        cell.data.Part.reserved = ALL_DISTRICT;
-        cell.SetNoCreate();
+        std::list<Creature*> lUnitList;
+        m_creature->GetCreatureListWithEntryInGrid(lUnitList,15316,150.0f);
+        m_creature->GetCreatureListWithEntryInGrid(lUnitList,15317,150.0f);
 
-        std::list<Creature*> unitList;
-
-        AnyBugCheck u_check(m_creature, 150);
-        Trinity::CreatureListSearcher<AnyBugCheck> searcher(m_creature, unitList, u_check);
-        TypeContainerVisitor<Trinity::CreatureListSearcher<AnyBugCheck>, GridTypeMapContainer >  grid_creature_searcher(searcher);
-        CellLock<GridReadGuard> cell_lock(cell, p);
-        cell_lock->Visit(cell_lock, grid_creature_searcher, *(m_creature->GetMap()));
+        if (lUnitList.empty())
+            return NULL;
 
         Creature *nearb = NULL;
 
-        for(std::list<Creature*>::iterator iter = unitList.begin(); iter != unitList.end(); ++iter)
+        for(std::list<Creature*>::iterator iter = lUnitList.begin(); iter != lUnitList.end(); ++iter)
         {
             Creature *c = *iter;
             if (c)

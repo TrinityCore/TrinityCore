@@ -144,7 +144,7 @@ float KaelthasWeapons[7][5] =
 #define GRAVITY_Z 70.0f
 
 #define TIME_PHASE_2_3      120000
-#define TIME_PHASE_3_4      120000
+#define TIME_PHASE_3_4      180000
 
 #define KAEL_VISIBLE_RANGE  50.0f
 #define ROOM_BASE_Z 49.0f
@@ -160,6 +160,7 @@ struct TRINITY_DLL_DECL advisorbase_ai : public ScriptedAI
     advisorbase_ai(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
+        FakeDeath = false;
     }
 
     void MoveInLineOfSight(Unit *who)
@@ -180,6 +181,9 @@ struct TRINITY_DLL_DECL advisorbase_ai : public ScriptedAI
 
     void Reset()
     {
+        if (FakeDeath)
+            m_creature->SetMaxHealth(m_creature->GetMaxHealth() / 2);
+
         m_creature->SetNoCallAssistance(true);
         FakeDeath = false;
         DelayRes_Timer = 0;
@@ -238,7 +242,10 @@ struct TRINITY_DLL_DECL advisorbase_ai : public ScriptedAI
             m_creature->SetUInt64Value(UNIT_FIELD_TARGET,0);
             m_creature->GetMotionMaster()->Clear();
             m_creature->GetMotionMaster()->MoveIdle();
-            m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1,UNIT_STAND_STATE_DEAD);
+            m_creature->SetStandState(UNIT_STAND_STATE_DEAD);
+
+            // Double health for Phase 3
+            m_creature->SetMaxHealth(m_creature->GetMaxHealth() * 2);
 
             if (pInstance->GetData(DATA_KAELTHASEVENT) == 3)
                 JustDied(pKiller);

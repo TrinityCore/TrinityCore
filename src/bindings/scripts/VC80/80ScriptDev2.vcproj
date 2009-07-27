@@ -1102,6 +1102,10 @@
 							RelativePath="..\scripts\zone\magisters_terrace\instance_magisters_terrace.cpp"
 							>
 						</File>
+                        <File
+                            RelativePath="..\scripts\zone\magisters_terrace\magisters_terrace.cpp"
+                            >
+                        </File>
 					</Filter>
 					<Filter
 						Name="Loch Modan"
@@ -1835,6 +1839,14 @@
 							>
 						</File>
 					</Filter>
+                    <Filter
+                        Name="Zul&apos;Drak"
+                        >
+                        <File
+                            RelativePath="..\scripts\zone\zuldrak\zuldrak.cpp"
+                            >
+                        </File>
+                    </Filter>
 					<Filter
 						Name="Wetlands"
 						>

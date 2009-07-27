@@ -483,6 +483,10 @@ INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
 ('48714', '2', '27236'),
 ('57806', '2', '31043');
 
+-- Zul'Drak
+DELETE FROM `spell_script_target` WHERE `entry` IN (55083,55223,59951,59952);
+INSERT INTO `spell_script_target` VALUES (55083, 1, 29700),(55223, 1, 29686),(59951, 1, 29686),(59952, 1, 29686);
+
 -- --------
 -- POSITION
 -- --------
@@ -1098,8 +1102,8 @@ INSERT INTO `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `Spell
 ( 47535, 0x00,   6, 0x00000001, 0x00000000, 0x00000000, 0x00004000, 0x00002000,   0,   0,  12), -- Rapture (Rank 1)
 ( 47536, 0x00,   6, 0x00000001, 0x00000000, 0x00000000, 0x00004000, 0x00002000,   0,   0,  12), -- Rapture (Rank 2)
 ( 47537, 0x00,   6, 0x00000001, 0x00000000, 0x00000000, 0x00004000, 0x00002000,   0,   0,  12), -- Rapture (Rank 3)
-( 47569, 0x00,   6, 0x00004000, 0x00000000, 0x00000000, 0x00000400, 0x00000000,   0,  50,   0), -- Improved Shadowform (Rank 1)
-( 47570, 0x00,   6, 0x00004000, 0x00000000, 0x00000000, 0x00000400, 0x00000000,   0, 100,   0), -- Improved Shadowform (Rank 2)
+( 47569, 0x00,   6, 0x00004000, 0x00000000, 0x00000000, 0x00004000, 0x00000000,   0,  50,   0), -- Improved Shadowform (Rank 1)
+( 47570, 0x00,   6, 0x00004000, 0x00000000, 0x00000000, 0x00004000, 0x00000000,   0, 100,   0), -- Improved Shadowform (Rank 2)
 ( 47580, 0x00,   6, 0x00000000, 0x00000000, 0x00000040, 0x00000000, 0x00010000,   0,   0,   0), -- Pain and Suffering (Rank 1)
 ( 47581, 0x00,   6, 0x00000000, 0x00000000, 0x00000040, 0x00000000, 0x00010000,   0,   0,   0), -- Pain and Suffering (Rank 2)
 ( 47582, 0x00,   6, 0x00000000, 0x00000000, 0x00000040, 0x00000000, 0x00010000,   0,   0,   0), -- Pain and Suffering (Rank 3)
@@ -1626,7 +1630,6 @@ INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`
 (25742, 0.07, -1, 0.039, -1, 'Paladin - Seal of Righteousness Dummy Proc'),
 (53719, 0, 0, 0, 0, 'Paladin - Seal of the Martyr Proc Enemy'),
 (53718, 0, 0, 0, 0, 'Paladin - Seal of the Martyr Proc Self'),
-(53600, 0, 0, 0, 0, 'Paladin - Shield of Righteousness'),
 (32546, 0.8068, -1, -1, -1, 'Priest - Binding Heal'),
 (27813, 0, 0, 0, 0, 'Priest - Blessed Recovery Rank 1'),
 (34861, 0.402, -1, -1, -1, 'Priest - Circle of Healing'),
@@ -1922,14 +1925,6 @@ INSERT INTO `spell_elixir` (`entry`, `mask`) VALUES
 (60346, 0x1),
 (60347, 0x2),
 (62380, 0x3);
-
--- --------
--- SPELL AFFECT
--- --------
-
-TRUNCATE TABLE `spell_affect`;
-INSERT INTO `spell_affect` (`entry`, `effectId`, `SpellClassMask0`, `SpellClassMask1`, `SpellClassMask2`) VALUES
-(44544,0,685904631,1151048,0); -- Fingers of frost
 
 -- --------
 -- Death Knight

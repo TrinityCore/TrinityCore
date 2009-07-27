@@ -17,6 +17,7 @@ UPDATE `gameobject_template` SET `ScriptName`='go_eastern_crystal_pylon' WHERE `
 UPDATE `gameobject_template` SET `ScriptName`='go_barov_journal' WHERE `entry`=180794;
 UPDATE `gameobject_template` SET `ScriptName`='go_field_repair_bot_74A' WHERE `entry`=179552;
 UPDATE `gameobject_template` SET `ScriptName`='go_orb_of_command' WHERE `entry`=179879;
+UPDATE `gameobject_template` SET `ScriptName`='go_resonite_cask' WHERE entry=178145;
 UPDATE `gameobject_template` SET `ScriptName`='go_tablet_of_madness' WHERE `entry`=180368;
 UPDATE `gameobject_template` SET `ScriptName`='go_tablet_of_the_seven' WHERE `entry`=169294;
 UPDATE `gameobject_template` SET `ScriptName`='go_manticron_cube' WHERE `entry`=181713;
@@ -63,6 +64,7 @@ UPDATE `creature_template` SET `ScriptName`='guard_shattrath_scryer' WHERE `entr
 UPDATE `item_template` SET `ScriptName`='item_area_52_special' WHERE `entry`=28132;
 UPDATE `item_template` SET `ScriptName`='item_attuned_crystal_cores' WHERE `entry`=34368;
 UPDATE `item_template` SET `ScriptName`='item_blackwhelp_net' WHERE `entry`=31129;
+UPDATE `item_template` SET `ScriptName`='item_dart_gun' WHERE `entry`=44222;
 UPDATE `item_template` SET `ScriptName`='item_disciplinary_rod' WHERE `entry`=22473;
 UPDATE `item_template` SET `ScriptName`='item_draenei_fishing_net' WHERE `entry`=23654;
 UPDATE `item_template` SET `ScriptName`='item_flying_machine' WHERE `entry` IN (34060,34061);
@@ -81,6 +83,7 @@ UPDATE `item_template` SET `ScriptName`='item_yehkinyas_bramble' WHERE `entry`=1
 UPDATE `item_template` SET `ScriptName`='item_zezzaks_shard' WHERE `entry`=31463;
 UPDATE `item_template` SET `ScriptName`='item_only_for_flight' WHERE `entry` IN (34475, 34489, 24538);
 UPDATE `item_template` SET `ScriptName`='item_inoculating_crystal' WHERE `entry`=22962;
+UPDATE `item_template` SET `ScriptName`='item_incendiary_explosives' WHERE (`entry`=35704);
 
 /* NPC (usually creatures to be found in more than one specific zone) */
 UPDATE `creature_template` SET `ScriptName`='npc_air_force_bots' WHERE `entry` IN (2614, 2615, 21974, 21993, 21996, 21997, 21999, 22001, 22002, 22003, 22063, 22065, 22066, 22068, 22069, 22070, 22071, 22078, 22079, 22080, 22086, 22087, 22088, 22090, 22124, 22125, 22126);
@@ -115,6 +118,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_dkc1_gothik' WHERE `entry`=2865
 UPDATE `creature_template` SET `ScriptName`='npc_a_special_surprise' WHERE `entry` IN (29032, 29061, 29065, 29067, 29068, 29070, 29074, 29072, 29073, 29071);
 UPDATE `creature_template` SET `ScriptName`='npc_demolisher_engineerer' WHERE `entry` IN (30400, 30499);
 UPDATE `creature_template` SET `ScriptName`='npc_valkyr_battle_maiden' WHERE `entry`=28534;
+UPDATE `creature_template` SET `ScriptName`='npc_mirror_image' WHERE `entry`=31216;
 
 /*  */
 /* ZONE */
@@ -309,6 +313,8 @@ UPDATE `creature_template` SET `ScriptName`='npc_captured_sunhawk_agent' WHERE `
 /* BOREAN TUNDRA */
 UPDATE `creature_template` SET `ScriptName`='npc_surristrasz' WHERE `entry`=24795;
 UPDATE `creature_template` SET `ScriptName`='npc_tiare' WHERE `entry`=30051;
+UPDATE `creature_template` SET `ScriptName`='npc_sinkhole_kill_credit' WHERE `entry` IN (26248,26249);
+UPDATE `creature_template` SET `ScriptName`='npc_khunok_the_behemoth' WHERE (`entry`='25862');
 
 /* BURNING STEPPES */
 UPDATE `creature_template` SET `ScriptName`='npc_ragged_john' WHERE `entry`=9563;
@@ -610,6 +616,7 @@ UPDATE `creature_template` SET `ScriptName`='mob_arcane_sphere' WHERE `entry`=24
 UPDATE `creature_template` SET `ScriptName`='mob_felkael_phoenix' WHERE `entry`=24674;
 UPDATE `creature_template` SET `ScriptName`='mob_felkael_phoenix_egg' WHERE `entry`=24675;
 UPDATE `creature_template` SET `ScriptName`='mob_felkael_flamestrike' WHERE `entry`=24666;
+UPDATE `creature_template` SET `ScriptName`='npc_kalecgos' WHERE `entry` IN (24844, 24848);
 
 /* MARAUDON */
 UPDATE `creature_template` SET `ScriptName`='boss_princess_theradras' WHERE `entry`=12201;
@@ -697,6 +704,17 @@ UPDATE `creature_template` SET `ScriptName`='boss_ormorok' WHERE `entry`=26794;
 UPDATE `creature_template` SET `ScriptName`='mob_crystal_spike' WHERE `entry`=27099;
 UPDATE `creature_template` SET `ScriptName`='mob_crystalline_tangler' WHERE `entry`=32665;
 UPDATE `creature_template` SET `ScriptName`='boss_keristrasza' WHERE `entry`=26723;
+
+/* OBSIDIAN SANCTUM */
+UPDATE `instance_template` SET `script`='instance_obsidian_sanctum' WHERE map=615;
+UPDATE creature_template SET ScriptName='boss_sartharion' WHERE entry=28860;
+UPDATE creature_template SET ScriptName='mob_vesperon' WHERE entry=30449;
+UPDATE creature_template SET ScriptName='mob_shadron' WHERE entry=30451;
+UPDATE creature_template SET ScriptName='mob_tenebron' WHERE entry=30452;
+UPDATE creature_template SET ScriptName='mob_twilight_eggs' WHERE entry=30882;
+UPDATE creature_template SET ScriptName='mob_twilight_whelp' WHERE entry IN (30890, 31214);
+UPDATE creature_template SET ScriptName='mob_acolyte_of_shadron' WHERE entry=31218;
+UPDATE creature_template SET ScriptName='mob_acolyte_of_vesperon' WHERE entry=31219;
 
 /* ONYXIA'S LAIR */
 UPDATE `creature_template` SET `ScriptName`='boss_onyxia' WHERE `entry`=10184;
@@ -1066,6 +1084,10 @@ UPDATE `creature_template` SET `ScriptName`='do_nothing' WHERE `entry`=24187;
 UPDATE `creature_template` SET `ScriptName`='mob_zuljin_vortex' WHERE `entry`=24136;
 UPDATE `creature_template` SET `ScriptName`='npc_zulaman_hostage' WHERE `entry` IN (23790, 23999, 24024, 24001);
 
+/* ZUL'DRAK */
+UPDATE `creature_template` SET `ScriptName`='npc_captured_rageclaw' WHERE (`entry`='29686');
+UPDATE `creature_template` SET `ScriptName`='npc_drakuru_shackles' WHERE (`entry`='29700');
+
 /* ZUL'FARRAK */
 UPDATE `creature_template` SET `ScriptName`='npc_sergeant_bly' WHERE `entry`=7604;
 UPDATE `creature_template` SET `ScriptName`='npc_weegli_blastfuse' WHERE `entry`=7607;
@@ -1092,7 +1114,6 @@ UPDATE `creature_template` SET `ScriptName`='mob_spawn_of_marli' WHERE `entry`=1
 UPDATE `creature_template` SET `ScriptName`='mob_batrider' WHERE `entry`=14965;
 UPDATE `creature_template` SET `ScriptName`='mob_shade_of_jindo' WHERE `entry`=14986;
 UPDATE `creature_template` SET `ScriptName`='mob_ohgan' WHERE `entry`=14988;
-UPDATE `creature_template` SET `ScriptName`='npc_mirror_image' WHERE `entry`=31216;
 
 UPDATE `creature_template` SET `ScriptName`='EventAI', `modelid_A` = 16925,`modelid_H` = 16925, `minmana` = 1000000,`maxmana` = 1000000, `unit_flags` = 33554434 WHERE `entry` IN(29998, 33753, 33752, 33751, 33750);
 DELETE FROM `creature_ai_scripts` WHERE `creature_id` IN (29998, 33753, 33752, 33751, 33750);

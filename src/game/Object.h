@@ -548,6 +548,9 @@ class TRINITY_DLL_SPEC WorldObject : public Object
         Creature*   FindNearestCreature(uint32 entry, float range, bool alive = true);
         GameObject* FindNearestGameObject(uint32 entry, float range);
 
+        void GetGameObjectListWithEntryInGrid(std::list<GameObject*>& lList, uint32 uiEntry, float fMaxSearchRange);
+        void GetCreatureListWithEntryInGrid(std::list<Creature*>& lList, uint32 uiEntry, float fMaxSearchRange);
+
         bool isActiveObject() const { return m_isActive; }
         void setActive(bool isActiveObject);
         void SetWorldObject(bool apply);

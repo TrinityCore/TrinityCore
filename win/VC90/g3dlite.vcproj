@@ -6,6 +6,7 @@
 	ProjectGUID="{8072769E-CF10-48BF-B9E1-12752A5DAC6E}"
 	RootNamespace="sockets"
 	Keyword="Win32Proj"
+	TargetFrameworkVersion="0"
 	>
 	<Platforms>
 		<Platform

@@ -53,21 +53,6 @@ EndScriptData */
 #define SPELL_STORM_BUFF        2148
 #define SPELL_STORM             26546
 
-class NearbyAQSentinel
-{
-    public:
-        NearbyAQSentinel(Unit const* obj) : i_obj(obj) {}
-        bool operator()(Unit* u)
-        {
-            if (u->GetEntry() == 15264 && i_obj->IsWithinDistInMap(u, 70) && !u->isDead())
-                return true;
-            else
-                return false;
-        }
-    private:
-        Unit const* i_obj;
-};
-
 struct TRINITY_DLL_DECL aqsentinelAI;
 class TRINITY_DLL_DECL SentinelAbilityAura : public Aura
 {
@@ -166,18 +151,11 @@ struct TRINITY_DLL_DECL aqsentinelAI : public ScriptedAI
 
     void AddSentinelsNear(Unit *nears)
     {
-        CellPair p(Trinity::ComputeCellPair(nears->GetPositionX(), nears->GetPositionY()));
-        Cell cell(p);
-        cell.data.Part.reserved = ALL_DISTRICT;
-        cell.SetNoCreate();
-
         std::list<Creature*> assistList;
+        m_creature->GetCreatureListWithEntryInGrid(assistList,15264,70.0f);
 
-        NearbyAQSentinel u_check(nears);
-        Trinity::CreatureListSearcher<NearbyAQSentinel> searcher(m_creature, assistList, u_check);
-        TypeContainerVisitor<Trinity::CreatureListSearcher<NearbyAQSentinel>, GridTypeMapContainer >  grid_creature_searcher(searcher);
-        CellLock<GridReadGuard> cell_lock(cell, p);
-        cell_lock->Visit(cell_lock, grid_creature_searcher, *(nears->GetMap()));
+        if (assistList.empty())
+            return;
 
         for(std::list<Creature*>::iterator iter = assistList.begin(); iter != assistList.end(); ++iter)
             AddBuddyToList((*iter));
@@ -240,8 +218,6 @@ struct TRINITY_DLL_DECL aqsentinelAI : public ScriptedAI
         }
         ClearBudyList();
         gatherOthersWhenAggro = true;
-        m_creature->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
-        m_creature->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, false);
     }
 
     void GainSentinelAbility(uint32 id)
@@ -256,12 +232,6 @@ struct TRINITY_DLL_DECL aqsentinelAI : public ScriptedAI
         }
         SentinelAbilityAura *a = new SentinelAbilityAura(this, (SpellEntry*)spell, id, eff_mask);
         m_creature->AddAura(a);
-
-        if (id == SPELL_KNOCK_BUFF)
-        {
-            m_creature->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
-            m_creature->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
-        }
     }
 
     void EnterCombat(Unit *who)

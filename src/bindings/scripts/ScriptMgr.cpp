@@ -356,6 +356,7 @@ extern void AddSC_boss_selin_fireheart();
 extern void AddSC_boss_vexallus();
 extern void AddSC_boss_priestess_delrissa();
 extern void AddSC_instance_magisters_terrace();
+extern void AddSC_magisters_terrace();
 
 //Maraudon
 extern void AddSC_boss_celebras_the_cursed();
@@ -413,6 +414,9 @@ extern void AddSC_boss_anomalus();
 extern void AddSC_boss_ormorok();
 extern void AddSC_boss_keristrasza();
 extern void AddSC_instance_nexus();
+
+//Obsidian Sanctum
+extern void AddSC_instance_obsidian_sanctum();
 
 //Onyxia's Lair
 extern void AddSC_boss_onyxia();
@@ -635,6 +639,9 @@ extern void AddSC_boss_nalorakk();
 extern void AddSC_boss_zuljin();
 extern void AddSC_instance_zulaman();
 extern void AddSC_zulaman();
+
+//Zul'Drak
+extern void AddSC_zuldrak();
 
 //Northrend
 //Dungeon
@@ -1254,6 +1261,7 @@ void ScriptsInit(char const* cfg_file = "trinitycore.conf")
     AddSC_boss_vexallus();
     AddSC_boss_priestess_delrissa();
     AddSC_instance_magisters_terrace();
+    AddSC_magisters_terrace();
 
     //Maraudon
     AddSC_boss_celebras_the_cursed();
@@ -1311,6 +1319,9 @@ void ScriptsInit(char const* cfg_file = "trinitycore.conf")
     AddSC_boss_ormorok();
     AddSC_boss_keristrasza();
     AddSC_instance_nexus();
+
+    //Obsidian Sanctum
+    AddSC_instance_obsidian_sanctum();
 
     //Onyxia's Lair
     AddSC_boss_onyxia();
@@ -1533,6 +1544,9 @@ void ScriptsInit(char const* cfg_file = "trinitycore.conf")
     AddSC_boss_zuljin();
     AddSC_instance_zulaman();
     AddSC_zulaman();
+
+    //Zul'Drak
+    AddSC_zuldrak();
 
     //Northrend
     //Dungeon
