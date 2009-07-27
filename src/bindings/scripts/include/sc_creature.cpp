@@ -533,6 +533,25 @@ std::list<Creature*> ScriptedAI::DoFindFriendlyMissingBuff(float range, uint32 s
     return pList;
 }
 
+Player* ScriptedAI::GetPlayerAtMinimumRange(float fMinimumRange)
+{
+    Player* pPlayer = NULL;
+
+    CellPair pair(Trinity::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
+    Cell cell(pair);
+    cell.data.Part.reserved = ALL_DISTRICT;
+    cell.SetNoCreate();
+
+    Trinity::PlayerAtMinimumRangeAway check(m_creature, fMinimumRange);
+    Trinity::PlayerSearcher<Trinity::PlayerAtMinimumRangeAway> searcher(m_creature, pPlayer, check);
+    TypeContainerVisitor<Trinity::PlayerSearcher<Trinity::PlayerAtMinimumRangeAway>, GridTypeMapContainer> visitor(searcher);
+
+    CellLock<GridReadGuard> cell_lock(cell, pair);
+    cell_lock->Visit(cell_lock, visitor, *(m_creature->GetMap()));
+
+    return pPlayer;
+}
+
 void ScriptedAI::SetEquipmentSlots(bool bLoadDefault, int32 uiMainHand, int32 uiOffHand, int32 uiRanged)
 {
     if (bLoadDefault)
@@ -551,11 +570,6 @@ void ScriptedAI::SetEquipmentSlots(bool bLoadDefault, int32 uiMainHand, int32 ui
 
     if (uiRanged >= 0)
         m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, uint32(uiRanged));
-}
-
-void ScriptedAI::SetSheathState(SheathState newState)
-{
-    m_creature->SetByteValue(UNIT_FIELD_BYTES_2, 0, newState);
 }
 
 void ScriptedAI::SetCombatMovement(bool CombatMove)

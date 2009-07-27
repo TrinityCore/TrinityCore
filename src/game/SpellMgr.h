@@ -240,6 +240,8 @@ bool IsSingleFromSpellSpecificPerTarget(uint32 spellSpec1, uint32 spellSpec2);
 bool IsPassiveSpell(uint32 spellId);
 bool IsAutocastableSpell(uint32 spellId);
 
+uint32 CalculatePowerCost(SpellEntry const * spellInfo, Unit const * caster, SpellSchoolMask schoolMask);
+
 inline bool IsPassiveSpellStackableWithRanks(SpellEntry const* spellProto)
 {
     if(!IsPassiveSpell(spellProto->Id))
@@ -390,9 +392,6 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto
 bool IsDiminishingReturnsGroupDurationLimited(DiminishingGroup group);
 DiminishingReturnsType GetDiminishingReturnsGroupType(DiminishingGroup group);
 int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellEntry const* spellproto);
-
-// Spell affects related declarations (accessed using SpellMgr functions)
-typedef UNORDERED_MAP<uint32, flag96> SpellAffectMap;
 
 // Spell proc event related declarations (accessed using SpellMgr functions)
 enum ProcFlags
@@ -735,14 +734,6 @@ class SpellMgr
 
     // Accessors (const or static functions)
     public:
-        // Spell affects
-        flag96 const*GetSpellAffect(uint32 spellId, uint8 effectId) const
-        {
-            SpellAffectMap::const_iterator itr = mSpellAffectMap.find((spellId<<8) + effectId);
-            if( itr != mSpellAffectMap.end( ) )
-                return &itr->second;
-            return 0;
-        }
 
         bool IsAffectedByMod(SpellEntry const *spellInfo, SpellModifier *mod) const;
 
@@ -1061,7 +1052,6 @@ class SpellMgr
         void LoadSpellLearnSkills();
         void LoadSpellLearnSpells();
         void LoadSpellScriptTarget();
-        void LoadSpellAffects();
         void LoadSpellElixirs();
         void LoadSpellProcEvents();
         void LoadSpellBonusess();
@@ -1087,7 +1077,6 @@ class SpellMgr
         SpellLearnSkillMap mSpellLearnSkills;
         SpellLearnSpellMap mSpellLearnSpells;
         SpellTargetPositionMap mSpellTargetPositions;
-        SpellAffectMap     mSpellAffectMap;
         SpellElixirMap     mSpellElixirs;
         SpellProcEventMap  mSpellProcEventMap;
         SpellBonusMap      mSpellBonusMap;

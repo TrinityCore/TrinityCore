@@ -444,29 +444,60 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                 // Incinerate Rank 1 & 2
                 if((m_spellInfo->SpellFamilyFlags[1] & 0x000040) && m_spellInfo->SpellIconID==2128)
                 {
-                    // Incinerate does more dmg (dmg*0.25) if the target is Immolated.
-                    if(unitTarget->HasAuraState(AURA_STATE_IMMOLATE, m_spellInfo, m_caster))
-                        damage += int32(damage*0.25f);
+                    // Incinerate does more dmg (dmg*0.25) if the target have Immolate debuff.
+                    // Check aura state for speed but aura state set not only for Immolate spell
+                    if(unitTarget->HasAuraState(AURA_STATE_CONFLAGRATE, m_spellInfo, m_caster))
+                    {
+                        Unit::AuraEffectList const& RejorRegr = unitTarget->GetAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
+                        for(Unit::AuraEffectList::const_iterator i = RejorRegr.begin(); i != RejorRegr.end(); ++i)
+                        {
+                            // Immolate
+                            if((*i)->GetSpellProto()->SpellFamilyName == SPELLFAMILY_WARLOCK &&
+                                ((*i)->GetSpellProto()->SpellFamilyFlags[0] & 0x4))
+                            {
+                                damage += damage/4;
+                                break;
+                            }
+                        }
+                    }
                 }
-                // Conflagrate - consumes immolate or shadowflame
-                else if (m_spellInfo->TargetAuraState == AURA_STATE_IMMOLATE)
+                // Conflagrate - consumes Immolate or Shadowflame
+                else if (m_spellInfo->TargetAuraState == AURA_STATE_CONFLAGRATE)
                 {
-                    // for caster applied auras only
+                    AuraEffect const* aura = NULL;                // found req. aura for damage calculation
+
                     Unit::AuraEffectList const &mPeriodic = unitTarget->GetAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
                     for(Unit::AuraEffectList::const_iterator i = mPeriodic.begin(); i != mPeriodic.end(); ++i)
                     {
-                        if( (*i)->GetSpellProto()->SpellFamilyName == SPELLFAMILY_WARLOCK && ((*i)->GetSpellProto()->SpellFamilyFlags[0] & 4 || (*i)->GetSpellProto()->SpellFamilyFlags[2] & 2) &&
-                            (*i)->GetCasterGUID()==m_caster->GetGUID() )
+                        // for caster applied auras only
+                        if ((*i)->GetSpellProto()->SpellFamilyName != SPELLFAMILY_WARLOCK ||
+                            (*i)->GetCasterGUID()!=m_caster->GetGUID())
+                            continue;
+
+                        // Immolate
+                        if ((*i)->GetSpellProto()->SpellFamilyFlags[0] & 0x4)
                         {
-                            uint32 pdamage = (*i)->GetAmount() > 0 ? (*i)->GetAmount() : 0;
-                            pdamage = m_caster->SpellDamageBonus(unitTarget, (*i)->GetSpellProto(), pdamage, DOT, (*i)->GetParentAura()->GetStackAmount());
-                            damage += pdamage * 4; // 4 ticks of 3 seconds = 12 secs
-                            apply_direct_bonus = false;
-                            // Glyph of Conflagrate
-                            if (!m_caster->HasAura(56235))
-                                unitTarget->RemoveAurasDueToSpell((*i)->GetId(), m_caster->GetGUID());
+                            aura = *i;                      // it selected always if exist
                             break;
                         }
+
+                        // Shadowflame
+                        if ((*i)->GetSpellProto()->SpellFamilyFlags[2] & 0x00000002)
+                            aura = *i;                      // remember but wait possible Immolate as primary priority
+                    }
+
+                    // found Immolate or Shadowflame
+                    if (aura)
+                    {
+                        uint32 pdamage = aura->GetAmount() > 0 ? aura->GetAmount() : 0;
+                        pdamage = m_caster->SpellDamageBonus(unitTarget, aura->GetSpellProto(), pdamage, DOT, aura->GetParentAura()->GetStackAmount());
+                        damage += pdamage * 4; // 4 ticks of 3 seconds = 12 secs
+                        apply_direct_bonus = false;
+                        // Glyph of Conflagrate
+                        if (!m_caster->HasAura(56235))
+                            unitTarget->RemoveAurasDueToSpell(aura->GetId(), m_caster->GetGUID());
+
+                        break;
                     }
                 }
                 // Shadow Bite
@@ -588,7 +619,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                 // Shield of Righteousness
                 else if(m_spellInfo->SpellFamilyFlags[1]&0x00100000)
                 {
-                    damage+=int32(m_caster->GetShieldBlockValue());
+                    damage += int32(m_caster->GetShieldBlockValue() * 1.3f);
                 }
                 break;
             }
@@ -1205,6 +1236,21 @@ void Spell::EffectDummy(uint32 i)
                 case 58418:                                 // Portal to Orgrimmar
                 case 58420:                                 // Portal to Stormwind
                     return;                                 // implemented in EffectScript[0]
+                case 59640:                                 // Underbelly Elixir
+                {
+                    if(m_caster->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    uint32 spell_id = 0;
+                    switch(urand(1,3))
+                    {
+                        case 1: spell_id = 59645; break;
+                        case 2: spell_id = 59831; break;
+                        case 3: spell_id = 59843; break;
+                    }
+                    m_caster->CastSpell(m_caster,spell_id,true,NULL);
+                    return;
+                }
             }
 
             //All IconID Check in there
@@ -1502,7 +1548,7 @@ void Spell::EffectDummy(uint32 i)
                     m_caster->CastSpell(unitTarget, 5940, true);
                     return;
                 }
-                case 14185:                                 // Preparation Rogue
+                case 14185:                                 // Preparation
                 {
                     if(m_caster->GetTypeId()!=TYPEID_PLAYER)
                         return;
@@ -1530,7 +1576,7 @@ void Spell::EffectDummy(uint32 i)
         case SPELLFAMILY_HUNTER:
             switch(m_spellInfo->Id)
             {
-                case 23989:                                 //Readiness talent
+                case 23989:                                 // Readiness talent
                 {
                     if(m_caster->GetTypeId()!=TYPEID_PLAYER)
                         return;
@@ -1688,8 +1734,8 @@ void Spell::EffectDummy(uint32 i)
             }
             break;
         case SPELLFAMILY_SHAMAN:
-            //Shaman Rockbiter Weapon
-            if (m_spellInfo->SpellFamilyFlags.IsEqual(0x400000))
+            // Rockbiter Weapon
+            if (m_spellInfo->SpellFamilyFlags[0] & 0x400000)
             {
                 // TODO: use expect spell for enchant (if exist talent)
                 // In 3.0.3 no mods present for rockbiter
@@ -1762,8 +1808,7 @@ void Spell::EffectDummy(uint32 i)
                 if(!unitTarget || unitTarget->getPowerType() != POWER_MANA)
                     return;
                 // Glyph of Mana Tide
-                Unit *owner = m_caster->GetOwner();
-                if (owner)
+                if(Unit *owner = m_caster->GetOwner())
                     if (AuraEffect *dummy = owner->GetDummyAura(55441))
                         damage+=dummy->GetAmount();
                 // Regenerate 6% of Total Mana Every 3 secs
@@ -4563,6 +4608,14 @@ void Spell::EffectScriptEffect(uint32 effIndex)
         {
             switch(m_spellInfo->Id)
             {
+                // Dispelling Analysis
+                case 37028:
+                {
+                    if (unitTarget->HasAura(36904))
+                        unitTarget->RemoveAurasDueToSpell(36904);
+
+                    return;
+                }
                 case 45204: // Clone Me!
                 case 41055: // Copy Weapon
                 case 45206: // Copy Off-hand Weapon
@@ -5153,6 +5206,14 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     }
                     return;
                 }
+                // Guarded by The Light
+                case 63521:
+                {
+                    // Divine Plea
+                    if(Aura *AuraDivinePlea = m_caster->GetAura(54428))
+                        AuraDivinePlea->RefreshAura();
+                    return;
+                }
             }
             break;
         }
@@ -5318,6 +5379,43 @@ void Spell::EffectScriptEffect(uint32 effIndex)
         {
             switch(m_spellInfo->Id)
             {
+                // Death Knight Initiate Visual
+                case 51519:
+                {
+                    if(!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
+                        return;
+
+                    uint32 iTmpSpellId = 0;
+                    switch (unitTarget->GetDisplayId())
+                    {
+                        case 25369: iTmpSpellId = 51552; break; // bloodelf female
+                        case 25373: iTmpSpellId = 51551; break; // bloodelf male
+                        case 25363: iTmpSpellId = 51542; break; // draenei female
+                        case 25357: iTmpSpellId = 51541; break; // draenei male
+                        case 25361: iTmpSpellId = 51537; break; // dwarf female
+                        case 25356: iTmpSpellId = 51538; break; // dwarf male
+                        case 25372: iTmpSpellId = 51550; break; // forsaken female
+                        case 25367: iTmpSpellId = 51549; break; // forsaken male
+                        case 25362: iTmpSpellId = 51540; break; // gnome female
+                        case 25359: iTmpSpellId = 51539; break; // gnome male
+                        case 25355: iTmpSpellId = 51534; break; // human female
+                        case 25354: iTmpSpellId = 51520; break; // human male
+                        case 25360: iTmpSpellId = 51536; break; // nightelf female
+                        case 25358: iTmpSpellId = 51535; break; // nightelf male
+                        case 25368: iTmpSpellId = 51544; break; // orc female
+                        case 25364: iTmpSpellId = 51543; break; // orc male
+                        case 25371: iTmpSpellId = 51548; break; // tauren female
+                        case 25366: iTmpSpellId = 51547; break; // tauren male
+                        case 25370: iTmpSpellId = 51545; break; // troll female
+                        case 25365: iTmpSpellId = 51546; break; // troll male
+                        default: return;
+                    }
+
+                    unitTarget->CastSpell(unitTarget, iTmpSpellId, true);
+                    Creature* npc = (Creature*)unitTarget;
+                    npc->LoadEquipment(npc->GetEquipmentId());
+                    return;
+                }
                 // Dreaming Glory
                 case 28698:
                 {

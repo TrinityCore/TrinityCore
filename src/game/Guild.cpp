@@ -713,40 +713,40 @@ void Guild::Roster(WorldSession *session)
     data << (uint32)m_ranks.size();
     for (RankList::const_iterator ritr = m_ranks.begin(); ritr != m_ranks.end(); ++ritr)
     {
-        data << (uint32)ritr->rights;
-        data << (uint32)ritr->BankMoneyPerDay;              // count of: withdraw gold(gold/day) Note: in game set gold, in packet set bronze.
-        for (uint8 i = 0; i < GUILD_BANK_MAX_TABS; ++i)
+        data << uint32(ritr->rights);
+        data << uint32(ritr->BankMoneyPerDay);              // count of: withdraw gold(gold/day) Note: in game set gold, in packet set bronze.
+        for (int i = 0; i < GUILD_BANK_MAX_TABS; ++i)
         {
-            data << (uint32)ritr->TabRight[i];              // for TAB_i rights: view tabs = 0x01, deposit items =0x02
-            data << (uint32)ritr->TabSlotPerDay[i];         // for TAB_i count of: withdraw items(stack/day)
+            data << uint32(ritr->TabRight[i]);              // for TAB_i rights: view tabs = 0x01, deposit items =0x02
+            data << uint32(ritr->TabSlotPerDay[i]);         // for TAB_i count of: withdraw items(stack/day)
         }
     }
     for (MemberList::const_iterator itr = members.begin(); itr != members.end(); ++itr)
     {
         if (Player *pl = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(itr->first, 0, HIGHGUID_PLAYER)))
         {
-            data << (uint64)pl->GetGUID();
-            data << (uint8)1;
-            data << (std::string)pl->GetName();
-            data << (uint32)itr->second.RankId;
-            data << (uint8)pl->getLevel();
-            data << (uint8)pl->getClass();
-            data << (uint8)0;                               // new 2.4.0
-            data << (uint32)pl->GetZoneId();
+            data << uint64(pl->GetGUID());
+            data << uint8(1);
+            data << pl->GetName();
+            data << uint32(itr->second.RankId);
+            data << uint8(pl->getLevel());
+            data << uint8(pl->getClass());
+            data << uint8(0);                               // new 2.4.0
+            data << uint32(pl->GetZoneId());
             data << itr->second.Pnote;
             data << itr->second.OFFnote;
         }
         else
         {
             data << uint64(MAKE_NEW_GUID(itr->first, 0, HIGHGUID_PLAYER));
-            data << (uint8)0;
+            data << uint8(0);
             data << itr->second.name;
-            data << (uint32)itr->second.RankId;
-            data << (uint8)itr->second.level;
-            data << (uint8)itr->second.Class;
-            data << (uint8)0;                               // new 2.4.0
-            data << (uint32)itr->second.zoneId;
-            data << (float(time(NULL)-itr->second.logout_time) / DAY);
+            data << uint32(itr->second.RankId);
+            data << uint8(itr->second.level);
+            data << uint8(itr->second.Class);
+            data << uint8(0);                               // new 2.4.0
+            data << uint32(itr->second.zoneId);
+            data << float(float(time(NULL)-itr->second.logout_time) / DAY);
             data << itr->second.Pnote;
             data << itr->second.OFFnote;
         }

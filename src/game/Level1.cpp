@@ -400,7 +400,10 @@ bool ChatHandler::HandleGMTicketGetByNameCommand(const char* args)
     if(!*args)
         return false;
 
-    Player *plr = objmgr.GetPlayer(args);
+    std::string name = (char*)args;
+    normalizePlayerName(name);
+
+    Player *plr = objmgr.GetPlayer(name.c_str());
     if(!plr)
     {
         SendSysMessage(LANG_NO_PLAYERS_FOUND);

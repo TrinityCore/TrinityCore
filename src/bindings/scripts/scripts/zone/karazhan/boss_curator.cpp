@@ -131,8 +131,6 @@ struct  TRINITY_DLL_DECL boss_curatorAI : public ScriptedAI
                 {
                     AstralFlare->CastSpell(AstralFlare, SPELL_ASTRAL_FLARE_PASSIVE, false);
                     AstralFlare->AI()->AttackStart(target);
-                    AstralFlare->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
-                    AstralFlare->ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, true);
                 }
 
                 //Reduce Mana by 10% of max health

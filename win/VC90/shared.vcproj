@@ -101,166 +101,6 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="Debug|Win32"
-			OutputDirectory=".\shared__$(PlatformName)_$(ConfigurationName)"
-			IntermediateDirectory=".\shared__$(PlatformName)_$(ConfigurationName)"
-			ConfigurationType="4"
-			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-				CommandLine=""
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalOptions="/MP"
-				Optimization="0"
-				AdditionalIncludeDirectories="..\..\dep\include;..\..\dep\include\g3dlite;..\..\src\framework;..\..\src\shared;..\..\dep\ACE_wrappers"
-				PreprocessorDefinitions="WIN32;_DEBUG;TRINITY_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				EnableFunctionLevelLinking="true"
-				RuntimeTypeInfo="true"
-				UsePrecompiledHeader="0"
-				PrecompiledHeaderFile=".\shared__$(PlatformName)_$(ConfigurationName)\shared.pch"
-				AssemblerListingLocation=".\shared__$(PlatformName)_$(ConfigurationName)\"
-				ObjectFile=".\shared__$(PlatformName)_$(ConfigurationName)\"
-				ProgramDataBaseFileName=".\shared__$(PlatformName)_$(ConfigurationName)\"
-				WarningLevel="3"
-				SuppressStartupBanner="true"
-				Detect64BitPortabilityProblems="false"
-				DebugInformationFormat="3"
-				CallingConvention="0"
-				CompileAs="0"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
-				Culture="1033"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLibrarianTool"
-				OutputFile=".\shared__$(PlatformName)_$(ConfigurationName)\shared.lib"
-				AdditionalLibraryDirectories="dep\lib\$(PlatformName)_$(ConfigurationName)"
-				SuppressStartupBanner="true"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Debug_NoPCH|Win32"
-			OutputDirectory=".\shared__$(PlatformName)_$(ConfigurationName)"
-			IntermediateDirectory=".\shared__$(PlatformName)_$(ConfigurationName)"
-			ConfigurationType="4"
-			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-				CommandLine=""
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalOptions="/MP"
-				Optimization="0"
-				AdditionalIncludeDirectories="..\..\dep\include;..\..\dep\include\g3dlite;..\..\src\framework;..\..\src\shared;..\..\dep\ACE_wrappers"
-				PreprocessorDefinitions="WIN32;_DEBUG;TRINITY_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				EnableFunctionLevelLinking="true"
-				RuntimeTypeInfo="true"
-				UsePrecompiledHeader="0"
-				PrecompiledHeaderFile=".\shared__$(PlatformName)_$(ConfigurationName)\shared.pch"
-				AssemblerListingLocation=".\shared__$(PlatformName)_$(ConfigurationName)\"
-				ObjectFile=".\shared__$(PlatformName)_$(ConfigurationName)\"
-				ProgramDataBaseFileName=".\shared__$(PlatformName)_$(ConfigurationName)\"
-				WarningLevel="3"
-				SuppressStartupBanner="true"
-				Detect64BitPortabilityProblems="false"
-				DebugInformationFormat="3"
-				CallingConvention="0"
-				CompileAs="0"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
-				Culture="1033"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLibrarianTool"
-				OutputFile=".\shared__$(PlatformName)_$(ConfigurationName)\shared.lib"
-				AdditionalLibraryDirectories="dep\lib\$(PlatformName)_debug"
-				SuppressStartupBanner="true"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
 			Name="Release|x64"
 			OutputDirectory=".\shared__$(PlatformName)_$(ConfigurationName)"
 			IntermediateDirectory=".\shared__$(PlatformName)_$(ConfigurationName)"
@@ -344,6 +184,86 @@
 			/>
 		</Configuration>
 		<Configuration
+			Name="Debug|Win32"
+			OutputDirectory=".\shared__$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory=".\shared__$(PlatformName)_$(ConfigurationName)"
+			ConfigurationType="4"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				CommandLine=""
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalOptions="/MP"
+				Optimization="0"
+				AdditionalIncludeDirectories="..\..\dep\include;..\..\dep\include\g3dlite;..\..\src\framework;..\..\src\shared;..\..\dep\ACE_wrappers"
+				PreprocessorDefinitions="WIN32;_DEBUG;MANGOS_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="3"
+				EnableFunctionLevelLinking="true"
+				RuntimeTypeInfo="true"
+				UsePrecompiledHeader="0"
+				PrecompiledHeaderFile=".\shared__$(PlatformName)_$(ConfigurationName)\shared.pch"
+				AssemblerListingLocation=".\shared__$(PlatformName)_$(ConfigurationName)\"
+				ObjectFile=".\shared__$(PlatformName)_$(ConfigurationName)\"
+				ProgramDataBaseFileName=".\shared__$(PlatformName)_$(ConfigurationName)\"
+				WarningLevel="3"
+				SuppressStartupBanner="true"
+				Detect64BitPortabilityProblems="false"
+				DebugInformationFormat="3"
+				CallingConvention="0"
+				CompileAs="0"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG"
+				Culture="1033"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLibrarianTool"
+				OutputFile=".\shared__$(PlatformName)_$(ConfigurationName)\shared.lib"
+				AdditionalLibraryDirectories="dep\lib\$(PlatformName)_$(ConfigurationName)"
+				SuppressStartupBanner="true"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
 			Name="Debug|x64"
 			OutputDirectory=".\shared__$(PlatformName)_$(ConfigurationName)"
 			IntermediateDirectory=".\shared__$(PlatformName)_$(ConfigurationName)"
@@ -374,7 +294,7 @@
 				AdditionalOptions="/MP"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\dep\include;..\..\dep\include\g3dlite;..\..\src\framework;..\..\src\shared;..\..\dep\ACE_wrappers"
-				PreprocessorDefinitions="WIN32;_DEBUG;TRINITY_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE"
+				PreprocessorDefinitions="WIN32;_DEBUG;MANGOS_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				EnableFunctionLevelLinking="true"
@@ -426,6 +346,86 @@
 			/>
 		</Configuration>
 		<Configuration
+			Name="Debug_NoPCH|Win32"
+			OutputDirectory=".\shared__$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory=".\shared__$(PlatformName)_$(ConfigurationName)"
+			ConfigurationType="4"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				CommandLine=""
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalOptions="/MP"
+				Optimization="0"
+				AdditionalIncludeDirectories="..\..\dep\include;..\..\dep\include\g3dlite;..\..\src\framework;..\..\src\shared;..\..\dep\ACE_wrappers"
+				PreprocessorDefinitions="WIN32;_DEBUG;MANGOS_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="3"
+				EnableFunctionLevelLinking="true"
+				RuntimeTypeInfo="true"
+				UsePrecompiledHeader="0"
+				PrecompiledHeaderFile=".\shared__$(PlatformName)_$(ConfigurationName)\shared.pch"
+				AssemblerListingLocation=".\shared__$(PlatformName)_$(ConfigurationName)\"
+				ObjectFile=".\shared__$(PlatformName)_$(ConfigurationName)\"
+				ProgramDataBaseFileName=".\shared__$(PlatformName)_$(ConfigurationName)\"
+				WarningLevel="3"
+				SuppressStartupBanner="true"
+				Detect64BitPortabilityProblems="false"
+				DebugInformationFormat="3"
+				CallingConvention="0"
+				CompileAs="0"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG"
+				Culture="1033"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLibrarianTool"
+				OutputFile=".\shared__$(PlatformName)_$(ConfigurationName)\shared.lib"
+				AdditionalLibraryDirectories="dep\lib\$(PlatformName)_debug"
+				SuppressStartupBanner="true"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
 			Name="Debug_NoPCH|x64"
 			OutputDirectory=".\shared__$(PlatformName)_$(ConfigurationName)"
 			IntermediateDirectory=".\shared__$(PlatformName)_$(ConfigurationName)"
@@ -456,7 +456,7 @@
 				AdditionalOptions="/MP"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\dep\include;..\..\dep\include\g3dlite;..\..\src\framework;..\..\src\shared;..\..\dep\ACE_wrappers"
-				PreprocessorDefinitions="WIN32;_DEBUG;TRINITY_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE"
+				PreprocessorDefinitions="WIN32;_DEBUG;MANGOS_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				EnableFunctionLevelLinking="true"
@@ -878,28 +878,6 @@
 				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Debug|Win32"
-				>
-				<Tool
-					Name="VCCustomBuildTool"
-					Description="Getting Version..."
-					CommandLine="cd $(InputDir)&#x0D;&#x0A;&quot;$(TargetDir)\..\genrevision__$(PlatformName)_$(ConfigurationName)\genrevision.exe&quot; &quot;..\..&quot;&#x0D;&#x0A;"
-					AdditionalDependencies="$(SolutionDir)../.hg/branch.cache"
-					Outputs="revision.h"
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Debug_NoPCH|Win32"
-				>
-				<Tool
-					Name="VCCustomBuildTool"
-					Description="Getting Version..."
-					CommandLine="cd $(InputDir)&#x0D;&#x0A;&quot;$(TargetDir)\..\genrevision__$(PlatformName)_$(ConfigurationName)\genrevision.exe&quot; &quot;..\..&quot;&#x0D;&#x0A;"
-					AdditionalDependencies="$(SolutionDir)../.hg/branch.cache"
-					Outputs="revision.h"
-				/>
-			</FileConfiguration>
-			<FileConfiguration
 				Name="Release|x64"
 				>
 				<Tool
@@ -911,7 +889,29 @@
 				/>
 			</FileConfiguration>
 			<FileConfiguration
+				Name="Debug|Win32"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+					Description="Getting Version..."
+					CommandLine="cd $(InputDir)&#x0D;&#x0A;&quot;$(TargetDir)\..\genrevision__$(PlatformName)_$(ConfigurationName)\genrevision.exe&quot; &quot;..\..&quot;&#x0D;&#x0A;"
+					AdditionalDependencies="$(SolutionDir)../.hg/branch.cache"
+					Outputs="revision.h"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
 				Name="Debug|x64"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+					Description="Getting Version..."
+					CommandLine="cd $(InputDir)&#x0D;&#x0A;&quot;$(TargetDir)\..\genrevision__$(PlatformName)_$(ConfigurationName)\genrevision.exe&quot; &quot;..\..&quot;&#x0D;&#x0A;"
+					AdditionalDependencies="$(SolutionDir)../.hg/branch.cache"
+					Outputs="revision.h"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Debug_NoPCH|Win32"
 				>
 				<Tool
 					Name="VCCustomBuildTool"

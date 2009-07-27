@@ -342,6 +342,70 @@ bool IsHigherHankOfSpell(uint32 spellId_1, uint32 spellId_2)
     return spellmgr.GetSpellRank(spellId_1)<spellmgr.GetSpellRank(spellId_2);
 }
 
+uint32 CalculatePowerCost(SpellEntry const * spellInfo, Unit const * caster, SpellSchoolMask schoolMask)
+{
+    // Spell drain all exist power on cast (Only paladin lay of Hands)
+    if (spellInfo->AttributesEx & SPELL_ATTR_EX_DRAIN_ALL_POWER)
+    {
+        // If power type - health drain all
+        if (spellInfo->powerType == POWER_HEALTH)
+            return caster->GetHealth();
+        // Else drain all power
+        if (spellInfo->powerType < MAX_POWERS)
+            return caster->GetPower(Powers(spellInfo->powerType));
+        sLog.outError("CalculateManaCost: Unknown power type '%d' in spell %d", spellInfo->powerType, spellInfo->Id);
+        return 0;
+    }
+
+    // Base powerCost
+    int32 powerCost = spellInfo->manaCost;
+    // PCT cost from total amount
+    if (spellInfo->ManaCostPercentage)
+    {
+        switch (spellInfo->powerType)
+        {
+            // health as power used
+            case POWER_HEALTH:
+                powerCost += spellInfo->ManaCostPercentage * caster->GetCreateHealth() / 100;
+                break;
+            case POWER_MANA:
+                powerCost += spellInfo->ManaCostPercentage * caster->GetCreateMana() / 100;
+                break;
+            case POWER_RAGE:
+            case POWER_FOCUS:
+            case POWER_ENERGY:
+            case POWER_HAPPINESS:
+                powerCost += spellInfo->ManaCostPercentage * caster->GetMaxPower(Powers(spellInfo->powerType)) / 100;
+                break;
+            case POWER_RUNE:
+            case POWER_RUNIC_POWER:
+                sLog.outDebug("CalculateManaCost: Not implemented yet!");
+                break;
+            default:
+                sLog.outError("CalculateManaCost: Unknown power type '%d' in spell %d", spellInfo->powerType, spellInfo->Id);
+                return 0;
+        }
+    }
+    SpellSchools school = GetFirstSchoolInMask(schoolMask);
+    // Flat mod from caster auras by spell school
+    powerCost += caster->GetInt32Value(UNIT_FIELD_POWER_COST_MODIFIER + school);
+    // Shiv - costs 20 + weaponSpeed*10 energy (apply only to non-triggered spell with energy cost)
+    if ( spellInfo->AttributesEx4 & SPELL_ATTR_EX4_SPELL_VS_EXTEND_COST )
+        powerCost += caster->GetAttackTime(OFF_ATTACK)/100;
+    // Apply cost mod by spell
+    if(Player* modOwner = caster->GetSpellModOwner())
+        modOwner->ApplySpellMod(spellInfo->Id, SPELLMOD_COST, powerCost);
+
+    if(spellInfo->Attributes & SPELL_ATTR_LEVEL_DAMAGE_CALCULATION)
+        powerCost = int32(powerCost/ (1.117f* spellInfo->spellLevel / caster->getLevel() -0.1327f));
+
+    // PCT mod from user auras by school
+    powerCost = int32(powerCost * (1.0f+caster->GetFloatValue(UNIT_FIELD_POWER_COST_MULTIPLIER+school)));
+    if (powerCost < 0)
+        powerCost = 0;
+    return powerCost;
+}
+
 SpellSpecific GetSpellSpecific(uint32 spellId)
 {
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
@@ -1063,77 +1127,6 @@ void SpellMgr::LoadSpellTargetPositions()
 
     sLog.outString();
     sLog.outString( ">> Loaded %u spell teleport coordinates", count );
-}
-
-void SpellMgr::LoadSpellAffects()
-{
-    mSpellAffectMap.clear();                                // need for reload case
-
-    uint32 count = 0;
-
-    //                                                0      1         2                3                4
-    QueryResult *result = WorldDatabase.Query("SELECT entry, effectId, SpellClassMask0, SpellClassMask1, SpellClassMask2 FROM spell_affect");
-    if( !result )
-    {
-
-        barGoLink bar( 1 );
-
-        bar.step();
-
-        sLog.outString();
-        sLog.outString( ">> Loaded %u spell affect definitions", count );
-        return;
-    }
-
-    barGoLink bar( result->GetRowCount() );
-
-    do
-    {
-        Field *fields = result->Fetch();
-
-        bar.step();
-
-        uint32 entry = fields[0].GetUInt32();
-        uint8 effectId = fields[1].GetUInt8();
-
-        SpellEntry const* spellInfo = sSpellStore.LookupEntry(entry);
-
-        if (!spellInfo)
-        {
-            sLog.outErrorDb("Spell %u listed in `spell_affect` does not exist", entry);
-            continue;
-        }
-
-        if (effectId >= 3)
-        {
-            sLog.outErrorDb("Spell %u listed in `spell_affect` have invalid effect index (%u)", entry,effectId);
-            continue;
-        }
-
-        flag96 affect(fields[2].GetUInt32(), fields[3].GetUInt32(), fields[4].GetUInt32());
-
-        // Spell.dbc have own data
-        if (effectId>3)
-            continue;
-
-        flag96 dbc_affect;
-        dbc_affect = spellInfo->EffectSpellClassMask[effectId];
-        if(dbc_affect[0] == affect[0] && dbc_affect[1] == affect[1] && dbc_affect[2] == affect[2])
-        {
-            char text[]="ABC";
-            sLog.outErrorDb("Spell %u listed in `spell_affect` have redundant (same with EffectSpellClassMask%c) data for effect index (%u) and not needed, skipped.", entry, text[effectId], effectId);
-            continue;
-        }
-
-        mSpellAffectMap[(entry<<8) + effectId] = affect;
-
-        ++count;
-    } while( result->NextRow() );
-
-    delete result;
-
-    sLog.outString();
-    sLog.outString( ">> Loaded %u custom spell affect definitions", count );
 }
 
 bool SpellMgr::IsAffectedByMod(SpellEntry const *spellInfo, SpellModifier *mod) const
@@ -2923,9 +2916,13 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto
             // Repentance
             if (spellproto->SpellFamilyFlags[0] & 0x4)
                 return DIMINISHING_POLYMORPH;
-            // Turn Evil
-            else if (spellproto->SpellFamilyFlags[1] & 0x8040)
-                return DIMINISHING_FEAR_BLIND;
+            break;
+        }
+        case SPELLFAMILY_PRIEST:
+        {
+            // Vampiric Embrace
+            if ((spellproto->SpellFamilyFlags[0] & 0x4) && spellproto->SpellIconID == 150)
+                return DIMINISHING_LIMITONLY;
             break;
         }
         case SPELLFAMILY_DEATHKNIGHT:
@@ -2942,15 +2939,20 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto
     // Get by mechanic
     uint32 mechanic = GetAllSpellMechanicMask(spellproto);
     if (mechanic == MECHANIC_NONE)          return DIMINISHING_NONE;
-    if (mechanic & (1<<MECHANIC_STUN))      return triggered ? DIMINISHING_TRIGGER_STUN : DIMINISHING_CONTROL_STUN;
-    if (mechanic & ((1<<MECHANIC_SLEEP) | (1<<MECHANIC_FREEZE))) return DIMINISHING_FREEZE_SLEEP;
+    if (mechanic & ((1<<MECHANIC_STUN) |
+                    (1<<MECHANIC_SHACKLE))) return triggered ? DIMINISHING_TRIGGER_STUN : DIMINISHING_CONTROL_STUN;
+    if (mechanic & ((1<<MECHANIC_SLEEP) |
+                    (1<<MECHANIC_FREEZE))) return DIMINISHING_FREEZE_SLEEP;
     if (mechanic & (1<<MECHANIC_POLYMORPH)) return DIMINISHING_POLYMORPH;
     if (mechanic & (1<<MECHANIC_ROOT))      return triggered ? DIMINISHING_TRIGGER_ROOT : DIMINISHING_CONTROL_ROOT;
-    if (mechanic & (1<<MECHANIC_FEAR))      return DIMINISHING_FEAR_BLIND;
+    if (mechanic & ((1<<MECHANIC_FEAR) |
+                    (1<<MECHANIC_TURN)))    return DIMINISHING_FEAR_BLIND;
     if (mechanic & (1<<MECHANIC_CHARM))     return DIMINISHING_CHARM;
     if (mechanic & (1<<MECHANIC_SILENCE))   return DIMINISHING_SILENCE;
     if (mechanic & (1<<MECHANIC_DISARM))    return DIMINISHING_DISARM;
-    if (mechanic & ((1<<MECHANIC_KNOCKOUT) | (1<<MECHANIC_SAPPED)))    return DIMINISHING_KNOCKOUT;
+    if (mechanic & (1<<MECHANIC_FREEZE))    return DIMINISHING_FREEZE_SLEEP;
+    if (mechanic & ((1<<MECHANIC_KNOCKOUT) |
+                    (1<<MECHANIC_SAPPED)))  return DIMINISHING_KNOCKOUT;
     if (mechanic & (1<<MECHANIC_BANISH))    return DIMINISHING_BANISH;
     if (mechanic & (1<<MECHANIC_HORROR))    return DIMINISHING_DEATHCOIL;
 
@@ -2990,6 +2992,13 @@ int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellEntry cons
             // Faerie Fire - limit to 40 seconds in PvP (3.1)
             if (spellproto->SpellFamilyFlags[0] & 0x400)
                 return 40000;
+            break;
+        }
+        case SPELLFAMILY_PRIEST:
+        {
+            // Vampiric Embrace - limit to 60 seconds in PvP (3.1)
+            if ((spellproto->SpellFamilyFlags[0] & 0x4) && spellproto->SpellIconID == 150)
+                return 60000;
             break;
         }
         default:
@@ -3815,6 +3824,7 @@ void SpellMgr::LoadSpellCustomAttr()
             break;
         case 44544:    // Fingers of Frost
             spellInfo->procCharges=2;
+            spellInfo->EffectSpellClassMask[0] = flag96(685904631,1151048,0);
             break;
         case 28200:    // Ascendance (Talisman of Ascendance trinket)
             spellInfo->procCharges=6;

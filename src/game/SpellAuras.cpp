@@ -1203,10 +1203,13 @@ void Aura::_AddAura()
     if (IsSealSpell(m_spellProto))
         SetAuraState(AURA_STATE_JUDGEMENT);
 
-    // Conflagrate aura state on Immolate or Shadowflame
-    if (m_spellProto->SpellFamilyName == SPELLFAMILY_WARLOCK && (m_spellProto->SpellFamilyFlags[0] & 4
-        || m_spellProto->SpellFamilyFlags[2] & 2))
-        SetAuraState(AURA_STATE_IMMOLATE);
+    // Conflagrate aura state on Immolate and Shadowflame
+    if (m_spellProto->SpellFamilyName == SPELLFAMILY_WARLOCK &&
+        // Immolate
+        ((m_spellProto->SpellFamilyFlags[0] & 4) ||
+        // Shadowflame
+        (m_spellProto->SpellFamilyFlags[2] & 2)))
+        SetAuraState(AURA_STATE_CONFLAGRATE);
 
     // Faerie Fire (druid versions)
     if (m_spellProto->SpellFamilyName == SPELLFAMILY_DRUID && m_spellProto->SpellFamilyFlags[0] & 0x400)
@@ -1385,6 +1388,7 @@ void Aura::_RemoveAura()
 
 void Aura::SetStackAmount(uint8 stackAmount, bool applied)
 {
+    bool refresh = stackAmount >= m_stackAmount;
     if (stackAmount != m_stackAmount)
     {
         m_stackAmount = stackAmount;
@@ -1396,7 +1400,11 @@ void Aura::SetStackAmount(uint8 stackAmount, bool applied)
             }
         }
     }
-    RefreshAura();
+
+    if (refresh)
+        RefreshAura();
+    else
+        SendAuraUpdate();
 }
 
 bool Aura::modStackAmount(int32 num)
@@ -1718,12 +1726,8 @@ bool AuraEffect::isAffectedOnSpell(SpellEntry const *spell) const
     if (spell->SpellFamilyName != m_spellProto->SpellFamilyName)
         return false;
 
-    // Check EffectClassMask and Spell_Affect table
-    flag96 const *spellAffect = spellmgr.GetSpellAffect(GetId(), m_effIndex);
-    if (!spellAffect)
-        spellAffect = &m_spellProto->EffectSpellClassMask[m_effIndex];
-
-    if (*spellAffect & spell->SpellFamilyFlags)
+    // Check EffectClassMask
+    if (m_spellProto->EffectSpellClassMask[m_effIndex] & spell->SpellFamilyFlags)
         return true;
     return false;
 }
@@ -1768,10 +1772,7 @@ void AuraEffect::HandleAddModifier(bool apply, bool Real, bool changeAmount)
         mod->type = SpellModType(m_auraName);    // SpellModType value == spell aura types
         mod->spellId = GetId();
 
-        flag96 const *spellAffect = spellmgr.GetSpellAffect(GetId(), m_effIndex);
-        if (!spellAffect)
-            spellAffect = &m_spellProto->EffectSpellClassMask[m_effIndex];
-        mod->mask = *spellAffect;
+        mod->mask = m_spellProto->EffectSpellClassMask[m_effIndex];
         mod->charges = GetParentAura()->GetAuraCharges();
 
         m_spellmod = mod;
@@ -2548,6 +2549,9 @@ void AuraEffect::TriggerSpell()
             case 29213:
             case 54835:
                 caster->CastSpell(m_target, trigger_spell_id, true, NULL, this);
+            // Ground Slam
+            case 33525:
+                target->CastSpell(target, trigger_spell_id, true);
                 return;
         }
     }
@@ -4395,11 +4399,21 @@ void AuraEffect::HandleAuraModIncreaseSwimSpeed(bool /*apply*/, bool Real, bool 
     m_target->UpdateSpeed(MOVE_SWIM, true);
 }
 
-void AuraEffect::HandleAuraModDecreaseSpeed(bool /*apply*/, bool Real, bool changeAmount)
+void AuraEffect::HandleAuraModDecreaseSpeed(bool apply, bool Real, bool changeAmount)
 {
     // all applied/removed only at real aura add/remove
     if(!Real && !changeAmount)
         return;
+
+    if (apply)
+    {
+        // Gronn Lord's Grasp, becomes stoned
+        if (GetId() == 33572)
+        {
+            if (GetParentAura()->GetStackAmount() >= 5 && !m_target->HasAura(33652))
+                m_target->CastSpell(m_target, 33652, true);
+        }
+    }
 
     m_target->UpdateSpeed(MOVE_RUN, true);
     m_target->UpdateSpeed(MOVE_SWIM, true);

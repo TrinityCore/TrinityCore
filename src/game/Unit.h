@@ -1805,7 +1805,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         bool canFly() const     { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FLY_MODE); }
         bool IsFlying() const   { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FLYING); }
         void SetFlying(bool apply);
-        float GetFollowAngle() const;
+        virtual float GetFollowAngle() const { return M_PI/2; }
     protected:
         explicit Unit ();
 
