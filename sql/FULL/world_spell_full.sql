@@ -1574,7 +1574,7 @@ INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`
 (53195, 0.0458, -1, -1, -1, 'Druid - Starfall rank 4'),
 (2912, 1, -1, -1, -1, 'Druid - Starfire'),
 (18562, 0, 0, 0, 0, 'Druid - Swiftmend'),
-(779, -1, -1, 0.063, -1, 'Druid - Swipe (Bear)');
+(779, -1, -1, 0.063, -1, 'Druid - Swipe (Bear)'),
 (44203, 0.538, -1, -1, -1, 'Druid - Tranquility Triggered'),
 (61391, 0.193, -1, -1, -1, 'Druid - Typhoon'),
 (48438, -1, 0.11505, -1, -1, 'Druid - Wild Growth'),
