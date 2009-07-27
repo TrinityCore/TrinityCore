@@ -2280,6 +2280,7 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
                         // Search for ghoul if our ghoul or dead body not valid unit target
                         if (!(m_targets.getUnitTarget() && (m_targets.getUnitTarget()->GetEntry() == 26125 && m_targets.getUnitTarget()->GetOwnerGUID() == m_caster->GetGUID()
                             || (m_targets.getUnitTarget()->getDeathState() == CORPSE
+                                && m_targets.getUnitTarget()->GetDisplayId() == m_targets.getUnitTarget()->GetNativeDisplayId() 
                                 && m_targets.getUnitTarget()->GetTypeId()== TYPEID_UNIT
                                 && !((Creature*)m_targets.getUnitTarget())->isDeadByDefault()
                                 && !(m_targets.getUnitTarget()->GetCreatureTypeMask() & CREATURE_TYPEMASK_MECHANICAL_OR_ELEMENTAL))
