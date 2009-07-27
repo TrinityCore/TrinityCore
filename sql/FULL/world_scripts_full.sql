@@ -814,6 +814,9 @@ UPDATE `creature_template` SET `ScriptName`='npc_dirty_larry' WHERE `entry`=1972
 UPDATE `creature_template` SET `ScriptName`='npc_ishanah' WHERE `entry`=18538;
 UPDATE `creature_template` SET `ScriptName`='npc_khadgar' WHERE `entry`=18166;
 
+/* Sholazar Basin */
+UPDATE `creature_template` SET `ScriptName`='npc_injured_rainspeaker_oracle' WHERE `entry`=28217;
+
 /* SILITHUS */
 UPDATE `creature_template` SET `ScriptName`='npcs_rutgar_and_frankal' WHERE `entry` IN (15170,15171);
 UPDATE `creature_template` SET `ScriptName`='npc_highlord_demitrian' WHERE `entry`=14347;

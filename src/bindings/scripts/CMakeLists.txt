@@ -294,6 +294,7 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/shadowmoon_valley/boss_doomwalker.cpp
    scripts/zone/shadowmoon_valley/shadowmoon_valley.cpp
    scripts/zone/shattrath/shattrath_city.cpp
+   scripts/zone/sholazar_basin/sholazar_basin.cpp
    scripts/zone/silithus/silithus.cpp
    scripts/zone/silvermoon/silvermoon_city.cpp
    scripts/zone/silverpine_forest/silverpine_forest.cpp
