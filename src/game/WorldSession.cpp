@@ -313,13 +313,7 @@ void WorldSession::LogoutPlayer(bool Save)
 
         ///- Teleport to home if the player is in an invalid instance
         if(!_player->m_InstanceValid && !_player->isGameMaster())
-        {
             _player->TeleportTo(_player->m_homebindMapId, _player->m_homebindX, _player->m_homebindY, _player->m_homebindZ, _player->GetOrientation());
-            //this is a bad place to call for far teleport because we need player to be in world for successful logout
-            //maybe we should implement delayed far teleport logout?
-            while(_player->IsBeingTeleportedFar())
-                HandleMoveWorldportAckOpcode();
-        }
 
         sOutdoorPvPMgr.HandlePlayerLeaveZone(_player,_player->GetZoneId());
 
@@ -331,6 +325,11 @@ void WorldSession::LogoutPlayer(bool Save)
                 sBattleGroundMgr.m_BattleGroundQueues[ bgQueueTypeId ].RemovePlayer(_player->GetGUID(), true);
             }
         }
+
+        // Repop at GraveYard or other player far teleport will prevent saving player because of not present map
+        // Teleport player immediately for correct player save
+        while(_player->IsBeingTeleportedFar())
+            HandleMoveWorldportAckOpcode();
 
         ///- If the player is in a guild, update the guild roster and broadcast a logout message to other guild members
         Guild *guild = objmgr.GetGuildById(_player->GetGuildId());
