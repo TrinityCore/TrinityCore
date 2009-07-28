@@ -2622,8 +2622,12 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect* triggeredByAura
         }
     }
 
+    if (m_caster->GetTypeId()==TYPEID_PLAYER)
+        ((Player*)m_caster)->SetSpellModTakingSpell(this, true);
     // Fill cost data (not use power for item casts
     m_powerCost = m_CastItem ? 0 : CalculatePowerCost(m_spellInfo, m_caster, m_spellSchoolMask);
+    if (m_caster->GetTypeId()==TYPEID_PLAYER)
+        ((Player*)m_caster)->SetSpellModTakingSpell(this, false);
 
     SpellCastResult result = CheckCast(true);
     if(result != SPELL_CAST_OK && !IsAutoRepeat())          //always cast autorepeat dummy for triggering
