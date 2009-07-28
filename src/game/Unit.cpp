@@ -2769,6 +2769,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit *pVictim, SpellEntry const *spell)
 
     bool canDodge = true;
     bool canParry = true;
+    bool canBlock = spell->AttributesEx3 & SPELL_ATTR_EX3_BLOCKABLE_SPELL;
 
     // Same spells cannot be parry/dodge
     if (spell->Attributes & SPELL_ATTR_IMPOSSIBLE_DODGE_PARRY_BLOCK)
@@ -2798,10 +2799,11 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit *pVictim, SpellEntry const *spell)
     if (!pVictim->HasInArc(M_PI,this))
     {
         // Can`t dodge from behind in PvP (but its possible in PvE)
-        if (GetTypeId() == TYPEID_PLAYER && pVictim->GetTypeId() == TYPEID_PLAYER)
+        if (pVictim->GetTypeId() == TYPEID_PLAYER)
             canDodge = false;
-        // Can`t parry
+        // Can`t parry or block
         canParry = false;
+        canBlock = false;
     }
     // Check creatures flags_extra for disable parry
     if(pVictim->GetTypeId()==TYPEID_UNIT)
@@ -2809,6 +2811,9 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit *pVictim, SpellEntry const *spell)
         uint32 flagEx = ((Creature*)pVictim)->GetCreatureInfo()->flags_extra;
         if( flagEx & CREATURE_FLAG_EXTRA_NO_PARRY )
             canParry = false;
+        // Check creatures flags_extra for disable block
+        if( flagEx & CREATURE_FLAG_EXTRA_NO_BLOCK )
+            canBlock = false;
     }
     // Ignore combat result aura
     AuraEffectList const& ignore = GetAurasByType(SPELL_AURA_IGNORE_COMBAT_RESULT);
@@ -2819,7 +2824,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit *pVictim, SpellEntry const *spell)
         switch((*i)->GetMiscValue())
         {
             case MELEE_HIT_DODGE: canDodge = false; break;
-            case MELEE_HIT_BLOCK: break; // Block check in hit step
+            case MELEE_HIT_BLOCK: canBlock = false; break;
             case MELEE_HIT_PARRY: canParry = false; break;
             default:
                 DEBUG_LOG("Spell %u SPELL_AURA_IGNORE_COMBAT_RESULT have unhandled state %d", (*i)->GetId(), (*i)->GetMiscValue());
@@ -2858,6 +2863,15 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit *pVictim, SpellEntry const *spell)
         tmp += parryChance;
         if (roll < tmp)
             return SPELL_MISS_PARRY;
+    }
+
+    if (canBlock)
+    {
+        int32 blockChance = int32(pVictim->GetUnitBlockChance()*100.0f)  - skillDiff * 4;
+        tmp += blockChance;
+
+        if (roll < tmp)
+            return SPELL_MISS_BLOCK;
     }
 
     return SPELL_MISS_NONE;

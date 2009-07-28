@@ -1689,7 +1689,7 @@ struct TRINITY_DLL_DECL npc_mirror_image : SpellAI
         {
             DoCast(spellId);
             uint32 casttime = me->GetCurrentSpellCastTime(spellId);
-            events.ScheduleEvent(spellId, casttime ? casttime : 500 + GetAISpellInfo(spellId)->cooldown);
+            events.ScheduleEvent(spellId, (casttime ? casttime : 500) + GetAISpellInfo(spellId)->cooldown);
         }
     }
 };
