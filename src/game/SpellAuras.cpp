@@ -7514,38 +7514,63 @@ void AuraEffect::HandleReflectSpells( bool Apply, bool Real , bool /*changeAmoun
 }
 void AuraEffect::HandleAuraInitializeImages( bool Apply, bool Real , bool /*changeAmount*/)
 {
-    if (!Real || !Apply)
+    if (!Real)
         return;
-    Unit * caster = GetCaster();
-    if (!caster)
-        return;
-    // Set item visual
-    if (caster->GetTypeId()== TYPEID_PLAYER)
+    if (Apply)
     {
-        if (Item const * item = ((Player *)caster)->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
-            m_target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, item->GetProto()->ItemId);
-        if (Item const * item = ((Player *)caster)->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
-            m_target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, item->GetProto()->ItemId);
+        Unit * caster = GetCaster();
+        if (!caster)
+            return;
+        // Set item visual
+        if (caster->GetTypeId()== TYPEID_PLAYER)
+        {
+            if (Item const * item = ((Player *)caster)->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
+                m_target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, item->GetProto()->ItemId);
+            if (Item const * item = ((Player *)caster)->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
+                m_target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, item->GetProto()->ItemId);
+        }
+        else // TYPEID_UNIT
+        {
+            m_target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, caster->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID));
+            m_target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, caster->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1));
+            m_target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, caster->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2));
+        }
     }
     else
     {
-        m_target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, caster->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID));
-        m_target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, caster->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1));
-        m_target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, caster->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2));
+        // Remove equipment visual
+        if (m_target->GetTypeId() == TYPEID_PLAYER)
+        {
+            for (uint8 i = 0; i < 3; ++i)
+                m_target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + i, 0);
+        }
+        else // TYPEID_UNIT
+        {
+            ((Creature*)m_target)->LoadEquipment(((Creature*)m_target)->GetEquipmentId());
+        }
     }
 }
 
 void AuraEffect::HandleAuraCloneCaster( bool Apply, bool Real , bool /*changeAmount*/)
 {
-    if (!Real || !Apply)
+    if (!Real)
         return;
-    Unit * caster = GetCaster();
-    if (!caster)
-        return;
-    // Set item visual
-    m_target->SetDisplayId(caster->GetDisplayId());
-    m_target->SetUInt32Value(UNIT_FIELD_FLAGS_2, 2064);
+    if (Apply)
+    {
+        Unit * caster = GetCaster();
+        if (!caster)
+            return;
+        // Set display id (probably for portrait?)
+        m_target->SetDisplayId(caster->GetDisplayId());
+        m_target->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
+    }
+    else
+    {
+        m_target->SetDisplayId(m_target->GetNativeDisplayId());
+        m_target->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
+    }
 }
+
 int32 AuraEffect::CalculateCrowdControlAuraAmount(Unit * caster)
 {
     // Damage cap for CC effects
