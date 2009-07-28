@@ -3521,6 +3521,13 @@ Spell* Unit::FindCurrentSpellBySpellId(uint32 spell_id) const
     return NULL;
 }
 
+int32 Unit::GetCurrentSpellCastTime(uint32 spell_id) const
+{
+    if (Spell const * spell = FindCurrentSpellBySpellId(spell_id))
+        return spell->GetCastTime();
+    return 0;
+}
+
 bool Unit::isInFrontInMap(Unit const* target, float distance,  float arc) const
 {
     return IsWithinDistInMap(target, distance) && HasInArc( arc, target );

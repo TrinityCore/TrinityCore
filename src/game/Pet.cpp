@@ -928,6 +928,16 @@ bool Guardian::InitStatsForLevel(uint32 petlevel)
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel * 4 + petlevel));
                     break;
                 }
+                case 31216: // Mirror Image
+                {
+                    SetBonusDamage( int32(m_owner->SpellBaseDamageBonus(SPELL_SCHOOL_MASK_FROST) * 0.33f));
+                    if(!pInfo)
+                    {
+                        SetCreateMana(28 + 30*petlevel);
+                        SetCreateHealth(28 + 10*petlevel);
+                    }
+                    break;
+                }
                 default:
                 {
                     if(!pInfo)
