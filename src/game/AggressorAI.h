@@ -48,7 +48,7 @@ class TRINITY_DLL_SPEC SpellAI : public CreatureAI
         void JustDied(Unit *killer);
         void UpdateAI(const uint32 diff);
         static int Permissible(const Creature *);
-    private:
+    protected:
         EventMap events;
         SpellVct spells;
 };

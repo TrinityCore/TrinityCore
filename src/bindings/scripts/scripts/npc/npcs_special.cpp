@@ -1636,7 +1636,7 @@ CreatureAI* GetAI_mob_mojo(Creature *_Creature)
     return new mob_mojoAI (_Creature);
 }
 
-struct TRINITY_DLL_DECL npc_mirror_image : public SpellAI
+struct TRINITY_DLL_DECL npc_mirror_image : SpellAI
 {
     npc_mirror_image(Creature *c) : SpellAI(c) {}
 
@@ -1647,7 +1647,6 @@ struct TRINITY_DLL_DECL npc_mirror_image : public SpellAI
             owner = ((TempSummon*)me)->GetOwner();
         if (!owner)
             return;
-        me->SetDisplayId(owner->GetDisplayId());
         owner->SetLevel(owner->getLevel());
         // Inherit Master's Threat List (not yet implemented)
         owner->CastSpell((Unit*)NULL, 58838, true);
@@ -1655,6 +1654,43 @@ struct TRINITY_DLL_DECL npc_mirror_image : public SpellAI
         // here should be auras (not present in client dbc): 35657, 35658, 35659, 35660 selfcasted by mirror images (stats related?)
         // Clone Me!
         owner->CastSpell(me, 45204, false);
+    }
+
+    void EnterCombat(Unit *who)
+    {
+        if (spells.empty())
+            return;
+
+        uint32 spell = rand() % spells.size();
+        uint32 count = 0;
+        for(SpellVct::iterator itr = spells.begin(); itr != spells.end(); ++itr, ++count)
+        {
+            uint32 cooldown = GetAISpellInfo(*itr)->cooldown;
+            if (count == spell)
+            {
+                DoCast(spells[spell]);
+                cooldown += me->GetCurrentSpellCastTime(*itr);
+            }
+            events.ScheduleEvent(*itr, cooldown);
+        }
+    }
+
+    void UpdateAI(const uint32 diff)
+    {
+        if(!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if(me->hasUnitState(UNIT_STAT_CASTING))
+            return;
+
+        if(uint32 spellId = events.ExecuteEvent())
+        {
+            DoCast(spellId);
+            uint32 casttime = me->GetCurrentSpellCastTime(spellId);
+            events.ScheduleEvent(spellId, casttime ? casttime : 500 + GetAISpellInfo(spellId)->cooldown);
+        }
     }
 };
 
