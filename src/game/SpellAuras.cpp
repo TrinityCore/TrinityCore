@@ -2614,11 +2614,11 @@ void AuraEffect::HandleAuraDummy(bool apply, bool Real, bool changeAmount)
                 {
                     // Unrelenting Assault, rank 1
                     case 46859:
-                        caster->CastSpell(m_target,64849,true,NULL,aurEff);
+                        m_target->CastSpell(m_target,64849,true,NULL,aurEff);
                         break;
                     // Unrelenting Assault, rank 2
                     case 46860:
-                        caster->CastSpell(m_target,64850,true,NULL,aurEff);
+                        m_target->CastSpell(m_target,64850,true,NULL,aurEff);
                         break;
                 }
             }
