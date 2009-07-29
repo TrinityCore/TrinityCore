@@ -48,7 +48,7 @@
 				AdditionalOptions="/MP"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="..\..\dep\include,..\..\src\framework,..\..\src\shared,..\..\src\game,..\..\src\trinitycore;..\..\dep\ACE_wrappers"
-				PreprocessorDefinitions="VERSION=&quot;0.12.0-SVN&quot;;WIN32;NDEBUG;_CONSOLE;ENABLE_CLI"
+				PreprocessorDefinitions="VERSION=&quot;0.12.0-SVN&quot;;WIN32;NDEBUG;_CONSOLE;ENABLE_CLI;_SECURE_SCL=0"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -69,7 +69,7 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG"
+				PreprocessorDefinitions="NDEBUG;_SECURE_SCL=0"
 				Culture="1033"
 			/>
 			<Tool
@@ -352,7 +352,7 @@
 				AdditionalOptions="/MP"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="..\..\dep\include,..\..\src\framework,..\..\src\shared,..\..\src\game,..\..\src\trinitycore;..\..\dep\ACE_wrappers"
-				PreprocessorDefinitions="VERSION=&quot;0.12.0-SVN&quot;;WIN32;NDEBUG;_CONSOLE;ENABLE_CLI"
+				PreprocessorDefinitions="VERSION=&quot;0.12.0-SVN&quot;;WIN32;NDEBUG;_CONSOLE;ENABLE_CLI;_SECURE_SCL=0"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -373,7 +373,7 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG"
+				PreprocessorDefinitions="NDEBUG;_SECURE_SCL=0"
 				Culture="1033"
 			/>
 			<Tool
