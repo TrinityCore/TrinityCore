@@ -96,6 +96,8 @@ CreatureEventAI::CreatureEventAI(Creature *c ) : CreatureAI(c)
     AttackDistance = 0.0f;
     AttackAngle = 0.0f;
 
+    InvinceabilityHpLevel = 0;
+
     //Handle Spawned Events
     if (!bEmptyList)
     {
@@ -792,6 +794,14 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
             m_creature->ForcedDespawn();
             break;
         }
+        case ACTION_T_SET_INVINCEABILITY_HP_LEVEL:
+        {
+            if(action.invinceability_hp_level.is_percent)
+                InvinceabilityHpLevel = m_creature->GetMaxHealth()*100/action.invinceability_hp_level.hp_level;
+            else
+                InvinceabilityHpLevel = action.invinceability_hp_level.hp_level;
+            break;
+        }
     }
 }
 
@@ -1335,6 +1345,17 @@ void CreatureEventAI::ReceiveEmote(Player* pPlayer, uint32 text_emote)
                 ProcessEvent(*itr, pPlayer);
             }
         }
+    }
+}
+
+void CreatureEventAI::DamageTaken( Unit* done_by, uint32& damage )
+{
+    if(InvinceabilityHpLevel > 0 && m_creature->GetHealth() < InvinceabilityHpLevel+damage)
+    {
+        if(m_creature->GetHealth() <= InvinceabilityHpLevel)
+            damage = 0;
+        else
+            damage = m_creature->GetHealth() - InvinceabilityHpLevel;
     }
 }
 

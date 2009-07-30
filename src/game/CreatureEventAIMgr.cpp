@@ -661,6 +661,16 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                             action.set_sheath.sheath = SHEATH_STATE_UNARMED;
                         }
                         break;
+                    case ACTION_T_SET_INVINCEABILITY_HP_LEVEL:
+                        if(action.invinceability_hp_level.is_percent)
+                        {
+                            if(action.invinceability_hp_level.hp_level > 100)
+                            {
+                                sLog.outErrorDb("CreatureEventAI:  Event %u Action %u uses wrong percent value %u.", i, j+1, action.invinceability_hp_level.hp_level);
+                                action.invinceability_hp_level.hp_level = 100;
+                            }
+                        }
+                        break;
                     case ACTION_T_EVADE:                    //No Params
                     case ACTION_T_FLEE_FOR_ASSIST:          //No Params
                     case ACTION_T_DIE:                      //No Params
