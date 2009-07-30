@@ -84,8 +84,6 @@ class TRINITY_DLL_SPEC Aura
         int8 GetStackAmount() const {return m_stackAmount;}
         void SetStackAmount(uint8 num, bool applied = true);
         bool modStackAmount(int32 num); // return true if last charge dropped
-        uint32 GetAuraStateMask(){return m_auraStateMask;}
-        void SetAuraState(uint8 num){m_auraStateMask |= 1<<(num-1);}  //modifies auras' aura state (not unit!)
 
         void SetRemoveMode(AuraRemoveMode mode) { m_removeMode = mode; }
         uint8 GetRemoveMode() const {return m_removeMode;}
@@ -154,7 +152,6 @@ class TRINITY_DLL_SPEC Aura
         uint8 m_auraLevel;                                  // Aura level (store caster level for correct show level dep amount)
         uint8 m_procCharges;                                // Aura charges (0 for infinite)
         uint8 m_stackAmount;                                // Aura stack amount
-        uint32 m_auraStateMask;
         AuraEffect * m_partAuras[3];
 
         uint32 m_procDamage;                                // used in aura proc code

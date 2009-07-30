@@ -134,6 +134,7 @@ enum SpellLinkedType
 };
 
 SpellSpecific GetSpellSpecific(uint32 spellId);
+AuraState GetSpellAuraState(SpellEntry const * spellInfo);
 
 // Different spell properties
 inline float GetSpellRadiusForHostile(SpellRadiusEntry const *radius) { return (radius ? radius->radiusHostile : 0); }
