@@ -651,7 +651,6 @@ bool ChatHandler::HandleReloadAllSpellCommand(const char*)
     HandleReloadSpellLinkedSpellCommand("a");
     HandleReloadSpellProcEventCommand("a");
     HandleReloadSpellBonusesCommand("a");
-    HandleReloadSpellProcItemEnchantCommand("a");
     HandleReloadSpellScriptTargetCommand("a");
     HandleReloadSpellTargetPositionCommand("a");
     HandleReloadSpellThreatsCommand("a");
@@ -1045,14 +1044,6 @@ bool ChatHandler::HandleReloadSpellBonusesCommand(const char*)
     sLog.outString( "Re-Loading Spell Bonus Data..." );
     spellmgr.LoadSpellBonusess();
     SendGlobalGMSysMessage("DB table `spell_bonus_data` (spell damage/healing coefficients) reloaded.");
-    return true;
-}
-
-bool ChatHandler::HandleReloadSpellProcItemEnchantCommand(const char*)
-{
-    sLog.outString( "Re-Loading Spell Proc Item Enchant..." );
-    spellmgr.LoadSpellProcItemEnchant();
-    SendGlobalSysMessage("DB table `spell_proc_item_enchant` (item enchantment ppm) reloaded.");
     return true;
 }
 
