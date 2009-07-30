@@ -2843,6 +2843,11 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto
     // Explicit Diminishing Groups
     switch(spellproto->SpellFamilyName)
     {
+        case SPELLFAMILY_GENERIC:
+            // some generic arena related spells have by some strange reason MECHANIC_TURN
+            if  (spellproto->Mechanic == MECHANIC_TURN)
+                return DIMINISHING_NONE;
+            break;
         case SPELLFAMILY_MAGE:
         {
             // Frostbite 0x80000000
