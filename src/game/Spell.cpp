@@ -797,6 +797,9 @@ void Spell::prepareDataForTriggerSystem(AuraEffect * triggeredByAura)
     if (m_spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER && (m_spellInfo->SpellFamilyFlags[1] & 0x00002000 || m_spellInfo->SpellFamilyFlags[0] & 0x1C))
     {
         m_procAttacker |= PROC_FLAG_ON_TRAP_ACTIVATION;
+        // Trigger only from spells originally casted by hunter(trap activation) to prevent multiple trigger from trap triggered spells
+        if (m_originalCasterGUID != m_caster->GetGUID() && m_originalCasterGUID)
+            return;
     }
     /*
         Effects which are result of aura proc from triggered spell cannot proc

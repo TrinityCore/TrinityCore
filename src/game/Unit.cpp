@@ -4229,7 +4229,7 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
     {
         bool canBreak = false;
         // Get mask of all aurastates from remaining auras
-        for(AuraStateAurasMap::iterator itr = m_auraStateAuras.lower_bound(auraState); itr != m_auraStateAuras.upper_bound(auraState) || !(auraStateFound && canBreak);)
+        for(AuraStateAurasMap::iterator itr = m_auraStateAuras.lower_bound(auraState); itr != m_auraStateAuras.upper_bound(auraState) && !(auraStateFound && canBreak);)
         {
             if (itr->second == Aur)
             {
