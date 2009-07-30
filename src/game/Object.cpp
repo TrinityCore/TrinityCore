@@ -465,7 +465,6 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
         return;
 
     bool IsActivateToQuest = false;
-    bool IsPerCasterAuraState = false;
     if (updatetype == UPDATETYPE_CREATE_OBJECT || updatetype == UPDATETYPE_CREATE_OBJECT2)
     {
         if (isType(TYPEMASK_GAMEOBJECT) && !((GameObject*)this)->IsTransport())
@@ -478,14 +477,6 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
             if (((GameObject*)this)->GetGoArtKit())
                 updateMask->SetBit(GAMEOBJECT_BYTES_1);
         }
-        else if (isType(TYPEMASK_UNIT))
-        {
-            if( ((Unit*)this)->HasAuraState(AURA_STATE_CONFLAGRATE))
-            {
-                IsPerCasterAuraState = true;
-                updateMask->SetBit(UNIT_FIELD_AURASTATE);
-            }
-        }
     }
     else                                                    // case UPDATETYPE_VALUES
     {
@@ -497,14 +488,6 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
             }
             updateMask->SetBit(GAMEOBJECT_DYNAMIC);
             updateMask->SetBit(GAMEOBJECT_BYTES_1);
-        }
-        else if (isType(TYPEMASK_UNIT))
-        {
-            if( ((Unit*)this)->HasAuraState(AURA_STATE_CONFLAGRATE))
-            {
-                IsPerCasterAuraState = true;
-                updateMask->SetBit(UNIT_FIELD_AURASTATE);
-            }
         }
     }
 
@@ -529,19 +512,6 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
                         appendValue &= ~UNIT_NPC_FLAG_SPELLCLICK;
 
                     *data << uint32(appendValue);
-                }
-                else if (index == UNIT_FIELD_AURASTATE)
-                {
-                    if(IsPerCasterAuraState)
-                    {
-                        // IsPerCasterAuraState set if related pet caster aura state set already
-                        if (((Unit*)this)->HasAuraState(AURA_STATE_CONFLAGRATE, NULL, target))
-                            *data << m_uint32Values[ index ];
-                        else
-                            *data << (m_uint32Values[ index ] & ~(1 << (AURA_STATE_CONFLAGRATE-1)));
-                    }
-                    else
-                        *data << m_uint32Values[ index ];
                 }
                 // FIXME: Some values at server stored in float format but must be sent to client in uint32 format
                 else if(index >= UNIT_FIELD_BASEATTACKTIME && index <= UNIT_FIELD_RANGEDATTACKTIME)
