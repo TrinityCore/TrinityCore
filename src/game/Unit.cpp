@@ -3889,7 +3889,6 @@ bool Unit::AddAura(Aura *Aur, bool handleEffects)
     //*****************************************************
     if(AuraState aState = GetSpellAuraState(Aur->GetSpellProto()))
     {
-        bool found = false;
         m_auraStateAuras.insert(AuraStateAurasMap::value_type(aState, Aur));
         ModifyAuraState(aState, true);
     }

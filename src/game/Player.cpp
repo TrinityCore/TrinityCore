@@ -16320,7 +16320,7 @@ void Player::_SaveAuras()
             continue;
         bool isCaster = itr->second->GetCasterGUID() == GetGUID();
         if (!isCaster)
-            if (itr->second->IsSingleTarget()
+            if (IsSingleTargetSpell(itr->second->GetSpellProto())
                 || itr->second->IsAreaAura())
                 continue;
 
