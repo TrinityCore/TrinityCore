@@ -794,12 +794,12 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
             m_creature->ForcedDespawn();
             break;
         }
-        case ACTION_T_SET_INVINCEABILITY_HP_LEVEL:
+        case ACTION_T_SET_INVINCIBILITY_HP_LEVEL:
         {
-            if(action.invinceability_hp_level.is_percent)
-                InvinceabilityHpLevel = m_creature->GetMaxHealth()*100/action.invinceability_hp_level.hp_level;
+            if(action.invincibility_hp_level.is_percent)
+                InvinceabilityHpLevel = m_creature->GetMaxHealth()*action.invincibility_hp_level.hp_level/100;
             else
-                InvinceabilityHpLevel = action.invinceability_hp_level.hp_level;
+                InvinceabilityHpLevel = action.invincibility_hp_level.hp_level;
             break;
         }
     }
