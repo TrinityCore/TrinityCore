@@ -1306,7 +1306,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
         if(IsCompletedCriteria(achievementCriteria,achievement))
             CompletedCriteriaFor(achievement);
 
-        // check again the completeness for SUMM and REQ COUNT achievements, 
+        // check again the completeness for SUMM and REQ COUNT achievements,
         // as they don't depend on the completed criteria but on the sum of the progress of each individual criteria
         if (achievement->flags & ACHIEVEMENT_FLAG_SUMM)
         {
@@ -1523,7 +1523,7 @@ bool AchievementMgr::IsCompletedAchievement(AchievementEntry const* entry)
         return false;
     }
 
-    // Default case - need complete all or 
+    // Default case - need complete all or
     bool completed_all = true;
     for(AchievementCriteriaEntryList::const_iterator itr = cList->begin(); itr != cList->end(); ++itr)
     {

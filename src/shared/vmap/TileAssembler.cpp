@@ -243,7 +243,7 @@ namespace VMAP
 
         char destnamebuffer[500];
         char fullnamedestnamebuffer[500];
-        
+
         if(nameCollection.iMainFiles.size() >0)
         {
             sprintf(destnamebuffer,"%03u_%i_%i.vmap",pMapId, pYPos, pXPos); // flip it here too
