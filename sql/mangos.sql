@@ -23,7 +23,7 @@ DROP TABLE IF EXISTS `db_version`;
 CREATE TABLE `db_version` (
   `version` varchar(120) default NULL,
   `creature_ai_version` varchar(120) default NULL,
-  `required_8249_02_mangos_spell_chain` bit(1) default NULL
+  `required_8250_01_mangos_spell_threat` bit(1) default NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Used DB version notes';
 
 --
@@ -18110,7 +18110,6 @@ INSERT INTO `spell_threat` VALUES
 (284,39),
 (285,59),
 (770,108),
-(778,108),
 (1608,78),
 (1672,180),
 (1715,61),
@@ -18130,10 +18129,8 @@ INSERT INTO `spell_threat` VALUES
 (8380,180),
 (8972,118),
 (9745,148),
-(9749,108),
 (9880,178),
 (9881,207),
-(9907,108),
 (11556,43),
 (11564,98),
 (11565,118),
@@ -18146,20 +18143,12 @@ INSERT INTO `spell_threat` VALUES
 (11600,275),
 (11601,315),
 (11775,395),
-(14274,200),
 (14921,415),
-(15629,300),
-(15630,400),
-(15631,500),
-(15632,600),
 (16857,108),
 (17735,200),
 (17750,300),
 (17751,450),
 (17752,600),
-(17390,108),
-(17391,108),
-(17392,108),
 (20569,100),
 (20736,100),
 (20925,20),
@@ -18179,9 +18168,7 @@ INSERT INTO `spell_threat` VALUES
 (25286,175),
 (25288,355),
 (25289,60),
-(26993,127),
 (26996,176),
-(27011,127),
 (27179,54),
 (29704,230),
 (29707,196),

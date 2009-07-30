@@ -1463,13 +1463,6 @@ struct SpellFocusObjectEntry
                                                             // 16 string flags, unused
 };
 
-// stored in SQL table
-struct SpellThreatEntry
-{
-    uint32      spellId;
-    int32       threat;
-};
-
 struct SpellRadiusEntry
 {
     uint32    ID;
