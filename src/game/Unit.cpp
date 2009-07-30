@@ -8536,6 +8536,48 @@ void Unit::RemoveAllAttackers()
     }
 }
 
+bool Unit::HasAuraState(AuraState flag, SpellEntry const *spellProto, Unit * Caster) const
+{
+    if (Caster && spellProto)
+    {
+        AuraEffectList const& stateAuras = Caster->GetAurasByType(SPELL_AURA_ABILITY_IGNORE_AURASTATE);
+        for(AuraEffectList::const_iterator j = stateAuras.begin();j != stateAuras.end(); ++j)
+            if((*j)->isAffectedOnSpell(spellProto))
+                return true;
+    }
+    return HasFlag(UNIT_FIELD_AURASTATE, 1<<(flag-1));
+}
+
+/*
+bool Unit::HasAuraStateForCaster(AuraState flag, uint64 caster) const
+{
+    if(!HasAuraState(flag))
+        return false;
+
+    // single per-caster aura state
+    if(flag == AURA_STATE_CONFLAGRATE)
+    {
+        Unit::AuraList const& dotList = GetAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
+        for(Unit::AuraList::const_iterator i = dotList.begin(); i != dotList.end(); ++i)
+        {
+            if ((*i)->GetSpellProto()->SpellFamilyName == SPELLFAMILY_WARLOCK &&
+                (*i)->GetCasterGUID() == caster &&
+                //  Immolate
+                (((*i)->GetSpellProto()->SpellFamilyFlags & UI64LIT(0x0000000000000004)) ||
+                // Shadowflame
+                ((*i)->GetSpellProto()->SpellFamilyFlags2 & 0x00000002)))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    return true;
+}
+*/
+
 void Unit::ModifyAuraState(AuraState flag, bool apply)
 {
     if (apply)
@@ -8579,18 +8621,6 @@ void Unit::ModifyAuraState(AuraState flag, bool apply)
             }
         }
     }
-}
-
-bool Unit::HasAuraState(AuraState flag, SpellEntry const *spellProto, Unit * Caster) const
-{
-    if (Caster && spellProto)
-    {
-        AuraEffectList const& stateAuras = Caster->GetAurasByType(SPELL_AURA_ABILITY_IGNORE_AURASTATE);
-        for(AuraEffectList::const_iterator j = stateAuras.begin();j != stateAuras.end(); ++j)
-            if((*j)->isAffectedOnSpell(spellProto))
-                return true;
-    }
-    return HasFlag(UNIT_FIELD_AURASTATE, 1<<(flag-1));
 }
 
 Unit *Unit::GetOwner() const
