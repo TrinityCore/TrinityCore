@@ -224,7 +224,9 @@ inline bool IsElementalShield(SpellEntry const *spellInfo)
 
 inline bool IsExplicitDiscoverySpell(SpellEntry const *spellInfo)
 {
-    return spellInfo->Effect[0]==SPELL_EFFECT_CREATE_RANDOM_ITEM && spellInfo->Effect[1]==SPELL_EFFECT_SCRIPT_EFFECT;
+    return spellInfo->Effect[0] == SPELL_EFFECT_CREATE_RANDOM_ITEM
+        && spellInfo->Effect[1] == SPELL_EFFECT_SCRIPT_EFFECT
+        || spellInfo->Id == 64323;                          // Book of Glyph Mastery (Effect0==SPELL_EFFECT_SCRIPT_EFFECT without any other data)
 }
 
 inline bool IsLootCraftingSpell(SpellEntry const *spellInfo)
