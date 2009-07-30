@@ -128,7 +128,7 @@ bool UpdateData::BuildPacket(WorldPacket *packet)
 
     if (pSize > 100 )                                       // compress large packets
     {
-        uint32 destsize = pSize;
+        uint32 destsize = compressBound(pSize);
         packet->resize( destsize + sizeof(uint32) );
 
         packet->put<uint32>(0, pSize);
