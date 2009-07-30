@@ -354,6 +354,7 @@ class Spell
         void EffectActivateRune(uint32 i);
         void EffectTitanGrip(uint32 i);
         void EffectEnchantItemPrismatic(uint32 i);
+        void EffectPlayMusic(uint32 i);
 
         typedef std::set<Aura *> UsedSpellMods;
 
