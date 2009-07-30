@@ -168,6 +168,12 @@ update creature_template set maxhealth = 133525, minhealth = 133525, maxmana = 5
 
 UPDATE `creature` SET `phaseMask`=128 WHERE `id` IN (31082,29173,29199,29204,29200);
 
+-- Bloodworms Health Leech Aura
+INSERT INTO `creature_template_addon` (`entry`, `auras`) VALUES 
+('28017', '50453 0') # Health Leech (Passive) Aura
+ON DUPLICATE KEY UPDATE
+auras = VALUES(auras);
+
 -- --------
 -- NAXXARAMAS
 -- --------

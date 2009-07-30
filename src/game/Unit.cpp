@@ -4923,6 +4923,18 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
         {
             switch (dummySpell->Id)
             {
+                // BloodWorms Health Leech
+                case 50453:
+                {
+                    if (Unit *owner = this->GetOwner())
+                    {
+                        basepoints0 = int32(damage);
+                        target = owner;
+                        triggered_spell_id = 50454;
+                        break;
+                    } 
+                    return false;
+                }
                 // Improved Divine Spirit
                 case 33174:
                 case 33182:
