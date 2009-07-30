@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
- 
+
 #ifndef _DEFINES_
 #define _DEFINES_
 
@@ -59,7 +59,7 @@ typedef vector<sField> T_Table;
 typedef vector<string> T_TableList;
 typedef map< string, T_Table > TDataBase;
 
-static 
+static
 void pg_notice(void *arg, const char *message)
 {
     /// Do nothing
