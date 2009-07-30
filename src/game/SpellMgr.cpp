@@ -406,6 +406,63 @@ uint32 CalculatePowerCost(SpellEntry const * spellInfo, Unit const * caster, Spe
     return powerCost;
 }
 
+AuraState GetSpellAuraState(SpellEntry const * spellInfo)
+{
+    // Seals
+    if (IsSealSpell(spellInfo))
+        return (AURA_STATE_JUDGEMENT);
+
+    // Conflagrate aura state on Immolate and Shadowflame
+    if (spellInfo->SpellFamilyName == SPELLFAMILY_WARLOCK &&
+        // Immolate
+        ((spellInfo->SpellFamilyFlags[0] & 4) ||
+        // Shadowflame
+        (spellInfo->SpellFamilyFlags[2] & 2)))
+        return (AURA_STATE_CONFLAGRATE);
+
+    // Faerie Fire (druid versions)
+    if (spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && spellInfo->SpellFamilyFlags[0] & 0x400)
+        return (AURA_STATE_FAERIE_FIRE);
+
+    // Sting (hunter's pet ability)
+    if (spellInfo->Category == 1133)
+        return (AURA_STATE_FAERIE_FIRE);
+
+    // Victorious
+    if (spellInfo->SpellFamilyName == SPELLFAMILY_WARRIOR &&  spellInfo->SpellFamilyFlags[1] & 0x00040000)
+        return (AURA_STATE_WARRIOR_VICTORY_RUSH);
+
+    // Swiftmend state on Regrowth & Rejuvenation
+    if (spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && spellInfo->SpellFamilyFlags[0] & 0x50 )
+        return (AURA_STATE_SWIFTMEND);
+
+    // Deadly poison aura state
+    if(spellInfo->SpellFamilyName == SPELLFAMILY_ROGUE && spellInfo->SpellFamilyFlags[0] & 0x10000)
+        return (AURA_STATE_DEADLY_POISON);
+
+    // Enrage aura state
+    if(spellInfo->Dispel == DISPEL_ENRAGE)
+        return (AURA_STATE_ENRAGE);
+
+    // Bleeding aura state
+    if (GetAllSpellMechanicMask(spellInfo) & 1<<MECHANIC_BLEED)
+        return (AURA_STATE_BLEEDING);
+
+    if(GetSpellSchoolMask(spellInfo) & SPELL_SCHOOL_MASK_FROST)
+    {
+        for (uint8 i = 0;i<MAX_SPELL_EFFECTS;++i)
+        {
+            if (spellInfo->EffectApplyAuraName[i]==SPELL_AURA_MOD_STUN
+                || spellInfo->EffectApplyAuraName[i]==SPELL_AURA_MOD_ROOT)
+            {
+                return (AURA_STATE_FROZEN);
+                break;
+            }
+        }
+    }
+    return AURA_STATE_NONE;
+}
+
 SpellSpecific GetSpellSpecific(uint32 spellId)
 {
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
