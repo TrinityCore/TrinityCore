@@ -477,6 +477,13 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
             if (((GameObject*)this)->GetGoArtKit())
                 updateMask->SetBit(GAMEOBJECT_BYTES_1);
         }
+        else if (isType(TYPEMASK_UNIT))
+        {
+            if( ((Unit*)this)->HasFlag(UNIT_FIELD_AURASTATE, PER_CASTER_AURA_STATE_MASK))
+            {
+                updateMask->SetBit(UNIT_FIELD_AURASTATE);
+            }
+        }
     }
     else                                                    // case UPDATETYPE_VALUES
     {
@@ -488,6 +495,13 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
             }
             updateMask->SetBit(GAMEOBJECT_DYNAMIC);
             updateMask->SetBit(GAMEOBJECT_BYTES_1);
+        }
+        else if (isType(TYPEMASK_UNIT))
+        {
+            if( ((Unit*)this)->HasFlag(UNIT_FIELD_AURASTATE, PER_CASTER_AURA_STATE_MASK))
+            {
+                updateMask->SetBit(UNIT_FIELD_AURASTATE);
+            }
         }
     }
 
@@ -512,6 +526,11 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
                         appendValue &= ~UNIT_NPC_FLAG_SPELLCLICK;
 
                     *data << uint32(appendValue);
+                }
+                else if (index == UNIT_FIELD_AURASTATE)
+                {
+                    // Check per caster aura states to not enable using a pell in client if specified aura is not by target
+                    *data << ((Unit*)this)->BuildAuraStateUpdateForTarget(target);
                 }
                 // FIXME: Some values at server stored in float format but must be sent to client in uint32 format
                 else if(index >= UNIT_FIELD_BASEATTACKTIME && index <= UNIT_FIELD_RANGEDATTACKTIME)

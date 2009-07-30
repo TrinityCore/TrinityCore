@@ -3883,6 +3883,17 @@ bool Unit::AddAura(Aura *Aur, bool handleEffects)
 
     // add aura, register in lists and arrays
     Aur->_AddAura();
+
+    //*****************************************************
+    // Update target aura state flag
+    //*****************************************************
+    if(AuraState aState = GetSpellAuraState(Aur->GetSpellProto()))
+    {
+        bool found = false;
+        m_auraStateAuras.insert(AuraStateAurasMap::value_type(aState, Aur));
+        ModifyAuraState(aState, true);
+    }
+
     m_Auras.insert(AuraMap::value_type(aurId, Aur));
 
     if(aurSpellInfo->AuraInterruptFlags)
@@ -4213,6 +4224,28 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
     m_removedAuras.push_back(Aur);
 
     Aur->_RemoveAura();
+
+    bool auraStateFound = false;
+    if (AuraState auraState = GetSpellAuraState(Aur->GetSpellProto()))
+    {
+        bool canBreak = false;
+        // Get mask of all aurastates from remaining auras
+        for(AuraStateAurasMap::iterator itr = m_auraStateAuras.lower_bound(auraState); itr != m_auraStateAuras.upper_bound(auraState) || !(auraStateFound && canBreak);)
+        {
+            if (itr->second == Aur)
+            {
+                m_auraStateAuras.erase(itr);
+                itr = m_auraStateAuras.lower_bound(auraState);
+                canBreak = true;
+                continue;
+            }
+            auraStateFound = true;
+            ++itr;
+        }
+        // Remove only aurastates which were not found
+        if (!auraStateFound)
+            ModifyAuraState(auraState, false);
+    }
 
     // Remove totem at next update if totem looses its aura
     if (Aur->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE && GetTypeId()==TYPEID_UNIT && ((Creature*)this)->isTotem()&& ((TempSummon*)this)->GetSummonerGUID()==Aur->GetCasterGUID())
@@ -8581,15 +8614,42 @@ void Unit::ModifyAuraState(AuraState flag, bool apply)
     }
 }
 
+uint32 Unit::BuildAuraStateUpdateForTarget(Unit * target) const
+{
+    uint32 auraStates = GetUInt32Value(UNIT_FIELD_AURASTATE) &~(PER_CASTER_AURA_STATE_MASK);
+    for(AuraStateAurasMap::const_iterator itr = m_auraStateAuras.begin(); itr != m_auraStateAuras.end();++itr)
+    {
+        if ((1<<(itr->first-1)) & PER_CASTER_AURA_STATE_MASK)
+        {
+            if (itr->second->GetCasterGUID() == target->GetGUID())
+                auraStates |= (1<<(itr->first-1));
+        }
+    }
+    return auraStates;
+}
+
 bool Unit::HasAuraState(AuraState flag, SpellEntry const *spellProto, Unit * Caster) const
 {
-    if (Caster && spellProto)
+    if (Caster)
     {
-        AuraEffectList const& stateAuras = Caster->GetAurasByType(SPELL_AURA_ABILITY_IGNORE_AURASTATE);
-        for(AuraEffectList::const_iterator j = stateAuras.begin();j != stateAuras.end(); ++j)
-            if((*j)->isAffectedOnSpell(spellProto))
-                return true;
+        if(spellProto)
+        {
+            AuraEffectList const& stateAuras = Caster->GetAurasByType(SPELL_AURA_ABILITY_IGNORE_AURASTATE);
+            for(AuraEffectList::const_iterator j = stateAuras.begin();j != stateAuras.end(); ++j)
+                if((*j)->isAffectedOnSpell(spellProto))
+                    return true;
+        }
+        // Check per caster aura state
+        // If aura with aurastate by caster not found return false
+        if ((1<<(flag-1)) & PER_CASTER_AURA_STATE_MASK)
+        {
+            for(AuraStateAurasMap::const_iterator itr = m_auraStateAuras.lower_bound(flag); itr != m_auraStateAuras.upper_bound(flag);++itr)
+                if (itr->second->GetCasterGUID() == Caster->GetGUID())
+                    return true;
+            return false;
+        }
     }
+
     return HasFlag(UNIT_FIELD_AURASTATE, 1<<(flag-1));
 }
 

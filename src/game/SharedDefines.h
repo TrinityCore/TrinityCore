@@ -893,6 +893,7 @@ enum SpellCastResult
 enum AuraState
 {   // (C) used in caster aura state     (T) used in target aura state
     // (c) used in caster aura state-not (t) used in target aura state-not
+    AURA_STATE_NONE                         = 0,            // C   |
     AURA_STATE_DEFENSE                      = 1,            // C   |
     AURA_STATE_HEALTHLESS_20_PERCENT        = 2,            // CcT |
     AURA_STATE_BERSERKING                   = 3,            // C T |
@@ -919,6 +920,9 @@ enum AuraState
     //AURA_STATE_UNKNOWN22                  = 22,           // C   | not implemented yet (Requires Evasive Charges to use)
     AURA_STATE_HEALTH_ABOVE_75_PERCENT      = 23,           // C   |
 };
+
+#define PER_CASTER_AURA_STATE_MASK ( \
+    (1<<(AURA_STATE_CONFLAGRATE-1))|(1<<(AURA_STATE_SWIFTMEND-1))|(1<<(AURA_STATE_DEADLY_POISON-1)))
 
 // Spell mechanics
 enum Mechanics
