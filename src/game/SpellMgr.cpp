@@ -1217,65 +1217,6 @@ void SpellMgr::LoadSpellProcEvents()
         sLog.outString( ">> Loaded %u extra spell proc event conditions", count );
 }
 
-/*
-void SpellMgr::LoadSpellProcItemEnchant()
-{
-    mSpellProcItemEnchantMap.clear();                       // need for reload case
-
-    uint32 count = 0;
-
-    //                                                0      1
-    QueryResult *result = WorldDatabase.Query("SELECT entry, ppmRate FROM spell_proc_item_enchant");
-    if( !result )
-    {
-
-        barGoLink bar( 1 );
-
-        bar.step();
-
-        sLog.outString();
-        sLog.outString( ">> Loaded %u proc item enchant definitions", count );
-        return;
-    }
-
-    barGoLink bar( result->GetRowCount() );
-
-    do
-    {
-        Field *fields = result->Fetch();
-
-        bar.step();
-
-        uint32 entry = fields[0].GetUInt32();
-        float ppmRate = fields[1].GetFloat();
-
-        SpellEntry const* spellInfo = sSpellStore.LookupEntry(entry);
-
-        if (!spellInfo)
-        {
-            sLog.outErrorDb("Spell %u listed in `spell_proc_item_enchant` does not exist", entry);
-            continue;
-        }
-
-        if ( GetFirstSpellInChain(entry) != entry )
-        {
-            sLog.outErrorDb("Spell %u listed in `spell_proc_item_enchant` is not first rank in chain", entry);
-            // prevent loading since it won't have an effect anyway
-            continue;
-        }
-
-        mSpellProcItemEnchantMap[entry] = ppmRate;
-
-        ++count;
-    } while( result->NextRow() );
-
-    delete result;
-
-    sLog.outString();
-    sLog.outString( ">> Loaded %u proc item enchant definitions", count );
-}
-*/
-
 void SpellMgr::LoadSpellBonusess()
 {
     mSpellBonusMap.clear();                             // need for reload case
@@ -3285,7 +3226,7 @@ bool IsDispelableBySpell(SpellEntry const * dispelSpell, uint32 spellId, bool de
     return def;
 }
 
-void SpellMgr::LoadSpellProcItemEnchant()
+void SpellMgr::LoadSpellEnchantProcData()
 {
     mSpellEnchantProcEventMap.clear();                             // need for reload case
 
