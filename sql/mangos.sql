@@ -23,7 +23,7 @@ DROP TABLE IF EXISTS `db_version`;
 CREATE TABLE `db_version` (
   `version` varchar(120) default NULL,
   `creature_ai_version` varchar(120) default NULL,
-  `required_8250_01_mangos_spell_threat` bit(1) default NULL
+  `required_8247_01_mangos_spell_bonus_data` bit(1) default NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Used DB version notes';
 
 --
@@ -18006,7 +18006,6 @@ CREATE TABLE `spell_proc_item_enchant` (
 --
 -- Dumping data for table `spell_proc_item_enchant`
 --
-
 LOCK TABLES `spell_proc_item_enchant` WRITE;
 /*!40000 ALTER TABLE `spell_proc_item_enchant` DISABLE KEYS */;
 INSERT INTO `spell_proc_item_enchant` (`entry`, `ppmRate`) VALUES
