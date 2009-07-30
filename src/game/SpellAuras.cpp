@@ -6357,7 +6357,17 @@ void AuraEffect::PeriodicTick()
             if(m_auraName==SPELL_AURA_OBS_MOD_HEALTH)
                 pdamage = uint32(m_target->GetMaxHealth() * pdamage * GetParentAura()->GetStackAmount() / 100);
             else
+            {
+                // Wild Growth (1/7 - 6 + 2*ramainTicks) %
+                if (m_spellProto->SpellFamilyName == SPELLFAMILY_DRUID && m_spellProto->SpellIconID == 2864)
+                {
+                    int32 ticks = GetParentAura()->GetAuraMaxDuration()/m_amplitude;
+                    int32 remainingTicks = int32(float(GetParentAura()->GetAuraDuration()) / m_amplitude + 0.5);
+                    pdamage = int32(pdamage) + int32(pdamage)*ticks*(-6+2*remainingTicks)/100;
+                }
+
                 pdamage = pCaster->SpellHealingBonus(m_target, GetSpellProto(), pdamage, DOT, GetParentAura()->GetStackAmount());
+            }
 
             bool crit = false;
             Unit::AuraEffectList const& mPeriodicCritAuras= pCaster->GetAurasByType(SPELL_AURA_ABILITY_PERIODIC_CRIT);
