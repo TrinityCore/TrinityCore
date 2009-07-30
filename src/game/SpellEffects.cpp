@@ -5874,10 +5874,20 @@ void Spell::EffectSummonObject(uint32 i)
         default: return;
     }
 
-    if(uint64 guid = m_caster->m_ObjectSlot[slot])
+    uint64 guid = m_caster->m_ObjectSlot[slot];
+    if(guid != 0)
     {
-        if(GameObject* obj = m_caster ? m_caster->GetMap()->GetGameObject(guid) : NULL)
-            obj->SetLootState(GO_JUST_DEACTIVATED);
+        GameObject* obj = NULL;
+        if( m_caster )
+            obj = m_caster->GetMap()->GetGameObject(guid);
+
+        if(obj)
+        {
+            // Recast case - null spell id to make auras not be removed on object remove from world
+            if (m_spellInfo->Id == obj->GetSpellId())
+                obj->SetSpellId(0);
+            m_caster->RemoveGameObject(obj, true);
+        }
         m_caster->m_ObjectSlot[slot] = 0;
     }
 
