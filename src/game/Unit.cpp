@@ -12198,7 +12198,6 @@ void Unit::RemoveFromWorld()
         ExitVehicle();
         UnsummonAllTotems();
         RemoveAllControlled();
-        GetMotionMaster()->Clear(false);                    // remove different non-standard movement generators.
 
         if(m_NotifyListPos >= 0)
         {
@@ -12231,6 +12230,7 @@ void Unit::CleanupsBeforeDelete()
     getHostilRefManager().setOnlineOfflineState(false);
     RemoveAllGameObjects();
     RemoveAllDynObjects();
+    GetMotionMaster()->Clear(false);                    // remove different non-standard movement generators.
 
     if(IsInWorld())
         RemoveFromWorld();
