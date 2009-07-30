@@ -694,8 +694,8 @@ enum Opcodes
     CMSG_GROUP_ASSISTANT_LEADER                     = 0x28F,
     CMSG_BUYBACK_ITEM                               = 0x290,
     SMSG_SERVER_MESSAGE                             = 0x291,
-    CMSG_MEETINGSTONE_JOIN                          = 0x292,
-    CMSG_MEETINGSTONE_LEAVE                         = 0x293, // SMSG?
+    CMSG_MEETINGSTONE_JOIN                          = 0x292, // lua: SetSavedInstanceExtend
+    SMSG_MEETINGSTONE_LEAVE                         = 0x293,
     CMSG_MEETINGSTONE_CHEAT                         = 0x294,
     SMSG_MEETINGSTONE_SETQUEUE                      = 0x295,
     CMSG_MEETINGSTONE_INFO                          = 0x296,
@@ -1033,7 +1033,7 @@ enum Opcodes
     SMSG_COMSAT_CONNECT_FAIL                        = 0x3E2,
     SMSG_VOICE_CHAT_STATUS                          = 0x3E3,
     CMSG_REPORT_PVP_AFK                             = 0x3E4,
-    CMSG_REPORT_PVP_AFK_RESULT                      = 0x3E5,
+    SMSG_REPORT_PVP_AFK_RESULT                      = 0x3E5, // SMSG?
     CMSG_GUILD_BANKER_ACTIVATE                      = 0x3E6,
     CMSG_GUILD_BANK_QUERY_TAB                       = 0x3E7,
     SMSG_GUILD_BANK_LIST                            = 0x3E8,

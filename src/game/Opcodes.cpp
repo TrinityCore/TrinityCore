@@ -1025,7 +1025,7 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x3E2*/ { "SMSG_COMSAT_CONNECT_FAIL",                     STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
     /*0x3E3*/ { "SMSG_VOICE_CHAT_STATUS",                       STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
     /*0x3E4*/ { "CMSG_REPORT_PVP_AFK",                          STATUS_LOGGEDIN, &WorldSession::HandleReportPvPAFK              },
-    /*0x3E5*/ { "CMSG_REPORT_PVP_AFK_RESULT",                   STATUS_NEVER,    &WorldSession::Handle_NULL                     },
+    /*0x3E5*/ { "SMSG_REPORT_PVP_AFK_RESULT",                   STATUS_NEVER,    &WorldSession::Handle_NULL                     },
     /*0x3E6*/ { "CMSG_GUILD_BANKER_ACTIVATE",                   STATUS_LOGGEDIN, &WorldSession::HandleGuildBankerActivate       },
     /*0x3E7*/ { "CMSG_GUILD_BANK_QUERY_TAB",                    STATUS_LOGGEDIN, &WorldSession::HandleGuildBankQueryTab         },
     /*0x3E8*/ { "SMSG_GUILD_BANK_LIST",                         STATUS_NEVER,    &WorldSession::Handle_ServerSide               },

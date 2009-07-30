@@ -57,9 +57,9 @@ void Totem::InitStats(uint32 duration)
     Minion::InitStats(duration);
 
     CreatureInfo const *cinfo = GetCreatureInfo();
-    if (m_owner->GetTypeId()==TYPEID_PLAYER && cinfo)
+    if(m_owner->GetTypeId() == TYPEID_PLAYER && cinfo)
     {
-        uint32 display_id = objmgr.ChooseDisplayId(((Player*)m_owner)->GetTeam(),cinfo);
+        uint32 display_id = objmgr.ChooseDisplayId(((Player*)m_owner)->GetTeam(), cinfo);
         CreatureModelInfo const *minfo = objmgr.GetCreatureModelRandomGender(display_id);
         if (minfo)
             display_id = minfo->modelid;
@@ -137,7 +137,7 @@ void Totem::UnSummon()
 
 bool Totem::IsImmunedToSpellEffect(SpellEntry const* spellInfo, uint32 index) const
 {
-    // TODO: possibly all negative auras immuned?
+    // TODO: possibly all negative auras immune?
     switch(spellInfo->EffectApplyAuraName[index])
     {
         case SPELL_AURA_PERIODIC_DAMAGE:
@@ -150,4 +150,3 @@ bool Totem::IsImmunedToSpellEffect(SpellEntry const* spellInfo, uint32 index) co
     }
     return Creature::IsImmunedToSpellEffect(spellInfo, index);
 }
-

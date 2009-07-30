@@ -171,7 +171,7 @@ class TRINITY_DLL_SPEC Object
         void BuildMovementUpdateBlock( UpdateData * data, uint32 flags = 0 ) const;
         void BuildUpdate(UpdateDataMapType &);
 
-        virtual void DestroyForPlayer( Player *target ) const;
+        virtual void DestroyForPlayer( Player *target, bool anim = false ) const;
 
         const int32& GetInt32Value( uint16 index ) const
         {

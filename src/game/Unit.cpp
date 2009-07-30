@@ -3477,8 +3477,8 @@ void Unit::InterruptSpell(uint32 spellType, bool withDelayed, bool withInstant)
         // send autorepeat cancel message for autorepeat spells
         if (spellType == CURRENT_AUTOREPEAT_SPELL)
         {
-            if(GetTypeId()==TYPEID_PLAYER)
-                ((Player*)this)->SendAutoRepeatCancel();
+            if(GetTypeId() == TYPEID_PLAYER)
+                ((Player*)this)->SendAutoRepeatCancel(this);
         }
 
         if (spell->getState() != SPELL_STATE_FINISHED)
