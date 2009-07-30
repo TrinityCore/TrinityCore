@@ -1,140 +1,145 @@
 =============================================
-EventAI documentation: (Updated May 19, 2009)
+EventAI documentation: (updated May 19, 2009)
 =============================================
 
 EventAI allows users to create new creature scripts entierly within the database.
 
 For the AI to be used, you must first make sure to set AIname for each creature that should use this AI.
-
 UPDATE creature_template SET AIName = 'EventAI' WHERE entry IN (...);
 
+
 =========================================
-Basic Structure of EventAI
+Basic structure of EventAI
 =========================================
+
 EventAI follows a basic if (Event) then do (Action) format.
-Below is a the list of current fields within the creature_ai_scripts table.
+Below is the list of current fields of the creature_ai_scripts table.
 
-(Field_Name                 Discription)
-id                          This value is mearly an incrementing counter of the current Event number. Required for sql queries.
-creature_id                 Creature id which this event should occur on.
+(Field_Name)                (Description)
+id                          This value is merely an incrementing counter of the current Event number. Required for sql queries.
+creature_id                 Creature id which should trigger this event.
 
-event_type                  Type of event (See Event Types below)
-event_inverse_phase_mask    Mask which phases this event should NOT trigger in*
-event_chance                Percent chance of this event occuring (1 - 100)
-event_flags                 Event flags such as if the event is repeatable (see below)
-event_param1                Variable for event (dependant on Event type)
+event_type                  The type of event (see "Event types" below)
+event_inverse_phase_mask    Mask with phases this event should NOT trigger in*
+event_chance                Percentage chance of triggering the event (1 - 100)
+event_flags                 Event flags (repeatable, ... (see below))
+event_param1                Variables for the event (depends on event_type)
 event_param2
 event_param3
 event_param4
 
-action1_type                First Type of Action to take when event occurs (See Action Types below)
-action1_param1              Variables used for Action1 (dependant on Action type)
+action1_type                An action to take when the event occurs (see "Action types" below)
+action1_param1              Variables used by Action1 (depends on action_type)
 action1_param2
 action1_param3
 
-action2_type                Second Type of Action to take when event occurs (See Action Types below)
-action2_param1              Variables used for Action2 (dependant on Action type)
+action2_type
+action2_param1
 action2_param2
 action2_param3
 
-action3_type                Third Type of Action to take when event occurs (See Action Types below)
-action3_param1              Variables used for Action3 (dependant on Action type)
+action3_type
+action3_param1
 action3_param2
 action3_param3
 
-All params are signed 32 bit values (+/- 2147483647). If param specifies time then time is in milliseconds.
-If param specifies percentage then percentages are value/100 (ex: if param = 500 then that means 500%, -50 = -50%)
+All params are signed 32-bit values (+/- 2147483647). Time values are always in milliseconds.
+In case of a percentage value, use value/100 (ie. param = 500 then that means 500%, -50 = -50%)
 
-*Phase mask is a bit mask of which phases this event should not trigger in. Example: Phase mask value of 12 (1100)
-would mean that this event would trigger 0, 1 and all other phases except for 2 and 3 (0 counts as the first phase).
+[*] Phase mask is a bitmask of phases which shouldn't trigger this event. (ie. Phase mask of value 12 (binary 1100) results in triggering this event in phases 0, 1 and all others with exception for phases 2 and 3 (counting from 0).
+
 
 =========================================
-Event Types
+Event types
 =========================================
-Below is the list of current Event types that EventAI can handle.
+
+A list of event types EventAI is able to handle.
 Each event type has its own specific interpretation of the params that accompany it.
-Params are always read from Param1, then Param2, then Param3.
-Events will not repeat until the creature exits combat unless EFLAG_REPEATABLE is set.
+Params are always read in the ascending order (from Param1 to Param3).
+Events will not repeat until the creature exits combat or unless EFLAG_REPEATABLE is set.
 Some events such as EVENT_T_AGGRO, EVENT_T_DEATH, EVENT_T_SPAWNED, and EVENT_T_EVADE cannot repeat.
 
-#   Internal Name               Pamarm usage                                            Description
+#   Internal name                Param usage                                             Description
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-0    EVENT_T_TIMER               InitialMin, InitialMax, RepeatMin, RepeatMax            Expires first between (Param1) and (Param2) and then between every (Param3) and (Param4).  but only in combat.
-1    EVENT_T_TIMER_OOC           InitialMin, InitialMax, RepeatMin, RepeatMax            Expires first between (Param1) and (Param2) and then between every (Param3) and (Param4).  but only out of combat.
+0    EVENT_T_TIMER               InitialMin, InitialMax, RepeatMin, RepeatMax            Expires at first between (Param1) and (Param2) and then between every (Param3) and (Param4),  but only in combat.
+1    EVENT_T_TIMER_OOC           InitialMin, InitialMax, RepeatMin, RepeatMax            Expires at first between (Param1) and (Param2) and then between every (Param3) and (Param4),  but only out of combat.
 2    EVENT_T_HP                  HPMax%, HPMin%, RepeatMin, RepeatMax                    Expires when HP is between (Param1) and (Param2). Will repeat every (Param3) and (Param4).
 3    EVENT_T_MANA                ManaMax%,ManaMin% RepeatMin, RepeatMax                  Expires once Mana% is between (Param1) and (Param2). Will repeat every (Param3) and (Param4).
 4    EVENT_T_AGGRO               NONE                                                    Expires upon initial aggro (does not repeat).
-5    EVENT_T_KILL                RepeatMin, RepeatMax                                    Expires upon killing a player. Will repeat between every (Param1) and (Param2).
-6    EVENT_T_DEATH               NONE                                                    Expires upon Death of the Creature.
+5    EVENT_T_KILL                RepeatMin, RepeatMax                                    Expires upon killing a player. Will repeat between (Param1) and (Param2).
+6    EVENT_T_DEATH               NONE                                                    Expires upon creature death.
 7    EVENT_T_EVADE               NONE                                                    Expires upon creature EnterEvadeMode().
-8    EVENT_T_SPELLHIT            SpellID, Schoolmask, RepeatMin, RepeatMax               Expires upon Spell hit. If (param1) is set will only expire on that spell. If (param2) will only expire on spells of the selected schools (-1 for all). Will repeat every (Param3) and (Param4) .
-9    EVENT_T_RANGE               MinDist, MaxDist, RepeatMin, RepeatMax                  Expires when the highest threat target distance is greater than (Param1) and less than (Param2). Will repeat every (Param3) and (Param4) .
-10   EVENT_T_OOC_LOS             Hostile-or-Not, MaxAllowedRange, RepeatMin, RepeatMax   Expires when a Unit moves within distance(MaxAllowedRange) to creature. If Param1=0 it will expire if Unit are Hostile. If Param1=1 it will only expire if Unit are not Hostile(generally determined by faction). Will repeat every (Param3) and (Param4). Does not expire when the creature is in combat.
-11   EVENT_T_SPAWNED             NONE                                                    Expires at initial spawn and at creature respawn (useful for setting ranged movement type)
-12   EVENT_T_TARGET_HP           HPMax%, HPMin%, RepeatMin, RepeatMax                    Expires when Current Target's HP is between (Param1) and (Param2). Will repeat every (Param3) and (Param4) .
-13   EVENT_T_TARGET_CASTING      RepeatMin, RepeatatMax                                  Expires when the current target is casting a spell. Will repeat every (Param1) and (Param2) .
-14   EVENT_T_FRIENDLY_HP         HPDeficit, Radius, RepeatMin, RepeatMax                 Expires when a friendly unit in radius has at least (param1) hp missing. Will repeat every (Param3) and (Param4) .
-15   EVENT_T_FRIENDLY_IS_CC      DispelType, Radius, RepeatMin, RepeatMax                Expires when a friendly unit is Crowd controlled within the given radius (param2). Will repeat every (Param3) and (Param4) .
-16   EVENT_T_MISSING_BUFF        SpellId, Radius, RepeatMin, RepeatMax                   Expires when a friendly unit is missing aura's given by spell (param1) within radius (param2). Will repeat every (Param3) and (Param4) .
-17   EVENT_T_SUMMONED_UNIT       CreatureId, RepeatMin, RepeatMax                        Expires after creature with entry = (param1) is spawned or for all spawns if param1 = 0. Will repeat every (Param2) and (Param3).
+8    EVENT_T_SPELLHIT            SpellID, Schoolmask, RepeatMin, RepeatMax               Expires upon a spell hit. When (param1) is set, it will be used as a trigger. With (param2) specified, the expiration is limited to specific spell schools (-1 for all). Will repeat every (Param3) and (Param4).
+9    EVENT_T_RANGE               MinDist, MaxDist, RepeatMin, RepeatMax                  Expires when the highest threat target distance is greater than (Param1) and less than (Param2). Will repeat every (Param3) and (Param4).
+10   EVENT_T_OOC_LOS             Hostile-or-Not, MaxAllowedRange, RepeatMin, RepeatMax   Expires when a unit moves within distance (MaxAllowedRange) of a creature. If (Param1) is zero it will expire only when unit is hostile, friendly otherwise (Param1 = 1), depends generally on faction. Will repeat every (Param3) and (Param4). Does not expire when the creature is in combat.
+11   EVENT_T_SPAWNED             NONE                                                    Expires on initial spawn and on creature respawn (useful for setting ranged movement type).
+12   EVENT_T_TARGET_HP           HPMax%, HPMin%, RepeatMin, RepeatMax                    Expires when current target's HP is between (Param1) and (Param2). Will repeat every (Param3) and (Param4).
+13   EVENT_T_TARGET_CASTING      RepeatMin, RepeatatMax                                  Expires when the current target is casting a spell. Will repeat every (Param1) and (Param2).
+14   EVENT_T_FRIENDLY_HP         HPDeficit, Radius, RepeatMin, RepeatMax                 Expires when a friendly unit in radius has at least (Param1) HP missing. Will repeat every (Param3) and (Param4).
+15   EVENT_T_FRIENDLY_IS_CC      DispelType, Radius, RepeatMin, RepeatMax                Expires when a friendly unit is crowd controlled within the given radius (Param2). Will repeat every (Param3) and (Param4).
+16   EVENT_T_MISSING_BUFF        SpellId, Radius, RepeatMin, RepeatMax                   Expires when a friendly unit is missing aura(s) given by a spell (Param1) within radius (Param2). Will repeat every (Param3) and (Param4).
+17   EVENT_T_SUMMONED_UNIT       CreatureId, RepeatMin, RepeatMax                        Expires after creature with entry = (Param1) is spawned (Param1 = 0 means all spawns). Will repeat every (Param2) and (Param3).
 18   EVENT_T_TARGET_MANA         ManaMax%, ManaMin%, RepeatMin, RepeatMax
-21   EVENT_T_REACHED_HOME        NONE                                                    Expires when creature reach it's home(spawn) location after Evade.
-22   EVENT_T_RECEIVE_EMOTE       EmoteId, Condition, CondValue1, CondValue2              Expires when creature receive emote with text emote id(enum TextEmotes). Condition can be defined. If set, then most conditions has additional value (see enum ConditionType)
-23   EVENT_T_BUFFED              SpellID, AmmountInStack, RepeatMin, RepeatMax           Expires when creature have spell (Param1) auras applied stack greater or equal provided in Param2 amount. Will repeat every (Param3) and (Param4).
-24   EVENT_T_TARGET_BUFFED       SpellID, AmmountInStack, RepeatMin, RepeatMax           Expires when target unit have spell (Param1) auras applied stack greater or equal provided in Param2 amount. Will repeat every (Param3) and (Param4).
+21   EVENT_T_REACHED_HOME        NONE                                                    Expires when a creature reach it's home(spawn) location after evade.
+22   EVENT_T_RECEIVE_EMOTE       EmoteId, Condition, CondValue1, CondValue2              Expires when a creature receives an emote with emote text id (enum TextEmotes) in (Param1). Conditions can be defined (Param2) with optional values (Param3,Param4), see enum ConditionType.
+23   EVENT_T_BUFFED              SpellID, AmmountInStack, RepeatMin, RepeatMax           Expires when a creature has spell (Param1) auras applied in a stack greater or equal to value provided in (Param2). Will repeat every (Param3) and (Param4).
+24   EVENT_T_TARGET_BUFFED       SpellID, AmmountInStack, RepeatMin, RepeatMax           Expires when a target unit has spell (Param1) auras applied in a stack greater or equal to value provided in (Param2). Will repeat every (Param3) and (Param4).
+
 
 =========================================
 Action Types
 =========================================
-Below is the list of current Action types that EventAI can handle.
-Each event type has its own specific interpretation of the params that accompany it.
-Params are always read from Param1, then Param2, then Param3.
 
-(#   Internal Name                     Param usage                     Discription)
-0    ACTION_T_NONE                     No Action                       Does Nothing
-1    ACTION_T_TEXT                     -TextId1, -TextId2, -TextId3    Displays the -TextId as defined. In case -TextId2 and optionally -TextId3, the output will be randomized. Type text are defined in the text table itself(say, yell, whisper, etc) along with other options for the text. All values are required to be negative.
-2    ACTION_T_SET_FACTION              FactionId                       Change faction for creature. If param1==0, creature will revert to default faction.
-3    ACTION_T_MORPH_TO_ENTRY_OR_MODEL  CreatureEntry, ModelId          Set model from creature_template.entry(param1) OR set explicit modelId(param2). If param1 AND param2 both 0, demorph and revert to default model for creature.
-4    ACTION_T_SOUND                    SoundId                         Plays Sound
-5    ACTION_T_EMOTE                    EmoteId                         Does emote
+A list of action types that EventAI can handle.
+Each event type has its own specific interpretation of it's params, like every event type.
+
+#    Internal name                     Param usage                     Description
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+0    ACTION_T_NONE                     No Action                       Does nothing.
+1    ACTION_T_TEXT                     -TextId1, -TextId2, -TextId3    Simply displays the specified -TextId. When -TextId2 and -TextId3 are specified, the selection will be randomized. Text types are defined, along with other options for the text, in a table below. All values needs to be negative.
+2    ACTION_T_SET_FACTION              FactionId                       Changes faction for a creature. When param1 is zero, creature will revert to it's default faction.
+3    ACTION_T_MORPH_TO_ENTRY_OR_MODEL  CreatureEntry, ModelId          Set either model from creature_template.entry (Param1) OR explicit modelId (Param2). If (Param1) AND (Param2) are both 0, demorph and revert to the default model.
+4    ACTION_T_SOUND                    SoundId                         Plays a sound
+5    ACTION_T_EMOTE                    EmoteId                         Does an emote
 6    ACTION_T_RANDOM_SAY                                               UNUSED
 7    ACTION_T_RANDOM_YELL                                              UNUSED
 8    ACTION_T_RANDOM_TEXTEMOTE                                         UNUSED
-9    ACTION_T_RANDOM_SOUND             SoundId1, SoundId2, SoundId3    Plays random sound between 3 params*
-10   ACTION_T_RANDOM_EMOTE             EmoteId1, EmoteId2, EmoteId3    Emotes random emote between 3 params
-11   ACTION_T_CAST                     SpellId, Target, CastFlags      Casts spell (param1) on target type (param2). Uses Cast Flags (specified below target types)
-12   ACTION_T_SUMMON                   CreatureID, Target, Duration    Summons creature (param1) to attack target (param2) for (param3) duration. Spawns on top of current creature.
-13   ACTION_T_THREAT_SINGLE_PCT        Threat%, Target                 Modifies threat by (param1) on target type (param2)
-14   ACTION_T_THREAT_ALL_PCT           Threat%                         Modifies threat by (param1) on all targets (using -100% on all will result in full aggro dump)
-15   ACTION_T_QUEST_EVENT              QuestID, Target                 Calls AreaExploredOrEventHappens with (param1) for target type (Param2)
-16   ACTION_T_QUEST_CASTCREATUREGO     CreatureID, SpellId, Target     Sends CastCreatureOrGo for CreatureId (param1) with SpellId (param2) for target (param3)
-17   ACTION_T_SET_UNIT_FIELD           Field_Number, Value, Target     Sets Unit Field (param1) to Value (param2) on target type (param3)
-18   ACTION_T_SET_UNIT_FLAG            Flags, Target                   Sets flag (flags can be binary OR together to modify multiple flags at once) on for Target type (param2)
-19   ACTION_T_REMOVE_UNIT_FLAG         Flags, Target                   Removes flag (flags can be binary OR together to modify multiple flags at once) on for Target type (param2)
-20   ACTION_T_AUTO_ATTACK              AllowAutoAttack                 0 = stop melee attack, anything else means continue attacking/allow melee attacking
-21   ACTION_T_COMBAT_MOVEMENT          AllowCombatMovement             0 = stop combat based movement, anything else continue/allow combat based movement (targeted movement generator)
-22   ACTION_T_SET_PHASE                Phase                           Sets the current phase to (param1)
-23   ACTION_T_INC_PHASE                Value                           Increments the phase by (param1). May be negative to decrement phase but should not be 0.
-24   ACTION_T_EVADE                    No Params                       Forces the creature to evade. Wiping all threat and dropping combat.
-25   ACTION_T_FLEE_FOR_ASSIST          No Params                       Causes the creature to flee for assistence (at low helth mostly).
-26   ACTION_T_QUEST_EVENT_ALL          QuestId                         Calls GroupEventHappens with (param1). Only used if it's _expected_ event should complete for all players in current party
-27   ACTION_T_CASTCREATUREGO_ALL       QuestId, SpellId                Calls CastedCreatureOrGo for all players on the threat list with QuestID(Param1) and SpellId(Param2)
-28   ACTION_T_REMOVEAURASFROMSPELL     Target, Spellid                 Removes all auras on Target caused by Spellid
-29   ACTION_T_RANGED_MOVEMENT          Distance, Angle                 Changes the movement generator type to a ranged type. Note: Default melee type can still be done with this. Specify 0 angle and 0 distance.
-30   ACTION_T_RANDOM_PHASE             PhaseId1, PhaseId2, PhaseId3    Sets the phase to the id between 3 params*
-31   ACTION_T_RANDOM_PHASE_RANGE       PhaseMin, PhaseMax              Sets the phase to a random id (Phase = PhaseMin + rnd % PhaseMin-PhaseMax). PhaseMax must be greater than PhaseMin.
-32   ACTION_T_SUMMON                   CreatureID, Target, SummonID    Summons creature (param1) to attack target (param2) at location specified by EventAI_Summons (param3).
-33   ACTION_T_KILLED_MONSTER           CreatureID, Target              Calls KilledMonster (param1) for target of type (param2)
-34   ACTION_T_SET_INST_DATA            Field, Data                     Calls ScriptedInstance::SetData with field (param1) and data (param2)
-35   ACTION_T_SET_INST_DATA64          Field, Target                   Calls ScriptedInstance::SetData64 with field (param1) and data (param2) target's GUID.
-36   ACTION_T_UPDATE_TEMPLATE          TemplateId, Team                Changes the creature to a new creature template of (param1) with team = Alliance if (param2) = false or Horde if (param2) = true
+9    ACTION_T_RANDOM_SOUND             SoundId1, SoundId2, SoundId3    Plays a random sound *
+10   ACTION_T_RANDOM_EMOTE             EmoteId1, EmoteId2, EmoteId3    Emotes a random emote
+11   ACTION_T_CAST                     SpellId, Target, CastFlags      Casts spell (Param1) on a target (Param2) using cast flags (specified below).
+12   ACTION_T_SUMMON                   CreatureID, Target, Duration    Summons a creature (Param1) for (Param3) duration and orders it to attach (Param2) target. Spawns on top of current creature.
+13   ACTION_T_THREAT_SINGLE_PCT        Threat%, Target                 Modifies a threat by (Param1) percent on a target (Param2).
+14   ACTION_T_THREAT_ALL_PCT           Threat%                         Modifies a threat by (Param1) on all targets in the threat list (using -100% here will result in full aggro dump).
+15   ACTION_T_QUEST_EVENT              QuestID, Target                 Calls AreaExploredOrEventHappens with (Param1) for a target in (Param2).
+16   ACTION_T_QUEST_CASTCREATUREGO     CreatureID, SpellId, Target     Sends CastCreatureOrGo for a creature specified by CreatureId (Param1) with provided spell id (Param2) for a target in (Param3).
+17   ACTION_T_SET_UNIT_FIELD           Field_Number, Value, Target     Sets a unit field (Param1) to provided value (Param2) on a target in (Param3).
+18   ACTION_T_SET_UNIT_FLAG            Flags, Target                   Sets flag (flags can be used together to modify multiple flags at once) on a target (Param2).
+19   ACTION_T_REMOVE_UNIT_FLAG         Flags, Target                   Removes flag on a target (Param2).
+20   ACTION_T_AUTO_ATTACK              AllowAutoAttack                 Stop melee attack when (Param1) is zero, otherwise continue attacking / allow melee attack.
+21   ACTION_T_COMBAT_MOVEMENT          AllowCombatMovement             Stop combat based movement when (Param1) is zero, otherwise continue/allow combat based movement (targeted movement generator).
+22   ACTION_T_SET_PHASE                Phase                           Sets the current phase to (Param1).
+23   ACTION_T_INC_PHASE                Value                           Increments the phase by (Param1). May be negative to decrement, but should not be zero.
+24   ACTION_T_EVADE                    No Params                       Forces the creature to evade, wiping all threat and dropping combat.
+25   ACTION_T_FLEE_FOR_ASSIST          No Params                       Causes the creature to flee for assistence (often at low health).
+26   ACTION_T_QUEST_EVENT_ALL          QuestId                         Calls GroupEventHappens with (Param1). Only used if it's _expected_ event should call quest completion for all players in a current party.
+27   ACTION_T_CASTCREATUREGO_ALL       QuestId, SpellId                Calls CastedCreatureOrGo for all players on the threat list with quest id specified in (Param1) and spell id in (Param2).
+28   ACTION_T_REMOVEAURASFROMSPELL     Target, Spellid                 Removes all auras on a target (Param1) caused by a spell (Param2).
+29   ACTION_T_RANGED_MOVEMENT          Distance, Angle                 Changes the movement generator to a ranged type. (note: default melee type can still be set by using 0 as angle and 0 as distance).
+30   ACTION_T_RANDOM_PHASE             PhaseId1, PhaseId2, PhaseId3    Sets a phase to a specified id(s)*
+31   ACTION_T_RANDOM_PHASE_RANGE       PhaseMin, PhaseMax              Sets a phase to a random id (Phase = PhaseMin + rnd % PhaseMin-PhaseMax). PhaseMax must be greater than PhaseMin.
+32   ACTION_T_SUMMON                   CreatureID, Target, SummonID    Summons a creature (Param1) to attack target (Param2) at location specified by EventAI_Summons (Param3).
+33   ACTION_T_KILLED_MONSTER           CreatureID, Target              Calls KilledMonster (Param1) for a target (Param2).
+34   ACTION_T_SET_INST_DATA            Field, Data                     Calls ScriptedInstance::SetData with field (Param1) and data (Param2).
+35   ACTION_T_SET_INST_DATA64          Field, Target                   Calls ScriptedInstance::SetData64 with field (Param1) and target's GUID (Param2).
+36   ACTION_T_UPDATE_TEMPLATE          TemplateId, Team                Changes a creature's template to (Param1) with team = Alliance or Horde when (Param2) is either false or true respectively.
 37   ACTION_T_DIE                      No Params                       Kills the creature
-38   ACTION_T_ZONE_COMBAT_PULSE        No Params                       Places all players within the instance into combat with the creature. Only works in combat and only works inside of instances.
-39   ACTION_T_CALL_FOR_HELP            Radius                          Call any friendly creatures (if its not in combat/etc) in radius attack creature target.
-40   ACTION_T_SET_SHEATH               Sheath                          Let set sheath state for creature (0-no weapon show (not used mostly by creatures), 1-melee weapon show, 2-ranged weapon show)
+38   ACTION_T_ZONE_COMBAT_PULSE        No Params                       Puts all players within an instance into combat with the creature. Only works when a creature is already in combat. Doesn't work outside instances.
+39   ACTION_T_CALL_FOR_HELP            Radius                          Call any friendly out-of-combat creatures in a radius (Param1) to attack current creature's target.
+40   ACTION_T_SET_SHEATH               Sheath                          Sets sheath state for a creature (0 = no weapon, 1 = melee weapon, 2 = ranged weapon).
 41   ACTION_T_FORCE_DESPAWN            No Params                       Despawns the creature
 
-* = Use -1 to specify that if this param is picked to do nothing. Random is constant between actions within an event. So if you have a random Yell and a random Sound they will match up (ex: param2 with param2)
+* = Use -1 where the param is expected to do nothing. Random constant is generated for each event, so if you have a random yell and a random sound, they will be linked up with each other (ie. param2 with param2).
+
 
 =========================================
 Event Types
