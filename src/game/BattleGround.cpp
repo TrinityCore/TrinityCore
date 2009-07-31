@@ -182,6 +182,9 @@ BattleGround::BattleGround()
     m_PlayersCount[BG_TEAM_ALLIANCE]    = 0;
     m_PlayersCount[BG_TEAM_HORDE]       = 0;
 
+    m_TeamScores[BG_TEAM_ALLIANCE]      = 0;
+    m_TeamScores[BG_TEAM_HORDE]         = 0;
+
     m_PrematureCountDown = false;
     m_PrematureCountDown = 0;
 
@@ -473,7 +476,7 @@ void BattleGround::Update(uint32 diff)
 
 void BattleGround::SetTeamStartLoc(uint32 TeamID, float X, float Y, float Z, float O)
 {
-    uint8 idx = GetTeamIndexByTeamId(TeamID);
+    BattleGroundTeamId idx = GetTeamIndexByTeamId(TeamID);
     m_TeamStartLocX[idx] = X;
     m_TeamStartLocY[idx] = Y;
     m_TeamStartLocZ[idx] = Z;
@@ -1874,4 +1877,10 @@ void BattleGround::SetBgRaid( uint32 TeamID, Group *bg_raid )
 WorldSafeLocsEntry const* BattleGround::GetClosestGraveYard( Player* player )
 {
     return objmgr.GetClosestGraveYard( player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), player->GetTeam() );
+}
+
+bool BattleGround::IsTeamScoreInRange(uint32 team, uint32 minScore, uint32 maxScore) const
+{
+    BattleGroundTeamId team_idx = GetTeamIndexByTeamId(team);
+    return m_TeamScores[team_idx] >= minScore && m_TeamScores[team_idx] <= maxScore;
 }

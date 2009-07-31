@@ -30,7 +30,6 @@ template<class T>
 void PointMovementGenerator<T>::Initialize(T &unit)
 {
     unit.StopMoving();
-    unit.clearUnitState(UNIT_STAT_MOVING);
     Traveller<T> traveller(unit);
     // knockback effect has UNIT_STAT_JUMPING set,so if here we disable sentmonstermove there will be creature position sync problem between client and server
     i_destinationHolder.SetDestination(traveller,i_x,i_y,i_z, true /* !unit.hasUnitState(UNIT_STAT_JUMPING)*/);

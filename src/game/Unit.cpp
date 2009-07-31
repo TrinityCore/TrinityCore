@@ -6202,8 +6202,6 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             // Judgements of the Wise
             if (dummySpell->SpellIconID == 3017)
             {
-                // hardcoded amount
-                basepoints0 = 25 * GetCreatePowers(POWER_MANA)/100;
                 target = this;
                 triggered_spell_id = 31930;
                 // replenishment
@@ -7052,6 +7050,7 @@ bool Unit::HandleObsModEnergyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* 
 
     SpellEntry const* triggerEntry = sSpellStore.LookupEntry(triggered_spell_id);
 
+    // Try handle unknown trigger spells
     if(!triggerEntry)
     {
         sLog.outError("Unit::HandleObsModEnergyAuraProc: Spell %u have not existed triggered spell %u",dummySpell->Id,triggered_spell_id);
@@ -7872,9 +7871,15 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                 ((Player*)this)->RemoveSpellCategoryCooldown(1209, true);
             break;
         }
-        case 63375: // Improved Stormstrike
+        // Maelstrom Weapon
+        case 53817:
         {
-            basepoints0 = GetCreateMana() * 0.20f;
+            // have rank dependent proc chance, ignore too often cases
+            // PPM = 2.5 * (rank of talent), 
+            uint32 rank = spellmgr.GetSpellRank(auraSpellInfo->Id);
+            // 5 rank -> 100% 4 rank -> 80% and etc from full rate
+            if(!roll_chance_i(20*rank))
+                return false;
             break;
         }
         // Brain Freeze

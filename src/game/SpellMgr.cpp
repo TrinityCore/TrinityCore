@@ -147,6 +147,7 @@ SpellMgr::SpellMgr()
             case TARGET_UNIT_CONE_ALLY:
             case TARGET_UNIT_CONE_ENTRY:
             case TARGET_UNIT_CONE_ENEMY_UNKNOWN:
+            case TARGET_UNIT_AREA_PATH:
                 SpellTargetType[i] = TARGET_TYPE_AREA_CONE;
                 break;
             case TARGET_DST_CASTER:
@@ -226,6 +227,7 @@ SpellMgr::SpellMgr()
             case TARGET_UNIT_CONE_ENEMY:
             case TARGET_UNIT_CONE_ALLY:
             case TARGET_UNIT_CONE_ENEMY_UNKNOWN:
+            case TARGET_UNIT_AREA_PATH:
             case TARGET_UNIT_RAID_CASTER:
                 IsAreaEffectTarget[i] = true;
                 break;
@@ -3846,6 +3848,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 40810: case 43267: case 43268:     // Saber Lash
         case 42384:                             // Brutal Swipe
         case 45150:                             // Meteor Slash
+        case 64422: case 64688:                 // Sonic Screech
             mSpellCustomAttr[i] |= SPELL_ATTR_CU_SHARE_DAMAGE;
             break;
         case 59725:                             // Improved Spell Reflection - aoe aura
