@@ -152,9 +152,9 @@ void RASocket::OnRead()
                     AccountMgr::normalizeString(login);
 
                     ///- Escape the Login to allow quotes in names
-                    LoginDatabase.escape_string(login);
+                    loginDatabase.escape_string(login);
 
-                    QueryResult* result = LoginDatabase.PQuery("SELECT gmlevel FROM account WHERE username = '%s'",login.c_str());
+                    QueryResult* result = loginDatabase.PQuery("SELECT gmlevel FROM account WHERE username = '%s'",login.c_str());
 
                     ///- If the user is not found, deny access
                     if(!result)
@@ -193,10 +193,10 @@ void RASocket::OnRead()
 
                     AccountMgr::normalizeString(login);
                     AccountMgr::normalizeString(pw);
-                    LoginDatabase.escape_string(login);
-                    LoginDatabase.escape_string(pw);
+                    loginDatabase.escape_string(login);
+                    loginDatabase.escape_string(pw);
 
-                    QueryResult *check = LoginDatabase.PQuery(
+                    QueryResult *check = loginDatabase.PQuery(
                         "SELECT 1 FROM account WHERE username = '%s' AND sha_pass_hash=SHA1(CONCAT('%s',':','%s'))",
                         login.c_str(), login.c_str(), pw.c_str());
 
