@@ -691,16 +691,17 @@ void Creature::Motion_Initialize()
 
 bool Creature::Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, uint32 team, float x, float y, float z, float ang, const CreatureData *data)
 {
+    ASSERT(map);
+    SetMap(map);
+    SetPhaseMask(phaseMask,false);
+
     Relocate(x, y, z, ang);
+
     if(!IsPositionValid())
     {
         sLog.outError("Creature (guidlow %d, entry %d) not loaded. Suggested coordinates isn't valid (X: %f Y: %f)",guidlow,Entry,x,y);
         return false;
     }
-
-    ASSERT(map);
-    SetMap(map);
-    SetPhaseMask(phaseMask,false);
 
     //oX = x;     oY = y;    dX = x;    dY = y;    m_moveTime = 0;    m_startMove = 0;
     const bool bResult = CreateFromProto(guidlow, Entry, team, data);

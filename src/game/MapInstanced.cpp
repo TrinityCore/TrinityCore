@@ -116,27 +116,16 @@ void MapInstanced::UnloadAll()
 - create the instance if it's not created already
 - the player is not actually added to the instance (only in InstanceMap::Add)
 */
-Map* MapInstanced::CreateInstance(const uint32 mapId, Player * player)
+Map* MapInstanced::CreateInstance(const uint32 mapId, Player * player, uint32 instanceId)
 {
-    uint32 instanceId = player->GetInstanceId();
-
     if(instanceId)
         if(Map *map = _FindMap(instanceId))
             return map;
 
     if(IsBattleGroundOrArena())
     {
-        instanceId = player->GetBattleGroundId();
-
-        if(instanceId)
-        {
-            if(Map *map = _FindMap(instanceId))
-                return map;
-            else
-                return CreateBattleGround(instanceId);
-        }
-        else
-            return NULL;
+        assert(player->GetBattleGroundId());
+        return CreateBattleGround(player->GetBattleGroundId());
     }
 
     if(InstanceSave *pSave = player->GetInstanceSave(GetId()))

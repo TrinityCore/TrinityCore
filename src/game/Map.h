@@ -46,6 +46,7 @@ class InstanceSave;
 class Object;
 class WorldObject;
 class TempSummon;
+class Player;
 class CreatureGroup;
 struct ScriptInfo;
 struct ScriptAction;
@@ -309,7 +310,7 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>, public MaNGOS::Obj
         }
 
         time_t GetGridExpiry(void) const { return i_gridExpiry; }
-        uint32 GetId(void) const { return i_id; }
+        uint32 GetId(void) const { return i_mapEntry->MapID; }
 
         static bool ExistMap(uint32 mapid, int gx, int gy);
         static bool ExistVMap(uint32 mapid, int gx, int gy);
@@ -338,17 +339,17 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>, public MaNGOS::Obj
 
         uint32 GetAreaId(float x, float y, float z) const
         {
-            return GetAreaIdByAreaFlag(GetAreaFlag(x,y,z),i_id);
+            return GetAreaIdByAreaFlag(GetAreaFlag(x,y,z),GetId());
         }
 
         uint32 GetZoneId(float x, float y, float z) const
         {
-            return GetZoneIdByAreaFlag(GetAreaFlag(x,y,z),i_id);
+            return GetZoneIdByAreaFlag(GetAreaFlag(x,y,z),GetId());
         }
 
         void GetZoneAndAreaId(uint32& zoneid, uint32& areaid, float x, float y, float z) const
         {
-            GetZoneAndAreaIdByAreaFlag(zoneid,areaid,GetAreaFlag(x,y,z),i_id);
+            GetZoneAndAreaIdByAreaFlag(zoneid,areaid,GetAreaFlag(x,y,z),GetId());
         }
 
         virtual void MoveAllCreaturesInMoveList();
@@ -431,6 +432,8 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>, public MaNGOS::Obj
         template<class NOTIFIER> void VisitGrid(const float &x, const float &y, float radius, NOTIFIER &notifier);
         CreatureGroupHolderType CreatureGroupHolder;
 
+        void UpdateIteratorBack(Player *player);
+
 #ifdef MAP_BASED_RAND_GEN
         MTRand mtRand;
         int32 irand(int32 min, int32 max)       { return int32 (mtRand.randInt(max - min)) + min; }
@@ -492,7 +495,6 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>, public MaNGOS::Obj
 
         MapEntry const* i_mapEntry;
         uint8 i_spawnMode;
-        uint32 i_id;
         uint32 i_InstanceId;
         uint32 m_unloadTimer;
 
