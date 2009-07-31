@@ -369,7 +369,6 @@ class BattleGroundEY : public BattleGround
         void RemovePoint(uint32 TeamID, uint32 Points = 1) { m_TeamScores[GetTeamIndexByTeamId(TeamID)] -= Points; }
         void SetTeamPoint(uint32 TeamID, uint32 Points = 0) { m_TeamScores[GetTeamIndexByTeamId(TeamID)] = Points; }
 
-        uint32 m_TeamScores[2];
         uint32 m_HonorScoreTics[2];
         uint32 m_TeamPointsCount[2];
 
