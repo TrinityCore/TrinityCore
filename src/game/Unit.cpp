@@ -4928,7 +4928,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 {
                     if (Unit *owner = this->GetOwner())
                     {
-                        basepoints0 = int32(damage);
+                        basepoints0 = int32(damage*1.50);
                         target = owner;
                         triggered_spell_id = 50454;
                         break;
