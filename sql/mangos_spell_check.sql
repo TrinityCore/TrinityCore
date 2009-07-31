@@ -229,6 +229,8 @@ INSERT INTO spell_check (spellid,SpellFamilyName,SpellFamilyMaskA,SpellFamilyMas
 (45030, 0,                -1,        -1,  -1,  -1,  -1,  3, -1,-1,'Impale Emissary',                    'Spell::EffectDummy'),
 (45088,-1,                -1,        -1,  -1,  -1,  -1, -1, -1,-1,'Emissary of Hate Credit',            'Spell::EffectDummy'),
 (45150, 0,                -1,        -1,  -1,  -1,  -1,  2, -1,-1,'Meteor Slash',                       'Spell::EffectSchoolDMG'),
+(64422, 0,                -1,        -1,  -1,  -1,  -1,  2, -1,-1,'Meteor Slash',                       'Spell::EffectSchoolDMG'),
+(64688, 0,                -1,        -1,  -1,  -1,  -1,  2, -1,-1,'Meteor Slash',                       'Spell::EffectSchoolDMG'),
 (45182,-1,                -1,        -1,  -1,  -1,  -1, -1, -1,-1,'Cheat Death',                        'Spell::EffectDummy'),
 (46014,-1,                -1,        -1,  -1,  -1,  -1, -1, -1,-1,'Knocked Up',                         'Spell::EffectDummy'),
 (47540, 6,0x0080000000000000,0x00000000,  -1,  -1,  -1,  3, -1,-1,'Penance',                            'Spell::EffectDummy'),

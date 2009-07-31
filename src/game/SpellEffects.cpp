@@ -2483,7 +2483,7 @@ void Spell::EffectSendEvent(uint32 EffectIndex)
     we do not handle a flag dropping or clicking on flag in battleground by sendevent system
     */
     sLog.outDebug("Spell ScriptStart %u for spellid %u in EffectSendEvent ", m_spellInfo->EffectMiscValue[EffectIndex], m_spellInfo->Id);
-    sWorld.ScriptsStart(sEventScripts, m_spellInfo->EffectMiscValue[EffectIndex], m_caster, focusObject);
+    m_caster->GetMap()->ScriptsStart(sEventScripts, m_spellInfo->EffectMiscValue[EffectIndex], m_caster, focusObject);
 }
 
 void Spell::EffectPowerBurn(uint32 i)
@@ -2880,31 +2880,31 @@ void Spell::EffectEnergize(uint32 i)
     Powers power = Powers(m_spellInfo->EffectMiscValue[i]);
 
     // Some level depends spells
-    int multiplier = 0;
+    int level_multiplier = 0;
     int level_diff = 0;
     switch (m_spellInfo->Id)
     {
-        // Restore Energy
-        case 9512:
+        case 9512:                                          // Restore Energy
             level_diff = m_caster->getLevel() - 40;
-            multiplier = 2;
+            level_multiplier = 2;
             break;
-        // Blood Fury
-        case 24571:
+        case 24571:                                         // Blood Fury
             level_diff = m_caster->getLevel() - 60;
-            multiplier = 10;
+            level_multiplier = 10;
             break;
-        // Burst of Energy
-        case 24532:
+        case 24532:                                         // Burst of Energy
             level_diff = m_caster->getLevel() - 60;
-            multiplier = 4;
+            level_multiplier = 4;
             break;
+        case 31930:                                         // Judgements of the Wise
+        case 63375:                                         // Improved Stormstrike
+            damage = damage * unitTarget->GetCreateMana() / 100;
         default:
             break;
     }
 
     if (level_diff > 0)
-        damage -= multiplier * level_diff;
+        damage -= level_multiplier * level_diff;
 
     if(damage < 0)
         return;
@@ -2999,7 +2999,7 @@ void Spell::SendLoot(uint64 guid, LootType loottype)
             case GAMEOBJECT_TYPE_DOOR:
             case GAMEOBJECT_TYPE_BUTTON:
                 gameObjTarget->UseDoorOrButton();
-                sWorld.ScriptsStart(sGameObjectScripts, gameObjTarget->GetDBTableGUIDLow(), player, gameObjTarget);
+                player->GetMap()->ScriptsStart(sGameObjectScripts, gameObjTarget->GetDBTableGUIDLow(), player, gameObjTarget);
                 return;
 
             case GAMEOBJECT_TYPE_QUESTGIVER:
@@ -3019,7 +3019,7 @@ void Spell::SendLoot(uint64 guid, LootType loottype)
                 if (gameObjTarget->GetGOInfo()->goober.eventId)
                 {
                     sLog.outDebug("Goober ScriptStart id %u for GO %u", gameObjTarget->GetGOInfo()->goober.eventId,gameObjTarget->GetDBTableGUIDLow());
-                    sWorld.ScriptsStart(sEventScripts, gameObjTarget->GetGOInfo()->goober.eventId, player, gameObjTarget);
+                    player->GetMap()->ScriptsStart(sEventScripts, gameObjTarget->GetGOInfo()->goober.eventId, player, gameObjTarget);
                     gameObjTarget->EventInform(gameObjTarget->GetGOInfo()->goober.eventId);
                 }
 
@@ -3030,7 +3030,7 @@ void Spell::SendLoot(uint64 guid, LootType loottype)
                         return;
 
                 Script->GOHello(player, gameObjTarget);
-                sWorld.ScriptsStart(sGameObjectScripts, gameObjTarget->GetDBTableGUIDLow(), player, gameObjTarget);
+                gameObjTarget->GetMap()->ScriptsStart(sGameObjectScripts, gameObjTarget->GetDBTableGUIDLow(), player, gameObjTarget);
 
                 gameObjTarget->AddUniqueUse(player);
                 gameObjTarget->SetLootState(GO_JUST_DEACTIVATED);
@@ -3052,7 +3052,7 @@ void Spell::SendLoot(uint64 guid, LootType loottype)
                 if (gameObjTarget->GetGOInfo()->chest.eventId)
                 {
                     sLog.outDebug("Chest ScriptStart id %u for GO %u", gameObjTarget->GetGOInfo()->chest.eventId,gameObjTarget->GetDBTableGUIDLow());
-                    sWorld.ScriptsStart(sEventScripts, gameObjTarget->GetGOInfo()->chest.eventId, player, gameObjTarget);
+                    player->GetMap()->ScriptsStart(sEventScripts, gameObjTarget->GetGOInfo()->chest.eventId, player, gameObjTarget);
                 }
 
                 // triggering linked GO
@@ -5501,7 +5501,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
 
     // normal DB scripted effect
     sLog.outDebug("Spell ScriptStart spellid %u in EffectScriptEffect ", m_spellInfo->Id);
-    sWorld.ScriptsStart(sSpellScripts, m_spellInfo->Id, m_caster, unitTarget);
+    m_caster->GetMap()->ScriptsStart(sSpellScripts, m_spellInfo->Id, m_caster, unitTarget);
 }
 
 void Spell::EffectSanctuary(uint32 /*i*/)
@@ -5703,7 +5703,7 @@ void Spell::EffectActivateObject(uint32 effect_idx)
 
     int32 delay_secs = m_spellInfo->EffectMiscValue[effect_idx];
 
-    sWorld.ScriptCommandStart(activateCommand, delay_secs, m_caster, gameObjTarget);
+    gameObjTarget->GetMap()->ScriptCommandStart(activateCommand, delay_secs, m_caster, gameObjTarget);
 }
 
 void Spell::EffectApplyGlyph(uint32 i)
