@@ -1,0 +1,6 @@
+ALTER TABLE db_version CHANGE COLUMN required_8253_02_mangos_spell_proc_event required_8254_01_mangos_spell_proc_event bit;
+
+DELETE FROM `spell_proc_event` WHERE `entry` IN (55747,60436); 
+INSERT INTO `spell_proc_event` VALUES
+(55747, 0x00000000,  0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0.000000, 0.000000, 45),
+(60436, 0x00000000,  0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0.000000, 0.000000, 45);
