@@ -147,6 +147,7 @@ SpellMgr::SpellMgr()
             case TARGET_UNIT_CONE_ALLY:
             case TARGET_UNIT_CONE_ENTRY:
             case TARGET_UNIT_CONE_ENEMY_UNKNOWN:
+            case TARGET_UNIT_AREA_PATH:
                 SpellTargetType[i] = TARGET_TYPE_AREA_CONE;
                 break;
             case TARGET_DST_CASTER:
@@ -226,6 +227,7 @@ SpellMgr::SpellMgr()
             case TARGET_UNIT_CONE_ENEMY:
             case TARGET_UNIT_CONE_ALLY:
             case TARGET_UNIT_CONE_ENEMY_UNKNOWN:
+            case TARGET_UNIT_AREA_PATH:
             case TARGET_UNIT_RAID_CASTER:
                 IsAreaEffectTarget[i] = true;
                 break;
