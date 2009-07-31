@@ -407,7 +407,7 @@ class TRINITY_DLL_SPEC WorldObject : public Object
         void GetPosition( float &x, float &y, float &z ) const
             { x = m_positionX; y = m_positionY; z = m_positionZ; }
         void GetPosition( WorldLocation &loc ) const
-            { loc.mapid = m_mapId; GetPosition(loc.coord_x, loc.coord_y, loc.coord_z); loc.orientation = GetOrientation(); }
+            { loc.mapid = GetMapId(); GetPosition(loc.coord_x, loc.coord_y, loc.coord_z); loc.orientation = GetOrientation(); }
         void GetPosition(Position pos) const
             { pos[0] = m_positionX; pos[1] = m_positionY; pos[2] = m_positionZ; pos[3] = m_orientation; }
         float GetOrientation( ) const { return m_orientation; }
@@ -439,8 +439,8 @@ class TRINITY_DLL_SPEC WorldObject : public Object
 
         void GetRandomPoint( float x, float y, float z, float distance, float &rand_x, float &rand_y, float &rand_z ) const;
 
-        uint32 GetMapId() const { return m_mapId; }
-        uint32 GetInstanceId() const { return m_InstanceId; }
+        uint32 GetMapId() const { return m_currMap ? m_currMap->GetId() : 0; }
+        uint32 GetInstanceId() const { return m_currMap ? m_currMap->GetInstanceId() : 0; }
 
         virtual void SetPhaseMask(uint32 newPhaseMask, bool update);
         uint32 GetPhaseMask() const { return m_phaseMask; }
@@ -528,11 +528,11 @@ class TRINITY_DLL_SPEC WorldObject : public Object
         // Low Level Packets
         void SendPlaySound(uint32 Sound, bool OnlySelf);
 
-        void SetMap(Map * map);
+        virtual void SetMap(Map * map);
         Map * GetMap() const { ASSERT(m_currMap); return m_currMap; }
         Map * FindMap() const { return m_currMap; }
         //used to check all object's GetMap() calls when object is not in world!
-        void ResetMap() { m_currMap = NULL; }
+        virtual void ResetMap() { assert(m_currMap); m_currMap = NULL; }
 
         //this function should be removed in nearest time...
         Map const* GetBaseMap() const;
@@ -560,12 +560,11 @@ class TRINITY_DLL_SPEC WorldObject : public Object
         bool IsTempWorldObject;
 
 #ifdef MAP_BASED_RAND_GEN
-        // Object may not have map assigned - use global scope rand in that case
-        int32 irand(int32 min, int32 max) const     { return FindMap() ? int32 (GetMap()->mtRand.randInt(max - min)) + min : ::irand(min, max); }
-        uint32 urand(uint32 min, uint32 max) const  { return FindMap() ? GetMap()->mtRand.randInt(max - min) + min : ::urand(min, max); }
-        int32 rand32() const                        { return FindMap() ? GetMap()->mtRand.randInt(): ::rand32(); }
-        double rand_norm() const                    { return FindMap() ? GetMap()->mtRand.randExc(): ::rand_norm(); }
-        double rand_chance() const                  { return FindMap() ? GetMap()->mtRand.randExc(100.0): ::rand_chance(); }
+        int32 irand(int32 min, int32 max) const     { int32 (GetMap()->mtRand.randInt(max - min)) + min; }
+        uint32 urand(uint32 min, uint32 max) const  { GetMap()->mtRand.randInt(max - min) + min}
+        int32 rand32() const                        { GetMap()->mtRand.randInt()}
+        double rand_norm() const                    { GetMap()->mtRand.randExc()}
+        double rand_chance() const                  { GetMap()->mtRand.randExc(100.0)}
 #endif
 
     protected:
@@ -574,17 +573,8 @@ class TRINITY_DLL_SPEC WorldObject : public Object
         bool m_isActive;
         ZoneScript *m_zoneScript;
 
-        //these functions are used mostly for Relocate() and Corpse/Player specific stuff...
-        //use them ONLY in LoadFromDB()/Create() funcs and nowhere else!
-        //mapId/instanceId should be set in SetMap() function!
-        void SetLocationMapId(uint32 _mapId) { m_mapId = _mapId; }
-        void SetLocationInstanceId(uint32 _instanceId) { m_InstanceId = _instanceId; }
-
     private:
         Map * m_currMap;                                    //current object's Map location
-
-        uint32 m_mapId;                                     // object at map with map_id
-        uint32 m_InstanceId;                                // in map copy with instance id
         uint32 m_phaseMask;                                 // in area phase state
 
         float m_positionX;

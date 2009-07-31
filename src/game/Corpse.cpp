@@ -76,12 +76,11 @@ bool Corpse::Create( uint32 guidlow, Player *owner)
 {
     ASSERT(owner);
 
-    WorldObject::_Create(guidlow, HIGHGUID_CORPSE, owner->GetPhaseMask());
-    Relocate(owner->GetPositionX(), owner->GetPositionY(), owner->GetPositionZ(), owner->GetOrientation());
-
     //we need to assign owner's map for corpse
     //in other way we will get a crash in Corpse::SaveToDB()
     SetMap(owner->GetMap());
+
+    Relocate(owner->GetPositionX(), owner->GetPositionY(), owner->GetPositionZ(), owner->GetOrientation());
 
     if(!IsPositionValid())
     {
@@ -89,6 +88,8 @@ bool Corpse::Create( uint32 guidlow, Player *owner)
             guidlow, owner->GetName(), owner->GetPositionX(), owner->GetPositionY());
         return false;
     }
+
+    WorldObject::_Create(guidlow, HIGHGUID_CORPSE, owner->GetPhaseMask());
 
     SetFloatValue( OBJECT_FIELD_SCALE_X, 1 );
     SetUInt64Value( CORPSE_FIELD_OWNER, owner->GetGUID() );
@@ -149,6 +150,7 @@ void Corpse::DeleteFromDB()
         CharacterDatabase.PExecute("DELETE FROM corpse WHERE player = '%d' AND corpse_type <> '0'",  GUID_LOPART(GetOwnerGUID()));
 }
 
+/*
 bool Corpse::LoadFromDB(uint32 guid, QueryResult *result, uint32 InstanceId)
 {
     bool external = (result != NULL);
@@ -176,9 +178,9 @@ bool Corpse::LoadFromDB(uint32 guid, QueryResult *result, uint32 InstanceId)
         delete result;
 
     return true;
-}
+}*/
 
-bool Corpse::LoadFromDB(uint32 guid, Field *fields)
+bool Corpse::LoadFromDB(uint32 guid, Field *fields, uint32 & mapId, uint32 &  instanceId)
 {
     //                                          0          1          2          3           4   5    6    7           8        9
     //result = CharacterDatabase.PQuery("SELECT position_x,position_y,position_z,orientation,map,data,time,corpse_type,instance,phaseMask FROM corpse WHERE guid = '%u'",guid);
@@ -186,7 +188,6 @@ bool Corpse::LoadFromDB(uint32 guid, Field *fields)
     float positionY = fields[1].GetFloat();
     float positionZ = fields[2].GetFloat();
     float ort       = fields[3].GetFloat();
-    uint32 mapid    = fields[4].GetUInt32();
 
     Object::_Create(guid, 0, HIGHGUID_CORPSE);
 
@@ -195,6 +196,9 @@ bool Corpse::LoadFromDB(uint32 guid, Field *fields)
         sLog.outError("Corpse #%d have broken data in `data` field. Can't be loaded.",guid);
         return false;
     }
+
+    mapId = fields[4].GetUInt32();
+    instanceId = fields[8].GetUInt32();
 
     m_time = time_t(fields[6].GetUInt64());
     m_type = CorpseType(fields[7].GetUInt32());
@@ -205,15 +209,11 @@ bool Corpse::LoadFromDB(uint32 guid, Field *fields)
         return false;
     }
 
-    uint32 instanceid  = fields[8].GetUInt32();
     uint32 phaseMask   = fields[9].GetUInt32();
 
     // overwrite possible wrong/corrupted guid
     SetUInt64Value(OBJECT_FIELD_GUID, MAKE_NEW_GUID(guid, 0, HIGHGUID_CORPSE));
 
-    // place
-    SetLocationInstanceId(instanceid);
-    SetLocationMapId(mapid);
     SetPhaseMask(phaseMask, false);
     Relocate(positionX, positionY, positionZ, ort);
 

@@ -155,7 +155,7 @@ void Map::LoadMap(int gx,int gy, bool reload)
     //map already load, delete it before reloading (Is it necessary? Do we really need the ability the reload maps during runtime?)
     if(GridMaps[gx][gy])
     {
-        sLog.outDetail("Unloading already loaded map %u before reloading.",i_id);
+        sLog.outDetail("Unloading already loaded map %u before reloading.",GetId());
         delete (GridMaps[gx][gy]);
         GridMaps[gx][gy]=NULL;
     }
@@ -164,7 +164,7 @@ void Map::LoadMap(int gx,int gy, bool reload)
     char *tmp=NULL;
     int len = sWorld.GetDataPath().length()+strlen("maps/%03u%02u%02u.map")+1;
     tmp = new char[len];
-    snprintf(tmp, len, (char *)(sWorld.GetDataPath()+"maps/%03u%02u%02u.map").c_str(),i_id,gx,gy);
+    snprintf(tmp, len, (char *)(sWorld.GetDataPath()+"maps/%03u%02u%02u.map").c_str(),GetId(),gx,gy);
     sLog.outDetail("Loading map %s",tmp);
     // loading data
     GridMaps[gx][gy] = new GridMap();
@@ -199,8 +199,7 @@ void Map::DeleteStateMachine()
 }
 
 Map::Map(uint32 id, time_t expiry, uint32 InstanceId, uint8 SpawnMode, Map* _parent)
-  : i_mapEntry (sMapStore.LookupEntry(id)), i_spawnMode(SpawnMode),
-  i_id(id), i_InstanceId(InstanceId), m_unloadTimer(0),
+  : i_mapEntry (sMapStore.LookupEntry(id)), i_spawnMode(SpawnMode), i_InstanceId(InstanceId), m_unloadTimer(0),
   m_activeNonPlayersIter(m_activeNonPlayers.end()),
   i_gridExpiry(expiry), m_parentMap(_parent ? _parent : this)
    , i_lock(true)
@@ -411,7 +410,7 @@ Map::EnsureGridCreated(const GridPair &p)
         Guard guard(*this);
         if(!getNGrid(p.x_coord, p.y_coord))
         {
-            sLog.outDebug("Creating grid[%u,%u] for map %u instance %u", p.x_coord, p.y_coord, i_id, i_InstanceId);
+            sLog.outDebug("Creating grid[%u,%u] for map %u instance %u", p.x_coord, p.y_coord, GetId(), i_InstanceId);
 
             setNGrid(new NGridType(p.x_coord*MAX_NUMBER_OF_GRIDS + p.y_coord, p.x_coord, p.y_coord, i_gridExpiry, sWorld.getConfig(CONFIG_GRID_UNLOAD)),
                 p.x_coord, p.y_coord);
@@ -443,11 +442,11 @@ Map::EnsureGridLoadedAtEnter(const Cell &cell, Player *player)
         if (player)
         {
             player->SendDelayResponse(MAX_GRID_LOAD_TIME);
-            DEBUG_LOG("Player %s enter cell[%u,%u] triggers of loading grid[%u,%u] on map %u", player->GetName(), cell.CellX(), cell.CellY(), cell.GridX(), cell.GridY(), i_id);
+            DEBUG_LOG("Player %s enter cell[%u,%u] triggers of loading grid[%u,%u] on map %u", player->GetName(), cell.CellX(), cell.CellY(), cell.GridX(), cell.GridY(), GetId());
         }
         else
         {
-            DEBUG_LOG("Active object nearby triggers of loading grid [%u,%u] on map %u", cell.GridX(), cell.GridY(), i_id);
+            DEBUG_LOG("Active object nearby triggers of loading grid [%u,%u] on map %u", cell.GridX(), cell.GridY(), GetId());
         }
 
         ResetGridExpiry(*getNGrid(cell.GridX(), cell.GridY()), 0.1f);
@@ -468,7 +467,7 @@ bool Map::EnsureGridLoaded(const Cell &cell)
     assert(grid != NULL);
     if( !isGridObjectDataLoaded(cell.GridX(), cell.GridY()) )
     {
-        sLog.outDebug("Loading grid[%u,%u] for map %u instance %u", cell.GridX(), cell.GridY(), i_id, i_InstanceId);
+        sLog.outDebug("Loading grid[%u,%u] for map %u instance %u", cell.GridX(), cell.GridY(), GetId(), i_InstanceId);
 
         ObjectGridLoader loader(*grid, this, cell);
         loader.LoadN();
@@ -492,9 +491,8 @@ void Map::LoadGrid(float x, float y)
 
 bool Map::Add(Player *player)
 {
-    player->GetMapRef().link(this, player);
-    player->SetMap(this);
-
+    // Check if we are adding to correct map
+    assert (player->GetMap() == this);
     // update player state for other player and visa-versa
     CellPair p = Trinity::ComputeCellPair(player->GetPositionX(), player->GetPositionY());
     Cell cell(p);
@@ -812,14 +810,6 @@ void Map::Update(const uint32 &t_diff)
 
 void Map::Remove(Player *player, bool remove)
 {
-    // this may be called during Map::Update
-    // after decrement+unlink, ++m_mapRefIter will continue correctly
-    // when the first element of the list is being removed
-    // nocheck_prev will return the padding element of the RefManager
-    // instead of NULL in the case of prev
-    if(m_mapRefIter == player->GetMapRef())
-        m_mapRefIter = m_mapRefIter->nocheck_prev();
-    player->GetMapRef().unlink();
     CellPair p = Trinity::ComputeCellPair(player->GetPositionX(), player->GetPositionY());
     if(p.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || p.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP)
     {
@@ -857,7 +847,6 @@ void Map::Remove(Player *player, bool remove)
     SendRemoveTransports(player);
     UpdateObjectVisibility(player,cell,p);
 
-    player->ResetMap();
     if( remove )
         DeleteFromWorld(player);
 }
@@ -1152,7 +1141,7 @@ bool Map::UnloadGrid(const uint32 &x, const uint32 &y, bool unloadAll)
         if(!unloadAll && ActiveObjectsNearGrid(x, y) )
              return false;
 
-        sLog.outDebug("Unloading grid[%u,%u] for map %u", x,y, i_id);
+        sLog.outDebug("Unloading grid[%u,%u] for map %u", x,y, GetId());
 
         ObjectGridUnloader unloader(*grid);
 
@@ -1202,7 +1191,7 @@ bool Map::UnloadGrid(const uint32 &x, const uint32 &y, bool unloadAll)
 
         GridMaps[gx][gy] = NULL;
     }
-    DEBUG_LOG("Unloading grid[%u,%u] for map %u finished", x,y, i_id);
+    DEBUG_LOG("Unloading grid[%u,%u] for map %u finished", x,y, GetId());
     return true;
 }
 
@@ -1824,7 +1813,7 @@ uint16 Map::GetAreaFlag(float x, float y, float z) const
         areaflag = gmap->getArea(x, y);
     // this used while not all *.map files generated (instances)
     else
-        areaflag = GetAreaFlagByMapId(i_id);
+        areaflag = GetAreaFlagByMapId(GetId());
 
     //FIXME: some hacks for areas above or underground for ground area
     //       required for area specific spells/etc, until map/vmap data
@@ -2129,7 +2118,7 @@ void Map::SendInitTransports( Player * player )
     for (MapManager::TransportSet::const_iterator i = tset.begin(); i != tset.end(); ++i)
     {
         // send data for current transport in other place
-        if((*i) != player->GetTransport() && (*i)->GetMapId()==i_id)
+        if((*i) != player->GetTransport() && (*i)->GetMapId()==GetId())
         {
             (*i)->BuildCreateUpdateBlockForPlayer(&transData, player);
         }
@@ -2155,7 +2144,7 @@ void Map::SendRemoveTransports( Player * player )
 
     // except used transport
     for (MapManager::TransportSet::const_iterator i = tset.begin(); i != tset.end(); ++i)
-        if((*i) != player->GetTransport() && (*i)->GetMapId()!=i_id)
+        if((*i) != player->GetTransport() && (*i)->GetMapId()!=GetId())
             (*i)->BuildOutOfRangeUpdateBlock(&transData);
 
     WorldPacket packet;
@@ -2422,8 +2411,9 @@ bool InstanceMap::Add(Player *player)
 
     {
         Guard guard(*this);
-        if(!CanEnter(player))
-            return false;
+        // Check moved to void WorldSession::HandleMoveWorldportAckOpcode()
+        //if(!CanEnter(player))
+            //return false;
 
         // Dungeon only code
         if(IsDungeon())
@@ -2726,8 +2716,9 @@ bool BattleGroundMap::Add(Player * player)
 {
     {
         Guard guard(*this);
-        if(!CanEnter(player))
-            return false;
+        //Check moved to void WorldSession::HandleMoveWorldportAckOpcode()
+        //if(!CanEnter(player))
+            //return false;
         // reset instance validity, battleground maps do not homebind
         player->m_InstanceValid = true;
     }
@@ -3638,3 +3629,10 @@ Map::GetDynamicObject(uint64 guid)
         return NULL;
     return ret;
 }
+
+void Map::UpdateIteratorBack(Player *player)
+{
+    if(m_mapRefIter == player->GetMapRef())
+        m_mapRefIter = m_mapRefIter->nocheck_prev();
+}
+
