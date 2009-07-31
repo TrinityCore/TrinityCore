@@ -6202,8 +6202,6 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             // Judgements of the Wise
             if (dummySpell->SpellIconID == 3017)
             {
-                // hardcoded amount
-                basepoints0 = 25 * GetCreatePowers(POWER_MANA)/100;
                 target = this;
                 triggered_spell_id = 31930;
                 // replenishment
@@ -7871,12 +7869,6 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
             // Remove cooldown on Shield Slam
             if (GetTypeId()==TYPEID_PLAYER)
                 ((Player*)this)->RemoveSpellCategoryCooldown(1209, true);
-            break;
-        }
-        // Improved Stormstrike
-        case 63375:
-        {
-            basepoints0 = int32(GetCreateMana() * triggerAmount / 100);
             break;
         }
         // Maelstrom Weapon
