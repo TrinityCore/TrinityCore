@@ -717,11 +717,11 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
 
     // Get the account information from the realmd database
     std::string safe_account = account; // Duplicate, else will screw the SHA hash verification below
-    LoginDatabase.escape_string (safe_account);
+    loginDatabase.escape_string (safe_account);
     // No SQL injection, username escaped.
 
     QueryResult *result =
-          LoginDatabase.PQuery ("SELECT "
+          loginDatabase.PQuery ("SELECT "
                                 "id, "                      //0
                                 "gmlevel, "                 //1
                                 "sessionkey, "              //2
@@ -786,7 +786,7 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
                 vold,
                 vStr);
 
-    LoginDatabase.PExecute ("UPDATE account "
+    loginDatabase.PExecute ("UPDATE account "
                             "SET "
                             "v = '0', "
                             "s = '0' "
@@ -843,7 +843,7 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
 
     // Re-check account ban (same check as in realmd)
     QueryResult *banresult =
-          LoginDatabase.PQuery ("SELECT "
+          loginDatabase.PQuery ("SELECT "
                                 "bandate, "
                                 "unbandate "
                                 "FROM account_banned "
@@ -909,9 +909,9 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
 
     // Update the last_ip in the database
     // No SQL injection, username escaped.
-    LoginDatabase.escape_string (address);
+    loginDatabase.escape_string (address);
 
-    LoginDatabase.PExecute ("UPDATE account "
+    loginDatabase.PExecute ("UPDATE account "
                             "SET last_ip = '%s' "
                             "WHERE username = '%s'",
                             address.c_str (),

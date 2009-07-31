@@ -26,7 +26,7 @@
 #include "Player.h"
 #include "Util.h"
 
-extern DatabaseType LoginDatabase;
+extern DatabaseType loginDatabase;
 
 INSTANTIATE_SINGLETON_1(AccountMgr);
 
@@ -44,26 +44,26 @@ AccountOpResult AccountMgr::CreateAccount(std::string username, std::string pass
     normalizeString(username);
     normalizeString(password);
 
-    LoginDatabase.escape_string(username);
-    LoginDatabase.escape_string(password);
+    loginDatabase.escape_string(username);
+    loginDatabase.escape_string(password);
 
-    QueryResult *result = LoginDatabase.PQuery("SELECT 1 FROM account WHERE username = '%s'", username.c_str());
+    QueryResult *result = loginDatabase.PQuery("SELECT 1 FROM account WHERE username = '%s'", username.c_str());
     if(result)
     {
         delete result;
         return AOR_NAME_ALREDY_EXIST;                       // username does already exist
     }
 
-    if(!LoginDatabase.PExecute("INSERT INTO account(username,sha_pass_hash,joindate) VALUES('%s',SHA1(CONCAT('%s',':','%s')),NOW())", username.c_str(), username.c_str(), password.c_str()))
+    if(!loginDatabase.PExecute("INSERT INTO account(username,sha_pass_hash,joindate) VALUES('%s',SHA1(CONCAT('%s',':','%s')),NOW())", username.c_str(), username.c_str(), password.c_str()))
         return AOR_DB_INTERNAL_ERROR;                       // unexpected error
-    LoginDatabase.Execute("INSERT INTO realmcharacters (realmid, acctid, numchars) SELECT realmlist.id, account.id, 0 FROM realmlist,account LEFT JOIN realmcharacters ON acctid=account.id WHERE acctid IS NULL");
+    loginDatabase.Execute("INSERT INTO realmcharacters (realmid, acctid, numchars) SELECT realmlist.id, account.id, 0 FROM realmlist,account LEFT JOIN realmcharacters ON acctid=account.id WHERE acctid IS NULL");
 
     return AOR_OK;                                          // everything's fine
 }
 
 AccountOpResult AccountMgr::DeleteAccount(uint32 accid)
 {
-    QueryResult *result = LoginDatabase.PQuery("SELECT 1 FROM account WHERE id='%d'", accid);
+    QueryResult *result = loginDatabase.PQuery("SELECT 1 FROM account WHERE id='%d'", accid);
     if(!result)
         return AOR_NAME_NOT_EXIST;                          // account doesn't exist
     delete result;
@@ -94,13 +94,13 @@ AccountOpResult AccountMgr::DeleteAccount(uint32 accid)
     // table realm specific but common for all characters of account for realm
     CharacterDatabase.PExecute("DELETE FROM character_tutorial WHERE account = '%u'",accid);
 
-    LoginDatabase.BeginTransaction();
+    loginDatabase.BeginTransaction();
 
     bool res =
-        LoginDatabase.PExecute("DELETE FROM account WHERE id='%d'", accid) &&
-        LoginDatabase.PExecute("DELETE FROM realmcharacters WHERE acctid='%d'", accid);
+        loginDatabase.PExecute("DELETE FROM account WHERE id='%d'", accid) &&
+        loginDatabase.PExecute("DELETE FROM realmcharacters WHERE acctid='%d'", accid);
 
-    LoginDatabase.CommitTransaction();
+    loginDatabase.CommitTransaction();
 
     if(!res)
         return AOR_DB_INTERNAL_ERROR;                       // unexpected error;
@@ -110,7 +110,7 @@ AccountOpResult AccountMgr::DeleteAccount(uint32 accid)
 
 AccountOpResult AccountMgr::ChangeUsername(uint32 accid, std::string new_uname, std::string new_passwd)
 {
-    QueryResult *result = LoginDatabase.PQuery("SELECT 1 FROM account WHERE id='%d'", accid);
+    QueryResult *result = loginDatabase.PQuery("SELECT 1 FROM account WHERE id='%d'", accid);
     if(!result)
         return AOR_NAME_NOT_EXIST;                          // account doesn't exist
     delete result;
@@ -124,9 +124,9 @@ AccountOpResult AccountMgr::ChangeUsername(uint32 accid, std::string new_uname, 
     normalizeString(new_uname);
     normalizeString(new_passwd);
 
-    LoginDatabase.escape_string(new_uname);
-    LoginDatabase.escape_string(new_passwd);
-    if(!LoginDatabase.PExecute("UPDATE account SET username='%s',sha_pass_hash=SHA1(CONCAT('%s',':','%s')) WHERE id='%d'", new_uname.c_str(), new_uname.c_str(), new_passwd.c_str(), accid))
+    loginDatabase.escape_string(new_uname);
+    loginDatabase.escape_string(new_passwd);
+    if(!loginDatabase.PExecute("UPDATE account SET username='%s',sha_pass_hash=SHA1(CONCAT('%s',':','%s')) WHERE id='%d'", new_uname.c_str(), new_uname.c_str(), new_passwd.c_str(), accid))
         return AOR_DB_INTERNAL_ERROR;                       // unexpected error
 
     return AOR_OK;
@@ -134,7 +134,7 @@ AccountOpResult AccountMgr::ChangeUsername(uint32 accid, std::string new_uname, 
 
 AccountOpResult AccountMgr::ChangePassword(uint32 accid, std::string new_passwd)
 {
-    QueryResult *result = LoginDatabase.PQuery("SELECT 1 FROM account WHERE id='%d'", accid);
+    QueryResult *result = loginDatabase.PQuery("SELECT 1 FROM account WHERE id='%d'", accid);
     if(!result)
         return AOR_NAME_NOT_EXIST;                          // account doesn't exist
     delete result;
@@ -144,8 +144,8 @@ AccountOpResult AccountMgr::ChangePassword(uint32 accid, std::string new_passwd)
 
     normalizeString(new_passwd);
 
-    LoginDatabase.escape_string(new_passwd);
-    if(!LoginDatabase.PExecute("UPDATE account SET sha_pass_hash=SHA1(CONCAT(username,':','%s')) WHERE id='%d'", new_passwd.c_str(), accid))
+    loginDatabase.escape_string(new_passwd);
+    if(!loginDatabase.PExecute("UPDATE account SET sha_pass_hash=SHA1(CONCAT(username,':','%s')) WHERE id='%d'", new_passwd.c_str(), accid))
         return AOR_DB_INTERNAL_ERROR;                       // unexpected error
 
     return AOR_OK;
@@ -153,8 +153,8 @@ AccountOpResult AccountMgr::ChangePassword(uint32 accid, std::string new_passwd)
 
 uint32 AccountMgr::GetId(std::string username)
 {
-    LoginDatabase.escape_string(username);
-    QueryResult *result = LoginDatabase.PQuery("SELECT id FROM account WHERE username = '%s'", username.c_str());
+    loginDatabase.escape_string(username);
+    QueryResult *result = loginDatabase.PQuery("SELECT id FROM account WHERE username = '%s'", username.c_str());
     if(!result)
         return 0;
     else
@@ -167,7 +167,7 @@ uint32 AccountMgr::GetId(std::string username)
 
 uint32 AccountMgr::GetSecurity(uint32 acc_id)
 {
-    QueryResult *result = LoginDatabase.PQuery("SELECT gmlevel FROM account WHERE id = '%u'", acc_id);
+    QueryResult *result = loginDatabase.PQuery("SELECT gmlevel FROM account WHERE id = '%u'", acc_id);
     if(result)
     {
         uint32 sec = (*result)[0].GetUInt32();
@@ -180,7 +180,7 @@ uint32 AccountMgr::GetSecurity(uint32 acc_id)
 
 bool AccountMgr::GetName(uint32 acc_id, std::string &name)
 {
-    QueryResult *result = LoginDatabase.PQuery("SELECT username FROM account WHERE id = '%u'", acc_id);
+    QueryResult *result = loginDatabase.PQuery("SELECT username FROM account WHERE id = '%u'", acc_id);
     if(result)
     {
         name = (*result)[0].GetCppString();
@@ -194,9 +194,9 @@ bool AccountMgr::GetName(uint32 acc_id, std::string &name)
 bool AccountMgr::CheckPassword(uint32 accid, std::string passwd)
 {
     normalizeString(passwd);
-    LoginDatabase.escape_string(passwd);
+    loginDatabase.escape_string(passwd);
 
-    QueryResult *result = LoginDatabase.PQuery("SELECT 1 FROM account WHERE id='%d' AND sha_pass_hash=SHA1(CONCAT(username,':','%s'))", accid, passwd.c_str());
+    QueryResult *result = loginDatabase.PQuery("SELECT 1 FROM account WHERE id='%d' AND sha_pass_hash=SHA1(CONCAT(username,':','%s'))", accid, passwd.c_str());
     if (result)
     {
         delete result;

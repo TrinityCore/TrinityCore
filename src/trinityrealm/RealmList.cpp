@@ -29,7 +29,7 @@
 
 INSTANTIATE_SINGLETON_1( RealmList );
 
-extern DatabaseType LoginDatabase;
+extern DatabaseType loginDatabase;
 
 RealmList::RealmList( ) : m_UpdateInterval(0), m_NextUpdateTime(time(NULL))
 {
@@ -82,7 +82,7 @@ void RealmList::UpdateRealms(bool init)
 {
     sLog.outDetail("Updating Realm List...");
 
-    QueryResult *result = LoginDatabase.Query( "SELECT id, name, address, port, icon, color, timezone, allowedSecurityLevel, population FROM realmlist WHERE color <> 3 ORDER BY name" );
+    QueryResult *result = loginDatabase.Query( "SELECT id, name, address, port, icon, color, timezone, allowedSecurityLevel, population FROM realmlist WHERE color <> 3 ORDER BY name" );
 
     ///- Circle through results and add them to the realm map
     if(result)
