@@ -1858,19 +1858,12 @@ void Pet::CastPetAura(PetAura const* aura)
         CastSpell(this, auraId, true);
 }
 
-struct DoPetLearnSpell
-{
-    DoPetLearnSpell(Pet& _pet) : pet(_pet) {}
-    void operator() (uint32 spell_id) { pet.learnSpell(spell_id); }
-    Pet& pet;
-};
-
 void Pet::learnSpellHighRank(uint32 spellid)
 {
     learnSpell(spellid);
 
-    DoPetLearnSpell worker(*this);
-    spellmgr.doForHighRanks(spellid,worker);
+    if(uint32 next = spellmgr.GetNextSpellInChain(spellid))
+        learnSpellHighRank(next);
 }
 
 void Pet::SynchronizeLevelWithOwner()
