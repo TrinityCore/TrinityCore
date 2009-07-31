@@ -59,9 +59,10 @@ enum AchievementCriteriaDataType
     ACHIEVEMENT_CRITERIA_DATA_TYPE_T_TEAM              = 14,// team                         HORDE(67), ALLIANCE(469)
     ACHIEVEMENT_CRITERIA_DATA_TYPE_S_DRUNK             = 15,// drunken_state  0             (enum DrunkenState) of player
     ACHIEVEMENT_CRITERIA_DATA_TYPE_HOLIDAY             = 16,// holiday_id     0             event in holiday time
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_BG_LOSS_TEAM_SCORE  = 17,// min_score      max_score     player's team win bg and opposition team have team score in range
 };
 
-#define MAX_ACHIEVEMENT_CRITERIA_DATA_TYPE               17 // maximum value in AchievementCriteriaDataType enum
+#define MAX_ACHIEVEMENT_CRITERIA_DATA_TYPE               18 // maximum value in AchievementCriteriaDataType enum
 
 class Player;
 class Unit;
@@ -141,11 +142,17 @@ struct AchievementCriteriaData
         {
             uint32 state;
         } drunk;
-        // ACHIEVEMENT_CRITERIA_DATA_TYPE_HOLIDAY
+        // ACHIEVEMENT_CRITERIA_DATA_TYPE_HOLIDAY           = 16
         struct
         {
-            uint16 id;
+            uint32 id;
         } holiday;
+        // ACHIEVEMENT_CRITERIA_DATA_TYPE_BG_LOSS_TEAM_SCORE= 17
+        struct
+        {
+            uint32 min_score;
+            uint32 max_score;
+        } bg_loss_team_score;
         // ...
         struct
         {

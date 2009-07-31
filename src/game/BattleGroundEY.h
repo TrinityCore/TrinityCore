@@ -350,6 +350,8 @@ class BattleGroundEY : public BattleGround
         virtual void EventPlayerClickedOnFlag(Player *Source, GameObject* target_obj);
         virtual void EventPlayerDroppedFlag(Player *Source);
 
+        /* achievement req. */
+        bool IsAllNodesConrolledByTeam(uint32 team) const;
     private:
         void EventPlayerCapturedFlag(Player *Source, uint32 BgObjectType);
         void EventTeamCapturedPoint(Player *Source, uint32 Point);
