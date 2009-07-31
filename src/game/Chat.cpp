@@ -163,7 +163,6 @@ ChatCommand * ChatHandler::getCommandTable()
         { "setaurastate",   SEC_ADMINISTRATOR,  false, &ChatHandler::HandleDebugSetAuraStateCommand,        "", NULL },
         { "setitemflag",    SEC_ADMINISTRATOR,  false, &ChatHandler::HandleDebugSetItemFlagCommand,         "", NULL },
         { "setvalue",       SEC_ADMINISTRATOR,  false, &ChatHandler::HandleDebugSetValueCommand,            "", NULL },
-        { "spellcheck",     SEC_CONSOLE,        true,  &ChatHandler::HandleDebugSpellCheckCommand,          "", NULL },
         { "spawnvehicle",   SEC_ADMINISTRATOR,  false, &ChatHandler::HandleDebugSpawnVehicle,               "", NULL },
         { "setvid",         SEC_ADMINISTRATOR,  false, &ChatHandler::HandleDebugSetVehicleId,               "", NULL },
         { "entervehicle",   SEC_ADMINISTRATOR,  false, &ChatHandler::HandleDebugEnterVehicle,               "", NULL },

@@ -1055,8 +1055,6 @@ class SpellMgr
     public:
         static SpellMgr& Instance();
 
-        void CheckUsedSpells(char const* table);
-
         // Loading data at server startup
         void LoadSpellChains();
         void LoadSpellRequired();
