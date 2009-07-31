@@ -137,15 +137,16 @@ void GameObject::RemoveFromWorld()
 bool GameObject::Create(uint32 guidlow, uint32 name_id, Map *map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 ArtKit)
 {
     ASSERT(map);
-    Relocate(x,y,z,ang);
     SetMap(map);
-    SetPhaseMask(phaseMask,false);
 
+    Relocate(x,y,z,ang);
     if(!IsPositionValid())
     {
         sLog.outError("Gameobject (GUID: %u Entry: %u ) not created. Suggested coordinates isn't valid (X: %f Y: %f)",guidlow,name_id,x,y);
         return false;
     }
+
+    SetPhaseMask(phaseMask,false);
 
     GameObjectInfo const* goinfo = objmgr.GetGameObjectInfo(name_id);
     if (!goinfo)

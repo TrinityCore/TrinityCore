@@ -2032,7 +2032,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         float m_homebindX;
         float m_homebindY;
         float m_homebindZ;
-        void RelocateToHomebind() { SetLocationMapId(m_homebindMapId); Relocate(m_homebindX,m_homebindY,m_homebindZ); }
+        void RelocateToHomebind(uint32 & newMap) { newMap = m_homebindMapId; Relocate(m_homebindX,m_homebindY,m_homebindZ); }
 
         // currently visible objects at player client
         typedef std::set<uint64> ClientGUIDs;
@@ -2121,6 +2121,10 @@ class TRINITY_DLL_SPEC Player : public Unit
 
         GridReference<Player> &GetGridRef() { return m_gridRef; }
         MapReference &GetMapRef() { return m_mapRef; }
+
+        // Set map to player and add reference
+        void SetMap(Map * map) {Unit::SetMap(map); m_mapRef.link(map, this);}
+        void ResetMap();
 
         bool isAllowedToLoot(Creature* creature);
 

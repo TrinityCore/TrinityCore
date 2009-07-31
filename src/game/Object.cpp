@@ -1066,7 +1066,7 @@ bool Object::PrintIndexError(uint32 index, bool set) const
 }
 
 WorldObject::WorldObject()
-    : m_mapId(0), m_InstanceId(0), m_phaseMask(PHASEMASK_NORMAL),
+    : m_phaseMask(PHASEMASK_NORMAL),
     m_positionX(0.0f), m_positionY(0.0f), m_positionZ(0.0f), m_orientation(0.0f), m_currMap(NULL)
     , m_zoneScript(NULL)
     , m_isActive(false), IsTempWorldObject(false)
@@ -1691,11 +1691,9 @@ void WorldObject::SendObjectDeSpawnAnim(uint64 guid)
 
 void WorldObject::SetMap(Map * map)
 {
+    assert (!m_currMap);
     ASSERT(map);
     m_currMap = map;
-    //lets save current map's Id/instanceId
-    m_mapId = map->GetId();
-    m_InstanceId = map->GetInstanceId();
 }
 
 Map const* WorldObject::GetBaseMap() const
