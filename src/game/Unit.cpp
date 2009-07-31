@@ -7873,9 +7873,10 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                 ((Player*)this)->RemoveSpellCategoryCooldown(1209, true);
             break;
         }
-        case 63375: // Improved Stormstrike
+        // Improved Stormstrike
+        case 63375:
         {
-            basepoints0 = GetCreateMana() * 0.20f;
+            basepoints0 = int32(GetCreateMana() * triggerAmount / 100);
             break;
         }
         // Maelstrom Weapon
