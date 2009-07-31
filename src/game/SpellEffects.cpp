@@ -2880,31 +2880,31 @@ void Spell::EffectEnergize(uint32 i)
     Powers power = Powers(m_spellInfo->EffectMiscValue[i]);
 
     // Some level depends spells
-    int multiplier = 0;
+    int level_multiplier = 0;
     int level_diff = 0;
     switch (m_spellInfo->Id)
     {
-        // Restore Energy
-        case 9512:
+        case 9512:                                          // Restore Energy
             level_diff = m_caster->getLevel() - 40;
-            multiplier = 2;
+            level_multiplier = 2;
             break;
-        // Blood Fury
-        case 24571:
+        case 24571:                                         // Blood Fury
             level_diff = m_caster->getLevel() - 60;
-            multiplier = 10;
+            level_multiplier = 10;
             break;
-        // Burst of Energy
-        case 24532:
+        case 24532:                                         // Burst of Energy
             level_diff = m_caster->getLevel() - 60;
-            multiplier = 4;
+            level_multiplier = 4;
             break;
+        case 31930:                                         // Judgements of the Wise
+        case 63375:                                         // Improved Stormstrike
+            damage = damage * unitTarget->GetCreateMana() / 100;
         default:
             break;
     }
 
     if (level_diff > 0)
-        damage -= multiplier * level_diff;
+        damage -= level_multiplier * level_diff;
 
     if(damage < 0)
         return;
