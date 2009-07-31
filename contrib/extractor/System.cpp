@@ -241,10 +241,11 @@ void ReadLiquidTypeTableDBC()
 #define MAP_MAGIC             'SPAM'
 #define MAP_VERSION_MAGIC     '0.1w'
 #define MAP_AREA_MAGIC        'AERA'
-#define MAP_HEIGTH_MAGIC      'TGHM'
+#define MAP_HEIGHT_MAGIC      'TGHM'
 #define MAP_LIQUID_MAGIC      'QILM'
 
-struct map_fileheader{
+struct map_fileheader
+{
     uint32 mapMagic;
     uint32 versionMagic;
     uint32 areaMapOffset;
@@ -256,17 +257,20 @@ struct map_fileheader{
 };
 
 #define MAP_AREA_NO_AREA      0x0001
-struct map_areaHeader{
+
+struct map_areaHeader
+{
     uint32 fourcc;
     uint16 flags;
     uint16 gridArea;
 };
 
-#define MAP_HEIGHT_NO_HIGHT   0x0001
+#define MAP_HEIGHT_NO_HEIGHT  0x0001
 #define MAP_HEIGHT_AS_INT16   0x0002
 #define MAP_HEIGHT_AS_INT8    0x0004
 
-struct map_heightHeader{
+struct map_heightHeader
+{
     uint32 fourcc;
     uint32 flags;
     float  gridHeight;
@@ -284,9 +288,10 @@ struct map_heightHeader{
 
 
 #define MAP_LIQUID_NO_TYPE    0x0001
-#define MAP_LIQUID_NO_HIGHT   0x0002
+#define MAP_LIQUID_NO_HEIGHT  0x0002
 
-struct map_liquidHeader{
+struct map_liquidHeader
+{
     uint32 fourcc;
     uint16 flags;
     uint16 liquidType;
@@ -511,20 +516,20 @@ bool ConvertADT(char *filename, char *filename2, int cell_y, int cell_x)
     map.heightMapSize = sizeof(map_heightHeader);
 
     map_heightHeader heightHeader;
-    heightHeader.fourcc = MAP_HEIGTH_MAGIC;
+    heightHeader.fourcc = MAP_HEIGHT_MAGIC;
     heightHeader.flags = 0;
     heightHeader.gridHeight    = minHeight;
     heightHeader.gridMaxHeight = maxHeight;
 
     if (maxHeight == minHeight)
-        heightHeader.flags |=MAP_HEIGHT_NO_HIGHT;
+        heightHeader.flags |= MAP_HEIGHT_NO_HEIGHT;
 
     // Not need store if flat surface
     if (CONF_allow_float_to_int && (maxHeight - minHeight) < CONF_flat_height_delta_limit)
-        heightHeader.flags |=MAP_HEIGHT_NO_HIGHT;
+        heightHeader.flags |= MAP_HEIGHT_NO_HEIGHT;
 
     // Try store as packed in uint16 or uint8 values
-    if (!(heightHeader.flags&MAP_HEIGHT_NO_HIGHT))
+    if (!(heightHeader.flags & MAP_HEIGHT_NO_HEIGHT))
     {
         float step;
         // Try Store as uint values
@@ -756,22 +761,22 @@ bool ConvertADT(char *filename, char *filename2, int cell_y, int cell_x)
         liquidHeader.liquidLevel = minHeight;
 
         if (maxHeight == minHeight)
-            liquidHeader.flags|=MAP_LIQUID_NO_HIGHT;
+            liquidHeader.flags |= MAP_LIQUID_NO_HEIGHT;
 
         // Not need store if flat surface
         if (CONF_allow_float_to_int && (maxHeight - minHeight) < CONF_flat_liquid_delta_limit)
-            liquidHeader.flags|=MAP_LIQUID_NO_HIGHT;
+            liquidHeader.flags |= MAP_LIQUID_NO_HEIGHT;
 
         if (!fullType)
-            liquidHeader.flags|=MAP_LIQUID_NO_TYPE;
+            liquidHeader.flags |= MAP_LIQUID_NO_TYPE;
 
-        if (liquidHeader.flags&MAP_LIQUID_NO_TYPE)
+        if (liquidHeader.flags & MAP_LIQUID_NO_TYPE)
             liquidHeader.liquidType = type;
         else
             map.liquidMapSize+=sizeof(liquid_type);
      
-        if (!(liquidHeader.flags&MAP_LIQUID_NO_HIGHT))
-            map.liquidMapSize+=sizeof(float)*liquidHeader.width*liquidHeader.height;
+        if (!(liquidHeader.flags & MAP_LIQUID_NO_HEIGHT))
+            map.liquidMapSize += sizeof(float)*liquidHeader.width*liquidHeader.height;
     }
 
     // Ok all data prepared - store it
@@ -789,14 +794,14 @@ bool ConvertADT(char *filename, char *filename2, int cell_y, int cell_x)
 
     // Store height data
     fwrite(&heightHeader, sizeof(heightHeader), 1, output);
-    if (!(heightHeader.flags&MAP_HEIGHT_NO_HIGHT))
+    if (!(heightHeader.flags & MAP_HEIGHT_NO_HEIGHT))
     {
-        if (heightHeader.flags&MAP_HEIGHT_AS_INT16)
+        if (heightHeader.flags & MAP_HEIGHT_AS_INT16)
         {
             fwrite(uint16_V9, sizeof(uint16_V9), 1, output);
             fwrite(uint16_V8, sizeof(uint16_V8), 1, output);
         }
-        else if (heightHeader.flags&MAP_HEIGHT_AS_INT8)
+        else if (heightHeader.flags & MAP_HEIGHT_AS_INT8)
         {
             fwrite(uint8_V9, sizeof(uint8_V9), 1, output);
             fwrite(uint8_V8, sizeof(uint8_V8), 1, output);
@@ -814,7 +819,7 @@ bool ConvertADT(char *filename, char *filename2, int cell_y, int cell_x)
         fwrite(&liquidHeader, sizeof(liquidHeader), 1, output);
         if (!(liquidHeader.flags&MAP_LIQUID_NO_TYPE))
             fwrite(liquid_type, sizeof(liquid_type), 1, output);
-        if (!(liquidHeader.flags&MAP_LIQUID_NO_HIGHT))
+        if (!(liquidHeader.flags&MAP_LIQUID_NO_HEIGHT))
         {
             for (int y=0; y<liquidHeader.height;y++)
                 fwrite(&liquid_height[y+liquidHeader.offsetY][liquidHeader.offsetX], sizeof(float), liquidHeader.width, output);
