@@ -678,7 +678,7 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
 
     BigNumber K;
 
-    if (recvPacket.size () < (4 + 4 + 1 + 4 + 20))
+    if (recvPacket.size () < (4 + 4 + 1 + 4 + 4 + 20))
     {
         sLog.outError ("WorldSocket::HandleAuthSession: wrong packet size");
         return -1;
@@ -700,7 +700,7 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     recvPacket >> account;
     recvPacket >> unk3;
 
-    if (recvPacket.size () < (4 + 4 + (account.size () + 1) + 4 + 20))
+    if (recvPacket.size () < (4 + 4 + (account.size () + 1) + 4 + 4 + 20))
     {
         sLog.outError ("WorldSocket::HandleAuthSession: wrong packet size second check");
         return -1;
