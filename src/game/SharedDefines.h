@@ -970,7 +970,13 @@ enum Mechanics
     (1<<MECHANIC_SHACKLE )|(1<<MECHANIC_TURN     )|(1<<MECHANIC_HORROR)| \
     (1<<MECHANIC_DAZE    )|(1<<MECHANIC_SAPPED   ) )
 
-// Spell dispel type
+// Daze and all croud control spells except polymorph are not removed
+#define MECHANIC_NOT_REMOVED_BY_SHAPESHIFT ( \
+    (1<<MECHANIC_CHARM )|(1<<MECHANIC_DISORIENTED)|(1<<MECHANIC_FEAR  )|(1<<MECHANIC_PACIFY )| \
+    (1<<MECHANIC_STUN  )|(1<<MECHANIC_FREEZE     )|(1<<MECHANIC_BANISH)|(1<<MECHANIC_SHACKLE)| \
+    (1<<MECHANIC_HORROR)|(1<<MECHANIC_TURN       )|(1<<MECHANIC_DAZE  )|(1<<MECHANIC_SAPPED ) )
+
+// Spell dispell type
 enum DispelType
 {
     DISPEL_NONE         = 0,
