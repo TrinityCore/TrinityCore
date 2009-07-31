@@ -20563,12 +20563,19 @@ bool Player::IsAllowUseFlyMountsHere() const
     return v_map == 530 || v_map == 571 && HasSpell(54197) && zoneId != 4197;
 }
 
+struct DoPlayerLearnSpell
+{
+    DoPlayerLearnSpell(Player& _player) : player(_player) {}
+    void operator() (uint32 spell_id) { player.learnSpell(spell_id,false); }
+    Player& player;
+};
+
 void Player::learnSpellHighRank(uint32 spellid)
 {
     learnSpell(spellid,false);
 
-    if(uint32 next = spellmgr.GetNextSpellInChain(spellid))
-        learnSpellHighRank(next);
+    DoPlayerLearnSpell worker(*this);
+    spellmgr.doForHighRanks(spellid,worker);
 }
 
 void Player::_LoadSkills()
