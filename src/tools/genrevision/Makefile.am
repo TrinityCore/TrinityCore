@@ -19,12 +19,12 @@
 ## CPP flags for includes, defines, etc.
 AM_CPPFLAGS = -I$(srcdir)
 
-## Build world list daemon as standalone program
+## Build as standalone program
 bin_PROGRAMS = genrevision
 genrevision_SOURCES = \
 	genrevision.cpp
 
-## Link world daemon against the shared library
+## Link against the shared library
 genrevision_LDADD =
 genrevision_LDFLAGS = -L$(libdir)
 
