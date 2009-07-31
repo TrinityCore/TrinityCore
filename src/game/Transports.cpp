@@ -487,7 +487,7 @@ void Transport::CheckForEvent(uint32 entry, uint32 wp_id)
 {
     uint32 key = entry*100+wp_id;
     if(objmgr.TransportEventMap.find(key) != objmgr.TransportEventMap.end())
-        sWorld.ScriptsStart(sEventScripts, objmgr.TransportEventMap[key], this, NULL);
+        GetMap()->ScriptsStart(sEventScripts, objmgr.TransportEventMap[key], this, NULL);
 }
 
 void Transport::Update(uint32 /*p_time*/)
