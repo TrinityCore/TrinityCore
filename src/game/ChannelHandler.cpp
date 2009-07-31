@@ -24,9 +24,6 @@
 #include "ObjectMgr.h"                                      // for normalizePlayerName
 #include "ChannelMgr.h"
 
-INSTANTIATE_SINGLETON_1( AllianceChannelMgr );
-INSTANTIATE_SINGLETON_1( HordeChannelMgr );
-
 void WorldSession::HandleJoinChannel(WorldPacket& recvPacket)
 {
     sLog.outDebug("Opcode %u", recvPacket.GetOpcode());
