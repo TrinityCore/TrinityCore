@@ -1329,11 +1329,11 @@ bool  GridMap::loadHeihgtData(FILE *in, uint32 offset, uint32 size)
     map_heightHeader header;
     fseek(in, offset, SEEK_SET);
     fread(&header, sizeof(header), 1, in);
-    if (header.fourcc != uint32(MAP_HEIGTH_MAGIC))
+    if (header.fourcc != uint32(MAP_HEIGHT_MAGIC))
         return false;
 
     m_gridHeight = header.gridHeight;
-    if (!(header.flags & MAP_HEIGHT_NO_HIGHT))
+    if (!(header.flags & MAP_HEIGHT_NO_HEIGHT))
     {
         if ((header.flags & MAP_HEIGHT_AS_INT16))
         {
@@ -1382,12 +1382,12 @@ bool  GridMap::loadLiquidData(FILE *in, uint32 offset, uint32 size)
     m_liquid_height= header.height;
     m_liquidLevel  = header.liquidLevel;
 
-    if (!(header.flags&MAP_LIQUID_NO_TYPE))
+    if (!(header.flags & MAP_LIQUID_NO_TYPE))
     {
         m_liquid_type = new uint8 [16*16];
         fread(m_liquid_type, sizeof(uint8), 16*16, in);
     }
-    if (!(header.flags&MAP_LIQUID_NO_HIGHT))
+    if (!(header.flags & MAP_LIQUID_NO_HEIGHT))
     {
         m_liquid_map = new float [m_liquid_width*m_liquid_height];
         fread(m_liquid_map, sizeof(float), m_liquid_width*m_liquid_height, in);
