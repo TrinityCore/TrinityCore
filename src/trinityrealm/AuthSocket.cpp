@@ -112,7 +112,7 @@ typedef struct AUTH_LOGON_PROOF_C
     uint8   M1[20];
     uint8   crc_hash[20];
     uint8   number_of_keys;
-    uint8   unk;                                            // Added in 1.12.x client branch
+    uint8   securityFlags;                                  // 0x00-0x04
 } sAuthLogonProof_C;
 /*
 typedef struct
@@ -264,17 +264,11 @@ void AuthSocket::OnRead()
 
         ///- Get the command out of it
         ibuf.SoftRead((char *)&_cmd, 1);                    // UQ1: No longer exists in new net code ???
-        //ibuf.Read((char *)&_cmd, 1);
-        /*char *command = (char *)malloc(1);
 
-        ibuf.Read(command, 1);
-
-        _cmd = (uint8)command;*/
-        //      assert(0);
         size_t i;
 
         ///- Circle through known commands and call the correct command handler
-        for (i=0;i<AUTH_TOTAL_COMMANDS; i++)
+        for (i = 0; i < AUTH_TOTAL_COMMANDS; ++i)
         {
             if ((uint8)table[i].cmd == _cmd &&
                 (table[i].status == STATUS_CONNECTED ||
@@ -292,7 +286,7 @@ void AuthSocket::OnRead()
         }
 
         ///- Report unknown commands in the debug log
-        if (i==AUTH_TOTAL_COMMANDS)
+        if (i == AUTH_TOTAL_COMMANDS)
         {
             DEBUG_LOG("[Auth] got unknown packet %u", (uint32)_cmd);
             return;
@@ -306,13 +300,13 @@ void AuthSocket::_SetVSFields(const std::string& rI)
     BigNumber I;
     I.SetHexStr(rI.c_str());
 
-    //In case of leading zeroes in the rI hash, restore them
+    // In case of leading zeros in the rI hash, restore them
     uint8 mDigest[SHA_DIGEST_LENGTH];
-    memset(mDigest,0,SHA_DIGEST_LENGTH);
+    memset(mDigest, 0, SHA_DIGEST_LENGTH);
     if (I.GetNumBytes() <= SHA_DIGEST_LENGTH)
-        memcpy(mDigest,I.AsByteArray(),I.GetNumBytes());
+        memcpy(mDigest, I.AsByteArray(), I.GetNumBytes());
 
-    std::reverse(mDigest,mDigest+SHA_DIGEST_LENGTH);
+    std::reverse(mDigest, mDigest + SHA_DIGEST_LENGTH);
 
     Sha1Hash sha;
     sha.UpdateData(s.AsByteArray(), s.GetNumBytes());
@@ -325,7 +319,7 @@ void AuthSocket::_SetVSFields(const std::string& rI)
     const char *v_hex, *s_hex;
     v_hex = v.AsHexStr();
     s_hex = s.AsHexStr();
-    loginDatabase.PExecute("UPDATE account SET v = '%s', s = '%s' WHERE username = '%s'",v_hex,s_hex, _safelogin.c_str() );
+    loginDatabase.PExecute("UPDATE account SET v = '%s', s = '%s' WHERE username = '%s'", v_hex, s_hex, _safelogin.c_str() );
     OPENSSL_free((void*)v_hex);
     OPENSSL_free((void*)s_hex);
 }
@@ -380,7 +374,7 @@ bool AuthSocket::_HandleLogonChallenge()
 
     //Escape the user login to avoid further SQL injection
     //Memory will be freed on AuthSocket object destruction
-    _safelogin=_login;
+    _safelogin = _login;
     loginDatabase.escape_string(_safelogin);
 
     pkt << (uint8) AUTH_LOGON_CHALLENGE;
@@ -457,35 +451,56 @@ bool AuthSocket::_HandleLogonChallenge()
                     _SetVSFields(rI);
 
                     b.SetRand(19 * 8);
-                    BigNumber gmod=g.ModExp(b, N);
+                    BigNumber gmod = g.ModExp(b, N);
                     B = ((v * 3) + gmod) % N;
 
                     ASSERT(gmod.GetNumBytes() <= 32);
 
                     BigNumber unk3;
-                    unk3.SetRand(16*8);
+                    unk3.SetRand(16 * 8);
 
                     ///- Fill the response packet with the result
-                    pkt << (uint8)REALM_AUTH_SUCCESS;
+                    pkt << uint8(REALM_AUTH_SUCCESS);
 
-                    // B may be calculated < 32B so we force minnimal length to 32B
-                    pkt.append(B.AsByteArray(32), 32);   // 32 bytes
-                    pkt << (uint8)1;
+                    // B may be calculated < 32B so we force minimal length to 32B
+                    pkt.append(B.AsByteArray(32), 32);      // 32 bytes
+                    pkt << uint8(1);
                     pkt.append(g.AsByteArray(), 1);
-                    pkt << (uint8)32;
+                    pkt << uint8(32);
                     pkt.append(N.AsByteArray(), 32);
                     pkt.append(s.AsByteArray(), s.GetNumBytes());   // 32 bytes
                     pkt.append(unk3.AsByteArray(), 16);
-                    pkt << (uint8)0;                    // Added in 1.12.x client branch
+                    uint8 securityFlags = 0;
+                    pkt << uint8(securityFlags);            // security flags (0x0...0x04)
+
+                    if(securityFlags & 0x01)                // PIN input
+                    {
+                        pkt << uint32(0);
+                        pkt << uint64(0) << uint64(0);      // 16 bytes hash?
+                    }
+
+                    if(securityFlags & 0x02)                // Matrix input
+                    {
+                        pkt << uint8(0);
+                        pkt << uint8(0);
+                        pkt << uint8(0);
+                        pkt << uint8(0);
+                        pkt << uint64(0);
+                    }
+
+                    if(securityFlags & 0x04)                // Security token input
+                    {
+                        pkt << uint8(1);
+                    }
 
                     uint8 secLevel = (*result)[4].GetUInt8();
                     _accountSecurityLevel = secLevel <= SEC_ADMINISTRATOR ? AccountTypes(secLevel) : SEC_ADMINISTRATOR;
 
                     _localizationName.resize(4);
-                    for(int i = 0; i <4; ++i)
+                    for(int i = 0; i < 4; ++i)
                         _localizationName[i] = ch->country[4-i-1];
 
-                    sLog.outBasic("[AuthChallenge] account %s is using '%c%c%c%c' locale (%u)", _login.c_str (), ch->country[3],ch->country[2],ch->country[1],ch->country[0], GetLocaleByName(_localizationName));
+                    sLog.outBasic("[AuthChallenge] account %s is using '%c%c%c%c' locale (%u)", _login.c_str (), ch->country[3], ch->country[2], ch->country[1], ch->country[0], GetLocaleByName(_localizationName));
                 }
             }
             delete result;
@@ -510,13 +525,13 @@ bool AuthSocket::_HandleLogonProof()
     ibuf.Read((char *)&lp, sizeof(sAuthLogonProof_C));
 
     ///- Check if the client has one of the expected version numbers
-    bool valid_version=false;
-    int accepted_versions[]=EXPECTED_TRINITY_CLIENT_BUILD;
-    for(int i=0;accepted_versions[i];i++)
+    bool valid_version = false;
+    int accepted_versions[] = EXPECTED_MANGOS_CLIENT_BUILD;
+    for(int i = 0; accepted_versions[i]; ++i)
     {
-        if(_build==accepted_versions[i])
+        if(_build == accepted_versions[i])
         {
-            valid_version=true;
+            valid_version = true;
             break;
         }
     }
@@ -529,9 +544,9 @@ bool AuthSocket::_HandleLogonProof()
         // 24 = len("./patches/65535enGB.mpq")+1
         char tmp[24];
         // No buffer overflow (fixed length of arguments)
-        sprintf(tmp,"./patches/%d%s.mpq",_build, _localizationName.c_str());
-        // This will be closed at the destruction of the AuthSocket (client deconnection)
-        FILE *pFile=fopen(tmp,"rb");
+        sprintf(tmp, "./patches/%d%s.mpq", _build, _localizationName.c_str());
+        // This will be closed at the destruction of the AuthSocket (client disconnection)
+        FILE *pFile = fopen(tmp, "rb");
 
         if(!pFile)
         {
@@ -540,37 +555,37 @@ bool AuthSocket::_HandleLogonProof()
             pkt << (uint8) 0x00;
             pkt << (uint8) REALM_AUTH_WRONG_BUILD_NUMBER;
             DEBUG_LOG("[AuthChallenge] %u is not a valid client version!", _build);
-            DEBUG_LOG("[AuthChallenge] Patch %s not found",tmp);
+            DEBUG_LOG("[AuthChallenge] Patch %s not found", tmp);
             SendBuf((char const*)pkt.contents(), pkt.size());
             return true;
         }
         else                                                // have patch
         {
-            pPatch=pFile;
+            pPatch = pFile;
             XFER_INIT xferh;
 
             ///- Get the MD5 hash of the patch file (get it from preloaded Patcher cache or calculate it)
-            if(PatchesCache.GetHash(tmp,(uint8*)&xferh.md5))
+            if(PatchesCache.GetHash(tmp, (uint8*)&xferh.md5))
             {
-                DEBUG_LOG("\n[AuthChallenge] Found precached patch info for patch %s",tmp);
+                DEBUG_LOG("\n[AuthChallenge] Found precached patch info for patch %s", tmp);
             }
             else
-            {                                               //calculate patch md5
-                printf("\n[AuthChallenge] Patch info for %s was not cached.",tmp);
+            {                                               // calculate patch md5
+                printf("\n[AuthChallenge] Patch info for %s was not cached.", tmp);
                 PatchesCache.LoadPatchMD5(tmp);
-                PatchesCache.GetHash(tmp,(uint8*)&xferh.md5);
+                PatchesCache.GetHash(tmp, (uint8*)&xferh.md5);
             }
 
             ///- Send a packet to the client with the file length and MD5 hash
-            uint8 data[2]={AUTH_LOGON_PROOF,REALM_AUTH_UPDATE_CLIENT};
-            SendBuf((const char*)data,sizeof(data));
+            uint8 data[2] = { AUTH_LOGON_PROOF, REALM_AUTH_UPDATE_CLIENT };
+            SendBuf((const char*)data, sizeof(data));
 
-            memcpy(&xferh,"0\x05Patch",7);
-            xferh.cmd=XFER_INITIATE;
-            fseek(pPatch,0,SEEK_END);
-            xferh.file_size=ftell(pPatch);
+            memcpy(&xferh, "0\x05Patch", 7);
+            xferh.cmd = XFER_INITIATE;
+            fseek(pPatch, 0, SEEK_END);
+            xferh.file_size = ftell(pPatch);
 
-            SendBuf((const char*)&xferh,sizeof(xferh));
+            SendBuf((const char*)&xferh, sizeof(xferh));
             return true;
         }
     }
@@ -591,27 +606,27 @@ bool AuthSocket::_HandleLogonProof()
     uint8 t1[16];
     uint8 vK[40];
     memcpy(t, S.AsByteArray(), 32);
-    for (int i = 0; i < 16; i++)
+    for (int i = 0; i < 16; ++i)
     {
-        t1[i] = t[i*2];
+        t1[i] = t[i * 2];
     }
     sha.Initialize();
     sha.UpdateData(t1, 16);
     sha.Finalize();
-    for (int i = 0; i < 20; i++)
+    for (int i = 0; i < 20; ++i)
     {
-        vK[i*2] = sha.GetDigest()[i];
+        vK[i * 2] = sha.GetDigest()[i];
     }
-    for (int i = 0; i < 16; i++)
+    for (int i = 0; i < 16; ++i)
     {
-        t1[i] = t[i*2+1];
+        t1[i] = t[i * 2 + 1];
     }
     sha.Initialize();
     sha.UpdateData(t1, 16);
     sha.Finalize();
-    for (int i = 0; i < 20; i++)
+    for (int i = 0; i < 20; ++i)
     {
-        vK[i*2+1] = sha.GetDigest()[i];
+        vK[i * 2 + 1] = sha.GetDigest()[i];
     }
     K.SetBinary(vK, 40);
 
@@ -624,7 +639,7 @@ bool AuthSocket::_HandleLogonProof()
     sha.Initialize();
     sha.UpdateBigNumbers(&g, NULL);
     sha.Finalize();
-    for (int i = 0; i < 20; i++)
+    for (int i = 0; i < 20; ++i)
     {
         hash[i] ^= sha.GetDigest()[i];
     }
@@ -676,8 +691,8 @@ bool AuthSocket::_HandleLogonProof()
     }
     else
     {
-        char data[4]={AUTH_LOGON_PROOF,REALM_AUTH_NO_MATCH,3,0};
-        SendBuf(data,sizeof(data));
+        char data[4]= { AUTH_LOGON_PROOF, REALM_AUTH_NO_MATCH, 3, 0};
+        SendBuf(data, sizeof(data));
         sLog.outBasic("[AuthChallenge] account %s tried to login with wrong password!",_login.c_str ());
 
         uint32 MaxWrongPassCount = sConfig.GetIntDefault("WrongPass.MaxCount", 0);
@@ -772,7 +787,7 @@ bool AuthSocket::_HandleReconnectChallenge()
     ByteBuffer pkt;
     pkt << (uint8)  AUTH_RECONNECT_CHALLENGE;
     pkt << (uint8)  0x00;
-    _reconnectProof.SetRand(16*8);
+    _reconnectProof.SetRand(16 * 8);
     pkt.append(_reconnectProof.AsByteBuffer());             // 16 bytes random
     pkt << (uint64) 0x00 << (uint64) 0x00;                  // 16 bytes zeros
     SendBuf((char const*)pkt.contents(), pkt.size());
@@ -854,7 +869,7 @@ bool AuthSocket::_HandleRealmList()
     pkt << (uint32) 0;
     pkt << (uint16) m_realmList.size();
     RealmList::RealmMap::const_iterator i;
-    for( i = m_realmList.begin(); i != m_realmList.end(); i++ )
+    for( i = m_realmList.begin(); i != m_realmList.end(); ++i )
     {
         uint8 AmountOfCharacters;
 
@@ -901,7 +916,7 @@ bool AuthSocket::_HandleXferResume()
 {
     DEBUG_LOG("Entering _HandleXferResume");
     ///- Check packet length and patch existence
-    if (ibuf.GetLength()<9 || !pPatch)
+    if (ibuf.GetLength() < 9 || !pPatch)
     {
         sLog.outError("Error while resuming patch transfer (wrong packet)");
         return false;
@@ -911,7 +926,7 @@ bool AuthSocket::_HandleXferResume()
     uint64 start;
     ibuf.Remove(1);
     ibuf.Read((char*)&start,sizeof(start));
-    fseek(pPatch,start,0);
+    fseek(pPatch, start, 0);
 
     ACE_Based::Thread u(*new PatcherRunnable(this));
     return true;
@@ -942,9 +957,9 @@ bool AuthSocket::_HandleXferAccept()
         return false;
     }
 
-    ///- Launch a PatcherRunnable thread, starting at the begining of the patch file
-    ibuf.Remove(1);                                         //clear input buffer
-    fseek(pPatch,0,0);
+    ///- Launch a PatcherRunnable thread, starting at the beginning of the patch file
+    ibuf.Remove(1);                                         // clear input buffer
+    fseek(pPatch, 0, 0);
 
     ACE_Based::Thread u(*new PatcherRunnable(this));
     return true;
@@ -953,12 +968,12 @@ bool AuthSocket::_HandleXferAccept()
 /// Check if there is lag on the connection to the client
 bool AuthSocket::IsLag()
 {
-    return (TCP_BUFSIZE_READ-GetOutputLength()< 2*ChunkSize);
+    return (TCP_BUFSIZE_READ-GetOutputLength() < 2 * ChunkSize);
 }
 
 PatcherRunnable::PatcherRunnable(class AuthSocket * as)
 {
-    mySocket=as;
+    mySocket = as;
 }
 
 /// Send content of patch file to the client
@@ -977,8 +992,8 @@ void PatcherRunnable::run()
         ACE_Based::Thread::Sleep(1);
         }
         ///- And send content of the patch file to the client
-        xfdata.data_size=fread(&xfdata.data,1,ChunkSize,mySocket->pPatch);
-        mySocket->SendBuf((const char*)&xfdata,xfdata.data_size +(sizeof(XFER_DATA_STRUCT)-ChunkSize));
+        xfdata.data_size = fread(&xfdata.data, 1, ChunkSize, mySocket->pPatch);
+        mySocket->SendBuf((const char*)&xfdata, xfdata.data_size + (sizeof(XFER_DATA_STRUCT) - ChunkSize));
     }
 }
 
@@ -999,8 +1014,9 @@ void Patcher::LoadPatchesInfo()
         errno = 0;
         if ((dp = readdir(dirp)) != NULL)
         {
-            int l=strlen(dp->d_name);
-            if(l<8)continue;
+            int l = strlen(dp->d_name);
+            if(l < 8)
+                continue;
             if(!memcmp(&dp->d_name[l-4],".mpq",4))
                 LoadPatchMD5(dp->d_name);
         }
@@ -1023,15 +1039,15 @@ void Patcher::LoadPatchesInfo()
 void Patcher::LoadPatchesInfo()
 {
     WIN32_FIND_DATA fil;
-    HANDLE hFil=FindFirstFile("./patches/*.mpq",&fil);
-    if(hFil==INVALID_HANDLE_VALUE)
-        return;                                             //no patches were found
+    HANDLE hFil=FindFirstFile("./patches/*.mpq", &fil);
+    if(hFil == INVALID_HANDLE_VALUE)
+        return;                                             // no patches were found
 
     do
     {
         LoadPatchMD5(fil.cFileName);
     }
-    while(FindNextFile(hFil,&fil));
+    while(FindNextFile(hFil, &fil));
 }
 #endif
 
@@ -1041,11 +1057,11 @@ void Patcher::LoadPatchMD5(char * szFileName)
     ///- Try to open the patch file
     std::string path = "./patches/";
     path += szFileName;
-    FILE * pPatch=fopen(path.c_str(),"rb");
-    sLog.outDebug("Loading patch info from %s\n",path.c_str());
+    FILE *pPatch = fopen(path.c_str(), "rb");
+    sLog.outDebug("Loading patch info from %s\n", path.c_str());
     if(!pPatch)
     {
-        sLog.outError("Error loading patch %s\n",path.c_str());
+        sLog.outError("Error loading patch %s\n", path.c_str());
         return;
     }
 
@@ -1064,16 +1080,16 @@ void Patcher::LoadPatchMD5(char * szFileName)
 
     ///- Store the result in the internal patch hash map
     _patches[path] = new PATCH_INFO;
-    MD5_Final((uint8 *)&_patches[path]->md5 , &ctx);
+    MD5_Final((uint8 *)&_patches[path]->md5, &ctx);
 }
 
 /// Get cached MD5 hash for a given patch file
-bool Patcher::GetHash(char * pat,uint8 mymd5[16])
+bool Patcher::GetHash(char * pat, uint8 mymd5[16])
 {
-    for( Patches::iterator i = _patches.begin(); i != _patches.end(); i++ )
-        if(!stricmp(pat,i->first.c_str () ))
+    for( Patches::iterator i = _patches.begin(); i != _patches.end(); ++i )
+        if(!stricmp(pat, i->first.c_str()))
     {
-        memcpy(mymd5,i->second->md5,16);
+        memcpy(mymd5, i->second->md5, 16);
         return true;
     }
 
@@ -1089,6 +1105,6 @@ Patcher::Patcher()
 /// Empty and delete the patch map on termination
 Patcher::~Patcher()
 {
-    for(Patches::iterator i = _patches.begin(); i != _patches.end(); i++ )
+    for(Patches::iterator i = _patches.begin(); i != _patches.end(); ++i )
         delete i->second;
 }
