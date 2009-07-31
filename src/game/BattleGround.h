@@ -298,6 +298,10 @@ class BattleGround
         virtual void StartingEventCloseDoors() {}
         virtual void StartingEventOpenDoors() {}
 
+        /* achievement req. */
+        virtual bool IsAllNodesConrolledByTeam(uint32 /*team*/) const { return false; }
+        bool IsTeamScoreInRange(uint32 team, uint32 minScore, uint32 maxScore) const;
+
         /* Battleground */
         // Get methods:
         char const* GetName() const         { return m_Name; }
@@ -397,7 +401,7 @@ class BattleGround
         void SetTeamStartLoc(uint32 TeamID, float X, float Y, float Z, float O);
         void GetTeamStartLoc(uint32 TeamID, float &X, float &Y, float &Z, float &O) const
         {
-            uint8 idx = GetTeamIndexByTeamId(TeamID);
+            BattleGroundTeamId idx = GetTeamIndexByTeamId(TeamID);
             X = m_TeamStartLocX[idx];
             Y = m_TeamStartLocY[idx];
             Z = m_TeamStartLocZ[idx];
@@ -441,7 +445,7 @@ class BattleGround
 
         virtual void UpdatePlayerScore(Player *Source, uint32 type, uint32 value);
 
-        uint8 GetTeamIndexByTeamId(uint32 Team) const { return Team == ALLIANCE ? BG_TEAM_ALLIANCE : BG_TEAM_HORDE; }
+        static BattleGroundTeamId GetTeamIndexByTeamId(uint32 Team) { return Team == ALLIANCE ? BG_TEAM_ALLIANCE : BG_TEAM_HORDE; }
         uint32 GetPlayersCountByTeam(uint32 Team) const { return m_PlayersCount[GetTeamIndexByTeamId(Team)]; }
         uint32 GetAlivePlayersCountByTeam(uint32 Team) const;   // used in arenas to correctly handle death in spirit of redemption / last stand etc. (killer = killed) cases
         void UpdatePlayersCountByTeam(uint32 Team, bool remove)

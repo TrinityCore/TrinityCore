@@ -841,14 +841,6 @@ libmangosgame_a_SOURCES = \
 	GroupRefManager.h
 >>>>>>> 5a6594330caefc0dc00a5fe792dcb0e344b457cb:src/game/Makefile.am
 
-## Link against shared library
-libmangosgame_a_LIBADD = \
-	../shared/libmangosshared.a \
-	../shared/Auth/libmangosauth.a \
-	../shared/Config/libmangosconfig.a \
-	../shared/Database/libmangosdatabase.a \
-	../shared/vmap/libmangosvmaps.a
-
 ## Additional files to include when running 'make dist'
 #  Precompiled Headers for WIN
 EXTRA_DIST = \
