@@ -850,14 +850,6 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                     continue;
                 SetCriteriaProgress(achievementCriteria, miscvalue1, PROGRESS_ACCUMULATE);
                 break;
-            case ACHIEVEMENT_CRITERIA_TYPE_WIN_BG:
-                // AchievementMgr::UpdateAchievementCriteria might also be called on login - skip in this case
-                if(!miscvalue1)
-                    continue;
-                if(GetPlayer()->GetMapId() != achievementCriteria->win_bg.bgMapID)
-                    continue;
-                SetCriteriaProgress(achievementCriteria, miscvalue1, PROGRESS_ACCUMULATE);
-                break;
             case ACHIEVEMENT_CRITERIA_TYPE_DEATH_AT_MAP:
                 // AchievementMgr::UpdateAchievementCriteria might also be called on login - skip in this case
                 if(!miscvalue1)
@@ -1500,8 +1492,6 @@ bool AchievementMgr::IsCompletedCriteria(AchievementCriteriaEntry const* achieve
             return progress->counter >= achievementCriteria->learn_skill_line.spellCount;
         case ACHIEVEMENT_CRITERIA_TYPE_EARN_HONORABLE_KILL:
             return progress->counter >= achievementCriteria->honorable_kill.killCount;
-        case ACHIEVEMENT_CRITERIA_TYPE_WIN_BG:
-            return progress->counter >= achievementCriteria->win_bg.winCount;
         // handle all statistic-only criteria here
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND:
         case ACHIEVEMENT_CRITERIA_TYPE_DEATH_AT_MAP:
