@@ -818,10 +818,12 @@ void Map::Remove(Player *player, bool remove)
 
         // invalid coordinates
         player->RemoveFromWorld();
-        player->ResetMap();
 
         if( remove )
+        {
             DeleteFromWorld(player);
+            player->ResetMap();
+        }
 
         return;
     }
