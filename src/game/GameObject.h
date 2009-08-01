@@ -593,7 +593,7 @@ class TRINITY_DLL_SPEC GameObject : public WorldObject
 
         void SetOwnerGUID(uint64 owner);
         uint64 GetOwnerGUID() const { return GetUInt64Value(OBJECT_FIELD_CREATED_BY); }
-        Unit* GetOwner() const;
+        Unit* GetOwner(bool inWorld = true) const;
 
         uint32 GetDBTableGUIDLow() const { return m_DBTableGuid; }
 

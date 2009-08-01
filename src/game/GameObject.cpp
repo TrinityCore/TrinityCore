@@ -123,8 +123,7 @@ void GameObject::RemoveFromWorld()
         // Possible crash at access to deleted GO in Unit::m_gameobj
         if(uint64 owner_guid = GetOwnerGUID())
         {
-            Unit* owner = ObjectAccessor::GetUnit(*this,owner_guid);
-            if(owner)
+            if(Unit * owner = GetOwner(false))
                 owner->RemoveGameObject(this,false);
             else if(!IS_PLAYER_GUID(owner_guid))
                 sLog.outError("Delete GameObject (GUID: %u Entry: %u ) that have references in not found creature %u GO list. Crash possible later.",GetGUIDLow(),GetGOInfo()->id,GUID_LOPART(owner_guid));
@@ -707,9 +706,11 @@ bool GameObject::IsTransport() const
     return gInfo->type == GAMEOBJECT_TYPE_TRANSPORT || gInfo->type == GAMEOBJECT_TYPE_MO_TRANSPORT;
 }
 
-Unit* GameObject::GetOwner() const
+Unit* GameObject::GetOwner(bool inWorld) const
 {
-    return ObjectAccessor::GetUnit(*this, GetOwnerGUID());
+    if (inWorld)
+        return ObjectAccessor::GetUnit(*this, GetOwnerGUID());
+    return ObjectAccessor::GetUnitInOrOutOfWorld(*this, GetOwnerGUID());
 }
 
 void GameObject::SaveRespawnTime()
