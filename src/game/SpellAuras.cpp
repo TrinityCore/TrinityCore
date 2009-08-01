@@ -6023,6 +6023,38 @@ void AuraEffect::HandleSchoolAbsorb(bool apply, bool Real, bool changeAmount)
             m_amount += (int32)DoneActualBenefit;
         }
     }
+
+    // Guardian Spirit
+    if(m_spellProto->Id == 47788 && Real && !apply)
+    {
+        Unit *caster = GetCaster();
+        if(!caster)
+            return;
+
+        if(caster->GetTypeId() != TYPEID_PLAYER)
+            return;
+
+        Player *player = ((Player*)caster);
+        // Glyph of Guardian Spirit
+        if(AuraEffect * aurEff = player->GetDummyAura(63231))
+        {            
+            if (GetParentAura()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
+            {
+                if (!player->HasSpellCooldown(47788))
+                    return;
+
+                player->RemoveSpellCooldown(m_spellProto->Id, true);
+                player->AddSpellCooldown(m_spellProto->Id, 0, uint32(time(NULL) + aurEff->GetAmount()));
+                
+                WorldPacket data(SMSG_SPELL_COOLDOWN, 8+1+4+4);
+                data << uint64(player->GetGUID());
+                data << uint8(0x0);                                     // flags (0x1, 0x2)
+                data << uint32(m_spellProto->Id);
+                data << uint32(aurEff->GetAmount()*IN_MILISECONDS);
+                player->SendDirectMessage(&data);
+            }
+        }
+    }
 }
 
 void AuraEffect::PeriodicTick()
