@@ -439,7 +439,7 @@ class TRINITY_DLL_SPEC WorldObject : public Object
 
         void GetRandomPoint( float x, float y, float z, float distance, float &rand_x, float &rand_y, float &rand_z ) const;
 
-        uint32 GetMapId() const { return m_currMap ? m_currMap->GetId() : 0; }
+        virtual uint32 GetMapId() const { return m_currMap ? m_currMap->GetId() : 0; }
         uint32 GetInstanceId() const { return m_currMap ? m_currMap->GetInstanceId() : 0; }
 
         virtual void SetPhaseMask(uint32 newPhaseMask, bool update);
