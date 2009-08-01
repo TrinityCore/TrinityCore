@@ -710,6 +710,7 @@ bool IsPositiveEffect(uint32 spellId, uint32 effIndex, bool deep)
 
     switch(spellId)
     {
+        case  1852:                                         // Silenced (GM)
         case 46392:                                         // Focused Assault
         case 46393:                                         // Brutal Assault
         case 28441:                                         // not positive dummy spell

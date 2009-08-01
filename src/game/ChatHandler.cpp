@@ -155,6 +155,18 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
             GetPlayer()->UpdateSpeakTime();
     }
 
+    if (GetPlayer()->HasAura(1852) && type != CHAT_MSG_WHISPER)
+    {
+        std::string msg="";
+        recv_data >> msg;
+
+        if (ChatHandler(this).ParseCommands(msg.c_str()) == 0)
+        {
+            SendNotification(GetTrinityString(LANG_GM_SILENCE), GetPlayer()->GetName());
+            return;
+        }
+    }
+
     switch(type)
     {
         case CHAT_MSG_SAY:
@@ -229,6 +241,12 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
                     SendPacket(&data);
                     return;
                 }
+            }
+
+            if (GetPlayer()->HasAura(1852) && !player->isGameMaster())
+            {
+                SendNotification(GetTrinityString(LANG_GM_SILENCE), GetPlayer()->GetName());
+                return;
             }
 
             GetPlayer()->Whisper(msg, lang,player->GetGUID());
