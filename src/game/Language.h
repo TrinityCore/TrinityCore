@@ -870,6 +870,8 @@ enum TrinityStrings
     LANG_GM_NOTIFY                       = 6614,
     LANG_GM_ANNOUNCE_COLOR               = 6615,
 
+    LANG_GM_SILENCE                      = 6616,              // "Silence is ON for %s" - Spell 1852
+
     LANG_WORLD_CLOSED                    = 7523,
     LANG_WORLD_OPENED                    = 7524,
 
