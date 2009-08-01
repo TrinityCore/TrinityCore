@@ -39,6 +39,8 @@ Corpse::Corpse(CorpseType type) : WorldObject()
 
     m_type = type;
 
+    m_mapId = 0;
+
     m_time = time(NULL);
 
     lootForBody = false;
@@ -198,6 +200,7 @@ bool Corpse::LoadFromDB(uint32 guid, Field *fields, uint32 & mapId, uint32 &  in
     }
 
     mapId = fields[4].GetUInt32();
+    SetMapId(mapId);
     instanceId = fields[8].GetUInt32();
 
     m_time = time_t(fields[6].GetUInt64());
