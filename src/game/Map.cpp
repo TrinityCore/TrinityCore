@@ -821,8 +821,8 @@ void Map::Remove(Player *player, bool remove)
 
         if( remove )
         {
-            DeleteFromWorld(player);
             player->ResetMap();
+            DeleteFromWorld(player);
         }
 
         return;
