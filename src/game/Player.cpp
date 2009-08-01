@@ -21399,7 +21399,7 @@ void Player::ResetMap()
     GetMapRef().unlink();
 }
 
-void SetMap(Map * map)
+void Player::SetMap(Map * map)
 {
     Unit::SetMap(map);
     m_mapRef.link(map, this);

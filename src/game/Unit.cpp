@@ -2868,6 +2868,8 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit *pVictim, SpellEntry const *spell)
     if (canBlock)
     {
         int32 blockChance = int32(pVictim->GetUnitBlockChance()*100.0f)  - skillDiff * 4;
+        if ( blockChance < 0 )
+            blockChance = 0;
         tmp += blockChance;
 
         if (roll < tmp)
