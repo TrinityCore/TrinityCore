@@ -481,9 +481,7 @@ Player::~Player ()
     // it must be unloaded already in PlayerLogout and accessed only for loggined player
     //m_social = NULL;
 
-    // Remove reference to map if still exists
-    if (FindMap())
-        ResetMap();
+    assert (!FindMap());
 
     // Note: buy back item already deleted from DB when player was saved
     for(uint8 i = 0; i < PLAYER_SLOTS_COUNT; ++i)
