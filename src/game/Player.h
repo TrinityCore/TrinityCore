@@ -2123,7 +2123,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         MapReference &GetMapRef() { return m_mapRef; }
 
         // Set map to player and add reference
-        void SetMap(Map * map) {Unit::SetMap(map); m_mapRef.link(map, this);}
+        void SetMap(Map * map) {Unit::SetMap(map); assert (!m_currMap); m_mapRef.link(map, this);}
         void ResetMap();
 
         bool isAllowedToLoot(Creature* creature);
