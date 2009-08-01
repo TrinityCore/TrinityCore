@@ -125,7 +125,11 @@ Map* MapInstanced::CreateInstance(const uint32 mapId, Player * player, uint32 in
     if(IsBattleGroundOrArena())
     {
         assert(player->GetBattleGroundId());
-        return CreateBattleGround(player->GetBattleGroundId());
+        instanceId = player->GetBattleGroundId();
+        if(instanceId)
+            if(Map *map = _FindMap(instanceId))
+                return map;
+        return CreateBattleGround(instanceId);
     }
 
     if(InstanceSave *pSave = player->GetInstanceSave(GetId()))
