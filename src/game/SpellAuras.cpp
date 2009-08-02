@@ -944,6 +944,30 @@ void Aura::ApplyAllModifiers(bool apply, bool Real)
 
 void Aura::HandleAuraSpecificMods(bool apply)
 {
+    // Aura Mastery Triggered Spell Handler
+    // If apply Concentration Aura -> trigger -> apply Aura Mastery Immunity
+    // If remove Concentration Aura -> trigger -> remove Aura Mastery Immunity
+    // If remove Aura Mastery -> trigger -> remove Aura Mastery Immunity
+    if (m_spellProto->Id == 19746 || m_spellProto->Id == 31821)
+    {       
+        if (GetCasterGUID() != m_target->GetGUID())
+            return;
+        
+        if (apply)
+        {
+            if ((m_spellProto->Id == 31821 && m_target->HasAura(19746, GetCasterGUID())) || (m_spellProto->Id == 19746 && m_target->HasAura(31821)))
+            {
+                m_target->CastSpell(m_target,64364,true);
+                return;
+            }  
+        }
+        else
+        {
+            m_target->RemoveAurasDueToSpell(64364, GetCasterGUID());
+            return;
+        }
+    }
+
     if (GetSpellSpecific(m_spellProto->Id) == SPELL_PRESENCE)
     {
         AuraEffect *bloodPresenceAura=0;  // healing by damage done
