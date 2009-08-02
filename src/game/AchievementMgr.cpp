@@ -83,13 +83,14 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
 
     switch(criteria->requiredType)
     {
-        case ACHIEVEMENT_CRITERIA_TYPE_WIN_BG:
         case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE:
-        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST:      // only hardcoded list
+        case ACHIEVEMENT_CRITERIA_TYPE_WIN_BG:
         case ACHIEVEMENT_CRITERIA_TYPE_FALL_WITHOUT_DYING:
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST:      // only hardcoded list
         case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL:
         case ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA:
         case ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE:
+        case ACHIEVEMENT_CRITERIA_TYPE_WIN_DUEL:
         case ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE:
         case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL2:
             break;
@@ -691,7 +692,6 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             // std. case: increment at 1
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DAILY_QUEST:
             case ACHIEVEMENT_CRITERIA_TYPE_NUMBER_OF_TALENT_RESETS:
-            case ACHIEVEMENT_CRITERIA_TYPE_WIN_DUEL:
             case ACHIEVEMENT_CRITERIA_TYPE_LOSE_DUEL:
             case ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED:
             case ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED:
@@ -1255,6 +1255,24 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 SetCriteriaProgress(achievementCriteria, spellCount);
                 break;
             }
+            case ACHIEVEMENT_CRITERIA_TYPE_WIN_DUEL:
+                // AchievementMgr::UpdateAchievementCriteria might also be called on login - skip in this case
+                if(!miscvalue1)
+                    continue;
+
+                if(achievementCriteria->win_duel.duelCount)
+                {
+                    // those requirements couldn't be found in the dbc
+                    AchievementCriteriaDataSet const* data = achievementmgr.GetCriteriaDataSet(achievementCriteria);
+                    if(!data)
+                        continue;
+
+                    if(!data->Meets(GetPlayer(),unit))
+                        continue;
+                }
+
+                SetCriteriaProgress(achievementCriteria, 1, PROGRESS_ACCUMULATE);
+                break;
             case ACHIEVEMENT_CRITERIA_TYPE_GAIN_REVERED_REPUTATION:
                 SetCriteriaProgress(achievementCriteria, GetPlayer()->GetReputationMgr().GetReveredFactionCount());
                 break;
@@ -1941,6 +1959,10 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE:        // need skip generic cases
                 if(criteria->do_emote.count==0)
+                    continue;
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_WIN_DUEL:        // skip statistics
+                if(criteria->win_duel.duelCount==0)
                     continue;
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL2:     // any cases
