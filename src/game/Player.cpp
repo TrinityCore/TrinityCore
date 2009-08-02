@@ -725,7 +725,6 @@ bool Player::Create( uint32 guidlow, const std::string& name, uint8 race, uint8 
 
             uint32 item_id = oEntry->ItemId[j];
 
-
             // Hack for not existed item id in dbc 3.0.3
             if(item_id==40582)
                 continue;
@@ -737,9 +736,10 @@ bool Player::Create( uint32 guidlow, const std::string& name, uint8 race, uint8 
                 continue;
             }
 
-            // max stack by default (mostly 1), 1 for infinity stackable
-            uint32 count = iProto->Stackable > 0 ? uint32(iProto->Stackable) : 1;
+            // BuyCount by default
+            uint32 count = iProto->BuyCount;
 
+            // special amount for foor/drink
             if(iProto->Class==ITEM_CLASS_CONSUMABLE && iProto->SubClass==ITEM_SUBCLASS_FOOD)
             {
                 switch(iProto->Spells[0].SpellCategory)
