@@ -585,8 +585,14 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
             }
             case SPELLFAMILY_HUNTER:
             {
+                //Gore
+                if (m_spellInfo->SpellIconID == 1578)
+                {
+                    if (m_caster->HasAura(57627))           // Charge 6 sec post-affect
+                        damage *= 2;
+                }
                 // Steady Shot
-                if(m_spellInfo->SpellFamilyFlags[1] & 0x1)
+                else if(m_spellInfo->SpellFamilyFlags[1] & 0x1)
                 {
                     bool found = false;
                     // check dazed affect
