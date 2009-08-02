@@ -944,6 +944,15 @@ void Aura::ApplyAllModifiers(bool apply, bool Real)
 
 void Aura::HandleAuraSpecificMods(bool apply)
 {
+    // Glyph of Polymorph ( 56375 - Dot Remover )
+    // Polymorph
+    if (apply && GetCaster()->HasAura(56375) && (m_spellProto->SpellFamilyName == 3 && m_spellProto->SpellFamilyFlags[0] & 0x01000000))
+    {
+        m_target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
+        m_target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
+        return;
+    }
+
     // Aura Mastery Triggered Spell Handler
     // If apply Concentration Aura -> trigger -> apply Aura Mastery Immunity
     // If remove Concentration Aura -> trigger -> remove Aura Mastery Immunity
