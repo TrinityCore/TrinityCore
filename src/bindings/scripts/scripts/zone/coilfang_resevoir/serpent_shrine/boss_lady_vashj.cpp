@@ -287,11 +287,11 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
                 //if(who->HasStealthAura())
                 //    who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
 
-                if(Phase != 2)
-                    AttackStart(who);
-
-                if(!m_creature->isInCombat())
+                if(!m_creature->isInCombat())//AttackStart() sets UNIT_FLAG_IN_COMBAT, so this msut be before attacking
                     StartEvent();
+
+                if(Phase != 2)
+                    AttackStart(who);                
             }
         }
     }
