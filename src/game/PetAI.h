@@ -50,9 +50,6 @@ class TRINITY_DLL_DECL PetAI : public CreatureAI
         bool inCombat;
         std::set<uint64> m_AllySet;
         uint32 m_updateAlliesTimer;
-
-        typedef std::pair<Unit*, Spell*> TargetSpellPair;
-        std::vector<TargetSpellPair> m_targetSpellStore;
 };
 #endif
 
