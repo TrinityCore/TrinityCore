@@ -2047,7 +2047,7 @@ void Spell::EffectTriggerSpell(uint32 i)
     // special cases
     switch(triggered_spell_id)
     {
-        // Vanish
+        // Vanish (not exist)
         case 18461:
         {
             m_caster->RemoveMovementImpairingAuras();
@@ -2108,7 +2108,8 @@ void Spell::EffectTriggerSpell(uint32 i)
         // Brittle Armor - (need add max stack of 24575 Brittle Armor)
         case 29284:
         {
-            const SpellEntry *spell = sSpellStore.LookupEntry(24575);
+            // Brittle Armor
+            SpellEntry const* spell = sSpellStore.LookupEntry(24575);
             if (!spell)
                 return;
 
@@ -2119,7 +2120,8 @@ void Spell::EffectTriggerSpell(uint32 i)
         // Mercurial Shield - (need add max stack of 26464 Mercurial Shield)
         case 29286:
         {
-            const SpellEntry *spell = sSpellStore.LookupEntry(26464);
+            // Mercurial Shield
+            SpellEntry const* spell = sSpellStore.LookupEntry(26464);
             if (!spell)
                 return;
 
@@ -2134,7 +2136,7 @@ void Spell::EffectTriggerSpell(uint32 i)
             return;
         }
         // Cloak of Shadows
-        case 35729 :
+        case 35729:
         {
             uint32 dispelMask = GetDispellMask(DISPEL_ALL);
             Unit::AuraMap& Auras = m_caster->GetAuras();
@@ -3571,26 +3573,12 @@ void Spell::EffectDispel(uint32 i)
             }
             m_caster->SendMessageToSet(&dataSuccess, true);
 
-            // On succes dispel
+            // On success dispel
             // Devour Magic
             if (m_spellInfo->SpellFamilyName == SPELLFAMILY_WARLOCK && m_spellInfo->Category == SPELLCATEGORY_DEVOUR_MAGIC)
             {
-                uint32 heal_spell = 0;
-                switch (m_spellInfo->Id)
-                {
-                    case 19505: heal_spell = 19658; break;
-                    case 19731: heal_spell = 19732; break;
-                    case 19734: heal_spell = 19733; break;
-                    case 19736: heal_spell = 19735; break;
-                    case 27276: heal_spell = 27278; break;
-                    case 27277: heal_spell = 27279; break;
-                    case 48011: heal_spell = 48010; break;
-                    default:
-                        sLog.outDebug("Spell for Devour Magic %d not handled in Spell::EffectDispel", m_spellInfo->Id);
-                        break;
-                }
-                if (heal_spell)
-                    m_caster->CastSpell(m_caster, heal_spell, true);
+                int32 heal_amount = m_spellInfo->CalculateSimpleValue(1);
+                m_caster->CastCustomSpell(m_caster, 19658, &heal_amount, NULL, NULL, true);
             }
         }
     }
