@@ -6889,6 +6889,8 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             // Death Strike healing effect
             if (dummySpell->Id == 45469)
             {
+                if (!pVictim)
+                    return false;
                 basepoints0=pVictim->GetDiseasesByCaster(GetGUID()) * GetMaxHealth()* procSpell->DmgMultiplier[0] / 100.0f;
                 // Do not heal when no diseases on target
                 if (!basepoints0)
@@ -13720,10 +13722,18 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit *pVictim, Aura * aura, SpellEntry co
     if(spellProcEvent && spellProcEvent->customChance)
         chance = spellProcEvent->customChance;
     // If PPM exist calculate chance from PPM
-    if(!isVictim && spellProcEvent && spellProcEvent->ppmRate != 0)
+    if(spellProcEvent && spellProcEvent->ppmRate != 0)
     {
-        uint32 WeaponSpeed = GetAttackTime(attType);
-        chance = GetPPMProcChance(WeaponSpeed, spellProcEvent->ppmRate, spellProto);
+        if(!isVictim)
+        {
+            uint32 WeaponSpeed = GetAttackTime(attType);
+            chance = GetPPMProcChance(WeaponSpeed, spellProcEvent->ppmRate, spellProto);
+        }
+        else
+        {
+            uint32 WeaponSpeed = pVictim->GetAttackTime(attType);
+            chance = pVictim->GetPPMProcChance(WeaponSpeed, spellProcEvent->ppmRate, spellProto);
+        }
     }
     // Apply chance modifer aura
     if(Player* modOwner = GetSpellModOwner())
