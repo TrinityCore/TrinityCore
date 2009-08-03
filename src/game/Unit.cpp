@@ -6442,7 +6442,13 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
         case SPELLFAMILY_SHAMAN:
         {
             switch(dummySpell->Id)
-            {
+            {                // Shaman T8 Elemental 4P Bonus
+                case 64928:
+                {
+                    basepoints0 = int32( damage*0.08 );
+                    triggered_spell_id = 64930;
+                    break;
+                }
                 // Improved fire nova totem
                 case 16544:
                 {
