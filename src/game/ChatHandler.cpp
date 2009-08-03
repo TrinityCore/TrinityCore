@@ -160,11 +160,8 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
         std::string msg="";
         recv_data >> msg;
 
-        if (ChatHandler(this).ParseCommands(msg.c_str()) == 0)
-        {
-            SendNotification(GetTrinityString(LANG_GM_SILENCE), GetPlayer()->GetName());
-            return;
-        }
+        SendNotification(GetTrinityString(LANG_GM_SILENCE), GetPlayer()->GetName());
+        return;
     }
 
     switch(type)

@@ -434,7 +434,7 @@ void GameObject::Update(uint32 /*p_time*/)
 
             if(GetOwnerGUID())
             {
-                if(Unit* owner = GetOwner())
+                if(Unit* owner = GetOwner(false))
                 {
                     owner->RemoveGameObject(this, false);
                     SetRespawnTime(0);
@@ -490,6 +490,15 @@ void GameObject::AddUniqueUse(Player* player)
 {
     AddUse();
     m_unique_users.insert(player->GetGUIDLow());
+}
+
+void GameObject::DeleteObjectWithOwner()
+{
+    SetLootState(GO_NOT_READY);
+    if (GetOwnerGUID())
+        if (Unit * owner = GetOwner(false))
+            owner->RemoveGameObject(this, false);
+    Delete();
 }
 
 void GameObject::Delete()

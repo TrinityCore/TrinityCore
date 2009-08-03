@@ -944,31 +944,47 @@ void Aura::ApplyAllModifiers(bool apply, bool Real)
 
 void Aura::HandleAuraSpecificMods(bool apply)
 {
-    // Glyph of Fireball
-    if ((apply) && (GetCaster()->HasAura(56368)) && (m_spellProto->SpellFamilyName == SPELLFAMILY_MAGE && m_spellProto->SpellFamilyFlags[0] & 0x00000001 && m_spellProto->SpellFamilyFlags[2] & 0x00000008))
-            SetAuraDuration(0);
-
-    // Glyph of Frostbolt
-    if ((apply) && (GetCaster()->HasAura(56370)) && ((m_spellProto->SpellFamilyName == SPELLFAMILY_MAGE) && (m_spellProto->SpellFamilyFlags[0] & 0x00000020) && (m_spellProto->SpellVisual[0] == 13)))
-            SetAuraDuration(0);
-
-    // Polymorph - Glyphs && Sound
-    if (apply && m_spellProto->SpellFamilyName == SPELLFAMILY_MAGE && m_spellProto->SpellFamilyFlags[0] & 0x01000000)
+    if (apply)
     {
-        // Glyph of Polymorph
-        if (GetCaster()->HasAura(56375))
+        if (m_spellProto->SpellFamilyName == SPELLFAMILY_MAGE)
         {
-            m_target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
-            m_target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
-        }
+            if (m_spellProto->SpellFamilyFlags[0] & 0x00000001 && m_spellProto->SpellFamilyFlags[2] & 0x00000008)
+            {
+                // Glyph of Fireball
+                if (Unit * caster = GetCaster())
+                    if (caster->HasAura(56368))
+                        SetAuraDuration(0);
+            }
+            else if (m_spellProto->SpellFamilyFlags[0] & 0x00000020 && m_spellProto->SpellVisual[0] == 13)
+            {
+                // Glyph of Frostbolt
+                if (Unit * caster = GetCaster())
+                    if (caster->HasAura(56370))
+                        SetAuraDuration(0);
+            }
+            // Todo: This should be moved to similar function in spell::hit
+            else if (m_spellProto->SpellFamilyFlags[0] & 0x01000000)
+            {
+                // Glyph of Polymorph
+                Unit * caster = GetCaster();
+                if (!caster)
+                    return;
+                if (caster->HasAura(56375))
+                {
+                    m_target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
+                    m_target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
+                }
 
-        // Polymorph Sound - Sheep && Penguin
-        if (m_spellProto->SpellIconID == 82 && m_spellProto->SpellVisual[0] == 12978)
-        {
-            if (GetCaster()->HasAura(56375))
-                GetCaster()->CastSpell(m_target,61635,true);
-            else
-                GetCaster()->CastSpell(m_target,61634,true);
+                // Polymorph Sound - Sheep && Penguin
+                if (m_spellProto->SpellIconID == 82 && m_spellProto->SpellVisual[0] == 12978)
+                {
+                    // Glyph of the Penguin
+                    if (caster->HasAura(52648))
+                        caster->CastSpell(m_target,61635,true);
+                    else
+                        caster->CastSpell(m_target,61634,true);
+                }
+            }
         }
     }
 
@@ -977,10 +993,9 @@ void Aura::HandleAuraSpecificMods(bool apply)
     // If remove Concentration Aura -> trigger -> remove Aura Mastery Immunity
     // If remove Aura Mastery -> trigger -> remove Aura Mastery Immunity
     if (m_spellProto->Id == 19746 || m_spellProto->Id == 31821)
-    {       
+    {
         if (GetCasterGUID() != m_target->GetGUID())
             return;
-        
         if (apply)
         {
             if ((m_spellProto->Id == 31821 && m_target->HasAura(19746, GetCasterGUID())) || (m_spellProto->Id == 19746 && m_target->HasAura(31821)))
@@ -3565,10 +3580,13 @@ void AuraEffect::HandleAuraTransform(bool apply, bool Real, bool /*changeAmount*
                 // Dragonmaw Illusion (set mount model also)
                 if(GetId()==42016 && m_target->GetMountID() && !m_target->GetAurasByType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED).empty())
                     m_target->SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID,16314);
-                
-                // Glyph of the Penguin
-                if ((GetCaster()->HasAura(56375)) && (GetSpellProto()->SpellFamilyName == SPELLFAMILY_MAGE && GetSpellProto()->SpellIconID == 82 && GetSpellProto()->SpellVisual[0] == 12978))
-                     m_target->SetDisplayId(26452);
+
+                // Polymorph (sheep)
+                if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_MAGE && GetSpellProto()->SpellIconID == 82 && GetSpellProto()->SpellVisual[0] == 12978)
+                    if (Unit * caster = GetCaster())
+                        // Glyph of the Penguin
+                        if (caster->HasAura(52648))
+                            m_target->SetDisplayId(26452);
             }
         }
 
