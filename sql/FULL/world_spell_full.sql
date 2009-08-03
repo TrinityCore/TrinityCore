@@ -509,6 +509,12 @@ INSERT INTO `spell_target_position` (`id`, `target_map`, `target_position_x`, `t
 DELETE FROM `playercreateinfo_spell` WHERE Spell = 56816;
 INSERT INTO `playercreateinfo_spell` (`race`, `class`, `Spell`, `Note`) VALUES
 (0, 6, 56816, 'Rune Strike');
+DELETE FROM `playercreateinfo_spell` WHERE `spell` = 60091;
+INSERT INTO `playercreateinfo_spell` (`race`, `class`, `Spell`, `Note`) VALUES 
+(1, 2,  60091, 'Judgement Anti-Parry/Dodge Passive'),
+(3, 2,  60091, 'Judgement Anti-Parry/Dodge Passive'),
+(10, 2,  60091, 'Judgement Anti-Parry/Dodge Passive'),
+(11, 2,  60091, 'Judgement Anti-Parry/Dodge Passive');
 
 -- --------
 -- PROC
@@ -1497,8 +1503,7 @@ INSERT INTO `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `Spell
 ( 56636, 0x00,   4, 0x00000020, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   6), -- Taste for Blood (Rank 1)
 ( 56637, 0x00,   4, 0x00000020, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   6), -- Taste for Blood (Rank 2)
 ( 56638, 0x00,   4, 0x00000020, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   6), -- Taste for Blood (Rank 3) 
-( 56375, 0x00,   3, 0x01000000, 0x00000000, 0x00000000, 0x00010000, 0x00000000,   0,   0,   0), -- Glyphs of Polymorph
-( 64928, 0x00,  11, 0x00000001, 0x00000000, 0x00000000, 0x00000000, 0x00000002,   0,   0,   0); -- Item - Shaman T8 Elemental 4P Bonus
+( 56375, 0x00,   3, 0x01000000, 0x00000000, 0x00000000, 0x00010000, 0x00000000,   0,   0,   0); -- Glyphs of Polymorph
 
 -- --------
 -- ENCHANT PROC
