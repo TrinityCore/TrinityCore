@@ -944,6 +944,14 @@ void Aura::ApplyAllModifiers(bool apply, bool Real)
 
 void Aura::HandleAuraSpecificMods(bool apply)
 {
+    // Glyph of Fireball
+    if ((apply) && (GetCaster()->HasAura(56368)) && (m_spellProto->SpellFamilyName == SPELLFAMILY_MAGE && m_spellProto->SpellFamilyFlags[0] & 0x00000001 && m_spellProto->SpellFamilyFlags[2] & 0x00000008))
+            SetAuraDuration(0);
+
+    // Glyph of Frostbolt
+    if ((apply) && (GetCaster()->HasAura(56370)) && ((m_spellProto->SpellFamilyName == SPELLFAMILY_MAGE) && (m_spellProto->SpellFamilyFlags[0] & 0x00000020) && (m_spellProto->SpellVisual[0] == 13)))
+            SetAuraDuration(0);
+
     // Polymorph - Glyphs && Sound
     if (apply && m_spellProto->SpellFamilyName == SPELLFAMILY_MAGE && m_spellProto->SpellFamilyFlags[0] & 0x01000000)
     {
