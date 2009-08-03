@@ -1234,7 +1234,7 @@ bool BattleGroundAV::SetupBattleGround()
         return false;
     }
 
-//spawn node-objects
+    //spawn node-objects
     for (uint8 i = BG_AV_NODES_FIRSTAID_STATION ; i < BG_AV_NODES_MAX; ++i)
     {
         if( i <= BG_AV_NODES_FROSTWOLF_HUT )
