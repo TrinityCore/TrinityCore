@@ -1086,6 +1086,7 @@ UPDATE `creature_template` SET `ScriptName`='boss_zuljin' WHERE `entry` =23863;
 UPDATE `creature_template` SET `ScriptName`='do_nothing' WHERE `entry`=24187;
 UPDATE `creature_template` SET `ScriptName`='mob_zuljin_vortex' WHERE `entry`=24136;
 UPDATE `creature_template` SET `ScriptName`='npc_zulaman_hostage' WHERE `entry` IN (23790, 23999, 24024, 24001);
+UPDATE `creature_template` SET `ScriptName`='mob_mojo' WHERE `entry`=24480;
 
 /* ZUL'DRAK */
 UPDATE `creature_template` SET `ScriptName`='npc_captured_rageclaw' WHERE (`entry`='29686');
