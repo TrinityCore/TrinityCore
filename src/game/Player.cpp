@@ -15934,8 +15934,7 @@ bool Player::Satisfy(AccessRequirement const *ar, uint32 target_map, bool report
         {
             if(ar->levelMin && getLevel() < ar->levelMin)
                 LevelMin = ar->levelMin;
-            else if(ar->heroicLevelMin && GetDifficulty() == DIFFICULTY_HEROIC
-                && getLevel() < ar->heroicLevelMin)
+            if(ar->heroicLevelMin && GetDifficulty() == DIFFICULTY_HEROIC && getLevel() < ar->heroicLevelMin)
                 LevelMin = ar->heroicLevelMin;
             if(ar->levelMax && getLevel() > ar->levelMax)
                 LevelMax = ar->levelMax;
@@ -15977,7 +15976,7 @@ bool Player::Satisfy(AccessRequirement const *ar, uint32 target_map, bool report
             if(report)
             {
                 if(missingItem)
-                    GetSession()->SendAreaTriggerMessage(GetSession()->GetTrinityString(LANG_LEVEL_MINREQUIRED_AND_ITEM), ar->levelMin, objmgr.GetItemPrototype(missingItem)->Name1);
+                    GetSession()->SendAreaTriggerMessage(GetSession()->GetTrinityString(LANG_LEVEL_MINREQUIRED_AND_ITEM), LevelMin, objmgr.GetItemPrototype(missingItem)->Name1);
                 else if(missingKey)
                     SendTransferAborted(target_map, TRANSFER_ABORT_DIFFICULTY);
                 else if(missingHeroicQuest)
