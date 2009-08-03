@@ -182,7 +182,7 @@ bool Corpse::LoadFromDB(uint32 guid, QueryResult *result, uint32 InstanceId)
     return true;
 }*/
 
-bool Corpse::LoadFromDB(uint32 guid, Field *fields, uint32 & mapId, uint32 &  instanceId)
+bool Corpse::LoadFromDB(uint32 guid, Field *fields)
 {
     //                                          0          1          2          3           4   5    6    7           8        9
     //result = CharacterDatabase.PQuery("SELECT position_x,position_y,position_z,orientation,map,data,time,corpse_type,instance,phaseMask FROM corpse WHERE guid = '%u'",guid);
@@ -199,9 +199,8 @@ bool Corpse::LoadFromDB(uint32 guid, Field *fields, uint32 & mapId, uint32 &  in
         return false;
     }
 
-    mapId = fields[4].GetUInt32();
-    SetMapId(mapId);
-    instanceId = fields[8].GetUInt32();
+    SetMapId(fields[4].GetUInt32());
+    SetInstanceId(fields[8].GetUInt32());
 
     m_time = time_t(fields[6].GetUInt64());
     m_type = CorpseType(fields[7].GetUInt32());

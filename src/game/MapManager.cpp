@@ -117,9 +117,13 @@ MapManager::_createBaseMap(uint32 id)
         {
             m = new MapInstanced(id, i_gridCleanUpDelay);
         }
-        else
+        else if (entry)
         {
             m = new Map(id, i_gridCleanUpDelay, 0, 0);
+        }
+        else
+        {
+            assert(false);
         }
         i_maps[id] = m;
     }
