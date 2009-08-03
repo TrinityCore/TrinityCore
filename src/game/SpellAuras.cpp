@@ -965,15 +965,9 @@ void Aura::HandleAuraSpecificMods(bool apply)
             // Todo: This should be moved to similar function in spell::hit
             else if (m_spellProto->SpellFamilyFlags[0] & 0x01000000)
             {
-                // Glyph of Polymorph
                 Unit * caster = GetCaster();
                 if (!caster)
                     return;
-                if (caster->HasAura(56375))
-                {
-                    m_target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
-                    m_target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
-                }
 
                 // Polymorph Sound - Sheep && Penguin
                 if (m_spellProto->SpellIconID == 82 && m_spellProto->SpellVisual[0] == 12978)
