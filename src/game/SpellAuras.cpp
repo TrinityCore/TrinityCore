@@ -944,13 +944,25 @@ void Aura::ApplyAllModifiers(bool apply, bool Real)
 
 void Aura::HandleAuraSpecificMods(bool apply)
 {
-    // Glyph of Polymorph ( 56375 - Dot Remover )
-    // Polymorph
-    if (apply && GetCaster()->HasAura(56375) && (m_spellProto->SpellFamilyName == 3 && m_spellProto->SpellFamilyFlags[0] & 0x01000000))
+    // Polymorph - Glyphs && Sound
+    if (apply && m_spellProto->SpellFamilyName == SPELLFAMILY_MAGE && m_spellProto->SpellFamilyFlags[0] & 0x01000000)
     {
-        m_target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
-        m_target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
-        return;
+        // Glyph of Polymorph
+        if (GetCaster()->HasAura(56375))
+        {
+            m_target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
+            m_target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
+        }
+
+        // Polymorph Sound - Sheep && Penguin
+        if (m_spellProto->SpellIconID == 82)
+        {
+            if (GetCaster()->HasAura(56375))
+                GetCaster()->CastSpell(m_target,61635,true);
+            else
+                GetCaster()->CastSpell(m_target,61634,true);
+        }
+            
     }
 
     // Aura Mastery Triggered Spell Handler
@@ -3546,6 +3558,10 @@ void AuraEffect::HandleAuraTransform(bool apply, bool Real, bool /*changeAmount*
                 // Dragonmaw Illusion (set mount model also)
                 if(GetId()==42016 && m_target->GetMountID() && !m_target->GetAurasByType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED).empty())
                     m_target->SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID,16314);
+                
+                // Glyph of the Penguin
+                if ((GetCaster()->HasAura(56375)) && (GetSpellProto()->SpellFamilyName == SPELLFAMILY_MAGE && GetSpellProto()->SpellIconID == 82))
+                     m_target->SetDisplayId(26452);
             }
         }
 
