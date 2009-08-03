@@ -640,6 +640,7 @@ class TRINITY_DLL_SPEC GameObject : public WorldObject
         uint32 GetRespawnDelay() const { return m_respawnDelayTime; }
         void Refresh();
         void Delete();
+        void DeleteObjectWithOwner();
         void SetSpellId(uint32 id) { m_spellId = id;}
         uint32 GetSpellId() const { return m_spellId;}
         void getFishLoot(Loot *loot, Player* loot_owner);
