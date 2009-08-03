@@ -1179,6 +1179,9 @@ Visibility.Distance.Grey.Object = 10
 #        XP needed per level past 70 (Rates below 1 not recommended)
 #        Default: 1
 #
+#    Rate.RepairCost
+#        Repair cost rate (1 - standard, 2 - double cost, 0.5 - half cost, etc)
+#
 #    Rate.Rest.InGame
 #    Rate.Rest.Offline.InTavernOrCity
 #    Rate.Rest.Offline.InWilderness
@@ -1298,6 +1301,7 @@ Rate.XP.Kill    = 1
 Rate.XP.Quest   = 1
 Rate.XP.Explore = 1
 Rate.XP.PastLevel70 = 1
+Rate.RepairCost = 1
 Rate.Rest.InGame = 1
 Rate.Rest.Offline.InTavernOrCity = 1
 Rate.Rest.Offline.InWilderness = 1
