@@ -6442,7 +6442,8 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
         case SPELLFAMILY_SHAMAN:
         {
             switch(dummySpell->Id)
-            {                // Shaman T8 Elemental 4P Bonus
+            {
+               // Shaman T8 Elemental 4P Bonus
                 case 64928:
                 {
                     basepoints0 = int32( triggerAmount * damage / 100 );
@@ -12653,6 +12654,7 @@ bool InitTriggerAuraData()
     isTriggerAura[SPELL_AURA_MOD_STEALTH] = true;
     isTriggerAura[SPELL_AURA_MOD_FEAR] = true; // Aura not have charges but need remove him on trigger
     isTriggerAura[SPELL_AURA_MOD_ROOT] = true;
+    isTriggerAura[SPELL_AURA_TRANSFORM] = true;
     isTriggerAura[SPELL_AURA_REFLECT_SPELLS] = true;
     isTriggerAura[SPELL_AURA_DAMAGE_IMMUNITY] = true;
     isTriggerAura[SPELL_AURA_PROC_TRIGGER_SPELL] = true;
@@ -13876,7 +13878,6 @@ void Unit::SetToNotify()
 
 void Unit::Kill(Unit *pVictim, bool durabilityLoss)
 {
-    assert(pVictim->IsInWorld() && pVictim->FindMap());
     // Prevent killing unit twice (and giving reward from kill twice)
     if (!pVictim->GetHealth())
         return;

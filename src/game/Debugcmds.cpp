@@ -37,6 +37,7 @@
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "SpellMgr.h"
+#include "ScriptCalls.h"
 
 bool ChatHandler::HandleDebugSendSpellFailCommand(const char* args)
 {
@@ -841,6 +842,28 @@ bool ChatHandler::HandleDebugSetItemFlagCommand(const char* args)
         return false;
 
     i->SetUInt32Value(ITEM_FIELD_FLAGS, flag);
+
+    return true;
+}
+
+bool ChatHandler::HandleDebugItemExpireCommand(const char* args)
+{
+    if (!*args)
+        return false;
+
+    char* e = strtok((char*)args, " ");
+    if (!e)
+        return false;
+
+    uint32 guid = (uint32)atoi(e);
+
+    Item *i = m_session->GetPlayer()->GetItemByGuid(MAKE_NEW_GUID(guid, 0, HIGHGUID_ITEM));
+
+    if (!i)
+        return false;
+
+    m_session->GetPlayer()->DestroyItem( i->GetBagSlot(),i->GetSlot(), true);
+    Script->ItemExpire(m_session->GetPlayer(),i->GetProto());
 
     return true;
 }

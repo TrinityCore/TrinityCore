@@ -4463,7 +4463,7 @@ void AuraEffect::HandleModStateImmunityMask(bool apply, bool Real, bool /*change
     if (GetMiscValue() & (1<<7))
         immunity_list.push_back(SPELL_AURA_MOD_DISARM);
     if (GetMiscValue() & (1<<1))
-        immunity_list.push_back(SPELL_AURA_MOD_TAUNT);
+        immunity_list.push_back(SPELL_AURA_TRANSFORM);
 
     // These flag can be recognized wrong:
     if (GetMiscValue() & (1<<6))

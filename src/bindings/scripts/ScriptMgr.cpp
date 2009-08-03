@@ -1877,6 +1877,15 @@ bool ItemUse( Player *player, Item* _Item, SpellCastTargets const& targets)
 }
 
 TRINITY_DLL_EXPORT
+bool ItemExpire( Player *player, ItemPrototype const * _ItemProto)
+{
+    Script *tmpscript = m_scripts[_ItemProto->ScriptId];
+    if (!tmpscript || !tmpscript->pItemExpire) return true;
+
+    return tmpscript->pItemExpire(player,_ItemProto);
+}
+
+TRINITY_DLL_EXPORT
 bool EffectDummyCreature(Unit *caster, uint32 spellId, uint32 effIndex, Creature *crTarget )
 {
     Script *tmpscript = m_scripts[crTarget->GetScriptId()];

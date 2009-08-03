@@ -25,6 +25,7 @@
 #include "Database/DatabaseEnv.h"
 #include "ItemEnchantmentMgr.h"
 #include "SpellMgr.h"
+#include "ScriptCalls.h"
 
 void AddItemsSetItem(Player*player,Item *item)
 {
@@ -285,6 +286,7 @@ void Item::UpdateDuration(Player* owner, uint32 diff)
     if (GetUInt32Value(ITEM_FIELD_DURATION)<=diff)
     {
         owner->DestroyItem(GetBagSlot(), GetSlot(), true);
+        Script->ItemExpire(owner, GetProto());
         return;
     }
 
