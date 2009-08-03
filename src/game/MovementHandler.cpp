@@ -66,6 +66,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
 
     GetPlayer()->SetSemaphoreTeleportFar(false);
 
+    Map * oldMap = GetPlayer()->GetMap();
     // relocate the player to the teleport destination
     Map * newMap = MapManager::Instance().CreateMap(loc.mapid, GetPlayer(), 0);
     // the CanEnter checks are done in TeleporTo but conditions may change
@@ -86,6 +87,8 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     if(!GetPlayer()->GetMap()->Add(GetPlayer()))
     {
         sLog.outError("WORLD: failed to teleport player %s (%d) to map %d because of unknown reason!", GetPlayer()->GetName(), GetPlayer()->GetGUIDLow(), loc.mapid);
+        GetPlayer()->ResetMap();
+        GetPlayer()->SetMap(oldMap);
         GetPlayer()->TeleportTo(GetPlayer()->m_homebindMapId, GetPlayer()->m_homebindX, GetPlayer()->m_homebindY, GetPlayer()->m_homebindZ, GetPlayer()->GetOrientation());
         return;
     }

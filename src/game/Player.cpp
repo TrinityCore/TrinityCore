@@ -14656,7 +14656,7 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
     else if (transGUID != 0)
     {
         // There are no transports on instances
-        assert (!instanceId);
+        instanceId = 0;
 
         m_movementInfo.t_x = fields[27].GetFloat();
         m_movementInfo.t_y = fields[28].GetFloat();
@@ -14713,7 +14713,7 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
     else if (!taxi_nodes.empty()) // Taxi Flight path loaded from db
     {
         // There are no flightpaths in instances
-        assert (!instanceId);
+        instanceId = 0;
 
         if(!m_taxi.LoadTaxiDestinationsFromString(taxi_nodes,GetTeam()))
         {
@@ -18969,11 +18969,6 @@ void Player::SendInitialPacketsBeforeAddToMap()
     m_reputationMgr.SendInitialReputations();
     m_achievementMgr.SendAllAchievementData();
 
-    // update zone
-    uint32 newzone, newarea;
-    GetZoneAndAreaId(newzone,newarea);
-    UpdateZone(newzone,newarea);                            // also call SendInitWorldStates();
-
     SendEquipmentSetList();
 
     data.Initialize(SMSG_LOGIN_SETTIMESPEED, 4 + 4 + 4);
@@ -18985,6 +18980,11 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
 void Player::SendInitialPacketsAfterAddToMap()
 {
+    // update zone
+    uint32 newzone, newarea;
+    GetZoneAndAreaId(newzone,newarea);
+    UpdateZone(newzone,newarea);                            // also call SendInitWorldStates();
+
     WorldPacket data(SMSG_TIME_SYNC_REQ, 4);                // new 2.0.x, enable movement
     data << uint32(0x00000000);                             // on blizz it increments periodically
     GetSession()->SendPacket(&data);
