@@ -955,14 +955,13 @@ void Aura::HandleAuraSpecificMods(bool apply)
         }
 
         // Polymorph Sound - Sheep && Penguin
-        if (m_spellProto->SpellIconID == 82)
+        if (m_spellProto->SpellIconID == 82 && m_spellProto->SpellVisual[0] == 12978)
         {
             if (GetCaster()->HasAura(56375))
                 GetCaster()->CastSpell(m_target,61635,true);
             else
                 GetCaster()->CastSpell(m_target,61634,true);
         }
-            
     }
 
     // Aura Mastery Triggered Spell Handler
@@ -3560,7 +3559,7 @@ void AuraEffect::HandleAuraTransform(bool apply, bool Real, bool /*changeAmount*
                     m_target->SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID,16314);
                 
                 // Glyph of the Penguin
-                if ((GetCaster()->HasAura(56375)) && (GetSpellProto()->SpellFamilyName == SPELLFAMILY_MAGE && GetSpellProto()->SpellIconID == 82))
+                if ((GetCaster()->HasAura(56375)) && (GetSpellProto()->SpellFamilyName == SPELLFAMILY_MAGE && GetSpellProto()->SpellIconID == 82 && GetSpellProto()->SpellVisual[0] == 12978))
                      m_target->SetDisplayId(26452);
             }
         }
