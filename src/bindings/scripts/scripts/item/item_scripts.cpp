@@ -526,6 +526,36 @@ bool ItemUse_item_incendiary_explosives(Player *player, Item* _Item, SpellCastTa
     }
 }
 
+/*#####
+# item_mysterious_egg
+#####*/
+
+bool ItemExpire_item_mysterious_egg(Player *player, ItemPrototype const * _ItemProto)
+{
+    ItemPosCountVec dest;
+    uint8 msg = player->CanStoreNewItem( NULL_BAG, NULL_SLOT, dest, 39883, 1); // Cracked Egg
+    if( msg == EQUIP_ERR_OK )
+    {
+        player->StoreNewItem( dest, 39883, true, Item::GenerateItemRandomPropertyId(39883));
+    }
+    return true;
+}
+
+/*#####
+# item_disgusting_jar
+#####*/
+
+bool ItemExpire_item_disgusting_jar(Player *player, ItemPrototype const * _ItemProto)
+{
+    ItemPosCountVec dest;
+    uint8 msg = player->CanStoreNewItem( NULL_BAG, NULL_SLOT, dest, 44718, 1); // Ripe Disgusting Jar
+    if( msg == EQUIP_ERR_OK )
+    {
+        player->StoreNewItem( dest, 44718, true, Item::GenerateItemRandomPropertyId(44718));
+    }
+    return true;
+}
+
 void AddSC_item_scripts()
 {
     Script *newscript;
@@ -638,6 +668,16 @@ void AddSC_item_scripts()
     newscript = new Script;
     newscript->Name="item_incendiary_explosives";
     newscript->pItemUse = &ItemUse_item_incendiary_explosives;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name="item_mysterious_egg";
+    newscript->pItemExpire = &ItemExpire_item_mysterious_egg;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name="item_disgusting_jar";
+    newscript->pItemExpire = &ItemExpire_item_disgusting_jar;
     newscript->RegisterSelf();
 }
 
