@@ -20,6 +20,7 @@
 
 #include "Common.h"
 #include "Language.h"
+#include "Config/ConfigEnv.h"
 #include "Database/DatabaseEnv.h"
 #include "Log.h"
 #include "Opcodes.h"
@@ -4531,7 +4532,7 @@ uint32 Player::DurabilityRepair(uint16 pos, bool cost, float discountMod, bool g
             uint32 dmultiplier = dcost->multiplier[ItemSubClassToDurabilityMultiplierId(ditemProto->Class,ditemProto->SubClass)];
             uint32 costs = uint32(LostDurability*dmultiplier*double(dQualitymodEntry->quality_mod));
 
-            costs = uint32(costs * discountMod);
+            costs = uint32(costs * discountMod) * sConfig.GetFloatDefault("Rate.RepairCost", 1);
 
             if (costs==0)                                   //fix for ITEM_QUALITY_ARTIFACT
                 costs = 1;
