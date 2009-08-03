@@ -1554,6 +1554,7 @@ INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`
 (47476, -1, -1, 0.06, -1, 'Death Knight - Strangulate'),
 (50536, -1, -1, 0.013, -1, 'Death Knight - Unholy Blight (Rank1)'),
 (339, -1, 0.1, -1, -1, 'Druid - Entangling Roots'),
+(60089, -1, -1, 0.05, -1, 'Druid - Faerie Fire (feral)'),
 (5185, 1.611, -1, -1, -1, 'Druid - Healing Touch'),
 (42231, 0.12898, -1, -1, -1, 'Druid - Hurricane Triggered'),
 (5570, -1, 0.2, -1, -1, 'Druid - Insect Swarm'),
@@ -1580,7 +1581,6 @@ INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`
 (61391, 0.193, -1, -1, -1, 'Druid - Typhoon'),
 (48438, -1, 0.11505, -1, -1, 'Druid - Wild Growth'),
 (5176, 0.5714, -1, -1, -1, 'Druid - Wrath'),
-(60089, -1, -1, 0.05, -1, 'Faerie Fire (feral)'),
 (3044, -1, -1, 0.15, -1, 'Hunter - Arcane Shot'),
 (3674, -1, -1, -1, 0.02, 'Hunter - Black Arrow($RAP*0.1 / number of ticks)'),
 (19306, -1, -1, 0.2, -1, 'Hunter - Counterattack'),
@@ -1589,6 +1589,7 @@ INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`
 (1495, -1, -1, 0.2, -1, 'Hunter - Mongoose Bite'),
 (1978, -1, -1, -1, 0.04, 'Hunter - Serpent Sting($RAP*0.2 / number of ticks)'),
 (56641, -1, -1, 0.1, -1, 'Hunter - Steady Shot'),
+(42243, -1, -1, 0.07, -1, 'Hunter - Volley'),
 (55039, 0, 0, 0, 0, 'Item - Gnomish Lightning Generator'),
 (44425, 0.7143, -1, -1, -1, 'Mage - Arcane Barrage'),
 (30451, 0.7143, -1, -1, -1, 'Mage - Arcane Blast'),
@@ -1621,6 +1622,7 @@ INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`
 (19750, 1, -1, -1, -1, 'Paladin - Flash of Light'),
 (53595, 0, 0, 0, 0, 'Paladin - Hammer of the Righteous'),
 (24275, 0.15, -1, 0.15, -1, 'Paladin - Hammer of Wrath'),
+(62124, 0.085, -1, -1, -1, 'Paladin - Hand of Reckoning'),
 (635, 1.66, -1, -1, -1, 'Paladin - Holy Light'),
 (20925, 0.09, -1, 0.056, -1, 'Paladin - Holy Shield'),
 (25914, 0.81, -1, -1, -1, 'Paladin - Holy Shock Triggered Heal Rank 1'),
@@ -1646,7 +1648,6 @@ INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`
 (25742, 0.07, -1, 0.039, -1, 'Paladin - Seal of Righteousness Dummy Proc'),
 (53719, 0, 0, 0, 0, 'Paladin - Seal of the Martyr Proc Enemy'),
 (53718, 0, 0, 0, 0, 'Paladin - Seal of the Martyr Proc Self'),
-(62124, 0.085, -1, -1, -1, 'Paladin - Hand of Reckoning'),
 (50256, -1, -1, 0.08, -1, 'Pet Skills - Bear (Swipe)'),
 (32546, 0.8068, -1, -1, -1, 'Priest - Binding Heal'),
 (27813, 0, 0, 0, 0, 'Priest - Blessed Recovery Rank 1'),
@@ -1799,8 +1800,8 @@ INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`
 (20253, -1, -1, 0.12, -1, 'Warrior - Intercept'),
 (61491, -1, -1, 0.12, -1, 'Warrior - Intercept'),
 (6572, -1, -1, 0.207, -1, 'Warrior - Revenge'),
-(6343, -1, -1, 0.12, -1, 'Warrior - Thunder Clap'),
-(64382, -1, -1, 0.5, -1, 'Warrior - Shattering Throw');
+(64382, -1, -1, 0.5, -1, 'Warrior - Shattering Throw'),
+(6343, -1, -1, 0.12, -1, 'Warrior - Thunder Clap');
 
 -- --------
 -- SPELL ELIXIR
