@@ -62,15 +62,17 @@ class Corpse : public WorldObject
 
         void SaveToDB();
         //bool LoadFromDB(uint32 guid, QueryResult *result, uint32 InstanceId);
-        bool LoadFromDB(uint32 guid, Field *fields, uint32 & mapId, uint32 & instanceId);
+        bool LoadFromDB(uint32 guid, Field *fields);
 
         void DeleteBonesFromWorld();
         void DeleteFromDB();
 
-        void SetMap (Map * map) {WorldObject::SetMap(map); m_mapId = map->GetId();}
+        void SetMap (Map * map) {WorldObject::SetMap(map); m_mapId = map->GetId(); SetInstanceId(map->GetInstanceId());}
         // Used to check object existence in unloaded grids
         uint32 GetMapId() const {return m_mapId;}
         void SetMapId (uint32 id) {m_mapId = id;}
+        uint32 GetInstanceId() const {return m_instanceId;}
+        void SetInstanceId (uint32 id) {m_instanceId = id;}
 
         uint64 const& GetOwnerGUID() const { return GetUInt64Value(CORPSE_FIELD_OWNER); }
 
@@ -101,6 +103,7 @@ class Corpse : public WorldObject
         time_t m_time;
         GridPair m_grid;                                    // gride for corpse position for fast search
         uint32 m_mapId;                                     // map id for fast corpse check at packet requests and in other situations with unloaded map of corpse.
+        uint32 m_instanceId;
 };
 #endif
 

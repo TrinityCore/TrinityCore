@@ -6483,16 +6483,14 @@ void ObjectMgr::LoadCorpses()
 
         uint32 guid = fields[result->GetFieldCount()-1].GetUInt32();
 
-        uint32 mapId;
-        uint32 instanceId;
         Corpse *corpse = new Corpse;
-        if(!corpse->LoadFromDB(guid,fields,mapId,instanceId))
+        if(!corpse->LoadFromDB(guid,fields))
         {
             delete corpse;
             continue;
         }
 
-        ObjectAccessor::Instance().AddCorpse(corpse,mapId,instanceId);
+        ObjectAccessor::Instance().AddCorpse(corpse);
 
         ++count;
     }

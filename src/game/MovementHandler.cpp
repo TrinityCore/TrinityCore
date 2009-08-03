@@ -66,8 +66,6 @@ void WorldSession::HandleMoveWorldportAckOpcode()
 
     GetPlayer()->SetSemaphoreTeleportFar(false);
 
-    GetPlayer()->ResetMap();
-
     // relocate the player to the teleport destination
     Map * newMap = MapManager::Instance().CreateMap(loc.mapid, GetPlayer(), 0);
     // the CanEnter checks are done in TeleporTo but conditions may change
@@ -75,19 +73,21 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     if (!newMap || !newMap->CanEnter(GetPlayer()))
     {
         sLog.outError("Map %d could not be created for player %d, porting player to homebind", loc.mapid, GetPlayer()->GetGUIDLow());
-        GetPlayer()->RelocateToHomebind(loc.mapid);
-        newMap = MapManager::Instance().CreateMap(loc.mapid, GetPlayer(), 0);
+        GetPlayer()->TeleportTo(GetPlayer()->m_homebindMapId, GetPlayer()->m_homebindX, GetPlayer()->m_homebindY, GetPlayer()->m_homebindZ, GetPlayer()->GetOrientation());
+        return;
     }
     else
         GetPlayer()->Relocate(loc.coord_x, loc.coord_y, loc.coord_z, loc.orientation);
 
+    GetPlayer()->ResetMap();
     GetPlayer()->SetMap(newMap);
 
     GetPlayer()->SendInitialPacketsBeforeAddToMap();
     if(!GetPlayer()->GetMap()->Add(GetPlayer()))
     {
         sLog.outError("WORLD: failed to teleport player %s (%d) to map %d because of unknown reason!", GetPlayer()->GetName(), GetPlayer()->GetGUIDLow(), loc.mapid);
-        assert(false);
+        GetPlayer()->TeleportTo(GetPlayer()->m_homebindMapId, GetPlayer()->m_homebindX, GetPlayer()->m_homebindY, GetPlayer()->m_homebindZ, GetPlayer()->GetOrientation());
+        return;
     }
 
     // battleground state prepare (in case join to BG), at relogin/tele player not invited

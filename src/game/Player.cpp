@@ -4359,7 +4359,7 @@ void Player::CreateCorpse()
         corpse->SaveToDB();
 
     // register for player, but not show
-    ObjectAccessor::Instance().AddCorpse(corpse, corpse->GetMapId(), corpse->GetInstanceId());
+    ObjectAccessor::Instance().AddCorpse(corpse);
 }
 
 void Player::SpawnCorpseBones()
@@ -19850,7 +19850,7 @@ bool Player::IsAtGroupRewardDistance(WorldObject const* pRewardSource) const
     const WorldObject* player = GetCorpse();
     if(!player || isAlive())
         player = this;
-    
+
     if(player->GetMapId() != pRewardSource->GetMapId() || player->GetInstanceId() != pRewardSource->GetInstanceId())
         return false;
 

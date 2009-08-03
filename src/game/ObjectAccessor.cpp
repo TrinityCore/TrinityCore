@@ -268,7 +268,7 @@ ObjectAccessor::RemoveCorpse(Corpse *corpse)
 }
 
 void
-ObjectAccessor::AddCorpse(Corpse *corpse, uint32 mapId, uint32 instanceId)
+ObjectAccessor::AddCorpse(Corpse *corpse)
 {
     assert(corpse && corpse->GetType() != CORPSE_BONES);
 
@@ -280,7 +280,7 @@ ObjectAccessor::AddCorpse(Corpse *corpse, uint32 mapId, uint32 instanceId)
     CellPair cell_pair = Trinity::ComputeCellPair(corpse->GetPositionX(), corpse->GetPositionY());
     uint32 cell_id = (cell_pair.y_coord*TOTAL_NUMBER_OF_CELLS_PER_MAP) + cell_pair.x_coord;
 
-    objmgr.AddCorpseCellData(mapId, cell_id, corpse->GetOwnerGUID(), instanceId);
+    objmgr.AddCorpseCellData(corpse->GetMapId(), cell_id, corpse->GetOwnerGUID(), corpse->GetInstanceId());
 }
 
 void
