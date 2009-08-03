@@ -5447,11 +5447,20 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             }
             switch(dummySpell->Id)
             {
+                // Glyph of Polymorph
+                case 56375:
+                {
+                    target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
+                    target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
+                    return true;
+                }
                 // Glyph of Icy Veins
                 case 56374:
+                {
                     RemoveAurasByType(SPELL_AURA_MOD_HASTE, 0, 0, true, false);
                     RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
-                return true;
+                    return true;
+                }
                 // Ignite
                 case 11119:
                 case 11120:
