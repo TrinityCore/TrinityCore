@@ -805,14 +805,15 @@ enum TrinityStrings
     LANG_BG_AV_NODE_TOWER_FROST_W       = 1324,
     LANG_BG_AV_NODE_GRAVE_FROST_HUT     = 1325,
 
-    LANG_BG_AV_ONEMINTOSTART            = 1326,
-    LANG_BG_AV_HALFMINTOSTART           = 1327,
-    LANG_BG_AV_STARTED                  = 1328,
+    LANG_BG_AV_START_ONE_MINUTE         = 1326,
+    LANG_BG_AV_START_HALF_MINUTE        = 1327,
+    LANG_BG_AV_HAS_BEGUN                = 1328,
     LANG_BG_AV_A_NEAR_LOSE              = 1329,
     LANG_BG_AV_H_NEAR_LOSE              = 1330,
     LANG_BG_AV_H_CAPTAIN_DEAD           = 1331,
     LANG_BG_AV_A_CAPTAIN_DEAD           = 1332,
-    // FREE IDS                           1333-1999
+    LANG_BG_AV_START_TWO_MINUTES        = 1333,
+    // FREE IDS                           1334-1999
 
     // Ticket Strings 2000-2029
     LANG_COMMAND_TICKETNEW              = 2000,
