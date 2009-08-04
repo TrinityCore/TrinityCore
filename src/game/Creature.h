@@ -150,6 +150,7 @@ enum CreatureFlagsExtra
     CREATURE_FLAG_EXTRA_WORLDEVENT      = 0x00004000,       // custom flag for world event creatures (left room for merging)
     //CREATURE_FLAG_EXTRA_CHARM_AI        = 0x00008000,       // use ai when charmed
     CREATURE_FLAG_EXTRA_NO_CRIT         = 0x00020000,       // creature can't do critical strikes
+    CREATURE_FLAG_EXTRA_NO_SKILLGAIN    = 0x00040000,       // creature won't increase weapon skills
 };
 
 enum SummonMask

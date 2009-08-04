@@ -1626,7 +1626,7 @@ struct TRINITY_DLL_DECL mob_mojoAI : public ScriptedAI
             victimGUID = player->GetGUID();            
             m_creature->CastSpell(m_creature,20372,true);//tag.hearts
             m_creature->GetMotionMaster()->MoveFollow(player,0,0);
-			hearts = 15000;
+            hearts = 15000;
         }   
     }
 };
@@ -1697,6 +1697,48 @@ struct TRINITY_DLL_DECL npc_mirror_image : SpellAI
 CreatureAI* GetAI_npc_mirror_image(Creature *_Creature)
 {
     return new npc_mirror_image (_Creature);
+}
+
+struct TRINITY_DLL_DECL npc_training_dummy : Scripted_NoMovementAI
+{
+    npc_training_dummy(Creature *c) : Scripted_NoMovementAI(c) {}
+
+    uint32 ResetTimer;
+    void Reset()
+    {
+        m_creature->SetControlled(true,UNIT_STAT_STUNNED);//disable rotate
+        m_creature->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);//imune to knock aways like blast wave
+        m_creature->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
+        ResetTimer = 10000;
+    }
+
+    void DamageTaken(Unit *done_by, uint32 &damage)
+    {
+        ResetTimer = 10000;
+        damage = 0;
+    }
+
+    void EnterCombat(Unit *who){return;}
+
+    void UpdateAI(const uint32 diff)
+    {
+        if(!UpdateVictim())
+            return;
+        if(!m_creature->hasUnitState(UNIT_STAT_STUNNED))
+            m_creature->SetControlled(true,UNIT_STAT_STUNNED);//disable rotate
+        if(ResetTimer <= diff)
+        {
+            EnterEvadeMode();
+            ResetTimer = 10000;
+        }else ResetTimer -= diff;
+        return;
+    }
+    void MoveInLineOfSight(Unit *who){return;}
+};
+
+CreatureAI* GetAI_npc_training_dummy(Creature *_Creature)
+{
+    return new npc_training_dummy (_Creature);
 }
 
 void AddSC_npcs_special()
@@ -1798,6 +1840,11 @@ void AddSC_npcs_special()
     newscript = new Script;
     newscript->Name="mob_mojo";
     newscript->GetAI = &GetAI_mob_mojo;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name="npc_training_dummy";
+    newscript->GetAI = &GetAI_npc_training_dummy;
     newscript->RegisterSelf();
 }
 
