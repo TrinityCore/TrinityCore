@@ -88,7 +88,7 @@ Channel::Channel(const std::string& name, uint32 channel_id, uint32 Team)
             std::ostringstream ss;
             ss << "INSERT INTO channels (m_name,m_team,m_ownerGUID,m_announce,m_moderate,m_password) VALUES ('"
                  << name.c_str() << "','" << m_Team << "','0','1','0','')";
-            if(CharacterDatabase.PExecuteLog( ss.str( ).c_str( ) ))
+            if(CharacterDatabase.PExecute( ss.str( ).c_str( ) ))
             {
                 sLog.outDebug("New Channel(%s) saved", name.c_str());
                 m_IsSaved = true;
@@ -273,7 +273,7 @@ void Channel::KickOrBan(uint64 good, const char *badname, bool ban)
                     }
                     std::ostringstream ss;
                     ss << "UPDATE channels SET BannedList = '" << banlist.str().c_str() << "' WHERE m_name = '"<<m_name.c_str()<<"' AND m_team = '"<<m_Team<<"'";
-                    if(CharacterDatabase.PExecuteLog( ss.str( ).c_str( ) ))
+                    if(CharacterDatabase.PExecute( ss.str( ).c_str( ) ))
                     {
                         sLog.outDebug("Channel(%s) BannedList saved", m_name.c_str());
                     }    
@@ -342,7 +342,7 @@ void Channel::UnBan(uint64 good, const char *badname)
                 }
                 std::ostringstream ss;
                 ss << "UPDATE channels SET BannedList = '" << banlist.str().c_str() << "' WHERE m_name = '"<<m_name.c_str()<<"' AND m_team = '"<<m_Team<<"'";
-                if(CharacterDatabase.PExecuteLog( ss.str( ).c_str( ) ))
+                if(CharacterDatabase.PExecute( ss.str( ).c_str( ) ))
                 {
                     sLog.outDebug("Channel(%s) BannedList saved", m_name.c_str());
                 }    
@@ -381,7 +381,7 @@ void Channel::Password(uint64 p, const char *pass)
         {
             std::ostringstream ss;
             ss << "UPDATE channels SET m_password = '" << pass << "' WHERE m_name = '"<<m_name.c_str()<<"' AND m_team = '"<<m_Team<<"'";
-            if(CharacterDatabase.PExecuteLog( ss.str( ).c_str( ) ))
+            if(CharacterDatabase.PExecute( ss.str( ).c_str( ) ))
             {
                 sLog.outDebug("Channel(%s) password saved", m_name.c_str());
             }    
@@ -596,7 +596,7 @@ void Channel::Announce(uint64 p)
         {
             std::ostringstream ss;
             ss << "UPDATE channels SET m_announce = '" << m_announce << "' WHERE m_name = '"<<m_name.c_str()<<"' AND m_team = '"<<m_Team<<"'";
-            if(CharacterDatabase.PExecuteLog( ss.str( ).c_str( ) ))
+            if(CharacterDatabase.PExecute( ss.str( ).c_str( ) ))
             {
                 sLog.outDebug("Channel(%s) announce saved", m_name.c_str());
             }    
@@ -638,7 +638,7 @@ void Channel::Moderate(uint64 p)
         {
             std::ostringstream ss;
             ss << "UPDATE channels SET m_moderate = '" << m_moderate << "' WHERE m_name = '"<<m_name.c_str()<<"' AND m_team = '"<<m_Team<<"'";
-            if(CharacterDatabase.PExecuteLog( ss.str( ).c_str( ) ))
+            if(CharacterDatabase.PExecute( ss.str( ).c_str( ) ))
             {
                 sLog.outDebug("Channel(%s) moderate saved", m_name.c_str());
             }    
@@ -774,7 +774,7 @@ void Channel::SetOwner(uint64 guid, bool exclaim)
         {
             std::ostringstream ss;
             ss << "UPDATE channels SET m_ownerGUID = '" << guid << "' WHERE m_name = '"<<m_name.c_str()<<"' AND m_team = '"<<m_Team<<"'";
-            if(CharacterDatabase.PExecuteLog( ss.str( ).c_str( ) ))
+            if(CharacterDatabase.PExecute( ss.str( ).c_str( ) ))
             {
                 sLog.outDebug("Channel(%s) owner saved", m_name.c_str());
             }   
