@@ -357,8 +357,8 @@ static void addNewAuctions(Player *AHBplayer, AHBConfig *config)
         if (randomPropertyId != 0)
          item->SetItemRandomProperties(randomPropertyId);
 
-        uint32 buyoutPrice;
-        uint32 bidPrice = 0;
+        uint64 buyoutPrice;
+        uint64 bidPrice = 0;
         uint32 stackCount = urand(1, item->GetMaxStackCount());
 
         switch (SellMethod)
