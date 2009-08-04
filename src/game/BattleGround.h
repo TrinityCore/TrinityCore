@@ -297,6 +297,9 @@ class BattleGround
         virtual void Reset();                               // resets all common properties for battlegrounds, must be implemented and called in BG subclass
         virtual void StartingEventCloseDoors() {}
         virtual void StartingEventOpenDoors() {}
+        virtual void ResetBGSubclass()                      // must be implemented in BG subclass
+        {
+        }
 
         /* achievement req. */
         virtual bool IsAllNodesConrolledByTeam(uint32 /*team*/) const { return false; }

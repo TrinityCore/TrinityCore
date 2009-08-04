@@ -1110,6 +1110,8 @@ void BattleGround::Reset()
 
     m_Players.clear();
     m_PlayerScores.clear();
+
+    ResetBGSubclass();
 }
 
 void BattleGround::StartBattleGround()
