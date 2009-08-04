@@ -720,6 +720,7 @@ bool IsPositiveEffect(uint32 spellId, uint32 effIndex, bool deep)
         case 31719:                                         // Suspension
         case 61987:                                         // Avenging Wrath Marker
         case 11196:                                         // Recently Bandadged
+        case 50524:                                         // Runic Power Feed
             return false;
         case 12042:                                         // Arcane Power
             return true;
@@ -1933,6 +1934,9 @@ void SpellMgr::LoadSpellScriptTarget()
                 }
                 break;
             }
+            case SPELL_TARGET_TYPE_CONTROLLED:
+                if( targetEntry==0 )
+                    sLog.outErrorDb("Table `spell_script_target`: creature template entry %u does not exist.",targetEntry);
             default:
             {
                 //players

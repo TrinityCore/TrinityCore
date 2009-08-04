@@ -1730,6 +1730,15 @@ WorldObject* Spell::SearchNearbyTarget(float range, SpellTargets TargetType)
             {
                 switch(i_spellST->second.type)
                 {
+                    case SPELL_TARGET_TYPE_CONTROLLED:
+                        for(Unit::ControlList::iterator itr = m_caster->m_Controlled.begin(); itr != m_caster->m_Controlled.end(); ++itr)
+                            if ((*itr)->GetEntry() == i_spellST->second.targetEntry && (*itr)->IsWithinDistInMap(m_caster, range))
+                            {
+                                goScriptTarget = NULL;
+                                range = m_caster->GetDistance(creatureScriptTarget);
+                                creatureScriptTarget = ((Creature *)*itr);
+                            }
+                        break;
                     case SPELL_TARGET_TYPE_GAMEOBJECT:
                         if(i_spellST->second.targetEntry)
                         {
@@ -2261,8 +2270,6 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
                 {
                     case 46584: // Raise Dead
                     {
-                        // TODO: change visual of corpses which gave ghoul?
-                        // Allow corpses to be ghouled only once?
                         m_targets.m_targetMask &= ~TARGET_FLAG_DEST_LOCATION;
                         WorldObject* result = FindCorpseUsing<MaNGOS::RaiseDeadObjectCheck> ();
                         if(result)
@@ -2332,6 +2339,12 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
                 {
                     if(i_spellST->second.type == SPELL_TARGET_TYPE_CREATURE)
                         SearchAreaTarget(unitList, radius, pushType, SPELL_TARGETS_ENTRY, i_spellST->second.targetEntry);
+                    else if (i_spellST->second.type == SPELL_TARGET_TYPE_CONTROLLED)
+                    {
+                        for(Unit::ControlList::iterator itr = m_caster->m_Controlled.begin(); itr != m_caster->m_Controlled.end(); ++itr)
+                            if ((*itr)->GetEntry() == i_spellST->second.targetEntry && (*itr)->IsWithinDistInMap(m_caster, radius))
+                                unitList.push_back(*itr);
+                    }
                 }
             }
         }
