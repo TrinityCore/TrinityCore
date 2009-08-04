@@ -2813,6 +2813,14 @@ void AuraEffect::HandleAuraDummy(bool apply, bool Real, bool changeAmount)
                     return;
                 }
                 break;
+            case SPELLFAMILY_DEATHKNIGHT:
+                // Summon Gargoyle ( will start feeding gargoyle )
+                if(GetId()==61777)
+                {
+                    m_target->CastSpell(m_target,m_spellProto->EffectTriggerSpell[m_effIndex],true);
+                    return;
+                }
+                break;
             default:
                 break;
         }
@@ -7214,8 +7222,9 @@ void AuraEffect::PeriodicDummyTick()
                 return;
             }
             // Summon Gargoyle
-//            if (spell->SpellFamilyFlags & 0x0000008000000000LL)
-//                return;
+            // Being pursuaded by Gargoyle - AI related?
+            // if (spell->SpellFamilyFlags[1] & 0x00000080)
+            // break;
             // Death Rune Mastery
 //            if (spell->SpellFamilyFlags & 0x0000000000004000LL)
 //                return;
@@ -7612,6 +7621,7 @@ void AuraEffect::HandleAuraCloneCaster( bool Apply, bool Real , bool /*changeAmo
 {
     if (!Real)
         return;
+
     if (Apply)
     {
         Unit * caster = GetCaster();

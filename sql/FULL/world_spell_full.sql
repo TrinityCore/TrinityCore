@@ -143,9 +143,13 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 -- --------
 -- TARGET
 -- --------
--- Mirror Image
-DELETE FROM `spell_script_target` WHERE `entry` IN (58836);
-INSERT INTO `spell_script_target` VALUES (58836, 1, 31216);
+
+DELETE FROM `spell_script_target` WHERE `entry` IN (58836, 50524, 50515);
+INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
+(58836, 3, 31216), -- Mirror Image
+(50524, 3, 27829), -- Runic Power Feed
+(50515, 3, 27829); -- Dismiss Gargoyle
+
 -- zulaman
 DELETE FROM `spell_script_target` WHERE `entry` IN
 (42577,42471,43734,42631);
@@ -1953,8 +1957,7 @@ INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
 (52479, 1, 28822),
 (52576, 1, 28834), -- Electro-magnetic Pulse
 (52576, 1, 28886),
-(53110, 1, 28940), -- Devour Humanoid
-(48743, 1, 26125); -- Death pact
+(53110, 1, 28940); -- Devour Humanoid
 
 -- Eye of Acherus
 DELETE FROM `spell_target_position` WHERE `id`=51852;
