@@ -6409,8 +6409,8 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                         triggered_spell_id = 40471;
                         chance = 15.0f;
                     }
-                    // Judgement
-                    else if( procSpell->SpellFamilyFlags[0] & 0x800000 )
+                    // Judgement (any)
+                    else if (GetSpellSpecific(procSpell->Id)==SPELL_JUDGEMENT)
                     {
                         triggered_spell_id = 40472;
                         chance = 50.0f;
