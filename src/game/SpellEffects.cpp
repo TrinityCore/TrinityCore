@@ -4646,7 +4646,6 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 {
                     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
                         return;
-                    
                     ((Creature*)unitTarget)->ForcedDespawn();
                     return;
                 }
@@ -5010,6 +5009,11 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     }
                     break;
                 }
+                case 52173: // Coyote Spirit Despawn
+                case 60243: // Blood Parrot Despawn
+                    if (unitTarget->GetTypeId() == TYPEID_UNIT && ((Creature*)unitTarget)->isSummon())
+                        ((TempSummon*)unitTarget)->UnSummon();
+                    return;
                 // Sky Darkener Assault
                 case 52124:
                     if(unitTarget)
@@ -5085,7 +5089,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         }
                     }
                     return;
-                case 58983:
+                case 58983: // Big Blizzard Bear
                 {
                     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
                         return;

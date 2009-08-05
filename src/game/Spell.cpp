@@ -2342,7 +2342,8 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
                     else if (i_spellST->second.type == SPELL_TARGET_TYPE_CONTROLLED)
                     {
                         for(Unit::ControlList::iterator itr = m_caster->m_Controlled.begin(); itr != m_caster->m_Controlled.end(); ++itr)
-                            if ((*itr)->GetEntry() == i_spellST->second.targetEntry && (*itr)->IsWithinDistInMap(m_caster, radius))
+                            if ((*itr)->GetEntry() == i_spellST->second.targetEntry && 
+                                /*(*itr)->IsWithinDistInMap(m_caster, radius)*/ (*itr)->IsInMap(m_caster)) // For 60243 and 52173 need skip radius check or use range (no radius entry for effect)
                                 unitList.push_back(*itr);
                     }
                 }

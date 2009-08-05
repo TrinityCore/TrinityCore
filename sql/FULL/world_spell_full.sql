@@ -144,10 +144,12 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 -- TARGET
 -- --------
 
-DELETE FROM `spell_script_target` WHERE `entry` IN (58836, 50524, 50515);
+DELETE FROM `spell_script_target` WHERE `entry` IN (58836, 50524, 50515, 52173, 60243);
 INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
 (58836, 3, 31216), -- Mirror Image
 (50524, 3, 27829), -- Runic Power Feed
+(52173, 3, 28267), -- Coyote Spirit Despawn
+(60243, 3, 11236), -- Blood Parrot Despawn
 (50515, 3, 27829); -- Dismiss Gargoyle
 
 -- zulaman

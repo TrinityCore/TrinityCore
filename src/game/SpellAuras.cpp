@@ -2783,7 +2783,11 @@ void AuraEffect::HandleAuraDummy(bool apply, bool Real, bool changeAmount)
                         return;
                     case 46308: // Burning Winds casted only at creatures at spawn
                         m_target->CastSpell(m_target,47287,true,NULL,this);
-                        return;        
+                        return;
+                    case 52173:  // Coyote Spirit Despawn Aura
+                    case 60244:  // Blood Parrot Despawn Aura
+                        m_target->CastSpell((Unit*)NULL, GetAmount(), true, NULL, this);
+                        return;
                 }
                 break;
             case SPELLFAMILY_WARLOCK:
