@@ -122,8 +122,8 @@ void PetAI::UpdateAI(const uint32 diff)
 
     bool inCombat = me->getVictim();
 
-    //Autocast (casted only in combat)
-    if (inCombat && m_creature->GetGlobalCooldown() == 0 && !m_creature->hasUnitState(UNIT_STAT_CASTING))
+    // Autocast (casted only in combat or persistent spells in any state)
+    if (m_creature->GetGlobalCooldown() == 0 && !m_creature->hasUnitState(UNIT_STAT_CASTING))
     {
         typedef std::vector<std::pair<Unit*, Spell*> > TargetSpellList;
         TargetSpellList targetSpellStore;
@@ -139,12 +139,38 @@ void PetAI::UpdateAI(const uint32 diff)
                 continue;
 
             // ignore some combinations of combat state and combat/noncombat spells
-            if (IsNonCombatSpell(spellInfo))
-                continue;
+            if (!inCombat)
+            {
+                // ignore attacking spells, and allow only self/around spells
+                if (!IsPositiveSpell(spellInfo->Id))
+                    continue;
+
+                // non combat spells allowed
+                // only pet spells have IsNonCombatSpell and not fit this reqs:
+                // Consume Shadows, Lesser Invisibility, so ignore checks for its
+                if (!IsNonCombatSpell(spellInfo))
+                {
+                    // allow only spell without spell cost or with spell cost but not duration limit
+                    int32 duration = GetSpellDuration(spellInfo);
+                    if ((spellInfo->manaCost || spellInfo->ManaCostPercentage || spellInfo->manaPerSecond) && duration > 0)
+                        continue;
+
+                    // allow only spell without cooldown > duration
+                    int32 cooldown = GetSpellRecoveryTime(spellInfo);
+                    if (cooldown >= 0 && duration >= 0 && cooldown > duration)
+                        continue;
+                }
+            }
+            else
+            {
+                // just ignore non-combat spells
+                if (IsNonCombatSpell(spellInfo))
+                    continue;
+            }
 
             Spell *spell = new Spell(m_creature, spellInfo, false, 0);
 
-            if (!m_creature->hasUnitState(UNIT_STAT_FOLLOW) && spell->CanAutoCast(m_creature->getVictim()))
+            if (inCombat && !m_creature->hasUnitState(UNIT_STAT_FOLLOW) && spell->CanAutoCast(m_creature->getVictim()))
             {
                 targetSpellStore.push_back(std::make_pair<Unit*, Spell*>(m_creature->getVictim(), spell));
                 continue;
