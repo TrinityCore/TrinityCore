@@ -2005,7 +2005,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         }
         void HandleFall(MovementInfo const& movementInfo);
 
-        bool IsAllowUseFlyMountsHere() const;
+        bool IsKnowHowFlyIn(uint32 mapid, uint32 zone) const;
 
         void SetClientControl(Unit* target, uint8 allowMove);
 
