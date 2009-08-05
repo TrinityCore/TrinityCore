@@ -5085,6 +5085,24 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         }
                     }
                     return;
+                case 58983:
+                {
+                    if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    // Prevent stacking of mounts
+                    unitTarget->RemoveAurasByType(SPELL_AURA_MOUNTED);
+
+                    // Triggered spell id dependent of riding skill
+                    if(uint16 skillval = ((Player*)unitTarget)->GetSkillValue(SKILL_RIDING))
+                    {
+                        if (skillval >= 150)
+                            unitTarget->CastSpell(unitTarget, 58999, true);
+                        else
+                            unitTarget->CastSpell(unitTarget, 58997, true);
+                    }
+                    return;
+                }
                 case 59317:                                 // Teleporting
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
                         return;
