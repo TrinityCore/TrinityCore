@@ -583,7 +583,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
                     ROLLBACK(DUMP_FILE_BROKEN);
                 if(!changetoknth(vals, ITEM_FIELD_OWNER+1, newguid))
                     ROLLBACK(DUMP_FILE_BROKEN);
-                if(!changetokGuid(vals, ITEM_FIELD_ITEM_TEXT_ID+1, itemTexts, objmgr.m_ItemTextId))
+                if(!changetokGuid(vals, ITEM_FIELD_ITEM_TEXT_ID+1, itemTexts, objmgr.m_ItemTextId,true))
                     ROLLBACK(DUMP_FILE_BROKEN);
                 if(!changenth(line, 3, vals.c_str()))
                     ROLLBACK(DUMP_FILE_BROKEN);
