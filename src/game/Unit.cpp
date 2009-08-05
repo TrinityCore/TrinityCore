@@ -868,6 +868,8 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
                 // only lootable if it has loot or can drop gold
                 if(cVictim->GetCreatureInfo()->lootid || cVictim->GetCreatureInfo()->maxgold > 0)
                     cVictim->SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+                else
+                    cVictim->lootForBody = true;            // needed for skinning
             }
             // Call creature just died function
             if (cVictim->AI())
