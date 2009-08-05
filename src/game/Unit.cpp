@@ -3778,8 +3778,10 @@ bool Unit::AddAura(Aura *Aur, bool handleEffects)
         return false;
     }
 
+    SpellEntry const* aurSpellInfo = Aur->GetSpellProto();
+
     // ghost spell check, allow apply any auras at player loading in ghost mode (will be cleanup after load)
-    if( !isAlive() && Aur->GetId() != 20584 && Aur->GetId() != 8326 && Aur->GetId() != 2584 &&
+    if( !isAlive() && !IsDeathPersistentSpell(aurSpellInfo) &&
         (GetTypeId()!=TYPEID_PLAYER || !((Player*)this)->GetSession()->PlayerLoading()) )
     {
         delete Aur;
@@ -3795,7 +3797,6 @@ bool Unit::AddAura(Aura *Aur, bool handleEffects)
         return false;
     }
 
-    SpellEntry const* aurSpellInfo = Aur->GetSpellProto();
     uint32 aurId = aurSpellInfo->Id;
 
     // passive and persistent and Incanter's Absorption auras can stack with themselves any number of times
