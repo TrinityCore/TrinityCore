@@ -4817,6 +4817,12 @@ void AuraEffect::HandleAuraPeriodicDummy(bool apply, bool Real, bool changeAmoun
                 m_amount += int32(caster->GetTotalAttackPowerValue(RANGED_ATTACK) * 14 / 100);
             break;
         }
+        case SPELLFAMILY_DEATHKNIGHT:
+        {
+            if (spell->SpellIconID == 3041 || spell->SpellIconID == 22 || spell->SpellIconID == 2622)
+                m_amount = 0;
+            break;
+        }
     }
 
     m_isPeriodic = apply;
@@ -7225,9 +7231,6 @@ void AuraEffect::PeriodicDummyTick()
             // Being pursuaded by Gargoyle - AI related?
             // if (spell->SpellFamilyFlags[1] & 0x00000080)
             // break;
-            // Death Rune Mastery
-//            if (spell->SpellFamilyFlags & 0x0000000000004000LL)
-//                return;
             // Bladed Armor
             if (spell->SpellIconID == 2653)
             {
@@ -7237,12 +7240,43 @@ void AuraEffect::PeriodicDummyTick()
                 m_target->CastCustomSpell(m_target, 61217, &apBonus, &apBonus, 0, true, 0, this);
                 return;
             }
-            // Reaping
-//            if (spell->SpellIconID == 22)
-//                return;
             // Blood of the North
-//            if (spell->SpellIconID == 30412)
-//                return;
+            // Reaping
+            // Death Rune Mastery
+            if (spell->SpellIconID == 3041 || spell->SpellIconID == 22 || spell->SpellIconID == 2622)
+            {
+                if (m_target->GetTypeId() != TYPEID_PLAYER)
+                    return;
+                // Aura not used - prevent removing death runes from other effects
+                if (!GetAmount())
+                    return;
+                if(((Player*)m_target)->getClass() != CLASS_DEATH_KNIGHT)
+                    return;
+
+                // Remove death rune added on proc
+                for (uint8 i=0;i<MAX_RUNES && m_amount;++i)
+                {
+                    if (m_spellProto->SpellIconID == 2622)
+                    {
+                        if (((Player*)m_target)->GetCurrentRune(i) != RUNE_DEATH ||
+                            ((Player*)m_target)->GetBaseRune(i) == RUNE_BLOOD )
+                            continue;
+                    }
+                    else
+                    {
+                        if (((Player*)m_target)->GetCurrentRune(i) != RUNE_DEATH ||
+                            ((Player*)m_target)->GetBaseRune(i) != RUNE_BLOOD )
+                            continue;
+                    }
+
+                    if (!(m_amount & (1<<i)))
+                        continue;
+
+                    ((Player*)m_target)->ConvertRune(i,((Player*)m_target)->GetBaseRune(i));
+                }
+                m_amount = 0;
+                return;
+            }
             break;
         }
         default:
@@ -7363,26 +7397,32 @@ void AuraEffect::HandleAuraConvertRune(bool apply, bool Real, bool /*changeAmoun
     if(plr->getClass() != CLASS_DEATH_KNIGHT)
         return;
 
-    // how to determine what rune need to be converted?
-    for(uint32 i = 0; i < MAX_RUNES; ++i)
+    uint32 runes = 0;
+    // convert number of runes specified in aura amount of rune type in miscvalue to runetype in miscvalueb
+    for(uint32 i = 0; i < MAX_RUNES && m_amount; ++i)
     {
         if(apply)
         {
+            if (GetMiscValue() != plr->GetCurrentRune(i))
+                continue;
             if(!plr->GetRuneCooldown(i))
             {
                 plr->ConvertRune(i, GetSpellProto()->EffectMiscValueB[m_effIndex]);
-                break;
+                runes |= 1<<i;
+                --m_amount;
             }
         }
         else
         {
             if(plr->GetCurrentRune(i) == GetSpellProto()->EffectMiscValueB[m_effIndex])
             {
-                plr->ConvertRune(i, plr->GetBaseRune(i));
-                break;
+                if (m_amount & (1<<i))
+                    plr->ConvertRune(i, plr->GetBaseRune(i));
             }
         }
     }
+    if (apply)
+        m_amount = runes;
 }
 
 // Control Auras
