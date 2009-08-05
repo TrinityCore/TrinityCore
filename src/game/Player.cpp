@@ -15172,7 +15172,7 @@ void Player::_LoadAuras(QueryResult *result, uint32 timediff)
         delete result;
     }
 
-    if(getClass() == CLASS_WARRIOR)
+    if(getClass() == CLASS_WARRIOR && !HasAuraType(SPELL_AURA_MOD_SHAPESHIFT))
         CastSpell(this,SPELL_ID_PASSIVE_BATTLE_STANCE,true);
 }
 
@@ -16072,14 +16072,11 @@ void Player::SaveToDB()
 
     // save state (after auras removing), if aura remove some flags then it must set it back by self)
     uint32 tmp_bytes = GetUInt32Value(UNIT_FIELD_BYTES_1);
-    uint32 tmp_bytes2 = GetUInt32Value(UNIT_FIELD_BYTES_2);
     uint32 tmp_flags = GetUInt32Value(UNIT_FIELD_FLAGS);
-    uint32 tmp_pflags = GetUInt32Value(PLAYER_FLAGS);
     uint32 tmp_displayid = GetDisplayId();
 
     // Set player sit state to standing on save, also stealth and shifted form
     SetByteValue(UNIT_FIELD_BYTES_1, 0, UNIT_STAND_STATE_STAND);
-    SetByteValue(UNIT_FIELD_BYTES_2, 3, 0);                 // shapeshift
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
 
     bool inworld = IsInWorld();
@@ -16231,9 +16228,7 @@ void Player::SaveToDB()
 
     // restore state (before aura apply, if aura remove flag then aura must set it ack by self)
     SetUInt32Value(UNIT_FIELD_BYTES_1, tmp_bytes);
-    SetUInt32Value(UNIT_FIELD_BYTES_2, tmp_bytes2);
     SetUInt32Value(UNIT_FIELD_FLAGS, tmp_flags);
-    SetUInt32Value(PLAYER_FLAGS, tmp_pflags);
 
     // save pet (hunter pet level and experience and all type pets health/mana).
     if(Pet* pet = GetPet())
@@ -16291,12 +16286,10 @@ void Player::_SaveAuras()
         // skip:
         // area auras or single cast auras casted by other unit
         // passive auras and stances
-        if (itr->second->IsPassive()
-            || itr->second->IsAuraType(SPELL_AURA_MOD_SHAPESHIFT)
-            || itr->second->IsRemovedOnShapeLost())
+        if (itr->second->IsPassive())
             continue;
-        bool isCaster = itr->second->GetCasterGUID() == GetGUID();
-        if (!isCaster)
+
+        if (itr->second->GetCasterGUID() != GetGUID())
             if (IsSingleTargetSpell(itr->second->GetSpellProto())
                 || itr->second->IsAreaAura())
                 continue;
