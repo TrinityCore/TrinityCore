@@ -4128,6 +4128,7 @@ void Spell::TakeRunePower()
         if((plr->GetRuneCooldown(i) == 0) && (runeCost[rune] > 0))
         {
             plr->SetRuneCooldown(i, RUNE_COOLDOWN);         // 5*2=10 sec
+            plr->SetLastUsedRune(RuneType(rune));
             runeCost[rune]--;
         }
     }
@@ -4142,8 +4143,52 @@ void Spell::TakeRunePower()
             if((plr->GetRuneCooldown(i) == 0) && (rune == RUNE_DEATH))
             {
                 plr->SetRuneCooldown(i, RUNE_COOLDOWN);     // 5*2=10 sec
+                plr->SetLastUsedRune(RuneType(rune));
                 runeCost[rune]--;
+                bool auraFound = false;
                 plr->ConvertRune(i, plr->GetBaseRune(i));
+                // * * * * * * * * * * *
+                // update convert rune auras
+                // * * * * * * * * * * *
+                // Remove rune from SPELL_AURA_CONVERT_RUNE when rune is used
+                // To prevent overriding other rune convert effects
+                Unit::AuraEffectList const& runeconvert = m_caster->GetAurasByType(SPELL_AURA_CONVERT_RUNE);
+                for(Unit::AuraEffectList::const_iterator itr = runeconvert.begin(); itr != runeconvert.end(); ++itr)
+                {
+                    // Remove rune of aura if avalible
+                    if ((*itr)->GetAmount() & (1<<i))
+                    {
+                        (*itr)->SetAmount((*itr)->GetAmount() & ~(1<<i));
+                        auraFound = true;
+                    }
+                    // All runes from aura used - remove aura
+                    if (!(*itr)->GetAmount())
+                        plr->RemoveAura((*itr)->GetParentAura(), AURA_REMOVE_BY_EXPIRE);
+                    break;
+                }
+                if (!auraFound)
+                {
+                // Decrease used rune count for dk talent auras
+                // To prevent overriding other rune convert effects
+                Unit::AuraEffectList const& runeconvert = m_caster->GetAurasByType(SPELL_AURA_CONVERT_RUNE);
+                for(Unit::AuraEffectList::const_iterator itr = runeconvert.begin(); itr != runeconvert.end(); ++itr)
+                {
+                    if (plr->GetBaseRune(i) != RUNE_DEATH)
+                    {
+                        if ((*itr)->GetSpellProto()->SpellIconID != 2622)
+                            continue;
+                    }
+                    else if ((*itr)->GetSpellProto()->SpellIconID != 3041 && 
+                        (*itr)->GetSpellProto()->SpellIconID != 22)
+                        continue;
+
+                    // Remove rune of aura if avalible
+                    if ((*itr)->GetAmount() & (1<<i))
+                        (*itr)->SetAmount((*itr)->GetAmount() & ~(1<<i));
+                    break;
+                }
+                }
+
                 if(runeCost[RUNE_DEATH] == 0)
                     break;
             }

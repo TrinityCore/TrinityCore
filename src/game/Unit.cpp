@@ -7164,12 +7164,66 @@ bool Unit::HandleAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAura, S
     {
         case SPELLFAMILY_DEATHKNIGHT:
         {
+            // Blood of the North
+            // Reaping
+            // Death Rune Mastery
+            if (dummySpell->SpellIconID == 3041 || dummySpell->SpellIconID == 22 || dummySpell->SpellIconID == 2622)
+            {
+                *handled = true;
+                // Convert recently used Blood Rune to Death Rune
+                if (GetTypeId() == TYPEID_PLAYER)
+                {
+                    if(((Player*)this)->getClass() != CLASS_DEATH_KNIGHT)
+                        return false;
+                    RuneType rune = ((Player*)this)->GetLastUsedRune();
+                    // can't proc from death rune use
+                    if (rune == RUNE_DEATH)
+                        return false;
+                    AuraEffect * aurEff = triggeredByAura->GetPartAura(0);
+                    if (!aurEff)
+                        return false;
+                    // Reset amplitude - set death rune remove timer to 30s
+                    aurEff->ResetPeriodicTimer();
+                    uint32 runesLeft;
+
+                    if (dummySpell->SpellIconID == 2622)
+                        runesLeft = 2;
+                    else
+                        runesLeft = 1;
+
+                    for (uint8 i=0;i<MAX_RUNES && runesLeft;++i)
+                    {
+                        if (dummySpell->SpellIconID == 2622)
+                        {
+                            if (((Player*)this)->GetCurrentRune(i) == RUNE_DEATH ||
+                                ((Player*)this)->GetBaseRune(i) == RUNE_BLOOD )
+                                continue;
+                        }
+                        else
+                        {
+                            if (((Player*)this)->GetCurrentRune(i) == RUNE_DEATH ||
+                                ((Player*)this)->GetBaseRune(i) != RUNE_BLOOD )
+                                continue;
+                        }
+                        if (GetRuneCooldown(i) != RUNE_COOLDOWN)
+                            continue;
+
+                        --runesLeft;
+                        // Mark aura as used
+                        aurEff->SetAmount(aurEff->GetAmount() | (1<<i));
+                        ((Player*)this)->ConvertRune(i,RUNE_DEATH);
+                    }
+                    return true;
+                }
+                return false;
+            }
+
             switch(dummySpell->Id)
             {
                 // Hungering Cold aura drop
                 case 51209:
                     *handled = true;
-                    // Drop only in disease case
+                    // Drop only in not disease case
                     if (procSpell && procSpell->Dispel == DISPEL_DISEASE)
                         return false;
                     return true;

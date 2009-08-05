@@ -350,6 +350,8 @@ class TRINITY_DLL_SPEC AuraEffect
         uint32 GetEffIndex() const { return m_effIndex; }
         int32 GetBasePoints() const { return m_currentBasePoints; }
         int32 GetAuraAmplitude(){return m_amplitude;}
+        void ResetPeriodicTimer(){m_periodicTimer = m_amplitude;}
+
         virtual void Update(uint32 diff);
 
         uint32 GetTickNumber() const { return m_tickNumber; }
