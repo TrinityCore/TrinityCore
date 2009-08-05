@@ -575,6 +575,10 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
 
             if (spellInfo->SpellFamilyFlags[0] & 0x11010002)
                 return SPELL_BLESSING;
+
+            if (spellInfo->SpellFamilyFlags[0] & 0x00002190)
+                return SPELL_HAND;
+
             // Judgement of Wisdom, Judgement of Light, Judgement of Justice
             if (spellInfo->Id == 20184 || spellInfo->Id == 20185 || spellInfo->Id == 20186)
                 return SPELL_JUDGEMENT;
@@ -634,6 +638,7 @@ bool IsSingleFromSpellSpecificPerCaster(uint32 spellSpec1,uint32 spellSpec2)
     {
         case SPELL_SEAL:
         case SPELL_BLESSING:
+        case SPELL_HAND:
         case SPELL_AURA:
         case SPELL_STING:
         case SPELL_CURSE:
