@@ -1,4 +1,4 @@
-UPDATE `script_texts` SET `entry`=`entry`+20 WHERE `entry` IN(-1574001,-1574002,-1574003,-1574004,);
+UPDATE `script_texts` SET `entry`=`entry`+20 WHERE `entry` IN(-1574001,-1574002,-1574003,-1574004);
 UPDATE `script_texts` SET `entry`=-1574001 WHERE `entry`=-1574023;
 UPDATE `script_texts` SET `entry`=-1574002 WHERE `entry`=-1574024;
 UPDATE `script_texts` SET `entry`=-1574003 WHERE `entry`=-1574021;
