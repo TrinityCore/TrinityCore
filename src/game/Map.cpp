@@ -1196,6 +1196,21 @@ bool Map::UnloadGrid(const uint32 &x, const uint32 &y, bool unloadAll)
     return true;
 }
 
+void Map::RemoveAllPlayers()
+{
+    if(HavePlayers())
+    {
+        sLog.outError("Map::UnloadAll: there are still players in the instance at unload, should not happen!");
+
+        for(MapRefManager::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
+        {
+            Player* plr = itr->getSource();
+            if(!plr->IsBeingTeleportedFar())
+                plr->TeleportTo(plr->m_homebindMapId, plr->m_homebindX, plr->m_homebindY, plr->m_homebindZ, plr->GetOrientation());
+        }
+    }
+}
+
 void Map::UnloadAll()
 {
     // clear all delayed moves, useless anyway do this moves before map unload.
@@ -2642,12 +2657,7 @@ void InstanceMap::PermBindAllPlayers(Player *player)
 
 void InstanceMap::UnloadAll()
 {
-    while(HavePlayers())
-    {
-        sLog.outError("InstanceMap::UnloadAll: there are still players in the instance at unload, should not happen!");
-        Player *plr = m_mapRefManager.getFirst()->getSource();
-        plr->TeleportOutOfMap(this);
-    }
+    assert(!HavePlayers());
 
     if(m_resetAfterUnload == true)
         objmgr.DeleteRespawnTimeForInstance(GetInstanceId());
@@ -2734,16 +2744,17 @@ void BattleGroundMap::SetUnload()
     m_unloadTimer = MIN_UNLOAD_DELAY;
 }
 
-void BattleGroundMap::UnloadAll()
+void BattleGroundMap::RemoveAllPlayers()
 {
-    while(HavePlayers())
+    if(HavePlayers())
     {
-        Player *plr = m_mapRefManager.getFirst()->getSource();
-        plr->TeleportTo(plr->GetBattleGroundEntryPoint());
-        plr->TeleportOutOfMap(this);
+        for(MapRefManager::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
+        {
+            Player* plr = itr->getSource();
+            if(!plr->IsBeingTeleportedFar())
+                plr->TeleportTo(plr->GetBattleGroundEntryPoint());
+        }
     }
-
-    Map::UnloadAll();
 }
 
 /// Put scripts in the execution queue
