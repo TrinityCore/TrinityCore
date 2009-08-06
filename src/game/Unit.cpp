@@ -11491,10 +11491,6 @@ Unit* Creature::SelectVictim()
     //next-victim-selection algorithm and evade mode are called
     //threat list sorting etc.
 
-    //This should not be called by unit who does not have a threatlist
-    //or who does not have threat (totem/pet/critter)
-    //otherwise enterevademode every update
-
     Unit* target = NULL;
     // First checking if we have some taunt on us
     const AuraEffectList& tauntAuras = GetAurasByType(SPELL_AURA_MOD_TAUNT);

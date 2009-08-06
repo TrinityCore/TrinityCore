@@ -6856,7 +6856,6 @@ void Spell::SummonGuardian(uint32 entry, SummonPropertiesEntry const *properties
         TempSummon *summon = map->SummonCreature(entry, px, py, pz, m_caster->GetOrientation(), properties, duration, caster);
         if(!summon)
             return;
-
         if(summon->HasSummonMask(SUMMON_MASK_GUARDIAN))
             ((Guardian*)summon)->InitStatsForLevel(level);
 
