@@ -1639,12 +1639,13 @@ CreatureAI* GetAI_mob_mojo(Creature *_Creature)
     return new mob_mojoAI (_Creature);
 }
 
-struct TRINITY_DLL_DECL npc_mirror_image : SpellAI
+struct TRINITY_DLL_DECL npc_mirror_image : SpellCasterAI
 {
-    npc_mirror_image(Creature *c) : SpellAI(c) {Reset();}
+    npc_mirror_image(Creature *c) : SpellCasterAI(c) {}
 
-    void Reset()
+    void InitializeAI()
     {
+        SpellCasterAI::InitializeAI();
         Unit * owner = me->GetOwner();
         if (!owner)
             return;
@@ -1656,43 +1657,7 @@ struct TRINITY_DLL_DECL npc_mirror_image : SpellAI
         owner->CastSpell(me, 45204, false);
     }
 
-    void EnterCombat(Unit *who)
-    {
-        if (spells.empty())
-            return;
-
-        uint32 spell = rand() % spells.size();
-        uint32 count = 0;
-        for(SpellVct::iterator itr = spells.begin(); itr != spells.end(); ++itr, ++count)
-        {
-            uint32 cooldown = GetAISpellInfo(*itr)->cooldown;
-            if (count == spell)
-            {
-                DoCast(spells[spell]);
-                cooldown += me->GetCurrentSpellCastTime(*itr);
-            }
-            events.ScheduleEvent(*itr, cooldown);
-        }
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        if(!UpdateVictim())
-            return;
-
-        events.Update(diff);
-
-        if(me->hasUnitState(UNIT_STAT_CASTING))
-            return;
-
-        if(uint32 spellId = events.ExecuteEvent())
-        {
-            DoCast(spellId);
-            uint32 casttime = me->GetCurrentSpellCastTime(spellId);
-            events.ScheduleEvent(spellId, (casttime ? casttime : 500) + GetAISpellInfo(spellId)->cooldown);
-        }
-    }
-
+    // Do not reload creature templates on evade mode enter - prevent visual lost
     void EnterEvadeMode()
     {
         if(me->IsInEvadeMode() || !me->isAlive())
@@ -1707,7 +1672,6 @@ struct TRINITY_DLL_DECL npc_mirror_image : SpellAI
             me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, m_creature->GetFollowAngle(), MOTION_SLOT_ACTIVE);
         }
     }
-
 };
 
 CreatureAI* GetAI_npc_mirror_image(Creature *_Creature)

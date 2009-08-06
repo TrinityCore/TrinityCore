@@ -325,6 +325,10 @@ void UnitAI::FillAISpellInfo()
                 }
             }
         }
+        AIInfo->realCooldown = spellInfo->RecoveryTime + spellInfo->StartRecoveryTime;
+        SpellRangeEntry const* srange = sSpellRangeStore.LookupEntry(spellInfo->rangeIndex);
+        if (srange)
+            AIInfo->maxRange = srange->maxRangeHostile * 3 / 4;
     }
 }
 
