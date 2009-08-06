@@ -264,8 +264,8 @@ inline bool IsNonCombatSpell(SpellEntry const *spellInfo)
     return (spellInfo->Attributes & SPELL_ATTR_CANT_USED_IN_COMBAT) != 0;
 }
 
-bool IsPositiveSpell(uint32 spellId, bool deep = false);
-bool IsPositiveEffect(uint32 spellId, uint32 effIndex, bool deep = false);
+bool IsPositiveSpell(uint32 spellId);
+bool IsPositiveEffect(uint32 spellId, uint32 effIndex);
 bool IsPositiveTarget(uint32 targetA, uint32 targetB);
 bool IsDispelableBySpell(SpellEntry const * dispelSpell, uint32 spellId, bool def = false);
 
@@ -703,7 +703,6 @@ inline bool IsProfessionSkill(uint32 skill)
     return  IsPrimaryProfessionSkill(skill) || skill == SKILL_FISHING || skill == SKILL_COOKING || skill == SKILL_FIRST_AID;
 }
 
-//#define SPELL_ATTR_CU_PLAYERS_ONLY      0x00000001
 #define SPELL_ATTR_CU_CONE_BACK         0x00000002
 #define SPELL_ATTR_CU_CONE_LINE         0x00000004
 #define SPELL_ATTR_CU_SHARE_DAMAGE      0x00000008
@@ -719,7 +718,10 @@ inline bool IsProfessionSkill(uint32 skill)
 #define SPELL_ATTR_CU_LINK_REMOVE       0x00002000
 #define SPELL_ATTR_CU_MOVEMENT_IMPAIR   0x00004000
 #define SPELL_ATTR_CU_EXCLUDE_SELF      0x00008000
-
+#define SPELL_ATTR_CU_NEGATIVE_EFF0     0x00010000
+#define SPELL_ATTR_CU_NEGATIVE_EFF1     0x00020000
+#define SPELL_ATTR_CU_NEGATIVE_EFF2     0x00040000
+#define SPELL_ATTR_CU_NEGATIVE          0x00070000
 
 typedef std::vector<uint32> SpellCustomAttribute;
 typedef std::vector<bool> EnchantCustomAttribute;
@@ -1105,6 +1107,9 @@ class SpellMgr
         bool CheckDB() const;
 
     private:
+        bool _isPositiveSpell(uint32 spellId, bool deep) const;
+        bool _isPositiveEffect(uint32 spellId, uint32 effIndex, bool deep) const;
+
         SpellScriptTarget  mSpellScriptTarget;
         SpellChainMap      mSpellChains;
         SpellsRequiringSpellMap   mSpellsReqSpell;
