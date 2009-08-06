@@ -1587,7 +1587,7 @@ void World::SetInitialWorldSettings()
     poolhandler.Initialize();
 
     sLog.outString("Initialize AuctionHouseBot...");
-    AuctionHouseBotInit();
+    auctionbot.Initialize();
 
     // possibly enable db logging; avoid massive startup spam by doing it here.
     if (sLog.GetLogDBLater())
@@ -1713,7 +1713,7 @@ void World::Update(uint32 diff)
     /// <ul><li> Handle auctions when the timer has passed
     if (m_timers[WUPDATE_AUCTIONS].Passed())
     {
-        AuctionHouseBot();
+        auctionbot.Update();
         m_timers[WUPDATE_AUCTIONS].Reset();
 
         ///- Update mails (return old mails with item, or delete them)
