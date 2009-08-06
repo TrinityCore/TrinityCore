@@ -1737,6 +1737,10 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     }
     else
     {
+        if(getClass() == CLASS_DEATH_KNIGHT && GetMapId() == 609 && !isGameMaster()
+            && !IsActiveQuest(13188) && !IsActiveQuest(13189))
+            return false;
+
         // far teleport to another map
         Map* oldmap = IsInWorld() ? GetMap() : NULL;
         // check if we can enter before stopping combat / removing pet / totems / interrupting spells
@@ -12468,8 +12472,8 @@ void Player::PrepareQuestMenu( uint64 guid )
             qm.AddMenuItem(quest_id, DIALOG_STATUS_UNK2);
         else if ( status == QUEST_STATUS_INCOMPLETE )
             qm.AddMenuItem(quest_id, DIALOG_STATUS_UNK2);
-        else if (status == QUEST_STATUS_AVAILABLE )
-            qm.AddMenuItem(quest_id, DIALOG_STATUS_CHAT);
+        //else if (status == QUEST_STATUS_AVAILABLE )
+        //    qm.AddMenuItem(quest_id, DIALOG_STATUS_CHAT);
     }
 
     for(QuestRelations::const_iterator i = pObjectQR->lower_bound(pObject->GetEntry()); i != pObjectQR->upper_bound(pObject->GetEntry()); ++i)
