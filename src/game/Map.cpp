@@ -2643,14 +2643,11 @@ void InstanceMap::PermBindAllPlayers(Player *player)
 
 void InstanceMap::UnloadAll()
 {
-    if(HavePlayers())
+    while(HavePlayers())
     {
         sLog.outError("InstanceMap::UnloadAll: there are still players in the instance at unload, should not happen!");
-        for(MapRefManager::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
-        {
-            Player* plr = itr->getSource();
-            plr->TeleportTo(plr->m_homebindMapId, plr->m_homebindX, plr->m_homebindY, plr->m_homebindZ, plr->GetOrientation());
-        }
+        Player *plr = m_mapRefManager.getFirst()->getSource();
+        plr->TeleportOutOfMap(this);
     }
 
     if(m_resetAfterUnload == true)
@@ -2742,14 +2739,9 @@ void BattleGroundMap::UnloadAll()
 {
     while(HavePlayers())
     {
-        if(Player * plr = m_mapRefManager.getFirst()->getSource())
-        {
-            plr->TeleportTo(plr->GetBattleGroundEntryPoint());
-            // TeleportTo removes the player from this map (if the map exists) -> calls BattleGroundMap::Remove -> invalidates the iterator.
-            // just in case, remove the player from the list explicitly here as well to prevent a possible infinite loop
-            // note that this remove is not needed if the code works well in other places
-            plr->GetMapRef().unlink();
-        }
+        Player *plr = m_mapRefManager.getFirst()->getSource();
+        plr->TeleportTo(plr->GetBattleGroundEntryPoint());
+        plr->TeleportOutOfMap(this);
     }
 
     Map::UnloadAll();
