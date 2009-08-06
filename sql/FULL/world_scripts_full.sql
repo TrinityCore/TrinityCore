@@ -62,28 +62,12 @@ UPDATE `creature_template` SET `ScriptName`='guard_shattrath_aldor' WHERE `entry
 UPDATE `creature_template` SET `ScriptName`='guard_shattrath_scryer' WHERE `entry`=18568;
 
 /* ITEM */
-UPDATE `item_template` SET `ScriptName`='item_area_52_special' WHERE `entry`=28132;
-UPDATE `item_template` SET `ScriptName`='item_attuned_crystal_cores' WHERE `entry`=34368;
-UPDATE `item_template` SET `ScriptName`='item_blackwhelp_net' WHERE `entry`=31129;
-UPDATE `item_template` SET `ScriptName`='item_dart_gun' WHERE `entry`=44222;
-UPDATE `item_template` SET `ScriptName`='item_disciplinary_rod' WHERE `entry`=22473;
 UPDATE `item_template` SET `ScriptName`='item_draenei_fishing_net' WHERE `entry`=23654;
 UPDATE `item_template` SET `ScriptName`='item_flying_machine' WHERE `entry` IN (34060,34061);
 UPDATE `item_template` SET `ScriptName`='item_gor_dreks_ointment' WHERE `entry`=30175;
-UPDATE `item_template` SET `ScriptName`='item_muiseks_vessel' WHERE `entry` IN (9606,9618,9619,9620,9621);
 UPDATE `item_template` SET `ScriptName`='item_nether_wraith_beacon' WHERE `entry`=31742;
-UPDATE `item_template` SET `ScriptName`='item_protovoltaic_magneto_collector' WHERE `entry`=30656;
-UPDATE `item_template` SET `ScriptName`='item_razorthorn_flayer_gland' WHERE `entry`=34255;
-UPDATE `item_template` SET `ScriptName`='item_soul_cannon' WHERE `entry`=32825;
-UPDATE `item_template` SET `ScriptName`='item_sparrowhawk_net' WHERE `entry`=32321;
 UPDATE `item_template` SET `ScriptName`='item_tainted_core' WHERE `entry`=31088;
-UPDATE `item_template` SET `ScriptName`='item_tame_beast_rods' WHERE `entry` IN (15908,15911,15913,15914,15915,15916,15917,15919,15920,15921,15922,15923,23697,23702,23703,23896,23897,23898);
-UPDATE `item_template` SET `ScriptName`='item_voodoo_charm' WHERE `entry`=8149;
-UPDATE `item_template` SET `ScriptName`='item_vorenthals_presence' WHERE `entry`=30259;
-UPDATE `item_template` SET `ScriptName`='item_yehkinyas_bramble' WHERE `entry`=10699;
-UPDATE `item_template` SET `ScriptName`='item_zezzaks_shard' WHERE `entry`=31463;
 UPDATE `item_template` SET `ScriptName`='item_only_for_flight' WHERE `entry` IN (34475, 34489, 24538);
-UPDATE `item_template` SET `ScriptName`='item_inoculating_crystal' WHERE `entry`=22962;
 UPDATE `item_template` SET `ScriptName`='item_incendiary_explosives' WHERE (`entry`=35704);
 UPDATE `item_template` SET `ScriptName`='item_mysterious_egg' WHERE `entry` IN(39878);
 UPDATE `item_template` SET `ScriptName`='item_disgusting_jar' WHERE `entry` IN(44717);

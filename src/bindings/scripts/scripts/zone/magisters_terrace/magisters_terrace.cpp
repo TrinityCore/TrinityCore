@@ -34,6 +34,7 @@ EndContentData */
 enum
 {
     SPELL_TRANSFORM_TO_KAEL     = 44670,
+    SPELL_ORB_KILL_CREDIT       = 46307,
     NPC_KAEL                    = 24848,                    //human form entry
     POINT_ID_LAND               = 1
 };
@@ -72,12 +73,40 @@ struct TRINITY_DLL_DECL npc_kalecgosAI : public ScriptedAI
             m_uiTransformTimer = MINUTE*IN_MILISECONDS;
     }
 
+    // some targeting issues with the spell, so use this workaround as temporary solution
+    void DoWorkaroundForQuestCredit()
+    {
+        Map* pMap = m_creature->GetMap();
+
+        if (!pMap || pMap->IsHeroic())
+            return;
+
+        Map::PlayerList const &lList = pMap->GetPlayers();
+
+        if (lList.isEmpty())
+            return;
+
+        SpellEntry const* pSpell = GetSpellStore()->LookupEntry(SPELL_ORB_KILL_CREDIT);
+
+        for(Map::PlayerList::const_iterator i = lList.begin(); i != lList.end(); ++i)
+        {
+            if (Player* pPlayer = i->getSource())
+            {
+                if (pSpell && pSpell->EffectMiscValue[0])
+                    pPlayer->KilledMonsterCredit(pSpell->EffectMiscValue[0], 0);
+            }
+        }
+    }
+
     void UpdateAI(const uint32 uiDiff)
     {
         if (m_uiTransformTimer)
         {
             if (m_uiTransformTimer < uiDiff)
             {
+                m_creature->CastSpell(m_creature,SPELL_ORB_KILL_CREDIT,false);
+                DoWorkaroundForQuestCredit();
+
                 // Transform and update entry, now ready for quest/read gossip
                 m_creature->CastSpell(m_creature,SPELL_TRANSFORM_TO_KAEL,false);
                 m_creature->UpdateEntry(NPC_KAEL);
