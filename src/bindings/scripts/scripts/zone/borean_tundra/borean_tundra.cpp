@@ -219,7 +219,7 @@ struct TRINITY_DLL_DECL npc_khunok_the_behemothAI : public ScriptedAI
                 if(owner->GetTypeId() == TYPEID_PLAYER)
                 {
                     DoCast(owner, 46231, true);
-                    ((Creature*)who)->ForcedDespawn();
+                    CAST_CRE(who)->ForcedDespawn();
                 }
             }
         }

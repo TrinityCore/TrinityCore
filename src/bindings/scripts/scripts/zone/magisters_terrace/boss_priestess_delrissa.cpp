@@ -372,7 +372,7 @@ struct TRINITY_DLL_DECL boss_priestess_lackey_commonAI : public ScriptedAI
         ResetThreatTimer = 5000 + rand()%15000;
 
         // in case she is not alive and Reset was for some reason called, respawn her (most likely party wipe after killing her)
-        if (Creature* pDelrissa = (Creature*)Unit::GetUnit(*m_creature, pInstance->GetData64(DATA_DELRISSA)))
+        if (Creature* pDelrissa = Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_DELRISSA)))
         {
             if (!pDelrissa->isAlive())
                 pDelrissa->Respawn();
@@ -398,7 +398,7 @@ struct TRINITY_DLL_DECL boss_priestess_lackey_commonAI : public ScriptedAI
                 }
             }
 
-            if (Creature* pDelrissa = (Creature*)Unit::GetUnit(*m_creature, pInstance->GetData64(DATA_DELRISSA)))
+            if (Creature* pDelrissa = Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_DELRISSA)))
             {
                 if (pDelrissa->isAlive() && !pDelrissa->getVictim())
                 {
@@ -414,7 +414,7 @@ struct TRINITY_DLL_DECL boss_priestess_lackey_commonAI : public ScriptedAI
         if (!pInstance)
             return;
 
-        Creature* pDelrissa = (Creature*)Unit::GetUnit(*m_creature, pInstance->GetData64(DATA_DELRISSA));
+        Creature* pDelrissa = Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_DELRISSA));
         uint32 uiLackeyDeathCount = pInstance->GetData(DATA_DELRISSA_DEATH_COUNT);
 
         if (!pDelrissa)
@@ -458,7 +458,7 @@ struct TRINITY_DLL_DECL boss_priestess_lackey_commonAI : public ScriptedAI
         if (Creature* Delrissa = (Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_DELRISSA))))
         {
             for(uint8 i = 0; i < MAX_ACTIVE_LACKEY; ++i)
-                m_auiLackeyGUIDs[i] = ((boss_priestess_delrissaAI*)Delrissa->AI())->m_auiLackeyGUID[i];
+                m_auiLackeyGUIDs[i] = CAST_AI(boss_priestess_delrissaAI, Delrissa->AI())->m_auiLackeyGUID[i];
         }
     }
 
