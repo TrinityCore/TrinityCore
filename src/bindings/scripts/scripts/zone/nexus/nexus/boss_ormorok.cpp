@@ -24,29 +24,32 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_nexus.h"
 
+enum
+{
 //Spells
-#define SPELL_CRYSTAL_SPIKES_N                     47958 //Don't work, using walkaround
-#define SPELL_CRYSTAL_SPIKES_H                     57082 //Don't work, using walkaround
+    SPELL_CRYSTAL_SPIKES_N                     = 47958, //Don't work, using walkaround
+    SPELL_CRYSTAL_SPIKES_H                     = 57082, //Don't work, using walkaround
 //Walkaround for spells Crystal Spikes -----------------
-#define SPELL_CRYSTALL_SPIKE_DAMAGE_N              47944
-#define SPELL_CRYSTALL_SPIKE_DAMAGE_H              57067
-#define SPELL_CRYSTAL_SPIKE_PREVISUAL              50442
-#define MOB_CRYSTAL_SPIKE                          27099
+    SPELL_CRYSTALL_SPIKE_DAMAGE_N              = 47944,
+    SPELL_CRYSTALL_SPIKE_DAMAGE_H              = 57067,
+    SPELL_CRYSTAL_SPIKE_PREVISUAL              = 50442,
+    MOB_CRYSTAL_SPIKE                          = 27099,
 //------------------------------------------------------
-#define SPELL_SPELL_REFLECTION                     47981
-#define SPELL_TRAMPLE_N                            48016
-#define SPELL_TRAMPLE_H                            57066
-#define SPELL_FRENZY                               48017
-#define SPELL_SUMMON_CRYSTALLINE_TANGLER           61564 //summons npc 32665
-#define MOB_CRYSTALLINE_TANGLER                    32665
-#define SPELL_ROOTS                                28858 //proper spell id is unknown
+    SPELL_SPELL_REFLECTION                     = 47981,
+    SPELL_TRAMPLE_N                            = 48016,
+    SPELL_TRAMPLE_H                            = 57066,
+    SPELL_FRENZY                               = 48017,
+    SPELL_SUMMON_CRYSTALLINE_TANGLER           = 61564, //summons npc 32665
+    MOB_CRYSTALLINE_TANGLER                    = 32665,
+    SPELL_ROOTS                                = 28858, //proper spell id is unknown
 
 //Yell
-#define SAY_AGGRO                               -1576020
-#define SAY_DEATH                               -1576021
-#define SAY_REFLECT                             -1576022
-#define SAY_CRYSTAL_SPIKES                      -1576023
-#define SAY_KILL                                -1576024
+    SAY_AGGRO                               = -1576020,
+    SAY_DEATH                               = -1576021,
+    SAY_REFLECT                             = -1576022,
+    SAY_CRYSTAL_SPIKES                      = -1576023,
+    SAY_KILL                                = -1576024
+};
 
 #define SPIKE_DISTANCE                            5.0f
 

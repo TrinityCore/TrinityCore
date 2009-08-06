@@ -24,22 +24,25 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_nexus.h"
 
+enum
+{
 //Spells
-#define SPELL_FROZEN_PRISON                             47854
-#define SPELL_TAIL_SWEEP                                50155
-#define SPELL_CRYSTAL_CHAINS                            50997 
-#define SPELL_ENRAGE                                    8599
-#define SPELL_CRYSTALFIRE_BREATH_N                      48096
-#define SPELL_CRYSTALFIRE_BREATH_H                      57091
-#define SPELL_CRYSTALIZE                                48179 
-#define SPELL_INTENSE_COLD                              48094
+    SPELL_FROZEN_PRISON                             = 47854,
+    SPELL_TAIL_SWEEP                                = 50155,
+    SPELL_CRYSTAL_CHAINS                            = 50997,
+    SPELL_ENRAGE                                    = 8599,
+    SPELL_CRYSTALFIRE_BREATH_N                      = 48096,
+    SPELL_CRYSTALFIRE_BREATH_H                      = 57091,
+    SPELL_CRYSTALIZE                                = 48179,
+    SPELL_INTENSE_COLD                              = 48094,
 
 //Yell
-#define SAY_AGGRO                                    -1576040
-#define SAY_SLAY                                     -1576041
-#define SAY_ENRAGE                                   -1576042
-#define SAY_DEATH                                    -1576043
-#define SAY_CRYSTAL_NOVA                             -1576044
+    SAY_AGGRO                                    = -1576040,
+    SAY_SLAY                                     = -1576041,
+    SAY_ENRAGE                                   = -1576042,
+    SAY_DEATH                                    = -1576043,
+    SAY_CRYSTAL_NOVA                             = -1576044
+};
 
 struct TRINITY_DLL_DECL boss_keristraszaAI : public ScriptedAI
 {
