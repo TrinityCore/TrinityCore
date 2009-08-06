@@ -26,34 +26,35 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_utgarde_keep.h"
 
-#define YELL_SKARVALD_AGGRO                         -1574010
-#define YELL_DALRONN_AGGRO                          -1574005
+enum
+{
+    YELL_SKARVALD_AGGRO                         = -1574011,
+    YELL_SKARVALD_DAL_DIED                      = -1574012,
+    YELL_SKARVALD_SKA_DIEDFIRST                 = -1574013,
+    YELL_SKARVALD_KILL                          = -1574014,
+    YELL_SKARVALD_DAL_DIEDFIRST                 = -1574015,
 
-#define YELL_SKARVALD_KILL                          -1574011
-#define YELL_DALRONN_KILL                           -1574006
-
-#define YELL_DALRONN_DAL_DIEDFIRST                  -1574007
-#define YELL_SKARVALD_DAL_DIEDFIRST                 -1574014
-#define YELL_SKARVALD_DAL_DIED                      -1574013
-
-#define YELL_SKARVALD_SKA_DIEDFIRST                 -1574012
-#define YELL_DALRONN_SKA_DIEDFIRST                  -1574009
-#define YELL_DALRONN_SKA_DIED                       -1574008
+    YELL_DALRONN_AGGRO                          = -1574016,
+    YELL_DALRONN_SKA_DIED                       = -1574017,
+    YELL_DALRONN_DAL_DIEDFIRST                  = -1574018,
+    YELL_DALRONN_KILL                           = -1574019,
+    YELL_DALRONN_SKA_DIEDFIRST                  = -1574020,
 
 //Spells of Skarvald and his Ghost
-#define MOB_SKARVALD_THE_CONSTRUCTOR                24200
-#define SPELL_CHARGE                                43651
-#define SPELL_STONE_STRIKE                          48583
-#define SPELL_SUMMON_SKARVALD_GHOST                 48613
-#define MOB_SKARVALD_GHOST                          27390
+    MOB_SKARVALD_THE_CONSTRUCTOR                = 24200,
+    SPELL_CHARGE                                = 43651,
+    SPELL_STONE_STRIKE                          = 48583,
+    SPELL_SUMMON_SKARVALD_GHOST                 = 48613,
+    MOB_SKARVALD_GHOST                          = 27390,
 //Spells of Dalronn and his Ghost
-#define MOB_DALRONN_THE_CONTROLLER                  24201
-#define SPELL_SHADOW_BOLT                           43649
-#define H_SPELL_SHADOW_BOLT                         59575
-#define H_SPELL_SUMMON_SKELETONS                    52611
-#define SPELL_DEBILITATE                            43650
-#define SPELL_SUMMON_DALRONN_GHOST                  48612
-#define MOB_DALRONN_GHOST                           27389
+    MOB_DALRONN_THE_CONTROLLER                  = 24201,
+    SPELL_SHADOW_BOLT                           = 43649,
+    H_SPELL_SHADOW_BOLT                         = 59575,
+    H_SPELL_SUMMON_SKELETONS                    = 52611,
+    SPELL_DEBILITATE                            = 43650,
+    SPELL_SUMMON_DALRONN_GHOST                  = 48612,
+    MOB_DALRONN_GHOST                           = 27389
+};
 
 struct TRINITY_DLL_DECL boss_skarvald_the_constructorAI : public ScriptedAI
 {

@@ -103,18 +103,6 @@ struct TRINITY_DLL_DECL mob_doom_blossomAI : public ScriptedAI
     void SetTeronGUID(uint64 guid){ TeronGUID = guid; }
 };
 
-//This is used to sort the players by distance for Constructs to see who to cast Atrophy on
-struct TargetDistanceOrder : public std::binary_function<const Unit, const Unit, bool>
-{
-    const Unit* MainTarget;
-    TargetDistanceOrder(const Unit* Target) : MainTarget(Target) {};
-    // functor for operator "<"
-    bool operator()(const Unit* _Left, const Unit* _Right) const
-    {
-        return MainTarget->GetDistanceOrder(_Left, _Right);
-    }
-};
-
 struct TRINITY_DLL_DECL mob_shadowy_constructAI : public ScriptedAI
 {
     mob_shadowy_constructAI(Creature* c) : ScriptedAI(c) {}
@@ -165,7 +153,7 @@ struct TRINITY_DLL_DECL mob_shadowy_constructAI : public ScriptedAI
             if(pUnit && pUnit->isAlive())
                 targets.push_back(pUnit);
         }
-        targets.sort(TargetDistanceOrder(m_creature));
+        targets.sort(ObjectDistanceOrder(m_creature));
         Unit* target = targets.front();
         if(target && m_creature->IsWithinDistInMap(target, m_creature->GetAttackDistance(target)))
         {
