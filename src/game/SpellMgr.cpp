@@ -320,8 +320,6 @@ bool IsPassiveSpell(uint32 spellId)
         return false;
     if(spellInfo->Attributes & SPELL_ATTR_PASSIVE)
         return true;
-    if(spellInfo->activeIconID == 2158)  //flight
-        return true;
     return false;
 }
 
@@ -331,8 +329,6 @@ bool IsAutocastableSpell(uint32 spellId)
     if(!spellInfo)
         return false;
     if(spellInfo->Attributes & SPELL_ATTR_PASSIVE)
-        return false;
-    if(spellInfo->activeIconID == 2158)
         return false;
     if(spellInfo->AttributesEx & SPELL_ATTR_EX_UNAUTOCASTABLE_BY_PET)
         return false;
@@ -707,7 +703,7 @@ bool IsPositiveTarget(uint32 targetA, uint32 targetB)
     return true;
 }
 
-bool IsPositiveEffect(uint32 spellId, uint32 effIndex, bool deep)
+bool SpellMgr::_isPositiveEffect(uint32 spellId, uint32 effIndex, bool deep) const
 {
     SpellEntry const *spellproto = sSpellStore.LookupEntry(spellId);
     if (!spellproto) return false;
@@ -816,7 +812,7 @@ bool IsPositiveEffect(uint32 spellId, uint32 effIndex, bool deep)
                                     continue;
                                 // if non-positive trigger cast targeted to positive target this main cast is non-positive
                                 // this will place this spell auras as debuffs
-                                if(IsPositiveTarget(spellTriggeredProto->EffectImplicitTargetA[effIndex],spellTriggeredProto->EffectImplicitTargetB[effIndex]) && !IsPositiveEffect(spellTriggeredId,i, true))
+                                if(IsPositiveTarget(spellTriggeredProto->EffectImplicitTargetA[effIndex],spellTriggeredProto->EffectImplicitTargetB[effIndex]) && !_isPositiveEffect(spellTriggeredId,i, true))
                                     return false;
                             }
                         }
@@ -902,7 +898,7 @@ bool IsPositiveEffect(uint32 spellId, uint32 effIndex, bool deep)
                                     for (uint8 i=0;i<MAX_SPELL_EFFECTS;++i)
                                     {
                                         if (i != effIndex)
-                                            if (IsPositiveEffect(spellId, i, true))
+                                            if (_isPositiveEffect(spellId, i, true))
                                             {
                                                 negative = false;
                                                 break;
@@ -949,14 +945,30 @@ bool IsPositiveEffect(uint32 spellId, uint32 effIndex, bool deep)
     if (!deep && spellproto->EffectTriggerSpell[effIndex]
         && !spellproto->EffectApplyAuraName[effIndex]
         && IsPositiveTarget(spellproto->EffectImplicitTargetA[effIndex],spellproto->EffectImplicitTargetB[effIndex])
-        && !IsPositiveSpell(spellproto->EffectTriggerSpell[effIndex], true))
+        && !_isPositiveSpell(spellproto->EffectTriggerSpell[effIndex], true))
         return false;
 
     // ok, positive
     return true;
 }
 
-bool IsPositiveSpell(uint32 spellId, bool deep)
+bool IsPositiveSpell(uint32 spellId)
+{
+    return !(spellmgr.GetSpellCustomAttr(spellId) & SPELL_ATTR_CU_NEGATIVE);
+}
+
+bool IsPositiveEffect(uint32 spellId, uint32 effIndex)
+{
+    switch(effIndex)
+    {
+        default:
+        case 0: return !(spellmgr.GetSpellCustomAttr(spellId) & SPELL_ATTR_CU_NEGATIVE_EFF0);
+        case 1: return !(spellmgr.GetSpellCustomAttr(spellId) & SPELL_ATTR_CU_NEGATIVE_EFF1);
+        case 2: return !(spellmgr.GetSpellCustomAttr(spellId) & SPELL_ATTR_CU_NEGATIVE_EFF2);
+    }
+}
+
+bool SpellMgr::_isPositiveSpell(uint32 spellId, bool deep) const
 {
     SpellEntry const *spellproto = sSpellStore.LookupEntry(spellId);
     if (!spellproto) return false;
@@ -964,7 +976,7 @@ bool IsPositiveSpell(uint32 spellId, bool deep)
     // spells with at least one negative effect are considered negative
     // some self-applied spells have negative effects but in self casting case negative check ignored.
     for (int i = 0; i < 3; ++i)
-        if (!IsPositiveEffect(spellId, i, deep))
+        if (!_isPositiveEffect(spellId, i, deep))
             return false;
     return true;
 }
@@ -3587,10 +3599,20 @@ void SpellMgr::LoadSpellCustomAttr()
                     mSpellCustomAttr[i] &= ~SPELL_ATTR_CU_MOVEMENT_IMPAIR;
                     break;
             }
-        }     
+        }
+
+        if(!_isPositiveEffect(i, 0, false))
+            mSpellCustomAttr[i] |= SPELL_ATTR_CU_NEGATIVE_EFF0;
+        if(!_isPositiveEffect(i, 1, false))
+            mSpellCustomAttr[i] |= SPELL_ATTR_CU_NEGATIVE_EFF1;
+        if(!_isPositiveEffect(i, 2, false))
+            mSpellCustomAttr[i] |= SPELL_ATTR_CU_NEGATIVE_EFF2;
 
         if(spellInfo->SpellVisual[0] == 3879)
             mSpellCustomAttr[i] |= SPELL_ATTR_CU_CONE_BACK;
+
+        if(spellInfo->activeIconID == 2158)  //flight
+            spellInfo->Attributes |= SPELL_ATTR_PASSIVE;
 
         switch(i)
         {
