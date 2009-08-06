@@ -91,6 +91,11 @@ struct TRINITY_DLL_DECL instance_scarlet_monastery : public ScriptedInstance
         switch(type)
         {
         case TYPE_MOGRAINE_AND_WHITE_EVENT:
+            if (data == IN_PROGRESS)
+                DoUseDoorOrButton(DoorHighInquisitorGUID);
+            if (data == FAIL)
+                DoUseDoorOrButton(DoorHighInquisitorGUID);
+
             Encounter[0] = data;
             break;
         case GAMEOBJECT_PUMPKIN_SHRINE:
