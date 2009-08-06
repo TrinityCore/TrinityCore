@@ -5968,7 +5968,7 @@ int32 Player::CalculateReputationGain(uint32 creatureOrQuestLevel, int32 rep, in
     if (percent <= 0.0f)
         return 0;
 
-    return int32(rep*percent*0.01f);
+    return int32(rep*percent)/100;
 }
 
 //Calculates how many reputation points player gains in victim's enemy factions
