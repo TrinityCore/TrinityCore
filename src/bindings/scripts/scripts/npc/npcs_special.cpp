@@ -1641,14 +1641,13 @@ CreatureAI* GetAI_mob_mojo(Creature *_Creature)
 
 struct TRINITY_DLL_DECL npc_mirror_image : SpellAI
 {
-    npc_mirror_image(Creature *c) : SpellAI(c) {}
+    npc_mirror_image(Creature *c) : SpellAI(c) {Reset();}
 
     void Reset()
     {
         Unit * owner = me->GetOwner();
         if (!owner)
             return;
-        owner->SetLevel(owner->getLevel());
         // Inherit Master's Threat List (not yet implemented)
         owner->CastSpell((Unit*)NULL, 58838, true);
         // here mirror image casts on summoner spell (not present in client dbc) 49866
@@ -1693,6 +1692,22 @@ struct TRINITY_DLL_DECL npc_mirror_image : SpellAI
             events.ScheduleEvent(spellId, (casttime ? casttime : 500) + GetAISpellInfo(spellId)->cooldown);
         }
     }
+
+    void EnterEvadeMode()
+    {
+        if(me->IsInEvadeMode() || !me->isAlive())
+            return;
+
+        Unit *owner = me->GetCharmerOrOwner();
+
+        me->CombatStop(true);
+        if(owner && !me->hasUnitState(UNIT_STAT_FOLLOW) )
+        {
+            me->GetMotionMaster()->Clear(false);
+            me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, m_creature->GetFollowAngle(), MOTION_SLOT_ACTIVE);
+        }
+    }
+
 };
 
 CreatureAI* GetAI_npc_mirror_image(Creature *_Creature)
