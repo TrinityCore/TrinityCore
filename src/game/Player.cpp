@@ -1621,6 +1621,21 @@ void Player::SendTeleportAckMsg()
     GetSession()->SendPacket(&data);
 }
 
+void Player::TeleportOutOfMap(Map *oldMap)
+{
+    if(FindMap() != oldMap)
+        return;
+
+    TeleportTo(m_homebindMapId, m_homebindX, m_homebindY, m_homebindZ, GetOrientation());
+
+    if(FindMap() == oldMap)
+    {
+        sLog.outCrash("Cannot teleport player out of map!");
+        ResetMap();
+        assert(false);
+    }
+}
+
 bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options)
 {
     if(!MapManager::IsValidMapCoord(mapid, x, y, z, orientation))
