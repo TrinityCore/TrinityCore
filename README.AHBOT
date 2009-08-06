@@ -63,12 +63,6 @@ MinItems = 0
 MaxItems = 0
 #The Maximum number of items you want to keep in the auction houses.
 
-MinTime = 8
-#The minimum number of hours for an auction.
-
-MaxTime = 24
-#The maximum number of hours for an auction.
-
 #These must add up to 100 each one is the percentage
 #of the auction items that should be trade goods of
 #that quality. A value of 0 will disable.
@@ -157,8 +151,6 @@ ahbotoptions help - will display the list of commands
 ahexpire - will expire all the auctions in the requested auction house that were created by AHBot.
 minitems - will set the minimum number of items in the AH before it starts being filled again.
 maxitems - will set the maximum number of items in the AH.
-mintime - will set the minimum time (in hours) for auctions to expire.
-maxtime - will set the maximum time (in hours) for auctions to expire.
 percentages - will set the percentage of each quality in the AH
 minprice - will set the minimum price multiplier for auctions.
 maxprice - will set the maximum price multiplier for auctions.
