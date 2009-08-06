@@ -24,37 +24,38 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_nexus.h"
 
+enum
+{
 //Spells
+    SPELL_ICE_NOVA_N          = 47772,
+    SPELL_ICE_NOVA_H          = 56935,
+    SPELL_FIREBOMB_N          = 47773,
+    SPELL_FIREBOMB_H          = 56934,
+    SPELL_GRAVITY_WELL        = 47756,
+    SPELL_TELESTRA_BACK       = 47714,
 
-#define SPELL_ICE_NOVA_N          47772
-#define SPELL_ICE_NOVA_H          56935
-#define SPELL_FIREBOMB_N          47773
-#define SPELL_FIREBOMB_H          56934
-#define SPELL_GRAVITY_WELL        47756
-#define SPELL_TELESTRA_BACK       47714
+//At 50% HP - 3 clones, Frost, Fire, Arcane (and in 10% HP in Heroic)
+    MOB_FIRE_MAGUS            = 26928,
+    MOB_FROST_MAGUS           = 26930,
+    MOB_ARCANE_MAGUS          = 26929,
+
+    SPELL_FIRE_MAGUS_VISUAL   = 47705,
+    SPELL_FROST_MAGUS_VISUAL  = 47706,
+    SPELL_ARCANE_MAGUS_VISUAL = 47704,
+
+//Yell
+    SAY_AGGRO                 = -1576000,
+    SAY_KILL                  = -1576001,
+    SAY_DEATH                 = -1576002,
+    SAY_MERGE                 = -1576003,
+    SAY_SPLIT_1               = -1576004,
+    SAY_SPLIT_2               = -1576005
+};
 
 float CenterOfRoom[1][4] =
 {
     {504.80, 89.07, -16.12, 6.27}
 };
-
-//At 50% HP - 3 clones, Frost, Fire, Arcane (and in 10% HP in Heroic)
-#define MOB_FIRE_MAGUS            26928
-#define MOB_FROST_MAGUS           26930
-#define MOB_ARCANE_MAGUS          26929
-
-#define SPELL_FIRE_MAGUS_VISUAL   47705
-#define SPELL_FROST_MAGUS_VISUAL  47706
-#define SPELL_ARCANE_MAGUS_VISUAL 47704
-
-//Yell
-#define SAY_AGGRO                 -1576000
-#define SAY_KILL                  -1576001
-#define SAY_DEATH                 -1576002
-#define SAY_MERGE                 -1576003
-#define SAY_SPLIT_1               -1576004
-#define SAY_SPLIT_2               -1576005
-
 
 struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
 {

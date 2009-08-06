@@ -24,25 +24,28 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_nexus.h"
 
+enum
+{
 //Spells
-#define SPELL_SPARK_N              47751
-#define SPELL_SPARK_H              57062
-#define SPELL_RIFT_SHIELD          47748
-#define SPELL_CHARGE_RIFT          47747 //Works wrong (affect players, not rifts)
-#define SPELL_CREATE_RIFT          47743 //Don't work, using WA
-#define SPELL_ARCANE_ATTRACTION    57063 //No idea, when it's used
+    SPELL_SPARK_N              = 47751,
+    SPELL_SPARK_H              = 57062,
+    SPELL_RIFT_SHIELD          = 47748,
+    SPELL_CHARGE_RIFT          = 47747, //Works wrong (affect players, not rifts)
+    SPELL_CREATE_RIFT          = 47743, //Don't work, using WA
+    SPELL_ARCANE_ATTRACTION    = 57063, //No idea, when it's used
 
-#define MOB_CRAZED_MANA_WRAITH              26746
-#define MOB_CHAOTIC_RIFT                    26918
-#define SPELL_CHAOTIC_ENERGY_BURST          47688
-#define SPELL_CHARGED_CHAOTIC_ENERGY_BURST  47737
-#define SPELL_ARCANEFORM                    48019 //Chaotic Rift visual
+    MOB_CRAZED_MANA_WRAITH              = 26746,
+    MOB_CHAOTIC_RIFT                    = 26918,
+    SPELL_CHAOTIC_ENERGY_BURST          = 47688,
+    SPELL_CHARGED_CHAOTIC_ENERGY_BURST  = 47737,
+    SPELL_ARCANEFORM                    = 48019, //Chaotic Rift visual
 
 //Yell
-#define SAY_AGGRO               -1576010
-#define SAY_DEATH               -1576011
-#define SAY_RIFT                -1576012
-#define SAY_SHIELD              -1576013
+    SAY_AGGRO               = -1576010,
+    SAY_DEATH               = -1576011,
+    SAY_RIFT                = -1576012,
+    SAY_SHIELD              = -1576013
+};
 
 float RiftLocation[6][3]=
 {

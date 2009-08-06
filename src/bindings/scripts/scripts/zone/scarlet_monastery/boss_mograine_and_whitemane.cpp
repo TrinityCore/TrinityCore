@@ -99,6 +99,8 @@ struct TRINITY_DLL_DECL boss_scarlet_commander_mograineAI : public ScriptedAI
     {
         DoScriptText(SAY_MO_AGGRO, m_creature);
         DoCast(m_creature,SPELL_RETRIBUTIONAURA);
+
+        m_creature->CallForHelp(VISIBLE_RANGE);
     }
 
     void KilledUnit(Unit* pVictim)
@@ -235,6 +237,14 @@ struct TRINITY_DLL_DECL boss_high_inquisitor_whitemaneAI : public ScriptedAI
                 m_pInstance->SetData(TYPE_MOGRAINE_AND_WHITE_EVENT, NOT_STARTED);
     }
 
+    void AttackStart(Unit* pWho)
+    {
+        if (m_pInstance && m_pInstance->GetData(TYPE_MOGRAINE_AND_WHITE_EVENT) == NOT_STARTED)
+            return;
+
+        ScriptedAI::AttackStart(pWho);
+    }
+
     void EnterCombat(Unit* pWho)
     {
         DoScriptText(SAY_WH_INTRO, m_creature);
@@ -286,14 +296,14 @@ struct TRINITY_DLL_DECL boss_high_inquisitor_whitemaneAI : public ScriptedAI
         {
             Creature* pTarget = NULL;
 
-            if (!m_creature->HasAuraState(AURA_STATE_HEALTH_ABOVE_75_PERCENT))
+            if (m_creature->GetHealth() <= m_creature->GetMaxHealth()*0.75f)
                 pTarget = m_creature;
 
             if (m_pInstance)
             {
                 if (Creature* pMograine = (Creature*)Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_MOGRAINE)))
                 {
-                    if (pMograine->isAlive() && !pMograine->HasAuraState(AURA_STATE_HEALTH_ABOVE_75_PERCENT))
+                    if (pMograine->isAlive() && pMograine->GetHealth() <= pMograine->GetMaxHealth()*0.75f)
                         pTarget = pMograine;
                 }
             }
