@@ -14223,27 +14223,22 @@ void Unit::SetRooted(bool apply)
     {
         AddUnitMovementFlag(MOVEMENTFLAG_ROOT);        
 
-        if(GetTypeId() == TYPEID_PLAYER)
-        {
-            WorldPacket data(SMSG_FORCE_MOVE_ROOT, 10);
-            data.append(GetPackGUID());
-            data << (uint32)2;
-            SendMessageToSet(&data,true);
-        }
-        else
+        WorldPacket data(SMSG_FORCE_MOVE_ROOT, 10);
+        data.append(GetPackGUID());
+        data << (uint32)2;
+        SendMessageToSet(&data,true);
+
+        if(GetTypeId() != TYPEID_PLAYER)
             ((Creature *)this)->StopMoving();
     }
     else
     {
         if(!hasUnitState(UNIT_STAT_STUNNED))      // prevent allow move if have also stun effect
         {
-            if(GetTypeId() == TYPEID_PLAYER)
-            {
-                WorldPacket data(SMSG_FORCE_MOVE_UNROOT, 10);
-                data.append(GetPackGUID());
-                data << (uint32)2;
-                SendMessageToSet(&data,true);
-            }
+            WorldPacket data(SMSG_FORCE_MOVE_UNROOT, 10);
+            data.append(GetPackGUID());
+            data << (uint32)2;
+            SendMessageToSet(&data,true);
 
             RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
         }
