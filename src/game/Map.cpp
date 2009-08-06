@@ -542,7 +542,6 @@ Map::Add(T *obj)
     //also, trigger needs to cast spell, if not update, cannot see visual
     //if(obj->GetTypeId() != TYPEID_UNIT)
         UpdateObjectVisibility(obj,cell,p);
-
     AddNotifier(obj);
 }
 

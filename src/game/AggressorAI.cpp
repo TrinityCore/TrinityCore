@@ -91,3 +91,58 @@ void SpellAI::UpdateAI(const uint32 diff)
     else
         DoMeleeAttackIfReady();
 }
+
+void SpellCasterAI::InitializeAI()
+{
+    SpellAI::InitializeAI();
+    float m_attackDist = 30.0f;
+    for(SpellVct::iterator itr = spells.begin(); itr != spells.end(); ++itr)
+    {
+        if (AISpellInfo[*itr].condition == AICOND_COMBAT && m_attackDist > GetAISpellInfo(*itr)->maxRange)
+            m_attackDist = GetAISpellInfo(*itr)->maxRange;
+    }
+    if (m_attackDist == 30.0f)
+        m_attackDist = MELEE_RANGE;
+}
+
+void SpellCasterAI::EnterCombat(Unit *who)
+{
+    if (spells.empty())
+        return;
+
+    uint32 spell = rand() % spells.size();
+    uint32 count = 0;
+    for(SpellVct::iterator itr = spells.begin(); itr != spells.end(); ++itr, ++count)
+    {
+        if(AISpellInfo[*itr].condition == AICOND_AGGRO)
+            me->CastSpell(who, *itr, false);
+        else if (AISpellInfo[*itr].condition == AICOND_COMBAT)
+        {
+            uint32 cooldown = GetAISpellInfo(*itr)->realCooldown;
+            if (count == spell)
+            {
+                DoCast(spells[spell]);
+                cooldown += me->GetCurrentSpellCastTime(*itr);
+            }
+            events.ScheduleEvent(*itr, cooldown);
+        }
+    }
+}
+
+void SpellCasterAI::UpdateAI(const uint32 diff)
+{
+    if(!UpdateVictim())
+        return;
+
+    events.Update(diff);
+
+    if(me->hasUnitState(UNIT_STAT_CASTING))
+        return;
+
+    if(uint32 spellId = events.ExecuteEvent())
+    {
+        DoCast(spellId);
+        uint32 casttime = me->GetCurrentSpellCastTime(spellId);
+        events.ScheduleEvent(spellId, (casttime ? casttime : 500) + GetAISpellInfo(spellId)->realCooldown);
+    }
+}
