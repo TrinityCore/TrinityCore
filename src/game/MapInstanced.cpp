@@ -46,7 +46,10 @@ void MapInstanced::Update(const uint32& t)
     {
         if(i->second->CanUnload(t))
         {
-            DestroyInstance(i);                             // iterator incremented
+            if(!DestroyInstance(i))                             // iterator incremented
+            {
+                //m_unloadTimer
+            }
         }
         else
         {
@@ -203,16 +206,16 @@ BattleGroundMap* MapInstanced::CreateBattleGround(uint32 InstanceId)
     return map;
 }
 
-void MapInstanced::DestroyInstance(uint32 InstanceId)
-{
-    InstancedMaps::iterator itr = m_InstancedMaps.find(InstanceId);
-    if(itr != m_InstancedMaps.end())
-        DestroyInstance(itr);
-}
-
 // increments the iterator after erase
-void MapInstanced::DestroyInstance(InstancedMaps::iterator &itr)
+bool MapInstanced::DestroyInstance(InstancedMaps::iterator &itr)
 {
+    itr->second->RemoveAllPlayers();
+    if(itr->second->HavePlayers())
+    {
+        ++itr;
+        return false;
+    }
+
     itr->second->UnloadAll();
     // should only unload VMaps if this is the last instance and grid unloading is enabled
     if(m_InstancedMaps.size() <= 1 && sWorld.getConfig(CONFIG_GRID_UNLOAD))
@@ -225,6 +228,7 @@ void MapInstanced::DestroyInstance(InstancedMaps::iterator &itr)
     // erase map
     delete itr->second;
     m_InstancedMaps.erase(itr++);
+    return true;
 }
 
 bool MapInstanced::CanEnter(Player *player)

@@ -355,6 +355,7 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>, public MaNGOS::Obj
         virtual void MoveAllCreaturesInMoveList();
         virtual void RemoveAllObjectsInRemoveList();
         virtual void RelocationNotify();
+        virtual void RemoveAllPlayers();
 
         bool CreatureRespawnRelocation(Creature *c);        // used only in MoveAllCreaturesInMoveList and ObjectGridUnloader
 
@@ -610,7 +611,7 @@ class TRINITY_DLL_SPEC BattleGroundMap : public Map
         void Remove(Player *, bool);
         bool CanEnter(Player* player);
         void SetUnload();
-        void UnloadAll();
+        void RemoveAllPlayers();
 };
 
 /*inline
