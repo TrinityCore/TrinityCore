@@ -26,44 +26,47 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_utgarde_keep.h"
 
-//Yells Ingvar
-#define YELL_AGGRO_1                        -1574015
-#define YELL_AGGRO_2                        -1574022
+enum
+{
+    //Yells Ingvar
+    YELL_AGGRO_1                        = -1574005,
+    YELL_AGGRO_2                        = -1574006,
 
-#define YELL_DEAD_1                         -1574017
-#define YELL_DEAD_2                         -1574024
+    YELL_DEAD_1                         = -1574007,
+    YELL_DEAD_2                         = -1574008,
 
-#define YELL_KILL_1                         -1574023
-#define YELL_KILL_2                         -1574016
+    YELL_KILL_1                         = -1574009,
+    YELL_KILL_2                         = -1574010,
 
 //Ingvar Spells human form
-#define MOB_INGVAR_HUMAN                            23954
-#define SPELL_CLEAVE                                42724
-#define SPELL_SMASH                                 42669
-#define H_SPELL_SMASH                               59706
-#define SPELL_STAGGERING_ROAR                       42708
-#define H_SPELL_STAGGERING_ROAR                     59708
-#define SPELL_ENRAGE                                42705
-#define H_SPELL_ENRAGE                              59707
+    MOB_INGVAR_HUMAN                            = 23954,
+    SPELL_CLEAVE                                = 42724,
+    SPELL_SMASH                                 = 42669,
+    H_SPELL_SMASH                               = 59706,
+    SPELL_STAGGERING_ROAR                       = 42708,
+    H_SPELL_STAGGERING_ROAR                     = 59708,
+    SPELL_ENRAGE                                = 42705,
+    H_SPELL_ENRAGE                              = 59707,
 
-#define MOB_ANNHYLDE_THE_CALLER                     24068
-#define SPELL_INGVAR_FEIGN_DEATH                    42795
-#define SPELL_SUMMON_BANSHEE                        42912
-#define SPELL_SCOURG_RESURRECTION_EFFEKTSPAWN       42863 //Spawn resurrecteffekt around Ingvar
+    MOB_ANNHYLDE_THE_CALLER                     = 24068,
+    SPELL_INGVAR_FEIGN_DEATH                    = 42795,
+    SPELL_SUMMON_BANSHEE                        = 42912,
+    SPELL_SCOURG_RESURRECTION_EFFEKTSPAWN       = 42863, //Spawn resurrecteffekt around Ingvar
 
-#define MODEL_INGVAR_UNDEAD                         26351
-#define MODEL_INGVAR_HUMAN                          21953
+    MODEL_INGVAR_UNDEAD                         = 26351,
+    MODEL_INGVAR_HUMAN                          = 21953,
 
 //Ingvar Spells undead form
-#define MOB_INGVAR_UNDEAD                           23980
-#define SPELL_DARK_SMASH                            42723
-#define SPELL_DREADFUL_ROAR                         42729
-#define H_SPELL_DREADFUL_ROAR                       59734
-#define SPELL_WOE_STRIKE                            42730
-#define H_SPELL_WOE_STRIKE                          59735
+    MOB_INGVAR_UNDEAD                           = 23980,
+    SPELL_DARK_SMASH                            = 42723,
+    SPELL_DREADFUL_ROAR                         = 42729,
+    H_SPELL_DREADFUL_ROAR                       = 59734,
+    SPELL_WOE_STRIKE                            = 42730,
+    H_SPELL_WOE_STRIKE                          = 59735,
 
-#define ENTRY_THROW_TARGET                          23996
-#define SPELL_SHADOW_AXE_SUMMON                     42749
+    ENTRY_THROW_TARGET                          = 23996,
+    SPELL_SHADOW_AXE_SUMMON                     = 42749
+};
 
 struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
 {
@@ -273,13 +276,17 @@ CreatureAI* GetAI_boss_ingvar_the_plunderer(Creature *_Creature)
     return new boss_ingvar_the_plundererAI (_Creature);
 }
 
-#define YELL_RESSURECT                      -1574025
+enum
+{
+//we don't have that text in db so comment it until we get this text
+//    YELL_RESSURECT                      = -1574025,
 
 //Spells for Annhylde
-#define SPELL_SCOURG_RESURRECTION_HEAL              42704 //Heal Max + DummyAura
-#define SPELL_SCOURG_RESURRECTION_BEAM              42857 //Channeling Beam of Annhylde
-#define SPELL_SCOURG_RESURRECTION_DUMMY             42862 //Some Emote Dummy?
-#define SPELL_INGVAR_TRANSFORM                      42796
+    SPELL_SCOURG_RESURRECTION_HEAL              = 42704, //Heal Max + DummyAura
+    SPELL_SCOURG_RESURRECTION_BEAM              = 42857, //Channeling Beam of Annhylde
+    SPELL_SCOURG_RESURRECTION_DUMMY             = 42862, //Some Emote Dummy?
+    SPELL_INGVAR_TRANSFORM                      = 42796
+};
 
 struct TRINITY_DLL_DECL mob_annhylde_the_callerAI : public ScriptedAI
 {
@@ -309,7 +316,7 @@ struct TRINITY_DLL_DECL mob_annhylde_the_callerAI : public ScriptedAI
         {
             m_creature->GetMotionMaster()->MovePoint(1,x,y,z+15);
 
-            DoScriptText(YELL_RESSURECT,m_creature);
+//            DoScriptText(YELL_RESSURECT,m_creature);
         }
     }
 
@@ -381,8 +388,11 @@ CreatureAI* GetAI_mob_annhylde_the_caller(Creature *_Creature)
     return new mob_annhylde_the_callerAI (_Creature);
 }
 
-#define SPELL_SHADOW_AXE_DAMAGE                     42750
-#define H_SPELL_SHADOW_AXE_DAMAGE                   59719
+enum
+{
+    SPELL_SHADOW_AXE_DAMAGE                     = 42750,
+    H_SPELL_SHADOW_AXE_DAMAGE                   = 59719
+};
 
 struct TRINITY_DLL_DECL mob_ingvar_throw_dummyAI : public ScriptedAI
 {

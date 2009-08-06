@@ -143,7 +143,7 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
     void DoWhisper(const char* text, Unit* reciever, bool IsBossWhisper = false);
 
     //Plays a sound to all nearby players
-    void DoPlaySoundToSet(Unit* unit, uint32 sound);
+    void DoPlaySoundToSet(WorldObject* pSource, uint32 sound);
 
     //Drops all threat to 0%. Does not remove players from the threat list
     void DoResetThreat();

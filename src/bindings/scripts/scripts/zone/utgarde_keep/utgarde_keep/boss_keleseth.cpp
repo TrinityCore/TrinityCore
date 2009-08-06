@@ -26,20 +26,23 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_utgarde_keep.h"
 
-#define SPELL_SHADOWBOLT                         43667
-#define SPELL_SHADOWBOLT_HEROIC                  59389
-#define SPELL_FROST_TOMB                         48400
-#define SPELL_FROST_TOMB_SUMMON                  42714
-#define SPELL_DECREPIFY                          42702
-#define SPELL_SCOURGE_RESSURRECTION              42704
-#define CREATURE_FROSTTOMB                       23965
-#define CREATURE_SKELETON                        23970
+enum
+{
+    SPELL_SHADOWBOLT                         = 43667,
+    SPELL_SHADOWBOLT_HEROIC                  = 59389,
+    SPELL_FROST_TOMB                         = 48400,
+    SPELL_FROST_TOMB_SUMMON                  = 42714,
+    SPELL_DECREPIFY                          = 42702,
+    SPELL_SCOURGE_RESSURRECTION              = 42704,
+    CREATURE_FROSTTOMB                       = 23965,
+    CREATURE_SKELETON                        = 23970,
 
-#define SAY_AGGRO                                -1574000
-#define SAY_KILL                                 -1574001
-#define SAY_DEATH                                -1574002
-#define SAY_FROST_TOMB                           -1574003
-#define SAY_SKELETONS                            -1574004
+    SAY_AGGRO                                = -1574000,
+    SAY_FROST_TOMB                           = -1574001,
+    SAY_SKELETONS                            = -1574002,
+    SAY_KILL                                 = -1574003,
+    SAY_DEATH                                = -1574004
+};
 
 #define SKELETONSPAWN_Z                          42.8668
 

@@ -631,4 +631,28 @@ void MaNGOS::LocalizedPacketListDo<Builder>::operator()( Player* p )
         p->SendDirectMessage((*data_list)[i]);
 }
 
+struct ObjectDistanceOrder : public std::binary_function<const WorldObject, const WorldObject, bool>
+{
+    const Unit* m_pSource;
+
+    ObjectDistanceOrder(const Unit* pSource) : m_pSource(pSource) {};
+
+    bool operator()(const WorldObject* pLeft, const WorldObject* pRight) const
+    {
+        return m_pSource->GetDistanceOrder(pLeft, pRight);
+    }
+};
+
+struct ObjectDistanceOrderReversed : public std::binary_function<const WorldObject, const WorldObject, bool>
+{
+    const Unit* m_pSource;
+
+    ObjectDistanceOrderReversed(const Unit* pSource) : m_pSource(pSource) {};
+
+    bool operator()(const WorldObject* pLeft, const WorldObject* pRight) const
+    {
+        return !m_pSource->GetDistanceOrder(pLeft, pRight);
+    }
+};
+
 #endif                                                      // MANGOS_GRIDNOTIFIERSIMPL_H
