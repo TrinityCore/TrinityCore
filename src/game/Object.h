@@ -160,7 +160,7 @@ class TRINITY_DLL_SPEC Object
         uint32 GetEntry() const { return GetUInt32Value(OBJECT_FIELD_ENTRY); }
         void SetEntry(uint32 entry) { SetUInt32Value(OBJECT_FIELD_ENTRY, entry); }
 
-        uint8 GetTypeId() const { return m_objectTypeId; }
+        TypeID GetTypeId() const { return m_objectTypeId; }
         bool isType(uint16 mask) const { return (mask & m_objectType); }
 
         virtual void BuildCreateUpdateBlockForPlayer( UpdateData *data, Player *target ) const;
@@ -337,7 +337,7 @@ class TRINITY_DLL_SPEC Object
 
         uint16 m_objectType;
 
-        uint8 m_objectTypeId;
+        TypeID m_objectTypeId;
         uint16 m_updateFlag;
 
         union
