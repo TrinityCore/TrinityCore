@@ -104,7 +104,7 @@ struct TRINITY_DLL_DECL npc_bartlebyAI : public ScriptedAI
             uiDamage = 0;
 
             if (pDoneBy->GetTypeId() == TYPEID_PLAYER)
-                ((Player*)pDoneBy)->AreaExploredOrEventHappens(QUEST_BEAT);
+                CAST_PLR(pDoneBy)->AreaExploredOrEventHappens(QUEST_BEAT);
             EnterEvadeMode();
         }
     }
@@ -168,7 +168,7 @@ struct TRINITY_DLL_DECL npc_dashel_stonefistAI : public ScriptedAI
             uiDamage = 0;
 
             if (pDoneBy->GetTypeId() == TYPEID_PLAYER)
-                ((Player*)pDoneBy)->AreaExploredOrEventHappens(QUEST_MISSING_DIPLO_PT8);
+                CAST_PLR(pDoneBy)->AreaExploredOrEventHappens(QUEST_MISSING_DIPLO_PT8);
 
             EnterEvadeMode();
         }
