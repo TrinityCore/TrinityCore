@@ -6457,13 +6457,6 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
         {
             switch(dummySpell->Id)
             {
-               // Shaman T8 Elemental 4P Bonus
-                case 64928:
-                {
-                    basepoints0 = int32( triggerAmount * damage / 100 );
-                    triggered_spell_id = 64930;
-                    break;
-                }
                 // Improved fire nova totem
                 case 16544:
                 {
@@ -6641,6 +6634,13 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                         return false;
                     basepoints0 = triggerAmount * damage / 100;
                     triggered_spell_id = 58879;
+                    break;
+                }
+                // Shaman T8 Elemental 4P Bonus
+                case 64928:
+                {
+                    basepoints0 = int32( triggerAmount * damage / 100 );
+                    triggered_spell_id = 64930;            // Electrified
                     break;
                 }
             }
