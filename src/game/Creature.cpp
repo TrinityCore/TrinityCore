@@ -1393,7 +1393,7 @@ void Creature::SelectLevel(const CreatureInfo *cinfo)
 
 
     //damage
-    float damagemod = _GetDamageMod(rank);
+    float damagemod = 1.0f;//_GetDamageMod(rank);
 
     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, cinfo->mindmg * damagemod);
     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, cinfo->maxdmg * damagemod);
