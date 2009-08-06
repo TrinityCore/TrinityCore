@@ -81,8 +81,7 @@ struct TRINITY_DLL_DECL boss_midnightAI : public ScriptedAI
         if(Phase == 1 && (m_creature->GetHealth()*100)/m_creature->GetMaxHealth() < 95)
         {
             Phase = 2;
-            Creature *pAttumen = DoSpawnCreature(SUMMON_ATTUMEN, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 30000);
-            if(pAttumen)
+            if (Creature* pAttumen = m_creature->SummonCreature(SUMMON_ATTUMEN, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 30000))
             {
                 Attumen = pAttumen->GetGUID();
                 pAttumen->AI()->AttackStart(m_creature->getVictim());
