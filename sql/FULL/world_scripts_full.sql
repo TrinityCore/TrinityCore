@@ -1173,3 +1173,7 @@ INSERT INTO `creature_ai_scripts` VALUES
 ( 3375001, 33750, 11, 0, 100, 0, 0, 0, 0, 0, 11, 55741, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Desecration'),
 ( 3375000, 33750, 1, 0, 100, 0, 1, 1, 0, 0, 11, 63587, 0, 2, 11, 63583, 0, 2, 0, 0, 0, 0, 'Desecration');
 /* EOF */
+
+UPDATE creature_template set ScriptName = 'boss_bjarngrim' where entry =28586;
+UPDATE creature_template set ScriptName = 'mob_stormforged_lieutenant' where entry =29240;
+
