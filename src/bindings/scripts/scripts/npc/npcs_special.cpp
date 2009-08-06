@@ -154,7 +154,7 @@ struct TRINITY_DLL_DECL npc_air_force_botsAI : public ScriptedAI
     
     Creature* GetSummonedGuard()
     {
-        Creature* pCreature = (Creature*)Unit::GetUnit(*m_creature, m_uiSpawnedGUID);
+        Creature* pCreature = Unit::GetCreature(*m_creature, m_uiSpawnedGUID);
 
         if (pCreature && pCreature->isAlive())
             return pCreature;
@@ -169,7 +169,7 @@ struct TRINITY_DLL_DECL npc_air_force_botsAI : public ScriptedAI
 
         if (pWho->isTargetableForAttack() && m_creature->IsHostileTo(pWho))
         {
-            Player* pPlayerTarget = pWho->GetTypeId() == TYPEID_PLAYER ? (Player*)pWho : NULL;
+            Player* pPlayerTarget = pWho->GetTypeId() == TYPEID_PLAYER ? CAST_PLR(pWho) : NULL;
 
             // airforce guards only spawn for players
             if (!pPlayerTarget)
@@ -1475,11 +1475,14 @@ struct TRINITY_DLL_DECL npc_snake_trap_serpentsAI : public ScriptedAI
     void Reset()
     {
         Spawn = true;
+        SpellTimer = 0;
 
         CreatureInfo const *Info = m_creature->GetCreatureInfo();
 
         if(Info->Entry == C_VIPER)
             IsViper = true;
+        else
+            IsViper = false;
 
         //We have to reload the states from db for summoned guardians
         m_creature->SetMaxHealth(Info->maxhealth);
@@ -1521,7 +1524,7 @@ struct TRINITY_DLL_DECL npc_snake_trap_serpentsAI : public ScriptedAI
             Spawn = false;
             // Start attacking attacker of owner on first ai update after spawn - move in line of sight may choose better target
             if (!m_creature->getVictim() && m_creature->isSummon())
-                if (Unit * Owner = ((TempSummon*)m_creature)->GetSummoner())
+                if (Unit * Owner = CAST_SUM(m_creature)->GetSummoner())
                     if(Owner->getAttackerForHelper())
                         AttackStart(Owner->getAttackerForHelper());
         }
@@ -1595,7 +1598,7 @@ struct TRINITY_DLL_DECL mob_mojoAI : public ScriptedAI
     {
         m_creature->HandleEmoteCommand(emote);
         Unit* own = m_creature->GetOwner();
-        if (own && ((Player*)own)->GetTeam() != player->GetTeam())
+        if (!own || own->GetTypeId() != TYPEID_PLAYER || CAST_PLR(own)->GetTeam() != player->GetTeam())
             return;
         if (emote == TEXTEMOTE_KISS)
         {
@@ -1642,9 +1645,7 @@ struct TRINITY_DLL_DECL npc_mirror_image : SpellAI
 
     void Reset()
     {
-        Unit * owner = NULL;
-        if (m_creature->isSummon())
-            owner = ((TempSummon*)me)->GetOwner();
+        Unit * owner = me->GetOwner();
         if (!owner)
             return;
         owner->SetLevel(owner->getLevel());

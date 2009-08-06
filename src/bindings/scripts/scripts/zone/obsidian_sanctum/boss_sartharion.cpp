@@ -164,7 +164,7 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
 {
     boss_sartharionAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
+        m_pInstance = pCreature->GetInstanceData();
         m_bIsHeroic = pCreature->GetMap()->IsHeroic();
     }
 
@@ -297,7 +297,7 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
     {
         if (m_pInstance)
         {
-            Creature* pTemp = (Creature*)Unit::GetUnit((*m_creature),m_pInstance->GetData64(uiDataId));
+            Creature* pTemp = Unit::GetCreature((*m_creature),m_pInstance->GetData64(uiDataId));
 
             if (pTemp && pTemp->isAlive() && !pTemp->getVictim())
             {
@@ -496,7 +496,7 @@ struct TRINITY_DLL_DECL dummy_dragonAI : public ScriptedAI
 {
     dummy_dragonAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
+        m_pInstance = pCreature->GetInstanceData();
         m_bIsHeroic = pCreature->GetMap()->IsHeroic();
     }
 
@@ -909,7 +909,7 @@ struct TRINITY_DLL_DECL mob_acolyte_of_shadronAI : public ScriptedAI
 {
     mob_acolyte_of_shadronAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
+        m_pInstance = pCreature->GetInstanceData();
     }
 
     ScriptedInstance* m_pInstance;
@@ -973,7 +973,7 @@ struct TRINITY_DLL_DECL mob_acolyte_of_vesperonAI : public ScriptedAI
 {
     mob_acolyte_of_vesperonAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
+        m_pInstance = pCreature->GetInstanceData();
     }
 
     ScriptedInstance* m_pInstance;
