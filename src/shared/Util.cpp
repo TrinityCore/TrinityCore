@@ -131,7 +131,7 @@ Tokens StrSplit(const std::string &src, const std::string &sep)
 
 void stripLineInvisibleChars(std::string &str)
 {
-    static std::string invChars = " \t\7";
+    static std::string invChars = " \t\7\n";
 
     size_t wpos = 0;
 
