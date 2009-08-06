@@ -11533,7 +11533,7 @@ Unit* Creature::SelectVictim()
             // No taunt aura or taunt aura caster is dead standart target selection
             target = m_ThreatManager.getHostilTarget();
     }
-    else
+    else if(!HasReactState(REACT_PASSIVE))
     {
         // We have player pet probably
         target = getAttackerForHelper();
@@ -11541,25 +11541,24 @@ Unit* Creature::SelectVictim()
         {
             if (Unit * owner = ((TempSummon*)this)->GetOwner())
             {
-                if (HasReactState(REACT_AGGRESSIVE) || HasReactState(REACT_DEFENSIVE))
+                if (owner->isInCombat())
+                    target = owner->getAttackerForHelper();
+                if (!target)
                 {
-                    if (owner->isInCombat())
-                        target = owner->getAttackerForHelper();
-                    if (!target)
+                    for(ControlList::const_iterator itr = owner->m_Controlled.begin(); itr != owner->m_Controlled.end(); ++itr)
                     {
-                        for(ControlList::const_iterator itr = owner->m_Controlled.begin(); itr != owner->m_Controlled.end(); ++itr)
+                        if ((*itr)->isInCombat())
                         {
-                            if ((*itr)->isInCombat())
-                            {
-                                target = (*itr)->getAttackerForHelper();
-                                if (target) break;
-                            }
+                            target = (*itr)->getAttackerForHelper();
+                            if (target) break;
                         }
                     }
                 }
             }
         }
     }
+    else
+        return NULL;
 
     if(target)
     {
