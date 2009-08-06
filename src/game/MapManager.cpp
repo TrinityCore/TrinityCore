@@ -234,13 +234,6 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player)
         return true;
 }
 
-void MapManager::DeleteInstance(uint32 mapid, uint32 instanceId)
-{
-    Map *m = _createBaseMap(mapid);
-    if (m && m->Instanceable())
-        ((MapInstanced*)m)->DestroyInstance(instanceId);
-}
-
 void MapManager::RemoveBonesFromMap(uint32 mapid, uint64 guid, float x, float y)
 {
     bool remove_result = _createBaseMap(mapid)->RemoveBones(guid, x, y);
