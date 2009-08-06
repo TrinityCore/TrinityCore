@@ -184,6 +184,26 @@ struct TRINITY_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
         return true;
     }
 
+    void MergeThreatList(Creature* target)
+    {
+        if (!target)
+            return;
+
+        std::list<HostilReference*>& m_threatlist = target->getThreatManager().getThreatList();
+        std::list<HostilReference*>::iterator itr = m_threatlist.begin();
+        for(; itr != m_threatlist.end(); itr++)
+        {
+            Unit* pUnit = Unit::GetUnit((*m_creature), (*itr)->getUnitGuid());
+            if (pUnit)
+            {
+                m_creature->AddThreat(pUnit, 1.0f);         // This is so that we make sure the unit is in Reliquary's threat list before we reset the unit's threat.
+                m_creature->getThreatManager().modifyThreatPercent(pUnit, -100);
+                float threat = target->getThreatManager().getThreat(pUnit);
+                m_creature->AddThreat(pUnit, threat);       // This makes it so that the unit has the same amount of threat in Reliquary's threatlist as in the target creature's (One of the Essences).
+            }
+        }
+    }
+
     void JustDied(Unit* killer)
     {
         if(pInstance)
@@ -218,20 +238,23 @@ struct TRINITY_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
             {
             case 0:
                 m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2H);  // I R ANNNGRRRY!
+                DoStartNoMovement(m_creature);
                 Timer = 3000;
                 break;
             case 1:
                 Timer = 2800;
-                //m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_SUBMERGE);  // Release the cube
+                m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_SUBMERGE);  // Release the cube
                 DoCast(m_creature,SPELL_SUBMERGE);
+                DoStartNoMovement(m_creature);
                 break;
             case 2:
                 Timer = 5000;
                 if(Creature* Summon = DoSpawnCreature(23417+Phase, 0, 0, 0, 0, TEMPSUMMON_DEAD_DESPAWN, 0))
                 {
-                    //m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_SUBMERGED);  // Ribs: open
+                    m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_SUBMERGED);  // Ribs: open
                     Summon->AI()->AttackStart(SelectUnit(SELECT_TARGET_TOPAGGRO, 0));
                     EssenceGUID = Summon->GetGUID();
+                    DoStartNoMovement(m_creature);
                 }else EnterEvadeMode();
                 break;
             case 3:
@@ -246,19 +269,26 @@ struct TRINITY_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
                 {
                     if(Essence->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
                     {
-                        Essence->AI()->EnterEvadeMode();
-                        Essence->GetMotionMaster()->MoveFollow(m_creature, 0, 0);
+                        MergeThreatList(Essence);
+                        Essence->RemoveAllAuras();
+                        Essence->DeleteThreatList();
+                        Essence->GetMotionMaster()->MoveFollow(m_creature,0.0f,0.0f);
                     }else return;
                 }
                 break;
             case 4:
                 Timer = 1500;
                 if(Essence->IsWithinDistInMap(m_creature, 10))
+                {
+                    Essence->SetUInt32Value(UNIT_NPC_EMOTESTATE,374); //rotate and disappear
+                    Timer = 2000;
                     m_creature->RemoveAurasDueToSpell(SPELL_SUBMERGE);
-                    //Essence->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_SUBMERGE); //rotate and disappear
+                }
                 else
                 {
-                    Essence->AI()->EnterEvadeMode();
+                    MergeThreatList(Essence);
+                    Essence->RemoveAllAuras();
+                    Essence->DeleteThreatList();
                     Essence->GetMotionMaster()->MoveFollow(m_creature, 0, 0);
                     return;
                 }
@@ -273,7 +303,7 @@ struct TRINITY_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
                     DoScriptText(DESI_SAY_AFTER, Essence);
                 }
                 Essence->SetVisibility(VISIBILITY_OFF);
-                Essence->setDeathState(DEAD);
+                Essence->setDeathState(JUST_DIED);
                 m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE,0);
                 EssenceGUID = 0;
                 SoulCount = 0;
@@ -352,11 +382,15 @@ struct TRINITY_DLL_DECL boss_essence_of_sufferingAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        DoScriptText(SUFF_SAY_FREED, m_creature);
-        DoZoneInCombat();
-        m_creature->CastSpell(m_creature, AURA_OF_SUFFERING, true); // linked aura need core support
-        m_creature->CastSpell(m_creature, ESSENCE_OF_SUFFERING_PASSIVE, true);
-        m_creature->CastSpell(m_creature, ESSENCE_OF_SUFFERING_PASSIVE2, true);
+        if(!m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
+            {
+            DoScriptText(SUFF_SAY_FREED, m_creature);
+            DoZoneInCombat();
+            m_creature->CastSpell(m_creature, AURA_OF_SUFFERING, true); // linked aura need core support
+            m_creature->CastSpell(m_creature, ESSENCE_OF_SUFFERING_PASSIVE, true);
+            m_creature->CastSpell(m_creature, ESSENCE_OF_SUFFERING_PASSIVE2, true);
+            }
+        else return;
     }
 
     void KilledUnit(Unit *victim)
