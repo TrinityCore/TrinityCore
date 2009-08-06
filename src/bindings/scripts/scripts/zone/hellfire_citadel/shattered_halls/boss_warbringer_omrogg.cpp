@@ -215,8 +215,8 @@ struct TRINITY_DLL_DECL boss_warbringer_omroggAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        DoSpawnCreature(NPC_LEFT_HEAD,0,0,0,0,TEMPSUMMON_TIMED_DESPAWN,90000);
-        DoSpawnCreature(NPC_RIGHT_HEAD,0,0,0,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,90000);
+        m_creature->SummonCreature(NPC_LEFT_HEAD, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0);
+        m_creature->SummonCreature(NPC_RIGHT_HEAD, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0);
 
         if (Unit *pLeftHead = Unit::GetUnit(*m_creature,LeftHeadGUID))
         {

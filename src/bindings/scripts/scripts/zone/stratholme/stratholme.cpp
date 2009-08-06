@@ -147,7 +147,7 @@ struct TRINITY_DLL_DECL mob_restless_soulAI : public ScriptedAI
     void JustDied(Unit* Killer)
     {
         if (Tagged)
-            DoSpawnCreature(ENTRY_FREED, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 300000);
+            m_creature->SummonCreature(ENTRY_FREED, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 300000);
     }
 
     void UpdateAI(const uint32 diff)

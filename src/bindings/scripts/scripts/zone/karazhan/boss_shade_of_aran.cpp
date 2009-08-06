@@ -415,12 +415,10 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
                     else
                         DoScriptText(SAY_BLIZZARD2, m_creature);
 
-                    Creature* Spawn = NULL;
-                    Spawn = DoSpawnCreature(CREATURE_ARAN_BLIZZARD, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 25000);
-                    if (Spawn)
+                    if (Creature* pSpawn = m_creature->SummonCreature(CREATURE_ARAN_BLIZZARD, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 25000))
                     {
-                        Spawn->setFaction(m_creature->getFaction());
-                        Spawn->CastSpell(Spawn, SPELL_CIRCULAR_BLIZZARD, false);
+                        pSpawn->setFaction(m_creature->getFaction());
+                        pSpawn->CastSpell(pSpawn, SPELL_CIRCULAR_BLIZZARD, false);
                     }
                     break;
             }
@@ -434,8 +432,7 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
 
             for (uint32 i = 0; i < 4; i++)
             {
-                Creature* pUnit = DoSpawnCreature(CREATURE_WATER_ELEMENTAL, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 90000);
-                if (pUnit)
+                if (Creature* pUnit = m_creature->SummonCreature(CREATURE_WATER_ELEMENTAL, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 90000))
                 {
                     pUnit->Attack(m_creature->getVictim(), true);
                     pUnit->setFaction(m_creature->getFaction());
@@ -449,8 +446,7 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
         {
             for (uint32 i = 0; i < 5; i++)
             {
-                Creature* pUnit = DoSpawnCreature(CREATURE_SHADOW_OF_ARAN, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
-                if (pUnit)
+                if (Creature* pUnit = m_creature->SummonCreature(CREATURE_SHADOW_OF_ARAN, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000))
                 {
                     pUnit->Attack(m_creature->getVictim(), true);
                     pUnit->setFaction(m_creature->getFaction());
