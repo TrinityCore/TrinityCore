@@ -511,7 +511,7 @@ struct TRINITY_DLL_DECL mob_felkael_phoenixAI : public ScriptedAI
 
     void JustDied(Unit* slayer)
     {
-        DoSpawnCreature(CREATURE_PHOENIX_EGG, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45000);
+        m_creature->SummonCreature(CREATURE_PHOENIX_EGG, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45000);
     }
 
     void UpdateAI(const uint32 diff)
@@ -531,7 +531,7 @@ struct TRINITY_DLL_DECL mob_felkael_phoenixAI : public ScriptedAI
 
                 if (Death_Timer < diff)
                 {
-                    DoSpawnCreature(CREATURE_PHOENIX_EGG, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45000);
+                    m_creature->SummonCreature(CREATURE_PHOENIX_EGG, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45000);
                     m_creature->setDeathState(JUST_DIED);
                     m_creature->RemoveCorpse();
                     Rebirth = false;
@@ -576,7 +576,7 @@ struct TRINITY_DLL_DECL mob_felkael_phoenix_eggAI : public ScriptedAI
     {
         if (HatchTimer < diff)
         {
-            DoSpawnCreature(CREATURE_PHOENIX, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
+            m_creature->SummonCreature(CREATURE_PHOENIX, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
             m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
         }else HatchTimer -= diff;
 

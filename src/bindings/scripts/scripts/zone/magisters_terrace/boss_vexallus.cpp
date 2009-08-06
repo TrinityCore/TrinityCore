@@ -143,10 +143,10 @@ struct  TRINITY_DLL_DECL boss_vexallusAI : public ScriptedAI
                     m_creature->CastSpell(m_creature,SPELL_SUMMON_PURE_ENERGY,false);
 
                 //below are workaround summons, remove when summoning spells w/implicitTarget 73 implemented in Mangos
-                DoSpawnCreature(NPC_PURE_ENERGY, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                m_creature->SummonCreature(NPC_PURE_ENERGY, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
 
                 if (Heroic)
-                    DoSpawnCreature(NPC_PURE_ENERGY, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                    m_creature->SummonCreature(NPC_PURE_ENERGY, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
             }
 
             if (ChainLightningTimer < diff)

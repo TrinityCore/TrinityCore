@@ -228,7 +228,7 @@ struct TRINITY_DLL_DECL boss_exarch_maladaarAI : public ScriptedAI
     {
         DoScriptText(SAY_DEATH, m_creature);
         //When Exarch Maladar is defeated D'ore appear.
-        DoSpawnCreature(19412,0,0,0,0, TEMPSUMMON_TIMED_DESPAWN, 600000);
+        m_creature->SummonCreature(19412, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 600000);
     }
 
     void UpdateAI(const uint32 diff)
@@ -268,7 +268,7 @@ struct TRINITY_DLL_DECL boss_exarch_maladaarAI : public ScriptedAI
                     soulclass = target->getClass();
 
                     DoCast(target,SPELL_STOLEN_SOUL);
-                    DoSpawnCreature(ENTRY_STOLEN_SOUL,0,0,0,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,10000);
+                    m_creature->SummonCreature(ENTRY_STOLEN_SOUL, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
 
                     StolenSoul_Timer = 20000 + rand()% 10000;
                 } else StolenSoul_Timer = 1000;

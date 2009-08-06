@@ -243,12 +243,11 @@ struct TRINITY_DLL_DECL mob_titoAI : public ScriptedAI
 
 void boss_dorotheeAI::SummonTito()
 {
-    Creature* Tito = DoSpawnCreature(CREATURE_TITO, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
-    if(Tito)
+    if (Creature* pTito = m_creature->SummonCreature(CREATURE_TITO, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
     {
         DoScriptText(SAY_DOROTHEE_SUMMON, m_creature);
-        CAST_AI(mob_titoAI, Tito->AI())->DorotheeGUID = m_creature->GetGUID();
-        Tito->AI()->AttackStart(m_creature->getVictim());
+        CAST_AI(mob_titoAI, pTito->AI())->DorotheeGUID = m_creature->GetGUID();
+        pTito->AI()->AttackStart(m_creature->getVictim());
         SummonedTito = true;
         TitoDied = false;
     }
