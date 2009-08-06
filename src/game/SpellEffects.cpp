@@ -5690,8 +5690,10 @@ void Spell::EffectStuck(uint32 /*i*/)
     if(pTarget->isInFlight())
         return;
 
+    PlayerInfo const *info = objmgr.GetPlayerInfo(pTarget->getRace(), pTarget->getClass());
+    pTarget->TeleportTo(info->mapId, info->positionX, info->positionY, info->positionZ, pTarget->GetOrientation(), (unitTarget==m_caster ? TELE_TO_SPELL : 0));
     // homebind location is loaded always
-    pTarget->TeleportTo(pTarget->m_homebindMapId,pTarget->m_homebindX,pTarget->m_homebindY,pTarget->m_homebindZ,pTarget->GetOrientation(), (unitTarget==m_caster ? TELE_TO_SPELL : 0));
+    // pTarget->TeleportTo(pTarget->m_homebindMapId,pTarget->m_homebindX,pTarget->m_homebindY,pTarget->m_homebindZ,pTarget->GetOrientation(), (unitTarget==m_caster ? TELE_TO_SPELL : 0));
 
     // Stuck spell trigger Hearthstone cooldown
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(8690);
