@@ -16933,8 +16933,13 @@ void Player::StopCastingCharm()
     if(GetCharmGUID())
     {
         sLog.outCrash("Player %s (GUID: " UI64FMTD " is not able to uncharm unit (GUID: " UI64FMTD " Entry: %u, Type: %u)", GetName(), GetGUID(), GetCharmGUID(), charm->GetEntry(), charm->GetTypeId());
-        sLog.outCrash("Charmed unit has charmer guid " UI64FMTD, charm->GetCharmerGUID());
-        assert(false);
+        if(charm->GetCharmerGUID())
+        {
+            sLog.outCrash("Charmed unit has charmer guid " UI64FMTD, charm->GetCharmerGUID());
+            assert(false);
+        }
+        else
+            SetCharm(charm, false);
     }
 }
 
