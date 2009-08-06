@@ -460,8 +460,8 @@ class Guild
         TabListMap m_TabListMap;
 
         /** These are actually ordered lists. The first element is the oldest entry.*/
-        typedef std::list<GuildEventlogEntry*> GuildEventlog;
-        typedef std::list<GuildBankEvent*> GuildBankEventLog;
+        typedef std::list<GuildEventlogEntry> GuildEventlog;
+        typedef std::list<GuildBankEvent> GuildBankEventLog;
         GuildEventlog m_GuildEventlog;
         GuildBankEventLog m_GuildBankEventLog_Money;
         GuildBankEventLog m_GuildBankEventLog_Item[GUILD_BANK_MAX_TABS];
