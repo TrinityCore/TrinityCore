@@ -67,6 +67,13 @@ struct TRINITY_DLL_DECL boss_nothAI : public BossAI
 
     uint32 waveCount, balconyCount;
 
+    void Reset()
+    {
+        me->SetReactState(REACT_AGGRESSIVE);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        _Reset();
+    }
+
     void EnterCombat(Unit *who)
     {
         _EnterCombat();
@@ -77,6 +84,8 @@ struct TRINITY_DLL_DECL boss_nothAI : public BossAI
 
     void EnterPhaseGround()
     {
+        me->SetReactState(REACT_AGGRESSIVE);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         DoZoneInCombat();
         if(me->getThreatManager().isThreatListEmpty())
             EnterEvadeMode();
@@ -147,7 +156,7 @@ struct TRINITY_DLL_DECL boss_nothAI : public BossAI
                     return;
                 case EVENT_BALCONY:
                     me->SetReactState(REACT_PASSIVE);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     me->AttackStop();
                     me->RemoveAllAuras();
                     me->NearTeleportTo(TELE_X, TELE_Y, TELE_Z, TELE_O);
@@ -172,8 +181,6 @@ struct TRINITY_DLL_DECL boss_nothAI : public BossAI
                 case EVENT_GROUND:
                 {
                     ++balconyCount;
-                    me->SetReactState(REACT_AGGRESSIVE);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     float x, y, z, o;
                     me->GetHomePosition(x, y, z, o);
                     me->NearTeleportTo(x, y, z, o);
