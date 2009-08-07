@@ -119,10 +119,10 @@ DestinationHolder<TRAVELLER>::UpdateTraveller(TRAVELLER &traveller, uint32 diff,
         if(!traveller.GetTraveller().hasUnitState(UNIT_STAT_MOVING | UNIT_STAT_IN_FLIGHT))
             return true;
 
-        if(traveller.GetTraveller().hasUnitState(UNIT_STAT_IN_FLIGHT) || traveller.GetTraveller().IsFlying())
+        if(traveller.GetTraveller().hasUnitState(UNIT_STAT_IN_FLIGHT))
             GetLocationNow(traveller.GetTraveller().GetBaseMap() ,x, y, z, true);                  // Should reposition Object with right Coord, so I can bypass some Grid Relocation
         else
-            GetLocationNow(traveller.GetTraveller().GetMap(), x, y, z, false);
+            GetLocationNow(traveller.GetTraveller().GetBaseMap(), x, y, z, false);
 
         if( x == -431602080 )
             return false;
@@ -175,16 +175,13 @@ DestinationHolder<TRAVELLER>::GetLocationNow(const Map * map, float &x, float &y
             z = z2;
         else
         {
-            /*//That part is good for mob Walking on the floor. But the floor is not always what we thought.
+            //That part is good for mob Walking on the floor. But the floor is not always what we thought.
             z = map->GetHeight(x,y,i_fromZ,false); // Disable cave check
             const float groundDist = sqrt(distanceX*distanceX + distanceY*distanceY);
             const float zDist = fabs(i_fromZ - z) + 0.000001f;
             const float slope = groundDist / zDist;
             if(slope < 1.0f)  // This prevents the ground returned by GetHeight to be used when in cave
-                z = z2; // a climb or jump of more than 45 is denied*/
-            float ground = map->GetHeight(x,y,MAX_HEIGHT,true);
-            float floor = map->GetHeight(x,y,z2,true);
-            z = (fabs(ground - z2) <= fabs(floor - z2)) ? ground:floor;
+                z = z2; // a climb or jump of more than 45 is denied
         }
     }
 }
