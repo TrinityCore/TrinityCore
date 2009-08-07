@@ -2533,6 +2533,7 @@ void AuraEffect::TriggerSpell()
             case 29213:
             case 54835:
                 caster->CastSpell(m_target, trigger_spell_id, true, NULL, this);
+                return;
             // Ground Slam
             case 33525:
                 target->CastSpell(target, trigger_spell_id, true);
