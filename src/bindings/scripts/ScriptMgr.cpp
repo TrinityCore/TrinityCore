@@ -650,6 +650,8 @@ extern void AddSC_zuldrak();
 //Dungeon
 //Vault of Archavon
 extern void AddSC_boss_archavon();
+extern void AddSC_boss_emalon();
+extern void AddSC_instance_archavon();
 
 //Region
 extern void AddSC_wintergrasp();
@@ -1558,6 +1560,8 @@ void ScriptsInit(char const* cfg_file = "trinitycore.conf")
     //Dungeon
     //Vault of Archavon
     AddSC_boss_archavon();
+    AddSC_boss_emalon();
+    AddSC_instance_archavon();
 
     //Region
     AddSC_wintergrasp();

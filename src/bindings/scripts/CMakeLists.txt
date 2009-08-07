@@ -484,6 +484,7 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/obsidian_sanctum/def_obsidian_sanctum.h
    scripts/zone/vault_of_archavon/instance_vault_of_archavon.cpp
    scripts/zone/vault_of_archavon/boss_archavon.cpp
+   scripts/zone/vault_of_archavon/boss_emalon.cpp
    scripts/zone/vault_of_archavon/def_vault_of_archavon.h
    scripts/zone/wintergrasp/wintergrasp.cpp
    scripts/zone/ulduar/ulduar/boss_algalon.cpp

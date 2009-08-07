@@ -1243,6 +1243,14 @@ Visibility.Distance.Grey.Object = 10
 #         Default: 0  - no decrease
 #                  75 - in 2 times each 75 skill points
 #
+#    DurabilityLoss.InPvP
+#        If true, players take durability loss on death in PvP.
+#        Default: 0 (false)
+#                 1 (true)
+#
+#    DurabilityLoss.OnDeath
+#        Durability loss percentage on death (10 - standard, 20 - double, 5 - half)
+#
 #    DurabilityLossChance.Damage
 #         Chance lost one from equiped items durability point at damage apply or receive.
 #         Default: 0.5 (100/0.5 = 200) Each 200 damage apply one from 19 possible equipped items
@@ -1327,6 +1335,8 @@ SkillChance.Green  = 25
 SkillChance.Grey   = 0
 SkillChance.MiningSteps   = 0
 SkillChance.SkinningSteps = 0
+DurabilityLoss.InPvP = 0
+DurabilityLoss.OnDeath = 10
 DurabilityLossChance.Damage = 0.5
 DurabilityLossChance.Absorb = 0.5
 DurabilityLossChance.Parry  = 0.05

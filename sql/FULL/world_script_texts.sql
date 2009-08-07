@@ -1713,6 +1713,12 @@ INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content
 (-1585028, 'Do not... get too comfortable.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 12420, 1, 0, 0, 'kaelthas MT SAY_RECAST_GRAVITY'),
 (-1585029, 'My demise accomplishes nothing! The Master will have you! You will drown in your own blood! This world shall burn! Aaaghh!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 12421, 1, 0, 0, 'kaelthas MT SAY_DEATH');
 
+-- 1 590 000 VAULT OF ARCHAVON
+INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`, `sound`, `type`, `language`, `emote`, `comment`) VALUES
+(-1590000, 'Emalon the Storm Watcher overcharges a Tempest Minion!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 3, 0, 0, 'emalon EMOTE_OVERCHARGE_TEMPEST_MINION'),
+(-1590001, 'A Tempest Minion appears to defend Emalon!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 3, 0, 0, 'emalon EMOTE_MINION_RESPAWN'),
+(-1590002, 'Archavon the Stone Watcher goes into a berserker rage!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, 0, 0, 'archavon EMOTE_BERSERK');
+
 -- -1 615 000 OBSIDIAN SANCTUM
 INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`, `sound`, `type`, `language`, `emote`, `comment`) VALUES
 (-1615000,'I fear nothing! Least of all you!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,14111,1,0,0,'shadron SAY_SHADRON_AGGRO'),
