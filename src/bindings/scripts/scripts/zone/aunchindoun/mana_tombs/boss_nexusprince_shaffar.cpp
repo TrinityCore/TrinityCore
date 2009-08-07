@@ -315,7 +315,7 @@ struct TRINITY_DLL_DECL mob_ethereal_beaconAI : public ScriptedAI
                 m_creature->InterruptNonMeleeSpells(true);
 
             m_creature->CastSpell(m_creature,SPELL_ETHEREAL_APPRENTICE,true);
-            KillSelf();
+            m_creature->ForcedDespawn();
             return;
         }else Apprentice_Timer -= diff;
     }

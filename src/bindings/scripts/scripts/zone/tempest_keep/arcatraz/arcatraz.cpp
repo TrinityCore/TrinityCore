@@ -98,12 +98,15 @@ struct TRINITY_DLL_DECL npc_millhouse_manastormAI : public ScriptedAI
         }
     }
 
-    void AttackStart(Unit* who)
+    void AttackStart(Unit* pWho)
     {
-        if (m_creature->Attack(who, true))
+        if (m_creature->Attack(pWho, true))
         {
-            //TODO: Make it so he moves when target out of range
-            DoStartNoMovement(who);
+            m_creature->AddThreat(pWho, 0.0f);
+            m_creature->SetInCombatWith(pWho);
+            pWho->SetInCombatWith(m_creature);
+
+            m_creature->GetMotionMaster()->MoveChase(pWho, 25.0f);
         }
     }
 
