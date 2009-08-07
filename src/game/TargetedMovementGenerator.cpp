@@ -205,7 +205,9 @@ TargetedMovementGenerator<T>::Update(T &owner, const uint32 & time_diff)
         return true;
     }
 
-    if (i_destinationHolder.UpdateTraveller(traveller, time_diff))
+    bool update_traveller = (owner.GetTypeId() == TYPEID_UNIT && !((Creature*)&owner)->isPet())? i_destinationHolder.UpdateTraveller(traveller, time_diff, true) : i_destinationHolder.UpdateTraveller(traveller, time_diff, false);
+    //if (i_destinationHolder.UpdateTraveller(traveller, time_diff))
+    if(update_traveller)
     {
         // put targeted movement generators on a higher priority
         //if (owner.GetObjectSize())
