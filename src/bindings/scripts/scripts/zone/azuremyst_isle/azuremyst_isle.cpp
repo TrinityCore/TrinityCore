@@ -153,16 +153,9 @@ struct TRINITY_DLL_DECL npc_draenei_survivorAI : public ScriptedAI
         if (RunAwayTimer)
         {
             if (RunAwayTimer <= diff)
-            {
-                m_creature->RemoveAllAuras();
-                m_creature->GetMotionMaster()->Clear();
-                m_creature->GetMotionMaster()->MoveIdle();
-                m_creature->setDeathState(JUST_DIED);
-                m_creature->SetHealth(0);
-                m_creature->CombatStop(true);
-                m_creature->DeleteThreatList();
-                m_creature->RemoveCorpse();
-            }else RunAwayTimer -= diff;
+                m_creature->ForcedDespawn();
+            else
+                RunAwayTimer -= diff;
 
             return;
         }

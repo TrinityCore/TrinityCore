@@ -346,7 +346,7 @@ INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content
 (-1000428, 'Ah...the wondrous sound of kodos. I love the way they make the ground shake... inspect the beast for me.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0,'kodo round SAY_SMEED_HOME_1'),
 (-1000429, 'Hey, look out with that kodo! You had better inspect that beast before i give you credit!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0,'kodo round SAY_SMEED_HOME_2'),
 (-1000430, 'That kodo sure is a beauty. Wait a minute, where are my bifocals? Perhaps you should inspect the beast for me.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 'kodo round SAY_SMEED_HOME_3'),
-(-1000431, 'Okay, okay... gimme a minute to rest now. You gone and beat me up good.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 14, 1, 'calvin SAY_COMPLETE');
+(-1000431, 'Okay, okay... gimme a minute to rest now. You gone and beat me up good.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 1, 14, 'calvin SAY_COMPLETE');
 
 -- -1 033 000 SHADOWFANG KEEP
 INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`, `sound`, `type`, `language`, `emote`, `comment`) VALUES
