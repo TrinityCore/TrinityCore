@@ -79,6 +79,7 @@ struct TRINITY_DLL_DECL boss_void_reaverAI : public ScriptedAI
     void JustDied(Unit *victim)
     {
         DoScriptText(SAY_DEATH, m_creature);
+        DoZoneInCombat();
 
         if(pInstance)
             pInstance->SetData(DATA_VOIDREAVEREVENT, DONE);
@@ -119,13 +120,20 @@ struct TRINITY_DLL_DECL boss_void_reaverAI : public ScriptedAI
             for(std::list<HostilReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
             {
                 target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
-                                                            //18 yard radius minimum
+                // exclude pets & totems
+                if (target->GetTypeId() != TYPEID_PLAYER)
+                    continue;
+
+                //18 yard radius minimum
                 if(target && target->GetTypeId() == TYPEID_PLAYER && target->isAlive() && !target->IsWithinDist(m_creature, 18, false))
                     target_list.push_back(target);
                 target = NULL;
             }
+
             if(target_list.size())
                 target = *(target_list.begin()+rand()%target_list.size());
+            else
+                target = m_creature->getVictim();
 
             if (target)
                 m_creature->CastSpell(target->GetPositionX(),target->GetPositionY(),target->GetPositionZ(), SPELL_ARCANE_ORB, false, NULL, NULL, NULL, target);
