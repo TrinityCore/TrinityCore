@@ -469,6 +469,12 @@ void World::LoadConfigSettings(bool reload)
     rate_values[RATE_XP_KILL]     = sConfig.GetFloatDefault("Rate.XP.Kill", 1.0f);
     rate_values[RATE_XP_QUEST]    = sConfig.GetFloatDefault("Rate.XP.Quest", 1.0f);
     rate_values[RATE_XP_EXPLORE]  = sConfig.GetFloatDefault("Rate.XP.Explore", 1.0f);
+    rate_values[RATE_REPAIRCOST]  = sConfig.GetFloatDefault("Rate.RepairCost", 1.0f);
+    if(rate_values[RATE_REPAIRCOST] < 0.0f)
+    {
+        sLog.outError("Rate.RepairCost (%f) must be >=0. Using 0.0 instead.",rate_values[RATE_REPAIRCOST]);
+        rate_values[RATE_REPAIRCOST] = 0.0f;
+    }
     rate_values[RATE_REPUTATION_GAIN]  = sConfig.GetFloatDefault("Rate.Reputation.Gain", 1.0f);
     rate_values[RATE_REPUTATION_LOWLEVEL_KILL]  = sConfig.GetFloatDefault("Rate.Reputation.LowLevel.Kill", 1.0f);
     rate_values[RATE_REPUTATION_LOWLEVEL_QUEST]  = sConfig.GetFloatDefault("Rate.Reputation.LowLevel.Quest", 1.0f);
@@ -520,6 +526,19 @@ void World::LoadConfigSettings(bool reload)
         rate_values[RATE_TARGET_POS_RECALCULATION_RANGE] = NOMINAL_MELEE_RANGE;
     }
 
+    rate_values[RATE_DURABILITY_LOSS_ON_DEATH]  = sConfig.GetFloatDefault("DurabilityLoss.OnDeath", 10.0f);
+    if(rate_values[RATE_DURABILITY_LOSS_ON_DEATH] < 0.0f)
+    {
+        sLog.outError("DurabilityLoss.OnDeath (%f) must be >=0. Using 0.0 instead.",rate_values[RATE_DURABILITY_LOSS_ON_DEATH]);
+        rate_values[RATE_DURABILITY_LOSS_ON_DEATH] = 0.0f;
+    }
+    if(rate_values[RATE_DURABILITY_LOSS_ON_DEATH] > 100.0f)
+    {
+        sLog.outError("DurabilityLoss.OnDeath (%f) must be <=100. Using 100.0 instead.",rate_values[RATE_DURABILITY_LOSS_ON_DEATH]);
+        rate_values[RATE_DURABILITY_LOSS_ON_DEATH] = 0.0f;
+    }
+    rate_values[RATE_DURABILITY_LOSS_ON_DEATH] = rate_values[RATE_DURABILITY_LOSS_ON_DEATH] / 100.0f;
+
     rate_values[RATE_DURABILITY_LOSS_DAMAGE] = sConfig.GetFloatDefault("DurabilityLossChance.Damage",0.5f);
     if(rate_values[RATE_DURABILITY_LOSS_DAMAGE] < 0.0f)
     {
@@ -546,6 +565,8 @@ void World::LoadConfigSettings(bool reload)
     }
 
     ///- Read other configuration items from the config file
+
+    m_configs[CONFIG_DURABILITY_LOSS_IN_PVP] = sConfig.GetBoolDefault("DurabilityLoss.InPvP", false);
 
     m_configs[CONFIG_COMPRESSION] = sConfig.GetIntDefault("Compression", 1);
     if(m_configs[CONFIG_COMPRESSION] < 1 || m_configs[CONFIG_COMPRESSION] > 9)
