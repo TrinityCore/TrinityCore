@@ -2834,6 +2834,10 @@
 								>
 							</File>
 							<File
+								RelativePath="..\scripts\zone\vault_of_archavon\boss_emalon.cpp"
+								>
+							</File>
+							<File
 								RelativePath="..\scripts\zone\vault_of_archavon\def_vault_of_archavon.h"
 								>
 							</File>
