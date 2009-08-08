@@ -6920,21 +6920,6 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 triggered_spell_id = 50526;
                 break;
             }
-            // Death Strike healing effect
-            if (dummySpell->Id == 45469)
-            {
-                if (!pVictim)
-                    return false;
-                basepoints0=pVictim->GetDiseasesByCaster(GetGUID()) * GetMaxHealth()* procSpell->DmgMultiplier[0] / 100.0f;
-                // Do not heal when no diseases on target
-                if (!basepoints0)
-                    return true;
-                // Improved Death Strike
-                if (AuraEffect const * aurEff = GetAuraEffect(SPELL_AURA_ADD_PCT_MODIFIER, SPELLFAMILY_DEATHKNIGHT, 2751, 0))
-                    basepoints0 = basepoints0 * (CalculateSpellDamage(aurEff->GetSpellProto(), 2, aurEff->GetSpellProto()->EffectBasePoints[2], this) + 100.0f) / 100.0f;
-                triggered_spell_id = 45470;
-                break;
-            }
             // Sudden Doom
             if (dummySpell->SpellIconID == 1939 && GetTypeId() == TYPEID_PLAYER)
             {
@@ -7613,9 +7598,9 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                     // stacking
                     CastSpell(this, 37658, true, NULL, triggeredByAura);
 
-                    AuraEffect * dummy = GetDummyAura(37658);
+                    Aura * dummy = GetAura(37658);
                     // release at 3 aura in stack (cont contain in basepoint of trigger aura)
-                    if(!dummy || dummy->GetParentAura()->GetStackAmount() < triggerAmount)
+                    if(!dummy || dummy->GetStackAmount() < triggerAmount)
                         return false;
 
                     RemoveAurasDueToSpell(37658);
@@ -7631,9 +7616,9 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                     CastSpell(this, 54842, true, NULL, triggeredByAura);
 
                     // counting
-                    AuraEffect * dummy = GetDummyAura(54842);
+                    Aura * dummy = GetAura(54842);
                     // release at 3 aura in stack (cont contain in basepoint of trigger aura)
-                    if(!dummy || dummy->GetParentAura()->GetStackAmount() < triggerAmount)
+                    if(!dummy || dummy->GetStackAmount() < triggerAmount)
                         return false;
 
                     RemoveAurasDueToSpell(54842);
@@ -7912,7 +7897,7 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
         case 22959:
         {
             // Glyph of Improved Scorch
-            if (AuraEffect * aurEff = GetDummyAura(56371))
+            if (AuraEffect * aurEff = GetAuraEffect(56371,0))
             {
                 for (int32 count = aurEff->GetAmount();count>0;count--)
                     CastSpell(pVictim, 22959, true);
@@ -9478,7 +9463,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
             if (spellProto->SpellFamilyFlags[0] & 0x800000)
             {
                 // Increase Mind Flay damage
-                if (AuraEffect * aurEff = GetDummyAura(55687))
+                if (AuraEffect * aurEff = GetAuraEffect(55687, 0))
                     // if Shadow Word: Pain present
                     if (pVictim->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PRIEST, 0x8000, 0,0, GetGUID()))
                         DoneTotalMod *= (aurEff->GetAmount() + 100.0f) / 100.f;
@@ -9532,7 +9517,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
     if (pVictim->GetTypeId() == TYPEID_PLAYER)
     {
         //Cheat Death
-        if (AuraEffect *dummy = pVictim->GetDummyAura(45182))
+        if (AuraEffect *dummy = pVictim->GetAuraEffect(45182, 0))
         {
             float mod = -((Player*)pVictim)->GetRatingBonusValue(CR_CRIT_TAKEN_SPELL)*2*4;
             if (mod < dummy->GetAmount())
@@ -9803,7 +9788,7 @@ bool Unit::isSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
                         // Sacred Shield
                         if (spellProto->SpellFamilyFlags[0] & 0x40000000)
                         {
-                            AuraEffect const* aura = pVictim->GetDummyAura(58597);
+                            AuraEffect const* aura = pVictim->GetAuraEffect(58597,1);
                             if (aura && aura->GetCasterGUID() == GetGUID())
                                 crit_chance+=aura->GetAmount();
                             break;
@@ -13615,16 +13600,6 @@ float Unit::GetAPMultiplier(WeaponAttackType attType, bool normalized)
         default:
             return Weapon->GetProto()->SubClass==ITEM_SUBCLASS_WEAPON_DAGGER ? 1.7 : 2.4;
     }
-}
-
-AuraEffect* Unit::GetDummyAura( uint32 spell_id ) const
-{
-    Unit::AuraEffectList const& mDummy = GetAurasByType(SPELL_AURA_DUMMY);
-    for(Unit::AuraEffectList::const_iterator itr = mDummy.begin(); itr != mDummy.end(); ++itr)
-        if ((*itr)->GetId() == spell_id)
-            return *itr;
-
-    return NULL;
 }
 
 AuraEffect* Unit::GetAuraEffect(AuraType type, SpellFamilyNames name, uint32 iconId, uint8 effIndex) const

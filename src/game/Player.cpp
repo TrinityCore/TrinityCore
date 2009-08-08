@@ -6115,7 +6115,7 @@ bool Player::RewardHonor(Unit *uVictim, uint32 groupsize, float honor, bool pvpt
     }
 
     // 'Inactive' this aura prevents the player from gaining honor points and battleground tokens
-    if(GetDummyAura(SPELL_AURA_PLAYER_INACTIVE))
+    if(HasAura(SPELL_AURA_PLAYER_INACTIVE))
         return false;
 
     uint64 victim_guid = 0;
@@ -10534,7 +10534,7 @@ uint8 Player::CanUseAmmo( uint32 item ) const
             return EQUIP_ERR_CANT_EQUIP_LEVEL_I;
 
         // Requires No Ammo
-        if(GetDummyAura(46699))
+        if(HasAura(46699))
             return EQUIP_ERR_BAG_FULL6;
 
         return EQUIP_ERR_OK;
@@ -18515,7 +18515,7 @@ void Player::LeaveBattleground(bool teleportToEntryPoint)
 bool Player::CanJoinToBattleground() const
 {
     // check Deserter debuff
-    if(GetDummyAura(26013))
+    if(HasAura(26013))
         return false;
 
     return true;
@@ -20701,7 +20701,7 @@ void Player::HandleFall(MovementInfo const& movementInfo)
                     damage = GetMaxHealth();
 
                 // Gust of Wind
-                if (GetDummyAura(43621))
+                if (HasAura(43621))
                     damage = GetMaxHealth()/2;
 
                 EnvironmentalDamage(DAMAGE_FALL, damage);

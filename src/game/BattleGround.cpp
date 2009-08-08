@@ -847,7 +847,7 @@ void BattleGround::RewardMark(Player *plr,uint32 count)
 void BattleGround::RewardSpellCast(Player *plr, uint32 spell_id)
 {
     // 'Inactive' this aura prevents the player from gaining honor points and battleground tokens
-    if (plr->GetDummyAura(SPELL_AURA_PLAYER_INACTIVE))
+    if (plr->HasAura(SPELL_AURA_PLAYER_INACTIVE))
         return;
 
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(spell_id);
@@ -863,7 +863,7 @@ void BattleGround::RewardSpellCast(Player *plr, uint32 spell_id)
 void BattleGround::RewardItem(Player *plr, uint32 item_id, uint32 count)
 {
     // 'Inactive' this aura prevents the player from gaining honor points and battleground tokens
-    if (plr->GetDummyAura(SPELL_AURA_PLAYER_INACTIVE))
+    if (plr->HasAura(SPELL_AURA_PLAYER_INACTIVE))
         return;
 
     ItemPosCountVec dest;
