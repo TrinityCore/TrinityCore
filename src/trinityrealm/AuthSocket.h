@@ -60,7 +60,7 @@ class AuthSocket: public TcpSocket
         void _SetVSFields(const std::string& rI);
 
         FILE *pPatch;
-    ACE_Thread_Mutex patcherLock;
+        ACE_Thread_Mutex patcherLock;
         bool IsLag();
 
     private:
