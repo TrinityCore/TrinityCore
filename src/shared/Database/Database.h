@@ -41,7 +41,7 @@ class TRINITY_DLL_SPEC Database
 
         TransactionQueues m_tranQueues;                     ///< Transaction queues from diff. threads
         QueryQueues m_queryQueues;                          ///< Query queues from diff threads
-        SqlDelayThread* m_threadBody;                       ///< Pointer to delay sql executer
+        SqlDelayThread* m_threadBody;                       ///< Pointer to delay sql executer (owned by m_delayThread)
         ACE_Based::Thread* m_delayThread;                   ///< Pointer to executer thread
 
     public:

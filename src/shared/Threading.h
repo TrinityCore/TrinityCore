@@ -61,7 +61,7 @@ namespace ACE_Based
     {
         public:
             Thread();
-            Thread(Runnable& instance);
+            explicit Thread(Runnable* instance);
             ~Thread();
 
             bool start();

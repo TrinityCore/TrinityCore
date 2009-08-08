@@ -101,7 +101,7 @@ Thread::Thread() : m_task(0), m_iThreadId(0), m_hThreadHandle(0)
 
 }
 
-Thread::Thread(Runnable& instance) : m_task(&instance), m_iThreadId(0), m_hThreadHandle(0)
+Thread::Thread(Runnable* instance) : m_task(instance), m_iThreadId(0), m_hThreadHandle(0)
 {
     bool _start = start();
     ASSERT (_start);
@@ -110,6 +110,9 @@ Thread::Thread(Runnable& instance) : m_task(&instance), m_iThreadId(0), m_hThrea
 Thread::~Thread()
 {
     //Wait();
+
+    // deleted runnable object (owned by Thread)
+    delete m_task;
 }
 
 //initialize Thread's class static member
