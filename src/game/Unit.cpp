@@ -2046,6 +2046,22 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
             }
             case SPELLFAMILY_DEATHKNIGHT:
             {
+                // Unbreakable Armor
+                if (spellProto->Id == 51271)
+                {
+                    Unit* caster = (*i)->GetCaster();
+                    if (!caster)
+                        continue;
+
+                    uint32 absorbed = uint32( currentAbsorb * caster->GetArmor() * 0.01f );
+
+                    // Glyph of Unbreakable Armor
+                    if (AuraEffect *aurEff = caster->GetAuraEffect(58635, 0))
+                        absorbed += uint32( absorbed * aurEff->GetAmount() / 100 );
+
+                    RemainingDamage -= absorbed;
+                    continue;
+                }
                 // Anti-Magic Shell (on self)
                 if (spellProto->Id == 48707)
                 {
