@@ -166,7 +166,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
 
 void WorldSession::HandleMoveTeleportAck(WorldPacket& recv_data)
 {
-    CHECK_PACKET_SIZE(recv_data, 8+4);
+    CHECK_PACKET_SIZE(recv_data, 8+4+4);
 
     sLog.outDebug("MSG_MOVE_TELEPORT_ACK");
     uint64 guid;
