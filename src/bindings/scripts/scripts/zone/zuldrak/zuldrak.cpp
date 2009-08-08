@@ -129,14 +129,11 @@ struct TRINITY_DLL_DECL npc_captured_rageclawAI : public ScriptedAI
     {
         if (spell->Id == SPELL_FREE_RAGECLAW)
         {
-            if (m_creature->GetDummyAura(SPELL_LEFT_CHAIN))
-                m_creature->RemoveAurasDueToSpell(SPELL_LEFT_CHAIN);
-           
-            if (m_creature->GetDummyAura(SPELL_RIGHT_CHAIN))
-                m_creature->RemoveAurasDueToSpell(SPELL_RIGHT_CHAIN);
+            m_creature->RemoveAurasDueToSpell(SPELL_LEFT_CHAIN);
 
-            if (m_creature->GetDummyAura(SPELL_KNEEL))
-                m_creature->RemoveAurasDueToSpell(SPELL_KNEEL);
+            m_creature->RemoveAurasDueToSpell(SPELL_RIGHT_CHAIN);
+
+            m_creature->RemoveAurasDueToSpell(SPELL_KNEEL);
 
             m_creature->setFaction(m_creature->GetCreatureInfo()->faction_H);
 

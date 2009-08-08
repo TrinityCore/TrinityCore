@@ -3594,7 +3594,7 @@ void Spell::WriteAmmoToPacket( WorldPacket * data )
                         ammoInventoryType = pProto->InventoryType;
                     }
                 }
-                else if(m_caster->GetDummyAura(46699))      // Requires No Ammo
+                else if(m_caster->HasAura(46699))      // Requires No Ammo
                 {
                     ammoDisplayID = 5996;                   // normal arrow
                     ammoInventoryType = INVTYPE_AMMO;
@@ -5820,7 +5820,7 @@ SpellCastResult Spell::CheckItems()
                         if(!ammo)
                         {
                             // Requires No Ammo
-                            if(m_caster->GetDummyAura(46699))
+                            if(m_caster->HasAura(46699))
                                 break;                      // skip other checks
 
                             return SPELL_FAILED_NO_AMMO;

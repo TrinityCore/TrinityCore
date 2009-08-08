@@ -926,7 +926,7 @@ enum AuraState
 };
 
 #define PER_CASTER_AURA_STATE_MASK ( \
-    (1<<(AURA_STATE_CONFLAGRATE-1))|(1<<(AURA_STATE_SWIFTMEND-1))|(1<<(AURA_STATE_DEADLY_POISON-1)))
+    (1<<(AURA_STATE_CONFLAGRATE-1))|(1<<(AURA_STATE_DEADLY_POISON-1)))
 
 // Spell mechanics
 enum Mechanics

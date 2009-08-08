@@ -851,6 +851,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\game\pchdef.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\game\PetHandler.cpp"
 				>
 			</File>
@@ -1738,10 +1742,6 @@
 					PrecompiledHeaderThrough="pchdef.h"
 				/>
 			</FileConfiguration>
-		</File>
-		<File
-			RelativePath="..\..\src\game\pchdef.h"
-			>
 		</File>
 	</Files>
 	<Globals>
