@@ -122,7 +122,6 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
     uint32 BombCount;
     uint32 HatcherTimer;
     uint32 EnrageTimer;
-    uint32 ResetTimer;
 
     bool noeggs;
     bool enraged;
@@ -143,7 +142,6 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
         BombCount = 0;
         HatcherTimer = 10000;
         EnrageTimer = MINUTE*5*IN_MILISECONDS;
-        ResetTimer = 5000;
 
         noeggs = false;
         isBombing =false;
@@ -420,17 +418,7 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
             }else HatcherTimer -= diff;
         }
 
-        if(ResetTimer < diff)
-        {
-            float x, y, z, o;
-            m_creature->GetHomePosition(x, y, z, o);
-            if(m_creature->GetPositionZ() <= z-7)
-            {
-                EnterEvadeMode();
-                return;
-            }
-            ResetTimer = 5000;
-        }else ResetTimer -= diff;
+        EnterEvadeIfOutOfCombatArea(diff);
 
         DoMeleeAttackIfReady();
 

@@ -126,13 +126,13 @@ struct TRINITY_DLL_DECL npc_shenthulAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void ReciveEmote_npc_shenthul(Player *player, uint32 emote)
+    void ReceiveEmote(Player* pPlayer, uint32 emote)
     {
-        if( emote == TEXTEMOTE_SALUTE && player->GetQuestStatus(QUEST_SHATTERED_SALUTE) == QUEST_STATUS_INCOMPLETE )
+        if( emote == TEXTEMOTE_SALUTE && pPlayer->GetQuestStatus(QUEST_SHATTERED_SALUTE) == QUEST_STATUS_INCOMPLETE )
         {
             if(CanEmote)
             {
-                player->AreaExploredOrEventHappens(QUEST_SHATTERED_SALUTE);
+                pPlayer->AreaExploredOrEventHappens(QUEST_SHATTERED_SALUTE);
                 Reset();
             }
         }
