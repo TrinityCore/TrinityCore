@@ -21,6 +21,7 @@
 
 #include <ace/Thread.h>
 #include <ace/TSS_T.h>
+#include "ace/Atomic_Op.h"
 #include <assert.h>
 #include "Errors.h"
 
@@ -32,6 +33,15 @@ namespace ACE_Based
         public:
             virtual ~Runnable() {}
             virtual void run() = 0;
+
+            void incReference() { ++m_refs; }
+            void decReference()
+            {
+                if(!--m_refs)
+                    delete this;
+            }
+        private:
+            ACE_Atomic_Op<ACE_Thread_Mutex, int> m_refs;
     };
 
     enum Priority
