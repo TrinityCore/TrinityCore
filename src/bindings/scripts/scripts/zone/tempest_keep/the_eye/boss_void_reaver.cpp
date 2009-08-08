@@ -24,18 +24,21 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_the_eye.h"
 
-#define SAY_AGGRO                   -1550000
-#define SAY_SLAY1                   -1550001
-#define SAY_SLAY2                   -1550002
-#define SAY_SLAY3                   -1550003
-#define SAY_DEATH                   -1550004
-#define SAY_POUNDING1               -1550005
-#define SAY_POUNDING2               -1550006
+enum
+{
+    SAY_AGGRO                   = -1550000,
+    SAY_SLAY1                   = -1550001,
+    SAY_SLAY2                   = -1550002,
+    SAY_SLAY3                   = -1550003,
+    SAY_DEATH                   = -1550004,
+    SAY_POUNDING1               = -1550005,
+    SAY_POUNDING2               = -1550006,
 
-#define SPELL_POUNDING              34162
-#define SPELL_ARCANE_ORB            34172
-#define SPELL_KNOCK_AWAY            25778
-#define SPELL_BERSERK               27680
+    SPELL_POUNDING              = 34162,
+    SPELL_ARCANE_ORB            = 34172,
+    SPELL_KNOCK_AWAY            = 25778,
+    SPELL_BERSERK               = 27680
+};
 
 struct TRINITY_DLL_DECL boss_void_reaverAI : public ScriptedAI
 {
@@ -161,6 +164,8 @@ struct TRINITY_DLL_DECL boss_void_reaverAI : public ScriptedAI
         }else Berserk_Timer -= diff;
 
         DoMeleeAttackIfReady();
+
+        EnterEvadeIfOutOfCombatArea(diff);
     }
 };
 

@@ -447,6 +447,8 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
         }else m_uiVesperonTimer -= uiDiff;
 
         DoMeleeAttackIfReady();
+
+        EnterEvadeIfOutOfCombatArea(uiDiff);
     }
 };
 

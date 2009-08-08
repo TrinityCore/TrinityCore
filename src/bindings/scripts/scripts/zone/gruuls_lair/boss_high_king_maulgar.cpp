@@ -324,6 +324,21 @@ struct TRINITY_DLL_DECL boss_olm_the_summonerAI : public ScriptedAI
             pInstance->SetData(DATA_MAULGAREVENT, NOT_STARTED);
     }
 
+    void AttackStart(Unit* pWho)
+    {
+        if (!pWho)
+            return;
+
+        if (m_creature->Attack(pWho, true))
+        {
+            m_creature->AddThreat(pWho, 0.0f);
+            m_creature->SetInCombatWith(pWho);
+            pWho->SetInCombatWith(m_creature);
+
+            m_creature->GetMotionMaster()->MoveChase(pWho, 30.0f);
+        }
+    }
+
     void EnterCombat(Unit *who)
     {
         if(pInstance)
@@ -718,8 +733,6 @@ struct TRINITY_DLL_DECL boss_krosh_firehandAI : public ScriptedAI
                        DoCast(target, SPELL_BLAST_WAVE);
             BlastWave_Timer = 60000;
         }else BlastWave_Timer -= diff;
-
-        DoMeleeAttackIfReady();
     }
 };
 
