@@ -2930,6 +2930,9 @@ void Spell::cast(bool skipCheck)
         m_immediateHandled = false;
         m_spellState = SPELL_STATE_DELAYED;
         SetDelayStart(0);
+
+        if(m_caster->hasUnitState(UNIT_STAT_CASTING) && !m_caster->IsNonMeleeSpellCasted(false, false, true))
+            m_caster->clearUnitState(UNIT_STAT_CASTING);
     }
     else
     {
