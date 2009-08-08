@@ -3800,7 +3800,7 @@ bool Unit::AddAura(Aura *Aur, bool handleEffects)
 
     // ghost spell check, allow apply any auras at player loading in ghost mode (will be cleanup after load)
     if( !isAlive() && !IsDeathPersistentSpell(aurSpellInfo) &&
-        Aur->GetId() != 2584 &&                             // Waiting to Resurrect (not have death persistence flag)
+        //Aur->GetId() != 2584 &&                             // Waiting to Resurrect (not have death persistence flag)
         (GetTypeId()!=TYPEID_PLAYER || !((Player*)this)->GetSession()->PlayerLoading()) )
     {
         delete Aur;
