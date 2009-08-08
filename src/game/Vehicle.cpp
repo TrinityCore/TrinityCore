@@ -65,9 +65,9 @@ void Vehicle::AddToWorld()
             }
         }
 
+        Unit::AddToWorld();
         InstallAllAccessories();
 
-        Unit::AddToWorld();
         AIM_Initialize();
     }
 }
@@ -90,9 +90,11 @@ void Vehicle::InstallAllAccessories()
             InstallAccessory(33139,7);
             break;
         case 33114:
-            InstallAccessory(33143,1);
-            //InstallAccessory(33142,0);
-            InstallAccessory(33142,2);
+            InstallAccessory(33142,0);
+            //InstallAccessory(33143,1);
+            //InstallAccessory(33142,2);
+            InstallAccessory(33143,2);
+            InstallAccessory(33142,1);
             break;
     }
 }
@@ -266,17 +268,9 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId)
     if(!accessory)
         return;
 
-    if (!accessory->m_Vehicle)
-    {
-        accessory->m_Vehicle = this;
-        if (!AddPassenger(accessory, seatId))
-        {
-            accessory->m_Vehicle = NULL;
-            return;
-        }
-        // This is not good, we have to send update twice
-        accessory->SendMovementFlagUpdate();
-    }
+    accessory->EnterVehicle(this, seatId);
+    // This is not good, we have to send update twice
+    accessory->SendMovementFlagUpdate();
 }
 
 bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
@@ -317,6 +311,9 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
             RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
     }
 
+    if(!(seat->second.seatInfo->m_flags & 0x4000))
+        unit->addUnitState(UNIT_STAT_ONVEHICLE);
+
     //SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);
 
     unit->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
@@ -328,12 +325,15 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
     unit->m_movementInfo.t_time = 0; // 1 for player
     unit->m_movementInfo.t_seat = seat->first;
 
-    if(unit->GetTypeId() == TYPEID_PLAYER && seat->first == 0 && seat->second.seatInfo->IsUsable()) // not right
+    if(unit->GetTypeId() == TYPEID_PLAYER && seat->first == 0 && seat->second.seatInfo->m_flags & 0x800) // not right
         if (!SetCharmedBy(unit, CHARM_TYPE_VEHICLE))
             assert(false);
 
     if(IsInWorld())
+    {
         unit->SendMonsterMoveTransport(this);
+        GetMap()->CreatureRelocation(this, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
+    }
 
     //if(unit->GetTypeId() == TYPEID_PLAYER)
     //    ((Player*)unit)->SendTeleportAckMsg();
@@ -349,27 +349,27 @@ void Vehicle::RemovePassenger(Unit *unit)
 
     SeatMap::iterator seat;
     for(seat = m_Seats.begin(); seat != m_Seats.end(); ++seat)
-    {
         if(seat->second.passenger == unit)
-        {
-            seat->second.passenger = NULL;
-            if(seat->second.seatInfo->IsUsable())
-            {
-                if(!m_usableSeatNum)
-                    SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-                ++m_usableSeatNum;
-            }
             break;
-        }
-    }
 
     assert(seat != m_Seats.end());
 
-    sLog.outDebug("Unit %s exit vehicle entry %u id %u dbguid %u", unit->GetName(), GetEntry(), m_vehicleInfo->m_ID, GetDBTableGUIDLow());
+    sLog.outDebug("Unit %s exit vehicle entry %u id %u dbguid %u seat %d", unit->GetName(), GetEntry(), m_vehicleInfo->m_ID, GetDBTableGUIDLow(), (int32)seat->first);
+
+    seat->second.passenger = NULL;
+    if(seat->second.seatInfo->IsUsable())
+    {
+        if(!m_usableSeatNum)
+            SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+        ++m_usableSeatNum;
+    }
+
+    if(!(seat->second.seatInfo->m_flags & 0x4000))
+        unit->clearUnitState(UNIT_STAT_ONVEHICLE);
 
     //SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
 
-    if(unit->GetTypeId() == TYPEID_PLAYER && seat->first == 0 && seat->second.seatInfo->IsUsable())
+    if(unit->GetTypeId() == TYPEID_PLAYER && seat->first == 0 && seat->second.seatInfo->m_flags & 0x800)
         RemoveCharmedBy(unit);
 
     // only for flyable vehicles?
