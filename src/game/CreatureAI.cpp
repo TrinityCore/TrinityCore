@@ -91,6 +91,13 @@ void CreatureAI::DoZoneInCombat(Creature* creature)
                 pPlayer->SetInCombatWith(creature);
                 creature->AddThreat(pPlayer, 0.0f);
             }
+
+            for(Unit::ControlList::const_iterator itr = pPlayer->m_Controlled.begin(); itr != pPlayer->m_Controlled.end(); ++itr)
+            {
+                creature->SetInCombatWith(*itr);
+                (*itr)->SetInCombatWith(creature);
+                creature->AddThreat(*itr, 0.0f);
+            }
         }
     }
 }
