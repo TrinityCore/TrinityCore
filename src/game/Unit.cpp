@@ -12366,7 +12366,7 @@ void Unit::RemoveFromWorld()
 
         if(m_NotifyListPos >= 0)
         {
-            GetMap()->RemoveUnitFromNotify(m_NotifyListPos);
+            GetMap()->RemoveUnitFromNotify(this, m_NotifyListPos);
             m_NotifyListPos = -1;
         }
 
