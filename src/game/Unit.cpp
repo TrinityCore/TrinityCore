@@ -1282,6 +1282,9 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage *damageInfo, int32 dama
     if (damage < 0)
         return;
 
+    if(spellInfo->AttributesEx4 & SPELL_ATTR_EX4_FIXED_DAMAGE)
+        return;
+
     Unit *pVictim = damageInfo->target;
     if(!pVictim || !pVictim->isAlive())
         return;
