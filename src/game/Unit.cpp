@@ -10843,6 +10843,9 @@ bool Unit::canAttack(Unit const* target, bool force) const
     else if(!IsHostileTo(target))
         return false;
 
+    //if(m_Vehicle && m_Vehicle == target->m_Vehicle)
+    //    return true;
+
     if(!target->isAttackableByAOE() || target->hasUnitState(UNIT_STAT_DIED))
         return false;
 
@@ -14296,11 +14299,13 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type)
     assert(type != CHARM_TYPE_POSSESS || charmer->GetTypeId() == TYPEID_PLAYER);
     assert(type != CHARM_TYPE_VEHICLE || GetTypeId() == TYPEID_UNIT && ((Creature*)this)->isVehicle());
 
+    sLog.outDebug("SetCharmedBy: charmer %u, charmed %u, type %u.", charmer->GetEntry(), GetEntry(), (uint32)type);
+
     if(this == charmer)
         return false;
 
-    if(hasUnitState(UNIT_STAT_UNATTACKABLE))
-        return false;
+    //if(hasUnitState(UNIT_STAT_UNATTACKABLE))
+    //    return false;
 
     if(GetTypeId() == TYPEID_PLAYER && ((Player*)this)->GetTransport())
         return false;
@@ -14940,7 +14945,6 @@ void Unit::EnterVehicle(Vehicle *vehicle, int8 seatId)
         return;
     }
 
-    addUnitState(UNIT_STAT_ONVEHICLE);
     SetControlled(true, UNIT_STAT_ROOT);
     //movementInfo is set in AddPassenger
     //packets are sent in AddPassenger
@@ -14985,7 +14989,6 @@ void Unit::ExitVehicle()
     Vehicle *vehicle = m_Vehicle;
     m_Vehicle = NULL;
 
-    clearUnitState(UNIT_STAT_ONVEHICLE);
     SetControlled(false, UNIT_STAT_ROOT);
 
     RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
@@ -14995,6 +14998,8 @@ void Unit::ExitVehicle()
     m_movementInfo.t_o = 0;
     m_movementInfo.t_time = 0;
     m_movementInfo.t_seat = 0;
+
+    Relocate(vehicle->GetPositionX(), vehicle->GetPositionY(), vehicle->GetPositionZ(), GetOrientation());
 
     //Send leave vehicle, not correct
     if(GetTypeId() == TYPEID_PLAYER)

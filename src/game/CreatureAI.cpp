@@ -200,13 +200,16 @@ void CreatureAI::EnterEvadeMode()
     if(!_EnterEvadeMode())
         return;
 
-    if(Unit *owner = me->GetCharmerOrOwner())
+    if(!me->m_Vehicle) // otherwise me will be in evade mode forever
     {
-        me->GetMotionMaster()->Clear(false);
-        me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, m_creature->GetFollowAngle(), MOTION_SLOT_ACTIVE);
+        if(Unit *owner = me->GetCharmerOrOwner())
+        {
+            me->GetMotionMaster()->Clear(false);
+            me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, m_creature->GetFollowAngle(), MOTION_SLOT_ACTIVE);
+        }
+        else
+            me->GetMotionMaster()->MoveTargetedHome();
     }
-    else
-        me->GetMotionMaster()->MoveTargetedHome();
 
     Reset();
 }
