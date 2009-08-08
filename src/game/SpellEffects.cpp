@@ -446,19 +446,10 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                 {
                     // Incinerate does more dmg (dmg*0.25) if the target have Immolate debuff.
                     // Check aura state for speed but aura state set not only for Immolate spell
-                    if(unitTarget->HasAuraState(AURA_STATE_CONFLAGRATE, m_spellInfo, m_caster))
+                    if(unitTarget->HasAuraState(AURA_STATE_CONFLAGRATE))
                     {
-                        Unit::AuraEffectList const& RejorRegr = unitTarget->GetAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
-                        for(Unit::AuraEffectList::const_iterator i = RejorRegr.begin(); i != RejorRegr.end(); ++i)
-                        {
-                            // Immolate
-                            if((*i)->GetSpellProto()->SpellFamilyName == SPELLFAMILY_WARLOCK &&
-                                ((*i)->GetSpellProto()->SpellFamilyFlags[0] & 0x4))
-                            {
-                                damage += damage/4;
-                                break;
-                            }
-                        }
+                        if (unitTarget->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_WARLOCK, 0x4))
+                            damage += damage/4;
                     }
                 }
                 // Conflagrate - consumes Immolate or Shadowflame
@@ -540,22 +531,13 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                     // consume from stack dozes not more that have combo-points
                     if(uint32 combo = ((Player*)m_caster)->GetComboPoints())
                     {
-                        Aura *poison = 0;
                         // Lookup for Deadly poison (only attacker applied)
-                        Unit::AuraEffectList const& auras = unitTarget->GetAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
-                        for(Unit::AuraEffectList::const_iterator itr = auras.begin(); itr!=auras.end(); ++itr)
-                            if( (*itr)->GetSpellProto()->SpellFamilyName==SPELLFAMILY_ROGUE &&
-                                (*itr)->GetSpellProto()->SpellFamilyFlags[0] & 0x10000 &&
-                                (*itr)->GetCasterGUID()==m_caster->GetGUID() )
-                            {
-                                poison = (*itr)->GetParentAura();
-                                break;
-                            }
-                        // count consumed deadly poison doses at target
-                        if (poison)
+                        if (AuraEffect const * aurEff = unitTarget->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_ROGUE, 0x10000, 0, 0, m_caster->GetGUID()))
                         {
-                            uint32 spellId = poison->GetId();
-                            uint32 doses = poison->GetStackAmount();
+                            // count consumed deadly poison doses at target
+                            Aura *poison = 0;
+                            uint32 spellId = aurEff->GetId();
+                            uint32 doses = aurEff->GetParentAura()->GetStackAmount();
                             if (doses > combo)
                                 doses = combo;
                             for (int i=0; i< doses; i++)
@@ -564,7 +546,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                             damage += int32(((Player*)m_caster)->GetTotalAttackPowerValue(BASE_ATTACK) * 0.03f * doses);
                         }
                         // Eviscerate and Envenom Bonus Damage (item set effect)
-                        if(m_caster->GetDummyAura(37169))
+                        if(m_caster->HasAura(37169))
                             damage += ((Player*)m_caster)->GetComboPoints()*40;
                     }
                 }
@@ -577,7 +559,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                         damage += irand(int32(ap * combo * 0.03f), int32(ap * combo * 0.07f));
 
                         // Eviscerate and Envenom Bonus Damage (item set effect)
-                        if(m_caster->GetDummyAura(37169))
+                        if(m_caster->HasAura(37169))
                             damage += combo*40;
                     }
                 }
@@ -1351,7 +1333,7 @@ void Spell::EffectDummy(uint32 i)
 
                 uint32 rage=0;
                 // Glyph of Execution bonus
-                if (AuraEffect *aura = m_caster->GetDummyAura(58367))
+                if (AuraEffect *aura = m_caster->GetAuraEffect(58367, 0))
                     rage+=aura->GetAmount();
 
                 spell_id = 20647;
@@ -1371,7 +1353,7 @@ void Spell::EffectDummy(uint32 i)
                 }
 
                 bp = damage+int32(rage * m_spellInfo->DmgMultiplier[i] +
-                                                 m_caster->GetTotalAttackPowerValue(BASE_ATTACK)*0.2f);
+                    m_caster->GetTotalAttackPowerValue(BASE_ATTACK)*0.2f);
                 break;
             }
             // Concussion Blow
@@ -1587,7 +1569,7 @@ void Spell::EffectDummy(uint32 i)
                     if(m_caster->GetTypeId()!=TYPEID_PLAYER)
                         return;
 
-                    //immediately finishes the cooldown for hunter abilities
+                    // immediately finishes the cooldown on your other Hunter abilities except Bestial Wrath
                     const SpellCooldowns& cm = ((Player*)m_caster)->GetSpellCooldownMap();
                     for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end();)
                     {
@@ -1614,15 +1596,15 @@ void Spell::EffectDummy(uint32 i)
             }
             break;
         case SPELLFAMILY_PALADIN:
+            // Divine Storm
+            if (m_spellInfo->SpellFamilyFlags[1] & 0x20000 && i == 1)
+            {
+                int32 dmg= m_damage * damage /100;
+                m_caster->CastCustomSpell(unitTarget, 54172, &dmg , 0, 0, true);
+                return;
+            }
             switch(m_spellInfo->SpellIconID)
             {
-                // Divine Storm
-                if (m_spellInfo->SpellFamilyFlags[1] & 0x20000)
-                {
-                    int32 damage=m_currentBasePoints[0] * damage /100;
-                    m_caster->CastCustomSpell(unitTarget, 54172, &damage , 0, 0, true);
-                    return;
-                }
                 case  156:                                  // Holy Shock
                 {
                     if(!unitTarget)
@@ -1789,10 +1771,12 @@ void Spell::EffectDummy(uint32 i)
                 }
                 return;
             }
-            // Cleansing Totem
+            // Cleansing Totem Pulse
             if(m_spellInfo->SpellFamilyFlags[0] & 0x04000000 && m_spellInfo->SpellIconID==1673)
             {
-                m_caster->CastSpell(unitTarget, 52025, true, 0, 0, m_originalCasterGUID);
+                int32 bp1 = 1;
+                // Cleansing Totem Effect
+                m_caster->CastCustomSpell(unitTarget, 52025, NULL, &bp1, NULL, true, NULL, NULL, m_originalCasterGUID);
                 return;
             }
             // Healing Stream Totem
@@ -1815,7 +1799,7 @@ void Spell::EffectDummy(uint32 i)
                     return;
                 // Glyph of Mana Tide
                 if(Unit *owner = m_caster->GetOwner())
-                    if (AuraEffect *dummy = owner->GetDummyAura(55441))
+                    if (AuraEffect *dummy = owner->GetAuraEffect(55441, 0))
                         damage+=dummy->GetAmount();
                 // Regenerate 6% of Total Mana Every 3 secs
                 int32 EffectBasePoints0 = unitTarget->GetMaxPower(POWER_MANA)  * damage / 100;
@@ -1830,6 +1814,7 @@ void Spell::EffectDummy(uint32 i)
                 Item *item = ((Player*)m_caster)->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
                 if (item)
                 {
+                    // Damage is increased by 25% if your off-hand weapon is enchanted with Flametongue.
                     if (m_caster->GetAura(SPELL_AURA_DUMMY, SPELLFAMILY_SHAMAN, 0x200000))
                     {
                            m_damage += m_damage * damage / 100;
@@ -1839,12 +1824,27 @@ void Spell::EffectDummy(uint32 i)
             }
             break;
         case SPELLFAMILY_DEATHKNIGHT:
-            // Death strike dummy aura apply
-            // Used to proc healing later
+            // Death strike
             if (m_spellInfo->SpellFamilyFlags[0] & 0x00000010)
             {
-                spell_id=45469;
-                m_caster->CastSpell(m_caster,spell_id,true);
+                uint32 count = 0;
+                Unit::AuraMap const& auras = unitTarget->GetAuras();
+                for(Unit::AuraMap::const_iterator itr = auras.begin(); itr!=auras.end(); ++itr)
+                {
+                    if(itr->second->GetSpellProto()->Dispel == DISPEL_DISEASE &&
+                        itr->second->GetCasterGUID() == m_caster->GetGUID())
+                    {
+                        ++count;
+                        // max. 15%
+                        if(count == 3)
+                            break;
+                    }
+                }
+                int32 bp = count * m_caster->GetMaxHealth() * m_spellInfo->DmgMultiplier[0] / 100;
+                // Improved Death Strike
+                if (AuraEffect const * aurEff = m_caster->GetAuraEffect(SPELL_AURA_ADD_PCT_MODIFIER, SPELLFAMILY_DEATHKNIGHT, 2751, 0))
+                    bp = bp * (m_caster->CalculateSpellDamage(aurEff->GetSpellProto(), 2, aurEff->GetSpellProto()->EffectBasePoints[2], m_caster) + 100.0f) / 100.0f;
+                m_caster->CastCustomSpell(m_caster, 45470, &bp, NULL, NULL, true);
                 return;
             }
             // Scourge Strike
@@ -2070,7 +2070,7 @@ void Spell::EffectTriggerSpell(uint32 i)
         case 58832:
         {
             // Glyph of Mirror Image
-            if (m_caster->GetDummyAura(63093))
+            if (m_caster->HasAura(63093))
                m_caster->CastSpell(m_caster, 65047, true); // Mirror Image
 
             break;
@@ -2593,12 +2593,11 @@ void Spell::SpellDamageHeal(uint32 /*i*/)
         {
             // Amount of heal - depends from stacked Holy Energy
             int damageAmount = 0;
-            Unit::AuraEffectList const& mDummyAuras = m_caster->GetAurasByType(SPELL_AURA_DUMMY);
-            for(Unit::AuraEffectList::const_iterator i = mDummyAuras.begin();i != mDummyAuras.end(); ++i)
-                if((*i)->GetId() == 45062)
-                    damageAmount+=(*i)->GetAmount();
-            if (damageAmount)
+            if (AuraEffect const * aurEff = m_caster->GetAuraEffect(45062, 0))
+            {
+                damageAmount+= aurEff->GetAmount();
                 m_caster->RemoveAurasDueToSpell(45062);
+            }
 
             addhealth += damageAmount;
         }
@@ -2611,7 +2610,7 @@ void Spell::SpellDamageHeal(uint32 /*i*/)
             for(Unit::AuraEffectList::const_iterator i = RejorRegr.begin(); i != RejorRegr.end(); ++i)
             {
                 if((*i)->GetSpellProto()->SpellFamilyName == SPELLFAMILY_DRUID
-                    && ((*i)->GetSpellProto()->SpellFamilyFlags.IsEqual(0x40) || (*i)->GetSpellProto()->SpellFamilyFlags.IsEqual(0x10)) )
+                    && (*i)->GetSpellProto()->SpellFamilyFlags[0] & 0x50)
                 {
                     if(!targetAura || (*i)->GetParentAura()->GetAuraDuration() < targetAura->GetParentAura()->GetAuraDuration())
                         targetAura = *i;
@@ -2631,18 +2630,17 @@ void Spell::SpellDamageHeal(uint32 /*i*/)
             //It is said that talent bonus should not be included
 
             int32 tickcount = 0;
-            if(targetAura->GetSpellProto()->SpellFamilyName == SPELLFAMILY_DRUID)
-            {
-                switch(targetAura->GetSpellProto()->SpellFamilyFlags[0])
-                {
-                    case 0x10:  tickcount = 4;  break; // Rejuvenation
-                    case 0x40:  tickcount = 6;  break; // Regrowth
-                }
-            }
+            // Rejuvenation
+            if (targetAura->GetSpellProto()->SpellFamilyFlags[0] & 0x10)
+                tickcount = 4;
+            // Regrowth
+            else // if (targetAura->GetSpellProto()->SpellFamilyFlags[0] & 0x40)
+                tickcount = 6;
+
             addhealth += tickheal * tickcount;
 
             // Glyph of Swiftmend
-            if(!caster->GetDummyAura(54824))
+            if(!caster->HasAura(54824))
                 unitTarget->RemoveAura(targetAura->GetId(), targetAura->GetCasterGUID());
 
             //addhealth += tickheal * tickcount;
@@ -4286,7 +4284,7 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
                     break;
                 int32 count = 1;
                 // Glyph of Devastate
-                if (AuraEffect * aurEff = m_caster->GetDummyAura(58388))
+                if (AuraEffect * aurEff = m_caster->GetAuraEffect(58388, 0))
                     count += aurEff->GetAmount();
                 for (;count>0;count--)
                     m_caster->CastSpell(unitTarget, spellInfo, true);
@@ -4749,7 +4747,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         return;
 
                     // Onyxia Scale Cloak
-                    if(unitTarget->GetDummyAura(22683))
+                    if(unitTarget->HasAura(22683))
                         return;
 
                     // Shadow Flame
@@ -5718,7 +5716,7 @@ void Spell::EffectSummonPlayer(uint32 /*i*/)
         return;
 
     // Evil Twin (ignore player summon, but hide this for summoner)
-    if(unitTarget->GetDummyAura(23445))
+    if(unitTarget->HasAura(23445))
         return;
 
     float x, y, z;
