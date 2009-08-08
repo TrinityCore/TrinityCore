@@ -918,6 +918,8 @@ private:
     uint32 AHBplayerGUID;
     uint32 ItemsPerCycle;
 
+    //Begin Filters
+
     bool Vendor_Items;
     bool Loot_Items;
     bool Other_Items;
@@ -927,6 +929,48 @@ private:
     bool Bind_When_Equipped;
     bool Bind_When_Use;
     bool Bind_Quest_Item;
+
+    bool DisableBeta_PTR_Unused;
+    bool DisablePermEnchant;
+    bool DisableConjured;
+    bool DisableGems;
+    bool DisableMoney;
+    bool DisableMoneyLoot;
+    bool DisableLootable;
+    bool DisableKeys;
+    bool DisableDuration;
+    bool DisableBOP_Or_Quest_NoReqLevel;
+
+    bool DisableWarriorItems;
+    bool DisablePaladinItems;
+    bool DisableHunterItems;
+    bool DisableRogueItems;
+    bool DisablePriestItems;
+    bool DisableDKItems;
+    bool DisableShamanItems;
+    bool DisableMageItems;
+    bool DisableWarlockItems;
+    bool DisableUnusedClassItems;
+    bool DisableDruidItems;
+
+    uint32 DisableItemsBelowLevel;
+    uint32 DisableItemsAboveLevel;
+    uint32 DisableTGsBelowLevel;
+    uint32 DisableTGsAboveLevel;
+    uint32 DisableItemsBelowGUID;
+    uint32 DisableItemsAboveGUID;
+    uint32 DisableTGsBelowGUID;
+    uint32 DisableTGsAboveGUID;
+    uint32 DisableItemsBelowReqLevel;
+    uint32 DisableItemsAboveReqLevel;
+    uint32 DisableTGsBelowReqLevel;
+    uint32 DisableTGsAboveReqLevel;
+    uint32 DisableItemsBelowReqSkillRank;
+    uint32 DisableItemsAboveReqSkillRank;
+    uint32 DisableTGsBelowReqSkillRank;
+    uint32 DisableTGsAboveReqSkillRank;
+
+    //End Filters
 
     AHBConfig AllianceConfig;
     AHBConfig HordeConfig;
