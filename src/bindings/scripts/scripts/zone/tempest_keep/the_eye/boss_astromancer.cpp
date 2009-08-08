@@ -24,48 +24,49 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_the_eye.h"
 
-#define SAY_AGGRO                           -1550007
-#define SAY_SUMMON1                         -1550008
-#define SAY_SUMMON2                         -1550009
-#define SAY_KILL1                           -1550010
-#define SAY_KILL2                           -1550011
-#define SAY_KILL3                           -1550012
-#define SAY_DEATH                           -1550013
-#define SAY_VOIDA                           -1550014
-#define SAY_VOIDB                           -1550015
+enum
+{
+    SAY_AGGRO                           = -1550007,
+    SAY_SUMMON1                         = -1550008,
+    SAY_SUMMON2                         = -1550009,
+    SAY_KILL1                           = -1550010,
+    SAY_KILL2                           = -1550011,
+    SAY_KILL3                           = -1550012,
+    SAY_DEATH                           = -1550013,
+    SAY_VOIDA                           = -1550014,
+    SAY_VOIDB                           = -1550015,
 
-#define SPELL_ARCANE_MISSILES                 33031
-#define SPELL_MARK_OF_THE_ASTROMANCER         33045
-#define MARK_OF_SOLARIAN                      33023
-#define SPELL_BLINDING_LIGHT                  33009
-#define SPELL_FEAR                            29321
-#define SPELL_VOID_BOLT                       39329
-#define SPELL_SPOTLIGHT                       25824
-#define SPELL_WRATH_OF_THE_ASTROMANCER        42783
+    SPELL_ARCANE_MISSILES               = 33031,
+    SPELL_WRATH_OF_THE_ASTROMANCER      = 42783,
+    SPELL_BLINDING_LIGHT                = 33009,
+    SPELL_FEAR                          = 34322,
+    SPELL_VOID_BOLT                     = 39329,
 
-#define CENTER_X                             432.909f
-#define CENTER_Y                             -373.424f
-#define CENTER_Z                             17.9608f
-#define CENTER_O                             1.06421f
-#define SMALL_PORTAL_RADIUS                  12.6f
-#define LARGE_PORTAL_RADIUS                  26.0f
-#define PORTAL_Z                             17.005f
+    SPELL_SPOTLIGHT                     = 25824,
+    NPC_ASTROMANCER_SOLARIAN_SPOTLIGHT  = 18928,
 
-#define SOLARIUM_AGENT                       18925
-#define SOLARIUM_PRIEST                      18806
-#define ASTROMANCER_SOLARIAN_SPOTLIGHT       18928
+    NPC_SOLARIUM_AGENT                  = 18925,
+    NPC_SOLARIUM_PRIEST                 = 18806,
 
-#define MODEL_HUMAN                          18239
-#define MODEL_VOIDWALKER                     18988
+    MODEL_HUMAN                         = 18239,
+    MODEL_VOIDWALKER                    = 18988,
 
-#define SOLARIUM_HEAL                        41378
-#define SOLARIUM_SMITE                       31740
-#define SOLARIUM_SILENCE                     37160
+    SPELL_SOLARIUM_GREAT_HEAL           = 33387,
+    SPELL_SOLARIUM_HOLY_SMITE           = 25054,
+    SPELL_SOLARIUM_ARCANE_TORRENT       = 33390,
 
-#define WV_ARMOR                    31000
-#define MIN_RANGE_FOR_DOT_JUMP      20.0f
+    WV_ARMOR                            = 31000
+};
 
-                             // x,          y,      z,         o
+const float CENTER_X                    = 432.909f;
+const float CENTER_Y                    = -373.424f;
+const float CENTER_Z                    = 17.9608f;
+const float CENTER_O                    = 1.06421f;
+const float SMALL_PORTAL_RADIUS         = 12.6f;
+const float LARGE_PORTAL_RADIUS         = 26.0f;
+const float PORTAL_Z                    = 17.005f;
+
+                            // x,          y,      z,         o
 static float SolarianPos[4] = {432.909, -373.424, 17.9608, 1.06421};
 
 struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
@@ -84,7 +85,7 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
     uint8 Phase;
 
     uint32 ArcaneMissiles_Timer;
-    uint32 MarkOfTheAstromancer_Timer;
+    uint32 m_uiWrathOfTheAstromancer_Timer;
     uint32 BlindingLight_Timer;
     uint32 Fear_Timer;
     uint32 VoidBolt_Timer;
@@ -92,8 +93,6 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
     uint32 Phase2_Timer;
     uint32 Phase3_Timer;
     uint32 AppearDelay_Timer;
-    uint32 MarkOfTheSolarian_Timer;
-    uint32 Jump_Timer;
     uint32 defaultarmor;
     uint32 Wrath_Timer;
 
@@ -106,7 +105,7 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
     void Reset()
     {
         ArcaneMissiles_Timer = 2000;
-        MarkOfTheAstromancer_Timer = 15000;
+        m_uiWrathOfTheAstromancer_Timer = 15000;
         BlindingLight_Timer = 41000;
         Fear_Timer = 20000;
         VoidBolt_Timer = 10000;
@@ -116,8 +115,6 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
         AppearDelay_Timer = 2000;
         BlindingLight = false;
         AppearDelay = false;
-        MarkOfTheSolarian_Timer=45000;
-        Jump_Timer=8000;
         Wrath_Timer = 20000+rand()%5000;//twice in phase one
         Phase = 1;
         Wrath_Timer = 20000+rand()%5000;//twice in phase one
@@ -132,14 +129,6 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
         m_creature->SetDisplayId(MODEL_HUMAN);
 
         Summons.DespawnAll();
-    }
-
-    void StartEvent()
-    {
-        DoScriptText(SAY_AGGRO, m_creature);
-
-        if(pInstance)
-            pInstance->SetData(DATA_HIGHASTROMANCERSOLARIANEVENT, IN_PROGRESS);
     }
 
     void KilledUnit(Unit *victim)
@@ -164,7 +153,11 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        StartEvent();
+        DoScriptText(SAY_AGGRO, m_creature);
+        DoZoneInCombat();
+
+        if (pInstance)
+            pInstance->SetData(DATA_HIGHASTROMANCERSOLARIANEVENT, IN_PROGRESS);
     }
 
     void SummonMinion(uint32 entry, float x, float y, float z)
@@ -252,20 +245,20 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
                 ArcaneMissiles_Timer = 3000;
             }else ArcaneMissiles_Timer -= diff;
 
-            if (MarkOfTheSolarian_Timer < diff)
+            if (m_uiWrathOfTheAstromancer_Timer < diff)
             {
-                DoCast(m_creature->getVictim(), MARK_OF_SOLARIAN);
-                MarkOfTheSolarian_Timer = 45000;
-            }else MarkOfTheSolarian_Timer -= diff;
+                m_creature->InterruptNonMeleeSpells(false);
 
-            if (MarkOfTheAstromancer_Timer < diff) //A debuff that lasts for 5 seconds, cast several times each phase on a random raid member, but not the main tank
-            {
-                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);
-                if(target)
-                    DoCast(target, SPELL_MARK_OF_THE_ASTROMANCER);
-                else DoCast(m_creature->getVictim(), SPELL_MARK_OF_THE_ASTROMANCER);
-                MarkOfTheAstromancer_Timer = 15000;
-            }else MarkOfTheAstromancer_Timer -= diff;
+                //Target the tank ?
+                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1))
+                    if (pTarget->GetTypeId() == TYPEID_PLAYER)
+                    {
+                        DoCast(pTarget, SPELL_WRATH_OF_THE_ASTROMANCER);
+                        m_uiWrathOfTheAstromancer_Timer = 25000;
+                    }
+                    else
+                        m_uiWrathOfTheAstromancer_Timer = 1000;
+            }else m_uiWrathOfTheAstromancer_Timer -= diff;
 
             //Phase1_Timer
             if (Phase1_Timer < diff)
@@ -300,8 +293,7 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
                 }
                 for (int i=0; i<=2; i++)
                 {
-                    Creature* Summoned = m_creature->SummonCreature(ASTROMANCER_SOLARIAN_SPOTLIGHT, Portals[i][0], Portals[i][1], Portals[i][2], CENTER_O, TEMPSUMMON_TIMED_DESPAWN, Phase2_Timer+Phase3_Timer+AppearDelay_Timer+1700);
-                    if(Summoned)
+                    if (Creature* Summoned = m_creature->SummonCreature(NPC_ASTROMANCER_SOLARIAN_SPOTLIGHT, Portals[i][0], Portals[i][1], Portals[i][2], CENTER_O, TEMPSUMMON_TIMED_DESPAWN, Phase2_Timer+Phase3_Timer+AppearDelay_Timer+1700))
                     {
                         Summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         Summoned->CastSpell(Summoned, SPELL_SPOTLIGHT, false);
@@ -320,7 +312,7 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
                 Phase = 3;
                 for (int i=0; i<=2; i++)
                     for (int j=1; j<=4; j++)
-                        SummonMinion(SOLARIUM_AGENT, Portals[i][0], Portals[i][1], Portals[i][2]);
+                        SummonMinion(NPC_SOLARIUM_AGENT, Portals[i][0], Portals[i][1], Portals[i][2]);
 
                 DoScriptText(SAY_SUMMON1, m_creature);
                 Phase2_Timer = 10000;
@@ -343,7 +335,7 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
 
                 for (int j=0; j<=2; j++)
                     if (j!=i)
-                        SummonMinion(SOLARIUM_PRIEST, Portals[j][0], Portals[j][1], Portals[j][2]);
+                        SummonMinion(NPC_SOLARIUM_PRIEST, Portals[j][0], Portals[j][1], Portals[j][2]);
 
                 m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 m_creature->SetVisibility(VISIBILITY_ON);
@@ -358,7 +350,7 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
             //Fear_Timer
             if (Fear_Timer < diff)
             {
-                DoCast(m_creature->getVictim(), SPELL_FEAR);
+                DoCast(m_creature, SPELL_FEAR);
                 Fear_Timer = 20000;
             }else Fear_Timer -= diff;
 
@@ -435,20 +427,20 @@ struct TRINITY_DLL_DECL mob_solarium_priestAI : public ScriptedAI
 
             if(target)
             {
-                DoCast(target,SOLARIUM_HEAL);
+                DoCast(target,SPELL_SOLARIUM_GREAT_HEAL);
                 healTimer = 9000;
             }
         } else healTimer -= diff;
 
         if(holysmiteTimer < diff)
         {
-            DoCast(m_creature->getVictim(), SOLARIUM_SMITE);
+            DoCast(m_creature->getVictim(), SPELL_SOLARIUM_HOLY_SMITE);
             holysmiteTimer = 4000;
         } else holysmiteTimer -= diff;
 
         if (aoesilenceTimer < diff)
         {
-            DoCast(m_creature->getVictim(), SOLARIUM_SILENCE);
+            DoCast(m_creature->getVictim(), SPELL_SOLARIUM_ARCANE_TORRENT);
             aoesilenceTimer = 13000;
         } else aoesilenceTimer -= diff;
 

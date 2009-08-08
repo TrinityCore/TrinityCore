@@ -482,14 +482,17 @@ CreatureAI* GetAI_npc_a_special_surprise(Creature* pCreature)
 ##Quest 12848
 ######*/
 
-#define SPELL_SOUL_PRISON_CHAIN_SELF    54612
-#define SPELL_SOUL_PRISON_CHAIN         54613
-#define SPELL_DK_INITIATE_VISUAL        51519
+enum
+{
+    SPELL_SOUL_PRISON_CHAIN_SELF    = 54612,
+    SPELL_SOUL_PRISON_CHAIN         = 54613,
+    SPELL_DK_INITIATE_VISUAL        = 51519,
 
-#define SPELL_ICY_TOUCH                 52372
-#define SPELL_PLAGUE_STRIKE             52373
-#define SPELL_BLOOD_STRIKE              52374
-#define SPELL_DEATH_COIL                52375
+    SPELL_ICY_TOUCH                 = 52372,
+    SPELL_PLAGUE_STRIKE             = 52373,
+    SPELL_BLOOD_STRIKE              = 52374,
+    SPELL_DEATH_COIL                = 52375
+};
 
 #define EVENT_ICY_TOUCH                 1
 #define EVENT_PLAGUE_STRIKE             2
@@ -788,109 +791,140 @@ bool GOHello_go_acherus_soul_prison(Player *player, GameObject* _GO)
 ## npc_death_knight_initiate
 ######*/
 
-#define GOSSIP_DKI      "Duel with me!"
+#define GOSSIP_ACCEPT_DUEL      "[PH] I challenge you!"
 
-const char * SAY_DKI_DUEL1 = "Remember this day, $N, for it is the day that you will be thoroughly owned.";
-const char * SAY_DKI_DUEL2 = "I'm going to tear your heart out, cupcake!";
-const char * SAY_DKI_DUEL3 = "You have challenged death itself!";
-const char * SAY_DKI_DUEL4 = "Don't make me laugh.";
-const char * SAY_DKI_DUEL5 = "Here come the tears...";
-const char * SAY_DKI_DUEL6 = "No potions!";
-#define SAY_DKI_DUEL    RAND(SAY_DKI_DUEL1,SAY_DKI_DUEL2,SAY_DKI_DUEL3,SAY_DKI_DUEL4,SAY_DKI_DUEL5,SAY_DKI_DUEL6)
-
-#define SPELL_DUEL_FLAG     52991
-
-struct TRINITY_DLL_DECL npc_death_knight_initiateAI : public SpellAI
+enum
 {
-    npc_death_knight_initiateAI(Creature *c) : SpellAI(c) {}
+    SAY_DUEL_A                  = -1609017,
+    SAY_DUEL_B                  = -1609018,
+    SAY_DUEL_C                  = -1609019,
+    SAY_DUEL_D                  = -1609020,
+    SAY_DUEL_E                  = -1609021,
+    SAY_DUEL_F                  = -1609022,
+
+    SPELL_DUEL                  = 52996,
+    SPELL_DUEL_TRIGGERED        = 52990,
+    SPELL_DUEL_VICTORY          = 52994,
+    SPELL_DUEL_FLAG             = 52991,
+
+    QUEST_DEATH_CHALLENGE       = 12733,
+    FACTION_HOSTILE             = 2068
+};
+
+int32 m_auiRandomSay[] =
+{
+    SAY_DUEL_A, SAY_DUEL_B, SAY_DUEL_C, SAY_DUEL_D, SAY_DUEL_E, SAY_DUEL_F
+};
+
+struct TRINITY_DLL_DECL npc_death_knight_initiateAI : public ScriptedAI
+{
+    npc_death_knight_initiateAI(Creature* pCreature) : ScriptedAI(pCreature) { }
+
+    uint64 m_uiDuelerGUID;
+    uint32 m_uiDuelTimer;
+    bool m_bIsDuelInProgress;
 
     void Reset()
     {
         me->RestoreFaction();
-        lose = false;
-        SpellAI::Reset();
+
+        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
+
+        m_uiDuelerGUID = 0;
+        m_uiDuelTimer = 5000;
+        m_bIsDuelInProgress = false;
     }
 
-    bool lose;
-
-    void EnterCombat(Unit *who)
+    void AttackedBy(Unit* pAttacker)
     {
-        if(who->GetTypeId() == TYPEID_PLAYER)
-            me->MonsterSay(SAY_DKI_DUEL, LANG_UNIVERSAL, who->GetGUID());
-        SpellAI::EnterCombat(who);
+        if (m_creature->getVictim())
+            return;
+
+        if (m_creature->IsFriendlyTo(pAttacker))
+            return;
+
+        AttackStart(pAttacker);
     }
 
-    void UpdateAI(const uint32 diff)
+    void SpellHit(Unit* pCaster, const SpellEntry* pSpell)
     {
-        if(me->getVictim() && me->getVictim()->GetTypeId() == TYPEID_PLAYER)
+        if (!m_bIsDuelInProgress && pSpell->Id == SPELL_DUEL_TRIGGERED)
         {
-            if(lose)
+            m_uiDuelerGUID = pCaster->GetGUID();
+            m_bIsDuelInProgress = true;
+        }
+    }
+
+   void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
+    {
+        if (m_bIsDuelInProgress && uiDamage > m_creature->GetHealth())
+        {
+            uiDamage = 0;
+
+            if (Unit* pUnit = Unit::GetUnit(*m_creature, m_uiDuelerGUID))
+                m_creature->CastSpell(pUnit, SPELL_DUEL_VICTORY, true);
+
+            //possibly not evade, but instead have end sequenze
+            EnterEvadeMode();
+        }
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (!UpdateVictim())
+        {
+            if (m_bIsDuelInProgress)
             {
-                if(!me->HasAura(7267)) // beg aura has faded
+                if (m_uiDuelTimer < uiDiff)
                 {
-                    me->getVictim()->CastSpell(me->getVictim(), 52994, true);
-                    EnterEvadeMode();
+                    m_creature->setFaction(FACTION_HOSTILE);
+
+                    if (Unit* pUnit = Unit::GetUnit(*m_creature, m_uiDuelerGUID))
+                        AttackStart(pUnit);
                 }
-                return;
+                else
+                    m_uiDuelTimer -= uiDiff;
             }
-            else if(me->getVictim()->GetHealth() * 10 < me->getVictim()->GetMaxHealth())
-            {
-                me->getVictim()->CastSpell(me->getVictim(), 7267, true); // beg
-                me->getVictim()->RemoveGameObject(SPELL_DUEL_FLAG, true);
-                EnterEvadeMode();
-                return; // must return after enterevademode
-            }
+            return;
         }
 
-        SpellAI::UpdateAI(diff);
-    }
+        // TODO: spells
 
-    void DamageTaken(Unit *done_by, uint32 & damage)
-    {
-        if(done_by->GetTypeId() == TYPEID_PLAYER)
-        {
-            if(done_by != me->getVictim())
-                damage = 0; // not allow other player to help
-            else if(damage > me->GetHealth())
-            {
-                damage = 0;
-                done_by->AttackStop();
-                if(!lose)
-                {
-                    lose = true;
-                    me->CastSpell(me, 7267, true); // beg
-                    me->getVictim()->RemoveGameObject(SPELL_DUEL_FLAG, true);
-                    me->RestoreFaction();
-                }
-            }
-        }
+        DoMeleeAttackIfReady();
     }
 };
 
-CreatureAI* GetAI_npc_death_knight_initiate(Creature *_Creature)
+CreatureAI* GetAI_npc_death_knight_initiate(Creature* pCreature)
 {
-    return new npc_death_knight_initiateAI(_Creature);
+    return new npc_death_knight_initiateAI(pCreature);
 }
 
-bool GossipHello_npc_death_knight_initiate(Player *player, Creature *_Creature)
+bool GossipHello_npc_death_knight_initiate(Player* pPlayer, Creature* pCreature)
 {
-    if( player->GetQuestStatus(12733) == QUEST_STATUS_INCOMPLETE && _Creature->GetHealth() == _Creature->GetMaxHealth())
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DKI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-
-    player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(),_Creature->GetGUID());
+    if (pPlayer->GetQuestStatus(QUEST_DEATH_CHALLENGE) == QUEST_STATUS_INCOMPLETE && pCreature->GetHealth() == pCreature->GetMaxHealth())
+    {
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ACCEPT_DUEL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+        pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(),pCreature->GetGUID());
+    }
     return true;
 }
 
-bool GossipSelect_npc_death_knight_initiate(Player *player, Creature *_Creature, uint32 sender, uint32 action )
+bool GossipSelect_npc_death_knight_initiate(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if( action == GOSSIP_ACTION_INFO_DEF )
+    if( uiAction == GOSSIP_ACTION_INFO_DEF )
     {
-        player->CastSpell(player, SPELL_DUEL_FLAG, true);
-        if (player->GetTeam() == HORDE ) // Check the player team, then choose faction
-            _Creature->setFaction(1); 
-        else 
-            _Creature->setFaction(2);
-        _Creature->AI()->AttackStart(player);
+        pPlayer->CLOSE_GOSSIP_MENU();
+
+        if (((npc_death_knight_initiateAI*)pCreature)->m_bIsDuelInProgress)
+            return true;
+
+        pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
+
+        int32 uiSayId = rand()% (sizeof(m_auiRandomSay)/sizeof(int32));
+        DoScriptText(m_auiRandomSay[uiSayId], pCreature, pPlayer);
+
+        pCreature->CastSpell(pPlayer, SPELL_DUEL, false);
+        pCreature->CastSpell(pPlayer, SPELL_DUEL_FLAG, true);
     }
     return true;
 }
@@ -1241,9 +1275,9 @@ void AddSC_the_scarlet_enclave()
 
     newscript = new Script;
     newscript->Name="npc_death_knight_initiate";
+    newscript->GetAI = &GetAI_npc_death_knight_initiate;
     newscript->pGossipHello = &GossipHello_npc_death_knight_initiate;
     newscript->pGossipSelect = &GossipSelect_npc_death_knight_initiate;
-    newscript->GetAI = &GetAI_npc_death_knight_initiate;
     newscript->RegisterSelf();
 
     newscript = new Script;
