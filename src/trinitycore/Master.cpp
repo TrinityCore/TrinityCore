@@ -317,13 +317,8 @@ int Master::Run()
     {
         FreezeDetectorRunnable *fdr = new FreezeDetectorRunnable();
         fdr->SetDelayTime(freeze_delay*1000);
-<<<<<<< HEAD:src/mangosd/Master.cpp
-        ACE_Based::Thread t(*fdr);
-        t.setPriority(ACE_Based::High);
-=======
         ACE_Based::Thread t(fdr);
         t.setPriority(ACE_Based::Highest);
->>>>>>> ca55c2a9d069aaef0d3deafb4884bfd8d3884444:src/mangosd/Master.cpp
     }
 
     ///- Launch the world listener socket

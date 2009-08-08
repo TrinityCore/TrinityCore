@@ -591,10 +591,6 @@ class TRINITY_DLL_SPEC GameObject : public WorldObject
 
         bool IsTransport() const;
 
-        void SetOwnerGUID(uint64 owner);
-        uint64 GetOwnerGUID() const { return GetUInt64Value(OBJECT_FIELD_CREATED_BY); }
-        Unit* GetOwner(bool inWorld = true) const;
-
         uint32 GetDBTableGUIDLow() const { return m_DBTableGuid; }
 
         void UpdateRotationFields(float rotation2 = 0.0f, float rotation3 = 0.0f);
@@ -612,6 +608,21 @@ class TRINITY_DLL_SPEC GameObject : public WorldObject
         void SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask);
         bool LoadFromDB(uint32 guid, Map *map);
         void DeleteFromDB();
+
+        void SetOwnerGUID(uint64 owner)
+        {
+            m_spawnedByDefault = false;                     // all object with owner is despawned after delay
+            SetUInt64Value(OBJECT_FIELD_CREATED_BY, owner);
+        }
+        uint64 GetOwnerGUID() const { return GetUInt64Value(OBJECT_FIELD_CREATED_BY); }
+        Unit* GetOwner(bool inWorld = true) const;
+
+        void SetSpellId(uint32 id)
+        {
+            m_spawnedByDefault = false;                     // all summoned object is despawned after delay
+            m_spellId = id;
+        }
+        uint32 GetSpellId() const { return m_spellId;}
 
         time_t GetRespawnTime() const { return m_respawnTime; }
         time_t GetRespawnTimeEx() const
@@ -641,8 +652,6 @@ class TRINITY_DLL_SPEC GameObject : public WorldObject
         void Refresh();
         void Delete();
         void DeleteObjectWithOwner();
-        void SetSpellId(uint32 id) { m_spellId = id;}
-        uint32 GetSpellId() const { return m_spellId;}
         void getFishLoot(Loot *loot, Player* loot_owner);
         GameobjectTypes GetGoType() const { return GameobjectTypes(GetByteValue(GAMEOBJECT_BYTES_1, 1)); }
         void SetGoType(GameobjectTypes type) { SetByteValue(GAMEOBJECT_BYTES_1, 1, type); }
