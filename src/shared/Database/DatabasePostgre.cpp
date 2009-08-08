@@ -366,8 +366,8 @@ void DatabasePostgre::InitDelayThread()
     assert(!m_delayThread);
 
     //New delay thread for delay execute
-    m_threadBody = new PGSQLDelayThread(this);
-    m_delayThread = new ACE_Based::Thread(*m_threadBody);
+    m_threadBody = new PGSQLDelayThread(this);             // Will be deleted on m_delayThread delete
+    m_delayThread = new ACE_Based::Thread(m_threadBody);
 }
 
 void DatabasePostgre::HaltDelayThread()
