@@ -404,7 +404,7 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>, public MaNGOS::Obj
         bool ActiveObjectsNearGrid(uint32 x, uint32 y) const;
 
         void AddUnitToNotify(Unit* unit);
-        void RemoveUnitFromNotify(int32 slot);
+        void RemoveUnitFromNotify(Unit *unit, int32 slot);
 
         void SendToPlayers(WorldPacket const* data) const;
 
