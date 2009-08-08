@@ -224,7 +224,13 @@ void TempSummon::SetTempSummonType(TempSummonType type)
 
 void TempSummon::UnSummon()
 {
-    assert(!isPet());
+    //assert(!isPet());
+    if(isPet())
+    {
+        ((Pet*)this)->Remove(PET_SAVE_NOT_IN_SLOT);
+        assert(!IsInWorld());
+        return;
+    }
 
     Unit* owner = GetSummoner();
     if(owner && owner->GetTypeId() == TYPEID_UNIT && ((Creature*)owner)->IsAIEnabled)
