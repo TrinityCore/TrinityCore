@@ -1347,6 +1347,28 @@ Death.CorpseReclaimDelay.PvE = 0
 Death.Bones.World = 1
 Death.Bones.BattlegroundOrArena = 1
 
+###################################################################################################################
+# AUTO BROADCAST
+#
+#    AutoBroadcast.On
+#        Enable auto broadcast
+#        Default: 0 - off
+#                 1 - on
+#
+#    AutoBroadcast.Center
+#        Display method
+#        Default: 0 - announce
+#                 1 - notify
+#                 2 - both
+#
+#    AutoBroadcast.Timer
+#        Timer for auto broadcast
+#
+###################################################################################################################
+
+AutoBroadcast.On = 0
+AutoBroadcast.Center = 0
+AutoBroadcast.Timer = 60000
 
 ###################################################################################################################
 # BATTLEGROUND CONFIG
