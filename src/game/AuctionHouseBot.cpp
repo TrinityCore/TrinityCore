@@ -9,18 +9,64 @@ using namespace std;
 
 AuctionHouseBot::AuctionHouseBot()
 {
-    AHBSeller = 0;
-    AHBBuyer = 0;
+    debug_Out = false;
 
-    Vendor_Items = 0;
-    Loot_Items = 0;
-    Other_Items = 0;
+    AHBSeller = false;
+    AHBBuyer = false;
 
-    No_Bind = 0;
-    Bind_When_Picked_Up = 0;
-    Bind_When_Equipped = 0;
-    Bind_When_Use = 0;
-    Bind_Quest_Item = 0;
+    //Begin Filters
+
+    Vendor_Items = false;
+    Loot_Items = false;
+    Other_Items = false;
+
+    No_Bind = false;
+    Bind_When_Picked_Up = false;
+    Bind_When_Equipped = false;
+    Bind_When_Use = false;
+    Bind_Quest_Item = false;
+
+    DisableBeta_PTR_Unused = false;
+    DisablePermEnchant = false;
+    DisableConjured = false;
+    DisableGems = false;
+    DisableMoney = false;
+    DisableMoneyLoot = false;
+    DisableLootable = false;
+    DisableKeys = false;
+    DisableDuration = false;
+    DisableBOP_Or_Quest_NoReqLevel = false;
+
+    DisableWarriorItems = false;
+    DisablePaladinItems = false;
+    DisableHunterItems = false;
+    DisableRogueItems = false;
+    DisablePriestItems = false;
+    DisableDKItems = false;
+    DisableShamanItems = false;
+    DisableMageItems = false;
+    DisableWarlockItems = false;
+    DisableUnusedClassItems = false;
+    DisableDruidItems = false;
+
+    DisableItemsBelowLevel = 0;
+    DisableItemsAboveLevel = 0;
+    DisableTGsBelowLevel = 0;
+    DisableTGsAboveLevel = 0;
+    DisableItemsBelowGUID = 0;
+    DisableItemsAboveGUID = 0;
+    DisableTGsBelowGUID = 0;
+    DisableTGsAboveGUID = 0;
+    DisableItemsBelowReqLevel = 0;
+    DisableItemsAboveReqLevel = 0;
+    DisableTGsBelowReqLevel = 0;
+    DisableTGsAboveReqLevel = 0;
+    DisableItemsBelowReqSkillRank = 0;
+    DisableItemsAboveReqSkillRank = 0;
+    DisableTGsBelowReqSkillRank = 0;
+    DisableTGsAboveReqSkillRank = 0;
+
+    //End Filters
 
     AllianceConfig = AHBConfig(2);
     HordeConfig = AHBConfig(6);
@@ -789,19 +835,71 @@ void AuctionHouseBot::Update()
 
 void AuctionHouseBot::Initialize()
 {
+    debug_Out = sConfig.GetBoolDefault("AuctionHouseBot.DEBUG", false);
+
     AHBSeller = sConfig.GetBoolDefault("AuctionHouseBot.EnableSeller", false);
     AHBBuyer = sConfig.GetBoolDefault("AuctionHouseBot.EnableBuyer", false);
+    SellMethod = sConfig.GetBoolDefault("AuctionHouseBot.UseBuyPriceForSeller", false);
+    BuyMethod = sConfig.GetBoolDefault("AuctionHouseBot.UseBuyPriceForBuyer", false);
+
     AHBplayerAccount = sConfig.GetIntDefault("AuctionHouseBot.Account", 0);
     AHBplayerGUID = sConfig.GetIntDefault("AuctionHouseBot.GUID", 0);
-    debug_Out = sConfig.GetBoolDefault("AuctionHouseBot.DEBUG", false);
+    ItemsPerCycle = sConfig.GetIntDefault("AuctionHouseBot.ItemsPerCycle", 200);
+
+
+    //Begin Filters
+
+    Vendor_Items = sConfig.GetBoolDefault("AuctionHouseBot.VendorItems", false);
+    Loot_Items = sConfig.GetBoolDefault("AuctionHouseBot.LootItems", true);
+    Other_Items = sConfig.GetBoolDefault("AuctionHouseBot.OtherItems", false);
+
     No_Bind = sConfig.GetBoolDefault("AuctionHouseBot.No_Bind", true);
     Bind_When_Picked_Up = sConfig.GetBoolDefault("AuctionHouseBot.Bind_When_Picked_Up", false);
     Bind_When_Equipped = sConfig.GetBoolDefault("AuctionHouseBot.Bind_When_Equipped", true);
     Bind_When_Use = sConfig.GetBoolDefault("AuctionHouseBot.Bind_When_Use", true);
     Bind_Quest_Item = sConfig.GetBoolDefault("AuctionHouseBot.Bind_Quest_Item", false);
-    ItemsPerCycle = sConfig.GetIntDefault("AuctionHouseBot.ItemsPerCycle", 200);
-    SellMethod = sConfig.GetIntDefault("AuctionHouseBot.UseBuyPriceForSeller", 0);
-    BuyMethod = sConfig.GetIntDefault("AuctionHouseBot.UseBuyPriceForBuyer", 0);
+
+    DisableBeta_PTR_Unused = sConfig.GetBoolDefault("AuctionHouseBot.DisableBeta_PTR_Unused", false);
+    DisablePermEnchant = sConfig.GetBoolDefault("AuctionHouseBot.DisablePermEnchant", false);
+    DisableConjured = sConfig.GetBoolDefault("AuctionHouseBot.DisableConjured", false);
+    DisableGems = sConfig.GetBoolDefault("AuctionHouseBot.DisableGems", false);
+    DisableMoney = sConfig.GetBoolDefault("AuctionHouseBot.DisableMoney", false);
+    DisableMoneyLoot = sConfig.GetBoolDefault("AuctionHouseBot.DisableMoneyLoot", false);
+    DisableLootable = sConfig.GetBoolDefault("AuctionHouseBot.DisableLootable", false);
+    DisableKeys = sConfig.GetBoolDefault("AuctionHouseBot.DisableKeys", false);
+    DisableDuration = sConfig.GetBoolDefault("AuctionHouseBot.DisableDuration", false);
+    DisableBOP_Or_Quest_NoReqLevel = sConfig.GetBoolDefault("AuctionHouseBot.DisableBOP_Or_Quest_NoReqLevel", false);
+
+    DisableWarriorItems = sConfig.GetBoolDefault("AuctionHouseBot.DisableWarriorItems", false);
+    DisablePaladinItems = sConfig.GetBoolDefault("AuctionHouseBot.DisablePaladinItems", false);
+    DisableHunterItems = sConfig.GetBoolDefault("AuctionHouseBot.DisableHunterItems", false);
+    DisableRogueItems = sConfig.GetBoolDefault("AuctionHouseBot.DisableRogueItems", false);
+    DisablePriestItems = sConfig.GetBoolDefault("AuctionHouseBot.DisablePriestItems", false);
+    DisableDKItems = sConfig.GetBoolDefault("AuctionHouseBot.DisableDKItems", false);
+    DisableShamanItems = sConfig.GetBoolDefault("AuctionHouseBot.DisableShamanItems", false);
+    DisableMageItems = sConfig.GetBoolDefault("AuctionHouseBot.DisableMageItems", false);
+    DisableWarlockItems = sConfig.GetBoolDefault("AuctionHouseBot.DisableWarlockItems", false);
+    DisableUnusedClassItems = sConfig.GetBoolDefault("AuctionHouseBot.DisableUnusedClassItems", false);
+    DisableDruidItems = sConfig.GetBoolDefault("AuctionHouseBot.DisableDruidItems", false);
+
+    DisableItemsBelowLevel = sConfig.GetIntDefault("AuctionHouseBot.DisableItemsBelowLevel", 0);
+    DisableItemsAboveLevel = sConfig.GetIntDefault("AuctionHouseBot.DisableItemsAboveLevel", 0);
+    DisableTGsBelowLevel = sConfig.GetIntDefault("AuctionHouseBot.DisableTGsBelowLevel", 0);
+    DisableTGsAboveLevel = sConfig.GetIntDefault("AuctionHouseBot.DisableTGsAboveLevel", 0);
+    DisableItemsBelowGUID = sConfig.GetIntDefault("AuctionHouseBot.DisableItemsBelowGUID", 0);
+    DisableItemsAboveGUID = sConfig.GetIntDefault("AuctionHouseBot.DisableItemsAboveGUID", 0);
+    DisableTGsBelowGUID = sConfig.GetIntDefault("AuctionHouseBot.DisableTGsBelowGUID", 0);
+    DisableTGsAboveGUID = sConfig.GetIntDefault("AuctionHouseBot.DisableTGsAboveGUID", 0);
+    DisableItemsBelowReqLevel = sConfig.GetIntDefault("AuctionHouseBot.DisableItemsBelowReqLevel", 0);
+    DisableItemsAboveReqLevel = sConfig.GetIntDefault("AuctionHouseBot.DisableItemsAboveReqLevel", 0);
+    DisableTGsBelowReqLevel = sConfig.GetIntDefault("AuctionHouseBot.DisableTGsBelowReqLevel", 0);
+    DisableTGsAboveReqLevel = sConfig.GetIntDefault("AuctionHouseBot.DisableTGsAboveReqLevel", 0);
+    DisableItemsBelowReqSkillRank = sConfig.GetIntDefault("AuctionHouseBot.DisableItemsBelowReqSkillRank", 0);
+    DisableItemsAboveReqSkillRank = sConfig.GetIntDefault("AuctionHouseBot.DisableItemsAboveReqSkillRank", 0);
+    DisableTGsBelowReqSkillRank = sConfig.GetIntDefault("AuctionHouseBot.DisableTGsBelowReqSkillRank", 0);
+    DisableTGsAboveReqSkillRank = sConfig.GetIntDefault("AuctionHouseBot.DisableTGsAboveReqSkillRank", 0);
+
+    //End Filters
 
     if (!sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION))
     {
@@ -812,10 +910,6 @@ void AuctionHouseBot::Initialize()
 
     if (AHBSeller)
     {
-        Vendor_Items = sConfig.GetBoolDefault("AuctionHouseBot.VendorItems", false);
-        Loot_Items = sConfig.GetBoolDefault("AuctionHouseBot.LootItems", true);
-        Other_Items = sConfig.GetBoolDefault("AuctionHouseBot.OtherItems", false);
-
         QueryResult* results = (QueryResult*) NULL;
         char npcQuery[] = "SELECT distinct `item` FROM `npc_vendor`";
         results = WorldDatabase.PQuery(npcQuery);
@@ -869,119 +963,6 @@ void AuctionHouseBot::Initialize()
             if (prototype == NULL)
                 continue;
 
-            /* disabled filters for now
-            // Disable WOTLK items
-            if (prototype->ItemId > 39000)
-            {
-            if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (WOTLK Item)", prototype->ItemId);
-            continue;
-            }
-
-            // Disable PTR/Beta/Unused items
-            if ((prototype->ItemId == 21878) || (prototype->ItemId == 27774) || (prototype->ItemId == 27811) || (prototype->ItemId == 28117) || (prototype->ItemId == 28112))
-            {
-            if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (PTR/Beta/Unused Item)", prototype->ItemId);
-            continue;
-            }
-
-            // Disable item level above 175 (Sunwell items)
-            if (prototype->ItemLevel > 175)
-            {
-            if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (SunWell Item)", prototype->ItemId);
-            continue;
-            }
-
-            // Disable items for level higher than 70
-            if (prototype->RequiredLevel > 70)
-            {
-            if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (RequiredLevel = %u)", prototype->ItemId, prototype->RequiredLevel);
-            continue;
-            }
-
-            // Disable items for DK
-            if (prototype->AllowableClass == 32)
-            {
-            if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (DK Item)", prototype->ItemId);
-            continue;
-            }
-
-            // Disable items require skill higher than 375
-            if (prototype->RequiredSkillRank > 375)
-            {
-            if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (RequiredSkillRank = %u)", prototype->ItemId, prototype->RequiredSkillRank);
-            continue;
-            }
-
-            // Disable permanent enchants items
-            if (prototype->Class == ITEM_CLASS_PERMANENT)
-            {
-            if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (Permanent Enchant Item)", prototype->ItemId);
-            continue;
-            }
-
-            // Disable conjured items
-            if (prototype->IsConjuredConsumable())
-            {
-            if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (Conjured Consumable)", prototype->ItemId);
-            continue;
-            }
-
-            // Disable WotLK ingredients including some TBC ingredients
-            if (prototype->Class == ITEM_CLASS_TRADE_GOODS && prototype->ItemLevel >= 70)
-            {
-            if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (ItemLevel = %u)", prototype->ItemId, prototype->ItemLevel);
-            continue;
-            }
-
-            // Disable gems
-            if (prototype->Class == ITEM_CLASS_GEM)
-            {
-            if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (Gem)", prototype->ItemId);
-            continue;
-            }
-
-            // Disable money
-            if (prototype->Class == ITEM_CLASS_MONEY)
-            {
-            if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (Money)", prototype->ItemId);
-            continue;
-            }
-
-            // Disable moneyloot
-            if (prototype->MinMoneyLoot > 0)
-            {
-            if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (MoneyLoot)", prototype->ItemId);
-            continue;
-            }
-
-            // Disable lootable items
-            if (prototype->Flags & 4)
-            {
-            if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (Lootable Item)", prototype->ItemId);
-            continue;
-            }
-
-            // Disable Keys
-            if (prototype->Class == ITEM_CLASS_KEY)
-            {
-            if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (Quest Item)", prototype->ItemId);
-            continue;
-            }
-
-            // Disable items with duration
-            if (prototype->Duration > 0)
-            {
-            if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (Has a Duration)", prototype->ItemId);
-            continue;
-            }
-
-            if ((prototype->Bonding == BIND_WHEN_PICKED_UP || prototype->Bonding == BIND_QUEST_ITEM) && prototype->RequiredLevel == 0)
-            {
-            if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (BOP or BQI and required level 0)", prototype->ItemId);
-            continue;
-            }
-
-            */
             switch (prototype->Bonding)
             {
             case 0:
@@ -1069,6 +1050,266 @@ void AuctionHouseBot::Initialize()
                 }
                 if ((!isLootItem) && (!isVendorItem))
                     continue;
+            }
+
+             //TODO:Make list of items and create a vector
+            // Disable PTR/Beta/Unused items
+            if ((DisableBeta_PTR_Unused) && ((prototype->ItemId == 21878) || (prototype->ItemId == 27774) || (prototype->ItemId == 27811) || (prototype->ItemId == 28117) || (prototype->ItemId == 28112)))
+            {
+                if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (PTR/Beta/Unused Item)", prototype->ItemId);
+                continue;
+            }
+
+            // Disable permanent enchants items
+            if ((DisablePermEnchant) && (prototype->Class == ITEM_CLASS_PERMANENT))
+            {
+                if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (Permanent Enchant Item)", prototype->ItemId);
+                continue;
+            }
+
+            // Disable conjured items
+            if ((DisableConjured) && (prototype->IsConjuredConsumable()))
+            {
+                if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (Conjured Consumable)", prototype->ItemId);
+                continue;
+            }
+
+            // Disable gems
+            if ((DisableGems) && (prototype->Class == ITEM_CLASS_GEM))
+            {
+                if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (Gem)", prototype->ItemId);
+                continue;
+            }
+
+            // Disable money
+            if ((DisableMoney) && (prototype->Class == ITEM_CLASS_MONEY))
+            {
+                if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (Money)", prototype->ItemId);
+                continue;
+            }
+
+            // Disable moneyloot
+            if ((DisableMoneyLoot) && (prototype->MinMoneyLoot > 0))
+            {
+                if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (MoneyLoot)", prototype->ItemId);
+                continue;
+            }
+
+            // Disable lootable items
+            if ((DisableLootable) && (prototype->Flags & 4))
+            {
+                if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (Lootable Item)", prototype->ItemId);
+                continue;
+            }
+
+            // Disable Keys
+            if ((DisableKeys) && (prototype->Class == ITEM_CLASS_KEY))
+            {
+                if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (Quest Item)", prototype->ItemId);
+                continue;
+            }
+
+            // Disable items with duration
+            if ((DisableDuration) && (prototype->Duration > 0))
+            {
+                if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (Has a Duration)", prototype->ItemId);
+                continue;
+            }
+
+            // Disable items which are BOP or Quest Items and have a required level lower than the item level
+            if ((DisableBOP_Or_Quest_NoReqLevel) && ((prototype->Bonding == BIND_WHEN_PICKED_UP || prototype->Bonding == BIND_QUEST_ITEM) && (prototype->RequiredLevel < prototype->ItemLevel)))
+            {
+                if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (BOP or BQI and Required Level is less than Item Level)", prototype->ItemId);
+                continue;
+            }
+
+            // Disable items specifically for Warrior
+            if ((DisableWarriorItems) && (prototype->AllowableClass == 1))
+            {
+                if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (Warrior Item)", prototype->ItemId);
+                continue;
+            }
+
+            // Disable items specifically for Paladin
+            if ((DisablePaladinItems) && (prototype->AllowableClass == 2))
+            {
+                if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (Paladin Item)", prototype->ItemId);
+                continue;
+            }
+
+            // Disable items specifically for Hunter
+            if ((DisableHunterItems) && (prototype->AllowableClass == 4))
+            {
+                if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (Hunter Item)", prototype->ItemId);
+                continue;
+            }
+
+            // Disable items specifically for Rogue
+            if ((DisableRogueItems) && (prototype->AllowableClass == 8))
+            {
+                if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (Rogue Item)", prototype->ItemId);
+                continue;
+            }
+
+            // Disable items specifically for Priest
+            if ((DisablePriestItems) && (prototype->AllowableClass == 16))
+            {
+                if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (Priest Item)", prototype->ItemId);
+                continue;
+            }
+
+            // Disable items specifically for DK
+            if ((DisableDKItems) && (prototype->AllowableClass == 32))
+            {
+                if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (DK Item)", prototype->ItemId);
+                continue;
+            }
+
+            // Disable items specifically for Shaman
+            if ((DisableShamanItems) && (prototype->AllowableClass == 64))
+            {
+                if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (Shaman Item)", prototype->ItemId);
+                continue;
+            }
+
+            // Disable items specifically for Mage
+            if ((DisableMageItems) && (prototype->AllowableClass == 128))
+            {
+                if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (Mage Item)", prototype->ItemId);
+                continue;
+            }
+
+            // Disable items specifically for Warlock
+            if ((DisableWarlockItems) && (prototype->AllowableClass == 256))
+            {
+                if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (Warlock Item)", prototype->ItemId);
+                continue;
+            }
+
+            // Disable items specifically for Unused Class
+            if ((DisableUnusedClassItems) && (prototype->AllowableClass == 512))
+            {
+                if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (Unused Item)", prototype->ItemId);
+                continue;
+            }
+
+            // Disable items specifically for Druid
+            if ((DisableDruidItems) && (prototype->AllowableClass == 1024))
+            {
+                if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (Druid Item)", prototype->ItemId);
+                continue;
+            }
+
+             // Disable Items below level X
+            if ((DisableItemsBelowLevel) && (prototype->Class != ITEM_CLASS_TRADE_GOODS) && (prototype->ItemLevel < DisableItemsBelowLevel))
+            {
+                if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (Item Level = %u)", prototype->ItemId, prototype->ItemLevel);
+                continue;
+            }
+
+            // Disable Items above level X
+            if ((DisableItemsAboveLevel) && (prototype->Class != ITEM_CLASS_TRADE_GOODS) && (prototype->ItemLevel > DisableItemsAboveLevel))
+            {
+                if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (Item Level = %u)", prototype->ItemId, prototype->ItemLevel);
+                continue;
+            }
+
+           // Disable Trade Goods below level X
+            if ((DisableTGsBelowLevel) && (prototype->Class == ITEM_CLASS_TRADE_GOODS) && (prototype->ItemLevel < DisableTGsBelowLevel))
+            {
+                if (debug_Out) sLog.outError("AuctionHouseBot: Trade Good %u disabled (Trade Good Level = %u)", prototype->ItemId, prototype->ItemLevel);
+                continue;
+            }
+
+           // Disable Trade Goods above level X
+            if ((DisableTGsAboveLevel) && (prototype->Class == ITEM_CLASS_TRADE_GOODS) && (prototype->ItemLevel > DisableTGsAboveLevel))
+            {
+                if (debug_Out) sLog.outError("AuctionHouseBot: Trade Good %u disabled (Trade Good Level = %u)", prototype->ItemId, prototype->ItemLevel);
+                continue;
+            }
+
+            // Disable Items below GUID X
+            if ((DisableItemsBelowGUID) && (prototype->Class != ITEM_CLASS_TRADE_GOODS) && (prototype->ItemId < DisableItemsBelowGUID))
+            {
+                if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (Item Level = %u)", prototype->ItemId, prototype->ItemLevel);
+                continue;
+            }
+
+            // Disable Items above GUID X
+            if ((DisableItemsAboveGUID) && (prototype->Class != ITEM_CLASS_TRADE_GOODS) && (prototype->ItemId > DisableItemsAboveGUID))
+            {
+                if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (Item Level = %u)", prototype->ItemId, prototype->ItemLevel);
+                continue;
+            }
+
+            // Disable Trade Goods below GUID X
+            if ((DisableTGsBelowGUID) && (prototype->Class == ITEM_CLASS_TRADE_GOODS) && (prototype->ItemId < DisableTGsBelowGUID))
+            {
+                if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (Trade Good Level = %u)", prototype->ItemId, prototype->ItemLevel);
+                continue;
+            }
+
+            // Disable Trade Goods above GUID X
+            if ((DisableTGsAboveGUID) && (prototype->Class == ITEM_CLASS_TRADE_GOODS) && (prototype->ItemId > DisableTGsAboveGUID))
+            {
+                if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (Trade Good Level = %u)", prototype->ItemId, prototype->ItemLevel);
+                continue;
+            }
+
+            // Disable Items for level lower than X
+            if ((DisableItemsBelowReqLevel) && (prototype->RequiredLevel < DisableItemsBelowReqLevel))
+            {
+                if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (RequiredLevel = %u)", prototype->ItemId, prototype->RequiredLevel);
+                continue;
+            }
+
+            // Disable Items for level higher than X
+            if ((DisableItemsAboveReqLevel) && (prototype->RequiredLevel > DisableItemsAboveReqLevel))
+            {
+                if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (RequiredLevel = %u)", prototype->ItemId, prototype->RequiredLevel);
+                continue;
+            }
+
+            // Disable Trade Goods for level lower than X
+            if ((DisableTGsBelowReqLevel) && (prototype->RequiredLevel < DisableTGsBelowReqLevel))
+            {
+                if (debug_Out) sLog.outError("AuctionHouseBot: Trade Good %u disabled (RequiredLevel = %u)", prototype->ItemId, prototype->RequiredLevel);
+                continue;
+            }
+
+            // Disable Trade Goods for level higher than X
+            if ((DisableTGsAboveReqLevel) && (prototype->RequiredLevel > DisableTGsAboveReqLevel))
+            {
+                if (debug_Out) sLog.outError("AuctionHouseBot: Trade Good %u disabled (RequiredLevel = %u)", prototype->ItemId, prototype->RequiredLevel);
+                continue;
+            }
+
+            // Disable Items that require skill lower than X
+            if ((DisableItemsBelowReqSkillRank) && (prototype->RequiredSkillRank < DisableItemsBelowReqSkillRank))
+            {
+                if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (RequiredSkillRank = %u)", prototype->ItemId, prototype->RequiredSkillRank);
+                continue;
+            }
+
+            // Disable Items that require skill higher than X
+            if ((DisableItemsAboveReqSkillRank) && (prototype->RequiredSkillRank > DisableItemsAboveReqSkillRank))
+            {
+                if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (RequiredSkillRank = %u)", prototype->ItemId, prototype->RequiredSkillRank);
+                continue;
+            }
+
+            // Disable Trade Goods that require skill lower than X
+            if ((DisableTGsBelowReqSkillRank) && (prototype->RequiredSkillRank < DisableTGsBelowReqSkillRank))
+            {
+                if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (RequiredSkillRank = %u)", prototype->ItemId, prototype->RequiredSkillRank);
+                continue;
+            }
+
+            // Disable Trade Goods that require skill higher than X
+            if ((DisableTGsAboveReqSkillRank) && (prototype->RequiredSkillRank > DisableTGsAboveReqSkillRank))
+            {
+                if (debug_Out) sLog.outError("AuctionHouseBot: Item %u disabled (RequiredSkillRank = %u)", prototype->ItemId, prototype->RequiredSkillRank);
+                continue;
             }
 
             switch (prototype->Quality)
@@ -1161,6 +1402,7 @@ void AuctionHouseBot::Initialize()
     sLog.outString("AuctionHouseBot by Paradox (original by ChrisK) has been loaded.");
     sLog.outString("AuctionHouseBot now includes AHBuyer by Kerbe and Paradox");
 }
+
 void AuctionHouseBot::Commands(uint32 command, uint32 ahMapID, uint32 col, char* args)
 {
     AHBConfig *config;
