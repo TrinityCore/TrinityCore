@@ -649,12 +649,14 @@ void Map::AddUnitToNotify(Unit* u)
     }
 }
 
-void Map::RemoveUnitFromNotify(int32 slot)
+void Map::RemoveUnitFromNotify(Unit *unit, int32 slot)
 {
     if(i_lock)
     {
-        assert(slot < i_unitsToNotifyBacklog.size());
-        i_unitsToNotifyBacklog[slot] = NULL;
+        if(slot < i_unitsToNotifyBacklog.size() && i_unitsToNotifyBacklog[slot] == unit)
+            i_unitsToNotifyBacklog[slot] = NULL;
+        else if(slot < i_unitsToNotify.size() && i_unitsToNotify[slot] == unit)
+            i_unitsToNotify[slot] = NULL;
     }
     else
     {
