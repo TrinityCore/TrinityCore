@@ -946,6 +946,35 @@ void Aura::HandleAuraSpecificMods(bool apply)
 {
     if (apply)
     {
+        if(m_spellProto->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT)
+        {
+            // Icebound Fortitude
+            if (m_spellProto->SpellFamilyFlags[0] & 0x00100000)
+            {
+                Unit * caster = GetCaster();
+                if (caster && caster->GetTypeId() == TYPEID_PLAYER)
+                {
+                    if(AuraEffect *auraeff = GetPartAura(2))
+                    {
+                        int32 value = int32((auraeff->GetAmount()*-1)-10);
+                        uint32 defva = uint32(((Player*)caster)->GetSkillValue(SKILL_DEFENSE) + ((Player*)this)->GetRatingBonusValue(CR_DEFENSE_SKILL));
+                        
+                        if(defva > 400)
+                            value += int32((defva-400)*0.15);
+                        
+                        // Glyph of Icebound Fortitude
+                        if (AuraEffect *auradummy = caster->GetAuraEffect(58625,0))
+                        {
+                            uint32 valmax = auradummy->GetAmount();
+                            if(value < valmax)
+                                value = valmax;
+                        }
+                        auraeff->SetAmount(-value);
+                    }
+                }
+            }
+        }
+
         if (m_spellProto->SpellFamilyName == SPELLFAMILY_MAGE)
         {
             if (m_spellProto->SpellFamilyFlags[0] & 0x00000001 && m_spellProto->SpellFamilyFlags[2] & 0x00000008)
