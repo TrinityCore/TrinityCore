@@ -1551,6 +1551,8 @@ void World::SetInitialWorldSettings()
     loginDatabase.PExecute("INSERT INTO uptime (realmid, starttime, startstring, uptime) VALUES('%u', " UI64FMTD ", '%s', 0)",
         realmID, uint64(m_startTime), isoDate);
 
+    static uint32 abtimer = 0;
+    abtimer = sConfig.GetIntDefault("AutoBroadcast.Timer", 60000);
     m_timers[WUPDATE_OBJECTS].SetInterval(IN_MILISECONDS/2);
     m_timers[WUPDATE_SESSIONS].SetInterval(0);
     m_timers[WUPDATE_WEATHERS].SetInterval(1*IN_MILISECONDS);
@@ -1561,6 +1563,7 @@ void World::SetInitialWorldSettings()
                                                             //erase corpses every 20 minutes
     m_timers[WUPDATE_CLEANDB].SetInterval(m_configs[CONFIG_LOGDB_CLEARINTERVAL]*MINUTE*IN_MILISECONDS);
                                                             // clean logs table every 14 days by default
+    m_timers[WUPDATE_AUTOBROADCAST].SetInterval(abtimer);
 
     //to set mailtimer to return mails every day between 4 and 5 am
     //mailtimer is increased when updating auctions
@@ -1808,6 +1811,17 @@ void World::Update(uint32 diff)
         m_timers[WUPDATE_OBJECTS].Reset();
         MapManager::Instance().DoDelayedMovesAndRemoves();
     }*/
+
+    static uint32 autobroadcaston = 0;
+    autobroadcaston = sConfig.GetIntDefault("AutoBroadcast.On", 0);
+    if(autobroadcaston == 1)
+    {
+       if (m_timers[WUPDATE_AUTOBROADCAST].Passed())
+       {
+          m_timers[WUPDATE_AUTOBROADCAST].Reset();
+          SendRNDBroadcast();
+       }
+    }
 
     sBattleGroundMgr.Update(diff);
     RecordTimeDiff("UpdateBattleGroundMgr");
@@ -2303,6 +2317,45 @@ void World::ProcessCliCommands()
 
     // print the console message here so it looks right
     zprint("TC> ");
+}
+
+void World::SendRNDBroadcast()
+{
+   std::string msg;
+   QueryResult *result = WorldDatabase.PQuery("SELECT `text` FROM autobroadcast AS r1 JOIN (SELECT ROUND(RAND() * (SELECT MAX(id) FROM autobroadcast)) AS id) AS r2 WHERE r1.id >= r2.id ORDER BY r1.id ASC LIMIT 1"); // ORDER BY RAND() is bad.. look it up to see why.
+
+   if(!result)
+      return;
+
+   msg = result->Fetch()[0].GetString();
+   delete result;
+
+   static uint32 abcenter = 0;
+    abcenter = sConfig.GetIntDefault("AutoBroadcast.Center", 0);
+    if(abcenter == 0)
+    {
+      sWorld.SendWorldText(LANG_AUTO_BROADCAST, msg.c_str());
+
+      sLog.outString("AutoBroadcast: '%s'",msg.c_str());
+   }
+   if(abcenter == 1)
+   {
+      WorldPacket data(SMSG_NOTIFICATION, (msg.size()+1));
+      data << msg;
+      sWorld.SendGlobalMessage(&data);
+
+      sLog.outString("AutoBroadcast: '%s'",msg.c_str());
+   }
+   if(abcenter == 2)
+   {
+      sWorld.SendWorldText(LANG_AUTO_BROADCAST, msg.c_str());
+
+      WorldPacket data(SMSG_NOTIFICATION, (msg.size()+1));
+      data << msg;
+      sWorld.SendGlobalMessage(&data);
+
+      sLog.outString("AutoBroadcast: '%s'",msg.c_str());
+   }
 }
 
 void World::InitResultQueue()
