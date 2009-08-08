@@ -4380,6 +4380,40 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
         }
         case SPELLFAMILY_DEATHKNIGHT:
         {
+            // Plague Strike
+            if (m_spellInfo->SpellFamilyFlags[0] & 0x00000001)
+            {
+                // Glyph of Plague Strike
+                if (AuraEffect * aurEff = m_caster->GetAuraEffect(58657,0))
+                    totalDamagePercentMod *= float((aurEff->GetAmount() + 100.0f) / 100.0f);
+            }
+            // Blood Strike
+            else if (m_spellInfo->SpellFamilyFlags[0] & 0x400000)
+            {
+                totalDamagePercentMod *= (float(unitTarget->GetDiseasesByCaster(m_caster->GetGUID())) * 12.5f + 100.0f) / 100.0f;
+
+                // Glyph of Blood Strike
+                if (AuraEffect * aurEff = m_caster->GetAuraEffect(59332,0))
+                {
+                    if(unitTarget->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED))
+                       totalDamagePercentMod *= float((20 + 100.0f) / 100.0f);
+                }
+            }
+            // Death Strike
+            else if (m_spellInfo->SpellFamilyFlags[0] & 0x00000010)
+            {
+                // Glyph of Death Strike
+                if (AuraEffect * aurEff = m_caster->GetAuraEffect(59336,0))
+                {
+                    if(uint32 runic = m_caster->GetPower(POWER_RUNIC_POWER))
+                    {
+                        if (runic > 25)
+                            runic = 25;
+
+                        totalDamagePercentMod *= float((runic + 100.0f) / 100.0f);
+                    }
+                }
+            }
             // Obliterate (12.5% more damage per disease)
             if (m_spellInfo->SpellFamilyFlags[1] & 0x20000)
             {
@@ -4393,8 +4427,8 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
                 }
                 totalDamagePercentMod *= (float(CalculateDamage(2, unitTarget) * unitTarget->GetDiseasesByCaster(m_caster->GetGUID(), consumeDiseases) / 2) + 100.0f) / 100.0f;
             }
-            // Blood-Caked Strike - Blood-Caked Blade     // Blood Strike
-            else if (m_spellInfo->SpellIconID == 1736 || m_spellInfo->SpellFamilyFlags[0] & 0x400000)
+            // Blood-Caked Strike - Blood-Caked Blade
+            else if (m_spellInfo->SpellIconID == 1736)
                 totalDamagePercentMod *= (float(unitTarget->GetDiseasesByCaster(m_caster->GetGUID())) * 12.5f + 100.0f) / 100.0f;
             break;
         }
