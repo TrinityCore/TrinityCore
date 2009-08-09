@@ -14782,6 +14782,12 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
         instanceId = 0;
     }
 
+    // fix crash (because of if(Map *map = _FindMap(instanceId)) in MapInstanced::CreateInstance)
+    if(instanceId)
+        if(InstanceSave * save = GetInstanceSave(mapId))
+            if(save->GetInstanceId() != instanceId)
+                instanceId = 0;
+
     // NOW player must have valid map
     // load the player's map here if it's not already loaded
     Map *map = MapManager::Instance().CreateMap(mapId, this, instanceId);
