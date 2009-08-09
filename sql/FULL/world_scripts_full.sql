@@ -1022,6 +1022,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_dragonflayer_forge_master' WHER
 /* VAULT OF ARCHAVON */
 UPDATE `creature_template` SET `ScriptName`='boss_archavon' WHERE `entry`=31125;
 UPDATE `creature_template` SET `ScriptName`='mob_archavon_warder' WHERE `entry`=32353;
+UPDATE `creature_template` SET `ScriptName`='boss_emalon' WHERE `entry`=33993;
 
 /* WAILING CAVERNS */
 
