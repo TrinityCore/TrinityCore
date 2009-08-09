@@ -24,9 +24,13 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_nexus.h"
 
+bool DeadChaoticRift; // needed for achievement: Chaos Theory(2037)
+
 enum
 {
-//Spells
+    ACHIEVEMENT_CHAOS_THEORY   = 2037,
+
+    //Spells
     SPELL_SPARK_N              = 47751,
     SPELL_SPARK_H              = 57062,
     SPELL_RIFT_SHIELD          = 47748,
@@ -40,7 +44,7 @@ enum
     SPELL_CHARGED_CHAOTIC_ENERGY_BURST  = 47737,
     SPELL_ARCANEFORM                    = 48019, //Chaotic Rift visual
 
-//Yell
+    //Yell
     SAY_AGGRO               = -1576010,
     SAY_DEATH               = -1576011,
     SAY_RIFT                = -1576012,
@@ -62,7 +66,6 @@ struct TRINITY_DLL_DECL boss_anomalusAI : public ScriptedAI
     boss_anomalusAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-        Reset();
         HeroicMode = c->GetMap()->IsHeroic();
     }
 
@@ -81,6 +84,8 @@ struct TRINITY_DLL_DECL boss_anomalusAI : public ScriptedAI
         SPELL_CREATE_RIFT_Timer = 25000;
         ChaoticRiftGUID = 0;
 
+        DeadChaoticRift = false;
+
         if(pInstance)
             pInstance->SetData(DATA_ANOMALUS_EVENT, NOT_STARTED);
     }
@@ -90,13 +95,34 @@ struct TRINITY_DLL_DECL boss_anomalusAI : public ScriptedAI
         DoScriptText(SAY_AGGRO, m_creature);
     }
 
+    void JustDied(Unit* killer)  
+    {
+        DoScriptText(SAY_DEATH, m_creature);
+
+        if(HeroicMode && !DeadChaoticRift)
+        {
+            AchievementEntry const *AchievChaosTheory = GetAchievementStore()->LookupEntry(ACHIEVEMENT_CHAOS_THEORY);
+            if(AchievChaosTheory)
+            {
+                Map *map = m_creature->GetMap();
+                if(map && map->IsDungeon())
+                {
+                    Map::PlayerList const &players = map->GetPlayers();
+                    for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                        itr->getSource()->CompletedAchievement(AchievChaosTheory);
+                }
+            }
+        }
+
+        if(pInstance)
+            pInstance->SetData(DATA_ANOMALUS_EVENT, DONE);
+    }
+
     void UpdateAI(const uint32 diff) 
     {
         if (!UpdateVictim())
-        {
             return;
-        }
-        
+
         if (m_creature->HasAura(SPELL_RIFT_SHIELD))
         {
             if (ChaoticRiftGUID)
@@ -187,21 +213,18 @@ struct TRINITY_DLL_DECL boss_anomalusAI : public ScriptedAI
 
         DoMeleeAttackIfReady();    
     }
-
-    void JustDied(Unit* killer)  
-    {
-        DoScriptText(SAY_DEATH, m_creature);
-        if (pInstance)
-            pInstance->SetData(DATA_ANOMALUS_EVENT, DONE);
-    }
 };
+
+CreatureAI* GetAI_boss_anomalus(Creature *_Creature)
+{
+    return new boss_anomalusAI (_Creature);
+}
 
 struct TRINITY_DLL_DECL mob_chaotic_riftAI : public Scripted_NoMovementAI
 {
     mob_chaotic_riftAI(Creature *c) : Scripted_NoMovementAI(c)
     {
         pInstance = c->GetInstanceData();
-        Reset();
     }
 
     ScriptedInstance* pInstance;
@@ -219,12 +242,15 @@ struct TRINITY_DLL_DECL mob_chaotic_riftAI : public Scripted_NoMovementAI
         DoCast(m_creature, SPELL_ARCANEFORM, false);
     }
 
+    void JustDied(Unit *killer)
+    {
+        DeadChaoticRift = true;
+    }
+
     void UpdateAI(const uint32 diff) 
     {
         if (!UpdateVictim())
-        {
             return;
-        }
 
         if (SPELL_CHAOTIC_ENERGY_BURST_Timer < diff)
         {
@@ -255,11 +281,6 @@ struct TRINITY_DLL_DECL mob_chaotic_riftAI : public Scripted_NoMovementAI
 CreatureAI* GetAI_mob_chaotic_rift(Creature *_Creature)
 {
     return new mob_chaotic_riftAI (_Creature);
-}
-
-CreatureAI* GetAI_boss_anomalus(Creature *_Creature)
-{
-    return new boss_anomalusAI (_Creature);
 }
 
 void AddSC_boss_anomalus()

@@ -26,7 +26,9 @@ EndScriptData */
 
 enum
 {
-//Spells
+    ACHIEVEMENT_INTENSE_COLD                        = 2036,
+
+    //Spells
     SPELL_FROZEN_PRISON                             = 47854,
     SPELL_TAIL_SWEEP                                = 50155,
     SPELL_CRYSTAL_CHAINS                            = 50997,
@@ -35,8 +37,9 @@ enum
     SPELL_CRYSTALFIRE_BREATH_H                      = 57091,
     SPELL_CRYSTALIZE                                = 48179,
     SPELL_INTENSE_COLD                              = 48094,
+    SPELL_INTENSE_COLD_TRIGGERED                    = 48095,
 
-//Yell
+    //Yell
     SAY_AGGRO                                    = -1576040,
     SAY_SLAY                                     = -1576041,
     SAY_ENRAGE                                   = -1576042,
@@ -49,8 +52,7 @@ struct TRINITY_DLL_DECL boss_keristraszaAI : public ScriptedAI
     boss_keristraszaAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-        HeroicMode = m_creature->GetMap()->IsHeroic();
-        Reset();
+        HeroicMode = c->GetMap()->IsHeroic();
     }
 
     ScriptedInstance* pInstance;
@@ -61,12 +63,19 @@ struct TRINITY_DLL_DECL boss_keristraszaAI : public ScriptedAI
     uint32 TAIL_SWEEP_Timer;
     bool Enrage;
 
+    uint32 CheckIntenseColdTimer;
+    bool MoreThanTwoIntenseCold; // needed for achievement: Intense Cold(2036)
+
     void Reset() 
     {
         CRYSTALFIRE_BREATH_Timer = 14000;
         CRYSTAL_CHAINS_CRYSTALIZE_Timer = HeroicMode ? 30000 : 11000;
         TAIL_SWEEP_Timer = 5000;
         Enrage = false;
+
+        CheckIntenseColdTimer = 2000;
+        MoreThanTwoIntenseCold = false;
+
         m_creature->RemoveAurasDueToSpell(SPELL_INTENSE_COLD);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
         if (pInstance && pInstance->GetData(DATA_KERISTRASZA_FREED) == DONE)
@@ -103,13 +112,55 @@ struct TRINITY_DLL_DECL boss_keristraszaAI : public ScriptedAI
         DoCast(m_creature, SPELL_INTENSE_COLD);
     }
 
+    void JustDied(Unit* killer)  
+    {
+        DoScriptText(SAY_DEATH, m_creature);
+        
+        if(HeroicMode && !MoreThanTwoIntenseCold)
+        {
+            AchievementEntry const *AchievIntenseCold = GetAchievementStore()->LookupEntry(ACHIEVEMENT_INTENSE_COLD);
+            if(AchievIntenseCold)
+            {
+                Map *map = m_creature->GetMap();
+                if(map && map->IsDungeon())
+                {
+                    Map::PlayerList const &players = map->GetPlayers();
+                    for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                        itr->getSource()->CompletedAchievement(AchievIntenseCold);
+                }
+            }
+        }
+    }
+
+    void KilledUnit(Unit *victim)
+    {
+        DoScriptText(SAY_SLAY, m_creature);
+    }
+
     void UpdateAI(const uint32 diff) 
     {
         if (!UpdateVictim())
-        {
             return;
-        }
-          
+
+        if(CheckIntenseColdTimer < diff && !MoreThanTwoIntenseCold)
+        {
+            std::list<HostilReference*> ThreatList = m_creature->getThreatManager().getThreatList();
+            for(std::list<HostilReference*>::const_iterator itr = ThreatList.begin(); itr != ThreatList.end(); itr++)
+            {
+                Unit *target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
+                if(!target || target->GetTypeId() != TYPEID_PLAYER)
+                    continue;
+
+                Aura *AuraIntenseCold = target->GetAura(SPELL_INTENSE_COLD_TRIGGERED);
+                if(AuraIntenseCold && AuraIntenseCold->GetStackAmount() > 2)
+                {
+                    MoreThanTwoIntenseCold = true;
+                    break;
+                }
+            }
+            CheckIntenseColdTimer = 2000;
+        }else CheckIntenseColdTimer -= diff;
+
         if (!Enrage && (m_creature->GetHealth() < m_creature->GetMaxHealth() * 0.25))
         {
             DoScriptText(SAY_ENRAGE , m_creature);
@@ -141,16 +192,6 @@ struct TRINITY_DLL_DECL boss_keristraszaAI : public ScriptedAI
         }else CRYSTAL_CHAINS_CRYSTALIZE_Timer -= diff;
 
         DoMeleeAttackIfReady();    
-    }
-
-    void JustDied(Unit* killer)  
-    {
-        DoScriptText(SAY_DEATH, m_creature);
-    }
-
-    void KilledUnit(Unit *victim)
-    {
-        DoScriptText(SAY_SLAY, m_creature);
     }
 };
 
