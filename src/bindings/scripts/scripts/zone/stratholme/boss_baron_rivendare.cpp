@@ -98,12 +98,15 @@ struct TRINITY_DLL_DECL boss_baron_rivendareAI : public ScriptedAI
         MortalStrike_Timer = 12000;
         //        RaiseDead_Timer = 30000;
         SummonSkeletons_Timer = 34000;
+        if (pInstance && pInstance->GetData(TYPE_RAMSTEIN) == DONE)
+            pInstance->SetData(TYPE_BARON,NOT_STARTED);
     }
 
-    void EnterCombat(Unit *who)
+    void AttackStart(Unit* who) 
     {
-        if (pInstance)
+        if (pInstance)//can't use entercombat(), boss' dmg aura sets near players in combat, before entering the room's door
             pInstance->SetData(TYPE_BARON,IN_PROGRESS);
+        ScriptedAI::AttackStart(who);
     }
 
     void JustSummoned(Creature* summoned)
