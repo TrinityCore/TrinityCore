@@ -139,6 +139,17 @@ CREATE TABLE `areatrigger_teleport` (
 SET character_set_client = @saved_cs_client;
 
 --
+-- Table structure for table `autobroadcast`
+--
+
+DROP TABLE IF EXISTS `autobroadcast`;
+CREATE TABLE `autobroadcast` (
+`id` int(11) NOT NULL AUTO_INCREMENT,
+`text` longtext NOT NULL,
+PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+--
 -- Table structure for table `battleground_template`
 --
 
