@@ -156,8 +156,16 @@ struct TRINITY_DLL_DECL instance_stratholme : public ScriptedInstance
         case GO_ZIGGURAT1:          ziggurat1GUID = go->GetGUID(); break;
         case GO_ZIGGURAT2:          ziggurat2GUID = go->GetGUID(); break;
         case GO_ZIGGURAT3:          ziggurat3GUID = go->GetGUID(); break;
-        case GO_ZIGGURAT4:          ziggurat4GUID = go->GetGUID(); break;
-        case GO_ZIGGURAT5:          ziggurat5GUID = go->GetGUID(); break;
+        case GO_ZIGGURAT4:          
+            ziggurat4GUID = go->GetGUID(); 
+            if(TYPE_BARON == DONE || TYPE_RAMSTEIN == DONE)
+                HandleGameObject(0, true, go);
+            break;
+        case GO_ZIGGURAT5:          
+            ziggurat5GUID = go->GetGUID(); 
+            if(TYPE_BARON == DONE || TYPE_RAMSTEIN == DONE)
+                HandleGameObject(0, true, go);
+            break;
         case GO_PORT_GAUNTLET:      portGauntletGUID = go->GetGUID(); break;
         case GO_PORT_SLAUGTHER:     portSlaugtherGUID = go->GetGUID(); break;
         case GO_PORT_ELDERS:        portElderGUID = go->GetGUID(); break;
@@ -248,6 +256,8 @@ struct TRINITY_DLL_DECL instance_stratholme : public ScriptedInstance
         case TYPE_BARON:
             if (data == IN_PROGRESS)
             {
+                HandleGameObject(ziggurat4GUID, false);
+                HandleGameObject(ziggurat5GUID, false);
                 if (GetData(TYPE_BARON_RUN) == IN_PROGRESS)
                 {
                     Map::PlayerList const& players = instance->GetPlayers();
@@ -270,6 +280,11 @@ struct TRINITY_DLL_DECL instance_stratholme : public ScriptedInstance
                     SetData(TYPE_BARON_RUN,DONE);
                 }
             }
+            if (data == DONE || data == NOT_STARTED)
+            {
+                HandleGameObject(ziggurat4GUID, true);
+                HandleGameObject(ziggurat5GUID, true);
+            }
             Encounter[5] = data;
             break;
         case TYPE_SH_AELMAR:
@@ -288,6 +303,40 @@ struct TRINITY_DLL_DECL instance_stratholme : public ScriptedInstance
             IsSilverHandDead[4] = (data) ? true : false;
             break;
         }
+        if(data == DONE)SaveToDB();
+    }
+
+    std::string GetSaveData()
+    {
+        OUT_SAVE_INST_DATA;
+
+        std::ostringstream saveStream;
+        saveStream << Encounter[0] << " " << Encounter[1] << " " << Encounter[2] << " "
+            << Encounter[3] << " " << Encounter[4] << " " << Encounter[5];
+      
+        OUT_SAVE_INST_DATA_COMPLETE;
+        return saveStream.str();
+    }
+
+    void Load(const char* in)
+    {
+        if (!in)
+        {
+            OUT_LOAD_INST_DATA_FAIL;
+            return;
+        }
+
+        OUT_LOAD_INST_DATA(in);
+
+        std::istringstream loadStream(in);
+        loadStream >> Encounter[0] >> Encounter[1] >> Encounter[2] >> Encounter[3]
+        >> Encounter[4] >> Encounter[5];
+
+        for(uint8 i = 0; i < ENCOUNTERS; ++i)
+            if (Encounter[i] == IN_PROGRESS)
+                Encounter[i] = NOT_STARTED;
+
+        OUT_LOAD_INST_DATA_COMPLETE;
     }
 
     uint32 GetData(uint32 type)
