@@ -260,11 +260,10 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
                 }
             }
         }
-        if(Phase != 2)
-            AttackStart(who);
+        StartEvent();//this is EnterCombat(), so were are 100% in combat, start the event
 
-        if(!m_creature->isInCombat())
-            StartEvent();
+        if(Phase != 2)
+            AttackStart(who);        
     }
 
     void MoveInLineOfSight(Unit *who)
