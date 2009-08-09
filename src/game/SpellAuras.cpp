@@ -957,7 +957,7 @@ void Aura::HandleAuraSpecificMods(bool apply)
                     if(AuraEffect *auraeff = GetPartAura(2))
                     {
                         int32 value = int32((auraeff->GetAmount()*-1)-10);
-                        uint32 defva = uint32(((Player*)caster)->GetSkillValue(SKILL_DEFENSE) + ((Player*)this)->GetRatingBonusValue(CR_DEFENSE_SKILL));
+                        uint32 defva = uint32(((Player*)caster)->GetSkillValue(SKILL_DEFENSE) + ((Player*)caster)->GetRatingBonusValue(CR_DEFENSE_SKILL));
                         
                         if(defva > 400)
                             value += int32((defva-400)*0.15);
