@@ -653,6 +653,10 @@ extern void AddSC_boss_archavon();
 extern void AddSC_boss_emalon();
 extern void AddSC_instance_archavon();
 
+//Ulduar
+extern void AddSC_boss_flame_leviathan();
+extern void AddSC_boss_razorscale();
+
 //Region
 extern void AddSC_wintergrasp();
 
@@ -1562,6 +1566,10 @@ void ScriptsInit(char const* cfg_file = "trinitycore.conf")
     AddSC_boss_archavon();
     AddSC_boss_emalon();
     AddSC_instance_archavon();
+
+    //Ulduar
+    AddSC_boss_flame_leviathan();
+    AddSC_boss_razorscale();
 
     //Region
     AddSC_wintergrasp();
