@@ -657,6 +657,8 @@ void Map::RemoveUnitFromNotify(Unit *unit, int32 slot)
             i_unitsToNotifyBacklog[slot] = NULL;
         else if(slot < i_unitsToNotify.size() && i_unitsToNotify[slot] == unit)
             i_unitsToNotify[slot] = NULL;
+        else
+            assert(false);
     }
     else
     {
