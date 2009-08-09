@@ -72,6 +72,14 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 ( 20594, 65116, 0, 'Stoneform'),
 ( 49039, 50397, 2, 'Lichborne - shapeshift'),
 ( 64382, 64380, 0, 'Shattering Throw'),
+( 19574, 24395, 2, 'Beast Within'),
+( 19574, 24396, 2, 'Beast Within'),
+( 19574, 24397, 2, 'Beast Within'),
+( 19574, 26592, 2, 'Beast Within'),
+( 34471, 24395, 2, 'Beast Within'),
+( 34471, 24396, 2, 'Beast Within'),
+( 34471, 24397, 2, 'Beast Within'),
+( 34471, 26592, 2, 'Beast Within'),
 
 -- Creature
 ( 36574, 36650, 0, 'Apply Phase Slip Vulnerability'),
