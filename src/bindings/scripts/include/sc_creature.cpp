@@ -790,7 +790,7 @@ void LoadOverridenDBCData()
                 spellInfo->DurationIndex = 21;
                 spellInfo->Effect[0] = SPELL_EFFECT_APPLY_AREA_AURA_ENEMY;
                 break;
-            // Naxxramas: Gothik : Inform Inf range
+            // Naxxramas : Gothik : Inform Inf range
             case 27892:
             case 27928:
             case 27935:
@@ -798,6 +798,12 @@ void LoadOverridenDBCData()
             case 27931:
             case 27937:
                 spellInfo->rangeIndex = 13;
+                break;
+            // Ulduar : Flame Leviathan : Pursued
+            case 62374:
+                spellInfo->MaxAffectedTargets = 1;
+                spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_AREA_ENTRY_SRC;
+                spellInfo->EffectImplicitTargetB[1] = TARGET_UNIT_AREA_ENTRY_SRC;
                 break;
         }
     }
