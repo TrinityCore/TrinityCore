@@ -24,17 +24,15 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_blackrock_depths.h"
 
-#define FACTION_NEUTRAL             734
-#define FACTION_HOSTILE             754
-
 #define SPELL_SUNDERARMOR           24317
 #define SPELL_SHIELDBLOCK           12169
 #define SPELL_STRIKE                15580
 
 struct TRINITY_DLL_DECL boss_angerrelAI : public ScriptedAI
 {
-    boss_angerrelAI(Creature *c) : ScriptedAI(c) {}
+    boss_angerrelAI(Creature *c) : ScriptedAI(c) {pInstance = c->GetInstanceData();}
 
+    ScriptedInstance* pInstance;
     uint32 SunderArmor_Timer;
     uint32 ShieldBlock_Timer;
     uint32 Strike_Timer;
@@ -43,11 +41,30 @@ struct TRINITY_DLL_DECL boss_angerrelAI : public ScriptedAI
     {
         SunderArmor_Timer = 8000;
         ShieldBlock_Timer = 15000;
-        Strike_Timer = 12000;
+        Strike_Timer = 12000;        
     }
 
     void EnterCombat(Unit *who)
     {
+    }
+
+    void EnterEvadeMode()
+    {
+        m_creature->RemoveAllAuras();
+        m_creature->DeleteThreatList();
+        m_creature->CombatStop(true);
+        m_creature->LoadCreaturesAddon();
+        if(m_creature->isAlive())
+            m_creature->GetMotionMaster()->MoveTargetedHome();
+        m_creature->SetLootRecipient(NULL);
+        if(pInstance)
+            pInstance->SetData64(DATA_EVENSTARTER, 0);
+    }
+
+    void JustDied(Unit *who)
+    {
+        if(pInstance)
+            pInstance->SetData(DATA_GHOSTKILL, 1);
     }
 
     void UpdateAI(const uint32 diff)
@@ -91,8 +108,9 @@ CreatureAI* GetAI_boss_angerrel(Creature *_Creature)
 
 struct TRINITY_DLL_DECL boss_doperelAI : public ScriptedAI
 {
-    boss_doperelAI(Creature *c) : ScriptedAI(c) {}
-
+    boss_doperelAI(Creature *c) : ScriptedAI(c) {pInstance = c->GetInstanceData();}
+    
+    ScriptedInstance* pInstance;
     uint32 SinisterStrike_Timer;
     uint32 BackStab_Timer;
     uint32 Gouge_Timer;
@@ -106,6 +124,25 @@ struct TRINITY_DLL_DECL boss_doperelAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
+    }
+
+    void EnterEvadeMode()
+    {
+        m_creature->RemoveAllAuras();
+        m_creature->DeleteThreatList();
+        m_creature->CombatStop(true);
+        m_creature->LoadCreaturesAddon();
+        if(m_creature->isAlive())
+            m_creature->GetMotionMaster()->MoveTargetedHome();
+        m_creature->SetLootRecipient(NULL);
+        if(pInstance)
+            pInstance->SetData64(DATA_EVENSTARTER, 0);
+    }
+
+    void JustDied(Unit *who)
+    {
+        if(pInstance)
+            pInstance->SetData(DATA_GHOSTKILL, 1);
     }
 
     void UpdateAI(const uint32 diff)
@@ -149,8 +186,9 @@ CreatureAI* GetAI_boss_doperel(Creature *_Creature)
 
 struct TRINITY_DLL_DECL boss_haterelAI : public ScriptedAI
 {
-    boss_haterelAI(Creature *c) : ScriptedAI(c) {}
+    boss_haterelAI(Creature *c) : ScriptedAI(c) {pInstance = c->GetInstanceData();}
 
+    ScriptedInstance* pInstance;
     uint32 ShadowBolt_Timer;
     uint32 ManaBurn_Timer;
     uint32 ShadowShield_Timer;
@@ -166,6 +204,25 @@ struct TRINITY_DLL_DECL boss_haterelAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
+    }
+
+    void EnterEvadeMode()
+    {
+        m_creature->RemoveAllAuras();
+        m_creature->DeleteThreatList();
+        m_creature->CombatStop(true);
+        m_creature->LoadCreaturesAddon();
+        if(m_creature->isAlive())
+            m_creature->GetMotionMaster()->MoveTargetedHome();
+        m_creature->SetLootRecipient(NULL);
+        if(pInstance)
+            pInstance->SetData64(DATA_EVENSTARTER, 0);
+    }
+
+    void JustDied(Unit *who)
+    {
+        if(pInstance)
+            pInstance->SetData(DATA_GHOSTKILL, 1);
     }
 
     void UpdateAI(const uint32 diff)
@@ -221,8 +278,9 @@ CreatureAI* GetAI_boss_haterel(Creature *_Creature)
 
 struct TRINITY_DLL_DECL boss_vilerelAI : public ScriptedAI
 {
-    boss_vilerelAI(Creature *c) : ScriptedAI(c) {}
+    boss_vilerelAI(Creature *c) : ScriptedAI(c) {pInstance = c->GetInstanceData();}
 
+    ScriptedInstance* pInstance;
     uint32 MindBlast_Timer;
     uint32 Heal_Timer;
     uint32 PrayerOfHealing_Timer;
@@ -238,6 +296,25 @@ struct TRINITY_DLL_DECL boss_vilerelAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
+    }
+
+    void EnterEvadeMode()
+    {
+        m_creature->RemoveAllAuras();
+        m_creature->DeleteThreatList();
+        m_creature->CombatStop(true);
+        m_creature->LoadCreaturesAddon();
+        if(m_creature->isAlive())
+            m_creature->GetMotionMaster()->MoveTargetedHome();
+        m_creature->SetLootRecipient(NULL);
+        if(pInstance)
+            pInstance->SetData64(DATA_EVENSTARTER, 0);
+    }
+
+    void JustDied(Unit *who)
+    {
+        if(pInstance)
+            pInstance->SetData(DATA_GHOSTKILL, 1);
     }
 
     void UpdateAI(const uint32 diff)
@@ -290,8 +367,9 @@ CreatureAI* GetAI_boss_vilerel(Creature *_Creature)
 
 struct TRINITY_DLL_DECL boss_seethrelAI : public ScriptedAI
 {
-    boss_seethrelAI(Creature *c) : ScriptedAI(c) {}
+    boss_seethrelAI(Creature *c) : ScriptedAI(c) {pInstance = c->GetInstanceData();}
 
+    ScriptedInstance* pInstance;
     uint32 FrostArmor_Timer;
     uint32 Frostbolt_Timer;
     uint32 Blizzard_Timer;
@@ -311,6 +389,25 @@ struct TRINITY_DLL_DECL boss_seethrelAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
+    }
+
+    void EnterEvadeMode()
+    {
+        m_creature->RemoveAllAuras();
+        m_creature->DeleteThreatList();
+        m_creature->CombatStop(true);
+        m_creature->LoadCreaturesAddon();
+        if(m_creature->isAlive())
+            m_creature->GetMotionMaster()->MoveTargetedHome();
+        m_creature->SetLootRecipient(NULL);
+        if(pInstance)
+            pInstance->SetData64(DATA_EVENSTARTER, 0);
+    }
+
+    void JustDied(Unit *who)
+    {
+        if(pInstance)
+            pInstance->SetData(DATA_GHOSTKILL, 1);
     }
 
     void UpdateAI(const uint32 diff)
@@ -370,8 +467,9 @@ CreatureAI* GetAI_boss_seethrel(Creature *_Creature)
 
 struct TRINITY_DLL_DECL boss_gloomrelAI : public ScriptedAI
 {
-    boss_gloomrelAI(Creature *c) : ScriptedAI(c) {}
+    boss_gloomrelAI(Creature *c) : ScriptedAI(c) {pInstance = c->GetInstanceData();}
 
+    ScriptedInstance* pInstance;
     uint32 Hamstring_Timer;
     uint32 Cleave_Timer;
     uint32 MortalStrike_Timer;
@@ -382,11 +480,30 @@ struct TRINITY_DLL_DECL boss_gloomrelAI : public ScriptedAI
         Cleave_Timer = 6000;
         MortalStrike_Timer = 10000;
 
-        m_creature->setFaction(FACTION_NEUTRAL);
+        m_creature->setFaction(FACTION_FRIEND);
     }
 
     void EnterCombat(Unit *who)
     {
+    }
+
+    void EnterEvadeMode()
+    {
+        m_creature->RemoveAllAuras();
+        m_creature->DeleteThreatList();
+        m_creature->CombatStop(true);
+        m_creature->LoadCreaturesAddon();
+        if(m_creature->isAlive())
+            m_creature->GetMotionMaster()->MoveTargetedHome();
+        m_creature->SetLootRecipient(NULL);
+        if(pInstance)
+            pInstance->SetData64(DATA_EVENSTARTER, 0);
+    }
+
+    void JustDied(Unit *who)
+    {
+        if(pInstance)
+            pInstance->SetData(DATA_GHOSTKILL, 1);
     }
 
     void UpdateAI(const uint32 diff)
@@ -475,8 +592,9 @@ bool GossipSelect_boss_gloomrel(Player *player, Creature *_Creature, uint32 send
 
 struct TRINITY_DLL_DECL boss_doomrelAI : public ScriptedAI
 {
-    boss_doomrelAI(Creature *c) : ScriptedAI(c) {}
+    boss_doomrelAI(Creature *c) : ScriptedAI(c) {pInstance = c->GetInstanceData();}
 
+    ScriptedInstance* pInstance;
     uint32 ShadowVolley_Timer;
     uint32 Immolate_Timer;
     uint32 CurseOfWeakness_Timer;
@@ -495,11 +613,35 @@ struct TRINITY_DLL_DECL boss_doomrelAI : public ScriptedAI
         DemonArmor_Timer = 16000;
         Voidwalkers = false;
 
-        m_creature->setFaction(FACTION_NEUTRAL);
+        m_creature->setFaction(FACTION_FRIEND);
+        if(pInstance)
+            if(pInstance->GetData(DATA_GHOSTKILL) >= 7)
+                m_creature->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
+            else
+                m_creature->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
     }
 
     void EnterCombat(Unit *who)
     {
+    }
+
+    void EnterEvadeMode()
+    {
+        m_creature->RemoveAllAuras();
+        m_creature->DeleteThreatList();
+        m_creature->CombatStop(true);
+        m_creature->LoadCreaturesAddon();
+        if(m_creature->isAlive())
+            m_creature->GetMotionMaster()->MoveTargetedHome();
+        m_creature->SetLootRecipient(NULL);
+        if(pInstance)
+            pInstance->SetData64(DATA_EVENSTARTER, 0);
+    }
+
+    void JustDied(Unit *who)
+    {
+        if(pInstance)
+            pInstance->SetData(DATA_GHOSTKILL, 1);
     }
 
     void SummonVoidwalkers(Unit* victim)
@@ -596,8 +738,13 @@ bool GossipSelect_boss_doomrel(Player *player, Creature *_Creature, uint32 sende
             break;
         case GOSSIP_ACTION_INFO_DEF+2:
             player->CLOSE_GOSSIP_MENU();
-            //start event here, below code just temporary
+            //start event here
             _Creature->setFaction(FACTION_HOSTILE);
+            _Creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
+            _Creature->AI()->AttackStart(player);
+            ScriptedInstance* pInstance = _Creature->GetInstanceData();
+            if(pInstance)
+                pInstance->SetData64(DATA_EVENSTARTER,player->GetGUID());
             break;
     }
     return true;
