@@ -158,4 +158,5 @@ TRINITY_DLL_SPEC DBCStorage <ItemEntry>                  const* GetItemDisplaySt
 TRINITY_DLL_SPEC DBCStorage <CreatureDisplayInfoEntry>   const* GetCreatureDisplayStore();
 TRINITY_DLL_SPEC DBCStorage <EmotesEntry>                const* GetEmotesStore();
 TRINITY_DLL_SPEC DBCStorage <EmotesTextEntry>            const* GetEmotesTextStore();
+TRINITY_DLL_SPEC DBCStorage <AchievementEntry>           const* GetAchievementStore();
 #endif

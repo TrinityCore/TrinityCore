@@ -28,6 +28,8 @@ EndScriptData */
 
 enum
 {
+    ACHIEVEMENT_ON_THE_ROCKS                 = 1919,
+
     SPELL_SHADOWBOLT                         = 43667,
     SPELL_SHADOWBOLT_HEROIC                  = 59389,
     SPELL_FROST_TOMB                         = 48400,
@@ -57,6 +59,8 @@ float SkeletonSpawnPoint[5][5]=
 
 float AttackLoc[3]={197.636, 194.046, 40.8164};
 
+bool ShatterFrostTomb; // needed for achievement: On The Rocks(1919)
+
 struct TRINITY_DLL_DECL mob_frost_tombAI : public ScriptedAI
 {
     mob_frost_tombAI(Creature *c) : ScriptedAI(c)
@@ -78,6 +82,9 @@ struct TRINITY_DLL_DECL mob_frost_tombAI : public ScriptedAI
 
     void JustDied(Unit *killer)
     {
+        if(killer->GetGUID() != m_creature->GetGUID())
+            ShatterFrostTomb = true;
+
         if(FrostTombGUID)
         {
             Unit* FrostTomb = Unit::GetUnit((*m_creature),FrostTombGUID);
@@ -118,6 +125,8 @@ struct TRINITY_DLL_DECL boss_kelesethAI : public ScriptedAI
         ShadowboltTimer = 0;
         Skeletons = false;
 
+        ShatterFrostTomb = false;
+
         ResetTimer();
 
         if(pInstance)
@@ -135,6 +144,21 @@ struct TRINITY_DLL_DECL boss_kelesethAI : public ScriptedAI
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
+
+        if(Heroic && !ShatterFrostTomb)
+        {
+            AchievementEntry const *AchievOnTheRocks = GetAchievementStore()->LookupEntry(ACHIEVEMENT_ON_THE_ROCKS);
+            if(AchievOnTheRocks)
+            {
+                Map *map = m_creature->GetMap();
+                if(map && map->IsDungeon())
+                {
+                    Map::PlayerList const &players = map->GetPlayers();
+                    for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                        itr->getSource()->CompletedAchievement(AchievOnTheRocks);
+                }
+            }
+        }
 
         if(pInstance)
             pInstance->SetData(DATA_PRINCEKELESETH_EVENT, DONE);
