@@ -26,6 +26,10 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_ahnkahet.h"
 
+bool DeadAhnkaharGuardian; // needed for achievement: Respect Your Elders(2038)
+
+#define ACHIEVEMENT_RESPECT_YOUR_ELDERS     2038
+
 #define SAY_AGGRO                              -1619014
 #define SAY_SLAY_1                             -1619015
 #define SAY_SLAY_2                             -1619016
@@ -42,7 +46,7 @@ EndScriptData */
 #define MOB_AHNKAHAR_SWARMER                30178
 #define SPELL_SUMMON_SWARMERS               56119//2x 30178  -- 2x every 10secs
 
-#define MOB_AHNKAHAR_SWARM_GUARD            30176
+#define MOB_AHNKAHAR_GUARDIAN_ENTRY         30176
 #define SPELL_SUMMON_SWARM_GUARD            56120//1x 30176  -- every 25secs
 #define SPELL_GUARDIAN_AURA                 56151
 
@@ -75,6 +79,8 @@ struct TRINITY_DLL_DECL boss_elder_nadoxAI : public ScriptedAI
 
         enrage_Timer = 5000;
 
+        DeadAhnkaharGuardian = false;
+
         if(pInstance)
             pInstance->SetData(DATA_ELDER_NADOX_EVENT, NOT_STARTED);
     }
@@ -102,6 +108,21 @@ struct TRINITY_DLL_DECL boss_elder_nadoxAI : public ScriptedAI
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_SLAY_3,m_creature);
+
+        if(HeroicMode && !DeadAhnkaharGuardian)
+        {
+            AchievementEntry const *AchievRespectYourElders = GetAchievementStore()->LookupEntry(ACHIEVEMENT_RESPECT_YOUR_ELDERS);
+            if(AchievRespectYourElders)
+            {
+                Map *map = m_creature->GetMap();
+                if(map && map->IsDungeon())
+                {
+                    Map::PlayerList const &players = map->GetPlayers();
+                    for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                        itr->getSource()->CompletedAchievement(AchievRespectYourElders);
+                }            
+            }        
+        }
 
         if(pInstance)
             pInstance->SetData(DATA_ELDER_NADOX_EVENT, DONE);
@@ -177,13 +198,14 @@ CreatureAI* GetAI_boss_elder_nadox(Creature *_Creature)
 {
     return new boss_elder_nadoxAI(_Creature);
 }
+
 #define SPELL_SPRINT            56354
+
 struct TRINITY_DLL_DECL mob_ahnkahar_nerubianAI : public ScriptedAI
 {
     mob_ahnkahar_nerubianAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-        Reset();
     }
 
     ScriptedInstance *pInstance;
@@ -195,7 +217,15 @@ struct TRINITY_DLL_DECL mob_ahnkahar_nerubianAI : public ScriptedAI
             DoCast(m_creature,SPELL_GUARDIAN_AURA,true);
         sprint_Timer = 10000;
     }
+
+    void JustDied(Unit *killer)
+    {
+        if(m_creature->GetEntry() == MOB_AHNKAHAR_GUARDIAN_ENTRY)
+            DeadAhnkaharGuardian = true;
+    }
+
     void EnterCombat(Unit *who){}
+
     void UpdateAI(const uint32 diff)
     {
         if(m_creature->GetEntry() == 30176)
