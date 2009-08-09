@@ -187,9 +187,9 @@ struct TRINITY_DLL_DECL boss_emalonAI : public ScriptedAI
 /*######
 ##  Mob Tempest Minions
 ######*/
-struct TRINITY_DLL_DECL mob_tempest_minionsAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_tempest_minionAI : public ScriptedAI
 {
-    mob_tempest_minionsAI(Creature *c) : ScriptedAI(c)
+    mob_tempest_minionAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
         EmalonGUID = pInstance ? pInstance->GetData64(DATA_EMALON) : 0;
@@ -258,9 +258,9 @@ struct TRINITY_DLL_DECL mob_tempest_minionsAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_mob_tempest_minions(Creature *_Creature)
+CreatureAI* GetAI_mob_tempest_minion(Creature *_Creature)
 {
-    return new mob_tempest_minionsAI (_Creature);
+    return new mob_tempest_minionAI (_Creature);
 }
 
 CreatureAI* GetAI_boss_emalon(Creature *_Creature)
@@ -278,7 +278,7 @@ void AddSC_boss_emalon()
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_tempest_minions";
-    newscript->GetAI = &GetAI_mob_tempest_minions;
+    newscript->Name="mob_tempest_minion";
+    newscript->GetAI = &GetAI_mob_tempest_minion;
     newscript->RegisterSelf();
 }
