@@ -851,32 +851,70 @@ void Creature::UpdateAttackPowerAndDamage(bool ranged)
 
     //automatically update weapon damage after attack power modification
     if(ranged)
-        return;
-    //automatically update weapon damage after attack power modification
-    UpdateDamagePhysical(BASE_ATTACK);
+        UpdateDamagePhysical(RANGED_ATTACK);
+    else
+    {
+        UpdateDamagePhysical(BASE_ATTACK);
+        UpdateDamagePhysical(OFF_ATTACK);
+    }
 }
 
 void Creature::UpdateDamagePhysical(WeaponAttackType attType)
 {
-    if(attType > BASE_ATTACK)
-        return;
+    UnitMods unitMod;
+    switch(attType)
+    {
+        case BASE_ATTACK:
+        default:
+            unitMod = UNIT_MOD_DAMAGE_MAINHAND;
+            break;
+        case OFF_ATTACK:
+            unitMod = UNIT_MOD_DAMAGE_OFFHAND;
+            break;
+        case RANGED_ATTACK:
+            unitMod = UNIT_MOD_DAMAGE_RANGED;
+            break;
+    }
 
-    UnitMods unitMod = UNIT_MOD_DAMAGE_MAINHAND;
+    //float att_speed = float(GetAttackTime(attType))/1000.0f;
 
+    float weapon_mindamage = GetWeaponDamageRange(attType, MINDAMAGE);
+    float weapon_maxdamage = GetWeaponDamageRange(attType, MAXDAMAGE);
+
+    //float base_value  = GetModifierValue(unitMod, BASE_VALUE)
+    //    + (weapon_mindamage + weapon_maxdamage)
+    //    * GetTotalAttackPowerValue(attType) / (getLevel() * 30);
     float base_value  = GetModifierValue(unitMod, BASE_VALUE) + GetTotalAttackPowerValue(attType);
     float base_pct    = GetModifierValue(unitMod, BASE_PCT);
     float total_value = GetModifierValue(unitMod, TOTAL_VALUE);
     float total_pct   = GetModifierValue(unitMod, TOTAL_PCT);
     float dmg_multiplier = GetCreatureInfo()->dmg_multiplier;
 
-    float weapon_mindamage = GetWeaponDamageRange(BASE_ATTACK, MINDAMAGE);
-    float weapon_maxdamage = GetWeaponDamageRange(BASE_ATTACK, MAXDAMAGE);
+    if(!CanUseAttackType(attType))
+    {
+        weapon_mindamage = 0;
+        weapon_maxdamage = 0;
+    }
 
     float mindamage = ((base_value + weapon_mindamage) * base_pct + total_value) * total_pct * dmg_multiplier;
     float maxdamage = ((base_value + weapon_maxdamage) * base_pct + total_value) * total_pct * dmg_multiplier;
 
-    SetStatFloatValue(UNIT_FIELD_MINDAMAGE, mindamage);
-    SetStatFloatValue(UNIT_FIELD_MAXDAMAGE, maxdamage);
+    switch(attType)
+    {
+        case BASE_ATTACK:
+        default:
+            SetStatFloatValue(UNIT_FIELD_MINDAMAGE,mindamage);
+            SetStatFloatValue(UNIT_FIELD_MAXDAMAGE,maxdamage);
+            break;
+        case OFF_ATTACK:
+            SetStatFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE,mindamage);
+            SetStatFloatValue(UNIT_FIELD_MAXOFFHANDDAMAGE,maxdamage);
+            break;
+        case RANGED_ATTACK:
+            SetStatFloatValue(UNIT_FIELD_MINRANGEDDAMAGE,mindamage);
+            SetStatFloatValue(UNIT_FIELD_MAXRANGEDDAMAGE,maxdamage);
+            break;
+    }
 }
 
 /*#######################################
