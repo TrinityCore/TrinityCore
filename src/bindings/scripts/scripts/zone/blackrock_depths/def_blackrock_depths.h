@@ -5,6 +5,10 @@
 #ifndef DEF_BRD_H
 #define DEF_BRD_H
 
+#define FACTION_NEUTRAL             734
+#define FACTION_HOSTILE             754
+#define FACTION_FRIEND              35
+
 enum
 {
     TYPE_RING_OF_LAW        = 1,
@@ -25,7 +29,10 @@ enum
     DATA_GO_BAR_KEG         = 16,
     DATA_GO_BAR_KEG_TRAP    = 17,
     DATA_GO_BAR_DOOR        = 18,
-    DATA_GO_CHALICE         = 19
+    DATA_GO_CHALICE         = 19,
+
+    DATA_GHOSTKILL          = 20,
+    DATA_EVENSTARTER        = 21
 };
 #endif
 

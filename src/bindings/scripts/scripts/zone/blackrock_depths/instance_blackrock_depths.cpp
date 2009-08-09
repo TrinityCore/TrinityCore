@@ -32,12 +32,21 @@ update `instance_template` set `script`='instance_blackrock_depths' where `map`=
 #include "precompiled.h"
 #include "def_blackrock_depths.h"
 
+#define TIMER_TOMBOFTHESEVEN    15000
+
 enum
 {
     ENCOUNTERS              = 6,
 
     NPC_EMPEROR             = 9019,
     NPC_PHALANX             = 9502,
+    NPC_ANGERREL            = 9035,
+    NPC_DOPEREL             = 9040,
+    NPC_HATEREL             = 9034,
+    NPC_VILEREL             = 9036,
+    NPC_SEETHREL            = 9038,
+    NPC_GLOOMREL            = 9037,
+    NPC_DOOMREL             = 9039,
  
     GO_ARENA1               = 161525,
     GO_ARENA2               = 161522,
@@ -88,8 +97,14 @@ struct TRINITY_DLL_DECL instance_blackrock_depths : public ScriptedInstance
     uint64 GoGolemNGUID;
     uint64 GoGolemSGUID;
     uint64 GoThoneGUID;
+    uint64 GoChestGUID;
 
     uint32 BarAleCount;
+    uint32 GhostKillCount;
+    uint64 TombBossGUIDs[7];
+    uint64 TombEventStarterGUID;
+    uint32 TombTimer;
+    uint32 TombEventCounter;
 
     void Initialize()
     {
@@ -113,11 +128,18 @@ struct TRINITY_DLL_DECL instance_blackrock_depths : public ScriptedInstance
         GoGolemNGUID = 0;
         GoGolemSGUID = 0;
         GoThoneGUID = 0;
+        GoChestGUID = 0;
 
         BarAleCount = 0;
+        GhostKillCount = 0;
+        TombEventStarterGUID = 0;
+        TombTimer = TIMER_TOMBOFTHESEVEN;
+        TombEventCounter = 0;
 
         for(uint8 i = 0; i < ENCOUNTERS; i++)
             Encounter[i] = NOT_STARTED;
+        for(uint8 i = 0; i < 7; i++)
+            TombBossGUIDs[i] = 0;
     }
 
     void OnCreatureCreate(Creature *creature, bool add)
@@ -126,6 +148,13 @@ struct TRINITY_DLL_DECL instance_blackrock_depths : public ScriptedInstance
         {
         case NPC_EMPEROR: EmperorGUID = creature->GetGUID(); break;
         case NPC_PHALANX: PhalanxGUID = creature->GetGUID(); break;
+        case NPC_DOOMREL: TombBossGUIDs[0] = creature->GetGUID(); break;
+        case NPC_DOPEREL: TombBossGUIDs[1] = creature->GetGUID(); break;
+        case NPC_HATEREL: TombBossGUIDs[2] = creature->GetGUID(); break;
+        case NPC_VILEREL: TombBossGUIDs[3] = creature->GetGUID(); break;
+        case NPC_SEETHREL: TombBossGUIDs[4] = creature->GetGUID(); break;
+        case NPC_GLOOMREL: TombBossGUIDs[5] = creature->GetGUID(); break;
+        case NPC_ANGERREL: TombBossGUIDs[6] = creature->GetGUID(); break;
         }
     }
 
@@ -145,11 +174,34 @@ struct TRINITY_DLL_DECL instance_blackrock_depths : public ScriptedInstance
         case GO_BAR_KEG_TRAP: GoBarKegTrapGUID = go->GetGUID(); break;
         case GO_BAR_DOOR: GoBarDoorGUID = go->GetGUID(); break;
         case GO_TOMB_ENTER: GoTombEnterGUID = go->GetGUID(); break;
-        case GO_TOMB_EXIT: GoTombExitGUID = go->GetGUID(); break;
+        case GO_TOMB_EXIT: 
+            GoTombExitGUID = go->GetGUID();
+            if(GhostKillCount >= 7)
+                HandleGameObject(0, true, go);
+            else
+                HandleGameObject(0, false, go);
+            break;
         case GO_LYCEUM: GoLyceumGUID = go->GetGUID(); break;
         case GO_GOLEM_ROOM_N: GoGolemNGUID = go->GetGUID(); break;
         case GO_GOLEM_ROOM_S: GoGolemSGUID = go->GetGUID(); break;
         case GO_THONE_ROOM: GoThoneGUID = go->GetGUID(); break;
+        case GO_CHEST_SEVEN: GoChestGUID = go->GetGUID(); break;
+        }
+    }
+
+    void SetData64(uint32 type, uint64 data)
+    {
+        debug_log("TSCR: Instance Blackrock Depths: SetData64 update (Type: %u Data %u)", type, data);
+
+        switch(type)
+        {
+        case DATA_EVENSTARTER:
+            TombEventStarterGUID = data;
+            if(!TombEventStarterGUID)
+                TombOfSevenReset();//reset
+            else
+                TombOfSevenStart();//start
+            break;
         }
     }
 
@@ -180,15 +232,18 @@ struct TRINITY_DLL_DECL instance_blackrock_depths : public ScriptedInstance
         case TYPE_IRON_HALL:
             Encounter[5] = data;
             break;
+        case DATA_GHOSTKILL:
+            GhostKillCount += data;
+            break;
         }
 
-        if (data == DONE)
+        if (data == DONE || GhostKillCount >= 7)
         {
             OUT_SAVE_INST_DATA;
 
             std::ostringstream saveStream;
             saveStream << Encounter[0] << " " << Encounter[1] << " " << Encounter[2] << " "
-                << Encounter[3] << " " << Encounter[4] << " " << Encounter[5];
+                << Encounter[3] << " " << Encounter[4] << " " << Encounter[5] << " " << GhostKillCount;
 
             str_data = saveStream.str();
 
@@ -216,6 +271,8 @@ struct TRINITY_DLL_DECL instance_blackrock_depths : public ScriptedInstance
             return Encounter[4];
         case TYPE_IRON_HALL:
             return Encounter[5];
+        case DATA_GHOSTKILL:
+            return GhostKillCount;
         }
         return 0;
     }
@@ -242,6 +299,8 @@ struct TRINITY_DLL_DECL instance_blackrock_depths : public ScriptedInstance
             return GoBarKegTrapGUID;
         case DATA_GO_BAR_DOOR:
             return GoBarDoorGUID;
+        case DATA_EVENSTARTER:
+            return TombEventStarterGUID;
         }
         return 0;
     }
@@ -263,13 +322,89 @@ struct TRINITY_DLL_DECL instance_blackrock_depths : public ScriptedInstance
 
         std::istringstream loadStream(in);
         loadStream >> Encounter[0] >> Encounter[1] >> Encounter[2] >> Encounter[3]
-        >> Encounter[4] >> Encounter[5];
+        >> Encounter[4] >> Encounter[5] >> GhostKillCount;
 
         for(uint8 i = 0; i < ENCOUNTERS; ++i)
             if (Encounter[i] == IN_PROGRESS)
                 Encounter[i] = NOT_STARTED;
+        if(GhostKillCount > 0 && GhostKillCount < 7)
+            GhostKillCount = 0;//reset tomb of seven event
+        if(GhostKillCount > 7)
+            GhostKillCount = 7;
 
         OUT_LOAD_INST_DATA_COMPLETE;
+    }
+
+    void TombOfSevenEvent()
+    {
+        if(GhostKillCount < 7 && TombBossGUIDs[TombEventCounter])
+        {
+            if(Creature* boss = instance->GetCreature(TombBossGUIDs[TombEventCounter]))
+            {
+                boss->setFaction(FACTION_HOSTILE);
+                boss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
+                if(Unit* target = boss->SelectNearestTarget(500))
+                    boss->AI()->AttackStart(target);
+            }
+        }        
+    }
+
+    void TombOfSevenReset()
+    {
+        HandleGameObject(GoTombExitGUID,false);//event reseted, close exit door
+        HandleGameObject(GoTombEnterGUID,true);//event reseted, open entrance door
+        for(uint8 i = 0; i < 7; i++)
+        {
+            if(Creature* boss = instance->GetCreature(TombBossGUIDs[i]))
+            {
+                if(!boss->isAlive())
+                {//do not call EnterEvadeMode(), it will create infinit loops
+                    boss->Respawn();
+                    boss->RemoveAllAuras();
+                    boss->DeleteThreatList();
+                    boss->CombatStop(true);
+                    boss->LoadCreaturesAddon();
+                    boss->GetMotionMaster()->MoveTargetedHome();
+                    boss->SetLootRecipient(NULL);
+                }
+                boss->setFaction(FACTION_FRIEND);                
+            }
+        }
+        GhostKillCount = 0;
+        TombEventStarterGUID = 0;
+        TombEventCounter = 0;
+        TombTimer = TIMER_TOMBOFTHESEVEN;
+        SetData(TYPE_TOMB_OF_SEVEN, NOT_STARTED);
+    }
+
+    void TombOfSevenStart()
+    {
+        HandleGameObject(GoTombExitGUID,false);//event started, close exit door
+        HandleGameObject(GoTombEnterGUID,false);//event started, close entrance door
+        SetData(TYPE_TOMB_OF_SEVEN, IN_PROGRESS);
+    }
+
+    void TombOfSevenEnd()
+    {
+        DoRespawnGameObject(GoChestGUID,DAY);        
+        HandleGameObject(GoTombExitGUID,true);//event done, open exit door
+        HandleGameObject(GoTombEnterGUID,true);//event done, open entrance door
+        TombEventStarterGUID = 0;
+        SetData(TYPE_TOMB_OF_SEVEN, DONE);
+    }
+    void Update(uint32 diff)
+    {
+        if(TombEventStarterGUID && GhostKillCount < 7)
+        {
+            if(TombTimer <= diff)
+            {
+                TombTimer = TIMER_TOMBOFTHESEVEN;
+                TombEventCounter++;
+                TombOfSevenEvent();
+            }else TombTimer -= diff;
+        }
+        if(GhostKillCount >= 7 && TombEventStarterGUID)
+            TombOfSevenEnd();
     }
 };
 
