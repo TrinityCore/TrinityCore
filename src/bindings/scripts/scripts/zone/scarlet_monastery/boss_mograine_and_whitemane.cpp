@@ -110,7 +110,7 @@ struct TRINITY_DLL_DECL boss_scarlet_commander_mograineAI : public ScriptedAI
 
     void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
     {
-        if (uiDamage < m_creature->GetHealth() || m_bHasDied)
+        if (uiDamage < m_creature->GetHealth() || m_bHasDied || m_bFakeDeath)
             return;
 
         if (!m_pInstance)
@@ -135,7 +135,7 @@ struct TRINITY_DLL_DECL boss_scarlet_commander_mograineAI : public ScriptedAI
             m_creature->RemoveAllAuras();
             m_creature->ClearAllReactives();
 
-            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             m_creature->SetStandState(UNIT_STAND_STATE_DEAD);
 
             m_bHasDied = true;
@@ -169,7 +169,7 @@ struct TRINITY_DLL_DECL boss_scarlet_commander_mograineAI : public ScriptedAI
             //On ressurection, stop fake death and heal whitemane and resume fight
             if (Unit* Whitemane = Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_WHITEMANE)))
             {
-                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 m_creature->SetStandState(UNIT_STAND_STATE_STAND);
                 DoCast(Whitemane, SPELL_LAYONHANDS);
 
@@ -303,7 +303,8 @@ struct TRINITY_DLL_DECL boss_high_inquisitor_whitemaneAI : public ScriptedAI
             {
                 if (Creature* pMograine = (Creature*)Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_MOGRAINE)))
                 {
-                    if (pMograine->isAlive() && pMograine->GetHealth() <= pMograine->GetMaxHealth()*0.75f)
+                    // checking m_bCanResurrectCheck prevents her healing Mograine while he is "faking death"
+                    if (m_bCanResurrectCheck && pMograine->isAlive() && pMograine->GetHealth() <= pMograine->GetMaxHealth()*0.75f)
                         pTarget = pMograine;
                 }
             }
