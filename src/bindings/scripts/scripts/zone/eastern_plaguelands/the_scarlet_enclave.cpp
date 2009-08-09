@@ -1138,7 +1138,7 @@ struct TRINITY_DLL_DECL npc_dkc1_gothikAI : public ScriptedAI
                     if(CAST_PLR(owner)->GetQuestStatus(12698) == QUEST_STATUS_INCOMPLETE)
                     {
                         DoCast(owner, 52517, true);
-                        who->setDeathState(DEAD);
+                        CAST_CRE(who)->ForcedDespawn();
                     }
                 }
             }
