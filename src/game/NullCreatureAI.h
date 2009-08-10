@@ -24,10 +24,10 @@
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
 
-class TRINITY_DLL_DECL PassiveAI : public CreatureAI
+class TRINITY_DLL_SPEC PassiveAI : public CreatureAI
 {
     public:
-        explicit PassiveAI(Creature *c) : CreatureAI(c) {}
+        explicit PassiveAI(Creature *c);
 
         void MoveInLineOfSight(Unit *) {}
         void AttackStart(Unit *) {}
