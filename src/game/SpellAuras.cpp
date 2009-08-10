@@ -333,7 +333,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleNoImmediateEffect,                         //277 SPELL_AURA_MOD_ABILITY_AFFECTED_TARGETS implemented in spell::settargetmap
     &Aura::HandleAuraModDisarm,                             //278 SPELL_AURA_MOD_DISARM_RANGED disarm ranged weapon
     &Aura::HandleAuraInitializeImages,                      //279 SPELL_AURA_INITIALIZE_IMAGES
-    &Aura::HandleModArmorPenetrationPct,                    //280 SPELL_AURA_MOD_ARMOR_PENETRATION_PCT
+    &Aura::HandleNoImmediateEffect,                         //280 SPELL_AURA_MOD_ARMOR_PENETRATION_PCT
     &Aura::HandleNoImmediateEffect,                         //281 SPELL_AURA_MOD_HONOR_GAIN_PCT implemented in Player::RewardHonor
     &Aura::HandleAuraIncreaseBaseHealthPercent,             //282 SPELL_AURA_INCREASE_BASE_HEALTH_PERCENT
     &Aura::HandleNoImmediateEffect,                         //283 SPELL_AURA_MOD_HEALING_RECEIVED       implemented in Unit::SpellHealingBonus
@@ -7036,14 +7036,6 @@ void AuraEffect::HandleAuraSafeFall( bool Apply, bool Real , bool /*changeAmount
     // Buffeting Winds of Susurrus - only special case
     if(Apply && Real && GetId()==32474 && m_target->GetTypeId()==TYPEID_PLAYER)
         ((Player*)m_target)->ActivateTaxiPathTo(506,GetId());
-}
-
-void AuraEffect::HandleModArmorPenetrationPct(bool apply, bool Real, bool changeAmount)
-{
-    if(m_target->GetTypeId() != TYPEID_PLAYER)
-        return;
-
-    ((Player*)m_target)->RecalculateRating(CR_ARMOR_PENETRATION);
 }
 
 void AuraEffect::HandleReflectSpells( bool Apply, bool Real , bool /*changeAmount*/)

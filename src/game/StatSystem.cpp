@@ -630,29 +630,6 @@ void Player::UpdateSpellCritChance(uint32 school)
 
 void Player::UpdateArmorPenetration(int32 amount)
 {
-    AuraEffectList const& expAuras = GetAurasByType(SPELL_AURA_MOD_ARMOR_PENETRATION_PCT);
-    for(AuraEffectList::const_iterator itr = expAuras.begin(); itr != expAuras.end(); ++itr)
-    {
-        // item neutral spell
-        if((*itr)->GetSpellProto()->EquippedItemClass == -1)
-        {
-            amount *= ((*itr)->GetAmount() + 100.0f) / 100.0f;
-            continue;
-        }
-
-        // item dependent spell - check curent weapons
-        for(int i = 0; i < MAX_ATTACK; ++i)
-        {
-            Item *weapon = GetWeaponForAttack(WeaponAttackType(i));
-
-            if(weapon && weapon->IsFitToSpellRequirements((*itr)->GetSpellProto()))
-            {
-                amount *= ((*itr)->GetAmount() + 100.0f) / 100.0f;
-                break;
-            }
-        }
-    }
-
     // Store Rating Value
     SetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + CR_ARMOR_PENETRATION, amount);
 }

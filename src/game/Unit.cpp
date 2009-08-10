@@ -1803,9 +1803,47 @@ uint32 Unit::CalcArmorReducedDamage(Unit* pVictim, const uint32 damage, SpellEnt
             armor= int32(float(armor) * (float(100-(*j)->GetAmount())/100.0f));
     }
 
+    if ( GetTypeId() == TYPEID_PLAYER )
+    {
+        AuraEffectList const& ResIgnoreAuras = GetAurasByType(SPELL_AURA_MOD_ARMOR_PENETRATION_PCT);
+        for(AuraEffectList::const_iterator itr = ResIgnoreAuras.begin();itr != ResIgnoreAuras.end(); ++itr)
+        {
+            // item neutral spell
+            if((*itr)->GetSpellProto()->EquippedItemClass == -1)
+            {
+                armor= int32(float(armor) * (float(100-(*itr)->GetAmount())/100.0f));
+                continue;
+            }
+
+            // item dependent spell - check curent weapons
+            for(int i = 0; i < MAX_ATTACK; ++i)
+            {
+                Item *weapon = ((Player *)this)->GetWeaponForAttack(WeaponAttackType(i));
+
+                if(weapon && weapon->IsFitToSpellRequirements((*itr)->GetSpellProto()))
+                {
+                    armor= int32(float(armor) * (float(100-(*itr)->GetAmount())/100.0f));
+                    break;
+                }
+            }
+        }
+    }
+
     // Apply Player CR_ARMOR_PENETRATION rating
     if (GetTypeId()==TYPEID_PLAYER)
-        armor *= 1.0f - (((Player*)this)->GetRatingBonusValue(CR_ARMOR_PENETRATION) / 100.0f);
+    {
+        float maxArmorPen=0;
+        if (getLevel()<60)
+            maxArmorPen=400+85*pVictim->getLevel();
+        else
+            maxArmorPen=400+85*pVictim->getLevel()+4.5*85*(pVictim->getLevel()-59); 
+        // Cap armor penetration to this number
+        maxArmorPen = std::min(((armor+maxArmorPen)/3),armor);
+        // Figure out how much armor do we ignore
+        float armorPen = maxArmorPen*((Player*)this)->GetRatingBonusValue(CR_ARMOR_PENETRATION) / 100.0f;
+        // Got the value, apply it
+        armor -= armorPen;
+    }
 
     if (armor < 0.0f) armor=0.0f;
 
