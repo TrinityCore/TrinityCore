@@ -562,6 +562,8 @@ bool ChatHandler::HandleReloadAllCommand(const char*)
     HandleReloadReservedNameCommand("");
     HandleReloadTrinityStringCommand("");
     HandleReloadGameTeleCommand("");
+
+    HandleReloadAutobroadcastCommand("");
     return true;
 }
 
@@ -688,6 +690,14 @@ bool ChatHandler::HandleReloadConfigCommand(const char* /*args*/)
     return true;
 }
 
+bool ChatHandler::HandleReloadAccessRequirementCommand(const char*)
+{
+    sLog.outString( "Re-Loading Access Requirement definitions..." );
+    objmgr.LoadAccessRequirements();
+    SendGlobalGMSysMessage("DB table `access_requirement` reloaded.");
+    return true;
+}
+
 bool ChatHandler::HandleReloadAchievementCriteriaDataCommand(const char*)
 {
     sLog.outString( "Re-Loading Additional Achievement Criteria Data..." );
@@ -720,13 +730,13 @@ bool ChatHandler::HandleReloadAreaTriggerTeleportCommand(const char*)
     return true;
 }
 
-bool ChatHandler::HandleReloadAccessRequirementCommand(const char*)
+bool ChatHandler::HandleReloadAutobroadcastCommand(const char*)
 {
-    sLog.outString( "Re-Loading Access Requirement definitions..." );
-    objmgr.LoadAccessRequirements();
-    SendGlobalGMSysMessage("DB table `access_requirement` reloaded.");
-     return true;
- }
+    sLog.outString("Re-Loading Aautobroadcast...");
+    sWorld.LoadAutobroadcasts();
+    SendGlobalGMSysMessage("DB table `autobroadcast` reloaded.");
+    return true;
+}
 
 bool ChatHandler::HandleReloadCommandCommand(const char*)
 {

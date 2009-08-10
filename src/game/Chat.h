@@ -342,11 +342,12 @@ class ChatHandler
 
         bool HandleReloadConfigCommand(const char* args);
 
+        bool HandleReloadAccessRequirementCommand(const char* args);
         bool HandleReloadAchievementCriteriaDataCommand(const char* args);
         bool HandleReloadAchievementRewardCommand(const char* args);
         bool HandleReloadAreaTriggerTavernCommand(const char* args);
         bool HandleReloadAreaTriggerTeleportCommand(const char* args);
-        bool HandleReloadAccessRequirementCommand(const char* args);
+        bool HandleReloadAutobroadcastCommand(const char* args);
         bool HandleReloadEventScriptsCommand(const char* args);
         bool HandleReloadEventAITextsCommand(const char* args);
         bool HandleReloadEventAISummonsCommand(const char* args);
