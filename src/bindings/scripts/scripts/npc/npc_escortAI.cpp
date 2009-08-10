@@ -53,6 +53,13 @@ void npc_escortAI::JustRespawned()
     Reset();
 }
 
+void npc_escortAI::ReturnToLastPoint()
+{
+    float x, y, z, o;
+    m_creature->GetHomePosition(x, y, z, o);
+    m_creature->GetMotionMaster()->MovePoint(WP_LAST_POINT, x, y, z);
+}
+
 void npc_escortAI::EnterEvadeMode()
 {
     m_creature->RemoveAllAuras();
@@ -63,10 +70,8 @@ void npc_escortAI::EnterEvadeMode()
     if (IsBeingEscorted)
     {
         Returning = true;
-        float x, y, z, o;
-        m_creature->GetHomePosition(x, y, z, o);
-        m_creature->GetMotionMaster()->MovePoint(WP_LAST_POINT, x, y, z);
-        debug_log("TSCR: EscortAI has left combat and is now returning to last point %f %f %f.", x, y, z);
+        ReturnToLastPoint();
+        debug_log("TSCR: EscortAI has left combat and is now returning to last point");
     }
     else
         m_creature->GetMotionMaster()->MoveTargetedHome();
