@@ -273,7 +273,7 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
                             float dist;
                             if (m_creature->IsWithinDist3d(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 5.0f)) dist = 5.0f;
                             WaitTimer = 1000 + floor(dist / 80 * 1000.0f);
-                            m_creature->Relocate(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
+                            m_creature->GetMap()->CreatureRelocation(m_creature, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(),0.0f);
                             m_creature->StopMoving();
                             WaitEvent = WE_LAND;
                         }

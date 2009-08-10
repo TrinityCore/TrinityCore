@@ -734,7 +734,7 @@ struct TRINITY_DLL_DECL mob_pulsing_pumpkinAI : public ScriptedAI
     {
         float x, y, z;
         m_creature->GetPosition(x, y, z);   //this visual aura some under ground
-        m_creature->Relocate(x,y,z + 0.35f);
+        m_creature->GetMap()->CreatureRelocation(m_creature, x,y,z + 0.35f, 0.0f);
         Despawn();
         Creature *debuff = DoSpawnCreature(HELPER,0,0,0,0,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,14500);
         if(debuff)
