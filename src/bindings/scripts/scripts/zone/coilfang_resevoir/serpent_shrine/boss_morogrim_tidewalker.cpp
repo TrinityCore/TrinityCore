@@ -336,7 +336,8 @@ struct TRINITY_DLL_DECL mob_water_globuleAI : public ScriptedAI
                 DoCast(m_creature->getVictim(), SPELL_GLOBULE_EXPLOSION);
 
                 //despawn
-                m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                m_creature->ForcedDespawn();
+                return;
             }
             Check_Timer = 500;
         }else Check_Timer -= diff;

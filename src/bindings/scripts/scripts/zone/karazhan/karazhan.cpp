@@ -296,11 +296,6 @@ struct TRINITY_DLL_DECL npc_barnesAI : public npc_escortAI
             }
 
         }
-
-        if(!UpdateVictim())
-            return;
-
-        DoMeleeAttackIfReady();
     }
 
     void StartEvent()
@@ -344,7 +339,7 @@ struct TRINITY_DLL_DECL npc_barnesAI : public npc_escortAI
         {
             uint32 entry = ((uint32)Spawns[index][0]);
             float PosX = Spawns[index][1];
-            if (Creature* pCreature = m_creature->SummonCreature(entry, PosX, SPAWN_Y, SPAWN_Z, SPAWN_O, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000))
+            if (Creature* pCreature = m_creature->SummonCreature(entry, PosX, SPAWN_Y, SPAWN_Z, SPAWN_O, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, HOUR*2*IN_MILISECONDS))
             {
                                                             // In case database has bad flags
                 pCreature->SetUInt32Value(UNIT_FIELD_FLAGS, 0);

@@ -68,9 +68,7 @@ struct TRINITY_DLL_DECL mobs_spitelashesAI : public ScriptedAI
         // we mustn't remove the creature in the same round in which we cast the summon spell, otherwise there will be no summons
         if( spellhit && morphtimer>=5000 )
         {
-            m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-            m_creature->RemoveCorpse();                     //you don't see any corpse on off.
-            EnterEvadeMode();                               //spellhit will be set to false
+            m_creature->ForcedDespawn();
             return;
         }
         // walk 5 seconds before summoning
@@ -271,18 +269,12 @@ struct TRINITY_DLL_DECL mob_rizzle_sprysprocketAI : public ScriptedAI
         Reached = false;
     }
 
-    void Despawn()
-    {
-        m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-        m_creature->RemoveCorpse();
-    }
-
     void UpdateAI(const uint32 diff)
     {
         if(Must_Die)
             if(Must_Die_Timer < diff)
             {
-                Despawn();
+                m_creature->ForcedDespawn();
                 return;
             } else Must_Die_Timer -= diff;
 
@@ -342,7 +334,7 @@ struct TRINITY_DLL_DECL mob_rizzle_sprysprocketAI : public ScriptedAI
             Player *player = Unit::GetPlayer(PlayerGUID);
             if(!player)
             {
-                Despawn();
+                m_creature->ForcedDespawn();
                 return;
             }
 
@@ -392,7 +384,7 @@ struct TRINITY_DLL_DECL mob_rizzle_sprysprocketAI : public ScriptedAI
 
         if(id == 57)
         {
-            Despawn();
+            m_creature->ForcedDespawn();
             return;
         }
 
@@ -452,8 +444,7 @@ struct TRINITY_DLL_DECL mob_depth_chargeAI : public ScriptedAI
         if(we_must_die)
             if(must_die_timer < diff)
             {
-                m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                m_creature->RemoveCorpse();
+                m_creature->ForcedDespawn();
             } else must_die_timer -= diff;
         return;
     }

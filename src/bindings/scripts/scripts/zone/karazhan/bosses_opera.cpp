@@ -86,16 +86,15 @@ EndScriptData */
 #define CREATURE_CYCLONE        18412
 #define CREATURE_CRONE          18168
 
-void SummonCroneIfReady(ScriptedInstance* pInstance, Creature *_Creature)
+void SummonCroneIfReady(ScriptedInstance* pInstance, Creature* pCreature)
 {
     pInstance->SetData(DATA_OPERA_OZ_DEATHCOUNT, 0);        // Increment DeathCount
     if(pInstance->GetData(DATA_OPERA_OZ_DEATHCOUNT) == 4)
     {
-        Creature* Crone = _Creature->SummonCreature(CREATURE_CRONE,  -10891.96, -1755.95, _Creature->GetPositionZ(), 4.64, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
-        if(Crone)
+        if (Creature* pCrone = pCreature->SummonCreature(CREATURE_CRONE, -10891.96, -1755.95, pCreature->GetPositionZ(), 4.64, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, HOUR*2*IN_MILISECONDS))
         {
-            if(_Creature->getVictim())
-                Crone->AI()->AttackStart(_Creature->getVictim());
+            if(pCreature->getVictim())
+                pCrone->AI()->AttackStart(pCreature->getVictim());
         }
     }
 };
@@ -133,6 +132,11 @@ struct TRINITY_DLL_DECL boss_dorotheeAI : public ScriptedAI
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_DOROTHEE_AGGRO, m_creature);
+    }
+
+    void JustReachedHome()
+    {
+        m_creature->ForcedDespawn();
     }
 
     void SummonTito();                                      // See below
@@ -294,6 +298,11 @@ struct TRINITY_DLL_DECL boss_strawmanAI : public ScriptedAI
         DoScriptText(SAY_STRAWMAN_AGGRO, m_creature);
     }
 
+    void JustReachedHome()
+    {
+        m_creature->ForcedDespawn();
+    }
+
     void SpellHit(Unit* caster, const SpellEntry *Spell)
     {
         if ((Spell->SchoolMask == SPELL_SCHOOL_MASK_FIRE) && (!(rand()%10)))
@@ -377,6 +386,11 @@ struct TRINITY_DLL_DECL boss_tinheadAI : public ScriptedAI
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_TINHEAD_AGGRO, m_creature);
+    }
+
+    void JustReachedHome()
+    {
+        m_creature->ForcedDespawn();
     }
 
     void AttackStart(Unit* who)
@@ -486,6 +500,11 @@ struct TRINITY_DLL_DECL boss_roarAI : public ScriptedAI
         DoScriptText(SAY_ROAR_AGGRO, m_creature);
     }
 
+    void JustReachedHome()
+    {
+        m_creature->ForcedDespawn();
+    }
+
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_ROAR_DEATH, m_creature);
@@ -551,6 +570,11 @@ struct TRINITY_DLL_DECL boss_croneAI : public ScriptedAI
     {
         CycloneTimer = 30000;
         ChainLightningTimer = 10000;
+    }
+
+    void JustReachedHome()
+    {
+        m_creature->ForcedDespawn();
     }
 
     void EnterCombat(Unit* who)
@@ -702,21 +726,14 @@ bool GossipHello_npc_grandmother(Player* player, Creature* _Creature)
     return true;
 }
 
-bool GossipSelect_npc_grandmother(Player* player, Creature* _Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_grandmother(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
     if(action == GOSSIP_ACTION_INFO_DEF)
     {
-        _Creature->SetVisibility(VISIBILITY_OFF);
-        float x,y,z;
-        _Creature->GetPosition(x,y,z);
-        Creature* BigBadWolf = _Creature->SummonCreature(CREATURE_BIG_BAD_WOLF, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
-        if(BigBadWolf)
-        {
-            BigBadWolf->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            BigBadWolf->AI()->AttackStart(player);
-        }
+        if (Creature* pBigBadWolf = pCreature->SummonCreature(CREATURE_BIG_BAD_WOLF, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, HOUR*2*IN_MILISECONDS))
+            pBigBadWolf->AI()->AttackStart(pPlayer);
 
-        _Creature->setDeathState(JUST_DIED);
+        pCreature->ForcedDespawn();
     }
 
     return true;
@@ -755,6 +772,11 @@ struct TRINITY_DLL_DECL boss_bigbadwolfAI : public ScriptedAI
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_WOLF_AGGRO, m_creature);
+    }
+
+    void JustReachedHome()
+    {
+        m_creature->ForcedDespawn();
     }
 
     void JustDied(Unit* killer)
@@ -918,6 +940,7 @@ struct TRINITY_DLL_DECL boss_julianneAI : public ScriptedAI
         pInstance = c->GetInstanceData();
         EntryYellTimer = 1000;
         AggroYellTimer = 10000;
+        IsFakingDeath = false;
     }
 
     ScriptedInstance* pInstance;
@@ -944,16 +967,6 @@ struct TRINITY_DLL_DECL boss_julianneAI : public ScriptedAI
 
     void Reset()
     {
-        if(RomuloGUID)
-        {
-            if(Unit* Romulo = Unit::GetUnit(*m_creature, RomuloGUID))
-            {
-                Romulo->SetVisibility(VISIBILITY_OFF);
-                Romulo->DealDamage(Romulo, Romulo->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-            }
-
-        }
-
         RomuloGUID = 0;
         Phase = PHASE_JULIANNE;
 
@@ -966,9 +979,11 @@ struct TRINITY_DLL_DECL boss_julianneAI : public ScriptedAI
         ResurrectSelfTimer = 0;
 
         if(IsFakingDeath)
+        {
             Resurrect(m_creature);
+            IsFakingDeath = false;
+        }
 
-        IsFakingDeath = false;
         SummonedRomulo = false;
         RomuloDead = false;
     }
@@ -989,6 +1004,11 @@ struct TRINITY_DLL_DECL boss_julianneAI : public ScriptedAI
             return;
 
         ScriptedAI::MoveInLineOfSight(who);
+    }
+
+    void JustReachedHome()
+    {
+        m_creature->ForcedDespawn();
     }
 
     void SpellHit(Unit* caster, const SpellEntry *Spell)
@@ -1062,6 +1082,11 @@ struct TRINITY_DLL_DECL boss_romuloAI : public ScriptedAI
 
         IsFakingDeath = false;
         JulianneDead = false;
+    }
+
+    void JustReachedHome()
+    {
+        m_creature->ForcedDespawn();
     }
 
     void DamageTaken(Unit* done_by, uint32 &damage);
@@ -1265,19 +1290,14 @@ void boss_julianneAI::UpdateAI(const uint32 diff)
     {
         if(SummonRomuloTimer < diff)
         {
-            Creature* Romulo = m_creature->SummonCreature(CREATURE_ROMULO, ROMULO_X, ROMULO_Y, m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
-            if(Romulo)
+            if (Creature* pRomulo = m_creature->SummonCreature(CREATURE_ROMULO, ROMULO_X, ROMULO_Y, m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, HOUR*2*IN_MILISECONDS))
             {
-                RomuloGUID = Romulo->GetGUID();
-                CAST_AI(boss_romuloAI, Romulo->AI())->JulianneGUID = m_creature->GetGUID();
-                CAST_AI(boss_romuloAI, Romulo->AI())->Phase = PHASE_ROMULO;
-                Romulo->setFaction(16);
-                
-                if(m_creature->getVictim())
-                {
-                    Romulo->AddThreat(m_creature->getVictim(), 0.0f);
-                }
-                DoZoneInCombat(Romulo);
+                RomuloGUID = pRomulo->GetGUID();
+                CAST_AI(boss_romuloAI, pRomulo->AI())->JulianneGUID = m_creature->GetGUID();
+                CAST_AI(boss_romuloAI, pRomulo->AI())->Phase = PHASE_ROMULO;
+                DoZoneInCombat(pRomulo);
+
+                pRomulo->setFaction(16);
             }
             SummonedRomulo = true;
         }else SummonRomuloTimer -= diff;
