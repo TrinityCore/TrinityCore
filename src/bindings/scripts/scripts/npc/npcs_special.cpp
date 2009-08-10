@@ -1679,6 +1679,40 @@ CreatureAI* GetAI_npc_mirror_image(Creature *_Creature)
     return new npc_mirror_image (_Creature);
 }
 
+//TODO: 30% Attackdamage check for Lightwell
+struct TRINITY_DLL_DECL npc_lightwellAI : public PassiveAI
+{
+    npc_lightwellAI(Creature *c) : PassiveAI(c) {}
+
+    //uint32 desummon_timer;
+
+    void Reset()
+    {
+        //desummon_timer = 180000;
+        m_creature->CastSpell(m_creature, 59907, false); // Spell for Lightwell Charges
+    }
+
+    /*
+    void UpdateAI(const uint32 diff)
+    {
+        if(desummon_timer < diff)
+        {
+            m_creature->Kill(m_creature);
+        }else desummon_timer -= diff;
+
+        if(!m_creature->HasAura(59907))
+        {
+            m_creature->Kill(m_creature);
+        }
+    }
+    */
+};
+
+CreatureAI* GetAI_npc_lightwellAI(Creature *_Creature)
+{
+    return new npc_lightwellAI (_Creature);
+}
+
 struct TRINITY_DLL_DECL npc_training_dummy : Scripted_NoMovementAI
 {
     npc_training_dummy(Creature *c) : Scripted_NoMovementAI(c) {}
@@ -1810,6 +1844,11 @@ void AddSC_npcs_special()
     newscript = new Script;
     newscript->Name="npc_snake_trap_serpents";
     newscript->GetAI = &GetAI_npc_snake_trap_serpents;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name="npc_lightwell";
+    newscript->GetAI = &GetAI_npc_lightwellAI;
     newscript->RegisterSelf();
 
     newscript = new Script;
