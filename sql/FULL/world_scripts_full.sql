@@ -1027,6 +1027,8 @@ UPDATE `creature_template` SET `ScriptName`='mob_tempest_minion' WHERE `entry`=3
 UPDATE `instance_template` SET `script`='instance_archavon' WHERE `map`=624;
 
 /* WAILING CAVERNS */
+UPDATE `creature_template` SET `ScriptName`='npc_disciple_of_naralex' WHERE entry=3678;
+UPDATE` instance_template` SET `script`='instance_wailing_caverns' WHERE map=43;
 
 /* WESTERN PLAGUELANDS */
 UPDATE `creature_template` SET `ScriptName`='npcs_dithers_and_arbington' WHERE `entry` IN (11056,11057);
