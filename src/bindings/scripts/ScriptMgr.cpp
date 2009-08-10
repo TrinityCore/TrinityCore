@@ -405,7 +405,6 @@ extern void AddSC_boss_gothik();
 extern void AddSC_boss_thaddius();
 extern void AddSC_instance_naxxramas();
 
-
 //Netherstorm
 extern void AddSC_netherstorm();
 
@@ -1576,10 +1575,10 @@ void ScriptsInit(char const* cfg_file = "trinitycore.conf")
 
     //Northrend
     //Dungeon
-	
+
     //Vault of Archavon
     AddSC_boss_archavon();
-	AddSC_boss_emalon();
+    AddSC_boss_emalon();
     AddSC_instance_archavon();
 
     //Ulduar
