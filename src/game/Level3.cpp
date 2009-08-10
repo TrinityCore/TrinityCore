@@ -732,7 +732,7 @@ bool ChatHandler::HandleReloadAreaTriggerTeleportCommand(const char*)
 
 bool ChatHandler::HandleReloadAutobroadcastCommand(const char*)
 {
-    sLog.outString("Re-Loading Aautobroadcast...");
+    sLog.outString("Re-Loading Autobroadcast...");
     sWorld.LoadAutobroadcasts();
     SendGlobalGMSysMessage("DB table `autobroadcast` reloaded.");
     return true;
