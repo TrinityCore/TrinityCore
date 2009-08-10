@@ -1,4 +1,4 @@
--- Up to TC2 4748
+﻿-- Up to TC2 4748
 -- 
 -- trinityscript_script_texts.sql Contains data for table `script_texts` mainly used in C++ parts.
 -- valid entries for table are between -1000000 and -1999999
@@ -367,6 +367,25 @@ INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content
 (-1036001, 'We''re under attack! A vast, ye swabs! Repel the invaders!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 5777, 1, 7, 0, 'smite INST_SAY_ALARM2');
 
 -- -1 043 000 WAILING CAVERNS
+INSERT INTO script_texts (entry,content_default,sound,type,language,emote,comment) VALUES
+(-1043000,'At last! Naralex can be awakened! Come aid me, brave adventurers!',0,1,0,0,'Disciple SAY_AT_LAST'),
+(-1043001,'I must make the necessary preparations before the awakening ritual can begin. You must protect me!',0,0,0,0,'Disciple SAY_MAKE_PREPARATIONS'),
+(-1043002,'These caverns were once a temple of promise for regrowth in the Barrens. Now, they are the halls of nightmares.',0,0,0,0,'Disciple SAY_TEMPLE_OF_PROMISE'),
+(-1043003,'Come. We must continue. There is much to be done before we can pull Naralex from his nightmare.',0,0,0,0,'Disciple SAY_MUST_CONTINUE'),
+(-1043004,'Within this circle of fire I must cast the spell to banish the spirits of the slain Fanglords.',0,0,0,0,'Disciple SAY_BANISH_THE_SPIRITS'),
+(-1043005,'The caverns have been purified. To Naralex\'s chamber we go!',0,0,0,0,'Disciple SAY_CAVERNS_PURIFIED'),
+(-1043006,'Beyond this corridor, Naralex lies in fitful sleep. Let us go awaken him before it is too late.',0,0,0,0,'Disciple SAY_BEYOND_THIS_CORRIDOR'),
+(-1043007,'Protect me brave souls as I delve into this Emerald Dream to rescue Naralex and put an end to this corruption!',0,0,0,0,'Disciple SAY_EMERALD_DREAM'),
+(-1043008,'%s begins to perform the awakening ritual on Naralex.',0,2,0,0,'Disciple EMOTE_AWAKENING_RITUAL'),
+(-1043009,'%s tosses fitfully in troubled sleep.',0,2,0,0,'Naralex EMOTE_TROUBLED_SLEEP'),
+(-1043010,'%s writhes in agony. The Disciple seems to be breaking through.',0,2,0,0,'Naralex EMOTE_WRITHE_IN_AGONY'),
+(-1043011,'%s dreams up a horrendous vision. Something stirs beneath the murky waters.',0,2,0,0,'Naralex EMOTE_HORRENDOUS_VISION'),
+(-1043012,'This Mutanus the Devourer is a minion from Naralex\'s nightmare no doubt!',0,0,0,0,'Disciple SAY_MUTANUS_THE_DEVOURER'),
+(-1043013,'I AM AWAKE, AT LAST!',0,1,0,0,'Naralex SAY_I_AM_AWAKE'),
+(-1043014,'At last! Naralex awakes from the nightmare.',0,0,0,0,'Disciple SAY_NARALEX_AWAKES'),
+(-1043015,'Ah, to be pulled from the dreaded nightmare! I thank you, my loyal Disciple, along with your brave companions.',0,0,0,0,'Naralex SAY_THANK_YOU'),
+(-1043016,'We must go and gather with the other Disciples. There is much work to be done before I can make another attempt to restore the Barrens. Farewell, brave souls!',0,0,0,0,'Naralex SAY_FAREWELL'),
+(-1043017,'Attacked! Help get this $N off of me!',0,0,0,0,'Disciple SAY_ATTACKED');
 
 -- -1 047 000 RAZORFEN KRAUL
 INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`, `sound`, `type`, `language`, `emote`, `comment`) VALUES
