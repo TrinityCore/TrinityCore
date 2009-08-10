@@ -78,6 +78,7 @@ struct TRINITY_DLL_DECL npc_kyle_frenziedAI : public ScriptedAI
     npc_kyle_frenziedAI(Creature *c) : ScriptedAI(c) {}
 
     bool bEvent;
+    bool m_bIsMovingToLunch;
     uint64 uiPlayerGUID;
     uint32 uiEventTimer;
     uint8 uiEventPhase;
@@ -85,9 +86,10 @@ struct TRINITY_DLL_DECL npc_kyle_frenziedAI : public ScriptedAI
     void Reset()
     {
         bEvent = false;
+        m_bIsMovingToLunch = false;
         uiPlayerGUID = 0;
         uiEventTimer = 5000;
-        uiEventPhase = 1;
+        uiEventPhase = 0;
 
         if (m_creature->GetEntry() == NPC_KYLE_FRIENDLY)
             m_creature->UpdateEntry(NPC_KYLE_FRENZIED);
@@ -95,7 +97,7 @@ struct TRINITY_DLL_DECL npc_kyle_frenziedAI : public ScriptedAI
 
     void SpellHit(Unit* pCaster, SpellEntry const* pSpell)
     {
-        if (!m_creature->isInCombat() && !bEvent && pSpell->Id == SPELL_LUNCH)
+        if (!m_creature->getVictim() && !bEvent && pSpell->Id == SPELL_LUNCH)
         {
             if (pCaster->GetTypeId() == TYPEID_PLAYER)
                 uiPlayerGUID = pCaster->GetGUID();
@@ -119,37 +121,38 @@ struct TRINITY_DLL_DECL npc_kyle_frenziedAI : public ScriptedAI
             return;
 
         if (uiPointId == POINT_ID)
-            uiEventTimer = 5000;
+            m_bIsMovingToLunch = false;
     }
 
     void UpdateAI(const uint32 diff)
     {
         if (bEvent)
         {
-            if (!uiEventTimer)
+            if (m_bIsMovingToLunch)
                 return;
 
             if (uiEventTimer < diff)
             {
+                uiEventTimer = 5000;
+                ++uiEventPhase;
+
                 switch(uiEventPhase)
                 {
                     case 1:
-                        uiEventTimer = 0;
-
                         if (Unit* pUnit = Unit::GetUnit(*m_creature,uiPlayerGUID))
                         {
                             if (GameObject* pGo = pUnit->GetGameObject(SPELL_LUNCH))
+                            {
+                                m_bIsMovingToLunch = true;
                                 m_creature->GetMotionMaster()->MovePoint(POINT_ID, pGo->GetPositionX(), pGo->GetPositionY(), pGo->GetPositionZ());
+                            }
                         }
                         break;
                     case 2:
-                        uiEventTimer = 5000;
                         DoScriptText(EMOTE_EAT_LUNCH, m_creature);
                         m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USESTANDING);
                         break;
                     case 3:
-                        uiEventTimer = 5000;
-                        
                         if (Player* pUnit = Unit::GetPlayer(uiPlayerGUID))
                             pUnit->TalkedToCreature(m_creature->GetEntry(), m_creature->GetGUID());
 
@@ -166,9 +169,6 @@ struct TRINITY_DLL_DECL npc_kyle_frenziedAI : public ScriptedAI
                         m_creature->GetMotionMaster()->Clear();
                         break;
                 }
-
-                if (uiEventPhase != 5)
-                    ++uiEventPhase;
             }
             else
                 uiEventTimer -= diff;

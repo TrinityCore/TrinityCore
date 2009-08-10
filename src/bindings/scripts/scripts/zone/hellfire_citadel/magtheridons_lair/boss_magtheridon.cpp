@@ -149,8 +149,7 @@ struct TRINITY_DLL_DECL mob_abyssalAI : public ScriptedAI
 
         if(Despawn_Timer < diff)
         {
-            m_creature->SetVisibility(VISIBILITY_OFF);
-            m_creature->setDeathState(JUST_DIED);
+            m_creature->ForcedDespawn();
         }else Despawn_Timer -= diff;
 
         if(!UpdateVictim())

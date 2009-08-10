@@ -312,10 +312,10 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
             if(InnderDemon[i])
             {
                     //delete creature
-                    Unit* pUnit = Unit::GetUnit((*m_creature), InnderDemon[i]);
-                    if (pUnit && pUnit->isAlive())
+                    Creature* pCreature = Unit::GetCreature((*m_creature), InnderDemon[i]);
+                    if (pCreature && pCreature->isAlive())
                     {
-                        pUnit->DealDamage(pUnit, pUnit->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                        pCreature->ForcedDespawn();
                     }
                     InnderDemon[i] = 0;
             }
@@ -376,11 +376,8 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
         //despawn copy
         if (Demon)
         {
-            Unit *pUnit = NULL;
-            pUnit = Unit::GetUnit((*m_creature), Demon);
-
-            if (pUnit)
-                pUnit->DealDamage(pUnit, pUnit->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+            if (Creature* pDemon = Unit::GetCreature(*m_creature, Demon))
+                pDemon->ForcedDespawn();
         }
         if (pInstance)
             pInstance->SetData(DATA_LEOTHERASTHEBLINDEVENT, DONE);

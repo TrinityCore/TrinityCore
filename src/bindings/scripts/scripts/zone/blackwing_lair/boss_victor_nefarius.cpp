@@ -329,15 +329,14 @@ struct TRINITY_DLL_DECL boss_victor_nefariusAI : public ScriptedAI
         {
             if (NefCheckTime < diff)
             {
-                Unit* Nefarian = NULL;
-                Nefarian = Unit::GetUnit((*m_creature),NefarianGUID);
+                Unit* Nefarian = (Creature*)Unit::GetUnit((*m_creature),NefarianGUID);
 
                 //If nef is dead then we die to so the players get out of combat
                 //and cannot repeat the event
                 if (!Nefarian || !Nefarian->isAlive())
                 {
                     NefarianGUID = 0;
-                    m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                    m_creature->ForcedDespawn();
                 }
 
                 NefCheckTime = 2000;

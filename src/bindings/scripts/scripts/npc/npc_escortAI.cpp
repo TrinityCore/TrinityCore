@@ -147,34 +147,53 @@ void npc_escortAI::UpdateAI(const uint32 diff)
     }else WaitTimer -= diff;
     }
 
-    //Check if player is within range
-    if (IsBeingEscorted && !m_creature->isInCombat() && PlayerGUID)
+    //Check if player or any member of his group is within range
+    if (IsBeingEscorted && PlayerGUID && !m_creature->getVictim() && !m_creature->IsInEvadeMode())
     {
         if (PlayerTimer < diff)
-    {
-        Unit* p = Unit::GetUnit(*m_creature, PlayerGUID);
-
-        if (DespawnAtFar && (!p || !m_creature->IsWithinDist(p,GetMaxPlayerDistance())))
         {
-            JustDied(m_creature);
-            IsBeingEscorted = false;
+            bool bIsMaxRangeExceeded = true;
 
-            debug_log("TSCR: EscortAI Evaded back to spawn point because player was to far away or not found");
+            if (Player* pPlayer = Unit::GetPlayer(PlayerGUID))
+            {
+                if (Group* pGroup = pPlayer->GetGroup())
+                {
+                    for(GroupReference* pRef = pGroup->GetFirstMember(); pRef != NULL; pRef = pRef->next())
+                    {
+                        Player* pMember = pRef->getSource();
 
-            m_creature->setDeathState(JUST_DIED);
-            m_creature->SetHealth(0);
-            m_creature->CombatStop(true);
-            m_creature->DeleteThreatList();
-            m_creature->Respawn();
-            m_creature->GetMotionMaster()->Clear(true);
+                        if (pMember && m_creature->IsWithinDistInMap(pMember, GetMaxPlayerDistance()))
+                        {
+                            bIsMaxRangeExceeded = false;
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    if (m_creature->IsWithinDistInMap(pPlayer, GetMaxPlayerDistance()))
+                        bIsMaxRangeExceeded = false;
+                }
+            }
 
-            //Restore original NpcFlags
-            m_creature->SetUInt32Value(UNIT_NPC_FLAGS, m_uiNpcFlags);
+            if (DespawnAtFar && bIsMaxRangeExceeded)
+            {
+                JustDied(m_creature);
+                IsBeingEscorted = false;
 
-        }
+                debug_log("TSCR: EscortAI Evaded back to spawn point because player/group was to far away or not found");
+
+                m_creature->setDeathState(JUST_DIED);
+
+                //TODO: add option to set instant respawn? Then use db respawn value as default
+                m_creature->Respawn();
+
+                //Restore original NpcFlags
+                m_creature->SetUInt32Value(UNIT_NPC_FLAGS, m_creature->GetCreatureInfo()->npcflag);
+            }
 
         PlayerTimer = 1000;
-    }else PlayerTimer -= diff;
+        }else PlayerTimer -= diff;
     }
 
     if(CanMelee && UpdateVictim())
