@@ -1,4 +1,4 @@
-﻿-- Up to TC2 4748
+-- Up to TC2 4748
 -- 
 -- trinityscript_script_texts.sql Contains data for table `script_texts` mainly used in C++ parts.
 -- valid entries for table are between -1000000 and -1999999
@@ -1873,12 +1873,6 @@ INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content
 (-1609014, 'Sate your hunger on cold steel\, $R', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 'unworthy_initiate SAY_EVENT_ATTACK_7'),
 (-1609015, 'It ends here!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 'unworthy_initiate SAY_EVENT_ATTACK_8'),
 (-1609016, 'Death is the only cure!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 'unworthy_initiate SAY_EVENT_ATTACK_9'),
-(-1609017,'No potions!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,0,0,0,'dk_initiate SAY_DUEL_A'),
-(-1609018,'Remember this day, $n, for it is the day that you will be thoroughly owned.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,0,0,0,'dk_initiate SAY_DUEL_B'),
-(-1609019,'I\'m going to tear your heart out, cupcake!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,0,0,0,'dk_initiate SAY_DUEL_C'),
-(-1609020,'Don\'t make me laugh.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,0,0,0,'dk_initiate SAY_DUEL_D'),
-(-1609021,'Here come the tears...', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,0,0,0,'dk_initiate SAY_DUEL_E'),
-(-1609022,'You have challenged death itself!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,0,0,0,'dk_initiate SAY_DUEL_F'),
 (-1609025,'Come to finish the job, have you?', NULL,NULL, NULL,NULL, NULL,NULL, NULL,NULL,0,0,0,1,'special_surprise SAY_EXEC_START_1'),
 (-1609026,'Come to finish the job, have ye?', NULL,NULL, NULL,NULL, NULL,NULL, NULL,NULL,0,0,0,1,'special_surprise SAY_EXEC_START_2'),
 (-1609027,'Come ta finish da job, mon?', NULL,NULL, NULL,NULL, NULL,NULL, NULL,NULL,0,0,0,1,'special_surprise SAY_EXEC_START_3'),
@@ -1932,7 +1926,16 @@ INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content
 (-1609075,'There... There\'s no more time for me. I\'m done for. Finish me off, $N. Do it or they\'ll kill us both. $N... Remember Mulgore. This world is worth saving.', NULL,NULL, NULL,NULL, NULL,NULL, NULL,NULL,0,0,0,18,'special_surprise SAY_EXEC_TIME_9'),
 (-1609076,'Der... Der\'s no more time for me. I be done for. Finish me off $N. Do it or they\'ll kill us both. $N... Remember Sen\'jin Village, mon! Dis world be worth saving!', NULL,NULL, NULL,NULL, NULL,NULL, NULL,NULL,0,0,0,18,'special_surprise SAY_EXEC_TIME_10'),
 (-1609077,'Do it, $N! Put me out of my misery!', NULL,NULL, NULL,NULL, NULL,NULL, NULL,NULL,0,0,0,1,'special_surprise SAY_EXEC_WAITING'),
-(-1609078,'dies from his wounds.', NULL,NULL, NULL,NULL, NULL,NULL, NULL,NULL,0,2,0,0,'special_surprise EMOTE_DIES');
+(-1609078,'dies from his wounds.', NULL,NULL, NULL,NULL, NULL,NULL, NULL,NULL,0,2,0,0,'special_surprise EMOTE_DIES'),
+(-1609080,'No potions!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,0,0,0,'dk_initiate SAY_DUEL_A'),
+(-1609081,'Remember this day, $n, for it is the day that you will be thoroughly owned.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,0,0,0,'dk_initiate SAY_DUEL_B'),
+(-1609082,'I\'m going to tear your heart out, cupcake!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,0,0,0,'dk_initiate SAY_DUEL_C'),
+(-1609083,'Don\'t make me laugh.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,0,0,0,'dk_initiate SAY_DUEL_D'),
+(-1609084,'Here come the tears...', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,0,0,0,'dk_initiate SAY_DUEL_E'),
+(-1609085,'You have challenged death itself!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,0,0,0,'dk_initiate SAY_DUEL_F'),
+(-1609086,'The Lich King will see his true champion on this day!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,0,0,0,'dk_initiate SAY_DUEL_G'),
+(-1609087,'You\'re going down!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,0,0,0,'dk_initiate SAY_DUEL_H'),
+(-1609088,'You don\'t stand a chance, $n', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,0,0,0,'dk_initiate SAY_DUEL_I');
 
 -- 
 -- Below just for beautiful view in table, run at own desire

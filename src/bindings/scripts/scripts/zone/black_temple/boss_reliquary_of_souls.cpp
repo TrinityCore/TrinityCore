@@ -142,10 +142,9 @@ struct TRINITY_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
 
         if(EssenceGUID)
         {
-            if(Unit* Essence = Unit::GetUnit(*m_creature, EssenceGUID))
+            if(Creature* Essence = Unit::GetCreature(*m_creature, EssenceGUID))
             {
-                Essence->SetVisibility(VISIBILITY_OFF);
-                Essence->setDeathState(DEAD);
+                Essence->ForcedDespawn();
             }
             EssenceGUID = 0;
         }
@@ -302,8 +301,7 @@ struct TRINITY_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
                 {
                     DoScriptText(DESI_SAY_AFTER, Essence);
                 }
-                Essence->SetVisibility(VISIBILITY_OFF);
-                Essence->setDeathState(JUST_DIED);
+                Essence->ForcedDespawn();
                 m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE,0);
                 EssenceGUID = 0;
                 SoulCount = 0;
