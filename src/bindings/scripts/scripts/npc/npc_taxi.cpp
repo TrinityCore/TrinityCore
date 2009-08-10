@@ -123,6 +123,10 @@ bool GossipHello_npc_taxi(Player *player, Creature *_Creature)
         if (player->GetQuestStatus(11170) == QUEST_STATUS_INCOMPLETE)
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I need to commandeer a riding bat for special assignment for us.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 24);
         break;
+    case 23704: // Dustwallow Marsh - Cassa Crimsonwing
+        if (player->GetQuestStatus(11142) == QUEST_STATUS_INCOMPLETE)
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"<Ride the gryphons to Survey Alcaz Island>",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+25);
+        break;
     }
 
     player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
@@ -236,6 +240,10 @@ bool GossipSelect_npc_taxi(Player *player, Creature *_Creature, uint32 sender, u
     case GOSSIP_ACTION_INFO_DEF + 24:
         player->CLOSE_GOSSIP_MENU();
         player->ActivateTaxiPathTo(738);
+        break;
+    case GOSSIP_ACTION_INFO_DEF + 25:
+        player->CLOSE_GOSSIP_MENU();
+        player->CastSpell(player,42295,true);
         break;
     }
 
