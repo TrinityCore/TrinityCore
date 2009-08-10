@@ -661,6 +661,7 @@ extern void AddSC_boss_razorscale();
 
 //Halls of lightning
 extern void AddSC_boss_bjarngrim();
+extern void AddSC_boss_loken();
 
 //Region
 extern void AddSC_wintergrasp();
@@ -1580,6 +1581,7 @@ void ScriptsInit(char const* cfg_file = "trinitycore.conf")
 
     //Halls of lightning
     AddSC_boss_bjarngrim();
+    AddSC_boss_loken();
 
     //Region
     AddSC_wintergrasp();
