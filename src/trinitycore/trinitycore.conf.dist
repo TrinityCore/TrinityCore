@@ -1362,7 +1362,7 @@ Death.Bones.BattlegroundOrArena = 1
 #                 2 - both
 #
 #    AutoBroadcast.Timer
-#        Timer for auto broadcast
+#        Timer for auto broadcast (in milliseconds)
 #
 ###################################################################################################################
 

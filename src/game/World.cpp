@@ -67,6 +67,7 @@
 #include "Language.h"
 #include "CreatureGroups.h"
 #include "Transports.h"
+#include "ProgressBar.h"
 
 INSTANTIATE_SINGLETON_1( World );
 
@@ -1494,6 +1495,9 @@ void World::SetInitialWorldSettings()
     sLog.outString( "Returning old mails..." );
     objmgr.ReturnOrDeleteOldMails(false);
 
+    sLog.outString("Loading Autobroadcasts...");
+    LoadAutobroadcasts();
+
     ///- Load and initialize scripts
     sLog.outString( "Loading Scripts..." );
     sLog.outString();
@@ -1697,6 +1701,45 @@ void World::RecordTimeDiff(const char *text, ...)
     }
 
     m_currentTime = thisTime;
+}
+
+void World::LoadAutobroadcasts()
+{
+    m_Autobroadcasts.clear();
+
+    QueryResult *result = WorldDatabase.Query("SELECT text FROM autobroadcast");
+
+    if(!result)
+    {
+        barGoLink bar(1);
+        bar.step();
+
+        sLog.outString();
+        sLog.outString( ">> Loaded 0 autobroadcasts definitions");
+        return;
+    }
+
+    barGoLink bar(result->GetRowCount());
+
+    uint32 count = 0;
+
+    do
+    {
+        bar.step();
+
+        Field *fields = result->Fetch();
+
+        std::string message = fields[0].GetCppString();
+
+        m_Autobroadcasts.push_back(message);
+
+        count++;
+    } while(result->NextRow());
+
+    delete result;
+
+    sLog.outString();
+    sLog.outString( ">> Loaded %u autobroadcasts definitions", count);
 }
 
 /// Update the World !
@@ -2321,41 +2364,41 @@ void World::ProcessCliCommands()
 
 void World::SendRNDBroadcast()
 {
-   std::string msg;
-   QueryResult *result = WorldDatabase.PQuery("SELECT `text` FROM autobroadcast AS r1 JOIN (SELECT ROUND(RAND() * (SELECT MAX(id) FROM autobroadcast)) AS id) AS r2 WHERE r1.id >= r2.id ORDER BY r1.id ASC LIMIT 1"); // ORDER BY RAND() is bad.. look it up to see why.
+    if(m_Autobroadcasts.empty())
+        return;
 
-   if(!result)
-      return;
+    std::string msg;
 
-   msg = result->Fetch()[0].GetString();
-   delete result;
+    std::list<std::string>::const_iterator itr = m_Autobroadcasts.begin();
+    std::advance(itr, rand() % m_Autobroadcasts.size());
+    msg = *itr;
 
-   static uint32 abcenter = 0;
+    static uint32 abcenter = 0;
     abcenter = sConfig.GetIntDefault("AutoBroadcast.Center", 0);
     if(abcenter == 0)
     {
-      sWorld.SendWorldText(LANG_AUTO_BROADCAST, msg.c_str());
+        sWorld.SendWorldText(LANG_AUTO_BROADCAST, msg.c_str());
 
-      sLog.outString("AutoBroadcast: '%s'",msg.c_str());
-   }
-   if(abcenter == 1)
-   {
-      WorldPacket data(SMSG_NOTIFICATION, (msg.size()+1));
-      data << msg;
-      sWorld.SendGlobalMessage(&data);
+        sLog.outString("AutoBroadcast: '%s'",msg.c_str());
+    }
+    if(abcenter == 1)
+    {
+        WorldPacket data(SMSG_NOTIFICATION, (msg.size()+1));
+        data << msg;
+        sWorld.SendGlobalMessage(&data);
 
-      sLog.outString("AutoBroadcast: '%s'",msg.c_str());
-   }
-   if(abcenter == 2)
-   {
-      sWorld.SendWorldText(LANG_AUTO_BROADCAST, msg.c_str());
+        sLog.outString("AutoBroadcast: '%s'",msg.c_str());
+    }
+    if(abcenter == 2)
+    {
+        sWorld.SendWorldText(LANG_AUTO_BROADCAST, msg.c_str());
 
-      WorldPacket data(SMSG_NOTIFICATION, (msg.size()+1));
-      data << msg;
-      sWorld.SendGlobalMessage(&data);
+        WorldPacket data(SMSG_NOTIFICATION, (msg.size()+1));
+        data << msg;
+        sWorld.SendGlobalMessage(&data);
 
-      sLog.outString("AutoBroadcast: '%s'",msg.c_str());
-   }
+        sLog.outString("AutoBroadcast: '%s'",msg.c_str());
+    }
 }
 
 void World::InitResultQueue()
