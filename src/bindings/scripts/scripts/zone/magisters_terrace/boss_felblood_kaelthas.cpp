@@ -195,7 +195,7 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
     {
         float x = KaelLocations[0][0];
         float y = KaelLocations[0][1];
-        m_creature->Relocate(x, y, LOCATION_Z, 0);
+        m_creature->GetMap()->CreatureRelocation(m_creature, x, y, LOCATION_Z, 0.0f);
         //m_creature->SendMonsterMove(x, y, LOCATION_Z, 0, 0, 0); // causes some issues...
         std::list<HostilReference*>::iterator i = m_creature->getThreatManager().getThreatList().begin();
         for (i = m_creature->getThreatManager().getThreatList().begin(); i!= m_creature->getThreatManager().getThreatList().end();++i)

@@ -184,7 +184,7 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
             if (FireMagusDead && FrostMagusDead && ArcaneMagusDead)
             {
                 m_creature->GetMotionMaster()->Clear();
-                m_creature->Relocate(CenterOfRoom[0][0], CenterOfRoom[0][1], CenterOfRoom[0][2], CenterOfRoom[0][3]);
+                m_creature->GetMap()->CreatureRelocation(m_creature, CenterOfRoom[0][0], CenterOfRoom[0][1], CenterOfRoom[0][2], CenterOfRoom[0][3]);
                 DoCast(m_creature, SPELL_TELESTRA_BACK);
                 m_creature->SetVisibility(VISIBILITY_ON);
                 if (Phase == 1)

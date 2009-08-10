@@ -334,7 +334,7 @@ struct TRINITY_DLL_DECL boss_sathrovarrAI : public ScriptedAI
     void JustDied(Unit *killer)
     {
         DoScriptText(SAY_SATH_DEATH, m_creature);
-        m_creature->Relocate(m_creature->GetPositionX(), m_creature->GetPositionY(), DRAGON_REALM_Z, m_creature->GetOrientation());
+        m_creature->GetMap()->CreatureRelocation(m_creature, m_creature->GetPositionX(), m_creature->GetPositionY(), DRAGON_REALM_Z, m_creature->GetOrientation());
         TeleportAllPlayersBack();
         if(Unit *Kalecgos = Unit::GetUnit(*m_creature, KalecgosGUID))
         {
