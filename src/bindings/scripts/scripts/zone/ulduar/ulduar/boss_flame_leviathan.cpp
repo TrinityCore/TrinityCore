@@ -47,6 +47,19 @@ struct TRINITY_DLL_DECL boss_flame_leviathanAI : public BossAI
         assert(c->isVehicle());
     }
 
+    uint32 FLAME_VENTS_Timer;
+    uint32 BATTERING_RAM_Timer;
+    uint32 GATHERING_SPEED_Timer;
+
+    void Reset()
+    {
+        FLAME_VENTS_Timer = 10000;
+        BATTERING_RAM_Timer = 0;
+        GATHERING_SPEED_Timer = 0;
+    }
+
+    void MoveInLineOfSight(Unit* who) {}
+
     void EnterCombat(Unit *who)
     {
         _EnterCombat();
@@ -76,6 +89,24 @@ struct TRINITY_DLL_DECL boss_flame_leviathanAI : public BossAI
         }
 
         events.Update(diff);
+
+        if( FLAME_VENTS_Timer < diff )
+        {
+            DoCast(m_creature->getVictim(),SPELL_FLAME_VENTS);
+            FLAME_VENTS_Timer = 30000;
+        } else FLAME_VENTS_Timer -= diff;
+
+        if( BATTERING_RAM_Timer < diff )
+        {
+            DoCast(m_creature->getVictim(),SPELL_BATTERING_RAM);
+            BATTERING_RAM_Timer = 40000;
+        } else BATTERING_RAM_Timer -= diff;
+
+        if( GATHERING_SPEED_Timer < diff )
+        {
+            DoCast(m_creature->getVictim(),SPELL_GATHERING_SPEED);
+            GATHERING_SPEED_Timer = 50000;
+        } else GATHERING_SPEED_Timer -= diff;
 
         if(me->hasUnitState(UNIT_STAT_CASTING))
             return;
@@ -153,7 +184,7 @@ struct TRINITY_DLL_DECL boss_flame_leviathan_turretAI : public ScriptedAI
                     events.PopEvent();
                     break;
             }
-        }       
+        }
     }
 };
 
@@ -210,7 +241,7 @@ struct TRINITY_DLL_DECL boss_flame_leviathan_defense_turretAI : public ScriptedA
 
         if(who->GetTypeId() != TYPEID_PLAYER || !who->m_Vehicle || who->m_Vehicle->GetEntry() != 33114)
             return;
-        
+
         AttackStart(who);
     }
 
