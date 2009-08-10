@@ -331,7 +331,6 @@ class TRINITY_DLL_SPEC AuraEffect
         void HandleAuraAllowOnlyAbility(bool apply, bool Real, bool changeAmount);
         void HandleCharmConvert(bool apply, bool Real, bool changeAmount);
         void HandleReflectSpells( bool Apply, bool Real , bool changeAmount);
-        void HandleModArmorPenetrationPct(bool Apply, bool Real, bool changeAmount);
         void HandleAuraInitializeImages(bool Apply, bool Real, bool changeAmount);
         void HandleAuraCloneCaster(bool Apply, bool Real, bool changeAmount);
 
