@@ -72,14 +72,15 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 ( 20594, 65116, 0, 'Stoneform'),
 ( 49039, 50397, 2, 'Lichborne - shapeshift'),
 ( 64382, 64380, 0, 'Shattering Throw'),
-( 19574, 24395, 2, 'Beast Within'),
-( 19574, 24396, 2, 'Beast Within'),
-( 19574, 24397, 2, 'Beast Within'),
-( 19574, 26592, 2, 'Beast Within'),
-( 34471, 24395, 2, 'Beast Within'),
-( 34471, 24396, 2, 'Beast Within'),
-( 34471, 24397, 2, 'Beast Within'),
-( 34471, 26592, 2, 'Beast Within'),
+( 19574, 24395, 2, 'Bestial Wrath'),
+( 19574, 24396, 2, 'Bestial Wrath'),
+( 19574, 24397, 2, 'Bestial Wrath'),
+( 19574, 26592, 2, 'Bestial Wrath'),
+( 34471, 24395, 2, 'The Beast Within'),
+( 34471, 24396, 2, 'The Beast Within'),
+( 34471, 24397, 2, 'The Beast Within'),
+( 34471, 26592, 2, 'The Beast Within'),
+(-59907,     7, 0, 'Lightwell Charges - Suicide'),
 
 -- Creature
 ( 36574, 36650, 0, 'Apply Phase Slip Vulnerability'),
@@ -2072,3 +2073,23 @@ INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
 DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (54643);
 INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comment`) VALUES
 ( 54643,-54643, 2, 'Wintergrasp Defender Teleport');
+
+
+-- lightwell
+UPDATE `creature_template` SET `ScriptName` = 'npc_lightwell' WHERE `entry` IN (31883, 31893, 31894, 31895, 31896, 31897);
+
+REPLACE INTO `npc_spellclick_spells` (npc_entry, spell_id, quest_start, quest_start_active, quest_end, cast_flags, quest_status) VALUES
+(31883, 60123, 0, 0, 0, 2, 0),
+(31893, 60123, 0, 0, 0, 2, 0),
+(31894, 60123, 0, 0, 0, 2, 0),
+(31895, 60123, 0, 0, 0, 2, 0),
+(31896, 60123, 0, 0, 0, 2, 0),
+(31897, 60123, 0, 0, 0, 2, 0);
+
+REPLACE INTO `spell_bonus_data` (entry, direct_bonus, dot_bonus, ap_bonus, ap_dot_bonus, comments) VALUES
+(7001, -1, 0.3333, -1, -1, 'Priest - Lightwell Renew Rank 1'),
+(27873, -1, 0.3333, -1, -1, 'Priest - Lightwell Renew Rank 2'),
+(27874, -1, 0.3333, -1, -1, 'Priest - Lightwell Renew Rank 3'),
+(28276, -1, 0.3333, -1, -1, 'Priest - Lightwell Renew Rank 4'),
+(48084, -1, 0.3333, -1, -1, 'Priest - Lightwell Renew Rank 5'),
+(48085, -1, 0.3333, -1, -1, 'Priest - Lightwell Renew Rank 6');

@@ -5181,6 +5181,57 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         if(Unit *passenger = ((Vehicle*)m_caster)->GetPassenger(0))
                             passenger->CastSpell(m_caster->m_Vehicle, damage, true);
                     return;
+                case 60123:                                 // Lightwell Renew, TODO: 30% Attackdamage check for Lightwell
+                {
+                    if(unitTarget && m_originalCaster)
+                    {
+                        Unit* owner = m_originalCaster->GetOwner();
+                        uint32 spell_heal;
+                        uint32 spell_charges = 59907;
+
+                        switch(m_originalCaster->GetEntry())
+                        {
+                            case 31897: spell_heal = 7001; break;
+                            case 31896: spell_heal = 27873; break;
+                            case 31895: spell_heal = 27874; break;
+                            case 31894: spell_heal = 28276; break;
+                            case 31893: spell_heal = 48084; break;
+                            case 31883: spell_heal = 48085; break;
+                        }
+
+                        if(owner && spell_heal && spell_charges)
+                        {
+                            if(owner->GetTypeId() == TYPEID_PLAYER && unitTarget->GetTypeId() == TYPEID_PLAYER)
+                            {
+                                if(((Player*)owner)->IsInSameRaidWith(((Player*)unitTarget)) && (!((Player*)unitTarget)->duel || unitTarget == owner) && !unitTarget->HasAura(spell_heal))
+                                {
+                                    Aura *chargesaura = m_originalCaster->GetAura(spell_charges);
+                                    if(chargesaura)
+                                    {
+                                        if(chargesaura->GetAuraCharges() > 1)
+                                        {
+                                            chargesaura->SetAuraCharges(chargesaura->GetAuraCharges() - 1);
+                                            owner->CastSpell(unitTarget, spell_heal, true);
+                                            if(unitTarget->IsPvP() && !owner->IsPvP())
+                                            {
+                                                owner->SetPvP(true);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            m_originalCaster->RemoveAura(chargesaura);
+                                            owner->CastSpell(unitTarget, spell_heal, true);
+                                            if(unitTarget->IsPvP() && !owner->IsPvP())
+                                            {
+                                                owner->SetPvP(true);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
             break;
         }
