@@ -279,7 +279,7 @@ struct TRINITY_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
                     if (i_pl->isAlive() && !i_pl->HasAura(SPELL_BANISH))
                         i_pl->TeleportTo(m_creature->GetMapId(), VorpilPosition[0],VorpilPosition[1],VorpilPosition[2], 0, TELE_TO_NOT_LEAVE_COMBAT);
 
-            m_creature->Relocate(VorpilPosition[0],VorpilPosition[1],VorpilPosition[2]);
+            m_creature->GetMap()->CreatureRelocation(m_creature, VorpilPosition[0],VorpilPosition[1],VorpilPosition[2],0.0f);
             DoCast(m_creature,SPELL_DRAW_SHADOWS,true);
 
             DoCast(m_creature,HeroicMode?H_SPELL_RAIN_OF_FIRE:SPELL_RAIN_OF_FIRE);

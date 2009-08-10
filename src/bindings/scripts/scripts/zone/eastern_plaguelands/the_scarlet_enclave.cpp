@@ -1181,7 +1181,7 @@ struct TRINITY_DLL_DECL npc_valkyr_battle_maidenAI : public ScriptedAI
         m_creature->GetPosition(x, y, z);
         z += 4; x -= 3.5; y -= 5;
         m_creature->GetMotionMaster()->Clear(false);
-        m_creature->Relocate(x, y, z);
+        m_creature->GetMap()->CreatureRelocation(m_creature, x, y, z, 0.0f);
     }
 
     void Aggro(Unit *who){}

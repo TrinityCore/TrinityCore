@@ -326,7 +326,7 @@ struct TRINITY_DLL_DECL boss_hex_lord_malacrassAI : public ScriptedAI
             else
             {
                 pCreature->AI()->EnterEvadeMode();
-                pCreature->Relocate(Pos_X[i], POS_Y, POS_Z, ORIENT);
+                pCreature->GetMap()->CreatureRelocation(m_creature, Pos_X[i], POS_Y, POS_Z, ORIENT);
                 pCreature->StopMoving();
             }
         }

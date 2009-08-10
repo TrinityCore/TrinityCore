@@ -160,15 +160,15 @@ struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
             switch(rand()%3)
             {
                 case 0:
-                    m_creature->Relocate(-8340.782227,2083.814453,125.648788,0);
+                    m_creature->GetMap()->CreatureRelocation(m_creature, -8340.782227,2083.814453,125.648788,0.0f);
                     DoResetThreat();
                     break;
                 case 1:
-                    m_creature->Relocate(-8341.546875,2118.504639,133.058151,0);
+                    m_creature->GetMap()->CreatureRelocation(m_creature, -8341.546875,2118.504639,133.058151,0.0f);
                     DoResetThreat();
                     break;
                 case 2:
-                    m_creature->Relocate(-8318.822266,2058.231201,133.058151,0);
+                    m_creature->GetMap()->CreatureRelocation(m_creature, -8318.822266,2058.231201,133.058151,0.0f);
                     DoResetThreat();
                     break;
             }
@@ -259,7 +259,7 @@ struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
         m_creature->RemoveAllAuras();
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->SetVisibility(VISIBILITY_OFF);
-        m_creature->Relocate(bossc->x, bossc->y, bossc->z, bossc->r);
+        m_creature->GetMap()->CreatureRelocation(m_creature, bossc->x, bossc->y, bossc->z, bossc->r);
         Invisible = true;
         delete place1;
         delete place2;
