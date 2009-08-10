@@ -1583,15 +1583,15 @@ void ScriptsInit(char const* cfg_file = "trinitycore.conf")
 
     //Ulduar
     AddSC_boss_flame_leviathan();
-	AddSC_boss_ignis();
+    AddSC_boss_ignis();
     AddSC_boss_razorscale();
-	AddSC_boss_xt002();
-	//AddSC_instance_ulduar();
+    AddSC_boss_xt002();
+    //AddSC_instance_ulduar();
 
     //Halls of Lightning
     AddSC_boss_bjarngrim();
     AddSC_boss_loken();
-	AddSC_instance_halls_of_lightning();
+    AddSC_instance_halls_of_lightning();
 
     //Region
     AddSC_wintergrasp();
