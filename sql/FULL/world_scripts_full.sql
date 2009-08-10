@@ -1165,4 +1165,5 @@ INSERT INTO `creature_ai_scripts` VALUES
 
 UPDATE creature_template set ScriptName = 'boss_bjarngrim' where entry =28586;
 UPDATE creature_template set ScriptName = 'mob_stormforged_lieutenant' where entry =29240;
+UPDATE `creature_template` SET `ScriptName` = npc_skywing WHERE `entry` = 22424; -- script quest Skywing
 

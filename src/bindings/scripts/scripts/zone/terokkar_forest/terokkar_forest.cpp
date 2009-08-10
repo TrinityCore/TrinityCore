@@ -16,8 +16,8 @@
 
 /* ScriptData
 SDName: Terokkar_Forest
-SD%Complete: 80
-SDComment: Quest support: 9889, 10009, 10873, 10896, 11096, 10052, 10051. Skettis->Ogri'la Flight
+SD%Complete: 85
+SDComment: Quest support: 9889, 10009, 10873, 10896, 10898, 11096, 10052, 10051. Skettis->Ogri'la Flight
 SDCategory: Terokkar Forest
 EndScriptData */
 
@@ -165,6 +165,66 @@ struct TRINITY_DLL_DECL mob_infested_root_walkerAI : public ScriptedAI
 CreatureAI* GetAI_mob_infested_root_walker(Creature *_Creature)
 {
     return new mob_infested_root_walkerAI (_Creature);
+}
+
+
+/*######
+## mob_skywing
+######*/
+struct TRINITY_DLL_DECL npc_skywingAI : public npc_escortAI
+{
+public:
+    npc_skywingAI(Creature *c) : npc_escortAI(c) {}
+
+    void WaypointReached(uint32 i)
+    {
+        Player *pPlayer = Unit::GetPlayer(PlayerGUID);
+        if( !pPlayer )
+            return;
+
+        switch(i)
+        {
+            case 8:
+                pPlayer->AreaExploredOrEventHappens(10898);
+                break;
+        }
+    }
+
+    void EnterCombat(Unit* who) {}
+
+    void MoveInLineOfSight(Unit *who)
+    {
+        if( IsBeingEscorted )
+            return;
+
+        if( who->GetTypeId() == TYPEID_PLAYER )
+        {
+            if( CAST_PLR(who)->GetQuestStatus(10898) == QUEST_STATUS_INCOMPLETE )
+            {
+                float Radius = 10.0;
+                if( m_creature->IsWithinDistInMap(who, Radius) )
+                {
+                    Start(false, false, false, who->GetGUID());
+                }
+            }
+        }
+    }
+
+    void Reset() {}
+
+    void UpdateAI(const uint32 diff)
+    {
+        npc_escortAI::UpdateAI(diff);
+    }
+};
+
+CreatureAI* GetAI_npc_skywingAI(Creature *_Creature)
+{
+    npc_skywingAI* skywingAI = new npc_skywingAI(_Creature);
+
+    skywingAI->FillPointMovementListForCreature();
+
+    return skywingAI;
 }
 
 /*######
@@ -563,6 +623,11 @@ void AddSC_terokkar_forest()
     newscript->Name="go_skull_pile";
     newscript->pGOHello  = &GossipHello_go_skull_pile;
     newscript->pGOSelect = &GossipSelect_go_skull_pile;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name="npc_skywing";
+    newscript->GetAI = &GetAI_npc_skywingAI;
     newscript->RegisterSelf();
 
 }
