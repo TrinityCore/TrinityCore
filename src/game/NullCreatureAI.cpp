@@ -22,6 +22,11 @@
 #include "Creature.h"
 #include "TemporarySummon.h"
 
+PassiveAI::PassiveAI(Creature *c) : CreatureAI(c)
+{
+    me->SetReactState(REACT_PASSIVE);
+}
+
 void PassiveAI::UpdateAI(const uint32)
 {
     if(me->isInCombat() && me->getAttackers().empty())
