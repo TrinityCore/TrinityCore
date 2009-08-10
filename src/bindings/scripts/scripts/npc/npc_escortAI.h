@@ -44,6 +44,8 @@ struct TRINITY_DLL_DECL npc_escortAI : public ScriptedAI
 
         void JustRespawned();
 
+        void ReturnToLastPoint();
+
         void EnterEvadeMode();
 
         void UpdateAI(const uint32);
@@ -67,6 +69,11 @@ struct TRINITY_DLL_DECL npc_escortAI : public ScriptedAI
         void SetDespawnAtEnd(bool despawn) { DespawnAtEnd = despawn; }
         void SetDespawnAtFar(bool despawn) { DespawnAtFar = despawn; }
         bool GetAttack() { return Attack; }//used in EnterEvadeMode override
+        bool GetIsBeingEscorted() { return IsBeingEscorted; }//used in EnterEvadeMode override
+        void SetReturning(bool returning) { Returning = returning; }//used in EnterEvadeMode override
+        void SetCanAttack(bool attack) { Attack = attack; }
+        void SetCanDefend(bool defend) { Defend = defend; }        
+        uint64 GetEventStarterGUID() { return PlayerGUID; }
 
     // EscortAI variables
     protected:
