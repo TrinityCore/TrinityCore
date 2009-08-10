@@ -1788,6 +1788,36 @@ INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content
 
 (-1615042,'%s begins to open a Twilight Portal!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,5,0,0,'sartharion drake WHISPER_OPEN_PORTAL');
 
+-- 1 602 000 HALLS OF LIGHTNING
+/* Bjarngrim */
+INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`, `sound`, `type`, `language`, `emote`, `comment`) VALUES
+(-1602000,'I am the greatest of my father\'s sons! Your end has come!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,14149,1,0,0,'bjarngrim SAY_AGGRO'),
+(-1602001,'So ends your curse!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,14153,1,0,0,'bjarngrim SAY_SLAY_1'),
+(-1602002,'Flesh... is... weak!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,14154,1,0,0,'bjarngrim SAY_SLAY_2'),
+(-1602003,'...', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,14155,1,0,0,'bjarngrim SAY_SLAY_3'),
+(-1602004,'How can it be...? Flesh is not... stronger!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,14156,1,0,0,'bjarngrim SAY_DEATH'),
+(-1602005,'Defend yourself, for all the good it will do!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,14151,1,0,0,'bjarngrim SAY_BATTLE_STANCE'),
+(-1602006,'%s switches to Battle Stance!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,3,0,0,'bjarngrim EMOTE_BATTLE_STANCE'),
+(-1602007,'GRAAAAAH! Behold the fury of iron and steel!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,14152,1,0,0,'bjarngrim SAY_BERSEKER_STANCE'),
+(-1602008,'%s switches to Berserker Stance!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,3,0,0,'bjarngrim EMOTE_BERSEKER_STANCE'),
+(-1602009,'Give me your worst!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,14150,1,0,0,'bjarngrim SAY_DEFENSIVE_STANCE'),
+(-1602010,'%s switches to Defensive Stance!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,3,0,0,'bjarngrim EMOTE_DEFENSIVE_STANCE'),
+/* Loken */
+(-1602018,'What hope is there for you? None!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,14162,1,0,0,'loken SAY_AGGRO0'),
+(-1602019,'I have witnessed the rise and fall of empires. The birth and extinction of entire species. Over countless millennia the foolishness of mortals has remained beyond a constant. Your presence here confirms this.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,14160,1,0,0,'loken SAY_INTRO_1'),
+(-1602020,'My master has shown me the future, and you have no place in it. Azeroth will be reborn in darkness. Yogg-Saron shall be released! The Pantheon shall fall!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,14162,1,0,0,'loken SAY_INTRO_2'),
+(-1602021,'Only mortal...', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,14166,1,0,0,'loken SAY_SLAY_1'),
+(-1602022,'I... am... FOREVER!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,14167,1,0,0,'loken SAY_SLAY_2'),
+(-1602023,'What little time you had, you wasted!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,14168,1,0,0,'loken SAY_SLAY_3'),
+(-1602024,'My death... heralds the end of this world.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,14172,1,0,0,'loken SAY_DEATH'),
+(-1602025,'You cannot hide from fate!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,14163,1,0,0,'loken SAY_NOVA_1'),
+(-1602026,'Come closer. I will make it quick.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,14164,1,0,0,'loken SAY_NOVA_2'),
+(-1602027,'Your flesh cannot hold out for long.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,14165,1,0,0,'loken SAY_NOVA_3'),
+(-1602028,'You stare blindly into the abyss!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,14169,1,0,0,'loken SAY_75HEALTH'),
+(-1602029,'Your ignorance is profound. Can you not see where this path leads?', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,14170,1,0,0,'loken SAY_50HEALTH'),
+(-1602030,'You cross the precipice of oblivion!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,14171,1,0,0,'loken SAY_25HEALTH'),
+(-1602031,'%s begins to cast Lightning Nova!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,3,0,0,'loken EMOTE_NOVA');
+
 -- -1 645 000 ???
 INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`, `sound`, `type`, `language`, `emote`, `comment`) VALUES
 (-1645006, 'Let the trial begin, Bloodwrath, attack!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 1, 0, 0, 'master_kelerun_bloodmourn YELL_PHASE'),
@@ -1969,17 +1999,3 @@ REPLACE INTO `script_texts` (`entry`, `content_default`, `sound`, `type`, `langu
 (-1576043,'Dragonqueen... Life-Binder... preserve... me.',13454,1,0,0,'keristrasza SAY_DEATH'),
 (-1576044,'Stay. Enjoy your final moments.',13451,1,0,0,'keristrasza SAY_CRYSTAL_NOVA');
 
--- boss_bjarngrim
-DELETE FROM script_texts  where entry IN (-1602001,-1602000,-1602002,-1602003,-1602004,-1602005,-1602006,-1602007,-1602008,-1602009,-1602010);
-INSERT INTO script_texts (entry,content_default,sound,type,language,emote,comment) VALUES
-(-1602000,'I am the greatest of my father\'s sons! Your end has come!',14149,1,0,0,'bjarngrim SAY_AGGRO'),
-(-1602001,'So ends your curse!',14153,1,0,0,'bjarngrim SAY_SLAY_1'),
-(-1602002,'Flesh... is... weak!',14154,1,0,0,'bjarngrim SAY_SLAY_2'),
-(-1602003,'...',14155,1,0,0,'bjarngrim SAY_SLAY_3'),
-(-1602004,'How can it be...? Flesh is not... stronger!',14156,1,0,0,'bjarngrim SAY_DEATH'),
-(-1602005,'Defend yourself, for all the good it will do!',14151,1,0,0,'bjarngrim SAY_BATTLE_STANCE'),
-(-1602006,'%s switches to Battle Stance!',0,3,0,0,'bjarngrim EMOTE_BATTLE_STANCE'),
-(-1602007,'GRAAAAAH! Behold the fury of iron and steel!',14152,1,0,0,'bjarngrim SAY_BERSEKER_STANCE'),
-(-1602008,'%s switches to Berserker Stance!',0,3,0,0,'bjarngrim EMOTE_BERSEKER_STANCE'),
-(-1602009,'Give me your worst!',14150,1,0,0,'bjarngrim SAY_DEFENSIVE_STANCE'),
-(-1602010,'%s switches to Defensive Stance!',0,3,0,0,'bjarngrim EMOTE_DEFENSIVE_STANCE');

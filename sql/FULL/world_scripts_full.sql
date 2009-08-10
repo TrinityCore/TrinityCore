@@ -475,7 +475,7 @@ UPDATE `gameobject_template` SET `ScriptName`='go_gilded_brazier' WHERE `entry`=
 /* GNOMEREGAN */
 
 /* GRUUL'S LAIR */
-UPDATE `instance_template` SET `script`='instance_gruuls_lair' WHERE `map` =565;
+UPDATE `instance_template` SET `script`='instance_gruuls_lair' WHERE `map`=565;
 UPDATE `creature_template` SET `ScriptName`='boss_gruul' WHERE `entry`=19044;
 /* Maulgar and Event */
 UPDATE `creature_template` SET `ScriptName`='boss_high_king_maulgar' WHERE `entry`=18831;
@@ -483,6 +483,14 @@ UPDATE `creature_template` SET `ScriptName`='boss_kiggler_the_crazed' WHERE `ent
 UPDATE `creature_template` SET `ScriptName`='boss_blindeye_the_seer' WHERE `entry`=18836;
 UPDATE `creature_template` SET `ScriptName`='boss_olm_the_summoner' WHERE `entry`=18834;
 UPDATE `creature_template` SET `ScriptName`='boss_krosh_firehand' WHERE `entry`=18832;
+
+/* HALLS OF LIGHTNING */
+UPDATE `instance_template` SET `script`='instance_halls_of_lightning' WHERE `map`=602;
+/* Bjarngrim */
+UPDATE `creature_template` SET `ScriptName`='boss_bjarngrim' WHERE `entry`=28586;
+UPDATE `creature_template` SET `ScriptName`='mob_stormforged_lieutenant' WHERE `entry`=29240;
+/* Loken */
+UPDATE `creature_template` SET `ScriptName`='boss_loken' WHERE `entry`=28923;
 
 /* HELLFIRE CITADEL */
 
@@ -1162,8 +1170,4 @@ INSERT INTO `creature_ai_scripts` VALUES
 ( 3375001, 33750, 11, 0, 100, 0, 0, 0, 0, 0, 11, 55741, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Desecration'),
 ( 3375000, 33750, 1, 0, 100, 0, 1, 1, 0, 0, 11, 63587, 0, 2, 11, 63583, 0, 2, 0, 0, 0, 0, 'Desecration');
 /* EOF */
-
-UPDATE creature_template set ScriptName = 'boss_bjarngrim' where entry =28586;
-UPDATE creature_template set ScriptName = 'mob_stormforged_lieutenant' where entry =29240;
-UPDATE `creature_template` SET `ScriptName` = npc_skywing WHERE `entry` = 22424; -- script quest Skywing
 
