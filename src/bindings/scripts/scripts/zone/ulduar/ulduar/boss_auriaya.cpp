@@ -18,3 +18,74 @@
 
 #include "precompiled.h"
 #include "def_ulduar.h"
+
+//boss_auriaya
+#define SPELL_TERRIFYING_SCREECH    64386
+#define SPELL_SONIC_BOOM            38897
+#define SAY_AGGRO                   -2615016
+#define SAY_SLAY_1                  -2615017
+
+struct TRINITY_DLL_DECL boss_auriaya_AI : public ScriptedAI
+{
+    boss_auriaya_AI(Creature *c) : ScriptedAI(c) {}
+
+    uint32 TERRIFYING_SCREECH_Timer;
+    uint32 SONIC_BOOM_Timer;
+
+    void Reset()
+    {
+        TERRIFYING_SCREECH_Timer = 0;
+        SONIC_BOOM_Timer = 2000;
+    }
+
+    void EnterCombat(Unit* who)
+    {
+        DoScriptText(SAY_AGGRO,m_creature);
+    }
+    void KilledUnit(Unit* victim)
+    {
+        DoScriptText(SAY_SLAY_1, m_creature);
+    }
+
+    void JustDied(Unit *victim)
+    {
+        DoScriptText(SAY_SLAY_1, m_creature);
+    }
+
+    void MoveInLineOfSight(Unit* who) {}
+
+    void UpdateAI(const uint32 diff)
+    {
+        if(!UpdateVictim())
+            return;
+
+        if( TERRIFYING_SCREECH_Timer < diff )
+        {
+            DoCast(m_creature,SPELL_TERRIFYING_SCREECH);
+            DoScriptText(SAY_SLAY_1, m_creature);
+            TERRIFYING_SCREECH_Timer = 360000;
+        } else TERRIFYING_SCREECH_Timer -= diff;
+
+        if( SONIC_BOOM_Timer < diff )
+        {
+            DoCast(m_creature->getVictim(),SPELL_SONIC_BOOM);
+            SONIC_BOOM_Timer = 20000;
+        } else SONIC_BOOM_Timer -= diff;
+
+        DoMeleeAttackIfReady();
+    }
+};
+
+CreatureAI* GetAI_boss_auriaya(Creature *_Creature)
+{
+    return new boss_auriaya_AI (_Creature);
+}
+void AddSC_boss_auriaya()
+{
+    Script *newscript;
+
+    newscript = new Script;
+    newscript->Name = "boss_auriaya";
+    newscript->GetAI = &GetAI_boss_auriaya;
+    newscript->RegisterSelf();
+}

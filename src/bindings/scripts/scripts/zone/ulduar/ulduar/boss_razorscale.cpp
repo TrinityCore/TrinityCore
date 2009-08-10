@@ -16,39 +16,105 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
+/* ScriptData
+Name: razorscale
+%Complete: 90
+Comment: Made by Epsik from WoW Arthas wow.dsl.net.pk
+Category:
+EndScriptData */
+
 #include "precompiled.h"
 #include "def_ulduar.h"
 
-#define SPELL_FLAME_BUFFET      HEROIC(64016,64023)
-#define SPELL_WING_BUFFET       62666
-#define SPELL_FUSE_ARMOR        64821
-#define SPELL_FLAME_BREATH      HEROIC(63317,64021)
-#define SPELL_DEVOURING_FLAME   HEROIC(63014,63816)
-#define SPELL_BERSERK           47008
+#define SAY_AGGRO                   -2000000
+#define SAY_KILL                    -2000001
+#define SAY_PHASE_2_TRANS           -2000002
+#define SAY_PHASE_3_TRANS           -2000003
+#define EMOTE_BREATH                -2000004
 
-enum Events
+#define SPELL_FLAMEBUFFET           64016
+#define SPELL_FIREBALL              62796
+
+#define SPELL_WINGBUFFET            62666
+#define SPELL_FLAMEBREATH           63317
+#define SPELL_FUSEARMOR             64771
+#define SPELL_DEVOURINGFLAME        63014
+#define SPELL_KNOCK_AWAY            19633
+
+#define SPELL_BELLOWINGROAR         18431
+#define SPELL_HEATED_GROUND         22191
+
+#define SPELL_SUMMONADDS            17646
+
+#define CREATURE_ADDS               33846
+
+static float MovementLocations[4][3]=
 {
-    EVENT_BUFFET = 1,
-    EVENT_WING,
-    EVENT_FUSE,
-    EVENT_BREATH,
-    EVENT_DEVOUR,
-    EVENT_BERSERK,
+    {607.7, -281.9, 408.6},
+    {602.0, -245.5, 424.7},
+    {612.3, -230.8, 409.1},
+    {624.1, -251.8, 426.1}
 };
 
-struct TRINITY_DLL_DECL boss_razorscaleAI : public BossAI
+static float SpawnLocations[4][3]=
 {
-    boss_razorscaleAI(Creature *c) : BossAI(c, BOSS_RAZORSCALE) {}
+    {602.0, -248.1, 391.2},
+    {624.4, -232-4, 391.1},
+    {643.3, -256.4, 391.4},
+    {626.6, -271.5, 391.4},
+};
 
-    void EnterCombat(Unit *who)
+struct TRINITY_DLL_DECL boss_razorscaleAI : public ScriptedAI
+{
+    boss_razorscaleAI(Creature* c) : ScriptedAI(c) {}
+
+    uint32 Phase;
+
+    uint32 FlameBreathTimer;
+    uint32 FUSEARMORTimer;
+    uint32 DEVOURINGFLAMETimer;
+    uint32 MovementTimer;
+    uint32 SummonAddsTimer;
+    uint32 BellowingRoarTimer;
+    uint32 WingBuffetTimer;
+    uint32 KnockAwayTimer;
+    uint32 FireballTimer;
+
+    bool InitialSpawn;
+
+    void Reset()
     {
-        _EnterCombat();
-        events.ScheduleEvent(EVENT_BERSERK, 7*60000);
-        events.ScheduleEvent(EVENT_BUFFET, 10000+rand()%5000);
-        events.ScheduleEvent(EVENT_WING, 30000+rand()%30000);
-        events.ScheduleEvent(EVENT_FUSE, 10000);
-        events.ScheduleEvent(EVENT_BREATH, 15000);
-        events.ScheduleEvent(EVENT_DEVOUR, 10000);
+        Phase = 1;
+
+        FlameBreathTimer = 20000;
+        DEVOURINGFLAMETimer = 2000;
+        FUSEARMORTimer = 15000;
+        MovementTimer = 3000;
+        SummonAddsTimer = 45000;
+        BellowingRoarTimer = 30000;
+        WingBuffetTimer = 17000;
+        KnockAwayTimer = 15000;
+        FireballTimer = 18000;
+
+        InitialSpawn = true;
+
+        m_creature->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
+        m_creature->ApplySpellImmune(1, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, true);
+    }
+
+    void EnterCombat(Unit* who)
+    {
+        DoScriptText(SAY_AGGRO, m_creature);
+        DoZoneInCombat();
+    }
+
+    void JustDied(Unit* Killer)
+    {
+    }
+
+    void KilledUnit(Unit *victim)
+    {
+        DoScriptText(SAY_KILL, m_creature);
     }
 
     void UpdateAI(const uint32 diff)
@@ -56,46 +122,165 @@ struct TRINITY_DLL_DECL boss_razorscaleAI : public BossAI
         if(!UpdateVictim())
             return;
 
-        events.Update(diff);
-
-        if(me->hasUnitState(UNIT_STAT_CASTING))
-            return;
-
-        if(uint32 eventId = events.GetEvent())
+        if(((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 99) && (Phase == 1))
         {
-            switch(eventId)
+            Phase = 2;
+            m_creature->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+            m_creature->SetHover(true);
+            m_creature->GetMotionMaster()->Clear(false);
+            m_creature->GetMotionMaster()->MoveIdle();
+            DoScriptText(SAY_PHASE_2_TRANS, m_creature);
+        }
+
+        if(((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 50) && (Phase == 2))
+        {
+            Phase = 3;
+            m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+            m_creature->SetHover(false);
+            m_creature->GetMotionMaster()->MovePoint(0, 619.6, -261.1, 391.471832);
+            DoStartMovement(m_creature->getVictim());
+            m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+            DoScriptText(SAY_PHASE_3_TRANS, m_creature);
+            m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
+        }
+
+        if(Phase == 1 || Phase == 3)
+        {
+            if(FlameBreathTimer < diff)
             {
-                case EVENT_BERSERK:
-                    DoCast(me, SPELL_BERSERK);
-                    return;
-                case EVENT_BUFFET:
-                    DoCastAOE(SPELL_FLAME_BUFFET);
-                    events.RepeatEvent(10000+rand()%5000);
-                    return;
-                case EVENT_WING:
-                    DoCastAOE(SPELL_WING_BUFFET);
-                    events.RepeatEvent(30000+rand()%30000);
-                    return;
-                case EVENT_BREATH:
-                    DoCastAOE(SPELL_FLAME_BREATH);
-                    events.RepeatEvent(15000);
-                    return;
-                case EVENT_FUSE:
-                    DoCast(me->getVictim(), SPELL_FUSE_ARMOR);
-                    events.RepeatEvent(10000);
-                    return;
-                case EVENT_DEVOUR:
-                    if(Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
-                        DoCast(target, SPELL_DEVOURING_FLAME);
-                    events.RepeatEvent(10000);
-                    return;
-                default:
-                    events.PopEvent();
-                    break;
+                DoCast(m_creature->getVictim(), SPELL_FLAMEBREATH);
+                FlameBreathTimer = 15000;
+            } else FlameBreathTimer -= diff;
+
+            if(DEVOURINGFLAMETimer < diff)
+            {
+                Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1);
+                if(target && !m_creature->HasInArc(M_PI, target))
+                    DoCast(target, SPELL_DEVOURINGFLAME);
+
+                DEVOURINGFLAMETimer = 10000;
+            } else DEVOURINGFLAMETimer -= diff;
+
+            if(FUSEARMORTimer < diff)
+            {
+                DoCast(m_creature->getVictim(), SPELL_FUSEARMOR);
+                FUSEARMORTimer = 10000;
+            } else FUSEARMORTimer -= diff;
+
+            if(WingBuffetTimer < diff)
+            {
+                DoCast(m_creature->getVictim(), SPELL_WINGBUFFET);
+                WingBuffetTimer = 7000 + ((rand()%8)*1000);
+            } else WingBuffetTimer -= diff;
+
+            if(KnockAwayTimer < diff)
+            {
+                if(rand()%100 <= 30)
+                {
+                    DoCast(m_creature->getVictim(), SPELL_KNOCK_AWAY);
+                }
+                KnockAwayTimer = 15000;
+            } else KnockAwayTimer -= diff;
+
+            if(Phase == 3)
+            {
+                if(BellowingRoarTimer < diff)
+                {
+                    DoCast(m_creature->getVictim(), SPELL_BELLOWINGROAR);
+
+                    BellowingRoarTimer = 30000;
+                } else BellowingRoarTimer -= diff;
+
+                if(SummonAddsTimer < diff)
+                {
+                    SummonAdds(Phase);
+
+                    SummonAddsTimer = 45000;
+                } else SummonAddsTimer -= diff;
+            }
+
+            DoMeleeAttackIfReady();
+        }
+
+        if(Phase == 2)
+        {
+            if(InitialSpawn)
+            {
+                InitialSpawn = false;
+
+                for(uint32 i = 0; i < 4; ++i)
+                {
+                    uint32 random = rand()%4;
+                    Creature* Add = m_creature->SummonCreature(CREATURE_ADDS, SpawnLocations[random][0], SpawnLocations[random][1], SpawnLocations[random][2], 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
+                    if(Add)
+                        Add->AI()->AttackStart(SelectUnit(SELECT_TARGET_RANDOM, 0));
+                }
+            }
+
+
+            if(FireballTimer < diff)
+            {
+                DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_FIREBALL);
+
+                FireballTimer = 18000;
+            } else FireballTimer -= diff;
+
+            if(MovementTimer < diff)
+            {
+                if(rand()%100 < 30)
+                {
+                    DoScriptText(EMOTE_BREATH, m_creature);
+                    DoCast(m_creature->getVictim(), SPELL_FLAMEBUFFET);
+                }
+                else ChangePosition();
+
+                MovementTimer = 25000;
+            } else MovementTimer -= diff;
+
+            if(SummonAddsTimer < diff)
+            {
+                SummonAdds(Phase);
+
+                SummonAddsTimer = 45000;
+            } else SummonAddsTimer -= diff;
+        }
+    }
+
+    void ChangePosition()
+    {
+        uint32 random = rand() % 4;
+        if(random<4){
+            m_creature->GetMotionMaster()->MovePoint(0, MovementLocations[random][0], MovementLocations[random][1], MovementLocations[random][2]);}
+    }
+
+    void SummonAdds(uint32 Phase)
+    {
+        if(Phase == 2)
+        {
+            uint32 max = rand()%10;
+            for(uint32 i = 0; i < 4; ++i)
+            {
+                uint32 random = rand()%3;
+                Creature* Add = m_creature->SummonCreature(CREATURE_ADDS, SpawnLocations[random][0], SpawnLocations[random][1], SpawnLocations[random][2], 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
+                if(Add)
+                    Add->AI()->AttackStart(SelectUnit(SELECT_TARGET_RANDOM, 0));
             }
         }
 
-        DoMeleeAttackIfReady();
+        if(Phase == 3)
+        {
+            uint32 max = rand() % 10 +1;
+            if(max < 1)
+            {
+                for(uint32 i = 0; i < max; ++i)
+                {
+                    uint32 random = rand()%4;
+                    Creature* Add = m_creature->SummonCreature(CREATURE_ADDS, SpawnLocations[random][0], SpawnLocations[random][1], SpawnLocations[random][2], 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
+                    if(Add)
+                        Add->AI()->AttackStart(SelectUnit(SELECT_TARGET_RANDOM, 0));
+                }
+            }
+        }
     }
 };
 
