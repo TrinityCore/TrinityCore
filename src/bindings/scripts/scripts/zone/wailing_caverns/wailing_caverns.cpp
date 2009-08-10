@@ -72,6 +72,7 @@ enum
 #define GOSSIP_ID_START_1       698  //Naralex sleeps again!
 #define GOSSIP_ID_START_2       699  //The fanglords are dead!
 #define GOSSIP_ITEM_NARALEX     "Let the event begin!"
+#define ACHIEVEMENT_WAILING_CAVERNS 630
 
 struct TRINITY_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
 {
@@ -267,6 +268,17 @@ struct TRINITY_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
                             eventTimer = 3000;
                             if (Creature* naralex = pInstance->instance->GetCreature(pInstance->GetData64(DATA_NARALEX)))
                             {
+                                AchievementEntry const *AchievWC = GetAchievementStore()->LookupEntry(ACHIEVEMENT_WAILING_CAVERNS);
+                                if(AchievWC)
+                                {
+                                    Map *map = m_creature->GetMap();
+                                    if(map && map->IsDungeon())
+                                    {
+                                        Map::PlayerList const &players = map->GetPlayers();
+                                        for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                                            itr->getSource()->CompletedAchievement(AchievWC);
+                                    }            
+                                }
                                 if (naralex->HasAura(SPELL_NATURE_CHANNELING))
                                     naralex->RemoveAura(SPELL_NATURE_CHANNELING);
                                 if (m_creature->HasAura(SPELL_NARALEXS_AWAKENING))
