@@ -911,10 +911,19 @@
 						Name="Wailing Caverns"
 						>
 						<File
+							RelativePath="..\scripts\zone\wailing_caverns\def_wailing_caverns.h"
+							>
+						</File>
+						<File
 							RelativePath="..\scripts\zone\wailing_caverns\instance_wailing_caverns.cpp"
 							>
 						</File>
+						<File
+							RelativePath="..\scripts\zone\wailing_caverns\wailing_caverns.cpp"
+							>
+						</File>
 					</Filter>
+
 					<Filter
 						Name="Un&apos;Goro Crater"
 						>

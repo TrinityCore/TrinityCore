@@ -600,6 +600,8 @@ extern void AddSC_instance_utgarde_keep();
 extern void AddSC_utgarde_keep();
 
 //Wailing caverns
+extern void AddSC_wailing_caverns();
+extern void AddSC_instance_wailing_caverns();
 
 //Western plaguelands
 extern void AddSC_western_plaguelands();
@@ -1517,6 +1519,8 @@ void ScriptsInit(char const* cfg_file = "trinitycore.conf")
     AddSC_utgarde_keep();
 
     //Wailing caverns
+    AddSC_wailing_caverns();
+    AddSC_instance_wailing_caverns();
 
     //Western plaguelands
     AddSC_western_plaguelands();
