@@ -18,3 +18,85 @@
 
 #include "precompiled.h"
 #include "def_ulduar.h"
+
+#define SPELL_FLAME_JETS            62680
+#define SPELL_SCORCH                62546
+#define SPELL_SLAG_POT              62717
+
+#define SAY_AGGRO                   -10000002
+#define SAY_SLAY                    -1000003
+
+struct TRINITY_DLL_DECL boss_ignis_AI : public ScriptedAI
+{
+    boss_ignis_AI(Creature *c) : ScriptedAI(c) {}
+
+    uint32 FLAME_JETS_Timer;
+    uint32 SCORCH_Timer;
+    uint32 SLAG_POT_Timer;
+
+    void Reset()
+    {
+        FLAME_JETS_Timer = 32000;
+        SCORCH_Timer = 100;
+        SLAG_POT_Timer = 100;
+    }
+
+    void EnterCombat(Unit* who)
+    {
+        DoScriptText(SAY_AGGRO,m_creature);
+    }
+    void KilledUnit(Unit* victim)
+    {
+        DoScriptText(SAY_SLAY, m_creature);
+    }
+
+    void JustDied(Unit *victim)
+    {
+        DoScriptText(SAY_SLAY, m_creature);
+    }
+
+    void MoveInLineOfSight(Unit* who) {}
+
+    void UpdateAI(const uint32 diff)
+    {
+        if(!UpdateVictim())
+            return;
+
+        if( FLAME_JETS_Timer < diff )
+        {
+            DoCast(m_creature,SPELL_FLAME_JETS);
+            DoScriptText(SAY_SLAY, m_creature);
+            FLAME_JETS_Timer = 25000;
+        } else FLAME_JETS_Timer -= diff;
+
+        if( SCORCH_Timer < diff )
+        {
+            DoCast(m_creature->getVictim(),SPELL_SCORCH);
+            SCORCH_Timer = 20000;
+        } else SCORCH_Timer -= diff;
+
+        if( SLAG_POT_Timer < diff )
+        {
+            DoCast(m_creature,SPELL_SLAG_POT);
+            DoScriptText(SAY_SLAY, m_creature);
+            SLAG_POT_Timer = 30000;
+        } else SLAG_POT_Timer -= diff;
+
+
+        DoMeleeAttackIfReady();
+    }
+};
+
+CreatureAI* GetAI_boss_ignis(Creature *_Creature)
+{
+    return new boss_ignis_AI (_Creature);
+}
+void AddSC_boss_ignis()
+{
+    Script *newscript;
+
+    newscript = new Script;
+    newscript->Name = "boss_ignis";
+    newscript->GetAI = &GetAI_boss_ignis;
+    newscript->RegisterSelf();
+}
