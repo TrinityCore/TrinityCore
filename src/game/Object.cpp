@@ -1704,7 +1704,7 @@ void WorldObject::SendObjectDeSpawnAnim(uint64 guid)
 void WorldObject::SetMap(Map * map)
 {
     ASSERT(map);
-    //ASSERT(!IsInWorld());
+    ASSERT(!IsInWorld() || GetTypeId() == TYPEID_CORPSE);
     ASSERT(!m_currMap);
     m_currMap = map;
     if(m_isWorldObject)
@@ -1714,7 +1714,7 @@ void WorldObject::SetMap(Map * map)
 void WorldObject::ResetMap()
 {
     ASSERT(m_currMap);
-    //ASSERT(!IsInWorld() || GetTypeId() == TYPEID_CORPSE);
+    ASSERT(!IsInWorld() || GetTypeId() == TYPEID_CORPSE);
     if(m_isWorldObject)
         m_currMap->RemoveWorldObject(this);
     m_currMap = NULL;
