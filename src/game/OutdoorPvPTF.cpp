@@ -239,74 +239,71 @@ bool OPvPCapturePointTF::Update(uint32 diff)
             ((((OutdoorPvPTF*)m_PvP)->m_HordeTowersControlled > 0) && m_activePlayers[0].size() < m_activePlayers[1].size());
     // if gathers the other faction, then only update if the pvp is unlocked
     canupdate = canupdate || !((OutdoorPvPTF*)m_PvP)->m_IsLocked;
-    if(canupdate && OPvPCapturePoint::Update(diff))
+    return canupdate && OPvPCapturePoint::Update(diff);
+}
+
+void OPvPCapturePointTF::ChangeState()
+{
+    // if changing from controlling alliance to horde
+    if( m_OldState == OBJECTIVESTATE_ALLIANCE )
     {
-        if(m_OldState != m_State)
-        {
-            // if changing from controlling alliance to horde
-            if( m_OldState == OBJECTIVESTATE_ALLIANCE )
-            {
-                if(((OutdoorPvPTF*)m_PvP)->m_AllianceTowersControlled)
-                    ((OutdoorPvPTF*)m_PvP)->m_AllianceTowersControlled--;
-                sWorld.SendZoneText(OutdoorPvPTFBuffZones[0],objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_TF_LOOSE_A));
-            }
-            // if changing from controlling horde to alliance
-            else if ( m_OldState == OBJECTIVESTATE_HORDE )
-            {
-                if(((OutdoorPvPTF*)m_PvP)->m_HordeTowersControlled)
-                    ((OutdoorPvPTF*)m_PvP)->m_HordeTowersControlled--;
-                sWorld.SendZoneText(OutdoorPvPTFBuffZones[0],objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_TF_LOOSE_H));
-            }
-
-            uint32 artkit = 21;
-
-            switch(m_State)
-            {
-            case OBJECTIVESTATE_ALLIANCE:
-                m_TowerState = TF_TOWERSTATE_A;
-                artkit = 2;
-                if(((OutdoorPvPTF*)m_PvP)->m_AllianceTowersControlled<TF_TOWER_NUM)
-                    ((OutdoorPvPTF*)m_PvP)->m_AllianceTowersControlled++;
-                sWorld.SendZoneText(OutdoorPvPTFBuffZones[0],objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_TF_CAPTURE_A));
-                break;
-            case OBJECTIVESTATE_HORDE:
-                m_TowerState = TF_TOWERSTATE_H;
-                artkit = 1;
-                if(((OutdoorPvPTF*)m_PvP)->m_HordeTowersControlled<TF_TOWER_NUM)
-                    ((OutdoorPvPTF*)m_PvP)->m_HordeTowersControlled++;
-                sWorld.SendZoneText(OutdoorPvPTFBuffZones[0],objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_TF_CAPTURE_H));
-                break;
-            case OBJECTIVESTATE_NEUTRAL:
-            case OBJECTIVESTATE_NEUTRAL_ALLIANCE_CHALLENGE:
-            case OBJECTIVESTATE_NEUTRAL_HORDE_CHALLENGE:
-            case OBJECTIVESTATE_ALLIANCE_HORDE_CHALLENGE:
-            case OBJECTIVESTATE_HORDE_ALLIANCE_CHALLENGE:
-                m_TowerState = TF_TOWERSTATE_N;
-                break;
-            }
-
-            GameObject* flag = HashMapHolder<GameObject>::Find(m_CapturePointGUID);
-            if(flag)
-            {
-                flag->SetGoArtKit(artkit);
-                flag->SendUpdateObjectToAllExcept(NULL);
-            }
-
-            UpdateTowerState();
-        }
-
-        if(m_ShiftPhase != m_OldPhase)
-        {
-            // send this too, sometimes the slider disappears, dunno why :(
-            SendUpdateWorldState(TF_UI_TOWER_SLIDER_DISPLAY, 1);
-            // send these updates to only the ones in this objective
-            uint32 phase = (uint32)ceil(( m_ShiftPhase + m_ShiftMaxPhase) / ( 2 * m_ShiftMaxPhase ) * 100.0f);
-            SendUpdateWorldState(TF_UI_TOWER_SLIDER_POS, phase);
-            // send this too, sometimes it resets :S
-            SendUpdateWorldState(TF_UI_TOWER_SLIDER_N, m_NeutralValue);
-        }
-        return m_OldState != m_State;
+        if(((OutdoorPvPTF*)m_PvP)->m_AllianceTowersControlled)
+            ((OutdoorPvPTF*)m_PvP)->m_AllianceTowersControlled--;
+        sWorld.SendZoneText(OutdoorPvPTFBuffZones[0],objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_TF_LOOSE_A));
     }
-    return false;
+    // if changing from controlling horde to alliance
+    else if ( m_OldState == OBJECTIVESTATE_HORDE )
+    {
+        if(((OutdoorPvPTF*)m_PvP)->m_HordeTowersControlled)
+            ((OutdoorPvPTF*)m_PvP)->m_HordeTowersControlled--;
+        sWorld.SendZoneText(OutdoorPvPTFBuffZones[0],objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_TF_LOOSE_H));
+    }
+
+    uint32 artkit = 21;
+
+    switch(m_State)
+    {
+    case OBJECTIVESTATE_ALLIANCE:
+        m_TowerState = TF_TOWERSTATE_A;
+        artkit = 2;
+        if(((OutdoorPvPTF*)m_PvP)->m_AllianceTowersControlled<TF_TOWER_NUM)
+            ((OutdoorPvPTF*)m_PvP)->m_AllianceTowersControlled++;
+        sWorld.SendZoneText(OutdoorPvPTFBuffZones[0],objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_TF_CAPTURE_A));
+        break;
+    case OBJECTIVESTATE_HORDE:
+        m_TowerState = TF_TOWERSTATE_H;
+        artkit = 1;
+        if(((OutdoorPvPTF*)m_PvP)->m_HordeTowersControlled<TF_TOWER_NUM)
+            ((OutdoorPvPTF*)m_PvP)->m_HordeTowersControlled++;
+        sWorld.SendZoneText(OutdoorPvPTFBuffZones[0],objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_TF_CAPTURE_H));
+        break;
+    case OBJECTIVESTATE_NEUTRAL:
+    case OBJECTIVESTATE_NEUTRAL_ALLIANCE_CHALLENGE:
+    case OBJECTIVESTATE_NEUTRAL_HORDE_CHALLENGE:
+    case OBJECTIVESTATE_ALLIANCE_HORDE_CHALLENGE:
+    case OBJECTIVESTATE_HORDE_ALLIANCE_CHALLENGE:
+        m_TowerState = TF_TOWERSTATE_N;
+        break;
+    }
+
+    GameObject* flag = HashMapHolder<GameObject>::Find(m_CapturePointGUID);
+    if(flag)
+    {
+        flag->SetGoArtKit(artkit);
+        flag->SendUpdateObjectToAllExcept(NULL);
+    }
+
+    UpdateTowerState();
+}
+
+void OPvPCapturePointTF::SendChangePhase()
+{
+    // send this too, sometimes the slider disappears, dunno why :(
+    SendUpdateWorldState(TF_UI_TOWER_SLIDER_DISPLAY, 1);
+    // send these updates to only the ones in this objective
+    uint32 phase = (uint32)ceil(( m_ShiftPhase + m_ShiftMaxPhase) / ( 2 * m_ShiftMaxPhase ) * 100.0f);
+    SendUpdateWorldState(TF_UI_TOWER_SLIDER_POS, phase);
+    // send this too, sometimes it resets :S
+    SendUpdateWorldState(TF_UI_TOWER_SLIDER_N, m_NeutralValue);
 }
 

@@ -244,6 +244,8 @@ friend class OutdoorPvPNA;
 public:
     OPvPCapturePointNA(OutdoorPvP * pvp);
     bool Update(uint32 diff);
+    void ChangeState();
+    void SendChangePhase();
     void FillInitialWorldStates(WorldPacket & data);
     // used when player is activated/inactivated in the area
     bool HandlePlayerEnter(Player * plr);

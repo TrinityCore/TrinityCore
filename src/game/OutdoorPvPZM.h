@@ -153,7 +153,8 @@ class OPvPCapturePointZM_Beacon : public OPvPCapturePoint
 friend class OutdoorPvPZM;
 public:
     OPvPCapturePointZM_Beacon(OutdoorPvP * pvp, ZM_BeaconType type);
-    bool Update(uint32 diff);
+    void ChangeState();
+    void SendChangePhase();
     void FillInitialWorldStates(WorldPacket & data);
     // used when player is activated/inactivated in the area
     bool HandlePlayerEnter(Player * plr);
@@ -176,6 +177,7 @@ friend class OutdoorPvPZM;
 public:
     OPvPCapturePointZM_GraveYard(OutdoorPvP * pvp);
     bool Update(uint32 diff);
+    void ChangeState() {}
     void FillInitialWorldStates(WorldPacket & data);
     void UpdateTowerState();
     int32 HandleOpenGo(Player *plr, uint64 guid);
