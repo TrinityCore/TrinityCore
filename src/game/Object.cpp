@@ -1695,6 +1695,13 @@ void WorldObject::SetMap(Map * map)
     m_currMap = map;
 }
 
+void WorldObject::ResetMap()
+{
+    ASSERT(m_currMap);
+    ASSERT(!IsInWorld());
+    m_currMap = NULL;
+}
+
 Map const* WorldObject::GetBaseMap() const
 {
     ASSERT(m_currMap);
