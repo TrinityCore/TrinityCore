@@ -93,6 +93,9 @@ struct TRINITY_DLL_DECL boss_anomalusAI : public ScriptedAI
     void EnterCombat(Unit* who) 
     {
         DoScriptText(SAY_AGGRO, m_creature);
+
+        if(pInstance)
+            pInstance->SetData(DATA_ANOMALUS_EVENT, IN_PROGRESS);
     }
 
     void JustDied(Unit* killer)  

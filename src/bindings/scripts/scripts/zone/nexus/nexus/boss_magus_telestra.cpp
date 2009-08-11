@@ -62,7 +62,6 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
     boss_magus_telestraAI(Creature* c) : ScriptedAI(c) 
     {
         pInstance = c->GetInstanceData();
-        Reset();
         HeroicMode = c->GetMap()->IsHeroic();
     }
 
@@ -111,6 +110,22 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
     void EnterCombat(Unit* who) 
     {
         DoScriptText(SAY_AGGRO, m_creature);
+
+        if(pInstance)
+            pInstance->SetData(DATA_MAGUS_TELESTRA_EVENT, IN_PROGRESS);
+    }
+
+    void JustDied(Unit* killer)
+    {
+        DoScriptText(SAY_DEATH, m_creature);
+
+        if (pInstance)
+            pInstance->SetData(DATA_MAGUS_TELESTRA_EVENT, DONE);
+    }
+
+    void KilledUnit(Unit *victim)
+    {
+        DoScriptText(SAY_KILL, m_creature);
     }
 
     uint64 SplitPersonality(uint32 entry)
@@ -283,18 +298,6 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
         }else SPELL_FIREBOMB_Timer -=diff;
 
         DoMeleeAttackIfReady();    
-    }
-
-    void JustDied(Unit* killer)
-    {
-        DoScriptText(SAY_DEATH, m_creature);
-        if (pInstance)
-            pInstance->SetData(DATA_MAGUS_TELESTRA_EVENT, DONE);
-    }
-
-    void KilledUnit(Unit *victim)
-    {
-        DoScriptText(SAY_KILL, m_creature);
     }
 };
 
