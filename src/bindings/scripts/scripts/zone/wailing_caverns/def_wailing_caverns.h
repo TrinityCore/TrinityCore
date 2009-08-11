@@ -16,6 +16,7 @@ enum
     TYPE_NARALEX_PART2        = 7,
     TYPE_NARALEX_PART3        = 8,
     TYPE_MUTANUS_THE_DEVOURER = 9,
+    TYPE_NARALEX_YELLED       = 10,
 
     DATA_NARALEX              = 3679,
 };

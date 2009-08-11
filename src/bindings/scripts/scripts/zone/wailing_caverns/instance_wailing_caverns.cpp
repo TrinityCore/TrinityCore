@@ -16,8 +16,8 @@
 
 /* ScriptData
 SDName: Instance_Wailing_Caverns
-SD%Complete: 90
-SDComment: Most of the event done, still need some polishing
+SD%Complete: 99
+SDComment: Everything seems to work, still need some checking
 SDCategory: Wailing Caverns
 EndScriptData */
 
@@ -32,10 +32,12 @@ struct TRINITY_DLL_DECL instance_wailing_caverns : public ScriptedInstance
 
     uint32 Encounter[ENCOUNTERS];
 
+    bool yelled;
     uint64 NaralexGUID;
 
     void Initialize()
     {
+        yelled = false;
         NaralexGUID = 0;
 
         for (uint8 i = 0; i < ENCOUNTERS; i++)
@@ -52,15 +54,16 @@ struct TRINITY_DLL_DECL instance_wailing_caverns : public ScriptedInstance
     {
         switch (type)
         {
-            case TYPE_LORD_COBRAHN:Encounter[0] = data;break;
-            case TYPE_LORD_PYTHAS:Encounter[1] = data;break;
-            case TYPE_LADY_ANACONDRA:Encounter[2] = data;break;
-            case TYPE_LORD_SERPENTIS:Encounter[3] = data;break;
-            case TYPE_NARALEX_EVENT:  Encounter[4] = data;break;
-            case TYPE_NARALEX_PART1:Encounter[5] = data;break;
-            case TYPE_NARALEX_PART2: Encounter[6] = data;break;
-            case TYPE_NARALEX_PART3:Encounter[7] = data;break;
-            case TYPE_MUTANUS_THE_DEVOURER:Encounter[8] = data;break;
+            case TYPE_LORD_COBRAHN:         Encounter[0] = data;break;
+            case TYPE_LORD_PYTHAS:          Encounter[1] = data;break;
+            case TYPE_LADY_ANACONDRA:       Encounter[2] = data;break;
+            case TYPE_LORD_SERPENTIS:       Encounter[3] = data;break;
+            case TYPE_NARALEX_EVENT:        Encounter[4] = data;break;
+            case TYPE_NARALEX_PART1:        Encounter[5] = data;break;
+            case TYPE_NARALEX_PART2:        Encounter[6] = data;break;
+            case TYPE_NARALEX_PART3:        Encounter[7] = data;break;
+            case TYPE_MUTANUS_THE_DEVOURER: Encounter[8] = data;break;
+            case TYPE_NARALEX_YELLED:       yelled = true;      break;
         }
         if(data == DONE)SaveToDB();
     }
@@ -78,6 +81,7 @@ struct TRINITY_DLL_DECL instance_wailing_caverns : public ScriptedInstance
             case TYPE_NARALEX_PART2:        return Encounter[6];
             case TYPE_NARALEX_PART3:        return Encounter[7];
             case TYPE_MUTANUS_THE_DEVOURER: return Encounter[8];
+            case TYPE_NARALEX_YELLED:       return yelled;
         }
         return 0;
     }
