@@ -202,7 +202,7 @@ Map::Map(uint32 id, time_t expiry, uint32 InstanceId, uint8 SpawnMode, Map* _par
   : i_mapEntry (sMapStore.LookupEntry(id)), i_spawnMode(SpawnMode), i_InstanceId(InstanceId), m_unloadTimer(0),
   m_activeNonPlayersIter(m_activeNonPlayers.end()),
   i_gridExpiry(expiry), m_parentMap(_parent ? _parent : this)
-   , i_lock(true)
+   , i_lock(false)
 {
     m_notifyTimer.SetInterval(IN_MILISECONDS/2);
 
@@ -665,6 +665,8 @@ void Map::RemoveUnitFromNotify(Unit *unit, int32 slot)
         assert(slot < i_unitsToNotify.size());
         i_unitsToNotify[slot] = NULL;
     }
+
+    unit->m_NotifyListPos = -1;
 }
 
 void Map::Update(const uint32 &t_diff)
@@ -816,17 +818,12 @@ void Map::Remove(Player *player, bool remove)
     CellPair p = Trinity::ComputeCellPair(player->GetPositionX(), player->GetPositionY());
     if(p.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || p.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP)
     {
-        if(remove)
-            player->CleanupsBeforeDelete();
-
+        sLog.outCrash("Map::Remove: Player is in invalid cell!");
         // invalid coordinates
         player->RemoveFromWorld();
 
         if( remove )
-        {
-            player->ResetMap();
             DeleteFromWorld(player);
-        }
 
         return;
     }
@@ -842,9 +839,6 @@ void Map::Remove(Player *player, bool remove)
     DEBUG_LOG("Remove player %s from grid[%u,%u]", player->GetName(), cell.GridX(), cell.GridY());
     NGridType *grid = getNGrid(cell.GridX(), cell.GridY());
     assert(grid != NULL);
-
-    if(remove)
-        player->CleanupsBeforeDelete();
 
     player->RemoveFromWorld();
     RemoveFromGrid(player,grid,cell);

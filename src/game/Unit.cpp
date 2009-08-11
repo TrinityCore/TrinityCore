@@ -12393,10 +12393,7 @@ void Unit::RemoveFromWorld()
         RemoveAllControlled();
 
         if(m_NotifyListPos >= 0)
-        {
             GetMap()->RemoveUnitFromNotify(this, m_NotifyListPos);
-            m_NotifyListPos = -1;
-        }
 
         if(GetCharmerGUID())
         {
@@ -15186,7 +15183,7 @@ void Unit::SendThreatListUpdate()
 {
     if (uint32 count = getThreatManager().getThreatList().size())
     {
-        sLog.outDebug( "WORLD: Send SMSG_THREAT_UPDATE Message" );
+        //sLog.outDebug( "WORLD: Send SMSG_THREAT_UPDATE Message" );
         WorldPacket data(SMSG_THREAT_UPDATE, 8 + count * 8);
         data.append(GetPackGUID());
         data << uint32(count);
