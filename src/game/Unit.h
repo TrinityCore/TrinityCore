@@ -1819,6 +1819,8 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void RewardRage( uint32 damage, uint32 weaponSpeedHitFactor, bool attacker );
 
         virtual float GetFollowAngle() const { return M_PI/2; }
+
+        void OutDebugInfo();
     protected:
         explicit Unit ();
 
