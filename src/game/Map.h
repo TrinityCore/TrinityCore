@@ -404,7 +404,9 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>, public MaNGOS::Obj
         bool ActiveObjectsNearGrid(uint32 x, uint32 y) const;
 
         void AddUnitToNotify(Unit* unit);
-        void RemoveUnitFromNotify(Unit *unit, int32 slot);
+        void RemoveUnitFromNotify(Unit *unit);
+        void AddWorldObject(WorldObject *obj) { i_worldObjects.insert(obj); }
+        void RemoveWorldObject(WorldObject *obj) { i_worldObjects.erase(obj); }
 
         void SendToPlayers(WorldPacket const* data) const;
 
@@ -527,6 +529,7 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>, public MaNGOS::Obj
         std::vector<Unit*> i_unitsToNotify;
         std::set<WorldObject *> i_objectsToRemove;
         std::map<WorldObject*, bool> i_objectsToSwitch;
+        std::set<WorldObject*> i_worldObjects;
         std::multimap<time_t, ScriptAction> m_scriptSchedule;
 
         // Type specific code for add/remove to/from grid
