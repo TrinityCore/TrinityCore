@@ -221,104 +221,30 @@ Map::Map(uint32 id, time_t expiry, uint32 InstanceId, uint8 SpawnMode, Map* _par
 template<class T>
 void Map::AddToGrid(T* obj, NGridType *grid, Cell const& cell)
 {
-    (*grid)(cell.CellX(), cell.CellY()).template AddGridObject<T>(obj, obj->GetGUID());
-}
-
-template<>
-void Map::AddToGrid(Player* obj, NGridType *grid, Cell const& cell)
-{
-    (*grid)(cell.CellX(), cell.CellY()).AddWorldObject(obj, obj->GetGUID());
-}
-
-template<>
-void Map::AddToGrid(Corpse *obj, NGridType *grid, Cell const& cell)
-{
-    // add to world object registry in grid
-    if(obj->GetType()!=CORPSE_BONES)
-    {
-        (*grid)(cell.CellX(), cell.CellY()).AddWorldObject(obj, obj->GetGUID());
-    }
-    // add to grid object store
+    if(obj->m_isWorldObject)
+        (*grid)(cell.CellX(), cell.CellY()).template AddWorldObject<T>(obj, obj->GetGUID());
     else
-    {
-        (*grid)(cell.CellX(), cell.CellY()).AddGridObject(obj, obj->GetGUID());
-    }
+        (*grid)(cell.CellX(), cell.CellY()).template AddGridObject<T>(obj, obj->GetGUID());
 }
 
 template<>
 void Map::AddToGrid(Creature* obj, NGridType *grid, Cell const& cell)
 {
-    // add to world object registry in grid
-    if(obj->isWorldCreature() || obj->IsTempWorldObject)
-    {
-        (*grid)(cell.CellX(), cell.CellY()).AddWorldObject<Creature>(obj, obj->GetGUID());
-    }
-    // add to grid object store
+    if(obj->m_isWorldObject)
+        (*grid)(cell.CellX(), cell.CellY()).AddWorldObject(obj, obj->GetGUID());
     else
-    {
-        (*grid)(cell.CellX(), cell.CellY()).AddGridObject<Creature>(obj, obj->GetGUID());
-    }
-    obj->SetCurrentCell(cell);
-}
+        (*grid)(cell.CellX(), cell.CellY()).AddGridObject(obj, obj->GetGUID());
 
-template<>
-void Map::AddToGrid(DynamicObject* obj, NGridType *grid, Cell const& cell)
-{
-    if(obj->isActiveObject()) // only farsight
-        (*grid)(cell.CellX(), cell.CellY()).AddWorldObject<DynamicObject>(obj, obj->GetGUID());
-    else
-        (*grid)(cell.CellX(), cell.CellY()).AddGridObject<DynamicObject>(obj, obj->GetGUID());
+    obj->SetCurrentCell(cell);
 }
 
 template<class T>
 void Map::RemoveFromGrid(T* obj, NGridType *grid, Cell const& cell)
 {
-    (*grid)(cell.CellX(), cell.CellY()).template RemoveGridObject<T>(obj, obj->GetGUID());
-}
-
-template<>
-void Map::RemoveFromGrid(Player* obj, NGridType *grid, Cell const& cell)
-{
-    (*grid)(cell.CellX(), cell.CellY()).RemoveWorldObject(obj, obj->GetGUID());
-}
-
-template<>
-void Map::RemoveFromGrid(Corpse *obj, NGridType *grid, Cell const& cell)
-{
-    // remove from world object registry in grid
-    if(obj->GetType()!=CORPSE_BONES)
-    {
-        (*grid)(cell.CellX(), cell.CellY()).RemoveWorldObject(obj, obj->GetGUID());
-    }
-    // remove from grid object store
+    if(obj->m_isWorldObject)
+        (*grid)(cell.CellX(), cell.CellY()).template RemoveWorldObject<T>(obj, obj->GetGUID());
     else
-    {
-        (*grid)(cell.CellX(), cell.CellY()).RemoveGridObject(obj, obj->GetGUID());
-    }
-}
-
-template<>
-void Map::RemoveFromGrid(Creature* obj, NGridType *grid, Cell const& cell)
-{
-    // remove from world object registry in grid
-    if(obj->isWorldCreature() || obj->IsTempWorldObject)
-    {
-        (*grid)(cell.CellX(), cell.CellY()).RemoveWorldObject<Creature>(obj, obj->GetGUID());
-    }
-    // remove from grid object store
-    else
-    {
-        (*grid)(cell.CellX(), cell.CellY()).RemoveGridObject<Creature>(obj, obj->GetGUID());
-    }
-}
-
-template<>
-void Map::RemoveFromGrid(DynamicObject* obj, NGridType *grid, Cell const& cell)
-{
-    if(obj->isActiveObject()) // only farsight
-        (*grid)(cell.CellX(), cell.CellY()).RemoveWorldObject<DynamicObject>(obj, obj->GetGUID());
-    else
-        (*grid)(cell.CellX(), cell.CellY()).RemoveGridObject<DynamicObject>(obj, obj->GetGUID());
+        (*grid)(cell.CellX(), cell.CellY()).template RemoveGridObject<T>(obj, obj->GetGUID());
 }
 
 template<class T>
@@ -361,11 +287,11 @@ void Map::SwitchGridContainers(T* obj, bool on)
             assert(false);
         }*/
     }
-    obj->IsTempWorldObject = on;
+    obj->m_isWorldObject = on;
 }
 
 template void Map::SwitchGridContainers(Creature *, bool);
-template void Map::SwitchGridContainers(DynamicObject *, bool);
+//template void Map::SwitchGridContainers(DynamicObject *, bool);
 
 template<class T>
 void Map::DeleteFromWorld(T* obj)
@@ -2223,7 +2149,7 @@ void Map::RemoveAllObjectsInRemoveList()
         switch(obj->GetTypeId())
         {
         case TYPEID_UNIT:
-            if(!((Creature*)obj)->isWorldCreature())
+            if(!((Creature*)obj)->isPet())
                 SwitchGridContainers((Creature*)obj, on);
             break;
         }
