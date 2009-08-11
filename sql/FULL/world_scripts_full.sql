@@ -701,6 +701,7 @@ UPDATE `creature_template` SET `ScriptName`='boss_ormorok' WHERE `entry`=26794;
 UPDATE `creature_template` SET `ScriptName`='mob_crystal_spike' WHERE `entry`=27099;
 UPDATE `creature_template` SET `ScriptName`='mob_crystalline_tangler' WHERE `entry`=32665;
 UPDATE `creature_template` SET `ScriptName`='boss_keristrasza' WHERE `entry`=26723;
+UPDATE `gameobject_template` SET `ScriptName`='containment_sphere' WHERE `entry` IN (188527, 188528, 188526);
 
 /* OBSIDIAN SANCTUM */
 UPDATE `instance_template` SET `script`='instance_obsidian_sanctum' WHERE map=615;

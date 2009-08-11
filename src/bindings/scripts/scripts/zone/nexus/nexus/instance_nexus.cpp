@@ -28,11 +28,18 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL instance_nexus : public ScriptedInstance
 {
-    instance_nexus(Map *Map) : ScriptedInstance(Map) {Initialize();};
+    instance_nexus(Map *Map) : ScriptedInstance(Map) { Initialize(); }
+
+    uint32 Encounters[NUMBER_OF_ENCOUNTERS];
+
+    uint64 Anomalus;
+    uint64 Keristrasza;
+
+    uint64 AnomalusContainmentSphere;
+    uint64 OrmoroksContainmentSphere;
+    uint64 TelestrasContainmentSphere;
 
     std::string strInstData;
-    uint64 Anomalus;
-    uint32 Encounters[NUMBER_OF_ENCOUNTERS];
 
     void Initialize()
     {
@@ -56,6 +63,7 @@ struct TRINITY_DLL_DECL instance_nexus : public ScriptedInstance
         switch(pCreature->GetEntry())
         {
             case 26763: Anomalus = pCreature->GetGUID(); break;
+            case 26723: Keristrasza = pCreature->GetGUID(); break;
             case 26800:
                 {
                     //26799
@@ -99,14 +107,32 @@ struct TRINITY_DLL_DECL instance_nexus : public ScriptedInstance
         }
     }
 
-    uint64 GetData64(uint32 uiIdentifier)
+    void OnGameObjectCreate(GameObject *go, bool add)
     {
-        switch(uiIdentifier)
+        switch(go->GetEntry())
         {
-            case DATA_ANOMALUS:
-                return Anomalus;
+            case 188527:
+            {
+                AnomalusContainmentSphere = go->GetGUID();
+                if(Encounters[1] == DONE)
+                    go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                break;
+            }
+            case 188528:
+            {
+                OrmoroksContainmentSphere = go->GetGUID();
+                if(Encounters[2] == DONE)
+                    go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                break;
+            }
+            case 188526:
+            {
+                TelestrasContainmentSphere = go->GetGUID();
+                if(Encounters[0] == DONE)
+                    go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                break;
+            }
         }
-        return 0;
     }
 
     uint32 GetData(uint32 identifier)
@@ -116,7 +142,7 @@ struct TRINITY_DLL_DECL instance_nexus : public ScriptedInstance
             case DATA_MAGUS_TELESTRA_EVENT: return Encounters[0];
             case DATA_ANOMALUS_EVENT:       return Encounters[1];
             case DATA_ORMOROK_EVENT:        return Encounters[2];
-            case DATA_KERISTRASZA_FREED:    return Encounters[3];
+            case DATA_KERISTRASZA_EVENT:    return Encounters[3];
         }
         return 0;
     }
@@ -125,10 +151,40 @@ struct TRINITY_DLL_DECL instance_nexus : public ScriptedInstance
     {
         switch(identifier)
         {
-            case DATA_MAGUS_TELESTRA_EVENT: Encounters[0] = data;  break;
-            case DATA_ANOMALUS_EVENT:       Encounters[1] = data;  break;
-            case DATA_ORMOROK_EVENT:        Encounters[2] = data;  break;
-            case DATA_KERISTRASZA_FREED:    Encounters[3] = data;  break;
+            case DATA_MAGUS_TELESTRA_EVENT:
+            {
+                if(data == DONE)
+                {
+                    GameObject *Sphere = instance->GetGameObject(TelestrasContainmentSphere);
+                    if(Sphere)
+                        Sphere->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                }
+                Encounters[0] = data;
+                break;
+            }
+            case DATA_ANOMALUS_EVENT:
+            {
+                if(data == DONE)
+                {
+                    GameObject *Sphere = instance->GetGameObject(AnomalusContainmentSphere);
+                    if(Sphere)
+                        Sphere->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                }
+                Encounters[1] = data;
+                break;
+            }
+            case DATA_ORMOROK_EVENT:
+            {
+                if(data == DONE)
+                {
+                    GameObject *Sphere = instance->GetGameObject(OrmoroksContainmentSphere);
+                    if(Sphere)
+                        Sphere->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                }
+                Encounters[2] = data;
+                break;
+            }
+            case DATA_KERISTRASZA_EVENT:    Encounters[3] = data; break;
         }
 
         if (data == DONE)
@@ -144,6 +200,19 @@ struct TRINITY_DLL_DECL instance_nexus : public ScriptedInstance
             SaveToDB();
             OUT_SAVE_INST_DATA_COMPLETE;
         }
+    }
+
+    uint64 GetData64(uint32 uiIdentifier)
+    {
+        switch(uiIdentifier)
+        {
+            case DATA_ANOMALUS:                 return Anomalus;
+            case DATA_KERISTRASZA:              return Keristrasza;
+            case ANOMALUS_CONTAINMET_SPHERE:    return AnomalusContainmentSphere;
+            case ORMOROKS_CONTAINMET_SPHERE:    return OrmoroksContainmentSphere;
+            case TELESTRAS_CONTAINMET_SPHERE:   return TelestrasContainmentSphere;
+        }
+        return 0;
     }
 
     std::string GetSaveData()
