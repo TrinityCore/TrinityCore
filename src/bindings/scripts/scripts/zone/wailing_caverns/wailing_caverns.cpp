@@ -16,8 +16,8 @@
 
 /* ScriptData
 SDName: Wailing Caverns
-SD%Complete: 80
-SDComment: Need some more polishing and in the event the druids should fly away not just morph and dissapear
+SD%Complete: 95
+SDComment: Need to add skill usage for Disciple of Naralex
 SDCategory: Wailing Caverns
 EndScriptData */
 
@@ -58,9 +58,8 @@ enum
     //spell
     SPELL_MARK_OF_THE_WILD_RANK_2 = 5232,
     SPELL_SERPENTINE_CLEANSING    = 6270,
-    SPELL_NATURE_CHANNELING       = 13236,
     SPELL_NARALEXS_AWAKENING      = 6271,
-    SPELL_FLIGHT_FROM             = 33943,
+    SPELL_FLIGHT_FORM             = 33943,
     //npc entry
     NPC_DEVIATE_RAVAGER           = 3636,
     NPC_DEVIATE_VIPER             = 5755,
@@ -172,7 +171,7 @@ struct TRINITY_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
 
         if (!pInstance)
             return;
-        if(eventTimer <= diff)
+        if (eventTimer <= diff)
         {
             eventTimer = 0;
             if (pInstance->GetData(currentEvent) == IN_PROGRESS)
@@ -214,16 +213,22 @@ struct TRINITY_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
                         if (eventProgress == 1)
                         {
                             eventProgress++;
-                            eventTimer = 15000;
+                            eventTimer = 4000;
                             m_creature->SetStandState(UNIT_STAND_STATE_KNEEL);
                             DoScriptText(SAY_EMERALD_DREAM, m_creature);
-                            ((npc_escortAI*)m_creature->AI())->SetCanDefend(false);
-                            if (Creature* naralex = pInstance->instance->GetCreature(pInstance->GetData64(DATA_NARALEX)))
-                                m_creature->CastSpell(naralex, SPELL_NATURE_CHANNELING, true);
-                            DoScriptText(EMOTE_AWAKENING_RITUAL, m_creature);
                         }
                         else
                         if (eventProgress == 2)
+                        {
+                            eventProgress++;
+                            eventTimer = 15000;
+                            ((npc_escortAI*)m_creature->AI())->SetCanDefend(false);
+                            if (Creature* naralex = pInstance->instance->GetCreature(pInstance->GetData64(DATA_NARALEX)))
+                                DoCast(naralex, SPELL_NARALEXS_AWAKENING, true);
+                            DoScriptText(EMOTE_AWAKENING_RITUAL, m_creature);
+                        }
+                        else
+                        if (eventProgress == 3)
                         {
                             eventProgress++;
                             eventTimer = 15000;
@@ -234,7 +239,7 @@ struct TRINITY_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
                             m_creature->SummonCreature(NPC_DEVIATE_MOCCASIN, 128.007, 227.428, -97.421, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15000);
                         }
                         else
-                        if (eventProgress == 3)
+                        if (eventProgress == 4)
                         {
                             eventProgress++;
                             eventTimer = 30000;
@@ -249,20 +254,17 @@ struct TRINITY_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
                             m_creature->SummonCreature(NPC_NIGHTMARE_ECTOPLASM, 126.167, 274.759, -102.962, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15000);
                         }
                         else
-                        if (eventProgress == 4)
+                        if (eventProgress == 5)
                         {
                             eventProgress++;
                             if (Creature* naralex = pInstance->instance->GetCreature(pInstance->GetData64(DATA_NARALEX)))
-                            {
                                 DoScriptText(EMOTE_HORRENDOUS_VISION, naralex);
-                                m_creature->CastSpell(naralex, SPELL_NARALEXS_AWAKENING, false);
-                            }
                             m_creature->SummonCreature(NPC_MUTANUS_THE_DEVOURER, 150.872, 262.905, -103.503, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
                             DoScriptText(SAY_MUTANUS_THE_DEVOURER, m_creature);
                             pInstance->SetData(TYPE_MUTANUS_THE_DEVOURER, IN_PROGRESS);
                         }
                         else
-                        if (eventProgress == 5 && pInstance->GetData(TYPE_MUTANUS_THE_DEVOURER) == DONE)
+                        if (eventProgress == 6 && pInstance->GetData(TYPE_MUTANUS_THE_DEVOURER) == DONE)
                         {
                             eventProgress++;
                             eventTimer = 3000;
@@ -279,8 +281,6 @@ struct TRINITY_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
                                             itr->getSource()->CompletedAchievement(AchievWC);
                                     }            
                                 }
-                                if (naralex->HasAura(SPELL_NATURE_CHANNELING))
-                                    naralex->RemoveAura(SPELL_NATURE_CHANNELING);
                                 if (m_creature->HasAura(SPELL_NARALEXS_AWAKENING))
                                     m_creature->RemoveAura(SPELL_NARALEXS_AWAKENING);
                                 naralex->SetStandState(UNIT_STAND_STATE_STAND);
@@ -289,7 +289,7 @@ struct TRINITY_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
                             DoScriptText(SAY_NARALEX_AWAKES, m_creature);
                         }
                         else
-                        if (eventProgress == 6)
+                        if (eventProgress == 7)
                         {
                             eventProgress++;
                             eventTimer = 6000;
@@ -297,25 +297,47 @@ struct TRINITY_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
                                 DoScriptText(SAY_THANK_YOU, naralex);
                         }
                         else
-                        if (eventProgress == 7)
+                        if (eventProgress == 8)
                         {
                             eventProgress++;
                             eventTimer = 8000;
                             if (Creature* naralex = pInstance->instance->GetCreature(pInstance->GetData64(DATA_NARALEX)))
                             {
                                 DoScriptText(SAY_FAREWELL, naralex);
-                                naralex->AddAura(SPELL_FLIGHT_FROM,naralex);
+                                naralex->AddAura(SPELL_FLIGHT_FORM, naralex);
                             }
-                            m_creature->AddAura(SPELL_FLIGHT_FROM,m_creature);
+                            SetRun();
                             m_creature->SetStandState(UNIT_STAND_STATE_STAND);
+                            m_creature->AddAura(SPELL_FLIGHT_FORM, m_creature);
                         }
                         else
-                        if (eventProgress == 8)
+                        if (eventProgress == 9)
                         {
-                            pInstance->SetData(TYPE_NARALEX_PART3, DONE);
+                            eventProgress++;
+                            eventTimer = 1500;
+                            if (Creature* naralex = pInstance->instance->GetCreature(pInstance->GetData64(DATA_NARALEX)))
+                                naralex->GetMotionMaster()->MovePoint(25, naralex->GetPositionX(), naralex->GetPositionY(), naralex->GetPositionZ());
+                        }
+                        else
+                        if (eventProgress == 10)
+                        {
+                            eventProgress++;
+                            eventTimer = 2500;
+                            if (Creature* naralex = pInstance->instance->GetCreature(pInstance->GetData64(DATA_NARALEX)))
+                            {
+                                naralex->GetMotionMaster()->MovePoint(0, 117.095512, 247.107971, -96.167870);
+                                naralex->GetMotionMaster()->MovePoint(1, 90.388809, 276.135406, -83.389801);
+                            }
+                            m_creature->GetMotionMaster()->MovePoint(26, 117.095512, 247.107971, -96.167870);
+                            m_creature->GetMotionMaster()->MovePoint(27, 144.375443, 281.045837, -82.477135);
+                        }
+                        else
+                        if (eventProgress == 11)
+                        {
                             if (Creature* naralex = pInstance->instance->GetCreature(pInstance->GetData64(DATA_NARALEX)))
                                 naralex->SetVisibility(VISIBILITY_OFF);
                             m_creature->SetVisibility(VISIBILITY_OFF);
+                            pInstance->SetData(TYPE_NARALEX_PART3, DONE);
                         }
                     break;
                 }
@@ -346,7 +368,11 @@ bool GossipHello_npc_disciple_of_naralex(Player *player, Creature *_Creature)
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_NARALEX, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             player->SEND_GOSSIP_MENU(GOSSIP_ID_START_2, _Creature->GetGUID());
 
-            DoScriptText(SAY_AT_LAST, _Creature);
+            if (!pInstance->GetData(TYPE_NARALEX_YELLED))
+            {
+                DoScriptText(SAY_AT_LAST, _Creature);
+                pInstance->SetData(TYPE_NARALEX_YELLED, 1);
+            }
         }
         else
         {
@@ -365,6 +391,9 @@ bool GossipSelect_npc_disciple_of_naralex(Player *player, Creature *_Creature, u
         if (pInstance)pInstance->SetData(TYPE_NARALEX_EVENT, IN_PROGRESS);
 
         DoScriptText(SAY_MAKE_PREPARATIONS, _Creature);
+
+        _Creature->setFaction(250);
+        _Creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
 
         CAST_AI(npc_escortAI, (_Creature->AI()))->Start(false, true, false, player->GetGUID());
         CAST_AI(npc_escortAI, (_Creature->AI()))->SetDespawnAtFar(false);
