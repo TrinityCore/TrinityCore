@@ -529,10 +529,10 @@ class TRINITY_DLL_SPEC WorldObject : public Object
         void SendPlaySound(uint32 Sound, bool OnlySelf);
 
         virtual void SetMap(Map * map);
+        virtual void ResetMap();
         Map * GetMap() const { ASSERT(m_currMap); return m_currMap; }
         Map * FindMap() const { return m_currMap; }
         //used to check all object's GetMap() calls when object is not in world!
-        virtual void ResetMap() { assert(m_currMap); m_currMap = NULL; }
 
         //this function should be removed in nearest time...
         Map const* GetBaseMap() const;
