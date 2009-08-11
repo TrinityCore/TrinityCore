@@ -29,6 +29,7 @@
 #include "World.h"
 
 Corpse::Corpse(CorpseType type) : WorldObject()
+, m_type(type)
 {
     m_objectType |= TYPEMASK_CORPSE;
     m_objectTypeId = TYPEID_CORPSE;
@@ -37,13 +38,14 @@ Corpse::Corpse(CorpseType type) : WorldObject()
 
     m_valuesCount = CORPSE_END;
 
-    m_type = type;
-
     m_mapId = 0;
 
     m_time = time(NULL);
 
     lootForBody = false;
+
+    if(type != CORPSE_BONES)
+        m_isWorldObject = true;
 }
 
 Corpse::~Corpse()
@@ -203,13 +205,16 @@ bool Corpse::LoadFromDB(uint32 guid, Field *fields)
     SetInstanceId(fields[8].GetUInt32());
 
     m_time = time_t(fields[6].GetUInt64());
-    m_type = CorpseType(fields[7].GetUInt32());
+    const_cast<CorpseType>(m_type) = CorpseType(fields[7].GetUInt32());
 
     if(m_type >= MAX_CORPSE_TYPE)
     {
         sLog.outError("Corpse (guidlow %d, owner %d) have wrong corpse type, not load.",GetGUIDLow(),GUID_LOPART(GetOwnerGUID()));
         return false;
     }
+
+    if(m_type != CORPSE_BONES)
+        m_isWorldObject = true;
 
     uint32 phaseMask   = fields[9].GetUInt32();
 

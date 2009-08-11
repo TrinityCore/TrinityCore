@@ -509,7 +509,6 @@ class TRINITY_DLL_SPEC Creature : public Unit
         bool isHunterPet() const{ return m_summonMask & SUMMON_MASK_HUNTER_PET; }
         bool isVehicle() const  { return m_summonMask & SUMMON_MASK_VEHICLE; }
         bool isTotem() const    { return m_summonMask & SUMMON_MASK_TOTEM; }
-        bool isWorldCreature() const { return m_summonMask & SUMMON_MASK_PET; }
 
         void SetCorpseDelay(uint32 delay) { m_corpseDelay = delay; }
         bool isRacialLeader() const { return GetCreatureInfo()->RacialLeader; }
