@@ -205,7 +205,7 @@ bool Corpse::LoadFromDB(uint32 guid, Field *fields)
     SetInstanceId(fields[8].GetUInt32());
 
     m_time = time_t(fields[6].GetUInt64());
-    const_cast<CorpseType>(m_type) = CorpseType(fields[7].GetUInt32());
+    m_type = CorpseType(fields[7].GetUInt32());
 
     if(m_type >= MAX_CORPSE_TYPE)
     {
