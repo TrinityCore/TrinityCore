@@ -1692,6 +1692,7 @@ void WorldObject::SendObjectDeSpawnAnim(uint64 guid)
 void WorldObject::SetMap(Map * map)
 {
     ASSERT(map);
+    ASSERT(!IsInWorld());
     m_currMap = map;
 }
 
