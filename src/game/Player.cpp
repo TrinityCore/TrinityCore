@@ -15195,6 +15195,11 @@ void Player::_LoadAuras(QueryResult *result, uint32 timediff)
 
             Aura* aura = new Aura(spellproto, effmask, NULL, this, NULL, NULL);
             aura->SetLoadedState(caster_guid,maxduration,remaintime,remaincharges, stackcount, &damage[0]);
+            if(!aura->CanBeSaved())
+            {
+                delete aura;
+                continue;
+            }
             AddAura(aura);
             sLog.outDetail("Added aura spellid %u, effectmask %u", spellproto->Id, effmask);
         }
@@ -16275,16 +16280,8 @@ void Player::_SaveAuras()
     AuraMap const& auras = GetAuras();
     for(AuraMap::const_iterator itr = auras.begin(); itr !=auras.end() ; ++itr)
     {
-        // skip:
-        // area auras or single cast auras casted by other unit
-        // passive auras and stances
-        if (itr->second->IsPassive())
+        if(!itr->second->CanBeSaved())
             continue;
-
-        if (itr->second->GetCasterGUID() != GetGUID())
-            if (IsSingleTargetSpell(itr->second->GetSpellProto())
-                || itr->second->IsAreaAura())
-                continue;
 
         int32 amounts[MAX_SPELL_EFFECTS];
         for (uint8 i=0;i<MAX_SPELL_EFFECTS;++i)

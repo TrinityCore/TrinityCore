@@ -101,6 +101,7 @@ class TRINITY_DLL_SPEC Aura
         bool IsPassive() const { return m_isPassive; }
         bool IsDeathPersistent() const { return m_isDeathPersist; }
         bool IsRemovedOnShapeLost() const { return m_isRemovedOnShapeLost; }
+        bool CanBeSaved() const;
         bool IsUpdated() const { return m_updated; }
         bool IsRemoved() const { return m_isRemoved; }
         void SetUpdated(bool val) { m_updated = val; }
