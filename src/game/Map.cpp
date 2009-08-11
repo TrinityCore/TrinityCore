@@ -60,6 +60,9 @@ Map::~Map()
 {
     UnloadAll();
 
+    while(!i_worldObjects.empty())
+        (*(i_worldObjects.begin()))->ResetMap();
+
     if(!m_scriptSchedule.empty())
         sWorld.DecreaseScheduledScriptCount(m_scriptSchedule.size());
 }
@@ -581,8 +584,9 @@ void Map::AddUnitToNotify(Unit* u)
     }
 }
 
-void Map::RemoveUnitFromNotify(Unit *unit, int32 slot)
+void Map::RemoveUnitFromNotify(Unit *unit)
 {
+    int32 slot = unit->m_NotifyListPos;
     if(i_lock)
     {
         if(slot < i_unitsToNotifyBacklog.size() && i_unitsToNotifyBacklog[slot] == unit)
