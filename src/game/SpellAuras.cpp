@@ -1521,6 +1521,18 @@ bool Aura::DropAuraCharge()
     return false;
 }
 
+bool Aura::CanBeSaved() const
+{
+    if (IsPassive())
+        return false;
+
+    if (GetCasterGUID() != m_target->GetGUID())
+        if (IsSingleTargetSpell(GetSpellProto()) || IsAreaAura())
+            return false;
+
+    return true;
+}
+
 bool Aura::IsPersistent() const
 {
     for(uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -1799,7 +1811,7 @@ void Aura::UnregisterSingleCastAura()
         }
         else
         {
-            sLog.outError("Couldn't find the caster of the single target aura, may crash later!");
+            sLog.outCrash("Couldn't find the caster (guid: "UI64FMTD") of the single target aura %u which is on unit entry %u class %u, may crash later!", GetCasterGUID(), GetId(), m_target->GetEntry(), m_target->getClass());
             assert(false);
         }
         m_isSingleTargetAura = false;
