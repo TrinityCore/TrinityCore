@@ -25,20 +25,24 @@
 const uint32 OutdoorPvPZMBuffZonesNum = 5;
 // the buff is cast in these zones
 const uint32 OutdoorPvPZMBuffZones[OutdoorPvPZMBuffZonesNum] = {3521,3607,3717,3715,3716};
-// cast on the players of the controlling faction
-#define ZM_CAPTURE_BUFF 33779  // twin spire blessing
-// spell that the field scout casts on the player to carry the flag
-const uint32 ZM_BATTLE_STANDARD_A = 32430;
-// spell that the field scout casts on the player to carry the flag
-const uint32 ZM_BATTLE_STANDARD_H = 32431;
 // linked when the central tower is controlled
 const uint32 ZM_GRAVEYARD_ZONE = 3521;
 // linked when the central tower is controlled
 const uint32 ZM_GRAVEYARD_ID = 969;
-// token create spell
-const uint32 ZM_AlliancePlayerKillReward = 32155;
-// token create spell
-const uint32 ZM_HordePlayerKillReward = 32158;
+
+enum OutdoorPvPZMSpells
+{
+    // cast on the players of the controlling faction
+    ZM_CAPTURE_BUFF = 33779,  // twin spire blessing
+    // spell that the field scout casts on the player to carry the flag
+    ZM_BATTLE_STANDARD_A = 32430,
+    // spell that the field scout casts on the player to carry the flag
+    ZM_BATTLE_STANDARD_H = 32431,
+    // token create spell
+    ZM_AlliancePlayerKillReward = 32155,
+    // token create spell
+    ZM_HordePlayerKillReward = 32158
+};
 
 // banners 182527, 182528, 182529, gotta check them ingame
 const go_type ZM_Banner_A = { 182527,530,253.54,7083.81,36.7728,-0.017453,0,0,0.008727,-0.999962 };
