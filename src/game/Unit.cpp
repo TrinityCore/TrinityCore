@@ -3924,8 +3924,7 @@ bool Unit::AddAura(Aura *Aur, bool handleEffects)
         for(;;)
         {
             Unit* caster = Aur->GetCaster();
-            if(!caster)                                     // caster deleted and not required adding scAura
-                break;
+            assert(caster);
 
             bool restart = false;
             AuraList& scAuras = caster->GetSingleCastAuras();
@@ -4251,7 +4250,7 @@ void Unit::RemoveNotOwnSingleTargetAuras(uint32 newPhase)
         if (aura->GetTarget() != this && !aura->GetTarget()->InSamePhase(newPhase))
         {
             uint32 removedAuras = m_removedAurasCount;
-            aura->GetTarget()->RemoveAura(aura->GetId(),aura->GetCasterGUID());
+            aura->GetTarget()->RemoveAura(aura);
             if (removedAuras+1<m_removedAurasCount)
                 iter=scAuras.begin();
         }
