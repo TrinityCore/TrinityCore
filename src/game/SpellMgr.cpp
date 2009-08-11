@@ -954,17 +954,23 @@ bool SpellMgr::_isPositiveEffect(uint32 spellId, uint32 effIndex, bool deep) con
 
 bool IsPositiveSpell(uint32 spellId)
 {
-    return !(spellmgr.GetSpellCustomAttr(spellId) & SPELL_ATTR_CU_NEGATIVE);
+    uint32 attr = spellmgr.GetSpellCustomAttr(spellId); // non-existing spells such as 61988 (Forbearance)
+    if(!attr)
+        return false;
+    return !(attr & SPELL_ATTR_CU_NEGATIVE);
 }
 
 bool IsPositiveEffect(uint32 spellId, uint32 effIndex)
 {
+    uint32 attr = spellmgr.GetSpellCustomAttr(spellId);
+    if(!attr)
+        return false;
     switch(effIndex)
     {
         default:
-        case 0: return !(spellmgr.GetSpellCustomAttr(spellId) & SPELL_ATTR_CU_NEGATIVE_EFF0);
-        case 1: return !(spellmgr.GetSpellCustomAttr(spellId) & SPELL_ATTR_CU_NEGATIVE_EFF1);
-        case 2: return !(spellmgr.GetSpellCustomAttr(spellId) & SPELL_ATTR_CU_NEGATIVE_EFF2);
+        case 0: return !(attr & SPELL_ATTR_CU_NEGATIVE_EFF0);
+        case 1: return !(attr & SPELL_ATTR_CU_NEGATIVE_EFF1);
+        case 2: return !(attr & SPELL_ATTR_CU_NEGATIVE_EFF2);
     }
 }
 
