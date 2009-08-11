@@ -8984,7 +8984,13 @@ void Unit::SetMinion(Minion *minion, bool apply)
                     if(GetCharmGUID() == (*itr)->GetGUID())
                         continue;
 
-                    assert((*itr)->GetOwnerGUID() == GetGUID());
+                    //assert((*itr)->GetOwnerGUID() == GetGUID());
+                    if((*itr)->GetOwnerGUID() != GetGUID())
+                    {
+                        OutDebugInfo();
+                        (*itr)->OutDebugInfo();
+                        assert(false);
+                    }
                     assert((*itr)->GetTypeId() == TYPEID_UNIT);
 
                     if(!((Creature*)(*itr))->HasSummonMask(SUMMON_MASK_CONTROLABLE_GUARDIAN))
@@ -15272,4 +15278,23 @@ void Unit::RewardRage( uint32 damage, uint32 weaponSpeedHitFactor, bool attacker
     addRage *= sWorld.getRate(RATE_POWER_RAGE_INCOME);
 
     ModifyPower(POWER_RAGE, uint32(addRage*10));
+}
+
+void Unit::OutDebugInfo()
+{
+    sLog.outError("Unit::OutDebugInfo");
+    sLog.outString("GUID "UI64FMTD", entry %u, type %u, name %s", GetGUID(), GetEntry(), (uint32)GetTypeId(), GetName());
+    sLog.outString("OwnerGUID "UI64FMTD", MinionGUID "UI64FMTD", CharmerGUID "UI64FMTD", CharmedGUID "UI64FMTD, GetOwnerGUID(), GetMinionGUID(), GetCharmerGUID(), GetCharmGUID());
+    sLog.outStringInLine("Summon Slot: ");
+    for(uint32 i = 0; i < MAX_SUMMON_SLOT; ++i)
+        sLog.outStringInLine(UI64FMTD", ", m_SummonSlot[i]);
+    sLog.outString();
+    sLog.outStringInLine("Controlled List: ");
+    for(ControlList::const_iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
+        sLog.outStringInLine(UI64FMTD", ", (*itr)->GetGUID());
+    sLog.outString();
+    sLog.outStringInLine("Aura List: ");
+    for(AuraMap::const_iterator itr = m_Auras.begin(); itr != m_Auras.end(); ++itr)
+        sLog.outStringInLine("%u, ", itr->first);
+    sLog.outString();
 }
