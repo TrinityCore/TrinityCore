@@ -1692,14 +1692,14 @@ void WorldObject::SendObjectDeSpawnAnim(uint64 guid)
 void WorldObject::SetMap(Map * map)
 {
     ASSERT(map);
-    ASSERT(!IsInWorld());
+    ASSERT(!IsInWorld() || GetTypeId() == TYPEID_CORPSE);
     m_currMap = map;
 }
 
 void WorldObject::ResetMap()
 {
     ASSERT(m_currMap);
-    ASSERT(!IsInWorld());
+    ASSERT(!IsInWorld() || GetTypeId() == TYPEID_CORPSE);
     m_currMap = NULL;
 }
 
