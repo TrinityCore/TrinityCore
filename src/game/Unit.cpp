@@ -4664,6 +4664,15 @@ void Unit::RemoveGameObject(GameObject* gameObj, bool del)
 
     gameObj->SetOwnerGUID(0);
 
+    for(uint32 i = 0; i < 4; ++i)
+    {
+        if(m_ObjectSlot[i] == gameObj->GetGUID())
+        {
+            m_ObjectSlot[i] = 0;
+            break;
+        }
+    }
+
     // GO created by some spell
     if (uint32 spellid = gameObj->GetSpellId())
     {
