@@ -50,7 +50,6 @@ SpellMgr::SpellMgr()
             case SPELL_EFFECT_SUMMON_OBJECT_SLOT3:  //106
             case SPELL_EFFECT_SUMMON_OBJECT_SLOT4:  //107
             case SPELL_EFFECT_SUMMON_DEAD_PET:      //109
-            //case SPELL_EFFECT_SUMMON_DEMON:         //112 not 303
             case SPELL_EFFECT_TRIGGER_SPELL_2:      //151 ritual of summon
                 EffectTargetType[i] = SPELL_REQUIRE_DEST;
                 break;
@@ -408,7 +407,7 @@ AuraState GetSpellAuraState(SpellEntry const * spellInfo)
 {
     // Seals
     if (IsSealSpell(spellInfo))
-        return (AURA_STATE_JUDGEMENT);
+        return AURA_STATE_JUDGEMENT;
 
     // Conflagrate aura state on Immolate and Shadowflame
     if (spellInfo->SpellFamilyName == SPELLFAMILY_WARLOCK &&
@@ -416,35 +415,35 @@ AuraState GetSpellAuraState(SpellEntry const * spellInfo)
         ((spellInfo->SpellFamilyFlags[0] & 4) ||
         // Shadowflame
         (spellInfo->SpellFamilyFlags[2] & 2)))
-        return (AURA_STATE_CONFLAGRATE);
+        return AURA_STATE_CONFLAGRATE;
 
     // Faerie Fire (druid versions)
     if (spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && spellInfo->SpellFamilyFlags[0] & 0x400)
-        return (AURA_STATE_FAERIE_FIRE);
+        return AURA_STATE_FAERIE_FIRE;
 
     // Sting (hunter's pet ability)
     if (spellInfo->Category == 1133)
-        return (AURA_STATE_FAERIE_FIRE);
+        return AURA_STATE_FAERIE_FIRE;
 
     // Victorious
     if (spellInfo->SpellFamilyName == SPELLFAMILY_WARRIOR &&  spellInfo->SpellFamilyFlags[1] & 0x00040000)
-        return (AURA_STATE_WARRIOR_VICTORY_RUSH);
+        return AURA_STATE_WARRIOR_VICTORY_RUSH;
 
     // Swiftmend state on Regrowth & Rejuvenation
     if (spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && spellInfo->SpellFamilyFlags[0] & 0x50 )
-        return (AURA_STATE_SWIFTMEND);
+        return AURA_STATE_SWIFTMEND;
 
     // Deadly poison aura state
     if(spellInfo->SpellFamilyName == SPELLFAMILY_ROGUE && spellInfo->SpellFamilyFlags[0] & 0x10000)
-        return (AURA_STATE_DEADLY_POISON);
+        return AURA_STATE_DEADLY_POISON;
 
     // Enrage aura state
     if(spellInfo->Dispel == DISPEL_ENRAGE)
-        return (AURA_STATE_ENRAGE);
+        return AURA_STATE_ENRAGE;
 
     // Bleeding aura state
     if (GetAllSpellMechanicMask(spellInfo) & 1<<MECHANIC_BLEED)
-        return (AURA_STATE_BLEEDING);
+        return AURA_STATE_BLEEDING;
 
     if(GetSpellSchoolMask(spellInfo) & SPELL_SCHOOL_MASK_FROST)
     {
@@ -452,10 +451,7 @@ AuraState GetSpellAuraState(SpellEntry const * spellInfo)
         {
             if (spellInfo->EffectApplyAuraName[i]==SPELL_AURA_MOD_STUN
                 || spellInfo->EffectApplyAuraName[i]==SPELL_AURA_MOD_ROOT)
-            {
-                return (AURA_STATE_FROZEN);
-                break;
-            }
+                return AURA_STATE_FROZEN;
         }
     }
     return AURA_STATE_NONE;
@@ -3649,6 +3645,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 42384:                             // Brutal Swipe
         case 45150:                             // Meteor Slash
         case 64422: case 64688:                 // Sonic Screech
+            // ONLY SPELLS WITH SPELLFAMILY_GENERIC and EFFECT_SCHOOL_DAMAGE
             mSpellCustomAttr[i] |= SPELL_ATTR_CU_SHARE_DAMAGE;
             break;
         case 59725:                             // Improved Spell Reflection - aoe aura

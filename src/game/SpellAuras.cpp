@@ -944,6 +944,9 @@ void Aura::ApplyAllModifiers(bool apply, bool Real)
 
 void Aura::HandleAuraSpecificMods(bool apply)
 {
+    //********************
+    // MODS AT AURA APPLY
+    //********************
     if (apply)
     {
         if(m_spellProto->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT)
@@ -958,10 +961,10 @@ void Aura::HandleAuraSpecificMods(bool apply)
                     {
                         int32 value = int32((auraeff->GetAmount()*-1)-10);
                         uint32 defva = uint32(((Player*)caster)->GetSkillValue(SKILL_DEFENSE) + ((Player*)caster)->GetRatingBonusValue(CR_DEFENSE_SKILL));
-                        
+
                         if(defva > 400)
                             value += int32((defva-400)*0.15);
-                        
+
                         // Glyph of Icebound Fortitude
                         if (AuraEffect *auradummy = caster->GetAuraEffect(58625,0))
                         {
@@ -1009,7 +1012,29 @@ void Aura::HandleAuraSpecificMods(bool apply)
                 }
             }
         }
+        // Gronn Lord's Grasp, becomes stoned
+        else if (GetId() == 33572)
+        {
+            if (GetStackAmount() >= 5 && !m_target->HasAura(33652))
+                m_target->CastSpell(m_target, 33652, true);
+        }
+        // Heroic Fury (remove Intercept cooldown)
+        else if(GetId() == 60970 && m_target->GetTypeId() == TYPEID_PLAYER )
+        {
+            ((Player*)m_target)->RemoveSpellCooldown(20252, true);
+        }
+        // Demonic Circle
+        else if (GetId() == 48020 && m_target->GetTypeId() == TYPEID_PLAYER )
+        {
+            GameObject* obj = m_target->GetGameObject(48018);
+            if (obj)
+                ((Player*)m_target)->TeleportTo(obj->GetMapId(),obj->GetPositionX(),obj->GetPositionY(),obj->GetPositionZ(),obj->GetOrientation());
+        }
     }
+
+    //*******************************
+    // MODS AT AURA APPLY AND REMOVE
+    //*******************************
 
     // Aura Mastery Triggered Spell Handler
     // If apply Concentration Aura -> trigger -> apply Aura Mastery Immunity
@@ -1025,12 +1050,29 @@ void Aura::HandleAuraSpecificMods(bool apply)
             {
                 m_target->CastSpell(m_target,64364,true);
                 return;
-            }  
+            }
         }
         else
         {
             m_target->RemoveAurasDueToSpell(64364, GetCasterGUID());
             return;
+        }
+    }
+
+    // Bestial Wrath
+    if (GetSpellProto()->Id == 19574)
+    {
+        // The Beast Within cast on owner if talent present
+        if ( Unit* owner = m_target->GetOwner() )
+        {
+            // Search talent
+            if (owner->HasAura(34692))
+            {
+                if (apply)
+                    owner->CastSpell(owner, 34471, true, 0, GetPartAura(0));
+                else
+                    owner->RemoveAurasDueToSpell(34471);
+            }
         }
     }
 
@@ -2057,20 +2099,6 @@ void AuraEffect::TriggerSpell()
                     // trigger_spell_id not set and unknown effect triggered in this case, ignoring for while
                     case 768:
                         return;
-                    // Frenzied Regeneration
-                    case 22842:
-                    case 26999:
-                    {
-                        int32 LifePerRage = GetAmount();
-
-                        int32 lRage = m_target->GetPower(POWER_RAGE);
-                        if(lRage > 100)                                     // rage stored as rage*10
-                            lRage = 100;
-                        m_target->ModifyPower(POWER_RAGE, -lRage);
-                        int32 FRTriggerBasePoints = int32(lRage*LifePerRage/10);
-                        m_target->CastCustomSpell(m_target,22845,&FRTriggerBasePoints,NULL,NULL,true,NULL,this);
-                        return;
-                    }
                     default:
                         break;
                 }
@@ -2434,7 +2462,7 @@ void AuraEffect::HandleAuraDummy(bool apply, bool Real, bool changeAmount)
                     case 46308: // Burning Winds casted only at creatures at spawn
                         m_target->CastSpell(m_target,47287,true,NULL,this);
                         return;
-                    case 52173:  // Coyote Spirit Despawn Aura
+                    case 52172:  // Coyote Spirit Despawn Aura
                     case 60244:  // Blood Parrot Despawn Aura
                         m_target->CastSpell((Unit*)NULL, GetAmount(), true, NULL, this);
                         return;
@@ -3018,15 +3046,8 @@ void AuraEffect::HandleAuraModShapeshift(bool apply, bool Real, bool changeAmoun
                 {
                     // get furor proc chance
                     int32 FurorChance = 0;
-                    Unit::AuraEffectList const& mDummy = m_target->GetAurasByType(SPELL_AURA_DUMMY);
-                    for(Unit::AuraEffectList::const_iterator i = mDummy.begin(); i != mDummy.end(); ++i)
-                    {
-                        if ((*i)->GetSpellProto()->SpellIconID == 238)
-                        {
-                            FurorChance = (*i)->GetAmount();
-                            break;
-                        }
-                    }
+                    if(AuraEffect const * dummy = m_target->GetDummyAura(SPELLFAMILY_DRUID, 238, 0))
+                        FurorChance = dummy->GetAmount();
 
                     if (GetMiscValue() == FORM_CAT)
                     {
@@ -4082,16 +4103,6 @@ void AuraEffect::HandleAuraModDecreaseSpeed(bool apply, bool Real, bool changeAm
     if(!Real && !changeAmount)
         return;
 
-    if (apply)
-    {
-        // Gronn Lord's Grasp, becomes stoned
-        if (GetId() == 33572)
-        {
-            if (GetParentAura()->GetStackAmount() >= 5 && !m_target->HasAura(33652))
-                m_target->CastSpell(m_target, 33652, true);
-        }
-    }
-
     m_target->UpdateSpeed(MOVE_RUN, true);
     m_target->UpdateSpeed(MOVE_SWIM, true);
     m_target->UpdateSpeed(MOVE_FLIGHT, true);
@@ -4199,47 +4210,14 @@ void AuraEffect::HandleModMechanicImmunity(bool apply, bool Real, bool /*changeA
 
     m_target->ApplySpellImmune(GetId(),IMMUNITY_MECHANIC,GetMiscValue(),apply);
 
-    // Bestial Wrath
-    if (GetSpellProto()->Id == 19574)
-    {
-        // The Beast Within cast on owner if talent present
-        if ( Unit* owner = m_target->GetOwner() )
-        {
-            // Search talent
-            if (owner->GetAuraEffect(34692, 0))
-            {
-                if (apply)
-                    owner->CastSpell(owner, 34471, true, 0, this);
-                else
-                    owner->RemoveAurasDueToSpell(34471);
-            }
-        }
-    }
-    // Heroic Fury (remove Intercept cooldown)
-    else if( apply && GetId() == 60970 && m_target->GetTypeId() == TYPEID_PLAYER )
-    {
-        ((Player*)m_target)->RemoveSpellCooldown(20252, true);
-    }
     // Demonic Empowerment -- voidwalker -- missing movement impairing effects immunity
-    else if (GetId() == 54508)
+    if (GetId() == 54508)
     {
         if (apply)
             m_target->RemoveMovementImpairingAuras();
 
         m_target->ApplySpellImmune(GetId(),IMMUNITY_STATE,SPELL_AURA_MOD_ROOT,apply);
         m_target->ApplySpellImmune(GetId(),IMMUNITY_STATE,SPELL_AURA_MOD_DECREASE_SPEED,apply);
-    }
-    // Demonic Circle
-    else if (GetId() == 48020)
-    {
-        if (m_target->GetTypeId() != TYPEID_PLAYER)
-            return;
-        if (apply)
-        {
-            GameObject* obj = m_target->GetGameObject(48018);
-            if (obj)
-                ((Player*)m_target)->TeleportTo(obj->GetMapId(),obj->GetPositionX(),obj->GetPositionY(),obj->GetPositionZ(),obj->GetOrientation());
-        }
     }
 }
 
@@ -4341,7 +4319,7 @@ void AuraEffect::HandleAuraProcTriggerSpell(bool apply, bool Real, bool /*change
         {
             SpellModifier *mod = new SpellModifier;
             mod->op = SPELLMOD_EFFECT2;
-            mod->value = (GetId() == 51466) ? 5 : 10;
+            mod->value = m_target->CalculateSpellDamage(GetSpellProto(), 1, GetSpellProto()->EffectBasePoints[1], m_target);
             mod->type = SPELLMOD_FLAT;
             mod->spellId = GetId();
             mod->mask[1] = 0x0004000;
@@ -6356,11 +6334,6 @@ void AuraEffect::PeriodicTick()
                 // eating anim
                 m_target->HandleEmoteCommand(EMOTE_ONESHOT_EAT);
             }
-            else if( GetId() == 20577 )
-            {
-                // cannibalize anim
-                m_target->HandleEmoteCommand(EMOTE_STATE_CANNIBALIZE);
-            }
             // Butchery
             else if (m_spellProto->SpellFamilyName==SPELLFAMILY_DEATHKNIGHT
                 && m_spellProto->SpellIconID==2664)
@@ -6431,7 +6404,6 @@ void AuraEffect::PeriodicDummyTick()
             case 34291:
             case 43182:
             case 43183:
-            case 43706:
             case 46755:
             case 49472: // Drink Coffee
             case 57073:
