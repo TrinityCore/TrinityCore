@@ -1010,6 +1010,14 @@ UPDATE `creature_template` SET `ScriptName`='mob_stonekeepers' WHERE `entry`=485
 UPDATE `gameobject_template` SET `ScriptName`='go_altar_of_the_keepers' WHERE `entry`=130511;
 UPDATE `gameobject_template` SET `ScriptName`='go_altar_of_archaedas' WHERE `entry`=133234;
 
+/* ULDUAR */
+/* UPDATE `instance_template` SET `script`='instance_ulduar' WHERE `map`=603; */
+UPDATE `creature_template` SET `ScriptName` = 'boss_auriaya' WHERE `entry` = 33515;
+UPDATE `creature_template` SET `ScriptName` = 'boss_flame_leviathan' WHERE `entry` = 33113;
+UPDATE `creature_template` SET `ScriptName` = 'boss_ignis' WHERE `entry` = 33118;
+UPDATE `creature_template` SET `ScriptName` = 'boss_razorscale' WHERE `entry` = 33186;
+UPDATE `creature_template` SET `ScriptName` = 'boss_xt002' WHERE `entry` = 33293;
+
 /* UN'GORO CRATER */
 UPDATE `creature_template` SET `ScriptName`='npc_ame' WHERE `entry`=9623;
 
