@@ -1386,7 +1386,7 @@ void ObjectMgr::RemoveCreatureFromGrid(uint32 guid, CreatureData const* data)
     }
 }
 
-uint32 ObjectMgr::AddGameObject(uint32 entry, uint32 mapId, float x, float y, float z, float o, uint32 spawntimedelay, float rotation0, float rotation1, float rotation2, float rotation3)
+uint32 ObjectMgr::AddGOData(uint32 entry, uint32 mapId, float x, float y, float z, float o, uint32 spawntimedelay, float rotation0, float rotation1, float rotation2, float rotation3)
 {
     GameObjectInfo const* goinfo = GetGameObjectInfo(entry);
     if (!goinfo)
@@ -1433,7 +1433,7 @@ uint32 ObjectMgr::AddGameObject(uint32 entry, uint32 mapId, float x, float y, fl
     return guid;
 }
 
-uint32 ObjectMgr::AddCreature(uint32 entry, uint32 team, uint32 mapId, float x, float y, float z, float o, uint32 spawntimedelay)
+uint32 ObjectMgr::AddCreData(uint32 entry, uint32 team, uint32 mapId, float x, float y, float z, float o, uint32 spawntimedelay)
 {
     CreatureInfo const *cInfo = GetCreatureTemplate(entry);
     if(!cInfo)

@@ -48,28 +48,52 @@ void OPvPCapturePoint::HandlePlayerLeave(Player * plr)
     m_activePlayers[plr->GetTeamId()].erase(plr);
 }
 
-bool OPvPCapturePoint::AddObject(uint32 type, uint32 entry, uint32 map, float x, float y, float z, float o, float rotation0, float rotation1, float rotation2, float rotation3)
+void OPvPCapturePoint::AddGO(uint32 type, uint32 guid, uint32 entry)
 {
-    uint32 guid = objmgr.AddGameObject(entry, map, x, y, z, o, 0, rotation0, rotation1, rotation2, rotation3);
-    if(!guid)
-        return false;
-
-    // 2 way registering
+    if(!entry)
+    {
+        const GameObjectData *data = objmgr.GetGOData(guid);
+        if(!data)
+            return;
+        entry = data->id;
+    }
     m_Objects[type] = MAKE_NEW_GUID(guid, entry, HIGHGUID_GAMEOBJECT);
     m_ObjectTypes[m_Objects[type]]=type;
+}
 
-    return true;
+void OPvPCapturePoint::AddCre(uint32 type, uint32 guid, uint32 entry)
+{
+    if(!entry)
+    {
+        const CreatureData *data = objmgr.GetCreatureData(guid);
+        if(!data)
+            return;
+        entry = data->id;
+    }
+    m_Creatures[type] = MAKE_NEW_GUID(guid, entry, HIGHGUID_UNIT);
+    m_CreatureTypes[m_Creatures[type]] = type;
+}
+
+bool OPvPCapturePoint::AddObject(uint32 type, uint32 entry, uint32 map, float x, float y, float z, float o, float rotation0, float rotation1, float rotation2, float rotation3)
+{
+    if(uint32 guid = objmgr.AddGOData(entry, map, x, y, z, o, 0, rotation0, rotation1, rotation2, rotation3))
+    {
+        AddGO(type, guid, entry);
+        return true;
+    }
+
+    return false;
 }
 
 bool OPvPCapturePoint::AddCreature(uint32 type, uint32 entry, uint32 team, uint32 map, float x, float y, float z, float o, uint32 spawntimedelay)
 {
-    uint32 guid = objmgr.AddCreature(entry, team, map, x, y, z, o, spawntimedelay);
-    if(!guid)
-        return false;
+    if(uint32 guid = objmgr.AddCreData(entry, team, map, x, y, z, o, spawntimedelay))
+    {
+        AddCre(type, guid, entry);
+        return true;
+    }
 
-    m_Creatures[type] = MAKE_NEW_GUID(guid, entry, HIGHGUID_UNIT);
-    m_CreatureTypes[m_Creatures[type]] = type;
-    return true;
+    return false;
 }
 
 bool OPvPCapturePoint::AddCapturePoint(uint32 entry, uint32 map, float x, float y, float z, float o, float rotation0, float rotation1, float rotation2, float rotation3)
@@ -84,7 +108,7 @@ bool OPvPCapturePoint::AddCapturePoint(uint32 entry, uint32 map, float x, float 
         return false;
     }
 
-    m_CapturePointGUID = objmgr.AddGameObject(entry, map, x, y, z, o, 0, rotation0, rotation1, rotation2, rotation3);
+    m_CapturePointGUID = objmgr.AddGOData(entry, map, x, y, z, o, 0, rotation0, rotation1, rotation2, rotation3);
     if(!m_CapturePointGUID)
         return false;
 
@@ -209,7 +233,13 @@ bool OutdoorPvP::Update(uint32 diff)
 {
     bool objective_changed = false;
     for(OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
-        objective_changed |= (*itr)->Update(diff);
+    {
+        if((*itr)->Update(diff))
+        {
+            (*itr)->ChangeState();
+            objective_changed = true;
+        }
+    }
     return objective_changed;
 }
 
@@ -316,7 +346,10 @@ bool OPvPCapturePoint::Update(uint32 diff)
             m_State = OBJECTIVESTATE_ALLIANCE_HORDE_CHALLENGE;
     }
 
-    return true;
+    if(m_ShiftPhase != m_OldPhase)
+        SendChangePhase();
+
+    return m_OldState != m_State;
 }
 
 void OutdoorPvP::SendUpdateWorldState(uint32 field, uint32 value)
