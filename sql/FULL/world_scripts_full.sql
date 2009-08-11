@@ -28,7 +28,7 @@ UPDATE `gameobject_template` SET `ScriptName`='go_legion_obelisk' WHERE `entry` 
 UPDATE `gameobject_template` SET `ScriptName`='go_jump_a_tron' WHERE `entry`=183146;
 UPDATE `gameobject_template` SET `ScriptName`='go_ethereum_prison' WHERE `entry` BETWEEN 184418 AND 184431;
 UPDATE `gameobject_template` SET `ScriptName`='go_ethereum_stasis' WHERE `entry` BETWEEN 185465 AND 185467;
-UPDATE `gameobject_template` SET `ScriptName`='go_ethereum_stasis' WHERE `entry` = 184595;
+UPDATE `gameobject_template` SET `ScriptName`='go_ethereum_stasis' WHERE `entry`=184595;
 UPDATE `gameobject_template` SET `ScriptName`='go_ethereum_stasis' WHERE `entry` BETWEEN 185461 AND 185464;
 UPDATE `gameobject_template` SET `ScriptName`='go_sacred_fire_of_life' WHERE `entry`=175944;
 UPDATE `gameobject_template` SET `ScriptName`='go_skull_pile' WHERE `entry`=185913;
@@ -67,13 +67,13 @@ UPDATE `item_template` SET `ScriptName`='item_flying_machine' WHERE `entry` IN (
 UPDATE `item_template` SET `ScriptName`='item_gor_dreks_ointment' WHERE `entry`=30175;
 UPDATE `item_template` SET `ScriptName`='item_nether_wraith_beacon' WHERE `entry`=31742;
 UPDATE `item_template` SET `ScriptName`='item_tainted_core' WHERE `entry`=31088;
-UPDATE `item_template` SET `ScriptName`='item_only_for_flight' WHERE `entry` IN (34475, 34489, 24538);
+UPDATE `item_template` SET `ScriptName`='item_only_for_flight' WHERE `entry` IN (34475,34489,24538);
 UPDATE `item_template` SET `ScriptName`='item_incendiary_explosives' WHERE (`entry`=35704);
 UPDATE `item_template` SET `ScriptName`='item_mysterious_egg' WHERE `entry` IN(39878);
 UPDATE `item_template` SET `ScriptName`='item_disgusting_jar' WHERE `entry` IN(44717);
 
 /* NPC (usually creatures to be found in more than one specific zone) */
-UPDATE `creature_template` SET `ScriptName`='npc_air_force_bots' WHERE `entry` IN (2614, 2615, 21974, 21993, 21996, 21997, 21999, 22001, 22002, 22003, 22063, 22065, 22066, 22068, 22069, 22070, 22071, 22078, 22079, 22080, 22086, 22087, 22088, 22090, 22124, 22125, 22126);
+UPDATE `creature_template` SET `ScriptName`='npc_air_force_bots' WHERE `entry` IN (2614,2615,21974,21993,21996,21997,21999,22001,22002,22003,22063,22065,22066,22068,22069,22070,22071,22078,22079,22080,22086,22087,22088,22090,22124,22125,22126);
 UPDATE `creature_template` SET `ScriptName`='npc_chicken_cluck' WHERE `entry`=620;
 UPDATE `creature_template` SET `ScriptName`='npc_dancing_flames' WHERE `entry`=25305;
 UPDATE `creature_template` SET `ScriptName`='npc_garments_of_quests' WHERE `entry` IN (12429,12423,12427,12430,12428);
@@ -83,7 +83,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_doctor' WHERE `entry` IN (12939
 UPDATE `creature_template` SET `ScriptName`='npc_injured_patient' WHERE `entry` IN (12936,12937,12938,12923,12924,12925);
 UPDATE `creature_template` SET `ScriptName`='npc_prof_alchemy' WHERE `entry` IN (17909,19052,22427);
 UPDATE `creature_template` SET `ScriptName`='npc_prof_blacksmith' WHERE `entry` IN (5164,11145,11146,11176,11177,11178,11191,11192,11193);
-UPDATE `creature_template` SET `ScriptName`='npc_engineering_tele_trinket' WHERE `entry` IN (14742, 14743, 21493, 21494);
+UPDATE `creature_template` SET `ScriptName`='npc_engineering_tele_trinket' WHERE `entry` IN (14742,14743,21493,21494);
 UPDATE `creature_template` SET `ScriptName`='npc_prof_leather' WHERE `entry` IN (7866,7867,7868,7869,7870,7871);
 UPDATE `creature_template` SET `ScriptName`='npc_prof_tailor' WHERE `entry` IN (22208,22212,22213);
 UPDATE `creature_template` SET `ScriptName`='npc_rogue_trainer' WHERE `entry` IN (918,4163,3328,4583,5165,5167,13283,16684);
@@ -92,21 +92,22 @@ UPDATE `creature_template` SET `ScriptName`='npc_steam_tonk' WHERE `entry`=19405
 UPDATE `creature_template` SET `ScriptName`='npc_tonk_mine' WHERE `entry`=15368;
 UPDATE `creature_template` SET `ScriptName`='npc_winter_reveler' WHERE `entry`=15760;
 UPDATE `creature_template` SET `ScriptName`='npc_brewfest_reveler' WHERE `entry`=24484;
-UPDATE `creature_template` SET `ScriptName`='npc_snake_trap_serpents' WHERE `entry` IN (19921, 19833);
+UPDATE `creature_template` SET `ScriptName`='npc_snake_trap_serpents' WHERE `entry` IN (19921,19833);
 UPDATE `creature_template` SET `ScriptName`='npc_unworthy_initiate' WHERE `entry` IN (29519,29520,29565,29566,29567);
 UPDATE `creature_template` SET `ScriptName`='npc_unworthy_initiate_anchor' WHERE `entry`=29521;
 UPDATE `creature_template` SET `ScriptName`='npc_kingdom_of_dalaran_quests' WHERE `entry` IN (29169,23729,26673,27158,29158,29161,26471,29155,29159,29160,29162);
-UPDATE `creature_template` SET `ScriptName`='npc_taxi' WHERE `entry` IN (17435, 23413, 18725, 19401, 19409, 20235, 25059, 25236, 20903, 20162, 29154, 23415, 27575, 26443, 26949, 23816, 23704);
+UPDATE `creature_template` SET `ScriptName`='npc_taxi' WHERE `entry` IN (17435,23413,18725,19401,19409,20235,25059,25236,20903,20162,29154,23415,27575,26443,26949,23816,23704);
 UPDATE `creature_template` SET `ScriptName`='npc_death_knight_initiate' WHERE `entry`=28406;
-UPDATE `creature_template` SET `ScriptName`='npc_salanar_the_horseman' WHERE `entry` IN (28653, 28788);
+UPDATE `creature_template` SET `ScriptName`='npc_salanar_the_horseman' WHERE `entry` IN (28653,28788);
 UPDATE `creature_template` SET `ScriptName`='npc_dark_rider_of_acherus' WHERE `entry` =28654;
 UPDATE `creature_template` SET `ScriptName`='npc_ros_dark_rider' WHERE `entry`=28768;
 UPDATE `creature_template` SET `ScriptName`='npc_dkc1_gothik' WHERE `entry`=28658;
-UPDATE `creature_template` SET `ScriptName`='npc_a_special_surprise' WHERE `entry` IN (29032, 29061, 29065, 29067, 29068, 29070, 29074, 29072, 29073, 29071);
-UPDATE `creature_template` SET `ScriptName`='npc_demolisher_engineerer' WHERE `entry` IN (30400, 30499);
+UPDATE `creature_template` SET `ScriptName`='npc_a_special_surprise' WHERE `entry` IN (29032,29061,29065,29067,29068,29070,29074,29072,29073,29071);
+UPDATE `creature_template` SET `ScriptName`='npc_demolisher_engineerer' WHERE `entry` IN (30400,30499);
 UPDATE `creature_template` SET `ScriptName`='npc_valkyr_battle_maiden' WHERE `entry`=28534;
 UPDATE `creature_template` SET `ScriptName`='npc_mirror_image' WHERE `entry`=31216;
-UPDATE `creature_template` SET `ScriptName`='npc_training_dummy' WHERE `entry` IN (17578, 24792, 32543, 32546, 32542, 32545, 30527, 31143, 31144, 31146, 32541, 32666, 32667);
+UPDATE `creature_template` SET `ScriptName`='npc_training_dummy' WHERE `entry` IN (17578,24792,32543,32546,32542,32545,30527,31143,31144,31146,32541,32666,32667);
+UPDATE `creature_template` SET `ScriptName`='npc_lightwell' WHERE `entry` IN (31883,31893,31894,31895,31896,31897);
 
 /*  */
 /* ZONE */
@@ -187,7 +188,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_twiggy_flathead' WHERE `entry`=
 UPDATE `creature_template` SET `ScriptName`='npc_wizzlecrank_shredder' WHERE `entry`=3439;
 
 /* BLACK TEMPLE */
-UPDATE `gameobject_template` SET `ScriptName` = 'go_najentus_spine' WHERE `entry` = 185584;
+UPDATE `gameobject_template` SET `ScriptName`='go_najentus_spine' WHERE `entry`=185584;
 UPDATE `gameobject_template` SET `ScriptName`='gameobject_cage_trap' WHERE `entry`=185916; -- Cage Trap GO in Illidan Encounter
 UPDATE `instance_template` SET `script`='instance_black_temple' WHERE `map`=564;
 UPDATE `creature_template` SET `ScriptName`='npc_akama_shade' WHERE `entry`=22990; -- Akama at Shade of Akama
@@ -377,7 +378,7 @@ UPDATE `creature_template` SET `ScriptName`='mob_steamrigger_mechanic' WHERE `en
 /* SERPENTSHRINE CAVERN */
 UPDATE `instance_template` SET `script`='instance_serpent_shrine' WHERE `map`=548;
 UPDATE `creature_template` SET `ScriptName`='boss_hydross_the_unstable' WHERE `entry`=21216;
-UPDATE `gameobject_template` SET `ScriptName` = 'go_bridge_console' WHERE `entry` = 184568;
+UPDATE `gameobject_template` SET `ScriptName`='go_bridge_console' WHERE `entry`=184568;
 
 /* Leotheras the Blind event */
 UPDATE `creature_template` SET `ScriptName`='boss_leotheras_the_blind' WHERE `entry`=21215;
@@ -612,7 +613,7 @@ UPDATE `creature_template` SET `ScriptName`='mob_arcane_sphere' WHERE `entry`=24
 UPDATE `creature_template` SET `ScriptName`='mob_felkael_phoenix' WHERE `entry`=24674;
 UPDATE `creature_template` SET `ScriptName`='mob_felkael_phoenix_egg' WHERE `entry`=24675;
 UPDATE `creature_template` SET `ScriptName`='mob_felkael_flamestrike' WHERE `entry`=24666;
-UPDATE `creature_template` SET `ScriptName`='npc_kalecgos' WHERE `entry` IN (24844, 24848);
+UPDATE `creature_template` SET `ScriptName`='npc_kalecgos' WHERE `entry` IN (24844,24848);
 
 /* MARAUDON */
 UPDATE `creature_template` SET `ScriptName`='boss_princess_theradras' WHERE `entry`=12201;
@@ -680,8 +681,8 @@ UPDATE `creature_template` SET `ScriptName`='boss_stalagg' WHERE `entry`=15929;
 UPDATE `creature_template` SET `ScriptName`='boss_fugen' WHERE `entry`=15930;
 UPDATE `creature_template` SET `ScriptName`='boss_sapphiron' WHERE `entry`=15989;
 UPDATE `creature_template` SET `ScriptName`='boss_kelthuzad' WHERE `entry`=15990;
-UPDATE `creature_template` SET `ScriptName`='' WHERE `entry` IN (16062, 30000);
-UPDATE `creature_template` SET `ScriptName`='trigger_periodic' WHERE `entry` IN (16474, 16697, 16129);
+UPDATE `creature_template` SET `ScriptName`='' WHERE `entry` IN (16062,30000);
+UPDATE `creature_template` SET `ScriptName`='trigger_periodic' WHERE `entry` IN (16474,16697,16129);
 
 /* NETHERSTORM */
 UPDATE `gameobject_template` SET `ScriptName`='go_manaforge_control_console' WHERE `entry` IN (183770,183956,184311,184312);
@@ -708,7 +709,7 @@ UPDATE creature_template SET ScriptName='mob_vesperon' WHERE entry=30449;
 UPDATE creature_template SET ScriptName='mob_shadron' WHERE entry=30451;
 UPDATE creature_template SET ScriptName='mob_tenebron' WHERE entry=30452;
 UPDATE creature_template SET ScriptName='mob_twilight_eggs' WHERE entry=30882;
-UPDATE creature_template SET ScriptName='mob_twilight_whelp' WHERE entry IN (30890, 31214);
+UPDATE creature_template SET ScriptName='mob_twilight_whelp' WHERE entry IN (30890,31214);
 UPDATE creature_template SET ScriptName='mob_acolyte_of_shadron' WHERE entry=31218;
 UPDATE creature_template SET ScriptName='mob_acolyte_of_vesperon' WHERE entry=31219;
 
@@ -728,8 +729,8 @@ UPDATE `creature_template` SET `ScriptName`='npc_henry_stern' WHERE `entry`=8696
 
 /* RAZORFEN KRAUL */
 UPDATE `creature_template` SET `Scriptname`='npc_willix' WHERE `entry`=4508;
-UPDATE `instance_template` SET `script` = 'instance_razorfen_kraul' WHERE `map`=47;
-UPDATE `creature_template` SET `ScriptName` = 'npc_deaths_head_ward_keeper' WHERE `entry`=4625;
+UPDATE `instance_template` SET `script`='instance_razorfen_kraul' WHERE `map`=47;
+UPDATE `creature_template` SET `ScriptName`='npc_deaths_head_ward_keeper' WHERE `entry`=4625;
 
 /* REDRIDGE MOUNTAINS */
 
@@ -792,11 +793,11 @@ UPDATE `creature_template` SET `ScriptName`='npc_oronok_tornheart' WHERE `entry`
 UPDATE `creature_template` SET `ScriptName`='mob_mature_netherwing_drake' WHERE `entry`=21648;
 UPDATE `creature_template` SET `ScriptName`='mob_enslaved_netherwing_drake' WHERE `entry`=21722;
 UPDATE `creature_template` SET `ScriptName`='npc_overlord_morghor' WHERE `entry`=23139;
-UPDATE `creature_template` SET `ScriptName`='mob_illidari_spawn' WHERE `entry` IN (22075, 22074, 19797);
+UPDATE `creature_template` SET `ScriptName`='mob_illidari_spawn' WHERE `entry` IN (22075,22074,19797);
 UPDATE `creature_template` SET `ScriptName`='mob_torloth_the_magnificent' WHERE `entry`=22076;
 UPDATE `creature_template` SET `ScriptName`='npc_lord_illidan_stormrage' WHERE `entry`=22083;
 UPDATE `creature_template` SET `ScriptName`='npc_earthmender_wilda' WHERE `entry`=21027;
-UPDATE `creature_template` SET `ScriptName`='npc_enraged_spirit' WHERE `entry` IN (21050, 21061, 21060, 21059);
+UPDATE `creature_template` SET `ScriptName`='npc_enraged_spirit' WHERE `entry` IN (21050,21061,21060,21059);
 UPDATE `creature_template` SET `ScriptName`='mob_dragonmaw_peon' WHERE `entry`=22252;
 UPDATE `creature_template` SET `ScriptName`='npc_karynaku' WHERE `entry`=22112;
 
@@ -1003,7 +1004,7 @@ UPDATE `creature_template` SET `ScriptName`='boss_ironaya' WHERE `entry`=7228;
 UPDATE `creature_template` SET `ScriptName`='mob_jadespine_basilisk' WHERE `entry`=4863;
 UPDATE `creature_template` SET `ScriptName`='npc_lore_keeper_of_norgannon' WHERE `entry`=7172;
 UPDATE `creature_template` SET `ScriptName`='boss_archaedas' WHERE `entry`=2748;
-UPDATE `creature_template` SET `ScriptName`='mob_archaedas_minions' WHERE `entry` IN (7309, 7077, 7076, 10120);
+UPDATE `creature_template` SET `ScriptName`='mob_archaedas_minions' WHERE `entry` IN (7309,7077,7076,10120);
 UPDATE `creature_template` SET `ScriptName`='mob_stonekeepers' WHERE `entry`=4857;
 UPDATE `gameobject_template` SET `ScriptName`='go_altar_of_the_keepers' WHERE `entry`=130511;
 UPDATE `gameobject_template` SET `ScriptName`='go_altar_of_archaedas' WHERE `entry`=133234;
@@ -1087,7 +1088,7 @@ UPDATE `creature_template` SET `ScriptName`='boss_koragg' WHERE `entry` =24247;
 UPDATE `creature_template` SET `ScriptName`='boss_zuljin' WHERE `entry` =23863;
 UPDATE `creature_template` SET `ScriptName`='do_nothing' WHERE `entry`=24187;
 UPDATE `creature_template` SET `ScriptName`='mob_zuljin_vortex' WHERE `entry`=24136;
-UPDATE `creature_template` SET `ScriptName`='npc_zulaman_hostage' WHERE `entry` IN (23790, 23999, 24024, 24001);
+UPDATE `creature_template` SET `ScriptName`='npc_zulaman_hostage' WHERE `entry` IN (23790,23999,24024,24001);
 UPDATE `creature_template` SET `ScriptName`='mob_mojo' WHERE `entry`=24480;
 
 /* ZUL'DRAK */
@@ -1121,14 +1122,14 @@ UPDATE `creature_template` SET `ScriptName`='mob_batrider' WHERE `entry`=14965;
 UPDATE `creature_template` SET `ScriptName`='mob_shade_of_jindo' WHERE `entry`=14986;
 UPDATE `creature_template` SET `ScriptName`='mob_ohgan' WHERE `entry`=14988;
 
-UPDATE `creature_template` SET `ScriptName`='EventAI', `modelid_A` = 16925,`modelid_H` = 16925, `minmana` = 1000000,`maxmana` = 1000000, `unit_flags` = 33554434 WHERE `entry` IN(29998, 33753, 33752, 33751, 33750);
-DELETE FROM `creature_ai_scripts` WHERE `creature_id` IN (29998, 33753, 33752, 33751, 33750);
+UPDATE `creature_template` SET `ScriptName`='EventAI',`modelid_A` = 16925,`modelid_H` = 16925, `minmana` = 1000000,`maxmana` = 1000000, `unit_flags` = 33554434 WHERE `entry` IN(29998,33753,33752,33751,33750);
+DELETE FROM `creature_ai_scripts` WHERE `creature_id` IN (29998,33753,33752,33751,33750);
 
 -- --------
 -- EVENT AI
 -- --------
-UPDATE `creature_template` SET `AIName` = 'EventAI' WHERE entry IN  (26796, 26798, 26929, 26928, 26930);
-DELETE FROM `creature_ai_scripts` WHERE `creature_id` IN (26796, 26798, 26929, 26928, 26930);
+UPDATE `creature_template` SET `AIName` = 'EventAI' WHERE entry IN  (26796,26798,26929,26928,26930);
+DELETE FROM `creature_ai_scripts` WHERE `creature_id` IN (26796,26798,26929,26928,26930);
 INSERT INTO `creature_ai_scripts` VALUES 
 -- Commander Stoutbeard
 ( 2679600, 26796, 4, 0, 100, 4, 0, 0, 0, 0, 28, 0, 47543, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Commander Stoutbeard - crystal prison remove'),

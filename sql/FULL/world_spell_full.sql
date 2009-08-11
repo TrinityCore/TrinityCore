@@ -1689,6 +1689,12 @@ INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`
 (14914, 0.5711, 0.024, -1, -1, 'Priest - Holy Fire'),
 (15237, 0.1606, -1, -1, -1, 'Priest - Holy Nova Damage'),
 (23455, 0.3035, -1, -1, -1, 'Priest - Holy Nova Heal Rank 1'),
+(7001, -1, 0.3333, -1, -1, 'Priest - Lightwell Renew Rank 1'),
+(27873, -1, 0.3333, -1, -1, 'Priest - Lightwell Renew Rank 2'),
+(27874, -1, 0.3333, -1, -1, 'Priest - Lightwell Renew Rank 3'),
+(28276, -1, 0.3333, -1, -1, 'Priest - Lightwell Renew Rank 4'),
+(48084, -1, 0.3333, -1, -1, 'Priest - Lightwell Renew Rank 5'),
+(48085, -1, 0.3333, -1, -1, 'Priest - Lightwell Renew Rank 6'),
 (8129, 0, 0, 0, 0, 'Priest - Mana Burn'),
 (8092, 0.428, -1, -1, -1, 'Priest - Mind Blast'),
 (15407, 0.257, -1, -1, -1, 'Priest - Mind Flay'),
@@ -2076,8 +2082,6 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 
 
 -- lightwell
-UPDATE `creature_template` SET `ScriptName` = 'npc_lightwell' WHERE `entry` IN (31883, 31893, 31894, 31895, 31896, 31897);
-
 REPLACE INTO `npc_spellclick_spells` (npc_entry, spell_id, quest_start, quest_start_active, quest_end, cast_flags, quest_status) VALUES
 (31883, 60123, 0, 0, 0, 2, 0),
 (31893, 60123, 0, 0, 0, 2, 0),
@@ -2085,11 +2089,3 @@ REPLACE INTO `npc_spellclick_spells` (npc_entry, spell_id, quest_start, quest_st
 (31895, 60123, 0, 0, 0, 2, 0),
 (31896, 60123, 0, 0, 0, 2, 0),
 (31897, 60123, 0, 0, 0, 2, 0);
-
-REPLACE INTO `spell_bonus_data` (entry, direct_bonus, dot_bonus, ap_bonus, ap_dot_bonus, comments) VALUES
-(7001, -1, 0.3333, -1, -1, 'Priest - Lightwell Renew Rank 1'),
-(27873, -1, 0.3333, -1, -1, 'Priest - Lightwell Renew Rank 2'),
-(27874, -1, 0.3333, -1, -1, 'Priest - Lightwell Renew Rank 3'),
-(28276, -1, 0.3333, -1, -1, 'Priest - Lightwell Renew Rank 4'),
-(48084, -1, 0.3333, -1, -1, 'Priest - Lightwell Renew Rank 5'),
-(48085, -1, 0.3333, -1, -1, 'Priest - Lightwell Renew Rank 6');
