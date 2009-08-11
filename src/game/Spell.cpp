@@ -4179,9 +4179,12 @@ void Spell::TakeRunePower()
                 {
                     if (plr->GetBaseRune(i) != RUNE_DEATH)
                     {
+                        // Death Rune Mastery
                         if ((*itr)->GetSpellProto()->SpellIconID != 2622)
                             continue;
                     }
+                    // Blood of the North
+                    // Reaping
                     else if ((*itr)->GetSpellProto()->SpellIconID != 3041 && 
                         (*itr)->GetSpellProto()->SpellIconID != 22)
                         continue;
@@ -4731,7 +4734,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 else if(m_spellInfo->SpellIconID == 156)    // Holy Shock
                 {
                     // spell different for friends and enemies
-                    // hart version required facing
+                    // hurt version required facing
                     if(m_targets.getUnitTarget() && !m_caster->IsFriendlyTo(m_targets.getUnitTarget()) && !m_caster->HasInArc( M_PI, m_targets.getUnitTarget() ))
                         return SPELL_FAILED_UNIT_NOT_INFRONT;
                 }
@@ -4744,7 +4747,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 else if (m_spellInfo->Id == 19938)          // Awaken Peon
                 {
                     Unit *unit = m_targets.getUnitTarget();
-                    if(!unit || !unit->HasAura(17743, 0))
+                    if(!unit || !unit->HasAura(17743))
                         return SPELL_FAILED_BAD_TARGETS;
                 }
                 else if (m_spellInfo->Id == 52264)          // Deliver Stolen Horse
@@ -5224,7 +5227,7 @@ SpellCastResult Spell::CheckPetCast(Unit* target)
 
 SpellCastResult Spell::CheckCasterAuras() const
 {
-    // spells totally immuned to caster auras ( wsg flag drop, give marks etc
+    // spells totally immuned to caster auras ( wsg flag drop, give marks etc)
     if(m_spellInfo->AttributesEx6& SPELL_ATTR_EX6_IGNORE_CASTER_AURAS)
         return SPELL_CAST_OK;
 

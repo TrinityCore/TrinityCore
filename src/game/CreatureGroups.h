@@ -54,7 +54,7 @@ class CreatureGroup
 
         uint32 m_groupID;
         bool m_Formed;
-    
+
     public:
         //Group cannot be created empty
         explicit CreatureGroup(uint32 id) : m_groupID(id), m_leader(NULL), m_Formed(false) {}

@@ -553,7 +553,7 @@ void Unit::RemoveAurasWithFamily(uint32 family, uint32 familyFlag1, uint32 famil
     }
 }
 
-void Unit::RemoveAurasWithMechanic(uint32 mechanic_mask, uint32 except)
+void Unit::RemoveAurasWithMechanic(uint32 mechanic_mask, AuraRemoveMode removemode, uint32 except)
 {
     for (AuraMap::iterator iter = m_Auras.begin(); iter != m_Auras.end();)
     {
@@ -561,7 +561,7 @@ void Unit::RemoveAurasWithMechanic(uint32 mechanic_mask, uint32 except)
         {
             if(GetAllSpellMechanicMask(iter->second->GetSpellProto()) & mechanic_mask)
             {
-                RemoveAura(iter, AURA_REMOVE_BY_ENEMY_SPELL);
+                RemoveAura(iter, removemode);
                 continue;
             }
         }
@@ -4220,24 +4220,6 @@ void Unit::RemoveAurasByType(AuraType auraType, uint64 casterGUID, Aura * except
     }
 }
 
-void Unit::RemoveAurasByTypeWithDispel(AuraType auraType, Spell * spell)
-{
-    std::queue < std::pair < uint32, uint64 > > remove_list;
-
-    for (AuraEffectList::iterator iter = m_modAuras[auraType].begin(); iter != m_modAuras[auraType].end();++iter)
-    {
-       if(GetDispelChance((*iter)->GetCaster(), (*iter)->GetId()))
-       {
-           remove_list.push(std::make_pair((*iter)->GetId(), (*iter)->GetCasterGUID() ) );
-       }
-    }
-
-    for(;remove_list.size();remove_list.pop())
-    {
-        RemoveAura(remove_list.front().first, remove_list.front().second, AURA_REMOVE_BY_ENEMY_SPELL);
-    }
-}
-
 void Unit::RemoveNotOwnSingleTargetAuras(uint32 newPhase)
 {
     // single target auras from other casters
@@ -5910,8 +5892,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 case 47570:
                 case 47569:
                 {
-                    RemoveAurasByTypeWithDispel(SPELL_AURA_MOD_ROOT);
-                    RemoveAurasByTypeWithDispel(SPELL_AURA_MOD_DECREASE_SPEED);
+                    RemoveMovementImpairingAuras();
                     break;
                 }
                 // Rapture

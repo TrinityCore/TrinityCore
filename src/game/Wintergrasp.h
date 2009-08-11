@@ -44,7 +44,7 @@ const uint32 WintergraspFaction[2] = {1732, 1735};
 
 const uint32 WG_KEEP_CM = 0; //Need data
 const uint32 WG_RULERS_BUFF   = 52108;
-//some cosmetics :D
+//some cosmetics :
 const uint32 WG_VICTORY_AURA  = 60044;
 
 enum OutdoorPvP_WG_Sounds
