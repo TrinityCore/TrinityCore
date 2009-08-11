@@ -784,12 +784,6 @@ void LoadOverridenDBCData()
             case 41013:
                 spellInfo->EffectApplyAuraName[0] = 4; // proc debuff, and summon infinite fiends
                 break;
-            //temp, not needed in 310
-            case 28531:
-            case 55799:
-                spellInfo->DurationIndex = 21;
-                spellInfo->Effect[0] = SPELL_EFFECT_APPLY_AREA_AURA_ENEMY;
-                break;
             // Naxxramas : Gothik : Inform Inf range
             case 27892:
             case 27928:

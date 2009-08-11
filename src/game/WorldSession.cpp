@@ -387,6 +387,7 @@ void WorldSession::LogoutPlayer(bool Save)
         // the player may not be in the world when logging out
         // e.g if he got disconnected during a transfer to another map
         // calls to GetMap in this case may cause crashes
+        _player->CleanupsBeforeDelete();
         Map* _map = _player->GetMap();
         _map->Remove(_player, true);
         _player = NULL;                                     // deleted in Remove call
