@@ -110,6 +110,18 @@ template<> void addUnitState(Creature *obj, CellPair const& cell_pair)
 }
 
 template <class T>
+void AddObjectHelper(CellPair &cell, GridRefManager<T> &m, uint32 &count, Map* map, T *obj)
+{
+    obj->GetGridRef().link(&m, obj);
+    addUnitState(obj,cell);
+    obj->AddToWorld();
+    if(obj->isActiveObject())
+        map->AddToActive(obj);
+
+    ++count;
+}
+
+template <class T>
 void LoadHelper(CellGuidSet const& guid_set, CellPair &cell, GridRefManager<T> &m, uint32 &count, Map* map)
 {
     for(CellGuidSet::const_iterator i_guid = guid_set.begin(); i_guid != guid_set.end(); ++i_guid)
@@ -123,14 +135,7 @@ void LoadHelper(CellGuidSet const& guid_set, CellPair &cell, GridRefManager<T> &
             continue;
         }
 
-        obj->GetGridRef().link(&m, obj);
-        addUnitState(obj,cell);
-        obj->AddToWorld();
-        if(obj->isActiveObject())
-            map->AddToActive(obj);
-
-        ++count;
-
+        AddObjectHelper(cell, m, count, map, obj);
     }
 }
 
@@ -152,14 +157,7 @@ void LoadHelper(CellGuidSet const& guid_set, CellPair &cell, CreatureMapType &m,
             }
         }
 
-        obj->GetGridRef().link(&m, obj);
-        addUnitState(obj,cell);
-        obj->AddToWorld();
-        if(obj->isActiveObject())
-            map->AddToActive(obj);
-
-        ++count;
-
+        AddObjectHelper(cell, m, count, map, obj);
     }
 }
 
@@ -179,13 +177,7 @@ void LoadHelper(CellCorpseSet const& cell_corpses, CellPair &cell, CorpseMapType
         if(!obj)
             continue;
 
-        obj->GetGridRef().link(&m, obj);
-        addUnitState(obj,cell);
-        obj->AddToWorld();
-        if(obj->isActiveObject())
-            map->AddToActive(obj);
-
-        ++count;
+        AddObjectHelper(cell, m, count, map, obj);
     }
 }
 
