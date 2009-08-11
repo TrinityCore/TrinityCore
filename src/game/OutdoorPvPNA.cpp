@@ -554,7 +554,7 @@ bool OPvPCapturePointNA::Update(uint32 diff)
         }
     } else m_GuardCheckTimer -= diff;
 
-    if((m_capturable || capturable) && OPvPCapturePoint::Update(diff))
+    if(m_capturable || capturable)
     {
         if(m_RespawnTimer < diff)
         {
@@ -565,62 +565,63 @@ bool OPvPCapturePointNA::Update(uint32 diff)
             m_RespawnTimer = NA_RESPAWN_TIME;
         } else m_RespawnTimer -= diff;
 
-        if(m_OldState != m_State)
-        {
-            uint32 artkit = 21;
-            switch(m_State)
-            {
-            case OBJECTIVESTATE_NEUTRAL:
-                m_HalaaState = HALAA_N;
-                break;
-            case OBJECTIVESTATE_ALLIANCE:
-                m_HalaaState = HALAA_A;
-                FactionTakeOver(ALLIANCE);
-                artkit = 2;
-                break;
-            case OBJECTIVESTATE_HORDE:
-                m_HalaaState = HALAA_H;
-                FactionTakeOver(HORDE);
-                artkit = 1;
-                break;
-            case OBJECTIVESTATE_NEUTRAL_ALLIANCE_CHALLENGE:
-                m_HalaaState = HALAA_N_A;
-                break;
-            case OBJECTIVESTATE_NEUTRAL_HORDE_CHALLENGE:
-                m_HalaaState = HALAA_N_H;
-                break;
-            case OBJECTIVESTATE_ALLIANCE_HORDE_CHALLENGE:
-                m_HalaaState = HALAA_N_A;
-                artkit = 2;
-                break;
-            case OBJECTIVESTATE_HORDE_ALLIANCE_CHALLENGE:
-                m_HalaaState = HALAA_N_H;
-                artkit = 1;
-                break;
-            }
-
-            GameObject* flag = HashMapHolder<GameObject>::Find(m_CapturePointGUID);
-            if(flag)
-            {
-                flag->SetGoArtKit(artkit);
-                flag->SendUpdateObjectToAllExcept(NULL);
-            }
-
-            UpdateHalaaWorldState();
-        }
-
-        if(m_ShiftPhase != m_OldPhase)
-        {
-            // send this too, sometimes the slider disappears, dunno why :(
-            SendUpdateWorldState(NA_UI_TOWER_SLIDER_DISPLAY, 1);
-            // send these updates to only the ones in this objective
-            uint32 phase = (uint32)ceil(( m_ShiftPhase + m_ShiftMaxPhase) / ( 2 * m_ShiftMaxPhase ) * 100.0f);
-            SendUpdateWorldState(NA_UI_TOWER_SLIDER_POS, phase);
-            SendUpdateWorldState(NA_UI_TOWER_SLIDER_N, m_NeutralValue);
-        }
-        return m_OldState != m_State;
+        return OPvPCapturePoint::Update(diff);
     }
     return false;
+}
+
+void OPvPCapturePointNA::ChangeState()
+{
+    uint32 artkit = 21;
+    switch(m_State)
+    {
+        case OBJECTIVESTATE_NEUTRAL:
+            m_HalaaState = HALAA_N;
+            break;
+        case OBJECTIVESTATE_ALLIANCE:
+            m_HalaaState = HALAA_A;
+            FactionTakeOver(ALLIANCE);
+            artkit = 2;
+            break;
+        case OBJECTIVESTATE_HORDE:
+            m_HalaaState = HALAA_H;
+            FactionTakeOver(HORDE);
+            artkit = 1;
+            break;
+        case OBJECTIVESTATE_NEUTRAL_ALLIANCE_CHALLENGE:
+            m_HalaaState = HALAA_N_A;
+            break;
+        case OBJECTIVESTATE_NEUTRAL_HORDE_CHALLENGE:
+            m_HalaaState = HALAA_N_H;
+            break;
+        case OBJECTIVESTATE_ALLIANCE_HORDE_CHALLENGE:
+            m_HalaaState = HALAA_N_A;
+            artkit = 2;
+            break;
+        case OBJECTIVESTATE_HORDE_ALLIANCE_CHALLENGE:
+            m_HalaaState = HALAA_N_H;
+            artkit = 1;
+        break;
+    }
+
+    GameObject* flag = HashMapHolder<GameObject>::Find(m_CapturePointGUID);
+    if(flag)
+    {
+        flag->SetGoArtKit(artkit);
+        flag->SendUpdateObjectToAllExcept(NULL);
+    }
+
+    UpdateHalaaWorldState();
+}
+
+void OPvPCapturePointNA::SendChangePhase()
+{
+    // send this too, sometimes the slider disappears, dunno why :(
+    SendUpdateWorldState(NA_UI_TOWER_SLIDER_DISPLAY, 1);
+    // send these updates to only the ones in this objective
+    uint32 phase = (uint32)ceil(( m_ShiftPhase + m_ShiftMaxPhase) / ( 2 * m_ShiftMaxPhase ) * 100.0f);
+    SendUpdateWorldState(NA_UI_TOWER_SLIDER_POS, phase);
+    SendUpdateWorldState(NA_UI_TOWER_SLIDER_N, m_NeutralValue);
 }
 
 void OPvPCapturePointNA::UpdateHalaaWorldState()

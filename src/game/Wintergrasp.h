@@ -40,6 +40,8 @@ const uint32 WintergraspFaction[2] = {1732, 1735};
 
 #define SPELL_SHUTDOWN_VEHICLE  21247
 
+#define MAX_VEHICLE_PER_WORKSHOP    4
+
 const uint32 WG_KEEP_CM = 0; //Need data
 const uint32 WG_RULERS_BUFF   = 52108;
 //some cosmetics :D
@@ -125,9 +127,9 @@ class OPvPWintergrasp : public OutdoorPvP
         void HandlePlayerLeaveZone(Player *plr, uint32 zone);
         void HandleKill(Player *killer, Unit *victim);
 
-        void SendInitWorldStatesTo(Player *player = NULL);
-
         bool Update(uint32 diff);
+
+        void BroadcastStateChange(BuildingState *state);
     protected:
         TeamId m_defender;
         int32 m_tenacityStack;
@@ -156,6 +158,19 @@ class OPvPWintergrasp : public OutdoorPvP
         void GiveReward();
 
         void VehicleCastSpell(TeamId team, int32 spellId);
+
+        void SendInitWorldStatesTo(Player *player = NULL);
+};
+
+class SiegeWorkshop : public OPvPCapturePoint
+{
+    public:
+        explicit SiegeWorkshop(OPvPWintergrasp *opvp, BuildingState *state);
+        void ChangeState();
+    protected:
+        BuildingState *m_buildingState;
+        OPvPWintergrasp *m_wintergrasp;
+        uint32 m_vehNum;
 };
 
 #endif

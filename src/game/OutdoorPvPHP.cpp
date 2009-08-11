@@ -163,126 +163,117 @@ void OutdoorPvPHP::FillInitialWorldStates(WorldPacket &data)
     }
 }
 
-bool OPvPCapturePointHP::Update(uint32 diff)
+void OPvPCapturePointHP::ChangeState()
 {
-    // if status changed:
-    if(OPvPCapturePoint::Update(diff))
+    uint32 field = 0;
+    switch(m_OldState)
     {
-        if(m_OldState != m_State)
-        {
-            uint32 field = 0;
-            switch(m_OldState)
-            {
-            case OBJECTIVESTATE_NEUTRAL:
-                field = HP_MAP_N[m_TowerType];
-                break;
-            case OBJECTIVESTATE_ALLIANCE:
-                field = HP_MAP_A[m_TowerType];
-                if(((OutdoorPvPHP*)m_PvP)->m_AllianceTowersControlled)
-                    ((OutdoorPvPHP*)m_PvP)->m_AllianceTowersControlled--;
-                sWorld.SendZoneText(OutdoorPvPHPBuffZones[0],objmgr.GetTrinityStringForDBCLocale(HP_LANG_LOOSE_A[m_TowerType]));
-                break;
-            case OBJECTIVESTATE_HORDE:
-                field = HP_MAP_H[m_TowerType];
-                if(((OutdoorPvPHP*)m_PvP)->m_HordeTowersControlled)
-                    ((OutdoorPvPHP*)m_PvP)->m_HordeTowersControlled--;
-                sWorld.SendZoneText(OutdoorPvPHPBuffZones[0],objmgr.GetTrinityStringForDBCLocale(HP_LANG_LOOSE_H[m_TowerType]));
-                break;
-            case OBJECTIVESTATE_NEUTRAL_ALLIANCE_CHALLENGE:
-                field = HP_MAP_N[m_TowerType];
-                break;
-            case OBJECTIVESTATE_NEUTRAL_HORDE_CHALLENGE:
-                field = HP_MAP_N[m_TowerType];
-                break;
-            case OBJECTIVESTATE_ALLIANCE_HORDE_CHALLENGE:
-                field = HP_MAP_A[m_TowerType];
-                break;
-            case OBJECTIVESTATE_HORDE_ALLIANCE_CHALLENGE:
-                field = HP_MAP_H[m_TowerType];
-                break;
-            }
-
-            // send world state update
-            if(field)
-            {
-                m_PvP->SendUpdateWorldState(field, 0);
-                field = 0;
-            }
-            uint32 artkit = 21;
-            uint32 artkit2 = HP_TowerArtKit_N[m_TowerType];
-            switch(m_State)
-            {
-            case OBJECTIVESTATE_NEUTRAL:
-                field = HP_MAP_N[m_TowerType];
-                break;
-            case OBJECTIVESTATE_ALLIANCE:
-                field = HP_MAP_A[m_TowerType];
-                artkit = 2;
-                artkit2 = HP_TowerArtKit_A[m_TowerType];
-                if(((OutdoorPvPHP*)m_PvP)->m_AllianceTowersControlled<3)
-                    ((OutdoorPvPHP*)m_PvP)->m_AllianceTowersControlled++;
-                sWorld.SendZoneText(OutdoorPvPHPBuffZones[0],objmgr.GetTrinityStringForDBCLocale(HP_LANG_CAPTURE_A[m_TowerType]));
-                break;
-            case OBJECTIVESTATE_HORDE:
-                field = HP_MAP_H[m_TowerType];
-                artkit = 1;
-                artkit2 = HP_TowerArtKit_H[m_TowerType];
-                if(((OutdoorPvPHP*)m_PvP)->m_HordeTowersControlled<3)
-                    ((OutdoorPvPHP*)m_PvP)->m_HordeTowersControlled++;
-                sWorld.SendZoneText(OutdoorPvPHPBuffZones[0],objmgr.GetTrinityStringForDBCLocale(HP_LANG_CAPTURE_H[m_TowerType]));
-                break;
-            case OBJECTIVESTATE_NEUTRAL_ALLIANCE_CHALLENGE:
-                field = HP_MAP_N[m_TowerType];
-                break;
-            case OBJECTIVESTATE_NEUTRAL_HORDE_CHALLENGE:
-                field = HP_MAP_N[m_TowerType];
-                break;
-            case OBJECTIVESTATE_ALLIANCE_HORDE_CHALLENGE:
-                field = HP_MAP_A[m_TowerType];
-                artkit = 2;
-                artkit2 = HP_TowerArtKit_A[m_TowerType];
-                break;
-            case OBJECTIVESTATE_HORDE_ALLIANCE_CHALLENGE:
-                field = HP_MAP_H[m_TowerType];
-                artkit = 1;
-                artkit2 = HP_TowerArtKit_H[m_TowerType];
-                break;
-            }
-
-            GameObject* flag = HashMapHolder<GameObject>::Find(m_CapturePointGUID);
-            GameObject* flag2 = HashMapHolder<GameObject>::Find(m_Objects[m_TowerType]);
-            if(flag)
-            {
-                flag->SetGoArtKit(artkit);
-                flag->SendUpdateObjectToAllExcept(NULL);
-            }
-            if(flag2)
-            {
-                flag2->SetGoArtKit(artkit2);
-                flag2->SendUpdateObjectToAllExcept(NULL);
-            }
-
-            // send world state update
-            if(field)
-                m_PvP->SendUpdateWorldState(field, 1);
-
-            // complete quest objective
-            if(m_State == OBJECTIVESTATE_ALLIANCE || m_State == OBJECTIVESTATE_HORDE)
-                SendObjectiveComplete(HP_CREDITMARKER[m_TowerType], 0);
-        }
-
-        if(m_ShiftPhase != m_OldPhase)
-        {
-            SendUpdateWorldState(HP_UI_TOWER_SLIDER_N, m_NeutralValue);
-            // send these updates to only the ones in this objective
-            uint32 phase = (uint32)ceil(( m_ShiftPhase + m_ShiftMaxPhase) / ( 2 * m_ShiftMaxPhase ) * 100.0f);
-            SendUpdateWorldState(HP_UI_TOWER_SLIDER_POS, phase);
-            // send this too, sometimes the slider disappears, dunno why :(
-            SendUpdateWorldState(HP_UI_TOWER_SLIDER_DISPLAY, 1);
-        }
-        return m_OldState != m_State;
+    case OBJECTIVESTATE_NEUTRAL:
+        field = HP_MAP_N[m_TowerType];
+        break;
+    case OBJECTIVESTATE_ALLIANCE:
+        field = HP_MAP_A[m_TowerType];
+        if(((OutdoorPvPHP*)m_PvP)->m_AllianceTowersControlled)
+            ((OutdoorPvPHP*)m_PvP)->m_AllianceTowersControlled--;
+        sWorld.SendZoneText(OutdoorPvPHPBuffZones[0],objmgr.GetTrinityStringForDBCLocale(HP_LANG_LOOSE_A[m_TowerType]));
+        break;
+    case OBJECTIVESTATE_HORDE:
+        field = HP_MAP_H[m_TowerType];
+        if(((OutdoorPvPHP*)m_PvP)->m_HordeTowersControlled)
+            ((OutdoorPvPHP*)m_PvP)->m_HordeTowersControlled--;
+        sWorld.SendZoneText(OutdoorPvPHPBuffZones[0],objmgr.GetTrinityStringForDBCLocale(HP_LANG_LOOSE_H[m_TowerType]));
+        break;
+    case OBJECTIVESTATE_NEUTRAL_ALLIANCE_CHALLENGE:
+        field = HP_MAP_N[m_TowerType];
+        break;
+    case OBJECTIVESTATE_NEUTRAL_HORDE_CHALLENGE:
+        field = HP_MAP_N[m_TowerType];
+        break;
+    case OBJECTIVESTATE_ALLIANCE_HORDE_CHALLENGE:
+        field = HP_MAP_A[m_TowerType];
+        break;
+    case OBJECTIVESTATE_HORDE_ALLIANCE_CHALLENGE:
+        field = HP_MAP_H[m_TowerType];
+        break;
     }
-    return false;
+
+    // send world state update
+    if(field)
+    {
+        m_PvP->SendUpdateWorldState(field, 0);
+        field = 0;
+    }
+    uint32 artkit = 21;
+    uint32 artkit2 = HP_TowerArtKit_N[m_TowerType];
+    switch(m_State)
+    {
+    case OBJECTIVESTATE_NEUTRAL:
+        field = HP_MAP_N[m_TowerType];
+        break;
+    case OBJECTIVESTATE_ALLIANCE:
+        field = HP_MAP_A[m_TowerType];
+        artkit = 2;
+        artkit2 = HP_TowerArtKit_A[m_TowerType];
+        if(((OutdoorPvPHP*)m_PvP)->m_AllianceTowersControlled<3)
+            ((OutdoorPvPHP*)m_PvP)->m_AllianceTowersControlled++;
+        sWorld.SendZoneText(OutdoorPvPHPBuffZones[0],objmgr.GetTrinityStringForDBCLocale(HP_LANG_CAPTURE_A[m_TowerType]));
+        break;
+    case OBJECTIVESTATE_HORDE:
+        field = HP_MAP_H[m_TowerType];
+        artkit = 1;
+        artkit2 = HP_TowerArtKit_H[m_TowerType];
+        if(((OutdoorPvPHP*)m_PvP)->m_HordeTowersControlled<3)
+            ((OutdoorPvPHP*)m_PvP)->m_HordeTowersControlled++;
+        sWorld.SendZoneText(OutdoorPvPHPBuffZones[0],objmgr.GetTrinityStringForDBCLocale(HP_LANG_CAPTURE_H[m_TowerType]));
+        break;
+    case OBJECTIVESTATE_NEUTRAL_ALLIANCE_CHALLENGE:
+        field = HP_MAP_N[m_TowerType];
+        break;
+    case OBJECTIVESTATE_NEUTRAL_HORDE_CHALLENGE:
+        field = HP_MAP_N[m_TowerType];
+        break;
+    case OBJECTIVESTATE_ALLIANCE_HORDE_CHALLENGE:
+        field = HP_MAP_A[m_TowerType];
+        artkit = 2;
+        artkit2 = HP_TowerArtKit_A[m_TowerType];
+        break;
+    case OBJECTIVESTATE_HORDE_ALLIANCE_CHALLENGE:
+        field = HP_MAP_H[m_TowerType];
+        artkit = 1;
+        artkit2 = HP_TowerArtKit_H[m_TowerType];
+        break;
+    }
+
+    GameObject* flag = HashMapHolder<GameObject>::Find(m_CapturePointGUID);
+    GameObject* flag2 = HashMapHolder<GameObject>::Find(m_Objects[m_TowerType]);
+    if(flag)
+    {
+        flag->SetGoArtKit(artkit);
+        flag->SendUpdateObjectToAllExcept(NULL);
+    }
+    if(flag2)
+    {
+        flag2->SetGoArtKit(artkit2);
+        flag2->SendUpdateObjectToAllExcept(NULL);
+    }
+
+    // send world state update
+    if(field)
+        m_PvP->SendUpdateWorldState(field, 1);
+
+    // complete quest objective
+    if(m_State == OBJECTIVESTATE_ALLIANCE || m_State == OBJECTIVESTATE_HORDE)
+        SendObjectiveComplete(HP_CREDITMARKER[m_TowerType], 0);
+}
+
+void OPvPCapturePointHP::SendChangePhase()
+{
+    SendUpdateWorldState(HP_UI_TOWER_SLIDER_N, m_NeutralValue);
+    // send these updates to only the ones in this objective
+    uint32 phase = (uint32)ceil(( m_ShiftPhase + m_ShiftMaxPhase) / ( 2 * m_ShiftMaxPhase ) * 100.0f);
+    SendUpdateWorldState(HP_UI_TOWER_SLIDER_POS, phase);
+    // send this too, sometimes the slider disappears, dunno why :(
+    SendUpdateWorldState(HP_UI_TOWER_SLIDER_DISPLAY, 1);
 }
 
 void OPvPCapturePointHP::FillInitialWorldStates(WorldPacket &data)
