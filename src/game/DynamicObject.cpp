@@ -100,6 +100,9 @@ bool DynamicObject::Create( uint32 guidlow, Unit *caster, uint32 spellId, uint32
     m_effIndex = effIndex;
     m_spellId = spellId;
     m_updateTimer = 0;
+
+    if(m_effIndex == 4)
+        m_isWorldObject = true;
     return true;
 }
 

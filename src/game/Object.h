@@ -557,7 +557,6 @@ class TRINITY_DLL_SPEC WorldObject : public Object
         template<class NOTIFIER> void VisitNearbyObject(const float &radius, NOTIFIER &notifier) const { GetMap()->VisitAll(GetPositionX(), GetPositionY(), radius, notifier); }
         template<class NOTIFIER> void VisitNearbyGridObject(const float &radius, NOTIFIER &notifier) const { GetMap()->VisitGrid(GetPositionX(), GetPositionY(), radius, notifier); }
         template<class NOTIFIER> void VisitNearbyWorldObject(const float &radius, NOTIFIER &notifier) const { GetMap()->VisitWorld(GetPositionX(), GetPositionY(), radius, notifier); }
-        bool IsTempWorldObject;
 
 #ifdef MAP_BASED_RAND_GEN
         int32 irand(int32 min, int32 max) const     { return int32 (GetMap()->mtRand.randInt(max - min)) + min; }
@@ -567,6 +566,7 @@ class TRINITY_DLL_SPEC WorldObject : public Object
         double rand_chance() const                  { return GetMap()->mtRand.randExc(100.0);}
 #endif
 
+        bool m_isWorldObject;
     protected:
         explicit WorldObject();
         std::string m_name;

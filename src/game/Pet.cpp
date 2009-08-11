@@ -58,6 +58,8 @@ m_declinedname(NULL), m_owner(owner)
 
     m_name = "Pet";
     m_regenTimer = 4000;
+
+    m_isWorldObject = true;
 }
 
 Pet::~Pet()

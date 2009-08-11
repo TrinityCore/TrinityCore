@@ -99,7 +99,7 @@ class Corpse : public WorldObject
     private:
         GridReference<Corpse> m_gridRef;
 
-        CorpseType m_type;
+        const CorpseType m_type;
         time_t m_time;
         GridPair m_grid;                                    // gride for corpse position for fast search
         uint32 m_mapId;                                     // map id for fast corpse check at packet requests and in other situations with unloaded map of corpse.
