@@ -519,9 +519,14 @@ Map::Add(T *obj)
         return;
     }
 
-    obj->SetMap(this);
-
     Cell cell(p);
+    if(obj->IsInWorld()) // need some clean up later
+    {
+        UpdateObjectVisibility(obj,cell,p); // is this needed?
+        AddNotifier(obj);
+        return;
+    }
+
     if(obj->isActiveObject())
         EnsureGridLoadedAtEnter(cell);
     else
@@ -531,6 +536,7 @@ Map::Add(T *obj)
     assert( grid != NULL );
 
     AddToGrid(obj,grid,cell);
+    obj->SetMap(this);
     obj->AddToWorld();
 
     if(obj->isActiveObject())
