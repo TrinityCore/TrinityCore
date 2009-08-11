@@ -12389,7 +12389,7 @@ void Unit::RemoveFromWorld()
         RemoveAllControlled();
 
         if(m_NotifyListPos >= 0)
-            GetMap()->RemoveUnitFromNotify(this, m_NotifyListPos);
+            GetMap()->RemoveUnitFromNotify(this);
 
         if(GetCharmerGUID())
         {
