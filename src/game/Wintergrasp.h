@@ -166,11 +166,15 @@ class SiegeWorkshop : public OPvPCapturePoint
 {
     public:
         explicit SiegeWorkshop(OPvPWintergrasp *opvp, BuildingState *state);
+        void SetStateByBuildingState();
         void ChangeState();
+        uint32 m_vehNum;
+        uint32 *m_engEntry;
+        uint32 m_engGuid;
+        Creature *m_engineer;
     protected:
         BuildingState *m_buildingState;
         OPvPWintergrasp *m_wintergrasp;
-        uint32 m_vehNum;
 };
 
 #endif
