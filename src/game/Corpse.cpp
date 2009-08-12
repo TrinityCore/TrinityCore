@@ -70,8 +70,9 @@ void Corpse::RemoveFromWorld()
     Object::RemoveFromWorld();
 }
 
-bool Corpse::Create( uint32 guidlow )
+bool Corpse::Create( uint32 guidlow, Map *map )
 {
+    SetMap(map);
     Object::_Create(guidlow, 0, HIGHGUID_CORPSE);
     return true;
 }
