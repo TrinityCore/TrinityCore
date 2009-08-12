@@ -328,7 +328,7 @@ enum ItemQualities
 #define SPELL_ATTR_EX3_UNK13                      0x00002000            // 13
 #define SPELL_ATTR_EX3_UNK14                      0x00004000            // 14 "Honorless Target" only this spells have this flag
 #define SPELL_ATTR_EX3_UNK15                      0x00008000            // 15 Auto Shoot, Shoot, Throw,  - this is autoshot flag
-#define SPELL_ATTR_EX3_UNK16                      0x00010000            // 16 no triggers effects that trigger on casting a spell??
+#define SPELL_ATTR_EX3_UNK16                      0x00010000            // 16 no triggers effects that trigger on casting a spell?? (15290 - 2.2ptr change)
 #define SPELL_ATTR_EX3_NO_INITIAL_AGGRO           0x00020000            // 17 Soothe Animal, 39758, Mind Soothe
 #define SPELL_ATTR_EX3_UNK18                      0x00040000            // 18
 #define SPELL_ATTR_EX3_DISABLE_PROC               0x00080000            // 19 during aura proc no spells can trigger (20178, 20375)
@@ -2282,6 +2282,12 @@ enum CorpseDynFlags
 #define SPELL_ID_BLOOD_PRESENCE                 48266       // Blood Presence
 #define SPELL_ID_FROST_PRESENCE                 48263       // Frost Presence
 #define SPELL_ID_UNHOLY_PRESENCE                48265       // Unholy Presence
+#define SPELL_ID_NE_GHOST                       20584       // Night Elf Ghost Aura
+#define SPELL_ID_GHOST                          8326       // Ghost
+#define SPELL_ID_DESERTER                       26013       // Deserter
+#define SPELL_ID_LOGINEFFECT                    836       // LOGINEFFECT
+#define SPELL_ID_HONORLESS_TARGET               2479       // Honorless target
+
 enum WeatherType
 {
     WEATHER_TYPE_FINE       = 0,

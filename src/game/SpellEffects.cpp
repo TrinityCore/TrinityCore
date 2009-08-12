@@ -5218,17 +5218,11 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     if (AuraEffect const * aurEff = unitTarget->GetDummyAura(SPELLFAMILY_WARLOCK, 284, 0))
                     {
                         if(aurEff->GetId() == 18692)
-                        {
                             rank = 1;
-                            break;
-                        }
                         else if(aurEff->GetId() == 18693)
-                        {
                             rank = 2;
-                            break;
-                        }
                         else
-                            sLog.outError("Unknown rank of Improved Healthstone id: %f", aurEff->GetId());
+                            sLog.outError("Unknown rank of Improved Healthstone id: %d", aurEff->GetId());
                     }
 
                     static uint32 const itypes[8][3] = {
