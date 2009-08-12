@@ -5013,10 +5013,10 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     if (AuraEffect * Aur = pVictim->GetAuraEffect(procSpell->Id, effIndex+1, triggeredByAura->GetCasterGUID()))
                     {
                         // Remove aura mods
-                        Aur->ApplyModifier(false);
+                        Aur->ApplyModifier(false, false, true);
                         Aur->SetAmount(Aur->GetAmount() + spelldmg/* * triggerAmount / 100*/);
                         // Apply extended aura mods
-                        Aur->ApplyModifier(true);
+                        Aur->ApplyModifier(true, false, true);
                         return true;
                     }
                     return false;
@@ -8785,10 +8785,14 @@ bool Unit::HasAuraState(AuraState flag, SpellEntry const *spellProto, Unit * Cas
     return HasFlag(UNIT_FIELD_AURASTATE, 1<<(flag-1));
 }
 
-Unit *Unit::GetOwner() const
+Unit *Unit::GetOwner(bool inWorld) const
 {
     if(uint64 ownerid = GetOwnerGUID())
-        return ObjectAccessor::GetUnit(*this, ownerid);
+    {
+        if (inWorld)
+            return ObjectAccessor::GetUnit(*this, ownerid);
+        return ObjectAccessor::GetUnitInOrOutOfWorld(*this, ownerid);
+    }
     return NULL;
 }
 
@@ -15278,3 +15282,4 @@ void Unit::OutDebugInfo()
         sLog.outStringInLine("%u, ", itr->first);
     sLog.outString();
 }
+

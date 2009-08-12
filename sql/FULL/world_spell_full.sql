@@ -1620,6 +1620,7 @@ INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`
 (1978, -1, -1, -1, 0.04, 'Hunter - Serpent Sting($RAP*0.2 / number of ticks)'),
 (56641, -1, -1, 0.1, -1, 'Hunter - Steady Shot'),
 (42243, -1, -1, 0.07, -1, 'Hunter - Volley'),
+(53352, -1, -1, 0.14, -1, 'Hunter - Explosive Shot (triggered)'),
 (55039, 0, 0, 0, 0, 'Item - Gnomish Lightning Generator'),
 (44425, 0.7143, -1, -1, -1, 'Mage - Arcane Barrage'),
 (30451, 0.7143, -1, -1, -1, 'Mage - Arcane Blast'),

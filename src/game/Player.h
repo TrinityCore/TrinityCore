@@ -1276,6 +1276,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         /*********************************************************/
 
         bool LoadFromDB(uint32 guid, SqlQueryHolder *holder);
+        bool isBeingLoaded() const { return GetSession()->PlayerLoading();}
 
         bool MinimalLoadFromDB(QueryResult *result, uint32 guid);
         static bool   LoadValuesArrayFromDB(Tokens& data,uint64 guid);
