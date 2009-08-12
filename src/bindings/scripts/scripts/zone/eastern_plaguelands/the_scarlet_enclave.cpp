@@ -821,7 +821,10 @@ int32 m_auiRandomSay[] =
 
 struct TRINITY_DLL_DECL npc_death_knight_initiateAI : public ScriptedAI
 {
-    npc_death_knight_initiateAI(Creature* pCreature) : ScriptedAI(pCreature) { }
+    npc_death_knight_initiateAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        m_bIsDuelInProgress = false;
+    }
 
     uint64 m_uiDuelerGUID;
     uint32 m_uiDuelTimer;
@@ -918,7 +921,7 @@ bool GossipSelect_npc_death_knight_initiate(Player* pPlayer, Creature* pCreature
     {
         pPlayer->CLOSE_GOSSIP_MENU();
 
-        if (((npc_death_knight_initiateAI*)pCreature)->m_bIsDuelInProgress)
+        if (CAST_AI(npc_death_knight_initiateAI, pCreature->AI())->m_bIsDuelInProgress)
             return true;
 
         pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
