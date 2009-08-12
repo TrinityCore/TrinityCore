@@ -26,6 +26,8 @@ EndScriptData */
 
 enum
 {
+    ACHIEVEMENT_TIMELY_DEATH            = 1867,
+
     SAY_AGGRO                           = -1602018,
     SAY_INTRO_1                         = -1602019,
     SAY_INTRO_2                         = -1602020,
@@ -58,9 +60,8 @@ struct TRINITY_DLL_DECL boss_lokenAI : public ScriptedAI
 {
     boss_lokenAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = pCreature->GetInstanceData();
         m_bIsHeroic = pCreature->GetMap()->IsHeroic();
-        Reset();
     }
 
     ScriptedInstance* m_pInstance;
@@ -75,6 +76,8 @@ struct TRINITY_DLL_DECL boss_lokenAI : public ScriptedAI
 
     uint32 m_uiHealthAmountModifier;
 
+    uint32 EncounterTimer;
+
     void Reset()
     {
         m_bIsAura = false;
@@ -86,6 +89,8 @@ struct TRINITY_DLL_DECL boss_lokenAI : public ScriptedAI
 
         m_uiHealthAmountModifier = 1;
 
+        EncounterTimer = 0;
+
         if (m_pInstance)
             m_pInstance->SetData(TYPE_LOKEN, NOT_STARTED);
     }
@@ -94,6 +99,8 @@ struct TRINITY_DLL_DECL boss_lokenAI : public ScriptedAI
     {
         DoScriptText(SAY_AGGRO, m_creature);
 
+        EncounterTimer = 1;
+
         if (m_pInstance)
             m_pInstance->SetData(TYPE_LOKEN, IN_PROGRESS);
     }
@@ -101,6 +108,22 @@ struct TRINITY_DLL_DECL boss_lokenAI : public ScriptedAI
     void JustDied(Unit* pKiller)
     {
         DoScriptText(SAY_DEATH, m_creature);
+        error_log("%u", EncounterTimer);
+
+        if(m_bIsHeroic && EncounterTimer <= 120000)
+        {
+            AchievementEntry const *AchievTimelyDeath = GetAchievementStore()->LookupEntry(ACHIEVEMENT_TIMELY_DEATH);
+            if(AchievTimelyDeath)
+            {
+                Map *map = m_creature->GetMap();
+                if(map && map->IsDungeon())
+                {
+                    Map::PlayerList const &players = map->GetPlayers();
+                    for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                        itr->getSource()->CompletedAchievement(AchievTimelyDeath);
+                }
+            }
+        }
 
         if (m_pInstance)
             m_pInstance->SetData(TYPE_LOKEN, DONE);
@@ -119,8 +142,11 @@ struct TRINITY_DLL_DECL boss_lokenAI : public ScriptedAI
     void UpdateAI(const uint32 uiDiff) 
     {
         //Return since we have no target
-       if(!UpdateVictim())
+        if(!UpdateVictim())
             return;
+ 
+        if(EncounterTimer)
+            EncounterTimer += uiDiff;
 
         if (m_bIsAura)
         {

@@ -83,10 +83,9 @@ struct TRINITY_DLL_DECL boss_bjarngrimAI : public ScriptedAI
 {
     boss_bjarngrimAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
-       m_bIsHeroic = pCreature->GetMap()->IsHeroic();
+        m_pInstance = pCreature->GetInstanceData();
+        m_bIsHeroic = pCreature->GetMap()->IsHeroic();
         m_uiStance = STANCE_DEFENSIVE;
-        Reset();
     }
 
     ScriptedInstance* m_pInstance;
@@ -354,9 +353,8 @@ struct TRINITY_DLL_DECL mob_stormforged_lieutenantAI : public ScriptedAI
 {
     mob_stormforged_lieutenantAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
+        m_pInstance = pCreature->GetInstanceData();
         m_bIsHeroic = pCreature->GetMap()->IsHeroic();
-        Reset();
     }
 
     ScriptedInstance* m_pInstance;
