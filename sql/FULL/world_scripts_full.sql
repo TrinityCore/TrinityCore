@@ -1014,6 +1014,10 @@ UPDATE `gameobject_template` SET `ScriptName`='go_altar_of_archaedas' WHERE `ent
 /* UPDATE `instance_template` SET `script`='instance_ulduar' WHERE `map`=603; */
 UPDATE `creature_template` SET `ScriptName` = 'boss_auriaya' WHERE `entry` = 33515;
 UPDATE `creature_template` SET `ScriptName` = 'boss_flame_leviathan' WHERE `entry` = 33113;
+UPDATE `creature_template` SET `ScriptName` = 'boss_flame_leviathan_turret' WHERE entry=33139;
+UPDATE `creature_template` SET `ScriptName` = 'boss_flame_leviathan_seat' WHERE entry=33114;
+UPDATE `creature_template` SET `ScriptName` = 'boss_flame_leviathan_defense_turret' WHERE entry=33142;
+UPDATE `creature_template` SET `ScriptName` = 'boss_flame_leviathan_overload_device' WHERE entry=33143;
 UPDATE `creature_template` SET `ScriptName` = 'boss_ignis' WHERE `entry` = 33118;
 UPDATE `creature_template` SET `ScriptName` = 'boss_razorscale' WHERE `entry` = 33186;
 UPDATE `creature_template` SET `ScriptName` = 'boss_xt002' WHERE `entry` = 33293;
@@ -1182,3 +1186,4 @@ INSERT INTO `creature_ai_scripts` VALUES
 ( 3375000, 33750, 1, 0, 100, 0, 1, 1, 0, 0, 11, 63587, 0, 2, 11, 63583, 0, 2, 0, 0, 0, 0, 'Desecration');
 /* EOF */
 
+UPDATE `creature_template` SET `ScriptName` = 'npc_skywing' WHERE entry=22424;
