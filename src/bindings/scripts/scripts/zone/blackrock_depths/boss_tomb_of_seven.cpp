@@ -17,16 +17,19 @@
 /* ScriptData
 SDName: Boss_Tomb_Of_Seven
 SD%Complete: 50
-SDComment: Learning Smelt Dark Iron if tribute quest rewarded. Missing event and re-spawn GO Spectral Chalice
+SDComment: Learning Smelt Dark Iron if tribute quest rewarded. Missing event.
 SDCategory: Blackrock Depths
 EndScriptData */
 
 #include "precompiled.h"
 #include "def_blackrock_depths.h"
 
-#define SPELL_SUNDERARMOR           24317
-#define SPELL_SHIELDBLOCK           12169
-#define SPELL_STRIKE                15580
+enum
+{
+    SPELL_SUNDERARMOR           = 24317,
+    SPELL_SHIELDBLOCK           = 12169,
+    SPELL_STRIKE                = 15580
+};
 
 struct TRINITY_DLL_DECL boss_angerrelAI : public ScriptedAI
 {
@@ -102,9 +105,12 @@ CreatureAI* GetAI_boss_angerrel(Creature *_Creature)
     return new boss_angerrelAI (_Creature);
 }
 
-#define SPELL_SINISTERSTRIKE        15581
-#define SPELL_BACKSTAB              15582
-#define SPELL_GOUGE                 13579
+enum
+{
+    SPELL_SINISTERSTRIKE        = 15581,
+    SPELL_BACKSTAB              = 15582,
+    SPELL_GOUGE                 = 13579
+};
 
 struct TRINITY_DLL_DECL boss_doperelAI : public ScriptedAI
 {
@@ -180,9 +186,12 @@ CreatureAI* GetAI_boss_doperel(Creature *_Creature)
     return new boss_doperelAI (_Creature);
 }
 
-#define SPELL_SHADOWBOLT        17483                       //Not sure if right ID
-#define SPELL_MANABURN          10876
-#define SPELL_SHADOWSHIELD      22417
+enum
+{
+    SPELL_SHADOWBOLT        = 17483,                       //Not sure if right ID
+    SPELL_MANABURN          = 10876,
+    SPELL_SHADOWSHIELD      = 22417
+};
 
 struct TRINITY_DLL_DECL boss_haterelAI : public ScriptedAI
 {
@@ -271,10 +280,13 @@ CreatureAI* GetAI_boss_haterel(Creature *_Creature)
     return new boss_haterelAI (_Creature);
 }
 
-#define SPELL_MINDBLAST             15587
-#define SPELL_HEAL                  15586
-#define SPELL_PRAYEROFHEALING       15585
-#define SPELL_SHIELD                10901
+enum
+{
+    SPELL_MINDBLAST             = 15587,
+    SPELL_HEAL                  = 15586,
+    SPELL_PRAYEROFHEALING       = 15585,
+    SPELL_SHIELD                = 10901
+};
 
 struct TRINITY_DLL_DECL boss_vilerelAI : public ScriptedAI
 {
@@ -359,11 +371,14 @@ CreatureAI* GetAI_boss_vilerel(Creature *_Creature)
     return new boss_vilerelAI (_Creature);
 }
 
-#define SPELL_FROSTBOLT         16799
-#define SPELL_FROSTARMOR        15784                       //This is actually a buff he gives himself
-#define SPELL_BLIZZARD          19099
-#define SPELL_FROSTNOVA         15063
-#define SPELL_FROSTWARD         15004
+enum
+{
+    SPELL_FROSTBOLT         = 16799,
+    SPELL_FROSTARMOR        = 15784,                       //This is actually a buff he gives himself
+    SPELL_BLIZZARD          = 19099,
+    SPELL_FROSTNOVA         = 15063,
+    SPELL_FROSTWARD         = 15004
+};
 
 struct TRINITY_DLL_DECL boss_seethrelAI : public ScriptedAI
 {
@@ -461,9 +476,12 @@ CreatureAI* GetAI_boss_seethrel(Creature *_Creature)
     return new boss_seethrelAI (_Creature);
 }
 
-#define SPELL_HAMSTRING             9080
-#define SPELL_CLEAVE                15579
-#define SPELL_MORTALSTRIKE          15708
+enum
+{
+    SPELL_HAMSTRING             = 9080,
+    SPELL_CLEAVE                = 15579,
+    SPELL_MORTALSTRIKE          = 15708
+};
 
 struct TRINITY_DLL_DECL boss_gloomrelAI : public ScriptedAI
 {
@@ -585,10 +603,14 @@ bool GossipSelect_boss_gloomrel(Player *player, Creature *_Creature, uint32 send
     return true;
 }
 
-#define SPELL_SHADOWBOLTVOLLEY               17228
-#define SPELL_IMMOLATE                       15505
-#define SPELL_CURSEOFWEAKNESS                17227
-#define SPELL_DEMONARMOR                     11735
+enum
+{
+    SPELL_SHADOWBOLTVOLLEY               = 17228,
+    SPELL_IMMOLATE                       = 15505,
+    SPELL_CURSEOFWEAKNESS                = 17227,
+    SPELL_DEMONARMOR                     = 11735,
+    SPELL_SUMMON_VOIDWALKERS             = 15092
+};
 
 struct TRINITY_DLL_DECL boss_doomrelAI : public ScriptedAI
 {
@@ -614,6 +636,10 @@ struct TRINITY_DLL_DECL boss_doomrelAI : public ScriptedAI
         Voidwalkers = false;
 
         m_creature->setFaction(FACTION_FRIEND);
+
+        // was set before event start, so set again
+        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
+
         if(pInstance)
             if(pInstance->GetData(DATA_GHOSTKILL) >= 7)
                 m_creature->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
@@ -642,27 +668,6 @@ struct TRINITY_DLL_DECL boss_doomrelAI : public ScriptedAI
     {
         if(pInstance)
             pInstance->SetData(DATA_GHOSTKILL, 1);
-    }
-
-    void SummonVoidwalkers(Unit* victim)
-    {
-        Rand = rand()%5;
-        switch (rand()%2)
-        {
-            case 0: RandX = 0 - Rand; break;
-            case 1: RandX = 0 + Rand; break;
-        }
-        Rand = 0;
-        Rand = rand()%5;
-        switch (rand()%2)
-        {
-            case 0: RandY = 0 - Rand; break;
-            case 1: RandY = 0 + Rand; break;
-        }
-        Rand = 0;
-        Summoned = DoSpawnCreature(16119, RandX, RandY, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 120000);
-        if(Summoned)
-            (Summoned->AI())->AttackStart(victim);
     }
 
     void UpdateAI(const uint32 diff)
@@ -703,9 +708,7 @@ struct TRINITY_DLL_DECL boss_doomrelAI : public ScriptedAI
         //Summon Voidwalkers
         if (!Voidwalkers && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 51 )
         {
-            SummonVoidwalkers(m_creature->getVictim());
-            SummonVoidwalkers(m_creature->getVictim());
-            SummonVoidwalkers(m_creature->getVictim());
+            m_creature->CastSpell(m_creature->getVictim(), SPELL_SUMMON_VOIDWALKERS, true);
             Voidwalkers = true;
         }
 

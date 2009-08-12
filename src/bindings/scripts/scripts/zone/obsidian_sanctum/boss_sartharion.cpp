@@ -118,9 +118,6 @@ enum
     POINT_ID_LAND                               = 200
 };
 
-//POS_SARTHARION_X                            = 3246.57,
-//POS_SARTHARION_Y                            = 551.263,
-
 struct Waypoint
 {
     float m_fX, m_fY, m_fZ;
@@ -207,30 +204,14 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
         m_bHasCalledShadron = false;
         m_bHasCalledVesperon = false;
 
-        if (m_pInstance)
-        {
-            if (!m_creature->isAlive())
-                return;
-
-            m_pInstance->SetData(TYPE_SARTHARION_EVENT, NOT_STARTED);
-
-            //do dragons actually respawn like this? Commented for now, until confirmed.
-
-            /*if (Unit* Temp1 = Unit::GetUnit((*m_creature),m_pInstance->GetData64(DATA_TENEBRON)))
-                if (Temp1->isDead())
-                    ((Creature*)Temp1)->Respawn();
-
-            if (Unit* Temp2 = Unit::GetUnit((*m_creature),m_pInstance->GetData64(DATA_SHADRON)))
-                if (Temp2->isDead())
-                    ((Creature*)Temp2)->Respawn();
-
-            if (Unit* Temp3 = Unit::GetUnit((*m_creature),m_pInstance->GetData64(DATA_VESPERON)))
-                if (Temp3->isDead())
-                    ((Creature*)Temp3)->Respawn();*/
-        }
-
         if (m_creature->HasAura(SPELL_TWILIGHT_REVENGE))
             m_creature->RemoveAurasDueToSpell(SPELL_TWILIGHT_REVENGE);
+    }
+
+    void JustReachedHome()
+    {
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_SARTHARION_EVENT, NOT_STARTED);
     }
 
     void Aggro(Unit* pWho)
@@ -239,9 +220,10 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
         DoZoneInCombat();
 
         if (m_pInstance)
+        {
             m_pInstance->SetData(TYPE_SARTHARION_EVENT, IN_PROGRESS);
-
-        FetchDragons();
+            FetchDragons();
+        }
     }
 
     void JustDied(Unit* pKiller)
@@ -355,13 +337,6 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        //reset if out of his platform, must find better/faster way to do this
-        //if (m_creature->GetDistance2d(POS_SARTHARION_X, POS_SARTHARION_Y) > 55)
-        //{
-            //EnterEvadeMode();
-            //return;
-        //}
-
         if (!m_bIsBerserk && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) <= 10)
         {
             DoScriptText(SAY_SARTHARION_BERSERK,m_creature);
@@ -376,7 +351,9 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
             {
                 DoCast(m_creature, SPELL_WILL_OF_SARTHARION);
                 m_uiEnrageTimer = 0;
-            }else m_uiEnrageTimer -= uiDiff;
+            }
+            else
+                m_uiEnrageTimer -= uiDiff;
         }
 
         // flame tsunami
@@ -384,7 +361,9 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
         {
             SendFlameTsunami();
             m_uiFlameTsunamiTimer = 30000;
-        }else m_uiFlameTsunamiTimer -= uiDiff;
+        }
+        else
+            m_uiFlameTsunamiTimer -= uiDiff;
 
         // flame breath
         if (m_uiFlameBreathTimer < uiDiff)
@@ -392,21 +371,27 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
             DoScriptText(SAY_SARTHARION_BREATH, m_creature);
             DoCast(m_creature->getVictim(), m_bIsHeroic ? SPELL_FLAME_BREATH_H : SPELL_FLAME_BREATH);
             m_uiFlameBreathTimer = 25000 + rand()%10000;
-        }else m_uiFlameBreathTimer -= uiDiff;
+        }
+        else
+            m_uiFlameBreathTimer -= uiDiff;
 
         // Tail Sweep
         if (m_uiTailSweepTimer < uiDiff)
         {
             DoCast(m_creature->getVictim(), m_bIsHeroic ? SPELL_TAIL_LASH_H : SPELL_TAIL_LASH);
             m_uiTailSweepTimer = 15000 + rand()%5000;
-        }else m_uiTailSweepTimer -= uiDiff;
+        }
+        else
+            m_uiTailSweepTimer -= uiDiff;
 
         // Cleave
         if (m_uiCleaveTimer < uiDiff)
         {
             DoCast(m_creature->getVictim(), SPELL_CLEAVE);
             m_uiCleaveTimer = 7000 + rand()%3000;
-        }else m_uiCleaveTimer -= uiDiff;
+        }
+        else
+            m_uiCleaveTimer -= uiDiff;
 
         // Lavas Strike
         if (m_uiLavaStrikeTimer < uiDiff)
@@ -423,28 +408,36 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
                 }
             }
             m_uiLavaStrikeTimer = 5000 + rand()%15000;
-        }else m_uiLavaStrikeTimer -= uiDiff;
+        }
+        else
+            m_uiLavaStrikeTimer -= uiDiff;
 
         // call tenebron
         if (!m_bHasCalledTenebron && m_uiTenebronTimer < uiDiff)
         {
             CallDragon(DATA_TENEBRON);
             m_bHasCalledTenebron = true;
-        }else m_uiTenebronTimer -= uiDiff;
+        }
+        else
+            m_uiTenebronTimer -= uiDiff;
 
         // call shadron
         if (!m_bHasCalledShadron && m_uiShadronTimer < uiDiff)
         {
             CallDragon(DATA_SHADRON);
             m_bHasCalledShadron = true;
-        }else m_uiShadronTimer -= uiDiff;
+        }
+        else
+            m_uiShadronTimer -= uiDiff;
 
         // call vesperon
         if (!m_bHasCalledVesperon && m_uiVesperonTimer < uiDiff)
         {
             CallDragon(DATA_VESPERON);
             m_bHasCalledVesperon = true;
-        }else m_uiVesperonTimer -= uiDiff;
+        }
+        else
+            m_uiVesperonTimer -= uiDiff;
 
         DoMeleeAttackIfReady();
 
@@ -682,7 +675,9 @@ struct TRINITY_DLL_DECL dummy_dragonAI : public ScriptedAI
 
                 debug_log("dummy_dragonAI: %s moving to point %u", m_creature->GetName(), m_uiWaypointId);
                 m_uiMoveNextTimer = 0;
-            } else m_uiMoveNextTimer -= uiDiff;
+            }
+            else
+                m_uiMoveNextTimer -= uiDiff;
         }
     }
 };
@@ -738,7 +733,9 @@ struct TRINITY_DLL_DECL mob_tenebronAI : public dummy_dragonAI
                 DoCast(pTarget, m_bIsHeroic ? SPELL_SHADOW_FISSURE_H : SPELL_SHADOW_FISSURE);
 
             m_uiShadowFissureTimer = 15000 + rand()%5000;
-        }else m_uiShadowFissureTimer -= uiDiff;
+        }
+        else
+            m_uiShadowFissureTimer -= uiDiff;
 
         // shadow breath
         if (m_uiShadowBreathTimer < uiDiff)
@@ -746,7 +743,9 @@ struct TRINITY_DLL_DECL mob_tenebronAI : public dummy_dragonAI
             DoScriptText(SAY_TENEBRON_BREATH, m_creature);
             DoCast(m_creature->getVictim(), m_bIsHeroic ? SPELL_SHADOW_BREATH_H : SPELL_SHADOW_BREATH);
             m_uiShadowBreathTimer = 20000 + rand()%5000;
-        }else m_uiShadowBreathTimer -= uiDiff;
+        }
+        else
+            m_uiShadowBreathTimer -= uiDiff;
 
         DoMeleeAttackIfReady();
     }
@@ -814,7 +813,9 @@ struct TRINITY_DLL_DECL mob_shadronAI : public dummy_dragonAI
                 DoCast(pTarget, m_bIsHeroic ? SPELL_SHADOW_FISSURE_H : SPELL_SHADOW_FISSURE);
 
             m_uiShadowFissureTimer = 15000 + rand()%5000;
-        }else m_uiShadowFissureTimer -= uiDiff;
+        }
+        else
+            m_uiShadowFissureTimer -= uiDiff;
 
         // shadow breath
         if (m_uiShadowBreathTimer < uiDiff)
@@ -822,7 +823,9 @@ struct TRINITY_DLL_DECL mob_shadronAI : public dummy_dragonAI
             DoScriptText(SAY_SHADRON_BREATH, m_creature);
             DoCast(m_creature->getVictim(), m_bIsHeroic ? SPELL_SHADOW_BREATH_H : SPELL_SHADOW_BREATH);
             m_uiShadowBreathTimer = 20000 + rand()%5000;
-        }else m_uiShadowBreathTimer -= uiDiff;
+        }
+        else
+            m_uiShadowBreathTimer -= uiDiff;
 
         DoMeleeAttackIfReady();
     }
@@ -884,7 +887,9 @@ struct TRINITY_DLL_DECL mob_vesperonAI : public dummy_dragonAI
                 DoCast(pTarget, m_bIsHeroic ? SPELL_SHADOW_FISSURE_H : SPELL_SHADOW_FISSURE);
 
             m_uiShadowFissureTimer = 15000 + rand()%5000;
-        }else m_uiShadowFissureTimer -= uiDiff;
+        }
+        else
+            m_uiShadowFissureTimer -= uiDiff;
 
         // shadow breath
         if (m_uiShadowBreathTimer < uiDiff)
@@ -892,7 +897,9 @@ struct TRINITY_DLL_DECL mob_vesperonAI : public dummy_dragonAI
             DoScriptText(SAY_VESPERON_BREATH, m_creature);
             DoCast(m_creature->getVictim(), m_bIsHeroic ? SPELL_SHADOW_BREATH_H : SPELL_SHADOW_BREATH);
             m_uiShadowBreathTimer = 20000 + rand()%5000;
-        }else m_uiShadowBreathTimer -= uiDiff;
+        }
+        else
+            m_uiShadowBreathTimer -= uiDiff;
 
         DoMeleeAttackIfReady();
     }
@@ -1061,7 +1068,9 @@ struct TRINITY_DLL_DECL mob_twilight_whelpAI : public ScriptedAI
         {
             DoCast(m_creature->getVictim(), SPELL_FADE_ARMOR);
             m_uiFadeArmorTimer = 5000 + rand()%5000;
-        }else m_uiFadeArmorTimer -= uiDiff;
+        }
+        else
+            m_uiFadeArmorTimer -= uiDiff;
 
         DoMeleeAttackIfReady();
     }
