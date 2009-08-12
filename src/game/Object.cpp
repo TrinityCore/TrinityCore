@@ -1705,6 +1705,9 @@ void WorldObject::SetMap(Map * map)
 {
     ASSERT(map);
     ASSERT(!IsInWorld() || GetTypeId() == TYPEID_CORPSE);
+    if(m_currMap == map) // command add npc: first create, than loadfromdb
+        return;
+
     ASSERT(!m_currMap);
     m_currMap = map;
     if(m_isWorldObject)
