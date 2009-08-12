@@ -227,7 +227,7 @@ struct TRINITY_DLL_DECL boss_razorscaleAI : public ScriptedAI
 
             if(MovementTimer < diff)
             {
-                if(rand()%100 < 30)
+                if(rand()%100 <= 30)
                 {
                     DoScriptText(EMOTE_BREATH, m_creature);
                     DoCast(m_creature->getVictim(), SPELL_FLAMEBUFFET);
@@ -248,9 +248,10 @@ struct TRINITY_DLL_DECL boss_razorscaleAI : public ScriptedAI
 
     void ChangePosition()
     {
+        /* Malfunctioning, Razorscale is flying around randomly, attacking players from hundreds of yards away.
         uint32 random = rand() % 4;
         if(random<4){
-            m_creature->GetMotionMaster()->MovePoint(0, MovementLocations[random][0], MovementLocations[random][1], MovementLocations[random][2]);}
+            m_creature->GetMotionMaster()->MovePoint(0, MovementLocations[random][0], MovementLocations[random][1], MovementLocations[random][2]);} */
     }
 
     void SummonAdds(uint32 Phase)
