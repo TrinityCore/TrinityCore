@@ -1752,7 +1752,13 @@ INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content
 (-1602008,'%s switches to Berserker Stance!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,3,0,0,'bjarngrim EMOTE_BERSEKER_STANCE'),
 (-1602009,'Give me your worst!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,14150,1,0,0,'bjarngrim SAY_DEFENSIVE_STANCE'),
 (-1602010,'%s switches to Defensive Stance!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,3,0,0,'bjarngrim EMOTE_DEFENSIVE_STANCE'),
-/* Loken */
+(-1602011,'You wish to confront the master? You must weather the storm!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,14453,1,0,0,'ionar SAY_AGGRO'),
+(-1602012,'Shocking ... I know!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,14456,1,0,0,'ionar SAY_SLAY_1'),
+(-1602013,'You atempt the unpossible.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,14457,1,0,0,'ionar SAY_SLAY_2'),
+(-1602014,'Your spark of light is ... extinguish.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,14458,1,0,0,'ionar SAY_SLAY_3'),
+(-1602015,'Master... you have guests.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,14459,1,0,0,'ionar SAY_DEATH'),
+(-1602016,'The slightest spark shall be your undoing.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,14454,1,0,0,'ionar SAY_SPLIT_1'),
+(-1602017,'No one is safe!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,14455,1,0,0,'ionar SAY_SPLIT_2'),
 (-1602018,'What hope is there for you? None!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,14162,1,0,0,'loken SAY_AGGRO0'),
 (-1602019,'I have witnessed the rise and fall of empires. The birth and extinction of entire species. Over countless millennia the foolishness of mortals has remained beyond a constant. Your presence here confirms this.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,14160,1,0,0,'loken SAY_INTRO_1'),
 (-1602020,'My master has shown me the future, and you have no place in it. Azeroth will be reborn in darkness. Yogg-Saron shall be released! The Pantheon shall fall!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,14162,1,0,0,'loken SAY_INTRO_2'),
@@ -1766,7 +1772,18 @@ INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content
 (-1602028,'You stare blindly into the abyss!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,14169,1,0,0,'loken SAY_75HEALTH'),
 (-1602029,'Your ignorance is profound. Can you not see where this path leads?', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,14170,1,0,0,'loken SAY_50HEALTH'),
 (-1602030,'You cross the precipice of oblivion!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,14171,1,0,0,'loken SAY_25HEALTH'),
-(-1602031,'%s begins to cast Lightning Nova!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,3,0,0,'loken EMOTE_NOVA');
+(-1602031,'%s begins to cast Lightning Nova!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,3,0,0,'loken EMOTE_NOVA'),
+(-1602032,'It is you who have destroyed my children? You... shall... pay!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,13960,1,0,0,'volkhan SAY_AGGRO'),
+(-1602033,'The armies of iron will conquer all!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,13965, 1,0,0,'volkhan SAY_SLAY_1'),
+(-1602034,'Ha, pathetic!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,13966,1,0,0,'volkhan SAY_SLAY_2'),
+(-1602035,'You have cost me too much work!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,13967,1,0,0,'volkhan SAY_SLAY_3'),
+(-1602036,'The master was right... to be concerned.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,13968,1,0,0,'volkhan SAY_DEATH'),
+(-1602037,'I will crush you beneath my boots!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,13963,1,0,0,'volkhan SAY_STOMP_1'),
+(-1602038,'All my work... undone!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,13964,1,0,0,'volkhan SAY_STOMP_2'),
+(-1602039,'Life from the lifelessness... death for you.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,13961,1,0,0,'volkhan SAY_FORGE_1'),
+(-1602040,'Nothing is wasted in the process. You will see....', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,13962,1,0,0,'volkhan SAY_FORGE_2'),
+(-1602041,'runs to his anvil!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,3,0,0,'volkhan EMOTE_TO_ANVIL'),
+(-1602042,'prepares to shatter his Brittle Golems!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,3,0,0,'volkhan EMOTE_SHATTER');
 
 -- -1 615 000 OBSIDIAN SANCTUM
 INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`, `sound`, `type`, `language`, `emote`, `comment`) VALUES
