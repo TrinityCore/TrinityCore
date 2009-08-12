@@ -18,6 +18,7 @@
 
 #include "precompiled.h"
 #include "Vehicle.h"
+#include "ObjectMgr.h"
 
 #define GCD_CAST    1
 
@@ -549,11 +550,13 @@ struct TRINITY_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
 {
     npc_unworthy_initiateAI(Creature *c) : ScriptedAI(c)
     {
-        m_creature->GetHomePosition(home_x,home_y,home_z,home_ori);
         me->SetReactState(REACT_PASSIVE);
+        if(!me->GetEquipmentId())
+            if(const CreatureInfo *info = GetCreatureInfo(28406))
+                if(info->equipmentId)
+                    const_cast<CreatureInfo*>(me->GetCreatureInfo())->equipmentId = info->equipmentId;
     }
 
-    float home_x,home_y,home_z,home_ori;
     bool event_startet;
     uint64 event_starter;
     initiate_phase phase;
@@ -571,12 +574,8 @@ struct TRINITY_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
         m_creature->setFaction(7);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
         m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 8);
-        m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID  , 0);
-        m_creature->SetDisplayId(m_creature->GetNativeDisplayId());
-        event_starter = 0;
+        me->LoadEquipment(0, true);
         event_startet = false;
-        m_creature->SetHomePosition(home_x,home_y,home_z,home_ori);
-        m_creature->GetMotionMaster()->MoveTargetedHome();
     }
 
     void EnterCombat(Unit *who)
@@ -617,15 +616,14 @@ struct TRINITY_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
         phase = ToEquipping;
 
         m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
-
-        anchor->GetNearPoint2D(targ_x,targ_y,1,anchor->GetAngle(m_creature));
-        //anchor->DealDamage(anchor,anchor->GetHealth());
         m_creature->RemoveAurasDueToSpell(SPELL_SOUL_PRISON_CHAIN_SELF);
         m_creature->RemoveAurasDueToSpell(SPELL_SOUL_PRISON_CHAIN);
 
+        float z;
+        anchor->GetContactPoint(me, targ_x, targ_y, z, 1.0f);
+
         event_starter = target->GetGUID();
-        if(Unit* starter = Unit::GetUnit((*m_creature),event_starter))
-            DoScriptText(say_event_start[rand()%8],m_creature,starter);
+        DoScriptText(say_event_start[rand()%8], m_creature, target);
     }
 
     void UpdateAI(const uint32 diff);
