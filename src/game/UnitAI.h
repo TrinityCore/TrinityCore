@@ -57,7 +57,8 @@ class TRINITY_DLL_SPEC UnitAI
 
         // Pass parameters between AI
         virtual void DoAction(const int32 param = 0) {}
-        virtual void SetGUID(const uint64 &guid, const int32 param = 0) {}
+        virtual void SetGUID(const uint64 &guid, int32 id = 0) {}
+        virtual uint64 GetGUID(int32 id = 0) { return 0; }
 
         Unit* SelectTarget(SelectAggroTarget target, uint32 position = 0, float dist = 0, bool playerOnly = false, int32 aura = 0);
         void SelectTargetList(std::list<Unit*> &targetList, uint32 num, SelectAggroTarget target, float dist = 0, bool playerOnly = false, int32 aura = 0);

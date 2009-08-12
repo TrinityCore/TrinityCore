@@ -537,13 +537,13 @@ uint32 acherus_unworthy_initiate[5] =
     29567
 };
 
-enum initiate_phase
+enum UnworthyInitiatePhase
 {
-    Chained,
-    ToEquipping,
-    Equipping,
-    ToAttacking,
-    Attacking
+    PHASE_CHAINED,
+    PHASE_TO_EQUIP,
+    PHASE_EQUIPING,
+    PHASE_TO_ATTACK,
+    PHASE_ATTACKING,
 };
 
 struct TRINITY_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
@@ -559,7 +559,7 @@ struct TRINITY_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
 
     bool event_startet;
     uint64 event_starter;
-    initiate_phase phase;
+    UnworthyInitiatePhase phase;
     uint32 wait_timer;
     float targ_x,targ_y,targ_z;
     uint64 anchorGUID;
@@ -569,7 +569,7 @@ struct TRINITY_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
     void Reset()
     {
         anchorGUID = 0;
-        phase = Chained;
+        phase = PHASE_CHAINED;
         events.Reset();
         m_creature->setFaction(7);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
@@ -606,14 +606,14 @@ struct TRINITY_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
             if(Unit* starter = Unit::GetUnit((*m_creature),event_starter))
                 DoScriptText(say_event_attack[rand()%9],m_creature,starter);
 
-            phase = ToAttacking;
+            phase = PHASE_TO_ATTACK;
         }
     }
 
     void EventStart(Creature* anchor, Player* target)
     {
         wait_timer = 5000;
-        phase = ToEquipping;
+        phase = PHASE_TO_EQUIP;
 
         m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
         m_creature->RemoveAurasDueToSpell(SPELL_SOUL_PRISON_CHAIN_SELF);
@@ -634,34 +634,26 @@ CreatureAI* GetAI_npc_unworthy_initiate(Creature *_Creature)
     return new npc_unworthy_initiateAI(_Creature);
 }
 
-struct TRINITY_DLL_DECL npc_unworthy_initiate_anchorAI : public ScriptedAI
+struct TRINITY_DLL_DECL npc_unworthy_initiate_anchorAI : public PassiveAI
 {
-    npc_unworthy_initiate_anchorAI(Creature *c) : ScriptedAI(c) { guid_target = 0; }
+    npc_unworthy_initiate_anchorAI(Creature *c) : PassiveAI(c), prisonerGUID(0) {}
 
-    uint64 guid_target;
+    uint64 prisonerGUID;
 
-    void Reset(){}
-
-    void SetTarget(uint64 target);
-    uint64 GetTarget()
+    void SetGUID(const uint64 &guid, int32 id)
     {
-        return guid_target;
+        if(!prisonerGUID)
+            prisonerGUID = guid;
     }
 
-    void UpdateAI(const uint32 diff){}
+    uint64 GetGUID(int32 id) { return prisonerGUID; }
 };
-
-void npc_unworthy_initiate_anchorAI::SetTarget(uint64 target)
-{
-    if(guid_target <= 0)
-        guid_target = target;
-}
 
 void npc_unworthy_initiateAI::UpdateAI(const uint32 diff)
 {
     switch(phase)
     {
-    case Chained:
+    case PHASE_CHAINED:
         if(!anchorGUID)
         {
             float x, y, z;
@@ -687,31 +679,31 @@ void npc_unworthy_initiateAI::UpdateAI(const uint32 diff)
             if(Creature* trigger = me->FindNearestCreature(29521, 30))
             {
                 prison->ResetDoorOrButton();
-                CAST_AI(npc_unworthy_initiate_anchorAI, trigger->AI())->SetTarget(m_creature->GetGUID());
+                trigger->AI()->SetGUID(m_creature->GetGUID());
                 trigger->CastSpell(me, SPELL_SOUL_PRISON_CHAIN, true);
                 anchorGUID = trigger->GetGUID();
             }
         }
         return;
-    case ToEquipping:
+    case PHASE_TO_EQUIP:
         if(wait_timer)
         {
             if(wait_timer < diff)
             {
                 m_creature->GetMotionMaster()->MovePoint(1,targ_x,targ_y,m_creature->GetPositionZ());
-                phase = Equipping;
+                phase = PHASE_EQUIPING;
                 wait_timer = 0;
             }else wait_timer -= diff;
         }
         return;
-    case ToAttacking:
+    case PHASE_TO_ATTACK:
         if(wait_timer)
         {
             if(wait_timer < diff)
             {
                 m_creature->setFaction(14);
                 m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
-                phase = Attacking;
+                phase = PHASE_ATTACKING;
 
                 if(Unit* target = Unit::GetUnit((*m_creature),event_starter))
                     m_creature->AI()->AttackStart(target);
@@ -719,40 +711,40 @@ void npc_unworthy_initiateAI::UpdateAI(const uint32 diff)
             }else wait_timer -= diff;
         }
         return;
-    case Attacking:
-            if(!UpdateVictim())
-                return;
+    case PHASE_ATTACKING:
+        if(!UpdateVictim())
+            return;
 
-            events.Update(diff);
+        events.Update(diff);
 
-            while(uint32 eventId = events.ExecuteEvent())
+        while(uint32 eventId = events.ExecuteEvent())
+        {
+            switch(eventId)
             {
-                switch(eventId)
-                {
-                    case EVENT_ICY_TOUCH:
-                        DoCast(m_creature->getVictim(), SPELL_ICY_TOUCH);
-                        events.DelayEvents(1000, GCD_CAST);
-                        events.ScheduleEvent(EVENT_ICY_TOUCH, 5000, GCD_CAST);
-                        break;
-                    case EVENT_PLAGUE_STRIKE:
-                        DoCast(m_creature->getVictim(), SPELL_PLAGUE_STRIKE);
-                        events.DelayEvents(1000, GCD_CAST);
-                        events.ScheduleEvent(SPELL_PLAGUE_STRIKE, 5000, GCD_CAST);
-                        break;
-                    case EVENT_BLOOD_STRIKE:
-                        DoCast(m_creature->getVictim(), SPELL_BLOOD_STRIKE);
-                        events.DelayEvents(1000, GCD_CAST);
-                        events.ScheduleEvent(EVENT_BLOOD_STRIKE, 5000, GCD_CAST);
-                        break;
-                    case EVENT_DEATH_COIL:
-                        DoCast(m_creature->getVictim(), SPELL_DEATH_COIL);
-                        events.DelayEvents(1000, GCD_CAST);
-                        events.ScheduleEvent(EVENT_DEATH_COIL, 5000, GCD_CAST);
-                        break;
-                }
+            case EVENT_ICY_TOUCH:
+                DoCast(m_creature->getVictim(), SPELL_ICY_TOUCH);
+                events.DelayEvents(1000, GCD_CAST);
+                events.ScheduleEvent(EVENT_ICY_TOUCH, 5000, GCD_CAST);
+                break;
+            case EVENT_PLAGUE_STRIKE:
+                DoCast(m_creature->getVictim(), SPELL_PLAGUE_STRIKE);
+                events.DelayEvents(1000, GCD_CAST);
+                events.ScheduleEvent(SPELL_PLAGUE_STRIKE, 5000, GCD_CAST);
+                break;
+            case EVENT_BLOOD_STRIKE:
+                DoCast(m_creature->getVictim(), SPELL_BLOOD_STRIKE);
+                events.DelayEvents(1000, GCD_CAST);
+                events.ScheduleEvent(EVENT_BLOOD_STRIKE, 5000, GCD_CAST);
+                break;
+            case EVENT_DEATH_COIL:
+                DoCast(m_creature->getVictim(), SPELL_DEATH_COIL);
+                events.DelayEvents(1000, GCD_CAST);
+                events.ScheduleEvent(EVENT_DEATH_COIL, 5000, GCD_CAST);
+                break;
             }
+        }
 
-            DoMeleeAttackIfReady();
+        DoMeleeAttackIfReady();
         return;
     }
 }
@@ -762,21 +754,12 @@ CreatureAI* GetAI_npc_unworthy_initiate_anchor(Creature *_Creature)
     return new npc_unworthy_initiate_anchorAI(_Creature);
 }
 
-bool GOHello_go_acherus_soul_prison(Player *player, GameObject* _GO)
+bool GOHello_go_acherus_soul_prison(Player *player, GameObject* go)
 {
-    Creature* finder = player->SummonCreature(WORLD_TRIGGER,_GO->GetPositionX(),_GO->GetPositionY(),_GO->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,2000);
-    if(!finder) return false;
-
-    Unit* prison_anchor = finder->FindNearestCreature(29521, 15);
-    if(!prison_anchor) return false;
-
-    uint64 owner = CAST_AI(npc_unworthy_initiate_anchorAI, CAST_CRE(prison_anchor)->AI())->GetTarget();
-
-    Creature* prisoner = Creature::GetCreature((*player),owner);
-    if(prisoner)
-    {
-        CAST_AI(npc_unworthy_initiateAI, (prisoner->AI()))->EventStart(CAST_CRE(prison_anchor),player);
-    }
+    if(Creature *anchor = go->FindNearestCreature(29521, 15))
+        if(uint64 prisonerGUID = anchor->AI()->GetGUID())
+            if(Creature* prisoner = Creature::GetCreature(*player, prisonerGUID))
+                CAST_AI(npc_unworthy_initiateAI, (prisoner->AI()))->EventStart(anchor, player);
 
     return false;
 }
