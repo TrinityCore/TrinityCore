@@ -503,7 +503,12 @@ struct TRINITY_DLL_DECL npc_doctorAI : public ScriptedAI
         PatientDiedCount = 0;
         PatientSavedCount = 0;
 
+        Patients.clear();
+        Coordinates.clear();
+
         Event = false;
+
+        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }
 
     void BeginEvent(Player* player);
@@ -606,7 +611,6 @@ struct TRINITY_DLL_DECL npc_injured_patientAI : public ScriptedAI
                     break;
             }
         }
-        return;
     }
 
     void UpdateAI(const uint32 diff)
@@ -672,7 +676,8 @@ void npc_doctorAI::PatientDied(Location* Point)
     Player* player = Unit::GetPlayer(Playerguid);
     if(player && ((player->GetQuestStatus(6624) == QUEST_STATUS_INCOMPLETE) || (player->GetQuestStatus(6622) == QUEST_STATUS_INCOMPLETE)))
     {
-        PatientDiedCount++;
+        ++PatientDiedCount;
+
         if (PatientDiedCount > 5 && Event)
         {
             if(player->GetQuestStatus(6624) == QUEST_STATUS_INCOMPLETE)
@@ -680,13 +685,15 @@ void npc_doctorAI::PatientDied(Location* Point)
             else if(player->GetQuestStatus(6622) == QUEST_STATUS_INCOMPLETE)
                 player->FailQuest(6622);
 
-            Event = false;
-            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             Reset();
+            return;
         }
 
         Coordinates.push_back(Point);
     }
+    else
+        // If no player or player abandon quest in progress
+        Reset();
 }
 
 void npc_doctorAI::PatientSaved(Creature* soldier, Player* player, Location* Point)
@@ -695,7 +702,8 @@ void npc_doctorAI::PatientSaved(Creature* soldier, Player* player, Location* Poi
     {
         if ((player->GetQuestStatus(6624) == QUEST_STATUS_INCOMPLETE) || (player->GetQuestStatus(6622) == QUEST_STATUS_INCOMPLETE))
         {
-            PatientSavedCount++;
+            ++PatientSavedCount;
+
             if (PatientSavedCount == 15)
             {
                 if (!Patients.empty())
@@ -713,9 +721,8 @@ void npc_doctorAI::PatientSaved(Creature* soldier, Player* player, Location* Poi
                 else if (player->GetQuestStatus(6622) == QUEST_STATUS_INCOMPLETE)
                     player->AreaExploredOrEventHappens(6622);
 
-                Event = false;
-                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 Reset();
+                return;
             }
 
             Coordinates.push_back(Point);
@@ -727,9 +734,8 @@ void npc_doctorAI::UpdateAI(const uint32 diff)
 {
     if (Event && SummonPatientCount >= 20)
     {
-        Event = false;
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         Reset();
+        return;
     }
 
     if (Event)
