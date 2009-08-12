@@ -497,7 +497,6 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
                         return SPELL_SCROLL;
                     case 12880: // Enrage (Enrage)
                     case 57518: // Enrage (Wrecking Crew)
-                    case 12292: // Death Wish
                         return SPELL_WARRIOR_ENRAGE;
                 }
             }
@@ -528,8 +527,10 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
         }
         case SPELLFAMILY_WARRIOR:
         {
-            if (spellInfo->SpellFamilyFlags[1] & 0x000080 || spellInfo->SpellFamilyFlags[0] & 0x10000LL)
+            if (spellInfo->SpellFamilyFlags[1] & 0x000080 || spellInfo->SpellFamilyFlags[0] & 0x10000)
                 return SPELL_POSITIVE_SHOUT;
+            if (spellInfo->Id == 12292) // Death Wish
+                return SPELL_WARRIOR_ENRAGE;
 
             break;
         }
@@ -716,7 +717,6 @@ bool SpellMgr::_isPositiveEffect(uint32 spellId, uint32 effIndex, bool deep) con
         case 34700:                                         // Allergic Reaction
         case 31719:                                         // Suspension
         case 61987:                                         // Avenging Wrath Marker
-        case 11196:                                         // Recently Bandadged
         case 50524:                                         // Runic Power Feed
             return false;
         case 12042:                                         // Arcane Power
@@ -767,14 +767,6 @@ bool SpellMgr::_isPositiveEffect(uint32 spellId, uint32 effIndex, bool deep) con
                         case 38639:                         // Nether Exhaustion (blue)
                         case 11196:                         // Recently Bandaged
                             return false;
-                        // some spells have unclear target modes for selection, so just make effect positive
-                        case 27184:                         
-                        case 27190:
-                        case 27191:
-                        case 27201:
-                        case 27202:
-                        case 27203:
-                            return true;
                         default:
                             break;
                     }
@@ -995,12 +987,6 @@ bool IsSingleTargetSpell(SpellEntry const *spellInfo)
         default:
             break;
     }
-
-    // single target triggered spell.
-    // Not real client side single target spell, but it' not triggered until prev. aura expired.
-    // This is allow store it in single target spells list for caster for spell proc checking
-    if(spellInfo->Id==38324)                                // Regeneration (triggered by 38299 (HoTs on Heals))
-        return true;
 
     return false;
 }
@@ -2731,12 +2717,9 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto
             break;
         case SPELLFAMILY_MAGE:
         {
-            // Frostbite 0x80000000
+            // Frostbite
             if (spellproto->SpellFamilyFlags[1] & 0x80000000)
                 return DIMINISHING_TRIGGER_ROOT;
-            // Frost Nova / Freeze (Water Elemental)
-            else if (spellproto->SpellIconID == 193)
-                return DIMINISHING_CONTROL_ROOT;
             break;
         }
         case SPELLFAMILY_ROGUE:
@@ -2776,7 +2759,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto
             // Cyclone
             else if (spellproto->SpellFamilyFlags[1] & 0x20)
                 return DIMINISHING_CYCLONE;
-            //Entangling Roots: to force natures grasp proc to be control root
+            // Entangling Roots: to force natures grasp proc to be control root
             else if (spellproto->SpellFamilyFlags[0] & 0x00000200)
                 return DIMINISHING_CONTROL_ROOT;
             // Faerie Fire
@@ -2863,35 +2846,35 @@ int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellEntry cons
         {
             // Wyvern Sting
             if (spellproto->SpellFamilyFlags[1] & 0x1000)
-                return 6000;
+                return 6 * IN_MILISECONDS;
             break;
         }
         case SPELLFAMILY_PALADIN:
         {
             // Repentance - limit to 6 seconds in PvP
             if (spellproto->SpellFamilyFlags[0] & 0x4)
-                return 6000;
+                return 6 * IN_MILISECONDS;
             break;
         }
         case SPELLFAMILY_DRUID:
         {
             // Faerie Fire - limit to 40 seconds in PvP (3.1)
             if (spellproto->SpellFamilyFlags[0] & 0x400)
-                return 40000;
+                return 40 * IN_MILISECONDS;
             break;
         }
         case SPELLFAMILY_PRIEST:
         {
             // Vampiric Embrace - limit to 60 seconds in PvP (3.1)
             if ((spellproto->SpellFamilyFlags[0] & 0x4) && spellproto->SpellIconID == 150)
-                return 60000;
+                return 60 * IN_MILISECONDS;
             break;
         }
         default:
             break;
     }
 
-    return 10000;
+    return 10 * IN_MILISECONDS;
 }
 
 bool IsDiminishingReturnsGroupDurationLimited(DiminishingGroup group)
@@ -3505,21 +3488,6 @@ void SpellMgr::LoadSpellCustomAttr()
         spellInfo = (SpellEntry*)GetSpellStore()->LookupEntry(i);
         if(!spellInfo)
             continue;
-
-        bool auraSpell = true;
-        for(uint32 j = 0; j < 3; ++j)
-        {
-            if(spellInfo->Effect[j])
-                if(spellInfo->Effect[j] != SPELL_EFFECT_APPLY_AURA
-                || SpellTargetType[spellInfo->EffectImplicitTargetA[j]] != TARGET_TYPE_UNIT_TARGET)
-                //ignore target party for now
-                {
-                    auraSpell = false;
-                    break;
-                }
-        }
-        if(auraSpell)
-            mSpellCustomAttr[i] |= SPELL_ATTR_CU_AURA_SPELL;
 
         for(uint32 j = 0; j < 3; ++j)
         {

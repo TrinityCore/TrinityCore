@@ -1911,7 +1911,7 @@ void Player::ProcessDelayedOperations()
 
     if(m_DelayedOperations & DELAYED_SPELL_CAST_DESERTER)
     {
-        CastSpell(this, 26013, true);               // Deserter
+        CastSpell(this, SPELL_ID_DESERTER, true);               // Deserter
     }
 
     //we have executed ALL delayed ops, so clear the flag
@@ -4168,8 +4168,8 @@ void Player::BuildPlayerRepop()
     GetSession()->SendPacket(&data);
 
     if(getRace() == RACE_NIGHTELF)
-        CastSpell(this, 20584, true);                       // auras SPELL_AURA_INCREASE_SPEED(+speed in wisp form), SPELL_AURA_INCREASE_SWIM_SPEED(+swim speed in wisp form), SPELL_AURA_TRANSFORM (to wisp form)
-    CastSpell(this, 8326, true);                            // auras SPELL_AURA_GHOST, SPELL_AURA_INCREASE_SPEED(why?), SPELL_AURA_INCREASE_SWIM_SPEED(why?)
+        CastSpell(this, SPELL_ID_NE_GHOST, true);
+    CastSpell(this, SPELL_ID_GHOST, true);
 
     // there must be SMSG.FORCE_RUN_SPEED_CHANGE, SMSG.FORCE_SWIM_SPEED_CHANGE, SMSG.MOVE_WATER_WALK
     // there must be SMSG.STOP_MIRROR_TIMER
@@ -4238,8 +4238,8 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
     // remove death flag + set aura
     SetByteValue(UNIT_FIELD_BYTES_1, 3, 0x00);
     if(getRace() == RACE_NIGHTELF)
-        RemoveAurasDueToSpell(20584);                       // speed bonuses
-    RemoveAurasDueToSpell(8326);                            // SPELL_AURA_GHOST
+        RemoveAurasDueToSpell(SPELL_ID_NE_GHOST);                       // speed bonuses
+    RemoveAurasDueToSpell(SPELL_ID_GHOST);                            // SPELL_AURA_GHOST
 
     setDeathState(ALIVE);
 
@@ -18510,7 +18510,7 @@ void Player::LeaveBattleground(bool teleportToEntryPoint)
                     return;
                 }
 
-                CastSpell(this, 26013, true);               // Deserter
+                CastSpell(this, SPELL_ID_DESERTER, true);               // Deserter
             }
         }
     }
@@ -18519,7 +18519,7 @@ void Player::LeaveBattleground(bool teleportToEntryPoint)
 bool Player::CanJoinToBattleground() const
 {
     // check Deserter debuff
-    if(HasAura(26013))
+    if(HasAura(SPELL_ID_DESERTER))
         return false;
 
     return true;
@@ -18978,7 +18978,7 @@ void Player::SendInitialPacketsAfterAddToMap()
     data << uint32(0x00000000);                             // on blizz it increments periodically
     GetSession()->SendPacket(&data);
 
-    CastSpell(this, 836, true);                             // LOGINEFFECT
+    CastSpell(this, SPELL_ID_LOGINEFFECT, true);                             // LOGINEFFECT
 
     // set some aura effects that send packet to player client after add player to map
     // SendMessageToSet not send it to player not it map, only for aura that not changed anything at re-apply
