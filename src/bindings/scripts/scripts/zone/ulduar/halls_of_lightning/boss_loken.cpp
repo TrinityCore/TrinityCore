@@ -108,7 +108,6 @@ struct TRINITY_DLL_DECL boss_lokenAI : public ScriptedAI
     void JustDied(Unit* pKiller)
     {
         DoScriptText(SAY_DEATH, m_creature);
-        error_log("%u", EncounterTimer);
 
         if(m_bIsHeroic && EncounterTimer <= 120000)
         {
