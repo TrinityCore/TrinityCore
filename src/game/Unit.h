@@ -1386,7 +1386,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
 
         Player* GetSpellModOwner() const;
 
-        Unit* GetOwner() const;
+        Unit* GetOwner(bool inWorld = true) const;
         Guardian *GetGuardianPet() const;
         Minion *GetFirstMinion() const;
         Unit* GetCharmer() const;
@@ -1820,6 +1820,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         virtual float GetFollowAngle() const { return M_PI/2; }
 
         void OutDebugInfo();
+        virtual bool isBeingLoaded() const { return false;}
     protected:
         explicit Unit ();
 

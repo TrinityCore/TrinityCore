@@ -125,6 +125,7 @@ enum SpellSpecific
     SPELL_WARRIOR_ENRAGE    = 25,
     SPELL_PRIEST_DIVINE_SPIRIT = 26,
     SPELL_HAND              = 27,
+    SPELL_PHASE             = 28,
 };
 
 #define SPELL_LINKED_MAX_SPELLS  200000
