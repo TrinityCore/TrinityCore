@@ -60,6 +60,9 @@ enum
     SPELL_LAVA_STRIKE                           = 57571,    // (Real spell casted should be 57578) 57571 then trigger visual missile, then summon Lava Blaze on impact(spell 57572)
     SPELL_TWILIGHT_REVENGE                      = 60639,
 
+    SPELL_PYROBUFFET                            = 56916,    // currently used for hard enrage after 15 minutes
+    SPELL_PYROBUFFET_RANGE                      = 58907,    // possibly used when player get too far away from dummy creatures (2x creature entry 30494)
+
     SPELL_TWILIGHT_SHIFT_ENTER                  = 57620,    // enter phase. Player get this when click GO
     SPELL_TWILIGHT_SHIFT_REMOVAL                = 61187,    // leave phase
     SPELL_TWILIGHT_SHIFT_REMOVAL_ALL            = 61190,    // leave phase (probably version to make all leave)
@@ -169,7 +172,10 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
     bool m_bIsHeroic;
 
     bool m_bIsBerserk;
+    bool m_bIsSoftEnraged;
+
     uint32 m_uiEnrageTimer;
+    bool m_bIsHardEnraged;
 
     uint32 m_uiTenebronTimer;
     uint32 m_uiShadronTimer;
@@ -188,7 +194,10 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
     void Reset() 
     {
         m_bIsBerserk = false;
+        m_bIsSoftEnraged = false;
+
         m_uiEnrageTimer = MINUTE*15*IN_MILISECONDS;
+        m_bIsHardEnraged = false;
 
         m_uiTenebronTimer = 30000;
         m_uiShadronTimer = 75000;
@@ -250,8 +259,12 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
         Unit* pShad = Unit::GetUnit(*m_creature,m_pInstance->GetData64(DATA_SHADRON));
         Unit* pVesp = Unit::GetUnit(*m_creature,m_pInstance->GetData64(DATA_VESPERON));
 
+        //if at least one of the dragons are alive and are being called
+        bool bCanUseWill = false;
+
         if (pTene && pTene->isAlive() && !pTene->getVictim())
         {
+            bCanUseWill = true;
             pTene->GetMotionMaster()->MovePoint(POINT_ID_INIT, m_aTene[0].m_fX, m_aTene[0].m_fY, m_aTene[0].m_fZ);
 
             if (!pTene->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
@@ -260,6 +273,7 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
 
         if (pShad && pShad->isAlive() && !pShad->getVictim())
         {
+            bCanUseWill = true;
             pShad->GetMotionMaster()->MovePoint(POINT_ID_INIT, m_aShad[0].m_fX, m_aShad[0].m_fY, m_aShad[0].m_fZ);
 
             if (!pShad->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
@@ -268,11 +282,15 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
 
         if (pVesp && pVesp->isAlive() && !pVesp->getVictim())
         {
+            bCanUseWill = true;
             pVesp->GetMotionMaster()->MovePoint(POINT_ID_INIT, m_aVesp[0].m_fX, m_aVesp[0].m_fY, m_aVesp[0].m_fZ);
 
             if (!pVesp->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                 pVesp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
+
+        if (bCanUseWill)
+            DoCast(m_creature, SPELL_WILL_OF_SARTHARION);
     }
 
     void CallDragon(uint32 uiDataId)
@@ -337,20 +355,28 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (!m_bIsBerserk && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) <= 10)
+        //spell will target dragons, if they are still alive at 35%
+        if (!m_bIsBerserk && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) <= 35)
         {
             DoScriptText(SAY_SARTHARION_BERSERK,m_creature);
             DoCast(m_creature,SPELL_BERSERK);
             m_bIsBerserk = true;
         }
 
-        // enrage
-        if (m_uiEnrageTimer)
+        //soft enrage
+        if (!m_bIsSoftEnraged && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) <= 10)
+        {
+            // TODO
+            m_bIsSoftEnraged = true;
+        }
+
+        // hard enrage
+        if (!m_bIsHardEnraged)
         {
             if (m_uiEnrageTimer < uiDiff)
             {
-                DoCast(m_creature, SPELL_WILL_OF_SARTHARION);
-                m_uiEnrageTimer = 0;
+                DoCast(m_creature, SPELL_PYROBUFFET, true);
+                m_bIsHardEnraged = true;
             }
             else
                 m_uiEnrageTimer -= uiDiff;

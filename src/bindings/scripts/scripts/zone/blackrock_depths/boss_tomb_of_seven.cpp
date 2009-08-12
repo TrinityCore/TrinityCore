@@ -16,7 +16,7 @@
 
 /* ScriptData
 SDName: Boss_Tomb_Of_Seven
-SD%Complete: 50
+SD%Complete: 90
 SDComment: Learning Smelt Dark Iron if tribute quest rewarded. Missing event.
 SDCategory: Blackrock Depths
 EndScriptData */
@@ -26,14 +26,17 @@ EndScriptData */
 
 enum
 {
-    SPELL_SUNDERARMOR           = 24317,
+    SPELL_SUNDERARMOR           = 11971,
     SPELL_SHIELDBLOCK           = 12169,
     SPELL_STRIKE                = 15580
 };
 
 struct TRINITY_DLL_DECL boss_angerrelAI : public ScriptedAI
 {
-    boss_angerrelAI(Creature *c) : ScriptedAI(c) {pInstance = c->GetInstanceData();}
+    boss_angerrelAI(Creature *c) : ScriptedAI(c)
+    {
+        pInstance = c->GetInstanceData();
+    }
 
     ScriptedInstance* pInstance;
     uint32 SunderArmor_Timer;
@@ -109,12 +112,15 @@ enum
 {
     SPELL_SINISTERSTRIKE        = 15581,
     SPELL_BACKSTAB              = 15582,
-    SPELL_GOUGE                 = 13579
+    SPELL_GOUGE                 = 12540
 };
 
 struct TRINITY_DLL_DECL boss_doperelAI : public ScriptedAI
 {
-    boss_doperelAI(Creature *c) : ScriptedAI(c) {pInstance = c->GetInstanceData();}
+    boss_doperelAI(Creature *c) : ScriptedAI(c)
+    {
+        pInstance = c->GetInstanceData();
+    }
     
     ScriptedInstance* pInstance;
     uint32 SinisterStrike_Timer;
@@ -188,14 +194,17 @@ CreatureAI* GetAI_boss_doperel(Creature *_Creature)
 
 enum
 {
-    SPELL_SHADOWBOLT        = 17483,                       //Not sure if right ID
-    SPELL_MANABURN          = 10876,
-    SPELL_SHADOWSHIELD      = 22417
+    SPELL_SHADOWBOLT        = 15232,
+    SPELL_MANABURN          = 14033,
+    SPELL_SHADOWSHIELD      = 12040
 };
 
 struct TRINITY_DLL_DECL boss_haterelAI : public ScriptedAI
 {
-    boss_haterelAI(Creature *c) : ScriptedAI(c) {pInstance = c->GetInstanceData();}
+    boss_haterelAI(Creature *c) : ScriptedAI(c)
+    {
+        pInstance = c->GetInstanceData();
+    }
 
     ScriptedInstance* pInstance;
     uint32 ShadowBolt_Timer;
@@ -242,9 +251,8 @@ struct TRINITY_DLL_DECL boss_haterelAI : public ScriptedAI
         //ShadowBolt_Timer
         if (ShadowBolt_Timer < diff)
         {
-            Unit* target = NULL;
-            target = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if (target) DoCast(target,SPELL_SHADOWBOLT);
+            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+                DoCast(target,SPELL_SHADOWBOLT);
             ShadowBolt_Timer = 7000;
         }else ShadowBolt_Timer -= diff;
 
@@ -285,12 +293,15 @@ enum
     SPELL_MINDBLAST             = 15587,
     SPELL_HEAL                  = 15586,
     SPELL_PRAYEROFHEALING       = 15585,
-    SPELL_SHIELD                = 10901
+    SPELL_SHIELD                = 11974
 };
 
 struct TRINITY_DLL_DECL boss_vilerelAI : public ScriptedAI
 {
-    boss_vilerelAI(Creature *c) : ScriptedAI(c) {pInstance = c->GetInstanceData();}
+    boss_vilerelAI(Creature *c) : ScriptedAI(c)
+    {
+        pInstance = c->GetInstanceData();
+    }
 
     ScriptedInstance* pInstance;
     uint32 MindBlast_Timer;
@@ -373,21 +384,24 @@ CreatureAI* GetAI_boss_vilerel(Creature *_Creature)
 
 enum
 {
-    SPELL_FROSTBOLT         = 16799,
-    SPELL_FROSTARMOR        = 15784,                       //This is actually a buff he gives himself
-    SPELL_BLIZZARD          = 19099,
-    SPELL_FROSTNOVA         = 15063,
-    SPELL_FROSTWARD         = 15004
+    SPELL_FROSTBOLT         = 12675,
+    SPELL_FROSTARMOR        = 12544,                        //This is actually a buff he gives himself
+    SPELL_CONEOFCOLD        = 15244,
+    SPELL_FROSTNOVA         = 12674,
+    SPELL_FROSTWARD         = 15044
 };
 
 struct TRINITY_DLL_DECL boss_seethrelAI : public ScriptedAI
 {
-    boss_seethrelAI(Creature *c) : ScriptedAI(c) {pInstance = c->GetInstanceData();}
+    boss_seethrelAI(Creature *c) : ScriptedAI(c)
+    {
+        pInstance = c->GetInstanceData();
+    }
 
     ScriptedInstance* pInstance;
     uint32 FrostArmor_Timer;
     uint32 Frostbolt_Timer;
-    uint32 Blizzard_Timer;
+    uint32 ConeofCold_Timer;
     uint32 FrostNova_Timer;
     uint32 FrostWard_Timer;
 
@@ -395,7 +409,7 @@ struct TRINITY_DLL_DECL boss_seethrelAI : public ScriptedAI
     {
         FrostArmor_Timer = 2000;
         Frostbolt_Timer = 6000;
-        Blizzard_Timer = 18000;
+        ConeofCold_Timer = 18000;
         FrostNova_Timer = 12000;
         FrostWard_Timer = 25000;
 
@@ -444,14 +458,14 @@ struct TRINITY_DLL_DECL boss_seethrelAI : public ScriptedAI
             Frostbolt_Timer = 15000;
         }else Frostbolt_Timer -= diff;
 
-        //Blizzard_Timer
-        if (Blizzard_Timer < diff)
+        //ConeofCold_Timer
+        if (ConeofCold_Timer < diff)
         {
             if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-                DoCast(target,SPELL_BLIZZARD);
+                DoCast(target,SPELL_CONEOFCOLD);
 
-            Blizzard_Timer = 22000;
-        }else Blizzard_Timer -= diff;
+            ConeofCold_Timer = 22000;
+        }else ConeofCold_Timer -= diff;
 
         //FrostNova_Timer
         if (FrostNova_Timer < diff)
@@ -479,13 +493,16 @@ CreatureAI* GetAI_boss_seethrel(Creature *_Creature)
 enum
 {
     SPELL_HAMSTRING             = 9080,
-    SPELL_CLEAVE                = 15579,
-    SPELL_MORTALSTRIKE          = 15708
+    SPELL_CLEAVE                = 40504,
+    SPELL_MORTALSTRIKE          = 13737
 };
 
 struct TRINITY_DLL_DECL boss_gloomrelAI : public ScriptedAI
 {
-    boss_gloomrelAI(Creature *c) : ScriptedAI(c) {pInstance = c->GetInstanceData();}
+    boss_gloomrelAI(Creature *c) : ScriptedAI(c)
+    {
+        pInstance = c->GetInstanceData();
+    }
 
     ScriptedInstance* pInstance;
     uint32 Hamstring_Timer;
@@ -605,16 +622,19 @@ bool GossipSelect_boss_gloomrel(Player *player, Creature *_Creature, uint32 send
 
 enum
 {
-    SPELL_SHADOWBOLTVOLLEY               = 17228,
-    SPELL_IMMOLATE                       = 15505,
-    SPELL_CURSEOFWEAKNESS                = 17227,
-    SPELL_DEMONARMOR                     = 11735,
+    SPELL_SHADOWBOLTVOLLEY               = 15245,
+    SPELL_IMMOLATE                       = 12742,
+    SPELL_CURSEOFWEAKNESS                = 12493,
+    SPELL_DEMONARMOR                     = 13787,
     SPELL_SUMMON_VOIDWALKERS             = 15092
 };
 
 struct TRINITY_DLL_DECL boss_doomrelAI : public ScriptedAI
 {
-    boss_doomrelAI(Creature *c) : ScriptedAI(c) {pInstance = c->GetInstanceData();}
+    boss_doomrelAI(Creature *c) : ScriptedAI(c)
+    {
+        pInstance = c->GetInstanceData();
+    }
 
     ScriptedInstance* pInstance;
     uint32 ShadowVolley_Timer;
