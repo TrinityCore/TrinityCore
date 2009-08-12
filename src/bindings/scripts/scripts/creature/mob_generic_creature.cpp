@@ -203,7 +203,7 @@ struct TRINITY_DLL_DECL mob_webwrapAI : public NullCreatureAI
 
     uint64 victimGUID;
 
-    void SetGUID(const uint64 &guid, const int32 param)
+    void SetGUID(const uint64 &guid, int32 param)
     {
         victimGUID = guid;
         if(me->m_spells[0] && victimGUID)

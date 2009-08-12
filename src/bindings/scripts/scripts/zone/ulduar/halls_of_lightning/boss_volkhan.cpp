@@ -74,7 +74,7 @@ struct TRINITY_DLL_DECL boss_volkhanAI : public ScriptedAI
 {
     boss_volkhanAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = pCreature->GetInstanceData();
         m_bIsHeroic = pCreature->GetMap()->IsHeroic();
         Reset();
     }
@@ -160,7 +160,7 @@ struct TRINITY_DLL_DECL boss_volkhanAI : public ScriptedAI
 
         for(std::list<uint64>::iterator itr = m_lGolemGUIDList.begin(); itr != m_lGolemGUIDList.end(); ++itr)
         {
-            if (Creature* pTemp = (Creature*)Unit::GetUnit(*m_creature, *itr))
+            if (Creature* pTemp = Unit::GetCreature(*m_creature, *itr))
             {
                 if (pTemp->isAlive())
                     pTemp->ForcedDespawn();
@@ -177,7 +177,7 @@ struct TRINITY_DLL_DECL boss_volkhanAI : public ScriptedAI
 
         for(std::list<uint64>::iterator itr = m_lGolemGUIDList.begin(); itr != m_lGolemGUIDList.end(); ++itr)
         {
-            if (Creature* pTemp = (Creature*)Unit::GetUnit(*m_creature, *itr))
+            if (Creature* pTemp = Unit::GetCreature(*m_creature, *itr))
             {
                  // only shatter brittle golems
                 if (pTemp->isAlive() && pTemp->GetEntry() == NPC_BRITTLE_GOLEM)
@@ -334,6 +334,8 @@ bool EffectDummyCreature_npc_volkhan_anvil(Unit* pCaster, uint32 uiSpellId, uint
         if (pCaster->GetEntry() != NPC_VOLKHAN || pCreatureTarget->GetEntry() != NPC_VOLKHAN_ANVIL)
             return true;
 
+        Creature *cre = CAST_CRE(pCaster);
+
         DoScriptText(EMOTE_TO_ANVIL, pCaster);
 
         float fX, fY, fZ;
@@ -344,8 +346,8 @@ bool EffectDummyCreature_npc_volkhan_anvil(Unit* pCaster, uint32 uiSpellId, uint
         if (pCaster->GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE)
             pCaster->GetMotionMaster()->MovementExpired();
 
-        ((Creature*)pCaster)->GetMap()->CreatureRelocation((Creature*)pCaster, fX, fY, fZ, pCreatureTarget->GetOrientation());
-        ((Creature*)pCaster)->SendMonsterMove(fX, fY, fZ, 0, ((Creature*)pCaster)->GetUnitMovementFlags(), 1);
+        cre->GetMap()->CreatureRelocation(cre, fX, fY, fZ, pCreatureTarget->GetOrientation());
+        cre->SendMonsterMove(fX, fY, fZ, 0, cre->GetUnitMovementFlags(), 1);
 
         pCreatureTarget->CastSpell(pCaster, SPELL_TEMPER_DUMMY, false);
 
@@ -364,7 +366,7 @@ struct TRINITY_DLL_DECL mob_molten_golemAI : public ScriptedAI
 {
     mob_molten_golemAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = pCreature->GetInstanceData();
         m_bIsHeroic = pCreature->GetMap()->IsHeroic();
         Reset();
     }
