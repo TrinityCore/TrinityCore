@@ -32,20 +32,41 @@
 #include "CellImpl.h"
 
 OPvPCapturePoint::OPvPCapturePoint(OutdoorPvP * pvp)
-: m_PvP(pvp), m_ShiftPhase(0), m_ShiftMaxPhase(0), m_OldPhase(0),
-m_State(0), m_OldState(0), m_CapturePointGUID(0), m_NeutralValue(0),
-m_ShiftMaxCaptureSpeed(0), m_capturePoint(NULL)
+: m_PvP(pvp), m_value(0), m_maxValue(0), m_oldValue(0),
+m_State(0), m_OldState(0), m_CapturePointGUID(0), m_neutralValuePct(0),
+m_maxSpeed(0), m_capturePoint(NULL)
 {
 }
 
 bool OPvPCapturePoint::HandlePlayerEnter(Player * plr)
 {
+    if(m_capturePoint)
+    {
+        plr->SendUpdateWorldState(m_capturePoint->GetGOInfo()->capturePoint.worldState1, 1);
+        plr->SendUpdateWorldState(m_capturePoint->GetGOInfo()->capturePoint.worldstate2, (uint32)ceil((m_value + m_maxValue) / (2 * m_maxValue) * 100.0f));
+        plr->SendUpdateWorldState(m_capturePoint->GetGOInfo()->capturePoint.worldstate3, m_neutralValuePct);
+    }
     return m_activePlayers[plr->GetTeamId()].insert(plr).second;
 }
 
 void OPvPCapturePoint::HandlePlayerLeave(Player * plr)
 {
+    if(m_capturePoint)
+        plr->SendUpdateWorldState(m_capturePoint->GetGOInfo()->capturePoint.worldState1, 0);
     m_activePlayers[plr->GetTeamId()].erase(plr);
+}
+
+void OPvPCapturePoint::SendChangePhase()
+{
+    if(!m_capturePoint)
+        return;
+
+    // send this too, sometimes the slider disappears, dunno why :(
+    SendUpdateWorldState(m_capturePoint->GetGOInfo()->capturePoint.worldState1, 1);
+    // send these updates to only the ones in this objective
+    SendUpdateWorldState(m_capturePoint->GetGOInfo()->capturePoint.worldstate2, (uint32)ceil((m_value + m_maxValue) / (2 * m_maxValue) * 100.0f));
+    // send this too, sometimes it resets :S
+    SendUpdateWorldState(m_capturePoint->GetGOInfo()->capturePoint.worldstate3, m_neutralValuePct);
 }
 
 void OPvPCapturePoint::AddGO(uint32 type, uint32 guid, uint32 entry)
@@ -113,9 +134,10 @@ bool OPvPCapturePoint::AddCapturePoint(uint32 entry, uint32 map, float x, float 
         return false;
 
     // get the needed values from goinfo
-    m_ShiftMaxPhase = goinfo->capturePoint.maxTime;
-    m_ShiftMaxCaptureSpeed = m_ShiftMaxPhase / float(goinfo->capturePoint.minTime);
-    m_NeutralValue = goinfo->capturePoint.neutralPercent;
+    m_maxValue = goinfo->capturePoint.maxTime;
+    m_maxSpeed = m_maxValue / (goinfo->capturePoint.minTime ? goinfo->capturePoint.minTime : 60);
+    m_neutralValuePct = goinfo->capturePoint.neutralPercent;
+    m_minValue = m_maxValue * goinfo->capturePoint.neutralPercent / 100;
 
     return true;
 }
@@ -281,55 +303,51 @@ bool OPvPCapturePoint::Update(uint32 diff)
         return false;
 
     uint32 Challenger = 0;
+    float maxDiff = m_maxSpeed * diff;
 
     if(fact_diff < 0)
     {
         // horde is in majority, but it's already horde-controlled -> no change
-        if(m_State == OBJECTIVESTATE_HORDE && m_ShiftPhase <= -m_ShiftMaxPhase)
+        if(m_State == OBJECTIVESTATE_HORDE && m_value <= -m_maxValue)
             return false;
 
-        if(fact_diff < -m_ShiftMaxCaptureSpeed)
-            fact_diff = -m_ShiftMaxCaptureSpeed;
+        if(fact_diff < -maxDiff)
+            fact_diff = -maxDiff;
 
         Challenger = HORDE;
     }
     else
     {
         // ally is in majority, but it's already ally-controlled -> no change
-        if(m_State == OBJECTIVESTATE_ALLIANCE && m_ShiftPhase >= m_ShiftMaxPhase)
+        if(m_State == OBJECTIVESTATE_ALLIANCE && m_value >= m_maxValue)
             return false;
 
-        if(fact_diff > m_ShiftMaxCaptureSpeed)
-            fact_diff = m_ShiftMaxCaptureSpeed;
+        if(fact_diff > maxDiff)
+            fact_diff = maxDiff;
 
         Challenger = ALLIANCE;
     }
 
-    m_OldPhase = m_ShiftPhase;
+    m_oldValue = m_value;
 
     m_OldState = m_State;
 
-    m_ShiftPhase += fact_diff;
+    m_value += fact_diff;
 
-    // check limits, these are over the grey part
-    if(m_ShiftPhase < -m_ShiftMaxPhase * (float)(m_NeutralValue) / 100.0f)
+    if(m_value < -m_minValue) // red
     {
-        if(m_ShiftPhase < -m_ShiftMaxPhase)
-            m_ShiftPhase = -m_ShiftMaxPhase;
+        if(m_value < -m_maxValue)
+            m_value = -m_maxValue;
         m_State = OBJECTIVESTATE_HORDE;
-        return true;
     }
-    else if(m_ShiftPhase > m_ShiftMaxPhase * (float)(m_NeutralValue) / 100.0f)
+    else if(m_value > m_minValue) // blue
     {
-        if(m_ShiftPhase > m_ShiftMaxPhase)
-            m_ShiftPhase = m_ShiftMaxPhase;
+        if(m_value > m_maxValue)
+            m_value = m_maxValue;
         m_State = OBJECTIVESTATE_ALLIANCE;
-        return true;
     }
-
-    if(m_OldPhase*m_ShiftPhase <=0)
+    else if(m_oldValue * m_value <= 0) // grey, go through mid point
     {
-        // gone through neutral
         // if challenger is ally, then n->a challenge
         if(Challenger == ALLIANCE)
             m_State = OBJECTIVESTATE_NEUTRAL_ALLIANCE_CHALLENGE;
@@ -337,7 +355,7 @@ bool OPvPCapturePoint::Update(uint32 diff)
         else if(Challenger == HORDE)
             m_State = OBJECTIVESTATE_NEUTRAL_HORDE_CHALLENGE;
     }
-    else
+    else // grey, did not go through mid point
     {
         // old phase and current are on the same side, so one team challenges the other
         if(Challenger == ALLIANCE && (m_OldState == OBJECTIVESTATE_HORDE || m_OldState == OBJECTIVESTATE_NEUTRAL_HORDE_CHALLENGE))
@@ -346,8 +364,11 @@ bool OPvPCapturePoint::Update(uint32 diff)
             m_State = OBJECTIVESTATE_ALLIANCE_HORDE_CHALLENGE;
     }
 
-    if(m_ShiftPhase != m_OldPhase)
+    if(m_value != m_oldValue)
         SendChangePhase();
+
+    //if(m_OldState != m_State)
+    //    sLog.outError("%u->%u", m_OldState, m_State);
 
     return m_OldState != m_State;
 }
@@ -569,6 +590,11 @@ void OutdoorPvP::OnGameObjectCreate(GameObject *go, bool add)
         return;
 
     for(OutdoorPvP::OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
+    {
         if((*itr)->m_CapturePointGUID == go->GetDBTableGUIDLow())
+        {
             (*itr)->m_capturePoint = add ? go : NULL;
+            break;
+        }
+    }
 }

@@ -1392,6 +1392,10 @@ uint32 ObjectMgr::AddGOData(uint32 entry, uint32 mapId, float x, float y, float 
     if (!goinfo)
         return 0;
 
+    Map* map = const_cast<Map*>(MapManager::Instance().CreateBaseMap(mapId));
+    if(!map)
+        return 0;
+
     uint32 guid = GenerateLowGuid(HIGHGUID_GAMEOBJECT);
     GameObjectData& data = NewGOData(guid);
     data.id             = entry;
@@ -1414,21 +1418,20 @@ uint32 ObjectMgr::AddGOData(uint32 entry, uint32 mapId, float x, float y, float 
     AddGameobjectToGrid(guid, &data);
 
     // Spawn if necessary (loaded grids only)
-    if(Map* map = const_cast<Map*>(MapManager::Instance().CreateBaseMap(mapId)))
+    // We use spawn coords to spawn
+    if(!map->Instanceable() && !map->IsRemovalGrid(x, y))
     {
-        // We use spawn coords to spawn
-        if(!map->Instanceable() && !map->IsRemovalGrid(x, y))
+        GameObject *go = new GameObject;
+        if(!go->LoadFromDB(guid, map))
         {
-            GameObject *go = new GameObject;
-            if(!go->LoadFromDB(guid, map))
-            {
-                sLog.outError("AddGameObject: cannot add gameobject entry %u to map", entry);
-                delete go;
-                return 0;
-            }
-            map->Add(go);
+            sLog.outError("AddGOData: cannot add gameobject entry %u to map", entry);
+            delete go;
+            return 0;
         }
+        map->Add(go);
     }
+
+    sLog.outDebug("AddGOData: dbguid %u entry %u map %u x %f y %f z %f o %f", guid, entry, mapId, x, y, z, o);
 
     return guid;
 }

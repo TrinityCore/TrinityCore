@@ -80,9 +80,9 @@ public:
     virtual void FillInitialWorldStates(WorldPacket & data) {}
 
     // send world state update to all players present
-    virtual void SendUpdateWorldState(uint32 field, uint32 value);
+    void SendUpdateWorldState(uint32 field, uint32 value);
     // send kill notify to players in the controlling faction
-    virtual void SendObjectiveComplete(uint32 id, uint64 guid);
+    void SendObjectiveComplete(uint32 id, uint64 guid);
 
     // used when player is activated/inactivated in the area
     virtual bool HandlePlayerEnter(Player * plr);
@@ -98,7 +98,7 @@ public:
     // returns true if the state of the objective has changed, in this case, the OutdoorPvP must send a world state ui update.
     virtual bool Update(uint32 diff);
     virtual void ChangeState() = 0;
-    virtual void SendChangePhase() {} 
+    virtual void SendChangePhase();
 
     virtual bool HandleGossipOption(Player *plr, uint64 guid, uint32 gossipid);
 
@@ -128,18 +128,19 @@ protected:
     // active players in the area of the objective, 0 - alliance, 1 - horde
     PlayerSet m_activePlayers[2];
     // total shift needed to capture the objective
-    float m_ShiftMaxPhase;
+    float m_maxValue;
+    float m_minValue;
     // maximum speed of capture
-    float m_ShiftMaxCaptureSpeed;
+    float m_maxSpeed;
     // the status of the objective
-    float m_ShiftPhase;
+    float m_value;
     // phase before update, used to check which faction is in conquer / control
-    float m_OldPhase;
+    float m_oldValue;
     // objective states
     uint32 m_OldState;
     uint32 m_State;
     // neutral value on capture bar
-    uint32 m_NeutralValue;
+    uint32 m_neutralValuePct;
 
     // pointer to the OutdoorPvP this objective belongs to
     OutdoorPvP* m_PvP;
