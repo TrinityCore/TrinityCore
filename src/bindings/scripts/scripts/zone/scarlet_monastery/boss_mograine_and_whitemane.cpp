@@ -55,7 +55,7 @@ struct TRINITY_DLL_DECL boss_scarlet_commander_mograineAI : public ScriptedAI
 {
     boss_scarlet_commander_mograineAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = pCreature->GetInstanceData();
     }
 
     ScriptedInstance* m_pInstance;
@@ -209,7 +209,7 @@ struct TRINITY_DLL_DECL boss_high_inquisitor_whitemaneAI : public ScriptedAI
 {
     boss_high_inquisitor_whitemaneAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = pCreature->GetInstanceData();
     }
 
     ScriptedInstance* m_pInstance;
@@ -301,7 +301,7 @@ struct TRINITY_DLL_DECL boss_high_inquisitor_whitemaneAI : public ScriptedAI
 
             if (m_pInstance)
             {
-                if (Creature* pMograine = (Creature*)Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_MOGRAINE)))
+                if (Creature* pMograine = Unit::GetCreature((*m_creature), m_pInstance->GetData64(DATA_MOGRAINE)))
                 {
                     // checking m_bCanResurrectCheck prevents her healing Mograine while he is "faking death"
                     if (m_bCanResurrectCheck && pMograine->isAlive() && pMograine->GetHealth() <= pMograine->GetMaxHealth()*0.75f)

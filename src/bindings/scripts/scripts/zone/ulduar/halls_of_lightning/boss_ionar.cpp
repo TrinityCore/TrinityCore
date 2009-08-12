@@ -61,7 +61,7 @@ struct TRINITY_DLL_DECL boss_ionarAI : public ScriptedAI
 {
     boss_ionarAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = pCreature->GetInstanceData();
         m_bIsHeroic = pCreature->GetMap()->IsHeroic();
         Reset();
     }
@@ -162,7 +162,7 @@ struct TRINITY_DLL_DECL boss_ionarAI : public ScriptedAI
 
         for(std::list<uint64>::iterator itr = m_lSparkGUIDList.begin(); itr != m_lSparkGUIDList.end(); ++itr)
         {
-            if (Creature* pTemp = (Creature*)Unit::GetUnit(*m_creature, *itr))
+            if (Creature* pTemp = Unit::GetCreature(*m_creature, *itr))
             {
                 if (pTemp->isAlive())
                     pTemp->ForcedDespawn();
@@ -181,7 +181,7 @@ struct TRINITY_DLL_DECL boss_ionarAI : public ScriptedAI
 
         for(std::list<uint64>::iterator itr = m_lSparkGUIDList.begin(); itr != m_lSparkGUIDList.end(); ++itr)
         {
-            if (Creature* pSpark = (Creature*)Unit::GetUnit(*m_creature, *itr))
+            if (Creature* pSpark = Unit::GetCreature(*m_creature, *itr))
             {
                 if (pSpark->isAlive())
                 {
@@ -345,7 +345,7 @@ struct TRINITY_DLL_DECL mob_spark_of_ionarAI : public ScriptedAI
 {
     mob_spark_of_ionarAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = pCreature->GetInstanceData();
         Reset();
     }
 
