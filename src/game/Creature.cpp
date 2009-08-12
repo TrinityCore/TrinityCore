@@ -2263,7 +2263,7 @@ void Creature::SendZoneUnderAttackMessage(Player* attacker)
     uint32 enemy_team = attacker->GetTeam();
 
     WorldPacket data(SMSG_ZONE_UNDER_ATTACK,4);
-    data << (uint32)GetZoneId();
+    data << (uint32)GetAreaId();
     sWorld.SendGlobalMessage(&data,NULL,(enemy_team==ALLIANCE ? HORDE : ALLIANCE));
 }
 
