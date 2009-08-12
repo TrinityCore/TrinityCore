@@ -611,7 +611,7 @@ bool ScriptedAI::EnterEvadeIfOutOfCombatArea(const uint32 uiDiff)
                 return false;
             break;
         case 28860:                                         // sartharion (calculate box)
-            if (fX > 3218.86f && fX < 3275.69f && fY > 572.40f && fY < 484.68f)
+            if (fX > 3218.86f && fX < 3275.69f && fY < 572.40f && fY > 484.68f)
                 return false;
             break;
         default:

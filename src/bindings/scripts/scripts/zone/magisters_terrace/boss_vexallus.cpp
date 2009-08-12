@@ -41,8 +41,10 @@ enum
 
     //Vexallus spell info
     SPELL_CHAIN_LIGHTNING           = 44318,
+    SPELL_H_CHAIN_LIGHTNING         = 46380,                //heroic spell
     SPELL_OVERLOAD                  = 44353,
     SPELL_ARCANE_SHOCK              = 44319,
+    SPELL_H_ARCANE_SHOCK            = 46381,                //heroic spell
 
     SPELL_SUMMON_PURE_ENERGY        = 44322,                //mod scale -10
     H_SPELL_SUMMON_PURE_ENERGY1     = 46154,                //mod scale -5
@@ -74,9 +76,9 @@ struct  TRINITY_DLL_DECL boss_vexallusAI : public ScriptedAI
 
     void Reset()
     {
-        ChainLightningTimer = 10000;
-        ArcaneShockTimer = 8000;
-        OverloadTimer = 2200;
+        ChainLightningTimer = 8000;
+        ArcaneShockTimer = 5000;
+        OverloadTimer = 1200;
         IntervalHealthAmount = 1;
         Enraged = false;
 
@@ -152,16 +154,16 @@ struct  TRINITY_DLL_DECL boss_vexallusAI : public ScriptedAI
             if (ChainLightningTimer < diff)
             {
                 if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, SPELL_CHAIN_LIGHTNING);
+                    DoCast(target, Heroic ? SPELL_H_CHAIN_LIGHTNING : SPELL_CHAIN_LIGHTNING);
 
-                ChainLightningTimer = 10000;
+                ChainLightningTimer = 8000;
             }else ChainLightningTimer -= diff;
 
             if (ArcaneShockTimer < diff)
             {
                 if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 if(target)
-                    DoCast(target, SPELL_ARCANE_SHOCK);
+                    DoCast(target, Heroic ? SPELL_H_ARCANE_SHOCK : SPELL_ARCANE_SHOCK);
 
                 ArcaneShockTimer = 8000;
             }else ArcaneShockTimer -= diff;
@@ -170,10 +172,9 @@ struct  TRINITY_DLL_DECL boss_vexallusAI : public ScriptedAI
         {
             if (OverloadTimer < diff)
             {
-                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, SPELL_OVERLOAD);
+                DoCast(m_creature->getVictim(), SPELL_OVERLOAD);
 
-                OverloadTimer = 2200;
+                OverloadTimer = 2000;
             }else OverloadTimer -= diff;
         }
 

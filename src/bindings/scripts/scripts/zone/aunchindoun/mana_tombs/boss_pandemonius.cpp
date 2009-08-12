@@ -53,7 +53,7 @@ struct TRINITY_DLL_DECL boss_pandemoniusAI : public ScriptedAI
 
     void Reset()
     {
-        VoidBlast_Timer = 30000;
+        VoidBlast_Timer = 8000+rand()%15000;
         DarkShell_Timer = 20000;
         VoidBlast_Counter = 0;
     }
@@ -99,7 +99,7 @@ struct TRINITY_DLL_DECL boss_pandemoniusAI : public ScriptedAI
 
             if( VoidBlast_Counter == 5 )
             {
-                VoidBlast_Timer = 25000+rand()%10000;
+                VoidBlast_Timer = 15000+rand()%10000;
                 VoidBlast_Counter = 0;
             }
         }else VoidBlast_Timer -= diff;
