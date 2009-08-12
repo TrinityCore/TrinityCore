@@ -183,6 +183,20 @@ struct TRINITY_DLL_DECL instance_naxxramas : public InstanceData
     }
 };
 
+bool AreaTrigger_at_naxxramas_frostwyrm_wing(Player *player, AreaTriggerEntry *at)
+{
+    if(player->isGameMaster())
+        return false;
+
+    InstanceData *data = player->GetInstanceData();
+    if(data)
+        for(uint32 i = BOSS_ANUBREKHAN; i < BOSS_SAPPHIRON; ++i)
+            if(data->GetBossState(i) != DONE)
+                return true;
+
+    return false;
+}
+
 InstanceData* GetInstanceData_instance_naxxramas(Map* map)
 {
     return new instance_naxxramas(map);
@@ -194,5 +208,10 @@ void AddSC_instance_naxxramas()
     newscript = new Script;
     newscript->Name = "instance_naxxramas";
     newscript->GetInstanceData = &GetInstanceData_instance_naxxramas;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "at_naxxramas_frostwyrm_wing";
+    newscript->pAreaTrigger = &AreaTrigger_at_naxxramas_frostwyrm_wing;
     newscript->RegisterSelf();
 }
