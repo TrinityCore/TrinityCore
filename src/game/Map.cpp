@@ -61,7 +61,13 @@ Map::~Map()
     UnloadAll();
 
     while(!i_worldObjects.empty())
-        (*(i_worldObjects.begin()))->ResetMap();
+    {
+        WorldObject *obj = *i_worldObjects.begin();
+        assert(obj->m_isWorldObject);
+        //assert(obj->GetTypeId() == TYPEID_CORPSE);
+        obj->ResetMap();
+        obj->RemoveFromWorld();
+    }
 
     if(!m_scriptSchedule.empty())
         sWorld.DecreaseScheduledScriptCount(m_scriptSchedule.size());
