@@ -615,6 +615,8 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
                 case SPELL_AURA_TRACK_RESOURCES:
                 case SPELL_AURA_TRACK_STEALTHED:
                     return SPELL_TRACKER;
+                case SPELL_AURA_PHASE:
+                    return SPELL_PHASE;
             }
         }
     }
@@ -649,6 +651,7 @@ bool IsSingleFromSpellSpecificPerTarget(uint32 spellSpec1,uint32 spellSpec2)
 {
     switch(spellSpec1)
     {
+        case SPELL_PHASE:
         case SPELL_TRACKER:
         case SPELL_WARLOCK_ARMOR:
         case SPELL_MAGE_ARMOR:
