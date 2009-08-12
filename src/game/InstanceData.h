@@ -150,6 +150,7 @@ class TRINITY_DLL_SPEC InstanceData : public ZoneScript
         void DoRespawnGameObject(uint64 uiGuid, uint32 uiTimeToDespawn = MINUTE);
 
         virtual bool SetBossState(uint32 id, EncounterState state);
+        EncounterState GetBossState(uint32 id) const { return id < bosses.size() ? bosses[id].state : TO_BE_DECIDED; }
         const BossBoundaryMap * GetBossBoundary(uint32 id) const { return id < bosses.size() ? &bosses[id].boundary : NULL; }
     protected:
         void SetBossNumber(uint32 number) { bosses.resize(number); }
