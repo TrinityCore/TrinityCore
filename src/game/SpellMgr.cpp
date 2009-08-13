@@ -713,8 +713,7 @@ bool SpellMgr::_isPositiveEffect(uint32 spellId, uint32 effIndex, bool deep) con
         case  1852:                                         // Silenced (GM)
         case 46392:                                         // Focused Assault
         case 46393:                                         // Brutal Assault
-        case 28441:                                         // not positive dummy spell
-        case 37675:                                         // Chaos Blast
+        //case 37675:                                         // Chaos Blast removed from mangos
         case 41519:                                         // Mark of Stormrage
         case 34877:                                         // Custodian of Time
         case 34700:                                         // Allergic Reaction
@@ -743,6 +742,15 @@ bool SpellMgr::_isPositiveEffect(uint32 spellId, uint32 effIndex, bool deep) con
 
     switch(spellproto->Effect[effIndex])
     {
+        case SPELL_EFFECT_DUMMY:
+            // some explicitly required dummy effect sets
+            switch(spellId)
+            {
+                case 28441: return false;                   // AB Effect 000
+                default:
+                    break;
+            }
+            break;
         // always positive effects (check before target checks that provided non-positive result in some case for positive effects)
         case SPELL_EFFECT_HEAL:
         case SPELL_EFFECT_LEARN_SPELL:
@@ -774,16 +782,22 @@ bool SpellMgr::_isPositiveEffect(uint32 spellId, uint32 effIndex, bool deep) con
                             break;
                     }
                 }   break;
-                case SPELL_AURA_MOD_STAT:
                 case SPELL_AURA_MOD_DAMAGE_DONE:            // dependent from bas point sign (negative -> negative)
+                case SPELL_AURA_MOD_STAT:
+                case SPELL_AURA_MOD_SKILL:
+                case SPELL_AURA_MOD_HEALING_PCT:
                 case SPELL_AURA_MOD_HEALING_DONE:
                 case SPELL_AURA_MOD_DAMAGE_PERCENT_DONE:
                     if(spellproto->CalculateSimpleValue(effIndex) < 0)
                         return false;
                     break;
+                case SPELL_AURA_MOD_DAMAGE_TAKEN:           // dependent from bas point sign (positive -> negative)
+                    if(spellproto->CalculateSimpleValue(effIndex) > 0)
+                        return false;
+                    break;
                 case SPELL_AURA_MOD_SPELL_CRIT_CHANCE:
                     if(spellproto->CalculateSimpleValue(effIndex) > 0)
-                        return true;                        // some expected possitive spells have SPELL_ATTR_EX_NEGATIVE
+                        return true;                        // some expected positive spells have SPELL_ATTR_EX_NEGATIVE
                     break;
                 case SPELL_AURA_ADD_TARGET_TRIGGER:
                     return true;
@@ -904,14 +918,6 @@ bool SpellMgr::_isPositiveEffect(uint32 spellId, uint32 effIndex, bool deep) con
                             break;
                     }
                 }   break;
-                case SPELL_AURA_MOD_HEALING_PCT:
-                    if(spellproto->CalculateSimpleValue(effIndex) < 0)
-                        return false;
-                    break;
-                case SPELL_AURA_MOD_SKILL:
-                    if(spellproto->CalculateSimpleValue(effIndex) < 0)
-                        return false;
-                    break;
                 case SPELL_AURA_FORCE_REACTION:
                     if(spellproto->Id==42792)               // Recently Dropped Flag (prevent cancel)
                         return false;
