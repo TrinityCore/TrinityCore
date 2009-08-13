@@ -1094,8 +1094,11 @@ bool GossipSelect_npc_death_knight_initiate(Player* pPlayer, Creature* pCreature
     {
         pPlayer->CLOSE_GOSSIP_MENU();
 
-        if (CAST_AI(npc_death_knight_initiateAI, pCreature->AI())->m_bIsDuelInProgress)
-            return true;
+        if (npc_death_knight_initiateAI* pInitiateAI = CAST_AI(npc_death_knight_initiateAI, pCreature->AI()))
+        {
+            if(pInitiateAI->m_bIsDuelInProgress)
+                return true;
+        }
 
         pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
 

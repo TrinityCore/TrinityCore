@@ -41,10 +41,10 @@ struct TRINITY_DLL_DECL boss_venoxisAI : public ScriptedAI
 {
     boss_venoxisAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = c->GetInstanceData();
+        m_pInstance = c->GetInstanceData();
     }
 
-    ScriptedInstance *pInstance;
+    ScriptedInstance *m_pInstance;
 
     uint32 HolyFire_Timer;
     uint32 HolyWrath_Timer;
@@ -80,8 +80,8 @@ struct TRINITY_DLL_DECL boss_venoxisAI : public ScriptedAI
     void JustDied(Unit* Killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
-        if(pInstance)
-            pInstance->SetData(DATA_VENOXIS_DEATH, 0);
+        if(m_pInstance)
+            m_pInstance->SetData(TYPE_VENOXIS, DONE);
     }
 
     void UpdateAI(const uint32 diff)
@@ -183,6 +183,7 @@ struct TRINITY_DLL_DECL boss_venoxisAI : public ScriptedAI
 
     }
 };
+
 CreatureAI* GetAI_boss_venoxis(Creature *_Creature)
 {
     return new boss_venoxisAI (_Creature);

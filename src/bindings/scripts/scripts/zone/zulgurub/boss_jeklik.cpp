@@ -45,10 +45,10 @@ struct TRINITY_DLL_DECL boss_jeklikAI : public ScriptedAI
 {
     boss_jeklikAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = c->GetInstanceData();
+        m_pInstance = c->GetInstanceData();
     }
 
-    ScriptedInstance *pInstance;
+    ScriptedInstance *m_pInstance;
 
     uint32 Charge_Timer;
     uint32 SonicBurst_Timer;
@@ -87,8 +87,8 @@ struct TRINITY_DLL_DECL boss_jeklikAI : public ScriptedAI
     {
         DoScriptText(SAY_DEATH, m_creature);
 
-        if(pInstance)
-            pInstance->SetData(DATA_JEKLIK_DEATH, 0);
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_JEKLIK, DONE);
     }
 
     void UpdateAI(const uint32 diff)
@@ -96,7 +96,7 @@ struct TRINITY_DLL_DECL boss_jeklikAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if( m_creature->getVictim() && m_creature->isAlive())
+        if (m_creature->getVictim() && m_creature->isAlive())
         {
             if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth() > 50))
             {
@@ -132,27 +132,27 @@ struct TRINITY_DLL_DECL boss_jeklikAI : public ScriptedAI
                     if (target && Bat ) Bat ->AI()->AttackStart(target);
 
                     Bat = m_creature->SummonCreature(11368,-12289.6220,-1380.2640,144.8304,5.483, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                    if(target && Bat ) Bat ->AI()->AttackStart(target);
+                    if (target && Bat ) Bat ->AI()->AttackStart(target);
 
                     Bat = m_creature->SummonCreature(11368,-12293.6220,-1380.2640,144.8304,5.483, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                    if(target && Bat ) Bat ->AI()->AttackStart(target);
+                    if (target && Bat ) Bat ->AI()->AttackStart(target);
 
                     Bat = m_creature->SummonCreature(11368,-12291.6220,-1380.2640,144.8304,5.483, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                    if(target && Bat ) Bat ->AI()->AttackStart(target);
+                    if (target && Bat ) Bat ->AI()->AttackStart(target);
 
                     Bat = m_creature->SummonCreature(11368,-12289.6220,-1380.2640,144.8304,5.483, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                    if(target && Bat ) Bat ->AI()->AttackStart(target);
+                    if (target && Bat ) Bat ->AI()->AttackStart(target);
                     Bat = m_creature->SummonCreature(11368,-12293.6220,-1380.2640,144.8304,5.483, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                    if(target && Bat ) Bat ->AI()->AttackStart(target);
+                    if (target && Bat ) Bat ->AI()->AttackStart(target);
 
                     SpawnBats_Timer = 60000;
                 }else SpawnBats_Timer -= diff;
             }
             else
             {
-                if(PhaseTwo)
+                if (PhaseTwo)
                 {
-                    if(PhaseTwo && ShadowWordPain_Timer < diff)
+                    if (PhaseTwo && ShadowWordPain_Timer < diff)
                     {
                         if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
                         {
@@ -161,34 +161,34 @@ struct TRINITY_DLL_DECL boss_jeklikAI : public ScriptedAI
                         }
                     }ShadowWordPain_Timer -=diff;
 
-                    if(MindFlay_Timer < diff)
+                    if (MindFlay_Timer < diff)
                     {
                         DoCast(m_creature->getVictim(), SPELL_MIND_FLAY);
                         MindFlay_Timer = 16000;
                     }MindFlay_Timer -=diff;
 
-                    if(ChainMindFlay_Timer < diff)
+                    if (ChainMindFlay_Timer < diff)
                     {
                         m_creature->InterruptNonMeleeSpells(false);
                         DoCast(m_creature->getVictim(), SPELL_CHAIN_MIND_FLAY);
                         ChainMindFlay_Timer = 15000 + rand()%15000;
                     }ChainMindFlay_Timer -=diff;
 
-                    if(GreaterHeal_Timer < diff)
+                    if (GreaterHeal_Timer < diff)
                     {
                         m_creature->InterruptNonMeleeSpells(false);
                         DoCast(m_creature,SPELL_GREATERHEAL);
                         GreaterHeal_Timer = 25000 + rand()%10000;
                     }GreaterHeal_Timer -=diff;
 
-                    if(SpawnFlyingBats_Timer < diff)
+                    if (SpawnFlyingBats_Timer < diff)
                     {
                         Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                        if(!target)
+                        if (!target)
                             return;
 
                         Creature* FlyingBat = m_creature->SummonCreature(14965, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ()+15, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                        if(FlyingBat)
+                        if (FlyingBat)
                             FlyingBat->AI()->AttackStart(target);
 
                         SpawnFlyingBats_Timer = 10000 + rand()%5000;
@@ -212,10 +212,10 @@ struct TRINITY_DLL_DECL mob_batriderAI : public ScriptedAI
 {
     mob_batriderAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = c->GetInstanceData();
+        m_pInstance = c->GetInstanceData();
     }
 
-    ScriptedInstance *pInstance;
+    ScriptedInstance *m_pInstance;
 
     uint32 Bomb_Timer;
     uint32 Check_Timer;
@@ -236,7 +236,7 @@ struct TRINITY_DLL_DECL mob_batriderAI : public ScriptedAI
             return;
 
         //Bomb_Timer
-        if(Bomb_Timer < diff)
+        if (Bomb_Timer < diff)
         {
             if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0))
             {
@@ -246,14 +246,15 @@ struct TRINITY_DLL_DECL mob_batriderAI : public ScriptedAI
         }else Bomb_Timer -= diff;
 
         //Check_Timer
-        if(Check_Timer < diff)
+        if (Check_Timer < diff)
         {
-            if(pInstance)
+            if (m_pInstance)
             {
-                if(pInstance->GetData(DATA_JEKLIKISDEAD))
+                if (m_pInstance->GetData(TYPE_JEKLIK) == DONE)
                 {
                     m_creature->setDeathState(JUST_DIED);
                     m_creature->RemoveCorpse();
+                    return;
                 }
             }
 
