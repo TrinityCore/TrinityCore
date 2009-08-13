@@ -331,9 +331,9 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public BossAI
     }
 };
 
-CreatureAI* GetAI_boss_sapphiron(Creature *_Creature)
+CreatureAI* GetAI_boss_sapphiron(Creature* pCreature)
 {
-    return new boss_sapphironAI (_Creature);
+    return new boss_sapphironAI (pCreature);
 }
 
 void AddSC_boss_sapphiron()

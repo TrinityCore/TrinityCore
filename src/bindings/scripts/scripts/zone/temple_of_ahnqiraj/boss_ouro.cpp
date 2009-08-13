@@ -124,9 +124,9 @@ struct TRINITY_DLL_DECL boss_ouroAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_ouro(Creature *_Creature)
+CreatureAI* GetAI_boss_ouro(Creature* pCreature)
 {
-    return new boss_ouroAI (_Creature);
+    return new boss_ouroAI (pCreature);
 }
 
 void AddSC_boss_ouro()

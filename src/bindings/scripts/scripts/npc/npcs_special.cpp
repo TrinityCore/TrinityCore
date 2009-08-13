@@ -313,23 +313,23 @@ struct TRINITY_DLL_DECL npc_chicken_cluckAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_chicken_cluck(Creature *_Creature)
+CreatureAI* GetAI_npc_chicken_cluck(Creature* pCreature)
 {
-    return new npc_chicken_cluckAI(_Creature);
+    return new npc_chicken_cluckAI(pCreature);
 }
 
-bool QuestAccept_npc_chicken_cluck(Player* pPlayer, Creature *_Creature, const Quest *_Quest)
+bool QuestAccept_npc_chicken_cluck(Player* pPlayer, Creature* pCreature, const Quest *_Quest)
 {
     if (_Quest->GetQuestId() == QUEST_CLUCK)
-        CAST_AI(npc_chicken_cluckAI, _Creature->AI())->Reset();
+        CAST_AI(npc_chicken_cluckAI, pCreature->AI())->Reset();
 
     return true;
 }
 
-bool QuestComplete_npc_chicken_cluck(Player* pPlayer, Creature *_Creature, const Quest *_Quest)
+bool QuestComplete_npc_chicken_cluck(Player* pPlayer, Creature* pCreature, const Quest *_Quest)
 {
     if (_Quest->GetQuestId() == QUEST_CLUCK)
-        CAST_AI(npc_chicken_cluckAI, _Creature->AI())->Reset();
+        CAST_AI(npc_chicken_cluckAI, pCreature->AI())->Reset();
 
     return true;
 }
@@ -406,9 +406,9 @@ struct TRINITY_DLL_DECL npc_dancing_flamesAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_dancing_flames(Creature *_Creature)
+CreatureAI* GetAI_npc_dancing_flames(Creature* pCreature)
 {
-    return new npc_dancing_flamesAI(_Creature);
+    return new npc_dancing_flamesAI(pCreature);
 }
 
 /*######
@@ -637,9 +637,9 @@ struct TRINITY_DLL_DECL npc_injured_patientAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_injured_patient(Creature *_Creature)
+CreatureAI* GetAI_npc_injured_patient(Creature* pCreature)
 {
-    return new npc_injured_patientAI (_Creature);
+    return new npc_injured_patientAI (pCreature);
 }
 
 /*
@@ -791,9 +791,9 @@ bool QuestAccept_npc_doctor(Player* pPlayer, Creature *creature, Quest const *qu
     return true;
 }
 
-CreatureAI* GetAI_npc_doctor(Creature *_Creature)
+CreatureAI* GetAI_npc_doctor(Creature* pCreature)
 {
-    return new npc_doctorAI (_Creature);
+    return new npc_doctorAI (pCreature);
 }
 
 /*######
@@ -1044,9 +1044,9 @@ struct TRINITY_DLL_DECL npc_guardianAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_guardian(Creature *_Creature)
+CreatureAI* GetAI_npc_guardian(Creature* pCreature)
 {
-    return new npc_guardianAI (_Creature);
+    return new npc_guardianAI (pCreature);
 }
 
 /*######
@@ -1091,14 +1091,14 @@ bool GossipSelect_npc_kingdom_of_dalaran_quests(Player* pPlayer, Creature* pCrea
 ## npc_mount_vendor
 ######*/
 
-bool GossipHello_npc_mount_vendor(Player* pPlayer, Creature *_Creature)
+bool GossipHello_npc_mount_vendor(Player* pPlayer, Creature* pCreature)
 {
-    if (_Creature->isQuestGiver())
-        pPlayer->PrepareQuestMenu(_Creature->GetGUID());
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
     bool canBuy;
     canBuy = false;
-    uint32 vendor = _Creature->GetEntry();
+    uint32 vendor = pCreature->GetEntry();
     uint8 race = pPlayer->getRace();
 
     switch (vendor)
@@ -1108,69 +1108,69 @@ bool GossipHello_npc_mount_vendor(Player* pPlayer, Creature *_Creature)
         case 2357:                                          //Merideth Carlson
         case 4885:                                          //Gregor MacVince
             if (pPlayer->GetReputationRank(72) != REP_EXALTED && race != RACE_HUMAN)
-                pPlayer->SEND_GOSSIP_MENU(5855, _Creature->GetGUID());
+                pPlayer->SEND_GOSSIP_MENU(5855, pCreature->GetGUID());
             else canBuy = true;
             break;
         case 1261:                                          //Veron Amberstill
             if (pPlayer->GetReputationRank(47) != REP_EXALTED && race != RACE_DWARF)
-                pPlayer->SEND_GOSSIP_MENU(5856, _Creature->GetGUID());
+                pPlayer->SEND_GOSSIP_MENU(5856, pCreature->GetGUID());
             else canBuy = true;
             break;
         case 3362:                                          //Ogunaro Wolfrunner
             if (pPlayer->GetReputationRank(76) != REP_EXALTED && race != RACE_ORC)
-                pPlayer->SEND_GOSSIP_MENU(5841, _Creature->GetGUID());
+                pPlayer->SEND_GOSSIP_MENU(5841, pCreature->GetGUID());
             else canBuy = true;
             break;
         case 3685:                                          //Harb Clawhoof
             if (pPlayer->GetReputationRank(81) != REP_EXALTED && race != RACE_TAUREN)
-                pPlayer->SEND_GOSSIP_MENU(5843, _Creature->GetGUID());
+                pPlayer->SEND_GOSSIP_MENU(5843, pCreature->GetGUID());
             else canBuy = true;
             break;
         case 4730:                                          //Lelanai
             if (pPlayer->GetReputationRank(69) != REP_EXALTED && race != RACE_NIGHTELF)
-                pPlayer->SEND_GOSSIP_MENU(5844, _Creature->GetGUID());
+                pPlayer->SEND_GOSSIP_MENU(5844, pCreature->GetGUID());
             else canBuy = true;
             break;
         case 4731:                                          //Zachariah Post
             if (pPlayer->GetReputationRank(68) != REP_EXALTED && race != RACE_UNDEAD_PLAYER)
-                pPlayer->SEND_GOSSIP_MENU(5840, _Creature->GetGUID());
+                pPlayer->SEND_GOSSIP_MENU(5840, pCreature->GetGUID());
             else canBuy = true;
             break;
         case 7952:                                          //Zjolnir
             if (pPlayer->GetReputationRank(530) != REP_EXALTED && race != RACE_TROLL)
-                pPlayer->SEND_GOSSIP_MENU(5842, _Creature->GetGUID());
+                pPlayer->SEND_GOSSIP_MENU(5842, pCreature->GetGUID());
             else canBuy = true;
             break;
         case 7955:                                          //Milli Featherwhistle
             if (pPlayer->GetReputationRank(54) != REP_EXALTED && race != RACE_GNOME)
-                pPlayer->SEND_GOSSIP_MENU(5857, _Creature->GetGUID());
+                pPlayer->SEND_GOSSIP_MENU(5857, pCreature->GetGUID());
             else canBuy = true;
             break;
         case 16264:                                         //Winaestra
             if (pPlayer->GetReputationRank(911) != REP_EXALTED && race != RACE_BLOODELF)
-                pPlayer->SEND_GOSSIP_MENU(10305, _Creature->GetGUID());
+                pPlayer->SEND_GOSSIP_MENU(10305, pCreature->GetGUID());
             else canBuy = true;
             break;
         case 17584:                                         //Torallius the Pack Handler
             if (pPlayer->GetReputationRank(930) != REP_EXALTED && race != RACE_DRAENEI)
-                pPlayer->SEND_GOSSIP_MENU(10239, _Creature->GetGUID());
+                pPlayer->SEND_GOSSIP_MENU(10239, pCreature->GetGUID());
             else canBuy = true;
             break;
     }
 
     if (canBuy)
     {
-        if (_Creature->isVendor())
+        if (pCreature->isVendor())
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-        pPlayer->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
     }
     return true;
 }
 
-bool GossipSelect_npc_mount_vendor(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_mount_vendor(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
     if (action == GOSSIP_ACTION_TRADE)
-        pPlayer->SEND_VENDORLIST(_Creature->GetGUID());
+        pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
 
     return true;
 }
@@ -1179,28 +1179,28 @@ bool GossipSelect_npc_mount_vendor(Player* pPlayer, Creature *_Creature, uint32 
 ## npc_rogue_trainer
 ######*/
 
-bool GossipHello_npc_rogue_trainer(Player* pPlayer, Creature *_Creature)
+bool GossipHello_npc_rogue_trainer(Player* pPlayer, Creature* pCreature)
 {
-    if (_Creature->isQuestGiver())
-        pPlayer->PrepareQuestMenu(_Creature->GetGUID());
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
-    if (_Creature->isTrainer())
+    if (pCreature->isTrainer())
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
 
-    if (_Creature->isCanTrainingAndResetTalentsOf(pPlayer))
+    if (pCreature->isCanTrainingAndResetTalentsOf(pPlayer))
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, "I wish to unlearn my talents", GOSSIP_SENDER_MAIN, GOSSIP_OPTION_UNLEARNTALENTS);
 
     if (pPlayer->getClass() == CLASS_ROGUE && pPlayer->getLevel() >= 24 && !pPlayer->HasItemCount(17126,1) && !pPlayer->GetQuestRewardStatus(6681))
     {
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "<Take the letter>", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-        pPlayer->SEND_GOSSIP_MENU(5996, _Creature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(5996, pCreature->GetGUID());
     } else
-        pPlayer->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
 
     return true;
 }
 
-bool GossipSelect_npc_rogue_trainer(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_rogue_trainer(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
     switch(action)
     {
@@ -1209,11 +1209,11 @@ bool GossipSelect_npc_rogue_trainer(Player* pPlayer, Creature *_Creature, uint32
             pPlayer->CastSpell(pPlayer,21100,false);
             break;
         case GOSSIP_ACTION_TRAIN:
-            pPlayer->SEND_TRAINERLIST(_Creature->GetGUID());
+            pPlayer->SEND_TRAINERLIST(pCreature->GetGUID());
             break;
         case GOSSIP_OPTION_UNLEARNTALENTS:
             pPlayer->CLOSE_GOSSIP_MENU();
-            pPlayer->SendTalentWipeConfirm(_Creature->GetGUID());
+            pPlayer->SendTalentWipeConfirm(pCreature->GetGUID());
             break;
     }
     return true;
@@ -1233,10 +1233,10 @@ bool GossipSelect_npc_rogue_trainer(Player* pPlayer, Creature *_Creature, uint32
 #define SPELL_AGI       23736                               //agi
 #define SPELL_FORTUNE   23765                               //faire fortune
 
-bool GossipHello_npc_sayge(Player* pPlayer, Creature *_Creature)
+bool GossipHello_npc_sayge(Player* pPlayer, Creature* pCreature)
 {
-    if (_Creature->isQuestGiver())
-        pPlayer->PrepareQuestMenu(_Creature->GetGUID());
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
     if (pPlayer->HasSpellCooldown(SPELL_INT) ||
         pPlayer->HasSpellCooldown(SPELL_ARM) ||
@@ -1246,17 +1246,17 @@ bool GossipHello_npc_sayge(Player* pPlayer, Creature *_Creature)
         pPlayer->HasSpellCooldown(SPELL_AGI) ||
         pPlayer->HasSpellCooldown(SPELL_STM) ||
         pPlayer->HasSpellCooldown(SPELL_SPI))
-        pPlayer->SEND_GOSSIP_MENU(7393, _Creature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(7393, pCreature->GetGUID());
     else
     {
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Yes", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-        pPlayer->SEND_GOSSIP_MENU(7339, _Creature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(7339, pCreature->GetGUID());
     }
 
     return true;
 }
 
-void SendAction_npc_sayge(Player* pPlayer, Creature *_Creature, uint32 action)
+void SendAction_npc_sayge(Player* pPlayer, Creature* pCreature, uint32 action)
 {
     switch(action)
     {
@@ -1265,89 +1265,89 @@ void SendAction_npc_sayge(Player* pPlayer, Creature *_Creature, uint32 action)
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Turn him over to liege",            GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Confiscate the corn",               GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Let him go and have the corn",      GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
-            pPlayer->SEND_GOSSIP_MENU(7340, _Creature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(7340, pCreature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+2:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Execute your friend painfully",     GOSSIP_SENDER_MAIN+1, GOSSIP_ACTION_INFO_DEF);
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Execute your friend painlessly",    GOSSIP_SENDER_MAIN+2, GOSSIP_ACTION_INFO_DEF);
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Let your friend go",                GOSSIP_SENDER_MAIN+3, GOSSIP_ACTION_INFO_DEF);
-            pPlayer->SEND_GOSSIP_MENU(7341, _Creature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(7341, pCreature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+3:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Confront the diplomat",             GOSSIP_SENDER_MAIN+4, GOSSIP_ACTION_INFO_DEF);
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Show not so quiet defiance",        GOSSIP_SENDER_MAIN+5, GOSSIP_ACTION_INFO_DEF);
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Remain quiet",                      GOSSIP_SENDER_MAIN+2, GOSSIP_ACTION_INFO_DEF);
-            pPlayer->SEND_GOSSIP_MENU(7361, _Creature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(7361, pCreature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+4:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Speak against your brother openly", GOSSIP_SENDER_MAIN+6, GOSSIP_ACTION_INFO_DEF);
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Help your brother in",              GOSSIP_SENDER_MAIN+7, GOSSIP_ACTION_INFO_DEF);
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Keep your brother out without letting him know", GOSSIP_SENDER_MAIN+8, GOSSIP_ACTION_INFO_DEF);
-            pPlayer->SEND_GOSSIP_MENU(7362, _Creature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(7362, pCreature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+5:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Take credit, keep gold",            GOSSIP_SENDER_MAIN+5, GOSSIP_ACTION_INFO_DEF);
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Take credit, share the gold",       GOSSIP_SENDER_MAIN+4, GOSSIP_ACTION_INFO_DEF);
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Let the knight take credit",        GOSSIP_SENDER_MAIN+3, GOSSIP_ACTION_INFO_DEF);
-            pPlayer->SEND_GOSSIP_MENU(7363, _Creature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(7363, pCreature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Thanks",                            GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+6);
-            pPlayer->SEND_GOSSIP_MENU(7364, _Creature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(7364, pCreature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+6:
-            _Creature->CastSpell(pPlayer, SPELL_FORTUNE, false);
-            pPlayer->SEND_GOSSIP_MENU(7365, _Creature->GetGUID());
+            pCreature->CastSpell(pPlayer, SPELL_FORTUNE, false);
+            pPlayer->SEND_GOSSIP_MENU(7365, pCreature->GetGUID());
             break;
     }
 }
 
-bool GossipSelect_npc_sayge(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_sayge(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
     switch(sender)
     {
         case GOSSIP_SENDER_MAIN:
-            SendAction_npc_sayge(pPlayer, _Creature, action);
+            SendAction_npc_sayge(pPlayer, pCreature, action);
             break;
         case GOSSIP_SENDER_MAIN+1:
-            _Creature->CastSpell(pPlayer, SPELL_DMG, false);
+            pCreature->CastSpell(pPlayer, SPELL_DMG, false);
             pPlayer->AddSpellCooldown(SPELL_DMG,0,time(NULL) + 7200);
-            SendAction_npc_sayge(pPlayer, _Creature, action);
+            SendAction_npc_sayge(pPlayer, pCreature, action);
             break;
         case GOSSIP_SENDER_MAIN+2:
-            _Creature->CastSpell(pPlayer, SPELL_RES, false);
+            pCreature->CastSpell(pPlayer, SPELL_RES, false);
             pPlayer->AddSpellCooldown(SPELL_RES,0,time(NULL) + 7200);
-            SendAction_npc_sayge(pPlayer, _Creature, action);
+            SendAction_npc_sayge(pPlayer, pCreature, action);
             break;
         case GOSSIP_SENDER_MAIN+3:
-            _Creature->CastSpell(pPlayer, SPELL_ARM, false);
+            pCreature->CastSpell(pPlayer, SPELL_ARM, false);
             pPlayer->AddSpellCooldown(SPELL_ARM,0,time(NULL) + 7200);
-            SendAction_npc_sayge(pPlayer, _Creature, action);
+            SendAction_npc_sayge(pPlayer, pCreature, action);
             break;
         case GOSSIP_SENDER_MAIN+4:
-            _Creature->CastSpell(pPlayer, SPELL_SPI, false);
+            pCreature->CastSpell(pPlayer, SPELL_SPI, false);
             pPlayer->AddSpellCooldown(SPELL_SPI,0,time(NULL) + 7200);
-            SendAction_npc_sayge(pPlayer, _Creature, action);
+            SendAction_npc_sayge(pPlayer, pCreature, action);
             break;
         case GOSSIP_SENDER_MAIN+5:
-            _Creature->CastSpell(pPlayer, SPELL_INT, false);
+            pCreature->CastSpell(pPlayer, SPELL_INT, false);
             pPlayer->AddSpellCooldown(SPELL_INT,0,time(NULL) + 7200);
-            SendAction_npc_sayge(pPlayer, _Creature, action);
+            SendAction_npc_sayge(pPlayer, pCreature, action);
             break;
         case GOSSIP_SENDER_MAIN+6:
-            _Creature->CastSpell(pPlayer, SPELL_STM, false);
+            pCreature->CastSpell(pPlayer, SPELL_STM, false);
             pPlayer->AddSpellCooldown(SPELL_STM,0,time(NULL) + 7200);
-            SendAction_npc_sayge(pPlayer, _Creature, action);
+            SendAction_npc_sayge(pPlayer, pCreature, action);
             break;
         case GOSSIP_SENDER_MAIN+7:
-            _Creature->CastSpell(pPlayer, SPELL_STR, false);
+            pCreature->CastSpell(pPlayer, SPELL_STR, false);
             pPlayer->AddSpellCooldown(SPELL_STR,0,time(NULL) + 7200);
-            SendAction_npc_sayge(pPlayer, _Creature, action);
+            SendAction_npc_sayge(pPlayer, pCreature, action);
             break;
         case GOSSIP_SENDER_MAIN+8:
-            _Creature->CastSpell(pPlayer, SPELL_AGI, false);
+            pCreature->CastSpell(pPlayer, SPELL_AGI, false);
             pPlayer->AddSpellCooldown(SPELL_AGI,0,time(NULL) + 7200);
-            SendAction_npc_sayge(pPlayer, _Creature, action);
+            SendAction_npc_sayge(pPlayer, pCreature, action);
             break;
     }
     return true;
@@ -1376,9 +1376,9 @@ struct TRINITY_DLL_DECL npc_steam_tonkAI : public ScriptedAI
 
 };
 
-CreatureAI* GetAI_npc_steam_tonk(Creature *_Creature)
+CreatureAI* GetAI_npc_steam_tonk(Creature* pCreature)
 {
-    return new npc_steam_tonkAI(_Creature);
+    return new npc_steam_tonkAI(pCreature);
 }
 
 #define SPELL_TONK_MINE_DETONATE 25099
@@ -1412,16 +1412,16 @@ struct TRINITY_DLL_DECL npc_tonk_mineAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_tonk_mine(Creature *_Creature)
+CreatureAI* GetAI_npc_tonk_mine(Creature* pCreature)
 {
-    return new npc_tonk_mineAI(_Creature);
+    return new npc_tonk_mineAI(pCreature);
 }
 
 /*####
 ## npc_winter_reveler
 ####*/
 
-bool ReceiveEmote_npc_winter_reveler(Player* pPlayer, Creature *_Creature, uint32 emote)
+bool ReceiveEmote_npc_winter_reveler(Player* pPlayer, Creature* pCreature, uint32 emote)
 {
     //TODO: check auralist.
     if (pPlayer->HasAura(26218))
@@ -1429,13 +1429,13 @@ bool ReceiveEmote_npc_winter_reveler(Player* pPlayer, Creature *_Creature, uint3
 
     if (emote == TEXTEMOTE_KISS)
     {
-        _Creature->CastSpell(_Creature, 26218, false);
+        pCreature->CastSpell(pCreature, 26218, false);
         pPlayer->CastSpell(pPlayer, 26218, false);
         switch(rand()%3)
         {
-        case 0: _Creature->CastSpell(pPlayer, 26207, false); break;
-        case 1: _Creature->CastSpell(pPlayer, 26206, false); break;
-        case 2: _Creature->CastSpell(pPlayer, 45036, false); break;
+        case 0: pCreature->CastSpell(pPlayer, 26207, false); break;
+        case 1: pCreature->CastSpell(pPlayer, 26206, false); break;
+        case 2: pCreature->CastSpell(pPlayer, 45036, false); break;
         }
     }
     return true;
@@ -1445,10 +1445,10 @@ bool ReceiveEmote_npc_winter_reveler(Player* pPlayer, Creature *_Creature, uint3
 ## npc_brewfest_reveler
 ####*/
 
-bool ReceiveEmote_npc_brewfest_reveler(Player* pPlayer, Creature *_Creature, uint32 emote)
+bool ReceiveEmote_npc_brewfest_reveler(Player* pPlayer, Creature* pCreature, uint32 emote)
 {
     if (emote == TEXTEMOTE_DANCE)
-        _Creature->CastSpell(pPlayer, 41586, false);
+        pCreature->CastSpell(pPlayer, 41586, false);
 
     return true;
 }
@@ -1570,9 +1570,9 @@ struct TRINITY_DLL_DECL npc_snake_trap_serpentsAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_snake_trap_serpents(Creature *_Creature)
+CreatureAI* GetAI_npc_snake_trap_serpents(Creature* pCreature)
 {
-    return new npc_snake_trap_serpentsAI(_Creature);
+    return new npc_snake_trap_serpentsAI(pCreature);
 }
 
 struct TRINITY_DLL_DECL mob_mojoAI : public ScriptedAI
@@ -1640,9 +1640,9 @@ struct TRINITY_DLL_DECL mob_mojoAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_mob_mojo(Creature *_Creature)
+CreatureAI* GetAI_mob_mojo(Creature* pCreature)
 {
-    return new mob_mojoAI (_Creature);
+    return new mob_mojoAI (pCreature);
 }
 
 struct TRINITY_DLL_DECL npc_mirror_image : SpellCasterAI
@@ -1680,9 +1680,9 @@ struct TRINITY_DLL_DECL npc_mirror_image : SpellCasterAI
     }
 };
 
-CreatureAI* GetAI_npc_mirror_image(Creature *_Creature)
+CreatureAI* GetAI_npc_mirror_image(Creature* pCreature)
 {
-    return new npc_mirror_image (_Creature);
+    return new npc_mirror_image (pCreature);
 }
 
 //TODO: 30% Attackdamage check for Lightwell
@@ -1714,9 +1714,9 @@ struct TRINITY_DLL_DECL npc_lightwellAI : public PassiveAI
     */
 };
 
-CreatureAI* GetAI_npc_lightwellAI(Creature *_Creature)
+CreatureAI* GetAI_npc_lightwellAI(Creature* pCreature)
 {
-    return new npc_lightwellAI (_Creature);
+    return new npc_lightwellAI (pCreature);
 }
 
 struct TRINITY_DLL_DECL npc_training_dummy : Scripted_NoMovementAI
@@ -1756,9 +1756,9 @@ struct TRINITY_DLL_DECL npc_training_dummy : Scripted_NoMovementAI
     void MoveInLineOfSight(Unit *who){return;}
 };
 
-CreatureAI* GetAI_npc_training_dummy(Creature *_Creature)
+CreatureAI* GetAI_npc_training_dummy(Creature* pCreature)
 {
-    return new npc_training_dummy (_Creature);
+    return new npc_training_dummy (pCreature);
 }
 
 void AddSC_npcs_special()

@@ -299,9 +299,9 @@ struct TRINITY_DLL_DECL boss_shahrazAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_shahraz(Creature *_Creature)
+CreatureAI* GetAI_boss_shahraz(Creature* pCreature)
 {
-    return new boss_shahrazAI (_Creature);
+    return new boss_shahrazAI (pCreature);
 }
 
 void AddSC_boss_mother_shahraz()

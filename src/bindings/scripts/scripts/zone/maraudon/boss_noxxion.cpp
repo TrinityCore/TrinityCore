@@ -134,9 +134,9 @@ struct TRINITY_DLL_DECL boss_noxxionAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_noxxion(Creature *_Creature)
+CreatureAI* GetAI_boss_noxxion(Creature* pCreature)
 {
-    return new boss_noxxionAI (_Creature);
+    return new boss_noxxionAI (pCreature);
 }
 
 void AddSC_boss_noxxion()

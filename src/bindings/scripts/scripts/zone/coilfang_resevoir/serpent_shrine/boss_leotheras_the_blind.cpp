@@ -762,24 +762,24 @@ struct TRINITY_DLL_DECL mob_greyheart_spellbinderAI : public ScriptedAI
 
     void JustDied(Unit *killer) {}
 };
-CreatureAI* GetAI_boss_leotheras_the_blind(Creature *_Creature)
+CreatureAI* GetAI_boss_leotheras_the_blind(Creature* pCreature)
 {
-    return new boss_leotheras_the_blindAI (_Creature);
+    return new boss_leotheras_the_blindAI (pCreature);
 }
 
-CreatureAI* GetAI_boss_leotheras_the_blind_demonform(Creature *_Creature)
+CreatureAI* GetAI_boss_leotheras_the_blind_demonform(Creature* pCreature)
 {
-    return new boss_leotheras_the_blind_demonformAI (_Creature);
+    return new boss_leotheras_the_blind_demonformAI (pCreature);
 }
 
-CreatureAI* GetAI_mob_greyheart_spellbinder(Creature *_Creature)
+CreatureAI* GetAI_mob_greyheart_spellbinder(Creature* pCreature)
 {
-    return new mob_greyheart_spellbinderAI (_Creature);
+    return new mob_greyheart_spellbinderAI (pCreature);
 }
 
-CreatureAI* GetAI_mob_inner_demon(Creature *_Creature)
+CreatureAI* GetAI_mob_inner_demon(Creature* pCreature)
 {
-    return new mob_inner_demonAI (_Creature);
+    return new mob_inner_demonAI (pCreature);
 }
 void AddSC_boss_leotheras_the_blind()
 {

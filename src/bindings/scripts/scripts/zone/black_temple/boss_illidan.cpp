@@ -1568,20 +1568,20 @@ struct TRINITY_DLL_DECL boss_maievAI : public ScriptedAI
 };
 
 
-bool GossipSelect_npc_akama_at_illidan(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_akama_at_illidan(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
     if (action == GOSSIP_ACTION_INFO_DEF) // Time to begin the Event
     {
         pPlayer->CLOSE_GOSSIP_MENU();
-        CAST_AI(npc_akama_illidanAI, _Creature->AI())->EnterPhase(PHASE_CHANNEL);
+        CAST_AI(npc_akama_illidanAI, pCreature->AI())->EnterPhase(PHASE_CHANNEL);
     }
     return true;
 }
 
-bool GossipHello_npc_akama_at_illidan(Player* pPlayer, Creature *_Creature)
+bool GossipHello_npc_akama_at_illidan(Player* pPlayer, Creature* pCreature)
 {
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-    pPlayer->SEND_GOSSIP_MENU(10465, _Creature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(10465, pCreature->GetGUID());
 
     return true;
 }
@@ -2114,44 +2114,44 @@ void boss_illidan_stormrageAI::EnterPhase(PhaseIllidan NextPhase)
     Event = EVENT_NULL;
 }
 
-CreatureAI* GetAI_boss_illidan_stormrage(Creature *_Creature)
+CreatureAI* GetAI_boss_illidan_stormrage(Creature* pCreature)
 {
-    return new boss_illidan_stormrageAI (_Creature);
+    return new boss_illidan_stormrageAI (pCreature);
 }
 
-CreatureAI* GetAI_npc_akama_at_illidan(Creature *_Creature)
+CreatureAI* GetAI_npc_akama_at_illidan(Creature* pCreature)
 {
-    return new npc_akama_illidanAI(_Creature);
+    return new npc_akama_illidanAI(pCreature);
 }
 
-CreatureAI* GetAI_boss_maiev(Creature *_Creature)
+CreatureAI* GetAI_boss_maiev(Creature* pCreature)
 {
-    return new boss_maievAI (_Creature);
+    return new boss_maievAI (pCreature);
 }
 
-CreatureAI* GetAI_mob_flame_of_azzinoth(Creature *_Creature)
+CreatureAI* GetAI_mob_flame_of_azzinoth(Creature* pCreature)
 {
-    return new flame_of_azzinothAI (_Creature);
+    return new flame_of_azzinothAI (pCreature);
 }
 
-CreatureAI* GetAI_cage_trap_trigger(Creature *_Creature)
+CreatureAI* GetAI_cage_trap_trigger(Creature* pCreature)
 {
-    return new cage_trap_triggerAI (_Creature);
+    return new cage_trap_triggerAI (pCreature);
 }
 
-CreatureAI* GetAI_shadow_demon(Creature *_Creature)
+CreatureAI* GetAI_shadow_demon(Creature* pCreature)
 {
-    return new shadow_demonAI (_Creature);
+    return new shadow_demonAI (pCreature);
 }
 
-CreatureAI* GetAI_blade_of_azzinoth(Creature *_Creature)
+CreatureAI* GetAI_blade_of_azzinoth(Creature* pCreature)
 {
-    return new blade_of_azzinothAI (_Creature);
+    return new blade_of_azzinothAI (pCreature);
 }
 
-CreatureAI* GetAI_parasitic_shadowfiend(Creature *_Creature)
+CreatureAI* GetAI_parasitic_shadowfiend(Creature* pCreature)
 {
-    return new mob_parasitic_shadowfiendAI (_Creature);
+    return new mob_parasitic_shadowfiendAI (pCreature);
 }
 
 void AddSC_boss_illidan()

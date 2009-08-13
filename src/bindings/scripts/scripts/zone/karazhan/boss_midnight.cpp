@@ -155,9 +155,9 @@ struct TRINITY_DLL_DECL boss_midnightAI : public ScriptedAI
     void SetMidnight(Creature *, uint64);                   //Below ..
 };
 
-CreatureAI* GetAI_boss_midnight(Creature *_Creature)
+CreatureAI* GetAI_boss_midnight(Creature* pCreature)
 {
-    return new boss_midnightAI(_Creature);
+    return new boss_midnightAI(pCreature);
 }
 
 struct TRINITY_DLL_DECL boss_attumenAI : public ScriptedAI
@@ -302,9 +302,9 @@ void boss_midnightAI::SetMidnight(Creature *pAttumen, uint64 value)
     CAST_AI(boss_attumenAI, pAttumen->AI())->Midnight = value;
 }
 
-CreatureAI* GetAI_boss_attumen(Creature *_Creature)
+CreatureAI* GetAI_boss_attumen(Creature* pCreature)
 {
-    return new boss_attumenAI (_Creature);
+    return new boss_attumenAI (pCreature);
 }
 
 void AddSC_boss_attumen()

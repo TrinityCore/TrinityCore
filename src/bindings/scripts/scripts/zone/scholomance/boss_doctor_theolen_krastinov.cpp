@@ -95,9 +95,9 @@ struct TRINITY_DLL_DECL boss_theolenkrastinovAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_theolenkrastinov(Creature *_Creature)
+CreatureAI* GetAI_boss_theolenkrastinov(Creature* pCreature)
 {
-    return new boss_theolenkrastinovAI (_Creature);
+    return new boss_theolenkrastinovAI (pCreature);
 }
 
 void AddSC_boss_theolenkrastinov()

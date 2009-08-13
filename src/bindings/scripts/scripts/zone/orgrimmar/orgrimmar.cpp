@@ -37,25 +37,25 @@ EndContentData */
 
 #define GOSSIP_HNF "You may speak frankly, Neeru..."
 #define GOSSIP_SNF "[PH] ..."
-bool GossipHello_npc_neeru_fireblade(Player* pPlayer, Creature *_Creature)
+bool GossipHello_npc_neeru_fireblade(Player* pPlayer, Creature* pCreature)
 {
-    if (_Creature->isQuestGiver())
-        pPlayer->PrepareQuestMenu(_Creature->GetGUID());
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
     if (pPlayer->GetQuestStatus(QUEST_5727) == QUEST_STATUS_INCOMPLETE)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HNF, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-    pPlayer->SEND_GOSSIP_MENU(4513, _Creature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(4513, pCreature->GetGUID());
     return true;
 }
 
-bool GossipSelect_npc_neeru_fireblade(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_neeru_fireblade(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
     switch (action)
     {
         case GOSSIP_ACTION_INFO_DEF+1:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SNF, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-            pPlayer->SEND_GOSSIP_MENU(4513, _Creature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(4513, pCreature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+2:
             pPlayer->CLOSE_GOSSIP_MENU();
@@ -139,9 +139,9 @@ struct TRINITY_DLL_DECL npc_shenthulAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_shenthul(Creature *_Creature)
+CreatureAI* GetAI_npc_shenthul(Creature* pCreature)
 {
-    return new npc_shenthulAI (_Creature);
+    return new npc_shenthulAI (pCreature);
 }
 
 bool QuestAccept_npc_shenthul(Player* pPlayer, Creature* creature, Quest const* quest)
@@ -207,50 +207,50 @@ struct TRINITY_DLL_DECL npc_thrall_warchiefAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_npc_thrall_warchief(Creature *_Creature)
+CreatureAI* GetAI_npc_thrall_warchief(Creature* pCreature)
 {
-    return new npc_thrall_warchiefAI (_Creature);
+    return new npc_thrall_warchiefAI (pCreature);
 }
 
-bool GossipHello_npc_thrall_warchief(Player* pPlayer, Creature *_Creature)
+bool GossipHello_npc_thrall_warchief(Player* pPlayer, Creature* pCreature)
 {
-    if (_Creature->isQuestGiver())
-        pPlayer->PrepareQuestMenu(_Creature->GetGUID());
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
     if (pPlayer->GetQuestStatus(QUEST_6566) == QUEST_STATUS_INCOMPLETE)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HTW, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-    pPlayer->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
     return true;
 }
 
-bool GossipSelect_npc_thrall_warchief(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_thrall_warchief(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
     switch (action)
     {
         case GOSSIP_ACTION_INFO_DEF+1:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_STW1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-            pPlayer->SEND_GOSSIP_MENU(5733, _Creature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(5733, pCreature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+2:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_STW2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
-            pPlayer->SEND_GOSSIP_MENU(5734, _Creature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(5734, pCreature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+3:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_STW3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
-            pPlayer->SEND_GOSSIP_MENU(5735, _Creature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(5735, pCreature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+4:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_STW4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
-            pPlayer->SEND_GOSSIP_MENU(5736, _Creature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(5736, pCreature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+5:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_STW5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+6);
-            pPlayer->SEND_GOSSIP_MENU(5737, _Creature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(5737, pCreature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+6:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_STW6, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+7);
-            pPlayer->SEND_GOSSIP_MENU(5738, _Creature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(5738, pCreature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+7:
             pPlayer->CLOSE_GOSSIP_MENU();

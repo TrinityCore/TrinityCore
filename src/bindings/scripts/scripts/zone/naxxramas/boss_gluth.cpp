@@ -144,9 +144,9 @@ struct TRINITY_DLL_DECL boss_gluthAI : public BossAI
     }
 };
 
-CreatureAI* GetAI_boss_gluth(Creature *_Creature)
+CreatureAI* GetAI_boss_gluth(Creature* pCreature)
 {
-    return new boss_gluthAI (_Creature);
+    return new boss_gluthAI (pCreature);
 }
 
 void AddSC_boss_gluth()

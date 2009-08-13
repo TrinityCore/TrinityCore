@@ -275,19 +275,19 @@ struct TRINITY_DLL_DECL mob_crystalline_tanglerAI : public ScriptedAI
     } 
 }; 
 
-CreatureAI* GetAI_mob_crystal_spike(Creature *_Creature)
+CreatureAI* GetAI_mob_crystal_spike(Creature* pCreature)
 {
-    return new mob_crystal_spikeAI (_Creature);
+    return new mob_crystal_spikeAI (pCreature);
 }
 
-CreatureAI* GetAI_mob_crystalline_tangler(Creature *_Creature)
+CreatureAI* GetAI_mob_crystalline_tangler(Creature* pCreature)
 {
-    return new mob_crystalline_tanglerAI (_Creature);
+    return new mob_crystalline_tanglerAI (pCreature);
 }
 
-CreatureAI* GetAI_boss_ormorok(Creature *_Creature)
+CreatureAI* GetAI_boss_ormorok(Creature* pCreature)
 {
-    return new boss_ormorokAI (_Creature);
+    return new boss_ormorokAI (pCreature);
 }
 
 void AddSC_boss_ormorok()

@@ -95,9 +95,9 @@ struct TRINITY_DLL_DECL boss_volazjAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_volazj(Creature *_Creature)
+CreatureAI* GetAI_boss_volazj(Creature* pCreature)
 {
-    return new boss_volazjAI (_Creature);
+    return new boss_volazjAI (pCreature);
 }
 
 void AddSC_boss_volazj()

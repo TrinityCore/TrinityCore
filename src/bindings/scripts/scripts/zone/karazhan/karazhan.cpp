@@ -318,9 +318,9 @@ struct TRINITY_DLL_DECL npc_barnesAI : public npc_escortAI
     }
 };
 
-CreatureAI* GetAI_npc_barnesAI(Creature* _Creature)
+CreatureAI* GetAI_npc_barnesAI(Creature* pCreature)
 {
-    npc_barnesAI* Barnes_AI = new npc_barnesAI(_Creature);
+    npc_barnesAI* Barnes_AI = new npc_barnesAI(pCreature);
 
     Barnes_AI->FillPointMovementListForCreature();
 
@@ -359,15 +359,15 @@ bool GossipHello_npc_barnes(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_barnes(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_barnes(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
-    npc_barnesAI* pBarnesAI = CAST_AI(npc_barnesAI,_Creature->AI());
+    npc_barnesAI* pBarnesAI = CAST_AI(npc_barnesAI, pCreature->AI());
 
     switch(action)
     {
         case GOSSIP_ACTION_INFO_DEF+1:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, OZ_GOSSIP2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-            pPlayer->SEND_GOSSIP_MENU(8971, _Creature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(8971, pCreature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+2:
             pPlayer->CLOSE_GOSSIP_MENU();
@@ -417,7 +417,7 @@ bool GossipHello_npc_berthold(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_berthold(Player* pPlayer, Creature* _Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_berthold(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
     if (action == GOSSIP_ACTION_INFO_DEF + 1)
         pPlayer->CastSpell(pPlayer, SPELL_TELEPORT, true);
@@ -625,9 +625,9 @@ struct TRINITY_DLL_DECL npc_image_of_medivhAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_image_of_medivh(Creature *_Creature)
+CreatureAI* GetAI_npc_image_of_medivh(Creature* pCreature)
 {
-    return new npc_image_of_medivhAI(_Creature);
+    return new npc_image_of_medivhAI(pCreature);
 }
 
 void AddSC_karazhan()

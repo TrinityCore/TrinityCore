@@ -161,9 +161,9 @@ struct TRINITY_DLL_DECL boss_blackheart_the_inciterAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_blackheart_the_inciter(Creature *_Creature)
+CreatureAI* GetAI_boss_blackheart_the_inciter(Creature* pCreature)
 {
-    return new boss_blackheart_the_inciterAI (_Creature);
+    return new boss_blackheart_the_inciterAI (pCreature);
 }
 
 void AddSC_boss_blackheart_the_inciter()

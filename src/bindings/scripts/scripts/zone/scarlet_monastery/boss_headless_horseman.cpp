@@ -814,24 +814,24 @@ bool GOHello_go_loosely_turned_soil(Player* pPlayer, GameObject* soil)
     return true;
 }
 
-CreatureAI* GetAI_mob_head(Creature *_Creature)
+CreatureAI* GetAI_mob_head(Creature* pCreature)
 {
-    return new mob_headAI (_Creature);
+    return new mob_headAI (pCreature);
 }
 
-CreatureAI* GetAI_boss_headless_horseman(Creature *_Creature)
+CreatureAI* GetAI_boss_headless_horseman(Creature* pCreature)
 {
-    return new boss_headless_horsemanAI (_Creature);
+    return new boss_headless_horsemanAI (pCreature);
 }
 
-CreatureAI* GetAI_mob_pulsing_pumpkin(Creature *_Creature)
+CreatureAI* GetAI_mob_pulsing_pumpkin(Creature* pCreature)
 {
-    return new mob_pulsing_pumpkinAI (_Creature);
+    return new mob_pulsing_pumpkinAI (pCreature);
 }
 
-CreatureAI* GetAI_mob_wisp_invis(Creature *_Creature)
+CreatureAI* GetAI_mob_wisp_invis(Creature* pCreature)
 {
-    return new mob_wisp_invisAI (_Creature);
+    return new mob_wisp_invisAI (pCreature);
 }
 
 void AddSC_boss_headless_horseman()

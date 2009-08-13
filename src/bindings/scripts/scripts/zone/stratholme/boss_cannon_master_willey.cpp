@@ -205,9 +205,9 @@ struct TRINITY_DLL_DECL boss_cannon_master_willeyAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_cannon_master_willey(Creature *_Creature)
+CreatureAI* GetAI_boss_cannon_master_willey(Creature* pCreature)
 {
-    return new boss_cannon_master_willeyAI (_Creature);
+    return new boss_cannon_master_willeyAI (pCreature);
 }
 
 void AddSC_boss_cannon_master_willey()

@@ -41,9 +41,9 @@ struct TRINITY_DLL_DECL boss_commander_kolurgAI : public ScriptedAI
     void JustDied(Unit* killer)  {}
 };
 
-CreatureAI* GetAI_boss_commander_kolurg(Creature *_Creature)
+CreatureAI* GetAI_boss_commander_kolurg(Creature* pCreature)
 {
-    return new boss_commander_kolurgAI (_Creature);
+    return new boss_commander_kolurgAI (pCreature);
 }
 
 void AddSC_boss_commander_kolurg()

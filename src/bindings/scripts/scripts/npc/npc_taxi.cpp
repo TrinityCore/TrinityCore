@@ -24,12 +24,12 @@ EndScriptData
 
 #include "precompiled.h"
 
-bool GossipHello_npc_taxi(Player* pPlayer, Creature *_Creature)
+bool GossipHello_npc_taxi(Player* pPlayer, Creature* pCreature)
 {
-    if (_Creature->isQuestGiver())
-        pPlayer->PrepareQuestMenu(_Creature->GetGUID());
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
-    switch(_Creature->GetEntry()) {
+    switch(pCreature->GetEntry()) {
     case 17435: // Azuremyst Isle - Susurrus
         if (pPlayer->HasItemCount(23843,1,true))
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I am ready.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
@@ -129,11 +129,11 @@ bool GossipHello_npc_taxi(Player* pPlayer, Creature *_Creature)
         break;
     }
 
-    pPlayer->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
     return true;
 }
 
-bool GossipSelect_npc_taxi(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_taxi(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
     switch(action) {
     case GOSSIP_ACTION_INFO_DEF:
@@ -147,7 +147,7 @@ bool GossipSelect_npc_taxi(Player* pPlayer, Creature *_Creature, uint32 sender, 
         break;
     case GOSSIP_ACTION_INFO_DEF + 2:
         if (!pPlayer->HasItemCount(25853,1)) {
-            pPlayer->SEND_GOSSIP_MENU(9780, _Creature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(9780, pCreature->GetGUID());
         } else {
             pPlayer->CLOSE_GOSSIP_MENU();
             pPlayer->ActivateTaxiPathTo(534);              //TaxiPath 534

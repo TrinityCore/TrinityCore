@@ -107,9 +107,9 @@ struct TRINITY_DLL_DECL boss_faerlinaAI : public BossAI
     }
 };
 
-CreatureAI* GetAI_boss_faerlina(Creature *_Creature)
+CreatureAI* GetAI_boss_faerlina(Creature* pCreature)
 {
-    return new boss_faerlinaAI (_Creature);
+    return new boss_faerlinaAI (pCreature);
 }
 
 void AddSC_boss_faerlina()

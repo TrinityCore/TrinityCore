@@ -138,9 +138,9 @@ struct TRINITY_DLL_DECL mob_unkor_the_ruthlessAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_mob_unkor_the_ruthless(Creature *_Creature)
+CreatureAI* GetAI_mob_unkor_the_ruthless(Creature* pCreature)
 {
-    return new mob_unkor_the_ruthlessAI (_Creature);
+    return new mob_unkor_the_ruthlessAI (pCreature);
 }
 
 /*######
@@ -163,9 +163,9 @@ struct TRINITY_DLL_DECL mob_infested_root_walkerAI : public ScriptedAI
                     m_creature->CastSpell(m_creature,39130,true);
     }
 };
-CreatureAI* GetAI_mob_infested_root_walker(Creature *_Creature)
+CreatureAI* GetAI_mob_infested_root_walker(Creature* pCreature)
 {
-    return new mob_infested_root_walkerAI (_Creature);
+    return new mob_infested_root_walkerAI (pCreature);
 }
 
 
@@ -219,9 +219,9 @@ public:
     }
 };
 
-CreatureAI* GetAI_npc_skywingAI(Creature *_Creature)
+CreatureAI* GetAI_npc_skywingAI(Creature* pCreature)
 {
-    npc_skywingAI* skywingAI = new npc_skywingAI(_Creature);
+    npc_skywingAI* skywingAI = new npc_skywingAI(pCreature);
 
     skywingAI->FillPointMovementListForCreature();
 
@@ -248,9 +248,9 @@ struct TRINITY_DLL_DECL mob_rotting_forest_ragerAI : public ScriptedAI
                     m_creature->CastSpell(m_creature,39134,true);
     }
 };
-CreatureAI* GetAI_mob_rotting_forest_rager(Creature *_Creature)
+CreatureAI* GetAI_mob_rotting_forest_rager(Creature* pCreature)
 {
-    return new mob_rotting_forest_ragerAI (_Creature);
+    return new mob_rotting_forest_ragerAI (pCreature);
 }
 
 /*######
@@ -293,9 +293,9 @@ struct TRINITY_DLL_DECL mob_netherweb_victimAI : public ScriptedAI
         }
     }
 };
-CreatureAI* GetAI_mob_netherweb_victim(Creature *_Creature)
+CreatureAI* GetAI_mob_netherweb_victim(Creature* pCreature)
 {
-    return new mob_netherweb_victimAI (_Creature);
+    return new mob_netherweb_victimAI (pCreature);
 }
 
 /*######
@@ -367,33 +367,33 @@ struct TRINITY_DLL_DECL npc_floonAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_floon(Creature *_Creature)
+CreatureAI* GetAI_npc_floon(Creature* pCreature)
 {
-    return new npc_floonAI (_Creature);
+    return new npc_floonAI (pCreature);
 }
 
-bool GossipHello_npc_floon(Player* pPlayer, Creature *_Creature)
+bool GossipHello_npc_floon(Player* pPlayer, Creature* pCreature)
 {
     if (pPlayer->GetQuestStatus(QUEST_CRACK_SKULLS) == QUEST_STATUS_INCOMPLETE)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FLOON1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
-    pPlayer->SEND_GOSSIP_MENU(9442, _Creature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(9442, pCreature->GetGUID());
     return true;
 }
 
-bool GossipSelect_npc_floon(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_floon(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
     if (action == GOSSIP_ACTION_INFO_DEF)
     {
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FLOON2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-        pPlayer->SEND_GOSSIP_MENU(9443, _Creature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(9443, pCreature->GetGUID());
     }
     if (action == GOSSIP_ACTION_INFO_DEF+1)
     {
         pPlayer->CLOSE_GOSSIP_MENU();
-        _Creature->setFaction(FACTION_HOSTILE_FL);
-        DoScriptText(SAY_FLOON_ATTACK, _Creature, pPlayer);
-        _Creature->AI()->AttackStart(pPlayer);
+        pCreature->setFaction(FACTION_HOSTILE_FL);
+        DoScriptText(SAY_FLOON_ATTACK, pCreature, pPlayer);
+        pCreature->AI()->AttackStart(pPlayer);
     }
     return true;
 }
@@ -490,9 +490,9 @@ bool QuestAccept_npc_isla_starmane(Player* pPlayer, Creature* creature, Quest co
     return true;
 }
 
-CreatureAI* GetAI_npc_isla_starmaneAI(Creature *_Creature)
+CreatureAI* GetAI_npc_isla_starmaneAI(Creature* pCreature)
 {
-    npc_isla_starmaneAI* thisAI = new npc_isla_starmaneAI(_Creature);
+    npc_isla_starmaneAI* thisAI = new npc_isla_starmaneAI(pCreature);
 
     thisAI->AddWaypoint(0, -2265.21, 3091.14, 13.91);
     thisAI->AddWaypoint(1, -2266.80, 3091.33, 13.82, 1000);

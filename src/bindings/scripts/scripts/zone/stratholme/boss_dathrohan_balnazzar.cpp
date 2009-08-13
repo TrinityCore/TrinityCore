@@ -201,9 +201,9 @@ struct TRINITY_DLL_DECL boss_dathrohan_balnazzarAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_dathrohan_balnazzar(Creature *_Creature)
+CreatureAI* GetAI_boss_dathrohan_balnazzar(Creature* pCreature)
 {
-    return new boss_dathrohan_balnazzarAI (_Creature);
+    return new boss_dathrohan_balnazzarAI (pCreature);
 }
 
 void AddSC_boss_dathrohan_balnazzar()

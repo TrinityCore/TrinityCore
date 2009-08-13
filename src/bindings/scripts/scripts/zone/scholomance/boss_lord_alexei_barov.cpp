@@ -83,9 +83,9 @@ struct TRINITY_DLL_DECL boss_lordalexeibarovAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_lordalexeibarov(Creature *_Creature)
+CreatureAI* GetAI_boss_lordalexeibarov(Creature* pCreature)
 {
-    return new boss_lordalexeibarovAI (_Creature);
+    return new boss_lordalexeibarovAI (pCreature);
 }
 
 void AddSC_boss_lordalexeibarov()

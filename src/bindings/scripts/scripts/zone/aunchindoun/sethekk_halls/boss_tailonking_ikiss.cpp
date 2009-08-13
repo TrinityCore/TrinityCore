@@ -205,9 +205,9 @@ struct TRINITY_DLL_DECL boss_talon_king_ikissAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_talon_king_ikiss(Creature *_Creature)
+CreatureAI* GetAI_boss_talon_king_ikiss(Creature* pCreature)
 {
-    return new boss_talon_king_ikissAI (_Creature);
+    return new boss_talon_king_ikissAI (pCreature);
 }
 
 void AddSC_boss_talon_king_ikiss()

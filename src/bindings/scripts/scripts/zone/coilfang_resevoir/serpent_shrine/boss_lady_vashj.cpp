@@ -839,9 +839,9 @@ struct TRINITY_DLL_DECL mob_toxic_sporebatAI : public ScriptedAI
 
 //Coilfang Elite
 //It's an elite Naga mob with 170,000 HP. It does about 5000 damage on plate, and has a nasty cleave hitting for about 7500 damage
-CreatureAI* GetAI_mob_coilfang_elite(Creature *_Creature)
+CreatureAI* GetAI_mob_coilfang_elite(Creature* pCreature)
 {
-    SimpleAI* ai = new SimpleAI (_Creature);
+    SimpleAI* ai = new SimpleAI (pCreature);
 
     ai->Spell[0].Enabled = true;
     ai->Spell[0].Spell_Id = 31345;                          //Cleave
@@ -857,9 +857,9 @@ CreatureAI* GetAI_mob_coilfang_elite(Creature *_Creature)
 
 //Coilfang Strider
 //It hits plate for about 8000 damage, has a Mind Blast spell doing about 3000 shadow damage, and a Psychic Scream Aura, which fears everybody in a 8 yard range of it every 2-3 seconds , for 5 seconds and increasing their movement speed by 150% during the fear.
-CreatureAI* GetAI_mob_coilfang_strider(Creature *_Creature)
+CreatureAI* GetAI_mob_coilfang_strider(Creature* pCreature)
 {
-    SimpleAI* ai = new SimpleAI (_Creature);
+    SimpleAI* ai = new SimpleAI (pCreature);
 
     ai->Spell[0].Enabled = true;
     ai->Spell[0].Spell_Id = 41374;                          //Mind Blast
@@ -995,29 +995,29 @@ bool ItemUse_item_tainted_core(Player* pPlayer, Item* _Item, SpellCastTargets co
     return true;
 }
 
-CreatureAI* GetAI_boss_lady_vashj(Creature *_Creature)
+CreatureAI* GetAI_boss_lady_vashj(Creature* pCreature)
 {
-    return new boss_lady_vashjAI (_Creature);
+    return new boss_lady_vashjAI (pCreature);
 }
 
-CreatureAI* GetAI_mob_enchanted_elemental(Creature *_Creature)
+CreatureAI* GetAI_mob_enchanted_elemental(Creature* pCreature)
 {
-    return new mob_enchanted_elementalAI (_Creature);
+    return new mob_enchanted_elementalAI (pCreature);
 }
 
-CreatureAI* GetAI_mob_tainted_elemental(Creature *_Creature)
+CreatureAI* GetAI_mob_tainted_elemental(Creature* pCreature)
 {
-    return new mob_tainted_elementalAI (_Creature);
+    return new mob_tainted_elementalAI (pCreature);
 }
 
-CreatureAI* GetAI_mob_toxic_sporebat(Creature *_Creature)
+CreatureAI* GetAI_mob_toxic_sporebat(Creature* pCreature)
 {
-    return new mob_toxic_sporebatAI (_Creature);
+    return new mob_toxic_sporebatAI (pCreature);
 }
 
-CreatureAI* GetAI_mob_shield_generator_channel(Creature *_Creature)
+CreatureAI* GetAI_mob_shield_generator_channel(Creature* pCreature)
 {
-    return new mob_shield_generator_channelAI (_Creature);
+    return new mob_shield_generator_channelAI (pCreature);
 }
 
 void AddSC_boss_lady_vashj()

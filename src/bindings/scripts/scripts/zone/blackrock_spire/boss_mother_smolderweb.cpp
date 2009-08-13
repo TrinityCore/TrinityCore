@@ -71,9 +71,9 @@ struct TRINITY_DLL_DECL boss_mothersmolderwebAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_mothersmolderweb(Creature *_Creature)
+CreatureAI* GetAI_boss_mothersmolderweb(Creature* pCreature)
 {
-    return new boss_mothersmolderwebAI (_Creature);
+    return new boss_mothersmolderwebAI (pCreature);
 }
 
 void AddSC_boss_mothersmolderweb()

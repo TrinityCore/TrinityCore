@@ -146,9 +146,9 @@ struct TRINITY_DLL_DECL boss_the_makerAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_the_makerAI(Creature *_Creature)
+CreatureAI* GetAI_boss_the_makerAI(Creature* pCreature)
 {
-    return new boss_the_makerAI (_Creature);
+    return new boss_the_makerAI (pCreature);
 }
 
 void AddSC_boss_the_maker()

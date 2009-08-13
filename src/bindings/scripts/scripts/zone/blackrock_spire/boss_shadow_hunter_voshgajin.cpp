@@ -80,9 +80,9 @@ struct TRINITY_DLL_DECL boss_shadowvoshAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_shadowvosh(Creature *_Creature)
+CreatureAI* GetAI_boss_shadowvosh(Creature* pCreature)
 {
-    return new boss_shadowvoshAI (_Creature);
+    return new boss_shadowvoshAI (pCreature);
 }
 
 void AddSC_boss_shadowvosh()

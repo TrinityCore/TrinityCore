@@ -76,9 +76,9 @@ struct TRINITY_DLL_DECL boss_rend_blackhandAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_rend_blackhand(Creature *_Creature)
+CreatureAI* GetAI_boss_rend_blackhand(Creature* pCreature)
 {
-    return new boss_rend_blackhandAI (_Creature);
+    return new boss_rend_blackhandAI (pCreature);
 }
 
 void AddSC_boss_rend_blackhand()

@@ -107,9 +107,9 @@ struct TRINITY_DLL_DECL boss_anubrekhanAI : public BossAI
     }
 };
 
-CreatureAI* GetAI_boss_anubrekhan(Creature *_Creature)
+CreatureAI* GetAI_boss_anubrekhan(Creature* pCreature)
 {
-    return new boss_anubrekhanAI (_Creature);
+    return new boss_anubrekhanAI (pCreature);
 }
 
 void AddSC_boss_anubrekhan()

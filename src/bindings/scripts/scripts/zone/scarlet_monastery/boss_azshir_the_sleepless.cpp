@@ -82,9 +82,9 @@ struct TRINITY_DLL_DECL boss_azshir_the_sleeplessAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_azshir_the_sleepless(Creature *_Creature)
+CreatureAI* GetAI_boss_azshir_the_sleepless(Creature* pCreature)
 {
-    return new boss_azshir_the_sleeplessAI (_Creature);
+    return new boss_azshir_the_sleeplessAI (pCreature);
 }
 
 void AddSC_boss_azshir_the_sleepless()

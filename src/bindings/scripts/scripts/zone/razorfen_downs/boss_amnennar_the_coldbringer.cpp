@@ -114,9 +114,9 @@ struct TRINITY_DLL_DECL boss_amnennar_the_coldbringerAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_amnennar_the_coldbringer(Creature *_Creature)
+CreatureAI* GetAI_boss_amnennar_the_coldbringer(Creature* pCreature)
 {
-    return new boss_amnennar_the_coldbringerAI (_Creature);
+    return new boss_amnennar_the_coldbringerAI (pCreature);
 }
 
 void AddSC_boss_amnennar_the_coldbringer()

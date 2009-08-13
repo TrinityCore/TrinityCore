@@ -92,26 +92,26 @@ CreatureAI* GetAI_npc_prospector_anvilward(Creature* pCreature)
     return thisAI;
 }
 
-bool GossipHello_npc_prospector_anvilward(Player* pPlayer, Creature *_Creature)
+bool GossipHello_npc_prospector_anvilward(Player* pPlayer, Creature* pCreature)
 {
     if (pPlayer->GetQuestStatus(QUEST_THE_DWARVEN_SPY) == QUEST_STATUS_INCOMPLETE)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-    pPlayer->SEND_GOSSIP_MENU(8239, _Creature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(8239, pCreature->GetGUID());
     return true;
 }
 
-bool GossipSelect_npc_prospector_anvilward(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_prospector_anvilward(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
     switch(action)
     {
         case GOSSIP_ACTION_INFO_DEF+1:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-            pPlayer->SEND_GOSSIP_MENU(8240, _Creature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(8240, pCreature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+2:
             pPlayer->CLOSE_GOSSIP_MENU();
-            CAST_AI(npc_escortAI, (_Creature->AI()))->Start(true, false, pPlayer->GetGUID());
+            CAST_AI(npc_escortAI, (pCreature->AI()))->Start(true, false, pPlayer->GetGUID());
             break;
     }
     return true;
@@ -398,19 +398,19 @@ struct TRINITY_DLL_DECL master_kelerun_bloodmournAI : public ScriptedAI
 };
 
 
-bool GossipHello_master_kelerun_bloodmourn(Player* pPlayer, Creature *_Creature)
+bool GossipHello_master_kelerun_bloodmourn(Player* pPlayer, Creature* pCreature)
 {
     // quest only available if not already started
     // Quest_template flag is set to : QUEST_FLAGS_EVENT
     // Escort quests or any other event-driven quests. If player in party, all players that can accept this quest will receive confirmation box to accept quest.
     // !not sure if this really works!
 
-    if (CAST_AI(master_kelerun_bloodmournAI, _Creature->AI())->questPhase == 0) {
-        pPlayer->PrepareQuestMenu(_Creature->GetGUID());
-        pPlayer->SendPreparedQuest(_Creature->GetGUID());
+    if (CAST_AI(master_kelerun_bloodmournAI, pCreature->AI())->questPhase == 0) {
+        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+        pPlayer->SendPreparedQuest(pCreature->GetGUID());
     }
 
-    pPlayer->SEND_GOSSIP_MENU(_Creature->GetEntry(), _Creature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(pCreature->GetEntry(), pCreature->GetGUID());
     return true;
 }
 
@@ -483,14 +483,14 @@ void npc_secondTrialAI::Activate(uint64 summonerguid) {
       summonerGuid = summonerguid;
     }
 
-CreatureAI* GetAI_master_kelerun_bloodmourn(Creature *_Creature)
+CreatureAI* GetAI_master_kelerun_bloodmourn(Creature* pCreature)
 {
-    return new master_kelerun_bloodmournAI (_Creature);
+    return new master_kelerun_bloodmournAI (pCreature);
 }
 
-CreatureAI* GetAI_npc_secondTrial(Creature *_Creature)
+CreatureAI* GetAI_npc_secondTrial(Creature* pCreature)
 {
-    return new npc_secondTrialAI (_Creature);
+    return new npc_secondTrialAI (pCreature);
 }
 
 /*######
@@ -587,9 +587,9 @@ bool QuestAccept_npc_apprentice_mirveda(Player* pPlayer, Creature* creature, Que
     return true;
 }
 
-CreatureAI* GetAI_npc_apprentice_mirvedaAI(Creature *_Creature)
+CreatureAI* GetAI_npc_apprentice_mirvedaAI(Creature* pCreature)
 {
-    return new npc_apprentice_mirvedaAI (_Creature);
+    return new npc_apprentice_mirvedaAI (pCreature);
 }
 
 /*######
@@ -694,9 +694,9 @@ struct TRINITY_DLL_DECL npc_infused_crystalAI : public Scripted_NoMovementAI
     }
 };
 
-CreatureAI* GetAI_npc_infused_crystalAI(Creature *_Creature)
+CreatureAI* GetAI_npc_infused_crystalAI(Creature* pCreature)
 {
-    return new npc_infused_crystalAI (_Creature);
+    return new npc_infused_crystalAI (pCreature);
 }
 
 void AddSC_eversong_woods()

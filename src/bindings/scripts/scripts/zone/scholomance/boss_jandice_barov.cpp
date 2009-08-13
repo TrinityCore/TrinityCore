@@ -196,14 +196,14 @@ struct TRINITY_DLL_DECL mob_illusionofjandicebarovAI : public ScriptedAI
 };
 
 
-CreatureAI* GetAI_boss_jandicebarov(Creature *_Creature)
+CreatureAI* GetAI_boss_jandicebarov(Creature* pCreature)
 {
-    return new boss_jandicebarovAI (_Creature);
+    return new boss_jandicebarovAI (pCreature);
 }
 
-CreatureAI* GetAI_mob_illusionofjandicebarov(Creature *_Creature)
+CreatureAI* GetAI_mob_illusionofjandicebarov(Creature* pCreature)
 {
-    return new mob_illusionofjandicebarovAI (_Creature);
+    return new mob_illusionofjandicebarovAI (pCreature);
 }
 
 

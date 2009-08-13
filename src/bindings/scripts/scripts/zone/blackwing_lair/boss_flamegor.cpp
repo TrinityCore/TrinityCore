@@ -82,9 +82,9 @@ struct TRINITY_DLL_DECL boss_flamegorAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_flamegor(Creature *_Creature)
+CreatureAI* GetAI_boss_flamegor(Creature* pCreature)
 {
-    return new boss_flamegorAI (_Creature);
+    return new boss_flamegorAI (pCreature);
 }
 
 void AddSC_boss_flamegor()

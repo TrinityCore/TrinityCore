@@ -182,9 +182,9 @@ struct TRINITY_DLL_DECL boss_kazrogalAI : public hyjal_trashAI
     }
 };
 
-CreatureAI* GetAI_boss_kazrogal(Creature *_Creature)
+CreatureAI* GetAI_boss_kazrogal(Creature* pCreature)
 {
-    return new boss_kazrogalAI (_Creature);
+    return new boss_kazrogalAI (pCreature);
 }
 
 void AddSC_boss_kazrogal()

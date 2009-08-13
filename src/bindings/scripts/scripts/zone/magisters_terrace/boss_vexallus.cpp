@@ -182,9 +182,9 @@ struct  TRINITY_DLL_DECL boss_vexallusAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_vexallus(Creature *_Creature)
+CreatureAI* GetAI_boss_vexallus(Creature* pCreature)
 {
-    return new boss_vexallusAI (_Creature);
+    return new boss_vexallusAI (pCreature);
 };
 
 struct  TRINITY_DLL_DECL mob_pure_energyAI : public ScriptedAI
@@ -207,9 +207,9 @@ struct  TRINITY_DLL_DECL mob_pure_energyAI : public ScriptedAI
     void AttackStart(Unit *who) { }
 };
 
-CreatureAI* GetAI_mob_pure_energy(Creature *_Creature)
+CreatureAI* GetAI_mob_pure_energy(Creature* pCreature)
 {
-    return new mob_pure_energyAI (_Creature);
+    return new mob_pure_energyAI (pCreature);
 };
 
 void AddSC_boss_vexallus()

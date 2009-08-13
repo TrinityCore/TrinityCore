@@ -82,9 +82,9 @@ struct TRINITY_DLL_DECL boss_vectusAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_vectus(Creature *_Creature)
+CreatureAI* GetAI_boss_vectus(Creature* pCreature)
 {
-    return new boss_vectusAI (_Creature);
+    return new boss_vectusAI (pCreature);
 }
 
 void AddSC_boss_vectus()

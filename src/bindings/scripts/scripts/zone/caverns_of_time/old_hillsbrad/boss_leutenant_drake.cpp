@@ -174,9 +174,9 @@ struct TRINITY_DLL_DECL boss_lieutenant_drakeAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_lieutenant_drake(Creature *_Creature)
+CreatureAI* GetAI_boss_lieutenant_drake(Creature* pCreature)
 {
-    return new boss_lieutenant_drakeAI (_Creature);
+    return new boss_lieutenant_drakeAI (pCreature);
 }
 
 void AddSC_boss_lieutenant_drake()

@@ -135,9 +135,9 @@ struct TRINITY_DLL_DECL boss_heiganAI : public BossAI
     }
 };
 
-CreatureAI* GetAI_boss_heigan(Creature *_Creature)
+CreatureAI* GetAI_boss_heigan(Creature* pCreature)
 {
-    return new boss_heiganAI (_Creature);
+    return new boss_heiganAI (pCreature);
 }
 
 void AddSC_boss_heigan()

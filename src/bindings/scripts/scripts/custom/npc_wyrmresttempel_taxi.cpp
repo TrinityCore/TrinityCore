@@ -8,18 +8,18 @@
 #define GOSSIP_BOTTOM  "Yes, Please. I would like to return to the ground floor of the temple."
 #define GOSSIP_ONEDOWN "I would like to see Lord Afrasastrasz, in the middle of the temple."
 
-bool GossipHello_npc_wyrmresttempel_middle_taxi(Player* pPlayer, Creature *_Creature)
+bool GossipHello_npc_wyrmresttempel_middle_taxi(Player* pPlayer, Creature* pCreature)
 {
 pPlayer->SetTaxiCheater(true);
 
 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_UP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DOWN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-        pPlayer->SEND_GOSSIP_MENU(12887,_Creature->GetGUID()); 
+        pPlayer->SEND_GOSSIP_MENU(12887, pCreature->GetGUID()); 
         
     return true;
 }
 
-bool GossipSelect_npc_wyrmresttempel_middle_taxi(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_wyrmresttempel_middle_taxi(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
     if (action == GOSSIP_ACTION_INFO_DEF + 1)
     {          
@@ -35,20 +35,20 @@ bool GossipSelect_npc_wyrmresttempel_middle_taxi(Player* pPlayer, Creature *_Cre
 return true;
 }
 
-bool GossipHello_npc_wyrmresttempel_bottom_taxi(Player* pPlayer, Creature *_Creature)
+bool GossipHello_npc_wyrmresttempel_bottom_taxi(Player* pPlayer, Creature* pCreature)
 {
 pPlayer->SetTaxiCheater(true);
 
 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TOP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_MIDDLE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-        pPlayer->SEND_GOSSIP_MENU(12713,_Creature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(12713, pCreature->GetGUID());
         
     return true;
 }
 
 
 
-bool GossipSelect_npc_wyrmresttempel_bottom_taxi(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_wyrmresttempel_bottom_taxi(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
     if (action == GOSSIP_ACTION_INFO_DEF + 4)
     {         
@@ -64,18 +64,18 @@ bool GossipSelect_npc_wyrmresttempel_bottom_taxi(Player* pPlayer, Creature *_Cre
 return true;
 }
 
-bool GossipHello_npc_wyrmresttempel_top_taxi(Player* pPlayer, Creature *_Creature)
+bool GossipHello_npc_wyrmresttempel_top_taxi(Player* pPlayer, Creature* pCreature)
 {
 pPlayer->SetTaxiCheater(true);
 
 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BOTTOM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ONEDOWN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
-        pPlayer->SEND_GOSSIP_MENU(12714,_Creature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(12714, pCreature->GetGUID());
 
     return true;
 }
 
-bool GossipSelect_npc_wyrmresttempel_top_taxi(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_wyrmresttempel_top_taxi(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
     if (action == GOSSIP_ACTION_INFO_DEF + 5)
     {      

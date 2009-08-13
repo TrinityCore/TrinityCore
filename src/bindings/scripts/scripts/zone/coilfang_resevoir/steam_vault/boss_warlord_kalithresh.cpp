@@ -186,14 +186,14 @@ struct TRINITY_DLL_DECL boss_warlord_kalithreshAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_mob_naga_distiller(Creature *_Creature)
+CreatureAI* GetAI_mob_naga_distiller(Creature* pCreature)
 {
-    return new mob_naga_distillerAI (_Creature);
+    return new mob_naga_distillerAI (pCreature);
 }
 
-CreatureAI* GetAI_boss_warlord_kalithresh(Creature *_Creature)
+CreatureAI* GetAI_boss_warlord_kalithresh(Creature* pCreature)
 {
-    return new boss_warlord_kalithreshAI (_Creature);
+    return new boss_warlord_kalithreshAI (pCreature);
 }
 
 void AddSC_boss_warlord_kalithresh()

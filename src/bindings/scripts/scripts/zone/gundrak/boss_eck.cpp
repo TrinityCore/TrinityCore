@@ -49,9 +49,9 @@ struct TRINITY_DLL_DECL boss_eckAI : public ScriptedAI
     void JustDied(Unit* killer)  {}
 };
 
-CreatureAI* GetAI_boss_eck(Creature *_Creature)
+CreatureAI* GetAI_boss_eck(Creature* pCreature)
 {
-    return new boss_eckAI (_Creature);
+    return new boss_eckAI (pCreature);
 }
 
 void AddSC_boss_eck()

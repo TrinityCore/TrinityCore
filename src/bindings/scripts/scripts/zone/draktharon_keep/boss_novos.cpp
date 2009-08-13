@@ -59,9 +59,9 @@ struct TRINITY_DLL_DECL boss_novosAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_novos(Creature *_Creature)
+CreatureAI* GetAI_boss_novos(Creature* pCreature)
 {
-    return new boss_novosAI (_Creature);
+    return new boss_novosAI (pCreature);
 }
 
 void AddSC_boss_novos()

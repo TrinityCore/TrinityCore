@@ -69,9 +69,9 @@ struct TRINITY_DLL_DECL boss_ymironAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_ymiron(Creature *_Creature)
+CreatureAI* GetAI_boss_ymiron(Creature* pCreature)
 {
-    return new boss_ymironAI (_Creature);
+    return new boss_ymironAI (pCreature);
 }
 
 void AddSC_boss_ymiron()

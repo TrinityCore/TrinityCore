@@ -310,9 +310,9 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_brutallus(Creature *_Creature)
+CreatureAI* GetAI_boss_brutallus(Creature* pCreature)
 {
-    return new boss_brutallusAI (_Creature);
+    return new boss_brutallusAI (pCreature);
 }
 
 void AddSC_boss_brutallus()

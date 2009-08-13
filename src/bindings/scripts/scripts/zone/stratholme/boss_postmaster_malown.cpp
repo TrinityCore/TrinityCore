@@ -128,9 +128,9 @@ struct TRINITY_DLL_DECL boss_postmaster_malownAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_postmaster_malown(Creature *_Creature)
+CreatureAI* GetAI_boss_postmaster_malown(Creature* pCreature)
 {
-    return new boss_postmaster_malownAI (_Creature);
+    return new boss_postmaster_malownAI (pCreature);
 }
 
 void AddSC_boss_postmaster_malown()

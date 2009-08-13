@@ -346,13 +346,13 @@ struct TRINITY_DLL_DECL mob_water_globuleAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_morogrim_tidewalker(Creature *_Creature)
+CreatureAI* GetAI_boss_morogrim_tidewalker(Creature* pCreature)
 {
-    return new boss_morogrim_tidewalkerAI (_Creature);
+    return new boss_morogrim_tidewalkerAI (pCreature);
 }
-CreatureAI* GetAI_mob_water_globule(Creature *_Creature)
+CreatureAI* GetAI_mob_water_globule(Creature* pCreature)
 {
-    return new mob_water_globuleAI (_Creature);
+    return new mob_water_globuleAI (pCreature);
 }
 
 void AddSC_boss_morogrim_tidewalker()

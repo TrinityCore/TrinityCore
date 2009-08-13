@@ -153,9 +153,9 @@ struct TRINITY_DLL_DECL boss_nethermancer_sepethreaAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_nethermancer_sepethrea(Creature *_Creature)
+CreatureAI* GetAI_boss_nethermancer_sepethrea(Creature* pCreature)
 {
-    return new boss_nethermancer_sepethreaAI (_Creature);
+    return new boss_nethermancer_sepethreaAI (pCreature);
 }
 
 #define SPELL_INFERNO                   35268
@@ -238,9 +238,9 @@ struct TRINITY_DLL_DECL mob_ragin_flamesAI : public ScriptedAI
     }
 
 };
-CreatureAI* GetAI_mob_ragin_flames(Creature *_Creature)
+CreatureAI* GetAI_mob_ragin_flames(Creature* pCreature)
 {
-    return new mob_ragin_flamesAI (_Creature);
+    return new mob_ragin_flamesAI (pCreature);
 }
 void AddSC_boss_nethermancer_sepethrea()
 {

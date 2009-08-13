@@ -111,56 +111,56 @@ struct TRINITY_DLL_DECL npc_injured_rainspeaker_oracleAI : public npc_escortAI
         }
     }
 
-    void UpdateAI(Player* pPlayer, Creature *_Creature,const uint32 diff)
+    void UpdateAI(Player* pPlayer, Creature* pCreature,const uint32 diff)
     {
         npc_escortAI::UpdateAI(diff);
     }
 };
 
 
-bool GossipHello_npc_injured_rainspeaker_oracle(Player* pPlayer, Creature *_Creature)
+bool GossipHello_npc_injured_rainspeaker_oracle(Player* pPlayer, Creature* pCreature)
 {
-    if (_Creature->isQuestGiver())
-        pPlayer->PrepareQuestMenu(_Creature->GetGUID());
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
     if (pPlayer->GetQuestStatus(QUEST_FORTUNATE_MISUNDERSTANDINGS) == QUEST_STATUS_INCOMPLETE)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-    pPlayer->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
 
     return true;
 }
 
-bool GossipSelect_npc_injured_rainspeaker_oracle(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_injured_rainspeaker_oracle(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
     if (action == GOSSIP_ACTION_INFO_DEF+1)
     {
-        CAST_AI(npc_escortAI, (_Creature->AI()))->Start(true, false, pPlayer->GetGUID());
-        CAST_AI(npc_escortAI, (_Creature->AI()))->SetMaxPlayerDistance(35.0f);
-        _Creature->SetUnitMovementFlags(MOVEMENTFLAG_JUMPING);
-        DoScriptText(SAY_START_IRO,_Creature);
+        CAST_AI(npc_escortAI, (pCreature->AI()))->Start(true, false, pPlayer->GetGUID());
+        CAST_AI(npc_escortAI, (pCreature->AI()))->SetMaxPlayerDistance(35.0f);
+        pCreature->SetUnitMovementFlags(MOVEMENTFLAG_JUMPING);
+        DoScriptText(SAY_START_IRO, pCreature);
 
         switch (pPlayer->GetTeam()){
         case ALLIANCE:
-            _Creature->setFaction(FACTION_ESCORTEE_A);
+            pCreature->setFaction(FACTION_ESCORTEE_A);
             break;
         case HORDE:
-            _Creature->setFaction(FACTION_ESCORTEE_H);
+            pCreature->setFaction(FACTION_ESCORTEE_H);
             break;
         }
     }
     return true;
 }
 
-bool QuestAccept_npc_injured_rainspeaker_oracle(Player* pPlayer, Creature *_Creature, Quest const *_Quest)
+bool QuestAccept_npc_injured_rainspeaker_oracle(Player* pPlayer, Creature* pCreature, Quest const *_Quest)
 {
-    DoScriptText(SAY_QUEST_ACCEPT_IRO,_Creature);
+    DoScriptText(SAY_QUEST_ACCEPT_IRO, pCreature);
     return false;
 }
 
-CreatureAI* GetAI_npc_injured_rainspeaker_oracle(Creature *_Creature)
+CreatureAI* GetAI_npc_injured_rainspeaker_oracle(Creature* pCreature)
 {
-    npc_injured_rainspeaker_oracleAI* thisAI = new npc_injured_rainspeaker_oracleAI(_Creature);
+    npc_injured_rainspeaker_oracleAI* thisAI = new npc_injured_rainspeaker_oracleAI(pCreature);
 
     thisAI->FillPointMovementListForCreature();
 

@@ -137,9 +137,9 @@ struct TRINITY_DLL_DECL boss_instructormaliciaAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_instructormalicia(Creature *_Creature)
+CreatureAI* GetAI_boss_instructormalicia(Creature* pCreature)
 {
-    return new boss_instructormaliciaAI (_Creature);
+    return new boss_instructormaliciaAI (pCreature);
 }
 
 void AddSC_boss_instructormalicia()

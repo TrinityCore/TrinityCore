@@ -345,34 +345,34 @@ struct TRINITY_DLL_DECL boss_victor_nefariusAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_victor_nefarius(Creature *_Creature)
+CreatureAI* GetAI_boss_victor_nefarius(Creature* pCreature)
 {
-    return new boss_victor_nefariusAI (_Creature);
+    return new boss_victor_nefariusAI (pCreature);
 }
 
-bool GossipHello_boss_victor_nefarius(Player* pPlayer, Creature *_Creature)
+bool GossipHello_boss_victor_nefarius(Player* pPlayer, Creature* pCreature)
 {
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_1 , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-    pPlayer->SEND_GOSSIP_MENU(7134,_Creature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(7134, pCreature->GetGUID());
     return true;
 }
 
-bool GossipSelect_boss_victor_nefarius(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_boss_victor_nefarius(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
     switch (action)
     {
         case GOSSIP_ACTION_INFO_DEF+1:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-            pPlayer->SEND_GOSSIP_MENU(7198, _Creature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(7198, pCreature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+2:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
-            pPlayer->SEND_GOSSIP_MENU(7199, _Creature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(7199, pCreature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+3:
             pPlayer->CLOSE_GOSSIP_MENU();
-            DoScriptText(SAY_GAMESBEGIN_1, _Creature);
-            CAST_AI(boss_victor_nefariusAI, _Creature->AI())->BeginEvent(pPlayer);
+            DoScriptText(SAY_GAMESBEGIN_1, pCreature);
+            CAST_AI(boss_victor_nefariusAI, pCreature->AI())->BeginEvent(pPlayer);
             break;
     }
     return true;

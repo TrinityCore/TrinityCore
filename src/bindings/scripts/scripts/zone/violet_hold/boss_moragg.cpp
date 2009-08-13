@@ -34,9 +34,9 @@ struct TRINITY_DLL_DECL boss_moraggAI : public ScriptedAI
     void JustDied(Unit* killer) {}
 };
 
-CreatureAI* GetAI_boss_moragg(Creature *_Creature)
+CreatureAI* GetAI_boss_moragg(Creature* pCreature)
 {
-    return new boss_moraggAI (_Creature);
+    return new boss_moraggAI (pCreature);
 }
 
 void AddSC_boss_moragg()

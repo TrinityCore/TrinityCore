@@ -133,9 +133,9 @@ bool QuestAccept_npc_ame(Player* pPlayer, Creature* creature, Quest const* quest
     return true;
 }
 
-CreatureAI* GetAI_npc_ame(Creature *_Creature)
+CreatureAI* GetAI_npc_ame(Creature* pCreature)
 {
-    npc_ameAI* thisAI = new npc_ameAI(_Creature);
+    npc_ameAI* thisAI = new npc_ameAI(pCreature);
 
    thisAI->AddWaypoint(1, -6380.38, -1965.14, -258.292, 5000);
    thisAI->AddWaypoint(2, -6383.06, -1962.9, -258.936);

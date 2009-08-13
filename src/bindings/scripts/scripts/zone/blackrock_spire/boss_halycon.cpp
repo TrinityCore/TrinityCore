@@ -80,9 +80,9 @@ struct TRINITY_DLL_DECL boss_halyconAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_halycon(Creature *_Creature)
+CreatureAI* GetAI_boss_halycon(Creature* pCreature)
 {
-    return new boss_halyconAI (_Creature);
+    return new boss_halyconAI (pCreature);
 }
 
 void AddSC_boss_halycon()

@@ -78,9 +78,9 @@ struct TRINITY_DLL_DECL boss_pyroguard_emberseerAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_pyroguard_emberseer(Creature *_Creature)
+CreatureAI* GetAI_boss_pyroguard_emberseer(Creature* pCreature)
 {
-    return new boss_pyroguard_emberseerAI (_Creature);
+    return new boss_pyroguard_emberseerAI (pCreature);
 }
 
 void AddSC_boss_pyroguard_emberseer()

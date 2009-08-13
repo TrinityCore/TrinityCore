@@ -96,9 +96,9 @@ struct TRINITY_DLL_DECL boss_broodlordAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_broodlord(Creature *_Creature)
+CreatureAI* GetAI_boss_broodlord(Creature* pCreature)
 {
-    return new boss_broodlordAI (_Creature);
+    return new boss_broodlordAI (pCreature);
 }
 
 void AddSC_boss_broodlord()

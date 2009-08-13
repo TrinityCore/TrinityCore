@@ -61,9 +61,9 @@ struct TRINITY_DLL_DECL boss_houndmaster_lokseyAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_houndmaster_loksey(Creature *_Creature)
+CreatureAI* GetAI_boss_houndmaster_loksey(Creature* pCreature)
 {
-    return new boss_houndmaster_lokseyAI (_Creature);
+    return new boss_houndmaster_lokseyAI (pCreature);
 }
 
 void AddSC_boss_houndmaster_loksey()

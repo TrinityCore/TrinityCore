@@ -154,9 +154,9 @@ struct TRINITY_DLL_DECL boss_malygosAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_malygos(Creature *_Creature)
+CreatureAI* GetAI_boss_malygos(Creature* pCreature)
 {
-    return new boss_malygosAI (_Creature);
+    return new boss_malygosAI (pCreature);
 }
 
 void AddSC_boss_malygos()

@@ -169,9 +169,9 @@ struct TRINITY_DLL_DECL boss_void_reaverAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_void_reaver(Creature *_Creature)
+CreatureAI* GetAI_boss_void_reaver(Creature* pCreature)
 {
-    return new boss_void_reaverAI (_Creature);
+    return new boss_void_reaverAI (pCreature);
 }
 
 void AddSC_boss_void_reaver()

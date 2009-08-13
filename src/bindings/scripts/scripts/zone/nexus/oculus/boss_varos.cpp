@@ -69,9 +69,9 @@ struct TRINITY_DLL_DECL boss_varosAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_varos(Creature *_Creature)
+CreatureAI* GetAI_boss_varos(Creature* pCreature)
 {
-    return new boss_varosAI (_Creature);
+    return new boss_varosAI (pCreature);
 }
 
 void AddSC_boss_varos()

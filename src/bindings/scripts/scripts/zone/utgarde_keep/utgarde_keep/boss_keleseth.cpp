@@ -329,19 +329,19 @@ struct TRINITY_DLL_DECL mob_vrykul_skeletonAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_mob_frost_tomb(Creature *_Creature)
+CreatureAI* GetAI_mob_frost_tomb(Creature* pCreature)
 {
-    return new mob_frost_tombAI(_Creature);
+    return new mob_frost_tombAI(pCreature);
 }
 
-CreatureAI* GetAI_boss_keleseth(Creature *_Creature)
+CreatureAI* GetAI_boss_keleseth(Creature* pCreature)
 {
-    return new boss_kelesethAI (_Creature);
+    return new boss_kelesethAI (pCreature);
 }
 
-CreatureAI* GetAI_mob_vrykul_skeleton(Creature *_Creature)
+CreatureAI* GetAI_mob_vrykul_skeleton(Creature* pCreature)
 {
-    return new mob_vrykul_skeletonAI (_Creature);
+    return new mob_vrykul_skeletonAI (pCreature);
 }
 
 void AddSC_boss_keleseth()

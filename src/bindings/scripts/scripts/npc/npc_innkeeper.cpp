@@ -47,10 +47,10 @@ bool isEventActive()
     return false;
 }
 
-bool GossipHello_npc_innkeeper(Player* pPlayer, Creature *_Creature)
+bool GossipHello_npc_innkeeper(Player* pPlayer, Creature* pCreature)
 {
-    if (_Creature->isQuestGiver())
-        pPlayer->PrepareQuestMenu(_Creature->GetGUID());
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
     if (isEventActive()&& !pPlayer->GetAura(SPELL_TRICK_OR_TREATED, pPlayer->GetGUID()))
     {
@@ -76,12 +76,12 @@ bool GossipHello_npc_innkeeper(Player* pPlayer, Creature *_Creature)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, localizedEntry, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+HALLOWEEN_EVENTID);
     }
 
-    pPlayer->TalkedToCreature(_Creature->GetEntry(),_Creature->GetGUID());
-    pPlayer->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
+    pPlayer->TalkedToCreature(pCreature->GetEntry(), pCreature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
     return true;
 }
 
-bool GossipSelect_npc_innkeeper(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_innkeeper(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
     if (action == GOSSIP_ACTION_INFO_DEF+HALLOWEEN_EVENTID && isEventActive() && !pPlayer->GetAura(SPELL_TRICK_OR_TREATED, pPlayer->GetGUID()))
     {

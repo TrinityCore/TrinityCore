@@ -75,9 +75,9 @@ struct TRINITY_DLL_DECL boss_xt002_AI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_xt002(Creature *_Creature)
+CreatureAI* GetAI_boss_xt002(Creature* pCreature)
 {
-    return new boss_xt002_AI (_Creature);
+    return new boss_xt002_AI (pCreature);
 }
 void AddSC_boss_xt002()
 {

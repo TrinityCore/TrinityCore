@@ -136,9 +136,9 @@ struct TRINITY_DLL_DECL boss_renatakiAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_renataki(Creature *_Creature)
+CreatureAI* GetAI_boss_renataki(Creature* pCreature)
 {
-    return new boss_renatakiAI (_Creature);
+    return new boss_renatakiAI (pCreature);
 }
 
 void AddSC_boss_renataki()

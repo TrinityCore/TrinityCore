@@ -47,16 +47,16 @@ enum
 #define GOSSIP_ITEM_THUNDER     "I'd like to fly to Thunder Bluff."
 #define GOSSIP_ITEM_AQ_END      "Do you know where I can find Half Pendant of Aquatic Endurance?"
 
-bool GossipHello_npc_bunthen_plainswind(Player* pPlayer, Creature *_Creature)
+bool GossipHello_npc_bunthen_plainswind(Player* pPlayer, Creature* pCreature)
 {
     if (pPlayer->getClass() != CLASS_DRUID)
-        pPlayer->SEND_GOSSIP_MENU(4916,_Creature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(4916, pCreature->GetGUID());
     else if (pPlayer->GetTeam() != HORDE)
     {
         if (pPlayer->GetQuestStatus(QUEST_SEA_LION_ALLY) == QUEST_STATUS_INCOMPLETE)
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_AQ_END, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
 
-        pPlayer->SEND_GOSSIP_MENU(4917,_Creature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(4917, pCreature->GetGUID());
     }
     else if (pPlayer->getClass() == CLASS_DRUID && pPlayer->GetTeam() == HORDE)
     {
@@ -65,12 +65,12 @@ bool GossipHello_npc_bunthen_plainswind(Player* pPlayer, Creature *_Creature)
         if (pPlayer->GetQuestStatus(QUEST_SEA_LION_HORDE) == QUEST_STATUS_INCOMPLETE)
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_AQ_END, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
 
-        pPlayer->SEND_GOSSIP_MENU(4918,_Creature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(4918, pCreature->GetGUID());
     }
     return true;
 }
 
-bool GossipSelect_npc_bunthen_plainswind(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_bunthen_plainswind(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
     switch(action)
     {
@@ -80,10 +80,10 @@ bool GossipSelect_npc_bunthen_plainswind(Player* pPlayer, Creature *_Creature, u
                 pPlayer->ActivateTaxiPathTo(TAXI_PATH_ID_HORDE);
             break;
         case GOSSIP_ACTION_INFO_DEF + 2:
-            pPlayer->SEND_GOSSIP_MENU(5373,_Creature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(5373, pCreature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF + 3:
-            pPlayer->SEND_GOSSIP_MENU(5376,_Creature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(5376, pCreature->GetGUID());
             break;
     }
     return true;
@@ -98,38 +98,38 @@ bool GossipSelect_npc_bunthen_plainswind(Player* pPlayer, Creature *_Creature, u
 #define GOSSIP_BEAR3 "I seek to understand the importance of strength of the heart."
 #define GOSSIP_BEAR4 "I have heard your words, Great Bear Spirit, and I understand. I now seek your blessings to fully learn the way of the Claw."
 
-bool GossipHello_npc_great_bear_spirit(Player* pPlayer, Creature *_Creature)
+bool GossipHello_npc_great_bear_spirit(Player* pPlayer, Creature* pCreature)
 {
     //ally or horde quest
     if (pPlayer->GetQuestStatus(5929) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(5930) == QUEST_STATUS_INCOMPLETE)
     {
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BEAR1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-        pPlayer->SEND_GOSSIP_MENU(4719, _Creature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(4719, pCreature->GetGUID());
     }
     else
-        pPlayer->SEND_GOSSIP_MENU(4718, _Creature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(4718, pCreature->GetGUID());
 
     return true;
 }
 
-bool GossipSelect_npc_great_bear_spirit(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_great_bear_spirit(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
     switch (action)
     {
         case GOSSIP_ACTION_INFO_DEF:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BEAR2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            pPlayer->SEND_GOSSIP_MENU(4721, _Creature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(4721, pCreature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF + 1:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BEAR3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-            pPlayer->SEND_GOSSIP_MENU(4733, _Creature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(4733, pCreature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF + 2:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BEAR4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-            pPlayer->SEND_GOSSIP_MENU(4734, _Creature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(4734, pCreature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF + 3:
-            pPlayer->SEND_GOSSIP_MENU(4735, _Creature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(4735, pCreature->GetGUID());
             if (pPlayer->GetQuestStatus(5929)==QUEST_STATUS_INCOMPLETE)
                 pPlayer->AreaExploredOrEventHappens(5929);
             if (pPlayer->GetQuestStatus(5930)==QUEST_STATUS_INCOMPLETE)
@@ -146,16 +146,16 @@ bool GossipSelect_npc_great_bear_spirit(Player* pPlayer, Creature *_Creature, ui
 #define GOSSIP_ITEM_RUTHERAN    "I'd like to fly to Rut'theran Village."
 #define GOSSIP_ITEM_AQ_AGI      "Do you know where I can find Half Pendant of Aquatic Agility?"
 
-bool GossipHello_npc_silva_filnaveth(Player* pPlayer, Creature *_Creature)
+bool GossipHello_npc_silva_filnaveth(Player* pPlayer, Creature* pCreature)
 {
     if (pPlayer->getClass() != CLASS_DRUID)
-        pPlayer->SEND_GOSSIP_MENU(4913,_Creature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(4913, pCreature->GetGUID());
     else if (pPlayer->GetTeam() != ALLIANCE)
     {
         if (pPlayer->GetQuestStatus(QUEST_SEA_LION_HORDE) == QUEST_STATUS_INCOMPLETE)
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_AQ_AGI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
 
-        pPlayer->SEND_GOSSIP_MENU(4915,_Creature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(4915, pCreature->GetGUID());
     }
     else if (pPlayer->getClass() == CLASS_DRUID && pPlayer->GetTeam() == ALLIANCE)
     {
@@ -164,12 +164,12 @@ bool GossipHello_npc_silva_filnaveth(Player* pPlayer, Creature *_Creature)
         if (pPlayer->GetQuestStatus(QUEST_SEA_LION_ALLY) == QUEST_STATUS_INCOMPLETE)
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_AQ_AGI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
 
-        pPlayer->SEND_GOSSIP_MENU(4914,_Creature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(4914, pCreature->GetGUID());
     }
     return true;
 }
 
-bool GossipSelect_npc_silva_filnaveth(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_silva_filnaveth(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
     switch(action)
     {
@@ -179,10 +179,10 @@ bool GossipSelect_npc_silva_filnaveth(Player* pPlayer, Creature *_Creature, uint
                 pPlayer->ActivateTaxiPathTo(TAXI_PATH_ID_ALLY);
             break;
         case GOSSIP_ACTION_INFO_DEF + 2:
-            pPlayer->SEND_GOSSIP_MENU(5374,_Creature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(5374, pCreature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF + 3:
-            pPlayer->SEND_GOSSIP_MENU(5375,_Creature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(5375, pCreature->GetGUID());
             break;
     }
     return true;
@@ -509,9 +509,9 @@ public:
     }
 };
 
-CreatureAI* GetAI_npc_clintar_spirit(Creature *_Creature)
+CreatureAI* GetAI_npc_clintar_spirit(Creature* pCreature)
 {
-    return new npc_clintar_spiritAI (_Creature);
+    return new npc_clintar_spiritAI (pCreature);
 }
 
 /*####

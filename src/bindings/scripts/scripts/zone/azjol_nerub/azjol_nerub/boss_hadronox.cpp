@@ -98,9 +98,9 @@ struct TRINITY_DLL_DECL boss_hadronoxAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_hadronox(Creature *_Creature)
+CreatureAI* GetAI_boss_hadronox(Creature* pCreature)
 {
-    return new boss_hadronoxAI (_Creature);
+    return new boss_hadronoxAI (pCreature);
 }
 
 void AddSC_boss_hadronox()

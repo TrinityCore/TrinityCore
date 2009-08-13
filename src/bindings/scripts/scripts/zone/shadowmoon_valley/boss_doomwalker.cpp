@@ -175,9 +175,9 @@ struct TRINITY_DLL_DECL boss_doomwalkerAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_doomwalker(Creature *_Creature)
+CreatureAI* GetAI_boss_doomwalker(Creature* pCreature)
 {
-    return new boss_doomwalkerAI (_Creature);
+    return new boss_doomwalkerAI (pCreature);
 }
 
 void AddSC_boss_doomwalker()

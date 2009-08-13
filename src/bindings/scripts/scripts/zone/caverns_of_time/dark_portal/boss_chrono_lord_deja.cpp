@@ -144,9 +144,9 @@ struct TRINITY_DLL_DECL boss_chrono_lord_dejaAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_chrono_lord_deja(Creature *_Creature)
+CreatureAI* GetAI_boss_chrono_lord_deja(Creature* pCreature)
 {
-    return new boss_chrono_lord_dejaAI (_Creature);
+    return new boss_chrono_lord_dejaAI (pCreature);
 }
 
 void AddSC_boss_chrono_lord_deja()

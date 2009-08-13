@@ -132,9 +132,9 @@ struct TRINITY_DLL_DECL boss_gatewatcher_iron_handAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_gatewatcher_iron_hand(Creature *_Creature)
+CreatureAI* GetAI_boss_gatewatcher_iron_hand(Creature* pCreature)
 {
-    return new boss_gatewatcher_iron_handAI (_Creature);
+    return new boss_gatewatcher_iron_handAI (pCreature);
 }
 
 void AddSC_boss_gatewatcher_iron_hand()

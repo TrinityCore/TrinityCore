@@ -144,9 +144,9 @@ struct TRINITY_DLL_DECL npc_dragonflayer_forge_masterAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_dragonflayer_forge_master(Creature *_Creature)
+CreatureAI* GetAI_npc_dragonflayer_forge_master(Creature* pCreature)
 {
-    return new npc_dragonflayer_forge_masterAI(_Creature);
+    return new npc_dragonflayer_forge_masterAI(pCreature);
 }
 
 void AddSC_utgarde_keep()

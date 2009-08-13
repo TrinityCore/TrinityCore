@@ -543,21 +543,21 @@ struct TRINITY_DLL_DECL water_elementalAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_aran(Creature *_Creature)
+CreatureAI* GetAI_boss_aran(Creature* pCreature)
 {
-    return new boss_aranAI (_Creature);
+    return new boss_aranAI (pCreature);
 }
 
-CreatureAI* GetAI_water_elemental(Creature *_Creature)
+CreatureAI* GetAI_water_elemental(Creature* pCreature)
 {
-    return new water_elementalAI (_Creature);
+    return new water_elementalAI (pCreature);
 }
 
 // CONVERT TO ACID
-CreatureAI* GetAI_shadow_of_aran(Creature *_Creature)
+CreatureAI* GetAI_shadow_of_aran(Creature* pCreature)
 {
-    outstring_log("TSCR: Convert simpleAI script for Creature Entry %u to ACID", _Creature->GetEntry());
-    SimpleAI* ai = new SimpleAI (_Creature);
+    outstring_log("TSCR: Convert simpleAI script for Creature Entry %u to ACID", pCreature->GetEntry());
+    SimpleAI* ai = new SimpleAI (pCreature);
 
     ai->Spell[0].Enabled = true;
     ai->Spell[0].Spell_Id = SPELL_SHADOW_PYRO;

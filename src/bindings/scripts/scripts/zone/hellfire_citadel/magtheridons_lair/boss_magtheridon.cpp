@@ -520,19 +520,19 @@ bool GOHello_go_Manticron_Cube(Player* pPlayer, GameObject* _GO)
     return true;
 }
 
-CreatureAI* GetAI_boss_magtheridon(Creature *_Creature)
+CreatureAI* GetAI_boss_magtheridon(Creature* pCreature)
 {
-    return new boss_magtheridonAI(_Creature);
+    return new boss_magtheridonAI(pCreature);
 }
 
-CreatureAI* GetAI_mob_hellfire_channeler(Creature *_Creature)
+CreatureAI* GetAI_mob_hellfire_channeler(Creature* pCreature)
 {
-    return new mob_hellfire_channelerAI(_Creature);
+    return new mob_hellfire_channelerAI(pCreature);
 }
 
-CreatureAI* GetAI_mob_abyssalAI(Creature *_Creature)
+CreatureAI* GetAI_mob_abyssalAI(Creature* pCreature)
 {
-    return new mob_abyssalAI(_Creature);
+    return new mob_abyssalAI(pCreature);
 }
 
 void AddSC_boss_magtheridon()

@@ -177,9 +177,9 @@ struct TRINITY_DLL_DECL boss_rage_winterchillAI : public hyjal_trashAI
     }
 };
 
-CreatureAI* GetAI_boss_rage_winterchill(Creature *_Creature)
+CreatureAI* GetAI_boss_rage_winterchill(Creature* pCreature)
 {
-    return new boss_rage_winterchillAI (_Creature);
+    return new boss_rage_winterchillAI (pCreature);
 }
 
 void AddSC_boss_rage_winterchill()

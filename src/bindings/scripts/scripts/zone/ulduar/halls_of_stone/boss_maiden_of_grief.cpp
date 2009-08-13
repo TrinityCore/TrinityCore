@@ -65,9 +65,9 @@ struct TRINITY_DLL_DECL boss_maiden_of_griefAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_maiden_of_grief(Creature *_Creature)
+CreatureAI* GetAI_boss_maiden_of_grief(Creature* pCreature)
 {
-    return new boss_maiden_of_griefAI (_Creature);
+    return new boss_maiden_of_griefAI (pCreature);
 }
 
 void AddSC_boss_maiden_of_grief()
