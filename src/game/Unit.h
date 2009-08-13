@@ -1846,6 +1846,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         DeathState m_deathState;
 
         AuraMap m_Auras;
+        AuraMap::iterator m_AurasUpdateIterator;
         uint32 m_removedAurasCount;
         int32 m_procDeep;
 
