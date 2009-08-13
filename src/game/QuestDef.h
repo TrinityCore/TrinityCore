@@ -99,6 +99,7 @@ enum QuestStatus
     //QUEST_STATUS_UNAVAILABLE    = 2,
     QUEST_STATUS_INCOMPLETE     = 3,
     //QUEST_STATUS_AVAILABLE      = 4,
+    QUEST_STATUS_FAILED         = 5,
     MAX_QUEST_STATUS
 };
 
