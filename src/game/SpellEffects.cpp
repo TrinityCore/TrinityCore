@@ -4681,6 +4681,11 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     ((Creature*)unitTarget)->ForcedDespawn();
                     return;
                 }
+                case 55693:                                 // Remove Collapsing Cave Aura
+                    if(unitTarget)
+                        return;
+                    unitTarget->RemoveAurasDueToSpell(m_spellInfo->CalculateSimpleValue(effIndex));
+                    break;
                 // PX-238 Winter Wondervolt TRAP
                 case 26275:
                 {
