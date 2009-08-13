@@ -67,6 +67,13 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     GetPlayer()->SetSemaphoreTeleportFar(false);
 
     Map * oldMap = GetPlayer()->GetMap();
+    assert(oldMap);
+    if(GetPlayer()->IsInWorld())
+    {
+        sLog.outCrash("Player is still in world when teleported out of map %u! to new map %u", oldMap->GetId(), loc.mapid);
+        oldMap->Remove(GetPlayer(), false);
+    }
+
     // relocate the player to the teleport destination
     Map * newMap = MapManager::Instance().CreateMap(loc.mapid, GetPlayer(), 0);
     // the CanEnter checks are done in TeleporTo but conditions may change
