@@ -106,9 +106,12 @@ EndScriptData */
 #define KICK_Y                              1984.0f
 #define KICK_Z                              -96.0f
 
-struct TRINITY_DLL_DECL flesh_tentacleAI : public Scripted_NoMovementAI
+struct TRINITY_DLL_DECL flesh_tentacleAI : public ScriptedAI
 {
-    flesh_tentacleAI(Creature *c) : Scripted_NoMovementAI(c), Parent(0) {}
+    flesh_tentacleAI(Creature *c) : ScriptedAI(c), Parent(0)
+    {
+        SetCombatMovement(false);
+    }
 
     uint64 Parent;
     uint32 CheckTimer;
@@ -428,10 +431,12 @@ struct TRINITY_DLL_DECL eye_of_cthunAI : public Scripted_NoMovementAI
     }
 };
 
-struct TRINITY_DLL_DECL cthunAI : public Scripted_NoMovementAI
+struct TRINITY_DLL_DECL cthunAI : public ScriptedAI
 {
-    cthunAI(Creature *c) : Scripted_NoMovementAI(c)
+    cthunAI(Creature *c) : ScriptedAI(c)
     {
+        SetCombatMovement(false);
+
         pInst = c->GetInstanceData();
         if (!pInst)
             error_log("TSCR: No Instance eye_of_cthunAI");
@@ -909,10 +914,12 @@ struct TRINITY_DLL_DECL cthunAI : public Scripted_NoMovementAI
     }
 };
 
-struct TRINITY_DLL_DECL eye_tentacleAI : public Scripted_NoMovementAI
+struct TRINITY_DLL_DECL eye_tentacleAI : public ScriptedAI
 {
-    eye_tentacleAI(Creature *c) : Scripted_NoMovementAI(c)
+    eye_tentacleAI(Creature *c) : ScriptedAI(c)
     {
+        SetCombatMovement(false);
+
         if (Unit* pPortal = m_creature->SummonCreature(MOB_SMALL_PORTAL, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0))
             Portal = pPortal->GetGUID();
     }
@@ -968,10 +975,12 @@ struct TRINITY_DLL_DECL eye_tentacleAI : public Scripted_NoMovementAI
     }
 };
 
-struct TRINITY_DLL_DECL claw_tentacleAI : public Scripted_NoMovementAI
+struct TRINITY_DLL_DECL claw_tentacleAI : public ScriptedAI
 {
-    claw_tentacleAI(Creature *c) : Scripted_NoMovementAI(c)
+    claw_tentacleAI(Creature *c) : ScriptedAI(c)
     {
+        SetCombatMovement(false);
+
         if (Unit* pPortal = m_creature->SummonCreature(MOB_SMALL_PORTAL, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0))
             Portal = pPortal->GetGUID();
     }
@@ -1057,10 +1066,12 @@ struct TRINITY_DLL_DECL claw_tentacleAI : public Scripted_NoMovementAI
     }
 };
 
-struct TRINITY_DLL_DECL giant_claw_tentacleAI : public Scripted_NoMovementAI
+struct TRINITY_DLL_DECL giant_claw_tentacleAI : public ScriptedAI
 {
-    giant_claw_tentacleAI(Creature *c) : Scripted_NoMovementAI(c)
+    giant_claw_tentacleAI(Creature *c) : ScriptedAI(c)
     {
+        SetCombatMovement(false);
+
         if (Unit* pPortal = m_creature->SummonCreature(MOB_GIANT_PORTAL, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0))
             Portal = pPortal->GetGUID();
     }
@@ -1156,10 +1167,12 @@ struct TRINITY_DLL_DECL giant_claw_tentacleAI : public Scripted_NoMovementAI
     }
 };
 
-struct TRINITY_DLL_DECL giant_eye_tentacleAI : public Scripted_NoMovementAI
+struct TRINITY_DLL_DECL giant_eye_tentacleAI : public ScriptedAI
 {
-    giant_eye_tentacleAI(Creature *c) : Scripted_NoMovementAI(c)
+    giant_eye_tentacleAI(Creature *c) : ScriptedAI(c)
     {
+        SetCombatMovement(false);
+
         if (Unit* pPortal = m_creature->SummonCreature(MOB_GIANT_PORTAL, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0))
             Portal = pPortal->GetGUID();
     }

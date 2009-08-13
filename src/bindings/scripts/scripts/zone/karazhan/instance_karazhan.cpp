@@ -189,7 +189,12 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
                     break;
                 Encounters[11] = data;
                 break;
-            case DATA_OPERA_OZ_DEATHCOUNT:     ++OzDeathCount;        break;
+            case DATA_OPERA_OZ_DEATHCOUNT:
+                if (data == SPECIAL)
+                    ++OzDeathCount;
+                else if (data == IN_PROGRESS)
+                    OzDeathCount = 0;
+                break;
         }
 
         if(data == DONE)

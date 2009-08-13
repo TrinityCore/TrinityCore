@@ -30,7 +30,7 @@ CREATE TABLE `script_texts` (
 
 INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`, `sound`, `type`, `language`, `emote`, `comment`) VALUES
 (-1000000, '<TrinityScript Text Entry Missing!>', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 'DEFAULT_TEXT'),
-(-1000001, 'goes into a killing frenzy!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, 0, 0, 'EMOTE_GENERIC_FRENZY_KILL'),
+(-1000001, '%s goes into a killing frenzy!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, 0, 0, 'EMOTE_GENERIC_FRENZY_KILL'),
 (-1000004, 'goes into a berserker rage!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, 0, 0, 'EMOTE_GENERIC_BERSERK'),
 (-1000005, 'UNUSED', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 'REUSE ME');
 
@@ -1952,7 +1952,17 @@ INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content
 (-1609085,'You have challenged death itself!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,0,0,0,'dk_initiate SAY_DUEL_F'),
 (-1609086,'The Lich King will see his true champion on this day!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,0,0,0,'dk_initiate SAY_DUEL_G'),
 (-1609087,'You\'re going down!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,0,0,0,'dk_initiate SAY_DUEL_H'),
-(-1609088,'You don\'t stand a chance, $n', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,0,0,0,'dk_initiate SAY_DUEL_I');
+(-1609088,'You don\'t stand a chance, $n', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,0,0,0,'dk_initiate SAY_DUEL_I'),
+(-1609089, 'I\'ll need to get my runeblade and armor... Just need a little more time.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,0,0,399,'koltira SAY_BREAKOUT1'),
+(-1609090, 'I\'m still weak, but I think I can get an anti-magic barrier up. Stay inside it or you\'ll be destroyed by their spells.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,0,0,0,'koltira SAY_BREAKOUT2'),
+(-1609091, 'Maintaining this barrier will require all of my concentration. Kill them all!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,0,0,16,'koltira SAY_BREAKOUT3'),
+(-1609092, 'There are more coming. Defend yourself! Don\'t fall out of the anti-magic field! They\'ll tear you apart without its protection!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,0,0,0,'koltira SAY_BREAKOUT4'),
+(-1609093, 'I can\'t keep barrier up much longer... Where is that coward?', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,0,0,0,'koltira SAY_BREAKOUT5'),
+(-1609094, 'The High Inquisitor comes! Be ready, death knight! Do not let him draw you out of the protective bounds of my anti-magic field! Kill him and take his head!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,0,0,0,'koltira SAY_BREAKOUT6'),
+(-1609095, 'Stay in the anti-magic field! Make them come to you!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,0,0,0,'koltira SAY_BREAKOUT7'),
+(-1609096, 'The death of the High Inquisitor of New Avalon will not go unnoticed. You need to get out of here at once! Go, before more of them show up. I\'ll be fine on my own.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,0,0,0,'koltira SAY_BREAKOUT8'),
+(-1609097, 'I\'ll draw their fire, you make your escape behind me.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,0,0,0,'koltira SAY_BREAKOUT9'),
+(-1609098, 'Your High Inquisitor is nothing more than a pile of meat, Crusaders! There are none beyond the grasp of the Scourge!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,1,0,0,'koltira SAY_BREAKOUT10');
 
 -- 
 -- Below just for beautiful view in table, run at own desire
