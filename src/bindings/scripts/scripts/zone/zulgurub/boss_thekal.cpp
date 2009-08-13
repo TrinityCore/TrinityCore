@@ -519,19 +519,19 @@ struct TRINITY_DLL_DECL mob_zealot_zathAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_thekal(Creature *_Creature)
+CreatureAI* GetAI_boss_thekal(Creature* pCreature)
 {
-    return new boss_thekalAI (_Creature);
+    return new boss_thekalAI (pCreature);
 }
 
-CreatureAI* GetAI_mob_zealot_lorkhan(Creature *_Creature)
+CreatureAI* GetAI_mob_zealot_lorkhan(Creature* pCreature)
 {
-    return new mob_zealot_lorkhanAI (_Creature);
+    return new mob_zealot_lorkhanAI (pCreature);
 }
 
-CreatureAI* GetAI_mob_zealot_zath(Creature *_Creature)
+CreatureAI* GetAI_mob_zealot_zath(Creature* pCreature)
 {
-    return new mob_zealot_zathAI (_Creature);
+    return new mob_zealot_zathAI (pCreature);
 }
 
 void AddSC_boss_thekal()

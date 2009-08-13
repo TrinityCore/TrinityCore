@@ -99,9 +99,9 @@ struct TRINITY_DLL_DECL boss_krik_thirAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_krik_thir(Creature *_Creature)
+CreatureAI* GetAI_boss_krik_thir(Creature* pCreature)
 {
-    return new boss_krik_thirAI (_Creature);
+    return new boss_krik_thirAI (pCreature);
 }
 
 void AddSC_boss_krik_thir()

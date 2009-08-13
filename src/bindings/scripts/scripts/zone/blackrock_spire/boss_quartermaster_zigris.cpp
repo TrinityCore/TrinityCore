@@ -70,9 +70,9 @@ struct TRINITY_DLL_DECL boss_quatermasterzigrisAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_quatermasterzigris(Creature *_Creature)
+CreatureAI* GetAI_boss_quatermasterzigris(Creature* pCreature)
 {
-    return new boss_quatermasterzigrisAI (_Creature);
+    return new boss_quatermasterzigrisAI (pCreature);
 }
 
 void AddSC_boss_quatermasterzigris()

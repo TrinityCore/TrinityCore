@@ -122,9 +122,9 @@ struct TRINITY_DLL_DECL boss_pandemoniusAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_pandemonius(Creature *_Creature)
+CreatureAI* GetAI_boss_pandemonius(Creature* pCreature)
 {
-    return new boss_pandemoniusAI (_Creature);
+    return new boss_pandemoniusAI (pCreature);
 }
 
 void AddSC_boss_pandemonius()

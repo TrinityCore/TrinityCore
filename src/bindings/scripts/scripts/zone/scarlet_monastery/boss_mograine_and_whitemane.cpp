@@ -333,14 +333,14 @@ struct TRINITY_DLL_DECL boss_high_inquisitor_whitemaneAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_scarlet_commander_mograine(Creature *_Creature)
+CreatureAI* GetAI_boss_scarlet_commander_mograine(Creature* pCreature)
 {
-    return new boss_scarlet_commander_mograineAI (_Creature);
+    return new boss_scarlet_commander_mograineAI (pCreature);
 }
 
-CreatureAI* GetAI_boss_high_inquisitor_whitemane(Creature *_Creature)
+CreatureAI* GetAI_boss_high_inquisitor_whitemane(Creature* pCreature)
 {
-    return new boss_high_inquisitor_whitemaneAI (_Creature);
+    return new boss_high_inquisitor_whitemaneAI (pCreature);
 }
 
 void AddSC_boss_mograine_and_whitemane()

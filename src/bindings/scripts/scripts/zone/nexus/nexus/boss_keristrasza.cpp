@@ -221,9 +221,9 @@ struct TRINITY_DLL_DECL boss_keristraszaAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_keristrasza(Creature *_Creature)
+CreatureAI* GetAI_boss_keristrasza(Creature* pCreature)
 {
-    return new boss_keristraszaAI (_Creature);
+    return new boss_keristraszaAI (pCreature);
 }
 
 bool GOHello_containment_sphere(Player *pPlayer, GameObject *pGO)

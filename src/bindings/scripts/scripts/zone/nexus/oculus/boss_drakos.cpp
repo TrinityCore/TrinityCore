@@ -66,9 +66,9 @@ struct TRINITY_DLL_DECL boss_drakosAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_drakos(Creature *_Creature)
+CreatureAI* GetAI_boss_drakos(Creature* pCreature)
 {
-    return new boss_drakosAI (_Creature);
+    return new boss_drakosAI (pCreature);
 }
 
 void AddSC_boss_drakos()

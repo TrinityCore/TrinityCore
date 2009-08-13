@@ -79,9 +79,9 @@ struct TRINITY_DLL_DECL boss_landslideAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_landslide(Creature *_Creature)
+CreatureAI* GetAI_boss_landslide(Creature* pCreature)
 {
-    return new boss_landslideAI (_Creature);
+    return new boss_landslideAI (pCreature);
 }
 
 void AddSC_boss_landslide()

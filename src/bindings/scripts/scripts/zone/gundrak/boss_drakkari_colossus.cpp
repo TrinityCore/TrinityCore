@@ -39,9 +39,9 @@ struct TRINITY_DLL_DECL boss_drakkari_colossusAI : public ScriptedAI
     void JustDied(Unit* killer)  {}
 };
 
-CreatureAI* GetAI_boss_drakkari_colossus(Creature *_Creature)
+CreatureAI* GetAI_boss_drakkari_colossus(Creature* pCreature)
 {
-    return new boss_drakkari_colossusAI (_Creature);
+    return new boss_drakkari_colossusAI (pCreature);
 }
 
 void AddSC_boss_drakkari_colossus()

@@ -113,9 +113,9 @@ struct TRINITY_DLL_DECL boss_razuviousAI : public BossAI
     }
 };
 
-CreatureAI* GetAI_boss_razuvious(Creature *_Creature)
+CreatureAI* GetAI_boss_razuvious(Creature* pCreature)
 {
-    return new boss_razuviousAI (_Creature);
+    return new boss_razuviousAI (pCreature);
 }
 
 void AddSC_boss_razuvious()

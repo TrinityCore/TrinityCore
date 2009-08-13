@@ -163,9 +163,9 @@ struct TRINITY_DLL_DECL boss_highlord_mograineAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_highlord_mograine(Creature *_Creature)
+CreatureAI* GetAI_boss_highlord_mograine(Creature* pCreature)
 {
-    return new boss_highlord_mograineAI (_Creature);
+    return new boss_highlord_mograineAI (pCreature);
 }
 
 void AddSC_boss_highlord_mograine()

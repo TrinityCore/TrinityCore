@@ -256,14 +256,14 @@ struct TRINITY_DLL_DECL mob_tempest_minionAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_mob_tempest_minion(Creature *_Creature)
+CreatureAI* GetAI_mob_tempest_minion(Creature* pCreature)
 {
-    return new mob_tempest_minionAI (_Creature);
+    return new mob_tempest_minionAI (pCreature);
 }
 
-CreatureAI* GetAI_boss_emalon(Creature *_Creature)
+CreatureAI* GetAI_boss_emalon(Creature* pCreature)
 {
-    return new boss_emalonAI (_Creature);
+    return new boss_emalonAI (pCreature);
 }
 
 void AddSC_boss_emalon()

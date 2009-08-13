@@ -437,9 +437,9 @@ struct TRINITY_DLL_DECL boss_nalorakkAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_nalorakk(Creature *_Creature)
+CreatureAI* GetAI_boss_nalorakk(Creature* pCreature)
 {
-    return new boss_nalorakkAI (_Creature);
+    return new boss_nalorakkAI (pCreature);
 }
 
 void AddSC_boss_nalorakk()

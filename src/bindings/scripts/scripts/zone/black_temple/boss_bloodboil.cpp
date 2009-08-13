@@ -328,9 +328,9 @@ struct TRINITY_DLL_DECL boss_gurtogg_bloodboilAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_gurtogg_bloodboil(Creature *_Creature)
+CreatureAI* GetAI_boss_gurtogg_bloodboil(Creature* pCreature)
 {
-    return new boss_gurtogg_bloodboilAI (_Creature);
+    return new boss_gurtogg_bloodboilAI (pCreature);
 }
 
 void AddSC_boss_gurtogg_bloodboil()

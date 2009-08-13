@@ -606,14 +606,14 @@ void netherspite_infernalAI::Cleanup()
         CAST_AI(boss_malchezaarAI, CAST_CRE(pMalchezaar)->AI())->Cleanup(m_creature, point);
 }
 
-CreatureAI* GetAI_netherspite_infernal(Creature *_Creature)
+CreatureAI* GetAI_netherspite_infernal(Creature* pCreature)
 {
-    return new netherspite_infernalAI (_Creature);
+    return new netherspite_infernalAI (pCreature);
 }
 
-CreatureAI* GetAI_boss_malchezaar(Creature *_Creature)
+CreatureAI* GetAI_boss_malchezaar(Creature* pCreature)
 {
-    return new boss_malchezaarAI (_Creature);
+    return new boss_malchezaarAI (pCreature);
 }
 
 void AddSC_boss_malchezaar()

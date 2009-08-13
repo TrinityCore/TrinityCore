@@ -249,9 +249,9 @@ bool QuestAccept_npc_ruul_snowhoof(Player* pPlayer, Creature* creature, Quest co
     return true;
 }
 
-CreatureAI* GetAI_npc_ruul_snowhoofAI(Creature *_Creature)
+CreatureAI* GetAI_npc_ruul_snowhoofAI(Creature* pCreature)
 {
-    npc_ruul_snowhoofAI* ruul_snowhoofAI = new npc_ruul_snowhoofAI(_Creature);
+    npc_ruul_snowhoofAI* ruul_snowhoofAI = new npc_ruul_snowhoofAI(pCreature);
 
     ruul_snowhoofAI->FillPointMovementListForCreature();
 

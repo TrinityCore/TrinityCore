@@ -93,9 +93,9 @@ struct TRINITY_DLL_DECL boss_ptheradrasAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_ptheradras(Creature *_Creature)
+CreatureAI* GetAI_boss_ptheradras(Creature* pCreature)
 {
-    return new boss_ptheradrasAI (_Creature);
+    return new boss_ptheradrasAI (pCreature);
 }
 
 void AddSC_boss_ptheradras()

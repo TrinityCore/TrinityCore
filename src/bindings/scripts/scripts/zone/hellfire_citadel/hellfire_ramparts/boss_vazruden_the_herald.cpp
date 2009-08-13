@@ -443,25 +443,25 @@ struct TRINITY_DLL_DECL mob_hellfire_sentryAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_vazruden_the_herald(Creature *_Creature)
+CreatureAI* GetAI_boss_vazruden_the_herald(Creature* pCreature)
 {
-    return new boss_vazruden_the_heraldAI (_Creature);
+    return new boss_vazruden_the_heraldAI (pCreature);
 }
 
-CreatureAI* GetAI_boss_vazruden(Creature *_Creature)
+CreatureAI* GetAI_boss_vazruden(Creature* pCreature)
 {
-    return new boss_vazrudenAI (_Creature);
+    return new boss_vazrudenAI (pCreature);
 }
 
 
-CreatureAI* GetAI_boss_nazan(Creature *_Creature)
+CreatureAI* GetAI_boss_nazan(Creature* pCreature)
 {
-    return new boss_nazanAI (_Creature);
+    return new boss_nazanAI (pCreature);
 }
 
-CreatureAI* GetAI_mob_hellfire_sentry(Creature *_Creature)
+CreatureAI* GetAI_mob_hellfire_sentry(Creature* pCreature)
 {
-    return new mob_hellfire_sentryAI (_Creature);
+    return new mob_hellfire_sentryAI (pCreature);
 }
 
 void AddSC_boss_vazruden_the_herald()

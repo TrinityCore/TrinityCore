@@ -93,9 +93,9 @@ struct TRINITY_DLL_DECL boss_jedogaAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_jedoga(Creature *_Creature)
+CreatureAI* GetAI_boss_jedoga(Creature* pCreature)
 {
-    return new boss_jedogaAI (_Creature);
+    return new boss_jedogaAI (pCreature);
 }
 
 void AddSC_boss_jedoga()

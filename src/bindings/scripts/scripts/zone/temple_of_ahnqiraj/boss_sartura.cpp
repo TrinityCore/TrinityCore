@@ -272,14 +272,14 @@ struct TRINITY_DLL_DECL mob_sartura_royal_guardAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_sartura(Creature *_Creature)
+CreatureAI* GetAI_boss_sartura(Creature* pCreature)
 {
-    return new boss_sarturaAI (_Creature);
+    return new boss_sarturaAI (pCreature);
 }
 
-CreatureAI* GetAI_mob_sartura_royal_guard(Creature *_Creature)
+CreatureAI* GetAI_mob_sartura_royal_guard(Creature* pCreature)
 {
-    return new mob_sartura_royal_guardAI (_Creature);
+    return new mob_sartura_royal_guardAI (pCreature);
 }
 
 void AddSC_boss_sartura()

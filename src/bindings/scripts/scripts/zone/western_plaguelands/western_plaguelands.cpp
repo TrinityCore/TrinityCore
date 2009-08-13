@@ -40,11 +40,11 @@ EndContentData */
 
 #define GOSSIP_SDA1 "Thanks, i need a Vitreous Focuser"
 
-bool GossipHello_npcs_dithers_and_arbington(Player* pPlayer, Creature *_Creature)
+bool GossipHello_npcs_dithers_and_arbington(Player* pPlayer, Creature* pCreature)
 {
-    if (_Creature->isQuestGiver())
-        pPlayer->PrepareQuestMenu(_Creature->GetGUID());
-    if (_Creature->isVendor())
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+    if (pCreature->isVendor())
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
 
     if (pPlayer->GetQuestRewardStatus(5237) || pPlayer->GetQuestRewardStatus(5238))
@@ -53,39 +53,39 @@ bool GossipHello_npcs_dithers_and_arbington(Player* pPlayer, Creature *_Creature
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HDA2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HDA3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HDA4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
-        pPlayer->SEND_GOSSIP_MENU(3985, _Creature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(3985, pCreature->GetGUID());
     }else
-        pPlayer->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
 
     return true;
 }
 
-bool GossipSelect_npcs_dithers_and_arbington(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npcs_dithers_and_arbington(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
     switch(action)
     {
         case GOSSIP_ACTION_TRADE:
-            pPlayer->SEND_VENDORLIST(_Creature->GetGUID());
+            pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+1:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SDA1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
-            pPlayer->SEND_GOSSIP_MENU(3980, _Creature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(3980, pCreature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+2:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SDA1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
-            pPlayer->SEND_GOSSIP_MENU(3981, _Creature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(3981, pCreature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+3:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SDA1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
-            pPlayer->SEND_GOSSIP_MENU(3982, _Creature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(3982, pCreature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+4:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SDA1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
-            pPlayer->SEND_GOSSIP_MENU(3983, _Creature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(3983, pCreature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+5:
             pPlayer->CLOSE_GOSSIP_MENU();
-            _Creature->CastSpell(pPlayer, 17529, false);
+            pCreature->CastSpell(pPlayer, 17529, false);
             break;
     }
     return true;
@@ -199,9 +199,9 @@ struct TRINITY_DLL_DECL npc_the_scourge_cauldronAI : public ScriptedAI
         }
     }
 };
-CreatureAI* GetAI_npc_the_scourge_cauldron(Creature *_Creature)
+CreatureAI* GetAI_npc_the_scourge_cauldron(Creature* pCreature)
 {
-    return new npc_the_scourge_cauldronAI (_Creature);
+    return new npc_the_scourge_cauldronAI (pCreature);
 }
 
 /*######

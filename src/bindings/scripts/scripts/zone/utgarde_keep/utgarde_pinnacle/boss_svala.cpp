@@ -67,9 +67,9 @@ struct TRINITY_DLL_DECL boss_svalaAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_svala(Creature *_Creature)
+CreatureAI* GetAI_boss_svala(Creature* pCreature)
 {
-    return new boss_svalaAI (_Creature);
+    return new boss_svalaAI (pCreature);
 }
 
 void AddSC_boss_svala()

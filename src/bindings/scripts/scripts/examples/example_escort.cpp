@@ -155,9 +155,9 @@ struct TRINITY_DLL_DECL example_escortAI : public npc_escortAI
         }
 };
 
-CreatureAI* GetAI_example_escort(Creature *_Creature)
+CreatureAI* GetAI_example_escort(Creature* pCreature)
 {
-    example_escortAI* testAI = new example_escortAI(_Creature);
+    example_escortAI* testAI = new example_escortAI(pCreature);
 
     testAI->AddWaypoint(0, 1231, -4419, 23);
     testAI->AddWaypoint(1, 1198, -4440, 23, 0);
@@ -168,25 +168,25 @@ CreatureAI* GetAI_example_escort(Creature *_Creature)
     return testAI;
 }
 
-bool GossipHello_example_escort(Player* pPlayer, Creature *_Creature)
+bool GossipHello_example_escort(Player* pPlayer, Creature* pCreature)
 {
-    pPlayer->TalkedToCreature(_Creature->GetEntry(),_Creature->GetGUID());
-    _Creature->prepareGossipMenu(pPlayer,0);
+    pPlayer->TalkedToCreature(pCreature->GetEntry(), pCreature->GetGUID());
+    pCreature->prepareGossipMenu(pPlayer,0);
 
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
 
-    _Creature->sendPreparedGossip(pPlayer);
+    pCreature->sendPreparedGossip(pPlayer);
     return true;
 }
 
-bool GossipSelect_example_escort(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_example_escort(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
     if (action == GOSSIP_ACTION_INFO_DEF+1)
     {
         pPlayer->CLOSE_GOSSIP_MENU();
-        CAST_AI(npc_escortAI, (_Creature->AI()))->Start(true, true, pPlayer->GetGUID());
+        CAST_AI(npc_escortAI, (pCreature->AI()))->Start(true, true, pPlayer->GetGUID());
 
         return true;                                        // prevent mangos core handling
     }
@@ -194,7 +194,7 @@ bool GossipSelect_example_escort(Player* pPlayer, Creature *_Creature, uint32 se
     if (action == GOSSIP_ACTION_INFO_DEF+2)
     {
         pPlayer->CLOSE_GOSSIP_MENU();
-        CAST_AI(npc_escortAI, (_Creature->AI()))->Start(false, false, pPlayer->GetGUID());
+        CAST_AI(npc_escortAI, (pCreature->AI()))->Start(false, false, pPlayer->GetGUID());
 
         return true;                                        // prevent mangos core handling
     }
@@ -202,7 +202,7 @@ bool GossipSelect_example_escort(Player* pPlayer, Creature *_Creature, uint32 se
     if (action == GOSSIP_ACTION_INFO_DEF+3)
     {
         pPlayer->CLOSE_GOSSIP_MENU();
-        CAST_AI(npc_escortAI, (_Creature->AI()))->Start(false, true, pPlayer->GetGUID());
+        CAST_AI(npc_escortAI, (pCreature->AI()))->Start(false, true, pPlayer->GetGUID());
 
         return true;                                        // prevent mangos core handling
     }

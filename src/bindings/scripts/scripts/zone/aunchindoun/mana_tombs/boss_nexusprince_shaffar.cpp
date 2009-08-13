@@ -210,9 +210,9 @@ struct TRINITY_DLL_DECL boss_nexusprince_shaffarAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_nexusprince_shaffar(Creature *_Creature)
+CreatureAI* GetAI_boss_nexusprince_shaffar(Creature* pCreature)
 {
-    return new boss_nexusprince_shaffarAI (_Creature);
+    return new boss_nexusprince_shaffarAI (pCreature);
 }
 
 enum
@@ -297,9 +297,9 @@ struct TRINITY_DLL_DECL mob_ethereal_beaconAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_mob_ethereal_beacon(Creature *_Creature)
+CreatureAI* GetAI_mob_ethereal_beacon(Creature* pCreature)
 {
-    return new mob_ethereal_beaconAI (_Creature);
+    return new mob_ethereal_beaconAI (pCreature);
 }
 
 enum
@@ -342,9 +342,9 @@ struct TRINITY_DLL_DECL mob_ethereal_apprenticeAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_mob_ethereal_apprentice(Creature *_Creature)
+CreatureAI* GetAI_mob_ethereal_apprentice(Creature* pCreature)
 {
-    return new mob_ethereal_apprenticeAI (_Creature);
+    return new mob_ethereal_apprenticeAI (pCreature);
 }
 
 void AddSC_boss_nexusprince_shaffar()

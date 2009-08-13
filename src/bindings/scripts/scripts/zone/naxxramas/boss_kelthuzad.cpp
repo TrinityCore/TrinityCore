@@ -279,9 +279,9 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
     }
 };
 
-CreatureAI* GetAI_boss_kelthuzadAI(Creature *_Creature)
+CreatureAI* GetAI_boss_kelthuzadAI(Creature* pCreature)
 {
-    return new boss_kelthuzadAI (_Creature);
+    return new boss_kelthuzadAI (pCreature);
 }
 
 void AddSC_boss_kelthuzad()

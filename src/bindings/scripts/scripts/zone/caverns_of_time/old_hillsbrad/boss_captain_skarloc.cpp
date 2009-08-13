@@ -140,9 +140,9 @@ struct TRINITY_DLL_DECL boss_captain_skarlocAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_captain_skarloc(Creature *_Creature)
+CreatureAI* GetAI_boss_captain_skarloc(Creature* pCreature)
 {
-    return new boss_captain_skarlocAI (_Creature);
+    return new boss_captain_skarlocAI (pCreature);
 }
 
 void AddSC_boss_captain_skarloc()

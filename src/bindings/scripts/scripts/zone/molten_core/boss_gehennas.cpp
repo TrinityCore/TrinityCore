@@ -76,9 +76,9 @@ struct TRINITY_DLL_DECL boss_gehennasAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_gehennas(Creature *_Creature)
+CreatureAI* GetAI_boss_gehennas(Creature* pCreature)
 {
-    return new boss_gehennasAI (_Creature);
+    return new boss_gehennasAI (pCreature);
 }
 
 void AddSC_boss_gehennas()

@@ -370,9 +370,9 @@ struct TRINITY_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_hydross_the_unstable(Creature *_Creature)
+CreatureAI* GetAI_boss_hydross_the_unstable(Creature* pCreature)
 {
-    return new boss_hydross_the_unstableAI (_Creature);
+    return new boss_hydross_the_unstableAI (pCreature);
 }
 
 void AddSC_boss_hydross_the_unstable()

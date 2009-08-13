@@ -65,9 +65,9 @@ struct TRINITY_DLL_DECL boss_ichoronAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_ichoron(Creature *_Creature)
+CreatureAI* GetAI_boss_ichoron(Creature* pCreature)
 {
-    return new boss_ichoronAI (_Creature);
+    return new boss_ichoronAI (pCreature);
 }
 
 void AddSC_boss_ichoron()

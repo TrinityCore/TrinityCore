@@ -182,9 +182,9 @@ struct TRINITY_DLL_DECL boss_high_botanist_freywinnAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_high_botanist_freywinn(Creature *_Creature)
+CreatureAI* GetAI_boss_high_botanist_freywinn(Creature* pCreature)
 {
-    return new boss_high_botanist_freywinnAI (_Creature);
+    return new boss_high_botanist_freywinnAI (pCreature);
 }
 
 void AddSC_boss_high_botanist_freywinn()

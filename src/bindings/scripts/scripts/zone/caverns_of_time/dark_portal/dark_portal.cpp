@@ -223,9 +223,9 @@ struct TRINITY_DLL_DECL npc_medivh_bmAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_medivh_bm(Creature *_Creature)
+CreatureAI* GetAI_npc_medivh_bm(Creature* pCreature)
 {
-    return new npc_medivh_bmAI (_Creature);
+    return new npc_medivh_bmAI (pCreature);
 }
 
 struct Wave
@@ -343,9 +343,9 @@ struct TRINITY_DLL_DECL npc_time_riftAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_time_rift(Creature *_Creature)
+CreatureAI* GetAI_npc_time_rift(Creature* pCreature)
 {
-    return new npc_time_riftAI (_Creature);
+    return new npc_time_riftAI (pCreature);
 }
 
 #define SAY_SAAT_WELCOME        -1269019
@@ -354,34 +354,34 @@ CreatureAI* GetAI_npc_time_rift(Creature *_Creature)
 #define SPELL_CHRONO_BEACON     34975
 #define ITEM_CHRONO_BEACON      24289
 
-bool GossipHello_npc_saat(Player* pPlayer, Creature *_Creature)
+bool GossipHello_npc_saat(Player* pPlayer, Creature* pCreature)
 {
-    if (_Creature->isQuestGiver())
-        pPlayer->PrepareQuestMenu(_Creature->GetGUID());
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
     if (pPlayer->GetQuestStatus(QUEST_OPENING_PORTAL) == QUEST_STATUS_INCOMPLETE && !pPlayer->HasItemCount(ITEM_CHRONO_BEACON,1))
     {
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,GOSSIP_ITEM_OBTAIN,GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+1);
-        pPlayer->SEND_GOSSIP_MENU(10000,_Creature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(10000, pCreature->GetGUID());
         return true;
     }
     else if (pPlayer->GetQuestRewardStatus(QUEST_OPENING_PORTAL) && !pPlayer->HasItemCount(ITEM_CHRONO_BEACON,1))
     {
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,GOSSIP_ITEM_OBTAIN,GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+1);
-        pPlayer->SEND_GOSSIP_MENU(10001,_Creature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(10001, pCreature->GetGUID());
         return true;
     }
 
-    pPlayer->SEND_GOSSIP_MENU(10002,_Creature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(10002, pCreature->GetGUID());
     return true;
 }
 
-bool GossipSelect_npc_saat(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_saat(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
     if (action == GOSSIP_ACTION_INFO_DEF+1)
     {
         pPlayer->CLOSE_GOSSIP_MENU();
-        _Creature->CastSpell(pPlayer,SPELL_CHRONO_BEACON,false);
+        pCreature->CastSpell(pPlayer,SPELL_CHRONO_BEACON,false);
     }
     return true;
 }

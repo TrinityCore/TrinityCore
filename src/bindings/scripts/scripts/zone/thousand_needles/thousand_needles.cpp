@@ -109,9 +109,9 @@ bool QuestAccept_npc_swiftmountain(Player* pPlayer, Creature* creature, Quest co
     return true;
 }
 
-CreatureAI* GetAI_npc_swiftmountain(Creature *_Creature)
+CreatureAI* GetAI_npc_swiftmountain(Creature* pCreature)
 {
-    npc_swiftmountainAI* thisAI = new npc_swiftmountainAI(_Creature);
+    npc_swiftmountainAI* thisAI = new npc_swiftmountainAI(pCreature);
 
    thisAI->AddWaypoint(0, -5156.69, -1220.49, 48.78, 5000);
    thisAI->AddWaypoint(1, -5157.12, -1220.13, 48.67);
@@ -273,16 +273,16 @@ struct TRINITY_DLL_DECL npc_pluckyAI : public ScriptedAI
     }
 };
 
-bool GossipHello_npc_plucky(Player* pPlayer, Creature *_Creature)
+bool GossipHello_npc_plucky(Player* pPlayer, Creature* pCreature)
 {
     if (pPlayer->GetQuestStatus(QUEST_SCOOP) == QUEST_STATUS_INCOMPLETE)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_P, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-    pPlayer->SEND_GOSSIP_MENU(738, _Creature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(738, pCreature->GetGUID());
 
     return true;
 }
 
-bool GossipSelect_npc_plucky(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_plucky(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
     switch(action)
     {
@@ -294,9 +294,9 @@ bool GossipSelect_npc_plucky(Player* pPlayer, Creature *_Creature, uint32 sender
     return true;
 }
 
-CreatureAI* GetAI_npc_plucky(Creature *_Creature)
+CreatureAI* GetAI_npc_plucky(Creature* pCreature)
 {
-    return new npc_pluckyAI(_Creature);
+    return new npc_pluckyAI(pCreature);
 }
 
 /*#####

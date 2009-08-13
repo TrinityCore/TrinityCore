@@ -77,9 +77,9 @@ struct TRINITY_DLL_DECL boss_gahzrankaAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_gahzranka(Creature *_Creature)
+CreatureAI* GetAI_boss_gahzranka(Creature* pCreature)
 {
-    return new boss_gahzrankaAI (_Creature);
+    return new boss_gahzrankaAI (pCreature);
 }
 
 void AddSC_boss_gahzranka()

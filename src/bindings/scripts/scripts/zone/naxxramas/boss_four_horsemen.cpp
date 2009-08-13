@@ -152,9 +152,9 @@ struct TRINITY_DLL_DECL boss_four_horsemenAI : public BossAI
     }
 };
 
-CreatureAI* GetAI_four_horsemen(Creature *_Creature)
+CreatureAI* GetAI_four_horsemen(Creature* pCreature)
 {
-    return new boss_four_horsemenAI (_Creature);
+    return new boss_four_horsemenAI (pCreature);
 }
 
 void AddSC_boss_four_horsemen()

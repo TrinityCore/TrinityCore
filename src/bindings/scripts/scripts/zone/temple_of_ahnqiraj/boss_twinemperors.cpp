@@ -591,14 +591,14 @@ struct TRINITY_DLL_DECL boss_veklorAI : public boss_twinemperorsAI
     }
 };
 
-CreatureAI* GetAI_boss_veknilash(Creature *_Creature)
+CreatureAI* GetAI_boss_veknilash(Creature* pCreature)
 {
-    return new boss_veknilashAI (_Creature);
+    return new boss_veknilashAI (pCreature);
 }
 
-CreatureAI* GetAI_boss_veklor(Creature *_Creature)
+CreatureAI* GetAI_boss_veklor(Creature* pCreature)
 {
-    return new boss_veklorAI (_Creature);
+    return new boss_veklorAI (pCreature);
 }
 
 void AddSC_boss_twinemperors()

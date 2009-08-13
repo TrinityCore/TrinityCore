@@ -72,9 +72,9 @@ struct TRINITY_DLL_DECL boss_moorabiAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_moorabi(Creature *_Creature)
+CreatureAI* GetAI_boss_moorabi(Creature* pCreature)
 {
-    return new boss_moorabiAI (_Creature);
+    return new boss_moorabiAI (pCreature);
 }
 
 void AddSC_boss_moorabi()

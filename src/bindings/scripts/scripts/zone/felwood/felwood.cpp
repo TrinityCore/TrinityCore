@@ -33,23 +33,23 @@ EndContentData */
 
 #define GOSSIP_ITEM_BEACON  "Please make me a Cenarion Beacon"
 
-bool GossipHello_npcs_riverbreeze_and_silversky(Player* pPlayer, Creature *_Creature)
+bool GossipHello_npcs_riverbreeze_and_silversky(Player* pPlayer, Creature* pCreature)
 {
-    uint32 eCreature = _Creature->GetEntry();
+    uint32 eCreature = pCreature->GetEntry();
 
-    if (_Creature->isQuestGiver())
-        pPlayer->PrepareQuestMenu(_Creature->GetGUID());
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
     if (eCreature==9528)
     {
         if (pPlayer->GetQuestRewardStatus(4101))
         {
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_BEACON, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            pPlayer->SEND_GOSSIP_MENU(2848, _Creature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(2848, pCreature->GetGUID());
         }else if (pPlayer->GetTeam()==HORDE)
-        pPlayer->SEND_GOSSIP_MENU(2845, _Creature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(2845, pCreature->GetGUID());
         else
-            pPlayer->SEND_GOSSIP_MENU(2844, _Creature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(2844, pCreature->GetGUID());
     }
 
     if (eCreature==9529)
@@ -57,22 +57,22 @@ bool GossipHello_npcs_riverbreeze_and_silversky(Player* pPlayer, Creature *_Crea
         if (pPlayer->GetQuestRewardStatus(4102))
         {
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_BEACON, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            pPlayer->SEND_GOSSIP_MENU(2849, _Creature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(2849, pCreature->GetGUID());
         }else if (pPlayer->GetTeam() == ALLIANCE)
-        pPlayer->SEND_GOSSIP_MENU(2843, _Creature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(2843, pCreature->GetGUID());
         else
-            pPlayer->SEND_GOSSIP_MENU(2842, _Creature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(2842, pCreature->GetGUID());
     }
 
     return true;
 }
 
-bool GossipSelect_npcs_riverbreeze_and_silversky(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npcs_riverbreeze_and_silversky(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
     if (action==GOSSIP_ACTION_INFO_DEF+1)
     {
         pPlayer->CLOSE_GOSSIP_MENU();
-        _Creature->CastSpell(pPlayer, 15120, false);
+        pCreature->CastSpell(pPlayer, 15120, false);
     }
     return true;
 }

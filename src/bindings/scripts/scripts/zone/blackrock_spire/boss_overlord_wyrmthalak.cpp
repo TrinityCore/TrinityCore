@@ -114,9 +114,9 @@ struct TRINITY_DLL_DECL boss_overlordwyrmthalakAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_overlordwyrmthalak(Creature *_Creature)
+CreatureAI* GetAI_boss_overlordwyrmthalak(Creature* pCreature)
 {
-    return new boss_overlordwyrmthalakAI (_Creature);
+    return new boss_overlordwyrmthalakAI (pCreature);
 }
 
 void AddSC_boss_overlordwyrmthalak()

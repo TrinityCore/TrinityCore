@@ -139,9 +139,9 @@ struct TRINITY_DLL_DECL boss_salrammAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_salramm(Creature *_Creature)
+CreatureAI* GetAI_boss_salramm(Creature* pCreature)
 {
-    return new boss_salrammAI (_Creature);
+    return new boss_salrammAI (pCreature);
 }
 
 void AddSC_boss_salramm()

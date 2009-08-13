@@ -576,9 +576,9 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_zuljin(Creature *_Creature)
+CreatureAI* GetAI_boss_zuljin(Creature* pCreature)
 {
-    return new boss_zuljinAI (_Creature);
+    return new boss_zuljinAI (pCreature);
 }
 
 struct TRINITY_DLL_DECL feather_vortexAI : public ScriptedAI
@@ -603,9 +603,9 @@ struct TRINITY_DLL_DECL feather_vortexAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_feather_vortexAI(Creature *_Creature)
+CreatureAI* GetAI_feather_vortexAI(Creature* pCreature)
 {
-    return new feather_vortexAI (_Creature);
+    return new feather_vortexAI (pCreature);
 }
 
 void AddSC_boss_zuljin()

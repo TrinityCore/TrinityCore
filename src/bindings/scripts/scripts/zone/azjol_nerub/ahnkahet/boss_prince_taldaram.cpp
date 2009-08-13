@@ -93,9 +93,9 @@ struct TRINITY_DLL_DECL boss_taldaramAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_taldaram(Creature *_Creature)
+CreatureAI* GetAI_boss_taldaram(Creature* pCreature)
 {
-    return new boss_taldaramAI (_Creature);
+    return new boss_taldaramAI (pCreature);
 }
 
 void AddSC_boss_taldaram()

@@ -197,9 +197,9 @@ struct TRINITY_DLL_DECL boss_ambassador_hellmawAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_ambassador_hellmaw(Creature *_Creature)
+CreatureAI* GetAI_boss_ambassador_hellmaw(Creature* pCreature)
 {
-    return new boss_ambassador_hellmawAI (_Creature);
+    return new boss_ambassador_hellmawAI (pCreature);
 }
 
 void AddSC_boss_ambassador_hellmaw()

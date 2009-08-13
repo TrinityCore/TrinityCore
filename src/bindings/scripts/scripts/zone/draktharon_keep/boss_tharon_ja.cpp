@@ -72,9 +72,9 @@ struct TRINITY_DLL_DECL boss_tharon_jaAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_tharon_ja(Creature *_Creature)
+CreatureAI* GetAI_boss_tharon_ja(Creature* pCreature)
 {
-    return new boss_tharon_jaAI (_Creature);
+    return new boss_tharon_jaAI (pCreature);
 }
 
 void AddSC_boss_tharon_ja()

@@ -123,9 +123,9 @@ struct TRINITY_DLL_DECL boss_maexxnaAI : public BossAI
     }
 };
 
-CreatureAI* GetAI_boss_maexxna(Creature *_Creature)
+CreatureAI* GetAI_boss_maexxna(Creature* pCreature)
 {
-    return new boss_maexxnaAI (_Creature);
+    return new boss_maexxnaAI (pCreature);
 }
 
 void AddSC_boss_maexxna()

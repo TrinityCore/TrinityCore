@@ -283,14 +283,14 @@ struct TRINITY_DLL_DECL boss_shadeoftaerarAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_taerar(Creature *_Creature)
+CreatureAI* GetAI_boss_taerar(Creature* pCreature)
 {
-    return new boss_taerarAI (_Creature);
+    return new boss_taerarAI (pCreature);
 }
 
-CreatureAI* GetAI_boss_shadeoftaerar(Creature *_Creature)
+CreatureAI* GetAI_boss_shadeoftaerar(Creature* pCreature)
 {
-    return new boss_shadeoftaerarAI (_Creature);
+    return new boss_shadeoftaerarAI (pCreature);
 }
 
 void AddSC_boss_taerar()

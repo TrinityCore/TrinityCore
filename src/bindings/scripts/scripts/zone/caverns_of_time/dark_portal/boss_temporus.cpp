@@ -142,9 +142,9 @@ struct TRINITY_DLL_DECL boss_temporusAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_temporus(Creature *_Creature)
+CreatureAI* GetAI_boss_temporus(Creature* pCreature)
 {
-    return new boss_temporusAI (_Creature);
+    return new boss_temporusAI (pCreature);
 }
 
 void AddSC_boss_temporus()

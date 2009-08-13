@@ -107,9 +107,9 @@ struct TRINITY_DLL_DECL boss_mal_ganisAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_mal_ganis(Creature *_Creature)
+CreatureAI* GetAI_boss_mal_ganis(Creature* pCreature)
 {
-    return new boss_mal_ganisAI (_Creature);
+    return new boss_mal_ganisAI (pCreature);
 }
 
 void AddSC_boss_mal_ganis()

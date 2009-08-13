@@ -92,9 +92,9 @@ struct TRINITY_DLL_DECL boss_maleki_the_pallidAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_maleki_the_pallid(Creature *_Creature)
+CreatureAI* GetAI_boss_maleki_the_pallid(Creature* pCreature)
 {
-    return new boss_maleki_the_pallidAI (_Creature);
+    return new boss_maleki_the_pallidAI (pCreature);
 }
 
 void AddSC_boss_maleki_the_pallid()

@@ -87,9 +87,9 @@ struct TRINITY_DLL_DECL boss_ignis_AI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_ignis(Creature *_Creature)
+CreatureAI* GetAI_boss_ignis(Creature* pCreature)
 {
-    return new boss_ignis_AI (_Creature);
+    return new boss_ignis_AI (pCreature);
 }
 void AddSC_boss_ignis()
 {

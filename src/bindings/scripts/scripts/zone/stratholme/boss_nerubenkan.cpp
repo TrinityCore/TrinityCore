@@ -123,9 +123,9 @@ struct TRINITY_DLL_DECL boss_nerubenkanAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_nerubenkan(Creature *_Creature)
+CreatureAI* GetAI_boss_nerubenkan(Creature* pCreature)
 {
-    return new boss_nerubenkanAI (_Creature);
+    return new boss_nerubenkanAI (pCreature);
 }
 
 void AddSC_boss_nerubenkan()

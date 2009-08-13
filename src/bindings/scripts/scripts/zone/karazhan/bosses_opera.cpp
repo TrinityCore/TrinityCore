@@ -664,39 +664,39 @@ struct TRINITY_DLL_DECL mob_cycloneAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_dorothee(Creature* _Creature)
+CreatureAI* GetAI_boss_dorothee(Creature* pCreature)
 {
-    return new boss_dorotheeAI(_Creature);
+    return new boss_dorotheeAI(pCreature);
 }
 
-CreatureAI* GetAI_boss_strawman(Creature* _Creature)
+CreatureAI* GetAI_boss_strawman(Creature* pCreature)
 {
-    return new boss_strawmanAI(_Creature);
+    return new boss_strawmanAI(pCreature);
 }
 
-CreatureAI* GetAI_boss_tinhead(Creature* _Creature)
+CreatureAI* GetAI_boss_tinhead(Creature* pCreature)
 {
-    return new boss_tinheadAI(_Creature);
+    return new boss_tinheadAI(pCreature);
 }
 
-CreatureAI* GetAI_boss_roar(Creature* _Creature)
+CreatureAI* GetAI_boss_roar(Creature* pCreature)
 {
-    return new boss_roarAI(_Creature);
+    return new boss_roarAI(pCreature);
 }
 
-CreatureAI* GetAI_boss_crone(Creature* _Creature)
+CreatureAI* GetAI_boss_crone(Creature* pCreature)
 {
-    return new boss_croneAI(_Creature);
+    return new boss_croneAI(pCreature);
 }
 
-CreatureAI* GetAI_mob_tito(Creature* _Creature)
+CreatureAI* GetAI_mob_tito(Creature* pCreature)
 {
-    return new mob_titoAI(_Creature);
+    return new mob_titoAI(pCreature);
 }
 
-CreatureAI* GetAI_mob_cyclone(Creature* _Creature)
+CreatureAI* GetAI_mob_cyclone(Creature* pCreature)
 {
-    return new mob_cycloneAI(_Creature);
+    return new mob_cycloneAI(pCreature);
 }
 
 /**************************************/
@@ -719,10 +719,10 @@ CreatureAI* GetAI_mob_cyclone(Creature* _Creature)
 /**** The Wolf's Entry ****/
 #define CREATURE_BIG_BAD_WOLF           17521
 
-bool GossipHello_npc_grandmother(Player* pPlayer, Creature* _Creature)
+bool GossipHello_npc_grandmother(Player* pPlayer, Creature* pCreature)
 {
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_GRANDMA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-    pPlayer->SEND_GOSSIP_MENU(8990, _Creature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(8990, pCreature->GetGUID());
 
     return true;
 }
@@ -856,9 +856,9 @@ struct TRINITY_DLL_DECL boss_bigbadwolfAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_bigbadwolf(Creature* _Creature)
+CreatureAI* GetAI_boss_bigbadwolf(Creature* pCreature)
 {
-    return new boss_bigbadwolfAI(_Creature);
+    return new boss_bigbadwolfAI(pCreature);
 }
 
 /**********************************************/
@@ -908,15 +908,15 @@ enum RAJPhase
     PHASE_BOTH          = 2,
 };
 
-void PretendToDie(Creature* _Creature)
+void PretendToDie(Creature* pCreature)
 {
-    _Creature->InterruptNonMeleeSpells(true);
-    _Creature->RemoveAllAuras();
-    _Creature->SetHealth(0);
-    _Creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-    _Creature->GetMotionMaster()->MovementExpired(false);
-    _Creature->GetMotionMaster()->MoveIdle();
-    _Creature->SetStandState(UNIT_STAND_STATE_DEAD);
+    pCreature->InterruptNonMeleeSpells(true);
+    pCreature->RemoveAllAuras();
+    pCreature->SetHealth(0);
+    pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+    pCreature->GetMotionMaster()->MovementExpired(false);
+    pCreature->GetMotionMaster()->MoveIdle();
+    pCreature->SetStandState(UNIT_STAND_STATE_DEAD);
 };
 
 void Resurrect(Creature* target)
@@ -1424,14 +1424,14 @@ void boss_romuloAI::UpdateAI(const uint32 diff)
     DoMeleeAttackIfReady();
 }
 
-CreatureAI* GetAI_boss_julianne(Creature* _Creature)
+CreatureAI* GetAI_boss_julianne(Creature* pCreature)
 {
-    return new boss_julianneAI(_Creature);
+    return new boss_julianneAI(pCreature);
 }
 
-CreatureAI* GetAI_boss_romulo(Creature* _Creature)
+CreatureAI* GetAI_boss_romulo(Creature* pCreature)
 {
-    return new boss_romuloAI(_Creature);
+    return new boss_romuloAI(pCreature);
 }
 
 void AddSC_bosses_opera()

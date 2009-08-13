@@ -173,14 +173,14 @@ struct TRINITY_DLL_DECL mob_warderAI : public ScriptedAI //npc 32353
     }
 };
 
-CreatureAI* GetAI_mob_warder(Creature *_Creature)
+CreatureAI* GetAI_mob_warder(Creature* pCreature)
 {
-    return new mob_warderAI (_Creature);
+    return new mob_warderAI (pCreature);
 }
 
-CreatureAI* GetAI_boss_archavon(Creature *_Creature)
+CreatureAI* GetAI_boss_archavon(Creature* pCreature)
 {
-    return new boss_archavonAI (_Creature);
+    return new boss_archavonAI (pCreature);
 }
 
 void AddSC_boss_archavon()

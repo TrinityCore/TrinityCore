@@ -306,14 +306,14 @@ struct TRINITY_DLL_DECL mob_ohganAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_mandokir(Creature *_Creature)
+CreatureAI* GetAI_boss_mandokir(Creature* pCreature)
 {
-    return new boss_mandokirAI (_Creature);
+    return new boss_mandokirAI (pCreature);
 }
 
-CreatureAI* GetAI_mob_ohgan(Creature *_Creature)
+CreatureAI* GetAI_mob_ohgan(Creature* pCreature)
 {
-    return new mob_ohganAI (_Creature);
+    return new mob_ohganAI (pCreature);
 }
 
 void AddSC_boss_mandokir()

@@ -188,9 +188,9 @@ struct TRINITY_DLL_DECL boss_lajAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_laj(Creature *_Creature)
+CreatureAI* GetAI_boss_laj(Creature* pCreature)
 {
-    return new boss_lajAI (_Creature);
+    return new boss_lajAI (pCreature);
 }
 
 void AddSC_boss_laj()

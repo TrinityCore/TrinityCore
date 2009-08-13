@@ -100,9 +100,9 @@ struct TRINITY_DLL_DECL boss_anubshiahAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_anubshiah(Creature *_Creature)
+CreatureAI* GetAI_boss_anubshiah(Creature* pCreature)
 {
-    return new boss_anubshiahAI (_Creature);
+    return new boss_anubshiahAI (pCreature);
 }
 
 void AddSC_boss_anubshiah()

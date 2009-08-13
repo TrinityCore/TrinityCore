@@ -653,19 +653,19 @@ bool GOkalecgos_teleporter(Player* pPlayer, GameObject* _GO)
     return true;
 }
 
-CreatureAI* GetAI_boss_kalecgos(Creature *_Creature)
+CreatureAI* GetAI_boss_kalecgos(Creature* pCreature)
 {
-    return new boss_kalecgosAI (_Creature);
+    return new boss_kalecgosAI (pCreature);
 }
 
-CreatureAI* GetAI_boss_Sathrovarr(Creature *_Creature)
+CreatureAI* GetAI_boss_Sathrovarr(Creature* pCreature)
 {
-    return new boss_sathrovarrAI (_Creature);
+    return new boss_sathrovarrAI (pCreature);
 }
 
-CreatureAI* GetAI_boss_kalec(Creature *_Creature)
+CreatureAI* GetAI_boss_kalec(Creature* pCreature)
 {
-    return new boss_kalecAI (_Creature);
+    return new boss_kalecAI (pCreature);
 }
 
 void AddSC_boss_kalecgos()

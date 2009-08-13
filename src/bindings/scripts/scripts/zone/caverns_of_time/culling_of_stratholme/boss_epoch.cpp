@@ -70,9 +70,9 @@ struct TRINITY_DLL_DECL boss_epochAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_epoch(Creature *_Creature)
+CreatureAI* GetAI_boss_epoch(Creature* pCreature)
 {
-    return new boss_epochAI (_Creature);
+    return new boss_epochAI (pCreature);
 }
 
 void AddSC_boss_epoch()

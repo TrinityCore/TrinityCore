@@ -66,9 +66,9 @@ struct TRINITY_DLL_DECL boss_erekemAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_erekem(Creature *_Creature)
+CreatureAI* GetAI_boss_erekem(Creature* pCreature)
 {
-    return new boss_erekemAI (_Creature);
+    return new boss_erekemAI (pCreature);
 }
 
 void AddSC_boss_erekem()

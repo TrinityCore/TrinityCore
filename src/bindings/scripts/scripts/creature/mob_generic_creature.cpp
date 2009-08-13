@@ -157,9 +157,9 @@ struct TRINITY_DLL_DECL generic_creatureAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_generic_creature(Creature *_Creature)
+CreatureAI* GetAI_generic_creature(Creature* pCreature)
 {
-    return new generic_creatureAI (_Creature);
+    return new generic_creatureAI (pCreature);
 }
 
 struct TRINITY_DLL_DECL trigger_periodicAI : public NullCreatureAI
@@ -219,19 +219,19 @@ struct TRINITY_DLL_DECL mob_webwrapAI : public NullCreatureAI
     }
 };
 
-CreatureAI* GetAI_trigger_periodic(Creature *_Creature)
+CreatureAI* GetAI_trigger_periodic(Creature* pCreature)
 {
-    return new trigger_periodicAI (_Creature);
+    return new trigger_periodicAI (pCreature);
 }
 
-CreatureAI* GetAI_trigger_death(Creature *_Creature)
+CreatureAI* GetAI_trigger_death(Creature* pCreature)
 {
-    return new trigger_deathAI (_Creature);
+    return new trigger_deathAI (pCreature);
 }
 
-CreatureAI* GetAI_mob_webwrap(Creature* _Creature)
+CreatureAI* GetAI_mob_webwrap(Creature* pCreature)
 {
-    return new mob_webwrapAI (_Creature);
+    return new mob_webwrapAI (pCreature);
 }
 
 void AddSC_generic_creature()

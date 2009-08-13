@@ -85,9 +85,9 @@ struct TRINITY_DLL_DECL npc_narm_faulkAI : public ScriptedAI
     }
 
 };
-CreatureAI* GetAI_npc_narm_faulk(Creature *_Creature)
+CreatureAI* GetAI_npc_narm_faulk(Creature* pCreature)
 {
-    return new npc_narm_faulkAI (_Creature);
+    return new npc_narm_faulkAI (pCreature);
 }
 
 void AddSC_dun_morogh()

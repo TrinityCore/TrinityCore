@@ -234,9 +234,9 @@ struct TRINITY_DLL_DECL boss_hakkarAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_hakkar(Creature *_Creature)
+CreatureAI* GetAI_boss_hakkar(Creature* pCreature)
 {
-    return new boss_hakkarAI (_Creature);
+    return new boss_hakkarAI (pCreature);
 }
 
 void AddSC_boss_hakkar()

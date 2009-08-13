@@ -116,14 +116,14 @@ struct TRINITY_DLL_DECL mob_fireswornAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_garr(Creature *_Creature)
+CreatureAI* GetAI_boss_garr(Creature* pCreature)
 {
-    return new boss_garrAI (_Creature);
+    return new boss_garrAI (pCreature);
 }
 
-CreatureAI* GetAI_mob_firesworn(Creature *_Creature)
+CreatureAI* GetAI_mob_firesworn(Creature* pCreature)
 {
-    return new mob_fireswornAI (_Creature);
+    return new mob_fireswornAI (pCreature);
 }
 
 void AddSC_boss_garr()

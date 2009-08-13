@@ -174,9 +174,9 @@ struct TRINITY_DLL_DECL boss_azgalorAI : public hyjal_trashAI
     }
 };
 
-CreatureAI* GetAI_boss_azgalor(Creature *_Creature)
+CreatureAI* GetAI_boss_azgalor(Creature* pCreature)
 {
-    return new boss_azgalorAI (_Creature);
+    return new boss_azgalorAI (pCreature);
 }
 
 #define SPELL_THRASH 12787
@@ -268,9 +268,9 @@ struct TRINITY_DLL_DECL mob_lesser_doomguardAI : public hyjal_trashAI
     }
 };
 
-CreatureAI* GetAI_mob_lesser_doomguard(Creature *_Creature)
+CreatureAI* GetAI_mob_lesser_doomguard(Creature* pCreature)
 {
-    return new mob_lesser_doomguardAI (_Creature);
+    return new mob_lesser_doomguardAI (pCreature);
 }
 
 void AddSC_boss_azgalor()

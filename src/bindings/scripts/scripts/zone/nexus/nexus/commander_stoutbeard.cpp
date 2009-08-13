@@ -47,9 +47,9 @@ struct TRINITY_DLL_DECL boss_commander_stoutbeardAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_commander_stoutbeard(Creature *_Creature)
+CreatureAI* GetAI_boss_commander_stoutbeard(Creature* pCreature)
 {
-    return new boss_commander_stoutbeardAI (_Creature);
+    return new boss_commander_stoutbeardAI (pCreature);
 }
 
 void AddSC_boss_commander_stoutbeard()

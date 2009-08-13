@@ -117,9 +117,9 @@ struct TRINITY_DLL_DECL mob_voidtravelerAI : public ScriptedAI
         }else move -= diff;
     }
 };
-CreatureAI* GetAI_mob_voidtraveler(Creature *_Creature)
+CreatureAI* GetAI_mob_voidtraveler(Creature* pCreature)
 {
-    return new mob_voidtravelerAI (_Creature);
+    return new mob_voidtravelerAI (pCreature);
 }
 
 struct TRINITY_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
@@ -300,9 +300,9 @@ struct TRINITY_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_grandmaster_vorpil(Creature *_Creature)
+CreatureAI* GetAI_boss_grandmaster_vorpil(Creature* pCreature)
 {
-    return new boss_grandmaster_vorpilAI (_Creature);
+    return new boss_grandmaster_vorpilAI (pCreature);
 }
 
 void AddSC_boss_grandmaster_vorpil()

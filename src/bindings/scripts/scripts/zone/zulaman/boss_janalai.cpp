@@ -437,9 +437,9 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_janalaiAI(Creature *_Creature)
+CreatureAI* GetAI_boss_janalaiAI(Creature* pCreature)
 {
-    return new boss_janalaiAI(_Creature);
+    return new boss_janalaiAI(pCreature);
 }
 
 struct TRINITY_DLL_DECL mob_janalai_firebombAI : public ScriptedAI
@@ -463,9 +463,9 @@ struct TRINITY_DLL_DECL mob_janalai_firebombAI : public ScriptedAI
     void UpdateAI(const uint32 diff) {}
 };
 
-CreatureAI* GetAI_mob_janalai_firebombAI(Creature *_Creature)
+CreatureAI* GetAI_mob_janalai_firebombAI(Creature* pCreature)
 {
-    return new mob_janalai_firebombAI(_Creature);
+    return new mob_janalai_firebombAI(pCreature);
 }
 
 struct TRINITY_DLL_DECL mob_amanishi_hatcherAI : public ScriptedAI
@@ -594,9 +594,9 @@ struct TRINITY_DLL_DECL mob_amanishi_hatcherAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_mob_amanishi_hatcherAI(Creature *_Creature)
+CreatureAI* GetAI_mob_amanishi_hatcherAI(Creature* pCreature)
 {
-    return new mob_amanishi_hatcherAI(_Creature);
+    return new mob_amanishi_hatcherAI(pCreature);
 }
 
 struct TRINITY_DLL_DECL mob_hatchlingAI : public ScriptedAI
@@ -644,9 +644,9 @@ struct TRINITY_DLL_DECL mob_hatchlingAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_mob_hatchlingAI(Creature *_Creature)
+CreatureAI* GetAI_mob_hatchlingAI(Creature* pCreature)
 {
-    return new mob_hatchlingAI(_Creature);
+    return new mob_hatchlingAI(pCreature);
 }
 
 struct TRINITY_DLL_DECL mob_eggAI : public ScriptedAI
@@ -668,9 +668,9 @@ struct TRINITY_DLL_DECL mob_eggAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_mob_eggAI(Creature *_Creature)
+CreatureAI* GetAI_mob_eggAI(Creature* pCreature)
 {
-    return new mob_eggAI(_Creature);
+    return new mob_eggAI(pCreature);
 }
 
 void AddSC_boss_janalai()

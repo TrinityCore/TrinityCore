@@ -84,9 +84,9 @@ struct TRINITY_DLL_DECL boss_magmadarAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_magmadar(Creature *_Creature)
+CreatureAI* GetAI_boss_magmadar(Creature* pCreature)
 {
-    return new boss_magmadarAI (_Creature);
+    return new boss_magmadarAI (pCreature);
 }
 
 void AddSC_boss_magmadar()

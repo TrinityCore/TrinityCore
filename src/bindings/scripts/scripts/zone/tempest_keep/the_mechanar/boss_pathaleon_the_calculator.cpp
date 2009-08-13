@@ -170,9 +170,9 @@ struct TRINITY_DLL_DECL boss_pathaleon_the_calculatorAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_pathaleon_the_calculator(Creature *_Creature)
+CreatureAI* GetAI_boss_pathaleon_the_calculator(Creature* pCreature)
 {
-    return new boss_pathaleon_the_calculatorAI (_Creature);
+    return new boss_pathaleon_the_calculatorAI (pCreature);
 }
 
 struct TRINITY_DLL_DECL mob_nether_wraithAI : public ScriptedAI
@@ -236,9 +236,9 @@ struct TRINITY_DLL_DECL mob_nether_wraithAI : public ScriptedAI
     }
 
 };
-CreatureAI* GetAI_mob_nether_wraith(Creature *_Creature)
+CreatureAI* GetAI_mob_nether_wraith(Creature* pCreature)
 {
-    return new mob_nether_wraithAI (_Creature);
+    return new mob_nether_wraithAI (pCreature);
 }
 
 void AddSC_boss_pathaleon_the_calculator()

@@ -201,9 +201,9 @@ struct TRINITY_DLL_DECL boss_entropiusAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_entropius(Creature *_Creature)
+CreatureAI* GetAI_boss_entropius(Creature* pCreature)
 {
-    return new boss_entropiusAI (_Creature);
+    return new boss_entropiusAI (pCreature);
 }
 
 struct TRINITY_DLL_DECL boss_muruAI : public Scripted_NoMovementAI
@@ -358,9 +358,9 @@ struct TRINITY_DLL_DECL boss_muruAI : public Scripted_NoMovementAI
     }
 };
 
-CreatureAI* GetAI_boss_muru(Creature *_Creature)
+CreatureAI* GetAI_boss_muru(Creature* pCreature)
 {
-    return new boss_muruAI (_Creature);
+    return new boss_muruAI (pCreature);
 }
 
 struct TRINITY_DLL_DECL npc_muru_portalAI : public Scripted_NoMovementAI
@@ -435,9 +435,9 @@ struct TRINITY_DLL_DECL npc_muru_portalAI : public Scripted_NoMovementAI
     }
 };
 
-CreatureAI* GetAI_npc_muru_portal(Creature *_Creature)
+CreatureAI* GetAI_npc_muru_portal(Creature* pCreature)
 {
-    return new npc_muru_portalAI (_Creature);
+    return new npc_muru_portalAI (pCreature);
 }
 
 struct TRINITY_DLL_DECL npc_dark_fiendAI : public ScriptedAI
@@ -500,9 +500,9 @@ struct TRINITY_DLL_DECL npc_dark_fiendAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_dark_fiend(Creature *_Creature)
+CreatureAI* GetAI_npc_dark_fiend(Creature* pCreature)
 {
-    return new npc_dark_fiendAI (_Creature);
+    return new npc_dark_fiendAI (pCreature);
 }
 
 struct TRINITY_DLL_DECL npc_void_sentinelAI : public ScriptedAI
@@ -555,9 +555,9 @@ struct TRINITY_DLL_DECL npc_void_sentinelAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_void_sentinel(Creature *_Creature)
+CreatureAI* GetAI_npc_void_sentinel(Creature* pCreature)
 {
-    return new npc_void_sentinelAI (_Creature);
+    return new npc_void_sentinelAI (pCreature);
 }
 
 struct TRINITY_DLL_DECL npc_blackholeAI : public ScriptedAI
@@ -628,9 +628,9 @@ struct TRINITY_DLL_DECL npc_blackholeAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_blackhole(Creature *_Creature)
+CreatureAI* GetAI_npc_blackhole(Creature* pCreature)
 {
-    return new npc_blackholeAI (_Creature);
+    return new npc_blackholeAI (pCreature);
 }
 
 void AddSC_boss_muru()

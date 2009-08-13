@@ -141,9 +141,9 @@ struct TRINITY_DLL_DECL boss_emerissAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_emeriss(Creature *_Creature)
+CreatureAI* GetAI_boss_emeriss(Creature* pCreature)
 {
-    return new boss_emerissAI (_Creature);
+    return new boss_emerissAI (pCreature);
 }
 
 void AddSC_boss_emeriss()

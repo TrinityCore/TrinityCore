@@ -195,9 +195,9 @@ struct TRINITY_DLL_DECL boss_nothAI : public BossAI
     }
 };
 
-CreatureAI* GetAI_boss_noth(Creature *_Creature)
+CreatureAI* GetAI_boss_noth(Creature* pCreature)
 {
-    return new boss_nothAI (_Creature);
+    return new boss_nothAI (pCreature);
 }
 
 void AddSC_boss_noth()

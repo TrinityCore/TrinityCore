@@ -127,9 +127,9 @@ struct TRINITY_DLL_DECL npc_calvin_montagueAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_npc_calvin_montague(Creature *_Creature)
+CreatureAI* GetAI_npc_calvin_montague(Creature* pCreature)
 {
-    return new npc_calvin_montagueAI (_Creature);
+    return new npc_calvin_montagueAI (pCreature);
 }
 
 bool QuestAccept_npc_calvin_montague(Player* pPlayer, Creature* pCreature, Quest const* quest)

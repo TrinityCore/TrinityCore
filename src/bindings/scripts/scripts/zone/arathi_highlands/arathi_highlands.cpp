@@ -123,9 +123,9 @@ bool QuestAccept_npc_professor_phizzlethorpe(Player* pPlayer, Creature* creature
     return true;
 }
 
-CreatureAI* GetAI_npc_professor_phizzlethorpeAI(Creature *_Creature)
+CreatureAI* GetAI_npc_professor_phizzlethorpeAI(Creature* pCreature)
 {
-    npc_professor_phizzlethorpeAI* professor_phizzlethorpeAI = new npc_professor_phizzlethorpeAI(_Creature);
+    npc_professor_phizzlethorpeAI* professor_phizzlethorpeAI = new npc_professor_phizzlethorpeAI(pCreature);
 
     professor_phizzlethorpeAI->FillPointMovementListForCreature();
 

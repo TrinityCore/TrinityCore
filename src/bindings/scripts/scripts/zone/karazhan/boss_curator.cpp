@@ -186,9 +186,9 @@ struct  TRINITY_DLL_DECL boss_curatorAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_curator(Creature *_Creature)
+CreatureAI* GetAI_boss_curator(Creature* pCreature)
 {
-    return new boss_curatorAI (_Creature);
+    return new boss_curatorAI (pCreature);
 }
 
 void AddSC_boss_curator()

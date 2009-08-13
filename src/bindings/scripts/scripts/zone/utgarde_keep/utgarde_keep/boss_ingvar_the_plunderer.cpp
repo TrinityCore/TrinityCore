@@ -271,9 +271,9 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_ingvar_the_plunderer(Creature *_Creature)
+CreatureAI* GetAI_boss_ingvar_the_plunderer(Creature* pCreature)
 {
-    return new boss_ingvar_the_plundererAI (_Creature);
+    return new boss_ingvar_the_plundererAI (pCreature);
 }
 
 enum
@@ -383,9 +383,9 @@ struct TRINITY_DLL_DECL mob_annhylde_the_callerAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_mob_annhylde_the_caller(Creature *_Creature)
+CreatureAI* GetAI_mob_annhylde_the_caller(Creature* pCreature)
 {
-    return new mob_annhylde_the_callerAI (_Creature);
+    return new mob_annhylde_the_callerAI (pCreature);
 }
 
 enum
@@ -433,9 +433,9 @@ struct TRINITY_DLL_DECL mob_ingvar_throw_dummyAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_mob_ingvar_throw_dummy(Creature *_Creature)
+CreatureAI* GetAI_mob_ingvar_throw_dummy(Creature* pCreature)
 {
-    return new mob_ingvar_throw_dummyAI (_Creature);
+    return new mob_ingvar_throw_dummyAI (pCreature);
 }
 
 void AddSC_boss_ingvar_the_plunderer()

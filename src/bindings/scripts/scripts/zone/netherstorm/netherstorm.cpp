@@ -277,9 +277,9 @@ struct TRINITY_DLL_DECL npc_manaforge_control_consoleAI : public ScriptedAI
         }
     }
 };
-CreatureAI* GetAI_npc_manaforge_control_console(Creature *_Creature)
+CreatureAI* GetAI_npc_manaforge_control_console(Creature* pCreature)
 {
-    return new npc_manaforge_control_consoleAI (_Creature);
+    return new npc_manaforge_control_consoleAI (pCreature);
 }
 
 /*######
@@ -601,9 +601,9 @@ struct TRINITY_DLL_DECL npc_commander_dawnforgeAI : public ScriptedAI
      }
 };
 
-CreatureAI* GetAI_npc_commander_dawnforge(Creature* _Creature)
+CreatureAI* GetAI_npc_commander_dawnforge(Creature* pCreature)
 {
-    return new npc_commander_dawnforgeAI(_Creature);
+    return new npc_commander_dawnforgeAI(pCreature);
 }
 
 bool AreaTrigger_at_commander_dawnforge(Player* pPlayer, AreaTriggerEntry *at)
@@ -636,24 +636,24 @@ bool AreaTrigger_at_commander_dawnforge(Player* pPlayer, AreaTriggerEntry *at)
 #define QUEST_DIMENSIUS 10439
 #define QUEST_ON_NETHERY_WINGS 10438
 
-bool GossipHello_npc_professor_dabiri(Player* pPlayer, Creature *_Creature)
+bool GossipHello_npc_professor_dabiri(Player* pPlayer, Creature* pCreature)
 {
-    if (_Creature->isQuestGiver())
-        pPlayer->PrepareQuestMenu(_Creature->GetGUID());
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
     if (pPlayer->GetQuestStatus(QUEST_ON_NETHERY_WINGS) == QUEST_STATUS_INCOMPLETE && !pPlayer->HasItemCount(29778, 1))
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-    pPlayer->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
 
     return true;
 }
 
-bool GossipSelect_npc_professor_dabiri(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_professor_dabiri(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
     if (action == GOSSIP_ACTION_INFO_DEF+1)
     {
-        _Creature->CastSpell(pPlayer, SPELL_PHASE_DISTRUPTOR, false);
+        pCreature->CastSpell(pPlayer, SPELL_PHASE_DISTRUPTOR, false);
         pPlayer->CLOSE_GOSSIP_MENU();
     }
 
@@ -782,9 +782,9 @@ struct TRINITY_DLL_DECL mob_phase_hunterAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_mob_phase_hunter(Creature *_Creature)
+CreatureAI* GetAI_mob_phase_hunter(Creature* pCreature)
 {
-    return new mob_phase_hunterAI (_Creature);
+    return new mob_phase_hunterAI (pCreature);
 }
 
 /*######
@@ -881,9 +881,9 @@ bool QuestAccept_npc_bessy(Player* pPlayer, Creature* creature, Quest const* que
     return true;
 }
 
-CreatureAI* GetAI_npc_bessy(Creature *_Creature)
+CreatureAI* GetAI_npc_bessy(Creature* pCreature)
 {
-    npc_bessyAI* bessyAI = new npc_bessyAI(_Creature);
+    npc_bessyAI* bessyAI = new npc_bessyAI(pCreature);
 
     bessyAI->AddWaypoint(0, 2488.77, 2184.89, 104.64);
     bessyAI->AddWaypoint(1, 2478.72, 2184.77, 98.58);

@@ -285,9 +285,9 @@ struct TRINITY_DLL_DECL boss_razorscaleAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_razorscale(Creature *_Creature)
+CreatureAI* GetAI_boss_razorscale(Creature* pCreature)
 {
-    return new boss_razorscaleAI (_Creature);
+    return new boss_razorscaleAI (pCreature);
 }
 
 void AddSC_boss_razorscale()
