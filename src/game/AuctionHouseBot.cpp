@@ -87,11 +87,32 @@ void AuctionHouseBot::addNewAuctions(Player *AHBplayer, AHBConfig *config)
 
     AuctionHouseEntry const* ahEntry = auctionmgr.GetAuctionHouseEntry(config->GetAHFID());
     AuctionHouseObject* auctionHouse = auctionmgr.GetAuctionsMap(config->GetAHFID());
-    uint32 items = 0;
     uint32 minItems = config->GetMinItems();
     uint32 maxItems = config->GetMaxItems();
     uint32 auctions = auctionHouse->Getcount();
+
+    if (auctions >= minItems)
+    {
+        //if (debug_Out) sLog.outError("AHSeller: Auctions above minimum");
+        return;
+    }
+
+    if (auctions >= maxItems)
+    {
+        //if (debug_Out) sLog.outError("AHSeller: Auctions at or above maximum");
+        return;
+    }
+
+    uint32 items = 0;
+    if ((maxItems - auctions) > ItemsPerCycle)
+        items = ItemsPerCycle;
+    else
+        items = (maxItems - auctions);
+
+    if (debug_Out) sLog.outError("AHSeller: Adding %u Auctions", items);
+
     uint32 AuctioneerGUID = 0;
+
     switch (config->GetAHID())
     {
     case 2:
@@ -109,19 +130,8 @@ void AuctionHouseBot::addNewAuctions(Player *AHBplayer, AHBConfig *config)
         break;
     }
 
-    if (auctions >= minItems)
-    {
-        if (debug_Out) sLog.outError("AHSeller: Auctions above minimum");
-        return;
-    }
+    if (debug_Out) sLog.outError("AHSeller: Current Auctineer GUID is %u", AuctioneerGUID);
 
-    if (auctions <= maxItems)
-    {
-        if ((maxItems - auctions) > ItemsPerCycle)
-            items = ItemsPerCycle;
-        else
-            items = (maxItems - auctions);
-    }
     uint32 greyTGcount = config->GetPercents(AHB_GREY_TG);
     uint32 whiteTGcount = config->GetPercents(AHB_WHITE_TG);
     uint32 greenTGcount = config->GetPercents(AHB_GREEN_TG);
@@ -370,78 +380,22 @@ void AuctionHouseBot::addNewAuctions(Player *AHBplayer, AHBConfig *config)
                 break;
             }
 
-            switch (prototype->Quality)
+            if ((prototype->Quality > -1) && (prototype->Quality < 7))
             {
-            case AHB_GREY:
-                if (config->GetMaxStack(AHB_GREY) > 1 && item->GetMaxStackCount() > 1)
-                    stackCount = urand(1, minValue(item->GetMaxStackCount(), config->GetMaxStack(AHB_GREY)));
+                if (config->GetMaxStack(prototype->Quality) > 1 && item->GetMaxStackCount() > 1)
+                    stackCount = urand(1, minValue(item->GetMaxStackCount(), config->GetMaxStack(prototype->Quality)));
                 else
                     stackCount = 1;
-                buyoutPrice *= urand(config->GetMinPrice(AHB_GREY), config->GetMaxPrice(AHB_GREY));
+                buyoutPrice *= urand(config->GetMinPrice(prototype->Quality), config->GetMaxPrice(prototype->Quality));
                 buyoutPrice /= 100;
-                bidPrice = buyoutPrice * urand(config->GetMinBidPrice(AHB_GREY), config->GetMaxBidPrice(AHB_GREY));
+                bidPrice = buyoutPrice * urand(config->GetMinBidPrice(prototype->Quality), config->GetMaxBidPrice(prototype->Quality));
                 bidPrice /= 100;
-                break;
-            case AHB_WHITE:
-                if (config->GetMaxStack(AHB_WHITE) > 1 && item->GetMaxStackCount() > 1)
-                    stackCount = urand(1, minValue(item->GetMaxStackCount(), config->GetMaxStack(AHB_WHITE)));
-                else
-                    stackCount = 1;
-                buyoutPrice *= urand(config->GetMinPrice(AHB_WHITE), config->GetMaxPrice(AHB_WHITE));
-                buyoutPrice /= 100;
-                bidPrice = buyoutPrice * urand(config->GetMinBidPrice(AHB_WHITE), config->GetMaxBidPrice(AHB_WHITE));
-                bidPrice /= 100;
-                break;
-            case AHB_GREEN:
-                if (config->GetMaxStack(AHB_GREEN) > 1 && item->GetMaxStackCount() > 1)
-                    stackCount = urand(1, minValue(item->GetMaxStackCount(), config->GetMaxStack(AHB_GREEN)));
-                else
-                    stackCount = 1;
-                buyoutPrice *= urand(config->GetMinPrice(AHB_GREEN), config->GetMaxPrice(AHB_GREEN));
-                buyoutPrice /= 100;
-                bidPrice = buyoutPrice * urand(config->GetMinBidPrice(AHB_GREEN), config->GetMaxBidPrice(AHB_GREEN));
-                bidPrice /= 100;
-                break;
-            case AHB_BLUE:
-                if (config->GetMaxStack(AHB_BLUE) > 1 && item->GetMaxStackCount() > 1)
-                    stackCount = urand(1, minValue(item->GetMaxStackCount(), config->GetMaxStack(AHB_BLUE)));
-                else
-                    stackCount = 1;
-                buyoutPrice *= urand(config->GetMinPrice(AHB_BLUE), config->GetMaxPrice(AHB_BLUE));
-                buyoutPrice /= 100;
-                bidPrice = buyoutPrice * urand(config->GetMinBidPrice(AHB_BLUE), config->GetMaxBidPrice(AHB_BLUE));
-                bidPrice /= 100;
-                break;
-            case AHB_PURPLE:
-                if (config->GetMaxStack(AHB_PURPLE) > 1 && item->GetMaxStackCount() > 1)
-                    stackCount = urand(1, minValue(item->GetMaxStackCount(), config->GetMaxStack(AHB_PURPLE)));
-                else
-                    stackCount = 1;
-                buyoutPrice *= urand(config->GetMinPrice(AHB_PURPLE), config->GetMaxPrice(AHB_PURPLE));
-                buyoutPrice /= 100;
-                bidPrice = buyoutPrice * urand(config->GetMinBidPrice(AHB_PURPLE), config->GetMaxBidPrice(AHB_PURPLE));
-                bidPrice /= 100;
-                break;
-            case AHB_ORANGE:
-                if (config->GetMaxStack(AHB_ORANGE) > 1 && item->GetMaxStackCount() > 1)
-                    stackCount = urand(1, minValue(item->GetMaxStackCount(), config->GetMaxStack(AHB_ORANGE)));
-                else
-                    stackCount = 1;
-                buyoutPrice *= urand(config->GetMinPrice(AHB_ORANGE), config->GetMaxPrice(AHB_ORANGE));
-                buyoutPrice /= 100;
-                bidPrice = buyoutPrice * urand(config->GetMinBidPrice(AHB_ORANGE), config->GetMaxBidPrice(AHB_ORANGE));
-                bidPrice /= 100;
-                break;
-            case AHB_YELLOW:
-                if (config->GetMaxStack(AHB_YELLOW) > 1 && item->GetMaxStackCount() > 1)
-                    stackCount = urand(1, minValue(item->GetMaxStackCount(), config->GetMaxStack(AHB_YELLOW)));
-                else
-                    stackCount = 1;
-                buyoutPrice *= urand(config->GetMinPrice(AHB_YELLOW), config->GetMaxPrice(AHB_YELLOW));
-                buyoutPrice /= 100;
-                bidPrice = buyoutPrice * urand(config->GetMinBidPrice(AHB_YELLOW), config->GetMaxBidPrice(AHB_YELLOW));
-                bidPrice /= 100;
-                break;
+            }
+            else
+            {
+                // quality is something it shouldn't be, let's get out of here
+                if (debug_Out) sLog.outError("AHBuyer: Quality %u not Supported", prototype->Quality);
+                continue;
             }
 
             uint32 etime = urand(1,3);
@@ -551,23 +505,23 @@ void AuctionHouseBot::addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *con
         // if it is, we skip this iteration.
         if (itr->second->owner == AHBplayerGUID)
         {
-            if (debug_Out) sLog.outError("AHBuyer: I own this item.");
+            //if (debug_Out) sLog.outError("AHBuyer: I own this item.");
             continue;
         }
         // Check that we haven't bidded in this auction already.
         if (itr->second->bidder != AHBplayerGUID)
         {
-            if (debug_Out) sLog.outError("AHBuyer: I have not bid on this item.");
             uint32 tmpdata = itr->second->Id;
             possibleBids.push_back(tmpdata);
+            if (debug_Out) sLog.outError("AHBuyer: I have not bid on %u"), itr->second->Id;
         }
         else
         {
-            if (debug_Out) sLog.outError("AHBuyer: I have bid on this item.");
+            if (debug_Out) sLog.outError("AHBuyer: I have bid on %u"), itr->second->Id;
         }
     }
 
-    for (uint32 count = 1;count < config->GetBidsPerInterval();++count)
+    for (uint32 count = 1;count <= config->GetBidsPerInterval();++count)
     {
         // Do we have anything to bid? If not, stop here.
         if (possibleBids.empty())
@@ -598,7 +552,7 @@ void AuctionHouseBot::addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *con
         Item *pItem = auctionmgr.GetAItem(auction->item_guidlow);
         if (!pItem)
         {
-            if (debug_Out) sLog.outError("AHBuyer: Item doesn't exist, perhaps bought already?");
+            if (debug_Out) sLog.outError("AHBuyer: Item %u doesn't exist, perhaps bought already?", auction->item_guidlow);
             continue;
         }
 
@@ -608,15 +562,9 @@ void AuctionHouseBot::addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *con
         // check which price we have to use, startbid or if it is bidded already
         uint32 currentprice;
         if (auction->bid)
-        {
             currentprice = auction->bid;
-            if (debug_Out) sLog.outError("AHBuyer: Current Price: %u", auction->bid);
-        }
         else
-        {
             currentprice = auction->startbid;
-            if (debug_Out) sLog.outError("AHBuyer: Current Price: %u", auction->startbid);
-        }
 
         if (debug_Out)
         {
@@ -645,13 +593,10 @@ void AuctionHouseBot::addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *con
         }
 
         // Prepare portion from maximum bid
-        uint32 tmprate2 = urand(0, 100);
-        double tmprate = static_cast<double>(tmprate2);
-        double bidrate = tmprate / 100;
+        double bidrate = static_cast<double>(urand(1, 100)) / 100;
         long double bidMax = 0;
         if (debug_Out)
         {
-            sLog.outError("AHBuyer: tmprate: %f", tmprate);
             sLog.outError("AHBuyer: bidrate: %f", bidrate);
         }
 
@@ -660,83 +605,37 @@ void AuctionHouseBot::addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *con
         {
         case 0:
             {
-                switch (prototype->Quality)
+                if ((prototype->Quality > -1) && (prototype->Quality < 7))
                 {
-                case 0:
-                    if (currentprice < prototype->SellPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_GREY))
-                        bidMax = prototype->SellPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_GREY);
-                    break;
-                case 1:
-                    if (currentprice < prototype->SellPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_WHITE))
-                        bidMax = prototype->SellPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_WHITE);
-                    break;
-                case 2:
-                    if (currentprice < prototype->SellPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_GREEN))
-                        bidMax = prototype->SellPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_GREEN);
-                    break;
-                case 3:
-                    if (currentprice < prototype->SellPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_BLUE))
-                        bidMax = prototype->SellPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_BLUE);
-                    break;
-                case 4:
-                    if (currentprice < prototype->SellPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_PURPLE))
-                        bidMax = prototype->SellPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_PURPLE);
-                case 5:
-                    if (currentprice < prototype->SellPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_ORANGE))
-                        bidMax = prototype->SellPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_ORANGE);
-                case 6:
-                    if (currentprice < prototype->SellPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_YELLOW))
-                        bidMax = prototype->SellPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_YELLOW);
-                    break;
-                default:
+                    if (currentprice < prototype->SellPrice * pItem->GetCount() * config->GetBuyerPrice(prototype->Quality))
+                        bidMax = prototype->SellPrice * pItem->GetCount() * config->GetBuyerPrice(prototype->Quality);
+                }
+                else
+                {
                     // quality is something it shouldn't be, let's get out of here
-                    if (debug_Out) sLog.outError("AHBuyer: bidMax(fail): %f", bidMax);
+                    if (debug_Out) sLog.outError("AHBuyer: Quality %u not Supported", prototype->Quality);
                     continue;
-                    break;
                 }
                 break;
             }
         case 1:
             {
-                switch (prototype->Quality)
+                if ((prototype->Quality > -1) && (prototype->Quality < 7))
                 {
-                case 0:
-                    if (currentprice < prototype->BuyPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_GREY))
-                        bidMax = prototype->BuyPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_GREY);
-                    break;
-                case 1:
-                    if (currentprice < prototype->BuyPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_WHITE))
-                        bidMax = prototype->BuyPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_WHITE);
-                    break;
-                case 2:
-                    if (currentprice < prototype->BuyPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_GREEN))
-                        bidMax = prototype->BuyPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_GREEN);
-                    break;
-                case 3:
-                    if (currentprice < prototype->BuyPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_BLUE))
-                        bidMax = prototype->BuyPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_BLUE);
-                    break;
-                case 4:
-                    if (currentprice < prototype->BuyPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_PURPLE))
-                        bidMax = prototype->BuyPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_PURPLE);
-                case 5:
-                    if (currentprice < prototype->BuyPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_ORANGE))
-                        bidMax = prototype->BuyPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_ORANGE);
-                case 6:
-                    if (currentprice < prototype->BuyPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_YELLOW))
-                        bidMax = prototype->BuyPrice * pItem->GetCount() * config->GetBuyerPrice(AHB_YELLOW);
-                    break;
-                default:
+                    if (currentprice < prototype->BuyPrice * pItem->GetCount() * config->GetBuyerPrice(prototype->Quality))
+                        bidMax = prototype->BuyPrice * pItem->GetCount() * config->GetBuyerPrice(prototype->Quality);
+                }
+                else
+                {
                     // quality is something it shouldn't be, let's get out of here
-                    if (debug_Out) sLog.outError("AHBuyer: bidMax(fail): %f", bidMax);
+                    if (debug_Out) sLog.outError("AHBuyer: Quality %u not Supported", prototype->Quality);
                     continue;
-                    break;
                 }
                 break;
             }
         }
 
-        if (debug_Out) sLog.outError("AHBuyer: bidMax(succeed): %f", bidMax);
+        if (debug_Out) sLog.outError("AHBuyer: bidMax: %f", bidMax);
 
         // check some special items, and do recalculating to their prices
         switch (prototype->Class)
@@ -762,8 +661,8 @@ void AuctionHouseBot::addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *con
         uint32 bidprice = static_cast<uint32>(bidvalue);
         if (debug_Out)
         {
-            sLog.outError("AHBuyer: bidprice: %u", bidprice);
             sLog.outError("AHBuyer: bidvalue: %f", bidvalue);
+            sLog.outError("AHBuyer: bidprice: %u", bidprice);
         }
 
         // Check our bid is high enough to be valid. If not, correct it to minimum.
