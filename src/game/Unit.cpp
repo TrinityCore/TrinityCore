@@ -117,6 +117,7 @@ Unit::Unit()
     //m_removeAuraTimer = 4;
     //tmpAura = NULL;
 
+    m_AurasUpdateIterator = m_Auras.end();
     m_Visibility = VISIBILITY_ON;
 
     m_interruptMask = 0;
@@ -3358,36 +3359,16 @@ void Unit::_UpdateSpells( uint32 time )
         }
     }
 
-    // TODO: Find a better way to prevent crash when multiple auras are removed.
-    for (AuraMap::iterator i = m_Auras.begin(); i != m_Auras.end(); ++i)
-        i->second->SetUpdated(false);
-
-    for(AuraMap::iterator i = m_Auras.begin(); i != m_Auras.end();)
+    // update auras
+    // m_AurasUpdateIterator can be updated in inderect called code at aura remove to skip next planned to update but removed auras
+    for (m_AurasUpdateIterator = m_Auras.begin(); m_AurasUpdateIterator != m_Auras.end();)
     {
-        Aura *aur = i->second;
-
-        // prevent double update
-        if(aur->IsUpdated())
-        {
-            ++i;
-            continue;
-        }
-
-        aur->SetUpdated(true);
-
-        m_removedAurasCount = 0;
-        aur->Update( time );
-
-        // several auras can be deleted due to update
-        if(m_removedAurasCount)
-        {
-            m_removedAurasCount = 0;
-            i = m_Auras.begin();
-        }
-        else
-            ++i;
+        Aura* i_aura = m_AurasUpdateIterator->second;
+        ++m_AurasUpdateIterator;                            // need shift to next for allow update if need into aura update
+        i_aura->Update(time);
     }
 
+    // remove expired auras
     for(AuraMap::iterator i = m_Auras.begin(); i != m_Auras.end();)
     {
         if(i->second->IsExpired())
@@ -4262,10 +4243,15 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
 {
     Aura* Aur = i->second;
 
+    // if unit currently update aura list then make safe update iterator shift to next
+    if (m_AurasUpdateIterator == i)
+        ++m_AurasUpdateIterator;
+
     // some ShapeshiftBoosts at remove trigger removing other auras including parent Shapeshift aura
     // remove aura from list before to prevent deleting it before
     m_Auras.erase(i);
-    m_removedAurasCount += 1;
+
+    ++m_removedAurasCount;
 
     Aur->UnregisterSingleCastAura();
 
