@@ -58,26 +58,27 @@ enum
 
 struct TRINITY_DLL_DECL boss_arlokkAI : public ScriptedAI
 {
-    boss_arlokkAI(Creature *c) : ScriptedAI(c)
+    boss_arlokkAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = c->GetInstanceData();
+        m_pInstance = pCreature->GetInstanceData();
     }
 
-    ScriptedInstance *m_pInstance;
+    ScriptedInstance* m_pInstance;
 
     uint32 m_uiShadowWordPain_Timer;
     uint32 m_uiGouge_Timer;
     uint32 m_uiMark_Timer;
     uint32 m_uiCleave_Timer;
     uint32 m_uiVanish_Timer;
-    uint32 m_uiSummon_Timer;
     uint32 m_uiVisible_Timer;
 
-    uint64 markedTargetGUID;
-    uint32 Counter;
+    uint32 m_uiSummon_Timer;
+    uint32 m_uiSummonCount;
 
-    bool m_bPhaseTwo;
-    bool m_bVanishedOnce;
+    Unit* m_pMarkedTarget;
+
+    bool m_bIsPhaseTwo;
+    bool m_bIsVanished;
 
     void Reset()
     {
@@ -86,14 +87,15 @@ struct TRINITY_DLL_DECL boss_arlokkAI : public ScriptedAI
         m_uiMark_Timer = 35000;
         m_uiCleave_Timer = 4000;
         m_uiVanish_Timer = 60000;
-        m_uiSummon_Timer = 5000;
         m_uiVisible_Timer = 6000;
 
-        Counter = 0;
+        m_uiSummon_Timer = 5000;
+        m_uiSummonCount = 0;
 
-        markedTargetGUID = 0;
-        m_bPhaseTwo = false;
-        m_bVanishedOnce = false;
+        m_bIsPhaseTwo = false;
+        m_bIsVanished = false;
+
+        m_pMarkedTarget = NULL;
 
         m_creature->SetDisplayId(MODEL_ID_NORMAL);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -104,9 +106,19 @@ struct TRINITY_DLL_DECL boss_arlokkAI : public ScriptedAI
         DoScriptText(SAY_AGGRO, m_creature);
     }
 
+    void JustReachedHome()
+    {
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_ARLOKK, NOT_STARTED);
+
+        //we should be summoned, so despawn
+        m_creature->ForcedDespawn();
+    }
+
     void JustDied(Unit* pKiller)
     {
         DoScriptText(SAY_DEATH, m_creature);
+
         m_creature->SetDisplayId(MODEL_ID_NORMAL);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
@@ -114,14 +126,31 @@ struct TRINITY_DLL_DECL boss_arlokkAI : public ScriptedAI
             m_pInstance->SetData(TYPE_ARLOKK, DONE);
     }
 
+    void DoSummonPhanters()
+    {
+        if (m_pMarkedTarget)
+            DoScriptText(SAY_FEAST_PANTHER, m_creature, m_pMarkedTarget);
+
+        m_creature->SummonCreature(NPC_ZULIAN_PROWLER, -11532.7998, -1649.6734, 41.4800, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+        m_creature->SummonCreature(NPC_ZULIAN_PROWLER, -11532.9970, -1606.4840, 41.2979, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+    }
+
+    void JustSummoned(Creature* pSummoned)
+    {
+        if (m_pMarkedTarget)
+            pSummoned->AI()->AttackStart(m_pMarkedTarget);
+
+        ++m_uiSummonCount;
+    }
+
     void UpdateAI(const uint32 uiDiff)
     {
         if (!UpdateVictim())
             return;
 
-        if( m_creature->getVictim() && m_creature->isAlive())
+        if (!m_bIsPhaseTwo)
         {
-            if (!m_bPhaseTwo && m_uiShadowWordPain_Timer < uiDiff)
+            if (m_uiShadowWordPain_Timer < uiDiff)
             {
                 DoCast(m_creature->getVictim(),SPELL_SHADOWWORDPAIN);
                 m_uiShadowWordPain_Timer = 15000;
@@ -129,112 +158,103 @@ struct TRINITY_DLL_DECL boss_arlokkAI : public ScriptedAI
             else
                 m_uiShadowWordPain_Timer -= uiDiff;
 
-            if (!m_bPhaseTwo && m_uiMark_Timer < uiDiff)
+            if (m_uiMark_Timer < uiDiff)
             {
-                if(Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
-                {
-                    DoCast(target, SPELL_MARK);
-                    markedTargetGUID = target->GetGUID();
-                }
+                m_pMarkedTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+
+                if (m_pMarkedTarget)
+                    DoCast(m_pMarkedTarget, SPELL_MARK);
+                else
+                    error_log("TSCR: boss_arlokk could not accuire m_pMarkedTarget.");
+
                 m_uiMark_Timer = 15000;
             }
             else
                 m_uiMark_Timer -= uiDiff;
-
-            if (m_uiSummon_Timer < uiDiff && Counter < 31)
-            {
-                Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0);
-
-                Creature *Panther = m_creature->SummonCreature(15101,-11532.79980,-1649.6734,41.4800,0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                Player *markedTarget = Unit::GetPlayer(markedTargetGUID);
-
-                if(markedTarget && Panther )
-                {
-                    DoScriptText(SAY_FEAST_PANTHER, m_creature, markedTarget);
-                    Panther ->AI()->AttackStart(markedTarget);
-                }
-                else if(Panther && target)
-                    Panther ->AI()->AttackStart(target);
-
-                Panther = m_creature->SummonCreature(15101,-11532.9970,-1606.4840,41.2979,0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-
-                if(markedTarget && Panther )
-                    Panther ->AI()->AttackStart(markedTarget);
-                else if(Panther && target)
-                     Panther ->AI()->AttackStart(target);
-
-                Counter++;
-                m_uiSummon_Timer = 5000;
-            }
-            else
-                m_uiSummon_Timer -= uiDiff;
-
-            if (m_uiVanish_Timer < uiDiff)
-            {
-                //Invisble Model
-                m_creature->SetDisplayId(MODEL_ID_BLANK);
-                m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                //m_creature->CombatStop();
-                DoResetThreat();
-                m_bVanishedOnce = true;
-                m_uiVanish_Timer = 45000;
-                m_uiVisible_Timer = 6000;
-            }
-            else
-                m_uiVanish_Timer -= uiDiff;
-
-            if (m_bVanishedOnce)
-            {
-                if(m_uiVisible_Timer < uiDiff)
-                {
-                    //The Panther Model
-                    m_creature->SetDisplayId(MODEL_ID_PANTHER);
-                    m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-
-                    const CreatureInfo *cinfo = m_creature->GetCreatureInfo();
-                    m_creature->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 35)));
-                    m_creature->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 35)));
-                    m_creature->UpdateDamagePhysical(BASE_ATTACK);
-
-                    if(Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
-                        AttackStart(pTarget);
-
-                    m_bPhaseTwo = true;
-                }
-                else
-                    m_uiVisible_Timer -= uiDiff;
-            }
-
+        }
+        else
+        {
             //Cleave_Timer
-            if(m_bPhaseTwo && m_uiCleave_Timer < uiDiff)
+            if (m_uiCleave_Timer < uiDiff)
             {
                 DoCast(m_creature->getVictim(), SPELL_CLEAVE);
                 m_uiCleave_Timer = 16000;
             }
             else
-                m_uiCleave_Timer -=uiDiff;
+                m_uiCleave_Timer -= uiDiff;
 
             //Gouge_Timer
-            if(m_bPhaseTwo && m_uiGouge_Timer < uiDiff)
+            if (m_uiGouge_Timer < uiDiff)
             {
                 DoCast(m_creature->getVictim(), SPELL_GOUGE);
 
-                if(DoGetThreat(m_creature->getVictim()))
-                    DoModifyThreatPercent(m_creature->getVictim(),-80);
+                if (m_creature->getThreatManager().getThreat(m_creature->getVictim()))
+                    m_creature->getThreatManager().modifyThreatPercent(m_creature->getVictim(),-80);
 
                 m_uiGouge_Timer = 17000+rand()%10000;
             }
             else
                 m_uiGouge_Timer -= uiDiff;
-
-            DoMeleeAttackIfReady();
         }
+
+        if (m_uiSummonCount <= 30)
+        {
+            if (m_uiSummon_Timer < uiDiff)
+            {
+                DoSummonPhanters();
+                m_uiSummon_Timer = 5000;
+            }
+            else
+                m_uiSummon_Timer -= uiDiff;
+        }
+
+        if (m_uiVanish_Timer < uiDiff)
+        {
+            //Invisble Model
+            m_creature->SetDisplayId(MODEL_ID_BLANK);
+            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+
+            m_creature->AttackStop();
+            DoResetThreat();
+
+            m_bIsVanished = true;
+
+            m_uiVanish_Timer = 45000;
+            m_uiVisible_Timer = 6000;
+        }
+        else
+            m_uiVanish_Timer -= uiDiff;
+
+        if (m_bIsVanished)
+        {
+            if(m_uiVisible_Timer < uiDiff)
+            {
+                //The Panther Model
+                m_creature->SetDisplayId(MODEL_ID_PANTHER);
+                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+
+                const CreatureInfo *cinfo = m_creature->GetCreatureInfo();
+                m_creature->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 35)));
+                m_creature->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 35)));
+                m_creature->UpdateDamagePhysical(BASE_ATTACK);
+
+                if(Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                    AttackStart(pTarget);
+
+                m_bIsPhaseTwo = true;
+                m_bIsVanished = false;
+            }
+            else
+                m_uiVisible_Timer -= uiDiff;
+        }
+        else
+            DoMeleeAttackIfReady();
     }
 };
 
-CreatureAI* GetAI_boss_arlokk(Creature *_Creature)
+CreatureAI* GetAI_boss_arlokk(Creature* pCreature)
 {
-    return new boss_arlokkAI (_Creature);
+    return new boss_arlokkAI (pCreature);
 }
 
 void AddSC_boss_arlokk()
