@@ -79,9 +79,9 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
 
     void Reset()
     {
-        if(pInstance)
+        if (pInstance)
         {
-            if(m_creature->isAlive())
+            if (m_creature->isAlive())
             {
                 pInstance->SetData(DATA_SUPREMUSEVENT, NOT_STARTED);
                 //ToggleDoors(true);
@@ -97,7 +97,7 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_SUPREMUSEVENT, IN_PROGRESS);
 
         ChangePhase();
@@ -107,7 +107,7 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
 
     void ChangePhase()
     {
-        if(!phase || phase == PHASE_CHASE)
+        if (!phase || phase == PHASE_CHASE)
         {
             phase = PHASE_STRIKE;
             summons.DoAction(EVENT_VOLCANO, 0);
@@ -133,7 +133,7 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
 
     void JustDied(Unit *killer)
     {
-        if(pInstance)
+        if (pInstance)
         {
             pInstance->SetData(DATA_SUPREMUSEVENT, DONE);
             pInstance->HandleGameObject(pInstance->GetData64(DATA_GAMEOBJECT_SUPREMUS_DOORS), true);
@@ -154,9 +154,9 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
         for (i = m_threatlist.begin(); i!= m_threatlist.end(); ++i)
         {
             Unit* pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid());
-            if(pUnit && m_creature->IsWithinMeleeRange(pUnit))
+            if (pUnit && m_creature->IsWithinMeleeRange(pUnit))
             {
-                if(pUnit->GetHealth() > health)
+                if (pUnit->GetHealth() > health)
                 {
                     health = pUnit->GetHealth();
                     target = pUnit;
@@ -187,13 +187,13 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
                     events.ScheduleEvent(EVENT_FLAME, 20000, GCD_CAST);
                     break;
                 case EVENT_HATEFUL_STRIKE:
-                    if(Unit* target = CalculateHatefulStrikeTarget())
+                    if (Unit* target = CalculateHatefulStrikeTarget())
                         DoCast(target, SPELL_HATEFUL_STRIKE);
                     events.DelayEvents(1000, GCD_CAST);
                     events.ScheduleEvent(EVENT_HATEFUL_STRIKE, 5000, GCD_CAST, PHASE_STRIKE);
                     break;
                 case EVENT_SWITCH_TARGET:
-                    if(Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
                     {
                         DoResetThreat();
                         m_creature->AddThreat(target, 5000000.0f);
@@ -204,8 +204,8 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
                 case EVENT_VOLCANO:
                 {
                     Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 999, true);
-                    if(!target) target = m_creature->getVictim();
-                    if(target)
+                    if (!target) target = m_creature->getVictim();
+                    if (target)
                     {
                         //DoCast(target, SPELL_VOLCANIC_SUMMON);//movement bugged
                         m_creature->SummonCreature(CREATURE_VOLCANO,target->GetPositionX(),target->GetPositionY(),target->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,30000);
@@ -250,7 +250,7 @@ struct TRINITY_DLL_DECL npc_volcanoAI : public Scripted_NoMovementAI
 
     void UpdateAI(const uint32 diff) 
     {
-        if(wait<=diff)//wait 3secs before casting
+        if (wait<=diff)//wait 3secs before casting
         {
             DoCast(m_creature, SPELL_VOLCANIC_ERUPTION);
             wait = 60000;

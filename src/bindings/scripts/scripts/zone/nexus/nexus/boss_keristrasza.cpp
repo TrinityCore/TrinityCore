@@ -84,7 +84,7 @@ struct TRINITY_DLL_DECL boss_keristraszaAI : public ScriptedAI
 
         RemovePrison(CheckContainmentSpheres());
 
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_KERISTRASZA_EVENT, NOT_STARTED);
     }
 
@@ -93,7 +93,7 @@ struct TRINITY_DLL_DECL boss_keristraszaAI : public ScriptedAI
         DoScriptText(SAY_AGGRO, m_creature);
         DoCastAOE(SPELL_INTENSE_COLD);
 
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_KERISTRASZA_EVENT, IN_PROGRESS);
     }
 
@@ -101,22 +101,22 @@ struct TRINITY_DLL_DECL boss_keristraszaAI : public ScriptedAI
     {
         DoScriptText(SAY_DEATH, m_creature);
 
-        if(HeroicMode && !MoreThanTwoIntenseCold)
+        if (HeroicMode && !MoreThanTwoIntenseCold)
         {
             AchievementEntry const *AchievIntenseCold = GetAchievementStore()->LookupEntry(ACHIEVEMENT_INTENSE_COLD);
-            if(AchievIntenseCold)
+            if (AchievIntenseCold)
             {
-                Map *map = m_creature->GetMap();
-                if(map && map->IsDungeon())
+                Map* pMap = m_creature->GetMap();
+                if (pMap && pMap->IsDungeon())
                 {
-                    Map::PlayerList const &players = map->GetPlayers();
+                    Map::PlayerList const &players = pMap->GetPlayers();
                     for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                         itr->getSource()->CompletedAchievement(AchievIntenseCold);
                 }
             }
         }
 
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_KERISTRASZA_EVENT, DONE);
     }
 
@@ -136,23 +136,23 @@ struct TRINITY_DLL_DECL boss_keristraszaAI : public ScriptedAI
         for(uint8 i = 0; i < CONTAINMENT_SPHERES; ++i)
         {
             ContainmentSpheres[i] = pInstance->instance->GetGameObject(ContainmentSphereGUIDs[i]);
-            if(!ContainmentSpheres[i])
+            if (!ContainmentSpheres[i])
                 return false;
-            if(ContainmentSpheres[i]->GetGoState() != GO_STATE_ACTIVE)
+            if (ContainmentSpheres[i]->GetGoState() != GO_STATE_ACTIVE)
                 return false;
         }
-        if(remove_prison)
+        if (remove_prison)
             RemovePrison(true);
         return true;
     }
 
     void RemovePrison(bool remove)
     {
-        if(remove)
+        if (remove)
         {
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            if(m_creature->HasAura(SPELL_FROZEN_PRISON))
+            if (m_creature->HasAura(SPELL_FROZEN_PRISON))
                 m_creature->RemoveAurasDueToSpell(SPELL_FROZEN_PRISON);
         }
         else
@@ -168,17 +168,17 @@ struct TRINITY_DLL_DECL boss_keristraszaAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if(CheckIntenseColdTimer < diff && !MoreThanTwoIntenseCold)
+        if (CheckIntenseColdTimer < diff && !MoreThanTwoIntenseCold)
         {
             std::list<HostilReference*> ThreatList = m_creature->getThreatManager().getThreatList();
             for(std::list<HostilReference*>::const_iterator itr = ThreatList.begin(); itr != ThreatList.end(); itr++)
             {
                 Unit *target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
-                if(!target || target->GetTypeId() != TYPEID_PLAYER)
+                if (!target || target->GetTypeId() != TYPEID_PLAYER)
                     continue;
 
                 Aura *AuraIntenseCold = target->GetAura(SPELL_INTENSE_COLD_TRIGGERED);
-                if(AuraIntenseCold && AuraIntenseCold->GetStackAmount() > 2)
+                if (AuraIntenseCold && AuraIntenseCold->GetStackAmount() > 2)
                 {
                     MoreThanTwoIntenseCold = true;
                     break;
@@ -231,7 +231,7 @@ bool GOHello_containment_sphere(Player *pPlayer, GameObject *pGO)
     ScriptedInstance *pInstance = pGO->GetInstanceData();
 
     Creature *Keristrasza = Unit::GetCreature(*pGO, pInstance->GetData64(DATA_KERISTRASZA));
-    if(Keristrasza && Keristrasza->isAlive())
+    if (Keristrasza && Keristrasza->isAlive())
     {
         // maybe these are hacks :(
         pGO->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);

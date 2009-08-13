@@ -91,7 +91,7 @@ struct TRINITY_DLL_DECL boss_blackheart_the_inciterAI : public ScriptedAI
     {
         DoScriptText(SAY_DEATH, m_creature);
 
-        if( pInstance )
+        if (pInstance)
             pInstance->SetData(DATA_BLACKHEARTTHEINCITEREVENT, DONE);
     }
 
@@ -111,7 +111,7 @@ struct TRINITY_DLL_DECL boss_blackheart_the_inciterAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
         if (InciteChaos)
@@ -130,7 +130,7 @@ struct TRINITY_DLL_DECL boss_blackheart_the_inciterAI : public ScriptedAI
             DoCast(m_creature, SPELL_INCITE_CHAOS);
 
             std::list<HostilReference *> t_list = m_creature->getThreatManager().getThreatList();
-            for( std::list<HostilReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr )
+            for(std::list<HostilReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
             {
                 Unit* target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
                 if (target && target->GetTypeId() == TYPEID_PLAYER)

@@ -32,43 +32,43 @@ EndScriptData */
 #define GOSSIP_ITEM_2       "I'm not interested"
 
 //This function is called when the player opens the gossip menubool
-bool GossipHello_example_gossip_codebox(Player *player, Creature *_Creature)
+bool GossipHello_example_gossip_codebox(Player* pPlayer, Creature *_Creature)
 {
-    player->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1, "", 0, true);
-    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+    pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1, "", 0, true);
+    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
 
-    player->PlayerTalkClass->SendGossipMenu(907,_Creature->GetGUID());
+    pPlayer->PlayerTalkClass->SendGossipMenu(907,_Creature->GetGUID());
     return true;
 }
 
 //This function is called when the player clicks an option on the gossip menubool
-bool GossipSelect_example_gossip_codebox(Player *player, Creature *_Creature, uint32 sender, uint32 action )
+bool GossipSelect_example_gossip_codebox(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
 {
-    if(action == GOSSIP_ACTION_INFO_DEF+2)
+    if (action == GOSSIP_ACTION_INFO_DEF+2)
     {
         DoScriptText(SAY_NOT_INTERESTED, _Creature);
-        player->CLOSE_GOSSIP_MENU();
+        pPlayer->CLOSE_GOSSIP_MENU();
     }
     return true;
 }
 
-bool GossipSelectWithCode_example_gossip_codebox( Player *player, Creature *_Creature, uint32 sender, uint32 action, const char* sCode )
+bool GossipSelectWithCode_example_gossip_codebox(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action, const char* sCode)
 {
-    if(sender == GOSSIP_SENDER_MAIN)
+    if (sender == GOSSIP_SENDER_MAIN)
     {
-        if(action == GOSSIP_ACTION_INFO_DEF+1)
+        if (action == GOSSIP_ACTION_INFO_DEF+1)
         {
-            if(std::strcmp(sCode, player->GetName())!=0)
+            if (std::strcmp(sCode, pPlayer->GetName())!=0)
             {
                 DoScriptText(SAY_WRONG, _Creature);
-                _Creature->CastSpell(player, 12826, true);
+                _Creature->CastSpell(pPlayer, 12826, true);
             }
             else
             {
                 DoScriptText(SAY_CORRECT, _Creature);
-                _Creature->CastSpell(player, 26990, true);
+                _Creature->CastSpell(pPlayer, 26990, true);
             }
-            player->CLOSE_GOSSIP_MENU();
+            pPlayer->CLOSE_GOSSIP_MENU();
             return true;
         }
     }

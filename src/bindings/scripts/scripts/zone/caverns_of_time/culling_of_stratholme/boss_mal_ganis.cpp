@@ -63,10 +63,10 @@ struct TRINITY_DLL_DECL boss_mal_ganisAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
-        if(!yelled)
+        if (!yelled)
         {
             if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 30)
             {
@@ -75,7 +75,7 @@ struct TRINITY_DLL_DECL boss_mal_ganisAI : public ScriptedAI
             }
         }
 
-        if(!yelled2)
+        if (!yelled2)
         {
             if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 15)
             {

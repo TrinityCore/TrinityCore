@@ -45,7 +45,7 @@ struct TRINITY_DLL_DECL boss_loathebAI : public BossAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
         events.Update(diff);

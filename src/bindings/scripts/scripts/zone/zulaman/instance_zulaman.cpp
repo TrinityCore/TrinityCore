@@ -51,7 +51,7 @@ static SHostageInfo HostageInfo[] =
 
 struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
 {
-    instance_zulaman(Map *map) : ScriptedInstance(map) {Initialize();};
+    instance_zulaman(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 
     uint64 HarkorsSatchelGUID;
     uint64 TanzarsTrunkGUID;
@@ -99,7 +99,7 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
     bool IsEncounterInProgress() const
     {
         for(uint8 i = 0; i < ENCOUNTERS; ++i)
-            if(Encounters[i] == IN_PROGRESS) return true;
+            if (Encounters[i] == IN_PROGRESS) return true;
 
         return false;
     }
@@ -139,7 +139,7 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
 
     void SummonHostage(uint8 num)
     {
-        if(!QuestMinute)
+        if (!QuestMinute)
             return;
 
         Map::PlayerList const &PlayerList = instance->GetPlayers();
@@ -147,9 +147,9 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
             return;
 
         Map::PlayerList::const_iterator i = PlayerList.begin();
-        if(Player* i_pl = i->getSource())
+        if (Player* i_pl = i->getSource())
         {
-            if(Unit* Hostage = i_pl->SummonCreature(HostageInfo[num].npc, HostageInfo[num].x, HostageInfo[num].y, HostageInfo[num].z, HostageInfo[num].o, TEMPSUMMON_DEAD_DESPAWN, 0))
+            if (Unit* Hostage = i_pl->SummonCreature(HostageInfo[num].npc, HostageInfo[num].x, HostageInfo[num].y, HostageInfo[num].z, HostageInfo[num].o, TEMPSUMMON_DEAD_DESPAWN, 0))
             {
                 Hostage->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 Hostage->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
@@ -159,10 +159,10 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
 
     void CheckInstanceStatus()
     {
-        if(BossKilled >= 4)
+        if (BossKilled >= 4)
             HandleGameObject(HexLordGateGUID, true);
 
-        if(BossKilled >= 5)
+        if (BossKilled >= 5)
             HandleGameObject(ZulJinGateGUID, true);
     }
 
@@ -185,14 +185,14 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
 
     void Load(const char* load)
     {
-        if(!load) return;
+        if (!load) return;
         std::istringstream ss(load);
         //error_log("TSCR: Zul'aman loaded, %s.", ss.str().c_str());
         char dataHead; // S
         uint16 data1, data2, data3;
         ss >> dataHead >> data1 >> data2 >> data3;
         //error_log("TSCR: Zul'aman loaded, %d %d %d.", data1, data2, data3);
-        if(dataHead == 'S')
+        if (dataHead == 'S')
         {
             BossKilled = data1;
             ChestLooted = data2;
@@ -206,9 +206,9 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
         {
         case DATA_NALORAKKEVENT:
             Encounters[0] = data;
-            if(data == DONE)
+            if (data == DONE)
             {
-                if(QuestMinute)
+                if (QuestMinute)
                 {
                     QuestMinute += 15;
                     UpdateWorldState(3106, QuestMinute);
@@ -219,9 +219,9 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
         case DATA_AKILZONEVENT:
             Encounters[1] = data;
             HandleGameObject(AkilzonDoorGUID, data != IN_PROGRESS);
-            if(data == DONE)
+            if (data == DONE)
             {
-                if(QuestMinute)
+                if (QuestMinute)
                 {
                     QuestMinute += 10;
                     UpdateWorldState(3106, QuestMinute);
@@ -231,18 +231,18 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
             break;
         case DATA_JANALAIEVENT:
             Encounters[2] = data;
-            if(data == DONE) SummonHostage(2);
+            if (data == DONE) SummonHostage(2);
             break;
         case DATA_HALAZZIEVENT:
             Encounters[3] = data;
             HandleGameObject(HalazziDoorGUID, data != IN_PROGRESS);
-            if(data == DONE) SummonHostage(3);
+            if (data == DONE) SummonHostage(3);
             break;
         case DATA_HEXLORDEVENT:
             Encounters[4] = data;
-            if(data == IN_PROGRESS)
+            if (data == IN_PROGRESS)
                 HandleGameObject(HexLordGateGUID, false);
-            else if(data == NOT_STARTED)
+            else if (data == NOT_STARTED)
                 CheckInstanceStatus();
             break;
         case DATA_ZULJINEVENT:
@@ -261,10 +261,10 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
             break;
         }
 
-        if(data == DONE)
+        if (data == DONE)
         {
             BossKilled++;
-            if(QuestMinute && BossKilled >= 4)
+            if (QuestMinute && BossKilled >= 4)
             {
                 QuestMinute = 0;
                 UpdateWorldState(3104, 0);
@@ -293,14 +293,14 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
 
     void Update(uint32 diff)
     {
-        if(QuestMinute)
+        if (QuestMinute)
         {
-            if(QuestTimer < diff)
+            if (QuestTimer < diff)
             {
                 QuestMinute--;
                 SaveToDB();
                 QuestTimer += 60000;
-                if(QuestMinute)
+                if (QuestMinute)
                 {
                     UpdateWorldState(3104, 1);
                     UpdateWorldState(3106, QuestMinute);
@@ -311,9 +311,9 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
     }
 };
 
-InstanceData* GetInstanceData_instance_zulaman(Map* map)
+InstanceData* GetInstanceData_instance_zulaman(Map* pMap)
 {
-    return new instance_zulaman(map);
+    return new instance_zulaman(pMap);
 }
 
 void AddSC_instance_zulaman()

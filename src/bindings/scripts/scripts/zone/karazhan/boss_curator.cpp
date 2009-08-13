@@ -84,7 +84,7 @@ struct  TRINITY_DLL_DECL boss_curatorAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
         //always decrease BerserkTimer

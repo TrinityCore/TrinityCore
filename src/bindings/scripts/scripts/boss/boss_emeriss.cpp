@@ -66,7 +66,7 @@ struct TRINITY_DLL_DECL boss_emerissAI : public ScriptedAI
         //Sleep_Timer
         if (Sleep_Timer < diff)
         {
-            if( Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0) )
+            if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0))
                 DoCast(target,SPELL_SLEEP);
 
             Sleep_Timer = 8000 + rand()%8000;
@@ -82,7 +82,7 @@ struct TRINITY_DLL_DECL boss_emerissAI : public ScriptedAI
         //Tailsweep every 2 seconds
         if (TailSweep_Timer < diff)
         {
-            if( Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0) )
+            if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0))
                 DoCast(target,SPELL_TAILSWEEP);
 
             TailSweep_Timer = 2000;
@@ -103,7 +103,7 @@ struct TRINITY_DLL_DECL boss_emerissAI : public ScriptedAI
         }else VolatileInfection_Timer -= diff;
 
         //CorruptionofEarth_Timer
-        if ( (int) (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() +0.5) == 75)
+        if ((int) (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() +0.5) == 75)
         {
             if (CorruptionofEarth1_Timer < diff)
             {
@@ -115,7 +115,7 @@ struct TRINITY_DLL_DECL boss_emerissAI : public ScriptedAI
         }
 
         //CorruptionofEarth_Timer
-        if ( (int) (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() +0.5) == 50)
+        if ((int) (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() +0.5) == 50)
         {
             if (CorruptionofEarth2_Timer < diff)
             {
@@ -127,7 +127,7 @@ struct TRINITY_DLL_DECL boss_emerissAI : public ScriptedAI
         }
 
         //CorruptionofEarth_Timer
-        if ( (int) (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() +0.5) == 25)
+        if ((int) (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() +0.5) == 25)
         {
             if (CorruptionofEarth3_Timer < diff)
             {

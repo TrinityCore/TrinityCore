@@ -40,7 +40,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
 {
-    instance_black_temple(Map *map) : ScriptedInstance(map) {Initialize();};
+    instance_black_temple(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 
     uint32 Encounters[ENCOUNTERS];
     std::string str_data;
@@ -107,7 +107,7 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
     bool IsEncounterInProgress() const
     {
         for(uint8 i = 0; i < ENCOUNTERS; ++i)
-            if(Encounters[i] == IN_PROGRESS) return true;
+            if (Encounters[i] == IN_PROGRESS) return true;
 
         return false;
     }
@@ -153,24 +153,24 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
         switch(go->GetEntry())
         {
         case 185483: NajentusGate = go->GetGUID();// Gate past Naj'entus (at the entrance to Supermoose's courtyards)
-            if(Encounters[0] == DONE)HandleGameObject(NULL,true,go);break;
+            if (Encounters[0] == DONE)HandleGameObject(NULL,true,go);break;
         case 185882: MainTempleDoors = go->GetGUID();// Main Temple Doors - right past Supermoose (Supremus)
-            if(Encounters[1] == DONE)HandleGameObject(NULL,true,go);break;
+            if (Encounters[1] == DONE)HandleGameObject(NULL,true,go);break;
         case 185478: ShadeOfAkamaDoor = go->GetGUID();break;
         case 185480: CommonDoor = go->GetGUID();
-            if(Encounters[3] == DONE)HandleGameObject(NULL,true,go);;break;
+            if (Encounters[3] == DONE)HandleGameObject(NULL,true,go);;break;
         case 186153: TeronDoor = go->GetGUID();
-            if(Encounters[3] == DONE)HandleGameObject(NULL,true,go);;break;
+            if (Encounters[3] == DONE)HandleGameObject(NULL,true,go);;break;
         case 185892: GuurtogDoor = go->GetGUID();
-            if(Encounters[4] == DONE)HandleGameObject(NULL,true,go);break;
+            if (Encounters[4] == DONE)HandleGameObject(NULL,true,go);break;
         case 185479: TempleDoor = go->GetGUID();
-            if(Encounters[5] == DONE)HandleGameObject(NULL,true,go);break;
+            if (Encounters[5] == DONE)HandleGameObject(NULL,true,go);break;
         case 185482: MotherDoor = go->GetGUID();
-            if(Encounters[6] == DONE)HandleGameObject(NULL,true,go);break;
+            if (Encounters[6] == DONE)HandleGameObject(NULL,true,go);break;
         case 185481: CouncilDoor = go->GetGUID();
-            if(Encounters[7] == DONE)HandleGameObject(NULL,true,go);break;
+            if (Encounters[7] == DONE)HandleGameObject(NULL,true,go);break;
         case 186152: SimpleDoor = go->GetGUID();
-            if(Encounters[7] == DONE)HandleGameObject(NULL,true,go);break;
+            if (Encounters[7] == DONE)HandleGameObject(NULL,true,go);break;
         case 185905: IllidanGate = go->GetGUID(); break; // Gate leading to Temple Summit
         case 186261: IllidanDoor[0] = go->GetGUID(); break; // Right door at Temple Summit
         case 186262: IllidanDoor[1] = go->GetGUID(); break; // Left door at Temple Summit
@@ -208,25 +208,25 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
         switch(type)
         {
         case DATA_HIGHWARLORDNAJENTUSEVENT:
-            if(data == DONE)
+            if (data == DONE)
             {
                 HandleGameObject(NajentusGate, true);
             }
             Encounters[0] = data;break;
         case DATA_SUPREMUSEVENT:
-            if(data == DONE)
+            if (data == DONE)
             {
                 HandleGameObject(NajentusGate, true);
             }
             Encounters[1] = data; break;
         case DATA_SHADEOFAKAMAEVENT:
-            if(data == IN_PROGRESS)
+            if (data == IN_PROGRESS)
             {
                 HandleGameObject(ShadeOfAkamaDoor, false);
             }else HandleGameObject(ShadeOfAkamaDoor, true);
             Encounters[2] = data; break;
         case DATA_TERONGOREFIENDEVENT:
-            if(data == IN_PROGRESS)
+            if (data == IN_PROGRESS)
             {
                 HandleGameObject(TeronDoor, false);
                 HandleGameObject(CommonDoor, false);
@@ -237,25 +237,25 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
             }
             Encounters[3] = data; break;
         case DATA_GURTOGGBLOODBOILEVENT:
-            if(data == DONE)
+            if (data == DONE)
             {
                 HandleGameObject(GuurtogDoor, true);
             }
             Encounters[4] = data; break;
         case DATA_RELIQUARYOFSOULSEVENT:
-            if(data == DONE)
+            if (data == DONE)
             {
                 HandleGameObject(TempleDoor, true);
             }
             Encounters[5] = data;         break;
         case DATA_MOTHERSHAHRAZEVENT:
-            if(data == DONE)
+            if (data == DONE)
             {
                 HandleGameObject(MotherDoor, true);
             }
             Encounters[6] = data; break;
         case DATA_ILLIDARICOUNCILEVENT:
-            if(data == IN_PROGRESS)
+            if (data == IN_PROGRESS)
             {
                 HandleGameObject(CouncilDoor, false);
                 HandleGameObject(SimpleDoor, false);
@@ -331,9 +331,9 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
     }
 };
 
-InstanceData* GetInstanceData_instance_black_temple(Map* map)
+InstanceData* GetInstanceData_instance_black_temple(Map* pMap)
 {
-    return new instance_black_temple(map);
+    return new instance_black_temple(pMap);
 }
 
 void AddSC_instance_black_temple()

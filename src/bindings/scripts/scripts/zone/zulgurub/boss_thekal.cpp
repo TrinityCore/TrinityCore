@@ -283,7 +283,7 @@ struct TRINITY_DLL_DECL mob_zealot_lorkhanAI : public ScriptedAI
 
     void UpdateAI (const uint32 diff)
     {
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
         //Shield_Timer
@@ -427,7 +427,7 @@ struct TRINITY_DLL_DECL mob_zealot_zathAI : public ScriptedAI
 
     void UpdateAI (const uint32 diff)
     {
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
         //SweepingStrikes_Timer

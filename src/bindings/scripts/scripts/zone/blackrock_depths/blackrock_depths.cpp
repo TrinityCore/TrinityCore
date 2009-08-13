@@ -65,9 +65,9 @@ uint32 RingBoss[]=
     9032,                                                   // Hedrum
 };
 
-bool AreaTrigger_at_ring_of_law(Player *player, AreaTriggerEntry *at)
+bool AreaTrigger_at_ring_of_law(Player* pPlayer, AreaTriggerEntry *at)
 {
-    ScriptedInstance* pInstance = (player->GetInstanceData());
+    ScriptedInstance* pInstance = (pPlayer->GetInstanceData());
 
     if (pInstance)
     {
@@ -75,7 +75,7 @@ bool AreaTrigger_at_ring_of_law(Player *player, AreaTriggerEntry *at)
             return false;
 
         pInstance->SetData(TYPE_RING_OF_LAW,IN_PROGRESS);
-        player->SummonCreature(C_GRIMSTONE,625.559,-205.618,-52.735,2.609,TEMPSUMMON_DEAD_DESPAWN,0);
+        pPlayer->SummonCreature(C_GRIMSTONE,625.559,-205.618,-52.735,2.609,TEMPSUMMON_DEAD_DESPAWN,0);
 
         return false;
     }
@@ -339,18 +339,18 @@ struct TRINITY_DLL_DECL mob_phalanxAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if(!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
         //ThunderClap_Timer
-        if( ThunderClap_Timer < diff )
+        if (ThunderClap_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_THUNDERCLAP);
             ThunderClap_Timer = 10000;
         }else ThunderClap_Timer -= diff;
 
         //FireballVolley_Timer
-        if( m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 51 )
+        if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 51)
         {
             if (FireballVolley_Timer < diff)
             {
@@ -360,7 +360,7 @@ struct TRINITY_DLL_DECL mob_phalanxAI : public ScriptedAI
         }
 
         //MightyBlow_Timer
-        if( MightyBlow_Timer < diff )
+        if (MightyBlow_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_MIGHTYBLOW);
             MightyBlow_Timer = 10000;
@@ -393,68 +393,68 @@ CreatureAI* GetAI_mob_phalanx(Creature *_Creature)
 #define GOSSIP_ITEM_KHARAN_9    "Indeed."
 #define GOSSIP_ITEM_KHARAN_10   "The door is open, Kharan. You are a free man."
 
-bool GossipHello_npc_kharan_mighthammer(Player *player, Creature *_Creature)
+bool GossipHello_npc_kharan_mighthammer(Player* pPlayer, Creature *_Creature)
 {
-    if( _Creature->isQuestGiver() )
-        player->PrepareQuestMenu( _Creature->GetGUID() );
+    if (_Creature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(_Creature->GetGUID());
 
-    if( player->GetQuestStatus(QUEST_4001) == QUEST_STATUS_INCOMPLETE )
-         player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+    if (pPlayer->GetQuestStatus(QUEST_4001) == QUEST_STATUS_INCOMPLETE)
+         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-    if( player->GetQuestStatus(4342) == QUEST_STATUS_INCOMPLETE )
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
+    if (pPlayer->GetQuestStatus(4342) == QUEST_STATUS_INCOMPLETE)
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
 
-    if (player->GetTeam() == HORDE)
-        player->SEND_GOSSIP_MENU(2473, _Creature->GetGUID());
+    if (pPlayer->GetTeam() == HORDE)
+        pPlayer->SEND_GOSSIP_MENU(2473, _Creature->GetGUID());
     else
-        player->SEND_GOSSIP_MENU(2474, _Creature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(2474, _Creature->GetGUID());
 
     return true;
 }
 
-bool GossipSelect_npc_kharan_mighthammer(Player *player, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_kharan_mighthammer(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
 {
     switch (action)
     {
         case GOSSIP_ACTION_INFO_DEF+1:
-             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-            player->SEND_GOSSIP_MENU(2475, _Creature->GetGUID());
+             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+            pPlayer->SEND_GOSSIP_MENU(2475, _Creature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+2:
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
-            player->SEND_GOSSIP_MENU(2476, _Creature->GetGUID());
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
+            pPlayer->SEND_GOSSIP_MENU(2476, _Creature->GetGUID());
             break;
 
         case GOSSIP_ACTION_INFO_DEF+3:
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
-            player->SEND_GOSSIP_MENU(2477, _Creature->GetGUID());
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
+            pPlayer->SEND_GOSSIP_MENU(2477, _Creature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+4:
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_6, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
-            player->SEND_GOSSIP_MENU(2478, _Creature->GetGUID());
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_6, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
+            pPlayer->SEND_GOSSIP_MENU(2478, _Creature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+5:
-             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_7, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+6);
-            player->SEND_GOSSIP_MENU(2479, _Creature->GetGUID());
+             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_7, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+6);
+            pPlayer->SEND_GOSSIP_MENU(2479, _Creature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+6:
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_8, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+7);
-            player->SEND_GOSSIP_MENU(2480, _Creature->GetGUID());
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_8, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+7);
+            pPlayer->SEND_GOSSIP_MENU(2480, _Creature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+7:
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_9, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+8);
-            player->SEND_GOSSIP_MENU(2481, _Creature->GetGUID());
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_9, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+8);
+            pPlayer->SEND_GOSSIP_MENU(2481, _Creature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+8:
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_10, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+9);
-            player->SEND_GOSSIP_MENU(2482, _Creature->GetGUID());
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_10, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+9);
+            pPlayer->SEND_GOSSIP_MENU(2482, _Creature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+9:
-            player->CLOSE_GOSSIP_MENU();
-            if (player->GetTeam() == HORDE)
-                player->AreaExploredOrEventHappens(QUEST_4001);
+            pPlayer->CLOSE_GOSSIP_MENU();
+            if (pPlayer->GetTeam() == HORDE)
+                pPlayer->AreaExploredOrEventHappens(QUEST_4001);
             else
-                player->AreaExploredOrEventHappens(QUEST_4342);
+                pPlayer->AreaExploredOrEventHappens(QUEST_4342);
             break;
     }
     return true;
@@ -472,38 +472,38 @@ bool GossipSelect_npc_kharan_mighthammer(Player *player, Creature *_Creature, ui
 #define GOSSIP_ITEM_SHOW_ACCESS     "Show me what I have access to, Lothos."
 #define GOSSIP_ITEM_GET_CONTRACT    "Get Thorium Brotherhood Contract"
 
-bool GossipHello_npc_lokhtos_darkbargainer(Player *player, Creature *_Creature)
+bool GossipHello_npc_lokhtos_darkbargainer(Player* pPlayer, Creature *_Creature)
 {
     if (_Creature->isQuestGiver())
-        player->PrepareQuestMenu( _Creature->GetGUID() );
+        pPlayer->PrepareQuestMenu(_Creature->GetGUID());
 
-    if (_Creature->isVendor() && player->GetReputationRank(59) >= REP_FRIENDLY)
-          player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_ITEM_SHOW_ACCESS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+    if (_Creature->isVendor() && pPlayer->GetReputationRank(59) >= REP_FRIENDLY)
+          pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_ITEM_SHOW_ACCESS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
 
-    if (player->GetQuestRewardStatus(QUEST_A_BINDING_CONTRACT) != 1 &&
-        !player->HasItemCount(ITEM_THRORIUM_BROTHERHOOD_CONTRACT, 1, true) &&
-        player->HasItemCount(ITEM_SULFURON_INGOT, 1))
+    if (pPlayer->GetQuestRewardStatus(QUEST_A_BINDING_CONTRACT) != 1 &&
+        !pPlayer->HasItemCount(ITEM_THRORIUM_BROTHERHOOD_CONTRACT, 1, true) &&
+        pPlayer->HasItemCount(ITEM_SULFURON_INGOT, 1))
     {
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_GET_CONTRACT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_GET_CONTRACT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
     }
 
-    if (player->GetReputationRank(59) < REP_FRIENDLY)
-        player->SEND_GOSSIP_MENU(3673, _Creature->GetGUID());
+    if (pPlayer->GetReputationRank(59) < REP_FRIENDLY)
+        pPlayer->SEND_GOSSIP_MENU(3673, _Creature->GetGUID());
     else
-        player->SEND_GOSSIP_MENU(3677, _Creature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(3677, _Creature->GetGUID());
 
     return true;
 }
 
-bool GossipSelect_npc_lokhtos_darkbargainer(Player *player, Creature *_Creature, uint32 sender, uint32 action )
+bool GossipSelect_npc_lokhtos_darkbargainer(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
 {
     if (action == GOSSIP_ACTION_INFO_DEF + 1)
     {
-        player->CLOSE_GOSSIP_MENU();
-        player->CastSpell(player, SPELL_CREATE_THORIUM_BROTHERHOOD_CONTRACT_DND, false);
+        pPlayer->CLOSE_GOSSIP_MENU();
+        pPlayer->CastSpell(pPlayer, SPELL_CREATE_THORIUM_BROTHERHOOD_CONTRACT_DND, false);
     }
     if (action == GOSSIP_ACTION_TRADE)
-        player->SEND_VENDORLIST( _Creature->GetGUID() );
+        pPlayer->SEND_VENDORLIST(_Creature->GetGUID());
 
     return true;
 }
@@ -552,8 +552,8 @@ struct TRINITY_DLL_DECL npc_dughal_stormwingAI : public npc_escortAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_NOT_STARTED) return;
-        if( (pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_IN_PROGRESS || pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_FAILED || pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_ENDED)&& pInstance->GetData(DATA_DUGHAL) == ENCOUNTER_STATE_ENDED )
+        if (pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_NOT_STARTED) return;
+        if ((pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_IN_PROGRESS || pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_FAILED || pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_ENDED)&& pInstance->GetData(DATA_DUGHAL) == ENCOUNTER_STATE_ENDED)
         {
             m_creature->SetVisibility(VISIBILITY_OFF);
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -578,22 +578,22 @@ CreatureAI* GetAI_npc_dughal_stormwing(Creature *_Creature)
 
     return dughal_stormwingAI;
 }
-bool GossipHello_npc_dughal_stormwing(Player *player, Creature *_Creature)
+bool GossipHello_npc_dughal_stormwing(Player* pPlayer, Creature *_Creature)
 {
-    if(player->GetQuestStatus(QUEST_JAIL_BREAK) == QUEST_STATUS_INCOMPLETE && pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_IN_PROGRESS )
+    if (pPlayer->GetQuestStatus(QUEST_JAIL_BREAK) == QUEST_STATUS_INCOMPLETE && pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_IN_PROGRESS)
     {
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DUGHAL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-        player->SEND_GOSSIP_MENU(2846, _Creature->GetGUID());
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DUGHAL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        pPlayer->SEND_GOSSIP_MENU(2846, _Creature->GetGUID());
     }
     return true;
 }
 
-bool GossipSelect_npc_dughal_stormwing(Player *player, Creature *_Creature, uint32 sender, uint32 action )
+bool GossipSelect_npc_dughal_stormwing(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
 {
     if (action == GOSSIP_ACTION_INFO_DEF + 1)
     {
-        player->CLOSE_GOSSIP_MENU();
-        CAST_AI(npc_escortAI, (_Creature->AI()))->Start(false, true, player->GetGUID());
+        pPlayer->CLOSE_GOSSIP_MENU();
+        CAST_AI(npc_escortAI, (_Creature->AI()))->Start(false, true, pPlayer->GetGUID());
         _Creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         pInstance->SetData(DATA_QUEST_JAIL_BREAK,ENCOUNTER_STATE_IN_PROGRESS);
     }
@@ -615,7 +615,7 @@ bool GossipSelect_npc_dughal_stormwing(Player *player, Creature *_Creature, uint
 #define SAY_WINDSOR_9               "Ah, there it is!"
 #define MOB_ENTRY_REGINALD_WINDSOR  9682
 
-Player* PlayerStart;
+Player* pPlayerStart;
 /*
 struct TRINITY_DLL_DECL npc_marshal_windsorAI : public npc_escortAI
 {
@@ -626,7 +626,7 @@ struct TRINITY_DLL_DECL npc_marshal_windsorAI : public npc_escortAI
 
     void WaypointReached(uint32 i)
     {
-    switch( i )
+    switch(i)
         {
         case 1:
             m_creature->Say(SAY_WINDSOR_1, LANG_UNIVERSAL, PlayerGUID);
@@ -688,20 +688,20 @@ struct TRINITY_DLL_DECL npc_marshal_windsorAI : public npc_escortAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_NOT_STARTED) return;
-        if(pInstance->GetData(DATA_DUGHAL) == ENCOUNTER_STATE_OBJECTIVE_COMPLETED)
+        if (pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_NOT_STARTED) return;
+        if (pInstance->GetData(DATA_DUGHAL) == ENCOUNTER_STATE_OBJECTIVE_COMPLETED)
             IsOnHold = false;
-        if(!pInstance->GetData(DATA_GATE_D) && pInstance->GetData(DATA_DUGHAL) == ENCOUNTER_STATE_NOT_STARTED )
+        if (!pInstance->GetData(DATA_GATE_D) && pInstance->GetData(DATA_DUGHAL) == ENCOUNTER_STATE_NOT_STARTED)
             {
             m_creature->Say(SAY_WINDSOR_4_2, LANG_UNIVERSAL, PlayerGUID);
             pInstance->SetData(DATA_DUGHAL, ENCOUNTER_STATE_BEFORE_START);
             }
-        if( pInstance->GetData(DATA_DUGHAL) == ENCOUNTER_STATE_OBJECTIVE_COMPLETED )
+        if (pInstance->GetData(DATA_DUGHAL) == ENCOUNTER_STATE_OBJECTIVE_COMPLETED)
             {
             m_creature->Say(SAY_WINDSOR_4_3, LANG_UNIVERSAL, PlayerGUID);
             pInstance->SetData(DATA_DUGHAL, ENCOUNTER_STATE_ENDED);
             }
-        if( (pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_IN_PROGRESS || pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_FAILED || pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_ENDED)&& pInstance->GetData(DATA_SUPPLY_ROOM) == ENCOUNTER_STATE_ENDED )
+        if ((pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_IN_PROGRESS || pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_FAILED || pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_ENDED)&& pInstance->GetData(DATA_SUPPLY_ROOM) == ENCOUNTER_STATE_ENDED)
         {
             m_creature->SetVisibility(VISIBILITY_OFF);
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -744,13 +744,13 @@ CreatureAI* GetAI_npc_marshal_windsor(Creature *_Creature)
     return marshal_windsorAI;
 }
 
-bool QuestAccept_npc_marshal_windsor(Player *player, Creature *creature, Quest const *quest )
+bool QuestAccept_npc_marshal_windsor(Player* pPlayer, Creature *creature, Quest const *quest)
 {
-    if( quest->GetQuestId() == 4322 )
+    if (quest->GetQuestId() == 4322)
         {PlayerStart = player;
-        if( pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_NOT_STARTED )
+        if (pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_NOT_STARTED)
         {
-                CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
+                CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, pPlayer->GetGUID());
                 pInstance->SetData(DATA_QUEST_JAIL_BREAK,ENCOUNTER_STATE_IN_PROGRESS);
                 creature->setFaction(11);
         }
@@ -791,7 +791,7 @@ struct TRINITY_DLL_DECL npc_marshal_reginald_windsorAI : public npc_escortAI
     void WaypointReached(uint32 i)
     {
     wp=i;
-    switch( i )
+    switch(i)
         {
         case 0:
             m_creature->setFaction(11);
@@ -848,15 +848,15 @@ struct TRINITY_DLL_DECL npc_marshal_reginald_windsorAI : public npc_escortAI
 
     void MoveInLineOfSight(Unit *who)
     {
-        if( IsBeingEscorted )
+        if (IsBeingEscorted)
             return;
 
-        if( who->GetTypeId() == TYPEID_PLAYER )
+        if (who->GetTypeId() == TYPEID_PLAYER)
         {
-            if( CAST_PLR(who)->GetQuestStatus(4322) == QUEST_STATUS_INCOMPLETE )
+            if (CAST_PLR(who)->GetQuestStatus(4322) == QUEST_STATUS_INCOMPLETE)
             {
                 float Radius = 10.0;
-                if( m_creature->IsWithinDistInMap(who, Radius) )
+                if (m_creature->IsWithinDistInMap(who, Radius))
                 {
                     IsOnHold = false;
                     Start(true, false, who->GetGUID());
@@ -883,48 +883,48 @@ struct TRINITY_DLL_DECL npc_marshal_reginald_windsorAI : public npc_escortAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_NOT_STARTED) return;
-        if(wp==7)
+        if (pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_NOT_STARTED) return;
+        if (wp==7)
             {
-            if(!pInstance->GetData(DATA_GATE_J) && pInstance->GetData(DATA_JAZ) == ENCOUNTER_STATE_NOT_STARTED )
+            if (!pInstance->GetData(DATA_GATE_J) && pInstance->GetData(DATA_JAZ) == ENCOUNTER_STATE_NOT_STARTED)
                 {
                     pInstance->SetData(DATA_CREATURE_JAZ,1);
                     pInstance->SetData(DATA_JAZ,ENCOUNTER_STATE_IN_PROGRESS);
                 }
-            if( pInstance->GetData(DATA_CREATURE_JAZ) && pInstance->GetData(DATA_CREATURE_OGRABISI) && pInstance->GetData(DATA_JAZ) == ENCOUNTER_STATE_IN_PROGRESS )
+            if (pInstance->GetData(DATA_CREATURE_JAZ) && pInstance->GetData(DATA_CREATURE_OGRABISI) && pInstance->GetData(DATA_JAZ) == ENCOUNTER_STATE_IN_PROGRESS)
                 {
                     IsOnHold = false;
                     pInstance->SetData(DATA_JAZ,ENCOUNTER_STATE_ENDED);
                 }
             }
-        else if(wp==11)
+        else if (wp==11)
             {
-            if(!pInstance->GetData(DATA_GATE_S) && pInstance->GetData(DATA_SHILL) == ENCOUNTER_STATE_NOT_STARTED )
+            if (!pInstance->GetData(DATA_GATE_S) && pInstance->GetData(DATA_SHILL) == ENCOUNTER_STATE_NOT_STARTED)
                 {
                     pInstance->SetData(DATA_CREATURE_SHILL,1);
                     pInstance->SetData(DATA_SHILL,ENCOUNTER_STATE_IN_PROGRESS);
                 }
-            if( pInstance->GetData(DATA_CREATURE_SHILL) && pInstance->GetData(DATA_SHILL) == ENCOUNTER_STATE_IN_PROGRESS )
+            if (pInstance->GetData(DATA_CREATURE_SHILL) && pInstance->GetData(DATA_SHILL) == ENCOUNTER_STATE_IN_PROGRESS)
                 {
                     pInstance->SetData(DATA_SHILL,ENCOUNTER_STATE_ENDED);
                     IsOnHold = false;
                 }
             }
-        else if(wp==20)
+        else if (wp==20)
             {
-            if(!pInstance->GetData(DATA_GATE_C) && pInstance->GetData(DATA_CREST) == ENCOUNTER_STATE_NOT_STARTED)
+            if (!pInstance->GetData(DATA_GATE_C) && pInstance->GetData(DATA_CREST) == ENCOUNTER_STATE_NOT_STARTED)
                 {
                     pInstance->SetData(DATA_CREATURE_CREST,1);
                     m_creature->Say(SAY_REGINALD_WINDSOR_13_2, LANG_UNIVERSAL, PlayerGUID);
                     pInstance->SetData(DATA_CREST,ENCOUNTER_STATE_IN_PROGRESS);
                 }
-            if( pInstance->GetData(DATA_CREATURE_CREST) && pInstance->GetData(DATA_CREST) == ENCOUNTER_STATE_IN_PROGRESS )
+            if (pInstance->GetData(DATA_CREATURE_CREST) && pInstance->GetData(DATA_CREST) == ENCOUNTER_STATE_IN_PROGRESS)
                 {
                     IsOnHold = false;
                     pInstance->SetData(DATA_CREST,ENCOUNTER_STATE_ENDED);
                 }
             }
-        if( pInstance->GetData(DATA_TOBIAS)==ENCOUNTER_STATE_OBJECTIVE_COMPLETED ) IsOnHold = false;
+        if (pInstance->GetData(DATA_TOBIAS)==ENCOUNTER_STATE_OBJECTIVE_COMPLETED) IsOnHold = false;
         npc_escortAI::UpdateAI(diff);
     }
 };
@@ -1013,8 +1013,8 @@ struct TRINITY_DLL_DECL npc_tobias_seecherAI : public npc_escortAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_NOT_STARTED) return;
-        if( (pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_IN_PROGRESS || pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_FAILED || pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_ENDED)&& pInstance->GetData(DATA_TOBIAS) == ENCOUNTER_STATE_ENDED )
+        if (pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_NOT_STARTED) return;
+        if ((pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_IN_PROGRESS || pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_FAILED || pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_ENDED)&& pInstance->GetData(DATA_TOBIAS) == ENCOUNTER_STATE_ENDED)
         {
             m_creature->SetVisibility(VISIBILITY_OFF);
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -1043,22 +1043,22 @@ CreatureAI* GetAI_npc_tobias_seecher(Creature *_Creature)
     return tobias_seecherAI;
 }
 
-bool GossipHello_npc_tobias_seecher(Player *player, Creature *_Creature)
+bool GossipHello_npc_tobias_seecher(Player* pPlayer, Creature *_Creature)
 {
-    if(player->GetQuestStatus(QUEST_JAIL_BREAK) == QUEST_STATUS_INCOMPLETE && pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_IN_PROGRESS )
+    if (pPlayer->GetQuestStatus(QUEST_JAIL_BREAK) == QUEST_STATUS_INCOMPLETE && pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_IN_PROGRESS)
     {
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Get out of here, Tobias, you're free!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-        player->SEND_GOSSIP_MENU(2847, _Creature->GetGUID());
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Get out of here, Tobias, you're free!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        pPlayer->SEND_GOSSIP_MENU(2847, _Creature->GetGUID());
     }
     return true;
 }
 
-bool GossipSelect_npc_tobias_seecher(Player *player, Creature *_Creature, uint32 sender, uint32 action )
+bool GossipSelect_npc_tobias_seecher(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
 {
     if (action == GOSSIP_ACTION_INFO_DEF + 1)
     {
-        player->CLOSE_GOSSIP_MENU();
-        CAST_AI(npc_escortAI, (_Creature->AI()))->Start(false, true, player->GetGUID());
+        pPlayer->CLOSE_GOSSIP_MENU();
+        CAST_AI(npc_escortAI, (_Creature->AI()))->Start(false, true, pPlayer->GetGUID());
         _Creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         pInstance->SetData(DATA_TOBIAS,ENCOUNTER_STATE_IN_PROGRESS);
     }
@@ -1174,7 +1174,7 @@ CreatureAI* GetAI_npc_rocknot(Creature *_Creature)
     return Rocknot_AI;
 }
 
-bool ChooseReward_npc_rocknot(Player *player, Creature *_Creature, const Quest *_Quest, uint32 item)
+bool ChooseReward_npc_rocknot(Player* pPlayer, Creature *_Creature, const Quest *_Quest, uint32 item)
 {
     ScriptedInstance* pInstance = (_Creature->GetInstanceData());
 

@@ -78,7 +78,7 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
 
     void Reset()
     {
-        if(!Intro)
+        if (!Intro)
             m_creature->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NOT_ATTACKABLE_2);
 
         IsImage33 = false;
@@ -94,7 +94,7 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit *who)
     {
-        if(!Intro)
+        if (!Intro)
         {
             return;
         }
@@ -106,27 +106,27 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
     void JustDied(Unit* Killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
-        if( pInstance )
+        if (pInstance)
             pInstance->SetData(TYPE_HARBINGERSKYRISS,DONE);
     }
 
     void JustSummoned(Creature *summon)
     {
-        if(!summon)
+        if (!summon)
             return;
-        if(IsImage66)
+        if (IsImage66)
             summon->SetHealth((summon->GetMaxHealth()*33)/100);
         else
             summon->SetHealth((summon->GetMaxHealth()*66)/100);
-        if(m_creature->getVictim())
-            if(Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+        if (m_creature->getVictim())
+            if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 summon->AI()->AttackStart(target);
      }
 
     void KilledUnit(Unit* victim)
     {
         //won't yell killing pet/other unit
-        if( victim->GetEntry() == 21436 )
+        if (victim->GetEntry() == 21436)
             return;
 
         switch(rand()%2)
@@ -138,12 +138,12 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
 
     void DoSplit(uint32 val)
     {
-        if( m_creature->IsNonMeleeSpellCasted(false) )
+        if (m_creature->IsNonMeleeSpellCasted(false))
             m_creature->InterruptNonMeleeSpells(false);
 
         DoScriptText(SAY_IMAGE, m_creature);
 
-        if( val == 66 )
+        if (val == 66)
             DoCast(m_creature, SPELL_66_ILLUSION);
         else
             DoCast(m_creature, SPELL_33_ILLUSION);
@@ -151,14 +151,14 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!Intro)
+        if (!Intro)
         {
-            if( !pInstance )
+            if (!pInstance)
                 return;
 
-            if( Intro_Timer < diff )
+            if (Intro_Timer < diff)
             {
-                switch( Intro_Phase )
+                switch(Intro_Phase)
                 {
                     case 1:
                         DoScriptText(SAY_INTRO, m_creature);
@@ -168,7 +168,7 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
                         break;
                     case 2:
                         DoScriptText(SAY_AGGRO, m_creature);
-                        if( Unit *mellic = Unit::GetUnit(*m_creature,pInstance->GetData64(DATA_MELLICHAR)) )
+                        if (Unit *mellic = Unit::GetUnit(*m_creature,pInstance->GetData64(DATA_MELLICHAR)))
                         {
                             //should have a better way to do this. possibly spell exist.
                             mellic->setDeathState(JUST_DIED);
@@ -186,23 +186,23 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
             }else Intro_Timer -=diff;
         }
 
-        if( !UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
-        if( !IsImage66 && ((m_creature->GetHealth()*100) / m_creature->GetMaxHealth() <= 66) )
+        if (!IsImage66 && ((m_creature->GetHealth()*100) / m_creature->GetMaxHealth() <= 66))
         {
             DoSplit(66);
             IsImage66 = true;
         }
-        if( !IsImage33 && ((m_creature->GetHealth()*100) / m_creature->GetMaxHealth() <= 33) )
+        if (!IsImage33 && ((m_creature->GetHealth()*100) / m_creature->GetMaxHealth() <= 33))
         {
             DoSplit(33);
             IsImage33 = true;
         }
 
-        if( MindRend_Timer < diff )
+        if (MindRend_Timer < diff)
         {
-            if( Unit* target = SelectUnit(SELECT_TARGET_RANDOM,1) )
+            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,1))
                 DoCast(target,HeroicMode ? H_SPELL_MIND_REND : SPELL_MIND_REND);
             else
                 DoCast(m_creature->getVictim(),HeroicMode ? H_SPELL_MIND_REND : SPELL_MIND_REND);
@@ -210,9 +210,9 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
             MindRend_Timer = 8000;
         }else MindRend_Timer -=diff;
 
-        if( Fear_Timer < diff )
+        if (Fear_Timer < diff)
         {
-            if( m_creature->IsNonMeleeSpellCasted(false) )
+            if (m_creature->IsNonMeleeSpellCasted(false))
                 return;
 
             switch(rand()%2)
@@ -221,7 +221,7 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
             case 1: DoScriptText(SAY_FEAR_2, m_creature); break;
             }
 
-            if( Unit* target = SelectUnit(SELECT_TARGET_RANDOM,1) )
+            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,1))
                 DoCast(target,SPELL_FEAR);
             else
                 DoCast(m_creature->getVictim(),SPELL_FEAR);
@@ -229,9 +229,9 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
             Fear_Timer = 25000;
         }else Fear_Timer -=diff;
 
-        if( Domination_Timer < diff )
+        if (Domination_Timer < diff)
         {
-            if( m_creature->IsNonMeleeSpellCasted(false) )
+            if (m_creature->IsNonMeleeSpellCasted(false))
                 return;
 
             switch(rand()%2)
@@ -240,7 +240,7 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
             case 1: DoScriptText(SAY_MIND_2, m_creature); break;
             }
 
-            if( Unit* target = SelectUnit(SELECT_TARGET_RANDOM,1) )
+            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,1))
                 DoCast(target,HeroicMode ? H_SPELL_DOMINATION : SPELL_DOMINATION);
             else
                 DoCast(m_creature->getVictim(),HeroicMode ? H_SPELL_DOMINATION : SPELL_DOMINATION);
@@ -248,14 +248,14 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
             Domination_Timer = 16000+rand()%16000;
         }else Domination_Timer -=diff;
 
-        if( HeroicMode )
+        if (HeroicMode)
         {
-            if( ManaBurn_Timer < diff )
+            if (ManaBurn_Timer < diff)
             {
-                if( m_creature->IsNonMeleeSpellCasted(false) )
+                if (m_creature->IsNonMeleeSpellCasted(false))
                     return;
 
-                if( Unit* target = SelectUnit(SELECT_TARGET_RANDOM,1) )
+                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,1))
                     DoCast(target,H_SPELL_MANA_BURN);
 
                 ManaBurn_Timer = 16000+rand()%16000;

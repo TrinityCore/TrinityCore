@@ -67,13 +67,13 @@ struct TRINITY_DLL_DECL boss_the_black_stalkerAI : public ScriptedAI
 
     void JustSummoned(Creature *summon)
     {
-        if(summon && summon->GetEntry() == ENTRY_SPORE_STRIDER)
+        if (summon && summon->GetEntry() == ENTRY_SPORE_STRIDER)
         {
             Striders.push_back(summon->GetGUID());
-            if(Unit *target = SelectUnit(SELECT_TARGET_RANDOM,1))
+            if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM,1))
                 summon->AI()->AttackStart(target);
             else
-                if(m_creature->getVictim())
+                if (m_creature->getVictim())
                     summon->AI()->AttackStart(m_creature->getVictim());
         }
     }
@@ -81,7 +81,7 @@ struct TRINITY_DLL_DECL boss_the_black_stalkerAI : public ScriptedAI
     void JustDied(Unit *who)
     {
         for(std::list<uint64>::iterator i = Striders.begin(); i != Striders.end(); ++i)
-            if(Creature *strider = Unit::GetCreature(*m_creature, *i))
+            if (Creature *strider = Unit::GetCreature(*m_creature, *i))
             {
                 strider->SetLootRecipient(NULL);
                 strider->DealDamage(strider,strider->GetMaxHealth(),NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
@@ -95,11 +95,11 @@ struct TRINITY_DLL_DECL boss_the_black_stalkerAI : public ScriptedAI
             return;
 
         // Evade if too far
-        if(check_Timer < diff)
+        if (check_Timer < diff)
         {
             float x,y,z,o;
             m_creature->GetHomePosition(x,y,z,o);
-            if(!m_creature->IsWithinDist3d(x,y,z, 60))
+            if (!m_creature->IsWithinDist3d(x,y,z, 60))
             {
                 EnterEvadeMode();
                 return;
@@ -108,25 +108,25 @@ struct TRINITY_DLL_DECL boss_the_black_stalkerAI : public ScriptedAI
         }else check_Timer -= diff;
 
         // Spore Striders
-        if(HeroicMode && SporeStriders_Timer < diff)
+        if (HeroicMode && SporeStriders_Timer < diff)
         {
             DoCast(m_creature,SPELL_SUMMON_SPORE_STRIDER);
             SporeStriders_Timer = 10000+rand()%5000;
         }else SporeStriders_Timer -= diff;
 
         // Levitate
-        if(LevitatedTarget)
+        if (LevitatedTarget)
         {
-            if(LevitatedTarget_Timer < diff)
+            if (LevitatedTarget_Timer < diff)
             {
-                if(Unit* target = Unit::GetUnit(*m_creature, LevitatedTarget))
+                if (Unit* target = Unit::GetUnit(*m_creature, LevitatedTarget))
                 {
-                    if(!target->HasAura(SPELL_LEVITATE))
+                    if (!target->HasAura(SPELL_LEVITATE))
                     {
                         LevitatedTarget = 0;
                         return;
                     }
-                    if(InAir)
+                    if (InAir)
                     {
                         target->AddAura(SPELL_SUSPENSION, target);
                         LevitatedTarget = 0;
@@ -142,9 +142,9 @@ struct TRINITY_DLL_DECL boss_the_black_stalkerAI : public ScriptedAI
                     LevitatedTarget = 0;
             }else LevitatedTarget_Timer -= diff;
         }
-        if(Levitate_Timer < diff)
+        if (Levitate_Timer < diff)
         {
-            if(Unit *target = SelectUnit(SELECT_TARGET_RANDOM,1))
+            if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM,1))
             {
                 DoCast(target, SPELL_LEVITATE);
                 LevitatedTarget = target->GetGUID();
@@ -155,17 +155,17 @@ struct TRINITY_DLL_DECL boss_the_black_stalkerAI : public ScriptedAI
         }else Levitate_Timer -= diff;
 
         // Chain Lightning
-        if(ChainLightning_Timer < diff)
+        if (ChainLightning_Timer < diff)
         {
-            if(Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0))
+            if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0))
                 DoCast(target, SPELL_CHAIN_LIGHTNING);
             ChainLightning_Timer = 7000;
         }else ChainLightning_Timer -= diff;
 
         // Static Charge
-        if(StaticCharge_Timer < diff)
+        if (StaticCharge_Timer < diff)
         {
-            if(Unit *target = SelectTarget(SELECT_TARGET_RANDOM,0,30,true))
+            if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM,0,30,true))
                 DoCast(target, SPELL_STATIC_CHARGE);
             StaticCharge_Timer = 10000;
         }else StaticCharge_Timer -= diff;

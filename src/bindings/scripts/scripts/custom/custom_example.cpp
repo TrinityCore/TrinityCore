@@ -216,37 +216,37 @@ CreatureAI* GetAI_custom_example(Creature *_Creature)
 }
 
 //This function is called when the player clicks an option on the gossip menu
-void SendDefaultMenu_custom_example(Player *player, Creature *_Creature, uint32 action)
+void SendDefaultMenu_custom_example(Player* pPlayer, Creature *_Creature, uint32 action)
 {
     if (action == GOSSIP_ACTION_INFO_DEF + 1)               //Fight time
     {
         //Set our faction to hostile twoards all
         _Creature->setFaction(24);
-        _Creature->Attack(player, true);
-        player->PlayerTalkClass->CloseGossip();
+        _Creature->Attack(pPlayer, true);
+        pPlayer->PlayerTalkClass->CloseGossip();
     }
 }
 
 //This function is called when the player clicks an option on the gossip menu
-bool GossipSelect_custom_example(Player *player, Creature *_Creature, uint32 sender, uint32 action )
+bool GossipSelect_custom_example(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
 {
     if (sender == GOSSIP_SENDER_MAIN)
-        SendDefaultMenu_custom_example(player, _Creature, action);
+        SendDefaultMenu_custom_example(pPlayer, _Creature, action);
 
     return true;
 }
 
 //This function is called when the player opens the gossip menu
-bool GossipHello_custom_example(Player *player, Creature *_Creature)
+bool GossipHello_custom_example(Player* pPlayer, Creature *_Creature)
 {
-    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM        , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-    player->PlayerTalkClass->SendGossipMenu(907,_Creature->GetGUID());
+    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM        , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+    pPlayer->PlayerTalkClass->SendGossipMenu(907,_Creature->GetGUID());
 
     return true;
 }
 
 //Our Recive emote function
-bool ReceiveEmote_custom_example(Player *player, Creature *_Creature, uint32 emote)
+bool ReceiveEmote_custom_example(Player* pPlayer, Creature *_Creature, uint32 emote)
 {
     _Creature->HandleEmoteCommand(emote);
 

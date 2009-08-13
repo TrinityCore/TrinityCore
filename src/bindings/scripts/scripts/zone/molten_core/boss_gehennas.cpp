@@ -52,7 +52,7 @@ struct TRINITY_DLL_DECL boss_gehennasAI : public ScriptedAI
         //ShadowBolt_Timer
         if (ShadowBolt_Timer < diff)
         {
-            if( Unit* bTarget = SelectUnit(SELECT_TARGET_RANDOM,1) )
+            if (Unit* bTarget = SelectUnit(SELECT_TARGET_RANDOM,1))
                 DoCast(bTarget,SPELL_SHADOWBOLT);
             ShadowBolt_Timer = 7000;
         }else ShadowBolt_Timer -= diff;
@@ -60,7 +60,7 @@ struct TRINITY_DLL_DECL boss_gehennasAI : public ScriptedAI
         //RainOfFire_Timer
         if (RainOfFire_Timer < diff)
         {
-            if( Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0) )
+            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
                 DoCast(target,SPELL_RAINOFFIRE);
 
             RainOfFire_Timer = 4000 + rand()%8000;

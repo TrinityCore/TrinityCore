@@ -231,11 +231,11 @@ struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if(ResetTimer < diff)
+        if (ResetTimer < diff)
         {
             float x, y, z, o;
             m_creature->GetHomePosition(x, y, z, o);
-            if(m_creature->GetPositionZ() >= z+10)
+            if (m_creature->GetPositionZ() >= z+10)
             {
                 EnterEvadeMode();
                 return;
@@ -276,7 +276,7 @@ struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
             RenewTimer = 5000;
         }else RenewTimer -= diff;
 
-        if(ShieldTimer < diff)
+        if (ShieldTimer < diff)
         {
             Unit* target = m_creature;
 
@@ -1144,10 +1144,10 @@ struct TRINITY_DLL_DECL boss_apokoAI : public boss_priestess_lackey_commonAI
         {
             // std::vector<Add*>::iterator itr = Group.begin() + rand()%Group.size();
             // uint64 guid = (*itr)->guid;
-            // if(guid)
+            // if (guid)
             // {
             //   Unit* pAdd = Unit::GetUnit(*m_creature, (*itr)->guid);
-            //   if(pAdd && pAdd->isAlive())
+            //   if (pAdd && pAdd->isAlive())
             //   {
             DoCast(m_creature, SPELL_LESSER_HEALING_WAVE);
             Healing_Wave_Timer = 5000;
@@ -1269,7 +1269,7 @@ CreatureAI* GetAI_zelfan(Creature* pCreature)
 //
 //    void UpdateAI(const uint32 diff)
 //    {
-//        if(Explosion_Timer < diff)
+//        if (Explosion_Timer < diff)
 //        {
 //            DoCast(m_creature->getVictim(), SPELL_SHEEP_EXPLOSION);
 //        }else

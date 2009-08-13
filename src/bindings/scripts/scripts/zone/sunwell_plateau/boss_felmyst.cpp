@@ -131,13 +131,13 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
 
         // wait for core patch be accepted
         /*SpellEntry *TempSpell = GET_SPELL(SPELL_ENCAPSULATE_EFFECT);
-        if(TempSpell->SpellIconID == 2294)
+        if (TempSpell->SpellIconID == 2294)
             TempSpell->SpellIconID = 2295;
         TempSpell = GET_SPELL(SPELL_VAPOR_TRIGGER);
-        if((TempSpell->Attributes & SPELL_ATTR_PASSIVE) == 0)
+        if ((TempSpell->Attributes & SPELL_ATTR_PASSIVE) == 0)
             TempSpell->Attributes |= SPELL_ATTR_PASSIVE;
         TempSpell = GET_SPELL(SPELL_FOG_CHARM2);
-        if((TempSpell->Attributes & SPELL_ATTR_PASSIVE) == 0)
+        if ((TempSpell->Attributes & SPELL_ATTR_PASSIVE) == 0)
             TempSpell->Attributes |= SPELL_ATTR_PASSIVE;*/
     }
 
@@ -165,7 +165,7 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
         DespawnSummons(MOB_VAPOR_TRAIL);
         m_creature->setActive(false);
 
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_FELMYST_EVENT, NOT_STARTED);
     }
 
@@ -177,19 +177,19 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
         m_creature->CastSpell(m_creature, AURA_NOXIOUS_FUMES, true);
         EnterPhase(PHASE_GROUND);
 
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_FELMYST_EVENT, IN_PROGRESS);
     }
 
     void AttackStart(Unit *who)
     {
-        if(Phase != PHASE_FLIGHT)
+        if (Phase != PHASE_FLIGHT)
             ScriptedAI::AttackStart(who);
     }
 
     void MoveInLineOfSight(Unit *who)
     {
-        if(Phase != PHASE_FLIGHT)
+        if (Phase != PHASE_FLIGHT)
             ScriptedAI::MoveInLineOfSight(who);
     }
 
@@ -211,24 +211,24 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
     {
         DoScriptText(YELL_DEATH, m_creature);
 
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_FELMYST_EVENT, DONE);
     }
 
     void SpellHit(Unit *caster, const SpellEntry *spell)
     {
         // workaround for linked aura
-        /*if(spell->Id == SPELL_VAPOR_FORCE)
+        /*if (spell->Id == SPELL_VAPOR_FORCE)
         {
             caster->CastSpell(caster, SPELL_VAPOR_TRIGGER, true);
         }*/
         // workaround for mind control
-        if(spell->Id == SPELL_FOG_INFORM)
+        if (spell->Id == SPELL_FOG_INFORM)
         {
             float x, y, z;
             caster->GetPosition(x, y, z);
             Unit* summon = m_creature->SummonCreature(MOB_DEAD, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
-            if(summon)
+            if (summon)
             {
                 summon->SetMaxHealth(caster->GetMaxHealth());
                 summon->SetHealth(caster->GetMaxHealth());
@@ -241,7 +241,7 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
 
     void JustSummoned(Creature *summon)
     {
-        if(summon->GetEntry() == MOB_DEAD)
+        if (summon->GetEntry() == MOB_DEAD)
         {
             summon->AI()->AttackStart(SelectUnit(SELECT_TARGET_RANDOM, 0));
             DoZoneInCombat(summon);
@@ -256,7 +256,7 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
 
     void DamageTaken(Unit*, uint32 &damage)
     {
-        if(Phase != PHASE_GROUND && damage >= m_creature->GetHealth())
+        if (Phase != PHASE_GROUND && damage >= m_creature->GetHealth())
             damage = 0;
     }
 
@@ -307,11 +307,11 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
             error_log("Summon Vapor case 2");
             Unit* target;
             target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true);
-            if(!target) target = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_PLAYER_GUID));
-            if(target)
+            if (!target) target = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_PLAYER_GUID));
+            if (target)
             {
                 Creature* Vapor = m_creature->SummonCreature(MOB_VAPOR, target->GetPositionX()-5+rand()%10, target->GetPositionY()-5+rand()%10, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 9000);
-                if(Vapor)
+                if (Vapor)
                 {
                     Vapor->AI()->AttackStart(target);
                     m_creature->InterruptNonMeleeSpells(false);
@@ -332,12 +332,12 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
             //m_creature->CastSpell(m_creature, SPELL_VAPOR_SELECT); need core support
             Unit* target;
             target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true);
-            if(!target) target = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_PLAYER_GUID));
-            if(target)
+            if (!target) target = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_PLAYER_GUID));
+            if (target)
             {
                 //target->CastSpell(target, SPELL_VAPOR_SUMMON, true); need core support
                 Creature* Vapor = m_creature->SummonCreature(MOB_VAPOR, target->GetPositionX()-5+rand()%10, target->GetPositionY()-5+rand()%10, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 9000);
-                if(Vapor)
+                if (Vapor)
                 {
                     Vapor->AI()->AttackStart(target);
                     m_creature->InterruptNonMeleeSpells(false);
@@ -359,8 +359,8 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
         case 5:{
             Unit* target;
             target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true);
-            if(!target) target = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_PLAYER_GUID));
-            if(target)
+            if (!target) target = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_PLAYER_GUID));
+            if (target)
             {
                 BreathX = target->GetPositionX();
                 BreathY = target->GetPositionY();
@@ -397,10 +397,10 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
             BreathCount++;
             Timer[EVENT_SUMMON_FOG] = 0;
             Timer[EVENT_FLIGHT_SEQUENCE] = 1;
-            if(BreathCount < 3) FlightCount = 4;
+            if (BreathCount < 3) FlightCount = 4;
             break;
         case 9:
-            if(Unit* target = SelectUnit(SELECT_TARGET_TOPAGGRO, 0))
+            if (Unit* target = SelectUnit(SELECT_TARGET_TOPAGGRO, 0))
             {
                 float x, y, z;
                 target->GetContactPoint(m_creature, x, y, z);
@@ -430,7 +430,7 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
     {
         if (!UpdateVictim())
         {
-            if(Phase == PHASE_FLIGHT && !m_creature->IsInEvadeMode())
+            if (Phase == PHASE_FLIGHT && !m_creature->IsInEvadeMode())
                 EnterEvadeMode();
             return;
         }
@@ -438,18 +438,18 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
         Event = EVENT_NULL;
         for(uint32 i = 1; i <= MaxTimer[Phase]; ++i)
         {
-            if(Timer[i])
-                if(Timer[i] <= diff)
+            if (Timer[i])
+                if (Timer[i] <= diff)
                 {
-                    if(!Event)
+                    if (!Event)
                         Event = (EventFelmyst)i;
                 }else Timer[i] -= diff;
         }
 
-        if(m_creature->IsNonMeleeSpellCasted(false))
+        if (m_creature->IsNonMeleeSpellCasted(false))
             return;
 
-        if(Phase == PHASE_GROUND)
+        if (Phase == PHASE_GROUND)
         {
             switch(Event)
             {
@@ -471,7 +471,7 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
                 Timer[EVENT_GAS_NOVA] = 20000 + rand()%5 * 1000;
                 break;
             case EVENT_ENCAPSULATE:
-                if(Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true))
                 {
                     m_creature->CastSpell(target, SPELL_ENCAPSULATE_CHANNEL, false);
                     Timer[EVENT_ENCAPSULATE] = 25000 + rand()%5 * 1000;
@@ -485,7 +485,7 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
             }
         }
 
-        if(Phase == PHASE_FLIGHT)
+        if (Phase == PHASE_FLIGHT)
         {
             switch(Event)
             {
@@ -502,7 +502,7 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
                     float x, y, z;
                     m_creature->GetPosition(x, y, z);
                     m_creature->UpdateGroundPositionZ(x, y, z);
-                    if(Creature *Fog = m_creature->SummonCreature(MOB_VAPOR_TRAIL, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN, 10000))
+                    if (Creature *Fog = m_creature->SummonCreature(MOB_VAPOR_TRAIL, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN, 10000))
                     {
                         Fog->RemoveAurasDueToSpell(SPELL_TRAIL_TRIGGER);
                         Fog->CastSpell(Fog, SPELL_FOG_TRIGGER, true);
@@ -539,14 +539,14 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
 
         for(std::list<Creature*>::iterator i = templist.begin(); i != templist.end(); ++i)
         {
-            if(entry == MOB_VAPOR_TRAIL && Phase == PHASE_FLIGHT)
+            if (entry == MOB_VAPOR_TRAIL && Phase == PHASE_FLIGHT)
             {
                 (*i)->GetPosition(x, y, z);
                 m_creature->SummonCreature(MOB_DEAD, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
             }
             (*i)->SetVisibility(VISIBILITY_OFF);
             (*i)->setDeathState(JUST_DIED);
-            if((*i)->getDeathState() == CORPSE)
+            if ((*i)->getDeathState() == CORPSE)
                 (*i)->RemoveCorpse();
         }
     }
@@ -567,7 +567,7 @@ struct TRINITY_DLL_DECL mob_felmyst_vaporAI : public ScriptedAI
     }
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->getVictim())
+        if (!m_creature->getVictim())
             AttackStart(SelectUnit(SELECT_TARGET_RANDOM, 0));
     }
 };

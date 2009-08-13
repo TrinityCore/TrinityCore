@@ -34,19 +34,19 @@ EndContentData */
 
 #define GOSSIP_ITEM_TELEPORT    "Teleport me to Amber Ledge, please."
 
-bool GossipHello_npc_tiare(Player *player, Creature *_Creature)
+bool GossipHello_npc_tiare(Player* pPlayer, Creature *_Creature)
 {
-    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_TELEPORT, GOSSIP_SENDER_MAIN, GOSSIP_OPTION_GOSSIP);
-    player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
+    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_TELEPORT, GOSSIP_SENDER_MAIN, GOSSIP_OPTION_GOSSIP);
+    pPlayer->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
     return true;
 }
 
-bool GossipSelect_npc_tiare(Player *player, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_tiare(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
 {
     if (action == GOSSIP_OPTION_GOSSIP)
     {
-        player->CLOSE_GOSSIP_MENU();
-        player->CastSpell(player,50135,true);
+        pPlayer->CLOSE_GOSSIP_MENU();
+        pPlayer->CastSpell(pPlayer,50135,true);
     }
     return true;
 }
@@ -58,31 +58,31 @@ bool GossipSelect_npc_tiare(Player *player, Creature *_Creature, uint32 sender, 
 #define GOSSIP_ITEM_FREE_FLIGHT "I'd like passage to the Transitus Shield."
 #define GOSSIP_ITEM_FLIGHT      "May I use a drake to fly elsewhere?"
 
-bool GossipHello_npc_surristrasz(Player *player, Creature *_Creature)
+bool GossipHello_npc_surristrasz(Player* pPlayer, Creature *_Creature)
 {
     if (_Creature->isQuestGiver())
-        player->PrepareQuestMenu(_Creature->GetGUID());
+        pPlayer->PrepareQuestMenu(_Creature->GetGUID());
 
     if (_Creature->isTaxi())
     {
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_FREE_FLIGHT, GOSSIP_SENDER_MAIN, GOSSIP_OPTION_GOSSIP);
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_ITEM_FLIGHT, GOSSIP_SENDER_MAIN, GOSSIP_OPTION_TAXIVENDOR);
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_FREE_FLIGHT, GOSSIP_SENDER_MAIN, GOSSIP_OPTION_GOSSIP);
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_ITEM_FLIGHT, GOSSIP_SENDER_MAIN, GOSSIP_OPTION_TAXIVENDOR);
     }
 
-    player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
     return true;
 }
 
-bool GossipSelect_npc_surristrasz(Player *player, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_surristrasz(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
 {
     if (action == GOSSIP_OPTION_GOSSIP)
     {
-        player->CLOSE_GOSSIP_MENU();
-        player->CastSpell(player,46064,true);               //TaxiPath 795 (amber to coldarra)
+        pPlayer->CLOSE_GOSSIP_MENU();
+        pPlayer->CastSpell(pPlayer,46064,true);               //TaxiPath 795 (amber to coldarra)
     }
     if (action == GOSSIP_OPTION_TAXIVENDOR)
     {
-        player->GetSession()->SendTaxiMenu(_Creature);
+        pPlayer->GetSession()->SendTaxiMenu(_Creature);
     }
     return true;
 }
@@ -209,14 +209,14 @@ struct TRINITY_DLL_DECL npc_khunok_the_behemothAI : public ScriptedAI
     {
         ScriptedAI::MoveInLineOfSight(who);
 
-        if(who->GetTypeId() != TYPEID_UNIT)
+        if (who->GetTypeId() != TYPEID_UNIT)
             return;
 
-        if(who->GetEntry() == 25861 && me->IsWithinDistInMap(who, 10.0f))
+        if (who->GetEntry() == 25861 && me->IsWithinDistInMap(who, 10.0f))
         {
-            if(Unit *owner = who->GetOwner())
+            if (Unit *owner = who->GetOwner())
             {
-                if(owner->GetTypeId() == TYPEID_PLAYER)
+                if (owner->GetTypeId() == TYPEID_PLAYER)
                 {
                     DoCast(owner, 46231, true);
                     CAST_CRE(who)->ForcedDespawn();

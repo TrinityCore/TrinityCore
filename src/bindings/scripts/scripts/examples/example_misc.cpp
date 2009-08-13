@@ -25,22 +25,22 @@ EndScriptData */
 
 #define SAY_HI  -1999925
 
-bool AT_example_areatrigger(Player *player, AreaTriggerEntry *at)
+bool AT_example_areatrigger(Player* pPlayer, AreaTriggerEntry *at)
 {
-    DoScriptText(SAY_HI, player);
+    DoScriptText(SAY_HI, pPlayer);
     return true;
 }
 
 extern void LoadDatabase();
-bool ItemUse_example_item(Player *player, Item* _Item, SpellCastTargets const& targets)
+bool ItemUse_example_item(Player* pPlayer, Item* _Item, SpellCastTargets const& targets)
 {
     LoadDatabase();
     return true;
 }
 
-bool GOHello_example_go_teleporter(Player *player, GameObject* _GO)
+bool GOHello_example_go_teleporter(Player* pPlayer, GameObject* _GO)
 {
-    player->TeleportTo(0, 1807.07f,336.105f,70.3975f,0.0f);
+    pPlayer->TeleportTo(0, 1807.07f,336.105f,70.3975f,0.0f);
     return false;
 }
 

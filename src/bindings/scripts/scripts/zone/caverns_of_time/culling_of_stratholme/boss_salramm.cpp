@@ -62,7 +62,7 @@ struct TRINITY_DLL_DECL boss_salrammAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
         Unit* random_target = SelectUnit(SELECT_TARGET_RANDOM, 0);
@@ -77,7 +77,7 @@ struct TRINITY_DLL_DECL boss_salrammAI : public ScriptedAI
         //Shadow bolt timer
         if (Shadow_bolt_Timer < diff)
         {
-            if(random_target)
+            if (random_target)
                 DoCast(random_target,SPELL_SHADOW_BOLT_N);
             Shadow_bolt_Timer = 8000 + rand()%4000;
         }else Shadow_bolt_Timer -= diff;
@@ -97,7 +97,7 @@ struct TRINITY_DLL_DECL boss_salrammAI : public ScriptedAI
                     DoScriptText(SAY_STEAL_FLESH_3, m_creature);
                     break;
             }
-            if(random_target)
+            if (random_target)
                 DoCast(random_target,SPELL_STEAL_FLESH);
             Steal_flesh_Timer = 10000;
         }else Steal_flesh_Timer -= diff;
@@ -114,7 +114,7 @@ struct TRINITY_DLL_DECL boss_salrammAI : public ScriptedAI
                     DoScriptText(SAY_SUMMON_GHOULS_2, m_creature);
                     break;
             }
-            if(random_target)
+            if (random_target)
                 DoCast(random_target,SPELL_SUMMON_GHOULS);
             Summon_ghouls_Timer = 10000;
         }else Summon_ghouls_Timer -= diff;

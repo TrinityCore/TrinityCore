@@ -116,10 +116,10 @@ struct TRINITY_DLL_DECL boss_onyxiaAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
-        if(((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 60) && (Phase == 1))
+        if (((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 60) && (Phase == 1))
         {
             Phase = 2;
             m_creature->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
@@ -129,7 +129,7 @@ struct TRINITY_DLL_DECL boss_onyxiaAI : public ScriptedAI
             DoScriptText(SAY_PHASE_2_TRANS, m_creature);
         }
 
-        if(((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 40) && (Phase == 2))
+        if (((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 40) && (Phase == 2))
         {
             Phase = 3;
             m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
@@ -141,54 +141,54 @@ struct TRINITY_DLL_DECL boss_onyxiaAI : public ScriptedAI
             m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
         }
 
-        if(Phase == 1 || Phase == 3)
+        if (Phase == 1 || Phase == 3)
         {
-            if(FlameBreathTimer < diff)
+            if (FlameBreathTimer < diff)
             {
                 DoCast(m_creature->getVictim(), SPELL_FLAMEBREATH);
                 FlameBreathTimer = 15000;
             }else FlameBreathTimer -= diff;
 
-            if(TailSweepTimer < diff)
+            if (TailSweepTimer < diff)
             {
                 Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1);
-                if(target && !m_creature->HasInArc(M_PI, target))
+                if (target && !m_creature->HasInArc(M_PI, target))
                     DoCast(target, SPELL_TAILSWEEP);
 
                 TailSweepTimer = 10000;
             }else TailSweepTimer -= diff;
 
-            if(CleaveTimer < diff)
+            if (CleaveTimer < diff)
             {
                 DoCast(m_creature->getVictim(), SPELL_CLEAVE);
                 CleaveTimer = 10000;
             }else CleaveTimer -= diff;
 
-            if(WingBuffetTimer < diff)
+            if (WingBuffetTimer < diff)
             {
                 DoCast(m_creature->getVictim(), SPELL_WINGBUFFET);
                 WingBuffetTimer = 7000 + ((rand()%8)*1000);
             }else WingBuffetTimer -= diff;
 
-            if(KnockAwayTimer < diff)
+            if (KnockAwayTimer < diff)
             {
-                if(rand() <= 30)
+                if (rand() <= 30)
                 {
                     DoCast(m_creature->getVictim(), SPELL_KNOCK_AWAY);
                 }
                 KnockAwayTimer = 15000;
             }else KnockAwayTimer -= diff;
 
-            if(Phase == 3)
+            if (Phase == 3)
             {
-                if(BellowingRoarTimer < diff)
+                if (BellowingRoarTimer < diff)
                 {
                     DoCast(m_creature->getVictim(), SPELL_BELLOWINGROAR);
 
                     BellowingRoarTimer = 30000;
                 }else BellowingRoarTimer -= diff;
 
-                if(SummonWhelpsTimer < diff)
+                if (SummonWhelpsTimer < diff)
                 {
                     SummonWhelps(Phase);
 
@@ -199,9 +199,9 @@ struct TRINITY_DLL_DECL boss_onyxiaAI : public ScriptedAI
             DoMeleeAttackIfReady();
         }
 
-        if(Phase == 2)
+        if (Phase == 2)
         {
-            if(InitialSpawn)
+            if (InitialSpawn)
             {
                 InitialSpawn = false;
 
@@ -209,12 +209,12 @@ struct TRINITY_DLL_DECL boss_onyxiaAI : public ScriptedAI
                 {
                     uint32 random = rand()%4;
                     Creature* Whelp = m_creature->SummonCreature(CREATURE_WHELP, SpawnLocations[random][0], SpawnLocations[random][1], SpawnLocations[random][2], 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
-                    if(Whelp)
+                    if (Whelp)
                         Whelp->AI()->AttackStart(SelectUnit(SELECT_TARGET_RANDOM, 0));
                 }
             }
 
-            if(EngulfingFlamesTimer < diff)
+            if (EngulfingFlamesTimer < diff)
             {
                 DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_ENGULFINGFLAMES);
                 m_creature->HandleEmoteCommand(ANIM_FLY);
@@ -223,7 +223,7 @@ struct TRINITY_DLL_DECL boss_onyxiaAI : public ScriptedAI
             }
             else EngulfingFlamesTimer -= diff;
 
-            if(FireballTimer < diff)
+            if (FireballTimer < diff)
             {
                 DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_FIREBALL);
 
@@ -231,9 +231,9 @@ struct TRINITY_DLL_DECL boss_onyxiaAI : public ScriptedAI
             }
             else FireballTimer -= diff;
 
-            if(MovementTimer < diff)
+            if (MovementTimer < diff)
             {
-                if(rand()%100 < 30)
+                if (rand()%100 < 30)
                 {
                     DoScriptText(EMOTE_BREATH, m_creature);
                     DoCast(m_creature->getVictim(), SPELL_DEEPBREATH);
@@ -243,7 +243,7 @@ struct TRINITY_DLL_DECL boss_onyxiaAI : public ScriptedAI
                 MovementTimer = 25000;
             }else MovementTimer -= diff;
 
-            if(SummonWhelpsTimer < diff)
+            if (SummonWhelpsTimer < diff)
             {
                 SummonWhelps(Phase);
 
@@ -256,34 +256,34 @@ struct TRINITY_DLL_DECL boss_onyxiaAI : public ScriptedAI
     void ChangePosition()
     {
         uint32 random = rand() % 4;
-        if(random<4){
+        if (random<4){
             m_creature->GetMotionMaster()->MovePoint(0, MovementLocations[random][0], MovementLocations[random][1], MovementLocations[random][2]);}
     }
 
     void SummonWhelps(uint32 Phase)
     {
-        if(Phase == 2)
+        if (Phase == 2)
         {
             uint32 max = rand()%10;
             for(uint32 i = 0; i < max; ++i)
             {
                 uint32 random = rand()%3;
                 Creature* Whelp = m_creature->SummonCreature(CREATURE_WHELP, SpawnLocations[random][0], SpawnLocations[random][1], SpawnLocations[random][2], 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
-                if(Whelp)
+                if (Whelp)
                     Whelp->AI()->AttackStart(SelectUnit(SELECT_TARGET_RANDOM, 0));
             }
         }
 
-        if(Phase == 3)
+        if (Phase == 3)
         {
             uint32 max = rand() % 10 +1;
-            if(max < 5)
+            if (max < 5)
             {
                 for(uint32 i = 0; i < max; ++i)
                 {
                     uint32 random = rand()%4;
                     Creature* Whelp = m_creature->SummonCreature(CREATURE_WHELP, SpawnLocations[random][0], SpawnLocations[random][1], SpawnLocations[random][2], 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
-                    if(Whelp)
+                    if (Whelp)
                         Whelp->AI()->AttackStart(SelectUnit(SELECT_TARGET_RANDOM, 0));
                 }
             }

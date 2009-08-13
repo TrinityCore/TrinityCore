@@ -86,12 +86,12 @@ struct TRINITY_DLL_DECL npc_millhouse_manastormAI : public ScriptedAI
         Pyroblast_Timer = 1000;
         Fireball_Timer = 2500;
 
-        if( pInstance )
+        if (pInstance)
         {
-            if( pInstance->GetData(TYPE_WARDEN_2) == DONE )
+            if (pInstance->GetData(TYPE_WARDEN_2) == DONE)
                 Init = true;
 
-            if( pInstance->GetData(TYPE_HARBINGERSKYRISS) == DONE )
+            if (pInstance->GetData(TYPE_HARBINGERSKYRISS) == DONE)
             {
                 DoScriptText(SAY_COMPLETE, m_creature);
             }
@@ -128,19 +128,19 @@ struct TRINITY_DLL_DECL npc_millhouse_manastormAI : public ScriptedAI
         DoScriptText(SAY_DEATH, m_creature);
 
         /*for questId 10886 (heroic mode only)
-        if( pInstance && pInstance->GetData(TYPE_HARBINGERSKYRISS) != DONE )
+        if (pInstance && pInstance->GetData(TYPE_HARBINGERSKYRISS) != DONE)
             ->FailQuest();*/
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if( !Init )
+        if (!Init)
         {
-            if( EventProgress_Timer < diff )
+            if (EventProgress_Timer < diff)
             {
-                if( Phase < 8 )
+                if (Phase < 8)
                 {
-                    switch( Phase )
+                    switch(Phase)
                     {
                         case 1:
                             DoScriptText(SAY_INTRO_1, m_creature);
@@ -170,7 +170,7 @@ struct TRINITY_DLL_DECL npc_millhouse_manastormAI : public ScriptedAI
                             EventProgress_Timer = 6000;
                             break;
                         case 7:
-                            if( pInstance )
+                            if (pInstance)
                                 pInstance->SetData(TYPE_WARDEN_2,DONE);
                             Init = true;
                             break;
@@ -180,18 +180,18 @@ struct TRINITY_DLL_DECL npc_millhouse_manastormAI : public ScriptedAI
             } else EventProgress_Timer -= diff;
         }
 
-        if( !UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
-        if( !LowHp && ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 20) )
+        if (!LowHp && ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 20))
         {
             DoScriptText(SAY_LOWHP, m_creature);
             LowHp = true;
         }
 
-        if( Pyroblast_Timer < diff )
+        if (Pyroblast_Timer < diff)
         {
-            if( m_creature->IsNonMeleeSpellCasted(false) )
+            if (m_creature->IsNonMeleeSpellCasted(false))
                 return;
 
              DoScriptText(SAY_PYRO, m_creature);
@@ -200,7 +200,7 @@ struct TRINITY_DLL_DECL npc_millhouse_manastormAI : public ScriptedAI
             Pyroblast_Timer = 40000;
         }else Pyroblast_Timer -=diff;
 
-        if( Fireball_Timer < diff )
+        if (Fireball_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_FIREBALL);
             Fireball_Timer = 4000;
@@ -276,7 +276,7 @@ struct TRINITY_DLL_DECL npc_warden_mellicharAI : public ScriptedAI
         m_creature->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
         DoCast(m_creature,SPELL_TARGET_OMEGA);
 
-        if( pInstance )
+        if (pInstance)
             pInstance->SetData(TYPE_HARBINGERSKYRISS,NOT_STARTED);
     }
 
@@ -284,10 +284,10 @@ struct TRINITY_DLL_DECL npc_warden_mellicharAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit *who)
     {
-        if( IsRunning )
+        if (IsRunning)
             return;
 
-        if( !m_creature->getVictim() && who->isTargetableForAttack() && ( m_creature->IsHostileTo( who )) && who->isInAccessiblePlaceFor(m_creature) )
+        if (!m_creature->getVictim() && who->isTargetableForAttack() && (m_creature->IsHostileTo(who)) && who->isInAccessiblePlaceFor(m_creature))
         {
             if (!m_creature->canFly() && m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
                 return;
@@ -295,7 +295,7 @@ struct TRINITY_DLL_DECL npc_warden_mellicharAI : public ScriptedAI
                 return;
 
             float attackRadius = m_creature->GetAttackDistance(who)/10;
-            if( m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who) )
+            if (m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who))
                 EnterCombat(who);
         }
     }
@@ -305,7 +305,7 @@ struct TRINITY_DLL_DECL npc_warden_mellicharAI : public ScriptedAI
         DoScriptText(YELL_INTRO1, m_creature);
         DoCast(m_creature,SPELL_BUBBLE_VISUAL);
 
-        if( pInstance )
+        if (pInstance)
         {
             pInstance->SetData(TYPE_HARBINGERSKYRISS,IN_PROGRESS);
             pInstance->HandleGameObject(pInstance->GetData64(DATA_SPHERE_SHIELD), false);
@@ -315,21 +315,21 @@ struct TRINITY_DLL_DECL npc_warden_mellicharAI : public ScriptedAI
 
     bool CanProgress()
     {
-        if( pInstance )
+        if (pInstance)
         {
-            if( Phase == 7 && pInstance->GetData(TYPE_WARDEN_4) == DONE )
+            if (Phase == 7 && pInstance->GetData(TYPE_WARDEN_4) == DONE)
                 return true;
-            if( Phase == 6 && pInstance->GetData(TYPE_WARDEN_3) == DONE )
+            if (Phase == 6 && pInstance->GetData(TYPE_WARDEN_3) == DONE)
                 return true;
-            if( Phase == 5 && pInstance->GetData(TYPE_WARDEN_2) == DONE )
+            if (Phase == 5 && pInstance->GetData(TYPE_WARDEN_2) == DONE)
                 return true;
-            if( Phase == 4 )
+            if (Phase == 4)
                 return true;
-            if( Phase == 3 && pInstance->GetData(TYPE_WARDEN_1) == DONE )
+            if (Phase == 3 && pInstance->GetData(TYPE_WARDEN_1) == DONE)
                 return true;
-            if( Phase == 2 && pInstance->GetData(TYPE_HARBINGERSKYRISS) == IN_PROGRESS )
+            if (Phase == 2 && pInstance->GetData(TYPE_HARBINGERSKYRISS) == IN_PROGRESS)
                 return true;
-            if( Phase == 1 && pInstance->GetData(TYPE_HARBINGERSKYRISS) == IN_PROGRESS )
+            if (Phase == 1 && pInstance->GetData(TYPE_HARBINGERSKYRISS) == IN_PROGRESS)
                 return true;
             return false;
         }
@@ -338,12 +338,12 @@ struct TRINITY_DLL_DECL npc_warden_mellicharAI : public ScriptedAI
 
     void DoPrepareForPhase()
     {
-        if( pInstance )
+        if (pInstance)
         {
             m_creature->InterruptNonMeleeSpells(true);
             m_creature->RemoveAurasByType(SPELL_AURA_DUMMY);
 
-            switch( Phase )
+            switch(Phase)
             {
                 case 2:
                     DoCast(m_creature,SPELL_TARGET_ALPHA);
@@ -372,27 +372,27 @@ struct TRINITY_DLL_DECL npc_warden_mellicharAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if( !IsRunning )
+        if (!IsRunning)
             return;
 
-        if( EventProgress_Timer < diff )
+        if (EventProgress_Timer < diff)
         {
-            if( pInstance )
+            if (pInstance)
             {
-                if( pInstance->GetData(TYPE_HARBINGERSKYRISS) == FAIL )
+                if (pInstance->GetData(TYPE_HARBINGERSKYRISS) == FAIL)
                     Reset();
             }
 
-            if( CanSpawn )
+            if (CanSpawn)
             {
                 //continue beam omega pod, unless we are about to summon skyriss
-                if( Phase != 7 )
+                if (Phase != 7)
                     DoCast(m_creature,SPELL_TARGET_OMEGA);
 
-                switch( Phase )
+                switch(Phase)
                 {
                     case 2:
-                        switch( rand()%2 )
+                        switch(rand()%2)
                         {
                             case 0: m_creature->SummonCreature(ENTRY_TRICKSTER,478.326,-148.505,42.56,3.19,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000); break;
                             case 1: m_creature->SummonCreature(ENTRY_PH_HUNTER,478.326,-148.505,42.56,3.19,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000); break;
@@ -405,14 +405,14 @@ struct TRINITY_DLL_DECL npc_warden_mellicharAI : public ScriptedAI
                        DoScriptText(YELL_RELEASE2B, m_creature);
                         break;
                     case 5:
-                        switch( rand()%2 )
+                        switch(rand()%2)
                         {
                             case 0: m_creature->SummonCreature(ENTRY_AKKIRIS,420.179,-174.396,42.58,0.02,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000); break;
                             case 1: m_creature->SummonCreature(ENTRY_SULFURON,420.179,-174.396,42.58,0.02,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000); break;
                         }
                         break;
                     case 6:
-                        switch( rand()%2 )
+                        switch(rand()%2)
                         {
                             case 0: m_creature->SummonCreature(ENTRY_TW_DRAK,471.795,-174.58,42.58,3.06,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000); break;
                             case 1: m_creature->SummonCreature(ENTRY_BL_DRAK,471.795,-174.58,42.58,3.06,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000); break;
@@ -426,9 +426,9 @@ struct TRINITY_DLL_DECL npc_warden_mellicharAI : public ScriptedAI
                 CanSpawn = false;
                 ++Phase;
             }
-            if( CanProgress() )
+            if (CanProgress())
             {
-                switch( Phase )
+                switch(Phase)
                 {
                     case 1:
                         DoScriptText(YELL_INTRO2, m_creature);

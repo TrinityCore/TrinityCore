@@ -64,7 +64,7 @@ struct TRINITY_DLL_DECL boss_razorgoreAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
         //Cleave_Timer
@@ -94,7 +94,7 @@ struct TRINITY_DLL_DECL boss_razorgoreAI : public ScriptedAI
             DoCast(m_creature->getVictim(),SPELL_CONFLAGRATION);
             //We will remove this threat reduction and add an aura check.
 
-            //if(DoGetThreat(m_creature->getVictim()))
+            //if (DoGetThreat(m_creature->getVictim()))
             //DoModifyThreatPercent(m_creature->getVictim(),-50);
 
             Conflagration_Timer = 12000;

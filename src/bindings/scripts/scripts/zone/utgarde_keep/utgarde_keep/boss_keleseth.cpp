@@ -82,13 +82,13 @@ struct TRINITY_DLL_DECL mob_frost_tombAI : public ScriptedAI
 
     void JustDied(Unit *killer)
     {
-        if(killer->GetGUID() != m_creature->GetGUID())
+        if (killer->GetGUID() != m_creature->GetGUID())
             ShatterFrostTomb = true;
 
-        if(FrostTombGUID)
+        if (FrostTombGUID)
         {
             Unit* FrostTomb = Unit::GetUnit((*m_creature),FrostTombGUID);
-            if(FrostTomb)
+            if (FrostTomb)
                 FrostTomb->RemoveAurasDueToSpell(SPELL_FROST_TOMB);
         }
     }
@@ -96,7 +96,7 @@ struct TRINITY_DLL_DECL mob_frost_tombAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         Unit* temp = Unit::GetUnit((*m_creature),FrostTombGUID);
-        if((temp && temp->isAlive() && !temp->HasAura(SPELL_FROST_TOMB)) || !temp )
+        if ((temp && temp->isAlive() && !temp->HasAura(SPELL_FROST_TOMB)) || !temp)
             m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
     }
 };
@@ -129,13 +129,13 @@ struct TRINITY_DLL_DECL boss_kelesethAI : public ScriptedAI
 
         ResetTimer();
 
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_PRINCEKELESETH_EVENT, NOT_STARTED);
     }
 
     void KilledUnit(Unit *victim)
     {
-        if(victim == m_creature)
+        if (victim == m_creature)
             return;
 
         DoScriptText(SAY_KILL, m_creature);
@@ -145,22 +145,22 @@ struct TRINITY_DLL_DECL boss_kelesethAI : public ScriptedAI
     {
         DoScriptText(SAY_DEATH, m_creature);
 
-        if(Heroic && !ShatterFrostTomb)
+        if (Heroic && !ShatterFrostTomb)
         {
             AchievementEntry const *AchievOnTheRocks = GetAchievementStore()->LookupEntry(ACHIEVEMENT_ON_THE_ROCKS);
-            if(AchievOnTheRocks)
+            if (AchievOnTheRocks)
             {
-                Map *map = m_creature->GetMap();
-                if(map && map->IsDungeon())
+                Map* pMap = m_creature->GetMap();
+                if (pMap && pMap->IsDungeon())
                 {
-                    Map::PlayerList const &players = map->GetPlayers();
+                    Map::PlayerList const &players = pMap->GetPlayers();
                     for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                         itr->getSource()->CompletedAchievement(AchievOnTheRocks);
                 }
             }
         }
 
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_PRINCEKELESETH_EVENT, DONE);
     }
 
@@ -169,7 +169,7 @@ struct TRINITY_DLL_DECL boss_kelesethAI : public ScriptedAI
         DoScriptText(SAY_AGGRO, m_creature);
         DoZoneInCombat();
 
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_PRINCEKELESETH_EVENT, IN_PROGRESS);
     }
 
@@ -184,23 +184,23 @@ struct TRINITY_DLL_DECL boss_kelesethAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if(ShadowboltTimer < diff)
+        if (ShadowboltTimer < diff)
         {
             Unit* target = SelectUnit(SELECT_TARGET_TOPAGGRO, 0);
-            if(target && target->isAlive() && target->GetTypeId() == TYPEID_PLAYER)
+            if (target && target->isAlive() && target->GetTypeId() == TYPEID_PLAYER)
                 m_creature->CastSpell(target, Heroic ? SPELL_SHADOWBOLT_HEROIC : SPELL_SHADOWBOLT, true);
             ShadowboltTimer = 10000;
         }else ShadowboltTimer -= diff;
 
-        if(!Skeletons)
-            if((SummonSkeletonsTimer < diff))
+        if (!Skeletons)
+            if ((SummonSkeletonsTimer < diff))
             {
                 Creature* Skeleton;
                 DoScriptText(SAY_SKELETONS, m_creature);
                 for(uint8 i = 0; i < 5; ++i)
                 {
                     Skeleton = m_creature->SummonCreature(CREATURE_SKELETON, SkeletonSpawnPoint[i][0], SkeletonSpawnPoint[i][1] , SKELETONSPAWN_Z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20000);
-                    if(Skeleton)
+                    if (Skeleton)
                     {
                         Skeleton->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
                         Skeleton->GetMotionMaster()->MovePoint(0, m_creature->GetPositionX(), m_creature->GetPositionY() , m_creature->GetPositionZ());
@@ -211,14 +211,14 @@ struct TRINITY_DLL_DECL boss_kelesethAI : public ScriptedAI
                 Skeletons = true;
             }else SummonSkeletonsTimer -= diff;
 
-        if(FrostTombTimer < diff)
+        if (FrostTombTimer < diff)
         {
             Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1);
-            if(target && target->isAlive() && target->GetTypeId() == TYPEID_PLAYER)
+            if (target && target->isAlive() && target->GetTypeId() == TYPEID_PLAYER)
             {
                 //DoCast(target, SPELL_FROST_TOMB_SUMMON, true);
                 Creature* Chains = m_creature->SummonCreature(CREATURE_FROSTTOMB, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 20000);
-                if(Chains)
+                if (Chains)
                 {
                     CAST_AI(mob_frost_tombAI, Chains->AI())->SetPrisoner(target);
                     Chains->CastSpell(target, SPELL_FROST_TOMB, true);
@@ -257,10 +257,10 @@ struct TRINITY_DLL_DECL mob_vrykul_skeletonAI : public ScriptedAI
     void EnterCombat(Unit *who){}
     void DamageTaken(Unit *done_by, uint32 &damage)
     {
-        if(done_by->GetGUID() == m_creature->GetGUID())
+        if (done_by->GetGUID() == m_creature->GetGUID())
             return;
 
-        if(damage >= m_creature->GetHealth())
+        if (damage >= m_creature->GetHealth())
         {
             PretendToDie();
             damage = 0;
@@ -286,7 +286,7 @@ struct TRINITY_DLL_DECL mob_vrykul_skeletonAI : public ScriptedAI
         m_creature->SetStandState(UNIT_STAND_STATE_STAND);
         m_creature->CastSpell(m_creature,SPELL_SCOURGE_RESSURRECTION,true);
 
-        if(m_creature->getVictim())
+        if (m_creature->getVictim())
         {
             m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
             m_creature->AI()->AttackStart(m_creature->getVictim());
@@ -297,11 +297,11 @@ struct TRINITY_DLL_DECL mob_vrykul_skeletonAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(pInstance->GetData(DATA_PRINCEKELESETH_EVENT) == IN_PROGRESS)
+        if (pInstance->GetData(DATA_PRINCEKELESETH_EVENT) == IN_PROGRESS)
         {
-            if(isDead)
+            if (isDead)
             {
-                if(Respawn_Time < diff)
+                if (Respawn_Time < diff)
                 {
                     Resurrect();
                     Respawn_Time = 12000;
@@ -309,10 +309,10 @@ struct TRINITY_DLL_DECL mob_vrykul_skeletonAI : public ScriptedAI
             }
             else
             {
-                if(!UpdateVictim())
+                if (!UpdateVictim())
                     return;
 
-                if(Decrepify_Timer < diff)
+                if (Decrepify_Timer < diff)
                 {
                     DoCast(m_creature->getVictim(),SPELL_DECREPIFY);
                     Decrepify_Timer = 30000;
@@ -322,7 +322,7 @@ struct TRINITY_DLL_DECL mob_vrykul_skeletonAI : public ScriptedAI
             }
         }else
         {
-            if(m_creature->isAlive())
+            if (m_creature->isAlive())
                 m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
         }
 

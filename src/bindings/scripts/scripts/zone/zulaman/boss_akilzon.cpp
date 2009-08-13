@@ -62,7 +62,7 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
     boss_akilzonAI(Creature *c) : ScriptedAI(c)
     {
         SpellEntry *TempSpell = GET_SPELL(SPELL_ELECTRICAL_DAMAGE);
-        if(TempSpell)
+        if (TempSpell)
             TempSpell->EffectBasePoints[1] = 49;//disable bugged lightning until fixed in core
         pInstance = c->GetInstanceData();
     }
@@ -87,7 +87,7 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
 
     void Reset()
     {
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_AKILZONEVENT, NOT_STARTED);
 
         StaticDisruption_Timer = (10+rand()%10)*1000; //10 to 20 seconds (bosskillers)
@@ -117,7 +117,7 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
         DoYell(SAY_ONAGGRO, LANG_UNIVERSAL, NULL);
         DoPlaySoundToSet(m_creature, SOUND_ONAGGRO);
         //DoZoneInCombat();
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_AKILZONEVENT, IN_PROGRESS);
     }
 
@@ -125,7 +125,7 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
     {
         DoYell(SAY_ONDEATH,LANG_UNIVERSAL,NULL);
         DoPlaySoundToSet(m_creature, SOUND_ONDEATH);
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_AKILZONEVENT, DONE);
         DespawnSummons();
     }
@@ -150,7 +150,7 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
         for (uint8 i = 0; i < 8; ++i)
         {
             Unit* bird = Unit::GetUnit(*m_creature,BirdGUIDs[i]);
-            if(bird && bird->isAlive())
+            if (bird && bird->isAlive())
             {
                 bird->SetVisibility(VISIBILITY_OFF);
                 bird->setDeathState(JUST_DIED);
@@ -160,18 +160,18 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
 
     void SetWeather(uint32 weather, float grade)
     {
-        Map *map = m_creature->GetMap();
-        if (!map->IsDungeon()) return;
+        Map* pMap = m_creature->GetMap();
+        if (!pMap->IsDungeon()) return;
 
         WorldPacket data(SMSG_WEATHER, (4+4+4));
         data << uint32(weather) << (float)grade << uint8(0);
 
-        map->SendToPlayers(&data);
+        pMap->SendToPlayers(&data);
     }
 
     void HandleStormSequence(Unit *Cloud) // 1: begin, 2-9: tick, 10: end
     {
-        if(StormCount < 10 && StormCount > 1)
+        if (StormCount < 10 && StormCount > 1)
         {
             // deal damage
             int32 bp0 = 800;
@@ -199,7 +199,7 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
             //dealdamege
             for(std::list<Unit*>::iterator i = tempUnitMap.begin(); i != tempUnitMap.end(); ++i)
             {
-                if(!Cloud->IsWithinDist(*i, 6, false))
+                if (!Cloud->IsWithinDist(*i, 6, false))
                 {
                     Cloud->CastCustomSpell(*i, 43137, &bp0, NULL, NULL, true, 0, 0, m_creature->GetGUID());
                 }
@@ -211,7 +211,7 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
             {
                 x = 343+rand()%60;
                 y = 1380+rand()%60;
-                if(Unit *trigger = m_creature->SummonTrigger(x, y, z, 0, 2000))
+                if (Unit *trigger = m_creature->SummonTrigger(x, y, z, 0, 2000))
                 {
                     trigger->setFaction(35);
                     trigger->SetMaxHealth(100000);
@@ -223,7 +223,7 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
             }
         }
         StormCount++;
-        if(StormCount > 10)
+        if (StormCount > 10)
         {
             StormCount = 0; // finish
             SummonEagles_Timer = 5000;
@@ -242,18 +242,18 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if(StormCount)
+        if (StormCount)
         {
             Unit* target = Unit::GetUnit(*m_creature, CloudGUID);
-            if(!target || !target->isAlive())
+            if (!target || !target->isAlive())
             {
                 EnterEvadeMode();
                 return;
             }
-            else if(Unit* Cyclone = Unit::GetUnit(*m_creature, CycloneGUID))
+            else if (Unit* Cyclone = Unit::GetUnit(*m_creature, CycloneGUID))
                 Cyclone->CastSpell(target, 25160, true); // keep casting or...
 
-            if(StormSequenceTimer < diff) {
+            if (StormSequenceTimer < diff) {
                 HandleStormSequence(target);
             }else StormSequenceTimer -= diff;
             return;
@@ -268,19 +268,19 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
 
         if (StaticDisruption_Timer < diff) {
             Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1);
-            if(!target) target = m_creature->getVictim();
+            if (!target) target = m_creature->getVictim();
             TargetGUID = target->GetGUID();
             m_creature->CastSpell(target, SPELL_STATIC_DISRUPTION, false);
             m_creature->SetInFront(m_creature->getVictim());
             StaticDisruption_Timer = (10+rand()%8)*1000; // < 20s
 
-            /*if(float dist = m_creature->IsWithinDist3d(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 5.0f) dist = 5.0f;
+            /*if (float dist = m_creature->IsWithinDist3d(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 5.0f) dist = 5.0f;
             SDisruptAOEVisual_Timer = 1000 + floor(dist / 30 * 1000.0f);*/
         }else StaticDisruption_Timer -= diff;
 
         if (GustOfWind_Timer < diff) {
             Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1);
-            if(!target) target = m_creature->getVictim();
+            if (!target) target = m_creature->getVictim();
             DoCast(target, SPELL_GUST_OF_WIND);
             GustOfWind_Timer = (20+rand()%10)*1000; //20 to 30 seconds(bosskillers)
         } else GustOfWind_Timer -= diff;
@@ -297,7 +297,7 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
 
         if (ElectricalStorm_Timer < diff) {
             Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50, true);
-            if(!target)
+            if (!target)
             {
                 EnterEvadeMode();
                 return;
@@ -312,7 +312,7 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
                 target->SendMonsterMove(x,y,m_creature->GetPositionZ()+15,0);
             }
             Unit *Cloud = m_creature->SummonTrigger(x, y, m_creature->GetPositionZ()+16, 0, 15000);
-            if(Cloud)
+            if (Cloud)
             {
                 CloudGUID = Cloud->GetGUID();
                 Cloud->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING);
@@ -339,14 +339,14 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
             for (uint8 i = 0; i < 8; ++i)
             {
                 Unit* bird = Unit::GetUnit(*m_creature,BirdGUIDs[i]);
-                if(!bird)//they despawned on die
+                if (!bird)//they despawned on die
                 {
-                    if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                     {
                         x = target->GetPositionX() + 10 - rand()%20;
                         y = target->GetPositionY() + 10 - rand()%20;
                         z = target->GetPositionZ() + 6 + rand()%5 + 10;
-                        if(z > 95) z = 95 - rand()%5;
+                        if (z > 95) z = 95 - rand()%5;
                     }
                     Creature *pCreature = m_creature->SummonCreature(MOB_SOARING_EAGLE, x, y, z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
                     if (pCreature)
@@ -387,9 +387,9 @@ struct TRINITY_DLL_DECL mob_soaring_eagleAI : public ScriptedAI
     void MovementInform(uint32, uint32)
     {
         arrived = true;
-        if(TargetGUID)
+        if (TargetGUID)
         {
-            if(Unit* target = Unit::GetUnit(*m_creature, TargetGUID))
+            if (Unit* target = Unit::GetUnit(*m_creature, TargetGUID))
                 m_creature->CastSpell(target, SPELL_EAGLE_SWOOP, true);
             TargetGUID = 0;
             m_creature->SetSpeed(MOVE_RUN, 1.2f);
@@ -399,20 +399,20 @@ struct TRINITY_DLL_DECL mob_soaring_eagleAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(EagleSwoop_Timer < diff) EagleSwoop_Timer = 0;
+        if (EagleSwoop_Timer < diff) EagleSwoop_Timer = 0;
         else EagleSwoop_Timer -= diff;
 
-        if(arrived)
+        if (arrived)
         {
-            if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
             {
                 float x, y, z;
-                if(EagleSwoop_Timer)
+                if (EagleSwoop_Timer)
                 {
                     x = target->GetPositionX() + 10 - rand()%20;
                     y = target->GetPositionY() + 10 - rand()%20;
                     z = target->GetPositionZ() + 10 + rand()%5;
-                    if(z > 95) z = 95 - rand()%5;
+                    if (z > 95) z = 95 - rand()%5;
                 }
                 else
                 {

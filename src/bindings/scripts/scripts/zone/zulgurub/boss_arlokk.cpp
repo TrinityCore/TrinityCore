@@ -122,7 +122,7 @@ struct TRINITY_DLL_DECL boss_arlokkAI : public ScriptedAI
         m_creature->SetDisplayId(MODEL_ID_NORMAL);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-        if(m_pInstance)
+        if (m_pInstance)
             m_pInstance->SetData(TYPE_ARLOKK, DONE);
     }
 
@@ -227,7 +227,7 @@ struct TRINITY_DLL_DECL boss_arlokkAI : public ScriptedAI
 
         if (m_bIsVanished)
         {
-            if(m_uiVisible_Timer < uiDiff)
+            if (m_uiVisible_Timer < uiDiff)
             {
                 //The Panther Model
                 m_creature->SetDisplayId(MODEL_ID_PANTHER);
@@ -238,7 +238,7 @@ struct TRINITY_DLL_DECL boss_arlokkAI : public ScriptedAI
                 m_creature->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 35)));
                 m_creature->UpdateDamagePhysical(BASE_ATTACK);
 
-                if(Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
                     AttackStart(pTarget);
 
                 m_bIsPhaseTwo = true;

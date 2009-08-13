@@ -50,13 +50,13 @@ struct TRINITY_DLL_DECL mob_treantAI  : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
         {
-            if(WarpGuid && check_Timer < diff)
+            if (WarpGuid && check_Timer < diff)
             {
-                if(Unit *Warp = Unit::GetUnit(*m_creature, WarpGuid))
+                if (Unit *Warp = Unit::GetUnit(*m_creature, WarpGuid))
                 {
-                    if(m_creature->IsWithinMeleeRange(Warp,2.5f))
+                    if (m_creature->IsWithinMeleeRange(Warp,2.5f))
                     {
                         int32 CurrentHP_Treant = (int32)m_creature->GetHealth();
                         Warp->CastCustomSpell(Warp,SPELL_HEAL_FATHER,&CurrentHP_Treant, 0, 0, true,0 ,0, m_creature->GetGUID());
@@ -127,7 +127,7 @@ struct TRINITY_DLL_DECL boss_warp_splinterAI : public ScriptedAI
         Summon_Treants_Timer = 45000;
         Arcane_Volley_Timer = 8000 + rand()%12000;
 
-        m_creature->SetSpeed( MOVE_RUN, 0.7f, true);
+        m_creature->SetSpeed(MOVE_RUN, 0.7f, true);
     }
 
     void EnterCombat(Unit *who)
@@ -159,7 +159,7 @@ struct TRINITY_DLL_DECL boss_warp_splinterAI : public ScriptedAI
             float Y = Treant_Spawn_Pos_Y + TREANT_SPAWN_DIST * sin(angle);
             float O = - m_creature->GetAngle(X,Y);
 
-            if(Creature *pTreant = m_creature->SummonCreature(CREATURE_TREANT,treant_pos[i][0],treant_pos[i][1],treant_pos[i][2],O,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,25000))
+            if (Creature *pTreant = m_creature->SummonCreature(CREATURE_TREANT,treant_pos[i][0],treant_pos[i][1],treant_pos[i][2],O,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,25000))
                 CAST_AI(mob_treantAI, pTreant->AI())->WarpGuid = m_creature->GetGUID();
         }
         switch(rand()%2)
@@ -171,25 +171,25 @@ struct TRINITY_DLL_DECL boss_warp_splinterAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
         //Check for War Stomp
-        if(War_Stomp_Timer < diff)
+        if (War_Stomp_Timer < diff)
         {
             DoCast(m_creature->getVictim(),WAR_STOMP);
             War_Stomp_Timer = 25000 + rand()%15000;
         }else War_Stomp_Timer -= diff;
 
         //Check for Arcane Volley
-        if(Arcane_Volley_Timer < diff)
+        if (Arcane_Volley_Timer < diff)
         {
             DoCast(m_creature->getVictim(),ARCANE_VOLLEY);
             Arcane_Volley_Timer = 20000 + rand()%15000;
         }else Arcane_Volley_Timer -= diff;
 
         //Check for Summon Treants
-        if(Summon_Treants_Timer < diff)
+        if (Summon_Treants_Timer < diff)
         {
             SummonTreants();
             Summon_Treants_Timer = 45000;

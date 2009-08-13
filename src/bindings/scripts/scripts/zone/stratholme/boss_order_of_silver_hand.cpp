@@ -58,7 +58,7 @@ struct TRINITY_DLL_DECL boss_silver_hand_bossesAI : public ScriptedAI
         HolyLight_Timer = 20000;
         DivineShield_Timer = 20000;
 
-        if(pInstance)
+        if (pInstance)
         {
             switch(m_creature->GetEntry())
             {
@@ -87,7 +87,7 @@ struct TRINITY_DLL_DECL boss_silver_hand_bossesAI : public ScriptedAI
 
     void JustDied(Unit* Killer)
     {
-        if(pInstance)
+        if (pInstance)
         {
             switch(m_creature->GetEntry())
             {
@@ -107,7 +107,7 @@ struct TRINITY_DLL_DECL boss_silver_hand_bossesAI : public ScriptedAI
                     pInstance->SetData(TYPE_SH_VICAR, 2);
                     break;
             }
-            if(pInstance->GetData(TYPE_SH_QUEST) && Killer->GetTypeId() == TYPEID_PLAYER)
+            if (pInstance->GetData(TYPE_SH_QUEST) && Killer->GetTypeId() == TYPEID_PLAYER)
                 CAST_PLR(Killer)->KilledMonsterCredit(SH_QUEST_CREDIT,m_creature->GetGUID());
         }
     }
@@ -115,7 +115,7 @@ struct TRINITY_DLL_DECL boss_silver_hand_bossesAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
         if (HolyLight_Timer < diff)

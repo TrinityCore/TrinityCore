@@ -28,7 +28,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL instance_mechanar : public ScriptedInstance
 {
-    instance_mechanar(Map *map) : ScriptedInstance(map) {Initialize();};
+    instance_mechanar(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 
 
     uint32 Encounters[ENCOUNTERS];
@@ -42,7 +42,7 @@ struct TRINITY_DLL_DECL instance_mechanar : public ScriptedInstance
     bool IsEncounterInProgress() const
     {
         for(uint8 i = 0; i < ENCOUNTERS; ++i)
-            if(Encounters[i] == IN_PROGRESS)
+            if (Encounters[i] == IN_PROGRESS)
                 return true;
 
         return false;
@@ -72,9 +72,9 @@ struct TRINITY_DLL_DECL instance_mechanar : public ScriptedInstance
     }
 };
 
-InstanceData* GetInstanceData_instance_mechanar(Map* map)
+InstanceData* GetInstanceData_instance_mechanar(Map* pMap)
 {
-    return new instance_mechanar(map);
+    return new instance_mechanar(pMap);
 }
 
 void AddSC_instance_mechanar()

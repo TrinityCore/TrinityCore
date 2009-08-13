@@ -46,7 +46,7 @@ struct TRINITY_DLL_DECL boss_magmusAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
         //FieryBurst_Timer
@@ -57,7 +57,7 @@ struct TRINITY_DLL_DECL boss_magmusAI : public ScriptedAI
         }else FieryBurst_Timer -= diff;
 
         //WarStomp_Timer
-        if ( m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 51 )
+        if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 51)
         {
             if (WarStomp_Timer < diff)
             {

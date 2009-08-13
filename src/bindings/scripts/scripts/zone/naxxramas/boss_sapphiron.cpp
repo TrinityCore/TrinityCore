@@ -92,7 +92,7 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public BossAI
     {
         _Reset();
 
-        if(phase = PHASE_FLIGHT)
+        if (phase = PHASE_FLIGHT)
             ClearIceBlock();
 
         phase = PHASE_NULL;
@@ -110,12 +110,12 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public BossAI
 
     void SpellHitTarget(Unit *target, const SpellEntry *spell)
     {
-        if(spell->Id == SPELL_ICEBOLT)
+        if (spell->Id == SPELL_ICEBOLT)
         {
             IceBlockMap::iterator itr = iceblocks.find(target->GetGUID());
-            if(itr != iceblocks.end() && !itr->second)
+            if (itr != iceblocks.end() && !itr->second)
             {
-                if(GameObject *iceblock = me->SummonGameObject(GO_ICEBLOCK, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, 0, 0, 0, 0, 25000))
+                if (GameObject *iceblock = me->SummonGameObject(GO_ICEBLOCK, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, 0, 0, 0, 0, 25000))
                     itr->second = iceblock->GetGUID();
             }
         }
@@ -129,13 +129,13 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public BossAI
 
     void MovementInform(uint32, uint32 id)
     {
-        if(id == 1)
+        if (id == 1)
             events.ScheduleEvent(EVENT_LIFTOFF, 0);
     }
 
     void DoAction(const int32 param)
     {
-        if(param == DATA_SAPPHIRON_BIRTH)
+        if (param == DATA_SAPPHIRON_BIRTH)
         {
             phase = PHASE_BIRTH;
             events.ScheduleEvent(EVENT_BIRTH, 23000);
@@ -158,9 +158,9 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public BossAI
     {
         for(IceBlockMap::iterator itr = iceblocks.begin(); itr != iceblocks.end(); ++itr)
         {
-            if(Player *player = Unit::GetPlayer(itr->first))
-                player->RemoveAura(SPELL_ICEBOLT);
-            if(GameObject *go = GameObject::GetGameObject(*me, itr->second))
+            if (Player* pPlayer = Unit::GetPlayer(itr->first))
+                pPlayer->RemoveAura(SPELL_ICEBOLT);
+            if (GameObject *go = GameObject::GetGameObject(*me, itr->second))
                 go->DeleteObjectWithOwner();
         }
         iceblocks.clear();
@@ -168,15 +168,15 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public BossAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!phase)
+        if (!phase)
             return;
 
         events.Update(diff);
 
-        if(phase != PHASE_BIRTH && !UpdateCombatState() || !CheckInRoom())
+        if (phase != PHASE_BIRTH && !UpdateCombatState() || !CheckInRoom())
             return;
 
-        if(phase == PHASE_GROUND)
+        if (phase == PHASE_GROUND)
         {
             while(uint32 eventId = events.ExecuteEvent())
             {
@@ -203,7 +203,7 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public BossAI
                         //DoCastAOE(SPELL_SUMMON_BLIZZARD);
                         float x, y, z;
                         me->GetGroundPointAroundUnit(x, y, z, rand_norm()*20, rand_norm()*2*M_PI);
-                        if(Creature *summon = me->SummonCreature(MOB_BLIZZARD, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN, 25000+rand()%5000))
+                        if (Creature *summon = me->SummonCreature(MOB_BLIZZARD, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN, 25000+rand()%5000))
                             summon->GetMotionMaster()->MoveRandom(40);
                         events.ScheduleEvent(EVENT_BLIZZARD, HEROIC(20000,7000), 0, PHASE_GROUND);
                         break;
@@ -224,7 +224,7 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public BossAI
         }
         else
         {
-            if(uint32 eventId = events.ExecuteEvent())
+            if (uint32 eventId = events.ExecuteEvent())
             {
                 switch(eventId)
                 {
@@ -240,10 +240,10 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public BossAI
                         std::vector<Unit*> targets;
                         std::list<HostilReference*>::iterator i = me->getThreatManager().getThreatList().begin();
                         for(; i != me->getThreatManager().getThreatList().end(); ++i)
-                            if((*i)->getTarget()->GetTypeId() == TYPEID_PLAYER && !(*i)->getTarget()->HasAura(SPELL_ICEBOLT))
+                            if ((*i)->getTarget()->GetTypeId() == TYPEID_PLAYER && !(*i)->getTarget()->HasAura(SPELL_ICEBOLT))
                                 targets.push_back((*i)->getTarget());
 
-                        if(targets.empty())
+                        if (targets.empty())
                             iceboltCount = 0;
                         else
                         {
@@ -254,7 +254,7 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public BossAI
                             --iceboltCount;
                         }
 
-                        if(iceboltCount)
+                        if (iceboltCount)
                             events.ScheduleEvent(EVENT_ICEBOLT, 1000);
                         else
                             events.ScheduleEvent(EVENT_BREATH, 1000);
@@ -287,8 +287,8 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public BossAI
                         me->SetReactState(REACT_AGGRESSIVE);
                         return;
                 }
-            }//if(uint32 eventId = events.ExecuteEvent())
-        }//if(phase == PHASE_GROUND)
+            }//if (uint32 eventId = events.ExecuteEvent())
+        }//if (phase == PHASE_GROUND)
     }
 
     void CastExplosion()
@@ -299,10 +299,10 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public BossAI
         for(; i != me->getThreatManager().getThreatList().end(); ++i)
         {
             Unit *target = (*i)->getTarget();
-            if(target->GetTypeId() != TYPEID_PLAYER)
+            if (target->GetTypeId() != TYPEID_PLAYER)
                 continue;
 
-            if(target->HasAura(SPELL_ICEBOLT))
+            if (target->HasAura(SPELL_ICEBOLT))
             {
                 target->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FROST_EXPLOSION, true);
                 targets.push_back(target);
@@ -311,9 +311,9 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public BossAI
 
             for(IceBlockMap::iterator itr = iceblocks.begin(); itr != iceblocks.end(); ++itr)
             {
-                if(GameObject *go = GameObject::GetGameObject(*me, itr->second))
+                if (GameObject *go = GameObject::GetGameObject(*me, itr->second))
                 {
-                    if(go->IsInBetween(me, target, 2.0f)
+                    if (go->IsInBetween(me, target, 2.0f)
                         && me->GetExactDistance2d(target->GetPositionX(), target->GetPositionY()) - me->GetExactDistance2d(go->GetPositionX(), go->GetPositionY()) < 5.0f)
                     {
                         target->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FROST_EXPLOSION, true);

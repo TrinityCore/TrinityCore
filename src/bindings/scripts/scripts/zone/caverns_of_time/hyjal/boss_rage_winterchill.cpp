@@ -54,13 +54,13 @@ struct TRINITY_DLL_DECL boss_rage_winterchillAI : public hyjal_trashAI
         NovaTimer = 15000;
         IceboltTimer = 10000;
 
-        if(pInstance && IsEvent)
+        if (pInstance && IsEvent)
             pInstance->SetData(DATA_RAGEWINTERCHILLEVENT, NOT_STARTED);
     }
 
     void EnterCombat(Unit *who)
     {
-        if(pInstance && IsEvent)
+        if (pInstance && IsEvent)
             pInstance->SetData(DATA_RAGEWINTERCHILLEVENT, IN_PROGRESS);
         DoPlaySoundToSet(m_creature, SOUND_ONAGGRO);
         DoYell(SAY_ONAGGRO, LANG_UNIVERSAL, NULL);
@@ -95,7 +95,7 @@ struct TRINITY_DLL_DECL boss_rage_winterchillAI : public hyjal_trashAI
     void JustDied(Unit *victim)
     {
         hyjal_trashAI::JustDied(victim);
-        if(pInstance && IsEvent)
+        if (pInstance && IsEvent)
             pInstance->SetData(DATA_RAGEWINTERCHILLEVENT, DONE);
         DoPlaySoundToSet(m_creature, SOUND_ONDEATH);
         DoYell(SAY_ONDEATH, LANG_UNIVERSAL, NULL);
@@ -107,10 +107,10 @@ struct TRINITY_DLL_DECL boss_rage_winterchillAI : public hyjal_trashAI
         {
             //Must update npc_escortAI
             npc_escortAI::UpdateAI(diff);
-            if(!go)
+            if (!go)
             {
                 go = true;
-                if(pInstance)
+                if (pInstance)
                 {
                     AddWaypoint(0, 4896.08,    -1576.35,    1333.65);
                     AddWaypoint(1, 4898.68,    -1615.02,    1329.48);
@@ -127,15 +127,15 @@ struct TRINITY_DLL_DECL boss_rage_winterchillAI : public hyjal_trashAI
         }
 
         //Return since we have no target
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
-        if(FrostArmorTimer < diff)
+        if (FrostArmorTimer < diff)
         {
             DoCast(m_creature, SPELL_FROST_ARMOR);
             FrostArmorTimer = 40000+rand()%20000;
         }else FrostArmorTimer -= diff;
-        if(DecayTimer < diff)
+        if (DecayTimer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_DEATH_AND_DECAY);
             DecayTimer = 60000+rand()%20000;
@@ -151,7 +151,7 @@ struct TRINITY_DLL_DECL boss_rage_winterchillAI : public hyjal_trashAI
                     break;
             }
         }else DecayTimer -= diff;
-        if(NovaTimer < diff)
+        if (NovaTimer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_FROST_NOVA);
             NovaTimer = 30000+rand()%15000;
@@ -167,7 +167,7 @@ struct TRINITY_DLL_DECL boss_rage_winterchillAI : public hyjal_trashAI
                     break;
             }
         }else NovaTimer -= diff;
-        if(IceboltTimer < diff)
+        if (IceboltTimer < diff)
         {
             DoCast(SelectTarget(SELECT_TARGET_RANDOM,0,40,true), SPELL_ICEBOLT);
             IceboltTimer = 11000+rand()%20000;

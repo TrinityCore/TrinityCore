@@ -58,7 +58,7 @@ enum
 
 struct TRINITY_DLL_DECL boss_lokenAI : public ScriptedAI
 {
-    boss_lokenAI(Creature *pCreature) : ScriptedAI(pCreature)
+    boss_lokenAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         m_pInstance = pCreature->GetInstanceData();
         m_bIsHeroic = pCreature->GetMap()->IsHeroic();
@@ -109,15 +109,15 @@ struct TRINITY_DLL_DECL boss_lokenAI : public ScriptedAI
     {
         DoScriptText(SAY_DEATH, m_creature);
 
-        if(m_bIsHeroic && EncounterTimer <= 120000)
+        if (m_bIsHeroic && EncounterTimer <= 120000)
         {
             AchievementEntry const *AchievTimelyDeath = GetAchievementStore()->LookupEntry(ACHIEVEMENT_TIMELY_DEATH);
-            if(AchievTimelyDeath)
+            if (AchievTimelyDeath)
             {
-                Map *map = m_creature->GetMap();
-                if(map && map->IsDungeon())
+                Map* pMap = m_creature->GetMap();
+                if (pMap && pMap->IsDungeon())
                 {
-                    Map::PlayerList const &players = map->GetPlayers();
+                    Map::PlayerList const &players = pMap->GetPlayers();
                     for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                         itr->getSource()->CompletedAchievement(AchievTimelyDeath);
                 }
@@ -141,10 +141,10 @@ struct TRINITY_DLL_DECL boss_lokenAI : public ScriptedAI
     void UpdateAI(const uint32 uiDiff) 
     {
         //Return since we have no target
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
  
-        if(EncounterTimer)
+        if (EncounterTimer)
             EncounterTimer += uiDiff;
 
         if (m_bIsAura)
@@ -152,10 +152,10 @@ struct TRINITY_DLL_DECL boss_lokenAI : public ScriptedAI
             // workaround for PULSING_SHOCKWAVE
             if (m_uiPulsingShockwave_Timer < uiDiff)
             {
-                Map *map = m_creature->GetMap();
-                if (map->IsDungeon())
+                Map* pMap = m_creature->GetMap();
+                if (pMap->IsDungeon())
                 {
-                    Map::PlayerList const &PlayerList = map->GetPlayers();
+                    Map::PlayerList const &PlayerList = pMap->GetPlayers();
 
                     if (PlayerList.isEmpty())
                         return;

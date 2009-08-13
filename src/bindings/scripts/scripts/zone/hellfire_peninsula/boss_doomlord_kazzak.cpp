@@ -106,7 +106,7 @@ struct TRINITY_DLL_DECL boss_doomlordkazzakAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
         //ShadowVolley_Timer
@@ -141,7 +141,7 @@ struct TRINITY_DLL_DECL boss_doomlordkazzakAI : public ScriptedAI
         if (MarkOfKazzak_Timer < diff)
         {
             Unit* victim = SelectUnit(SELECT_TARGET_RANDOM, 0);
-            if(victim->GetPower(POWER_MANA))
+            if (victim->GetPower(POWER_MANA))
             {
                 DoCast(victim, SPELL_MARKOFKAZZAK);
                 MarkOfKazzak_Timer = 20000;
@@ -156,7 +156,7 @@ struct TRINITY_DLL_DECL boss_doomlordkazzakAI : public ScriptedAI
             Enrage_Timer = 30000;
         }else Enrage_Timer -= diff;
 
-        if(Twisted_Reflection_Timer < diff)
+        if (Twisted_Reflection_Timer < diff)
         {
             DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_TWISTEDREFLECTION);
             Twisted_Reflection_Timer = 15000;

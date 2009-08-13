@@ -54,12 +54,12 @@ struct TRINITY_DLL_DECL npc_professor_phizzlethorpeAI : public npc_escortAI
 
     void WaypointReached(uint32 i)
     {
-        Player* player = Unit::GetPlayer(PlayerGUID);
+        Player* pPlayer = Unit::GetPlayer(PlayerGUID);
 
         switch(i)
         {
-        case 4:DoScriptText(SAY_PROGRESS_2, m_creature, player);break;
-        case 5:DoScriptText(SAY_PROGRESS_3, m_creature, player);break;
+        case 4:DoScriptText(SAY_PROGRESS_2, m_creature, pPlayer);break;
+        case 5:DoScriptText(SAY_PROGRESS_3, m_creature, pPlayer);break;
         case 8:DoScriptText(EMOTE_PROGRESS_4, m_creature);break;
         case 9:
             {
@@ -67,15 +67,15 @@ struct TRINITY_DLL_DECL npc_professor_phizzlethorpeAI : public npc_escortAI
             m_creature->SummonCreature(MOB_VENGEFUL_SURGE, -2052.96, -2142.49, 20.15, 1.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
             break;
             }
-        case 10:DoScriptText(SAY_PROGRESS_5, m_creature, player);break;
-        case 11:DoScriptText(SAY_PROGRESS_6, m_creature, player);break;
-        case 19:DoScriptText(SAY_PROGRESS_7, m_creature, player); break;
+        case 10:DoScriptText(SAY_PROGRESS_5, m_creature, pPlayer);break;
+        case 11:DoScriptText(SAY_PROGRESS_6, m_creature, pPlayer);break;
+        case 19:DoScriptText(SAY_PROGRESS_7, m_creature, pPlayer); break;
         case 20:
             DoScriptText(EMOTE_PROGRESS_8, m_creature);
-            DoScriptText(SAY_PROGRESS_9, m_creature, player);
+            DoScriptText(SAY_PROGRESS_9, m_creature, pPlayer);
             Completed = true;
-            if(player)
-                CAST_PLR(player)->GroupEventHappens(QUEST_SUNKEN_TREASURE, m_creature);
+            if (pPlayer)
+                CAST_PLR(pPlayer)->GroupEventHappens(QUEST_SUNKEN_TREASURE, m_creature);
             break;
         }
     }
@@ -98,11 +98,11 @@ struct TRINITY_DLL_DECL npc_professor_phizzlethorpeAI : public npc_escortAI
 
     void JustDied(Unit* killer)
     {
-        if (PlayerGUID && !Completed )
+        if (PlayerGUID && !Completed)
         {
-            Player* player = Unit::GetPlayer(PlayerGUID);
-            if (player)
-                CAST_PLR(player)->FailQuest(QUEST_SUNKEN_TREASURE);
+            Player* pPlayer = Unit::GetPlayer(PlayerGUID);
+            if (pPlayer)
+                CAST_PLR(pPlayer)->FailQuest(QUEST_SUNKEN_TREASURE);
         }
     }
 
@@ -112,12 +112,12 @@ struct TRINITY_DLL_DECL npc_professor_phizzlethorpeAI : public npc_escortAI
     }
 };
 
-bool QuestAccept_npc_professor_phizzlethorpe(Player* player, Creature* creature, Quest const* quest)
+bool QuestAccept_npc_professor_phizzlethorpe(Player* pPlayer, Creature* creature, Quest const* quest)
 {
     if (quest->GetQuestId() == QUEST_SUNKEN_TREASURE)
     {
-        DoScriptText(SAY_PROGRESS_1, creature, player);
-        CAST_AI(npc_escortAI, (creature->AI()))->Start(false, false, player->GetGUID());
+        DoScriptText(SAY_PROGRESS_1, creature, pPlayer);
+        CAST_AI(npc_escortAI, (creature->AI()))->Start(false, false, pPlayer->GetGUID());
         creature->setFaction(113);
     }
     return true;

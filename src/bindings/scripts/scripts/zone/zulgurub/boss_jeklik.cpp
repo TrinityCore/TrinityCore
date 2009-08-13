@@ -129,21 +129,21 @@ struct TRINITY_DLL_DECL boss_jeklikAI : public ScriptedAI
 
                     Creature* Bat = NULL;
                     Bat = m_creature->SummonCreature(11368,-12291.6220,-1380.2640,144.8304,5.483, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                    if (target && Bat ) Bat ->AI()->AttackStart(target);
+                    if (target && Bat) Bat ->AI()->AttackStart(target);
 
                     Bat = m_creature->SummonCreature(11368,-12289.6220,-1380.2640,144.8304,5.483, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                    if (target && Bat ) Bat ->AI()->AttackStart(target);
+                    if (target && Bat) Bat ->AI()->AttackStart(target);
 
                     Bat = m_creature->SummonCreature(11368,-12293.6220,-1380.2640,144.8304,5.483, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                    if (target && Bat ) Bat ->AI()->AttackStart(target);
+                    if (target && Bat) Bat ->AI()->AttackStart(target);
 
                     Bat = m_creature->SummonCreature(11368,-12291.6220,-1380.2640,144.8304,5.483, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                    if (target && Bat ) Bat ->AI()->AttackStart(target);
+                    if (target && Bat) Bat ->AI()->AttackStart(target);
 
                     Bat = m_creature->SummonCreature(11368,-12289.6220,-1380.2640,144.8304,5.483, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                    if (target && Bat ) Bat ->AI()->AttackStart(target);
+                    if (target && Bat) Bat ->AI()->AttackStart(target);
                     Bat = m_creature->SummonCreature(11368,-12293.6220,-1380.2640,144.8304,5.483, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                    if (target && Bat ) Bat ->AI()->AttackStart(target);
+                    if (target && Bat) Bat ->AI()->AttackStart(target);
 
                     SpawnBats_Timer = 60000;
                 }else SpawnBats_Timer -= diff;
@@ -232,7 +232,7 @@ struct TRINITY_DLL_DECL mob_batriderAI : public ScriptedAI
 
     void UpdateAI (const uint32 diff)
     {
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
         //Bomb_Timer

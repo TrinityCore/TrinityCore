@@ -58,7 +58,7 @@ struct TRINITY_DLL_DECL boss_omor_the_unscarredAI : public ScriptedAI
     uint32 Shadowbolt_Timer;
     uint32 Summon_Timer;
     uint32 SummonedCount;
-    uint64 playerGUID;
+    uint64 PlayerGUID;
     bool CanPullBack;
 
     void Reset()
@@ -72,7 +72,7 @@ struct TRINITY_DLL_DECL boss_omor_the_unscarredAI : public ScriptedAI
         Shadowbolt_Timer = 2000;
         Summon_Timer = 10000;
         SummonedCount = 0;
-        playerGUID = 0;
+        PlayerGUID = 0;
         CanPullBack = false;
     }
 
@@ -129,7 +129,7 @@ struct TRINITY_DLL_DECL boss_omor_the_unscarredAI : public ScriptedAI
         {
             if (ShadowWhip_Timer < diff)
             {
-                if (Player* temp = Unit::GetPlayer(playerGUID))
+                if (Player* temp = Unit::GetPlayer(PlayerGUID))
                 {
                     //if unit dosen't have this flag, then no pulling back (script will attempt cast, even if orbital strike was resisted)
                     if (temp->HasUnitMovementFlag(MOVEMENTFLAG_FALLING))
@@ -138,7 +138,7 @@ struct TRINITY_DLL_DECL boss_omor_the_unscarredAI : public ScriptedAI
                         DoCast(temp,SPELL_SHADOW_WHIP);
                     }
                 }
-                playerGUID = 0;
+                PlayerGUID = 0;
                 ShadowWhip_Timer = 2000;
                 CanPullBack = false;
             }else ShadowWhip_Timer -= diff;
@@ -154,9 +154,9 @@ struct TRINITY_DLL_DECL boss_omor_the_unscarredAI : public ScriptedAI
             {
                 DoCast(temp,SPELL_ORBITAL_STRIKE);
                 OrbitalStrike_Timer = 14000+rand()%2000;
-                playerGUID = temp->GetGUID();
+                PlayerGUID = temp->GetGUID();
 
-                if (playerGUID)
+                if (PlayerGUID)
                     CanPullBack = true;
             }
         }else OrbitalStrike_Timer -= diff;

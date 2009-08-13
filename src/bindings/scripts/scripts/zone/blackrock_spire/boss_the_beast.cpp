@@ -49,7 +49,7 @@ struct TRINITY_DLL_DECL boss_thebeastAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
         //Flamebreak_Timer

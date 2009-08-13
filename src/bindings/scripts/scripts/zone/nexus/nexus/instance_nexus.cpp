@@ -28,7 +28,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL instance_nexus : public ScriptedInstance
 {
-    instance_nexus(Map *Map) : ScriptedInstance(Map) { Initialize(); }
+    instance_nexus(Map* pMap) : ScriptedInstance(pMap) { Initialize(); }
 
     uint32 Encounters[NUMBER_OF_ENCOUNTERS];
 
@@ -114,21 +114,21 @@ struct TRINITY_DLL_DECL instance_nexus : public ScriptedInstance
             case 188527:
             {
                 AnomalusContainmentSphere = go->GetGUID();
-                if(Encounters[1] == DONE)
+                if (Encounters[1] == DONE)
                     go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                 break;
             }
             case 188528:
             {
                 OrmoroksContainmentSphere = go->GetGUID();
-                if(Encounters[2] == DONE)
+                if (Encounters[2] == DONE)
                     go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                 break;
             }
             case 188526:
             {
                 TelestrasContainmentSphere = go->GetGUID();
-                if(Encounters[0] == DONE)
+                if (Encounters[0] == DONE)
                     go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                 break;
             }
@@ -153,10 +153,10 @@ struct TRINITY_DLL_DECL instance_nexus : public ScriptedInstance
         {
             case DATA_MAGUS_TELESTRA_EVENT:
             {
-                if(data == DONE)
+                if (data == DONE)
                 {
                     GameObject *Sphere = instance->GetGameObject(TelestrasContainmentSphere);
-                    if(Sphere)
+                    if (Sphere)
                         Sphere->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                 }
                 Encounters[0] = data;
@@ -164,10 +164,10 @@ struct TRINITY_DLL_DECL instance_nexus : public ScriptedInstance
             }
             case DATA_ANOMALUS_EVENT:
             {
-                if(data == DONE)
+                if (data == DONE)
                 {
                     GameObject *Sphere = instance->GetGameObject(AnomalusContainmentSphere);
-                    if(Sphere)
+                    if (Sphere)
                         Sphere->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                 }
                 Encounters[1] = data;
@@ -175,10 +175,10 @@ struct TRINITY_DLL_DECL instance_nexus : public ScriptedInstance
             }
             case DATA_ORMOROK_EVENT:
             {
-                if(data == DONE)
+                if (data == DONE)
                 {
                     GameObject *Sphere = instance->GetGameObject(OrmoroksContainmentSphere);
-                    if(Sphere)
+                    if (Sphere)
                         Sphere->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                 }
                 Encounters[2] = data;
@@ -243,9 +243,9 @@ struct TRINITY_DLL_DECL instance_nexus : public ScriptedInstance
     }
 };
 
-InstanceData* GetInstanceData_instance_nexus(Map* map)
+InstanceData* GetInstanceData_instance_nexus(Map* pMap)
 {
-    return new instance_nexus(map);
+    return new instance_nexus(pMap);
 }
 
 void AddSC_instance_nexus()

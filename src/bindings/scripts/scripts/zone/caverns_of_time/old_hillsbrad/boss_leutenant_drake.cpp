@@ -29,7 +29,7 @@ EndScriptData */
 ## go_barrel_old_hillsbrad
 ######*/
 
-bool GOHello_go_barrel_old_hillsbrad(Player *player, GameObject* _GO)
+bool GOHello_go_barrel_old_hillsbrad(Player* pPlayer, GameObject* _GO)
 {
     ScriptedInstance* pInstance = _GO->GetInstanceData();
 

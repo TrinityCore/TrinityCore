@@ -58,36 +58,36 @@ struct TRINITY_DLL_DECL npc_cairne_bloodhoofAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
-        if( BerserkerCharge_Timer < diff )
+        if (BerserkerCharge_Timer < diff)
         {
             Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if( target )
+            if (target)
                 DoCast(target,SPELL_BERSERKER_CHARGE);
             BerserkerCharge_Timer = 25000;
         }else BerserkerCharge_Timer -= diff;
 
-        if( Uppercut_Timer < diff )
+        if (Uppercut_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_UPPERCUT);
             Uppercut_Timer = 20000;
         }else Uppercut_Timer -= diff;
 
-        if( Thunderclap_Timer < diff )
+        if (Thunderclap_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_THUNDERCLAP);
             Thunderclap_Timer = 15000;
         }else Thunderclap_Timer -= diff;
 
-        if( MortalStrike_Timer < diff )
+        if (MortalStrike_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_MORTAL_STRIKE);
             MortalStrike_Timer = 15000;
         }else MortalStrike_Timer -= diff;
 
-        if( Cleave_Timer < diff )
+        if (Cleave_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_CLEAVE);
             Cleave_Timer = 7000;
@@ -101,25 +101,25 @@ CreatureAI* GetAI_npc_cairne_bloodhoof(Creature *_Creature)
     return new npc_cairne_bloodhoofAI (_Creature);
 }
 
-bool GossipHello_npc_cairne_bloodhoof(Player *player, Creature *_Creature)
+bool GossipHello_npc_cairne_bloodhoof(Player* pPlayer, Creature *_Creature)
 {
     if (_Creature->isQuestGiver())
-        player->PrepareQuestMenu( _Creature->GetGUID() );
+        pPlayer->PrepareQuestMenu(_Creature->GetGUID());
 
-    if( player->GetQuestStatus(925) == QUEST_STATUS_INCOMPLETE )
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HCB, GOSSIP_SENDER_MAIN, GOSSIP_SENDER_INFO );
+    if (pPlayer->GetQuestStatus(925) == QUEST_STATUS_INCOMPLETE)
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HCB, GOSSIP_SENDER_MAIN, GOSSIP_SENDER_INFO);
 
-    player->SEND_GOSSIP_MENU(7013, _Creature->GetGUID() );
+    pPlayer->SEND_GOSSIP_MENU(7013, _Creature->GetGUID());
 
     return true;
 }
 
-bool GossipSelect_npc_cairne_bloodhoof(Player *player, Creature *_Creature, uint32 sender, uint32 action )
+bool GossipSelect_npc_cairne_bloodhoof(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
 {
-    if( action == GOSSIP_SENDER_INFO )
+    if (action == GOSSIP_SENDER_INFO)
     {
-        player->CastSpell(player, 23123, false);
-        player->SEND_GOSSIP_MENU(7014, _Creature->GetGUID() );
+        pPlayer->CastSpell(pPlayer, 23123, false);
+        pPlayer->SEND_GOSSIP_MENU(7014, _Creature->GetGUID());
     }
     return true;
 }

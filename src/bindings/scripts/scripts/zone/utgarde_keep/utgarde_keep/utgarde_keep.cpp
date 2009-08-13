@@ -39,13 +39,13 @@ struct TRINITY_DLL_DECL npc_dragonflayer_forge_masterAI : public ScriptedAI
 
     void Reset()
     {
-        if(fm_Type == 0) fm_Type = GetForgeMasterType();
+        if (fm_Type == 0) fm_Type = GetForgeMasterType();
         CheckForge();
     }
 
     void CheckForge()
     {
-       if(pInstance)
+       if (pInstance)
         {
             switch(fm_Type)
             {
@@ -64,8 +64,8 @@ struct TRINITY_DLL_DECL npc_dragonflayer_forge_masterAI : public ScriptedAI
 
     void JustDied(Unit *killer)
     {
-        if(fm_Type == 0) fm_Type = GetForgeMasterType();
-        if(pInstance)
+        if (fm_Type == 0) fm_Type = GetForgeMasterType();
+        if (pInstance)
         {
             switch(fm_Type)
             {
@@ -84,8 +84,8 @@ struct TRINITY_DLL_DECL npc_dragonflayer_forge_masterAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        if(fm_Type == 0) fm_Type = GetForgeMasterType();
-        if(pInstance)
+        if (fm_Type == 0) fm_Type = GetForgeMasterType();
+        if (pInstance)
         {
             switch(fm_Type)
             {
@@ -112,9 +112,9 @@ struct TRINITY_DLL_DECL npc_dragonflayer_forge_masterAI : public ScriptedAI
         {
             GameObject* temp;
             temp = m_creature->FindNearestGameObject(entry_search[i],30);
-            if(temp)
+            if (temp)
             {
-                if(m_creature->IsWithinDist(temp,diff,false))
+                if (m_creature->IsWithinDist(temp,diff,false))
                 {
                     near_f = i + 1;
                     diff = m_creature->GetDistance2d(temp);
@@ -134,10 +134,10 @@ struct TRINITY_DLL_DECL npc_dragonflayer_forge_masterAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(fm_Type == 0)
+        if (fm_Type == 0)
             fm_Type = GetForgeMasterType();
 
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
         DoMeleeAttackIfReady();

@@ -37,7 +37,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL instance_old_hillsbrad : public ScriptedInstance
 {
-    instance_old_hillsbrad(Map *map) : ScriptedInstance(map) {Initialize();};
+    instance_old_hillsbrad(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 
     uint32 Encounter[ENCOUNTERS];
     uint32 mBarrelCount;
@@ -84,12 +84,12 @@ struct TRINITY_DLL_DECL instance_old_hillsbrad : public ScriptedInstance
         {
             for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
             {
-                if (Player* player = itr->getSource())
+                if (Player* pPlayer = itr->getSource())
                 {
-                    player->SendUpdateWorldState(WORLD_STATE_OH,mBarrelCount);
+                    pPlayer->SendUpdateWorldState(WORLD_STATE_OH,mBarrelCount);
 
                     if (mBarrelCount == 5)
-                        player->KilledMonsterCredit(LODGE_QUEST_TRIGGER,0);
+                        pPlayer->KilledMonsterCredit(LODGE_QUEST_TRIGGER,0);
                 }
             }
         }else
@@ -114,9 +114,9 @@ struct TRINITY_DLL_DECL instance_old_hillsbrad : public ScriptedInstance
 
     void SetData(uint32 type, uint32 data)
     {
-        Player *player = GetPlayerInMap();
+        Player* pPlayer = GetPlayerInMap();
 
-        if (!player)
+        if (!pPlayer)
         {
             debug_log("TSCR: Instance Old Hillsbrad: SetData (Type: %u Data %u) cannot find any player.", type, data);
             return;
@@ -140,7 +140,7 @@ struct TRINITY_DLL_DECL instance_old_hillsbrad : public ScriptedInstance
 
                     if (mBarrelCount == 5)
                     {
-                    player->SummonCreature(DRAKE_ENTRY,2128.43,71.01,64.42,1.74,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1800000);
+                    pPlayer->SummonCreature(DRAKE_ENTRY,2128.43,71.01,64.42,1.74,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1800000);
                     Encounter[0] = DONE;
                     }
                 }
@@ -148,9 +148,9 @@ struct TRINITY_DLL_DECL instance_old_hillsbrad : public ScriptedInstance
             }
             case TYPE_THRALL_EVENT:
             {
-                if( data == FAIL )
+                if (data == FAIL)
                 {
-                    if( mThrallEventCount <= 20 )
+                    if (mThrallEventCount <= 20)
                     {
                         mThrallEventCount++;
                         Encounter[1] = NOT_STARTED;
@@ -160,7 +160,7 @@ struct TRINITY_DLL_DECL instance_old_hillsbrad : public ScriptedInstance
                         Encounter[4] = NOT_STARTED;
                         Encounter[5] = NOT_STARTED;
                     }
-                    else if( mThrallEventCount > 20 )
+                    else if (mThrallEventCount > 20)
                     {
                         Encounter[1] = data;
                         Encounter[2] = data;
@@ -228,9 +228,9 @@ struct TRINITY_DLL_DECL instance_old_hillsbrad : public ScriptedInstance
         return 0;
     }
 };
-InstanceData* GetInstanceData_instance_old_hillsbrad(Map* map)
+InstanceData* GetInstanceData_instance_old_hillsbrad(Map* pMap)
 {
-    return new instance_old_hillsbrad(map);
+    return new instance_old_hillsbrad(pMap);
 }
 
 void AddSC_instance_old_hillsbrad()

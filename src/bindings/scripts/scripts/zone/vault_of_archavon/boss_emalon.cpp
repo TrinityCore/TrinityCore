@@ -54,17 +54,17 @@ struct TRINITY_DLL_DECL boss_emalonAI : public ScriptedAI
         DespawnAllMinions();
         SummonAllMinions();
 
-        if(pInstance)
+        if (pInstance)
            pInstance->SetData(DATA_EMALON_EVENT, NOT_STARTED);
     }
 
     void DespawnAllMinions()
     {
-        if(!MinionList.empty())
+        if (!MinionList.empty())
         {
             for(std::list<uint64>::const_iterator itr = MinionList.begin(); itr != MinionList.end(); itr++)
             {
-                if(Creature *Minion = Unit::GetCreature(*m_creature, (*itr)))
+                if (Creature *Minion = Unit::GetCreature(*m_creature, (*itr)))
                    Minion->DisappearAndDie();
             }
         }
@@ -75,13 +75,13 @@ struct TRINITY_DLL_DECL boss_emalonAI : public ScriptedAI
     void JustSummoned(Creature *Summoned)
     {
         MinionList.push_back(Summoned->GetGUID());
-        if(Unit* target = m_creature->getVictim())
+        if (Unit* target = m_creature->getVictim())
            Summoned->AI()->AttackStart(target);
     }
 
     void SummonAllMinions()
     {
-        if(MinionList.empty())
+        if (MinionList.empty())
            for(uint8 i = 0; i < 4; ++i)
                SummonMinion(m_creature, MinionLocation[i].x, MinionLocation[i].y, MinionLocation[i].z, MinionLocation[i].o);
     }
@@ -102,7 +102,7 @@ struct TRINITY_DLL_DECL boss_emalonAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        if(!MinionList.empty())
+        if (!MinionList.empty())
         {
             for(std::list<uint64>::const_iterator itr = MinionList.begin(); itr != MinionList.end(); ++itr)
             {
@@ -118,19 +118,19 @@ struct TRINITY_DLL_DECL boss_emalonAI : public ScriptedAI
         events.ScheduleEvent(EVENT_BERSERK, 360000);
         events.ScheduleEvent(EVENT_SHOCK, 20000);
 
-        if(pInstance)
+        if (pInstance)
            pInstance->SetData(DATA_EMALON_EVENT, IN_PROGRESS);
     }
 
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
         events.Update(diff);
 
-        if(me->hasUnitState(UNIT_STAT_CASTING))
+        if (me->hasUnitState(UNIT_STAT_CASTING))
            return;
 
         while(uint32 eventId = events.ExecuteEvent())
@@ -138,7 +138,7 @@ struct TRINITY_DLL_DECL boss_emalonAI : public ScriptedAI
             switch(eventId)
             {
                 case EVENT_CHAIN_LIGHTNING:
-                    if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                        DoCast(target, SPELL_CHAIN_LIGHTNING);
                     events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 20000);
                     return;
@@ -146,7 +146,7 @@ struct TRINITY_DLL_DECL boss_emalonAI : public ScriptedAI
                     for(std::list<uint64>::const_iterator itr = MinionList.begin(); itr != MinionList.end(); ++itr)
                     {
                         Creature* Minion = (Unit::GetCreature(*m_creature, *itr));            
-                        if(Minion && Minion->isAlive() && !Minion->HasAura(SPELL_OVERCHARGED))
+                        if (Minion && Minion->isAlive() && !Minion->HasAura(SPELL_OVERCHARGED))
                         {
                             Minion->CastSpell(me, SPELL_OVERCHARGED, true);
                             Minion->SetHealth(Minion->GetMaxHealth());
@@ -163,9 +163,9 @@ struct TRINITY_DLL_DECL boss_emalonAI : public ScriptedAI
                     for(std::list<uint64>::const_iterator itr = MinionList.begin(); itr != MinionList.end(); ++itr)
                     {
                         Creature* Minion = (Unit::GetCreature(*m_creature, *itr));            
-                        if(Minion && Minion->isAlive())
+                        if (Minion && Minion->isAlive())
                         {
-                            if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                             {
                                 Minion->CastSpell(target, SPELL_SHOCK, true);
                                 events.ScheduleEvent(EVENT_SHOCK, 20000);
@@ -213,14 +213,14 @@ struct TRINITY_DLL_DECL mob_tempest_minionAI : public ScriptedAI
     void EnterCombat(Unit *who)
     {
         DoZoneInCombat();
-        if(Emalon)
+        if (Emalon)
            Emalon->AI()->AttackStart(who);
     }
 
     void JustDied(Unit* Killer)
     {
         m_creature->DisappearAndDie();
-        if(Emalon)
+        if (Emalon)
         {
             boss_emalonAI::SummonMinion(Emalon, Emalon->GetPositionX(), Emalon->GetPositionY(), Emalon->GetPositionZ(), Emalon->GetOrientation());
             DoScriptText(EMOTE_MINION_RESPAWN, m_creature);
@@ -230,12 +230,12 @@ struct TRINITY_DLL_DECL mob_tempest_minionAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if(!UpdateVictim())
+        if (!UpdateVictim())
            return;
 
-        if(Aura *OverchargedAura = m_creature->GetAura(SPELL_OVERCHARGED))
+        if (Aura *OverchargedAura = m_creature->GetAura(SPELL_OVERCHARGED))
         {
-            if(OverchargedAura->GetStackAmount() < 10)
+            if (OverchargedAura->GetStackAmount() < 10)
             {
                 if (SPELL_OVERCHARGED_Timer < diff)
                 {
@@ -245,7 +245,7 @@ struct TRINITY_DLL_DECL mob_tempest_minionAI : public ScriptedAI
             }
             else
             {
-                if(OverchargedAura->GetStackAmount() == 10 && (AlreadyOvercharged == false))
+                if (OverchargedAura->GetStackAmount() == 10 && (AlreadyOvercharged == false))
                 {
                     DoCast(me,SPELL_OVERCHARGED_BLAST);
                     AlreadyOvercharged = true;

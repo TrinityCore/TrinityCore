@@ -62,7 +62,7 @@ struct TRINITY_DLL_DECL boss_maiden_of_virtueAI : public ScriptedAI
 
     void KilledUnit(Unit* Victim)
     {
-        if(rand()%2)
+        if (rand()%2)
             return;
 
         switch(rand()%3)
@@ -85,7 +85,7 @@ struct TRINITY_DLL_DECL boss_maiden_of_virtueAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
         if (Enrage_Timer < diff && !Enraged)

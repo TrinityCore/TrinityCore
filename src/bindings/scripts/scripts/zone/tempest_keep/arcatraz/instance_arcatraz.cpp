@@ -48,7 +48,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL instance_arcatraz : public ScriptedInstance
 {
-    instance_arcatraz(Map *map) : ScriptedInstance(map) {Initialize();};
+    instance_arcatraz(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 
     uint32 Encounter[ENCOUNTERS];
 
@@ -85,7 +85,7 @@ struct TRINITY_DLL_DECL instance_arcatraz : public ScriptedInstance
     bool IsEncounterInProgress() const
     {
         for(uint8 i = 0; i < ENCOUNTERS; ++i)
-            if(Encounter[i] == IN_PROGRESS)
+            if (Encounter[i] == IN_PROGRESS)
                 return true;
 
         return false;
@@ -122,21 +122,21 @@ struct TRINITY_DLL_DECL instance_arcatraz : public ScriptedInstance
                 break;
 
             case TYPE_DALLIAH:
-                if( data == DONE )
-                    if( Containment_Core_Security_Field_Beta )
+                if (data == DONE)
+                    if (Containment_Core_Security_Field_Beta)
                         Containment_Core_Security_Field_Beta->UseDoorOrButton();
                 Encounter[1] = data;
                 break;
 
             case TYPE_SOCCOTHRATES:
-                if( data == DONE )
-                    if( Containment_Core_Security_Field_Alpha )
+                if (data == DONE)
+                    if (Containment_Core_Security_Field_Alpha)
                         Containment_Core_Security_Field_Alpha->UseDoorOrButton();
                 Encounter[2] = data;
                 break;
 
             case TYPE_HARBINGERSKYRISS:
-                if( data == NOT_STARTED || data == FAIL )
+                if (data == NOT_STARTED || data == FAIL)
                 {
                     Encounter[4] = NOT_STARTED;
                     Encounter[5] = NOT_STARTED;
@@ -148,43 +148,43 @@ struct TRINITY_DLL_DECL instance_arcatraz : public ScriptedInstance
                 break;
 
             case TYPE_WARDEN_1:
-                if( data == IN_PROGRESS )
-                    if( Pod_Alpha )
+                if (data == IN_PROGRESS)
+                    if (Pod_Alpha)
                         Pod_Alpha->UseDoorOrButton();
                 Encounter[4] = data;
                 break;
 
             case TYPE_WARDEN_2:
-                if( data == IN_PROGRESS )
-                    if( Pod_Beta )
+                if (data == IN_PROGRESS)
+                    if (Pod_Beta)
                         Pod_Beta->UseDoorOrButton();
                 Encounter[5] = data;
                 break;
 
             case TYPE_WARDEN_3:
-                if( data == IN_PROGRESS )
-                    if( Pod_Delta )
+                if (data == IN_PROGRESS)
+                    if (Pod_Delta)
                         Pod_Delta->UseDoorOrButton();
                 Encounter[6] = data;
                 break;
 
             case TYPE_WARDEN_4:
-                if( data == IN_PROGRESS )
-                    if( Pod_Gamma )
+                if (data == IN_PROGRESS)
+                    if (Pod_Gamma)
                         Pod_Gamma->UseDoorOrButton();
                 Encounter[7] = data;
                 break;
 
             case TYPE_WARDEN_5:
-                if( data == IN_PROGRESS )
-                    if( Pod_Omega )
+                if (data == IN_PROGRESS)
+                    if (Pod_Omega)
                         Pod_Omega->UseDoorOrButton();
                 Encounter[8] = data;
                 break;
 
             case TYPE_SHIELD_OPEN:
-                if( data == IN_PROGRESS )
-                    if( Wardens_Shield )
+                if (data == IN_PROGRESS)
+                    if (Wardens_Shield)
                         Wardens_Shield->UseDoorOrButton();
                 break;
         }
@@ -223,9 +223,9 @@ struct TRINITY_DLL_DECL instance_arcatraz : public ScriptedInstance
     }
 };
 
-InstanceData* GetInstanceData_instance_arcatraz(Map* map)
+InstanceData* GetInstanceData_instance_arcatraz(Map* pMap)
 {
-    return new instance_arcatraz(map);
+    return new instance_arcatraz(pMap);
 }
 
 void AddSC_instance_arcatraz()

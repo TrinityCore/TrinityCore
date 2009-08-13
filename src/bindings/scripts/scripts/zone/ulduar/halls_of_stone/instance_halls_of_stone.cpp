@@ -3,12 +3,12 @@
 
 struct TRINITY_DLL_DECL instance_halls_of_stone : public ScriptedInstance
 {
-    instance_halls_of_stone(Map *Map) : ScriptedInstance(Map) {Initialize();};
+    instance_halls_of_stone(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 };
 
-InstanceData* GetInstanceData_instance_halls_of_stone(Map* map)
+InstanceData* GetInstanceData_instance_halls_of_stone(Map* pMap)
 {
-    return new instance_halls_of_stone(map);
+    return new instance_halls_of_stone(pMap);
 }
 
 void AddSC_instance_halls_of_stone()

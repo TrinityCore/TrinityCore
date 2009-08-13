@@ -120,7 +120,7 @@ CreatureAI* GetAI_npc_aeranas(Creature *_Creature)
 ## go_haaleshi_altar
 ######*/
 
-bool GOHello_go_haaleshi_altar(Player *player, GameObject* _GO)
+bool GOHello_go_haaleshi_altar(Player* pPlayer, GameObject* _GO)
 {
     _GO->SummonCreature(C_AERANAS,-1321.79, 4043.80, 116.24, 1.25, TEMPSUMMON_TIMED_DESPAWN, 180000);
     return false;
@@ -148,35 +148,35 @@ struct TRINITY_DLL_DECL npc_wounded_blood_elfAI : public npc_escortAI
 
     void WaypointReached(uint32 i)
     {
-        Player* player = Unit::GetPlayer(PlayerGUID);
+        Player* pPlayer = Unit::GetPlayer(PlayerGUID);
 
-        if (!player || player->GetTypeId() != TYPEID_PLAYER)
+        if (!pPlayer || pPlayer->GetTypeId() != TYPEID_PLAYER)
             return;
 
         switch (i)
         {
         case 0:
-            DoScriptText(SAY_ELF_START, m_creature, player);
+            DoScriptText(SAY_ELF_START, m_creature, pPlayer);
             break;
         case 9:
-            DoScriptText(SAY_ELF_SUMMON1, m_creature, player);
+            DoScriptText(SAY_ELF_SUMMON1, m_creature, pPlayer);
             // Spawn two Haal'eshi Talonguard
             DoSpawnCreature(16967, -15, -15, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
             DoSpawnCreature(16967, -17, -17, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
             break;
         case 13:
-            DoScriptText(SAY_ELF_RESTING, m_creature, player);
+            DoScriptText(SAY_ELF_RESTING, m_creature, pPlayer);
             break;
         case 14:
-            DoScriptText(SAY_ELF_SUMMON2, m_creature, player);
+            DoScriptText(SAY_ELF_SUMMON2, m_creature, pPlayer);
             // Spawn two Haal'eshi Windwalker
             DoSpawnCreature(16966, -15, -15, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
             DoSpawnCreature(16966, -17, -17, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
             break;
         case 27:
-            DoScriptText(SAY_ELF_COMPLETE, m_creature, player);
+            DoScriptText(SAY_ELF_COMPLETE, m_creature, pPlayer);
             // Award quest credit
-            player->GroupEventHappens(QUEST_ROAD_TO_FALCON_WATCH,m_creature);
+            pPlayer->GroupEventHappens(QUEST_ROAD_TO_FALCON_WATCH,m_creature);
             break;
         }
     }
@@ -206,9 +206,9 @@ struct TRINITY_DLL_DECL npc_wounded_blood_elfAI : public npc_escortAI
         if (PlayerGUID)
         {
             // If NPC dies, player fails the quest
-            Player* player = Unit::GetPlayer(PlayerGUID);
-            if (player)
-                player->FailQuest(QUEST_ROAD_TO_FALCON_WATCH);
+            Player* pPlayer = Unit::GetPlayer(PlayerGUID);
+            if (pPlayer)
+                pPlayer->FailQuest(QUEST_ROAD_TO_FALCON_WATCH);
         }
     }
 
@@ -227,11 +227,11 @@ CreatureAI* GetAI_npc_wounded_blood_elf(Creature* pCreature)
     return welfAI;
 }
 
-bool QuestAccept_npc_wounded_blood_elf(Player* player, Creature* creature, Quest const* quest)
+bool QuestAccept_npc_wounded_blood_elf(Player* pPlayer, Creature* creature, Quest const* quest)
 {
     if (quest->GetQuestId() == QUEST_ROAD_TO_FALCON_WATCH)
     {
-        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
+        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, pPlayer->GetGUID());
         // Change faction so mobs attack
         creature->setFaction(775);
     }

@@ -189,7 +189,7 @@ struct TRINITY_DLL_DECL boss_chromaggusAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
         //Shimmer_Timer Timer

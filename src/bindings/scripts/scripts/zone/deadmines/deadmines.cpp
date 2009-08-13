@@ -41,7 +41,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL instance_deadmines : public ScriptedInstance
 {
-    instance_deadmines(Map *Map) : ScriptedInstance(Map) {Initialize();};
+    instance_deadmines(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 
     GameObject* IronCladDoor;
     GameObject* DefiasCannon;
@@ -63,7 +63,7 @@ struct TRINITY_DLL_DECL instance_deadmines : public ScriptedInstance
 
     virtual void Update(uint32 diff)
     {
-        if(!IronCladDoor || !DefiasCannon || !DoorLever)
+        if (!IronCladDoor || !DefiasCannon || !DoorLever)
             return;
 
         switch(State)
@@ -78,7 +78,7 @@ struct TRINITY_DLL_DECL instance_deadmines : public ScriptedInstance
                 break;
             case CANNON_BLAST_INITIATED:
                 PiratesDelay_Timer = PIRATES_DELAY_TIMER;
-                if(CannonBlast_Timer<diff)
+                if (CannonBlast_Timer<diff)
                 {
                     SummonCreatures();
                     ShootCannon();
@@ -91,7 +91,7 @@ struct TRINITY_DLL_DECL instance_deadmines : public ScriptedInstance
                     CannonBlast_Timer-=diff;
                 break;
             case PIRATES_ATTACK:
-                if(PiratesDelay_Timer<diff)
+                if (PiratesDelay_Timer<diff)
                 {
                     MoveCreaturesInside();
                     State = EVENT_DONE;
@@ -110,7 +110,7 @@ struct TRINITY_DLL_DECL instance_deadmines : public ScriptedInstance
 
     void MoveCreaturesInside()
     {
-        if(!DefiasPirate1 || !DefiasPirate2 || !DefiasCompanion)
+        if (!DefiasPirate1 || !DefiasPirate2 || !DefiasCompanion)
             return;
 
         MoveCreatureInside(DefiasPirate1);
@@ -194,30 +194,30 @@ struct TRINITY_DLL_DECL instance_deadmines : public ScriptedInstance
 # item_Defias_Gunpowder
 #####*/
 
-bool ItemUse_item_defias_gunpowder(Player *player, Item* _Item, SpellCastTargets const& targets)
+bool ItemUse_item_defias_gunpowder(Player* pPlayer, Item* _Item, SpellCastTargets const& targets)
 {
-    ScriptedInstance *pInstance = (player->GetInstanceData()) ? (player->GetInstanceData()) : NULL;
+    ScriptedInstance *pInstance = (pPlayer->GetInstanceData()) ? (pPlayer->GetInstanceData()) : NULL;
 
-    if(!pInstance)
+    if (!pInstance)
     {
-        player->GetSession()->SendNotification("Instance script not initialized");
+        pPlayer->GetSession()->SendNotification("Instance script not initialized");
         return true;
     }
     if (pInstance->GetData(EVENT_STATE)!= CANNON_NOT_USED)
         return false;
-    if(targets.getGOTarget() && targets.getGOTarget()->GetTypeId() == TYPEID_GAMEOBJECT &&
+    if (targets.getGOTarget() && targets.getGOTarget()->GetTypeId() == TYPEID_GAMEOBJECT &&
        targets.getGOTarget()->GetEntry() == GO_DEFIAS_CANNON)
     {
         pInstance->SetData(EVENT_STATE, CANNON_GUNPOWDER_USED);
     }
 
-    player->DestroyItemCount(_Item->GetEntry(), 1, true);
+    pPlayer->DestroyItemCount(_Item->GetEntry(), 1, true);
     return true;
 }
 
-InstanceData* GetInstanceData_instance_deadmines(Map* map)
+InstanceData* GetInstanceData_instance_deadmines(Map* pMap)
 {
-    return new instance_deadmines(map);
+    return new instance_deadmines(pMap);
 }
 
 void AddSC_instance_deadmines()

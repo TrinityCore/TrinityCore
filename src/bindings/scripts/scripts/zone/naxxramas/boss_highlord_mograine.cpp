@@ -74,7 +74,7 @@ struct TRINITY_DLL_DECL boss_highlord_mograineAI : public ScriptedAI
 
     void InitialYell()
     {
-        if(!m_creature->isInCombat())
+        if (!m_creature->isInCombat())
         {
             switch(rand()%3)
             {
@@ -126,24 +126,24 @@ struct TRINITY_DLL_DECL boss_highlord_mograineAI : public ScriptedAI
             return;
 
         // Mark of Mograine
-        if(Mark_Timer < diff)
+        if (Mark_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_MARK_OF_MOGRAINE);
             Mark_Timer = 12000;
         }else Mark_Timer -= diff;
 
         // Shield Wall - All 4 horsemen will shield wall at 50% hp and 20% hp for 20 seconds
-        if(ShieldWall1 && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 50)
+        if (ShieldWall1 && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 50)
         {
-            if(ShieldWall1)
+            if (ShieldWall1)
             {
                 DoCast(m_creature,SPELL_SHIELDWALL);
                 ShieldWall1 = false;
             }
         }
-        if(ShieldWall2 && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 20)
+        if (ShieldWall2 && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 20)
         {
-            if(ShieldWall2)
+            if (ShieldWall2)
             {
                 DoCast(m_creature,SPELL_SHIELDWALL);
                 ShieldWall2 = false;
@@ -151,9 +151,9 @@ struct TRINITY_DLL_DECL boss_highlord_mograineAI : public ScriptedAI
         }
 
         // Righteous Fire
-        if(RighteousFire_Timer < diff)
+        if (RighteousFire_Timer < diff)
         {
-            if(rand()%4 == 1)                               // 1/4
+            if (rand()%4 == 1)                               // 1/4
             {
                 DoCast(m_creature->getVictim(),SPELL_RIGHTEOUS_FIRE);
             }

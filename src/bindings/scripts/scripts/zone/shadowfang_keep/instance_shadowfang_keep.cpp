@@ -41,7 +41,7 @@ enum
 
 struct TRINITY_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
 {
-    instance_shadowfang_keep(Map *map) : ScriptedInstance(map) {Initialize();};
+    instance_shadowfang_keep(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 
     uint32 Encounter[ENCOUNTERS];
     std::string str_data;
@@ -114,7 +114,7 @@ struct TRINITY_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
         switch(type)
         {
             case TYPE_FREE_NPC:
-                if(data == DONE)
+                if (data == DONE)
                     DoUseDoorOrButton(DoorCourtyardGUID);
                 Encounter[0] = data;
                 break;
@@ -124,12 +124,12 @@ struct TRINITY_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
                 Encounter[1] = data;
                 break;
             case TYPE_FENRUS:
-                if(data == DONE)
+                if (data == DONE)
                     DoUseDoorOrButton(DoorSorcererGUID);
                 Encounter[2] = data;
                 break;
             case TYPE_NANDOS:
-                if(data == DONE)
+                if (data == DONE)
                     DoUseDoorOrButton(DoorArugalGUID);
                 Encounter[3] = data;
                 break;
@@ -193,9 +193,9 @@ struct TRINITY_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
     }
 };
 
-InstanceData* GetInstanceData_instance_shadowfang_keep(Map* map)
+InstanceData* GetInstanceData_instance_shadowfang_keep(Map* pMap)
 {
-    return new instance_shadowfang_keep(map);
+    return new instance_shadowfang_keep(pMap);
 }
 
 void AddSC_instance_shadowfang_keep()

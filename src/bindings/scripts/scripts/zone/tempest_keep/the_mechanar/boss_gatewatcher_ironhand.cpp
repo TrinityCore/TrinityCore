@@ -93,18 +93,18 @@ struct TRINITY_DLL_DECL boss_gatewatcher_iron_handAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
         //Shadow Power
-        if(Shadow_Power_Timer < diff)
+        if (Shadow_Power_Timer < diff)
         {
             DoCast(m_creature,HeroicMode ? H_SPELL_SHADOW_POWER : SPELL_SHADOW_POWER);
             Shadow_Power_Timer = 20000 + rand()%8000;
         }else Shadow_Power_Timer -= diff;
 
         //Jack Hammer
-        if(Jackhammer_Timer < diff)
+        if (Jackhammer_Timer < diff)
         {
             //TODO: expect cast this about 5 times in a row (?), announce it by emote only once
             DoScriptText(EMOTE_HAMMER, m_creature);
@@ -123,7 +123,7 @@ struct TRINITY_DLL_DECL boss_gatewatcher_iron_handAI : public ScriptedAI
         }else Jackhammer_Timer -= diff;
 
         //Stream of Machine Fluid
-        if(Stream_of_Machine_Fluid_Timer < diff)
+        if (Stream_of_Machine_Fluid_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_STREAM_OF_MACHINE_FLUID);
             Stream_of_Machine_Fluid_Timer = 35000 + rand()%15000;

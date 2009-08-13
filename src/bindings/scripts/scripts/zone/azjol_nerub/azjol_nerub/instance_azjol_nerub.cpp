@@ -36,7 +36,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL instance_azjol_nerub : public ScriptedInstance
 {
-    instance_azjol_nerub(Map *Map) : ScriptedInstance(Map) {Initialize();};
+    instance_azjol_nerub(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 
     uint64 Krikthir;
     uint64 Hadronox;
@@ -58,7 +58,7 @@ struct TRINITY_DLL_DECL instance_azjol_nerub : public ScriptedInstance
     bool IsEncounterInProgress() const
     {
         for(uint8 i = 0; i < ENCOUNTERS; ++i)
-            if(Encounters[i] == IN_PROGRESS) return true;
+            if (Encounters[i] == IN_PROGRESS) return true;
 
         return false;
     }
@@ -149,7 +149,7 @@ struct TRINITY_DLL_DECL instance_azjol_nerub : public ScriptedInstance
         std::istringstream loadStream(in);
         loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2;
 
-        if( dataHead1 == 'A' && dataHead2 == 'N')
+        if (dataHead1 == 'A' && dataHead2 == 'N')
         {
             Encounters[0] = data0;
             Encounters[1] = data1;
@@ -165,9 +165,9 @@ struct TRINITY_DLL_DECL instance_azjol_nerub : public ScriptedInstance
     }
 };
 
-InstanceData* GetInstanceData_instance_azjol_nerub(Map* map)
+InstanceData* GetInstanceData_instance_azjol_nerub(Map* pMap)
 {
-   return new instance_azjol_nerub(map);
+   return new instance_azjol_nerub(pMap);
 }
 
 void AddSC_instance_azjol_nerub()

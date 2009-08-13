@@ -145,12 +145,12 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!UpdateCombatState())
+        if (!UpdateCombatState())
             return;
 
         events.Update(diff);
 
-        if(Phase == 1)
+        if (Phase == 1)
         {
             while(uint32 eventId = events.GetEvent())
             {
@@ -175,7 +175,7 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
                         events.ScheduleEvent(EVENT_DETONATE, 20000);
                         events.ScheduleEvent(EVENT_FISSURE, 25000);
                         events.ScheduleEvent(EVENT_BLAST, (rand()%30+30)*1000);
-                        if(HeroicMode)
+                        if (HeroicMode)
                             events.ScheduleEvent(EVENT_CHAIN, (rand()%30+30)*1000);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         me->SetReactState(REACT_AGGRESSIVE);
@@ -190,9 +190,9 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
         else
         {
             //start phase 3 when we are 40% health
-            if(Phase != 3)
+            if (Phase != 3)
             {
-                if(HealthBelowPct(40))
+                if (HealthBelowPct(40))
                 {
                     Phase = 3 ;
                     DoScriptText(SAY_REQUEST_AID, m_creature);
@@ -201,9 +201,9 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
                     DoScriptText(SAY_ANSWER_REQUEST, m_creature);
                 }
             }
-            else if(GuardiansOfIcecrown_Count < HEROIC(2,5))
+            else if (GuardiansOfIcecrown_Count < HEROIC(2,5))
             {
-                if(GuardiansOfIcecrown_Timer < diff)
+                if (GuardiansOfIcecrown_Timer < diff)
                 {
                     DoSummon(MOB_ICECROWN, Pos[RAND(2,5,8)]);
                     ++GuardiansOfIcecrown_Count;
@@ -212,10 +212,10 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
                 else GuardiansOfIcecrown_Timer -= diff;
             }
 
-            if(me->hasUnitState(UNIT_STAT_CASTING))
+            if (me->hasUnitState(UNIT_STAT_CASTING))
                 return;
 
-            if(uint32 eventId = events.GetEvent())
+            if (uint32 eventId = events.GetEvent())
             {
                 switch(eventId)
                 {
@@ -228,7 +228,7 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
                         events.RepeatEvent(15000);
                         return;
                     case EVENT_CHAIN:
-                        if(Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
+                        if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
                             DoCast(target, SPELL_CHAINS_OF_KELTHUZAD);
                         DoScriptText(SAY_CHAIN, me);
                         events.RepeatEvent((rand()%30+30)*1000);
@@ -239,13 +239,13 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
                         std::list<HostilReference*> *threatList = &me->getThreatManager().getThreatList();
                         for(std::list<HostilReference*>::const_iterator itr = threatList->begin(); itr != threatList->end(); ++itr)
                         {
-                            if((*itr)->getTarget()->GetTypeId() == TYPEID_PLAYER
+                            if ((*itr)->getTarget()->GetTypeId() == TYPEID_PLAYER
                                 && (*itr)->getTarget()->getPowerType() == POWER_MANA
                                 && (*itr)->getTarget()->GetPower(POWER_MANA))
                                 unitList.push_back((*itr)->getTarget());
                         }
 
-                        if(!unitList.empty())
+                        if (!unitList.empty())
                         {
                             std::vector<Unit*>::iterator itr = unitList.begin();
                             advance(itr, rand()%unitList.size());
@@ -257,14 +257,14 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
                         return;                        
                     }
                     case EVENT_FISSURE:
-                        if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+                        if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
                             DoCast(target, SPELL_SHADOW_FISURE);
                         events.RepeatEvent(25000);
                         return;
                     case EVENT_BLAST:
-                        if(Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
                             DoCast(target, SPELL_FROST_BLAST);
-                        if(rand()%2)
+                        if (rand()%2)
                             DoScriptText(SAY_FROST_BLAST, m_creature);
                         events.RepeatEvent((rand()%30+30)*1000);
                         return;

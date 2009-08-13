@@ -65,7 +65,7 @@ struct TRINITY_DLL_DECL boss_golemaggAI : public ScriptedAI
 
     void JustDied(Unit* Killer)
     {
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_GOLEMAGG_DEATH, 0);
     }
 
@@ -84,7 +84,7 @@ struct TRINITY_DLL_DECL boss_golemaggAI : public ScriptedAI
         }else Pyroblast_Timer -= diff;
 
         //Enrage_Timer
-        if ( m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 11 )
+        if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 11)
         {
             if (Enrage_Timer < diff)
             {
@@ -94,7 +94,7 @@ struct TRINITY_DLL_DECL boss_golemaggAI : public ScriptedAI
         }
 
         //EarthQuake_Timer
-        if ( m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 11 )
+        if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 11)
         {
             if (EarthQuake_Timer < diff)
             {
@@ -104,7 +104,7 @@ struct TRINITY_DLL_DECL boss_golemaggAI : public ScriptedAI
         }
 
         //Casting Buff for Coreragers. Spell is not working right. Players get the buff...
-        //        if(Buff_Timer < diff)
+        //        if (Buff_Timer < diff)
         //        {
         //            DoCast(m_creature, SPELL_BUFF);
         //            Buff_Timer = 2500;
@@ -148,19 +148,19 @@ struct TRINITY_DLL_DECL mob_core_ragerAI : public ScriptedAI
         }else Mangle_Timer -= diff;
 
         //Cast AEGIS
-        if ( m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 50 )
+        if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 50)
         {
             DoCast(m_creature,SPELL_AEGIS);
             DoScriptText(EMOTE_AEGIS, m_creature);
         }
 
         //Check_Timer
-        if(Check_Timer < diff)
+        if (Check_Timer < diff)
         {
-            if(pInstance)
+            if (pInstance)
             {
                 Unit *pGolemagg = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_GOLEMAGG));
-                if(!pGolemagg || !pGolemagg->isAlive())
+                if (!pGolemagg || !pGolemagg->isAlive())
                 {
                     m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, true);
                 }

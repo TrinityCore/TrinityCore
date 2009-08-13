@@ -35,11 +35,11 @@ EndScriptData */
 5 - Lady Vashj Event
 */
 
-bool GOHello_go_bridge_console(Player *player, GameObject* go)
+bool GOHello_go_bridge_console(Player* pPlayer, GameObject* go)
 {
     ScriptedInstance* pInstance = go->GetInstanceData();
 
-    if(!pInstance)
+    if (!pInstance)
         return false;
 
     if (pInstance)
@@ -50,7 +50,7 @@ bool GOHello_go_bridge_console(Player *player, GameObject* go)
 
 struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
 {
-    instance_serpentshrine_cavern(Map *map) : ScriptedInstance(map) {Initialize();};
+    instance_serpentshrine_cavern(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 
     uint64 LurkerBelow;
     uint64 Sharkkis;
@@ -99,7 +99,7 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
     bool IsEncounterInProgress() const
     {
         for(uint8 i = 0; i < ENCOUNTERS; ++i)
-            if(Encounters[i] == IN_PROGRESS) return true;
+            if (Encounters[i] == IN_PROGRESS) return true;
 
         return false;
     }
@@ -129,7 +129,7 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
             break;
             case 184956:
                 StrangePool = go->GetGUID();
-                if(go->isActiveObject())
+                if (go->isActiveObject())
                     SetData(DATA_STRANGE_POOL, DONE);
         }
     }
@@ -149,9 +149,9 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
 
     void SetData64(uint32 type, uint64 data)
     {
-        if(type == DATA_KARATHRESSEVENT_STARTER)
+        if (type == DATA_KARATHRESSEVENT_STARTER)
             KarathressEvent_Starter = data;
-        if(type == DATA_LEOTHERAS_EVENT_STARTER)
+        if (type == DATA_LEOTHERAS_EVENT_STARTER)
             LeotherasEventStarter = data;
     }
 
@@ -178,7 +178,7 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
         {
         case DATA_STRANGE_POOL: StrangePool = data;
         case DATA_CONTROL_CONSOLE:
-            if(data == DONE)
+            if (data == DONE)
             {
                 HandleGameObject(BridgePart[0], true);
                 HandleGameObject(BridgePart[0], true);
@@ -192,7 +192,7 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
         case DATA_MOROGRIMTIDEWALKEREVENT:  Encounters[4] = data;   break;
             //Lady Vashj
         case DATA_LADYVASHJEVENT:
-            if(data == NOT_STARTED)
+            if (data == NOT_STARTED)
             {
                 ShieldGeneratorDeactivated[0] = false;
                 ShieldGeneratorDeactivated[1] = false;
@@ -206,7 +206,7 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
         case DATA_SHIELDGENERATOR4:ShieldGeneratorDeactivated[3] = (data) ? true : false;   break;
         }
 
-        if(data == DONE)
+        if (data == DONE)
             SaveToDB();
     }
 
@@ -226,7 +226,7 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
             case DATA_SHIELDGENERATOR3:         return ShieldGeneratorDeactivated[2];
             case DATA_SHIELDGENERATOR4:         return ShieldGeneratorDeactivated[3];
             case DATA_CANSTARTPHASE3:
-                if(ShieldGeneratorDeactivated[0] && ShieldGeneratorDeactivated[1] && ShieldGeneratorDeactivated[2] && ShieldGeneratorDeactivated[3])return 1;break;
+                if (ShieldGeneratorDeactivated[0] && ShieldGeneratorDeactivated[1] && ShieldGeneratorDeactivated[2] && ShieldGeneratorDeactivated[3])return 1;break;
         }
         return 0;
     }
@@ -238,7 +238,7 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
             << Encounters[3] << " " << Encounters[4] << " " << Encounters[5];
         char* out = new char[stream.str().length() + 1];
         strcpy(out, stream.str().c_str());
-        if(out)
+        if (out)
         {
             OUT_SAVE_INST_DATA_COMPLETE;
             return out;
@@ -248,7 +248,7 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
 
     void Load(const char* in)
     {
-        if(!in)
+        if (!in)
         {
             OUT_LOAD_INST_DATA_FAIL;
             return;
@@ -258,15 +258,15 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
         stream >> Encounters[0] >> Encounters[1] >> Encounters[2] >> Encounters[3]
         >> Encounters[4] >> Encounters[5];
         for(uint8 i = 0; i < ENCOUNTERS; ++i)
-            if(Encounters[i] == IN_PROGRESS)                // Do not load an encounter as "In Progress" - reset it instead.
+            if (Encounters[i] == IN_PROGRESS)                // Do not load an encounter as "In Progress" - reset it instead.
                 Encounters[i] = NOT_STARTED;
         OUT_LOAD_INST_DATA_COMPLETE;
     }
 };
 
-InstanceData* GetInstanceData_instance_serpentshrine_cavern(Map* map)
+InstanceData* GetInstanceData_instance_serpentshrine_cavern(Map* pMap)
 {
-    return new instance_serpentshrine_cavern(map);
+    return new instance_serpentshrine_cavern(pMap);
 }
 
 void AddSC_instance_serpentshrine_cavern()

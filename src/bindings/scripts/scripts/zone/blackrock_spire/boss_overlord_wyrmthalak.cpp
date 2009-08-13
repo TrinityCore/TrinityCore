@@ -65,7 +65,7 @@ struct TRINITY_DLL_DECL boss_overlordwyrmthalakAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
         //BlastWave_Timer
@@ -97,16 +97,16 @@ struct TRINITY_DLL_DECL boss_overlordwyrmthalakAI : public ScriptedAI
         }else Knockaway_Timer -= diff;
 
         //Summon two Beserks
-        if ( !Summoned && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 51 )
+        if (!Summoned && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 51)
         {
             Unit* target = NULL;
             target = SelectUnit(SELECT_TARGET_RANDOM,0);
 
             SummonedCreature = m_creature->SummonCreature(9216,ADD_1X,ADD_1Y,ADD_1Z,ADD_1O,TEMPSUMMON_TIMED_DESPAWN,300000);
-            if(SummonedCreature)
+            if (SummonedCreature)
             (SummonedCreature->AI())->AttackStart(target);
             SummonedCreature = m_creature->SummonCreature(9268,ADD_2X,ADD_2Y,ADD_2Z,ADD_2O,TEMPSUMMON_TIMED_DESPAWN,300000);
-            if(SummonedCreature)
+            if (SummonedCreature)
             (SummonedCreature->AI())->AttackStart(target);
             Summoned = true;
         }

@@ -46,7 +46,7 @@ struct TRINITY_DLL_DECL boss_ymironAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
         DoMeleeAttackIfReady();
@@ -57,7 +57,7 @@ struct TRINITY_DLL_DECL boss_ymironAI : public ScriptedAI
     }
     void KilledUnit(Unit *victim)
     {
-        if(victim == m_creature)
+        if (victim == m_creature)
             return;
         switch(rand()%4)
         {

@@ -38,7 +38,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
 {
-    instance_ahnkahet(Map *Map) : ScriptedInstance(Map) {Initialize();};
+    instance_ahnkahet(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 
     uint64 Elder_Nadox;
     uint64 Prince_Taldaram;
@@ -63,7 +63,7 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
     bool IsEncounterInProgress() const
     {
         for(uint8 i = 0; i < ENCOUNTERS; ++i)
-            if(Encounters[i] == IN_PROGRESS) return true;
+            if (Encounters[i] == IN_PROGRESS) return true;
 
         return false;
     }
@@ -161,7 +161,7 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
         std::istringstream loadStream(in);
         loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2 >> data3 >> data4;
 
-        if( dataHead1 == 'A' && dataHead2 == 'K')
+        if (dataHead1 == 'A' && dataHead2 == 'K')
         {
             Encounters[0] = data0;
             Encounters[1] = data1;
@@ -179,9 +179,9 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
     }
 };
 
-InstanceData* GetInstanceData_instance_ahnkahet(Map* map)
+InstanceData* GetInstanceData_instance_ahnkahet(Map* pMap)
 {
-   return new instance_ahnkahet(map);
+   return new instance_ahnkahet(pMap);
 }
 
 void AddSC_instance_ahnkahet()

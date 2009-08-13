@@ -35,7 +35,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL instance_the_eye : public ScriptedInstance
 {
-    instance_the_eye(Map *map) : ScriptedInstance(map) {Initialize();};
+    instance_the_eye(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 
     uint64 ThaladredTheDarkener;
     uint64 LordSanguinar;
@@ -70,7 +70,7 @@ struct TRINITY_DLL_DECL instance_the_eye : public ScriptedInstance
     bool IsEncounterInProgress() const
     {
         for(uint8 i = 0; i < ENCOUNTERS; ++i)
-            if(Encounters[i] == IN_PROGRESS) return true;
+            if (Encounters[i] == IN_PROGRESS) return true;
 
         return false;
     }
@@ -113,7 +113,7 @@ struct TRINITY_DLL_DECL instance_the_eye : public ScriptedInstance
             case DATA_VOIDREAVEREVENT:  Encounters[2] = data;                               break;
             case DATA_KAELTHASEVENT:    KaelthasEventPhase = data;  Encounters[3] = data;   break;
         }
-        if(data == DONE)
+        if (data == DONE)
             SaveToDB();
     }
 
@@ -136,7 +136,7 @@ struct TRINITY_DLL_DECL instance_the_eye : public ScriptedInstance
         stream << Encounters[0] << " " << Encounters[1] << " " << Encounters[2] << " " << Encounters[3];
         char* out = new char[stream.str().length() + 1];
         strcpy(out, stream.str().c_str());
-        if(out)
+        if (out)
         {
             OUT_SAVE_INST_DATA_COMPLETE;
             return out;
@@ -146,7 +146,7 @@ struct TRINITY_DLL_DECL instance_the_eye : public ScriptedInstance
 
     void Load(const char* in)
     {
-        if(!in)
+        if (!in)
         {
             OUT_LOAD_INST_DATA_FAIL;
             return;
@@ -155,15 +155,15 @@ struct TRINITY_DLL_DECL instance_the_eye : public ScriptedInstance
         std::istringstream stream(in);
         stream >> Encounters[0] >> Encounters[1] >> Encounters[2] >> Encounters[3];
         for(uint8 i = 0; i < ENCOUNTERS; ++i)
-            if(Encounters[i] == IN_PROGRESS)                // Do not load an encounter as "In Progress" - reset it instead.
+            if (Encounters[i] == IN_PROGRESS)                // Do not load an encounter as "In Progress" - reset it instead.
                 Encounters[i] = NOT_STARTED;
         OUT_LOAD_INST_DATA_COMPLETE;
     }
 };
 
-InstanceData* GetInstanceData_instance_the_eye(Map* map)
+InstanceData* GetInstanceData_instance_the_eye(Map* pMap)
 {
-    return new instance_the_eye(map);
+    return new instance_the_eye(pMap);
 }
 
 void AddSC_instance_the_eye()
