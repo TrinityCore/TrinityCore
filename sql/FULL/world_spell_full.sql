@@ -1994,7 +1994,7 @@ INSERT INTO `spell_target_position` (`id`, `target_map`, `target_position_x`, `t
 -- death charger
 DELETE FROM spell_area WHERE spell = 52693;
 INSERT INTO spell_area (`spell`, `area`, `quest_start`, `quest_start_active`, `quest_end`, `aura_spell`, `racemask`, `gender`, `autocast`) VALUES
-(52693, 4298, 12687, 1, 12687, 0, 0, 0, 1);
+(52693, 4298, 12687, 1, 12687, 0, 0, 2, 1);
 
 DELETE FROM `npc_spellclick_spells` WHERE `spell_id` IN (
 54568, 54575, 52263, 52280, 52447);
