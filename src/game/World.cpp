@@ -711,12 +711,12 @@ void World::LoadConfigSettings(bool reload)
 
     if(reload)
     {
-        uint32 val = sConfig.GetIntDefault("MaxPlayerLevel", 80);
+        uint32 val = sConfig.GetIntDefault("MaxPlayerLevel", DEFAULT_MAX_LEVEL);
         if(val!=m_configs[CONFIG_MAX_PLAYER_LEVEL])
             sLog.outError("MaxPlayerLevel option can't be changed at config reload, using current value (%u).",m_configs[CONFIG_MAX_PLAYER_LEVEL]);
     }
     else
-        m_configs[CONFIG_MAX_PLAYER_LEVEL] = sConfig.GetIntDefault("MaxPlayerLevel", 80);
+        m_configs[CONFIG_MAX_PLAYER_LEVEL] = sConfig.GetIntDefault("MaxPlayerLevel", DEFAULT_MAX_LEVEL);
 
     if(m_configs[CONFIG_MAX_PLAYER_LEVEL] > MAX_LEVEL)
     {

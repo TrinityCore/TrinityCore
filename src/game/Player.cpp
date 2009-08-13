@@ -6690,13 +6690,20 @@ void Player::_ApplyItemMods(Item *item, uint8 slot,bool apply)
 
 void Player::_ApplyItemBonuses(ItemPrototype const *proto, uint8 slot, bool apply, bool only_level_scale /*= false*/)
 {
-    if(slot >= INVENTORY_SLOT_BAG_END || !proto)
+    if (slot >= INVENTORY_SLOT_BAG_END || !proto)
         return;
 
     ScalingStatDistributionEntry const *ssd = proto->ScalingStatDistribution ? sScalingStatDistributionStore.LookupEntry(proto->ScalingStatDistribution) : NULL;
-    ScalingStatValuesEntry const *ssv = proto->ScalingStatValue ? sScalingStatValuesStore.LookupEntry(getLevel()) : NULL;
+    if (only_level_scale && !ssd)
+        return;
 
-    if(only_level_scale && !(ssd && ssv))
+    // req. check at equip, but allow use for extended range if range limit max level, set proper level
+    uint32 ssd_level = getLevel();
+    if (ssd && ssd_level > ssd->MaxLevel)
+        ssd_level = ssd->MaxLevel;
+
+    ScalingStatValuesEntry const *ssv = proto->ScalingStatValue ? sScalingStatValuesStore.LookupEntry(ssd_level) : NULL;
+    if (only_level_scale && !ssv)
         return;
 
     for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
@@ -10145,7 +10152,8 @@ uint8 Player::CanEquipItem( uint8 slot, uint16 &dest, Item *pItem, bool swap, bo
             }
 
             ScalingStatDistributionEntry const *ssd = pProto->ScalingStatDistribution ? sScalingStatDistributionStore.LookupEntry(pProto->ScalingStatDistribution) : 0;
-            if (ssd && ssd->MaxLevel < getLevel())
+            // check allowed level (extend range to upper values if MaxLevel more or equal max player level, this let GM set high level with 1...max range items)
+            if (ssd && ssd->MaxLevel < DEFAULT_MAX_LEVEL && ssd->MaxLevel < getLevel())
                 return EQUIP_ERR_ITEM_CANT_BE_EQUIPPED;
 
             uint8 eslot = FindEquipSlot( pProto, slot, swap );
