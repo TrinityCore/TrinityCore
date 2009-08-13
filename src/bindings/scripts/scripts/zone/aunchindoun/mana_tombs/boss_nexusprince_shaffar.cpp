@@ -282,9 +282,9 @@ struct TRINITY_DLL_DECL mob_ethereal_beaconAI : public ScriptedAI
 
     void JustDied(Unit* Killer)
     {
-        Unit *Shaffar = me->FindNearestCreature(NPC_SHAFFAR, 100);
+        Creature *Shaffar = me->FindNearestCreature(NPC_SHAFFAR, 100);
         if(Shaffar)
-            CAST_AI(boss_nexusprince_shaffarAI, (CAST_CRE(Shaffar)->AI()))->RemoveBeaconFromList(m_creature);
+            CAST_AI(boss_nexusprince_shaffarAI, Shaffar->AI())->RemoveBeaconFromList(m_creature);
     }
 
     void UpdateAI(const uint32 diff)
@@ -294,7 +294,7 @@ struct TRINITY_DLL_DECL mob_ethereal_beaconAI : public ScriptedAI
 
         if(Check_Timer < diff)
         {
-            Unit *Shaffar = me->FindNearestCreature(NPC_SHAFFAR, 100);
+            Creature *Shaffar = me->FindNearestCreature(NPC_SHAFFAR, 100);
             if(!Shaffar || Shaffar->isDead() || !Shaffar->isInCombat())
             {
                 KillSelf();
