@@ -269,24 +269,30 @@ public:
 bool GOHello_go_orb_of_the_blue_flight(Player *plr, GameObject* go)
 {
     if(go->GetUInt32Value(GAMEOBJECT_FACTION) == 35){
-        ScriptedInstance* pInstance = (go->GetInstanceData());
-        float x,y,z, dx,dy,dz;
+        ScriptedInstance* pInstance = go->GetInstanceData();
+        float x,y,z;
+        //float dx,dy,dz;
         go->SummonCreature(CREATURE_POWER_OF_THE_BLUE_DRAGONFLIGHT, plr->GetPositionX(), plr->GetPositionY(), plr->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 121000);
         plr->CastSpell(plr, SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT, true);
         go->SetUInt32Value(GAMEOBJECT_FACTION, 0);
-        Unit* Kalec = CAST_CRE(Unit::GetUnit(*plr, pInstance->GetData64(DATA_KALECGOS_KJ)));
+        Creature* Kalec = Unit::GetCreature(*plr, pInstance->GetData64(DATA_KALECGOS_KJ));
         //Kalec->RemoveDynObject(SPELL_RING_OF_BLUE_FLAMES);
         go->GetPosition(x,y,z);
-        for(uint8 i = 0; i < 4; ++i){
-            DynamicObject* Dyn = Kalec->GetDynObject(SPELL_RING_OF_BLUE_FLAMES);
-            if(Dyn){
+        // this won't work. need rewritten
+        /*
+        for(uint8 i = 0; i < 4; ++i)
+        {
+            if(DynamicObject* Dyn = Kalec->GetDynObject(SPELL_RING_OF_BLUE_FLAMES))
+            {
                 Dyn->GetPosition(dx,dy,dz);
-                if(x == dx && dy == y && dz == z){
+                if(x == dx && dy == y && dz == z)
+                {
                     Dyn->Delete();
                     break;
                 }
             }
         }
+        */
         go->Refresh();
     }
     return true;
@@ -361,7 +367,11 @@ struct TRINITY_DLL_DECL boss_kalecgos_kjAI : public ScriptedAI
                 Orb[i]->setActive(true);
                 Orb[i]->Refresh();
             }
-        }else{
+        }
+        else
+        {
+            // this won't work
+            /*
             float x,y,z, dx,dy,dz;
             Orb[random]->GetPosition(x,y,z);
             for(uint8 i = 0; i < 4; ++i){
@@ -373,7 +383,7 @@ struct TRINITY_DLL_DECL boss_kalecgos_kjAI : public ScriptedAI
                         break;
                      }
                  }
-            }
+            }*/
         Orb[random]->CastSpell(m_creature, SPELL_RING_OF_BLUE_FLAMES);
         Orb[random]->SetUInt32Value(GAMEOBJECT_FACTION, 35);
         Orb[random]->setActive(true);
