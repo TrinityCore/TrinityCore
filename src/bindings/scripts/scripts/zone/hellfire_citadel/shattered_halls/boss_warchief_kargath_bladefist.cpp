@@ -256,7 +256,7 @@ struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
             {
                 Unit* target = NULL;
 
-                for(uint8 i = 0; i < summoned; i++)
+                for(uint8 i = 0; i < summoned; ++i)
                 {
                     switch(rand()%3)
                     {

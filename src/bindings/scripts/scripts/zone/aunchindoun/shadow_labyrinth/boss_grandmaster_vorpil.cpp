@@ -159,7 +159,7 @@ struct TRINITY_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
     {
         if(!sumportals)
         {
-            for (int i = 0;i<5;i++)
+            for (int i = 0;i<5; ++i)
             {
                 Creature *Portal = NULL;
                 Portal = m_creature->SummonCreature(MOB_VOID_PORTAL,VoidPortalCoords[i][0],VoidPortalCoords[i][1],VoidPortalCoords[i][2],0,TEMPSUMMON_CORPSE_DESPAWN,3000000);

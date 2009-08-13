@@ -105,7 +105,7 @@ struct TRINITY_DLL_DECL boss_shahrazAI : public ScriptedAI
         if(pInstance)
             pInstance->SetData(DATA_MOTHERSHAHRAZEVENT, NOT_STARTED);
 
-        for(uint8 i = 0; i<3; i++)
+        for(uint8 i = 0; i<3; ++i)
             TargetGUID[i] = 0;
 
         BeamTimer = 20000; // Timers may be incorrect
@@ -155,7 +155,7 @@ struct TRINITY_DLL_DECL boss_shahrazAI : public ScriptedAI
         float X = TeleportPoint[random].x;
         float Y = TeleportPoint[random].y;
         float Z = TeleportPoint[random].z;
-        for(uint8 i = 0; i < 3; i++)
+        for(uint8 i = 0; i < 3; ++i)
         {
             Unit* pUnit = SelectUnit(SELECT_TARGET_RANDOM, 1);
             if(pUnit && pUnit->isAlive() && (pUnit->GetTypeId() == TYPEID_PLAYER))

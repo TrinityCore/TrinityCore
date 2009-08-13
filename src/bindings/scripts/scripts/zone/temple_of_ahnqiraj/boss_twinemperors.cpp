@@ -418,7 +418,7 @@ struct TRINITY_DLL_DECL boss_veknilashAI : public boss_twinemperorsAI
         (target->AI())->AttackStart(m_creature->getThreatManager().getHostilTarget());
         SpellEntry *spell = GET_SPELL(SPELL_MUTATE_BUG);
         uint8 eff_mask=0;
-        for (int i=0; i<3; i++)
+        for (int i=0; i<3; ++i)
         {
             if (!spell->Effect[i])
                 continue;
@@ -503,7 +503,7 @@ struct TRINITY_DLL_DECL boss_veklorAI : public boss_twinemperorsAI
         target->setFaction(14);
         SpellEntry *spell = GET_SPELL(SPELL_EXPLODEBUG);
         uint8 eff_mask=0;
-        for (int i=0; i<3; i++)
+        for (int i=0; i<3; ++i)
         {
             if (!spell->Effect[i])
                 continue;

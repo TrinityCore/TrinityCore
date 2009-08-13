@@ -162,7 +162,7 @@ struct TRINITY_DLL_DECL boss_gurtogg_bloodboilAI : public ScriptedAI
             {
                 Unit* target = *itr;
                 if(!target) return;
-                for(uint32 i = 0;i<3;i++)
+                for(uint32 i = 0;i<3; ++i)
                 {
                     uint8 eff = spellInfo->Effect[i];
                     if (eff>=TOTAL_SPELL_EFFECTS)

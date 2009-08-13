@@ -242,7 +242,7 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
             if(SpellEntry *nova = GET_SPELL(SPELL_BURNING_NOVA))
             {
                 uint8 eff_mask=0;
-                for (int i=0; i<3; i++)
+                for (int i=0; i<3; ++i)
                 {
                     if (!nova->Effect[i])
                         continue;

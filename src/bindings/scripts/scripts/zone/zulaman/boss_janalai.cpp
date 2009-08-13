@@ -149,7 +149,7 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
 
         isFlameBreathing = false;
 
-        for(uint8 i = 0; i < 40; i++)
+        for(uint8 i = 0; i < 40; ++i)
             FireBombGUIDs[i] = 0;
 
         HatchAllEggs(1);
@@ -194,7 +194,7 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
     {
         uint8 WallNum;
         Creature* wall = NULL;
-        for(uint8 i = 0; i < 4; i++)
+        for(uint8 i = 0; i < 4; ++i)
         {
             if(i == 0 || i == 2)
                 WallNum = 3;
@@ -215,7 +215,7 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
     void SpawnBombs()
     {
         float dx, dy;
-        for( int i(0); i < 40; i++)
+        for( int i(0); i < 40; ++i)
         {
             dx =(rand()%(area_dx))-(area_dx/2);
             dy =(rand()%(area_dy))-(area_dy/2);

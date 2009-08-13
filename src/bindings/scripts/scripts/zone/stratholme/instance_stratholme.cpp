@@ -394,7 +394,7 @@ struct TRINITY_DLL_DECL instance_stratholme : public ScriptedInstance
             {
                 if (Creature* pBaron = instance->GetCreature(baronGUID))
                 {
-                    for(uint8 i = 0; i < 4; i++)
+                    for(uint8 i = 0; i < 4; ++i)
                         pBaron->SummonCreature(C_BLACK_GUARD,4032.84,-3390.24,119.73,4.71,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1800000);
 
                     UpdateGoState(ziggurat4GUID,GO_STATE_ACTIVE,false);

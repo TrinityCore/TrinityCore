@@ -92,13 +92,13 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
         ShieldGeneratorDeactivated[2] = false;
         ShieldGeneratorDeactivated[3] = false;
 
-        for(uint8 i = 0; i < ENCOUNTERS; i++)
+        for(uint8 i = 0; i < ENCOUNTERS; ++i)
             Encounters[i] = NOT_STARTED;
     }
 
     bool IsEncounterInProgress() const
     {
-        for(uint8 i = 0; i < ENCOUNTERS; i++)
+        for(uint8 i = 0; i < ENCOUNTERS; ++i)
             if(Encounters[i] == IN_PROGRESS) return true;
 
         return false;

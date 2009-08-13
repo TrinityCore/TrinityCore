@@ -55,7 +55,7 @@ struct TRINITY_DLL_DECL instance_old_hillsbrad : public ScriptedInstance
         TarethaGUID         = 0;
     EpochGUID        = 0;
 
-        for(uint8 i = 0; i < ENCOUNTERS; i++)
+        for(uint8 i = 0; i < ENCOUNTERS; ++i)
             Encounter[i] = NOT_STARTED;
     }
 

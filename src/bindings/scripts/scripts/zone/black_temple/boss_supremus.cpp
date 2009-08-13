@@ -151,7 +151,7 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
 
         std::list<HostilReference*>& m_threatlist = m_creature->getThreatManager().getThreatList();
         std::list<HostilReference*>::iterator i = m_threatlist.begin();
-        for (i = m_threatlist.begin(); i!= m_threatlist.end();++i)
+        for (i = m_threatlist.begin(); i!= m_threatlist.end(); ++i)
         {
             Unit* pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid());
             if(pUnit && m_creature->IsWithinMeleeRange(pUnit))

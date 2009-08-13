@@ -152,7 +152,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
         pInstance = c->GetInstanceData();
         Demon = 0;
 
-        for(uint8 i = 0; i < 3; i++)//clear guids
+        for(uint8 i = 0; i < 3; ++i)//clear guids
             SpellBinderGUID[i] = 0;
     }
 
@@ -207,7 +207,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 
     void CheckChannelers(bool DoEvade = true)
     {
-        for(uint8 i = 0; i < 3; i++)
+        for(uint8 i = 0; i < 3; ++i)
         {
             if(Creature *add = Unit::GetCreature(*m_creature,SpellBinderGUID[i]))
                 add->DisappearAndDie();
@@ -256,7 +256,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
     void CheckBanish()
     {
         uint8 AliveChannelers = 0;
-        for(uint8 i = 0; i < 3; i++)
+        for(uint8 i = 0; i < 3; ++i)
         {
             Unit *add = Unit::GetUnit(*m_creature,SpellBinderGUID[i]);
             if (add && add->isAlive())
@@ -306,7 +306,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
     //Despawn all Inner Demon summoned
     void DespawnDemon()
     {
-        for(uint8 i=0; i<5; i++)
+        for(uint8 i=0; i<5; ++i)
         {
             if(InnderDemon[i])
             {
@@ -325,7 +325,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 
     void CastConsumingMadness() //remove this once SPELL_INSIDIOUS_WHISPER is supported by core
     {
-        for(uint8 i=0; i<5; i++)
+        for(uint8 i=0; i<5; ++i)
         {
             if(InnderDemon[i] > 0 )
             {
@@ -509,7 +509,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
                             CAST_AI(mob_inner_demonAI, demon->AI())->victimGUID = (*itr)->GetGUID();
 
                             uint8 eff_mask=0;
-                            for (int i=0; i<3; i++)
+                            for (int i=0; i<3; ++i)
                             {
                                 if (!spell->Effect[i])
                                     continue;

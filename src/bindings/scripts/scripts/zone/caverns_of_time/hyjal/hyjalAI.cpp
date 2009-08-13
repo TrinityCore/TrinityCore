@@ -311,7 +311,7 @@ hyjalAI::hyjalAI(Creature *c) : npc_escortAI(c), Summons(m_creature)
     pInstance = c->GetInstanceData();
     VeinsSpawned[0] = false;
     VeinsSpawned[1] = false;
-    for(uint8 i=0;i<14;i++)
+    for(uint8 i=0;i<14; ++i)
         VeinGUID[i] = 0;
     InfernalCount = 0;
     TeleportTimer = 1000;
@@ -698,7 +698,7 @@ void hyjalAI::SpawnVeins()
     {
         if (VeinsSpawned[0])//prevent any buggers
             return;
-        for (uint8 i = 0; i<7; i++)
+        for (uint8 i = 0; i<7; ++i)
         {
             GameObject* gem = m_creature->SummonGameObject(ANCIENT_VEIN,VeinPos[i][0],VeinPos[i][1],VeinPos[i][2],VeinPos[i][3],VeinPos[i][4],VeinPos[i][5],VeinPos[i][6],VeinPos[i][7],0);
             if(gem)
@@ -708,7 +708,7 @@ void hyjalAI::SpawnVeins()
     }else{
         if (VeinsSpawned[1])
             return;
-        for (uint8 i = 7; i<14; i++)
+        for (uint8 i = 7; i<14; ++i)
         {
             GameObject* gem = m_creature->SummonGameObject(ANCIENT_VEIN,VeinPos[i][0],VeinPos[i][1],VeinPos[i][2],VeinPos[i][3],VeinPos[i][4],VeinPos[i][5],VeinPos[i][6],VeinPos[i][7],0);
             if(gem)
@@ -727,7 +727,7 @@ void hyjalAI::DeSpawnVeins()
         if (!pUnit)return;
         hyjalAI* ai = CAST_AI(hyjalAI, pUnit->AI());
         if(!ai)return;
-        for (uint8 i = 0; i<7; i++)
+        for (uint8 i = 0; i<7; ++i)
         {
             if (GameObject* gem = pInstance->instance->GetGameObject(pInstance->GetData64(ai->VeinGUID[i])))
                 gem->Delete();
@@ -738,7 +738,7 @@ void hyjalAI::DeSpawnVeins()
         if (!pUnit)return;
         hyjalAI* ai = CAST_AI(hyjalAI, pUnit->AI());
         if(!ai)return;
-        for (uint8 i = 7; i<14; i++)
+        for (uint8 i = 7; i<14; ++i)
         {
             if(GameObject* gem = pInstance->instance->GetGameObject(pInstance->GetData64(ai->VeinGUID[i])))
                 gem->Delete();
@@ -768,7 +768,7 @@ void hyjalAI::UpdateAI(const uint32 diff)
                     m_creature->SetVisibility(VISIBILITY_OFF);
                     HideNearPos(m_creature->GetPositionX(), m_creature->GetPositionY());
                     HideNearPos(5037.76, -1889.71);
-                    for(uint8 i = 0; i < 92; i++)//summon fires
+                    for(uint8 i = 0; i < 92; ++i)//summon fires
                         m_creature->SummonGameObject(FLAMEOBJECT,AllianceFirePos[i][0],AllianceFirePos[i][1],AllianceFirePos[i][2],AllianceFirePos[i][3],AllianceFirePos[i][4],AllianceFirePos[i][5],AllianceFirePos[i][6],AllianceFirePos[i][7],0);
 
                 }
@@ -781,7 +781,7 @@ void hyjalAI::UpdateAI(const uint32 diff)
                     HideNearPos(m_creature->GetPositionX(), m_creature->GetPositionY());
                     HideNearPos(5563, -2763.19);
                     HideNearPos(5542.2, -2629.36);
-                    for(uint8 i = 0; i < 65; i++)//summon fires
+                    for(uint8 i = 0; i < 65; ++i)//summon fires
                         m_creature->SummonGameObject(FLAMEOBJECT,HordeFirePos[i][0],HordeFirePos[i][1],HordeFirePos[i][2],HordeFirePos[i][3],HordeFirePos[i][4],HordeFirePos[i][5],HordeFirePos[i][6],HordeFirePos[i][7],0);
 
                 }
@@ -1086,10 +1086,10 @@ void hyjalAI::DoOverrun(uint32 faction, const uint32 diff)
     switch(faction)
     {
         case 0://alliance
-            for(uint8 i = 0; i < 92; i++)//summon fires
+            for(uint8 i = 0; i < 92; ++i)//summon fires
                 m_creature->SummonGameObject(FLAMEOBJECT,AllianceFirePos[i][0],AllianceFirePos[i][1],AllianceFirePos[i][2],AllianceFirePos[i][3],AllianceFirePos[i][4],AllianceFirePos[i][5],AllianceFirePos[i][6],AllianceFirePos[i][7],0);
 
-            for(uint8 i = 0; i < 25; i++)//summon 25 ghouls
+            for(uint8 i = 0; i < 25; ++i)//summon 25 ghouls
             {
                 uint8 r = rand()%4;
                 Creature* pUnit = m_creature->SummonCreature(GHOUL, AllianceBase[r][0]+irand(-15,15), AllianceBase[r][1]+irand(-15,15), AllianceBase[r][2], 0, TEMPSUMMON_MANUAL_DESPAWN, 2*60*1000);
@@ -1101,7 +1101,7 @@ void hyjalAI::DoOverrun(uint32 faction, const uint32 diff)
                     pUnit->setActive(true);
                 }
             }
-            for(uint8 i = 0; i < 3; i++)//summon 3 abominations
+            for(uint8 i = 0; i < 3; ++i)//summon 3 abominations
             {
                 uint8 r = rand()%4;
                 Creature* pUnit = m_creature->SummonCreature(ABOMINATION, AllianceBase[r][0]+irand(-15,15), AllianceBase[r][1]+irand(-15,15), AllianceBase[r][2], 0, TEMPSUMMON_MANUAL_DESPAWN, 2*60*1000);
@@ -1113,7 +1113,7 @@ void hyjalAI::DoOverrun(uint32 faction, const uint32 diff)
                     pUnit->setActive(true);
                 }
             }
-            for(uint8 i = 0; i < 5; i++)//summon 5 gargoyles
+            for(uint8 i = 0; i < 5; ++i)//summon 5 gargoyles
             {
                 Creature* pUnit = m_creature->SummonCreature(GARGOYLE, AllianceOverrunGargPos[i][0], AllianceOverrunGargPos[i][1], AllianceOverrunGargPos[i][2], AllianceOverrunGargPos[i][3], TEMPSUMMON_MANUAL_DESPAWN, 2*60*1000);
                 if(pUnit)
@@ -1127,10 +1127,10 @@ void hyjalAI::DoOverrun(uint32 faction, const uint32 diff)
             }
             break;
         case 1://horde
-            for(uint8 i = 0; i < 65; i++)//summon fires
+            for(uint8 i = 0; i < 65; ++i)//summon fires
                 m_creature->SummonGameObject(FLAMEOBJECT,HordeFirePos[i][0],HordeFirePos[i][1],HordeFirePos[i][2],HordeFirePos[i][3],HordeFirePos[i][4],HordeFirePos[i][5],HordeFirePos[i][6],HordeFirePos[i][7],0);
 
-            for(uint8 i = 0; i < 26; i++)//summon infernals
+            for(uint8 i = 0; i < 26; ++i)//summon infernals
             {
                 Creature* pUnit = m_creature->SummonCreature(GIANT_INFERNAL, InfernalSPWP[i][0], InfernalSPWP[i][1], InfernalSPWP[i][2], InfernalSPWP[i][3], TEMPSUMMON_MANUAL_DESPAWN, 2*60*1000);
                 if(pUnit)
@@ -1142,7 +1142,7 @@ void hyjalAI::DoOverrun(uint32 faction, const uint32 diff)
                     pUnit->setActive(true);
                 }
             }
-            for(uint8 i = 0; i < 25; i++)//summon 25 ghouls
+            for(uint8 i = 0; i < 25; ++i)//summon 25 ghouls
             {
                 uint8 r = rand()%4;
                 Creature* pUnit = m_creature->SummonCreature(GHOUL, HordeBase[r][0]+irand(-15,15), HordeBase[r][1]+irand(-15,15), HordeBase[r][2], 0, TEMPSUMMON_MANUAL_DESPAWN, 2*60*1000);
@@ -1154,7 +1154,7 @@ void hyjalAI::DoOverrun(uint32 faction, const uint32 diff)
                     pUnit->setActive(true);
                 }
             }
-            for(uint8 i = 0; i < 5; i++)//summon 5 abominations
+            for(uint8 i = 0; i < 5; ++i)//summon 5 abominations
             {
                 uint8 r = rand()%4;
                 Creature* pUnit = m_creature->SummonCreature(ABOMINATION, HordeBase[r][0]+irand(-15,15), HordeBase[r][1]+irand(-15,15), HordeBase[r][2], 0, TEMPSUMMON_MANUAL_DESPAWN, 2*60*1000);

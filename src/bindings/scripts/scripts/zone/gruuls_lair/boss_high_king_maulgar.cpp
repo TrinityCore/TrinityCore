@@ -138,7 +138,7 @@ struct TRINITY_DLL_DECL boss_high_king_maulgarAI : public ScriptedAI
         Phase2 = false;
 
         Creature *pCreature = NULL;
-        for(uint8 i = 0; i < 4; i++)
+        for(uint8 i = 0; i < 4; ++i)
         {
             if(Council[i])
             {

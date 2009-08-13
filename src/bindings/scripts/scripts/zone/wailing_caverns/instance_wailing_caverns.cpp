@@ -40,7 +40,7 @@ struct TRINITY_DLL_DECL instance_wailing_caverns : public ScriptedInstance
         yelled = false;
         NaralexGUID = 0;
 
-        for (uint8 i = 0; i < ENCOUNTERS; i++)
+        for (uint8 i = 0; i < ENCOUNTERS; ++i)
             Encounter[i] = NOT_STARTED;
     }
 

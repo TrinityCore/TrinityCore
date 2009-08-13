@@ -133,7 +133,7 @@ struct TRINITY_DLL_DECL boss_keristraszaAI : public ScriptedAI
 
         GameObject *ContainmentSpheres[CONTAINMENT_SPHERES];
 
-        for(uint8 i = 0; i < CONTAINMENT_SPHERES; i++)
+        for(uint8 i = 0; i < CONTAINMENT_SPHERES; ++i)
         {
             ContainmentSpheres[i] = pInstance->instance->GetGameObject(ContainmentSphereGUIDs[i]);
             if(!ContainmentSpheres[i])

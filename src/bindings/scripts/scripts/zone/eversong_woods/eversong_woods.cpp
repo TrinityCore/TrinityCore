@@ -380,7 +380,7 @@ struct TRINITY_DLL_DECL master_kelerun_bloodmournAI : public ScriptedAI
 
       if ( questPhase == 1 ) { // no player check, quest can be finished as group, so no complex playerguid/group search code
 
-        for (int i = 0; i<4; i++) {
+        for (int i = 0; i<4; ++i) {
           Creature* Summoned;
           Summoned = DoSpawnCreature(PaladinEntry[i], SpawnPosition[i].x, SpawnPosition[i].y, SpawnPosition[i].z, SpawnPosition[i].o, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 180000);
 

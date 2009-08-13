@@ -77,7 +77,7 @@ struct TRINITY_DLL_DECL instance_blood_furnace : public ScriptedInstance
         PrisonCell7GUID = 0;
         PrisonCell8GUID = 0;
         
-        for(uint8 i = 0; i < ENCOUNTERS; i++)
+        for(uint8 i = 0; i < ENCOUNTERS; ++i)
             Encounter[i] = NOT_STARTED;
     }
 

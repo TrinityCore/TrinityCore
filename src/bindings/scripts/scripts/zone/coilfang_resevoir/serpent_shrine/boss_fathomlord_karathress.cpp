@@ -130,7 +130,7 @@ struct TRINITY_DLL_DECL boss_fathomlord_karathressAI : public ScriptedAI
             RAdvisors[2] = pInstance->GetData64(DATA_CARIBDIS);
             //Respawn of the 3 Advisors
             Creature* pAdvisor = NULL;
-            for( int i=0; i<3; i++ )
+            for( int i=0; i<3; ++i )
 
             if(RAdvisors[i])
             {

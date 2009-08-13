@@ -316,7 +316,7 @@ struct TRINITY_DLL_DECL npc_time_riftAI : public ScriptedAI
 
         if (entry == C_WHELP)
         {
-            for(uint8 i = 0; i < 3; i++)
+            for(uint8 i = 0; i < 3; ++i)
                 DoSummonAtRift(entry);
         }else DoSummonAtRift(entry);
     }
