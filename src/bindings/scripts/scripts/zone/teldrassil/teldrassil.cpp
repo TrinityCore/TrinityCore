@@ -159,7 +159,7 @@ struct TRINITY_DLL_DECL npc_mistAI : public ScriptedAI
             }
         }
 
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
         DoMeleeAttackIfReady();

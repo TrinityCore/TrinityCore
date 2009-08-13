@@ -113,14 +113,14 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
         m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
         m_creature->setActive(true);
 
-        if(pInstance->GetData(TYPE_NIGHTBANE) == DONE || pInstance->GetData(TYPE_NIGHTBANE) == IN_PROGRESS)
+        if (pInstance->GetData(TYPE_NIGHTBANE) == DONE || pInstance->GetData(TYPE_NIGHTBANE) == IN_PROGRESS)
         {
             m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
             m_creature->RemoveCorpse();
         }
         else
         {
-            if(pInstance)
+            if (pInstance)
                 pInstance->SetData(TYPE_NIGHTBANE, NOT_STARTED);
         }
 
@@ -129,7 +129,7 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
         Flying = false;
         Movement = false;
 
-        if(!Intro)
+        if (!Intro)
         {
             m_creature->SetHomePosition(IntroWay[7][0],IntroWay[7][1],IntroWay[7][2],0);
             m_creature->GetMotionMaster()->MoveTargetedHome();
@@ -144,7 +144,7 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(TYPE_NIGHTBANE, IN_PROGRESS);
 
         HandleTerraceDoors(false);
@@ -153,13 +153,13 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
 
     void AttackStart(Unit* who)
     {
-        if(!Intro && !Flying)
+        if (!Intro && !Flying)
             ScriptedAI::AttackStart(who);
     }
 
     void JustDied(Unit* killer)
     {
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(TYPE_NIGHTBANE, DONE);
 
         HandleTerraceDoors(true);
@@ -167,18 +167,18 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit *who)
     {
-        if(!Intro && !Flying)
+        if (!Intro && !Flying)
             ScriptedAI::MoveInLineOfSight(who);
     }
 
     void MovementInform(uint32 type, uint32 id)
     {
-        if(type != POINT_MOTION_TYPE)
+        if (type != POINT_MOTION_TYPE)
                 return;
 
-        if(Intro)
+        if (Intro)
         {
-            if(id >= 8)
+            if (id >= 8)
             {
                 Intro = false;
                 m_creature->SetHomePosition(IntroWay[7][0],IntroWay[7][1],IntroWay[7][2],0);
@@ -188,9 +188,9 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
             WaitTimer = 1;
         }
 
-        if(Flying)
+        if (Flying)
         {
-            if(id == 0)
+            if (id == 0)
             {
                 DoTextEmote(EMOTE_BREATH, NULL, true);
                 Flying = false;
@@ -198,14 +198,14 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
                 return;
             }
 
-            if(id == 3)
+            if (id == 3)
             {
                 MovePhase = 4;
                 WaitTimer = 1;
                 return;
             }
 
-            if(id == 8)
+            if (id == 8)
             {
                 Flying = false;
                 Phase = 1;
@@ -244,12 +244,12 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(WaitTimer)
-        if(WaitTimer < diff)
+        if (WaitTimer)
+        if (WaitTimer < diff)
         {
-            if(Intro)
+            if (Intro)
             {
-                if(MovePhase >= 7)
+                if (MovePhase >= 7)
                 {
                     m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                     m_creature->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
@@ -262,9 +262,9 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
                 }
             }
 
-            if(Flying)
+            if (Flying)
             {
-                if(MovePhase >= 7)
+                if (MovePhase >= 7)
                 {
                     m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                     m_creature->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
@@ -280,16 +280,16 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
             WaitTimer = 0;
         }else WaitTimer -= diff;
 
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
-        if(Flying)
+        if (Flying)
             return;
 
         //  Phase 1 "GROUND FIGHT"
-        if(Phase == 1)
+        if (Phase == 1)
         {
-            if(Movement)
+            if (Movement)
             {
                 DoStartMovement(m_creature->getVictim());
                 Movement = false;
@@ -317,7 +317,7 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
             if (TailSweepTimer < diff)
             {
                 if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                    if (!m_creature->HasInArc( M_PI, target))
+                    if (!m_creature->HasInArc(M_PI, target))
                         DoCast(target,SPELL_TAIL_SWEEP);
                 TailSweepTimer = 15000;//timer
             }else TailSweepTimer -= diff;
@@ -391,7 +391,7 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
 
             if (FlyTimer < diff) //landing
             {
-                if(rand()%2 == 0)
+                if (rand()%2 == 0)
                     DoYell(YELL_LAND_PHASE_1, LANG_UNIVERSAL, NULL);
                 else
                     DoYell(YELL_LAND_PHASE_2, LANG_UNIVERSAL, NULL);

@@ -114,7 +114,7 @@ struct TRINITY_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
         m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, true);
         m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, false);
 
-        m_creature->SetDisplayId( MODEL_CLEAN);
+        m_creature->SetDisplayId(MODEL_CLEAN);
 
         if (pInstance)
             pInstance->SetData(DATA_HYDROSSTHEUNSTABLEEVENT, NOT_STARTED);
@@ -125,7 +125,7 @@ struct TRINITY_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
     void SummonBeams()
     {
         Creature* beamer = m_creature->SummonCreature(ENTRY_BEAM_DUMMY,-258.333,-356.34,22.0499,5.90835,TEMPSUMMON_CORPSE_DESPAWN,0);
-        if(beamer)
+        if (beamer)
         {
             beamer->CastSpell(m_creature,SPELL_BLUE_BEAM,true);
             beamer->SetDisplayId(11686);  //invisible
@@ -133,7 +133,7 @@ struct TRINITY_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
             beams[0]=beamer->GetGUID();
         }
         beamer = beamer = m_creature->SummonCreature(ENTRY_BEAM_DUMMY,-219.918,-371.308,22.0042,2.73072,TEMPSUMMON_CORPSE_DESPAWN,0);
-        if(beamer)
+        if (beamer)
         {
             beamer->CastSpell(m_creature,SPELL_BLUE_BEAM,true);
             beamer->SetDisplayId(11686);  //invisible
@@ -146,7 +146,7 @@ struct TRINITY_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
         for(uint8 i=0;i<2; ++i)
         {
             Creature* mob = Unit::GetCreature(*m_creature,beams[i]);
-            if(mob)
+            if (mob)
             {
                 mob->setDeathState(DEAD);
                 mob->RemoveCorpse();
@@ -216,13 +216,13 @@ struct TRINITY_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!beam)
+        if (!beam)
         {
             SummonBeams();
             beam=true;
         }
         //Return since we have no target
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
         // corrupted form
@@ -270,7 +270,7 @@ struct TRINITY_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
                 if (m_creature->IsWithinDist2d(HYDROSS_X, HYDROSS_Y, SWITCH_RADIUS))
                 {
                     // switch to clean form
-                    m_creature->SetDisplayId( MODEL_CLEAN);
+                    m_creature->SetDisplayId(MODEL_CLEAN);
                     CorruptedForm = false;
                     MarkOfHydross_Count = 0;
 
@@ -337,7 +337,7 @@ struct TRINITY_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
                 if (!m_creature->IsWithinDist2d(HYDROSS_X, HYDROSS_Y, SWITCH_RADIUS))
                 {
                     // switch to corrupted form
-                    m_creature->SetDisplayId( MODEL_CORRUPT);
+                    m_creature->SetDisplayId(MODEL_CORRUPT);
                     MarkOfCorruption_Count = 0;
                     CorruptedForm = true;
 

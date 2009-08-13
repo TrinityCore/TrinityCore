@@ -78,7 +78,7 @@ struct TRINITY_DLL_DECL boss_halazziAI : public ScriptedAI
         pInstance = c->GetInstanceData();
         // need to find out what controls totem's spell cooldown
         SpellEntry *TempSpell = GET_SPELL(SPELL_LIGHTNING);
-        if(TempSpell && TempSpell->CastingTimeIndex != 5)
+        if (TempSpell && TempSpell->CastingTimeIndex != 5)
             TempSpell->CastingTimeIndex = 5; // 2000 ms casting time
     }
 
@@ -99,7 +99,7 @@ struct TRINITY_DLL_DECL boss_halazziAI : public ScriptedAI
 
     void Reset()
     {
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_HALAZZIEVENT, NOT_STARTED);
 
         TransformCount = 0;
@@ -114,7 +114,7 @@ struct TRINITY_DLL_DECL boss_halazziAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_HALAZZIEVENT, IN_PROGRESS);
 
         DoYell(YELL_AGGRO, LANG_UNIVERSAL, NULL);
@@ -126,25 +126,25 @@ struct TRINITY_DLL_DECL boss_halazziAI : public ScriptedAI
     void JustSummoned(Creature* summon)
     {
         summon->AI()->AttackStart(m_creature->getVictim());
-        if(summon->GetEntry() == MOB_SPIRIT_LYNX)
+        if (summon->GetEntry() == MOB_SPIRIT_LYNX)
             LynxGUID = summon->GetGUID();
     }
 
     void DamageTaken(Unit *done_by, uint32 &damage)
     {
-        if(damage >= m_creature->GetHealth() && Phase != PHASE_ENRAGE)
+        if (damage >= m_creature->GetHealth() && Phase != PHASE_ENRAGE)
             damage = 0;
     }
 
     void SpellHit(Unit*, const SpellEntry *spell)
     {
-        if(spell->Id == SPELL_TRANSFORM_SPLIT2)
+        if (spell->Id == SPELL_TRANSFORM_SPLIT2)
             EnterPhase(PHASE_HUMAN);
     }
 
     void AttackStart(Unit *who)
     {
-        if(Phase != PHASE_MERGE) ScriptedAI::AttackStart(who);
+        if (Phase != PHASE_MERGE) ScriptedAI::AttackStart(who);
     }
 
     void EnterPhase(PhaseHalazzi NextPhase)
@@ -153,13 +153,13 @@ struct TRINITY_DLL_DECL boss_halazziAI : public ScriptedAI
         {
         case PHASE_LYNX:
         case PHASE_ENRAGE:
-            if(Phase == PHASE_MERGE)
+            if (Phase == PHASE_MERGE)
             {
                 m_creature->CastSpell(m_creature, SPELL_TRANSFORM_MERGE, true);
                 m_creature->Attack(m_creature->getVictim(), true);
                 m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
             }
-            if(Unit *Lynx = Unit::GetUnit(*m_creature, LynxGUID))
+            if (Unit *Lynx = Unit::GetUnit(*m_creature, LynxGUID))
             {
                 Lynx->SetVisibility(VISIBILITY_OFF);
                 Lynx->setDeathState(JUST_DIED);
@@ -185,7 +185,7 @@ struct TRINITY_DLL_DECL boss_halazziAI : public ScriptedAI
             TotemTimer = 12000;
             break;
         case PHASE_MERGE:
-            if(Unit *Lynx = Unit::GetUnit(*m_creature, LynxGUID))
+            if (Unit *Lynx = Unit::GetUnit(*m_creature, LynxGUID))
             {
                 DoYell(YELL_MERGE, LANG_UNIVERSAL, NULL);
                 DoPlaySoundToSet(m_creature, SOUND_MERGE);
@@ -204,10 +204,10 @@ struct TRINITY_DLL_DECL boss_halazziAI : public ScriptedAI
 
      void UpdateAI(const uint32 diff)
     {
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
-        if(BerserkTimer < diff)
+        if (BerserkTimer < diff)
         {
             DoYell(YELL_BERSERK, LANG_UNIVERSAL, NULL);
             DoPlaySoundToSet(m_creature, SOUND_BERSERK);
@@ -215,9 +215,9 @@ struct TRINITY_DLL_DECL boss_halazziAI : public ScriptedAI
             BerserkTimer = 60000;
         }else BerserkTimer -= diff;
 
-        if(Phase == PHASE_LYNX || Phase == PHASE_ENRAGE)
+        if (Phase == PHASE_LYNX || Phase == PHASE_ENRAGE)
         {
-            if(SaberlashTimer < diff)
+            if (SaberlashTimer < diff)
             {
                 // A tank with more than 490 defense skills should receive no critical hit
                 //m_creature->CastSpell(m_creature, 41296, true);
@@ -226,34 +226,34 @@ struct TRINITY_DLL_DECL boss_halazziAI : public ScriptedAI
                 SaberlashTimer = 30000;
             }else SaberlashTimer -= diff;
 
-            if(FrenzyTimer < diff)
+            if (FrenzyTimer < diff)
             {
                 DoCast(m_creature, SPELL_FRENZY);
                 FrenzyTimer = (10+rand()%5)*1000;
             }else FrenzyTimer -= diff;
 
-            if(Phase == PHASE_LYNX)
-                if(CheckTimer < diff)
+            if (Phase == PHASE_LYNX)
+                if (CheckTimer < diff)
                 {
-                    if(m_creature->GetHealth() * 4 < m_creature->GetMaxHealth() * (3 - TransformCount))
+                    if (m_creature->GetHealth() * 4 < m_creature->GetMaxHealth() * (3 - TransformCount))
                         EnterPhase(PHASE_SPLIT);
                     CheckTimer = 1000;
                 }else CheckTimer -= diff;
         }
 
-        if(Phase == PHASE_HUMAN || Phase == PHASE_ENRAGE)
+        if (Phase == PHASE_HUMAN || Phase == PHASE_ENRAGE)
         {
-            if(TotemTimer < diff)
+            if (TotemTimer < diff)
             {
                 DoCast(m_creature, SPELL_SUMMON_TOTEM);
                 TotemTimer = 20000;
             }else TotemTimer -= diff;
 
-            if(ShockTimer < diff)
+            if (ShockTimer < diff)
             {
-                if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
                 {
-                    if(target->IsNonMeleeSpellCasted(false))
+                    if (target->IsNonMeleeSpellCasted(false))
                         DoCast(target,SPELL_EARTHSHOCK);
                     else
                         DoCast(target,SPELL_FLAMESHOCK);
@@ -261,33 +261,33 @@ struct TRINITY_DLL_DECL boss_halazziAI : public ScriptedAI
                 }
             }else ShockTimer -= diff;
 
-            if(Phase == PHASE_HUMAN)
-                if(CheckTimer < diff)
+            if (Phase == PHASE_HUMAN)
+                if (CheckTimer < diff)
                 {
-                    if( ((m_creature->GetHealth()*100) / m_creature->GetMaxHealth() <= 20)/*m_creature->GetHealth() * 10 < m_creature->GetMaxHealth()*/)
+                    if (((m_creature->GetHealth()*100) / m_creature->GetMaxHealth() <= 20)/*m_creature->GetHealth() * 10 < m_creature->GetMaxHealth()*/)
                         EnterPhase(PHASE_MERGE);
                     else
                     {
                         Unit *Lynx = Unit::GetUnit(*m_creature, LynxGUID);
-                        if(Lynx && ((Lynx->GetHealth()*100) / Lynx->GetMaxHealth() <= 20)/*Lynx->GetHealth() * 10 < Lynx->GetMaxHealth()*/)
+                        if (Lynx && ((Lynx->GetHealth()*100) / Lynx->GetMaxHealth() <= 20)/*Lynx->GetHealth() * 10 < Lynx->GetMaxHealth()*/)
                             EnterPhase(PHASE_MERGE);
                     }
                     CheckTimer = 1000;
                 }else CheckTimer -= diff;
         }
 
-        if(Phase == PHASE_MERGE)
+        if (Phase == PHASE_MERGE)
         {
-            if(CheckTimer < diff)
+            if (CheckTimer < diff)
             {
                 Unit *Lynx = Unit::GetUnit(*m_creature, LynxGUID);
-                if(Lynx)
+                if (Lynx)
                 {
                     Lynx->GetMotionMaster()->MoveFollow(m_creature, 0, 0);
                     m_creature->GetMotionMaster()->MoveFollow(Lynx, 0, 0);
-                    if(m_creature->IsWithinDistInMap(Lynx, 6.0f))
+                    if (m_creature->IsWithinDistInMap(Lynx, 6.0f))
                     {
-                        if(TransformCount < 3)
+                        if (TransformCount < 3)
                             EnterPhase(PHASE_LYNX);
                         else
                             EnterPhase(PHASE_ENRAGE);
@@ -318,7 +318,7 @@ struct TRINITY_DLL_DECL boss_halazziAI : public ScriptedAI
 
     void JustDied(Unit* Killer)
     {
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_HALAZZIEVENT, DONE);
 
         DoYell(YELL_DEATH, LANG_UNIVERSAL, NULL);
@@ -343,13 +343,13 @@ struct TRINITY_DLL_DECL boss_spiritlynxAI : public ScriptedAI
 
     void DamageTaken(Unit *done_by, uint32 &damage)
     {
-        if(damage >= m_creature->GetHealth())
+        if (damage >= m_creature->GetHealth())
             damage = 0;
     }
 
     void AttackStart(Unit *who)
     {
-        if(!m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+        if (!m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             ScriptedAI::AttackStart(who);
     }
 
@@ -360,13 +360,13 @@ struct TRINITY_DLL_DECL boss_spiritlynxAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if(FrenzyTimer < diff)
+        if (FrenzyTimer < diff)
         {
             DoCast(m_creature, SPELL_LYNX_FRENZY);
             FrenzyTimer = (30+rand()%20)*1000;
         }else FrenzyTimer -= diff;
 
-        if(shredder_timer < diff)
+        if (shredder_timer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_SHRED_ARMOR);
             shredder_timer = 4000;

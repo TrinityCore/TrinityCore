@@ -40,7 +40,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL instance_molten_core : public ScriptedInstance
 {
-    instance_molten_core(Map *map) : ScriptedInstance(map) {Initialize();};
+    instance_molten_core(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 
     uint64 Lucifron, Magmadar, Gehennas, Garr, Geddon, Shazzrah, Sulfuron, Golemagg, Domo, Ragnaros, FlamewakerPriest;
     uint64 RuneKoro, RuneZeth, RuneMazj, RuneTheri, RuneBlaz, RuneKress, RuneMohn, m_uiFirelordCacheGUID;;
@@ -198,47 +198,47 @@ struct TRINITY_DLL_DECL instance_molten_core : public ScriptedInstance
         switch(type)
         {
             case DATA_LUCIFRONISDEAD:
-                if(IsBossDied[0])
+                if (IsBossDied[0])
                     return 1;
                 break;
 
             case DATA_MAGMADARISDEAD:
-                if(IsBossDied[1])
+                if (IsBossDied[1])
                     return 1;
                 break;
 
             case DATA_GEHENNASISDEAD:
-                if(IsBossDied[2])
+                if (IsBossDied[2])
                     return 1;
                 break;
 
             case DATA_GARRISDEAD:
-                if(IsBossDied[3])
+                if (IsBossDied[3])
                     return 1;
                 break;
 
             case DATA_GEDDONISDEAD:
-                if(IsBossDied[4])
+                if (IsBossDied[4])
                     return 1;
                 break;
 
             case DATA_SHAZZRAHISDEAD:
-                if(IsBossDied[5])
+                if (IsBossDied[5])
                     return 1;
                 break;
 
             case DATA_SULFURONISDEAD:
-                if(IsBossDied[6])
+                if (IsBossDied[6])
                     return 1;
                 break;
 
             case DATA_GOLEMAGGISDEAD:
-                if(IsBossDied[7])
+                if (IsBossDied[7])
                     return 1;
                 break;
 
             case DATA_MAJORDOMOISDEAD:
-                if(IsBossDied[8])
+                if (IsBossDied[8])
                     return 1;
                 break;
         }
@@ -253,9 +253,9 @@ struct TRINITY_DLL_DECL instance_molten_core : public ScriptedInstance
     }
 };
 
-InstanceData* GetInstance_instance_molten_core(Map *map)
+InstanceData* GetInstance_instance_molten_core(Map* pMap)
 {
-    return new instance_molten_core (map);
+    return new instance_molten_core (pMap);
 }
 
 void AddSC_instance_molten_core()

@@ -57,18 +57,18 @@ struct TRINITY_DLL_DECL npc_converted_sentryAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if( !Credit )
+        if (!Credit)
         {
-            if( Timer <= diff )
+            if (Timer <= diff)
             {
                 uint32 i = urand(1,2);
-                if( i==1 )
+                if (i==1)
                     DoScriptText(SAY_CONVERTED_1, m_creature);
                 else
                     DoScriptText(SAY_CONVERTED_2, m_creature);
 
                 DoCast(m_creature, SPELL_CONVERT_CREDIT);
-                if(m_creature->isPet())
+                if (m_creature->isPet())
                     CAST_PET(m_creature)->SetDuration(7500);
                 Credit = true;
             }else Timer -= diff;
@@ -104,21 +104,21 @@ struct TRINITY_DLL_DECL npc_greengill_slaveAI : public ScriptedAI
 
     void SpellHit(Unit* caster, const SpellEntry* spell)
     {
-        if(!caster)
+        if (!caster)
             return;
 
-        if(caster->GetTypeId() == TYPEID_PLAYER && spell->Id == ORB && !m_creature->HasAura(ENRAGE))
+        if (caster->GetTypeId() == TYPEID_PLAYER && spell->Id == ORB && !m_creature->HasAura(ENRAGE))
         {
             PlayerGUID = caster->GetGUID();
-            if(PlayerGUID)
+            if (PlayerGUID)
             {
                 Unit* plr = Unit::GetUnit((*m_creature), PlayerGUID);
-                if(plr && CAST_PLR(plr)->GetQuestStatus(QUESTG) == QUEST_STATUS_INCOMPLETE)
+                if (plr && CAST_PLR(plr)->GetQuestStatus(QUESTG) == QUEST_STATUS_INCOMPLETE)
                     DoCast(plr, 45110, true);
             }
             DoCast(m_creature, ENRAGE);
             Unit* Myrmidon = me->FindNearestCreature(DM, 70);
-            if(Myrmidon)
+            if (Myrmidon)
             {
                 m_creature->AddThreat(Myrmidon, 100000.0f);
                 AttackStart(Myrmidon);

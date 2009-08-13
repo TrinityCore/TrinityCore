@@ -45,16 +45,16 @@ enum
 
 bool GossipHello_npc_beaten_corpse(Player* pPlayer, Creature* pCreature)
 {
-    if( pPlayer->GetQuestStatus(QUEST_LOST_IN_BATTLE) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(QUEST_LOST_IN_BATTLE) == QUEST_STATUS_COMPLETE)
+    if (pPlayer->GetQuestStatus(QUEST_LOST_IN_BATTLE) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(QUEST_LOST_IN_BATTLE) == QUEST_STATUS_COMPLETE)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CORPSE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
     pPlayer->SEND_GOSSIP_MENU(3557, pCreature->GetGUID());
     return true;
 }
 
-bool GossipSelect_npc_beaten_corpse(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action )
+bool GossipSelect_npc_beaten_corpse(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
-    if(action == GOSSIP_ACTION_INFO_DEF +1)
+    if (action == GOSSIP_ACTION_INFO_DEF +1)
     {
         pPlayer->SEND_GOSSIP_MENU(3558, pCreature->GetGUID());
         pPlayer->TalkedToCreature(pCreature->GetEntry(), pCreature->GetGUID());
@@ -68,24 +68,24 @@ bool GossipSelect_npc_beaten_corpse(Player* pPlayer, Creature* pCreature, uint32
 
 #define GOSSIP_SPUTTERVALVE "Can you tell me about this shard?"
 
-bool GossipHello_npc_sputtervalve(Player *player, Creature *_Creature)
+bool GossipHello_npc_sputtervalve(Player* pPlayer, Creature *_Creature)
 {
     if (_Creature->isQuestGiver())
-        player->PrepareQuestMenu( _Creature->GetGUID() );
+        pPlayer->PrepareQuestMenu(_Creature->GetGUID());
 
-    if( player->GetQuestStatus(6981) == QUEST_STATUS_INCOMPLETE)
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SPUTTERVALVE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+    if (pPlayer->GetQuestStatus(6981) == QUEST_STATUS_INCOMPLETE)
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SPUTTERVALVE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
-    player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
     return true;
 }
 
-bool GossipSelect_npc_sputtervalve(Player *player, Creature *_Creature, uint32 sender, uint32 action )
+bool GossipSelect_npc_sputtervalve(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
 {
-    if(action == GOSSIP_ACTION_INFO_DEF)
+    if (action == GOSSIP_ACTION_INFO_DEF)
     {
-        player->SEND_GOSSIP_MENU(2013, _Creature->GetGUID());
-        player->AreaExploredOrEventHappens(6981);
+        pPlayer->SEND_GOSSIP_MENU(2013, _Creature->GetGUID());
+        pPlayer->AreaExploredOrEventHappens(6981);
     }
     return true;
 }
@@ -243,7 +243,7 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit *who)
     {
-        if(!who || (!who->isAlive())) return;
+        if (!who || (!who->isAlive())) return;
 
         if (m_creature->IsWithinDistInMap(who, 10.0f) && (who->GetTypeId() == TYPEID_PLAYER) && CAST_PLR(who)->GetQuestStatus(1719) == QUEST_STATUS_INCOMPLETE && !EventInProgress)
         {
@@ -259,13 +259,13 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
         if (EventInProgress) {
             Player* pWarrior = NULL;
 
-            if(PlayerGUID)
+            if (PlayerGUID)
                 pWarrior = Unit::GetPlayer(PlayerGUID);
 
-            if(!pWarrior)
+            if (!pWarrior)
                 return;
 
-            if(!pWarrior->isAlive() && pWarrior->GetQuestStatus(1719) == QUEST_STATUS_INCOMPLETE) {
+            if (!pWarrior->isAlive() && pWarrior->GetQuestStatus(1719) == QUEST_STATUS_INCOMPLETE) {
                 EventInProgress = false;
                 DoScriptText(SAY_TWIGGY_FLATHEAD_DOWN, m_creature);
                 pWarrior->FailQuest(1719);
@@ -275,8 +275,8 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
                     if (AffrayChallenger[i])
                     {
                         Creature* pCreature = Unit::GetCreature((*m_creature), AffrayChallenger[i]);
-                        if(pCreature) {
-                            if(pCreature->isAlive())
+                        if (pCreature) {
+                            if (pCreature->isAlive())
                             {
                                 pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
                                 pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -291,8 +291,8 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
                 if (BigWill)
                 {
                     Creature* pCreature = Unit::GetCreature((*m_creature), BigWill);
-                    if(pCreature) {
-                        if(pCreature->isAlive()) {
+                    if (pCreature) {
+                        if (pCreature->isAlive()) {
                             pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
                             pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             pCreature->setDeathState(JUST_DIED);
@@ -314,7 +314,7 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
                     for(uint8 i = 0; i < 6; ++i)
                     {
                         Creature* pCreature = m_creature->SummonCreature(AFFRAY_CHALLENGER, AffrayChallengerLoc[i][0], AffrayChallengerLoc[i][1], AffrayChallengerLoc[i][2], AffrayChallengerLoc[i][3], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
-                        if(!pCreature)
+                        if (!pCreature)
                             continue;
                         pCreature->setFaction(35);
                         pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -336,7 +336,7 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
                         if (AffrayChallenger[i])
                         {
                             Creature* pCreature = Unit::GetCreature((*m_creature), AffrayChallenger[i]);
-                            if((!pCreature || (!pCreature->isAlive())) && !Challenger_down[i])
+                            if ((!pCreature || (!pCreature->isAlive())) && !Challenger_down[i])
                             {
                                 DoScriptText(SAY_TWIGGY_FLATHEAD_DOWN, m_creature);
                                 Challenger_down[i] = true;
@@ -346,13 +346,13 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
                     Challenger_checker = 1000;
                 } else Challenger_checker -= diff;
 
-                if(Wave_Timer < diff)
+                if (Wave_Timer < diff)
                 {
                     if (AffrayChallenger[Wave] && Wave < 6 && !EventBigWill)
                     {
                         DoScriptText(SAY_TWIGGY_FLATHEAD_FRAY, m_creature);
                         Creature* pCreature = Unit::GetCreature((*m_creature), AffrayChallenger[Wave]);
-                        if(pCreature && (pCreature->isAlive()))
+                        if (pCreature && (pCreature->isAlive()))
                         {
                             pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -364,7 +364,7 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
                         }
                     }
                     else if (Wave >= 6 && !EventBigWill) {
-                        if(Creature* pCreature = m_creature->SummonCreature(BIG_WILL, -1722, -4341, 6.12, 6.26, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 480000))
+                        if (Creature* pCreature = m_creature->SummonCreature(BIG_WILL, -1722, -4341, 6.12, 6.26, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 480000))
                         {
                             BigWill = pCreature->GetGUID();
                             //pCreature->GetMotionMaster()->MovePoint(0, -1693, -4343, 4.32);
@@ -435,9 +435,9 @@ struct TRINITY_DLL_DECL npc_wizzlecrank_shredderAI : public npc_escortAI
 
     void WaypointReached(uint32 i)
     {
-        Player* player = Unit::GetPlayer(PlayerGUID);
+        Player* pPlayer = Unit::GetPlayer(PlayerGUID);
 
-        if(!player)
+        if (!pPlayer)
             return;
 
         switch(i)
@@ -445,11 +445,11 @@ struct TRINITY_DLL_DECL npc_wizzlecrank_shredderAI : public npc_escortAI
         case 0: DoScriptText(SAY_PROGRESS_1, m_creature);
             m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE); break;
         case 1: DoScriptText(SAY_PROGRESS_2, m_creature); break;
-        case 10: DoScriptText(SAY_PROGRESS_3, m_creature, player);
+        case 10: DoScriptText(SAY_PROGRESS_3, m_creature, pPlayer);
             m_creature->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE); break;
         case 20:{
             Unit* Mercenary = m_creature->FindNearestCreature(MOB_MERCENARY, 99);
-            if(Mercenary)
+            if (Mercenary)
             {
                 DoScriptText(SAY_MERCENARY_4, Mercenary);
                 CAST_CRE(Mercenary)->AI()->AttackStart(m_creature);
@@ -464,7 +464,7 @@ struct TRINITY_DLL_DECL npc_wizzlecrank_shredderAI : public npc_escortAI
         case 31: m_creature->SummonCreature(NPC_PILOT, 1088.77, -2985.39, 91.84, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 300000);
             m_creature->setDeathState(JUST_DIED);
             Completed = true;
-            player->GroupEventHappens(QUEST_ESCAPE, m_creature);
+            pPlayer->GroupEventHappens(QUEST_ESCAPE, m_creature);
             break;
         }
     }
@@ -473,7 +473,7 @@ struct TRINITY_DLL_DECL npc_wizzlecrank_shredderAI : public npc_escortAI
     {
         m_creature->setDeathState(ALIVE);
         Completed = false;
-        if(!IsBeingEscorted)
+        if (!IsBeingEscorted)
         {
             m_creature->setFaction(uiNormFaction);
             if (m_creature->getStandState() == UNIT_STAND_STATE_DEAD)
@@ -487,9 +487,9 @@ struct TRINITY_DLL_DECL npc_wizzlecrank_shredderAI : public npc_escortAI
     {
         if (PlayerGUID && !Completed)
         {
-            Player* player = Unit::GetPlayer(PlayerGUID);
-            if (player)
-                player->FailQuest(QUEST_ESCAPE);
+            Player* pPlayer = Unit::GetPlayer(PlayerGUID);
+            if (pPlayer)
+                pPlayer->FailQuest(QUEST_ESCAPE);
         }
     }
 
@@ -499,12 +499,12 @@ struct TRINITY_DLL_DECL npc_wizzlecrank_shredderAI : public npc_escortAI
     }
 };
 
-bool QuestAccept_npc_wizzlecrank_shredder(Player* player, Creature* creature, Quest const* quest)
+bool QuestAccept_npc_wizzlecrank_shredder(Player* pPlayer, Creature* creature, Quest const* quest)
 {
     if (quest->GetQuestId() == QUEST_ESCAPE)
     {
          creature->setFaction(FACTION_RATCHET);
-        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
+        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, pPlayer->GetGUID());
     }
     return true;
 }

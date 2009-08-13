@@ -28,7 +28,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL instance_wailing_caverns : public ScriptedInstance
 {
-    instance_wailing_caverns(Map *map) : ScriptedInstance(map) {Initialize();};
+    instance_wailing_caverns(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 
     uint32 Encounter[ENCOUNTERS];
 
@@ -65,7 +65,7 @@ struct TRINITY_DLL_DECL instance_wailing_caverns : public ScriptedInstance
             case TYPE_MUTANUS_THE_DEVOURER: Encounter[8] = data;break;
             case TYPE_NARALEX_YELLED:       yelled = true;      break;
         }
-        if(data == DONE)SaveToDB();
+        if (data == DONE)SaveToDB();
     }
 
     uint32 GetData(uint32 type)
@@ -128,9 +128,9 @@ struct TRINITY_DLL_DECL instance_wailing_caverns : public ScriptedInstance
 
 };
 
-InstanceData* GetInstanceData_instance_wailing_caverns(Map* map)
+InstanceData* GetInstanceData_instance_wailing_caverns(Map* pMap)
 {
-    return new instance_wailing_caverns(map);
+    return new instance_wailing_caverns(pMap);
 }
 
 void AddSC_instance_wailing_caverns()

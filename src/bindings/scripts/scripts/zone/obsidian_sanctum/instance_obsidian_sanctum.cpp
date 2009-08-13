@@ -9,7 +9,7 @@
 
 struct TRINITY_DLL_DECL instance_obsidian_sanctum : public ScriptedInstance
 {
-    instance_obsidian_sanctum(Map *Map) : ScriptedInstance(Map) {Initialize();};
+    instance_obsidian_sanctum(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 
     uint32 m_uiEncounter[ENCOUNTERS];
     uint64 m_uiSartharionGUID;
@@ -83,9 +83,9 @@ struct TRINITY_DLL_DECL instance_obsidian_sanctum : public ScriptedInstance
     }
 };
 
-InstanceData* GetInstanceData_instance_obsidian_sanctum(Map* map)
+InstanceData* GetInstanceData_instance_obsidian_sanctum(Map* pMap)
 {
-    return new instance_obsidian_sanctum(map);
+    return new instance_obsidian_sanctum(pMap);
 }
 
 void AddSC_instance_obsidian_sanctum()

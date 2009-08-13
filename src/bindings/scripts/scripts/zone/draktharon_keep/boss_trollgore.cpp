@@ -42,7 +42,7 @@ struct TRINITY_DLL_DECL boss_trollgoreAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
         DoMeleeAttackIfReady();

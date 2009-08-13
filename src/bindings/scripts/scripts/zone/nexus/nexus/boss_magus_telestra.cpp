@@ -103,7 +103,7 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->SetVisibility(VISIBILITY_ON);
 
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_MAGUS_TELESTRA_EVENT, NOT_STARTED);
     }
 
@@ -111,7 +111,7 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
     {
         DoScriptText(SAY_AGGRO, m_creature);
 
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_MAGUS_TELESTRA_EVENT, IN_PROGRESS);
     }
 
@@ -256,9 +256,9 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
             return;
         }
 
-        if(Cooldown)
+        if (Cooldown)
         {
-            if(Cooldown < diff)
+            if (Cooldown < diff)
                 Cooldown = 0;
             else
             {

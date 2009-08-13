@@ -65,7 +65,7 @@ struct TRINITY_DLL_DECL npc_blood_knight_stillbladeAI : public ScriptedAI
     {
         if (m_creature->IsStandState())
         {
-            if(lifeTimer < diff)
+            if (lifeTimer < diff)
                 m_creature->AI()->EnterEvadeMode();
             else
                 lifeTimer -= diff;
@@ -74,7 +74,7 @@ struct TRINITY_DLL_DECL npc_blood_knight_stillbladeAI : public ScriptedAI
 
     void SpellHit(Unit *Hitter, const SpellEntry *Spellkind)
     {
-        if((Spellkind->Id == SPELL_SHIMMERING_VESSEL) && !spellHit &&
+        if ((Spellkind->Id == SPELL_SHIMMERING_VESSEL) && !spellHit &&
             (Hitter->GetTypeId() == TYPEID_PLAYER) && (CAST_PLR(Hitter)->IsActiveQuest(QUEST_REDEEMING_THE_DEAD)))
         {
             CAST_PLR(Hitter)->AreaExploredOrEventHappens(QUEST_REDEEMING_THE_DEAD);

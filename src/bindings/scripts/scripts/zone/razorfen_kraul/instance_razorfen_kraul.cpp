@@ -29,7 +29,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL instance_razorfen_kraul : public ScriptedInstance
 {
-    instance_razorfen_kraul(Map *map) : ScriptedInstance(map) {Initialize();};
+    instance_razorfen_kraul(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 
     uint64 DoorWardGUID;
     uint32 WardCheck_Timer;
@@ -90,9 +90,9 @@ struct TRINITY_DLL_DECL instance_razorfen_kraul : public ScriptedInstance
 
 };
 
-InstanceData* GetInstanceData_instance_razorfen_kraul(Map* map)
+InstanceData* GetInstanceData_instance_razorfen_kraul(Map* pMap)
 {
-    return new instance_razorfen_kraul(map);
+    return new instance_razorfen_kraul(pMap);
 }
 
 void AddSC_instance_razorfen_kraul()

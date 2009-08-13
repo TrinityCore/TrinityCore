@@ -66,7 +66,7 @@ struct TRINITY_DLL_DECL boss_volazjAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
         phase =1;
@@ -75,7 +75,7 @@ struct TRINITY_DLL_DECL boss_volazjAI : public ScriptedAI
     }
     void JustDied(Unit* killer)
     {
-        if(phase == 1)
+        if (phase == 1)
         DoScriptText(SAY_DEATH_1, m_creature);
         else
         DoScriptText(SAY_DEATH_2, m_creature);

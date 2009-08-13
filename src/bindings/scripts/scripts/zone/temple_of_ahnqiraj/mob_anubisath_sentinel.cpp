@@ -142,7 +142,7 @@ struct TRINITY_DLL_DECL aqsentinelAI : public ScriptedAI
                 if (!c->isInCombat())
                 {
                     c->SetNoCallAssistance(true);
-                    if(c->AI())
+                    if (c->AI())
                         c->AI()->AttackStart(who);
                 }
             }

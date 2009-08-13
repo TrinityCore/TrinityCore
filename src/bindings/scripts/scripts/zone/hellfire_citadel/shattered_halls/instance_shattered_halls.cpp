@@ -30,7 +30,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL instance_shattered_halls : public ScriptedInstance
 {
-    instance_shattered_halls(Map *map) : ScriptedInstance(map) {Initialize();};
+    instance_shattered_halls(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 
     uint32 Encounter[ENCOUNTERS];
     uint64 nethekurseGUID;
@@ -47,7 +47,7 @@ struct TRINITY_DLL_DECL instance_shattered_halls : public ScriptedInstance
 
     void OnGameObjectCreate(GameObject *go, bool add)
     {
-        switch( go->GetEntry() )
+        switch(go->GetEntry())
         {
             case DOOR_NETHEKURSE: nethekurseDoorGUID = go->GetGUID(); break;
         }
@@ -63,7 +63,7 @@ struct TRINITY_DLL_DECL instance_shattered_halls : public ScriptedInstance
 
     void SetData(uint32 type, uint32 data)
     {
-        switch( type )
+        switch(type)
         {
             case TYPE_NETHEKURSE:
                 Encounter[0] = data;
@@ -76,7 +76,7 @@ struct TRINITY_DLL_DECL instance_shattered_halls : public ScriptedInstance
 
     uint32 GetData(uint32 type)
     {
-        switch( type )
+        switch(type)
         {
             case TYPE_NETHEKURSE:
                 return Encounter[0];
@@ -99,9 +99,9 @@ struct TRINITY_DLL_DECL instance_shattered_halls : public ScriptedInstance
     }
 };
 
-InstanceData* GetInstanceData_instance_shattered_halls(Map* map)
+InstanceData* GetInstanceData_instance_shattered_halls(Map* pMap)
 {
-    return new instance_shattered_halls(map);
+    return new instance_shattered_halls(pMap);
 }
 
 void AddSC_instance_shattered_halls()

@@ -71,7 +71,7 @@ struct TRINITY_DLL_DECL boss_shirrak_the_dead_watcherAI : public ScriptedAI
             summoned->SetLevel(m_creature->getLevel());
             summoned->addUnitState(UNIT_STAT_ROOT);
 
-            if(focusedTarget)
+            if (focusedTarget)
                 summoned->AI()->AttackStart(focusedTarget);
         }
     }
@@ -82,26 +82,26 @@ struct TRINITY_DLL_DECL boss_shirrak_the_dead_watcherAI : public ScriptedAI
         if (Inhibitmagic_Timer < diff)
         {
             float dist;
-            Map *map = m_creature->GetMap();
-            Map::PlayerList const &PlayerList = map->GetPlayers();
+            Map* pMap = m_creature->GetMap();
+            Map::PlayerList const &PlayerList = pMap->GetPlayers();
             for(Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                 if (Player* i_pl = i->getSource())
                     if (i_pl->isAlive() && (dist = i_pl->IsWithinDist(m_creature, 45)))
                     {
                         i_pl->RemoveAurasDueToSpell(SPELL_INHIBITMAGIC);
                         m_creature->AddAura(SPELL_INHIBITMAGIC, i_pl);
-                        if(dist < 35)
+                        if (dist < 35)
                             m_creature->AddAura(SPELL_INHIBITMAGIC, i_pl);
-                        if(dist < 25)
+                        if (dist < 25)
                             m_creature->AddAura(SPELL_INHIBITMAGIC, i_pl);
-                        if(dist < 15)
+                        if (dist < 15)
                             m_creature->AddAura(SPELL_INHIBITMAGIC, i_pl);
                     }
             Inhibitmagic_Timer = 3000+(rand()%1000);
         }else Inhibitmagic_Timer -= diff;
 
         //Return since we have no target
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
         //Attractmagic_Timer
@@ -171,7 +171,7 @@ struct TRINITY_DLL_DECL mob_focus_fireAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
         //FieryBlast_Timer
@@ -179,8 +179,8 @@ struct TRINITY_DLL_DECL mob_focus_fireAI : public ScriptedAI
         {
             DoCast(m_creature,SPELL_FIERY_BLAST);
 
-            if(fiery1) fiery1 = false;
-            else if(fiery2) fiery2 = false;
+            if (fiery1) fiery1 = false;
+            else if (fiery2) fiery2 = false;
 
             FieryBlast_Timer = 1000;
         }else FieryBlast_Timer -= diff;

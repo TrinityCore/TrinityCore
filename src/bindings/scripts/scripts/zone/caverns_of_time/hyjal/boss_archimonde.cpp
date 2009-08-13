@@ -313,7 +313,7 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public hyjal_trashAI
 
         std::list<Unit*> targets;
         std::list<HostilReference*>::iterator itr = m_threatlist.begin();
-        for( ; itr != m_threatlist.end(); ++itr)
+        for(; itr != m_threatlist.end(); ++itr)
         {
             Unit* pUnit = Unit::GetUnit((*m_creature), (*itr)->getUnitGuid());
             if (pUnit && pUnit->isAlive())
@@ -458,7 +458,7 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public hyjal_trashAI
             }else DrainNordrassilTimer -= diff;
         }
 
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
         if (((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 10) && !BelowTenPercent && !Enraged)
@@ -468,7 +468,7 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public hyjal_trashAI
         {
             if (EnrageTimer < diff)
             {
-                if((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) > 10)
+                if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) > 10)
                 {
                     m_creature->GetMotionMaster()->Clear(false);
                     m_creature->GetMotionMaster()->MoveIdle();

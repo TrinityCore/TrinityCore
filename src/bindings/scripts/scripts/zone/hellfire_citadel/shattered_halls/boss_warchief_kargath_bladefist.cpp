@@ -121,7 +121,7 @@ struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        if(victim->GetTypeId() == TYPEID_PLAYER)
+        if (victim->GetTypeId() == TYPEID_PLAYER)
         {
             switch(rand()%2)
             {
@@ -139,15 +139,15 @@ struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
 
     void MovementInform(uint32 type, uint32 id)
     {
-        if(InBlade)
+        if (InBlade)
         {
-            if(type != POINT_MOTION_TYPE)
+            if (type != POINT_MOTION_TYPE)
                 return;
 
-            if(id != 1)
+            if (id != 1)
                 return;
 
-            if(target_num > 0) // to prevent loops
+            if (target_num > 0) // to prevent loops
             {
                 Wait_Timer = 1;
                 DoCast(m_creature,SPELL_BLADE_DANCE,true);
@@ -161,7 +161,7 @@ struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
         for(std::vector<uint64>::iterator itr = adds.begin(); itr!= adds.end(); ++itr)
         {
             Unit* temp = Unit::GetUnit((*m_creature),*itr);
-            if(temp && temp->isAlive())
+            if (temp && temp->isAlive())
             {
                 (*temp).GetMotionMaster()->Clear(true);
                 m_creature->DealDamage(temp,temp->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
@@ -173,7 +173,7 @@ struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
         for(std::vector<uint64>::iterator itr = assassins.begin(); itr!= assassins.end(); ++itr)
         {
             Unit* temp = Unit::GetUnit((*m_creature),*itr);
-            if(temp && temp->isAlive())
+            if (temp && temp->isAlive())
             {
                 (*temp).GetMotionMaster()->Clear(true);
                 m_creature->DealDamage(temp,temp->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
@@ -196,19 +196,19 @@ struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if(Assassins_Timer)
-            if(Assassins_Timer < diff)
+        if (Assassins_Timer)
+            if (Assassins_Timer < diff)
             {
                 SpawnAssassin();
                 Assassins_Timer = 0;
             }else Assassins_Timer -= diff;
 
-        if(InBlade)
+        if (InBlade)
         {
-            if(Wait_Timer)
-                if(Wait_Timer < diff)
+            if (Wait_Timer)
+                if (Wait_Timer < diff)
                 {
-                    if(target_num <= 0)
+                    if (target_num <= 0)
                     {
                         // stop bladedance
                         InBlade = false;
@@ -216,7 +216,7 @@ struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
                         (*m_creature).GetMotionMaster()->MoveChase(m_creature->getVictim());
                         Blade_Dance_Timer = 30000;
                         Wait_Timer = 0;
-                        if(HeroicMode)
+                        if (HeroicMode)
                             Charge_timer = 5000;
                     }
                     else
@@ -234,8 +234,8 @@ struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
         }
         else
         {
-            if(Blade_Dance_Timer)
-                if(Blade_Dance_Timer < diff)
+            if (Blade_Dance_Timer)
+                if (Blade_Dance_Timer < diff)
                 {
                     target_num = TARGET_NUM;
                     Wait_Timer = 1;
@@ -245,8 +245,8 @@ struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
                     return;
                 }else Blade_Dance_Timer -= diff;
 
-            if(Charge_timer)
-                if(Charge_timer < diff)
+            if (Charge_timer)
+                if (Charge_timer < diff)
                 {
                     DoCast(SelectUnit(SELECT_TARGET_RANDOM,0),H_SPELL_CHARGE);
                     Charge_timer = 0;
@@ -265,7 +265,7 @@ struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
                         case 2: m_creature->SummonCreature(MOB_REAVER_GUARD,AddsEntrance[0],AddsEntrance[1], AddsEntrance[2], 0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,30000); break;
                     }
                 }
-                if(rand()%100 < 20) summoned++;
+                if (rand()%100 < 20) summoned++;
                     Summon_Assistant_Timer = 25000 + (rand()%10000) ;
             }else Summon_Assistant_Timer -= diff;
 

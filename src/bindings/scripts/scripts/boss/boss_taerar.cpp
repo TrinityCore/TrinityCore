@@ -79,7 +79,7 @@ struct TRINITY_DLL_DECL boss_taerarAI : public ScriptedAI
 
     void SummonShades(Unit* victim)
     {
-        if(!victim)
+        if (!victim)
             return;
 
         Rand = rand()%15;
@@ -97,7 +97,7 @@ struct TRINITY_DLL_DECL boss_taerarAI : public ScriptedAI
         }
         Rand = 0;
         Summoned = DoSpawnCreature(15302, RandX, RandY, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000);
-        if(Summoned)
+        if (Summoned)
             (Summoned->AI())->AttackStart(victim);
     }
 
@@ -141,7 +141,7 @@ struct TRINITY_DLL_DECL boss_taerarAI : public ScriptedAI
         //Tailsweep every 2 seconds
         if (TailSweep_Timer < diff)
         {
-            if( Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0) )
+            if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0))
                 DoCast(target,SPELL_TAILSWEEP);
 
             TailSweep_Timer = 2000;
@@ -169,7 +169,7 @@ struct TRINITY_DLL_DECL boss_taerarAI : public ScriptedAI
         } else BellowingRoar_Timer -= diff;
 
         //Summon 3 Shades
-        if ( !Shades  && (int) (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() +0.5) == 75)
+        if (!Shades  && (int) (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() +0.5) == 75)
         {
             if (Summon1_Timer < diff)
             {
@@ -192,7 +192,7 @@ struct TRINITY_DLL_DECL boss_taerarAI : public ScriptedAI
         }
 
         //Summon 3 Shades
-        if ( !Shades  && (int) (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() +0.5) == 50)
+        if (!Shades  && (int) (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() +0.5) == 50)
         {
             if (Summon2_Timer < diff)
             {
@@ -215,7 +215,7 @@ struct TRINITY_DLL_DECL boss_taerarAI : public ScriptedAI
         }
 
         //Summon 3 Shades
-        if ( !Shades  && (int) (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() +0.5) == 25)
+        if (!Shades  && (int) (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() +0.5) == 25)
         {
             if (Summon3_Timer < diff)
             {

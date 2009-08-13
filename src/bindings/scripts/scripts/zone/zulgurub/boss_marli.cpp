@@ -81,7 +81,7 @@ struct TRINITY_DLL_DECL boss_marliAI : public ScriptedAI
     void JustDied(Unit* Killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
-        if(m_pInstance)
+        if (m_pInstance)
             m_pInstance->SetData(TYPE_MARLI, DONE);
     }
 
@@ -90,7 +90,7 @@ struct TRINITY_DLL_DECL boss_marliAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if( m_creature->getVictim() && m_creature->isAlive())
+        if (m_creature->getVictim() && m_creature->isAlive())
         {
             if (PoisonVolley_Timer < diff)
             {
@@ -109,20 +109,20 @@ struct TRINITY_DLL_DECL boss_marliAI : public ScriptedAI
                 DoScriptText(SAY_SPIDER_SPAWN, m_creature);
 
                 Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0);
-                if(!target)
+                if (!target)
                     return;
 
                 Spider = m_creature->SummonCreature(15041,target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                if(Spider)
+                if (Spider)
                     Spider->AI()->AttackStart(target);
                 Spider = m_creature->SummonCreature(15041,target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                if(Spider)
+                if (Spider)
                     Spider->AI()->AttackStart(target);
                 Spider = m_creature->SummonCreature(15041,target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                if(Spider)
+                if (Spider)
                     Spider->AI()->AttackStart(target);
                 Spider = m_creature->SummonCreature(15041,target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                if(Spider)
+                if (Spider)
                     Spider->AI()->AttackStart(target);
 
                 Spawned = true;
@@ -131,16 +131,16 @@ struct TRINITY_DLL_DECL boss_marliAI : public ScriptedAI
             if (SpawnSpider_Timer < diff)
             {
                 Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0);
-                if(!target)
+                if (!target)
                     return;
 
                 Spider = m_creature->SummonCreature(15041,target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                if(Spider)
+                if (Spider)
                     Spider->AI()->AttackStart(target);
                 SpawnSpider_Timer = 12000 + rand()%5000;
             }else SpawnSpider_Timer -= diff;
 
-            if(!PhaseTwo && Transform_Timer < diff)
+            if (!PhaseTwo && Transform_Timer < diff)
             {
                 DoScriptText(SAY_TRANSFORM, m_creature);
                 DoCast(m_creature,SPELL_SPIDER_FORM);
@@ -150,7 +150,7 @@ struct TRINITY_DLL_DECL boss_marliAI : public ScriptedAI
                 m_creature->UpdateDamagePhysical(BASE_ATTACK);
                 DoCast(m_creature->getVictim(),SPELL_ENVOLWINGWEB);
 
-                if(DoGetThreat(m_creature->getVictim()))
+                if (DoGetThreat(m_creature->getVictim()))
                     DoModifyThreatPercent(m_creature->getVictim(),-100);
 
                 PhaseTwo = true;
@@ -220,11 +220,11 @@ struct TRINITY_DLL_DECL mob_spawn_of_marliAI : public ScriptedAI
     void UpdateAI (const uint32 diff)
     {
         //Return since we have no target
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
         //LevelUp_Timer
-        if(LevelUp_Timer < diff)
+        if (LevelUp_Timer < diff)
         {
             DoCast(m_creature,SPELL_LEVELUP);
             LevelUp_Timer = 3000;

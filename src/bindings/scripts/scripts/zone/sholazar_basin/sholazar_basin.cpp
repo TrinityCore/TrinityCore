@@ -55,7 +55,7 @@ struct TRINITY_DLL_DECL npc_injured_rainspeaker_oracleAI : public npc_escortAI
     {
         me->RestoreFaction();
         // if we will have other way to assign this to only one npc remove this part
-        if(GUID_LOPART(me->GetGUID()) != 101030)
+        if (GUID_LOPART(me->GetGUID()) != 101030)
         {
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
@@ -64,9 +64,9 @@ struct TRINITY_DLL_DECL npc_injured_rainspeaker_oracleAI : public npc_escortAI
 
     void WaypointReached(uint32 i)
     {
-        Player* player = Unit::GetPlayer(PlayerGUID);
+        Player* pPlayer = Unit::GetPlayer(PlayerGUID);
 
-        if(!player)
+        if (!pPlayer)
             return;
 
         switch(i)
@@ -90,8 +90,8 @@ struct TRINITY_DLL_DECL npc_injured_rainspeaker_oracleAI : public npc_escortAI
             m_creature->SetUnitMovementFlags(MOVEMENTFLAG_JUMPING);
             break;
         case 28:
-            if(Player* pPlayer = Unit::GetPlayer( PlayerGUID))
-                player->GroupEventHappens(QUEST_FORTUNATE_MISUNDERSTANDINGS, m_creature);
+            if (Player* pPlayer = Unit::GetPlayer(PlayerGUID))
+                pPlayer->GroupEventHappens(QUEST_FORTUNATE_MISUNDERSTANDINGS, m_creature);
           //  me->RestoreFaction();
             DoScriptText(SAY_END_IRO,m_creature);
             SetRun(false);
@@ -104,43 +104,43 @@ struct TRINITY_DLL_DECL npc_injured_rainspeaker_oracleAI : public npc_escortAI
         if (!IsBeingEscorted)
             return;
 
-        if(Player* pPlayer = Unit::GetPlayer(PlayerGUID))
+        if (Player* pPlayer = Unit::GetPlayer(PlayerGUID))
         {            
-          if(pPlayer->GetQuestStatus(QUEST_FORTUNATE_MISUNDERSTANDINGS) != QUEST_STATUS_COMPLETE)
+          if (pPlayer->GetQuestStatus(QUEST_FORTUNATE_MISUNDERSTANDINGS) != QUEST_STATUS_COMPLETE)
             pPlayer->FailQuest(QUEST_FORTUNATE_MISUNDERSTANDINGS);
         }
     }
 
-    void UpdateAI(Player *player, Creature *_Creature,const uint32 diff)
+    void UpdateAI(Player* pPlayer, Creature *_Creature,const uint32 diff)
     {
         npc_escortAI::UpdateAI(diff);
     }
 };
 
 
-bool GossipHello_npc_injured_rainspeaker_oracle(Player *player, Creature *_Creature )
+bool GossipHello_npc_injured_rainspeaker_oracle(Player* pPlayer, Creature *_Creature)
 {
-    if( _Creature->isQuestGiver() )
-        player->PrepareQuestMenu( _Creature->GetGUID() );
+    if (_Creature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(_Creature->GetGUID());
 
-    if( player->GetQuestStatus(QUEST_FORTUNATE_MISUNDERSTANDINGS) == QUEST_STATUS_INCOMPLETE )
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+    if (pPlayer->GetQuestStatus(QUEST_FORTUNATE_MISUNDERSTANDINGS) == QUEST_STATUS_INCOMPLETE)
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-    player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
 
     return true;
 }
 
-bool GossipSelect_npc_injured_rainspeaker_oracle(Player *player, Creature *_Creature, uint32 sender, uint32 action )
+bool GossipSelect_npc_injured_rainspeaker_oracle(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
 {
-    if( action == GOSSIP_ACTION_INFO_DEF+1 )
+    if (action == GOSSIP_ACTION_INFO_DEF+1)
     {
-        CAST_AI(npc_escortAI, (_Creature->AI()))->Start(true, false, player->GetGUID());
+        CAST_AI(npc_escortAI, (_Creature->AI()))->Start(true, false, pPlayer->GetGUID());
         CAST_AI(npc_escortAI, (_Creature->AI()))->SetMaxPlayerDistance(35.0f);
         _Creature->SetUnitMovementFlags(MOVEMENTFLAG_JUMPING);
         DoScriptText(SAY_START_IRO,_Creature);
 
-        switch (player->GetTeam()){
+        switch (pPlayer->GetTeam()){
         case ALLIANCE:
             _Creature->setFaction(FACTION_ESCORTEE_A);
             break;
@@ -152,7 +152,7 @@ bool GossipSelect_npc_injured_rainspeaker_oracle(Player *player, Creature *_Crea
     return true;
 }
 
-bool QuestAccept_npc_injured_rainspeaker_oracle(Player *player, Creature *_Creature, Quest const *_Quest)
+bool QuestAccept_npc_injured_rainspeaker_oracle(Player* pPlayer, Creature *_Creature, Quest const *_Quest)
 {
     DoScriptText(SAY_QUEST_ACCEPT_IRO,_Creature);
     return false;

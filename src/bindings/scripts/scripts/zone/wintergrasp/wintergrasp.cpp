@@ -17,32 +17,32 @@
 #include "precompiled.h"
 #include "Wintergrasp.h"
 
-bool GossipHello_npc_demolisher_engineerer(Player *player, Creature *_creature)
+bool GossipHello_npc_demolisher_engineerer(Player* pPlayer, Creature *_creature)
 {
-    if(_creature->isQuestGiver())
-        player->PrepareQuestMenu(_creature->GetGUID());
+    if (_creature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(_creature->GetGUID());
 
-    if(player->HasAura(SPELL_CORPORAL))
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Build catapult.", GOSSIP_SENDER_MAIN,   GOSSIP_ACTION_INFO_DEF);
-    else if(player->HasAura(SPELL_LIEUTENANT))
+    if (pPlayer->HasAura(SPELL_CORPORAL))
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Build catapult.", GOSSIP_SENDER_MAIN,   GOSSIP_ACTION_INFO_DEF);
+    else if (pPlayer->HasAura(SPELL_LIEUTENANT))
     {
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Build catapult.", GOSSIP_SENDER_MAIN,   GOSSIP_ACTION_INFO_DEF);
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Build demolisher.", GOSSIP_SENDER_MAIN,   GOSSIP_ACTION_INFO_DEF+1);
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Build siege engine.", GOSSIP_SENDER_MAIN,   GOSSIP_ACTION_INFO_DEF+2);
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Build catapult.", GOSSIP_SENDER_MAIN,   GOSSIP_ACTION_INFO_DEF);
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Build demolisher.", GOSSIP_SENDER_MAIN,   GOSSIP_ACTION_INFO_DEF+1);
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Build siege engine.", GOSSIP_SENDER_MAIN,   GOSSIP_ACTION_INFO_DEF+2);
     }
 
-    player->SEND_GOSSIP_MENU(_creature->GetNpcTextId(), _creature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(_creature->GetNpcTextId(), _creature->GetGUID());
     return true;
 }
 
-bool GossipSelect_npc_demolisher_engineerer(Player* player, Creature* me, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_demolisher_engineerer(Player* pPlayer, Creature* me, uint32 uiSender, uint32 uiAction)
 {
-    player->CLOSE_GOSSIP_MENU();
+    pPlayer->CLOSE_GOSSIP_MENU();
     switch(uiAction - GOSSIP_ACTION_INFO_DEF)
     {
-        case 0: player->CastSpell(player, 56663, false, NULL, NULL, me->GetGUID()); break;
-        case 1: player->CastSpell(player, 56575, false, NULL, NULL, me->GetGUID()); break;
-        case 2: player->CastSpell(player, player->GetTeamId() ? 61408 : 56661, false, NULL, NULL, me->GetGUID()); break;
+        case 0: pPlayer->CastSpell(pPlayer, 56663, false, NULL, NULL, me->GetGUID()); break;
+        case 1: pPlayer->CastSpell(pPlayer, 56575, false, NULL, NULL, me->GetGUID()); break;
+        case 2: pPlayer->CastSpell(pPlayer, pPlayer->GetTeamId() ? 61408 : 56661, false, NULL, NULL, me->GetGUID()); break;
     }
 
     return true;

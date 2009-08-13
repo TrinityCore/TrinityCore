@@ -70,7 +70,7 @@ void guardAI::UpdateAI(const uint32 diff)
 
     //Buff timer (only buff when we are alive and not in combat
     if (m_creature->isAlive() && !m_creature->isInCombat())
-        if (BuffTimer < diff )
+        if (BuffTimer < diff)
     {
         //Find a spell that targets friendly and applies an aura (these are generally buffs)
         SpellEntry const *info = SelectSpell(m_creature, -1, -1, SELECT_TARGET_ANY_FRIEND, 0, 0, 0, 0, SELECT_EFFECT_AURA);
@@ -94,10 +94,10 @@ void guardAI::UpdateAI(const uint32 diff)
         return;
 
     // Make sure our attack is ready and we arn't currently casting
-    if( m_creature->isAttackReady() && !m_creature->IsNonMeleeSpellCasted(false))
+    if (m_creature->isAttackReady() && !m_creature->IsNonMeleeSpellCasted(false))
     {
         //If we are within range melee the target
-        if( m_creature->IsWithinMeleeRange(m_creature->getVictim()))
+        if (m_creature->IsWithinMeleeRange(m_creature->getVictim()))
         {
             bool Healing = false;
             SpellEntry const *info = NULL;
@@ -183,14 +183,14 @@ void guardAI::DoReplyToTextEmote(uint32 em)
     }
 }
 
-void guardAI_orgrimmar::ReceiveEmote(Player *player, uint32 text_emote)
+void guardAI_orgrimmar::ReceiveEmote(Player* pPlayer, uint32 text_emote)
 {
-    if (player->GetTeam()==HORDE)
+    if (pPlayer->GetTeam()==HORDE)
         DoReplyToTextEmote(text_emote);
 }
 
-void guardAI_stormwind::ReceiveEmote(Player *player, uint32 text_emote)
+void guardAI_stormwind::ReceiveEmote(Player* pPlayer, uint32 text_emote)
 {
-    if (player->GetTeam() == ALLIANCE)
+    if (pPlayer->GetTeam() == ALLIANCE)
         DoReplyToTextEmote(text_emote);
 }

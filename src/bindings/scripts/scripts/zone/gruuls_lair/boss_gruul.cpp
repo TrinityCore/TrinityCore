@@ -106,7 +106,7 @@ struct TRINITY_DLL_DECL boss_gruulAI : public ScriptedAI
     {
         DoScriptText(SAY_DEATH, m_creature);
 
-        if(pInstance)
+        if (pInstance)
         {
             pInstance->SetData(DATA_GRUULEVENT, DONE);
             pInstance->HandleGameObject(pInstance->GetData64(DATA_GRUULDOOR), true);         // Open the encounter door
@@ -217,7 +217,7 @@ struct TRINITY_DLL_DECL boss_gruulAI : public ScriptedAI
                 if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
                     DoCast(target,SPELL_CAVE_IN);
 
-                if(m_uiCaveIn_StaticTimer >= 4000)
+                if (m_uiCaveIn_StaticTimer >= 4000)
                     m_uiCaveIn_StaticTimer -= 2000;
 
                     m_uiCaveIn_Timer = m_uiCaveIn_StaticTimer;

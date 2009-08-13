@@ -49,7 +49,7 @@ struct TRINITY_DLL_DECL boss_archavonAI : public ScriptedAI
     {
         events.Reset();
 
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_ARCHAVON_EVENT, NOT_STARTED);
     }
 
@@ -69,7 +69,7 @@ struct TRINITY_DLL_DECL boss_archavonAI : public ScriptedAI
         events.ScheduleEvent(EVENT_STOMP, 45000);
         events.ScheduleEvent(EVENT_BERSERK, 300000);
 
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_ARCHAVON_EVENT, IN_PROGRESS);
     }
 
@@ -77,12 +77,12 @@ struct TRINITY_DLL_DECL boss_archavonAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
         events.Update(diff);
 
-        if(me->hasUnitState(UNIT_STAT_CASTING))
+        if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
         while(uint32 eventId = events.ExecuteEvent())
@@ -90,12 +90,12 @@ struct TRINITY_DLL_DECL boss_archavonAI : public ScriptedAI
             switch(eventId)
             {
                 case EVENT_ROCK_SHARDS:
-                    if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                         DoCast(target, SPELL_ROCK_SHARDS);
                     events.ScheduleEvent(EVENT_ROCK_SHARDS, 15000);
                     return;
                 case EVENT_CHOKING_CLOUD:
-                    if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                         DoCast(target, SPELL_CRUSHING_LEAP, true); //10y~80y, ignore range
                     events.ScheduleEvent(EVENT_CHOKING_CLOUD, 30000);
                     return;
@@ -143,7 +143,7 @@ struct TRINITY_DLL_DECL mob_warderAI : public ScriptedAI //npc 32353
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
         events.Update(diff);
@@ -154,7 +154,7 @@ struct TRINITY_DLL_DECL mob_warderAI : public ScriptedAI //npc 32353
             {
                 case EVENT_ROCK_SHOWER:
                 {
-                    if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                         DoCast(target, SPELL_ROCK_SHOWER);
                     events.ScheduleEvent(EVENT_ROCK_SHARDS, 6000);
                     return;

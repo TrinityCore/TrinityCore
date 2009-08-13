@@ -64,7 +64,7 @@ struct TRINITY_DLL_DECL boss_maexxnaAI : public BossAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!UpdateVictim() || !CheckInRoom())
+        if (!UpdateVictim() || !CheckInRoom())
             return;
 
         events.Update(diff);
@@ -76,12 +76,12 @@ struct TRINITY_DLL_DECL boss_maexxnaAI : public BossAI
                 case EVENT_WRAP:
                     for(uint32 i = 0; i < HEROIC(1,2); ++i)
                     {
-                        if(Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true, -SPELL_WEB_WRAP))
+                        if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true, -SPELL_WEB_WRAP))
                         {
                             target->RemoveAura(SPELL_WEB_SPRAY);
                             uint32 pos = rand()%MAX_POS_WRAP;
                             target->GetMotionMaster()->MoveJump(PosWrap[pos][0], PosWrap[pos][1], PosWrap[pos][2], 20, 20);
-                            if(Creature *wrap = DoSummon(MOB_WEB_WRAP, target, 0, 60000))
+                            if (Creature *wrap = DoSummon(MOB_WEB_WRAP, target, 0, 60000))
                             {
                                 wrap->AI()->SetGUID(target->GetGUID());
                                 wrap->GetMotionMaster()->MoveJump(PosWrap[pos][0], PosWrap[pos][1], PosWrap[pos][2], 20, 20);
@@ -113,7 +113,7 @@ struct TRINITY_DLL_DECL boss_maexxnaAI : public BossAI
             }
         }                    
 
-        if(!enraged && HealthBelowPct(30))
+        if (!enraged && HealthBelowPct(30))
         {
             DoCast(me, SPELL_FRENZY);
             enraged = true;

@@ -81,7 +81,7 @@ struct TRINITY_DLL_DECL boss_elder_nadoxAI : public ScriptedAI
 
         DeadAhnkaharGuardian = false;
 
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_ELDER_NADOX_EVENT, NOT_STARTED);
     }
 
@@ -89,13 +89,13 @@ struct TRINITY_DLL_DECL boss_elder_nadoxAI : public ScriptedAI
     {
         DoScriptText(SAY_DEATH,m_creature);
 
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_ELDER_NADOX_EVENT, IN_PROGRESS);
     }
 
     void KilledUnit(Unit *victim)
     {
-        if(victim == m_creature)
+        if (victim == m_creature)
             return;
         switch(rand()%3)
         {
@@ -109,53 +109,53 @@ struct TRINITY_DLL_DECL boss_elder_nadoxAI : public ScriptedAI
     {
         DoScriptText(SAY_SLAY_3,m_creature);
 
-        if(HeroicMode && !DeadAhnkaharGuardian)
+        if (HeroicMode && !DeadAhnkaharGuardian)
         {
             AchievementEntry const *AchievRespectYourElders = GetAchievementStore()->LookupEntry(ACHIEVEMENT_RESPECT_YOUR_ELDERS);
-            if(AchievRespectYourElders)
+            if (AchievRespectYourElders)
             {
-                Map *map = m_creature->GetMap();
-                if(map && map->IsDungeon())
+                Map* pMap = m_creature->GetMap();
+                if (pMap && pMap->IsDungeon())
                 {
-                    Map::PlayerList const &players = map->GetPlayers();
+                    Map::PlayerList const &players = pMap->GetPlayers();
                     for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                         itr->getSource()->CompletedAchievement(AchievRespectYourElders);
                 }            
             }        
         }
 
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_ELDER_NADOX_EVENT, DONE);
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
-        if(plague_Timer < diff)
+        if (plague_Timer < diff)
         {
             DoCast(m_creature->getVictim(),HeroicMode ? H_SPELL_BROOD_PLAGUE : SPELL_BROOD_PLAGUE);
             plague_Timer = 15000;
         }else plague_Timer -= diff;
 
-        if(HeroicMode)
-            if(rage_Timer < diff)
+        if (HeroicMode)
+            if (rage_Timer < diff)
             {
                 Unit* Swarmer = m_creature->FindNearestCreature(MOB_AHNKAHAR_SWARMER, 35);
 
-                if(Swarmer)
+                if (Swarmer)
                 {
                     DoCast(Swarmer,H_SPELL_BROOD_RAGE,true);
                     rage_Timer = 15000;
                 }
             }else rage_Timer -= diff;
 
-        if(swarmer_spawn_Timer < diff)
+        if (swarmer_spawn_Timer < diff)
         {
             DoCast(m_creature,SPELL_SUMMON_SWARMERS,true);
             DoCast(m_creature,SPELL_SUMMON_SWARMERS);
-            if(rand()%3 == 0)
+            if (rand()%3 == 0)
             {
                 switch(rand()%2)
                 {
@@ -166,23 +166,23 @@ struct TRINITY_DLL_DECL boss_elder_nadoxAI : public ScriptedAI
             swarmer_spawn_Timer = 10000;
         }else swarmer_spawn_Timer -= diff;
 
-        if(guard_spawn_Timer < diff)
+        if (guard_spawn_Timer < diff)
         {
             m_creature->MonsterTextEmote("An Ahn'kahar Guardian hatches!",m_creature->GetGUID(),true);
             DoCast(m_creature,SPELL_SUMMON_SWARM_GUARD);
             guard_spawn_Timer = 25000;
         }else guard_spawn_Timer -= diff;
 
-        if(enrage_Timer < diff)
+        if (enrage_Timer < diff)
         {
-            if(m_creature->HasAura(SPELL_ENRAGE,0))
+            if (m_creature->HasAura(SPELL_ENRAGE,0))
                 return;
 
             float x, y, z, o;
             m_creature->GetHomePosition(x, y, z, o);
-            if(z < 24 )
+            if (z < 24)
             {
-                if(!m_creature->IsNonMeleeSpellCasted(false))
+                if (!m_creature->IsNonMeleeSpellCasted(false))
                 {
                     DoCast(m_creature,SPELL_ENRAGE,true);
                 }
@@ -213,14 +213,14 @@ struct TRINITY_DLL_DECL mob_ahnkahar_nerubianAI : public ScriptedAI
 
     void Reset()
     {
-        if(m_creature->GetEntry() == 30176)
+        if (m_creature->GetEntry() == 30176)
             DoCast(m_creature,SPELL_GUARDIAN_AURA,true);
         sprint_Timer = 10000;
     }
 
     void JustDied(Unit *killer)
     {
-        if(m_creature->GetEntry() == MOB_AHNKAHAR_GUARDIAN_ENTRY)
+        if (m_creature->GetEntry() == MOB_AHNKAHAR_GUARDIAN_ENTRY)
             DeadAhnkaharGuardian = true;
     }
 
@@ -228,22 +228,22 @@ struct TRINITY_DLL_DECL mob_ahnkahar_nerubianAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(m_creature->GetEntry() == 30176)
+        if (m_creature->GetEntry() == 30176)
             m_creature->RemoveAurasDueToSpell(SPELL_GUARDIAN_AURA);
 
-        if(pInstance)
+        if (pInstance)
         {
-            if(pInstance->GetData(DATA_ELDER_NADOX_EVENT) != IN_PROGRESS)
+            if (pInstance->GetData(DATA_ELDER_NADOX_EVENT) != IN_PROGRESS)
             {
                 m_creature->DealDamage(m_creature,m_creature->GetHealth());
                 m_creature->RemoveCorpse();
             }
         }
 
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
-        if(sprint_Timer < diff)
+        if (sprint_Timer < diff)
         {
             DoCast(m_creature,SPELL_SPRINT);
             sprint_Timer = 25000;

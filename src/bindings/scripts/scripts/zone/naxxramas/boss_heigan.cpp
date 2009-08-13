@@ -53,7 +53,7 @@ struct TRINITY_DLL_DECL boss_heiganAI : public BossAI
 
     void KilledUnit(Unit* Victim)
     {
-        if(!(rand()%5))
+        if (!(rand()%5))
             DoScriptText(SAY_SLAY, me);
     }
 
@@ -75,7 +75,7 @@ struct TRINITY_DLL_DECL boss_heiganAI : public BossAI
         phase = newPhase;
         events.Reset();
         eruptSection = 3;
-        if(phase == PHASE_FIGHT)
+        if (phase == PHASE_FIGHT)
         {
             events.ScheduleEvent(EVENT_DISRUPT, 0);
             events.ScheduleEvent(EVENT_FEVER, 20000);
@@ -95,7 +95,7 @@ struct TRINITY_DLL_DECL boss_heiganAI : public BossAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!UpdateVictim() || !CheckInRoom())
+        if (!UpdateVictim() || !CheckInRoom())
             return;
 
         events.Update(diff);
@@ -119,9 +119,9 @@ struct TRINITY_DLL_DECL boss_heiganAI : public BossAI
                     instance->SetData(DATA_HEIGAN_ERUPT, eruptSection);
                     TeleportCheaters();
 
-                    if(eruptSection == 0)
+                    if (eruptSection == 0)
                         eruptDirection = true;
-                    else if(eruptSection == 3)
+                    else if (eruptSection == 3)
                         eruptDirection = false;
 
                     eruptDirection ? ++eruptSection : --eruptSection;

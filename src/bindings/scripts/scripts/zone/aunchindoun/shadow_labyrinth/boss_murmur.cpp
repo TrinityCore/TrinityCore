@@ -70,7 +70,7 @@ struct TRINITY_DLL_DECL boss_murmurAI : public ScriptedAI
     void SonicBoomEffect()
     {
         std::list<HostilReference *> t_list = m_creature->getThreatManager().getThreatList();
-        for( std::list<HostilReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr )
+        for(std::list<HostilReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
         {
            Unit* target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
            if (target && target->GetTypeId() == TYPEID_PLAYER)
@@ -90,7 +90,7 @@ struct TRINITY_DLL_DECL boss_murmurAI : public ScriptedAI
     // Sonic Boom instant damage (needs core fix instead of this)
     void SpellHitTarget(Unit *target, const SpellEntry *spell)
     {
-        if(target && target->isAlive() && spell && spell->Id == SPELL_SONIC_BOOM_EFFECT)
+        if (target && target->isAlive() && spell && spell->Id == SPELL_SONIC_BOOM_EFFECT)
             m_creature->DealDamage(target,(target->GetHealth()*90)/100,NULL,SPELL_DIRECT_DAMAGE,SPELL_SCHOOL_MASK_NATURE,spell);
     }
 
@@ -101,7 +101,7 @@ struct TRINITY_DLL_DECL boss_murmurAI : public ScriptedAI
             return;
 
         // Sonic Boom
-        if(SonicBoom)
+        if (SonicBoom)
         {
             DoCast(m_creature, SPELL_SONIC_BOOM_EFFECT, true);
             SonicBoomEffect();
@@ -121,7 +121,7 @@ struct TRINITY_DLL_DECL boss_murmurAI : public ScriptedAI
         // Murmur's Touch
         if (MurmursTouch_Timer < diff)
         {
-            if(Unit* target = SelectTarget(SELECT_TARGET_RANDOM,0,80,true))
+            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM,0,80,true))
                 DoCast(target, SPELL_MURMURS_TOUCH);
             MurmursTouch_Timer = 25000 + rand()%10000;
         }else MurmursTouch_Timer -= diff;
@@ -149,38 +149,38 @@ struct TRINITY_DLL_DECL boss_murmurAI : public ScriptedAI
             MagneticPull_Timer = 500;
         }else MagneticPull_Timer -= diff;
 
-        if(HeroicMode)
+        if (HeroicMode)
         {
             // Thundering Storm
-            if(ThunderingStorm_Timer < diff)
+            if (ThunderingStorm_Timer < diff)
             {
                 std::list<HostilReference*>& m_threatlist = m_creature->getThreatManager().getThreatList();
                 for(std::list<HostilReference*>::iterator i = m_threatlist.begin(); i != m_threatlist.end(); ++i)
-                    if(Unit* target = Unit::GetUnit((*m_creature),(*i)->getUnitGuid()))
-                        if(target->isAlive() && !m_creature->IsWithinDist(target, 35, false))
+                    if (Unit* target = Unit::GetUnit((*m_creature),(*i)->getUnitGuid()))
+                        if (target->isAlive() && !m_creature->IsWithinDist(target, 35, false))
                             DoCast(target, SPELL_THUNDERING_STORM, true);
                 ThunderingStorm_Timer = 15000;
             }else ThunderingStorm_Timer -= diff;
 
             // Sonic Shock
-            if(SonicShock_Timer < diff)
+            if (SonicShock_Timer < diff)
             {
-                if(Unit* target = SelectTarget(SELECT_TARGET_RANDOM,0,20,false))
-                    if(target->isAlive())
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM,0,20,false))
+                    if (target->isAlive())
                         DoCast(target, SPELL_SONIC_SHOCK);
                 SonicShock_Timer = 10000+rand()%10000;
             }else SonicShock_Timer -= diff;
         }
 
         // Select nearest most aggro target if top aggro too far
-        if(!m_creature->isAttackReady())
+        if (!m_creature->isAttackReady())
             return;
-        if(!m_creature->IsWithinMeleeRange(m_creature->getVictim()))
+        if (!m_creature->IsWithinMeleeRange(m_creature->getVictim()))
         {
             std::list<HostilReference*>& m_threatlist = m_creature->getThreatManager().getThreatList();
             for(std::list<HostilReference*>::iterator i = m_threatlist.begin(); i != m_threatlist.end(); ++i)
-                if(Unit* target = Unit::GetUnit((*m_creature),(*i)->getUnitGuid()))
-                    if(target->isAlive() && m_creature->IsWithinMeleeRange(target))
+                if (Unit* target = Unit::GetUnit((*m_creature),(*i)->getUnitGuid()))
+                    if (target->isAlive() && m_creature->IsWithinMeleeRange(target))
                     {
                         m_creature->TauntApply(target);
                         break;

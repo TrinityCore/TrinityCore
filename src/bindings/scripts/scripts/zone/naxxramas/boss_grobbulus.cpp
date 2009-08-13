@@ -46,16 +46,16 @@ struct TRINITY_DLL_DECL boss_grobbulusAI : public BossAI
 
     void SpellHitTarget(Unit *target, const SpellEntry *spell)
     {
-        if(spell->Id == SPELL_SLIME_SPRAY)
+        if (spell->Id == SPELL_SLIME_SPRAY)
         {
-            if(TempSummon *slime = me->SummonCreature(MOB_FALLOUT_SLIME, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0))
+            if (TempSummon *slime = me->SummonCreature(MOB_FALLOUT_SLIME, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0))
                 DoZoneInCombat(slime);
         }
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
         events.Update(diff);
@@ -76,8 +76,8 @@ struct TRINITY_DLL_DECL boss_grobbulusAI : public BossAI
                     events.ScheduleEvent(EVENT_SPRAY, 15000+rand()%15000);
                     return;
                 case EVENT_INJECT:
-                    if(Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                        if(!target->HasAura(SPELL_MUTATING_INJECTION))
+                    if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        if (!target->HasAura(SPELL_MUTATING_INJECTION))
                             DoCast(target, SPELL_MUTATING_INJECTION);
                     events.ScheduleEvent(EVENT_INJECT, 8000 + 12000 * ((float)me->GetHealth() / me->GetMaxHealth()));
                     return;

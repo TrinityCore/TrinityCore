@@ -131,7 +131,7 @@ struct TRINITY_DLL_DECL npc_barnesAI : public npc_escortAI
 
         PerformanceReady = false;
 
-        if(pInstance)
+        if (pInstance)
             m_uiEventId = pInstance->GetData(DATA_OPERA_PERFORMANCE);
     }
 
@@ -195,26 +195,26 @@ struct TRINITY_DLL_DECL npc_barnesAI : public npc_escortAI
             case EVENT_OZ:
                 if (OzDialogue[count].textid)
                      text = OzDialogue[count].textid;
-                if(OzDialogue[count].timer)
+                if (OzDialogue[count].timer)
                     TalkTimer = OzDialogue[count].timer;
                 break;
 
             case EVENT_HOOD:
                 if (HoodDialogue[count].textid)
                     text = HoodDialogue[count].textid;
-                if(HoodDialogue[count].timer)
+                if (HoodDialogue[count].timer)
                     TalkTimer = HoodDialogue[count].timer;
                 break;
 
             case EVENT_RAJ:
                  if (RAJDialogue[count].textid)
                      text = RAJDialogue[count].textid;
-                if(RAJDialogue[count].timer)
+                if (RAJDialogue[count].timer)
                     TalkTimer = RAJDialogue[count].timer;
                 break;
         }
 
-        if(text)
+        if (text)
              DoScriptText(text, m_creature);
     }
 
@@ -260,11 +260,11 @@ struct TRINITY_DLL_DECL npc_barnesAI : public npc_escortAI
     {
         npc_escortAI::UpdateAI(diff);
 
-        if(IsOnHold)
+        if (IsOnHold)
         {
-            if(TalkTimer < diff)
+            if (TalkTimer < diff)
             {
-                if(TalkCount > 3)
+                if (TalkCount > 3)
                 {
                     if (Creature* pSpotlight = Unit::GetCreature(*m_creature, m_uiSpotlightGUID))
                         pSpotlight->ForcedDespawn();
@@ -280,17 +280,17 @@ struct TRINITY_DLL_DECL npc_barnesAI : public npc_escortAI
                 TalkTimer -= diff;
         }
 
-        if(PerformanceReady)
+        if (PerformanceReady)
         {
-            if(!RaidWiped)
+            if (!RaidWiped)
             {
-                if(WipeTimer < diff)
+                if (WipeTimer < diff)
                 {
-                    Map *map = m_creature->GetMap();
-                    if(!map->IsDungeon()) return;
+                    Map* pMap = m_creature->GetMap();
+                    if (!pMap->IsDungeon()) return;
 
-                    Map::PlayerList const &PlayerList = map->GetPlayers();
-                    if(PlayerList.isEmpty())
+                    Map::PlayerList const &PlayerList = pMap->GetPlayers();
+                    if (PlayerList.isEmpty())
                         return;
 
                     RaidWiped = true;
@@ -303,7 +303,7 @@ struct TRINITY_DLL_DECL npc_barnesAI : public npc_escortAI
                         }
                     }
 
-                    if(RaidWiped)
+                    if (RaidWiped)
                     {
                         RaidWiped = true;
                         EnterEvadeMode();
@@ -359,34 +359,34 @@ bool GossipHello_npc_barnes(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_barnes(Player *player, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_barnes(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
 {
     npc_barnesAI* pBarnesAI = CAST_AI(npc_barnesAI,_Creature->AI());
 
     switch(action)
     {
         case GOSSIP_ACTION_INFO_DEF+1:
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, OZ_GOSSIP2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-            player->SEND_GOSSIP_MENU(8971, _Creature->GetGUID());
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, OZ_GOSSIP2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+            pPlayer->SEND_GOSSIP_MENU(8971, _Creature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+2:
-            player->CLOSE_GOSSIP_MENU();
+            pPlayer->CLOSE_GOSSIP_MENU();
             pBarnesAI->StartEvent();
             break;
         case GOSSIP_ACTION_INFO_DEF+3:
-            player->CLOSE_GOSSIP_MENU();
+            pPlayer->CLOSE_GOSSIP_MENU();
             pBarnesAI->m_uiEventId = EVENT_OZ;
-            outstring_log("TSCR: player (GUID %i) manually set Opera event to EVENT_OZ",player->GetGUID());
+            outstring_log("TSCR: player (GUID %i) manually set Opera event to EVENT_OZ",pPlayer->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+4:
-            player->CLOSE_GOSSIP_MENU();
+            pPlayer->CLOSE_GOSSIP_MENU();
             pBarnesAI->m_uiEventId = EVENT_HOOD;
-            outstring_log("TSCR: player (GUID %i) manually set Opera event to EVENT_HOOD",player->GetGUID());
+            outstring_log("TSCR: player (GUID %i) manually set Opera event to EVENT_HOOD",pPlayer->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+5:
-            player->CLOSE_GOSSIP_MENU();
+            pPlayer->CLOSE_GOSSIP_MENU();
             pBarnesAI->m_uiEventId = EVENT_RAJ;
-            outstring_log("TSCR: player (GUID %i) manually set Opera event to EVENT_RAJ",player->GetGUID());
+            outstring_log("TSCR: player (GUID %i) manually set Opera event to EVENT_RAJ",pPlayer->GetGUID());
             break;
     }
 
@@ -417,12 +417,12 @@ bool GossipHello_npc_berthold(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_berthold(Player* player, Creature* _Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_berthold(Player* pPlayer, Creature* _Creature, uint32 sender, uint32 action)
 {
-    if(action == GOSSIP_ACTION_INFO_DEF + 1)
-        player->CastSpell(player, SPELL_TELEPORT, true);
+    if (action == GOSSIP_ACTION_INFO_DEF + 1)
+        pPlayer->CastSpell(pPlayer, SPELL_TELEPORT, true);
 
-    player->CLOSE_GOSSIP_MENU();
+    pPlayer->CLOSE_GOSSIP_MENU();
     return true;
 }
 
@@ -471,7 +471,7 @@ struct TRINITY_DLL_DECL npc_image_of_medivhAI : public ScriptedAI
     {
         ArcanagosGUID = 0;
 
-        if(pInstance && pInstance->GetData64(DATA_IMAGE_OF_MEDIVH) == 0)
+        if (pInstance && pInstance->GetData64(DATA_IMAGE_OF_MEDIVH) == 0)
         {
             pInstance->SetData64(DATA_IMAGE_OF_MEDIVH, m_creature->GetGUID());
             (*m_creature).GetMotionMaster()->MovePoint(1,MedivPos[0],MedivPos[1],MedivPos[2]);
@@ -486,9 +486,9 @@ struct TRINITY_DLL_DECL npc_image_of_medivhAI : public ScriptedAI
 
     void MovementInform(uint32 type, uint32 id)
     {
-        if(type != POINT_MOTION_TYPE)
+        if (type != POINT_MOTION_TYPE)
             return;
-        if(id == 1)
+        if (id == 1)
         {
             StartEvent();
             m_creature->SetOrientation(MedivPos[3]);
@@ -501,7 +501,7 @@ struct TRINITY_DLL_DECL npc_image_of_medivhAI : public ScriptedAI
         Step = 1;
         EventStarted = true;
         Creature* Arcanagos = m_creature->SummonCreature(MOB_ARCANAGOS,ArcanagosPos[0],ArcanagosPos[1],ArcanagosPos[2],0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,20000);
-        if(!Arcanagos)
+        if (!Arcanagos)
             return;
         ArcanagosGUID = Arcanagos->GetGUID();
         Arcanagos->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
@@ -515,7 +515,7 @@ struct TRINITY_DLL_DECL npc_image_of_medivhAI : public ScriptedAI
     uint32 NextStep(uint32 Step)
     {
         Unit* arca = Unit::GetUnit((*m_creature),ArcanagosGUID);
-        Map *map = m_creature->GetMap();
+        Map* pMap = m_creature->GetMap();
         switch(Step)
         {
         case 0: return 9999999;
@@ -523,21 +523,21 @@ struct TRINITY_DLL_DECL npc_image_of_medivhAI : public ScriptedAI
             m_creature->MonsterYell(SAY_DIALOG_MEDIVH_1,LANG_UNIVERSAL,NULL);
             return 10000;
         case 2:
-            if(arca)
+            if (arca)
                 CAST_CRE(arca)->MonsterYell(SAY_DIALOG_ARCANAGOS_2,LANG_UNIVERSAL,NULL);
             return 20000;
         case 3:
             m_creature->MonsterYell(SAY_DIALOG_MEDIVH_3,LANG_UNIVERSAL,NULL);
             return 10000;
         case 4:
-            if(arca)
+            if (arca)
                 CAST_CRE(arca)->MonsterYell(SAY_DIALOG_ARCANAGOS_4, LANG_UNIVERSAL, NULL);
             return 20000;
         case 5:
             m_creature->MonsterYell(SAY_DIALOG_MEDIVH_5, LANG_UNIVERSAL, NULL);
             return 20000;
         case 6:
-            if(arca)
+            if (arca)
                 CAST_CRE(arca)->MonsterYell(SAY_DIALOG_ARCANAGOS_6, LANG_UNIVERSAL, NULL);
             return 10000;
         case 7:
@@ -551,11 +551,11 @@ struct TRINITY_DLL_DECL npc_image_of_medivhAI : public ScriptedAI
             m_creature->MonsterTextEmote(EMOTE_DIALOG_MEDIVH_7, 0, false);
             return 10000;
         case 10:
-            if(arca)
+            if (arca)
                 m_creature->CastSpell(arca, SPELL_CONFLAGRATION_BLAST, false);
             return 1000;
         case 11:
-            if(arca)
+            if (arca)
                 CAST_CRE(arca)->MonsterYell(SAY_DIALOG_ARCANAGOS_8, LANG_UNIVERSAL, NULL);
             return 5000;
         case 12:
@@ -571,14 +571,14 @@ struct TRINITY_DLL_DECL npc_image_of_medivhAI : public ScriptedAI
             m_creature->SetVisibility(VISIBILITY_OFF);
             m_creature->ClearInCombat();
 
-            if(map->IsDungeon())
+            if (pMap->IsDungeon())
             {
-                InstanceMap::PlayerList const &PlayerList = map->GetPlayers();
+                InstanceMap::PlayerList const &PlayerList = pMap->GetPlayers();
                 for (InstanceMap::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                 {
-                    if(i->getSource()->isAlive())
+                    if (i->getSource()->isAlive())
                     {
-                        if(i->getSource()->GetQuestStatus(9645) == QUEST_STATUS_INCOMPLETE)
+                        if (i->getSource()->GetQuestStatus(9645) == QUEST_STATUS_INCOMPLETE)
                             i->getSource()->CompleteQuest(9645);
                     }
                 }
@@ -595,28 +595,28 @@ struct TRINITY_DLL_DECL npc_image_of_medivhAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
 
-        if(YellTimer < diff)
+        if (YellTimer < diff)
         {
-            if(EventStarted)
+            if (EventStarted)
             {
                 YellTimer = NextStep(Step++);
             }
         }else YellTimer -= diff;
 
-        if(Step >= 7 && Step <= 12 )
+        if (Step >= 7 && Step <= 12)
         {
             Unit* arca = Unit::GetUnit((*m_creature),ArcanagosGUID);
 
-            if(FireArcanagosTimer < diff)
+            if (FireArcanagosTimer < diff)
             {
-                if(arca)
+                if (arca)
                     arca->CastSpell(m_creature, SPELL_FIRE_BALL, false);
                 FireArcanagosTimer = 6000;
             }else FireArcanagosTimer -= diff;
 
-            if(FireMedivhTimer < diff)
+            if (FireMedivhTimer < diff)
             {
-                if(arca)
+                if (arca)
                     DoCast(arca, SPELL_FIRE_BALL);
                 FireMedivhTimer = 5000;
             }else FireMedivhTimer -= diff;

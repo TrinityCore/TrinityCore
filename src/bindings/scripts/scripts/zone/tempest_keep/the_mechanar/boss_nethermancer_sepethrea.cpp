@@ -67,13 +67,13 @@ struct TRINITY_DLL_DECL boss_nethermancer_sepethreaAI : public ScriptedAI
         knockback_Timer = 22000 + rand()%6000;
         solarburn_Timer = 30000;
 
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_NETHERMANCER_EVENT, NOT_STARTED);
     }
 
     void EnterCombat(Unit *who)
     {
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_NETHERMANCER_EVENT, IN_PROGRESS);
 
         DoScriptText(SAY_AGGRO, m_creature);
@@ -94,32 +94,32 @@ struct TRINITY_DLL_DECL boss_nethermancer_sepethreaAI : public ScriptedAI
     {
         DoScriptText(SAY_DEATH, m_creature);
 
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_NETHERMANCER_EVENT, DONE);
     }
 
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
         //Frost Attack
-        if(frost_attack_Timer < diff)
+        if (frost_attack_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_FROST_ATTACK);
             frost_attack_Timer = 7000 + rand()%3000;
         }else frost_attack_Timer -= diff;
 
         //Arcane Blast
-        if(arcane_blast_Timer < diff)
+        if (arcane_blast_Timer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_ARCANE_BLAST);
             arcane_blast_Timer = 15000;
         }else arcane_blast_Timer -= diff;
 
         //Dragons Breath
-        if(dragons_breath_Timer < diff)
+        if (dragons_breath_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_DRAGONS_BREATH);
             {
@@ -136,14 +136,14 @@ struct TRINITY_DLL_DECL boss_nethermancer_sepethreaAI : public ScriptedAI
         }else dragons_breath_Timer -= diff;
 
         //Knockback
-        if(knockback_Timer < diff)
+        if (knockback_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_KNOCKBACK);
             knockback_Timer = 15000 + rand()%10000;
         }else knockback_Timer -= diff;
 
         //Solarburn
-        if(solarburn_Timer < diff)
+        if (solarburn_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_SOLARBURN);
             solarburn_Timer = 30000;
@@ -197,11 +197,11 @@ struct TRINITY_DLL_DECL mob_ragin_flamesAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
          //Check_Timer
-        if(Check_Timer < diff)
+        if (Check_Timer < diff)
         {
-            if(pInstance)
+            if (pInstance)
             {
-                if(pInstance->GetData(DATA_NETHERMANCER_EVENT) != IN_PROGRESS)
+                if (pInstance->GetData(DATA_NETHERMANCER_EVENT) != IN_PROGRESS)
                 {
                     //remove
                     m_creature->setDeathState(JUST_DIED);
@@ -221,14 +221,14 @@ struct TRINITY_DLL_DECL mob_ragin_flamesAI : public ScriptedAI
             onlyonce = true;
         }
 
-        if(inferno_Timer < diff)
+        if (inferno_Timer < diff)
         {
             DoCast(m_creature->getVictim(),HeroicMode ? H_SPELL_INFERNO : SPELL_INFERNO);
             m_creature->TauntApply(m_creature->getVictim());
             inferno_Timer = 10000;
         }else inferno_Timer -= diff;
 
-        if(flame_timer < diff)
+        if (flame_timer < diff)
         {
             DoCast(m_creature,SPELL_FIRE_TAIL);
             flame_timer = 500;

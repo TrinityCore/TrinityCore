@@ -192,7 +192,7 @@ struct TRINITY_DLL_DECL example_creatureAI : public ScriptedAI
     }
 
     //Our Recive emote function
-    void ReceiveEmote(Player *player, uint32 emote)
+    void ReceiveEmote(Player* pPlayer, uint32 emote)
     {
         m_creature->HandleEmoteCommand(emote);
 
@@ -212,31 +212,31 @@ CreatureAI* GetAI_example_creature(Creature *_Creature)
 }
 
 //This function is called when the player clicks an option on the gossip menu
-void SendDefaultMenu_example_creature(Player *player, Creature *_Creature, uint32 action)
+void SendDefaultMenu_example_creature(Player* pPlayer, Creature *_Creature, uint32 action)
 {
     if (action == GOSSIP_ACTION_INFO_DEF + 1)               //Fight time
     {
         //Set our faction to hostile twoards all
         _Creature->setFaction(24);
-        _Creature->Attack(player, true);
-        player->PlayerTalkClass->CloseGossip();
+        _Creature->Attack(pPlayer, true);
+        pPlayer->PlayerTalkClass->CloseGossip();
     }
 }
 
 //This function is called when the player clicks an option on the gossip menu
-bool GossipSelect_example_creature(Player *player, Creature *_Creature, uint32 sender, uint32 action )
+bool GossipSelect_example_creature(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
 {
     if (sender == GOSSIP_SENDER_MAIN)
-        SendDefaultMenu_example_creature(player, _Creature, action);
+        SendDefaultMenu_example_creature(pPlayer, _Creature, action);
 
     return true;
 }
 
 //This function is called when the player opens the gossip menu
-bool GossipHello_example_creature(Player *player, Creature *_Creature)
+bool GossipHello_example_creature(Player* pPlayer, Creature *_Creature)
 {
-    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM        , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-    player->PlayerTalkClass->SendGossipMenu(907,_Creature->GetGUID());
+    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM        , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+    pPlayer->PlayerTalkClass->SendGossipMenu(907,_Creature->GetGUID());
 
     return true;
 }

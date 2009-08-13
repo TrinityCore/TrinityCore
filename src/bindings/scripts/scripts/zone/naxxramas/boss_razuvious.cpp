@@ -58,7 +58,7 @@ struct TRINITY_DLL_DECL boss_razuviousAI : public BossAI
 
     void KilledUnit(Unit* victim)
     {
-        if(!(rand()%3))
+        if (!(rand()%3))
             DoPlaySoundToSet(me, SOUND_SLAY);
     }
 
@@ -80,7 +80,7 @@ struct TRINITY_DLL_DECL boss_razuviousAI : public BossAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
         events.Update(diff);
@@ -98,7 +98,7 @@ struct TRINITY_DLL_DECL boss_razuviousAI : public BossAI
                     events.ScheduleEvent(EVENT_SHOUT, 25000);
                     return;
                 case EVENT_KNIFE:
-                    if(Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45))
+                    if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45))
                         DoCast(target, SPELL_JAGGED_KNIFE);
                     events.ScheduleEvent(EVENT_KNIFE, 25000);
                     return;

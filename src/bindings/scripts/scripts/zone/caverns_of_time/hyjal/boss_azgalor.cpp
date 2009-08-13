@@ -35,7 +35,7 @@ struct TRINITY_DLL_DECL boss_azgalorAI : public hyjal_trashAI
         go = false;
         pos = 0;
         SpellEntry *TempSpell = GET_SPELL(SPELL_HOWL_OF_AZGALOR);
-        if(TempSpell)
+        if (TempSpell)
             TempSpell->EffectRadiusIndex[0] = 12;//100yards instead of 50000?!
     }
 
@@ -59,13 +59,13 @@ struct TRINITY_DLL_DECL boss_azgalorAI : public hyjal_trashAI
         EnrageTimer = 600000;
         enraged = false;
 
-        if(pInstance && IsEvent)
+        if (pInstance && IsEvent)
             pInstance->SetData(DATA_AZGALOREVENT, NOT_STARTED);
     }
 
     void EnterCombat(Unit *who)
     {
-        if(pInstance && IsEvent)
+        if (pInstance && IsEvent)
             pInstance->SetData(DATA_AZGALOREVENT, IN_PROGRESS);
         DoPlaySoundToSet(m_creature, SOUND_ONAGGRO);
         DoYell(SAY_ONAGGRO, LANG_UNIVERSAL, NULL);
@@ -104,7 +104,7 @@ struct TRINITY_DLL_DECL boss_azgalorAI : public hyjal_trashAI
     void JustDied(Unit *victim)
     {
         hyjal_trashAI::JustDied(victim);
-        if(pInstance && IsEvent)
+        if (pInstance && IsEvent)
             pInstance->SetData(DATA_AZGALOREVENT, DONE);
         DoPlaySoundToSet(m_creature, SOUND_ONDEATH);
     }
@@ -115,10 +115,10 @@ struct TRINITY_DLL_DECL boss_azgalorAI : public hyjal_trashAI
         {
             //Must update npc_escortAI
             npc_escortAI::UpdateAI(diff);
-            if(!go)
+            if (!go)
             {
                 go = true;
-                if(pInstance)
+                if (pInstance)
                 {
                     AddWaypoint(0, 5492.91,    -2404.61,    1462.63);
                     AddWaypoint(1, 5531.76,    -2460.87,    1469.55);
@@ -135,34 +135,34 @@ struct TRINITY_DLL_DECL boss_azgalorAI : public hyjal_trashAI
         }
 
         //Return since we have no target
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
-        if(RainTimer < diff)
+        if (RainTimer < diff)
         {
             DoCast(SelectTarget(SELECT_TARGET_RANDOM,0,30,true), SPELL_RAIN_OF_FIRE);
             RainTimer = 20000+rand()%15000;
         }else RainTimer -= diff;
 
-        if(DoomTimer < diff)
+        if (DoomTimer < diff)
         {
             DoCast(SelectTarget(SELECT_TARGET_RANDOM,1,100,true), SPELL_DOOM);//never on tank
             DoomTimer = 45000+rand()%5000;
         }else DoomTimer -= diff;
 
-        if(HowlTimer < diff)
+        if (HowlTimer < diff)
         {
             DoCast(m_creature, SPELL_HOWL_OF_AZGALOR);
             HowlTimer = 30000;
         }else HowlTimer -= diff;
 
-        if(CleaveTimer < diff)
+        if (CleaveTimer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_CLEAVE);
             CleaveTimer = 10000+rand()%5000;
         }else CleaveTimer -= diff;
 
-        if(EnrageTimer < diff && !enraged)
+        if (EnrageTimer < diff && !enraged)
         {
             m_creature->InterruptNonMeleeSpells(false);
             DoCast(m_creature, SPELL_BERSERK, true);
@@ -188,7 +188,7 @@ struct TRINITY_DLL_DECL mob_lesser_doomguardAI : public hyjal_trashAI
     mob_lesser_doomguardAI(Creature *c) : hyjal_trashAI(c)
     {
         pInstance = c->GetInstanceData();
-        if(pInstance)
+        if (pInstance)
             AzgalorGUID = pInstance->GetData64(DATA_AZGALOR);
     }
 
@@ -233,12 +233,12 @@ struct TRINITY_DLL_DECL mob_lesser_doomguardAI : public hyjal_trashAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(CheckTimer < diff)
+        if (CheckTimer < diff)
         {
-            if(AzgalorGUID)
+            if (AzgalorGUID)
             {
                 Creature* boss = Unit::GetCreature((*m_creature),AzgalorGUID);
-                if(!boss || (boss && boss->isDead()))
+                if (!boss || (boss && boss->isDead()))
                 {
                     m_creature->setDeathState(JUST_DIED);
                     m_creature->RemoveCorpse();
@@ -249,16 +249,16 @@ struct TRINITY_DLL_DECL mob_lesser_doomguardAI : public hyjal_trashAI
         }else CheckTimer -= diff;
 
         //Return since we have no target
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
-        if(WarstompTimer < diff)
+        if (WarstompTimer < diff)
         {
             DoCast(m_creature, SPELL_WARSTOMP);
             WarstompTimer = 10000+rand()%5000;
         }else WarstompTimer -= diff;
 
-        if(CrippleTimer < diff)
+        if (CrippleTimer < diff)
         {
             DoCast(SelectTarget(SELECT_TARGET_RANDOM,0,100,true), SPELL_CRIPPLE);
             CrippleTimer = 25000+rand()%5000;

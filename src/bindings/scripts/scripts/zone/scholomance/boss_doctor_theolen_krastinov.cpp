@@ -48,7 +48,7 @@ struct TRINITY_DLL_DECL boss_theolenkrastinovAI : public ScriptedAI
     void JustDied(Unit *killer)
     {
         ScriptedInstance *pInstance = (m_creature->GetInstanceData()) ? (m_creature->GetInstanceData()) : NULL;
-        if(pInstance)
+        if (pInstance)
         {
             pInstance->SetData(DATA_DOCTORTHEOLENKRASTINOV_DEATH, 0);
 
@@ -81,7 +81,7 @@ struct TRINITY_DLL_DECL boss_theolenkrastinovAI : public ScriptedAI
         }else Cleave_Timer -= diff;
 
         //Frenzy_Timer
-        if ( m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 26 )
+        if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 26)
         {
             if (Frenzy_Timer < diff)
             {

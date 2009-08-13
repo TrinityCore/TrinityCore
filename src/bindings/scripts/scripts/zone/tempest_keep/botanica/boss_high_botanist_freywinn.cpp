@@ -71,7 +71,7 @@ struct TRINITY_DLL_DECL boss_high_botanist_freywinnAI : public ScriptedAI
 
     void JustSummoned(Creature *summoned)
     {
-        if( summoned->GetEntry() == ENTRY_FRAYER )
+        if (summoned->GetEntry() == ENTRY_FRAYER)
             Adds_List.push_back(summoned->GetGUID());
     }
 
@@ -102,10 +102,10 @@ struct TRINITY_DLL_DECL boss_high_botanist_freywinnAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if( !UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
-        if( TreeForm_Timer < diff )
+        if (TreeForm_Timer < diff)
         {
             switch(rand()%2)
             {
@@ -113,7 +113,7 @@ struct TRINITY_DLL_DECL boss_high_botanist_freywinnAI : public ScriptedAI
             case 1: DoScriptText(SAY_TREE_2, m_creature); break;
             }
 
-            if( m_creature->IsNonMeleeSpellCasted(false) )
+            if (m_creature->IsNonMeleeSpellCasted(false))
                 m_creature->InterruptNonMeleeSpells(true);
 
             m_creature->RemoveAllAuras();
@@ -128,17 +128,17 @@ struct TRINITY_DLL_DECL boss_high_botanist_freywinnAI : public ScriptedAI
             TreeForm_Timer = 75000;
         }else TreeForm_Timer -= diff;
 
-        if( !MoveFree )
+        if (!MoveFree)
         {
-            if( MoveCheck_Timer < diff )
+            if (MoveCheck_Timer < diff)
             {
-                if( !Adds_List.empty() )
+                if (!Adds_List.empty())
                 {
                     for(std::list<uint64>::iterator itr = Adds_List.begin(); itr != Adds_List.end(); ++itr)
                     {
-                        if( Unit *temp = Unit::GetUnit(*m_creature,*itr) )
+                        if (Unit *temp = Unit::GetUnit(*m_creature,*itr))
                         {
-                            if( !temp->isAlive() )
+                            if (!temp->isAlive())
                             {
                                 Adds_List.erase(itr);
                                 ++DeadAddsCount;
@@ -148,10 +148,10 @@ struct TRINITY_DLL_DECL boss_high_botanist_freywinnAI : public ScriptedAI
                     }
                 }
 
-                if( DeadAddsCount < 3 && TreeForm_Timer-30000 < diff )
+                if (DeadAddsCount < 3 && TreeForm_Timer-30000 < diff)
                     DeadAddsCount = 3;
 
-                if( DeadAddsCount >= 3 )
+                if (DeadAddsCount >= 3)
                 {
                     Adds_List.clear();
                     DeadAddsCount = 0;
@@ -168,11 +168,11 @@ struct TRINITY_DLL_DECL boss_high_botanist_freywinnAI : public ScriptedAI
             return;
         }
 
-        /*if( m_creature->HasAura(SPELL_TREE_FORM,0) || m_creature->HasAura(SPELL_TRANQUILITY,0) )
+        /*if (m_creature->HasAura(SPELL_TREE_FORM,0) || m_creature->HasAura(SPELL_TRANQUILITY,0))
             return;*/
 
         //one random seedling every 5 secs, but not in tree form
-        if( SummonSeedling_Timer < diff )
+        if (SummonSeedling_Timer < diff)
         {
             DoSummonSeedling();
             SummonSeedling_Timer = 6000;

@@ -152,7 +152,7 @@ struct TRINITY_DLL_DECL mob_flamewaker_priestAI : public ScriptedAI
             return;
 
         //Casting Heal to Sulfuron or other Guards.
-        if(Heal_Timer < diff)
+        if (Heal_Timer < diff)
         {
             Unit* pUnit = DoSelectLowestHpFriendly(60.0f, 1);
             if (!pUnit)

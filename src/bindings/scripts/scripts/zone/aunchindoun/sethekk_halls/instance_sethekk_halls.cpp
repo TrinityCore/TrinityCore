@@ -28,7 +28,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL instance_sethekk_halls : public ScriptedInstance
 {
-    instance_sethekk_halls(Map *map) : ScriptedInstance(map) {Initialize();};
+    instance_sethekk_halls(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 
     uint64 m_uiIkissDoorGUID;
 
@@ -55,9 +55,9 @@ struct TRINITY_DLL_DECL instance_sethekk_halls : public ScriptedInstance
     }
 };
 
-InstanceData* GetInstanceData_instance_sethekk_halls(Map* map)
+InstanceData* GetInstanceData_instance_sethekk_halls(Map* pMap)
 {
-    return new instance_sethekk_halls(map);
+    return new instance_sethekk_halls(pMap);
 }
 
 void AddSC_instance_sethekk_halls()

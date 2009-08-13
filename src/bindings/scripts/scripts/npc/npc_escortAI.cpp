@@ -25,7 +25,7 @@ void npc_escortAI::AttackStart(Unit *who)
     if (!who)
         return;
 
-    if(m_creature->Attack(who, true) )
+    if (m_creature->Attack(who, true))
     {
         if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
             m_creature->GetMotionMaster()->MovementExpired();
@@ -92,7 +92,7 @@ void npc_escortAI::UpdateAI(const uint32 diff)
             //End of the line
             if (CurrentWP == WaypointList.end())
             {
-                if(DespawnAtEnd)
+                if (DespawnAtEnd)
                 {
                     debug_log("TSCR: EscortAI reached end of waypoints");
 
@@ -127,9 +127,9 @@ void npc_escortAI::UpdateAI(const uint32 diff)
                 }
             }
 
-            if( !IsOnHold )
+            if (!IsOnHold)
             {
-                m_creature->GetMotionMaster()->MovePoint(CurrentWP->id, CurrentWP->x, CurrentWP->y, CurrentWP->z );
+                m_creature->GetMotionMaster()->MovePoint(CurrentWP->id, CurrentWP->x, CurrentWP->y, CurrentWP->z);
                 debug_log("TSCR: EscortAI Next WP is: %u, %f, %f, %f", CurrentWP->id, CurrentWP->x, CurrentWP->y, CurrentWP->z);
                 m_uiWPWaitTimer = 0;
             }
@@ -186,7 +186,7 @@ void npc_escortAI::UpdateAI(const uint32 diff)
         }else m_uiPlayerCheckTimer -= diff;
     }
 
-    if(CanMelee && UpdateVictim())
+    if (CanMelee && UpdateVictim())
         DoMeleeAttackIfReady();
 }
 
@@ -332,7 +332,7 @@ void npc_escortAI::Start(bool bIsActiveAttacker, bool bRun, uint64 uiPlayerGUID,
     if (m_bCanReturnToStart && m_bCanInstantRespawn)
         debug_log("TSCR: EscortAI is set to return home after waypoint end and instant respawn at waypoint end. Creature will never despawn.");
 
-    if(m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
+    if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
     {
         m_creature->GetMotionMaster()->MovementExpired();
         m_creature->GetMotionMaster()->MoveIdle();
@@ -353,7 +353,7 @@ void npc_escortAI::Start(bool bIsActiveAttacker, bool bRun, uint64 uiPlayerGUID,
         m_creature->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
 
     //Start WP
-    m_creature->GetMotionMaster()->MovePoint(CurrentWP->id, CurrentWP->x, CurrentWP->y, CurrentWP->z );
+    m_creature->GetMotionMaster()->MovePoint(CurrentWP->id, CurrentWP->x, CurrentWP->y, CurrentWP->z);
     debug_log("TSCR: EscortAI Next WP is: %d, %f, %f, %f", CurrentWP->id, CurrentWP->x, CurrentWP->y, CurrentWP->z);
     IsBeingEscorted = true;
 }

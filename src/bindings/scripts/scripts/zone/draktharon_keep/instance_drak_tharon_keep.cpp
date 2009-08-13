@@ -3,12 +3,12 @@
 
 struct TRINITY_DLL_DECL instance_drak_tharon : public ScriptedInstance
 {
-    instance_drak_tharon(Map *Map) : ScriptedInstance(Map) {Initialize();};
+    instance_drak_tharon(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 };
 
-InstanceData* GetInstanceData_instance_drak_tharon(Map* map)
+InstanceData* GetInstanceData_instance_drak_tharon(Map* pMap)
 {
-    return new instance_drak_tharon(map);
+    return new instance_drak_tharon(pMap);
 }
 
 void AddSC_instance_drak_tharon()

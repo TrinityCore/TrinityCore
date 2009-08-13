@@ -51,7 +51,7 @@ struct TRINITY_DLL_DECL boss_flamegorAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
         //ShadowFlame_Timer
@@ -65,7 +65,7 @@ struct TRINITY_DLL_DECL boss_flamegorAI : public ScriptedAI
         if (WingBuffet_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_WINGBUFFET);
-            if(DoGetThreat(m_creature->getVictim()))
+            if (DoGetThreat(m_creature->getVictim()))
                 DoModifyThreatPercent(m_creature->getVictim(),-75);
 
             WingBuffet_Timer = 25000;

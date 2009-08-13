@@ -72,7 +72,7 @@ enum
 
 struct TRINITY_DLL_DECL instance_blackrock_depths : public ScriptedInstance
 {
-    instance_blackrock_depths(Map *map) : ScriptedInstance(map) {Initialize();};
+    instance_blackrock_depths(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 
     uint32 Encounter[ENCOUNTERS];
     std::string str_data;
@@ -176,7 +176,7 @@ struct TRINITY_DLL_DECL instance_blackrock_depths : public ScriptedInstance
         case GO_TOMB_ENTER: GoTombEnterGUID = go->GetGUID(); break;
         case GO_TOMB_EXIT: 
             GoTombExitGUID = go->GetGUID();
-            if(GhostKillCount >= 7)
+            if (GhostKillCount >= 7)
                 HandleGameObject(0, true, go);
             else
                 HandleGameObject(0, false, go);
@@ -197,7 +197,7 @@ struct TRINITY_DLL_DECL instance_blackrock_depths : public ScriptedInstance
         {
         case DATA_EVENSTARTER:
             TombEventStarterGUID = data;
-            if(!TombEventStarterGUID)
+            if (!TombEventStarterGUID)
                 TombOfSevenReset();//reset
             else
                 TombOfSevenStart();//start
@@ -327,9 +327,9 @@ struct TRINITY_DLL_DECL instance_blackrock_depths : public ScriptedInstance
         for(uint8 i = 0; i < ENCOUNTERS; ++i)
             if (Encounter[i] == IN_PROGRESS)
                 Encounter[i] = NOT_STARTED;
-        if(GhostKillCount > 0 && GhostKillCount < 7)
+        if (GhostKillCount > 0 && GhostKillCount < 7)
             GhostKillCount = 0;//reset tomb of seven event
-        if(GhostKillCount > 7)
+        if (GhostKillCount > 7)
             GhostKillCount = 7;
 
         OUT_LOAD_INST_DATA_COMPLETE;
@@ -337,13 +337,13 @@ struct TRINITY_DLL_DECL instance_blackrock_depths : public ScriptedInstance
 
     void TombOfSevenEvent()
     {
-        if(GhostKillCount < 7 && TombBossGUIDs[TombEventCounter])
+        if (GhostKillCount < 7 && TombBossGUIDs[TombEventCounter])
         {
-            if(Creature* boss = instance->GetCreature(TombBossGUIDs[TombEventCounter]))
+            if (Creature* boss = instance->GetCreature(TombBossGUIDs[TombEventCounter]))
             {
                 boss->setFaction(FACTION_HOSTILE);
                 boss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
-                if(Unit* target = boss->SelectNearestTarget(500))
+                if (Unit* target = boss->SelectNearestTarget(500))
                     boss->AI()->AttackStart(target);
             }
         }        
@@ -355,9 +355,9 @@ struct TRINITY_DLL_DECL instance_blackrock_depths : public ScriptedInstance
         HandleGameObject(GoTombEnterGUID,true);//event reseted, open entrance door
         for(uint8 i = 0; i < 7; ++i)
         {
-            if(Creature* boss = instance->GetCreature(TombBossGUIDs[i]))
+            if (Creature* boss = instance->GetCreature(TombBossGUIDs[i]))
             {
-                if(!boss->isAlive())
+                if (!boss->isAlive())
                 {//do not call EnterEvadeMode(), it will create infinit loops
                     boss->Respawn();
                     boss->RemoveAllAuras();
@@ -394,23 +394,23 @@ struct TRINITY_DLL_DECL instance_blackrock_depths : public ScriptedInstance
     }
     void Update(uint32 diff)
     {
-        if(TombEventStarterGUID && GhostKillCount < 7)
+        if (TombEventStarterGUID && GhostKillCount < 7)
         {
-            if(TombTimer <= diff)
+            if (TombTimer <= diff)
             {
                 TombTimer = TIMER_TOMBOFTHESEVEN;
                 TombEventCounter++;
                 TombOfSevenEvent();
             }else TombTimer -= diff;
         }
-        if(GhostKillCount >= 7 && TombEventStarterGUID)
+        if (GhostKillCount >= 7 && TombEventStarterGUID)
             TombOfSevenEnd();
     }
 };
 
-InstanceData* GetInstanceData_instance_blackrock_depths(Map* map)
+InstanceData* GetInstanceData_instance_blackrock_depths(Map* pMap)
 {
-    return new instance_blackrock_depths(map);
+    return new instance_blackrock_depths(pMap);
 }
 
    void AddSC_instance_blackrock_depths()

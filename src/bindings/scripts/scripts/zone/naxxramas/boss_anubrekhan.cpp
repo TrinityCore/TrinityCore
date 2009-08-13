@@ -41,7 +41,7 @@ struct TRINITY_DLL_DECL boss_anubrekhanAI : public BossAI
     {
         HasTaunted = false;
         DoSpawnCreature(MOB_CRYPT_GUARD, 0, 10, 0, me->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
-        if(HeroicMode)
+        if (HeroicMode)
             DoSpawnCreature(MOB_CRYPT_GUARD, 0, -10, 0, me->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
     }
 
@@ -53,7 +53,7 @@ struct TRINITY_DLL_DECL boss_anubrekhanAI : public BossAI
         //Force the player to spawn corpse scarabs via spell
         victim->CastSpell(victim, SPELL_SELF_SPAWN_5, true, NULL, NULL, me->GetGUID());
 
-        if(!(rand()%5))
+        if (!(rand()%5))
             DoScriptText(SAY_SLAY, me);
     }
 
@@ -67,7 +67,7 @@ struct TRINITY_DLL_DECL boss_anubrekhanAI : public BossAI
 
     void MoveInLineOfSight(Unit *who)
     {
-        if(!HasTaunted && me->IsWithinDistInMap(who, 60.0f))
+        if (!HasTaunted && me->IsWithinDistInMap(who, 60.0f))
         {
             DoScriptText(SAY_GREET, me);
             HasTaunted = true;
@@ -77,7 +77,7 @@ struct TRINITY_DLL_DECL boss_anubrekhanAI : public BossAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!UpdateVictim() || !CheckInRoom())
+        if (!UpdateVictim() || !CheckInRoom())
             return;
 
         events.Update(diff);
@@ -89,8 +89,8 @@ struct TRINITY_DLL_DECL boss_anubrekhanAI : public BossAI
                 case EVENT_IMPALE:
                     //Cast Impale on a random target
                     //Do NOT cast it when we are afflicted by locust swarm
-                    if(!me->HasAura(SPELL_LOCUSTSWARM))
-                        if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    if (!me->HasAura(SPELL_LOCUSTSWARM))
+                        if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                             DoCast(target, SPELL_IMPALE);
                     events.ScheduleEvent(EVENT_IMPALE, 15000, 1);
                     events.DelayEvents(1500, 1);

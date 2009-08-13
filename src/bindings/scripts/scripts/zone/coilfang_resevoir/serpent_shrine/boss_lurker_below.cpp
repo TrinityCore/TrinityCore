@@ -78,7 +78,7 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
     {
         pInstance = c->GetInstanceData();
         SpellEntry *TempSpell = GET_SPELL(SPELL_SPOUT_ANIM);
-        if(TempSpell)
+        if (TempSpell)
         {
             TempSpell->Effect[0] = 0;//remove all spell effect, only anim is needed
             TempSpell->Effect[1] = 0;
@@ -126,10 +126,10 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
 
         Summons.DespawnAll();
 
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_THELURKERBELOWEVENT, NOT_STARTED);
 
-        /*if(pInstance->GetData(DATA_STRANGE_POOL) != DONE)
+        /*if (pInstance->GetData(DATA_STRANGE_POOL) != DONE)
         {
             m_creature->SetReactState(REACT_PASSIVE);
             m_creature->SetVisibility(VISIBILITY_OFF);
@@ -154,7 +154,7 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
 
      void EnterCombat(Unit *who)
      {
-         if(pInstance)
+         if (pInstance)
             pInstance->SetData(DATA_THELURKERBELOWEVENT, IN_PROGRESS);
 
          if (!who || m_creature->getVictim())
@@ -170,7 +170,7 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
 
      void JustDied(Unit* Killer)
      {
-         if(pInstance)
+         if (pInstance)
             pInstance->SetData(DATA_THELURKERBELOWEVENT, DONE);
 
          Summons.DespawnAll();
@@ -203,10 +203,10 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
              break;
          }
 
-         if(!Spout)
+         if (!Spout)
              return;
 
-         if(RotTimer<diff)//end rotate
+         if (RotTimer<diff)//end rotate
          {
              RotType = NOROTATE;//set norotate state
              RotTimer=20000;
@@ -215,20 +215,20 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
              return;
          }else RotTimer-=diff;
 
-         if(SpoutAnimTimer<diff)
+         if (SpoutAnimTimer<diff)
          {
              DoCast(m_creature,SPELL_SPOUT_ANIM,true);
              SpoutAnimTimer = 1000;
          }else SpoutAnimTimer-=diff;
 
-         Map *map = m_creature->GetMap();
-         if (map->IsDungeon() && pInstance->GetData(DATA_THELURKERBELOWEVENT) == IN_PROGRESS)
+         Map* pMap = m_creature->GetMap();
+         if (pMap->IsDungeon() && pInstance->GetData(DATA_THELURKERBELOWEVENT) == IN_PROGRESS)
          {
-             Map::PlayerList const &PlayerList = map->GetPlayers();
+             Map::PlayerList const &PlayerList = pMap->GetPlayers();
              for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
              {
                  Player *target = i->getSource();
-                 if(target && target->isAlive() && m_creature->HasInArc((double)diff/20000*(double)M_PI*2,target) && m_creature->IsWithinDist(target, SPOUT_DIST) && !target->IsInWater())
+                 if (target && target->isAlive() && m_creature->HasInArc((double)diff/20000*(double)M_PI*2,target) && m_creature->IsWithinDist(target, SPOUT_DIST) && !target->IsInWater())
                      DoCast(target,SPELL_SPOUT,true);//only knock back palyers in arc, in 100yards, not in water
              }
          }
@@ -243,7 +243,7 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
          }
          RotTimer=20000;
 
-         if(victim)
+         if (victim)
              SpoutAngle = m_creature->GetAngle(victim);
 
          m_creature->MonsterTextEmote(EMOTE_SPOUT,0,true);
@@ -253,14 +253,14 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
      void UpdateAI(const uint32 diff)
      {
          //Return since we have no target
-         if (!UpdateVictim() /*|| !m_creature->getVictim()*/ )//rotate resets target
+         if (!UpdateVictim() /*|| !m_creature->getVictim()*/)//rotate resets target
              return;
 
           //Check if players in water and if in water cast spell
-         Map *map = m_creature->GetMap();
-         if (map->IsDungeon() && pInstance->GetData(DATA_THELURKERBELOWEVENT) == IN_PROGRESS)
+         Map* pMap = m_creature->GetMap();
+         if (pMap->IsDungeon() && pInstance->GetData(DATA_THELURKERBELOWEVENT) == IN_PROGRESS)
          {
-             Map::PlayerList const &PlayerList = map->GetPlayers();
+             Map::PlayerList const &PlayerList = pMap->GetPlayers();
 
              if (PlayerList.isEmpty())
                  return;
@@ -269,15 +269,15 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
              {
                  if (i->getSource()->isAlive() && i->getSource()->IsInWater() && !i->getSource()->HasAura(SPELL_SCALDINGWATER))
                      i->getSource()->CastSpell(i->getSource(), SPELL_SCALDINGWATER, true);
-                 else if(!i->getSource()->IsInWater())
+                 else if (!i->getSource()->IsInWater())
                      i->getSource()->RemoveAurasDueToSpell(SPELL_SCALDINGWATER);
              }
          }
 
          Rotate(diff);//always check rotate things
-         if(!Submerged)
+         if (!Submerged)
          {
-             if(PhaseTimer < diff)
+             if (PhaseTimer < diff)
              {
                  m_creature->InterruptNonMeleeSpells(false);
                  DoCast(m_creature,SPELL_SUBMERGE);
@@ -286,11 +286,11 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
              }else PhaseTimer-=diff;
          }
 
-         if(!Submerged && RotType == NOROTATE)//is not spouting and not submerged
+         if (!Submerged && RotType == NOROTATE)//is not spouting and not submerged
          {
-             if(SpoutTimer < diff)
+             if (SpoutTimer < diff)
              {
-                 if(m_creature->getVictim() && RotType == NOROTATE)
+                 if (m_creature->getVictim() && RotType == NOROTATE)
                      StartRotate(m_creature->getVictim());//start spout and random rotate
 
                  SpoutTimer= 35000;
@@ -298,50 +298,50 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
              }else SpoutTimer -= diff;
 
              //Whirl directly after a Spout and at random times
-             if(WhirlTimer < diff)
+             if (WhirlTimer < diff)
              {
                  WhirlTimer = rand()%5000 + 15000;
                  DoCast(m_creature,SPELL_WHIRL);
                  WaterboltTimer += 5000;//add 5secs to waterbolt timer, to add some time to run back to boss
              }else WhirlTimer -= diff;
 
-             if(GeyserTimer < diff)
+             if (GeyserTimer < diff)
              {
                  Unit* target = NULL;
                  target = SelectUnit(SELECT_TARGET_RANDOM,1);
 
-                 if(target)
+                 if (target)
                     DoCast(target,SPELL_GEYSER,true);
                  else
                      target = SelectUnit(SELECT_TARGET_RANDOM,0);
-                 if(target)
+                 if (target)
                      DoCast(target,SPELL_GEYSER,true);
 
                  GeyserTimer = rand()%5000 + 15000;
              }else GeyserTimer -= diff;
 
-             if(WaterboltTimer < diff)
+             if (WaterboltTimer < diff)
              {
                  Unit* target = SelectTarget(SELECT_TARGET_NEAREST,0,14,true);
-                 if(!target)
+                 if (!target)
                  {
                      target = SelectUnit(SELECT_TARGET_RANDOM,0);
-                     if(target)
+                     if (target)
                          DoCast(target,SPELL_WATERBOLT);
                  }
                  WaterboltTimer = 3000;
              }else WaterboltTimer -= diff;
 
-             if (!UpdateVictim() )
+             if (!UpdateVictim())
                 return;
 
              DoMeleeAttackIfReady();
 
-         }else if(!Submerged)
+         }else if (!Submerged)
              return;
-         else if(Submerged)//phase 2, submerged
+         else if (Submerged)//phase 2, submerged
          {
-             if(PhaseTimer < diff)
+             if (PhaseTimer < diff)
              {
                  Submerged = false;
                  m_creature->InterruptNonMeleeSpells(false);//shouldn't be any
@@ -357,21 +357,21 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
                  return;
              }else PhaseTimer-=diff;
 
-             if(!m_creature->isInCombat())
+             if (!m_creature->isInCombat())
                  DoZoneInCombat();
 
-             if(!Spawned)
+             if (!Spawned)
              {
                  m_creature->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                  //spawn adds
                  for (uint8 i = 0; i < 9; ++i)
                  {
                      Creature* Summoned;
-                     if(i < 7)
+                     if (i < 7)
                          Summoned = m_creature->SummonCreature(MOB_COILFANG_AMBUSHER,AddPos[i][0],AddPos[i][1],AddPos[i][2], 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
                      else Summoned = m_creature->SummonCreature(MOB_COILFANG_GUARDIAN,AddPos[i][0],AddPos[i][1],AddPos[i][2], 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
 
-                     if(Summoned)
+                     if (Summoned)
                         Summons.Summon(Summoned);
                      Spawned = true;
                  }
@@ -404,7 +404,7 @@ struct TRINITY_DLL_DECL mob_coilfang_ambusherAI : public Scripted_NoMovementAI
     mob_coilfang_ambusherAI(Creature *c) : Scripted_NoMovementAI(c)
     {
         SpellEntry *TempSpell = GET_SPELL(SPELL_SHOOT);
-        if(TempSpell)
+        if (TempSpell)
             TempSpell->Effect[0] = 2;//change spell effect from weapon % dmg to simple phisical dmg
     }
 
@@ -435,21 +435,21 @@ struct TRINITY_DLL_DECL mob_coilfang_ambusherAI : public Scripted_NoMovementAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(MultiShotTimer < diff)
+        if (MultiShotTimer < diff)
         {
-            if(m_creature->getVictim())
+            if (m_creature->getVictim())
                 DoCast(m_creature->getVictim(), SPELL_SPREAD_SHOT, true);
 
             MultiShotTimer = 10000;
             ShootBowTimer += 1500;//add global cooldown
         }else MultiShotTimer -= diff;
 
-        if(ShootBowTimer < diff)
+        if (ShootBowTimer < diff)
         {
             Unit* target = NULL;
             target = SelectUnit(SELECT_TARGET_RANDOM, 0);
             int bp0 = 1100;
-            if(target)
+            if (target)
                 m_creature->CastCustomSpell(target,SPELL_SHOOT,&bp0,NULL,NULL,true);
             ShootBowTimer = 4000;
             MultiShotTimer += 1500;//add global cooldown

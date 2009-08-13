@@ -3,12 +3,12 @@
 
 struct TRINITY_DLL_DECL instance_oculus : public ScriptedInstance
 {
-    instance_oculus(Map *Map) : ScriptedInstance(Map) {Initialize();};
+    instance_oculus(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 };
 
-InstanceData* GetInstanceData_instance_oculus(Map* map)
+InstanceData* GetInstanceData_instance_oculus(Map* pMap)
 {
-    return new instance_oculus(map);
+    return new instance_oculus(pMap);
 }
 
 void AddSC_instance_oculus()

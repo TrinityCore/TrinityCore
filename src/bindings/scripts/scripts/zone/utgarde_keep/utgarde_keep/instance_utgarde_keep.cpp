@@ -48,7 +48,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
 {
-    instance_utgarde_keep(Map *Map) : ScriptedInstance(Map) {Initialize();};
+    instance_utgarde_keep(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 
     uint64 Keleseth;
     uint64 Skarvald;
@@ -83,7 +83,7 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
     bool IsEncounterInProgress() const
     {
         for(uint8 i = 0; i < ENCOUNTERS; ++i)
-            if(Encounters[i] == IN_PROGRESS) return true;
+            if (Encounters[i] == IN_PROGRESS) return true;
 
         return false;
     }
@@ -151,28 +151,28 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
         switch(type)
         {
         case DATA_PRINCEKELESETH_EVENT:
-            if(data == DONE)
+            if (data == DONE)
             {
                 //HandleGameObject(doorname, 0);
             }
             Encounters[0] = data;
             break;
         case DATA_SKARVALD_DALRONN_EVENT:
-            if(data == DONE)
+            if (data == DONE)
             {
                 //HandleGameObject(doorname, 0);
             }
             Encounters[1] = data;
             break;
         case DATA_INGVAR_EVENT:
-            if(data == DONE)
+            if (data == DONE)
             {
                 //HandleGameObject(doorname, 0);
             }
             Encounters[2] = data;
             break;
         case EVENT_FORGE_1:
-            if(data == NOT_STARTED)
+            if (data == NOT_STARTED)
             {
                 HandleGameObject(forge_bellow[0],false);
                 HandleGameObject(forge_fire[0],false);
@@ -185,7 +185,7 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
             }
             break;
         case EVENT_FORGE_2:
-            if(data == NOT_STARTED)
+            if (data == NOT_STARTED)
             {
                 HandleGameObject(forge_bellow[1],false);
                 HandleGameObject(forge_fire[1],false);
@@ -198,7 +198,7 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
             }
             break;
         case EVENT_FORGE_3:
-            if(data == NOT_STARTED)
+            if (data == NOT_STARTED)
             {
                 HandleGameObject(forge_bellow[2],false);
                 HandleGameObject(forge_fire[2],false);
@@ -261,7 +261,7 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
         std::istringstream loadStream(in);
         loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2;
 
-        if( dataHead1 == 'U' && dataHead2 == 'K')
+        if (dataHead1 == 'U' && dataHead2 == 'K')
         {
             Encounters[0] = data0;
             Encounters[1] = data1;
@@ -277,9 +277,9 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
     }
 };
 
-InstanceData* GetInstanceData_instance_utgarde_keep(Map* map)
+InstanceData* GetInstanceData_instance_utgarde_keep(Map* pMap)
 {
-   return new instance_utgarde_keep(map);
+   return new instance_utgarde_keep(pMap);
 }
 
 void AddSC_instance_utgarde_keep()

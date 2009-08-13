@@ -51,9 +51,9 @@ enum
     SPELL_SUMMON_GHOST_SABER    = 5968,
 };
 
-bool GOHello_go_cat_figurine(Player *player, GameObject* _GO)
+bool GOHello_go_cat_figurine(Player* pPlayer, GameObject* _GO)
 {
-    player->CastSpell(player,SPELL_SUMMON_GHOST_SABER,true);
+    pPlayer->CastSpell(pPlayer,SPELL_SUMMON_GHOST_SABER,true);
     return false;
 }
 
@@ -61,44 +61,44 @@ bool GOHello_go_cat_figurine(Player *player, GameObject* _GO)
 ## go_crystal_pylons (3x)
 ######*/
 
-bool GOHello_go_northern_crystal_pylon(Player *player, GameObject* _GO)
+bool GOHello_go_northern_crystal_pylon(Player* pPlayer, GameObject* _GO)
 {
     if (_GO->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER)
     {
-        player->PrepareQuestMenu(_GO->GetGUID());
-        player->SendPreparedQuest(_GO->GetGUID());
+        pPlayer->PrepareQuestMenu(_GO->GetGUID());
+        pPlayer->SendPreparedQuest(_GO->GetGUID());
     }
 
-    if (player->GetQuestStatus(4285) == QUEST_STATUS_INCOMPLETE)
-        player->AreaExploredOrEventHappens(4285);
+    if (pPlayer->GetQuestStatus(4285) == QUEST_STATUS_INCOMPLETE)
+        pPlayer->AreaExploredOrEventHappens(4285);
 
     return true;
 }
 
-bool GOHello_go_eastern_crystal_pylon(Player *player, GameObject* _GO)
+bool GOHello_go_eastern_crystal_pylon(Player* pPlayer, GameObject* _GO)
 {
     if (_GO->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER)
     {
-        player->PrepareQuestMenu(_GO->GetGUID());
-        player->SendPreparedQuest(_GO->GetGUID());
+        pPlayer->PrepareQuestMenu(_GO->GetGUID());
+        pPlayer->SendPreparedQuest(_GO->GetGUID());
     }
 
-    if (player->GetQuestStatus(4287) == QUEST_STATUS_INCOMPLETE)
-        player->AreaExploredOrEventHappens(4287);
+    if (pPlayer->GetQuestStatus(4287) == QUEST_STATUS_INCOMPLETE)
+        pPlayer->AreaExploredOrEventHappens(4287);
 
     return true;
 }
 
-bool GOHello_go_western_crystal_pylon(Player *player, GameObject* _GO)
+bool GOHello_go_western_crystal_pylon(Player* pPlayer, GameObject* _GO)
 {
     if (_GO->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER)
     {
-        player->PrepareQuestMenu(_GO->GetGUID());
-        player->SendPreparedQuest(_GO->GetGUID());
+        pPlayer->PrepareQuestMenu(_GO->GetGUID());
+        pPlayer->SendPreparedQuest(_GO->GetGUID());
     }
 
-    if (player->GetQuestStatus(4288) == QUEST_STATUS_INCOMPLETE)
-        player->AreaExploredOrEventHappens(4288);
+    if (pPlayer->GetQuestStatus(4288) == QUEST_STATUS_INCOMPLETE)
+        pPlayer->AreaExploredOrEventHappens(4288);
 
     return true;
 }
@@ -107,11 +107,11 @@ bool GOHello_go_western_crystal_pylon(Player *player, GameObject* _GO)
 ## go_barov_journal
 ######*/
 
-bool GOHello_go_barov_journal(Player *player, GameObject* _GO)
+bool GOHello_go_barov_journal(Player* pPlayer, GameObject* _GO)
 {
-    if(player->HasSkill(SKILL_TAILORING) && player->GetBaseSkillValue(SKILL_TAILORING) >= 280 && !player->HasSpell(26086))
+    if (pPlayer->HasSkill(SKILL_TAILORING) && pPlayer->GetBaseSkillValue(SKILL_TAILORING) >= 280 && !pPlayer->HasSpell(26086))
     {
-        player->CastSpell(player,26095,false);
+        pPlayer->CastSpell(pPlayer,26095,false);
     }
     return true;
 }
@@ -120,11 +120,11 @@ bool GOHello_go_barov_journal(Player *player, GameObject* _GO)
 ## go_field_repair_bot_74A
 ######*/
 
-bool GOHello_go_field_repair_bot_74A(Player *player, GameObject* _GO)
+bool GOHello_go_field_repair_bot_74A(Player* pPlayer, GameObject* _GO)
 {
-    if(player->HasSkill(SKILL_ENGINERING) && player->GetBaseSkillValue(SKILL_ENGINERING) >= 300 && !player->HasSpell(22704))
+    if (pPlayer->HasSkill(SKILL_ENGINERING) && pPlayer->GetBaseSkillValue(SKILL_ENGINERING) >= 300 && !pPlayer->HasSpell(22704))
     {
-        player->CastSpell(player,22864,false);
+        pPlayer->CastSpell(pPlayer,22864,false);
     }
     return true;
 }
@@ -153,10 +153,10 @@ bool GOHello_go_gilded_brazier(Player* pPlayer, GameObject* pGO)
 ## go_orb_of_command
 ######*/
 
-bool GOHello_go_orb_of_command(Player *player, GameObject* _GO)
+bool GOHello_go_orb_of_command(Player* pPlayer, GameObject* _GO)
 {
-    if( player->GetQuestRewardStatus(7761) )
-        player->CastSpell(player,23460,true);
+    if (pPlayer->GetQuestRewardStatus(7761))
+        pPlayer->CastSpell(pPlayer,23460,true);
 
     return true;
 }
@@ -165,11 +165,11 @@ bool GOHello_go_orb_of_command(Player *player, GameObject* _GO)
 ## go_tablet_of_madness
 ######*/
 
-bool GOHello_go_tablet_of_madness(Player *player, GameObject* _GO)
+bool GOHello_go_tablet_of_madness(Player* pPlayer, GameObject* _GO)
 {
-    if (player->HasSkill(SKILL_ALCHEMY) && player->GetSkillValue(SKILL_ALCHEMY) >= 300 && !player->HasSpell(24266))
+    if (pPlayer->HasSkill(SKILL_ALCHEMY) && pPlayer->GetSkillValue(SKILL_ALCHEMY) >= 300 && !pPlayer->HasSpell(24266))
     {
-        player->CastSpell(player,24267,false);
+        pPlayer->CastSpell(pPlayer,24267,false);
     }
     return true;
 }
@@ -179,13 +179,13 @@ bool GOHello_go_tablet_of_madness(Player *player, GameObject* _GO)
 ######*/
 
 //TODO: use gossip option ("Transcript the Tablet") instead, if Trinity adds support.
-bool GOHello_go_tablet_of_the_seven(Player *player, GameObject* _GO)
+bool GOHello_go_tablet_of_the_seven(Player* pPlayer, GameObject* _GO)
 {
     if (_GO->GetGoType() != GAMEOBJECT_TYPE_QUESTGIVER)
         return true;
 
-    if (player->GetQuestStatus(4296) == QUEST_STATUS_INCOMPLETE)
-        player->CastSpell(player,15065,false);
+    if (pPlayer->GetQuestStatus(4296) == QUEST_STATUS_INCOMPLETE)
+        pPlayer->CastSpell(pPlayer,15065,false);
 
     return true;
 }
@@ -194,10 +194,10 @@ bool GOHello_go_tablet_of_the_seven(Player *player, GameObject* _GO)
 ## go_jump_a_tron
 ######*/
 
-bool GOHello_go_jump_a_tron(Player *player, GameObject* _GO)
+bool GOHello_go_jump_a_tron(Player* pPlayer, GameObject* _GO)
 {
-    if (player->GetQuestStatus(10111) == QUEST_STATUS_INCOMPLETE)
-     player->CastSpell(player,33382,true);
+    if (pPlayer->GetQuestStatus(10111) == QUEST_STATUS_INCOMPLETE)
+     pPlayer->CastSpell(pPlayer,33382,true);
 
     return true;
 }
@@ -226,11 +226,11 @@ bool GOHello_go_ethereum_prison(Player* pPlayer, GameObject* pGo)
 {
     int Random = rand() % (sizeof(NpcPrisonEntry) / sizeof(uint32));
 
-    if(Creature* pCreature = pPlayer->SummonCreature(NpcPrisonEntry[Random],
+    if (Creature* pCreature = pPlayer->SummonCreature(NpcPrisonEntry[Random],
         pGo->GetPositionX(), pGo->GetPositionY(), pGo->GetPositionZ(), pGo->GetAngle(pPlayer),
         TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
     {
-        if(!pCreature->IsHostileTo(pPlayer))
+        if (!pCreature->IsHostileTo(pPlayer))
         {
             uint32 Spell = 0;
             FactionTemplateEntry const* pFaction = pCreature->getFactionTemplateEntry();
@@ -245,7 +245,7 @@ bool GOHello_go_ethereum_prison(Player* pPlayer, GameObject* pGo)
                 case 970: Spell = SPELL_REP_SPOR; break;
             }
 
-            if(Spell)
+            if (Spell)
                 pCreature->CastSpell(pPlayer, Spell, false);
             else
                 error_log("TSCR: go_ethereum_prison summoned creature (entry %u) but faction (%u) are not expected by script.", pCreature->GetEntry(), pCreature->getFaction());
@@ -340,7 +340,7 @@ bool GOHello_go_shrine_of_the_birds(Player* pPlayer, GameObject* pGo)
             break;
     }
 
-    if(BirdEntry)
+    if (BirdEntry)
         pPlayer->SummonCreature(BirdEntry, fX, fY, fZ, pGo->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
 
     return false;

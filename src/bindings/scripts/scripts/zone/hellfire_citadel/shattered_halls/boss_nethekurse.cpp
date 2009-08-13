@@ -251,7 +251,7 @@ struct TRINITY_DLL_DECL boss_grand_warlock_nethekurseAI : public ScriptedAI
             }
         }
 
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
         if (!IsMainEvent)
@@ -326,7 +326,7 @@ struct TRINITY_DLL_DECL mob_fel_orc_convertAI : public ScriptedAI
                 {
                     CAST_AI(boss_grand_warlock_nethekurseAI, pKurse->AI())->DoYellForPeonAggro();
 
-                    if (pInstance->GetData(TYPE_NETHEKURSE) == IN_PROGRESS )
+                    if (pInstance->GetData(TYPE_NETHEKURSE) == IN_PROGRESS)
                         return;
                     else pInstance->SetData(TYPE_NETHEKURSE,IN_PROGRESS);
                 }

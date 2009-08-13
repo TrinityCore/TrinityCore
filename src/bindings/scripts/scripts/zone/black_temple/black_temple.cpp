@@ -35,24 +35,24 @@ EndContentData */
 #define SPELL_TELEPORT      41566                           // s41566 - Teleport to Ashtongue NPC's
 #define GOSSIP_OLUM1        "Teleport me to the other Ashtongue Deathsworn"
 
-bool GossipHello_npc_spirit_of_olum(Player* player, Creature* _Creature)
+bool GossipHello_npc_spirit_of_olum(Player* pPlayer, Creature* _Creature)
 {
     ScriptedInstance* pInstance = (_Creature->GetInstanceData());
 
-    if(pInstance && (pInstance->GetData(DATA_SUPREMUSEVENT) >= DONE) && (pInstance->GetData(DATA_HIGHWARLORDNAJENTUSEVENT) >= DONE))
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_OLUM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+    if (pInstance && (pInstance->GetData(DATA_SUPREMUSEVENT) >= DONE) && (pInstance->GetData(DATA_HIGHWARLORDNAJENTUSEVENT) >= DONE))
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_OLUM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
-    player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
     return true;
 }
 
-bool GossipSelect_npc_spirit_of_olum(Player* player, Creature* _Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_spirit_of_olum(Player* pPlayer, Creature* _Creature, uint32 sender, uint32 action)
 {
-    if(action == GOSSIP_ACTION_INFO_DEF + 1)
-        player->CLOSE_GOSSIP_MENU();
+    if (action == GOSSIP_ACTION_INFO_DEF + 1)
+        pPlayer->CLOSE_GOSSIP_MENU();
 
-    player->InterruptNonMeleeSpells(false);
-    player->CastSpell(player, SPELL_TELEPORT, false);
+    pPlayer->InterruptNonMeleeSpells(false);
+    pPlayer->CastSpell(pPlayer, SPELL_TELEPORT, false);
     return true;
 }
 

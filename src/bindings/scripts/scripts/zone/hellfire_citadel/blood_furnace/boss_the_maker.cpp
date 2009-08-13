@@ -60,7 +60,7 @@ struct TRINITY_DLL_DECL boss_the_makerAI : public ScriptedAI
         Domination_Timer = 120000;
         Knockdown_Timer = 10000;
 
-        if(!pInstance)
+        if (!pInstance)
             return;
             
         pInstance->SetData(TYPE_THE_MAKER_EVENT, NOT_STARTED);
@@ -76,7 +76,7 @@ struct TRINITY_DLL_DECL boss_the_makerAI : public ScriptedAI
             case 2: DoScriptText(SAY_AGGRO_3, m_creature); break;
         }
         
-        if(!pInstance)
+        if (!pInstance)
             return;
             
         pInstance->SetData(TYPE_THE_MAKER_EVENT, IN_PROGRESS);
@@ -96,7 +96,7 @@ struct TRINITY_DLL_DECL boss_the_makerAI : public ScriptedAI
     {
         DoScriptText(SAY_DIE, m_creature);
         
-        if(!pInstance)
+        if (!pInstance)
             return;
             
         pInstance->SetData(TYPE_THE_MAKER_EVENT, DONE);
@@ -125,7 +125,7 @@ struct TRINITY_DLL_DECL boss_the_makerAI : public ScriptedAI
         }else ExplodingBreaker_Timer -=diff;
 
         /* // Disabled until Core Support for mind control
-        if(domination_timer_timer < diff)
+        if (domination_timer_timer < diff)
         {
         Unit* target;
         target = SelectUnit(SELECT_TARGET_RANDOM,0);

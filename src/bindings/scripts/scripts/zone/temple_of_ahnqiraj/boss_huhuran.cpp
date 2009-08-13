@@ -83,7 +83,7 @@ struct TRINITY_DLL_DECL boss_huhuranAI : public ScriptedAI
         // Wyvern Timer
         if (Wyvern_Timer < diff)
         {
-            if( Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0) )
+            if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0))
                 DoCast(target,SPELL_WYVERNSTING);
             Wyvern_Timer = 15000 + rand()%17000;
         }else Wyvern_Timer -= diff;
@@ -120,7 +120,7 @@ struct TRINITY_DLL_DECL boss_huhuranAI : public ScriptedAI
             FrenzyBack_Timer = 15000;
         }else FrenzyBack_Timer -= diff;
 
-        if ( !Berserk && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 31 )
+        if (!Berserk && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 31)
         {
             m_creature->InterruptNonMeleeSpells(false);
             DoScriptText(EMOTE_GENERIC_BERSERK, m_creature);

@@ -54,18 +54,18 @@ struct TRINITY_DLL_DECL boss_hungarfenAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if( (m_creature->GetHealth()*100) / m_creature->GetMaxHealth() <= 20 )
+        if ((m_creature->GetHealth()*100) / m_creature->GetMaxHealth() <= 20)
         {
-            if( !Root )
+            if (!Root)
             {
                 DoCast(m_creature,SPELL_FOUL_SPORES);
                 Root = true;
             }
         }
 
-        if( Mushroom_Timer < diff )
+        if (Mushroom_Timer < diff)
         {
-            if( Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0) )
+            if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0))
                 m_creature->SummonCreature(17990, target->GetPositionX()+(rand()%8), target->GetPositionY()+(rand()%8), target->GetPositionZ(), (rand()%5), TEMPSUMMON_TIMED_DESPAWN, 22000);
             else
                 m_creature->SummonCreature(17990, m_creature->GetPositionX()+(rand()%8), m_creature->GetPositionY()+(rand()%8), m_creature->GetPositionZ(), (rand()%5), TEMPSUMMON_TIMED_DESPAWN, 22000);
@@ -73,9 +73,9 @@ struct TRINITY_DLL_DECL boss_hungarfenAI : public ScriptedAI
             Mushroom_Timer = 10000;
         }else Mushroom_Timer -= diff;
 
-        if( AcidGeyser_Timer < diff )
+        if (AcidGeyser_Timer < diff)
         {
-            if( Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0) )
+            if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0))
                 DoCast(target,SPELL_ACID_GEYSER);
             AcidGeyser_Timer = 10000+rand()%7500;
         }else AcidGeyser_Timer -= diff;
@@ -118,16 +118,16 @@ struct TRINITY_DLL_DECL mob_underbog_mushroomAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if( Stop )
+        if (Stop)
             return;
 
-        if( Grow_Timer <= diff )
+        if (Grow_Timer <= diff)
         {
             DoCast(m_creature,SPELL_GROW);
             Grow_Timer = 3000;
         }else Grow_Timer -= diff;
 
-        if( Shrink_Timer <= diff )
+        if (Shrink_Timer <= diff)
         {
             m_creature->RemoveAurasDueToSpell(SPELL_GROW);
             Stop = true;

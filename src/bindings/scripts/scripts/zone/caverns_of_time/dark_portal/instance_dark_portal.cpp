@@ -61,7 +61,7 @@ static Wave RiftWaves[]=
 
 struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
 {
-    instance_dark_portal(Map *map) : ScriptedInstance(map) {Initialize();};
+    instance_dark_portal(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 
     uint32 Encounter[ENCOUNTERS];
 
@@ -104,8 +104,8 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
         {
             for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
             {
-                if (Player* player = itr->getSource())
-                    player->SendUpdateWorldState(id,state);
+                if (Player* pPlayer = itr->getSource())
+                    pPlayer->SendUpdateWorldState(id,state);
             }
         }else debug_log("TSCR: Instance Black Portal: UpdateBMWorldState, but PlayerList is empty!");
     }
@@ -125,12 +125,12 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
         return false;
     }
 
-    void OnPlayerEnter(Player *player)
+    void OnPlayerEnter(Player* pPlayer)
     {
         if (GetData(TYPE_MEDIVH) == IN_PROGRESS)
             return;
 
-        player->SendUpdateWorldState(WORLD_STATE_BM,0);
+        pPlayer->SendUpdateWorldState(WORLD_STATE_BM,0);
     }
 
     void OnCreatureCreate(Creature *creature, bool add)
@@ -347,9 +347,9 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
     }
 };
 
-InstanceData* GetInstanceData_instance_dark_portal(Map* map)
+InstanceData* GetInstanceData_instance_dark_portal(Map* pMap)
 {
-    return new instance_dark_portal(map);
+    return new instance_dark_portal(pMap);
 }
 
 void AddSC_instance_dark_portal()

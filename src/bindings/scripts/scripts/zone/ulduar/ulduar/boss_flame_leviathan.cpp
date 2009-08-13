@@ -55,23 +55,23 @@ struct TRINITY_DLL_DECL boss_flame_leviathanAI : public BossAI
         events.ScheduleEvent(EVENT_PURSUE, 0);
         events.ScheduleEvent(EVENT_MISSILE, 1500);
         events.ScheduleEvent(EVENT_VENT, 20000);
-        if(Creature *turret = CAST_CRE(CAST_VEH(me)->GetPassenger(7)))
+        if (Creature *turret = CAST_CRE(CAST_VEH(me)->GetPassenger(7)))
             turret->AI()->DoZoneInCombat();
     }
 
     // TODO: effect 0 and effect 1 may be on different target
     void SpellHitTarget(Unit *target, const SpellEntry *spell)
     {
-        if(spell->Id == SPELL_PURSUED)
+        if (spell->Id == SPELL_PURSUED)
             AttackStart(target);
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if(!me->isInCombat())
+        if (!me->isInCombat())
             return;
 
-        if(me->getThreatManager().isThreatListEmpty())
+        if (me->getThreatManager().isThreatListEmpty())
         {
             EnterEvadeMode();
             return;
@@ -79,11 +79,11 @@ struct TRINITY_DLL_DECL boss_flame_leviathanAI : public BossAI
 
         events.Update(diff);
 
-        if(me->hasUnitState(UNIT_STAT_CASTING))
+        if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
         uint32 eventId = events.GetEvent();
-        if(!me->getVictim())
+        if (!me->getVictim())
             eventId = EVENT_PURSUE;
 
         switch(eventId)
@@ -135,15 +135,15 @@ struct TRINITY_DLL_DECL boss_flame_leviathan_turretAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!UpdateCombatState())
+        if (!UpdateCombatState())
             return;
 
         events.Update(diff);
 
-        if(me->hasUnitState(UNIT_STAT_CASTING))
+        if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
-        if(uint32 eventId = events.GetEvent())
+        if (uint32 eventId = events.GetEvent())
         {
             switch(eventId)
             {
@@ -165,7 +165,7 @@ struct TRINITY_DLL_DECL boss_flame_leviathan_seatAI : public ScriptedAI
     boss_flame_leviathan_seatAI(Creature *c) : ScriptedAI(c)
     {
         assert(c->isVehicle());
-        if(const CreatureInfo *cInfo = me->GetCreatureInfo())
+        if (const CreatureInfo *cInfo = me->GetCreatureInfo())
             me->SetDisplayId(cInfo->DisplayID_A[0]); // 0 invisible, 1 visible
     }
 
@@ -176,15 +176,15 @@ struct TRINITY_DLL_DECL boss_flame_leviathan_seatAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit *who) // for test
     {
-        if(who->GetTypeId() == TYPEID_PLAYER && !who->m_Vehicle
+        if (who->GetTypeId() == TYPEID_PLAYER && !who->m_Vehicle
             && !CAST_VEH(me)->GetPassenger(0) && CAST_VEH(me)->GetPassenger(2))
             who->EnterVehicle(CAST_VEH(me), 0);
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if(!CAST_VEH(me)->GetPassenger(2))
-            if(Unit *who = CAST_VEH(me)->GetPassenger(0))
+        if (!CAST_VEH(me)->GetPassenger(2))
+            if (Unit *who = CAST_VEH(me)->GetPassenger(0))
                 who->ExitVehicle();
     }
 };
@@ -201,16 +201,16 @@ struct TRINITY_DLL_DECL boss_flame_leviathan_defense_turretAI : public ScriptedA
 
     void DamageTaken(Unit *who, uint32 &damage)
     {
-        if(!who->m_Vehicle || who->m_Vehicle->GetEntry() != 33114)
+        if (!who->m_Vehicle || who->m_Vehicle->GetEntry() != 33114)
             damage = 0;
     }
 
     void MoveInLineOfSight(Unit *who)
     {
-        if(me->getVictim())
+        if (me->getVictim())
             return;
 
-        if(who->GetTypeId() != TYPEID_PLAYER || !who->m_Vehicle || who->m_Vehicle->GetEntry() != 33114)
+        if (who->GetTypeId() != TYPEID_PLAYER || !who->m_Vehicle || who->m_Vehicle->GetEntry() != 33114)
             return;
 
         AttackStart(who);
@@ -218,10 +218,10 @@ struct TRINITY_DLL_DECL boss_flame_leviathan_defense_turretAI : public ScriptedA
 
     void UpdateAI(const uint32 diff)
     {
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
-        if(me->hasUnitState(UNIT_STAT_CASTING))
+        if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
         DoCast(me->getVictim(), SPELL_SEARING_FLAME);
@@ -232,7 +232,7 @@ struct TRINITY_DLL_DECL boss_flame_leviathan_overload_deviceAI : public Scripted
 {
     boss_flame_leviathan_overload_deviceAI(Creature *c) : ScriptedAI(c)
     {
-        if(const CreatureInfo *cInfo = me->GetCreatureInfo())
+        if (const CreatureInfo *cInfo = me->GetCreatureInfo())
             me->SetDisplayId(cInfo->DisplayID_H[0]); // A0 gm, H0 device
     }
 
@@ -242,10 +242,10 @@ struct TRINITY_DLL_DECL boss_flame_leviathan_overload_deviceAI : public Scripted
 
     void DamageTaken(Unit *who, uint32 &damage)
     {
-        if(damage >= me->GetHealth())
+        if (damage >= me->GetHealth())
         {
             damage = 0;
-            if(!me->hasUnitState(UNIT_STAT_CASTING))
+            if (!me->hasUnitState(UNIT_STAT_CASTING))
                 DoCastAOE(SPELL_OVERLOAD_CIRCUIT);
         }
     }

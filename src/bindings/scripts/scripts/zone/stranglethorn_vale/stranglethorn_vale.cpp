@@ -52,7 +52,7 @@ struct TRINITY_DLL_DECL mob_yennikuAI : public ScriptedAI
         if (caster->GetTypeId() == TYPEID_PLAYER)
         {
                                                             //Yenniku's Release
-            if(!bReset && CAST_PLR(caster)->GetQuestStatus(592) == QUEST_STATUS_INCOMPLETE && spell->Id == 3607)
+            if (!bReset && CAST_PLR(caster)->GetQuestStatus(592) == QUEST_STATUS_INCOMPLETE && spell->Id == 3607)
             {
                 m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STUN);
                 m_creature->CombatStop();                   //stop combat
@@ -72,7 +72,7 @@ struct TRINITY_DLL_DECL mob_yennikuAI : public ScriptedAI
     {
         if (bReset)
         {
-            if(Reset_Timer < diff)
+            if (Reset_Timer < diff)
             {
                 EnterEvadeMode();
                 bReset = false;
@@ -81,12 +81,12 @@ struct TRINITY_DLL_DECL mob_yennikuAI : public ScriptedAI
             }
             else Reset_Timer -= diff;
 
-            if(m_creature->isInCombat() && m_creature->getVictim())
+            if (m_creature->isInCombat() && m_creature->getVictim())
             {
-                if(m_creature->getVictim()->GetTypeId() == TYPEID_PLAYER)
+                if (m_creature->getVictim()->GetTypeId() == TYPEID_PLAYER)
                 {
                     Unit *victim = m_creature->getVictim();
-                    if(CAST_PLR(victim)->GetTeam() == HORDE)
+                    if (CAST_PLR(victim)->GetTeam() == HORDE)
                     {
                         m_creature->CombatStop();
                         m_creature->DeleteThreatList();
@@ -96,7 +96,7 @@ struct TRINITY_DLL_DECL mob_yennikuAI : public ScriptedAI
          }
 
         //Return since we have no target
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
         DoMeleeAttackIfReady();

@@ -30,27 +30,27 @@ EndScriptData */
 
 #define GOSSIP_HELLO "Buy somethin', will ya?"
 
-bool GossipHello_npc_gregan_brewspewer(Player *player, Creature *_Creature)
+bool GossipHello_npc_gregan_brewspewer(Player* pPlayer, Creature *_Creature)
 {
-    if( _Creature->isQuestGiver() )
-        player->PrepareQuestMenu( _Creature->GetGUID() );
+    if (_Creature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(_Creature->GetGUID());
 
-    if( _Creature->isVendor() && player->GetQuestStatus(3909) == QUEST_STATUS_INCOMPLETE )
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+    if (_Creature->isVendor() && pPlayer->GetQuestStatus(3909) == QUEST_STATUS_INCOMPLETE)
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-    player->SEND_GOSSIP_MENU(2433,_Creature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(2433,_Creature->GetGUID());
     return true;
 }
 
-bool GossipSelect_npc_gregan_brewspewer(Player *player, Creature *_Creature, uint32 sender, uint32 action )
+bool GossipSelect_npc_gregan_brewspewer(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
 {
-    if( action == GOSSIP_ACTION_INFO_DEF+1 )
+    if (action == GOSSIP_ACTION_INFO_DEF+1)
     {
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-        player->SEND_GOSSIP_MENU(2434,_Creature->GetGUID());
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+        pPlayer->SEND_GOSSIP_MENU(2434,_Creature->GetGUID());
     }
-    if( action == GOSSIP_ACTION_TRADE )
-        player->SEND_VENDORLIST( _Creature->GetGUID() );
+    if (action == GOSSIP_ACTION_TRADE)
+        pPlayer->SEND_VENDORLIST(_Creature->GetGUID());
     return true;
 }
 
@@ -116,7 +116,7 @@ struct TRINITY_DLL_DECL npc_oox22feAI : public npc_escortAI
             case 37:
                 DoScriptText(SAY_END,m_creature);
                 // Award quest credit
-                if(Player* pPlayer = Unit::GetPlayer( PlayerGUID))
+                if (Player* pPlayer = Unit::GetPlayer(PlayerGUID))
                 {
                         pPlayer->GroupEventHappens(QUEST_RESCUE_OOX22FE, m_creature);
                 }
@@ -153,10 +153,10 @@ struct TRINITY_DLL_DECL npc_oox22feAI : public npc_escortAI
         if (!IsBeingEscorted)
             return;
 
-        if(Player* pPlayer = Unit::GetPlayer(PlayerGUID))
+        if (Player* pPlayer = Unit::GetPlayer(PlayerGUID))
         {
             // If NPC dies, player fails the quest
-            if(pPlayer->GetQuestStatus(QUEST_RESCUE_OOX22FE) != QUEST_STATUS_COMPLETE)
+            if (pPlayer->GetQuestStatus(QUEST_RESCUE_OOX22FE) != QUEST_STATUS_COMPLETE)
                 pPlayer->FailQuest(QUEST_RESCUE_OOX22FE);
         }
     }
@@ -200,10 +200,10 @@ bool QuestAccept_npc_oox22fe(Player* pPlayer, Creature* pCreature, const Quest* 
 ## npc_screecher_spirit
 ######*/
 
-bool GossipHello_npc_screecher_spirit(Player *player, Creature *_Creature)
+bool GossipHello_npc_screecher_spirit(Player* pPlayer, Creature *_Creature)
 {
-    player->SEND_GOSSIP_MENU(2039, _Creature->GetGUID() );
-    player->TalkedToCreature(_Creature->GetEntry(), _Creature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(2039, _Creature->GetGUID());
+    pPlayer->TalkedToCreature(_Creature->GetEntry(), _Creature->GetGUID());
     _Creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
     return true;

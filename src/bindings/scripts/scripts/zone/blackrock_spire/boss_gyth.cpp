@@ -96,7 +96,7 @@ struct TRINITY_DLL_DECL boss_gythAI : public ScriptedAI
         //char buf[200];
 
         //Return since we have no target
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
         if (!RootSelf)
@@ -174,7 +174,7 @@ struct TRINITY_DLL_DECL boss_gythAI : public ScriptedAI
 
             //Summon Rend
             if (!SummonedRend && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 11
-                && m_creature->GetHealth() > 0 )
+                && m_creature->GetHealth() > 0)
             {
                 //summon Rend and Change model to normal Gyth
                 //Inturrupt any spell casting
