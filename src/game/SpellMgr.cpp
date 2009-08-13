@@ -833,11 +833,14 @@ bool SpellMgr::_isPositiveEffect(uint32 spellId, uint32 effIndex, bool deep) con
                     if(spellproto->Id == 17624)
                         return false;
                     break;
+                case SPELL_AURA_MOD_PACIFY_SILENCE:
+                    if(spellproto->Id == 24740)             // Wisp Costume
+                        return true;
+                    return false;
                 case SPELL_AURA_MOD_ROOT:
                 case SPELL_AURA_MOD_SILENCE:
                 case SPELL_AURA_GHOST:
                 case SPELL_AURA_PERIODIC_LEECH:
-                case SPELL_AURA_MOD_PACIFY_SILENCE:
                 case SPELL_AURA_MOD_STALKED:
                 case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
                     return false;
