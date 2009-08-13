@@ -46,10 +46,10 @@ struct TRINITY_DLL_DECL boss_hakkarAI : public ScriptedAI
 {
     boss_hakkarAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = c->GetInstanceData();
+        m_pInstance = c->GetInstanceData();
     }
 
-    ScriptedInstance *pInstance;
+    ScriptedInstance *m_pInstance;
 
     uint32 BloodSiphon_Timer;
     uint32 CorruptedBlood_Timer;
@@ -143,11 +143,11 @@ struct TRINITY_DLL_DECL boss_hakkarAI : public ScriptedAI
         }else Enrage_Timer -= diff;
 
         //Checking if Jeklik is dead. If not we cast her Aspect
-        if(CheckJeklik_Timer < diff)
+        if (CheckJeklik_Timer < diff)
         {
-            if(pInstance)
+            if (m_pInstance)
             {
-                if(!pInstance->GetData(DATA_JEKLIKISDEAD))
+                if (m_pInstance->GetData(TYPE_JEKLIK) != DONE)
                 {
                     if (AspectOfJeklik_Timer < diff)
                     {
@@ -160,11 +160,11 @@ struct TRINITY_DLL_DECL boss_hakkarAI : public ScriptedAI
         }else CheckJeklik_Timer -= diff;
 
         //Checking if Venoxis is dead. If not we cast his Aspect
-        if(CheckVenoxis_Timer < diff)
+        if (CheckVenoxis_Timer < diff)
         {
-            if(pInstance)
+            if (m_pInstance)
             {
-                if(!pInstance->GetData(DATA_VENOXISISDEAD))
+                if (m_pInstance->GetData(TYPE_VENOXIS) != DONE)
                 {
                     if (AspectOfVenoxis_Timer < diff)
                     {
@@ -177,11 +177,11 @@ struct TRINITY_DLL_DECL boss_hakkarAI : public ScriptedAI
         }else CheckVenoxis_Timer -= diff;
 
         //Checking if Marli is dead. If not we cast her Aspect
-        if(CheckMarli_Timer < diff)
+        if (CheckMarli_Timer < diff)
         {
-            if(pInstance)
+            if (m_pInstance)
             {
-                if(!pInstance->GetData(DATA_MARLIISDEAD))
+                if (m_pInstance->GetData(TYPE_MARLI) != DONE)
                 {
                     if (AspectOfMarli_Timer < diff)
                     {
@@ -195,11 +195,11 @@ struct TRINITY_DLL_DECL boss_hakkarAI : public ScriptedAI
         }else CheckMarli_Timer -= diff;
 
         //Checking if Thekal is dead. If not we cast his Aspect
-        if(CheckThekal_Timer < diff)
+        if (CheckThekal_Timer < diff)
         {
-            if(pInstance)
+            if (m_pInstance)
             {
-                if(!pInstance->GetData(DATA_THEKALISDEAD))
+                if (m_pInstance->GetData(TYPE_THEKAL) != DONE)
                 {
                     if (AspectOfThekal_Timer < diff)
                     {
@@ -212,11 +212,11 @@ struct TRINITY_DLL_DECL boss_hakkarAI : public ScriptedAI
         }else CheckThekal_Timer -= diff;
 
         //Checking if Arlokk is dead. If yes we cast her Aspect
-        if(CheckArlokk_Timer < diff)
+        if (CheckArlokk_Timer < diff)
         {
-            if(pInstance)
+            if (m_pInstance)
             {
-                if(!pInstance->GetData(DATA_ARLOKKISDEAD))
+                if (m_pInstance->GetData(TYPE_ARLOKK) != DONE)
                 {
                     if (AspectOfArlokk_Timer < diff)
                     {
@@ -233,6 +233,7 @@ struct TRINITY_DLL_DECL boss_hakkarAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
+
 CreatureAI* GetAI_boss_hakkar(Creature *_Creature)
 {
     return new boss_hakkarAI (_Creature);
