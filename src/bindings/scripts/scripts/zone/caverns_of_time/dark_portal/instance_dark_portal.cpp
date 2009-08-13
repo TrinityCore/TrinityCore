@@ -83,7 +83,7 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
 
     void Clear()
     {
-        for(uint8 i = 0; i < ENCOUNTERS; i++)
+        for(uint8 i = 0; i < ENCOUNTERS; ++i)
             Encounter[i] = NOT_STARTED;
 
         mRiftPortalCount    = 0;

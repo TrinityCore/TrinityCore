@@ -202,7 +202,7 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
                     case 1: DoScriptText(SAY_SUMMON2, m_creature); break;
                 }
 
-                for(uint8 i = 0; i < 10; i++)
+                for(uint8 i = 0; i < 10; ++i)
                 {
                     Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0);
                     Creature* Murloc = m_creature->SummonCreature(MurlocCords[i][0],MurlocCords[i][1],MurlocCords[i][2],MurlocCords[i][3],MurlocCords[i][4], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
@@ -232,7 +232,7 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
                 using std::set;
                 set<int>list;
                 set<int>::iterator itr;
-                for(uint8 i = 0; i < 4; i++)
+                for(uint8 i = 0; i < 4; ++i)
                 {
                     counter = 0;
                     do{target = SelectTarget(SELECT_TARGET_RANDOM, 1, 50, true);    //target players only

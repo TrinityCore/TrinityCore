@@ -53,7 +53,7 @@ struct TRINITY_DLL_DECL boss_ramstein_the_gorgerAI : public ScriptedAI
 
     void JustDied(Unit* Killer)
     {
-        for(uint8 i = 0; i < 30; i++)
+        for(uint8 i = 0; i < 30; ++i)
         {
             if(Creature* mob = m_creature->SummonCreature(C_MINDLESS_UNDEAD,3969.35+irand(-10,10),-3391.87+irand(-10,10),119.11,5.91,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1800000))
                 mob->AI()->AttackStart(m_creature->SelectNearestTarget(500));

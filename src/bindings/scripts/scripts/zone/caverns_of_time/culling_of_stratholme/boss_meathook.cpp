@@ -90,7 +90,7 @@ struct TRINITY_DLL_DECL boss_meathookAI : public ScriptedAI
             }
             Unit* targets[st];
             int st2=0;
-            for(int i=1; i<=st; i++){
+            for(int i=1; i<=st; ++i){
                 if(!IsWithinLOSInMap(targets[i])
                     st2++;
             }

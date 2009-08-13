@@ -41,7 +41,7 @@ struct TRINITY_DLL_DECL instance_shattered_halls : public ScriptedInstance
         nethekurseGUID = 0;
         nethekurseDoorGUID = 0;
 
-        for(uint8 i = 0; i < ENCOUNTERS; i++)
+        for(uint8 i = 0; i < ENCOUNTERS; ++i)
             Encounter[i] = NOT_STARTED;
     }
 

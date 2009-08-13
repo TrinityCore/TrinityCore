@@ -401,7 +401,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
     {
         if(summon->GetCreatureInfo()->Entry == FLAME_OF_AZZINOTH)
         {
-            for(uint8 i = 0; i < 2; i++)
+            for(uint8 i = 0; i < 2; ++i)
                 if(summon->GetGUID() == FlameGUID[i])
                     FlameGUID[i] = 0;
 
@@ -598,7 +598,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
             Timer[EVENT_FLIGHT_SEQUENCE] = 0;
             break;
         case 8://glaive return
-            for(uint8 i = 0; i < 2; i++)
+            for(uint8 i = 0; i < 2; ++i)
             {
                 if(GlaiveGUID[i])
                 {
@@ -616,7 +616,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
             m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
             m_creature->StopMoving();
             m_creature->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
-            for(uint8 i = 0; i < 2; i++)
+            for(uint8 i = 0; i < 2; ++i)
             {
                 if(GlaiveGUID[i])
                 {
@@ -696,7 +696,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
             return;
 
         Event = EVENT_NULL;
-        for(uint32 i = 1; i <= MaxTimer[Phase]; i++)
+        for(uint32 i = 1; i <= MaxTimer[Phase]; ++i)
         {
             if(Timer[i]) // Event is enabled
                 if(Timer[i] <= diff)
@@ -1001,7 +1001,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
 
             pInstance->HandleGameObject(GateGUID, false);
 
-            for(uint8 i = 0; i < 2; i++)
+            for(uint8 i = 0; i < 2; ++i)
                 pInstance->HandleGameObject(DoorGUID[i], false);
 
         }
@@ -1072,7 +1072,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
             
         pInstance->SetData(DATA_ILLIDANSTORMRAGEEVENT, IN_PROGRESS);
 
-        for(uint8 i = 0; i < 2; i++)
+        for(uint8 i = 0; i < 2; ++i)
             pInstance->HandleGameObject(DoorGUID[i], false);
 
         if(GETCRE(Illidan, IllidanGUID))
@@ -1269,7 +1269,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
         switch(WalkCount)
         {
         case 6:
-            for(uint8 i = 0; i < 2; i++)
+            for(uint8 i = 0; i < 2; ++i)
                 pInstance->HandleGameObject(DoorGUID[i], true);
             break;
         case 8:
@@ -1500,7 +1500,7 @@ struct TRINITY_DLL_DECL boss_maievAI : public ScriptedAI
             return;
 
         Event = EVENT_MAIEV_NULL;
-        for(uint8 i = 1; i <= MaxTimer; i++)
+        for(uint8 i = 1; i <= MaxTimer; ++i)
             if(Timer[i])
             {
                 if(Timer[i] <= diff)

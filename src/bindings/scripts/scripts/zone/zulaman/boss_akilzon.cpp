@@ -101,7 +101,7 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
         CloudGUID = 0;
         CycloneGUID = 0;
         DespawnSummons();
-        for(uint8 i = 0; i < 8; i++)
+        for(uint8 i = 0; i < 8; ++i)
             BirdGUIDs[i] = 0;
 
         StormCount = 0;
@@ -147,7 +147,7 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
 
     void DespawnSummons()
     {
-        for (uint8 i = 0; i < 8; i++)
+        for (uint8 i = 0; i < 8; ++i)
         {
             Unit* bird = Unit::GetUnit(*m_creature,BirdGUIDs[i]);
             if(bird && bird->isAlive())
@@ -336,7 +336,7 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
             float x, y, z;
             m_creature->GetPosition(x, y, z);
 
-            for (uint8 i = 0; i < 8; i++)
+            for (uint8 i = 0; i < 8; ++i)
             {
                 Unit* bird = Unit::GetUnit(*m_creature,BirdGUIDs[i]);
                 if(!bird)//they despawned on die

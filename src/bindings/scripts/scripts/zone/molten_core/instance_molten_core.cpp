@@ -85,7 +85,7 @@ struct TRINITY_DLL_DECL instance_molten_core : public ScriptedInstance
         IsBossDied[7] = false;
         IsBossDied[8] = false;
 
-        for(uint8 i = 0; i < ENCOUNTERS; i++)
+        for(uint8 i = 0; i < ENCOUNTERS; ++i)
             Encounter[i] = NOT_STARTED;
     }
 

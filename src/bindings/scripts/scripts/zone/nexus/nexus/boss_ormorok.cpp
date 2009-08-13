@@ -130,7 +130,7 @@ struct TRINITY_DLL_DECL boss_ormorokAI : public ScriptedAI
                 SpikeXY[2][1] = BaseY+(SPIKE_DISTANCE*CrystalSpikes_Count*sin(BaseO-(M_PI/2)));
                 SpikeXY[3][0] = BaseX-(SPIKE_DISTANCE*CrystalSpikes_Count*cos(BaseO-(M_PI/2)));
                 SpikeXY[3][1] = BaseY-(SPIKE_DISTANCE*CrystalSpikes_Count*sin(BaseO-(M_PI/2)));
-                for (uint8 i = 0; i < 4; i++)
+                for (uint8 i = 0; i < 4; ++i)
                     Creature* Spike = m_creature->SummonCreature(MOB_CRYSTAL_SPIKE, SpikeXY[i][0], SpikeXY[i][1], BaseZ, 0, TEMPSUMMON_TIMED_DESPAWN, 7000);
                 if (++CrystalSpikes_Count >= 13)
                     CrystalSpikes = false;
