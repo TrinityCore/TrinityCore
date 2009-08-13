@@ -1012,7 +1012,7 @@ struct TRINITY_DLL_DECL npc_death_knight_initiateAI : public SpellAI
     {
         if (m_bIsDuelInProgress && pDoneBy->IsControlledByPlayer())
         {
-            if(pDoneBy->GetGUID() != m_uiDuelerGUID || pDoneBy->GetOwnerGUID() != m_uiDuelerGUID) // other players cannot help
+            if(pDoneBy->GetGUID() != m_uiDuelerGUID && pDoneBy->GetOwnerGUID() != m_uiDuelerGUID) // other players cannot help
                 uiDamage = 0;
             else if(uiDamage >= m_creature->GetHealth()) 
             {
