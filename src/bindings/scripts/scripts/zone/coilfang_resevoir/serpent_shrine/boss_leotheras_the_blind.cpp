@@ -209,9 +209,8 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
     {
         for(uint8 i = 0; i < 3; i++)
         {
-            Creature *add = Unit::GetCreature(*m_creature,SpellBinderGUID[i]);
-            if (add)
-                add->RemoveFromWorld();
+            if(Creature *add = Unit::GetCreature(*m_creature,SpellBinderGUID[i]))
+                add->DisappearAndDie();
 
             float nx = x;
             float ny = y;

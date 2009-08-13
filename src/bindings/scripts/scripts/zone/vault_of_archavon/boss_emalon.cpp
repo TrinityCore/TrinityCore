@@ -64,9 +64,8 @@ struct TRINITY_DLL_DECL boss_emalonAI : public ScriptedAI
         {
             for(std::list<uint64>::const_iterator itr = MinionList.begin(); itr != MinionList.end(); itr++)
             {
-                Unit *Minion = Unit::GetUnit(*m_creature, (*itr));
-                if(Minion)
-                   Minion->RemoveFromWorld();
+                if(Creature *Minion = Unit::GetCreature(*m_creature, (*itr)))
+                   Minion->DisappearAndDie();
             }
         }
         
@@ -220,8 +219,7 @@ struct TRINITY_DLL_DECL mob_tempest_minionAI : public ScriptedAI
 
     void JustDied(Unit* Killer)
     {
-        m_creature->RemoveCorpse();
-        m_creature->RemoveFromWorld();
+        m_creature->DisappearAndDie();
         if(Emalon)
         {
             boss_emalonAI::SummonMinion(Emalon, Emalon->GetPositionX(), Emalon->GetPositionY(), Emalon->GetPositionZ(), Emalon->GetOrientation());

@@ -282,7 +282,7 @@ bool GOHello_go_orb_of_the_blue_flight(Player *plr, GameObject* go)
             if(Dyn){
                 Dyn->GetPosition(dx,dy,dz);
                 if(x == dx && dy == y && dz == z){
-                    Dyn->RemoveFromWorld();
+                    Dyn->Delete();
                     break;
                 }
             }
@@ -369,7 +369,7 @@ struct TRINITY_DLL_DECL boss_kalecgos_kjAI : public ScriptedAI
                 if(Dyn){
                     Dyn->GetPosition(dx,dy,dz);
                     if(x == dx && dy == y && dz == z){
-                        Dyn->RemoveFromWorld();
+                        Dyn->Delete();
                         break;
                      }
                  }
