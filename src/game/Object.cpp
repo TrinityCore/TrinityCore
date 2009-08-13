@@ -1717,7 +1717,7 @@ void WorldObject::SetMap(Map * map)
 void WorldObject::ResetMap()
 {
     ASSERT(m_currMap);
-    ASSERT(!IsInWorld() || GetTypeId() == TYPEID_CORPSE);
+    ASSERT(!IsInWorld());
     if(m_isWorldObject)
         m_currMap->RemoveWorldObject(this);
     m_currMap = NULL;
