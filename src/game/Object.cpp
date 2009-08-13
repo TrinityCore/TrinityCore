@@ -82,10 +82,14 @@ Object::Object( ) : m_PackGUID(sizeof(uint64)+1)
 
 WorldObject::~WorldObject()
 {
+    // this may happen because there are many !create/delete
     if(m_isWorldObject && m_currMap)
     {
-        sLog.outCrash("Object::~Object - guid="UI64FMTD", typeid=%d, entry=%u deleted but still in map!!", GetGUID(), GetTypeId(), GetEntry());
-        assert(false);
+        if(GetTypeId() == TYPEID_CORPSE)
+        {
+            sLog.outCrash("Object::~Object Corpse guid="UI64FMTD", type=%d, entry=%u deleted but still in map!!", GetGUID(), ((Corpse*)this)->GetType(), GetEntry());
+            assert(false);
+        }
         ResetMap();
     }
 }
