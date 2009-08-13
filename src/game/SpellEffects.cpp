@@ -6570,6 +6570,9 @@ void Spell::EffectTransmitted(uint32 effIndex)
             }
             break;
         }
+        case GAMEOBJECT_TYPE_DUEL_ARBITER: // 52991
+            m_caster->AddGameObject(pGameObj);
+            break;
         case GAMEOBJECT_TYPE_FISHINGHOLE:
         case GAMEOBJECT_TYPE_CHEST:
         default:
