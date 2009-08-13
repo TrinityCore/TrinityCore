@@ -770,9 +770,6 @@ void AreaAuraEffect::Update(uint32 diff)
 
             for(std::list<Unit*>::iterator tIter = targets.begin(); tIter != targets.end(); tIter++)
             {
-                // Unit has aura from self - do not replace it
-                if ((*tIter)->HasAura(GetId(), m_target->GetGUID()))
-                    continue;
                 if(Aura *aur = (*tIter)->GetAura(GetId(), GetCasterGUID()))
                 {
                     if(aur->HasEffect(GetEffIndex()))
@@ -1943,14 +1940,14 @@ void AuraEffect::HandleShapeshiftBoosts(bool apply)
                 if(itr->first==spellId || itr->first==spellId2) continue;
                 SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
                 if (!spellInfo || !(spellInfo->Attributes & (SPELL_ATTR_PASSIVE | (1<<7)))) continue;
-                if (spellInfo->Stances & (1<<form))
+                if (spellInfo->Stances & (1<<(form-1)))
                     m_target->CastSpell(m_target, itr->first, true, NULL, this);
             }
             //LotP
             if (((Player*)m_target)->HasSpell(17007))
             {
                 SpellEntry const *spellInfo = sSpellStore.LookupEntry(24932);
-                if (spellInfo && spellInfo->Stances & (1<<form))
+                if (spellInfo && spellInfo->Stances & (1<<(form-1)))
                     m_target->CastSpell(m_target, 24932, true, NULL, this);
             }
             // HotW

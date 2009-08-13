@@ -764,171 +764,6 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
             ((Player*)pVictim)->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_TOTAL_DAMAGE_RECEIVED, health);
 
         Kill(pVictim, durabilityLoss);
-
-        /*// find player: owner of controlled `this` or `this` itself maybe
-        Player *player = GetCharmerOrOwnerPlayerOrPlayerItself();
-
-        if(pVictim->GetTypeId() == TYPEID_UNIT && ((Creature*)pVictim)->GetLootRecipient())
-            player = ((Creature*)pVictim)->GetLootRecipient();
-        // Reward player, his pets, and group/raid members
-        // call kill spell proc event (before real die and combat stop to triggering auras removed at death/combat stop)
-        if(player && player!=pVictim)
-        {
-            player->RewardPlayerAndGroupAtKill(pVictim);
-            player->ProcDamageAndSpell(pVictim, PROC_FLAG_KILL, PROC_FLAG_KILLED, PROC_EX_NONE, 0);
-        }
-
-        DEBUG_LOG("DealDamageAttackStop");
-
-        // stop combat
-        pVictim->CombatStop();
-        pVictim->getHostilRefManager().deleteReferences();
-
-        bool damageFromSpiritOfRedemtionTalent = spellProto && spellProto->Id == 27795;
-
-        // if talent known but not triggered (check priest class for speedup check)
-        Aura* spiritOfRedemtionTalentReady = NULL;
-        if( !damageFromSpiritOfRedemtionTalent &&           // not called from SPELL_AURA_SPIRIT_OF_REDEMPTION
-            pVictim->GetTypeId()==TYPEID_PLAYER && pVictim->getClass()==CLASS_PRIEST )
-        {
-            AuraList const& vDummyAuras = pVictim->GetAurasByType(SPELL_AURA_DUMMY);
-            for(AuraList::const_iterator itr = vDummyAuras.begin(); itr != vDummyAuras.end(); ++itr)
-            {
-                if((*itr)->GetSpellProto()->SpellIconID==1654)
-                {
-                    spiritOfRedemtionTalentReady = *itr;
-                    break;
-                }
-            }
-        }
-
-        DEBUG_LOG("SET JUST_DIED");
-        if(!spiritOfRedemtionTalentReady)
-            pVictim->setDeathState(JUST_DIED);
-
-        DEBUG_LOG("DealDamageHealth1");
-
-        if(spiritOfRedemtionTalentReady)
-        {
-            // save value before aura remove
-            uint32 ressSpellId = pVictim->GetUInt32Value(PLAYER_SELF_RES_SPELL);
-            if(!ressSpellId)
-                ressSpellId = ((Player*)pVictim)->GetResurrectionSpellId();
-
-            //Remove all expected to remove at death auras (most important negative case like DoT or periodic triggers)
-            pVictim->RemoveAllAurasOnDeath();
-
-            // restore for use at real death
-            pVictim->SetUInt32Value(PLAYER_SELF_RES_SPELL,ressSpellId);
-
-            // FORM_SPIRITOFREDEMPTION and related auras
-            pVictim->CastSpell(pVictim,27827,true,NULL,spiritOfRedemtionTalentReady);
-        }
-        else
-            pVictim->SetHealth(0);
-
-        // remember victim PvP death for corpse type and corpse reclaim delay
-        // at original death (not at SpiritOfRedemtionTalent timeout)
-        if( pVictim->GetTypeId()==TYPEID_PLAYER && !damageFromSpiritOfRedemtionTalent )
-            ((Player*)pVictim)->SetPvPDeath(player!=NULL);
-
-        // Call KilledUnit for creatures
-        if (GetTypeId() == TYPEID_UNIT && ((Creature*)this)->AI())
-            ((Creature*)this)->AI()->KilledUnit(pVictim);
-
-        // achievement stuff
-        if (pVictim->GetTypeId() == TYPEID_PLAYER)
-        {
-            if (GetTypeId() == TYPEID_UNIT)
-                ((Player*)pVictim)->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_CREATURE, GetEntry());
-            else if(GetTypeId() == TYPEID_PLAYER && pVictim != this)
-                ((Player*)pVictim)->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_PLAYER, 1, ((Player*)this)->GetTeam());
-        }
-
-        // 10% durability loss on death
-        // clean InHateListOf
-        if (pVictim->GetTypeId() == TYPEID_PLAYER)
-        {
-            // only if not player and not controlled by player pet. And not at BG
-            if (durabilityLoss && !player && !((Player*)pVictim)->InBattleGround())
-            {
-                DEBUG_LOG("We are dead, loosing 10 percents durability");
-                ((Player*)pVictim)->DurabilityLossAll(0.10f,false);
-                // durability lost message
-                WorldPacket data(SMSG_DURABILITY_DAMAGE_DEATH, 0);
-                ((Player*)pVictim)->GetSession()->SendPacket(&data);
-            }
-        }
-        else                                                // creature died
-        {
-            DEBUG_LOG("DealDamageNotPlayer");
-            Creature *cVictim = (Creature*)pVictim;
-
-            if(!cVictim->isPet())
-            {
-                cVictim->DeleteThreatList();
-                // only lootable if it has loot or can drop gold
-                if(cVictim->GetCreatureInfo()->lootid || cVictim->GetCreatureInfo()->maxgold > 0)
-                    cVictim->SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
-                else
-                    cVictim->lootForBody = true;            // needed for skinning
-            }
-            // Call creature just died function
-            if (cVictim->AI())
-                cVictim->AI()->JustDied(this);
-
-            // Dungeon specific stuff, only applies to players killing creatures
-            if(cVictim->GetInstanceId())
-            {
-                Map *m = cVictim->GetMap();
-                Player *creditedPlayer = GetCharmerOrOwnerPlayerOrPlayerItself();
-                // TODO: do instance binding anyway if the charmer/owner is offline
-
-                if(m->IsDungeon() && creditedPlayer)
-                {
-                    if(m->IsRaid() || m->IsHeroic())
-                    {
-                        if(cVictim->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_INSTANCE_BIND)
-                            ((InstanceMap *)m)->PermBindAllPlayers(creditedPlayer);
-                    }
-                    else
-                    {
-                        // the reset time is set but not added to the scheduler
-                        // until the players leave the instance
-                        time_t resettime = cVictim->GetRespawnTimeEx() + 2 * HOUR;
-                        if(InstanceSave *save = sInstanceSaveManager.GetInstanceSave(cVictim->GetInstanceId()))
-                            if(save->GetResetTime() < resettime) save->SetResetTime(resettime);
-                    }
-                }
-            }
-        }
-
-        // last damage from non duel opponent or opponent controlled creature
-        if(duel_hasEnded)
-        {
-            assert(pVictim->GetTypeId()==TYPEID_PLAYER);
-            Player *he = (Player*)pVictim;
-
-            assert(he->duel);
-
-            he->duel->opponent->CombatStopWithPets(true);
-            he->CombatStopWithPets(true);
-
-            he->DuelComplete(DUEL_INTERUPTED);
-        }
-
-        // battleground things (do this at the end, so the death state flag will be properly set to handle in the bg->handlekill)
-        if(pVictim->GetTypeId() == TYPEID_PLAYER && ((Player*)pVictim)->InBattleGround())
-        {
-            Player *killed = ((Player*)pVictim);
-            if(BattleGround *bg = killed->GetBattleGround())
-                if(player)
-                    bg->HandleKillPlayer(killed, player);
-                //later we can add support for creature->player kills here i'm
-                //not sure, but i guess those kills also get counted in av
-                //else if(GetTypeId() == TYPEID_UNIT)
-                //    bg->HandleKillPlayer(killed,(Creature*)this);
-        }*/
     }
     else                                                    // if (health <= damage)
     {
@@ -982,27 +817,6 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
 
         if (damagetype != NODAMAGE && damage)// && pVictim->GetTypeId() == TYPEID_PLAYER)
         {
-            /*const SpellEntry *se = i->second->GetSpellProto();
-            next = i; ++next;
-            if (spellProto && spellProto->Id == se->Id) // Not drop auras added by self
-                continue;
-            if( se->AuraInterruptFlags & AURA_INTERRUPT_FLAG_DAMAGE )
-            {
-                bool remove = true;
-                if (se->procFlags & (1<<3))
-                {
-                    if (!roll_chance_i(se->procChance))
-                        remove = false;
-                }
-                if (remove)
-                {
-                    pVictim->RemoveAurasDueToSpell(i->second->GetId());
-                    // FIXME: this may cause the auras with proc chance to be rerolled several times
-                    next = vAuras.begin();
-                }
-            }
-        }*/
-
             if(pVictim != this && pVictim->GetTypeId() == TYPEID_PLAYER) // does not support creature push_back
             {
                 if(damagetype != DOT)
@@ -1045,7 +859,7 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
             he->duel->opponent->CombatStopWithPets(true);
             he->CombatStopWithPets(true);
 
-            he->CastSpell(he, 7267, true);                  // beg
+            he->CastSpell(he, SPELL_ID_DUEL_BEG, true);                  // beg
             he->DuelComplete(DUEL_WON);
         }
     }
@@ -2046,7 +1860,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
                     continue;
                 }
 
-                // Reflective Shield
+                // Power Word: Shield
                 if (spellProto->SpellFamilyFlags.IsEqual(0x1, 0, 0x400))
                 {
                     if (pVictim == this)
@@ -2054,23 +1868,25 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
                     Unit* caster = (*i)->GetCaster();
                     if (!caster)
                         break;
-                    AuraEffectList const& vOverRideCS = caster->GetAurasByType(SPELL_AURA_DUMMY);
-                    for(AuraEffectList::const_iterator k = vOverRideCS.begin(); k != vOverRideCS.end(); ++k)
+                    // Reflective Shield
+                    if (AuraEffect const * aurEff = caster->GetDummyAura(SPELLFAMILY_PRIEST, 566, 0))
                     {
-                        if((*k)->GetSpellProto()->SpellFamilyName != SPELLFAMILY_PRIEST)
-                            continue;
-                        switch((*k)->GetMiscValue())
+                        switch(aurEff->GetMiscValue())
                         {
                             case 5065:                          // Rank 1
                             case 5064:                          // Rank 2
                             {
                                 if(RemainingDamage >= currentAbsorb)
-                                    reflectDamage = (*k)->GetAmount() * currentAbsorb/100;
+                                    reflectDamage = (aurEff)->GetAmount() * currentAbsorb/100;
                                 else
-                                    reflectDamage = (*k)->GetAmount() * RemainingDamage/100;
+                                    reflectDamage = (aurEff)->GetAmount() * RemainingDamage/100;
                                 reflectSpell = 33619;
                                 reflectTriggeredBy = *i;
-                            } break;
+                            }
+                            break;
+                            default:
+                                sLog.outError("Unit::CalcAbsorbResist: unknown Reflective Shield spell %d", aurEff->GetId());
+                            break;
                         }
                     }
                 }
@@ -2338,29 +2154,22 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
     if (*absorb)
     {
         bool found = false;
-        int32 spell_dmg=0;
+        int32 spell_dmg = 0;
         // Incanter's Absorption
-        AuraEffectList const& DummmyAuras = pVictim->GetAurasByType(SPELL_AURA_DUMMY);
-        for(AuraEffectList::const_iterator i = DummmyAuras.begin(); i != DummmyAuras.end(); ++i)
+        // TODO: move this code to procflag
+        if (AuraEffect const * aurEff = GetDummyAura(SPELLFAMILY_GENERIC, 2941, 0))
         {
-            SpellEntry const* spellInfo = (*i)->GetSpellProto();
-            if (spellmgr.GetFirstSpellInChain(spellInfo->Id) == 44394)
+            int32 total_dmg = 0;
+            // Get total bonus from auras
+            for(AuraMap::const_iterator iter = m_Auras.lower_bound(44413); iter != m_Auras.upper_bound(44413);++iter)
             {
-                int32 total_dmg=0;
-                // Get total bonus from auras
-                AuraEffectList const& BonusAuras = pVictim->GetAurasByType(SPELL_AURA_MOD_DAMAGE_DONE);
-                for(AuraEffectList::const_iterator itr = BonusAuras.begin(); itr != BonusAuras.end(); ++itr)
-                {
-                    if ((*itr)->GetId()==44413)
-                        total_dmg += (*itr)->GetMiscValue();
-                }
-                spell_dmg = int32(*absorb * (*i)->GetAmount() / 100);
-                // Do not apply more auras if more than 5% hp
-                if(total_dmg+spell_dmg > int32(GetMaxHealth() * 5 / 100))
-                    break;
-                found=true;
-                break;
-             }
+                if (AuraEffect const * bonusEff = iter->second->GetPartAura(0))
+                    total_dmg += bonusEff->GetAmount();
+            }
+            spell_dmg = int32(*absorb * aurEff->GetAmount() / 100);
+            // Do not apply more auras if more than 5% hp
+            if(total_dmg+spell_dmg <= int32(GetMaxHealth() * 5 / 100))
+                found = true;
         }
         if (found)
             pVictim->CastCustomSpell(pVictim, 44413, &spell_dmg, NULL, NULL, true);
@@ -4112,19 +3921,25 @@ void Unit::RemoveAurasDueToSpellByDispel(uint32 spellId, uint64 casterGUID, Unit
             // Unstable Affliction
             if (aur->GetSpellProto()->SpellFamilyName == SPELLFAMILY_WARLOCK && (aur->GetSpellProto()->SpellFamilyFlags[1] & 0x0100))
             {
-                int32 damage = aur->GetPartAura(0)->GetAmount()*9;
+                if (AuraEffect const * aurEff = aur->GetPartAura(0))
+                {
+                    int32 damage = aurEff->GetAmount()*9;
+                    // backfire damage and silence
+                    dispeler->CastCustomSpell(dispeler, 31117, &damage, NULL, NULL, true, NULL, NULL,GetGUID());
+                }
                 RemoveAuraFromStack(iter, AURA_REMOVE_BY_ENEMY_SPELL);
-                // backfire damage and silence
-                dispeler->CastCustomSpell(dispeler, 31117, &damage, NULL, NULL, true, NULL, NULL,GetGUID());
                 return;
             }
             // Vampiric Touch
             else if (aur->GetSpellProto()->SpellFamilyName == SPELLFAMILY_PRIEST && (aur->GetSpellProto()->SpellFamilyFlags[1] & 0x0400))
             {
-                int32 damage = aur->GetPartAura(1)->GetAmount()*4;
+                if (AuraEffect const * aurEff = aur->GetPartAura(1))
+                {
+                    int32 damage = aurEff->GetAmount()*4;
+                    // backfire damage
+                    dispeler->CastCustomSpell(dispeler, 64085, &damage, NULL, NULL, true, NULL, NULL,GetGUID());
+                }
                 RemoveAuraFromStack(iter, AURA_REMOVE_BY_ENEMY_SPELL);
-                // backfire damage
-                dispeler->CastCustomSpell(dispeler, 64085, &damage, NULL, NULL, true, NULL, NULL,GetGUID());
                 return;
             }
             RemoveAuraFromStack(iter, AURA_REMOVE_BY_ENEMY_SPELL);
@@ -5065,20 +4880,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                         return false;
 
                     // find Mage Armor
-                    bool found = false;
-                    AuraEffectList const& mRegenInterupt = GetAurasByType(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT);
-                    for(AuraEffectList::const_iterator iter = mRegenInterupt.begin(); iter != mRegenInterupt.end(); ++iter)
-                    {
-                        if(SpellEntry const* iterSpellProto = (*iter)->GetSpellProto())
-                        {
-                            if(iterSpellProto->SpellFamilyName==SPELLFAMILY_MAGE && (iterSpellProto->SpellFamilyFlags[0] & 0x10000000))
-                            {
-                                found=true;
-                                break;
-                            }
-                        }
-                    }
-                    if(!found)
+                    if (!GetAura(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT, SPELLFAMILY_MAGE, 0x10000000))
                         return false;
 
                     switch(GetFirstSchoolInMask(GetSpellSchoolMask(procSpell)))
@@ -5368,17 +5170,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                         return false;
 
                     // Remove any stun effect on target
-                    AuraMap& Auras = pVictim->GetAuras();
-                    for(AuraMap::iterator iter = Auras.begin(); iter != Auras.end();)
-                    {
-                        SpellEntry const *spell = iter->second->GetSpellProto();
-                        if( GetAllSpellMechanicMask(spell) & 1<<(MECHANIC_STUN))
-                        {
-                            pVictim->RemoveAura(iter);
-                        }
-                        else
-                            ++iter;
-                    }
+                    pVictim->RemoveAurasWithMechanic(1<<MECHANIC_STUN, AURA_REMOVE_BY_ENEMY_SPELL);
                     return true;
                 }
             }
@@ -5424,7 +5216,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 return true;
             }
 
-            //Arcane Potency
+            // Arcane Potency
             if (dummySpell->SpellIconID == 2120)
             {
                 if(!procSpell)
@@ -5585,7 +5377,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             }
 
             // Retaliation
-            if(dummySpell->SpellFamilyFlags.IsEqual(0, 0x8, 0))
+            if(dummySpell->SpellFamilyFlags[1] & 0x8)
             {
                 // check attack comes not from behind
                 if (!HasInArc(M_PI, pVictim))
@@ -5794,6 +5586,9 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 if(!pVictim || !pVictim->isAlive())
                     return false;
 
+                if (effIndex!=0)
+                    return false;
+
                 // pVictim is caster of aura
                 if(triggeredByAura->GetCasterGUID() != pVictim->GetGUID())
                     return false;
@@ -5922,7 +5717,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 case 55677:
                 {
                     // Dispel Magic shares spellfamilyflag with abolish disease
-                    if (procSpell->SpellIconID!=74)
+                    if (procSpell->SpellIconID != 74)
                         return false;
                     if(!target->IsFriendlyTo(this))
                         return false;
@@ -6748,7 +6543,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
 
                 CastCustomSpell(pVictim,triggered_spell_id,&basepoints0,NULL,NULL,true,castItem,triggeredByAura);
                 return true;
-            } 
+            }
             // Improved Water Shield
             if (dummySpell->SpellIconID == 2287)
             {
