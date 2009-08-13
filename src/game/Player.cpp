@@ -13203,7 +13203,7 @@ void Player::FailQuest(uint32 questId)
             SetQuestSlotState(log_slot, QUEST_STATE_FAIL);
         }
 
-        if (pQuest->HasFlag(QUEST_MANGOS_FLAGS_TIMED))
+        if (pQuest->HasFlag(QUEST_TRINITY_FLAGS_TIMED))
         {
             QuestStatusData& q_status = mQuestStatus[questId];
 
