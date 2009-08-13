@@ -610,7 +610,7 @@ void OPvPWintergrasp::UpdateTenacityStack()
     // Apply new buff
     if(newStack)
     {
-        TeamId team = newStack > 0 ? TEAM_ALLIANCE : TEAM_HORDE;
+        TeamId team = newStack > 0 ? TEAM_HORDE : TEAM_ALLIANCE;
         if(newStack < 0) newStack = -newStack;
         for(PlayerSet::iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
             (*itr)->SetAuraStack(SPELL_TENACITY, *itr, newStack);
