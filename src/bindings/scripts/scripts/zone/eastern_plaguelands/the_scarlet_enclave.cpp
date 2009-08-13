@@ -974,37 +974,30 @@ int32 m_auiRandomSay[] =
     SAY_DUEL_A, SAY_DUEL_B, SAY_DUEL_C, SAY_DUEL_D, SAY_DUEL_E, SAY_DUEL_F, SAY_DUEL_G, SAY_DUEL_H, SAY_DUEL_I
 };
 
-struct TRINITY_DLL_DECL npc_death_knight_initiateAI : public ScriptedAI
+struct TRINITY_DLL_DECL npc_death_knight_initiateAI : public SpellAI
 {
-    npc_death_knight_initiateAI(Creature* pCreature) : ScriptedAI(pCreature)
+    npc_death_knight_initiateAI(Creature* pCreature) : SpellAI(pCreature)
     {
         m_bIsDuelInProgress = false;
     }
 
+    bool lose;
     uint64 m_uiDuelerGUID;
     uint32 m_uiDuelTimer;
     bool m_bIsDuelInProgress;
 
     void Reset()
     {
+        lose = false;
+        me->RemoveGameObject(SPELL_DUEL_FLAG, true);
         me->RestoreFaction();
+        SpellAI::Reset();
 
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
 
         m_uiDuelerGUID = 0;
         m_uiDuelTimer = 5000;
         m_bIsDuelInProgress = false;
-    }
-
-    void AttackedBy(Unit* pAttacker)
-    {
-        if (m_creature->getVictim())
-            return;
-
-        if (m_creature->IsFriendlyTo(pAttacker))
-            return;
-
-        AttackStart(pAttacker);
     }
 
     void SpellHit(Unit* pCaster, const SpellEntry* pSpell)
@@ -1018,15 +1011,23 @@ struct TRINITY_DLL_DECL npc_death_knight_initiateAI : public ScriptedAI
 
    void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
     {
-        if (m_bIsDuelInProgress && uiDamage > m_creature->GetHealth())
+        if (m_bIsDuelInProgress && pDoneBy->GetTypeId() == TYPEID_PLAYER)
         {
-            uiDamage = 0;
+            if(pDoneBy->GetGUID() != m_uiDuelerGUID) // other players cannot help
+                uiDamage = 0;
+            else if(uiDamage >= m_creature->GetHealth()) 
+            {
+                uiDamage = 0;
 
-            if (Unit* pUnit = Unit::GetUnit(*m_creature, m_uiDuelerGUID))
-                m_creature->CastSpell(pUnit, SPELL_DUEL_VICTORY, true);
-
-            //possibly not evade, but instead have end sequenze
-            EnterEvadeMode();
+                if(!lose)
+                {
+                    pDoneBy->AttackStop();
+                    me->CastSpell(pDoneBy, SPELL_DUEL_VICTORY, true);
+                    lose = true;
+                    me->CastSpell(me, 7267, true);
+                    me->RestoreFaction();
+                }
+            }
         }
     }
 
@@ -1049,9 +1050,26 @@ struct TRINITY_DLL_DECL npc_death_knight_initiateAI : public ScriptedAI
             return;
         }
 
+        if (m_bIsDuelInProgress)
+        {
+            if(lose)
+            {
+                if(!me->HasAura(7267))
+                    EnterEvadeMode();
+                return;
+            }
+            else if(me->getVictim()->GetTypeId() == TYPEID_PLAYER
+                && me->getVictim()->GetHealth() * 10 < me->getVictim()->GetMaxHealth())
+            {
+                me->getVictim()->CastSpell(me->getVictim(), 7267, true); // beg
+                EnterEvadeMode();
+                return;
+            }
+        }
+
         // TODO: spells
 
-        DoMeleeAttackIfReady();
+        SpellAI::UpdateAI(uiDiff);
     }
 };
 
@@ -1420,11 +1438,11 @@ void AddSC_the_scarlet_enclave()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name = "npc_koltira_deathweaver";
-    newscript->GetAI = &GetAI_npc_koltira_deathweaver;
-    newscript->pQuestAccept = &QuestAccept_npc_koltira_deathweaver;
+    newscript->Name="npc_valkyr_battle_maiden";
+    newscript->GetAI = &GetAI_npc_valkyr_battle_maiden;
     newscript->RegisterSelf();
 
+    // 12848 The Endless Hunger
     newscript = new Script;
     newscript->Name="npc_unworthy_initiate";
     newscript->GetAI = &GetAI_npc_unworthy_initiate;
@@ -1440,6 +1458,7 @@ void AddSC_the_scarlet_enclave()
     newscript->pGOHello = &GOHello_go_acherus_soul_prison;
     newscript->RegisterSelf();
 
+    // Death's Challenge
     newscript = new Script;
     newscript->Name="npc_death_knight_initiate";
     newscript->GetAI = &GetAI_npc_death_knight_initiate;
@@ -1447,14 +1466,16 @@ void AddSC_the_scarlet_enclave()
     newscript->pGossipSelect = &GossipSelect_npc_death_knight_initiate;
     newscript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name="npc_dark_rider_of_acherus";
-    newscript->GetAI = &GetAI_npc_dark_rider_of_acherus;
-    newscript->RegisterSelf();
-
+    // 12680 Grand Theft Palomino
     newscript = new Script;
     newscript->Name="npc_salanar_the_horseman";
     newscript->GetAI = &GetAI_npc_salanar_the_horseman;
+    newscript->RegisterSelf();
+
+    // 12687 Into the Realm of Shadows
+    newscript = new Script;
+    newscript->Name="npc_dark_rider_of_acherus";
+    newscript->GetAI = &GetAI_npc_dark_rider_of_acherus;
     newscript->RegisterSelf();
 
     newscript = new Script;
@@ -1462,18 +1483,22 @@ void AddSC_the_scarlet_enclave()
     newscript->GetAI = &GetAI_npc_ros_dark_rider;
     newscript->RegisterSelf();
 
+    // 12698 The Gift That Keeps On Giving
     newscript = new Script;
     newscript->Name="npc_dkc1_gothik";
     newscript->GetAI = &GetAI_npc_dkc1_gothik;
     newscript->RegisterSelf();
 
+    // 12727 Bloody Breakout
+    newscript = new Script;
+    newscript->Name = "npc_koltira_deathweaver";
+    newscript->GetAI = &GetAI_npc_koltira_deathweaver;
+    newscript->pQuestAccept = &QuestAccept_npc_koltira_deathweaver;
+    newscript->RegisterSelf();
+
+    // A Special Suprise
     newscript = new Script;
     newscript->Name = "npc_a_special_surprise";
     newscript->GetAI = &GetAI_npc_a_special_surprise;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name="npc_valkyr_battle_maiden";
-    newscript->GetAI = &GetAI_npc_valkyr_battle_maiden;
     newscript->RegisterSelf();
 }
