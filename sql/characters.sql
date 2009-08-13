@@ -23,7 +23,7 @@
 
 DROP TABLE IF EXISTS `character_db_version`;
 CREATE TABLE `character_db_version` (
-  `required_8104_01_characters` bit(1) default NULL
+  `required_8339_02_characters_character_battleground_data` bit(1) default NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Last applied sql update to DB';
 
 --
@@ -331,13 +331,6 @@ CREATE TABLE `characters` (
   `taxi_path` text,
   `arena_pending_points` int(10) UNSIGNED NOT NULL default '0',
   `latency` int(11) unsigned NOT NULL default '0',
-  `bgid` int(10) unsigned NOT NULL default '0',
-  `bgteam` int(10) unsigned NOT NULL default '0',
-  `bgmap` int(10) unsigned NOT NULL default '0',
-  `bgx` float NOT NULL default '0',
-  `bgy` float NOT NULL default '0',
-  `bgz` float NOT NULL default '0',
-  `bgo` float NOT NULL default '0',
   PRIMARY KEY  (`guid`),
   KEY `idx_account` (`account`),
   KEY `idx_online` (`online`),
@@ -445,6 +438,35 @@ CREATE TABLE `character_aura` (
 LOCK TABLES `character_aura` WRITE;
 /*!40000 ALTER TABLE `character_aura` DISABLE KEYS */;
 /*!40000 ALTER TABLE `character_aura` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `character_battleground_data`
+--
+
+DROP TABLE IF EXISTS `character_battleground_data`;
+CREATE TABLE `character_battleground_data` (
+  `guid` int(11) unsigned NOT NULL default '0' COMMENT 'Global Unique Identifier',
+  `instance_id` int(11) unsigned NOT NULL default '0',
+  `team` int(11) unsigned NOT NULL default '0',
+  `join_x` float NOT NULL default '0',
+  `join_y` float NOT NULL default '0',
+  `join_z` float NOT NULL default '0',
+  `join_o` float NOT NULL default '0',
+  `join_map` int(11) NOT NULL default '0',
+  `taxi_start` int(11) NOT NULL default '0',
+  `taxi_end` int(11) NOT NULL default '0',
+  `mount_spell` int(11) NOT NULL default '0',
+  PRIMARY KEY  (`guid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Player System';
+
+--
+-- Dumping data for table `character_battleground_data`
+--
+
+LOCK TABLES `character_battleground_data` WRITE;
+/*!40000 ALTER TABLE `character_battleground_data` DISABLE KEYS */;
+/*!40000 ALTER TABLE `character_battleground_data` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
