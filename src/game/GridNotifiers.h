@@ -110,11 +110,10 @@ namespace Trinity
         WorldPacket *i_message;
         uint32 i_phaseMask;
         float i_distSq;
-        bool self;
         uint32 team;
-        MessageDistDeliverer(WorldObject *src, WorldPacket *msg, float dist, bool to_self = true, bool own_team_only = false)
+        MessageDistDeliverer(WorldObject *src, WorldPacket *msg, float dist, bool own_team_only = false)
             : i_source(src), i_message(msg), i_distSq(dist * dist), i_phaseMask(src->GetPhaseMask())
-            , self(to_self || src->GetTypeId() != TYPEID_PLAYER), team((own_team_only && src->GetTypeId() == TYPEID_PLAYER) ? ((Player*)src)->GetTeam() : 0)
+            , team((own_team_only && src->GetTypeId() == TYPEID_PLAYER) ? ((Player*)src)->GetTeam() : 0)
         {
         }
         void Visit(PlayerMapType &m);
@@ -124,16 +123,9 @@ namespace Trinity
 
         void SendPacket(Player* plr)
         {
-            if(!self)
-            {
-                if(plr == i_source)
-                    return;
-            }
-            else if(team)
-            {
-                if(plr->GetTeam() != team)
-                    return;
-            }
+            // never send packet to self
+            if(plr == i_source || team && plr->GetTeam() != team)
+                return;
 
             plr->GetSession()->SendPacket(i_message);
         }

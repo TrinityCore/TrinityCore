@@ -5813,43 +5813,30 @@ void Player::SaveRecallPosition()
 
 void Player::SendMessageToSet(WorldPacket *data, bool self)
 {
-    Map * _map = IsInWorld() ? GetMap() : MapManager::Instance().FindMap(GetMapId(), GetInstanceId());
-    if(_map)
-    {
-        _map->MessageBroadcast(this, data, self);
-        return;
-    }
-
-    //if player is not in world and map in not created/already destroyed
-    //no need to create one, just send packet for itself!
     if(self)
         GetSession()->SendPacket(data);
+
+    // we use World::GetMaxVisibleDistance() because i cannot see why not use a distance
+    Trinity::MessageDistDeliverer notifier(this, data, World::GetMaxVisibleDistance());
+    VisitNearbyWorldObject(World::GetMaxVisibleDistance(), notifier);
 }
 
 void Player::SendMessageToSetInRange(WorldPacket *data, float dist, bool self)
 {
-    Map * _map = IsInWorld() ? GetMap() : MapManager::Instance().FindMap(GetMapId(), GetInstanceId());
-    if(_map)
-    {
-        _map->MessageDistBroadcast(this, data, dist, self);
-        return;
-    }
-
     if(self)
         GetSession()->SendPacket(data);
+
+    Trinity::MessageDistDeliverer notifier(this, data, dist);
+    VisitNearbyWorldObject(dist, notifier);
 }
 
 void Player::SendMessageToSetInRange(WorldPacket *data, float dist, bool self, bool own_team_only)
 {
-    Map * _map = IsInWorld() ? GetMap() : MapManager::Instance().FindMap(GetMapId(), GetInstanceId());
-    if(_map)
-    {
-        _map->MessageDistBroadcast(this, data, dist, self, own_team_only);
-        return;
-    }
-
     if(self)
         GetSession()->SendPacket(data);
+
+    Trinity::MessageDistDeliverer notifier(this, data, dist, own_team_only);
+    VisitNearbyWorldObject(dist, notifier);
 }
 
 void Player::SendDirectMessage(WorldPacket *data)

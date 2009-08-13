@@ -486,30 +486,6 @@ Map::Add(T *obj)
     AddNotifier(obj);
 }
 
-void Map::MessageBroadcast(Player *player, WorldPacket *msg, bool to_self)
-{
-    Trinity::MessageDistDeliverer post_man(player, msg, World::GetMaxVisibleDistance(), to_self);
-    VisitWorld(player->GetPositionX(), player->GetPositionY(), World::GetMaxVisibleDistance(), post_man);
-}
-
-void Map::MessageBroadcast(WorldObject *obj, WorldPacket *msg)
-{
-    Trinity::MessageDistDeliverer post_man(obj, msg, World::GetMaxVisibleDistance());
-    VisitWorld(obj->GetPositionX(), obj->GetPositionY(), World::GetMaxVisibleDistance(), post_man);
-}
-
-void Map::MessageDistBroadcast(Player *player, WorldPacket *msg, float dist, bool to_self, bool own_team_only)
-{
-    Trinity::MessageDistDeliverer post_man(player, msg, dist, to_self, own_team_only);
-    VisitWorld(player->GetPositionX(), player->GetPositionY(), dist, post_man);
-}
-
-void Map::MessageDistBroadcast(WorldObject *obj, WorldPacket *msg, float dist)
-{
-    Trinity::MessageDistDeliverer post_man(obj, msg, dist);
-    VisitWorld(obj->GetPositionX(), obj->GetPositionY(), dist, post_man);
-}
-
 bool Map::loaded(const GridPair &p) const
 {
     return ( getNGrid(p.x_coord, p.y_coord) && isGridObjectDataLoaded(p.x_coord, p.y_coord) );
