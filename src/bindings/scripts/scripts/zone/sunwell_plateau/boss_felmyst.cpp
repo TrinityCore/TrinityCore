@@ -436,7 +436,7 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
         }
 
         Event = EVENT_NULL;
-        for(uint32 i = 1; i <= MaxTimer[Phase]; i++)
+        for(uint32 i = 1; i <= MaxTimer[Phase]; ++i)
         {
             if(Timer[i])
                 if(Timer[i] <= diff)

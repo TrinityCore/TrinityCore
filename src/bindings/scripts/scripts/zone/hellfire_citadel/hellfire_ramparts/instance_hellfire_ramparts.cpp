@@ -37,7 +37,7 @@ struct TRINITY_DLL_DECL instance_ramparts : public ScriptedInstance
         m_uiChestNGUID = 0;
         m_uiChestHGUID = 0;
 
-        for(uint8 i = 0; i < ENCOUNTERS; i++)
+        for(uint8 i = 0; i < ENCOUNTERS; ++i)
             m_uiEncounter[i] = NOT_STARTED;
 
     }

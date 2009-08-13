@@ -475,7 +475,7 @@ struct TRINITY_DLL_DECL boss_kiljaedenAI : public Scripted_NoMovementAI
     }
 
     void ChangeTimers(bool status, uint32 WTimer){
-        for(uint8 i = 0; i < 10;++i)
+        for(uint8 i = 0; i < 10; ++i)
             TimerIsDeactiveted[i] = status;
         TimerIsDeactiveted[TIMER_KALEC_JOIN] = IsKalecJoined;
 
@@ -544,7 +544,7 @@ struct TRINITY_DLL_DECL boss_kiljaedenAI : public Scripted_NoMovementAI
         case 1: DoScriptText(SAY_KJ_REFLECTION2, m_creature); break;
         }
         DoCast(m_creature, SPELL_SINISTER_REFLECTION, true);
-        for(uint8 i = 0; i < 4; i++){
+        for(uint8 i = 0; i < 4; ++i){
             float x,y,z;
             Unit* target;
             for(uint8 z = 0; z < 6; ++z){

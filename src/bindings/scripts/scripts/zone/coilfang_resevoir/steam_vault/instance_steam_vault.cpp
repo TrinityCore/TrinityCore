@@ -75,13 +75,13 @@ struct TRINITY_DLL_DECL instance_steam_vault : public ScriptedInstance
         AccessPanelHydro = 0;
         AccessPanelMek = 0;
 
-        for(uint8 i = 0; i < ENCOUNTERS; i++)
+        for(uint8 i = 0; i < ENCOUNTERS; ++i)
             Encounter[i] = NOT_STARTED;
     }
 
     bool IsEncounterInProgress() const
     {
-        for(uint8 i = 0; i < ENCOUNTERS; i++)
+        for(uint8 i = 0; i < ENCOUNTERS; ++i)
              if (Encounter[i] == IN_PROGRESS)
                  return true;
 

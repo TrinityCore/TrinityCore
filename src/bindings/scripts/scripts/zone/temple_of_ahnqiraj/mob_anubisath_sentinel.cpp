@@ -104,7 +104,7 @@ struct TRINITY_DLL_DECL aqsentinelAI : public ScriptedAI
     {
         if (c==m_creature)
             return;
-        for (int i=0; i<3; i++)
+        for (int i=0; i<3; ++i)
         {
             if (nearby[i] == c)
                 return;
@@ -119,7 +119,7 @@ struct TRINITY_DLL_DECL aqsentinelAI : public ScriptedAI
     void GiveBuddyMyList(Creature *c)
     {
         aqsentinelAI *cai = CAST_AI(aqsentinelAI, (c)->AI());
-        for (int i=0; i<3; i++)
+        for (int i=0; i<3; ++i)
             if (nearby[i] && nearby[i]!=c)
                 cai->AddBuddyToList(nearby[i]);
         cai->AddBuddyToList(m_creature);
@@ -127,14 +127,14 @@ struct TRINITY_DLL_DECL aqsentinelAI : public ScriptedAI
 
     void SendMyListToBuddies()
     {
-        for (int i=0; i<3; i++)
+        for (int i=0; i<3; ++i)
             if (nearby[i])
                 GiveBuddyMyList(nearby[i]);
     }
 
     void CallBuddiesToAttack(Unit *who)
     {
-        for (int i=0; i<3; i++)
+        for (int i=0; i<3; ++i)
         {
             Creature *c = nearby[i];
             if (c)
@@ -163,9 +163,9 @@ struct TRINITY_DLL_DECL aqsentinelAI : public ScriptedAI
 
     int pickAbilityRandom(bool *chosenAbilities)
     {
-        for (int t = 0; t < 2; t++)
+        for (int t = 0; t < 2; ++t)
         {
-            for (int i = !t ? (rand()%9) : 0; i < 9; i++)
+            for (int i = !t ? (rand()%9) : 0; i < 9; ++i)
             {
                 if (!chosenAbilities[i])
                 {
@@ -208,7 +208,7 @@ struct TRINITY_DLL_DECL aqsentinelAI : public ScriptedAI
     {
         if (!m_creature->isDead())
         {
-            for (int i=0; i<3; i++)
+            for (int i=0; i<3; ++i)
             {
                 if (!nearby[i])
                     continue;
@@ -224,7 +224,7 @@ struct TRINITY_DLL_DECL aqsentinelAI : public ScriptedAI
     {
         const SpellEntry *spell = GetSpellStore()->LookupEntry(id);
         uint8 eff_mask=0;
-        for (int i=0; i<3; i++)
+        for (int i=0; i<3; ++i)
         {
             if (!spell->Effect[i])
                 continue;

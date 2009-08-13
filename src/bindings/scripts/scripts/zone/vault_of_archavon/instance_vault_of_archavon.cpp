@@ -17,7 +17,7 @@ struct TRINITY_DLL_DECL instance_archavon : public ScriptedInstance
         Archavon = 0;
         Emalon = 0;
 
-        for(uint8 i = 0; i < NUMBER_OF_ENCOUNTERS; i++)
+        for(uint8 i = 0; i < NUMBER_OF_ENCOUNTERS; ++i)
             Encounters[i] = NOT_STARTED;
     }
 

@@ -56,7 +56,7 @@ struct TRINITY_DLL_DECL instance_magisters_terrace : public ScriptedInstance
 
     void Initialize()
     {
-        for(uint8 i = 0; i < NUMBER_OF_ENCOUNTERS; i++)
+        for(uint8 i = 0; i < NUMBER_OF_ENCOUNTERS; ++i)
             Encounters[i] = NOT_STARTED;
 
         FelCrystals.clear();
@@ -78,7 +78,7 @@ struct TRINITY_DLL_DECL instance_magisters_terrace : public ScriptedInstance
 
     bool IsEncounterInProgress() const
     {
-        for(uint8 i = 0; i < NUMBER_OF_ENCOUNTERS; i++)
+        for(uint8 i = 0; i < NUMBER_OF_ENCOUNTERS; ++i)
             if(Encounters[i] == IN_PROGRESS)
                 return true;
         return false;

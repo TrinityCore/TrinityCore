@@ -334,7 +334,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
 
     void PrepareAdvisors()
     {
-        for(uint8 i = 0; i < MAX_ADVISORS; i++)
+        for(uint8 i = 0; i < MAX_ADVISORS; ++i)
         {
             if (Creature *pCreature = Unit::GetCreature((*m_creature), m_auiAdvisorGuid[i]))
             {
@@ -458,7 +458,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
         if (m_pInstance)
             m_pInstance->SetData(DATA_KAELTHASEVENT, 0);
 
-        for(uint8 i = 0; i < MAX_ADVISORS; i++)
+        for(uint8 i = 0; i < MAX_ADVISORS; ++i)
         {
             if (Unit* pAdvisor = Unit::GetUnit((*m_creature), m_auiAdvisorGuid[i]))
                 pAdvisor->DealDamage(pAdvisor, pAdvisor->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
@@ -676,7 +676,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                     Unit* Target = SelectUnit(SELECT_TARGET_RANDOM, 0);
 
                     Creature* Advisor;
-                    for (uint32 i = 0; i < MAX_ADVISORS; i++)
+                    for (uint32 i = 0; i < MAX_ADVISORS; ++i)
                     {
                         Advisor = (Unit::GetCreature((*m_creature), m_auiAdvisorGuid[i]));
 
@@ -763,7 +763,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                     if (MindControl_Timer < diff)
                     {
                         if (m_creature->getThreatManager().getThreatList().size() >= 2)
-                            for (uint32 i = 0; i < 3; i++)
+                            for (uint32 i = 0; i < 3; ++i)
                         {
                             debug_log("SD2: Kael'Thas mind control not supported.");
                             //DoCast(pUnit, SPELL_MIND_CONTROL);
@@ -877,7 +877,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                                 m_creature->SendMonsterMove(afGravityPos[0], afGravityPos[1], afGravityPos[2], 0, MOVEMENTFLAG_NONE, 0);
 
                                 // 1) Kael'thas will portal the whole raid right into his body
-                                for (i = m_creature->getThreatManager().getThreatList().begin(); i!= m_creature->getThreatManager().getThreatList().end();++i)
+                                for (i = m_creature->getThreatManager().getThreatList().begin(); i!= m_creature->getThreatManager().getThreatList().end(); ++i)
                                 {
                                     Unit* pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid());
                                     if (pUnit && (pUnit->GetTypeId() == TYPEID_PLAYER))
@@ -902,7 +902,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                                 }
 
                                 // 2) At that point he will put a Gravity Lapse debuff on everyone
-                                for (i = m_creature->getThreatManager().getThreatList().begin(); i!= m_creature->getThreatManager().getThreatList().end();i++)
+                                for (i = m_creature->getThreatManager().getThreatList().begin(); i!= m_creature->getThreatManager().getThreatList().end(); ++i)
                                 {
                                     if (Unit* pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid()))
                                     {
@@ -935,7 +935,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
 
                             case 3:
                                 //Remove flight
-                                for (i = m_creature->getThreatManager().getThreatList().begin(); i!= m_creature->getThreatManager().getThreatList().end();i++)
+                                for (i = m_creature->getThreatManager().getThreatList().begin(); i!= m_creature->getThreatManager().getThreatList().end(); ++i)
                                 {
                                     if (Unit* pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid()))
                                     {
@@ -1216,7 +1216,7 @@ struct TRINITY_DLL_DECL boss_grand_astromancer_capernianAI : public advisorbase_
             bool InMeleeRange = false;
             Unit *target = NULL;
             std::list<HostilReference*>& m_threatlist = m_creature->getThreatManager().getThreatList();
-            for (std::list<HostilReference*>::iterator i = m_threatlist.begin(); i!= m_threatlist.end();++i)
+            for (std::list<HostilReference*>::iterator i = m_threatlist.begin(); i!= m_threatlist.end(); ++i)
             {
                 Unit* pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid());
                                                             //if in melee range

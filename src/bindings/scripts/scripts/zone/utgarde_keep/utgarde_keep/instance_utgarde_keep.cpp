@@ -69,7 +69,7 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
         Dalronn =0;
         Ingvar =0;
 
-        for(uint8 i= 0; i < 3; i++)
+        for(uint8 i= 0; i < 3; ++i)
         {
             forge_bellow[i] = 0;
             forge_fire[i] = 0;

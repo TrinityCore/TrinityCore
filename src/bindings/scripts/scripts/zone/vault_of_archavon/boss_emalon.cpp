@@ -82,7 +82,7 @@ struct TRINITY_DLL_DECL boss_emalonAI : public ScriptedAI
     void SummonAllMinions()
     {
         if(MinionList.empty())
-           for(uint8 i = 0; i < 4; i++)
+           for(uint8 i = 0; i < 4; ++i)
                SummonMinion(m_creature, MinionLocation[i].x, MinionLocation[i].y, MinionLocation[i].z, MinionLocation[i].o);
     }
 

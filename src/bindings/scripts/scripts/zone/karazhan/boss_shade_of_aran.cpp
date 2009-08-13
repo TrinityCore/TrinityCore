@@ -430,7 +430,7 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
         {
             ElementalsSpawned = true;
 
-            for (uint32 i = 0; i < 4; i++)
+            for (uint32 i = 0; i < 4; ++i)
             {
                 if (Creature* pUnit = m_creature->SummonCreature(CREATURE_WATER_ELEMENTAL, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 90000))
                 {
@@ -444,7 +444,7 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
 
         if(BerserkTimer < diff)
         {
-            for (uint32 i = 0; i < 5; i++)
+            for (uint32 i = 0; i < 5; ++i)
             {
                 if (Creature* pUnit = m_creature->SummonCreature(CREATURE_SHADOW_OF_ARAN, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000))
                 {
@@ -467,7 +467,7 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
 
             if (FlameWreathCheckTime < diff)
             {
-                for (uint32 i = 0; i < 3; i++)
+                for (uint32 i = 0; i < 3; ++i)
                 {
                     if (!FlameWreathTarget[i])
                         continue;

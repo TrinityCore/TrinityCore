@@ -291,7 +291,7 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
                     Portals[2][0] = Portals[2][0]+7*i;
                     Portals[2][1] = Portal_Y(Portals[2][0], LARGE_PORTAL_RADIUS);
                 }
-                for (int i=0; i<=2; i++)
+                for (int i=0; i<=2; ++i)
                 {
                     if (Creature* Summoned = m_creature->SummonCreature(NPC_ASTROMANCER_SOLARIAN_SPOTLIGHT, Portals[i][0], Portals[i][1], Portals[i][2], CENTER_O, TEMPSUMMON_TIMED_DESPAWN, Phase2_Timer+Phase3_Timer+AppearDelay_Timer+1700))
                     {
@@ -310,7 +310,7 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
             if (Phase2_Timer < diff)
             {
                 Phase = 3;
-                for (int i=0; i<=2; i++)
+                for (int i=0; i<=2; ++i)
                     for (int j=1; j<=4; j++)
                         SummonMinion(NPC_SOLARIUM_AGENT, Portals[i][0], Portals[i][1], Portals[i][2]);
 

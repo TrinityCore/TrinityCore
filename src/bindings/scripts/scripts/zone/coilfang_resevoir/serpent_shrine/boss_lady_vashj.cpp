@@ -187,7 +187,7 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
         }else CanAttack = true;
 
         Unit *remo;
-        for(uint8 i = 0; i < 4; i++)
+        for(uint8 i = 0; i < 4; ++i)
         {
             remo = Unit::GetUnit(*m_creature, ShieldGeneratorChannel[i]);
             if (remo)
@@ -405,7 +405,7 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
                     DoTeleportTo(MIDDLE_X, MIDDLE_Y, MIDDLE_Z);
 
                     Creature *pCreature;
-                    for(uint8 i = 0; i < 4; i++)
+                    for(uint8 i = 0; i < 4; ++i)
                     {
                         pCreature = m_creature->SummonCreature(SHIED_GENERATOR_CHANNEL, ShieldGeneratorChannelPos[i][0],  ShieldGeneratorChannelPos[i][1],  ShieldGeneratorChannelPos[i][2],  ShieldGeneratorChannelPos[i][3], TEMPSUMMON_CORPSE_DESPAWN, 0);
                         if (pCreature)
@@ -596,7 +596,7 @@ struct TRINITY_DLL_DECL mob_enchanted_elementalAI : public ScriptedAI
         phase = 1;
         Vashj = NULL;
 
-        for (int i = 0;i<8;i++)//search for nearest waypoint (up on stairs)
+        for (int i = 0;i<8; ++i)//search for nearest waypoint (up on stairs)
         {
             if (!x || !y || !z)
             {
@@ -657,7 +657,7 @@ struct TRINITY_DLL_DECL mob_enchanted_elementalAI : public ScriptedAI
                     if( spell )
                     {
                         uint8 eff_mask=0;
-                        for (int i=0; i<3; i++)
+                        for (int i=0; i<3; ++i)
                         {
                             if (!spell->Effect[i])
                                 continue;
