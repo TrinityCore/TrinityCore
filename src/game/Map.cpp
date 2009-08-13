@@ -65,8 +65,8 @@ Map::~Map()
         WorldObject *obj = *i_worldObjects.begin();
         assert(obj->m_isWorldObject);
         //assert(obj->GetTypeId() == TYPEID_CORPSE);
-        obj->ResetMap();
         obj->RemoveFromWorld();
+        obj->ResetMap();
     }
 
     if(!m_scriptSchedule.empty())
