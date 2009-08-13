@@ -2716,6 +2716,26 @@ void Spell::DoCreateItem(uint32 i, uint32 itemtype)
         return;
     }
 
+    // bg reward have some special in code work
+    uint32 bgType = 0;
+    switch(m_spellInfo->Id)
+    {
+        case SPELL_AV_MARK_WINNER:
+        case SPELL_AV_MARK_LOSER:
+            bgType = BATTLEGROUND_AV;
+            break;
+        case SPELL_WS_MARK_WINNER:
+        case SPELL_WS_MARK_LOSER:
+            bgType = BATTLEGROUND_WS;
+            break;
+        case SPELL_AB_MARK_WINNER:
+        case SPELL_AB_MARK_LOSER:
+            bgType = BATTLEGROUND_AB;
+            break;
+        default:
+            break;
+    }
+
     uint32 num_to_add;
 
     // TODO: maybe all this can be replaced by using correct calculated `damage` value
@@ -2798,11 +2818,21 @@ void Spell::DoCreateItem(uint32 i, uint32 itemtype)
 
         // send info to the client
         if(pItem)
-            player->SendNewItem(pItem, num_to_add, true, true);
+            player->SendNewItem(pItem, num_to_add, true, bgType == 0);
 
         // we succeeded in creating at least one item, so a levelup is possible
-        player->UpdateCraftSkill(m_spellInfo->Id);
+        if(bgType == 0)
+            player->UpdateCraftSkill(m_spellInfo->Id);
     }
+
+/*
+    // for battleground marks send by mail if not add all expected
+    if(no_space > 0 && bgType)
+    {
+        if(BattleGround* bg = sBattleGroundMgr.GetBattleGroundTemplate(BattleGroundTypeId(bgType)))
+            bg->SendRewardMarkByMail(player, newitemid, no_space);
+    }
+*/    
 }
 
 void Spell::EffectCreateItem(uint32 i)
