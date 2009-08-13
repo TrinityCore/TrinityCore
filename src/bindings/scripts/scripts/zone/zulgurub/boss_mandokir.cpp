@@ -46,7 +46,7 @@ struct TRINITY_DLL_DECL boss_mandokirAI : public ScriptedAI
 {
     boss_mandokirAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = c->GetInstanceData();
+        m_pInstance = c->GetInstanceData();
     }
 
     uint32 KillCount;
@@ -61,7 +61,7 @@ struct TRINITY_DLL_DECL boss_mandokirAI : public ScriptedAI
     float targetY;
     float targetZ;
 
-    ScriptedInstance *pInstance;
+    ScriptedInstance *m_pInstance;
 
     bool endWatch;
     bool someWatched;
@@ -97,7 +97,7 @@ struct TRINITY_DLL_DECL boss_mandokirAI : public ScriptedAI
 
     void KilledUnit(Unit* victim)
     {
-        if(victim->GetTypeId() == TYPEID_PLAYER)
+        if (victim->GetTypeId() == TYPEID_PLAYER)
         {
             ++KillCount;
 
@@ -105,9 +105,9 @@ struct TRINITY_DLL_DECL boss_mandokirAI : public ScriptedAI
             {
                 DoScriptText(SAY_DING_KILL, m_creature);
 
-                if (pInstance)
+                if (m_pInstance)
                 {
-                    uint64 JindoGUID = pInstance->GetData64(DATA_JINDO);
+                    uint64 JindoGUID = m_pInstance->GetData64(DATA_JINDO);
                     if (JindoGUID)
                     {
                         if (Unit* jTemp = Unit::GetUnit(*m_creature,JindoGUID))
@@ -130,12 +130,12 @@ struct TRINITY_DLL_DECL boss_mandokirAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
-        if( m_creature->getVictim() && m_creature->isAlive())
+        if ( m_creature->getVictim() && m_creature->isAlive())
         {
-            if(!CombatStart)
+            if (!CombatStart)
             {
                 //At combat Start Mandokir is mounted so we must unmount it first
                 m_creature->Unmount();
@@ -147,17 +147,17 @@ struct TRINITY_DLL_DECL boss_mandokirAI : public ScriptedAI
 
             if (Watch_Timer < diff)                         //Every 20 Sec Mandokir will check this
             {
-                if(WatchTarget)                             //If someone is watched and If the Position of the watched target is different from the one stored, or are attacking, mandokir will charge him
+                if (WatchTarget)                             //If someone is watched and If the Position of the watched target is different from the one stored, or are attacking, mandokir will charge him
                 {
                     Unit* pUnit = Unit::GetUnit(*m_creature, WatchTarget);
 
-                    if( pUnit && (
+                    if ( pUnit && (
                         targetX != pUnit->GetPositionX() ||
                         targetY != pUnit->GetPositionY() ||
                         targetZ != pUnit->GetPositionZ() ||
                         pUnit->isInCombat()))
                     {
-                        if(m_creature->IsWithinMeleeRange(pUnit))
+                        if (m_creature->IsWithinMeleeRange(pUnit))
                         {
                             DoCast(pUnit,24316);
                         }
@@ -197,7 +197,7 @@ struct TRINITY_DLL_DECL boss_mandokirAI : public ScriptedAI
                 endWatch = false;
             }
 
-            if(!someWatched)
+            if (!someWatched)
             {
                 //Cleave
                 if (Cleave_Timer < diff)
@@ -222,11 +222,11 @@ struct TRINITY_DLL_DECL boss_mandokirAI : public ScriptedAI
                     for(; i != m_creature->getThreatManager().getThreatList().end(); ++i)
                     {
                         Unit* pUnit = Unit::GetUnit(*m_creature, (*i)->getUnitGuid());
-                        if(pUnit && m_creature->IsWithinMeleeRange(pUnit))
+                        if (pUnit && m_creature->IsWithinMeleeRange(pUnit))
                             TargetInRange++;
                     }
 
-                    if(TargetInRange > 3)
+                    if (TargetInRange > 3)
                         DoCast(m_creature->getVictim(),SPELL_FEAR);
 
                     Fear_Timer = 4000;
@@ -243,11 +243,11 @@ struct TRINITY_DLL_DECL boss_mandokirAI : public ScriptedAI
                 }
             }
             //Checking if Ohgan is dead. If yes Mandokir will enrage.
-            if(Check_Timer < diff)
+            if (Check_Timer < diff)
             {
-                if(pInstance)
+                if (m_pInstance)
                 {
-                    if(pInstance->GetData(DATA_OHGANISDEAD))
+                    if (m_pInstance->GetData(TYPE_OHGAN) == DONE)
                     {
                         if (!RaptorDead)
                         {
@@ -270,11 +270,11 @@ struct TRINITY_DLL_DECL mob_ohganAI : public ScriptedAI
 {
     mob_ohganAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = c->GetInstanceData();
+        m_pInstance = c->GetInstanceData();
     }
 
     uint32 SunderArmor_Timer;
-    ScriptedInstance *pInstance;
+    ScriptedInstance *m_pInstance;
 
     void Reset()
     {
@@ -285,8 +285,8 @@ struct TRINITY_DLL_DECL mob_ohganAI : public ScriptedAI
 
     void JustDied(Unit* Killer)
     {
-        if(pInstance)
-            pInstance->SetData(DATA_OHGAN_DEATH, 0);
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_OHGAN, DONE);
     }
 
     void UpdateAI (const uint32 diff)
@@ -296,7 +296,7 @@ struct TRINITY_DLL_DECL mob_ohganAI : public ScriptedAI
             return;
 
         //SunderArmor_Timer
-        if(SunderArmor_Timer < diff)
+        if (SunderArmor_Timer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_SUNDERARMOR);
             SunderArmor_Timer = 10000 + rand()%5000;

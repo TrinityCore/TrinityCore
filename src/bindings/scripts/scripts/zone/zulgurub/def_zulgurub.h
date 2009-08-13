@@ -5,33 +5,24 @@
 #ifndef DEF_ZULGURUB_H
 #define DEF_ZULGURUB_H
 
-#define DATA_ARLOKKISDEAD       1
-#define DATA_ARLOKK_DEATH       2
-#define DATA_JEKLIKISDEAD       3
-#define DATA_JEKLIK_DEATH       4
-#define DATA_JINDO              5
-#define DATA_LORKHAN            6
-#define DATA_LORKHANISALIVE     7
-#define DATA_LORKHANISDEAD      8
-#define DATA_LORKHAN_ALIVE      9
-#define DATA_LORKHAN_DEATH      10
-#define DATA_MARLIISDEAD        11
-#define DATA_MARLI_DEATH        12
-#define DATA_OHGANISDEAD        13
-#define DATA_OHGAN_DEATH        14
-#define DATA_THEKAL             15
-#define DATA_THEKALFAKE_DEATH   16
-#define DATA_THEKALISALIVE      17
-#define DATA_THEKALISDEAD       18
-#define DATA_THEKALISFAKEDEAD   19
-#define DATA_THEKAL_ALIVE       20
-#define DATA_THEKAL_DEATH       21
-#define DATA_VENOXISISDEAD      22
-#define DATA_VENOXIS_DEATH      23
-#define DATA_ZATH               24
-#define DATA_ZATHISALIVE        25
-#define DATA_ZATHISDEAD         26
-#define DATA_ZATH_ALIVE         27
-#define DATA_ZATH_DEATH         28
+enum
+{
+    MAX_ENCOUNTERS          = 8,
+
+    TYPE_ARLOKK             = 1,
+    TYPE_JEKLIK             = 2,
+    TYPE_VENOXIS            = 3,
+    TYPE_MARLI              = 4,
+    TYPE_OHGAN              = 5,
+    TYPE_THEKAL             = 6,
+    TYPE_ZATH               = 7,
+    TYPE_LORKHAN            = 8,
+
+    DATA_JINDO              = 10,
+    DATA_LORKHAN            = 11,
+    DATA_THEKAL             = 12,
+    DATA_ZATH               = 13
+};
+
 #endif
 
