@@ -36,7 +36,7 @@ EndScriptData */
 3 - Warlord Kalithresh Event
 */
 
-bool GOHello_go_main_chambers_access_panel(Player *player, GameObject* _GO)
+bool GOHello_go_main_chambers_access_panel(Player* pPlayer, GameObject* _GO)
 {
     ScriptedInstance* pInstance = _GO->GetInstanceData();
 
@@ -54,7 +54,7 @@ bool GOHello_go_main_chambers_access_panel(Player *player, GameObject* _GO)
 
 struct TRINITY_DLL_DECL instance_steam_vault : public ScriptedInstance
 {
-    instance_steam_vault(Map *map) : ScriptedInstance(map) {Initialize();};
+    instance_steam_vault(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 
     uint32 Encounter[ENCOUNTERS];
 
@@ -144,7 +144,7 @@ struct TRINITY_DLL_DECL instance_steam_vault : public ScriptedInstance
                 break;
         }
 
-        if(data == DONE || data == SPECIAL)
+        if (data == DONE || data == SPECIAL)
             SaveToDB();
     }
 
@@ -185,7 +185,7 @@ struct TRINITY_DLL_DECL instance_steam_vault : public ScriptedInstance
         stream << Encounter[0] << " " << Encounter[1] << " " << Encounter[2] << " " << Encounter[3];
         char* out = new char[stream.str().length() + 1];
         strcpy(out, stream.str().c_str());
-        if(out)
+        if (out)
         {
             OUT_SAVE_INST_DATA_COMPLETE;
             return out;
@@ -195,7 +195,7 @@ struct TRINITY_DLL_DECL instance_steam_vault : public ScriptedInstance
 
     void Load(const char* in)
     {
-        if(!in)
+        if (!in)
         {
             OUT_LOAD_INST_DATA_FAIL;
             return;
@@ -204,15 +204,15 @@ struct TRINITY_DLL_DECL instance_steam_vault : public ScriptedInstance
         std::istringstream stream(in);
         stream >> Encounter[0] >> Encounter[1] >> Encounter[2] >> Encounter[3];
         for(uint8 i = 0; i < ENCOUNTERS; ++i)
-            if(Encounter[i] == IN_PROGRESS)
+            if (Encounter[i] == IN_PROGRESS)
                 Encounter[i] = NOT_STARTED;
         OUT_LOAD_INST_DATA_COMPLETE;
     }
 };
 
-InstanceData* GetInstanceData_instance_steam_vault(Map* map)
+InstanceData* GetInstanceData_instance_steam_vault(Map* pMap)
 {
-    return new instance_steam_vault(map);
+    return new instance_steam_vault(pMap);
 }
 
 void AddSC_instance_steam_vault()

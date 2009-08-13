@@ -52,7 +52,7 @@ struct TRINITY_DLL_DECL boss_ebonrocAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
         //Shadowflame Timer

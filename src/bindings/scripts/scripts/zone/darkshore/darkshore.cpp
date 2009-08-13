@@ -64,7 +64,7 @@ struct TRINITY_DLL_DECL npc_prospector_remtravelAI : public npc_escortAI
     {
         Player* pPlayer = Unit::GetPlayer(PlayerGUID);
 
-        if(!pPlayer)
+        if (!pPlayer)
             return;
 
         switch(i)
@@ -127,7 +127,7 @@ struct TRINITY_DLL_DECL npc_prospector_remtravelAI : public npc_escortAI
 
     void EnterCombat(Unit* who)
     {
-        if(rand()%2)
+        if (rand()%2)
             DoScriptText(SAY_REM_AGGRO, me, who);
     }
 
@@ -154,7 +154,7 @@ CreatureAI* GetAI_npc_prospector_remtravel(Creature* pCreature)
 
 bool QuestAccept_npc_prospector_remtravel(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
 {
-    if(pQuest->GetQuestId() == QUEST_ABSENT_MINDED_PT2)
+    if (pQuest->GetQuestId() == QUEST_ABSENT_MINDED_PT2)
     {
         CAST_AI(npc_escortAI, pCreature->AI())->Start(false, false, pPlayer->GetGUID());
         pCreature->setFaction(FACTION_ESCORTEE);
@@ -196,7 +196,7 @@ struct TRINITY_DLL_DECL npc_threshwackonatorAI : public ScriptedAI
     {
         CheckPlayerTimer = 2500;
 
-        if(!PlayerGUID)
+        if (!PlayerGUID)
         {
             me->setFaction(Faction);
             me->SetUInt32Value(UNIT_NPC_FLAGS, NpcFlags);
@@ -205,9 +205,9 @@ struct TRINITY_DLL_DECL npc_threshwackonatorAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit* who)
     {
-        if(who->GetEntry() == NPC_GELKAK)
+        if (who->GetEntry() == NPC_GELKAK)
         {
-            if(PlayerGUID && me->IsWithinDistInMap(who, 10.0f))
+            if (PlayerGUID && me->IsWithinDistInMap(who, 10.0f))
             {
                 DoScriptText(SAY_AT_CLOSE, who);
                 DoAtEnd();
@@ -224,9 +224,9 @@ struct TRINITY_DLL_DECL npc_threshwackonatorAI : public ScriptedAI
         me->CombatStop(true);
         me->LoadCreaturesAddon();
 
-        if(me->isAlive())
+        if (me->isAlive())
         {
-            if(Player* pPlayer = Unit::GetPlayer(PlayerGUID))
+            if (Player* pPlayer = Unit::GetPlayer(PlayerGUID))
                 me->GetMotionMaster()->MoveFollow(pPlayer, PET_FOLLOW_DIST, m_creature->GetFollowAngle());
             else
             {
@@ -245,7 +245,7 @@ struct TRINITY_DLL_DECL npc_threshwackonatorAI : public ScriptedAI
         PlayerGUID = Starter;
         me->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
 
-        if(Player* pPlayer = Unit::GetPlayer(PlayerGUID))
+        if (Player* pPlayer = Unit::GetPlayer(PlayerGUID))
             me->GetMotionMaster()->MoveFollow(pPlayer, PET_FOLLOW_DIST, m_creature->GetFollowAngle());
 
         DoScriptText(EMOTE_START, me);
@@ -255,7 +255,7 @@ struct TRINITY_DLL_DECL npc_threshwackonatorAI : public ScriptedAI
     {
         me->setFaction(FACTION_HOSTILE);
 
-        if(Player* pHolder = Unit::GetPlayer(PlayerGUID))
+        if (Player* pHolder = Unit::GetPlayer(PlayerGUID))
             me->AI()->AttackStart(pHolder);
 
         PlayerGUID = 0;
@@ -263,7 +263,7 @@ struct TRINITY_DLL_DECL npc_threshwackonatorAI : public ScriptedAI
 
     void JustDied(Unit* pKiller)
     {
-        if(PlayerGUID)
+        if (PlayerGUID)
         {
             PlayerGUID = 0;
             me->GetMotionMaster()->MovementExpired();
@@ -272,17 +272,17 @@ struct TRINITY_DLL_DECL npc_threshwackonatorAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(PlayerGUID)
+        if (PlayerGUID)
         {
-            if(!me->isInCombat())
+            if (!me->isInCombat())
             {
-                if(CheckPlayerTimer < diff)
+                if (CheckPlayerTimer < diff)
                 {
                     CheckPlayerTimer = 5000;
 
                     Player* pPlayer = Unit::GetPlayer(PlayerGUID);
 
-                    if(pPlayer && !pPlayer->isAlive())
+                    if (pPlayer && !pPlayer->isAlive())
                     {
                         PlayerGUID = 0;
                         EnterEvadeMode();
@@ -292,7 +292,7 @@ struct TRINITY_DLL_DECL npc_threshwackonatorAI : public ScriptedAI
             }
         }
 
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
         DoMeleeAttackIfReady();
@@ -306,7 +306,7 @@ CreatureAI* GetAI_npc_threshwackonator(Creature* pCreature)
 
 bool GossipHello_npc_threshwackonator(Player* pPlayer, Creature* pCreature)
 {
-    if(pPlayer->GetQuestStatus(QUEST_GYROMAST_REV) == QUEST_STATUS_INCOMPLETE)
+    if (pPlayer->GetQuestStatus(QUEST_GYROMAST_REV) == QUEST_STATUS_INCOMPLETE)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_INSERT_KEY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
     pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
@@ -315,7 +315,7 @@ bool GossipHello_npc_threshwackonator(Player* pPlayer, Creature* pCreature)
 
 bool GossipSelect_npc_threshwackonator(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
-    if(action == GOSSIP_ACTION_INFO_DEF+1)
+    if (action == GOSSIP_ACTION_INFO_DEF+1)
     {
         CAST_AI(npc_threshwackonatorAI, pCreature->AI())->DoStart(pPlayer->GetGUID());
         pPlayer->CLOSE_GOSSIP_MENU();

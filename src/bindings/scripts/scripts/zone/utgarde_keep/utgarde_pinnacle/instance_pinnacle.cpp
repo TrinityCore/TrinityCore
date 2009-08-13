@@ -3,12 +3,12 @@
 
 struct TRINITY_DLL_DECL instance_pinnacle : public ScriptedInstance
 {
-    instance_pinnacle(Map *Map) : ScriptedInstance(Map) {Initialize();};
+    instance_pinnacle(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 };
 
-InstanceData* GetInstanceData_instance_pinnacle(Map* map)
+InstanceData* GetInstanceData_instance_pinnacle(Map* pMap)
 {
-    return new instance_pinnacle(map);
+    return new instance_pinnacle(pMap);
 }
 
 void AddSC_instance_pinnacle()

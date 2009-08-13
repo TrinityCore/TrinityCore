@@ -46,15 +46,15 @@ npc_swiftmountainAI(Creature *c) : npc_escortAI(c) {}
 
     void WaypointReached(uint32 i)
     {
-        Player* player = Unit::GetPlayer(PlayerGUID);
+        Player* pPlayer = Unit::GetPlayer(PlayerGUID);
 
-        if (!player)
+        if (!pPlayer)
             return;
 
         switch (i)
         {
         case 46:
-            DoScriptText(SAY_AGGRO, m_creature, player);
+            DoScriptText(SAY_AGGRO, m_creature, pPlayer);
             break;
          case 47:
             m_creature->SummonCreature(ENTRY_WYVERN, -5016.45, -935.01, -5.46, 5.36,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
@@ -62,9 +62,9 @@ npc_swiftmountainAI(Creature *c) : npc_escortAI(c) {}
             m_creature->SummonCreature(ENTRY_WYVERN, -4999.06, -949.61, -5.42, 2.04,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
             break;
          case 70:
-            DoScriptText(SAY_FINISH, m_creature, player);
-            if (player && player->GetTypeId() == TYPEID_PLAYER)
-                CAST_PLR(player)->GroupEventHappens(QUEST_HOMEWARD_BOUND,m_creature);
+            DoScriptText(SAY_FINISH, m_creature, pPlayer);
+            if (pPlayer && pPlayer->GetTypeId() == TYPEID_PLAYER)
+                CAST_PLR(pPlayer)->GroupEventHappens(QUEST_HOMEWARD_BOUND,m_creature);
             break;
 
         }
@@ -86,8 +86,8 @@ npc_swiftmountainAI(Creature *c) : npc_escortAI(c) {}
     {
         if (PlayerGUID)
         {
-            if (Player* player = Unit::GetPlayer(PlayerGUID))
-                CAST_PLR(player)->FailQuest(QUEST_HOMEWARD_BOUND);
+            if (Player* pPlayer = Unit::GetPlayer(PlayerGUID))
+                CAST_PLR(pPlayer)->FailQuest(QUEST_HOMEWARD_BOUND);
         }
     }
 
@@ -97,12 +97,12 @@ npc_swiftmountainAI(Creature *c) : npc_escortAI(c) {}
     }
 };
 
-bool QuestAccept_npc_swiftmountain(Player* player, Creature* creature, Quest const* quest)
+bool QuestAccept_npc_swiftmountain(Player* pPlayer, Creature* creature, Quest const* quest)
 {
     if (quest->GetQuestId() == QUEST_HOMEWARD_BOUND)
     {
-        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
-        DoScriptText(SAY_READY, creature, player);
+        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, pPlayer->GetGUID());
+        DoScriptText(SAY_READY, creature, pPlayer);
         creature->setFaction(113);
     }
 
@@ -273,22 +273,22 @@ struct TRINITY_DLL_DECL npc_pluckyAI : public ScriptedAI
     }
 };
 
-bool GossipHello_npc_plucky(Player *player, Creature *_Creature)
+bool GossipHello_npc_plucky(Player* pPlayer, Creature *_Creature)
 {
-    if(player->GetQuestStatus(QUEST_SCOOP) == QUEST_STATUS_INCOMPLETE)
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_P, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-    player->SEND_GOSSIP_MENU(738, _Creature->GetGUID());
+    if (pPlayer->GetQuestStatus(QUEST_SCOOP) == QUEST_STATUS_INCOMPLETE)
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_P, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+    pPlayer->SEND_GOSSIP_MENU(738, _Creature->GetGUID());
 
     return true;
 }
 
-bool GossipSelect_npc_plucky(Player *player, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_plucky(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
 {
-    switch( action )
+    switch(action)
     {
         case GOSSIP_ACTION_INFO_DEF+1:
-            player->CLOSE_GOSSIP_MENU();
-            player->CompleteQuest(QUEST_SCOOP);
+            pPlayer->CLOSE_GOSSIP_MENU();
+            pPlayer->CompleteQuest(QUEST_SCOOP);
         break;
     }
     return true;

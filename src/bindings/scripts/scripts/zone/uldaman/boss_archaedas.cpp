@@ -118,7 +118,7 @@ struct TRINITY_DLL_DECL boss_archaedasAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!pInstance)
+        if (!pInstance)
             return;
         // we're still doing awaken animation
         if (wakingUp && Awaken_Timer >= 0) {
@@ -143,7 +143,7 @@ struct TRINITY_DLL_DECL boss_archaedasAI : public ScriptedAI
         } else WallMinionTimer -= diff;
 
         //If we are <66 summon the guardians
-        if ( !guardiansAwake && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 66) {
+        if (!guardiansAwake && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 66) {
             ActivateMinion(pInstance->GetData64(5),true);   // EarthenGuardian1
             ActivateMinion(pInstance->GetData64(6),true);   // EarthenGuardian2
             ActivateMinion(pInstance->GetData64(7),true);   // EarthenGuardian3
@@ -156,7 +156,7 @@ struct TRINITY_DLL_DECL boss_archaedasAI : public ScriptedAI
         }
 
         //If we are <33 summon the vault walkers
-        if ( !vaultWalkersAwake && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 33) {
+        if (!vaultWalkersAwake && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 33) {
             ActivateMinion(pInstance->GetData64(1),true);    // VaultWalker1
             ActivateMinion(pInstance->GetData64(2),true);    // VaultWalker2
             ActivateMinion(pInstance->GetData64(3),true);    // VaultWalker3
@@ -180,7 +180,7 @@ struct TRINITY_DLL_DECL boss_archaedasAI : public ScriptedAI
     }
 
     void JustDied (Unit *killer) {
-        if(pInstance)
+        if (pInstance)
         {
             pInstance->SetData(NULL,3);        // open the vault door
             pInstance->SetData(NULL,4);        // deactivate his minions
@@ -251,7 +251,7 @@ struct TRINITY_DLL_DECL mob_archaedas_minionsAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit *who)
     {
-        if(amIAwake)
+        if (amIAwake)
             ScriptedAI::MoveInLineOfSight(who);
     }
 
@@ -300,19 +300,19 @@ uint64 altarOfArchaedasCount[5];
 int32 altarOfArchaedasCounter=0;
 
 
-bool GOHello_go_altar_of_archaedas(Player *player, GameObject* go)
+bool GOHello_go_altar_of_archaedas(Player* pPlayer, GameObject* go)
 {
     bool alreadyUsed;
     go->AddUse ();
 
     alreadyUsed = false;
     for (uint32 loop=0; loop<5; loop++) {
-        if (altarOfArchaedasCount[loop] == player->GetGUID()) alreadyUsed = true;
+        if (altarOfArchaedasCount[loop] == pPlayer->GetGUID()) alreadyUsed = true;
     }
     if (!alreadyUsed)
-        altarOfArchaedasCount[altarOfArchaedasCounter++] = player->GetGUID();
+        altarOfArchaedasCount[altarOfArchaedasCounter++] = pPlayer->GetGUID();
 
-    player->CastSpell (player, SPELL_BOSS_OBJECT_VISUAL, false);
+    pPlayer->CastSpell (pPlayer, SPELL_BOSS_OBJECT_VISUAL, false);
 
     if (altarOfArchaedasCounter < NUMBER_NEEDED_TO_ACTIVATE) {
         return false;        // not enough people yet
@@ -322,7 +322,7 @@ bool GOHello_go_altar_of_archaedas(Player *player, GameObject* go)
     uint32 count=0;
     Unit *pTarget;
     for (uint32 x=0; x<=5; x++) {
-        pTarget = Unit::GetUnit(*player, altarOfArchaedasCount[x]);
+        pTarget = Unit::GetUnit(*pPlayer, altarOfArchaedasCount[x]);
         if (!pTarget) continue;
         if (pTarget->IsNonMeleeSpellCasted(true)) count++;
         if (count >= NUMBER_NEEDED_TO_ACTIVATE) break;
@@ -332,10 +332,10 @@ bool GOHello_go_altar_of_archaedas(Player *player, GameObject* go)
         return false;            // not enough people
     }
 
-    ScriptedInstance* pInstance = (player->GetInstanceData());
+    ScriptedInstance* pInstance = (pPlayer->GetInstanceData());
     if (!pInstance) return false;
     pInstance->SetData(NULL,0);
-    pInstance->SetData64(0,player->GetGUID());     // activate archaedas
+    pInstance->SetData64(0,pPlayer->GetGUID());     // activate archaedas
 
     return false;
 }
@@ -388,7 +388,7 @@ struct TRINITY_DLL_DECL mob_stonekeepersAI : public ScriptedAI
     void JustDied(Unit *attacker)
     {
         DoCast (m_creature, SPELL_SELF_DESTRUCT,true);
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(NULL, 1);    // activate next stonekeeper
     }
 
@@ -414,9 +414,9 @@ EndScriptData */
 static uint64 altarOfTheKeeperCount[5];
 static uint32 altarOfTheKeeperCounter=0;
 
-bool GOHello_go_altar_of_the_keepers(Player *player, GameObject* go)
+bool GOHello_go_altar_of_the_keepers(Player* pPlayer, GameObject* go)
 {
-    ScriptedInstance* pInstance = (player->GetInstanceData());
+    ScriptedInstance* pInstance = (pPlayer->GetInstanceData());
     if (!pInstance) return true;
 
     bool alreadyUsed;
@@ -426,12 +426,12 @@ bool GOHello_go_altar_of_the_keepers(Player *player, GameObject* go)
     alreadyUsed = false;
     for (uint32 loop=0; loop<5; ++loop)
     {
-        if (altarOfTheKeeperCount[loop] == player->GetGUID())
+        if (altarOfTheKeeperCount[loop] == pPlayer->GetGUID())
             alreadyUsed = true;
     }
     if (!alreadyUsed && altarOfTheKeeperCounter < 5)
-        altarOfTheKeeperCount[altarOfTheKeeperCounter++] = player->GetGUID();
-    player->CastSpell (player, SPELL_BOSS_OBJECT_VISUAL, false);
+        altarOfTheKeeperCount[altarOfTheKeeperCounter++] = pPlayer->GetGUID();
+    pPlayer->CastSpell (pPlayer, SPELL_BOSS_OBJECT_VISUAL, false);
 
     if (altarOfTheKeeperCounter < NUMBER_NEEDED_TO_ACTIVATE)
     {
@@ -444,7 +444,7 @@ bool GOHello_go_altar_of_the_keepers(Player *player, GameObject* go)
     Unit *pTarget;
     for (uint32 x = 0; x < 5; ++x)
     {
-        pTarget = Unit::GetUnit(*player, altarOfTheKeeperCount[x]);
+        pTarget = Unit::GetUnit(*pPlayer, altarOfTheKeeperCount[x]);
         //error_log ("number of people currently activating it: %d", x+1);
         if (!pTarget) continue;
         if (pTarget->IsNonMeleeSpellCasted(true)) count++;

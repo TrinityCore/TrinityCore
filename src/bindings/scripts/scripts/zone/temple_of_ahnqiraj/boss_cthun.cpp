@@ -551,7 +551,7 @@ struct TRINITY_DLL_DECL cthunAI : public ScriptedAI
 
         //Get random but only if we have more than one unit on threat list
         if (temp.size() > 1)
-            advance ( i , rand() % (temp.size() - 1) );
+            advance (i , rand() % (temp.size() - 1));
 
         return (*j);
     }
@@ -565,11 +565,11 @@ struct TRINITY_DLL_DECL cthunAI : public ScriptedAI
             //WisperTimer
             if (WisperTimer < diff)
             {
-                Map *map = m_creature->GetMap();
-                if(!map->IsDungeon()) return;
+                Map* pMap = m_creature->GetMap();
+                if (!pMap->IsDungeon()) return;
 
                 //Play random sound to the zone
-                Map::PlayerList const &PlayerList = map->GetPlayers();
+                Map::PlayerList const &PlayerList = pMap->GetPlayers();
 
                 if (!PlayerList.isEmpty())
                 {
@@ -612,7 +612,7 @@ struct TRINITY_DLL_DECL cthunAI : public ScriptedAI
                     m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
 
                     //Emerging phase
-                    //AttackStart(Unit::GetUnit(*m_creature, HoldPlayer));
+                    //AttackStart(Unit::GetUnit(*m_creature, HoldpPlayer));
                     DoZoneInCombat();
 
                     //Place all units in threat list on outside of stomach
@@ -870,7 +870,7 @@ struct TRINITY_DLL_DECL cthunAI : public ScriptedAI
     void JustDied(Unit* pKiller)
     {
         //Switch
-        if( pInst )
+        if (pInst)
             pInst->SetData(DATA_CTHUN_PHASE, 5);
     }
 

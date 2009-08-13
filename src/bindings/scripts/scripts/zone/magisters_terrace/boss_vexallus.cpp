@@ -116,7 +116,7 @@ struct  TRINITY_DLL_DECL boss_vexallusAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
         if (!Enraged)
@@ -162,7 +162,7 @@ struct  TRINITY_DLL_DECL boss_vexallusAI : public ScriptedAI
             if (ArcaneShockTimer < diff)
             {
                 if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                if(target)
+                if (target)
                     DoCast(target, Heroic ? SPELL_H_ARCANE_SHOCK : SPELL_ARCANE_SHOCK);
 
                 ArcaneShockTimer = 8000;

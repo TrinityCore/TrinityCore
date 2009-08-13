@@ -51,7 +51,7 @@ struct TRINITY_DLL_DECL boss_theravenianAI : public ScriptedAI
     void JustDied(Unit *killer)
     {
         ScriptedInstance *pInstance = (m_creature->GetInstanceData()) ? (m_creature->GetInstanceData()) : NULL;
-        if(pInstance)
+        if (pInstance)
         {
             pInstance->SetData(DATA_THERAVENIAN_DEATH, 0);
 

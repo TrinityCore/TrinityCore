@@ -31,7 +31,7 @@
 
 struct TRINITY_DLL_DECL instance_uldaman : public ScriptedInstance
 {
-    instance_uldaman(Map *map) : ScriptedInstance(map)
+    instance_uldaman(Map* pMap) : ScriptedInstance(pMap)
     {
         Initialize();
     };
@@ -89,7 +89,7 @@ struct TRINITY_DLL_DECL instance_uldaman : public ScriptedInstance
     void OpenDoor(uint64 guid)
     {
         GameObject *go = instance->GetGameObject(guid);
-        if(!go)
+        if (!go)
             return;
 
         go->SetUInt32Value(GAMEOBJECT_FLAGS, 33);
@@ -115,7 +115,7 @@ struct TRINITY_DLL_DECL instance_uldaman : public ScriptedInstance
     void ActivateWallMinions()
     {
         Creature *archaedas = instance->GetCreature(archaedasGUID);
-        if(!archaedas)
+        if (!archaedas)
             return;
 
         for(std::vector<uint64>::iterator i = archaedasWallMinions.begin(); i != archaedasWallMinions.end(); ++i)
@@ -166,10 +166,10 @@ struct TRINITY_DLL_DECL instance_uldaman : public ScriptedInstance
     void ActivateArchaedas(uint64 target)
     {
         Creature *archaedas = instance->GetCreature(archaedasGUID);
-        if(!archaedas)
+        if (!archaedas)
             return;
 
-        if(Unit *victim = Unit::GetUnit(*archaedas, target))
+        if (Unit *victim = Unit::GetUnit(*archaedas, target))
         {
             archaedas->CastSpell(archaedas, SPELL_ARCHAEDAS_AWAKEN,false);
             whoWokeArchaedasGUID = target;
@@ -231,7 +231,7 @@ struct TRINITY_DLL_DECL instance_uldaman : public ScriptedInstance
     void SetData64 (uint32 type, uint64 data)
     {
         // Archaedas
-        if (type==0 )
+        if (type==0)
         {
             ActivateArchaedas (data);
         }
@@ -290,9 +290,9 @@ struct TRINITY_DLL_DECL instance_uldaman : public ScriptedInstance
 
 
 
-InstanceData* GetInstanceData_instance_uldaman(Map* map)
+InstanceData* GetInstanceData_instance_uldaman(Map* pMap)
 {
-    return new instance_uldaman(map);
+    return new instance_uldaman(pMap);
 }
 
 void AddSC_instance_uldaman()

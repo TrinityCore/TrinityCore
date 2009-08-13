@@ -33,7 +33,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL instance_gruuls_lair : public ScriptedInstance
 {
-    instance_gruuls_lair(Map *map) : ScriptedInstance(map) {Initialize();};
+    instance_gruuls_lair(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 
     uint32 Encounters[ENCOUNTERS];
 
@@ -66,7 +66,7 @@ struct TRINITY_DLL_DECL instance_gruuls_lair : public ScriptedInstance
     bool IsEncounterInProgress() const
     {
         for(uint8 i = 0; i < ENCOUNTERS; ++i)
-            if(Encounters[i] == IN_PROGRESS) return true;
+            if (Encounters[i] == IN_PROGRESS) return true;
 
         return false;
     }
@@ -89,7 +89,7 @@ struct TRINITY_DLL_DECL instance_gruuls_lair : public ScriptedInstance
         {
             case 184468:
                 MaulgarDoor = go->GetGUID();
-                if(Encounters[0] == DONE) HandleGameObject(NULL, true, go);
+                if (Encounters[0] == DONE) HandleGameObject(NULL, true, go);
                 break;
             case 184662: GruulDoor = go->GetGUID(); break;
         }
@@ -97,7 +97,7 @@ struct TRINITY_DLL_DECL instance_gruuls_lair : public ScriptedInstance
 
     void SetData64(uint32 type, uint64 data)
     {
-        if(type == DATA_MAULGAREVENT_TANK)
+        if (type == DATA_MAULGAREVENT_TANK)
             MaulgarEvent_Tank = data;
     }
 
@@ -122,15 +122,15 @@ struct TRINITY_DLL_DECL instance_gruuls_lair : public ScriptedInstance
         switch(type)
         {
             case DATA_MAULGAREVENT:
-                if(data == DONE) HandleGameObject(MaulgarDoor, true);
+                if (data == DONE) HandleGameObject(MaulgarDoor, true);
                 Encounters[0] = data; break;
             case DATA_GRUULEVENT:
-                if(data == IN_PROGRESS) HandleGameObject(GruulDoor, false);
+                if (data == IN_PROGRESS) HandleGameObject(GruulDoor, false);
                 else HandleGameObject(GruulDoor, true);
                 Encounters[1] = data; break;
         }
 
-        if(data == DONE)
+        if (data == DONE)
             SaveToDB();
     }
 
@@ -151,7 +151,7 @@ struct TRINITY_DLL_DECL instance_gruuls_lair : public ScriptedInstance
         stream << Encounters[0] << " " << Encounters[1];
         char* out = new char[stream.str().length() + 1];
         strcpy(out, stream.str().c_str());
-        if(out)
+        if (out)
         {
             OUT_SAVE_INST_DATA_COMPLETE;
             return out;
@@ -162,7 +162,7 @@ struct TRINITY_DLL_DECL instance_gruuls_lair : public ScriptedInstance
 
     void Load(const char* in)
     {
-        if(!in)
+        if (!in)
         {
             OUT_LOAD_INST_DATA_FAIL;
             return;
@@ -172,15 +172,15 @@ struct TRINITY_DLL_DECL instance_gruuls_lair : public ScriptedInstance
         std::istringstream stream(in);
         stream >> Encounters[0] >> Encounters[1];
         for(uint8 i = 0; i < ENCOUNTERS; ++i)
-            if(Encounters[i] == IN_PROGRESS)                // Do not load an encounter as "In Progress" - reset it instead.
+            if (Encounters[i] == IN_PROGRESS)                // Do not load an encounter as "In Progress" - reset it instead.
                 Encounters[i] = NOT_STARTED;
         OUT_LOAD_INST_DATA_COMPLETE;
     }
 };
 
-InstanceData* GetInstanceData_instance_gruuls_lair(Map* map)
+InstanceData* GetInstanceData_instance_gruuls_lair(Map* pMap)
 {
-    return new instance_gruuls_lair(map);
+    return new instance_gruuls_lair(pMap);
 }
 
 void AddSC_instance_gruuls_lair()

@@ -3,12 +3,12 @@
 
 struct TRINITY_DLL_DECL instance_eye_of_eternity : public ScriptedInstance
 {
-    instance_eye_of_eternity(Map *Map) : ScriptedInstance(Map) {Initialize();};
+    instance_eye_of_eternity(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 };
 
-InstanceData* GetInstanceData_instance_eye_of_eternity(Map* map)
+InstanceData* GetInstanceData_instance_eye_of_eternity(Map* pMap)
 {
-    return new instance_eye_of_eternity(map);
+    return new instance_eye_of_eternity(pMap);
 }
 
 void AddSC_instance_eye_of_eternity()

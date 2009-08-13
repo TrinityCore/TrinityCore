@@ -48,7 +48,7 @@ struct TRINITY_DLL_DECL boss_landslideAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
         //KnockAway_Timer
@@ -66,7 +66,7 @@ struct TRINITY_DLL_DECL boss_landslideAI : public ScriptedAI
         }else Trample_Timer -= diff;
 
         //Landslide
-        if ( m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 50 )
+        if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 50)
         {
             if (Landslide_Timer < diff)
             {

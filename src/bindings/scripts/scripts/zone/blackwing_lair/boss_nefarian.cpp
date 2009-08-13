@@ -109,7 +109,7 @@ struct TRINITY_DLL_DECL boss_nefarianAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
         //ShadowFlame_Timer

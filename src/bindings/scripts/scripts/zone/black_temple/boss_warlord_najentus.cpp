@@ -76,7 +76,7 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
 
         SpineTargetGUID = 0;
 
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_HIGHWARLORDNAJENTUSEVENT, NOT_STARTED);
     }
 
@@ -88,7 +88,7 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
 
     void JustDied(Unit *victim)
     {
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_HIGHWARLORDNAJENTUSEVENT, DONE);
 
         DoScriptText(SAY_DEATH, m_creature);
@@ -96,7 +96,7 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
 
     void SpellHit(Unit *caster, const SpellEntry *spell)
     {
-        if(spell->Id == SPELL_HURL_SPINE && m_creature->HasAura(SPELL_TIDAL_SHIELD))
+        if (spell->Id == SPELL_HURL_SPINE && m_creature->HasAura(SPELL_TIDAL_SHIELD))
         {
             m_creature->RemoveAurasDueToSpell(SPELL_TIDAL_SHIELD);
             m_creature->CastSpell(m_creature, SPELL_TIDAL_BURST, true);
@@ -106,7 +106,7 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_HIGHWARLORDNAJENTUSEVENT, IN_PROGRESS);
 
         DoScriptText(SAY_AGGRO, m_creature);
@@ -118,9 +118,9 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
 
     bool RemoveImpalingSpine()
     {
-        if(!SpineTargetGUID) return false;
+        if (!SpineTargetGUID) return false;
         Unit* target = Unit::GetUnit(*m_creature, SpineTargetGUID);
-        if(target && target->HasAura(SPELL_IMPALING_SPINE))
+        if (target && target->HasAura(SPELL_IMPALING_SPINE))
             target->RemoveAurasDueToSpell(SPELL_IMPALING_SPINE);
         SpineTargetGUID=0;
         return true;
@@ -156,8 +156,8 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
                 case EVENT_SPINE:
                 {
                     Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1);
-                    if(!target) target = m_creature->getVictim();
-                    if(target)
+                    if (!target) target = m_creature->getVictim();
+                    if (target)
                     {
                         m_creature->CastSpell(target, SPELL_IMPALING_SPINE, true);
                         SpineTargetGUID = target->GetGUID();
@@ -193,13 +193,13 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
     }
 };
 
-bool GOHello_go_najentus_spine(Player *player, GameObject* _GO)
+bool GOHello_go_najentus_spine(Player* pPlayer, GameObject* _GO)
 {
-    if(ScriptedInstance* pInstance = _GO->GetInstanceData())
-        if(Creature* Najentus = Unit::GetCreature(*_GO, pInstance->GetData64(DATA_HIGHWARLORDNAJENTUS)))
-            if(CAST_AI(boss_najentusAI, Najentus->AI())->RemoveImpalingSpine())
+    if (ScriptedInstance* pInstance = _GO->GetInstanceData())
+        if (Creature* Najentus = Unit::GetCreature(*_GO, pInstance->GetData64(DATA_HIGHWARLORDNAJENTUS)))
+            if (CAST_AI(boss_najentusAI, Najentus->AI())->RemoveImpalingSpine())
             {
-                player->CastSpell(player, SPELL_CREATE_NAJENTUS_SPINE, true);
+                pPlayer->CastSpell(pPlayer, SPELL_CREATE_NAJENTUS_SPINE, true);
                 _GO->DeleteObjectWithOwner();
             }
     return true;

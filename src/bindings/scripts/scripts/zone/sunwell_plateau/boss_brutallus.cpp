@@ -105,17 +105,17 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         Madrigosa = Unit::GetUnit(*m_creature, pInstance->GetData64(DATA_MADRIGOSA));
         //Creature* boss = Unit::GetCreature((*m_creature),AzgalorGUID);
-        if(!Madrigosa) error_log("Madrigosa ist nicht zu finden");
+        if (!Madrigosa) error_log("Madrigosa ist nicht zu finden");
 
-        if(Intro && Madrigosa){
-            if(!Madrigosa->isAlive())
+        if (Intro && Madrigosa){
+            if (!Madrigosa->isAlive())
                 EndIntro();
             else error_log("Madrigosa is Tod");
         }
         else
             EndIntro();
 
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_BRUTALLUS_EVENT, NOT_STARTED);
     }
 
@@ -123,7 +123,7 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
     {
         DoScriptText(YELL_AGGRO, m_creature);
 
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_BRUTALLUS_EVENT, IN_PROGRESS);
     }
 
@@ -141,7 +141,7 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
     {
         DoScriptText(YELL_DEATH, m_creature);
 
-        if(pInstance){
+        if (pInstance){
             pInstance->SetData(DATA_BRUTALLUS_EVENT, DONE);
             float x,y,z;
             m_creature->GetPosition(x,y,z);
@@ -151,9 +151,9 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
 
     void StartIntro()
     {
-        if(!Intro)
+        if (!Intro)
             return;
-        if(Madrigosa){
+        if (Madrigosa){
             Madrigosa->setDeathState(ALIVE);
             Madrigosa->setActive(true);
             IsIntro = true;
@@ -171,7 +171,7 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
 
     void DoIntro()
     {
-        if(!Madrigosa)
+        if (!Madrigosa)
             return;
 
         switch(IntroPhase)
@@ -246,24 +246,24 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
     }
 
     void MoveInLineOfSight(Unit *who){
-        if(pInstance && Intro)
+        if (pInstance && Intro)
             pInstance->SetData(DATA_BRUTALLUS_EVENT, SPECIAL);
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if(Intro && !IsIntro)
+        if (Intro && !IsIntro)
             StartIntro();
 
-        if(IsIntro)
+        if (IsIntro)
         {
-            if(IntroPhaseTimer < diff){
+            if (IntroPhaseTimer < diff){
                 DoIntro();
             }else IntroPhaseTimer -= diff;
 
-            if(IntroPhase == 3 + 1){
-                if(IntroFrostBoltTimer < diff){
-                    if(Madrigosa){
+            if (IntroPhase == 3 + 1){
+                if (IntroFrostBoltTimer < diff){
+                    if (Madrigosa){
                         Madrigosa->CastSpell(m_creature, SPELL_INTRO_FROSTBOLT, false);
                         IntroFrostBoltTimer = 2000;
                     }
@@ -271,16 +271,16 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
             }
         }
 
-        if(!UpdateVictim() || IsIntro)
+        if (!UpdateVictim() || IsIntro)
             return;
 
-        if(SlashTimer < diff)
+        if (SlashTimer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_METEOR_SLASH);
             SlashTimer = 11000;
         }else SlashTimer -= diff;
 
-        if(StompTimer < diff)
+        if (StompTimer < diff)
         {
             switch(rand()%3)
             {
@@ -292,14 +292,14 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
             StompTimer = 30000;
         }else StompTimer -= diff;
 
-        if(BurnTimer < diff)
+        if (BurnTimer < diff)
         {
-            if(Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 target->CastSpell(target, SPELL_BURN, true);
             BurnTimer = 60000;
         }else BurnTimer -= diff;
 
-        if(BerserkTimer < diff && !Enraged)
+        if (BerserkTimer < diff && !Enraged)
         {
             DoScriptText(YELL_BERSERK, m_creature);
             DoCast(m_creature, SPELL_BERSERK);

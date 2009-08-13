@@ -41,7 +41,7 @@ struct TRINITY_DLL_DECL boss_patchwerkAI : public BossAI
 
     void KilledUnit(Unit* Victim)
     {
-        if(!(rand()%5))
+        if (!(rand()%5))
             DoScriptText(SAY_SLAY, me);
     }
 
@@ -62,7 +62,7 @@ struct TRINITY_DLL_DECL boss_patchwerkAI : public BossAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
         events.Update(diff);
@@ -106,7 +106,7 @@ struct TRINITY_DLL_DECL boss_patchwerkAI : public BossAI
             }
         }
 
-        if(!Enraged && HealthBelowPct(5))
+        if (!Enraged && HealthBelowPct(5))
         {
             DoCast(m_creature, SPELL_FRENZY);
             DoScriptText(EMOTE_ENRAGE, NULL);

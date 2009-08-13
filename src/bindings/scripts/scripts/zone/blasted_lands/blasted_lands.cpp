@@ -38,22 +38,22 @@ EndContentData */
 #define SPELL_TELEPORT_SINGLE_IN_GROUP  13142
 #define SPELL_TELEPORT_GROUP            27686
 
-bool GossipHello_npc_deathly_usher(Player *player, Creature *_Creature)
+bool GossipHello_npc_deathly_usher(Player* pPlayer, Creature *_Creature)
 {
-    if(player->GetQuestStatus(3628) == QUEST_STATUS_INCOMPLETE && player->HasItemCount(10757, 1))
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_USHER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+    if (pPlayer->GetQuestStatus(3628) == QUEST_STATUS_INCOMPLETE && pPlayer->HasItemCount(10757, 1))
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_USHER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
-    player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
 
     return true;
 }
 
-bool GossipSelect_npc_deathly_usher(Player *player, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_deathly_usher(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
 {
-    if(action == GOSSIP_ACTION_INFO_DEF)
+    if (action == GOSSIP_ACTION_INFO_DEF)
     {
-        player->CLOSE_GOSSIP_MENU();
-        _Creature->CastSpell(player, SPELL_TELEPORT_SINGLE, true);
+        pPlayer->CLOSE_GOSSIP_MENU();
+        _Creature->CastSpell(pPlayer, SPELL_TELEPORT_SINGLE, true);
     }
 
     return true;
@@ -73,71 +73,71 @@ bool GossipSelect_npc_deathly_usher(Player *player, Creature *_Creature, uint32 
 #define GOSSIP_ITEM_FALLEN4 "You can count on me, Hero"
 #define GOSSIP_ITEM_FALLEN5 "I shall"
 
-bool GossipHello_npc_fallen_hero_of_horde(Player *player, Creature *_Creature)
+bool GossipHello_npc_fallen_hero_of_horde(Player* pPlayer, Creature *_Creature)
 {
     if (_Creature->isQuestGiver())
-        player->PrepareQuestMenu( _Creature->GetGUID() );
+        pPlayer->PrepareQuestMenu(_Creature->GetGUID());
 
-    if (player->GetQuestStatus(2784) == QUEST_STATUS_INCOMPLETE)
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_H_F1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+    if (pPlayer->GetQuestStatus(2784) == QUEST_STATUS_INCOMPLETE)
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_H_F1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-    if (player->GetQuestStatus(2801) == QUEST_STATUS_INCOMPLETE && player->GetTeam() == HORDE)
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_H_F2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+    if (pPlayer->GetQuestStatus(2801) == QUEST_STATUS_INCOMPLETE && pPlayer->GetTeam() == HORDE)
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_H_F2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
 
-    if (player->GetQuestStatus(2801) == QUEST_STATUS_INCOMPLETE && player->GetTeam() == ALLIANCE)
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_H_F1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+    if (pPlayer->GetQuestStatus(2801) == QUEST_STATUS_INCOMPLETE && pPlayer->GetTeam() == ALLIANCE)
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_H_F1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-    player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
 
     return true;
 }
 
-bool GossipSelect_npc_fallen_hero_of_horde(Player *player, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_fallen_hero_of_horde(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
 {
     switch (action)
     {
         case GOSSIP_ACTION_INFO_DEF+1:
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_FALLEN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);
-            player->SEND_GOSSIP_MENU(1392, _Creature->GetGUID());
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_FALLEN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);
+            pPlayer->SEND_GOSSIP_MENU(1392, _Creature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+11:
-            player->SEND_GOSSIP_MENU(1411, _Creature->GetGUID());
-            if (player->GetQuestStatus(2784) == QUEST_STATUS_INCOMPLETE)
-                player->AreaExploredOrEventHappens(2784);
-            if (player->GetTeam() == ALLIANCE)
+            pPlayer->SEND_GOSSIP_MENU(1411, _Creature->GetGUID());
+            if (pPlayer->GetQuestStatus(2784) == QUEST_STATUS_INCOMPLETE)
+                pPlayer->AreaExploredOrEventHappens(2784);
+            if (pPlayer->GetTeam() == ALLIANCE)
             {
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_FALLEN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                player->SEND_GOSSIP_MENU(1411, _Creature->GetGUID());
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_FALLEN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                pPlayer->SEND_GOSSIP_MENU(1411, _Creature->GetGUID());
             }
             break;
 
         case GOSSIP_ACTION_INFO_DEF+2:
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_FALLEN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 21);
-            player->SEND_GOSSIP_MENU(1451, _Creature->GetGUID());
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_FALLEN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 21);
+            pPlayer->SEND_GOSSIP_MENU(1451, _Creature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+21:
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_FALLEN1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 22);
-            player->SEND_GOSSIP_MENU(1452, _Creature->GetGUID());
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_FALLEN1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 22);
+            pPlayer->SEND_GOSSIP_MENU(1452, _Creature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+22:
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_FALLEN2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 23);
-            player->SEND_GOSSIP_MENU(1453, _Creature->GetGUID());
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_FALLEN2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 23);
+            pPlayer->SEND_GOSSIP_MENU(1453, _Creature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+23:
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_FALLEN3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 24);
-            player->SEND_GOSSIP_MENU(1454, _Creature->GetGUID());
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_FALLEN3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 24);
+            pPlayer->SEND_GOSSIP_MENU(1454, _Creature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+24:
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_FALLEN4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 25);
-            player->SEND_GOSSIP_MENU(1455, _Creature->GetGUID());
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_FALLEN4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 25);
+            pPlayer->SEND_GOSSIP_MENU(1455, _Creature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+25:
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_FALLEN5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 26);
-            player->SEND_GOSSIP_MENU(1456, _Creature->GetGUID());
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_FALLEN5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 26);
+            pPlayer->SEND_GOSSIP_MENU(1456, _Creature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+26:
-            player->CLOSE_GOSSIP_MENU();
-            player->AreaExploredOrEventHappens(2801);
+            pPlayer->CLOSE_GOSSIP_MENU();
+            pPlayer->AreaExploredOrEventHappens(2801);
             break;
     }
     return true;

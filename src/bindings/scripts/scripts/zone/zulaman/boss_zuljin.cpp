@@ -176,7 +176,7 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
 
     void Reset()
     {
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_ZULJINEVENT, NOT_STARTED);
 
         Phase = 0;
@@ -213,7 +213,7 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_ZULJINEVENT, IN_PROGRESS);
 
         DoZoneInCombat();
@@ -226,7 +226,7 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
 
     void KilledUnit(Unit* victim)
     {
-        if(Intro_Timer)
+        if (Intro_Timer)
             return;
 
         switch(rand()%2)
@@ -244,20 +244,20 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
 
     void JustDied(Unit* Killer)
     {
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_ZULJINEVENT, DONE);
 
         DoYell(YELL_DEATH, LANG_UNIVERSAL, NULL);
         DoPlaySoundToSet(m_creature, SOUND_DEATH);
         Summons.DespawnEntry(CREATURE_COLUMN_OF_FIRE);
 
-        if(Unit *Temp = Unit::GetUnit(*m_creature, SpiritGUID[3]))
+        if (Unit *Temp = Unit::GetUnit(*m_creature, SpiritGUID[3]))
             Temp->SetUInt32Value(UNIT_FIELD_BYTES_1,UNIT_STAND_STATE_DEAD);
     }
 
     void AttackStart(Unit *who)
     {
-        if(Phase == 2)
+        if (Phase == 2)
             AttackStartNoMove(who);
         else
             ScriptedAI::AttackStart(who);
@@ -265,15 +265,15 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
 
     void DoMeleeAttackIfReady()
     {
-        if( !m_creature->IsNonMeleeSpellCasted(false))
+        if (!m_creature->IsNonMeleeSpellCasted(false))
         {
-            if(m_creature->isAttackReady() && m_creature->IsWithinMeleeRange(m_creature->getVictim()))
+            if (m_creature->isAttackReady() && m_creature->IsWithinMeleeRange(m_creature->getVictim()))
             {
-                if(Phase == 1 && !Overpower_Timer)
+                if (Phase == 1 && !Overpower_Timer)
                 {
                     uint32 health = m_creature->getVictim()->GetHealth();
                     m_creature->AttackerStateUpdate(m_creature->getVictim());
-                    if(m_creature->getVictim() && health == m_creature->getVictim()->GetHealth())
+                    if (m_creature->getVictim() && health == m_creature->getVictim()->GetHealth())
                     {
                         m_creature->CastSpell(m_creature->getVictim(), SPELL_OVERPOWER, false);
                         Overpower_Timer = 5000;
@@ -290,7 +290,7 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
         for(uint8 i = 0; i < 4; ++i)
         {
             pCreature = m_creature->SummonCreature(SpiritInfo[i].entry, SpiritInfo[i].x, SpiritInfo[i].y, SpiritInfo[i].z, SpiritInfo[i].orient, TEMPSUMMON_DEAD_DESPAWN, 0);
-            if(pCreature)
+            if (pCreature)
             {
                 pCreature->CastSpell(pCreature, SPELL_SPIRIT_AURA, true);
                 pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -305,9 +305,9 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
         for(uint8 i = 0; i < 4; ++i)
         {
             Unit* Temp = NULL;
-            if(SpiritGUID[i])
+            if (SpiritGUID[i])
             {
-                if(Temp = Unit::GetUnit(*m_creature, SpiritGUID[i]))
+                if (Temp = Unit::GetUnit(*m_creature, SpiritGUID[i]))
                 {
                     Temp->SetVisibility(VISIBILITY_OFF);
                     Temp->setDeathState(DEAD);
@@ -344,21 +344,21 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
             DoCast(m_creature, Transform[Phase].spell);
             DoYell(Transform[Phase].text, LANG_UNIVERSAL, NULL);
             DoPlaySoundToSet(m_creature, Transform[Phase].sound);
-            if(Phase > 0)
+            if (Phase > 0)
             {
-                if(Unit *Temp = Unit::GetUnit(*m_creature, SpiritGUID[Phase - 1]))
+                if (Unit *Temp = Unit::GetUnit(*m_creature, SpiritGUID[Phase - 1]))
                     Temp->SetUInt32Value(UNIT_FIELD_BYTES_1,UNIT_STAND_STATE_DEAD);
             }
-            if(Unit *Temp = Unit::GetUnit(*m_creature, SpiritGUID[NextPhase - 1]))
+            if (Unit *Temp = Unit::GetUnit(*m_creature, SpiritGUID[NextPhase - 1]))
                 Temp->CastSpell(m_creature, SPELL_SIPHON_SOUL, false); // should m cast on temp
-            if(NextPhase == 2)
+            if (NextPhase == 2)
             {
                 m_creature->GetMotionMaster()->Clear();
                 m_creature->CastSpell(m_creature, SPELL_ENERGY_STORM, true); // enemy aura
                 for(uint8 i = 0; i < 4; ++i)
                 {
                     Creature* Vortex = DoSpawnCreature(CREATURE_FEATHER_VORTEX, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-                    if(Vortex)
+                    if (Vortex)
                     {
                         Vortex->CastSpell(Vortex, SPELL_CYCLONE_PASSIVE, true);
                         Vortex->CastSpell(Vortex, SPELL_CYCLONE_VISUAL, true);
@@ -371,7 +371,7 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
             }
             else
                 m_creature->AI()->AttackStart(m_creature->getVictim());
-            if(NextPhase == 3)
+            if (NextPhase == 3)
             {
                 m_creature->RemoveAurasDueToSpell(SPELL_ENERGY_STORM);
                 Summons.DespawnEntry(CREATURE_FEATHER_VORTEX);
@@ -386,16 +386,16 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!TankGUID)
+        if (!TankGUID)
         {
-            if(!UpdateVictim())
+            if (!UpdateVictim())
                 return;
 
-            if(m_creature->GetHealth() < health_20 * (4 - Phase))
+            if (m_creature->GetHealth() < health_20 * (4 - Phase))
                 EnterPhase(Phase + 1);
         }
 
-        if(Berserk_Timer < diff)
+        if (Berserk_Timer < diff)
         {
             m_creature->CastSpell(m_creature, SPELL_BERSERK, true);
             DoYell(YELL_BERSERK, LANG_UNIVERSAL, NULL);
@@ -406,9 +406,9 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
         switch (Phase)
         {
         case 0:
-            if(Intro_Timer)
+            if (Intro_Timer)
             {
-                if(Intro_Timer <= diff)
+                if (Intro_Timer <= diff)
                 {
                     DoYell(YELL_AGGRO, LANG_UNIVERSAL, NULL);
                     DoPlaySoundToSet(m_creature, SOUND_AGGRO);
@@ -416,28 +416,28 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
                 }else Intro_Timer -= diff;
             }
 
-            if(Whirlwind_Timer < diff)
+            if (Whirlwind_Timer < diff)
             {
                 DoCast(m_creature, SPELL_WHIRLWIND);
                 Whirlwind_Timer = 15000 + rand()%5000;
             }else Whirlwind_Timer -= diff;
 
-            if(Grievous_Throw_Timer < diff)
+            if (Grievous_Throw_Timer < diff)
             {
-                if(Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                     m_creature->CastSpell(target, SPELL_GRIEVOUS_THROW, false);
                 Grievous_Throw_Timer = 10000;
             }else Grievous_Throw_Timer -= diff;
             break;
 
         case 1:
-            if(Creeping_Paralysis_Timer < diff)
+            if (Creeping_Paralysis_Timer < diff)
             {
                 DoCast(m_creature, SPELL_CREEPING_PARALYSIS);
                 Creeping_Paralysis_Timer = 20000;
             }else Creeping_Paralysis_Timer -= diff;
 
-            if(Overpower_Timer < diff)
+            if (Overpower_Timer < diff)
             {
                 // implemented in DoMeleeAttackIfReady()
                 Overpower_Timer = 0;
@@ -448,11 +448,11 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
             return;
 
         case 3:
-            if(Claw_Rage_Timer <= diff)
+            if (Claw_Rage_Timer <= diff)
             {
-                if(!TankGUID)
+                if (!TankGUID)
                 {
-                    if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                     {
                         TankGUID = m_creature->getVictim()->GetGUID();
                         m_creature->SetSpeed(MOVE_RUN, 5.0f);
@@ -462,21 +462,21 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
                         Claw_Counter = 0;
                     }
                 }
-                else if(!Claw_Rage_Timer) // do not do this when Lynx_Rush
+                else if (!Claw_Rage_Timer) // do not do this when Lynx_Rush
                 {
-                    if(Claw_Loop_Timer < diff)
+                    if (Claw_Loop_Timer < diff)
                     {
                         Unit* target = m_creature->getVictim();
-                        if(!target || !target->isTargetableForAttack()) target = Unit::GetUnit(*m_creature, TankGUID);
-                        if(!target || !target->isTargetableForAttack()) target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                        if(target)
+                        if (!target || !target->isTargetableForAttack()) target = Unit::GetUnit(*m_creature, TankGUID);
+                        if (!target || !target->isTargetableForAttack()) target = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                        if (target)
                         {
                             AttackStart(target);
-                            if(m_creature->IsWithinMeleeRange(target))
+                            if (m_creature->IsWithinMeleeRange(target))
                             {
                                 m_creature->CastSpell(target, SPELL_CLAW_RAGE_DAMAGE, true);
                                 Claw_Counter++;
-                                if(Claw_Counter == 12)
+                                if (Claw_Counter == 12)
                                 {
                                     Claw_Rage_Timer = 15000 + rand()%5000;
                                     m_creature->SetSpeed(MOVE_RUN, 1.2f);
@@ -490,18 +490,18 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
                         }
                         else
                         {
-                            EnterEvadeMode(); // if(target)
+                            EnterEvadeMode(); // if (target)
                             return;
                         }
                     }else Claw_Loop_Timer -= diff;
-                } //if(TankGUID)
+                } //if (TankGUID)
             }else Claw_Rage_Timer -= diff;
 
-            if(Lynx_Rush_Timer <= diff)
+            if (Lynx_Rush_Timer <= diff)
             {
-                if(!TankGUID)
+                if (!TankGUID)
                 {
-                    if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                     {
                         TankGUID = m_creature->getVictim()->GetGUID();
                         m_creature->SetSpeed(MOVE_RUN, 5.0f);
@@ -510,21 +510,21 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
                         Claw_Counter = 0;
                     }
                 }
-                else if(!Lynx_Rush_Timer)
+                else if (!Lynx_Rush_Timer)
                 {
                     Unit* target = m_creature->getVictim();
-                    if(!target || !target->isTargetableForAttack())
+                    if (!target || !target->isTargetableForAttack())
                     {
                         target = SelectUnit(SELECT_TARGET_RANDOM, 0);
                         AttackStart(target);
                     }
-                    if(target)
+                    if (target)
                     {
-                        if(m_creature->IsWithinMeleeRange(target))
+                        if (m_creature->IsWithinMeleeRange(target))
                         {
                             m_creature->CastSpell(target, SPELL_LYNX_RUSH_DAMAGE, true);
                             Claw_Counter++;
-                            if(Claw_Counter == 9)
+                            if (Claw_Counter == 9)
                             {
                                 Lynx_Rush_Timer = 15000 + rand()%5000;
                                 m_creature->SetSpeed(MOVE_RUN, 1.2f);
@@ -537,30 +537,30 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
                     }
                     else
                     {
-                        EnterEvadeMode(); // if(target)
+                        EnterEvadeMode(); // if (target)
                         return;
                     }
-                } //if(TankGUID)
+                } //if (TankGUID)
             }else Lynx_Rush_Timer -= diff;
 
             break;
         case 4:
-            if(Flame_Whirl_Timer < diff)
+            if (Flame_Whirl_Timer < diff)
             {
                 DoCast(m_creature, SPELL_FLAME_WHIRL);
                 Flame_Whirl_Timer = 12000;
             }Flame_Whirl_Timer -= diff;
 
-            if(Pillar_Of_Fire_Timer < diff)
+            if (Pillar_Of_Fire_Timer < diff)
             {
-                if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                     DoCast(target, SPELL_SUMMON_PILLAR);
                 Pillar_Of_Fire_Timer = 10000;
             }else Pillar_Of_Fire_Timer -= diff;
 
-            if(Flame_Breath_Timer < diff)
+            if (Flame_Breath_Timer < diff)
             {
-                if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                     m_creature->SetInFront(target);
                 DoCast(m_creature, SPELL_FLAME_BREATH);
                 Flame_Breath_Timer = 10000;
@@ -571,7 +571,7 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
             break;
         }
 
-        if(!TankGUID)
+        if (!TankGUID)
             DoMeleeAttackIfReady();
     }
 };
@@ -591,14 +591,14 @@ struct TRINITY_DLL_DECL feather_vortexAI : public ScriptedAI
 
     void SpellHit(Unit *caster, const SpellEntry *spell)
     {
-        if(spell->Id == SPELL_ZAP_INFORM)
+        if (spell->Id == SPELL_ZAP_INFORM)
             m_creature->CastSpell(caster, SPELL_ZAP_DAMAGE, true);
     }
 
     void UpdateAI(const uint32 diff)
     {
         //if the vortex reach the target, it change his target to another player
-        if( m_creature->IsWithinMeleeRange(m_creature->getVictim()))
+        if (m_creature->IsWithinMeleeRange(m_creature->getVictim()))
             AttackStart(SelectUnit(SELECT_TARGET_RANDOM, 0));
     }
 };

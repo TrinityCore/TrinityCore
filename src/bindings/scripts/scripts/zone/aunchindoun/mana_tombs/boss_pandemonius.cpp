@@ -88,27 +88,27 @@ struct TRINITY_DLL_DECL boss_pandemoniusAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if( VoidBlast_Timer < diff )
+        if (VoidBlast_Timer < diff)
         {
-            if( Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0) )
+            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
             {
                 DoCast(target,HeroicMode ? H_SPELL_VOID_BLAST : SPELL_VOID_BLAST);
                 VoidBlast_Timer = 500;
                 ++VoidBlast_Counter;
             }
 
-            if( VoidBlast_Counter == 5 )
+            if (VoidBlast_Counter == 5)
             {
                 VoidBlast_Timer = 15000+rand()%10000;
                 VoidBlast_Counter = 0;
             }
         }else VoidBlast_Timer -= diff;
 
-        if( !VoidBlast_Counter )
+        if (!VoidBlast_Counter)
         {
-            if( DarkShell_Timer < diff )
+            if (DarkShell_Timer < diff)
             {
-                if( m_creature->IsNonMeleeSpellCasted(false) )
+                if (m_creature->IsNonMeleeSpellCasted(false))
                     m_creature->InterruptNonMeleeSpells(true);
 
                 DoScriptText(EMOTE_DARK_SHELL, m_creature);

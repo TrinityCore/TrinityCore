@@ -74,7 +74,7 @@ struct TRINITY_DLL_DECL boss_kormokAI : public ScriptedAI
         }
         Rand1 = 0;
         SummonedMinions = DoSpawnCreature(16119, Rand1X, Rand1Y, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 120000);
-        if(SummonedMinions)
+        if (SummonedMinions)
             (SummonedMinions->AI())->AttackStart(victim);
     }
 
@@ -95,7 +95,7 @@ struct TRINITY_DLL_DECL boss_kormokAI : public ScriptedAI
         }
         Rand2 = 0;
         SummonedMages = DoSpawnCreature(16120, Rand2X, Rand2Y, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 120000);
-        if(SummonedMages)
+        if (SummonedMages)
             (SummonedMages->AI())->AttackStart(victim);
     }
 
@@ -131,7 +131,7 @@ struct TRINITY_DLL_DECL boss_kormokAI : public ScriptedAI
         }else Minion_Timer -= diff;
 
         //Summon 2 Bone Mages
-        if ( !Mages && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 26 )
+        if (!Mages && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 26)
         {
             //Cast
             SummonMages(m_creature->getVictim());

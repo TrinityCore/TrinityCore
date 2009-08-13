@@ -138,7 +138,7 @@ struct TRINITY_DLL_DECL boss_vaelAI : public ScriptedAI
         }
 
         //Return since we have no target
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
         // Yell if hp lower than 15%
@@ -203,7 +203,7 @@ struct TRINITY_DLL_DECL boss_vaelAI : public ScriptedAI
         if (TailSwipe_Timer < diff)
         {
             //Only cast if we are behind
-            /*if (!m_creature->HasInArc( M_PI, m_creature->getVictim()))
+            /*if (!m_creature->HasInArc(M_PI, m_creature->getVictim()))
             {
             DoCast(m_creature->getVictim(),SPELL_TAILSWIPE);
             }*/
@@ -215,27 +215,27 @@ struct TRINITY_DLL_DECL boss_vaelAI : public ScriptedAI
     }
 };
 
-void SendDefaultMenu_boss_vael(Player *player, Creature *_Creature, uint32 action)
+void SendDefaultMenu_boss_vael(Player* pPlayer, Creature *_Creature, uint32 action)
 {
     if (action == GOSSIP_ACTION_INFO_DEF + 1)               //Fight time
     {
-        player->CLOSE_GOSSIP_MENU();
-        CAST_AI(boss_vaelAI, _Creature->AI())->BeginSpeach(player);
+        pPlayer->CLOSE_GOSSIP_MENU();
+        CAST_AI(boss_vaelAI, _Creature->AI())->BeginSpeach(pPlayer);
     }
 }
 
-bool GossipSelect_boss_vael(Player *player, Creature *_Creature, uint32 sender, uint32 action )
+bool GossipSelect_boss_vael(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
 {
     if (sender == GOSSIP_SENDER_MAIN)
-        SendDefaultMenu_boss_vael(player, _Creature, action);
+        SendDefaultMenu_boss_vael(pPlayer, _Creature, action);
 
     return true;
 }
 
-bool GossipHello_boss_vael(Player *player, Creature *_Creature)
+bool GossipHello_boss_vael(Player* pPlayer, Creature *_Creature)
 {
-    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM        , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-    player->SEND_GOSSIP_MENU(907,_Creature->GetGUID());
+    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM        , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+    pPlayer->SEND_GOSSIP_MENU(907,_Creature->GetGUID());
 
     return true;
 }

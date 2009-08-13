@@ -135,10 +135,10 @@ struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
         }else ArcaneExplosion_Timer -= diff;
 
         //If we are within range melee the target
-        if( m_creature->IsWithinMeleeRange(m_creature->getVictim()))
+        if (m_creature->IsWithinMeleeRange(m_creature->getVictim()))
         {
             //Make sure our attack is ready and we arn't currently casting
-            if( m_creature->isAttackReady() && !m_creature->IsNonMeleeSpellCasted(false))
+            if (m_creature->isAttackReady() && !m_creature->IsNonMeleeSpellCasted(false))
             {
                 m_creature->AttackerStateUpdate(m_creature->getVictim());
                 m_creature->resetAttackTimer();
@@ -180,16 +180,16 @@ struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
         int procent = (int) (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() +0.5);
 
         //Summoning 2 Images and teleporting to a random position on 75% health
-        if ( (!Images75 && !IsImage) && (procent <= 75 && procent > 70) )
+        if ((!Images75 && !IsImage) && (procent <= 75 && procent > 70))
             DoSplit(75);
 
         //Summoning 2 Images and teleporting to a random position on 50% health
-        if ( (!Images50 && !IsImage) &&
-            (procent <= 50 && procent > 45) )
+        if ((!Images50 && !IsImage) &&
+            (procent <= 50 && procent > 45))
             DoSplit(50);
 
         //Summoning 2 Images and teleporting to a random position on 25% health
-        if ( (!Images25 && !IsImage) && (procent <= 25 && procent > 20) )
+        if ((!Images25 && !IsImage) && (procent <= 25 && procent > 20))
             DoSplit(25);
 
         //Invisible_Timer

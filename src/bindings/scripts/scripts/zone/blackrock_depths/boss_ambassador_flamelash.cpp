@@ -60,14 +60,14 @@ struct TRINITY_DLL_DECL boss_ambassador_flamelashAI : public ScriptedAI
             case 1: RandY += Rand; break;
         }
         Summoned = DoSpawnCreature(9178, RandX, RandY, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
-        if(Summoned)
+        if (Summoned)
             (Summoned->AI())->AttackStart(victim);
     }
 
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
         //FireBlast_Timer

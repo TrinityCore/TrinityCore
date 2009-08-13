@@ -39,39 +39,39 @@ EndContentData */
 #define GOSSIP_HBD4 "Alexstrasza"
 #define GOSSIP_HBD5 "Malygos"
 
-bool GossipHello_npc_braug_dimspirit(Player *player, Creature *_Creature)
+bool GossipHello_npc_braug_dimspirit(Player* pPlayer, Creature *_Creature)
 {
     if (_Creature->isQuestGiver())
-        player->PrepareQuestMenu( _Creature->GetGUID() );
+        pPlayer->PrepareQuestMenu(_Creature->GetGUID());
 
-    if (player->GetQuestStatus(6627) == QUEST_STATUS_INCOMPLETE)
+    if (pPlayer->GetQuestStatus(6627) == QUEST_STATUS_INCOMPLETE)
     {
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HBD1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HBD2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HBD3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HBD4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HBD5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HBD1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HBD2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HBD3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HBD4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HBD5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-        player->SEND_GOSSIP_MENU(5820, _Creature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(5820, _Creature->GetGUID());
     }
     else
-        player->SEND_GOSSIP_MENU(5819, _Creature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(5819, _Creature->GetGUID());
 
     return true;
 }
 
-bool GossipSelect_npc_braug_dimspirit(Player *player, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_braug_dimspirit(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
 {
     if (action == GOSSIP_ACTION_INFO_DEF+1)
     {
-        player->CLOSE_GOSSIP_MENU();
-        _Creature->CastSpell(player,6766,false);
+        pPlayer->CLOSE_GOSSIP_MENU();
+        _Creature->CastSpell(pPlayer,6766,false);
 
     }
     if (action == GOSSIP_ACTION_INFO_DEF+2)
     {
-        player->CLOSE_GOSSIP_MENU();
-        player->AreaExploredOrEventHappens(6627);
+        pPlayer->CLOSE_GOSSIP_MENU();
+        pPlayer->AreaExploredOrEventHappens(6627);
     }
     return true;
 }
@@ -101,9 +101,9 @@ struct TRINITY_DLL_DECL npc_kaya_flathoofAI : public npc_escortAI
 
     void WaypointReached(uint32 i)
     {
-        Player* player = Unit::GetPlayer(PlayerGUID);
+        Player* pPlayer = Unit::GetPlayer(PlayerGUID);
 
-        if(!player)
+        if (!pPlayer)
             return;
 
         switch(i)
@@ -114,10 +114,10 @@ struct TRINITY_DLL_DECL npc_kaya_flathoofAI : public npc_escortAI
             m_creature->SummonCreature(NPC_GRIMTOTEM_RUFFIAN, -38.85, -503.77, -45.90, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
             m_creature->SummonCreature(NPC_GRIMTOTEM_SORCERER, -36.37, -496.23, -45.71, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
             break;
-        case 18: m_creature->SetInFront(player);
-            DoScriptText(SAY_END, m_creature, player);
-            if (player && player->GetTypeId() == TYPEID_PLAYER)
-                CAST_PLR(player)->GroupEventHappens(QUEST_PROTECT_KAYA, m_creature);
+        case 18: m_creature->SetInFront(pPlayer);
+            DoScriptText(SAY_END, m_creature, pPlayer);
+            if (pPlayer && pPlayer->GetTypeId() == TYPEID_PLAYER)
+                CAST_PLR(pPlayer)->GroupEventHappens(QUEST_PROTECT_KAYA, m_creature);
             break;
         }
     }
@@ -135,9 +135,9 @@ struct TRINITY_DLL_DECL npc_kaya_flathoofAI : public npc_escortAI
     {
         if (PlayerGUID)
         {
-            Player* player = Unit::GetPlayer(PlayerGUID);
-            if (player)
-                CAST_PLR(player)->FailQuest(QUEST_PROTECT_KAYA);
+            Player* pPlayer = Unit::GetPlayer(PlayerGUID);
+            if (pPlayer)
+                CAST_PLR(pPlayer)->FailQuest(QUEST_PROTECT_KAYA);
         }
     }
 
@@ -147,11 +147,11 @@ struct TRINITY_DLL_DECL npc_kaya_flathoofAI : public npc_escortAI
     }
 };
 
-bool QuestAccept_npc_kaya_flathoof(Player* player, Creature* creature, Quest const* quest)
+bool QuestAccept_npc_kaya_flathoof(Player* pPlayer, Creature* creature, Quest const* quest)
 {
     if (quest->GetQuestId() == QUEST_PROTECT_KAYA)
     {
-        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
+        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, pPlayer->GetGUID());
         DoScriptText(SAY_START, creature);
         creature->setFaction(113);
         creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);

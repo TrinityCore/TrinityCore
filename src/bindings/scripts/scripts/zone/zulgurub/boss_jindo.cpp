@@ -93,7 +93,7 @@ struct TRINITY_DLL_DECL boss_jindoAI : public ScriptedAI
         {
             DoCast(m_creature->getVictim(), SPELL_HEX);
 
-            if(DoGetThreat(m_creature->getVictim()))
+            if (DoGetThreat(m_creature->getVictim()))
                 DoModifyThreatPercent(m_creature->getVictim(),-80);
 
             Hex_Timer = 12000 + rand()%8000;
@@ -107,7 +107,7 @@ struct TRINITY_DLL_DECL boss_jindoAI : public ScriptedAI
                 DoCast(target, SPELL_DELUSIONSOFJINDO);
 
                 Creature *Shade = m_creature->SummonCreature(14986, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                if(Shade)
+                if (Shade)
                     Shade->AI()->AttackStart(target);
             }
 
@@ -123,36 +123,36 @@ struct TRINITY_DLL_DECL boss_jindoAI : public ScriptedAI
             {
                 DoTeleportPlayer(target, -11583.7783,-1249.4278,77.5471,4.745);
 
-                if(DoGetThreat(m_creature->getVictim()))
+                if (DoGetThreat(m_creature->getVictim()))
                     DoModifyThreatPercent(target,-100);
 
                 Creature *Skeletons;
                 Skeletons = m_creature->SummonCreature(14826, target->GetPositionX()+2, target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                if(Skeletons)
+                if (Skeletons)
                     Skeletons->AI()->AttackStart(target);
                 Skeletons = m_creature->SummonCreature(14826, target->GetPositionX()-2, target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                if(Skeletons)
+                if (Skeletons)
                     Skeletons->AI()->AttackStart(target);
                 Skeletons = m_creature->SummonCreature(14826, target->GetPositionX()+4, target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                if(Skeletons)
+                if (Skeletons)
                     Skeletons->AI()->AttackStart(target);
                 Skeletons = m_creature->SummonCreature(14826, target->GetPositionX()-4, target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                if(Skeletons)
+                if (Skeletons)
                     Skeletons->AI()->AttackStart(target);
                 Skeletons = m_creature->SummonCreature(14826, target->GetPositionX(), target->GetPositionY()+2, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                if(Skeletons)
+                if (Skeletons)
                     Skeletons->AI()->AttackStart(target);
                 Skeletons = m_creature->SummonCreature(14826, target->GetPositionX(), target->GetPositionY()-2, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                if(Skeletons)
+                if (Skeletons)
                     Skeletons->AI()->AttackStart(target);
                 Skeletons = m_creature->SummonCreature(14826, target->GetPositionX(), target->GetPositionY()+4, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                if(Skeletons)
+                if (Skeletons)
                     Skeletons->AI()->AttackStart(target);
                 Skeletons = m_creature->SummonCreature(14826, target->GetPositionX(), target->GetPositionY()-4, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                if(Skeletons)
+                if (Skeletons)
                     Skeletons->AI()->AttackStart(target);
                 Skeletons = m_creature->SummonCreature(14826, target->GetPositionX()+3, target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                if(Skeletons)
+                if (Skeletons)
                     Skeletons->AI()->AttackStart(target);
             }
 
@@ -187,12 +187,12 @@ struct TRINITY_DLL_DECL mob_healing_wardAI : public ScriptedAI
     void UpdateAI (const uint32 diff)
     {
         //Heal_Timer
-        if(Heal_Timer < diff)
+        if (Heal_Timer < diff)
         {
-            if(pInstance)
+            if (pInstance)
             {
                 Unit *pJindo = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_JINDO));
-                if(pJindo)
+                if (pJindo)
                     DoCast(pJindo, SPELL_HEAL);
             }
             Heal_Timer = 3000;
@@ -228,7 +228,7 @@ struct TRINITY_DLL_DECL mob_shade_of_jindoAI : public ScriptedAI
     {
 
         //ShadowShock_Timer
-        if(ShadowShock_Timer < diff)
+        if (ShadowShock_Timer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_SHADOWSHOCK);
             ShadowShock_Timer = 2000;

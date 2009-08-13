@@ -56,7 +56,7 @@ struct TRINITY_DLL_DECL boss_ptheradrasAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
         //Dustfield_Timer
@@ -71,7 +71,7 @@ struct TRINITY_DLL_DECL boss_ptheradrasAI : public ScriptedAI
         {
             Unit* target = NULL;
             target = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if( target )
+            if (target)
                 DoCast(target,SPELL_BOULDER);
             Boulder_Timer = 10000;
         }else Boulder_Timer -= diff;

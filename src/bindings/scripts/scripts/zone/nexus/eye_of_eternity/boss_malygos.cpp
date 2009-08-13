@@ -96,11 +96,11 @@ struct TRINITY_DLL_DECL boss_malygosAI : public ScriptedAI
     }
     void EnterCombat(Unit* who)
     {
-        if(phase == 1)
+        if (phase == 1)
             DoScriptText(SAY_PHASE1_AGGRO, m_creature);
-        if(phase == 2)
+        if (phase == 2)
             DoScriptText(SAY_PHASE1_AGGRO, m_creature);
-        if(phase == 3)
+        if (phase == 3)
             DoScriptText(SAY_PHASE1_AGGRO, m_creature);
     }
     void AttackStart(Unit* who) {}
@@ -109,7 +109,7 @@ struct TRINITY_DLL_DECL boss_malygosAI : public ScriptedAI
     {
         phase =1;
         //Return since we have no target
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
         if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) <= 50){
@@ -130,21 +130,21 @@ struct TRINITY_DLL_DECL boss_malygosAI : public ScriptedAI
         if (victim == m_creature)
             return;
 
-        if(phase ==1)
+        if (phase ==1)
             switch(rand()%3)
             {
                 case 0: DoScriptText(SAY_PHASE1_SLAY_1, m_creature); break;
                 case 1: DoScriptText(SAY_PHASE1_SLAY_2, m_creature);break;
                 case 2: DoScriptText(SAY_PHASE1_SLAY_3, m_creature);break;
             }
-        if(phase ==2)
+        if (phase ==2)
             switch(rand()%3)
             {
                 case 0: DoScriptText(SAY_PHASE2_SLAY_1, m_creature);break;
                 case 1: DoScriptText(SAY_PHASE2_SLAY_2, m_creature);break;
                 case 2: DoScriptText(SAY_PHASE2_SLAY_3, m_creature);break;
             }
-        if(phase ==3)
+        if (phase ==3)
             switch(rand()%3)
             {
                 case 0: DoScriptText(SAY_PHASE3_SLAY_1, m_creature);break;

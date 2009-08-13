@@ -5,7 +5,7 @@
 
 struct TRINITY_DLL_DECL instance_archavon : public ScriptedInstance
 {
-    instance_archavon(Map *Map) : ScriptedInstance(Map) {Initialize();};
+    instance_archavon(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 
     std::string strInstData;
     uint64 Archavon;
@@ -24,7 +24,7 @@ struct TRINITY_DLL_DECL instance_archavon : public ScriptedInstance
     bool IsEncounterInProgress() const
     {
         for(uint8 i = 0; i < NUMBER_OF_ENCOUNTERS; ++i)
-            if(Encounters[i] == IN_PROGRESS)
+            if (Encounters[i] == IN_PROGRESS)
                 return true;
 
         return false;
@@ -109,9 +109,9 @@ struct TRINITY_DLL_DECL instance_archavon : public ScriptedInstance
     }
 };
 
-InstanceData* GetInstanceData_instance_archavon(Map* map)
+InstanceData* GetInstanceData_instance_archavon(Map* pMap)
 {
-    return new instance_archavon(map);
+    return new instance_archavon(pMap);
 }
 
 void AddSC_instance_archavon()

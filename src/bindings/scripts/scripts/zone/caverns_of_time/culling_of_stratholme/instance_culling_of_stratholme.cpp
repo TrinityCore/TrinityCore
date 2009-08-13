@@ -3,12 +3,12 @@
 
 struct TRINITY_DLL_DECL instance_culling_of_stratholme : public ScriptedInstance
 {
-    instance_culling_of_stratholme(Map *Map) : ScriptedInstance(Map) {Initialize();};
+    instance_culling_of_stratholme(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 };
 
-InstanceData* GetInstanceData_instance_culling_of_stratholme(Map* map)
+InstanceData* GetInstanceData_instance_culling_of_stratholme(Map* pMap)
 {
-    return new instance_culling_of_stratholme(map);
+    return new instance_culling_of_stratholme(pMap);
 }
 
 void AddSC_instance_culling_of_stratholme()

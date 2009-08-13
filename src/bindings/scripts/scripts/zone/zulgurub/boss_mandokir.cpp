@@ -133,7 +133,7 @@ struct TRINITY_DLL_DECL boss_mandokirAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if ( m_creature->getVictim() && m_creature->isAlive())
+        if (m_creature->getVictim() && m_creature->isAlive())
         {
             if (!CombatStart)
             {
@@ -151,7 +151,7 @@ struct TRINITY_DLL_DECL boss_mandokirAI : public ScriptedAI
                 {
                     Unit* pUnit = Unit::GetUnit(*m_creature, WatchTarget);
 
-                    if ( pUnit && (
+                    if (pUnit && (
                         targetX != pUnit->GetPositionX() ||
                         targetY != pUnit->GetPositionY() ||
                         targetZ != pUnit->GetPositionZ() ||
@@ -292,7 +292,7 @@ struct TRINITY_DLL_DECL mob_ohganAI : public ScriptedAI
     void UpdateAI (const uint32 diff)
     {
         //Return since we have no target
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
         //SunderArmor_Timer

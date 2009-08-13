@@ -60,22 +60,22 @@ struct TRINITY_DLL_DECL boss_meathookAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
-        if(Disease_Timer < diff)
+        if (Disease_Timer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_DISEASE_EXPULSION_N);
             Disease_Timer = 1500 + rand()%2500;
         }else Disease_Timer -= diff;
 
-        if(Frenzy_Timer < diff)
+        if (Frenzy_Timer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_FRENZY);
             Frenzy_Timer = 20000 + rand()%10000;
         }else Frenzy_Timer -= diff;
 
-        if(Chain_Timer < diff)
+        if (Chain_Timer < diff)
         {
 
         /*
@@ -91,7 +91,7 @@ struct TRINITY_DLL_DECL boss_meathookAI : public ScriptedAI
             Unit* targets[st];
             int st2=0;
             for(int i=1; i<=st; ++i){
-                if(!IsWithinLOSInMap(targets[i])
+                if (!IsWithinLOSInMap(targets[i])
                     st2++;
             }
             Unit* targets_out_of_LOS[st2];*/

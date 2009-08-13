@@ -168,21 +168,21 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
         StartEvent();
     }
 
-    void ApplyWateryGrave(Unit *player, uint8 i)
+    void ApplyWateryGrave(Unit* pPlayer, uint8 i)
     {
         switch(i)
         {
-        case 0: player->CastSpell(player, SPELL_WATERY_GRAVE_1, true); break;
-        case 1: player->CastSpell(player, SPELL_WATERY_GRAVE_2, true); break;
-        case 2: player->CastSpell(player, SPELL_WATERY_GRAVE_3, true); break;
-        case 3: player->CastSpell(player, SPELL_WATERY_GRAVE_4, true); break;
+        case 0: pPlayer->CastSpell(pPlayer, SPELL_WATERY_GRAVE_1, true); break;
+        case 1: pPlayer->CastSpell(pPlayer, SPELL_WATERY_GRAVE_2, true); break;
+        case 2: pPlayer->CastSpell(pPlayer, SPELL_WATERY_GRAVE_3, true); break;
+        case 3: pPlayer->CastSpell(pPlayer, SPELL_WATERY_GRAVE_4, true); break;
         }
     }
 
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
         //Earthquake_Timer
@@ -206,7 +206,7 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
                 {
                     Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0);
                     Creature* Murloc = m_creature->SummonCreature(MurlocCords[i][0],MurlocCords[i][1],MurlocCords[i][2],MurlocCords[i][3],MurlocCords[i][4], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
-                    if(target && Murloc)
+                    if (target && Murloc)
                         Murloc->AI()->AttackStart(target);
                 }
                 DoScriptText(EMOTE_EARTHQUAKE, m_creature);
@@ -236,12 +236,12 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
                 {
                     counter = 0;
                     do{target = SelectTarget(SELECT_TARGET_RANDOM, 1, 50, true);    //target players only
-                    if(counter < Playercount)
+                    if (counter < Playercount)
                         break;
-                    if(target) itr = list.find(target->GetGUID());
+                    if (target) itr = list.find(target->GetGUID());
                     counter++;
                     }while(itr != list.end());
-                    if(target){list.insert(target->GetGUID());
+                    if (target){list.insert(target->GetGUID());
                     ApplyWateryGrave(target, i);
                     }
                 }
@@ -273,12 +273,12 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
                 {
                     counter = 0;
                     do {globuletarget = SelectTarget(SELECT_TARGET_RANDOM, 0,50,true);
-                    if(globuletarget) itr = globulelist.find(globuletarget->GetGUID());
+                    if (globuletarget) itr = globulelist.find(globuletarget->GetGUID());
                     if (counter > Playercount)
                         break;
                     counter++;
                     } while (itr != globulelist.end());
-                    if(globuletarget)globulelist.insert(globuletarget->GetGUID());
+                    if (globuletarget)globulelist.insert(globuletarget->GetGUID());
                     globuletarget->CastSpell(globuletarget, globulespell[g], true);
                 }
                 DoScriptText(EMOTE_WATERY_GLOBULES, m_creature);
@@ -326,7 +326,7 @@ struct TRINITY_DLL_DECL mob_water_globuleAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
         if (Check_Timer < diff)

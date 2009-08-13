@@ -43,7 +43,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
 {
-    instance_karazhan(Map* map) : ScriptedInstance(map) {Initialize();}
+    instance_karazhan(Map* pMap) : ScriptedInstance(pMap) {Initialize();}
 
     uint32 m_auiEncounter[ENCOUNTERS];
     std::string strSaveData;
@@ -151,7 +151,7 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
                 break;
         }
 
-        if(uiData == DONE)
+        if (uiData == DONE)
         {
             OUT_SAVE_INST_DATA;
 
@@ -288,15 +288,15 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
             >> m_auiEncounter[4] >> m_auiEncounter[5] >> m_auiEncounter[6] >> m_auiEncounter[7]
             >> m_auiEncounter[8] >> m_auiEncounter[9] >> m_auiEncounter[10] >> m_auiEncounter[11];
         for(uint8 i = 0; i < ENCOUNTERS; ++i)
-            if(m_auiEncounter[i] == IN_PROGRESS)                // Do not load an encounter as "In Progress" - reset it instead.
+            if (m_auiEncounter[i] == IN_PROGRESS)                // Do not load an encounter as "In Progress" - reset it instead.
                 m_auiEncounter[i] = NOT_STARTED;
         OUT_LOAD_INST_DATA_COMPLETE;
     }
 };
 
-InstanceData* GetInstanceData_instance_karazhan(Map* map)
+InstanceData* GetInstanceData_instance_karazhan(Map* pMap)
 {
-    return new instance_karazhan(map);
+    return new instance_karazhan(pMap);
 }
 
 void AddSC_instance_karazhan()

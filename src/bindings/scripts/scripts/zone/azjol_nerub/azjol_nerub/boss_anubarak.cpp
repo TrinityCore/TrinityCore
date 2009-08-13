@@ -66,7 +66,7 @@ struct TRINITY_DLL_DECL boss_anub_arakAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
         phase =1;

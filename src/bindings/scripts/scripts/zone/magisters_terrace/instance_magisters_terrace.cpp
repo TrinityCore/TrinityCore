@@ -35,7 +35,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL instance_magisters_terrace : public ScriptedInstance
 {
-    instance_magisters_terrace(Map* map) : ScriptedInstance(map) {Initialize();}
+    instance_magisters_terrace(Map* pMap) : ScriptedInstance(pMap) {Initialize();}
 
     uint32 Encounters[NUMBER_OF_ENCOUNTERS];
     uint32 DelrissaDeathCount;
@@ -79,7 +79,7 @@ struct TRINITY_DLL_DECL instance_magisters_terrace : public ScriptedInstance
     bool IsEncounterInProgress() const
     {
         for(uint8 i = 0; i < NUMBER_OF_ENCOUNTERS; ++i)
-            if(Encounters[i] == IN_PROGRESS)
+            if (Encounters[i] == IN_PROGRESS)
                 return true;
         return false;
     }
@@ -168,13 +168,13 @@ struct TRINITY_DLL_DECL instance_magisters_terrace : public ScriptedInstance
 
             case DATA_FEL_CRYSTAL:
             {
-                if(FelCrystals.empty())
+                if (FelCrystals.empty())
                 {
                     error_log("TSCR: Magisters Terrace: No Fel Crystals loaded in Inst Data");
                     return 0;
                 }
 
-                if(!InitializedItr)
+                if (!InitializedItr)
                 {
                     CrystalItr = FelCrystals.begin();
                     InitializedItr = true;
@@ -189,9 +189,9 @@ struct TRINITY_DLL_DECL instance_magisters_terrace : public ScriptedInstance
     }
 };
 
-InstanceData* GetInstanceData_instance_magisters_terrace(Map* map)
+InstanceData* GetInstanceData_instance_magisters_terrace(Map* pMap)
 {
-    return new instance_magisters_terrace(map);
+    return new instance_magisters_terrace(pMap);
 }
 
 void AddSC_instance_magisters_terrace()

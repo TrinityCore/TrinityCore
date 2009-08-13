@@ -52,15 +52,15 @@ struct TRINITY_DLL_DECL npc_prospector_anvilwardAI : public npc_escortAI
     // Pure Virtual Functions
     void WaypointReached(uint32 i)
     {
-        Player* player = Unit::GetPlayer(PlayerGUID);
+        Player* pPlayer = Unit::GetPlayer(PlayerGUID);
 
-        if(!player)
+        if (!pPlayer)
             return;
 
         switch (i)
         {
-            case 0: DoScriptText(SAY_PR_1, m_creature, player); break;
-            case 5: DoScriptText(SAY_PR_2, m_creature, player); break;
+            case 0: DoScriptText(SAY_PR_1, m_creature, pPlayer); break;
+            case 5: DoScriptText(SAY_PR_2, m_creature, pPlayer); break;
             case 6: m_creature->setFaction(24); break;
         }
     }
@@ -92,26 +92,26 @@ CreatureAI* GetAI_npc_prospector_anvilward(Creature* pCreature)
     return thisAI;
 }
 
-bool GossipHello_npc_prospector_anvilward(Player *player, Creature *_Creature)
+bool GossipHello_npc_prospector_anvilward(Player* pPlayer, Creature *_Creature)
 {
-    if( player->GetQuestStatus(QUEST_THE_DWARVEN_SPY) == QUEST_STATUS_INCOMPLETE )
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+    if (pPlayer->GetQuestStatus(QUEST_THE_DWARVEN_SPY) == QUEST_STATUS_INCOMPLETE)
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-    player->SEND_GOSSIP_MENU(8239, _Creature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(8239, _Creature->GetGUID());
     return true;
 }
 
-bool GossipSelect_npc_prospector_anvilward(Player *player, Creature *_Creature, uint32 sender, uint32 action )
+bool GossipSelect_npc_prospector_anvilward(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
 {
     switch(action)
     {
         case GOSSIP_ACTION_INFO_DEF+1:
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-            player->SEND_GOSSIP_MENU(8240, _Creature->GetGUID());
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+            pPlayer->SEND_GOSSIP_MENU(8240, _Creature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+2:
-            player->CLOSE_GOSSIP_MENU();
-            CAST_AI(npc_escortAI, (_Creature->AI()))->Start(true, false, player->GetGUID());
+            pPlayer->CLOSE_GOSSIP_MENU();
+            CAST_AI(npc_escortAI, (_Creature->AI()))->Start(true, false, pPlayer->GetGUID());
             break;
     }
     return true;
@@ -206,7 +206,7 @@ struct TRINITY_DLL_DECL npc_secondTrialAI : public ScriptedAI
       spellJudLight   = false;
       spellCommand    = false;
 
-      switch(m_creature->GetEntry() ) {
+      switch(m_creature->GetEntry()) {
         case CHAMPION_BLOODWRATH :
           spellFlashLight = true;
           timerFlashLight = TIMER_FLASH_OF_LIGHT;
@@ -234,15 +234,15 @@ struct TRINITY_DLL_DECL npc_secondTrialAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-      if ( questPhase == 1 ) {
+      if (questPhase == 1) {
 
-        if ( timer < diff ) {
+        if (timer < diff) {
               m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_STAND);
               m_creature->setFaction(FACTION_HOSTILE);
               questPhase = 0;
 
               Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-              if(target && target->GetTypeId() == TYPEID_PLAYER) // only on players.
+              if (target && target->GetTypeId() == TYPEID_PLAYER) // only on players.
               {
                 m_creature->AddThreat(target, 5000000.0f);
                 AttackStart(target);
@@ -255,40 +255,40 @@ struct TRINITY_DLL_DECL npc_secondTrialAI : public ScriptedAI
           return;
 
       // healer
-      if ( spellFlashLight ) {
-        if ( m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 70 ){
-          if ( timerFlashLight < diff ) {
+      if (spellFlashLight) {
+        if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 70){
+          if (timerFlashLight < diff) {
             DoCast(m_creature, SPELL_FLASH_OF_LIGHT);
-            timerFlashLight = TIMER_FLASH_OF_LIGHT +  rand()%( TIMER_FLASH_OF_LIGHT );
+            timerFlashLight = TIMER_FLASH_OF_LIGHT +  rand()%(TIMER_FLASH_OF_LIGHT);
           }
           else
             timerFlashLight -= diff;
         }
       }
 
-      if ( spellJustice ) {
-          if ( timerJustice < diff )
+      if (spellJustice) {
+          if (timerJustice < diff)
             {
             DoCast(m_creature, SPELL_SEAL_OF_JUSTICE);
-            timerJustice = TIMER_SEAL_OF_JUSTICE +  rand()%( TIMER_SEAL_OF_JUSTICE );
+            timerJustice = TIMER_SEAL_OF_JUSTICE +  rand()%(TIMER_SEAL_OF_JUSTICE);
           }
           else
             timerJustice -= diff;
       }
 
-      if ( spellJudLight ) {
-          if ( timerJudLight < diff ) {
+      if (spellJudLight) {
+          if (timerJudLight < diff) {
             DoCast(m_creature,  SPELL_JUDGEMENT_OF_LIGHT);
-            timerJudLight = TIMER_JUDGEMENT_OF_LIGHT +  rand()%( TIMER_JUDGEMENT_OF_LIGHT );
+            timerJudLight = TIMER_JUDGEMENT_OF_LIGHT +  rand()%(TIMER_JUDGEMENT_OF_LIGHT);
           }
           else
             timerJudLight -= diff;
       }
 
-      if ( spellCommand ) {
-          if ( timerCommand < diff ) {
+      if (spellCommand) {
+          if (timerCommand < diff) {
             DoCast(m_creature,  TIMER_SEAL_OF_COMMAND);
-            timerCommand = TIMER_SEAL_OF_COMMAND +  rand()%( TIMER_SEAL_OF_COMMAND );
+            timerCommand = TIMER_SEAL_OF_COMMAND +  rand()%(TIMER_SEAL_OF_COMMAND);
           }
           else
             timerCommand -= diff;
@@ -330,19 +330,19 @@ struct TRINITY_DLL_DECL master_kelerun_bloodmournAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-      // Quest accepted but object not activated, object despawned (if in sync 1 minute! )
-      if ( questPhase == 1 ) {
-         if ( timer < diff ) Reset();
+      // Quest accepted but object not activated, object despawned (if in sync 1 minute!)
+      if (questPhase == 1) {
+         if (timer < diff) Reset();
          else timer -= diff;
       }
       // fight the 4 paladin mobs phase
-      else if ( questPhase == 2 ) {
+      else if (questPhase == 2) {
 
-        if ( timer < diff ) {
+        if (timer < diff) {
 
           Creature* paladinSpawn;
           paladinSpawn = (Unit::GetCreature((*m_creature), paladinGuid[paladinPhase]));
-            if ( paladinSpawn ) {
+            if (paladinSpawn) {
                CAST_AI(npc_secondTrialAI, paladinSpawn->AI())->Activate(m_creature->GetGUID());
 
                switch(paladinPhase) {
@@ -378,13 +378,13 @@ struct TRINITY_DLL_DECL master_kelerun_bloodmournAI : public ScriptedAI
     void StartEvent()
     {
 
-      if ( questPhase == 1 ) { // no player check, quest can be finished as group, so no complex playerguid/group search code
+      if (questPhase == 1) { // no player check, quest can be finished as group, so no complex PlayerGUID/group search code
 
         for (int i = 0; i<4; ++i) {
           Creature* Summoned;
           Summoned = DoSpawnCreature(PaladinEntry[i], SpawnPosition[i].x, SpawnPosition[i].y, SpawnPosition[i].z, SpawnPosition[i].o, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 180000);
 
-          if(Summoned)
+          if (Summoned)
             paladinGuid[i] = Summoned->GetGUID();
         }
 
@@ -398,26 +398,26 @@ struct TRINITY_DLL_DECL master_kelerun_bloodmournAI : public ScriptedAI
 };
 
 
-bool GossipHello_master_kelerun_bloodmourn(Player *player, Creature *_Creature)
+bool GossipHello_master_kelerun_bloodmourn(Player* pPlayer, Creature *_Creature)
 {
     // quest only available if not already started
     // Quest_template flag is set to : QUEST_FLAGS_EVENT
     // Escort quests or any other event-driven quests. If player in party, all players that can accept this quest will receive confirmation box to accept quest.
     // !not sure if this really works!
 
-    if ( CAST_AI(master_kelerun_bloodmournAI, _Creature->AI())->questPhase == 0 ) {
-        player->PrepareQuestMenu(_Creature->GetGUID());
-        player->SendPreparedQuest(_Creature->GetGUID());
+    if (CAST_AI(master_kelerun_bloodmournAI, _Creature->AI())->questPhase == 0) {
+        pPlayer->PrepareQuestMenu(_Creature->GetGUID());
+        pPlayer->SendPreparedQuest(_Creature->GetGUID());
     }
 
-    player->SEND_GOSSIP_MENU(_Creature->GetEntry(), _Creature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(_Creature->GetEntry(), _Creature->GetGUID());
     return true;
 }
 
-bool QuestAccept_master_kelerun_bloodmourn(Player *player, Creature *creature, Quest const *quest )
+bool QuestAccept_master_kelerun_bloodmourn(Player* pPlayer, Creature *creature, Quest const *quest)
 {
     // One Player exclusive quest, wait for user go activation
-    if(quest->GetQuestId() == QUEST_SECOND_TRIAL )
+    if (quest->GetQuestId() == QUEST_SECOND_TRIAL)
         CAST_AI(master_kelerun_bloodmournAI, creature->AI())->questPhase = 1;
 
     return true;
@@ -425,11 +425,11 @@ bool QuestAccept_master_kelerun_bloodmourn(Player *player, Creature *creature, Q
 
 void master_kelerun_bloodmournAI::SecondTrialKill() {
 
-      if ( questPhase > 0 ) {
+      if (questPhase > 0) {
 
         ++paladinPhase;
 
-        if ( paladinPhase < 4 )
+        if (paladinPhase < 4)
           questPhase=2;
         else
           Reset();  // Quest Complete, QuestComplete handler is in npc_secondTrialAI::JustDied
@@ -443,26 +443,26 @@ void npc_secondTrialAI::JustDied(Unit* Killer) {
           Creature* Summoner;
           Summoner = (Unit::GetCreature((*m_creature), summonerGuid));
 
-          if ( Summoner )
+          if (Summoner)
             CAST_AI(master_kelerun_bloodmournAI, Summoner->AI())->SecondTrialKill();
 
           // last kill quest complete for group
-          if ( m_creature->GetEntry() == CHAMPION_SUNSTRIKER ) {
+          if (m_creature->GetEntry() == CHAMPION_SUNSTRIKER) {
 
-            if( Group *pGroup = CAST_PLR(Killer)->GetGroup() )
+            if (Group *pGroup = CAST_PLR(Killer)->GetGroup())
             {
                for(GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
                {
                  Player *pGroupGuy = itr->getSource();
 
                  // for any leave or dead (with not released body) group member at appropriate distance
-                 if( pGroupGuy && pGroupGuy->IsAtGroupRewardDistance(m_creature) && !pGroupGuy->GetCorpse() && pGroupGuy->GetQuestStatus( QUEST_SECOND_TRIAL ) == QUEST_STATUS_INCOMPLETE )
-                   pGroupGuy->CompleteQuest( QUEST_SECOND_TRIAL );
+                 if (pGroupGuy && pGroupGuy->IsAtGroupRewardDistance(m_creature) && !pGroupGuy->GetCorpse() && pGroupGuy->GetQuestStatus(QUEST_SECOND_TRIAL) == QUEST_STATUS_INCOMPLETE)
+                   pGroupGuy->CompleteQuest(QUEST_SECOND_TRIAL);
                 }
             }
             else {
-               if ( CAST_PLR(Killer)->GetQuestStatus( QUEST_SECOND_TRIAL ) == QUEST_STATUS_INCOMPLETE )
-                   CAST_PLR(Killer)->CompleteQuest( QUEST_SECOND_TRIAL );
+               if (CAST_PLR(Killer)->GetQuestStatus(QUEST_SECOND_TRIAL) == QUEST_STATUS_INCOMPLETE)
+                   CAST_PLR(Killer)->CompleteQuest(QUEST_SECOND_TRIAL);
             }
           }
       }
@@ -470,9 +470,9 @@ void npc_secondTrialAI::JustDied(Unit* Killer) {
 
 void npc_secondTrialAI::KilledUnit(Unit* Killed) {
 
-  if ( Killed->GetTypeId() == TYPEID_PLAYER ) {
+  if (Killed->GetTypeId() == TYPEID_PLAYER) {
 
-      if ( CAST_PLR(Killed)->GetQuestStatus(QUEST_SECOND_TRIAL) == QUEST_STATUS_INCOMPLETE )
+      if (CAST_PLR(Killed)->GetQuestStatus(QUEST_SECOND_TRIAL) == QUEST_STATUS_INCOMPLETE)
         CAST_PLR(Killed)->FailQuest(QUEST_SECOND_TRIAL);
   }
 }
@@ -497,7 +497,7 @@ CreatureAI* GetAI_npc_secondTrial(Creature *_Creature)
 ## go_second_trial
 ######*/
 
-bool GOHello_go_second_trial(Player *player, GameObject* pGO)
+bool GOHello_go_second_trial(Player* pPlayer, GameObject* pGO)
 {
     // find spawn :: master_kelerun_bloodmourn
     if (Creature* pCreature = pGO->FindNearestCreature(MASTER_KELERUN_BLOODMOURN, 30.0f))
@@ -549,25 +549,25 @@ struct TRINITY_DLL_DECL npc_apprentice_mirvedaAI : public ScriptedAI
     {
         if (PlayerGUID)
         {
-            Player* player = Unit::GetPlayer(PlayerGUID);
-            if (player)
-                CAST_PLR(player)->FailQuest(QUEST_UNEXPECTED_RESULT);
+            Player* pPlayer = Unit::GetPlayer(PlayerGUID);
+            if (pPlayer)
+                CAST_PLR(pPlayer)->FailQuest(QUEST_UNEXPECTED_RESULT);
         }
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if(KillCount >= 3)
+        if (KillCount >= 3)
         {
             if (PlayerGUID)
             {
-                Player* player = Unit::GetPlayer(PlayerGUID);
-                if(player)
-                    CAST_PLR(player)->CompleteQuest(QUEST_UNEXPECTED_RESULT);
+                Player* pPlayer = Unit::GetPlayer(PlayerGUID);
+                if (pPlayer)
+                    CAST_PLR(pPlayer)->CompleteQuest(QUEST_UNEXPECTED_RESULT);
             }
         }
 
-        if(Summon)
+        if (Summon)
         {
             m_creature->SummonCreature(MOB_GHARZUL, 8745, -7134.32, 35.22, 0, TEMPSUMMON_CORPSE_DESPAWN, 4000);
             m_creature->SummonCreature(MOB_ANGERSHADE, 8745, -7134.32, 35.22, 0, TEMPSUMMON_CORPSE_DESPAWN, 4000);
@@ -577,12 +577,12 @@ struct TRINITY_DLL_DECL npc_apprentice_mirvedaAI : public ScriptedAI
     }
 };
 
-bool QuestAccept_npc_apprentice_mirveda(Player* player, Creature* creature, Quest const* quest)
+bool QuestAccept_npc_apprentice_mirveda(Player* pPlayer, Creature* creature, Quest const* quest)
 {
     if (quest->GetQuestId() == QUEST_UNEXPECTED_RESULT)
     {
         CAST_AI(npc_apprentice_mirvedaAI, creature->AI())->Summon = true;
-        CAST_AI(npc_apprentice_mirvedaAI, creature->AI())->PlayerGUID = player->GetGUID();
+        CAST_AI(npc_apprentice_mirvedaAI, creature->AI())->PlayerGUID = pPlayer->GetGUID();
     }
     return true;
 }
@@ -638,9 +638,9 @@ struct TRINITY_DLL_DECL npc_infused_crystalAI : public Scripted_NoMovementAI
 
     void MoveInLineOfSight(Unit* who)
     {
-        if(!Progress && who->GetTypeId() == TYPEID_PLAYER && m_creature->IsWithinDistInMap(who, 10.0f))
+        if (!Progress && who->GetTypeId() == TYPEID_PLAYER && m_creature->IsWithinDistInMap(who, 10.0f))
         {
-            if( CAST_PLR(who)->GetQuestStatus(QUEST_POWERING_OUR_DEFENSES) == QUEST_STATUS_INCOMPLETE )
+            if (CAST_PLR(who)->GetQuestStatus(QUEST_POWERING_OUR_DEFENSES) == QUEST_STATUS_INCOMPLETE)
             {
                 PlayerGUID = who->GetGUID();
                 WaveTimer = 1000;
@@ -659,29 +659,29 @@ struct TRINITY_DLL_DECL npc_infused_crystalAI : public Scripted_NoMovementAI
     {
         if (PlayerGUID && !Completed)
         {
-            Player* player = Unit::GetPlayer(PlayerGUID);
-            if (player)
-                CAST_PLR(player)->FailQuest(QUEST_POWERING_OUR_DEFENSES);
+            Player* pPlayer = Unit::GetPlayer(PlayerGUID);
+            if (pPlayer)
+                CAST_PLR(pPlayer)->FailQuest(QUEST_POWERING_OUR_DEFENSES);
         }
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if(EndTimer < diff && Progress)
+        if (EndTimer < diff && Progress)
         {
             DoScriptText(EMOTE, m_creature);
             Completed = true;
             if (PlayerGUID)
             {
-                Player* player = Unit::GetPlayer(PlayerGUID);
-                if(player)
-                    CAST_PLR(player)->CompleteQuest(QUEST_POWERING_OUR_DEFENSES);
+                Player* pPlayer = Unit::GetPlayer(PlayerGUID);
+                if (pPlayer)
+                    CAST_PLR(pPlayer)->CompleteQuest(QUEST_POWERING_OUR_DEFENSES);
             }
             m_creature->DealDamage(m_creature,m_creature->GetHealth(),NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
             m_creature->RemoveCorpse();
         }else EndTimer -= diff;
 
-        if(WaveTimer < diff && !Completed && Progress)
+        if (WaveTimer < diff && !Completed && Progress)
         {
             uint32 ran1 = rand()%8;
             uint32 ran2 = rand()%8;

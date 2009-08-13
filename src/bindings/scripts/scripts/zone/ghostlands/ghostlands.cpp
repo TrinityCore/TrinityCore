@@ -37,26 +37,26 @@ EndContentData */
 
 #define GOSSIP_H_BKD "Take Blood Knight Insignia"
 
-bool GossipHello_npc_blood_knight_dawnstar(Player *player, Creature *_Creature)
+bool GossipHello_npc_blood_knight_dawnstar(Player* pPlayer, Creature *_Creature)
 {
-    if (player->GetQuestStatus(9692) == QUEST_STATUS_INCOMPLETE && !player->HasItemCount(24226,1,true))
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_H_BKD, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+    if (pPlayer->GetQuestStatus(9692) == QUEST_STATUS_INCOMPLETE && !pPlayer->HasItemCount(24226,1,true))
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_H_BKD, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-    player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
 
     return true;
 }
 
-bool GossipSelect_npc_blood_knight_dawnstar(Player *player, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_blood_knight_dawnstar(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
 {
     if (action == GOSSIP_ACTION_INFO_DEF+1)
     {
         ItemPosCountVec dest;
-        uint8 msg = player->CanStoreNewItem( NULL_BAG, NULL_SLOT, dest, 24226, 1, false);
-        if( msg == EQUIP_ERR_OK )
+        uint8 msg = pPlayer->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 24226, 1, false);
+        if (msg == EQUIP_ERR_OK)
         {
-            player->StoreNewItem( dest, 24226, 1, true);
-            player->PlayerTalkClass->ClearMenus();
+            pPlayer->StoreNewItem(dest, 24226, 1, true);
+            pPlayer->PlayerTalkClass->ClearMenus();
         }
     }
     return true;
@@ -68,24 +68,24 @@ bool GossipSelect_npc_blood_knight_dawnstar(Player *player, Creature *_Creature,
 
 #define GOSSIP_HBN "You gave the crew disguises?"
 
-bool GossipHello_npc_budd_nedreck(Player *player, Creature *_Creature)
+bool GossipHello_npc_budd_nedreck(Player* pPlayer, Creature *_Creature)
 {
-    if( _Creature->isQuestGiver())
-        player->PrepareQuestMenu( _Creature->GetGUID() );
+    if (_Creature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(_Creature->GetGUID());
 
-    if( player->GetQuestStatus(11166) == QUEST_STATUS_INCOMPLETE)
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HBN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+    if (pPlayer->GetQuestStatus(11166) == QUEST_STATUS_INCOMPLETE)
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HBN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
-    player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
     return true;
 }
 
-bool GossipSelect_npc_budd_nedreck(Player *player, Creature *_Creature, uint32 sender, uint32 action )
+bool GossipSelect_npc_budd_nedreck(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
 {
-    if( action == GOSSIP_ACTION_INFO_DEF )
+    if (action == GOSSIP_ACTION_INFO_DEF)
     {
-        player->CLOSE_GOSSIP_MENU();
-        _Creature->CastSpell(player, 42540, false);
+        pPlayer->CLOSE_GOSSIP_MENU();
+        _Creature->CastSpell(pPlayer, 42540, false);
     }
     return true;
 }
@@ -94,25 +94,25 @@ bool GossipSelect_npc_budd_nedreck(Player *player, Creature *_Creature, uint32 s
 ## npc_rathis_tomber
 ######*/
 
-bool GossipHello_npc_rathis_tomber(Player *player, Creature *_Creature)
+bool GossipHello_npc_rathis_tomber(Player* pPlayer, Creature *_Creature)
 {
-    if( _Creature->isQuestGiver() )
-        player->PrepareQuestMenu( _Creature->GetGUID() );
+    if (_Creature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(_Creature->GetGUID());
 
-    if( _Creature->isVendor() && player->GetQuestRewardStatus(9152) )
+    if (_Creature->isVendor() && pPlayer->GetQuestRewardStatus(9152))
     {
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-        player->SEND_GOSSIP_MENU(8432, _Creature->GetGUID());
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+        pPlayer->SEND_GOSSIP_MENU(8432, _Creature->GetGUID());
     }else
-    player->SEND_GOSSIP_MENU(8431,_Creature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(8431,_Creature->GetGUID());
 
     return true;
 }
 
-bool GossipSelect_npc_rathis_tomber(Player *player, Creature *_Creature, uint32 sender, uint32 action )
+bool GossipSelect_npc_rathis_tomber(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
 {
-    if( action == GOSSIP_ACTION_TRADE )
-        player->SEND_VENDORLIST( _Creature->GetGUID() );
+    if (action == GOSSIP_ACTION_TRADE)
+        pPlayer->SEND_VENDORLIST(_Creature->GetGUID());
     return true;
 }
 
@@ -120,13 +120,13 @@ bool GossipSelect_npc_rathis_tomber(Player *player, Creature *_Creature, uint32 
 ## go_gilded_brazier (Paladin First Trail quest (9678))
 #####*/
 
-bool GOHello_gilded_brazier(Player *player, GameObject* _GO)
+bool GOHello_gilded_brazier(Player* pPlayer, GameObject* _GO)
 {
-    if (player->GetQuestStatus(9678) == QUEST_STATUS_INCOMPLETE)
+    if (pPlayer->GetQuestStatus(9678) == QUEST_STATUS_INCOMPLETE)
     {
-        Creature *Stillblade = player->SummonCreature(17716, 8106.11, -7542.06, 151.775, 3.02598, TEMPSUMMON_DEAD_DESPAWN, 60000);
+        Creature *Stillblade = pPlayer->SummonCreature(17716, 8106.11, -7542.06, 151.775, 3.02598, TEMPSUMMON_DEAD_DESPAWN, 60000);
         if (Stillblade)
-            (Stillblade->AI())->AttackStart(player);
+            (Stillblade->AI())->AttackStart(pPlayer);
     }
     return true;
 };
@@ -159,9 +159,9 @@ struct TRINITY_DLL_DECL npc_ranger_lilathaAI : public npc_escortAI
 
     void WaypointReached(uint32 i)
     {
-        Player* player = Unit::GetPlayer(PlayerGUID);
+        Player* pPlayer = Unit::GetPlayer(PlayerGUID);
 
-        if (!player)
+        if (!pPlayer)
             return;
 
         switch(i)
@@ -169,26 +169,26 @@ struct TRINITY_DLL_DECL npc_ranger_lilathaAI : public npc_escortAI
         case 0:
             {
             m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
-            if(GameObject* Cage = me->FindNearestGameObject(GO_CAGE, 20))
+            if (GameObject* Cage = me->FindNearestGameObject(GO_CAGE, 20))
                 Cage->SetGoState(GO_STATE_ACTIVE);
-            DoScriptText(SAY_START, m_creature, player);
+            DoScriptText(SAY_START, m_creature, pPlayer);
             break;
             }
         case 5:
-            DoScriptText(SAY_PROGRESS1, m_creature, player);
+            DoScriptText(SAY_PROGRESS1, m_creature, pPlayer);
         case 11:
-            DoScriptText(SAY_PROGRESS2, m_creature, player);
+            DoScriptText(SAY_PROGRESS2, m_creature, pPlayer);
             m_creature->SetOrientation(4.762841);
             break;
         case 18:
             {
-            DoScriptText(SAY_PROGRESS3, m_creature, player);
+            DoScriptText(SAY_PROGRESS3, m_creature, pPlayer);
             Creature* Summ1 = m_creature->SummonCreature(16342, 7627.083984, -7532.538086, 152.128616, 1.082733, TEMPSUMMON_DEAD_DESPAWN, 0);
             Creature* Summ2 = m_creature->SummonCreature(16343, 7620.432129, -7532.550293, 152.454865, 0.827478, TEMPSUMMON_DEAD_DESPAWN, 0);
-            if(Summ1 && Summ2)
+            if (Summ1 && Summ2)
             {
                 Summ1->Attack(m_creature, true);
-                Summ2->Attack(player, true);
+                Summ2->Attack(pPlayer, true);
             }
             m_creature->AI()->AttackStart(Summ1);
             break;
@@ -196,19 +196,19 @@ struct TRINITY_DLL_DECL npc_ranger_lilathaAI : public npc_escortAI
         case 19: m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE); break;
         case 25: m_creature->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE); break;
         case 30:
-            if (player && player->GetTypeId() == TYPEID_PLAYER)
-                CAST_PLR(player)->GroupEventHappens(QUEST_ESCAPE_FROM_THE_CATACOMBS,m_creature);
+            if (pPlayer && pPlayer->GetTypeId() == TYPEID_PLAYER)
+                CAST_PLR(pPlayer)->GroupEventHappens(QUEST_ESCAPE_FROM_THE_CATACOMBS,m_creature);
             break;
         case 32:
             m_creature->SetOrientation(2.978281);
-            DoScriptText(SAY_END1, m_creature, player);
+            DoScriptText(SAY_END1, m_creature, pPlayer);
             break;
         case 33:
             m_creature->SetOrientation(5.858011);
-            DoScriptText(SAY_END2, m_creature, player);
+            DoScriptText(SAY_END2, m_creature, pPlayer);
             Unit* CaptainHelios = me->FindNearestCreature(NPC_CAPTAIN_HELIOS, 50);
-            if(CaptainHelios)
-            DoScriptText(SAY_CAPTAIN_ANSWER, CaptainHelios, player);
+            if (CaptainHelios)
+            DoScriptText(SAY_CAPTAIN_ANSWER, CaptainHelios, pPlayer);
             break;
         }
     }
@@ -221,7 +221,7 @@ struct TRINITY_DLL_DECL npc_ranger_lilathaAI : public npc_escortAI
             m_creature->setFaction(1602);
 
         GameObject* Cage = me->FindNearestGameObject(GO_CAGE, 20);
-        if(Cage)
+        if (Cage)
         Cage->SetGoState(GO_STATE_READY);
     }
 
@@ -229,9 +229,9 @@ struct TRINITY_DLL_DECL npc_ranger_lilathaAI : public npc_escortAI
     {
         if (PlayerGUID)
         {
-            Player* player = Unit::GetPlayer(PlayerGUID);
-            if (player)
-                CAST_PLR(player)->FailQuest(QUEST_ESCAPE_FROM_THE_CATACOMBS);
+            Player* pPlayer = Unit::GetPlayer(PlayerGUID);
+            if (pPlayer)
+                CAST_PLR(pPlayer)->FailQuest(QUEST_ESCAPE_FROM_THE_CATACOMBS);
         }
     }
 
@@ -241,12 +241,12 @@ struct TRINITY_DLL_DECL npc_ranger_lilathaAI : public npc_escortAI
     }
 };
 
-bool QuestAccept_npc_ranger_lilatha(Player* player, Creature* creature, Quest const* quest)
+bool QuestAccept_npc_ranger_lilatha(Player* pPlayer, Creature* creature, Quest const* quest)
 {
     if (quest->GetQuestId() == QUEST_ESCAPE_FROM_THE_CATACOMBS)
     {
         creature->setFaction(113);
-        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
+        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, pPlayer->GetGUID());
     }
     return true;
 }

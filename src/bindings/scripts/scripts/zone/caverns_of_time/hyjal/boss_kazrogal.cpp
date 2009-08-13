@@ -32,7 +32,7 @@ struct TRINITY_DLL_DECL boss_kazrogalAI : public hyjal_trashAI
         go = false;
         pos = 0;
         SpellEntry *TempSpell = GET_SPELL(SPELL_MARK);
-        if(TempSpell && TempSpell->EffectImplicitTargetA[0] != 1)
+        if (TempSpell && TempSpell->EffectImplicitTargetA[0] != 1)
         {
             TempSpell->EffectImplicitTargetA[0] = 1;
             TempSpell->EffectImplicitTargetB[0] = 0;
@@ -54,13 +54,13 @@ struct TRINITY_DLL_DECL boss_kazrogalAI : public hyjal_trashAI
         MarkTimer = 45000;
         MarkTimerBase = 45000;
 
-        if(pInstance && IsEvent)
+        if (pInstance && IsEvent)
             pInstance->SetData(DATA_KAZROGALEVENT, NOT_STARTED);
     }
 
     void EnterCombat(Unit *who)
     {
-        if(pInstance && IsEvent)
+        if (pInstance && IsEvent)
             pInstance->SetData(DATA_KAZROGALEVENT, IN_PROGRESS);
         DoPlaySoundToSet(m_creature, SOUND_ONAGGRO);
         DoYell(SAY_ONAGGRO, LANG_UNIVERSAL, NULL);
@@ -99,7 +99,7 @@ struct TRINITY_DLL_DECL boss_kazrogalAI : public hyjal_trashAI
     void JustDied(Unit *victim)
     {
         hyjal_trashAI::JustDied(victim);
-        if(pInstance && IsEvent)
+        if (pInstance && IsEvent)
             pInstance->SetData(DATA_KAZROGALEVENT, DONE);
         DoPlaySoundToSet(m_creature, SOUND_ONDEATH);
     }
@@ -110,10 +110,10 @@ struct TRINITY_DLL_DECL boss_kazrogalAI : public hyjal_trashAI
         {
             //Must update npc_escortAI
             npc_escortAI::UpdateAI(diff);
-            if(!go)
+            if (!go)
             {
                 go = true;
-                if(pInstance)
+                if (pInstance)
                 {
                     AddWaypoint(0, 5492.91,    -2404.61,    1462.63);
                     AddWaypoint(1, 5531.76,    -2460.87,    1469.55);
@@ -130,24 +130,24 @@ struct TRINITY_DLL_DECL boss_kazrogalAI : public hyjal_trashAI
         }
 
         //Return since we have no target
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
-        if(CleaveTimer < diff)
+        if (CleaveTimer < diff)
         {
             DoCast(m_creature, SPELL_CLEAVE);
             CleaveTimer = 6000+rand()%15000;
         }else CleaveTimer -= diff;
 
-        if(WarStompTimer < diff)
+        if (WarStompTimer < diff)
         {
             DoCast(m_creature, SPELL_WARSTOMP);
             WarStompTimer = 60000;
         }else WarStompTimer -= diff;
 
-        if(m_creature->HasAura(SPELL_MARK))
+        if (m_creature->HasAura(SPELL_MARK))
             m_creature->RemoveAurasDueToSpell(SPELL_MARK);
-        if(MarkTimer < diff)
+        if (MarkTimer < diff)
         {
             //cast dummy, useful for bos addons
             m_creature->CastCustomSpell(m_creature, SPELL_MARK, NULL, NULL, NULL, false, NULL, NULL, m_creature->GetGUID());
@@ -162,7 +162,7 @@ struct TRINITY_DLL_DECL boss_kazrogalAI : public hyjal_trashAI
                 }
             }
             MarkTimerBase -= 5000;
-            if(MarkTimerBase < 5500)
+            if (MarkTimerBase < 5500)
                 MarkTimerBase = 5500;
             MarkTimer = MarkTimerBase;
             switch(rand()%3)

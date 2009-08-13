@@ -41,7 +41,7 @@ enum
 
 struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
 {
-    instance_mount_hyjal(Map *map) : ScriptedInstance(map) {Initialize();};
+    instance_mount_hyjal(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 
     uint32 Encounters[ENCOUNTERS];
     std::string str_data;
@@ -96,7 +96,7 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
     bool IsEncounterInProgress() const
     {
         for(uint8 i = 0; i < ENCOUNTERS; ++i)
-            if(Encounters[i] == IN_PROGRESS) return true;
+            if (Encounters[i] == IN_PROGRESS) return true;
 
         return false;
     }
@@ -107,14 +107,14 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
         {
             case 182060:
                 HordeGate = go->GetGUID();
-                if(allianceRetreat)
+                if (allianceRetreat)
                     HandleGameObject(0, true, go);
                 else
                     HandleGameObject(0, false, go);
                 break;
             case 182061:
                 ElfGate = go->GetGUID();
-                if(hordeRetreat)
+                if (hordeRetreat)
                     HandleGameObject(0, true, go);
                 else
                     HandleGameObject(0, false, go);
@@ -169,21 +169,21 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
             case DATA_AZGALOREVENT:
                 {
                     Encounters[3] = data;
-                    if(data==DONE)
+                    if (data==DONE)
                     {
-                        if(ArchiYell)break;
+                        if (ArchiYell)break;
                         ArchiYell = true;
 
                         Creature* pCreature = instance->GetCreature(Azgalor);
-                        if(pCreature)
+                        if (pCreature)
                         {
                             Creature* pUnit = pCreature->SummonCreature(21987,pCreature->GetPositionX(),pCreature->GetPositionY(),pCreature->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,10000);
 
-                            Map *map = pCreature->GetMap();
-                            if (map->IsDungeon() && pUnit)
+                            Map* pMap = pCreature->GetMap();
+                            if (pMap->IsDungeon() && pUnit)
                             {
                                 pUnit->SetVisibility(VISIBILITY_OFF);
-                                Map::PlayerList const &PlayerList = map->GetPlayers();
+                                Map::PlayerList const &PlayerList = pMap->GetPlayers();
                                 if (PlayerList.isEmpty())
                                      return;
 
@@ -209,7 +209,7 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
             case DATA_RESET_TRASH_COUNT:    Trash = 0;            break;
 
             case DATA_TRASH:
-                if(data) Trash = data;
+                if (data) Trash = data;
                 else     Trash--;
                 UpdateWorldState(WORLD_STATE_ENEMYCOUNT, Trash);
                 break;
@@ -238,7 +238,7 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
                 break;
             case DATA_RAIDDAMAGE:
                 RaidDamage += data;
-                if(RaidDamage >= MINRAIDDAMAGE)
+                if (RaidDamage >= MINRAIDDAMAGE)
                     RaidDamage = MINRAIDDAMAGE;
                 break;
             case DATA_RESET_RAIDDAMAGE:
@@ -248,7 +248,7 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
 
          debug_log("TSCR: Instance Hyjal: Instance data updated for event %u (Data=%u)",type,data);
 
-        if(data == DONE)
+        if (data == DONE)
         {
             OUT_SAVE_INST_DATA;
 
@@ -291,8 +291,8 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
         {
                 for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                 {
-                    if (Player* player = itr->getSource())
-                        player->SendUpdateWorldState(id,state);
+                    if (Player* pPlayer = itr->getSource())
+                        pPlayer->SendUpdateWorldState(id,state);
                 }
         }else debug_log("TSCR: Instance Hyjal: UpdateWorldState, but PlayerList is empty!");
     }
@@ -314,15 +314,15 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
         std::istringstream loadStream(in);
         loadStream >> Encounters[0] >> Encounters[1] >> Encounters[2] >> Encounters[3] >> Encounters[4] >> allianceRetreat >> hordeRetreat >> RaidDamage;
         for(uint8 i = 0; i < ENCOUNTERS; ++i)
-            if(Encounters[i] == IN_PROGRESS)                // Do not load an encounter as IN_PROGRESS - reset it instead.
+            if (Encounters[i] == IN_PROGRESS)                // Do not load an encounter as IN_PROGRESS - reset it instead.
                 Encounters[i] = NOT_STARTED;
         OUT_LOAD_INST_DATA_COMPLETE;
     }
 };
 
-InstanceData* GetInstanceData_instance_mount_hyjal(Map* map)
+InstanceData* GetInstanceData_instance_mount_hyjal(Map* pMap)
 {
-    return new instance_mount_hyjal(map);
+    return new instance_mount_hyjal(pMap);
 }
 
 void AddSC_instance_mount_hyjal()

@@ -53,7 +53,7 @@ struct TRINITY_DLL_DECL boss_halyconAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
         //CrowdPummel_Timer
@@ -71,7 +71,7 @@ struct TRINITY_DLL_DECL boss_halyconAI : public ScriptedAI
         }else MightyBlow_Timer -= diff;
 
         //Summon Gizrul
-        if ( !Summoned && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 25 )
+        if (!Summoned && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 25)
         {
             m_creature->SummonCreature(10268,ADD_1X,ADD_1Y,ADD_1Z,ADD_1O,TEMPSUMMON_TIMED_DESPAWN,300000);
             Summoned = true;

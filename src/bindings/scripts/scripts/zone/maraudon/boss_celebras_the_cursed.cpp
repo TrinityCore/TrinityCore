@@ -51,7 +51,7 @@ struct TRINITY_DLL_DECL celebras_the_cursedAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
         //Wrath
@@ -59,7 +59,7 @@ struct TRINITY_DLL_DECL celebras_the_cursedAI : public ScriptedAI
         {
             Unit* target = NULL;
             target = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if( target )
+            if (target)
                 DoCast(target,SPELL_WRATH);
             Wrath_Timer = 8000;
         }else Wrath_Timer -= diff;

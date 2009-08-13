@@ -41,7 +41,7 @@ enum
     SPELL_ARCANE_CHARGES    = 45072
 };
 
-bool ItemUse_item_only_for_flight(Player *player, Item* _Item, SpellCastTargets const& targets)
+bool ItemUse_item_only_for_flight(Player* pPlayer, Item* _Item, SpellCastTargets const& targets)
 {
     uint32 itemId = _Item->GetEntry();
     bool disabled = false;
@@ -50,25 +50,25 @@ bool ItemUse_item_only_for_flight(Player *player, Item* _Item, SpellCastTargets 
     switch(itemId)
     {
        case 24538:
-            if(player->GetAreaId() != 3628)
+            if (pPlayer->GetAreaId() != 3628)
                 disabled = true;
                 break;
        case 34489:
-            if(player->GetZoneId() != 4080)
+            if (pPlayer->GetZoneId() != 4080)
                 disabled = true;
                 break;
        case 34475:
             if (const SpellEntry* pSpellInfo = GetSpellStore()->LookupEntry(SPELL_ARCANE_CHARGES))
-                Spell::SendCastResult(player, pSpellInfo, 1, SPELL_FAILED_NOT_ON_GROUND);
+                Spell::SendCastResult(pPlayer, pSpellInfo, 1, SPELL_FAILED_NOT_ON_GROUND);
                 break;
     }
 
     // allow use in flight only
-    if( player->isInFlight() && !disabled)
+    if (pPlayer->isInFlight() && !disabled)
         return false;
 
     // error
-    player->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW,_Item,NULL);
+    pPlayer->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW,_Item,NULL);
     return true;
 }
 
@@ -78,30 +78,30 @@ bool ItemUse_item_only_for_flight(Player *player, Item* _Item, SpellCastTargets 
 
 //This is just a hack and should be removed from here.
 //Creature/Item are in fact created before spell are sucessfully casted, without any checks at all to ensure proper/expected behavior.
-bool ItemUse_item_draenei_fishing_net(Player *player, Item* _Item, SpellCastTargets const& targets)
+bool ItemUse_item_draenei_fishing_net(Player* pPlayer, Item* _Item, SpellCastTargets const& targets)
 {
-    //if( targets.getGOTarget() && targets.getGOTarget()->GetTypeId() == TYPEID_GAMEOBJECT &&
-    //targets.getGOTarget()->GetGOInfo()->type == GAMEOBJECT_TYPE_SPELL_FOCUS && targets.getGOTarget()->GetEntry() == 181616 )
+    //if (targets.getGOTarget() && targets.getGOTarget()->GetTypeId() == TYPEID_GAMEOBJECT &&
+    //targets.getGOTarget()->GetGOInfo()->type == GAMEOBJECT_TYPE_SPELL_FOCUS && targets.getGOTarget()->GetEntry() == 181616)
     //{
-    if( player->GetQuestStatus(9452) == QUEST_STATUS_INCOMPLETE )
+    if (pPlayer->GetQuestStatus(9452) == QUEST_STATUS_INCOMPLETE)
     {
-        if( rand()%100 < 35 )
+        if (rand()%100 < 35)
         {
-            Creature *Murloc = player->SummonCreature(17102,player->GetPositionX() ,player->GetPositionY()+20, player->GetPositionZ(), 0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,10000);
-            if( Murloc )
-                Murloc->AI()->AttackStart(player);
+            Creature *Murloc = pPlayer->SummonCreature(17102,pPlayer->GetPositionX() ,pPlayer->GetPositionY()+20, pPlayer->GetPositionZ(), 0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,10000);
+            if (Murloc)
+                Murloc->AI()->AttackStart(pPlayer);
         }
         else
         {
             ItemPosCountVec dest;
-            uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 23614, 1);
-            if( msg == EQUIP_ERR_OK )
+            uint8 msg = pPlayer->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 23614, 1);
+            if (msg == EQUIP_ERR_OK)
             {
-                Item* item = player->StoreNewItem(dest,23614,true);
-                if( item )
-                    player->SendNewItem(item,1,false,true);
+                Item* item = pPlayer->StoreNewItem(dest,23614,true);
+                if (item)
+                    pPlayer->SendNewItem(item,1,false,true);
             }else
-            player->SendEquipError(msg,NULL,NULL);
+            pPlayer->SendEquipError(msg,NULL,NULL);
         }
     }
     //}
@@ -112,15 +112,15 @@ bool ItemUse_item_draenei_fishing_net(Player *player, Item* _Item, SpellCastTarg
 # item_nether_wraith_beacon
 #####*/
 
-bool ItemUse_item_nether_wraith_beacon(Player *player, Item* _Item, SpellCastTargets const& targets)
+bool ItemUse_item_nether_wraith_beacon(Player* pPlayer, Item* _Item, SpellCastTargets const& targets)
 {
-    if (player->GetQuestStatus(10832) == QUEST_STATUS_INCOMPLETE)
+    if (pPlayer->GetQuestStatus(10832) == QUEST_STATUS_INCOMPLETE)
     {
         Creature *Nether;
-        Nether = player->SummonCreature(22408,player->GetPositionX() ,player->GetPositionY()+20, player->GetPositionZ(), 0,TEMPSUMMON_TIMED_DESPAWN,180000);
-        Nether = player->SummonCreature(22408,player->GetPositionX() ,player->GetPositionY()-20, player->GetPositionZ(), 0,TEMPSUMMON_TIMED_DESPAWN,180000);
+        Nether = pPlayer->SummonCreature(22408,pPlayer->GetPositionX() ,pPlayer->GetPositionY()+20, pPlayer->GetPositionZ(), 0,TEMPSUMMON_TIMED_DESPAWN,180000);
+        Nether = pPlayer->SummonCreature(22408,pPlayer->GetPositionX() ,pPlayer->GetPositionY()-20, pPlayer->GetPositionZ(), 0,TEMPSUMMON_TIMED_DESPAWN,180000);
         if (Nether)
-            (Nether->AI())->AttackStart(player);
+            (Nether->AI())->AttackStart(pPlayer);
     }
     return false;
 }
@@ -129,19 +129,19 @@ bool ItemUse_item_nether_wraith_beacon(Player *player, Item* _Item, SpellCastTar
 # item_flying_machine
 #####*/
 
-bool ItemUse_item_flying_machine(Player *player, Item* _Item, SpellCastTargets const& targets)
+bool ItemUse_item_flying_machine(Player* pPlayer, Item* _Item, SpellCastTargets const& targets)
 {
     uint32 itemId = _Item->GetEntry();
-    if( itemId == 34060 )
-        if( player->GetBaseSkillValue(SKILL_RIDING) >= 225 )
+    if (itemId == 34060)
+        if (pPlayer->GetBaseSkillValue(SKILL_RIDING) >= 225)
             return false;
 
-    if( itemId == 34061 )
-        if( player->GetBaseSkillValue(SKILL_RIDING) == 300 )
+    if (itemId == 34061)
+        if (pPlayer->GetBaseSkillValue(SKILL_RIDING) == 300)
             return false;
 
     debug_log("TSCR: Player attempt to use item %u, but did not meet riding requirement",itemId);
-    player->SendEquipError(EQUIP_ERR_ERR_CANT_EQUIP_SKILL,_Item,NULL);
+    pPlayer->SendEquipError(EQUIP_ERR_ERR_CANT_EQUIP_SKILL,_Item,NULL);
     return true;
 }
 
@@ -149,13 +149,13 @@ bool ItemUse_item_flying_machine(Player *player, Item* _Item, SpellCastTargets c
 # item_gor_dreks_ointment
 #####*/
 
-bool ItemUse_item_gor_dreks_ointment(Player *player, Item* _Item, SpellCastTargets const& targets)
+bool ItemUse_item_gor_dreks_ointment(Player* pPlayer, Item* _Item, SpellCastTargets const& targets)
 {
-    if( targets.getUnitTarget() && targets.getUnitTarget()->GetTypeId()==TYPEID_UNIT &&
-        targets.getUnitTarget()->GetEntry() == 20748 && !targets.getUnitTarget()->HasAura(32578) )
+    if (targets.getUnitTarget() && targets.getUnitTarget()->GetTypeId()==TYPEID_UNIT &&
+        targets.getUnitTarget()->GetEntry() == 20748 && !targets.getUnitTarget()->HasAura(32578))
         return false;
 
-    player->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW,_Item,NULL);
+    pPlayer->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW,_Item,NULL);
     return true;
 }
 
@@ -163,15 +163,15 @@ bool ItemUse_item_gor_dreks_ointment(Player *player, Item* _Item, SpellCastTarge
 # item_incendiary_explosives
 #####*/
 
-bool ItemUse_item_incendiary_explosives(Player *player, Item* _Item, SpellCastTargets const& targets)
+bool ItemUse_item_incendiary_explosives(Player* pPlayer, Item* _Item, SpellCastTargets const& targets)
 {
-    if ( player->FindNearestCreature(26248,15) || player->FindNearestCreature(26249,15) )
+    if (pPlayer->FindNearestCreature(26248,15) || pPlayer->FindNearestCreature(26249,15))
     {
         return false;
     }
     else
     {
-        player->SendEquipError(EQUIP_ERR_OUT_OF_RANGE,_Item,NULL);
+        pPlayer->SendEquipError(EQUIP_ERR_OUT_OF_RANGE,_Item,NULL);
         return true;
     }
 }
@@ -180,13 +180,13 @@ bool ItemUse_item_incendiary_explosives(Player *player, Item* _Item, SpellCastTa
 # item_mysterious_egg
 #####*/
 
-bool ItemExpire_item_mysterious_egg(Player *player, ItemPrototype const * _ItemProto)
+bool ItemExpire_item_mysterious_egg(Player* pPlayer, ItemPrototype const * _ItemProto)
 {
     ItemPosCountVec dest;
-    uint8 msg = player->CanStoreNewItem( NULL_BAG, NULL_SLOT, dest, 39883, 1); // Cracked Egg
-    if( msg == EQUIP_ERR_OK )
+    uint8 msg = pPlayer->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 39883, 1); // Cracked Egg
+    if (msg == EQUIP_ERR_OK)
     {
-        player->StoreNewItem( dest, 39883, true, Item::GenerateItemRandomPropertyId(39883));
+        pPlayer->StoreNewItem(dest, 39883, true, Item::GenerateItemRandomPropertyId(39883));
     }
     return true;
 }
@@ -195,13 +195,13 @@ bool ItemExpire_item_mysterious_egg(Player *player, ItemPrototype const * _ItemP
 # item_disgusting_jar
 #####*/
 
-bool ItemExpire_item_disgusting_jar(Player *player, ItemPrototype const * _ItemProto)
+bool ItemExpire_item_disgusting_jar(Player* pPlayer, ItemPrototype const * _ItemProto)
 {
     ItemPosCountVec dest;
-    uint8 msg = player->CanStoreNewItem( NULL_BAG, NULL_SLOT, dest, 44718, 1); // Ripe Disgusting Jar
-    if( msg == EQUIP_ERR_OK )
+    uint8 msg = pPlayer->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 44718, 1); // Ripe Disgusting Jar
+    if (msg == EQUIP_ERR_OK)
     {
-        player->StoreNewItem( dest, 44718, true, Item::GenerateItemRandomPropertyId(44718));
+        pPlayer->StoreNewItem(dest, 44718, true, Item::GenerateItemRandomPropertyId(44718));
     }
     return true;
 }

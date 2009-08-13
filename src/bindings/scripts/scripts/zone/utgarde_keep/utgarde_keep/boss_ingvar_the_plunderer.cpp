@@ -91,7 +91,7 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
 
     void Reset()
     {
-        if(undead) // Visual Hack
+        if (undead) // Visual Hack
             m_creature->SetDisplayId(MODEL_INGVAR_HUMAN);
 
         undead = false;
@@ -109,13 +109,13 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
 
         wait_Timer = 0;
 
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_INGVAR_EVENT, NOT_STARTED);
     }
 
     void DamageTaken(Unit *done_by, uint32 &damage)
     {
-        if( damage >= m_creature->GetHealth() && !undead)
+        if (damage >= m_creature->GetHealth() && !undead)
         {
             //DoCast(m_creature,SPELL_INGVAR_FEIGN_DEATH,true);  // Dont work ???
             // visuel hack
@@ -134,7 +134,7 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
             DoScriptText(YELL_DEAD_1,m_creature);
         }
 
-        if(event_inProgress)
+        if (event_inProgress)
         {
             damage = 0;
         }
@@ -155,7 +155,7 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
     {
         DoScriptText(YELL_AGGRO_1,m_creature);
 
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_INGVAR_EVENT, IN_PROGRESS);
     }
 
@@ -163,13 +163,13 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
     {
         DoScriptText(YELL_DEAD_2,m_creature);
 
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_INGVAR_EVENT, DONE);
     }
 
     void KilledUnit(Unit *victim)
     {
-        if(undead) { DoScriptText(YELL_KILL_1,m_creature); }
+        if (undead) { DoScriptText(YELL_KILL_1,m_creature); }
         else { DoScriptText(YELL_KILL_2,m_creature); }
     }
 
@@ -178,10 +178,10 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if(event_inProgress)
+        if (event_inProgress)
         {
-            if(SpawnResTimer)
-                if(SpawnResTimer< diff)
+            if (SpawnResTimer)
+                if (SpawnResTimer< diff)
                 {
                     DoCast(m_creature,SPELL_SUMMON_BANSHEE); // Summons direktly on caster position
                     //DoCast(m_creature,SPELL_SCOURG_RESURRECTION_EFFEKTSPAWN); // Dont needet ?
@@ -192,17 +192,17 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
         }
 
         // This is used for a spell queue ... the spells should not castet if one spell is already casting
-        if(wait_Timer)
-            if(wait_Timer < diff)
+        if (wait_Timer)
+            if (wait_Timer < diff)
             {
                 wait_Timer = 0;
             }else wait_Timer -= diff;
 
-        if(Cleave_Timer < diff)
+        if (Cleave_Timer < diff)
         {
-            if(!wait_Timer)
+            if (!wait_Timer)
             {
-                if(undead)
+                if (undead)
                     DoCast(m_creature->getVictim(),HeroicMode ? H_SPELL_WOE_STRIKE : SPELL_WOE_STRIKE);
                 else
                     DoCast(m_creature->getVictim(),SPELL_CLEAVE);
@@ -212,11 +212,11 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
             }
         }else Cleave_Timer -= diff;
 
-        if(Smash_Timer < diff)
+        if (Smash_Timer < diff)
         {
-            if(!wait_Timer)
+            if (!wait_Timer)
             {
-                if(undead)
+                if (undead)
                     DoCast(m_creature->getVictim(), SPELL_DARK_SMASH);
                 else
                     DoCast(m_creature->getVictim(),HeroicMode ? H_SPELL_SMASH : SPELL_SMASH);
@@ -226,22 +226,22 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
             }
         }else Smash_Timer -= diff;
 
-        if(!undead)
+        if (!undead)
         {
-            if(Enrage_Timer < diff)
+            if (Enrage_Timer < diff)
             {
                 DoCast(m_creature,HeroicMode ? H_SPELL_ENRAGE : SPELL_ENRAGE);
                 Enrage_Timer = 10000;
             }else Enrage_Timer -= diff;
         }else // In Undead form used to summon weapon
         {
-            if(Enrage_Timer < diff)
+            if (Enrage_Timer < diff)
             {
-                if(!wait_Timer)
+                if (!wait_Timer)
                 {
                     // Spawn target for Axe
                     Unit* target = SelectUnit(SELECT_TARGET_TOPAGGRO, 1);
-                    if(target)
+                    if (target)
                     {
                         Creature* temp = m_creature->SummonCreature(ENTRY_THROW_TARGET,target->GetPositionX(),target->GetPositionY(),target->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,2000);
 
@@ -253,11 +253,11 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
         }
 
 
-        if(Roar_Timer < diff)
+        if (Roar_Timer < diff)
         {
-            if(!wait_Timer)
+            if (!wait_Timer)
             {
-                if(undead)
+                if (undead)
                     DoCast(m_creature,HeroicMode ? H_SPELL_DREADFUL_ROAR : SPELL_DREADFUL_ROAR);
                 else
                     DoCast(m_creature,HeroicMode ? H_SPELL_STAGGERING_ROAR : SPELL_STAGGERING_ROAR);
@@ -312,7 +312,7 @@ struct TRINITY_DLL_DECL mob_annhylde_the_callerAI : public ScriptedAI
         DoTeleportTo(x+1,y,z+30);
 
         Unit* ingvar = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_INGVAR));
-        if(ingvar)
+        if (ingvar)
         {
             m_creature->GetMotionMaster()->MovePoint(1,x,y,z+15);
 
@@ -322,10 +322,10 @@ struct TRINITY_DLL_DECL mob_annhylde_the_callerAI : public ScriptedAI
 
     void MovementInform(uint32 type, uint32 id)
     {
-        if(type != POINT_MOTION_TYPE)
+        if (type != POINT_MOTION_TYPE)
             return;
         Unit* ingvar = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_INGVAR));
-        if(ingvar)
+        if (ingvar)
         {
             switch (id)
             {
@@ -349,13 +349,13 @@ struct TRINITY_DLL_DECL mob_annhylde_the_callerAI : public ScriptedAI
     void EnterCombat(Unit *who) {}
     void UpdateAI(const uint32 diff)
     {
-        if(Resurect_Timer)
-            if(Resurect_Timer < diff)
+        if (Resurect_Timer)
+            if (Resurect_Timer < diff)
             {
-                if(Resurect_Phase == 1)
+                if (Resurect_Phase == 1)
                 {
                     Unit* ingvar = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_INGVAR));
-                    if(ingvar)
+                    if (ingvar)
                     {
                         ingvar->SetStandState(UNIT_STAND_STATE_STAND);
                         ingvar->CastSpell(ingvar,SPELL_SCOURG_RESURRECTION_HEAL,false);
@@ -365,7 +365,7 @@ struct TRINITY_DLL_DECL mob_annhylde_the_callerAI : public ScriptedAI
                 }else if (Resurect_Phase == 2)
                 {
                     Creature* ingvar = Unit::GetCreature((*m_creature), pInstance->GetData64(DATA_INGVAR));
-                    if(ingvar)
+                    if (ingvar)
                     {
                         ingvar->RemoveAurasDueToSpell(SPELL_SCOURG_RESURRECTION_DUMMY);
                         //ingvar->CastSpell(ingvar,SPELL_INGVAR_TRANSFORM,false);
@@ -410,7 +410,7 @@ struct TRINITY_DLL_DECL mob_ingvar_throw_dummyAI : public ScriptedAI
     void Reset()
     {
         Unit* target = m_creature->FindNearestCreature(ENTRY_THROW_TARGET,50);
-        if(target)
+        if (target)
         {
             DoCast(m_creature, HeroicMode ? H_SPELL_SHADOW_AXE_DAMAGE : SPELL_SHADOW_AXE_DAMAGE);
             float x,y,z;
@@ -424,7 +424,7 @@ struct TRINITY_DLL_DECL mob_ingvar_throw_dummyAI : public ScriptedAI
     void EnterCombat(Unit *who) {}
     void UpdateAI(const uint32 diff)
     {
-        if(Despawn_Timer < diff)
+        if (Despawn_Timer < diff)
         {
             m_creature->DealDamage(m_creature,m_creature->GetHealth());
             m_creature->RemoveCorpse();

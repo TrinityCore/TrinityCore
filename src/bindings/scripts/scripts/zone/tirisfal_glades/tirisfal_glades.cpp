@@ -134,7 +134,7 @@ CreatureAI* GetAI_npc_calvin_montague(Creature *_Creature)
 
 bool QuestAccept_npc_calvin_montague(Player* pPlayer, Creature* pCreature, Quest const* quest)
 {
-    if( quest->GetQuestId() == QUEST_590 )
+    if (quest->GetQuestId() == QUEST_590)
     {
         pCreature->setFaction(FACTION_HOSTILE);
         pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);

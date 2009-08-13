@@ -157,7 +157,7 @@ struct TRINITY_DLL_DECL npc_daphne_stilwellAI : public npc_escortAI
     {
         npc_escortAI::UpdateAI(diff);
 
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
         if (uiShootTimer < diff)
@@ -208,9 +208,9 @@ struct TRINITY_DLL_DECL npc_defias_traitorAI : public npc_escortAI
 
     void WaypointReached(uint32 i)
     {
-        Player* player = Unit::GetPlayer(PlayerGUID);
+        Player* pPlayer = Unit::GetPlayer(PlayerGUID);
 
-        if (!player)
+        if (!pPlayer)
             return;
 
         switch (i)
@@ -219,13 +219,13 @@ struct TRINITY_DLL_DECL npc_defias_traitorAI : public npc_escortAI
                 SetRun(false);
                 break;
             case 36:
-                DoScriptText(SAY_PROGRESS, m_creature, player);
+                DoScriptText(SAY_PROGRESS, m_creature, pPlayer);
                 break;
             case 44:
-                DoScriptText(SAY_END, m_creature, player);
+                DoScriptText(SAY_END, m_creature, pPlayer);
                 {
-                    if (player)
-                        player->GroupEventHappens(QUEST_DEFIAS_BROTHERHOOD,m_creature);
+                    if (pPlayer)
+                        pPlayer->GroupEventHappens(QUEST_DEFIAS_BROTHERHOOD,m_creature);
                 }
                 break;
         }
@@ -246,8 +246,8 @@ struct TRINITY_DLL_DECL npc_defias_traitorAI : public npc_escortAI
     {
         if (PlayerGUID)
         {
-            if (Player* player = Unit::GetPlayer(PlayerGUID))
-                player->FailQuest(QUEST_DEFIAS_BROTHERHOOD);
+            if (Player* pPlayer = Unit::GetPlayer(PlayerGUID))
+                pPlayer->FailQuest(QUEST_DEFIAS_BROTHERHOOD);
         }
     }
 
@@ -257,12 +257,12 @@ struct TRINITY_DLL_DECL npc_defias_traitorAI : public npc_escortAI
     }
 };
 
-bool QuestAccept_npc_defias_traitor(Player* player, Creature* creature, Quest const* quest)
+bool QuestAccept_npc_defias_traitor(Player* pPlayer, Creature* creature, Quest const* quest)
 {
     if (quest->GetQuestId() == QUEST_DEFIAS_BROTHERHOOD)
     {
-        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, true, player->GetGUID());
-        DoScriptText(SAY_START, creature, player);
+        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, true, pPlayer->GetGUID());
+        DoScriptText(SAY_START, creature, pPlayer);
     }
 
     return true;

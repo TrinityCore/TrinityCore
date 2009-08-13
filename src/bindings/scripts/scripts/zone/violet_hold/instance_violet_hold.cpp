@@ -3,12 +3,12 @@
 
 struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
 {
-    instance_violet_hold(Map *Map) : ScriptedInstance(Map) {Initialize();};
+    instance_violet_hold(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 };
 
-InstanceData* GetInstanceData_instance_violet_hold(Map* map)
+InstanceData* GetInstanceData_instance_violet_hold(Map* pMap)
 {
-    return new instance_violet_hold(map);
+    return new instance_violet_hold(pMap);
 }
 
 void AddSC_instance_violet_hold()

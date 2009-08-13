@@ -102,7 +102,7 @@ struct TRINITY_DLL_DECL boss_shahrazAI : public ScriptedAI
 
     void Reset()
     {
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_MOTHERSHAHRAZEVENT, NOT_STARTED);
 
         for(uint8 i = 0; i<3; ++i)
@@ -125,7 +125,7 @@ struct TRINITY_DLL_DECL boss_shahrazAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_MOTHERSHAHRAZEVENT, IN_PROGRESS);
 
         DoZoneInCombat();
@@ -143,7 +143,7 @@ struct TRINITY_DLL_DECL boss_shahrazAI : public ScriptedAI
 
     void JustDied(Unit *victim)
     {
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_MOTHERSHAHRAZEVENT, DONE);
 
         DoScriptText(SAY_DEATH, m_creature);
@@ -158,7 +158,7 @@ struct TRINITY_DLL_DECL boss_shahrazAI : public ScriptedAI
         for(uint8 i = 0; i < 3; ++i)
         {
             Unit* pUnit = SelectUnit(SELECT_TARGET_RANDOM, 1);
-            if(pUnit && pUnit->isAlive() && (pUnit->GetTypeId() == TYPEID_PLAYER))
+            if (pUnit && pUnit->isAlive() && (pUnit->GetTypeId() == TYPEID_PLAYER))
             {
                 TargetGUID[i] = pUnit->GetGUID();
                 pUnit->CastSpell(pUnit, SPELL_TELEPORT_VISUAL, true);
@@ -169,10 +169,10 @@ struct TRINITY_DLL_DECL boss_shahrazAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
-        if(((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 10) && !Enraged)
+        if (((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 10) && !Enraged)
         {
             Enraged = true;
             DoCast(m_creature, SPELL_ENRAGE, true);
@@ -180,10 +180,10 @@ struct TRINITY_DLL_DECL boss_shahrazAI : public ScriptedAI
         }
 
         //Randomly cast one beam.
-        if(BeamTimer < diff)
+        if (BeamTimer < diff)
         {
             Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-            if(!target || !target->isAlive())
+            if (!target || !target->isAlive())
                 return;
 
             BeamTimer = 9000;
@@ -205,23 +205,23 @@ struct TRINITY_DLL_DECL boss_shahrazAI : public ScriptedAI
             }
             BeamCount++;
             uint32 Beam = CurrentBeam;
-            if(BeamCount > 3)
+            if (BeamCount > 3)
                 while(CurrentBeam == Beam)
                     CurrentBeam = rand()%3;
 
         }else BeamTimer -= diff;
 
         // Random Prismatic Shield every 15 seconds.
-        if(PrismaticShieldTimer < diff)
+        if (PrismaticShieldTimer < diff)
         {
             uint32 random = rand()%6;
-            if(PrismaticAuras[random])
+            if (PrismaticAuras[random])
                 DoCast(m_creature, PrismaticAuras[random]);
             PrismaticShieldTimer = 15000;
         }else PrismaticShieldTimer -= diff;
 
         // Select 3 random targets (can select same target more than once), teleport to a random location then make them cast explosions until they get away from each other.
-        if(FatalAttractionTimer < diff)
+        if (FatalAttractionTimer < diff)
         {
             ExplosionCount = 0;
 
@@ -236,18 +236,18 @@ struct TRINITY_DLL_DECL boss_shahrazAI : public ScriptedAI
             FatalAttractionTimer = 40000 + rand()%31 * 1000;
         }else FatalAttractionTimer -= diff;
 
-        if(FatalAttractionExplodeTimer < diff)
+        if (FatalAttractionExplodeTimer < diff)
         {
             // Just make them explode three times... they're supposed to keep exploding while they are in range, but it'll take too much code. I'll try to think of an efficient way for it later.
-            if(ExplosionCount < 3)
+            if (ExplosionCount < 3)
             {
                 for(uint8 i = 0; i < 3; ++i)
                 {
                     Unit* pUnit = NULL;
-                    if(TargetGUID[i])
+                    if (TargetGUID[i])
                     {
                         pUnit = Unit::GetUnit((*m_creature), TargetGUID[i]);
-                        if(pUnit)
+                        if (pUnit)
                             pUnit->CastSpell(pUnit, SPELL_ATTRACTION, true);
                         TargetGUID[i] = 0;
                     }
@@ -263,28 +263,28 @@ struct TRINITY_DLL_DECL boss_shahrazAI : public ScriptedAI
             }
         }else FatalAttractionExplodeTimer -= diff;
 
-        if(ShriekTimer < diff)
+        if (ShriekTimer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_SILENCING_SHRIEK);
             ShriekTimer = 25000+rand()%10 * 1000;
         }else ShriekTimer -= diff;
 
-        if(SaberTimer < diff)
+        if (SaberTimer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_SABER_LASH);
             SaberTimer = 25000+rand()%10 * 1000;
         }else SaberTimer -= diff;
 
         //Enrage
-        if(!m_creature->HasAura(SPELL_BERSERK))
-            if(EnrageTimer < diff)
+        if (!m_creature->HasAura(SPELL_BERSERK))
+            if (EnrageTimer < diff)
         {
             DoCast(m_creature, SPELL_BERSERK);
             DoScriptText(SAY_ENRAGE, m_creature);
         }else EnrageTimer -= diff;
 
         //Random taunts
-        if(RandomYellTimer < diff)
+        if (RandomYellTimer < diff)
         {
             switch(rand()%3)
             {

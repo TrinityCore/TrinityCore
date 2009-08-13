@@ -127,7 +127,7 @@ struct TRINITY_DLL_DECL npc_draenei_survivorAI : public ScriptedAI
             {
                 m_creature->RemoveAurasDueToSpell(SPELL_IRRIDATION);
 
-                if (Player *pPlayer = Unit::GetPlayer(pCaster))
+                if (Player* pPlayer = Unit::GetPlayer(pCaster))
                 {
                     switch (rand()%4)
                     {
@@ -198,7 +198,7 @@ struct TRINITY_DLL_DECL npc_engineer_spark_overgrindAI : public ScriptedAI
         NormFaction = c->getFaction();
         NpcFlags = c->GetUInt32Value(UNIT_NPC_FLAGS);
 
-        if(c->GetAreaId() == AREA_COVE || c->GetAreaId() == AREA_ISLE)
+        if (c->GetAreaId() == AREA_COVE || c->GetAreaId() == AREA_ISLE)
             IsTreeEvent = true; 
     }
 
@@ -228,7 +228,7 @@ struct TRINITY_DLL_DECL npc_engineer_spark_overgrindAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if( !m_creature->isInCombat() && !IsTreeEvent )
+        if (!m_creature->isInCombat() && !IsTreeEvent)
         {
             if (Emote_Timer < diff)
             {
@@ -237,10 +237,10 @@ struct TRINITY_DLL_DECL npc_engineer_spark_overgrindAI : public ScriptedAI
                 Emote_Timer = 120000 + rand()%30000;
             }else Emote_Timer -= diff;
         }
-        else if(IsTreeEvent)
+        else if (IsTreeEvent)
             return;
 
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
         if (Dynamite_Timer < diff)
@@ -258,22 +258,22 @@ CreatureAI* GetAI_npc_engineer_spark_overgrind(Creature *_Creature)
     return new npc_engineer_spark_overgrindAI (_Creature);
 }
 
-bool GossipHello_npc_engineer_spark_overgrind(Player *player, Creature *_Creature)
+bool GossipHello_npc_engineer_spark_overgrind(Player* pPlayer, Creature *_Creature)
 {
-    if( player->GetQuestStatus(QUEST_GNOMERCY) == QUEST_STATUS_INCOMPLETE )
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FIGHT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+    if (pPlayer->GetQuestStatus(QUEST_GNOMERCY) == QUEST_STATUS_INCOMPLETE)
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FIGHT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
-    player->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
     return true;
 }
 
-bool GossipSelect_npc_engineer_spark_overgrind(Player *player, Creature *_Creature, uint32 sender, uint32 action )
+bool GossipSelect_npc_engineer_spark_overgrind(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
 {
-    if( action == GOSSIP_ACTION_INFO_DEF )
+    if (action == GOSSIP_ACTION_INFO_DEF)
     {
-        player->CLOSE_GOSSIP_MENU();
+        pPlayer->CLOSE_GOSSIP_MENU();
         _Creature->setFaction(FACTION_HOSTILE);
-        CAST_AI(npc_engineer_spark_overgrindAI, _Creature->AI())->AttackStart(player);
+        CAST_AI(npc_engineer_spark_overgrindAI, _Creature->AI())->AttackStart(pPlayer);
     }
     return true;
 }
@@ -338,26 +338,26 @@ struct TRINITY_DLL_DECL npc_magwinAI : public npc_escortAI
 
     void WaypointReached(uint32 i)
     {
-        Player* player = Unit::GetPlayer(PlayerGUID);
+        Player* pPlayer = Unit::GetPlayer(PlayerGUID);
 
-        if (!player)
+        if (!pPlayer)
             return;
 
         switch(i)
         {
         case 0:
-            DoScriptText(SAY_START, m_creature, player);
+            DoScriptText(SAY_START, m_creature, pPlayer);
             break;
         case 17:
-            DoScriptText(SAY_PROGRESS, m_creature, player);
+            DoScriptText(SAY_PROGRESS, m_creature, pPlayer);
             break;
         case 28:
-            DoScriptText(SAY_END1, m_creature, player);
+            DoScriptText(SAY_END1, m_creature, pPlayer);
             break;
         case 29:
-            DoScriptText(EMOTE_HUG, m_creature, player);
-            DoScriptText(SAY_END2, m_creature, player);
-            player->GroupEventHappens(QUEST_A_CRY_FOR_SAY_HELP,m_creature);
+            DoScriptText(EMOTE_HUG, m_creature, pPlayer);
+            DoScriptText(SAY_END2, m_creature, pPlayer);
+            pPlayer->GroupEventHappens(QUEST_A_CRY_FOR_SAY_HELP,m_creature);
             break;
         }
     }
@@ -377,9 +377,9 @@ struct TRINITY_DLL_DECL npc_magwinAI : public npc_escortAI
     {
         if (PlayerGUID)
         {
-            Player* player = Unit::GetPlayer(PlayerGUID);
-            if (player)
-                player->FailQuest(QUEST_A_CRY_FOR_SAY_HELP);
+            Player* pPlayer = Unit::GetPlayer(PlayerGUID);
+            if (pPlayer)
+                pPlayer->FailQuest(QUEST_A_CRY_FOR_SAY_HELP);
         }
     }
 
@@ -389,12 +389,12 @@ struct TRINITY_DLL_DECL npc_magwinAI : public npc_escortAI
     }
 };
 
-bool QuestAccept_npc_magwin(Player* player, Creature* creature, Quest const* quest)
+bool QuestAccept_npc_magwin(Player* pPlayer, Creature* creature, Quest const* quest)
 {
     if (quest->GetQuestId() == QUEST_A_CRY_FOR_SAY_HELP)
     {
         creature->setFaction(113);
-        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
+        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, pPlayer->GetGUID());
     }
     return true;
 }
@@ -455,7 +455,7 @@ struct TRINITY_DLL_DECL npc_geezleAI : public ScriptedAI
         Step = 1;
         EventStarted = true;
         Creature* Spark = m_creature->SummonCreature(MOB_SPARK, SparkPos[0], SparkPos[1], SparkPos[2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1000);
-        if(Spark)
+        if (Spark)
         {
             SparkGUID = Spark->GetGUID();
             Spark->setActive(true);
@@ -479,7 +479,7 @@ struct TRINITY_DLL_DECL npc_geezleAI : public ScriptedAI
             return 1000;
         case 2:
             DoScriptText(GEEZLE_SAY_1, m_creature, Spark);
-            if(Spark)
+            if (Spark)
             {
                 Spark->SetInFront(m_creature);
                 m_creature->SetInFront(Spark);
@@ -493,11 +493,11 @@ struct TRINITY_DLL_DECL npc_geezleAI : public ScriptedAI
         case 8: DoScriptText(GEEZLE_SAY_7, m_creature, Spark); return 2000;
         case 9:
             m_creature->GetMotionMaster()->MoveTargetedHome();
-            if(Spark)
+            if (Spark)
                 Spark->GetMotionMaster()->MovePoint(0, -5030.95, -11291.99, 7.97);
             return 20000;
         case 10:
-            if(Spark)
+            if (Spark)
                 Spark->DealDamage(Spark,Spark->GetHealth(),NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
             //DespawnNagaFlag(false);
             m_creature->SetVisibility(VISIBILITY_OFF);
@@ -510,13 +510,13 @@ struct TRINITY_DLL_DECL npc_geezleAI : public ScriptedAI
         std::list<GameObject*> FlagList;
         m_creature->GetGameObjectListWithEntryInGrid(FlagList,GO_NAGA_FLAG, 50.0f);
 
-        Player* player = NULL;
+        Player* pPlayer = NULL;
         if (!FlagList.empty())
         {
             for(std::list<GameObject*>::iterator itr = FlagList.begin(); itr != FlagList.end(); ++itr)
             {
                 //TODO: Found how to despawn and respawn
-                if(despawn)
+                if (despawn)
                     (*itr)->Delete();
                 else
                     (*itr)->Respawn();
@@ -526,9 +526,9 @@ struct TRINITY_DLL_DECL npc_geezleAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(SayTimer < diff)
+        if (SayTimer < diff)
         {
-            if(EventStarted)
+            if (EventStarted)
             {
                 SayTimer = NextStep(++Step);
             }

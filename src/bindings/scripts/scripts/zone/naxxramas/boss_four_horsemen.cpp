@@ -60,7 +60,7 @@ struct TRINITY_DLL_DECL boss_four_horsemenAI : public BossAI
     {
         id = Horsemen(0);
         for(uint8 i = 1; i < 4; ++i)
-            if(me->GetEntry() == MOB_HORSEMEN[i])
+            if (me->GetEntry() == MOB_HORSEMEN[i])
                 id = Horsemen(i);
         caster = (id == HORSEMEN_LADY || id == HORSEMEN_SIR);
     }
@@ -71,13 +71,13 @@ struct TRINITY_DLL_DECL boss_four_horsemenAI : public BossAI
     void MoveInLineOfSight(Unit *who)
     {
         BossAI::MoveInLineOfSight(who);
-        if(caster)
+        if (caster)
             SelectNearestTarget(who);
     }
 
     void AttackStart(Unit *who)
     {
-        if(caster)
+        if (caster)
             AttackStartCaster(who, 20);
         else
             BossAI::AttackStart(who);
@@ -85,9 +85,9 @@ struct TRINITY_DLL_DECL boss_four_horsemenAI : public BossAI
 
     void KilledUnit(Unit* victim)
     {
-        if(!(rand()%5))
+        if (!(rand()%5))
         {
-            if(id == HORSEMEN_BARON)
+            if (id == HORSEMEN_BARON)
                 DoScriptText(SAY_BARON_SLAY, me);
             else
                 DoScriptText(SAY_SLAY[id], me);
@@ -103,7 +103,7 @@ struct TRINITY_DLL_DECL boss_four_horsemenAI : public BossAI
     void EnterCombat(Unit *who)
     {
         _EnterCombat();
-        if(id == HORSEMEN_BARON)
+        if (id == HORSEMEN_BARON)
             DoScriptText(SAY_BARON_AGGRO, me);
         else
             DoScriptText(SAY_AGGRO[id], me);
@@ -114,12 +114,12 @@ struct TRINITY_DLL_DECL boss_four_horsemenAI : public BossAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!UpdateVictim() || !CheckInRoom())
+        if (!UpdateVictim() || !CheckInRoom())
             return;
 
         events.Update(diff);
 
-        if(me->hasUnitState(UNIT_STAT_CASTING))
+        if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
         while(uint32 eventId = events.ExecuteEvent())
@@ -127,13 +127,13 @@ struct TRINITY_DLL_DECL boss_four_horsemenAI : public BossAI
             switch(eventId)
             {
                 case EVENT_MARK:
-                    if(!(rand()%5))
+                    if (!(rand()%5))
                         DoScriptText(SAY_SPECIAL[id], me);
                     DoCastAOE(SPELL_MARK[id]);
                     events.ScheduleEvent(EVENT_MARK, 15000);
                     return;
                 case EVENT_CAST:
-                    if(!(rand()%5))
+                    if (!(rand()%5))
                         DoScriptText(SAY_TAUNT[rand()%3][id], me);
                     DoCast(SPELL_PRIMARY(id));
                     events.ScheduleEvent(EVENT_CAST, 15000);
@@ -145,9 +145,9 @@ struct TRINITY_DLL_DECL boss_four_horsemenAI : public BossAI
             }
         }
 
-        if(!caster)
+        if (!caster)
             DoMeleeAttackIfReady();
-        else if(!DoSpellAttackIfReady(SPELL_SECONDARY(id)))
+        else if (!DoSpellAttackIfReady(SPELL_SECONDARY(id)))
             DoCastAOE(SPELL_PUNISH[id]);
     }
 };

@@ -75,7 +75,7 @@ struct TRINITY_DLL_DECL boss_general_angerforgeAI : public ScriptedAI
         }
         Rand1 = 0;
         SummonedAdds = DoSpawnCreature(8901, Rand1X, Rand1Y, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 120000);
-        if(SummonedAdds)
+        if (SummonedAdds)
             (SummonedAdds->AI())->AttackStart(victim);
     }
 
@@ -96,14 +96,14 @@ struct TRINITY_DLL_DECL boss_general_angerforgeAI : public ScriptedAI
         }
         Rand2 = 0;
         SummonedMedics = DoSpawnCreature(8894, Rand2X, Rand2Y, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 120000);
-        if(SummonedMedics)
+        if (SummonedMedics)
             (SummonedMedics->AI())->AttackStart(victim);
     }
 
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
         //MightyBlow_Timer
@@ -128,7 +128,7 @@ struct TRINITY_DLL_DECL boss_general_angerforgeAI : public ScriptedAI
         }else Cleave_Timer -= diff;
 
         //Adds_Timer
-        if ( m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 21 )
+        if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 21)
         {
             if (Adds_Timer < diff)
             {
@@ -142,7 +142,7 @@ struct TRINITY_DLL_DECL boss_general_angerforgeAI : public ScriptedAI
         }
 
         //Summon Medics
-        if ( !Medics && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 21 )
+        if (!Medics && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 21)
         {
             SummonMedics(m_creature->getVictim());
             SummonMedics(m_creature->getVictim());

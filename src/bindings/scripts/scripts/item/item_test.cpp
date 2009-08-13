@@ -25,7 +25,7 @@ EndScriptData */
 
 extern void LoadDatabase();
 
-bool ItemUse_item_test(Player *player, Item* _Item, SpellCastTargets const& targets)
+bool ItemUse_item_test(Player* pPlayer, Item* _Item, SpellCastTargets const& targets)
 {
     LoadDatabase();
     return true;

@@ -132,7 +132,7 @@ struct TRINITY_DLL_DECL boss_entropiusAI : public ScriptedAI
 
         Summons.DespawnAll();
 
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_MURU_EVENT, NOT_STARTED);
     }
 
@@ -141,7 +141,7 @@ struct TRINITY_DLL_DECL boss_entropiusAI : public ScriptedAI
         DoCastAOE(SPELL_NEGATIVE_ENERGY_E, true);
         DoCast(m_creature, SPELL_ENTROPIUS_SPAWN, false);
 
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_MURU_EVENT, IN_PROGRESS);
     }
 
@@ -167,30 +167,30 @@ struct TRINITY_DLL_DECL boss_entropiusAI : public ScriptedAI
     {
         Summons.DespawnAll();
 
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_MURU_EVENT, DONE);
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
-        if(EnrageTimer < diff && !m_creature->HasAura(SPELL_ENRAGE, 0))
+        if (EnrageTimer < diff && !m_creature->HasAura(SPELL_ENRAGE, 0))
         {
             DoCast(m_creature,SPELL_ENRAGE, false);
         }else EnrageTimer -= diff;
 
-        if(BlackHoleSummonTimer < diff)
+        if (BlackHoleSummonTimer < diff)
         {
             Unit* random = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-            if(!random)
+            if (!random)
                 return;
 
             DoCast(random, SPELL_DARKNESS_E, false);
 
             random = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-            if(!random)
+            if (!random)
                 return;
 
             random->CastSpell(random, SPELL_BLACKHOLE, false);
@@ -237,7 +237,7 @@ struct TRINITY_DLL_DECL boss_muruAI : public Scripted_NoMovementAI
 
         Summons.DespawnAll();
 
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_MURU_EVENT, NOT_STARTED);
     }
 
@@ -245,13 +245,13 @@ struct TRINITY_DLL_DECL boss_muruAI : public Scripted_NoMovementAI
     {
         DoCastAOE(SPELL_NEGATIVE_ENERGY,false);
 
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_MURU_EVENT, IN_PROGRESS);
     }
 
     void DamageTaken(Unit *done_by, uint32 &damage)
     {
-        if(damage > m_creature->GetHealth() && Phase == 1)
+        if (damage > m_creature->GetHealth() && Phase == 1)
         {
             damage = 0;
             Phase = 2;
@@ -259,7 +259,7 @@ struct TRINITY_DLL_DECL boss_muruAI : public Scripted_NoMovementAI
             DoCast(m_creature, SPELL_OPEN_ALL_PORTALS, false);
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
-        if(Phase > 1 && Phase < 4)
+        if (Phase > 1 && Phase < 4)
             damage = 0;
     }
 
@@ -280,12 +280,12 @@ struct TRINITY_DLL_DECL boss_muruAI : public Scripted_NoMovementAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
-        if(Phase == 3)
+        if (Phase == 3)
         {
-            if(Timer[TIMER_PHASE] <diff)
+            if (Timer[TIMER_PHASE] <diff)
             {
                 switch(pInstance->GetData(DATA_MURU_EVENT))
                 {
@@ -310,12 +310,12 @@ struct TRINITY_DLL_DECL boss_muruAI : public Scripted_NoMovementAI
 
         for (uint8 i = 0; i < 4; ++i)
         {
-            if(Timer[i] < diff)
+            if (Timer[i] < diff)
             {
                 switch(i)
                 {
                     case TIMER_DARKNESS:
-                        if(!DarkFiend)
+                        if (!DarkFiend)
                         {
                             DoCastAOE(SPELL_DARKNESS, false);
                             Timer[TIMER_DARKNESS] = 3000;
@@ -352,8 +352,8 @@ struct TRINITY_DLL_DECL boss_muruAI : public Scripted_NoMovementAI
         //Timer
         for(uint8 i = 0; i < 4; ++i)
         {
-            if(i != TIMER_PHASE)Timer[i] -= diff;
-            else if(Phase == 2) Timer[i] -= diff;
+            if (i != TIMER_PHASE)Timer[i] -= diff;
+            else if (Phase == 2) Timer[i] -= diff;
         }
     }
 };
@@ -395,7 +395,7 @@ struct TRINITY_DLL_DECL npc_muru_portalAI : public Scripted_NoMovementAI
     void JustSummoned(Creature* summoned)
     {
         Player* Target = Unit::GetPlayer(pInstance->GetData64(DATA_PLAYER_GUID));
-        if(Target)
+        if (Target)
             summoned->AI()->AttackStart(Target);
 
         Summons.Summon(summoned);
@@ -421,12 +421,12 @@ struct TRINITY_DLL_DECL npc_muru_portalAI : public Scripted_NoMovementAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!SummonSentinel)
+        if (!SummonSentinel)
         {
-            if(InAction && pInstance->GetData(DATA_MURU_EVENT) == NOT_STARTED)Reset();
+            if (InAction && pInstance->GetData(DATA_MURU_EVENT) == NOT_STARTED)Reset();
             return;
         }
-        if(SummonTimer < diff)
+        if (SummonTimer < diff)
         {
             DoCastAOE(SPELL_SUMMON_VOID_SENTINEL, false);
             SummonTimer = 5000;
@@ -463,7 +463,7 @@ struct TRINITY_DLL_DECL npc_dark_fiendAI : public ScriptedAI
     void SpellHit(Unit* caster, const SpellEntry* Spell)
     {
         for(uint8 i = 0; i < 3; ++i)
-            if(Spell->Effect[i] == 38)
+            if (Spell->Effect[i] == 38)
             {
                 m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                 m_creature->RemoveCorpse();
@@ -472,12 +472,12 @@ struct TRINITY_DLL_DECL npc_dark_fiendAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
         if (WaitTimer < diff)
         {
-            if(!InAction)
+            if (!InAction)
             {
                 m_creature->clearUnitState(UNIT_STAT_STUNNED);
                 DoCastAOE(SPELL_DARKFIEND_SKIN, false);
@@ -488,7 +488,7 @@ struct TRINITY_DLL_DECL npc_dark_fiendAI : public ScriptedAI
             else
             {
             
-                if(m_creature->IsWithinDist(m_creature->getVictim(), 5))
+                if (m_creature->IsWithinDist(m_creature->getVictim(), 5))
                 {
                     DoCastAOE(SPELL_DARKFIEND_AOE, false);
                     m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
@@ -536,16 +536,16 @@ struct TRINITY_DLL_DECL npc_void_sentinelAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
-        if(PulseTimer < diff)
+        if (PulseTimer < diff)
         {
             DoCastAOE(SPELL_SHADOW_PULSE, true);
             PulseTimer = 3000;
         }else PulseTimer -= diff;
 
-        if(VoidBlastTimer < diff)
+        if (VoidBlastTimer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_VOID_BLAST, false);
             VoidBlastTimer = 45000;
@@ -586,7 +586,7 @@ struct TRINITY_DLL_DECL npc_blackholeAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(SpellTimer < diff)
+        if (SpellTimer < diff)
         {
             Unit* Victim = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_PLAYER_GUID));
             switch(NeedForAHack)
@@ -594,7 +594,7 @@ struct TRINITY_DLL_DECL npc_blackholeAI : public ScriptedAI
                 case 0:
                     m_creature->clearUnitState(UNIT_STAT_STUNNED);
                     DoCastAOE(SPELL_BLACKHOLE_GROW, false);
-                    if(Victim)
+                    if (Victim)
                         AttackStart(Victim);
                     SpellTimer = 700;
                     NeedForAHack = 2;
@@ -613,9 +613,9 @@ struct TRINITY_DLL_DECL npc_blackholeAI : public ScriptedAI
                     SpellTimer = 400+rand()%500;
                     NeedForAHack = 1;
                     Unit* Temp = m_creature->getVictim();
-                    if(!Temp)
+                    if (!Temp)
                         return;
-                    if(Temp->GetPositionZ() > 73 && Victim)
+                    if (Temp->GetPositionZ() > 73 && Victim)
                         AttackStart(Victim);
             }
         }else SpellTimer -= diff;

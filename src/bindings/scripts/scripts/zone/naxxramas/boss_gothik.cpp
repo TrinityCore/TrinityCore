@@ -121,13 +121,13 @@ struct TRINITY_DLL_DECL boss_gothikAI : public BossAI
     void EnterCombat(Unit *who)
     {
         for(uint32 i = 0; i < POS_LIVE; ++i)
-            if(Creature *trigger = DoSummon(WORLD_TRIGGER, PosSummonLive[i]))
+            if (Creature *trigger = DoSummon(WORLD_TRIGGER, PosSummonLive[i]))
                 liveTrigger.push_back(trigger);
         for(uint32 i = 0; i < POS_DEAD; ++i)
-            if(Creature *trigger = DoSummon(WORLD_TRIGGER, PosSummonDead[i]))
+            if (Creature *trigger = DoSummon(WORLD_TRIGGER, PosSummonDead[i]))
                 deadTrigger.push_back(trigger);
 
-        if(liveTrigger.size() < POS_LIVE || deadTrigger.size() < POS_DEAD)
+        if (liveTrigger.size() < POS_LIVE || deadTrigger.size() < POS_DEAD)
         {
             error_log("Script Gothik: cannot summon triggers!");
             EnterEvadeMode();
@@ -140,13 +140,13 @@ struct TRINITY_DLL_DECL boss_gothikAI : public BossAI
         events.ScheduleEvent(EVENT_SUMMON, 30000);
         DoTeleportTo(PosPlatform);
         DoScriptText(SAY_SPEECH, me);
-        if(instance)
+        if (instance)
             instance->SetData(DATA_GOTHIK_GATE, 1);
     }
 
     void JustSummoned(Creature *summon)
     {
-        if(summon->GetEntry() == WORLD_TRIGGER)
+        if (summon->GetEntry() == WORLD_TRIGGER)
             summon->setActive(true);
         else
         {
@@ -158,7 +158,7 @@ struct TRINITY_DLL_DECL boss_gothikAI : public BossAI
 
     void KilledUnit(Unit* victim)
     {
-        if(!(rand()%5))
+        if (!(rand()%5))
             DoScriptText(SAY_KILL, me);
     }
 
@@ -177,7 +177,7 @@ struct TRINITY_DLL_DECL boss_gothikAI : public BossAI
             case SPELL_INFORM_LIVE_KNIGHT:  spellId = SPELL_INFORM_DEAD_KNIGHT;     break;
             case SPELL_INFORM_LIVE_RIDER:   spellId = SPELL_INFORM_DEAD_RIDER;      break;
         }
-        if(spellId && me->isInCombat())
+        if (spellId && me->isInCombat())
         {
             me->HandleEmoteCommand(EMOTE_ONESHOT_SPELLCAST);
             me->CastSpell(deadTrigger[rand()%POS_DEAD], spellId, true);
@@ -186,7 +186,7 @@ struct TRINITY_DLL_DECL boss_gothikAI : public BossAI
 
     void SpellHitTarget(Unit *target, const SpellEntry *spell)
     {
-        if(!me->isInCombat())
+        if (!me->isInCombat())
             return;
 
         switch(spell->Id)
@@ -200,12 +200,12 @@ struct TRINITY_DLL_DECL boss_gothikAI : public BossAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!UpdateCombatState() || !CheckInRoom())
+        if (!UpdateCombatState() || !CheckInRoom())
             return;
 
         events.Update(diff);
 
-        if(me->hasUnitState(UNIT_STAT_CASTING))
+        if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
         while(uint32 eventId = events.ExecuteEvent())
@@ -213,7 +213,7 @@ struct TRINITY_DLL_DECL boss_gothikAI : public BossAI
             switch(eventId)
             {
                 case EVENT_SUMMON:
-                    if(waves[waveCount].entry)
+                    if (waves[waveCount].entry)
                     {
                         for(uint32 i = 0; i < waves[waveCount].number; ++i)
                             DoSummon(waves[waveCount].entry, liveTrigger[rand()%POS_LIVE], 1.0f);
@@ -226,7 +226,7 @@ struct TRINITY_DLL_DECL boss_gothikAI : public BossAI
                         DoTeleportTo(PosGround);
                         me->SetReactState(REACT_AGGRESSIVE);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
-                        if(instance)
+                        if (instance)
                             instance->SetData(DATA_GOTHIK_GATE, 0);
                         summons.DoAction(0, 0);
                         summons.DoZoneInCombat();
@@ -268,37 +268,37 @@ struct TRINITY_DLL_DECL mob_gothik_minionAI : public SpellAI
 
     void DamageTaken(Unit *attacker, uint32 &damage)
     {
-        if(gateClose && !SIDE_CHECK(attacker))
+        if (gateClose && !SIDE_CHECK(attacker))
             damage = 0;
     }
 
     void JustDied(Unit *killer)
     {
-        if(me->isSummon())
+        if (me->isSummon())
         {
-            if(Unit *owner = CAST_SUM(me)->GetSummoner())
+            if (Unit *owner = CAST_SUM(me)->GetSummoner())
                 SpellAI::JustDied(owner);
         }
     }
 
     void EnterEvadeMode()
     {
-        if(!gateClose)
+        if (!gateClose)
         {
             SpellAI::EnterEvadeMode();
             return;
         }
 
-        if(!_EnterEvadeMode())
+        if (!_EnterEvadeMode())
             return;
 
-        Map *map = me->GetMap();
-        if(map->IsDungeon())
+        Map* pMap = me->GetMap();
+        if (pMap->IsDungeon())
         {
-            Map::PlayerList const &PlayerList = map->GetPlayers();
+            Map::PlayerList const &PlayerList = pMap->GetPlayers();
             for(Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
             {
-                if(i->getSource()->isAlive() && SIDE_CHECK(i->getSource()))
+                if (i->getSource()->isAlive() && SIDE_CHECK(i->getSource()))
                 {
                     AttackStart(i->getSource());
                     return;
@@ -312,7 +312,7 @@ struct TRINITY_DLL_DECL mob_gothik_minionAI : public SpellAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(gateClose && (!SIDE_CHECK(me) || me->getVictim() && !SIDE_CHECK(me->getVictim())))
+        if (gateClose && (!SIDE_CHECK(me) || me->getVictim() && !SIDE_CHECK(me->getVictim())))
         {
             EnterEvadeMode();
             return;

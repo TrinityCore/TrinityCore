@@ -82,9 +82,9 @@ struct TRINITY_DLL_DECL npc_lady_sylvanas_windrunnerAI : public ScriptedAI
 
     void JustSummoned(Creature *summoned)
     {
-        if( summoned->GetEntry() == ENTRY_HIGHBORNE_BUNNY )
+        if (summoned->GetEntry() == ENTRY_HIGHBORNE_BUNNY)
         {
-            if( Unit* target = Unit::GetUnit(*summoned,targetGUID) )
+            if (Unit* target = Unit::GetUnit(*summoned,targetGUID))
             {
                 target->SendMonsterMove(target->GetPositionX(), target->GetPositionY(), myZ+15.0,0);
                 target->GetMap()->CreatureRelocation(m_creature, target->GetPositionX(), target->GetPositionY(), myZ+15.0, 0.0f);
@@ -98,9 +98,9 @@ struct TRINITY_DLL_DECL npc_lady_sylvanas_windrunnerAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if( LamentEvent )
+        if (LamentEvent)
         {
-            if( LamentEvent_Timer < diff )
+            if (LamentEvent_Timer < diff)
             {
                 float raX = myX;
                 float raY = myY;
@@ -110,7 +110,7 @@ struct TRINITY_DLL_DECL npc_lady_sylvanas_windrunnerAI : public ScriptedAI
                 m_creature->SummonCreature(ENTRY_HIGHBORNE_BUNNY, raX, raY, myZ, 0, TEMPSUMMON_TIMED_DESPAWN, 3000);
 
                 LamentEvent_Timer = 2000;
-                if( !m_creature->HasAura(SPELL_SYLVANAS_CAST))
+                if (!m_creature->HasAura(SPELL_SYLVANAS_CAST))
                 {
                     DoScriptText(SAY_LAMENT_END, m_creature);
                     DoScriptText(EMOTE_LAMENT_END, m_creature);
@@ -130,15 +130,15 @@ CreatureAI* GetAI_npc_lady_sylvanas_windrunner(Creature *_Creature)
     return new npc_lady_sylvanas_windrunnerAI (_Creature);
 }
 
-bool ChooseReward_npc_lady_sylvanas_windrunner(Player *player, Creature *_Creature, const Quest *_Quest, uint32 slot)
+bool ChooseReward_npc_lady_sylvanas_windrunner(Player* pPlayer, Creature *_Creature, const Quest *_Quest, uint32 slot)
 {
-    if( _Quest->GetQuestId() == 9180 )
+    if (_Quest->GetQuestId() == 9180)
     {
         CAST_AI(npc_lady_sylvanas_windrunnerAI, _Creature->AI())->LamentEvent = true;
         CAST_AI(npc_lady_sylvanas_windrunnerAI, _Creature->AI())->DoPlaySoundToSet(_Creature,SOUND_CREDIT);
         _Creature->CastSpell(_Creature,SPELL_SYLVANAS_CAST,false);
 
-        for( uint8 i = 0; i < 4; ++i)
+        for(uint8 i = 0; i < 4; ++i)
             _Creature->SummonCreature(ENTRY_HIGHBORNE_LAMENTER, HighborneLoc[i][0], HighborneLoc[i][1], HIGHBORNE_LOC_Y, HighborneLoc[i][2], TEMPSUMMON_TIMED_DESPAWN, 160000);
     }
 
@@ -170,9 +170,9 @@ struct TRINITY_DLL_DECL npc_highborne_lamenterAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if( EventMove )
+        if (EventMove)
         {
-            if( EventMove_Timer < diff )
+            if (EventMove_Timer < diff)
             {
                 m_creature->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                 m_creature->SendMonsterMoveWithSpeed(m_creature->GetPositionX(),m_creature->GetPositionY(),HIGHBORNE_LOC_Y_NEW,5000);
@@ -180,9 +180,9 @@ struct TRINITY_DLL_DECL npc_highborne_lamenterAI : public ScriptedAI
                 EventMove = false;
             }else EventMove_Timer -= diff;
         }
-        if( EventCast )
+        if (EventCast)
         {
-            if( EventCast_Timer < diff )
+            if (EventCast_Timer < diff)
             {
                 DoCast(m_creature,SPELL_HIGHBORNE_AURA);
                 EventCast = false;
@@ -205,35 +205,35 @@ CreatureAI* GetAI_npc_highborne_lamenter(Creature *_Creature)
 #define GOSSIP_HPF2 "Kel'Thuzad"
 #define GOSSIP_HPF3 "Ner'zhul"
 
-bool GossipHello_npc_parqual_fintallas(Player *player, Creature *_Creature)
+bool GossipHello_npc_parqual_fintallas(Player* pPlayer, Creature *_Creature)
 {
     if (_Creature->isQuestGiver())
-        player->PrepareQuestMenu( _Creature->GetGUID() );
+        pPlayer->PrepareQuestMenu(_Creature->GetGUID());
 
-    if (player->GetQuestStatus(6628) == QUEST_STATUS_INCOMPLETE && !player->HasAura(SPELL_MARK_OF_SHAME) )
+    if (pPlayer->GetQuestStatus(6628) == QUEST_STATUS_INCOMPLETE && !pPlayer->HasAura(SPELL_MARK_OF_SHAME))
     {
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HPF1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HPF2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HPF3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-        player->SEND_GOSSIP_MENU(5822, _Creature->GetGUID());
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HPF1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HPF2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HPF3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+        pPlayer->SEND_GOSSIP_MENU(5822, _Creature->GetGUID());
     }
     else
-        player->SEND_GOSSIP_MENU(5821, _Creature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(5821, _Creature->GetGUID());
 
     return true;
 }
 
-bool GossipSelect_npc_parqual_fintallas(Player *player, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_parqual_fintallas(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
 {
     if (action == GOSSIP_ACTION_INFO_DEF+1)
     {
-        player->CLOSE_GOSSIP_MENU();
-        _Creature->CastSpell(player,SPELL_MARK_OF_SHAME,false);
+        pPlayer->CLOSE_GOSSIP_MENU();
+        _Creature->CastSpell(pPlayer,SPELL_MARK_OF_SHAME,false);
     }
     if (action == GOSSIP_ACTION_INFO_DEF+2)
     {
-        player->CLOSE_GOSSIP_MENU();
-        player->AreaExploredOrEventHappens(6628);
+        pPlayer->CLOSE_GOSSIP_MENU();
+        pPlayer->AreaExploredOrEventHappens(6628);
     }
     return true;
 }

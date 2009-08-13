@@ -55,7 +55,7 @@ struct TRINITY_DLL_DECL boss_faerlinaAI : public BossAI
 
     void MoveInLineOfSight(Unit *who)
     {
-        if(!greet)
+        if (!greet)
         {
             DoScriptText(SAY_GREET, me);
             greet = true;
@@ -65,7 +65,7 @@ struct TRINITY_DLL_DECL boss_faerlinaAI : public BossAI
 
     void KilledUnit(Unit* victim)
     {
-        if(!(rand()%3))
+        if (!(rand()%3))
             DoScriptText(SAY_SLAY, me);
     }
 
@@ -87,12 +87,12 @@ struct TRINITY_DLL_DECL boss_faerlinaAI : public BossAI
             switch(eventId)
             {
                 case EVENT_POSION:
-                    if(!me->HasAura(SPELL_WIDOWS_EMBRACE))
+                    if (!me->HasAura(SPELL_WIDOWS_EMBRACE))
                         DoCastAOE(SPELL_POSION_BOLT_VOLLEY);
                     events.ScheduleEvent(EVENT_POSION, 10000 + rand()%15000);
                     return;
                 case EVENT_FIRE:
-                    if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                         DoCast(target, SPELL_RAIN_OF_FIRE);
                     events.ScheduleEvent(EVENT_FIRE, 5000 + rand()%15000);
                     return;

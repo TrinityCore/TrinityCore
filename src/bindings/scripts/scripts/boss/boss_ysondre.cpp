@@ -69,7 +69,7 @@ struct TRINITY_DLL_DECL boss_ysondreAI : public ScriptedAI
 
     void SummonDruids(Unit* victim)
     {
-        if(!victim)
+        if (!victim)
             return;
 
         Rand = rand()%10;
@@ -87,7 +87,7 @@ struct TRINITY_DLL_DECL boss_ysondreAI : public ScriptedAI
         }
         Rand = 0;
         Summoned = DoSpawnCreature(15260, RandX, RandY, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000);
-        if(Summoned)
+        if (Summoned)
             (Summoned->AI())->AttackStart(victim);
     }
 
@@ -99,7 +99,7 @@ struct TRINITY_DLL_DECL boss_ysondreAI : public ScriptedAI
         //Sleep_Timer
         if (Sleep_Timer < diff)
         {
-            if( Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0) )
+            if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0))
                 DoCast(target,SPELL_SLEEP);
 
             Sleep_Timer = 8000 + rand()%7000;
@@ -115,7 +115,7 @@ struct TRINITY_DLL_DECL boss_ysondreAI : public ScriptedAI
         //Tailsweep every 2 seconds
         if (TailSweep_Timer < diff)
         {
-            if( Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0) )
+            if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0))
                 DoCast(target,SPELL_TAILSWEEP);
 
             TailSweep_Timer = 2000;
@@ -132,14 +132,14 @@ struct TRINITY_DLL_DECL boss_ysondreAI : public ScriptedAI
         if (LightningWave_Timer < diff)
         {
             //Cast LIGHTNINGWAVE on a Random target
-            if( Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0) )
+            if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0))
                 DoCast(target,SPELL_LIGHTNINGWAVE);
 
             LightningWave_Timer = 7000 + rand()%5000;
         }else LightningWave_Timer -= diff;
 
         //Summon Druids
-        if ( (int) (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() +0.5) == 75)
+        if ((int) (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() +0.5) == 75)
         {
             if (SummonDruids1_Timer < diff)
             {
@@ -156,7 +156,7 @@ struct TRINITY_DLL_DECL boss_ysondreAI : public ScriptedAI
         }
 
         //Summon Druids
-        if ( (int) (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() +0.5) == 50)
+        if ((int) (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() +0.5) == 50)
         {
             if (SummonDruids2_Timer < diff)
             {
@@ -173,7 +173,7 @@ struct TRINITY_DLL_DECL boss_ysondreAI : public ScriptedAI
         }
 
         //Summon Druids
-        if ( (int) (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() +0.5) == 25)
+        if ((int) (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() +0.5) == 25)
         {
             if (SummonDruids3_Timer < diff)
             {

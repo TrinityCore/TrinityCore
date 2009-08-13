@@ -88,7 +88,7 @@ struct TRINITY_DLL_DECL boss_ormorokAI : public ScriptedAI
         Frenzy = false;
         CrystalSpikes = false;
 
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(DATA_ORMOROK_EVENT, NOT_STARTED);
     }
 

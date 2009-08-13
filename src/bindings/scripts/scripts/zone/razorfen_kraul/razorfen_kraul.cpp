@@ -51,51 +51,51 @@ struct TRINITY_DLL_DECL npc_willixAI : public npc_escortAI
 
     void WaypointReached(uint32 i)
     {
-        Player* player = Unit::GetPlayer(PlayerGUID);
+        Player* pPlayer = Unit::GetPlayer(PlayerGUID);
 
-        if (!player)
+        if (!pPlayer)
             return;
 
         switch (i)
         {
         case 3:
             m_creature->HandleEmoteCommand(EMOTE_STATE_POINT);
-            DoScriptText(SAY_POINT, m_creature, player);
+            DoScriptText(SAY_POINT, m_creature, pPlayer);
             break;
         case 4:
             m_creature->SummonCreature(ENTRY_BOAR, 2137.66, 1843.98, 48.08, 1.54, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
             break;
         case 8:
-            DoScriptText(SAY_BLUELEAF, m_creature, player);
+            DoScriptText(SAY_BLUELEAF, m_creature, pPlayer);
             break;
         case 9:
-            DoScriptText(SAY_DANGER, m_creature, player);
+            DoScriptText(SAY_DANGER, m_creature, pPlayer);
             break;
         case 13:
-            DoScriptText(SAY_BAD, m_creature, player);
+            DoScriptText(SAY_BAD, m_creature, pPlayer);
             break;
         case 14:
             m_creature->SummonCreature(ENTRY_BOAR, 2078.91, 1704.54, 56.77, 1.54, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
             break;
         case 25:
-            DoScriptText(SAY_THINK, m_creature, player);
+            DoScriptText(SAY_THINK, m_creature, pPlayer);
             break;
         case 31:
-            DoScriptText(SAY_SOON, m_creature, player);
+            DoScriptText(SAY_SOON, m_creature, pPlayer);
             break;
         case 42:
-            DoScriptText(SAY_FINALY, m_creature, player);
+            DoScriptText(SAY_FINALY, m_creature, pPlayer);
             break;
         case 43:
             m_creature->SummonCreature(ENTRY_BOAR, 1956.43, 1596.97, 81.75, 1.54,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
             break;
         case 45:
-            DoScriptText(SAY_WIN, m_creature, player);
-            if (player && player->GetTypeId() == TYPEID_PLAYER)
-                CAST_PLR(player)->GroupEventHappens(QUEST_WILLIX_THE_IMPORTER,m_creature);
+            DoScriptText(SAY_WIN, m_creature, pPlayer);
+            if (pPlayer && pPlayer->GetTypeId() == TYPEID_PLAYER)
+                CAST_PLR(pPlayer)->GroupEventHappens(QUEST_WILLIX_THE_IMPORTER,m_creature);
             break;
         case 46:
-            DoScriptText(SAY_END, m_creature, player);
+            DoScriptText(SAY_END, m_creature, pPlayer);
             break;
         }
     }
@@ -116,8 +116,8 @@ struct TRINITY_DLL_DECL npc_willixAI : public npc_escortAI
     {
         if (PlayerGUID)
         {
-            if (Player* player = Unit::GetPlayer(PlayerGUID))
-                CAST_PLR(player)->FailQuest(QUEST_WILLIX_THE_IMPORTER);
+            if (Player* pPlayer = Unit::GetPlayer(PlayerGUID))
+                CAST_PLR(pPlayer)->FailQuest(QUEST_WILLIX_THE_IMPORTER);
         }
     }
 
@@ -127,12 +127,12 @@ struct TRINITY_DLL_DECL npc_willixAI : public npc_escortAI
     }
 };
 
-bool QuestAccept_npc_willix(Player* player, Creature* creature, Quest const* quest)
+bool QuestAccept_npc_willix(Player* pPlayer, Creature* creature, Quest const* quest)
 {
     if (quest->GetQuestId() == QUEST_WILLIX_THE_IMPORTER)
     {
-        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
-        DoScriptText(SAY_READY, creature, player);
+        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, pPlayer->GetGUID());
+        DoScriptText(SAY_READY, creature, pPlayer);
         creature->setFaction(113);
     }
 
@@ -165,7 +165,7 @@ struct TRINITY_DLL_DECL npc_deaths_head_ward_keeperAI : public ScriptedAI
 
         if (QuillboarChanneling_Timer < diff)
         {
-            if( m_creature->IsNonMeleeSpellCasted(false) )
+            if (m_creature->IsNonMeleeSpellCasted(false))
                 m_creature->InterruptNonMeleeSpells(true);
             DoCast(m_creature, SPELL_QUILLBOAR_CHANNELING);
             QuillboarChanneling_Timer = 1100;

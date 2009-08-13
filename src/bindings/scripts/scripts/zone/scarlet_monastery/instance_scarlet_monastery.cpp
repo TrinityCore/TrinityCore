@@ -34,7 +34,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL instance_scarlet_monastery : public ScriptedInstance
 {
-    instance_scarlet_monastery(Map *Map) : ScriptedInstance(Map) {Initialize();};
+    instance_scarlet_monastery(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 
     uint64 PumpkinShrineGUID;
     uint64 HorsemanGUID;
@@ -107,7 +107,7 @@ struct TRINITY_DLL_DECL instance_scarlet_monastery : public ScriptedInstance
                 for(std::set<uint64>::iterator itr = HorsemanAdds.begin(); itr != HorsemanAdds.end(); ++itr)
                 {
                     Creature* add = instance->GetCreature(*itr);
-                    if(add && add->isAlive())
+                    if (add && add->isAlive())
                         add->DealDamage(add, add->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                 }
                 HorsemanAdds.clear();
@@ -141,9 +141,9 @@ struct TRINITY_DLL_DECL instance_scarlet_monastery : public ScriptedInstance
     }
 };
 
-InstanceData* GetInstanceData_instance_scarlet_monastery(Map* map)
+InstanceData* GetInstanceData_instance_scarlet_monastery(Map* pMap)
 {
-    return new instance_scarlet_monastery(map);
+    return new instance_scarlet_monastery(pMap);
 }
 
 void AddSC_instance_scarlet_monastery()

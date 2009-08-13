@@ -51,9 +51,9 @@ struct TRINITY_DLL_DECL npc_ameAI : public npc_escortAI
 
     void WaypointReached(uint32 i)
     {
-        Player* player = Unit::GetPlayer(PlayerGUID);
+        Player* pPlayer = Unit::GetPlayer(PlayerGUID);
 
-        if (!player)
+        if (!pPlayer)
             return;
 
         switch (i)
@@ -61,23 +61,23 @@ struct TRINITY_DLL_DECL npc_ameAI : public npc_escortAI
 
          case 19:
             m_creature->SummonCreature(ENTRY_STOMPER, -6391.69, -1730.49, -272.83, 4.96, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-            DoScriptText(SAY_AGGRO1, m_creature, player);
+            DoScriptText(SAY_AGGRO1, m_creature, pPlayer);
             break;
             case 28:
-            DoScriptText(SAY_SEARCH, m_creature, player);
+            DoScriptText(SAY_SEARCH, m_creature, pPlayer);
             break;
             case 38:
             m_creature->SummonCreature(ENTRY_TARLORD, -6370.75, -1382.84, -270.51, 6.06, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-            DoScriptText(SAY_AGGRO2, m_creature, player);
+            DoScriptText(SAY_AGGRO2, m_creature, pPlayer);
             break;
             case 49:
             m_creature->SummonCreature(ENTRY_TARLORD1, -6324.44, -1181.05, -270.17, 4.34, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-            DoScriptText(SAY_AGGRO3, m_creature, player);
+            DoScriptText(SAY_AGGRO3, m_creature, pPlayer);
             break;
          case 55:
-            DoScriptText(SAY_FINISH, m_creature, player);
-            if (player && player->GetTypeId() == TYPEID_PLAYER)
-                CAST_PLR(player)->GroupEventHappens(QUEST_CHASING_AME,m_creature);
+            DoScriptText(SAY_FINISH, m_creature, pPlayer);
+            if (pPlayer && pPlayer->GetTypeId() == TYPEID_PLAYER)
+                CAST_PLR(pPlayer)->GroupEventHappens(QUEST_CHASING_AME,m_creature);
             break;
 
         }
@@ -100,8 +100,8 @@ struct TRINITY_DLL_DECL npc_ameAI : public npc_escortAI
     {
         if (PlayerGUID)
         {
-            if (Player* player = Unit::GetPlayer(PlayerGUID))
-                CAST_PLR(player)->FailQuest(QUEST_CHASING_AME);
+            if (Player* pPlayer = Unit::GetPlayer(PlayerGUID))
+                CAST_PLR(pPlayer)->FailQuest(QUEST_CHASING_AME);
         }
     }
 
@@ -120,12 +120,12 @@ struct TRINITY_DLL_DECL npc_ameAI : public npc_escortAI
     }
 };
 
-bool QuestAccept_npc_ame(Player* player, Creature* creature, Quest const* quest)
+bool QuestAccept_npc_ame(Player* pPlayer, Creature* creature, Quest const* quest)
 {
     if (quest->GetQuestId() == QUEST_CHASING_AME)
     {
-        CAST_AI(npc_escortAI, (creature->AI()))->Start(false, false, player->GetGUID());
-        DoScriptText(SAY_READY, creature, player);
+        CAST_AI(npc_escortAI, (creature->AI()))->Start(false, false, pPlayer->GetGUID());
+        DoScriptText(SAY_READY, creature, pPlayer);
         creature->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
         // Change faction so mobs attack
         creature->setFaction(113);

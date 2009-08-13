@@ -45,7 +45,7 @@ struct TRINITY_DLL_DECL boss_slad_ranAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
         if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 30)

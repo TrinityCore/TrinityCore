@@ -47,7 +47,7 @@ struct TRINITY_DLL_DECL npc_testAI : public npc_escortAI
                 {
                     m_creature->Say("Wild Felboar attack!", LANG_UNIVERSAL, 0);
                     Creature* temp = m_creature->SummonCreature(21878, m_creature->GetPositionX()+5, m_creature->GetPositionY()+7, m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 3000);
-                    if(temp)
+                    if (temp)
                         temp->AI()->AttackStart(m_creature);
                 }
                 break;
@@ -89,7 +89,7 @@ struct TRINITY_DLL_DECL npc_testAI : public npc_escortAI
                 if (killer == m_creature)
                 {
                     Unit *pTemp = Unit::GetUnit(*m_creature,PlayerGUID);
-                    if( pTemp )
+                    if (pTemp)
                         DoWhisper("How dare you leave me like that! I hate you! =*(", pTemp);
                 }
                 else m_creature->Say("...no...how could you let me die $N", LANG_UNIVERSAL, PlayerGUID);
@@ -147,41 +147,41 @@ CreatureAI* GetAI_test(Creature *_Creature)
     return (CreatureAI*)testAI;
 }
 
-bool GossipHello_npc_test(Player *player, Creature *_Creature)
+bool GossipHello_npc_test(Player* pPlayer, Creature *_Creature)
 {
-    player->TalkedToCreature(_Creature->GetEntry(),_Creature->GetGUID());
-    _Creature->prepareGossipMenu(player,0);
+    pPlayer->TalkedToCreature(_Creature->GetEntry(),_Creature->GetGUID());
+    _Creature->prepareGossipMenu(pPlayer,0);
 
-    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Click to Test Escort(Attack, Defend, Run)", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Click to Test Escort(NoAttack, NoDefend, Walk)", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Click to Test Escort(NoAttack, Defend, Walk)", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
+    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Click to Test Escort(Attack, Defend, Run)", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Click to Test Escort(NoAttack, NoDefend, Walk)", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Click to Test Escort(NoAttack, Defend, Walk)", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
 
-    _Creature->sendPreparedGossip( player );
+    _Creature->sendPreparedGossip(pPlayer);
     return true;
 }
 
-bool GossipSelect_npc_test(Player *player, Creature *_Creature, uint32 sender, uint32 action )
+bool GossipSelect_npc_test(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
 {
     if (action == GOSSIP_ACTION_INFO_DEF+1)
     {
-        player->CLOSE_GOSSIP_MENU();
-        ((npc_escortAI*)(_Creature->AI()))->Start(true, true, player->GetGUID());
+        pPlayer->CLOSE_GOSSIP_MENU();
+        ((npc_escortAI*)(_Creature->AI()))->Start(true, true, pPlayer->GetGUID());
 
         return true;                                        // prevent Trinity core handling
     }
 
     if (action == GOSSIP_ACTION_INFO_DEF+2)
     {
-        player->CLOSE_GOSSIP_MENU();
-        ((npc_escortAI*)(_Creature->AI()))->Start(false, false, player->GetGUID());
+        pPlayer->CLOSE_GOSSIP_MENU();
+        ((npc_escortAI*)(_Creature->AI()))->Start(false, false, pPlayer->GetGUID());
 
         return true;                                        // prevent Trinity core handling
     }
 
     if (action == GOSSIP_ACTION_INFO_DEF+3)
     {
-        player->CLOSE_GOSSIP_MENU();
-        ((npc_escortAI*)(_Creature->AI()))->Start(false, false, player->GetGUID());
+        pPlayer->CLOSE_GOSSIP_MENU();
+        ((npc_escortAI*)(_Creature->AI()))->Start(false, false, pPlayer->GetGUID());
 
         return true;                                        // prevent Trinity core handling
     }

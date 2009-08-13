@@ -36,23 +36,23 @@ EndContentData */
 
 #define GOSSIP_SW "Tell me a story, Skorn."
 
-bool GossipHello_npc_skorn_whitecloud(Player *player, Creature *_Creature)
+bool GossipHello_npc_skorn_whitecloud(Player* pPlayer, Creature *_Creature)
 {
     if (_Creature->isQuestGiver())
-        player->PrepareQuestMenu( _Creature->GetGUID() );
+        pPlayer->PrepareQuestMenu(_Creature->GetGUID());
 
-    if (!player->GetQuestRewardStatus(770))
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SW, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF );
+    if (!pPlayer->GetQuestRewardStatus(770))
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SW, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
-    player->SEND_GOSSIP_MENU(522,_Creature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(522,_Creature->GetGUID());
 
     return true;
 }
 
-bool GossipSelect_npc_skorn_whitecloud(Player *player, Creature *_Creature, uint32 sender, uint32 action )
+bool GossipSelect_npc_skorn_whitecloud(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
 {
     if (action == GOSSIP_ACTION_INFO_DEF)
-        player->SEND_GOSSIP_MENU(523,_Creature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(523,_Creature->GetGUID());
 
     return true;
 }
@@ -258,7 +258,7 @@ struct TRINITY_DLL_DECL npc_plains_visionAI  : public ScriptedAI
 
     void MovementInform(uint32 type, uint32 id)
     {
-        if(type != POINT_MOTION_TYPE)
+        if (type != POINT_MOTION_TYPE)
             return;
 
         if (id < amountWP)

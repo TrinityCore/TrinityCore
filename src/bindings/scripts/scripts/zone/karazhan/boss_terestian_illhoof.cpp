@@ -82,26 +82,26 @@ struct TRINITY_DLL_DECL mob_kilrekAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        if(!pInstance)
+        if (!pInstance)
         {
             ERROR_INST_DATA(m_creature);
             return;
         }
 
         Creature* Terestian = (Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_TERESTIAN)));
-        if(Terestian && !Terestian->getVictim())
+        if (Terestian && !Terestian->getVictim())
             Terestian->AddThreat(who, 1.0f);
     }
 
     void JustDied(Unit* Killer)
     {
-        if(pInstance)
+        if (pInstance)
         {
             uint64 TerestianGUID = pInstance->GetData64(DATA_TERESTIAN);
-            if(TerestianGUID)
+            if (TerestianGUID)
             {
                 Unit* Terestian = Unit::GetUnit((*m_creature), TerestianGUID);
-                if(Terestian && Terestian->isAlive())
+                if (Terestian && Terestian->isAlive())
                     DoCast(Terestian, SPELL_BROKEN_PACT, true);
             }
         }else ERROR_INST_DATA(m_creature);
@@ -110,7 +110,7 @@ struct TRINITY_DLL_DECL mob_kilrekAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
         if (AmplifyTimer < diff)
@@ -142,10 +142,10 @@ struct TRINITY_DLL_DECL mob_demon_chainAI : public ScriptedAI
 
     void JustDied(Unit *killer)
     {
-        if(SacrificeGUID)
+        if (SacrificeGUID)
         {
             Unit* Sacrifice = Unit::GetUnit((*m_creature),SacrificeGUID);
-            if(Sacrifice)
+            if (Sacrifice)
                 Sacrifice->RemoveAurasDueToSpell(SPELL_SACRIFICE);
         }
     }
@@ -180,9 +180,9 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
     {
         for(uint8 i = 0; i < 2; ++i)
         {
-            if(PortalGUID[i])
+            if (PortalGUID[i])
             {
-                if(Creature* pPortal = Unit::GetCreature(*m_creature, PortalGUID[i]))
+                if (Creature* pPortal = Unit::GetCreature(*m_creature, PortalGUID[i]))
                     pPortal->ForcedDespawn();
 
                 PortalGUID[i] = 0;
@@ -199,7 +199,7 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
         Berserk             = false;
         ReSummon            = false;
 
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(TYPE_TERESTIAN, NOT_STARTED);
     }
 
@@ -207,7 +207,7 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
     {
         DoScriptText(SAY_AGGRO, m_creature);
 
-        if(pInstance)
+        if (pInstance)
         {
             Creature* Kilrek = (Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_KILREK)));
             // Respawn Kil'rek on aggro if Kil'rek is dead.
@@ -217,7 +217,7 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
             }
 
             // Put Kil'rek in combat against our target so players don't skip him
-            if(Kilrek && !Kilrek->getVictim())
+            if (Kilrek && !Kilrek->getVictim())
                 Kilrek->AddThreat(who, 1.0f);
 
             pInstance->SetData(TYPE_TERESTIAN, IN_PROGRESS);
@@ -237,9 +237,9 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
     {
         for(uint8 i = 0; i < 2; ++i)
         {
-            if(PortalGUID[i])
+            if (PortalGUID[i])
             {
-                if(Creature* pPortal = Unit::GetCreature((*m_creature), PortalGUID[i]))
+                if (Creature* pPortal = Unit::GetCreature((*m_creature), PortalGUID[i]))
                     pPortal->ForcedDespawn();
 
                 PortalGUID[i] = 0;
@@ -248,29 +248,29 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
 
         DoScriptText(SAY_DEATH, m_creature);
 
-        if(pInstance)
+        if (pInstance)
             pInstance->SetData(TYPE_TERESTIAN, DONE);
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
-        if(CheckKilrekTimer < diff)
+        if (CheckKilrekTimer < diff)
         {
 
             CheckKilrekTimer = 5000;
 
-            if(pInstance)
+            if (pInstance)
                 uint64 KilrekGUID = pInstance->GetData64(DATA_KILREK);
             else ERROR_INST_DATA(m_creature);
 
             Creature* Kilrek = (Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_KILREK)));
-            if(SummonKilrek && Kilrek)
+            if (SummonKilrek && Kilrek)
             {
                 Kilrek->Respawn();
-                if(Kilrek->AI())
+                if (Kilrek->AI())
                 {
                     Kilrek->AI()->AttackStart(m_creature->getVictim());
                     m_creature->RemoveAurasDueToSpell(SPELL_BROKEN_PACT);
@@ -279,21 +279,21 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
                 SummonKilrek = false;
             }
 
-            if(!Kilrek || !Kilrek->isAlive())
+            if (!Kilrek || !Kilrek->isAlive())
             {
                 SummonKilrek = true;
                 CheckKilrekTimer = 45000;
             }
         }else CheckKilrekTimer -= diff;
 
-        if(SacrificeTimer < diff)
+        if (SacrificeTimer < diff)
         {
             Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1);
-            if(target && target->isAlive() && target->GetTypeId() == TYPEID_PLAYER)
+            if (target && target->isAlive() && target->GetTypeId() == TYPEID_PLAYER)
             {
                 DoCast(target, SPELL_SACRIFICE, true);
                 Creature* Chains = m_creature->SummonCreature(CREATURE_DEMONCHAINS, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 21000);
-                if(Chains)
+                if (Chains)
                 {
                     CAST_AI(mob_demon_chainAI, Chains->AI())->SacrificeGUID = target->GetGUID();
                     Chains->CastSpell(Chains, SPELL_DEMON_CHAINS, true);
@@ -307,20 +307,20 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
             }
         }else SacrificeTimer -= diff;
 
-        if(ShadowboltTimer < diff)
+        if (ShadowboltTimer < diff)
         {
             DoCast(SelectUnit(SELECT_TARGET_TOPAGGRO, 0), SPELL_SHADOW_BOLT);
             ShadowboltTimer = 10000;
         }else ShadowboltTimer -= diff;
 
-        if(SummonTimer < diff)
+        if (SummonTimer < diff)
         {
-            if(!SummonedPortals)
+            if (!SummonedPortals)
             {
                 for(uint8 i = 0; i < 2; ++i)
                 {
                     Creature* Portal = m_creature->SummonCreature(CREATURE_PORTAL, PortalLocations[i][0], PortalLocations[i][1], PORTAL_Z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-                    if(Portal)
+                    if (Portal)
                         PortalGUID[i] = Portal->GetGUID();
                 }
                 SummonedPortals = true;
@@ -332,7 +332,7 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
             }
             uint32 random = rand()%2;
             Creature* Imp = m_creature->SummonCreature(CREATURE_FIENDISHIMP, PortalLocations[random][0], PortalLocations[random][1], PORTAL_Z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 15000);
-            if(Imp)
+            if (Imp)
             {
                 Imp->AddThreat(m_creature->getVictim(), 1.0f);
                 Imp->AI()->AttackStart(SelectUnit(SELECT_TARGET_RANDOM, 1));
@@ -340,9 +340,9 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
             SummonTimer = 5000;
         }else SummonTimer -= diff;
 
-        if(!Berserk)
+        if (!Berserk)
         {
-            if(BerserkTimer < diff)
+            if (BerserkTimer < diff)
             {
                 DoCast(m_creature, SPELL_BERSERK);
                 Berserk = true;
@@ -373,10 +373,10 @@ struct TRINITY_DLL_DECL mob_fiendish_impAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if (!UpdateVictim() )
+        if (!UpdateVictim())
             return;
 
-        if(FireboltTimer < diff)
+        if (FireboltTimer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_FIREBOLT);
             FireboltTimer = 2200;

@@ -370,7 +370,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
         m_creature->CastSpell(m_creature, SPELL_DUAL_WIELD, true);
 
         SpellEntry *TempSpell = GET_SPELL(SPELL_SHADOWFIEND_PASSIVE);
-        if(TempSpell)
+        if (TempSpell)
             TempSpell->EffectApplyAuraName[0] = 4; // proc debuff, and summon infinite fiends
     }
 
@@ -399,13 +399,13 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
 
     void SummonedCreatureDespawn(Creature* summon)
     {
-        if(summon->GetCreatureInfo()->Entry == FLAME_OF_AZZINOTH)
+        if (summon->GetCreatureInfo()->Entry == FLAME_OF_AZZINOTH)
         {
             for(uint8 i = 0; i < 2; ++i)
-                if(summon->GetGUID() == FlameGUID[i])
+                if (summon->GetGUID() == FlameGUID[i])
                     FlameGUID[i] = 0;
 
-            if(!FlameGUID[0] && !FlameGUID[1] && Phase != PHASE_ILLIDAN_NULL)
+            if (!FlameGUID[0] && !FlameGUID[1] && Phase != PHASE_ILLIDAN_NULL)
             {
                 m_creature->InterruptNonMeleeSpells(true);
                 EnterPhase(PHASE_FLIGHT_SEQUENCE);
@@ -416,9 +416,9 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
 
     void MovementInform(uint32 MovementType, uint32 Data)
     {
-        if(FlightCount == 7) //change hover point
+        if (FlightCount == 7) //change hover point
         {
-            if(m_creature->getVictim())
+            if (m_creature->getVictim())
             {
                 m_creature->SetInFront(m_creature->getVictim());
                 m_creature->StopMoving();
@@ -437,10 +437,10 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
 
     void AttackStart(Unit *who)
     {
-        if(!who || Phase >= PHASE_TALK_SEQUENCE)
+        if (!who || Phase >= PHASE_TALK_SEQUENCE)
             return;
 
-        if(Phase == PHASE_FLIGHT || Phase == PHASE_DEMON)
+        if (Phase == PHASE_FLIGHT || Phase == PHASE_DEMON)
             AttackStartNoMove(who);
         else
             ScriptedAI::AttackStart(who);
@@ -452,7 +452,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
     {
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-        if(!pInstance)
+        if (!pInstance)
             return;
 
         pInstance->SetData(DATA_ILLIDANSTORMRAGEEVENT, DONE); // Completed
@@ -463,7 +463,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        if(victim == m_creature) return;
+        if (victim == m_creature) return;
 
         switch(rand()%2)
         {
@@ -480,17 +480,17 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
 
     void DamageTaken(Unit *done_by, uint32 &damage)
     {
-        if(damage >= m_creature->GetHealth() && done_by != m_creature)
+        if (damage >= m_creature->GetHealth() && done_by != m_creature)
             damage = 0;
-        if(done_by->GetGUID() == MaievGUID)
+        if (done_by->GetGUID() == MaievGUID)
             done_by->AddThreat(m_creature, -(3*(float)damage)/4); // do not let maiev tank him
     }
 
     void SpellHit(Unit *caster, const SpellEntry *spell)
     {
-        if(spell->Id == SPELL_GLAIVE_RETURNS) // Re-equip our warblades!
+        if (spell->Id == SPELL_GLAIVE_RETURNS) // Re-equip our warblades!
         {
-            if(!m_creature->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID))
+            if (!m_creature->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID))
                 SetEquipmentSlots(false, EQUIP_ID_MAIN_HAND, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
             else
                 SetEquipmentSlots(false, EQUIP_UNEQUIP, EQUIP_ID_OFF_HAND, EQUIP_NO_CHANGE);
@@ -502,7 +502,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
     {
         for(std::list<HostilReference*>::iterator itr = m_creature->getThreatManager().getThreatList().begin(); itr != m_creature->getThreatManager().getThreatList().end(); ++itr)
         {
-            if((*itr)->getUnitGuid() == TargetGUID)
+            if ((*itr)->getUnitGuid() == TargetGUID)
             {
                 (*itr)->removeReference();
                 break;
@@ -515,20 +515,20 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
         Timer[EVENT_TALK_SEQUENCE] = Conversation[count].timer;
 
         Creature* creature = NULL;
-        if(Conversation[count].creature == ILLIDAN_STORMRAGE)
+        if (Conversation[count].creature == ILLIDAN_STORMRAGE)
             creature = m_creature;
-        else if(Conversation[count].creature == AKAMA)
+        else if (Conversation[count].creature == AKAMA)
             creature = (Unit::GetCreature((*m_creature), AkamaGUID));
-        else if(Conversation[count].creature == MAIEV_SHADOWSONG)
+        else if (Conversation[count].creature == MAIEV_SHADOWSONG)
             creature = (Unit::GetCreature((*m_creature), MaievGUID));
 
-        if(creature)
+        if (creature)
         {
-            if(Conversation[count].emote)
+            if (Conversation[count].emote)
                 creature->HandleEmoteCommand(Conversation[count].emote); // Make the creature do some animation!
-            if(Conversation[count].text)
+            if (Conversation[count].text)
                 creature->MonsterYell(Conversation[count].text, LANG_UNIVERSAL, 0); // Have the creature yell out some text
-            if(Conversation[count].sound)
+            if (Conversation[count].sound)
                 DoPlaySoundToSet(creature, Conversation[count].sound); // Play some sound on the creature
         }
     }
@@ -558,7 +558,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
             {
                 uint8 i=1;
                 Creature* Glaive = m_creature->SummonCreature(BLADE_OF_AZZINOTH, GlaivePosition[i].x, GlaivePosition[i].y, GlaivePosition[i].z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-                if(Glaive)
+                if (Glaive)
                 {
                     GlaiveGUID[i] = Glaive->GetGUID();
                     Glaive->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -574,7 +574,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
             {
                 uint8 i=0;
                 Creature* Glaive = m_creature->SummonCreature(BLADE_OF_AZZINOTH, GlaivePosition[i].x, GlaivePosition[i].y, GlaivePosition[i].z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-                if(Glaive)
+                if (Glaive)
                 {
                     GlaiveGUID[i] = Glaive->GetGUID();
                     Glaive->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -600,10 +600,10 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
         case 8://glaive return
             for(uint8 i = 0; i < 2; ++i)
             {
-                if(GlaiveGUID[i])
+                if (GlaiveGUID[i])
                 {
                     Unit* Glaive = Unit::GetUnit((*m_creature), GlaiveGUID[i]);
-                    if(Glaive)
+                    if (Glaive)
                     {
                         Glaive->CastSpell(m_creature, SPELL_GLAIVE_RETURNS, false); // Make it look like the Glaive flies back up to us
                         Glaive->SetDisplayId(11686); // disappear but not die for now
@@ -618,9 +618,9 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
             m_creature->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
             for(uint8 i = 0; i < 2; ++i)
             {
-                if(GlaiveGUID[i])
+                if (GlaiveGUID[i])
                 {
-                    if(GETUNIT(Glaive, GlaiveGUID[i]))
+                    if (GETUNIT(Glaive, GlaiveGUID[i]))
                     {
                         Glaive->SetVisibility(VISIBILITY_OFF);
                         Glaive->setDeathState(JUST_DIED); // Despawn the Glaive
@@ -633,7 +633,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
         case 10://attack
             DoResetThreat();
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE + UNIT_FLAG_NOT_SELECTABLE);
-            m_creature->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE );
+            m_creature->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE);
             EnterPhase(PHASE_NORMAL_2);
             break;
         default:
@@ -644,20 +644,20 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
 
     void HandleTransformSequence()
     {
-        if(DemonTransformation[TransformCount].unaura)
+        if (DemonTransformation[TransformCount].unaura)
             m_creature->RemoveAurasDueToSpell(DemonTransformation[TransformCount].unaura);
 
-        if(DemonTransformation[TransformCount].aura)
+        if (DemonTransformation[TransformCount].aura)
             DoCast(m_creature, DemonTransformation[TransformCount].aura, true);
 
-        if(DemonTransformation[TransformCount].displayid)
+        if (DemonTransformation[TransformCount].displayid)
             m_creature->SetDisplayId(DemonTransformation[TransformCount].displayid); // It's morphin time!
 
-        if(DemonTransformation[TransformCount].equip)
+        if (DemonTransformation[TransformCount].equip)
         {
             // Requip warglaives if needed
             SetEquipmentSlots(false, EQUIP_ID_MAIN_HAND, EQUIP_ID_OFF_HAND, EQUIP_NO_CHANGE);
-            m_creature->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE );
+            m_creature->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE);
         }
         else
         {
@@ -677,7 +677,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
             DoResetThreat();
             break;
         case 9:
-            if(MaievGUID)
+            if (MaievGUID)
                 EnterPhase(PHASE_NORMAL_MAIEV); // Depending on whether we summoned Maiev, we switch to either phase 5 or 3
             else
                 EnterPhase(PHASE_NORMAL_2);
@@ -685,23 +685,23 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
         default:
             break;
         }
-        if(Phase == PHASE_TRANSFORM_SEQUENCE)
+        if (Phase == PHASE_TRANSFORM_SEQUENCE)
             Timer[EVENT_TRANSFORM_SEQUENCE] = DemonTransformation[TransformCount].timer;
         TransformCount++;
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if((!UpdateVictim()) && Phase < PHASE_TALK_SEQUENCE)
+        if ((!UpdateVictim()) && Phase < PHASE_TALK_SEQUENCE)
             return;
 
         Event = EVENT_NULL;
         for(uint32 i = 1; i <= MaxTimer[Phase]; ++i)
         {
-            if(Timer[i]) // Event is enabled
-                if(Timer[i] <= diff)
+            if (Timer[i]) // Event is enabled
+                if (Timer[i] <= diff)
                 {
-                    if(!Event) // No event with higher priority
+                    if (!Event) // No event with higher priority
                         Event = (EventIllidan)i;
                 }
                 else Timer[i] -= diff;
@@ -710,40 +710,40 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
         switch(Phase)
         {
         case PHASE_NORMAL:
-            if(HPPCT(m_creature) < 65)
+            if (HPPCT(m_creature) < 65)
                 EnterPhase(PHASE_FLIGHT_SEQUENCE);
             break;
 
         case PHASE_NORMAL_2:
-            if(HPPCT(m_creature) < 30)
+            if (HPPCT(m_creature) < 30)
                 EnterPhase(PHASE_TALK_SEQUENCE);
             break;
 
         case PHASE_NORMAL_MAIEV:
-            if(HPPCT(m_creature) < 1)
+            if (HPPCT(m_creature) < 1)
                 EnterPhase(PHASE_TALK_SEQUENCE);
             break;
 
         case PHASE_TALK_SEQUENCE:
-            if(Event == EVENT_TALK_SEQUENCE)
+            if (Event == EVENT_TALK_SEQUENCE)
                 HandleTalkSequence();
             break;
 
         case PHASE_FLIGHT_SEQUENCE:
-            if(Event == EVENT_FLIGHT_SEQUENCE)
+            if (Event == EVENT_FLIGHT_SEQUENCE)
                 HandleFlightSequence();
             break;
 
         case PHASE_TRANSFORM_SEQUENCE:
-            if(Event == EVENT_TRANSFORM_SEQUENCE)
+            if (Event == EVENT_TRANSFORM_SEQUENCE)
                 HandleTransformSequence();
             break;
         }
 
-        if(m_creature->IsNonMeleeSpellCasted(false))
+        if (m_creature->IsNonMeleeSpellCasted(false))
             return;
 
-        if(Phase == PHASE_NORMAL || Phase == PHASE_NORMAL_2 || Phase == PHASE_NORMAL_MAIEV && !m_creature->HasAura(SPELL_CAGED))
+        if (Phase == PHASE_NORMAL || Phase == PHASE_NORMAL_2 || Phase == PHASE_NORMAL_MAIEV && !m_creature->HasAura(SPELL_CAGED))
         {
             switch(Event)
             {
@@ -760,9 +760,9 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
                     uint32 random = rand()%4;
                     char* yell = RandomTaunts[random].text;
                     uint32 soundid = RandomTaunts[random].sound;
-                    if(yell)
+                    if (yell)
                         DoYell(yell, LANG_UNIVERSAL, NULL);
-                    if(soundid)
+                    if (soundid)
                         DoPlaySoundToSet(m_creature, soundid);
                 }
                 Timer[EVENT_TAUNT] = 25000 + rand()%10000;
@@ -780,7 +780,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
 
             case EVENT_PARASITIC_SHADOWFIEND:
                 {
-                    if(Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 200, true))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 200, true))
                         m_creature->CastSpell(target, SPELL_PARASITIC_SHADOWFIEND, true);
                     Timer[EVENT_PARASITIC_SHADOWFIEND] = 35000 + rand()%10000;
                 }break;
@@ -816,7 +816,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
             DoMeleeAttackIfReady();
         }
 
-        if(Phase == PHASE_FLIGHT)
+        if (Phase == PHASE_FLIGHT)
         {
             switch(Event)
             {
@@ -839,7 +839,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
                 Phase = PHASE_FLIGHT_SEQUENCE;
                 Timer[EVENT_FLIGHT_SEQUENCE] = 0;//do not start Event when changing hover point
                 HoverPoint += (rand()%3 + 1);
-                if(HoverPoint > 3)
+                if (HoverPoint > 3)
                     HoverPoint -= 4;
                 m_creature->GetMotionMaster()->MovePoint(0, HoverPosition[HoverPoint].x, HoverPosition[HoverPoint].y, HoverPosition[HoverPoint].z);
                 break;
@@ -849,13 +849,13 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
             }
         }
 
-        if(Phase == PHASE_DEMON)
+        if (Phase == PHASE_DEMON)
         {
             switch(Event)
             {
             case EVENT_SHADOW_BLAST:
                 m_creature->GetMotionMaster()->Clear(false);
-                if(!m_creature->IsWithinDistInMap(m_creature->getVictim(), 50)||!m_creature->IsWithinLOSInMap(m_creature->getVictim()))
+                if (!m_creature->IsWithinDistInMap(m_creature->getVictim(), 50)||!m_creature->IsWithinLOSInMap(m_creature->getVictim()))
                     m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim(), 30);
                 else
                     m_creature->GetMotionMaster()->MoveIdle();
@@ -903,7 +903,7 @@ struct TRINITY_DLL_DECL flame_of_azzinothAI : public ScriptedAI
     void ChargeCheck()
     {
         Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 200, false);
-        if(target && (!m_creature->IsWithinCombatRange(target, FLAME_CHARGE_DISTANCE)))
+        if (target && (!m_creature->IsWithinCombatRange(target, FLAME_CHARGE_DISTANCE)))
         {
             m_creature->AddThreat(target, 5000000.0f);
             AttackStart(target);
@@ -914,21 +914,21 @@ struct TRINITY_DLL_DECL flame_of_azzinothAI : public ScriptedAI
 
     void EnrageCheck()
     {
-        if(GETUNIT(Glaive, GlaiveGUID))
+        if (GETUNIT(Glaive, GlaiveGUID))
         {
-            if(!m_creature->IsWithinDistInMap(Glaive, FLAME_ENRAGE_DISTANCE))
+            if (!m_creature->IsWithinDistInMap(Glaive, FLAME_ENRAGE_DISTANCE))
             {
                 Glaive->InterruptNonMeleeSpells(true);
                 DoCast(m_creature, SPELL_FLAME_ENRAGE, true);
                 DoResetThreat();
                 Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                if(target && target->isAlive())
+                if (target && target->isAlive())
                 {
                     m_creature->AddThreat(m_creature->getVictim(), 5000000.0f);
                     AttackStart(m_creature->getVictim());
                 }
             }
-            else if(!m_creature->HasAura(SPELL_AZZINOTH_CHANNEL))
+            else if (!m_creature->HasAura(SPELL_AZZINOTH_CHANNEL))
             {
                 Glaive->CastSpell(m_creature, SPELL_AZZINOTH_CHANNEL, false);
                 m_creature->RemoveAurasDueToSpell(SPELL_FLAME_ENRAGE);
@@ -940,10 +940,10 @@ struct TRINITY_DLL_DECL flame_of_azzinothAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
-        if(FlameBlastTimer < diff)
+        if (FlameBlastTimer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_BLAZE_SUMMON, true); //appear at victim
             DoCast(m_creature->getVictim(), SPELL_FLAME_BLAST);
@@ -951,7 +951,7 @@ struct TRINITY_DLL_DECL flame_of_azzinothAI : public ScriptedAI
             DoZoneInCombat(); //in case someone is revived
         }else FlameBlastTimer -= diff;
 
-        if(CheckTimer < diff)
+        if (CheckTimer < diff)
         {
             ChargeCheck();
             EnrageCheck();
@@ -990,7 +990,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
 
     void Reset()
     {
-        if(pInstance)
+        if (pInstance)
         {
             pInstance->SetData(DATA_ILLIDANSTORMRAGEEVENT, NOT_STARTED);
 
@@ -1046,7 +1046,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
 
     void DamageTaken(Unit *done_by, uint32 &damage)
     {
-        if(damage > m_creature->GetHealth() || done_by->GetGUID() != IllidanGUID)
+        if (damage > m_creature->GetHealth() || done_by->GetGUID() != IllidanGUID)
             damage = 0;
     }
 
@@ -1057,7 +1057,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
         for(std::list<HostilReference*>::iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
         {
             Unit* pUnit = Unit::GetUnit((*m_creature), (*itr)->getUnitGuid());
-            if(pUnit && pUnit->GetEntry() == ILLIDARI_ELITE)
+            if (pUnit && pUnit->GetEntry() == ILLIDARI_ELITE)
                 eliteList.push_back(pUnit);
         }
         for(std::vector<Unit*>::iterator itr = eliteList.begin(); itr != eliteList.end(); ++itr)
@@ -1067,7 +1067,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
 
     void BeginTalk()
     {
-        if(!pInstance)
+        if (!pInstance)
             return;
             
         pInstance->SetData(DATA_ILLIDANSTORMRAGEEVENT, IN_PROGRESS);
@@ -1075,7 +1075,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
         for(uint8 i = 0; i < 2; ++i)
             pInstance->HandleGameObject(DoorGUID[i], false);
 
-        if(GETCRE(Illidan, IllidanGUID))
+        if (GETCRE(Illidan, IllidanGUID))
         {
             Illidan->RemoveAurasDueToSpell(SPELL_KNEEL);
             m_creature->SetInFront(Illidan);
@@ -1092,12 +1092,12 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
         m_creature->setActive(true);
 
         float x, y, z;
-        if(GETGO(Gate, GateGUID))
+        if (GETGO(Gate, GateGUID))
             Gate->GetPosition(x, y, z);
         else
             return;//if door not spawned, don't crash server
 
-        if(Creature* Channel = m_creature->SummonCreature(ILLIDAN_DOOR_TRIGGER, x, y, z+5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 360000))
+        if (Creature* Channel = m_creature->SummonCreature(ILLIDAN_DOOR_TRIGGER, x, y, z+5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 360000))
         {
             ChannelGUID = Channel->GetGUID();
             Channel->SetDisplayId(11686); // Invisible but spell visuals can still be seen.
@@ -1106,7 +1106,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
         }
 
         for(uint8 i = 0; i < 2; ++i)
-            if(Creature* Spirit = m_creature->SummonCreature(i ? SPIRIT_OF_OLUM : SPIRIT_OF_UDALO, SpiritSpawns[i].x, SpiritSpawns[i].y, SpiritSpawns[i].z, 0, TEMPSUMMON_TIMED_DESPAWN, 20000))
+            if (Creature* Spirit = m_creature->SummonCreature(i ? SPIRIT_OF_OLUM : SPIRIT_OF_UDALO, SpiritSpawns[i].x, SpiritSpawns[i].y, SpiritSpawns[i].z, 0, TEMPSUMMON_TIMED_DESPAWN, 20000))
             {
                 Spirit->SetVisibility(VISIBILITY_OFF);
                 SpiritGUID[i] = Spirit->GetGUID();
@@ -1122,7 +1122,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
 
     void EnterPhase(PhaseAkama NextPhase)
     {
-        if(!pInstance)  return;
+        if (!pInstance)  return;
         switch(NextPhase)
         {
         case PHASE_CHANNEL:
@@ -1131,11 +1131,11 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
             ChannelCount = 0;
             break;
         case PHASE_WALK:
-            if(Phase == PHASE_CHANNEL)
+            if (Phase == PHASE_CHANNEL)
                 WalkCount = 0;
-            else if(Phase == PHASE_TALK)
+            else if (Phase == PHASE_TALK)
             {
-                if(GETCRE(Illidan, IllidanGUID))
+                if (GETCRE(Illidan, IllidanGUID))
                     CAST_AI(boss_illidan_stormrageAI, Illidan->AI())->DeleteFromThreatList(m_creature->GetGUID());
                 EnterEvadeMode();
                 m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -1145,19 +1145,19 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
             Timer = 0;
             break;
         case PHASE_TALK:
-            if(Phase == PHASE_WALK)
+            if (Phase == PHASE_WALK)
             {
                 BeginTalk();
                 Timer = 0;
             }
-            else if(Phase == PHASE_FIGHT_ILLIDAN)
+            else if (Phase == PHASE_FIGHT_ILLIDAN)
             {
                 Timer = 1;
                 TalkCount = 0;
             }
             break;
         case PHASE_FIGHT_ILLIDAN:
-            if(GETUNIT(Illidan, IllidanGUID))
+            if (GETUNIT(Illidan, IllidanGUID))
             {
                 m_creature->AddThreat(Illidan, 10000000.0f);
                 m_creature->GetMotionMaster()->MoveChase(Illidan);
@@ -1187,7 +1187,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
         switch(TalkCount)
         {
         case 0:
-            if(GETCRE(Illidan, IllidanGUID))
+            if (GETCRE(Illidan, IllidanGUID))
             {
                 CAST_AI(boss_illidan_stormrageAI, Illidan->AI())->Timer[EVENT_TAUNT] += 30000;
                 Illidan->MonsterYell(SAY_AKAMA_MINION, LANG_UNIVERSAL, 0);
@@ -1210,12 +1210,12 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
     void HandleChannelSequence()
     {
         Unit* Channel, *Spirit[2];
-        if(ChannelCount <= 5)
+        if (ChannelCount <= 5)
         {
             Channel = Unit::GetUnit((*m_creature), ChannelGUID);
             Spirit[0] = Unit::GetUnit((*m_creature), SpiritGUID[0]);
             Spirit[1] = Unit::GetUnit((*m_creature), SpiritGUID[1]);
-            if(!Channel || !Spirit[0] || !Spirit[1])
+            if (!Channel || !Spirit[0] || !Spirit[1])
                 return;
         }
 
@@ -1273,7 +1273,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
                 pInstance->HandleGameObject(DoorGUID[i], true);
             break;
         case 8:
-            if(Phase == PHASE_WALK)
+            if (Phase == PHASE_WALK)
                 EnterPhase(PHASE_TALK);
             else
                 EnterPhase(PHASE_FIGHT_ILLIDAN);
@@ -1283,7 +1283,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
             break;
         }
 
-        if(Phase == PHASE_WALK)
+        if (Phase == PHASE_WALK)
         {
             Timer = 0;
             WalkCount++;
@@ -1294,14 +1294,14 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         Event = false;
-        if(Timer)
+        if (Timer)
         {
-            if(Timer <= diff)
+            if (Timer <= diff)
                 Event = true;
             else Timer -= diff;
         }
 
-        if(Event)
+        if (Event)
         {
             switch(Phase)
             {
@@ -1318,7 +1318,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
             case PHASE_FIGHT_ILLIDAN:
                 {
                     GETUNIT(Illidan, IllidanGUID);
-                    if(Illidan && HPPCT(Illidan) < 90)
+                    if (Illidan && HPPCT(Illidan) < 90)
                         EnterPhase(PHASE_TALK);
                     else
                     {
@@ -1332,7 +1332,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
                     m_creature->GetPosition(x, y, z);
                     Creature* Elite = m_creature->SummonCreature(ILLIDARI_ELITE, x+rand()%10, y+rand()%10, z, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 30000);
                     //Creature* Elite = m_creature->SummonCreature(ILLIDARI_ELITE, x, y, z, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 30000);
-                    if(Elite)
+                    if (Elite)
                     {
                         Elite->AI()->AttackStart(m_creature);
                         Elite->AddThreat(m_creature, 1000000.0f);
@@ -1341,7 +1341,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
                     }
                     Timer = 10000 + rand()%6000;
                     GETUNIT(Illidan, IllidanGUID);
-                    if(Illidan && HPPCT(Illidan) < 10)
+                    if (Illidan && HPPCT(Illidan) < 10)
                         EnterPhase(PHASE_RETURN);
                 }
                 break;
@@ -1350,10 +1350,10 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
             }
         }
 
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
-        if(m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 20)
+        if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 20)
             DoCast(m_creature, SPELL_HEALING_POTION);
 
         DoMeleeAttackIfReady();
@@ -1391,29 +1391,29 @@ struct TRINITY_DLL_DECL boss_maievAI : public ScriptedAI
 
     void DamageTaken(Unit *done_by, uint32 &damage)
     {
-        if(done_by->GetGUID() != IllidanGUID )
+        if (done_by->GetGUID() != IllidanGUID)
             damage = 0;
         else
         {
             GETUNIT(Illidan, IllidanGUID);
-            if(Illidan && Illidan->getVictim() == m_creature)
+            if (Illidan && Illidan->getVictim() == m_creature)
                 damage = m_creature->GetMaxHealth()/10;
-            if(damage >= m_creature->GetHealth())
+            if (damage >= m_creature->GetHealth())
                 damage = 0;
         }
     }
 
     void AttackStart(Unit *who)
     {
-        if(!who || Timer[EVENT_MAIEV_STEALTH])
+        if (!who || Timer[EVENT_MAIEV_STEALTH])
             return;
 
-        if(Phase == PHASE_TALK_SEQUENCE)
+        if (Phase == PHASE_TALK_SEQUENCE)
             AttackStartNoMove(who);
-        else if(Phase == PHASE_DEMON || Phase == PHASE_TRANSFORM_SEQUENCE )
+        else if (Phase == PHASE_DEMON || Phase == PHASE_TRANSFORM_SEQUENCE)
         {
             GETUNIT(Illidan, IllidanGUID);
-            if(Illidan && m_creature->IsWithinDistInMap(Illidan, 25))
+            if (Illidan && m_creature->IsWithinDistInMap(Illidan, 25))
                 BlinkToPlayer();//Do not let dread aura hurt her.
             AttackStartNoMove(who);
         }
@@ -1423,7 +1423,7 @@ struct TRINITY_DLL_DECL boss_maievAI : public ScriptedAI
 
     void DoAction(const int32 param)
     {
-        if(param > PHASE_ILLIDAN_NULL && param < PHASE_ILLIDAN_MAX)
+        if (param > PHASE_ILLIDAN_NULL && param < PHASE_ILLIDAN_MAX)
             EnterPhase(PhaseIllidan(param));
     }
 
@@ -1432,7 +1432,7 @@ struct TRINITY_DLL_DECL boss_maievAI : public ScriptedAI
         switch(NextPhase)
         {
         case PHASE_TALK_SEQUENCE:
-            if(Timer[EVENT_MAIEV_STEALTH])
+            if (Timer[EVENT_MAIEV_STEALTH])
             {
                 m_creature->SetHealth(m_creature->GetMaxHealth());
                 m_creature->SetVisibility(VISIBILITY_ON);
@@ -1459,7 +1459,7 @@ struct TRINITY_DLL_DECL boss_maievAI : public ScriptedAI
         default:
             break;
         }
-        if(Timer[EVENT_MAIEV_STEALTH])
+        if (Timer[EVENT_MAIEV_STEALTH])
             MaxTimer = 1;
         Phase = NextPhase;
     }
@@ -1475,11 +1475,11 @@ struct TRINITY_DLL_DECL boss_maievAI : public ScriptedAI
 
     void BlinkToPlayer()
     {
-        if(GETCRE(Illidan, IllidanGUID))
+        if (GETCRE(Illidan, IllidanGUID))
         {
             Unit* target = CAST_AI(boss_illidan_stormrageAI, Illidan->AI())->SelectUnit(SELECT_TARGET_RANDOM, 0);
 
-            if(!target || !m_creature->IsWithinDistInMap(target, 80) || Illidan->IsWithinDistInMap(target, 20))
+            if (!target || !m_creature->IsWithinDistInMap(target, 80) || Illidan->IsWithinDistInMap(target, 20))
             {
                 uint8 pos = rand()%4;
                 BlinkTo(HoverPosition[pos].x, HoverPosition[pos].y, HoverPosition[pos].z);
@@ -1495,15 +1495,15 @@ struct TRINITY_DLL_DECL boss_maievAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if((!UpdateVictim())
+        if ((!UpdateVictim())
             && !Timer[EVENT_MAIEV_STEALTH])
             return;
 
         Event = EVENT_MAIEV_NULL;
         for(uint8 i = 1; i <= MaxTimer; ++i)
-            if(Timer[i])
+            if (Timer[i])
             {
-                if(Timer[i] <= diff)
+                if (Timer[i] <= diff)
                     Event = (EventMaiev)i;
                 else Timer[i] -= diff;
             }
@@ -1533,7 +1533,7 @@ struct TRINITY_DLL_DECL boss_maievAI : public ScriptedAI
                 Timer[EVENT_MAIEV_SHADOW_STRIKE] = 60000;
                 break;
             case EVENT_MAIEV_TRAP:
-                if(Phase == PHASE_NORMAL_MAIEV)
+                if (Phase == PHASE_NORMAL_MAIEV)
                 {
                     BlinkToPlayer();
                     DoCast(m_creature, SPELL_CAGE_TRAP_SUMMON);
@@ -1541,7 +1541,7 @@ struct TRINITY_DLL_DECL boss_maievAI : public ScriptedAI
                 }
                 else
                 {
-                    if(!m_creature->IsWithinDistInMap(m_creature->getVictim(), 40))
+                    if (!m_creature->IsWithinDistInMap(m_creature->getVictim(), 40))
                         m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim(), 30);
                     DoCast(m_creature->getVictim(), SPELL_THROW_DAGGER);
                     Timer[EVENT_MAIEV_THROW_DAGGER] = 2000;
@@ -1551,37 +1551,37 @@ struct TRINITY_DLL_DECL boss_maievAI : public ScriptedAI
                 break;
             }
 
-            if(m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 50)
+            if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 50)
             {
                 m_creature->SetVisibility(VISIBILITY_OFF);
                 m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                if(GETCRE(Illidan, IllidanGUID))
+                if (GETCRE(Illidan, IllidanGUID))
                     CAST_AI(boss_illidan_stormrageAI, Illidan->AI())->DeleteFromThreatList(m_creature->GetGUID());
                 m_creature->AttackStop();
                 Timer[EVENT_MAIEV_STEALTH] = 60000; //reappear after 1 minute
                 MaxTimer = 1;
             }
 
-            if(Phase == PHASE_NORMAL_MAIEV)
+            if (Phase == PHASE_NORMAL_MAIEV)
                 DoMeleeAttackIfReady();
     }
 };
 
 
-bool GossipSelect_npc_akama_at_illidan(Player *player, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_akama_at_illidan(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
 {
-    if(action == GOSSIP_ACTION_INFO_DEF) // Time to begin the Event
+    if (action == GOSSIP_ACTION_INFO_DEF) // Time to begin the Event
     {
-        player->CLOSE_GOSSIP_MENU();
+        pPlayer->CLOSE_GOSSIP_MENU();
         CAST_AI(npc_akama_illidanAI, _Creature->AI())->EnterPhase(PHASE_CHANNEL);
     }
     return true;
 }
 
-bool GossipHello_npc_akama_at_illidan(Player *player, Creature *_Creature)
+bool GossipHello_npc_akama_at_illidan(Player* pPlayer, Creature *_Creature)
 {
-    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-    player->SEND_GOSSIP_MENU(10465, _Creature->GetGUID());
+    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+    pPlayer->SEND_GOSSIP_MENU(10465, _Creature->GetGUID());
 
     return true;
 }
@@ -1612,21 +1612,21 @@ struct TRINITY_DLL_DECL cage_trap_triggerAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit *who)
     {
-        if(!Active)
+        if (!Active)
             return;
 
-        if(who && (who->GetTypeId() != TYPEID_PLAYER))
+        if (who && (who->GetTypeId() != TYPEID_PLAYER))
         {
-            if(who->GetEntry() == ILLIDAN_STORMRAGE) // Check if who is Illidan
+            if (who->GetEntry() == ILLIDAN_STORMRAGE) // Check if who is Illidan
             {
-                if(!IllidanGUID && m_creature->IsWithinDistInMap(who, 3) && (!who->HasAura(SPELL_CAGED)))
+                if (!IllidanGUID && m_creature->IsWithinDistInMap(who, 3) && (!who->HasAura(SPELL_CAGED)))
                 {
                     IllidanGUID = who->GetGUID();
                     who->CastSpell(who, SPELL_CAGED, true);
                     DespawnTimer = 5000;
-                    if(who->HasAura(SPELL_ENRAGE))
+                    if (who->HasAura(SPELL_ENRAGE))
                         who->RemoveAurasDueToSpell(SPELL_ENRAGE); // Dispel his enrage
-                    //if(GameObject* CageTrap = pInstance->instance->GetGameObject(pInstance->GetData64(CageTrapGUID)))
+                    //if (GameObject* CageTrap = pInstance->instance->GetGameObject(pInstance->GetData64(CageTrapGUID)))
                     //    CageTrap->SetLootState(GO_JUST_DEACTIVATED);
                 }
             }
@@ -1635,14 +1635,14 @@ struct TRINITY_DLL_DECL cage_trap_triggerAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(DespawnTimer)
-            if(DespawnTimer < diff)
+        if (DespawnTimer)
+            if (DespawnTimer < diff)
                 m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
             else DespawnTimer -= diff;
 
-            //if(IllidanGUID && !SummonedBeams)
+            //if (IllidanGUID && !SummonedBeams)
             //{
-            //    if(Unit* Illidan = Unit::GetUnit(*m_creature, IllidanGUID)
+            //    if (Unit* Illidan = Unit::GetUnit(*m_creature, IllidanGUID)
             //    {
             //        //TODO: Find proper spells and properly apply 'caged' Illidan effect
             //    }
@@ -1656,7 +1656,7 @@ bool GOHello_cage_trap(Player* pPlayer, GameObject* pGo)
     pPlayer->GetPosition(x, y, z);
 
     // Grid search for nearest live creature of entry 23304 within 10 yards
-    if(Creature* pTrigger = pGo->FindNearestCreature(23304, 10.0f))
+    if (Creature* pTrigger = pGo->FindNearestCreature(23304, 10.0f))
         CAST_AI(cage_trap_triggerAI, pTrigger->AI())->Active = true;
     pGo->SetGoState(GO_STATE_ACTIVE);
     return true;
@@ -1678,17 +1678,17 @@ struct TRINITY_DLL_DECL shadow_demonAI : public ScriptedAI
 
     void JustDied(Unit *killer)
     {
-        if(Unit* target = Unit::GetUnit((*m_creature), TargetGUID))
+        if (Unit* target = Unit::GetUnit((*m_creature), TargetGUID))
             target->RemoveAurasDueToSpell(SPELL_PARALYZE);
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if(!UpdateVictim()) return;
+        if (!UpdateVictim()) return;
 
-        if(m_creature->getVictim()->GetTypeId() != TYPEID_PLAYER) return; // Only cast the below on players.
+        if (m_creature->getVictim()->GetTypeId() != TYPEID_PLAYER) return; // Only cast the below on players.
 
-        if(!m_creature->getVictim()->HasAura(SPELL_PARALYZE))
+        if (!m_creature->getVictim()->HasAura(SPELL_PARALYZE))
         {
             TargetGUID = m_creature->getVictim()->GetGUID();
             m_creature->AddThreat(m_creature->getVictim(), 10000000.0f);
@@ -1696,7 +1696,7 @@ struct TRINITY_DLL_DECL shadow_demonAI : public ScriptedAI
             DoCast(m_creature->getVictim(), SPELL_PARALYZE, true);
         }
         // Kill our target if we're very close.
-        if(m_creature->IsWithinDistInMap(m_creature->getVictim(), 3))
+        if (m_creature->IsWithinDistInMap(m_creature->getVictim(), 3))
             DoCast(m_creature->getVictim(), SPELL_CONSUME_SOUL);
     }
 };
@@ -1715,7 +1715,7 @@ struct TRINITY_DLL_DECL mob_parasitic_shadowfiendAI : public ScriptedAI
 
     void Reset()
     {
-        if(pInstance)
+        if (pInstance)
             IllidanGUID = pInstance->GetData64(DATA_ILLIDANSTORMRAGE);
         else
             IllidanGUID = 0;
@@ -1728,13 +1728,13 @@ struct TRINITY_DLL_DECL mob_parasitic_shadowfiendAI : public ScriptedAI
 
     void DoMeleeAttackIfReady()
     {
-        if( m_creature->isAttackReady() && m_creature->IsWithinMeleeRange(m_creature->getVictim()))
+        if (m_creature->isAttackReady() && m_creature->IsWithinMeleeRange(m_creature->getVictim()))
         {
-            if(!m_creature->getVictim()->HasAura(SPELL_PARASITIC_SHADOWFIEND)
+            if (!m_creature->getVictim()->HasAura(SPELL_PARASITIC_SHADOWFIEND)
                 && !m_creature->getVictim()->HasAura(SPELL_PARASITIC_SHADOWFIEND2))
             {
-                if(Creature* illidan = Unit::GetCreature((*m_creature),IllidanGUID))//summon only in 1. phase
-                    if(CAST_AI(boss_illidan_stormrageAI, illidan->AI())->Phase == PHASE_NORMAL)
+                if (Creature* illidan = Unit::GetCreature((*m_creature),IllidanGUID))//summon only in 1. phase
+                    if (CAST_AI(boss_illidan_stormrageAI, illidan->AI())->Phase == PHASE_NORMAL)
                         m_creature->CastSpell(m_creature->getVictim(), SPELL_PARASITIC_SHADOWFIEND2, true, 0, 0, IllidanGUID); //do not stack
             }
             m_creature->AttackerStateUpdate(m_creature->getVictim());
@@ -1744,9 +1744,9 @@ struct TRINITY_DLL_DECL mob_parasitic_shadowfiendAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!m_creature->getVictim())
+        if (!m_creature->getVictim())
         {
-            if(Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 999, true))
+            if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 999, true))
                 AttackStart(target);
             else
             {
@@ -1756,10 +1756,10 @@ struct TRINITY_DLL_DECL mob_parasitic_shadowfiendAI : public ScriptedAI
             }
         }
 
-        if(CheckTimer < diff)
+        if (CheckTimer < diff)
         {
             GETUNIT(Illidan, IllidanGUID);
-            if(!Illidan || CAST_CRE(Illidan)->IsInEvadeMode())
+            if (!Illidan || CAST_CRE(Illidan)->IsInEvadeMode())
             {
                 m_creature->SetVisibility(VISIBILITY_OFF);
                 m_creature->setDeathState(JUST_DIED);
@@ -1777,21 +1777,21 @@ struct TRINITY_DLL_DECL blade_of_azzinothAI : public NullCreatureAI
 
     void SpellHit(Unit *caster, const SpellEntry *spell)
     {
-        if(spell->Id == SPELL_THROW_GLAIVE2 || spell->Id == SPELL_THROW_GLAIVE)
+        if (spell->Id == SPELL_THROW_GLAIVE2 || spell->Id == SPELL_THROW_GLAIVE)
             me->SetDisplayId(21431);//appear when hit by Illidan's glaive
     }
 };
 
 void boss_illidan_stormrageAI::Reset()
 {
-    if(pInstance)
+    if (pInstance)
         pInstance->SetData(DATA_ILLIDANSTORMRAGEEVENT, NOT_STARTED);
 
-    if(AkamaGUID)
+    if (AkamaGUID)
     {
-        if(GETCRE(Akama, AkamaGUID))
+        if (GETCRE(Akama, AkamaGUID))
         {
-            if(!Akama->isAlive())
+            if (!Akama->isAlive())
                 Akama->Respawn();
             else
             {
@@ -1836,21 +1836,21 @@ void boss_illidan_stormrageAI::JustSummoned(Creature* summon)
     {
     case PARASITIC_SHADOWFIEND:
         {
-            if(Phase == PHASE_TALK_SEQUENCE)
+            if (Phase == PHASE_TALK_SEQUENCE)
             {
                 summon->SetVisibility(VISIBILITY_OFF);
                 summon->setDeathState(JUST_DIED);
                 return;
             }
             Unit *target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 999, true);
-            if(!target || target->HasAura(SPELL_PARASITIC_SHADOWFIEND)
+            if (!target || target->HasAura(SPELL_PARASITIC_SHADOWFIEND)
                 || target->HasAura(SPELL_PARASITIC_SHADOWFIEND2))
                 target = SelectTarget(SELECT_TARGET_RANDOM, 0, 999, true);
-            if(target)
+            if (target)
                 summon->AI()->AttackStart(target);
         }break;
     case SHADOW_DEMON:
-        if(Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 999, true)) // only on players.
+        if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 999, true)) // only on players.
         {
             summon->AddThreat(target, 5000000.0f);
             summon->AI()->AttackStart(target);
@@ -1882,11 +1882,11 @@ void boss_illidan_stormrageAI::HandleTalkSequence()
     case 8:
         // Equip our warglaives!
         SetEquipmentSlots(false, EQUIP_ID_MAIN_HAND, EQUIP_ID_OFF_HAND, EQUIP_NO_CHANGE);
-        m_creature->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE );
+        m_creature->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE);
         m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
         break;
     case 9:
-        if(GETCRE(Akama, AkamaGUID))
+        if (GETCRE(Akama, AkamaGUID))
         {
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE + UNIT_FLAG_NOT_SELECTABLE);
             m_creature->AddThreat(Akama, 100.0f);
@@ -1898,7 +1898,7 @@ void boss_illidan_stormrageAI::HandleTalkSequence()
         SummonMaiev();
         break;
     case 11:
-        if(GETUNIT(Maiev, MaievGUID))
+        if (GETUNIT(Maiev, MaievGUID))
         {
             Maiev->SetVisibility(VISIBILITY_ON); // Maiev is now visible
             Maiev->CastSpell(Maiev, SPELL_TELEPORT_VISUAL, true); // onoz she looks like she teleported!
@@ -1908,7 +1908,7 @@ void boss_illidan_stormrageAI::HandleTalkSequence()
             m_creature->GetMotionMaster()->MoveIdle();
         }break;
     case 14:
-        if(GETCRE(Maiev, MaievGUID))
+        if (GETCRE(Maiev, MaievGUID))
         {
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE + UNIT_FLAG_NOT_SELECTABLE);
             Maiev->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE + UNIT_FLAG_NOT_SELECTABLE);
@@ -1921,9 +1921,9 @@ void boss_illidan_stormrageAI::HandleTalkSequence()
         Summons.DespawnAll();
         break;
     case 17:
-        if(GETUNIT(Akama, AkamaGUID))
+        if (GETUNIT(Akama, AkamaGUID))
         {
-            if(!m_creature->IsWithinDistInMap(Akama, 15))
+            if (!m_creature->IsWithinDistInMap(Akama, 15))
             {
                 float x, y, z;
                 m_creature->GetPosition(x, y, z);
@@ -1937,7 +1937,7 @@ void boss_illidan_stormrageAI::HandleTalkSequence()
         }
         break;
     case 19: // Make Maiev leave
-        if(GETUNIT(Maiev, MaievGUID))
+        if (GETUNIT(Maiev, MaievGUID))
         {
             Maiev->CastSpell(Maiev, SPELL_TELEPORT_VISUAL, true);
             Maiev->setDeathState(JUST_DIED);
@@ -1950,7 +1950,7 @@ void boss_illidan_stormrageAI::HandleTalkSequence()
     default:
         break;
     }
-    if(Phase == PHASE_TALK_SEQUENCE)
+    if (Phase == PHASE_TALK_SEQUENCE)
         Talk(TalkCount); // This function does most of the talking
     TalkCount++;
 }
@@ -1983,7 +1983,7 @@ void boss_illidan_stormrageAI::CastEyeBlast()
     final.y = 2 * final.y - initial.y;
 
     Creature* Trigger = m_creature->SummonTrigger(initial.x, initial.y, initial.z, 0, 13000);
-    if(!Trigger) return;
+    if (!Trigger) return;
 
     Trigger->SetSpeed(MOVE_WALK, 3);
     Trigger->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
@@ -2001,10 +2001,10 @@ void boss_illidan_stormrageAI::SummonFlamesOfAzzinoth()
 
     for(uint8 i = 0; i < 2; ++i)
     {
-        if(GETUNIT(Glaive, GlaiveGUID[i]))
+        if (GETUNIT(Glaive, GlaiveGUID[i]))
         {
             Creature* Flame = m_creature->SummonCreature(FLAME_OF_AZZINOTH, GlaivePosition[i+2].x, GlaivePosition[i+2].y, GlaivePosition[i+2].z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000);
-            if(Flame)
+            if (Flame)
             {
                 Flame->setFaction(m_creature->getFaction()); // Just in case the database has it as a different faction
                 Flame->SetMeleeDamageSchool(SPELL_SCHOOL_FIRE);
@@ -2020,7 +2020,7 @@ void boss_illidan_stormrageAI::SummonMaiev()
 {
     m_creature->CastSpell(m_creature, SPELL_SHADOW_PRISON, true);
     m_creature->CastSpell(m_creature, 40403, true);
-    if(!MaievGUID) // If Maiev cannot be summoned, reset the encounter and post some errors to the console.
+    if (!MaievGUID) // If Maiev cannot be summoned, reset the encounter and post some errors to the console.
     {
         EnterEvadeMode();
         DoTextEmote("is unable to summon Maiev Shadowsong and enter Phase 4. Resetting Encounter.", NULL);
@@ -2044,17 +2044,17 @@ void boss_illidan_stormrageAI::EnterPhase(PhaseIllidan NextPhase)
         Timer[EVENT_PARASITIC_SHADOWFIEND] = 25000;
         Timer[EVENT_PARASITE_CHECK] = 0;
         Timer[EVENT_DRAW_SOUL] = 30000;
-        if(NextPhase == PHASE_NORMAL)
+        if (NextPhase == PHASE_NORMAL)
             break;
         Timer[EVENT_AGONIZING_FLAMES] = 35000;
         Timer[EVENT_TRANSFORM_NORMAL] = 60000;
-        if(NextPhase == PHASE_NORMAL_2)
+        if (NextPhase == PHASE_NORMAL_2)
             break;
         Timer[EVENT_ENRAGE] = 30000 + rand()%10 * 1000;
         break;
     case PHASE_FLIGHT:
         Timer[EVENT_FIREBALL] = 1000;
-        if(!(rand()%4))
+        if (!(rand()%4))
             Timer[EVENT_DARK_BARRAGE] = 10000;
         Timer[EVENT_EYE_BLAST] = 10000 + rand()%15 * 1000;
         Timer[EVENT_MOVE_POINT] = 20000 + rand()%20 * 1000;
@@ -2075,7 +2075,7 @@ void boss_illidan_stormrageAI::EnterPhase(PhaseIllidan NextPhase)
         m_creature->AttackStop();
         break;
     case PHASE_FLIGHT_SEQUENCE:
-        if(Phase == PHASE_NORMAL) //lift off
+        if (Phase == PHASE_NORMAL) //lift off
         {
             FlightCount = 1;
             Timer[EVENT_FLIGHT_SEQUENCE] = 1;
@@ -2089,7 +2089,7 @@ void boss_illidan_stormrageAI::EnterPhase(PhaseIllidan NextPhase)
             Timer[EVENT_FLIGHT_SEQUENCE] = 2000;
         break;
     case PHASE_TRANSFORM_SEQUENCE:
-        if(Phase == PHASE_DEMON)
+        if (Phase == PHASE_DEMON)
             Timer[EVENT_TRANSFORM_SEQUENCE] = 500;
         else
         {
@@ -2104,10 +2104,10 @@ void boss_illidan_stormrageAI::EnterPhase(PhaseIllidan NextPhase)
     default:
         break;
     }
-    if(MaievGUID)
+    if (MaievGUID)
     {
         GETCRE(Maiev, MaievGUID);
-        if(Maiev && Maiev->isAlive())
+        if (Maiev && Maiev->isAlive())
             Maiev->AI()->DoAction(NextPhase);
     }
     Phase = NextPhase;
