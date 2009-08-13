@@ -130,7 +130,7 @@ struct TRINITY_DLL_DECL npc_mistAI : public ScriptedAI
     void JustDied(Unit* pKiller)
     {
         if (Player* pPlayer = Unit::GetPlayer(uiPlayerGUID))
-            pPlayer->FailTimedQuest(QUEST_MIST);
+            pPlayer->FailQuest(QUEST_MIST);
 
         uiPlayerGUID = 0;
         m_creature->GetMotionMaster()->MovementExpired();
