@@ -595,24 +595,24 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public hyjal_trashAI
     void WaypointReached(uint32 i){}
 };
 
-CreatureAI* GetAI_boss_archimonde(Creature *_Creature)
+CreatureAI* GetAI_boss_archimonde(Creature* pCreature)
 {
-    return new boss_archimondeAI (_Creature);
+    return new boss_archimondeAI (pCreature);
 }
 
-CreatureAI* GetAI_mob_doomfire(Creature* _Creature)
+CreatureAI* GetAI_mob_doomfire(Creature* pCreature)
 {
-    return new mob_doomfireAI(_Creature);
+    return new mob_doomfireAI(pCreature);
 }
 
-CreatureAI* GetAI_mob_doomfire_targetting(Creature* _Creature)
+CreatureAI* GetAI_mob_doomfire_targetting(Creature* pCreature)
 {
-    return new mob_doomfire_targettingAI(_Creature);
+    return new mob_doomfire_targettingAI(pCreature);
 }
 
-CreatureAI* GetAI_mob_ancient_wisp(Creature* _Creature)
+CreatureAI* GetAI_mob_ancient_wisp(Creature* pCreature)
 {
-    return new mob_ancient_wispAI(_Creature);
+    return new mob_ancient_wispAI(pCreature);
 }
 
 void AddSC_boss_archimonde()

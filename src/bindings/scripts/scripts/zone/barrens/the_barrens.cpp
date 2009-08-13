@@ -68,23 +68,23 @@ bool GossipSelect_npc_beaten_corpse(Player* pPlayer, Creature* pCreature, uint32
 
 #define GOSSIP_SPUTTERVALVE "Can you tell me about this shard?"
 
-bool GossipHello_npc_sputtervalve(Player* pPlayer, Creature *_Creature)
+bool GossipHello_npc_sputtervalve(Player* pPlayer, Creature* pCreature)
 {
-    if (_Creature->isQuestGiver())
-        pPlayer->PrepareQuestMenu(_Creature->GetGUID());
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
     if (pPlayer->GetQuestStatus(6981) == QUEST_STATUS_INCOMPLETE)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SPUTTERVALVE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
-    pPlayer->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
     return true;
 }
 
-bool GossipSelect_npc_sputtervalve(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_sputtervalve(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
     if (action == GOSSIP_ACTION_INFO_DEF)
     {
-        pPlayer->SEND_GOSSIP_MENU(2013, _Creature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(2013, pCreature->GetGUID());
         pPlayer->AreaExploredOrEventHappens(6981);
     }
     return true;
@@ -394,9 +394,9 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_twiggy_flathead(Creature *_Creature)
+CreatureAI* GetAI_npc_twiggy_flathead(Creature* pCreature)
 {
-    return new npc_twiggy_flatheadAI (_Creature);
+    return new npc_twiggy_flatheadAI (pCreature);
 }
 
 /*#####
@@ -509,9 +509,9 @@ bool QuestAccept_npc_wizzlecrank_shredder(Player* pPlayer, Creature* creature, Q
     return true;
 }
 
-CreatureAI* GetAI_npc_wizzlecrank_shredderAI(Creature *_Creature)
+CreatureAI* GetAI_npc_wizzlecrank_shredderAI(Creature* pCreature)
 {
-    npc_wizzlecrank_shredderAI* thisAI = new npc_wizzlecrank_shredderAI(_Creature);
+    npc_wizzlecrank_shredderAI* thisAI = new npc_wizzlecrank_shredderAI(pCreature);
 
     thisAI->AddWaypoint(0, 1109.15, -3104.11, 82.41, 6000);
     thisAI->AddWaypoint(1, 1105.39, -3102.86, 82.74, 2000);

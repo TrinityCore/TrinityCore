@@ -117,9 +117,9 @@ struct TRINITY_DLL_DECL boss_high_inquisitor_fairbanksAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_high_inquisitor_fairbanks(Creature *_Creature)
+CreatureAI* GetAI_boss_high_inquisitor_fairbanks(Creature* pCreature)
 {
-    return new boss_high_inquisitor_fairbanksAI (_Creature);
+    return new boss_high_inquisitor_fairbanksAI (pCreature);
 }
 
 void AddSC_boss_high_inquisitor_fairbanks()

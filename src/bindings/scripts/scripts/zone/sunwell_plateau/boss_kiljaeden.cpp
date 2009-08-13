@@ -410,9 +410,9 @@ struct TRINITY_DLL_DECL boss_kalecgos_kjAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_kalecgos_kj(Creature *_Creature)
+CreatureAI* GetAI_boss_kalecgos_kj(Creature* pCreature)
 {
-    return new boss_kalecgos_kjAI (_Creature);
+    return new boss_kalecgos_kjAI (pCreature);
 }
 
 //AI for Kil'jaeden
@@ -725,9 +725,9 @@ struct TRINITY_DLL_DECL boss_kiljaedenAI : public Scripted_NoMovementAI
 }
 };
 
-CreatureAI* GetAI_boss_kiljaeden(Creature *_Creature)
+CreatureAI* GetAI_boss_kiljaeden(Creature* pCreature)
 {
-    return new boss_kiljaedenAI (_Creature);
+    return new boss_kiljaedenAI (pCreature);
 }
 
 //AI for Kil'jaeden Event Controller
@@ -814,9 +814,9 @@ struct TRINITY_DLL_DECL mob_kiljaeden_controllerAI : public Scripted_NoMovementA
     }
 };
 
-CreatureAI* GetAI_mob_kiljaeden_controller(Creature *_Creature)
+CreatureAI* GetAI_mob_kiljaeden_controller(Creature* pCreature)
 {
-    return new mob_kiljaeden_controllerAI (_Creature);
+    return new mob_kiljaeden_controllerAI (pCreature);
 }
 
 //AI for Hand of the Deceiver
@@ -898,9 +898,9 @@ struct TRINITY_DLL_DECL mob_hand_of_the_deceiverAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_mob_hand_of_the_deceiver(Creature *_Creature)
+CreatureAI* GetAI_mob_hand_of_the_deceiver(Creature* pCreature)
 {
-    return new mob_hand_of_the_deceiverAI (_Creature);
+    return new mob_hand_of_the_deceiverAI (pCreature);
 }
 
 //AI for Felfire Portal
@@ -942,9 +942,9 @@ struct TRINITY_DLL_DECL mob_felfire_portalAI : public Scripted_NoMovementAI
     }
 };
 
-CreatureAI* GetAI_mob_felfire_portal(Creature *_Creature)
+CreatureAI* GetAI_mob_felfire_portal(Creature* pCreature)
 {
-    return new mob_felfire_portalAI (_Creature);
+    return new mob_felfire_portalAI (pCreature);
 }
 
 //AI for Felfire Fiend
@@ -991,9 +991,9 @@ struct TRINITY_DLL_DECL mob_volatile_felfire_fiendAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_mob_volatile_felfire_fiend(Creature *_Creature)
+CreatureAI* GetAI_mob_volatile_felfire_fiend(Creature* pCreature)
 {
-    return new mob_volatile_felfire_fiendAI (_Creature);
+    return new mob_volatile_felfire_fiendAI (pCreature);
 }
 
 //AI for Armageddon target
@@ -1036,9 +1036,9 @@ struct TRINITY_DLL_DECL mob_armageddonAI : public Scripted_NoMovementAI
     }
 };
 
-CreatureAI* GetAI_mob_armageddon(Creature *_Creature)
+CreatureAI* GetAI_mob_armageddon(Creature* pCreature)
 {
-    return new mob_armageddonAI (_Creature);
+    return new mob_armageddonAI (pCreature);
 }
 
 //AI for Shield Orbs
@@ -1107,9 +1107,9 @@ struct TRINITY_DLL_DECL mob_shield_orbAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_mob_shield_orb(Creature *_Creature)
+CreatureAI* GetAI_mob_shield_orb(Creature* pCreature)
 {
-    return new mob_shield_orbAI (_Creature);
+    return new mob_shield_orbAI (pCreature);
 }
 
 //AI for Sinister Reflection
@@ -1250,9 +1250,9 @@ struct TRINITY_DLL_DECL mob_sinster_reflectionAI : public ScriptedAI
 
 };
 
-CreatureAI* GetAI_mob_sinster_reflection(Creature *_Creature)
+CreatureAI* GetAI_mob_sinster_reflection(Creature* pCreature)
 {
-    return new mob_sinster_reflectionAI (_Creature);
+    return new mob_sinster_reflectionAI (pCreature);
 }
 
 void AddSC_boss_kiljaeden()

@@ -39,10 +39,10 @@ EndContentData */
 #define GOSSIP_HBD4 "Alexstrasza"
 #define GOSSIP_HBD5 "Malygos"
 
-bool GossipHello_npc_braug_dimspirit(Player* pPlayer, Creature *_Creature)
+bool GossipHello_npc_braug_dimspirit(Player* pPlayer, Creature* pCreature)
 {
-    if (_Creature->isQuestGiver())
-        pPlayer->PrepareQuestMenu(_Creature->GetGUID());
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
     if (pPlayer->GetQuestStatus(6627) == QUEST_STATUS_INCOMPLETE)
     {
@@ -52,20 +52,20 @@ bool GossipHello_npc_braug_dimspirit(Player* pPlayer, Creature *_Creature)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HBD4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HBD5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-        pPlayer->SEND_GOSSIP_MENU(5820, _Creature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(5820, pCreature->GetGUID());
     }
     else
-        pPlayer->SEND_GOSSIP_MENU(5819, _Creature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(5819, pCreature->GetGUID());
 
     return true;
 }
 
-bool GossipSelect_npc_braug_dimspirit(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_braug_dimspirit(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
     if (action == GOSSIP_ACTION_INFO_DEF+1)
     {
         pPlayer->CLOSE_GOSSIP_MENU();
-        _Creature->CastSpell(pPlayer,6766,false);
+        pCreature->CastSpell(pPlayer,6766,false);
 
     }
     if (action == GOSSIP_ACTION_INFO_DEF+2)
@@ -159,9 +159,9 @@ bool QuestAccept_npc_kaya_flathoof(Player* pPlayer, Creature* creature, Quest co
     return true;
 }
 
-CreatureAI* GetAI_npc_kaya_flathoofAI(Creature *_Creature)
+CreatureAI* GetAI_npc_kaya_flathoofAI(Creature* pCreature)
 {
-    npc_kaya_flathoofAI* kayaAI = new npc_kaya_flathoofAI(_Creature);
+    npc_kaya_flathoofAI* kayaAI = new npc_kaya_flathoofAI(pCreature);
 
     kayaAI->FillPointMovementListForCreature();
 

@@ -810,29 +810,29 @@ CreatureAI* GetAI_mob_blood_elf_council_voice_trigger(Creature* c)
     return new mob_blood_elf_council_voice_triggerAI(c);
 }
 
-CreatureAI* GetAI_mob_illidari_council(Creature *_Creature)
+CreatureAI* GetAI_mob_illidari_council(Creature* pCreature)
 {
-    return new mob_illidari_councilAI (_Creature);
+    return new mob_illidari_councilAI (pCreature);
 }
 
-CreatureAI* GetAI_boss_gathios_the_shatterer(Creature *_Creature)
+CreatureAI* GetAI_boss_gathios_the_shatterer(Creature* pCreature)
 {
-    return new boss_gathios_the_shattererAI (_Creature);
+    return new boss_gathios_the_shattererAI (pCreature);
 }
 
-CreatureAI* GetAI_boss_lady_malande(Creature *_Creature)
+CreatureAI* GetAI_boss_lady_malande(Creature* pCreature)
 {
-    return new boss_lady_malandeAI (_Creature);
+    return new boss_lady_malandeAI (pCreature);
 }
 
-CreatureAI* GetAI_boss_veras_darkshadow(Creature *_Creature)
+CreatureAI* GetAI_boss_veras_darkshadow(Creature* pCreature)
 {
-    return new boss_veras_darkshadowAI (_Creature);
+    return new boss_veras_darkshadowAI (pCreature);
 }
 
-CreatureAI* GetAI_boss_high_nethermancer_zerevor(Creature *_Creature)
+CreatureAI* GetAI_boss_high_nethermancer_zerevor(Creature* pCreature)
 {
-    return new boss_high_nethermancer_zerevorAI (_Creature);
+    return new boss_high_nethermancer_zerevorAI (pCreature);
 }
 
 void AddSC_boss_illidari_council()

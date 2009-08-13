@@ -800,43 +800,43 @@ struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_shade_of_akama(Creature *_Creature)
+CreatureAI* GetAI_boss_shade_of_akama(Creature* pCreature)
 {
-    return new boss_shade_of_akamaAI (_Creature);
+    return new boss_shade_of_akamaAI (pCreature);
 }
 
-CreatureAI* GetAI_mob_ashtongue_channeler(Creature *_Creature)
+CreatureAI* GetAI_mob_ashtongue_channeler(Creature* pCreature)
 {
-    return new mob_ashtongue_channelerAI (_Creature);
+    return new mob_ashtongue_channelerAI (pCreature);
 }
 
-CreatureAI* GetAI_mob_ashtongue_sorcerer(Creature *_Creature)
+CreatureAI* GetAI_mob_ashtongue_sorcerer(Creature* pCreature)
 {
-    return new mob_ashtongue_sorcererAI (_Creature);
+    return new mob_ashtongue_sorcererAI (pCreature);
 }
 
-CreatureAI* GetAI_npc_akama_shade(Creature *_Creature)
+CreatureAI* GetAI_npc_akama_shade(Creature* pCreature)
 {
-    return new npc_akamaAI (_Creature);
+    return new npc_akamaAI (pCreature);
 }
 
-bool GossipSelect_npc_akama(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_akama(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
     if (action == GOSSIP_ACTION_INFO_DEF + 1)               //Fight time
     {
         pPlayer->CLOSE_GOSSIP_MENU();
-        CAST_AI(npc_akamaAI, _Creature->AI())->BeginEvent(pPlayer);
+        CAST_AI(npc_akamaAI, pCreature->AI())->BeginEvent(pPlayer);
     }
 
     return true;
 }
 
-bool GossipHello_npc_akama(Player* pPlayer, Creature *_Creature)
+bool GossipHello_npc_akama(Player* pPlayer, Creature* pCreature)
 {
     if (pPlayer->isAlive())
     {
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-        pPlayer->SEND_GOSSIP_MENU(907, _Creature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(907, pCreature->GetGUID());
     }
 
     return true;

@@ -116,9 +116,9 @@ struct TRINITY_DLL_DECL boss_broggokAI : public ScriptedAI
     
 };
 
-CreatureAI* GetAI_boss_broggok(Creature *_Creature)
+CreatureAI* GetAI_boss_broggok(Creature* pCreature)
 {
-    return new boss_broggokAI (_Creature);
+    return new boss_broggokAI (pCreature);
 }
 
 void AddSC_boss_broggok()

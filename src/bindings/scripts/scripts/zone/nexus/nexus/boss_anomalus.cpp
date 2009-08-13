@@ -218,9 +218,9 @@ struct TRINITY_DLL_DECL boss_anomalusAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_anomalus(Creature *_Creature)
+CreatureAI* GetAI_boss_anomalus(Creature* pCreature)
 {
-    return new boss_anomalusAI (_Creature);
+    return new boss_anomalusAI (pCreature);
 }
 
 struct TRINITY_DLL_DECL mob_chaotic_riftAI : public Scripted_NoMovementAI
@@ -281,9 +281,9 @@ struct TRINITY_DLL_DECL mob_chaotic_riftAI : public Scripted_NoMovementAI
     }
 };
 
-CreatureAI* GetAI_mob_chaotic_rift(Creature *_Creature)
+CreatureAI* GetAI_mob_chaotic_rift(Creature* pCreature)
 {
-    return new mob_chaotic_riftAI (_Creature);
+    return new mob_chaotic_riftAI (pCreature);
 }
 
 void AddSC_boss_anomalus()

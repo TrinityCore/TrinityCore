@@ -309,9 +309,9 @@ struct TRINITY_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_selin_fireheart(Creature *_Creature)
+CreatureAI* GetAI_boss_selin_fireheart(Creature* pCreature)
 {
-    return new boss_selin_fireheartAI (_Creature);
+    return new boss_selin_fireheartAI (pCreature);
 };
 
 struct TRINITY_DLL_DECL mob_fel_crystalAI : public ScriptedAI
@@ -348,9 +348,9 @@ struct TRINITY_DLL_DECL mob_fel_crystalAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_mob_fel_crystal(Creature *_Creature)
+CreatureAI* GetAI_mob_fel_crystal(Creature* pCreature)
 {
-    return new mob_fel_crystalAI (_Creature);
+    return new mob_fel_crystalAI (pCreature);
 };
 
 void AddSC_boss_selin_fireheart()

@@ -101,9 +101,9 @@ struct TRINITY_DLL_DECL boss_theravenianAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_theravenian(Creature *_Creature)
+CreatureAI* GetAI_boss_theravenian(Creature* pCreature)
 {
-    return new boss_theravenianAI (_Creature);
+    return new boss_theravenianAI (pCreature);
 }
 
 void AddSC_boss_theravenian()

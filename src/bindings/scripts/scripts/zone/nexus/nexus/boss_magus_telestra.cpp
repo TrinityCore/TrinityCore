@@ -301,9 +301,9 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_magus_telestra(Creature *_Creature)
+CreatureAI* GetAI_boss_magus_telestra(Creature* pCreature)
 {
-    return new boss_magus_telestraAI (_Creature);
+    return new boss_magus_telestraAI (pCreature);
 }
 
 void AddSC_boss_magus_telestra()

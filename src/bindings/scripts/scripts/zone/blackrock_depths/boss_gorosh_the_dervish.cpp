@@ -66,9 +66,9 @@ struct TRINITY_DLL_DECL boss_gorosh_the_dervishAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_gorosh_the_dervish(Creature *_Creature)
+CreatureAI* GetAI_boss_gorosh_the_dervish(Creature* pCreature)
 {
-    return new boss_gorosh_the_dervishAI (_Creature);
+    return new boss_gorosh_the_dervishAI (pCreature);
 }
 
 void AddSC_boss_gorosh_the_dervish()

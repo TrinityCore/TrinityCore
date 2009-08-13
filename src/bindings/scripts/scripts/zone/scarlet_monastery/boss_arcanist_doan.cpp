@@ -112,9 +112,9 @@ struct TRINITY_DLL_DECL boss_arcanist_doanAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_arcanist_doan(Creature *_Creature)
+CreatureAI* GetAI_boss_arcanist_doan(Creature* pCreature)
 {
-    return new boss_arcanist_doanAI (_Creature);
+    return new boss_arcanist_doanAI (pCreature);
 }
 
 void AddSC_boss_arcanist_doan()

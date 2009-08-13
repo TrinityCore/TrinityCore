@@ -77,9 +77,9 @@ struct TRINITY_DLL_DECL boss_grilekAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_grilek(Creature *_Creature)
+CreatureAI* GetAI_boss_grilek(Creature* pCreature)
 {
-    return new boss_grilekAI (_Creature);
+    return new boss_grilekAI (pCreature);
 }
 
 void AddSC_boss_grilek()

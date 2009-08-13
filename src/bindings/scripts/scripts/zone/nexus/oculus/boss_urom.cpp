@@ -71,9 +71,9 @@ struct TRINITY_DLL_DECL boss_uromAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_urom(Creature *_Creature)
+CreatureAI* GetAI_boss_urom(Creature* pCreature)
 {
-    return new boss_uromAI (_Creature);
+    return new boss_uromAI (pCreature);
 }
 
 void AddSC_boss_urom()

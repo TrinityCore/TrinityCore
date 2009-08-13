@@ -139,9 +139,9 @@ struct TRINITY_DLL_DECL boss_azuregosAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_azuregos(Creature *_Creature)
+CreatureAI* GetAI_boss_azuregos(Creature* pCreature)
 {
-    return new boss_azuregosAI (_Creature);
+    return new boss_azuregosAI (pCreature);
 }
 
 void AddSC_boss_azuregos()

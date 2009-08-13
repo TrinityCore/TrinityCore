@@ -91,9 +91,9 @@ struct TRINITY_DLL_DECL boss_baron_geddonAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_baron_geddon(Creature *_Creature)
+CreatureAI* GetAI_boss_baron_geddon(Creature* pCreature)
 {
-    return new boss_baron_geddonAI (_Creature);
+    return new boss_baron_geddonAI (pCreature);
 }
 
 void AddSC_boss_baron_geddon()

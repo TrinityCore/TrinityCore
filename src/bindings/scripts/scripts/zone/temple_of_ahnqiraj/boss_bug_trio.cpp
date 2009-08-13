@@ -310,19 +310,19 @@ struct TRINITY_DLL_DECL boss_yaujAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_yauj(Creature *_Creature)
+CreatureAI* GetAI_boss_yauj(Creature* pCreature)
 {
-    return new boss_yaujAI (_Creature);
+    return new boss_yaujAI (pCreature);
 }
 
-CreatureAI* GetAI_boss_vem(Creature *_Creature)
+CreatureAI* GetAI_boss_vem(Creature* pCreature)
 {
-    return new boss_vemAI (_Creature);
+    return new boss_vemAI (pCreature);
 }
 
-CreatureAI* GetAI_boss_kri(Creature *_Creature)
+CreatureAI* GetAI_boss_kri(Creature* pCreature)
 {
-    return new boss_kriAI (_Creature);
+    return new boss_kriAI (pCreature);
 }
 
 void AddSC_bug_trio()

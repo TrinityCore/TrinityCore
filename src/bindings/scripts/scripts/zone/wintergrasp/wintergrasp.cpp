@@ -17,10 +17,10 @@
 #include "precompiled.h"
 #include "Wintergrasp.h"
 
-bool GossipHello_npc_demolisher_engineerer(Player* pPlayer, Creature *_creature)
+bool GossipHello_npc_demolisher_engineerer(Player* pPlayer, Creature* pCreature)
 {
-    if (_creature->isQuestGiver())
-        pPlayer->PrepareQuestMenu(_creature->GetGUID());
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
     if (pPlayer->HasAura(SPELL_CORPORAL))
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Build catapult.", GOSSIP_SENDER_MAIN,   GOSSIP_ACTION_INFO_DEF);
@@ -31,7 +31,7 @@ bool GossipHello_npc_demolisher_engineerer(Player* pPlayer, Creature *_creature)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Build siege engine.", GOSSIP_SENDER_MAIN,   GOSSIP_ACTION_INFO_DEF+2);
     }
 
-    pPlayer->SEND_GOSSIP_MENU(_creature->GetNpcTextId(), _creature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
     return true;
 }
 

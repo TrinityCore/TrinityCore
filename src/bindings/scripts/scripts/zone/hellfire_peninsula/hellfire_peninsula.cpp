@@ -111,9 +111,9 @@ struct TRINITY_DLL_DECL npc_aeranasAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_aeranas(Creature *_Creature)
+CreatureAI* GetAI_npc_aeranas(Creature* pCreature)
 {
-    return new npc_aeranasAI (_Creature);
+    return new npc_aeranasAI (pCreature);
 }
 
 /*######

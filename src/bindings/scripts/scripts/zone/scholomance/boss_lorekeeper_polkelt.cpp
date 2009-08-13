@@ -98,9 +98,9 @@ struct TRINITY_DLL_DECL boss_lorekeeperpolkeltAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_lorekeeperpolkelt(Creature *_Creature)
+CreatureAI* GetAI_boss_lorekeeperpolkelt(Creature* pCreature)
 {
-    return new boss_lorekeeperpolkeltAI (_Creature);
+    return new boss_lorekeeperpolkeltAI (pCreature);
 }
 
 void AddSC_boss_lorekeeperpolkelt()

@@ -1277,9 +1277,9 @@ CreatureAI* GetAI_zelfan(Creature* pCreature)
 //    }
 //};
 
-//CreatureAI* GetAI_mob_high_explosive_sheep(Creature *_Creature)
+//CreatureAI* GetAI_mob_high_explosive_sheep(Creature* pCreature)
 //{
-//    return new mob_high_explosive_sheepAI (_Creature);
+//    return new mob_high_explosive_sheepAI (pCreature);
 //};
 
 void AddSC_boss_priestess_delrissa()

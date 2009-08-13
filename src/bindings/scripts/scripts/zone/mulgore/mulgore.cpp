@@ -36,23 +36,23 @@ EndContentData */
 
 #define GOSSIP_SW "Tell me a story, Skorn."
 
-bool GossipHello_npc_skorn_whitecloud(Player* pPlayer, Creature *_Creature)
+bool GossipHello_npc_skorn_whitecloud(Player* pPlayer, Creature* pCreature)
 {
-    if (_Creature->isQuestGiver())
-        pPlayer->PrepareQuestMenu(_Creature->GetGUID());
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
     if (!pPlayer->GetQuestRewardStatus(770))
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SW, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
-    pPlayer->SEND_GOSSIP_MENU(522,_Creature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(522, pCreature->GetGUID());
 
     return true;
 }
 
-bool GossipSelect_npc_skorn_whitecloud(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_skorn_whitecloud(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
     if (action == GOSSIP_ACTION_INFO_DEF)
-        pPlayer->SEND_GOSSIP_MENU(523,_Creature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(523, pCreature->GetGUID());
 
     return true;
 }
@@ -176,9 +176,9 @@ struct TRINITY_DLL_DECL npc_kyle_frenziedAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_kyle_frenzied(Creature *_Creature)
+CreatureAI* GetAI_npc_kyle_frenzied(Creature* pCreature)
 {
-    return new npc_kyle_frenziedAI (_Creature);
+    return new npc_kyle_frenziedAI (pCreature);
 }
 
 /*#####
@@ -283,9 +283,9 @@ struct TRINITY_DLL_DECL npc_plains_visionAI  : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_plains_vision(Creature *_Creature)
+CreatureAI* GetAI_npc_plains_vision(Creature* pCreature)
 {
-      return new npc_plains_visionAI (_Creature);
+      return new npc_plains_visionAI (pCreature);
 }
 
 /*#####

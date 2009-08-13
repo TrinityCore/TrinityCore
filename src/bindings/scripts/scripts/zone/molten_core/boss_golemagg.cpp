@@ -172,14 +172,14 @@ struct TRINITY_DLL_DECL mob_core_ragerAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_golemagg(Creature *_Creature)
+CreatureAI* GetAI_boss_golemagg(Creature* pCreature)
 {
-    return new boss_golemaggAI (_Creature);
+    return new boss_golemaggAI (pCreature);
 }
 
-CreatureAI* GetAI_mob_core_rager(Creature *_Creature)
+CreatureAI* GetAI_mob_core_rager(Creature* pCreature)
 {
-    return new mob_core_ragerAI (_Creature);
+    return new mob_core_ragerAI (pCreature);
 }
 
 void AddSC_boss_golemagg()

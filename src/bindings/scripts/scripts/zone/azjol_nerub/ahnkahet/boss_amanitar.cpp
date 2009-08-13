@@ -63,9 +63,9 @@ struct TRINITY_DLL_DECL boss_amanitarAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_amanitar(Creature *_Creature)
+CreatureAI* GetAI_boss_amanitar(Creature* pCreature)
 {
-    return new boss_amanitarAI (_Creature);
+    return new boss_amanitarAI (pCreature);
 }
 
 void AddSC_boss_amanitar()

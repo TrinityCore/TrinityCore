@@ -102,9 +102,9 @@ struct TRINITY_DLL_DECL boss_interrogator_vishasAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_interrogator_vishas(Creature *_Creature)
+CreatureAI* GetAI_boss_interrogator_vishas(Creature* pCreature)
 {
-    return new boss_interrogator_vishasAI (_Creature);
+    return new boss_interrogator_vishasAI (pCreature);
 }
 
 void AddSC_boss_interrogator_vishas()

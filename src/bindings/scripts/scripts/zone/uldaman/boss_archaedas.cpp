@@ -189,9 +189,9 @@ struct TRINITY_DLL_DECL boss_archaedasAI : public ScriptedAI
 
 };
 
-CreatureAI* GetAI_boss_archaedas(Creature *_Creature)
+CreatureAI* GetAI_boss_archaedas(Creature* pCreature)
 {
-    return new boss_archaedasAI (_Creature);
+    return new boss_archaedasAI (pCreature);
 }
 
 /* ScriptData
@@ -277,9 +277,9 @@ struct TRINITY_DLL_DECL mob_archaedas_minionsAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_mob_archaedas_minions(Creature *_Creature)
+CreatureAI* GetAI_mob_archaedas_minions(Creature* pCreature)
 {
-    return new mob_archaedas_minionsAI (_Creature);
+    return new mob_archaedas_minionsAI (pCreature);
 }
 
 /* ScriptData
@@ -394,9 +394,9 @@ struct TRINITY_DLL_DECL mob_stonekeepersAI : public ScriptedAI
 
 };
 
-CreatureAI* GetAI_mob_stonekeepers(Creature *_Creature)
+CreatureAI* GetAI_mob_stonekeepers(Creature* pCreature)
 {
-    return new mob_stonekeepersAI (_Creature);
+    return new mob_stonekeepersAI (pCreature);
 }
 
 /* ScriptData

@@ -343,9 +343,9 @@ struct TRINITY_DLL_DECL boss_sacrolashAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_sacrolash(Creature *_Creature)
+CreatureAI* GetAI_boss_sacrolash(Creature* pCreature)
 {
-    return new boss_sacrolashAI (_Creature);
+    return new boss_sacrolashAI (pCreature);
 };
 
 struct TRINITY_DLL_DECL boss_alythessAI : public Scripted_NoMovementAI
@@ -660,9 +660,9 @@ struct TRINITY_DLL_DECL boss_alythessAI : public Scripted_NoMovementAI
     }
 };
 
-CreatureAI* GetAI_boss_alythess(Creature *_Creature)
+CreatureAI* GetAI_boss_alythess(Creature* pCreature)
 {
-    return new boss_alythessAI (_Creature);
+    return new boss_alythessAI (pCreature);
 };
 
 struct TRINITY_DLL_DECL mob_shadow_imageAI : public ScriptedAI
@@ -735,9 +735,9 @@ struct TRINITY_DLL_DECL mob_shadow_imageAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_mob_shadow_image(Creature *_Creature)
+CreatureAI* GetAI_mob_shadow_image(Creature* pCreature)
 {
-    return new mob_shadow_imageAI (_Creature);
+    return new mob_shadow_imageAI (pCreature);
 };
 
 void AddSC_boss_eredar_twins()

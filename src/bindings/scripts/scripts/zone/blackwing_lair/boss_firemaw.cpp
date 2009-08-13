@@ -79,9 +79,9 @@ struct TRINITY_DLL_DECL boss_firemawAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_firemaw(Creature *_Creature)
+CreatureAI* GetAI_boss_firemaw(Creature* pCreature)
 {
-    return new boss_firemawAI (_Creature);
+    return new boss_firemawAI (pCreature);
 }
 
 void AddSC_boss_firemaw()

@@ -128,9 +128,9 @@ struct TRINITY_DLL_DECL boss_thaddiusAI : public BossAI
     }
 };
 
-CreatureAI* GetAI_boss_thaddius(Creature *_Creature)
+CreatureAI* GetAI_boss_thaddius(Creature* pCreature)
 {
-    return new boss_thaddiusAI (_Creature);
+    return new boss_thaddiusAI (pCreature);
 }
 
 void AddSC_boss_thaddius()

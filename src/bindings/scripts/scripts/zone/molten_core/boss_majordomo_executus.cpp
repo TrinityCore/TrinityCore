@@ -123,9 +123,9 @@ struct TRINITY_DLL_DECL boss_majordomoAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_majordomo(Creature *_Creature)
+CreatureAI* GetAI_boss_majordomo(Creature* pCreature)
 {
-    return new boss_majordomoAI (_Creature);
+    return new boss_majordomoAI (pCreature);
 }
 
 void AddSC_boss_majordomo()

@@ -140,9 +140,9 @@ struct TRINITY_DLL_DECL boss_silver_hand_bossesAI : public ScriptedAI
     }
 
 };
-CreatureAI* GetAI_boss_silver_hand_bossesAI(Creature *_Creature)
+CreatureAI* GetAI_boss_silver_hand_bossesAI(Creature* pCreature)
 {
-    return new boss_silver_hand_bossesAI (_Creature);
+    return new boss_silver_hand_bossesAI (pCreature);
 }
 
 void AddSC_boss_order_of_silver_hand()

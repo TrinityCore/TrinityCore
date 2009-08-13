@@ -40,9 +40,9 @@ struct TRINITY_DLL_DECL boss_dredAI : public ScriptedAI
     void JustDied(Unit* killer)  {}
 };
 
-CreatureAI* GetAI_boss_dred(Creature *_Creature)
+CreatureAI* GetAI_boss_dred(Creature* pCreature)
 {
-    return new boss_dredAI (_Creature);
+    return new boss_dredAI (pCreature);
 }
 
 void AddSC_boss_dred()

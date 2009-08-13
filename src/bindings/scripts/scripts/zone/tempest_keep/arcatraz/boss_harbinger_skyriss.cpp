@@ -266,9 +266,9 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_harbinger_skyriss(Creature *_Creature)
+CreatureAI* GetAI_boss_harbinger_skyriss(Creature* pCreature)
 {
-    return new boss_harbinger_skyrissAI (_Creature);
+    return new boss_harbinger_skyrissAI (pCreature);
 }
 
 #define SPELL_MIND_REND_IMAGE   36929
@@ -290,9 +290,9 @@ struct TRINITY_DLL_DECL boss_harbinger_skyriss_illusionAI : public ScriptedAI
     void EnterCombat(Unit *who) { }
 };
 
-CreatureAI* GetAI_boss_harbinger_skyriss_illusion(Creature *_Creature)
+CreatureAI* GetAI_boss_harbinger_skyriss_illusion(Creature* pCreature)
 {
-    return new boss_harbinger_skyriss_illusionAI (_Creature);
+    return new boss_harbinger_skyriss_illusionAI (pCreature);
 }
 
 void AddSC_boss_harbinger_skyriss()

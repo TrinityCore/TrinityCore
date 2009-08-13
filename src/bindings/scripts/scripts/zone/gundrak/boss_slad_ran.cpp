@@ -79,9 +79,9 @@ struct TRINITY_DLL_DECL boss_slad_ranAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_slad_ran(Creature *_Creature)
+CreatureAI* GetAI_boss_slad_ran(Creature* pCreature)
 {
-    return new boss_slad_ranAI (_Creature);
+    return new boss_slad_ranAI (pCreature);
 }
 
 void AddSC_boss_slad_ran()

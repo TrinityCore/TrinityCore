@@ -174,14 +174,14 @@ struct TRINITY_DLL_DECL npc_deaths_head_ward_keeperAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_deaths_head_ward_keeper(Creature *_Creature)
+CreatureAI* GetAI_npc_deaths_head_ward_keeper(Creature* pCreature)
 {
-    return new npc_deaths_head_ward_keeperAI(_Creature);
+    return new npc_deaths_head_ward_keeperAI(pCreature);
 }
 
-CreatureAI* GetAI_npc_willix(Creature *_Creature)
+CreatureAI* GetAI_npc_willix(Creature* pCreature)
 {
-    npc_willixAI* thisAI = new npc_willixAI(_Creature);
+    npc_willixAI* thisAI = new npc_willixAI(pCreature);
 
     thisAI->AddWaypoint(0, 2194.38, 1791.65, 65.48, 5000);
     thisAI->AddWaypoint(1, 2188.56, 1805.87, 64.45);

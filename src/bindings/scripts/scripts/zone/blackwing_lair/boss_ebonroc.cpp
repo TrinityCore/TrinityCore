@@ -88,9 +88,9 @@ struct TRINITY_DLL_DECL boss_ebonrocAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_ebonroc(Creature *_Creature)
+CreatureAI* GetAI_boss_ebonroc(Creature* pCreature)
 {
-    return new boss_ebonrocAI (_Creature);
+    return new boss_ebonrocAI (pCreature);
 }
 
 void AddSC_boss_ebonroc()

@@ -57,9 +57,9 @@ struct TRINITY_DLL_DECL boss_krystallusAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_krystallus(Creature *_Creature)
+CreatureAI* GetAI_boss_krystallus(Creature* pCreature)
 {
-    return new boss_krystallusAI (_Creature);
+    return new boss_krystallusAI (pCreature);
 }
 
 void AddSC_boss_krystallus()

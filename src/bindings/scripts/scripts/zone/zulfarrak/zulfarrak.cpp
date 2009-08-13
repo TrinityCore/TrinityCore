@@ -95,33 +95,33 @@ struct TRINITY_DLL_DECL npc_sergeant_blyAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_npc_sergeant_bly(Creature *_Creature)
+CreatureAI* GetAI_npc_sergeant_bly(Creature* pCreature)
 {
-    return new npc_sergeant_blyAI (_Creature);
+    return new npc_sergeant_blyAI (pCreature);
 }
 
-bool GossipHello_npc_sergeant_bly(Player* pPlayer, Creature *_Creature)
+bool GossipHello_npc_sergeant_bly(Player* pPlayer, Creature* pCreature)
 {
     /*if (pInstance->GetData(0) == DONE)
     {*/
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BLY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-    pPlayer->SEND_GOSSIP_MENU(1517, _Creature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(1517, pCreature->GetGUID());
     /*}
     else if (pInstance->GetData(0) == IN_PROGRESS)
-        pPlayer->SEND_GOSSIP_MENU(1516, _Creature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(1516, pCreature->GetGUID());
     else
-        pPlayer->SEND_GOSSIP_MENU(1515, _Creature->GetGUID());*/
+        pPlayer->SEND_GOSSIP_MENU(1515, pCreature->GetGUID());*/
 
     return true;
 }
 
-bool GossipSelect_npc_sergeant_bly(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_sergeant_bly(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
     if (action == GOSSIP_ACTION_INFO_DEF+1)
     {
         pPlayer->CLOSE_GOSSIP_MENU();
-        _Creature->setFaction(FACTION_HOSTILE);
-        CAST_AI(npc_sergeant_blyAI, _Creature->AI())->AttackStart(pPlayer);
+        pCreature->setFaction(FACTION_HOSTILE);
+        CAST_AI(npc_sergeant_blyAI, pCreature->AI())->AttackStart(pPlayer);
     }
     return true;
 }
@@ -172,27 +172,27 @@ struct TRINITY_DLL_DECL npc_weegli_blastfuseAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_npc_weegli_blastfuse(Creature *_Creature)
+CreatureAI* GetAI_npc_weegli_blastfuse(Creature* pCreature)
 {
-    return new npc_weegli_blastfuseAI (_Creature);
+    return new npc_weegli_blastfuseAI (pCreature);
 }
 
-bool GossipHello_npc_weegli_blastfuse(Player* pPlayer, Creature *_Creature)
+bool GossipHello_npc_weegli_blastfuse(Player* pPlayer, Creature* pCreature)
 {
     //event not implemented yet, this is only placeholder for future developement
     /*if (pInstance->GetData(0) == DONE)
     {
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_WEEGLI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-        pPlayer->SEND_GOSSIP_MENU(1514, _Creature->GetGUID());//if event can proceed to end
+        pPlayer->SEND_GOSSIP_MENU(1514, pCreature->GetGUID());//if event can proceed to end
     }
     else if (pInstance->GetData(0) == IN_PROGRESS)
-        pPlayer->SEND_GOSSIP_MENU(1513, _Creature->GetGUID());//if event are in progress
+        pPlayer->SEND_GOSSIP_MENU(1513, pCreature->GetGUID());//if event are in progress
     else*/
-    pPlayer->SEND_GOSSIP_MENU(1511, _Creature->GetGUID());   //if event not started
+    pPlayer->SEND_GOSSIP_MENU(1511, pCreature->GetGUID());   //if event not started
     return true;
 }
 
-bool GossipSelect_npc_weegli_blastfuse(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_weegli_blastfuse(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
     if (action == GOSSIP_ACTION_INFO_DEF+1)
     {

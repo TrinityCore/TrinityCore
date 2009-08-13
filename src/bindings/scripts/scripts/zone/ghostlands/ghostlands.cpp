@@ -37,17 +37,17 @@ EndContentData */
 
 #define GOSSIP_H_BKD "Take Blood Knight Insignia"
 
-bool GossipHello_npc_blood_knight_dawnstar(Player* pPlayer, Creature *_Creature)
+bool GossipHello_npc_blood_knight_dawnstar(Player* pPlayer, Creature* pCreature)
 {
     if (pPlayer->GetQuestStatus(9692) == QUEST_STATUS_INCOMPLETE && !pPlayer->HasItemCount(24226,1,true))
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_H_BKD, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-    pPlayer->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
 
     return true;
 }
 
-bool GossipSelect_npc_blood_knight_dawnstar(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_blood_knight_dawnstar(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
     if (action == GOSSIP_ACTION_INFO_DEF+1)
     {
@@ -68,24 +68,24 @@ bool GossipSelect_npc_blood_knight_dawnstar(Player* pPlayer, Creature *_Creature
 
 #define GOSSIP_HBN "You gave the crew disguises?"
 
-bool GossipHello_npc_budd_nedreck(Player* pPlayer, Creature *_Creature)
+bool GossipHello_npc_budd_nedreck(Player* pPlayer, Creature* pCreature)
 {
-    if (_Creature->isQuestGiver())
-        pPlayer->PrepareQuestMenu(_Creature->GetGUID());
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
     if (pPlayer->GetQuestStatus(11166) == QUEST_STATUS_INCOMPLETE)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HBN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
-    pPlayer->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
     return true;
 }
 
-bool GossipSelect_npc_budd_nedreck(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_budd_nedreck(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
     if (action == GOSSIP_ACTION_INFO_DEF)
     {
         pPlayer->CLOSE_GOSSIP_MENU();
-        _Creature->CastSpell(pPlayer, 42540, false);
+        pCreature->CastSpell(pPlayer, 42540, false);
     }
     return true;
 }
@@ -94,25 +94,25 @@ bool GossipSelect_npc_budd_nedreck(Player* pPlayer, Creature *_Creature, uint32 
 ## npc_rathis_tomber
 ######*/
 
-bool GossipHello_npc_rathis_tomber(Player* pPlayer, Creature *_Creature)
+bool GossipHello_npc_rathis_tomber(Player* pPlayer, Creature* pCreature)
 {
-    if (_Creature->isQuestGiver())
-        pPlayer->PrepareQuestMenu(_Creature->GetGUID());
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
-    if (_Creature->isVendor() && pPlayer->GetQuestRewardStatus(9152))
+    if (pCreature->isVendor() && pPlayer->GetQuestRewardStatus(9152))
     {
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-        pPlayer->SEND_GOSSIP_MENU(8432, _Creature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(8432, pCreature->GetGUID());
     }else
-    pPlayer->SEND_GOSSIP_MENU(8431,_Creature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(8431, pCreature->GetGUID());
 
     return true;
 }
 
-bool GossipSelect_npc_rathis_tomber(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_rathis_tomber(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
     if (action == GOSSIP_ACTION_TRADE)
-        pPlayer->SEND_VENDORLIST(_Creature->GetGUID());
+        pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
     return true;
 }
 
@@ -251,9 +251,9 @@ bool QuestAccept_npc_ranger_lilatha(Player* pPlayer, Creature* creature, Quest c
     return true;
 }
 
-CreatureAI* GetAI_npc_ranger_lilathaAI(Creature *_Creature)
+CreatureAI* GetAI_npc_ranger_lilathaAI(Creature* pCreature)
 {
-    npc_ranger_lilathaAI* ranger_lilathaAI = new npc_ranger_lilathaAI(_Creature);
+    npc_ranger_lilathaAI* ranger_lilathaAI = new npc_ranger_lilathaAI(pCreature);
 
     ranger_lilathaAI->FillPointMovementListForCreature();
 

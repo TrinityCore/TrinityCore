@@ -807,9 +807,9 @@ struct TRINITY_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
     void UpdateAI(const uint32 diff);
 };
 
-CreatureAI* GetAI_npc_unworthy_initiate(Creature *_Creature)
+CreatureAI* GetAI_npc_unworthy_initiate(Creature* pCreature)
 {
-    return new npc_unworthy_initiateAI(_Creature);
+    return new npc_unworthy_initiateAI(pCreature);
 }
 
 struct TRINITY_DLL_DECL npc_unworthy_initiate_anchorAI : public PassiveAI
@@ -927,9 +927,9 @@ void npc_unworthy_initiateAI::UpdateAI(const uint32 diff)
     }
 }
 
-CreatureAI* GetAI_npc_unworthy_initiate_anchor(Creature *_Creature)
+CreatureAI* GetAI_npc_unworthy_initiate_anchor(Creature* pCreature)
 {
-    return new npc_unworthy_initiate_anchorAI(_Creature);
+    return new npc_unworthy_initiate_anchorAI(pCreature);
 }
 
 bool GOHello_go_acherus_soul_prison(Player* pPlayer, GameObject* go)
@@ -1193,9 +1193,9 @@ struct TRINITY_DLL_DECL npc_dark_rider_of_acherusAI : public ScriptedAI
 
 };
 
-CreatureAI* GetAI_npc_dark_rider_of_acherus(Creature *_Creature)
+CreatureAI* GetAI_npc_dark_rider_of_acherus(Creature* pCreature)
 {
-    return new npc_dark_rider_of_acherusAI(_Creature);
+    return new npc_dark_rider_of_acherusAI(pCreature);
 }
 
 /*######
@@ -1264,9 +1264,9 @@ struct TRINITY_DLL_DECL npc_salanar_the_horsemanAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_salanar_the_horseman(Creature *_Creature)
+CreatureAI* GetAI_npc_salanar_the_horseman(Creature* pCreature)
 {
-    return new npc_salanar_the_horsemanAI(_Creature);
+    return new npc_salanar_the_horsemanAI(pCreature);
 }
 
 /*######
@@ -1306,9 +1306,9 @@ struct TRINITY_DLL_DECL npc_ros_dark_riderAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_ros_dark_rider(Creature *_Creature)
+CreatureAI* GetAI_npc_ros_dark_rider(Creature* pCreature)
 {
-    return new npc_ros_dark_riderAI(_Creature);
+    return new npc_ros_dark_riderAI(pCreature);
 }
 
 // correct way: 52312 52314 52555 ...
@@ -1337,9 +1337,9 @@ struct TRINITY_DLL_DECL npc_dkc1_gothikAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_dkc1_gothik(Creature *_Creature)
+CreatureAI* GetAI_npc_dkc1_gothik(Creature* pCreature)
 {
-    return new npc_dkc1_gothikAI(_Creature);
+    return new npc_dkc1_gothikAI(pCreature);
 }
 
 // npc 28912 quest 17217 boss 29001 mob 29007 go 191092 
@@ -1440,9 +1440,9 @@ struct TRINITY_DLL_DECL npc_valkyr_battle_maidenAI : public ScriptedAI
 
 };
 
-CreatureAI* GetAI_npc_valkyr_battle_maiden(Creature *_Creature)
+CreatureAI* GetAI_npc_valkyr_battle_maiden(Creature* pCreature)
 {
-    return new npc_valkyr_battle_maidenAI (_Creature);
+    return new npc_valkyr_battle_maidenAI (pCreature);
 }
 
 void AddSC_the_scarlet_enclave()

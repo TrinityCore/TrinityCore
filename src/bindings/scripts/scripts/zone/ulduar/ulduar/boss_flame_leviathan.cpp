@@ -251,29 +251,29 @@ struct TRINITY_DLL_DECL boss_flame_leviathan_overload_deviceAI : public Scripted
     }
 };
 
-CreatureAI* GetAI_boss_flame_leviathan(Creature *_Creature)
+CreatureAI* GetAI_boss_flame_leviathan(Creature* pCreature)
 {
-    return new boss_flame_leviathanAI (_Creature);
+    return new boss_flame_leviathanAI (pCreature);
 }
 
-CreatureAI* GetAI_boss_flame_leviathan_turret(Creature *_Creature)
+CreatureAI* GetAI_boss_flame_leviathan_turret(Creature* pCreature)
 {
-    return new boss_flame_leviathan_turretAI (_Creature);
+    return new boss_flame_leviathan_turretAI (pCreature);
 }
 
-CreatureAI* GetAI_boss_flame_leviathan_seat(Creature *_Creature)
+CreatureAI* GetAI_boss_flame_leviathan_seat(Creature* pCreature)
 {
-    return new boss_flame_leviathan_seatAI (_Creature);
+    return new boss_flame_leviathan_seatAI (pCreature);
 }
 
-CreatureAI* GetAI_boss_flame_leviathan_defense_turret(Creature *_Creature)
+CreatureAI* GetAI_boss_flame_leviathan_defense_turret(Creature* pCreature)
 {
-    return new boss_flame_leviathan_defense_turretAI (_Creature);
+    return new boss_flame_leviathan_defense_turretAI (pCreature);
 }
 
-CreatureAI* GetAI_boss_flame_leviathan_overload_device(Creature *_Creature)
+CreatureAI* GetAI_boss_flame_leviathan_overload_device(Creature* pCreature)
 {
-    return new boss_flame_leviathan_overload_deviceAI (_Creature);
+    return new boss_flame_leviathan_overload_deviceAI (pCreature);
 }
 
 void AddSC_boss_flame_leviathan()

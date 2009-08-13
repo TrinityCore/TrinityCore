@@ -215,34 +215,34 @@ struct TRINITY_DLL_DECL boss_vaelAI : public ScriptedAI
     }
 };
 
-void SendDefaultMenu_boss_vael(Player* pPlayer, Creature *_Creature, uint32 action)
+void SendDefaultMenu_boss_vael(Player* pPlayer, Creature* pCreature, uint32 action)
 {
     if (action == GOSSIP_ACTION_INFO_DEF + 1)               //Fight time
     {
         pPlayer->CLOSE_GOSSIP_MENU();
-        CAST_AI(boss_vaelAI, _Creature->AI())->BeginSpeach(pPlayer);
+        CAST_AI(boss_vaelAI, pCreature->AI())->BeginSpeach(pPlayer);
     }
 }
 
-bool GossipSelect_boss_vael(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_boss_vael(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
     if (sender == GOSSIP_SENDER_MAIN)
-        SendDefaultMenu_boss_vael(pPlayer, _Creature, action);
+        SendDefaultMenu_boss_vael(pPlayer, pCreature, action);
 
     return true;
 }
 
-bool GossipHello_boss_vael(Player* pPlayer, Creature *_Creature)
+bool GossipHello_boss_vael(Player* pPlayer, Creature* pCreature)
 {
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM        , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-    pPlayer->SEND_GOSSIP_MENU(907,_Creature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(907, pCreature->GetGUID());
 
     return true;
 }
 
-CreatureAI* GetAI_boss_vael(Creature *_Creature)
+CreatureAI* GetAI_boss_vael(Creature* pCreature)
 {
-    return new boss_vaelAI (_Creature);
+    return new boss_vaelAI (pCreature);
 }
 
 void AddSC_boss_vael()

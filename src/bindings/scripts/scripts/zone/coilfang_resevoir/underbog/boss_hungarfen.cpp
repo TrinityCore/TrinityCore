@@ -83,9 +83,9 @@ struct TRINITY_DLL_DECL boss_hungarfenAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_hungarfen(Creature *_Creature)
+CreatureAI* GetAI_boss_hungarfen(Creature* pCreature)
 {
-    return new boss_hungarfenAI (_Creature);
+    return new boss_hungarfenAI (pCreature);
 }
 
 #define SPELL_SPORE_CLOUD       34168
@@ -134,9 +134,9 @@ struct TRINITY_DLL_DECL mob_underbog_mushroomAI : public ScriptedAI
         }else Shrink_Timer -= diff;
     }
 };
-CreatureAI* GetAI_mob_underbog_mushroom(Creature *_Creature)
+CreatureAI* GetAI_mob_underbog_mushroom(Creature* pCreature)
 {
-    return new mob_underbog_mushroomAI (_Creature);
+    return new mob_underbog_mushroomAI (pCreature);
 }
 
 void AddSC_boss_hungarfen()

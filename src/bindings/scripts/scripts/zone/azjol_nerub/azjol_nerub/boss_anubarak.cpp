@@ -96,9 +96,9 @@ struct TRINITY_DLL_DECL boss_anub_arakAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_anub_arak(Creature *_Creature)
+CreatureAI* GetAI_boss_anub_arak(Creature* pCreature)
 {
-    return new boss_anub_arakAI (_Creature);
+    return new boss_anub_arakAI (pCreature);
 }
 
 void AddSC_boss_anub_arak()

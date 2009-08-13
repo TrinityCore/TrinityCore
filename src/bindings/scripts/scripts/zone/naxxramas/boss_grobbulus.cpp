@@ -88,9 +88,9 @@ struct TRINITY_DLL_DECL boss_grobbulusAI : public BossAI
     }
 };
 
-CreatureAI* GetAI_boss_grobbulus(Creature *_Creature)
+CreatureAI* GetAI_boss_grobbulus(Creature* pCreature)
 {
-    return new boss_grobbulusAI (_Creature);
+    return new boss_grobbulusAI (pCreature);
 }
 
 void AddSC_boss_grobbulus()

@@ -34,14 +34,14 @@ EndContentData */
 
 #define GOSSIP_ITEM_TELEPORT    "Teleport me to Amber Ledge, please."
 
-bool GossipHello_npc_tiare(Player* pPlayer, Creature *_Creature)
+bool GossipHello_npc_tiare(Player* pPlayer, Creature* pCreature)
 {
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_TELEPORT, GOSSIP_SENDER_MAIN, GOSSIP_OPTION_GOSSIP);
-    pPlayer->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
     return true;
 }
 
-bool GossipSelect_npc_tiare(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_tiare(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
     if (action == GOSSIP_OPTION_GOSSIP)
     {
@@ -58,22 +58,22 @@ bool GossipSelect_npc_tiare(Player* pPlayer, Creature *_Creature, uint32 sender,
 #define GOSSIP_ITEM_FREE_FLIGHT "I'd like passage to the Transitus Shield."
 #define GOSSIP_ITEM_FLIGHT      "May I use a drake to fly elsewhere?"
 
-bool GossipHello_npc_surristrasz(Player* pPlayer, Creature *_Creature)
+bool GossipHello_npc_surristrasz(Player* pPlayer, Creature* pCreature)
 {
-    if (_Creature->isQuestGiver())
-        pPlayer->PrepareQuestMenu(_Creature->GetGUID());
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
-    if (_Creature->isTaxi())
+    if (pCreature->isTaxi())
     {
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_FREE_FLIGHT, GOSSIP_SENDER_MAIN, GOSSIP_OPTION_GOSSIP);
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_ITEM_FLIGHT, GOSSIP_SENDER_MAIN, GOSSIP_OPTION_TAXIVENDOR);
     }
 
-    pPlayer->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
     return true;
 }
 
-bool GossipSelect_npc_surristrasz(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_surristrasz(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
     if (action == GOSSIP_OPTION_GOSSIP)
     {
@@ -82,7 +82,7 @@ bool GossipSelect_npc_surristrasz(Player* pPlayer, Creature *_Creature, uint32 s
     }
     if (action == GOSSIP_OPTION_TAXIVENDOR)
     {
-        pPlayer->GetSession()->SendTaxiMenu(_Creature);
+        pPlayer->GetSession()->SendTaxiMenu(pCreature);
     }
     return true;
 }
@@ -226,9 +226,9 @@ struct TRINITY_DLL_DECL npc_khunok_the_behemothAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_khunok_the_behemoth(Creature *_Creature)
+CreatureAI* GetAI_npc_khunok_the_behemoth(Creature* pCreature)
 {
-    return new npc_khunok_the_behemothAI(_Creature);
+    return new npc_khunok_the_behemothAI(pCreature);
 }
 
 void AddSC_borean_tundra()

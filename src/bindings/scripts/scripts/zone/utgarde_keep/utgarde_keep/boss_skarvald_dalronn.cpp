@@ -198,9 +198,9 @@ struct TRINITY_DLL_DECL boss_skarvald_the_constructorAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_skarvald_the_constructor(Creature *_Creature)
+CreatureAI* GetAI_boss_skarvald_the_constructor(Creature* pCreature)
 {
-    return new boss_skarvald_the_constructorAI (_Creature);
+    return new boss_skarvald_the_constructorAI (pCreature);
 }
 
 struct TRINITY_DLL_DECL boss_dalronn_the_controllerAI : public ScriptedAI
@@ -370,9 +370,9 @@ struct TRINITY_DLL_DECL boss_dalronn_the_controllerAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_dalronn_the_controller(Creature *_Creature)
+CreatureAI* GetAI_boss_dalronn_the_controller(Creature* pCreature)
 {
-    return new boss_dalronn_the_controllerAI (_Creature);
+    return new boss_dalronn_the_controllerAI (pCreature);
 }
 
 void AddSC_boss_skarvald_dalronn()

@@ -190,9 +190,9 @@ struct TRINITY_DLL_DECL boss_gythAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_gyth(Creature *_Creature)
+CreatureAI* GetAI_boss_gyth(Creature* pCreature)
 {
-    return new boss_gythAI (_Creature);
+    return new boss_gythAI (pCreature);
 }
 
 void AddSC_boss_gyth()

@@ -87,9 +87,9 @@ struct TRINITY_DLL_DECL npc_drakuru_shacklesAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_drakuru_shackles(Creature *_Creature)
+CreatureAI* GetAI_npc_drakuru_shackles(Creature* pCreature)
 {
-    return new npc_drakuru_shacklesAI (_Creature);
+    return new npc_drakuru_shacklesAI (pCreature);
 }
 
 
@@ -163,9 +163,9 @@ struct TRINITY_DLL_DECL npc_captured_rageclawAI : public ScriptedAI
    }
 };
 
-CreatureAI* GetAI_npc_captured_rageclaw(Creature *_Creature)
+CreatureAI* GetAI_npc_captured_rageclaw(Creature* pCreature)
 {
-    return new npc_captured_rageclawAI (_Creature);
+    return new npc_captured_rageclawAI (pCreature);
 }
 
 void AddSC_zuldrak()

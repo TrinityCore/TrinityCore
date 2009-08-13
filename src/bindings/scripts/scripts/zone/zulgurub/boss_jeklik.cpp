@@ -265,14 +265,14 @@ struct TRINITY_DLL_DECL mob_batriderAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_jeklik(Creature *_Creature)
+CreatureAI* GetAI_boss_jeklik(Creature* pCreature)
 {
-    return new boss_jeklikAI (_Creature);
+    return new boss_jeklikAI (pCreature);
 }
 
-CreatureAI* GetAI_mob_batrider(Creature *_Creature)
+CreatureAI* GetAI_mob_batrider(Creature* pCreature)
 {
-    return new mob_batriderAI (_Creature);
+    return new mob_batriderAI (pCreature);
 }
 
 void AddSC_boss_jeklik()

@@ -191,9 +191,9 @@ struct TRINITY_DLL_DECL boss_murmurAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_murmur(Creature *_Creature)
+CreatureAI* GetAI_boss_murmur(Creature* pCreature)
 {
-    return new boss_murmurAI (_Creature);
+    return new boss_murmurAI (pCreature);
 }
 
 void AddSC_boss_murmur()

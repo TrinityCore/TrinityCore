@@ -322,14 +322,14 @@ struct TRINITY_DLL_DECL mob_gothik_minionAI : public SpellAI
     }
 };
 
-CreatureAI* GetAI_boss_gothik(Creature *_Creature)
+CreatureAI* GetAI_boss_gothik(Creature* pCreature)
 {
-    return new boss_gothikAI (_Creature);
+    return new boss_gothikAI (pCreature);
 }
 
-CreatureAI* GetAI_mob_gothik_minion(Creature *_Creature)
+CreatureAI* GetAI_mob_gothik_minion(Creature* pCreature)
 {
-    return new mob_gothik_minionAI (_Creature);
+    return new mob_gothik_minionAI (pCreature);
 }
 
 void AddSC_boss_gothik()

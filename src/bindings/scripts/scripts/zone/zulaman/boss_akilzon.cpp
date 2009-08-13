@@ -429,14 +429,14 @@ struct TRINITY_DLL_DECL mob_soaring_eagleAI : public ScriptedAI
 };
 
 //Soaring Eagle
-CreatureAI* GetAI_mob_soaring_eagle(Creature *_Creature)
+CreatureAI* GetAI_mob_soaring_eagle(Creature* pCreature)
 {
-    return new mob_soaring_eagleAI(_Creature);
+    return new mob_soaring_eagleAI(pCreature);
 }
 
-CreatureAI* GetAI_boss_akilzon(Creature *_Creature)
+CreatureAI* GetAI_boss_akilzon(Creature* pCreature)
 {
-    return new boss_akilzonAI(_Creature);
+    return new boss_akilzonAI(pCreature);
 }
 
 void AddSC_boss_akilzon()

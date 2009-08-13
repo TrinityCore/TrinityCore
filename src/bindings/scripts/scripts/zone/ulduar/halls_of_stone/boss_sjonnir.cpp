@@ -67,9 +67,9 @@ struct TRINITY_DLL_DECL boss_sjonnirAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_sjonnir(Creature *_Creature)
+CreatureAI* GetAI_boss_sjonnir(Creature* pCreature)
 {
-    return new boss_sjonnirAI (_Creature);
+    return new boss_sjonnirAI (pCreature);
 }
 
 void AddSC_boss_sjonnir()

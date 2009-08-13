@@ -194,9 +194,9 @@ struct TRINITY_DLL_DECL boss_elder_nadoxAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_elder_nadox(Creature *_Creature)
+CreatureAI* GetAI_boss_elder_nadox(Creature* pCreature)
 {
-    return new boss_elder_nadoxAI(_Creature);
+    return new boss_elder_nadoxAI(pCreature);
 }
 
 #define SPELL_SPRINT            56354
@@ -253,9 +253,9 @@ struct TRINITY_DLL_DECL mob_ahnkahar_nerubianAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_mob_ahnkahar_nerubian(Creature *_Creature)
+CreatureAI* GetAI_mob_ahnkahar_nerubian(Creature* pCreature)
 {
-    return new mob_ahnkahar_nerubianAI(_Creature);
+    return new mob_ahnkahar_nerubianAI(pCreature);
 }
 
 void AddSC_boss_elder_nadox()

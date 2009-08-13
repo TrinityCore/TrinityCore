@@ -95,9 +95,9 @@ struct TRINITY_DLL_DECL mob_freed_soulAI : public ScriptedAI
     void EnterCombat(Unit* who) { }
 };
 
-CreatureAI* GetAI_mob_freed_soul(Creature *_Creature)
+CreatureAI* GetAI_mob_freed_soul(Creature* pCreature)
 {
-    return new mob_freed_soulAI (_Creature);
+    return new mob_freed_soulAI (pCreature);
 }
 
 /*######
@@ -163,9 +163,9 @@ struct TRINITY_DLL_DECL mob_restless_soulAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_mob_restless_soul(Creature *_Creature)
+CreatureAI* GetAI_mob_restless_soul(Creature* pCreature)
 {
-    return new mob_restless_soulAI (_Creature);
+    return new mob_restless_soulAI (pCreature);
 }
 
 /*######
@@ -258,9 +258,9 @@ struct TRINITY_DLL_DECL mobs_spectral_ghostly_citizenAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_mobs_spectral_ghostly_citizen(Creature *_Creature)
+CreatureAI* GetAI_mobs_spectral_ghostly_citizen(Creature* pCreature)
 {
-    return new mobs_spectral_ghostly_citizenAI (_Creature);
+    return new mobs_spectral_ghostly_citizenAI (pCreature);
 }
 
 void AddSC_stratholme()

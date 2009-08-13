@@ -62,9 +62,9 @@ struct TRINITY_DLL_DECL boss_palehoofAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_palehoof(Creature *_Creature)
+CreatureAI* GetAI_boss_palehoof(Creature* pCreature)
 {
-    return new boss_palehoofAI (_Creature);
+    return new boss_palehoofAI (pCreature);
 }
 
 void AddSC_boss_palehoof()

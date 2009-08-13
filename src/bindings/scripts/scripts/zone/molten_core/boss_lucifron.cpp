@@ -75,9 +75,9 @@ struct TRINITY_DLL_DECL boss_lucifronAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_lucifron(Creature *_Creature)
+CreatureAI* GetAI_boss_lucifron(Creature* pCreature)
 {
-    return new boss_lucifronAI (_Creature);
+    return new boss_lucifronAI (pCreature);
 }
 
 void AddSC_boss_lucifron()

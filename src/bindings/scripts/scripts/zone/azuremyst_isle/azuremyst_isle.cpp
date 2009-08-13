@@ -167,9 +167,9 @@ struct TRINITY_DLL_DECL npc_draenei_survivorAI : public ScriptedAI
         }else SayHelpTimer -= diff;
     }
 };
-CreatureAI* GetAI_npc_draenei_survivor(Creature *_Creature)
+CreatureAI* GetAI_npc_draenei_survivor(Creature* pCreature)
 {
-    return new npc_draenei_survivorAI (_Creature);
+    return new npc_draenei_survivorAI (pCreature);
 }
 
 /*######
@@ -253,27 +253,27 @@ struct TRINITY_DLL_DECL npc_engineer_spark_overgrindAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_engineer_spark_overgrind(Creature *_Creature)
+CreatureAI* GetAI_npc_engineer_spark_overgrind(Creature* pCreature)
 {
-    return new npc_engineer_spark_overgrindAI (_Creature);
+    return new npc_engineer_spark_overgrindAI (pCreature);
 }
 
-bool GossipHello_npc_engineer_spark_overgrind(Player* pPlayer, Creature *_Creature)
+bool GossipHello_npc_engineer_spark_overgrind(Player* pPlayer, Creature* pCreature)
 {
     if (pPlayer->GetQuestStatus(QUEST_GNOMERCY) == QUEST_STATUS_INCOMPLETE)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FIGHT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
-    pPlayer->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
     return true;
 }
 
-bool GossipSelect_npc_engineer_spark_overgrind(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_engineer_spark_overgrind(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
     if (action == GOSSIP_ACTION_INFO_DEF)
     {
         pPlayer->CLOSE_GOSSIP_MENU();
-        _Creature->setFaction(FACTION_HOSTILE);
-        CAST_AI(npc_engineer_spark_overgrindAI, _Creature->AI())->AttackStart(pPlayer);
+        pCreature->setFaction(FACTION_HOSTILE);
+        CAST_AI(npc_engineer_spark_overgrindAI, pCreature->AI())->AttackStart(pPlayer);
     }
     return true;
 }
@@ -310,9 +310,9 @@ struct TRINITY_DLL_DECL npc_injured_draeneiAI : public ScriptedAI
     }
 
 };
-CreatureAI* GetAI_npc_injured_draenei(Creature *_Creature)
+CreatureAI* GetAI_npc_injured_draenei(Creature* pCreature)
 {
-    return new npc_injured_draeneiAI (_Creature);
+    return new npc_injured_draeneiAI (pCreature);
 }
 
 /*######
@@ -536,9 +536,9 @@ struct TRINITY_DLL_DECL npc_geezleAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_geezleAI(Creature *_Creature)
+CreatureAI* GetAI_npc_geezleAI(Creature* pCreature)
 {
-    return new npc_geezleAI(_Creature);
+    return new npc_geezleAI(pCreature);
 }
 
 /*######

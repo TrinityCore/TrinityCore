@@ -78,9 +78,9 @@ struct TRINITY_DLL_DECL boss_kurinnaxxAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_kurinnaxx(Creature *_Creature)
+CreatureAI* GetAI_boss_kurinnaxx(Creature* pCreature)
 {
-    return new boss_kurinnaxxAI (_Creature);
+    return new boss_kurinnaxxAI (pCreature);
 }
 
 void AddSC_boss_kurinnaxx()

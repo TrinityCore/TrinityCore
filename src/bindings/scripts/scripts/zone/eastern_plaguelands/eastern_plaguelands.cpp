@@ -49,31 +49,31 @@ struct TRINITY_DLL_DECL mobs_ghoul_flayerAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_mobs_ghoul_flayer(Creature *_Creature)
+CreatureAI* GetAI_mobs_ghoul_flayer(Creature* pCreature)
 {
-    return new mobs_ghoul_flayerAI (_Creature);
+    return new mobs_ghoul_flayerAI (pCreature);
 }
 
 /*######
 ## npc_augustus_the_touched
 ######*/
 
-bool GossipHello_npc_augustus_the_touched(Player* pPlayer, Creature *_Creature)
+bool GossipHello_npc_augustus_the_touched(Player* pPlayer, Creature* pCreature)
 {
-    if (_Creature->isQuestGiver())
-        pPlayer->PrepareQuestMenu(_Creature->GetGUID());
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
-    if (_Creature->isVendor() && pPlayer->GetQuestRewardStatus(6164))
+    if (pCreature->isVendor() && pPlayer->GetQuestRewardStatus(6164))
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
 
-    pPlayer->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(),_Creature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
     return true;
 }
 
-bool GossipSelect_npc_augustus_the_touched(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_augustus_the_touched(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
     if (action == GOSSIP_ACTION_TRADE)
-        pPlayer->SEND_VENDORLIST(_Creature->GetGUID());
+        pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
     return true;
 }
 
@@ -96,16 +96,16 @@ struct TRINITY_DLL_DECL npc_darrowshire_spiritAI : public ScriptedAI
     void EnterCombat(Unit *who) { }
 
 };
-CreatureAI* GetAI_npc_darrowshire_spirit(Creature *_Creature)
+CreatureAI* GetAI_npc_darrowshire_spirit(Creature* pCreature)
 {
-    return new npc_darrowshire_spiritAI (_Creature);
+    return new npc_darrowshire_spiritAI (pCreature);
 }
 
-bool GossipHello_npc_darrowshire_spirit(Player* pPlayer, Creature *_Creature)
+bool GossipHello_npc_darrowshire_spirit(Player* pPlayer, Creature* pCreature)
 {
-    pPlayer->SEND_GOSSIP_MENU(3873,_Creature->GetGUID());
-    pPlayer->TalkedToCreature(_Creature->GetEntry(), _Creature->GetGUID());
-    _Creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+    pPlayer->SEND_GOSSIP_MENU(3873, pCreature->GetGUID());
+    pPlayer->TalkedToCreature(pCreature->GetEntry(), pCreature->GetGUID());
+    pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     return true;
 }
 
@@ -113,34 +113,34 @@ bool GossipHello_npc_darrowshire_spirit(Player* pPlayer, Creature *_Creature)
 ## npc_tirion_fordring
 ######*/
 
-bool GossipHello_npc_tirion_fordring(Player* pPlayer, Creature *_Creature)
+bool GossipHello_npc_tirion_fordring(Player* pPlayer, Creature* pCreature)
 {
-    if (_Creature->isQuestGiver())
-        pPlayer->PrepareQuestMenu(_Creature->GetGUID());
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
     if (pPlayer->GetQuestStatus(5742) == QUEST_STATUS_INCOMPLETE && pPlayer->getStandState() == UNIT_STAND_STATE_SIT)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I am ready to hear your tale, Tirion.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-    pPlayer->SEND_GOSSIP_MENU(_Creature->GetNpcTextId(), _Creature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
 
     return true;
 }
 
-bool GossipSelect_npc_tirion_fordring(Player* pPlayer, Creature *_Creature, uint32 sender, uint32 action)
+bool GossipSelect_npc_tirion_fordring(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
     switch (action)
     {
         case GOSSIP_ACTION_INFO_DEF+1:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Thank you, Tirion.  What of your identity?", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-            pPlayer->SEND_GOSSIP_MENU(4493, _Creature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(4493, pCreature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+2:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "That is terrible.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-            pPlayer->SEND_GOSSIP_MENU(4494, _Creature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(4494, pCreature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+3:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I will, Tirion.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-            pPlayer->SEND_GOSSIP_MENU(4495, _Creature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(4495, pCreature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+4:
             pPlayer->CLOSE_GOSSIP_MENU();

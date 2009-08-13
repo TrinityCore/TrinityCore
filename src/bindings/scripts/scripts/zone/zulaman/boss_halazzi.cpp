@@ -377,14 +377,14 @@ struct TRINITY_DLL_DECL boss_spiritlynxAI : public ScriptedAI
 
 };
 
-CreatureAI* GetAI_boss_halazziAI(Creature *_Creature)
+CreatureAI* GetAI_boss_halazziAI(Creature* pCreature)
 {
-    return new boss_halazziAI (_Creature);
+    return new boss_halazziAI (pCreature);
 }
 
-CreatureAI* GetAI_boss_spiritlynxAI(Creature *_Creature)
+CreatureAI* GetAI_boss_spiritlynxAI(Creature* pCreature)
 {
-    return new boss_spiritlynxAI (_Creature);
+    return new boss_spiritlynxAI (pCreature);
 }
 
 void AddSC_boss_halazzi()

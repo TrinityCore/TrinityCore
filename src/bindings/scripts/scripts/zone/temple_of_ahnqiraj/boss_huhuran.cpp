@@ -132,9 +132,9 @@ struct TRINITY_DLL_DECL boss_huhuranAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_huhuran(Creature *_Creature)
+CreatureAI* GetAI_boss_huhuran(Creature* pCreature)
 {
-    return new boss_huhuranAI (_Creature);
+    return new boss_huhuranAI (pCreature);
 }
 
 void AddSC_boss_huhuran()

@@ -300,9 +300,9 @@ struct TRINITY_DLL_DECL boss_chromaggusAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_chromaggus(Creature *_Creature)
+CreatureAI* GetAI_boss_chromaggus(Creature* pCreature)
 {
-    return new boss_chromaggusAI (_Creature);
+    return new boss_chromaggusAI (pCreature);
 }
 
 void AddSC_boss_chromaggus()

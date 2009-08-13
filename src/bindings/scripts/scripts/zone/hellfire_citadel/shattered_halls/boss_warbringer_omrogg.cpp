@@ -381,14 +381,14 @@ struct TRINITY_DLL_DECL boss_warbringer_omroggAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_warbringer_omrogg(Creature *_Creature)
+CreatureAI* GetAI_boss_warbringer_omrogg(Creature* pCreature)
 {
-    return new boss_warbringer_omroggAI (_Creature);
+    return new boss_warbringer_omroggAI (pCreature);
 }
 
-CreatureAI* GetAI_mob_omrogg_heads(Creature *_Creature)
+CreatureAI* GetAI_mob_omrogg_heads(Creature* pCreature)
 {
-    return new mob_omrogg_headsAI (_Creature);
+    return new mob_omrogg_headsAI (pCreature);
 }
 
 void AddSC_boss_warbringer_omrogg()

@@ -209,9 +209,9 @@ struct TRINITY_DLL_DECL boss_nefarianAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_boss_nefarian(Creature *_Creature)
+CreatureAI* GetAI_boss_nefarian(Creature* pCreature)
 {
-    return new boss_nefarianAI (_Creature);
+    return new boss_nefarianAI (pCreature);
 }
 
 void AddSC_boss_nefarian()

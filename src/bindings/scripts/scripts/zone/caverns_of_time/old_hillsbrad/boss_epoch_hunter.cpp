@@ -134,9 +134,9 @@ struct TRINITY_DLL_DECL boss_epoch_hunterAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_epoch_hunter(Creature *_Creature)
+CreatureAI* GetAI_boss_epoch_hunter(Creature* pCreature)
 {
-    return new boss_epoch_hunterAI (_Creature);
+    return new boss_epoch_hunterAI (pCreature);
 }
 
 void AddSC_boss_epoch_hunter()

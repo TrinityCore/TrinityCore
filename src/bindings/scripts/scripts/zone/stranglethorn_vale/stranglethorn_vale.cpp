@@ -102,9 +102,9 @@ struct TRINITY_DLL_DECL mob_yennikuAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-CreatureAI* GetAI_mob_yenniku(Creature *_Creature)
+CreatureAI* GetAI_mob_yenniku(Creature* pCreature)
 {
-    return new mob_yennikuAI (_Creature);
+    return new mob_yennikuAI (pCreature);
 }
 
 /*######

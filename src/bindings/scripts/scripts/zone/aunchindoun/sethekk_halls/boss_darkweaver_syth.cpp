@@ -196,9 +196,9 @@ struct TRINITY_DLL_DECL boss_darkweaver_sythAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_darkweaver_syth(Creature *_Creature)
+CreatureAI* GetAI_boss_darkweaver_syth(Creature* pCreature)
 {
-    return new boss_darkweaver_sythAI (_Creature);
+    return new boss_darkweaver_sythAI (pCreature);
 }
 
 /* ELEMENTALS */
@@ -249,9 +249,9 @@ struct TRINITY_DLL_DECL mob_syth_fireAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_mob_syth_fire(Creature *_Creature)
+CreatureAI* GetAI_mob_syth_fire(Creature* pCreature)
 {
-    return new mob_syth_fireAI (_Creature);
+    return new mob_syth_fireAI (pCreature);
 }
 
 struct TRINITY_DLL_DECL mob_syth_arcaneAI : public ScriptedAI
@@ -300,9 +300,9 @@ struct TRINITY_DLL_DECL mob_syth_arcaneAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_mob_syth_arcane(Creature *_Creature)
+CreatureAI* GetAI_mob_syth_arcane(Creature* pCreature)
 {
-    return new mob_syth_arcaneAI (_Creature);
+    return new mob_syth_arcaneAI (pCreature);
 }
 
 struct TRINITY_DLL_DECL mob_syth_frostAI : public ScriptedAI
@@ -351,9 +351,9 @@ struct TRINITY_DLL_DECL mob_syth_frostAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_mob_syth_frost(Creature *_Creature)
+CreatureAI* GetAI_mob_syth_frost(Creature* pCreature)
 {
-    return new mob_syth_frostAI (_Creature);
+    return new mob_syth_frostAI (pCreature);
 }
 
 struct TRINITY_DLL_DECL mob_syth_shadowAI : public ScriptedAI
@@ -402,9 +402,9 @@ struct TRINITY_DLL_DECL mob_syth_shadowAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_mob_syth_shadow(Creature *_Creature)
+CreatureAI* GetAI_mob_syth_shadow(Creature* pCreature)
 {
-    return new mob_syth_shadowAI (_Creature);
+    return new mob_syth_shadowAI (pCreature);
 }
 
 void AddSC_boss_darkweaver_syth()
