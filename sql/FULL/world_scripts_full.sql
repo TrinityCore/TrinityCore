@@ -115,7 +115,6 @@ UPDATE `creature_template` SET `ScriptName`='npc_lightwell' WHERE `entry` IN (31
 /* */
 
 /* ALTERAC MOUNTAINS */
-UPDATE `creature_template` SET `ScriptName`='npc_ravenholdt' WHERE `entry`=13936;
 
 /* ALTERAC VALLEY */
 
@@ -1198,3 +1197,6 @@ UPDATE `creature_template` SET `ScriptName` = 'npc_skywing' WHERE entry=22424;
 
 DELETE FROM areatrigger_scripts WHERE entry = 4156;
 INSERT INTO areatrigger_scripts VALUES (4156, 'at_naxxramas_frostwyrm_wing');
+
+DELETE FROM areatrigger_scripts WHERE entry=3066;
+INSERT INTO areatrigger_scripts VALUES (3066,'at_ravenholdt');

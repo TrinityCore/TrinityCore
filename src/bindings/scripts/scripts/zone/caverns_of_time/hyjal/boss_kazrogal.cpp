@@ -123,7 +123,7 @@ struct TRINITY_DLL_DECL boss_kazrogalAI : public hyjal_trashAI
                     AddWaypoint(5, 5508.16,    -2659.2,    1480.15);
                     AddWaypoint(6, 5489.62,    -2704.05,    1482.18);
                     AddWaypoint(7, 5457.04,    -2726.26,    1485.10);
-                    Start(false, true, true);
+                    Start(false, true);
                     SetDespawnAtEnd(false);
                 }
             }

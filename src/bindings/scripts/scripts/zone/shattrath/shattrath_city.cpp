@@ -341,7 +341,7 @@ public:
                 float Radius = 10.0;
                 if( m_creature->IsWithinDistInMap(who, Radius) )
                 {
-                    Start(false, false, false, who->GetGUID());
+                    Start(false, false, who->GetGUID());
                 }
             }
         }

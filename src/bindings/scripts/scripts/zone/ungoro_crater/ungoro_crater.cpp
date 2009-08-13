@@ -124,7 +124,7 @@ bool QuestAccept_npc_ame(Player* player, Creature* creature, Quest const* quest)
 {
     if (quest->GetQuestId() == QUEST_CHASING_AME)
     {
-        CAST_AI(npc_escortAI, (creature->AI()))->Start(false, true, false, player->GetGUID());
+        CAST_AI(npc_escortAI, (creature->AI()))->Start(false, false, player->GetGUID());
         DoScriptText(SAY_READY, creature, player);
         creature->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
         // Change faction so mobs attack

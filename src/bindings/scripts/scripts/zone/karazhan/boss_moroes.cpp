@@ -99,13 +99,13 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
         }
 
         if(pInstance)
-            pInstance->SetData(DATA_MOROES_EVENT, NOT_STARTED);
+            pInstance->SetData(TYPE_MOROES, NOT_STARTED);
     }
 
     void StartEvent()
     {
         if(pInstance)
-            pInstance->SetData(DATA_MOROES_EVENT, IN_PROGRESS);
+            pInstance->SetData(TYPE_MOROES, IN_PROGRESS);
 
         DoZoneInCombat();
     }
@@ -134,7 +134,7 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
         DoScriptText(SAY_DEATH, m_creature);
 
         if (pInstance)
-            pInstance->SetData(DATA_MOROES_EVENT, DONE);
+            pInstance->SetData(TYPE_MOROES, DONE);
 
         DeSpawnAdds();
 
@@ -248,7 +248,7 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
         if(!UpdateVictim() )
             return;
 
-        if(pInstance && !pInstance->GetData(DATA_MOROES_EVENT))
+        if(pInstance && !pInstance->GetData(TYPE_MOROES))
         {
             EnterEvadeMode();
             return;
@@ -346,7 +346,7 @@ struct TRINITY_DLL_DECL boss_moroes_guestAI : public ScriptedAI
     void Reset()
     {
         if(pInstance)
-            pInstance->SetData(DATA_MOROES_EVENT, NOT_STARTED);
+            pInstance->SetData(TYPE_MOROES, NOT_STARTED);
     }
 
     void AcquireGUID()
@@ -382,7 +382,7 @@ struct TRINITY_DLL_DECL boss_moroes_guestAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(pInstance && !pInstance->GetData(DATA_MOROES_EVENT))
+        if(pInstance && !pInstance->GetData(TYPE_MOROES))
             EnterEvadeMode();
 
         DoMeleeAttackIfReady();

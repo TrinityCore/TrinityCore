@@ -111,7 +111,7 @@ bool GossipSelect_npc_prospector_anvilward(Player *player, Creature *_Creature, 
             break;
         case GOSSIP_ACTION_INFO_DEF+2:
             player->CLOSE_GOSSIP_MENU();
-            CAST_AI(npc_escortAI, (_Creature->AI()))->Start(true, true, false, player->GetGUID());
+            CAST_AI(npc_escortAI, (_Creature->AI()))->Start(true, false, player->GetGUID());
             break;
     }
     return true;

@@ -135,7 +135,7 @@ bool GossipSelect_npc_injured_rainspeaker_oracle(Player *player, Creature *_Crea
 {
     if( action == GOSSIP_ACTION_INFO_DEF+1 )
     {
-        CAST_AI(npc_escortAI, (_Creature->AI()))->Start(true, true, false, player->GetGUID());
+        CAST_AI(npc_escortAI, (_Creature->AI()))->Start(true, false, player->GetGUID());
         CAST_AI(npc_escortAI, (_Creature->AI()))->SetMaxPlayerDistance(35.0f);
         _Creature->SetUnitMovementFlags(MOVEMENTFLAG_JUMPING);
         DoScriptText(SAY_START_IRO,_Creature);

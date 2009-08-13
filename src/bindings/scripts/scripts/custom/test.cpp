@@ -165,7 +165,7 @@ bool GossipSelect_npc_test(Player *player, Creature *_Creature, uint32 sender, u
     if (action == GOSSIP_ACTION_INFO_DEF+1)
     {
         player->CLOSE_GOSSIP_MENU();
-        ((npc_escortAI*)(_Creature->AI()))->Start(true, true, true, player->GetGUID());
+        ((npc_escortAI*)(_Creature->AI()))->Start(true, true, player->GetGUID());
 
         return true;                                        // prevent Trinity core handling
     }
@@ -173,7 +173,7 @@ bool GossipSelect_npc_test(Player *player, Creature *_Creature, uint32 sender, u
     if (action == GOSSIP_ACTION_INFO_DEF+2)
     {
         player->CLOSE_GOSSIP_MENU();
-        ((npc_escortAI*)(_Creature->AI()))->Start(false, false, false, player->GetGUID());
+        ((npc_escortAI*)(_Creature->AI()))->Start(false, false, player->GetGUID());
 
         return true;                                        // prevent Trinity core handling
     }
@@ -181,7 +181,7 @@ bool GossipSelect_npc_test(Player *player, Creature *_Creature, uint32 sender, u
     if (action == GOSSIP_ACTION_INFO_DEF+3)
     {
         player->CLOSE_GOSSIP_MENU();
-        ((npc_escortAI*)(_Creature->AI()))->Start(false, true, false, player->GetGUID());
+        ((npc_escortAI*)(_Creature->AI()))->Start(false, false, player->GetGUID());
 
         return true;                                        // prevent Trinity core handling
     }
