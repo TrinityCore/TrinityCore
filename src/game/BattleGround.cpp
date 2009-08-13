@@ -883,7 +883,7 @@ void BattleGround::RewardItem(Player *plr, uint32 item_id, uint32 count)
 
     if( count != 0 && !dest.empty())                        // can add some
         if (Item* item = plr->StoreNewItem( dest, item_id, true, 0))
-            plr->SendNewItem(item,count,false,true);
+            plr->SendNewItem(item,count,true,false);
 
     if (no_space_count > 0)
         SendRewardMarkByMail(plr,item_id,no_space_count);
