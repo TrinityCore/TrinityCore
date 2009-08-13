@@ -2024,6 +2024,14 @@ void Spell::EffectForceCast(uint32 i)
 
 void Spell::EffectTriggerSpell(uint32 i)
 {
+    // only unit case known
+    if (!unitTarget)
+    {
+        if(gameObjTarget || itemTarget)
+            sLog.outError("Spell::EffectTriggerSpell (Spell: %u): Unsupported non-unit case!",m_spellInfo->Id);
+        return;
+    }
+
     uint32 triggered_spell_id = m_spellInfo->EffectTriggerSpell[i];
 
     // special cases
@@ -2041,21 +2049,21 @@ void Spell::EffectTriggerSpell(uint32 i)
         // Vanish (not exist)
         case 18461:
         {
-            m_caster->RemoveMovementImpairingAuras();
-            m_caster->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
+            unitTarget->RemoveMovementImpairingAuras();
+            unitTarget->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
 
             // if this spell is given to NPC it must handle rest by it's own AI
-            if ( m_caster->GetTypeId() != TYPEID_PLAYER )
+            if (unitTarget->GetTypeId() != TYPEID_PLAYER)
                 return;
 
             // get highest rank of the Stealth spell
             uint32 spellId = 0;
             SpellEntry const *spellInfo;
-            const PlayerSpellMap& sp_list = ((Player*)m_caster)->GetSpellMap();
+            const PlayerSpellMap& sp_list = ((Player*)unitTarget)->GetSpellMap();
             for (PlayerSpellMap::const_iterator itr = sp_list.begin(); itr != sp_list.end(); ++itr)
             {
                 // only highest rank is shown in spell book, so simply check if shown in spell book
-                if(!itr->second->active || itr->second->disabled || itr->second->state == PLAYERSPELL_REMOVED)
+                if (!itr->second->active || itr->second->disabled || itr->second->state == PLAYERSPELL_REMOVED)
                     continue;
 
                 spellInfo = sSpellStore.LookupEntry(itr->first);
@@ -2074,8 +2082,8 @@ void Spell::EffectTriggerSpell(uint32 i)
                 return;
 
             // reset cooldown on it if needed
-            if(((Player*)m_caster)->HasSpellCooldown(spellId))
-                ((Player*)m_caster)->RemoveSpellCooldown(spellId);
+            if (((Player*)unitTarget)->HasSpellCooldown(spellId))
+                ((Player*)unitTarget)->RemoveSpellCooldown(spellId);
 
             // Push stealth to list because it must be handled after combat remove
             m_TriggerSpells.push_back(spellInfo);
@@ -2130,7 +2138,7 @@ void Spell::EffectTriggerSpell(uint32 i)
         case 35729:
         {
             uint32 dispelMask = GetDispellMask(DISPEL_ALL);
-            Unit::AuraMap& Auras = m_caster->GetAuras();
+            Unit::AuraMap& Auras = unitTarget->GetAuras();
             for(Unit::AuraMap::iterator iter = Auras.begin(); iter != Auras.end();)
             {
                 // remove all harmful spells on you...
@@ -2150,7 +2158,7 @@ void Spell::EffectTriggerSpell(uint32 i)
         // Priest Shadowfiend (34433) need apply mana gain trigger aura on pet
         case 41967:
         {
-            if (Unit *pet = m_caster->GetGuardianPet())
+            if (Unit *pet = unitTarget->GetGuardianPet())
                 pet->CastSpell(pet, 28305, true);
             return;
         }
@@ -2158,8 +2166,7 @@ void Spell::EffectTriggerSpell(uint32 i)
 
     // normal case
     SpellEntry const *spellInfo = sSpellStore.LookupEntry( triggered_spell_id );
-
-    if(!spellInfo)
+    if (!spellInfo)
     {
         sLog.outError("EffectTriggerSpell of spell %u: triggering unknown spell id %i", m_spellInfo->Id,triggered_spell_id);
         return;
@@ -2171,25 +2178,7 @@ void Spell::EffectTriggerSpell(uint32 i)
         && m_spellInfo->Category == spellInfo->Category)
         ((Player*)m_caster)->RemoveSpellCooldown(spellInfo->Id);
 
-    // some triggered spells must be casted instantly (for example, if next effect case instant kill caster)
-    bool instant = false;
-    for(uint32 j = i+1; j < 3; ++j)
-    {
-        if(m_spellInfo->EffectImplicitTargetA[j] == TARGET_UNIT_CASTER
-            && (m_spellInfo->Effect[j]==SPELL_EFFECT_INSTAKILL))
-        {
-            instant = true;
-            break;
-        }
-    }
-
-    if(instant)
-    {
-        if (unitTarget)
-            m_caster->CastSpell(unitTarget,spellInfo,true,m_CastItem,NULL,m_originalCasterGUID);
-    }
-    else
-        m_TriggerSpells.push_back(spellInfo);
+    unitTarget->CastSpell(unitTarget,spellInfo,true,NULL,NULL,m_originalCasterGUID);
 }
 
 void Spell::EffectTriggerMissileSpell(uint32 effect_idx)
