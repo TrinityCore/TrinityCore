@@ -28,7 +28,7 @@ void npc_escortAI::AttackStart(Unit *who)
         if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
             m_creature->GetMotionMaster()->MovementExpired();
 
-        if(CombatMovement)
+        if (IsCombatMovement())
             m_creature->GetMotionMaster()->MoveChase(who);
     }
 }
@@ -45,7 +45,9 @@ void npc_escortAI::JustRespawned()
 {
     IsBeingEscorted = false;
     IsOnHold = false;
-    CombatMovement = true;
+
+    if (!IsCombatMovement())
+        SetCombatMovement(true);
 
     m_uiWPWaitTimer = 0;
 

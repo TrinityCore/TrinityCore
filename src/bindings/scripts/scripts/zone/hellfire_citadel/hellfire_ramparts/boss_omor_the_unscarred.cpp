@@ -41,10 +41,11 @@ EndScriptData */
 #define H_SPELL_SHADOW_BOLT         39297
 #define SPELL_SUMMON_FIENDISH_HOUND 30707
 
-struct TRINITY_DLL_DECL boss_omor_the_unscarredAI : public Scripted_NoMovementAI
+struct TRINITY_DLL_DECL boss_omor_the_unscarredAI : public ScriptedAI
 {
-    boss_omor_the_unscarredAI(Creature *c) : Scripted_NoMovementAI(c)
+    boss_omor_the_unscarredAI(Creature *c) : ScriptedAI(c)
     {
+        SetCombatMovement(false);
         HeroicMode = m_creature->GetMap()->IsHeroic();
     }
 

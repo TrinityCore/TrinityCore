@@ -83,9 +83,12 @@ EndScriptData */
 #define ADD_8Z -229.683182
 #define ADD_8O 4.693108
 
-struct TRINITY_DLL_DECL boss_ragnarosAI : public Scripted_NoMovementAI
+struct TRINITY_DLL_DECL boss_ragnarosAI : public ScriptedAI
 {
-    boss_ragnarosAI(Creature *c) : Scripted_NoMovementAI(c) {}
+    boss_ragnarosAI(Creature *c) : ScriptedAI(c)
+    {
+        SetCombatMovement(false);
+    }
 
     uint32 WrathOfRagnaros_Timer;
     uint32 HandOfRagnaros_Timer;

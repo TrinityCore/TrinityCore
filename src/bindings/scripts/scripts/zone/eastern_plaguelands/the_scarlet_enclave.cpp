@@ -19,6 +19,7 @@
 #include "precompiled.h"
 #include "Vehicle.h"
 #include "ObjectMgr.h"
+#include "../../npc/npc_escortAI.h"
 
 #define GCD_CAST    1
 
@@ -477,6 +478,190 @@ struct TRINITY_DLL_DECL npc_a_special_surpriseAI : public ScriptedAI
 CreatureAI* GetAI_npc_a_special_surprise(Creature* pCreature)
 {
     return new npc_a_special_surpriseAI(pCreature);
+}
+
+/*######
+## npc_koltira_deathweaver
+######*/
+
+enum eKoltira
+{
+    SAY_BREAKOUT1                   = -1609079,
+    SAY_BREAKOUT2                   = -1609080,
+    SAY_BREAKOUT3                   = -1609081,
+    SAY_BREAKOUT4                   = -1609082,
+    SAY_BREAKOUT5                   = -1609083,
+    SAY_BREAKOUT6                   = -1609084,
+    SAY_BREAKOUT7                   = -1609085,
+    SAY_BREAKOUT8                   = -1609086,
+    SAY_BREAKOUT9                   = -1609087,
+    SAY_BREAKOUT10                  = -1609088,
+
+    SPELL_KOLTIRA_TRANSFORM         = 52899,
+    SPELL_ANTI_MAGIC_ZONE           = 52894,
+
+    QUEST_BREAKOUT                  = 12727,
+
+    NPC_CRIMSON_ACOLYTE             = 29007,
+    NPC_HIGH_INQUISITOR_VALROTH     = 29001,
+    NPC_KOLTIRA_ALT                 = 28447,
+
+    //not sure about this id
+    //NPC_DEATH_KNIGHT_MOUNT          = 29201,
+    MODEL_DEATH_KNIGHT_MOUNT        = 25278
+};
+
+struct TRINITY_DLL_DECL npc_koltira_deathweaverAI : public npc_escortAI
+{
+    npc_koltira_deathweaverAI(Creature *pCreature) : npc_escortAI(pCreature) { }
+
+    uint32 m_uiWave;
+    uint32 m_uiWave_Timer;
+    uint64 m_uiValrothGUID;
+
+    void Reset()
+    {
+        if (!IsBeingEscorted)
+        {
+            m_uiWave = 0;
+            m_uiWave_Timer = 3000;
+            m_uiValrothGUID = 0;
+        }
+    }
+
+    void WaypointReached(uint32 uiPointId)
+    {
+        switch(uiPointId)
+        {
+            case 0:
+                DoScriptText(SAY_BREAKOUT1, m_creature);
+                break;
+            case 1:
+                m_creature->SetStandState(UNIT_STAND_STATE_KNEEL);
+                break;
+            case 2:
+                m_creature->SetStandState(UNIT_STAND_STATE_STAND);
+                //m_creature->UpdateEntry(NPC_KOLTIRA_ALT); //unclear if we must update or not
+                DoCast(m_creature, SPELL_KOLTIRA_TRANSFORM);
+                break;
+            case 3:
+                IsOnHold = true;
+                m_creature->SetStandState(UNIT_STAND_STATE_KNEEL);
+                DoScriptText(SAY_BREAKOUT2, m_creature);
+                DoCast(m_creature, SPELL_ANTI_MAGIC_ZONE);  // cast again that makes bubble up
+                break;
+            case 4:
+                SetRun(true);
+                break;
+            case 9:
+                m_creature->Mount(MODEL_DEATH_KNIGHT_MOUNT);
+                break;
+            case 10:
+                m_creature->Unmount();
+                break;
+        }
+    }
+
+    void JustSummoned(Creature* pSummoned)
+    {
+        if (Unit* pPlayer = Unit::GetUnit(*m_creature, PlayerGUID))
+        {
+            pSummoned->AI()->AttackStart(pPlayer);
+            pSummoned->AddThreat(m_creature, 0.0f);
+        }
+
+        if (pSummoned->GetEntry() == NPC_HIGH_INQUISITOR_VALROTH)
+            m_uiValrothGUID = pSummoned->GetGUID();
+    }
+
+    void SummonAcolyte(uint32 uiAmount)
+    {
+        for(uint32 i = 0; i < uiAmount; ++i)
+            m_creature->SummonCreature(NPC_CRIMSON_ACOLYTE, 1642.329, -6045.818, 127.583, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        npc_escortAI::UpdateAI(uiDiff);
+
+        if (IsOnHold)
+        {
+            if (m_uiWave_Timer < uiDiff)
+            {
+                switch(m_uiWave)
+                {
+                    case 0:
+                        DoScriptText(SAY_BREAKOUT3, m_creature);
+                        SummonAcolyte(3);
+                        m_uiWave_Timer = 20000;
+                        break;
+                    case 1:
+                        DoScriptText(SAY_BREAKOUT4, m_creature);
+                        SummonAcolyte(3);
+                        m_uiWave_Timer = 20000;
+                        break;
+                    case 2:
+                        DoScriptText(SAY_BREAKOUT5, m_creature);
+                        SummonAcolyte(4);
+                        m_uiWave_Timer = 20000;
+                        break;
+                    case 3:
+                        DoScriptText(SAY_BREAKOUT6, m_creature);
+                        m_creature->SummonCreature(NPC_HIGH_INQUISITOR_VALROTH, 1642.329, -6045.818, 127.583, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+                        m_uiWave_Timer = 1000;
+                        break;
+                    case 4:
+                    {
+                        Unit* pTemp = Unit::GetUnit(*m_creature, m_uiValrothGUID);
+
+                        if (!pTemp || !pTemp->isAlive())
+                        {
+                            DoScriptText(SAY_BREAKOUT8, m_creature);
+                            m_uiWave_Timer = 5000;
+                        }
+                        else
+                        {
+                            m_uiWave_Timer = 2500;
+                            return;                         //return, we don't want m_uiWave to increment now
+                        }
+                        break;
+                    }
+                    case 5:
+                        DoScriptText(SAY_BREAKOUT9, m_creature);
+                        m_creature->RemoveAurasDueToSpell(SPELL_ANTI_MAGIC_ZONE);
+                        m_uiWave_Timer = 2500;
+                        break;
+                    case 6:
+                        DoScriptText(SAY_BREAKOUT10, m_creature);
+                        IsOnHold = false;
+                        break;
+                }
+
+                ++m_uiWave;
+            }
+            else
+                m_uiWave_Timer -= uiDiff;
+        }
+    }
+};
+
+CreatureAI* GetAI_npc_koltira_deathweaver(Creature* pCreature)
+{
+    npc_koltira_deathweaverAI* pTempAI = new npc_koltira_deathweaverAI(pCreature);
+
+    pTempAI->FillPointMovementListForCreature();
+
+    return (CreatureAI*)pTempAI;
+}
+
+bool QuestAccept_npc_koltira_deathweaver(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
+{
+    if (pQuest->GetQuestId() == QUEST_BREAKOUT)
+    {
+        pCreature->SetStandState(UNIT_STAND_STATE_STAND);
+        CAST_AI(npc_escortAI,pCreature->AI())->Start(false, true, false, pPlayer->GetGUID());
+    }
+    return true;
 }
 
 /*######
@@ -1240,6 +1425,12 @@ CreatureAI* GetAI_npc_valkyr_battle_maiden(Creature *_Creature)
 void AddSC_the_scarlet_enclave()
 {
     Script *newscript;
+
+    newscript = new Script;
+    newscript->Name = "npc_koltira_deathweaver";
+    newscript->GetAI = &GetAI_npc_koltira_deathweaver;
+    newscript->pQuestAccept = &QuestAccept_npc_koltira_deathweaver;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_unworthy_initiate";

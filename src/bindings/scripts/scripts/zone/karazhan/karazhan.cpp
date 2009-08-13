@@ -304,6 +304,11 @@ struct TRINITY_DLL_DECL npc_barnesAI : public npc_escortAI
             return;
 
         pInstance->SetData(DATA_OPERA_EVENT, IN_PROGRESS);
+
+        //resets count for this event, in case earlier failed
+        if (Event == EVENT_OZ)
+            pInstance->SetData(DATA_OPERA_OZ_DEATHCOUNT, IN_PROGRESS);
+
         pInstance->HandleGameObject(pInstance->GetData64(DATA_GAMEOBJECT_STAGEDOORLEFT), true);
 
         m_creature->CastSpell(m_creature, SPELL_TUXEDO, true);
