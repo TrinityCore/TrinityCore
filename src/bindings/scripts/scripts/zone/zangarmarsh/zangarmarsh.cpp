@@ -338,7 +338,7 @@ bool QuestAccept_npc_kayra_longmane(Player* pPlayer, Creature* pCreature, Quest 
     if (pQuest->GetQuestId() == QUEST_ESCAPE_FROM)
     {
         DoScriptText(SAY_START, pCreature, pPlayer);
-        CAST_AI(npc_escortAI, pCreature->AI())->Start(false, true, false, pPlayer->GetGUID());
+        CAST_AI(npc_escortAI, pCreature->AI())->Start(false, false, pPlayer->GetGUID());
     }
     return true;
 }

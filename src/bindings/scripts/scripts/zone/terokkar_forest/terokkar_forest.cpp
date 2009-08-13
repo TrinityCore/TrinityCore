@@ -205,7 +205,7 @@ public:
                 float Radius = 10.0;
                 if( m_creature->IsWithinDistInMap(who, Radius) )
                 {
-                    Start(false, false, false, who->GetGUID());
+                    Start(false, false, who->GetGUID());
                 }
             }
         }
@@ -484,7 +484,7 @@ bool QuestAccept_npc_isla_starmane(Player* player, Creature* creature, Quest con
 {
     if (quest->GetQuestId() == QUEST_EFTW_H || quest->GetQuestId() == QUEST_EFTW_A)
     {
-        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, true, false, player->GetGUID());
+        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
         creature->setFaction(113);
     }
     return true;

@@ -151,7 +151,7 @@ bool QuestAccept_npc_kaya_flathoof(Player* player, Creature* creature, Quest con
 {
     if (quest->GetQuestId() == QUEST_PROTECT_KAYA)
     {
-        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, true, false, player->GetGUID());
+        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
         DoScriptText(SAY_START, creature);
         creature->setFaction(113);
         creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);

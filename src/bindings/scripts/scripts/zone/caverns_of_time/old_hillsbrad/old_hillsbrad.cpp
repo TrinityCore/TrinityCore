@@ -336,7 +336,7 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
                     if (uint64 TarethaGUID = pInstance->GetData64(DATA_TARETHA))
                     {
                         if (Creature* Taretha = (Unit::GetCreature(*m_creature, TarethaGUID)))
-                            CAST_AI(npc_escortAI, (Taretha->AI()))->Start(false, false, true, PlayerGUID);
+                            CAST_AI(npc_escortAI, (Taretha->AI()))->Start(false, true, PlayerGUID);
                     }
 
                     //kill credit creature for quest
@@ -537,7 +537,7 @@ bool GossipSelect_npc_thrall_old_hillsbrad(Player *player, Creature *_Creature, 
 
             DoScriptText(SAY_TH_START_EVENT_PART1, _Creature);
 
-            CAST_AI(npc_escortAI, (_Creature->AI()))->Start(true, true, true, player->GetGUID());
+            CAST_AI(npc_escortAI, (_Creature->AI()))->Start(true, true, player->GetGUID());
             CAST_AI(npc_escortAI, (_Creature->AI()))->SetMaxPlayerDistance(100.0f);//not really needed, because it will not despawn if player is too far
             CAST_AI(npc_escortAI, (_Creature->AI()))->SetDespawnAtEnd(false);
             CAST_AI(npc_escortAI, (_Creature->AI()))->SetDespawnAtFar(false);

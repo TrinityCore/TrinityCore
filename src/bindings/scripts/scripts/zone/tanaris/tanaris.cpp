@@ -196,7 +196,7 @@ struct TRINITY_DLL_DECL npc_custodian_of_timeAI : public npc_escortAI
                 float Radius = 10.0;
                 if( m_creature->IsWithinDistInMap(who, Radius) )
                 {
-                    Start(false, false, false, who->GetGUID());
+                    Start(false, false, who->GetGUID());
                 }
             }
         }
@@ -435,7 +435,7 @@ bool QuestAccept_npc_OOX17(Player* player, Creature* creature, Quest const* ques
         creature->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
         creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
         DoScriptText(SAY_CHICKEN_ACC, creature);
-        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, true, false, player->GetGUID());
+        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
 
     }
     return true;

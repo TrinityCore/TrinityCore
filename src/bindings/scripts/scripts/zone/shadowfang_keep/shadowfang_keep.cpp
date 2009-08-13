@@ -126,7 +126,7 @@ bool GossipSelect_npc_shadowfang_prisoner(Player* pPlayer, Creature* pCreature, 
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
     {
         pPlayer->CLOSE_GOSSIP_MENU();
-        CAST_AI(npc_escortAI, (pCreature->AI()))->Start(false, true, false);
+        CAST_AI(npc_escortAI, (pCreature->AI()))->Start(false, false);
     }
     return true;
 }

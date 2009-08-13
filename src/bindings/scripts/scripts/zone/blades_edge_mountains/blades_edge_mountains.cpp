@@ -50,18 +50,14 @@ struct TRINITY_DLL_DECL mobs_bladespire_ogreAI : public ScriptedAI
 {
     mobs_bladespire_ogreAI(Creature *c) : ScriptedAI(c) {}
 
-    void Reset()
-    {
-    }
+    void Reset() { }
 
-    void EnterCombat(Unit* who)
+    void UpdateAI(const uint32 uiDiff)
     {
-    }
+        if (!UpdateVictim())
+            return;
 
-    void JustDied(Unit* Killer)
-    {
-        if (Killer->GetTypeId() == TYPEID_PLAYER)
-            CAST_PLR(Killer)->KilledMonsterCredit(19995, m_creature->GetGUID());
+        DoMeleeAttackIfReady();
     }
 };
 CreatureAI* GetAI_mobs_bladespire_ogre(Creature *_Creature)
@@ -73,23 +69,26 @@ CreatureAI* GetAI_mobs_bladespire_ogre(Creature *_Creature)
 ## mobs_nether_drake
 ######*/
 
-#define SAY_NIHIL_1         -1000396
-#define SAY_NIHIL_2         -1000397
-#define SAY_NIHIL_3         -1000398
-#define SAY_NIHIL_4         -1000399
-#define SAY_NIHIL_INTERRUPT -1000400
+enum
+{
+    SAY_NIHIL_1                 = -1000396,
+    SAY_NIHIL_2                 = -1000397,
+    SAY_NIHIL_3                 = -1000398,
+    SAY_NIHIL_4                 = -1000399,
+    SAY_NIHIL_INTERRUPT         = -1000400,
 
-#define ENTRY_WHELP                 20021
-#define ENTRY_PROTO                 21821
-#define ENTRY_ADOLE                 21817
-#define ENTRY_MATUR                 21820
-#define ENTRY_NIHIL                 21823
+    ENTRY_WHELP                 = 20021,
+    ENTRY_PROTO                 = 21821,
+    ENTRY_ADOLE                 = 21817,
+    ENTRY_MATUR                 = 21820,
+    ENTRY_NIHIL                 = 21823,
 
-#define SPELL_T_PHASE_MODULATOR     37573
+    SPELL_T_PHASE_MODULATOR     = 37573,
 
-#define SPELL_ARCANE_BLAST          38881
-#define SPELL_MANA_BURN             38884
-#define SPELL_INTANGIBLE_PRESENCE   36513
+    SPELL_ARCANE_BLAST          = 38881,
+    SPELL_MANA_BURN             = 38884,
+    SPELL_INTANGIBLE_PRESENCE   = 36513
+};
 
 struct TRINITY_DLL_DECL mobs_nether_drakeAI : public ScriptedAI
 {
@@ -243,7 +242,11 @@ CreatureAI* GetAI_mobs_nether_drake(Creature *_Creature)
 ## npc_daranelle
 ######*/
 
-#define SAY_SPELL_INFLUENCE     -1000174
+enum
+{
+    SAY_SPELL_INFLUENCE     = -1000174,
+    SPELL_LASHHAN_CHANNEL   = 36904
+};
 
 struct TRINITY_DLL_DECL npc_daranelleAI : public ScriptedAI
 {
@@ -257,11 +260,11 @@ struct TRINITY_DLL_DECL npc_daranelleAI : public ScriptedAI
     {
         if (who->GetTypeId() == TYPEID_PLAYER)
         {
-            if (who->HasAura(36904) && m_creature->IsWithinDistInMap(who, 10.0f))
+            if (who->HasAura(SPELL_LASHHAN_CHANNEL) && m_creature->IsWithinDistInMap(who, 10.0f))
             {
                 DoScriptText(SAY_SPELL_INFLUENCE, m_creature, who);
                 //TODO: Move the below to updateAI and run if this statement == true
-                DoCast(who,37028,true);
+                m_creature->CastSpell(who,37028,true);
             }
         }
 

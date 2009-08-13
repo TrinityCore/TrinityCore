@@ -38,21 +38,26 @@ EndContentData */
 
 #define GOSSIP_CORPSE "Examine corpse in detail..."
 
-bool GossipHello_npc_beaten_corpse(Player *player, Creature *_Creature)
+enum
 {
-    if( player->GetQuestStatus(4921) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(4921) == QUEST_STATUS_COMPLETE)
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CORPSE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+    QUEST_LOST_IN_BATTLE    = 4921
+};
 
-    player->SEND_GOSSIP_MENU(3557, _Creature->GetGUID());
+bool GossipHello_npc_beaten_corpse(Player* pPlayer, Creature* pCreature)
+{
+    if( pPlayer->GetQuestStatus(QUEST_LOST_IN_BATTLE) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(QUEST_LOST_IN_BATTLE) == QUEST_STATUS_COMPLETE)
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CORPSE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+
+    pPlayer->SEND_GOSSIP_MENU(3557, pCreature->GetGUID());
     return true;
 }
 
-bool GossipSelect_npc_beaten_corpse(Player *player, Creature *_Creature, uint32 sender, uint32 action )
+bool GossipSelect_npc_beaten_corpse(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action )
 {
     if(action == GOSSIP_ACTION_INFO_DEF +1)
     {
-        player->SEND_GOSSIP_MENU(3558, _Creature->GetGUID());
-        player->KilledMonsterCredit( 10668,_Creature->GetGUID() );
+        pPlayer->SEND_GOSSIP_MENU(3558, pCreature->GetGUID());
+        pPlayer->TalkedToCreature(pCreature->GetEntry(), pCreature->GetGUID());
     }
     return true;
 }
@@ -499,7 +504,7 @@ bool QuestAccept_npc_wizzlecrank_shredder(Player* player, Creature* creature, Qu
     if (quest->GetQuestId() == QUEST_ESCAPE)
     {
          creature->setFaction(FACTION_RATCHET);
-        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, true, false, player->GetGUID());
+        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
     }
     return true;
 }

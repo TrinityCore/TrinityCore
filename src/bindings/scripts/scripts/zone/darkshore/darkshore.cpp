@@ -156,7 +156,7 @@ bool QuestAccept_npc_prospector_remtravel(Player* pPlayer, Creature* pCreature, 
 {
     if(pQuest->GetQuestId() == QUEST_ABSENT_MINDED_PT2)
     {
-        CAST_AI(npc_escortAI, pCreature->AI())->Start(false, true, false, pPlayer->GetGUID());
+        CAST_AI(npc_escortAI, pCreature->AI())->Start(false, false, pPlayer->GetGUID());
         pCreature->setFaction(FACTION_ESCORTEE);
     }
 
