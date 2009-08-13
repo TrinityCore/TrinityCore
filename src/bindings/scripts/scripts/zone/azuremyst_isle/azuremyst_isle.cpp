@@ -517,7 +517,7 @@ struct TRINITY_DLL_DECL npc_geezleAI : public ScriptedAI
             {
                 //TODO: Found how to despawn and respawn
                 if(despawn)
-                    (*itr)->RemoveFromWorld();
+                    (*itr)->Delete();
                 else
                     (*itr)->Respawn();
             }
