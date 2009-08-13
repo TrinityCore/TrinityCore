@@ -11772,6 +11772,36 @@ int32 Unit::ModSpellDuration(SpellEntry const* spellProto, Unit const* target, i
     }
     //else positive mods here, there are no currently
     //when there will be, change GetTotalAuraModifierByMiscValue to GetTotalPositiveAuraModifierByMiscValue
+
+    // Glyphs which increase duration of selfcasted buffs
+    if (target == this)
+    {
+        switch(spellProto->SpellFamilyName)
+        {
+        case SPELLFAMILY_DRUID:
+            if (spellProto->SpellFamilyFlags[0] & 0x100)
+            {
+                // Glyph of Thorns
+                if (AuraEffect * aurEff = GetAuraEffect(57862, 0))
+                    duration += aurEff->GetAmount() * MINUTE * IN_MILISECONDS;
+            }
+            break;
+        case SPELLFAMILY_PALADIN:
+            if (spellProto->SpellFamilyFlags[0] & 0x00000002)
+            {
+                // Glyph of Blessing of Might
+                if (AuraEffect * aurEff = GetAuraEffect(57958, 0))
+                    duration += aurEff->GetAmount() * MINUTE * IN_MILISECONDS;
+            }
+            else if (spellProto->SpellFamilyFlags[0] & 0x00010000)
+            {
+                // Glyph of Blessing of Wisdom
+                if (AuraEffect * aurEff = GetAuraEffect(57979, 0))
+                    duration += aurEff->GetAmount() * MINUTE * IN_MILISECONDS;
+            }
+            break;
+        }
+    }
     return duration>0 ? duration : 0;
 }
 

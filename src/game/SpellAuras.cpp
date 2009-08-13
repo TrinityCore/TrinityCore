@@ -396,11 +396,6 @@ m_auraSlot(MAX_AURAS), m_auraLevel(1), m_procCharges(0), m_stackAmount(1), m_upd
 
     if(!m_permanent && modOwner)
     {
-        // Glyph of Thorns
-        if (m_target == caster && m_spellProto->SpellFamilyName==SPELLFAMILY_DRUID && m_spellProto->SpellFamilyFlags[0] & 0x100)
-            if (AuraEffect * aurEff = m_target->GetAuraEffect(57862, 0))
-                m_maxduration += aurEff->GetAmount() * MINUTE * IN_MILISECONDS;
-
         modOwner->ApplySpellMod(GetId(), SPELLMOD_DURATION, m_maxduration);
         // Get zero duration aura after - need set m_maxduration > 0 for apply/remove aura work
         if (m_maxduration<=0)
