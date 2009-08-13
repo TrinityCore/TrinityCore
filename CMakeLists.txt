@@ -173,7 +173,7 @@ ENDIF(UNIX AND NOT CENTOS)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
 IF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
-  SET(OSX_LIBS -lcrypto)
+  SET(OSX_LIBS /opt/local/lib/libcrypto.dylib)
   add_definitions(-D__ASSERTMACROS__)
 ENDIF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 
