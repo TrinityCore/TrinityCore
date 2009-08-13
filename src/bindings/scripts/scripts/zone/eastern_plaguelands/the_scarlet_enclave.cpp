@@ -989,7 +989,6 @@ struct TRINITY_DLL_DECL npc_death_knight_initiateAI : public SpellAI
     void Reset()
     {
         lose = false;
-        me->RemoveGameObject(SPELL_DUEL_FLAG, true);
         me->RestoreFaction();
         SpellAI::Reset();
 
@@ -1011,9 +1010,9 @@ struct TRINITY_DLL_DECL npc_death_knight_initiateAI : public SpellAI
 
    void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
     {
-        if (m_bIsDuelInProgress && pDoneBy->GetTypeId() == TYPEID_PLAYER)
+        if (m_bIsDuelInProgress && pDoneBy->IsControlledByPlayer())
         {
-            if(pDoneBy->GetGUID() != m_uiDuelerGUID) // other players cannot help
+            if(pDoneBy->GetGUID() != m_uiDuelerGUID || pDoneBy->GetOwnerGUID() != m_uiDuelerGUID) // other players cannot help
                 uiDamage = 0;
             else if(uiDamage >= m_creature->GetHealth()) 
             {
@@ -1021,6 +1020,7 @@ struct TRINITY_DLL_DECL npc_death_knight_initiateAI : public SpellAI
 
                 if(!lose)
                 {
+                    pDoneBy->RemoveGameObject(SPELL_DUEL_FLAG, true);
                     pDoneBy->AttackStop();
                     me->CastSpell(pDoneBy, SPELL_DUEL_VICTORY, true);
                     lose = true;
@@ -1062,6 +1062,7 @@ struct TRINITY_DLL_DECL npc_death_knight_initiateAI : public SpellAI
                 && me->getVictim()->GetHealth() * 10 < me->getVictim()->GetMaxHealth())
             {
                 me->getVictim()->CastSpell(me->getVictim(), 7267, true); // beg
+                me->getVictim()->RemoveGameObject(SPELL_DUEL_FLAG, true);
                 EnterEvadeMode();
                 return;
             }
@@ -1082,6 +1083,12 @@ bool GossipHello_npc_death_knight_initiate(Player* pPlayer, Creature* pCreature)
 {
     if (pPlayer->GetQuestStatus(QUEST_DEATH_CHALLENGE) == QUEST_STATUS_INCOMPLETE && pCreature->GetHealth() == pCreature->GetMaxHealth())
     {
+        if(pPlayer->GetHealth() * 10 < pPlayer->GetMaxHealth())
+            return true;
+
+        if(pPlayer->isInCombat() || pCreature->isInCombat())
+            return true;
+
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ACCEPT_DUEL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
         pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(),pCreature->GetGUID());
     }
@@ -1093,6 +1100,9 @@ bool GossipSelect_npc_death_knight_initiate(Player* pPlayer, Creature* pCreature
     if( uiAction == GOSSIP_ACTION_INFO_DEF )
     {
         pPlayer->CLOSE_GOSSIP_MENU();
+
+        if(pPlayer->isInCombat() || pCreature->isInCombat())
+            return true;
 
         if (npc_death_knight_initiateAI* pInitiateAI = CAST_AI(npc_death_knight_initiateAI, pCreature->AI()))
         {
@@ -1106,7 +1116,7 @@ bool GossipSelect_npc_death_knight_initiate(Player* pPlayer, Creature* pCreature
         DoScriptText(m_auiRandomSay[uiSayId], pCreature, pPlayer);
 
         pCreature->CastSpell(pPlayer, SPELL_DUEL, false);
-        pCreature->CastSpell(pPlayer, SPELL_DUEL_FLAG, true);
+        pPlayer->CastSpell(pPlayer, SPELL_DUEL_FLAG, true);
     }
     return true;
 }
@@ -1211,12 +1221,11 @@ struct TRINITY_DLL_DECL npc_salanar_the_horsemanAI : public ScriptedAI
             {
                 if( Unit *charmer = caster->GetCharmer() )
                 {
-                    CAST_PLR(charmer)->ExitVehicle();
+                    charmer->ExitVehicle();
                     caster->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
                     caster->setFaction(35);
                     DoCast(caster, CALL_DARK_RIDER, true);
-                    Creature* Dark_Rider = m_creature->FindNearestCreature(28654, 15);
-                    if (Dark_Rider)
+                    if(Creature* Dark_Rider = m_creature->FindNearestCreature(28654, 15))
                         CAST_AI(npc_dark_rider_of_acherusAI, Dark_Rider->AI())->InitDespawnHorse(caster);
                 }
             }
@@ -1475,12 +1484,12 @@ void AddSC_the_scarlet_enclave()
     newscript->GetAI = &GetAI_npc_salanar_the_horseman;
     newscript->RegisterSelf();
 
-    // 12687 Into the Realm of Shadows
     newscript = new Script;
     newscript->Name="npc_dark_rider_of_acherus";
     newscript->GetAI = &GetAI_npc_dark_rider_of_acherus;
     newscript->RegisterSelf();
 
+    // 12687 Into the Realm of Shadows
     newscript = new Script;
     newscript->Name="npc_ros_dark_rider";
     newscript->GetAI = &GetAI_npc_ros_dark_rider;
