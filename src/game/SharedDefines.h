@@ -2302,6 +2302,7 @@ enum CorpseDynFlags
 #define SPELL_ID_DESERTER                       26013       // Deserter
 #define SPELL_ID_LOGINEFFECT                    836       // LOGINEFFECT
 #define SPELL_ID_HONORLESS_TARGET               2479       // Honorless target
+#define SPELL_ID_DUEL_BEG                       7267       // Beg
 
 enum WeatherType
 {
