@@ -3307,7 +3307,7 @@ void Map::ScriptsProcess()
 
                 if(!cmdTarget)
                 {
-                    sLog.outError("SCRIPT_COMMAND_CAST_SPELL call for NULL %s.",step.script->datalong2 & 0x01 ? "source" : "target");
+                    sLog.outError("SCRIPT_COMMAND_CAST_SPELL %u call for NULL %s.", step.script->datalong, step.script->datalong2 & 0x01 ? "source" : "target");
                     break;
                 }
 
@@ -3323,7 +3323,7 @@ void Map::ScriptsProcess()
 
                 if(!cmdSource)
                 {
-                    sLog.outError("SCRIPT_COMMAND_CAST_SPELL call for NULL %s.",step.script->datalong2 & 0x02 ? "target" : "source");
+                    sLog.outError("SCRIPT_COMMAND_CAST_SPELL %u call for NULL %s.", step.script->datalong, step.script->datalong2 & 0x02 ? "target" : "source");
                     break;
                 }
 
