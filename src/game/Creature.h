@@ -490,6 +490,12 @@ class TRINITY_DLL_SPEC Creature : public Unit
         void AddToWorld();
         void RemoveFromWorld();
 
+        void DisappearAndDie()
+        {
+            SetVisibility(VISIBILITY_OFF);
+            setDeathState(JUST_DIED);
+        }
+
         bool Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, uint32 team, float x, float y, float z, float ang, const CreatureData *data = NULL);
         bool LoadCreaturesAddon(bool reload = false);
         void SelectLevel(const CreatureInfo *cinfo);
