@@ -207,7 +207,7 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
         phase = 1;
 
         if(pInstance)
-            pInstance->HandleGameObject(pInstance->GetData64(DATA_GAMEOBJECT_NETHER_DOOR), true);
+            pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_NETHER_DOOR), true);
     }
 
     void KilledUnit(Unit *victim)
@@ -233,7 +233,7 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
             positions.push_back(&InfernalPoints[i]);
 
         if(pInstance)
-            pInstance->HandleGameObject(pInstance->GetData64(DATA_GAMEOBJECT_NETHER_DOOR), true);
+            pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_NETHER_DOOR), true);
     }
 
     void EnterCombat(Unit *who)
@@ -241,7 +241,7 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
         DoScriptText(SAY_AGGRO, m_creature);
 
         if(pInstance)
-            pInstance->HandleGameObject(pInstance->GetData64(DATA_GAMEOBJECT_NETHER_DOOR), false); // Open the door leading further in
+            pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_NETHER_DOOR), false); // Open the door leading further in
     }
 
     void InfernalCleanup()

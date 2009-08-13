@@ -37,9 +37,9 @@ EndScriptData */
 #define SAY_RAND_1      -1999920
 #define SAY_RAND_2      -1999921
 
-#define GOSSIP_ITEM_1   "Click to Test Escort(Attack, Defend, Run)"
-#define GOSSIP_ITEM_2   "Click to Test Escort(NoAttack, NoDefend, Walk)"
-#define GOSSIP_ITEM_3   "Click to Test Escort(NoAttack, Defend, Walk)"
+#define GOSSIP_ITEM_1   "Click to Test Escort(Attack, Run)"
+#define GOSSIP_ITEM_2   "Click to Test Escort(NoAttack, Walk)"
+#define GOSSIP_ITEM_3   "Click to Test Escort(NoAttack, Run)"
 
 struct TRINITY_DLL_DECL example_escortAI : public npc_escortAI
 {
@@ -186,7 +186,7 @@ bool GossipSelect_example_escort(Player *player, Creature *_Creature, uint32 sen
     if (action == GOSSIP_ACTION_INFO_DEF+1)
     {
         player->CLOSE_GOSSIP_MENU();
-        CAST_AI(npc_escortAI, (_Creature->AI()))->Start(true, true, true, player->GetGUID());
+        CAST_AI(npc_escortAI, (_Creature->AI()))->Start(true, true, player->GetGUID());
 
         return true;                                        // prevent mangos core handling
     }
@@ -194,7 +194,7 @@ bool GossipSelect_example_escort(Player *player, Creature *_Creature, uint32 sen
     if (action == GOSSIP_ACTION_INFO_DEF+2)
     {
         player->CLOSE_GOSSIP_MENU();
-        CAST_AI(npc_escortAI, (_Creature->AI()))->Start(false, false, false, player->GetGUID());
+        CAST_AI(npc_escortAI, (_Creature->AI()))->Start(false, false, player->GetGUID());
 
         return true;                                        // prevent mangos core handling
     }
@@ -202,7 +202,7 @@ bool GossipSelect_example_escort(Player *player, Creature *_Creature, uint32 sen
     if (action == GOSSIP_ACTION_INFO_DEF+3)
     {
         player->CLOSE_GOSSIP_MENU();
-        CAST_AI(npc_escortAI, (_Creature->AI()))->Start(false, true, false, player->GetGUID());
+        CAST_AI(npc_escortAI, (_Creature->AI()))->Start(false, true, player->GetGUID());
 
         return true;                                        // prevent mangos core handling
     }

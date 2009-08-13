@@ -16,7 +16,7 @@
 
 /* ScriptData
 SDName: Boss_Gruul
-SD%Complete: 25
+SD%Complete: 50
 SDComment: Ground Slam seriously messed up due to core problem
 SDCategory: Gruul's Lair
 EndScriptData */
@@ -24,30 +24,34 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_gruuls_lair.h"
 
-#define SAY_AGGRO                   -1565010
-#define SAY_SLAM1                   -1565011
-#define SAY_SLAM2                   -1565012
-#define SAY_SHATTER1                -1565013
-#define SAY_SHATTER2                -1565014
-#define SAY_SLAY1                   -1565015
-#define SAY_SLAY2                   -1565016
-#define SAY_SLAY3                   -1565017
-#define SAY_DEATH                   -1565018
-#define EMOTE_GROW                  -1565019
+enum
+{
+    SAY_AGGRO                   = -1565010,
+    SAY_SLAM1                   = -1565011,
+    SAY_SLAM2                   = -1565012,
+    SAY_SHATTER1                = -1565013,
+    SAY_SHATTER2                = -1565014,
+    SAY_SLAY1                   = -1565015,
+    SAY_SLAY2                   = -1565016,
+    SAY_SLAY3                   = -1565017,
+    SAY_DEATH                   = -1565018,
 
-#define SPELL_GROWTH                36300
-#define SPELL_CAVE_IN               36240
-#define SPELL_GROUND_SLAM           33525                   //AoE Ground Slam applying Ground Slam to everyone with a script effect (most likely the knock back, we can code it to a set knockback)
-#define SPELL_REVERBERATION         36297                   //AoE Silence
-#define SPELL_SHATTER               33654
+    EMOTE_GROW                  = -1565019,
 
-#define SPELL_SHATTER_EFFECT        33671
-#define SPELL_HURTFUL_STRIKE        33813
-#define SPELL_STONED                33652                   //Spell is self cast
-#define SPELL_MAGNETIC_PULL         28337
-#define SPELL_KNOCK_BACK            24199                   //Knockback spell until correct implementation is made
+    SPELL_GROWTH                = 36300,
+    SPELL_CAVE_IN               = 36240,
+    SPELL_GROUND_SLAM           = 33525,                    //AoE Ground Slam applying Ground Slam to everyone with a script effect (most likely the knock back, we can code it to a set knockback)
+    SPELL_REVERBERATION         = 36297,
+    SPELL_SHATTER               = 33654,
 
-#define SPELL_GRONN_LORDS_GRASP     33572                   //Triggered by Ground Slam
+    SPELL_SHATTER_EFFECT        = 33671,
+    SPELL_HURTFUL_STRIKE        = 33813,
+    SPELL_STONED                = 33652,                    //Spell is self cast by target
+    SPELL_MAGNETIC_PULL         = 28337,
+    SPELL_KNOCK_BACK            = 24199,                    //Knockback spell until correct implementation is made
+
+    SPELL_GRONN_LORDS_GRASP     = 33572                     //Triggered by Ground Slam
+};
 
 struct TRINITY_DLL_DECL boss_gruulAI : public ScriptedAI
 {

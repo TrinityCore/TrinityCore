@@ -193,7 +193,7 @@ struct TRINITY_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
                             eventProgress++;
                             DoScriptText(SAY_BANISH_THE_SPIRITS, m_creature);
                             DoCast(m_creature, SPELL_SERPENTINE_CLEANSING);        
-                            CAST_AI(npc_escortAI, m_creature->AI())->SetCanDefend(false);
+                            //CAST_AI(npc_escortAI, m_creature->AI())->SetCanDefend(false);
                             eventTimer = 30000;
                             m_creature->SummonCreature(NPC_DEVIATE_VIPER, -61.5261, 273.676, -92.8442, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000);
                             m_creature->SummonCreature(NPC_DEVIATE_VIPER, -58.4658, 280.799, -92.8393, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000);
@@ -202,7 +202,7 @@ struct TRINITY_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
                         else
                         if (eventProgress == 2)
                         {
-                            CAST_AI(npc_escortAI, m_creature->AI())->SetCanDefend(true);
+                            //CAST_AI(npc_escortAI, m_creature->AI())->SetCanDefend(true);
                             DoScriptText(SAY_CAVERNS_PURIFIED, m_creature);
                             pInstance->SetData(TYPE_NARALEX_PART2, DONE);
                             if (m_creature->HasAura(SPELL_SERPENTINE_CLEANSING))
@@ -222,7 +222,7 @@ struct TRINITY_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
                         {
                             eventProgress++;
                             eventTimer = 15000;
-                            CAST_AI(npc_escortAI, m_creature->AI())->SetCanDefend(false);
+                            //CAST_AI(npc_escortAI, m_creature->AI())->SetCanDefend(false);
                             if (Creature* naralex = pInstance->instance->GetCreature(pInstance->GetData64(DATA_NARALEX)))
                                 DoCast(naralex, SPELL_NARALEXS_AWAKENING, true);
                             DoScriptText(EMOTE_AWAKENING_RITUAL, m_creature);
@@ -395,7 +395,7 @@ bool GossipSelect_npc_disciple_of_naralex(Player *player, Creature *_Creature, u
         _Creature->setFaction(250);
         _Creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
 
-        CAST_AI(npc_escortAI, (_Creature->AI()))->Start(false, true, false, player->GetGUID());
+        CAST_AI(npc_escortAI, (_Creature->AI()))->Start(false, false, player->GetGUID());
         CAST_AI(npc_escortAI, (_Creature->AI()))->SetDespawnAtFar(false);
         CAST_AI(npc_escortAI, (_Creature->AI()))->SetDespawnAtEnd(false);
     }

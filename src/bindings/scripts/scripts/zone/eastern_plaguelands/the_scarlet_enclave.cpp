@@ -659,7 +659,7 @@ bool QuestAccept_npc_koltira_deathweaver(Player* pPlayer, Creature* pCreature, c
     if (pQuest->GetQuestId() == QUEST_BREAKOUT)
     {
         pCreature->SetStandState(UNIT_STAND_STATE_STAND);
-        CAST_AI(npc_escortAI,pCreature->AI())->Start(false, true, false, pPlayer->GetGUID());
+        CAST_AI(npc_escortAI,pCreature->AI())->Start(false, false, pPlayer->GetGUID());
     }
     return true;
 }
@@ -769,13 +769,6 @@ struct TRINITY_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
         events.ScheduleEvent(EVENT_PLAGUE_STRIKE, 3000, GCD_CAST);
         events.ScheduleEvent(EVENT_BLOOD_STRIKE, 2000, GCD_CAST);
         events.ScheduleEvent(EVENT_DEATH_COIL, 5000, GCD_CAST);
-    }
-
-    void JustDied(Unit *killer)
-    {
-        if(m_creature->GetEntry() !=  29519)
-            if(killer->GetTypeId() == TYPEID_PLAYER)
-                CAST_PLR(killer)->KilledMonsterCredit(29519,m_creature->GetGUID());
     }
 
     void MovementInform(uint32 type, uint32 id)

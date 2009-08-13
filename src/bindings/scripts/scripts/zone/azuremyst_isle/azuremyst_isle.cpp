@@ -394,7 +394,7 @@ bool QuestAccept_npc_magwin(Player* player, Creature* creature, Quest const* que
     if (quest->GetQuestId() == QUEST_A_CRY_FOR_SAY_HELP)
     {
         creature->setFaction(113);
-        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, true, false, player->GetGUID());
+        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
     }
     return true;
 }

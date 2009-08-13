@@ -113,7 +113,7 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
         m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
         m_creature->setActive(true);
 
-        if(pInstance->GetData(DATA_NIGHTBANE_EVENT) == DONE || pInstance->GetData(DATA_NIGHTBANE_EVENT) == IN_PROGRESS)
+        if(pInstance->GetData(TYPE_NIGHTBANE) == DONE || pInstance->GetData(TYPE_NIGHTBANE) == IN_PROGRESS)
         {
             m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
             m_creature->RemoveCorpse();
@@ -121,7 +121,7 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
         else
         {
             if(pInstance)
-                pInstance->SetData(DATA_NIGHTBANE_EVENT, NOT_STARTED);
+                pInstance->SetData(TYPE_NIGHTBANE, NOT_STARTED);
         }
 
         HandleTerraceDoors(true);
@@ -145,7 +145,7 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
     void EnterCombat(Unit *who)
     {
         if(pInstance)
-            pInstance->SetData(DATA_NIGHTBANE_EVENT, IN_PROGRESS);
+            pInstance->SetData(TYPE_NIGHTBANE, IN_PROGRESS);
 
         HandleTerraceDoors(false);
         DoYell(YELL_AGGRO, LANG_UNIVERSAL, NULL);
@@ -160,7 +160,7 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
     void JustDied(Unit* killer)
     {
         if(pInstance)
-            pInstance->SetData(DATA_NIGHTBANE_EVENT, DONE);
+            pInstance->SetData(TYPE_NIGHTBANE, DONE);
 
         HandleTerraceDoors(true);
     }

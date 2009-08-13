@@ -136,7 +136,7 @@ struct TRINITY_DLL_DECL boss_anetheronAI : public hyjal_trashAI
                     AddWaypoint(5, 5026.27,    -1736.89,    1323.02);
                     AddWaypoint(6, 5037.77,    -1770.56,    1324.36);
                     AddWaypoint(7, 5067.23,    -1789.95,    1321.17);
-                    Start(false, true, true);
+                    Start(false, true);
                     SetDespawnAtEnd(false);
                 }
             }

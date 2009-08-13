@@ -876,7 +876,7 @@ bool QuestAccept_npc_bessy(Player* player, Creature* creature, Quest const* ques
     {
         creature->setFaction(113);
         creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, true, false, player->GetGUID());
+        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
     }
     return true;
 }

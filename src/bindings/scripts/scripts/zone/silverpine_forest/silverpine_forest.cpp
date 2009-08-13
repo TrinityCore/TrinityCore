@@ -171,7 +171,7 @@ bool QuestAccept_npc_deathstalker_erland(Player* player, Creature* creature, Que
     if (quest->GetQuestId() == QUEST_ESCORTING)
     {
         DoScriptText(SAY_QUESTACCEPT, creature, player);
-        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, true, false, player->GetGUID());
+        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
     }
 
     return true;

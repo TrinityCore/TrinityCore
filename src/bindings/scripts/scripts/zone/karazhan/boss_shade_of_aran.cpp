@@ -140,8 +140,8 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
         if(pInstance)
         {
             // Not in progress
-            pInstance->SetData(DATA_SHADEOFARAN_EVENT, NOT_STARTED);
-            pInstance->HandleGameObject(pInstance->GetData64(DATA_GAMEOBJECT_LIBRARY_DOOR), true); 
+            pInstance->SetData(TYPE_ARAN, NOT_STARTED);
+            pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_LIBRARY_DOOR), true); 
         }
     }
 
@@ -160,8 +160,8 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
 
         if(pInstance)
         {
-            pInstance->SetData(DATA_SHADEOFARAN_EVENT, DONE);
-            pInstance->HandleGameObject(pInstance->GetData64(DATA_GAMEOBJECT_LIBRARY_DOOR), true);
+            pInstance->SetData(TYPE_ARAN, DONE);
+            pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_LIBRARY_DOOR), true);
         }
     }
 
@@ -176,8 +176,8 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
 
         if(pInstance)
         {
-            pInstance->SetData(DATA_SHADEOFARAN_EVENT, IN_PROGRESS);
-            pInstance->HandleGameObject(pInstance->GetData64(DATA_GAMEOBJECT_LIBRARY_DOOR), false);
+            pInstance->SetData(TYPE_ARAN, IN_PROGRESS);
+            pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_LIBRARY_DOOR), false);
         }
     }
 
@@ -227,7 +227,7 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
             {
                 if(pInstance)
                 {
-                    pInstance->HandleGameObject(pInstance->GetData64(DATA_GAMEOBJECT_LIBRARY_DOOR), false);
+                    pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_LIBRARY_DOOR), false);
                     CloseDoorTimer = 0;
                 }
             }else CloseDoorTimer -= diff;
