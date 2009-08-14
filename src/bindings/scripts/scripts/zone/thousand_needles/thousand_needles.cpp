@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Thousand Needles
 SD%Complete: 100
-SDComment: Support for Quest: 4770, 1950
+SDComment: Support for Quest: 1950, 4770, 4904
 SDCategory: Thousand Needles
 EndScriptData */
 
@@ -30,163 +30,189 @@ EndContentData */
 #include "../../npc/npc_escortAI.h"
 
 /*#####
-# npc_swiftmountain
+# npc_lakota_windsong
 ######*/
 
-#define SAY_READY -1000147
-#define SAY_AGGRO -1000148
-#define SAY_FINISH -1000149
-
-#define QUEST_HOMEWARD_BOUND 4770
-#define ENTRY_WYVERN 4107
-
-struct TRINITY_DLL_DECL npc_swiftmountainAI : public npc_escortAI
+enum
 {
-npc_swiftmountainAI(Creature *c) : npc_escortAI(c) {}
+    SAY_LAKO_START              = -1000365,
+    SAY_LAKO_LOOK_OUT           = -1000366,
+    SAY_LAKO_HERE_COME          = -1000367,
+    SAY_LAKO_MORE               = -1000368,
+    SAY_LAKO_END                = -1000369,
 
-    void WaypointReached(uint32 i)
+    QUEST_FREE_AT_LAST          = 4904,
+    NPC_GRIM_BANDIT             = 10758,
+    FACTION_ESCORTEE_LAKO       = 232,                      //guessed
+
+    ID_AMBUSH_1                 = 0,
+    ID_AMBUSH_2                 = 2,
+    ID_AMBUSH_3                 = 4
+};
+
+float m_afBanditLoc[6][6]=
+{
+    {-4905.479492, -2062.732666, 84.352},
+    {-4915.201172, -2073.528320, 84.733},
+    {-4878.883301, -1986.947876, 91.966},
+    {-4877.503906, -1966.113403, 91.859},
+    {-4767.985352, -1873.169189, 90.192},
+    {-4788.861328, -1888.007813, 89.888}
+};
+
+struct TRINITY_DLL_DECL npc_lakota_windsongAI : public npc_escortAI
+{
+    npc_lakota_windsongAI(Creature* pCreature) : npc_escortAI(pCreature) { }
+
+    void Reset() { }
+
+    void WaypointReached(uint32 uiPointId)
     {
-        Player* pPlayer = Unit::GetPlayer(PlayerGUID);
-
-        if (!pPlayer)
-            return;
-
-        switch (i)
+        switch(uiPointId)
         {
-        case 46:
-            DoScriptText(SAY_AGGRO, m_creature, pPlayer);
-            break;
-         case 47:
-            m_creature->SummonCreature(ENTRY_WYVERN, -5016.45, -935.01, -5.46, 5.36,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-            m_creature->SummonCreature(ENTRY_WYVERN, -5001.98, -934.96, -5.55, 3.18,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-            m_creature->SummonCreature(ENTRY_WYVERN, -4999.06, -949.61, -5.42, 2.04,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-            break;
-         case 70:
-            DoScriptText(SAY_FINISH, m_creature, pPlayer);
-            if (pPlayer && pPlayer->GetTypeId() == TYPEID_PLAYER)
-                CAST_PLR(pPlayer)->GroupEventHappens(QUEST_HOMEWARD_BOUND,m_creature);
-            break;
-
+            case 8:
+                DoScriptText(SAY_LAKO_LOOK_OUT, m_creature);
+                DoSpawnBandits(ID_AMBUSH_1);
+                break;
+            case 14:
+                DoScriptText(SAY_LAKO_HERE_COME, m_creature);
+                DoSpawnBandits(ID_AMBUSH_2);
+                break;
+            case 21:
+                DoScriptText(SAY_LAKO_MORE, m_creature);
+                DoSpawnBandits(ID_AMBUSH_3);
+                break;
+            case 45:
+                if (Player* pPlayer = (Player*)Unit::GetUnit(*m_creature, PlayerGUID))
+                    pPlayer->GroupEventHappens(QUEST_FREE_AT_LAST, m_creature);
+                break;
         }
     }
 
-    void Reset()
+    void DoSpawnBandits(int uiAmbushId)
     {
-        m_creature->setFaction(104);
+        for(int i = 0; i < 2; ++i)
+            m_creature->SummonCreature(NPC_GRIM_BANDIT,
+            m_afBanditLoc[i+uiAmbushId][0], m_afBanditLoc[i+uiAmbushId][1], m_afBanditLoc[i+uiAmbushId][2], 0.0f,
+            TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
     }
 
-    void EnterCombat(Unit* who){}
-
-    void JustSummoned(Creature* summoned)
+    void JustDied(Unit* pKiller)
     {
-        summoned->AI()->AttackStart(m_creature);
-    }
-
-    void JustDied(Unit* killer)
-    {
-        if (PlayerGUID)
+        if (Player* pPlayer = (Player*)Unit::GetUnit(*m_creature, PlayerGUID))
         {
-            if (Player* pPlayer = Unit::GetPlayer(PlayerGUID))
-                CAST_PLR(pPlayer)->FailQuest(QUEST_HOMEWARD_BOUND);
+            if (pPlayer->GetQuestStatus(QUEST_FREE_AT_LAST) == QUEST_STATUS_INCOMPLETE)
+                pPlayer->FailQuest(QUEST_FREE_AT_LAST);
         }
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        npc_escortAI::UpdateAI(diff);
     }
 };
 
-bool QuestAccept_npc_swiftmountain(Player* pPlayer, Creature* creature, Quest const* quest)
+CreatureAI* GetAI_npc_lakota_windsong(Creature* pCreature)
 {
-    if (quest->GetQuestId() == QUEST_HOMEWARD_BOUND)
-    {
-        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, pPlayer->GetGUID());
-        DoScriptText(SAY_READY, creature, pPlayer);
-        creature->setFaction(113);
-    }
+    npc_lakota_windsongAI* pTempAI = new npc_lakota_windsongAI(pCreature);
 
+    pTempAI->FillPointMovementListForCreature();
+
+    return (CreatureAI*)pTempAI;
+}
+
+bool QuestAccept_npc_lakota_windsong(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
+{
+    if (pQuest->GetQuestId() == QUEST_FREE_AT_LAST)
+    {
+        DoScriptText(SAY_LAKO_START, pCreature, pPlayer);
+        pCreature->setFaction(FACTION_ESCORTEE_LAKO);
+
+        if (npc_lakota_windsongAI* pEscortAI = CAST_AI(npc_lakota_windsongAI, pCreature->AI()))
+            pEscortAI->Start(false, false, pPlayer->GetGUID(), pQuest);
+    }
     return true;
 }
 
-CreatureAI* GetAI_npc_swiftmountain(Creature* pCreature)
+/*######
+# npc_paoka_swiftmountain
+######*/
+
+enum
 {
-    npc_swiftmountainAI* thisAI = new npc_swiftmountainAI(pCreature);
+    SAY_START           = -1000147,
+    SAY_WYVERN          = -1000148,
+    SAY_COMPLETE        = -1000149,
 
-   thisAI->AddWaypoint(0, -5156.69, -1220.49, 48.78, 5000);
-   thisAI->AddWaypoint(1, -5157.12, -1220.13, 48.67);
-   thisAI->AddWaypoint(2, -5171.7, -1205.36, 47.43);
-   thisAI->AddWaypoint(3, -5174.08, -1197.7, 46.90);
-   thisAI->AddWaypoint(4, -5178.24, -1183.78, 45.97);
-   thisAI->AddWaypoint(5, -5181.52, -1171.03, 45.29);
-   thisAI->AddWaypoint(6, -5184.29, -1159.21, 44.62);
-   thisAI->AddWaypoint(7, -5184.84, -1152.95, 44.84);
-   thisAI->AddWaypoint(8, -5182.04, -1142.83, 44.07);
-   thisAI->AddWaypoint(9, -5178.44, -1133.57, 43.91);
-   thisAI->AddWaypoint(10, -5176.68, -1129.48, 43.81);
-   thisAI->AddWaypoint(11, -5164.85, -1123.33, 43.99);
-   thisAI->AddWaypoint(12, -5153.07, -1117.7, 43.66);
-   thisAI->AddWaypoint(13, -5143.52, -1113.14, 43.78);
-   thisAI->AddWaypoint(14, -5135.86, -1104.42, 47.23);
-   thisAI->AddWaypoint(15, -5129.86, -1097.22, 49.52);
-   thisAI->AddWaypoint(16, -5127.48, -1087.29, 49.03);
-   thisAI->AddWaypoint(17, -5127.57, -1080.4, 46.64);
-   thisAI->AddWaypoint(18, -5129.65, -1077.58, 45.29);
-   thisAI->AddWaypoint(19, -5135.86, -1069.12, 39.53);
-   thisAI->AddWaypoint(20, -5141.97, -1060.58, 32.70);
-   thisAI->AddWaypoint(21, -5145.99, -1054.85, 28.98);
-   thisAI->AddWaypoint(22, -5147.08, -1050.35, 26.36);
-   thisAI->AddWaypoint(23, -5147.5, -1043.37, 21.84);
-   thisAI->AddWaypoint(24, -5147.68, -1036.37, 17.05);
-   thisAI->AddWaypoint(25, -5147.68, -1029.37, 14.59);
-   thisAI->AddWaypoint(26, -5144.62, -1023.9, 11.67);
-   thisAI->AddWaypoint(27, -5138.67, -1020.23, 7.81);
-   thisAI->AddWaypoint(28, -5135.6, -1018.55, 6.19);
-   thisAI->AddWaypoint(29, -5126.25, -1014.76, 1.08);
-   thisAI->AddWaypoint(30, -5120.03, -1013.12, -1.11);
-   thisAI->AddWaypoint(31, -5112.3, -1027.65, -5.39);
-   thisAI->AddWaypoint(32, -5106.99, -1023.09, -5.10);
-   thisAI->AddWaypoint(33, -5099.07, -1016.19, -4.92);
-   thisAI->AddWaypoint(34, -5091.23, -1009.21, -5.22);
-   thisAI->AddWaypoint(35, -5083.62, -1001.97, -5.22);
-   thisAI->AddWaypoint(36, -5076.1, -994.652, -4.92);
-   thisAI->AddWaypoint(37, -5066.71, -985.507, -4.97);
-   thisAI->AddWaypoint(38, -5065.13, -978.689, -5.02);
-   thisAI->AddWaypoint(39, -5062.33, -968.57, -5.08);
-   thisAI->AddWaypoint(40, -5059.46, -958.469, -5.16);
-   thisAI->AddWaypoint(41, -5056.59, -948.375, -5.10);
-   thisAI->AddWaypoint(42, -5053.73, -938.274, -5.69);
-   thisAI->AddWaypoint(43, -5043.06, -934.822, -5.35);
-   thisAI->AddWaypoint(44, -5029.35, -932.007, -5.27);
-   thisAI->AddWaypoint(45, -5024.58, -933.781, -5.40);
-   thisAI->AddWaypoint(46, -5019.13, -938.172, -5.54);
-   thisAI->AddWaypoint(47, -5011, -944.812, -5.47);
-   thisAI->AddWaypoint(48, -5002.86, -951.455, -5.44);
-   thisAI->AddWaypoint(49, -4994.73, -958.099, -5.41);
-   thisAI->AddWaypoint(50, -4990.57, -963.782, -5.33);
-   thisAI->AddWaypoint(51, -4987.43, -970.041, -5.17);
-   thisAI->AddWaypoint(52, -4981.41, -982.678, -5.10);
-   thisAI->AddWaypoint(53, -4977.03, -992.221, -4.97);
-   thisAI->AddWaypoint(54, -4972.6, -1001.74, -5.24);
-   thisAI->AddWaypoint(55, -4968.15, -1011.25, -5.49);
-   thisAI->AddWaypoint(56, -4963.75, -1020.78, -5.07);
-   thisAI->AddWaypoint(57, -4959.3, -1030.3, -5.28);
-   thisAI->AddWaypoint(58, -4956.28, -1036.61, -5.84);
-   thisAI->AddWaypoint(59, -4952.05, -1043.75, -9.04);
-   thisAI->AddWaypoint(60, -4943.8, -1055.06, -17.91);
-   thisAI->AddWaypoint(61, -4939.47, -1055.61, -20.73);
-   thisAI->AddWaypoint(62, -4929.16, -1053.64, -25.65);
-   thisAI->AddWaypoint(63, -4922.28, -1052.37, -28.72);
-   thisAI->AddWaypoint(64, -4913.26, -1051.3, -31.80);
-   thisAI->AddWaypoint(65, -4903.54, -1054.17, -33.48);
-   thisAI->AddWaypoint(66, -4905.95, -1056.71, -33.68);
-   thisAI->AddWaypoint(67, -4913.18, -1064.32, -39.46);
-   thisAI->AddWaypoint(68, -4925.27, -1076.98, -47.39);
-   thisAI->AddWaypoint(69, -4932.68, -1084.42, -51.00);
-   thisAI->AddWaypoint(70, -4938.3, -1100.41, -50.71, 5000);
-   thisAI->AddWaypoint(71, -4937.34, -1102.87, -49.82);
+    QUEST_HOMEWARD      = 4770,
+    NPC_WYVERN          = 4107,
+    FACTION_ESCORTEE    = 232                               //guessed
+};
 
-    return thisAI;
+float m_afWyvernLoc[3][3]=
+{
+    {-4990.606, -906.057, -5.343},
+    {-4970.241, -927.378, -4.951},
+    {-4985.364, -952.528, -5.199}
+};
+
+struct TRINITY_DLL_DECL npc_paoka_swiftmountainAI : public npc_escortAI
+{
+    npc_paoka_swiftmountainAI(Creature* pCreature) : npc_escortAI(pCreature) { }
+
+    void Reset() { }
+
+    void WaypointReached(uint32 uiPointId)
+    {
+        switch(uiPointId)
+        {
+            case 15:
+                DoScriptText(SAY_WYVERN, m_creature);
+                DoSpawnWyvern();
+                break;
+            case 26:
+                DoScriptText(SAY_COMPLETE, m_creature);
+                break;
+            case 27:
+                if (Player* pPlayer = (Player*)Unit::GetUnit(*m_creature, PlayerGUID))
+                    pPlayer->GroupEventHappens(QUEST_HOMEWARD, m_creature);
+                break;
+        }
+    }
+
+    void DoSpawnWyvern()
+    {
+        for(int i = 0; i < 3; ++i)
+            m_creature->SummonCreature(NPC_WYVERN,
+            m_afWyvernLoc[i][0], m_afWyvernLoc[i][1], m_afWyvernLoc[i][2], 0.0f,
+            TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
+    }
+
+    void JustDied(Unit* pKiller)
+    {
+        if (Player* pPlayer = (Player*)Unit::GetUnit(*m_creature, PlayerGUID))
+        {
+            if (pPlayer->GetQuestStatus(QUEST_HOMEWARD) == QUEST_STATUS_INCOMPLETE)
+                pPlayer->FailQuest(QUEST_HOMEWARD);
+        }
+    }
+};
+
+CreatureAI* GetAI_npc_paoka_swiftmountain(Creature* pCreature)
+{
+    npc_paoka_swiftmountainAI* pTempAI = new npc_paoka_swiftmountainAI(pCreature);
+
+    pTempAI->FillPointMovementListForCreature();
+
+    return (CreatureAI*)pTempAI;
+}
+
+bool QuestAccept_npc_paoka_swiftmountain(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
+{
+    if (pQuest->GetQuestId() == QUEST_HOMEWARD)
+    {
+        DoScriptText(SAY_START, pCreature, pPlayer);
+        pCreature->setFaction(FACTION_ESCORTEE);
+
+        if (npc_paoka_swiftmountainAI* pEscortAI = CAST_AI(npc_paoka_swiftmountainAI,pCreature->AI()))
+            pEscortAI->Start(false, false, pPlayer->GetGUID(), pQuest);
+    }
+    return true;
 }
 
 /*#####
@@ -308,9 +334,15 @@ void AddSC_thousand_needles()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name = "npc_swiftmountain";
-    newscript->GetAI = &GetAI_npc_swiftmountain;
-    newscript->pQuestAccept = &QuestAccept_npc_swiftmountain;
+    newscript->Name = "npc_lakota_windsong";
+    newscript->GetAI = &GetAI_npc_lakota_windsong;
+    newscript->pQuestAccept = &QuestAccept_npc_lakota_windsong;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_paoka_swiftmountain";
+    newscript->GetAI = &GetAI_npc_paoka_swiftmountain;
+    newscript->pQuestAccept = &QuestAccept_npc_paoka_swiftmountain;
     newscript->RegisterSelf();
 
     newscript = new Script;

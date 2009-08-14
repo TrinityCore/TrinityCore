@@ -1196,7 +1196,8 @@ bool ChooseReward_npc_rocknot(Player* pPlayer, Creature* pCreature, const Quest 
         {
             DoScriptText(SAY_GOT_BEER, pCreature);
             pCreature->CastSpell(pCreature,SPELL_DRUNKEN_RAGE,false);
-            CAST_AI(npc_escortAI, (pCreature->AI()))->Start(false, false);
+            if (npc_escortAI* pEscortAI = CAST_AI(npc_rocknotAI, pCreature->AI()))
+                pEscortAI->Start(false, false);
         }
     }
 

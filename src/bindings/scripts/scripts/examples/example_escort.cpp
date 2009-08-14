@@ -183,10 +183,14 @@ bool GossipHello_example_escort(Player* pPlayer, Creature* pCreature)
 
 bool GossipSelect_example_escort(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
+    npc_escortAI* pEscortAI = CAST_AI(example_escortAI, pCreature->AI());
+
     if (action == GOSSIP_ACTION_INFO_DEF+1)
     {
         pPlayer->CLOSE_GOSSIP_MENU();
-        CAST_AI(npc_escortAI, (pCreature->AI()))->Start(true, true, pPlayer->GetGUID());
+
+        if (pEscortAI)
+            pEscortAI->Start(true, true, pPlayer->GetGUID());
 
         return true;                                        // prevent mangos core handling
     }
@@ -194,7 +198,9 @@ bool GossipSelect_example_escort(Player* pPlayer, Creature* pCreature, uint32 se
     if (action == GOSSIP_ACTION_INFO_DEF+2)
     {
         pPlayer->CLOSE_GOSSIP_MENU();
-        CAST_AI(npc_escortAI, (pCreature->AI()))->Start(false, false, pPlayer->GetGUID());
+        
+        if (pEscortAI)
+            pEscortAI->Start(false, false, pPlayer->GetGUID());
 
         return true;                                        // prevent mangos core handling
     }
@@ -202,7 +208,9 @@ bool GossipSelect_example_escort(Player* pPlayer, Creature* pCreature, uint32 se
     if (action == GOSSIP_ACTION_INFO_DEF+3)
     {
         pPlayer->CLOSE_GOSSIP_MENU();
-        CAST_AI(npc_escortAI, (pCreature->AI()))->Start(false, true, pPlayer->GetGUID());
+        
+        if (pEscortAI)
+            pEscortAI->Start(false, true, pPlayer->GetGUID());
 
         return true;                                        // prevent mangos core handling
     }

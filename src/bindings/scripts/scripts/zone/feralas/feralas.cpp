@@ -190,7 +190,8 @@ bool QuestAccept_npc_oox22fe(Player* pPlayer, Creature* pCreature, const Quest* 
         if (pPlayer->GetTeam() == HORDE)
             pCreature->setFaction(FACTION_ESCORTEE_H);
 
-        CAST_AI(npc_escortAI, (pCreature->AI()))->Start(true, false, pPlayer->GetGUID());
+        if (npc_escortAI* pEscortAI = CAST_AI(npc_oox22feAI, pCreature->AI()))
+            pEscortAI->Start(true, false, pPlayer->GetGUID());
 
     }
     return true;
