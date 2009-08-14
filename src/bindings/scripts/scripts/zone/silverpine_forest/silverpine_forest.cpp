@@ -166,12 +166,14 @@ struct TRINITY_DLL_DECL npc_deathstalker_erlandAI : public npc_escortAI
     }
 };
 
-bool QuestAccept_npc_deathstalker_erland(Player* pPlayer, Creature* creature, Quest const* quest)
+bool QuestAccept_npc_deathstalker_erland(Player* pPlayer, Creature* pCreature, Quest const* quest)
 {
     if (quest->GetQuestId() == QUEST_ESCORTING)
     {
-        DoScriptText(SAY_QUESTACCEPT, creature, pPlayer);
-        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, pPlayer->GetGUID());
+        DoScriptText(SAY_QUESTACCEPT, pCreature, pPlayer);
+
+        if (npc_escortAI* pEscortAI = CAST_AI(npc_deathstalker_erlandAI, pCreature->AI()))
+            pEscortAI->Start(true, false, pPlayer->GetGUID());
     }
 
     return true;

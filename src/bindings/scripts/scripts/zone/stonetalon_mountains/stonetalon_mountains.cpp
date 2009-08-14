@@ -147,14 +147,16 @@ struct TRINITY_DLL_DECL npc_kaya_flathoofAI : public npc_escortAI
     }
 };
 
-bool QuestAccept_npc_kaya_flathoof(Player* pPlayer, Creature* creature, Quest const* quest)
+bool QuestAccept_npc_kaya_flathoof(Player* pPlayer, Creature* pCreature, Quest const* quest)
 {
     if (quest->GetQuestId() == QUEST_PROTECT_KAYA)
     {
-        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, pPlayer->GetGUID());
-        DoScriptText(SAY_START, creature);
-        creature->setFaction(113);
-        creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
+        if (npc_escortAI* pEscortAI = CAST_AI(npc_kaya_flathoofAI, pCreature->AI()))
+            pEscortAI->Start(true, false, pPlayer->GetGUID());
+
+        DoScriptText(SAY_START, pCreature);
+        pCreature->setFaction(113);
+        pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
     }
     return true;
 }
