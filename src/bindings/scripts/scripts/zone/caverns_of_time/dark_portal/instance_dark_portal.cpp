@@ -95,25 +95,11 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
         NextPortal_Timer    = 0;
     }
 
-    void UpdateBMWorldState(uint32 id, uint32 state)
-    {
-        Map::PlayerList const& players = instance->GetPlayers();
-
-        if (!players.isEmpty())
-        {
-            for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-            {
-                if (Player* pPlayer = itr->getSource())
-                    pPlayer->SendUpdateWorldState(id,state);
-            }
-        }else debug_log("TSCR: Instance Black Portal: UpdateBMWorldState, but PlayerList is empty!");
-    }
-
     void InitWorldState(bool Enable = true)
     {
-        UpdateBMWorldState(WORLD_STATE_BM,Enable ? 1 : 0);
-        UpdateBMWorldState(WORLD_STATE_BM_SHIELD,100);
-        UpdateBMWorldState(WORLD_STATE_BM_RIFT,0);
+        DoUpdateWorldState(WORLD_STATE_BM,Enable ? 1 : 0);
+        DoUpdateWorldState(WORLD_STATE_BM_SHIELD, 100);
+        DoUpdateWorldState(WORLD_STATE_BM_RIFT, 0);
     }
 
     bool IsEncounterInProgress()
@@ -172,7 +158,8 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
             if (data == SPECIAL && m_auiEncounter[0] == IN_PROGRESS)
             {
                 --mShieldPercent;
-                UpdateBMWorldState(WORLD_STATE_BM_SHIELD,mShieldPercent);
+
+                DoUpdateWorldState(WORLD_STATE_BM_SHIELD, mShieldPercent);
 
                 if (!mShieldPercent)
                 {
@@ -337,7 +324,8 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
             if (NextPortal_Timer <= diff)
             {
                 ++mRiftPortalCount;
-                UpdateBMWorldState(WORLD_STATE_BM_RIFT,mRiftPortalCount);
+
+                DoUpdateWorldState(WORLD_STATE_BM_RIFT, mRiftPortalCount);
 
                 DoSpawnPortal();
                 NextPortal_Timer = RiftWaves[GetRiftWaveId()].NextPortalTime;

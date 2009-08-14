@@ -396,9 +396,9 @@ void hyjalAI::Reset()
         if ((!pInstance->GetData(DATA_ALLIANCE_RETREAT) && m_creature->GetEntry() == JAINA) || (pInstance->GetData(DATA_ALLIANCE_RETREAT) && m_creature->GetEntry() == THRALL))
         {
             //Reset World States
-            UpdateWorldState(WORLD_STATE_WAVES, 0);
-            UpdateWorldState(WORLD_STATE_ENEMY, 0);
-            UpdateWorldState(WORLD_STATE_ENEMYCOUNT, 0);
+            pInstance->DoUpdateWorldState(WORLD_STATE_WAVES, 0);
+            pInstance->DoUpdateWorldState(WORLD_STATE_ENEMY, 0);
+            pInstance->DoUpdateWorldState(WORLD_STATE_ENEMYCOUNT, 0);
             pInstance->SetData(DATA_RESET_TRASH_COUNT, 0);
         }
     }else error_log(ERROR_INST_DATA);
@@ -548,8 +548,11 @@ void hyjalAI::SummonNextWave(Wave wave[18], uint32 Count, float Base[4][3])
         uint32 stateValue = Count+1;
         if (FirstBossDead)
             stateValue -= 9;                                // Subtract 9 from it to give the proper wave number if we are greater than 8
-        UpdateWorldState(WORLD_STATE_WAVES, stateValue);    // Set world state to our current wave number
-        UpdateWorldState(WORLD_STATE_ENEMY, 1);             // Enable world state
+
+        // Set world state to our current wave number
+        pInstance->DoUpdateWorldState(WORLD_STATE_WAVES, stateValue);    // Set world state to our current wave number
+        // Enable world state
+        pInstance->DoUpdateWorldState(WORLD_STATE_ENEMY, 1);             // Enable world state
 
         pInstance->SetData(DATA_TRASH, EnemyCount);         // Send data for instance script to update count
 
@@ -563,9 +566,13 @@ void hyjalAI::SummonNextWave(Wave wave[18], uint32 Count, float Base[4][3])
     }
     else
     {
-        UpdateWorldState(WORLD_STATE_WAVES, 0);             // Set world state for waves to 0 to disable it.
-        UpdateWorldState(WORLD_STATE_ENEMY, 1);
-        UpdateWorldState(WORLD_STATE_ENEMYCOUNT, 1);        // Set World State for enemies invading to 1.
+        // Set world state for waves to 0 to disable it.
+        pInstance->DoUpdateWorldState(WORLD_STATE_WAVES, 0);
+        pInstance->DoUpdateWorldState(WORLD_STATE_ENEMY, 1);
+
+        // Set World State for enemies invading to 1.
+        pInstance->DoUpdateWorldState(WORLD_STATE_ENEMYCOUNT, 1);
+
         Summon = false;
     }
     CheckTimer = 5000;
@@ -573,7 +580,7 @@ void hyjalAI::SummonNextWave(Wave wave[18], uint32 Count, float Base[4][3])
 
 void hyjalAI::StartEvent(Player* pPlayer)
 {
-    if (!pPlayer || IsDummy)
+    if (!pPlayer || IsDummy || !pInstance)
         return;
 
     Talk(BEGIN);
@@ -587,9 +594,9 @@ void hyjalAI::StartEvent(Player* pPlayer)
 
     m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
-    UpdateWorldState(WORLD_STATE_WAVES, 0);
-    UpdateWorldState(WORLD_STATE_ENEMY, 0);
-    UpdateWorldState(WORLD_STATE_ENEMYCOUNT, 0);
+    pInstance->DoUpdateWorldState(WORLD_STATE_WAVES, 0);
+    pInstance->DoUpdateWorldState(WORLD_STATE_ENEMY, 0);
+    pInstance->DoUpdateWorldState(WORLD_STATE_ENEMYCOUNT, 0);
 
     DeSpawnVeins();
 }
@@ -637,25 +644,6 @@ void hyjalAI::Talk(uint32 id)
 
     if (YellId)
         DoScriptText(YellId, m_creature);
-}
-
-void hyjalAI::UpdateWorldState(uint32 id, uint32 state)
-{
-    Map* pMap = m_creature->GetMap();
-
-    if (!pMap->IsDungeon())
-        return;
-
-    Map::PlayerList const& players = pMap->GetPlayers();
-
-    if (!players.isEmpty())
-    {
-            for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-            {
-                if (Player* pPlayer = itr->getSource())
-                    pPlayer->SendUpdateWorldState(id,state);
-            }
-    }else debug_log("TSCR: HyjalAI: UpdateWorldState, but PlayerList is empty");
 }
 
 void hyjalAI::Retreat()
@@ -879,7 +867,7 @@ void hyjalAI::UpdateAI(const uint32 diff)
                     CheckTimer = 0;
                     m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     BossGUID[i] = 0;
-                    UpdateWorldState(WORLD_STATE_ENEMY, 0); // Reset world state for enemies to disable it
+                    pInstance->DoUpdateWorldState(WORLD_STATE_ENEMY, 0); // Reset world state for enemies to disable it
                 }
             }
         }

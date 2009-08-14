@@ -438,6 +438,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_deserter_agitator' WHERE `entry
 UPDATE `creature_template` SET `ScriptName`='npc_lady_jaina_proudmoore' WHERE `entry`=4968;
 UPDATE `creature_template` SET `ScriptName`='npc_nat_pagle' WHERE `entry`=12919;
 UPDATE `creature_template` SET `ScriptName`='npc_restless_apparition' WHERE `entry`=23861;
+UPDATE `creature_template` SET `ScriptName`='npc_private_hendel' WHERE `entry`=4966;
 
 /* EASTERN PLAGUELANDS */
 UPDATE `creature_template` SET `ScriptName`='mobs_ghoul_flayer' WHERE `entry` IN (8530,8531,8532);
