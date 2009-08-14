@@ -68,7 +68,7 @@ struct TRINITY_DLL_DECL boss_azgalorAI : public hyjal_trashAI
         if (pInstance && IsEvent)
             pInstance->SetData(DATA_AZGALOREVENT, IN_PROGRESS);
         DoPlaySoundToSet(m_creature, SOUND_ONAGGRO);
-        DoYell(SAY_ONAGGRO, LANG_UNIVERSAL, NULL);
+        m_creature->MonsterYell(SAY_ONAGGRO, LANG_UNIVERSAL, NULL);
     }
 
     void KilledUnit(Unit *victim)
@@ -77,15 +77,15 @@ struct TRINITY_DLL_DECL boss_azgalorAI : public hyjal_trashAI
         {
             case 0:
                 DoPlaySoundToSet(m_creature, SOUND_ONSLAY1);
-                DoYell(SAY_ONSLAY1, LANG_UNIVERSAL, NULL);
+                m_creature->MonsterYell(SAY_ONSLAY1, LANG_UNIVERSAL, NULL);
                 break;
             case 1:
                 DoPlaySoundToSet(m_creature, SOUND_ONSLAY2);
-                DoYell(SAY_ONSLAY2, LANG_UNIVERSAL, NULL);
+                m_creature->MonsterYell(SAY_ONSLAY2, LANG_UNIVERSAL, NULL);
                 break;
             case 2:
                 DoPlaySoundToSet(m_creature, SOUND_ONSLAY3);
-                DoYell(SAY_ONSLAY3, LANG_UNIVERSAL, NULL);
+                m_creature->MonsterYell(SAY_ONSLAY3, LANG_UNIVERSAL, NULL);
                 break;
         }
     }

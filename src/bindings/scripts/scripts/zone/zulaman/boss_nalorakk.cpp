@@ -202,7 +202,7 @@ struct TRINITY_DLL_DECL boss_nalorakkAI : public ScriptedAI
                         case 0:
                             if (m_creature->IsWithinDistInMap(who, 50))
                             {
-                                DoYell(YELL_NALORAKK_WAVE1, LANG_UNIVERSAL, NULL);
+                                m_creature->MonsterYell(YELL_NALORAKK_WAVE1, LANG_UNIVERSAL, NULL);
                                 DoPlaySoundToSet(m_creature, SOUND_NALORAKK_WAVE1);
 
                                 (*m_creature).GetMotionMaster()->MovePoint(1,NalorakkWay[1][0],NalorakkWay[1][1],NalorakkWay[1][2]);
@@ -215,7 +215,7 @@ struct TRINITY_DLL_DECL boss_nalorakkAI : public ScriptedAI
                         case 2:
                             if (m_creature->IsWithinDistInMap(who, 40))
                             {
-                                DoYell(YELL_NALORAKK_WAVE2, LANG_UNIVERSAL, NULL);
+                                m_creature->MonsterYell(YELL_NALORAKK_WAVE2, LANG_UNIVERSAL, NULL);
                                 DoPlaySoundToSet(m_creature, SOUND_NALORAKK_WAVE2);
 
                                 (*m_creature).GetMotionMaster()->MovePoint(3,NalorakkWay[3][0],NalorakkWay[3][1],NalorakkWay[3][2]);
@@ -228,7 +228,7 @@ struct TRINITY_DLL_DECL boss_nalorakkAI : public ScriptedAI
                         case 5:
                             if (m_creature->IsWithinDistInMap(who, 40))
                             {
-                                DoYell(YELL_NALORAKK_WAVE3, LANG_UNIVERSAL, NULL);
+                                m_creature->MonsterYell(YELL_NALORAKK_WAVE3, LANG_UNIVERSAL, NULL);
                                 DoPlaySoundToSet(m_creature, SOUND_NALORAKK_WAVE3);
 
                                 (*m_creature).GetMotionMaster()->MovePoint(6,NalorakkWay[6][0],NalorakkWay[6][1],NalorakkWay[6][2]);
@@ -243,7 +243,7 @@ struct TRINITY_DLL_DECL boss_nalorakkAI : public ScriptedAI
                             {
                                 SendAttacker(who);
 
-                                DoYell(YELL_NALORAKK_WAVE4, LANG_UNIVERSAL, NULL);
+                                m_creature->MonsterYell(YELL_NALORAKK_WAVE4, LANG_UNIVERSAL, NULL);
                                 DoPlaySoundToSet(m_creature, SOUND_NALORAKK_WAVE4);
 
                                 m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -263,7 +263,7 @@ struct TRINITY_DLL_DECL boss_nalorakkAI : public ScriptedAI
         if (pInstance)
             pInstance->SetData(DATA_NALORAKKEVENT, IN_PROGRESS);
 
-        DoYell(YELL_AGGRO, LANG_UNIVERSAL, NULL);
+        m_creature->MonsterYell(YELL_AGGRO, LANG_UNIVERSAL, NULL);
         DoPlaySoundToSet(m_creature, SOUND_YELL_AGGRO);
         DoZoneInCombat();
     }
@@ -273,7 +273,7 @@ struct TRINITY_DLL_DECL boss_nalorakkAI : public ScriptedAI
         if (pInstance)
             pInstance->SetData(DATA_NALORAKKEVENT, DONE);
 
-        DoYell(YELL_DEATH,LANG_UNIVERSAL,NULL);
+        m_creature->MonsterYell(YELL_DEATH,LANG_UNIVERSAL,NULL);
         DoPlaySoundToSet(m_creature, SOUND_YELL_DEATH);
     }
 
@@ -282,11 +282,11 @@ struct TRINITY_DLL_DECL boss_nalorakkAI : public ScriptedAI
         switch(rand()%2)
         {
         case 0:
-            DoYell(YELL_KILL_ONE, LANG_UNIVERSAL, NULL);
+            m_creature->MonsterYell(YELL_KILL_ONE, LANG_UNIVERSAL, NULL);
             DoPlaySoundToSet(m_creature, SOUND_YELL_KILL_ONE);
             break;
         case 1:
-            DoYell(YELL_KILL_TWO, LANG_UNIVERSAL, NULL);
+            m_creature->MonsterYell(YELL_KILL_TWO, LANG_UNIVERSAL, NULL);
             DoPlaySoundToSet(m_creature, SOUND_YELL_KILL_TWO);
             break;
         }
@@ -351,7 +351,7 @@ struct TRINITY_DLL_DECL boss_nalorakkAI : public ScriptedAI
         if (Berserk_Timer < diff)
         {
             DoCast(m_creature, SPELL_BERSERK, true);
-            DoYell(YELL_BERSERK, LANG_UNIVERSAL, NULL);
+            m_creature->MonsterYell(YELL_BERSERK, LANG_UNIVERSAL, NULL);
             DoPlaySoundToSet(m_creature, SOUND_YELL_BERSERK);
             Berserk_Timer = 600000;
         }else Berserk_Timer -= diff;
@@ -361,7 +361,7 @@ struct TRINITY_DLL_DECL boss_nalorakkAI : public ScriptedAI
             if (inBearForm)
             {
                 m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, 5122);
-                DoYell(YELL_SHIFTEDTOTROLL, LANG_UNIVERSAL, NULL);
+                m_creature->MonsterYell(YELL_SHIFTEDTOTROLL, LANG_UNIVERSAL, NULL);
                 DoPlaySoundToSet(m_creature, SOUND_YELL_TOTROLL);
                 m_creature->RemoveAurasDueToSpell(SPELL_BEARFORM);
                 Surge_Timer = 15000 + rand()%5000;
@@ -373,7 +373,7 @@ struct TRINITY_DLL_DECL boss_nalorakkAI : public ScriptedAI
             else
             {
                 m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, 0);
-                DoYell(YELL_SHIFTEDTOBEAR, LANG_UNIVERSAL, NULL);
+                m_creature->MonsterYell(YELL_SHIFTEDTOBEAR, LANG_UNIVERSAL, NULL);
                 DoPlaySoundToSet(m_creature, SOUND_YELL_TOBEAR);
                 DoCast(m_creature, SPELL_BEARFORM, true);
                 LaceratingSlash_Timer = 2000; // dur 18s
@@ -404,7 +404,7 @@ struct TRINITY_DLL_DECL boss_nalorakkAI : public ScriptedAI
 
             if (Surge_Timer < diff)
             {
-                DoYell(YELL_SURGE, LANG_UNIVERSAL, NULL);
+                m_creature->MonsterYell(YELL_SURGE, LANG_UNIVERSAL, NULL);
                 DoPlaySoundToSet(m_creature, SOUND_YELL_SURGE);
                 Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 1, 45, true);
                 if (target)

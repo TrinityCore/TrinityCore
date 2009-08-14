@@ -148,7 +148,7 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
             pInstance->SetData(TYPE_NIGHTBANE, IN_PROGRESS);
 
         HandleTerraceDoors(false);
-        DoYell(YELL_AGGRO, LANG_UNIVERSAL, NULL);
+        m_creature->MonsterYell(YELL_AGGRO, LANG_UNIVERSAL, NULL);
     }
 
     void AttackStart(Unit* who)
@@ -192,7 +192,7 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
         {
             if (id == 0)
             {
-                DoTextEmote(EMOTE_BREATH, NULL, true);
+                m_creature->MonsterTextEmote(EMOTE_BREATH, 0, true);
                 Flying = false;
                 Phase = 2;
                 return;
@@ -224,7 +224,7 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
 
     void TakeOff()
     {
-        DoYell(YELL_FLY_PHASE, LANG_UNIVERSAL, NULL);
+        m_creature->MonsterYell(YELL_FLY_PHASE, LANG_UNIVERSAL, NULL);
 
         m_creature->InterruptSpell(CURRENT_GENERIC_SPELL);
         m_creature->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
@@ -392,9 +392,9 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
             if (FlyTimer < diff) //landing
             {
                 if (rand()%2 == 0)
-                    DoYell(YELL_LAND_PHASE_1, LANG_UNIVERSAL, NULL);
+                    m_creature->MonsterYell(YELL_LAND_PHASE_1, LANG_UNIVERSAL, NULL);
                 else
-                    DoYell(YELL_LAND_PHASE_2, LANG_UNIVERSAL, NULL);
+                    m_creature->MonsterYell(YELL_LAND_PHASE_2, LANG_UNIVERSAL, NULL);
 
                 (*m_creature).GetMotionMaster()->Clear(false);
                 m_creature->GetMotionMaster()->MovePoint(3,IntroWay[3][0],IntroWay[3][1],IntroWay[3][2]);

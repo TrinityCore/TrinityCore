@@ -117,7 +117,7 @@ struct TRINITY_DLL_DECL boss_halazziAI : public ScriptedAI
         if (pInstance)
             pInstance->SetData(DATA_HALAZZIEVENT, IN_PROGRESS);
 
-        DoYell(YELL_AGGRO, LANG_UNIVERSAL, NULL);
+        m_creature->MonsterYell(YELL_AGGRO, LANG_UNIVERSAL, NULL);
         DoPlaySoundToSet(m_creature, SOUND_AGGRO);
 
         EnterPhase(PHASE_LYNX);
@@ -172,7 +172,7 @@ struct TRINITY_DLL_DECL boss_halazziAI : public ScriptedAI
             TotemTimer = 12000;
             break;
         case PHASE_SPLIT:
-            DoYell(YELL_SPLIT, LANG_UNIVERSAL, NULL);
+            m_creature->MonsterYell(YELL_SPLIT, LANG_UNIVERSAL, NULL);
             DoPlaySoundToSet(m_creature, SOUND_SPLIT);
             m_creature->CastSpell(m_creature, SPELL_TRANSFORM_SPLIT, true);
             break;
@@ -187,7 +187,7 @@ struct TRINITY_DLL_DECL boss_halazziAI : public ScriptedAI
         case PHASE_MERGE:
             if (Unit *Lynx = Unit::GetUnit(*m_creature, LynxGUID))
             {
-                DoYell(YELL_MERGE, LANG_UNIVERSAL, NULL);
+                m_creature->MonsterYell(YELL_MERGE, LANG_UNIVERSAL, NULL);
                 DoPlaySoundToSet(m_creature, SOUND_MERGE);
                 Lynx->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 Lynx->GetMotionMaster()->Clear();
@@ -209,7 +209,7 @@ struct TRINITY_DLL_DECL boss_halazziAI : public ScriptedAI
 
         if (BerserkTimer < diff)
         {
-            DoYell(YELL_BERSERK, LANG_UNIVERSAL, NULL);
+            m_creature->MonsterYell(YELL_BERSERK, LANG_UNIVERSAL, NULL);
             DoPlaySoundToSet(m_creature, SOUND_BERSERK);
             DoCast(m_creature, SPELL_BERSERK, true);
             BerserkTimer = 60000;
@@ -305,12 +305,12 @@ struct TRINITY_DLL_DECL boss_halazziAI : public ScriptedAI
         switch(rand()%2)
         {
         case 0:
-            DoYell(YELL_KILL_ONE, LANG_UNIVERSAL, NULL);
+            m_creature->MonsterYell(YELL_KILL_ONE, LANG_UNIVERSAL, NULL);
             DoPlaySoundToSet(m_creature, SOUND_KILL_ONE);
             break;
 
         case 1:
-            DoYell(YELL_KILL_TWO, LANG_UNIVERSAL, NULL);
+            m_creature->MonsterYell(YELL_KILL_TWO, LANG_UNIVERSAL, NULL);
             DoPlaySoundToSet(m_creature, SOUND_KILL_TWO);
             break;
         }
@@ -321,7 +321,7 @@ struct TRINITY_DLL_DECL boss_halazziAI : public ScriptedAI
         if (pInstance)
             pInstance->SetData(DATA_HALAZZIEVENT, DONE);
 
-        DoYell(YELL_DEATH, LANG_UNIVERSAL, NULL);
+        m_creature->MonsterYell(YELL_DEATH, LANG_UNIVERSAL, NULL);
         DoPlaySoundToSet(m_creature, SOUND_DEATH);
     }
 };

@@ -1156,7 +1156,7 @@ struct TRINITY_DLL_DECL npc_dark_rider_of_acherusAI : public ScriptedAI
             switch(Phase)
             {
                case 0:
-                    DoSay("The realm of shadows awaits...", LANG_UNIVERSAL, NULL);
+                    m_creature->MonsterSay("The realm of shadows awaits...", LANG_UNIVERSAL, 0);
                     PhaseTimer = 5000;
                     Phase = 1;
                     break;
@@ -1417,7 +1417,7 @@ struct TRINITY_DLL_DECL npc_valkyr_battle_maidenAI : public ScriptedAI
                     {
                         m_creature->HandleEmoteCommand(EMOTE_ONESHOT_CUSTOMSPELL01);
                         DoCast(Owner, SPELL_REVIVE,true);
-                        DoWhisper(VALK_WHISPER,Owner);
+                        m_creature->MonsterWhisper(VALK_WHISPER, Owner->GetGUID());
                     }
                     FlyBackTimer = 5000;
                     phase = 3;

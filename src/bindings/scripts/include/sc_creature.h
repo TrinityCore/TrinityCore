@@ -63,7 +63,7 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
     void AttackStartNoMove(Unit *target);
 
     // Called at any Damage from any attacker (before damage apply)
-    void DamageTaken(Unit *done_by, uint32 &damage) {}
+    void DamageTaken(Unit* pDone_by, uint32& uiDamage) {}
 
     //Called at World update tick
     void UpdateAI(const uint32);
@@ -78,7 +78,7 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
     void JustSummoned(Creature* ) {}
 
     // Called when a summoned creature is despawned
-    void SummonedCreatureDespawn(Creature* /*unit*/) {}
+    void SummonedCreatureDespawn(Creature*) {}
 
     // Called when hit by a spell
     void SpellHit(Unit* caster, const SpellEntry *spell) {}
@@ -119,28 +119,16 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
     //*************
 
     //Start movement toward victim
-    void DoStartMovement(Unit* victim, float distance = 0, float angle = 0);
+    void DoStartMovement(Unit* pVictim, float fDistance = 0, float fAngle = 0);
 
     //Start no movement on victim
-    void DoStartNoMovement(Unit* victim);
+    void DoStartNoMovement(Unit* pVictim);
 
     //Stop attack of current victim
     void DoStopAttack();
 
     //Cast spell by spell info
-    void DoCastSpell(Unit* who,SpellEntry const *spellInfo, bool triggered = false);
-
-    //Creature say
-    void DoSay(const char* text, uint32 language, Unit* target, bool SayEmote = false);
-
-    //Creature Yell
-    void DoYell(const char* text, uint32 language, Unit* target);
-
-    //Creature Text emote, optional bool for boss emote text
-    void DoTextEmote(const char* text, Unit* target, bool IsBossEmote = false);
-
-    //Creature whisper, optional bool for boss whisper
-    void DoWhisper(const char* text, Unit* reciever, bool IsBossWhisper = false);
+    void DoCastSpell(Unit* pTarget, SpellEntry const* pSpellInfo, bool bTriggered = false);
 
     //Plays a sound to all nearby players
     void DoPlaySoundToSet(WorldObject* pSource, uint32 sound);
@@ -148,37 +136,37 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
     //Drops all threat to 0%. Does not remove players from the threat list
     void DoResetThreat();
 
-    float DoGetThreat(Unit *u);
-    void DoModifyThreatPercent(Unit *pUnit, int32 pct);
+    float DoGetThreat(Unit* u);
+    void DoModifyThreatPercent(Unit* pUnit, int32 pct);
 
-    void DoTeleportTo(float x, float y, float z, uint32 time = 0);
+    void DoTeleportTo(float fX, float fY, float fZ, uint32 uiTime = 0);
     void DoTeleportTo(const float pos[4]);
 
     void DoAction(const int32 param) {}
 
     //Teleports a player without dropping threat (only teleports to same map)
-    void DoTeleportPlayer(Unit* pUnit, float x, float y, float z, float o);
-    void DoTeleportAll(float x, float y, float z, float o);
+    void DoTeleportPlayer(Unit* pUnit, float fX, float fY, float fZ, float fO);
+    void DoTeleportAll(float fX, float fY, float fZ, float fO);
 
     //Returns friendly unit with the most amount of hp missing from max hp
-    Unit* DoSelectLowestHpFriendly(float range, uint32 MinHPDiff = 1);
+    Unit* DoSelectLowestHpFriendly(float fRange, uint32 uiMinHPDiff = 1);
 
     //Returns a list of friendly CC'd units within range
-    std::list<Creature*> DoFindFriendlyCC(float range);
+    std::list<Creature*> DoFindFriendlyCC(float fRange);
 
     //Returns a list of all friendly units missing a specific buff within range
-    std::list<Creature*> DoFindFriendlyMissingBuff(float range, uint32 spellid);
+    std::list<Creature*> DoFindFriendlyMissingBuff(float fRange, uint32 uiSpellId);
 
     //Return a player with at least minimumRange from m_creature
     Player* GetPlayerAtMinimumRange(float fMinimumRange);
 
     //Spawns a creature relative to m_creature
-    Creature* DoSpawnCreature(uint32 id, float x, float y, float z, float angle, uint32 type, uint32 despawntime);
-    Creature *DoSummon(uint32 entry, const float pos[4], uint32 despawntime = 30000, TempSummonType type = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
-    Creature *DoSummon(uint32 entry, WorldObject *obj, float radius = 5.0f, uint32 despawntime = 30000, TempSummonType type = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+    Creature* DoSpawnCreature(uint32 uiId, float fX, float fY, float fZ, float fAngle, uint32 uiType, uint32 uiDespawntime);
+    Creature *DoSummon(uint32 uiEntry, const float fPos[4], uint32 uiDespawntime = 30000, TempSummonType uiType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+    Creature *DoSummon(uint32 uiEntry, WorldObject *obj, float fRadius = 5.0f, uint32 uiDespawntime = 30000, TempSummonType uiType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
 
     //Selects a unit from the creature's current aggro list
-    Unit* SelectUnit(SelectAggroTarget target, uint32 position);
+    Unit* SelectUnit(SelectAggroTarget target, uint32 uiPosition);
 
     bool HealthBelowPct(uint32 pct) const { return me->GetHealth() * 100 < m_creature->GetMaxHealth() * pct; }
 
@@ -186,7 +174,7 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
     SpellEntry const* SelectSpell(Unit* Target, int32 School, int32 Mechanic, SelectTargetType Targets,  uint32 PowerCostMin, uint32 PowerCostMax, float RangeMin, float RangeMax, SelectEffect Effect);
 
     //Checks if you can cast the specified spell
-    bool CanCast(Unit* Target, SpellEntry const *Spell, bool Triggered = false);
+    bool CanCast(Unit* pTarget, SpellEntry const* pSpell, bool bTriggered = false);
 
     void SetEquipmentSlots(bool bLoadDefault, int32 uiMainHand = EQUIP_NO_CHANGE, int32 uiOffHand = EQUIP_NO_CHANGE, int32 uiRanged = EQUIP_NO_CHANGE);
 
