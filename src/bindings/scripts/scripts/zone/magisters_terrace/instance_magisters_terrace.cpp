@@ -24,7 +24,7 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_magisters_terrace.h"
 
-#define NUMBER_OF_ENCOUNTERS      4
+#define MAX_ENCOUNTER      4
 
 /*
 0  - Selin Fireheart
@@ -37,7 +37,7 @@ struct TRINITY_DLL_DECL instance_magisters_terrace : public ScriptedInstance
 {
     instance_magisters_terrace(Map* pMap) : ScriptedInstance(pMap) {Initialize();}
 
-    uint32 Encounters[NUMBER_OF_ENCOUNTERS];
+    uint32 m_auiEncounter[MAX_ENCOUNTER];
     uint32 DelrissaDeathCount;
 
     std::list<uint64> FelCrystals;
@@ -56,8 +56,7 @@ struct TRINITY_DLL_DECL instance_magisters_terrace : public ScriptedInstance
 
     void Initialize()
     {
-        for(uint8 i = 0; i < NUMBER_OF_ENCOUNTERS; ++i)
-            Encounters[i] = NOT_STARTED;
+        memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
         FelCrystals.clear();
 
@@ -78,8 +77,8 @@ struct TRINITY_DLL_DECL instance_magisters_terrace : public ScriptedInstance
 
     bool IsEncounterInProgress() const
     {
-        for(uint8 i = 0; i < NUMBER_OF_ENCOUNTERS; ++i)
-            if (Encounters[i] == IN_PROGRESS)
+        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+            if (m_auiEncounter[i] == IN_PROGRESS)
                 return true;
         return false;
     }
@@ -88,10 +87,10 @@ struct TRINITY_DLL_DECL instance_magisters_terrace : public ScriptedInstance
     {
         switch(identifier)
         {
-            case DATA_SELIN_EVENT:          return Encounters[0];
-            case DATA_VEXALLUS_EVENT:       return Encounters[1];
-            case DATA_DELRISSA_EVENT:       return Encounters[2];
-            case DATA_KAELTHAS_EVENT:       return Encounters[3];
+            case DATA_SELIN_EVENT:          return m_auiEncounter[0];
+            case DATA_VEXALLUS_EVENT:       return m_auiEncounter[1];
+            case DATA_DELRISSA_EVENT:       return m_auiEncounter[2];
+            case DATA_KAELTHAS_EVENT:       return m_auiEncounter[3];
             case DATA_DELRISSA_DEATH_COUNT: return DelrissaDeathCount;
             case DATA_FEL_CRYSTAL_SIZE:     return FelCrystals.size();
         }
@@ -102,20 +101,20 @@ struct TRINITY_DLL_DECL instance_magisters_terrace : public ScriptedInstance
     {
         switch(identifier)
         {
-            case DATA_SELIN_EVENT:       Encounters[0] = data;  break;
+            case DATA_SELIN_EVENT:       m_auiEncounter[0] = data;  break;
             case DATA_VEXALLUS_EVENT:
                 if (data == DONE)
                     DoUseDoorOrButton(VexallusDoorGUID);
-                Encounters[1] = data;
+                m_auiEncounter[1] = data;
                 break;
             case DATA_DELRISSA_EVENT:
                 if (data == DONE)
                     DoUseDoorOrButton(DelrissaDoorGUID);
                 if (data == IN_PROGRESS)
                     DelrissaDeathCount = 0;
-                Encounters[2] = data;
+                m_auiEncounter[2] = data;
                 break;
-            case DATA_KAELTHAS_EVENT:    Encounters[3] = data;  break;
+            case DATA_KAELTHAS_EVENT:    m_auiEncounter[3] = data;  break;
 
             case DATA_DELRISSA_DEATH_COUNT:
                 if (data == SPECIAL)

@@ -186,7 +186,7 @@ struct TRINITY_DLL_DECL aqsentinelAI : public ScriptedAI
         ClearBudyList();
         AddSentinelsNear(m_creature);
         int bli;
-        for (bli = 0; bli < 3;bli++)
+        for (bli = 0; bli < 3; ++bli)
         {
             if (!nearby[bli])
                 break;
@@ -245,7 +245,7 @@ struct TRINITY_DLL_DECL aqsentinelAI : public ScriptedAI
 
     void JustDied(Unit* who)
     {
-        for (int ni=0; ni<3; ni++)
+        for (int ni=0; ni<3; ++ni)
         {
             Creature *sent = nearby[ni];
             if (!sent)

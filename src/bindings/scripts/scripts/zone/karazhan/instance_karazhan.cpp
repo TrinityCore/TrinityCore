@@ -24,7 +24,7 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_karazhan.h"
 
-#define ENCOUNTERS      12
+#define MAX_ENCOUNTER      12
 
 /*
 0  - Attumen + Midnight (optional)
@@ -45,7 +45,7 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
 {
     instance_karazhan(Map* pMap) : ScriptedInstance(pMap) {Initialize();}
 
-    uint32 m_auiEncounter[ENCOUNTERS];
+    uint32 m_auiEncounter[MAX_ENCOUNTER];
     std::string strSaveData;
 
     uint32 m_uiOperaEvent;
@@ -69,8 +69,7 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
 
     void Initialize()
     {
-        for (uint8 i = 0; i < ENCOUNTERS; ++i)
-            m_auiEncounter[i] = NOT_STARTED;
+        memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
         // 1 - OZ, 2 - HOOD, 3 - RAJ, this never gets altered.
         m_uiOperaEvent      = urand(1,3);
@@ -98,7 +97,7 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
 
     bool IsEncounterInProgress() const
     {
-        for (uint8 i = 0; i < ENCOUNTERS; ++i)
+        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             if (m_auiEncounter[i] == IN_PROGRESS)
                 return true;
 
@@ -287,7 +286,7 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
         loadStream >> m_auiEncounter[0] >> m_auiEncounter[1] >> m_auiEncounter[2] >> m_auiEncounter[3]
             >> m_auiEncounter[4] >> m_auiEncounter[5] >> m_auiEncounter[6] >> m_auiEncounter[7]
             >> m_auiEncounter[8] >> m_auiEncounter[9] >> m_auiEncounter[10] >> m_auiEncounter[11];
-        for(uint8 i = 0; i < ENCOUNTERS; ++i)
+        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             if (m_auiEncounter[i] == IN_PROGRESS)                // Do not load an encounter as "In Progress" - reset it instead.
                 m_auiEncounter[i] = NOT_STARTED;
         OUT_LOAD_INST_DATA_COMPLETE;

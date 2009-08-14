@@ -24,7 +24,7 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_blackfathom_deeps.h"
 
-#define ENCOUNTERS 2
+#define MAX_ENCOUNTER 2
 
 /* Encounter 0 = Twilight Lord Kelris
    Encounter 1 = Shrine event
@@ -44,10 +44,12 @@ struct TRINITY_DLL_DECL instance_blackfathom_deeps : public ScriptedInstance
     uint64 m_uiAltarOfTheDeepsGUID;
     uint64 m_uiMainDoorGUID;
 
-    uint32 m_uiEncounter[ENCOUNTERS];
+    uint32 m_auiEncounter[MAX_ENCOUNTER];
 
     void Initialize()
     {
+        memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+
         m_uiTwilightLordKelrisGUID = 0;
         m_uiShrine1GUID = 0;
         m_uiShrine2GUID = 0;
@@ -56,9 +58,6 @@ struct TRINITY_DLL_DECL instance_blackfathom_deeps : public ScriptedInstance
         m_uiShrineOfGelihastGUID = 0;
         m_uiAltarOfTheDeepsGUID = 0;
         m_uiMainDoorGUID = 0;
-
-        for(uint8 i = 0; i < ENCOUNTERS; ++i)
-            m_uiEncounter[i] = NOT_STARTED;
     }
 
     void OnCreatureCreate(Creature* pCreature, bool add)
@@ -86,10 +85,10 @@ struct TRINITY_DLL_DECL instance_blackfathom_deeps : public ScriptedInstance
         switch(uiType)
         {
             case TYPE_KELRIS:
-                m_uiEncounter[0] = uiData;
+                m_auiEncounter[0] = uiData;
                 break;
             case TYPE_SHRINE:
-                m_uiEncounter[1] = uiData;
+                m_auiEncounter[1] = uiData;
                 break;
         }
     }
@@ -99,9 +98,9 @@ struct TRINITY_DLL_DECL instance_blackfathom_deeps : public ScriptedInstance
         switch(uiType)
         {
             case TYPE_KELRIS:
-                return m_uiEncounter[0];
+                return m_auiEncounter[0];
             case TYPE_SHRINE:
-                return m_uiEncounter[1];
+                return m_auiEncounter[1];
         }
 
         return 0;

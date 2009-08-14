@@ -26,7 +26,7 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_azjol_nerub.h"
 
-#define ENCOUNTERS     3
+#define MAX_ENCOUNTER     3
 
 /* Azjol Nerub encounters:
 0 - Krik'thir the Gatewatcher
@@ -38,27 +38,25 @@ struct TRINITY_DLL_DECL instance_azjol_nerub : public ScriptedInstance
 {
     instance_azjol_nerub(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 
-    uint64 Krikthir;
-    uint64 Hadronox;
-    uint64 Anubarak;
+    uint64 m_uiKrikthir;
+    uint64 m_uiHadronox;
+    uint64 m_uiAnubarak;
 
-    uint32 Encounters[ENCOUNTERS];
+    uint32 m_auiEncounter[MAX_ENCOUNTER];
 
    void Initialize()
    {
-        Krikthir = 0;
-        Hadronox = 0;
-        Anubarak =0;
+        memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-
-        for(uint8 i = 0; i < ENCOUNTERS; ++i)
-            Encounters[i] = NOT_STARTED;
+        m_uiKrikthir = 0;
+        m_uiHadronox = 0;
+        m_uiAnubarak =0;
     }
 
     bool IsEncounterInProgress() const
     {
-        for(uint8 i = 0; i < ENCOUNTERS; ++i)
-            if (Encounters[i] == IN_PROGRESS) return true;
+        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+            if (m_auiEncounter[i] == IN_PROGRESS) return true;
 
         return false;
     }
@@ -68,9 +66,9 @@ struct TRINITY_DLL_DECL instance_azjol_nerub : public ScriptedInstance
     {
         switch(creature->GetEntry())
         {
-            case 28684:    Krikthir = creature->GetGUID();  break;
-            case 28921:    Hadronox = creature->GetGUID();  break;
-            case 29120:    Anubarak = creature->GetGUID();  break;
+            case 28684:    m_uiKrikthir = creature->GetGUID();  break;
+            case 28921:    m_uiHadronox = creature->GetGUID();  break;
+            case 29120:    m_uiAnubarak = creature->GetGUID();  break;
 
         }
     }
@@ -79,9 +77,9 @@ struct TRINITY_DLL_DECL instance_azjol_nerub : public ScriptedInstance
     {
         switch(identifier)
         {
-            case DATA_KRIKTHIR_THE_GATEWATCHER:     return Krikthir;
-            case DATA_HADRONOX:                     return Hadronox;
-            case DATA_ANUBARAK:                     return Anubarak;
+            case DATA_KRIKTHIR_THE_GATEWATCHER:     return m_uiKrikthir;
+            case DATA_HADRONOX:                     return m_uiHadronox;
+            case DATA_ANUBARAK:                     return m_uiAnubarak;
         }
 
         return 0;
@@ -92,11 +90,11 @@ struct TRINITY_DLL_DECL instance_azjol_nerub : public ScriptedInstance
         switch(type)
         {
         case DATA_KRIKTHIR_THE_GATEWATCHER_EVENT:
-            Encounters[0] = data;break;
+            m_auiEncounter[0] = data;break;
         case DATA_HADRONOX_EVENT:
-            Encounters[1] = data; break;
+            m_auiEncounter[1] = data; break;
         case DATA_ANUBARAK_EVENT:
-            Encounters[2] = data; break;
+            m_auiEncounter[2] = data; break;
         }
 
         if (data == DONE)
@@ -109,9 +107,9 @@ struct TRINITY_DLL_DECL instance_azjol_nerub : public ScriptedInstance
     {
         switch(type)
         {
-            case DATA_KRIKTHIR_THE_GATEWATCHER_EVENT:   return Encounters[0];
-            case DATA_HADRONOX_EVENT:                   return Encounters[1];
-            case DATA_ANUBARAK_EVENT:                   return Encounters[2];
+            case DATA_KRIKTHIR_THE_GATEWATCHER_EVENT:   return m_auiEncounter[0];
+            case DATA_HADRONOX_EVENT:                   return m_auiEncounter[1];
+            case DATA_ANUBARAK_EVENT:                   return m_auiEncounter[2];
         }
 
         return 0;
@@ -124,8 +122,8 @@ struct TRINITY_DLL_DECL instance_azjol_nerub : public ScriptedInstance
         std::string str_data;
 
         std::ostringstream saveStream;
-        saveStream << "A N " << Encounters[0] << " " << Encounters[1] << " "
-            << Encounters[2];
+        saveStream << "A N " << m_auiEncounter[0] << " " << m_auiEncounter[1] << " "
+            << m_auiEncounter[2];
 
         str_data = saveStream.str();
 
@@ -151,13 +149,13 @@ struct TRINITY_DLL_DECL instance_azjol_nerub : public ScriptedInstance
 
         if (dataHead1 == 'A' && dataHead2 == 'N')
         {
-            Encounters[0] = data0;
-            Encounters[1] = data1;
-            Encounters[2] = data2;
+            m_auiEncounter[0] = data0;
+            m_auiEncounter[1] = data1;
+            m_auiEncounter[2] = data2;
 
-            for(uint8 i = 0; i < ENCOUNTERS; ++i)
-                if (Encounters[i] == IN_PROGRESS)
-                    Encounters[i] = NOT_STARTED;
+            for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+                if (m_auiEncounter[i] == IN_PROGRESS)
+                    m_auiEncounter[i] = NOT_STARTED;
 
         }else OUT_LOAD_INST_DATA_FAIL;
 

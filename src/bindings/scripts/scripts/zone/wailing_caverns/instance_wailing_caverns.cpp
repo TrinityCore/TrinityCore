@@ -24,24 +24,23 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_wailing_caverns.h"
 
-#define ENCOUNTERS   9
+#define MAX_ENCOUNTER   9
 
 struct TRINITY_DLL_DECL instance_wailing_caverns : public ScriptedInstance
 {
     instance_wailing_caverns(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 
-    uint32 Encounter[ENCOUNTERS];
+    uint32 m_auiEncounter[MAX_ENCOUNTER];
 
     bool yelled;
     uint64 NaralexGUID;
 
     void Initialize()
     {
+        memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+
         yelled = false;
         NaralexGUID = 0;
-
-        for (uint8 i = 0; i < ENCOUNTERS; ++i)
-            Encounter[i] = NOT_STARTED;
     }
 
     void OnCreatureCreate(Creature *creature, bool add)
@@ -54,15 +53,15 @@ struct TRINITY_DLL_DECL instance_wailing_caverns : public ScriptedInstance
     {
         switch (type)
         {
-            case TYPE_LORD_COBRAHN:         Encounter[0] = data;break;
-            case TYPE_LORD_PYTHAS:          Encounter[1] = data;break;
-            case TYPE_LADY_ANACONDRA:       Encounter[2] = data;break;
-            case TYPE_LORD_SERPENTIS:       Encounter[3] = data;break;
-            case TYPE_NARALEX_EVENT:        Encounter[4] = data;break;
-            case TYPE_NARALEX_PART1:        Encounter[5] = data;break;
-            case TYPE_NARALEX_PART2:        Encounter[6] = data;break;
-            case TYPE_NARALEX_PART3:        Encounter[7] = data;break;
-            case TYPE_MUTANUS_THE_DEVOURER: Encounter[8] = data;break;
+            case TYPE_LORD_COBRAHN:         m_auiEncounter[0] = data;break;
+            case TYPE_LORD_PYTHAS:          m_auiEncounter[1] = data;break;
+            case TYPE_LADY_ANACONDRA:       m_auiEncounter[2] = data;break;
+            case TYPE_LORD_SERPENTIS:       m_auiEncounter[3] = data;break;
+            case TYPE_NARALEX_EVENT:        m_auiEncounter[4] = data;break;
+            case TYPE_NARALEX_PART1:        m_auiEncounter[5] = data;break;
+            case TYPE_NARALEX_PART2:        m_auiEncounter[6] = data;break;
+            case TYPE_NARALEX_PART3:        m_auiEncounter[7] = data;break;
+            case TYPE_MUTANUS_THE_DEVOURER: m_auiEncounter[8] = data;break;
             case TYPE_NARALEX_YELLED:       yelled = true;      break;
         }
         if (data == DONE)SaveToDB();
@@ -72,15 +71,15 @@ struct TRINITY_DLL_DECL instance_wailing_caverns : public ScriptedInstance
     {
         switch (type)
         {
-            case TYPE_LORD_COBRAHN:         return Encounter[0];
-            case TYPE_LORD_PYTHAS:          return Encounter[1];
-            case TYPE_LADY_ANACONDRA:       return Encounter[2];
-            case TYPE_LORD_SERPENTIS:       return Encounter[3];
-            case TYPE_NARALEX_EVENT:        return Encounter[4];
-            case TYPE_NARALEX_PART1:        return Encounter[5];
-            case TYPE_NARALEX_PART2:        return Encounter[6];
-            case TYPE_NARALEX_PART3:        return Encounter[7];
-            case TYPE_MUTANUS_THE_DEVOURER: return Encounter[8];
+            case TYPE_LORD_COBRAHN:         return m_auiEncounter[0];
+            case TYPE_LORD_PYTHAS:          return m_auiEncounter[1];
+            case TYPE_LADY_ANACONDRA:       return m_auiEncounter[2];
+            case TYPE_LORD_SERPENTIS:       return m_auiEncounter[3];
+            case TYPE_NARALEX_EVENT:        return m_auiEncounter[4];
+            case TYPE_NARALEX_PART1:        return m_auiEncounter[5];
+            case TYPE_NARALEX_PART2:        return m_auiEncounter[6];
+            case TYPE_NARALEX_PART3:        return m_auiEncounter[7];
+            case TYPE_MUTANUS_THE_DEVOURER: return m_auiEncounter[8];
             case TYPE_NARALEX_YELLED:       return yelled;
         }
         return 0;
@@ -97,9 +96,9 @@ struct TRINITY_DLL_DECL instance_wailing_caverns : public ScriptedInstance
         OUT_SAVE_INST_DATA;
 
         std::ostringstream saveStream;
-        saveStream << Encounter[0] << " " << Encounter[1] << " " << Encounter[2] << " "
-            << Encounter[3] << " " << Encounter[4] << " " << Encounter[5] << " "
-            << Encounter[6] << " " << Encounter[7] << " " << Encounter[8];
+        saveStream << m_auiEncounter[0] << " " << m_auiEncounter[1] << " " << m_auiEncounter[2] << " "
+            << m_auiEncounter[3] << " " << m_auiEncounter[4] << " " << m_auiEncounter[5] << " "
+            << m_auiEncounter[6] << " " << m_auiEncounter[7] << " " << m_auiEncounter[8];
       
         OUT_SAVE_INST_DATA_COMPLETE;
         return saveStream.str();
@@ -116,12 +115,12 @@ struct TRINITY_DLL_DECL instance_wailing_caverns : public ScriptedInstance
         OUT_LOAD_INST_DATA(in);
 
         std::istringstream loadStream(in);
-        loadStream >> Encounter[0] >> Encounter[1] >> Encounter[2] >> Encounter[3]
-        >> Encounter[4] >> Encounter[5] >> Encounter[6] >> Encounter[7] >> Encounter[8];
+        loadStream >> m_auiEncounter[0] >> m_auiEncounter[1] >> m_auiEncounter[2] >> m_auiEncounter[3]
+        >> m_auiEncounter[4] >> m_auiEncounter[5] >> m_auiEncounter[6] >> m_auiEncounter[7] >> m_auiEncounter[8];
 
-        for(uint8 i = 0; i < ENCOUNTERS; ++i)
-            if (Encounter[i] != DONE)
-                Encounter[i] = NOT_STARTED;
+        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+            if (m_auiEncounter[i] != DONE)
+                m_auiEncounter[i] = NOT_STARTED;
 
         OUT_LOAD_INST_DATA_COMPLETE;
     }

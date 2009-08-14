@@ -27,7 +27,7 @@ EndScriptData */
 
 enum
 {
-    ENCOUNTERS          = 5,
+    MAX_ENCOUNTER       = 5,
 
     GO_ANCIENT_GEM      = 185557
 };
@@ -43,7 +43,7 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
 {
     instance_mount_hyjal(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 
-    uint32 Encounters[ENCOUNTERS];
+    uint32 m_auiEncounter[MAX_ENCOUNTER];
     std::string str_data;
 
     std::list<uint64> m_uiAncientGemGUID;
@@ -70,6 +70,8 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
 
     void Initialize()
     {
+        memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+
         m_uiAncientGemGUID.clear();
 
         RageWinterchill = 0;
@@ -86,8 +88,6 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
         RaidDamage = 0;
 
         Trash = 0;
-        for(uint8 i = 0; i < ENCOUNTERS; ++i)
-            Encounters[i] = NOT_STARTED;
 
         hordeRetreat = 0;
         allianceRetreat = 0;
@@ -95,8 +95,8 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
 
     bool IsEncounterInProgress() const
     {
-        for(uint8 i = 0; i < ENCOUNTERS; ++i)
-            if (Encounters[i] == IN_PROGRESS) return true;
+        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+            if (m_auiEncounter[i] == IN_PROGRESS) return true;
 
         return false;
     }
@@ -161,14 +161,14 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
     {
         switch(type)
         {
-            case DATA_RAGEWINTERCHILLEVENT: Encounters[0] = data; break;
+            case DATA_RAGEWINTERCHILLEVENT: m_auiEncounter[0] = data; break;
             case DATA_ANETHERONEVENT:
-                Encounters[1] = data;
+                m_auiEncounter[1] = data;
                 break;
-            case DATA_KAZROGALEVENT:        Encounters[2] = data; break;
+            case DATA_KAZROGALEVENT:        m_auiEncounter[2] = data; break;
             case DATA_AZGALOREVENT:
                 {
-                    Encounters[3] = data;
+                    m_auiEncounter[3] = data;
                     if (data==DONE)
                     {
                         if (ArchiYell)break;
@@ -205,7 +205,7 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
                     }
                 }
                 break;
-            case DATA_ARCHIMONDEEVENT:      Encounters[4] = data; break;
+            case DATA_ARCHIMONDEEVENT:      m_auiEncounter[4] = data; break;
             case DATA_RESET_TRASH_COUNT:    Trash = 0;            break;
 
             case DATA_TRASH:
@@ -253,8 +253,8 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
             OUT_SAVE_INST_DATA;
 
             std::ostringstream saveStream;
-            saveStream << Encounters[0] << " " << Encounters[1] << " " << Encounters[2] << " "
-                << Encounters[3] << " " << Encounters[4]
+            saveStream << m_auiEncounter[0] << " " << m_auiEncounter[1] << " " << m_auiEncounter[2] << " "
+                << m_auiEncounter[3] << " " << m_auiEncounter[4]
                 << " " << allianceRetreat << " " << hordeRetreat
                 << " " << RaidDamage;
 
@@ -270,11 +270,11 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
     {
         switch(type)
         {
-            case DATA_RAGEWINTERCHILLEVENT: return Encounters[0];
-            case DATA_ANETHERONEVENT:      return Encounters[1];
-            case DATA_KAZROGALEVENT:       return Encounters[2];
-            case DATA_AZGALOREVENT:        return Encounters[3];
-            case DATA_ARCHIMONDEEVENT:     return Encounters[4];
+            case DATA_RAGEWINTERCHILLEVENT: return m_auiEncounter[0];
+            case DATA_ANETHERONEVENT:      return m_auiEncounter[1];
+            case DATA_KAZROGALEVENT:       return m_auiEncounter[2];
+            case DATA_AZGALOREVENT:        return m_auiEncounter[3];
+            case DATA_ARCHIMONDEEVENT:     return m_auiEncounter[4];
             case DATA_TRASH:               return Trash;
             case DATA_ALLIANCE_RETREAT:    return allianceRetreat;
             case DATA_HORDE_RETREAT:       return hordeRetreat;
@@ -312,10 +312,10 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
 
         OUT_LOAD_INST_DATA(in);
         std::istringstream loadStream(in);
-        loadStream >> Encounters[0] >> Encounters[1] >> Encounters[2] >> Encounters[3] >> Encounters[4] >> allianceRetreat >> hordeRetreat >> RaidDamage;
-        for(uint8 i = 0; i < ENCOUNTERS; ++i)
-            if (Encounters[i] == IN_PROGRESS)                // Do not load an encounter as IN_PROGRESS - reset it instead.
-                Encounters[i] = NOT_STARTED;
+        loadStream >> m_auiEncounter[0] >> m_auiEncounter[1] >> m_auiEncounter[2] >> m_auiEncounter[3] >> m_auiEncounter[4] >> allianceRetreat >> hordeRetreat >> RaidDamage;
+        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+            if (m_auiEncounter[i] == IN_PROGRESS)                // Do not load an encounter as IN_PROGRESS - reset it instead.
+                m_auiEncounter[i] = NOT_STARTED;
         OUT_LOAD_INST_DATA_COMPLETE;
     }
 };
