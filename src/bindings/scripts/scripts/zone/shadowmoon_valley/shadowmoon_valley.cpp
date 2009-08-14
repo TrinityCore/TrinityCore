@@ -998,7 +998,7 @@ struct TRINITY_DLL_DECL npc_earthmender_wildaAI : public npc_escortAI
     {
         npc_escortAI::UpdateAI(uiDiff);
 
-        if (!m_creature->getThreatManager().getHostilTarget() || !m_creature->getVictim())
+        if (!UpdateVictim())
             return;
 
         //TODO: add more abilities
