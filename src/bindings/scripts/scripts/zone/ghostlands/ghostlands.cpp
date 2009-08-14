@@ -213,31 +213,10 @@ struct TRINITY_DLL_DECL npc_ranger_lilathaAI : public npc_escortAI
         }
     }
 
-    void EnterCombat(Unit* who) {}
-
     void Reset()
     {
-        if (!IsBeingEscorted)
-            m_creature->setFaction(1602);
-
-        GameObject* Cage = me->FindNearestGameObject(GO_CAGE, 20);
-        if (Cage)
-        Cage->SetGoState(GO_STATE_READY);
-    }
-
-    void JustDied(Unit* killer)
-    {
-        if (PlayerGUID)
-        {
-            Player* pPlayer = Unit::GetPlayer(PlayerGUID);
-            if (pPlayer)
-                CAST_PLR(pPlayer)->FailQuest(QUEST_ESCAPE_FROM_THE_CATACOMBS);
-        }
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        npc_escortAI::UpdateAI(diff);
+        if (GameObject* Cage = me->FindNearestGameObject(GO_CAGE, 20))
+            Cage->SetGoState(GO_STATE_READY);
     }
 };
 

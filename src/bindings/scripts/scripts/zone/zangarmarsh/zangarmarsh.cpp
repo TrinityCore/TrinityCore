@@ -282,8 +282,6 @@ struct TRINITY_DLL_DECL npc_kayra_longmaneAI : public npc_escortAI
 
     void Reset() { }
 
-    void EnterCombat(Unit* who){}
-
     void WaypointReached(uint32 i)
     {
         Player* pUnit = Unit::GetPlayer(PlayerGUID);
@@ -316,20 +314,6 @@ struct TRINITY_DLL_DECL npc_kayra_longmaneAI : public npc_escortAI
                 pUnit->GroupEventHappens(QUEST_ESCAPE_FROM, m_creature);
                 break;
         }
-    }
-
-    void JustDied(Unit* killer)
-    {
-        if (Player* pUnit = Unit::GetPlayer(PlayerGUID))
-        {
-            if (pUnit->GetQuestStatus(QUEST_ESCAPE_FROM) == QUEST_STATUS_INCOMPLETE)
-                pUnit->FailQuest(QUEST_ESCAPE_FROM);
-        }
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        npc_escortAI::UpdateAI(diff);
     }
 };
 

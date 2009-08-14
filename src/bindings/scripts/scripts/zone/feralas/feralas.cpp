@@ -80,12 +80,7 @@ enum
 
 struct TRINITY_DLL_DECL npc_oox22feAI : public npc_escortAI
 {
-    npc_oox22feAI(Creature* pCreature) : npc_escortAI(pCreature)
-    {
-        normFaction = pCreature->getFaction();
-    }
-
-    uint32 normFaction;
+    npc_oox22feAI(Creature* pCreature) : npc_escortAI(pCreature) { }
 
     void WaypointReached(uint32 i)
     {
@@ -127,10 +122,7 @@ struct TRINITY_DLL_DECL npc_oox22feAI : public npc_escortAI
     void Reset()
     {
         if (!IsBeingEscorted)
-        {
-            m_creature->setFaction(normFaction);
             m_creature->SetStandState(UNIT_STAND_STATE_DEAD);
-        }
     }
 
     void EnterCombat(Unit* who)
@@ -146,24 +138,6 @@ struct TRINITY_DLL_DECL npc_oox22feAI : public npc_escortAI
     void JustSummoned(Creature* summoned)
     {
         summoned->AI()->AttackStart(m_creature);
-    }
-
-    void JustDied(Unit* killer)
-    {
-        if (!IsBeingEscorted)
-            return;
-
-        if (Player* pPlayer = Unit::GetPlayer(PlayerGUID))
-        {
-            // If NPC dies, player fails the quest
-            if (pPlayer->GetQuestStatus(QUEST_RESCUE_OOX22FE) != QUEST_STATUS_COMPLETE)
-                pPlayer->FailQuest(QUEST_RESCUE_OOX22FE);
-        }
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        npc_escortAI::UpdateAI(diff);
     }
 };
 

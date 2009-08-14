@@ -367,26 +367,7 @@ struct TRINITY_DLL_DECL npc_magwinAI : public npc_escortAI
         DoScriptText(SAY_AGGRO, m_creature, who);
     }
 
-    void Reset()
-    {
-        if (!IsBeingEscorted)
-            m_creature->setFaction(80);
-    }
-
-    void JustDied(Unit* killer)
-    {
-        if (PlayerGUID)
-        {
-            Player* pPlayer = Unit::GetPlayer(PlayerGUID);
-            if (pPlayer)
-                pPlayer->FailQuest(QUEST_A_CRY_FOR_SAY_HELP);
-        }
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        npc_escortAI::UpdateAI(diff);
-    }
+    void Reset() { }
 };
 
 bool QuestAccept_npc_magwin(Player* pPlayer, Creature* pCreature, Quest const* quest)
