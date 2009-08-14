@@ -853,6 +853,16 @@ class SpellMgr
             return spell_id;
         }
 
+        uint32 GetSpellWithRank(uint32 spell_id, uint32 rank) const
+        {
+            if(SpellChainNode const* node = GetSpellChainNode(spell_id))
+            {
+                if (rank != node->rank)
+                    return GetSpellWithRank(node->rank < rank ? node->next : node->prev, rank);
+            }
+            return spell_id;
+        }
+
         uint32 GetPrevSpellInChain(uint32 spell_id) const
         {
             if(SpellChainNode const* node = GetSpellChainNode(spell_id))
