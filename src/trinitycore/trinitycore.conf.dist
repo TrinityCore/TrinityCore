@@ -713,6 +713,11 @@ ChatLogTimestamp = 0
 #        Default: 0 - recheck offhand slot weapon only at zone update
 #                 1 - recheck offhand slot weapon at talent reset also
 #
+#
+#    ClientCacheVersion
+#        Client resets cache if WDB files' version is not equal to this value.
+#        Default: 0 (no real meaning)
+#
 #    Event.Announce
 #        Default: 0 (false)
 #                 1 (true)
@@ -777,6 +782,7 @@ MailDeliveryDelay = 3600
 SkillChance.Prospecting = 0
 SkillChance.Milling = 0
 OffhandCheckAtTalentsReset = 0
+ClientCacheVersion = 0
 Event.Announce = 0
 BeepAtStart = 1
 Motd = "Welcome to a Trinity Core server."
