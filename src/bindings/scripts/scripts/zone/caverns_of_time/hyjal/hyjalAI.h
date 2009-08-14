@@ -195,7 +195,6 @@ struct TRINITY_DLL_DECL hyjalAI : public npc_escortAI
 
     void Talk(uint32 id);                                   // Searches for the appropriate yell and sound and uses it to inform the raid of various things
 
-    void UpdateWorldState(uint32 field, uint32 value);      // NYI: Requires core support. Updates the world state counter at the top of the UI.
     public:
         ScriptedInstance* pInstance;
 

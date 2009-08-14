@@ -75,7 +75,7 @@ struct TRINITY_DLL_DECL instance_old_hillsbrad : public ScriptedInstance
         return NULL;
     }
 
-    void UpdateOHWorldState()
+    void UpdateQuestCredit()
     {
         Map::PlayerList const& players = instance->GetPlayers();
 
@@ -84,15 +84,9 @@ struct TRINITY_DLL_DECL instance_old_hillsbrad : public ScriptedInstance
             for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
             {
                 if (Player* pPlayer = itr->getSource())
-                {
-                    pPlayer->SendUpdateWorldState(WORLD_STATE_OH,mBarrelCount);
-
-                    if (mBarrelCount == 5)
-                        pPlayer->KilledMonsterCredit(LODGE_QUEST_TRIGGER,0);
-                }
+                    pPlayer->KilledMonsterCredit(LODGE_QUEST_TRIGGER,0);
             }
-        }else
-            debug_log("TSCR: Instance Old Hillsbrad: UpdateOHWorldState, but PlayerList is empty!");
+        }
     }
 
     void OnCreatureCreate(Creature *creature, bool add)
@@ -131,7 +125,7 @@ struct TRINITY_DLL_DECL instance_old_hillsbrad : public ScriptedInstance
                         return;
 
                     ++mBarrelCount;
-                    UpdateOHWorldState();
+                    DoUpdateWorldState(WORLD_STATE_OH, mBarrelCount);
 
                     debug_log("TSCR: Instance Old Hillsbrad: go_barrel_old_hillsbrad count %u",mBarrelCount);
 
@@ -139,8 +133,9 @@ struct TRINITY_DLL_DECL instance_old_hillsbrad : public ScriptedInstance
 
                     if (mBarrelCount == 5)
                     {
-                    pPlayer->SummonCreature(DRAKE_ENTRY,2128.43,71.01,64.42,1.74,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1800000);
-                    m_auiEncounter[0] = DONE;
+                        UpdateQuestCredit();
+                        pPlayer->SummonCreature(DRAKE_ENTRY, 2128.43, 71.01, 64.42, 1.74, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 1800000);
+                        m_auiEncounter[0] = DONE;
                     }
                 }
                 break;
