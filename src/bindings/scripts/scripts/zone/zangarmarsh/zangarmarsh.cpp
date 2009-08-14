@@ -309,7 +309,7 @@ struct TRINITY_DLL_DECL npc_kayra_longmaneAI : public npc_escortAI
                 SetRun(false);
                 DoScriptText(SAY_NEAR_END, m_creature, pUnit);
                 break;
-            case 26:
+            case 25:
                 DoScriptText(SAY_END, m_creature, pUnit);
                 pUnit->GroupEventHappens(QUEST_ESCAPE_FROM, m_creature);
                 break;
