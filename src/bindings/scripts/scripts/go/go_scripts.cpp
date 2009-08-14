@@ -233,22 +233,24 @@ bool GOHello_go_ethereum_prison(Player* pPlayer, GameObject* pGo)
         if (!pCreature->IsHostileTo(pPlayer))
         {
             uint32 Spell = 0;
-            FactionTemplateEntry const* pFaction = pCreature->getFactionTemplateEntry();
 
-            switch(pFaction->faction)
+            if (FactionTemplateEntry const* pFaction = pCreature->getFactionTemplateEntry())
             {
-                case 1011: Spell = SPELL_REP_LC; break;
-                case 935: Spell = SPELL_REP_SHAT; break;
-                case 942: Spell = SPELL_REP_CE; break;
-                case 933: Spell = SPELL_REP_CON; break;
-                case 989: Spell = SPELL_REP_KT; break;
-                case 970: Spell = SPELL_REP_SPOR; break;
-            }
+                switch(pFaction->faction)
+                {
+                    case 1011: Spell = SPELL_REP_LC; break;
+                    case 935: Spell = SPELL_REP_SHAT; break;
+                    case 942: Spell = SPELL_REP_CE; break;
+                    case 933: Spell = SPELL_REP_CON; break;
+                    case 989: Spell = SPELL_REP_KT; break;
+                    case 970: Spell = SPELL_REP_SPOR; break;
+                }
 
-            if (Spell)
-                pCreature->CastSpell(pPlayer, Spell, false);
-            else
-                error_log("TSCR: go_ethereum_prison summoned creature (entry %u) but faction (%u) are not expected by script.", pCreature->GetEntry(), pCreature->getFaction());
+                if (Spell)
+                    pCreature->CastSpell(pPlayer, Spell, false);
+                else
+                    error_log("TSCR: go_ethereum_prison summoned creature (entry %u) but faction (%u) are not expected by script.", pCreature->GetEntry(), pCreature->getFaction());
+            }
         }
     }
 
