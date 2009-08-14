@@ -162,6 +162,7 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/felwood/felwood.cpp
    scripts/zone/feralas/feralas.cpp
    scripts/zone/ghostlands/ghostlands.cpp
+   scripts/zone/grizzly_hills/grizzly_hills.cpp
    scripts/zone/gruuls_lair/boss_gruul.cpp
    scripts/zone/gruuls_lair/boss_high_king_maulgar.cpp
    scripts/zone/gruuls_lair/def_gruuls_lair.h
@@ -187,6 +188,7 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/hellfire_peninsula/boss_doomlord_kazzak.cpp
    scripts/zone/hellfire_peninsula/hellfire_peninsula.cpp
    scripts/zone/hinterlands/hinterlands.cpp
+   scripts/zone/icecrown/icecrown.cpp
    scripts/zone/ironforge/ironforge.cpp
    scripts/zone/isle_of_queldanas/isle_of_queldanas.cpp
    scripts/zone/karazhan/boss_curator.cpp
