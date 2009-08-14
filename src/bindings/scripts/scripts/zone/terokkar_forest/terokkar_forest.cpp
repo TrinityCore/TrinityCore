@@ -626,12 +626,11 @@ struct TRINITY_DLL_DECL npc_akunoAI : public npc_escortAI
 
     bool IsWalking;
 
-
     void WaypointReached(uint32 i)
     {
-        Player* player = Unit::GetPlayer(PlayerGUID);
+        Player* pPlayer = Unit::GetPlayer(PlayerGUID);
 
-        if(!player)
+        if(!pPlayer)
             return;
 
         if(IsWalking && !m_creature->HasUnitMovementFlag(MOVEMENTFLAG_WALK_MODE))
@@ -640,19 +639,18 @@ struct TRINITY_DLL_DECL npc_akunoAI : public npc_escortAI
         
         switch(i) 
         {
-        case 0  : m_creature->setFaction(5);break;
-        case 3  : m_creature->SummonCreature(Summon,-2795.99,5420.33,-34.53,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                  m_creature->SummonCreature(Summon,-2793.55,5412.79,-34.53,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                  break;
-        case 11 : {
-            if(player && player->GetTypeId() == TYPEID_PLAYER)
-                ((Player*)player)->GroupEventHappens(QUEST_NPC_AKUNO,m_creature);
-                m_creature->setFaction(18);break;
-                  }
+        case 0: m_creature->setFaction(5); break;
+        case 3:
+            m_creature->SummonCreature(Summon,-2795.99,5420.33,-34.53,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+            m_creature->SummonCreature(Summon,-2793.55,5412.79,-34.53,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+            break;
+        case 11:
+            if(pPlayer && pPlayer->GetTypeId() == TYPEID_PLAYER)
+                pPlayer->GroupEventHappens(QUEST_NPC_AKUNO,m_creature);
+            m_creature->setFaction(18);
+            break;
         }
     }
-    void Aggro(Unit* who)
-    {}
 
     void Reset()
     {
@@ -663,35 +661,24 @@ struct TRINITY_DLL_DECL npc_akunoAI : public npc_escortAI
         }
         IsWalking=false;
     }
-
-    void JustDied(Unit* killer)
-    {
-        if (PlayerGUID)
-        {
-            if (Player* player = Unit::GetPlayer(PlayerGUID))
-                player->FailQuest(QUEST_NPC_AKUNO);
-        }
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        npc_escortAI::UpdateAI(diff);
-    }
 };
 
-    bool QuestAccept_npc_akuno(Player* player, Creature* creature, Quest const* quest)
-    {
-        if(quest->GetQuestId() == QUEST_NPC_AKUNO)
-        {
-              ((npc_escortAI*)creature->AI())->Start(false,true,player->GetGUID());
-        }
-        return true;
-    }
-
-CreatureAI* GetAI_npc_akuno(Creature *_Creature)
+bool QuestAccept_npc_akuno(Player* player, Creature* pCreature, Quest const* pQuest)
 {
-    npc_akunoAI* thisAI = new npc_akunoAI(_Creature);
+    if(pQuest->GetQuestId() == QUEST_NPC_AKUNO)
+    {
+        if (npc_akunoAI* pEscortAI = CAST_AI(npc_akunoAI, pCreature->AI()))
+          pEscortAI->Start(false,true,player->GetGUID());
+    }
+    return true;
+}
+
+CreatureAI* GetAI_npc_akuno(Creature* pCreature)
+{
+    npc_akunoAI* thisAI = new npc_akunoAI(pCreature);
+
     thisAI->FillPointMovementListForCreature();
+
     return(CreatureAI*)thisAI;
 }
 
