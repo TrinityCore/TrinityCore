@@ -238,24 +238,20 @@ UPDATE `instance_template` SET `script`='instance_blackrock_depths' WHERE `map`=
 UPDATE `creature_template` SET `ScriptName`='boss_emperor_dagran_thaurissan' WHERE `entry`=9019;
 UPDATE `creature_template` SET `ScriptName`='boss_moira_bronzebeard' WHERE `entry`=8929;
 UPDATE `creature_template` SET `ScriptName`='boss_ambassador_flamelash' WHERE `entry`=9156;
-UPDATE `creature_template` SET `ScriptName`='boss_angerrel' WHERE `entry`=9035;
 UPDATE `creature_template` SET `ScriptName`='boss_anubshiah' WHERE `entry`=9031;
 UPDATE `creature_template` SET `ScriptName`='boss_doomrel' WHERE `entry`=9039;
-UPDATE `creature_template` SET `ScriptName`='boss_doperel' WHERE `entry`=9040;
-UPDATE `creature_template` SET `ScriptName`='boss_general_angerforge' WHERE `entry`=9033;
 UPDATE `creature_template` SET `ScriptName`='boss_gloomrel' WHERE `entry`=9037;
+UPDATE `creature_template` SET `ScriptName`='boss_general_angerforge' WHERE `entry`=9033;
 UPDATE `creature_template` SET `ScriptName`='boss_gorosh_the_dervish' WHERE `entry`=9027;
 UPDATE `creature_template` SET `ScriptName`='boss_grizzle' WHERE `entry`=9028;
-UPDATE `creature_template` SET `ScriptName`='boss_haterel' WHERE `entry`=9034;
 UPDATE `creature_template` SET `ScriptName`='boss_high_interrogator_gerstahn' WHERE `entry`=9018;
 UPDATE `creature_template` SET `ScriptName`='boss_magmus' WHERE `entry`=9938;
-UPDATE `creature_template` SET `ScriptName`='boss_seethrel' WHERE `entry`=9038;
-UPDATE `creature_template` SET `ScriptName`='boss_vilerel' WHERE `entry`=9036;
 UPDATE `creature_template` SET `ScriptName`='npc_lokhtos_darkbargainer' WHERE `entry`=12944;
 UPDATE `creature_template` SET `ScriptName`='npc_kharan_mighthammer' WHERE `entry`=9021;
 UPDATE `creature_template` SET `ScriptName`='npc_grimstone' WHERE `entry`=10096;
 UPDATE `creature_template` SET `ScriptName`='npc_rocknot' WHERE `entry`=9503;
 UPDATE `creature_template` SET `ScriptName`='mob_phalanx' WHERE `entry`=9502;
+UPDATE `gameobject_template` SET `ScriptName`='go_shadowforge_brazier' WHERE `entry` IN (174744, 174745);
 
 /* BLACKROCK SPIRE */
 
@@ -549,6 +545,7 @@ UPDATE `gameobject_template` SET `ScriptName`='go_haaleshi_altar' WHERE `entry`=
 /* HILLSBRAD FOOTHILLS */
 
 /* HINTERLANDS */
+UPDATE `creature_template` SET `ScriptName`='npc_rinji' WHERE `entry`=7780;
 
 /* IRONFORGE */
 UPDATE `creature_template` SET `ScriptName`='npc_royal_historian_archesonus' WHERE `entry`=8879;

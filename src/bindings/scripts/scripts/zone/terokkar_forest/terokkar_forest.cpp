@@ -663,12 +663,12 @@ struct TRINITY_DLL_DECL npc_akunoAI : public npc_escortAI
     }
 };
 
-bool QuestAccept_npc_akuno(Player* player, Creature* pCreature, Quest const* pQuest)
+bool QuestAccept_npc_akuno(Player* pPlayer, Creature* pCreature, Quest const* pQuest)
 {
     if(pQuest->GetQuestId() == QUEST_NPC_AKUNO)
     {
         if (npc_akunoAI* pEscortAI = CAST_AI(npc_akunoAI, pCreature->AI()))
-          pEscortAI->Start(false,true,player->GetGUID());
+          pEscortAI->Start(false, true, pPlayer->GetGUID());
     }
     return true;
 }

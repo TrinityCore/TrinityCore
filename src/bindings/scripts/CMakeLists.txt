@@ -186,6 +186,7 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/hellfire_citadel/shattered_halls/boss_warchief_kargath_bladefist.cpp
    scripts/zone/hellfire_peninsula/boss_doomlord_kazzak.cpp
    scripts/zone/hellfire_peninsula/hellfire_peninsula.cpp
+   scripts/zone/hinterlands/hinterlands.cpp
    scripts/zone/ironforge/ironforge.cpp
    scripts/zone/isle_of_queldanas/isle_of_queldanas.cpp
    scripts/zone/karazhan/boss_curator.cpp

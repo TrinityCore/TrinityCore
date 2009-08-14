@@ -1191,6 +1191,10 @@
 					<Filter
 						Name="Hinterlands"
 						>
+                        <File
+                            RelativePath="..\scripts\zone\hinterlands\hinterlands.cpp"
+                            >
+                        </File>
 					</Filter>
 					<Filter
 						Name="Iron Forge"

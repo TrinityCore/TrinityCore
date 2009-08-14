@@ -23,6 +23,7 @@ SDCategory: Blackrock Depths
 EndScriptData */
 
 /* ContentData
+go_shadowforge_brazier
 at_ring_of_law
 npc_grimstone
 mob_phalanx
@@ -39,11 +40,34 @@ EndContentData */
 #include "../../npc/npc_escortAI.h"
 #include "def_blackrock_depths.h"
 
-#define C_GRIMSTONE         10096
-#define C_THELDREN          16059
+/*######
++## go_shadowforge_brazier
++######*/
 
-//4 or 6 in total? 1+2+1 / 2+2+2 / 3+3. Depending on this, code should be changed.
-#define MOB_AMOUNT          4
+bool GOHello_go_shadowforge_brazier(Player* pPlayer, GameObject* pGo)
+{
+    if (ScriptedInstance* pInstance = (ScriptedInstance*)pGo->GetInstanceData())
+    {
+        if (pInstance->GetData(TYPE_LYCEUM) == IN_PROGRESS)
+            pInstance->SetData(TYPE_LYCEUM, DONE);
+        else
+            pInstance->SetData(TYPE_LYCEUM, IN_PROGRESS);
+    }
+    return false;
+}
+
+/*######
+## npc_grimstone
+######*/
+
+enum
+{
+    NPC_GRIMSTONE       = 10096,
+    NPC_THELDREN        = 16059,
+
+    //4 or 6 in total? 1+2+1 / 2+2+2 / 3+3. Depending on this, code should be changed.
+    MAX_MOB_AMOUNT      = 4
+};
 
 uint32 RingMob[]=
 {
@@ -69,13 +93,13 @@ bool AreaTrigger_at_ring_of_law(Player* pPlayer, AreaTriggerEntry *at)
 {
     ScriptedInstance* pInstance = (pPlayer->GetInstanceData());
 
-    if (pInstance)
+    if (ScriptedInstance* pInstance = pPlayer->GetInstanceData())
     {
         if (pInstance->GetData(TYPE_RING_OF_LAW) == IN_PROGRESS || pInstance->GetData(TYPE_RING_OF_LAW) == DONE)
             return false;
 
         pInstance->SetData(TYPE_RING_OF_LAW,IN_PROGRESS);
-        pPlayer->SummonCreature(C_GRIMSTONE,625.559,-205.618,-52.735,2.609,TEMPSUMMON_DEAD_DESPAWN,0);
+        pPlayer->SummonCreature(NPC_GRIMSTONE,625.559,-205.618,-52.735,2.609,TEMPSUMMON_DEAD_DESPAWN,0);
 
         return false;
     }
@@ -119,7 +143,7 @@ struct TRINITY_DLL_DECL npc_grimstoneAI : public npc_escortAI
         MobCount = 0;
         MobDeath_Timer = 0;
 
-        for(uint8 i = 0; i < MOB_AMOUNT; ++i)
+        for(uint8 i = 0; i < MAX_MOB_AMOUNT; ++i)
             RingMobGUID[i] = 0;
 
         RingBossGUID = 0;
@@ -135,7 +159,7 @@ struct TRINITY_DLL_DECL npc_grimstoneAI : public npc_escortAI
 
         ++MobCount;
 
-        if (MobCount == MOB_AMOUNT)
+        if (MobCount == MAX_MOB_AMOUNT)
             MobDeath_Timer = 2500;
     }
 
@@ -212,7 +236,7 @@ struct TRINITY_DLL_DECL npc_grimstoneAI : public npc_escortAI
                     return;
                 }
 
-                for(uint8 i = 0; i < MOB_AMOUNT; ++i)
+                for(uint8 i = 0; i < MAX_MOB_AMOUNT; ++i)
                 {
                     Creature *mob = Unit::GetCreature(*m_creature,RingMobGUID[i]);
                     if (mob && !mob->isAlive() && mob->isDead())
@@ -1211,6 +1235,11 @@ bool ChooseReward_npc_rocknot(Player* pPlayer, Creature* pCreature, const Quest 
 void AddSC_blackrock_depths()
 {
     Script *newscript;
+
+    newscript = new Script;
+    newscript->Name = "go_shadowforge_brazier";
+    newscript->pGOHello = &GOHello_go_shadowforge_brazier;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "at_ring_of_law";

@@ -23,30 +23,33 @@ EndScriptData */
 
 #include "precompiled.h"
 
-#define SAY_HI  -1999925
+enum
+{
+    SAY_HI  = -1999925
+};
 
-bool AT_example_areatrigger(Player* pPlayer, AreaTriggerEntry *at)
+bool AT_example_areatrigger(Player* pPlayer, AreaTriggerEntry *pAt)
 {
     DoScriptText(SAY_HI, pPlayer);
     return true;
 }
 
 extern void LoadDatabase();
-bool ItemUse_example_item(Player* pPlayer, Item* _Item, SpellCastTargets const& targets)
+bool ItemUse_example_item(Player* pPlayer, Item* pItem, SpellCastTargets const& scTargets)
 {
     LoadDatabase();
     return true;
 }
 
-bool GOHello_example_go_teleporter(Player* pPlayer, GameObject* _GO)
+bool GOHello_example_go_teleporter(Player* pPlayer, GameObject* pGo)
 {
-    pPlayer->TeleportTo(0, 1807.07f,336.105f,70.3975f,0.0f);
+    pPlayer->TeleportTo(0, 1807.07f, 336.105f, 70.3975f, 0.0f);
     return false;
 }
 
 void AddSC_example_misc()
 {
-    Script *newscript;
+    Script* newscript;
 
     newscript = new Script;
     newscript->Name = "example_areatrigger";
