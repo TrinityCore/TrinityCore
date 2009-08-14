@@ -998,6 +998,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_slim' WHERE `entry`=19679;
 UPDATE `creature_template` SET `ScriptName`='npc_akuno' WHERE `entry`=22377;
 
 /* THOUSAND NEEDLES */
+UPDATE `creature_template` SET `ScriptName`='npc_kanati' WHERE `entry`=10638;
 UPDATE `creature_template` SET `ScriptName`='npc_paoka_swiftmountain' WHERE `entry`=10427;
 UPDATE `creature_template` SET `ScriptName`='npc_plucky' WHERE `entry`=6626;
 UPDATE `creature_template` SET `ScriptName`='npc_lakota_windsong' WHERE `entry`=10646;

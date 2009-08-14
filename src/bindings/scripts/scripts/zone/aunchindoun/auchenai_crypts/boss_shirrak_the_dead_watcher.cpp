@@ -129,11 +129,13 @@ struct TRINITY_DLL_DECL boss_shirrak_the_dead_watcherAI : public ScriptedAI
                 focusedTarget = target;
                 m_creature->SummonCreature(ENTRY_FOCUS_FIRE,target->GetPositionX(),target->GetPositionY(),target->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,5500);
 
+                // TODO: Find better way to handle emote
                 // Emote
                 std::string *emote = new std::string("focuses on ");
                 emote->append(target->GetName());
                 emote->append("!");
-                DoTextEmote(emote->c_str(),NULL,true);
+                const char* text = emote->c_str();
+                m_creature->MonsterTextEmote(text, 0, true);
                 delete emote;
             }
             FocusFire_Timer = 15000+(rand()%5000);

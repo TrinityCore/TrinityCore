@@ -138,7 +138,7 @@ struct TRINITY_DLL_DECL npc_captured_rageclawAI : public ScriptedAI
             m_creature->setFaction(m_creature->GetCreatureInfo()->faction_H);
 
             DoCast(m_creature, SPELL_UNSHACKLED, true);
-            DoSay(SAY_RAGECLAW, LANG_UNIVERSAL, NULL);
+            m_creature->MonsterSay(SAY_RAGECLAW, LANG_UNIVERSAL, NULL);
             m_creature->GetMotionMaster()->MoveRandom(10);
 
             DespawnTimer = 10000;

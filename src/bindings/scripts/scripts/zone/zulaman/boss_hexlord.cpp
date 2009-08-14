@@ -250,7 +250,7 @@ struct TRINITY_DLL_DECL boss_hex_lord_malacrassAI : public ScriptedAI
             pInstance->SetData(DATA_HEXLORDEVENT, IN_PROGRESS);
 
         DoZoneInCombat();
-        DoYell(YELL_AGGRO, LANG_UNIVERSAL, NULL);
+        m_creature->MonsterYell(YELL_AGGRO, LANG_UNIVERSAL, NULL);
         DoPlaySoundToSet(m_creature, SOUND_YELL_AGGRO);
 
         for(uint8 i = 0; i < 4; ++i)
@@ -271,11 +271,11 @@ struct TRINITY_DLL_DECL boss_hex_lord_malacrassAI : public ScriptedAI
         switch(rand()%2)
         {
         case 0:
-            DoYell(YELL_KILL_ONE, LANG_UNIVERSAL, NULL);
+            m_creature->MonsterYell(YELL_KILL_ONE, LANG_UNIVERSAL, NULL);
             DoPlaySoundToSet(m_creature, SOUND_YELL_KILL_ONE);
             break;
         case 1:
-            DoYell(YELL_KILL_TWO, LANG_UNIVERSAL, NULL);
+            m_creature->MonsterYell(YELL_KILL_TWO, LANG_UNIVERSAL, NULL);
             DoPlaySoundToSet(m_creature, SOUND_YELL_KILL_TWO);
             break;
         }
@@ -286,7 +286,7 @@ struct TRINITY_DLL_DECL boss_hex_lord_malacrassAI : public ScriptedAI
         if (pInstance)
             pInstance->SetData(DATA_HEXLORDEVENT, DONE);
 
-        DoYell(YELL_DEATH, LANG_UNIVERSAL, NULL);
+        m_creature->MonsterYell(YELL_DEATH, LANG_UNIVERSAL, NULL);
         DoPlaySoundToSet(m_creature, SOUND_YELL_DEATH);
 
         for(uint8 i = 0; i < 4 ; ++i)
@@ -361,7 +361,7 @@ struct TRINITY_DLL_DECL boss_hex_lord_malacrassAI : public ScriptedAI
         if (DrainPower_Timer < diff)
         {
             m_creature->CastSpell(m_creature, SPELL_DRAIN_POWER, true);
-            DoYell(YELL_DRAIN_POWER, LANG_UNIVERSAL, NULL);
+            m_creature->MonsterYell(YELL_DRAIN_POWER, LANG_UNIVERSAL, NULL);
             DoPlaySoundToSet(m_creature, SOUND_YELL_DRAIN_POWER);
             DrainPower_Timer = 40000 + rand()%15000;    // must cast in 60 sec, or buff/debuff will disappear
         }else DrainPower_Timer -= diff;
@@ -373,7 +373,7 @@ struct TRINITY_DLL_DECL boss_hex_lord_malacrassAI : public ScriptedAI
             else
             {
                 m_creature->CastSpell(m_creature, SPELL_SPIRIT_BOLTS, false);
-                DoYell(YELL_SPIRIT_BOLTS, LANG_UNIVERSAL, NULL);
+                m_creature->MonsterYell(YELL_SPIRIT_BOLTS, LANG_UNIVERSAL, NULL);
                 DoPlaySoundToSet(m_creature, SOUND_YELL_SPIRIT_BOLTS);
                 SpiritBolts_Timer = 40000;
                 SiphonSoul_Timer = 10000;  // ready to drain

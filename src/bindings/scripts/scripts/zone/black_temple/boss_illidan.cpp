@@ -42,9 +42,9 @@ EndScriptData */
 #define SOUND_AKAMA_LEAVE     11390
 
 // Self explanatory
-#define SAY_KILL1             "Who shall be next to taste my blades?!"
+const char*  SAY_KILL1        = "Who shall be next to taste my blades?!";
 #define SOUND_KILL1           11473
-#define SAY_KILL2             "This is too easy!"
+const char*  SAY_KILL2        = "This is too easy!";
 #define SOUND_KILL2           11472
 
 // I think I'll fly now and let my subordinates take you on
@@ -464,15 +464,15 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
     void KilledUnit(Unit *victim)
     {
         if (victim == m_creature) return;
-
+        // TODO: Find better way to handle emote
         switch(rand()%2)
         {
         case 0:
-            DoYell(SAY_KILL1, LANG_UNIVERSAL, victim);
+            m_creature->MonsterYell(SAY_KILL1, LANG_UNIVERSAL, victim->GetGUID());
             DoPlaySoundToSet(m_creature, SOUND_KILL1);
             break;
         case 1:
-            DoYell(SAY_KILL2, LANG_UNIVERSAL, victim);
+            m_creature->MonsterYell(SAY_KILL2, LANG_UNIVERSAL, victim->GetGUID());
             DoPlaySoundToSet(m_creature, SOUND_KILL2);
             break;
         }
@@ -546,7 +546,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
             m_creature->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
             m_creature->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING);
             m_creature->StopMoving();
-            DoYell(SAY_TAKEOFF, LANG_UNIVERSAL, NULL);
+            m_creature->MonsterYell(SAY_TAKEOFF, LANG_UNIVERSAL, 0);
             DoPlaySoundToSet(m_creature, SOUND_TAKEOFF);
             Timer[EVENT_FLIGHT_SEQUENCE] = 3000;
             break;
@@ -749,7 +749,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
             {
                 //PHASE_NORMAL
             case EVENT_BERSERK:
-                DoYell(SAY_ENRAGE, LANG_UNIVERSAL, NULL);
+                m_creature->MonsterYell(SAY_ENRAGE, LANG_UNIVERSAL, 0);
                 DoPlaySoundToSet(m_creature, SOUND_ENRAGE);
                 DoCast(m_creature, SPELL_BERSERK, true);
                 Timer[EVENT_BERSERK] = 5000;//The buff actually lasts forever.
@@ -761,7 +761,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
                     char* yell = RandomTaunts[random].text;
                     uint32 soundid = RandomTaunts[random].sound;
                     if (yell)
-                        DoYell(yell, LANG_UNIVERSAL, NULL);
+                        m_creature->MonsterYell(yell, LANG_UNIVERSAL, 0);
                     if (soundid)
                         DoPlaySoundToSet(m_creature, soundid);
                 }
@@ -908,7 +908,7 @@ struct TRINITY_DLL_DECL flame_of_azzinothAI : public ScriptedAI
             m_creature->AddThreat(target, 5000000.0f);
             AttackStart(target);
             DoCast(target, SPELL_CHARGE);
-            DoTextEmote("sets its gaze on $N!", target);
+            m_creature->MonsterTextEmote("sets its gaze on $N!", target->GetGUID());
         }
     }
 
@@ -1196,7 +1196,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
             Timer = 8000;
             break;
         case 1:
-            DoYell(SAY_AKAMA_LEAVE, LANG_UNIVERSAL, NULL);
+            m_creature->MonsterYell(SAY_AKAMA_LEAVE, LANG_UNIVERSAL, 0);
             DoPlaySoundToSet(m_creature, SOUND_AKAMA_LEAVE);
             Timer = 3000;
             break;
@@ -1248,7 +1248,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
             Timer = 2000;
             break;
         case 5:
-            DoYell(SAY_AKAMA_BEWARE, LANG_UNIVERSAL, NULL);
+            m_creature->MonsterYell(SAY_AKAMA_BEWARE, LANG_UNIVERSAL, 0);
             DoPlaySoundToSet(m_creature, SOUND_AKAMA_BEWARE);
             Channel->setDeathState(JUST_DIED);
             Spirit[0]->SetVisibility(VISIBILITY_OFF);
@@ -1524,7 +1524,7 @@ struct TRINITY_DLL_DECL boss_maievAI : public ScriptedAI
                     uint32 random = rand()%4;
                     char* text = MaievTaunts[random].text;
                     uint32 sound = MaievTaunts[random].sound;
-                    DoYell(text, LANG_UNIVERSAL, NULL);
+                    m_creature->MonsterYell(text, LANG_UNIVERSAL, 0);
                     DoPlaySoundToSet(m_creature, sound);
                     Timer[EVENT_MAIEV_TAUNT] = 22000 + rand()%21 * 1000;
                 }break;
@@ -1960,7 +1960,7 @@ void boss_illidan_stormrageAI::CastEyeBlast()
 {
     m_creature->InterruptNonMeleeSpells(false);
 
-    DoYell(SAY_EYE_BLAST, LANG_UNIVERSAL, NULL);
+    m_creature->MonsterYell(SAY_EYE_BLAST, LANG_UNIVERSAL, 0);
     DoPlaySoundToSet(m_creature, SOUND_EYE_BLAST);
 
     float distx, disty, dist[2];
@@ -1996,7 +1996,7 @@ void boss_illidan_stormrageAI::CastEyeBlast()
 
 void boss_illidan_stormrageAI::SummonFlamesOfAzzinoth()
 {
-    DoYell(SAY_SUMMONFLAMES, LANG_UNIVERSAL, NULL);
+    m_creature->MonsterYell(SAY_SUMMONFLAMES, LANG_UNIVERSAL, 0);
     DoPlaySoundToSet(m_creature, SOUND_SUMMONFLAMES);
 
     for(uint8 i = 0; i < 2; ++i)
@@ -2023,7 +2023,7 @@ void boss_illidan_stormrageAI::SummonMaiev()
     if (!MaievGUID) // If Maiev cannot be summoned, reset the encounter and post some errors to the console.
     {
         EnterEvadeMode();
-        DoTextEmote("is unable to summon Maiev Shadowsong and enter Phase 4. Resetting Encounter.", NULL);
+        m_creature->MonsterTextEmote("is unable to summon Maiev Shadowsong and enter Phase 4. Resetting Encounter.", 0);
         error_log("SD2 ERROR: Unable to summon Maiev Shadowsong (entry: 23197). Check your database to see if you have the proper SQL for Maiev Shadowsong (entry: 23197)");
     }
 }
@@ -2095,7 +2095,7 @@ void boss_illidan_stormrageAI::EnterPhase(PhaseIllidan NextPhase)
         {
             TransformCount = 0;
             Timer[EVENT_TRANSFORM_SEQUENCE] = 500;
-            DoYell(SAY_MORPH, LANG_UNIVERSAL, NULL);
+            m_creature->MonsterYell(SAY_MORPH, LANG_UNIVERSAL, 0);
             DoPlaySoundToSet(m_creature, SOUND_MORPH);
         }
         m_creature->GetMotionMaster()->Clear();
