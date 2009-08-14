@@ -1528,7 +1528,7 @@ void AuctionHouseBot::Commands(uint32 command, uint32 ahMapID, uint32 col, char*
 
 void AuctionHouseBot::LoadValues(AHBConfig *config)
 {
-    if (debug_Out) sLog.outString("Start Settings for %s Auctionhouses:", CharacterDatabase.PQuery("SELECT name FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
+    if (debug_Out) sLog.outString("Start Settings for %s Auctionhouses:", CharacterDatabase.PQuery("SELECT name FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetString());
     if (AHBSeller)
     {
         //load min and max items
@@ -1670,5 +1670,5 @@ void AuctionHouseBot::LoadValues(AHBConfig *config)
             sLog.outString("buyerBidsPerInterval    = %u", config->GetBidsPerInterval());
         }
     }
-    if (debug_Out) sLog.outString("End Settings for %s Auctionhouses:", CharacterDatabase.PQuery("SELECT name FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
+    if (debug_Out) sLog.outString("End Settings for %s Auctionhouses:", CharacterDatabase.PQuery("SELECT name FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetString());
 }
