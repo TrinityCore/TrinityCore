@@ -227,13 +227,15 @@ CreatureAI* GetAI_npc_wounded_blood_elf(Creature* pCreature)
     return welfAI;
 }
 
-bool QuestAccept_npc_wounded_blood_elf(Player* pPlayer, Creature* creature, Quest const* quest)
+bool QuestAccept_npc_wounded_blood_elf(Player* pPlayer, Creature* pCreature, Quest const* quest)
 {
     if (quest->GetQuestId() == QUEST_ROAD_TO_FALCON_WATCH)
     {
-        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, pPlayer->GetGUID());
+        if (npc_escortAI* pEscortAI = CAST_AI(npc_wounded_blood_elfAI, pCreature->AI()))
+            pEscortAI->Start(true, false, pPlayer->GetGUID());
+
         // Change faction so mobs attack
-        creature->setFaction(775);
+        pCreature->setFaction(775);
     }
 
     return true;

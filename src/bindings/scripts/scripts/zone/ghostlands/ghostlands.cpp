@@ -241,12 +241,14 @@ struct TRINITY_DLL_DECL npc_ranger_lilathaAI : public npc_escortAI
     }
 };
 
-bool QuestAccept_npc_ranger_lilatha(Player* pPlayer, Creature* creature, Quest const* quest)
+bool QuestAccept_npc_ranger_lilatha(Player* pPlayer, Creature* pCreature, Quest const* quest)
 {
     if (quest->GetQuestId() == QUEST_ESCAPE_FROM_THE_CATACOMBS)
     {
-        creature->setFaction(113);
-        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, pPlayer->GetGUID());
+        pCreature->setFaction(113);
+
+        if (npc_escortAI* pEscortAI = CAST_AI(npc_ranger_lilathaAI, pCreature->AI()))
+            pEscortAI->Start(true, false, pPlayer->GetGUID());
     }
     return true;
 }

@@ -537,7 +537,9 @@ bool GossipSelect_npc_thrall_old_hillsbrad(Player* pPlayer, Creature* pCreature,
 
             DoScriptText(SAY_TH_START_EVENT_PART1, pCreature);
 
-            CAST_AI(npc_escortAI, (pCreature->AI()))->Start(true, true, pPlayer->GetGUID());
+            if (npc_escortAI* pEscortAI = CAST_AI(npc_thrall_old_hillsbradAI, pCreature->AI()))
+                pEscortAI->Start(true, true, pPlayer->GetGUID());
+
             CAST_AI(npc_escortAI, (pCreature->AI()))->SetMaxPlayerDistance(100.0f);//not really needed, because it will not despawn if player is too far
             CAST_AI(npc_escortAI, (pCreature->AI()))->SetDespawnAtEnd(false);
             CAST_AI(npc_escortAI, (pCreature->AI()))->SetDespawnAtFar(false);

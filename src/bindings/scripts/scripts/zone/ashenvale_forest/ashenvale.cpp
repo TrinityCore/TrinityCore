@@ -139,14 +139,16 @@ struct TRINITY_DLL_DECL npc_torekAI : public npc_escortAI
     }
 };
 
-bool QuestAccept_npc_torek(Player* pPlayer, Creature* creature, Quest const* quest)
+bool QuestAccept_npc_torek(Player* pPlayer, Creature* pCreature, Quest const* quest)
 {
     if (quest->GetQuestId() == QUEST_TOREK_ASSULT)
     {
         //TODO: find companions, make them follow Torek, at any time (possibly done by mangos/database in future?)
-        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, true, pPlayer->GetGUID());
-        DoScriptText(SAY_READY, creature, pPlayer);
-        creature->setFaction(113);
+        DoScriptText(SAY_READY, pCreature, pPlayer);
+        pCreature->setFaction(113);
+
+        if (npc_escortAI* pEscortAI = CAST_AI(npc_torekAI, pCreature->AI()))
+            pEscortAI->Start(true, true, pPlayer->GetGUID());
     }
 
     return true;
@@ -239,12 +241,14 @@ struct TRINITY_DLL_DECL npc_ruul_snowhoofAI : public npc_escortAI
     }
 };
 
-bool QuestAccept_npc_ruul_snowhoof(Player* pPlayer, Creature* creature, Quest const* quest)
+bool QuestAccept_npc_ruul_snowhoof(Player* pPlayer, Creature* pCreature, Quest const* quest)
 {
     if (quest->GetQuestId() == QUEST_FREEDOM_TO_RUUL)
     {
-        creature->setFaction(113);
-        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, pPlayer->GetGUID());
+        pCreature->setFaction(113);
+
+        if (npc_escortAI* pEscortAI = CAST_AI(npc_ruul_snowhoofAI, (pCreature->AI())))
+            pEscortAI->Start(true, false, pPlayer->GetGUID());
     }
     return true;
 }

@@ -175,7 +175,9 @@ bool QuestAccept_npc_daphne_stilwell(Player* pPlayer, Creature* pCreature, const
     if (pQuest->GetQuestId() == QUEST_TOME_VALOR)
     {
         DoScriptText(SAY_DS_START, pCreature);
-        CAST_AI(npc_escortAI, (pCreature->AI()))->Start(true, true, pPlayer->GetGUID());
+
+        if (npc_escortAI* pEscortAI = CAST_AI(npc_daphne_stilwellAI, pCreature->AI()))
+            pEscortAI->Start(true, true, pPlayer->GetGUID());
     }
 
     return true;
@@ -257,12 +259,14 @@ struct TRINITY_DLL_DECL npc_defias_traitorAI : public npc_escortAI
     }
 };
 
-bool QuestAccept_npc_defias_traitor(Player* pPlayer, Creature* creature, Quest const* quest)
+bool QuestAccept_npc_defias_traitor(Player* pPlayer, Creature* pCreature, Quest const* quest)
 {
     if (quest->GetQuestId() == QUEST_DEFIAS_BROTHERHOOD)
     {
-        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, true, pPlayer->GetGUID());
-        DoScriptText(SAY_START, creature, pPlayer);
+        if (npc_escortAI* pEscortAI = CAST_AI(npc_defias_traitorAI, pCreature->AI()))
+            pEscortAI->Start(true, true, pPlayer->GetGUID());
+
+        DoScriptText(SAY_START, pCreature, pPlayer);
     }
 
     return true;

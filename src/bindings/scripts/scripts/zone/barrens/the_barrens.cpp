@@ -499,12 +499,13 @@ struct TRINITY_DLL_DECL npc_wizzlecrank_shredderAI : public npc_escortAI
     }
 };
 
-bool QuestAccept_npc_wizzlecrank_shredder(Player* pPlayer, Creature* creature, Quest const* quest)
+bool QuestAccept_npc_wizzlecrank_shredder(Player* pPlayer, Creature* pCreature, Quest const* quest)
 {
     if (quest->GetQuestId() == QUEST_ESCAPE)
     {
-         creature->setFaction(FACTION_RATCHET);
-        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, pPlayer->GetGUID());
+        pCreature->setFaction(FACTION_RATCHET);
+        if (npc_escortAI* pEscortAI = CAST_AI(npc_wizzlecrank_shredderAI, pCreature->AI()))
+            pEscortAI->Start(true, false, pPlayer->GetGUID());
     }
     return true;
 }

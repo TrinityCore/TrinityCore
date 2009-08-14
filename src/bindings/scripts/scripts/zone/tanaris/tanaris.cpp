@@ -426,17 +426,18 @@ struct TRINITY_DLL_DECL npc_OOX17AI : public npc_escortAI
     }
     };
 
-bool QuestAccept_npc_OOX17(Player* pPlayer, Creature* creature, Quest const* quest)
+bool QuestAccept_npc_OOX17(Player* pPlayer, Creature* pCreature, Quest const* quest)
 {
     if (quest->GetQuestId() == Q_OOX17)
     {
-        creature->setFaction(113);
-        creature->SetHealth(creature->GetMaxHealth());
-        creature->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
-        creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
-        DoScriptText(SAY_CHICKEN_ACC, creature);
-        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, pPlayer->GetGUID());
+        pCreature->setFaction(113);
+        pCreature->SetHealth(pCreature->GetMaxHealth());
+        pCreature->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
+        pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
+        DoScriptText(SAY_CHICKEN_ACC, pCreature);
 
+        if (npc_escortAI* pEscortAI = CAST_AI(npc_OOX17AI, pCreature->AI()))
+            pEscortAI->Start(true, false, pPlayer->GetGUID());
     }
     return true;
 }
