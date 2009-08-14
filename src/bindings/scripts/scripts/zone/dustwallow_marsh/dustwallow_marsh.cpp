@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Dustwallow_Marsh
 SD%Complete: 95
-SDComment: Quest support: 11180, 558, 11126. Vendor Nat Pagle
+SDComment: Quest support: 11180, 558, 11126, 11142, Vendor Nat Pagle
 SDCategory: Dustwallow Marsh
 EndScriptData */
 
@@ -35,54 +35,67 @@ EndContentData */
 ## mobs_risen_husk_spirit
 ######*/
 
-#define SPELL_SUMMON_RESTLESS_APPARITION    42511
-#define SPELL_CONSUME_FLESH                 37933           //Risen Husk
-#define SPELL_INTANGIBLE_PRESENCE           43127           //Risen Spirit
+enum
+{
+    QUEST_WHATS_HAUNTING_WITCH_HILL  = 11180,
+    SPELL_SUMMON_RESTLESS_APPARITION = 42511,
+    SPELL_CONSUME_FLESH              = 37933,               //Risen Husk
+    SPELL_INTANGIBLE_PRESENCE        = 43127,               //Risen Spirit
+    NPC_RISEN_HUSK                   = 23555,
+    NPC_RISEN_SPIRIT                 = 23554
+};
 
 struct TRINITY_DLL_DECL mobs_risen_husk_spiritAI : public ScriptedAI
 {
     mobs_risen_husk_spiritAI(Creature *c) : ScriptedAI(c) {}
 
-    uint32 ConsumeFlesh_Timer;
-    uint32 IntangiblePresence_Timer;
+    uint32 m_uiConsumeFlesh_Timer;
+    uint32 m_uiIntangiblePresence_Timer;
 
     void Reset()
     {
-        ConsumeFlesh_Timer = 10000;
-        IntangiblePresence_Timer = 5000;
+        m_uiConsumeFlesh_Timer = 10000;
+        m_uiIntangiblePresence_Timer = 5000;
     }
 
-    void EnterCombat(Unit* who) { }
-
-    void DamageTaken(Unit *done_by, uint32 &damage)
+    void DamageTaken(Unit* pDoneBy, uint32 &damage)
     {
-        if (done_by->GetTypeId() == TYPEID_PLAYER)
-            if (damage >= m_creature->GetHealth() && CAST_PLR(done_by)->GetQuestStatus(11180) == QUEST_STATUS_INCOMPLETE)
-                m_creature->CastSpell(done_by,SPELL_SUMMON_RESTLESS_APPARITION,false);
+        if (pDoneBy->GetTypeId() == TYPEID_PLAYER)
+        {
+            if (damage >= m_creature->GetHealth() && CAST_PLR(pDoneBy)->GetQuestStatus(QUEST_WHATS_HAUNTING_WITCH_HILL) == QUEST_STATUS_INCOMPLETE)
+                m_creature->CastSpell(pDoneBy, SPELL_SUMMON_RESTLESS_APPARITION, false);
+        }
     }
 
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 uiDiff)
     {
         if (!UpdateVictim())
             return;
 
-        if (ConsumeFlesh_Timer < diff)
+        if (m_uiConsumeFlesh_Timer < uiDiff)
         {
-            if (m_creature->GetEntry() == 23555)
-                DoCast(m_creature->getVictim(),SPELL_CONSUME_FLESH);
-            ConsumeFlesh_Timer = 15000;
-        } else ConsumeFlesh_Timer -= diff;
+            if (m_creature->GetEntry() == NPC_RISEN_HUSK)
+                DoCast(m_creature->getVictim(), SPELL_CONSUME_FLESH);
 
-        if (IntangiblePresence_Timer < diff)
+            m_uiConsumeFlesh_Timer = 15000;
+        }
+        else
+            m_uiConsumeFlesh_Timer -= uiDiff;
+
+        if (m_uiIntangiblePresence_Timer < uiDiff)
         {
-            if (m_creature->GetEntry() == 23554)
-                DoCast(m_creature->getVictim(),SPELL_INTANGIBLE_PRESENCE);
-            IntangiblePresence_Timer = 20000;
-        } else IntangiblePresence_Timer -= diff;
+            if (m_creature->GetEntry() == NPC_RISEN_SPIRIT)
+                DoCast(m_creature->getVictim(), SPELL_INTANGIBLE_PRESENCE);
+
+            m_uiIntangiblePresence_Timer = 20000;
+        }
+        else
+            m_uiIntangiblePresence_Timer -= uiDiff;
 
         DoMeleeAttackIfReady();
     }
 };
+
 CreatureAI* GetAI_mobs_risen_husk_spirit(Creature* pCreature)
 {
     return new mobs_risen_husk_spiritAI (pCreature);
@@ -97,7 +110,7 @@ bool GossipHello_npc_restless_apparition(Player* pPlayer, Creature* pCreature)
     pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
 
     pPlayer->TalkedToCreature(pCreature->GetEntry(), pCreature->GetGUID());
-    pCreature->SetInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+    pCreature->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
     return true;
 }
@@ -106,16 +119,20 @@ bool GossipHello_npc_restless_apparition(Player* pPlayer, Creature* pCreature)
 ## npc_deserter_agitator
 ######*/
 
+enum
+{
+    QUEST_TRAITORS_AMONG_US = 11126,
+    FACTION_THER_DESERTER   = 1883
+};
+
 struct TRINITY_DLL_DECL npc_deserter_agitatorAI : public ScriptedAI
 {
-    npc_deserter_agitatorAI(Creature *c) : ScriptedAI(c) {}
+    npc_deserter_agitatorAI(Creature* pCreature) : ScriptedAI(pCreature) { }
 
     void Reset()
     {
-        m_creature->setFaction(894);
+        me->RestoreFaction();
     }
-
-    void EnterCombat(Unit* who) {}
 };
 
 CreatureAI* GetAI_npc_deserter_agitator(Creature* pCreature)
@@ -125,9 +142,9 @@ CreatureAI* GetAI_npc_deserter_agitator(Creature* pCreature)
 
 bool GossipHello_npc_deserter_agitator(Player* pPlayer, Creature* pCreature)
 {
-    if (pPlayer->GetQuestStatus(11126) == QUEST_STATUS_INCOMPLETE)
+    if (pPlayer->GetQuestStatus(QUEST_TRAITORS_AMONG_US) == QUEST_STATUS_INCOMPLETE)
     {
-        pCreature->setFaction(1883);
+        pCreature->setFaction(FACTION_THER_DESERTER);
         pPlayer->TalkedToCreature(pCreature->GetEntry(), pCreature->GetGUID());
     }
     else
@@ -140,6 +157,12 @@ bool GossipHello_npc_deserter_agitator(Player* pPlayer, Creature* pCreature)
 ## npc_lady_jaina_proudmoore
 ######*/
 
+enum
+{
+    QUEST_JAINAS_AUTOGRAPH = 558,
+    SPELL_JAINAS_AUTOGRAPH = 23122
+};
+
 #define GOSSIP_ITEM_JAINA "I know this is rather silly but i have a young ward who is a bit shy and would like your autograph."
 
 bool GossipHello_npc_lady_jaina_proudmoore(Player* pPlayer, Creature* pCreature)
@@ -147,7 +170,7 @@ bool GossipHello_npc_lady_jaina_proudmoore(Player* pPlayer, Creature* pCreature)
     if (pCreature->isQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
-    if (pPlayer->GetQuestStatus(558) == QUEST_STATUS_INCOMPLETE)
+    if (pPlayer->GetQuestStatus(QUEST_JAINAS_AUTOGRAPH) == QUEST_STATUS_INCOMPLETE)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_JAINA, GOSSIP_SENDER_MAIN, GOSSIP_SENDER_INFO);
 
     pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
@@ -155,12 +178,12 @@ bool GossipHello_npc_lady_jaina_proudmoore(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_lady_jaina_proudmoore(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_lady_jaina_proudmoore(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (action == GOSSIP_SENDER_INFO)
+    if (uiAction == GOSSIP_SENDER_INFO)
     {
         pPlayer->SEND_GOSSIP_MENU(7012, pCreature->GetGUID());
-        pPlayer->CastSpell(pPlayer, 23122, false);
+        pPlayer->CastSpell(pPlayer, SPELL_JAINAS_AUTOGRAPH, false);
     }
     return true;
 }
@@ -169,12 +192,17 @@ bool GossipSelect_npc_lady_jaina_proudmoore(Player* pPlayer, Creature* pCreature
 ## npc_nat_pagle
 ######*/
 
+enum
+{
+    QUEST_NATS_MEASURING_TAPE = 8227
+};
+
 bool GossipHello_npc_nat_pagle(Player* pPlayer, Creature* pCreature)
 {
     if (pCreature->isQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
-    if (pCreature->isVendor() && pPlayer->GetQuestRewardStatus(8227))
+    if (pCreature->isVendor() && pPlayer->GetQuestRewardStatus(QUEST_NATS_MEASURING_TAPE))
     {
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
         pPlayer->SEND_GOSSIP_MENU(7640, pCreature->GetGUID());
@@ -185,9 +213,9 @@ bool GossipHello_npc_nat_pagle(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_nat_pagle(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_nat_pagle(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (action == GOSSIP_ACTION_TRADE)
+    if (uiAction == GOSSIP_ACTION_TRADE)
         pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
 
     return true;
