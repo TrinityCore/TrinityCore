@@ -68,78 +68,86 @@ struct TRINITY_DLL_DECL instance_shadow_labyrinth : public ScriptedInstance
         return false;
     }
 
-    void OnGameObjectCreate(GameObject *go, bool add)
+    void OnGameObjectCreate(GameObject* pGo, bool add)
     {
-        switch(go->GetEntry())
+        switch(pGo->GetEntry())
         {
             case REFECTORY_DOOR:
-                m_uiRefectoryDoorGUID = go->GetGUID();
+                m_uiRefectoryDoorGUID = pGo->GetGUID();
                 if (m_auiEncounter[2] == DONE)
-                    DoUseDoorOrButton(m_uiRefectoryDoorGUID);
+                    pGo->SetGoState(GO_STATE_ACTIVE);
                 break;
             case SCREAMING_HALL_DOOR:
-                m_uiScreamingHallDoorGUID = go->GetGUID();
+                m_uiScreamingHallDoorGUID = pGo->GetGUID();
                 if (m_auiEncounter[3] == DONE)
-                    DoUseDoorOrButton(m_uiScreamingHallDoorGUID);
+                    pGo->SetGoState(GO_STATE_ACTIVE);
                 break;
         }
     }
 
-    void OnCreatureCreate(Creature *creature, bool add)
+    void OnCreatureCreate(Creature* pCreature, bool add)
     {
-        switch(creature->GetEntry())
+        switch(pCreature->GetEntry())
         {
             case 18732:
-                m_uiGrandmasterVorpil = creature->GetGUID();
+                m_uiGrandmasterVorpil = pCreature->GetGUID();
                 break;
             case 18796:
-                ++m_uiFelOverseerCount;
-                debug_log("TSCR: Shadow Labyrinth: counting %u Fel Overseers.",m_uiFelOverseerCount);
+                if (pCreature->isAlive())
+                {
+                    ++m_uiFelOverseerCount;
+                    debug_log("TSCR: Shadow Labyrinth: counting %u Fel Overseers.",m_uiFelOverseerCount);
+                }
                 break;
         }
     }
 
-    void SetData(uint32 type, uint32 data)
+    void SetData(uint32 type, uint32 uiData)
     {
         switch(type)
         {
             case TYPE_HELLMAW:
-                m_auiEncounter[0] = data;
+                m_auiEncounter[0] = uiData;
                 break;
 
             case TYPE_OVERSEER:
-                if (data != DONE)
+                if (uiData != DONE)
+                {
                     error_log("TSCR: Shadow Labyrinth: TYPE_OVERSEER did not expect other data than DONE");
+                    return;
+                }
                 if (m_uiFelOverseerCount)
                 {
                     --m_uiFelOverseerCount;
-                    debug_log("TSCR: Shadow Labyrinth: %u Fel Overseers left to kill.",m_uiFelOverseerCount);
-                }
-                if (m_uiFelOverseerCount == 0)
-                {
-                    m_auiEncounter[1] = DONE;
-                    debug_log("TSCR: Shadow Labyrinth: TYPE_OVERSEER == DONE");
+
+                    if (m_uiFelOverseerCount)
+                        debug_log("TSCR: Shadow Labyrinth: %u Fel Overseers left to kill.",m_uiFelOverseerCount);
+                    else
+                    {
+                        m_auiEncounter[1] = DONE;
+                        debug_log("TSCR: Shadow Labyrinth: TYPE_OVERSEER == DONE");
+                    }
                 }
                 break;
 
             case DATA_BLACKHEARTTHEINCITEREVENT:
-                if (data == DONE)
+                if (uiData == DONE)
                     DoUseDoorOrButton(m_uiRefectoryDoorGUID);
-                m_auiEncounter[2] = data;
+                m_auiEncounter[2] = uiData;
                 break;
 
             case DATA_GRANDMASTERVORPILEVENT:
-                if (data == DONE)
+                if (uiData == DONE)
                     DoUseDoorOrButton(m_uiScreamingHallDoorGUID);
-                m_auiEncounter[3] = data;
+                m_auiEncounter[3] = uiData;
                 break;
 
             case DATA_MURMUREVENT:
-                m_auiEncounter[4] = data;
+                m_auiEncounter[4] = uiData;
                 break;
         }
 
-        if (data == DONE)
+        if (uiData == DONE)
         {
             if (type == TYPE_OVERSEER && m_uiFelOverseerCount != 0)
                 return;

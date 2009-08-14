@@ -16,103 +16,92 @@
 
 /* ScriptData
 SDName: Taerar
-SD%Complete: 90
-SDComment: Mark of Nature & Teleport NYI
+SD%Complete: 70
+SDComment: Mark of Nature & Teleport NYI. Fix the way to be banished.
 SDCategory: Bosses
 EndScriptData */
 
 #include "precompiled.h"
 
-//Spells of Taerar
+enum
+{
+    SAY_AGGRO               = -1000399,
+    SAY_SUMMONSHADE         = -1000400,
+ 
+    //Spells of Taerar
+    SPELL_SLEEP             = 24777,
+    SPELL_NOXIOUSBREATH     = 24818,
+    SPELL_TAILSWEEP         = 15847,
+    // SPELL_MARKOFNATURE   = 25040,                        // Not working
+    SPELL_ARCANEBLAST       = 24857,
+    SPELL_BELLOWINGROAR     = 22686,
 
-#define SPELL_SLEEP                 24777
-#define SPELL_NOXIOUSBREATH         24818
-#define SPELL_TAILSWEEP             15847
-//#define SPELL_MARKOFNATURE          25040                   // Not working
-#define SPELL_ARCANEBLAST           24857
-#define SPELL_BELLOWINGROAR         22686
-#define SPELL_SUMMONSHADE           24843
+    SPELL_SUMMONSHADE_1     = 24841,
+    SPELL_SUMMONSHADE_2     = 24842,
+    SPELL_SUMMONSHADE_3     = 24843,
 
-//Spells of Shades of Taerar
+    //Spells of Shades of Taerar
+    SPELL_POSIONCLOUD       = 24840,
+    SPELL_POSIONBREATH      = 20667
+};
 
-#define SPELL_POSIONCLOUD           24840
-#define SPELL_POSIONBREATH          20667
+uint32 m_auiSpellSummonShade[]=
+{
+    SPELL_SUMMONSHADE_1, SPELL_SUMMONSHADE_2, SPELL_SUMMONSHADE_3
+};
 
 struct TRINITY_DLL_DECL boss_taerarAI : public ScriptedAI
 {
     boss_taerarAI(Creature *c) : ScriptedAI(c) {}
 
-    uint32 Sleep_Timer;
-    uint32 NoxiousBreath_Timer;
-    uint32 TailSweep_Timer;
-    //uint32 MarkOfNature_Timer;
-    uint32 ArcaneBlast_Timer;
-    uint32 BellowingRoar_Timer;
-    uint32 Shades_Timer;
-    uint32 Summon1_Timer;
-    uint32 Summon2_Timer;
-    uint32 Summon3_Timer;
-    int Rand;
-    int RandX;
-    int RandY;
-    Creature* Summoned;
-    bool Shades;
+    uint32 m_uiSleep_Timer;
+    uint32 m_uiNoxiousBreath_Timer;
+    uint32 m_uiTailSweep_Timer;
+    //uint32 m_uiMarkOfNature_Timer;
+    uint32 m_uiArcaneBlast_Timer;
+    uint32 m_uiBellowingRoar_Timer;
+    uint32 m_uiShades_Timer;
+    uint32 m_uiShadesSummoned;
+
+    bool m_bShades;
 
     void Reset()
     {
-        Sleep_Timer = 15000 + rand()%5000;
-        NoxiousBreath_Timer = 8000;
-        TailSweep_Timer = 4000;
-        //MarkOfNature_Timer = 45000;
-        ArcaneBlast_Timer = 12000;
-        BellowingRoar_Timer = 30000;
-        Summon1_Timer = 0;
-        Summon2_Timer = 0;
-        Summon3_Timer = 0;
-        Shades_Timer = 60000;                               //The time that Taerar is banished
-        Shades = false;
+        m_uiSleep_Timer = 15000 + rand()%5000;
+        m_uiNoxiousBreath_Timer = 8000;
+        m_uiTailSweep_Timer = 4000;
+        //m_uiMarkOfNature_Timer = 45000;
+        m_uiArcaneBlast_Timer = 12000;
+        m_uiBellowingRoar_Timer = 30000;
+        m_uiShades_Timer = 60000;                               //The time that Taerar is banished
+        m_uiShadesSummoned = 0;
+
+        m_bShades = false;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit* pWho)
     {
+        DoScriptText(SAY_AGGRO, m_creature);
     }
 
-    void SummonShades(Unit* victim)
+    void JustSummoned(Creature* pSummoned)
     {
-        if (!victim)
-            return;
-
-        Rand = rand()%15;
-        switch (rand()%2)
-        {
-            case 0: RandX = 0 - Rand; break;
-            case 1: RandX = 0 + Rand; break;
-        }
-        Rand = 0;
-        Rand = rand()%15;
-        switch (rand()%2)
-        {
-            case 0: RandY = 0 - Rand; break;
-            case 1: RandY = 0 + Rand; break;
-        }
-        Rand = 0;
-        Summoned = DoSpawnCreature(15302, RandX, RandY, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000);
-        if (Summoned)
-            (Summoned->AI())->AttackStart(victim);
+        if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            pSummoned->AI()->AttackStart(pTarget);
     }
 
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 uiDiff)
     {
-        if (Shades && Shades_Timer < diff)
+        if (m_bShades && m_uiShades_Timer < uiDiff)
         {
             //Become unbanished again
             m_creature->setFaction(14);
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            //m_creature->m_canMove = true;
-            Shades = false;
-        } else if (Shades)
+            m_bShades = false;
+        }
+        else if (m_bShades)
         {
-            Shades_Timer -= diff;
+            m_uiShades_Timer -= uiDiff;
             //Do nothing while banished
             return;
         }
@@ -122,119 +111,84 @@ struct TRINITY_DLL_DECL boss_taerarAI : public ScriptedAI
             return;
 
         //Sleep_Timer
-        if (Sleep_Timer < diff)
+        if (m_uiSleep_Timer < uiDiff)
         {
-            Unit* target = NULL;
-            target = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if (target) DoCast(target,SPELL_SLEEP);
+            if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                DoCast(pTarget, SPELL_SLEEP);
 
-            Sleep_Timer = 8000 + rand()%7000;
-        }else Sleep_Timer -= diff;
+            m_uiSleep_Timer = 8000 + rand()%7000;
+        }
+        else
+            m_uiSleep_Timer -= uiDiff;
 
         //NoxiousBreath_Timer
-        if (NoxiousBreath_Timer < diff)
+        if (m_uiNoxiousBreath_Timer < uiDiff)
         {
-            DoCast(m_creature->getVictim(),SPELL_NOXIOUSBREATH);
-            NoxiousBreath_Timer = 14000 + rand()%6000;
-        } else NoxiousBreath_Timer -= diff;
+            DoCast(m_creature->getVictim(), SPELL_NOXIOUSBREATH);
+            m_uiNoxiousBreath_Timer = 14000 + rand()%6000;
+        }
+        else
+            m_uiNoxiousBreath_Timer -= uiDiff;
 
         //Tailsweep every 2 seconds
-        if (TailSweep_Timer < diff)
+        if (m_uiTailSweep_Timer < uiDiff)
         {
-            if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0))
-                DoCast(target,SPELL_TAILSWEEP);
-
-            TailSweep_Timer = 2000;
-        }else TailSweep_Timer -= diff;
+            DoCast(m_creature, SPELL_TAILSWEEP);
+            m_uiTailSweep_Timer = 2000;
+        }
+        else
+            m_uiTailSweep_Timer -= uiDiff;
 
         //MarkOfNature_Timer
-        //if (MarkOfNature_Timer < diff)
+        //if (m_uiMarkOfNature_Timer < uiDiff)
         //{
-        //    DoCast(m_creature->getVictim(),SPELL_MARKOFNATURE);
-        //    MarkOfNature_Timer = 45000;
-        //}else MarkOfNature_Timer -= diff;
+        //    DoCast(m_creature->getVictim(), SPELL_MARKOFNATURE);
+        //    m_uiMarkOfNature_Timer = 45000;
+        //}
+        //else
+        //    m_uiMarkOfNature_Timer -= uiDiff;
 
         //ArcaneBlast_Timer
-        if (ArcaneBlast_Timer < diff)
+        if (m_uiArcaneBlast_Timer < uiDiff)
         {
-            DoCast(m_creature->getVictim(),SPELL_ARCANEBLAST);
-            ArcaneBlast_Timer = 7000 + rand()%5000;
-        }else ArcaneBlast_Timer -= diff;
+            DoCast(m_creature->getVictim(), SPELL_ARCANEBLAST);
+            m_uiArcaneBlast_Timer = 7000 + rand()%5000;
+        }
+        else
+            m_uiArcaneBlast_Timer -= uiDiff;
 
         //BellowingRoar_Timer
-        if (BellowingRoar_Timer < diff)
+        if (m_uiBellowingRoar_Timer < uiDiff)
         {
-            DoCast(m_creature->getVictim(),SPELL_BELLOWINGROAR);
-            BellowingRoar_Timer = 20000 + rand()%10000;
-        } else BellowingRoar_Timer -= diff;
-
-        //Summon 3 Shades
-        if (!Shades  && (int) (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() +0.5) == 75)
-        {
-            if (Summon1_Timer < diff)
-            {
-                //Inturrupt any spell casting
-                m_creature->InterruptNonMeleeSpells(false);
-                m_creature->setFaction(35);
-                m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                //m_creature->m_canMove = false;
-
-                //Cast
-                Unit* target = NULL;
-                target = SelectUnit(SELECT_TARGET_RANDOM,0);
-                SummonShades(target);
-                SummonShades(target);
-                SummonShades(target);
-                Summon1_Timer = 120000;
-                Shades = true;
-                Shades_Timer = 60000;
-            } else Summon1_Timer -= diff;
+            DoCast(m_creature->getVictim(), SPELL_BELLOWINGROAR);
+            m_uiBellowingRoar_Timer = 20000 + rand()%10000;
         }
+        else
+            m_uiBellowingRoar_Timer -= uiDiff;
 
-        //Summon 3 Shades
-        if (!Shades  && (int) (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() +0.5) == 50)
+        //Summon 3 Shades at 75%, 50% and 25% (if bShades is true we already left in line 117, no need to check here again)
+        if (!m_bShades && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) <= (100-(25*m_uiShadesSummoned)))
         {
-            if (Summon2_Timer < diff)
+            if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
             {
                 //Inturrupt any spell casting
                 m_creature->InterruptNonMeleeSpells(false);
+
+                //horrible workaround, need to fix
                 m_creature->setFaction(35);
                 m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                //m_creature->m_canMove = false;
 
-                //Cast
-                Unit* target = NULL;
-                target = SelectUnit(SELECT_TARGET_RANDOM,0);
-                SummonShades(target);
-                SummonShades(target);
-                SummonShades(target);
-                Summon2_Timer = 120000;
-                Shades = true;
-                Shades_Timer = 60000;
-            } else Summon2_Timer -= diff;
-        }
+                DoScriptText(SAY_SUMMONSHADE, m_creature);
 
-        //Summon 3 Shades
-        if (!Shades  && (int) (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() +0.5) == 25)
-        {
-            if (Summon3_Timer < diff)
-            {
-                //Inturrupt any spell casting
-                m_creature->InterruptNonMeleeSpells(false);
-                m_creature->setFaction(35);
-                m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                //m_creature->m_canMove = false;
+                int iSize = sizeof(m_auiSpellSummonShade) / sizeof(uint32);
 
-                //Cast
-                Unit* target = NULL;
-                target = SelectUnit(SELECT_TARGET_RANDOM,0);
-                SummonShades(target);
-                SummonShades(target);
-                SummonShades(target);
-                Summon3_Timer = 120000;
-                Shades = true;
-                Shades_Timer = 60000;
-            } else Summon3_Timer -= diff;
+                for(int i = 0; i < iSize; ++i)
+                    m_creature->CastSpell(pTarget, m_auiSpellSummonShade[i], true);
+
+                ++m_uiShadesSummoned;                       // prevent casting twice at same health
+                m_bShades = true;
+            }
+            m_uiShades_Timer = 60000;
         }
 
         DoMeleeAttackIfReady();
@@ -242,42 +196,41 @@ struct TRINITY_DLL_DECL boss_taerarAI : public ScriptedAI
 };
 
 // Shades of Taerar Script
-
 struct TRINITY_DLL_DECL boss_shadeoftaerarAI : public ScriptedAI
 {
     boss_shadeoftaerarAI(Creature *c) : ScriptedAI(c) {}
 
-    uint32 PoisonCloud_Timer;
-    uint32 PosionBreath_Timer;
+    uint32 m_uiPoisonCloud_Timer;
+    uint32 m_uiPosionBreath_Timer;
 
     void Reset()
     {
-        PoisonCloud_Timer = 8000;
-        PosionBreath_Timer = 12000;
+        m_uiPoisonCloud_Timer = 8000;
+        m_uiPosionBreath_Timer = 12000;
     }
 
-    void EnterCombat(Unit *who)
-    {
-    }
-
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 uiDiff)
     {
         if (!UpdateVictim())
             return;
 
         //PoisonCloud_Timer
-        if (PoisonCloud_Timer < diff)
+        if (m_uiPoisonCloud_Timer < uiDiff)
         {
-            DoCast(m_creature->getVictim(),SPELL_POSIONCLOUD);
-            PoisonCloud_Timer = 30000;
-        }else PoisonCloud_Timer -= diff;
+            DoCast(m_creature->getVictim(), SPELL_POSIONCLOUD);
+            m_uiPoisonCloud_Timer = 30000;
+        }
+        else
+            m_uiPoisonCloud_Timer -= uiDiff;
 
         //PosionBreath_Timer
-        if (PosionBreath_Timer < diff)
+        if (m_uiPosionBreath_Timer < uiDiff)
         {
-            DoCast(m_creature->getVictim(),SPELL_POSIONBREATH);
-            PosionBreath_Timer = 12000;
-        }else PosionBreath_Timer -= diff;
+            DoCast(m_creature->getVictim(), SPELL_POSIONBREATH);
+            m_uiPosionBreath_Timer = 12000;
+        }
+        else
+            m_uiPosionBreath_Timer -= uiDiff;
 
         DoMeleeAttackIfReady();
     }
