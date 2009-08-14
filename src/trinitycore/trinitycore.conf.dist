@@ -713,10 +713,9 @@ ChatLogTimestamp = 0
 #        Default: 0 - recheck offhand slot weapon only at zone update
 #                 1 - recheck offhand slot weapon at talent reset also
 #
-#
 #    ClientCacheVersion
-#        Client resets cache if WDB files' version is not equal to this value.
-#        Default: 0 (no real meaning)
+#        Client cache version for client cache data reset. Use any different from DB value and not recently used for triggering reset.
+#        Default: 0 (use DB value from world DB db_version.cache_id field)
 #
 #    Event.Announce
 #        Default: 0 (false)
