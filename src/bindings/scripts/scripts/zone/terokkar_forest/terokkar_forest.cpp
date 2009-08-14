@@ -613,6 +613,88 @@ bool GossipSelect_npc_slim(Player* pPlayer, Creature* pCreature, uint32 uiSender
     return true;
 }
 
+/*########
+####npc_Akuno
+#####*/
+
+#define QUEST_NPC_AKUNO 10887
+#define Summon 21661
+
+struct TRINITY_DLL_DECL npc_akunoAI : public npc_escortAI
+{
+    npc_akunoAI(Creature *c) : npc_escortAI(c) {}
+
+    bool IsWalking;
+
+
+    void WaypointReached(uint32 i)
+    {
+        Player* player = Unit::GetPlayer(PlayerGUID);
+
+        if(!player)
+            return;
+
+        if(IsWalking && !m_creature->HasUnitMovementFlag(MOVEMENTFLAG_WALK_MODE))
+            m_creature->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+    
+        
+        switch(i) 
+        {
+        case 0  : m_creature->setFaction(5);break;
+        case 3  : m_creature->SummonCreature(Summon,-2795.99,5420.33,-34.53,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                  m_creature->SummonCreature(Summon,-2793.55,5412.79,-34.53,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                  break;
+        case 11 : {
+            if(player && player->GetTypeId() == TYPEID_PLAYER)
+                ((Player*)player)->GroupEventHappens(QUEST_NPC_AKUNO,m_creature);
+                m_creature->setFaction(18);break;
+                  }
+        }
+    }
+    void Aggro(Unit* who)
+    {}
+
+    void Reset()
+    {
+        if (IsWalking && !m_creature->HasUnitMovementFlag(MOVEMENTFLAG_WALK_MODE))
+        {
+            m_creature->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+            return;
+        }
+        IsWalking=false;
+    }
+
+    void JustDied(Unit* killer)
+    {
+        if (PlayerGUID)
+        {
+            if (Player* player = Unit::GetPlayer(PlayerGUID))
+                player->FailQuest(QUEST_NPC_AKUNO);
+        }
+    }
+
+    void UpdateAI(const uint32 diff)
+    {
+        npc_escortAI::UpdateAI(diff);
+    }
+};
+
+    bool QuestAccept_npc_akuno(Player* player, Creature* creature, Quest const* quest)
+    {
+        if(quest->GetQuestId() == QUEST_NPC_AKUNO)
+        {
+              ((npc_escortAI*)creature->AI())->Start(false,true,player->GetGUID());
+        }
+        return true;
+    }
+
+CreatureAI* GetAI_npc_akuno(Creature *_Creature)
+{
+    npc_akunoAI* thisAI = new npc_akunoAI(_Creature);
+    thisAI->FillPointMovementListForCreature();
+    return(CreatureAI*)thisAI;
+}
+
 void AddSC_terokkar_forest()
 {
     Script *newscript;
@@ -665,6 +747,12 @@ void AddSC_terokkar_forest()
     newscript->Name = "npc_slim";
     newscript->pGossipHello =  &GossipHello_npc_slim;
     newscript->pGossipSelect = &GossipSelect_npc_slim;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name="npc_akuno";
+    newscript->GetAI = &GetAI_npc_akuno;
+    newscript->pQuestAccept = &QuestAccept_npc_akuno;
     newscript->RegisterSelf();
 }
 
