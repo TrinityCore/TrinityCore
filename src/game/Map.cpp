@@ -733,36 +733,27 @@ void Map::Update(const uint32 &t_diff)
 
 void Map::Remove(Player *player, bool remove)
 {
+    player->RemoveFromWorld();
+    SendRemoveTransports(player);
+
     CellPair p = Trinity::ComputeCellPair(player->GetPositionX(), player->GetPositionY());
     if(p.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || p.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP)
-    {
         sLog.outCrash("Map::Remove: Player is in invalid cell!");
-        // invalid coordinates
-        player->RemoveFromWorld();
-
-        if( remove )
-            DeleteFromWorld(player);
-
-        return;
-    }
-
-    Cell cell(p);
-
-    if( !getNGrid(cell.data.Part.grid_x, cell.data.Part.grid_y) )
+    else
     {
-        sLog.outError("Map::Remove() i_grids was NULL x:%d, y:%d",cell.data.Part.grid_x,cell.data.Part.grid_y);
-        return;
+        Cell cell(p);
+        if( !getNGrid(cell.data.Part.grid_x, cell.data.Part.grid_y) )
+            sLog.outError("Map::Remove() i_grids was NULL x:%d, y:%d",cell.data.Part.grid_x,cell.data.Part.grid_y);
+        else
+        {
+            DEBUG_LOG("Remove player %s from grid[%u,%u]", player->GetName(), cell.GridX(), cell.GridY());
+            NGridType *grid = getNGrid(cell.GridX(), cell.GridY());
+            assert(grid != NULL);
+
+            RemoveFromGrid(player,grid,cell);
+            UpdateObjectVisibility(player,cell,p);
+        }
     }
-
-    DEBUG_LOG("Remove player %s from grid[%u,%u]", player->GetName(), cell.GridX(), cell.GridY());
-    NGridType *grid = getNGrid(cell.GridX(), cell.GridY());
-    assert(grid != NULL);
-
-    player->RemoveFromWorld();
-    RemoveFromGrid(player,grid,cell);
-
-    SendRemoveTransports(player);
-    UpdateObjectVisibility(player,cell,p);
 
     if( remove )
         DeleteFromWorld(player);
@@ -785,29 +776,29 @@ template<class T>
 void
 Map::Remove(T *obj, bool remove)
 {
-    CellPair p = Trinity::ComputeCellPair(obj->GetPositionX(), obj->GetPositionY());
-    if(p.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || p.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP )
-    {
-        sLog.outError("Map::Remove: Object " I64FMT " have invalid coordinates X:%f Y:%f grid cell [%u:%u]", obj->GetGUID(), obj->GetPositionX(), obj->GetPositionY(), p.x_coord, p.y_coord);
-        return;
-    }
-
-    Cell cell(p);
-    if( !loaded(GridPair(cell.data.Part.grid_x, cell.data.Part.grid_y)) )
-        return;
-
-    DEBUG_LOG("Remove object " I64FMT " from grid[%u,%u]", obj->GetGUID(), cell.data.Part.grid_x, cell.data.Part.grid_y);
-    NGridType *grid = getNGrid(cell.GridX(), cell.GridY());
-    assert( grid != NULL );
-
     obj->RemoveFromWorld();
     if(obj->isActiveObject())
         RemoveFromActive(obj);
-    RemoveFromGrid(obj,grid,cell);
 
-    UpdateObjectVisibility(obj,cell,p);
+    CellPair p = Trinity::ComputeCellPair(obj->GetPositionX(), obj->GetPositionY());
+    if(p.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || p.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP )
+        sLog.outError("Map::Remove: Object " I64FMT " have invalid coordinates X:%f Y:%f grid cell [%u:%u]", obj->GetGUID(), obj->GetPositionX(), obj->GetPositionY(), p.x_coord, p.y_coord);
+    else
+    {
+        Cell cell(p);
+        if(loaded(GridPair(cell.data.Part.grid_x, cell.data.Part.grid_y)))
+        {
+            DEBUG_LOG("Remove object " I64FMT " from grid[%u,%u]", obj->GetGUID(), cell.data.Part.grid_x, cell.data.Part.grid_y);
+            NGridType *grid = getNGrid(cell.GridX(), cell.GridY());
+            assert( grid != NULL );
+
+            RemoveFromGrid(obj,grid,cell);
+            UpdateObjectVisibility(obj,cell,p);
+        }
+    }
 
     obj->ResetMap();
+
     if( remove )
     {
         // if option set then object already saved at this moment
