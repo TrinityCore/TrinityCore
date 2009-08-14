@@ -24,7 +24,7 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_gruuls_lair.h"
 
-#define ENCOUNTERS 2
+#define MAX_ENCOUNTER 2
 
 /* Gruuls Lair encounters:
 1 - High King Maulgar event
@@ -35,7 +35,7 @@ struct TRINITY_DLL_DECL instance_gruuls_lair : public ScriptedInstance
 {
     instance_gruuls_lair(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 
-    uint32 Encounters[ENCOUNTERS];
+    uint32 m_auiEncounter[MAX_ENCOUNTER];
 
     uint64 MaulgarEvent_Tank;
     uint64 KigglerTheCrazed;
@@ -49,6 +49,8 @@ struct TRINITY_DLL_DECL instance_gruuls_lair : public ScriptedInstance
 
     void Initialize()
     {
+        memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+
         MaulgarEvent_Tank = 0;
         KigglerTheCrazed = 0;
         BlindeyeTheSeer = 0;
@@ -58,15 +60,12 @@ struct TRINITY_DLL_DECL instance_gruuls_lair : public ScriptedInstance
 
         MaulgarDoor = 0;
         GruulDoor = 0;
-
-        for(uint8 i = 0; i < ENCOUNTERS; ++i)
-            Encounters[i] = NOT_STARTED;
     }
 
     bool IsEncounterInProgress() const
     {
-        for(uint8 i = 0; i < ENCOUNTERS; ++i)
-            if (Encounters[i] == IN_PROGRESS) return true;
+        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+            if (m_auiEncounter[i] == IN_PROGRESS) return true;
 
         return false;
     }
@@ -89,7 +88,7 @@ struct TRINITY_DLL_DECL instance_gruuls_lair : public ScriptedInstance
         {
             case 184468:
                 MaulgarDoor = go->GetGUID();
-                if (Encounters[0] == DONE) HandleGameObject(NULL, true, go);
+                if (m_auiEncounter[0] == DONE) HandleGameObject(NULL, true, go);
                 break;
             case 184662: GruulDoor = go->GetGUID(); break;
         }
@@ -123,11 +122,11 @@ struct TRINITY_DLL_DECL instance_gruuls_lair : public ScriptedInstance
         {
             case DATA_MAULGAREVENT:
                 if (data == DONE) HandleGameObject(MaulgarDoor, true);
-                Encounters[0] = data; break;
+                m_auiEncounter[0] = data; break;
             case DATA_GRUULEVENT:
                 if (data == IN_PROGRESS) HandleGameObject(GruulDoor, false);
                 else HandleGameObject(GruulDoor, true);
-                Encounters[1] = data; break;
+                m_auiEncounter[1] = data; break;
         }
 
         if (data == DONE)
@@ -138,8 +137,8 @@ struct TRINITY_DLL_DECL instance_gruuls_lair : public ScriptedInstance
     {
         switch(type)
         {
-            case DATA_MAULGAREVENT: return Encounters[0];
-            case DATA_GRUULEVENT:   return Encounters[1];
+            case DATA_MAULGAREVENT: return m_auiEncounter[0];
+            case DATA_GRUULEVENT:   return m_auiEncounter[1];
         }
         return 0;
     }
@@ -148,7 +147,7 @@ struct TRINITY_DLL_DECL instance_gruuls_lair : public ScriptedInstance
     {
         OUT_SAVE_INST_DATA;
         std::ostringstream stream;
-        stream << Encounters[0] << " " << Encounters[1];
+        stream << m_auiEncounter[0] << " " << m_auiEncounter[1];
         char* out = new char[stream.str().length() + 1];
         strcpy(out, stream.str().c_str());
         if (out)
@@ -170,10 +169,10 @@ struct TRINITY_DLL_DECL instance_gruuls_lair : public ScriptedInstance
 
         OUT_LOAD_INST_DATA(in);
         std::istringstream stream(in);
-        stream >> Encounters[0] >> Encounters[1];
-        for(uint8 i = 0; i < ENCOUNTERS; ++i)
-            if (Encounters[i] == IN_PROGRESS)                // Do not load an encounter as "In Progress" - reset it instead.
-                Encounters[i] = NOT_STARTED;
+        stream >> m_auiEncounter[0] >> m_auiEncounter[1];
+        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+            if (m_auiEncounter[i] == IN_PROGRESS)                // Do not load an encounter as "In Progress" - reset it instead.
+                m_auiEncounter[i] = NOT_STARTED;
         OUT_LOAD_INST_DATA_COMPLETE;
     }
 };

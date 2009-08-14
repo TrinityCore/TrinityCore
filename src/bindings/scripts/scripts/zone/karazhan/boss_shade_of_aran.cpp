@@ -211,7 +211,7 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
                 FWTargPosX[i] = (*itr)->GetPositionX();
                 FWTargPosY[i] = (*itr)->GetPositionY();
                 m_creature->CastSpell((*itr), SPELL_FLAME_WREATH, true);
-                i++;
+                ++i;
             }
         }
     }

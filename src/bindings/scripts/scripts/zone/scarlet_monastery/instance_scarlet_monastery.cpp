@@ -30,7 +30,7 @@ EndScriptData */
 #define ENTRY_HEAD              23775
 #define ENTRY_PUMPKIN           23694
 
-#define ENCOUNTERS 1
+#define MAX_ENCOUNTER 1
 
 struct TRINITY_DLL_DECL instance_scarlet_monastery : public ScriptedInstance
 {
@@ -46,10 +46,12 @@ struct TRINITY_DLL_DECL instance_scarlet_monastery : public ScriptedInstance
     uint64 VorrelGUID;
     uint64 DoorHighInquisitorGUID;
 
-    uint32 Encounter[ENCOUNTERS];
+    uint32 m_auiEncounter[MAX_ENCOUNTER];
 
     void Initialize()
     {
+        memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+
         PumpkinShrineGUID  = 0;
         HorsemanGUID = 0;
         HeadGUID = 0;
@@ -59,9 +61,6 @@ struct TRINITY_DLL_DECL instance_scarlet_monastery : public ScriptedInstance
         WhitemaneGUID = 0;
         VorrelGUID = 0;
         DoorHighInquisitorGUID = 0;
-
-        for(uint8 i = 0; i < ENCOUNTERS; ++i)
-            Encounter[i] = NOT_STARTED;
     }
 
     void OnGameObjectCreate(GameObject *go, bool add)
@@ -96,7 +95,7 @@ struct TRINITY_DLL_DECL instance_scarlet_monastery : public ScriptedInstance
             if (data == FAIL)
                 DoUseDoorOrButton(DoorHighInquisitorGUID);
 
-            Encounter[0] = data;
+            m_auiEncounter[0] = data;
             break;
         case GAMEOBJECT_PUMPKIN_SHRINE:
             HandleGameObject(PumpkinShrineGUID, false);
@@ -135,7 +134,7 @@ struct TRINITY_DLL_DECL instance_scarlet_monastery : public ScriptedInstance
     uint32 GetData(uint32 type)
     {
         if (type == TYPE_MOGRAINE_AND_WHITE_EVENT)
-            return Encounter[0];
+            return m_auiEncounter[0];
 
         return 0;
     }

@@ -246,7 +246,7 @@ struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
                 Group *grp = CAST_PLR(targetpl)->GetGroup();
                 if (grp)
                 {
-                    for (int ici = 0; ici < TARGETICONCOUNT; ici++)
+                    for (int ici = 0; ici < TARGETICONCOUNT; ++ici)
                     {
                         //if (grp ->m_targetIcons[ici] == m_creature->GetGUID()) -- private member:(
                         grp->SetTargetIcon(ici, 0);

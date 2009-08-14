@@ -31,7 +31,7 @@ EndScriptData */
 #define CHAMBER_CENTER_Y              1.8
 #define CHAMBER_CENTER_Z             -0.4
 
-#define ENCOUNTERS 2
+#define MAX_ENCOUNTER 2
 
 struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
 {
@@ -40,7 +40,7 @@ struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
         Initialize();
     }
 
-    uint32 Encounters[ENCOUNTERS];
+    uint32 m_auiEncounter[MAX_ENCOUNTER];
 
     uint64 MagtheridonGUID;
     std::set<uint64> ChannelerGUID;
@@ -52,8 +52,7 @@ struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
 
     void Initialize()
     {
-        for(uint8 i = 0; i < ENCOUNTERS; ++i)
-            Encounters[i] = NOT_STARTED;
+        memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
         MagtheridonGUID = 0;
         ChannelerGUID.clear();
@@ -66,8 +65,8 @@ struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
 
     bool IsEncounterInProgress() const
     {
-        for(uint8 i = 0; i < ENCOUNTERS; ++i)
-            if (Encounters[i] == IN_PROGRESS) return true;
+        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+            if (m_auiEncounter[i] == IN_PROGRESS) return true;
         return false;
     }
 
@@ -121,7 +120,7 @@ struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
         switch(type)
         {
         case DATA_MAGTHERIDON_EVENT:
-            Encounters[0] = data;
+            m_auiEncounter[0] = data;
             if (data == NOT_STARTED)
                 RespawnTimer = 10000;
             if (data != IN_PROGRESS)
@@ -131,9 +130,9 @@ struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
             switch(data)
             {
             case NOT_STARTED: // Reset all channelers once one is reset.
-                if (Encounters[1] != NOT_STARTED)
+                if (m_auiEncounter[1] != NOT_STARTED)
                 {
-                    Encounters[1] = NOT_STARTED;
+                    m_auiEncounter[1] = NOT_STARTED;
                     for(std::set<uint64>::iterator i = ChannelerGUID.begin(); i != ChannelerGUID.end(); ++i)
                     {
                         if (Creature *Channeler = instance->GetCreature(*i))
@@ -148,9 +147,9 @@ struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
                     HandleGameObject(DoorGUID, true);
                 }break;
             case IN_PROGRESS: // Event start.
-                if (Encounters[1] != IN_PROGRESS)
+                if (m_auiEncounter[1] != IN_PROGRESS)
                 {
-                    Encounters[1] = IN_PROGRESS;
+                    m_auiEncounter[1] = IN_PROGRESS;
                     // Let all five channelers aggro.
                     for(std::set<uint64>::iterator i = ChannelerGUID.begin(); i != ChannelerGUID.end(); ++i)
                     {
@@ -179,7 +178,7 @@ struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
                     }
                 }break;
             }
-            Encounters[1] = data;
+            m_auiEncounter[1] = data;
             break;
         case DATA_COLLAPSE:
             // true - collapse / false - reset
@@ -194,7 +193,7 @@ struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
     uint32 GetData(uint32 type)
     {
         if (type == DATA_MAGTHERIDON_EVENT)
-            return Encounters[0];
+            return m_auiEncounter[0];
         return 0;
     }
 

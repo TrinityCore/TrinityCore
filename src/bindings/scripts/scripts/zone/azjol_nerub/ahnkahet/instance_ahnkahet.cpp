@@ -26,7 +26,7 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_ahnkahet.h"
 
-#define ENCOUNTERS     5
+#define MAX_ENCOUNTER     5
 
 /* Ahn'kahet encounters:
 0 - Elder Nadox
@@ -46,7 +46,7 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
     uint64 Herald_Volazj;
     uint64 Amanitar;
 
-    uint32 Encounters[ENCOUNTERS];
+    uint32 m_auiEncounter[MAX_ENCOUNTER];
 
    void Initialize()
    {
@@ -56,14 +56,14 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
         Herald_Volazj =0;
         Amanitar =0;
 
-        for(uint8 i = 0; i < ENCOUNTERS; ++i)
-            Encounters[i] = NOT_STARTED;
+        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+            m_auiEncounter[i] = NOT_STARTED;
     }
 
     bool IsEncounterInProgress() const
     {
-        for(uint8 i = 0; i < ENCOUNTERS; ++i)
-            if (Encounters[i] == IN_PROGRESS) return true;
+        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+            if (m_auiEncounter[i] == IN_PROGRESS) return true;
 
         return false;
     }
@@ -99,15 +99,15 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
         switch(type)
         {
         case DATA_ELDER_NADOX_EVENT:
-            Encounters[0] = data;break;
+            m_auiEncounter[0] = data;break;
         case DATA_PRINCE_TALDARAM_EVENT:
-            Encounters[1] = data; break;
+            m_auiEncounter[1] = data; break;
         case DATA_JEDOGA_SHADOWSEEKER_EVENT:
-            Encounters[2] = data; break;
+            m_auiEncounter[2] = data; break;
         case DATA_HERALD_VOLAZJ:
-            Encounters[3] = data; break;
+            m_auiEncounter[3] = data; break;
         case DATA_AMANITAR:
-            Encounters[4] = data; break;
+            m_auiEncounter[4] = data; break;
         }
 
         if (data == DONE)
@@ -120,11 +120,11 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
     {
         switch(type)
         {
-            case DATA_ELDER_NADOX_EVENT:            return Encounters[0];
-            case DATA_PRINCE_TALDARAM_EVENT:        return Encounters[1];
-            case DATA_JEDOGA_SHADOWSEEKER_EVENT:    return Encounters[2];
-            case DATA_HERALD_VOLAZJ:                return Encounters[3];
-            case DATA_AMANITAR:                     return Encounters[4];
+            case DATA_ELDER_NADOX_EVENT:            return m_auiEncounter[0];
+            case DATA_PRINCE_TALDARAM_EVENT:        return m_auiEncounter[1];
+            case DATA_JEDOGA_SHADOWSEEKER_EVENT:    return m_auiEncounter[2];
+            case DATA_HERALD_VOLAZJ:                return m_auiEncounter[3];
+            case DATA_AMANITAR:                     return m_auiEncounter[4];
         }
         return 0;
     }
@@ -136,8 +136,8 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
         std::string str_data;
 
         std::ostringstream saveStream;
-        saveStream << "A K " << Encounters[0] << " " << Encounters[1] << " "
-            << Encounters[2] << Encounters[3] << Encounters[4];
+        saveStream << "A K " << m_auiEncounter[0] << " " << m_auiEncounter[1] << " "
+            << m_auiEncounter[2] << m_auiEncounter[3] << m_auiEncounter[4];
 
         str_data = saveStream.str();
 
@@ -163,15 +163,15 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
 
         if (dataHead1 == 'A' && dataHead2 == 'K')
         {
-            Encounters[0] = data0;
-            Encounters[1] = data1;
-            Encounters[2] = data2;
-            Encounters[3] = data3;
-            Encounters[4] = data4;
+            m_auiEncounter[0] = data0;
+            m_auiEncounter[1] = data1;
+            m_auiEncounter[2] = data2;
+            m_auiEncounter[3] = data3;
+            m_auiEncounter[4] = data4;
 
-            for(uint8 i = 0; i < ENCOUNTERS; ++i)
-                if (Encounters[i] == IN_PROGRESS)
-                    Encounters[i] = NOT_STARTED;
+            for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+                if (m_auiEncounter[i] == IN_PROGRESS)
+                    m_auiEncounter[i] = NOT_STARTED;
 
         }else OUT_LOAD_INST_DATA_FAIL;
 

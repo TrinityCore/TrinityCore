@@ -39,13 +39,12 @@ struct TRINITY_DLL_DECL instance_zulgurub : public ScriptedInstance
 
     void Initialize()
     {
+        memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+
         m_uiLorKhanGUID = 0;
         m_uiZathGUID = 0;
         m_uiThekalGUID = 0;
         m_uiJindoGUID = 0;
-
-        for(uint8 i = 0; i < MAX_ENCOUNTERS; ++i)
-            m_auiEncounter[i] = NOT_STARTED;
     }
 
     bool IsEncounterInProgress() const

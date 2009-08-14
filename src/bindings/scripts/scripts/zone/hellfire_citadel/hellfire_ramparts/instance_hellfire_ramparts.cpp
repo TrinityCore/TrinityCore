@@ -28,18 +28,16 @@ struct TRINITY_DLL_DECL instance_ramparts : public ScriptedInstance
 {
     instance_ramparts(Map* pMap) : ScriptedInstance(pMap) {Initialize();}
 
-    uint32 m_uiEncounter[ENCOUNTERS];
+    uint32 m_auiEncounter[MAX_ENCOUNTER];
     uint64 m_uiChestNGUID;
     uint64 m_uiChestHGUID;
 
     void Initialize()
     {
+        memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+
         m_uiChestNGUID = 0;
         m_uiChestHGUID = 0;
-
-        for(uint8 i = 0; i < ENCOUNTERS; ++i)
-            m_uiEncounter[i] = NOT_STARTED;
-
     }
 
     void OnGameObjectCreate(GameObject *go, bool add)
@@ -58,14 +56,14 @@ struct TRINITY_DLL_DECL instance_ramparts : public ScriptedInstance
         switch(uiType)
         {
             case TYPE_VAZRUDEN:
-                if (uiData == DONE && m_uiEncounter[1] == DONE)
+                if (uiData == DONE && m_auiEncounter[1] == DONE)
                     DoRespawnGameObject(instance->IsHeroic() ? m_uiChestHGUID : m_uiChestNGUID, HOUR*IN_MILISECONDS);
-                m_uiEncounter[0] = uiData;
+                m_auiEncounter[0] = uiData;
                 break;
             case TYPE_NAZAN:
-                if (uiData == DONE && m_uiEncounter[0] == DONE)
+                if (uiData == DONE && m_auiEncounter[0] == DONE)
                     DoRespawnGameObject(instance->IsHeroic() ? m_uiChestHGUID : m_uiChestNGUID, HOUR*IN_MILISECONDS);
-                m_uiEncounter[1] = uiData;
+                m_auiEncounter[1] = uiData;
                 break;
         }
     }

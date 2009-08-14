@@ -26,7 +26,7 @@ EndScriptData */
 
 #define ENTRY_SEWER1                 181823
 #define ENTRY_SEWER2                 181766
-#define ENCOUNTERS                   3
+#define MAX_ENCOUNTER                   3
 
 struct TRINITY_DLL_DECL instance_blood_furnace : public ScriptedInstance
 {
@@ -52,11 +52,13 @@ struct TRINITY_DLL_DECL instance_blood_furnace : public ScriptedInstance
     uint64 PrisonCell7GUID;
     uint64 PrisonCell8GUID;
 
-    uint32 Encounter[ENCOUNTERS];
+    uint32 m_auiEncounter[MAX_ENCOUNTER];
     std::string str_data;
 
     void Initialize()
     {
+        memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+
         The_MakerGUID = 0;
         BroggokGUID = 0;
         Kelidan_The_BreakerGUID = 0;
@@ -76,9 +78,6 @@ struct TRINITY_DLL_DECL instance_blood_furnace : public ScriptedInstance
         PrisonCell6GUID = 0;
         PrisonCell7GUID = 0;
         PrisonCell8GUID = 0;
-        
-        for(uint8 i = 0; i < ENCOUNTERS; ++i)
-            Encounter[i] = NOT_STARTED;
     }
 
 
@@ -161,9 +160,9 @@ struct TRINITY_DLL_DECL instance_blood_furnace : public ScriptedInstance
     {
          switch(data)
          {
-             case TYPE_THE_MAKER_EVENT:             Encounter[0] = data;     break;
-             case TYPE_BROGGOK_EVENT:               Encounter[1] = data;     break;
-             case TYPE_KELIDAN_THE_BREAKER_EVENT:   Encounter[2] = data;     break;
+             case TYPE_THE_MAKER_EVENT:             m_auiEncounter[0] = data;     break;
+             case TYPE_BROGGOK_EVENT:               m_auiEncounter[1] = data;     break;
+             case TYPE_KELIDAN_THE_BREAKER_EVENT:   m_auiEncounter[2] = data;     break;
          }
 
         if (data == DONE)
@@ -171,7 +170,7 @@ struct TRINITY_DLL_DECL instance_blood_furnace : public ScriptedInstance
             OUT_SAVE_INST_DATA;
 
             std::ostringstream saveStream;
-            saveStream << Encounter[0] << " " << Encounter[1] << " " << Encounter[2];
+            saveStream << m_auiEncounter[0] << " " << m_auiEncounter[1] << " " << m_auiEncounter[2];
 
             str_data = saveStream.str();
 
@@ -184,9 +183,9 @@ struct TRINITY_DLL_DECL instance_blood_furnace : public ScriptedInstance
     {
         switch(data)
         {
-            case TYPE_THE_MAKER_EVENT:             return Encounter[0];
-            case TYPE_BROGGOK_EVENT:               return Encounter[1];
-            case TYPE_KELIDAN_THE_BREAKER_EVENT:   return Encounter[2];
+            case TYPE_THE_MAKER_EVENT:             return m_auiEncounter[0];
+            case TYPE_BROGGOK_EVENT:               return m_auiEncounter[1];
+            case TYPE_KELIDAN_THE_BREAKER_EVENT:   return m_auiEncounter[2];
         }
 
         return 0;
@@ -208,11 +207,11 @@ struct TRINITY_DLL_DECL instance_blood_furnace : public ScriptedInstance
         OUT_LOAD_INST_DATA(in);
 
         std::istringstream loadStream(in);
-        loadStream >> Encounter[0] >> Encounter[1] >> Encounter[2];
+        loadStream >> m_auiEncounter[0] >> m_auiEncounter[1] >> m_auiEncounter[2];
 
-        for(uint8 i = 0; i < ENCOUNTERS; ++i)
-            if (Encounter[i] == IN_PROGRESS || Encounter[i] == FAIL)
-                Encounter[i] = NOT_STARTED;
+        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+            if (m_auiEncounter[i] == IN_PROGRESS || m_auiEncounter[i] == FAIL)
+                m_auiEncounter[i] = NOT_STARTED;
 
         OUT_LOAD_INST_DATA_COMPLETE;
     }
