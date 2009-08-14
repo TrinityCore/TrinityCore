@@ -218,7 +218,7 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
 
         DoZoneInCombat();
 
-        DoYell(YELL_INTRO,LANG_UNIVERSAL,NULL);
+        m_creature->MonsterYell(YELL_INTRO,LANG_UNIVERSAL,NULL);
         DoPlaySoundToSet(m_creature, SOUND_INTRO);
         SpawnAdds();
         EnterPhase(0);
@@ -232,11 +232,11 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
         switch(rand()%2)
         {
         case 0:
-            DoYell(YELL_KILL_ONE, LANG_UNIVERSAL, NULL);
+            m_creature->MonsterYell(YELL_KILL_ONE, LANG_UNIVERSAL, NULL);
             DoPlaySoundToSet(m_creature, SOUND_KILL_ONE);
             break;
         case 1:
-            DoYell(YELL_KILL_TWO, LANG_UNIVERSAL, NULL);
+            m_creature->MonsterYell(YELL_KILL_TWO, LANG_UNIVERSAL, NULL);
             DoPlaySoundToSet(m_creature, SOUND_KILL_TWO);
             break;
         }
@@ -247,7 +247,7 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
         if (pInstance)
             pInstance->SetData(DATA_ZULJINEVENT, DONE);
 
-        DoYell(YELL_DEATH, LANG_UNIVERSAL, NULL);
+        m_creature->MonsterYell(YELL_DEATH, LANG_UNIVERSAL, NULL);
         DoPlaySoundToSet(m_creature, SOUND_DEATH);
         Summons.DespawnEntry(CREATURE_COLUMN_OF_FIRE);
 
@@ -342,7 +342,7 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
             m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);
             m_creature->RemoveAurasDueToSpell(Transform[Phase].unaura);
             DoCast(m_creature, Transform[Phase].spell);
-            DoYell(Transform[Phase].text, LANG_UNIVERSAL, NULL);
+            m_creature->MonsterYell(Transform[Phase].text, LANG_UNIVERSAL, NULL);
             DoPlaySoundToSet(m_creature, Transform[Phase].sound);
             if (Phase > 0)
             {
@@ -398,7 +398,7 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
         if (Berserk_Timer < diff)
         {
             m_creature->CastSpell(m_creature, SPELL_BERSERK, true);
-            DoYell(YELL_BERSERK, LANG_UNIVERSAL, NULL);
+            m_creature->MonsterYell(YELL_BERSERK, LANG_UNIVERSAL, NULL);
             DoPlaySoundToSet(m_creature, SOUND_BERSERK);
             Berserk_Timer = 60000;
         }else Berserk_Timer -= diff;
@@ -410,7 +410,7 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
             {
                 if (Intro_Timer <= diff)
                 {
-                    DoYell(YELL_AGGRO, LANG_UNIVERSAL, NULL);
+                    m_creature->MonsterYell(YELL_AGGRO, LANG_UNIVERSAL, NULL);
                     DoPlaySoundToSet(m_creature, SOUND_AGGRO);
                     Intro_Timer = 0;
                 }else Intro_Timer -= diff;

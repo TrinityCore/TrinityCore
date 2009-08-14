@@ -114,7 +114,7 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        DoYell(SAY_ONAGGRO, LANG_UNIVERSAL, NULL);
+        m_creature->MonsterYell(SAY_ONAGGRO, LANG_UNIVERSAL, NULL);
         DoPlaySoundToSet(m_creature, SOUND_ONAGGRO);
         //DoZoneInCombat();
         if (pInstance)
@@ -123,7 +123,7 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
 
     void JustDied(Unit* Killer)
     {
-        DoYell(SAY_ONDEATH,LANG_UNIVERSAL,NULL);
+        m_creature->MonsterYell(SAY_ONDEATH,LANG_UNIVERSAL,NULL);
         DoPlaySoundToSet(m_creature, SOUND_ONDEATH);
         if (pInstance)
             pInstance->SetData(DATA_AKILZONEVENT, DONE);
@@ -135,11 +135,11 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
         switch(rand()%2)
         {
         case 0:
-            DoYell(SAY_ONSLAY1, LANG_UNIVERSAL, NULL);
+            m_creature->MonsterYell(SAY_ONSLAY1, LANG_UNIVERSAL, NULL);
             DoPlaySoundToSet(m_creature, SOUND_ONSLAY1);
             break;
         case 1:
-            DoYell(SAY_ONSLAY2, LANG_UNIVERSAL, NULL);
+            m_creature->MonsterYell(SAY_ONSLAY2, LANG_UNIVERSAL, NULL);
             DoPlaySoundToSet(m_creature, SOUND_ONSLAY2);
             break;
         }
@@ -260,7 +260,7 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
         }
 
         if (Enrage_Timer < diff) {
-            DoYell(SAY_ONENRAGE, LANG_UNIVERSAL, NULL);
+            m_creature->MonsterYell(SAY_ONENRAGE, LANG_UNIVERSAL, NULL);
             DoPlaySoundToSet(m_creature, SOUND_ONENRAGE);
             m_creature->CastSpell(m_creature, SPELL_BERSERK, true);
             Enrage_Timer = 600000;
@@ -330,7 +330,7 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
 
         if (SummonEagles_Timer < diff)
         {
-            DoYell(SAY_ONSUMMON, LANG_UNIVERSAL, NULL);
+            m_creature->MonsterYell(SAY_ONSUMMON, LANG_UNIVERSAL, NULL);
             DoPlaySoundToSet(m_creature, SOUND_ONSUMMON);
 
             float x, y, z;

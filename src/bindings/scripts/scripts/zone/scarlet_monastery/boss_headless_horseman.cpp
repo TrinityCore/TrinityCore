@@ -298,7 +298,7 @@ struct TRINITY_DLL_DECL mob_headAI : public ScriptedAI
                 Creature *speaker = DoSpawnCreature(HELPER,0,0,0,0,TEMPSUMMON_TIMED_DESPAWN,1000);
                 if (speaker)
                     speaker->CastSpell(speaker,SPELL_HEAD_SPEAKS,false);
-                DoTextEmote("laughs",NULL);
+                m_creature->MonsterTextEmote("laughs",NULL);
             } else laugh -= diff;
 
         } else {
@@ -654,7 +654,7 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
 
             if (laugh < diff) {
                 laugh = 11000 + rand()%12 * 1000;
-                DoTextEmote("laughs",NULL);
+                m_creature->MonsterTextEmote("laughs",NULL);
                 DoPlaySoundToSet(m_creature, RandomLaugh[rand()%3]);
             } else laugh -= diff;
 

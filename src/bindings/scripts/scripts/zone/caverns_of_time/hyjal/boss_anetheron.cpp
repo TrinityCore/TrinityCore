@@ -75,7 +75,7 @@ struct TRINITY_DLL_DECL boss_anetheronAI : public hyjal_trashAI
         if (pInstance && IsEvent)
             pInstance->SetData(DATA_ANETHERONEVENT, IN_PROGRESS);
         DoPlaySoundToSet(m_creature, SOUND_ONAGGRO);
-        DoYell(SAY_ONAGGRO, LANG_UNIVERSAL, NULL);
+        m_creature->MonsterYell(SAY_ONAGGRO, LANG_UNIVERSAL, 0);
     }
 
     void KilledUnit(Unit *victim)
@@ -84,15 +84,15 @@ struct TRINITY_DLL_DECL boss_anetheronAI : public hyjal_trashAI
         {
             case 0:
                 DoPlaySoundToSet(m_creature, SOUND_ONSLAY1);
-                DoYell(SAY_ONSLAY1, LANG_UNIVERSAL, NULL);
+                m_creature->MonsterYell(SAY_ONSLAY1, LANG_UNIVERSAL, 0);
                 break;
             case 1:
                 DoPlaySoundToSet(m_creature, SOUND_ONSLAY2);
-                DoYell(SAY_ONSLAY2, LANG_UNIVERSAL, NULL);
+                m_creature->MonsterYell(SAY_ONSLAY2, LANG_UNIVERSAL, 0);
                 break;
             case 2:
                 DoPlaySoundToSet(m_creature, SOUND_ONSLAY3);
-                DoYell(SAY_ONSLAY3, LANG_UNIVERSAL, NULL);
+                m_creature->MonsterYell(SAY_ONSLAY3, LANG_UNIVERSAL, 0);
                 break;
         }
     }
@@ -114,7 +114,7 @@ struct TRINITY_DLL_DECL boss_anetheronAI : public hyjal_trashAI
         if (pInstance && IsEvent)
             pInstance->SetData(DATA_ANETHERONEVENT, DONE);
         DoPlaySoundToSet(m_creature, SOUND_ONDEATH);
-        DoYell(SAY_ONDEATH, LANG_UNIVERSAL, NULL);
+        m_creature->MonsterYell(SAY_ONDEATH, LANG_UNIVERSAL, 0);
     }
 
     void UpdateAI(const uint32 diff)
@@ -157,11 +157,11 @@ struct TRINITY_DLL_DECL boss_anetheronAI : public hyjal_trashAI
             {
                 case 0:
                     DoPlaySoundToSet(m_creature, SOUND_SWARM1);
-                    DoYell(SAY_SWARM1, LANG_UNIVERSAL, NULL);
+                    m_creature->MonsterYell(SAY_SWARM1, LANG_UNIVERSAL, 0);
                     break;
                 case 1:
                     DoPlaySoundToSet(m_creature, SOUND_SWARM2);
-                    DoYell(SAY_SWARM2, LANG_UNIVERSAL, NULL);
+                    m_creature->MonsterYell(SAY_SWARM2, LANG_UNIVERSAL, 0);
                     break;
             }
         }else SwarmTimer -= diff;
@@ -170,8 +170,7 @@ struct TRINITY_DLL_DECL boss_anetheronAI : public hyjal_trashAI
         {
             for(uint8 i=0;i<3; ++i)
             {
-                Unit* target = SelectTarget(SELECT_TARGET_RANDOM,0,100,true);
-                if (target)
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM,0,100,true))
                     target->CastSpell(target,SPELL_SLEEP,true);
             }
             SleepTimer = 60000;
@@ -179,11 +178,11 @@ struct TRINITY_DLL_DECL boss_anetheronAI : public hyjal_trashAI
             {
                 case 0:
                     DoPlaySoundToSet(m_creature, SOUND_SLEEP1);
-                    DoYell(SAY_SLEEP1, LANG_UNIVERSAL, NULL);
+                    m_creature->MonsterYell(SAY_SLEEP1, LANG_UNIVERSAL, 0);
                     break;
                 case 1:
                     DoPlaySoundToSet(m_creature, SOUND_SLEEP2);
-                    DoYell(SAY_SLEEP2, LANG_UNIVERSAL, NULL);
+                    m_creature->MonsterYell(SAY_SLEEP2, LANG_UNIVERSAL, 0);
                     break;
             }
         }else SleepTimer -= diff;
@@ -200,11 +199,11 @@ struct TRINITY_DLL_DECL boss_anetheronAI : public hyjal_trashAI
             {
                 case 0:
                     DoPlaySoundToSet(m_creature, SOUND_INFERNO1);
-                    DoYell(SAY_INFERNO1, LANG_UNIVERSAL, NULL);
+                    m_creature->MonsterYell(SAY_INFERNO1, LANG_UNIVERSAL, 0);
                     break;
                 case 1:
                     DoPlaySoundToSet(m_creature, SOUND_INFERNO2);
-                    DoYell(SAY_INFERNO2, LANG_UNIVERSAL, NULL);
+                    m_creature->MonsterYell(SAY_INFERNO2, LANG_UNIVERSAL, 0);
                     break;
             }
         }else InfernoTimer -= diff;
