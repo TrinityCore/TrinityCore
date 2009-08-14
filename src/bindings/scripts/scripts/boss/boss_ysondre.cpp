@@ -25,15 +25,17 @@ EndScriptData */
 
 enum
 {
-    SAY_AGGRO               = -1000360,                     // sound unknown
-    SAY_SUMMONDRUIDS        = -1000361,                     // sound unknown
+    SAY_AGGRO               = -1000360,
+    SAY_SUMMONDRUIDS        = -1000361,
 
     SPELL_SLEEP             = 24777,
     SPELL_NOXIOUSBREATH     = 24818,
     SPELL_TAILSWEEP         = 15847,
-    //#SPELL_MARKOFNATURE   = 25040,                        // Not working
+    //SPELL_MARKOFNATURE   = 25040,                        // Not working
     SPELL_LIGHTNINGWAVE     = 24819,
     SPELL_SUMMONDRUIDS      = 24795,
+
+    SPELL_SUMMON_PLAYER     = 24776,
 
     //druid spells
     SPELL_MOONFIRE          = 21669
@@ -49,9 +51,7 @@ struct TRINITY_DLL_DECL boss_ysondreAI : public ScriptedAI
     uint32 m_uiTailSweep_Timer;
     //uint32 m_uiMarkOfNature_Timer;
     uint32 m_uiLightningWave_Timer;
-    uint32 m_uiSummonDruids1_Timer;
-    uint32 m_uiSummonDruids2_Timer;
-    uint32 m_uiSummonDruids3_Timer;
+    uint32 m_uiSummonDruidModifier;
 
     void Reset()
     {
@@ -60,9 +60,7 @@ struct TRINITY_DLL_DECL boss_ysondreAI : public ScriptedAI
         m_uiTailSweep_Timer = 4000;
         //m_uiMarkOfNature_Timer = 45000;
         m_uiLightningWave_Timer = 12000;
-        m_uiSummonDruids1_Timer = 0;
-        m_uiSummonDruids2_Timer = 0;
-        m_uiSummonDruids3_Timer = 0;
+        m_uiSummonDruidModifier = 0;
     }
 
     void EnterCombat(Unit* pWho)
@@ -70,13 +68,10 @@ struct TRINITY_DLL_DECL boss_ysondreAI : public ScriptedAI
         DoScriptText(SAY_AGGRO, m_creature);
     }
 
-    void DoSummonDruids()
+    void JustSummoned(Creature* pSummoned)
     {
-        for(int i = 0; i < 10; ++i)
-        {
-            if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCast(pTarget, SPELL_SUMMONDRUIDS, true);
-        }
+        if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            pSummoned->AI()->AttackStart(pTarget);
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -87,8 +82,8 @@ struct TRINITY_DLL_DECL boss_ysondreAI : public ScriptedAI
         //Sleep_Timer
         if (m_uiSleep_Timer < uiDiff)
         {
-            if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCast(target, SPELL_SLEEP);
+            if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                DoCast(pTarget, SPELL_SLEEP);
 
             m_uiSleep_Timer = 8000 + rand()%7000;
         }
@@ -137,42 +132,14 @@ struct TRINITY_DLL_DECL boss_ysondreAI : public ScriptedAI
             m_uiLightningWave_Timer -= uiDiff;
 
         //Summon Druids
-        if ((int) (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() +0.5) == 75)
+        if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) <= (100-(25*m_uiSummonDruidModifier)))
         {
-            if (m_uiSummonDruids1_Timer < uiDiff)
-            {
-                DoScriptText(SAY_SUMMONDRUIDS, m_creature);
-                DoSummonDruids();
-                m_uiSummonDruids1_Timer = 60000;
-            }
-            else
-                m_uiSummonDruids1_Timer -= uiDiff;
-        }
+            DoScriptText(SAY_SUMMONDRUIDS, m_creature);
 
-        //Summon Druids
-        if ((int) (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() +0.5) == 50)
-        {
-            if (m_uiSummonDruids2_Timer < uiDiff)
-            {
-                DoScriptText(SAY_SUMMONDRUIDS, m_creature);
-                DoSummonDruids();
-                m_uiSummonDruids2_Timer = 60000;
-            }
-            else
-                m_uiSummonDruids2_Timer -= uiDiff;
-        }
+            for(int i = 0; i < 10; ++i)
+                DoCast(m_creature, SPELL_SUMMONDRUIDS, true);
 
-        //Summon Druids
-        if ((int) (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() +0.5) == 25)
-        {
-            if (m_uiSummonDruids3_Timer < uiDiff)
-            {
-                DoScriptText(SAY_SUMMONDRUIDS, m_creature);
-                DoSummonDruids();
-                m_uiSummonDruids3_Timer = 60000;
-            }
-            else
-                m_uiSummonDruids3_Timer -= uiDiff;
+            ++m_uiSummonDruidModifier;
         }
 
         DoMeleeAttackIfReady();
