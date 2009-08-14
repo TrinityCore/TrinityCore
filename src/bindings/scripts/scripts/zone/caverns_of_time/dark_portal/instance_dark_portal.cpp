@@ -118,10 +118,10 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
         pPlayer->SendUpdateWorldState(WORLD_STATE_BM,0);
     }
 
-    void OnCreatureCreate(Creature *creature, bool add)
+    void OnCreatureCreate(Creature* pCreature, bool add)
     {
-        if (creature->GetEntry() == C_MEDIVH)
-            MedivhGUID = creature->GetGUID();
+        if (pCreature->GetEntry() == C_MEDIVH)
+            MedivhGUID = pCreature->GetGUID();
     }
 
     //what other conditions to check?

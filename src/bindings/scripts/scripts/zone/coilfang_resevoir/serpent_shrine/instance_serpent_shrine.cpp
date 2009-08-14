@@ -35,9 +35,9 @@ EndScriptData */
 5 - Lady Vashj Event
 */
 
-bool GOHello_go_bridge_console(Player* pPlayer, GameObject* go)
+bool GOHello_go_bridge_console(Player* pPlayer, GameObject* pGo)
 {
-    ScriptedInstance* pInstance = go->GetInstanceData();
+    ScriptedInstance* pInstance = pGo->GetInstanceData();
 
     if (!pInstance)
         return false;
@@ -103,47 +103,47 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
         return false;
     }
 
-    void OnGameObjectCreate(GameObject *go, bool add)
+    void OnGameObjectCreate(GameObject* pGo, bool add)
     {
-        switch(go->GetEntry())
+        switch(pGo->GetEntry())
         {
             case 184568:
-                ControlConsole = go->GetGUID();
-                go->setActive(true);
+                ControlConsole = pGo->GetGUID();
+                pGo->setActive(true);
             break;
 
             case 184203:
-                BridgePart[0] = go->GetGUID();
-                go->setActive(true);
+                BridgePart[0] = pGo->GetGUID();
+                pGo->setActive(true);
             break;
 
             case 184204:
-                BridgePart[1] = go->GetGUID();
-                go->setActive(true);
+                BridgePart[1] = pGo->GetGUID();
+                pGo->setActive(true);
             break;
 
             case 184205:
-                BridgePart[2] = go->GetGUID();
-                go->setActive(true);
+                BridgePart[2] = pGo->GetGUID();
+                pGo->setActive(true);
             break;
             case 184956:
-                StrangePool = go->GetGUID();
-                if (go->isActiveObject())
+                StrangePool = pGo->GetGUID();
+                if (pGo->isActiveObject())
                     SetData(DATA_STRANGE_POOL, DONE);
         }
     }
 
-    void OnCreatureCreate(Creature *creature, bool add)
+    void OnCreatureCreate(Creature* pCreature, bool add)
     {
-        switch(creature->GetEntry())
+        switch(pCreature->GetEntry())
         {
-            case 21212: LadyVashj = creature->GetGUID();            break;
-            case 21214: Karathress = creature->GetGUID();           break;
-            case 21966: Sharkkis = creature->GetGUID();             break;
-            case 21217: LurkerBelow = creature->GetGUID();          break;
-            case 21965: Tidalvess = creature->GetGUID();            break;
-            case 21964: Caribdis = creature->GetGUID();             break;
-            case 21215: LeotherasTheBlind = creature->GetGUID();    break;}
+            case 21212: LadyVashj = pCreature->GetGUID();            break;
+            case 21214: Karathress = pCreature->GetGUID();           break;
+            case 21966: Sharkkis = pCreature->GetGUID();             break;
+            case 21217: LurkerBelow = pCreature->GetGUID();          break;
+            case 21965: Tidalvess = pCreature->GetGUID();            break;
+            case 21964: Caribdis = pCreature->GetGUID();             break;
+            case 21215: LeotherasTheBlind = pCreature->GetGUID();    break;}
     }
 
     void SetData64(uint32 type, uint64 data)

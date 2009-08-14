@@ -46,9 +46,9 @@ bool GossipHello_npc_kalaran_windblade(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_kalaran_windblade(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_kalaran_windblade(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    switch (action)
+    switch (uiAction)
     {
         case GOSSIP_ACTION_INFO_DEF:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Continue please", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -83,9 +83,9 @@ bool GossipHello_npc_lothos_riftwaker(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_lothos_riftwaker(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_lothos_riftwaker(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (action == GOSSIP_ACTION_INFO_DEF + 1)
+    if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
     {
         pPlayer->CLOSE_GOSSIP_MENU();
         pPlayer->TeleportTo(409, 1096, -467, -104.6, 3.64);
@@ -111,9 +111,9 @@ bool GossipHello_npc_zamael_lunthistle(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_zamael_lunthistle(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_zamael_lunthistle(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    switch (action)
+    switch (uiAction)
     {
         case GOSSIP_ACTION_INFO_DEF:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Please continue...", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);

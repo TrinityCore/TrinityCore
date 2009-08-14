@@ -29,7 +29,7 @@ struct TRINITY_DLL_DECL boss_kazrogalAI : public hyjal_trashAI
     boss_kazrogalAI(Creature *c) : hyjal_trashAI(c)
     {
         pInstance = c->GetInstanceData();
-        go = false;
+        pGo = false;
         pos = 0;
         SpellEntry *TempSpell = GET_SPELL(SPELL_MARK);
         if (TempSpell && TempSpell->EffectImplicitTargetA[0] != 1)
@@ -43,7 +43,7 @@ struct TRINITY_DLL_DECL boss_kazrogalAI : public hyjal_trashAI
     uint32 WarStompTimer;
     uint32 MarkTimer;
     uint32 MarkTimerBase;
-    bool go;
+    bool pGo;
     uint32 pos;
 
     void Reset()
@@ -110,9 +110,9 @@ struct TRINITY_DLL_DECL boss_kazrogalAI : public hyjal_trashAI
         {
             //Must update npc_escortAI
             npc_escortAI::UpdateAI(diff);
-            if (!go)
+            if (!pGo)
             {
-                go = true;
+                pGo = true;
                 if (pInstance)
                 {
                     AddWaypoint(0, 5492.91,    -2404.61,    1462.63);

@@ -62,13 +62,13 @@ struct TRINITY_DLL_DECL instance_azjol_nerub : public ScriptedInstance
     }
 
 
-    void OnCreatureCreate(Creature *creature, bool add)
+    void OnCreatureCreate(Creature* pCreature, bool add)
     {
-        switch(creature->GetEntry())
+        switch(pCreature->GetEntry())
         {
-            case 28684:    m_uiKrikthir = creature->GetGUID();  break;
-            case 28921:    m_uiHadronox = creature->GetGUID();  break;
-            case 29120:    m_uiAnubarak = creature->GetGUID();  break;
+            case 28684:    m_uiKrikthir = pCreature->GetGUID();  break;
+            case 28921:    m_uiHadronox = pCreature->GetGUID();  break;
+            case 29120:    m_uiAnubarak = pCreature->GetGUID();  break;
 
         }
     }

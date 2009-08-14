@@ -67,9 +67,9 @@ bool GossipHello_npcs_riverbreeze_and_silversky(Player* pPlayer, Creature* pCrea
     return true;
 }
 
-bool GossipSelect_npcs_riverbreeze_and_silversky(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npcs_riverbreeze_and_silversky(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (action==GOSSIP_ACTION_INFO_DEF+1)
+    if (uiAction ==GOSSIP_ACTION_INFO_DEF+1)
     {
         pPlayer->CLOSE_GOSSIP_MENU();
         pCreature->CastSpell(pPlayer, 15120, false);

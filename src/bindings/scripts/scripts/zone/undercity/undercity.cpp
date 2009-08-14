@@ -223,14 +223,14 @@ bool GossipHello_npc_parqual_fintallas(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_parqual_fintallas(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_parqual_fintallas(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (action == GOSSIP_ACTION_INFO_DEF+1)
+    if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
     {
         pPlayer->CLOSE_GOSSIP_MENU();
         pCreature->CastSpell(pPlayer,SPELL_MARK_OF_SHAME,false);
     }
-    if (action == GOSSIP_ACTION_INFO_DEF+2)
+    if (uiAction == GOSSIP_ACTION_INFO_DEF+2)
     {
         pPlayer->CLOSE_GOSSIP_MENU();
         pPlayer->AreaExploredOrEventHappens(6628);

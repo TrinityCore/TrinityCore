@@ -226,7 +226,7 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
         BombCount = 0;
     }
 
-    bool HatchAllEggs(uint32 action) //1: reset, 2: isHatching all
+    bool HatchAllEggs(uint32 uiAction) //1: reset, 2: isHatching all
     {
         std::list<Creature*> templist;
         float x, y, z;
@@ -253,9 +253,9 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
 
         for(std::list<Creature*>::iterator i = templist.begin(); i != templist.end(); ++i)
         {
-            if (action == 1)
+            if (uiAction == 1)
                (*i)->SetDisplayId(10056);
-            else if (action == 2 &&(*i)->GetDisplayId() != 11686)
+            else if (uiAction == 2 &&(*i)->GetDisplayId() != 11686)
                (*i)->CastSpell(*i, SPELL_HATCH_EGG, false);
         }
         return true;

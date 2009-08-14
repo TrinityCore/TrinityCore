@@ -43,10 +43,10 @@ struct TRINITY_DLL_DECL instance_wailing_caverns : public ScriptedInstance
         NaralexGUID = 0;
     }
 
-    void OnCreatureCreate(Creature *creature, bool add)
+    void OnCreatureCreate(Creature* pCreature, bool add)
     {
-        if (creature->GetEntry() == DATA_NARALEX)
-            NaralexGUID = creature->GetGUID();
+        if (pCreature->GetEntry() == DATA_NARALEX)
+            NaralexGUID = pCreature->GetGUID();
     }
 
     void SetData(uint32 type, uint32 data)

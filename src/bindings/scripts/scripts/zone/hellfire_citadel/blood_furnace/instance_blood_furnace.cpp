@@ -81,53 +81,53 @@ struct TRINITY_DLL_DECL instance_blood_furnace : public ScriptedInstance
     }
 
 
-    void OnCreatureCreate(Creature *creature, bool add)
+    void OnCreatureCreate(Creature* pCreature, bool add)
     {
         if (!add)
             return;
 
-        switch(creature->GetEntry())
+        switch(pCreature->GetEntry())
         {
-             case 17381: The_MakerGUID = creature->GetGUID(); break;
-             case 17380: BroggokGUID = creature->GetGUID(); break;
-             case 17377: Kelidan_The_BreakerGUID = creature->GetGUID(); break;
+             case 17381: The_MakerGUID = pCreature->GetGUID(); break;
+             case 17380: BroggokGUID = pCreature->GetGUID(); break;
+             case 17377: Kelidan_The_BreakerGUID = pCreature->GetGUID(); break;
         }
     }
 
-    void OnGameObjectCreate(GameObject *go, bool add)
+    void OnGameObjectCreate(GameObject* pGo, bool add)
     {
         if (!add)
             return;
 
-     if (go->GetEntry() == 181766)                //Final exit door
-         Door1GUID = go->GetGUID();
-     if (go->GetEntry() == 181811)               //The Maker Front door
-         Door2GUID = go->GetGUID();
-     if (go->GetEntry() == 181812)                //The Maker Rear door
-         Door3GUID = go->GetGUID();
-     if (go->GetEntry() == 181822)               //Broggok Front door
-         Door4GUID = go->GetGUID();
-     if (go->GetEntry() == 181819)               //Broggok Rear door
-         Door5GUID = go->GetGUID();
-     if (go->GetEntry() == 181823)               //Kelidan exit door
-         Door6GUID = go->GetGUID();
+     if (pGo->GetEntry() == 181766)                //Final exit door
+         Door1GUID = pGo->GetGUID();
+     if (pGo->GetEntry() == 181811)               //The Maker Front door
+         Door2GUID = pGo->GetGUID();
+     if (pGo->GetEntry() == 181812)                //The Maker Rear door
+         Door3GUID = pGo->GetGUID();
+     if (pGo->GetEntry() == 181822)               //Broggok Front door
+         Door4GUID = pGo->GetGUID();
+     if (pGo->GetEntry() == 181819)               //Broggok Rear door
+         Door5GUID = pGo->GetGUID();
+     if (pGo->GetEntry() == 181823)               //Kelidan exit door
+         Door6GUID = pGo->GetGUID();
 
-     if (go->GetEntry() == 181813)               //The Maker prison cell front right
-         PrisonCell1GUID = go->GetGUID();
-     if (go->GetEntry() == 181814)               //The Maker prison cell back right
-         PrisonCell2GUID = go->GetGUID();
-     if (go->GetEntry() == 181816)               //The Maker prison cell front left
-         PrisonCell3GUID = go->GetGUID();
-     if (go->GetEntry() == 181815)               //The Maker prison cell back left
-         PrisonCell4GUID = go->GetGUID();
-     if (go->GetEntry() == 181821)               //Broggok prison cell front right
-         PrisonCell5GUID = go->GetGUID();
-     if (go->GetEntry() == 181818)               //Broggok prison cell back right
-         PrisonCell6GUID = go->GetGUID();
-     if (go->GetEntry() == 181820)               //Broggok prison cell front left
-         PrisonCell7GUID = go->GetGUID();
-     if (go->GetEntry() == 181817)               //Broggok prison cell back left
-         PrisonCell8GUID = go->GetGUID();
+     if (pGo->GetEntry() == 181813)               //The Maker prison cell front right
+         PrisonCell1GUID = pGo->GetGUID();
+     if (pGo->GetEntry() == 181814)               //The Maker prison cell back right
+         PrisonCell2GUID = pGo->GetGUID();
+     if (pGo->GetEntry() == 181816)               //The Maker prison cell front left
+         PrisonCell3GUID = pGo->GetGUID();
+     if (pGo->GetEntry() == 181815)               //The Maker prison cell back left
+         PrisonCell4GUID = pGo->GetGUID();
+     if (pGo->GetEntry() == 181821)               //Broggok prison cell front right
+         PrisonCell5GUID = pGo->GetGUID();
+     if (pGo->GetEntry() == 181818)               //Broggok prison cell back right
+         PrisonCell6GUID = pGo->GetGUID();
+     if (pGo->GetEntry() == 181820)               //Broggok prison cell front left
+         PrisonCell7GUID = pGo->GetGUID();
+     if (pGo->GetEntry() == 181817)               //Broggok prison cell back left
+         PrisonCell8GUID = pGo->GetGUID();
     }
 
     uint64 GetData64(uint32 data)

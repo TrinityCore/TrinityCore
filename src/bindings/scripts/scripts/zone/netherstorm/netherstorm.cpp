@@ -85,7 +85,7 @@ struct TRINITY_DLL_DECL npc_manaforge_control_consoleAI : public ScriptedAI
 
     /*void SpellHit(Unit *caster, const SpellEntry *spell)
     {
-        //we have no way of telling the creature was hit by spell -> got aura applied after 10-12 seconds
+        //we have no way of telling the Creature was hit by spell -> got aura applied after 10-12 seconds
         //then no way for the mobs to actually stop the shutdown as intended.
         if (spell->Id == SPELL_INTERRUPT_1)
             DoSay("Silence! I kill you!",LANG_UNIVERSAL, NULL);
@@ -124,14 +124,14 @@ struct TRINITY_DLL_DECL npc_manaforge_control_consoleAI : public ScriptedAI
 
         if (goConsole)
         {
-            if (GameObject* go = GameObject::GetGameObject((*m_creature),goConsole))
-                go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+            if (GameObject* pGo = GameObject::GetGameObject((*m_creature),goConsole))
+                pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
         }
     }
 
-    void DoWaveSpawnForCreature(Creature *creature)
+    void DoWaveSpawnForCreature(Creature* pCreature)
     {
-        switch(creature->GetEntry())
+        switch(pCreature->GetEntry())
         {
             case ENTRY_BNAAR_C_CONSOLE:
                 if (rand()%2)
@@ -183,9 +183,9 @@ struct TRINITY_DLL_DECL npc_manaforge_control_consoleAI : public ScriptedAI
                 break;
         }
     }
-    void DoFinalSpawnForCreature(Creature *creature)
+    void DoFinalSpawnForCreature(Creature* pCreature)
     {
-        switch(creature->GetEntry())
+        switch(pCreature->GetEntry())
         {
             case ENTRY_BNAAR_C_CONSOLE:
                 add = m_creature->SummonCreature(ENTRY_SUNFURY_TECH,2946.52,4201.42,163.47,3.54,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
@@ -260,8 +260,8 @@ struct TRINITY_DLL_DECL npc_manaforge_control_consoleAI : public ScriptedAI
                     }
                     if (goConsole)
                     {
-                        if (GameObject* go = GameObject::GetGameObject((*m_creature),goConsole))
-                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+                        if (GameObject* pGo = GameObject::GetGameObject((*m_creature),goConsole))
+                            pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
                     }
                     ++Phase;
                     break;
@@ -287,18 +287,18 @@ CreatureAI* GetAI_npc_manaforge_control_console(Creature* pCreature)
 ######*/
 
 //TODO: clean up this workaround when Trinity adds support to do it properly (with gossip selections instead of instant summon)
-bool GOHello_go_manaforge_control_console(Player* pPlayer, GameObject* _GO)
+bool GOHello_go_manaforge_control_console(Player* pPlayer, GameObject* pGo)
 {
-    if (_GO->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER)
+    if (pGo->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER)
     {
-        pPlayer->PrepareQuestMenu(_GO->GetGUID());
-        pPlayer->SendPreparedQuest(_GO->GetGUID());
+        pPlayer->PrepareQuestMenu(pGo->GetGUID());
+        pPlayer->SendPreparedQuest(pGo->GetGUID());
     }
 
     Creature* manaforge;
     manaforge = NULL;
 
-    switch(_GO->GetAreaId())
+    switch(pGo->GetAreaId())
     {
         case 3726:                                          //b'naar
             if ((pPlayer->GetQuestStatus(10299) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(10329) == QUEST_STATUS_INCOMPLETE) &&
@@ -325,8 +325,8 @@ bool GOHello_go_manaforge_control_console(Player* pPlayer, GameObject* _GO)
     if (manaforge)
     {
         CAST_AI(npc_manaforge_control_consoleAI, manaforge->AI())->someplayer = pPlayer->GetGUID();
-        CAST_AI(npc_manaforge_control_consoleAI, manaforge->AI())->goConsole = _GO->GetGUID();
-        _GO->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+        CAST_AI(npc_manaforge_control_consoleAI, manaforge->AI())->goConsole = pGo->GetGUID();
+        pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
     }
     return true;
 }
@@ -649,9 +649,9 @@ bool GossipHello_npc_professor_dabiri(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_professor_dabiri(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_professor_dabiri(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (action == GOSSIP_ACTION_INFO_DEF+1)
+    if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
     {
         pCreature->CastSpell(pPlayer, SPELL_PHASE_DISTRUPTOR, false);
         pPlayer->CLOSE_GOSSIP_MENU();
@@ -660,10 +660,10 @@ bool GossipSelect_npc_professor_dabiri(Player* pPlayer, Creature* pCreature, uin
     return true;
 }
 
-bool QuestAccept_npc_professor_dabiri(Player* pPlayer, Creature *creature, Quest const *quest)
+bool QuestAccept_npc_professor_dabiri(Player* pPlayer, Creature* pCreature, Quest const *quest)
 {
     if (quest->GetQuestId() == QUEST_DIMENSIUS)
-        DoScriptText(WHISPER_DABIRI, creature, pPlayer);
+        DoScriptText(WHISPER_DABIRI, pCreature, pPlayer);
 
     return true;
 }
@@ -870,13 +870,13 @@ struct TRINITY_DLL_DECL npc_bessyAI : public npc_escortAI
 
 };
 
-bool QuestAccept_npc_bessy(Player* pPlayer, Creature* creature, Quest const* quest)
+bool QuestAccept_npc_bessy(Player* pPlayer, Creature* pCreature, Quest const* quest)
 {
     if (quest->GetQuestId() == Q_ALMABTRIEB)
     {
-        creature->setFaction(113);
-        creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, pPlayer->GetGUID());
+        pCreature->setFaction(113);
+        pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        CAST_AI(npc_escortAI, (pCreature->AI()))->Start(true, false, pPlayer->GetGUID());
     }
     return true;
 }

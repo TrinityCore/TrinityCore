@@ -60,9 +60,9 @@ bool GossipHello_npcs_dithers_and_arbington(Player* pPlayer, Creature* pCreature
     return true;
 }
 
-bool GossipSelect_npcs_dithers_and_arbington(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npcs_dithers_and_arbington(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    switch(action)
+    switch(uiAction)
     {
         case GOSSIP_ACTION_TRADE:
             pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
@@ -122,9 +122,9 @@ bool GossipHello_npc_myranda_the_hag(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_myranda_the_hag(Player* pPlayer, Creature* pCreature, uint32 Sender, uint32 Action)
+bool GossipSelect_npc_myranda_the_hag(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (Action == GOSSIP_ACTION_INFO_DEF + 1)
+    if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
     {
         pPlayer->CLOSE_GOSSIP_MENU();
         pCreature->CastSpell(pPlayer, SPELL_SCARLET_ILLUSION, false);

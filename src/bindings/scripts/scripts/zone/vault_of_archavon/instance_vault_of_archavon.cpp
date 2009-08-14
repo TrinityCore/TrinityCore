@@ -29,12 +29,12 @@ struct TRINITY_DLL_DECL instance_archavon : public ScriptedInstance
         return false;
     }
 
-    void OnCreatureCreate(Creature *creature, bool add)
+    void OnCreatureCreate(Creature* pCreature, bool add)
     {
-        switch(creature->GetEntry())
+        switch(pCreature->GetEntry())
         {
-            case 31125:    Archavon = creature->GetGUID();        break;
-            case 33993:    Emalon = creature->GetGUID();        break;
+            case 31125:    Archavon = pCreature->GetGUID();        break;
+            case 33993:    Emalon = pCreature->GetGUID();        break;
         }
     }
 

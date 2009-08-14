@@ -69,15 +69,15 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
     }
 
 
-    void OnCreatureCreate(Creature *creature, bool add)
+    void OnCreatureCreate(Creature* pCreature, bool add)
     {
-        switch(creature->GetEntry())
+        switch(pCreature->GetEntry())
         {
-            case 29309:    Elder_Nadox = creature->GetGUID();                   break;
-            case 29308:    Prince_Taldaram = creature->GetGUID();               break;
-            case 29310:    Jedoga_Shadowseeker = creature->GetGUID();   break;
-            case 29311:    Herald_Volazj = creature->GetGUID();                 break;
-            case 30258:    Amanitar = creature->GetGUID();                      break;
+            case 29309:    Elder_Nadox = pCreature->GetGUID();                   break;
+            case 29308:    Prince_Taldaram = pCreature->GetGUID();               break;
+            case 29310:    Jedoga_Shadowseeker = pCreature->GetGUID();   break;
+            case 29311:    Herald_Volazj = pCreature->GetGUID();                 break;
+            case 30258:    Amanitar = pCreature->GetGUID();                      break;
         }
     }
 

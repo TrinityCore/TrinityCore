@@ -39,7 +39,7 @@ EndScriptData */
 #define SPELL_EARTHSHOCK        39076
 #define SPELL_MINDBLAST         37531
 
-// --- Spells used by Inner Demons and creature ID
+// --- Spells used by Inner Demons and Creature ID
 #define INNER_DEMON_ID          21857
 #define AURA_DEMONIC_ALIGNMENT  37713
 #define SPELL_SHADOWBOLT        39309

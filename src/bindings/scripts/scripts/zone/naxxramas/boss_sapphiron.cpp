@@ -160,8 +160,8 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public BossAI
         {
             if (Player* pPlayer = Unit::GetPlayer(itr->first))
                 pPlayer->RemoveAura(SPELL_ICEBOLT);
-            if (GameObject *go = GameObject::GetGameObject(*me, itr->second))
-                go->DeleteObjectWithOwner();
+            if (GameObject* pGo = GameObject::GetGameObject(*me, itr->second))
+                pGo->DeleteObjectWithOwner();
         }
         iceblocks.clear();
     }
@@ -311,10 +311,10 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public BossAI
 
             for(IceBlockMap::iterator itr = iceblocks.begin(); itr != iceblocks.end(); ++itr)
             {
-                if (GameObject *go = GameObject::GetGameObject(*me, itr->second))
+                if (GameObject* pGo = GameObject::GetGameObject(*me, itr->second))
                 {
-                    if (go->IsInBetween(me, target, 2.0f)
-                        && me->GetExactDistance2d(target->GetPositionX(), target->GetPositionY()) - me->GetExactDistance2d(go->GetPositionX(), go->GetPositionY()) < 5.0f)
+                    if (pGo->IsInBetween(me, target, 2.0f)
+                        && me->GetExactDistance2d(target->GetPositionX(), target->GetPositionY()) - me->GetExactDistance2d(pGo->GetPositionX(), pGo->GetPositionY()) < 5.0f)
                     {
                         target->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FROST_EXPLOSION, true);
                         targets.push_back(target);

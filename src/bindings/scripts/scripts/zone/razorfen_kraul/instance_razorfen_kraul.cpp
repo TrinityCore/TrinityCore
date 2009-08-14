@@ -58,11 +58,11 @@ struct TRINITY_DLL_DECL instance_razorfen_kraul : public ScriptedInstance
         return NULL;
     }
 
-    void OnGameObjectCreate(GameObject *go, bool apply)
+    void OnGameObjectCreate(GameObject* pGo, bool apply)
     {
-        switch(go->GetEntry())
+        switch(pGo->GetEntry())
         {
-        case 21099: DoorWardGUID = go->GetGUID(); break;
+        case 21099: DoorWardGUID = pGo->GetGUID(); break;
         }
     }
 

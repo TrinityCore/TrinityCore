@@ -59,7 +59,7 @@ EndScriptData */
 struct TRINITY_DLL_DECL custom_exampleAI : public ScriptedAI
 {
     //*** HANDLED FUNCTION ***
-    //This is the constructor, called only once when the creature is first created
+    //This is the constructor, called only once when the Creature is first created
     custom_exampleAI(Creature *c) : ScriptedAI(c) {}
 
     //*** CUSTOM VARIABLES ****
@@ -209,16 +209,16 @@ struct TRINITY_DLL_DECL custom_exampleAI : public ScriptedAI
 };
 
 //This is the GetAI method used by all scripts that involve AI
-//It is called every time a new creature using this script is created
+//It is called every time a new Creature using this script is created
 CreatureAI* GetAI_custom_example(Creature* pCreature)
 {
     return new custom_exampleAI (pCreature);
 }
 
 //This function is called when the player clicks an option on the gossip menu
-void SendDefaultMenu_custom_example(Player* pPlayer, Creature* pCreature, uint32 action)
+void SendDefaultMenu_custom_example(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
-    if (action == GOSSIP_ACTION_INFO_DEF + 1)               //Fight time
+    if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)               //Fight time
     {
         //Set our faction to hostile twoards all
         pCreature->setFaction(24);
@@ -228,10 +228,10 @@ void SendDefaultMenu_custom_example(Player* pPlayer, Creature* pCreature, uint32
 }
 
 //This function is called when the player clicks an option on the gossip menu
-bool GossipSelect_custom_example(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_custom_example(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (sender == GOSSIP_SENDER_MAIN)
-        SendDefaultMenu_custom_example(pPlayer, pCreature, action);
+    if (uiSender == GOSSIP_SENDER_MAIN)
+        SendDefaultMenu_custom_example(pPlayer, pCreature, uiAction);
 
     return true;
 }

@@ -393,9 +393,9 @@ bool GossipHello_npc_drake_dealer_hurlunk(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_drake_dealer_hurlunk(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_drake_dealer_hurlunk(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (action == GOSSIP_ACTION_TRADE)
+    if (uiAction == GOSSIP_ACTION_TRADE)
         pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
 
     return true;
@@ -420,9 +420,9 @@ bool GossipHello_npcs_flanis_swiftwing_and_kagrosh(Player* pPlayer, Creature* pC
     return true;
 }
 
-bool GossipSelect_npcs_flanis_swiftwing_and_kagrosh(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npcs_flanis_swiftwing_and_kagrosh(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (action == GOSSIP_ACTION_INFO_DEF+1)
+    if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
     {
         ItemPosCountVec dest;
         uint8 msg = pPlayer->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 30658, 1, false);
@@ -432,7 +432,7 @@ bool GossipSelect_npcs_flanis_swiftwing_and_kagrosh(Player* pPlayer, Creature* p
             pPlayer->PlayerTalkClass->ClearMenus();
         }
     }
-    if (action == GOSSIP_ACTION_INFO_DEF+2)
+    if (uiAction == GOSSIP_ACTION_INFO_DEF+2)
     {
         ItemPosCountVec dest;
         uint8 msg = pPlayer->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 30659, 1, false);
@@ -467,9 +467,9 @@ bool GossipHello_npc_murkblood_overseer(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_murkblood_overseer(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_murkblood_overseer(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    switch (action)
+    switch (uiAction)
     {
         case GOSSIP_ACTION_INFO_DEF+1:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SMO1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
@@ -528,9 +528,9 @@ bool GossipHello_npc_neltharaku(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_neltharaku(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_neltharaku(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    switch (action)
+    switch (uiAction)
     {
         case GOSSIP_ACTION_INFO_DEF+1:
             pPlayer->ADD_GOSSIP_ITEM(0, GOSSIP_SN1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
@@ -581,9 +581,9 @@ bool GossipHello_npc_oronok_tornheart(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_oronok_tornheart(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_oronok_tornheart(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    switch (action)
+    switch (uiAction)
     {
         case GOSSIP_ACTION_TRADE:
             pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
@@ -631,7 +631,7 @@ enum
     TAXI_PATH_ID            = 649
 };
 
-bool QuestAccept_npc_karynaku(Player* pPlayer, Creature* creature, Quest const* quest)
+bool QuestAccept_npc_karynaku(Player* pPlayer, Creature* pCreature, Quest const* quest)
 {
     if (quest->GetQuestId() == QUEST_ALLY_OF_NETHER)
         pPlayer->ActivateTaxiPathTo(TAXI_PATH_ID);        //pPlayer->ActivateTaxiPathTo(649);
@@ -1044,7 +1044,7 @@ bool QuestAccept_npc_earthmender_wilda(Player* pPlayer, Creature* pCreature, con
 /* ContentData
 Battle of the crimson watch - creatures, gameobjects and defines
 mob_illidari_spawn : Adds that are summoned in the Crimson Watch battle.
-mob_torloth_the_magnificent : Final creature that players have to face before quest is completed
+mob_torloth_the_magnificent : Final Creature that players have to face before quest is completed
 npc_lord_illidan_stormrage : Creature that controls the event.
 go_crystal_prison : GameObject that begins the event and hands out quest
 EndContentData */
@@ -1058,7 +1058,7 @@ EndContentData */
 struct TorlothCinematic
 {
     int32 TextId;
-    uint32 Creature, Timer;
+    uint32 pCreature, Timer;
 };
 
 // Creature 0 - Torloth, 1 - Illidan
@@ -1270,7 +1270,7 @@ struct TRINITY_DLL_DECL mob_torloth_the_magnificentAI : public ScriptedAI
     {
         Creature* pCreature = m_creature;
 
-        if (TorlothAnim[AnimationCount].Creature == 1)
+        if (TorlothAnim[AnimationCount].pCreature == 1)
         {
             pCreature = (Unit::GetCreature(*m_creature, LordIllidanGUID));
 

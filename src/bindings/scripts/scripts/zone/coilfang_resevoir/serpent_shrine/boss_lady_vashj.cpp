@@ -135,7 +135,7 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
         pInstance = c->GetInstanceData();
         Intro = false;
         JustCreated = true;
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE); //set it only once on creature create (no need do intro if wiped)
+        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE); //set it only once on Creature create (no need do intro if wiped)
     }
 
     ScriptedInstance *pInstance;

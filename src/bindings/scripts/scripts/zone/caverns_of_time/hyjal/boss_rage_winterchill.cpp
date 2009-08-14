@@ -35,7 +35,7 @@ struct TRINITY_DLL_DECL boss_rage_winterchillAI : public hyjal_trashAI
     boss_rage_winterchillAI(Creature *c) : hyjal_trashAI(c)
     {
         pInstance = c->GetInstanceData();
-        go = false;
+        pGo = false;
         pos = 0;
     }
 
@@ -43,7 +43,7 @@ struct TRINITY_DLL_DECL boss_rage_winterchillAI : public hyjal_trashAI
     uint32 DecayTimer;
     uint32 NovaTimer;
     uint32 IceboltTimer;
-    bool go;
+    bool pGo;
     uint32 pos;
 
     void Reset()
@@ -107,9 +107,9 @@ struct TRINITY_DLL_DECL boss_rage_winterchillAI : public hyjal_trashAI
         {
             //Must update npc_escortAI
             npc_escortAI::UpdateAI(diff);
-            if (!go)
+            if (!pGo)
             {
-                go = true;
+                pGo = true;
                 if (pInstance)
                 {
                     AddWaypoint(0, 4896.08,    -1576.35,    1333.65);

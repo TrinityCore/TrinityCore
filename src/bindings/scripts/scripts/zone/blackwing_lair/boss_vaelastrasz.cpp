@@ -215,19 +215,19 @@ struct TRINITY_DLL_DECL boss_vaelAI : public ScriptedAI
     }
 };
 
-void SendDefaultMenu_boss_vael(Player* pPlayer, Creature* pCreature, uint32 action)
+void SendDefaultMenu_boss_vael(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
-    if (action == GOSSIP_ACTION_INFO_DEF + 1)               //Fight time
+    if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)               //Fight time
     {
         pPlayer->CLOSE_GOSSIP_MENU();
         CAST_AI(boss_vaelAI, pCreature->AI())->BeginSpeach(pPlayer);
     }
 }
 
-bool GossipSelect_boss_vael(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_boss_vael(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (sender == GOSSIP_SENDER_MAIN)
-        SendDefaultMenu_boss_vael(pPlayer, pCreature, action);
+    if (uiSender == GOSSIP_SENDER_MAIN)
+        SendDefaultMenu_boss_vael(pPlayer, pCreature, uiAction);
 
     return true;
 }

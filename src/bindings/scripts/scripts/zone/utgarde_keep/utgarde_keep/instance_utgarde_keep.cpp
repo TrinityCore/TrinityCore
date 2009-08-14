@@ -104,31 +104,31 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
         return NULL;
     }
 
-    void OnCreatureCreate(Creature *creature, bool add)
+    void OnCreatureCreate(Creature* pCreature, bool add)
     {
-        switch(creature->GetEntry())
+        switch(pCreature->GetEntry())
         {
-            case 23953:    Keleseth = creature->GetGUID();             break;
-            case 24201:    Dalronn = creature->GetGUID();              break;
-            case 24200:    Skarvald = creature->GetGUID();             break;
-            case 23954:    Ingvar = creature->GetGUID();               break;
+            case 23953:    Keleseth = pCreature->GetGUID();             break;
+            case 24201:    Dalronn = pCreature->GetGUID();              break;
+            case 24200:    Skarvald = pCreature->GetGUID();             break;
+            case 23954:    Ingvar = pCreature->GetGUID();               break;
         }
     }
 
-    void OnGameObjectCreate(GameObject *go, bool add)
+    void OnGameObjectCreate(GameObject* pGo, bool add)
     {
-        switch(go->GetEntry())
+        switch(pGo->GetEntry())
         {
         //door and object id
-        case ENTRY_BELLOW_1: forge_bellow[0] = go->GetGUID(); break;
-        case ENTRY_BELLOW_2: forge_bellow[1] = go->GetGUID(); break;
-        case ENTRY_BELLOW_3: forge_bellow[2] = go->GetGUID(); break;
-        case ENTRY_FORGEFIRE_1: forge_fire[0] = go->GetGUID(); break;
-        case ENTRY_FORGEFIRE_2: forge_fire[1] = go->GetGUID(); break;
-        case ENTRY_FORGEFIRE_3: forge_fire[2] = go->GetGUID(); break;
-        case ENTRY_GLOWING_ANVIL_1: forge_anvil[0] = go->GetGUID(); break;
-        case ENTRY_GLOWING_ANVIL_2: forge_anvil[1] = go->GetGUID(); break;
-        case ENTRY_GLOWING_ANVIL_3: forge_anvil[2] = go->GetGUID(); break;
+        case ENTRY_BELLOW_1: forge_bellow[0] = pGo->GetGUID(); break;
+        case ENTRY_BELLOW_2: forge_bellow[1] = pGo->GetGUID(); break;
+        case ENTRY_BELLOW_3: forge_bellow[2] = pGo->GetGUID(); break;
+        case ENTRY_FORGEFIRE_1: forge_fire[0] = pGo->GetGUID(); break;
+        case ENTRY_FORGEFIRE_2: forge_fire[1] = pGo->GetGUID(); break;
+        case ENTRY_FORGEFIRE_3: forge_fire[2] = pGo->GetGUID(); break;
+        case ENTRY_GLOWING_ANVIL_1: forge_anvil[0] = pGo->GetGUID(); break;
+        case ENTRY_GLOWING_ANVIL_2: forge_anvil[1] = pGo->GetGUID(); break;
+        case ENTRY_GLOWING_ANVIL_3: forge_anvil[2] = pGo->GetGUID(); break;
         }
     }
 

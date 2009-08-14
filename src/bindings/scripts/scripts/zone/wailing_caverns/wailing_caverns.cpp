@@ -382,10 +382,10 @@ bool GossipHello_npc_disciple_of_naralex(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_disciple_of_naralex(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_disciple_of_naralex(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     ScriptedInstance *pInstance = (pCreature->GetInstanceData());
-    if (action == GOSSIP_ACTION_INFO_DEF + 1)
+    if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
     {
         pPlayer->CLOSE_GOSSIP_MENU();
         if (pInstance)pInstance->SetData(TYPE_NARALEX_EVENT, IN_PROGRESS);

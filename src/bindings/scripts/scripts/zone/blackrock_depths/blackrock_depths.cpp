@@ -436,9 +436,9 @@ bool GossipHello_npc_kharan_mighthammer(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_kharan_mighthammer(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_kharan_mighthammer(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    switch (action)
+    switch (uiAction)
     {
         case GOSSIP_ACTION_INFO_DEF+1:
              pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
@@ -519,14 +519,14 @@ bool GossipHello_npc_lokhtos_darkbargainer(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_lokhtos_darkbargainer(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_lokhtos_darkbargainer(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (action == GOSSIP_ACTION_INFO_DEF + 1)
+    if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
     {
         pPlayer->CLOSE_GOSSIP_MENU();
         pPlayer->CastSpell(pPlayer, SPELL_CREATE_THORIUM_BROTHERHOOD_CONTRACT_DND, false);
     }
-    if (action == GOSSIP_ACTION_TRADE)
+    if (uiAction == GOSSIP_ACTION_TRADE)
         pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
 
     return true;
@@ -612,9 +612,9 @@ bool GossipHello_npc_dughal_stormwing(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_dughal_stormwing(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_dughal_stormwing(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (action == GOSSIP_ACTION_INFO_DEF + 1)
+    if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
     {
         pPlayer->CLOSE_GOSSIP_MENU();
         CAST_AI(npc_escortAI, (pCreature->AI()))->Start(false, true, pPlayer->GetGUID());
@@ -768,15 +768,15 @@ CreatureAI* GetAI_npc_marshal_windsor(Creature* pCreature)
     return marshal_windsorAI;
 }
 
-bool QuestAccept_npc_marshal_windsor(Player* pPlayer, Creature *creature, Quest const *quest)
+bool QuestAccept_npc_marshal_windsor(Player* pPlayer, Creature* pCreature, Quest const *quest)
 {
     if (quest->GetQuestId() == 4322)
         {PlayerStart = player;
         if (pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_NOT_STARTED)
         {
-                CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, pPlayer->GetGUID());
+                CAST_AI(npc_escortAI, (pCreature->AI()))->Start(true, false, pPlayer->GetGUID());
                 pInstance->SetData(DATA_QUEST_JAIL_BREAK,ENCOUNTER_STATE_IN_PROGRESS);
-                creature->setFaction(11);
+                pCreature->setFaction(11);
         }
 
         }
@@ -1077,9 +1077,9 @@ bool GossipHello_npc_tobias_seecher(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_tobias_seecher(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_tobias_seecher(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (action == GOSSIP_ACTION_INFO_DEF + 1)
+    if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
     {
         pPlayer->CLOSE_GOSSIP_MENU();
         CAST_AI(npc_escortAI, (pCreature->AI()))->Start(false, true, pPlayer->GetGUID());
@@ -1121,8 +1121,8 @@ struct TRINITY_DLL_DECL npc_rocknotAI : public npc_escortAI
 
     void DoGo(uint32 id, uint32 state)
     {
-        if (GameObject *go = pInstance->instance->GetGameObject(pInstance->GetData64(id)))
-            go->SetGoState((GOState)state);
+        if (GameObject* pGo = pInstance->instance->GetGameObject(pInstance->GetData64(id)))
+            pGo->SetGoState((GOState)state);
     }
 
     void WaypointReached(uint32 i)
