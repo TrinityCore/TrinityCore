@@ -5638,6 +5638,12 @@ void AuraEffect::PeriodicTick()
                         pdamage += (pdamage+1)/2;           // +1 prevent 0.5 damage possible lost at 1..4 ticks
                     // 5..8 ticks have normal tick damage
                 }
+                // There is a Chance to make a Soul Shard when Drain soul does damage
+                if (GetSpellProto()->SpellFamilyName==SPELLFAMILY_WARLOCK && (GetSpellProto()->SpellFamilyFlags[0] & 0x00004000))
+                {
+                    if(roll_chance_i(20))
+                        pCaster->CastSpell(pCaster, 24827, true, 0, this);
+                }
             }
             else
                 pdamage = uint32(m_target->GetMaxHealth()*pdamage/100);
