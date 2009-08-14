@@ -88,22 +88,11 @@ struct TRINITY_DLL_DECL npc_professor_phizzlethorpeAI : public npc_escortAI
     void Reset()
     {
         m_bCompleted = true;
-        m_creature->setFaction(35);
     }
 
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature, NULL);
-    }
-
-    void JustDied(Unit* killer)
-    {
-        if (PlayerGUID && !m_bCompleted)
-        {
-            Player* pPlayer = Unit::GetPlayer(PlayerGUID);
-            if (pPlayer)
-                CAST_PLR(pPlayer)->FailQuest(QUEST_SUNKEN_TREASURE);
-        }
     }
 
     void UpdateAI(const uint32 diff)

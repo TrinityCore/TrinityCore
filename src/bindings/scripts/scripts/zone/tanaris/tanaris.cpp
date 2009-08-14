@@ -407,24 +407,7 @@ struct TRINITY_DLL_DECL npc_OOX17AI : public npc_escortAI
     {
         summoned->AI()->AttackStart(m_creature);
     }
-
-    void JustDied(Unit* killer)
-    {
-        if (PlayerGUID)
-        {
-            if (Player* pPlayer = Unit::GetPlayer(PlayerGUID))
-                CAST_PLR(pPlayer)->FailQuest(Q_OOX17);
-        }
-    }
-
-
-    void UpdateAI(const uint32 diff)
-    {
-        npc_escortAI::UpdateAI(diff);
-        if (!UpdateVictim())
-            return;
-    }
-    };
+};
 
 bool QuestAccept_npc_OOX17(Player* pPlayer, Creature* pCreature, Quest const* quest)
 {

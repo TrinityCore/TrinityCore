@@ -128,23 +128,6 @@ struct TRINITY_DLL_DECL npc_kaya_flathoofAI : public npc_escortAI
     }
 
     void Reset(){}
-
-    void EnterCombat(Unit* who){}
-
-    void JustDied(Unit* killer)
-    {
-        if (PlayerGUID)
-        {
-            Player* pPlayer = Unit::GetPlayer(PlayerGUID);
-            if (pPlayer)
-                CAST_PLR(pPlayer)->FailQuest(QUEST_PROTECT_KAYA);
-        }
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        npc_escortAI::UpdateAI(diff);
-    }
 };
 
 bool QuestAccept_npc_kaya_flathoof(Player* pPlayer, Creature* pCreature, Quest const* quest)
