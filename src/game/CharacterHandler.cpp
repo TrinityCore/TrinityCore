@@ -1262,7 +1262,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recv_data)
     CharacterDatabase.PExecute("DELETE FROM character_declinedname WHERE guid ='%u'", GUID_LOPART(guid));
 
     std::string IP_str = GetRemoteAddress();
-    sLog.outChar("Account: %d (IP: %s), Character guid: %u Customized to: %s", GetAccountId(), IP_str.c_str(), GUID_LOPART(guid), newname.c_str());
+    sLog.outChar("Account: %d (IP: %s), Character[%s] (guid:%u) Customized to: %s", GetAccountId(), IP_str.c_str(), GetPlayer()->GetName(), GUID_LOPART(guid), newname.c_str());
 
     WorldPacket data(SMSG_CHAR_CUSTOMIZE, 1+8+(newname.size()+1)+6);
     data << uint8(RESPONSE_SUCCESS);
