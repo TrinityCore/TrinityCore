@@ -455,7 +455,7 @@ INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content
 (-1189001,'Blades of Light!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 5832, 1, 0, 0,'herod SAY_WHIRLWIND'),
 (-1189002,'Light, give me strength!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 5833, 1, 0, 0,'herod SAY_ENRAGE'),
 (-1189003,'Hah, is that all?', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 5831, 1, 0, 0,'herod SAY_KILL'),
-(-1189004,'becomes enraged!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, 0, 0,'herod EMOTE_ENRAGE'),
+(-1189004,'%s becomes enraged!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, 0, 0,'herod EMOTE_ENRAGE'),
 (-1189005,'Infidels! They must be purified!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 5835, 1, 0, 0,'mograine SAY_MO_AGGRO'),
 (-1189006,'Unworthy!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 5836, 1, 0, 0,'mograine SAY_MO_KILL'),
 (-1189007,'At your side, milady!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 5837, 1, 0, 0,'mograine SAY_MO_RESSURECTED'),
@@ -566,9 +566,9 @@ INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content
 
 -- -1 409 000 MOLTEN CORE
 INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`, `sound`, `type`, `language`, `emote`, `comment`) VALUES
-(-1409000,'performs one last service for Ragnaros.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, 0, 0,'geddon EMOTE_SERVICE'),
-(-1409001,'goes into a killing frenzy!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, 0, 0,'magmadar EMOTE_FRENZY'),
-(-1409002,'refuses to die while its master is in trouble.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, 0, 0,'core rager EMOTE_AEGIS'),
+(-1409000,'%s performs one last service for Ragnaros.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, 0, 0,'geddon EMOTE_SERVICE'),
+(-1409001,'%s goes into a killing frenzy!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, 0, 0,'magmadar EMOTE_FRENZY'),
+(-1409002,'%s refuses to die while its master is in trouble.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, 0, 0,'core rager EMOTE_AEGIS'),
 (-1409003,'Reckless mortals, none may challenge the sons of the living flame!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 8035, 1, 0, 0,'majordomo SAY_AGGRO'),
 (-1409004,'The runes of warding have been destroyed! Hunt down the infedels my bretheren.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 8039, 1, 0, 0,'majordomo SAY_SPAWN'),
 (-1409005,'Ashes to Ashes!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 8037, 1, 0, 0,'majordomo SAY_SLAY'),
@@ -811,7 +811,7 @@ INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content
 (-1533019,'No more play?', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 8912, 1, 0, 0,'patchwerk SAY_SLAY'),
 (-1533020,'What happened to... Patch...', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 8911, 1, 0, 0,'patchwerk SAY_DEATH'),
 (-1533021,'goes into a berserker rage!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, 0, 0,'patchwerk EMOTE_BERSERK'),
-(-1533022,'becomes enraged!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, 0, 0,'patchwerk EMOTE_ENRAGE'),
+(-1533022,'%s becomes enraged!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, 0, 0,'patchwerk EMOTE_ENRAGE'),
 (-1533023,'Stalagg crush you!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 8864, 1, 0, 0,'stalagg SAY_STAL_AGGRO'),
 (-1533024,'Stalagg kill!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 8866, 1, 0, 0,'stalagg SAY_STAL_SLAY'),
 (-1533025,'Master save me...', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 8865, 1, 0, 0,'stalagg SAY_STAL_DEATH'),
@@ -872,7 +872,7 @@ INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content
 (-1533080,'Breathe no more!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 8850, 1, 0, 0,'noth SAY_SLAY2'),
 (-1533081,'I will serve the master... in... death!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 8848, 1, 0, 0,'noth SAY_DEATH'),
 (-1533082,'takes in a deep breath...', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, 0, 0,'sapphiron EMOTE_BREATH'),
-(-1533083,'enrages!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, 0, 0,'sapphiron EMOTE_ENRAGE'),
+(-1533083,'%s enrages!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, 0, 0,'sapphiron EMOTE_ENRAGE'),
 (-1533084,'Our preparations continue as planned, master.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 14467, 1, 0, 0,'kelthuzad SAY_SAPP_DIALOG1'),
 (-1533085,'It is good that you serve me so faithfully. Soon, all will serve the Lich King and in the end, you shall be rewarded...so long as you do not falter.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 8881, 1, 0, 0,'kelthuzad SAY_SAPP_DIALOG2_LICH'),
 (-1533086,'I see no complications... Wait... What is this?', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 14468, 1, 0, 0,'kelthuzad SAY_SAPP_DIALOG3'),
@@ -986,7 +986,7 @@ INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content
 (-1540038,'That''s because I do all the hard work!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 10321, 1, 0, 0,'omrogg KillingDelay_1'),
 (-1540039,'This all...your fault!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 10311, 1, 0, 0,'omrogg YELL_DIE_L'),
 (-1540040,'I...hate...you...', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 10322, 1, 0, 0,'omrogg YELL_DIE_R'),
-(-1540041,'enrages', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, 0, 0,'omrogg EMOTE_ENRAGE'),
+(-1540041,'%s enrages', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, 0, 0,'omrogg EMOTE_ENRAGE'),
 (-1540042,'Ours is the true Horde! The only Horde!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 10323, 1, 0, 0,'kargath SAY_AGGRO1'),
 (-1540043,'I''ll carve the meat from your bones!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 10324, 1, 0, 0,'kargath SAY_AGGRO2'),
 (-1540044,'I am called Bladefist for a reason, as you will see!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 10325, 1, 0, 0,'kargath SAY_AGGRO3'),
@@ -1056,7 +1056,7 @@ INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content
 (-1544009,'I will not be taken so easily. Let the walls of this prison tremble...and FALL!!!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 10257, 1, 0, 0,'magtheridon SAY_CHAMBER_DESTROY'),
 (-1544010,'Did you think me weak? Soft? Who is the weak one now?!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 10255, 1, 0, 0,'magtheridon SAY_PLAYER_KILLED'),
 (-1544011,'The Legion...will consume you...all...', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 10258, 1, 0, 0,'magtheridon SAY_DEATH'),
-(-1544012,'becomes enraged!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, 0, 0,'magtheridon EMOTE_BERSERK'),
+(-1544012,'%s becomes enraged!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, 0, 0,'magtheridon EMOTE_BERSERK'),
 (-1544013,'begins to cast Blast Nova!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 3, 0, 0,'magtheridon EMOTE_BLASTNOVA'),
 (-1544014,'bonds begin to weaken!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, 0, 0,'magtheridon EMOTE_BEGIN'),
 (-1544015,'breaks free!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, 0, 0,'magtheridon EMOTE_FREED');
@@ -1542,7 +1542,7 @@ INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content
 (-1565016,'Unworthy', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 11361, 1, 0, 0,'gruul SAY_SLAY2'),
 (-1565017,'Die', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 11362, 1, 0, 0,'gruul SAY_SLAY3'),
 (-1565018,'Aaargh...', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 11363, 1, 0, 0,'gruul SAY_DEATH'),
-(-1565019,'grows in size!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, 0, 0,'gruul EMOTE_GROW');
+(-1565019,'%s grows in size!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, 0, 0,'gruul EMOTE_GROW');
 
 -- -1 568 000 ZUL'AMAN
 INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`, `sound`, `type`, `language`, `emote`, `comment`) VALUES
@@ -1690,8 +1690,8 @@ INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content
 (-1580061,'Chaos...', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 1, 0, 0,'eredar - YELL_INTRO_ALY_6'),
 (-1580062,'These are the hallmarks...', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 1, 0, 0,'eredar - YELL_INTRO_SAC_7'),
 (-1580063,'These are the pillars...', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 1, 0, 0,'eredar - YELL_INTRO_ALY_8'),
-(-1580064,'directs Shadow Nova at $N', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 3, 0, 0,'eredar - emote shadow nova'),
-(-1580065,'directs Conflagration at $N', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 3, 0, 0,'eredar - emote conflagration'),
+(-1580064,'%s directs Shadow Nova at $N', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 3, 0, 0,'eredar - emote shadow nova'),
+(-1580065,'%s directs Conflagration at $N', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 3, 0, 0,'eredar - emote conflagration'),
 (-1580066,'All my plans have led to this!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 12495, 1, 0, 0,'KJ - SAY_KJ_OFFCOMBAT1'),
 (-1580067,'Stay on task! Do not waste tim!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 12496, 1, 0, 0,'KJ - SAY_KJ_OFFCOMBAT2'),
 (-1580068,'I have waited long enough!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 12497, 1, 0, 0,'KJ - SAY_KJ_OFFCOMBAT3'),
@@ -1720,7 +1720,7 @@ INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content
 (-1580091,'Strike now, heroes, while he is weakened! Vanquish the Deceiver!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 12449, 1, 0, 0,'KJ - SAY_KALECGOS_ENCOURAGE'),
 (-1580092,'You are not alone. The Blue Dragonflight shall help you vanquish the Deceiver.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 12438, 1, 0, 0,'KJ - SAY_KALECGOS_JOIN'),
 (-1580093,'Nooooooooooooo!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 12527, 1, 0, 0,'KJ - SAY_KJ_DEATH'),
-(-1580094,'begins to channel dark energy', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 3, 0, 0,'KJ - EMOTE_KJ_DARKNESS'),
+(-1580094,'%s begins to channel dark energy', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 3, 0, 0,'KJ - EMOTE_KJ_DARKNESS'),
 (-1580095,'I will channel my power into the orbs, be ready!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 12440, 1, 0, 0,'KJ - SAY_KALEC_ORB_READY1'),
 (-1580096,'I have empowered another orb! Use it quickly!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 12441, 1, 0, 0,'KJ - SAY_KALEC_ORB_READY2'),
 (-1580097,'Another orb is ready! Make haste!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 12442, 1, 0, 0,'KJ - SAY_KALEC_ORB_READY3'),
@@ -1745,7 +1745,7 @@ INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content
 (-1585003,'Enough distractions!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 12388, 1, 0, 0,'selin SAY_KILL_1'),
 (-1585004,'I am invincible!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 12385, 1, 0, 0,'selin SAY_KILL_2'),
 (-1585005,'No! More... I must have more!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 12383, 1, 0, 0,'selin SAY_DEATH'),
-(-1585006,'begins to channel from the nearby Fel Crystal...', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 3, 0, 0,'selin EMOTE_CRYSTAL'),
+(-1585006,'%s begins to channel from the nearby Fel Crystal...', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 3, 0, 0,'selin EMOTE_CRYSTAL'),
 (-1585007,'Drain...life!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 12389, 1, 0, 0,'vexallus SAY_AGGRO'),
 (-1585008,'Un...con...tainable.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 12392, 1, 0, 0,'vexallus SAY_ENERGY'),
 (-1585009,'Un...leash...', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 12390, 1, 0, 0,'vexallus SAY_OVERLOAD'),
@@ -1820,8 +1820,8 @@ INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content
 (-1602038,'All my work... undone!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,13964,1,0,0,'volkhan SAY_STOMP_2'),
 (-1602039,'Life from the lifelessness... death for you.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,13961,1,0,0,'volkhan SAY_FORGE_1'),
 (-1602040,'Nothing is wasted in the process. You will see....', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,13962,1,0,0,'volkhan SAY_FORGE_2'),
-(-1602041,'runs to his anvil!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,3,0,0,'volkhan EMOTE_TO_ANVIL'),
-(-1602042,'prepares to shatter his Brittle Golems!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,3,0,0,'volkhan EMOTE_SHATTER');
+(-1602041,'%s runs to his anvil!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,3,0,0,'volkhan EMOTE_TO_ANVIL'),
+(-1602042,'%s prepares to shatter his Brittle Golems!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,3,0,0,'volkhan EMOTE_SHATTER');
 
 -- -1 615 000 OBSIDIAN SANCTUM
 INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`, `sound`, `type`, `language`, `emote`, `comment`) VALUES
@@ -1970,7 +1970,7 @@ INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content
 (-1609075,'There... There\'s no more time for me. I\'m done for. Finish me off, $N. Do it or they\'ll kill us both. $N... Remember Mulgore. This world is worth saving.', NULL,NULL, NULL,NULL, NULL,NULL, NULL,NULL,0,0,0,18,'special_surprise SAY_EXEC_TIME_9'),
 (-1609076,'Der... Der\'s no more time for me. I be done for. Finish me off $N. Do it or they\'ll kill us both. $N... Remember Sen\'jin Village, mon! Dis world be worth saving!', NULL,NULL, NULL,NULL, NULL,NULL, NULL,NULL,0,0,0,18,'special_surprise SAY_EXEC_TIME_10'),
 (-1609077,'Do it, $N! Put me out of my misery!', NULL,NULL, NULL,NULL, NULL,NULL, NULL,NULL,0,0,0,1,'special_surprise SAY_EXEC_WAITING'),
-(-1609078,'dies from his wounds.', NULL,NULL, NULL,NULL, NULL,NULL, NULL,NULL,0,2,0,0,'special_surprise EMOTE_DIES'),
+(-1609078,'%s dies from his wounds.', NULL,NULL, NULL,NULL, NULL,NULL, NULL,NULL,0,2,0,0,'special_surprise EMOTE_DIES'),
 (-1609080,'No potions!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,0,0,0,'dk_initiate SAY_DUEL_A'),
 (-1609081,'Remember this day, $n, for it is the day that you will be thoroughly owned.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,0,0,0,'dk_initiate SAY_DUEL_B'),
 (-1609082,'I\'m going to tear your heart out, cupcake!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,0,0,0,'dk_initiate SAY_DUEL_C'),
