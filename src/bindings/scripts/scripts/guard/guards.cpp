@@ -139,11 +139,12 @@ void SendDefaultMenu_guard_azuremyst(Player* pPlayer, Creature* pCreature, uint3
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_FIRSTAID            , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 6);
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_FISHING             , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 7);
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_HERBALISM           , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 8);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_JEWELCRAFTING       , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 9);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_LEATHERWORKING      , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 10);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_MINING              , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 11);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_SKINNING            , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 12);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_TAILORING           , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 13);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_INSCRIPTION         , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 9);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_JEWELCRAFTING       , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 10);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_LEATHERWORKING      , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 11);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_MINING              , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 12);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_SKINNING            , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 13);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_TAILORING           , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 14);
             pPlayer->SEND_GOSSIP_MENU(10087, pCreature->GetGUID());
             break;
     }
@@ -219,23 +220,27 @@ void SendProfTrainerMenu_guard_azuremyst(Player* pPlayer, Creature* pCreature, u
         case GOSSIP_ACTION_INFO_DEF + 8:                    //Herbalism
             pPlayer->SEND_GOSSIP_MENU(10095, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 9:                    //Jewelcrafting
+        case GOSSIP_ACTION_INFO_DEF + 9:                    //Inscription
+             pPlayer->SEND_POI(-3881.63, -11488.59, 7, 6, 0, "Thoth");
+             pPlayer->SEND_GOSSIP_MENU(30000, pCreature->GetGUID());
+             break;
+        case GOSSIP_ACTION_INFO_DEF + 10:                   //Jewelcrafting
             pPlayer->SEND_POI(-3781.55, -11541.8, 7, 6, 0, "Farii");
             pPlayer->SEND_GOSSIP_MENU(10096, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 10:                   //Leatherworking
+        case GOSSIP_ACTION_INFO_DEF + 11:                   //Leatherworking
             pPlayer->SEND_POI(-3442.68, -12322.2, 7, 6, 0, "Moordo");
             pPlayer->SEND_GOSSIP_MENU(10098, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 11:                   //Mining
+        case GOSSIP_ACTION_INFO_DEF + 12:                   //Mining
             pPlayer->SEND_POI(-4179.89, -12493.1, 7, 6, 0, "Dulvi");
             pPlayer->SEND_GOSSIP_MENU(10097, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 12:                   //Skinning
+        case GOSSIP_ACTION_INFO_DEF + 13:                   //Skinning
             pPlayer->SEND_POI(-3431.17, -12316.5, 7, 6, 0, "Gurf");
             pPlayer->SEND_GOSSIP_MENU(10098, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 13:                   //Tailoring
+        case GOSSIP_ACTION_INFO_DEF + 14:                   //Tailoring
             pPlayer->SEND_POI(-4711.54, -12386.7, 7, 6, 0, "Erin Kelly");
             pPlayer->SEND_GOSSIP_MENU(10099, pCreature->GetGUID());
             break;
@@ -342,10 +347,11 @@ void SendDefaultMenu_guard_bluffwatcher(Player* pPlayer, Creature* pCreature, ui
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_FIRSTAID            , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 5);
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_FISHING             , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 6);
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_HERBALISM           , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 7);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_LEATHERWORKING      , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 8);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_MINING              , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 9);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_SKINNING            , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 10);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_TAILORING           , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 11);
+			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_INSCRIPTION         , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 8);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_LEATHERWORKING      , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 9);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_MINING              , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 10);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_SKINNING            , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 11);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_TAILORING           , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 12);
             pPlayer->SEND_GOSSIP_MENU(3541, pCreature->GetGUID());
             break;
     }
@@ -433,19 +439,23 @@ void SendProfTrainerMenu_guard_bluffwatcher(Player* pPlayer, Creature* pCreature
             pPlayer->SEND_POI(-1137.7, -1.51, 7, 6, 0, "Holistic Herbalism");
             pPlayer->SEND_GOSSIP_MENU(1338, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 8:                    //Leatherworking
+        case GOSSIP_ACTION_INFO_DEF + 8:                    //Inscription
+            pPlayer->SEND_POI(-1000.26, 209.52, 7, 6, 0, "Poshken Hardbinder");
+            pPlayer->SEND_GOSSIP_MENU(30000, pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF + 9:                    //Leatherworking
             pPlayer->SEND_POI(-1156.22, 66.86, 7, 6, 0, "Thunder Bluff Armorers");
             pPlayer->SEND_GOSSIP_MENU(1339, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 9:                    //Mining
+        case GOSSIP_ACTION_INFO_DEF + 10:                   //Mining
             pPlayer->SEND_POI(-1249.17, 155, 7, 6, 0, "Stonehoof Geology");
             pPlayer->SEND_GOSSIP_MENU(1340, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 10:                   //Skinning
+        case GOSSIP_ACTION_INFO_DEF + 11:                   //Skinning
             pPlayer->SEND_POI(-1148.56, 51.18, 7, 6, 0, "Mooranta");
             pPlayer->SEND_GOSSIP_MENU(1343, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 11:                   //Tailoring
+        case GOSSIP_ACTION_INFO_DEF + 12:                   //Tailoring
             pPlayer->SEND_POI(-1156.22, 66.86, 7, 6, 0, "Thunder Bluff Armorers");
             pPlayer->SEND_GOSSIP_MENU(1341, pCreature->GetGUID());
             break;
@@ -563,9 +573,10 @@ void SendDefaultMenu_guard_darnassus(Player* pPlayer, Creature* pCreature, uint3
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_FIRSTAID        , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 4);
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_FISHING         , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 5);
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_HERBALISM       , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 6);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_LEATHERWORKING  , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 7);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_SKINNING        , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 8);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_TAILORING       , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 9);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_INSCRIPTION     , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 7);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_LEATHERWORKING  , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 8);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_SKINNING        , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 9);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_TAILORING       , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 10);
             pPlayer->SEND_GOSSIP_MENU(4273, pCreature->GetGUID());
             break;
     }
@@ -645,15 +656,19 @@ void SendProfTrainerMenu_guard_darnassus(Player* pPlayer, Creature* pCreature, u
             pPlayer->SEND_POI(9757.17, 2430.16, 7, 6, 0, "Darnassus Herbalism Trainer");
             pPlayer->SEND_GOSSIP_MENU(3039, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 7:                    //Leatherworking
+        case GOSSIP_ACTION_INFO_DEF + 7:                    //Inscription
+            pPlayer->SEND_POI(10139.00, 2343.31, 7, 6, 0, "Feyden Darkin");
+            pPlayer->SEND_GOSSIP_MENU(30000, pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF + 8:                    //Leatherworking
             pPlayer->SEND_POI(10086.59, 2255.77, 7, 6, 0, "Darnassus Leatherworking Trainer");
             pPlayer->SEND_GOSSIP_MENU(3040, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 8:                    //Skinning
+        case GOSSIP_ACTION_INFO_DEF + 9:                    //Skinning
             pPlayer->SEND_POI(10081.40, 2257.18, 7, 6, 0, "Darnassus Skinning Trainer");
             pPlayer->SEND_GOSSIP_MENU(3042, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 9:                    //Tailoring
+        case GOSSIP_ACTION_INFO_DEF + 10:                   //Tailoring
             pPlayer->SEND_POI(10079.70, 2268.19, 7, 6, 0, "Darnassus Tailor");
             pPlayer->SEND_GOSSIP_MENU(3044, pCreature->GetGUID());
             break;
@@ -739,10 +754,11 @@ void SendDefaultMenu_guard_dunmorogh(Player* pPlayer, Creature* pCreature, uint3
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_FIRSTAID             , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 6);
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_FISHING              , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 7);
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_HERBALISM            , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 8);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_LEATHERWORKING       , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 9);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_MINING               , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 10);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_SKINNING             , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 11);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_TAILORING            , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 12);
+			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_INSCRIPTION          , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 9);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_LEATHERWORKING       , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 10);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_MINING               , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 11);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_SKINNING             , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 12);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_TAILORING            , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 13);
             pPlayer->SEND_GOSSIP_MENU(4300, pCreature->GetGUID());
             break;
     }
@@ -816,17 +832,20 @@ void SendProfTrainerMenu_guard_dunmorogh(Player* pPlayer, Creature* pCreature, u
         case GOSSIP_ACTION_INFO_DEF + 8:                    //Herbalism
             pPlayer->SEND_GOSSIP_MENU(4308, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 9:                    //Leatherworking
+        case GOSSIP_ACTION_INFO_DEF + 9:                    //Inscription
+            pPlayer->SEND_GOSSIP_MENU(30001, pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF + 10:                   //Leatherworking
             pPlayer->SEND_GOSSIP_MENU(4310, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 10:                   //Mining
+        case GOSSIP_ACTION_INFO_DEF + 11:                   //Mining
             pPlayer->SEND_POI(-5531, -666.53, 7, 6, 0, "Yarr Hamerstone");
             pPlayer->SEND_GOSSIP_MENU(4311, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 11:                   //Skinning
+        case GOSSIP_ACTION_INFO_DEF + 12:                   //Skinning
             pPlayer->SEND_GOSSIP_MENU(4312, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 12:                   //Tailoring
+        case GOSSIP_ACTION_INFO_DEF + 13:                   //Tailoring
             pPlayer->SEND_GOSSIP_MENU(4313, pCreature->GetGUID());
             break;
     }
@@ -905,10 +924,11 @@ void SendDefaultMenu_guard_durotar(Player* pPlayer, Creature* pCreature, uint32 
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_FIRSTAID            , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 6);
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_FISHING             , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 7);
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_HERBALISM           , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 8);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_LEATHERWORKING      , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 9);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_MINING              , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 10);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_SKINNING            , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 11);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_TAILORING           , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 12);
+			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_INSCRIPTION         , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 9);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_LEATHERWORKING      , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 10);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_MINING              , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 11);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_SKINNING            , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 12);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_TAILORING           , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 13);
             pPlayer->SEND_GOSSIP_MENU(4036, pCreature->GetGUID());
             break;
     }
@@ -1157,18 +1177,22 @@ void SendProfTrainerMenu_guard_elwynnforest(Player* pPlayer, Creature* pCreature
             pPlayer->SEND_POI(-9060.70, 149.23, 7, 6, 0, "Herbalist Pomeroy");
             pPlayer->SEND_GOSSIP_MENU(4281, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 9:                    //Leatherworking
+        case GOSSIP_ACTION_INFO_DEF + 9:                    //Inscription
+            pPlayer->SEND_POI(-8862.50, 875.19, 7, 6, 0, "Catarina Stanford");
+            pPlayer->SEND_GOSSIP_MENU(30000, pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF + 10:                   //Leatherworking
             pPlayer->SEND_POI(-9376.12, -75.23, 7, 6, 0, "Adele Fielder");
             pPlayer->SEND_GOSSIP_MENU(4282, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 10:                   //Mining
+        case GOSSIP_ACTION_INFO_DEF + 11:                   //Mining
             pPlayer->SEND_GOSSIP_MENU(4283, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 11:                   //Skinning
+        case GOSSIP_ACTION_INFO_DEF + 12:                   //Skinning
             pPlayer->SEND_POI(-9536.91, -1212.76, 7, 6, 0, "Helene Peltskinner");
             pPlayer->SEND_GOSSIP_MENU(4284, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 12:                   //Tailoring
+        case GOSSIP_ACTION_INFO_DEF + 13:                   //Tailoring
             pPlayer->SEND_POI(-9376.12, -75.23, 7, 6, 0, "Eldrin");
             pPlayer->SEND_GOSSIP_MENU(4285, pCreature->GetGUID());
             break;
@@ -1248,11 +1272,12 @@ void SendDefaultMenu_guard_eversong(Player* pPlayer, Creature* pCreature, uint32
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_FIRSTAID            , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 5);
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_FISHING             , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 6);
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_HERBALISM           , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 7);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_JEWELCRAFTING       , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 8);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_LEATHERWORKING      , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 9);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_MINING              , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 10);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_SKINNING            , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 11);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_TAILORING           , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 12);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_INSCRIPTION         , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 8);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_JEWELCRAFTING       , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 9);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_LEATHERWORKING      , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 10);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_MINING              , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 11);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_SKINNING            , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 12);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_TAILORING           , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 13);
             pPlayer->SEND_GOSSIP_MENU(10180, pCreature->GetGUID());
             break;
     }
@@ -1322,22 +1347,26 @@ void SendProfTrainerMenu_guard_eversong(Player* pPlayer, Creature* pCreature, ui
             pPlayer->SEND_POI(8678.92, -6329.09, 7, 6, 0, "Botanist Tyniarrel");
             pPlayer->SEND_GOSSIP_MENU(10200, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 8:                    //Jewelcrafting
+        case GOSSIP_ACTION_INFO_DEF + 8:                    //Inscription
+            pPlayer->SEND_POI(9959.29, -7248.38, 7, 6, 0, "Zantasia");
+            pPlayer->SEND_GOSSIP_MENU(30000, pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF + 9:                    //Jewelcrafting
             pPlayer->SEND_POI(9484.32, -6874.98, 7, 6, 0, "Aleinia");
             pPlayer->SEND_GOSSIP_MENU(10203, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 9:                    //Leatherworking
+        case GOSSIP_ACTION_INFO_DEF + 10:                   //Leatherworking
             pPlayer->SEND_POI(9362.04, -7130.33, 7, 6, 0, "Sathein");
             pPlayer->SEND_GOSSIP_MENU(10204, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 10:                   //Mining
+        case GOSSIP_ACTION_INFO_DEF + 11:                   //Mining
             pPlayer->SEND_GOSSIP_MENU(10205, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 11:                   //Skinning
+        case GOSSIP_ACTION_INFO_DEF + 12:                   //Skinning
             pPlayer->SEND_POI(9362.04, -7130.33, 7, 6, 0, "Mathreyn");
             pPlayer->SEND_GOSSIP_MENU(10206, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 12:                   //Tailoring
+        case GOSSIP_ACTION_INFO_DEF + 13:                   //Tailoring
             pPlayer->SEND_POI(8680.36, -6327.51, 7, 6, 0, "Sempstress Ambershine");
             pPlayer->SEND_GOSSIP_MENU(10207, pCreature->GetGUID());
             break;
@@ -1447,12 +1476,13 @@ void SendDefaultMenu_guard_exodar(Player* pPlayer, Creature* pCreature, uint32 a
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_ENGINEERING         , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 5);
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_FIRSTAID            , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 6);
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_FISHING             , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 7);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_JEWELCRAFTING       , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 8);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_HERBALISM           , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 9);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_LEATHERWORKING      , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 10);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_MINING              , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 11);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_SKINNING            , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 12);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_TAILORING           , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 13);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_HERBALISM           , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 8);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_INSCRIPTION         , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 9);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_JEWELCRAFTING       , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 10);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_LEATHERWORKING      , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 11);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_MINING              , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 12);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_SKINNING            , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 13);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_TAILORING           , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 14);
             pPlayer->SEND_GOSSIP_MENU(9555, pCreature->GetGUID());
             break;
     }
@@ -1552,27 +1582,31 @@ void SendProfTrainerMenu_guard_exodar(Player* pPlayer, Creature* pCreature, uint
             pPlayer->SEND_POI(-3725.5, -11385.2, 7, 6, 0, "Exodar Fishing Trainer");
             pPlayer->SEND_GOSSIP_MENU(9538, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 8:                    //Jewelcrafting
-            pPlayer->SEND_POI(-3783, -11546, 7, 6, 0, "Exodar Jewelcrafting Trainer");
-            pPlayer->SEND_GOSSIP_MENU(9547, pCreature->GetGUID());
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 9:                    //Herbalism
+        case GOSSIP_ACTION_INFO_DEF + 8:                    //Herbalism
             pPlayer->SEND_POI(-4040.6, -11364.5, 7, 6, 0, "Exodar Herbalist Trainer");
             pPlayer->SEND_GOSSIP_MENU(9543, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 10:                   //Leatherworking
+        case GOSSIP_ACTION_INFO_DEF + 9:                   //Inscription
+             pPlayer->SEND_POI(-3881.63, -11488.59, 7, 6, 0, "Thoth");
+             pPlayer->SEND_GOSSIP_MENU(30000, pCreature->GetGUID());
+             break;
+        case GOSSIP_ACTION_INFO_DEF + 10:                   //Jewelcrafting
+            pPlayer->SEND_POI(-3783, -11546, 7, 6, 0, "Exodar Jewelcrafting Trainer");
+            pPlayer->SEND_GOSSIP_MENU(9547, pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF + 11:                   //Leatherworking
             pPlayer->SEND_POI(-4140.6, -11776.7, 7, 6, 0, "Exodar Leatherworking Trainer");
             pPlayer->SEND_GOSSIP_MENU(9549, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 11:                   //Mining
+        case GOSSIP_ACTION_INFO_DEF + 12:                   //Mining
             pPlayer->SEND_POI(-4228, -11697, 7, 6, 0, "Exodar Mining Trainer");
             pPlayer->SEND_GOSSIP_MENU(9552, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 12:                   //Skinning
+        case GOSSIP_ACTION_INFO_DEF + 13:                   //Skinning
             pPlayer->SEND_POI(-4134.97, -11760.5, 7, 6, 0, "Exodar Skinning Trainer");
             pPlayer->SEND_GOSSIP_MENU(9557, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 13:                   //Tailoring
+        case GOSSIP_ACTION_INFO_DEF + 14:                   //Tailoring
             pPlayer->SEND_POI(-4092.5, -11744.5, 7, 6, 0, "Exodar Tailor Trainer");
             pPlayer->SEND_GOSSIP_MENU(9559, pCreature->GetGUID());
             break;
@@ -1688,10 +1722,11 @@ void SendDefaultMenu_guard_ironforge(Player* pPlayer, Creature* pCreature, uint3
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_FIRSTAID        , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 6);
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_FISHING         , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 7);
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_HERBALISM       , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 8);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_LEATHERWORKING  , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 9);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_MINING          , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 10);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_SKINNING        , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 11);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_TAILORING       , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 12);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_INSCRIPTION     , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 9);
+			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_LEATHERWORKING  , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 10);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_MINING          , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 11);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_SKINNING        , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 12);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_TAILORING       , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 13);
             pPlayer->SEND_GOSSIP_MENU(2793, pCreature->GetGUID());
             break;
     }
@@ -1792,19 +1827,23 @@ void SendProfTrainerMenu_guard_ironforge(Player* pPlayer, Creature* pCreature, u
             pPlayer->SEND_POI(-4876.9, -1151.92, 7, 6, 0, "Ironforge Physician");
             pPlayer->SEND_GOSSIP_MENU(2801, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 9:                    //Leatherworking
+        case GOSSIP_ACTION_INFO_DEF + 9:                    //Inscription
+            pPlayer->SEND_POI(-4807.02, -1194.43, 7, 6, 0, "Elise Brightletter");
+            pPlayer->SEND_GOSSIP_MENU(30000, pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF + 10:                   //Leatherworking
             pPlayer->SEND_POI(-4745, -1027.57, 7, 6, 0, "Finespindle's Leather Goods");
             pPlayer->SEND_GOSSIP_MENU(2802, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 10:                   //Minning
+        case GOSSIP_ACTION_INFO_DEF + 11:                   //Minning
             pPlayer->SEND_POI(-4705.06, -1116.43, 7, 6, 0, "Deepmountain Mining Guild");
             pPlayer->SEND_GOSSIP_MENU(2804, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 11:                   //Skinning
+        case GOSSIP_ACTION_INFO_DEF + 12:                   //Skinning
             pPlayer->SEND_POI(-4745, -1027.57, 7, 6, 0, "Finespindle's Leather Goods");
             pPlayer->SEND_GOSSIP_MENU(2805, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 12:                   //Tailoring
+        case GOSSIP_ACTION_INFO_DEF + 13:                   //Tailoring
             pPlayer->SEND_POI(-4719.60, -1056.96, 7, 6, 0, "Stonebrow's Clothier");
             pPlayer->SEND_GOSSIP_MENU(2807, pCreature->GetGUID());
             break;
@@ -1881,10 +1920,11 @@ void SendDefaultMenu_guard_mulgore(Player* pPlayer, Creature* pCreature, uint32 
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_FIRSTAID        , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 5);
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_FISHING         , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 6);
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_HERBALISM       , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 7);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_LEATHERWORKING  , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 8);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_MINING          , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 9);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_SKINNING        , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 10);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_TAILORING       , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 11);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_INSCRIPTION     , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 8);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_LEATHERWORKING  , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 9);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_MINING          , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 10);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_SKINNING        , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 11);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_TAILORING       , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 12);
             pPlayer->SEND_GOSSIP_MENU(4070, pCreature->GetGUID());
             break;
     }
@@ -1941,18 +1981,21 @@ void SendProfTrainerMenu_guard_mulgore(Player* pPlayer, Creature* pCreature, uin
         case GOSSIP_ACTION_INFO_DEF + 7:                    //Herbalism
             pPlayer->SEND_GOSSIP_MENU(4064, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 8:                    //Leatherworking
+        case GOSSIP_ACTION_INFO_DEF + 8:                    //Inscription
+            pPlayer->SEND_GOSSIP_MENU(30001, pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF + 9:                    //Leatherworking
             pPlayer->SEND_POI(-2257.12, -288.63, 7, 6, 0, "Chaw Stronghide");
             pPlayer->SEND_GOSSIP_MENU(4065, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 9:                    //Mining
+        case GOSSIP_ACTION_INFO_DEF + 10:                   //Mining
             pPlayer->SEND_GOSSIP_MENU(4066, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 10:                   //Skinning
+        case GOSSIP_ACTION_INFO_DEF + 11:                   //Skinning
             pPlayer->SEND_POI(-2252.94, -291.32, 7, 6, 0, "Yonn Deepcut");
             pPlayer->SEND_GOSSIP_MENU(4067, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 11:                   //Tailoring
+        case GOSSIP_ACTION_INFO_DEF + 12:                   //Tailoring
             pPlayer->SEND_GOSSIP_MENU(4068, pCreature->GetGUID());
             break;
     }
@@ -2072,10 +2115,11 @@ void SendDefaultMenu_guard_orgrimmar(Player* pPlayer, Creature* pCreature, uint3
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_FIRSTAID            , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 6);
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_FISHING             , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 7);
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_HERBALISM           , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 8);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_LEATHERWORKING      , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 9);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_MINING              , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 10);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_SKINNING            , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 11);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_TAILORING           , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 12);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_INSCRIPTION         , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 9);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_LEATHERWORKING      , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 10);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_MINING              , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 11);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_SKINNING            , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 12);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_TAILORING           , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 13);
             pPlayer->SEND_GOSSIP_MENU(2594, pCreature->GetGUID());
             break;
     }
@@ -2175,19 +2219,23 @@ void SendProfTrainerMenu_guard_orgrimmar(Player* pPlayer, Creature* pCreature, u
             pPlayer->SEND_POI(1898.61, -4454.93, 7, 6, 0, "Jandi's Arboretum");
             pPlayer->SEND_GOSSIP_MENU(2504, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 9:                    //Leatherworking
+        case GOSSIP_ACTION_INFO_DEF + 9:                    //Inscription
+            pPlayer->SEND_POI(1839.02, -4465.97, 7, 6, 0, "Jo'mah");
+            pPlayer->SEND_GOSSIP_MENU(30000, pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF + 10:                   //Leatherworking
             pPlayer->SEND_POI(1852.82, -4562.31, 7, 6, 0, "Kodohide Leatherworkers");
             pPlayer->SEND_GOSSIP_MENU(2513, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 10:                   //Mining
+        case GOSSIP_ACTION_INFO_DEF + 11:                   //Mining
             pPlayer->SEND_POI(2029.79, -4704, 7, 6, 0, "Red Canyon Mining");
             pPlayer->SEND_GOSSIP_MENU(2515, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 11:                   //Skinning
+        case GOSSIP_ACTION_INFO_DEF + 12:                   //Skinning
             pPlayer->SEND_POI(1852.82, -4562.31, 7, 6, 0, "Kodohide Leatherworkers");
             pPlayer->SEND_GOSSIP_MENU(2516, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 12:                   //Tailoring
+        case GOSSIP_ACTION_INFO_DEF + 13:                   //Tailoring
             pPlayer->SEND_POI(1802.66, -4560.66, 7, 6, 0, "Magar's Cloth Goods");
             pPlayer->SEND_GOSSIP_MENU(2518, pCreature->GetGUID());
             break;
@@ -2947,12 +2995,13 @@ void SendDefaultMenu_guard_silvermoon(Player* pPlayer, Creature* pCreature, uint
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_ENGINEERING          , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 5);
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_FIRSTAID             , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 6);
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_FISHING              , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 7);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_JEWELCRAFTING        , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 8);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_HERBALISM            , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 9);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_LEATHERWORKING       , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 10);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_MINING               , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 11);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_SKINNING             , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 12);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_TAILORING            , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 13);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_HERBALISM            , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 8);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_INSCRIPTION          , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 9);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_JEWELCRAFTING        , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 10);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_LEATHERWORKING       , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 11);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_MINING               , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 12);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_SKINNING             , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 13);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_TAILORING            , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 14);
             pPlayer->SEND_GOSSIP_MENU(9338, pCreature->GetGUID());
             break;
     }
@@ -3080,27 +3129,31 @@ void SendProfTrainerMenu_guard_silvermoon(Player* pPlayer, Creature* pCreature, 
             pPlayer->SEND_POI(9602.73, -7328.3, 7, 6, 0, "Silvermoon Fishing Trainer");
             pPlayer->SEND_GOSSIP_MENU(9316, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 8:                    //Jewelcrafting
-            pPlayer->SEND_POI(9553.54, -7506.43, 7, 6, 0, "Silvermoon Jewelcrafting Trainer");
-            pPlayer->SEND_GOSSIP_MENU(9346, pCreature->GetGUID());
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 9:                    //Herbalism
+        case GOSSIP_ACTION_INFO_DEF + 8:                    //Herbalism
             pPlayer->SEND_POI(10004.4, -7216.86, 7, 6, 0, "Silvermoon Herbalism Trainer");
             pPlayer->SEND_GOSSIP_MENU(9316, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 10:                   //Leatherworking
+        case GOSSIP_ACTION_INFO_DEF + 9:                    //Inscription
+            pPlayer->SEND_POI(9959.29, -7248.38, 7, 6, 0, "Zantasia");
+            pPlayer->SEND_GOSSIP_MENU(30000, pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF + 10:                    //Jewelcrafting
+            pPlayer->SEND_POI(9553.54, -7506.43, 7, 6, 0, "Silvermoon Jewelcrafting Trainer");
+            pPlayer->SEND_GOSSIP_MENU(9346, pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF + 11:                   //Leatherworking
             pPlayer->SEND_POI(9503.72, -7430.16, 7, 6, 0, "Silvermoon Leatherworking Trainer");
             pPlayer->SEND_GOSSIP_MENU(9347, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 11:                   //Mining
+        case GOSSIP_ACTION_INFO_DEF + 12:                   //Mining
             pPlayer->SEND_POI(9805.1, -7355.56, 7, 6, 0, "Silvermoon Mining Trainer");
             pPlayer->SEND_GOSSIP_MENU(9348, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 12:                   //Skinning
+        case GOSSIP_ACTION_INFO_DEF + 13:                   //Skinning
             pPlayer->SEND_POI(9513.37, -7429.4, 7, 6, 0, "Silvermoon Skinning Trainer");
             pPlayer->SEND_GOSSIP_MENU(9316, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 13:                   //Tailoring
+        case GOSSIP_ACTION_INFO_DEF + 14:                   //Tailoring
             pPlayer->SEND_POI(9750.55, -7095.28, 7, 6, 0, "Silvermoon Tailor");
             pPlayer->SEND_GOSSIP_MENU(9350, pCreature->GetGUID());
             break;
@@ -3224,10 +3277,11 @@ void SendDefaultMenu_guard_stormwind(Player* pPlayer, Creature* pCreature, uint3
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_FIRSTAID             , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 6);
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_FISHING              , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 7);
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_HERBALISM            , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 8);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_LEATHERWORKING       , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 9);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_MINING               , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 10);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_SKINNING             , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 11);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_TAILORING            , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 12);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_INSCRIPTION          , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 9);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_LEATHERWORKING       , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 10);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_MINING               , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 11);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_SKINNING             , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 12);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_TAILORING            , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 13);
             pPlayer->SEND_GOSSIP_MENU(918, pCreature->GetGUID());
             break;
     }
@@ -3332,19 +3386,23 @@ void SendProfTrainerMenu_guard_stormwind(Player* pPlayer, Creature* pCreature, u
             pPlayer->SEND_POI(-8967.0, 779.5, 7, 6, 0, "Alchemy Needs");
             pPlayer->SEND_GOSSIP_MENU(924, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 9:                    //Leatherworking
+        case GOSSIP_ACTION_INFO_DEF + 9:                    //Inscription
+            pPlayer->SEND_POI(-8862.50, 875.19, 7, 6, 0, "Catarina Stanford");
+            pPlayer->SEND_GOSSIP_MENU(30000, pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF + 10:                   //Leatherworking
             pPlayer->SEND_POI(-8726.0, 477.4, 7, 6, 0, "The Protective Hide");
             pPlayer->SEND_GOSSIP_MENU(925, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 10:                   //Mining
+        case GOSSIP_ACTION_INFO_DEF + 11:                   //Mining
             pPlayer->SEND_POI(-8434.0, 692.8, 7, 6, 0, "Gelman Stonehand");
             pPlayer->SEND_GOSSIP_MENU(927, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 11:                   //Skinning
+        case GOSSIP_ACTION_INFO_DEF + 12:                   //Skinning
             pPlayer->SEND_POI(-8716.0, 469.4, 7, 6, 0, "The Protective Hide");
             pPlayer->SEND_GOSSIP_MENU(928, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 12:                   //Tailoring
+        case GOSSIP_ACTION_INFO_DEF + 13:                   //Tailoring
             pPlayer->SEND_POI(-8938.0, 800.7, 7, 6, 0, "Duncan`s Textiles");
             pPlayer->SEND_GOSSIP_MENU(929, pCreature->GetGUID());
             break;
@@ -3425,9 +3483,10 @@ void SendDefaultMenu_guard_teldrassil(Player* pPlayer, Creature* pCreature, uint
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_FIRSTAID             , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 4);
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_FISHING              , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 5);
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_HERBALISM            , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 6);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_LEATHERWORKING       , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 7);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_SKINNING             , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 8);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_TAILORING            , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 9);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_INSCRIPTION          , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 7);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_LEATHERWORKING       , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 8);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_SKINNING             , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 9);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_TAILORING            , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 10);
             pPlayer->SEND_GOSSIP_MENU(4273, pCreature->GetGUID());
             break;
     }
@@ -3487,15 +3546,18 @@ void SendProfTrainerMenu_guard_teldrassil(Player* pPlayer, Creature* pCreature, 
             pPlayer->SEND_POI(9773.78, 875.88, 7, 6, 0, "Malorne Bladeleaf");
             pPlayer->SEND_GOSSIP_MENU(4334, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 7:                    //Leatherworking
+        case GOSSIP_ACTION_INFO_DEF + 7:                    //Inscription
+            pPlayer->SEND_GOSSIP_MENU(30001, pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF + 8:                    //Leatherworking
             pPlayer->SEND_POI(10152.59, 1681.46, 7, 6, 0, "Nadyia Maneweaver");
             pPlayer->SEND_GOSSIP_MENU(4335, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 8:                    //Skinning
+        case GOSSIP_ACTION_INFO_DEF + 9:                    //Skinning
             pPlayer->SEND_POI(10135.59, 1673.18, 7, 6, 0, "Radnaal Maneweaver");
             pPlayer->SEND_GOSSIP_MENU(4336, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 9:                    //Tailoring
+        case GOSSIP_ACTION_INFO_DEF + 10:                   //Tailoring
             pPlayer->SEND_GOSSIP_MENU(4337, pCreature->GetGUID());
             break;
     }
@@ -3572,10 +3634,11 @@ void SendDefaultMenu_guard_tirisfal(Player* pPlayer, Creature* pCreature, uint32
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_FIRSTAID             , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 6);
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_FISHING              , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 7);
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_HERBALISM            , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 8);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_LEATHERWORKING       , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 9);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_MINING               , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 10);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_SKINNING             , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 11);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_TAILORING            , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 12);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_INSCRIPTION          , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 9);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_LEATHERWORKING       , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 10);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_MINING               , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 11);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_SKINNING             , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 12);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_TAILORING            , GOSSIP_SENDER_SEC_PROFTRAIN, GOSSIP_ACTION_INFO_DEF + 13);
             pPlayer->SEND_GOSSIP_MENU(4096, pCreature->GetGUID());
             break;
     }
@@ -3641,18 +3704,21 @@ void SendProfTrainerMenu_guard_tirisfal(Player* pPlayer, Creature* pCreature, ui
             pPlayer->SEND_POI(2268.21, 331.69, 7, 6, 0, "Faruza");
             pPlayer->SEND_GOSSIP_MENU(4089, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 9:                    //Leatherworking
+        case GOSSIP_ACTION_INFO_DEF + 9:                    //Inscription
+            pPlayer->SEND_GOSSIP_MENU(30001, pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF + 10:                   //Leatherworking
             pPlayer->SEND_POI(2027, 78.72, 7, 6, 0, "Shelene Rhobart");
             pPlayer->SEND_GOSSIP_MENU(4090, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 10:                   //Mining
+        case GOSSIP_ACTION_INFO_DEF + 11:                   //Mining
             pPlayer->SEND_GOSSIP_MENU(4091, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 11:                   //Skinning
+        case GOSSIP_ACTION_INFO_DEF + 12:                   //Skinning
             pPlayer->SEND_POI(2027, 78.72, 7, 6, 0, "Rand Rhobart");
             pPlayer->SEND_GOSSIP_MENU(4092, pCreature->GetGUID());
             break;
-        case GOSSIP_ACTION_INFO_DEF + 12:                   //Tailoring
+        case GOSSIP_ACTION_INFO_DEF + 13:                   //Tailoring
             pPlayer->SEND_POI(2160.45, 659.93, 7, 6, 0, "Bowen Brisboise");
             pPlayer->SEND_GOSSIP_MENU(4093, pCreature->GetGUID());
             break;

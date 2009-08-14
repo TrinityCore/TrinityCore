@@ -34,12 +34,12 @@ struct TRINITY_DLL_DECL instance_sethekk_halls : public ScriptedInstance
 {
     instance_sethekk_halls(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 
-	uint32 AnzuEncounter;
+    uint32 AnzuEncounter;
     uint64 m_uiIkissDoorGUID;
 
     void Initialize()
     {
-		AnzuEncounter = NOT_STARTED;
+        AnzuEncounter = NOT_STARTED;
         m_uiIkissDoorGUID = 0;
     }
 
