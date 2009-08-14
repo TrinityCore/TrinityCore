@@ -65,13 +65,13 @@
 #define GOSSIP_TEXT_ENGINEERING         "Engineering"
 #define GOSSIP_TEXT_FIRSTAID            "First Aid"
 #define GOSSIP_TEXT_HERBALISM           "Herbalism"
+#define GOSSIP_TEXT_INSCRIPTION         "Inscription"
+#define GOSSIP_TEXT_JEWELCRAFTING       "Jewelcrafting"
 #define GOSSIP_TEXT_LEATHERWORKING      "Leatherworking"
 #define GOSSIP_TEXT_TAILORING           "Tailoring"
 #define GOSSIP_TEXT_MINING              "Mining"
 #define GOSSIP_TEXT_FISHING             "Fishing"
 #define GOSSIP_TEXT_SKINNING            "Skinning"
-#define GOSSIP_TEXT_JEWELCRAFTING       "Jewelcrafting"
-#define GOSSIP_TEXT_INSCRIPTION         "Inscription"
 
 enum
 {
