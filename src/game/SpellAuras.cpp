@@ -1233,6 +1233,11 @@ void Aura::HandleAuraSpecificMods(bool apply)
                 return;
             m_target->CastSpell(m_target, 32612, true, NULL, GetPartAura(1));
         }
+        // Summon Gargoyle
+        else if (m_spellProto->Id == 50514)
+        {
+            m_target->CastSpell(m_target, GetPartAura(0)->GetAmount(), true, NULL, GetPartAura(0));
+        }
         // Curse of Doom
         else if(m_spellProto->SpellFamilyName==SPELLFAMILY_WARLOCK && m_spellProto->SpellFamilyFlags[1] & 0x02)
         {
