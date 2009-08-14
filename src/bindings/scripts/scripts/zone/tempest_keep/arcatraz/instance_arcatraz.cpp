@@ -24,7 +24,7 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_arcatraz.h"
 
-#define ENCOUNTERS 9
+#define MAX_ENCOUNTER 9
 
 #define CONTAINMENT_CORE_SECURITY_FIELD_ALPHA 184318        //door opened when Wrath-Scryer Soccothrates dies
 #define CONTAINMENT_CORE_SECURITY_FIELD_BETA  184319        //door opened when Dalliah the Doomsayer dies
@@ -50,7 +50,7 @@ struct TRINITY_DLL_DECL instance_arcatraz : public ScriptedInstance
 {
     instance_arcatraz(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 
-    uint32 Encounter[ENCOUNTERS];
+    uint32 m_auiEncounter[MAX_ENCOUNTER];
 
     GameObject *Containment_Core_Security_Field_Alpha;
     GameObject *Containment_Core_Security_Field_Beta;
@@ -66,6 +66,8 @@ struct TRINITY_DLL_DECL instance_arcatraz : public ScriptedInstance
 
     void Initialize()
     {
+        memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+
         Containment_Core_Security_Field_Alpha = NULL;
         Containment_Core_Security_Field_Beta  = NULL;
         Pod_Alpha = NULL;
@@ -77,15 +79,12 @@ struct TRINITY_DLL_DECL instance_arcatraz : public ScriptedInstance
 
         GoSphereGUID = 0;
         MellicharGUID = 0;
-
-        for(uint8 i = 0; i < ENCOUNTERS; ++i)
-            Encounter[i] = NOT_STARTED;
     }
 
     bool IsEncounterInProgress() const
     {
-        for(uint8 i = 0; i < ENCOUNTERS; ++i)
-            if (Encounter[i] == IN_PROGRESS)
+        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+            if (m_auiEncounter[i] == IN_PROGRESS)
                 return true;
 
         return false;
@@ -118,68 +117,68 @@ struct TRINITY_DLL_DECL instance_arcatraz : public ScriptedInstance
         switch(type)
         {
             case TYPE_ZEREKETH:
-                Encounter[0] = data;
+                m_auiEncounter[0] = data;
                 break;
 
             case TYPE_DALLIAH:
                 if (data == DONE)
                     if (Containment_Core_Security_Field_Beta)
                         Containment_Core_Security_Field_Beta->UseDoorOrButton();
-                Encounter[1] = data;
+                m_auiEncounter[1] = data;
                 break;
 
             case TYPE_SOCCOTHRATES:
                 if (data == DONE)
                     if (Containment_Core_Security_Field_Alpha)
                         Containment_Core_Security_Field_Alpha->UseDoorOrButton();
-                Encounter[2] = data;
+                m_auiEncounter[2] = data;
                 break;
 
             case TYPE_HARBINGERSKYRISS:
                 if (data == NOT_STARTED || data == FAIL)
                 {
-                    Encounter[4] = NOT_STARTED;
-                    Encounter[5] = NOT_STARTED;
-                    Encounter[6] = NOT_STARTED;
-                    Encounter[7] = NOT_STARTED;
-                    Encounter[8] = NOT_STARTED;
+                    m_auiEncounter[4] = NOT_STARTED;
+                    m_auiEncounter[5] = NOT_STARTED;
+                    m_auiEncounter[6] = NOT_STARTED;
+                    m_auiEncounter[7] = NOT_STARTED;
+                    m_auiEncounter[8] = NOT_STARTED;
                 }
-                Encounter[3] = data;
+                m_auiEncounter[3] = data;
                 break;
 
             case TYPE_WARDEN_1:
                 if (data == IN_PROGRESS)
                     if (Pod_Alpha)
                         Pod_Alpha->UseDoorOrButton();
-                Encounter[4] = data;
+                m_auiEncounter[4] = data;
                 break;
 
             case TYPE_WARDEN_2:
                 if (data == IN_PROGRESS)
                     if (Pod_Beta)
                         Pod_Beta->UseDoorOrButton();
-                Encounter[5] = data;
+                m_auiEncounter[5] = data;
                 break;
 
             case TYPE_WARDEN_3:
                 if (data == IN_PROGRESS)
                     if (Pod_Delta)
                         Pod_Delta->UseDoorOrButton();
-                Encounter[6] = data;
+                m_auiEncounter[6] = data;
                 break;
 
             case TYPE_WARDEN_4:
                 if (data == IN_PROGRESS)
                     if (Pod_Gamma)
                         Pod_Gamma->UseDoorOrButton();
-                Encounter[7] = data;
+                m_auiEncounter[7] = data;
                 break;
 
             case TYPE_WARDEN_5:
                 if (data == IN_PROGRESS)
                     if (Pod_Omega)
                         Pod_Omega->UseDoorOrButton();
-                Encounter[8] = data;
+                m_auiEncounter[8] = data;
                 break;
 
             case TYPE_SHIELD_OPEN:
@@ -195,17 +194,17 @@ struct TRINITY_DLL_DECL instance_arcatraz : public ScriptedInstance
          switch(type)
         {
             case TYPE_HARBINGERSKYRISS:
-                return Encounter[3];
+                return m_auiEncounter[3];
             case TYPE_WARDEN_1:
-                return Encounter[4];
+                return m_auiEncounter[4];
             case TYPE_WARDEN_2:
-                return Encounter[5];
+                return m_auiEncounter[5];
             case TYPE_WARDEN_3:
-                return Encounter[6];
+                return m_auiEncounter[6];
             case TYPE_WARDEN_4:
-                return Encounter[7];
+                return m_auiEncounter[7];
             case TYPE_WARDEN_5:
-                return Encounter[8];
+                return m_auiEncounter[8];
         }
         return 0;
     }

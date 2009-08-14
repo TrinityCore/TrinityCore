@@ -24,7 +24,7 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_shadowfang_keep.h"
 
-#define ENCOUNTERS              4
+#define MAX_ENCOUNTER              4
 
 enum
 {
@@ -43,7 +43,7 @@ struct TRINITY_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
 {
     instance_shadowfang_keep(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 
-    uint32 Encounter[ENCOUNTERS];
+    uint32 m_auiEncounter[MAX_ENCOUNTER];
     std::string str_data;
 
     uint64 uiAshGUID;
@@ -55,15 +55,14 @@ struct TRINITY_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
 
     void Initialize()
     {
+        memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+
         uiAshGUID = 0;
         uiAdaGUID = 0;
 
         DoorCourtyardGUID = 0;
         DoorSorcererGUID = 0;
         DoorArugalGUID = 0;
-
-         for(uint8 i=0; i < ENCOUNTERS; ++i)
-             Encounter[i] = NOT_STARTED;
     }
 
     void OnCreatureCreate(Creature* pCreature, bool add)
@@ -81,17 +80,17 @@ struct TRINITY_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
         {
             case GO_COURTYARD_DOOR:
                 DoorCourtyardGUID = go->GetGUID();
-                if (Encounter[0] == DONE)
+                if (m_auiEncounter[0] == DONE)
                     DoUseDoorOrButton(DoorCourtyardGUID);
                 break;
             case GO_SORCERER_DOOR:
                 DoorSorcererGUID = go->GetGUID();
-                if (Encounter[2] == DONE)
+                if (m_auiEncounter[2] == DONE)
                     DoUseDoorOrButton(DoorSorcererGUID);
                 break;
             case GO_ARUGAL_DOOR:
                 DoorArugalGUID = go->GetGUID();
-                if (Encounter[3] == DONE)
+                if (m_auiEncounter[3] == DONE)
                     DoUseDoorOrButton(DoorArugalGUID);
                 break;
         }
@@ -116,22 +115,22 @@ struct TRINITY_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
             case TYPE_FREE_NPC:
                 if (data == DONE)
                     DoUseDoorOrButton(DoorCourtyardGUID);
-                Encounter[0] = data;
+                m_auiEncounter[0] = data;
                 break;
             case TYPE_RETHILGORE:
                 if (data == DONE)
                     DoSpeech();
-                Encounter[1] = data;
+                m_auiEncounter[1] = data;
                 break;
             case TYPE_FENRUS:
                 if (data == DONE)
                     DoUseDoorOrButton(DoorSorcererGUID);
-                Encounter[2] = data;
+                m_auiEncounter[2] = data;
                 break;
             case TYPE_NANDOS:
                 if (data == DONE)
                     DoUseDoorOrButton(DoorArugalGUID);
-                Encounter[3] = data;
+                m_auiEncounter[3] = data;
                 break;
         }
 
@@ -140,7 +139,7 @@ struct TRINITY_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
             OUT_SAVE_INST_DATA;
 
             std::ostringstream saveStream;
-            saveStream << Encounter[0] << " " << Encounter[1] << " " << Encounter[2] << " " << Encounter[3];
+            saveStream << m_auiEncounter[0] << " " << m_auiEncounter[1] << " " << m_auiEncounter[2] << " " << m_auiEncounter[3];
 
             str_data = saveStream.str();
 
@@ -154,13 +153,13 @@ struct TRINITY_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
         switch(type)
         {
             case TYPE_FREE_NPC:
-                return Encounter[0];
+                return m_auiEncounter[0];
             case TYPE_RETHILGORE:
-                return Encounter[1];
+                return m_auiEncounter[1];
             case TYPE_FENRUS:
-                return Encounter[2];
+                return m_auiEncounter[2];
             case TYPE_NANDOS:
-                return Encounter[3];
+                return m_auiEncounter[3];
         }
         return 0;
     }
@@ -181,12 +180,12 @@ struct TRINITY_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
         OUT_LOAD_INST_DATA(in);
 
         std::istringstream loadStream(in);
-        loadStream >> Encounter[0] >> Encounter[1] >> Encounter[2] >> Encounter[3];
+        loadStream >> m_auiEncounter[0] >> m_auiEncounter[1] >> m_auiEncounter[2] >> m_auiEncounter[3];
 
-        for(uint8 i = 0; i < ENCOUNTERS; ++i)
+        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
         {
-            if (Encounter[i] == IN_PROGRESS)
-                Encounter[i] = NOT_STARTED;
+            if (m_auiEncounter[i] == IN_PROGRESS)
+                m_auiEncounter[i] = NOT_STARTED;
         }
 
         OUT_LOAD_INST_DATA_COMPLETE;

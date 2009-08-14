@@ -45,13 +45,13 @@ EndScriptData */
 #define C_BLACK_GUARD           10394
 #define C_YSIDA                 16031
 
-#define ENCOUNTERS              6
+#define MAX_ENCOUNTER              6
 
 struct TRINITY_DLL_DECL instance_stratholme : public ScriptedInstance
 {
     instance_stratholme(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 
-    uint32 Encounter[ENCOUNTERS];
+    uint32 Encounter[MAX_ENCOUNTER];
 
     bool IsSilverHandDead[5];
 
@@ -76,7 +76,7 @@ struct TRINITY_DLL_DECL instance_stratholme : public ScriptedInstance
 
     void Initialize()
     {
-        for(uint8 i = 0; i < ENCOUNTERS; ++i)
+        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             Encounter[i] = NOT_STARTED;
 
         for(uint8 i = 0; i < 5; ++i)
@@ -332,7 +332,7 @@ struct TRINITY_DLL_DECL instance_stratholme : public ScriptedInstance
         loadStream >> Encounter[0] >> Encounter[1] >> Encounter[2] >> Encounter[3]
         >> Encounter[4] >> Encounter[5];
 
-        for(uint8 i = 0; i < ENCOUNTERS; ++i)
+        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             if (Encounter[i] == IN_PROGRESS)
                 Encounter[i] = NOT_STARTED;
 

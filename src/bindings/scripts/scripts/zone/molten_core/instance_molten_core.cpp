@@ -24,7 +24,7 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_molten_core.h"
 
-#define ENCOUNTERS      9
+#define MAX_ENCOUNTER      9
 
 #define ID_LUCIFRON     12118
 #define ID_MAGMADAR     11982
@@ -48,10 +48,12 @@ struct TRINITY_DLL_DECL instance_molten_core : public ScriptedInstance
     //If all Bosses are dead.
     bool IsBossDied[9];
 
-    uint32 Encounter[ENCOUNTERS];
+    uint32 m_auiEncounter[MAX_ENCOUNTER];
 
     void Initialize()
     {
+        memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+
         Lucifron = 0;
         Magmadar = 0;
         Gehennas = 0;
@@ -84,12 +86,9 @@ struct TRINITY_DLL_DECL instance_molten_core : public ScriptedInstance
 
         IsBossDied[7] = false;
         IsBossDied[8] = false;
-
-        for(uint8 i = 0; i < ENCOUNTERS; ++i)
-            Encounter[i] = NOT_STARTED;
     }
 
-    bool IsEncounterInProgress() const
+    bool Ism_auiEncounterInProgress() const
     {
         return false;
     };

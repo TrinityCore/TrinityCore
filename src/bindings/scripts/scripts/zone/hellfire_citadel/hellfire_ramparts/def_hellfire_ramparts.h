@@ -5,7 +5,7 @@
 #ifndef DEF_RAMPARTS_H
 #define DEF_RAMPARTS_H
 
-#define ENCOUNTERS  2
+#define MAX_ENCOUNTER  2
 
 enum
 {
