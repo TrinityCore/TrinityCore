@@ -996,6 +996,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_floon' WHERE `entry`=18588;
 UPDATE `creature_template` SET `ScriptName`='npc_isla_starmane' WHERE `entry`=18760;
 UPDATE `creature_template` SET `ScriptName`='mob_unkor_the_ruthless' WHERE `entry`=18262;
 UPDATE `creature_template` SET `ScriptName`='npc_slim' WHERE `entry`=19679;
+UPDATE `creature_template` SET `ScriptName`='npc_akuno' WHERE `entry`=22377;
 
 /* THOUSAND NEEDLES */
 UPDATE `creature_template` SET `ScriptName`='npc_paoka_swiftmountain' WHERE `entry`=10427;
