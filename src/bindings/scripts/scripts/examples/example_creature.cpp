@@ -35,31 +35,36 @@ EndScriptData */
 // Functions with Handled Function marked above them are functions that are called automatically by the core
 // Functions that are marked Custom Function are functions I've created to simplify code
 
-//List of text id's. The text is stored in database, also in a localized version
-//(if translation not exist for the textId, default english text will be used)
-//Not required to define in this way, but simplify if changes are needed.
-#define SAY_AGGRO       -1999900
-#define SAY_RANDOM_0    -1999901
-#define SAY_RANDOM_1    -1999902
-#define SAY_RANDOM_2    -1999903
-#define SAY_RANDOM_3    -1999904
-#define SAY_RANDOM_4    -1999905
-#define SAY_BESERK      -1999906
-#define SAY_PHASE       -1999907
-#define SAY_DANCE       -1999908
-#define SAY_SALUTE      -1999909
+enum
+{
+    //List of text id's. The text is stored in database, also in a localized version
+    //(if translation not exist for the textId, default english text will be used)
+    //Not required to define in this way, but simplify if changes are needed.
+    SAY_AGGRO       = -1999900,
+    SAY_RANDOM_0    = -1999901,
+    SAY_RANDOM_1    = -1999902,
+    SAY_RANDOM_2    = -1999903,
+    SAY_RANDOM_3    = -1999904,
+    SAY_RANDOM_4    = -1999905,
+    SAY_BESERK      = -1999906,
+    SAY_PHASE       = -1999907,
+    SAY_DANCE       = -1999908,
+    SAY_SALUTE      = -1999909,
+
+    //List of spells. Not required to define them in this way, but will make it easier to maintain in case spellId change
+    SPELL_BUFF      = 25661,
+    SPELL_ONE       = 12555,
+    SPELL_ONE_ALT   = 24099,
+    SPELL_TWO       = 10017,
+    SPELL_THREE     = 26027,
+    SPELL_ENRAGE    = 23537,
+    SPELL_BESERK    = 32309,
+
+    FACTION_WORGEN  = 24
+};
 
 //List of gossip item texts. Items will appear in the gossip window.
 #define GOSSIP_ITEM     "I'm looking for a fight"
-
-//List of spells. Not required to define them in this way, but will make it easier to maintain in case spellId change
-#define SPELL_BUFF      25661
-#define SPELL_ONE       12555
-#define SPELL_ONE_ALT   24099
-#define SPELL_TWO       10017
-#define SPELL_THREE     26027
-#define SPELL_ENRAGE    23537
-#define SPELL_BESERK    32309
 
 struct TRINITY_DLL_DECL example_creatureAI : public ScriptedAI
 {
@@ -71,44 +76,60 @@ struct TRINITY_DLL_DECL example_creatureAI : public ScriptedAI
     //These variables are for use only by this individual script.
     //Nothing else will ever call them but us.
 
-    uint32 Say_Timer;                                       //Timer for random chat
-    uint32 Rebuff_Timer;                                    //Timer for rebuffing
-    uint32 Spell_1_Timer;                                   //Timer for spell 1 when in combat
-    uint32 Spell_2_Timer;                                   //Timer for spell 1 when in combat
-    uint32 Spell_3_Timer;                                   //Timer for spell 1 when in combat
-    uint32 Beserk_Timer;                                    //Timer until we go into Beserk (enraged) mode
-    uint32 Phase;                                           //The current battle phase we are in
-    uint32 Phase_Timer;                                     //Timer until phase transition
+    uint32 m_uiSay_Timer;                                   //Timer for random chat
+    uint32 m_uiRebuff_Timer;                                //Timer for rebuffing
+    uint32 m_uiSpell_1_Timer;                               //Timer for spell 1 when in combat
+    uint32 m_uiSpell_2_Timer;                               //Timer for spell 1 when in combat
+    uint32 m_uiSpell_3_Timer;                               //Timer for spell 1 when in combat
+    uint32 m_uiBeserk_Timer;                                //Timer until we go into Beserk (enraged) mode
+    uint32 m_uiPhase;                                       //The current battle phase we are in
+    uint32 m_uiPhase_Timer;                                 //Timer until phase transition
 
     //*** HANDLED FUNCTION ***
     //This is called whenever the core decides we need to evade
     void Reset()
     {
-        Phase = 1;                                          //Start in phase 1
-        Phase_Timer = 60000;                                //60 seconds
-        Spell_1_Timer = 5000;                               //5 seconds
-        Spell_2_Timer = 37000;                              //37 seconds
-        Spell_3_Timer = 19000;                              //19 seconds
-        Beserk_Timer = 120000;                              //2 minutes
+        m_uiPhase = 1;                                      //Start in phase 1
+        m_uiPhase_Timer = 60000;                            //60 seconds
+        m_uiSpell_1_Timer = 5000;                           //5 seconds
+        m_uiSpell_2_Timer = 37000;                          //37 seconds
+        m_uiSpell_3_Timer = 19000;                          //19 seconds
+        m_uiBeserk_Timer = 120000;                          //2 minutes
     }
 
     //*** HANDLED FUNCTION ***
     //Attack Start is called whenever someone hits us.
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit* pWho)
     {
         //Say some stuff
-        DoScriptText(SAY_AGGRO, m_creature, who);
+        DoScriptText(SAY_AGGRO, m_creature, pWho);
     }
+
+    //Our Recive emote function
+    void ReceiveEmote(Player* pPlayer, uint32 uiTextEmote)
+    {
+        m_creature->HandleEmoteCommand(uiTextEmote);
+
+        switch(uiTextEmote)
+        {
+            case TEXTEMOTE_DANCE:
+                DoScriptText(SAY_DANCE, m_creature);
+                break;
+            case TEXTEMOTE_SALUTE:
+                DoScriptText(SAY_SALUTE, m_creature);
+                break;
+        }
+     }
 
     //*** HANDLED FUNCTION ***
     //Update AI is called Every single map update (roughly once every 100ms if a player is within the grid)
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 uiDiff)
     {
         //Out of combat timers
         if (!m_creature->getVictim())
         {
             //Random Say timer
-            if (Say_Timer < diff)
+            if (m_uiSay_Timer < uiDiff)
             {
                 //Random switch between 5 outcomes
                 switch (rand()%5)
@@ -120,15 +141,19 @@ struct TRINITY_DLL_DECL example_creatureAI : public ScriptedAI
                     case 4: DoScriptText(SAY_RANDOM_4, m_creature); break;
                 }
 
-                Say_Timer = 45000;                          //Say something agian in 45 seconds
-            }else Say_Timer -= diff;
+                m_uiSay_Timer = 45000;                      //Say something agian in 45 seconds
+            }
+            else
+                m_uiSay_Timer -= uiDiff;
 
             //Rebuff timer
-            if (Rebuff_Timer < diff)
+            if (m_uiRebuff_Timer < uiDiff)
             {
-                DoCast(m_creature,SPELL_BUFF);
-                Rebuff_Timer = 900000;                      //Rebuff agian in 15 minutes
-            }else Rebuff_Timer -= diff;
+                DoCast(m_creature, SPELL_BUFF);
+                m_uiRebuff_Timer = 900000;                  //Rebuff agian in 15 minutes
+            }
+            else
+                m_uiRebuff_Timer -= uiDiff;
         }
 
         //Return since we have no target
@@ -136,71 +161,69 @@ struct TRINITY_DLL_DECL example_creatureAI : public ScriptedAI
             return;
 
         //Spell 1 timer
-        if (Spell_1_Timer < diff)
+        if (m_uiSpell_1_Timer < uiDiff)
         {
             //Cast spell one on our current target.
             if (rand()%50 > 10)
-                DoCast(m_creature->getVictim(),SPELL_ONE_ALT);
-            else if (m_creature->IsWithinDist(m_creature->getVictim(), 25))
-                DoCast(m_creature->getVictim(),SPELL_ONE);
+                DoCast(m_creature->getVictim(), SPELL_ONE_ALT);
+            else if (m_creature->IsWithinDist(m_creature->getVictim(), 25.0f))
+                DoCast(m_creature->getVictim(), SPELL_ONE);
 
-            Spell_1_Timer = 5000;
-        }else Spell_1_Timer -= diff;
+            m_uiSpell_1_Timer = 5000;
+        }
+        else
+            m_uiSpell_1_Timer -= uiDiff;
 
         //Spell 2 timer
-        if (Spell_2_Timer < diff)
+        if (m_uiSpell_2_Timer < uiDiff)
         {
             //Cast spell one on our current target.
-            DoCast(m_creature->getVictim(),SPELL_TWO);
-
-            Spell_2_Timer = 37000;
-        }else Spell_2_Timer -= diff;
-
-        //Spell 3 timer
-        if (Phase > 1)
-            if (Spell_3_Timer < diff)
-        {
-            //Cast spell one on our current target.
-            DoCast(m_creature->getVictim(),SPELL_THREE);
-
-            Spell_3_Timer = 19000;
-        }else Spell_3_Timer -= diff;
+            DoCast(m_creature->getVictim(), SPELL_TWO);
+            m_uiSpell_2_Timer = 37000;
+        }
+        else
+            m_uiSpell_2_Timer -= uiDiff;
 
         //Beserk timer
-        if (Phase > 1)
-            if (Beserk_Timer < diff)
+        if (m_uiPhase > 1)
         {
-            //Say our line then cast uber death spell
-            DoScriptText(SAY_BESERK, m_creature, m_creature->getVictim());
-            DoCast(m_creature->getVictim(),SPELL_BESERK);
+            //Spell 3 timer
+            if (m_uiSpell_3_Timer < uiDiff)
+            {
+                //Cast spell one on our current target.
+                DoCast(m_creature->getVictim(), SPELL_THREE);
 
-            //Cast our beserk spell agian in 12 seconds if we didn't kill everyone
-            Beserk_Timer = 12000;
-        }else Beserk_Timer -= diff;
+                m_uiSpell_3_Timer = 19000;
+            }
+            else
+                m_uiSpell_3_Timer -= uiDiff;
 
-        //Phase timer
-        if (Phase == 1)
-            if (Phase_Timer < diff)
+            if (m_uiBeserk_Timer < uiDiff)
+            {
+                //Say our line then cast uber death spell
+                DoScriptText(SAY_BESERK, m_creature, m_creature->getVictim());
+                DoCast(m_creature->getVictim(), SPELL_BESERK);
+
+                //Cast our beserk spell agian in 12 seconds if we didn't kill everyone
+                m_uiBeserk_Timer = 12000;
+            }
+            else
+                m_uiBeserk_Timer -= uiDiff;
+        }
+        else if (m_uiPhase == 1)                            //Phase timer
         {
-            //Go to next phase
-            Phase++;
-            DoScriptText(SAY_PHASE, m_creature);
-            DoCast(m_creature,SPELL_ENRAGE);
-        }else Phase_Timer -= diff;
+            if (m_uiPhase_Timer < uiDiff)
+            {
+                //Go to next phase
+                ++m_uiPhase;
+                DoScriptText(SAY_PHASE, m_creature);
+                DoCast(m_creature, SPELL_ENRAGE);
+            }
+            else
+                m_uiPhase_Timer -= uiDiff;
+        }
 
         DoMeleeAttackIfReady();
-    }
-
-    //Our Recive emote function
-    void ReceiveEmote(Player* pPlayer, uint32 emote)
-    {
-        m_creature->HandleEmoteCommand(emote);
-
-        if (emote == TEXTEMOTE_DANCE)
-            DoScriptText(SAY_DANCE, m_creature);
-
-        if (emote == TEXTEMOTE_SALUTE)
-            DoScriptText(SAY_SALUTE, m_creature);
     }
 };
 
@@ -212,22 +235,15 @@ CreatureAI* GetAI_example_creature(Creature* pCreature)
 }
 
 //This function is called when the player clicks an option on the gossip menu
-void SendDefaultMenu_example_creature(Player* pPlayer, Creature* pCreature, uint32 action)
+bool GossipSelect_example_creature(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (action == GOSSIP_ACTION_INFO_DEF + 1)               //Fight time
+    if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
     {
+        pPlayer->CLOSE_GOSSIP_MENU();
         //Set our faction to hostile twoards all
-        pCreature->setFaction(24);
-        pCreature->Attack(pPlayer, true);
-        pPlayer->PlayerTalkClass->CloseGossip();
+        pCreature->setFaction(FACTION_WORGEN);
+        pCreature->AI()->AttackStart(pPlayer);
     }
-}
-
-//This function is called when the player clicks an option on the gossip menu
-bool GossipSelect_example_creature(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
-{
-    if (sender == GOSSIP_SENDER_MAIN)
-        SendDefaultMenu_example_creature(pPlayer, pCreature, action);
 
     return true;
 }
@@ -235,19 +251,17 @@ bool GossipSelect_example_creature(Player* pPlayer, Creature* pCreature, uint32 
 //This function is called when the player opens the gossip menu
 bool GossipHello_example_creature(Player* pPlayer, Creature* pCreature)
 {
-    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM        , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-    pPlayer->PlayerTalkClass->SendGossipMenu(907, pCreature->GetGUID());
+    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+    pPlayer->SEND_GOSSIP_MENU(907, pCreature->GetGUID());
 
     return true;
 }
 
 //This is the actual function called only once durring InitScripts()
 //It must define all handled functions that are to be run in this script
-//For example if you want this Script to handle Emotes you must include
-//newscript->ReciveEmote = My_Emote_Function;
 void AddSC_example_creature()
 {
-    Script *newscript;
+    Script* newscript;
 
     newscript = new Script;
     newscript->Name = "example_creature";
