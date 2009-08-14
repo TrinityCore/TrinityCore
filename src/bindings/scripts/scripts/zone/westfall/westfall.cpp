@@ -144,15 +144,6 @@ struct TRINITY_DLL_DECL npc_daphne_stilwellAI : public npc_escortAI
         pSummoned->AI()->AttackStart(m_creature);
     }
 
-    void JustDied(Unit* killer)
-    {
-        if (Player* pPlayer = Unit::GetPlayer(PlayerGUID))
-        {
-                if (pPlayer->GetQuestStatus(QUEST_TOME_VALOR) == QUEST_STATUS_INCOMPLETE)
-                    pPlayer->FailQuest(QUEST_TOME_VALOR);
-        }
-    }
-
     void Update(const uint32 diff)
     {
         npc_escortAI::UpdateAI(diff);
@@ -241,22 +232,7 @@ struct TRINITY_DLL_DECL npc_defias_traitorAI : public npc_escortAI
         }
     }
 
-    void Reset()
-    {}
-
-    void JustDied(Unit* killer)
-    {
-        if (PlayerGUID)
-        {
-            if (Player* pPlayer = Unit::GetPlayer(PlayerGUID))
-                pPlayer->FailQuest(QUEST_DEFIAS_BROTHERHOOD);
-        }
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        npc_escortAI::UpdateAI(diff);
-    }
+    void Reset() {}
 };
 
 bool QuestAccept_npc_defias_traitor(Player* pPlayer, Creature* pCreature, Quest const* quest)

@@ -22,6 +22,7 @@ SDCategory: Thousand Needles
 EndScriptData */
 
 /* ContentData
+npc_lakota_windsong
 npc_swiftmountain
 npc_plucky
 EndContentData */
@@ -95,15 +96,6 @@ struct TRINITY_DLL_DECL npc_lakota_windsongAI : public npc_escortAI
             m_creature->SummonCreature(NPC_GRIM_BANDIT,
             m_afBanditLoc[i+uiAmbushId][0], m_afBanditLoc[i+uiAmbushId][1], m_afBanditLoc[i+uiAmbushId][2], 0.0f,
             TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
-    }
-
-    void JustDied(Unit* pKiller)
-    {
-        if (Player* pPlayer = (Player*)Unit::GetUnit(*m_creature, PlayerGUID))
-        {
-            if (pPlayer->GetQuestStatus(QUEST_FREE_AT_LAST) == QUEST_STATUS_INCOMPLETE)
-                pPlayer->FailQuest(QUEST_FREE_AT_LAST);
-        }
     }
 };
 
@@ -181,15 +173,6 @@ struct TRINITY_DLL_DECL npc_paoka_swiftmountainAI : public npc_escortAI
             m_creature->SummonCreature(NPC_WYVERN,
             m_afWyvernLoc[i][0], m_afWyvernLoc[i][1], m_afWyvernLoc[i][2], 0.0f,
             TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
-    }
-
-    void JustDied(Unit* pKiller)
-    {
-        if (Player* pPlayer = (Player*)Unit::GetUnit(*m_creature, PlayerGUID))
-        {
-            if (pPlayer->GetQuestStatus(QUEST_HOMEWARD) == QUEST_STATUS_INCOMPLETE)
-                pPlayer->FailQuest(QUEST_HOMEWARD);
-        }
     }
 };
 

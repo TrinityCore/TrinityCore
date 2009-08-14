@@ -181,11 +181,7 @@ struct TRINITY_DLL_DECL npc_wounded_blood_elfAI : public npc_escortAI
         }
     }
 
-    void Reset()
-    {
-        if (!IsBeingEscorted)
-            m_creature->setFaction(1604);
-    }
+    void Reset() { }
 
     void EnterCombat(Unit* who)
     {
@@ -196,25 +192,6 @@ struct TRINITY_DLL_DECL npc_wounded_blood_elfAI : public npc_escortAI
     void JustSummoned(Creature* summoned)
     {
         summoned->AI()->AttackStart(m_creature);
-    }
-
-    void JustDied(Unit* killer)
-    {
-        if (!IsBeingEscorted)
-            return;
-
-        if (PlayerGUID)
-        {
-            // If NPC dies, player fails the quest
-            Player* pPlayer = Unit::GetPlayer(PlayerGUID);
-            if (pPlayer)
-                pPlayer->FailQuest(QUEST_ROAD_TO_FALCON_WATCH);
-        }
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        npc_escortAI::UpdateAI(diff);
     }
 };
 

@@ -159,11 +159,6 @@ struct TRINITY_DLL_DECL npc_deathstalker_erlandAI : public npc_escortAI
         case 1: DoScriptText(SAY_AGGRO_2, m_creature, who);break;
         }
     }
-
-    void UpdateAI(const uint32 diff)
-    {
-        npc_escortAI::UpdateAI(diff);
-    }
 };
 
 bool QuestAccept_npc_deathstalker_erland(Player* pPlayer, Creature* pCreature, Quest const* quest)

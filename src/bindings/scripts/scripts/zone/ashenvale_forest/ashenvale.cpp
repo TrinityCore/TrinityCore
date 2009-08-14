@@ -106,18 +106,6 @@ struct TRINITY_DLL_DECL npc_torekAI : public npc_escortAI
         summoned->AI()->AttackStart(m_creature);
     }
 
-    void JustDied(Unit* killer)
-    {
-        if (killer->GetEntry() == m_creature->GetEntry())
-            return;
-
-        if (PlayerGUID && !Completed)
-        {
-            if (Player* pPlayer = Unit::GetPlayer(PlayerGUID))
-                CAST_PLR(pPlayer)->FailQuest(QUEST_TOREK_ASSULT);
-        }
-    }
-
     void UpdateAI(const uint32 diff)
     {
         npc_escortAI::UpdateAI(diff);
@@ -212,9 +200,6 @@ struct TRINITY_DLL_DECL npc_ruul_snowhoofAI : public npc_escortAI
 
     void Reset()
     {
-        if (!IsBeingEscorted)
-            m_creature->setFaction(1602);
-
         GameObject* Cage = m_creature->FindNearestGameObject(GO_CAGE, 20);
         if (Cage)
             Cage->SetGoState(GO_STATE_READY);
@@ -223,16 +208,6 @@ struct TRINITY_DLL_DECL npc_ruul_snowhoofAI : public npc_escortAI
     void JustSummoned(Creature* summoned)
     {
         summoned->AI()->AttackStart(m_creature);
-    }
-
-    void JustDied(Unit* killer)
-    {
-        if (PlayerGUID)
-        {
-            Player* pPlayer = Unit::GetPlayer(PlayerGUID);
-            if (pPlayer)
-                CAST_PLR(pPlayer)->FailQuest(QUEST_FREEDOM_TO_RUUL);
-        }
     }
 
     void UpdateAI(const uint32 diff)
