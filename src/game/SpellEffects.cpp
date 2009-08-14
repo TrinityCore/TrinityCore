@@ -1909,18 +1909,10 @@ void Spell::EffectDummy(uint32 i)
             {
                 // No power, dismiss Gargoyle
                 if (m_caster->GetPower(POWER_RUNIC_POWER)<30)
-                    m_caster->CastSpell((Unit*)NULL,50515,true);
+                    m_caster->RemoveAurasDueToSpell(50514, m_caster->GetGUID());
                 else
                     m_caster->ModifyPower(POWER_RUNIC_POWER,-30);
 
-                return;
-            }
-            // Dismiss Gargoyle
-            else if (m_spellInfo->Id == 50515)
-            {
-                // FIXME: gargoyle should fly away
-                unitTarget->setDeathState(JUST_DIED);
-                m_caster->RemoveAurasDueToSpell(50514);
                 return;
             }
             break;

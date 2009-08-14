@@ -940,6 +940,16 @@ bool Guardian::InitStatsForLevel(uint32 petlevel)
                     }
                     break;
                 }
+                case 27829: // Ebon Gargoyle
+                {
+                    SetBonusDamage( int32(m_owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.4f));
+                    if(!pInfo)
+                    {
+                        SetCreateMana(28 + 10*petlevel);
+                        SetCreateHealth(28 + 30*petlevel);
+                    }
+                    break;
+                }
                 default:
                 {
                     if(!pInfo)
